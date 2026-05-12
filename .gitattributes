@@ -1,0 +1,16 @@
+# Automatischer Line-Ending-Handling: text-Files werden im Repo
+# als LF gespeichert, in der Working Copy plattform-typisch (CRLF auf Windows)
+* text=auto
+
+# Explizite Endings fuer kritische Files
+*.html text eol=lf
+*.js   text eol=lf
+*.py   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+
+# Binaer / sonst egal
+*.pbix binary
+*.png  binary
+*.jpg  binary
+*.pdf  binary

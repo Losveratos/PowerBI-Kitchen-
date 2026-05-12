@@ -1,0 +1,2965 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daten-WG · Learn Buckets · Podcast & Tutorials</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg:        #FAFAF7;
+  --bg-card:   #FFFFFF;
+  --bg-soft:   #F2EEE6;
+  --bg-deep:   #16181C;
+
+  --ink:        #0F1E2E;
+  --ink-soft:  #475569;
+  --ink-mute:  #94A3B8;
+
+  --line:        rgba(15, 30, 46, 0.10);
+  --line-strong: rgba(15, 30, 46, 0.20);
+
+  /* Bucket Farben */
+  --c-update:   #C25A2D;  /* Orange - News & Updates */
+  --c-fabric:   #1E3A5F;  /* Deep Blue - Fabric */
+  --c-model:    #2A857A;  /* Teal - Datenmodellierung */
+  --c-gov:      #8B2E2E;  /* Red - Governance */
+  --c-viz:      #5C2E2E;  /* Dark - Visualisierung */
+  --c-pbi:      #166088;  /* Blue - Power BI Deep Dive */
+  --c-career:   #B8336A;  /* Pink - Karriere & Community */
+  --c-strategy: #5B3B7A;  /* Purple - Digitalisierung */
+  --c-event:    #B8860B;  /* Gold - Event */
+
+  --accent:      #C25A2D;
+  --accent-info: #166088;
+
+  --shadow-sm: 0 1px 2px rgba(15,30,46,.04), 0 1px 3px rgba(15,30,46,.06);
+  --shadow-md: 0 4px 12px rgba(15,30,46,.08), 0 2px 4px rgba(15,30,46,.06);
+  --shadow-lg: 0 24px 60px rgba(15,30,46,.18), 0 8px 24px rgba(15,30,46,.10);
+
+  --radius-sm: 6px;
+  --radius:    10px;
+  --radius-lg: 16px;
+
+  --serif: 'Fraunces', Georgia, serif;
+  --sans:  'Geist', -apple-system, sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 12% -5%, rgba(91, 59, 122, 0.05), transparent 35%),
+    radial-gradient(circle at 95% 15%, rgba(42, 133, 122, 0.05), transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(184, 51, 106, 0.03), transparent 50%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+button { font: inherit; color: inherit; cursor: pointer; border: none; background: none; }
+a { color: inherit; text-decoration: none; }
+
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 48px 32px 96px;
+}
+
+/* ========== STICKY NAV ========== */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(250, 250, 247, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  margin: 0 -32px 40px;
+  padding: 14px 32px;
+}
+.topnav-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.topnav-brand {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  margin-right: auto;
+}
+.topnav-brand em { font-style: italic; color: var(--accent); }
+.topnav-link {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  transition: all .18s ease;
+  white-space: nowrap;
+}
+.topnav-link:hover {
+  background: var(--ink);
+  color: white;
+}
+@media (max-width: 1100px) {
+  .topnav { display: none; }
+  .container { padding-top: 32px; }
+}
+
+/* ========== HEADER ========== */
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: end;
+  padding-bottom: 28px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 22px;
+}
+.eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--ink-soft); }
+.title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(2.2rem, 5.5vw, 4.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-variation-settings: "opsz" 144;
+  margin-bottom: 16px;
+}
+.title em { font-style: italic; font-weight: 300; color: var(--accent); }
+.subtitle {
+  font-size: 17px;
+  color: var(--ink-soft);
+  max-width: 62ch;
+  line-height: 1.5;
+}
+.header-meta {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.05em;
+}
+.header-meta strong {
+  display: block;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+@media (max-width: 900px) {
+  .header { grid-template-columns: 1fr; }
+  .header-meta { text-align: left; }
+}
+
+/* ========== ORIENTATION ========== */
+.start-here {
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(42, 133, 122, 0.04) 100%);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--c-model);
+  border-radius: var(--radius-lg);
+  padding: 26px 30px;
+  margin-bottom: 40px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 22px;
+  align-items: start;
+}
+.start-here-icon {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 44px;
+  color: var(--c-model);
+  line-height: 1;
+}
+.start-here-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 21px;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+.start-here-text {
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  max-width: 72ch;
+}
+.start-here-text strong { color: var(--ink); font-weight: 600; }
+.start-here-text p { margin-bottom: 8px; }
+.start-here-text p:last-child { margin-bottom: 0; }
+@media (max-width: 700px) {
+  .start-here { grid-template-columns: 1fr; padding: 22px 20px; }
+  .start-here-icon { font-size: 36px; }
+}
+
+/* ========== FILTER BAR ========== */
+.filter-bar {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 22px 26px;
+  margin-bottom: 36px;
+  position: sticky;
+  top: 60px;
+  z-index: 40;
+  box-shadow: var(--shadow-sm);
+}
+@media (max-width: 1100px) { .filter-bar { top: 0; border-radius: 0; margin: 0 -32px 28px; border-left: none; border-right: none; } }
+
+.filter-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.filter-row:last-child { margin-bottom: 0; }
+
+.filter-search {
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 9px 14px;
+  transition: all .18s ease;
+}
+.filter-search:focus-within {
+  background: var(--bg-card);
+  border-color: var(--ink-soft);
+  box-shadow: 0 0 0 3px rgba(15,30,46,.05);
+}
+.filter-search svg {
+  width: 14px; height: 14px;
+  color: var(--ink-mute);
+  flex-shrink: 0;
+}
+.filter-search input {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  font: inherit;
+  color: var(--ink);
+  font-size: 14px;
+}
+.filter-search input::placeholder { color: var(--ink-mute); }
+
+.filter-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag-chip {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: 100px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+.tag-chip:hover {
+  border-color: var(--ink-soft);
+  color: var(--ink);
+}
+.tag-chip.active {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+.tag-chip .tag-count {
+  margin-left: 6px;
+  opacity: 0.55;
+  font-size: 10px;
+}
+.tag-chip.rare { display: none; }
+.tag-list.show-all .tag-chip.rare { display: inline-flex; align-items: center; }
+.tag-toggle {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: 100px;
+  border: 1px dashed var(--line-strong);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+.tag-toggle:hover {
+  border-color: var(--ink-soft);
+  color: var(--ink);
+}
+
+.filter-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.filter-meta strong { color: var(--ink); font-weight: 600; }
+.filter-reset {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 4px 0;
+  border-bottom: 1px solid transparent;
+}
+.filter-reset:hover { border-bottom-color: var(--accent); }
+
+/* ========== BUCKET OVERVIEW ========== */
+.bucket-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 56px;
+}
+.bucket-tile {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--bucket-color, var(--ink-mute));
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  transition: all .2s ease;
+  display: block;
+  cursor: pointer;
+}
+.bucket-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--ink-soft);
+  border-left-color: var(--bucket-color, var(--ink-mute));
+}
+.bucket-tile-num {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+}
+.bucket-tile-name {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 14.5px;
+  letter-spacing: -0.005em;
+  margin-top: 3px;
+  font-variation-settings: "opsz" 9;
+}
+.bucket-tile-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+  margin-top: 5px;
+  letter-spacing: 0.05em;
+}
+
+/* ========== BUCKET SECTION ========== */
+.bucket-section {
+  margin-bottom: 72px;
+  scroll-margin-top: 200px;
+}
+.bucket-section.hidden { display: none; }
+
+.bucket-head {
+  display: flex;
+  align-items: baseline;
+  gap: 22px;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.bucket-num {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 30px;
+  color: var(--ink-mute);
+  font-variation-settings: "opsz" 144;
+  min-width: 44px;
+}
+.bucket-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  letter-spacing: -0.015em;
+  flex: 1;
+  font-variation-settings: "opsz" 144;
+}
+.bucket-title em { font-style: italic; font-weight: 400; color: var(--bucket-color, var(--accent)); }
+.bucket-hint {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bucket-hint::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bucket-color, var(--ink-mute));
+}
+.bucket-intro {
+  font-size: 15px;
+  color: var(--ink-soft);
+  max-width: 75ch;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* ========== VIDEO CARDS ========== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+.video-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all .2s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+.video-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--line-strong);
+}
+.video-card.hidden { display: none; }
+
+.video-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.video-card-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bucket-color, var(--ink-mute));
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.video-card-eyebrow::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--bucket-color, var(--ink-mute));
+  flex-shrink: 0;
+}
+.video-card-lang {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  background: var(--bg-soft);
+  padding: 3px 7px;
+  border-radius: 3px;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.video-card-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+  font-variation-settings: "opsz" 144;
+}
+.video-card-guest {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+.video-card-guest::before {
+  content: 'mit ';
+  font-style: normal;
+  color: var(--ink-mute);
+}
+.video-card-guest.solo::before { content: ''; }
+
+.video-card-desc {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  margin-bottom: 14px;
+  flex: 1;
+}
+
+.video-card-meta {
+  display: flex;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-mute);
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.video-card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.video-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+.video-card-tag {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 100px;
+  background: var(--bg-soft);
+  color: var(--ink-soft);
+  border: 1px solid transparent;
+}
+
+.video-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 7px 13px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .18s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.btn svg { width: 12px; height: 12px; }
+.btn-primary {
+  background: var(--ink);
+  color: white;
+}
+.btn-primary:hover {
+  background: var(--bucket-color, var(--accent));
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: var(--line-strong);
+}
+.btn-ghost:hover {
+  border-color: var(--ink-soft);
+  color: var(--ink);
+  background: var(--bg-soft);
+}
+
+/* Chapters (expanded card section) */
+.video-card-chapters {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: none;
+}
+.video-card.expanded .video-card-chapters { display: block; }
+
+/* Video embed (lazy-loaded YouTube iframe) */
+.video-card-embed {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: none;
+}
+.video-card.expanded .video-card-embed { display: block; }
+.video-embed-placeholder {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--bg-soft) center / cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.video-embed-placeholder:hover {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+.embed-play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 14px;
+  padding-left: 3px;
+}
+.video-card-embed iframe {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: none;
+  border-radius: var(--radius-sm);
+  display: block;
+}
+.chapters-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 10px;
+}
+.chapter-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+.chapter-list::-webkit-scrollbar { width: 5px; }
+.chapter-list::-webkit-scrollbar-track { background: var(--bg-soft); border-radius: 3px; }
+.chapter-list::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 3px; }
+.chapter-item {
+  display: flex;
+  gap: 10px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  padding: 4px 0;
+  color: var(--ink-soft);
+}
+.chapter-time {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--bucket-color, var(--accent));
+  font-weight: 500;
+  flex-shrink: 0;
+  min-width: 44px;
+}
+.chapter-text {}
+.chapter-text strong { color: var(--ink); font-weight: 500; }
+
+/* ========== NO RESULTS ========== */
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink-mute);
+  font-style: italic;
+}
+.no-results.visible { display: block; }
+.no-results { display: none; }
+
+/* ========== FOOTER ========== */
+.footer {
+  margin-top: 80px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.footer-brand {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.footer-brand em { font-style: italic; color: var(--accent); }
+.footer-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.05em;
+}
+.footer-links {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.footer-link {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  transition: all .18s ease;
+}
+.footer-link:hover {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+@media (max-width: 700px) {
+  .footer { grid-template-columns: 1fr; text-align: left; }
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to    { opacity: 1; transform: translateY(0); }
+}
+.bucket-section { animation: fadeUp .5s ease backwards; }
+.video-card { animation: fadeUp .4s ease backwards; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     STICKY TOP NAV
+============================================================ -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="topnav-brand">Daten-WG · <em>Learn Buckets</em></div>
+    <a class="topnav-link" href="#bucket-1">Updates</a>
+    <a class="topnav-link" href="#bucket-2">Fabric</a>
+    <a class="topnav-link" href="#bucket-3">Modellierung</a>
+    <a class="topnav-link" href="#bucket-4">Self-Service</a>
+    <a class="topnav-link" href="#bucket-5">Viz / IBCS</a>
+    <a class="topnav-link" href="#bucket-6">Power BI</a>
+    <a class="topnav-link" href="#bucket-7">Karriere</a>
+    <a class="topnav-link" href="#bucket-8">Strategie</a>
+    <a class="topnav-link" href="#bucket-9">Event</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ============================================================
+     HEADER
+============================================================ -->
+<header class="header">
+  <div>
+    <div class="eyebrow">PODCAST & TUTORIALS · DEUTSCH / ENGLISH</div>
+    <h1 class="title">Daten-WG<br><em>nach Themen</em> sortiert</h1>
+    <p class="subtitle">Alle Folgen, geclustert in <strong>9 Learn Buckets</strong> — von Microsoft Fabric über Datenmodellierung und IBCS bis Self-Service und Karriere. Filter nach Tag, suche im Volltext, klicke eine Karte für Kapitel-Sprungmarken.</p>
+  </div>
+  <div class="header-meta">
+    <strong>v 3 · Channel-Guide</strong>
+    72 Folgen · DE & EN<br>
+    9 Themen-Cluster<br>
+    Stand · Mai 2026
+  </div>
+</header>
+
+<!-- ============================================================
+     ORIENTATION
+============================================================ -->
+<div class="start-here">
+  <div class="start-here-icon">i</div>
+  <div>
+    <h2 class="start-here-title">Wie nutzt du diese Seite?</h2>
+    <div class="start-here-text">
+      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 72 Folgen sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
+      <p>Jede Folge ist eine Karte mit Gast, Dauer, kurzer Zusammenfassung und Tags. Ein Klick auf die Karte zeigt die <strong>Kapitel-Timestamps</strong> (bei 58 Folgen detailliert eingepflegt) — du kannst direkt zur Stelle springen, die dich interessiert.</p>
+      <p>Empfohlener Einstieg, wenn du den Kanal noch nicht kennst: Quarterly-Updates für die Tools-Lage, dann das Bucket, das gerade zu deiner Arbeit passt.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     FILTER BAR
+============================================================ -->
+<div class="filter-bar">
+  <div class="filter-row">
+    <label class="filter-search" for="search-input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search-input" type="text" placeholder="Suche nach Titel, Gast, Thema…" autocomplete="off">
+    </label>
+    <div class="filter-meta">
+      <span><strong id="result-count">72</strong> von 72 Folgen</span>
+      <button class="filter-reset" id="reset-filters">Filter zurücksetzen</button>
+    </div>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Tags</span>
+    <div class="tag-list" id="tag-list"><!-- gerendert per JS --></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     BUCKET OVERVIEW
+============================================================ -->
+<div class="bucket-grid">
+  <a class="bucket-tile" href="#bucket-1" style="--bucket-color: var(--c-update);">
+    <div class="bucket-tile-num">01 · QUARTERLY</div>
+    <div class="bucket-tile-name">Updates & News</div>
+    <div class="bucket-tile-count">17 Folgen</div>
+  </a>
+  <a class="bucket-tile" href="#bucket-2" style="--bucket-color: var(--c-fabric);">
+    <div class="bucket-tile-num">02 · PLATTFORM</div>
+    <div class="bucket-tile-name">Microsoft Fabric</div>
+    <div class="bucket-tile-count">10 Folgen</div>
+  </a>
+  <a class="bucket-tile" href="#bucket-3" style="--bucket-color: var(--c-model);">
+    <div class="bucket-tile-num">03 · GRUNDLAGE</div>
+    <div class="bucket-tile-name">Datenmodellierung</div>
+    <div class="bucket-tile-count">9 Folgen</div>
+  </a>
+  <a class="bucket-tile" href="#bucket-4" style="--bucket-color: var(--c-gov);">
+    <div class="bucket-tile-num">04 · GOVERNANCE</div>
+    <div class="bucket-tile-name">Self-Service</div>
+    <div class="bucket-tile-count">2 Folgen</div>
+  </a>
+  <a class="bucket-tile" href="#bucket-5" style="--bucket-color: var(--c-viz);">
+    <div class="bucket-tile-num">05 · CRAFT</div>
+    <div class="bucket-tile-name">Visualisierung</div>
+    <div class="bucket-tile-count">8 Folgen</div>
+  </a>
+  <a class="bucket-tile" href="#bucket-6" style="--bucket-color: var(--c-pbi);">
+    <div class="bucket-tile-num">06 · TOOL</div>
+    <div class="bucket-tile-name">Power BI Deep Dive</div>
+    <div class="bucket-tile-count">12 Folgen</div>
+  </a>
+  <a class="bucket-tile" href="#bucket-7" style="--bucket-color: var(--c-career);">
+    <div class="bucket-tile-num">07 · MENSCH</div>
+    <div class="bucket-tile-name">Karriere & Community</div>
+    <div class="bucket-tile-count">5 Folgen</div>
+  </a>
+  <a class="bucket-tile" href="#bucket-8" style="--bucket-color: var(--c-strategy);">
+    <div class="bucket-tile-num">08 · BIG PICTURE</div>
+    <div class="bucket-tile-name">Strategie</div>
+    <div class="bucket-tile-count">3 Folgen</div>
+  </a>
+  <a class="bucket-tile" href="#bucket-9" style="--bucket-color: var(--c-event);">
+    <div class="bucket-tile-num">09 · EVENT</div>
+    <div class="bucket-tile-name">Daten-WG 2025</div>
+    <div class="bucket-tile-count">6 Folgen</div>
+  </a>
+</div>
+
+<!-- ============================================================
+     BUCKET SECTIONS (rendered by JS into this container)
+============================================================ -->
+<main id="buckets-container"></main>
+
+<div class="no-results" id="no-results">
+  Keine Folge passt zu deiner Suche. Setz die Filter zurück oder probier einen anderen Begriff.
+</div>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer class="footer">
+  <div>
+    <div class="footer-brand"><em>Daten-WG</em> · Community Podcast</div>
+    <div class="footer-meta" style="margin-top: 4px;">Alle 2 Wochen · Spin-Off von AI or DIE · Köln</div>
+  </div>
+  <div class="footer-links">
+    <a class="footer-link" href="https://www.youtube.com/@Daten-WG" target="_blank" rel="noopener">YouTube</a>
+    <a class="footer-link" href="https://www.daten-wg.com" target="_blank" rel="noopener">daten-wg.com</a>
+    <a class="footer-link" href="https://www.daten-wg.com/daten-wg-2026" target="_blank" rel="noopener">Daten-WG 2026</a>
+    <a class="footer-link" href="https://podcasters.spotify.com/pod/show/daten-wg" target="_blank" rel="noopener">Spotify</a>
+  </div>
+</footer>
+
+</div>
+<!-- /container -->
+
+<script>
+/* ============================================================
+   DATA · 9 BUCKETS · 29 EPISODES
+   ============================================================ */
+const BUCKETS = [
+  {
+    id: 'bucket-1',
+    num: '01',
+    color: 'var(--c-update)',
+    name: 'Updates',
+    title: 'Quarterly · <em>Updates & News</em>',
+    intro: 'Vier Mal im Jahr räumt das Quarterly-Format auf, was sich in der Microsoft Data Platform getan hat: neue Power BI Features, Fabric-Ankündigungen, was GA geht, was Preview bleibt. Wenn du nur ein Format hörst, dann das hier — komprimiertes Branchen-Briefing.',
+    hint: 'Alle 3 Monate'
+  },
+  {
+    id: 'bucket-2',
+    num: '02',
+    color: 'var(--c-fabric)',
+    name: 'Fabric',
+    title: 'Microsoft <em>Fabric</em>',
+    intro: 'Lakehouse, OneLake, F-SKUs, Direct Lake — Fabric ist die strategische Wette von Microsoft. Hier geht es um die ehrlichen Fragen: Für wen ist es wirklich? Wo sind die Stolperfallen? Wann lohnt es sich, wann nicht? Mit echten Praxis-Stimmen statt Marketing.',
+    hint: 'Plattform · Lakehouse'
+  },
+  {
+    id: 'bucket-3',
+    num: '03',
+    color: 'var(--c-model)',
+    name: 'Modellierung',
+    title: 'Datenmodellierung & <em>Architektur</em>',
+    intro: 'Das Datenmodell entscheidet, ob ein Report skaliert oder kollabiert. Hier geht es um Stern-Schema vs. Data Vault, Tabellen-Denken statt Listen-Denken, Metadaten als Werkzeug — und warum Modellierung am Ende auch Governance ist.',
+    hint: 'Stern · DAX · Vault'
+  },
+  {
+    id: 'bucket-4',
+    num: '04',
+    color: 'var(--c-gov)',
+    name: 'Self-Service',
+    title: 'Self-Service & <em>Governance</em>',
+    intro: 'Self-Service-BI wurde seit 2011 versprochen — funktioniert es? Wo endet Citizen Developer und wo beginnt Schatten-IT? Welche Guardrails braucht es heute mit KI und Agents? Tiefe Diskussionen statt Floskeln.',
+    hint: 'Citizen · Shadow IT'
+  },
+  {
+    id: 'bucket-5',
+    num: '05',
+    color: 'var(--c-viz)',
+    name: 'Visualisierung',
+    title: 'Visualisierung & <em>IBCS</em>',
+    intro: 'Vom langweiligen IBCS-Balken bis zur Deneb-Custom-Visual: Wie kommunizierst du mit Daten so, dass Leute zuhören? Mit Vorlagen, Notation, Write-Back-Mustern — und einer gesunden Skepsis gegenüber bunten Tachos.',
+    hint: 'IBCS · Deneb · Charts'
+  },
+  {
+    id: 'bucket-6',
+    num: '06',
+    color: 'var(--c-pbi)',
+    name: 'Power BI',
+    title: 'Power BI · <em>Deep Dive & Vergleiche</em>',
+    intro: 'Zehn Jahre Power BI sind durch — was hat sich wirklich verändert? Wie steht Power BI gegenüber Qlik, Tableau & Co.? Und wie skaliert man jenseits des PBIX-Files in echte Enterprise-Lösungen?',
+    hint: 'PBIX · Pro · Vergleich'
+  },
+  {
+    id: 'bucket-7',
+    num: '07',
+    color: 'var(--c-career)',
+    name: 'Karriere',
+    title: 'Karriere & <em>Community</em>',
+    intro: 'Datenarbeit ist nicht nur Technik. Hier sprechen Gäste über ihren Weg ins Daten-Feld, über User-Groups, über den Mut, eigene Wege zu gehen statt sich auf eine Nische zu pressen — und über das, was Daten-Profis menschlich brauchen.',
+    hint: 'MVPs · User Groups'
+  },
+  {
+    id: 'bucket-8',
+    num: '08',
+    color: 'var(--c-strategy)',
+    name: 'Strategie',
+    title: 'Digitalisierung & <em>Strategie</em>',
+    intro: 'Der Blick aufs Big Picture: Was haben 20 Jahre Digitalisierung wirklich gebracht? Was funktioniert in deutschen Mittelstand-Realitäten, was bleibt PowerPoint-Folie?',
+    hint: 'Big Picture'
+  },
+  {
+    id: 'bucket-9',
+    num: '09',
+    color: 'var(--c-event)',
+    name: 'Event',
+    title: 'Daten-WG <em>Konferenz</em>',
+    intro: 'Rückblicke und Eindrücke von der Daten-WG-Konferenz. Was wurde diskutiert, welche Sessions sind nachhörbar, was nehmen die Teilnehmer mit nach Hause?',
+    hint: 'Köln · Community'
+  }
+];
+
+const EPISODES = [
+
+  /* ========== BUCKET 1: QUARTERLY ========== */
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update April 2026',
+    guest: 'Solo',
+    solo: true,
+    date: 'April 2026',
+    duration: '5 min',
+    lang: 'DE',
+    desc: 'Es gibt einige kompakte, aber feine Updates, die vor allem das Front-End betreffen.',
+    tags: ['Update', 'Direct Lake', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'fbpu8zLG3cc',
+    chapters: [
+      ['00:00', 'Intro: April Update, compact and frontend-focused'],
+      ['00:25', 'Canvas settings: Full HD finally available as a finished option'],
+      ['00:49', 'Tile layout: fixed width for map walls'],
+      ['01:15', 'Cross filter now also works in horizontal orientation'],
+      ['01:55', 'Preview: DAX columns in Direct Lake'],
+      ['02:58', 'User context awareness for DAX columns'],
+      ['04:22', 'Advertisement: Data-WG agenda is live']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Fabric & Power BI Quarterly · 2026-2',
+    guest: 'Gabi Münster',
+    solo: false,
+    date: '19.04.2026',
+    duration: '58 min',
+    lang: 'DE',
+    desc: 'Die erste FabCon 2026 ist durch — Gabi Münster ordnet mit Artur die Ankündigungen ein: Custom Totals, Translytical Task Flows GA, OneLake Security, Fabric Planning mit Lumel. Was bedeutet das alles für Pro-User und Dataflow-Strecken? Wie offen ist Fabric wirklich?',
+    tags: ['Fabric', 'Power BI', 'Update', 'OneLake', 'Governance', 'Translytical', 'DE', 'Quarterly', 'SSIS'],
+    podcastUrl: 'https://www.podcast.de/episode/702965224/fabric-power-bi-quarterly-2026-2',
+    ytId: 'pTTYySb0Cyg',
+    chapters: [
+      ['00:00', 'Intro: FabCon 2026 und die erste Welle der Ankündigungen'],
+      ['00:31', 'Power BI: Custom Totals in Tabelle und Matrix'],
+      ['03:07', 'Visual Calculations als Shortcut, nicht als Modell-Ersatz'],
+      ['04:25', 'PBR als neuer Standard für Power BI-Modelle'],
+      ['07:53', 'Translytical Task Flows sind GA'],
+      ['11:00', 'Dataflows Gen 1 wird Legacy — was heißt das wirklich?'],
+      ['15:37', 'Fabric Toolbox: Migration Accelerator für Gen 1'],
+      ['21:26', 'SCD Typ 2 im Copy Job (Preview) — das Ende vieler Notebooks'],
+      ['24:38', 'Plattform: SAP GA, Snowflake und Databricks bidirektional, Airflow und DBT'],
+      ['26:53', 'OneLake Security: Interoperabilität statt Vendor Lock-in'],
+      ['33:30', 'Quality of Life: Papierkorb und Overage Billing'],
+      ['42:00', 'Fabric Planning mit LUMEL: First-Party-Workload ohne Extra-Lizenz'],
+      ['53:23', 'Planning vs. Translytical Task Flows: zwei Werkzeuge, zwei Jobs'],
+      ['56:00', 'Daten-WG 2026, Data Grillen und SQL Bits']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update März 2026',
+    guest: 'Solo',
+    solo: true,
+    date: 'März 2026',
+    duration: '8 min',
+    lang: 'DE',
+    desc: 'Einige haben lange darauf gewartet: Es ist nun möglich, individuelle Summen in Tabellen und Matrizen zu erstellen. Unter anderem auch Summen von semi-additiven Werten, d.h. die "Measure Total"-Kontroverse ist damit gelöst.',
+    tags: ['Update', 'Fabric', 'Power BI', 'TMDL', 'DE'],
+    podcastUrl: null,
+    ytId: 'ASwcPvbMRZc',
+    chapters: [
+      ['00:00', '<Untitled Chapter 1>'],
+      ['00:16', 'Translytical Task Flows – now GA'],
+      ['00:41', 'New visual interface & default settings'],
+      ['01:36', 'HD resolution as the new default page size'],
+      ['02:28', 'Custom Totals (Measure Totals controversy resolved!)'],
+      ['05:37', 'Guide lines for row labels'],
+      ['05:57', 'User-defined DAX functions via GUI'],
+      ['06:21', 'TMDL now in web modeling'],
+      ['07:05', 'Planning Items in Fabric'],
+      ['07:53', 'Conclusion & Outlook']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update Februar 2026',
+    guest: 'Solo',
+    solo: true,
+    date: 'Februar 2026',
+    duration: '3 min',
+    lang: 'DE',
+    desc: 'Der neue Text-Filter heißt jetzt Input-Filter und ist GA (generally availaible!) Flexibles Filtern wird möglich und wieder verschwinden einige Workrounds... außerdem: neue DAX-Funktionen',
+    tags: ['Update', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'u-lgbDfIlLg',
+    chapters: [
+      ['00:00', 'Intro & Highlight: Input Slicer GA'],
+      ['00:23', 'Filter logic options: AND/OR, begins with, does not contain'],
+      ['01:21', 'Anti-filter & fewer DAX workarounds'],
+      ['02:18', 'New DAX functions NAMEOF and TABLEOF']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Fabric & Power BI Quarterly · 2026-1',
+    guest: 'Gabi Münster',
+    solo: false,
+    date: 'Januar 2026',
+    duration: '58 min',
+    lang: 'DE',
+    desc: 'Gabi und Artur schauen auf die letzten Monate in Fabric: von der allumfassenden KI über bessere Integrationen mit Partnern bis zum Button-Slicer und SharePoint-Shortcut. PBIR/PBIP wird zum Standard, RLS/CLS auch fürs Mirroring, Fabric IQ & Ontologien aus Ignite.',
+    tags: ['Fabric', 'Power BI', 'Update', 'PBIR', 'Mirroring', 'Roadmap', 'DE', 'Quarterly', 'PBIP', 'TMDL'],
+    podcastUrl: 'https://www.podcast.de/episode/699236038/fabric-power-bi-quarterly-2026-1',
+    ytId: 'TYp5xCAU2AU',
+    chapters: [
+      ['00:53', 'Power BI Updates + Q&A-Feature fliegt raus'],
+      ['02:24', 'Button-Slicer offiziell + warum das so mächtig ist'],
+      ['03:11', 'Write-Back / "Eingabe"-Thema (Text-/Input-Slicer Grenzen)'],
+      ['03:46', 'Power BI im Web fast gleichwertig (Themes + Performance Analyzer)'],
+      ['05:29', 'PBIR/PBIP & "Code First" – GA-Story + Default-Plan'],
+      ['09:01', 'VS Code + TMDL + MCP für Power BI (Measures schnell optimieren)'],
+      ['11:48', 'External Tools & Solution Accelerators (Fabric Toolbox, Partner-Tools)'],
+      ['16:46', 'Search Protection auf Workspace-Ebene (Kapazität pausen, Mission Critical)'],
+      ['20:50', 'Security kommt "leise": RLS/CLS, auch für Mirroring/gespiegelte Objekte'],
+      ['25:03', 'Mirroring & Integration (SAP/Oracle/Snowflake/Databricks, SharePoint-Shortcuts)'],
+      ['33:30', 'Ignite / Fabric IQ & Ontologien + Agents (Business Context als Layer)'],
+      ['49:12', 'Wünsch-dir-was: Translytical, UDFs, CICD/Dataflows parametrisierbar'],
+      ['54:53', 'Events (SQL-Konferenz, Datagrillen, SQL Bits, Daten-WG)']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update Januar 2026',
+    guest: 'Solo',
+    solo: true,
+    date: 'Januar 2026',
+    duration: '4 min',
+    lang: 'DE',
+    desc: 'Stop starting & start finishing: die modernen Quick-Tipps sind GA. Zudem gibt es Neues von den Field Parameters, kleinere Quality of Life Updates, Smileys auf Karten und das Q&A Feature wird bald endgültig verschwinden.',
+    tags: ['Update', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'TAM5AAZqh7k',
+    chapters: [
+      ['00:00', 'Intro, Overview, Copilot Everywhere'],
+      ['00:40', 'Q&A Feature Officially Discontinued (Finally!)'],
+      ['01:19', 'New Modern Quick Tips Including Drillthrough'],
+      ['02:02', 'Field Parameter Updates & Quality-of-Life Improvements'],
+      ['03:19', 'Azure Maps: Custom Markers']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update November 2025',
+    guest: 'Solo',
+    solo: true,
+    date: 'November 2025',
+    duration: '5 min',
+    lang: 'DE',
+    desc: 'Das Power BI Update im November 2025 bringt die neue Karte GA und ein neues Visual für Bilder. Aber auch KI und MCP sind diesmal eine Erwähnung wert.',
+    tags: ['Update', 'Fabric', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'XJZxYNIeEVc',
+    chapters: [
+      ['00:00', 'Intro & Ignite Kontext'],
+      ['00:16', 'Neues Card Visual ist GA'],
+      ['01:17', 'Neues Image Visual'],
+      ['02:37', 'Auto-Resize für Matrix'],
+      ['03:30', 'Weitere Ignite-News (KI & Copilot)'],
+      ['04:24', 'Abschluss & Ausblick']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update Oktober 2025',
+    guest: 'Solo',
+    solo: true,
+    date: 'Oktober 2025',
+    duration: '6 min',
+    lang: 'DE',
+    desc: 'Das Power BI Update im Oktober 2025 bringt wieder neues von den Core Visuals: der Button Slicer ist GA und so gut wie noch nie!',
+    tags: ['Update', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'LVSttJlhrqM',
+    chapters: [
+      ['00:00', 'Einführung & Überblick'],
+      ['00:33', 'Button Slicer ist GA'],
+      ['01:01', 'Neue Features im Button Slicer'],
+      ['02:52', 'Tabellen & Matrizen – Auto Expand'],
+      ['03:54', 'Performance Analyzer im Web'],
+      ['04:21', 'Power Query Export & Themes im Web']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Fabric & Power BI Quarterly · 2025 Q4',
+    guest: 'Quarterly-Runde',
+    solo: true,
+    date: 'Q4 2025',
+    duration: '1h 5 min',
+    lang: 'DE',
+    desc: 'Jahresabschluss-Quarterly: Welche Themen haben 2025 die BI-Welt bewegt, was kommt 2026? Inklusive Reflexion auf Fabric-GA-Welle und Copilot-Integration.',
+    tags: ['Fabric', 'Power BI', 'Update', 'Copilot', 'Jahresrückblick', 'DE', 'Quarterly', 'Direct Lake'],
+    podcastUrl: 'https://www.podcast.de/episode/695085342/fabric-power-bi-quarterly-2025-q4',
+    ytId: '9TsHkV8sIRo',
+    chapters: [
+      ['00:00', 'Intro'],
+      ['02:59', 'Power BI – Volle Web-Modellierung jetzt GA: Import- und Direct Lake-Modelle lassen sich vollständig im Web bearbeiten.'],
+      ['08:04', 'Power BI – User Defined Functions (DAX) eingeführt: Wiederverwendbare DAX-Logik mit echten Eingabeparametern.'],
+      ['12:22', 'Fabric – Translytical UDFs & Writeback mit Freitext: DAX-Writebacks auf SQL-Ziele möglich, inkl. Texteingaben.'],
+      ['17:15', 'Data Engineering – Materialized Lake Views mit Incremental Refresh: Persistente Spark-Views jetzt GA.'],
+      ['19:29', 'Data Engineering – Fabric Spark Runtime 2.0 angekündigt: Spark 4.0 und Delta 4.0 angekündigt.'],
+      ['20:54', 'Data Engineering – Shortcut-Transformationen jetzt möglich: CSV/Parquet direkt zu Delta im Shortcut konvertieren.'],
+      ['24:00', 'Data Engineering – Mirroring für Oracle, Snowflake, SAP: Zero-ETL-Ansatz mit bidirektionalem Zugriff.'],
+      ['27:23', 'Data Factory – Dataflows Gen2 stark verbessert: Weniger CU-Verbrauch, schneller, mit neuen Filter- und Zieloptionen.'],
+      ['35:31', 'Dev & Admin – Fabric CLI jetzt GA & Open Source: Neue Automatisierungsmöglichkeiten für Profis.'],
+      ['53:13', 'Security – Workspace-Level Outbound Protection jetzt GA: Erstes GA-Feature im Advanced-Security-Komplex.']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update September 2025',
+    guest: 'Solo',
+    solo: true,
+    date: 'September 2025',
+    duration: '12 min',
+    lang: 'DE',
+    desc: 'Das Power BI Update nach der FABCON Europe 2025 bringt etwas, was lange erwartet wurde: Benutzerdefinierte DAX-Funktionen ermöglichen es, komplexe Logiken zentral zu definieren und wiederzuverwenden.',
+    tags: ['Update', 'Power BI', 'TMDL', 'DE'],
+    podcastUrl: null,
+    ytId: '6gQiIbyhWEc',
+    chapters: [
+      ['00:00', '<Untitled Chapter 1>'],
+      ['00:30', 'Was sind benutzerdefinierte DAX-Funktionen?'],
+      ['01:13', 'Kein GUI-Support – wo Du DAX-Funktionen wirklich baust'],
+      ['01:47', 'Beispiel: Dynamische Balken als Funktion'],
+      ['02:45', 'Nutzung und Anpassung im Modell'],
+      ['03:49', 'Parameterisieren mit Metrics'],
+      ['04:48', 'Wiederverwendung mit beliebigen Measures'],
+      ['06:32', 'Maintenance leicht gemacht'],
+      ['07:23', 'Weitere Updates: Kalender, Web-Modelle, TMDL, Co-Pilot'],
+      ['11:14', 'Daten-WG Offsite in Dortmund']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update August 2025',
+    guest: 'Solo',
+    solo: true,
+    date: 'August 2025',
+    duration: '5 min',
+    lang: 'DE',
+    desc: 'Nun aber wirklich:',
+    tags: ['Update', 'Fabric', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'jTXo4aEr07o',
+    chapters: [
+      ['00:00', 'Intro & Überblick August 2025'],
+      ['00:34', 'Power Query im Web für Import-Modelle'],
+      ['01:21', 'Parameter & Template-Export für Dataflows'],
+      ['02:46', 'Copilot-Update: Measure-Beschreibungen'],
+      ['03:30', 'Org-Apps jetzt auch in Pro Workspaces'],
+      ['03:53', 'Fabric-Pipeline-Templates für Modell-Updates'],
+      ['04:21', 'Fazit & Ausblick auf FabCon']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Fabric & Power BI Quarterly · 2025 Q3',
+    guest: 'Quarterly-Runde',
+    solo: true,
+    date: 'Q3 2025',
+    duration: '57 min',
+    lang: 'DE',
+    desc: 'Quarterly aus dem Sommer 2025: Fabric Preview-Welle, Power BI Roadmap, neue Visuals und das übliche Was-bedeutet-das-für-meinen-Alltag.',
+    tags: ['Fabric', 'Power BI', 'Update', 'Roadmap', 'DE', 'Quarterly', 'OneLake', 'Direct Lake', 'TMDL'],
+    podcastUrl: 'https://www.podcast.de/episode/690703208/fabric-power-bi-quarterly-2025-q3',
+    ytId: 'lZvpCBMKASM',
+    chapters: [
+      ['00:00', 'Intro, neue Kanäle & Begrüßung von Gabi'],
+      ['00:37', 'Sparklines sind GA – was steckt dahinter?'],
+      ['03:02', 'Abschied von Datamarts – warum und was jetzt?'],
+      ['07:46', 'Community-Projekte vs. Produktstrategie: Forum, FUAM, TMDL'],
+      ['13:35', 'TMDL, MCP und die neue Rolle von Modellierung'],
+      ['17:43', 'Copilot & Ad-Hoc-Analysen – wer profitiert wirklich?'],
+      ['26:33', 'Translytical Writeback: Das neue Power BI Rückschreib-Feature'],
+      ['32:02', 'Dataflows & CI/CD – endlich erwachsen?'],
+      ['38:58', 'Composite Models mit Direct Lake – das nächste große Ding?']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update Juli 2025',
+    guest: 'Solo',
+    solo: true,
+    date: 'Juli 2025',
+    duration: '7 min',
+    lang: 'DE',
+    desc: 'Die Feldparameter sind nun "GA" Außerdem dreht sich in diesem Juli-Update alles um Copilot und neue Visual-Optionen.',
+    tags: ['Update', 'Direct Lake', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'TkxwcAyBGUM',
+    chapters: [
+      ['00:00', 'Intro & 10 Jahre Power BI'],
+      ['00:32', 'Copilot: Verifizierte Antworten & Delegated Settings'],
+      ['01:37', 'Copilot: Zusammenfassungen & Export (PDF, PPT)'],
+      ['02:07', 'Visual Calculations & Pareto-Diagramm'],
+      ['04:27', 'Field Parameters jetzt GA – dynamische Filter'],
+      ['06:09', 'Direct Lake auf SQL-Datenbank'],
+      ['06:48', 'Fazit & Ausblick']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update Juni 2025',
+    guest: 'Solo',
+    solo: true,
+    date: 'Juni 2025',
+    duration: '7 min',
+    lang: 'DE',
+    desc: 'Power BI Update Juni 2025: Das Web-Gamechanger-Feature ist da – oder doch noch nicht? Power Query im Browser ist aber auch als Ankündigung ein Highlight! Außerdem: neue Visual Calculation Features, Sparklines und die Zukunft von Power BI Desktop.',
+    tags: ['Update', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'LnNoXBIG7Lc',
+    chapters: [
+      ['00:00', 'Power Query im Web – das Gamechanger-Feature?'],
+      ['01:44', 'Modell-Kompatibilität jetzt vollständig – auch für Partitionen'],
+      ['02:30', 'Visual Calculations werden ein Stück mehr No-Code-fähig'],
+      ['04:12', 'Mehr Fehlertoleranz in Visuals & Sparklines jetzt GA']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update Mai 2025',
+    guest: 'Solo',
+    solo: true,
+    date: 'Mai 2025',
+    duration: '15 min',
+    lang: 'DE',
+    desc: 'Der Mai 2025 bietet so einiges..! Microsoft hat auf der Microsoft Build geliefert und hier sind die Updates mit Power BI Fokus:',
+    tags: ['Update', 'Fabric', 'Direct Lake', 'Warehouse', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'zkfdfc5fo-E',
+    chapters: [
+      ['00:00', 'Intro & Build-Kontext'],
+      ['00:23', 'Visual Calculations: Zellreferenzen & Excel-Logik'],
+      ['02:44', 'Update für Listenslicer (Einfachauswahl + Formatierung)'],
+      ['03:44', 'Linien und Schattierungen farblich formatieren'],
+      ['05:12', 'Bessere Fehlermeldungen bei impliziten Measures'],
+      ['05:56', 'Fabric-HIGHLIGHT: Native Writeback mit Task Flows'],
+      ['11:20', 'Import + Direct Lake kombinieren'],
+      ['13:03', 'Copilot & semantisches Modell vorbereiten'],
+      ['14:21', 'Datamarts abgekündigt & Lizenzempfehlung'],
+      ['14:44', 'Neue Fabric-Roadmap als Webseite'],
+      ['15:03', 'Fazit & Ausblick']
+    ]
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update April 2025',
+    guest: 'Solo',
+    solo: true,
+    date: 'April 2025',
+    duration: '6 min',
+    lang: 'DE',
+    desc: '🚨 Power BI & Fabric Update April 2025 – diesmal klein, aber fein! Nach dem großen März-Update geht’s im April ruhiger zu.',
+    tags: ['Update', 'Fabric', 'Power BI', 'TMDL', 'DE'],
+    podcastUrl: null,
+    ytId: 'lT-C7fPzxj4',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-1',
+    title: 'Fabric & Power BI Quarterly | 2025 Q2',
+    guest: 'Solo',
+    solo: true,
+    date: 'April 2025',
+    duration: '54 min',
+    lang: 'DE',
+    desc: 'Im zweiten Quarterly in 2025 beleuchten Artur und Gabi die Flut an Neuerungen, die im Rahmen der Microsoft FABCON vorgestellt wurden – Workload für Workload: Power BI, Lakehouse, OneLake, Data Factory, Warehouse, Real-Time Inteligence und Copliot',
+    tags: ['Quarterly', 'Fabric', 'Lakehouse', 'OneLake', 'Direct Lake', 'Warehouse', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'lAh9ajR2Nrw',
+    chapters: [
+      ['00:00', 'Begrüßung, Einstieg, FABCON 2025'],
+      ['02:29', 'Usability-Updates in Power BI'],
+      ['04:30', 'Power BI Visuals und Visual Calculations'],
+      ['08:28', 'Modellbereich: Composite Models & Direct Lake'],
+      ['14:21', 'Notebooks & Analyzer-Tools in Fabric'],
+      ['15:50', 'Highlight: OneLake Security kommt'],
+      ['19:44', 'Sneak Peek: Materialized Views'],
+      ['21:39', 'User Data Functions: Wiederverwendbare Business-Logik'],
+      ['28:41', 'Nächster Workload: Data Factory und Dataflows Gen2'],
+      ['29:16', 'Data Integration & CICD: Fokus auf Variablen & Parametrisierung'],
+      ['30:50', 'Feedback, Security & Enterprise Readiness'],
+      ['32:41', 'OneLake-Katalog: Governance-Zentrale & Excel-Integration'],
+      ['35:30', 'FUAM: Offizielle Monitoring-Lösung'],
+      ['36:30', 'Fabric CLI & Automatisierung von Deployments'],
+      ['37:56', 'Realtime Intelligence: Von der Demo bis zur Praxis'],
+      ['42:49', 'Data Unplugged: Emotionstracking im Realtime Dashboard'],
+      ['44:25', 'AI & Co-Pilot: Ab sofort nicht mehr F64-exklusiv'],
+      ['45:20', 'Copilot Capacities & strategische Nutzungsmöglichkeiten'],
+      ['50:12', 'Workload Development Toolkit & neue Partner-Lösungen'],
+      ['51:19', 'Wrap-Up & Event-Vorschau']
+    ]
+  },
+
+  /* ========== BUCKET 2: FABRIC ========== */
+  {
+    bucket: 'bucket-2',
+    title: 'Microsoft Fabric — braucht das wirklich jemand?',
+    guest: 'Martin Bubenheimer',
+    solo: false,
+    date: '30.03.2026',
+    duration: '48 min',
+    lang: 'DE',
+    desc: 'Kontrovers: Für wen ist Fabric heute wirklich geeignet? Ehrliche Diskussion über Self-Service-BI-Realität, typische Fabric-Probleme aus der Praxis, IT vs. Fachbereich, Snowflake als Alternative. Kein Marketing — direkter Schlagabtausch.',
+    tags: ['Fabric', 'Snowflake', 'Citizen Developer', 'Lakehouse', 'Self-Service', 'DE', 'Direct Lake', 'Warehouse', 'Power BI', 'Vergleich'],
+    podcastUrl: 'https://www.podcast.de/episode/702426568/microsoft-fabric-braucht-das-wirklich-jemand-daten-wg-podcast-mit-martin-bubenheimer',
+    ytId: 'mTVeZzshLzE',
+    chapters: [
+      ['00:00', 'Intro & Vorstellung von Martin Bubenheimer'],
+      ['01:33', 'These: Für wen ist Microsoft Fabric?'],
+      ['02:09', 'Kritik: Fabric zu unausgereift & instabil für Citizen Developer'],
+      ['05:02', 'Was ist überhaupt ein Workaround?'],
+      ['06:05', 'Beispiel: Deployment Pipelines & fehlende Konsistenz'],
+      ['07:26', 'Arturs Gegenposition: Fabric für kleine, businessnahe Lösungen'],
+      ['08:27', 'Dataflows Gen1 vs. Gen2 & Orchestrierungsprobleme'],
+      ['10:00', 'Use Case: Wenn kein Data Warehouse verfügbar ist'],
+      ['11:38', 'Quick Win: Daten persistent ablegen statt immer neu laden'],
+      ['15:49', 'Data-Mesh-Ansatz bei Snowflake als Alternative'],
+      ['18:44', 'Governance: Wie granular lässt sich Fabric steuern?'],
+      ['19:45', 'Lakehouse vs. Warehouse — versteckte Fallstricke'],
+      ['23:00', 'Citizen Developer: Wer profitiert wirklich?'],
+      ['25:06', 'Shortcuts als Killer-Feature des Lakehouse'],
+      ['28:04', 'Fabric-Komplexität: Direct Lake, SQL Endpoint & Co.'],
+      ['30:57', 'In Fabric beschäftigt man sich mit Fabric-Problemen'],
+      ['36:01', 'Wann braucht man Fabric wirklich zwischen Excel & Warehouse?'],
+      ['40:00', 'Copilot & schrittweise Weiterentwicklung der Nutzerkompetenz']
+    ]
+  },
+  {
+    bucket: 'bucket-2',
+    title: 'From Finance to Fabric',
+    guest: 'Khaled Chowdhury',
+    solo: false,
+    date: 'März 2026',
+    duration: '47 min',
+    lang: 'EN',
+    desc: 'Khaled started not in IT but in Finance — and ended up scaling Microsoft Fabric for businesses. His thesis: Fabric does not compete with Snowflake or Databricks. Its real competitor is Excel, because it integrates with it. Why most data projects fail, and how to make business value the actual driver.',
+    tags: ['Fabric', 'OneLake', 'Excel', 'Business Value', 'Consulting', 'EN', 'Career-Switch', 'Lakehouse', 'Power BI'],
+    podcastUrl: 'https://www.podcast.de/episode/701761599/from-finance-to-fabric-daten-wg-podcast-with-khaled-chowdhury',
+    ytId: 'xU_s43HekPM',
+    chapters: [
+      ['00:00', 'From CFO to Data Leader'],
+      ['03:05', 'Discovering Power BI'],
+      ['04:41', 'Data Belongs to Business'],
+      ['08:47', 'Business Doesn’t Care About Tools'],
+      ['11:40', 'Why Fabric Wins'],
+      ['14:48', 'Unused Data = Zero Value'],
+      ['26:47', 'The Real Purpose of Data'],
+      ['29:06', 'Fabric Changes SMEs'],
+      ['33:18', 'Fix Data Problems Fast'],
+      ['41:13', 'It’s Not About the Tool']
+    ]
+  },
+  {
+    bucket: 'bucket-2',
+    title: 'Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?',
+    guest: 'Solo',
+    solo: true,
+    date: 'März 2026',
+    duration: '5 min',
+    lang: 'DE',
+    desc: 'In einem Podcast habe ich am Wochenende eine Aussage über Microsoft Fabric und OneLake gehört, die ich so nicht stehen lassen kann. Dort wurde behauptet, dass die Daten im OneLake automatisch in der Home Region des Tenants liegen. Das stimmt allerdings nur teilweise.',
+    tags: ['Fabric', 'OneLake', 'DE'],
+    podcastUrl: null,
+    ytId: 'ZVVSPQj9dlc',
+    chapters: [
+      ['00:00', 'Intro – A statement about Fabric from a podcast'],
+      ['00:26', 'The two central components in Microsoft Fabric'],
+      ['01:18', 'Capacities and regions in Fabric'],
+      ['01:57', 'Microsoft documentation on OneLake'],
+      ['02:34', 'Example: Workspaces in different regions'],
+      ['02:53', 'Creating capacity in the Azure portal'],
+      ['03:16', 'What happens when changing capacity'],
+      ['03:57', 'Conclusion: Where Fabric actually stores data']
+    ]
+  },
+  {
+    bucket: 'bucket-2',
+    title: 'SSIS Integration Services: Microsoft Fabric Notebook per REST API starten',
+    guest: 'Solo',
+    solo: true,
+    date: 'Februar 2026',
+    duration: '7 min',
+    lang: 'DE',
+    desc: 'In diesem Video zeige ich dir, wie du aus SQL Server Integration Services (SSIS) bzw. einem DTSX-Paket heraus ein Microsoft Fabric Notebook starten kannst.',
+    tags: ['Fabric', 'Notebook', 'SSIS', 'DE'],
+    podcastUrl: null,
+    ytId: 'NvtZ-ehiTrg',
+    chapters: [
+      ['00:00', 'Introduction – Starting a Notebook from SSIS'],
+      ['00:30', 'Overview of the SSIS package in Visual Studio'],
+      ['01:18', 'Running the package and verifying the notebook run in Fabric'],
+      ['01:55', 'App registration & service principal in the tenant'],
+      ['02:18', 'Permissions in the Fabric workspace'],
+      ['02:32', 'Determining the notebook ID & workspace ID'],
+      ['03:06', 'Script task in the DTSX package'],
+      ['03:24', 'Project parameters (client ID, tenant, secret)'],
+      ['03:52', 'Package variables (workspace & notebook ID)'],
+      ['04:12', 'Passing variables to the script task'],
+      ['04:45', 'Adding HTTP references and namespaces'],
+      ['05:27', 'Retrieving the access token'],
+      ['05:39', 'Calling the REST API and starting the notebook'],
+      ['06:11', 'Summary & next step']
+    ]
+  },
+  {
+    bucket: 'bucket-2',
+    title: 'Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial',
+    guest: 'Solo',
+    solo: true,
+    date: 'Januar 2026',
+    duration: '10 min',
+    lang: 'EN',
+    desc: 'In diesem Tutorial zeige ich dir eines der aktuell spannendsten Features in Microsoft Fabric: Open Mirroring.',
+    tags: ['Fabric', 'OneLake', 'Mirroring', 'SSIS', 'Power BI', 'EN'],
+    podcastUrl: null,
+    ytId: '7j34Ndng0Os',
+    chapters: [
+      ['00:00', 'What is Open Mirroring in Microsoft Fabric?'],
+      ['00:19', 'Why Open Mirroring is more exciting than classic mirroring'],
+      ['00:51', 'Change Data Capture & Row Marker explained'],
+      ['01:53', 'Data flow: Source → OneLake → Fabric table'],
+      ['02:22', 'Mirroring your own data sources (including Excel & Co.)'],
+      ['02:39', 'Cost model: Storage & Compute explained'],
+      ['04:01', 'Practical example: Open Mirroring with PostgreSQL'],
+      ['05:20', 'Setup: Creating a workspace & mirror database'],
+      ['06:45', 'Sync process & Parquet files'],
+      ['08:39', 'Querying the replicated data via SQL']
+    ]
+  },
+  {
+    bucket: 'bucket-2',
+    title: 'Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial',
+    guest: 'SSIS nach Microsoft Fabric',
+    solo: false,
+    date: 'Dezember 2025',
+    duration: '12 min',
+    lang: 'DE',
+    desc: 'In diesem Tutorial zeige ich dir, wie du Daten aus einer lokalen (On-Premise) Umgebung in Microsoft Fabric bringst, ohne den klassischen Pull-Ansatz über Data Gateway zu nutzen.',
+    tags: ['Fabric', 'Lakehouse', 'OneLake', 'Warehouse', 'SSIS', 'DE'],
+    podcastUrl: null,
+    ytId: '5HhNQZlB-1E',
+    chapters: [
+      ['00:00', 'Einführung & Anforderung aus dem Projekt'],
+      ['00:28', 'Push statt Pull – Architekturüberblick'],
+      ['00:41', 'SSIS als Integrationslösung für Fabric'],
+      ['01:06', 'Warum dateibasiert statt SQL Inserts'],
+      ['01:14', 'Zielarchitektur: On-Prem → Azure Storage → Fabric'],
+      ['01:46', 'Azure Feature Pack & TLS 1.2 Voraussetzung'],
+      ['02:17', 'TLS 1.2 Registry-Eintrag erklärt'],
+      ['03:25', 'Java & Setup für SSIS-Projekte'],
+      ['04:13', 'Aufbau des SSIS-Datenflusses'],
+      ['05:15', 'Schreiben nach Azure Data Lake Gen2'],
+      ['06:21', 'Konfiguration der Azure-Verbindung'],
+      ['07:19', 'Dateiformat & Spaltenzuordnung'],
+      ['08:17', 'Ausführen des SSIS-Pakets'],
+      ['08:45', 'Einbindung in Fabric per Lakehouse-Shortcut'],
+      ['09:45', 'Datenvorschau & Landing Zone'],
+      ['10:08', 'Weiterverarbeitung: Table, COPY INTO & Notebooks'],
+      ['11:02', 'Vorteile des Push-Prinzips'],
+      ['11:42', 'Fazit & Ausblick']
+    ]
+  },
+  {
+    bucket: 'bucket-2',
+    title: 'Power BI Seiten per URL steuern - Sprechende URLs mit PBIP & VS Code | Power BI Tutorial',
+    guest: 'Solo',
+    solo: true,
+    date: 'Dezember 2025',
+    duration: '8 min',
+    lang: 'DE',
+    desc: 'In diesem Video zeige ich einen technischen Hack, mit dem sich Power BI Reportseiten gezielt über die URL ansteuern lassen.',
+    tags: ['Fabric', 'Power BI', 'PBIP', 'DE'],
+    podcastUrl: null,
+    ytId: 'DcEfNIupEHM',
+    chapters: [
+      ['00:00', 'Introduction & Idea Behind the Hack'],
+      ['00:27', 'Understanding the Structure of the Power BI Service URL'],
+      ['01:28', 'Switching to the Power BI Project Format (PBIP)'],
+      ['02:05', 'Analyzing Page IDs in the page.json file'],
+      ['02:43', 'Renaming Page IDs Targeted'],
+      ['03:52', 'Important Rules: URL Security & Validation'],
+      ['04:26', 'Correctly Adjusting Page Order & Active Page'],
+      ['05:07', 'Uploading with VS Code & Fabric Extension'],
+      ['06:11', 'Result: Opening Pages Targeted by URL'],
+      ['06:49', 'Use Cases & Open Questions for Support']
+    ]
+  },
+  {
+    bucket: 'bucket-2',
+    title: 'Analytics Speed Challenge | Power BI vs. IBM Cognos Analytics',
+    guest: 'Solo',
+    solo: true,
+    date: 'November 2025',
+    duration: '8 min',
+    lang: 'EN',
+    desc: 'Kann Power BI genauso gut Ad-hoc-Analysen wie IBM Cognos Analytics?',
+    tags: ['Power BI', 'EN'],
+    podcastUrl: null,
+    ytId: 'g2Fijpqwcvw',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-2',
+    title: 'Power BI-Teams werden Fabric-Datendienstleister',
+    guest: 'Steffen Genz',
+    solo: false,
+    date: '~Juni 2025',
+    duration: '32 min',
+    lang: 'DE',
+    desc: 'Mit Fabric verändert sich die Rolle des Power BI Teams: Aus Report-Buildern werden interne Daten-Dienstleister, die Lakehouses und Pipelines verantworten. Wie sieht der Wandel aus? Was muss das Team können, was nicht mehr?',
+    tags: ['Fabric', 'Power BI', 'Team', 'Rollen', 'Karriere', 'DE', 'Vergleich'],
+    podcastUrl: 'https://www.podcast.de/episode/690429225/power-bi-teams-werden-fabric-datendienstleister-mit-steffen-genz',
+    ytId: 'YzfcMurbWNc',
+    chapters: [
+      ['00:00', '<Untitled Chapter 1>'],
+      ['01:10', 'Fabric = neues Office 365? Warum der Vergleich hinkt'],
+      ['02:40', 'So sind wir mit Fabric produktiv gestartet: Dataflows Gen2'],
+      ['05:02', 'Der Wandel: Vom Dashboard-Bauer zum Datendienstleister'],
+      ['08:08', 'Warum saubere Datenmodelle jetzt Pflicht sind'],
+      ['12:04', 'Kapazitätsmanagement: Unsere Praxislösungen in Fabric'],
+      ['19:04', 'Microsoft-Support: Unsere Erfahrungen aus erster Hand'],
+      ['25:00', 'Self-Service, Dezentralisierung und der Blick in die Zukunft']
+    ]
+  },
+  {
+    bucket: 'bucket-2',
+    title: '600 SQL-Tabellen in Fabric',
+    guest: 'Alexander Dean',
+    solo: false,
+    date: '~Mai 2025',
+    duration: '35 min',
+    lang: 'DE',
+    desc: 'Wie migrierst du ein Enterprise-Setup mit 600 SQL-Tabellen nach Fabric? Alexander Dean teilt einen ehrlichen Erfahrungsbericht aus einem echten Projekt: Wo läuft es rund, wo musst du improvisieren, welche Patterns funktionieren in Größe.',
+    tags: ['Fabric', 'SQL', 'Migration', 'Enterprise', 'Lakehouse', 'DE', 'SSIS', 'Power BI'],
+    podcastUrl: 'https://www.podcast.de/episode/690429226/600-sql-tabellen-in-fabric-mit-alexander-dean',
+    ytId: 'RtUiF1J5XEg',
+    chapters: [
+      ['00:00', 'Begrüßung & Konferenz-Background'],
+      ['00:24', 'Alex Dean: Organisation der Data Platform Conference'],
+      ['01:01', 'Karriereweg: Von Buchhaltung zu Data & Power BI'],
+      ['07:49', 'Einstieg ins Fabric-Projekt: Migration On-Premise zu Cloud'],
+      ['10:19', 'Fabric in der Preview-Phase & Bananasoftware'],
+      ['16:07', 'DevOps mit Fabric: Erste große Herausforderungen'],
+      ['18:22', 'Warum Pipelines (noch) besser als Dataflows waren'],
+      ['21:17', 'Drei DevOps-Strategien für Fabric erfolgreich umgesetzt'],
+      ['26:17', 'Herausforderungen bei Data Security & Future Fabric Trends'],
+      ['28:51', 'Shortcut-Integration, Reverse ETL & Ausblick auf die Zukunft']
+    ]
+  },
+
+  /* ========== BUCKET 3: DATENMODELLIERUNG ========== */
+  {
+    bucket: 'bucket-3',
+    title: 'Metadaten als Superkraft',
+    guest: 'Jasmin Simader',
+    solo: false,
+    date: '26.04.2026',
+    duration: '23 min',
+    lang: 'DE',
+    desc: 'Was uns Metadaten über Daten verraten — über Modelle, über Skills im Team, über Reports die niemand öffnet. Mit Measure Killer, SharePoint-Listen als Mini-Datenkatalog, Process Mining. Warum die meisten Unternehmen scheitern, weil sie zu lange übers Tool diskutieren statt loszulegen.',
+    tags: ['Metadaten', 'Governance', 'Datenkatalog', 'Measure Killer', 'Power BI', 'DE', 'Fabric'],
+    podcastUrl: 'https://www.podcast.de/episode/703085924/metadaten-als-superkraft-daten-wg-podcast-mit-jasmin-simader',
+    ytId: 'UUlPoJOhco8',
+    chapters: [
+      ['00:00', 'Intro: Metadaten als Forensik — die fehlenden Puzzleteile'],
+      ['13:30', 'Der Mini-Datenkatalog: SharePoint-Liste mit drei Spalten reicht für den Anfang'],
+      ['15:47', 'Großkonzern oder Mittelstand: Wer profitiert mehr von Metadaten?'],
+      ['20:14', 'Erste Schritte: MeasureKiller dranhängen und Status erheben'],
+      ['20:37', 'Im BI-Team fragen, was Metadaten überhaupt sind'],
+      ['21:03', 'Outro: Inventarisierung, Bucketlist und Schulterblick']
+    ]
+  },
+  {
+    bucket: 'bucket-3',
+    title: 'Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“',
+    guest: 'Solo',
+    solo: true,
+    date: 'Februar 2026',
+    duration: '5 min',
+    lang: 'DE',
+    desc: 'In diesem Tutorial zeige ich dir, wie du Field Parameter in Power BI für eine dynamische Datumsanalyse nutzt.',
+    tags: ['Field Parameters', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'v8dvnqqa7f8',
+    chapters: [
+      ['00:00', 'Intro'],
+      ['00:29', 'Creating field parameters'],
+      ['01:11', 'Automatically generated parameter table'],
+      ['01:34', 'Using parameters in a table'],
+      ['02:04', 'Controlling the slicer & single selection'],
+      ['02:32', 'Difference: Table vs. Slicer'],
+      ['03:23', 'Dynamic filter depending on the parameter'],
+      ['03:58', '"Show selected field" explained'],
+      ['04:26', '"Show values ​​of the selected field" explained'],
+      ['04:40', 'Conclusion']
+    ]
+  },
+  {
+    bucket: 'bucket-3',
+    title: 'Denken in Tabellen',
+    guest: 'Jasmin Simader',
+    solo: false,
+    date: 'Januar 2026',
+    duration: '39 min',
+    lang: 'DE',
+    desc: 'Flat Table oder Sternschema — warum prallen hier eigentlich Welten aufeinander? Ausgehend von einem echten Databricks+Power-BI-Projekt: warum flache Tabellen für viele „einfacher" wirken, warum Sternschemata trotzdem Stärken haben, und weshalb das oft weniger technisch ist, als es scheint. Excel-Prägung, Tech-Stack, Performance-Mythen.',
+    tags: ['Datenmodellierung', 'Excel', 'Databricks', 'Stern-Schema', 'Power BI', 'Grundlagen', 'DE', 'Warehouse'],
+    podcastUrl: 'https://www.podcast.de/episode/698542766/denken-in-tabellen-daten-wg-podcast-mit-jasmin-simader',
+    ytId: 'hbUYMyqb6r8',
+    chapters: [
+      ['00:27', 'Ausgangslage: Flat Table aus Databricks'],
+      ['01:01', 'Konfliktmoment: „Flat Table war doch einfacher" vs. Sternschema'],
+      ['01:44', 'Prägung/Tech-Stack: Analysis Services/OLAP vs. alles im DWH vorberechnen'],
+      ['04:19', 'Praxisargument: Views/Joins, Tool-Kompatibilität, Fachanwender brauchen „breite Tabelle"'],
+      ['06:50', 'Excel-Prägung & Self-Service: müssen Fachbereiche „kleine Entwickler" werden?'],
+      ['08:37', 'Sternschema-Aha: bessere Filterlogik, Granularitäten, weniger Excel-Schmerz'],
+      ['17:12', 'Realitätscheck: Benchmarks/Testdaten vs. echte Daten + wann Flat Table „reicht"'],
+      ['31:45', 'Kosten/Limits & Wrap-up: Pro/Premium, On-Prem Limits, Service-Restriktionen']
+    ]
+  },
+  {
+    bucket: 'bucket-3',
+    title: 'Expanded Tables in DAX verstehen – Beziehungen & Filter erklärt | Power BI Tutorial',
+    guest: 'Solo',
+    solo: true,
+    date: 'Dezember 2025',
+    duration: '12 min',
+    lang: 'DE',
+    desc: 'Expanded Tables gehören zu den am wenigsten dokumentierten, aber wichtigsten Konzepten in DAX, wenn es um das Verständnis von Filtern, Beziehungen und CALCULATE geht.',
+    tags: ['DAX', 'Expanded Tables', 'Power BI', 'Vergleich', 'DE'],
+    podcastUrl: null,
+    ytId: 'LQQEn7IOb7w',
+    chapters: [
+      ['00:00', 'What are Expanded Tables and why are they important?'],
+      ['01:49', 'Expanded Tables: Theory vs. Physical Reality'],
+      ['02:25', 'Active & Inactive Relationships (USEUSERELATIONSHIP)'],
+      ['04:04', 'Two Expansions Simultaneously – The Core Problem'],
+      ['05:40', 'Implementing the Concept in Power BI'],
+      ['07:47', 'Calculate, Filter Comparison & Results'],
+      ['11:00', 'Conclusion & Outlook']
+    ]
+  },
+  {
+    bucket: 'bucket-3',
+    title: 'Datenmodellierung ist Governance',
+    guest: 'Jasmin Simader',
+    solo: false,
+    date: 'November 2025',
+    duration: '43 min',
+    lang: 'DE',
+    desc: 'Wir wollten über Datenmodellierung sprechen — und landeten doch bei Governance. Datenmodelle sind die Schnittstelle zwischen Business, Struktur und Verantwortung. Es gibt kein perfektes Modell, und genau deshalb ist das Thema näher an der Organisation als erwartet. Ownership, Datenkultur, weniger Joins.',
+    tags: ['Datenmodellierung', 'Governance', 'Stern-Schema', 'Ownership', 'Datenkultur', 'Power BI', 'DE', 'Datenmodell'],
+    podcastUrl: 'https://www.podcast.de/episode/697206649/datenmodellierung-ist-governance-daten-wg-podcast-mit-jasmin-simader',
+    ytId: 'lH_-A8NAQ-k',
+    chapters: [
+      ['00:00', 'Willkommen zur Daten-WG & Thema des Tages'],
+      ['01:10', 'Datenmodellierung im Workshop: Erwartungen vs. Realität'],
+      ['03:07', 'Flat Table oder Sternschema: Was brauchen wir wirklich?'],
+      ['05:02', 'Es kommt darauf an — der Kontext entscheidet'],
+      ['07:04', 'Datenmodellierung = Anschnallen im Datenauto?'],
+      ['09:13', 'Warum zu viele Joins Probleme verursachen'],
+      ['11:16', 'Datenmodelle, die die Business-Wirklichkeit abbilden'],
+      ['13:00', 'Ownership & Governance: Wer ist verantwortlich?'],
+      ['15:14', 'Datenkultur: Wenn einfache Lösungen gefeiert werden'],
+      ['28:53', 'Fazit: Organisation bestimmt die Technik — nicht umgekehrt']
+    ]
+  },
+  {
+    bucket: 'bucket-3',
+    title: 'BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]',
+    guest: 'Solo',
+    solo: true,
+    date: 'Dezember 2025',
+    duration: '85 min',
+    lang: 'EN',
+    desc: 'In this Fabric Data Days live session we dive deep into data modeling in Power BI – from “real world chaos” in Excel all the way to dimensional models, data platforms and certification.',
+    tags: ['Datenmodell', 'Fabric', 'Fabric Data Days', 'Power BI', 'EN'],
+    podcastUrl: null,
+    ytId: 'uxYFqwe_Wiw',
+    chapters: [
+      ['00:00', 'Intro, registration, language & AI audio tracks'],
+      ['06:00', 'Fabric Data Days, session format & free certification vouchers'],
+      ['12:00', 'BI spectrum: self-service vs. enterprise and the “middle gap”'],
+      ['18:00', 'Top-down vs. bottom-up thinking & first steps into data modeling'],
+      ['24:00', 'Data platforms, medallion architecture & Data Vault overview'],
+      ['30:00', 'ROCHE\'S maxime: pushing transformations down to source / platform'],
+      ['36:00', 'Star schema basics: fact tables, dimensions, date table & role-playing'],
+      ['42:00', 'Flat / One Big Table vs. Star: performance, storage & use cases'],
+      ['48:00', 'Plan vs. actual, unknown members & date handling in One Big Table'],
+      ['54:00', 'AND vs. OR filters in DAX – customer/product example & first solution']
+    ]
+  },
+  {
+    bucket: 'bucket-3',
+    title: 'TMDL Magie: Multi Parameter Tabelle - Feldparameter Next Level! | Power BI Tutorial',
+    guest: 'Solo',
+    solo: true,
+    date: 'Oktober 2025',
+    duration: '9 min',
+    lang: 'DE',
+    desc: 'In diesem Power BI Tutorial zeige ich dir, wie du mit einem kleinen TMDL-Trick eine Multi-Parameter-Tabelle erstellst, mit der du mehrere Visuals gleichzeitig steuern kannst – und das über nur einen Slicer!',
+    tags: ['Field Parameters', 'Fabric', 'Power BI', 'TMDL', 'DE'],
+    podcastUrl: null,
+    ytId: 'sShNdgnHjr4',
+    chapters: [
+      ['00:00', 'Einstieg & Idee hinter der Lösung'],
+      ['00:34', 'Feldparameter in Power BI anlegen'],
+      ['02:46', 'Visuals dynamisch mit Parametern steuern'],
+      ['03:11', 'Das Problem: Mehrere Visuals, ein Filter'],
+      ['03:35', 'Einführung in die TMDL-Lösung'],
+      ['04:45', 'Aufbau der Multi-Parameter-Tabelle'],
+      ['06:42', 'Wichtige Stolperfallen und Feldreihenfolge'],
+      ['07:22', 'Test der fertigen Tabelle im Report'],
+      ['08:28', 'Fazit & Einladung zur Diskussion']
+    ]
+  },
+  {
+    bucket: 'bucket-3',
+    title: 'Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! | Power BI Tutorial',
+    guest: 'Solo',
+    solo: true,
+    date: 'Oktober 2025',
+    duration: '7 min',
+    lang: 'DE',
+    desc: 'In diesem Power BI Tutorial zeige ich dir ein Feature, das oft übersehen wird: Visual Calculations. Anhand eines praxisnahen Beispiels mit einer Kundenanforderung lernst du, wie du Berechnungen direkt in der Visualisierung durchführst, ganz ohne dein semantisches Modell anzupassen.',
+    tags: ['SSIS', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'GsLfiuPlsQE',
+    chapters: [
+      ['00:00', 'Was sind Visual Calculations in Power BI?'],
+      ['00:40', 'Beispiel aus Excel: Prozent des übergeordneten Zeilenergebnisses'],
+      ['01:20', 'Umsetzung in Power BI mit Visual Calculations'],
+      ['03:00', '„Percent of Parent“ leicht erklärt'],
+      ['04:30', 'Formatierung und Ebenen in Power BI'],
+      ['06:40', 'Fazit & Tipps']
+    ]
+  },
+  {
+    bucket: 'bucket-3',
+    title: 'Mythos Data Vault und richtig große Modelle',
+    guest: 'Volker Nürnberg',
+    solo: false,
+    date: 'Juli 2025',
+    duration: '33 min',
+    lang: 'DE',
+    desc: 'Wie baut man heute ein Data Warehouse, das agil, skalierbar und zukunftsfähig ist? Data Vault 2.0 ist viel mehr als technische Lösung — Trennung von Speicherung und Auslieferung, robuste Strukturen, schnelle Anpassung bei Quell-Änderungen. Volker zeigt: Automatisierung + ML könnten Modelle bald fast selbst erstellen.',
+    tags: ['Data Vault', 'Datenmodellierung', 'Warehouse', 'Data Lake', 'Data Mesh', 'Enterprise', 'DE'],
+    podcastUrl: 'https://www.podcast.de/episode/690429223/mythos-data-vault-und-richtig-grosse-modelle-mit-volker-nuernberg',
+    ytId: 'rrCi0lnGrCg',
+    chapters: [
+      ['00:20', 'Data Vault = Nicht Technik?!'],
+      ['01:47', 'Warum Data Vault kein End-User-Tool ist'],
+      ['04:00', 'Modellierung, Architektur, Methodologie'],
+      ['06:00', 'Automatisierung — Der rote Knopf'],
+      ['07:44', 'Änderungen elegant abfedern'],
+      ['12:07', 'Kunden-360°-Integration'],
+      ['16:10', 'Data Lake vs. Data Vault'],
+      ['24:36', 'Data Mesh + Data Vault: So geht\'s zusammen!']
+    ]
+  },
+
+  /* ========== BUCKET 4: SELF-SERVICE / GOVERNANCE ========== */
+  {
+    bucket: 'bucket-4',
+    title: 'Was ist Self-Service und warum ist das so schwer?',
+    guest: 'Tom Martens',
+    solo: false,
+    date: '13.04.2026',
+    duration: '56 min',
+    lang: 'DE',
+    desc: 'Tiefe Diskussion über die Frage, die scheinbar einfach klingt — aber es nicht ist. Seit der TDWI-Definition 2011 hat sich vieles verändert: Tools, Nutzer, Erwartungen. Jetzt kommen KI und Agents dazu. Citizen Developer, Schatten-IT, IT vs. Fachbereich.',
+    tags: ['Self-Service', 'Citizen Developer', 'Governance', 'Shadow IT', 'KI', 'Deneb', 'DE', 'Power BI'],
+    podcastUrl: 'https://www.podcast.de/episode/702786617/was-ist-self-service-und-warum-ist-das-so-schwer-daten-wg-podcast-mit-tom-martens',
+    ytId: 'EVsJ6zyGUWc',
+    chapters: [
+      ['00:00', 'Intro: Warum Tom zum zweiten Mal im Podcast ist'],
+      ['03:23', 'Self-Service: Was Tom wirklich antreibt'],
+      ['04:03', 'Die TDWI-Definition aus 2011'],
+      ['05:13', 'Der IT-Bottleneck: Warum Self-Service überhaupt entstand'],
+      ['07:02', 'Deneb: Wenn Self-Service zum Coden wird'],
+      ['08:43', 'Toms Definition: Self-Service = kein IT-Bedarf'],
+      ['11:15', 'Wartbarkeit vs. Komplexität (das Deneb-Dilemma)'],
+      ['14:10', 'Der Self-Service-User von heute ist nicht mehr der von 2011'],
+      ['19:49', 'Citizen Developer: Alleine lernen ist schwer'],
+      ['22:04', 'Das UI/Design-Problem beim Self-Service'],
+      ['26:45', 'KI als "privater ITler" für alle'],
+      ['27:56', 'Spreadsheet-Hell war gestern — kommt jetzt die Agent-Hell?'],
+      ['36:46', 'Shadow IT und Bottom-up-Einführung von Tools'],
+      ['40:16', 'Schatten-IT ignorieren ist keine Strategie'],
+      ['43:05', 'Citizen Data Engineer und Deployment Pipelines'],
+      ['52:11', 'Toms finale Definition: Self-Service innerhalb von Guardrails']
+    ]
+  },
+  {
+    bucket: 'bucket-4',
+    title: 'Prinzipien oder Paragrafen',
+    guest: 'Christof Layher · ChaosHacker',
+    solo: false,
+    date: 'Februar 2026',
+    duration: '45 min',
+    lang: 'DE',
+    desc: 'Cross-Over mit dem ChaosHacker: Wie regelt man Data Governance — über harte Regeln (Paragrafen) oder über Prinzipien, die Verhalten leiten? Eine Diskussion über Datenkultur, Compliance, und warum starres Regelwerk meist scheitert.',
+    tags: ['Governance', 'Compliance', 'Datenkultur', 'Crossover', 'DE', 'Vergleich'],
+    podcastUrl: 'https://www.podcast.de/episode/701263039/prinzipien-oder-paragrafen-daten-wg-x-chaoshacker-mit-christof-layher',
+    ytId: '6WhWLcuFvZE',
+    chapters: [
+      ['00:00', 'Intro & Chaos Hacker Talk'],
+      ['03:56', 'Change Control, Cloud & Black Box Issues'],
+      ['07:30', 'The Role of Authorities & Principles Instead of Detailed Rules'],
+      ['09:55', 'FDA, Legal System & Audit Culture: USA vs. Europe'],
+      ['13:05', 'Overregulation in Companies & “German Overcompliance”'],
+      ['15:31', 'Direct vs. Indirect Impact Data (Critical Parameters)'],
+      ['20:43', 'Self-Service Analytics vs. Quality Decisions'],
+      ['23:31', 'Data Integrity & Why Regulation Has Grown Historically'],
+      ['27:08', 'Security, Hacking Scenarios & Real Risks'],
+      ['35:41', 'Covid as a Digitalization Booster'],
+      ['38:46', 'AI in Drug Development & Disruption Potential'],
+      ['42:11', 'Technological Complexity & Agility as a Necessity'],
+      ['43:41', 'Conclusion & Outlook on Further Deep Dives']
+    ]
+  },
+
+  /* ========== BUCKET 5: VISUALISIERUNG & IBCS ========== */
+  {
+    bucket: 'bucket-5',
+    title: 'Declarative Visualization with DENEB',
+    guest: 'Daniel Marsh-Patrick',
+    solo: false,
+    date: '10.05.2026',
+    duration: '47 min',
+    lang: 'EN',
+    desc: 'The creator of Deneb on declarative vs. imperative visualization, why Deneb is a five-year side project, what PBIR and the new JSON report format mean, why Vega is unusually LLM-friendly, and where Deneb really shines: engineering and environmental charts that core visuals were never built for.',
+    tags: ['Deneb', 'Vega', 'Visualisierung', 'Custom Visuals', 'Power BI', 'IBCS', 'EN', 'Fabric', 'PBIR'],
+    podcastUrl: 'https://www.podcast.de/episode/703417142/declarative-visualization-with-deneb-daten-wg-podcast-with-daniel-marsh-patrick',
+    ytId: 'AxLQtBVAI9o',
+    chapters: [
+      ['00:00', 'Intro: An international expert episode with Daniel from down under'],
+      ['02:55', 'Daniel\'s path into Power BI visuals: Vega and Vega-Lite explained'],
+      ['05:13', 'BI developer learning to be a web developer'],
+      ['07:02', 'Custom visuals, certification, and why proprietary visuals are tricky'],
+      ['09:09', 'Why Deneb exists: certified custom visuals without the AppSource listing'],
+      ['12:59', 'Declarative vs. imperative: why JSON beats coding every pixel'],
+      ['14:14', 'PBIR and the new JSON report format for Power BI'],
+      ['17:32', 'The big performance refactor and documenting Deneb\'s property structure'],
+      ['20:47', 'Self-confessed non-coders build the most mind-blowing Deneb visuals'],
+      ['26:44', 'Vega and AI: why LLMs love declarative visuals'],
+      ['28:30', 'Vega is everywhere: Looker Studio, Databricks, Microsoft research'],
+      ['33:00', 'Portability: copy a Vega spec from Databricks straight into Power BI'],
+      ['35:00', 'When to reach for Deneb instead of stacking 28 measures for an IBCS bar chart'],
+      ['36:40', 'Beyond sales and finance: engineering and environmental visuals'],
+      ['42:00', 'The world is broader than your next sales report']
+    ]
+  },
+  {
+    bucket: 'bucket-5',
+    title: 'Power BI: (Vertriebs-) Regionen in Azure Maps',
+    guest: 'Azure Maps',
+    solo: false,
+    date: 'Januar 2026',
+    duration: '32 min',
+    lang: 'DE',
+    desc: 'Wie bringst Du von-bis-Postleitzahlen aus Excel sauber in eine Power BI-Karte? Dieses Tutorial nimmt Dich Schritt für Schritt mit: Vom Import von GeoJSON-Daten in QGIS, über die Transformation Deiner Excel-Daten, bis zur finalen Visualisierung in Power BI mit Azure Maps.',
+    tags: ['Azure Maps', 'Maps', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'CvaOkO37HMU',
+    chapters: [
+      ['00:00', 'Einleitung: Eigene Karten & Regionen in Power BI'],
+      ['00:36', 'Benötigte Tools: QGIS & Shapefiles von GitHub'],
+      ['02:04', 'Vorbereitung: .br (Brotli) Dateien entpacken'],
+      ['03:25', 'QGIS: Projekt anlegen & Shapefiles importieren'],
+      ['04:26', 'Excel: Datenaufbereitung der Postleitzahlgebiete'],
+      ['08:35', 'WICHTIG: Geometrien in QGIS reparieren'],
+      ['10:50', 'Join: Excel-Daten mit Shapefiles verknüpfen'],
+      ['12:30', 'Dissolve: Postleitzahlen zu Vertriebsregionen auflösen'],
+      ['14:27', 'Export: Die neue Karte als GeoJSON speichern'],
+      ['16:51', 'Optimierung: GeoJSON minifizieren für Power BI'],
+      ['19:09', 'Power BI: Azure Map erstellen & Referenzebene laden'],
+      ['21:54', 'Heatmap: Bedingte Formatierung nach Umsatz'],
+      ['24:47', 'Drill-Through: Detailansicht für Regionen bauen']
+    ]
+  },
+  {
+    bucket: 'bucket-5',
+    title: 'Drillthrough-Auswahl sortieren – So kontrollierst du die Reihenfolge! | Power BI Tutorial',
+    guest: 'Solo',
+    solo: true,
+    date: 'Dezember 2025',
+    duration: '7 min',
+    lang: 'DE',
+    desc: 'In diesem Tutorial zeige ich dir, wie du die Sortierung der Drillthrough-Auswahl in Power BI gezielt beeinflussen kannst – ein Thema, das häufig zu Verwirrung führt.',
+    tags: ['Drill-Through', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: '0n8hZ6v_0Lc',
+    chapters: [
+      ['00:00', 'Problem: Unsorted drill-through selection'],
+      ['00:42', 'Why the order can\'t be controlled via the UI'],
+      ['02:02', 'The solution: Sorting via the Power BI Project Format'],
+      ['03:39', 'Renaming pages & using IDs for the desired order'],
+      ['06:49', 'Result: Sorted drill-through + conclusion']
+    ]
+  },
+  {
+    bucket: 'bucket-5',
+    title: 'Die 3 Zustände der sekundären Y-Achse: Auto, Aktiv & Deaktiviert einfach erklärt | Power BI Tutorial',
+    guest: 'Solo',
+    solo: true,
+    date: 'Dezember 2025',
+    duration: '3 min',
+    lang: 'DE',
+    desc: 'In diesem Power BI Tutorial zeige ich dir ein oft übersehenes, aber extrem wichtiges Detail: Die sekundäre Y-Achse besitzt drei unterschiedliche Zustände – Auto, Aktiviert und Deaktiviert. Viele Nutzer wundern sich, warum Power BI plötzlich eine zweite Y-Achse einschaltet oder warum sie sich nicht mehr in den Auto-Modus zurückschalten lässt. In diesem Vid...',
+    tags: ['Y-Achse', 'Power BI', 'Vergleich', 'DE'],
+    podcastUrl: null,
+    ytId: '8DsgIfWJkoI',
+    chapters: [
+      ['00:00', 'Why Power BI suddenly activates a second Y-axis'],
+      ['00:28', 'Auto vs. Enabled vs. Disabled: The three states'],
+      ['01:09', 'When does Auto mode occur?'],
+      ['01:43', 'Activating & Deactivating: Second Axis Behavior'],
+      ['02:16', 'How the PBI-R Code Shows the Axis Logic'],
+      ['03:08', 'Conclusion: How to Properly Control the Second Y-Axis']
+    ]
+  },
+  {
+    bucket: 'bucket-5',
+    title: 'How to Write Back',
+    guest: 'Jon Stjernegaard Vöge',
+    solo: false,
+    date: 'Dezember 2025',
+    duration: '39 min',
+    lang: 'EN',
+    desc: 'Writeback in Power BI used to be impossible without painful workarounds. Now with Translytical Task Flows and modern tooling, end-users can write back to source systems from a report. Jon walks through patterns, pitfalls, and where this gets interesting for planning use cases.',
+    tags: ['Writeback', 'Translytical', 'Power BI', 'Planning', 'Visualisierung', 'EN', 'Fabric'],
+    podcastUrl: 'https://www.podcast.de/episode/696080109/how-to-write-back-daten-wg-podcast-with-jon-stjernegaard-voege',
+    ytId: 'HQaLWjA-E2E',
+    chapters: [
+      ['00:00', 'WriteBack in Power BI – Why users still ask for input features'],
+      ['03:54', 'Real-world finance use case: 250 users, Excel chaos, and the WriteBack fix'],
+      ['07:30', 'The 3 main WriteBack options: Power Apps, 3rd-party visuals & Translytical'],
+      ['10:15', 'InfoRiver & Excel-like experiences – pros, cons, and sovereignty concerns'],
+      ['13:45', 'Translytical Task Flows explained: native, low-cost, and flexible'],
+      ['17:36', 'Can we use Translytical in production already? Future outlook'],
+      ['21:01', 'Beyond planning: Master data, comments & advanced scenarios'],
+      ['32:40', 'Bonus: Fabric Symposium – community, lessons learned & organizing events']
+    ]
+  },
+  {
+    bucket: 'bucket-5',
+    title: 'So machst du jedes Power BI Visual dynamisch, auch ohne „fx“-Button! | Power BI Tutorial',
+    guest: 'BI Tutorial',
+    solo: false,
+    date: 'Oktober 2025',
+    duration: '6 min',
+    lang: 'DE',
+    desc: 'Hast du dich schon mal gefragt, warum manche Eigenschaften in Power BI nicht dynamisch sind? Zum Beispiel das Layout deiner Small Multiples – feste Zeilen und Spalten, keine Flexibilität, keine „fx“-Option?',
+    tags: ['Power BI', 'PBIP', 'DE'],
+    podcastUrl: null,
+    ytId: 'c5zxZLRuV_s',
+    chapters: [
+      ['00:00', 'Das Problem: fehlende dynamische Layout-Optionen'],
+      ['00:08', 'Ziel: Small Multiples flexibel machen'],
+      ['00:48', 'Measures für Spalten und Zeilen'],
+      ['01:25', 'Bericht als PBIP-Datei speichern'],
+      ['01:42', 'Vorschau-Features aktivieren'],
+      ['02:08', 'Visual vorbereiten'],
+      ['02:49', 'Projekt in Visual Studio Code öffnen'],
+      ['03:12', 'JSON-Struktur und Visual-ID finden'],
+      ['03:47', 'Feste Werte durch DAX-Expressions ersetzen'],
+      ['04:52', 'Datei speichern und in Power BI neu laden'],
+      ['05:20', 'Ausblick: Live-Verbindung zwischen Power BI & VS Code'],
+      ['05:55', 'Demo: dynamisches Layout in Aktion'],
+      ['06:07', 'Fazit'],
+      ['06:14', 'Like & Abo nicht vergessen']
+    ]
+  },
+  {
+    bucket: 'bucket-5',
+    title: 'Sekundäre Y-Achse umkehren | Power BI Tutorial',
+    guest: 'BI Tutorial',
+    solo: false,
+    date: 'September 2025',
+    duration: '6 min',
+    lang: 'DE',
+    desc: 'In diesem Tutorial zeige ich dir einen praktischen Hack in Power BI, um die sekundäre Y-Achse umzukehren – etwas, das über die Benutzeroberfläche gar nicht möglich ist. Anhand eines Beispiels mit Umsatzdaten und Ranking pro Land erfährst du:',
+    tags: ['Y-Achse', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: '9BpzcWErzwQ',
+    chapters: [
+      ['00:00', 'Problem: Sekundäre Y-Achse umkehren'],
+      ['00:41', 'Kombidiagramm & Filter vorbereiten'],
+      ['01:42', 'Warum die Standardoptionen nicht reichen'],
+      ['02:52', 'Lösung: Negatives Measure für Ranking'],
+      ['04:41', 'Formatierung der Achse anpassen'],
+      ['05:35', 'Fazit & Call-to-Action']
+    ]
+  },
+  {
+    bucket: 'bucket-5',
+    title: 'Boring Charts, Better Insights',
+    guest: 'Lonneke Opsteegh',
+    solo: false,
+    date: 'Oktober 2025',
+    duration: '40 min',
+    lang: 'EN',
+    desc: 'Less is more in dashboards. Lonneke makes the case for "boring" charts — IBCS-inspired, restrained, unbranded — and why these consistently outperform fancy visuals in real decision-making contexts. A masterclass in restraint.',
+    tags: ['IBCS', 'Visualisierung', 'Dashboard', 'Design', 'Storytelling', 'EN', 'Boring Charts'],
+    podcastUrl: 'https://www.podcast.de/episode/694318411/boring-charts-better-insights-lonneke-opsteegh',
+    ytId: 'inko8wG9jlY',
+    chapters: [
+      ['00:00', '<Untitled Chapter 1>'],
+      ['00:36', 'From Brains to BI: Lonneke’s Unexpected Journey into Data'],
+      ['02:21', 'Quit Your Job for BI? Here’s How Lonneke Did It Overnight'],
+      ['04:11', 'Science vs. Business: Where Is Data Actually More Personal?'],
+      ['06:48', 'Why Pie Charts Fail: The Science Behind Better Visuals'],
+      ['09:12', 'Can Dashboards Adapt to Personality Types?'],
+      ['17:36', '“Boring” Dashboards Are Better – Here’s Why'],
+      ['23:28', 'Data Is Never Neutral: Why Dashboards Are Always Biased'],
+      ['29:09', 'Real Creativity in BI Isn’t What You Think']
+    ]
+  },
+
+  /* ========== BUCKET 6: POWER BI DEEP DIVE ========== */
+  {
+    bucket: 'bucket-6',
+    title: 'Power BI vs. Qlik',
+    guest: 'Oliver Franz',
+    solo: false,
+    date: 'Januar 2026',
+    duration: '32 min',
+    lang: 'DE',
+    desc: 'Beide Tools sind seit Jahren am Markt — wo punktet welches wirklich? Oliver Franz, der beide kennt, vergleicht ehrlich: Lizenzmodelle, Datenmodellierung, Self-Service, Performance. Was Power-BI-User von Qlik lernen können (und umgekehrt).',
+    tags: ['Power BI', 'Qlik', 'Vergleich', 'Tools', 'DE', 'SSIS'],
+    podcastUrl: 'https://www.podcast.de/episode/698898828/power-bi-vs-qlik-daten-wg-podcast-mit-oliver-franz',
+    ytId: 'vd1r02bj9Qk',
+    chapters: [
+      ['00:00', 'Wer ist Oliver?'],
+      ['03:36', 'Aha-Effekte aus der Challenge: gleiche Probleme, andere Wege'],
+      ['07:12', 'Full-Stack & „BI-Tool als Datenplattform missbrauchen?“'],
+      ['10:48', 'Datenmodell-Diskussion: assoziativ (Qlik) vs. Filterrichtungen (Power BI)'],
+      ['14:24', 'Analyse vs Reporting: wo hat welches Tool die Stärke?'],
+      ['18:00', 'Self-Service vs Guided Self-Service (Sandkasten, Power-User, Excel-Monster)'],
+      ['21:36', 'Lernkurve & Tool-Wechsel: warum Qlik-User oft nicht loslassen wollen'],
+      ['25:12', 'Tool-Auswahl: wann Power BI, wann Vergleich, wann lieber nicht wechseln'],
+      ['28:48', 'BI einführen: Partner suchen + Tools wirklich 1–2 Tage testen'],
+      ['32:21', 'Outro / Verabschiedung']
+    ]
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'More than PBIX',
+    guest: 'Odeta Jankaitienė',
+    solo: false,
+    date: 'Dezember 2025',
+    duration: '40 min',
+    lang: 'EN',
+    desc: 'Power BI MVP Odeta reflects on the tool\'s journey from solo dashboards to enterprise platform. Frontend vs backend work, why Fabric F2 matters for small teams, DAX vs SQL in real scenarios, Git collaboration, API headaches. A must-listen if you scale Power BI beyond the basics.',
+    tags: ['Power BI', 'Fabric', 'DAX', 'SQL', 'Git', 'Enterprise', 'EN'],
+    podcastUrl: 'https://www.podcast.de/episode/696713701/more-than-pbix-daten-wg-podcast-with-odeta-jankaitiene',
+    ytId: 'c90oD4zR1Aw',
+    chapters: [
+      ['00:00', 'Intro & Welcome'],
+      ['02:26', 'Frontend vs Backend Work in Power BI'],
+      ['05:35', 'Chart Choices: Pie Charts or Better Alternatives'],
+      ['08:36', 'Collaboration with Git & Microsoft Fabric'],
+      ['12:22', 'Why Fabric F2 Matters for Small Teams'],
+      ['24:17', 'DAX vs. SQL — Ease of Use and Real-World Scenarios'],
+      ['32:42', 'Final Thoughts & What\'s Missing in Power BI']
+    ]
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'Mensch bleiben, wenn Power BI geht',
+    guest: 'Stefan Werner',
+    solo: false,
+    date: 'November 2025',
+    duration: '1h 11 min',
+    lang: 'DE',
+    desc: '„Power BI ist bald tot" — sagt ein Power-BI-Dozent. Längste Folge bisher: von der Zukunft von Power BI zur KI und ihren gesellschaftlichen Auswirkungen. Sprachgesteuerte Dashboards, Demokratisierung durch KI, zwei Klassen von KI-Nutzer:innen, autonome Agenten und die Frage: braucht KI Regeln oder Menschen mit Haltung?',
+    tags: ['Karriere', 'Power BI', 'KI', 'Mensch', 'Veränderung', 'Long-Read', 'DE'],
+    podcastUrl: 'https://www.podcast.de/episode/695595560/mensch-bleiben-wenn-power-bi-geht-daten-wg-podcast-mit-stefan-werner',
+    ytId: 'iB4vHRvaErE',
+    chapters: [
+      ['00:00', 'Holzwurm und Dozent: Wer ist Stefan Werner?'],
+      ['02:08', 'Warum Power BI in 10 Jahren überflüssig sein könnte'],
+      ['04:55', 'Tools verschwinden — aber wofür steht das eigentlich?'],
+      ['07:12', 'Vom Quiz zur KI-App: Software in Minuten gebaut'],
+      ['10:28', 'Kann man bald mit Daten „reden" statt analysieren?'],
+      ['13:40', 'Was macht eine „gute" Analyse wirklich aus?'],
+      ['17:05', 'Prompting reicht nicht — es braucht Kontextverständnis'],
+      ['20:12', 'Datenqualität vs. Automatisierung: Wo sind die Grenzen?'],
+      ['23:27', 'Sprachgesteuerte Dashboards — realistisch oder Hype?'],
+      ['26:45', 'Demokratisierung durch KI: Wer profitiert wirklich?'],
+      ['30:58', 'Werden Berater durch KI ersetzt? Oder nur transformiert?'],
+      ['35:10', 'Zwei Klassen von KI-Nutzer:innen: Wer bleibt zurück?'],
+      ['38:27', 'Weiterbildung muss Pflicht werden — nicht Kür'],
+      ['49:40', 'Warum wir Content bald nicht mehr trauen können'],
+      ['56:32', 'Kontrollverlust durch autonome Agenten'],
+      ['61:00', 'Braucht KI Regeln — oder Menschen mit Haltung?'],
+      ['66:40', 'Abschluss: Zwischen Euphorie und Realität']
+    ]
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'So rettest du deine kaputte Power BI Theme Datei in 5 Minuten! | Power BI Tutorial',
+    guest: 'Solo',
+    solo: true,
+    date: 'Oktober 2025',
+    duration: '8 min',
+    lang: 'DE',
+    desc: 'Deine alte Power BI Theme Datei will einfach nicht mehr importiert werden? 😱 Keine Sorge, in diesem Tutorial zeige ich dir, wie du kaputte JSON-Theme-Dateien reparierst und wieder problemlos in Power BI Desktop nutzen kannst.',
+    tags: ['Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'gspmWlVrNdA',
+    chapters: [
+      ['00:00', 'Your Power BI theme file isn\'t working anymore?'],
+      ['00:56', 'Error message when importing into Power BI Desktop'],
+      ['01:30', 'Microsoft documentation & JSON schema'],
+      ['02:52', 'Using Visual Studio Code'],
+      ['03:46', 'Integrating the JSON schema into the workspace'],
+      ['05:24', 'Renaming & validating the theme file'],
+      ['06:00', 'Quickly finding and fixing errors'],
+      ['07:00', 'Success: Theme file importable again!'],
+      ['07:23', 'Conclusion & Next Steps']
+    ]
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'So hackst du einen Power BI Bericht | Power BI Tutorial',
+    guest: 'Solo',
+    solo: true,
+    date: 'September 2025',
+    duration: '8 min',
+    lang: 'DE',
+    desc: '🔒 So hackst du einen Power BI Bericht In diesem Video zeige ich dir, wie schnell scheinbar sichere Power BI-Berichte doch unerwartete Lücken offenbaren können. Wir tauchen in das Thema Sicherheit ein, schauen uns neue Features im Power BI Service an, und ich erkläre dir Schritt für Schritt, wie ein Benutzer trotz eingeschränkter Berechtigungen an mehr Inf...',
+    tags: ['Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'GKLxM3317Xk',
+    chapters: [
+      ['00:00', 'Intro & Setting'],
+      ['00:18', 'Admin- vs. User-Ansicht'],
+      ['00:52', 'Bericht öffnen – nur Frankreich sichtbar'],
+      ['01:05', 'Dataset & Berechtigungen'],
+      ['01:33', 'Neues Feature: Durchsuchen (Explore)'],
+      ['02:17', 'Erkunden des Datasets'],
+      ['02:52', 'Speicherung der Erkundung'],
+      ['03:24', 'Admin deaktiviert Explore-Feature'],
+      ['04:26', 'Semantisches Modell anzeigen'],
+      ['05:30', 'Abfrageparameter als Angriffspunkt'],
+      ['06:07', 'Filter-Manipulation im Bericht'],
+      ['07:14', 'Grenzen von „Ausblenden“'],
+      ['07:26', 'Richtig schützen: Daten aus dem Modell entfernen'],
+      ['07:54', 'Fazit & Call-to-Action']
+    ]
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'Vorbereiten der Daten für KI',
+    guest: 'Solo',
+    solo: true,
+    date: 'August 2025',
+    duration: '9 min',
+    lang: 'DE',
+    desc: 'In diesem Video erfährst Du, wie Du in Power BI die Funktion „Vorbereiten von Daten für KI“ gezielt einsetzt, um Copilot bestmöglich zu nutzen. Ich zeige Dir Schritt für Schritt:',
+    tags: ['Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'WJXREKKx2yo',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'Forms + Sharepoint + Powerautomate',
+    guest: 'Solo',
+    solo: true,
+    date: 'August 2025',
+    duration: '10 min',
+    lang: 'DE',
+    desc: '🎯 Aktivitäten in Teams & SharePoint automatisieren – mit Copilot & Power Automate!',
+    tags: ['DE'],
+    podcastUrl: null,
+    ytId: 'kP8YNW1XN_E',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'Forms + Power Automate = Feedback-Alarm!',
+    guest: 'Solo',
+    solo: true,
+    date: 'August 2025',
+    duration: '8 min',
+    lang: 'DE',
+    desc: '🎯 E-Mail-Alarm bei schlechtem Feedback – automatisiert mit Power Automate & Copilot!',
+    tags: ['DE'],
+    podcastUrl: null,
+    ytId: '1mfhZw7bg_c',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'Copilot + Power Automate = Gamechanger',
+    guest: 'Solo',
+    solo: true,
+    date: 'August 2025',
+    duration: '10 min',
+    lang: 'DE',
+    desc: '🎯 Microsoft Forms automatisch in SharePoint übertragen – mit Copilot & Power Automate!',
+    tags: ['DE'],
+    podcastUrl: null,
+    ytId: '_MfM3rhJx58',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-6',
+    title: '10 Jahre BI für alle? Was Power BI wirklich verändert hat',
+    guest: 'Artur, Marcus & Ulrik',
+    solo: true,
+    date: 'August 2025',
+    duration: '37 min',
+    lang: 'DE',
+    desc: 'Power BI wird 10 Jahre alt. Drei Datenprofis reflektieren: Von den Anfängen mit Power Pivot bis zur aktuellen Fabric-Dynamik. Technische Meilensteine, persönliche Lernkurven, die Rolle von Self-Service-Kultur — und die Frage, was aus der Self-Service-Vision wirklich geworden ist.',
+    tags: ['Power BI', 'Power Pivot', 'Self-Service', 'Geschichte', 'Reflexion', 'DE', 'Fabric', 'Warehouse'],
+    podcastUrl: 'https://www.podcast.de/episode/692641091/10-jahre-bi-fuer-alle-was-power-bi-wirklich-veraendert-hat',
+    ytId: '9wl_PLvgvyc',
+    chapters: [
+      ['00:00', 'Einstieg & 10 Jahre Power BI — persönliche Erfahrungen'],
+      ['04:00', 'Kosten, Tools & Einstiegshürden im Mittelstand'],
+      ['07:33', 'Die Magie des Datenmodells & Self-Service-Gedanken'],
+      ['11:07', 'Microsofts Strategie & das tabulare Modell'],
+      ['14:40', 'Ist das noch Self-Service? Oder schon Datenplattform?'],
+      ['17:07', 'Wann lohnt sich Fabric — und wann (vielleicht) nicht?'],
+      ['21:29', 'Kontrolle vs. Freiheit in Self-Service']
+    ]
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'Protokoll in 60 Sekunden! - So geht es mit Copilot!',
+    guest: 'Solo',
+    solo: true,
+    date: 'August 2025',
+    duration: '3 min',
+    lang: 'DE',
+    desc: '🎯 Meetings effizient protokollieren mit Copilot – so geht’s!',
+    tags: ['DE'],
+    podcastUrl: null,
+    ytId: 'wuuPwUPQVxk',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'Data Projects like Iron Man [AI dubbed]',
+    guest: 'Solo',
+    solo: true,
+    date: 'April 2025',
+    duration: '12 min',
+    lang: 'EN',
+    desc: 'Burn Your Money Faster! What We Can Learn from Iron Man for Data Projects.',
+    tags: ['EN'],
+    podcastUrl: null,
+    ytId: 'svytHaNMTf0',
+    chapters: []
+  },
+
+  /* ========== BUCKET 7: KARRIERE & COMMUNITY ========== */
+  {
+    bucket: 'bucket-7',
+    title: 'The Power of User Groups',
+    guest: 'Ioannis Philippides',
+    solo: false,
+    date: 'Oktober 2025',
+    duration: '32 min',
+    lang: 'EN',
+    desc: 'What makes a Power BI community thrive? Ioannis, new co-lead of Power BI User Group Berlin, shares his journey — from Athens to Berlin, from Databricks to custom visuals. Practical insights for engaged data pros, aspiring speakers, and visual tinkerers.',
+    tags: ['Community', 'User Group', 'Karriere', 'Power BI', 'Custom Visuals', 'EN'],
+    podcastUrl: 'https://www.podcast.de/episode/694664597/the-power-of-user-groups-daten-wg-podcast-with-ioannis-philippides',
+    ytId: 'SSUpe1JON9Y',
+    chapters: [
+      ['00:00', 'Passing the Torch: New Leadership for Berlin Power BI'],
+      ['02:10', 'From Athens to Berlin: Building Communities Across Borders'],
+      ['03:45', 'Hybrid Events and Live Streaming: Growing the Reach'],
+      ['04:55', 'Upcoming Talk: Databricks + Power BI'],
+      ['07:00', 'Volunteering, Passion & the Power of Community'],
+      ['08:10', 'Ioannis’ First Steps: New Stars of Data and Mentorship'],
+      ['12:00', 'Custom Visuals in Power BI: Why and How to Get Started'],
+      ['20:30', 'The Future of Visuals: Copilot, Interactivity & Real User Needs']
+    ]
+  },
+  {
+    bucket: 'bucket-7',
+    title: 'Why Passion Beats Niche',
+    guest: 'Brian Bønk',
+    solo: false,
+    date: 'September 2025',
+    duration: '34 min',
+    lang: 'EN',
+    desc: 'Conventional wisdom: Pick a niche, become the expert. Brian disagrees — passion across domains beats narrow specialization in the long run. How does that work in BI careers? When does broad curiosity pay off, when does it hurt?',
+    tags: ['Karriere', 'Mindset', 'Community', 'MVP', 'EN', 'Fabric', 'Lakehouse'],
+    podcastUrl: 'https://www.podcast.de/episode/693524412/why-passion-beats-niche-brian-bonk',
+    ytId: 'ihi7UiJ_TtQ',
+    chapters: [
+      ['00:00', 'Welcome & Real-Time Analytics Introduction'],
+      ['02:04', 'What Is Kusto Query Language (KQL)?'],
+      ['04:37', 'Choosing Passion Over Niche in Tech Communities'],
+      ['09:00', 'The T‑Shaped Fabric Expert: Why Focus Matters'],
+      ['11:42', 'The 1% Better Every Day Mindset'],
+      ['15:50', 'Architecture of Fabric’s Real-Time Analytics Stack'],
+      ['19:47', 'Autoscaling, Cost & Free Real-Time Dashboards'],
+      ['23:53', 'Hybrid Models: Real-Time + Lakehouse Balance'],
+      ['25:04', 'When SQL Still Beats Kusto: Modeling & Cost Considerations'],
+      ['29:29', 'Hybrid Architecture with Lakehouse Shortcuts'],
+      ['30:40', 'The Value of Kusto’s Simplicity & Interoperability'],
+      ['31:19', 'Feature Wishlist: Materialized Views & Kusto Functions'],
+      ['33:09', 'Community Thoughts & Event Shout-Outs'],
+      ['34:11', 'Wrapping Up & Encouragement to Explore Real-Time Analytics']
+    ]
+  },
+  {
+    bucket: 'bucket-7',
+    title: 'From Oracle to Empathy',
+    guest: 'Alexander Arvidsson',
+    solo: false,
+    date: 'September 2025',
+    duration: '48 min',
+    lang: 'EN',
+    desc: 'Alexander has seen it all — from hardcore Oracle backends to Microsoft Fabric. His thesis: Technical skills are not enough. Data storytelling, cultural differences (Germany vs. elsewhere), shadow IT, and minimum viable governance. A must-watch for data pros and curious minds.',
+    tags: ['Karriere', 'Storytelling', 'Governance', 'Fabric', 'Copilot', 'Kultur', 'EN', 'Career-Switch', 'Power BI'],
+    podcastUrl: 'https://www.podcast.de/episode/693043747/from-oracle-to-empathy-alexander-arvidsson',
+    ytId: '1yuQVABBrNs',
+    chapters: [
+      ['00:00', 'Intro & Alexander\'s Unusual Start'],
+      ['06:00', 'Data Storytelling, Trust & Misleading Visuals'],
+      ['12:30', 'Culture Clash in Reporting Styles'],
+      ['19:00', 'Tech vs. Usability: Power, Pain & the Business Perspective'],
+      ['25:00', 'Learning Curves & Shadow IT'],
+      ['30:30', 'Fabric: Revolutionary or Risky?'],
+      ['36:00', 'Minimum Viable Governance in Practice'],
+      ['42:00', 'AI, Copilot & the Myth of No-Code Dashboards']
+    ]
+  },
+  {
+    bucket: 'bucket-7',
+    title: 'Von Patronen zu Prozessen',
+    guest: 'Matthias · AXRO',
+    solo: false,
+    date: 'August 2025',
+    duration: '23 min',
+    lang: 'DE',
+    desc: 'Sonderausgabe: Matthias von AXRO gibt Einblick in die digitale Transformation eines Mittelständlers mit Tech-DNA — von Eigenentwicklung zu strukturierten Prozessen. Wie schaffst du es, dass Wissen nicht in Köpfen einzelner verschwindet?',
+    tags: ['Prozesse', 'Mittelstand', 'Transformation', 'Wissensmanagement', 'Consulting', 'DE', 'Fabric', 'Warehouse', 'Power BI'],
+    podcastUrl: 'https://www.youtube.com/watch?v=0cHtxIm7fVw',
+    ytId: '0cHtxIm7fVw',
+    chapters: [
+      ['00:00', 'Transformation bei AXRO: Mittelstand mit Tech-DNA'],
+      ['00:43', 'Data & Tech im Herzen: 30 Leute für Digitalisierung'],
+      ['01:24', 'Vom Druckerzubehör zum Gaming-Distributor'],
+      ['02:03', 'Eigenentwicklungen & Middleware als Strategie'],
+      ['02:31', 'ERP-Wechsel: Von Maßanzug zu Standardlösung'],
+      ['03:15', 'Alt trifft Neu: Die ERP-Migration bei AXRO'],
+      ['04:50', 'Power BI im Lager: Analytics wird operativ'],
+      ['05:26', 'Frühe Datenstrategie: AXROs Data Warehouse'],
+      ['06:03', 'Fabric & UX: Alt-Datenmodell trifft neues ERP'],
+      ['07:24', 'Prozessautomatisierung beginnt beim Prozess'],
+      ['08:43', 'RPA über Daten: Stabiler, robuster, nachhaltiger'],
+      ['10:07', 'Case Study: Bedarfsanfragen mit 90% Automatisierung'],
+      ['12:35', 'Der KI-Schritt: Von Regeln zur Interpretation'],
+      ['13:34', 'LLMs für E-Mails: Flexible Automatisierung'],
+      ['14:01', 'Mittelspur war gestern: Automatisierung auf dem nächsten Level'],
+      ['15:28', 'Wachstum ohne Mehrarbeit: Automatisierung als Schlüssel'],
+      ['17:12', 'Daten & Prozesse: Zusammenwachsen als Prinzip'],
+      ['18:46', 'Citizen Development? Nur mit Governance und Plan']
+    ]
+  },
+  {
+    bucket: 'bucket-7',
+    title: 'How To Fullstack',
+    guest: 'Valerie Junk',
+    solo: false,
+    date: 'Juni 2025',
+    duration: '32 min',
+    lang: 'EN',
+    desc: 'First English episode of Daten-WG. Valerie\'s journey from backend engineering to frontend data visualization — and why communication, trust, and real user focus are the true keys to successful data projects. With a lot of Fabric in between.',
+    tags: ['Karriere', 'Fullstack', 'Fabric', 'Backend', 'Frontend', 'EN', 'Power BI'],
+    podcastUrl: 'https://www.podcast.de/episode/690429224/how-to-fullstack-with-valerie-junk',
+    ytId: 'bgJjhx6IegA',
+    chapters: [
+      ['00:00', 'Welcome and meeting Valerie'],
+      ['03:00', 'Valerie\'s journey: From backend to frontend'],
+      ['06:00', 'Why good data models still fail without the right visualization'],
+      ['09:00', 'Trust issues: Why people still export to Excel'],
+      ['12:00', 'Communication challenges between data teams and business users'],
+      ['15:00', 'Career surprises: From developer dream to consulting reality'],
+      ['18:00', 'Power BI, Fabric and why platforms matter for collaboration'],
+      ['21:00', 'Helping clients adopt Fabric step by step']
+    ]
+  },
+
+  /* ========== BUCKET 8: STRATEGIE & BIG PICTURE ========== */
+  {
+    bucket: 'bucket-8',
+    title: 'Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite',
+    guest: 'WG Offsite',
+    solo: false,
+    date: 'März 2026',
+    duration: '7 min',
+    lang: 'DE',
+    desc: 'In diesem Talk geht es um eine spannende Frage: Können wir Supply Chain und Unternehmensplanung vollständig automatisieren – oder brauchen wir doch noch den Menschen?',
+    tags: ['Supply Chain', 'DE'],
+    podcastUrl: null,
+    ytId: 'sq8AWk_yNWM',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-8',
+    title: 'Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?',
+    guest: 'Heiko Löffler · Digital Success',
+    solo: false,
+    date: 'Februar 2026',
+    duration: '44 min',
+    lang: 'DE',
+    desc: 'Cross-Over mit dem Digital Success Podcast: 20 Jahre Digitalisierung, und gefühlt fängt es immer wieder bei Null an. Was hat wirklich geklappt, was wiederholt sich endlos? Mit Blick auf deutschen Mittelstand: Wo bleiben echte Fortschritte, wo PowerPoint-Folien?',
+    tags: ['Digitalisierung', 'Strategie', 'Mittelstand', 'Crossover', 'Big Picture', 'DE'],
+    podcastUrl: 'https://www.podcast.de/episode/701348545/digitalisierung-seit-20-jahren-wann-sind-wir-endlich-fertig-daten-wg-x-digital-success-podcast-mit-heiko-loeffler',
+    ytId: 'jETxUNQSl-w',
+    chapters: [
+      ['00:00', 'Why digitalization never ends – Getting started & 3 horizons'],
+      ['04:22', 'Brownfield reality: Where do you even begin?'],
+      ['08:07', 'Vision instead of knee-jerk reactions – why strategy comes before tools'],
+      ['11:36', 'Who really needs to be at the table? (And who\'s better off not)'],
+      ['15:00', 'Doing workshops right: Decisions instead of snacks'],
+      ['16:35', 'Top-down vs. bottom-up – do we need both?'],
+      ['22:04', 'Self-service BI & uncontrolled growth – chaos or productivity?'],
+      ['25:29', 'Copilot, costs & dead reports – enablement instead of a license graveyard'],
+      ['29:29', 'AI as a catalyst – why everyone is suddenly affected'],
+      ['35:01', 'Rebuilding a greenfield with AI – realistic or an illusion?'],
+      ['38:32', 'Implementation Mode: Why Waiting Is the Greatest Danger']
+    ]
+  },
+  {
+    bucket: 'bucket-8',
+    title: 'Von Patronen zu Prozessen (nur Ton)',
+    guest: 'Solo',
+    solo: true,
+    date: 'Juli 2025',
+    duration: '23 min',
+    lang: 'DE',
+    desc: 'In dieser Sonderausgabe der Daten-WG gibt Matthias von AXRO Einblick in die digitale Transformation eines Mittelständlers mit Tech-DNA – von Eigenentwicklungen über ERP-Migration bis hin zu KI-gestützter Prozessautomatisierung. Dabei zeigt sich, wie tief Technologie, Daten und operative Exzellenz bei AXRO miteinander verschmelzen.',
+    tags: ['Fabric', 'Warehouse', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 's3CveEVoDvo',
+    chapters: [
+      ['00:00', 'Transformation bei AXRO: Mittelstand mit Tech-DNA'],
+      ['00:43', 'Data & Tech im Herzen: 30 Leute für Digitalisierung'],
+      ['01:24', 'Vom Druckerzubehör zum Gaming-Distributor'],
+      ['02:03', 'Eigenentwicklungen & Middleware als Strategie'],
+      ['02:31', 'ERP-Wechsel: Von Maßanzug zu Standardlösung'],
+      ['03:15', 'Alt trifft Neu: Die ERP-Migration bei AXRO'],
+      ['04:50', 'Power BI im Lager: Analytics wird operativ'],
+      ['05:26', 'Frühe Datenstrategie: AXROs Data Warehouse'],
+      ['06:03', 'Fabric & UX: Alt-Datenmodell trifft neues ERP'],
+      ['07:24', 'Prozessautomatisierung beginnt beim Prozess'],
+      ['08:43', 'RPA über Daten: Stabiler, robuster, nachhaltiger'],
+      ['10:07', 'Case Study: Bedarfsanfragen mit 90% Automatisierung'],
+      ['12:35', 'Der KI-Schritt: Von Regeln zur Interpretation'],
+      ['13:34', 'LLMs für E-Mails: Flexible Automatisierung'],
+      ['14:01', 'Mittelspur war gestern: Automatisierung auf dem nächsten Level'],
+      ['15:28', 'Wachstum ohne Mehrarbeit: Automatisierung als Schlüssel'],
+      ['17:12', 'Daten & Prozesse: Zusammenwachsen als Prinzip'],
+      ['18:46', 'Citizen Development? Nur mit Governance und Plan']
+    ]
+  },
+
+  /* ========== BUCKET 9: EVENT · DATEN-WG ========== */
+  {
+    bucket: 'bucket-9',
+    title: 'Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup',
+    guest: 'Fabric Meetup',
+    solo: false,
+    date: 'Juni 2025',
+    duration: '38 min',
+    lang: 'DE',
+    desc: 'Beim Fabric Meetup Rhein-Ruhr bei Oraylis haben wir es nun in voller Länge vorstellen können.',
+    tags: ['Fabric', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'BDnwlOqRElY',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-9',
+    title: 'Slam @dataunplugged Pre-Event von @Dataciders',
+    guest: 'Solo',
+    solo: true,
+    date: 'April 2025',
+    duration: '7 min',
+    lang: 'DE',
+    desc: 'Sind Daten die neuen Zootiere? 🐘📊',
+    tags: ['Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'OYvXe4k-Df8',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-9',
+    title: 'Wie war die Daten-WG? · Im Gespräch mit Artur König',
+    guest: 'Artur König · Pre-Event',
+    solo: false,
+    date: 'März 2025',
+    duration: '~20 min',
+    lang: 'DE',
+    desc: 'Pre-Event-Folge auf YouTube: Wie kommt die Idee zur Daten-WG zustande? Was unterscheidet das Format von steifen Konferenzen? Artur König erklärt die Wohnzimmer-Atmosphäre und warum echtes Networking nur ohne Krawatten-Druck funktioniert. Direkt-Embed verfügbar.',
+    tags: ['Event', 'Konferenz', 'Pre-Event', 'Köln', 'YouTube-Only', 'DE', 'Rückblick', 'Fabric', 'Power BI'],
+    podcastUrl: 'https://www.youtube.com/watch?v=z4ZeHPzIeeU',
+    ytId: 'z4ZeHPzIeeU',
+    chapters: [
+      ['00:00', 'Einleitung und Vorstellung der Daten-WG 2025'],
+      ['03:24', 'Arthurs Keynote und Hypothesen-basiertes Arbeiten'],
+      ['09:39', 'Besuch von Thomas Sigmund und strategische Bedeutung von Rechenzentren'],
+      ['11:18', 'Matthias Thierbach über DevOps und Fabric'],
+      ['12:38', 'Data Modelling und Deep-Dive-Themen'],
+      ['14:51', 'Dilyanas Präsentation über KI im Business'],
+      ['19:25', 'Interaktive Sessions bringen Lernen und Spaß zusammen'],
+      ['30:02', 'Feedback und Ausblick auf zukünftige Veranstaltungen']
+    ]
+  },
+  {
+    bucket: 'bucket-9',
+    title: 'Wie war die Daten-WG 2025? (Teil 1)',
+    guest: 'Konferenz-Rückblick',
+    solo: true,
+    date: 'Mai 2025',
+    duration: '36 min',
+    lang: 'DE',
+    desc: 'Erste Hälfte des Konferenz-Rückblicks: Stimmen, Sessions, Eindrücke von der Daten-WG 2025 in Köln. Was wurde diskutiert, welche Themen blieben hängen? Mit O-Tönen aus den Pausen.',
+    tags: ['Event', 'Konferenz', 'Köln', 'Rückblick', 'DE', 'Power BI'],
+    podcastUrl: 'https://www.podcast.de/episode/690399925/wie-war-die-daten-wg-2025-teil-1',
+    ytId: 'aEXtFWW-pmo',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-9',
+    title: 'Was wir von Iron Man für Datenprojekte lernen können (data:unplugged Vortrag)',
+    guest: 'Solo',
+    solo: true,
+    date: 'April 2025',
+    duration: '12 min',
+    lang: 'DE',
+    desc: 'Verbrennt euer Geld schneller! Was wir von Iron Man für Datenprojekte lernen können.',
+    tags: ['DE'],
+    podcastUrl: null,
+    ytId: 'qVZhboahaDE',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-9',
+    title: 'Wie war die Daten-WG 2025? (Teil 2)',
+    guest: 'Konferenz-Rückblick',
+    solo: true,
+    date: 'Mai 2025',
+    duration: '37 min',
+    lang: 'DE',
+    desc: 'Zweite Hälfte: Weitere Sessions, Speaker-Reflexionen, was die Community mitnimmt. Plus erste Andeutungen, wohin sich die Konferenz 2026 entwickelt.',
+    tags: ['Event', 'Konferenz', 'Köln', 'Rückblick', 'DE'],
+    podcastUrl: 'https://www.podcast.de/episode/690421267/wie-war-die-daten-wg-2025-teil-2',
+    ytId: '5atgv1IOijA',
+    chapters: []
+  }
+];
+
+/* ============================================================
+   RENDERING & INTERACTIVITY
+   ============================================================ */
+
+// Build YouTube channel-scoped search URL for any video title
+function ytSearchUrl(title) {
+  const q = encodeURIComponent(title);
+  return `https://www.youtube.com/@Daten-WG/search?query=${q}`;
+}
+
+// Format duration helper (already in episode data as readable string)
+// Generate HTML for one episode card
+function renderCard(ep, idx) {
+  const tagsHtml = ep.tags.map(t => `<span class="video-card-tag">${t}</span>`).join('');
+  const chaptersHtml = ep.chapters.length > 0 ? `
+    <div class="video-card-chapters">
+      <div class="chapters-title">Kapitel · ${ep.chapters.length} Sprungmarken</div>
+      <ul class="chapter-list">
+        ${ep.chapters.map(([t, txt]) => `
+          <li class="chapter-item">
+            <span class="chapter-time">${t}</span>
+            <span class="chapter-text">${txt}</span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>` : '';
+
+  const expandable = ep.chapters.length > 0 || !!ep.ytId;
+  const ytUrl = ep.ytId
+    ? `https://www.youtube.com/watch?v=${ep.ytId}`
+    : ytSearchUrl(ep.title.replace(/·.*$/, '').trim());
+  const hasYtEmbed = !!ep.ytId;
+
+  const embedHtml = hasYtEmbed ? `
+    <div class="video-card-embed" data-ytid="${ep.ytId}">
+      <button class="video-embed-placeholder" type="button" aria-label="Video laden">
+        <span class="embed-play">▶</span>
+        <span class="embed-label">Video laden</span>
+      </button>
+    </div>` : '';
+
+  return `
+    <div class="video-card${expandable ? ' has-chapters' : ''}" 
+         data-bucket="${ep.bucket}"
+         data-tags="${ep.tags.join('|').toLowerCase()}"
+         data-search="${(ep.title + ' ' + ep.guest + ' ' + ep.desc).toLowerCase().replace(/"/g, '&quot;')}"
+         style="animation-delay: ${idx * 30}ms">
+      <div class="video-card-top">
+        <div class="video-card-eyebrow">${ep.tags[0]}</div>
+        <div class="video-card-lang">${ep.lang}</div>
+      </div>
+      <h3 class="video-card-title">${ep.title}</h3>
+      <div class="video-card-guest${ep.solo ? ' solo' : ''}">${ep.guest}</div>
+      <p class="video-card-desc">${ep.desc}</p>
+      <div class="video-card-meta">
+        <span class="video-card-meta-item">📅 ${ep.date}</span>
+        <span class="video-card-meta-item">⏱ ${ep.duration}</span>
+        ${hasYtEmbed ? '<span class="video-card-meta-item" title="Direkt-Embed verfügbar">🎥 Embed</span>' : ''}
+      </div>
+      <div class="video-card-tags">${tagsHtml}</div>
+      <div class="video-card-actions">
+        <a class="btn btn-primary" href="${ytUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          YouTube
+        </a>
+        ${!hasYtEmbed ? `<a class="btn btn-ghost" href="${ep.podcastUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a11 11 0 1 0 0 22 11 11 0 0 0 0-22Zm0 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm-1.5 13.5h3v2.7c0 .4-.4.8-.8.8h-1.4c-.4 0-.8-.4-.8-.8v-2.7Z"/></svg>
+          Podcast.de
+        </a>` : ''}
+        ${expandable ? `<button class="btn btn-ghost expand-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>
+          ${ep.chapters.length > 0 ? 'Kapitel' : 'Video'}
+        </button>` : ''}
+      </div>
+      ${embedHtml}
+      ${chaptersHtml}
+    </div>
+  `;
+}
+
+// Render all buckets and cards
+function renderBuckets() {
+  const container = document.getElementById('buckets-container');
+  let html = '';
+  BUCKETS.forEach(b => {
+    const eps = EPISODES.filter(e => e.bucket === b.id);
+    html += `
+      <section class="bucket-section" id="${b.id}" data-bucket="${b.id}" style="--bucket-color: ${b.color}">
+        <div class="bucket-head">
+          <span class="bucket-num">${b.num}</span>
+          <h2 class="bucket-title">${b.title}</h2>
+          <span class="bucket-hint">${b.hint} · ${eps.length} ${eps.length === 1 ? 'Folge' : 'Folgen'}</span>
+        </div>
+        <p class="bucket-intro">${b.intro}</p>
+        <div class="card-grid">
+          ${eps.map((ep, i) => renderCard(ep, i)).join('')}
+        </div>
+      </section>
+    `;
+  });
+  container.innerHTML = html;
+
+  // Wire up expand buttons
+  container.querySelectorAll('.expand-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const card = btn.closest('.video-card');
+      card.classList.toggle('expanded');
+      const svg = btn.querySelector('svg');
+      svg.style.transform = card.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
+      svg.style.transition = 'transform .2s ease';
+    });
+  });
+
+  // Lazy-load YouTube embeds when placeholder clicked
+  container.querySelectorAll('.video-embed-placeholder').forEach(ph => {
+    ph.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const wrap = ph.parentElement;
+      const id = wrap.dataset.ytid;
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+      iframe.title = 'YouTube video';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      wrap.replaceChild(iframe, ph);
+    });
+  });
+
+  // Whole-card click also toggles expansion if card has chapters or embed
+  container.querySelectorAll('.video-card.has-chapters').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('a, button, iframe, .video-embed-placeholder')) return;
+      const btn = card.querySelector('.expand-btn');
+      if (btn) btn.click();
+    });
+  });
+}
+
+/* ============================================================
+   TAG FILTERS
+   ============================================================ */
+
+// Collect all unique tags + their counts
+function buildTagIndex() {
+  const counts = {};
+  EPISODES.forEach(ep => ep.tags.forEach(t => {
+    counts[t] = (counts[t] || 0) + 1;
+  }));
+  // Sort: highest count first, then alpha
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([tag, count]) => ({ tag, count }));
+}
+
+const activeTags = new Set();
+
+function renderTags() {
+  const list = document.getElementById('tag-list');
+  const tags = buildTagIndex();
+  const rareCount = tags.filter(t => t.count < 2).length;
+  list.innerHTML = tags.map(({ tag, count }) =>
+    `<button class="tag-chip${count < 2 ? ' rare' : ''}" data-tag="${tag.toLowerCase()}">${tag}<span class="tag-count">${count}</span></button>`
+  ).join('') + (rareCount > 0 ? `<button class="tag-toggle" id="toggle-tags" type="button">+ ${rareCount} weitere Tags</button>` : '');
+
+  list.querySelectorAll('.tag-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const t = chip.dataset.tag;
+      if (activeTags.has(t)) {
+        activeTags.delete(t);
+        chip.classList.remove('active');
+      } else {
+        activeTags.add(t);
+        chip.classList.add('active');
+      }
+      applyFilters();
+    });
+  });
+
+  const toggle = document.getElementById('toggle-tags');
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      list.classList.toggle('show-all');
+      const expanded = list.classList.contains('show-all');
+      toggle.textContent = expanded ? '− Weniger Tags' : `+ ${rareCount} weitere Tags`;
+    });
+  }
+}
+
+/* ============================================================
+   FILTERING (search + tags)
+   ============================================================ */
+
+function applyFilters() {
+  const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
+  let visibleCount = 0;
+  const bucketVisibility = {};
+
+  document.querySelectorAll('.video-card').forEach(card => {
+    const search = card.dataset.search || '';
+    const cardTags = (card.dataset.tags || '').split('|');
+    const bucketId = card.dataset.bucket;
+
+    const matchesSearch = !searchVal || search.includes(searchVal);
+    const matchesTags = activeTags.size === 0 || [...activeTags].every(t => cardTags.includes(t));
+    const visible = matchesSearch && matchesTags;
+
+    card.classList.toggle('hidden', !visible);
+    if (visible) {
+      visibleCount++;
+      bucketVisibility[bucketId] = (bucketVisibility[bucketId] || 0) + 1;
+    }
+  });
+
+  // Hide entire bucket sections that have no visible cards
+  document.querySelectorAll('.bucket-section').forEach(section => {
+    const bId = section.dataset.bucket;
+    section.classList.toggle('hidden', !bucketVisibility[bId]);
+  });
+
+  document.getElementById('result-count').textContent = visibleCount;
+  document.getElementById('no-results').classList.toggle('visible', visibleCount === 0);
+}
+
+function resetFilters() {
+  activeTags.clear();
+  document.querySelectorAll('.tag-chip.active').forEach(c => c.classList.remove('active'));
+  document.getElementById('search-input').value = '';
+  applyFilters();
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderBuckets();
+  renderTags();
+  document.getElementById('search-input').addEventListener('input', applyFilters);
+  document.getElementById('reset-filters').addEventListener('click', resetFilters);
+
+  // Make bucket overview tiles set their CSS var color from inline style
+  // (already done in markup)
+});
+</script>
+</body>
+</html>

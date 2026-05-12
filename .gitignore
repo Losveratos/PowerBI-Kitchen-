@@ -1,0 +1,41 @@
+# --- Daten WG Buckets · gitignore ---
+
+# Lokales Backup (wird beim Build erzeugt, nicht versionieren)
+daten_wg_learn_buckets.backup.html
+
+# yt-dlp Caches (regenerierbar via scripts/fetch_videos.py)
+videos_flat.json
+videos_raw.json
+.episodes_range.json
+
+# Build-Zwischenstaende
+existing_episodes.json
+
+# yt-dlp data dir
+data/
+
+# Andere Themen / nicht zu diesem Repo
+power_bi_einsteiger_guide_v4.html
+wordpress.md
+drafts/
+analysis/
+notes/
+
+# Diagnose-Helfer (entstanden waehrend Bug-Hunting, nicht produktiv)
+scripts/debug_*
+scripts/find_*
+
+# Python / Node Caches
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Claude Code lokal
+.claude/

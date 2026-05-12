@@ -1,0 +1,3936 @@
+[
+  {
+    "bucket": "bucket-1",
+    "title": "Power BI Update April 2026",
+    "guest": "",
+    "solo": true,
+    "date": "April 2026",
+    "duration": "5 min",
+    "lang": "DE",
+    "desc": "Es gibt einige kompakte, aber feine Updates, die vor allem das Front-End betreffen.",
+    "tags": [
+      "Update",
+      "Direct Lake",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "fbpu8zLG3cc",
+    "chapters": [
+      [
+        "00:00",
+        "Intro: April Update, compact and frontend-focused"
+      ],
+      [
+        "00:25",
+        "Canvas settings: Full HD finally available as a finished option"
+      ],
+      [
+        "00:49",
+        "Tile layout: fixed width for map walls"
+      ],
+      [
+        "01:15",
+        "Cross filter now also works in horizontal orientation"
+      ],
+      [
+        "01:55",
+        "Preview: DAX columns in Direct Lake"
+      ],
+      [
+        "02:58",
+        "User context awareness for DAX columns"
+      ],
+      [
+        "04:22",
+        "Advertisement: Data-WG agenda is live"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260424"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Fabric & Power BI Quarterly | 2026-2",
+    "guest": "",
+    "solo": true,
+    "date": "April 2026",
+    "duration": "58 min",
+    "lang": "DE",
+    "desc": "Gabi und Artur schauen auf die letzten Monate in Fabric - und nach der FABCON im März gibt es einiges zu besprechen.",
+    "tags": [
+      "Quarterly",
+      "Fabric",
+      "OneLake",
+      "SSIS",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "pTTYySb0Cyg",
+    "chapters": [
+      [
+        "00:00",
+        "Intro: FabCon 2026 and the first wave of announcements"
+      ],
+      [
+        "00:31",
+        "Power BI: Custom Totals in Tables and Matrices"
+      ],
+      [
+        "03:07",
+        "Visual Calculations as a Shortcut, Not a Model Replacement"
+      ],
+      [
+        "03:57",
+        "March Update: New UI Default and Gray Background"
+      ],
+      [
+        "04:25",
+        "PBR as the New Standard for Power BI Models"
+      ],
+      [
+        "05:55",
+        "Pro Developer Format: Why Structured Code Counts Everywhere Now"
+      ],
+      [
+        "07:53",
+        "Translytical Task Flows Are GA"
+      ],
+      [
+        "09:52",
+        "Lego Robots via Translytical: A Premiere at Data Grilling"
+      ],
+      [
+        "11:00",
+        "Dataflows Gen 1 Become Legacy – What Does That Really Mean?"
+      ],
+      [
+        "15:37",
+        "Fabric Toolbox: Migration Accelerator for Gen 1"
+      ],
+      [
+        "16:48",
+        "What Pro Users Need to Keep an Eye On Now"
+      ],
+      [
+        "21:26",
+        "SCD Type 2 in Copy Jobs (Preview) – The End for Many Notebooks"
+      ],
+      [
+        "24:38",
+        "Platform: SAP GA, Snowflake and Databricks Bidirectionally, Airflow and DBT"
+      ],
+      [
+        "26:53",
+        "OneLake Security: Interoperability Instead of Vendor Lock-in"
+      ],
+      [
+        "30:53",
+        "What's Still Missing in OneLake Security – and Why GA Still Matters"
+      ],
+      [
+        "33:30",
+        "Quality of Life: Recycle Bin and Overage Billing"
+      ],
+      [
+        "42:00",
+        "Fabric Planning with Lumel: First-Party Workload Without an Extra License"
+      ],
+      [
+        "53:23",
+        "Planning vs. Translytical Task Flows: Two Tools, Two Jobs"
+      ],
+      [
+        "54:25",
+        "Gabi's FabCon Highlights: OneLake Security and Governance"
+      ],
+      [
+        "56:00",
+        "Data WG 2026, Data Grilling and SQL Bits"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260419"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Power BI Update März 2026",
+    "guest": "",
+    "solo": true,
+    "date": "März 2026",
+    "duration": "8 min",
+    "lang": "DE",
+    "desc": "Einige haben lange darauf gewartet: Es ist nun möglich, individuelle Summen in Tabellen und Matrizen zu erstellen. Unter anderem auch Summen von semi-additiven Werten, d.h. die \"Measure Total\"-Kontroverse ist damit gelöst.",
+    "tags": [
+      "Update",
+      "Fabric",
+      "Power BI",
+      "TMDL",
+      "DE"
+    ],
+    "ytId": "ASwcPvbMRZc",
+    "chapters": [
+      [
+        "00:00",
+        "<Untitled Chapter 1>"
+      ],
+      [
+        "00:16",
+        "Translytical Task Flows – now GA"
+      ],
+      [
+        "00:41",
+        "New visual interface & default settings"
+      ],
+      [
+        "01:36",
+        "HD resolution as the new default page size"
+      ],
+      [
+        "02:28",
+        "Custom Totals (Measure Totals controversy resolved!)"
+      ],
+      [
+        "05:37",
+        "Guide lines for row labels"
+      ],
+      [
+        "05:57",
+        "User-defined DAX functions via GUI"
+      ],
+      [
+        "06:21",
+        "TMDL now in web modeling"
+      ],
+      [
+        "07:05",
+        "Planning Items in Fabric"
+      ],
+      [
+        "07:53",
+        "Conclusion & Outlook"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260323"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Power BI Update Februar 2026",
+    "guest": "",
+    "solo": true,
+    "date": "Februar 2026",
+    "duration": "3 min",
+    "lang": "DE",
+    "desc": "Der neue Text-Filter heißt jetzt Input-Filter und ist GA (generally availaible!) Flexibles Filtern wird möglich und wieder verschwinden einige Workrounds... außerdem: neue DAX-Funktionen",
+    "tags": [
+      "Update",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "u-lgbDfIlLg",
+    "chapters": [
+      [
+        "00:00",
+        "Intro & Highlight: Input Slicer GA"
+      ],
+      [
+        "00:23",
+        "Filter logic options: AND/OR, begins with, does not contain"
+      ],
+      [
+        "01:21",
+        "Anti-filter & fewer DAX workarounds"
+      ],
+      [
+        "02:18",
+        "New DAX functions NAMEOF and TABLEOF"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260226"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Fabric & Power BI Quarterly | 2026-1",
+    "guest": "",
+    "solo": true,
+    "date": "Februar 2026",
+    "duration": "58 min",
+    "lang": "DE",
+    "desc": "Gabi und Artur schauen auf die letzten Monate in Fabric: von der allumfassenden KI über bessere Integrationen mit Partnern bis zum Button-Slicer und Sharepoint-Shortcut",
+    "tags": [
+      "Quarterly",
+      "Fabric",
+      "Power BI",
+      "PBIR",
+      "PBIP",
+      "TMDL",
+      "DE"
+    ],
+    "ytId": "TYp5xCAU2AU",
+    "chapters": [
+      [
+        "00:00",
+        "<Untitled Chapter 1>"
+      ],
+      [
+        "00:53",
+        "Power BI Updates + Q&A Feature Removal"
+      ],
+      [
+        "02:24",
+        "Button Slicer Officially Released + Why It's So Powerful"
+      ],
+      [
+        "03:11",
+        "Write-Back / “Input” Issue (Text/Input Slicer Limitations)"
+      ],
+      [
+        "03:46",
+        "Power BI on the Web Almost Equal (Themes + Performance Analyzer)"
+      ],
+      [
+        "05:29",
+        "PBIR/PBIP & “Code First” – GA Story + Default Plan"
+      ],
+      [
+        "09:01",
+        "VS Code + TMDL + MCP for Power BI (Quickly Optimize Measures)"
+      ],
+      [
+        "11:48",
+        "External Tools & Solution Accelerators (Fabric Toolbox, Partner Tools)"
+      ],
+      [
+        "16:46",
+        "Workspace-Level Search Protection (Pausing Capacity, Mission Critical)"
+      ],
+      [
+        "20:50",
+        "Security is Coming “Quiet”: RLS/CLS, also for mirroring/mirrored objects"
+      ],
+      [
+        "25:03",
+        "Mirroring & Integration (SAP/Oracle/Snowflake/Databricks, SharePoint Shortcuts)"
+      ],
+      [
+        "33:30",
+        "Ignite / Fabric IQ & Ontologies + Agents (Business Context as a Layer)"
+      ],
+      [
+        "49:12",
+        "Wish List: Translytical, UDFs, CICD/Dataflows configurable"
+      ],
+      [
+        "54:53",
+        "Events (SQL Conference, Data Grill, SQL Bits, Data Workshop)"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260209"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Power BI Update Januar 2026",
+    "guest": "",
+    "solo": true,
+    "date": "Januar 2026",
+    "duration": "4 min",
+    "lang": "DE",
+    "desc": "Stop starting & start finishing: die modernen Quick-Tipps sind GA. Zudem gibt es Neues von den Field Parameters, kleinere Quality of Life Updates, Smileys auf Karten und das Q&A Feature wird bald endgültig verschwinden.",
+    "tags": [
+      "Update",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "TAM5AAZqh7k",
+    "chapters": [
+      [
+        "00:00",
+        "Intro, Overview, Copilot Everywhere"
+      ],
+      [
+        "00:40",
+        "Q&A Feature Officially Discontinued (Finally!)"
+      ],
+      [
+        "01:19",
+        "New Modern Quick Tips Including Drillthrough"
+      ],
+      [
+        "02:02",
+        "Field Parameter Updates & Quality-of-Life Improvements"
+      ],
+      [
+        "03:19",
+        "Azure Maps: Custom Markers"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260122"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Power BI Update November 2025",
+    "guest": "",
+    "solo": true,
+    "date": "November 2025",
+    "duration": "5 min",
+    "lang": "DE",
+    "desc": "Das Power BI Update im November 2025 bringt die neue Karte GA und ein neues Visual für Bilder. Aber auch KI und MCP sind diesmal eine Erwähnung wert.",
+    "tags": [
+      "Update",
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "XJZxYNIeEVc",
+    "chapters": [
+      [
+        "00:00",
+        "Intro & Ignite Kontext"
+      ],
+      [
+        "00:16",
+        "Neues Card Visual ist GA"
+      ],
+      [
+        "01:17",
+        "Neues Image Visual"
+      ],
+      [
+        "02:37",
+        "Auto-Resize für Matrix"
+      ],
+      [
+        "03:30",
+        "Weitere Ignite-News (KI & Copilot)"
+      ],
+      [
+        "04:24",
+        "Abschluss & Ausblick"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251120"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Power BI Update Oktober 2025",
+    "guest": "",
+    "solo": true,
+    "date": "Oktober 2025",
+    "duration": "6 min",
+    "lang": "DE",
+    "desc": "Das Power BI Update im Oktober 2025 bringt wieder neues von den Core Visuals: der Button Slicer ist GA und so gut wie noch nie!",
+    "tags": [
+      "Update",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "LVSttJlhrqM",
+    "chapters": [
+      [
+        "00:00",
+        "Einführung & Überblick"
+      ],
+      [
+        "00:33",
+        "Button Slicer ist GA"
+      ],
+      [
+        "01:01",
+        "Neue Features im Button Slicer"
+      ],
+      [
+        "02:52",
+        "Tabellen & Matrizen – Auto Expand"
+      ],
+      [
+        "03:54",
+        "Performance Analyzer im Web"
+      ],
+      [
+        "04:21",
+        "Power Query Export & Themes im Web"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251021"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Fabric & Power BI Quarterly | 2025 Q4",
+    "guest": "",
+    "solo": true,
+    "date": "Oktober 2025",
+    "duration": "65 min",
+    "lang": "DE",
+    "desc": "Die FABCON Europe liegt hinter uns - und damit viele Ankündigungen, aber auch vieles, was nun endlich \"GA\" ist. In dieser Folge gehen Gabi und Artur die Themen Workload für Workload durch - von bodenständigen Power BI und Dataflow-Updates über Enterprise-Security-Features bis hin zu Agents und Graphen.",
+    "tags": [
+      "Quarterly",
+      "Fabric",
+      "Direct Lake",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "9TsHkV8sIRo",
+    "chapters": [
+      [
+        "00:00",
+        "Intro"
+      ],
+      [
+        "02:59",
+        "Power BI – Volle Web-Modellierung jetzt GA: Import- und Direct Lake-Modelle lassen sich vollständig im Web bearbeiten."
+      ],
+      [
+        "08:04",
+        "Power BI – User Defined Functions (DAX) eingeführt: Wiederverwendbare DAX-Logik mit echten Eingabeparametern."
+      ],
+      [
+        "12:22",
+        "Fabric – Translytical UDFs & Writeback mit Freitext: DAX-Writebacks auf SQL-Ziele möglich, inkl. Texteingaben."
+      ],
+      [
+        "17:15",
+        "Data Engineering – Materialized Lake Views mit Incremental Refresh: Persistente Spark-Views jetzt GA."
+      ],
+      [
+        "19:29",
+        "Data Engineering – Fabric Spark Runtime 2.0 angekündigt: Spark 4.0 und Delta 4.0 angekündigt."
+      ],
+      [
+        "20:54",
+        "Data Engineering – Shortcut-Transformationen jetzt möglich: CSV/Parquet direkt zu Delta im Shortcut konvertieren."
+      ],
+      [
+        "24:00",
+        "Data Engineering – Mirroring für Oracle, Snowflake, SAP: Zero-ETL-Ansatz mit bidirektionalem Zugriff."
+      ],
+      [
+        "27:23",
+        "Data Factory – Dataflows Gen2 stark verbessert: Weniger CU-Verbrauch, schneller, mit neuen Filter- und Zieloptionen."
+      ],
+      [
+        "35:31",
+        "Dev & Admin – Fabric CLI jetzt GA & Open Source: Neue Automatisierungsmöglichkeiten für Profis."
+      ],
+      [
+        "53:13",
+        "Security – Workspace-Level Outbound Protection jetzt GA: Erstes GA-Feature im Advanced-Security-Komplex."
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251020"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Power BI Update September 2025",
+    "guest": "",
+    "solo": true,
+    "date": "September 2025",
+    "duration": "12 min",
+    "lang": "DE",
+    "desc": "Das Power BI Update nach der FABCON Europe 2025 bringt etwas, was lange erwartet wurde: Benutzerdefinierte DAX-Funktionen ermöglichen es, komplexe Logiken zentral zu definieren und wiederzuverwenden.",
+    "tags": [
+      "Update",
+      "Power BI",
+      "TMDL",
+      "DE"
+    ],
+    "ytId": "6gQiIbyhWEc",
+    "chapters": [
+      [
+        "00:00",
+        "<Untitled Chapter 1>"
+      ],
+      [
+        "00:30",
+        "Was sind benutzerdefinierte DAX-Funktionen?"
+      ],
+      [
+        "01:13",
+        "Kein GUI-Support – wo Du DAX-Funktionen wirklich baust"
+      ],
+      [
+        "01:47",
+        "Beispiel: Dynamische Balken als Funktion"
+      ],
+      [
+        "02:45",
+        "Nutzung und Anpassung im Modell"
+      ],
+      [
+        "03:49",
+        "Parameterisieren mit Metrics"
+      ],
+      [
+        "04:48",
+        "Wiederverwendung mit beliebigen Measures"
+      ],
+      [
+        "06:32",
+        "Maintenance leicht gemacht"
+      ],
+      [
+        "07:23",
+        "Weitere Updates: Kalender, Web-Modelle, TMDL, Co-Pilot"
+      ],
+      [
+        "11:14",
+        "Daten-WG Offsite in Dortmund"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250923"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Power BI Update August 2025",
+    "guest": "",
+    "solo": true,
+    "date": "August 2025",
+    "duration": "5 min",
+    "lang": "DE",
+    "desc": "Nun aber wirklich:",
+    "tags": [
+      "Update",
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "jTXo4aEr07o",
+    "chapters": [
+      [
+        "00:00",
+        "Intro & Überblick August 2025"
+      ],
+      [
+        "00:34",
+        "Power Query im Web für Import-Modelle"
+      ],
+      [
+        "01:21",
+        "Parameter & Template-Export für Dataflows"
+      ],
+      [
+        "02:46",
+        "Copilot-Update: Measure-Beschreibungen"
+      ],
+      [
+        "03:30",
+        "Org-Apps jetzt auch in Pro Workspaces"
+      ],
+      [
+        "03:53",
+        "Fabric-Pipeline-Templates für Modell-Updates"
+      ],
+      [
+        "04:21",
+        "Fazit & Ausblick auf FabCon"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250813"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Fabric & Power BI Quarterly | 2025 Q3",
+    "guest": "",
+    "solo": true,
+    "date": "Juli 2025",
+    "duration": "57 min",
+    "lang": "DE",
+    "desc": "In der aktuellen Episode des Quaterly sprechen Artur und Gabi über Sparklines, Dataflows im CI/CD-Kontext, Translytical Writeback und die Rolle von Copilot und MCP im Power BI-Umfeld – samt einem Blick auf Community-Projekte, Visual Calculations und OneLake Security.",
+    "tags": [
+      "Quarterly",
+      "Fabric",
+      "OneLake",
+      "Direct Lake",
+      "Power BI",
+      "TMDL",
+      "DE"
+    ],
+    "ytId": "lZvpCBMKASM",
+    "chapters": [
+      [
+        "00:00",
+        "Intro, neue Kanäle & Begrüßung von Gabi"
+      ],
+      [
+        "00:37",
+        "Sparklines sind GA – was steckt dahinter?"
+      ],
+      [
+        "03:02",
+        "Abschied von Datamarts – warum und was jetzt?"
+      ],
+      [
+        "07:46",
+        "Community-Projekte vs. Produktstrategie: Forum, FUAM, TMDL"
+      ],
+      [
+        "13:35",
+        "TMDL, MCP und die neue Rolle von Modellierung"
+      ],
+      [
+        "17:43",
+        "Copilot & Ad-Hoc-Analysen – wer profitiert wirklich?"
+      ],
+      [
+        "26:33",
+        "Translytical Writeback: Das neue Power BI Rückschreib-Feature"
+      ],
+      [
+        "32:02",
+        "Dataflows & CI/CD – endlich erwachsen?"
+      ],
+      [
+        "38:58",
+        "Composite Models mit Direct Lake – das nächste große Ding?"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250721"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Power BI Update Juli 2025",
+    "guest": "",
+    "solo": true,
+    "date": "Juli 2025",
+    "duration": "7 min",
+    "lang": "DE",
+    "desc": "Die Feldparameter sind nun \"GA\" Außerdem dreht sich in diesem Juli-Update alles um Copilot und neue Visual-Optionen.",
+    "tags": [
+      "Update",
+      "Direct Lake",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "TkxwcAyBGUM",
+    "chapters": [
+      [
+        "00:00",
+        "Intro & 10 Jahre Power BI"
+      ],
+      [
+        "00:32",
+        "Copilot: Verifizierte Antworten & Delegated Settings"
+      ],
+      [
+        "01:37",
+        "Copilot: Zusammenfassungen & Export (PDF, PPT)"
+      ],
+      [
+        "02:07",
+        "Visual Calculations & Pareto-Diagramm"
+      ],
+      [
+        "04:27",
+        "Field Parameters jetzt GA – dynamische Filter"
+      ],
+      [
+        "06:09",
+        "Direct Lake auf SQL-Datenbank"
+      ],
+      [
+        "06:48",
+        "Fazit & Ausblick"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250717"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Power BI Update Juni 2025",
+    "guest": "",
+    "solo": true,
+    "date": "Juni 2025",
+    "duration": "7 min",
+    "lang": "DE",
+    "desc": "Power BI Update Juni 2025: Das Web-Gamechanger-Feature ist da – oder doch noch nicht? Power Query im Browser ist aber auch als Ankündigung ein Highlight! Außerdem: neue Visual Calculation Features, Sparklines und die Zukunft von Power BI Desktop.",
+    "tags": [
+      "Update",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "LnNoXBIG7Lc",
+    "chapters": [
+      [
+        "00:00",
+        "Power Query im Web – das Gamechanger-Feature?"
+      ],
+      [
+        "01:44",
+        "Modell-Kompatibilität jetzt vollständig – auch für Partitionen"
+      ],
+      [
+        "02:30",
+        "Visual Calculations werden ein Stück mehr No-Code-fähig"
+      ],
+      [
+        "04:12",
+        "Mehr Fehlertoleranz in Visuals & Sparklines jetzt GA"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250616"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Power BI Update Mai 2025",
+    "guest": "",
+    "solo": true,
+    "date": "Mai 2025",
+    "duration": "15 min",
+    "lang": "DE",
+    "desc": "Der Mai 2025 bietet so einiges..! Microsoft hat auf der Microsoft Build geliefert und hier sind die Updates mit Power BI Fokus:",
+    "tags": [
+      "Update",
+      "Fabric",
+      "Direct Lake",
+      "Warehouse",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "zkfdfc5fo-E",
+    "chapters": [
+      [
+        "00:00",
+        "Intro & Build-Kontext"
+      ],
+      [
+        "00:23",
+        "Visual Calculations: Zellreferenzen & Excel-Logik"
+      ],
+      [
+        "02:44",
+        "Update für Listenslicer (Einfachauswahl + Formatierung)"
+      ],
+      [
+        "03:44",
+        "Linien und Schattierungen farblich formatieren"
+      ],
+      [
+        "05:12",
+        "Bessere Fehlermeldungen bei impliziten Measures"
+      ],
+      [
+        "05:56",
+        "Fabric-HIGHLIGHT: Native Writeback mit Task Flows"
+      ],
+      [
+        "11:20",
+        "Import + Direct Lake kombinieren"
+      ],
+      [
+        "13:03",
+        "Copilot & semantisches Modell vorbereiten"
+      ],
+      [
+        "14:21",
+        "Datamarts abgekündigt & Lizenzempfehlung"
+      ],
+      [
+        "14:44",
+        "Neue Fabric-Roadmap als Webseite"
+      ],
+      [
+        "15:03",
+        "Fazit & Ausblick"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250521"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Power BI Update April 2025",
+    "guest": "",
+    "solo": true,
+    "date": "April 2025",
+    "duration": "6 min",
+    "lang": "DE",
+    "desc": "🚨 Power BI & Fabric Update April 2025 – diesmal klein, aber fein! Nach dem großen März-Update geht’s im April ruhiger zu.",
+    "tags": [
+      "Update",
+      "Fabric",
+      "Power BI",
+      "TMDL",
+      "DE"
+    ],
+    "ytId": "lT-C7fPzxj4",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250422"
+  },
+  {
+    "bucket": "bucket-1",
+    "title": "Fabric & Power BI Quarterly | 2025 Q2",
+    "guest": "",
+    "solo": true,
+    "date": "April 2025",
+    "duration": "54 min",
+    "lang": "DE",
+    "desc": "Im zweiten Quarterly in 2025 beleuchten Artur und Gabi die Flut an Neuerungen, die im Rahmen der Microsoft FABCON vorgestellt wurden – Workload für Workload: Power BI, Lakehouse, OneLake, Data Factory, Warehouse, Real-Time Inteligence und Copliot",
+    "tags": [
+      "Quarterly",
+      "Fabric",
+      "Lakehouse",
+      "OneLake",
+      "Direct Lake",
+      "Warehouse",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "lAh9ajR2Nrw",
+    "chapters": [
+      [
+        "00:00",
+        "Begrüßung, Einstieg, FABCON 2025"
+      ],
+      [
+        "02:29",
+        "Usability-Updates in Power BI"
+      ],
+      [
+        "04:30",
+        "Power BI Visuals und Visual Calculations"
+      ],
+      [
+        "08:28",
+        "Modellbereich: Composite Models & Direct Lake"
+      ],
+      [
+        "14:21",
+        "Notebooks & Analyzer-Tools in Fabric"
+      ],
+      [
+        "15:50",
+        "Highlight: OneLake Security kommt"
+      ],
+      [
+        "19:44",
+        "Sneak Peek: Materialized Views"
+      ],
+      [
+        "21:39",
+        "User Data Functions: Wiederverwendbare Business-Logik"
+      ],
+      [
+        "28:41",
+        "Nächster Workload: Data Factory und Dataflows Gen2"
+      ],
+      [
+        "29:16",
+        "Data Integration & CICD: Fokus auf Variablen & Parametrisierung"
+      ],
+      [
+        "30:50",
+        "Feedback, Security & Enterprise Readiness"
+      ],
+      [
+        "32:41",
+        "OneLake-Katalog: Governance-Zentrale & Excel-Integration"
+      ],
+      [
+        "35:30",
+        "FUAM: Offizielle Monitoring-Lösung"
+      ],
+      [
+        "36:30",
+        "Fabric CLI & Automatisierung von Deployments"
+      ],
+      [
+        "37:56",
+        "Realtime Intelligence: Von der Demo bis zur Praxis"
+      ],
+      [
+        "42:49",
+        "Data Unplugged: Emotionstracking im Realtime Dashboard"
+      ],
+      [
+        "44:25",
+        "AI & Co-Pilot: Ab sofort nicht mehr F64-exklusiv"
+      ],
+      [
+        "45:20",
+        "Copilot Capacities & strategische Nutzungsmöglichkeiten"
+      ],
+      [
+        "50:12",
+        "Workload Development Toolkit & neue Partner-Lösungen"
+      ],
+      [
+        "51:19",
+        "Wrap-Up & Event-Vorschau"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250422"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Microsoft Fabric - braucht das wirklich jemand?",
+    "guest": "Martin Bubenheimer",
+    "solo": false,
+    "date": "März 2026",
+    "duration": "48 min",
+    "lang": "DE",
+    "desc": "Eine Debatten-Folge zu Microsoft Fabric. Es geht aber nicht nur darum, was gut oder schlecht ist, sondern um die spannendere Frage: Für wen ist Fabric heute wirklich geeignet?",
+    "tags": [
+      "Fabric",
+      "Lakehouse",
+      "Direct Lake",
+      "Warehouse",
+      "Power BI",
+      "Vergleich",
+      "DE"
+    ],
+    "ytId": "mTVeZzshLzE",
+    "chapters": [
+      [
+        "00:00",
+        "Intro & Introduction of Martin Bubenheimer"
+      ],
+      [
+        "01:33",
+        "Thesis: Who is Microsoft Fabric for?"
+      ],
+      [
+        "02:09",
+        "Criticism: Fabric too immature & unstable for citizen developers"
+      ],
+      [
+        "03:26",
+        "Comparison: Is this different from the old Excel/Power BI criticism?"
+      ],
+      [
+        "05:02",
+        "What exactly is a workaround?"
+      ],
+      [
+        "06:05",
+        "Example: Deployment pipelines & lack of consistency"
+      ],
+      [
+        "07:26",
+        "Artur's counter-argument: Fabric for small, business-oriented solutions"
+      ],
+      [
+        "08:27",
+        "Dataflows Gen1 vs. Gen2 & orchestration problems"
+      ],
+      [
+        "10:00",
+        "Use case: When no data warehouse is available"
+      ],
+      [
+        "11:38",
+        "Quick win: Storing data persistently instead of always reloading it"
+      ],
+      [
+        "15:49",
+        "Data mesh approach with Snowflake as an alternative"
+      ],
+      [
+        "18:44",
+        "Governance: How granular can Fabric be controlled?"
+      ],
+      [
+        "19:45",
+        "Lakehouse vs. Warehouse – Hidden Pitfalls"
+      ],
+      [
+        "23:00",
+        "Citizen Developer: Who Really Benefits?"
+      ],
+      [
+        "25:06",
+        "Shortcuts as Lakehouse's Killer Feature"
+      ],
+      [
+        "28:04",
+        "Fabric Complexity: DirectLake, SQL Endpoint & Co."
+      ],
+      [
+        "30:57",
+        "Fabric Focuses on Fabric Problems"
+      ],
+      [
+        "36:01",
+        "When Do You Really Need Fabric Between Excel & Warehouse?"
+      ],
+      [
+        "39:15",
+        "Will the Majority of Excel Users Ever Switch to Fabric?"
+      ],
+      [
+        "40:00",
+        "Copilot & Gradual Development of User Skills"
+      ],
+      [
+        "45:54",
+        "Preview: TDWI Munich and Data Workshop 2026"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260330"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+    "guest": "",
+    "solo": true,
+    "date": "März 2026",
+    "duration": "5 min",
+    "lang": "DE",
+    "desc": "In einem Podcast habe ich am Wochenende eine Aussage über Microsoft Fabric und OneLake gehört, die ich so nicht stehen lassen kann. Dort wurde behauptet, dass die Daten im OneLake automatisch in der Home Region des Tenants liegen. Das stimmt allerdings nur teilweise.",
+    "tags": [
+      "Fabric",
+      "OneLake",
+      "DE"
+    ],
+    "ytId": "ZVVSPQj9dlc",
+    "chapters": [
+      [
+        "00:00",
+        "Intro – A statement about Fabric from a podcast"
+      ],
+      [
+        "00:26",
+        "The two central components in Microsoft Fabric"
+      ],
+      [
+        "01:18",
+        "Capacities and regions in Fabric"
+      ],
+      [
+        "01:57",
+        "Microsoft documentation on OneLake"
+      ],
+      [
+        "02:34",
+        "Example: Workspaces in different regions"
+      ],
+      [
+        "02:53",
+        "Creating capacity in the Azure portal"
+      ],
+      [
+        "03:16",
+        "What happens when changing capacity"
+      ],
+      [
+        "03:57",
+        "Conclusion: Where Fabric actually stores data"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260309"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+    "guest": "",
+    "solo": true,
+    "date": "Februar 2026",
+    "duration": "7 min",
+    "lang": "DE",
+    "desc": "In diesem Video zeige ich dir, wie du aus SQL Server Integration Services (SSIS) bzw. einem DTSX-Paket heraus ein Microsoft Fabric Notebook starten kannst.",
+    "tags": [
+      "Fabric",
+      "Notebook",
+      "SSIS",
+      "DE"
+    ],
+    "ytId": "NvtZ-ehiTrg",
+    "chapters": [
+      [
+        "00:00",
+        "Introduction – Starting a Notebook from SSIS"
+      ],
+      [
+        "00:30",
+        "Overview of the SSIS package in Visual Studio"
+      ],
+      [
+        "01:18",
+        "Running the package and verifying the notebook run in Fabric"
+      ],
+      [
+        "01:55",
+        "App registration & service principal in the tenant"
+      ],
+      [
+        "02:18",
+        "Permissions in the Fabric workspace"
+      ],
+      [
+        "02:32",
+        "Determining the notebook ID & workspace ID"
+      ],
+      [
+        "03:06",
+        "Script task in the DTSX package"
+      ],
+      [
+        "03:24",
+        "Project parameters (client ID, tenant, secret)"
+      ],
+      [
+        "03:52",
+        "Package variables (workspace & notebook ID)"
+      ],
+      [
+        "04:12",
+        "Passing variables to the script task"
+      ],
+      [
+        "04:45",
+        "Adding HTTP references and namespaces"
+      ],
+      [
+        "05:27",
+        "Retrieving the access token"
+      ],
+      [
+        "05:39",
+        "Calling the REST API and starting the notebook"
+      ],
+      [
+        "06:11",
+        "Summary & next step"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260218"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Power BI vs. Qlik | Daten-WG Podcast mit Oliver Franz",
+    "guest": "Oliver Franz",
+    "solo": false,
+    "date": "Januar 2026",
+    "duration": "32 min",
+    "lang": "DE",
+    "desc": "Das Fazit der ersten Staffel von Power BI vs. Qlik gibt es in dieser Podcast-Folge!",
+    "tags": [
+      "SSIS",
+      "Power BI",
+      "Qlik",
+      "Vergleich",
+      "DE"
+    ],
+    "ytId": "vd1r02bj9Qk",
+    "chapters": [
+      [
+        "00:00",
+        "Wer ist Oliver?"
+      ],
+      [
+        "03:36",
+        "Aha-Effekte aus der Challenge: gleiche Probleme, andere Wege"
+      ],
+      [
+        "07:12",
+        "Full-Stack & „BI-Tool als Datenplattform missbrauchen?“"
+      ],
+      [
+        "10:48",
+        "Datenmodell-Diskussion: assoziativ (Qlik) vs. Filterrichtungen (Power BI)"
+      ],
+      [
+        "14:24",
+        "Analyse vs Reporting: wo hat welches Tool die Stärke?"
+      ],
+      [
+        "18:00",
+        "Self-Service vs Guided Self-Service (Sandkasten, Power-User, Excel-Monster)"
+      ],
+      [
+        "21:36",
+        "Lernkurve & Tool-Wechsel: warum Qlik-User oft nicht loslassen wollen"
+      ],
+      [
+        "25:12",
+        "Tool-Auswahl: wann Power BI, wann Vergleich, wann lieber nicht wechseln"
+      ],
+      [
+        "28:48",
+        "BI einführen: Partner suchen + Tools wirklich 1–2 Tage testen"
+      ],
+      [
+        "32:21",
+        "Outro / Verabschiedung"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260126"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Denken in Tabellen | Daten-WG Podcast mit Jasmin Simader",
+    "guest": "Jasmin Simader",
+    "solo": false,
+    "date": "Januar 2026",
+    "duration": "38 min",
+    "lang": "DE",
+    "desc": "Flat Table oder Sternschema – warum prallen hier eigentlich Welten aufeinander? In dieser Folge sprechen wir über ein Thema, das in fast jedem Analytics-Projekt früher oder später eskaliert: Datenmodellierung.",
+    "tags": [
+      "Warehouse",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "hbUYMyqb6r8",
+    "chapters": [
+      [
+        "00:00",
+        "<Untitled Chapter 1>"
+      ],
+      [
+        "00:27",
+        "Initial situation: Flat table from Databricks → Power BI problems (time axis/filters/dynamics)"
+      ],
+      [
+        "01:01",
+        "Conflict point: \"Flat table was simpler\" vs. star schema"
+      ],
+      [
+        "01:44",
+        "Influence/tech stack: Analysis Services/OLAP vs. pre-calculating everything in the data warehouse"
+      ],
+      [
+        "04:19",
+        "Practical argument: Views/joins, tool compatibility, business users need a \"wide table\""
+      ],
+      [
+        "06:50",
+        "Excel influence & self-service: Do business departments need to become \"mini-developers\"?"
+      ],
+      [
+        "08:37",
+        "Star Chart Aha!: Better filter logic, granularity, less Excel headache"
+      ],
+      [
+        "17:12",
+        "Reality Check: Benchmarks/Test Data vs. Real Data + When a Flat Table Is \"Enough\""
+      ],
+      [
+        "31:45",
+        "Costs/Limits & Wrap-up: Pro/Premium, On-Prem Limits, Service Restrictions + Outro"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260112"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+    "guest": "",
+    "solo": true,
+    "date": "Januar 2026",
+    "duration": "10 min",
+    "lang": "EN",
+    "desc": "In diesem Tutorial zeige ich dir eines der aktuell spannendsten Features in Microsoft Fabric: Open Mirroring.",
+    "tags": [
+      "Fabric",
+      "OneLake",
+      "Mirroring",
+      "SSIS",
+      "Power BI",
+      "EN"
+    ],
+    "ytId": "7j34Ndng0Os",
+    "chapters": [
+      [
+        "00:00",
+        "What is Open Mirroring in Microsoft Fabric?"
+      ],
+      [
+        "00:19",
+        "Why Open Mirroring is more exciting than classic mirroring"
+      ],
+      [
+        "00:51",
+        "Change Data Capture & Row Marker explained"
+      ],
+      [
+        "01:53",
+        "Data flow: Source → OneLake → Fabric table"
+      ],
+      [
+        "02:22",
+        "Mirroring your own data sources (including Excel & Co.)"
+      ],
+      [
+        "02:39",
+        "Cost model: Storage & Compute explained"
+      ],
+      [
+        "04:01",
+        "Practical example: Open Mirroring with PostgreSQL"
+      ],
+      [
+        "05:20",
+        "Setup: Creating a workspace & mirror database"
+      ],
+      [
+        "06:45",
+        "Sync process & Parquet files"
+      ],
+      [
+        "08:39",
+        "Querying the replicated data via SQL"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260101"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+    "guest": "SSIS nach Microsoft Fabric",
+    "solo": false,
+    "date": "Dezember 2025",
+    "duration": "12 min",
+    "lang": "DE",
+    "desc": "In diesem Tutorial zeige ich dir, wie du Daten aus einer lokalen (On-Premise) Umgebung in Microsoft Fabric bringst, ohne den klassischen Pull-Ansatz über Data Gateway zu nutzen.",
+    "tags": [
+      "Fabric",
+      "Lakehouse",
+      "OneLake",
+      "Warehouse",
+      "SSIS",
+      "DE"
+    ],
+    "ytId": "5HhNQZlB-1E",
+    "chapters": [
+      [
+        "00:00",
+        "Einführung & Anforderung aus dem Projekt"
+      ],
+      [
+        "00:28",
+        "Push statt Pull – Architekturüberblick"
+      ],
+      [
+        "00:41",
+        "SSIS als Integrationslösung für Fabric"
+      ],
+      [
+        "01:06",
+        "Warum dateibasiert statt SQL Inserts"
+      ],
+      [
+        "01:14",
+        "Zielarchitektur: On-Prem → Azure Storage → Fabric"
+      ],
+      [
+        "01:46",
+        "Azure Feature Pack & TLS 1.2 Voraussetzung"
+      ],
+      [
+        "02:17",
+        "TLS 1.2 Registry-Eintrag erklärt"
+      ],
+      [
+        "03:25",
+        "Java & Setup für SSIS-Projekte"
+      ],
+      [
+        "04:13",
+        "Aufbau des SSIS-Datenflusses"
+      ],
+      [
+        "05:15",
+        "Schreiben nach Azure Data Lake Gen2"
+      ],
+      [
+        "06:21",
+        "Konfiguration der Azure-Verbindung"
+      ],
+      [
+        "07:19",
+        "Dateiformat & Spaltenzuordnung"
+      ],
+      [
+        "08:17",
+        "Ausführen des SSIS-Pakets"
+      ],
+      [
+        "08:45",
+        "Einbindung in Fabric per Lakehouse-Shortcut"
+      ],
+      [
+        "09:45",
+        "Datenvorschau & Landing Zone"
+      ],
+      [
+        "10:08",
+        "Weiterverarbeitung: Table, COPY INTO & Notebooks"
+      ],
+      [
+        "11:02",
+        "Vorteile des Push-Prinzips"
+      ],
+      [
+        "11:42",
+        "Fazit & Ausblick"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251231"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Power BI Seiten per URL steuern - Sprechende URLs mit PBIP & VS Code | Power BI Tutorial",
+    "guest": "",
+    "solo": true,
+    "date": "Dezember 2025",
+    "duration": "8 min",
+    "lang": "DE",
+    "desc": "In diesem Video zeige ich einen technischen Hack, mit dem sich Power BI Reportseiten gezielt über die URL ansteuern lassen.",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "PBIP",
+      "DE"
+    ],
+    "ytId": "DcEfNIupEHM",
+    "chapters": [
+      [
+        "00:00",
+        "Introduction & Idea Behind the Hack"
+      ],
+      [
+        "00:27",
+        "Understanding the Structure of the Power BI Service URL"
+      ],
+      [
+        "01:28",
+        "Switching to the Power BI Project Format (PBIP)"
+      ],
+      [
+        "02:05",
+        "Analyzing Page IDs in the page.json file"
+      ],
+      [
+        "02:43",
+        "Renaming Page IDs Targeted"
+      ],
+      [
+        "03:52",
+        "Important Rules: URL Security & Validation"
+      ],
+      [
+        "04:26",
+        "Correctly Adjusting Page Order & Active Page"
+      ],
+      [
+        "05:07",
+        "Uploading with VS Code & Fabric Extension"
+      ],
+      [
+        "06:11",
+        "Result: Opening Pages Targeted by URL"
+      ],
+      [
+        "06:49",
+        "Use Cases & Open Questions for Support"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251230"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Analytics Speed Challenge | Power BI vs. IBM Cognos Analytics",
+    "guest": "",
+    "solo": true,
+    "date": "November 2025",
+    "duration": "8 min",
+    "lang": "EN",
+    "desc": "Kann Power BI genauso gut Ad-hoc-Analysen wie IBM Cognos Analytics?",
+    "tags": [
+      "Power BI",
+      "EN"
+    ],
+    "ytId": "g2Fijpqwcvw",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20251118"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "600 SQL-Tabellen in Fabric",
+    "guest": "Alexander Dean",
+    "solo": false,
+    "date": "Mai 2025",
+    "duration": "35 min",
+    "lang": "DE",
+    "desc": "Was passiert, wenn ein Data-Profi auf ein innovatives Fabric-Projekt trifft? Alex Dean erzählt, wie DevOps, Git-Integration und Fabric in einem echten Großprojekt zusammenspielten – und was Du daraus lernen kannst.",
+    "tags": [
+      "Fabric",
+      "SSIS",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "RtUiF1J5XEg",
+    "chapters": [
+      [
+        "00:00",
+        "Begrüßung & Konferenz-Background"
+      ],
+      [
+        "00:24",
+        "Alex Dean: Organisation der Data Platform Conference"
+      ],
+      [
+        "01:01",
+        "Karriereweg: Von Buchhaltung zu Data & Power BI"
+      ],
+      [
+        "07:49",
+        "Einstieg ins Fabric-Projekt: Migration On-Premise zu Cloud"
+      ],
+      [
+        "10:19",
+        "Fabric in der Preview-Phase & Bananasoftware"
+      ],
+      [
+        "16:07",
+        "DevOps mit Fabric: Erste große Herausforderungen"
+      ],
+      [
+        "18:22",
+        "Warum Pipelines (noch) besser als Dataflows waren"
+      ],
+      [
+        "21:17",
+        "Drei DevOps-Strategien für Fabric erfolgreich umgesetzt"
+      ],
+      [
+        "26:17",
+        "Herausforderungen bei Data Security & Future Fabric Trends"
+      ],
+      [
+        "28:51",
+        "Shortcut-Integration, Reverse ETL & Ausblick auf die Zukunft"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250505"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "Metadaten als Superkraft",
+    "guest": "Jasmin Simader",
+    "solo": false,
+    "date": "April 2026",
+    "duration": "23 min",
+    "lang": "DE",
+    "desc": "Mit Jasmin tauchen wir in ihr Herzensthema ein: Was uns Metadaten über Daten verraten: über Datenmodelle, über Skills im Team, über Reports, die niemand öffnet.",
+    "tags": [
+      "Metadaten",
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "UUlPoJOhco8",
+    "chapters": [
+      [
+        "00:00",
+        "Intro: Metadaten als Forensik – die fehlenden Puzzleteile"
+      ],
+      [
+        "13:30",
+        "Der Mini-Datenkatalog: SharePoint-Liste mit drei Spalten reicht für den Anfang"
+      ],
+      [
+        "15:47",
+        "Großkonzern oder Mittelstand: Wer profitiert mehr von Metadaten?"
+      ],
+      [
+        "20:14",
+        "Erste Schritte: MeasureKiller dranhängen und Status erheben"
+      ],
+      [
+        "20:37",
+        "Im BI-Team fragen, was Metadaten überhaupt sind"
+      ],
+      [
+        "21:03",
+        "Outro: Inventarisierung, Bucketlist und Schulterblick zu Benni De Jagere"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260426"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+    "guest": "",
+    "solo": true,
+    "date": "Februar 2026",
+    "duration": "5 min",
+    "lang": "DE",
+    "desc": "In diesem Tutorial zeige ich dir, wie du Field Parameter in Power BI für eine dynamische Datumsanalyse nutzt.",
+    "tags": [
+      "Field Parameters",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "v8dvnqqa7f8",
+    "chapters": [
+      [
+        "00:00",
+        "Intro"
+      ],
+      [
+        "00:29",
+        "Creating field parameters"
+      ],
+      [
+        "01:11",
+        "Automatically generated parameter table"
+      ],
+      [
+        "01:34",
+        "Using parameters in a table"
+      ],
+      [
+        "02:04",
+        "Controlling the slicer & single selection"
+      ],
+      [
+        "02:32",
+        "Difference: Table vs. Slicer"
+      ],
+      [
+        "03:23",
+        "Dynamic filter depending on the parameter"
+      ],
+      [
+        "03:58",
+        "\"Show selected field\" explained"
+      ],
+      [
+        "04:26",
+        "\"Show values ​​of the selected field\" explained"
+      ],
+      [
+        "04:40",
+        "Conclusion"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260217"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "Expanded Tables in DAX verstehen – Beziehungen & Filter erklärt | Power BI Tutorial",
+    "guest": "",
+    "solo": true,
+    "date": "Dezember 2025",
+    "duration": "12 min",
+    "lang": "DE",
+    "desc": "Expanded Tables gehören zu den am wenigsten dokumentierten, aber wichtigsten Konzepten in DAX, wenn es um das Verständnis von Filtern, Beziehungen und CALCULATE geht.",
+    "tags": [
+      "DAX",
+      "Expanded Tables",
+      "Power BI",
+      "Vergleich",
+      "DE"
+    ],
+    "ytId": "LQQEn7IOb7w",
+    "chapters": [
+      [
+        "00:00",
+        "What are Expanded Tables and why are they important?"
+      ],
+      [
+        "01:49",
+        "Expanded Tables: Theory vs. Physical Reality"
+      ],
+      [
+        "02:25",
+        "Active & Inactive Relationships (USEUSERELATIONSHIP)"
+      ],
+      [
+        "04:04",
+        "Two Expansions Simultaneously – The Core Problem"
+      ],
+      [
+        "05:40",
+        "Implementing the Concept in Power BI"
+      ],
+      [
+        "07:47",
+        "Calculate, Filter Comparison & Results"
+      ],
+      [
+        "11:00",
+        "Conclusion & Outlook"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251216"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+    "guest": "",
+    "solo": true,
+    "date": "Dezember 2025",
+    "duration": "85 min",
+    "lang": "EN",
+    "desc": "In this Fabric Data Days live session we dive deep into data modeling in Power BI – from “real world chaos” in Excel all the way to dimensional models, data platforms and certification.",
+    "tags": [
+      "Datenmodell",
+      "Fabric",
+      "Fabric Data Days",
+      "Power BI",
+      "EN"
+    ],
+    "ytId": "uxYFqwe_Wiw",
+    "chapters": [
+      [
+        "00:00",
+        "Intro, registration, language & AI audio tracks"
+      ],
+      [
+        "06:00",
+        "Fabric Data Days, session format & free certification vouchers"
+      ],
+      [
+        "12:00",
+        "BI spectrum: self-service vs. enterprise and the “middle gap”"
+      ],
+      [
+        "18:00",
+        "Top-down vs. bottom-up thinking & first steps into data modeling"
+      ],
+      [
+        "24:00",
+        "Data platforms, medallion architecture & Data Vault overview"
+      ],
+      [
+        "30:00",
+        "ROCHE'S maxime: pushing transformations down to source / platform"
+      ],
+      [
+        "36:00",
+        "Star schema basics: fact tables, dimensions, date table & role-playing"
+      ],
+      [
+        "42:00",
+        "Flat / One Big Table vs. Star: performance, storage & use cases"
+      ],
+      [
+        "48:00",
+        "Plan vs. actual, unknown members & date handling in One Big Table"
+      ],
+      [
+        "54:00",
+        "AND vs. OR filters in DAX – customer/product example & first solution"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251202"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "TMDL Magie: Multi Parameter Tabelle - Feldparameter Next Level! | Power BI Tutorial",
+    "guest": "",
+    "solo": true,
+    "date": "Oktober 2025",
+    "duration": "9 min",
+    "lang": "DE",
+    "desc": "In diesem Power BI Tutorial zeige ich dir, wie du mit einem kleinen TMDL-Trick eine Multi-Parameter-Tabelle erstellst, mit der du mehrere Visuals gleichzeitig steuern kannst – und das über nur einen Slicer!",
+    "tags": [
+      "Field Parameters",
+      "Fabric",
+      "Power BI",
+      "TMDL",
+      "DE"
+    ],
+    "ytId": "sShNdgnHjr4",
+    "chapters": [
+      [
+        "00:00",
+        "Einstieg & Idee hinter der Lösung"
+      ],
+      [
+        "00:34",
+        "Feldparameter in Power BI anlegen"
+      ],
+      [
+        "02:46",
+        "Visuals dynamisch mit Parametern steuern"
+      ],
+      [
+        "03:11",
+        "Das Problem: Mehrere Visuals, ein Filter"
+      ],
+      [
+        "03:35",
+        "Einführung in die TMDL-Lösung"
+      ],
+      [
+        "04:45",
+        "Aufbau der Multi-Parameter-Tabelle"
+      ],
+      [
+        "06:42",
+        "Wichtige Stolperfallen und Feldreihenfolge"
+      ],
+      [
+        "07:22",
+        "Test der fertigen Tabelle im Report"
+      ],
+      [
+        "08:28",
+        "Fazit & Einladung zur Diskussion"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251017"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! | Power BI Tutorial",
+    "guest": "",
+    "solo": true,
+    "date": "Oktober 2025",
+    "duration": "7 min",
+    "lang": "DE",
+    "desc": "In diesem Power BI Tutorial zeige ich dir ein Feature, das oft übersehen wird: Visual Calculations. Anhand eines praxisnahen Beispiels mit einer Kundenanforderung lernst du, wie du Berechnungen direkt in der Visualisierung durchführst, ganz ohne dein semantisches Modell anzupassen.",
+    "tags": [
+      "SSIS",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "GsLfiuPlsQE",
+    "chapters": [
+      [
+        "00:00",
+        "Was sind Visual Calculations in Power BI?"
+      ],
+      [
+        "00:40",
+        "Beispiel aus Excel: Prozent des übergeordneten Zeilenergebnisses"
+      ],
+      [
+        "01:20",
+        "Umsetzung in Power BI mit Visual Calculations"
+      ],
+      [
+        "03:00",
+        "„Percent of Parent“ leicht erklärt"
+      ],
+      [
+        "04:30",
+        "Formatierung und Ebenen in Power BI"
+      ],
+      [
+        "06:40",
+        "Fazit & Tipps"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251015"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "Mythos Data Vault und richtig große Modelle",
+    "guest": "Volker Nürnberg",
+    "solo": false,
+    "date": "Juni 2025",
+    "duration": "33 min",
+    "lang": "DE",
+    "desc": "Wie baut man heute ein Data Warehouse, das agil, skalierbar und zukunftsfähig ist? In dieser Episode sprechen Artur und Volker über Data Vault 2.0 – und warum es viel mehr ist als eine technische Lösung.",
+    "tags": [
+      "Data Vault",
+      "Warehouse",
+      "DE"
+    ],
+    "ytId": "rrCi0lnGrCg",
+    "chapters": [
+      [
+        "00:00",
+        "<Untitled Chapter 1>"
+      ],
+      [
+        "00:20",
+        "Data Vault = Nicht Technik?!"
+      ],
+      [
+        "01:47",
+        "Warum Data Vault kein End-User-Tool ist"
+      ],
+      [
+        "04:00",
+        "Modellierung, Architektur, Methodologie"
+      ],
+      [
+        "06:00",
+        "Automatisierung – Der rote Knopf"
+      ],
+      [
+        "07:44",
+        "Änderungen elegant abfedern"
+      ],
+      [
+        "12:07",
+        "Kunden-360°-Integration"
+      ],
+      [
+        "16:10",
+        "Data Lake vs. Data Vault"
+      ],
+      [
+        "24:36",
+        "Data Mesh + Data Vault: So geht's zusammen!"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250617"
+  },
+  {
+    "bucket": "bucket-4",
+    "title": "Was ist Self-Service und warum ist das so schwer?",
+    "guest": "Tom Martens",
+    "solo": false,
+    "date": "April 2026",
+    "duration": "56 min",
+    "lang": "DE",
+    "desc": "Was ist eigentlich Self-Service? Mit Tom tauchen wir tief in eine Frage ein, die scheinbar einfach klingt – aber es ganz und gar nicht ist. Seit der TDWI-Definition aus 2011 hat sich vieles verändert: Tools, Nutzer, Erwartungen.",
+    "tags": [
+      "Self-Service",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "EVsJ6zyGUWc",
+    "chapters": [
+      [
+        "00:00",
+        "Intro: Why Tom is on the podcast for the second time"
+      ],
+      [
+        "03:23",
+        "Self-Service: What really motivates Tom"
+      ],
+      [
+        "04:03",
+        "The TDWI definition from 2011"
+      ],
+      [
+        "05:13",
+        "The IT bottleneck: Why self-service even came about"
+      ],
+      [
+        "07:02",
+        "Deneb: When self-service becomes coding"
+      ],
+      [
+        "08:43",
+        "Tom's definition: Self-service = no IT need"
+      ],
+      [
+        "11:15",
+        "Maintainability vs. complexity (the Deneb dilemma)"
+      ],
+      [
+        "12:49",
+        "Maintainability is a requirement, not a bonus"
+      ],
+      [
+        "14:10",
+        "Today's self-service user is not the same as in 2011"
+      ],
+      [
+        "19:49",
+        "Citizen Developer: Learning alone is difficult"
+      ],
+      [
+        "22:04",
+        "The UI/design problem with self-service"
+      ],
+      [
+        "24:51",
+        "Trade-offs: Quality vs. maintainability"
+      ],
+      [
+        "26:45",
+        "AI as a \"private IT professional\" for All"
+      ],
+      [
+        "27:56",
+        "Spreadsheet Hell was yesterday – is Agent Hell coming next?"
+      ],
+      [
+        "36:46",
+        "Shadow IT and bottom-up implementation of tools"
+      ],
+      [
+        "37:59",
+        "Permission is good – but governance is essential"
+      ],
+      [
+        "40:16",
+        "Ignoring shadow IT is not a strategy"
+      ],
+      [
+        "41:42",
+        "IT and business departments: The old separation no longer applies"
+      ],
+      [
+        "43:05",
+        "Citizen Data Engineer and deployment pipelines"
+      ],
+      [
+        "45:48",
+        "Experts exist on both sides"
+      ],
+      [
+        "48:36",
+        "Tom, the \"non-IT guy\""
+      ],
+      [
+        "52:11",
+        "Tom's final definition: Self-service within guardrails"
+      ],
+      [
+        "53:51",
+        "Outlook: What exactly is data literacy?"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260413"
+  },
+  {
+    "bucket": "bucket-4",
+    "title": "Prinzipien oder Paragrafen",
+    "guest": "ChaosHacker mit Christof Layher",
+    "solo": false,
+    "date": "Februar 2026",
+    "duration": "45 min",
+    "lang": "DE",
+    "desc": "Wenn man über Daten, BI oder Cloud spricht, bewegt man sich oft in einer vergleichsweise komfortablen Welt. Klar, es gibt Governance, Datenschutz, Security. Aber am Ende gilt in vielen Projekten: Wir operieren nicht am offenen Herzen.",
+    "tags": [
+      "Vergleich",
+      "DE"
+    ],
+    "ytId": "6WhWLcuFvZE",
+    "chapters": [
+      [
+        "00:00",
+        "Intro & Chaos Hacker Talk"
+      ],
+      [
+        "03:56",
+        "Change Control, Cloud & Black Box Issues"
+      ],
+      [
+        "07:30",
+        "The Role of Authorities & Principles Instead of Detailed Rules"
+      ],
+      [
+        "09:55",
+        "FDA, Legal System & Audit Culture: USA vs. Europe"
+      ],
+      [
+        "13:05",
+        "Overregulation in Companies & “German Overcompliance”"
+      ],
+      [
+        "15:31",
+        "Direct vs. Indirect Impact Data (Critical Parameters)"
+      ],
+      [
+        "20:43",
+        "Self-Service Analytics vs. Quality Decisions"
+      ],
+      [
+        "23:31",
+        "Data Integrity & Why Regulation Has Grown Historically"
+      ],
+      [
+        "27:08",
+        "Security, Hacking Scenarios & Real Risks"
+      ],
+      [
+        "35:41",
+        "Covid as a Digitalization Booster"
+      ],
+      [
+        "38:46",
+        "AI in Drug Development & Disruption Potential"
+      ],
+      [
+        "42:11",
+        "Technological Complexity & Agility as a Necessity"
+      ],
+      [
+        "43:41",
+        "Conclusion & Outlook on Further Deep Dives"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260227"
+  },
+  {
+    "bucket": "bucket-4",
+    "title": "Datenmodellierung ist Governance",
+    "guest": "Jasmin Simader",
+    "solo": false,
+    "date": "Dezember 2025",
+    "duration": "43 min",
+    "lang": "DE",
+    "desc": "Wir wollten über Datenmodellierung sprechen und landeten dann doch bei Governance. So etwas passiert, wenn Jasmin zu Gast ist.",
+    "tags": [
+      "Datenmodell",
+      "DE"
+    ],
+    "ytId": "lH_-A8NAQ-k",
+    "chapters": [
+      [
+        "00:00",
+        "Welcome to the Data Workshop & Today's Topic"
+      ],
+      [
+        "01:10",
+        "Data Modeling in the Workshop: Expectations vs. Reality"
+      ],
+      [
+        "03:07",
+        "Flat Table or Star Diagram: What Do We Really Need?"
+      ],
+      [
+        "05:02",
+        "It Depends – Context Decides"
+      ],
+      [
+        "07:04",
+        "Data Modeling = Buckle Up in the Data Car?"
+      ],
+      [
+        "09:13",
+        "Why Too Many Joins Cause Problems"
+      ],
+      [
+        "11:16",
+        "Data Models That Reflect Business Reality"
+      ],
+      [
+        "13:00",
+        "Ownership & Governance: Who Is Responsible?"
+      ],
+      [
+        "15:14",
+        "Data Culture: When Simple Solutions Are Celebrated"
+      ],
+      [
+        "28:53",
+        "Conclusion: Organization Determines Technology – Not the Other Way Around"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251215"
+  },
+  {
+    "bucket": "bucket-5",
+    "title": "Declarative Visualization with DENEB",
+    "guest": "Daniel Marsh-Patrick",
+    "solo": false,
+    "date": "Mai 2026",
+    "duration": "47 min",
+    "lang": "EN",
+    "desc": "Daniel Marsh-Patrick joins from down under to talk about Deneb, the certified Power BI custom visual that turns Vega and Vega-Lite into a sandbox for almost any visual you can imagine.",
+    "tags": [
+      "Deneb",
+      "Visualisierung",
+      "Fabric",
+      "Power BI",
+      "PBIR",
+      "EN"
+    ],
+    "ytId": "AxLQtBVAI9o",
+    "chapters": [
+      [
+        "00:00",
+        "Intro: An international expert episode with Daniel from down under"
+      ],
+      [
+        "02:55",
+        "Daniel's path into Power BI visuals: Vega and Vega-Lite explained"
+      ],
+      [
+        "05:13",
+        "BI developer learning to be a web developer"
+      ],
+      [
+        "07:02",
+        "Custom visuals, certification, and why proprietary visuals are tricky"
+      ],
+      [
+        "09:09",
+        "Why Deneb exists: certified custom visuals without the AppSource listing"
+      ],
+      [
+        "10:49",
+        "A side project for the community: five years of Deneb"
+      ],
+      [
+        "12:59",
+        "Declarative vs. imperative: why JSON beats coding every pixel"
+      ],
+      [
+        "14:14",
+        "PBIR and the new JSON report format for Power BI"
+      ],
+      [
+        "17:32",
+        "The big performance refactor and documenting Deneb's property structure"
+      ],
+      [
+        "20:47",
+        "Self-confessed non-coders build the most mind-blowing Deneb visuals"
+      ],
+      [
+        "23:16",
+        "Shoutouts to Kerry Kolosko and Ben Ferry"
+      ],
+      [
+        "25:41",
+        "Performance, interactivity, and the slow grind of community-driven roadmaps"
+      ],
+      [
+        "26:44",
+        "Vega and AI: why LLMs love declarative visuals"
+      ],
+      [
+        "28:30",
+        "Vega is everywhere: Looker Studio, Databricks, Microsoft research"
+      ],
+      [
+        "30:30",
+        "Why Deneb cannot have Copilot inside (and why it is not really a problem)"
+      ],
+      [
+        "33:00",
+        "Portability: copy a Vega spec from Databricks straight into Power BI"
+      ],
+      [
+        "35:00",
+        "When to reach for Deneb instead of stacking 28 measures for an IBCS bar chart"
+      ],
+      [
+        "36:40",
+        "Beyond sales and finance: engineering and environmental visuals"
+      ],
+      [
+        "40:30",
+        "Can I really maintain this? The third-party visual trade-off"
+      ],
+      [
+        "42:00",
+        "The world is broader than your next sales report"
+      ],
+      [
+        "42:50",
+        "Outro: Power BI & Fabric Summit and a shoutout to Reza Rad"
+      ],
+      [
+        "44:00",
+        "Difinity Conference and the open source spirit"
+      ],
+      [
+        "45:11",
+        "New Deneb release on the way with major performance improvements"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260510"
+  },
+  {
+    "bucket": "bucket-5",
+    "title": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+    "guest": "Azure Maps",
+    "solo": false,
+    "date": "Januar 2026",
+    "duration": "32 min",
+    "lang": "DE",
+    "desc": "Wie bringst Du von-bis-Postleitzahlen aus Excel sauber in eine Power BI-Karte? Dieses Tutorial nimmt Dich Schritt für Schritt mit: Vom Import von GeoJSON-Daten in QGIS, über die Transformation Deiner Excel-Daten, bis zur finalen Visualisierung in Power BI mit Azure Maps.",
+    "tags": [
+      "Azure Maps",
+      "Maps",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "CvaOkO37HMU",
+    "chapters": [
+      [
+        "00:00",
+        "Einleitung: Eigene Karten & Regionen in Power BI"
+      ],
+      [
+        "00:36",
+        "Benötigte Tools: QGIS & Shapefiles von GitHub"
+      ],
+      [
+        "02:04",
+        "Vorbereitung: .br (Brotli) Dateien entpacken"
+      ],
+      [
+        "03:25",
+        "QGIS: Projekt anlegen & Shapefiles importieren"
+      ],
+      [
+        "04:26",
+        "Excel: Datenaufbereitung der Postleitzahlgebiete"
+      ],
+      [
+        "08:35",
+        "WICHTIG: Geometrien in QGIS reparieren"
+      ],
+      [
+        "10:50",
+        "Join: Excel-Daten mit Shapefiles verknüpfen"
+      ],
+      [
+        "12:30",
+        "Dissolve: Postleitzahlen zu Vertriebsregionen auflösen"
+      ],
+      [
+        "14:27",
+        "Export: Die neue Karte als GeoJSON speichern"
+      ],
+      [
+        "16:51",
+        "Optimierung: GeoJSON minifizieren für Power BI"
+      ],
+      [
+        "19:09",
+        "Power BI: Azure Map erstellen & Referenzebene laden"
+      ],
+      [
+        "21:54",
+        "Heatmap: Bedingte Formatierung nach Umsatz"
+      ],
+      [
+        "24:47",
+        "Drill-Through: Detailansicht für Regionen bauen"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260114"
+  },
+  {
+    "bucket": "bucket-5",
+    "title": "Drillthrough-Auswahl sortieren – So kontrollierst du die Reihenfolge! | Power BI Tutorial",
+    "guest": "",
+    "solo": true,
+    "date": "Dezember 2025",
+    "duration": "7 min",
+    "lang": "DE",
+    "desc": "In diesem Tutorial zeige ich dir, wie du die Sortierung der Drillthrough-Auswahl in Power BI gezielt beeinflussen kannst – ein Thema, das häufig zu Verwirrung führt.",
+    "tags": [
+      "Drill-Through",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "0n8hZ6v_0Lc",
+    "chapters": [
+      [
+        "00:00",
+        "Problem: Unsorted drill-through selection"
+      ],
+      [
+        "00:42",
+        "Why the order can't be controlled via the UI"
+      ],
+      [
+        "02:02",
+        "The solution: Sorting via the Power BI Project Format"
+      ],
+      [
+        "03:39",
+        "Renaming pages & using IDs for the desired order"
+      ],
+      [
+        "06:49",
+        "Result: Sorted drill-through + conclusion"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251209"
+  },
+  {
+    "bucket": "bucket-5",
+    "title": "Die 3 Zustände der sekundären Y-Achse: Auto, Aktiv & Deaktiviert einfach erklärt | Power BI Tutorial",
+    "guest": "",
+    "solo": true,
+    "date": "Dezember 2025",
+    "duration": "3 min",
+    "lang": "DE",
+    "desc": "In diesem Power BI Tutorial zeige ich dir ein oft übersehenes, aber extrem wichtiges Detail: Die sekundäre Y-Achse besitzt drei unterschiedliche Zustände – Auto, Aktiviert und Deaktiviert. Viele Nutzer wundern sich, warum Power BI plötzlich eine zweite Y-Achse einschaltet oder warum sie sich nicht mehr in den Auto-Modus zurückschalten lässt. In diesem Vid...",
+    "tags": [
+      "Y-Achse",
+      "Power BI",
+      "Vergleich",
+      "DE"
+    ],
+    "ytId": "8DsgIfWJkoI",
+    "chapters": [
+      [
+        "00:00",
+        "Why Power BI suddenly activates a second Y-axis"
+      ],
+      [
+        "00:28",
+        "Auto vs. Enabled vs. Disabled: The three states"
+      ],
+      [
+        "01:09",
+        "When does Auto mode occur?"
+      ],
+      [
+        "01:43",
+        "Activating & Deactivating: Second Axis Behavior"
+      ],
+      [
+        "02:16",
+        "How the PBI-R Code Shows the Axis Logic"
+      ],
+      [
+        "03:08",
+        "Conclusion: How to Properly Control the Second Y-Axis"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251201"
+  },
+  {
+    "bucket": "bucket-5",
+    "title": "How to Write Back | Daten-WG Podcast with Jon Stjernegaard Vöge",
+    "guest": "Jon Stjernegaard Vöge",
+    "solo": false,
+    "date": "November 2025",
+    "duration": "39 min",
+    "lang": "EN",
+    "desc": "Still stuck in Excel? Discover how Power BI can become a full-fledged input tool—from writing data back to triggering workflows, all within your report. John Vöge walks us through Power Apps, third-party visuals, and Fabric-native Translytical Task Flows.",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "EN"
+    ],
+    "ytId": "HQaLWjA-E2E",
+    "chapters": [
+      [
+        "00:00",
+        "WriteBack in Power BI – Why users still ask for input features"
+      ],
+      [
+        "03:54",
+        "Real-world finance use case: 250 users, Excel chaos, and the WriteBack fix"
+      ],
+      [
+        "07:30",
+        "The 3 main WriteBack options: Power Apps, 3rd-party visuals & Translytical"
+      ],
+      [
+        "10:15",
+        "InfoRiver & Excel-like experiences – pros, cons, and sovereignty concerns"
+      ],
+      [
+        "13:45",
+        "Translytical Task Flows explained: native, low-cost, and flexible"
+      ],
+      [
+        "17:36",
+        "Can we use Translytical in production already? Future outlook"
+      ],
+      [
+        "21:01",
+        "Beyond planning: Master data, comments & advanced scenarios"
+      ],
+      [
+        "32:40",
+        "Bonus: Fabric Symposium – community, lessons learned & organizing events"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251117"
+  },
+  {
+    "bucket": "bucket-5",
+    "title": "So machst du jedes Power BI Visual dynamisch, auch ohne „fx“-Button! | Power BI Tutorial",
+    "guest": "BI Tutorial",
+    "solo": false,
+    "date": "Oktober 2025",
+    "duration": "6 min",
+    "lang": "DE",
+    "desc": "Hast du dich schon mal gefragt, warum manche Eigenschaften in Power BI nicht dynamisch sind? Zum Beispiel das Layout deiner Small Multiples – feste Zeilen und Spalten, keine Flexibilität, keine „fx“-Option?",
+    "tags": [
+      "Power BI",
+      "PBIP",
+      "DE"
+    ],
+    "ytId": "c5zxZLRuV_s",
+    "chapters": [
+      [
+        "00:00",
+        "Das Problem: fehlende dynamische Layout-Optionen"
+      ],
+      [
+        "00:08",
+        "Ziel: Small Multiples flexibel machen"
+      ],
+      [
+        "00:48",
+        "Measures für Spalten und Zeilen"
+      ],
+      [
+        "01:25",
+        "Bericht als PBIP-Datei speichern"
+      ],
+      [
+        "01:42",
+        "Vorschau-Features aktivieren"
+      ],
+      [
+        "02:08",
+        "Visual vorbereiten"
+      ],
+      [
+        "02:49",
+        "Projekt in Visual Studio Code öffnen"
+      ],
+      [
+        "03:12",
+        "JSON-Struktur und Visual-ID finden"
+      ],
+      [
+        "03:47",
+        "Feste Werte durch DAX-Expressions ersetzen"
+      ],
+      [
+        "04:52",
+        "Datei speichern und in Power BI neu laden"
+      ],
+      [
+        "05:20",
+        "Ausblick: Live-Verbindung zwischen Power BI & VS Code"
+      ],
+      [
+        "05:55",
+        "Demo: dynamisches Layout in Aktion"
+      ],
+      [
+        "06:07",
+        "Fazit"
+      ],
+      [
+        "06:14",
+        "Like & Abo nicht vergessen"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251007"
+  },
+  {
+    "bucket": "bucket-5",
+    "title": "Sekundäre Y-Achse umkehren | Power BI Tutorial",
+    "guest": "BI Tutorial",
+    "solo": false,
+    "date": "September 2025",
+    "duration": "6 min",
+    "lang": "DE",
+    "desc": "In diesem Tutorial zeige ich dir einen praktischen Hack in Power BI, um die sekundäre Y-Achse umzukehren – etwas, das über die Benutzeroberfläche gar nicht möglich ist. Anhand eines Beispiels mit Umsatzdaten und Ranking pro Land erfährst du:",
+    "tags": [
+      "Y-Achse",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "9BpzcWErzwQ",
+    "chapters": [
+      [
+        "00:00",
+        "Problem: Sekundäre Y-Achse umkehren"
+      ],
+      [
+        "00:41",
+        "Kombidiagramm & Filter vorbereiten"
+      ],
+      [
+        "01:42",
+        "Warum die Standardoptionen nicht reichen"
+      ],
+      [
+        "02:52",
+        "Lösung: Negatives Measure für Ranking"
+      ],
+      [
+        "04:41",
+        "Formatierung der Achse anpassen"
+      ],
+      [
+        "05:35",
+        "Fazit & Call-to-Action"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250929"
+  },
+  {
+    "bucket": "bucket-5",
+    "title": "Boring Charts, Better Insights",
+    "guest": "Lonneke Opsteegh",
+    "solo": false,
+    "date": "September 2025",
+    "duration": "40 min",
+    "lang": "EN",
+    "desc": "Lonneke Opsteegh shares how her background in medical science and psychology shapes her unique, human-centered approach to data visualization and BI. Her message: Clear, standardized dashboards beat flashy design – if you want people to truly understand data.",
+    "tags": [
+      "Boring Charts",
+      "EN"
+    ],
+    "ytId": "inko8wG9jlY",
+    "chapters": [
+      [
+        "00:00",
+        "<Untitled Chapter 1>"
+      ],
+      [
+        "00:36",
+        "From Brains to BI: Lonneke’s Unexpected Journey into Data"
+      ],
+      [
+        "02:21",
+        "Quit Your Job for BI? Here’s How Lonneke Did It Overnight"
+      ],
+      [
+        "04:11",
+        "Science vs. Business: Where Is Data Actually More Personal?"
+      ],
+      [
+        "06:48",
+        "Why Pie Charts Fail: The Science Behind Better Visuals"
+      ],
+      [
+        "09:12",
+        "Can Dashboards Adapt to Personality Types?"
+      ],
+      [
+        "17:36",
+        "“Boring” Dashboards Are Better – Here’s Why"
+      ],
+      [
+        "23:28",
+        "Data Is Never Neutral: Why Dashboards Are Always Biased"
+      ],
+      [
+        "29:09",
+        "Real Creativity in BI Isn’t What You Think"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250922"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "So rettest du deine kaputte Power BI Theme Datei in 5 Minuten! | Power BI Tutorial",
+    "guest": "",
+    "solo": true,
+    "date": "Oktober 2025",
+    "duration": "8 min",
+    "lang": "DE",
+    "desc": "Deine alte Power BI Theme Datei will einfach nicht mehr importiert werden? 😱 Keine Sorge, in diesem Tutorial zeige ich dir, wie du kaputte JSON-Theme-Dateien reparierst und wieder problemlos in Power BI Desktop nutzen kannst.",
+    "tags": [
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "gspmWlVrNdA",
+    "chapters": [
+      [
+        "00:00",
+        "Your Power BI theme file isn't working anymore?"
+      ],
+      [
+        "00:56",
+        "Error message when importing into Power BI Desktop"
+      ],
+      [
+        "01:30",
+        "Microsoft documentation & JSON schema"
+      ],
+      [
+        "02:52",
+        "Using Visual Studio Code"
+      ],
+      [
+        "03:46",
+        "Integrating the JSON schema into the workspace"
+      ],
+      [
+        "05:24",
+        "Renaming & validating the theme file"
+      ],
+      [
+        "06:00",
+        "Quickly finding and fixing errors"
+      ],
+      [
+        "07:00",
+        "Success: Theme file importable again!"
+      ],
+      [
+        "07:23",
+        "Conclusion & Next Steps"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251002"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "So hackst du einen Power BI Bericht | Power BI Tutorial",
+    "guest": "",
+    "solo": true,
+    "date": "September 2025",
+    "duration": "8 min",
+    "lang": "DE",
+    "desc": "🔒 So hackst du einen Power BI Bericht In diesem Video zeige ich dir, wie schnell scheinbar sichere Power BI-Berichte doch unerwartete Lücken offenbaren können. Wir tauchen in das Thema Sicherheit ein, schauen uns neue Features im Power BI Service an, und ich erkläre dir Schritt für Schritt, wie ein Benutzer trotz eingeschränkter Berechtigungen an mehr Inf...",
+    "tags": [
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "GKLxM3317Xk",
+    "chapters": [
+      [
+        "00:00",
+        "Intro & Setting"
+      ],
+      [
+        "00:18",
+        "Admin- vs. User-Ansicht"
+      ],
+      [
+        "00:52",
+        "Bericht öffnen – nur Frankreich sichtbar"
+      ],
+      [
+        "01:05",
+        "Dataset & Berechtigungen"
+      ],
+      [
+        "01:33",
+        "Neues Feature: Durchsuchen (Explore)"
+      ],
+      [
+        "02:17",
+        "Erkunden des Datasets"
+      ],
+      [
+        "02:52",
+        "Speicherung der Erkundung"
+      ],
+      [
+        "03:24",
+        "Admin deaktiviert Explore-Feature"
+      ],
+      [
+        "04:26",
+        "Semantisches Modell anzeigen"
+      ],
+      [
+        "05:30",
+        "Abfrageparameter als Angriffspunkt"
+      ],
+      [
+        "06:07",
+        "Filter-Manipulation im Bericht"
+      ],
+      [
+        "07:14",
+        "Grenzen von „Ausblenden“"
+      ],
+      [
+        "07:26",
+        "Richtig schützen: Daten aus dem Modell entfernen"
+      ],
+      [
+        "07:54",
+        "Fazit & Call-to-Action"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250926"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Vorbereiten der Daten für KI",
+    "guest": "",
+    "solo": true,
+    "date": "August 2025",
+    "duration": "9 min",
+    "lang": "DE",
+    "desc": "In diesem Video erfährst Du, wie Du in Power BI die Funktion „Vorbereiten von Daten für KI“ gezielt einsetzt, um Copilot bestmöglich zu nutzen. Ich zeige Dir Schritt für Schritt:",
+    "tags": [
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "WJXREKKx2yo",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250813"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Forms + Sharepoint + Powerautomate",
+    "guest": "",
+    "solo": true,
+    "date": "August 2025",
+    "duration": "10 min",
+    "lang": "DE",
+    "desc": "🎯 Aktivitäten in Teams & SharePoint automatisieren – mit Copilot & Power Automate!",
+    "tags": [
+      "DE"
+    ],
+    "ytId": "kP8YNW1XN_E",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250813"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Forms + Power Automate = Feedback-Alarm!",
+    "guest": "",
+    "solo": true,
+    "date": "August 2025",
+    "duration": "8 min",
+    "lang": "DE",
+    "desc": "🎯 E-Mail-Alarm bei schlechtem Feedback – automatisiert mit Power Automate & Copilot!",
+    "tags": [
+      "DE"
+    ],
+    "ytId": "1mfhZw7bg_c",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250806"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Copilot + Power Automate = Gamechanger",
+    "guest": "",
+    "solo": true,
+    "date": "August 2025",
+    "duration": "10 min",
+    "lang": "DE",
+    "desc": "🎯 Microsoft Forms automatisch in SharePoint übertragen – mit Copilot & Power Automate!",
+    "tags": [
+      "DE"
+    ],
+    "ytId": "_MfM3rhJx58",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250805"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Protokoll in 60 Sekunden! - So geht es mit Copilot!",
+    "guest": "",
+    "solo": true,
+    "date": "August 2025",
+    "duration": "3 min",
+    "lang": "DE",
+    "desc": "🎯 Meetings effizient protokollieren mit Copilot – so geht’s!",
+    "tags": [
+      "DE"
+    ],
+    "ytId": "wuuPwUPQVxk",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250804"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Data Projects like Iron Man [AI dubbed]",
+    "guest": "",
+    "solo": true,
+    "date": "April 2025",
+    "duration": "12 min",
+    "lang": "EN",
+    "desc": "Burn Your Money Faster! What We Can Learn from Iron Man for Data Projects.",
+    "tags": [
+      "EN"
+    ],
+    "ytId": "svytHaNMTf0",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250421"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Willkommen auf dem Daten-WG Kanal",
+    "guest": "WG Kanal",
+    "solo": false,
+    "date": "April 2025",
+    "duration": "1 min",
+    "lang": "DE",
+    "desc": "Die Community bleibt auch nach dem Event zusammen - und zwar GENAU HIER..! Hier gibt es Folgen des Daten-WG Community Podcast genauso wie spannende Live-Streams und Tutorials auf der Welt der Microsoft Data Plattform. Wir freuen uns!",
+    "tags": [
+      "DE"
+    ],
+    "ytId": "5atgv1IOijA",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250409"
+  },
+  {
+    "bucket": "bucket-7",
+    "title": "From Finance to Fabric",
+    "guest": "Khaled Chowdhury",
+    "solo": false,
+    "date": "März 2026",
+    "duration": "47 min",
+    "lang": "EN",
+    "desc": "We reveal the real reason why Fabric is winning tha data game!",
+    "tags": [
+      "Career-Switch",
+      "Fabric",
+      "Lakehouse",
+      "Power BI",
+      "EN"
+    ],
+    "ytId": "xU_s43HekPM",
+    "chapters": [
+      [
+        "00:00",
+        "From CFO to Data Leader"
+      ],
+      [
+        "03:05",
+        "Discovering Power BI"
+      ],
+      [
+        "04:41",
+        "Data Belongs to Business"
+      ],
+      [
+        "08:47",
+        "Business Doesn’t Care About Tools"
+      ],
+      [
+        "11:40",
+        "Why Fabric Wins"
+      ],
+      [
+        "14:48",
+        "Unused Data = Zero Value"
+      ],
+      [
+        "26:47",
+        "The Real Purpose of Data"
+      ],
+      [
+        "29:06",
+        "Fabric Changes SMEs"
+      ],
+      [
+        "33:18",
+        "Fix Data Problems Fast"
+      ],
+      [
+        "41:13",
+        "It’s Not About the Tool"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260316"
+  },
+  {
+    "bucket": "bucket-7",
+    "title": "More than PBIX | Daten-WG Podcast with Odeta Jankaitienė",
+    "guest": "Odeta Jankaitienė",
+    "solo": false,
+    "date": "Dezember 2025",
+    "duration": "40 min",
+    "lang": "EN",
+    "desc": "Power BI and Microsoft MVP expert Odeta Jankaitienė shares her insights on end-to-end BI development – from UX details, over DAX vs. SQL to enterprise collaboration, version control and REST API",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "EN"
+    ],
+    "ytId": "c90oD4zR1Aw",
+    "chapters": [
+      [
+        "00:00",
+        "Intro & Welcome"
+      ],
+      [
+        "02:26",
+        "Frontend vs Backend Work in Power BI"
+      ],
+      [
+        "05:35",
+        "Chart Choices: Pie Charts or Better Alternatives"
+      ],
+      [
+        "08:36",
+        "Collaboration with Git & Microsoft Fabric"
+      ],
+      [
+        "12:22",
+        "Why Fabric F2 Matters for Small Teams"
+      ],
+      [
+        "24:17",
+        "DAX vs. SQL – Ease of Use and Real‑World Scenarios"
+      ],
+      [
+        "32:42",
+        "Final Thoughts & What’s Missing in Power BI"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251201"
+  },
+  {
+    "bucket": "bucket-7",
+    "title": "Mensch bleiben, wenn Power BI geht",
+    "guest": "Stefan Werner",
+    "solo": false,
+    "date": "November 2025",
+    "duration": "71 min",
+    "lang": "DE",
+    "desc": "Power BI ist bald tot – sagt ein Power BI-Dozent Das Gespräch mit Stefan Werner war nicht nur sehr lang, sondern hat eine sehr große Spannweite an Themen abgedeckt.",
+    "tags": [
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "iB4vHRvaErE",
+    "chapters": [
+      [
+        "00:00",
+        "Holzwurm und Dozent: Wer ist Stefan Werner?"
+      ],
+      [
+        "02:08",
+        "Warum Power BI in 10 Jahren überflüssig sein könnte"
+      ],
+      [
+        "04:55",
+        "Tools verschwinden – aber wofür steht das eigentlich?"
+      ],
+      [
+        "07:12",
+        "Vom Quiz zur KI-App: Software in Minuten gebaut"
+      ],
+      [
+        "10:28",
+        "Kann man bald mit Daten „reden“ statt analysieren?"
+      ],
+      [
+        "13:40",
+        "Was macht eine „gute“ Analyse wirklich aus?"
+      ],
+      [
+        "17:05",
+        "Prompting reicht nicht – es braucht Kontextverständnis"
+      ],
+      [
+        "20:12",
+        "Datenqualität vs. Automatisierung: Wo sind die Grenzen?"
+      ],
+      [
+        "23:27",
+        "Sprachgesteuerte Dashboards – realistisch oder Hype?"
+      ],
+      [
+        "26:45",
+        "Demokratisierung durch KI: Wer profitiert wirklich?"
+      ],
+      [
+        "30:58",
+        "Werden Berater durch KI ersetzt? Oder nur transformiert?"
+      ],
+      [
+        "35:10",
+        "Zwei Klassen von KI-Nutzer:innen: Wer bleibt zurück?"
+      ],
+      [
+        "38:27",
+        "Weiterbildung muss Pflicht werden – nicht Kür"
+      ],
+      [
+        "42:03",
+        "Warum Unternehmen sich selbst ausbremsen"
+      ],
+      [
+        "45:55",
+        "Zeitersparnis durch KI – aber wer nutzt sie wirklich?"
+      ],
+      [
+        "49:40",
+        "Warum wir Content bald nicht mehr trauen können"
+      ],
+      [
+        "53:15",
+        "KI erzeugt Inhalte – aber was ist mit Originalität?"
+      ],
+      [
+        "56:32",
+        "Kontrollverlust durch autonome Agenten"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251103"
+  },
+  {
+    "bucket": "bucket-7",
+    "title": "The Power of User Groups",
+    "guest": "Ioannis Philippides",
+    "solo": false,
+    "date": "Oktober 2025",
+    "duration": "32 min",
+    "lang": "EN",
+    "desc": "What makes a Power BI community thrive? Meet Ioannis, the new co-lead of the Power BI Usergroup Berlin, as he shares his story — from Athens to Berlin, from Databricks to custom visuals. Passion, purpose, and practical insights for every engaged data pro.",
+    "tags": [
+      "User Group",
+      "Power BI",
+      "EN"
+    ],
+    "ytId": "SSUpe1JON9Y",
+    "chapters": [
+      [
+        "00:00",
+        "Passing the Torch: New Leadership for Berlin Power BI"
+      ],
+      [
+        "02:10",
+        "From Athens to Berlin: Building Communities Across Borders"
+      ],
+      [
+        "03:45",
+        "Hybrid Events and Live Streaming: Growing the Reach"
+      ],
+      [
+        "04:55",
+        "Upcoming Talk: Databricks + Power BI"
+      ],
+      [
+        "07:00",
+        "Volunteering, Passion & the Power of Community"
+      ],
+      [
+        "08:10",
+        "Ioannis’ First Steps: New Stars of Data and Mentorship"
+      ],
+      [
+        "12:00",
+        "Custom Visuals in Power BI: Why and How to Get Started"
+      ],
+      [
+        "20:30",
+        "The Future of Visuals: Copilot, Interactivity & Real User Needs"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20251006"
+  },
+  {
+    "bucket": "bucket-7",
+    "title": "Why Passion Beats Niche",
+    "guest": "Brian Bønk",
+    "solo": false,
+    "date": "September 2025",
+    "duration": "34 min",
+    "lang": "EN",
+    "desc": "Brian Bønk shares his passion for Fabric Real-Time Analytics, the power of the Kusto engine, and why passion – not niche – should guide your data journey. A hands-on deep dive into how Microsoft Fabric handles streaming data, log analytics, and massive-scale queries with elegance and speed.",
+    "tags": [
+      "Fabric",
+      "Lakehouse",
+      "EN"
+    ],
+    "ytId": "ihi7UiJ_TtQ",
+    "chapters": [
+      [
+        "00:00",
+        "Welcome & Real-Time Analytics Introduction"
+      ],
+      [
+        "02:04",
+        "What Is Kusto Query Language (KQL)?"
+      ],
+      [
+        "04:37",
+        "Choosing Passion Over Niche in Tech Communities"
+      ],
+      [
+        "09:00",
+        "The T‑Shaped Fabric Expert: Why Focus Matters"
+      ],
+      [
+        "11:42",
+        "The 1% Better Every Day Mindset"
+      ],
+      [
+        "15:50",
+        "Architecture of Fabric’s Real-Time Analytics Stack"
+      ],
+      [
+        "19:47",
+        "Autoscaling, Cost & Free Real-Time Dashboards"
+      ],
+      [
+        "23:53",
+        "Hybrid Models: Real-Time + Lakehouse Balance"
+      ],
+      [
+        "25:04",
+        "When SQL Still Beats Kusto: Modeling & Cost Considerations"
+      ],
+      [
+        "29:29",
+        "Hybrid Architecture with Lakehouse Shortcuts"
+      ],
+      [
+        "30:40",
+        "The Value of Kusto’s Simplicity & Interoperability"
+      ],
+      [
+        "31:19",
+        "Feature Wishlist: Materialized Views & Kusto Functions"
+      ],
+      [
+        "33:09",
+        "Community Thoughts & Event Shout-Outs"
+      ],
+      [
+        "34:11",
+        "Wrapping Up & Encouragement to Explore Real-Time Analytics"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250901"
+  },
+  {
+    "bucket": "bucket-7",
+    "title": "From Oracle to Empathy",
+    "guest": "Alexander Arvidsson",
+    "solo": false,
+    "date": "August 2025",
+    "duration": "48 min",
+    "lang": "EN",
+    "desc": "Power BI? Just a tool. Fabric?",
+    "tags": [
+      "Career-Switch",
+      "Fabric",
+      "Power BI",
+      "EN"
+    ],
+    "ytId": "1yuQVABBrNs",
+    "chapters": [
+      [
+        "00:00",
+        "Intro & Alexander’s Unusual Start"
+      ],
+      [
+        "06:00",
+        "Data Storytelling, Trust & Misleading Visuals"
+      ],
+      [
+        "12:30",
+        "Culture Clash in Reporting Styles"
+      ],
+      [
+        "19:00",
+        "Tech vs. Usability: Power, Pain & the Business Perspective"
+      ],
+      [
+        "25:00",
+        "Learning Curves & Shadow IT"
+      ],
+      [
+        "30:30",
+        "Fabric: Revolutionary or Risky?"
+      ],
+      [
+        "36:00",
+        "Minimum Viable Governance in Practice"
+      ],
+      [
+        "42:00",
+        "AI, Copilot & the Myth of No-Code Dashboards"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250818"
+  },
+  {
+    "bucket": "bucket-7",
+    "title": "How To Fullstack | Daten-WG Podcast with Valerie Junk",
+    "guest": "Valerie Junk",
+    "solo": false,
+    "date": "Juni 2025",
+    "duration": "32 min",
+    "lang": "EN",
+    "desc": "In the first-ever English episode of Daten-WG podcast, Artur König talks with Power BI expert Valerie Jung about her journey from backend engineering to frontend data visualization — and why communication, trust, and real user focus are the true keys to successful data projects. There is a lot of Fabric in this talk too.",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "EN"
+    ],
+    "ytId": "bgJjhx6IegA",
+    "chapters": [
+      [
+        "00:00",
+        "Welcome and meeting Valerie"
+      ],
+      [
+        "03:00",
+        "Valerie's journey: From backend to frontend"
+      ],
+      [
+        "06:00",
+        "Why good data models still fail without the right visualization"
+      ],
+      [
+        "09:00",
+        "Trust issues: Why people still export to Excel"
+      ],
+      [
+        "12:00",
+        "Communication challenges between data teams and business users"
+      ],
+      [
+        "15:00",
+        "Career surprises: From developer dream to consulting reality"
+      ],
+      [
+        "18:00",
+        "Power BI, Fabric and why platforms matter for collaboration"
+      ],
+      [
+        "21:00",
+        "Helping clients adopt Fabric step by step"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250602"
+  },
+  {
+    "bucket": "bucket-7",
+    "title": "Power BI-Teams werden Fabric-Datendienstleister",
+    "guest": "Steffen Genz",
+    "solo": false,
+    "date": "Mai 2025",
+    "duration": "32 min",
+    "lang": "DE",
+    "desc": "Was passiert, wenn Power BI-Teams auf einmal echte Datendienstleister werden? In dieser Episode geht Artur König zusammen mit Steffen Genz der Frage auf den Grund, wie Fabric die tägliche Arbeit verändert. Wir diskutieren offen über den Wechsel von Dashboards zu Datenprodukten, warum ein gutes Workspace-Management essenziell ist und wie die neue Welt der...",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "Vergleich",
+      "DE"
+    ],
+    "ytId": "YzfcMurbWNc",
+    "chapters": [
+      [
+        "00:00",
+        "<Untitled Chapter 1>"
+      ],
+      [
+        "01:10",
+        "Fabric = neues Office 365? Warum der Vergleich hinkt"
+      ],
+      [
+        "02:40",
+        "So sind wir mit Fabric produktiv gestartet: Dataflows Gen2"
+      ],
+      [
+        "05:02",
+        "Der Wandel: Vom Dashboard-Bauer zum Datendienstleister"
+      ],
+      [
+        "08:08",
+        "Warum saubere Datenmodelle jetzt Pflicht sind"
+      ],
+      [
+        "12:04",
+        "Kapazitätsmanagement: Unsere Praxislösungen in Fabric"
+      ],
+      [
+        "19:04",
+        "Microsoft-Support: Unsere Erfahrungen aus erster Hand"
+      ],
+      [
+        "25:00",
+        "Self-Service, Dezentralisierung und der Blick in die Zukunft"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250519"
+  },
+  {
+    "bucket": "bucket-8",
+    "title": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+    "guest": "WG Offsite",
+    "solo": false,
+    "date": "März 2026",
+    "duration": "7 min",
+    "lang": "DE",
+    "desc": "In diesem Talk geht es um eine spannende Frage: Können wir Supply Chain und Unternehmensplanung vollständig automatisieren – oder brauchen wir doch noch den Menschen?",
+    "tags": [
+      "Supply Chain",
+      "DE"
+    ],
+    "ytId": "sq8AWk_yNWM",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260325"
+  },
+  {
+    "bucket": "bucket-8",
+    "title": "Digitalisierung seit 20 Jahren – wann sind wir endlich fertig?",
+    "guest": "Heiko Löffler",
+    "solo": false,
+    "date": "März 2026",
+    "duration": "44 min",
+    "lang": "DE",
+    "desc": "In dieser Folge spreche ich mit Heiko – ebenfalls Podcaster und Buchautor („ABC der Digitalisierung für Entscheider“) und zudem auch Berater für digitale Transformation – über die Frage, warum Digitalisierung ein Dauerbrenner ist … und warum das auch gut so ist.",
+    "tags": [
+      "Digitalisierung",
+      "DE"
+    ],
+    "ytId": "jETxUNQSl-w",
+    "chapters": [
+      [
+        "00:00",
+        "Why digitalization never ends – Getting started & 3 horizons"
+      ],
+      [
+        "04:22",
+        "Brownfield reality: Where do you even begin?"
+      ],
+      [
+        "08:07",
+        "Vision instead of knee-jerk reactions – why strategy comes before tools"
+      ],
+      [
+        "11:36",
+        "Who really needs to be at the table? (And who's better off not)"
+      ],
+      [
+        "15:00",
+        "Doing workshops right: Decisions instead of snacks"
+      ],
+      [
+        "16:35",
+        "Top-down vs. bottom-up – do we need both?"
+      ],
+      [
+        "22:04",
+        "Self-service BI & uncontrolled growth – chaos or productivity?"
+      ],
+      [
+        "25:29",
+        "Copilot, costs & dead reports – enablement instead of a license graveyard"
+      ],
+      [
+        "29:29",
+        "AI as a catalyst – why everyone is suddenly affected"
+      ],
+      [
+        "35:01",
+        "Rebuilding a greenfield with AI – realistic or an illusion?"
+      ],
+      [
+        "38:32",
+        "Implementation Mode: Why Waiting Is the Greatest Danger"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20260303"
+  },
+  {
+    "bucket": "bucket-8",
+    "title": "10 Jahre BI für alle? Was Power BI wirklich verändert hat.",
+    "guest": "",
+    "solo": true,
+    "date": "August 2025",
+    "duration": "37 min",
+    "lang": "DE",
+    "desc": "Drei Datenprofis blicken auf ein Jahrzehnt Power BI zurück – von den Anfängen mit Power Pivot bis zur aktuellen Dynamik mit Microsoft Fabric. Sie reflektieren technische Meilensteine, persönliche Lernkurven und die Rolle von Self-Service-Kultur, Community und Plattformintegration.",
+    "tags": [
+      "Fabric",
+      "Warehouse",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "9wl_PLvgvyc",
+    "chapters": [
+      [
+        "00:00",
+        "Einstieg & 10 Jahre Power BI – persönliche Erfahrungen"
+      ],
+      [
+        "04:00",
+        "Kosten, Tools & Einstiegshürden im Mittelstand"
+      ],
+      [
+        "07:33",
+        "Die Magie des Datenmodells & Self-Service-Gedanken"
+      ],
+      [
+        "11:07",
+        "Microsofts Strategie & das tabulare Modell"
+      ],
+      [
+        "14:40",
+        "Ist das noch Self-Service? Oder schon Datenplattform?"
+      ],
+      [
+        "17:07",
+        "Wann lohnt sich Fabric – und wann (vielleicht) nicht?"
+      ],
+      [
+        "21:29",
+        "Kontrolle vs. Unabhängigkeit: Warum wir Daten selbst anfassen wollen"
+      ],
+      [
+        "24:24",
+        "Die Self-Service-Falle: Wenn nur einer profitiert"
+      ],
+      [
+        "31:11",
+        "Persönliche Meilensteine & Ausblick in die Zukunft"
+      ],
+      [
+        "34:47",
+        "Power BI als Bindeglied – und Lebensveränderer"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250804"
+  },
+  {
+    "bucket": "bucket-8",
+    "title": "Von Patronen zu Prozessen",
+    "guest": "",
+    "solo": true,
+    "date": "Juli 2025",
+    "duration": "23 min",
+    "lang": "DE",
+    "desc": "In dieser Sonderausgabe der Daten-WG gibt Matthias von AXRO Einblick in die digitale Transformation eines Mittelständlers mit Tech-DNA – von Eigenentwicklungen über ERP-Migration bis hin zu KI-gestützter Prozessautomatisierung. Dabei zeigt sich, wie tief Technologie, Daten und operative Exzellenz bei AXRO miteinander verschmelzen.",
+    "tags": [
+      "Fabric",
+      "Warehouse",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "0cHtxIm7fVw",
+    "chapters": [
+      [
+        "00:00",
+        "Transformation bei AXRO: Mittelstand mit Tech-DNA"
+      ],
+      [
+        "00:43",
+        "Data & Tech im Herzen: 30 Leute für Digitalisierung"
+      ],
+      [
+        "01:24",
+        "Vom Druckerzubehör zum Gaming-Distributor"
+      ],
+      [
+        "02:03",
+        "Eigenentwicklungen & Middleware als Strategie"
+      ],
+      [
+        "02:31",
+        "ERP-Wechsel: Von Maßanzug zu Standardlösung"
+      ],
+      [
+        "03:15",
+        "Alt trifft Neu: Die ERP-Migration bei AXRO"
+      ],
+      [
+        "04:50",
+        "Power BI im Lager: Analytics wird operativ"
+      ],
+      [
+        "05:26",
+        "Frühe Datenstrategie: AXROs Data Warehouse"
+      ],
+      [
+        "06:03",
+        "Fabric & UX: Alt-Datenmodell trifft neues ERP"
+      ],
+      [
+        "07:24",
+        "Prozessautomatisierung beginnt beim Prozess"
+      ],
+      [
+        "08:43",
+        "RPA über Daten: Stabiler, robuster, nachhaltiger"
+      ],
+      [
+        "10:07",
+        "Case Study: Bedarfsanfragen mit 90% Automatisierung"
+      ],
+      [
+        "12:35",
+        "Der KI-Schritt: Von Regeln zur Interpretation"
+      ],
+      [
+        "13:34",
+        "LLMs für E-Mails: Flexible Automatisierung"
+      ],
+      [
+        "14:01",
+        "Mittelspur war gestern: Automatisierung auf dem nächsten Level"
+      ],
+      [
+        "15:28",
+        "Wachstum ohne Mehrarbeit: Automatisierung als Schlüssel"
+      ],
+      [
+        "17:12",
+        "Daten & Prozesse: Zusammenwachsen als Prinzip"
+      ],
+      [
+        "18:46",
+        "Citizen Development? Nur mit Governance und Plan"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250714"
+  },
+  {
+    "bucket": "bucket-8",
+    "title": "Von Patronen zu Prozessen (nur Ton)",
+    "guest": "",
+    "solo": true,
+    "date": "Juli 2025",
+    "duration": "23 min",
+    "lang": "DE",
+    "desc": "In dieser Sonderausgabe der Daten-WG gibt Matthias von AXRO Einblick in die digitale Transformation eines Mittelständlers mit Tech-DNA – von Eigenentwicklungen über ERP-Migration bis hin zu KI-gestützter Prozessautomatisierung. Dabei zeigt sich, wie tief Technologie, Daten und operative Exzellenz bei AXRO miteinander verschmelzen.",
+    "tags": [
+      "Fabric",
+      "Warehouse",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "s3CveEVoDvo",
+    "chapters": [
+      [
+        "00:00",
+        "Transformation bei AXRO: Mittelstand mit Tech-DNA"
+      ],
+      [
+        "00:43",
+        "Data & Tech im Herzen: 30 Leute für Digitalisierung"
+      ],
+      [
+        "01:24",
+        "Vom Druckerzubehör zum Gaming-Distributor"
+      ],
+      [
+        "02:03",
+        "Eigenentwicklungen & Middleware als Strategie"
+      ],
+      [
+        "02:31",
+        "ERP-Wechsel: Von Maßanzug zu Standardlösung"
+      ],
+      [
+        "03:15",
+        "Alt trifft Neu: Die ERP-Migration bei AXRO"
+      ],
+      [
+        "04:50",
+        "Power BI im Lager: Analytics wird operativ"
+      ],
+      [
+        "05:26",
+        "Frühe Datenstrategie: AXROs Data Warehouse"
+      ],
+      [
+        "06:03",
+        "Fabric & UX: Alt-Datenmodell trifft neues ERP"
+      ],
+      [
+        "07:24",
+        "Prozessautomatisierung beginnt beim Prozess"
+      ],
+      [
+        "08:43",
+        "RPA über Daten: Stabiler, robuster, nachhaltiger"
+      ],
+      [
+        "10:07",
+        "Case Study: Bedarfsanfragen mit 90% Automatisierung"
+      ],
+      [
+        "12:35",
+        "Der KI-Schritt: Von Regeln zur Interpretation"
+      ],
+      [
+        "13:34",
+        "LLMs für E-Mails: Flexible Automatisierung"
+      ],
+      [
+        "14:01",
+        "Mittelspur war gestern: Automatisierung auf dem nächsten Level"
+      ],
+      [
+        "15:28",
+        "Wachstum ohne Mehrarbeit: Automatisierung als Schlüssel"
+      ],
+      [
+        "17:12",
+        "Daten & Prozesse: Zusammenwachsen als Prinzip"
+      ],
+      [
+        "18:46",
+        "Citizen Development? Nur mit Governance und Plan"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250714"
+  },
+  {
+    "bucket": "bucket-9",
+    "title": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+    "guest": "Fabric Meetup",
+    "solo": false,
+    "date": "Juni 2025",
+    "duration": "38 min",
+    "lang": "DE",
+    "desc": "Beim Fabric Meetup Rhein-Ruhr bei Oraylis haben wir es nun in voller Länge vorstellen können.",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "BDnwlOqRElY",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250606"
+  },
+  {
+    "bucket": "bucket-9",
+    "title": "Slam @dataunplugged Pre-Event von @Dataciders",
+    "guest": "",
+    "solo": true,
+    "date": "April 2025",
+    "duration": "7 min",
+    "lang": "DE",
+    "desc": "Sind Daten die neuen Zootiere? 🐘📊",
+    "tags": [
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "OYvXe4k-Df8",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250417"
+  },
+  {
+    "bucket": "bucket-9",
+    "title": "Wie war die Daten-WG? (2025, Teil 2)",
+    "guest": "",
+    "solo": true,
+    "date": "April 2025",
+    "duration": "37 min",
+    "lang": "DE",
+    "desc": "In dieser Folge nehmen wir dich mit hinter die Kulissen der Daten-WG 2025 und sprechen über die spannendsten Momente des Events. Vom tiefgehenden Austausch über die Zukunft von Datenprojekten bis hin zu den Herausforderungen einer datengetriebenen Unternehmenskultur – dieses Event hatte für alle etwas zu bieten.",
+    "tags": [
+      "Rückblick",
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "XxPFAQfLyuA",
+    "chapters": [
+      [
+        "00:00",
+        "Einleitung und Vorstellung der Daten-WG 2025"
+      ],
+      [
+        "03:24",
+        "Arthurs Keynote und Hypothesen-basiertes Arbeiten"
+      ],
+      [
+        "09:39",
+        "Besuch von Thomas Sigmund und strategische Bedeutung von Rechenzentren"
+      ],
+      [
+        "11:18",
+        "Matthias Thierbach über DevOps und Fabric"
+      ],
+      [
+        "12:38",
+        "Data Modelling und Deep-Dive-Themen"
+      ],
+      [
+        "14:51",
+        "Dilyanas Präsentation über KI im Business"
+      ],
+      [
+        "19:25",
+        "Interaktive Sessions bringen Lernen und Spaß zusammen"
+      ],
+      [
+        "30:02",
+        "Feedback und Ausblick auf zukünftige Veranstaltungen"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20250415"
+  },
+  {
+    "bucket": "bucket-9",
+    "title": "Wie war die Daten-WG? (2025, Teil 1)",
+    "guest": "",
+    "solo": true,
+    "date": "April 2025",
+    "duration": "36 min",
+    "lang": "DE",
+    "desc": "Stell dir vor, du könntest dich in einer entspannten Wohnzimmeratmosphäre mit anderen Daten-Experten austauschen – ohne Barrieren, ohne durchgetaktete Vorträge, sondern auf Augenhöhe. Genau das hat die Daten-WG geboten!",
+    "tags": [
+      "Rückblick",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "aEXtFWW-pmo",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250414"
+  },
+  {
+    "bucket": "bucket-9",
+    "title": "Was wir von Iron Man für Datenprojekte lernen können (data:unplugged Vortrag)",
+    "guest": "",
+    "solo": true,
+    "date": "April 2025",
+    "duration": "12 min",
+    "lang": "DE",
+    "desc": "Verbrennt euer Geld schneller! Was wir von Iron Man für Datenprojekte lernen können.",
+    "tags": [
+      "DE"
+    ],
+    "ytId": "qVZhboahaDE",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250410"
+  }
+]
