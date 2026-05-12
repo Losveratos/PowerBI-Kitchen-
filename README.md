@@ -8,7 +8,10 @@ lazy-loaded YouTube-Embeds und Kapitel-Sprungmarken aus den Video-Beschreibungen
 
 ## Live-Version
 
-→ wird nach dem ersten GitHub-Pages-Deploy hier ergänzt
+→ **https://losveratos.github.io/PowerBI-Kitchen-/**
+
+(Aktiv ab dem ersten erfolgreichen GitHub-Pages-Build. Falls 404: in
+Repo-Settings → Pages prüfen, ob `main` / root als Source gewählt ist.)
 
 ## Lokal anschauen
 
