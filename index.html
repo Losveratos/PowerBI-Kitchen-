@@ -1246,6 +1246,23 @@ a { color: inherit; text-decoration: none; }
 }
 .eg-start-with-text strong { color: var(--ink); font-weight: 600; }
 
+.eg-chapter-deeplink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--eg-chapter-color, var(--accent));
+  text-decoration: none;
+  padding: 6px 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color .15s ease;
+}
+.eg-chapter-deeplink:hover { border-bottom-color: var(--eg-chapter-color, var(--accent)); }
+
 .eg-embed-note {
   margin-top: 24px;
   padding: 14px 18px;
@@ -1523,6 +1540,7 @@ a { color: inherit; text-decoration: none; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>Lies „Desktop", „Service" und „Storage Modes"</strong> in dieser Reihenfolge — das ist das mentale Modell. Den Rest klickst du, wenn du konkret damit zu tun hast.</span>
     </div>
+    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#arch">Detail-Karten im vollen Guide →</a>
   </article>
 
   <article class="eg-chapter" id="eg-pq" style="--eg-chapter-color: var(--eg-c-staging);">
@@ -1535,6 +1553,7 @@ a { color: inherit; text-decoration: none; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>Verstehe die drei Spalten: Quellen → Staging → Modell.</strong> Das Trennprinzip ist wichtiger als jeder einzelne Klick. Dann „Datentypen früh setzen" — das ist der wichtigste Einzeltipp.</span>
     </div>
+    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#pq">Detail-Karten im vollen Guide →</a>
   </article>
 
   <article class="eg-chapter" id="eg-folding" style="--eg-chapter-color: var(--eg-c-folding);">
@@ -1547,6 +1566,7 @@ a { color: inherit; text-decoration: none; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>„Was ist Query Folding?"</strong> öffnen — das Konzept. Dann <strong>„Step Folding Indicators"</strong> — die schnellste Diagnose, die du sofort in deinem nächsten Power Query anwenden kannst.</span>
     </div>
+    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#folding">Detail-Karten im vollen Guide →</a>
   </article>
 
   <article class="eg-chapter" id="eg-model" style="--eg-chapter-color: var(--eg-c-model);">
@@ -1559,6 +1579,7 @@ a { color: inherit; text-decoration: none; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>Fakt vs. Dimension</strong> ist die Basis. Dann <strong>„Granularität"</strong> — die Regel, die am häufigsten verletzt wird.</span>
     </div>
+    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#model">Detail-Karten im vollen Guide →</a>
   </article>
 
   <article class="eg-chapter" id="eg-dax" style="--eg-chapter-color: var(--eg-c-dax);">
@@ -1571,6 +1592,7 @@ a { color: inherit; text-decoration: none; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>„Measures vs. Calculated Columns"</strong> — das ist die Entscheidung, die du jedes Mal triffst, wenn du DAX schreibst. Dann <strong>„Filter- und Row-Context"</strong> — die zwei Begriffe, ohne die DAX ein Rate-Spiel bleibt.</span>
     </div>
+    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#dax">Detail-Karten im vollen Guide →</a>
   </article>
 
   <article class="eg-chapter" id="eg-viz" style="--eg-chapter-color: var(--eg-c-ibcs);">
@@ -1583,6 +1605,7 @@ a { color: inherit; text-decoration: none; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>SAY und UNIFY</strong> im SUCCESS-Wheel — die beiden zentralen Regeln. Dann <strong>„Solid / Outlined / Hatched"</strong> — die visuelle Notation, die du sofort in jedem Bericht einsetzen kannst.</span>
     </div>
+    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#viz">Detail-Karten im vollen Guide →</a>
   </article>
 
   <article class="eg-chapter" id="eg-inter" style="--eg-chapter-color: var(--eg-c-inter);">
@@ -1595,6 +1618,7 @@ a { color: inherit; text-decoration: none; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>Drillthrough</strong> — die einfachste High-Impact-Interaktion. Anschließend <strong>Field Parameters</strong> — der Game-Changer aus 2022 (Preview) bzw. seit Juli 2025 GA, der viele alte Bookmark-Tricks überflüssig macht.</span>
     </div>
+    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#inter">Detail-Karten im vollen Guide →</a>
   </article>
 
   <article class="eg-chapter" id="eg-service" style="--eg-chapter-color: var(--eg-c-service);">
@@ -1607,6 +1631,7 @@ a { color: inherit; text-decoration: none; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>„Workspaces"</strong> und <strong>„Workspace-Rollen"</strong> — wer darf was im Service. Dann <strong>„Power BI Apps"</strong> — der Microsoft-empfohlene Sharing-Weg, den viele noch nicht nutzen.</span>
     </div>
+    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#service">Detail-Karten im vollen Guide →</a>
   </article>
 
   <article class="eg-chapter" id="eg-rls" style="--eg-chapter-color: var(--eg-c-rls);">
@@ -1619,6 +1644,7 @@ a { color: inherit; text-decoration: none; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>„Statische RLS"</strong> — das einfachere Konzept. Dann <strong>„Dynamische RLS"</strong> — das Pattern, das in der echten Welt skaliert. <strong>„View As Role"</strong> ist Pflicht vor jedem Production-Deploy.</span>
     </div>
+    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#rls">Detail-Karten im vollen Guide →</a>
   </article>
 
   <article class="eg-chapter" id="eg-ext" style="--eg-chapter-color: var(--eg-c-ext);">
@@ -1631,10 +1657,11 @@ a { color: inherit; text-decoration: none; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>Tabular Editor 2</strong> herunterladen und einrichten — kostenfrei, Open Source, ändert deinen Workflow. Dann <strong>DAX Studio</strong> für Performance-Diagnose. Beides sind Pflicht-Tools für jeden, der über ein Jahr Power BI macht.</span>
     </div>
+    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#ext">Detail-Karten im vollen Guide →</a>
   </article>
 
   <div class="eg-embed-note">
-    <strong>Hinweis:</strong> Diese Übersicht zeigt die Lehrstruktur des Einsteiger-Guides. Die detaillierten Karten pro Kapitel (Schritt-für-Schritt, Beispiele, Anfänger-Fallen) liegen im vollen Guide-Dokument, das nicht Teil dieses Repos ist.
+    <strong>Tiefer einsteigen:</strong> Diese Übersicht ist die Lehrstruktur. Die detaillierten Klick-Karten pro Kapitel (Schritt-für-Schritt, Beispiele, Anfänger-Fallen) findest du im <a href="power_bi_einsteiger_guide_v4.html" style="color: var(--accent); text-decoration: underline;">vollen Einsteiger-Guide →</a>.
   </div>
 </section>
 
