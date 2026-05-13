@@ -1638,150 +1638,6 @@ body.fav-mode .fav-empty.show { display: block; }
 }
 .eg-embed-note strong { color: var(--ink); font-weight: 600; }
 
-/* ========== RESSOURCEN · Community-Cheatsheets ========== */
-.resources {
-  margin: 60px 0 80px;
-}
-.resources-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--line);
-}
-.resources-title {
-  font-family: var(--serif);
-  font-weight: 300;
-  font-size: 28px;
-  letter-spacing: -0.02em;
-  color: var(--black);
-  line-height: 1.05;
-}
-.resources-title em { font-style: italic; color: var(--accent); }
-.resources-sub {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-mute);
-  white-space: nowrap;
-}
-.resources-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 18px;
-}
-.resource-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
-  text-decoration: none;
-  color: inherit;
-  transition: all .2s ease;
-  position: relative;
-}
-.resource-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--accent);
-}
-.resource-card-img-wrap {
-  position: relative;
-  background: var(--bg-soft);
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  border-bottom: 1px solid var(--line);
-}
-.resource-card-img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
-  transition: transform .35s ease;
-}
-.resource-card:hover .resource-card-img { transform: scale(1.02); }
-.resource-card.no-image .resource-card-img { display: none; }
-.resource-card-img-fallback {
-  display: none;
-  position: absolute;
-  inset: 0;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 24px;
-  font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  color: var(--ink-mute);
-  line-height: 1.6;
-}
-.resource-card-img-fallback code {
-  background: var(--bg-card);
-  padding: 2px 6px;
-  border-radius: 3px;
-  border: 1px solid var(--line-strong);
-  color: var(--ink);
-}
-.resource-card.no-image .resource-card-img-fallback { display: flex; flex-direction: column; gap: 6px; }
-.resource-card-body {
-  padding: 18px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-.resource-card-eyebrow {
-  font-family: var(--mono);
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-.resource-card-title {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: 17px;
-  line-height: 1.25;
-  letter-spacing: -0.005em;
-  color: var(--black);
-}
-.resource-card-desc {
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--ink-soft);
-}
-.resource-card-source {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.resource-card-author {
-  color: var(--ink-mute);
-}
-.resource-card-author strong {
-  color: var(--ink);
-  font-weight: 700;
-}
-.resource-card-action {
-  color: var(--accent);
-  font-weight: 700;
-}
-
 /* ========== FOOTER ========== */
 .footer {
   margin-top: 80px;
@@ -1866,7 +1722,6 @@ body.fav-mode .fav-empty.show { display: block; }
     <div class="topnav-brand">Daten-WG · <em>Knowledge Kitchen</em></div>
     <a class="topnav-link" href="#top-picks">Top-Picks</a>
     <a class="topnav-link" href="#buckets-overview">Buckets</a>
-    <a class="topnav-link" href="#resources">Ressourcen</a>
     <a class="topnav-link" href="#favorites-anchor">Favoriten</a>
     <a class="topnav-link" href="#einsteiger-guide" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">Einsteiger-Guide</a>
   </div>
@@ -2261,39 +2116,6 @@ body.fav-mode .fav-empty.show { display: block; }
 
   <div class="eg-embed-note">
     <strong>Tiefer einsteigen:</strong> Diese Übersicht ist die Lehrstruktur. Die detaillierten Klick-Karten pro Kapitel (Schritt-für-Schritt, Beispiele, Anfänger-Fallen) findest du im <a href="power_bi_einsteiger_guide_v4.html" style="color: var(--accent); text-decoration: underline;">vollen Einsteiger-Guide →</a>.
-  </div>
-</section>
-
-<!-- ============================================================
-     RESSOURCEN · Community-Cheatsheets
-============================================================ -->
-<section class="resources" id="resources" aria-labelledby="resources-title">
-  <header class="resources-head">
-    <h2 class="resources-title" id="resources-title">Ressourcen · <em>Cheatsheets aus der Community</em></h2>
-    <span class="resources-sub">Handverlesene Spickzettel</span>
-  </header>
-  <div class="resources-grid">
-
-    <a class="resource-card" href="assets/visualisierung-decision-tree.png" target="_blank" rel="noopener" aria-label="Vollansicht: Welches Visualisierungssystem in Power BI?">
-      <div class="resource-card-img-wrap">
-        <img class="resource-card-img" src="assets/visualisierung-decision-tree.png" alt="Entscheidungsbaum: Welches Visualisierungssystem in Power BI?" loading="lazy"
-             onerror="this.closest('.resource-card').classList.add('no-image')">
-        <div class="resource-card-img-fallback">
-          <span>Bild noch nicht im Repo —</span>
-          <span>lege es als <code>assets/visualisierung-decision-tree.png</code> ab</span>
-        </div>
-      </div>
-      <div class="resource-card-body">
-        <div class="resource-card-eyebrow">Decision Tree · Power BI Viz</div>
-        <h3 class="resource-card-title">Welches Visualisierungssystem in Power BI?</h3>
-        <p class="resource-card-desc">Entscheidungsbaum mit Hierarchie und Übergängen: wann Standard Visuals, Custom Visuals aus dem Marketplace, Deneb / Vega, Python / R, SVG-Hacks oder ein eigenes Custom Visual? Inkl. Kurzempfehlungen, Anti-Patterns und Auswahlfragen.</p>
-        <div class="resource-card-source">
-          <span class="resource-card-author">Quelle · <strong>Artur König</strong></span>
-          <span class="resource-card-action">Vollansicht öffnen →</span>
-        </div>
-      </div>
-    </a>
-
   </div>
 </section>
 
