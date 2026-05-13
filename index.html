@@ -1454,8 +1454,39 @@ body.fav-mode .fav-empty.show { display: block; }
 }
 
 .eg-chapter {
-  margin-bottom: 56px;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 18px;
+  padding: 24px 56px 22px 28px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--eg-chapter-color, var(--accent));
+  border-radius: var(--radius);
+  background: var(--bg-card);
   scroll-margin-top: 80px;
+  position: relative;
+  transition: all .2s ease;
+}
+.eg-chapter:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--eg-chapter-color, var(--accent));
+}
+.eg-chapter::after {
+  content: '→';
+  position: absolute;
+  top: 50%;
+  right: 24px;
+  margin-top: -14px;
+  font-size: 24px;
+  font-weight: 300;
+  color: var(--eg-chapter-color, var(--accent));
+  opacity: 0.35;
+  transition: opacity .2s ease, transform .2s ease;
+}
+.eg-chapter:hover::after {
+  opacity: 1;
+  transform: translateX(6px);
 }
 .eg-chapter-head {
   display: flex;
@@ -1628,22 +1659,63 @@ body.fav-mode .fav-empty.show { display: block; }
 }
 .eg-start-with-text strong { color: var(--ink); font-weight: 600; }
 
-.eg-chapter-deeplink {
-  display: inline-flex;
+/* CTA-Block oben in der embedded-Guide-Sektion */
+.eg-cta-card {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 12px;
+  gap: 18px;
+  margin: 28px 0 36px;
+  padding: 22px 26px;
+  background: var(--black);
+  color: var(--bg);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: all .18s ease;
+}
+.eg-cta-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.eg-cta-card-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.eg-cta-card-eyebrow {
   font-family: var(--mono);
   font-size: 10.5px;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--eg-chapter-color, var(--accent));
-  text-decoration: none;
-  padding: 6px 0;
-  border-bottom: 1px solid transparent;
-  transition: border-color .15s ease;
+  color: var(--accent);
 }
-.eg-chapter-deeplink:hover { border-bottom-color: var(--eg-chapter-color, var(--accent)); }
+.eg-cta-card-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 19px;
+  line-height: 1.25;
+  color: white;
+}
+.eg-cta-card-sub {
+  font-size: 13px;
+  color: rgba(250, 250, 245, 0.7);
+  line-height: 1.4;
+}
+.eg-cta-card-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 100px;
+  white-space: nowrap;
+  transition: background .15s ease;
+}
+.eg-cta-card:hover .eg-cta-card-btn { background: var(--brand-soft); }
 
 .eg-embed-note {
   margin-top: 24px;
@@ -1970,6 +2042,15 @@ body.fav-mode .fav-empty.show { display: block; }
     <p class="eg-embed-sub">Für alle, die Power BI seit ein bis zwei Jahren nutzen und jetzt den ganzen Weg verstehen wollen — von der Datenanbindung bis zum Sharing. Zehn Etappen, jeweils mit Empfehlung, wo du anfängst.</p>
   </header>
 
+  <a class="eg-cta-card" href="power_bi_einsteiger_guide_v4.html">
+    <div class="eg-cta-card-text">
+      <span class="eg-cta-card-eyebrow">Vollständiger Guide</span>
+      <span class="eg-cta-card-title">87 klickbare Detail-Karten, Beispiele und Schritt-für-Schritt-Anleitungen</span>
+      <span class="eg-cta-card-sub">Die Übersicht hier zeigt nur die Lehrstruktur — Tiefe liegt im vollen Guide.</span>
+    </div>
+    <span class="eg-cta-card-btn">Zum vollen Guide →</span>
+  </a>
+
   <div class="eg-progress" role="status" aria-live="polite">
     <span class="eg-progress-label">Lernpfad</span>
     <span class="eg-progress-track"><span class="eg-progress-fill" id="eg-progress-fill"></span></span>
@@ -1994,7 +2075,7 @@ body.fav-mode .fav-empty.show { display: block; }
     </div>
   </div>
 
-  <article class="eg-chapter" id="eg-arch" style="--eg-chapter-color: var(--eg-c-arch);">
+  <a class="eg-chapter" id="eg-arch" href="power_bi_einsteiger_guide_v4.html#arch" style="--eg-chapter-color: var(--eg-c-arch);">
     <header class="eg-chapter-head">
       <span class="eg-chapter-num">01</span>
       <h3 class="eg-chapter-title">Architektur &amp; <em>Komponenten</em></h3>
@@ -2005,10 +2086,9 @@ body.fav-mode .fav-empty.show { display: block; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>Lies „Desktop", „Service" und „Storage Modes"</strong> in dieser Reihenfolge — das ist das mentale Modell. Den Rest klickst du, wenn du konkret damit zu tun hast.</span>
     </div>
-    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#arch">Detail-Karten im vollen Guide →</a>
-  </article>
+  </a>
 
-  <article class="eg-chapter" id="eg-pq" style="--eg-chapter-color: var(--eg-c-staging);">
+  <a class="eg-chapter" id="eg-pq" href="power_bi_einsteiger_guide_v4.html#pq" style="--eg-chapter-color: var(--eg-c-staging);">
     <header class="eg-chapter-head">
       <span class="eg-chapter-num">02</span>
       <h3 class="eg-chapter-title">Power Query <em>Workflow</em></h3>
@@ -2019,10 +2099,9 @@ body.fav-mode .fav-empty.show { display: block; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>Verstehe die drei Spalten: Quellen → Staging → Modell.</strong> Das Trennprinzip ist wichtiger als jeder einzelne Klick. Dann „Datentypen früh setzen" — das ist der wichtigste Einzeltipp.</span>
     </div>
-    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#pq">Detail-Karten im vollen Guide →</a>
-  </article>
+  </a>
 
-  <article class="eg-chapter" id="eg-folding" style="--eg-chapter-color: var(--eg-c-folding);">
+  <a class="eg-chapter" id="eg-folding" href="power_bi_einsteiger_guide_v4.html#folding" style="--eg-chapter-color: var(--eg-c-folding);">
     <header class="eg-chapter-head">
       <span class="eg-chapter-num">03</span>
       <h3 class="eg-chapter-title">Deep Dive: <em>Query Folding</em></h3>
@@ -2033,10 +2112,9 @@ body.fav-mode .fav-empty.show { display: block; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>„Was ist Query Folding?"</strong> öffnen — das Konzept. Dann <strong>„Step Folding Indicators"</strong> — die schnellste Diagnose, die du sofort in deinem nächsten Power Query anwenden kannst.</span>
     </div>
-    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#folding">Detail-Karten im vollen Guide →</a>
-  </article>
+  </a>
 
-  <article class="eg-chapter" id="eg-model" style="--eg-chapter-color: var(--eg-c-model);">
+  <a class="eg-chapter" id="eg-model" href="power_bi_einsteiger_guide_v4.html#model" style="--eg-chapter-color: var(--eg-c-model);">
     <header class="eg-chapter-head">
       <span class="eg-chapter-num">04</span>
       <h3 class="eg-chapter-title">Datenmodell &amp; <em>Stern-Schema</em></h3>
@@ -2047,10 +2125,9 @@ body.fav-mode .fav-empty.show { display: block; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>Fakt vs. Dimension</strong> ist die Basis. Dann <strong>„Granularität"</strong> — die Regel, die am häufigsten verletzt wird.</span>
     </div>
-    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#model">Detail-Karten im vollen Guide →</a>
-  </article>
+  </a>
 
-  <article class="eg-chapter" id="eg-dax" style="--eg-chapter-color: var(--eg-c-dax);">
+  <a class="eg-chapter" id="eg-dax" href="power_bi_einsteiger_guide_v4.html#dax" style="--eg-chapter-color: var(--eg-c-dax);">
     <header class="eg-chapter-head">
       <span class="eg-chapter-num">05</span>
       <h3 class="eg-chapter-title">DAX <em>· Formelsprache</em></h3>
@@ -2061,10 +2138,9 @@ body.fav-mode .fav-empty.show { display: block; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>„Measures vs. Calculated Columns"</strong> — das ist die Entscheidung, die du jedes Mal triffst, wenn du DAX schreibst. Dann <strong>„Filter- und Row-Context"</strong> — die zwei Begriffe, ohne die DAX ein Rate-Spiel bleibt.</span>
     </div>
-    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#dax">Detail-Karten im vollen Guide →</a>
-  </article>
+  </a>
 
-  <article class="eg-chapter" id="eg-viz" style="--eg-chapter-color: var(--eg-c-ibcs);">
+  <a class="eg-chapter" id="eg-viz" href="power_bi_einsteiger_guide_v4.html#viz" style="--eg-chapter-color: var(--eg-c-ibcs);">
     <header class="eg-chapter-head">
       <span class="eg-chapter-num">06</span>
       <h3 class="eg-chapter-title">Deep Dive: <em>IBCS</em> &amp; Visualisierung</h3>
@@ -2075,10 +2151,9 @@ body.fav-mode .fav-empty.show { display: block; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>SAY und UNIFY</strong> im SUCCESS-Wheel — die beiden zentralen Regeln. Dann <strong>„Solid / Outlined / Hatched"</strong> — die visuelle Notation, die du sofort in jedem Bericht einsetzen kannst.</span>
     </div>
-    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#viz">Detail-Karten im vollen Guide →</a>
-  </article>
+  </a>
 
-  <article class="eg-chapter" id="eg-inter" style="--eg-chapter-color: var(--eg-c-inter);">
+  <a class="eg-chapter" id="eg-inter" href="power_bi_einsteiger_guide_v4.html#inter" style="--eg-chapter-color: var(--eg-c-inter);">
     <header class="eg-chapter-head">
       <span class="eg-chapter-num">07</span>
       <h3 class="eg-chapter-title">Interaktivität <em>· UX</em></h3>
@@ -2089,10 +2164,9 @@ body.fav-mode .fav-empty.show { display: block; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>Drillthrough</strong> — die einfachste High-Impact-Interaktion. Anschließend <strong>Field Parameters</strong> — der Game-Changer aus 2022 (Preview) bzw. seit Juli 2025 GA, der viele alte Bookmark-Tricks überflüssig macht.</span>
     </div>
-    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#inter">Detail-Karten im vollen Guide →</a>
-  </article>
+  </a>
 
-  <article class="eg-chapter" id="eg-service" style="--eg-chapter-color: var(--eg-c-service);">
+  <a class="eg-chapter" id="eg-service" href="power_bi_einsteiger_guide_v4.html#service" style="--eg-chapter-color: var(--eg-c-service);">
     <header class="eg-chapter-head">
       <span class="eg-chapter-num">08</span>
       <h3 class="eg-chapter-title">Service &amp; <em>Sharing</em></h3>
@@ -2103,10 +2177,9 @@ body.fav-mode .fav-empty.show { display: block; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>„Workspaces"</strong> und <strong>„Workspace-Rollen"</strong> — wer darf was im Service. Dann <strong>„Power BI Apps"</strong> — der Microsoft-empfohlene Sharing-Weg, den viele noch nicht nutzen.</span>
     </div>
-    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#service">Detail-Karten im vollen Guide →</a>
-  </article>
+  </a>
 
-  <article class="eg-chapter" id="eg-rls" style="--eg-chapter-color: var(--eg-c-rls);">
+  <a class="eg-chapter" id="eg-rls" href="power_bi_einsteiger_guide_v4.html#rls" style="--eg-chapter-color: var(--eg-c-rls);">
     <header class="eg-chapter-head">
       <span class="eg-chapter-num">09</span>
       <h3 class="eg-chapter-title">Row-Level Security <em>· RLS</em></h3>
@@ -2117,10 +2190,9 @@ body.fav-mode .fav-empty.show { display: block; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>„Statische RLS"</strong> — das einfachere Konzept. Dann <strong>„Dynamische RLS"</strong> — das Pattern, das in der echten Welt skaliert. <strong>„View As Role"</strong> ist Pflicht vor jedem Production-Deploy.</span>
     </div>
-    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#rls">Detail-Karten im vollen Guide →</a>
-  </article>
+  </a>
 
-  <article class="eg-chapter" id="eg-ext" style="--eg-chapter-color: var(--eg-c-ext);">
+  <a class="eg-chapter" id="eg-ext" href="power_bi_einsteiger_guide_v4.html#ext" style="--eg-chapter-color: var(--eg-c-ext);">
     <header class="eg-chapter-head">
       <span class="eg-chapter-num">10</span>
       <h3 class="eg-chapter-title">Erweitert &amp; <em>Externe Tools</em></h3>
@@ -2131,8 +2203,7 @@ body.fav-mode .fav-empty.show { display: block; }
       <span class="eg-start-with-label">Als erstes</span>
       <span class="eg-start-with-text"><strong>Tabular Editor 2</strong> herunterladen und einrichten — kostenfrei, Open Source, ändert deinen Workflow. Dann <strong>DAX Studio</strong> für Performance-Diagnose. Beides sind Pflicht-Tools für jeden, der über ein Jahr Power BI macht.</span>
     </div>
-    <a class="eg-chapter-deeplink" href="power_bi_einsteiger_guide_v4.html#ext">Detail-Karten im vollen Guide →</a>
-  </article>
+  </a>
 
   <div class="eg-embed-note">
     <strong>Tiefer einsteigen:</strong> Diese Übersicht ist die Lehrstruktur. Die detaillierten Klick-Karten pro Kapitel (Schritt-für-Schritt, Beispiele, Anfänger-Fallen) findest du im <a href="power_bi_einsteiger_guide_v4.html" style="color: var(--accent); text-decoration: underline;">vollen Einsteiger-Guide →</a>.
@@ -5017,10 +5088,12 @@ document.addEventListener('DOMContentLoaded', () => {
   syncFavButtons();
 
   // ==== Guide Reading-Progress: Klick auf "Als gelesen" ====
+  // stopPropagation ist wichtig, da die Karte selbst jetzt ein Link ist
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.eg-chapter-done-btn');
     if (!btn) return;
     e.preventDefault();
+    e.stopPropagation();
     const ch = btn.closest('.eg-chapter');
     if (ch && ch.id) toggleChapterRead(ch.id);
   });

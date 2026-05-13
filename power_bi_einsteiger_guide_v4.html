@@ -1234,6 +1234,125 @@ a { color: inherit; }
   font-size: 11px;
 }
 
+/* ========== BEISPIELE SECTION · Power BI Embeds ========== */
+.beispiele {
+  margin-top: 80px;
+  padding-top: 56px;
+  border-top: 2px solid var(--accent);
+  scroll-margin-top: 80px;
+}
+.beispiele-head {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.beispiele-num {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 32px;
+  color: var(--ink-mute);
+  min-width: 48px;
+}
+.beispiele-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--black);
+  flex: 1;
+}
+.beispiele-title em { font-style: italic; font-weight: 300; color: var(--accent); }
+.beispiele-hint {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.beispiele-intro {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin-bottom: 36px;
+  max-width: 70ch;
+}
+.beispiel {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 36px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+.beispiel-body {
+  padding: 22px 26px 20px;
+}
+.beispiel-eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.beispiel-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--black);
+  margin-bottom: 10px;
+}
+.beispiel-desc {
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.beispiel-frame {
+  position: relative;
+  background: var(--bg-soft);
+  border-top: 1px solid var(--line);
+  aspect-ratio: 16 / 10;
+  width: 100%;
+}
+.beispiel-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.beispiel-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 26px;
+  border-top: 1px solid var(--line);
+  background: var(--bg-soft);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.beispiel-meta a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+}
+.beispiel-meta a:hover { text-decoration: underline; }
+
 /* ========== SOURCES SECTION ========== */
 .sources {
   margin-top: 80px;
@@ -1433,6 +1552,7 @@ a { color: inherit; }
     <a class="topnav-link" href="#service">Service</a>
     <a class="topnav-link" href="#rls">RLS</a>
     <a class="topnav-link" href="#ext">Tools</a>
+    <a class="topnav-link" href="#beispiele" style="color: var(--accent); font-weight: 600;">Beispiele</a>
     <a class="topnav-link" href="#quellen">Quellen</a>
   </div>
 </nav>
@@ -2302,6 +2422,63 @@ a { color: inherit; }
       <div class="card-more">Mehr →</div>
     </button>
   </div>
+</section>
+
+<!-- ============================================================
+     BEISPIELE · Live Power BI Reports
+============================================================ -->
+<section class="beispiele" id="beispiele">
+  <div class="beispiele-head">
+    <span class="beispiele-num">B</span>
+    <h2 class="beispiele-title">Beispiele · <em>Live Power BI Reports</em></h2>
+    <span class="beispiele-hint">3 eingebettete Reports</span>
+  </div>
+  <p class="beispiele-intro">Drei produktive Reports, direkt aus dem Power BI Service eingebettet. Anklicken, Filter setzen, durch die Seiten navigieren — die Konzepte aus den Sektionen darüber in echt angewendet.</p>
+
+  <article class="beispiel" id="beispiel-travel">
+    <div class="beispiel-body">
+      <div class="beispiel-eyebrow">Reisekosten · Multi-Country</div>
+      <h3 class="beispiel-title">Travelspendings</h3>
+      <p class="beispiel-desc">Beispiel-Auswertung von Reisekosten für verschiedene Länder über mehrere Jahre. Klassische BI-Storyline: Trend-Analyse, Filter pro Land, Drill von Aggregat zu Detail.</p>
+    </div>
+    <div class="beispiel-frame">
+      <iframe title="Travelspendings" src="https://app.powerbi.com/view?r=eyJrIjoiYjgyMjljMmEtMTQ2MC00NTdiLWI2NjYtZjlmZjg5Nzk5YjgzIiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9" frameborder="0" allowfullscreen="true" loading="lazy"></iframe>
+    </div>
+    <div class="beispiel-meta">
+      <span>Power BI Service · Public Embed</span>
+      <a href="https://app.powerbi.com/view?r=eyJrIjoiYjgyMjljMmEtMTQ2MC00NTdiLWI2NjYtZjlmZjg5Nzk5YjgzIiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9" target="_blank" rel="noopener">In neuem Tab öffnen →</a>
+    </div>
+  </article>
+
+  <article class="beispiel" id="beispiel-stolpersteine">
+    <div class="beispiel-body">
+      <div class="beispiel-eyebrow">Open Data · Stadt Köln</div>
+      <h3 class="beispiel-title">Stolpersteine Köln</h3>
+      <p class="beispiel-desc">Report über die Stolpersteine in Köln auf Basis von Open Data. Zeigt geografische Verteilung und Detail-Informationen pro Person — Power BI angewandt auf Bürgerdaten und Gedenkkultur.</p>
+    </div>
+    <div class="beispiel-frame">
+      <iframe title="Stolpersteine Köln Opendata" src="https://app.powerbi.com/view?r=eyJrIjoiZDZhMDhmZTUtODgzYi00OTZmLTgyZDEtNmRkOGVlZDVmZjAyIiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9" frameborder="0" allowfullscreen="true" loading="lazy"></iframe>
+    </div>
+    <div class="beispiel-meta">
+      <span>Power BI Service · Public Embed</span>
+      <a href="https://app.powerbi.com/view?r=eyJrIjoiZDZhMDhmZTUtODgzYi00OTZmLTgyZDEtNmRkOGVlZDVmZjAyIiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9" target="_blank" rel="noopener">In neuem Tab öffnen →</a>
+    </div>
+  </article>
+
+  <article class="beispiel" id="beispiel-sales">
+    <div class="beispiel-body">
+      <div class="beispiel-eyebrow">IBCS-angelehnt · viel Interaktion</div>
+      <h3 class="beispiel-title">Sales Controlling</h3>
+      <p class="beispiel-desc">IBCS-angelehnter Sales-Report mit reichhaltiger Interaktivität: Bookmarks, Drillthrough, Field Parameters in der Praxis. Spielwiese für alles aus Sektion 06 (IBCS) und 07 (Interaktivität) zusammen.</p>
+    </div>
+    <div class="beispiel-frame">
+      <iframe title="Sales controlling" src="https://app.powerbi.com/view?r=eyJrIjoiNWI1ZWVlNTgtNjdmMy00YjM3LWFkMGEtMDFiYWU4YjI5NTA0IiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9" frameborder="0" allowfullscreen="true" loading="lazy"></iframe>
+    </div>
+    <div class="beispiel-meta">
+      <span>Power BI Service · Public Embed</span>
+      <a href="https://app.powerbi.com/view?r=eyJrIjoiNWI1ZWVlNTgtNjdmMy00YjM3LWFkMGEtMDFiYWU4YjI5NTA0IiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9" target="_blank" rel="noopener">In neuem Tab öffnen →</a>
+    </div>
+  </article>
 </section>
 
 <!-- ============================================================
