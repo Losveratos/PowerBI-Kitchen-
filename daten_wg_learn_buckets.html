@@ -84,34 +84,6 @@ a { color: inherit; text-decoration: none; }
   padding: 48px 32px 96px;
 }
 
-/* ========== TOP-STRIP (scrolling marquee) ========== */
-.top-strip {
-  background: var(--black);
-  color: var(--bg);
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 10px 0;
-  overflow: hidden;
-  position: relative;
-  z-index: 60;
-}
-.top-strip-inner {
-  display: flex;
-  gap: 48px;
-  animation: top-strip-scroll 40s linear infinite;
-  white-space: nowrap;
-  width: max-content;
-}
-.top-strip span { display: inline-flex; align-items: center; gap: 12px; }
-.top-strip span::before { content: "•"; color: var(--accent); font-size: 8px; }
-@keyframes top-strip-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-
 /* ========== STICKY NAV ========== */
 .topnav {
   position: sticky;
@@ -1697,22 +1669,6 @@ body.fav-mode .fav-empty.show { display: block; }
 </style>
 </head>
 <body>
-
-<!-- ============================================================
-     TOP STRIP — scrolling brand marquee
-============================================================ -->
-<div class="top-strip">
-  <div class="top-strip-inner">
-    <span>Daten-WG 2026 · 14–16. Oktober · Köln</span>
-    <span>114 Folgen · 9 Buckets</span>
-    <span>Power BI · Fabric · DAX · IBCS</span>
-    <span>Podcast &amp; Tutorials · DE / EN</span>
-    <span>Daten-WG 2026 · 14–16. Oktober · Köln</span>
-    <span>114 Folgen · 9 Buckets</span>
-    <span>Power BI · Fabric · DAX · IBCS</span>
-    <span>Podcast &amp; Tutorials · DE / EN</span>
-  </div>
-</div>
 
 <!-- ============================================================
      STICKY TOP NAV
