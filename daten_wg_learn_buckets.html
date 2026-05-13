@@ -3031,9 +3031,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const filterBar = document.querySelector('.filter-bar');
   const tagsPeek = document.getElementById('tags-peek');
   if (filterBar) {
-    const COMPACT_AT = 220;
-    const DEADBAND = 6;
+    const COMPACT_AT = 160;          // ab dieser Scroll-Position kompakt + einklappbar
+    const TRIGGER_DISTANCE = 24;     // px pro Richtung, bevor getoggelt wird
     let lastY = window.scrollY;
+    let accumDown = 0;
+    let accumUp = 0;
     let ticking = false;
     let userPinned = false;
 
@@ -3044,11 +3046,26 @@ document.addEventListener('DOMContentLoaded', () => {
       filterBar.classList.toggle('scrolled', compact);
 
       if (!compact) {
+        // Oberhalb der Schwelle: immer ausgeklappt, alles zurücksetzen
         filterBar.classList.remove('tags-hidden');
+        accumDown = 0;
+        accumUp = 0;
         userPinned = false;
-      } else if (!userPinned && Math.abs(delta) > DEADBAND) {
-        // Runterscrollen: einklappen, Hochscrollen: ausklappen
-        filterBar.classList.toggle('tags-hidden', delta > 0);
+      } else if (!userPinned) {
+        // Bewegung in Richtung akkumulieren, Gegenrichtung resetten
+        if (delta > 0) {
+          accumDown += delta;
+          accumUp = 0;
+          if (accumDown > TRIGGER_DISTANCE) {
+            filterBar.classList.add('tags-hidden');
+          }
+        } else if (delta < 0) {
+          accumUp += -delta;
+          accumDown = 0;
+          if (accumUp > TRIGGER_DISTANCE) {
+            filterBar.classList.remove('tags-hidden');
+          }
+        }
       }
 
       lastY = y;
@@ -3066,6 +3083,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tagsPeek) {
       tagsPeek.addEventListener('click', () => {
         filterBar.classList.remove('tags-hidden');
+        accumUp = 0;
+        accumDown = 0;
         userPinned = true;
       });
     }
