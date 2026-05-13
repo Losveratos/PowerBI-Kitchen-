@@ -162,6 +162,67 @@ a { color: inherit; text-decoration: none; }
   object-fit: contain;
   background: var(--bg-card);
 }
+
+/* CSS-Fallback, falls assets/daten-wg-2026-banner.png fehlt */
+.hero-banner-fallback {
+  display: none;
+  padding: 36px 36px 28px;
+  align-items: center;
+  gap: 32px;
+}
+.hero-banner.no-image .hero-banner-img { display: none; }
+.hero-banner.no-image .hero-banner-fallback { display: flex; }
+.hero-banner-fb-logo {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(28px, 4.5vw, 56px);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--ink);
+  transform: rotate(-3deg);
+  text-shadow: 3px 3px 0 var(--accent);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 6px 0;
+}
+.hero-banner-fb-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--line);
+}
+.hero-banner-fb-right {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.hero-banner-fb-title {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(22px, 3.4vw, 38px);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--ink);
+}
+.hero-banner-fb-sub {
+  font-family: var(--serif);
+  font-size: clamp(16px, 2.4vw, 26px);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 400;
+  margin-top: 2px;
+}
+.hero-banner-fb-meta {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  line-height: 1.45;
+  margin-top: 6px;
+}
+@media (max-width: 700px) {
+  .hero-banner-fallback { padding: 22px 20px; gap: 18px; flex-direction: column; align-items: flex-start; }
+  .hero-banner-fb-divider { display: none; }
+}
 .hero-banner-meta {
   position: relative;
   z-index: 1;
@@ -1000,9 +1061,18 @@ a { color: inherit; text-decoration: none; }
 <!-- ============================================================
      CONFERENCE HERO BANNER · Daten-WG 2026
 ============================================================ -->
-<section class="hero-banner" aria-label="Daten-WG 2026 Conference">
+<section class="hero-banner" id="hero-banner" aria-label="Daten-WG 2026 Conference">
   <a class="hero-banner-link" href="https://www.daten-wg.com" target="_blank" rel="noopener">
-    <img class="hero-banner-img" src="assets/daten-wg-2026-banner.png" alt="Daten-WG 2026 Conference · 14 | 15 | 16.10.2026 · Richard-Wagner-Str. 39, 50674 Köln">
+    <img class="hero-banner-img" id="hero-banner-img" src="assets/daten-wg-2026-banner.png" alt="Daten-WG 2026 Conference">
+    <div class="hero-banner-fallback" aria-hidden="true">
+      <span class="hero-banner-fb-logo">Daten-WG</span>
+      <span class="hero-banner-fb-divider"></span>
+      <span class="hero-banner-fb-right">
+        <span class="hero-banner-fb-title">Daten-WG 2026</span>
+        <span class="hero-banner-fb-sub">Conference</span>
+        <span class="hero-banner-fb-meta">in der Wohngemeinschaft<br>Richard-Wagner-Str. 39, 50674 Köln, Deutschland</span>
+      </span>
+    </div>
   </a>
   <div class="hero-banner-meta">
     <span class="hero-banner-bars" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -1011,6 +1081,16 @@ a { color: inherit; text-decoration: none; }
     <a class="hero-banner-cta" href="https://www.daten-wg.com" target="_blank" rel="noopener">www.daten-wg.com →</a>
   </div>
 </section>
+<script>
+  (function(){
+    var hero = document.getElementById('hero-banner');
+    var img  = document.getElementById('hero-banner-img');
+    if (!hero || !img) return;
+    var markMissing = function(){ hero.classList.add('no-image'); };
+    img.addEventListener('error', markMissing);
+    if (img.complete && img.naturalWidth === 0) markMissing();
+  })();
+</script>
 
 <!-- ============================================================
      HEADER
