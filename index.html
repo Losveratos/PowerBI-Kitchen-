@@ -1062,6 +1062,202 @@ a { color: inherit; text-decoration: none; }
 .no-results.visible { display: block; }
 .no-results { display: none; }
 
+/* ========== EINSTEIGER-GUIDE EMBED (scoped under .eg-embed) ========== */
+.eg-embed {
+  --eg-c-arch:    #4A5C6A;
+  --eg-c-staging: #C97B3F;
+  --eg-c-folding: #B8336A;
+  --eg-c-model:   #2A857A;
+  --eg-c-dax:     #166088;
+  --eg-c-ibcs:    #5C2E2E;
+  --eg-c-inter:   #B8860B;
+  --eg-c-service: #1F6B4A;
+  --eg-c-rls:     #8B2E2E;
+  --eg-c-ext:     #6B5B95;
+  margin: 100px 0 60px;
+  padding-top: 56px;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 80px;
+}
+.eg-embed-head { margin-bottom: 40px; }
+.eg-embed-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.eg-embed-eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--accent);
+}
+.eg-embed-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin-bottom: 12px;
+  font-variation-settings: "opsz" 144;
+}
+.eg-embed-title em { font-style: italic; font-weight: 300; color: var(--accent); }
+.eg-embed-sub {
+  font-size: 16px;
+  color: var(--ink-soft);
+  max-width: 64ch;
+  line-height: 1.55;
+}
+
+.eg-journey {
+  margin: 32px 0 56px;
+  padding: 28px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+.eg-journey-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+.eg-journey-sub {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 22px;
+}
+.eg-journey-steps {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 8px;
+}
+@media (max-width: 1100px) { .eg-embed .eg-journey-steps { grid-template-columns: repeat(5, 1fr); } }
+@media (max-width: 700px)  { .eg-embed .eg-journey-steps { grid-template-columns: repeat(2, 1fr); } }
+.eg-journey-step {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  text-decoration: none;
+  color: inherit;
+  transition: all .2s ease;
+  position: relative;
+}
+.eg-journey-step:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--ink-soft);
+}
+.eg-journey-step-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-mute);
+}
+.eg-journey-step-name {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 13px;
+  margin-top: 4px;
+}
+.eg-journey-step-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--eg-dot, var(--accent));
+}
+
+.eg-chapter {
+  margin-bottom: 56px;
+  scroll-margin-top: 80px;
+}
+.eg-chapter-head {
+  display: flex;
+  align-items: baseline;
+  gap: 22px;
+  padding-bottom: 14px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--line);
+}
+.eg-chapter-num {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 28px;
+  color: var(--ink-mute);
+  min-width: 44px;
+}
+.eg-chapter-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  letter-spacing: -0.015em;
+  flex: 1;
+  font-variation-settings: "opsz" 144;
+}
+.eg-chapter-title em { font-style: italic; font-weight: 400; color: var(--eg-chapter-color, var(--accent)); }
+.eg-chapter-intro {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-style: italic;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  max-width: 70ch;
+  margin-bottom: 18px;
+}
+.eg-start-with {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--eg-chapter-color, var(--accent));
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.eg-start-with-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--eg-chapter-color, var(--accent));
+  font-weight: 700;
+  white-space: nowrap;
+}
+.eg-start-with-text {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  flex: 1;
+  min-width: 240px;
+}
+.eg-start-with-text strong { color: var(--ink); font-weight: 600; }
+
+.eg-embed-note {
+  margin-top: 24px;
+  padding: 14px 18px;
+  background: var(--bg-soft);
+  border-left: 3px solid var(--ink-mute);
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.eg-embed-note strong { color: var(--ink); font-weight: 600; }
+
 /* ========== FOOTER ========== */
 .footer {
   margin-top: 80px;
@@ -1137,7 +1333,7 @@ a { color: inherit; text-decoration: none; }
     <a class="topnav-link" href="#bucket-7">Karriere</a>
     <a class="topnav-link" href="#bucket-8">Strategie</a>
     <a class="topnav-link" href="#bucket-9">Event</a>
-    <a class="topnav-link" href="power_bi_einsteiger_guide_v4.html" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">Einsteiger-Guide</a>
+    <a class="topnav-link" href="#einsteiger-guide" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">Einsteiger-Guide</a>
   </div>
 </nav>
 
@@ -1200,13 +1396,13 @@ a { color: inherit; text-decoration: none; }
 <!-- ============================================================
      POWER BI EINSTEIGER-GUIDE · Promo
 ============================================================ -->
-<a class="guide-promo" href="power_bi_einsteiger_guide_v4.html">
+<a class="guide-promo" href="#einsteiger-guide">
   <div>
     <div class="guide-promo-eyebrow">Power BI · Einsteiger-Guide</div>
     <div class="guide-promo-title">Power BI <em>von A bis Z</em></div>
-    <div class="guide-promo-text">Architektur, <strong>Power Query</strong>, Datenmodell, <strong>DAX</strong>, IBCS, Service, RLS — kompakter End-to-End-Guide in 11 Kapiteln. Ideal vor oder begleitend zu den Folgen.</div>
+    <div class="guide-promo-text">Architektur, <strong>Power Query</strong>, Datenmodell, <strong>DAX</strong>, IBCS, Service, RLS — kompakter End-to-End-Guide in 10 Kapiteln. Ideal vor oder begleitend zu den Folgen.</div>
   </div>
-  <span class="guide-promo-cta">Guide öffnen →</span>
+  <span class="guide-promo-cta">Zum Guide ↓</span>
 </a>
 
 <!-- ============================================================
@@ -1289,6 +1485,158 @@ a { color: inherit; text-decoration: none; }
 <div class="no-results" id="no-results">
   Keine Folge passt zu deiner Suche. Setz die Filter zurück oder probier einen anderen Begriff.
 </div>
+
+<!-- ============================================================
+     EINSTEIGER-GUIDE · embedded overview (10 chapters)
+============================================================ -->
+<section class="eg-embed" id="einsteiger-guide" aria-labelledby="eg-embed-title">
+  <header class="eg-embed-head">
+    <div class="eg-embed-eyebrow">Einsteiger-Guide · Power BI · End-to-End</div>
+    <h2 class="eg-embed-title" id="eg-embed-title">Power BI <em>von A bis Z</em></h2>
+    <p class="eg-embed-sub">Für alle, die Power BI seit ein bis zwei Jahren nutzen und jetzt den ganzen Weg verstehen wollen — von der Datenanbindung bis zum Sharing. Zehn Etappen, jeweils mit Empfehlung, wo du anfängst.</p>
+  </header>
+
+  <div class="eg-journey">
+    <div class="eg-journey-title">Die Reise durch Power BI</div>
+    <div class="eg-journey-sub">Zehn Etappen, von der Datenanbindung bis zum Sharing. Klick führt zur jeweiligen Sektion unten.</div>
+    <div class="eg-journey-steps">
+      <a class="eg-journey-step" href="#eg-arch"    style="--eg-dot: var(--eg-c-arch);"><span class="eg-journey-step-num">01 · INFRASTRUKTUR</span><span class="eg-journey-step-name">Architektur</span><span class="eg-journey-step-dot"></span></a>
+      <a class="eg-journey-step" href="#eg-pq"      style="--eg-dot: var(--eg-c-staging);"><span class="eg-journey-step-num">02 · ETL</span><span class="eg-journey-step-name">Power Query</span><span class="eg-journey-step-dot"></span></a>
+      <a class="eg-journey-step" href="#eg-folding" style="--eg-dot: var(--eg-c-folding);"><span class="eg-journey-step-num">03 · DEEP DIVE</span><span class="eg-journey-step-name">Query Folding</span><span class="eg-journey-step-dot"></span></a>
+      <a class="eg-journey-step" href="#eg-model"   style="--eg-dot: var(--eg-c-model);"><span class="eg-journey-step-num">04 · DESIGN</span><span class="eg-journey-step-name">Datenmodell</span><span class="eg-journey-step-dot"></span></a>
+      <a class="eg-journey-step" href="#eg-dax"     style="--eg-dot: var(--eg-c-dax);"><span class="eg-journey-step-num">05 · LOGIK</span><span class="eg-journey-step-name">DAX</span><span class="eg-journey-step-dot"></span></a>
+      <a class="eg-journey-step" href="#eg-viz"     style="--eg-dot: var(--eg-c-ibcs);"><span class="eg-journey-step-num">06 · DEEP DIVE</span><span class="eg-journey-step-name">Viz &amp; IBCS</span><span class="eg-journey-step-dot"></span></a>
+      <a class="eg-journey-step" href="#eg-inter"   style="--eg-dot: var(--eg-c-inter);"><span class="eg-journey-step-num">07 · UX</span><span class="eg-journey-step-name">Interaktivität</span><span class="eg-journey-step-dot"></span></a>
+      <a class="eg-journey-step" href="#eg-service" style="--eg-dot: var(--eg-c-service);"><span class="eg-journey-step-num">08 · DEPLOY</span><span class="eg-journey-step-name">Service &amp; Sharing</span><span class="eg-journey-step-dot"></span></a>
+      <a class="eg-journey-step" href="#eg-rls"     style="--eg-dot: var(--eg-c-rls);"><span class="eg-journey-step-num">09 · GOVERNANCE</span><span class="eg-journey-step-name">RLS</span><span class="eg-journey-step-dot"></span></a>
+      <a class="eg-journey-step" href="#eg-ext"     style="--eg-dot: var(--eg-c-ext);"><span class="eg-journey-step-num">10 · ERWEITERT</span><span class="eg-journey-step-name">Tools</span><span class="eg-journey-step-dot"></span></a>
+    </div>
+  </div>
+
+  <article class="eg-chapter" id="eg-arch" style="--eg-chapter-color: var(--eg-c-arch);">
+    <header class="eg-chapter-head">
+      <span class="eg-chapter-num">01</span>
+      <h3 class="eg-chapter-title">Architektur &amp; <em>Komponenten</em></h3>
+    </header>
+    <p class="eg-chapter-intro">Power BI ist nicht eine einzelne App, sondern ein verteiltes System: Authoring-Tool auf deinem Rechner, Cloud-Service, On-Prem-Brücken, Lizenzschichten. Wer das nicht früh versteht, trifft teure Architektur-Entscheidungen rückwirkend.</p>
+    <div class="eg-start-with">
+      <span class="eg-start-with-label">Als erstes</span>
+      <span class="eg-start-with-text"><strong>Lies „Desktop", „Service" und „Storage Modes"</strong> in dieser Reihenfolge — das ist das mentale Modell. Den Rest klickst du, wenn du konkret damit zu tun hast.</span>
+    </div>
+  </article>
+
+  <article class="eg-chapter" id="eg-pq" style="--eg-chapter-color: var(--eg-c-staging);">
+    <header class="eg-chapter-head">
+      <span class="eg-chapter-num">02</span>
+      <h3 class="eg-chapter-title">Power Query <em>Workflow</em></h3>
+    </header>
+    <p class="eg-chapter-intro">70 % der BI-Arbeitszeit fließt typischerweise in Datenaufbereitung. Sauber gemachte Power Query spart später Stunden bei Modellierung und Performance.</p>
+    <div class="eg-start-with">
+      <span class="eg-start-with-label">Als erstes</span>
+      <span class="eg-start-with-text"><strong>Verstehe die drei Spalten: Quellen → Staging → Modell.</strong> Das Trennprinzip ist wichtiger als jeder einzelne Klick. Dann „Datentypen früh setzen" — das ist der wichtigste Einzeltipp.</span>
+    </div>
+  </article>
+
+  <article class="eg-chapter" id="eg-folding" style="--eg-chapter-color: var(--eg-c-folding);">
+    <header class="eg-chapter-head">
+      <span class="eg-chapter-num">03</span>
+      <h3 class="eg-chapter-title">Deep Dive: <em>Query Folding</em></h3>
+    </header>
+    <p class="eg-chapter-intro">Das Thema, das den Unterschied macht zwischen einem Refresh in 30 Sekunden und einem in sechs Minuten. Microsoft Learn dokumentiert: Vollständig gefoldete Queries sind ca. 12-mal schneller als nicht-gefoldete (Benchmark auf Azure Synapse).</p>
+    <div class="eg-start-with">
+      <span class="eg-start-with-label">Als erstes</span>
+      <span class="eg-start-with-text"><strong>„Was ist Query Folding?"</strong> öffnen — das Konzept. Dann <strong>„Step Folding Indicators"</strong> — die schnellste Diagnose, die du sofort in deinem nächsten Power Query anwenden kannst.</span>
+    </div>
+  </article>
+
+  <article class="eg-chapter" id="eg-model" style="--eg-chapter-color: var(--eg-c-model);">
+    <header class="eg-chapter-head">
+      <span class="eg-chapter-num">04</span>
+      <h3 class="eg-chapter-title">Datenmodell &amp; <em>Stern-Schema</em></h3>
+    </header>
+    <p class="eg-chapter-intro">Microsoft Learn ist eindeutig: Power BI ist auf Stern-Schemata optimiert. Ein gut entworfenes Modell macht DAX einfacher, Berichte schneller und verhindert die häufigste Fehlerquelle — falsche oder mehrdeutige Beziehungen.</p>
+    <div class="eg-start-with">
+      <span class="eg-start-with-label">Als erstes</span>
+      <span class="eg-start-with-text"><strong>Fakt vs. Dimension</strong> ist die Basis. Dann <strong>„Granularität"</strong> — die Regel, die am häufigsten verletzt wird.</span>
+    </div>
+  </article>
+
+  <article class="eg-chapter" id="eg-dax" style="--eg-chapter-color: var(--eg-c-dax);">
+    <header class="eg-chapter-head">
+      <span class="eg-chapter-num">05</span>
+      <h3 class="eg-chapter-title">DAX <em>· Formelsprache</em></h3>
+    </header>
+    <p class="eg-chapter-intro">DAX ist das Herz der analytischen Auswertung in Power BI. Ohne DAX bleibt man bei einfachen Summen — mit DAX werden Time-Intelligence, dynamische Filter und komplexe Geschäftslogik möglich.</p>
+    <div class="eg-start-with">
+      <span class="eg-start-with-label">Als erstes</span>
+      <span class="eg-start-with-text"><strong>„Measures vs. Calculated Columns"</strong> — das ist die Entscheidung, die du jedes Mal triffst, wenn du DAX schreibst. Dann <strong>„Filter- und Row-Context"</strong> — die zwei Begriffe, ohne die DAX ein Rate-Spiel bleibt.</span>
+    </div>
+  </article>
+
+  <article class="eg-chapter" id="eg-viz" style="--eg-chapter-color: var(--eg-c-ibcs);">
+    <header class="eg-chapter-head">
+      <span class="eg-chapter-num">06</span>
+      <h3 class="eg-chapter-title">Deep Dive: <em>IBCS</em> &amp; Visualisierung</h3>
+    </header>
+    <p class="eg-chapter-intro">International Business Communication Standards — ein Regelwerk von Rolf Hichert, das Business-Reporting weltweit vereinheitlicht. Seit 2024 als ISO/AWI 24896 in Standardisierung. SAP, Philips und Siemens haben ihr Reporting daran ausgerichtet. Die sieben SUCCESS-Regeln sind das Rückgrat.</p>
+    <div class="eg-start-with">
+      <span class="eg-start-with-label">Als erstes</span>
+      <span class="eg-start-with-text"><strong>SAY und UNIFY</strong> im SUCCESS-Wheel — die beiden zentralen Regeln. Dann <strong>„Solid / Outlined / Hatched"</strong> — die visuelle Notation, die du sofort in jedem Bericht einsetzen kannst.</span>
+    </div>
+  </article>
+
+  <article class="eg-chapter" id="eg-inter" style="--eg-chapter-color: var(--eg-c-inter);">
+    <header class="eg-chapter-head">
+      <span class="eg-chapter-num">07</span>
+      <h3 class="eg-chapter-title">Interaktivität <em>· UX</em></h3>
+    </header>
+    <p class="eg-chapter-intro">Statische Berichte beantworten eine Frage. Interaktive Berichte werden zum Analyse-Werkzeug. Mit Drillthrough, Bookmarks, Buttons und Field Parameters wird aus einer Reportseite ein Tool, mit dem Anwender selbst in die Daten eintauchen.</p>
+    <div class="eg-start-with">
+      <span class="eg-start-with-label">Als erstes</span>
+      <span class="eg-start-with-text"><strong>Drillthrough</strong> — die einfachste High-Impact-Interaktion. Anschließend <strong>Field Parameters</strong> — der Game-Changer aus 2022 (Preview) bzw. seit Juli 2025 GA, der viele alte Bookmark-Tricks überflüssig macht.</span>
+    </div>
+  </article>
+
+  <article class="eg-chapter" id="eg-service" style="--eg-chapter-color: var(--eg-c-service);">
+    <header class="eg-chapter-head">
+      <span class="eg-chapter-num">08</span>
+      <h3 class="eg-chapter-title">Service &amp; <em>Sharing</em></h3>
+    </header>
+    <p class="eg-chapter-intro">Erst durch den Power BI Service wird aus einer .pbix-Datei eine geteilte, automatisch aktualisierte und governance-konforme Lösung. Microsoft empfiehlt klar: Sicherheitsgruppen statt Einzelnutzer.</p>
+    <div class="eg-start-with">
+      <span class="eg-start-with-label">Als erstes</span>
+      <span class="eg-start-with-text"><strong>„Workspaces"</strong> und <strong>„Workspace-Rollen"</strong> — wer darf was im Service. Dann <strong>„Power BI Apps"</strong> — der Microsoft-empfohlene Sharing-Weg, den viele noch nicht nutzen.</span>
+    </div>
+  </article>
+
+  <article class="eg-chapter" id="eg-rls" style="--eg-chapter-color: var(--eg-c-rls);">
+    <header class="eg-chapter-head">
+      <span class="eg-chapter-num">09</span>
+      <h3 class="eg-chapter-title">Row-Level Security <em>· RLS</em></h3>
+    </header>
+    <p class="eg-chapter-intro">Microsoft Learn ist eindeutig: RLS gilt nur für die Viewer-Rolle, nicht für Admins, Members oder Contributors. RLS-Filter werden auf jede DAX-Query angewendet — ein gut designtes Stern-Schema ist die Voraussetzung für performante RLS.</p>
+    <div class="eg-start-with">
+      <span class="eg-start-with-label">Als erstes</span>
+      <span class="eg-start-with-text"><strong>„Statische RLS"</strong> — das einfachere Konzept. Dann <strong>„Dynamische RLS"</strong> — das Pattern, das in der echten Welt skaliert. <strong>„View As Role"</strong> ist Pflicht vor jedem Production-Deploy.</span>
+    </div>
+  </article>
+
+  <article class="eg-chapter" id="eg-ext" style="--eg-chapter-color: var(--eg-c-ext);">
+    <header class="eg-chapter-head">
+      <span class="eg-chapter-num">10</span>
+      <h3 class="eg-chapter-title">Erweitert &amp; <em>Externe Tools</em></h3>
+    </header>
+    <p class="eg-chapter-intro">Power BI Desktop ist mächtig, aber die Community-Tools heben das Niveau. Tabular Editor 2 ist der Goldstandard für Modellierung, DAX Studio für Performance-Analyse. Profis nutzen sie täglich.</p>
+    <div class="eg-start-with">
+      <span class="eg-start-with-label">Als erstes</span>
+      <span class="eg-start-with-text"><strong>Tabular Editor 2</strong> herunterladen und einrichten — kostenfrei, Open Source, ändert deinen Workflow. Dann <strong>DAX Studio</strong> für Performance-Diagnose. Beides sind Pflicht-Tools für jeden, der über ein Jahr Power BI macht.</span>
+    </div>
+  </article>
+
+  <div class="eg-embed-note">
+    <strong>Hinweis:</strong> Diese Übersicht zeigt die Lehrstruktur des Einsteiger-Guides. Die detaillierten Karten pro Kapitel (Schritt-für-Schritt, Beispiele, Anfänger-Fallen) liegen im vollen Guide-Dokument, das nicht Teil dieses Repos ist.
+  </div>
+</section>
 
 <!-- ============================================================
      FOOTER
