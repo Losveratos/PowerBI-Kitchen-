@@ -235,8 +235,21 @@ a { color: inherit; text-decoration: none; }
   top: 60px;
   z-index: 40;
   box-shadow: var(--shadow-sm);
+  transition: padding .22s ease, box-shadow .22s ease, border-radius .22s ease, background .22s ease;
 }
 @media (max-width: 1100px) { .filter-bar { top: 0; border-radius: 0; margin: 0 -32px 28px; border-left: none; border-right: none; } }
+
+/* Kompakt-Modus, sobald gescrollt wird */
+.filter-bar.scrolled {
+  padding: 10px 22px 8px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-md);
+}
+.filter-bar.scrolled .filter-row { margin-bottom: 6px; }
+.filter-bar.scrolled .filter-row:last-child { margin-bottom: 0; }
+.filter-bar.scrolled .filter-search { padding: 6px 12px; }
 
 .filter-row {
   display: flex;
@@ -325,6 +338,66 @@ a { color: inherit; text-decoration: none; }
 }
 .tag-chip.rare { display: none; }
 .tag-list.show-all .tag-chip.rare { display: inline-flex; align-items: center; }
+
+/* Tag-Reihe: einklappbar beim Scrollen nach unten */
+.filter-row.tags-row {
+  overflow: hidden;
+  max-height: 320px;
+  opacity: 1;
+  transition: max-height .28s ease, opacity .2s ease, margin .22s ease, padding-top .22s ease;
+}
+.filter-bar.tags-hidden .filter-row.tags-row {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  pointer-events: none;
+}
+
+/* Tags ein-/ausklappen-Button (immer sichtbar) */
+.tags-peek {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s ease;
+}
+.tags-peek:hover { border-color: var(--ink-soft); color: var(--ink); }
+.tags-peek .tags-peek-chevron {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-135deg);   /* zeigt nach oben — "einklappen" */
+  transition: transform .22s ease;
+  margin-bottom: 2px;
+}
+.filter-bar.tags-hidden .tags-peek .tags-peek-chevron {
+  transform: rotate(45deg);     /* zeigt nach unten — "ausklappen" */
+  margin-bottom: -2px;
+}
+.tags-peek .tags-peek-badge {
+  display: none;
+  padding: 0 6px;
+  background: var(--accent);
+  color: white;
+  border-radius: 100px;
+  font-size: 9.5px;
+  font-weight: 600;
+}
+.tags-peek .tags-peek-badge[data-active] { display: inline-block; }
 .tag-toggle {
   font-family: var(--mono);
   font-size: 10.5px;
@@ -868,9 +941,10 @@ a { color: inherit; text-decoration: none; }
     <div class="filter-meta">
       <span><strong id="result-count">72</strong> von 72 Folgen</span>
       <button class="filter-reset" id="reset-filters">Filter zurücksetzen</button>
+      <button class="tags-peek" id="tags-peek" type="button" aria-expanded="true" aria-controls="tag-list" title="Tag-Filter ein-/ausblenden"><span id="tags-peek-label">Tags ausblenden</span><span class="tags-peek-badge" id="tags-peek-badge">0</span><span class="tags-peek-chevron" aria-hidden="true"></span></button>
     </div>
   </div>
-  <div class="filter-row">
+  <div class="filter-row tags-row">
     <span class="filter-label">Tags</span>
     <div class="tag-list" id="tag-list"><!-- gerendert per JS --></div>
   </div>
@@ -2939,6 +3013,17 @@ function applyFilters() {
 
   document.getElementById('result-count').textContent = visibleCount;
   document.getElementById('no-results').classList.toggle('visible', visibleCount === 0);
+
+  // Badge auf der Tags-Peek-Pille mit Anzahl aktiver Tag-Filter aktualisieren
+  const badge = document.getElementById('tags-peek-badge');
+  if (badge) {
+    if (activeTags.size > 0) {
+      badge.textContent = activeTags.size;
+      badge.setAttribute('data-active', '');
+    } else {
+      badge.removeAttribute('data-active');
+    }
+  }
 }
 
 function resetFilters() {
@@ -2956,6 +3041,47 @@ document.addEventListener('DOMContentLoaded', () => {
   renderTags();
   document.getElementById('search-input').addEventListener('input', applyFilters);
   document.getElementById('reset-filters').addEventListener('click', resetFilters);
+
+  // Filterleiste: kompakter Look beim Scrollen + manueller Tags-Toggle
+  const filterBar = document.querySelector('.filter-bar');
+  const tagsPeek = document.getElementById('tags-peek');
+  const tagsPeekLabel = document.getElementById('tags-peek-label');
+  const TAGS_STATE_KEY = 'datenwg.tagsHidden';
+
+  if (filterBar) {
+    // Kompakter Look beim Scrollen (nur Padding/Blur, keine Auto-Collapse)
+    const COMPACT_AT = 160;
+    let ticking = false;
+    const updateScrollState = () => {
+      filterBar.classList.toggle('scrolled', window.scrollY > COMPACT_AT);
+      ticking = false;
+    };
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateScrollState);
+        ticking = true;
+      }
+    }, { passive: true });
+    updateScrollState();
+
+    // Manueller Toggle für die Tag-Reihe — persistiert in localStorage
+    const setTagsHidden = (hidden) => {
+      filterBar.classList.toggle('tags-hidden', hidden);
+      if (tagsPeek) tagsPeek.setAttribute('aria-expanded', String(!hidden));
+      if (tagsPeekLabel) tagsPeekLabel.textContent = hidden ? 'Tags anzeigen' : 'Tags ausblenden';
+      try { localStorage.setItem(TAGS_STATE_KEY, hidden ? '1' : '0'); } catch (e) { /* ignore */ }
+    };
+
+    let initialHidden = false;
+    try { initialHidden = localStorage.getItem(TAGS_STATE_KEY) === '1'; } catch (e) { /* ignore */ }
+    setTagsHidden(initialHidden);
+
+    if (tagsPeek) {
+      tagsPeek.addEventListener('click', () => {
+        setTagsHidden(!filterBar.classList.contains('tags-hidden'));
+      });
+    }
+  }
 
   // Make bucket overview tiles set their CSS var color from inline style
   // (already done in markup)
