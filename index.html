@@ -5,25 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daten-WG · Knowledge Kitchen · Podcast & Tutorials</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
 <style>
 :root {
-  --bg:        #FAFAF7;
+  /* Flächen — Paper/Cream Editorial-Palette */
+  --bg:        #FAFAF5;  /* Paper */
   --bg-card:   #FFFFFF;
-  --bg-soft:   #F2EEE6;
-  --bg-deep:   #16181C;
+  --bg-soft:   #F4F1E8;  /* Cream — für Stats-Bars, Konzept-Cards */
+  --bg-deep:   #0A0A0A;  /* Black — dunkle CTAs */
 
-  --ink:        #0F1E2E;
-  --ink-soft:  #475569;
-  --ink-mute:  #94A3B8;
+  /* Tinten — warmer als vorher (kein Navy mehr) */
+  --ink:        #1A1A1A;  /* Body-Text */
+  --ink-soft:  #4A4A4A;   /* Graphite — sekundärer Text */
+  --ink-mute:  #6B6B6B;   /* Slate — tertiärer Text */
+  --black:     #0A0A0A;   /* echte Headlines, dunkle Sektionen */
 
-  --line:        rgba(15, 30, 46, 0.10);
-  --line-strong: rgba(15, 30, 46, 0.20);
+  /* Linien — warm statt blau */
+  --line:        #E5E2D8;
+  --line-strong: #1A1A1A;
 
-  /* Bucket Farben */
+  /* Bucket Farben — bleiben für visuelle Vielfalt */
   --c-update:   #C25A2D;  /* Orange - News & Updates */
   --c-fabric:   #1E3A5F;  /* Deep Blue - Fabric */
   --c-model:    #2A857A;  /* Teal - Datenmodellierung */
@@ -34,23 +34,28 @@
   --c-strategy: #5B3B7A;  /* Purple - Digitalisierung */
   --c-event:    #B8860B;  /* Gold - Event */
 
-  --accent:      #117865;  /* Daten-WG Brand · Petrolgrün */
-  --accent-info: #166088;
-  --accent-warm: #C25A2D;  /* das vorherige Orange, bei Bedarf wiederverwendbar */
+  /* Brand */
+  --accent:        #117865;  /* Daten-WG · Petrolgrün */
+  --brand:         #117865;  /* Alias für neue Design-Sektionen */
+  --brand-soft:    #2A9582;
+  --brand-deep:    #0A5A4D;
+  --accent-info:   #166088;
+  --accent-warm:   #C25A2D;
   --banner-yellow: #F0D437;
   --banner-pink:   #D9357A;
 
-  --shadow-sm: 0 1px 2px rgba(15,30,46,.04), 0 1px 3px rgba(15,30,46,.06);
-  --shadow-md: 0 4px 12px rgba(15,30,46,.08), 0 2px 4px rgba(15,30,46,.06);
-  --shadow-lg: 0 24px 60px rgba(15,30,46,.18), 0 8px 24px rgba(15,30,46,.10);
+  --shadow-sm: 0 1px 2px rgba(10,10,10,.04), 0 1px 3px rgba(10,10,10,.06);
+  --shadow-md: 0 4px 12px rgba(10,10,10,.08), 0 2px 4px rgba(10,10,10,.06);
+  --shadow-lg: 0 24px 60px rgba(10,10,10,.18), 0 8px 24px rgba(10,10,10,.10);
 
   --radius-sm: 6px;
   --radius:    10px;
   --radius-lg: 16px;
 
-  --serif: 'Fraunces', Georgia, serif;
-  --sans:  'Geist', -apple-system, sans-serif;
-  --mono:  'JetBrains Mono', monospace;
+  /* Schrift — Segoe UI Variable, system-native, kein Web-Font-Load */
+  --serif: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --sans:  "Segoe UI Variable Text",    "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --mono:  "Segoe UI Variable Small",   "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -77,6 +82,34 @@ a { color: inherit; text-decoration: none; }
   max-width: 1240px;
   margin: 0 auto;
   padding: 48px 32px 96px;
+}
+
+/* ========== TOP-STRIP (scrolling marquee) ========== */
+.top-strip {
+  background: var(--black);
+  color: var(--bg);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 10px 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 60;
+}
+.top-strip-inner {
+  display: flex;
+  gap: 48px;
+  animation: top-strip-scroll 40s linear infinite;
+  white-space: nowrap;
+  width: max-content;
+}
+.top-strip span { display: inline-flex; align-items: center; gap: 12px; }
+.top-strip span::before { content: "•"; color: var(--accent); font-size: 8px; }
+@keyframes top-strip-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
 
 /* ========== STICKY NAV ========== */
@@ -310,11 +343,11 @@ a { color: inherit; text-decoration: none; }
 .eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--ink-soft); }
 .title {
   font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(2.2rem, 5.5vw, 4.2rem);
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-  font-variation-settings: "opsz" 144;
+  font-weight: 300;
+  font-size: clamp(2.4rem, 6vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--black);
   margin-bottom: 16px;
 }
 .title em { font-style: italic; font-weight: 300; color: var(--accent); }
@@ -748,7 +781,7 @@ a { color: inherit; text-decoration: none; }
 }
 .bucket-tile-name {
   font-family: var(--serif);
-  font-weight: 500;
+  font-weight: 400;
   font-size: 14.5px;
   letter-spacing: -0.005em;
   margin-top: 3px;
@@ -884,7 +917,7 @@ a { color: inherit; text-decoration: none; }
 
 .video-card-title {
   font-family: var(--serif);
-  font-weight: 500;
+  font-weight: 400;
   font-size: 17px;
   line-height: 1.25;
   letter-spacing: -0.01em;
@@ -1386,6 +1419,22 @@ a { color: inherit; text-decoration: none; }
 <body>
 
 <!-- ============================================================
+     TOP STRIP — scrolling brand marquee
+============================================================ -->
+<div class="top-strip">
+  <div class="top-strip-inner">
+    <span>Daten-WG 2026 · 14–16. Oktober · Köln</span>
+    <span>114 Folgen · 9 Buckets</span>
+    <span>Power BI · Fabric · DAX · IBCS</span>
+    <span>Podcast &amp; Tutorials · DE / EN</span>
+    <span>Daten-WG 2026 · 14–16. Oktober · Köln</span>
+    <span>114 Folgen · 9 Buckets</span>
+    <span>Power BI · Fabric · DAX · IBCS</span>
+    <span>Podcast &amp; Tutorials · DE / EN</span>
+  </div>
+</div>
+
+<!-- ============================================================
      STICKY TOP NAV
 ============================================================ -->
 <nav class="topnav">
@@ -1400,7 +1449,7 @@ a { color: inherit; text-decoration: none; }
     <a class="topnav-link" href="#bucket-7">Karriere</a>
     <a class="topnav-link" href="#bucket-8">Strategie</a>
     <a class="topnav-link" href="#bucket-9">Event</a>
-    <a class="topnav-link" href="einsteiger-guide.html" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">Einsteiger-Guide</a>
+    <a class="topnav-link" href="#einsteiger-guide" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">Einsteiger-Guide</a>
   </div>
 </nav>
 
@@ -1463,13 +1512,13 @@ a { color: inherit; text-decoration: none; }
 <!-- ============================================================
      POWER BI EINSTEIGER-GUIDE · Promo
 ============================================================ -->
-<a class="guide-promo" href="einsteiger-guide.html">
+<a class="guide-promo" href="#einsteiger-guide">
   <div>
     <div class="guide-promo-eyebrow">Power BI · Einsteiger-Guide</div>
     <div class="guide-promo-title">Power BI <em>von A bis Z</em></div>
     <div class="guide-promo-text">Architektur, <strong>Power Query</strong>, Datenmodell, <strong>DAX</strong>, IBCS, Service, RLS — kompakter End-to-End-Guide in 10 Kapiteln. Ideal vor oder begleitend zu den Folgen.</div>
   </div>
-  <span class="guide-promo-cta">Zum Guide →</span>
+  <span class="guide-promo-cta">Zum Guide ↓</span>
 </a>
 
 <!-- ============================================================
