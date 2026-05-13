@@ -538,6 +538,37 @@ a { color: inherit; text-decoration: none; }
 }
 .filter-search input::placeholder { color: var(--ink-mute); }
 
+/* Transkript-Volltextsuche · Status-Indikator im Suchfeld */
+.search-state {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity .2s ease, color .2s ease;
+}
+.search-state::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.search-state[data-state="loading"] { opacity: 1; color: var(--ink-mute); }
+.search-state[data-state="loading"]::before { animation: pulse-dot 1s ease-in-out infinite; }
+.search-state[data-state="ready"]   { opacity: 1; color: var(--accent); }
+.search-state[data-state="failed"]  { opacity: 1; color: var(--ink-mute); }
+@keyframes pulse-dot {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1.2); }
+}
+
 .filter-label {
   font-family: var(--mono);
   font-size: 10.5px;
@@ -896,6 +927,25 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+/* "Treffer im Transkript"-Indikator (Karte) */
+.video-card.transcript-match { position: relative; }
+.video-card.transcript-match::before {
+  content: 'Im Transkript';
+  position: absolute;
+  top: -8px;
+  right: 12px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 100px;
+  z-index: 2;
+  box-shadow: var(--shadow-sm);
 }
 
 .video-card-tags {
@@ -1429,7 +1479,8 @@ a { color: inherit; text-decoration: none; }
   <div class="filter-row">
     <label class="filter-search" for="search-input">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="search-input" type="text" placeholder="Suche nach Titel, Gast, Thema…" autocomplete="off">
+      <input id="search-input" type="text" placeholder="Suche nach Titel, Gast, Thema, Transkript…" autocomplete="off">
+      <span class="search-state" id="search-state" data-state="idle" title="Transkript-Volltextsuche"></span>
     </label>
     <div class="filter-meta">
       <span><strong id="result-count">114</strong> von 114 Folgen</span>
@@ -4075,9 +4126,10 @@ function renderCard(ep, idx) {
     </div>` : '';
 
   return `
-    <div class="video-card${expandable ? ' has-chapters' : ''}" 
+    <div class="video-card${expandable ? ' has-chapters' : ''}"
          data-bucket="${ep.bucket}"
          data-tags="${ep.tags.join('|').toLowerCase()}"
+         data-ytid="${ep.ytId || ''}"
          data-search="${(ep.title + ' ' + ep.guest + ' ' + ep.desc).toLowerCase().replace(/"/g, '&quot;')}"
          style="animation-delay: ${idx * 30}ms">
       <div class="video-card-top">
@@ -4224,24 +4276,72 @@ function renderTags() {
 }
 
 /* ============================================================
-   FILTERING (search + tags)
+   TRANSCRIPT VOLLTEXTSUCHE · Lazy Load aus transcripts.json
+   ============================================================ */
+const TRANSCRIPTS = { state: 'idle', data: null };
+
+function setSearchState(state) {
+  TRANSCRIPTS.state = state;
+  const el = document.getElementById('search-state');
+  if (!el) return;
+  const labels = { idle: '', loading: 'Volltext lädt…', ready: 'Volltext aktiv', failed: 'Volltext n.v.' };
+  el.textContent = labels[state] || '';
+  el.setAttribute('data-state', state);
+}
+
+function loadTranscriptsIfNeeded() {
+  if (TRANSCRIPTS.state !== 'idle') return;
+  setSearchState('loading');
+  fetch('transcripts.json', { cache: 'force-cache' })
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(data => {
+      const lower = {};
+      for (const id in data) {
+        const v = data[id];
+        if (v && typeof v.text === 'string' && v.text) lower[id] = v.text.toLowerCase();
+      }
+      TRANSCRIPTS.data = lower;
+      setSearchState('ready');
+      // Falls schon Suchtext vorhanden: erneut filtern, damit Transkript-Treffer auftauchen
+      applyFilters();
+    })
+    .catch(err => {
+      console.warn('transcripts.json konnte nicht geladen werden:', err);
+      setSearchState('failed');
+    });
+}
+
+/* ============================================================
+   FILTERING (search + tags + transcripts)
    ============================================================ */
 
 function applyFilters() {
   const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
   let visibleCount = 0;
   const bucketVisibility = {};
+  const transcripts = TRANSCRIPTS.data;
 
   document.querySelectorAll('.video-card').forEach(card => {
     const search = card.dataset.search || '';
     const cardTags = (card.dataset.tags || '').split('|');
     const bucketId = card.dataset.bucket;
+    const ytId = card.dataset.ytid || '';
 
-    const matchesSearch = !searchVal || search.includes(searchVal);
+    let matchesSearch = !searchVal;
+    let matchedTranscript = false;
+    if (!matchesSearch) {
+      if (search.includes(searchVal)) {
+        matchesSearch = true;
+      } else if (transcripts && ytId && transcripts[ytId] && transcripts[ytId].includes(searchVal)) {
+        matchesSearch = true;
+        matchedTranscript = true;
+      }
+    }
     const matchesTags = activeTags.size === 0 || [...activeTags].every(t => cardTags.includes(t));
     const visible = matchesSearch && matchesTags;
 
     card.classList.toggle('hidden', !visible);
+    card.classList.toggle('transcript-match', visible && matchedTranscript);
     if (visible) {
       visibleCount++;
       bucketVisibility[bucketId] = (bucketVisibility[bucketId] || 0) + 1;
@@ -4282,7 +4382,11 @@ function resetFilters() {
 document.addEventListener('DOMContentLoaded', () => {
   renderBuckets();
   renderTags();
-  document.getElementById('search-input').addEventListener('input', applyFilters);
+  const searchInput = document.getElementById('search-input');
+  searchInput.addEventListener('input', applyFilters);
+  // Transkripte lazy laden: erst bei Fokus oder erstem Tastendruck
+  searchInput.addEventListener('focus', loadTranscriptsIfNeeded, { once: true });
+  searchInput.addEventListener('input', loadTranscriptsIfNeeded, { once: true });
   document.getElementById('reset-filters').addEventListener('click', resetFilters);
 
   // Filterleiste: kompakter Look beim Scrollen + manueller Tags-Toggle
