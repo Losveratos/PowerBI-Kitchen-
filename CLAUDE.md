@@ -1,7 +1,7 @@
-# Daten-WG Learn Buckets · Channel-Guide
+# Daten-WG Knowledge Kitchen · Channel-Guide
 
 > **Ziel:** Alle ~100+ Videos vom YouTube-Kanal [@Daten-WG](https://www.youtube.com/@Daten-WG)
-> automatisch holen, thematisch in 9 Learn Buckets clustern, und in eine bestehende
+> automatisch holen, thematisch in 9 Buckets clustern, und in eine bestehende
 > HTML-Seite einbinden — mit Tags, Volltextsuche, lazy-loaded YouTube-Embeds und
 > Kapitel-Sprungmarken aus den Video-Beschreibungen.
 

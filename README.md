@@ -1,7 +1,7 @@
-# Daten-WG · Learn Buckets
+# Daten-WG · Knowledge Kitchen
 
 Statische Single-Page, die alle Videos vom YouTube-Kanal [@Daten-WG](https://www.youtube.com/@Daten-WG)
-thematisch in 9 Learn Buckets clustert. Inklusive Tag-Filter, Volltextsuche,
+thematisch in 9 Buckets sortiert. Inklusive Tag-Filter, Volltextsuche (auch in Auto-Transkripten),
 lazy-loaded YouTube-Embeds und Kapitel-Sprungmarken aus den Video-Beschreibungen.
 
 **Stand:** 72 Folgen · v 3 · Channel-Guide
