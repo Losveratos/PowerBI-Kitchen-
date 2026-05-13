@@ -409,6 +409,105 @@ a { color: inherit; text-decoration: none; }
   .start-here-icon { font-size: 36px; }
 }
 
+/* ========== TOP-PICKS SECTION ========== */
+.top-picks {
+  margin-bottom: 56px;
+}
+.top-picks-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.top-picks-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  color: var(--black);
+  line-height: 1.05;
+}
+.top-picks-title em { font-style: italic; color: var(--accent); }
+.top-picks-sub {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  white-space: nowrap;
+}
+.top-picks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.top-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 18px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  transition: all .18s ease;
+  position: relative;
+}
+.top-pick:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-top-color: var(--accent);
+}
+.top-pick-rank {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  line-height: 1;
+}
+.top-pick-eyebrow {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.top-pick-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.25;
+  color: var(--black);
+  letter-spacing: -0.005em;
+}
+.top-pick-why {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin-top: 2px;
+}
+.top-pick-why strong { color: var(--ink); font-weight: 600; }
+.top-pick-meta {
+  display: flex;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--ink-mute);
+  margin-top: auto;
+}
+
 /* ========== GUIDE PROMO CARD ========== */
 .guide-promo {
   position: relative;
@@ -784,6 +883,12 @@ a { color: inherit; text-decoration: none; }
   margin-top: 5px;
   letter-spacing: 0.05em;
 }
+.bucket-tile-teaser {
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.4;
+  margin-top: 6px;
+}
 
 /* ========== BUCKET SECTION ========== */
 .bucket-section {
@@ -1026,6 +1131,27 @@ a { color: inherit; text-decoration: none; }
   border-color: var(--ink-soft);
   color: var(--ink);
   background: var(--bg-soft);
+}
+.btn-icon {
+  background: transparent;
+  color: var(--ink-mute);
+  border-color: var(--line);
+  padding: 6px 8px;
+  min-width: 32px;
+  justify-content: center;
+}
+.btn-icon svg { width: 14px; height: 14px; margin: 0; }
+.btn-icon:hover { color: var(--accent); border-color: var(--accent); }
+.btn-icon.copied { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* Permalink-Highlight: blinkt kurz wenn via Hash angesprungen */
+@keyframes ep-highlight {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(17,120,101,0); }
+  20%      { box-shadow: 0 0 0 4px rgba(17,120,101,0.45); }
+}
+.video-card.ep-highlighted {
+  animation: ep-highlight 2.2s ease;
+  border-color: var(--accent);
 }
 
 /* Chapters (expanded card section) */
@@ -1430,15 +1556,9 @@ a { color: inherit; text-decoration: none; }
 <nav class="topnav">
   <div class="topnav-inner">
     <div class="topnav-brand">Daten-WG · <em>Knowledge Kitchen</em></div>
-    <a class="topnav-link" href="#bucket-1">Updates</a>
-    <a class="topnav-link" href="#bucket-2">Fabric</a>
-    <a class="topnav-link" href="#bucket-3">Modellierung</a>
-    <a class="topnav-link" href="#bucket-4">Self-Service</a>
-    <a class="topnav-link" href="#bucket-5">Viz / IBCS</a>
-    <a class="topnav-link" href="#bucket-6">Power BI</a>
-    <a class="topnav-link" href="#bucket-7">Karriere</a>
-    <a class="topnav-link" href="#bucket-8">Strategie</a>
-    <a class="topnav-link" href="#bucket-9">Event</a>
+    <a class="topnav-link" href="#top-picks">Top-Picks</a>
+    <a class="topnav-link" href="#buckets-overview">Buckets</a>
+    <a class="topnav-link" href="#favorites-anchor">Favoriten</a>
     <a class="topnav-link" href="#einsteiger-guide" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">Einsteiger-Guide</a>
   </div>
 </nav>
@@ -1513,6 +1633,53 @@ a { color: inherit; text-decoration: none; }
 </div>
 
 <!-- ============================================================
+     TOP-PICKS · 5 handverlesene Folgen
+============================================================ -->
+<section class="top-picks" id="top-picks" aria-label="Top-Picks">
+  <header class="top-picks-head">
+    <h2 class="top-picks-title">Top-Picks · <em>Wo anfangen?</em></h2>
+    <span class="top-picks-sub">5 handverlesene Folgen</span>
+  </header>
+  <div class="top-picks-grid">
+    <a class="top-pick" href="https://www.youtube.com/watch?v=ZaDd1uxeLbI" target="_blank" rel="noopener">
+      <span class="top-pick-rank">01</span>
+      <span class="top-pick-eyebrow">Strategie · Big Picture</span>
+      <span class="top-pick-title">10 Jahre Power BI</span>
+      <span class="top-pick-why"><strong>Warum diese?</strong> Der historische Überblick — wie Power BI dahin gekommen ist, wo es heute steht. Setzt den Rahmen für alles andere.</span>
+      <span class="top-pick-meta"><span>📅 Juli 2025</span><span>⏱ 92 min</span></span>
+    </a>
+    <a class="top-pick" href="https://www.youtube.com/watch?v=fbpu8zLG3cc" target="_blank" rel="noopener">
+      <span class="top-pick-rank">02</span>
+      <span class="top-pick-eyebrow">Updates &amp; News</span>
+      <span class="top-pick-title">Power BI Update April 2026</span>
+      <span class="top-pick-why"><strong>Warum diese?</strong> Was ist gerade neu — Stand der Tools in 5 kompakten Minuten. Idealer Pulse-Check.</span>
+      <span class="top-pick-meta"><span>📅 April 2026</span><span>⏱ 5 min</span></span>
+    </a>
+    <a class="top-pick" href="https://www.youtube.com/watch?v=YRoJ_6t3VrE" target="_blank" rel="noopener">
+      <span class="top-pick-rank">03</span>
+      <span class="top-pick-eyebrow">Microsoft Fabric</span>
+      <span class="top-pick-title">Fabric Planning Hands-On</span>
+      <span class="top-pick-why"><strong>Warum diese?</strong> Wer Fabric verstehen will, schaut hier zu — echte Planung, echte Klicks, kein Marketing.</span>
+      <span class="top-pick-meta"><span>📅 April 2026</span><span>⏱ 66 min</span></span>
+    </a>
+    <a class="top-pick" href="https://www.youtube.com/watch?v=aYHk_V8n_CE" target="_blank" rel="noopener">
+      <span class="top-pick-rank">04</span>
+      <span class="top-pick-eyebrow">Power BI Deep Dive</span>
+      <span class="top-pick-title">Power BI vs. Qlik</span>
+      <span class="top-pick-why"><strong>Warum diese?</strong> Tool-Vergleich auf Augenhöhe — hilft, eigene Annahmen zu checken. Teil 1 von 3.</span>
+      <span class="top-pick-meta"><span>📅 Oktober 2025</span><span>⏱ 60 min</span></span>
+    </a>
+    <a class="top-pick" href="https://www.youtube.com/watch?v=HXAP16trRc8" target="_blank" rel="noopener">
+      <span class="top-pick-rank">05</span>
+      <span class="top-pick-eyebrow">Power BI Deep Dive</span>
+      <span class="top-pick-title">AI on top of BI</span>
+      <span class="top-pick-why"><strong>Warum diese?</strong> Wohin geht die Reise? Pragmatisch über KI-Integration in BI-Workflows — ohne Hype.</span>
+      <span class="top-pick-meta"><span>📅 Juli 2025</span><span>⏱ 70 min</span></span>
+    </a>
+  </div>
+</section>
+
+<!-- ============================================================
      POWER BI EINSTEIGER-GUIDE · Promo
 ============================================================ -->
 <a class="guide-promo" href="#einsteiger-guide">
@@ -1549,50 +1716,59 @@ a { color: inherit; text-decoration: none; }
 <!-- ============================================================
      BUCKET OVERVIEW
 ============================================================ -->
-<div class="bucket-grid">
+<div class="bucket-grid" id="buckets-overview">
   <a class="bucket-tile" href="#bucket-1" style="--bucket-color: var(--c-update);">
     <div class="bucket-tile-num">01 · QUARTERLY</div>
     <div class="bucket-tile-name">Updates & News</div>
+    <div class="bucket-tile-teaser">Quarterly Updates: was ist neu in Power BI &amp; Fabric.</div>
     <div class="bucket-tile-count">17 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-2" style="--bucket-color: var(--c-fabric);">
     <div class="bucket-tile-num">02 · PLATTFORM</div>
     <div class="bucket-tile-name">Microsoft Fabric</div>
+    <div class="bucket-tile-teaser">Lakehouse, OneLake, Direct Lake — die Fabric-Praxis.</div>
     <div class="bucket-tile-count">21 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-3" style="--bucket-color: var(--c-model);">
     <div class="bucket-tile-num">03 · GRUNDLAGE</div>
     <div class="bucket-tile-name">Datenmodellierung</div>
+    <div class="bucket-tile-teaser">Stern-Schema, Data Vault, DAX-Patterns — Modelle, die halten.</div>
     <div class="bucket-tile-count">24 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-4" style="--bucket-color: var(--c-gov);">
     <div class="bucket-tile-num">04 · GOVERNANCE</div>
     <div class="bucket-tile-name">Self-Service</div>
+    <div class="bucket-tile-teaser">Citizen Developer, Shadow IT, Governance — die Mensch-Seite.</div>
     <div class="bucket-tile-count">2 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-5" style="--bucket-color: var(--c-viz);">
     <div class="bucket-tile-num">05 · CRAFT</div>
     <div class="bucket-tile-name">Visualisierung</div>
+    <div class="bucket-tile-teaser">IBCS, Deneb, Boring Charts — wie Visualisierung wirklich wirkt.</div>
     <div class="bucket-tile-count">9 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-6" style="--bucket-color: var(--c-pbi);">
     <div class="bucket-tile-num">06 · TOOL</div>
     <div class="bucket-tile-name">Power BI Deep Dive</div>
+    <div class="bucket-tile-teaser">Praxis-Tutorials, Vergleiche, Power BI von A bis Z.</div>
     <div class="bucket-tile-count">25 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-7" style="--bucket-color: var(--c-career);">
     <div class="bucket-tile-num">07 · MENSCH</div>
     <div class="bucket-tile-name">Karriere & Community</div>
+    <div class="bucket-tile-teaser">MVPs, User Groups, Quereinstieg — die Daten-Community.</div>
     <div class="bucket-tile-count">5 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-8" style="--bucket-color: var(--c-strategy);">
     <div class="bucket-tile-num">08 · BIG PICTURE</div>
     <div class="bucket-tile-name">Strategie</div>
+    <div class="bucket-tile-teaser">Digitalisierung im Mittelstand, BI-Strategie, Big Picture.</div>
     <div class="bucket-tile-count">4 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-9" style="--bucket-color: var(--c-event);">
     <div class="bucket-tile-num">09 · EVENT</div>
     <div class="bucket-tile-name">Daten-WG 2025</div>
+    <div class="bucket-tile-teaser">Rückblicke und Vorschauen rund um die Daten-WG-Konferenz.</div>
     <div class="bucket-tile-count">7 Folgen</div>
   </a>
 </div>
@@ -4179,6 +4355,7 @@ function renderCard(ep, idx) {
 
   return `
     <div class="video-card${expandable ? ' has-chapters' : ''}"
+         id="${ep.ytId ? 'ep-' + ep.ytId : ''}"
          data-bucket="${ep.bucket}"
          data-tags="${ep.tags.join('|').toLowerCase()}"
          data-ytid="${ep.ytId || ''}"
@@ -4209,6 +4386,9 @@ function renderCard(ep, idx) {
         ${expandable ? `<button class="btn btn-ghost expand-btn" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>
           ${ep.chapters.length > 0 ? 'Kapitel' : 'Video'}
+        </button>` : ''}
+        ${ep.ytId ? `<button class="btn btn-icon copy-link-btn" type="button" data-yt="${ep.ytId}" title="Permalink kopieren" aria-label="Permalink kopieren">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
         </button>` : ''}
       </div>
       ${embedHtml}
@@ -4336,7 +4516,7 @@ function setSearchState(state) {
   TRANSCRIPTS.state = state;
   const el = document.getElementById('search-state');
   if (!el) return;
-  const labels = { idle: '', loading: 'Volltext lädt…', ready: 'Volltext aktiv', failed: 'Volltext n.v.' };
+  const labels = { idle: '', loading: 'Lädt Transkripte…', ready: 'Sucht auch in Transkripten', failed: 'Transkripte n.v.' };
   el.textContent = labels[state] || '';
   el.setAttribute('data-state', state);
 }
@@ -4481,6 +4661,64 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   }
+
+  // ==== Permalink: Klick auf 🔗-Icon kopiert URL mit #ep-<ytId> ====
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.copy-link-btn');
+    if (!btn) return;
+    e.stopPropagation();
+    e.preventDefault();
+    const yt = btn.dataset.yt;
+    if (!yt) return;
+    const url = `${location.origin}${location.pathname}#ep-${yt}`;
+    const done = () => {
+      btn.classList.add('copied');
+      const orig = btn.getAttribute('title');
+      btn.setAttribute('title', 'Kopiert!');
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        if (orig) btn.setAttribute('title', orig);
+      }, 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done).catch(() => {
+        // Fallback: temporäres textarea
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); done(); } catch (_) {}
+        ta.remove();
+      });
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch (_) {}
+      ta.remove();
+    }
+  });
+
+  // ==== Deep-Link beim Pageload: #ep-<ytId> -> Karte auf-scrollen + highlight ====
+  const openEpisodeFromHash = () => {
+    const hash = location.hash || '';
+    if (!hash.startsWith('#ep-')) return;
+    const card = document.getElementById(hash.slice(1));
+    if (!card) return;
+    setTimeout(() => {
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      card.classList.add('ep-highlighted');
+      // Wenn Karte ausklappbar ist und nicht offen, auto-expand
+      const expandBtn = card.querySelector('.expand-btn');
+      if (expandBtn && !card.classList.contains('expanded')) {
+        expandBtn.click();
+      }
+      setTimeout(() => card.classList.remove('ep-highlighted'), 2400);
+    }, 250);
+  };
+  openEpisodeFromHash();
+  window.addEventListener('hashchange', openEpisodeFromHash);
 
   // Make bucket overview tiles set their CSS var color from inline style
   // (already done in markup)
