@@ -339,24 +339,50 @@ a { color: inherit; text-decoration: none; }
 .tag-chip.rare { display: none; }
 .tag-list.show-all .tag-chip.rare { display: inline-flex; align-items: center; }
 
-/* Tag-Liste im Kompakt-Modus: eine Zeile, horizontal scrollbar, mit Fade-Rand */
-.filter-bar.scrolled .tag-list {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line-strong) transparent;
-  padding: 2px 2px 6px;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%);
-          mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 28px), transparent 100%);
+/* Tag-Reihe: einklappbar beim Scrollen nach unten */
+.filter-row.tags-row {
+  overflow: hidden;
+  max-height: 320px;
+  opacity: 1;
+  transition: max-height .28s ease, opacity .2s ease, margin .22s ease, padding-top .22s ease;
 }
-.filter-bar.scrolled .tag-list::-webkit-scrollbar { height: 4px; }
-.filter-bar.scrolled .tag-list::-webkit-scrollbar-track { background: transparent; }
-.filter-bar.scrolled .tag-list::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
-.filter-bar.scrolled .tag-chip { flex-shrink: 0; }
-.filter-bar.scrolled .tag-chip.rare { display: none !important; }
-.filter-bar.scrolled .tag-toggle { display: none; }
-.filter-bar.scrolled .filter-label { font-size: 10px; }
+.filter-bar.tags-hidden .filter-row.tags-row {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  pointer-events: none;
+}
+
+/* "Tags zeigen"-Pill, wenn eingeklappt */
+.tags-peek {
+  display: none;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px dashed var(--line-strong);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s ease;
+}
+.tags-peek:hover { border-color: var(--ink-soft); color: var(--ink); }
+.tags-peek .tags-peek-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  background: var(--accent);
+  color: white;
+  border-radius: 100px;
+  font-size: 9.5px;
+  font-weight: 600;
+}
+.filter-bar.tags-hidden .tags-peek { display: inline-flex; align-items: center; }
 .tag-toggle {
   font-family: var(--mono);
   font-size: 10.5px;
@@ -900,9 +926,10 @@ a { color: inherit; text-decoration: none; }
     <div class="filter-meta">
       <span><strong id="result-count">72</strong> von 72 Folgen</span>
       <button class="filter-reset" id="reset-filters">Filter zurücksetzen</button>
+      <button class="tags-peek" id="tags-peek" type="button" aria-label="Tag-Filter ausklappen">Tags<span class="tags-peek-badge" id="tags-peek-badge" hidden>0</span></button>
     </div>
   </div>
-  <div class="filter-row">
+  <div class="filter-row tags-row">
     <span class="filter-label">Tags</span>
     <div class="tag-list" id="tag-list"><!-- gerendert per JS --></div>
   </div>
@@ -2971,6 +2998,17 @@ function applyFilters() {
 
   document.getElementById('result-count').textContent = visibleCount;
   document.getElementById('no-results').classList.toggle('visible', visibleCount === 0);
+
+  // Badge auf der Tags-Peek-Pille mit Anzahl aktiver Tag-Filter aktualisieren
+  const badge = document.getElementById('tags-peek-badge');
+  if (badge) {
+    if (activeTags.size > 0) {
+      badge.textContent = activeTags.size;
+      badge.hidden = false;
+    } else {
+      badge.hidden = true;
+    }
+  }
 }
 
 function resetFilters() {
@@ -2989,21 +3027,48 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('search-input').addEventListener('input', applyFilters);
   document.getElementById('reset-filters').addEventListener('click', resetFilters);
 
-  // Filterleiste kompakt, sobald gescrollt wird
+  // Filterleiste: kompakt + Tag-Reihe ein-/ausklappen beim Scrollen
   const filterBar = document.querySelector('.filter-bar');
+  const tagsPeek = document.getElementById('tags-peek');
   if (filterBar) {
     const COMPACT_AT = 220;
+    const DEADBAND = 6;
+    let lastY = window.scrollY;
     let ticking = false;
+    let userPinned = false;
+
     const updateScrollState = () => {
-      filterBar.classList.toggle('scrolled', window.scrollY > COMPACT_AT);
+      const y = window.scrollY;
+      const delta = y - lastY;
+      const compact = y > COMPACT_AT;
+      filterBar.classList.toggle('scrolled', compact);
+
+      if (!compact) {
+        filterBar.classList.remove('tags-hidden');
+        userPinned = false;
+      } else if (!userPinned && Math.abs(delta) > DEADBAND) {
+        // Runterscrollen: einklappen, Hochscrollen: ausklappen
+        filterBar.classList.toggle('tags-hidden', delta > 0);
+      }
+
+      lastY = y;
       ticking = false;
     };
+
     window.addEventListener('scroll', () => {
       if (!ticking) {
         window.requestAnimationFrame(updateScrollState);
         ticking = true;
       }
     }, { passive: true });
+
+    // Peek-Pille: manuell ausklappen + pinnen, bis user weiterscrollt
+    if (tagsPeek) {
+      tagsPeek.addEventListener('click', () => {
+        filterBar.classList.remove('tags-hidden');
+        userPinned = true;
+      });
+    }
     updateScrollState();
   }
 
