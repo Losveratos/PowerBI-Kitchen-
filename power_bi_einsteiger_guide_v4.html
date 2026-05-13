@@ -5,24 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Power BI End-to-End · Einsteiger-Guide · Michael Tenner</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
 <style>
 :root {
-  --bg:        #FAFAF7;
-  --bg-card:  #FFFFFF;
-  --bg-soft:  #F2EEE6;
-  --bg-deep: #16181C;
+  /* Paper / Cream Editorial-Palette (matched to hub) */
+  --bg:        #FAFAF5;
+  --bg-card:   #FFFFFF;
+  --bg-soft:   #F4F1E8;
+  --bg-deep:   #0A0A0A;
 
-  --ink:        #0F1E2E;
-  --ink-soft: #475569;
-  --ink-mute: #94A3B8;
+  /* Warm Inks */
+  --ink:       #1A1A1A;
+  --ink-soft:  #4A4A4A;
+  --ink-mute:  #6B6B6B;
+  --black:     #0A0A0A;
 
-  --line:        rgba(15, 30, 46, 0.10);
-  --line-strong: rgba(15, 30, 46, 0.20);
+  --line:        #E5E2D8;
+  --line-strong: #1A1A1A;
 
+  /* Section-Akzentfarben (bleiben für Bucket-Vielfalt) */
   --c-arch:    #4A5C6A;
   --c-quellen: #1E3A5F;
   --c-staging: #C97B3F;
@@ -37,22 +37,27 @@
   --c-rls:      #8B2E2E;
   --c-ext:      #6B5B95;
 
-  --accent:    #C25A2D;
-  --accent-do:    #2A857A;
+  /* Brand */
+  --accent:      #117865;  /* Daten-WG Petrolgrün */
+  --brand:       #117865;
+  --brand-soft:  #2A9582;
+  --brand-deep:  #0A5A4D;
+  --accent-do:   #117865;
   --accent-warn: #B8336A;
   --accent-info: #166088;
 
-  --shadow-sm: 0 1px 2px rgba(15,30,46,.04), 0 1px 3px rgba(15,30,46,.06);
-  --shadow-md: 0 4px 12px rgba(15,30,46,.08), 0 2px 4px rgba(15,30,46,.06);
-  --shadow-lg: 0 24px 60px rgba(15,30,46,.18), 0 8px 24px rgba(15,30,46,.10);
+  --shadow-sm: 0 1px 2px rgba(10,10,10,.04), 0 1px 3px rgba(10,10,10,.06);
+  --shadow-md: 0 4px 12px rgba(10,10,10,.08), 0 2px 4px rgba(10,10,10,.06);
+  --shadow-lg: 0 24px 60px rgba(10,10,10,.18), 0 8px 24px rgba(10,10,10,.10);
 
   --radius-sm: 6px;
-  --radius:     10px;
+  --radius:    10px;
   --radius-lg: 16px;
 
-  --serif: 'Fraunces', Georgia, serif;
-  --sans:  'Geist', -apple-system, sans-serif;
-  --mono:  'JetBrains Mono', monospace;
+  /* Segoe UI Variable Stack — system-native */
+  --serif: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --sans:  "Segoe UI Variable Text",    "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --mono:  "Segoe UI Variable Small",   "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -64,9 +69,8 @@ body {
   color: var(--ink);
   background: var(--bg);
   background-image:
-    radial-gradient(circle at 12% -5%, rgba(91, 59, 122, 0.05), transparent 35%),
-    radial-gradient(circle at 95% 15%, rgba(42, 133, 122, 0.05), transparent 40%),
-    radial-gradient(circle at 50% 80%, rgba(184, 51, 106, 0.03), transparent 50%);
+    radial-gradient(circle at 92% -5%, rgba(17, 120, 101, 0.06), transparent 40%),
+    radial-gradient(circle at 8% 50%, rgba(17, 120, 101, 0.04), transparent 45%);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
@@ -153,11 +157,11 @@ a { color: inherit; }
 .eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--ink-soft); }
 .title {
   font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(2.4rem, 5.5vw, 4.4rem);
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-  font-variation-settings: "opsz" 144;
+  font-weight: 300;
+  font-size: clamp(2.4rem, 6vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--black);
   margin-bottom: 18px;
 }
 .title em { font-style: italic; font-weight: 300; color: var(--accent); }
@@ -294,10 +298,11 @@ a { color: inherit; }
 }
 .journey-title {
   font-family: var(--serif);
-  font-weight: 500;
+  font-weight: 400;
   font-size: 18px;
   margin-bottom: 6px;
   letter-spacing: -0.005em;
+  color: var(--black);
 }
 .journey-sub {
   font-size: 13px;
@@ -377,13 +382,14 @@ a { color: inherit; }
 }
 .section-title {
   font-family: var(--serif);
-  font-weight: 500;
-  font-size: clamp(1.7rem, 3vw, 2.4rem);
-  letter-spacing: -0.015em;
+  font-weight: 300;
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--black);
   flex: 1;
-  font-variation-settings: "opsz" 144;
 }
-.section-title em { font-style: italic; font-weight: 400; color: var(--accent); }
+.section-title em { font-style: italic; font-weight: 300; color: var(--accent); }
 .section-hint {
   font-family: var(--mono);
   font-size: 10px;
