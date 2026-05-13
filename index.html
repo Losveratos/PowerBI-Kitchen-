@@ -1028,63 +1028,6 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   color: var(--ink-soft);
   font-weight: 500;
 }
-.video-card-top-right {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.fav-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  background: transparent;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--ink-mute);
-  cursor: pointer;
-  transition: all .15s ease;
-}
-.fav-btn svg { width: 13px; height: 13px; display: block; }
-.fav-btn:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-.fav-btn.active {
-  color: var(--accent);
-  background: var(--accent);
-}
-.fav-btn.active svg { fill: white; stroke: white; }
-
-/* Empty-state für aktiven Favoriten-Filter, wenn keine vorhanden */
-.fav-empty {
-  display: none;
-  padding: 24px 26px;
-  border: 1px dashed var(--line-strong);
-  border-radius: var(--radius);
-  background: var(--bg-soft);
-  font-size: 14px;
-  color: var(--ink-soft);
-  line-height: 1.55;
-  text-align: center;
-  margin-bottom: 32px;
-}
-.fav-empty strong { color: var(--ink); }
-body.fav-mode .fav-empty.show { display: block; }
-
-/* Chip "★ Favoriten" in der Tag-Liste */
-.tag-chip.fav-chip {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.tag-chip.fav-chip.active {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-}
-
 .video-card-title {
   font-family: var(--serif);
   font-weight: 400;
@@ -1797,7 +1740,6 @@ body.fav-mode .fav-empty.show { display: block; }
     <div class="topnav-brand">Daten-WG · <em>Knowledge Kitchen</em></div>
     <a class="topnav-link" href="#top-picks">Top-Picks</a>
     <a class="topnav-link" href="#buckets-overview">Buckets</a>
-    <a class="topnav-link" href="#favorites-anchor">Favoriten</a>
     <a class="topnav-link" href="power_bi_einsteiger_guide_v4.html#beispiele">Beispiele</a>
     <a class="topnav-link" href="#einsteiger-guide" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">Einsteiger-Guide</a>
   </div>
@@ -4628,12 +4570,7 @@ function renderCard(ep, idx) {
          style="animation-delay: ${idx * 30}ms">
       <div class="video-card-top">
         <div class="video-card-eyebrow">${ep.tags[0]}</div>
-        <div class="video-card-top-right">
-          ${ep.ytId ? `<button class="fav-btn" type="button" data-yt="${ep.ytId}" aria-label="Als Favorit speichern" title="Als Favorit speichern">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          </button>` : ''}
-          <div class="video-card-lang">${ep.lang}</div>
-        </div>
+        <div class="video-card-lang">${ep.lang}</div>
       </div>
       <h3 class="video-card-title">${ep.title}</h3>
       <div class="video-card-guest${ep.solo ? ' solo' : ''}">${ep.guest}</div>
@@ -4749,14 +4686,11 @@ function renderTags() {
   const list = document.getElementById('tag-list');
   const tags = buildTagIndex();
   const rareCount = tags.filter(t => t.count < 2).length;
-  const favChip = `<button class="tag-chip fav-chip" type="button" data-fav="1" title="Nur deine Favoriten anzeigen">★ Favoriten<span class="tag-count" id="fav-chip-count">${FAVS.size}</span></button>`;
-  list.innerHTML = favChip + tags.map(({ tag, count }) =>
+  list.innerHTML = tags.map(({ tag, count }) =>
     `<button class="tag-chip${count < 2 ? ' rare' : ''}" data-tag="${tag.toLowerCase()}">${tag}<span class="tag-count">${count}</span></button>`
   ).join('') + (rareCount > 0 ? `<button class="tag-toggle" id="toggle-tags" type="button">+ ${rareCount} weitere Tags</button>` : '');
 
-  list.querySelector('.fav-chip').addEventListener('click', () => setFavMode(!favMode));
-
-  list.querySelectorAll('.tag-chip:not(.fav-chip)').forEach(chip => {
+  list.querySelectorAll('.tag-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const t = chip.dataset.tag;
       if (activeTags.has(t)) {
@@ -4851,50 +4785,6 @@ function toggleChapterRead(chId) {
 }
 
 /* ============================================================
-   FAVORITEN · localStorage Set von ytIds
-   ============================================================ */
-const FAVS_KEY = 'datenwg.favorites';
-const FAVS = (() => {
-  try { return new Set(JSON.parse(localStorage.getItem(FAVS_KEY) || '[]')); }
-  catch (e) { return new Set(); }
-})();
-let favMode = false;
-
-function persistFavs() {
-  try { localStorage.setItem(FAVS_KEY, JSON.stringify([...FAVS])); }
-  catch (e) { /* ignore quota */ }
-}
-
-function toggleFav(ytId) {
-  if (!ytId) return;
-  if (FAVS.has(ytId)) FAVS.delete(ytId);
-  else FAVS.add(ytId);
-  persistFavs();
-  syncFavButtons();
-  if (favMode) applyFilters();
-}
-
-function syncFavButtons() {
-  document.querySelectorAll('.fav-btn').forEach(btn => {
-    btn.classList.toggle('active', FAVS.has(btn.dataset.yt));
-  });
-  // Badge auf dem Topnav-Favoriten-Link
-  const navLink = document.querySelector('.topnav-link[href="#favorites-anchor"]');
-  if (navLink) {
-    const count = FAVS.size;
-    navLink.textContent = count > 0 ? `Favoriten (${count})` : 'Favoriten';
-  }
-}
-
-function setFavMode(on) {
-  favMode = !!on;
-  document.body.classList.toggle('fav-mode', favMode);
-  const chip = document.querySelector('.tag-chip.fav-chip');
-  if (chip) chip.classList.toggle('active', favMode);
-  applyFilters();
-}
-
-/* ============================================================
    TRANSCRIPT VOLLTEXTSUCHE · Lazy Load aus transcripts.json
    ============================================================ */
 const TRANSCRIPTS = { state: 'idle', data: null };
@@ -4957,9 +4847,8 @@ function applyFilters() {
       }
     }
     const matchesTags = activeTags.size === 0 || [...activeTags].every(t => cardTags.includes(t));
-    const matchesFav = !favMode || (ytId && FAVS.has(ytId));
     const matchesBucket = !activeBucket || bucketId === activeBucket;
-    const visible = matchesSearch && matchesTags && matchesFav && matchesBucket;
+    const visible = matchesSearch && matchesTags && matchesBucket;
 
     card.classList.toggle('hidden', !visible);
     card.classList.toggle('transcript-match', visible && matchedTranscript);
@@ -4979,13 +4868,7 @@ function applyFilters() {
   const noRes = document.getElementById('no-results');
   noRes.classList.toggle('visible', visibleCount === 0);
   if (visibleCount === 0) {
-    if (favMode && FAVS.size === 0) {
-      noRes.textContent = 'Du hast noch keine Folgen als Favorit markiert. Klick auf den ★-Stern oben rechts an einer Karte, um sie hier zu sammeln.';
-    } else if (favMode) {
-      noRes.textContent = 'Keine deiner Favoriten passt zu Suche/Tags. Filter zurücksetzen oder Favoriten-Modus deaktivieren.';
-    } else {
-      noRes.textContent = 'Keine Folge passt zu deiner Suche. Setz die Filter zurück oder probier einen anderen Begriff.';
-    }
+    noRes.textContent = 'Keine Folge passt zu deiner Suche. Setz die Filter zurück oder probier einen anderen Begriff.';
   }
 
   // Badge auf der Tags-Peek-Pille mit Anzahl aktiver Tag-Filter aktualisieren
@@ -5004,7 +4887,6 @@ function resetFilters() {
   activeTags.clear();
   document.querySelectorAll('.tag-chip.active').forEach(c => c.classList.remove('active'));
   document.getElementById('search-input').value = '';
-  if (favMode) setFavMode(false);
   if (activeBucket) setActiveBucket(null);
   applyFilters();
 }
@@ -5062,31 +4944,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   }
-
-  // ==== Favoriten: Klick auf ★-Stern auf Karte ====
-  document.addEventListener('click', (e) => {
-    const fav = e.target.closest('.fav-btn');
-    if (!fav) return;
-    e.stopPropagation();
-    e.preventDefault();
-    toggleFav(fav.dataset.yt);
-    // Chip-Counter aktualisieren
-    const chipCount = document.getElementById('fav-chip-count');
-    if (chipCount) chipCount.textContent = FAVS.size;
-  });
-
-  // Topnav "Favoriten"-Link aktiviert Fav-Mode + scrollt zur Filter-Bar
-  document.querySelectorAll('a[href="#favorites-anchor"]').forEach(a => {
-    a.addEventListener('click', (e) => {
-      e.preventDefault();
-      setFavMode(true);
-      const filterBar = document.querySelector('.filter-bar');
-      if (filterBar) filterBar.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
-
-  // Initial: alle ★-Sterne auf Karten in den richtigen Zustand
-  syncFavButtons();
 
   // ==== Guide Reading-Progress: Klick auf "Als gelesen" ====
   // stopPropagation ist wichtig, da die Karte selbst jetzt ein Link ist
