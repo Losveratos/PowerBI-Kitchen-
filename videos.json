@@ -974,6 +974,100 @@
   },
   {
     "bucket": "bucket-2",
+    "title": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+    "guest": "WG Offsite",
+    "solo": false,
+    "date": "Mai 2026",
+    "duration": "10 min",
+    "lang": "DE",
+    "desc": "In diesem Talk geht es um die spannende Geschichte von Business Intelligence, Data Warehousing, OLAP und auch um den aktuellen KI-Hype",
+    "tags": [
+      "Fabric",
+      "Warehouse",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "dKA-38gRD8Q",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260513"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Fabric Planning Hands-On (3)",
+    "guest": "",
+    "solo": true,
+    "date": "Mai 2026",
+    "duration": "65 min",
+    "lang": "DE",
+    "desc": "In the third session of the series, we are going deep into Khaleds confort zone: Finance and building a Financial Chart of Accounts.",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "MmPs7IH0nBE",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260512"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Fabric Planning Hands-On (2)",
+    "guest": "",
+    "solo": true,
+    "date": "Mai 2026",
+    "duration": "65 min",
+    "lang": "EN",
+    "desc": "Now we have Planning - not in galaxy far away... ...but right here in Fabric!",
+    "tags": [
+      "Fabric",
+      "EN"
+    ],
+    "ytId": "mIQU6gtnwoA",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260505"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Fabric Planning Hands-On",
+    "guest": "",
+    "solo": true,
+    "date": "April 2026",
+    "duration": "66 min",
+    "lang": "DE",
+    "desc": "Planning by Lumel is now part of the Fabric first-party-stack. This news in big for us and shall interest everyone who wants to use Fabric data for planning or Masterdata management in Microsoft Fabric.",
+    "tags": [
+      "Fabric",
+      "DE"
+    ],
+    "ytId": "YRoJ_6t3VrE",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260428"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Fabric Planning unboxing",
+    "guest": "WG Special",
+    "solo": false,
+    "date": "März 2026",
+    "duration": "90 min",
+    "lang": "DE",
+    "desc": "Für uns war es eins der Highlights der FABCON 2026 - Fabric bekommt eine native Planungsfunktion. Oder besser gesagt: eine ganze Reihe an Funktionen, die für die Planung und das Zurückschreiben da sind.",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "xCzKEIB4W5I",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260331"
+  },
+  {
+    "bucket": "bucket-2",
     "title": "Microsoft Fabric - braucht das wirklich jemand?",
     "guest": "Martin Bubenheimer",
     "solo": false,
@@ -1566,6 +1660,97 @@
   },
   {
     "bucket": "bucket-2",
+    "title": "Daten-WG Deep Dive Financial Reporting - part 7",
+    "guest": "",
+    "solo": true,
+    "date": "September 2025",
+    "duration": "60 min",
+    "lang": "DE",
+    "desc": "Alle paar Wochen treffen sich Martin und Artur, um live zu modellieren und weiter an einem generisch nutzbaren Finanzmodell für Power zu bauen.",
+    "tags": [
+      "Fabric",
+      "DE"
+    ],
+    "ytId": "232JhS9vbQ0",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250903"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Daten-WG Deep Dive Financial Reporting - part 6",
+    "guest": "",
+    "solo": true,
+    "date": "August 2025",
+    "duration": "70 min",
+    "lang": "DE",
+    "desc": "Martin und Artur treffen sich wieder, um live zu modellieren und weiter an einem generisch nutzbaren Finanzmodell für Power zu bauen.",
+    "tags": [
+      "Fabric",
+      "DE"
+    ],
+    "ytId": "bt81POE-9Ig",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250813"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Daten-WG Deep Dive Financial Reporting - part 5",
+    "guest": "",
+    "solo": true,
+    "date": "Juli 2025",
+    "duration": "67 min",
+    "lang": "DE",
+    "desc": "Auch nach der TDWI treffen sich Martin und Artur zum Streamen und bauen am übergreifenden und flexiblen Finanzmodell weiter. Diesmal wird es ernst, da Martin Artur mit Anforderungen grillen wird, die in Fabric umgesetzt werden sollen.",
+    "tags": [
+      "Fabric",
+      "DE"
+    ],
+    "ytId": "iymmxuXHh44",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250702"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Daten-WG Deep Dive Financial Reporting pt.4",
+    "guest": "",
+    "solo": true,
+    "date": "Mai 2025",
+    "duration": "59 min",
+    "lang": "DE",
+    "desc": "Nach der etwas aufwändigen Datenbeschaffung, geht es endlich darum, wie Daten aus einem operativen System in Fabric für Analysen im Finanzbereich modelliert werden können. Neben den üblichen Sonderfällen und Spezialfragen gibt es natürlich auch den Anspruch, eine für verschiedene Systeme einsetzbare und nachhaltige Lösung zu schaffen.",
+    "tags": [
+      "Fabric",
+      "DE"
+    ],
+    "ytId": "UnW4wHhw_IY",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250521"
+  },
+  {
+    "bucket": "bucket-2",
+    "title": "Daten-WG Deep Dive Financial Reporting",
+    "guest": "Financial Reporting",
+    "solo": false,
+    "date": "Mai 2025",
+    "duration": "60 min",
+    "lang": "DE",
+    "desc": "Jedes perfekte Finanzmodell beginnt mit einem Schritt und diesmal wird es um die Datenanbindung gehen - Live und ungestellt, so wie es in der Realität läuft.",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "TYmKrreMO3I",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250507"
+  },
+  {
+    "bucket": "bucket-2",
     "title": "600 SQL-Tabellen in Fabric",
     "guest": "Alexander Dean",
     "solo": false,
@@ -1626,6 +1811,43 @@
     "_upload_date": "20250505"
   },
   {
+    "bucket": "bucket-2",
+    "title": "Daten-WG Thinkers Talk n61",
+    "guest": "",
+    "solo": true,
+    "date": "April 2025",
+    "duration": "67 min",
+    "lang": "DE",
+    "desc": "Das Community-Format BI Thinkers Talk zieht in die Daten-WG (bei LinkedIn sind wir noch im Umzug stecken geblieben, aber bei YouTube immerhin wirklich) Euch erwarten wir immer Insights und Tipps aus der Welt der Daten, ab und zu  mit etwas wenig objektivem Microsoft Power BI und Fabric Fokus.",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "KMk1k5uCLZU",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250424"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk nr.76",
+    "guest": "",
+    "solo": true,
+    "date": "Mai 2026",
+    "duration": "90 min",
+    "lang": "DE",
+    "desc": "Stefan wird seiner Rolle als Begeisterter Early Adopter mal wieder gerecht und baut Custom Visuals für Power BI mit Claude.",
+    "tags": [
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "mlkP-6i5Kq8",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260507"
+  },
+  {
     "bucket": "bucket-3",
     "title": "Metadaten als Superkraft",
     "guest": "Jasmin Simader",
@@ -1669,6 +1891,43 @@
     ],
     "podcastUrl": null,
     "_upload_date": "20260426"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk nr.75",
+    "guest": "",
+    "solo": true,
+    "date": "April 2026",
+    "duration": "64 min",
+    "lang": "DE",
+    "desc": "Alexander Korn ist endlich wieder zu Gast und wir testen sein neues Tool: den pbi_fixer() - ein Werkzeug um Reports automatisiert zu verbessern, was innerhalb von Fabric läuft.",
+    "tags": [
+      "Fabric",
+      "DE"
+    ],
+    "ytId": "BQdSo6ZnmKY",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260409"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk n.74",
+    "guest": "",
+    "solo": true,
+    "date": "März 2026",
+    "duration": "79 min",
+    "lang": "DE",
+    "desc": "Marcus und Artur haben wieder was dabei!",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "rWE0gMx7v7I",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260312"
   },
   {
     "bucket": "bucket-3",
@@ -1729,6 +1988,63 @@
     ],
     "podcastUrl": null,
     "_upload_date": "20260217"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk n.73",
+    "guest": "",
+    "solo": true,
+    "date": "Februar 2026",
+    "duration": "61 min",
+    "lang": "DE",
+    "desc": "wie schnell die Zeit vergeht, wenn es immer wieder etwas Neues zu lernen gibt.",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "pOJpXxsfUt0",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260212"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk n.72",
+    "guest": "",
+    "solo": true,
+    "date": "Januar 2026",
+    "duration": "61 min",
+    "lang": "DE",
+    "desc": "Marcus und Artur starten in 2026..!",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "luk4S4ukKmg",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260122"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk nr.71",
+    "guest": "",
+    "solo": true,
+    "date": "Dezember 2025",
+    "duration": "97 min",
+    "lang": "DE",
+    "desc": "Wir sagen Dankeschön!",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "LUrL8A5lNgI",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20251218"
   },
   {
     "bucket": "bucket-3",
@@ -1844,6 +2160,43 @@
   },
   {
     "bucket": "bucket-3",
+    "title": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+    "guest": "Days Edition",
+    "solo": false,
+    "date": "November 2025",
+    "duration": "85 min",
+    "lang": "DE",
+    "desc": "Wir haben einen runden Geburtstag und sind in dieser besonderen Ausgabe des BI Thinkers Talks als Bestanteil der Fabric Data Days unterwegs.",
+    "tags": [
+      "Datenmodell",
+      "Fabric",
+      "Fabric Data Days",
+      "DE"
+    ],
+    "ytId": "mUALlPmGcEk",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20251127"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk nr.69",
+    "guest": "",
+    "solo": true,
+    "date": "November 2025",
+    "duration": "70 min",
+    "lang": "DE",
+    "desc": "Das Daten-WG Offsite ist rum - und Datenmodellierung bleibt ein großes Thema.",
+    "tags": [
+      "DE"
+    ],
+    "ytId": "r416vanitYw",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20251106"
+  },
+  {
+    "bucket": "bucket-3",
     "title": "TMDL Magie: Multi Parameter Tabelle - Feldparameter Next Level! | Power BI Tutorial",
     "guest": "",
     "solo": true,
@@ -1902,6 +2255,24 @@
   },
   {
     "bucket": "bucket-3",
+    "title": "BI Thinkers Talk nr.68",
+    "guest": "",
+    "solo": true,
+    "date": "Oktober 2025",
+    "duration": "64 min",
+    "lang": "DE",
+    "desc": "Marcus ist wieder im Tutorial Modus und hat eine Entdeckung gemacht: über den Code der Power BI Dateien lassen sich Dinge dynamisch machen, in der graphischen Oberfläche nicht dynamisch sind - durch das Einschleusen von Measures. So entstehen unter anderem auch endlich responsive Small Multiples.",
+    "tags": [
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "VD1N68Fhoco",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20251016"
+  },
+  {
+    "bucket": "bucket-3",
     "title": "Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! | Power BI Tutorial",
     "guest": "",
     "solo": true,
@@ -1943,6 +2314,97 @@
     ],
     "podcastUrl": null,
     "_upload_date": "20251015"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "Power BI Deep Dive: DAX UDF + TMDL",
+    "guest": "",
+    "solo": true,
+    "date": "Oktober 2025",
+    "duration": "49 min",
+    "lang": "DE",
+    "desc": "Sometimes, when you wake up early, you have strange ideas; sometimes they work out, and sometimes they don't.",
+    "tags": [
+      "DAX",
+      "Power BI",
+      "TMDL",
+      "DE"
+    ],
+    "ytId": "0FPA1k5YiTs",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20251003"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk nr.67",
+    "guest": "",
+    "solo": true,
+    "date": "September 2025",
+    "duration": "77 min",
+    "lang": "DE",
+    "desc": "Die FABCON Europe 2025 war überwältigend..!",
+    "tags": [
+      "DE"
+    ],
+    "ytId": "G8s96sHUHac",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250925"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "Daten-WG BI Thinkers Talk nr.66",
+    "guest": "",
+    "solo": true,
+    "date": "August 2025",
+    "duration": "62 min",
+    "lang": "DE",
+    "desc": "Das Lern- und  Austauschformat rund um Microsoft Power BI und Fabric!",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "DQENmzAkNqw",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250828"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk nr.64",
+    "guest": "",
+    "solo": true,
+    "date": "Juli 2025",
+    "duration": "64 min",
+    "lang": "DE",
+    "desc": "nächste Runde im offenen Community-Format mit Updates, Live-Coding und Q&A für alle!",
+    "tags": [
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "4VVNDNusq4U",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250703"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk nr.63",
+    "guest": "",
+    "solo": true,
+    "date": "Juni 2025",
+    "duration": "58 min",
+    "lang": "DE",
+    "desc": "nächste Runde im offenen Community-Format mit Updates, Live-Coding und Q&A für alle!",
+    "tags": [
+      "DE"
+    ],
+    "ytId": "9VX4-lLa0EI",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250619"
   },
   {
     "bucket": "bucket-3",
@@ -1999,6 +2461,25 @@
     ],
     "podcastUrl": null,
     "_upload_date": "20250617"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk Nr.62",
+    "guest": "",
+    "solo": true,
+    "date": "Mai 2025",
+    "duration": "74 min",
+    "lang": "DE",
+    "desc": "Marcus und Artur sind auch dem Daten-WG Kanal angekommen, haben in den letzten Wochen viel in Projekten erlebt und berichten in dieser Folge auch über Neuerungen der bevorstehenden Microsoft Build im Bereich Power BI und Fabric. Wir immer: von der Community für die Community, Fragen und spontane Beiträge sind immer willkommen!",
+    "tags": [
+      "Fabric",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "Wwvhv8WA2Qc",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250522"
   },
   {
     "bucket": "bucket-4",
@@ -2743,6 +3224,193 @@
     "_upload_date": "20250922"
   },
   {
+    "bucket": "bucket-5",
+    "title": "Introducing Fabric Workloads and PowerTable for Fabric Data Apps with Live Writeback",
+    "guest": "Live Writeback",
+    "solo": false,
+    "date": "Juli 2025",
+    "duration": "58 min",
+    "lang": "DE",
+    "desc": "Gopal is our guest again! And this time he has some new hot stuff with him.",
+    "tags": [
+      "Writeback",
+      "Fabric",
+      "Warehouse",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "BIKk_8H_Pqw",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250717"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+    "guest": "",
+    "solo": true,
+    "date": "Mai 2026",
+    "duration": "2 min",
+    "lang": "DE",
+    "desc": "Die meisten Konferenzen sehen gleich aus. Gleiches Programm, gleiche Bühne, gleiche Distanz. Wir machen das anders – und Brian erklärt auf der SQLkonferenz genau, warum das der richtige Weg ist.",
+    "tags": [
+      "Unsortiert",
+      "DE"
+    ],
+    "ytId": "QyhnWfGih_o",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260511"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "GxP Talk - KI im regulierten Umfeld?",
+    "guest": "",
+    "solo": true,
+    "date": "Mai 2026",
+    "duration": "59 min",
+    "lang": "DE",
+    "desc": "Zu KI wurde nun wirklich schon alles gesagt und vermutlich auch schon fast von allen. Aber wir wollen auch einmal die Hype-Welle reiten uns nehmen uns das Thema für die dritte Ausgabe des GxP-Talks vor!",
+    "tags": [
+      "DE"
+    ],
+    "ytId": "XtH4JqTwaqM",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260509"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "GxP Talk - Testing im GxP-Umfeld",
+    "guest": "",
+    "solo": true,
+    "date": "April 2026",
+    "duration": "56 min",
+    "lang": "DE",
+    "desc": "Paradedisziplin oder Fegefeuer?",
+    "tags": [
+      "Unsortiert",
+      "DE"
+    ],
+    "ytId": "B0_sSJQVG8w",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260411"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "GxP Talk - Validierung vs. Agilität",
+    "guest": "",
+    "solo": true,
+    "date": "März 2026",
+    "duration": "59 min",
+    "lang": "DE",
+    "desc": "Im regulierten Umfeld sind einige Sachen anders.",
+    "tags": [
+      "Unsortiert",
+      "DE"
+    ],
+    "ytId": "KO_qFge77o8",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260307"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "MCP@Daten-WG@SQL Konferenz",
+    "guest": "SQL Konferenz",
+    "solo": false,
+    "date": "März 2026",
+    "duration": "1 min",
+    "lang": "DE",
+    "desc": "",
+    "tags": [
+      "Unsortiert",
+      "DE"
+    ],
+    "ytId": "l_aHydZyh4s",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260303"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Unboxing MCP Server for Power BI Modelling",
+    "guest": "",
+    "solo": true,
+    "date": "Dezember 2025",
+    "duration": "67 min",
+    "lang": "DE",
+    "desc": "Für alle, die das Jahr mit Geschenken des Power BI Teams ausklingen lassen wollen, schauen sich Marcus und Michael  in der Vorweihnachlichen Unboxing Session den neuen MCP Server für Power BI Modelling an.",
+    "tags": [
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "iinfiHxznOU",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20251223"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Daten-WG Special: Power BI vs. Qlik -part3",
+    "guest": "",
+    "solo": true,
+    "date": "November 2025",
+    "duration": "62 min",
+    "lang": "DE",
+    "desc": "Wir hängen noch eine Session dran und springen direkt ins Front-End!",
+    "tags": [
+      "Power BI",
+      "Qlik",
+      "DE"
+    ],
+    "ytId": "iTK3xUd8V5I",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20251104"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Daten-WG Special: Power BI vs. Qlik -part2",
+    "guest": "",
+    "solo": true,
+    "date": "Oktober 2025",
+    "duration": "69 min",
+    "lang": "DE",
+    "desc": "Oliver und Artur gehen in die zweite Runde!",
+    "tags": [
+      "Power BI",
+      "Qlik",
+      "Vergleich",
+      "DE"
+    ],
+    "ytId": "_Vh5fDfHWz4",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20251028"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Daten-WG Special: Power BI vs. Qlik",
+    "guest": "",
+    "solo": true,
+    "date": "Oktober 2025",
+    "duration": "60 min",
+    "lang": "DE",
+    "desc": "Oliver Franz ist zu Gast und geht gleich voll aufs Ganze: er bringt einen Use-Case mit und startet gleich ein Battle zwischen Power BI und Qlik! Artur nimmt die Herausforderung an und stellt sich - wie geht es wohl aus?",
+    "tags": [
+      "Power BI",
+      "Qlik",
+      "Vergleich",
+      "DE"
+    ],
+    "ytId": "aYHk_V8n_CE",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20251021"
+  },
+  {
     "bucket": "bucket-6",
     "title": "So rettest du deine kaputte Power BI Theme Datei in 5 Minuten! | Power BI Tutorial",
     "guest": "",
@@ -2796,6 +3464,24 @@
     ],
     "podcastUrl": null,
     "_upload_date": "20251002"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "So #hackst du einen #PowerBI Bericht",
+    "guest": "",
+    "solo": true,
+    "date": "September 2025",
+    "duration": "0 min",
+    "lang": "DE",
+    "desc": "Dein Power BI Bericht ist sicher? Bist du dir da wirklich sicher? Im neuen Video auf dem Kanal der Daten-WG zeige ich, warum „Ausblenden“ nicht gleichbedeutend mit „Schützen“ ist – und wie leicht man trotzdem an mehr Informationen kommt.",
+    "tags": [
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "UO6SpU-hKRs",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250927"
   },
   {
     "bucket": "bucket-6",
@@ -2957,6 +3643,60 @@
     "chapters": [],
     "podcastUrl": null,
     "_upload_date": "20250804"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Daten-WG Thinkers Talk nr.65",
+    "guest": "",
+    "solo": true,
+    "date": "Juli 2025",
+    "duration": "71 min",
+    "lang": "DE",
+    "desc": "noch eine Runde vor der Sommerpause! Der Lernstoff und Projekterfahrungen gehen bei Marcus und Artur sicher nicht aus und wir setzen darauf, dass auch die Internet-Leitung besser wird.",
+    "tags": [
+      "Unsortiert",
+      "DE"
+    ],
+    "ytId": "Fqt4gP1xB5w",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250717"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Daten-WG Deep Dive: AI on top of BI",
+    "guest": "",
+    "solo": true,
+    "date": "Juli 2025",
+    "duration": "70 min",
+    "lang": "EN",
+    "desc": "On his mission to build an AI-Agent than works on top of different BI tools, Daniel wants to know more how to access the Data in Power BI Semantic Models. With the very fast development and update speed in this area right now, this will be a session full of exploration and testing.",
+    "tags": [
+      "Power BI",
+      "EN"
+    ],
+    "ytId": "HXAP16trRc8",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250708"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Projektcontrolling mit dynamischen Arbeitstagen in Power BI",
+    "guest": "dynamischen Arbeitstagen in Power",
+    "solo": false,
+    "date": "Mai 2025",
+    "duration": "42 min",
+    "lang": "DE",
+    "desc": "Ob Zahlungsziele, Projektpläne oder Urlaubszeiten: Sobald Feiertage und Arbeitstage je nach Region variieren, wird’s kompliziert.",
+    "tags": [
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "cD-5z_Bq0N4",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250506"
   },
   {
     "bucket": "bucket-6",
@@ -3623,6 +4363,25 @@
   },
   {
     "bucket": "bucket-8",
+    "title": "10 Jahre Power BI",
+    "guest": "",
+    "solo": true,
+    "date": "Juli 2025",
+    "duration": "92 min",
+    "lang": "DE",
+    "desc": "für einige von uns ist es die große Liebe andere nennen es die Befreiung der Fachbereiche oder den Start von echtem Self-Service oder etwas, was fast wie Excel ist (ist das ein Kompliment?) das Ende von VBA und Access oder ein schreckliches Werkzeug, was als Pseudo-Datenplattform benutzt wird",
+    "tags": [
+      "10 Jahre Power BI",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "ZaDd1uxeLbI",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250725"
+  },
+  {
+    "bucket": "bucket-8",
     "title": "Von Patronen zu Prozessen",
     "guest": "",
     "solo": true,
@@ -3806,6 +4565,24 @@
     ],
     "podcastUrl": null,
     "_upload_date": "20250714"
+  },
+  {
+    "bucket": "bucket-9",
+    "title": "Werbung | Daten WG Offsite in Dortmund – Power BI Event am 29.10.",
+    "guest": "",
+    "solo": true,
+    "date": "September 2025",
+    "duration": "1 min",
+    "lang": "DE",
+    "desc": "Werbung: Dieses Video enthält bezahlte Werbung. Unser Event „Daten WG Offsite“ findet am 29. Oktober in Dortmund statt, unterstützt von Dataciders.",
+    "tags": [
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "H0ENBDQnVcs",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20250929"
   },
   {
     "bucket": "bucket-9",

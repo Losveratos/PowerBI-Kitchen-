@@ -26,13 +26,13 @@ def safe(s):
         return ""
     return str(s).encode("ascii", "replace").decode("ascii")
 
-CHANNEL = "https://www.youtube.com/@Daten-WG/videos"
+CHANNEL_BASE = "https://www.youtube.com/@Daten-WG"
+CHANNEL_TABS = ["videos", "streams", "shorts"]
 OUT_RAW = Path(__file__).parent.parent / "videos_raw.json"
 OUT_FLAT = Path(__file__).parent.parent / "videos_flat.json"
 
 
-def fetch_flat():
-    """Liefert die Liste aller Video-IDs mit minimalen Metadaten."""
+def _fetch_tab(tab: str) -> list:
     opts = {
         "quiet": True,
         "no_warnings": True,
@@ -40,21 +40,40 @@ def fetch_flat():
         "skip_download": True,
         "ignoreerrors": True,
     }
-    with YoutubeDL(opts) as ydl:
-        info = ydl.extract_info(CHANNEL, download=False)
-    entries = info.get("entries") or []
-    flat = []
+    url = f"{CHANNEL_BASE}/{tab}"
+    try:
+        with YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+    except Exception as ex:
+        print(f"  [tab {tab}] error: {ex}", file=sys.stderr)
+        return []
+    entries = (info or {}).get("entries") or []
+    out = []
     for e in entries:
-        if not e:
+        if not e or not e.get("id"):
             continue
-        flat.append({
+        out.append({
             "id": e.get("id"),
             "title": e.get("title"),
             "duration": e.get("duration"),
             "url": e.get("url"),
+            "tab": tab,
         })
+    print(f"  [tab {tab}] {len(out)} Eintraege")
+    return out
+
+
+def fetch_flat():
+    """Liefert die deduplizierte Liste aller Video-IDs aus /videos, /streams und /shorts."""
+    seen = {}
+    for tab in CHANNEL_TABS:
+        for v in _fetch_tab(tab):
+            vid = v["id"]
+            if vid not in seen:
+                seen[vid] = v
+    flat = list(seen.values())
     OUT_FLAT.write_text(json.dumps(flat, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"[flat] {len(flat)} Videos im Channel gefunden -> {OUT_FLAT.name}")
+    print(f"[flat] {len(flat)} unique Videos ueber alle Tabs -> {OUT_FLAT.name}")
     return flat
 
 
