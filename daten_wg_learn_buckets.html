@@ -355,16 +355,18 @@ a { color: inherit; text-decoration: none; }
   pointer-events: none;
 }
 
-/* "Tags zeigen"-Pill, wenn eingeklappt */
+/* Tags ein-/ausklappen-Button (immer sichtbar) */
 .tags-peek {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--mono);
   font-size: 10.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 5px 12px;
   border-radius: 100px;
-  border: 1px dashed var(--line-strong);
+  border: 1px solid var(--line-strong);
   background: transparent;
   color: var(--ink-soft);
   cursor: pointer;
@@ -372,9 +374,22 @@ a { color: inherit; text-decoration: none; }
   transition: all .15s ease;
 }
 .tags-peek:hover { border-color: var(--ink-soft); color: var(--ink); }
-.tags-peek .tags-peek-badge {
+.tags-peek .tags-peek-chevron {
   display: inline-block;
-  margin-left: 6px;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-135deg);   /* zeigt nach oben — "einklappen" */
+  transition: transform .22s ease;
+  margin-bottom: 2px;
+}
+.filter-bar.tags-hidden .tags-peek .tags-peek-chevron {
+  transform: rotate(45deg);     /* zeigt nach unten — "ausklappen" */
+  margin-bottom: -2px;
+}
+.tags-peek .tags-peek-badge {
+  display: none;
   padding: 0 6px;
   background: var(--accent);
   color: white;
@@ -382,7 +397,7 @@ a { color: inherit; text-decoration: none; }
   font-size: 9.5px;
   font-weight: 600;
 }
-.filter-bar.tags-hidden .tags-peek { display: inline-flex; align-items: center; }
+.tags-peek .tags-peek-badge[data-active] { display: inline-block; }
 .tag-toggle {
   font-family: var(--mono);
   font-size: 10.5px;
@@ -926,7 +941,7 @@ a { color: inherit; text-decoration: none; }
     <div class="filter-meta">
       <span><strong id="result-count">72</strong> von 72 Folgen</span>
       <button class="filter-reset" id="reset-filters">Filter zurücksetzen</button>
-      <button class="tags-peek" id="tags-peek" type="button" aria-label="Tag-Filter ausklappen">Tags<span class="tags-peek-badge" id="tags-peek-badge" hidden>0</span></button>
+      <button class="tags-peek" id="tags-peek" type="button" aria-expanded="true" aria-controls="tag-list" title="Tag-Filter ein-/ausblenden"><span id="tags-peek-label">Tags ausblenden</span><span class="tags-peek-badge" id="tags-peek-badge">0</span><span class="tags-peek-chevron" aria-hidden="true"></span></button>
     </div>
   </div>
   <div class="filter-row tags-row">
@@ -3004,9 +3019,9 @@ function applyFilters() {
   if (badge) {
     if (activeTags.size > 0) {
       badge.textContent = activeTags.size;
-      badge.hidden = false;
+      badge.setAttribute('data-active', '');
     } else {
-      badge.hidden = true;
+      badge.removeAttribute('data-active');
     }
   }
 }
@@ -3027,68 +3042,45 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('search-input').addEventListener('input', applyFilters);
   document.getElementById('reset-filters').addEventListener('click', resetFilters);
 
-  // Filterleiste: kompakt + Tag-Reihe ein-/ausklappen beim Scrollen
+  // Filterleiste: kompakter Look beim Scrollen + manueller Tags-Toggle
   const filterBar = document.querySelector('.filter-bar');
   const tagsPeek = document.getElementById('tags-peek');
+  const tagsPeekLabel = document.getElementById('tags-peek-label');
+  const TAGS_STATE_KEY = 'datenwg.tagsHidden';
+
   if (filterBar) {
-    const COMPACT_AT = 160;          // ab dieser Scroll-Position kompakt + einklappbar
-    const TRIGGER_DISTANCE = 24;     // px pro Richtung, bevor getoggelt wird
-    let lastY = window.scrollY;
-    let accumDown = 0;
-    let accumUp = 0;
+    // Kompakter Look beim Scrollen (nur Padding/Blur, keine Auto-Collapse)
+    const COMPACT_AT = 160;
     let ticking = false;
-    let userPinned = false;
-
     const updateScrollState = () => {
-      const y = window.scrollY;
-      const delta = y - lastY;
-      const compact = y > COMPACT_AT;
-      filterBar.classList.toggle('scrolled', compact);
-
-      if (!compact) {
-        // Oberhalb der Schwelle: immer ausgeklappt, alles zurücksetzen
-        filterBar.classList.remove('tags-hidden');
-        accumDown = 0;
-        accumUp = 0;
-        userPinned = false;
-      } else if (!userPinned) {
-        // Bewegung in Richtung akkumulieren, Gegenrichtung resetten
-        if (delta > 0) {
-          accumDown += delta;
-          accumUp = 0;
-          if (accumDown > TRIGGER_DISTANCE) {
-            filterBar.classList.add('tags-hidden');
-          }
-        } else if (delta < 0) {
-          accumUp += -delta;
-          accumDown = 0;
-          if (accumUp > TRIGGER_DISTANCE) {
-            filterBar.classList.remove('tags-hidden');
-          }
-        }
-      }
-
-      lastY = y;
+      filterBar.classList.toggle('scrolled', window.scrollY > COMPACT_AT);
       ticking = false;
     };
-
     window.addEventListener('scroll', () => {
       if (!ticking) {
         window.requestAnimationFrame(updateScrollState);
         ticking = true;
       }
     }, { passive: true });
+    updateScrollState();
 
-    // Peek-Pille: manuell ausklappen + pinnen, bis user weiterscrollt
+    // Manueller Toggle für die Tag-Reihe — persistiert in localStorage
+    const setTagsHidden = (hidden) => {
+      filterBar.classList.toggle('tags-hidden', hidden);
+      if (tagsPeek) tagsPeek.setAttribute('aria-expanded', String(!hidden));
+      if (tagsPeekLabel) tagsPeekLabel.textContent = hidden ? 'Tags anzeigen' : 'Tags ausblenden';
+      try { localStorage.setItem(TAGS_STATE_KEY, hidden ? '1' : '0'); } catch (e) { /* ignore */ }
+    };
+
+    let initialHidden = false;
+    try { initialHidden = localStorage.getItem(TAGS_STATE_KEY) === '1'; } catch (e) { /* ignore */ }
+    setTagsHidden(initialHidden);
+
     if (tagsPeek) {
       tagsPeek.addEventListener('click', () => {
-        filterBar.classList.remove('tags-hidden');
-        accumUp = 0;
-        accumDown = 0;
-        userPinned = true;
+        setTagsHidden(!filterBar.classList.contains('tags-hidden'));
       });
     }
-    updateScrollState();
   }
 
   // Make bucket overview tiles set their CSS var color from inline style
