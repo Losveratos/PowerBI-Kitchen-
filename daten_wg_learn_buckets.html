@@ -833,6 +833,53 @@ a { color: inherit; text-decoration: none; }
   border-color: var(--ink-soft);
   border-left-color: var(--bucket-color, var(--ink-mute));
 }
+.bucket-tile.active {
+  background: var(--bucket-color, var(--ink));
+  border-color: var(--bucket-color, var(--ink));
+  border-left-color: var(--bucket-color, var(--ink));
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+.bucket-tile.active .bucket-tile-num,
+.bucket-tile.active .bucket-tile-teaser,
+.bucket-tile.active .bucket-tile-count {
+  color: rgba(255,255,255,0.85);
+}
+.bucket-tile.active .bucket-tile-name { color: white; }
+
+/* Aktiver Bucket-Filter · Indikator über der Bucket-Übersicht */
+.bucket-filter-bar {
+  display: none;
+  margin: 0 0 14px;
+  padding: 10px 16px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--ink-soft);
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+body.bucket-filter-on .bucket-filter-bar { display: flex; }
+.bucket-filter-bar strong { color: var(--ink); font-weight: 600; }
+.bucket-filter-bar-clear {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 100px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.bucket-filter-bar-clear:hover { background: var(--accent); color: white; }
 .bucket-tile-num {
   font-family: var(--mono);
   font-size: 9.5px;
@@ -1836,6 +1883,11 @@ body.fav-mode .fav-empty.show { display: block; }
 <!-- ============================================================
      BUCKET OVERVIEW
 ============================================================ -->
+<div class="bucket-filter-bar" id="bucket-filter-bar" role="status" aria-live="polite">
+  Aktiver Bucket-Filter: <strong id="bucket-filter-bar-name">—</strong>
+  <button class="bucket-filter-bar-clear" id="bucket-filter-bar-clear" type="button">Filter aufheben</button>
+</div>
+
 <div class="bucket-grid" id="buckets-overview">
   <a class="bucket-tile" href="#bucket-1" style="--bucket-color: var(--c-update);">
     <div class="bucket-tile-num">01 · QUARTERLY</div>
@@ -1895,6 +1947,18 @@ body.fav-mode .fav-empty.show { display: block; }
 
 <!-- ============================================================
      BUCKET SECTIONS (rendered by JS into this container)
+============================================================ -->
+<!-- ============================================================
+     EINSTEIGER-GUIDE · embedded overview (10 chapters)
+============================================================ -->
+<main id="buckets-container"></main>
+
+<div class="no-results" id="no-results">
+  Keine Folge passt zu deiner Suche. Setz die Filter zurück oder probier einen anderen Begriff.
+</div>
+
+<!-- ============================================================
+     FOOTER
 ============================================================ -->
 <!-- ============================================================
      EINSTEIGER-GUIDE · embedded overview (10 chapters)
@@ -2075,15 +2139,7 @@ body.fav-mode .fav-empty.show { display: block; }
   </div>
 </section>
 
-<main id="buckets-container"></main>
 
-<div class="no-results" id="no-results">
-  Keine Folge passt zu deiner Suche. Setz die Filter zurück oder probier einen anderen Begriff.
-</div>
-
-<!-- ============================================================
-     FOOTER
-============================================================ -->
 <footer class="footer">
   <div>
     <div class="footer-brand"><em>Daten-WG</em> · Community Podcast</div>
@@ -4653,6 +4709,33 @@ function renderTags() {
 }
 
 /* ============================================================
+   BUCKET-FILTER · Klick auf Tile filtert auf diesen Bucket
+   ============================================================ */
+const BUCKET_NAMES = {
+  'bucket-1': 'Updates & News',
+  'bucket-2': 'Microsoft Fabric',
+  'bucket-3': 'Datenmodellierung',
+  'bucket-4': 'Self-Service',
+  'bucket-5': 'Visualisierung',
+  'bucket-6': 'Power BI Deep Dive',
+  'bucket-7': 'Karriere & Community',
+  'bucket-8': 'Strategie',
+  'bucket-9': 'Event · Daten-WG',
+};
+let activeBucket = null;
+
+function setActiveBucket(bId) {
+  activeBucket = bId || null;
+  document.body.classList.toggle('bucket-filter-on', !!activeBucket);
+  document.querySelectorAll('.bucket-tile').forEach(t => {
+    t.classList.toggle('active', t.getAttribute('href') === '#' + activeBucket);
+  });
+  const nameEl = document.getElementById('bucket-filter-bar-name');
+  if (nameEl) nameEl.textContent = activeBucket ? (BUCKET_NAMES[activeBucket] || activeBucket) : '—';
+  applyFilters();
+}
+
+/* ============================================================
    GUIDE READING-PROGRESS · localStorage Set von chapter-ids
    ============================================================ */
 const READ_KEY = 'datenwg.guideRead';
@@ -4803,7 +4886,8 @@ function applyFilters() {
     }
     const matchesTags = activeTags.size === 0 || [...activeTags].every(t => cardTags.includes(t));
     const matchesFav = !favMode || (ytId && FAVS.has(ytId));
-    const visible = matchesSearch && matchesTags && matchesFav;
+    const matchesBucket = !activeBucket || bucketId === activeBucket;
+    const visible = matchesSearch && matchesTags && matchesFav && matchesBucket;
 
     card.classList.toggle('hidden', !visible);
     card.classList.toggle('transcript-match', visible && matchedTranscript);
@@ -4848,6 +4932,8 @@ function resetFilters() {
   activeTags.clear();
   document.querySelectorAll('.tag-chip.active').forEach(c => c.classList.remove('active'));
   document.getElementById('search-input').value = '';
+  if (favMode) setFavMode(false);
+  if (activeBucket) setActiveBucket(null);
   applyFilters();
 }
 
@@ -5007,8 +5093,33 @@ document.addEventListener('DOMContentLoaded', () => {
   openEpisodeFromHash();
   window.addEventListener('hashchange', openEpisodeFromHash);
 
-  // Make bucket overview tiles set their CSS var color from inline style
-  // (already done in markup)
+  // ==== Bucket-Tile Filter: Klick filtert auf diesen Bucket statt nur zu scrollen ====
+  document.querySelectorAll('.bucket-tile').forEach(tile => {
+    tile.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = tile.getAttribute('href') || '';
+      const bId = target.startsWith('#') ? target.slice(1) : '';
+      if (!bId) return;
+      // Toggle: aktiver Bucket nochmal geklickt -> Filter aufheben
+      setActiveBucket(activeBucket === bId ? null : bId);
+      // Sanftes Scrollen zur Filter-Bar oder zum aktiven Bucket
+      const target_el = activeBucket
+        ? document.getElementById(bId)
+        : document.querySelector('.filter-bar');
+      if (target_el) target_el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Filter-Aufhebung über Indikator-Button
+  const clearBtn = document.getElementById('bucket-filter-bar-clear');
+  if (clearBtn) clearBtn.addEventListener('click', () => setActiveBucket(null));
+
+  // ESC-Taste hebt Bucket-Filter auf (kleine UX-Verbesserung)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && activeBucket && !document.activeElement?.matches('input, textarea')) {
+      setActiveBucket(null);
+    }
+  });
 });
 </script>
 </body>
