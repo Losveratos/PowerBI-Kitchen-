@@ -386,6 +386,89 @@ a { color: inherit; text-decoration: none; }
   .start-here-icon { font-size: 36px; }
 }
 
+/* ========== GUIDE PROMO CARD ========== */
+.guide-promo {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(27, 110, 92, 0.05) 100%);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 40px;
+  text-decoration: none;
+  color: inherit;
+  transition: all .2s ease;
+  box-shadow: var(--shadow-sm);
+}
+.guide-promo:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-left-color: var(--accent);
+}
+.guide-promo-eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.guide-promo-eyebrow::before {
+  content: '';
+  width: 22px;
+  height: 1px;
+  background: var(--accent);
+}
+.guide-promo-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(22px, 2.6vw, 30px);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.guide-promo-title em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+.guide-promo-text {
+  font-size: 14.5px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  max-width: 70ch;
+}
+.guide-promo-text strong { color: var(--ink); font-weight: 600; }
+.guide-promo-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: white;
+  background: var(--accent);
+  padding: 12px 20px;
+  border-radius: 100px;
+  white-space: nowrap;
+  transition: all .15s ease;
+  flex-shrink: 0;
+}
+.guide-promo:hover .guide-promo-cta { filter: brightness(1.08); }
+@media (max-width: 720px) {
+  .guide-promo { grid-template-columns: 1fr; padding: 20px 22px; }
+  .guide-promo-cta { justify-self: flex-start; }
+}
+
 /* ========== FILTER BAR ========== */
 .filter-bar {
   background: var(--bg-card);
@@ -1054,6 +1137,7 @@ a { color: inherit; text-decoration: none; }
     <a class="topnav-link" href="#bucket-7">Karriere</a>
     <a class="topnav-link" href="#bucket-8">Strategie</a>
     <a class="topnav-link" href="#bucket-9">Event</a>
+    <a class="topnav-link" href="power_bi_einsteiger_guide_v4.html" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">Einsteiger-Guide</a>
   </div>
 </nav>
 
@@ -1112,6 +1196,18 @@ a { color: inherit; text-decoration: none; }
     </div>
   </div>
 </div>
+
+<!-- ============================================================
+     POWER BI EINSTEIGER-GUIDE · Promo
+============================================================ -->
+<a class="guide-promo" href="power_bi_einsteiger_guide_v4.html">
+  <div>
+    <div class="guide-promo-eyebrow">Power BI · Einsteiger-Guide</div>
+    <div class="guide-promo-title">Power BI <em>von A bis Z</em></div>
+    <div class="guide-promo-text">Architektur, <strong>Power Query</strong>, Datenmodell, <strong>DAX</strong>, IBCS, Service, RLS — kompakter End-to-End-Guide in 11 Kapiteln. Ideal vor oder begleitend zu den Folgen.</div>
+  </div>
+  <span class="guide-promo-cta">Guide öffnen →</span>
+</a>
 
 <!-- ============================================================
      FILTER BAR
