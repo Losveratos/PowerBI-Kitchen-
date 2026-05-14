@@ -678,6 +678,86 @@ a { color: inherit; text-decoration: none; }
   50%      { opacity: 1;   transform: scale(1.2); }
 }
 
+/* Such-Hilfe · Info-Button + Popover */
+.search-help-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--serif);
+  font-size: 12px;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.search-help-btn:hover,
+.search-help-btn[aria-expanded="true"] {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+.filter-row { position: relative; }
+.search-help-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: auto;
+  max-width: 420px;
+  z-index: 80;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 18px 20px 16px;
+  box-shadow: var(--shadow-md);
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+.search-help-popover[hidden] { display: none; }
+.search-help-title {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--black);
+  margin-bottom: 12px;
+}
+.search-help-popover ul {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.search-help-popover li {
+  padding-left: 12px;
+  border-left: 2px solid var(--line);
+}
+.search-help-popover li strong { color: var(--ink); font-weight: 600; }
+.search-help-popover li em { font-style: italic; color: var(--ink-mute); }
+.search-help-popover code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  background: var(--bg-soft);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.search-help-foot {
+  font-size: 11.5px;
+  color: var(--ink-mute);
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
 .filter-label {
   font-family: var(--mono);
   font-size: 10.5px;
@@ -1906,9 +1986,19 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <div class="filter-row">
     <label class="filter-search" for="search-input">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="search-input" type="text" placeholder="Suche nach Titel, Gast, Thema, Transkript…" autocomplete="off">
+      <input id="search-input" type="text" placeholder="Suche · mehrere Wörter, &quot;Phrase&quot;, -ausschließen" autocomplete="off">
       <span class="search-state" id="search-state" data-state="idle" title="Transkript-Volltextsuche"></span>
+      <button class="search-help-btn" id="search-help-btn" type="button" aria-label="Such-Hilfe anzeigen" aria-haspopup="dialog" aria-expanded="false">i</button>
     </label>
+    <div class="search-help-popover" id="search-help-popover" role="dialog" aria-label="Such-Syntax" hidden>
+      <div class="search-help-title">So sucht's sich</div>
+      <ul>
+        <li><strong>Mehrere Wörter</strong> — alle müssen vorkommen<br><code>dax fabric</code> → Folgen mit beiden Begriffen</li>
+        <li><strong>"Phrase"</strong> — exakt diese Reihenfolge<br><code>"10 jahre"</code> → nur als Zusammenhang</li>
+        <li><strong>-wort</strong> — schließt aus<br><code>dax -calculate</code> → DAX, aber kein <em>calculate</em></li>
+      </ul>
+      <div class="search-help-foot">Sucht in Titel, Gast, Beschreibung und (lazy geladen) Transkripten.</div>
+    </div>
     <div class="filter-meta">
       <span><strong id="result-count">122</strong> von 122 Folgen</span>
       <button class="filter-reset" id="reset-filters">Filter zurücksetzen</button>
@@ -4985,8 +5075,36 @@ function loadTranscriptsIfNeeded() {
    FILTERING (search + tags + transcripts)
    ============================================================ */
 
+/* Parst einen Such-String in Tokens:
+   - "phrase in anfuehrungszeichen" = ein exakter Phrase-Token (require)
+   - -wort = exclude-Token
+   - sonst = require-Token
+   - Standalone "&" und "and" werden als Verbinder ignoriert. */
+function parseSearchQuery(raw) {
+  const tokens = [];
+  const rx = /"([^"]*)"|(\S+)/g;
+  let m;
+  while ((m = rx.exec(raw)) !== null) {
+    if (m[1] !== undefined) {
+      const v = m[1].trim().toLowerCase();
+      if (v) tokens.push({ kind: 'require', value: v });
+    } else {
+      let t = m[2];
+      const tl = t.toLowerCase();
+      if (tl === '&' || tl === 'and' || tl === 'und') continue;
+      if (t.startsWith('-') && t.length > 1) {
+        tokens.push({ kind: 'exclude', value: t.slice(1).toLowerCase() });
+      } else {
+        tokens.push({ kind: 'require', value: tl });
+      }
+    }
+  }
+  return tokens;
+}
+
 function applyFilters() {
-  const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
+  const rawSearch = document.getElementById('search-input').value.trim();
+  const tokens = rawSearch ? parseSearchQuery(rawSearch) : [];
   let visibleCount = 0;
   const bucketVisibility = {};
   const transcripts = TRANSCRIPTS.data;
@@ -4996,17 +5114,22 @@ function applyFilters() {
     const cardTags = (card.dataset.tags || '').split('|');
     const bucketId = card.dataset.bucket;
     const ytId = card.dataset.ytid || '';
+    const transcript = (transcripts && ytId) ? (transcripts[ytId] || '') : '';
 
-    let matchesSearch = !searchVal;
+    // Token-basierte Match-Logik: alle require muessen treffen, kein exclude darf treffen.
+    let matchesSearch = true;
     let matchedTranscript = false;
-    if (!matchesSearch) {
-      if (search.includes(searchVal)) {
-        matchesSearch = true;
-      } else if (transcripts && ytId && transcripts[ytId] && transcripts[ytId].includes(searchVal)) {
-        matchesSearch = true;
-        matchedTranscript = true;
+    for (const tok of tokens) {
+      const inText = search.includes(tok.value);
+      const inTranscript = transcript ? transcript.includes(tok.value) : false;
+      if (tok.kind === 'exclude') {
+        if (inText || inTranscript) { matchesSearch = false; break; }
+      } else {
+        if (!inText && !inTranscript) { matchesSearch = false; break; }
+        if (!inText && inTranscript) matchedTranscript = true;
       }
     }
+
     const matchesTags = activeTags.size === 0 || [...activeTags].every(t => cardTags.includes(t));
     const matchesBucket = !activeBucket || bucketId === activeBucket;
     const visible = matchesSearch && matchesTags && matchesBucket;
@@ -5126,6 +5249,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // Initial state sync
   syncReadingProgress();
+
+  // ==== Such-Hilfe-Popover: Klick auf "i" toggelt, Outside-Klick + Esc schliessen ====
+  const helpBtn = document.getElementById('search-help-btn');
+  const helpPop = document.getElementById('search-help-popover');
+  if (helpBtn && helpPop) {
+    const setOpen = (open) => {
+      helpPop.hidden = !open;
+      helpBtn.setAttribute('aria-expanded', String(open));
+    };
+    helpBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setOpen(helpPop.hidden);
+    });
+    document.addEventListener('click', (e) => {
+      if (helpPop.hidden) return;
+      if (e.target === helpBtn || helpPop.contains(e.target)) return;
+      setOpen(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !helpPop.hidden) setOpen(false);
+    });
+  }
 
   // ==== Permalink: Klick auf 🔗-Icon kopiert URL mit #ep-<ytId> ====
   document.addEventListener('click', (e) => {
