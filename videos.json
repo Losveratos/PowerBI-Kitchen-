@@ -2482,6 +2482,23 @@
     "_upload_date": "20250522"
   },
   {
+    "bucket": "bucket-3",
+    "title": "BI Thinkers Talk nr.77",
+    "guest": "",
+    "solo": true,
+    "date": "",
+    "duration": "",
+    "lang": "DE",
+    "desc": "",
+    "tags": [
+      "DE"
+    ],
+    "ytId": "eWfTt93anl4",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": null
+  },
+  {
     "bucket": "bucket-4",
     "title": "Was ist Self-Service und warum ist das so schwer?",
     "guest": "Tom Martens",
