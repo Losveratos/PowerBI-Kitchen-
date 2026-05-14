@@ -77,19 +77,59 @@ h1 {
 .eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--accent); }
 
 p { color: var(--ink-soft); margin-bottom: 14px; }
+p:last-child { margin-bottom: 0; }
 a { color: var(--accent); }
 a:hover { text-decoration: underline; }
+
+h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--black);
+  margin: 36px 0 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+h2:first-of-type { border-top: none; padding-top: 0; margin-top: 12px; }
+
+ul { margin: 12px 0 14px 22px; color: var(--ink-soft); }
+ul li { margin-bottom: 6px; }
+
 .notice {
-  margin: 32px 0;
-  padding: 24px 28px;
+  margin: 24px 0;
+  padding: 18px 22px;
   background: var(--bg-card);
   border: 1px solid var(--line);
   border-left: 3px solid var(--accent);
   border-radius: var(--radius);
+  font-size: 13.5px;
 }
 .notice strong { color: var(--ink); font-weight: 600; }
-.notice ul { margin: 12px 0 0 22px; }
-.notice li { color: var(--ink-soft); margin-bottom: 6px; }
+.notice p { margin-bottom: 8px; }
+.notice p:last-child { margin-bottom: 0; }
+
+.dataflow {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 18px;
+  margin: 14px 0 18px;
+  padding: 14px 18px;
+  background: var(--bg-soft);
+  border-radius: var(--radius);
+  font-size: 13.5px;
+}
+.dataflow dt {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  align-self: start;
+  padding-top: 3px;
+}
+.dataflow dd { color: var(--ink-soft); margin: 0; }
 
 footer.page-footer {
   margin-top: 64px;
@@ -115,20 +155,99 @@ footer.page-footer a:hover { border-color: var(--accent); }
 
   <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
 
-  <div class="eyebrow">DSGVO · Art. 13/14</div>
+  <div class="eyebrow">DSGVO · Art. 13</div>
   <h1>Datenschutzerklärung</h1>
 
+  <p><em>Stand: Mai 2026.</em> Diese Seite verarbeitet keine personenbezogenen Daten zu eigenen Zwecken. Es gibt keine Cookies, kein Analytics, keinen Newsletter, kein Tracking. Trotzdem sind beim Aufruf der Seite technisch unvermeidliche Datenverarbeitungen Dritter wirksam — die werden im Folgenden offen benannt.</p>
+
+  <h2>1 · Verantwortlicher</h2>
+  <p>
+    Michael Tenner<br>
+    Hardefuststraße 5<br>
+    50677 Köln<br>
+    E-Mail: <a href="mailto:michael.tenner@biordie.com">michael.tenner@biordie.com</a><br>
+    Vollständige Angaben im <a href="impressum.html">Impressum</a>.
+  </p>
+
+  <h2>2 · Was diese Seite <em>nicht</em> tut</h2>
+  <ul>
+    <li>Keine eigenen Cookies oder Local-Storage-Tracker (Ausnahme: rein technische Voreinstellungen wie der „Tags ein-/ausblenden"-Zustand und der Reading-Progress des Einsteiger-Guides bleiben ausschließlich im Browser des Besuchers gespeichert und werden nirgendwohin übermittelt).</li>
+    <li>Kein Analytics (kein Google Analytics, Matomo, Plausible o.&nbsp;ä.).</li>
+    <li>Kein Newsletter, kein Login, keine Formulare, keine Kommentarfunktion.</li>
+    <li>Kein Re-Targeting, kein Werbe-Netzwerk, keine Social-Media-Pixel.</li>
+  </ul>
+
+  <h2>3 · Hosting · GitHub Pages</h2>
+  <p>Die Seite wird auf <strong>GitHub Pages</strong> (GitHub Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA) bereitgestellt. Beim Aufruf jeder Seite werden vom Server temporär die folgenden Daten in Server-Logfiles erfasst:</p>
+  <dl class="dataflow">
+    <dt>Daten</dt><dd>IP-Adresse · User-Agent · aufgerufene URL · Zeitstempel · Referrer</dd>
+    <dt>Zweck</dt><dd>Bereitstellung der Seite und Schutz vor Missbrauch</dd>
+    <dt>Rechtsgrundlage</dt><dd>Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse am sicheren Betrieb)</dd>
+    <dt>Drittland</dt><dd>USA · GitHub ist nach dem EU-US Data Privacy Framework zertifiziert</dd>
+    <dt>Details</dt><dd><a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub Privacy Statement</a></dd>
+  </dl>
+
+  <h2>4 · Eingebettete Inhalte Dritter</h2>
+  <p>An mehreren Stellen werden Inhalte von Drittanbietern eingebunden. Beim Laden dieser Inhalte stellt dein Browser eine direkte Verbindung zum jeweiligen Anbieter her — IP-Adresse und ggf. weitere Daten werden dadurch dorthin übermittelt, ohne dass diese Seite Einfluss darauf hat.</p>
+
+  <p><strong>4.1 · YouTube</strong></p>
+  <p>Im Hub sind YouTube-Videos erst per Klick einbettbar (Lazy-Load: vor dem Klick wird nichts an YouTube übertragen). Wird ein Video geladen, gelten die Datenschutzbedingungen von Google.</p>
+  <dl class="dataflow">
+    <dt>Anbieter</dt><dd>Google Ireland Ltd. / Google LLC (USA)</dd>
+    <dt>Daten</dt><dd>u.&nbsp;a. IP-Adresse, Browserdaten, Cookies; bei eingeloggten Nutzern Zuordnung zum Konto</dd>
+    <dt>Rechtsgrundlage</dt><dd>Art. 6 Abs. 1 lit. f DSGVO · Klick = aktive Anforderung</dd>
+    <dt>Details</dt><dd><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a></dd>
+  </dl>
+
+  <p><strong>4.2 · Microsoft Power BI</strong></p>
+  <p>Im Einsteiger-Guide („Beispiele"-Sektion) sind drei öffentliche Power-BI-Reports per iframe eingebunden. Diese laden direkt vom Power-BI-Service, sobald die Seite geöffnet wird.</p>
+  <dl class="dataflow">
+    <dt>Anbieter</dt><dd>Microsoft Ireland Operations Ltd. / Microsoft Corp. (USA)</dd>
+    <dt>Daten</dt><dd>IP-Adresse, Browserdaten, Cookies des Power-BI-Service</dd>
+    <dt>Rechtsgrundlage</dt><dd>Art. 6 Abs. 1 lit. f DSGVO (Veranschaulichung der Inhalte)</dd>
+    <dt>Details</dt><dd><a href="https://privacy.microsoft.com/de-de/privacystatement" target="_blank" rel="noopener">Microsoft Privacy Statement</a></dd>
+  </dl>
+
+  <p><strong>4.3 · Microsoft Learn (Bilder &amp; CDN)</strong></p>
+  <p>An mehreren Stellen im Einsteiger-Guide werden Screenshots direkt vom Microsoft-Learn-CDN geladen.</p>
+  <dl class="dataflow">
+    <dt>Anbieter</dt><dd>Microsoft (s.&nbsp;o.)</dd>
+    <dt>Daten</dt><dd>IP-Adresse, Referrer, User-Agent beim Bildabruf</dd>
+    <dt>Rechtsgrundlage</dt><dd>Art. 6 Abs. 1 lit. f DSGVO</dd>
+  </dl>
+
+  <p><strong>4.4 · Spotify</strong></p>
+  <p>Der Spotify-Link im Footer ist ein einfacher Link — beim bloßen Anzeigen wird nichts übertragen. Erst beim Klick wird der Spotify-Dienst aufgerufen, dann gelten dessen Datenschutzbedingungen. Details: <a href="https://www.spotify.com/de/legal/privacy-policy/" target="_blank" rel="noopener">spotify.com/legal/privacy-policy</a>.</p>
+
+  <h2>5 · Externe Links</h2>
+  <p>Diese Seite enthält Links zu externen Websites (u.&nbsp;a. daten-wg.com, LinkedIn, YouTube, GitHub, Microsoft Learn). Auf die Inhalte dieser Seiten besteht kein Einfluss; deren Datenverarbeitung richtet sich nach den jeweiligen Datenschutzerklärungen.</p>
+
+  <h2>6 · Deine Rechte (Art. 15 – 22 DSGVO)</h2>
+  <p>Bezogen auf Daten, die dich betreffen und die ich verarbeite, hast du das Recht auf:</p>
+  <ul>
+    <li><strong>Auskunft</strong> (Art. 15) · welche Daten gespeichert sind</li>
+    <li><strong>Berichtigung</strong> (Art. 16) · falscher Daten</li>
+    <li><strong>Löschung</strong> (Art. 17) · sofern keine Aufbewahrungspflicht besteht</li>
+    <li><strong>Einschränkung der Verarbeitung</strong> (Art. 18)</li>
+    <li><strong>Datenübertragbarkeit</strong> (Art. 20)</li>
+    <li><strong>Widerspruch</strong> gegen Verarbeitung auf Basis berechtigter Interessen (Art. 21)</li>
+  </ul>
+  <p>Da diese Seite selbst keine personenbezogenen Daten erhebt oder speichert, betreffen diese Rechte praktisch die Logfiles bei GitHub und die Datenverarbeitung der oben genannten Drittanbieter. Wende dich für eine Anfrage zunächst gern an mich — ich helfe gern, die richtige Stelle zu finden.</p>
+
+  <h2>7 · Beschwerderecht bei der Aufsichtsbehörde</h2>
+  <p>Wenn du der Meinung bist, dass die Verarbeitung deiner Daten gegen die DSGVO verstößt, hast du das Recht, dich bei einer Aufsichtsbehörde zu beschweren. Zuständig ist für mich in Köln:</p>
+  <p>
+    <strong>Landesbeauftragte für Datenschutz und Informationsfreiheit Nordrhein-Westfalen (LDI NRW)</strong><br>
+    Kavalleriestraße 2–4<br>
+    40213 Düsseldorf<br>
+    <a href="https://www.ldi.nrw.de/" target="_blank" rel="noopener">ldi.nrw.de</a>
+  </p>
+
+  <h2>8 · Kontakt für Datenschutzfragen</h2>
+  <p>Fragen zur Datenverarbeitung auf dieser Seite gerne per E-Mail an <a href="mailto:michael.tenner@biordie.com">michael.tenner@biordie.com</a>.</p>
+
   <div class="notice">
-    <p><strong>In Vorbereitung.</strong> Die vollständige Datenschutzerklärung wird derzeit aus einem Generator erzeugt und sobald wie möglich an dieser Stelle veröffentlicht.</p>
-    <p>Bis dahin der wichtige Hinweis vorab: Diese Seite ist auf <strong>GitHub Pages</strong> gehostet, und einige Inhalte werden von Drittanbietern eingebunden, die ihre eigenen Datenverarbeitungen durchführen:</p>
-    <ul>
-      <li>YouTube / Google (Video-Embeds)</li>
-      <li>Spotify (Podcast-Embeds)</li>
-      <li>Microsoft Power BI (Report-Embeds im Einsteiger-Guide)</li>
-      <li>Microsoft Learn (CDN für Screenshots)</li>
-    </ul>
-    <p>Beim Aufruf eingebetteter Inhalte werden technisch notwendige Daten (u.&nbsp;a. IP-Adresse, User-Agent) an die jeweiligen Anbieter übermittelt. Eigene Cookies oder Tracking-Tools werden auf dieser Seite nicht gesetzt.</p>
-    <p>Für Anfragen vor Veröffentlichung der vollständigen Erklärung: <a href="mailto:michael.tenner@biordie.com">michael.tenner@biordie.com</a>.</p>
+    <p><strong>Beta-Phase &amp; Aktualisierungen.</strong> Diese Seite ist ein privates Projekt in der Beta-Phase. Wenn neue Inhalte oder Drittdienste eingebunden werden, wird diese Erklärung entsprechend aktualisiert. Das aktuelle Stand-Datum steht ganz oben.</p>
   </div>
 
   <footer class="page-footer">
