@@ -112,6 +112,21 @@ a { color: inherit; text-decoration: none; }
   margin-right: auto;
 }
 .topnav-brand em { font-style: italic; color: var(--accent); }
+.beta-badge {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 8px 3px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: white;
+  background: #C0392B;
+  border-radius: 100px;
+  vertical-align: 2px;
+  line-height: 1;
+}
 .topnav-link {
   font-family: var(--mono);
   font-size: 10.5px;
@@ -1748,7 +1763,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
 ============================================================ -->
 <nav class="topnav">
   <div class="topnav-inner">
-    <div class="topnav-brand">Daten-WG · <em>Knowledge Kitchen</em></div>
+    <div class="topnav-brand">Daten-WG · <em>Knowledge Kitchen</em><span class="beta-badge" title="Beta-Phase · noch in Entwicklung">Beta</span></div>
     <a class="topnav-link" href="#top-picks">Top-Picks</a>
     <a class="topnav-link" href="#buckets-overview">Buckets</a>
     <a class="topnav-link" href="power_bi_einsteiger_guide_v4.html#beispiele">Beispiele</a>
