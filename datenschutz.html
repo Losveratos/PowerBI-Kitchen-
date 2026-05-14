@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datenschutz · Daten-WG Knowledge Kitchen</title>
+<style>
+:root {
+  --bg:        #FAFAF5;
+  --bg-card:   #FFFFFF;
+  --bg-soft:   #F4F1E8;
+  --ink:       #1A1A1A;
+  --ink-soft:  #4A4A4A;
+  --ink-mute:  #6B6B6B;
+  --black:     #0A0A0A;
+  --line:      #E5E2D8;
+  --accent:    #117865;
+  --radius:    10px;
+  --radius-lg: 16px;
+  --serif: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --sans:  "Segoe UI Variable Text",    "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --mono:  "Segoe UI Variable Small",   "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.65;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 8px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 100px;
+  transition: all .15s ease;
+  margin-bottom: 40px;
+}
+.back-link:hover { background: var(--accent); color: white; }
+h1 {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  color: var(--black);
+  margin-bottom: 24px;
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--accent); }
+
+p { color: var(--ink-soft); margin-bottom: 14px; }
+a { color: var(--accent); }
+a:hover { text-decoration: underline; }
+.notice {
+  margin: 32px 0;
+  padding: 24px 28px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+}
+.notice strong { color: var(--ink); font-weight: 600; }
+.notice ul { margin: 12px 0 0 22px; }
+.notice li { color: var(--ink-soft); margin-bottom: 6px; }
+
+footer.page-footer {
+  margin-top: 64px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+}
+footer.page-footer a { color: var(--ink); text-decoration: none; border-bottom: 1px solid transparent; }
+footer.page-footer a:hover { border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
+
+  <div class="eyebrow">DSGVO · Art. 13/14</div>
+  <h1>Datenschutzerklärung</h1>
+
+  <div class="notice">
+    <p><strong>In Vorbereitung.</strong> Die vollständige Datenschutzerklärung wird derzeit aus einem Generator erzeugt und sobald wie möglich an dieser Stelle veröffentlicht.</p>
+    <p>Bis dahin der wichtige Hinweis vorab: Diese Seite ist auf <strong>GitHub Pages</strong> gehostet, und einige Inhalte werden von Drittanbietern eingebunden, die ihre eigenen Datenverarbeitungen durchführen:</p>
+    <ul>
+      <li>YouTube / Google (Video-Embeds)</li>
+      <li>Spotify (Podcast-Embeds)</li>
+      <li>Microsoft Power BI (Report-Embeds im Einsteiger-Guide)</li>
+      <li>Microsoft Learn (CDN für Screenshots)</li>
+    </ul>
+    <p>Beim Aufruf eingebetteter Inhalte werden technisch notwendige Daten (u.&nbsp;a. IP-Adresse, User-Agent) an die jeweiligen Anbieter übermittelt. Eigene Cookies oder Tracking-Tools werden auf dieser Seite nicht gesetzt.</p>
+    <p>Für Anfragen vor Veröffentlichung der vollständigen Erklärung: <a href="mailto:michael.tenner@biordie.com">michael.tenner@biordie.com</a>.</p>
+  </div>
+
+  <footer class="page-footer">
+    <span>Daten-WG · Knowledge Kitchen · datenwgknowledgekitchen.com</span>
+    <span>
+      <a href="index.html">Startseite</a>
+      &nbsp;·&nbsp;
+      <a href="impressum.html">Impressum</a>
+    </span>
+  </footer>
+
+</div>
+
+</body>
+</html>

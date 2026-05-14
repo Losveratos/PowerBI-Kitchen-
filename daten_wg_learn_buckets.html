@@ -1717,6 +1717,17 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   color: white;
   border-color: var(--ink);
 }
+.footer-note {
+  grid-column: 1 / -1;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--ink-mute);
+  line-height: 1.5;
+}
+.footer-note a { color: var(--accent); text-decoration: none; }
+.footer-note a:hover { text-decoration: underline; }
 @media (max-width: 700px) {
   .footer { grid-template-columns: 1fr; text-align: left; }
 }
@@ -2164,6 +2175,12 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <a class="footer-link" href="https://www.daten-wg.com" target="_blank" rel="noopener">daten-wg.com</a>
     <a class="footer-link" href="https://www.daten-wg.com/daten-wg-2026" target="_blank" rel="noopener">Daten-WG 2026</a>
     <a class="footer-link" href="https://podcasters.spotify.com/pod/show/daten-wg" target="_blank" rel="noopener">Spotify</a>
+    <a class="footer-link" href="impressum.html">Impressum</a>
+    <a class="footer-link" href="datenschutz.html">Datenschutz</a>
+  </div>
+  <div class="footer-note">
+    Privates Projekt von Michael Tenner · inhaltlich verbunden mit der
+    <a href="https://www.daten-wg.com" target="_blank" rel="noopener">Daten-WG-Community</a>.
   </div>
 </footer>
 
