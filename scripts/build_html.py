@@ -448,6 +448,33 @@ def main():
         new_html,
     )
 
+    # Hero-Subtitle: "NNN Folgen aus dem Daten-WG-Podcast"
+    new_html = re.sub(
+        r'(<p class="subtitle">)\d+(\s+Folgen aus dem)',
+        rf"\g<1>{total}\g<2>",
+        new_html,
+    )
+
+    # Header-Stats: "<strong>NNN</strong>Folgen" und "<strong>NNN</strong>Transkripte"
+    new_html = re.sub(
+        r'(<span class="header-stat"><strong>)\d+(</strong>Folgen</span>)',
+        rf"\g<1>{total}\g<2>",
+        new_html,
+    )
+    # Transcripte: aus transcripts.json zaehlen, falls vorhanden
+    transcripts_count = 0
+    try:
+        tdata = json.loads((ROOT / "transcripts.json").read_text(encoding="utf-8"))
+        transcripts_count = sum(1 for v in tdata.values() if v.get("text"))
+    except Exception:
+        pass
+    if transcripts_count:
+        new_html = re.sub(
+            r'(<span class="header-stat"><strong>)\d+(</strong>Transkripte</span>)',
+            rf"\g<1>{transcripts_count}\g<2>",
+            new_html,
+        )
+
     # Bucket-Tile-Counts ersetzen: jeder Tile hat einen festen Bucket-Index
     # Wir suchen Bloecke `<a class="bucket-tile" href="#bucket-N" ... <div class="bucket-tile-count">M Folge[n]</div>`
     def replace_tile_count(match):
