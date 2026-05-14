@@ -28,8 +28,10 @@ def safe(s):
 
 CHANNEL_BASE = "https://www.youtube.com/@Daten-WG"
 CHANNEL_TABS = ["videos", "streams", "shorts"]
-OUT_RAW = Path(__file__).parent.parent / "videos_raw.json"
-OUT_FLAT = Path(__file__).parent.parent / "videos_flat.json"
+ROOT = Path(__file__).parent.parent
+OUT_RAW = ROOT / "videos_raw.json"
+OUT_FLAT = ROOT / "videos_flat.json"
+EXTRA_IDS = ROOT / "extra_video_ids.json"  # optionale manuelle Liste externer Videos
 
 
 def _fetch_tab(tab: str) -> list:
@@ -63,14 +65,35 @@ def _fetch_tab(tab: str) -> list:
     return out
 
 
+def _load_extra_ids() -> list:
+    """Optionale Liste externer Video-IDs (z. B. aus anderen Kanaelen)."""
+    if not EXTRA_IDS.exists():
+        return []
+    try:
+        ids = json.loads(EXTRA_IDS.read_text(encoding="utf-8"))
+    except Exception as ex:
+        print(f"  [extras] error reading {EXTRA_IDS.name}: {ex}", file=sys.stderr)
+        return []
+    if isinstance(ids, list):
+        return [str(i).strip() for i in ids if i]
+    return []
+
+
 def fetch_flat():
-    """Liefert die deduplizierte Liste aller Video-IDs aus /videos, /streams und /shorts."""
+    """Liefert die deduplizierte Liste aller Video-IDs aus /videos, /streams, /shorts + extras."""
     seen = {}
     for tab in CHANNEL_TABS:
         for v in _fetch_tab(tab):
             vid = v["id"]
             if vid not in seen:
                 seen[vid] = v
+    # Manuelle Zusatz-IDs als pseudo-tab "extra" mergen
+    extras = _load_extra_ids()
+    for vid in extras:
+        if vid not in seen:
+            seen[vid] = {"id": vid, "title": None, "duration": None, "url": None, "tab": "extra"}
+    if extras:
+        print(f"  [tab extra] {len(extras)} manuelle Eintraege aus {EXTRA_IDS.name}")
     flat = list(seen.values())
     OUT_FLAT.write_text(json.dumps(flat, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"[flat] {len(flat)} unique Videos ueber alle Tabs -> {OUT_FLAT.name}")

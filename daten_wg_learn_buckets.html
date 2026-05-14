@@ -1833,8 +1833,8 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <div>
     <h2 class="start-here-title">Wie nutzt du diese Seite?</h2>
     <div class="start-here-text">
-      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 115 Folgen sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
-      <p>Jede Folge ist eine Karte mit Gast, Dauer, kurzer Zusammenfassung und Tags. Ein Klick auf die Karte zeigt die <strong>Kapitel-Timestamps</strong> (bei 58 Folgen detailliert eingepflegt) — du kannst direkt zur Stelle springen, die dich interessiert.</p>
+      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 122 Folgen sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
+      <p>Jede Folge ist eine Karte mit Gast, Dauer, kurzer Zusammenfassung und Tags. Ein Klick auf die Karte zeigt die <strong>Kapitel-Timestamps</strong> (bei 60 Folgen detailliert eingepflegt) — du kannst direkt zur Stelle springen, die dich interessiert.</p>
       <p>Empfohlener Einstieg, wenn du den Kanal noch nicht kennst: Quarterly-Updates für die Tools-Lage, dann das Bucket, das gerade zu deiner Arbeit passt.</p>
     </div>
   </div>
@@ -1910,7 +1910,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
       <span class="search-state" id="search-state" data-state="idle" title="Transkript-Volltextsuche"></span>
     </label>
     <div class="filter-meta">
-      <span><strong id="result-count">115</strong> von 115 Folgen</span>
+      <span><strong id="result-count">122</strong> von 122 Folgen</span>
       <button class="filter-reset" id="reset-filters">Filter zurücksetzen</button>
       <button class="tags-peek" id="tags-peek" type="button" aria-expanded="true" aria-controls="tag-list" title="Tag-Filter ein-/ausblenden"><span id="tags-peek-label">Tags ausblenden</span><span class="tags-peek-badge" id="tags-peek-badge">0</span><span class="tags-peek-chevron" aria-hidden="true"></span></button>
     </div>
@@ -1940,13 +1940,13 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-num">02 · PLATTFORM</div>
     <div class="bucket-tile-name">Microsoft Fabric</div>
     <div class="bucket-tile-teaser">Lakehouse, OneLake, Direct Lake — die Fabric-Praxis.</div>
-    <div class="bucket-tile-count">21 Folgen</div>
+    <div class="bucket-tile-count">22 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-3" style="--bucket-color: var(--c-model);">
     <div class="bucket-tile-num">03 · GRUNDLAGE</div>
     <div class="bucket-tile-name">Datenmodellierung</div>
     <div class="bucket-tile-teaser">Stern-Schema, Data Vault, DAX-Patterns — Modelle, die halten.</div>
-    <div class="bucket-tile-count">25 Folgen</div>
+    <div class="bucket-tile-count">26 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-4" style="--bucket-color: var(--c-gov);">
     <div class="bucket-tile-num">04 · GOVERNANCE</div>
@@ -1958,13 +1958,13 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-num">05 · CRAFT</div>
     <div class="bucket-tile-name">Visualisierung</div>
     <div class="bucket-tile-teaser">IBCS, Deneb, Boring Charts — wie Visualisierung wirklich wirkt.</div>
-    <div class="bucket-tile-count">9 Folgen</div>
+    <div class="bucket-tile-count">11 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-6" style="--bucket-color: var(--c-pbi);">
     <div class="bucket-tile-num">06 · TOOL</div>
     <div class="bucket-tile-name">Power BI Deep Dive</div>
     <div class="bucket-tile-teaser">Praxis-Tutorials, Vergleiche, Power BI von A bis Z.</div>
-    <div class="bucket-tile-count">25 Folgen</div>
+    <div class="bucket-tile-count">28 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-7" style="--bucket-color: var(--c-career);">
     <div class="bucket-tile-num">07 · MENSCH</div>
@@ -3103,6 +3103,20 @@ const EPISODES = [
     ytId: 'KMk1k5uCLZU',
     chapters: []
   },
+  {
+    bucket: 'bucket-2',
+    title: 'Starting with Microsft Fabric the Skills you need',
+    guest: 'Michael Tenner',
+    solo: true,
+    date: 'August 2024',
+    duration: '50 min',
+    lang: 'EN',
+    desc: 'Basic walkthrough of Fabric and which Skill will help you with which task.',
+    tags: ['Michael Tenner', 'Fabric', 'EN', 'DE'],
+    podcastUrl: null,
+    ytId: 'm3xNYfVih0Q',
+    chapters: []
+  },
 
   /* ========== BUCKET 3: DATENMODELLIERUNG ========== */
   {
@@ -3526,6 +3540,20 @@ const EPISODES = [
   },
   {
     bucket: 'bucket-3',
+    title: 'Data Binning and Lorenz Curve in DAX | Alberto Ferrari & Michael Tenner, Berlin Power BI User Group',
+    guest: 'Alberto Ferrari & Michael Tenner',
+    solo: false,
+    date: 'Januar 2023',
+    duration: '80 min',
+    lang: 'EN',
+    desc: 'Join the Berlin Power BI User Group on Meetup:',
+    tags: ['Michael Tenner', 'DAX', 'EN', 'User Group', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: '183uLZ3GYDo',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-3',
     title: 'BI Thinkers Talk nr.77',
     guest: 'Solo',
     solo: true,
@@ -3809,6 +3837,34 @@ const EPISODES = [
     tags: ['Writeback', 'Fabric', 'Warehouse', 'Power BI', 'DE'],
     podcastUrl: null,
     ytId: 'BIKk_8H_Pqw',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-5',
+    title: 'Walkthrough for my first Submission to the Maven Analytics Challenge',
+    guest: 'Michael Tenner',
+    solo: true,
+    date: 'Mai 2022',
+    duration: '57 min',
+    lang: 'EN',
+    desc: 'I will make a complete walkthrough of my submission to the Maven Analytics Unicorn Challenge.',
+    tags: ['Michael Tenner', 'Visualisierung', 'EN', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'z3eVRymUp30',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-5',
+    title: 'Visual Analytics with Power BI',
+    guest: 'Michael Tenner',
+    solo: true,
+    date: 'September 2021',
+    duration: '46 min',
+    lang: 'EN',
+    desc: 'I will explain how and why behind my Power BI Sparkassen Dashboard.',
+    tags: ['Michael Tenner', 'Visualisierung', 'EN', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'UxE0DPnLgIg',
     chapters: []
   },
 
@@ -4231,6 +4287,64 @@ const EPISODES = [
     tags: ['EN'],
     podcastUrl: null,
     ytId: 'svytHaNMTf0',
+    chapters: []
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'Power BI Deep Dive [EN]: Data Binning in Power BI',
+    guest: 'Artur König',
+    solo: true,
+    date: 'Januar 2023',
+    duration: '5 min',
+    lang: 'EN',
+    desc: 'more in the full talk: https://youtu.be/CTF5zgJNuJY',
+    tags: ['Artur König', 'Power BI', 'EN', 'DE'],
+    podcastUrl: null,
+    ytId: 'ssQOK1a4qvQ',
+    chapters: [
+      ['00:00', 'Introduction of Data Model'],
+      ['00:51', 'Introduction of Use-Case for Binning'],
+      ['02:25', 'Axis as disconnected dimension'],
+      ['02:40', 'DAX-Measure explanation'],
+      ['04:38', 'Performance Tests']
+    ]
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'Power BI Deep Dive: Wie erstelle ich eine Lorenzkurve?',
+    guest: 'Artur König',
+    solo: true,
+    date: 'Dezember 2022',
+    duration: '7 min',
+    lang: 'DE',
+    desc: 'Michael zeigt, wir eine Lorenzkurve in Power BI erstellt werden kann:',
+    tags: ['Artur König', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'DmF1PnTQVLM',
+    chapters: [
+      ['00:00', 'Sinn und Use-Cases'],
+      ['01:20', 'Extra-Dimension für Prozente'],
+      ['01:40', 'Measure und Aggregationen im Überblick'],
+      ['03:05', 'Sortieren/Ranking der virtuellen Tabellen'],
+      ['04:10', 'Prozentwert ergänzen'],
+      ['04:30', 'Umsatz nach Prozentverteilung'],
+      ['05:10', 'Gruppierung'],
+      ['05:50', 'Anteil der Kunden bis zu einem Prozentwert'],
+      ['06:33', 'Visualisierung und Einstellungen']
+    ]
+  },
+  {
+    bucket: 'bucket-6',
+    title: 'Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report',
+    guest: 'Michael Tenner',
+    solo: true,
+    date: 'Februar 2022',
+    duration: '54 min',
+    lang: 'DE',
+    desc: 'Ich liebe Buttons, ich liebe responsives Desgin, Icons für Useability und Bookmarks.',
+    tags: ['Michael Tenner', 'Power BI', 'DE'],
+    podcastUrl: null,
+    ytId: 'K27nB68nR1M',
     chapters: []
   },
 

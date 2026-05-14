@@ -18,6 +18,7 @@ except Exception:
 ROOT = Path(__file__).parent.parent
 IN_RAW = ROOT / "videos_raw.json"
 OUT = ROOT / "videos.json"
+OVERRIDES = ROOT / "manual_overrides.json"  # optionale Korrekturen nach Heuristik
 
 # Reihenfolge ist wichtig: erste passende Regel gewinnt.
 # Jede Regel: (bucket_id, [tag-keywords...], [optional check_title_only_keywords])
@@ -422,6 +423,40 @@ def pretty_title(raw: str) -> str:
     return t
 
 
+def apply_overrides(episodes: list) -> int:
+    """Wendet manuelle Overrides aus manual_overrides.json auf die Episoden an.
+
+    Erwartet pro ytId ein Dict mit moeglichen Feldern:
+      guest, solo, bucket, lang, tags_prepend (Liste, wird vorn eingefuegt).
+    Liefert die Anzahl gepatchter Eintraege.
+    """
+    if not OVERRIDES.exists():
+        return 0
+    try:
+        overrides = json.loads(OVERRIDES.read_text(encoding="utf-8"))
+    except Exception as ex:
+        print(f"  [overrides] error: {ex}", file=sys.stderr)
+        return 0
+    patched = 0
+    for ep in episodes:
+        ov = overrides.get(ep.get("ytId"))
+        if not ov:
+            continue
+        for key in ("guest", "solo", "bucket", "lang"):
+            if key in ov:
+                ep[key] = ov[key]
+        # Tags vorn einfuegen, Duplikate vermeiden
+        prepend = ov.get("tags_prepend") or []
+        if prepend:
+            existing = list(ep.get("tags") or [])
+            new = list(prepend) + [t for t in existing if t not in prepend]
+            ep["tags"] = new
+        patched += 1
+    if patched:
+        print(f"  [overrides] {patched} Eintraege gepatcht aus {OVERRIDES.name}")
+    return patched
+
+
 def main():
     raw = json.loads(IN_RAW.read_text(encoding="utf-8"))
     out = []
@@ -457,6 +492,9 @@ def main():
             "_upload_date": v.get("upload_date"),  # interne Sortierung
         }
         out.append(episode)
+    # Manuelle Overrides anwenden (Gast/Bucket/Tags/Lang fuer externe Videos)
+    apply_overrides(out)
+
     # Sortierung: Bucket, dann Upload-Datum absteigend
     out.sort(key=lambda e: (e["bucket"], -int(e.get("_upload_date") or "00000000")))
 

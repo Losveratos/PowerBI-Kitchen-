@@ -1830,6 +1830,26 @@
     "_upload_date": "20250424"
   },
   {
+    "bucket": "bucket-2",
+    "title": "Starting with Microsft Fabric the Skills you need",
+    "guest": "Michael Tenner",
+    "solo": true,
+    "date": "August 2024",
+    "duration": "50 min",
+    "lang": "EN",
+    "desc": "Basic walkthrough of Fabric and which Skill will help you with which task.",
+    "tags": [
+      "Michael Tenner",
+      "Fabric",
+      "EN",
+      "DE"
+    ],
+    "ytId": "m3xNYfVih0Q",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20240812"
+  },
+  {
     "bucket": "bucket-3",
     "title": "BI Thinkers Talk nr.76",
     "guest": "",
@@ -2480,6 +2500,28 @@
     "chapters": [],
     "podcastUrl": null,
     "_upload_date": "20250522"
+  },
+  {
+    "bucket": "bucket-3",
+    "title": "Data Binning and Lorenz Curve in DAX | Alberto Ferrari & Michael Tenner, Berlin Power BI User Group",
+    "guest": "Alberto Ferrari & Michael Tenner",
+    "solo": false,
+    "date": "Januar 2023",
+    "duration": "80 min",
+    "lang": "EN",
+    "desc": "Join the Berlin Power BI User Group on Meetup:",
+    "tags": [
+      "Michael Tenner",
+      "DAX",
+      "EN",
+      "User Group",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "183uLZ3GYDo",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20230128"
   },
   {
     "bucket": "bucket-3",
@@ -3262,6 +3304,48 @@
     "_upload_date": "20250717"
   },
   {
+    "bucket": "bucket-5",
+    "title": "Walkthrough for my first Submission to the Maven Analytics Challenge",
+    "guest": "Michael Tenner",
+    "solo": true,
+    "date": "Mai 2022",
+    "duration": "57 min",
+    "lang": "EN",
+    "desc": "I will make a complete walkthrough of my submission to the Maven Analytics Unicorn Challenge.",
+    "tags": [
+      "Michael Tenner",
+      "Visualisierung",
+      "EN",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "z3eVRymUp30",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20220531"
+  },
+  {
+    "bucket": "bucket-5",
+    "title": "Visual Analytics with Power BI",
+    "guest": "Michael Tenner",
+    "solo": true,
+    "date": "September 2021",
+    "duration": "46 min",
+    "lang": "EN",
+    "desc": "I will explain how and why behind my Power BI Sparkassen Dashboard.",
+    "tags": [
+      "Michael Tenner",
+      "Visualisierung",
+      "EN",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "UxE0DPnLgIg",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20210924"
+  },
+  {
     "bucket": "bucket-6",
     "title": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
     "guest": "",
@@ -3748,6 +3832,122 @@
     "chapters": [],
     "podcastUrl": null,
     "_upload_date": "20250409"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Power BI Deep Dive [EN]: Data Binning in Power BI",
+    "guest": "Artur König",
+    "solo": true,
+    "date": "Januar 2023",
+    "duration": "5 min",
+    "lang": "EN",
+    "desc": "more in the full talk: https://youtu.be/CTF5zgJNuJY",
+    "tags": [
+      "Artur König",
+      "Power BI",
+      "EN",
+      "DE"
+    ],
+    "ytId": "ssQOK1a4qvQ",
+    "chapters": [
+      [
+        "00:00",
+        "Introduction of Data Model"
+      ],
+      [
+        "00:51",
+        "Introduction of Use-Case for Binning"
+      ],
+      [
+        "02:25",
+        "Axis as disconnected dimension"
+      ],
+      [
+        "02:40",
+        "DAX-Measure explanation"
+      ],
+      [
+        "04:38",
+        "Performance Tests"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20230109"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Power BI Deep Dive: Wie erstelle ich eine Lorenzkurve?",
+    "guest": "Artur König",
+    "solo": true,
+    "date": "Dezember 2022",
+    "duration": "7 min",
+    "lang": "DE",
+    "desc": "Michael zeigt, wir eine Lorenzkurve in Power BI erstellt werden kann:",
+    "tags": [
+      "Artur König",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "DmF1PnTQVLM",
+    "chapters": [
+      [
+        "00:00",
+        "Sinn und Use-Cases"
+      ],
+      [
+        "01:20",
+        "Extra-Dimension für Prozente"
+      ],
+      [
+        "01:40",
+        "Measure und Aggregationen im Überblick"
+      ],
+      [
+        "03:05",
+        "Sortieren/Ranking der virtuellen Tabellen"
+      ],
+      [
+        "04:10",
+        "Prozentwert ergänzen"
+      ],
+      [
+        "04:30",
+        "Umsatz nach Prozentverteilung"
+      ],
+      [
+        "05:10",
+        "Gruppierung"
+      ],
+      [
+        "05:50",
+        "Anteil der Kunden bis zu einem Prozentwert"
+      ],
+      [
+        "06:33",
+        "Visualisierung und Einstellungen"
+      ]
+    ],
+    "podcastUrl": null,
+    "_upload_date": "20221213"
+  },
+  {
+    "bucket": "bucket-6",
+    "title": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+    "guest": "Michael Tenner",
+    "solo": true,
+    "date": "Februar 2022",
+    "duration": "54 min",
+    "lang": "DE",
+    "desc": "Ich liebe Buttons, ich liebe responsives Desgin, Icons für Useability und Bookmarks.",
+    "tags": [
+      "Michael Tenner",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "K27nB68nR1M",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20220211"
   },
   {
     "bucket": "bucket-7",
