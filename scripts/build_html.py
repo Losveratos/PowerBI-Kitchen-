@@ -27,8 +27,24 @@ ROOT = Path(__file__).parent.parent
 HTML = ROOT / "daten_wg_learn_buckets.html"
 EXISTING_JSON = ROOT / "existing_episodes.json"
 AUTO_JSON = ROOT / "videos.json"
+OVERRIDES = ROOT / "manual_overrides.json"
 RANGE_JSON = ROOT / ".episodes_range.json"
 BACKUP = ROOT / "daten_wg_learn_buckets.backup.html"
+
+
+def load_override_ids() -> set:
+    """Liefert die Set der ytIds, die in manual_overrides.json gepatcht werden.
+
+    Fuer diese IDs gewinnt beim Merge der auto-Eintrag (statt existing),
+    damit Override-Aenderungen sofort in der HTML wirksam werden.
+    """
+    if not OVERRIDES.exists():
+        return set()
+    try:
+        data = json.loads(OVERRIDES.read_text(encoding="utf-8"))
+    except Exception:
+        return set()
+    return {k for k in data.keys() if not k.startswith("_")}
 
 
 def norm(s: str) -> str:
@@ -129,31 +145,57 @@ def match_existing_to_auto(existing: list[dict], auto: list[dict]) -> dict[int, 
 def merge(existing: list[dict], auto: list[dict]) -> list[dict]:
     mapping = match_existing_to_auto(existing, auto)
     used_auto = set(mapping.values())
+    override_ids = load_override_ids()
+    overridden_count = 0
 
     merged: list[dict] = []
     # Existierende Episoden behalten, mit Anreicherung
     for ei, e in enumerate(existing):
         merged_ep = dict(e)
-        if ei in mapping:
-            ai = mapping[ei]
+        ai = mapping.get(ei)
+        if ai is not None:
             a = auto[ai]
-            # ytId injizieren falls fehlt
-            if not merged_ep.get("ytId") and a.get("ytId"):
-                merged_ep["ytId"] = a["ytId"]
-            # chapters: existing gewinnt, falls existing leer aber auto reich -> nimm auto
-            if not merged_ep.get("chapters") and a.get("chapters"):
-                merged_ep["chapters"] = a["chapters"]
-            # tags: Union, existing-Reihenfolge zuerst
-            existing_tags = list(merged_ep.get("tags") or [])
-            for t in (a.get("tags") or []):
-                if t not in existing_tags and t not in ("DE", "EN", "Unsortiert"):
-                    existing_tags.append(t)
-            merged_ep["tags"] = existing_tags
+            existing_yt = merged_ep.get("ytId")
+            # Manual-Override-Pfad: wenn diese ytId in manual_overrides.json
+            # gepatcht wurde, wins der auto-Eintrag komplett (guest/bucket/
+            # solo/lang/tags), damit Override-Updates ankommen.
+            if existing_yt and existing_yt in override_ids:
+                # Wir starten mit auto und reichern es ggf. mit existing-Kapiteln an
+                merged_ep = {
+                    "bucket": a["bucket"],
+                    "title": a.get("title") or merged_ep.get("title"),
+                    "guest": a["guest"] or "Solo",
+                    "solo": a["solo"],
+                    "date": a.get("date") or merged_ep.get("date"),
+                    "duration": a.get("duration") or merged_ep.get("duration"),
+                    "lang": a["lang"],
+                    "desc": a.get("desc") or merged_ep.get("desc"),
+                    "tags": list(a.get("tags") or []),
+                    "podcastUrl": a.get("podcastUrl"),
+                    "ytId": a["ytId"],
+                    "chapters": a.get("chapters") or merged_ep.get("chapters") or [],
+                }
+                overridden_count += 1
+            else:
+                # ytId injizieren falls fehlt
+                if not merged_ep.get("ytId") and a.get("ytId"):
+                    merged_ep["ytId"] = a["ytId"]
+                # chapters: existing gewinnt, falls existing leer aber auto reich -> nimm auto
+                if not merged_ep.get("chapters") and a.get("chapters"):
+                    merged_ep["chapters"] = a["chapters"]
+                # tags: Union, existing-Reihenfolge zuerst
+                existing_tags = list(merged_ep.get("tags") or [])
+                for t in (a.get("tags") or []):
+                    if t not in existing_tags and t not in ("DE", "EN", "Unsortiert"):
+                        existing_tags.append(t)
+                merged_ep["tags"] = existing_tags
         # _upload_date intern fuer Sortierung
         merged_ep["_upload_date"] = (
             auto[mapping[ei]].get("_upload_date") if ei in mapping else None
         )
         merged.append(merged_ep)
+    if overridden_count:
+        print(f"[merge] {overridden_count} Eintraege via manual_overrides.json forciert")
 
     # Neue Episoden aus auto, die nicht gematcht wurden
     for ai, a in enumerate(auto):

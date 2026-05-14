@@ -37,17 +37,17 @@
     "tags_prepend": ["Michael Tenner", "DAX", "EN"]
   },
   "DmF1PnTQVLM": {
-    "guest": "Artur König",
-    "solo": true,
+    "guest": "Artur König & Michael Tenner",
+    "solo": false,
     "bucket": "bucket-6",
     "lang": "DE",
-    "tags_prepend": ["Artur König", "Power BI", "DE"]
+    "tags_prepend": ["Artur König", "Michael Tenner", "Power BI", "DE"]
   },
   "ssQOK1a4qvQ": {
-    "guest": "Artur König",
-    "solo": true,
+    "guest": "Artur König & Michael Tenner",
+    "solo": false,
     "bucket": "bucket-6",
     "lang": "EN",
-    "tags_prepend": ["Artur König", "Power BI", "EN"]
+    "tags_prepend": ["Artur König", "Michael Tenner", "Power BI", "EN"]
   }
 }

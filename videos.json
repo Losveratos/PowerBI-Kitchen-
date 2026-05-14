@@ -3836,14 +3836,15 @@
   {
     "bucket": "bucket-6",
     "title": "Power BI Deep Dive [EN]: Data Binning in Power BI",
-    "guest": "Artur König",
-    "solo": true,
+    "guest": "Artur König & Michael Tenner",
+    "solo": false,
     "date": "Januar 2023",
     "duration": "5 min",
     "lang": "EN",
     "desc": "more in the full talk: https://youtu.be/CTF5zgJNuJY",
     "tags": [
       "Artur König",
+      "Michael Tenner",
       "Power BI",
       "EN",
       "DE"
@@ -3877,14 +3878,15 @@
   {
     "bucket": "bucket-6",
     "title": "Power BI Deep Dive: Wie erstelle ich eine Lorenzkurve?",
-    "guest": "Artur König",
-    "solo": true,
+    "guest": "Artur König & Michael Tenner",
+    "solo": false,
     "date": "Dezember 2022",
     "duration": "7 min",
     "lang": "DE",
     "desc": "Michael zeigt, wir eine Lorenzkurve in Power BI erstellt werden kann:",
     "tags": [
       "Artur König",
+      "Michael Tenner",
       "Power BI",
       "DE"
     ],
