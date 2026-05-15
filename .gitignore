@@ -20,6 +20,9 @@ drafts/
 analysis/
 notes/
 
+# Lab-Seiten — erst lokal testen, ggf. spaeter publizieren
+analysis.html
+
 # Diagnose-Helfer (entstanden waehrend Bug-Hunting, nicht produktiv)
 scripts/debug_*
 scripts/find_*
