@@ -2783,6 +2783,50 @@
     "_upload_date": "20251215"
   },
   {
+    "bucket": "bucket-4",
+    "title": "Realtalk zu Self Service mit Power BI",
+    "guest": "Hans-Ulrik Harnisch · Realtalk",
+    "solo": false,
+    "date": "Februar 2024",
+    "duration": "41 min",
+    "lang": "DE",
+    "desc": "Wir bringen \"Level up your Data\" als Community-Treffen auch nach Stuttgart! Jeden Monat ein neues Thema und wechselnde Referent:innen.",
+    "tags": [
+      "Self-Service",
+      "Hans-Ulrik Harnisch",
+      "Realtalk",
+      "DE",
+      "Power BI",
+      "Tableau"
+    ],
+    "ytId": "27rC2zefFOU",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20240215"
+  },
+  {
+    "bucket": "bucket-4",
+    "title": "The Day After Tomorrow – Nach der Einführung geht es erst richtig los | Power BI Summit 2023",
+    "guest": "Hans-Ulrik Harnisch & Lilli Stepanov",
+    "solo": false,
+    "date": "März 2023",
+    "duration": "59 min",
+    "lang": "DE",
+    "desc": "Aufzeichnung von der Live Session der Power BI Summit \"The Day After Tomorrow – Nach der Einführung geht es erst richtig los\" von Hans-Ulrik Harnisch & Lilli Stepanov.",
+    "tags": [
+      "M365 Summit",
+      "Hans-Ulrik Harnisch",
+      "Self-Service",
+      "DE",
+      "Power BI",
+      "EN"
+    ],
+    "ytId": "KwySyTxW_EI",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20230310"
+  },
+  {
     "bucket": "bucket-5",
     "title": "Declarative Visualization with DENEB",
     "guest": "Daniel Marsh-Patrick",
@@ -3934,6 +3978,26 @@
   },
   {
     "bucket": "bucket-6",
+    "title": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+    "guest": "Florian Wiefel & Hans-Ulrik Harnisch",
+    "solo": false,
+    "date": "Juni 2022",
+    "duration": "44 min",
+    "lang": "DE",
+    "desc": "Aufzeichnung von der Live Session der M365 Summit \"Microsoft Power BI Einführung – Erfolgsfaktoren und Anwendungsfälle bei der RheinLand Versicherungs AG\" von Florian Wiefel und Hans-Ulrik Harnisch.",
+    "tags": [
+      "M365 Summit",
+      "Hans-Ulrik Harnisch",
+      "Power BI",
+      "DE"
+    ],
+    "ytId": "Z8vpSSOmG24",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20220617"
+  },
+  {
+    "bucket": "bucket-6",
     "title": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
     "guest": "Michael Tenner",
     "solo": true,
@@ -4437,6 +4501,26 @@
     ],
     "podcastUrl": null,
     "_upload_date": "20250519"
+  },
+  {
+    "bucket": "bucket-8",
+    "title": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+    "guest": "LogiMAT Expert Forum · Supply Chain",
+    "solo": false,
+    "date": "April 2026",
+    "duration": "50 min",
+    "lang": "DE",
+    "desc": "LogiMAT Arena Atrium | Expert Forum Donnerstag, 26. März 2026 Supply Chain Risiko Management: resilientere Lieferketten durch smarte Datenanalyse!",
+    "tags": [
+      "LogiMAT",
+      "Supply Chain",
+      "Strategie",
+      "DE"
+    ],
+    "ytId": "DFw664hd1IE",
+    "chapters": [],
+    "podcastUrl": null,
+    "_upload_date": "20260413"
   },
   {
     "bucket": "bucket-8",

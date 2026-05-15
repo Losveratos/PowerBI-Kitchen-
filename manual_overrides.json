@@ -49,5 +49,34 @@
     "bucket": "bucket-6",
     "lang": "EN",
     "tags_prepend": ["Artur König", "Michael Tenner", "Power BI", "EN"]
+  },
+
+  "DFw664hd1IE": {
+    "guest": "LogiMAT Expert Forum · Supply Chain",
+    "solo": false,
+    "bucket": "bucket-8",
+    "lang": "DE",
+    "tags_prepend": ["LogiMAT", "Supply Chain", "Strategie", "DE"]
+  },
+  "Z8vpSSOmG24": {
+    "guest": "Florian Wiefel & Hans-Ulrik Harnisch",
+    "solo": false,
+    "bucket": "bucket-6",
+    "lang": "DE",
+    "tags_prepend": ["M365 Summit", "Hans-Ulrik Harnisch", "Power BI", "DE"]
+  },
+  "KwySyTxW_EI": {
+    "guest": "Hans-Ulrik Harnisch & Lilli Stepanov",
+    "solo": false,
+    "bucket": "bucket-4",
+    "lang": "DE",
+    "tags_prepend": ["M365 Summit", "Hans-Ulrik Harnisch", "Self-Service", "DE"]
+  },
+  "27rC2zefFOU": {
+    "guest": "Hans-Ulrik Harnisch · Realtalk",
+    "solo": false,
+    "bucket": "bucket-4",
+    "lang": "DE",
+    "tags_prepend": ["Self-Service", "Hans-Ulrik Harnisch", "Realtalk", "DE"]
   }
 }
