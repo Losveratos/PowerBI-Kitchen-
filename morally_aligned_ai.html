@@ -940,6 +940,63 @@ button.primary:hover { background: var(--accent-soft); }
 }
 .film-dot.dim { opacity: 0.18; pointer-events: none; }
 
+/* Form variants — shape encodes what kind of intelligence */
+.film-dot[data-form="robot"] { border-radius: 1.5px; }
+.film-dot[data-form="hybrid"] {
+  border-radius: 1.5px;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.film-dot[data-form="hybrid"]:hover,
+.film-dot[data-form="hybrid"].active {
+  transform: translate(-50%, -50%) rotate(45deg) scale(1.7);
+  z-index: 4;
+  box-shadow: 0 0 0 3px rgba(232,176,67,0.5);
+  border-color: rgba(5, 7, 13, 0.9);
+}
+
+/* Form legend below timeline */
+.film-forms-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.form-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.form-key .form-icon {
+  width: 10px;
+  height: 10px;
+  background: var(--ink-soft);
+  border: 1px solid rgba(5,7,13,0.7);
+  display: inline-block;
+  flex-shrink: 0;
+}
+.form-key[data-form="ai"]    .form-icon { border-radius: 50%; }
+.form-key[data-form="robot"] .form-icon { border-radius: 1.5px; }
+.form-key[data-form="hybrid"] .form-icon {
+  border-radius: 1.5px;
+  transform: rotate(45deg);
+}
+.form-key.inline {
+  font-size: 10px;
+  color: var(--ink-soft);
+}
+.form-key.inline .form-icon {
+  width: 8px;
+  height: 8px;
+}
+
 .film-detail {
   background: var(--bg-card);
   border: 1px solid var(--accent);
@@ -1853,6 +1910,11 @@ button.primary:hover { background: var(--accent-soft); }
       </div>
       <div class="film-axis" id="filmAxis">
         <span>1927</span><span>1950</span><span>1970</span><span>1990</span><span>2010</span><span>2025</span>
+      </div>
+      <div class="film-forms-legend">
+        <span class="form-key" data-form="ai"><span class="form-icon"></span>Software-KI</span>
+        <span class="form-key" data-form="robot"><span class="form-icon"></span>Roboter</span>
+        <span class="form-key" data-form="hybrid"><span class="form-icon"></span>Hybrid · Cyborg · Upload</span>
       </div>
     </div>
 
@@ -2817,6 +2879,54 @@ button.primary:hover { background: var(--accent-soft); }
   ];
 
   const TENDENCY_LABEL = { positive: "Positiv", ambivalent: "Ambivalent", dystopian: "Dystopisch" };
+
+  // Form-Klassifikation: ai = Software/AGI, robot = verkoerperte Maschine, hybrid = Cyborg/Replikant/Upload
+  const FORM_BY_KEY = {
+    "Metropolis|1927": "robot",
+    "The Day the Earth Stood Still|1951": "robot",
+    "Forbidden Planet|1956": "robot",
+    "2001: A Space Odyssey|1968": "ai",
+    "Colossus: The Forbin Project|1970": "ai",
+    "Westworld|1973": "robot",
+    "Star Wars|1977": "robot",
+    "Alien|1979": "robot",
+    "Blade Runner|1982": "hybrid",
+    "Tron|1982": "ai",
+    "WarGames|1983": "ai",
+    "Dune|1984": "ai",
+    "The Terminator|1984": "hybrid",
+    "Short Circuit|1986": "robot",
+    "RoboCop|1987": "hybrid",
+    "Terminator 2: Judgment Day|1991": "robot",
+    "Ghost in the Shell|1995": "hybrid",
+    "The Matrix|1999": "ai",
+    "Bicentennial Man|1999": "hybrid",
+    "The Iron Giant|1999": "robot",
+    "A.I. Artificial Intelligence|2001": "robot",
+    "Minority Report|2002": "ai",
+    "I, Robot|2004": "hybrid",
+    "WALL·E|2008": "robot",
+    "Eagle Eye|2008": "ai",
+    "Moon|2009": "ai",
+    "Her|2013": "ai",
+    "Ex Machina|2014": "hybrid",
+    "Transcendence|2014": "hybrid",
+    "Interstellar|2014": "robot",
+    "Chappie|2015": "robot",
+    "Avengers: Age of Ultron|2015": "hybrid",
+    "Blade Runner 2049|2017": "hybrid",
+    "Star Trek: Discovery|2017": "ai",
+    "I Am Mother|2019": "hybrid",
+    "Dune|2021": "ai",
+    "M3GAN|2022": "robot",
+    "Moonfall|2022": "ai",
+    "The Creator|2023": "robot",
+    "Mission: Impossible — Dead Reckoning|2023": "ai",
+    "The Wild Robot|2024": "robot",
+    "Mickey 17|2025": "hybrid"
+  };
+  const FORM_LABEL = { ai: "Software-KI", robot: "Roboter", hybrid: "Hybrid" };
+
   const YEAR_MIN = 1925;
   const YEAR_MAX = 2027;
   const BAND_Y = { positive: 20, ambivalent: 50, dystopian: 80 };
@@ -2857,6 +2967,7 @@ button.primary:hover { background: var(--accent-soft); }
       const dot = document.createElement('button');
       dot.className = 'film-dot';
       dot.setAttribute('data-tendency', film.tendency);
+      dot.setAttribute('data-form', FORM_BY_KEY[`${film.title}|${film.year}`] || 'ai');
       dot.setAttribute('data-index', i);
       dot.setAttribute('aria-label', `${film.year} · ${film.title}`);
       dot.title = `${film.year} · ${film.title}`;
@@ -2871,6 +2982,7 @@ button.primary:hover { background: var(--accent-soft); }
 
   function showFilm(i, persist) {
     const f = FILMS[i];
+    const form = FORM_BY_KEY[`${f.title}|${f.year}`] || 'ai';
     detail.classList.remove('empty');
     detail.innerHTML = `
       <div class="film-detail-year">${f.year}</div>
@@ -2879,6 +2991,7 @@ button.primary:hover { background: var(--accent-soft); }
         <div class="film-detail-meta">
           <span><b>${f.director}</b></span>
           ${f.ai ? `<span>KI: <b>${f.ai}</b></span>` : ''}
+          <span class="form-key inline" data-form="${form}"><span class="form-icon"></span>${FORM_LABEL[form]}</span>
         </div>
         <p class="film-detail-notes">${f.notes}</p>
         ${f.srcAuthor || f.srcWork
