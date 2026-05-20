@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morally Aligned AI · Daten Grillen · Vortrag</title>
+<style>
+:root {
+  --bg:         #05070D;
+  --bg-deep:    #020307;
+  --bg-card:    #0A0D17;
+  --bg-soft:    #11151F;
+  --ink:        #F4F1E8;
+  --ink-soft:   #C8CBD4;
+  --ink-mute:   #7E8294;
+  --line:       #2A2415;
+  --line-strong:#5C4E22;
+  --accent:     #E8B043;
+  --accent-soft:#F5D381;
+  --accent-deep:#8A6420;
+  --civ:        #62D6FF;
+  --civ-2:      #FF7A8A;
+  --civ-3:      #A9F26F;
+  --civ-4:      #C28BFF;
+  --civ-5:      #FFD68C;
+  --radius:     6px;
+  --radius-lg:  10px;
+  --serif: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --sans:  "Segoe UI Variable Text",    "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --mono:  "JetBrains Mono", "Fira Code", "Consolas", monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.55;
+  font-size: 14.5px;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 18% 22%, rgba(98, 180, 255, 0.05) 0%, transparent 38%),
+    radial-gradient(circle at 82% 78%, rgba(232, 176, 67, 0.07) 0%, transparent 42%),
+    radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.6), transparent 50%),
+    radial-gradient(1px 1px at 28% 64%, rgba(255,255,255,0.5), transparent 50%),
+    radial-gradient(1px 1px at 47% 12%, rgba(255,255,255,0.55), transparent 50%),
+    radial-gradient(1px 1px at 62% 78%, rgba(255,255,255,0.45), transparent 50%),
+    radial-gradient(1px 1px at 78% 32%, rgba(255,255,255,0.55), transparent 50%),
+    radial-gradient(1px 1px at 88% 58%, rgba(255,255,255,0.4), transparent 50%),
+    radial-gradient(1px 1px at 35% 88%, rgba(255,255,255,0.45), transparent 50%),
+    radial-gradient(1.5px 1.5px at 8% 72%, rgba(232,176,67,0.45), transparent 50%),
+    radial-gradient(1.5px 1.5px at 92% 14%, rgba(232,176,67,0.4), transparent 50%);
+}
+.container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 28px 96px;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  text-decoration: none;
+  margin-bottom: 32px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  transition: all .15s ease;
+}
+.back-link:hover {
+  color: var(--accent);
+  border-color: var(--accent-deep);
+  background: rgba(232,176,67,0.04);
+}
+
+/* Header */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.eyebrow::before { content: ''; width: 36px; height: 1px; background: var(--accent); }
+.eyebrow::after  { content: ''; width: 6px;  height: 6px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 12px rgba(232,176,67,0.7); }
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  letter-spacing: -0.015em;
+  line-height: 1.02;
+  color: var(--ink);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+h1::after {
+  content: '';
+  display: block;
+  margin-top: 18px;
+  width: 64px;
+  height: 2px;
+  background: var(--accent);
+}
+.subtitle {
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 70ch;
+  margin-bottom: 36px;
+}
+.subtitle em { color: var(--accent-soft); font-style: normal; font-weight: 600; }
+
+.talk-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 48px;
+}
+.talk-meta span {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding: 6px 12px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+}
+.talk-meta span.live {
+  color: var(--accent);
+  border-color: var(--accent-deep);
+}
+
+/* Section label */
+.section-label {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-label::after {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+/* Premise tile grid */
+.premise { margin-bottom: 48px; }
+.premise ol {
+  list-style: none;
+  counter-reset: prem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.premise li {
+  counter-increment: prem;
+  background: var(--bg-card);
+  padding: 28px 22px 26px;
+  position: relative;
+  min-height: 210px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+.premise li::before {
+  content: counter(prem);
+  display: block;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 30px;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 18px;
+}
+.premise li::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 85% 90%, rgba(232,176,67,0.10) 0%, transparent 50%),
+    radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,0.6), transparent 50%),
+    radial-gradient(1px 1px at 88% 55%, rgba(255,255,255,0.5), transparent 50%),
+    radial-gradient(1px 1px at 25% 75%, rgba(255,255,255,0.4), transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+.premise li > * { position: relative; z-index: 1; }
+.premise li strong {
+  display: block;
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.premise li span {
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.premise li em {
+  color: var(--accent-soft);
+  font-style: normal;
+  font-weight: 600;
+}
+@media (max-width: 960px) {
+  .premise ol { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .premise ol { grid-template-columns: 1fr; }
+}
+
+/* Module heading */
+.module {
+  margin-bottom: 64px;
+}
+.module-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.module-head .label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.module-head h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+  margin-top: 6px;
+}
+.module-head .hint {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  max-width: 28ch;
+  text-align: right;
+}
+
+/* Simulation layout */
+.sim-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  margin-bottom: 36px;
+}
+@media (max-width: 960px) {
+  .sim-grid { grid-template-columns: 1fr; }
+}
+
+.stage {
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(232,176,67,0.08), 0 24px 48px -24px rgba(0,0,0,0.8);
+}
+.stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.stage-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.stage-clock {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 4px 10px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+}
+canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+  background: var(--bg-deep);
+}
+
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  box-shadow: 0 0 0 1px rgba(232,176,67,0.08), 0 24px 48px -24px rgba(0,0,0,0.8);
+}
+.panel h3 {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 14px;
+}
+.control { display: flex; flex-direction: column; gap: 8px; }
+.control-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.control label {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+.control output {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-soft);
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+button {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  background: var(--bg-soft);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+button:hover { background: var(--line); border-color: var(--line-strong); }
+button.primary {
+  background: var(--accent);
+  color: #1A1208;
+  border-color: var(--accent);
+  box-shadow: 0 0 24px -4px rgba(232,176,67,0.45);
+}
+button.primary:hover { background: var(--accent-soft); }
+
+/* Metrics */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 36px;
+}
+@media (max-width: 720px) {
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+}
+.metric {
+  background: var(--bg-card);
+  border-radius: 0;
+  padding: 20px 22px;
+  position: relative;
+}
+.metric::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 90% 100%, rgba(232,176,67,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.metric-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 8px;
+}
+.metric-value {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 30px;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.metric-unit {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-mute);
+  margin-left: 4px;
+}
+.metric.alert .metric-value { color: var(--accent); }
+
+/* Bridge note */
+.bridge {
+  background:
+    radial-gradient(circle at 90% 110%, rgba(232,176,67,0.18) 0%, transparent 55%),
+    radial-gradient(circle at 10% -10%, rgba(98,180,255,0.06) 0%, transparent 50%),
+    var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 48px;
+}
+.bridge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1px 1px at 18% 22%, rgba(255,255,255,0.5), transparent 50%),
+    radial-gradient(1px 1px at 42% 78%, rgba(255,255,255,0.45), transparent 50%),
+    radial-gradient(1px 1px at 72% 30%, rgba(255,255,255,0.55), transparent 50%),
+    radial-gradient(1.5px 1.5px at 88% 68%, rgba(232,176,67,0.6), transparent 50%);
+  pointer-events: none;
+}
+.bridge > * { position: relative; }
+.bridge h2 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.bridge h2::after {
+  content: '';
+  display: block;
+  margin-top: 12px;
+  width: 48px;
+  height: 2px;
+  background: var(--accent);
+}
+.bridge p {
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.65;
+  margin-bottom: 10px;
+  max-width: 72ch;
+}
+.bridge p:last-child { margin-bottom: 0; }
+.bridge strong { color: var(--accent-soft); font-weight: 600; }
+.bridge em { color: var(--accent); font-style: normal; font-weight: 700; }
+
+/* Coming soon roadmap */
+.roadmap {
+  margin-bottom: 48px;
+}
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+@media (max-width: 720px) {
+  .roadmap-grid { grid-template-columns: 1fr; }
+}
+.roadmap-tile {
+  background: var(--bg-card);
+  padding: 24px 22px;
+  position: relative;
+  overflow: hidden;
+  min-height: 160px;
+}
+.roadmap-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 90% 100%, rgba(232,176,67,0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+.roadmap-tile > * { position: relative; }
+.roadmap-tile .tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  padding: 4px 9px;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  margin-bottom: 14px;
+}
+.roadmap-tile.live .tag {
+  color: var(--accent);
+  border-color: var(--accent-deep);
+}
+.roadmap-tile h3 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 17px;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+.roadmap-tile p {
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.footnote {
+  margin-top: 36px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  text-align: center;
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <a class="back-link" href="index.html">← Knowledge Kitchen</a>
+
+  <div class="eyebrow">Daten Grillen · Vortrag</div>
+  <h1>Morally Aligned AI</h1>
+  <p class="subtitle">
+    Was bedeutet es, eine künstliche Intelligenz <em>moralisch auszurichten</em> —
+    und worüber sollten wir reden, bevor wir es tun? Diese Seite begleitet den
+    Vortrag: spielbare Module, Thesen und Fragen zum Mitnehmen. Sie wächst
+    Stück für Stück.
+  </p>
+
+  <div class="talk-meta">
+    <span class="live">● Live-Vortrag</span>
+    <span>Daten Grillen</span>
+    <span>Interaktive Module</span>
+    <span>Work in Progress</span>
+  </div>
+
+  <div class="premise">
+    <div class="section-label">Worum es geht</div>
+    <ol>
+      <li>
+        <strong>Das Schweigen ist die Beobachtung</strong>
+        <span>Wenn das Universum so alt und so voll ist — wo sind alle? Wir starten beim Fermi-Paradoxon, weil es die gleiche Logik hat wie unsere Frage nach AI.</span>
+      </li>
+      <li>
+        <strong>Skalen sind unintuitiv</strong>
+        <span>Was klein klingt — <em>ein</em> Akteur, <em>langsam</em>, <em>kurze</em> Zeit — wird auf kosmischen oder algorithmischen Skalen sehr schnell sehr groß.</span>
+      </li>
+      <li>
+        <strong>Ausrichtung ist kein Schalter</strong>
+        <span>„Moralisch ausgerichtet" ist kein Häkchen im Setup-Wizard. Es ist eine Folge von Entscheidungen, Defaults und Reichweite.</span>
+      </li>
+      <li>
+        <strong>Wir spielen, dann reden wir</strong>
+        <span>Jedes Modul ist <em>spielbar</em>. Zieh die Regler. Was siehst du? Was überrascht dich? Das ist die Brücke zum nächsten Kapitel.</span>
+      </li>
+    </ol>
+  </div>
+
+  <!-- ============ MODULE 1 ============ -->
+  <div class="module" id="modul-fermi">
+    <div class="module-head">
+      <div>
+        <div class="label">Modul 01 · Spielbar</div>
+        <h2>Das Fermi-Paradoxon</h2>
+      </div>
+      <div class="hint">Zieh die Regler.<br>Sieh, wie schnell etwas „Kleines" alles füllt.</div>
+    </div>
+
+    <div class="sim-grid">
+      <div class="stage">
+        <div class="stage-header">
+          <span class="stage-title">Milchstraße · Top-Down</span>
+          <span class="stage-clock" id="clock">0 Mio. Jahre</span>
+        </div>
+        <canvas id="galaxy" width="780" height="780"></canvas>
+      </div>
+
+      <div class="panel">
+        <h3>Parameter</h3>
+
+        <div class="control">
+          <div class="control-row">
+            <label for="civCount">Zivilisationen (Start)</label>
+            <output id="civCountOut">1</output>
+          </div>
+          <input type="range" id="civCount" min="1" max="20" value="1" step="1">
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <label for="speed">Reisegeschwindigkeit</label>
+            <output id="speedOut">1 % c</output>
+          </div>
+          <input type="range" id="speed" min="1" max="10" value="1" step="0.5">
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <label for="timeScale">Zeitraffer</label>
+            <output id="timeScaleOut">100 000 J/s</output>
+          </div>
+          <input type="range" id="timeScale" min="1" max="6" value="3" step="1">
+        </div>
+
+        <h3 style="margin-top:8px">Steuerung</h3>
+        <div class="actions">
+          <button class="primary" id="playBtn">▶ Start</button>
+          <button id="resetBtn">↻ Reset</button>
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <label for="manualTime">Zeit manuell</label>
+            <output id="manualTimeOut">0 Mio. J</output>
+          </div>
+          <input type="range" id="manualTime" min="0" max="20000000" value="0" step="100000">
+        </div>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Verstrichene Zeit</div>
+        <div class="metric-value"><span id="m-time">0</span><span class="metric-unit">Mio. Jahre</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Reichweite (Front)</div>
+        <div class="metric-value"><span id="m-radius">0</span><span class="metric-unit">Lichtjahre</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Galaxie erkundet</div>
+        <div class="metric-value"><span id="m-coverage">0</span><span class="metric-unit">%</span></div>
+      </div>
+      <div class="metric alert">
+        <div class="metric-label">Mögliche Durchquerungen</div>
+        <div class="metric-value"><span id="m-crossings">0</span><span class="metric-unit">× in 10 Mrd. J</span></div>
+      </div>
+    </div>
+
+    <div class="bridge">
+      <h2>Die Brücke zur KI</h2>
+      <p>
+        Die Simulation läuft über <strong>20 Millionen Jahre</strong> — ein Wimpernschlag im
+        Vergleich zur Galaxie. Schon eine einzige Zivilisation mit langsamer
+        Unterlicht-Reise hätte alles erreicht. Die Galaxie ist
+        <strong>~10 Milliarden Jahre alt</strong> — Zeit für <strong>500 bis 5 000</strong>
+        komplette Durchquerungen.
+      </p>
+      <p>
+        Genau das ist die Logik, die uns bei <em>KI</em> wieder begegnet: ein Prozess,
+        der lokal harmlos aussieht, skaliert auf Zeit- und Akteursachsen, die wir
+        nicht intuitiv greifen. Wenn <em>eine</em> Entscheidung sich kopieren kann,
+        ist sie nicht mehr lokal.
+      </p>
+      <p>
+        Im nächsten Modul: wie sich <strong>Defaults</strong> verhalten, wenn sie sich selbst
+        replizieren. Folgt bald.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ ROADMAP ============ -->
+  <div class="roadmap">
+    <div class="section-label">Weitere Module · in Arbeit</div>
+    <div class="roadmap-grid">
+      <div class="roadmap-tile live">
+        <span class="tag">● Modul 01 · Live</span>
+        <h3>Fermi-Paradoxon</h3>
+        <p>Spielbare Galaxie-Expansion — wie schnell wird aus „einem" alles?</p>
+      </div>
+      <div class="roadmap-tile">
+        <span class="tag">○ Modul 02 · in Arbeit</span>
+        <h3>Aligned Defaults</h3>
+        <p>Was passiert, wenn eine wohlmeinende Standardeinstellung sich selbst kopiert?</p>
+      </div>
+      <div class="roadmap-tile">
+        <span class="tag">○ Modul 03 · geplant</span>
+        <h3>Wer entscheidet?</h3>
+        <p>Werte, Kontext, Reichweite — wer setzt sie, wer haftet, wer überstimmt?</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">
+    Modul 01 · Simulation: Lineare Expansion auf Galaxie-Scheibe (Ø 100 000 Lj).
+    Vereinfachung — keine Reise-Logistik, keine Lebensdauer-Limits, keine
+    Sternensystem-Hops. Mehr Module folgen.
+  </div>
+
+</div>
+
+<script>
+(function() {
+  const canvas = document.getElementById('galaxy');
+  const ctx = canvas.getContext('2d');
+
+  // Galaxy parameters
+  const GALAXY_DIAMETER_LY = 100000;
+  const GALAXY_RADIUS_LY = GALAXY_DIAMETER_LY / 2;
+  const C = 1; // speed of light = 1 ly/year (units!)
+
+  // Canvas / world mapping
+  const SIZE = canvas.width;
+  const CX = SIZE / 2;
+  const CY = SIZE / 2;
+  const LY_TO_PX = (SIZE * 0.46) / GALAXY_RADIUS_LY;
+
+  // Generate background stars (deterministic, looks like spiral)
+  const stars = [];
+  const STAR_COUNT = 2400;
+  const rng = mulberry32(42);
+  for (let i = 0; i < STAR_COUNT; i++) {
+    const armCount = 4;
+    const arm = Math.floor(rng() * armCount);
+    const t = Math.pow(rng(), 0.65);
+    const angle = arm * (Math.PI * 2 / armCount) + t * 5.5 + (rng() - 0.5) * 0.6;
+    const r = t * GALAXY_RADIUS_LY * (0.96 + (rng() - 0.5) * 0.05);
+    const wobble = (rng() - 0.5) * GALAXY_RADIUS_LY * 0.08 * (1 - t * 0.5);
+    const x = Math.cos(angle) * r + wobble;
+    const y = Math.sin(angle) * r + wobble;
+    const brightness = 0.3 + rng() * 0.7;
+    const size = rng() < 0.04 ? 1.6 : (rng() < 0.2 ? 1.1 : 0.7);
+    stars.push({ x, y, brightness, size });
+  }
+
+  // Earth marker
+  const EARTH = {
+    x: Math.cos(-1.3) * 27000,
+    y: Math.sin(-1.3) * 27000
+  };
+
+  const CIV_COLORS = ['#62D6FF', '#FF7A8A', '#A9F26F', '#C28BFF', '#FFD68C', '#FF9F6E', '#8DE5C0', '#F26FCB', '#6FA5F2', '#F2D26F'];
+  let civs = [];
+
+  let years = 0;
+  let playing = false;
+  let lastFrame = 0;
+
+  const civCountEl = document.getElementById('civCount');
+  const civCountOut = document.getElementById('civCountOut');
+  const speedEl = document.getElementById('speed');
+  const speedOut = document.getElementById('speedOut');
+  const timeScaleEl = document.getElementById('timeScale');
+  const timeScaleOut = document.getElementById('timeScaleOut');
+  const playBtn = document.getElementById('playBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const manualTime = document.getElementById('manualTime');
+  const manualTimeOut = document.getElementById('manualTimeOut');
+  const clockEl = document.getElementById('clock');
+
+  const mTime = document.getElementById('m-time');
+  const mRadius = document.getElementById('m-radius');
+  const mCoverage = document.getElementById('m-coverage');
+  const mCrossings = document.getElementById('m-crossings');
+
+  function getSpeed() { return parseFloat(speedEl.value) / 100; }
+  function getTimeScale() {
+    const v = parseInt(timeScaleEl.value, 10);
+    return Math.pow(10, 3 + v);
+  }
+
+  function fmtNumber(n) {
+    if (n >= 1e6) return (n / 1e6).toFixed(2) + ' Mio.';
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'k';
+    return Math.round(n).toString();
+  }
+
+  function fmtTime(yearsVal) {
+    if (yearsVal >= 1e6) return (yearsVal / 1e6).toFixed(2) + ' Mio. Jahre';
+    if (yearsVal >= 1e3) return (yearsVal / 1e3).toFixed(1) + ' k Jahre';
+    return Math.round(yearsVal) + ' Jahre';
+  }
+
+  function fmtTimeScale(yps) {
+    if (yps >= 1e6) return (yps / 1e6).toFixed(0) + ' Mio. J/s';
+    if (yps >= 1e3) return (yps / 1e3).toFixed(0) + ' k J/s';
+    return Math.round(yps) + ' J/s';
+  }
+
+  function seedCivs() {
+    const n = parseInt(civCountEl.value, 10);
+    const rng2 = mulberry32(7);
+    civs = [];
+    for (let i = 0; i < n; i++) {
+      let x, y, r;
+      do {
+        const angle = rng2() * Math.PI * 2;
+        const rad = (0.15 + rng2() * 0.8) * GALAXY_RADIUS_LY;
+        x = Math.cos(angle) * rad;
+        y = Math.sin(angle) * rad;
+        r = Math.sqrt(x * x + y * y);
+      } while (r > GALAXY_RADIUS_LY * 0.95);
+      civs.push({ x, y, color: CIV_COLORS[i % CIV_COLORS.length], born: 0 });
+    }
+  }
+
+  function reset() {
+    years = 0;
+    manualTime.value = 0;
+    seedCivs();
+    render();
+    updateMetrics();
+  }
+
+  function expansionRadiusLy() {
+    return getSpeed() * C * years;
+  }
+
+  function updateMetrics() {
+    const speed = getSpeed();
+    const radius = expansionRadiusLy();
+
+    let coverage = 0;
+    if (civs.length > 0 && radius > 0) {
+      const SAMPLES = 3000;
+      const rng3 = mulberry32(99);
+      let hit = 0;
+      for (let i = 0; i < SAMPLES; i++) {
+        const a = rng3() * Math.PI * 2;
+        const r = Math.sqrt(rng3()) * GALAXY_RADIUS_LY;
+        const sx = Math.cos(a) * r;
+        const sy = Math.sin(a) * r;
+        for (let j = 0; j < civs.length; j++) {
+          const dx = sx - civs[j].x;
+          const dy = sy - civs[j].y;
+          if (dx * dx + dy * dy <= radius * radius) { hit++; break; }
+        }
+      }
+      coverage = (hit / SAMPLES) * 100;
+    }
+
+    const crossingsIn10Bn = speed > 0 ? (10e9 * speed) / GALAXY_DIAMETER_LY : 0;
+
+    mTime.textContent = (years / 1e6).toFixed(2);
+    mRadius.textContent = fmtNumber(radius);
+    mCoverage.textContent = coverage.toFixed(1);
+    mCrossings.textContent = Math.round(crossingsIn10Bn).toLocaleString('de-DE');
+
+    clockEl.textContent = fmtTime(years);
+    manualTimeOut.textContent = fmtTime(years);
+  }
+
+  function render() {
+    ctx.fillStyle = '#020307';
+    ctx.fillRect(0, 0, SIZE, SIZE);
+
+    const grad = ctx.createRadialGradient(CX, CY, 0, CX, CY, SIZE * 0.5);
+    grad.addColorStop(0, 'rgba(180, 200, 255, 0.06)');
+    grad.addColorStop(0.4, 'rgba(120, 140, 200, 0.03)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(CX, CY, SIZE * 0.48, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(120, 140, 200, 0.10)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(CX, CY, GALAXY_RADIUS_LY * LY_TO_PX, 0, Math.PI * 2);
+    ctx.stroke();
+
+    for (let i = 0; i < stars.length; i++) {
+      const s = stars[i];
+      const px = CX + s.x * LY_TO_PX;
+      const py = CY + s.y * LY_TO_PX;
+      ctx.fillStyle = `rgba(220, 230, 255, ${s.brightness * 0.8})`;
+      ctx.beginPath();
+      ctx.arc(px, py, s.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const ex = CX + EARTH.x * LY_TO_PX;
+    const ey = CY + EARTH.y * LY_TO_PX;
+    ctx.strokeStyle = 'rgba(255, 185, 74, 0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(ex, ey, 5, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(255, 185, 74, 0.8)';
+    ctx.fillText('Erde', ex + 9, ey + 3);
+
+    const radiusLy = expansionRadiusLy();
+    const radiusPx = radiusLy * LY_TO_PX;
+
+    for (let i = 0; i < civs.length; i++) {
+      const c = civs[i];
+      const px = CX + c.x * LY_TO_PX;
+      const py = CY + c.y * LY_TO_PX;
+
+      if (radiusPx > 1) {
+        const g = ctx.createRadialGradient(px, py, 0, px, py, radiusPx);
+        g.addColorStop(0, hexToRgba(c.color, 0.18));
+        g.addColorStop(0.7, hexToRgba(c.color, 0.10));
+        g.addColorStop(1, hexToRgba(c.color, 0.0));
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(px, py, radiusPx, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = hexToRgba(c.color, 0.55);
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.arc(px, py, radiusPx, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = c.color;
+      ctx.beginPath();
+      ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    const scaleLy = 10000;
+    const scalePx = scaleLy * LY_TO_PX;
+    const baseY = SIZE - 26;
+    const baseX = 26;
+    ctx.strokeStyle = 'rgba(180, 188, 200, 0.6)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(baseX, baseY);
+    ctx.lineTo(baseX + scalePx, baseY);
+    ctx.moveTo(baseX, baseY - 4);
+    ctx.lineTo(baseX, baseY + 4);
+    ctx.moveTo(baseX + scalePx, baseY - 4);
+    ctx.lineTo(baseX + scalePx, baseY + 4);
+    ctx.stroke();
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.fillStyle = 'rgba(180, 188, 200, 0.8)';
+    ctx.fillText('10 000 Lichtjahre', baseX, baseY - 8);
+  }
+
+  function tick(ts) {
+    if (!playing) return;
+    const dt = lastFrame ? (ts - lastFrame) / 1000 : 0;
+    lastFrame = ts;
+    years += getTimeScale() * dt;
+    if (years >= 20000000) {
+      years = 20000000;
+      playing = false;
+      playBtn.textContent = '▶ Start';
+    }
+    manualTime.value = years;
+    render();
+    updateMetrics();
+    if (playing) requestAnimationFrame(tick);
+  }
+
+  function mulberry32(seed) {
+    let a = seed;
+    return function() {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function hexToRgba(hex, alpha) {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  civCountEl.addEventListener('input', () => {
+    civCountOut.textContent = civCountEl.value;
+    seedCivs();
+    render();
+    updateMetrics();
+  });
+  speedEl.addEventListener('input', () => {
+    speedOut.textContent = parseFloat(speedEl.value).toFixed(1) + ' % c';
+    render();
+    updateMetrics();
+  });
+  timeScaleEl.addEventListener('input', () => {
+    timeScaleOut.textContent = fmtTimeScale(getTimeScale());
+  });
+  manualTime.addEventListener('input', () => {
+    years = parseFloat(manualTime.value);
+    playing = false;
+    playBtn.textContent = '▶ Start';
+    render();
+    updateMetrics();
+  });
+  playBtn.addEventListener('click', () => {
+    playing = !playing;
+    playBtn.textContent = playing ? '⏸ Pause' : '▶ Start';
+    if (playing) {
+      lastFrame = 0;
+      requestAnimationFrame(tick);
+    }
+  });
+  resetBtn.addEventListener('click', () => {
+    playing = false;
+    playBtn.textContent = '▶ Start';
+    reset();
+  });
+
+  civCountOut.textContent = civCountEl.value;
+  speedOut.textContent = parseFloat(speedEl.value).toFixed(1) + ' % c';
+  timeScaleOut.textContent = fmtTimeScale(getTimeScale());
+
+  reset();
+})();
+</script>
+</body>
+</html>
