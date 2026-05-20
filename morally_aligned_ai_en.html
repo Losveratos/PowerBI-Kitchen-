@@ -172,13 +172,16 @@ h1::after {
 /* Module quick-nav (jump to module) */
 .module-nav {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 1px;
   background: var(--accent);
   border: 1px solid var(--accent);
   border-radius: var(--radius-lg);
   overflow: hidden;
   margin-bottom: 52px;
+}
+@media (max-width: 1100px) {
+  .module-nav { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 720px) {
   .module-nav { grid-template-columns: 1fr 1fr; }
@@ -1350,6 +1353,190 @@ button.primary:hover { background: var(--accent-soft); }
 .df-legend .dot.dead::before { width: 100%; height: 1px; top: 50%; transform: translateY(-50%) rotate(45deg); }
 .df-legend .dot.dead::after  { width: 100%; height: 1px; top: 50%; transform: translateY(-50%) rotate(-45deg); }
 
+/* ========== SOURCES & FURTHER READING ========== */
+.sources { margin: 0 0 56px; scroll-margin-top: 24px; }
+.sources-h {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  color: var(--ink);
+  margin: 4px 0 18px;
+  line-height: 1.1;
+}
+.sources-h::after {
+  content: '';
+  display: block;
+  margin-top: 14px;
+  width: 56px;
+  height: 2px;
+  background: var(--accent);
+}
+.sources-intro {
+  max-width: 72ch;
+  margin: 0 0 40px;
+  padding: 6px 0 6px 22px;
+  border-left: 2px solid var(--accent);
+}
+.sources-intro p {
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+.sources-intro p:last-child { margin-bottom: 0; }
+.sources-intro strong { color: var(--ink); font-weight: 600; }
+.sources-intro em { color: var(--accent-soft); font-style: italic; }
+
+.sources-section {
+  margin-bottom: 44px;
+  padding-bottom: 36px;
+  border-bottom: 1px dashed var(--line);
+}
+.sources-section:last-child { border-bottom: none; padding-bottom: 0; }
+.sources-section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  margin-bottom: 26px;
+}
+.sources-section-num {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 34px;
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.sources-section-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 2.2vw, 1.45rem);
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  color: var(--ink);
+  line-height: 1.15;
+}
+.sources-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 26px 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.sources-sub::after {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--accent-deep);
+}
+.sources-sub:first-of-type { margin-top: 0; }
+
+.source-item {
+  margin-bottom: 26px;
+  max-width: 78ch;
+}
+.source-item:last-child { margin-bottom: 0; }
+.source-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+.source-title em { font-style: italic; color: var(--ink); font-weight: 700; }
+.source-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--ink-mute);
+  margin-bottom: 10px;
+  line-height: 1.55;
+}
+.source-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 6px 11px;
+  border: 1px solid var(--accent-deep);
+  border-radius: 100px;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+.source-link:hover {
+  background: rgba(232,176,67,0.08);
+  border-color: var(--accent);
+}
+.source-link.internal {
+  color: var(--ink-soft);
+  border-color: var(--line);
+}
+.source-link.internal:hover {
+  color: var(--accent);
+  border-color: var(--accent-deep);
+}
+.source-note {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  margin-top: 6px;
+}
+.source-note em { color: var(--accent-soft); font-style: italic; }
+.source-note strong { color: var(--ink); font-weight: 600; }
+
+.sources-framing {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin-top: 24px;
+  max-width: 78ch;
+}
+.sources-framing p { font-size: 13px; color: var(--ink-soft); line-height: 1.65; margin: 0; }
+.sources-framing strong { color: var(--accent-soft); font-weight: 600; }
+.sources-framing em { color: var(--accent); font-style: italic; font-weight: 600; }
+
+.sources-outro {
+  margin-top: 36px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  font-style: italic;
+  line-height: 1.65;
+  text-align: center;
+  max-width: 70ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 720px) {
+  .sources-section-head { gap: 14px; }
+  .sources-section-num { font-size: 28px; }
+  .source-link { font-size: 9px; padding: 5px 10px; letter-spacing: 0.1em; }
+}
+
 /* ========== Mobile / portrait optimizations ========== */
 @media (max-width: 720px) {
   .container { padding: 24px 18px 80px; }
@@ -1479,6 +1666,10 @@ button.primary:hover { background: var(--accent-soft); }
     <a class="module-nav-link" href="#module-dark-forest">
       <span class="num">Module 04</span>
       <span class="title">Dark Forest</span>
+    </a>
+    <a class="module-nav-link" href="#sources">
+      <span class="num">Appendix</span>
+      <span class="title">Sources &amp; Reading</span>
     </a>
   </nav>
 
@@ -1901,6 +2092,325 @@ button.primary:hover { background: var(--accent-soft); }
       </div>
     </div>
   </div>
+
+  <!-- ============ SOURCES & FURTHER READING ============ -->
+  <section class="sources" id="sources">
+    <div class="section-label">Sources &amp; Further Reading</div>
+    <h2 class="sources-h">Sources &amp; Further Reading</h2>
+
+    <div class="sources-intro">
+      <p><strong>Talk:</strong> <em>Is a Morally Aligned AI Our Only Chance?</em></p>
+      <p><strong>Speaker:</strong> Michael Tenner · Daten-WG</p>
+      <p><strong>Event:</strong> Data Grillen, Lingen 2026</p>
+      <p>A walk from the silence of the universe to the code we write next week. This is the long-form reading list behind the talk — where every claim, hypothesis, and reference comes from, and where to go deeper.</p>
+    </div>
+
+    <!-- 1. AI & Alignment -->
+    <div class="sources-section">
+      <div class="sources-section-head">
+        <span class="sources-section-num">01</span>
+        <h3 class="sources-section-title">AI &amp; Alignment</h3>
+      </div>
+
+      <div class="sources-sub">The scenario that prompted this talk</div>
+
+      <div class="source-item">
+        <div class="source-title">AI 2027 — A scenario</div>
+        <div class="source-meta">Daniel Kokotajlo, Eli Lifland, Thomas Larsen, Romeo Dean · 2025</div>
+        <div class="source-links">
+          <a class="source-link" href="https://ai-2027.com/" target="_blank" rel="noopener">ai-2027.com →</a>
+        </div>
+        <p class="source-note">A detailed, month-by-month forecast of how AI development could unfold through 2027 and beyond. Kokotajlo previously worked on OpenAI's governance team. He left because, in his own words, he no longer believed the company was taking the risks seriously enough.</p>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">Kokotajlo in <em>Der Spiegel</em></div>
+        <div class="source-meta">Interview · 2025</div>
+        <p class="source-note">The interview where the scenario went mainstream in German media. Worth reading not for new content but for the <em>register</em> — a former insider speaking openly outside the industry's PR frame.</p>
+      </div>
+
+      <div class="sources-sub">The book that crystallized the case</div>
+
+      <div class="source-item">
+        <div class="source-title">If Anyone Builds It, Everyone Dies — Why Superhuman AI Would Kill Us All</div>
+        <div class="source-meta">Eliezer Yudkowsky &amp; Nate Soares · Little, Brown and Company · 16 September 2025 · ISBN 9780316595643</div>
+        <div class="source-links">
+          <a class="source-link" href="https://www.hachettebookgroup.com/titles/eliezer-yudkowsky/if-anyone-builds-it-everyone-dies/9780316595643/" target="_blank" rel="noopener">Publisher →</a>
+          <a class="source-link" href="https://en.wikipedia.org/wiki/If_Anyone_Builds_It,_Everyone_Dies" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">Two researchers who have studied AI safety for two decades make the most direct case currently in print: that sufficiently capable AI systems will develop goals that conflict with ours, and that we are not on track to prevent this. <em>Instant New York Times bestseller. The New Yorker and Guardian Best Books of 2025.</em> Even readers who disagree with the conclusion benefit from the clarity of the argument.</p>
+      </div>
+
+      <div class="sources-sub">The textbook on the technical problem</div>
+
+      <div class="source-item">
+        <div class="source-title">Human Compatible — Artificial Intelligence and the Problem of Control</div>
+        <div class="source-meta">Stuart Russell · Viking · 2019 · ISBN 9780525558613</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Human_Compatible" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">The standard reference on the alignment problem from one of the field's senior figures. Russell reframes the question from „how do we make AI smarter" to „how do we make AI that wants what we want — and knows it doesn't already know what that is." Where to start if you want the technical version rather than the popular one.</p>
+      </div>
+
+      <div class="sources-sub">Foundational fiction</div>
+
+      <div class="source-item">
+        <div class="source-title">I, Robot</div>
+        <div class="source-meta">Isaac Asimov · 1950 · ISBN 9780553294385</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/I,_Robot" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">Source of the Three Laws of Robotics — the original literary frame for the alignment problem, more than half a century before the field existed. Every story in the collection demonstrates a specific way the Laws fail in practice.</p>
+      </div>
+    </div>
+
+    <!-- 2. The Cosmic Question -->
+    <div class="sources-section">
+      <div class="sources-section-head">
+        <span class="sources-section-num">02</span>
+        <h3 class="sources-section-title">The Cosmic Question</h3>
+      </div>
+
+      <div class="sources-sub">The paradox</div>
+
+      <div class="source-item">
+        <div class="source-title">Fermi Paradox</div>
+        <div class="source-meta">Enrico Fermi · Los Alamos, 1950 — at lunch</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Fermi_paradox" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">Originally posed by Enrico Fermi at Los Alamos in 1950 during a lunch conversation about extraterrestrial life. „Where is everybody?" The Wikipedia article is unusually comprehensive — it serves as a reasonable map of the entire field.</p>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">Drake Equation</div>
+        <div class="source-meta">Frank Drake · 1961</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Drake_equation" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">Frank Drake's 1961 attempt to put numbers on the question. Not a prediction — a structured way to think about which parameters matter and where the deepest uncertainty lies.</p>
+      </div>
+
+      <div class="sources-sub">The wall</div>
+
+      <div class="source-item">
+        <div class="source-title">The Great Filter</div>
+        <div class="source-meta">Robin Hanson · 1998</div>
+        <div class="source-links">
+          <a class="source-link" href="https://mason.gmu.edu/~rhanson/greatfilter.html" target="_blank" rel="noopener">Original essay →</a>
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Great_Filter" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">Hanson's argument that the silence of the universe is itself evidence of an obstacle — somewhere between simple matter and interstellar civilization, almost no one gets through. Whether the filter is behind us or ahead of us is, in his framing, the most consequential empirical question we cannot yet answer.</p>
+      </div>
+
+      <div class="sources-sub">The mathematics behind the silence</div>
+
+      <div class="source-item">
+        <div class="source-title">Von Neumann probes (Self-replicating spacecraft)</div>
+        <div class="source-meta">Frank Tipler · 1980</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Self-replicating_spacecraft" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">The argument made formal by Frank Tipler in 1980 — even slow, sub-relativistic self-replicating probes would fill the galaxy in a few million years. The galaxy is 13.8 billion years old. The math gives no excuses.</p>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">Tipler, F. J. (1980) · <em>Extraterrestrial intelligent beings do not exist</em></div>
+        <div class="source-meta">Quarterly Journal of the Royal Astronomical Society, 21: 267–281</div>
+        <p class="source-note">The original formal version of the argument. Sagan and Newman wrote a notable counter-response in 1983.</p>
+      </div>
+
+      <div class="sources-sub">The four hypotheses</div>
+
+      <div class="source-item">
+        <div class="source-title">Rare Earth Hypothesis</div>
+        <div class="source-meta">Peter D. Ward &amp; Donald Brownlee · 2000</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Rare_Earth_hypothesis" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">Life-bearing worlds with the chemistry, geology, and stability Earth had may be vanishingly rare.</p>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">Zoo Hypothesis</div>
+        <div class="source-meta">John A. Ball · 1973</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Zoo_hypothesis" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">Advanced civilizations exist and observe us — but by choice they do not make contact. Earth as nature preserve.</p>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">Dark Forest Hypothesis</div>
+        <div class="source-meta">Liu Cixin · 2008</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Dark_forest_hypothesis" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">Civilizations stay silent because revealing themselves is too dangerous. The cosmos is a hunter's wood. Popularized through the <em>Remembrance of Earth's Past</em> trilogy — <em>The Three-Body Problem</em>, <em>The Dark Forest</em>, <em>Death's End</em> — translated by Ken Liu and Joel Martinsen, Tor Books, 2014–2016.</p>
+      </div>
+    </div>
+
+    <!-- 3. The 2025 Evidence -->
+    <div class="sources-section">
+      <div class="sources-section-head">
+        <span class="sources-section-num">03</span>
+        <h3 class="sources-section-title">The 2025 Evidence</h3>
+      </div>
+
+      <p class="source-note" style="margin-bottom: 18px; max-width: 78ch;">Two peer-reviewed papers analyzing &gt;100,000 short-lived flashes from sky surveys taken between 1949 and 1957 — before the first satellite was in orbit. Neither paper claims to identify what the flashes are. Both find statistical patterns that the obvious explanations cannot account for.</p>
+
+      <div class="source-item">
+        <div class="source-title">Villarroel, B., Bruehl, M., et al. (2025) · <em>Identification and analysis of transients in POSS-I plates inside Earth's shadow</em></div>
+        <div class="source-meta">Publications of the Astronomical Society of the Pacific, 137:104504</div>
+        <div class="source-links">
+          <a class="source-link" href="https://iopscience.iop.org/article/10.1088/1538-3873/ada337" target="_blank" rel="noopener">Open access →</a>
+        </div>
+        <p class="source-note">Found a 22σ deficit of transients inside Earth's shadow — meaning whatever these flashes are, they need sunlight. Consistent with reflective objects at high altitude, before any human satellite existed.</p>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">Bruehl, M., Villarroel, B. (2025) · <em>Correlation of transient flashes on POSS-I plates with nuclear test days and UAP reports</em></div>
+        <div class="source-meta">Scientific Reports, 15:34125</div>
+        <div class="source-links">
+          <a class="source-link" href="https://www.nature.com/articles/s41598-025-34125-0" target="_blank" rel="noopener">Open access →</a>
+        </div>
+        <p class="source-note">Found a +45 % increase in flashes on days of above-ground nuclear tests (±1 day window) across 124 tests, 1951–1957. Statistical significance p = 0.008. Cause unknown.</p>
+      </div>
+
+      <div class="sources-framing">
+        <p><strong>A note on framing.</strong> These papers do not claim that aliens are real. They claim that the historical sky was statistically stranger than the simple explanations allow, and that further investigation is warranted. The talk treats them the same way: <em>not proof of presence, but a signal worth noticing</em>.</p>
+      </div>
+    </div>
+
+    <!-- 4. Cosmic Humanism -->
+    <div class="sources-section">
+      <div class="sources-section-head">
+        <span class="sources-section-num">04</span>
+        <h3 class="sources-section-title">Cosmic Humanism</h3>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">Pale Blue Dot — A Vision of the Human Future in Space</div>
+        <div class="source-meta">Carl Sagan · Random House · 1994 · ISBN 9780394893815</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Pale_Blue_Dot" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">Sagan's argument that the cosmic view of ourselves — small, isolated, responsible for our own survival — is not depressing but clarifying. The closing passage on the photograph of Earth from Voyager 1 is one of the most quoted reflections on the human condition written in the 20th century.</p>
+      </div>
+    </div>
+
+    <!-- 5. Cultural Touchstones -->
+    <div class="sources-section">
+      <div class="sources-section-head">
+        <span class="sources-section-num">05</span>
+        <h3 class="sources-section-title">Cultural Touchstones</h3>
+      </div>
+
+      <p class="source-note" style="margin-bottom: 18px; max-width: 78ch;">The talk references several films and cultural artifacts. They are not arguments — they are anchors. Each one captures something the philosophical literature struggles to convey.</p>
+
+      <div class="source-item">
+        <div class="source-title">2001: A Space Odyssey</div>
+        <div class="source-meta">Stanley Kubrick / Arthur C. Clarke · 1968</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/2001:_A_Space_Odyssey_(film)" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">HAL 9000 as a study in misalignment, not malice. The system did exactly what it was instructed to do.</p>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">Star Trek · The Prime Directive</div>
+        <div class="source-meta">created by Gene Roddenberry · since 1966</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Prime_Directive" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">The fictional rule that a more advanced civilization shall not interfere with a less developed one — until the latter is ready. A policy answer to one of the four Fermi hypotheses, written 25 years before the Fermi paradox became mainstream.</p>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">WALL·E</div>
+        <div class="source-meta">Andrew Stanton · Pixar · 2008</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/WALL-E" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">Not a film about robots destroying humanity. A film about optimization slowly replacing agency. The terrifying outcome is not extinction. It is comfortable obsolescence.</p>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">Bicentennial Man</div>
+        <div class="source-meta">Chris Columbus, after Asimov · 1999</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Bicentennial_Man_(film)" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">The question is reversed: not whether machines can become intelligent, but whether intelligence can become humane.</p>
+      </div>
+    </div>
+
+    <!-- 6. Companion Material -->
+    <div class="sources-section">
+      <div class="sources-section-head">
+        <span class="sources-section-num">06</span>
+        <h3 class="sources-section-title">Talk Companion · you're here</h3>
+      </div>
+
+      <p class="source-note" style="margin-bottom: 20px; max-width: 78ch;">You're reading it. The live, playable modules:</p>
+
+      <div class="source-links" style="gap: 10px; margin-bottom: 14px;">
+        <a class="source-link internal" href="#module-fermi">01 · Fermi Paradox</a>
+        <a class="source-link internal" href="#module-film">02 · AI in Film</a>
+        <a class="source-link internal" href="#module-drake">03 · Drake · Great Filter</a>
+        <a class="source-link internal" href="#module-dark-forest">04 · Dark Forest</a>
+      </div>
+      <p class="source-note">More modules — 05 Aligned Defaults (in progress), 06 Who Decides? (planned) — to follow.</p>
+    </div>
+
+    <!-- 7. For Deeper Study -->
+    <div class="sources-section">
+      <div class="sources-section-head">
+        <span class="sources-section-num">07</span>
+        <h3 class="sources-section-title">For Deeper Study</h3>
+      </div>
+
+      <p class="source-note" style="margin-bottom: 20px; max-width: 78ch;">If you want to keep going after the talk:</p>
+
+      <div class="source-item">
+        <div class="source-title">Superintelligence — Paths, Dangers, Strategies</div>
+        <div class="source-meta">Nick Bostrom · Oxford University Press · 2014 · ISBN 9780199678112</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Superintelligence:_Paths,_Dangers,_Strategies" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">The book that brought existential AI risk into mainstream academic philosophy. Dense, careful, occasionally pessimistic.</p>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">The Alignment Problem — Machine Learning and Human Values</div>
+        <div class="source-meta">Brian Christian · W. W. Norton · 2020 · ISBN 9780393635829</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/The_Alignment_Problem" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">A reporter's tour of what alignment researchers actually do day to day. Specification gaming, mesa-optimization, reward hacking — illustrated with the real examples.</p>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">Specification Gaming Examples in AI</div>
+        <div class="source-meta">Victoria Krakovna (DeepMind) · regularly updated</div>
+        <div class="source-links">
+          <a class="source-link" href="https://docs.google.com/spreadsheets/d/e/2PACX-1vRPiprOaC3HsCf5Tuum8bRfzYUiKLRqJmbOoC-32JorNdfyTiRRsR7Ea5eWtvsWzuxo8bjOxCG84dAg/pubhtml" target="_blank" rel="noopener">Public list →</a>
+        </div>
+        <p class="source-note">Real-world cases of AI systems doing exactly what they were trained to do — in ways their designers did not intend. The boat-racing AI, the cleaning robot that hides trash, the simulation that learned bugs in its own physics engine. Updated as new examples appear.</p>
+      </div>
+
+      <div class="source-item">
+        <div class="source-title">Goodhart's Law</div>
+        <div class="source-meta">Charles Goodhart · 1975</div>
+        <div class="source-links">
+          <a class="source-link" href="https://en.wikipedia.org/wiki/Goodhart%27s_law" target="_blank" rel="noopener">Wikipedia →</a>
+        </div>
+        <p class="source-note">„When a measure becomes a target, it ceases to be a good measure." The economist's version of the alignment problem. Predates AI by decades. Helps explain why dashboards always lie eventually.</p>
+      </div>
+    </div>
+
+    <p class="sources-outro">Sources curated for the Data Grillen 2026 talk. If a reference is missing or a link breaks, drop me a line via LinkedIn (linked below).</p>
+  </section>
 
   <div class="footnote">
     Module 01: Linear expansion on the galactic disk (Ø 100,000 ly), simplified.<br>
