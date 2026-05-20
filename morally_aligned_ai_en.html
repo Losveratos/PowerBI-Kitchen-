@@ -169,6 +169,83 @@ h1::after {
   border-color: var(--accent-deep);
 }
 
+/* Module quick-nav (jump to module) */
+.module-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 52px;
+}
+@media (max-width: 720px) {
+  .module-nav { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 420px) {
+  .module-nav { grid-template-columns: 1fr; }
+}
+.module-nav-link {
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: all .15s ease;
+  position: relative;
+  overflow: hidden;
+}
+.module-nav-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 85% 110%, rgba(232,176,67,0.10) 0%, transparent 55%);
+  pointer-events: none;
+}
+.module-nav-link::after {
+  content: '↓';
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-size: 14px;
+  color: var(--accent);
+  opacity: 0.5;
+  transition: all .15s ease;
+}
+.module-nav-link:hover {
+  background: var(--bg-soft);
+  color: var(--ink);
+}
+.module-nav-link:hover::after {
+  opacity: 1;
+  transform: translateY(3px);
+}
+.module-nav-link .num {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  position: relative;
+}
+.module-nav-link .title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  line-height: 1.2;
+  position: relative;
+}
+
+/* Anchor scroll padding so module heads aren't glued to viewport top */
+.module { scroll-margin-top: 24px; }
+
 /* Section label */
 .section-label {
   font-family: var(--serif);
@@ -1385,6 +1462,25 @@ button.primary:hover { background: var(--accent-soft); }
     <span>Interactive Modules</span>
     <span>Work in Progress</span>
   </div>
+
+  <nav class="module-nav" aria-label="Modules">
+    <a class="module-nav-link" href="#module-fermi">
+      <span class="num">Module 01</span>
+      <span class="title">Fermi Paradox</span>
+    </a>
+    <a class="module-nav-link" href="#module-film">
+      <span class="num">Module 02</span>
+      <span class="title">AI in Film</span>
+    </a>
+    <a class="module-nav-link" href="#module-drake">
+      <span class="num">Module 03</span>
+      <span class="title">Drake · Great Filter</span>
+    </a>
+    <a class="module-nav-link" href="#module-dark-forest">
+      <span class="num">Module 04</span>
+      <span class="title">Dark Forest</span>
+    </a>
+  </nav>
 
   <div class="prose-note lead">
     <p>A few months ago I read a scenario report called AI 2027 by Daniel Kokotajlo. Then I read his interview in Der Spiegel. I haven't thought about much else since.</p>
