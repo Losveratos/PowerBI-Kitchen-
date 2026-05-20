@@ -562,17 +562,20 @@ button.primary:hover { background: var(--accent-soft); }
 }
 .roadmap-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
-@media (max-width: 960px) {
+@media (max-width: 1100px) {
+  .roadmap-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 720px) {
   .roadmap-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-width: 560px) {
+@media (max-width: 480px) {
   .roadmap-grid { grid-template-columns: 1fr; }
 }
 .roadmap-tile {
@@ -1001,6 +1004,195 @@ button.primary:hover { background: var(--accent-soft); }
   color: var(--ink-soft);
   text-align: center;
 }
+
+/* ========== MODUL 03 · DRAKE / GREAT FILTER ========== */
+.drake-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.drake-preset {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  background: var(--bg-card);
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.drake-preset:hover { color: var(--ink); border-color: var(--line-strong); }
+.drake-preset.active {
+  background: var(--bg-soft);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.drake-summary {
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(232,176,67,0.08), 0 24px 48px -24px rgba(0,0,0,0.8);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 28px;
+  align-items: center;
+}
+@media (max-width: 720px) {
+  .drake-summary { grid-template-columns: 1fr; gap: 14px; }
+}
+.drake-summary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 80% 110%, rgba(232,176,67,0.12) 0%, transparent 55%),
+    radial-gradient(1px 1px at 22% 30%, rgba(255,255,255,0.4), transparent 50%),
+    radial-gradient(1px 1px at 72% 70%, rgba(255,255,255,0.35), transparent 50%);
+  pointer-events: none;
+}
+.drake-summary > * { position: relative; }
+.drake-result-value {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(48px, 8vw, 84px);
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  line-height: 1;
+}
+.drake-result-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 8px;
+}
+.drake-result-cap {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin-bottom: 6px;
+  max-width: 48ch;
+}
+.drake-result-eq {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent-soft);
+  letter-spacing: 0.04em;
+}
+
+.drake-cascade {
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 8px 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 0 0 1px rgba(232,176,67,0.08);
+}
+.drake-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 220px;
+  gap: 18px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px dashed var(--line);
+  position: relative;
+}
+.drake-row:last-child { border-bottom: none; }
+@media (max-width: 720px) {
+  .drake-row { grid-template-columns: 40px 1fr; }
+  .drake-row .running { grid-column: 1 / -1; padding-left: 58px; }
+}
+.drake-row .symbol {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 28px;
+  color: var(--accent);
+  line-height: 1;
+  white-space: nowrap;
+}
+.drake-row .body { display: flex; flex-direction: column; gap: 8px; }
+.drake-row .label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 14px;
+}
+.drake-row .label-text {
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+.drake-row .slider-value {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--accent-soft);
+  white-space: nowrap;
+}
+.drake-row .running {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.drake-row .running-value {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+  text-align: right;
+}
+.drake-row .running-unit {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-align: right;
+}
+.drake-row .running-bar {
+  height: 4px;
+  background: var(--bg-soft);
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+.drake-row .running-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width .25s ease;
+  border-radius: 2px;
+}
+.drake-row.filter .symbol { color: var(--t-dystopian); text-shadow: 0 0 12px rgba(255,122,138,0.5); }
+.drake-row.filter .running-bar-fill { background: var(--t-dystopian); }
+.drake-row .filter-tag {
+  position: absolute;
+  top: 8px;
+  left: 56px;
+  display: none;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--t-dystopian);
+  padding: 2px 8px;
+  border: 1px solid var(--t-dystopian);
+  border-radius: 100px;
+  background: var(--bg-card);
+}
+.drake-row.filter .filter-tag { display: inline-block; }
 </style>
 </head>
 <body>
@@ -1233,8 +1425,60 @@ button.primary:hover { background: var(--accent-soft); }
     </div>
   </div>
 
+  <!-- ============ MODULE 3 · DRAKE / GREAT FILTER ============ -->
+  <div class="module" id="modul-drake">
+    <div class="module-head">
+      <div>
+        <div class="label">Modul 03 · Spielbar</div>
+        <h2>Drake-Gleichung · Great Filter & Rare Earth</h2>
+      </div>
+      <div class="hint">Zieh die 7 Regler.<br>Wo bricht die Zivilisations-Kette?</div>
+    </div>
+
+    <div class="drake-presets">
+      <button class="drake-preset" data-preset="sagan">Sagan 1961</button>
+      <button class="drake-preset" data-preset="drake">Drake 1961</button>
+      <button class="drake-preset active" data-preset="modern">Modern · heute</button>
+      <button class="drake-preset" data-preset="rare">Rare Earth</button>
+    </div>
+
+    <div class="drake-summary">
+      <div>
+        <div class="drake-result-label">Erwartetes N</div>
+        <div class="drake-result-value" id="drakeN">6</div>
+      </div>
+      <div>
+        <div class="drake-result-cap">Kommunizierende technische Zivilisationen, die <em>gerade jetzt</em> in unserer Milchstraße existieren — bei diesen Annahmen.</div>
+        <div class="drake-result-eq">N = R* · fp · ne · fl · fi · fc · L</div>
+      </div>
+    </div>
+
+    <div class="drake-cascade" id="drakeCascade">
+      <!-- 7 rows werden per JS generiert -->
+    </div>
+
+    <div class="bridge">
+      <h2>Die Stelle, an der es scheitert — der Great Filter</h2>
+      <p>
+        Robin Hanson hat 1996 den Begriff <em>Great Filter</em> geprägt: Irgendwo in der
+        Kette zwischen toter Materie und kosmischem Funkverkehr muss eine Stufe stecken,
+        die fast alles abfängt. Sonst wäre die Galaxie laut.
+      </p>
+      <p>
+        Spiel mit den Reglern, bis <strong>N ≈ 0</strong> wird. Welcher Faktor war es bei dir?
+        Wenn der Filter <strong>hinter uns</strong> liegt — etwa dass aus Chemie überhaupt
+        Leben entsteht (<em>fl</em>) — sind wir extrem selten, aber relativ sicher.
+        Wenn er <strong>vor uns</strong> liegt — bei <em>L</em>, der Lebensdauer einer technischen
+        Zivilisation — sind wir möglicherweise einer von vielen, die nicht alt werden.
+      </p>
+      <p>
+        Genau diese Wahl trifft jede Gesellschaft, die KI baut: <strong>was machen wir aus L?</strong>
+      </p>
+    </div>
+  </div>
+
   <div class="prose-note coda">
-    <p>Zwei Module bisher. Mehr unterwegs.</p>
+    <p>Drei Module bisher. Mehr unterwegs.</p>
     <p>Die nächsten gehen näher an den Teil, der mich tatsächlich nicht schlafen lässt: was passiert, wenn ein gut gemeinter Default anfängt, sich selbst zu kopieren. Und: wer eigentlich entscheidet, was der Default ist. Beides kommt. Beides ist unbequem.</p>
   </div>
 
@@ -1252,13 +1496,18 @@ button.primary:hover { background: var(--accent-soft); }
         <h3>KI im Film</h3>
         <p>40 Filme von 1927 bis 2025 — wie hat sich unser Bild von KI verschoben?</p>
       </div>
+      <div class="roadmap-tile live">
+        <span class="tag">● Modul 03 · Live</span>
+        <h3>Drake · Great Filter</h3>
+        <p>Sieben Regler für die Drake-Gleichung — wo bricht die Zivilisations-Kette?</p>
+      </div>
       <div class="roadmap-tile">
-        <span class="tag">○ Modul 03 · in Arbeit</span>
+        <span class="tag">○ Modul 04 · in Arbeit</span>
         <h3>Aligned Defaults</h3>
         <p>Was passiert, wenn eine wohlmeinende Standardeinstellung sich selbst kopiert?</p>
       </div>
       <div class="roadmap-tile">
-        <span class="tag">○ Modul 04 · geplant</span>
+        <span class="tag">○ Modul 05 · geplant</span>
         <h3>Wer entscheidet?</h3>
         <p>Werte, Kontext, Reichweite — wer setzt sie, wer haftet, wer überstimmt?</p>
       </div>
@@ -1267,8 +1516,9 @@ button.primary:hover { background: var(--accent-soft); }
 
   <div class="footnote">
     Modul 01: Lineare Expansion auf Galaxie-Scheibe (Ø 100 000 Lj), vereinfacht.<br>
-    Modul 02: 40 Filme, kuratierte Auswahl 1927–2025. Tendenz-Klassifikation ist
-    interpretativ — gern diskutieren wir das beim Vortrag. Mehr Module folgen.
+    Modul 02: 40 Filme, kuratierte Auswahl 1927–2025. Tendenz-Klassifikation ist interpretativ.<br>
+    Modul 03: Drake-Gleichung (Drake 1961, Hanson 1996, Ward/Brownlee 2000) — Parameter sind Schätzungen,
+    keine Messwerte. Gern diskutieren wir das beim Vortrag. Mehr Module folgen.
   </div>
 
   <div class="closing-card">
@@ -1793,6 +2043,191 @@ button.primary:hover { background: var(--accent-soft); }
   filterButtons.forEach(btn => {
     btn.addEventListener('click', () => applyFilter(btn.dataset.filter));
   });
+})();
+</script>
+
+<script>
+/* ========== MODUL 03 · DRAKE / GREAT FILTER ========== */
+(function() {
+  const PARAMS = [
+    { id: 'R',  symbol: 'R*', label: 'Sternentstehungsrate',           type: 'linear', min: 0.5,    max: 20,       def: 1.5,    fmt: 'rate',  unit: 'neue Sterne / Jahr' },
+    { id: 'fp', symbol: 'fp', label: 'Anteil Sterne mit Planeten',     type: 'linear', min: 0,      max: 1,        def: 1.0,    fmt: 'frac',  unit: 'Planetensysteme / Jahr' },
+    { id: 'ne', symbol: 'ne', label: 'Habitable Planeten je System',   type: 'linear', min: 0,      max: 10,       def: 0.4,    fmt: 'num1',  unit: 'habitable Planeten / Jahr' },
+    { id: 'fl', symbol: 'fl', label: 'Wie viele entwickeln Leben',     type: 'log',    min: 0.0001, max: 1,        def: 0.1,    fmt: 'frac',  unit: 'mit Leben / Jahr' },
+    { id: 'fi', symbol: 'fi', label: 'Wie viele werden intelligent',   type: 'log',    min: 0.0001, max: 1,        def: 0.1,    fmt: 'frac',  unit: 'intelligent / Jahr' },
+    { id: 'fc', symbol: 'fc', label: 'Wie viele senden Signale',       type: 'log',    min: 0.0001, max: 1,        def: 0.1,    fmt: 'frac',  unit: 'sendend / Jahr' },
+    { id: 'L',  symbol: 'L',  label: 'Lebensdauer der Zivilisation',   type: 'log',    min: 100,    max: 10000000, def: 10000,  fmt: 'years', unit: 'Zivilisationen total' }
+  ];
+
+  const PRESETS = {
+    sagan:  { R: 10,  fp: 1.0, ne: 10,  fl: 1.0,    fi: 0.1,   fc: 0.1,   L: 10000000, label: 'Sagan 1961' },
+    drake:  { R: 1.0, fp: 0.5, ne: 2,   fl: 1.0,    fi: 1.0,   fc: 0.2,   L: 10000,    label: 'Drake 1961' },
+    modern: { R: 1.5, fp: 1.0, ne: 0.4, fl: 0.1,    fi: 0.1,   fc: 0.1,   L: 10000,    label: 'Modern · heute' },
+    rare:   { R: 1.5, fp: 1.0, ne: 0.4, fl: 0.001,  fi: 0.001, fc: 0.01,  L: 10000,    label: 'Rare Earth' }
+  };
+
+  const cascade = document.getElementById('drakeCascade');
+  const nEl = document.getElementById('drakeN');
+  const presetButtons = document.querySelectorAll('.drake-preset');
+
+  const state = {};
+  PARAMS.forEach(p => state[p.id] = p.def);
+
+  // Slider mapping (0..1000 slider → real value)
+  function sliderToReal(sv, p) {
+    if (p.type === 'log') {
+      const lmin = Math.log10(p.min);
+      const lmax = Math.log10(p.max);
+      return Math.pow(10, lmin + (sv / 1000) * (lmax - lmin));
+    }
+    return p.min + (sv / 1000) * (p.max - p.min);
+  }
+  function realToSlider(rv, p) {
+    let v;
+    if (p.type === 'log') {
+      const lmin = Math.log10(p.min);
+      const lmax = Math.log10(p.max);
+      v = ((Math.log10(rv) - lmin) / (lmax - lmin)) * 1000;
+    } else {
+      v = ((rv - p.min) / (p.max - p.min)) * 1000;
+    }
+    return Math.max(0, Math.min(1000, v));
+  }
+
+  // Formatting
+  function fmtSlider(v, p) {
+    if (p.fmt === 'rate')  return v.toFixed(2) + ' Sterne/J';
+    if (p.fmt === 'frac')  {
+      if (v >= 0.01) return v.toFixed(2);
+      if (v >= 0.0001) return v.toExponential(1).replace('e-', '×10⁻');
+      return v.toExponential(1).replace('e-', '×10⁻');
+    }
+    if (p.fmt === 'num1')  return v.toFixed(2);
+    if (p.fmt === 'years') {
+      if (v >= 1e6) return (v / 1e6).toFixed(1) + ' Mio. J';
+      if (v >= 1e3) return Math.round(v / 1e3).toLocaleString('de-DE') + ' k J';
+      return Math.round(v).toLocaleString('de-DE') + ' J';
+    }
+    return v.toString();
+  }
+  function fmtRunning(v) {
+    if (v === 0) return '0';
+    const abs = Math.abs(v);
+    if (abs >= 1e9) return (v / 1e9).toFixed(2) + ' Mrd.';
+    if (abs >= 1e6) return (v / 1e6).toFixed(2) + ' Mio.';
+    if (abs >= 1e3) return Math.round(v).toLocaleString('de-DE');
+    if (abs >= 1)   return v.toFixed(2);
+    if (abs >= 0.001) return v.toFixed(4);
+    return v.toExponential(2).replace('e-', ' × 10⁻').replace('e+', ' × 10⁺');
+  }
+  function fmtN(v) {
+    if (!isFinite(v) || v === 0) return '0';
+    const abs = Math.abs(v);
+    if (abs >= 1e9) return (v / 1e9).toFixed(2) + ' Mrd.';
+    if (abs >= 1e6) return (v / 1e6).toFixed(2) + ' Mio.';
+    if (abs >= 1e3) return Math.round(v).toLocaleString('de-DE');
+    if (abs >= 1)   return v.toFixed(1);
+    if (abs >= 0.01)  return v.toFixed(3);
+    if (abs >= 0.0001) return v.toFixed(5);
+    return v.toExponential(2).replace('e-', ' × 10⁻').replace('e+', ' × 10⁺');
+  }
+
+  // Build rows
+  PARAMS.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'drake-row';
+    row.dataset.idx = String(i);
+    row.innerHTML = `
+      <div class="symbol">${p.symbol}</div>
+      <div class="body">
+        <div class="label-row">
+          <span class="label-text">${p.label}</span>
+          <output class="slider-value" id="drake-val-${p.id}">${fmtSlider(p.def, p)}</output>
+        </div>
+        <input type="range" id="drake-slider-${p.id}" min="0" max="1000" value="${Math.round(realToSlider(p.def, p))}" step="1">
+        <span class="filter-tag">Great Filter</span>
+      </div>
+      <div class="running">
+        <div class="running-value" id="drake-run-${p.id}">·</div>
+        <div class="running-unit">${p.unit}</div>
+        <div class="running-bar"><div class="running-bar-fill" id="drake-bar-${p.id}" style="width:0%"></div></div>
+      </div>
+    `;
+    cascade.appendChild(row);
+    const range = row.querySelector(`#drake-slider-${p.id}`);
+    range.addEventListener('input', () => {
+      const sv = parseFloat(range.value);
+      state[p.id] = sliderToReal(sv, p);
+      clearPresetActive();
+      recompute();
+    });
+  });
+
+  function clearPresetActive() {
+    presetButtons.forEach(b => b.classList.remove('active'));
+  }
+
+  function applyPreset(name) {
+    const preset = PRESETS[name];
+    if (!preset) return;
+    PARAMS.forEach(p => {
+      if (preset[p.id] != null) {
+        state[p.id] = preset[p.id];
+        const range = document.getElementById(`drake-slider-${p.id}`);
+        range.value = Math.round(realToSlider(state[p.id], p));
+      }
+    });
+    presetButtons.forEach(b => b.classList.toggle('active', b.dataset.preset === name));
+    recompute();
+  }
+
+  function recompute() {
+    const multipliers = PARAMS.map(p => state[p.id]);
+    const running = [];
+    let acc = 1;
+    for (let i = 0; i < multipliers.length; i++) {
+      acc = acc * multipliers[i];
+      running.push(acc);
+    }
+    const N = running[running.length - 1];
+
+    // Filter detection: smallest multiplier strictly < 1
+    let filterIdx = -1;
+    let worst = 1;
+    multipliers.forEach((m, i) => {
+      if (m < worst) { worst = m; filterIdx = i; }
+    });
+
+    // Bar normalisation: log scale, range ~12 orders of magnitude below max
+    const positives = running.filter(v => v > 0);
+    const maxRun = positives.length ? Math.max(...positives) : 1;
+    const logMax = Math.log10(maxRun);
+    const RANGE = 12;
+    function barPct(v) {
+      if (v <= 0) return 0;
+      const l = Math.log10(v);
+      return Math.max(0, Math.min(100, ((l - logMax + RANGE) / RANGE) * 100));
+    }
+
+    PARAMS.forEach((p, i) => {
+      const sliderEl = document.getElementById(`drake-val-${p.id}`);
+      const runEl    = document.getElementById(`drake-run-${p.id}`);
+      const barEl    = document.getElementById(`drake-bar-${p.id}`);
+      sliderEl.textContent = fmtSlider(state[p.id], p);
+      runEl.textContent    = fmtRunning(running[i]);
+      barEl.style.width    = barPct(running[i]) + '%';
+      const row = cascade.children[i];
+      row.classList.toggle('filter', i === filterIdx && worst < 1);
+    });
+
+    nEl.textContent = fmtN(N);
+  }
+
+  presetButtons.forEach(btn => {
+    btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+  });
+
+  applyPreset('modern');
 })();
 </script>
 </body>
