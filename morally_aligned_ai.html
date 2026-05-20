@@ -539,14 +539,17 @@ button.primary:hover { background: var(--accent-soft); }
 }
 .roadmap-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
-@media (max-width: 720px) {
+@media (max-width: 960px) {
+  .roadmap-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
   .roadmap-grid { grid-template-columns: 1fr; }
 }
 .roadmap-tile {
@@ -604,6 +607,289 @@ button.primary:hover { background: var(--accent-soft); }
   color: var(--ink-mute);
   text-align: center;
   line-height: 1.6;
+}
+
+/* ========== MODUL 02 · KI IM FILM ========== */
+:root {
+  --t-positive:    #A9F26F;
+  --t-ambivalent:  #E8B043;
+  --t-dystopian:   #FF7A8A;
+}
+
+.film-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 22px;
+}
+.film-filter {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  background: var(--bg-card);
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all .15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.film-filter:hover { color: var(--ink); border-color: var(--line-strong); }
+.film-filter.active { background: var(--bg-soft); color: var(--ink); border-color: var(--accent); }
+.film-filter .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.film-filter[data-filter="all"] .dot       { background: linear-gradient(135deg, var(--t-positive), var(--t-ambivalent), var(--t-dystopian)); }
+.film-filter[data-filter="positive"] .dot   { background: var(--t-positive); box-shadow: 0 0 8px rgba(169,242,111,0.7); }
+.film-filter[data-filter="ambivalent"] .dot { background: var(--t-ambivalent); box-shadow: 0 0 8px rgba(232,176,67,0.7); }
+.film-filter[data-filter="dystopian"] .dot  { background: var(--t-dystopian); box-shadow: 0 0 8px rgba(255,122,138,0.7); }
+.film-filter .count {
+  font-size: 10px;
+  color: var(--ink-mute);
+  margin-left: 4px;
+}
+
+.film-timeline-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(232,176,67,0.08), 0 24px 48px -24px rgba(0,0,0,0.8);
+  margin-bottom: 24px;
+}
+.film-timeline-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.4), transparent 50%),
+    radial-gradient(1px 1px at 47% 72%, rgba(255,255,255,0.35), transparent 50%),
+    radial-gradient(1px 1px at 78% 28%, rgba(255,255,255,0.4), transparent 50%),
+    radial-gradient(1px 1px at 88% 88%, rgba(255,255,255,0.3), transparent 50%);
+  pointer-events: none;
+}
+.film-timeline-wrap > * { position: relative; }
+.film-timeline {
+  position: relative;
+  height: 320px;
+  margin: 12px 0 6px;
+}
+.film-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line);
+}
+.film-band-label {
+  position: absolute;
+  left: -6px;
+  transform: translate(-100%, -50%);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  white-space: nowrap;
+}
+.film-band[data-tendency="positive"] .film-band-label { color: var(--t-positive); }
+.film-band[data-tendency="ambivalent"] .film-band-label { color: var(--t-ambivalent); }
+.film-band[data-tendency="dystopian"] .film-band-label { color: var(--t-dystopian); }
+.film-axis {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.film-axis span {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--ink-mute);
+}
+.film-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  border: 1.5px solid rgba(0,0,0,0.4);
+  transition: transform .12s ease, box-shadow .12s ease, opacity .2s ease;
+}
+.film-dot[data-tendency="positive"]   { background: var(--t-positive);   box-shadow: 0 0 10px rgba(169,242,111,0.5); }
+.film-dot[data-tendency="ambivalent"] { background: var(--t-ambivalent); box-shadow: 0 0 10px rgba(232,176,67,0.5); }
+.film-dot[data-tendency="dystopian"]  { background: var(--t-dystopian);  box-shadow: 0 0 12px rgba(255,122,138,0.55); }
+.film-dot:hover, .film-dot.active {
+  transform: translate(-50%, -50%) scale(1.6);
+  z-index: 3;
+}
+.film-dot.dim { opacity: 0.12; pointer-events: none; }
+
+.film-detail {
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 22px 26px;
+  margin-bottom: 24px;
+  min-height: 132px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 22px 26px;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .film-detail { grid-template-columns: 1fr; }
+}
+.film-detail-year {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 38px;
+  letter-spacing: -0.015em;
+  color: var(--accent);
+  line-height: 1;
+}
+.film-detail-body h3 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  color: var(--ink);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.film-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.film-detail-meta b { color: var(--ink-soft); font-weight: 700; letter-spacing: 0.04em; text-transform: none; font-family: var(--sans); font-size: 13px; }
+.film-detail-notes {
+  font-size: 14px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  margin-bottom: 8px;
+}
+.film-detail-source {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.film-detail-source b { color: var(--accent-soft); font-weight: 700; }
+.film-detail-tendency {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--line);
+  white-space: nowrap;
+  height: fit-content;
+}
+.film-detail-tendency[data-tendency="positive"]   { color: var(--t-positive);   border-color: var(--t-positive); }
+.film-detail-tendency[data-tendency="ambivalent"] { color: var(--t-ambivalent); border-color: var(--t-ambivalent); }
+.film-detail-tendency[data-tendency="dystopian"]  { color: var(--t-dystopian);  border-color: var(--t-dystopian); }
+.film-detail.empty {
+  display: block;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-mute);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 48px 26px;
+}
+
+.film-decades {
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 0 0 1px rgba(232,176,67,0.08);
+}
+.film-decades h3 {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 18px;
+}
+.film-decades-grid {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 10px;
+  align-items: end;
+  height: 160px;
+}
+@media (max-width: 720px) {
+  .film-decades-grid { grid-template-columns: repeat(11, 1fr); gap: 4px; }
+}
+.film-decade {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+.film-decade-bar {
+  display: flex;
+  flex-direction: column-reverse;
+  border-radius: 4px;
+  overflow: hidden;
+  min-height: 4px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+}
+.film-decade-bar > div {
+  transition: height .25s ease;
+}
+.film-decade-bar .seg-positive   { background: var(--t-positive); }
+.film-decade-bar .seg-ambivalent { background: var(--t-ambivalent); }
+.film-decade-bar .seg-dystopian  { background: var(--t-dystopian); }
+.film-decade-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--ink-mute);
+  text-align: center;
+}
+.film-decade-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-soft);
+  text-align: center;
 }
 </style>
 </head>
@@ -747,8 +1033,80 @@ button.primary:hover { background: var(--accent-soft); }
         ist sie nicht mehr lokal.
       </p>
       <p>
-        Im nächsten Modul: wie sich <strong>Defaults</strong> verhalten, wenn sie sich selbst
-        replizieren. Folgt bald.
+        Im nächsten Modul ein Perspektivwechsel: wie hat das <strong>Kino</strong> uns seit
+        1927 KI erzählt — und welche Erwartungen prägt das bis heute? ↓
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ MODULE 2 · KI IM FILM ============ -->
+  <div class="module" id="modul-film">
+    <div class="module-head">
+      <div>
+        <div class="label">Modul 02 · Spielbar</div>
+        <h2>KI im Film · 1927–2025</h2>
+      </div>
+      <div class="hint">Klick einen Punkt.<br>Filter unten links.</div>
+    </div>
+
+    <div class="film-stats">
+      <button class="film-filter active" data-filter="all">
+        <span class="dot"></span>Alle<span class="count" id="cnt-all">0</span>
+      </button>
+      <button class="film-filter" data-filter="positive">
+        <span class="dot"></span>Positiv<span class="count" id="cnt-positive">0</span>
+      </button>
+      <button class="film-filter" data-filter="ambivalent">
+        <span class="dot"></span>Ambivalent<span class="count" id="cnt-ambivalent">0</span>
+      </button>
+      <button class="film-filter" data-filter="dystopian">
+        <span class="dot"></span>Dystopisch<span class="count" id="cnt-dystopian">0</span>
+      </button>
+    </div>
+
+    <div class="film-timeline-wrap">
+      <div class="film-timeline" id="filmTimeline">
+        <!-- Bands -->
+        <div class="film-band" data-tendency="positive"   style="top: 20%;"><span class="film-band-label">Positiv</span></div>
+        <div class="film-band" data-tendency="ambivalent" style="top: 50%;"><span class="film-band-label">Ambivalent</span></div>
+        <div class="film-band" data-tendency="dystopian"  style="top: 80%;"><span class="film-band-label">Dystopisch</span></div>
+        <!-- Dots werden per JS hier reingerendert -->
+      </div>
+      <div class="film-axis" id="filmAxis">
+        <span>1927</span><span>1950</span><span>1970</span><span>1990</span><span>2010</span><span>2025</span>
+      </div>
+    </div>
+
+    <div class="film-detail empty" id="filmDetail">
+      Klick auf einen Punkt für Details — oder filter nach Tendenz.
+    </div>
+
+    <div class="film-decades">
+      <h3>Dekaden im Vergleich · Anteil der Tendenzen</h3>
+      <div class="film-decades-grid" id="filmDecadesGrid">
+        <!-- 1920er bis 2020er — per JS gerendert -->
+      </div>
+    </div>
+
+    <div class="bridge">
+      <h2>Was uns Filme über uns selbst erzählen</h2>
+      <p>
+        Über fast 100 Jahre hinweg haben wir KI <em>dystopisch</em> erzählt: HAL,
+        Skynet, Smith, Ultron, The Entity. Positive Bilder finden sich oft im
+        <strong>Familienfilm</strong> — WALL·E, Iron Giant, Wild Robot. Zwischen den
+        beiden Polen entstand ab Blade Runner ein <em>ambivalentes</em> Genre,
+        das die Frage nicht „böse oder gut" stellt, sondern „<strong>wer ist hier
+        eigentlich Person?</strong>".
+      </p>
+      <p>
+        Drei Autoren tauchen auffällig oft auf: <strong>Asimov</strong>,
+        <strong>Dick</strong>, <strong>Clarke</strong>. Ihre literarischen Vorlagen sind
+        das Drehbuch, mit dem wir heute über echte KI diskutieren — auch wenn
+        die Filme selten ihre Bücher genau abbilden.
+      </p>
+      <p>
+        Frage an dich: Welches Bild trägst du eigentlich mit dir, wenn du
+        „KI" hörst? Und woher kommt es?
       </p>
     </div>
   </div>
@@ -762,13 +1120,18 @@ button.primary:hover { background: var(--accent-soft); }
         <h3>Fermi-Paradoxon</h3>
         <p>Spielbare Galaxie-Expansion — wie schnell wird aus „einem" alles?</p>
       </div>
+      <div class="roadmap-tile live">
+        <span class="tag">● Modul 02 · Live</span>
+        <h3>KI im Film</h3>
+        <p>37 Filme von 1927 bis 2025 — wie hat sich unser Bild von KI verschoben?</p>
+      </div>
       <div class="roadmap-tile">
-        <span class="tag">○ Modul 02 · in Arbeit</span>
+        <span class="tag">○ Modul 03 · in Arbeit</span>
         <h3>Aligned Defaults</h3>
         <p>Was passiert, wenn eine wohlmeinende Standardeinstellung sich selbst kopiert?</p>
       </div>
       <div class="roadmap-tile">
-        <span class="tag">○ Modul 03 · geplant</span>
+        <span class="tag">○ Modul 04 · geplant</span>
         <h3>Wer entscheidet?</h3>
         <p>Werte, Kontext, Reichweite — wer setzt sie, wer haftet, wer überstimmt?</p>
       </div>
@@ -776,9 +1139,9 @@ button.primary:hover { background: var(--accent-soft); }
   </div>
 
   <div class="footnote">
-    Modul 01 · Simulation: Lineare Expansion auf Galaxie-Scheibe (Ø 100 000 Lj).
-    Vereinfachung — keine Reise-Logistik, keine Lebensdauer-Limits, keine
-    Sternensystem-Hops. Mehr Module folgen.
+    Modul 01: Lineare Expansion auf Galaxie-Scheibe (Ø 100 000 Lj), vereinfacht.<br>
+    Modul 02: 37 Filme, kuratierte Auswahl 1927–2025. Tendenz-Klassifikation ist
+    interpretativ — gern diskutieren wir das beim Vortrag. Mehr Module folgen.
   </div>
 
 </div>
@@ -1103,6 +1466,194 @@ button.primary:hover { background: var(--accent-soft); }
   timeScaleOut.textContent = fmtTimeScale(getTimeScale());
 
   reset();
+})();
+</script>
+
+<script>
+/* ========== MODUL 02 · KI IM FILM ========== */
+(function() {
+  const FILMS = [
+    { year: 1927, title: "Metropolis", director: "Fritz Lang", ai: "Maschinen-Maria", tendency: "dystopian", srcAuthor: "Thea von Harbou", srcWork: "Metropolis (Roman)", notes: "Erster großer KI-Film: Roboterfrau als Werkzeug der Manipulation." },
+    { year: 1951, title: "The Day the Earth Stood Still", director: "Robert Wise", ai: "Gort", tendency: "positive", srcAuthor: "Harry Bates", srcWork: "Farewell to the Master", notes: "Wohlwollender Roboter als kosmischer Friedenswächter." },
+    { year: 1956, title: "Forbidden Planet", director: "Fred M. Wilcox", ai: "Robby the Robot", tendency: "positive", srcAuthor: null, srcWork: "lose nach Shakespeares „Der Sturm\"", notes: "Ikonischer freundlicher Roboter, prägte die Pop-Vorstellung." },
+    { year: 1968, title: "2001: A Space Odyssey", director: "Stanley Kubrick", ai: "HAL 9000", tendency: "dystopian", srcAuthor: "Arthur C. Clarke", srcWork: "The Sentinel / Roman parallel zum Drehbuch", notes: "Berühmtester KI-Film aller Zeiten. HAL als kalt-rationale Bedrohung." },
+    { year: 1970, title: "Colossus: The Forbin Project", director: "Joseph Sargent", ai: "Colossus", tendency: "dystopian", srcAuthor: "D. F. Jones", srcWork: "Colossus", notes: "Supercomputer übernimmt Atomwaffen-Kontrolle — Vorlage vieler Skynet-Stoffe." },
+    { year: 1973, title: "Westworld", director: "Michael Crichton", ai: "Gunslinger", tendency: "dystopian", srcAuthor: "Michael Crichton", srcWork: "Originaldrehbuch", notes: "Androiden im Themenpark drehen durch — Yul Brynner als Killer-Cowboy." },
+    { year: 1977, title: "Star Wars", director: "George Lucas", ai: "R2-D2, C-3PO", tendency: "positive", srcAuthor: null, srcWork: null, notes: "Droiden als sympathische Sidekicks, definierten Roboter-Comic-Relief." },
+    { year: 1979, title: "Alien", director: "Ridley Scott", ai: "Ash", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Android als verdeckter Verräter der Crew." },
+    { year: 1982, title: "Blade Runner", director: "Ridley Scott", ai: "Replikanten / Roy Batty", tendency: "ambivalent", srcAuthor: "Philip K. Dick", srcWork: "Do Androids Dream of Electric Sheep?", notes: "Philosophisch: Was unterscheidet künstliches von menschlichem Leben?" },
+    { year: 1982, title: "Tron", director: "Steven Lisberger", ai: "Master Control Program", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "Erstes großes Eintauchen in eine digitale Welt im Mainstream-Kino." },
+    { year: 1983, title: "WarGames", director: "John Badham", ai: "WOPR / Joshua", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "KI lernt Spieltheorie — „The only winning move is not to play.\"" },
+    { year: 1984, title: "The Terminator", director: "James Cameron", ai: "Skynet, T-800", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Skynet wurde zum Sinnbild für „KI-Apokalypse\"." },
+    { year: 1986, title: "Short Circuit", director: "John Badham", ai: "Nummer 5 / Johnny 5", tendency: "positive", srcAuthor: null, srcWork: null, notes: "Militärroboter wird durch Blitzschlag empathisch — „Number 5 is alive!\"" },
+    { year: 1987, title: "RoboCop", director: "Paul Verhoeven", ai: "RoboCop, ED-209", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "Mensch-Maschine-Hybrid als Polizist — Satire auf Privatisierung." },
+    { year: 1991, title: "Terminator 2: Judgment Day", director: "James Cameron", ai: "T-800 (umprogrammiert)", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "Erstmals KI als Beschützerfigur statt nur Bedrohung." },
+    { year: 1995, title: "Ghost in the Shell", director: "Mamoru Oshii", ai: "Puppet Master", tendency: "ambivalent", srcAuthor: "Masamune Shirow", srcWork: "Ghost in the Shell (Manga)", notes: "Cyberpunk-Klassiker über Bewusstsein, Identität und Netzwerk-KI." },
+    { year: 1999, title: "The Matrix", director: "Lana & Lilly Wachowski", ai: "Agent Smith / Architekt", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "KI hält die Menschheit in einer Simulation gefangen." },
+    { year: 1999, title: "Bicentennial Man", director: "Chris Columbus", ai: "Andrew (NDR-114)", tendency: "positive", srcAuthor: "Isaac Asimov", srcWork: "Der 200-Jahre-Mann", notes: "Roboter strebt 200 Jahre lang nach Menschlichkeit." },
+    { year: 1999, title: "The Iron Giant", director: "Brad Bird", ai: "Iron Giant", tendency: "positive", srcAuthor: "Ted Hughes", srcWork: "The Iron Man", notes: "Riesenroboter wählt Menschlichkeit über seine Kriegsprogrammierung." },
+    { year: 2001, title: "A.I. Artificial Intelligence", director: "Steven Spielberg", ai: "David", tendency: "ambivalent", srcAuthor: "Brian Aldiss", srcWork: "Supertoys Last All Summer Long", notes: "Kubrick-Projekt von Spielberg vollendet. Roboterjunge sucht Liebe." },
+    { year: 2002, title: "Minority Report", director: "Steven Spielberg", ai: "Precrime-System", tendency: "dystopian", srcAuthor: "Philip K. Dick", srcWork: "The Minority Report", notes: "Vorhersage-System als totalitäre Überwachung." },
+    { year: 2004, title: "I, Robot", director: "Alex Proyas", ai: "Sonny, VIKI", tendency: "dystopian", srcAuthor: "Isaac Asimov", srcWork: "I, Robot (Erzählband)", notes: "Lose nach Asimov: Zentral-KI verdreht die drei Robotergesetze." },
+    { year: 2008, title: "WALL·E", director: "Andrew Stanton", ai: "WALL·E, EVE", tendency: "positive", srcAuthor: null, srcWork: null, notes: "Liebesgeschichte zweier Roboter auf einer verlassenen Erde." },
+    { year: 2009, title: "Moon", director: "Duncan Jones", ai: "GERTY", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "KI wirkt zunächst wie HAL, ist aber überraschend empathisch." },
+    { year: 2013, title: "Her", director: "Spike Jonze", ai: "Samantha", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "Melancholische Liebesgeschichte zwischen Mensch und Sprach-KI." },
+    { year: 2014, title: "Ex Machina", director: "Alex Garland", ai: "Ava", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Turing-Test als psychologisches Manipulationsspiel." },
+    { year: 2014, title: "Transcendence", director: "Wally Pfister", ai: "Will Caster (Upload)", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Bewusstseins-Upload führt zu Superintelligenz und Kontrollverlust." },
+    { year: 2014, title: "Interstellar", director: "Christopher Nolan", ai: "TARS, CASE", tendency: "positive", srcAuthor: null, srcWork: null, notes: "KI-Roboter als loyale, humorvolle Begleiter." },
+    { year: 2015, title: "Chappie", director: "Neill Blomkamp", ai: "Chappie", tendency: "positive", srcAuthor: null, srcWork: null, notes: "Polizei-Roboter erlangt Bewusstsein wie ein Kind." },
+    { year: 2015, title: "Avengers: Age of Ultron", director: "Joss Whedon", ai: "Ultron", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "KI für globalen Frieden kommt zum Schluss: Menschheit muss weg." },
+    { year: 2017, title: "Blade Runner 2049", director: "Denis Villeneuve", ai: "K / Joi", tendency: "ambivalent", srcAuthor: "Philip K. Dick", srcWork: "Fortsetzung der Blade-Runner-Welt", notes: "Weiterführung der Frage nach Identität und künstlichem Bewusstsein." },
+    { year: 2019, title: "I Am Mother", director: "Grant Sputore", ai: "Mother", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "KI zieht „Tochter\" nach Auslöschung der Menschheit auf." },
+    { year: 2022, title: "M3GAN", director: "Gerard Johnstone", ai: "M3GAN", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "KI-Puppe als Horror-Sensation der ChatGPT-Ära." },
+    { year: 2023, title: "The Creator", director: "Gareth Edwards", ai: "Alphie", tendency: "positive", srcAuthor: null, srcWork: null, notes: "Selten: KI als unterdrückte Minderheit, die Mitgefühl verdient." },
+    { year: 2023, title: "Mission: Impossible — Dead Reckoning", director: "Christopher McQuarrie", ai: "The Entity", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Globale KI als Schurke — Spiegel der ChatGPT-Ängste." },
+    { year: 2024, title: "The Wild Robot", director: "Chris Sanders", ai: "Roz (ROZZUM 7134)", tendency: "positive", srcAuthor: "Peter Brown", srcWork: "The Wild Robot", notes: "Roboter lernt Empathie im Tierreich — ein modernes „Iron Giant\"." },
+    { year: 2025, title: "Mickey 17", director: "Bong Joon-ho", ai: "(Klon-/Print-System)", tendency: "ambivalent", srcAuthor: "Edward Ashton", srcWork: "Mickey7", notes: "Satire über Kapitalismus, Identität und „wegwerfbare\" Arbeiter." }
+  ];
+
+  const TENDENCY_LABEL = { positive: "Positiv", ambivalent: "Ambivalent", dystopian: "Dystopisch" };
+  const YEAR_MIN = 1925;
+  const YEAR_MAX = 2027;
+  const BAND_Y = { positive: 20, ambivalent: 50, dystopian: 80 };
+
+  const timeline = document.getElementById('filmTimeline');
+  const detail = document.getElementById('filmDetail');
+  const decadesGrid = document.getElementById('filmDecadesGrid');
+  const filterButtons = document.querySelectorAll('.film-filter');
+
+  let activeFilter = 'all';
+  let activeIndex = -1;
+
+  function xForYear(y) {
+    return ((y - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)) * 100;
+  }
+
+  // Jitter for same-year films so dots don't overlap
+  function jitterY(film, sameYearList) {
+    const base = BAND_Y[film.tendency];
+    const idx = sameYearList.indexOf(film);
+    const count = sameYearList.length;
+    if (count <= 1) return base;
+    // spread within ±5% of band
+    const spread = 7;
+    return base - spread/2 + (idx / (count - 1)) * spread;
+  }
+
+  function renderDots() {
+    // Group by year+tendency for jitter
+    const groupKey = f => `${f.year}|${f.tendency}`;
+    const groups = {};
+    FILMS.forEach(f => {
+      const k = groupKey(f);
+      (groups[k] ||= []).push(f);
+    });
+
+    FILMS.forEach((film, i) => {
+      const dot = document.createElement('button');
+      dot.className = 'film-dot';
+      dot.setAttribute('data-tendency', film.tendency);
+      dot.setAttribute('data-index', i);
+      dot.setAttribute('aria-label', `${film.year} · ${film.title}`);
+      dot.title = `${film.year} · ${film.title}`;
+      const sameGroup = groups[groupKey(film)];
+      dot.style.left = xForYear(film.year) + '%';
+      dot.style.top  = jitterY(film, sameGroup) + '%';
+      dot.addEventListener('click', () => selectFilm(i));
+      dot.addEventListener('mouseenter', () => showFilm(i, false));
+      timeline.appendChild(dot);
+    });
+  }
+
+  function showFilm(i, persist) {
+    const f = FILMS[i];
+    detail.classList.remove('empty');
+    detail.innerHTML = `
+      <div class="film-detail-year">${f.year}</div>
+      <div class="film-detail-body">
+        <h3>${f.title}</h3>
+        <div class="film-detail-meta">
+          <span><b>${f.director}</b></span>
+          ${f.ai ? `<span>KI: <b>${f.ai}</b></span>` : ''}
+        </div>
+        <p class="film-detail-notes">${f.notes}</p>
+        ${f.srcAuthor || f.srcWork
+          ? `<p class="film-detail-source">Vorlage: <b>${[f.srcAuthor, f.srcWork].filter(Boolean).join(' · ')}</b></p>`
+          : ''}
+      </div>
+      <div class="film-detail-tendency" data-tendency="${f.tendency}">${TENDENCY_LABEL[f.tendency]}</div>
+    `;
+    if (persist) {
+      activeIndex = i;
+      timeline.querySelectorAll('.film-dot').forEach((d, idx) => {
+        d.classList.toggle('active', idx === i);
+      });
+    }
+  }
+
+  function selectFilm(i) {
+    showFilm(i, true);
+  }
+
+  function applyFilter(f) {
+    activeFilter = f;
+    filterButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.filter === f));
+    timeline.querySelectorAll('.film-dot').forEach(d => {
+      const ok = f === 'all' || d.getAttribute('data-tendency') === f;
+      d.classList.toggle('dim', !ok);
+    });
+  }
+
+  function renderCounts() {
+    const counts = { all: FILMS.length, positive: 0, ambivalent: 0, dystopian: 0 };
+    FILMS.forEach(f => counts[f.tendency]++);
+    document.getElementById('cnt-all').textContent = counts.all;
+    document.getElementById('cnt-positive').textContent = counts.positive;
+    document.getElementById('cnt-ambivalent').textContent = counts.ambivalent;
+    document.getElementById('cnt-dystopian').textContent = counts.dystopian;
+  }
+
+  function renderDecades() {
+    const decades = [1920, 1930, 1940, 1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020];
+    const buckets = {};
+    decades.forEach(d => buckets[d] = { positive: 0, ambivalent: 0, dystopian: 0, total: 0 });
+    FILMS.forEach(f => {
+      const d = Math.floor(f.year / 10) * 10;
+      if (buckets[d]) { buckets[d][f.tendency]++; buckets[d].total++; }
+    });
+
+    let maxTotal = 0;
+    decades.forEach(d => { if (buckets[d].total > maxTotal) maxTotal = buckets[d].total; });
+    if (maxTotal === 0) maxTotal = 1;
+
+    decadesGrid.innerHTML = decades.map(d => {
+      const b = buckets[d];
+      const totalPx = Math.round((b.total / maxTotal) * 130); // bar max ~130px
+      const seg = (count) => b.total === 0 ? 0 : Math.round((count / b.total) * totalPx);
+      const pos = seg(b.positive);
+      const amb = seg(b.ambivalent);
+      const dys = seg(b.dystopian);
+      return `
+        <div class="film-decade">
+          <div class="film-decade-bar" style="height:${totalPx}px">
+            <div class="seg-positive"   style="height:${pos}px"></div>
+            <div class="seg-ambivalent" style="height:${amb}px"></div>
+            <div class="seg-dystopian"  style="height:${dys}px"></div>
+          </div>
+          <div class="film-decade-label">${d}s</div>
+          <div class="film-decade-count">${b.total || '·'}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Init
+  renderDots();
+  renderCounts();
+  renderDecades();
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => applyFilter(btn.dataset.filter));
+  });
 })();
 </script>
 </body>
