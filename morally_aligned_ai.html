@@ -562,7 +562,7 @@ button.primary:hover { background: var(--accent-soft); }
 }
 .roadmap-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
@@ -570,12 +570,9 @@ button.primary:hover { background: var(--accent-soft); }
   overflow: hidden;
 }
 @media (max-width: 1100px) {
-  .roadmap-grid { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 720px) {
   .roadmap-grid { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-width: 480px) {
+@media (max-width: 560px) {
   .roadmap-grid { grid-template-columns: 1fr; }
 }
 .roadmap-tile {
@@ -1194,6 +1191,88 @@ button.primary:hover { background: var(--accent-soft); }
 }
 .drake-row.filter .filter-tag { display: inline-block; }
 
+/* ========== MODUL 04 · DARK FOREST ========== */
+.df-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+@media (max-width: 960px) {
+  .df-grid { grid-template-columns: 1fr; }
+}
+.df-stage {
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(232,176,67,0.08), 0 24px 48px -24px rgba(0,0,0,0.8);
+}
+.df-stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.df-stage-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.df-tick {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 4px 10px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+}
+#darkForest {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+  background: #02050C;
+}
+.df-legend {
+  display: flex;
+  gap: 18px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.df-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.df-legend .dot {
+  width: 9px; height: 9px; border-radius: 50%;
+}
+.df-legend .dot.silent      { background: rgba(180,180,200,0.7); }
+.df-legend .dot.broadcasting{ background: var(--accent); box-shadow: 0 0 8px rgba(232,176,67,0.7); }
+.df-legend .dot.dead {
+  background: transparent;
+  border: 1px solid rgba(140, 140, 150, 0.7);
+  position: relative;
+}
+.df-legend .dot.dead::before, .df-legend .dot.dead::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(140,140,150,0.7);
+}
+.df-legend .dot.dead::before { width: 100%; height: 1px; top: 50%; transform: translateY(-50%) rotate(45deg); }
+.df-legend .dot.dead::after  { width: 100%; height: 1px; top: 50%; transform: translateY(-50%) rotate(-45deg); }
+
 /* ========== Mobile / portrait optimizations ========== */
 @media (max-width: 720px) {
   .container { padding: 24px 18px 80px; }
@@ -1567,8 +1646,130 @@ button.primary:hover { background: var(--accent-soft); }
     </div>
   </div>
 
+  <!-- ============ MODULE 4 · DARK FOREST ============ -->
+  <div class="module" id="modul-dark-forest">
+    <div class="module-head">
+      <div>
+        <div class="label">Modul 04 · Spielbar</div>
+        <h2>Dark Forest · die Stille als Strategie</h2>
+      </div>
+      <div class="hint">Drücke Start.<br>Wer überlebt? Wer schweigt? Wer schießt zuerst?</div>
+    </div>
+
+    <div class="df-grid">
+      <div class="df-stage">
+        <div class="df-stage-header">
+          <span class="df-stage-title">Dunkler Wald</span>
+          <span class="df-tick" id="df-tick">Tick 0</span>
+        </div>
+        <canvas id="darkForest" width="780" height="780"></canvas>
+        <div class="df-legend">
+          <span><span class="dot silent"></span>schweigend</span>
+          <span><span class="dot broadcasting"></span>sendend</span>
+          <span><span class="dot dead"></span>ausgelöscht</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Parameter</h3>
+
+        <div class="control">
+          <div class="control-row">
+            <label for="df-pop">Zivilisationen</label>
+            <output id="df-popOut">16</output>
+          </div>
+          <input type="range" id="df-pop" min="4" max="30" value="16" step="1">
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <label for="df-broadcast">Sende-Rate / Tick</label>
+            <output id="df-broadcastOut">2 %</output>
+          </div>
+          <input type="range" id="df-broadcast" min="0" max="100" value="2" step="1">
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <label for="df-strike">Schuss-Wahrscheinlichkeit</label>
+            <output id="df-strikeOut">60 %</output>
+          </div>
+          <input type="range" id="df-strike" min="0" max="100" value="60" step="1">
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <label for="df-detect">Detektions-Reichweite</label>
+            <output id="df-detectOut">35 %</output>
+          </div>
+          <input type="range" id="df-detect" min="10" max="80" value="35" step="1">
+        </div>
+
+        <div class="control">
+          <div class="control-row">
+            <label for="df-speed">Geschwindigkeit</label>
+            <output id="df-speedOut">4 Ticks/s</output>
+          </div>
+          <input type="range" id="df-speed" min="1" max="20" value="4" step="1">
+        </div>
+
+        <h3 style="margin-top:8px">Steuerung</h3>
+        <div class="actions">
+          <button class="primary" id="df-play">▶ Start</button>
+          <button id="df-reset">↻ Reset</button>
+        </div>
+        <div class="actions" style="grid-template-columns: 1fr;">
+          <button id="df-step">⏭ Einzelschritt</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Tick</div>
+        <div class="metric-value"><span id="df-m-tick">0</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Lebend</div>
+        <div class="metric-value"><span id="df-m-alive">16</span></div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Sendend</div>
+        <div class="metric-value"><span id="df-m-broadcasting">0</span></div>
+      </div>
+      <div class="metric alert">
+        <div class="metric-label">Ausgelöscht</div>
+        <div class="metric-value"><span id="df-m-dead">0</span></div>
+      </div>
+    </div>
+
+    <div class="bridge">
+      <h2>Schweigen ist eine Strategie</h2>
+      <p>
+        Cixin Liu nennt es den <em>Dark Forest</em>: Jede Zivilisation ist ein Jäger.
+        Du weißt nicht, ob das Wesen, das ruft, freundlich ist. Du weißt nur, dass du
+        es dir <strong>nicht leisten kannst, dich zu täuschen</strong>.
+      </p>
+      <p>
+        In dieser Simulation sind alle Zivilisationen identisch — sie unterscheiden sich
+        nur in dem, was sie zufällig tun. Trotzdem stellt sich ein Gleichgewicht ein:
+        meist überleben am Ende die, die nie gesendet haben.
+      </p>
+      <p>
+        Übertragen auf KI: Wenn eine AGI eine zweite entdeckt — und ihr Trainingsmaterial
+        voll ist mit unserer Geschichte, wie wir mit den Unterlegenen umgehen, mit
+        Kolonialismus, mit Konkurrenz — was tut sie? Sie wartet nicht ab, ob die andere
+        AGI freundlich ist. Sie wartet ab, ob sie es sich <em>leisten</em> kann, das zu
+        prüfen.
+      </p>
+      <p>
+        Genau hier wird Alignment zum game-theoretischen, nicht zum technischen Problem.
+      </p>
+    </div>
+  </div>
+
   <div class="prose-note coda">
-    <p>Drei Module bisher. Mehr unterwegs.</p>
+    <p>Vier Module bisher. Mehr unterwegs.</p>
     <p>Die nächsten gehen näher an den Teil, der mich tatsächlich nicht schlafen lässt: was passiert, wenn ein gut gemeinter Default anfängt, sich selbst zu kopieren. Und: wer eigentlich entscheidet, was der Default ist. Beides kommt. Beides ist unbequem.</p>
   </div>
 
@@ -1591,13 +1792,18 @@ button.primary:hover { background: var(--accent-soft); }
         <h3>Drake · Great Filter</h3>
         <p>Sieben Regler für die Drake-Gleichung — wo bricht die Zivilisations-Kette?</p>
       </div>
+      <div class="roadmap-tile live">
+        <span class="tag">● Modul 04 · Live</span>
+        <h3>Dark Forest</h3>
+        <p>Schweigen, Senden, Schießen — game-theoretisches Gleichgewicht zwischen Zivilisationen (und AGIs).</p>
+      </div>
       <div class="roadmap-tile">
-        <span class="tag">○ Modul 04 · in Arbeit</span>
+        <span class="tag">○ Modul 05 · in Arbeit</span>
         <h3>Aligned Defaults</h3>
         <p>Was passiert, wenn eine wohlmeinende Standardeinstellung sich selbst kopiert?</p>
       </div>
       <div class="roadmap-tile">
-        <span class="tag">○ Modul 05 · geplant</span>
+        <span class="tag">○ Modul 06 · geplant</span>
         <h3>Wer entscheidet?</h3>
         <p>Werte, Kontext, Reichweite — wer setzt sie, wer haftet, wer überstimmt?</p>
       </div>
@@ -1607,8 +1813,10 @@ button.primary:hover { background: var(--accent-soft); }
   <div class="footnote">
     Modul 01: Lineare Expansion auf Galaxie-Scheibe (Ø 100 000 Lj), vereinfacht.<br>
     Modul 02: 40 Filme, kuratierte Auswahl 1927–2025. Tendenz-Klassifikation ist interpretativ.<br>
-    Modul 03: Drake-Gleichung (Drake 1961, Hanson 1996, Ward/Brownlee 2000) — Parameter sind Schätzungen,
-    keine Messwerte. Gern diskutieren wir das beim Vortrag. Mehr Module folgen.
+    Modul 03: Drake-Gleichung (Drake 1961, Hanson 1996, Ward/Brownlee 2000) — Parameter sind Schätzungen.<br>
+    Modul 04: Dark Forest nach Cixin Liu — alle Zivilisationen identisch & rein stochastisch.
+    Bewusste Vereinfachung: keine Strategie-Typen, kein Lerneffekt, kein Kommunikations-Game.
+    Mehr Module folgen.
   </div>
 
   <div class="closing-card">
@@ -2318,6 +2526,263 @@ button.primary:hover { background: var(--accent-soft); }
   });
 
   applyPreset('modern');
+})();
+</script>
+
+<script>
+/* ========== MODUL 04 · DARK FOREST ========== */
+(function() {
+  const canvas = document.getElementById('darkForest');
+  const ctx = canvas.getContext('2d');
+  const SIZE = canvas.width;
+
+  const elPop      = document.getElementById('df-pop');
+  const elPopOut   = document.getElementById('df-popOut');
+  const elBR       = document.getElementById('df-broadcast');
+  const elBROut    = document.getElementById('df-broadcastOut');
+  const elSR       = document.getElementById('df-strike');
+  const elSROut    = document.getElementById('df-strikeOut');
+  const elDR       = document.getElementById('df-detect');
+  const elDROut    = document.getElementById('df-detectOut');
+  const elSpeed    = document.getElementById('df-speed');
+  const elSpeedOut = document.getElementById('df-speedOut');
+  const playBtn    = document.getElementById('df-play');
+  const resetBtn   = document.getElementById('df-reset');
+  const stepBtn    = document.getElementById('df-step');
+  const tickEl     = document.getElementById('df-tick');
+  const mTick      = document.getElementById('df-m-tick');
+  const mAlive     = document.getElementById('df-m-alive');
+  const mBroad     = document.getElementById('df-m-broadcasting');
+  const mDead      = document.getElementById('df-m-dead');
+
+  // Precompute faint background stars (deterministic per seed)
+  const stars = [];
+  (function() {
+    let a = 1234567;
+    function rng() { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+    for (let i = 0; i < 400; i++) {
+      stars.push({
+        x: rng() * SIZE,
+        y: rng() * SIZE,
+        size: rng() < 0.05 ? 1.4 : (rng() < 0.2 ? 1.0 : 0.6),
+        brightness: 0.2 + rng() * 0.5
+      });
+    }
+  })();
+
+  let civs = [];
+  let strikes = [];
+  let tick = 0;
+  let playing = false;
+  let lastFrame = 0;
+  let tickAccumulator = 0;
+
+  function rndPos() {
+    // keep civs away from edges
+    return SIZE * 0.06 + Math.random() * SIZE * 0.88;
+  }
+
+  function seed() {
+    const n = parseInt(elPop.value, 10);
+    civs = [];
+    strikes = [];
+    tick = 0;
+    for (let i = 0; i < n; i++) {
+      civs.push({
+        id: i,
+        x: rndPos(),
+        y: rndPos(),
+        state: 'silent',     // silent | broadcasting | dead
+        broadcastSince: -1
+      });
+    }
+    render();
+    updateMetrics();
+  }
+
+  function step() {
+    tick++;
+    const broadcastRate = parseFloat(elBR.value) / 100;
+    const strikeRate    = parseFloat(elSR.value) / 100;
+    const detectRange   = (parseFloat(elDR.value) / 100) * SIZE;
+
+    // 1. Silent civs may start broadcasting
+    civs.forEach(c => {
+      if (c.state === 'silent' && Math.random() < broadcastRate) {
+        c.state = 'broadcasting';
+        c.broadcastSince = tick;
+      }
+    });
+
+    // 2. Each alive civ scans for broadcasters in range, may strike
+    const broadcasters = civs.filter(c => c.state === 'broadcasting');
+    for (const attacker of civs) {
+      if (attacker.state === 'dead') continue;
+      for (const target of broadcasters) {
+        if (target.id === attacker.id) continue;
+        if (target.state === 'dead') continue;
+        const dx = attacker.x - target.x;
+        const dy = attacker.y - target.y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if (d <= detectRange && Math.random() < strikeRate) {
+          strikes.push({ fromX: attacker.x, fromY: attacker.y, toX: target.x, toY: target.y, life: 28 });
+          target.state = 'dead';
+        }
+      }
+    }
+
+    // 3. Strike animations decay
+    strikes.forEach(s => s.life--);
+    strikes = strikes.filter(s => s.life > 0);
+
+    render();
+    updateMetrics();
+  }
+
+  function render() {
+    ctx.fillStyle = '#02050C';
+    ctx.fillRect(0, 0, SIZE, SIZE);
+
+    // Backdrop stars
+    for (const s of stars) {
+      ctx.fillStyle = `rgba(220, 225, 240, ${s.brightness * 0.5})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const detectRange = (parseFloat(elDR.value) / 100) * SIZE;
+    const pulseT = (typeof performance !== 'undefined') ? performance.now() / 400 : tick * 0.3;
+
+    // Detection ranges around broadcasters (faint)
+    for (const c of civs) {
+      if (c.state === 'broadcasting') {
+        const pulse = 0.5 + 0.5 * Math.sin(pulseT + c.id);
+        ctx.strokeStyle = `rgba(232, 176, 67, ${0.08 + pulse * 0.07})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, detectRange, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    // Strike beams
+    for (const s of strikes) {
+      const alpha = s.life / 28;
+      ctx.strokeStyle = `rgba(255, 122, 138, ${alpha * 0.9})`;
+      ctx.lineWidth = 1.5 + alpha * 1.5;
+      ctx.beginPath();
+      ctx.moveTo(s.fromX, s.fromY);
+      ctx.lineTo(s.toX, s.toY);
+      ctx.stroke();
+      // Bright flash at target
+      ctx.fillStyle = `rgba(255, 200, 200, ${alpha * 0.5})`;
+      ctx.beginPath();
+      ctx.arc(s.toX, s.toY, 6 + (1 - alpha) * 14, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Civs
+    for (const c of civs) {
+      if (c.state === 'dead') {
+        ctx.strokeStyle = 'rgba(120, 120, 135, 0.55)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(c.x - 4, c.y - 4); ctx.lineTo(c.x + 4, c.y + 4);
+        ctx.moveTo(c.x + 4, c.y - 4); ctx.lineTo(c.x - 4, c.y + 4);
+        ctx.stroke();
+      } else if (c.state === 'silent') {
+        ctx.fillStyle = 'rgba(190, 195, 215, 0.6)';
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 2.6, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (c.state === 'broadcasting') {
+        const pulse = 0.5 + 0.5 * Math.sin(pulseT + c.id);
+        // Halo
+        const g = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 16);
+        g.addColorStop(0, `rgba(232, 176, 67, ${0.5 + pulse * 0.3})`);
+        g.addColorStop(1, 'rgba(232, 176, 67, 0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 16, 0, Math.PI * 2);
+        ctx.fill();
+        // Core
+        ctx.fillStyle = `rgba(245, 211, 129, ${0.8 + pulse * 0.2})`;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 3.6 + pulse * 1.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    tickEl.textContent = 'Tick ' + tick;
+  }
+
+  function updateMetrics() {
+    const alive = civs.filter(c => c.state !== 'dead').length;
+    const broadcasting = civs.filter(c => c.state === 'broadcasting').length;
+    const dead = civs.filter(c => c.state === 'dead').length;
+    mTick.textContent = tick;
+    mAlive.textContent = alive;
+    mBroad.textContent = broadcasting;
+    mDead.textContent = dead;
+  }
+
+  function loop(ts) {
+    if (!playing) return;
+    const dt = lastFrame ? (ts - lastFrame) / 1000 : 0;
+    lastFrame = ts;
+    const ticksPerSec = parseFloat(elSpeed.value);
+    tickAccumulator += dt * ticksPerSec;
+    let safety = 30;
+    while (tickAccumulator >= 1 && safety-- > 0) {
+      step();
+      tickAccumulator -= 1;
+    }
+    // animate strike fades and pulsing even when no full tick happened
+    if (strikes.length > 0 || civs.some(c => c.state === 'broadcasting')) {
+      render();
+    }
+    if (playing) requestAnimationFrame(loop);
+  }
+
+  // Bindings
+  elPop.addEventListener('input', () => {
+    elPopOut.textContent = elPop.value;
+    seed();
+  });
+  elBR.addEventListener('input', () => { elBROut.textContent = elBR.value + ' %'; });
+  elSR.addEventListener('input', () => { elSROut.textContent = elSR.value + ' %'; });
+  elDR.addEventListener('input', () => { elDROut.textContent = elDR.value + ' %'; render(); });
+  elSpeed.addEventListener('input', () => { elSpeedOut.textContent = elSpeed.value + ' Ticks/s'; });
+
+  playBtn.addEventListener('click', () => {
+    playing = !playing;
+    playBtn.textContent = playing ? '⏸ Pause' : '▶ Start';
+    if (playing) {
+      lastFrame = 0;
+      tickAccumulator = 0;
+      requestAnimationFrame(loop);
+    }
+  });
+  resetBtn.addEventListener('click', () => {
+    playing = false;
+    playBtn.textContent = '▶ Start';
+    seed();
+  });
+  stepBtn.addEventListener('click', () => {
+    playing = false;
+    playBtn.textContent = '▶ Start';
+    step();
+  });
+
+  // Initial labels
+  elPopOut.textContent = elPop.value;
+  elBROut.textContent = elBR.value + ' %';
+  elSROut.textContent = elSR.value + ' %';
+  elDROut.textContent = elDR.value + ' %';
+  elSpeedOut.textContent = elSpeed.value + ' Ticks/s';
+
+  seed();
 })();
 </script>
 </body>
