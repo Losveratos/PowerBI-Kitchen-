@@ -632,6 +632,93 @@ button.primary:hover { background: var(--accent-soft); }
   line-height: 1.6;
 }
 
+/* ========== Prose notes (intro · prelude · coda) ========== */
+.prose-note {
+  max-width: 68ch;
+  padding: 6px 0 6px 22px;
+  border-left: 2px solid var(--accent);
+}
+.prose-note p {
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+.prose-note p:last-child { margin-bottom: 0; }
+.prose-note em {
+  color: var(--accent-soft);
+  font-style: italic;
+  font-weight: 500;
+}
+.prose-note strong { color: var(--ink); font-weight: 600; }
+.prose-note.lead    { margin: 0 0 52px; }
+.prose-note.prelude { margin: 8px 0 36px; }
+.prose-note.coda    { margin: 0 0 48px; }
+.prose-note.prelude p:first-child,
+.prose-note.coda p:first-child {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 17px;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+/* ========== Closing card ========== */
+.closing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  margin: 36px 0 0;
+}
+.closing-card p {
+  font-size: 15px;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  max-width: 62ch;
+  margin-bottom: 18px;
+}
+.closing-card .signature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.closing-card .signature strong {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.closing-card .signature span {
+  color: var(--ink-mute);
+  font-size: 13px;
+}
+.closing-card .signature a {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 7px 14px;
+  border: 1px solid var(--accent-deep);
+  border-radius: 100px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: all .15s ease;
+  margin-left: auto;
+}
+.closing-card .signature a:hover {
+  background: rgba(232,176,67,0.08);
+  border-color: var(--accent);
+}
+
 /* ========== MODUL 02 · KI IM FILM ========== */
 :root {
   --t-positive:    #A9F26F;
@@ -938,6 +1025,12 @@ button.primary:hover { background: var(--accent-soft); }
     <span>Work in Progress</span>
   </div>
 
+  <div class="prose-note lead">
+    <p>Vor ein paar Monaten habe ich einen Szenario-Report gelesen — AI 2027, von Daniel Kokotajlo. Dann das Interview mit ihm im Spiegel. Seitdem denke ich an wenig anderes.</p>
+    <p>Nicht weil ich glaube, dass die Welt untergeht. Sondern weil die Frage, die wir gerne umgehen — <em>was für eine Intelligenz wollen wir eigentlich bauen?</em> — schwieriger zu umgehen geworden ist. Fähigkeit konvergiert. Werte nicht. Und die Lücke wird schneller größer, als die meisten von uns folgen können.</p>
+    <p>Diese Seite ist die Begleitung zum Vortrag bei Daten Grillen 2026. Sie ist keine Zusammenfassung. Sie ist die spielbare Version: ein paar Module zum Ziehen, ein paar Fragen zum Mitnehmen, und die Dinge, die in 45 Minuten nicht hineinpassen. Sie wächst Stück für Stück.</p>
+  </div>
+
   <div class="premise">
     <div class="section-label">Worum es geht</div>
     <ol>
@@ -958,6 +1051,11 @@ button.primary:hover { background: var(--accent-soft); }
         <span>Jedes Modul ist <em>spielbar</em>. Zieh die Regler. Was siehst du? Was überrascht dich? Das ist die Brücke zum nächsten Kapitel.</span>
       </li>
     </ol>
+  </div>
+
+  <div class="prose-note prelude">
+    <p>Der Talk fängt hier an. Nicht bei KI. Bei der Stille.</p>
+    <p>Wenn das Universum so alt ist und so voll — wo sind dann alle? Die Frage ist älter als der Computer. Aber sie trägt die gleiche Logik wie die zur KI. Zieh die Regler und sieh selbst.</p>
   </div>
 
   <!-- ============ MODULE 1 ============ -->
@@ -1135,6 +1233,11 @@ button.primary:hover { background: var(--accent-soft); }
     </div>
   </div>
 
+  <div class="prose-note coda">
+    <p>Zwei Module bisher. Mehr unterwegs.</p>
+    <p>Die nächsten gehen näher an den Teil, der mich tatsächlich nicht schlafen lässt: was passiert, wenn ein gut gemeinter Default anfängt, sich selbst zu kopieren. Und: wer eigentlich entscheidet, was der Default ist. Beides kommt. Beides ist unbequem.</p>
+  </div>
+
   <!-- ============ ROADMAP ============ -->
   <div class="roadmap">
     <div class="section-label">Weitere Module · in Arbeit</div>
@@ -1166,6 +1269,15 @@ button.primary:hover { background: var(--accent-soft); }
     Modul 01: Lineare Expansion auf Galaxie-Scheibe (Ø 100 000 Lj), vereinfacht.<br>
     Modul 02: 40 Filme, kuratierte Auswahl 1927–2025. Tendenz-Klassifikation ist
     interpretativ — gern diskutieren wir das beim Vortrag. Mehr Module folgen.
+  </div>
+
+  <div class="closing-card">
+    <p>Wenn diese Seite dich zum Nachdenken gebracht hat — oder zum Widersprechen — ist das genau richtig. Find mich auf LinkedIn oder sprich mich nach der Session an.</p>
+    <div class="signature">
+      <strong>Michael Tenner</strong>
+      <span>· Full Stack Power BI Engineer</span>
+      <a href="https://www.linkedin.com/in/michael-tenner-5b885970" target="_blank" rel="noopener">LinkedIn →</a>
+    </div>
   </div>
 
 </div>

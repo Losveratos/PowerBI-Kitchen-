@@ -632,6 +632,93 @@ button.primary:hover { background: var(--accent-soft); }
   line-height: 1.6;
 }
 
+/* ========== Prose notes (intro · prelude · coda) ========== */
+.prose-note {
+  max-width: 68ch;
+  padding: 6px 0 6px 22px;
+  border-left: 2px solid var(--accent);
+}
+.prose-note p {
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+.prose-note p:last-child { margin-bottom: 0; }
+.prose-note em {
+  color: var(--accent-soft);
+  font-style: italic;
+  font-weight: 500;
+}
+.prose-note strong { color: var(--ink); font-weight: 600; }
+.prose-note.lead    { margin: 0 0 52px; }
+.prose-note.prelude { margin: 8px 0 36px; }
+.prose-note.coda    { margin: 0 0 48px; }
+.prose-note.prelude p:first-child,
+.prose-note.coda p:first-child {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 17px;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+/* ========== Closing card ========== */
+.closing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  margin: 36px 0 0;
+}
+.closing-card p {
+  font-size: 15px;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  max-width: 62ch;
+  margin-bottom: 18px;
+}
+.closing-card .signature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.closing-card .signature strong {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.closing-card .signature span {
+  color: var(--ink-mute);
+  font-size: 13px;
+}
+.closing-card .signature a {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 7px 14px;
+  border: 1px solid var(--accent-deep);
+  border-radius: 100px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: all .15s ease;
+  margin-left: auto;
+}
+.closing-card .signature a:hover {
+  background: rgba(232,176,67,0.08);
+  border-color: var(--accent);
+}
+
 /* ========== MODUL 02 · AI IN FILM ========== */
 :root {
   --t-positive:    #A9F26F;
@@ -938,6 +1025,12 @@ button.primary:hover { background: var(--accent-soft); }
     <span>Work in Progress</span>
   </div>
 
+  <div class="prose-note lead">
+    <p>A few months ago I read a scenario report called AI 2027 by Daniel Kokotajlo. Then I read his interview in Der Spiegel. I haven't thought about much else since.</p>
+    <p>Not because I think the world is ending. Because I think the question we keep avoiding — <em>what kind of intelligence do we actually want to build?</em> — has become harder to avoid. Capability is converging. Values aren't. And the gap is widening faster than most of us can follow.</p>
+    <p>This page is a companion to the talk at Daten Grillen 2026. It is not a summary. It is the playable version: a few modules to pull on, a few questions to take home, and the things I could not fit into 45 minutes. It grows piece by piece.</p>
+  </div>
+
   <div class="premise">
     <div class="section-label">What it's about</div>
     <ol>
@@ -958,6 +1051,11 @@ button.primary:hover { background: var(--accent-soft); }
         <span>Every module is <em>playable</em>. Pull the sliders. What do you see? What surprises you? That is the bridge to the next chapter.</span>
       </li>
     </ol>
+  </div>
+
+  <div class="prose-note prelude">
+    <p>The talk starts here. Not with AI. With silence.</p>
+    <p>If the universe is this old and this full — where is everyone? The question is older than computing. But it carries the same logic as the one about AI. Pull the sliders and see why.</p>
   </div>
 
   <!-- ============ MODULE 1 ============ -->
@@ -1133,6 +1231,11 @@ button.primary:hover { background: var(--accent-soft); }
     </div>
   </div>
 
+  <div class="prose-note coda">
+    <p>Two modules so far. More on the way.</p>
+    <p>The next ones move closer to the part that actually keeps me up at night: what happens when a well-intentioned default starts copying itself. And: who actually gets to set the defaults in the first place. Both are coming. Both are uncomfortable.</p>
+  </div>
+
   <!-- ============ ROADMAP ============ -->
   <div class="roadmap">
     <div class="section-label">More modules · in progress</div>
@@ -1164,6 +1267,15 @@ button.primary:hover { background: var(--accent-soft); }
     Module 01: Linear expansion on the galactic disk (Ø 100,000 ly), simplified.<br>
     Module 02: 40 films, curated selection 1927–2025. The tendency classification
     is interpretive — happy to discuss at the talk. More modules to follow.
+  </div>
+
+  <div class="closing-card">
+    <p>If this page made you think — or argue with me — that's the point. Find me on LinkedIn or come talk to me after the session.</p>
+    <div class="signature">
+      <strong>Michael Tenner</strong>
+      <span>· Full Stack Power BI Engineer</span>
+      <a href="https://www.linkedin.com/in/michael-tenner-5b885970" target="_blank" rel="noopener">LinkedIn →</a>
+    </div>
   </div>
 
 </div>
