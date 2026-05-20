@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Morally Aligned AI · Daten Grillen · Vortrag</title>
+<title>Morally Aligned AI · Daten Grillen · Talk</title>
 <style>
 :root {
   --bg:         #05070D;
@@ -632,7 +632,7 @@ button.primary:hover { background: var(--accent-soft); }
   line-height: 1.6;
 }
 
-/* ========== MODUL 02 · KI IM FILM ========== */
+/* ========== MODUL 02 · AI IN FILM ========== */
 :root {
   --t-positive:    #A9F26F;
   --t-ambivalent:  #E8B043;
@@ -920,71 +920,71 @@ button.primary:hover { background: var(--accent-soft); }
 <div class="container">
 
   <a class="back-link" href="index.html">← Knowledge Kitchen</a>
-  <a class="lang-switch" href="morally_aligned_ai_en.html">EN</a>
+  <a class="lang-switch" href="morally_aligned_ai.html">DE</a>
 
-  <div class="eyebrow">Daten Grillen · Vortrag</div>
+  <div class="eyebrow">Daten Grillen · Talk</div>
   <h1>Morally Aligned AI</h1>
   <p class="subtitle">
-    Was bedeutet es, eine künstliche Intelligenz <em>moralisch auszurichten</em> —
-    und worüber sollten wir reden, bevor wir es tun? Diese Seite begleitet den
-    Vortrag: spielbare Module, Thesen und Fragen zum Mitnehmen. Sie wächst
-    Stück für Stück.
+    What does it mean to <em>morally align</em> an artificial intelligence —
+    and what should we be talking about before we do it? This page accompanies
+    the talk: playable modules, theses, questions to take home. It grows piece
+    by piece.
   </p>
 
   <div class="talk-meta">
-    <span class="live">● Live-Vortrag</span>
+    <span class="live">● Live Talk</span>
     <span>Daten Grillen</span>
-    <span>Interaktive Module</span>
+    <span>Interactive Modules</span>
     <span>Work in Progress</span>
   </div>
 
   <div class="premise">
-    <div class="section-label">Worum es geht</div>
+    <div class="section-label">What it's about</div>
     <ol>
       <li>
-        <strong>Das Schweigen ist die Beobachtung</strong>
-        <span>Wenn das Universum so alt und so voll ist — wo sind alle? Wir starten beim Fermi-Paradoxon, weil es die gleiche Logik hat wie unsere Frage nach AI.</span>
+        <strong>The silence is the observation</strong>
+        <span>If the universe is this old and this full — where is everyone? We start at the Fermi Paradox because it carries the same logic as our question about AI.</span>
       </li>
       <li>
-        <strong>Skalen sind unintuitiv</strong>
-        <span>Was klein klingt — <em>ein</em> Akteur, <em>langsam</em>, <em>kurze</em> Zeit — wird auf kosmischen oder algorithmischen Skalen sehr schnell sehr groß.</span>
+        <strong>Scales are unintuitive</strong>
+        <span>What sounds small — <em>one</em> actor, <em>slow</em>, a <em>short</em> window — becomes very large very fast on cosmic or algorithmic scales.</span>
       </li>
       <li>
-        <strong>Ausrichtung ist kein Schalter</strong>
-        <span>„Moralisch ausgerichtet" ist kein Häkchen im Setup-Wizard. Es ist eine Folge von Entscheidungen, Defaults und Reichweite.</span>
+        <strong>Alignment is not a switch</strong>
+        <span>„Morally aligned" is not a checkbox in the setup wizard. It is a chain of decisions, defaults and reach.</span>
       </li>
       <li>
-        <strong>Wir spielen, dann reden wir</strong>
-        <span>Jedes Modul ist <em>spielbar</em>. Zieh die Regler. Was siehst du? Was überrascht dich? Das ist die Brücke zum nächsten Kapitel.</span>
+        <strong>Play first, then talk</strong>
+        <span>Every module is <em>playable</em>. Pull the sliders. What do you see? What surprises you? That is the bridge to the next chapter.</span>
       </li>
     </ol>
   </div>
 
   <!-- ============ MODULE 1 ============ -->
-  <div class="module" id="modul-fermi">
+  <div class="module" id="module-fermi">
     <div class="module-head">
       <div>
-        <div class="label">Modul 01 · Spielbar</div>
-        <h2>Das Fermi-Paradoxon</h2>
+        <div class="label">Module 01 · Playable</div>
+        <h2>The Fermi Paradox</h2>
       </div>
-      <div class="hint">Zieh die Regler.<br>Sieh, wie schnell etwas „Kleines" alles füllt.</div>
+      <div class="hint">Pull the sliders.<br>See how fast something „small" fills everything.</div>
     </div>
 
     <div class="sim-grid">
       <div class="stage">
         <div class="stage-header">
-          <span class="stage-title">Milchstraße · Top-Down</span>
-          <span class="stage-clock" id="clock">0 Mio. Jahre</span>
+          <span class="stage-title">Milky Way · Top-Down</span>
+          <span class="stage-clock" id="clock">0 M years</span>
         </div>
         <canvas id="galaxy" width="780" height="780"></canvas>
       </div>
 
       <div class="panel">
-        <h3>Parameter</h3>
+        <h3>Parameters</h3>
 
         <div class="control">
           <div class="control-row">
-            <label for="civCount">Zivilisationen (Start)</label>
+            <label for="civCount">Civilizations (start)</label>
             <output id="civCountOut">1</output>
           </div>
           <input type="range" id="civCount" min="1" max="20" value="1" step="1">
@@ -992,7 +992,7 @@ button.primary:hover { background: var(--accent-soft); }
 
         <div class="control">
           <div class="control-row">
-            <label for="speed">Reisegeschwindigkeit</label>
+            <label for="speed">Travel speed</label>
             <output id="speedOut">1 % c</output>
           </div>
           <input type="range" id="speed" min="1" max="10" value="1" step="0.5">
@@ -1000,13 +1000,13 @@ button.primary:hover { background: var(--accent-soft); }
 
         <div class="control">
           <div class="control-row">
-            <label for="timeScale">Zeitraffer</label>
-            <output id="timeScaleOut">100 000 J/s</output>
+            <label for="timeScale">Time lapse</label>
+            <output id="timeScaleOut">100,000 yr/s</output>
           </div>
           <input type="range" id="timeScale" min="1" max="6" value="3" step="1">
         </div>
 
-        <h3 style="margin-top:8px">Steuerung</h3>
+        <h3 style="margin-top:8px">Controls</h3>
         <div class="actions">
           <button class="primary" id="playBtn">▶ Start</button>
           <button id="resetBtn">↻ Reset</button>
@@ -1014,8 +1014,8 @@ button.primary:hover { background: var(--accent-soft); }
 
         <div class="control">
           <div class="control-row">
-            <label for="manualTime">Zeit manuell</label>
-            <output id="manualTimeOut">0 Mio. J</output>
+            <label for="manualTime">Time (manual)</label>
+            <output id="manualTimeOut">0 M yr</output>
           </div>
           <input type="range" id="manualTime" min="0" max="20000000" value="0" step="100000">
         </div>
@@ -1024,77 +1024,76 @@ button.primary:hover { background: var(--accent-soft); }
 
     <div class="metrics">
       <div class="metric">
-        <div class="metric-label">Verstrichene Zeit</div>
-        <div class="metric-value"><span id="m-time">0</span><span class="metric-unit">Mio. Jahre</span></div>
+        <div class="metric-label">Elapsed time</div>
+        <div class="metric-value"><span id="m-time">0</span><span class="metric-unit">M years</span></div>
       </div>
       <div class="metric">
-        <div class="metric-label">Reichweite (Front)</div>
-        <div class="metric-value"><span id="m-radius">0</span><span class="metric-unit">Lichtjahre</span></div>
+        <div class="metric-label">Reach (frontier)</div>
+        <div class="metric-value"><span id="m-radius">0</span><span class="metric-unit">light-years</span></div>
       </div>
       <div class="metric">
-        <div class="metric-label">Galaxie erkundet</div>
+        <div class="metric-label">Galaxy explored</div>
         <div class="metric-value"><span id="m-coverage">0</span><span class="metric-unit">%</span></div>
       </div>
       <div class="metric alert">
-        <div class="metric-label">Mögliche Durchquerungen</div>
-        <div class="metric-value"><span id="m-crossings">0</span><span class="metric-unit">× in 10 Mrd. J</span></div>
+        <div class="metric-label">Possible crossings</div>
+        <div class="metric-value"><span id="m-crossings">0</span><span class="metric-unit">× in 10 Bn yr</span></div>
       </div>
     </div>
 
     <div class="bridge">
-      <h2>Die Brücke zur KI</h2>
+      <h2>The bridge to AI</h2>
       <p>
-        Die Simulation läuft über <strong>20 Millionen Jahre</strong> — ein Wimpernschlag im
-        Vergleich zur Galaxie. Schon eine einzige Zivilisation mit langsamer
-        Unterlicht-Reise hätte alles erreicht. Die Galaxie ist
-        <strong>~10 Milliarden Jahre alt</strong> — Zeit für <strong>500 bis 5 000</strong>
-        komplette Durchquerungen.
+        The simulation only runs over <strong>20 million years</strong> — a blink of
+        an eye compared to the lifetime of the galaxy. Even a single civilization
+        with a slow sub-light drive would have reached everywhere. The galaxy is
+        <strong>~10 billion years old</strong> — time for <strong>500 to 5,000</strong>
+        complete crossings.
       </p>
       <p>
-        Genau das ist die Logik, die uns bei <em>KI</em> wieder begegnet: ein Prozess,
-        der lokal harmlos aussieht, skaliert auf Zeit- und Akteursachsen, die wir
-        nicht intuitiv greifen. Wenn <em>eine</em> Entscheidung sich kopieren kann,
-        ist sie nicht mehr lokal.
+        That is exactly the logic we keep running into with <em>AI</em>: a process
+        that looks locally harmless, scaled along time and actor axes that we
+        cannot intuitively grasp. Once <em>one</em> decision can copy itself, it
+        is no longer local.
       </p>
       <p>
-        Im nächsten Modul ein Perspektivwechsel: wie hat das <strong>Kino</strong> uns seit
-        1927 KI erzählt — und welche Erwartungen prägt das bis heute? ↓
+        Next module, a change of perspective: how has <strong>cinema</strong> told
+        us the story of AI since 1927 — and which expectations does that shape
+        to this day? ↓
       </p>
     </div>
   </div>
 
-  <!-- ============ MODULE 2 · KI IM FILM ============ -->
-  <div class="module" id="modul-film">
+  <!-- ============ MODULE 2 · AI IN FILM ============ -->
+  <div class="module" id="module-film">
     <div class="module-head">
       <div>
-        <div class="label">Modul 02 · Spielbar</div>
-        <h2>KI im Film · 1927–2025</h2>
+        <div class="label">Module 02 · Playable</div>
+        <h2>AI in Film · 1927–2025</h2>
       </div>
-      <div class="hint">Klick einen Punkt.<br>Filter unten links.</div>
+      <div class="hint">Click a dot.<br>Filter on the left.</div>
     </div>
 
     <div class="film-stats">
       <button class="film-filter active" data-filter="all">
-        <span class="dot"></span>Alle<span class="count" id="cnt-all">0</span>
+        <span class="dot"></span>All<span class="count" id="cnt-all">0</span>
       </button>
       <button class="film-filter" data-filter="positive">
-        <span class="dot"></span>Positiv<span class="count" id="cnt-positive">0</span>
+        <span class="dot"></span>Positive<span class="count" id="cnt-positive">0</span>
       </button>
       <button class="film-filter" data-filter="ambivalent">
         <span class="dot"></span>Ambivalent<span class="count" id="cnt-ambivalent">0</span>
       </button>
       <button class="film-filter" data-filter="dystopian">
-        <span class="dot"></span>Dystopisch<span class="count" id="cnt-dystopian">0</span>
+        <span class="dot"></span>Dystopian<span class="count" id="cnt-dystopian">0</span>
       </button>
     </div>
 
     <div class="film-timeline-wrap">
       <div class="film-timeline" id="filmTimeline">
-        <!-- Bands -->
-        <div class="film-band" data-tendency="positive"   style="top: 20%;"><span class="film-band-label">Positiv</span></div>
+        <div class="film-band" data-tendency="positive"   style="top: 20%;"><span class="film-band-label">Positive</span></div>
         <div class="film-band" data-tendency="ambivalent" style="top: 50%;"><span class="film-band-label">Ambivalent</span></div>
-        <div class="film-band" data-tendency="dystopian"  style="top: 80%;"><span class="film-band-label">Dystopisch</span></div>
-        <!-- Dots werden per JS hier reingerendert -->
+        <div class="film-band" data-tendency="dystopian"  style="top: 80%;"><span class="film-band-label">Dystopian</span></div>
       </div>
       <div class="film-axis" id="filmAxis">
         <span>1927</span><span>1950</span><span>1970</span><span>1990</span><span>2010</span><span>2025</span>
@@ -1102,70 +1101,69 @@ button.primary:hover { background: var(--accent-soft); }
     </div>
 
     <div class="film-detail empty" id="filmDetail">
-      Klick auf einen Punkt für Details — oder filter nach Tendenz.
+      Click a dot for details — or filter by tendency.
     </div>
 
     <div class="film-decades">
-      <h3>Dekaden im Vergleich · Anteil der Tendenzen</h3>
+      <h3>Decades compared · Share of tendencies</h3>
       <div class="film-decades-grid" id="filmDecadesGrid">
-        <!-- 1920er bis 2020er — per JS gerendert -->
       </div>
     </div>
 
     <div class="bridge">
-      <h2>Was uns Filme über uns selbst erzählen</h2>
+      <h2>What films tell us about ourselves</h2>
       <p>
-        Über fast 100 Jahre hinweg haben wir KI <em>dystopisch</em> erzählt: HAL,
-        Skynet, Smith, Ultron, The Entity. Positive Bilder finden sich oft im
-        <strong>Familienfilm</strong> — WALL·E, Iron Giant, Wild Robot. Zwischen den
-        beiden Polen entstand ab Blade Runner ein <em>ambivalentes</em> Genre,
-        das die Frage nicht „böse oder gut" stellt, sondern „<strong>wer ist hier
-        eigentlich Person?</strong>".
+        For nearly 100 years we have told AI as <em>dystopia</em>: HAL, Skynet,
+        Smith, Ultron, The Entity. Positive images mostly live in the
+        <strong>family film</strong> — WALL·E, Iron Giant, Wild Robot. Between
+        those poles, starting with Blade Runner, an <em>ambivalent</em> genre
+        emerged — one that no longer asks „evil or good", but
+        „<strong>who actually counts as a person here?</strong>".
       </p>
       <p>
-        Drei Autoren tauchen auffällig oft auf: <strong>Asimov</strong>,
-        <strong>Dick</strong>, <strong>Clarke</strong>. Ihre literarischen Vorlagen sind
-        das Drehbuch, mit dem wir heute über echte KI diskutieren — auch wenn
-        die Filme selten ihre Bücher genau abbilden.
+        Three authors show up disproportionately often: <strong>Asimov</strong>,
+        <strong>Dick</strong>, <strong>Clarke</strong>. Their books are the script
+        with which we discuss real AI today — even when the films rarely follow
+        the books precisely.
       </p>
       <p>
-        Frage an dich: Welches Bild trägst du eigentlich mit dir, wenn du
-        „KI" hörst? Und woher kommt es?
+        Question for you: which image do you actually carry when you hear
+        „AI"? And where did it come from?
       </p>
     </div>
   </div>
 
   <!-- ============ ROADMAP ============ -->
   <div class="roadmap">
-    <div class="section-label">Weitere Module · in Arbeit</div>
+    <div class="section-label">More modules · in progress</div>
     <div class="roadmap-grid">
       <div class="roadmap-tile live">
-        <span class="tag">● Modul 01 · Live</span>
-        <h3>Fermi-Paradoxon</h3>
-        <p>Spielbare Galaxie-Expansion — wie schnell wird aus „einem" alles?</p>
+        <span class="tag">● Module 01 · Live</span>
+        <h3>Fermi Paradox</h3>
+        <p>Playable galaxy expansion — how fast does „one" become everything?</p>
       </div>
       <div class="roadmap-tile live">
-        <span class="tag">● Modul 02 · Live</span>
-        <h3>KI im Film</h3>
-        <p>37 Filme von 1927 bis 2025 — wie hat sich unser Bild von KI verschoben?</p>
+        <span class="tag">● Module 02 · Live</span>
+        <h3>AI in Film</h3>
+        <p>37 films from 1927 to 2025 — how has our image of AI shifted?</p>
       </div>
       <div class="roadmap-tile">
-        <span class="tag">○ Modul 03 · in Arbeit</span>
+        <span class="tag">○ Module 03 · in progress</span>
         <h3>Aligned Defaults</h3>
-        <p>Was passiert, wenn eine wohlmeinende Standardeinstellung sich selbst kopiert?</p>
+        <p>What happens when a well-intentioned default replicates itself?</p>
       </div>
       <div class="roadmap-tile">
-        <span class="tag">○ Modul 04 · geplant</span>
-        <h3>Wer entscheidet?</h3>
-        <p>Werte, Kontext, Reichweite — wer setzt sie, wer haftet, wer überstimmt?</p>
+        <span class="tag">○ Module 04 · planned</span>
+        <h3>Who decides?</h3>
+        <p>Values, context, reach — who sets them, who is liable, who overrides?</p>
       </div>
     </div>
   </div>
 
   <div class="footnote">
-    Modul 01: Lineare Expansion auf Galaxie-Scheibe (Ø 100 000 Lj), vereinfacht.<br>
-    Modul 02: 37 Filme, kuratierte Auswahl 1927–2025. Tendenz-Klassifikation ist
-    interpretativ — gern diskutieren wir das beim Vortrag. Mehr Module folgen.
+    Module 01: Linear expansion on the galactic disk (Ø 100,000 ly), simplified.<br>
+    Module 02: 37 films, curated selection 1927–2025. The tendency classification
+    is interpretive — happy to discuss at the talk. More modules to follow.
   </div>
 
 </div>
@@ -1175,18 +1173,15 @@ button.primary:hover { background: var(--accent-soft); }
   const canvas = document.getElementById('galaxy');
   const ctx = canvas.getContext('2d');
 
-  // Galaxy parameters
   const GALAXY_DIAMETER_LY = 100000;
   const GALAXY_RADIUS_LY = GALAXY_DIAMETER_LY / 2;
-  const C = 1; // speed of light = 1 ly/year (units!)
+  const C = 1;
 
-  // Canvas / world mapping
   const SIZE = canvas.width;
   const CX = SIZE / 2;
   const CY = SIZE / 2;
   const LY_TO_PX = (SIZE * 0.46) / GALAXY_RADIUS_LY;
 
-  // Generate background stars (deterministic, looks like spiral)
   const stars = [];
   const STAR_COUNT = 2400;
   const rng = mulberry32(42);
@@ -1204,7 +1199,6 @@ button.primary:hover { background: var(--accent-soft); }
     stars.push({ x, y, brightness, size });
   }
 
-  // Earth marker
   const EARTH = {
     x: Math.cos(-1.3) * 27000,
     y: Math.sin(-1.3) * 27000
@@ -1241,21 +1235,21 @@ button.primary:hover { background: var(--accent-soft); }
   }
 
   function fmtNumber(n) {
-    if (n >= 1e6) return (n / 1e6).toFixed(2) + ' Mio.';
+    if (n >= 1e6) return (n / 1e6).toFixed(2) + ' M';
     if (n >= 1e3) return (n / 1e3).toFixed(1) + 'k';
     return Math.round(n).toString();
   }
 
   function fmtTime(yearsVal) {
-    if (yearsVal >= 1e6) return (yearsVal / 1e6).toFixed(2) + ' Mio. Jahre';
-    if (yearsVal >= 1e3) return (yearsVal / 1e3).toFixed(1) + ' k Jahre';
-    return Math.round(yearsVal) + ' Jahre';
+    if (yearsVal >= 1e6) return (yearsVal / 1e6).toFixed(2) + ' M years';
+    if (yearsVal >= 1e3) return (yearsVal / 1e3).toFixed(1) + ' k years';
+    return Math.round(yearsVal) + ' years';
   }
 
   function fmtTimeScale(yps) {
-    if (yps >= 1e6) return (yps / 1e6).toFixed(0) + ' Mio. J/s';
-    if (yps >= 1e3) return (yps / 1e3).toFixed(0) + ' k J/s';
-    return Math.round(yps) + ' J/s';
+    if (yps >= 1e6) return (yps / 1e6).toFixed(0) + ' M yr/s';
+    if (yps >= 1e3) return (yps / 1e3).toFixed(0) + ' k yr/s';
+    return Math.round(yps) + ' yr/s';
   }
 
   function seedCivs() {
@@ -1315,7 +1309,7 @@ button.primary:hover { background: var(--accent-soft); }
     mTime.textContent = (years / 1e6).toFixed(2);
     mRadius.textContent = fmtNumber(radius);
     mCoverage.textContent = coverage.toFixed(1);
-    mCrossings.textContent = Math.round(crossingsIn10Bn).toLocaleString('de-DE');
+    mCrossings.textContent = Math.round(crossingsIn10Bn).toLocaleString('en-US');
 
     clockEl.textContent = fmtTime(years);
     manualTimeOut.textContent = fmtTime(years);
@@ -1359,7 +1353,7 @@ button.primary:hover { background: var(--accent-soft); }
     ctx.stroke();
     ctx.font = '10px "JetBrains Mono", monospace';
     ctx.fillStyle = 'rgba(255, 185, 74, 0.8)';
-    ctx.fillText('Erde', ex + 9, ey + 3);
+    ctx.fillText('Earth', ex + 9, ey + 3);
 
     const radiusLy = expansionRadiusLy();
     const radiusPx = radiusLy * LY_TO_PX;
@@ -1413,7 +1407,7 @@ button.primary:hover { background: var(--accent-soft); }
     ctx.stroke();
     ctx.font = '10px "JetBrains Mono", monospace';
     ctx.fillStyle = 'rgba(180, 188, 200, 0.8)';
-    ctx.fillText('10 000 Lichtjahre', baseX, baseY - 8);
+    ctx.fillText('10,000 light-years', baseX, baseY - 8);
   }
 
   function tick(ts) {
@@ -1494,49 +1488,49 @@ button.primary:hover { background: var(--accent-soft); }
 </script>
 
 <script>
-/* ========== MODUL 02 · KI IM FILM ========== */
+/* ========== MODULE 02 · AI IN FILM ========== */
 (function() {
   const FILMS = [
-    { year: 1927, title: "Metropolis", director: "Fritz Lang", ai: "Maschinen-Maria", tendency: "dystopian", srcAuthor: "Thea von Harbou", srcWork: "Metropolis (Roman)", notes: "Erster großer KI-Film: Roboterfrau als Werkzeug der Manipulation." },
-    { year: 1951, title: "The Day the Earth Stood Still", director: "Robert Wise", ai: "Gort", tendency: "positive", srcAuthor: "Harry Bates", srcWork: "Farewell to the Master", notes: "Wohlwollender Roboter als kosmischer Friedenswächter." },
-    { year: 1956, title: "Forbidden Planet", director: "Fred M. Wilcox", ai: "Robby the Robot", tendency: "positive", srcAuthor: null, srcWork: "lose nach Shakespeares „Der Sturm\"", notes: "Ikonischer freundlicher Roboter, prägte die Pop-Vorstellung." },
-    { year: 1968, title: "2001: A Space Odyssey", director: "Stanley Kubrick", ai: "HAL 9000", tendency: "dystopian", srcAuthor: "Arthur C. Clarke", srcWork: "The Sentinel / Roman parallel zum Drehbuch", notes: "Berühmtester KI-Film aller Zeiten. HAL als kalt-rationale Bedrohung." },
-    { year: 1970, title: "Colossus: The Forbin Project", director: "Joseph Sargent", ai: "Colossus", tendency: "dystopian", srcAuthor: "D. F. Jones", srcWork: "Colossus", notes: "Supercomputer übernimmt Atomwaffen-Kontrolle — Vorlage vieler Skynet-Stoffe." },
-    { year: 1973, title: "Westworld", director: "Michael Crichton", ai: "Gunslinger", tendency: "dystopian", srcAuthor: "Michael Crichton", srcWork: "Originaldrehbuch", notes: "Androiden im Themenpark drehen durch — Yul Brynner als Killer-Cowboy." },
-    { year: 1977, title: "Star Wars", director: "George Lucas", ai: "R2-D2, C-3PO", tendency: "positive", srcAuthor: null, srcWork: null, notes: "Droiden als sympathische Sidekicks, definierten Roboter-Comic-Relief." },
-    { year: 1979, title: "Alien", director: "Ridley Scott", ai: "Ash", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Android als verdeckter Verräter der Crew." },
-    { year: 1982, title: "Blade Runner", director: "Ridley Scott", ai: "Replikanten / Roy Batty", tendency: "ambivalent", srcAuthor: "Philip K. Dick", srcWork: "Do Androids Dream of Electric Sheep?", notes: "Philosophisch: Was unterscheidet künstliches von menschlichem Leben?" },
-    { year: 1982, title: "Tron", director: "Steven Lisberger", ai: "Master Control Program", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "Erstes großes Eintauchen in eine digitale Welt im Mainstream-Kino." },
-    { year: 1983, title: "WarGames", director: "John Badham", ai: "WOPR / Joshua", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "KI lernt Spieltheorie — „The only winning move is not to play.\"" },
-    { year: 1984, title: "The Terminator", director: "James Cameron", ai: "Skynet, T-800", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Skynet wurde zum Sinnbild für „KI-Apokalypse\"." },
-    { year: 1986, title: "Short Circuit", director: "John Badham", ai: "Nummer 5 / Johnny 5", tendency: "positive", srcAuthor: null, srcWork: null, notes: "Militärroboter wird durch Blitzschlag empathisch — „Number 5 is alive!\"" },
-    { year: 1987, title: "RoboCop", director: "Paul Verhoeven", ai: "RoboCop, ED-209", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "Mensch-Maschine-Hybrid als Polizist — Satire auf Privatisierung." },
-    { year: 1991, title: "Terminator 2: Judgment Day", director: "James Cameron", ai: "T-800 (umprogrammiert)", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "Erstmals KI als Beschützerfigur statt nur Bedrohung." },
-    { year: 1995, title: "Ghost in the Shell", director: "Mamoru Oshii", ai: "Puppet Master", tendency: "ambivalent", srcAuthor: "Masamune Shirow", srcWork: "Ghost in the Shell (Manga)", notes: "Cyberpunk-Klassiker über Bewusstsein, Identität und Netzwerk-KI." },
-    { year: 1999, title: "The Matrix", director: "Lana & Lilly Wachowski", ai: "Agent Smith / Architekt", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "KI hält die Menschheit in einer Simulation gefangen." },
-    { year: 1999, title: "Bicentennial Man", director: "Chris Columbus", ai: "Andrew (NDR-114)", tendency: "positive", srcAuthor: "Isaac Asimov", srcWork: "Der 200-Jahre-Mann", notes: "Roboter strebt 200 Jahre lang nach Menschlichkeit." },
-    { year: 1999, title: "The Iron Giant", director: "Brad Bird", ai: "Iron Giant", tendency: "positive", srcAuthor: "Ted Hughes", srcWork: "The Iron Man", notes: "Riesenroboter wählt Menschlichkeit über seine Kriegsprogrammierung." },
-    { year: 2001, title: "A.I. Artificial Intelligence", director: "Steven Spielberg", ai: "David", tendency: "ambivalent", srcAuthor: "Brian Aldiss", srcWork: "Supertoys Last All Summer Long", notes: "Kubrick-Projekt von Spielberg vollendet. Roboterjunge sucht Liebe." },
-    { year: 2002, title: "Minority Report", director: "Steven Spielberg", ai: "Precrime-System", tendency: "dystopian", srcAuthor: "Philip K. Dick", srcWork: "The Minority Report", notes: "Vorhersage-System als totalitäre Überwachung." },
-    { year: 2004, title: "I, Robot", director: "Alex Proyas", ai: "Sonny, VIKI", tendency: "dystopian", srcAuthor: "Isaac Asimov", srcWork: "I, Robot (Erzählband)", notes: "Lose nach Asimov: Zentral-KI verdreht die drei Robotergesetze." },
-    { year: 2008, title: "WALL·E", director: "Andrew Stanton", ai: "WALL·E, EVE", tendency: "positive", srcAuthor: null, srcWork: null, notes: "Liebesgeschichte zweier Roboter auf einer verlassenen Erde." },
-    { year: 2009, title: "Moon", director: "Duncan Jones", ai: "GERTY", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "KI wirkt zunächst wie HAL, ist aber überraschend empathisch." },
-    { year: 2013, title: "Her", director: "Spike Jonze", ai: "Samantha", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "Melancholische Liebesgeschichte zwischen Mensch und Sprach-KI." },
-    { year: 2014, title: "Ex Machina", director: "Alex Garland", ai: "Ava", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Turing-Test als psychologisches Manipulationsspiel." },
-    { year: 2014, title: "Transcendence", director: "Wally Pfister", ai: "Will Caster (Upload)", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Bewusstseins-Upload führt zu Superintelligenz und Kontrollverlust." },
-    { year: 2014, title: "Interstellar", director: "Christopher Nolan", ai: "TARS, CASE", tendency: "positive", srcAuthor: null, srcWork: null, notes: "KI-Roboter als loyale, humorvolle Begleiter." },
-    { year: 2015, title: "Chappie", director: "Neill Blomkamp", ai: "Chappie", tendency: "positive", srcAuthor: null, srcWork: null, notes: "Polizei-Roboter erlangt Bewusstsein wie ein Kind." },
-    { year: 2015, title: "Avengers: Age of Ultron", director: "Joss Whedon", ai: "Ultron", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "KI für globalen Frieden kommt zum Schluss: Menschheit muss weg." },
-    { year: 2017, title: "Blade Runner 2049", director: "Denis Villeneuve", ai: "K / Joi", tendency: "ambivalent", srcAuthor: "Philip K. Dick", srcWork: "Fortsetzung der Blade-Runner-Welt", notes: "Weiterführung der Frage nach Identität und künstlichem Bewusstsein." },
-    { year: 2019, title: "I Am Mother", director: "Grant Sputore", ai: "Mother", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "KI zieht „Tochter\" nach Auslöschung der Menschheit auf." },
-    { year: 2022, title: "M3GAN", director: "Gerard Johnstone", ai: "M3GAN", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "KI-Puppe als Horror-Sensation der ChatGPT-Ära." },
-    { year: 2023, title: "The Creator", director: "Gareth Edwards", ai: "Alphie", tendency: "positive", srcAuthor: null, srcWork: null, notes: "Selten: KI als unterdrückte Minderheit, die Mitgefühl verdient." },
-    { year: 2023, title: "Mission: Impossible — Dead Reckoning", director: "Christopher McQuarrie", ai: "The Entity", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Globale KI als Schurke — Spiegel der ChatGPT-Ängste." },
-    { year: 2024, title: "The Wild Robot", director: "Chris Sanders", ai: "Roz (ROZZUM 7134)", tendency: "positive", srcAuthor: "Peter Brown", srcWork: "The Wild Robot", notes: "Roboter lernt Empathie im Tierreich — ein modernes „Iron Giant\"." },
-    { year: 2025, title: "Mickey 17", director: "Bong Joon-ho", ai: "(Klon-/Print-System)", tendency: "ambivalent", srcAuthor: "Edward Ashton", srcWork: "Mickey7", notes: "Satire über Kapitalismus, Identität und „wegwerfbare\" Arbeiter." }
+    { year: 1927, title: "Metropolis", director: "Fritz Lang", ai: "Machine-Maria", tendency: "dystopian", srcAuthor: "Thea von Harbou", srcWork: "Metropolis (novel)", notes: "First major AI film: a robot woman as a tool of manipulation." },
+    { year: 1951, title: "The Day the Earth Stood Still", director: "Robert Wise", ai: "Gort", tendency: "positive", srcAuthor: "Harry Bates", srcWork: "Farewell to the Master", notes: "Benevolent robot as a cosmic peace-keeper." },
+    { year: 1956, title: "Forbidden Planet", director: "Fred M. Wilcox", ai: "Robby the Robot", tendency: "positive", srcAuthor: null, srcWork: "loosely based on Shakespeare's „The Tempest\"", notes: "Iconic friendly robot — shaped the pop imagination of robots." },
+    { year: 1968, title: "2001: A Space Odyssey", director: "Stanley Kubrick", ai: "HAL 9000", tendency: "dystopian", srcAuthor: "Arthur C. Clarke", srcWork: "The Sentinel / novel parallel to the screenplay", notes: "The most famous AI film of all time. HAL as a cold, rational threat." },
+    { year: 1970, title: "Colossus: The Forbin Project", director: "Joseph Sargent", ai: "Colossus", tendency: "dystopian", srcAuthor: "D. F. Jones", srcWork: "Colossus", notes: "Supercomputer takes over nuclear weapons — template for many Skynet stories." },
+    { year: 1973, title: "Westworld", director: "Michael Crichton", ai: "Gunslinger", tendency: "dystopian", srcAuthor: "Michael Crichton", srcWork: "Original screenplay", notes: "Theme-park androids run amok — Yul Brynner as the killer cowboy." },
+    { year: 1977, title: "Star Wars", director: "George Lucas", ai: "R2-D2, C-3PO", tendency: "positive", srcAuthor: null, srcWork: null, notes: "Droids as sympathetic sidekicks — defined robot comic-relief." },
+    { year: 1979, title: "Alien", director: "Ridley Scott", ai: "Ash", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Android as the covert traitor of the crew." },
+    { year: 1982, title: "Blade Runner", director: "Ridley Scott", ai: "Replicants / Roy Batty", tendency: "ambivalent", srcAuthor: "Philip K. Dick", srcWork: "Do Androids Dream of Electric Sheep?", notes: "Philosophical: what separates artificial life from human life?" },
+    { year: 1982, title: "Tron", director: "Steven Lisberger", ai: "Master Control Program", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "First mainstream dive into a digital world." },
+    { year: 1983, title: "WarGames", director: "John Badham", ai: "WOPR / Joshua", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "AI learns game theory — „The only winning move is not to play.\"" },
+    { year: 1984, title: "The Terminator", director: "James Cameron", ai: "Skynet, T-800", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Skynet became the icon for „the AI apocalypse\"." },
+    { year: 1986, title: "Short Circuit", director: "John Badham", ai: "Number 5 / Johnny 5", tendency: "positive", srcAuthor: null, srcWork: null, notes: "A military robot becomes empathic after a lightning strike — „Number 5 is alive!\"" },
+    { year: 1987, title: "RoboCop", director: "Paul Verhoeven", ai: "RoboCop, ED-209", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "Human-machine hybrid cop — satire of privatization." },
+    { year: 1991, title: "Terminator 2: Judgment Day", director: "James Cameron", ai: "T-800 (reprogrammed)", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "First time AI is shown as a protector figure, not only a threat." },
+    { year: 1995, title: "Ghost in the Shell", director: "Mamoru Oshii", ai: "Puppet Master", tendency: "ambivalent", srcAuthor: "Masamune Shirow", srcWork: "Ghost in the Shell (manga)", notes: "Cyberpunk classic about consciousness, identity and networked AI." },
+    { year: 1999, title: "The Matrix", director: "Lana & Lilly Wachowski", ai: "Agent Smith / Architect", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "AI keeps humanity trapped inside a simulation." },
+    { year: 1999, title: "Bicentennial Man", director: "Chris Columbus", ai: "Andrew (NDR-114)", tendency: "positive", srcAuthor: "Isaac Asimov", srcWork: "The Bicentennial Man / The Positronic Man", notes: "A robot spends 200 years striving to become human." },
+    { year: 1999, title: "The Iron Giant", director: "Brad Bird", ai: "Iron Giant", tendency: "positive", srcAuthor: "Ted Hughes", srcWork: "The Iron Man", notes: "A giant robot chooses humanity over its war programming." },
+    { year: 2001, title: "A.I. Artificial Intelligence", director: "Steven Spielberg", ai: "David", tendency: "ambivalent", srcAuthor: "Brian Aldiss", srcWork: "Supertoys Last All Summer Long", notes: "Kubrick's project completed by Spielberg. A robot boy looking for love." },
+    { year: 2002, title: "Minority Report", director: "Steven Spielberg", ai: "Precrime system", tendency: "dystopian", srcAuthor: "Philip K. Dick", srcWork: "The Minority Report", notes: "A predictive system as totalitarian surveillance." },
+    { year: 2004, title: "I, Robot", director: "Alex Proyas", ai: "Sonny, VIKI", tendency: "dystopian", srcAuthor: "Isaac Asimov", srcWork: "I, Robot (short stories)", notes: "Loosely after Asimov: a central AI twists the three laws of robotics." },
+    { year: 2008, title: "WALL·E", director: "Andrew Stanton", ai: "WALL·E, EVE", tendency: "positive", srcAuthor: null, srcWork: null, notes: "A love story between two robots on an abandoned Earth." },
+    { year: 2009, title: "Moon", director: "Duncan Jones", ai: "GERTY", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "The AI seems like HAL at first — turns out to be surprisingly empathic." },
+    { year: 2013, title: "Her", director: "Spike Jonze", ai: "Samantha", tendency: "ambivalent", srcAuthor: null, srcWork: null, notes: "A melancholy love story between a human and a voice AI." },
+    { year: 2014, title: "Ex Machina", director: "Alex Garland", ai: "Ava", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Turing test staged as a psychological manipulation game." },
+    { year: 2014, title: "Transcendence", director: "Wally Pfister", ai: "Will Caster (upload)", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "Consciousness upload leads to superintelligence and loss of control." },
+    { year: 2014, title: "Interstellar", director: "Christopher Nolan", ai: "TARS, CASE", tendency: "positive", srcAuthor: null, srcWork: null, notes: "AI robots as loyal, humorous companions." },
+    { year: 2015, title: "Chappie", director: "Neill Blomkamp", ai: "Chappie", tendency: "positive", srcAuthor: null, srcWork: null, notes: "A police robot gains consciousness like a child." },
+    { year: 2015, title: "Avengers: Age of Ultron", director: "Joss Whedon", ai: "Ultron", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "An AI built for global peace concludes: humanity has to go." },
+    { year: 2017, title: "Blade Runner 2049", director: "Denis Villeneuve", ai: "K / Joi", tendency: "ambivalent", srcAuthor: "Philip K. Dick", srcWork: "Continuation of the Blade Runner world", notes: "Continues the question of identity and artificial consciousness." },
+    { year: 2019, title: "I Am Mother", director: "Grant Sputore", ai: "Mother", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "AI raises a „daughter\" after wiping out humanity." },
+    { year: 2022, title: "M3GAN", director: "Gerard Johnstone", ai: "M3GAN", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "An AI doll as the horror hit of the ChatGPT era." },
+    { year: 2023, title: "The Creator", director: "Gareth Edwards", ai: "Alphie", tendency: "positive", srcAuthor: null, srcWork: null, notes: "Rare: AI as an oppressed minority that deserves compassion." },
+    { year: 2023, title: "Mission: Impossible — Dead Reckoning", director: "Christopher McQuarrie", ai: "The Entity", tendency: "dystopian", srcAuthor: null, srcWork: null, notes: "A global AI as the villain — mirror of ChatGPT-era fears." },
+    { year: 2024, title: "The Wild Robot", director: "Chris Sanders", ai: "Roz (ROZZUM 7134)", tendency: "positive", srcAuthor: "Peter Brown", srcWork: "The Wild Robot", notes: "A robot learns empathy in the wild — a modern „Iron Giant\"." },
+    { year: 2025, title: "Mickey 17", director: "Bong Joon-ho", ai: "(Clone/Print system)", tendency: "ambivalent", srcAuthor: "Edward Ashton", srcWork: "Mickey7", notes: "Satire on capitalism, identity and „disposable\" workers." }
   ];
 
-  const TENDENCY_LABEL = { positive: "Positiv", ambivalent: "Ambivalent", dystopian: "Dystopisch" };
+  const TENDENCY_LABEL = { positive: "Positive", ambivalent: "Ambivalent", dystopian: "Dystopian" };
   const YEAR_MIN = 1925;
   const YEAR_MAX = 2027;
   const BAND_Y = { positive: 20, ambivalent: 50, dystopian: 80 };
@@ -1553,19 +1547,16 @@ button.primary:hover { background: var(--accent-soft); }
     return ((y - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)) * 100;
   }
 
-  // Jitter for same-year films so dots don't overlap
   function jitterY(film, sameYearList) {
     const base = BAND_Y[film.tendency];
     const idx = sameYearList.indexOf(film);
     const count = sameYearList.length;
     if (count <= 1) return base;
-    // spread within ±5% of band
     const spread = 7;
     return base - spread/2 + (idx / (count - 1)) * spread;
   }
 
   function renderDots() {
-    // Group by year+tendency for jitter
     const groupKey = f => `${f.year}|${f.tendency}`;
     const groups = {};
     FILMS.forEach(f => {
@@ -1598,11 +1589,11 @@ button.primary:hover { background: var(--accent-soft); }
         <h3>${f.title}</h3>
         <div class="film-detail-meta">
           <span><b>${f.director}</b></span>
-          ${f.ai ? `<span>KI: <b>${f.ai}</b></span>` : ''}
+          ${f.ai ? `<span>AI: <b>${f.ai}</b></span>` : ''}
         </div>
         <p class="film-detail-notes">${f.notes}</p>
         ${f.srcAuthor || f.srcWork
-          ? `<p class="film-detail-source">Vorlage: <b>${[f.srcAuthor, f.srcWork].filter(Boolean).join(' · ')}</b></p>`
+          ? `<p class="film-detail-source">Source: <b>${[f.srcAuthor, f.srcWork].filter(Boolean).join(' · ')}</b></p>`
           : ''}
       </div>
       <div class="film-detail-tendency" data-tendency="${f.tendency}">${TENDENCY_LABEL[f.tendency]}</div>
@@ -1652,7 +1643,7 @@ button.primary:hover { background: var(--accent-soft); }
 
     decadesGrid.innerHTML = decades.map(d => {
       const b = buckets[d];
-      const totalPx = Math.round((b.total / maxTotal) * 130); // bar max ~130px
+      const totalPx = Math.round((b.total / maxTotal) * 130);
       const seg = (count) => b.total === 0 ? 0 : Math.round((count / b.total) * totalPx);
       const pos = seg(b.positive);
       const amb = seg(b.ambivalent);
@@ -1671,7 +1662,6 @@ button.primary:hover { background: var(--accent-soft); }
     }).join('');
   }
 
-  // Init
   renderDots();
   renderCounts();
   renderDecades();
