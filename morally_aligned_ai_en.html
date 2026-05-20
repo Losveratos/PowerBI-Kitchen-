@@ -1193,6 +1193,96 @@ button.primary:hover { background: var(--accent-soft); }
   background: var(--bg-card);
 }
 .drake-row.filter .filter-tag { display: inline-block; }
+
+/* ========== Mobile / portrait optimizations ========== */
+@media (max-width: 720px) {
+  .container { padding: 24px 18px 80px; }
+  h1 { font-size: clamp(2rem, 8vw, 3rem); }
+  .eyebrow { font-size: 10px; letter-spacing: 0.18em; }
+  .subtitle { font-size: 15px; }
+  .talk-meta span { font-size: 10px; padding: 5px 10px; letter-spacing: 0.1em; }
+
+  /* Module heading stacks vertically */
+  .module-head { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .module-head .hint { text-align: left; max-width: 100%; }
+
+  /* Bridge boxes — tighter */
+  .bridge { padding: 26px 22px; }
+  .bridge h2 { font-size: 20px; }
+  .bridge p { font-size: 14px; line-height: 1.6; }
+
+  /* Closing card + LinkedIn pill */
+  .closing-card { padding: 22px 22px; }
+  .closing-card .signature a { margin-left: 0; }
+
+  /* Prose notes */
+  .prose-note { padding: 4px 0 4px 18px; }
+  .prose-note p { font-size: 14px; }
+
+  /* Stage / panel padding */
+  .stage { padding: 14px; }
+  .panel { padding: 18px; gap: 18px; }
+
+  /* Premise tiles */
+  .premise li { padding: 22px 18px; min-height: 180px; }
+  .premise li::before { font-size: 26px; margin-bottom: 14px; }
+  .premise li strong { font-size: 14px; }
+  .premise li span { font-size: 13px; }
+
+  /* Film filters */
+  .film-filter { font-size: 10px; padding: 7px 11px; letter-spacing: 0.1em; }
+  .film-filter .count { font-size: 9px; }
+
+  /* Film timeline — labels INSIDE, less padding */
+  .film-timeline-wrap { padding: 26px 16px 14px; }
+  .film-timeline { height: 280px; }
+  .film-band-label {
+    left: 4px;
+    transform: translate(0, -130%);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+  }
+  .film-axis span { font-size: 9px; }
+
+  /* Film detail */
+  .film-detail { padding: 18px 18px; gap: 12px; }
+  .film-detail-year { font-size: 32px; }
+  .film-detail-body h3 { font-size: 17px; }
+
+  /* Film decades — denser, no counts */
+  .film-decades { padding: 18px 14px; }
+  .film-decades h3 { font-size: 10px; margin-bottom: 14px; }
+  .film-decades-grid { gap: 3px; height: 130px; }
+  .film-decade-label { font-size: 8px; letter-spacing: 0; }
+  .film-decade-count { display: none; }
+
+  /* Drake summary */
+  .drake-summary { padding: 22px 22px; }
+  .drake-result-value { font-size: 64px; }
+  .drake-result-label { font-size: 10px; }
+  .drake-result-cap { font-size: 13px; }
+
+  /* Drake cascade rows — left-align running on mobile */
+  .drake-cascade { padding: 4px 18px; }
+  .drake-row { padding: 16px 0; gap: 12px; }
+  .drake-row .symbol { font-size: 22px; }
+  .drake-row .label-text { font-size: 12px; }
+  .drake-row .slider-value { font-size: 12px; }
+  .drake-row .running { padding-left: 52px; }
+  .drake-row .running-value { text-align: left; font-size: 13px; }
+  .drake-row .running-unit { text-align: left; font-size: 9px; }
+  .drake-row .filter-tag { left: 40px; }
+
+  /* Drake presets compact */
+  .drake-preset { padding: 7px 11px; font-size: 10px; letter-spacing: 0.1em; }
+
+  /* Roadmap tiles */
+  .roadmap-tile { padding: 20px 18px; min-height: 140px; }
+  .roadmap-tile h3 { font-size: 15px; }
+
+  /* Lang switch & back link inline */
+  .back-link, .lang-switch { font-size: 10px; padding: 7px 12px; letter-spacing: 0.12em; }
+}
 </style>
 </head>
 <body>
