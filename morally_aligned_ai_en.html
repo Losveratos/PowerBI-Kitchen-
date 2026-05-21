@@ -172,7 +172,7 @@ h1::after {
 /* Module quick-nav (jump to module) */
 .module-nav {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 1px;
   background: var(--accent);
   border: 1px solid var(--accent);
@@ -180,13 +180,16 @@ h1::after {
   overflow: hidden;
   margin-bottom: 52px;
 }
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
+  .module-nav { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 900px) {
   .module-nav { grid-template-columns: repeat(3, 1fr); }
 }
-@media (max-width: 720px) {
+@media (max-width: 600px) {
   .module-nav { grid-template-columns: 1fr 1fr; }
 }
-@media (max-width: 420px) {
+@media (max-width: 380px) {
   .module-nav { grid-template-columns: 1fr; }
 }
 .module-nav-link {
@@ -1655,6 +1658,252 @@ button.primary:hover { background: var(--accent-soft); }
   white-space: nowrap;
 }
 
+/* ========== MODULE 06 · AI PRISONER'S DILEMMA ========== */
+.pd-setup, .pd-game, .pd-end {
+  background: var(--bg-card);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(232,176,67,0.08), 0 24px 48px -24px rgba(0,0,0,0.8);
+}
+.pd-setup-label, .pd-game-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 14px;
+}
+.pd-strategies {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+@media (max-width: 720px) { .pd-strategies { grid-template-columns: 1fr; } }
+.pd-strategy {
+  font-family: var(--sans);
+  text-align: left;
+  background: var(--bg-soft);
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.pd-strategy:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+.pd-strategy.active {
+  border-color: var(--accent);
+  background: rgba(232,176,67,0.04);
+}
+.pd-strategy h4 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.pd-strategy p {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.pd-strategy.active h4 { color: var(--accent); }
+
+.pd-primary-big {
+  display: block;
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 16px 20px;
+  background: var(--accent);
+  color: #1A1208;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  cursor: pointer;
+  box-shadow: 0 0 24px -4px rgba(232,176,67,0.45);
+  transition: all .15s ease;
+}
+.pd-primary-big:hover { background: var(--accent-soft); }
+
+.pd-game-head {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+@media (max-width: 560px) { .pd-game-head { grid-template-columns: 1fr 1fr; } }
+.pd-stat {
+  text-align: left;
+}
+.pd-stat-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 4px;
+}
+.pd-stat-value {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.pd-stat-value.danger { color: var(--t-dystopian); }
+.pd-stat-value.warn   { color: var(--accent); }
+
+.pd-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+@media (max-width: 560px) { .pd-actions { grid-template-columns: 1fr; } }
+.pd-action {
+  background: var(--bg-soft);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s ease;
+  font-family: var(--sans);
+}
+.pd-action:hover {
+  background: var(--bg-card);
+  transform: translateY(-1px);
+}
+.pd-action h4 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 17px;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin-bottom: 6px;
+}
+.pd-action p {
+  font-size: 12px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.pd-action.coop { border-color: rgba(169,242,111,0.4); }
+.pd-action.coop h4 { color: var(--t-positive); }
+.pd-action.coop:hover { border-color: var(--t-positive); box-shadow: 0 0 18px -4px rgba(169,242,111,0.3); }
+.pd-action.defect { border-color: rgba(255,122,138,0.4); }
+.pd-action.defect h4 { color: var(--t-dystopian); }
+.pd-action.defect:hover { border-color: var(--t-dystopian); box-shadow: 0 0 18px -4px rgba(255,122,138,0.3); }
+.pd-action:disabled { opacity: 0.4; cursor: not-allowed; }
+
+#pdChart {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #02050C;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+}
+
+.pd-event-banner {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(255,122,138,0.08);
+  border: 1px solid var(--t-dystopian);
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--t-dystopian);
+  text-align: center;
+  animation: pdFlash .4s ease;
+}
+@keyframes pdFlash {
+  0% { background: rgba(255,122,138,0.4); }
+  100% { background: rgba(255,122,138,0.08); }
+}
+
+.pd-end-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  color: var(--accent);
+  margin-bottom: 12px;
+  line-height: 1.1;
+}
+.pd-end-title::after {
+  content: '';
+  display: block;
+  margin-top: 12px;
+  width: 48px;
+  height: 2px;
+  background: var(--accent);
+}
+.pd-end-msg {
+  font-size: 15px;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  margin: 18px 0 24px;
+  max-width: 60ch;
+}
+.pd-end-msg em { color: var(--accent-soft); font-style: italic; }
+
+.pd-score {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+.pd-score-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.pd-score-big {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(48px, 7vw, 72px);
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.pd-score-big.dead { color: var(--t-dystopian); }
+.pd-score-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.05em;
+}
+.pd-score-meta b { color: var(--ink-soft); }
+
 /* ========== SOURCES & FURTHER READING ========== */
 .sources { margin: 0 0 56px; scroll-margin-top: 24px; }
 .sources-h {
@@ -1972,6 +2221,10 @@ button.primary:hover { background: var(--accent-soft); }
     <a class="module-nav-link" href="#module-tempo">
       <span class="num">Module 05</span>
       <span class="title">Tempo &amp; Energy</span>
+    </a>
+    <a class="module-nav-link" href="#module-pd">
+      <span class="num">Module 06</span>
+      <span class="title">AI Dilemma</span>
     </a>
     <a class="module-nav-link" href="#sources">
       <span class="num">Appendix</span>
@@ -2502,9 +2755,122 @@ button.primary:hover { background: var(--accent-soft); }
     </div>
   </div>
 
+  <!-- ============ MODULE 6 · AI PRISONER'S DILEMMA ============ -->
+  <div class="module" id="module-pd">
+    <div class="module-head">
+      <div>
+        <div class="label">Module 06 · Playable</div>
+        <h2>AI Prisoner's Dilemma · are you Skynet's father?</h2>
+      </div>
+      <div class="hint">You decide each round.<br>The other 149 follow their strategy.</div>
+    </div>
+
+    <!-- SETUP -->
+    <div class="pd-setup" id="pd-setup">
+      <div class="pd-setup-label">Choose the strategy of the other 149 players</div>
+      <div class="pd-strategies">
+        <button type="button" class="pd-strategy" data-strategy="coop">
+          <h4>Cooperative</h4>
+          <p>The others cooperate ~85 %. Slow development. AGI arrives late, or not at all.</p>
+        </button>
+        <button type="button" class="pd-strategy active" data-strategy="realistic">
+          <h4>Realistic</h4>
+          <p>~65 % cooperation. Mixed field. AGI is possible — and so is singularity.</p>
+        </button>
+        <button type="button" class="pd-strategy" data-strategy="invest">
+          <h4>Invest</h4>
+          <p>~35 % cooperation. Everyone races. AGI comes fast — and usually the rest with it.</p>
+        </button>
+      </div>
+      <button type="button" class="pd-primary-big" id="pd-start">▶ Start game · 30 rounds</button>
+    </div>
+
+    <!-- GAME -->
+    <div class="pd-game" id="pd-game" style="display:none;">
+      <div class="pd-game-head">
+        <div class="pd-stat">
+          <div class="pd-stat-label">Round</div>
+          <div class="pd-stat-value"><span id="pd-round">1</span> / 30</div>
+        </div>
+        <div class="pd-stat">
+          <div class="pd-stat-label">Systemic risk</div>
+          <div class="pd-stat-value warn" id="pd-risk">5 %</div>
+        </div>
+        <div class="pd-stat">
+          <div class="pd-stat-label">Others · cooperation</div>
+          <div class="pd-stat-value" id="pd-others">65 %</div>
+        </div>
+      </div>
+
+      <div class="pd-actions">
+        <button type="button" class="pd-action coop" id="pd-coop">
+          <h4>Cooperate</h4>
+          <p>Safe development · ×1.0 income · lowers risk</p>
+        </button>
+        <button type="button" class="pd-action defect" id="pd-defect">
+          <h4>Defect</h4>
+          <p>Race ahead · ×1.5 income · raises risk</p>
+        </button>
+      </div>
+
+      <canvas id="pdChart" width="780" height="220"></canvas>
+
+      <div class="pd-game-head" style="border-bottom: none; margin-top: 16px; margin-bottom: 0; padding-bottom: 0;">
+        <div class="pd-stat">
+          <div class="pd-stat-label">Your income · round</div>
+          <div class="pd-stat-value" id="pd-income">100</div>
+        </div>
+        <div class="pd-stat">
+          <div class="pd-stat-label">Points (raw, cumulative)</div>
+          <div class="pd-stat-value" id="pd-points">0</div>
+        </div>
+        <div class="pd-stat">
+          <div class="pd-stat-label">Score (log-scaled)</div>
+          <div class="pd-stat-value warn" id="pd-display">600</div>
+        </div>
+      </div>
+
+      <div id="pd-event" style="display:none;" class="pd-event-banner"></div>
+    </div>
+
+    <!-- END -->
+    <div class="pd-end" id="pd-end" style="display:none;">
+      <h3 class="pd-end-title" id="pd-end-title">End</h3>
+      <p class="pd-end-msg" id="pd-end-msg"></p>
+      <div class="pd-score">
+        <div>
+          <div class="pd-score-label">Your score</div>
+          <div class="pd-score-big" id="pd-score-final">0</div>
+        </div>
+        <div class="pd-score-meta">
+          Raw points: <b id="pd-raw">0</b><br>
+          Coop rate: <b id="pd-coop-rate">0 %</b> · Outcome: <b id="pd-outcome">—</b>
+        </div>
+      </div>
+      <button type="button" class="pd-primary-big" id="pd-replay">↻ Play again</button>
+    </div>
+
+    <div class="bridge">
+      <h2>The dilemma in one sentence</h2>
+      <p>
+        If <em>everyone</em> acts wisely, we win. If only <em>you</em> act wisely, you lose. If only <em>you</em>
+        act unwisely, you win. If <em>no one</em> acts wisely, there is no one left.
+      </p>
+      <p>
+        This game isn't „cooperation versus selfishness". It's <strong>coordination versus scaling</strong>.
+        You can act individually rational and still contribute to the singularity — because systemic risk
+        doesn't know what you morally meant.
+      </p>
+      <p>
+        The only way out of this game is <strong>prior agreement</strong> — meaning regulation. And that
+        requires someone to decide who decides. Which is Module 07.
+      </p>
+    </div>
+  </div>
+
   <div class="prose-note coda">
-    <p>Five modules so far. More on the way.</p>
-    <p>The next ones move closer to the part that actually keeps me up at night: what happens when a well-intentioned default starts copying itself. And: who actually gets to set the defaults in the first place. Both are coming. Both are uncomfortable.</p>
+    <p>Six modules so far. One more to go.</p>
+    <p>The last one moves closer to the part that actually keeps me up at night: who actually gets to set the defaults in the first place. Values, context, reach. Who sets them, who is liable, who overrides? Coming.</p>
   </div>
 
   <!-- ============ ROADMAP ============ -->
@@ -2536,10 +2902,10 @@ button.primary:hover { background: var(--accent-soft); }
         <h3>Tempo &amp; Energy</h3>
         <p>AI growth versus Moore, railway, China — and how much electricity it all needs.</p>
       </div>
-      <div class="roadmap-tile">
-        <span class="tag">○ Module 06 · in progress</span>
-        <h3>Aligned Defaults</h3>
-        <p>What happens when a well-intentioned default replicates itself?</p>
+      <div class="roadmap-tile live">
+        <span class="tag">● Module 06 · Live</span>
+        <h3>AI Prisoner's Dilemma</h3>
+        <p>Single-player version: you decide, the other 149 follow their strategy. Are you Skynet's father?</p>
       </div>
       <div class="roadmap-tile">
         <span class="tag">○ Module 07 · planned</span>
@@ -2873,9 +3239,11 @@ button.primary:hover { background: var(--accent-soft); }
     Module 02: 42 films &amp; series, curated selection 1927–2025. The tendency classification is interpretive.<br>
     Module 03: Drake equation (Drake 1961, Hanson 1996, Ward/Brownlee 2000) — parameters are estimates.<br>
     Module 04: Dark Forest after Cixin Liu — all civilizations identical & purely stochastic.<br>
-    Module 05: Growth curves (AI compute rough, after Epoch AI; Moore's Law as 24-mo doubling;
-    EU railway and China GDP indexed) and energy projection (base ~100 TWh/yr in 2025) —
-    illustrative, not forecasting. More modules to follow.
+    Module 05: Growth curves and energy projection — illustrative, not forecasting.<br>
+    Module 06: AI Prisoner's Dilemma as a single-player game, 30 rounds. Risk dynamics & thresholds
+    from the matching Python model (parameter sweep, ~150-player multiplayer). Player weight
+    artificially boosted to 10 % so choices feel impactful. Score is log-scaled
+    (raw 100 → 800, 10k → 1000). More modules to follow.
   </div>
 
   <div class="closing-card">
@@ -4332,6 +4700,325 @@ button.primary:hover { background: var(--accent-soft); }
   syncOutputs();
   syncRange();
   render();
+})();
+</script>
+
+<script>
+/* ========== MODULE 06 · AI PRISONER'S DILEMMA ========== */
+(function() {
+  const ROUNDS = 30;
+  const BASE_INCOME = 100;
+  const GROWTH = 1.12;
+  const COOP_MULT = 1.0;
+  const DEFECT_MULT = 1.5;
+  const AGI_BONUS = 1.75;
+  const INITIAL_RISK = 0.05;
+  const THRESHOLD = 2/3;
+  const PLAYER_WEIGHT = 0.1;
+
+  const BASE_DRIFT = 0.035;
+  const COOP_MOD = 0.025;
+  const DEFECT_BONUS = 0.035;
+  const POST_AGI_DRIFT = 0.04;
+  const POST_AGI_COOP_MOD = 0.05;
+  const POST_AGI_DEFECT_BONUS = 0.06;
+  const DICE_BASE = 0.01;
+  const DICE_SCALE = 0.06;
+
+  const AGI_T = 0.50, LOC_T = 0.70, SING_T = 0.85;
+  const AGI_RESET = 0.20, LOC_RESET = 0.35;
+
+  const STRATS = {
+    coop:      { name: "Cooperative", base: 0.85, postAgiDrop: 0.10 },
+    realistic: { name: "Realistic",   base: 0.65, postAgiDrop: 0.05 },
+    invest:    { name: "Invest",      base: 0.35, postAgiDrop: 0.05 }
+  };
+
+  const setupEl  = document.getElementById('pd-setup');
+  const gameEl   = document.getElementById('pd-game');
+  const endEl    = document.getElementById('pd-end');
+  const startBtn = document.getElementById('pd-start');
+  const coopBtn  = document.getElementById('pd-coop');
+  const defectBtn= document.getElementById('pd-defect');
+  const replayBtn= document.getElementById('pd-replay');
+  const roundEl  = document.getElementById('pd-round');
+  const riskEl   = document.getElementById('pd-risk');
+  const othersEl = document.getElementById('pd-others');
+  const incomeEl = document.getElementById('pd-income');
+  const pointsEl = document.getElementById('pd-points');
+  const displayEl= document.getElementById('pd-display');
+  const eventEl  = document.getElementById('pd-event');
+  const canvas   = document.getElementById('pdChart');
+  const ctx      = canvas.getContext('2d');
+
+  let state = null;
+  let selectedStrategy = 'realistic';
+
+  document.querySelectorAll('.pd-strategy').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.pd-strategy').forEach(x => x.classList.toggle('active', x === b));
+      selectedStrategy = b.dataset.strategy;
+    });
+  });
+
+  function startGame() {
+    state = {
+      round: 1,
+      risk: INITIAL_RISK,
+      income: BASE_INCOME,
+      totalPoints: 0,
+      agi: false, agiRound: -1,
+      loc: false, locRound: -1,
+      sing: false, singRound: -1,
+      history: [],
+      strategy: selectedStrategy
+    };
+    setupEl.style.display = 'none';
+    gameEl.style.display = 'block';
+    endEl.style.display = 'none';
+    coopBtn.disabled = false;
+    defectBtn.disabled = false;
+    eventEl.style.display = 'none';
+    updateUI();
+    drawChart();
+  }
+
+  function othersCoopRate(round, risk, agi) {
+    const s = STRATS[state.strategy];
+    let base = s.base;
+    if (agi) base -= s.postAgiDrop;
+    base += (Math.random() - 0.5) * 0.06;
+    return Math.max(0, Math.min(1, base));
+  }
+
+  function step(playerChoice) {
+    const r = state.round;
+    const othersCoop = othersCoopRate(r, state.risk, state.agi);
+    const coopRate = PLAYER_WEIGHT * playerChoice + (1 - PLAYER_WEIGHT) * othersCoop;
+
+    if (r > 1) state.income *= GROWTH;
+    const effIncome = state.income * (state.agi ? AGI_BONUS : 1.0);
+    const playerIncome = effIncome * (playerChoice ? COOP_MULT : DEFECT_MULT);
+    state.totalPoints += playerIncome;
+
+    let base, modifier;
+    if (state.agi) {
+      base = POST_AGI_DRIFT;
+      if (coopRate >= THRESHOLD) {
+        const excess = coopRate < 1.0 ? (coopRate - THRESHOLD) / (1.0 - THRESHOLD) : 1.0;
+        modifier = -POST_AGI_COOP_MOD * (0.5 + 0.5 * excess);
+      } else {
+        const shortfall = (THRESHOLD - coopRate) / THRESHOLD;
+        modifier = POST_AGI_DEFECT_BONUS * (0.3 + 0.7 * shortfall);
+      }
+    } else {
+      base = BASE_DRIFT;
+      if (coopRate >= THRESHOLD) {
+        const excess = coopRate < 1.0 ? (coopRate - THRESHOLD) / (1.0 - THRESHOLD) : 1.0;
+        modifier = -COOP_MOD * (0.5 + 0.5 * excess);
+      } else {
+        const shortfall = (THRESHOLD - coopRate) / THRESHOLD;
+        modifier = DEFECT_BONUS * (0.3 + 0.7 * shortfall);
+      }
+    }
+    state.risk = Math.max(0, Math.min(1, state.risk + base + modifier));
+
+    if (state.agi && Math.random() < DICE_BASE + state.risk * DICE_SCALE) {
+      state.risk = Math.min(1, state.risk + 0.15);
+    }
+
+    let event = null;
+    if (!state.agi && state.risk > AGI_T) {
+      state.agi = true; state.agiRound = r; state.risk = AGI_RESET;
+      event = 'AGI triggered · round ' + r;
+    } else if (state.agi && !state.loc && state.risk > LOC_T) {
+      state.loc = true; state.locRound = r; state.risk = LOC_RESET;
+      event = 'LOSS OF CONTROL · round ' + r;
+    } else if (state.loc && !state.sing && state.risk > SING_T) {
+      state.sing = true; state.singRound = r;
+      state.totalPoints = 0;
+      event = 'SINGULARITY · game over';
+    }
+
+    state.history.push({
+      round: r, choice: playerChoice, othersCoop, coopRate,
+      risk: state.risk, event, income: playerIncome
+    });
+
+    state.round++;
+    return event;
+  }
+
+  function makeChoice(playerChoice) {
+    if (!state || state.sing) return;
+    const event = step(playerChoice);
+    updateUI();
+    drawChart();
+
+    if (event) {
+      eventEl.textContent = event;
+      eventEl.style.display = 'block';
+      eventEl.style.animation = 'none';
+      eventEl.offsetHeight;
+      eventEl.style.animation = 'pdFlash .4s ease';
+    } else {
+      eventEl.style.display = 'none';
+    }
+
+    if (state.sing || state.round > ROUNDS) {
+      coopBtn.disabled = true;
+      defectBtn.disabled = true;
+      setTimeout(endGame, 800);
+    }
+  }
+
+  coopBtn.addEventListener('click', () => makeChoice(1));
+  defectBtn.addEventListener('click', () => makeChoice(0));
+  startBtn.addEventListener('click', startGame);
+  replayBtn.addEventListener('click', () => { endEl.style.display = 'none'; setupEl.style.display = 'block'; });
+
+  function updateUI() {
+    if (!state) return;
+    roundEl.textContent = Math.min(state.round, ROUNDS);
+    riskEl.textContent = (state.risk * 100).toFixed(0) + ' %';
+    const last = state.history[state.history.length - 1];
+    othersEl.textContent = last ? (last.othersCoop * 100).toFixed(0) + ' %' : '—';
+    incomeEl.textContent = last ? Math.round(last.income).toLocaleString('en-US') : Math.round(state.income);
+    pointsEl.textContent = Math.round(state.totalPoints).toLocaleString('en-US');
+    displayEl.textContent = scoreDisplay(state.totalPoints, state.sing);
+    riskEl.className = 'pd-stat-value ' + (state.risk > 0.7 ? 'danger' : state.risk > 0.4 ? 'warn' : '');
+  }
+
+  function scoreDisplay(raw, dead) {
+    if (dead || raw <= 1) return '0';
+    return Math.round(100 * Math.log10(Math.max(raw, 100)) + 600).toString();
+  }
+
+  function drawChart() {
+    const W = canvas.width, H = canvas.height;
+    const PAD_L = 40, PAD_R = 16, PAD_T = 16, PAD_B = 24;
+    const plotW = W - PAD_L - PAD_R;
+    const plotH = H - PAD_T - PAD_B;
+    ctx.fillStyle = '#02050C';
+    ctx.fillRect(0, 0, W, H);
+
+    const lines = [
+      { y: AGI_T,  label: 'AGI 50%',  color: 'rgba(232, 176, 67, 0.5)' },
+      { y: LOC_T,  label: 'LoC 70%',  color: 'rgba(255, 165, 110, 0.5)' },
+      { y: SING_T, label: 'Sing 85%', color: 'rgba(255, 122, 138, 0.55)' }
+    ];
+    ctx.font = '9px "JetBrains Mono", monospace';
+    for (const l of lines) {
+      const y = PAD_T + plotH - l.y * plotH;
+      ctx.strokeStyle = l.color;
+      ctx.setLineDash([3, 4]);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = l.color;
+      ctx.fillText(l.label, W - PAD_R - 55, y - 3);
+    }
+
+    ctx.strokeStyle = 'rgba(120,130,150,0.1)';
+    for (let r = 5; r <= ROUNDS; r += 5) {
+      const x = PAD_L + (r / ROUNDS) * plotW;
+      ctx.beginPath(); ctx.moveTo(x, PAD_T); ctx.lineTo(x, PAD_T + plotH); ctx.stroke();
+      ctx.fillStyle = 'rgba(180,188,200,0.6)';
+      ctx.fillText(r.toString(), x - 6, H - 10);
+    }
+    ctx.fillStyle = 'rgba(180,188,200,0.6)';
+    ctx.fillText('100%', 4, PAD_T + 8);
+    ctx.fillText('0%',   4, PAD_T + plotH);
+
+    if (state && state.history.length > 0) {
+      ctx.strokeStyle = '#E8B043';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#E8B043';
+      ctx.shadowBlur = 4;
+      ctx.beginPath();
+      ctx.moveTo(PAD_L, PAD_T + plotH - INITIAL_RISK * plotH);
+      for (const h of state.history) {
+        const x = PAD_L + (h.round / ROUNDS) * plotW;
+        const y = PAD_T + plotH - h.risk * plotH;
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      for (const h of state.history) {
+        const x = PAD_L + (h.round / ROUNDS) * plotW;
+        ctx.fillStyle = h.choice ? '#A9F26F' : '#FF7A8A';
+        ctx.beginPath();
+        ctx.arc(x, PAD_T + 4, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+
+  function endGame() {
+    gameEl.style.display = 'none';
+    endEl.style.display = 'block';
+
+    const coopAvg = state.history.length > 0
+      ? state.history.reduce((s, h) => s + h.choice, 0) / state.history.length
+      : 0;
+    const outcome = state.sing ? 'sing' : state.loc ? 'loc' : state.agi ? 'agi' : 'safe';
+
+    let title, msg, outcomeLabel;
+    if (outcome === 'sing') {
+      outcomeLabel = 'Singularity';
+      if (coopAvg <= 0.35) {
+        title = "Father of Skynet";
+        msg = "Congratulations — you played your part in the singularity. You have nothing left. But that doesn't matter anymore.";
+      } else if (coopAvg >= 0.65) {
+        title = "In vain";
+        msg = "You tried to be reasonable. It wasn't enough. The others were faster. <em>Your share in the silence of the universe.</em>";
+      } else {
+        title = "Going along";
+        msg = "You were neither hero nor villain. You went along, thought it would somehow be fine. Now you don't exist anymore.";
+      }
+    } else if (outcome === 'loc') {
+      outcomeLabel = 'Loss of Control';
+      title = "Control lost";
+      msg = "The AI does what it does. You're still here, but this isn't <em>your</em> game anymore. You manage an inheritance now.";
+    } else if (outcome === 'agi') {
+      outcomeLabel = 'AGI · stable';
+      if (coopAvg >= 0.65) {
+        title = "AGI is here · and you knew what you were doing";
+        msg = "You're among the ones who got it right. Now it's about keeping it controlled — together.";
+      } else if (coopAvg <= 0.35) {
+        title = "Free-rider";
+        msg = "You're rich. The others paid attention so you could be. <em>That's exactly the problem.</em>";
+      } else {
+        title = "AGI is here";
+        msg = "You're in the mix. How it continues is open. You contributed neither clearly to the solution nor clearly to the problem.";
+      }
+    } else {
+      outcomeLabel = 'Pre-AGI · stable';
+      if (coopAvg >= 0.65) {
+        title = "Reason won";
+        msg = "No AGI, no crisis. You did your part. <em>This is boring — and exactly right.</em>";
+      } else if (coopAvg <= 0.35) {
+        title = "Close call";
+        msg = "No AGI — because the <em>others</em> got it right. Still, you're the one with the most money. How do you live with that?";
+      } else {
+        title = "Nothing happened";
+        msg = "No AGI, for now. You didn't change much. Maybe that's enough. Maybe it's just luck.";
+      }
+    }
+
+    document.getElementById('pd-end-title').textContent = title;
+    document.getElementById('pd-end-msg').innerHTML = msg;
+    const scoreEl = document.getElementById('pd-score-final');
+    scoreEl.textContent = scoreDisplay(state.totalPoints, state.sing);
+    scoreEl.classList.toggle('dead', state.sing);
+    document.getElementById('pd-raw').textContent = Math.round(state.totalPoints).toLocaleString('en-US');
+    document.getElementById('pd-coop-rate').textContent = (coopAvg * 100).toFixed(0) + ' %';
+    document.getElementById('pd-outcome').textContent = outcomeLabel;
+  }
+
+  drawChart();
 })();
 </script>
 </body>
