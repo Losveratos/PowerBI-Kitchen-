@@ -2206,13 +2206,13 @@ button.primary:hover { background: var(--accent-soft); }
       <span class="num">Modul 01</span>
       <span class="title">Fermi-Paradoxon</span>
     </a>
-    <a class="module-nav-link" href="#modul-film">
-      <span class="num">Modul 02</span>
-      <span class="title">KI im Film</span>
-    </a>
     <a class="module-nav-link" href="#modul-drake">
-      <span class="num">Modul 03</span>
+      <span class="num">Modul 02</span>
       <span class="title">Drake · Great Filter</span>
+    </a>
+    <a class="module-nav-link" href="#modul-film">
+      <span class="num">Modul 03</span>
+      <span class="title">KI im Film</span>
     </a>
     <a class="module-nav-link" href="#modul-dark-forest">
       <span class="num">Modul 04</span>
@@ -2347,32 +2347,85 @@ button.primary:hover { background: var(--accent-soft); }
     </div>
 
     <div class="bridge">
-      <h2>Die Brücke zur KI</h2>
+      <h2>Von der Skala zur Wahrscheinlichkeit</h2>
       <p>
         Die Simulation läuft über <strong>20 Millionen Jahre</strong> — ein Wimpernschlag im
         Vergleich zur Galaxie. Schon eine einzige Zivilisation mit langsamer
         Unterlicht-Reise hätte alles erreicht. Die Galaxie ist
         <strong>~10 Milliarden Jahre alt</strong> — Zeit für <strong>500 bis 5 000</strong>
-        komplette Durchquerungen.
+        komplette Durchquerungen. Wenn das so ist — warum ist es dann so still?
       </p>
       <p>
-        Genau das ist die Logik, die uns bei <em>KI</em> wieder begegnet: ein Prozess,
-        der lokal harmlos aussieht, skaliert auf Zeit- und Akteursachsen, die wir
-        nicht intuitiv greifen. Wenn <em>eine</em> Entscheidung sich kopieren kann,
-        ist sie nicht mehr lokal.
+        Frank Drake hat 1961 die Frage in Faktoren zerlegt: aus wie vielen Sternen werden
+        Planeten, aus wie vielen Planeten Leben, aus wie vielen Lebensformen Intelligenz,
+        aus wie vielen Intelligenzen <em>technische</em> Zivilisationen — und wie lang halten die durch?
+        Jeder Faktor ist eine Chance zu verschwinden.
       </p>
       <p>
-        Im nächsten Modul ein Perspektivwechsel: wie hat das <strong>Kino</strong> uns seit
-        1927 KI erzählt — und welche Erwartungen prägt das bis heute? ↓
+        Zieh die sieben Regler. Wo bricht die Kette? ↓
       </p>
     </div>
   </div>
 
-  <!-- ============ MODULE 2 · KI IM FILM ============ -->
-  <div class="module" id="modul-film">
+  <!-- ============ MODULE 2 · DRAKE / GREAT FILTER ============ -->
+  <div class="module" id="modul-drake">
     <div class="module-head">
       <div>
         <div class="label">Modul 02 · Spielbar</div>
+        <h2>Drake-Gleichung · Great Filter & Rare Earth</h2>
+      </div>
+      <div class="hint">Zieh die 7 Regler.<br>Wo bricht die Zivilisations-Kette?</div>
+    </div>
+
+    <div class="drake-presets">
+      <button class="drake-preset" data-preset="sagan">Sagan 1961</button>
+      <button class="drake-preset" data-preset="drake">Drake 1961</button>
+      <button class="drake-preset active" data-preset="modern">Modern · heute</button>
+      <button class="drake-preset" data-preset="rare">Rare Earth</button>
+    </div>
+
+    <div class="drake-summary">
+      <div>
+        <div class="drake-result-label">Erwartetes N</div>
+        <div class="drake-result-value" id="drakeN">6</div>
+      </div>
+      <div>
+        <div class="drake-result-cap">Kommunizierende technische Zivilisationen, die <em>gerade jetzt</em> in unserer Milchstraße existieren — bei diesen Annahmen.</div>
+        <div class="drake-result-eq">N = R* · fp · ne · fl · fi · fc · L</div>
+      </div>
+    </div>
+
+    <div class="drake-cascade" id="drakeCascade">
+      <!-- 7 rows werden per JS generiert -->
+    </div>
+
+    <div class="bridge">
+      <h2>Wenn L zur Erzählung wird</h2>
+      <p>
+        Die letzte Größe in Drakes Kette ist <strong>L</strong> — die Lebensdauer einer technischen
+        Zivilisation. Eine Zahl, die alles entscheidet. Aber niemand kennt sie. Wir können sie nur
+        <em>erzählen</em>.
+      </p>
+      <p>
+        Robin Hanson hat 1996 dazu den Begriff <em>Great Filter</em> geprägt: Irgendwo in der
+        Kette muss eine Stufe stecken, die fast alles abfängt. Wenn der Filter <strong>hinter uns</strong>
+        liegt — etwa dass aus Chemie überhaupt Leben entsteht (<em>fl</em>) — sind wir selten, aber sicher.
+        Wenn er <strong>vor uns</strong> liegt — bei <em>L</em> —
+        sind wir einer von vielen, die nicht alt werden.
+      </p>
+      <p>
+        Genau diese Frage haben wir seit fast hundert Jahren im Kino verhandelt: HAL, Skynet,
+        WALL·E, Iron Giant, The Entity, Maeve. Jeder Film ist eine implizite Hypothese über L.
+        Welche L-Hypothese erzählst du dir? ↓
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ MODULE 3 · KI IM FILM ============ -->
+  <div class="module" id="modul-film">
+    <div class="module-head">
+      <div>
+        <div class="label">Modul 03 · Spielbar</div>
         <h2>KI im Film · 1927–2025</h2>
       </div>
       <div class="hint">Klick einen Punkt.<br>Filter unten links.</div>
@@ -2435,76 +2488,21 @@ button.primary:hover { background: var(--accent-soft); }
     </div>
 
     <div class="bridge">
-      <h2>Was uns Filme über uns selbst erzählen</h2>
+      <h2>Was uns die Filme als Lehre hinterlassen</h2>
       <p>
-        Über fast 100 Jahre hinweg haben wir KI <em>dystopisch</em> erzählt: HAL,
-        Skynet, Smith, Ultron, The Entity. Positive Bilder finden sich oft im
-        <strong>Familienfilm</strong> — WALL·E, Iron Giant, Wild Robot. Zwischen den
-        beiden Polen entstand ab Blade Runner ein <em>ambivalentes</em> Genre,
-        das die Frage nicht „böse oder gut" stellt, sondern „<strong>wer ist hier
-        eigentlich Person?</strong>".
+        Drei Viertel der Filme erzählen KI <em>dystopisch</em>. Das ist nicht nur kulturelle Paranoia —
+        es ist eine <strong>game-theoretische Intuition</strong>: Wenn ich nicht überprüfen kann, was
+        ein anderer Akteur vorhat, ist die sichere Antwort entweder <em>Schweigen</em> oder
+        <em>Erst-Schlag</em>.
       </p>
       <p>
-        Drei Autoren tauchen auffällig oft auf: <strong>Asimov</strong>,
-        <strong>Dick</strong>, <strong>Clarke</strong>. Ihre literarischen Vorlagen sind
-        das Drehbuch, mit dem wir heute über echte KI diskutieren — auch wenn
-        die Filme selten ihre Bücher genau abbilden.
+        Drei Autoren tauchen auffällig oft auf: <strong>Asimov</strong>, <strong>Dick</strong>,
+        <strong>Clarke</strong>. Ihre literarischen Vorlagen sind das Drehbuch, mit dem wir heute über
+        echte KI diskutieren — auch wenn die Filme selten ihre Bücher genau abbilden.
       </p>
       <p>
-        Frage an dich: Welches Bild trägst du eigentlich mit dir, wenn du
-        „KI" hörst? Und woher kommt es?
-      </p>
-    </div>
-  </div>
-
-  <!-- ============ MODULE 3 · DRAKE / GREAT FILTER ============ -->
-  <div class="module" id="modul-drake">
-    <div class="module-head">
-      <div>
-        <div class="label">Modul 03 · Spielbar</div>
-        <h2>Drake-Gleichung · Great Filter & Rare Earth</h2>
-      </div>
-      <div class="hint">Zieh die 7 Regler.<br>Wo bricht die Zivilisations-Kette?</div>
-    </div>
-
-    <div class="drake-presets">
-      <button class="drake-preset" data-preset="sagan">Sagan 1961</button>
-      <button class="drake-preset" data-preset="drake">Drake 1961</button>
-      <button class="drake-preset active" data-preset="modern">Modern · heute</button>
-      <button class="drake-preset" data-preset="rare">Rare Earth</button>
-    </div>
-
-    <div class="drake-summary">
-      <div>
-        <div class="drake-result-label">Erwartetes N</div>
-        <div class="drake-result-value" id="drakeN">6</div>
-      </div>
-      <div>
-        <div class="drake-result-cap">Kommunizierende technische Zivilisationen, die <em>gerade jetzt</em> in unserer Milchstraße existieren — bei diesen Annahmen.</div>
-        <div class="drake-result-eq">N = R* · fp · ne · fl · fi · fc · L</div>
-      </div>
-    </div>
-
-    <div class="drake-cascade" id="drakeCascade">
-      <!-- 7 rows werden per JS generiert -->
-    </div>
-
-    <div class="bridge">
-      <h2>Die Stelle, an der es scheitert — der Great Filter</h2>
-      <p>
-        Robin Hanson hat 1996 den Begriff <em>Great Filter</em> geprägt: Irgendwo in der
-        Kette zwischen toter Materie und kosmischem Funkverkehr muss eine Stufe stecken,
-        die fast alles abfängt. Sonst wäre die Galaxie laut.
-      </p>
-      <p>
-        Spiel mit den Reglern, bis <strong>N ≈ 0</strong> wird. Welcher Faktor war es bei dir?
-        Wenn der Filter <strong>hinter uns</strong> liegt — etwa dass aus Chemie überhaupt
-        Leben entsteht (<em>fl</em>) — sind wir extrem selten, aber relativ sicher.
-        Wenn er <strong>vor uns</strong> liegt — bei <em>L</em>, der Lebensdauer einer technischen
-        Zivilisation — sind wir möglicherweise einer von vielen, die nicht alt werden.
-      </p>
-      <p>
-        Genau diese Wahl trifft jede Gesellschaft, die KI baut: <strong>was machen wir aus L?</strong>
+        Liu Cixin hat diese Intuition in einer eigenen Theorie verdichtet: <strong>Dark Forest</strong>.
+        Was, wenn das Schweigen der Galaxie kein Zufall ist, sondern Strategie? ↓
       </p>
     </div>
   </div>
@@ -2867,19 +2865,20 @@ button.primary:hover { background: var(--accent-soft); }
       </p>
       <p>
         Der einzige Ausweg aus diesem Spiel ist <strong>Vereinbarung im Vorfeld</strong> — also Regulierung.
-        Und das wiederum braucht jemanden, der entscheidet, wer entscheidet. Das ist Modul 07.
+        Und das wiederum braucht jemanden, der entscheidet, <em>wer entscheidet</em>.
       </p>
     </div>
   </div>
 
   <div class="prose-note coda">
-    <p>Sechs Module bisher. Eines noch.</p>
-    <p>Das letzte geht näher an den Teil, der mich tatsächlich nicht schlafen lässt: wer eigentlich entscheidet, was der Default ist. Werte, Kontext, Reichweite. Wer setzt sie, wer haftet, wer überstimmt? Folgt.</p>
+    <p>Sechs Module. Sechs Mechaniken, die zeigen, warum es kippen kann.</p>
+    <p>Die Frage, <em>wer am Hebel sitzt</em> — wer den Default setzt, wer haftet, wer überstimmt — beantwortet kein Diagramm. Die nehme ich live mit auf die Bühne.</p>
+    <p>Bis dahin: spiel die Module. Bring dein Bauchgefühl mit. Wir sehen uns bei Daten Grillen.</p>
   </div>
 
   <!-- ============ ROADMAP ============ -->
   <div class="roadmap">
-    <div class="section-label">Weitere Module · in Arbeit</div>
+    <div class="section-label">Alle Module · live</div>
     <div class="roadmap-grid">
       <div class="roadmap-tile live">
         <span class="tag">● Modul 01 · Live</span>
@@ -2888,13 +2887,13 @@ button.primary:hover { background: var(--accent-soft); }
       </div>
       <div class="roadmap-tile live">
         <span class="tag">● Modul 02 · Live</span>
-        <h3>KI im Film</h3>
-        <p>42 Filme von 1927 bis 2025 — wie hat sich unser Bild von KI verschoben?</p>
+        <h3>Drake · Great Filter</h3>
+        <p>Sieben Regler für die Drake-Gleichung — wo bricht die Zivilisations-Kette?</p>
       </div>
       <div class="roadmap-tile live">
         <span class="tag">● Modul 03 · Live</span>
-        <h3>Drake · Great Filter</h3>
-        <p>Sieben Regler für die Drake-Gleichung — wo bricht die Zivilisations-Kette?</p>
+        <h3>KI im Film</h3>
+        <p>42 Filme von 1927 bis 2025 — wie hat sich unser Bild von KI verschoben?</p>
       </div>
       <div class="roadmap-tile live">
         <span class="tag">● Modul 04 · Live</span>
@@ -2910,11 +2909,6 @@ button.primary:hover { background: var(--accent-soft); }
         <span class="tag">● Modul 06 · Live</span>
         <h3>AI-Gefangenendilemma</h3>
         <p>Single-Player-Version: du entscheidest, die anderen 149 folgen ihrer Strategie. Bist du Vater von Skynet?</p>
-      </div>
-      <div class="roadmap-tile">
-        <span class="tag">○ Modul 07 · geplant</span>
-        <h3>Wer entscheidet?</h3>
-        <p>Werte, Kontext, Reichweite — wer setzt sie, wer haftet, wer überstimmt?</p>
       </div>
     </div>
   </div>
@@ -3182,11 +3176,12 @@ button.primary:hover { background: var(--accent-soft); }
 
       <div class="source-links" style="gap: 10px; margin-bottom: 14px;">
         <a class="source-link internal" href="#modul-fermi">01 · Fermi-Paradoxon</a>
-        <a class="source-link internal" href="#modul-film">02 · KI im Film</a>
-        <a class="source-link internal" href="#modul-drake">03 · Drake · Great Filter</a>
+        <a class="source-link internal" href="#modul-drake">02 · Drake · Great Filter</a>
+        <a class="source-link internal" href="#modul-film">03 · KI im Film</a>
         <a class="source-link internal" href="#modul-dark-forest">04 · Dark Forest</a>
+        <a class="source-link internal" href="#modul-tempo">05 · Tempo &amp; Energie</a>
+        <a class="source-link internal" href="#modul-pd">06 · AI-Gefangenendilemma</a>
       </div>
-      <p class="source-note">Weitere Module — 05 Aligned Defaults (in Arbeit), 06 Wer entscheidet? (geplant) — folgen.</p>
     </div>
 
     <!-- 7. For Deeper Study -->
@@ -3240,8 +3235,8 @@ button.primary:hover { background: var(--accent-soft); }
 
   <div class="footnote">
     Modul 01: Lineare Expansion auf Galaxie-Scheibe (Ø 100 000 Lj), vereinfacht.<br>
-    Modul 02: 42 Filme &amp; Serien, kuratierte Auswahl 1927–2025. Tendenz-Klassifikation ist interpretativ.<br>
-    Modul 03: Drake-Gleichung (Drake 1961, Hanson 1996, Ward/Brownlee 2000) — Parameter sind Schätzungen.<br>
+    Modul 02: Drake-Gleichung (Drake 1961, Hanson 1996, Ward/Brownlee 2000) — Parameter sind Schätzungen.<br>
+    Modul 03: 42 Filme &amp; Serien, kuratierte Auswahl 1927–2025. Tendenz-Klassifikation ist interpretativ.<br>
     Modul 04: Dark Forest nach Cixin Liu — alle Zivilisationen identisch & rein stochastisch.<br>
     Modul 05: Wachstumskurven und Energie-Projektion — illustrativ, nicht prognostisch.<br>
     Modul 06: AI-Gefangenendilemma als Single-Player-Spiel, 30 Runden. Risiko-Dynamik & Schwellen

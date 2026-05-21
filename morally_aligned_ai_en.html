@@ -2206,13 +2206,13 @@ button.primary:hover { background: var(--accent-soft); }
       <span class="num">Module 01</span>
       <span class="title">Fermi Paradox</span>
     </a>
-    <a class="module-nav-link" href="#module-film">
-      <span class="num">Module 02</span>
-      <span class="title">AI in Film</span>
-    </a>
     <a class="module-nav-link" href="#module-drake">
-      <span class="num">Module 03</span>
+      <span class="num">Module 02</span>
       <span class="title">Drake · Great Filter</span>
+    </a>
+    <a class="module-nav-link" href="#module-film">
+      <span class="num">Module 03</span>
+      <span class="title">AI in Film</span>
     </a>
     <a class="module-nav-link" href="#module-dark-forest">
       <span class="num">Module 04</span>
@@ -2347,33 +2347,84 @@ button.primary:hover { background: var(--accent-soft); }
     </div>
 
     <div class="bridge">
-      <h2>The bridge to AI</h2>
+      <h2>From scale to probability</h2>
       <p>
         The simulation only runs over <strong>20 million years</strong> — a blink of
         an eye compared to the lifetime of the galaxy. Even a single civilization
         with a slow sub-light drive would have reached everywhere. The galaxy is
         <strong>~10 billion years old</strong> — time for <strong>500 to 5,000</strong>
-        complete crossings.
+        complete crossings. If that is so — then why is it so quiet?
       </p>
       <p>
-        That is exactly the logic we keep running into with <em>AI</em>: a process
-        that looks locally harmless, scaled along time and actor axes that we
-        cannot intuitively grasp. Once <em>one</em> decision can copy itself, it
-        is no longer local.
+        Frank Drake broke the question into factors in 1961: how many stars get
+        planets, how many planets get life, how many life forms get intelligence,
+        how many intelligences become <em>technological</em> civilizations — and how
+        long do they last? Every factor is a chance to disappear.
       </p>
       <p>
-        Next module, a change of perspective: how has <strong>cinema</strong> told
-        us the story of AI since 1927 — and which expectations does that shape
-        to this day? ↓
+        Pull the seven sliders. Where does the chain break? ↓
       </p>
     </div>
   </div>
 
-  <!-- ============ MODULE 2 · AI IN FILM ============ -->
-  <div class="module" id="module-film">
+  <!-- ============ MODULE 2 · DRAKE / GREAT FILTER ============ -->
+  <div class="module" id="module-drake">
     <div class="module-head">
       <div>
         <div class="label">Module 02 · Playable</div>
+        <h2>Drake Equation · Great Filter & Rare Earth</h2>
+      </div>
+      <div class="hint">Pull the 7 sliders.<br>Where does the civilization chain break?</div>
+    </div>
+
+    <div class="drake-presets">
+      <button class="drake-preset" data-preset="sagan">Sagan 1961</button>
+      <button class="drake-preset" data-preset="drake">Drake 1961</button>
+      <button class="drake-preset active" data-preset="modern">Modern · today</button>
+      <button class="drake-preset" data-preset="rare">Rare Earth</button>
+    </div>
+
+    <div class="drake-summary">
+      <div>
+        <div class="drake-result-label">Expected N</div>
+        <div class="drake-result-value" id="drakeN">6</div>
+      </div>
+      <div>
+        <div class="drake-result-cap">Communicating technological civilizations existing <em>right now</em> in the Milky Way — under these assumptions.</div>
+        <div class="drake-result-eq">N = R* · fp · ne · fl · fi · fc · L</div>
+      </div>
+    </div>
+
+    <div class="drake-cascade" id="drakeCascade">
+    </div>
+
+    <div class="bridge">
+      <h2>When L becomes a story</h2>
+      <p>
+        The last variable in Drake's chain is <strong>L</strong> — the lifespan of a
+        technological civilization. A number that decides everything. But no one knows it.
+        We can only <em>tell stories</em> about it.
+      </p>
+      <p>
+        Robin Hanson coined the term <em>Great Filter</em> for this in 1996: somewhere
+        in the chain there must be a step that catches almost everything. If the filter
+        is <strong>behind us</strong> — for instance the leap from chemistry to life itself
+        (<em>fl</em>) — we are rare, but safe. If it is <strong>ahead of us</strong> —
+        at <em>L</em> — we are one of many that never get old.
+      </p>
+      <p>
+        We have been negotiating exactly this question in cinema for almost a century:
+        HAL, Skynet, WALL·E, Iron Giant, The Entity, Maeve. Every film is an implicit
+        hypothesis about L. Which L-hypothesis are you telling yourself? ↓
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ MODULE 3 · AI IN FILM ============ -->
+  <div class="module" id="module-film">
+    <div class="module-head">
+      <div>
+        <div class="label">Module 03 · Playable</div>
         <h2>AI in Film · 1927–2025</h2>
       </div>
       <div class="hint">Click a dot.<br>Filter on the left.</div>
@@ -2433,14 +2484,12 @@ button.primary:hover { background: var(--accent-soft); }
     </div>
 
     <div class="bridge">
-      <h2>What films tell us about ourselves</h2>
+      <h2>What the films leave us with</h2>
       <p>
-        For nearly 100 years we have told AI as <em>dystopia</em>: HAL, Skynet,
-        Smith, Ultron, The Entity. Positive images mostly live in the
-        <strong>family film</strong> — WALL·E, Iron Giant, Wild Robot. Between
-        those poles, starting with Blade Runner, an <em>ambivalent</em> genre
-        emerged — one that no longer asks „evil or good", but
-        „<strong>who actually counts as a person here?</strong>".
+        Three quarters of all films tell AI as <em>dystopia</em>. That isn't just cultural
+        paranoia — it's a <strong>game-theoretic intuition</strong>: if I can't verify what
+        another actor intends, the safe answer is either <em>silence</em> or
+        <em>first strike</em>.
       </p>
       <p>
         Three authors show up disproportionately often: <strong>Asimov</strong>,
@@ -2449,59 +2498,8 @@ button.primary:hover { background: var(--accent-soft); }
         the books precisely.
       </p>
       <p>
-        Question for you: which image do you actually carry when you hear
-        „AI"? And where did it come from?
-      </p>
-    </div>
-  </div>
-
-  <!-- ============ MODULE 3 · DRAKE / GREAT FILTER ============ -->
-  <div class="module" id="module-drake">
-    <div class="module-head">
-      <div>
-        <div class="label">Module 03 · Playable</div>
-        <h2>Drake Equation · Great Filter & Rare Earth</h2>
-      </div>
-      <div class="hint">Pull the 7 sliders.<br>Where does the civilization chain break?</div>
-    </div>
-
-    <div class="drake-presets">
-      <button class="drake-preset" data-preset="sagan">Sagan 1961</button>
-      <button class="drake-preset" data-preset="drake">Drake 1961</button>
-      <button class="drake-preset active" data-preset="modern">Modern · today</button>
-      <button class="drake-preset" data-preset="rare">Rare Earth</button>
-    </div>
-
-    <div class="drake-summary">
-      <div>
-        <div class="drake-result-label">Expected N</div>
-        <div class="drake-result-value" id="drakeN">6</div>
-      </div>
-      <div>
-        <div class="drake-result-cap">Communicating technological civilizations existing <em>right now</em> in the Milky Way — under these assumptions.</div>
-        <div class="drake-result-eq">N = R* · fp · ne · fl · fi · fc · L</div>
-      </div>
-    </div>
-
-    <div class="drake-cascade" id="drakeCascade">
-    </div>
-
-    <div class="bridge">
-      <h2>The step where it breaks — the Great Filter</h2>
-      <p>
-        Robin Hanson coined the term <em>Great Filter</em> in 1996: somewhere in the chain
-        from dead matter to cosmic radio traffic, there must be a step that catches almost
-        everything. Otherwise the galaxy would be loud.
-      </p>
-      <p>
-        Play with the sliders until <strong>N ≈ 0</strong>. Which factor did it for you?
-        If the filter is <strong>behind us</strong> — for instance the leap from chemistry
-        to life itself (<em>fl</em>) — we are extremely rare, but relatively safe.
-        If it is <strong>ahead of us</strong> — at <em>L</em>, the lifespan of a technological
-        civilization — we are possibly one of many that never get old.
-      </p>
-      <p>
-        That is exactly the choice every society building AI is making: <strong>what do we do with L?</strong>
+        Liu Cixin condensed this intuition into a theory of its own: <strong>Dark Forest</strong>.
+        What if the silence of the galaxy isn't accident, but strategy? ↓
       </p>
     </div>
   </div>
@@ -2863,19 +2861,20 @@ button.primary:hover { background: var(--accent-soft); }
       </p>
       <p>
         The only way out of this game is <strong>prior agreement</strong> — meaning regulation. And that
-        requires someone to decide who decides. Which is Module 07.
+        requires someone to decide <em>who gets to decide</em>.
       </p>
     </div>
   </div>
 
   <div class="prose-note coda">
-    <p>Six modules so far. One more to go.</p>
-    <p>The last one moves closer to the part that actually keeps me up at night: who actually gets to set the defaults in the first place. Values, context, reach. Who sets them, who is liable, who overrides? Coming.</p>
+    <p>Six modules. Six mechanics that show why it can tip.</p>
+    <p>The question of <em>who is at the lever</em> — who sets the default, who is liable, who overrides — isn't something a diagram can answer. I'm taking that one live, onto the stage.</p>
+    <p>Until then: play the modules. Bring your gut feeling. See you at Daten Grillen.</p>
   </div>
 
   <!-- ============ ROADMAP ============ -->
   <div class="roadmap">
-    <div class="section-label">More modules · in progress</div>
+    <div class="section-label">All modules · live</div>
     <div class="roadmap-grid">
       <div class="roadmap-tile live">
         <span class="tag">● Module 01 · Live</span>
@@ -2884,13 +2883,13 @@ button.primary:hover { background: var(--accent-soft); }
       </div>
       <div class="roadmap-tile live">
         <span class="tag">● Module 02 · Live</span>
-        <h3>AI in Film</h3>
-        <p>42 films &amp; series from 1927 to 2025 — how has our image of AI shifted?</p>
+        <h3>Drake · Great Filter</h3>
+        <p>Seven sliders for the Drake equation — where does the civilization chain break?</p>
       </div>
       <div class="roadmap-tile live">
         <span class="tag">● Module 03 · Live</span>
-        <h3>Drake · Great Filter</h3>
-        <p>Seven sliders for the Drake equation — where does the civilization chain break?</p>
+        <h3>AI in Film</h3>
+        <p>42 films &amp; series from 1927 to 2025 — how has our image of AI shifted?</p>
       </div>
       <div class="roadmap-tile live">
         <span class="tag">● Module 04 · Live</span>
@@ -2906,11 +2905,6 @@ button.primary:hover { background: var(--accent-soft); }
         <span class="tag">● Module 06 · Live</span>
         <h3>AI Prisoner's Dilemma</h3>
         <p>Single-player version: you decide, the other 149 follow their strategy. Are you Skynet's father?</p>
-      </div>
-      <div class="roadmap-tile">
-        <span class="tag">○ Module 07 · planned</span>
-        <h3>Who decides?</h3>
-        <p>Values, context, reach — who sets them, who is liable, who overrides?</p>
       </div>
     </div>
   </div>
@@ -3178,11 +3172,12 @@ button.primary:hover { background: var(--accent-soft); }
 
       <div class="source-links" style="gap: 10px; margin-bottom: 14px;">
         <a class="source-link internal" href="#module-fermi">01 · Fermi Paradox</a>
-        <a class="source-link internal" href="#module-film">02 · AI in Film</a>
-        <a class="source-link internal" href="#module-drake">03 · Drake · Great Filter</a>
+        <a class="source-link internal" href="#module-drake">02 · Drake · Great Filter</a>
+        <a class="source-link internal" href="#module-film">03 · AI in Film</a>
         <a class="source-link internal" href="#module-dark-forest">04 · Dark Forest</a>
+        <a class="source-link internal" href="#module-tempo">05 · Tempo &amp; Energy</a>
+        <a class="source-link internal" href="#module-pd">06 · AI Prisoner's Dilemma</a>
       </div>
-      <p class="source-note">More modules — 05 Aligned Defaults (in progress), 06 Who Decides? (planned) — to follow.</p>
     </div>
 
     <!-- 7. For Deeper Study -->
@@ -3236,8 +3231,8 @@ button.primary:hover { background: var(--accent-soft); }
 
   <div class="footnote">
     Module 01: Linear expansion on the galactic disk (Ø 100,000 ly), simplified.<br>
-    Module 02: 42 films &amp; series, curated selection 1927–2025. The tendency classification is interpretive.<br>
-    Module 03: Drake equation (Drake 1961, Hanson 1996, Ward/Brownlee 2000) — parameters are estimates.<br>
+    Module 02: Drake equation (Drake 1961, Hanson 1996, Ward/Brownlee 2000) — parameters are estimates.<br>
+    Module 03: 42 films &amp; series, curated selection 1927–2025. The tendency classification is interpretive.<br>
     Module 04: Dark Forest after Cixin Liu — all civilizations identical & purely stochastic.<br>
     Module 05: Growth curves and energy projection — illustrative, not forecasting.<br>
     Module 06: AI Prisoner's Dilemma as a single-player game, 30 rounds. Risk dynamics & thresholds
