@@ -940,25 +940,27 @@ button.primary:hover { background: var(--accent-soft); }
 }
 .film-dot.dim { opacity: 0.18; pointer-events: none; }
 
-/* Form variants — shape encodes what kind of intelligence */
-.film-dot[data-form="robot"] { border-radius: 1.5px; }
-.film-dot[data-form="hybrid"] {
-  border-radius: 1.5px;
-  transform: translate(-50%, -50%) rotate(45deg);
-}
-.film-dot[data-form="hybrid"]:hover,
-.film-dot[data-form="hybrid"].active {
-  transform: translate(-50%, -50%) rotate(45deg) scale(1.7);
-  z-index: 4;
-  box-shadow: 0 0 0 3px rgba(232,176,67,0.5);
-  border-color: rgba(5, 7, 13, 0.9);
+/* Form variants — shape encodes what kind of intelligence
+   AI = circle (default), Robot = sharp square, Hybrid = ring with center hole */
+.film-dot[data-form="robot"] { border-radius: 0; }
+.film-dot[data-form="hybrid"]::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  background: rgba(5, 7, 13, 0.92);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 /* Form legend below timeline */
 .film-forms-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 18px;
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid var(--line);
@@ -975,26 +977,20 @@ button.primary:hover { background: var(--accent-soft); }
   gap: 8px;
 }
 .form-key .form-icon {
-  width: 10px;
-  height: 10px;
-  background: var(--ink-soft);
-  border: 1px solid rgba(5,7,13,0.7);
+  width: 14px;
+  height: 14px;
   display: inline-block;
   flex-shrink: 0;
-}
-.form-key[data-form="ai"]    .form-icon { border-radius: 50%; }
-.form-key[data-form="robot"] .form-icon { border-radius: 1.5px; }
-.form-key[data-form="hybrid"] .form-icon {
-  border-radius: 1.5px;
-  transform: rotate(45deg);
+  fill: var(--ink-soft);
+  vertical-align: middle;
 }
 .form-key.inline {
   font-size: 10px;
   color: var(--ink-soft);
 }
 .form-key.inline .form-icon {
-  width: 8px;
-  height: 8px;
+  width: 11px;
+  height: 11px;
 }
 
 .film-detail {
@@ -2155,9 +2151,21 @@ button.primary:hover { background: var(--accent-soft); }
         <span>1927</span><span>1950</span><span>1970</span><span>1990</span><span>2010</span><span>2025</span>
       </div>
       <div class="film-forms-legend">
-        <span class="form-key" data-form="ai"><span class="form-icon"></span>Software AI</span>
-        <span class="form-key" data-form="robot"><span class="form-icon"></span>Robot</span>
-        <span class="form-key" data-form="hybrid"><span class="form-icon"></span>Hybrid · Cyborg · Upload</span>
+        <span class="form-key" data-form="ai">
+          <svg class="form-icon" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5"/></svg>
+          Software AI
+        </span>
+        <span class="form-key" data-form="robot">
+          <svg class="form-icon" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11"/></svg>
+          Robot
+        </span>
+        <span class="form-key" data-form="hybrid">
+          <svg class="form-icon" viewBox="0 0 14 14" aria-hidden="true">
+            <circle cx="7" cy="7" r="5.5"/>
+            <circle cx="7" cy="7" r="1.9" fill="#0A0D17"/>
+          </svg>
+          Hybrid · Cyborg · Upload
+        </span>
       </div>
     </div>
 
@@ -3347,6 +3355,12 @@ button.primary:hover { background: var(--accent-soft); }
     });
   }
 
+  function formIcon(form) {
+    if (form === 'robot') return '<svg class="form-icon" viewBox="0 0 14 14" aria-hidden="true"><rect x="1.5" y="1.5" width="11" height="11"/></svg>';
+    if (form === 'hybrid') return '<svg class="form-icon" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5"/><circle cx="7" cy="7" r="1.9" fill="#0A0D17"/></svg>';
+    return '<svg class="form-icon" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="5.5"/></svg>';
+  }
+
   function showFilm(i, persist) {
     const f = FILMS[i];
     const form = FORM_BY_KEY[`${f.title}|${f.year}`] || 'ai';
@@ -3358,7 +3372,7 @@ button.primary:hover { background: var(--accent-soft); }
         <div class="film-detail-meta">
           <span><b>${f.director}</b></span>
           ${f.ai ? `<span>AI: <b>${f.ai}</b></span>` : ''}
-          <span class="form-key inline" data-form="${form}"><span class="form-icon"></span>${FORM_LABEL[form]}</span>
+          <span class="form-key inline" data-form="${form}">${formIcon(form)}${FORM_LABEL[form]}</span>
         </div>
         <p class="film-detail-notes">${f.notes}</p>
         ${f.srcAuthor || f.srcWork
