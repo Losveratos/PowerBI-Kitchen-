@@ -1530,11 +1530,86 @@ button.primary:hover { background: var(--accent-soft); }
 .gc-toggle.active[data-curve="moore"]   { border-color: #62D6FF; }
 .gc-toggle.active[data-curve="railway"] { border-color: #A9F26F; }
 .gc-toggle.active[data-curve="china"]   { border-color: #FF7A8A; }
+.gc-toggle.active[data-curve="world"]   { border-color: #C28BFF; }
 .gc-toggle[data-curve="ai"]      .swatch { background: #E8B043; }
 .gc-toggle[data-curve="moore"]   .swatch { background: #62D6FF; }
 .gc-toggle[data-curve="railway"] .swatch { background: #A9F26F; }
 .gc-toggle[data-curve="china"]   .swatch { background: #FF7A8A; }
+.gc-toggle[data-curve="world"]   .swatch { background: #C28BFF; }
 .gc-toggle.off { opacity: 0.5; }
+
+/* View controls: Y log/linear + X range */
+.gc-view-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 12px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+}
+.gc-view-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.gc-view-range {
+  flex: 1;
+  min-width: 240px;
+}
+.gc-view-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  white-space: nowrap;
+}
+.gc-scale-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  background: var(--bg-soft);
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.gc-scale-btn:hover { color: var(--ink); }
+.gc-scale-btn.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(232,176,67,0.08);
+}
+.gc-view-range input[type="range"] {
+  flex: 1;
+  min-width: 60px;
+}
+.gc-view-range output {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-soft);
+  white-space: nowrap;
+  min-width: 38px;
+  text-align: center;
+}
+.gc-view-sep {
+  color: var(--ink-mute);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+@media (max-width: 560px) {
+  .gc-view-controls { border-radius: var(--radius-lg); padding: 14px; gap: 12px; }
+  .gc-view-range { width: 100%; }
+}
 
 .gc-energy {
   background: var(--bg-card);
@@ -2317,12 +2392,28 @@ button.primary:hover { background: var(--accent-soft); }
           <span class="gc-stage-title">Wachstum · log-Index</span>
           <span class="gc-stage-cur" id="gc-stage-cur">→ 2040</span>
         </div>
+        <div class="gc-view-controls">
+          <div class="gc-view-group">
+            <span class="gc-view-label">Y</span>
+            <button class="gc-scale-btn active" data-scale="log">Log</button>
+            <button class="gc-scale-btn" data-scale="linear">Linear</button>
+          </div>
+          <div class="gc-view-group gc-view-range">
+            <span class="gc-view-label">X</span>
+            <output id="gc-xfromOut">1820</output>
+            <input type="range" id="gc-xfrom" min="1820" max="2024" value="1820" step="5">
+            <span class="gc-view-sep">→</span>
+            <input type="range" id="gc-xto" min="1830" max="2060" value="2050" step="5">
+            <output id="gc-xtoOut">2050</output>
+          </div>
+        </div>
         <canvas id="gcChart" width="780" height="420"></canvas>
         <div class="gc-toggles">
           <button class="gc-toggle active" data-curve="ai"><span class="swatch"></span>KI-Compute</button>
           <button class="gc-toggle active" data-curve="moore"><span class="swatch"></span>Moore's Law</button>
           <button class="gc-toggle active" data-curve="railway"><span class="swatch"></span>EU-Eisenbahn 1830</button>
           <button class="gc-toggle active" data-curve="china"><span class="swatch"></span>China-BIP 1990</button>
+          <button class="gc-toggle active" data-curve="world"><span class="swatch"></span>Welt-BIP 1900</button>
         </div>
       </div>
 
@@ -2390,8 +2481,9 @@ button.primary:hover { background: var(--accent-soft); }
     <div class="bridge">
       <h2>Tempo lässt keine Iteration zu</h2>
       <p>
-        Eisenbahn brauchte <strong>70 Jahre für 100×</strong>. China-BIP brauchte <strong>30 Jahre
-        für 50×</strong>. KI-Compute hat in <strong>8 Jahren ~10⁹×</strong> zugelegt — eine Milliarde Mal.
+        Eisenbahn brauchte <strong>70 Jahre für 100×</strong>. Welt-BIP brauchte <strong>124 Jahre
+        für ~40×</strong>. China-BIP <strong>30 Jahre für 50×</strong>. KI-Compute hat in
+        <strong>8 Jahren ~10⁹×</strong> zugelegt — eine Milliarde Mal.
       </p>
       <p>
         Wenn ein gut gemeinter Default sich kopiert (Modul 04) und das Verdopplungs-Intervall
@@ -3812,14 +3904,25 @@ button.primary:hover { background: var(--accent-soft); }
   const ectx = eCanvas.getContext('2d');
   const EW = eCanvas.width, EH = eCanvas.height;
 
-  // Main chart bounds
-  const X_MIN = 1820, X_MAX = 2050;
-  const Y_MIN_LOG = 0, Y_MAX_LOG = 25;
-  const PAD_L = 54, PAD_R = 14, PAD_T = 18, PAD_B = 30;
+  // Plot area
+  const PAD_L = 64, PAD_R = 16, PAD_T = 18, PAD_B = 30;
   const PLOT_W = W - PAD_L - PAD_R;
   const PLOT_H = H - PAD_T - PAD_B;
-  function xOf(y)  { return PAD_L + ((y - X_MIN) / (X_MAX - X_MIN)) * PLOT_W; }
-  function yOf(lv) { return PAD_T + PLOT_H - ((lv - Y_MIN_LOG) / (Y_MAX_LOG - Y_MIN_LOG)) * PLOT_H; }
+
+  // View state (dynamic)
+  let xFrom = 1820, xTo = 2050;
+  let yScale = 'log'; // 'log' | 'linear'
+  let yMaxLog = 25;   // dynamic
+  let yMaxLin = 1e10; // dynamic
+
+  function xOf(y) { return PAD_L + ((y - xFrom) / (xTo - xFrom)) * PLOT_W; }
+  function yOf(val) {
+    if (yScale === 'log') {
+      const lv = Math.log10(Math.max(val, 1));
+      return PAD_T + PLOT_H - (lv / yMaxLog) * PLOT_H;
+    }
+    return PAD_T + PLOT_H - (Math.max(val, 0) / yMaxLin) * PLOT_H;
+  }
 
   // Reference data (approximate, for illustration)
   const CURVES = {
@@ -3852,6 +3955,15 @@ button.primary:hover { background: var(--accent-soft); }
         [1990, 1], [1995, 1.8], [2000, 3.3], [2005, 6.2],
         [2010, 17], [2015, 30], [2020, 40], [2024, 48]
       ]
+    },
+    world: {
+      label: "Welt-BIP",
+      color: '#C28BFF',
+      // World GDP (real, Maddison-style) indexed to 1900 = 1.0
+      data: [
+        [1900, 1], [1913, 1.5], [1929, 1.8], [1950, 2.4], [1960, 3.4],
+        [1973, 6.5], [1990, 12], [2000, 17], [2010, 26], [2020, 32], [2024, 38]
+      ]
     }
   };
 
@@ -3864,7 +3976,8 @@ button.primary:hover { background: var(--accent-soft); }
   })();
 
   // State
-  const visibility = { ai: true, moore: true, railway: true, china: true };
+  const visibility = { ai: true, moore: true, railway: true, china: true, world: true };
+  const CURVE_KEYS = ['railway', 'world', 'china', 'moore', 'ai'];
   let doublingMonths = 12;
   let forecastEnd = 2040;
   let capExp = 0; // 0 = no cap. If >0, capability cap = 10^capExp × 2025-value
@@ -3910,30 +4023,84 @@ button.primary:hover { background: var(--accent-soft); }
     return v;
   }
 
+  function fmtLinear(v) {
+    if (v >= 1e15) return (v/1e15).toFixed(1) + 'P';
+    if (v >= 1e12) return (v/1e12).toFixed(1) + 'T';
+    if (v >= 1e9) return (v/1e9).toFixed(1) + 'G';
+    if (v >= 1e6) return (v/1e6).toFixed(1) + 'M';
+    if (v >= 1e3) return (v/1e3).toFixed(1) + 'k';
+    if (v >= 10) return v.toFixed(0);
+    return v.toFixed(1);
+  }
+
+  function computeYMax() {
+    // Scan all visible curves within current x-range
+    let maxVal = 1;
+    for (const k of CURVE_KEYS) {
+      if (!visibility[k]) continue;
+      const data = CURVES[k].data;
+      for (const [year, val] of data) {
+        if (year < xFrom || year > xTo) continue;
+        if (val > maxVal) maxVal = val;
+      }
+      if (k === 'ai' && xTo > 2025) {
+        for (let y = 2026; y <= Math.min(forecastEnd, xTo); y++) {
+          const v = aiAt(y);
+          if (v > maxVal) maxVal = v;
+        }
+      }
+    }
+    if (yScale === 'log') {
+      yMaxLog = Math.max(5, Math.ceil(Math.log10(Math.max(maxVal, 10)) / 5) * 5);
+    } else {
+      const oom = Math.pow(10, Math.floor(Math.log10(Math.max(maxVal, 10))));
+      yMaxLin = Math.ceil(maxVal / oom * 1.1) * oom;
+      if (yMaxLin < 10) yMaxLin = 10;
+    }
+  }
+
   function drawGrid() {
     ctx.strokeStyle = 'rgba(120, 130, 150, 0.07)';
     ctx.lineWidth = 1;
-    for (let y = X_MIN; y <= X_MAX; y += 20) {
+    // X grid: dynamic step based on range
+    const xSpan = xTo - xFrom;
+    const xStep = xSpan > 150 ? 25 : xSpan > 60 ? 10 : xSpan > 25 ? 5 : 2;
+    for (let y = Math.ceil(xFrom / xStep) * xStep; y <= xTo; y += xStep) {
       const x = xOf(y);
       ctx.beginPath(); ctx.moveTo(x, PAD_T); ctx.lineTo(x, H - PAD_B); ctx.stroke();
     }
-    for (let i = 0; i <= Y_MAX_LOG; i += 5) {
-      const y = yOf(i);
-      ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+    // Y grid
+    if (yScale === 'log') {
+      for (let i = 0; i <= yMaxLog; i += Math.max(1, Math.floor(yMaxLog / 6))) {
+        const y = yOf(Math.pow(10, i));
+        ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+      }
+    } else {
+      for (let i = 0; i <= 5; i++) {
+        const y = yOf(yMaxLin * i / 5);
+        ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+      }
     }
     // 2025 vertical line (now)
-    ctx.strokeStyle = 'rgba(232, 176, 67, 0.25)';
-    ctx.setLineDash([3, 4]);
-    const xNow = xOf(2025);
-    ctx.beginPath(); ctx.moveTo(xNow, PAD_T); ctx.lineTo(xNow, H - PAD_B); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(232, 176, 67, 0.6)';
-    ctx.font = '9px "JetBrains Mono", monospace';
-    ctx.fillText('JETZT', xNow + 4, PAD_T + 12);
+    if (2025 >= xFrom && 2025 <= xTo) {
+      ctx.strokeStyle = 'rgba(232, 176, 67, 0.25)';
+      ctx.setLineDash([3, 4]);
+      const xNow = xOf(2025);
+      ctx.beginPath(); ctx.moveTo(xNow, PAD_T); ctx.lineTo(xNow, H - PAD_B); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(232, 176, 67, 0.6)';
+      ctx.font = '9px "JetBrains Mono", monospace';
+      ctx.fillText('JETZT', xNow + 4, PAD_T + 12);
+    }
   }
 
   function drawCurve(key) {
     const c = CURVES[key];
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(PAD_L, PAD_T, PLOT_W, PLOT_H);
+    ctx.clip();
+
     ctx.strokeStyle = c.color;
     ctx.lineWidth = 2;
     ctx.shadowColor = c.color;
@@ -3942,7 +4109,7 @@ button.primary:hover { background: var(--accent-soft); }
     let first = true;
     for (const [year, val] of c.data) {
       const x = xOf(year);
-      const y = yOf(Math.log10(Math.max(val, 1)));
+      const y = yOf(val);
       if (first) { ctx.moveTo(x, y); first = false; } else { ctx.lineTo(x, y); }
     }
     ctx.stroke();
@@ -3951,44 +4118,70 @@ button.primary:hover { background: var(--accent-soft); }
       ctx.setLineDash([5, 4]);
       ctx.beginPath();
       const last = c.data[c.data.length - 1];
-      ctx.moveTo(xOf(last[0]), yOf(Math.log10(last[1])));
+      ctx.moveTo(xOf(last[0]), yOf(last[1]));
       for (let y = 2026; y <= forecastEnd; y++) {
         const v = aiAt(y);
-        ctx.lineTo(xOf(y), yOf(Math.log10(Math.max(v, 1))));
+        ctx.lineTo(xOf(y), yOf(v));
       }
       ctx.stroke();
       ctx.setLineDash([]);
     }
     ctx.shadowBlur = 0;
-    // End label
-    const lastVisible = key === 'ai' && forecastEnd > 2025
-      ? [forecastEnd, aiAt(forecastEnd)]
-      : c.data[c.data.length - 1];
-    const lx = xOf(lastVisible[0]);
-    const ly = yOf(Math.log10(Math.max(lastVisible[1], 1)));
+    ctx.restore();
+
+    // End label at last visible point in range
+    let labelYear, labelVal;
+    if (key === 'ai' && forecastEnd > 2025) {
+      labelYear = Math.min(forecastEnd, xTo);
+      labelVal = aiAt(labelYear);
+    } else {
+      // find last data point within range
+      let lastInRange = null;
+      for (const [year, val] of c.data) {
+        if (year >= xFrom && year <= xTo) lastInRange = [year, val];
+      }
+      if (!lastInRange) return;
+      [labelYear, labelVal] = lastInRange;
+    }
+    const lx = xOf(labelYear);
+    const ly = yOf(labelVal);
+    if (ly < PAD_T - 4 || ly > H - PAD_B + 4) return;
     ctx.fillStyle = c.color;
     ctx.font = 'bold 11px "JetBrains Mono", monospace';
     const label = c.label;
     const xLabel = Math.min(lx + 6, W - PAD_R - ctx.measureText(label).width - 4);
-    ctx.fillText(label, xLabel, ly - 5);
-    // End dot
+    ctx.fillText(label, xLabel, Math.max(PAD_T + 10, ly - 5));
     ctx.beginPath(); ctx.arc(lx, ly, 3, 0, Math.PI * 2); ctx.fill();
   }
 
   function drawAxes() {
     ctx.fillStyle = 'rgba(180, 188, 200, 0.7)';
     ctx.font = '10px "JetBrains Mono", monospace';
-    for (let y = 1820; y <= X_MAX; y += 30) {
+    // X labels: same step as grid but show every other
+    const xSpan = xTo - xFrom;
+    const xLabelStep = xSpan > 150 ? 50 : xSpan > 60 ? 20 : xSpan > 25 ? 10 : 5;
+    for (let y = Math.ceil(xFrom / xLabelStep) * xLabelStep; y <= xTo; y += xLabelStep) {
       const x = xOf(y);
       ctx.fillText(y.toString(), x - 14, H - 10);
     }
-    for (let i = 0; i <= Y_MAX_LOG; i += 5) {
-      const y = yOf(i);
-      ctx.fillText('10^' + i, 6, y + 4);
+    // Y labels
+    if (yScale === 'log') {
+      const step = Math.max(1, Math.floor(yMaxLog / 6));
+      for (let i = 0; i <= yMaxLog; i += step) {
+        const y = yOf(Math.pow(10, i));
+        ctx.fillText('10^' + i, 6, y + 4);
+      }
+    } else {
+      for (let i = 0; i <= 5; i++) {
+        const v = yMaxLin * i / 5;
+        const y = yOf(v);
+        ctx.fillText(fmtLinear(v), 6, y + 4);
+      }
     }
   }
 
   function render() {
+    computeYMax();
     ctx.fillStyle = '#02050C';
     ctx.fillRect(0, 0, W, H);
     for (const s of stars) {
@@ -3996,7 +4189,7 @@ button.primary:hover { background: var(--accent-soft); }
       ctx.beginPath(); ctx.arc(s.x, s.y, s.s, 0, Math.PI * 2); ctx.fill();
     }
     drawGrid();
-    for (const k of ['railway', 'china', 'moore', 'ai']) {
+    for (const k of CURVE_KEYS) {
       if (visibility[k]) drawCurve(k);
     }
     drawAxes();
@@ -4146,7 +4339,35 @@ button.primary:hover { background: var(--accent-soft); }
     });
   });
 
+  // View controls
+  const xFromEl = document.getElementById('gc-xfrom');
+  const xToEl   = document.getElementById('gc-xto');
+  const xFromOut = document.getElementById('gc-xfromOut');
+  const xToOut   = document.getElementById('gc-xtoOut');
+  function syncRange() {
+    xFromOut.textContent = xFrom;
+    xToOut.textContent = xTo;
+  }
+  xFromEl.addEventListener('input', () => {
+    xFrom = parseInt(xFromEl.value, 10);
+    if (xFrom >= xTo - 5) { xFrom = xTo - 5; xFromEl.value = xFrom; }
+    syncRange(); render();
+  });
+  xToEl.addEventListener('input', () => {
+    xTo = parseInt(xToEl.value, 10);
+    if (xTo <= xFrom + 5) { xTo = xFrom + 5; xToEl.value = xTo; }
+    syncRange(); render();
+  });
+  document.querySelectorAll('.gc-scale-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      yScale = b.dataset.scale;
+      document.querySelectorAll('.gc-scale-btn').forEach(x => x.classList.toggle('active', x === b));
+      render();
+    });
+  });
+
   syncOutputs();
+  syncRange();
   render();
 })();
 </script>
