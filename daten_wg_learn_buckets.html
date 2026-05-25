@@ -1872,9 +1872,9 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <div>
     <div class="eyebrow">Daten-WG · Knowledge Kitchen</div>
     <h1 class="title">Power BI lernen,<br><em>strukturiert &amp; durchsuchbar.</em></h1>
-    <p class="subtitle">126 Folgen aus dem <strong>Daten-WG-Podcast</strong> — geclustert in 9 Themen-Buckets, mit Volltextsuche bis in die Auto-Transkripte und einem End-to-End-Einsteiger-Guide. Kein Chrono-Scroll, sondern Curriculum.</p>
+    <p class="subtitle">128 Folgen aus dem <strong>Daten-WG-Podcast</strong> — geclustert in 9 Themen-Buckets, mit Volltextsuche bis in die Auto-Transkripte und einem End-to-End-Einsteiger-Guide. Kein Chrono-Scroll, sondern Curriculum.</p>
     <div class="header-stats">
-      <span class="header-stat"><strong>126</strong>Folgen</span>
+      <span class="header-stat"><strong>128</strong>Folgen</span>
       <span class="header-stat"><strong>105</strong>Transkripte</span>
       <span class="header-stat"><strong>10</strong>Guide-Kapitel</span>
       <span class="header-stat"><strong>9</strong>Buckets</span>
@@ -1913,7 +1913,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <div>
     <h2 class="start-here-title">Wie nutzt du diese Seite?</h2>
     <div class="start-here-text">
-      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 126 Folgen sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
+      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 128 Folgen sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
       <p>Jede Folge ist eine Karte mit Gast, Dauer, kurzer Zusammenfassung und Tags. Ein Klick auf die Karte zeigt die <strong>Kapitel-Timestamps</strong> (bei 60 Folgen detailliert eingepflegt) — du kannst direkt zur Stelle springen, die dich interessiert.</p>
       <p>Empfohlener Einstieg, wenn du den Kanal noch nicht kennst: Quarterly-Updates für die Tools-Lage, dann das Bucket, das gerade zu deiner Arbeit passt.</p>
     </div>
@@ -2000,7 +2000,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
       <div class="search-help-foot">Sucht in Titel, Gast, Beschreibung und (lazy geladen) Transkripten.</div>
     </div>
     <div class="filter-meta">
-      <span><strong id="result-count">126</strong> von 126 Folgen</span>
+      <span><strong id="result-count">128</strong> von 128 Folgen</span>
       <button class="filter-reset" id="reset-filters">Filter zurücksetzen</button>
       <button class="tags-peek" id="tags-peek" type="button" aria-expanded="true" aria-controls="tag-list" title="Tag-Filter ein-/ausblenden"><span id="tags-peek-label">Tags ausblenden</span><span class="tags-peek-badge" id="tags-peek-badge">0</span><span class="tags-peek-chevron" aria-hidden="true"></span></button>
     </div>
@@ -2024,7 +2024,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-num">01 · QUARTERLY</div>
     <div class="bucket-tile-name">Updates & News</div>
     <div class="bucket-tile-teaser">Quarterly Updates: was ist neu in Power BI &amp; Fabric.</div>
-    <div class="bucket-tile-count">17 Folgen</div>
+    <div class="bucket-tile-count">18 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-2" style="--bucket-color: var(--c-fabric);">
     <div class="bucket-tile-num">02 · PLATTFORM</div>
@@ -2036,7 +2036,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-num">03 · GRUNDLAGE</div>
     <div class="bucket-tile-name">Datenmodellierung</div>
     <div class="bucket-tile-teaser">Stern-Schema, Data Vault, DAX-Patterns — Modelle, die halten.</div>
-    <div class="bucket-tile-count">26 Folgen</div>
+    <div class="bucket-tile-count">27 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-4" style="--bucket-color: var(--c-gov);">
     <div class="bucket-tile-num">04 · GOVERNANCE</div>
@@ -2384,6 +2384,30 @@ const BUCKETS = [
 const EPISODES = [
 
   /* ========== BUCKET 1: QUARTERLY ========== */
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update Mai 2026',
+    guest: 'Solo',
+    solo: true,
+    date: 'Mai 2026',
+    duration: '6 min',
+    lang: 'DE',
+    desc: 'Zehn Features wandern im Mai-Update von der Preview in die General Availability — „Stop Starting, Start Finishing". Visual Calculations, Custom Totals und die optionalen Parameter für Translytical Task Flows sind endlich produktiv nutzbar.',
+    tags: ['Update', 'Power BI', 'GA', 'DE'],
+    podcastUrl: null,
+    ytId: 'psLPsI32sAs',
+    chapters: [
+      ['00:00', 'Intro: Mai-Update 2026, ZEHN (!) Features werden GA'],
+      ['01:05', 'Visual Calculations sind generally available'],
+      ['02:00', 'Custom Totals / Gesamtberechnungen mit Mittelwert'],
+      ['02:30', 'Translytical Task Flows: optionale Parameter und Default-Werte'],
+      ['03:15', 'Numerischer Eingabefilter mit Operatoren und Ranges'],
+      ['04:30', 'Feste Spaltenbreiten für die Matrix'],
+      ['04:55', 'Power Query im Desktop mit neuer Optik'],
+      ['05:25', 'Standard-Zahlenformat für Reports im Service'],
+      ['05:50', 'Sieben Jahre Update-Videos und Daten-WG 2026']
+    ]
+  },
   {
     bucket: 'bucket-1',
     title: 'Power BI Update April 2026',
@@ -3209,6 +3233,38 @@ const EPISODES = [
   },
 
   /* ========== BUCKET 3: DATENMODELLIERUNG ========== */
+  {
+    bucket: 'bucket-3',
+    title: 'The Five Pillars of DAX | Daten-WG Podcast with Francesco Bergamaschi',
+    guest: 'Francesco Bergamaschi',
+    solo: false,
+    date: 'Mai 2026',
+    duration: '37 min',
+    lang: 'EN',
+    desc: 'Francesco Bergamaschi joins from Italy to talk DAX: calculated columns as a tool not a sin, the one rule that fixes most performance problems, how to use ALLSELECTED without getting burned, and the five pillars of DAX as a teaching method — from columns to tables to the measure magic.',
+    tags: ['DAX', 'Podcast', 'Modeling', 'EN'],
+    podcastUrl: null,
+    ytId: 'nldG2mLwA30',
+    chapters: [
+      ['00:00', 'Intro: an Italian DAX pro and why DAX tutorials all have an Italian accent'],
+      ['04:08', 'Calculated columns: just another tool, not a sin'],
+      ['05:45', 'Calculated tables and the danger of materializing whole tables'],
+      ['07:24', 'Learning DAX in 2012, before Marco and Alberto\'s first book'],
+      ['09:03', 'ALLSELECTED: how to use it without getting burned'],
+      ['11:03', 'How do you teach DAX in a single day?'],
+      ['11:30', 'The five pillars of DAX'],
+      ['13:19', 'The teaching path: from columns to tables to the measure magic'],
+      ['21:10', 'CALCULATE as the magic box – and why it beats variables for beginners'],
+      ['22:21', '"Variables are constant" and what makes DAX honest'],
+      ['24:56', 'DAX vs SQL: three lines instead of twenty'],
+      ['25:26', 'A language for the business user, not for storage'],
+      ['27:26', 'The CALCULATE algorithm: a genuinely beautiful piece of engineering'],
+      ['30:13', 'The Definitive Guide to ALLSELECTED – and getting a note added to it'],
+      ['32:01', 'Is DAX still relevant in the age of AI? A new book from Marco and Alberto'],
+      ['33:56', 'On the road: SQLBits, Data Point Prague, and a stop in Cologne'],
+      ['35:20', 'Closing: paper, pencil, and good books']
+    ]
+  },
   {
     bucket: 'bucket-3',
     title: 'BI Thinkers Talk nr.76',
@@ -4812,17 +4868,26 @@ const EPISODES = [
   },
   {
     bucket: 'bucket-9',
-    title: 'Wie war die Daten-WG 2025? (Teil 2)',
+    title: 'Wie war die Daten-WG? (2025, Teil 2)',
     guest: 'Konferenz-Rückblick',
     solo: true,
-    date: 'Mai 2025',
+    date: 'April 2025',
     duration: '37 min',
     lang: 'DE',
-    desc: 'Zweite Hälfte: Weitere Sessions, Speaker-Reflexionen, was die Community mitnimmt. Plus erste Andeutungen, wohin sich die Konferenz 2026 entwickelt.',
+    desc: 'Zweite Hälfte: Artur König zur Keynote über Hypothesen-basiertes Arbeiten, Thomas Sigmund (Microsoft) über Rechenzentren als digitale Infrastruktur, Matthias Thierbach über DevOps & Fabric, Dilyana über KI im Business.',
     tags: ['Event', 'Konferenz', 'Köln', 'Rückblick', 'DE'],
     podcastUrl: 'https://www.podcast.de/episode/690421267/wie-war-die-daten-wg-2025-teil-2',
-    ytId: '5atgv1IOijA',
-    chapters: []
+    ytId: 'XxPFAQfLyuA',
+    chapters: [
+      ['00:00', 'Einleitung und Vorstellung der Daten-WG 2025'],
+      ['03:24', 'Arthurs Keynote und Hypothesen-basiertes Arbeiten'],
+      ['09:39', 'Besuch von Thomas Sigmund und strategische Bedeutung von Rechenzentren'],
+      ['11:18', 'Matthias Thierbach über DevOps und Fabric'],
+      ['12:38', 'Data Modelling und Deep-Dive-Themen'],
+      ['14:51', 'Dilyanas Präsentation über KI im Business'],
+      ['19:25', 'Interaktive Sessions bringen Lernen und Spaß zusammen'],
+      ['30:02', 'Feedback und Ausblick auf zukünftige Veranstaltungen']
+    ]
   }
 ];
 
