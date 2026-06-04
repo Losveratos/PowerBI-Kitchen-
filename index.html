@@ -142,6 +142,70 @@ a { color: inherit; text-decoration: none; }
   background: var(--ink);
   color: white;
 }
+
+/* Nav-Dropdown · Talks & Post */
+.topnav-dd { position: relative; }
+.topnav-dd-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.topnav-dd-toggle::after {
+  content: '';
+  width: 6px; height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+  transition: transform .18s ease;
+}
+.topnav-dd:hover .topnav-dd-toggle::after,
+.topnav-dd:focus-within .topnav-dd-toggle::after { transform: rotate(225deg); margin-bottom: -2px; }
+.topnav-dd-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 248px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity .16s ease, transform .16s ease, visibility .16s;
+  z-index: 60;
+}
+.topnav-dd:hover .topnav-dd-menu,
+.topnav-dd:focus-within .topnav-dd-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+.topnav-dd-item {
+  display: block;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--ink);
+  transition: background .14s ease;
+}
+.topnav-dd-item:hover { background: var(--bg-soft); }
+.topnav-dd-item-name {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--black);
+  display: block;
+  line-height: 1.2;
+}
+.topnav-dd-item-meta {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 2px;
+  display: block;
+}
+
 @media (max-width: 1100px) {
   .topnav { display: none; }
   .container { padding-top: 32px; }
@@ -1847,7 +1911,19 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <a class="topnav-link" href="#top-picks">Top-Picks</a>
     <a class="topnav-link" href="#buckets-overview">Buckets</a>
     <a class="topnav-link" href="power_bi_einsteiger_guide_v4.html#beispiele">Beispiele</a>
-    <a class="topnav-link" href="morally_aligned_ai.html">Talk Data Grillen '26</a>
+    <div class="topnav-dd">
+      <a class="topnav-link topnav-dd-toggle" href="zugfahrten-infografik.html">Talks &amp; Post</a>
+      <div class="topnav-dd-menu">
+        <a class="topnav-dd-item" href="morally_aligned_ai.html">
+          <span class="topnav-dd-item-name">Morally Aligned AI</span>
+          <span class="topnav-dd-item-meta">Talk · Daten Grillen '26</span>
+        </a>
+        <a class="topnav-dd-item" href="zugfahrten-infografik.html">
+          <span class="topnav-dd-item-name">Die Schweiz fährt Europa davon</span>
+          <span class="topnav-dd-item-meta">Post · Infografik-Experiment</span>
+        </a>
+      </div>
+    </div>
     <a class="topnav-link" href="#einsteiger-guide" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">Einsteiger-Guide</a>
   </div>
 </nav>
