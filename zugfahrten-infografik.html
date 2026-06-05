@@ -143,6 +143,25 @@ a { color:inherit; }
 }
 .figure-cap strong { color:var(--ink-soft); }
 
+/* Replay-Leiste über der animierten Grafik */
+.embed-head {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:10px 14px; background:var(--bg-soft); border-bottom:1px solid var(--line);
+}
+.embed-head-label {
+  font-family:var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--ink-mute);
+}
+.replay-btn {
+  display:inline-flex; align-items:center; gap:7px;
+  font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--accent); background:var(--bg-card); border:1px solid var(--accent);
+  border-radius:100px; padding:6px 14px; cursor:pointer; transition:all .15s ease;
+}
+.replay-btn:hover { background:var(--accent); color:#fff; }
+.replay-btn svg { width:12px; height:12px; }
+.figure-embed.with-head { display:flex; flex-direction:column; }
+
 /* Before-image figure */
 .figure-img {
   border:1px solid var(--line); border-radius:var(--radius-lg);
@@ -324,6 +343,27 @@ tr.median-row td { background:rgba(232,160,30,.07) !important; }
 
     <p>Das Ergebnis ist eine Grafik, die auf den ersten Blick wie ein Liniennetzplan wirkt — und auf den zweiten Blick als Balkendiagramm funktioniert, das man tatsächlich ablesen kann.</p>
 
+    <h2>Eine Stufe weiter: <em>den Blick festhalten</em></h2>
+    <p>Eine statische Grafik zeigt alles auf einmal. Das Auge springt sofort zum längsten Balken, das Gehirn sagt „verstanden" und scrollt weiter. Genau hier setzt der nächste Schritt an: <strong>die Grafik baut sich auf, statt einfach da zu sein.</strong></p>
+    <p>Die Linien zeichnen sich selbst, der Umsteigeknoten erscheint, und dann wachsen die Stationen <strong>nacheinander aus dem Median heraus</strong> — bewusst vom kleinsten Wert nach oben. Das ist kein Selbstzweck: Der Aufbau erzwingt ein Tempo. Der Betrachter <strong>wartet</strong>, schaut zu — und schenkt der Grafik damit ein paar Sekunden echte Aufmerksamkeit, statt sie in einer Zehntelsekunde zu „erledigen".</p>
+    <p>Und die Reihenfolge erzählt mit: Weil der Aufbau unten beginnt und sich nach oben arbeitet, wird die <strong>Schweiz mit 57,9 zur Pointe</strong> — der längste Balken kommt zuletzt und schießt nach rechts heraus. Das Gefälle, um das es im ganzen Stück geht, wird so nicht nur gezeigt, sondern <em>inszeniert</em>.</p>
+
+    <figure class="figure">
+      <div class="embed-head">
+        <span class="embed-head-label">▶ Animierte Version · baut sich auf</span>
+        <button class="replay-btn" id="replayBtn" type="button" aria-label="Animation neu starten">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg>
+          Neu starten
+        </button>
+      </div>
+      <div class="figure-embed with-head">
+        <iframe id="metroFrameAnim" class="metro-frame" src="zugfahrten-europa-2024-animiert.html" title="Animierte Metro-Karte: baut sich nach Rang auf" loading="lazy" scrolling="no"></iframe>
+      </div>
+      <figcaption class="figure-cap"><strong>Die animierte Variante.</strong> Linien zeichnen sich selbst, Stationen erscheinen vom kleinsten Wert aufwärts — die Schweiz kommt als Letztes. <em>„Neu starten"</em> spielt den Aufbau erneut ab. (Wer <em>reduzierte Bewegung</em> aktiviert hat, sieht die Grafik sofort statisch.)</figcaption>
+    </figure>
+
+    <p>Wichtig bleibt das Maß: Animation soll die Aussage <strong>tragen, nicht überdecken</strong>. Ein Aufbau, der die Kernbotschaft betont, hilft — Effekte, die nur blinken, ermüden. Und die statische Version oben bleibt die Arbeitsfassung: Sie ist sofort lesbar und lässt sich als Bild teilen. Die Animation ist die Bühne fürs erste Hinsehen, der ehrlich skalierte Balken die Substanz dahinter.</p>
+
     <h2>Fazit</h2>
     <p>Europa fährt nicht gemeinsam Bahn, es fährt in zwei Geschwindigkeiten. Zwischen 57,9 und 0,1 Fahrten pro Kopf liegt kein Detail, sondern ein struktureller Unterschied — und genau den macht eine Grafik sichtbar, sobald die Balken ehrlich skaliert sind.</p>
 
@@ -346,21 +386,35 @@ tr.median-row td { background:rgba(232,160,30,.07) !important; }
 </div><!-- /container -->
 
 <script>
-  /* iFrame an die Höhe der eingebetteten Grafik anpassen */
+  /* iFrames an die Höhe der eingebetteten Grafik anpassen (statisch + animiert) */
   (function(){
-    var fr = document.getElementById('metroFrame');
-    if(!fr) return;
-    function sz(){
+    var frames = [].slice.call(document.querySelectorAll('#metroFrame, #metroFrameAnim'));
+    if(!frames.length) return;
+    function sz(fr){
       try {
         var d = fr.contentDocument || (fr.contentWindow && fr.contentWindow.document);
         if (d && d.body) {
           var h = Math.max(d.body.scrollHeight, d.documentElement.scrollHeight);
           if (h > 200) fr.style.height = h + 'px';
         }
-      } catch(e){ /* fallback: min-height aus CSS */ }
+      } catch(e){ /* fallback: aspect-ratio aus CSS */ }
     }
-    fr.addEventListener('load', function(){ sz(); setTimeout(sz,250); setTimeout(sz,800); });
-    window.addEventListener('resize', function(){ clearTimeout(window.__szT); window.__szT = setTimeout(sz,150); });
+    function szAll(){ frames.forEach(sz); }
+    frames.forEach(function(fr){
+      fr.addEventListener('load', function(){ sz(fr); setTimeout(function(){sz(fr);},250); setTimeout(function(){sz(fr);},800); });
+    });
+    window.addEventListener('resize', function(){ clearTimeout(window.__szT); window.__szT = setTimeout(szAll,150); });
+  })();
+
+  /* Replay: animierte Grafik neu laden -> Aufbau spielt erneut */
+  (function(){
+    var btn = document.getElementById('replayBtn');
+    var fr  = document.getElementById('metroFrameAnim');
+    if(!btn || !fr) return;
+    btn.addEventListener('click', function(){
+      var base = fr.getAttribute('src').split('#')[0].split('?')[0];
+      fr.src = base + '?r=' + (window.__replayN = (window.__replayN||0) + 1);
+    });
   })();
 </script>
 

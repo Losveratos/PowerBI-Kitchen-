@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Die Schweiz fährt Europa davon — Metro-Karte 2024 (animiert)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#f4f1e8; --ink:#13233b; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:radial-gradient(rgba(19,35,59,.03) 1px,transparent 1px);
+    background-size:22px 22px;
+    min-height:100vh;display:flex;justify-content:center;
+    padding:clamp(10px,2.5vw,40px);
+  }
+  .wrap{width:100%;max-width:1040px;}
+  svg{width:100%;height:auto;display:block;}
+
+  /* Linien zeichnen sich selbst */
+  .line{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 2.5s ease forwards;}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+
+  /* Rahmen (Titel, Legende, Median, Hub) blenden ein */
+  .frame{opacity:0;animation:appear 1s ease forwards;}
+
+  /* Stationen erscheinen nacheinander, Balken wachsen aus dem Knoten */
+  .stn{opacity:0;animation:appear .6s ease forwards;animation-delay:var(--d);}
+  .stn .bar{transform:scaleX(0);transform-box:fill-box;transform-origin:left center;
+            animation:grow 1s cubic-bezier(.2,.8,.2,1) forwards;
+            animation-delay:calc(var(--d) + .15s);}
+  @keyframes appear{to{opacity:1;}}
+  @keyframes grow{to{transform:scaleX(1);}}
+  @media (prefers-reduced-motion: reduce){
+    .line,.frame,.stn,.stn .bar{animation:none;opacity:1;stroke-dashoffset:0;transform:none;}
+  }
+
+  .hl{font-family:'Anton',sans-serif;fill:var(--ink);letter-spacing:.5px;}
+  .nm{font-family:'Archivo',sans-serif;font-weight:700;fill:var(--ink);}
+  .vl{font-family:'Archivo',sans-serif;font-weight:800;fill:var(--ink);}
+  .sub2{font-family:'Archivo',sans-serif;font-weight:700;fill:var(--ink);letter-spacing:.8px;}
+  text{dominant-baseline:alphabetic;}
+</style>
+</head>
+<body>
+<div class="wrap"><div id="map"></div></div>
+<script>
+const K = 5.5;
+const GREEN="#1f8a5b", AMBER="#e8a01e", GREY="#5d6975", INK="#13233b";
+const fmt = v => v.toFixed(1).replace(".",",");
+let uid = 0;
+
+/* ---------- Flaggen (lokales System 26×18) ---------- */
+function band(cols,horiz){
+  let s=""; const W=26,H=18;
+  if(horiz){const h=H/cols.length; cols.forEach((c,i)=>s+=`<rect x="0" y="${i*h}" width="${W}" height="${h+0.6}" fill="${c}"/>`);}
+  else{const w=W/cols.length; cols.forEach((c,i)=>s+=`<rect x="${i*w}" y="0" width="${w+0.6}" height="${H}" fill="${c}"/>`);}
+  return s;
+}
+function nordic(field,cross){
+  return `<rect width="26" height="18" fill="${field}"/>`+
+         `<rect x="6.5" y="0" width="4" height="18" fill="${cross}"/>`+
+         `<rect x="0" y="7" width="26" height="4" fill="${cross}"/>`;
+}
+function flagInner(c){
+ switch(c){
+  case 'ch': return `<rect width="26" height="18" fill="#d52b1e"/><rect x="10.5" y="3.5" width="5" height="11" fill="#fff"/><rect x="7.5" y="6.5" width="11" height="5" fill="#fff"/>`;
+  case 'lu': return band(['#ed2939','#fff','#00a1de'],true);
+  case 'at': return band(['#ed2939','#fff','#ed2939'],true);
+  case 'dk': return nordic('#c8102e','#fff');
+  case 'de': return band(['#000','#dd0000','#ffce00'],true);
+  case 'hu': return band(['#cd2a3e','#fff','#436f4d'],true);
+  case 'se': return nordic('#006aa7','#fecc00');
+  case 'nl': return band(['#ae1c28','#fff','#21468b'],true);
+  case 'pt': return `<rect x="0" y="0" width="10" height="18" fill="#060"/><rect x="10" y="0" width="16" height="18" fill="#f00"/><circle cx="10" cy="9" r="3.1" fill="#fc0" stroke="#b07000" stroke-width=".6"/>`;
+  case 'fr': return band(['#0055a4','#fff','#ef4135'],false);
+  case 'cz': return `<rect x="0" y="0" width="26" height="9" fill="#fff"/><rect x="0" y="9" width="26" height="9" fill="#d7141a"/><polygon points="0,0 13,9 0,18" fill="#11457e"/>`;
+  case 'fi': return nordic('#fff','#003580');
+  case 'no': return nordic('#ef2b2d','#fff')+`<rect x="7.1" y="0" width="2.8" height="18" fill="#002868"/><rect x="0" y="7.6" width="26" height="2.8" fill="#002868"/>`;
+  case 'it': return band(['#009246','#fff','#ce2b37'],false);
+  case 'es': return `<rect x="0" y="0" width="26" height="4.5" fill="#aa151b"/><rect x="0" y="4.5" width="26" height="9" fill="#f1bf00"/><rect x="0" y="13.5" width="26" height="4.5" fill="#aa151b"/>`;
+  case 'sk': return band(['#fff','#0b4ea2','#ee1c25'],true);
+  case 'pl': return band(['#fff','#dc143c'],true);
+  case 'lv': return `<rect x="0" y="0" width="26" height="7" fill="#9e3039"/><rect x="0" y="7" width="26" height="4" fill="#fff"/><rect x="0" y="11" width="26" height="7" fill="#9e3039"/>`;
+  case 'ie': return band(['#169b62','#fff','#ff883e'],false);
+  case 'si': return band(['#fff','#0000a0','#ed1c24'],true);
+  case 'hr': return band(['#ff0000','#fff','#171796'],true);
+  case 'ee': return band(['#0072ce','#000','#fff'],true);
+  case 'ro': return band(['#002b7f','#fcd116','#ce1126'],false);
+  case 'bg': return band(['#fff','#00966e','#d62612'],true);
+  case 'lt': return band(['#fdb913','#006a44','#c1272d'],true);
+  case 'gr': return `<rect width="26" height="18" fill="#0d5eaf"/>`+[1,3].map(i=>`<rect x="0" y="${i*3.6}" width="26" height="3.6" fill="#fff"/>`).join('')+`<rect x="0" y="0" width="10.8" height="10.8" fill="#0d5eaf"/><rect x="4" y="0" width="2.6" height="10.8" fill="#fff"/><rect x="0" y="4.1" width="10.8" height="2.6" fill="#fff"/>`;
+  case 'me': return `<rect width="26" height="18" fill="#c40308"/><rect x="1.4" y="1.4" width="23.2" height="15.2" fill="none" stroke="#d4af37" stroke-width="1.6"/><rect x="9" y="6" width="8" height="6" fill="#d4af37"/>`;
+  case 'rs': return band(['#c6363c','#0c4076','#fff'],true);
+  case 'tr': return `<rect width="26" height="18" fill="#e30a17"/><circle cx="10.5" cy="9" r="4.4" fill="#fff"/><circle cx="12" cy="9" r="3.5" fill="#e30a17"/><polygon points="15.3,9 17.7,8.1 16.2,10.2 16.2,7.8 17.7,9.9" fill="#fff"/>`;
+  case 'ba': return `<rect width="26" height="18" fill="#002395"/><polygon points="7,1 21,1 7,17" fill="#fecb00"/>`;
+  case 'mk': return `<rect width="26" height="18" fill="#d20000"/><circle cx="13" cy="9" r="3.6" fill="#ffd700"/>`;
+  default:  return `<rect width="26" height="18" fill="#999"/>`;
+ }
+}
+function flag(code,x,y){
+  const id="fc"+(uid++);
+  return `<g transform="translate(${x},${y})"><clipPath id="${id}"><rect width="26" height="18" rx="3"/></clipPath>`+
+         `<g clip-path="url(#${id})">${flagInner(code)}</g>`+
+         `<rect width="26" height="18" rx="3" fill="none" stroke="#13233b" stroke-width="1" opacity=".35"/></g>`;
+}
+
+/* Balken: linke Kante exakt am Knoten (gerade), nur rechts gerundet */
+function barRR(x,y,w,h,fill){
+  const r = Math.min(h/2, w);
+  return `<path d="M${x},${y} H${x+w-r} A${r},${r} 0 0 1 ${x+w},${y+r} V${y+h-r} A${r},${r} 0 0 1 ${x+w-r},${y+h} H${x} Z" fill="${fill}"/>`;
+}
+
+/* ---------- Daten ---------- */
+const COL = {g:GREEN, a:AMBER, l:GREY};
+const stations = [
+ // grüne Hauptlinie
+ {x:505,y:70 ,n:'SCHWEIZ',    v:57.9,t:'g',f:'ch',big:1},
+ {x:505,y:160,n:'LUXEMBURG',  v:46.2,t:'g',f:'lu'},
+ {x:505,y:240,n:'ÖSTERREICH', v:35.6,t:'g',f:'at'},
+ {x:505,y:315,n:'DÄNEMARK',   v:35.2,t:'g',f:'dk'},
+ {x:505,y:390,n:'DEUTSCHLAND',v:35.1,t:'g',f:'de'},
+ // grüner Abzweig
+ {x:255,y:545,n:'UNGARN',     v:31.9,t:'g',f:'hu'},
+ {x:255,y:620,n:'SCHWEDEN',   v:23.9,t:'g',f:'se'},
+ {x:255,y:695,n:'NIEDERLANDE',v:20.9,t:'g',f:'nl'},
+ // gelbe Linie
+ {x:820,y:705,n:'PORTUGAL',   v:20.5,t:'a',f:'pt'},
+ {x:820,y:758,n:'FRANKREICH', v:19.2,t:'a',f:'fr'},
+ {x:820,y:811,n:'TSCHECHIEN', v:17.5,t:'a',f:'cz'},
+ {x:820,y:864,n:'FINNLAND',   v:15.0,t:'a',f:'fi'},
+ {x:820,y:917,n:'NORWEGEN',   v:14.7,t:'a',f:'no'},
+ {x:820,y:970,n:'ITALIEN',    v:14.3,t:'a',f:'it'},
+ {x:820,y:1023,n:'SPANIEN',   v:14.2,t:'a',f:'es'},
+ // graue linke Spalte
+ {x:255,y:1140,n:'POLEN',     v:10.9,t:'l',f:'pl',min:3},
+ {x:255,y:1195,n:'LETTLAND',  v:10.4,t:'l',f:'lv',min:3},
+ {x:255,y:1250,n:'IRLAND',    v:9.4 ,t:'l',f:'ie',min:3},
+ {x:255,y:1305,n:'SLOWENIEN', v:7.4 ,t:'l',f:'si',min:3},
+ {x:255,y:1360,n:'KROATIEN',  v:6.4 ,t:'l',f:'hr',min:3},
+ {x:255,y:1415,n:'ESTLAND',   v:5.8 ,t:'l',f:'ee',min:3},
+ // graue mittlere Spalte
+ {x:590,y:1140,n:'RUMÄNIEN',  v:3.7 ,t:'l',f:'ro',min:3},
+ {x:590,y:1195,n:'BULGARIEN', v:3.3 ,t:'l',f:'bg',min:3},
+ {x:590,y:1250,n:'LITAUEN',   v:1.8 ,t:'l',f:'lt',min:3},
+ {x:590,y:1305,n:'GRIECHENLAND',v:1.4,t:'l',f:'gr',min:3},
+ {x:590,y:1360,n:'MONTENEGRO',v:1.4 ,t:'l',f:'me',min:3},
+ {x:590,y:1415,n:'SERBIEN',   v:1.2 ,t:'l',f:'rs',min:3},
+ // Endstationen unten
+ {x:305,y:1500,n:'TÜRKEI',    v:0.3 ,t:'l',f:'tr',term:1},
+ {x:505,y:1500,n:'BOSNIEN',   v:0.1 ,t:'l',f:'ba',term:1},
+ {x:700,y:1500,n:'NORDMAZEDONIEN',v:0.1,t:'l',f:'mk',term:1},
+ // Median-Station
+ {x:300,y:1045,n:'SLOWAKEI',  v:13.3,t:'a',f:'sk',med:1},
+];
+
+/* ---------- Stationen zeichnen (gestaffelter Aufbau nach Rang) ---------- */
+const order = stations.map((s,i)=>i).sort((a,b)=> stations[a].v - stations[b].v);
+const delayOf = {};
+order.forEach((idx,rank)=> delayOf[idx] = (2.8 + rank*0.37).toFixed(2));
+
+let stns="";
+stations.forEach((st,i)=>{
+  const col = COL[st.t];
+  const d   = delayOf[i];
+
+  /* Endstationen unten: sauberer senkrechter Stapel (Flagge oben, Name + Zahl darunter) */
+  if(st.term){
+    const inner = `<circle cx="${st.x}" cy="${st.y}" r="6" fill="#fff" stroke="${col}" stroke-width="4"/>`
+      + flag(st.f, st.x-13, st.y-35)
+      + `<text class="nm" x="${st.x}" y="${st.y+25}" font-size="13" text-anchor="middle">${st.n}</text>`
+      + `<text class="vl" x="${st.x}" y="${st.y+43}" font-size="14" text-anchor="middle">${fmt(st.v)}</text>`;
+    stns += `<g class="stn" style="--d:${d}s">${inner}</g>`;
+    return;
+  }
+
+  const len   = Math.max(st.v*K, 3);
+  const r     = st.big?12:7;
+  const flagx = st.x + r + 6;
+  const namex = flagx + 30;
+  const lift  = (st.t==='l' || st.med) ? 9 : 0;
+
+  const inner =
+      `<g class="bar">${barRR(st.x, st.y-3.5, len, 7, col)}</g>`
+    + `<circle cx="${st.x}" cy="${st.y}" r="${r}" fill="#fff" stroke="${col}" stroke-width="${st.big?5:4}"/>`
+    + flag(st.f, flagx, st.y-23-lift)
+    + `<text class="nm" x="${namex}" y="${st.y-10-lift}" font-size="${st.big?16:15}">${st.n}`
+    + (st.med?` <tspan fill="#7c8794" font-size="10">· MEDIAN</tspan>`:``)
+    + `</text>`
+    + `<text class="vl" x="${st.x+len+10}" y="${st.y+5}" font-size="15">${fmt(st.v)}</text>`;
+  stns += `<g class="stn" style="--d:${d}s">${inner}</g>`;
+});
+
+/* Interchange-Punkte (mit dem Rahmen) */
+const interchange =
+   `<circle cx="505" cy="490" r="5" fill="#fff" stroke="${GREEN}" stroke-width="3"/>`
+ + `<circle cx="505" cy="690" r="6" fill="#fff" stroke="${AMBER}" stroke-width="4"/>`;
+
+/* Linien (zeichnen sich selbst, leicht gestaffelt) */
+const lineDefs = [
+ {d:"M505,70 V1045",              c:GREEN, t:0.4},
+ {d:"M505,490 H255 V700",         c:GREEN, t:1.2},
+ {d:"M505,690 H820 V1023",        c:AMBER, t:1.4},
+ {d:"M505,1045 H300",             c:AMBER, t:2.2},
+ {d:"M505,1045 V1100 H255 V1430", c:GREY,  t:2.0},
+ {d:"M505,1100 H590 V1440",       c:GREY,  t:2.2},
+ {d:"M505,1100 V1500 M305,1500 H700", c:GREY, t:2.4},
+];
+const L = lineDefs.map(l=>
+ `<path class="line" pathLength="1" d="${l.d}" fill="none" stroke="${l.c}" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:${l.t}s"/>`
+).join("");
+
+/* Median + Hub */
+const median = `
+ <line x1="30" y1="1045" x2="1010" y2="1045" stroke="${INK}" stroke-width="2" stroke-dasharray="9 7" opacity=".55"/>
+ <text class="sub2" x="34" y="1016" font-size="11" fill="#7c8794">MEDIAN EUROPA</text>
+ <text class="hl" x="34" y="1040" font-size="28">13,3</text>
+`;
+const hub = `<circle cx="505" cy="1045" r="15" fill="#fff" stroke="${INK}" stroke-width="5"/>`;
+
+/* Kopf + Legende (komplett deutsch) */
+const head = `
+ <text class="hl" x="38" y="78"  font-size="62">DIE SCHWEIZ</text>
+ <text class="hl" x="38" y="140" font-size="62">FÄHRT EUROPA</text>
+ <text class="hl" x="38" y="202" font-size="62" fill="${GREEN}">DAVON</text>
+ <text class="sub2" x="40" y="246" font-size="13" fill="${GREEN}">EIN KONTINENT, ZWEI WELTEN —</text>
+ <text class="sub2" x="40" y="264" font-size="13" fill="${GREEN}">WER IN EUROPA WIRKLICH</text>
+ <text class="sub2" x="40" y="282" font-size="13" fill="${GREEN}">BAHN FÄHRT · 2024</text>
+`;
+const legend = `
+ <rect x="36" y="300" width="270" height="172" rx="12" fill="#fff" stroke="${INK}" stroke-width="1.5" opacity=".95"/>
+ <text class="sub2" x="54" y="324" font-size="11" fill="#7c8794">ZUGFAHRTEN PRO KOPF · 2024</text>
+ <rect x="54" y="340" width="30" height="9" rx="4" fill="${GREEN}"/><text class="nm" x="94" y="349" font-size="13">HOCH  <tspan fill="#7c8794">(≥ 30)</tspan></text>
+ <rect x="54" y="366" width="30" height="9" rx="4" fill="${AMBER}"/><text class="nm" x="94" y="375" font-size="13">MITTEL  <tspan fill="#7c8794">(13,3 – 29,9)</tspan></text>
+ <rect x="54" y="392" width="30" height="9" rx="4" fill="${GREY}"/><text class="nm" x="94" y="401" font-size="13">NIEDRIG  <tspan fill="#7c8794">(&lt; 13,3)</tspan></text>
+ <line x1="54" y1="418" x2="288" y2="418" stroke="${INK}" stroke-width="1" opacity=".25"/>
+ <circle cx="60" cy="440" r="5.5" fill="#fff" stroke="${INK}" stroke-width="2"/><text class="nm" x="76" y="444" font-size="12">LAND</text>
+ <rect x="150" y="436" width="26" height="8" rx="4" fill="${GREY}"/><text class="nm" x="184" y="444" font-size="12">FAHRTEN / KOPF</text>
+`;
+const source = `<text class="sub2" x="40" y="1574" font-size="12" fill="#7c8794">QUELLE: EUROSTAT · 2024  ·  BALKEN PROPORTIONAL SKALIERT (0 – 57,9)</text>`;
+
+document.getElementById('map').innerHTML =
+ `<svg viewBox="0 0 1040 1600" xmlns="http://www.w3.org/2000/svg">
+    <g class="frame" style="animation-delay:.1s">${head}${legend}${median}${source}</g>
+    ${L}
+    <g class="frame" style="animation-delay:2.6s">${hub}${interchange}</g>
+    ${stns}
+  </svg>`;
+</script>
+</body>
+</html>
