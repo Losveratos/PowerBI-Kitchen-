@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>p(doom) im Zeitverlauf — KI-Risikoschätzungen 2011–2025</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#f4f1e8; --ink:#13233b; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{ background:var(--paper); background-image:radial-gradient(rgba(19,35,59,.03) 1px,transparent 1px);
+    background-size:22px 22px; min-height:100vh; display:flex; justify-content:center; padding:clamp(10px,2.5vw,40px); }
+  .wrap{width:100%;max-width:1040px;position:relative;}
+  svg{width:100%;height:auto;display:block;}
+  .yr{opacity:0;animation:appear .5s ease forwards;animation-delay:var(--d);}
+  .yr .mk{transform:scale(.3);transform-box:fill-box;transform-origin:center;animation:pop .5s cubic-bezier(.2,.9,.3,1.2) forwards;animation-delay:var(--d);}
+  .traj{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.1s ease forwards;animation-delay:var(--td);}
+  .frame{opacity:0;animation:appear .8s ease forwards;animation-delay:.1s;}
+  @keyframes appear{to{opacity:1;}}
+  @keyframes pop{to{transform:scale(1);}}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  @media (prefers-reduced-motion: reduce){ .yr,.frame{animation:none;opacity:1;} .yr .mk{animation:none;transform:none;} .traj{animation:none;stroke-dashoffset:0;} }
+  .hl{font-family:'Anton',sans-serif;fill:var(--ink);letter-spacing:.5px;}
+  .nm{font-family:'Archivo',sans-serif;font-weight:700;fill:var(--ink);}
+  .sub2{font-family:'Archivo',sans-serif;font-weight:700;fill:var(--ink);letter-spacing:.8px;}
+  text{dominant-baseline:alphabetic;}
+  .pt{cursor:pointer;}
+  .pt:hover .mk{animation:none;transform:scale(1.4);transform-box:fill-box;transform-origin:center;}
+  #tip{ position:fixed;z-index:30;pointer-events:none;opacity:0;transform:translateY(4px);
+    transition:opacity .12s ease, transform .12s ease; max-width:260px;background:#fff;border:1px solid #13233b;border-left:4px solid #13233b;
+    border-radius:8px;padding:9px 12px;box-shadow:0 8px 24px rgba(19,35,59,.18); font-family:'Archivo',sans-serif;color:#13233b; }
+  #tip.on{opacity:1;transform:translateY(0);}
+  #tip .t-name{font-weight:800;font-size:13.5px;line-height:1.2;}
+  #tip .t-meta{font-weight:600;font-size:11px;color:#5d6975;margin-top:3px;}
+  #tip .t-val{font-weight:800;font-size:14px;margin-top:5px;}
+</style>
+</head>
+<body>
+<div class="wrap"><div id="map"></div><div id="tip"></div></div>
+<script>
+const DATA = [{"p":"Shane Legg","k":"Forschung","y":2011,"o":"5-50%","v":27.5,"lo":5.0,"hi":50.0,"i":0},{"p":"ML-Forschende (AI Impacts Expert Survey 2016)","k":"Umfrage","y":2016,"o":"5% (Median)","v":5.0,"lo":5,"hi":5,"i":2},{"p":"Toby Ord","k":"Forschung","y":2020,"o":"10% (nur KI)","v":10.0,"lo":10,"hi":10,"i":3},{"p":"KI-Sicherheitsforschende (44 Personen)","k":"Umfrage","y":2021,"o":"30% (Mittelwert)","v":30.0,"lo":30,"hi":30,"i":4},{"p":"Holden Karnofsky","k":"Forschung/Industrie","y":2022,"o":"10-90%","v":50.0,"lo":10.0,"hi":90.0,"i":5},{"p":"ML-Forschende (AI Impacts Survey 2022)","k":"Umfrage","y":2022,"o":"5% (Median); ~14% (Mittel)","v":14.0,"lo":5.0,"hi":14.0,"i":6},{"p":"Dan Hendrycks","k":"Forschung","y":2023,"o":"~20%","v":20.0,"lo":20,"hi":20,"i":7},{"p":"Paul Christiano","k":"Forschung","y":2023,"o":"~46%","v":46.0,"lo":46,"hi":46,"i":8},{"p":"Geoffrey Hinton","k":"Forschung","y":2023,"o":"~10%","v":10.0,"lo":10,"hi":10,"i":9},{"p":"Marc Andreessen","k":"CEO/Industrie","y":2023,"o":"~0%","v":0.0,"lo":0,"hi":0,"i":11},{"p":"Yoshua Bengio","k":"Forschung","y":2023,"o":"~20%","v":20.0,"lo":20,"hi":20,"i":12},{"p":"Superforecaster (XPT-Studie)","k":"Prognose","y":2023,"o":"0,38%","v":0.38,"lo":0.38,"hi":0.38,"i":13},{"p":"KI-Domaenenexperten (XPT-Studie)","k":"Prognose","y":2023,"o":"3% (Ausloeschung) / 12% (Katastrophe)","v":3.0,"lo":3.0,"hi":12.0,"i":14},{"p":"Ajeya Cotra","k":"Forschung","y":2023,"o":"20-30%","v":25.0,"lo":20.0,"hi":30.0,"i":17},{"p":"Kevin Roose","k":"Journalismus","y":2023,"o":"5%","v":5.0,"lo":5,"hi":5,"i":18},{"p":"Scott Alexander","k":"Journalismus","y":2023,"o":"33%","v":33.0,"lo":33,"hi":33,"i":19},{"p":"Eli Lifland","k":"Prognose","y":2023,"o":"35%","v":35.0,"lo":35,"hi":35,"i":20},{"p":"Eliezer Yudkowsky","k":"Forschung","y":2023,"o":">95%","v":97.0,"lo":97,"hi":97,"i":21},{"p":"Dario Amodei","k":"CEO/Industrie","y":2023,"o":"10-25%","v":17.5,"lo":10.0,"hi":25.0,"i":22},{"p":"Dan Hendrycks","k":"Forschung","y":2023,"o":">80%","v":82.0,"lo":82,"hi":82,"i":23},{"p":"Jan Leike","k":"Forschung","y":2023,"o":"10-90%","v":50.0,"lo":10.0,"hi":90.0,"i":24},{"p":"Emmett Shear","k":"CEO/Industrie","y":2023,"o":"5-50%","v":27.5,"lo":5.0,"hi":50.0,"i":25},{"p":"Lina Khan","k":"Politik","y":2023,"o":"~15%","v":15.0,"lo":15,"hi":15,"i":26},{"p":"Zvi Mowshowitz","k":"Journalismus","y":2023,"o":"60%","v":60.0,"lo":60,"hi":60,"i":27},{"p":"Vitalik Buterin","k":"CEO/Industrie","y":2023,"o":"10%","v":10.0,"lo":10,"hi":10,"i":28},{"p":"Daniel Kokotajlo","k":"Forschung","y":2023,"o":"70%","v":70.0,"lo":70,"hi":70,"i":29},{"p":"Yann LeCun","k":"Forschung/Industrie","y":2023,"o":"<0,01%","v":0.01,"lo":0.01,"hi":0.01,"i":30},{"p":"KI-Ingenieure (informelle Umfrage)","k":"Umfrage","y":2023,"o":"40% (Mittelwert)","v":40.0,"lo":40,"hi":40,"i":31},{"p":"Lex Fridman","k":"Journalismus","y":2024,"o":"10%","v":10.0,"lo":10,"hi":10,"i":32},{"p":"ML-Forschende (AI Impacts Survey 2023)","k":"Umfrage","y":2024,"o":"5% (Median); 14,4% (Mittel)","v":14.4,"lo":5.0,"hi":14.4,"i":33},{"p":"Roman Yampolskiy","k":"Forschung","y":2024,"o":"99,9-99,999999%","v":99.9,"lo":99.9,"hi":100.0,"i":35},{"p":"Elon Musk","k":"CEO/Industrie","y":2024,"o":"10-20% (bis ~30%)","v":15.0,"lo":10.0,"hi":20.0,"i":36},{"p":"Geoffrey Hinton","k":"Forschung","y":2024,"o":"~50% ('50-50')","v":50.0,"lo":50.0,"hi":50.0,"i":37},{"p":"Geoffrey Hinton","k":"Forschung","y":2024,"o":">50% (eigene Einschaetzung)","v":55.0,"lo":55,"hi":55,"i":38},{"p":"Reid Hoffman","k":"CEO/Industrie","y":2024,"o":"20%","v":20.0,"lo":20,"hi":20,"i":39},{"p":"Connor Leahy","k":"Forschung/Industrie","y":2024,"o":"90%+","v":92.0,"lo":92,"hi":92,"i":40},{"p":"Geoffrey Hinton","k":"Forschung","y":2024,"o":"10-20% (Gesamteinschaetzung)","v":15.0,"lo":10.0,"hi":20.0,"i":41},{"p":"Emad Mostaque","k":"CEO/Industrie","y":2024,"o":"50%","v":50.0,"lo":50,"hi":50,"i":42},{"p":"Nate Silver","k":"Journalismus","y":2025,"o":"5-10%","v":7.5,"lo":5.0,"hi":10.0,"i":43},{"p":"Metaculus (Community-Aggregat)","k":"Prognose","y":2025,"o":"9% gesamt (~8 Pp. durch KI)","v":8.0,"lo":8,"hi":8,"i":44},{"p":"Daniel Kokotajlo","k":"Forschung","y":2025,"o":"70-80%","v":75.0,"lo":70.0,"hi":80.0,"i":45},{"p":"Max Tegmark","k":"Forschung","y":2025,"o":">90%","v":92.0,"lo":92,"hi":92,"i":46},{"p":"Sundar Pichai","k":"CEO/Industrie","y":2025,"o":"~10%","v":10.0,"lo":10,"hi":10,"i":47},{"p":"Elon Musk","k":"CEO/Industrie","y":2025,"o":"~10-20%","v":15.0,"lo":10.0,"hi":20.0,"i":48},{"p":"Vitalik Buterin","k":"CEO/Industrie","y":2025,"o":"12%","v":12.0,"lo":12,"hi":12,"i":49},{"p":"Zvi Mowshowitz","k":"Journalismus","y":2025,"o":"70%","v":70.0,"lo":70,"hi":70,"i":50},{"p":"Dario Amodei","k":"CEO/Industrie","y":2025,"o":"25%","v":25.0,"lo":25,"hi":25,"i":51},{"p":"Anna Salamon (laut Wikipedia-Sammlung)","k":"Forschung","y":2024,"o":"85%","v":85.0,"lo":85,"hi":85,"i":53}];
+const LOW="#2A857A", MID="#C9962E", HIGH="#8B2E2E", INK="#13233b", MUT="#7c8794";
+const fmt = v => (Math.abs(v%1)<1e-9 ? v.toFixed(0) : (''+v).replace(".",","));
+const bandOf = v => v<10?'low' : (v<50?'mid':'high');
+const colOf = b => b==='low'?LOW : b==='mid'?MID:HIGH;
+function esc(s){ return (''+s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+const Y0=2011, Y1=2025;
+const PL=66, PR=1012, TOP=150, AX=620;
+const x = yr => PL + (yr-Y0)/(Y1-Y0)*(PR-PL);
+const y = v  => AX - (v/100)*(AX-TOP);
+const SPacing = (PR-PL)/(Y1-Y0);
+
+function marker(cx,cy,b){
+  const c=colOf(b), r=6.2;
+  if(b==='low')  return `<circle class="mk" cx="${cx}" cy="${cy}" r="${r}" fill="${c}" fill-opacity="0.9" stroke="#fff" stroke-width="1.4"/>`;
+  if(b==='mid')  return `<path class="mk" d="M${cx},${cy-r-0.5} L${cx+r+0.5},${cy} L${cx},${cy+r+0.5} L${cx-r-0.5},${cy} Z" fill="${c}" fill-opacity="0.9" stroke="#fff" stroke-width="1.4"/>`;
+  return `<path class="mk" d="M${cx},${cy-r-1.4} L${cx+r+0.6},${cy+r-1.4} L${cx-r-0.6},${cy+r-1.4} Z" fill="${c}" fill-opacity="0.92" stroke="#fff" stroke-width="1.4"/>`;
+}
+
+/* Jitter innerhalb eines Jahres */
+const byYear={};
+DATA.forEach(d=>{ (byYear[d.y]=byYear[d.y]||[]).push(d); });
+const POS={}; // i -> {px,py}
+Object.keys(byYear).forEach(yr=>{
+  const arr=byYear[yr].slice().sort((a,b)=>a.v-b.v);
+  const n=arr.length;
+  const gap=Math.min(11,(SPacing*0.72)/Math.max(1,n-1));
+  arr.forEach((d,k)=>{ const off=(k-(n-1)/2)*gap; POS[d.i]={px:x(+yr)+off, py:y(d.v)}; });
+});
+const delayOf = yr => (((yr-Y0)/(Y1-Y0))*2.4 + 0.3).toFixed(2);
+
+/* Achsen / Grid */
+let grid=`<line x1="${PL}" y1="${AX}" x2="${PR}" y2="${AX}" stroke="${INK}" stroke-width="2"/>`
+        +`<line x1="${PL}" y1="${TOP-6}" x2="${PL}" y2="${AX}" stroke="${INK}" stroke-width="1.4"/>`;
+[0,25,50,75,100].forEach(v=>{ grid+=`<line x1="${PL}" y1="${y(v)}" x2="${PR}" y2="${y(v)}" stroke="${INK}" stroke-width="1" opacity="0.08"/>`
+  +`<text class="nm" x="${PL-10}" y="${y(v)+4}" font-size="12" text-anchor="end" fill="${MUT}">${v}%</text>`; });
+for(let yr=Y0;yr<=Y1;yr++){ grid+=`<text class="nm" x="${x(yr)}" y="${AX+22}" font-size="10.5" text-anchor="middle" fill="${MUT}">${("'"+String(yr).slice(2))}</text>`; }
+grid+=`<text class="sub2" x="${(PL+PR)/2}" y="${AX+46}" font-size="11" text-anchor="middle" fill="${MUT}">JAHR DER ÖFFENTLICHEN AUSSAGE</text>`;
+grid+=`<text class="sub2" x="${PL-44}" y="${(TOP+AX)/2}" font-size="11" text-anchor="middle" fill="${MUT}" transform="rotate(-90 ${PL-44} ${(TOP+AX)/2})">p(doom) — WAHRSCHEINLICHKEIT</text>`;
+
+/* 2023-Wendepunkt */
+const wp = `<rect x="${x(2023)-32}" y="${TOP-6}" width="64" height="${AX-TOP+6}" fill="${HIGH}" opacity="0.05"/>`
+  +`<line x1="${x(2023)}" y1="${TOP-6}" x2="${x(2023)}" y2="${AX}" stroke="${HIGH}" stroke-width="1.3" stroke-dasharray="6 5" opacity="0.5"/>`
+  +`<text class="sub2" x="${x(2023)}" y="${TOP-12}" font-size="10.5" text-anchor="middle" fill="${HIGH}">2023 · GPT-4 · BEGRIFF WIRD MAINSTREAM</text>`;
+
+/* Trajektorien (dieselbe Person über die Zeit) */
+const TRAJ=["Geoffrey Hinton","Dario Amodei","Daniel Kokotajlo","Elon Musk","Dan Hendrycks","Vitalik Buterin","Zvi Mowshowitz"];
+let lines="", tnames="";
+TRAJ.forEach(name=>{
+  const seq=DATA.filter(d=>d.p===name).sort((a,b)=> a.y-b.y || a.i-b.i);
+  if(seq.length<2) return;
+  const pathPts=seq.map(d=>`${POS[d.i].px.toFixed(1)},${POS[d.i].py.toFixed(1)}`).join(" ");
+  const last=seq[seq.length-1]; const lp=POS[last.i];
+  const td=(delayOf(last.y));
+  lines+=`<polyline class="traj" pathLength="1" points="${pathPts}" fill="none" stroke="${INK}" stroke-width="1.8" stroke-opacity="0.55" stroke-linecap="round" stroke-linejoin="round" style="--td:${td}s"/>`;
+  const short=name.split(' ').slice(-1)[0];
+  tnames+=`<g class="yr" style="--d:${(parseFloat(td)+0.6).toFixed(2)}s"><text class="nm" x="${(lp.px+10).toFixed(1)}" y="${(lp.py+4).toFixed(1)}" font-size="11" fill="${INK}">${esc(short)}</text></g>`;
+});
+
+/* Punkte (mit vertikalem Whisker für Spannen) */
+let dots=DATA.map(d=>{
+  const b=bandOf(d.v), P=POS[d.i];
+  const hasRange=d.hi>d.lo+1e-6;
+  const wsk = hasRange ? `<line x1="${P.px.toFixed(1)}" y1="${y(d.lo).toFixed(1)}" x2="${P.px.toFixed(1)}" y2="${y(d.hi).toFixed(1)}" stroke="${colOf(b)}" stroke-width="2.2" stroke-linecap="round" opacity="0.38"/>` : '';
+  return `<g class="yr pt" style="--d:${delayOf(d.y)}s" data-p="${esc(d.p)}" data-o="${esc(d.o)}" data-y="${d.y}" data-v="${fmt(d.v)}">`
+    + wsk
+    + `<circle cx="${P.px.toFixed(1)}" cy="${P.py.toFixed(1)}" r="11" fill="transparent"/>`
+    + marker(P.px.toFixed(1),P.py.toFixed(1),b)
+    + `</g>`;
+}).join("");
+
+/* Kopf + Legende */
+const head=`
+ <text class="hl" x="40" y="74" font-size="50">p(doom) IM ZEITVERLAUF</text>
+ <text class="sub2" x="42" y="102" font-size="12.5" fill="${INK}">WIE SICH DIE KI-RISIKO-SCHÄTZUNGEN ENTWICKELN — UND WER SEINE MEINUNG ÄNDERT</text>
+ <text class="sub2" x="42" y="120" font-size="12.5" fill="${MUT}">48 SCHÄTZUNGEN MIT ZAHLENWERT · 2011–2025 · LINIE = DIESELBE PERSON ÜBER DIE ZEIT</text>`;
+const lx=716, ly0=150;
+const legend=`
+ <rect x="${lx}" y="${ly0}" width="294" height="120" rx="12" fill="#fff" stroke="${INK}" stroke-width="1.5" opacity="0.95"/>
+ <text class="sub2" x="${lx+18}" y="${ly0+22}" font-size="10.5" fill="${MUT}">WAHRSCHEINLICHKEIT p(doom)</text>
+ ${marker(lx+24,ly0+42,'low')}<text class="nm" x="${lx+40}" y="${ly0+46}" font-size="12">Niedrig <tspan fill="${MUT}">· &lt; 10 %</tspan></text>
+ ${marker(lx+24,ly0+64,'mid')}<text class="nm" x="${lx+40}" y="${ly0+68}" font-size="12">Mittel <tspan fill="${MUT}">· 10–50 %</tspan></text>
+ ${marker(lx+24,ly0+86,'high')}<text class="nm" x="${lx+40}" y="${ly0+90}" font-size="12">Hoch <tspan fill="${MUT}">· &gt; 50 %</tspan></text>
+ <line x1="${lx+150}" y1="${ly0+64}" x2="${lx+186}" y2="${ly0+64}" stroke="${INK}" stroke-width="1.8" stroke-opacity="0.55"/>
+ <text class="nm" x="${lx+192}" y="${ly0+68}" font-size="11">Verlauf</text>
+ <text class="sub2" x="${lx+18}" y="${ly0+110}" font-size="9.5" fill="${MUT}">VERTIKALER STRICH = SPANNE (lo–hi)</text>`;
+const source=`<text class="sub2" x="40" y="700" font-size="11" fill="${MUT}">QUELLE: WIKIPEDIA · PAUSEAI · AI IMPACTS · XPT · METACULUS — 54 SCHÄTZUNGEN, STAND JUNI 2026 · MEHRFACHNENNUNGEN PRO PERSON NACH DATUM</text>`;
+
+document.getElementById('map').innerHTML =
+ `<svg viewBox="0 0 1040 720" xmlns="http://www.w3.org/2000/svg">
+   <g class="frame">${grid}${wp}${legend}${head}</g>
+   ${lines}${dots}${tnames}${source}
+  </svg>`;
+
+/* Tooltip */
+(function(){
+  const tip=document.getElementById('tip');
+  document.querySelectorAll('.pt').forEach(g=>{
+    g.addEventListener('pointerenter',e=>{
+      tip.innerHTML=`<div class="t-name">${g.dataset.p}</div><div class="t-meta">${g.dataset.y} · Angabe: ${g.dataset.o}</div><div class="t-val">p(doom) ≈ ${g.dataset.v} %</div>`;
+      tip.classList.add('on'); move(e);
+    });
+    g.addEventListener('pointermove',move);
+    g.addEventListener('pointerleave',()=>tip.classList.remove('on'));
+  });
+  function move(e){ const pad=14; let xx=e.clientX+pad,yy=e.clientY+pad; const w=tip.offsetWidth||240,h=tip.offsetHeight||70;
+    if(xx+w>window.innerWidth) xx=e.clientX-w-pad; if(yy+h>window.innerHeight) yy=e.clientY-h-pad;
+    tip.style.left=xx+'px'; tip.style.top=yy+'px'; }
+})();
+</script>
+</body>
+</html>

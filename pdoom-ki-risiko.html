@@ -66,6 +66,13 @@ a { color:inherit; }
 .figure-embed iframe { width:100%; border:0; display:block; aspect-ratio:1040 / 845; }
 .figure-cap { font-family:var(--mono); font-size:11px; letter-spacing:0.04em; color:var(--ink-mute); margin-top:12px; padding-left:2px; line-height:1.5; }
 .figure-cap strong { color:var(--ink-soft); }
+.figure-embed.with-head { display:flex; flex-direction:column; }
+.figure-embed iframe#zeitFrame { aspect-ratio:1040 / 720; }
+.embed-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; background:var(--bg-soft); border-bottom:1px solid var(--line); }
+.embed-head-label { font-family:var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-mute); }
+.replay-btn { display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); background:var(--bg-card); border:1px solid var(--accent); border-radius:100px; padding:6px 14px; cursor:pointer; transition:all .15s ease; }
+.replay-btn:hover { background:var(--accent); color:#fff; }
+.replay-btn svg { width:12px; height:12px; }
 
 /* Tabelle */
 .rank-wrap { margin:28px 0 8px; border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-sm); }
@@ -137,7 +144,7 @@ table.rank .value { font-family:var(--mono); font-weight:700; color:var(--ink); 
       <div class="figure-embed">
         <iframe id="pdoomFrame" class="data-frame" src="pdoom-spektrum.html" title="p(doom)-Spektrum: 54 öffentliche KI-Risikoschätzungen, 2011–2025" loading="lazy" scrolling="no"></iframe>
       </div>
-      <figcaption class="figure-cap"><strong>Das p(doom)-Spektrum.</strong> Jeder Punkt ist eine öffentlich genannte Schätzung. Farbe nach Höhe (niedrig · mittel · hoch); gestrichelt: Median 22,5 % und Mittelwert 33,8 %. Quelle: u.&nbsp;a. Wikipedia, PauseAI, AI Impacts, XPT, Metaculus — Stand Juni 2026.</figcaption>
+      <figcaption class="figure-cap"><strong>Das p(doom)-Spektrum.</strong> Jeder Marker ist eine öffentlich genannte Schätzung. Farbe &amp; Form nach Höhe (Kreis niedrig · Raute mittel · Dreieck hoch); waagerechte Striche zeigen genannte <strong>Spannen</strong> (lo–hi), der Marker den zentralen Wert. Gestrichelt: Median 22,5 % und Mittelwert 33,8 %. <em>Tipp: mit der Maus über einen Marker fahren für Name, Jahr und Originalangabe.</em> Quelle: u.&nbsp;a. Wikipedia, PauseAI, AI Impacts, XPT, Metaculus — Stand Juni 2026.</figcaption>
     </figure>
 
     <h2>Eine Zahl, die <em>alles und nichts</em> sagt</h2>
@@ -162,7 +169,21 @@ table.rank .value { font-family:var(--mono); font-weight:700; color:var(--ink); 
     <h2>Menschen <em>ändern ihre Meinung</em></h2>
     <p>Diese Zahlen sind keine Naturkonstanten — sie verschieben sich, manchmal erheblich.</p>
     <p>Das wohl prominenteste Beispiel ist Geoffrey Hinton, einer der „Paten der KI". Als er 2023 Google verließ, nannte er rund 10 %. Mitte 2024 sprach er von einer „50-50-Chance", dass KI die Menschheit überflügelt. Ende 2024 nannte er, gesamtheitlich betrachtet, wieder 10–20 %. Dan Hendrycks, Direktor des Center for AI Safety, korrigierte seine Einschätzung innerhalb eines Jahres von etwa 20 % auf über 80 % nach oben.</p>
-    <p>Solche Sprünge sind keine Schwäche der Methode — sie zeigen, wie schnell neue Modellgenerationen die Erwartungen von Fachleuten verändern.</p>
+    <p>Solche Sprünge sind keine Schwäche der Methode — sie zeigen, wie schnell neue Modellgenerationen die Erwartungen von Fachleuten verändern. Genau das macht die zweite Grafik sichtbar: Sie trägt jede Schätzung über ihr <strong>Jahr</strong> auf, und eine Linie verbindet dieselbe Person über die Zeit.</p>
+
+    <figure class="figure">
+      <div class="embed-head">
+        <span class="embed-head-label">▶ Zeitverlauf · baut sich Jahr für Jahr auf</span>
+        <button class="replay-btn" id="zeitReplay" type="button" aria-label="Animation neu starten">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/></svg>
+          Neu starten
+        </button>
+      </div>
+      <div class="figure-embed with-head">
+        <iframe id="zeitFrame" class="data-frame" src="pdoom-zeitverlauf.html" title="p(doom) im Zeitverlauf 2011–2025, mit Meinungs-Trajektorien" loading="lazy" scrolling="no"></iframe>
+      </div>
+      <figcaption class="figure-cap"><strong>p(doom) im Zeitverlauf.</strong> Vor 2023 fast leer — dann die GPT-4-Explosion und die Aufspreizung über die ganze Skala. Linien zeigen Meinungsreisen: Hinton 10 → „50-50" → 15, Hendrycks 20 → 82, Amodei 17,5 → 25. <em>Über die Marker hovern für Details; „Neu starten" spielt den Aufbau erneut.</em></figcaption>
+    </figure>
 
     <h2>Wie man diese Zahlen <em>lesen sollte</em></h2>
     <p>So griffig p(doom) ist — ein paar Einschränkungen gehören dazu, sonst vergleicht man Äpfel mit Birnen:</p>
@@ -340,9 +361,9 @@ Wo läge eure Zahl? 👇
 <script>
   /* iFrame an die Höhe der eingebetteten Grafik anpassen */
   (function(){
-    var fr = document.getElementById('pdoomFrame');
-    if(!fr) return;
-    function sz(){
+    var frames = [].slice.call(document.querySelectorAll('#pdoomFrame, #zeitFrame'));
+    if(!frames.length) return;
+    function sz(fr){
       try {
         var d = fr.contentDocument || (fr.contentWindow && fr.contentWindow.document);
         if (d && d.body) {
@@ -351,8 +372,19 @@ Wo läge eure Zahl? 👇
         }
       } catch(e){ /* fallback: aspect-ratio aus CSS */ }
     }
-    fr.addEventListener('load', function(){ sz(); setTimeout(sz,250); setTimeout(sz,800); });
-    window.addEventListener('resize', function(){ clearTimeout(window.__szT); window.__szT = setTimeout(sz,150); });
+    function szAll(){ frames.forEach(sz); }
+    frames.forEach(function(fr){ fr.addEventListener('load', function(){ sz(fr); setTimeout(function(){sz(fr);},250); setTimeout(function(){sz(fr);},800); }); });
+    window.addEventListener('resize', function(){ clearTimeout(window.__szT); window.__szT = setTimeout(szAll,150); });
+  })();
+
+  /* Replay: Zeitverlauf neu laden -> Aufbau spielt erneut */
+  (function(){
+    var btn=document.getElementById('zeitReplay'), fr=document.getElementById('zeitFrame');
+    if(!btn||!fr) return;
+    btn.addEventListener('click', function(){
+      var base=fr.getAttribute('src').split('#')[0].split('?')[0];
+      fr.src = base + '?r=' + (window.__rZ=(window.__rZ||0)+1);
+    });
   })();
 
   /* Copy-Blöcke: Rohtext aus <script type=text/plain> in <pre> schreiben + Kopieren */
