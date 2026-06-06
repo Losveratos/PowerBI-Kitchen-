@@ -63,7 +63,7 @@ a { color:inherit; }
 
 .figure { margin:32px 0 12px; }
 .figure-embed { border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-md); background:var(--bg-soft); }
-.figure-embed iframe { width:100%; border:0; display:block; aspect-ratio:1040 / 845; }
+.figure-embed iframe { width:100%; border:0; display:block; aspect-ratio:1040 / 720; }
 .figure-cap { font-family:var(--mono); font-size:11px; letter-spacing:0.04em; color:var(--ink-mute); margin-top:12px; padding-left:2px; line-height:1.5; }
 .figure-cap strong { color:var(--ink-soft); }
 .figure-embed.with-head { display:flex; flex-direction:column; }
@@ -142,9 +142,9 @@ table.rank .value { font-family:var(--mono); font-weight:700; color:var(--ink); 
 
     <figure class="figure">
       <div class="figure-embed">
-        <iframe id="pdoomFrame" class="data-frame" src="pdoom-spektrum.html" title="p(doom)-Spektrum: 54 öffentliche KI-Risikoschätzungen, 2011–2025" loading="lazy" scrolling="no"></iframe>
+        <iframe id="pdoomFrame" class="data-frame" src="pdoom-verteilung.html" title="Verteilung der p(doom)-Schätzungen über 10-%-Bereiche, 2011–2025" loading="lazy" scrolling="no"></iframe>
       </div>
-      <figcaption class="figure-cap"><strong>Das p(doom)-Spektrum.</strong> Jeder Marker ist eine öffentlich genannte Schätzung. Farbe &amp; Form nach Höhe (Kreis niedrig · Raute mittel · Dreieck hoch); waagerechte Striche zeigen genannte <strong>Spannen</strong> (lo–hi), der Marker den zentralen Wert. Gestrichelt: Median 22,5 % und Mittelwert 33,8 %. <em>Tipp: mit der Maus über einen Marker fahren für Name, Jahr und Originalangabe.</em> Quelle: u.&nbsp;a. Wikipedia, PauseAI, AI Impacts, XPT, Metaculus — Stand Juni 2026.</figcaption>
+      <figcaption class="figure-cap"><strong>Wie verteilen sich die Schätzungen?</strong> Jeder Balken zählt, wie viele der 48 bezifferten Werte in einen 10-%-Bereich fallen. Auffällig: eine starke Häufung unter 20 % (21 Werte), eine dünne Mitte (30–50 %) — und ein deutlicher hoher Schwanz (15 Werte über 50 %). Genau diese Polarisierung meint „kein Konsens". <em>Tipp: über einen Balken fahren zeigt, wer in dem Bereich liegt.</em> Quelle: u.&nbsp;a. Wikipedia, PauseAI, AI Impacts, XPT, Metaculus — Stand Juni 2026.</figcaption>
     </figure>
 
     <h2>Eine Zahl, die <em>alles und nichts</em> sagt</h2>

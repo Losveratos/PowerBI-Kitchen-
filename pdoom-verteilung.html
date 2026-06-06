@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>p(doom) — Verteilung der KI-Risikoschätzungen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#f4f1e8; --ink:#13233b; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{ background:var(--paper); background-image:radial-gradient(rgba(19,35,59,.03) 1px,transparent 1px);
+    background-size:22px 22px; min-height:100vh; display:flex; justify-content:center; padding:clamp(10px,2.5vw,40px); }
+  .wrap{width:100%;max-width:1040px;position:relative;}
+  svg{width:100%;height:auto;display:block;}
+  .bar{transform:scaleX(0);transform-box:fill-box;transform-origin:left center;animation:grow .9s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--d);}
+  .row{opacity:0;animation:appear .5s ease forwards;animation-delay:var(--d);}
+  @keyframes grow{to{transform:scaleX(1);}}
+  @keyframes appear{to{opacity:1;}}
+  @media (prefers-reduced-motion: reduce){ .bar{animation:none;transform:none;} .row{animation:none;opacity:1;} }
+  .hl{font-family:'Anton',sans-serif;fill:var(--ink);letter-spacing:.5px;}
+  .nm{font-family:'Archivo',sans-serif;font-weight:700;fill:var(--ink);}
+  .vl{font-family:'Archivo',sans-serif;font-weight:800;fill:var(--ink);}
+  .sub2{font-family:'Archivo',sans-serif;font-weight:700;fill:var(--ink);letter-spacing:.8px;}
+  text{dominant-baseline:alphabetic;}
+  .rowg{cursor:default;}
+  .rowg:hover .bshape{filter:brightness(1.08);}
+  #tip{ position:fixed;z-index:30;pointer-events:none;opacity:0;transform:translateY(4px);
+    transition:opacity .12s ease, transform .12s ease; max-width:280px;background:#fff;border:1px solid #13233b;border-left:4px solid #13233b;
+    border-radius:8px;padding:10px 13px;box-shadow:0 8px 24px rgba(19,35,59,.18); font-family:'Archivo',sans-serif;color:#13233b; }
+  #tip.on{opacity:1;transform:translateY(0);}
+  #tip .t-name{font-weight:800;font-size:13px;line-height:1.2;margin-bottom:5px;}
+  #tip .t-list{font-weight:600;font-size:11.5px;color:#3a4658;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap"><div id="map"></div><div id="tip"></div></div>
+<script>
+const BINS = [{"lab":"0–10 %","c":8,"band":"low","names":["Marc Andreessen 0","Yann LeCun 0,01","Superforecaster 0,38","KI-Domaenenexperten 3","ML-Forschende 5","Kevin Roose 5","Nate Silver 7,5","Metaculus 8"]},{"lab":"10–20 %","c":13,"band":"mid","names":["Toby Ord 10","Geoffrey Hinton 10","Vitalik Buterin 10","Lex Fridman 10","Sundar Pichai 10","Vitalik Buterin 12","ML-Forschende 14","ML-Forschende 14,4","Lina Khan 15","Elon Musk 15","Geoffrey Hinton 15","Elon Musk 15","Dario Amodei 17,5"]},{"lab":"20–30 %","c":7,"band":"mid","names":["Dan Hendrycks 20","Yoshua Bengio 20","Reid Hoffman 20","Ajeya Cotra 25","Dario Amodei 25","Shane Legg 27,5","Emmett Shear 27,5"]},{"lab":"30–40 %","c":3,"band":"mid","names":["KI-Sicherheitsforschende 30","Scott Alexander 33","Eli Lifland 35"]},{"lab":"40–50 %","c":2,"band":"mid","names":["KI-Ingenieure 40","Paul Christiano 46"]},{"lab":"50–60 %","c":5,"band":"high","names":["Holden Karnofsky 50","Jan Leike 50","Geoffrey Hinton 50","Emad Mostaque 50","Geoffrey Hinton 55"]},{"lab":"60–70 %","c":1,"band":"high","names":["Zvi Mowshowitz 60"]},{"lab":"70–80 %","c":3,"band":"high","names":["Daniel Kokotajlo 70","Zvi Mowshowitz 70","Daniel Kokotajlo 75"]},{"lab":"80–90 %","c":2,"band":"high","names":["Dan Hendrycks 82","Anna Salamon 85"]},{"lab":"90–100 %","c":4,"band":"high","names":["Connor Leahy 92","Max Tegmark 92","Eliezer Yudkowsky 97","Roman Yampolskiy 99,9"]}];
+const LOW="#2A857A", MID="#C9962E", HIGH="#8B2E2E", INK="#13233b", MUT="#7c8794";
+const colOf = b => b==='low'?LOW : b==='mid'?MID:HIGH;
+function esc(s){ return (''+s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+const total = BINS.reduce((s,b)=>s+b.c,0);
+const maxC  = Math.max(...BINS.map(b=>b.c));
+
+/* Geometrie */
+const BX=250, BR=986, TOPY=176, ROWH=48, BARH=30;
+const scale = (BR-BX)/maxC;
+function barRR(x,y,w,h,fill,cls,style){
+  const r=Math.min(h/2,Math.max(w,0.01));
+  return `<path class="${cls}" style="${style}" d="M${x},${y} H${x+w-r} A${r},${r} 0 0 1 ${x+w},${y+r} V${y+h-r} A${r},${r} 0 0 1 ${x+w-r},${y+h} H${x} Z" fill="${fill}"/>`;
+}
+
+/* Achse / Gitter (Anzahl) */
+let grid="";
+const tickStep = maxC<=10?2:5;
+for(let t=0;t<=maxC;t+=tickStep){
+  const gx=BX+t*scale;
+  grid+=`<line x1="${gx}" y1="${TOPY-10}" x2="${gx}" y2="${TOPY+BINS.length*ROWH-14}" stroke="${INK}" stroke-width="1" opacity="0.07"/>`
+      + `<text class="nm" x="${gx}" y="${TOPY-16}" font-size="10.5" text-anchor="middle" fill="${MUT}">${t}</text>`;
+}
+grid+=`<text class="sub2" x="${BX}" y="${TOPY-34}" font-size="10.5" fill="${MUT}">ANZAHL SCHÄTZUNGEN →</text>`;
+
+/* Lager-Klammern links */
+function bracket(i0,i1,label,col){
+  const y0=TOPY+i0*ROWH-4, y1=TOPY+i1*ROWH+BARH+4, x=70;
+  return `<path d="M${x+10},${y0} H${x} V${y1} H${x+10}" fill="none" stroke="${col}" stroke-width="2"/>`
+       + `<text class="sub2" x="${x-8}" y="${(y0+y1)/2}" font-size="11" text-anchor="middle" fill="${col}" transform="rotate(-90 ${x-8} ${(y0+y1)/2})">${label}</text>`;
+}
+let brackets = bracket(0,0,'SKEPTIKER',LOW) + bracket(1,4,'MITTE',MID) + bracket(5,9,'MAHNER',HIGH);
+
+/* Zeilen */
+let rows="";
+BINS.forEach((b,i)=>{
+  const y=TOPY+i*ROWH, cy=y+BARH/2, w=b.c*scale, col=colOf(b.band), d=(0.1+i*0.06).toFixed(2);
+  const tag = b.lab.includes('20–30') ? '◂ Median 22,5 %' : (b.lab.includes('30–40') ? '◂ Ø 33,8 %' : '');
+  rows += `<g class="rowg row" style="--d:${d}s" data-lab="${esc(b.lab)}" data-c="${b.c}" data-names="${esc(b.names.join(' · '))}">`
+    + `<text class="nm" x="${BX-16}" y="${cy+5}" font-size="14" text-anchor="end" fill="${INK}">${esc(b.lab)}</text>`
+    + `<rect x="${BX}" y="${y}" width="${BR-BX}" height="${BARH}" rx="6" fill="${INK}" opacity="0.03"/>`
+    + barRR(BX,y,Math.max(w,3),BARH,col,'bar bshape',`--d:${d}s`)
+    + `<text class="vl" x="${BX+Math.max(w,3)+12}" y="${cy+5}" font-size="15" fill="${INK}">${b.c}</text>`
+    + (tag?`<text class="sub2" x="${BX+Math.max(w,3)+44}" y="${cy+5}" font-size="10.5" fill="${MUT}">${tag}</text>`:'')
+    + `</g>`;
+});
+
+/* Kopf + Legende + Insight */
+const head=`
+ <text class="hl" x="40" y="66" font-size="40">VERTEILUNG DER SCHÄTZUNGEN</text>
+ <text class="sub2" x="42" y="92" font-size="12.5" fill="${INK}">WIE VIELE DER 48 p(doom)-WERTE FALLEN IN WELCHEN BEREICH?</text>
+ <text class="sub2" x="42" y="110" font-size="12.5" fill="${MUT}">54 SCHÄTZUNGEN GESAMT (48 MIT ZAHL) · 2011–2025</text>`;
+const lx=706, ly=44;
+const legend=`
+ <rect x="${lx}" y="${ly}" width="300" height="92" rx="12" fill="#fff" stroke="${INK}" stroke-width="1.5" opacity="0.95"/>
+ <text class="sub2" x="${lx+18}" y="${ly+22}" font-size="10.5" fill="${MUT}">DREI LAGER</text>
+ <rect x="${lx+18}" y="${ly+34}" width="22" height="11" rx="3" fill="${LOW}"/><text class="nm" x="${lx+48}" y="${ly+43}" font-size="11.5">Skeptiker <tspan fill="${MUT}">&lt; 10 %</tspan></text>
+ <rect x="${lx+18}" y="${ly+52}" width="22" height="11" rx="3" fill="${MID}"/><text class="nm" x="${lx+48}" y="${ly+61}" font-size="11.5">Mitte <tspan fill="${MUT}">10–50 %</tspan></text>
+ <rect x="${lx+18}" y="${ly+70}" width="22" height="11" rx="3" fill="${HIGH}"/><text class="nm" x="${lx+48}" y="${ly+79}" font-size="11.5">Mahner <tspan fill="${MUT}">&gt; 50 %</tspan></text>`;
+const insight=`
+ <text class="hl" x="1000" y="${ly+44}" font-size="34" text-anchor="end" fill="${MID}">21 / 48</text>
+ <text class="sub2" x="1000" y="${ly+62}" font-size="10.5" text-anchor="end" fill="${MUT}">WERTE LIEGEN UNTER 20 %</text>
+ <text class="sub2" x="1000" y="${ly+80}" font-size="10.5" text-anchor="end" fill="${MUT}">— ABER 15 LIEGEN ÜBER 50 %</text>`;
+const source=`<text class="sub2" x="40" y="700" font-size="11" fill="${MUT}">QUELLE: WIKIPEDIA · PAUSEAI · AI IMPACTS · XPT · METACULUS — 54 SCHÄTZUNGEN, STAND JUNI 2026 · BALKEN = ANZAHL SCHÄTZUNGEN JE 10-%-BEREICH</text>`;
+
+document.getElementById('map').innerHTML =
+ `<svg viewBox="0 0 1040 720" xmlns="http://www.w3.org/2000/svg">
+   ${head}${legend}${insight}${grid}${brackets}${rows}${source}
+  </svg>`;
+
+/* Tooltip: Namen je Bereich */
+(function(){
+  const tip=document.getElementById('tip');
+  document.querySelectorAll('.rowg').forEach(g=>{
+    g.addEventListener('pointerenter',e=>{
+      tip.innerHTML=`<div class="t-name">${g.dataset.lab} · ${g.dataset.c} Schätzungen</div><div class="t-list">${g.dataset.names.split(' · ').map(esc).join('<br>')}</div>`;
+      tip.classList.add('on'); move(e);
+    });
+    g.addEventListener('pointermove',move);
+    g.addEventListener('pointerleave',()=>tip.classList.remove('on'));
+  });
+  function move(e){ const pad=14; let xx=e.clientX+pad,yy=e.clientY+pad; const w=tip.offsetWidth||260,h=tip.offsetHeight||120;
+    if(xx+w>window.innerWidth) xx=e.clientX-w-pad; if(yy+h>window.innerHeight) yy=e.clientY-h-pad;
+    tip.style.left=xx+'px'; tip.style.top=yy+'px'; }
+})();
+</script>
+</body>
+</html>
