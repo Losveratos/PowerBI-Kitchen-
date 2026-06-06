@@ -170,6 +170,15 @@ table.rank .value { font-family:var(--mono); font-weight:700; color:var(--ink); 
     <p>Anthropic-CEO Dario Amodei bezifferte das Risiko zuletzt auf 25 %, dass es „richtig, richtig schlecht" läuft — und baut trotzdem weiter an immer leistungsfähigeren Modellen. Elon Musk nennt 10–20 %. Google-Chef Sundar Pichai gibt sich optimistisch, räumt aber ein, das zugrundeliegende Risiko sei „ziemlich hoch". Demis Hassabis und Sam Altman vermeiden konkrete Zahlen, bestätigen aber ein reales, nicht-vernachlässigbares Risiko.</p>
     <p>Anders gesagt: Die Anbieter der vielleicht wichtigsten Technologie unserer Zeit haben die Risikohinweise gleich selbst mitgeliefert. Das hat es in dieser Form bei kaum einer anderen Branche gegeben.</p>
 
+    <p>Ein Blick auf die <strong>Rollen</strong> zeigt allerdings eine überraschende Wendung: Die Hersteller warnen zwar — aber sie sind unterm Strich die <strong>Optimisten</strong>. Den höchsten Alarm schlägt die <strong>unabhängige Forschung</strong> (Ø ~52 %), während CEOs und Industrie deutlich tiefer liegen (Ø ~18 %) und die professionellen <strong>Prognostiker</strong> — deren Handwerk kalibrierte Vorhersagen sind — mit Abstand am skeptischsten bleiben (Median ~5,5 %). Sie warnen also, aber leiser als alle anderen.</p>
+
+    <figure class="figure">
+      <div class="figure-embed">
+        <iframe id="rollenFrame" class="data-frame" src="pdoom-rollen.html" title="p(doom) nach Rolle: Forschung, Industrie, Prognostiker" loading="lazy" scrolling="no"></iframe>
+      </div>
+      <figcaption class="figure-cap"><strong>Wer hat am meisten Angst?</strong> p(doom) nach Rolle, sortiert nach Gruppen-Durchschnitt — jeder Punkt eine Schätzung, der Balken der Mittelwert. Oben die unabhängige Forschung, darunter die bauende Industrie, ganz unten die kalibrierten Prognostiker. <em>Über die Punkte hovern für Person &amp; Jahr.</em> (Kleine Gruppen wie Politik mit n=1 nur eingeschränkt aussagekräftig.)</figcaption>
+    </figure>
+
     <h2>Menschen <em>ändern ihre Meinung</em></h2>
     <p>Diese Zahlen sind keine Naturkonstanten — sie verschieben sich, manchmal erheblich.</p>
     <p>Das wohl prominenteste Beispiel ist Geoffrey Hinton, einer der „Paten der KI". Als er 2023 Google verließ, nannte er rund 10 %. Mitte 2024 sprach er von einer „50-50-Chance", dass KI die Menschheit überflügelt. Ende 2024 nannte er, gesamtheitlich betrachtet, wieder 10–20 %. Dan Hendrycks, Direktor des Center for AI Safety, korrigierte seine Einschätzung innerhalb eines Jahres von etwa 20 % auf über 80 % nach oben.</p>
@@ -365,7 +374,7 @@ Wo läge eure Zahl? 👇
 <script>
   /* iFrame an die Höhe der eingebetteten Grafik anpassen */
   (function(){
-    var frames = [].slice.call(document.querySelectorAll('#pdoomFrame, #zeitFrame'));
+    var frames = [].slice.call(document.querySelectorAll('#pdoomFrame, #zeitFrame, #rollenFrame'));
     if(!frames.length) return;
     function sz(fr){
       try {
