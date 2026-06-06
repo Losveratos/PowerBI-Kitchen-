@@ -14,7 +14,7 @@
     background-size:22px 22px; min-height:100vh; display:flex; justify-content:center; padding:clamp(10px,2.5vw,40px); }
   .wrap{width:100%;max-width:1040px;position:relative;}
   svg{width:100%;height:auto;display:block;}
-  .pt{opacity:0;animation:pop .45s cubic-bezier(.2,.9,.3,1.2) forwards;animation-delay:var(--d);cursor:pointer;}
+  .pt{opacity:0;animation:pop .45s cubic-bezier(.2,.9,.3,1.2) forwards;animation-delay:var(--d);cursor:pointer;transform-box:fill-box;transform-origin:center;}
   .pt .mk{transition:transform .12s ease;}
   .pt:hover .mk{transform:scale(1.5);transform-box:fill-box;transform-origin:center;}
   .frame{opacity:0;animation:fade .8s ease .1s forwards;}
@@ -69,7 +69,7 @@ const x = yr => PL + (yr-Y0)/(Y1-Y0)*(PR-PL);
 const y = v  => AX - (v/100)*(AX-TOP);
 const SP=(PR-PL)/(Y1-Y0);
 
-function marker(cx,cy,b){ const c=colOf(b), r=6.2;
+function marker(cx,cy,b){ cx=+cx; cy=+cy; const c=colOf(b), r=6.2;
   if(b==='low')  return `<circle class="mk" cx="${cx}" cy="${cy}" r="${r}" fill="${c}" fill-opacity="0.9" stroke="#fff" stroke-width="1.4"/>`;
   if(b==='mid')  return `<path class="mk" d="M${cx},${cy-r-0.5} L${cx+r+0.5},${cy} L${cx},${cy+r+0.5} L${cx-r-0.5},${cy} Z" fill="${c}" fill-opacity="0.9" stroke="#fff" stroke-width="1.4"/>`;
   return `<path class="mk" d="M${cx},${cy-r-1.4} L${cx+r+0.6},${cy+r-1.4} L${cx-r-0.6},${cy+r-1.4} Z" fill="${c}" fill-opacity="0.92" stroke="#fff" stroke-width="1.4"/>`;

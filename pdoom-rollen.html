@@ -54,7 +54,7 @@ const BX=236, PR=1004, TOPY=158, LANEH=66, R=6;
 const axisY = TOPY + groups.length*LANEH + 14;
 const x = v => BX + (v/100)*(PR-BX);
 
-function marker(cx,cy,b){ const c=colOf(b);
+function marker(cx,cy,b){ cx=+cx; cy=+cy; const c=colOf(b);
   if(b==='low')  return `<circle class="mk" cx="${cx}" cy="${cy}" r="${R}" fill="${c}" fill-opacity="0.9" stroke="#fff" stroke-width="1.4"/>`;
   if(b==='mid')  return `<path class="mk" d="M${cx},${cy-R-0.5} L${cx+R+0.5},${cy} L${cx},${cy+R+0.5} L${cx-R-0.5},${cy} Z" fill="${c}" fill-opacity="0.9" stroke="#fff" stroke-width="1.4"/>`;
   return `<path class="mk" d="M${cx},${cy-R-1.4} L${cx+R+0.6},${cy+R-1.4} L${cx-R-0.6},${cy+R-1.4} Z" fill="${c}" fill-opacity="0.92" stroke="#fff" stroke-width="1.4"/>`;
