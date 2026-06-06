@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wie wahrscheinlich ist die KI-Apokalypse? · p(doom) · Daten-WG</title>
+<meta name="description" content="p(doom) ist die geschätzte Wahrscheinlichkeit, dass KI katastrophal endet. Die Schätzungen reichen von unter 0,01 % bis über 99 % – ein Überblick.">
+<style>
+:root {
+  --bg:#FAFAF5; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#1A1A1A; --ink-soft:#4A4A4A; --ink-mute:#6B6B6B; --black:#0A0A0A;
+  --line:#E5E2D8; --line-strong:#1A1A1A;
+  --accent:#117865; --accent-deep:#0A5A4D;
+  --low:#2A857A; --mid:#C9962E; --high:#8B2E2E; --qual:#8A8678;
+  --shadow-sm:0 1px 2px rgba(10,10,10,.04),0 1px 3px rgba(10,10,10,.06);
+  --shadow-md:0 4px 12px rgba(10,10,10,.08),0 2px 4px rgba(10,10,10,.06);
+  --radius-sm:6px; --radius:10px; --radius-lg:16px;
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Segoe UI Variable Small","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:var(--sans); font-size:16px; line-height:1.62; color:var(--ink); background:var(--bg);
+  background-image:radial-gradient(circle at 12% -5%,rgba(138,43,43,.05),transparent 35%),radial-gradient(circle at 95% 12%,rgba(17,120,101,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; min-height:100vh;
+}
+a { color:inherit; }
+.container { max-width:820px; margin:0 auto; padding:36px 28px 110px; }
+
+.back-link {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--ink-mute); text-decoration:none; padding:8px 14px; border:1px solid var(--line); border-radius:100px;
+  transition:all .15s ease; margin-bottom:40px;
+}
+.back-link:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+
+.post-eyebrow { display:inline-flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--high); margin-bottom:20px; }
+.post-eyebrow::before { content:''; width:28px; height:1px; background:var(--high); }
+.post-title { font-family:var(--serif); font-weight:300; font-size:clamp(2.1rem,5.5vw,3.6rem); line-height:1.05; letter-spacing:-0.025em; color:var(--black); margin-bottom:18px; }
+.post-title em { font-style:italic; font-weight:300; color:var(--high); }
+.post-dek { font-size:18px; color:var(--ink-soft); line-height:1.5; max-width:64ch; margin-bottom:24px; }
+.post-meta { display:flex; flex-wrap:wrap; gap:18px; align-items:center; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-mute); padding:16px 0 28px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:40px; }
+.post-meta strong { color:var(--ink); font-weight:600; }
+
+.prose h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.5rem,3.2vw,2rem); letter-spacing:-0.015em; color:var(--black); margin:52px 0 16px; line-height:1.15; }
+.prose h2 em { font-style:italic; color:var(--high); font-weight:500; }
+.prose p { margin-bottom:18px; color:var(--ink-soft); max-width:70ch; }
+.prose p strong { color:var(--ink); font-weight:600; }
+.prose ul { margin:0 0 20px; padding-left:0; list-style:none; max-width:70ch; }
+.prose ul li { position:relative; padding:8px 0 8px 26px; color:var(--ink-soft); border-bottom:1px solid var(--line); }
+.prose ul li:last-child { border-bottom:none; }
+.prose ul li::before { content:''; position:absolute; left:6px; top:16px; width:7px; height:7px; border-radius:50%; background:var(--high); }
+.prose ul li strong { color:var(--ink); font-weight:600; }
+
+.bigstat { display:grid; grid-template-columns:auto 1fr; gap:24px; align-items:center; background:linear-gradient(135deg,var(--bg-card) 0%,rgba(138,43,43,.05) 100%); border:1px solid var(--line); border-left:4px solid var(--high); border-radius:var(--radius-lg); padding:26px 30px; margin:36px 0; }
+.bigstat-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:clamp(2rem,6vw,3.4rem); line-height:1; letter-spacing:-0.03em; color:var(--high); white-space:nowrap; }
+.bigstat-text { font-size:15px; color:var(--ink-soft); line-height:1.55; }
+.bigstat-text strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .bigstat { grid-template-columns:1fr; gap:12px; } }
+
+.figure { margin:32px 0 12px; }
+.figure-embed { border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-md); background:var(--bg-soft); }
+.figure-embed iframe { width:100%; border:0; display:block; aspect-ratio:1040 / 845; }
+.figure-cap { font-family:var(--mono); font-size:11px; letter-spacing:0.04em; color:var(--ink-mute); margin-top:12px; padding-left:2px; line-height:1.5; }
+.figure-cap strong { color:var(--ink-soft); }
+
+/* Tabelle */
+.rank-wrap { margin:28px 0 8px; border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-sm); }
+.rank-scroll { max-height:540px; overflow:auto; }
+table.rank { width:100%; border-collapse:collapse; font-size:14px; }
+table.rank thead th { position:sticky; top:0; font-family:var(--mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-mute); text-align:left; padding:12px 16px; background:var(--bg-soft); border-bottom:1px solid var(--line); }
+table.rank thead th:last-child, table.rank tbody td:last-child { text-align:right; }
+table.rank tbody td { padding:10px 16px; border-bottom:1px solid var(--line); color:var(--ink-soft); }
+table.rank tbody tr:last-child td { border-bottom:none; }
+table.rank tbody tr:hover td { background:var(--bg-soft); }
+table.rank .country { color:var(--ink); font-weight:600; }
+table.rank .value { font-family:var(--mono); font-weight:700; color:var(--ink); white-space:nowrap; }
+.grp { display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:10.5px; font-weight:700; color:var(--ink-soft); }
+.grp::before { content:''; width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.grp.low::before { background:var(--low); }
+.grp.mid::before { background:var(--mid); }
+.grp.high::before { background:var(--high); }
+.grp.qual::before { background:var(--qual); }
+
+/* LinkedIn-Fassung */
+.li-card { border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-sm); margin:22px 0; background:var(--bg-card); }
+.li-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; background:var(--bg-soft); border-bottom:1px solid var(--line); }
+.li-title { font-family:var(--mono); font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-mute); display:inline-flex; align-items:center; gap:8px; }
+.li-title::before { content:'in'; font-family:var(--serif); font-weight:700; font-size:11px; color:#fff; background:#0A66C2; border-radius:3px; padding:1px 4px; letter-spacing:0; }
+.li-body { margin:0; padding:18px 20px; font-family:var(--sans); font-size:14.5px; line-height:1.6; color:var(--ink); white-space:pre-wrap; word-break:break-word; max-height:420px; overflow:auto; }
+.copy-btn { display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); background:var(--bg-card); border:1px solid var(--accent); border-radius:100px; padding:6px 14px; cursor:pointer; transition:all .15s ease; }
+.copy-btn:hover { background:var(--accent); color:#fff; }
+.copy-btn.copied { background:var(--low); color:#fff; border-color:var(--low); }
+.copy-btn svg { width:12px; height:12px; }
+.hashtags { font-family:var(--mono); font-size:12px; color:var(--accent); margin:6px 0 0; line-height:1.7; }
+
+/* Quellen */
+.src-box { background:var(--bg-soft); border:1px solid var(--line); border-left:4px solid var(--ink-mute); border-radius:var(--radius); padding:20px 24px; margin:28px 0; font-size:13.5px; color:var(--ink-soft); line-height:1.6; }
+.src-box h3 { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--black); margin-bottom:8px; }
+.src-box a { color:var(--accent); }
+
+/* CTA */
+.cta-card { display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; background:var(--black); color:#fff; border-radius:var(--radius-lg); padding:28px 32px; margin:52px 0 0; }
+.cta-card-text { max-width:46ch; }
+.cta-card-text .k { font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--mid); display:block; margin-bottom:8px; }
+.cta-card-text h3 { font-family:var(--serif); font-weight:500; font-size:1.35rem; color:#fff; margin:0 0 6px; }
+.cta-card-text p { color:rgba(255,255,255,.7); font-size:14px; margin:0; }
+.cta-btn { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--black); background:var(--mid); padding:13px 22px; border-radius:100px; text-decoration:none; white-space:nowrap; transition:filter .15s ease; }
+.cta-btn:hover { filter:brightness(1.08); }
+
+.post-foot { margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--ink-mute); line-height:1.6; }
+.post-foot a { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
+
+  <header>
+    <div class="post-eyebrow">Talks &amp; Post · KI-Risiko</div>
+    <h1 class="post-title">Wie wahrscheinlich ist die <em>KI-Apokalypse</em>?</h1>
+    <p class="post-dek">p(doom) ist die geschätzte Wahrscheinlichkeit, dass KI katastrophal endet. Die Schätzungen von Forschern, CEOs und Prognostikern reichen von unter 0,01 % bis über 99 % — ein Überblick über die Zahl, bei der sich die KI-Welt nicht einig wird.</p>
+    <div class="post-meta">
+      <span>Von <strong>Michael Tenner</strong></span>
+      <span>Stand · <strong>Juni 2026</strong></span>
+      <span>Datenbasis · <strong>54 Schätzungen (2011–2025)</strong></span>
+    </div>
+  </header>
+
+  <div class="prose">
+
+    <figure class="figure">
+      <div class="figure-embed">
+        <iframe id="pdoomFrame" class="data-frame" src="pdoom-spektrum.html" title="p(doom)-Spektrum: 54 öffentliche KI-Risikoschätzungen, 2011–2025" loading="lazy" scrolling="no"></iframe>
+      </div>
+      <figcaption class="figure-cap"><strong>Das p(doom)-Spektrum.</strong> Jeder Punkt ist eine öffentlich genannte Schätzung. Farbe nach Höhe (niedrig · mittel · hoch); gestrichelt: Median 22,5 % und Mittelwert 33,8 %. Quelle: u.&nbsp;a. Wikipedia, PauseAI, AI Impacts, XPT, Metaculus — Stand Juni 2026.</figcaption>
+    </figure>
+
+    <h2>Eine Zahl, die <em>alles und nichts</em> sagt</h2>
+    <p>Stellen Sie sich vor, Sie fragen die Menschen, die eine Technologie bauen, wie hoch die Wahrscheinlichkeit ist, dass genau diese Technologie die Menschheit auslöscht. In den meisten Branchen wäre die Antwort ein empörtes „Null". In der KI-Branche bekommen Sie Zahlen wie 10 %, 25 % — oder 90 %.</p>
+    <p>Diese Zahl hat sogar einen Namen: <strong>p(doom)</strong>, kurz für „probability of doom". Sie beschreibt die subjektiv geschätzte Wahrscheinlichkeit, dass fortgeschrittene Künstliche Intelligenz zu existenziell katastrophalen Folgen führt — von der Auslöschung der Menschheit über deren dauerhafte Entmachtung bis zum Zivilisationskollaps. Was als Insider-Kürzel in Forenkreisen begann, wurde 2023 nach dem Erscheinen von GPT-4 zum festen Begriff der öffentlichen Debatte.</p>
+    <p>Das Faszinierende daran: <strong>Es gibt keinen Konsens.</strong> Nicht annähernd.</p>
+
+    <h2>Eine Spannweite von <em>fast 0 bis fast 100 %</em></h2>
+    <div class="bigstat">
+      <div class="bigstat-num">0,01 % – 99,9 %</div>
+      <div class="bigstat-text">So weit liegen die Schätzungen auseinander. Legt man die öffentlich genannten Werte nebeneinander, ergibt sich kein Mittelwert, um den herum sich alle scharen — sondern ein Spektrum, das praktisch die <strong>gesamte Wahrscheinlichkeitsskala</strong> abdeckt. Grob lassen sich drei Lager unterscheiden.</div>
+    </div>
+    <p><strong>Die Skeptiker</strong> halten das Risiko für vernachlässigbar. Yann LeCun, lange Chef-KI-Wissenschaftler bei Meta, beziffert es auf unter 0,01 % — seiner Einschätzung nach unwahrscheinlicher als ein tödlicher Asteroideneinschlag. Investor Marc Andreessen liegt nahe null.</p>
+    <p><strong>Die Mitte</strong> wird vor allem von breit angelegten Umfragen markiert. In der bislang größten Erhebung von AI Impacts (2023) antworteten 2.778 KI-Forschende: Der Median lag bei 5 %, der Mittelwert bei rund 14 %. Professionelle Prognostiker („Superforecaster") kamen in einer separaten Studie sogar nur auf 0,38 % für eine KI-bedingte Auslöschung; befragte Fachexperten lagen bei etwa 3 %. Die Prognoseplattform Metaculus verortet das gesamte Auslöschungsrisiko bis 2100 bei rund 9 %, davon den Löwenanteil durch KI.</p>
+    <p><strong>Die Mahner</strong> sehen es deutlich düsterer. Eliezer Yudkowsky vom Machine Intelligence Research Institute nennt über 95 %, der Forscher Roman Yampolskiy sogar 99,99 %. Auch ernstzunehmende Stimmen aus dem Mainstream der Forschung liegen hoch: Daniel Kokotajlo (ehem. OpenAI) bei 70–80 %, der MIT-Physiker Max Tegmark bei über 90 %.</p>
+
+    <h2>Das eigentlich Ungewöhnliche: <em>Die Bauherren warnen selbst</em></h2>
+    <p>Was diese Debatte von vielen anderen Technologie-Diskussionen unterscheidet, ist die Herkunft der Warnungen. Es sind nicht nur externe Kritiker — es sind die <strong>Hersteller selbst</strong>.</p>
+    <p>Anthropic-CEO Dario Amodei bezifferte das Risiko zuletzt auf 25 %, dass es „richtig, richtig schlecht" läuft — und baut trotzdem weiter an immer leistungsfähigeren Modellen. Elon Musk nennt 10–20 %. Google-Chef Sundar Pichai gibt sich optimistisch, räumt aber ein, das zugrundeliegende Risiko sei „ziemlich hoch". Demis Hassabis und Sam Altman vermeiden konkrete Zahlen, bestätigen aber ein reales, nicht-vernachlässigbares Risiko.</p>
+    <p>Anders gesagt: Die Anbieter der vielleicht wichtigsten Technologie unserer Zeit haben die Risikohinweise gleich selbst mitgeliefert. Das hat es in dieser Form bei kaum einer anderen Branche gegeben.</p>
+
+    <h2>Menschen <em>ändern ihre Meinung</em></h2>
+    <p>Diese Zahlen sind keine Naturkonstanten — sie verschieben sich, manchmal erheblich.</p>
+    <p>Das wohl prominenteste Beispiel ist Geoffrey Hinton, einer der „Paten der KI". Als er 2023 Google verließ, nannte er rund 10 %. Mitte 2024 sprach er von einer „50-50-Chance", dass KI die Menschheit überflügelt. Ende 2024 nannte er, gesamtheitlich betrachtet, wieder 10–20 %. Dan Hendrycks, Direktor des Center for AI Safety, korrigierte seine Einschätzung innerhalb eines Jahres von etwa 20 % auf über 80 % nach oben.</p>
+    <p>Solche Sprünge sind keine Schwäche der Methode — sie zeigen, wie schnell neue Modellgenerationen die Erwartungen von Fachleuten verändern.</p>
+
+    <h2>Wie man diese Zahlen <em>lesen sollte</em></h2>
+    <p>So griffig p(doom) ist — ein paar Einschränkungen gehören dazu, sonst vergleicht man Äpfel mit Birnen:</p>
+    <ul>
+      <li><strong>Keine einheitliche Definition.</strong> Mal ist „doom" die Auslöschung, mal eine feindliche Machtübernahme, mal nur „sehr großer Schaden".</li>
+      <li><strong>Unterschiedliche Zeithorizonte.</strong> Manche meinen „in den nächsten 30 Jahren", andere „bis zum Jahr 2100".</li>
+      <li><strong>Bedingt vs. unbedingt.</strong> Einige Werte gelten nur unter der Annahme, dass überhaupt eine allgemeine KI (AGI) entsteht.</li>
+      <li><strong>Subjektivität.</strong> Es sind Einschätzungen, keine berechneten Frequenzen — schließlich gibt es keine historischen Daten zu ausgelöschten Zivilisationen.</li>
+    </ul>
+
+    <h2>Fazit</h2>
+    <p>Die ehrlichste Antwort auf die Frage „Wie wahrscheinlich ist die KI-Katastrophe?" lautet derzeit: <strong>Niemand weiß es genau — aber kaum jemand, der sich ernsthaft damit beschäftigt, hält die Wahrscheinlichkeit für null.</strong> Genau das ist die eigentliche Botschaft hinter der Zahlenflut. Selbst die optimistischen 5 % aus den großen Umfragen wären bei einer existenziellen Bedrohung kein Wert, den man achselzuckend hinnehmen würde. Es lohnt sich also weniger, auf die „richtige" Prozentzahl zu warten — und mehr, die Debatte darüber ernst zu nehmen, wie wir dieses Risiko klein halten.</p>
+
+    <h2>Die Rangliste · <em>54 Schätzungen</em></h2>
+    <p>Alle dokumentierten Werte, sortiert von hoch nach niedrig. Die Näherung in Prozent dient nur der Sortierung — bei Spannen ist es der Mittelwert, qualitative Aussagen („&gt;0&nbsp;%") bleiben ohne Zahl.</p>
+    <div class="rank-wrap">
+      <div class="rank-scroll">
+      <table class="rank">
+        <thead>
+          <tr><th>Person / Organisation</th><th>Kategorie</th><th>Jahr</th><th>Angabe</th><th>~ %</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="country">Roman Yampolskiy</td><td>Forschung</td><td>2024</td><td><span class="grp high">99,9-99,999999%</span></td><td class="value">99,9 %</td></tr>
+          <tr><td class="country">Eliezer Yudkowsky</td><td>Forschung</td><td>2023</td><td><span class="grp high">&gt;95%</span></td><td class="value">97 %</td></tr>
+          <tr><td class="country">Connor Leahy</td><td>Forschung/Industrie</td><td>2024</td><td><span class="grp high">90%+</span></td><td class="value">92 %</td></tr>
+          <tr><td class="country">Max Tegmark</td><td>Forschung</td><td>2025</td><td><span class="grp high">&gt;90%</span></td><td class="value">92 %</td></tr>
+          <tr><td class="country">Anna Salamon (laut Wikipedia-Sammlung)</td><td>Forschung</td><td>2024</td><td><span class="grp high">85%</span></td><td class="value">85 %</td></tr>
+          <tr><td class="country">Dan Hendrycks</td><td>Forschung</td><td>2023</td><td><span class="grp high">&gt;80%</span></td><td class="value">82 %</td></tr>
+          <tr><td class="country">Daniel Kokotajlo</td><td>Forschung</td><td>2025</td><td><span class="grp high">70-80%</span></td><td class="value">75 %</td></tr>
+          <tr><td class="country">Daniel Kokotajlo</td><td>Forschung</td><td>2023</td><td><span class="grp high">70%</span></td><td class="value">70 %</td></tr>
+          <tr><td class="country">Zvi Mowshowitz</td><td>Journalismus</td><td>2025</td><td><span class="grp high">70%</span></td><td class="value">70 %</td></tr>
+          <tr><td class="country">Zvi Mowshowitz</td><td>Journalismus</td><td>2023</td><td><span class="grp high">60%</span></td><td class="value">60 %</td></tr>
+          <tr><td class="country">Geoffrey Hinton</td><td>Forschung</td><td>2024</td><td><span class="grp high">&gt;50% (eigene Einschaetzung)</span></td><td class="value">55 %</td></tr>
+          <tr><td class="country">Holden Karnofsky</td><td>Forschung/Industrie</td><td>2022</td><td><span class="grp high">10-90%</span></td><td class="value">50 %</td></tr>
+          <tr><td class="country">Jan Leike</td><td>Forschung</td><td>2023</td><td><span class="grp high">10-90%</span></td><td class="value">50 %</td></tr>
+          <tr><td class="country">Geoffrey Hinton</td><td>Forschung</td><td>2024</td><td><span class="grp high">~50% (&#x27;50-50&#x27;)</span></td><td class="value">50 %</td></tr>
+          <tr><td class="country">Emad Mostaque</td><td>CEO/Industrie</td><td>2024</td><td><span class="grp high">50%</span></td><td class="value">50 %</td></tr>
+          <tr><td class="country">Paul Christiano</td><td>Forschung</td><td>2023</td><td><span class="grp mid">~46%</span></td><td class="value">46 %</td></tr>
+          <tr><td class="country">KI-Ingenieure (informelle Umfrage)</td><td>Umfrage</td><td>2023</td><td><span class="grp mid">40% (Mittelwert)</span></td><td class="value">40 %</td></tr>
+          <tr><td class="country">Eli Lifland</td><td>Prognose</td><td>2023</td><td><span class="grp mid">35%</span></td><td class="value">35 %</td></tr>
+          <tr><td class="country">Scott Alexander</td><td>Journalismus</td><td>2023</td><td><span class="grp mid">33%</span></td><td class="value">33 %</td></tr>
+          <tr><td class="country">KI-Sicherheitsforschende (44 Personen)</td><td>Umfrage</td><td>2021</td><td><span class="grp mid">30% (Mittelwert)</span></td><td class="value">30 %</td></tr>
+          <tr><td class="country">Shane Legg</td><td>Forschung</td><td>2011</td><td><span class="grp mid">5-50%</span></td><td class="value">27,5 %</td></tr>
+          <tr><td class="country">Emmett Shear</td><td>CEO/Industrie</td><td>2023</td><td><span class="grp mid">5-50%</span></td><td class="value">27,5 %</td></tr>
+          <tr><td class="country">Ajeya Cotra</td><td>Forschung</td><td>2023</td><td><span class="grp mid">20-30%</span></td><td class="value">25 %</td></tr>
+          <tr><td class="country">Dario Amodei</td><td>CEO/Industrie</td><td>2025</td><td><span class="grp mid">25%</span></td><td class="value">25 %</td></tr>
+          <tr><td class="country">Dan Hendrycks</td><td>Forschung</td><td>2023</td><td><span class="grp mid">~20%</span></td><td class="value">20 %</td></tr>
+          <tr><td class="country">Yoshua Bengio</td><td>Forschung</td><td>2023</td><td><span class="grp mid">~20%</span></td><td class="value">20 %</td></tr>
+          <tr><td class="country">Reid Hoffman</td><td>CEO/Industrie</td><td>2024</td><td><span class="grp mid">20%</span></td><td class="value">20 %</td></tr>
+          <tr><td class="country">Dario Amodei</td><td>CEO/Industrie</td><td>2023</td><td><span class="grp mid">10-25%</span></td><td class="value">17,5 %</td></tr>
+          <tr><td class="country">Lina Khan</td><td>Politik</td><td>2023</td><td><span class="grp mid">~15%</span></td><td class="value">15 %</td></tr>
+          <tr><td class="country">Elon Musk</td><td>CEO/Industrie</td><td>2024</td><td><span class="grp mid">10-20% (bis ~30%)</span></td><td class="value">15 %</td></tr>
+          <tr><td class="country">Geoffrey Hinton</td><td>Forschung</td><td>2024</td><td><span class="grp mid">10-20% (Gesamteinschaetzung)</span></td><td class="value">15 %</td></tr>
+          <tr><td class="country">Elon Musk</td><td>CEO/Industrie</td><td>2025</td><td><span class="grp mid">~10-20%</span></td><td class="value">15 %</td></tr>
+          <tr><td class="country">ML-Forschende (AI Impacts Survey 2023)</td><td>Umfrage</td><td>2024</td><td><span class="grp mid">5% (Median); 14,4% (Mittel)</span></td><td class="value">14,4 %</td></tr>
+          <tr><td class="country">ML-Forschende (AI Impacts Survey 2022)</td><td>Umfrage</td><td>2022</td><td><span class="grp mid">5% (Median); ~14% (Mittel)</span></td><td class="value">14 %</td></tr>
+          <tr><td class="country">Vitalik Buterin</td><td>CEO/Industrie</td><td>2025</td><td><span class="grp mid">12%</span></td><td class="value">12 %</td></tr>
+          <tr><td class="country">Toby Ord</td><td>Forschung</td><td>2020</td><td><span class="grp mid">10% (nur KI)</span></td><td class="value">10 %</td></tr>
+          <tr><td class="country">Geoffrey Hinton</td><td>Forschung</td><td>2023</td><td><span class="grp mid">~10%</span></td><td class="value">10 %</td></tr>
+          <tr><td class="country">Vitalik Buterin</td><td>CEO/Industrie</td><td>2023</td><td><span class="grp mid">10%</span></td><td class="value">10 %</td></tr>
+          <tr><td class="country">Lex Fridman</td><td>Journalismus</td><td>2024</td><td><span class="grp mid">10%</span></td><td class="value">10 %</td></tr>
+          <tr><td class="country">Sundar Pichai</td><td>CEO/Industrie</td><td>2025</td><td><span class="grp mid">~10%</span></td><td class="value">10 %</td></tr>
+          <tr><td class="country">Metaculus (Community-Aggregat)</td><td>Prognose</td><td>2025</td><td><span class="grp low">9% gesamt (~8 Pp. durch KI)</span></td><td class="value">8 %</td></tr>
+          <tr><td class="country">Nate Silver</td><td>Journalismus</td><td>2025</td><td><span class="grp low">5-10%</span></td><td class="value">7,5 %</td></tr>
+          <tr><td class="country">ML-Forschende (AI Impacts Expert Survey 2016)</td><td>Umfrage</td><td>2016</td><td><span class="grp low">5% (Median)</span></td><td class="value">5 %</td></tr>
+          <tr><td class="country">Kevin Roose</td><td>Journalismus</td><td>2023</td><td><span class="grp low">5%</span></td><td class="value">5 %</td></tr>
+          <tr><td class="country">KI-Domaenenexperten (XPT-Studie)</td><td>Prognose</td><td>2023</td><td><span class="grp low">3% (Ausloeschung) / 12% (Katastrophe)</span></td><td class="value">3 %</td></tr>
+          <tr><td class="country">Superforecaster (XPT-Studie)</td><td>Prognose</td><td>2023</td><td><span class="grp low">0,38%</span></td><td class="value">0,38 %</td></tr>
+          <tr><td class="country">Yann LeCun</td><td>Forschung/Industrie</td><td>2023</td><td><span class="grp low">&lt;0,01%</span></td><td class="value">0,01 %</td></tr>
+          <tr><td class="country">Marc Andreessen</td><td>CEO/Industrie</td><td>2023</td><td><span class="grp low">~0%</span></td><td class="value">0 %</td></tr>
+          <tr><td class="country">Sam Altman</td><td>CEO/Industrie</td><td>2015</td><td><span class="grp qual">&gt;0% (qualitativ)</span></td><td class="value">—</td></tr>
+          <tr><td class="country">Sam Altman</td><td>CEO/Industrie</td><td>2023</td><td><span class="grp qual">&gt;0% (qualitativ)</span></td><td class="value">—</td></tr>
+          <tr><td class="country">Stuart Russell</td><td>Forschung</td><td>2023</td><td><span class="grp qual">qualitativ (keine %-Zahl)</span></td><td class="value">—</td></tr>
+          <tr><td class="country">Jaan Tallinn</td><td>CEO/Industrie</td><td>2023</td><td><span class="grp qual">qualitativ (hoch)</span></td><td class="value">—</td></tr>
+          <tr><td class="country">Demis Hassabis</td><td>CEO/Industrie</td><td>2024</td><td><span class="grp qual">&gt;0% (qualitativ)</span></td><td class="value">—</td></tr>
+          <tr><td class="country">Sam Altman</td><td>CEO/Industrie</td><td>2025</td><td><span class="grp qual">&gt;0% (lehnt Zahl ab)</span></td><td class="value">—</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="src-box">
+      <h3>Quellenhinweis</h3>
+      <p style="margin:0;">Zahlen und Belege stammen aus der begleitenden Datentabelle (54 dokumentierte Schätzungen, 2011–2025). Zentrale Sammelquellen: <a href="https://en.wikipedia.org/wiki/P(doom)" target="_blank" rel="noopener">Wikipedia („P(doom)")</a>, <a href="https://pauseai.info/pdoom" target="_blank" rel="noopener">PauseAI</a>, <a href="https://aiimpacts.org/" target="_blank" rel="noopener">AI Impacts Expert Surveys</a>, Forecasting Research Institute (XPT) sowie Berichterstattung u.&nbsp;a. von Axios, Business Insider, ABC News und Fast Company. Stand: Juni 2026. Werte sind Momentaufnahmen öffentlicher Aussagen und können sich ändern — für Veröffentlichungen bitte die Primärquellen prüfen.</p>
+    </div>
+
+    <h2>Für LinkedIn: <em>zum direkten Posten</em></h2>
+    <p>Kürzer und hook-orientiert. Zeilenumbrüche bewusst gesetzt für gute Lesbarkeit im Feed — einmal kopieren und einfügen.</p>
+
+    <div class="li-card">
+      <div class="li-head">
+        <span class="li-title">LinkedIn-Post · Langfassung</span>
+        <button class="copy-btn" type="button" data-copy="#liLongRaw" data-target="#liLong" aria-label="Langfassung kopieren">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          <span class="copy-btn-label">Kopieren</span>
+        </button>
+      </div>
+      <pre class="li-body" id="liLong">Lade Text …</pre>
+    </div>
+
+    <div class="li-card">
+      <div class="li-head">
+        <span class="li-title">LinkedIn-Post · Kurzfassung</span>
+        <button class="copy-btn" type="button" data-copy="#liShortRaw" data-target="#liShort" aria-label="Kurzfassung kopieren">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          <span class="copy-btn-label">Kopieren</span>
+        </button>
+      </div>
+      <pre class="li-body" id="liShort">Lade Text …</pre>
+    </div>
+
+    <p class="hashtags">#KünstlicheIntelligenz #AISafety #pdoom #ArtificialIntelligence #Tech #Zukunft #KI<br>
+    <span style="color:var(--ink-mute);">Alternativen: #AI · #MachineLearning · #AIRisk · #Technologie · #Innovation · #FutureOfWork · #AGI</span></p>
+
+  </div><!-- /prose -->
+
+  <div class="cta-card">
+    <div class="cta-card-text">
+      <span class="k">Mehr aus der Daten-WG</span>
+      <h3>Talk: Morally Aligned AI · Daten Grillen '26</h3>
+      <p>Vom KI-Risiko zur KI-Ethik — der Vortrag über moralisch ausgerichtete KI.</p>
+    </div>
+    <a class="cta-btn" href="morally_aligned_ai.html">Zum Talk →</a>
+  </div>
+
+  <div class="post-foot">
+    Datenbasis: 54 dokumentierte p(doom)-Schätzungen (2011–2025) · Stand Juni 2026 · Recherche &amp; Aufbereitung mit Claude.<br>
+    Privates Projekt von Michael Tenner · <a href="index.html">← Knowledge Kitchen</a>
+  </div>
+
+</div><!-- /container -->
+
+<!-- LinkedIn-Texte: nicht ausgefuehrte Scripts => Inhalt bleibt 1:1 als Text erhalten -->
+<script type="text/plain" id="liLongRaw">Wie hoch ist die Wahrscheinlichkeit, dass KI die Menschheit auslöscht?
+
+Ich habe 54 öffentliche Schätzungen von Forschern, CEOs und Prognostikern zusammengetragen. Das Ergebnis ist erstaunlich – nicht wegen der Höhe der Zahlen, sondern wegen ihrer Uneinigkeit. 👇
+
+In der Fachwelt nennt man diese Zahl „p(doom)" – die geschätzte Wahrscheinlichkeit eines katastrophalen KI-Ausgangs.
+
+Und sie reicht von praktisch 0 bis praktisch 100 %:
+
+🔹 Yann LeCun (Ex-Meta): unter 0,01 %
+🔹 Große Forschenden-Umfrage (2.778 Personen): Median 5 %, Mittel ~14 %
+🔹 Dario Amodei (CEO Anthropic): 25 %
+🔹 Elon Musk: 10–20 %
+🔹 Daniel Kokotajlo (Ex-OpenAI): 70–80 %
+🔹 Eliezer Yudkowsky: über 95 %
+
+Das eigentlich Bemerkenswerte:
+Es sind nicht nur Kritiker, die warnen – es sind die Hersteller selbst.
+
+Die Anbieter der wohl wichtigsten Technologie unserer Zeit liefern die Risikohinweise gleich mit. Das gab es in dieser Form bei kaum einer anderen Branche.
+
+Und die Zahlen bewegen sich: Geoffrey Hinton ging von ~10 % (2023) über „50-50" auf zuletzt 10–20 %. Dan Hendrycks korrigierte innerhalb eines Jahres von 20 % auf über 80 %.
+
+Wichtig bleibt: Diese Werte sind nur eingeschränkt vergleichbar – andere Definitionen, andere Zeithorizonte, viel Subjektivität.
+
+Aber eine Botschaft eint sie fast alle:
+Kaum jemand, der sich ernsthaft damit befasst, hält die Wahrscheinlichkeit für null.
+
+Wo würdet ihr eure Zahl ansetzen – und warum?
+
+#KünstlicheIntelligenz #AISafety #pdoom #ArtificialIntelligence #Tech #Zukunft #KI</script>
+
+<script type="text/plain" id="liShortRaw">Wie wahrscheinlich ist es, dass KI katastrophal endet?
+
+Ich habe 54 öffentliche Schätzungen verglichen. Die Spannweite: von unter 0,01 % (Yann LeCun) bis über 99 % (Roman Yampolskiy). Die große Forschenden-Umfrage liegt im Median bei 5 %, Anthropic-CEO Dario Amodei bei 25 %.
+
+Das Auffälligste: Es sind nicht nur Kritiker, die warnen – es sind die Hersteller selbst.
+
+Wo läge eure Zahl? 👇
+
+#KünstlicheIntelligenz #AISafety #pdoom #KI</script>
+
+<script>
+  /* iFrame an die Höhe der eingebetteten Grafik anpassen */
+  (function(){
+    var fr = document.getElementById('pdoomFrame');
+    if(!fr) return;
+    function sz(){
+      try {
+        var d = fr.contentDocument || (fr.contentWindow && fr.contentWindow.document);
+        if (d && d.body) {
+          var h = Math.max(d.body.scrollHeight, d.documentElement.scrollHeight);
+          if (h > 200) fr.style.height = h + 'px';
+        }
+      } catch(e){ /* fallback: aspect-ratio aus CSS */ }
+    }
+    fr.addEventListener('load', function(){ sz(); setTimeout(sz,250); setTimeout(sz,800); });
+    window.addEventListener('resize', function(){ clearTimeout(window.__szT); window.__szT = setTimeout(sz,150); });
+  })();
+
+  /* Copy-Blöcke: Rohtext aus <script type=text/plain> in <pre> schreiben + Kopieren */
+  (function(){
+    var btns = [].slice.call(document.querySelectorAll('.copy-btn[data-copy]'));
+    btns.forEach(function(btn){
+      var raw = document.querySelector(btn.getAttribute('data-copy'));
+      var out = document.querySelector(btn.getAttribute('data-target'));
+      if(!raw || !out) return;
+      var text = raw.textContent.replace(/^\n/, '');
+      out.textContent = text;
+      var label = btn.querySelector('.copy-btn-label');
+      btn.addEventListener('click', function(){
+        function done(){
+          btn.classList.add('copied');
+          if(label) label.textContent = 'Kopiert ✓';
+          setTimeout(function(){ btn.classList.remove('copied'); if(label) label.textContent = 'Kopieren'; }, 1800);
+        }
+        function fallback(){
+          var ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+          document.body.appendChild(ta); ta.select();
+          try{ document.execCommand('copy'); done(); }catch(e){}
+          document.body.removeChild(ta);
+        }
+        if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(fallback); }
+        else { fallback(); }
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

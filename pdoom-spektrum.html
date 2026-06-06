@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>p(doom) — Das Spektrum der KI-Risikoschätzungen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#f4f1e8; --ink:#13233b; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:radial-gradient(rgba(19,35,59,.03) 1px,transparent 1px);
+    background-size:22px 22px;
+    min-height:100vh;display:flex;justify-content:center;
+    padding:clamp(10px,2.5vw,40px);
+  }
+  .wrap{width:100%;max-width:1040px;}
+  svg{width:100%;height:auto;display:block;opacity:0;animation:fade .7s ease .1s forwards;}
+  @keyframes fade{to{opacity:1;}}
+  @media (prefers-reduced-motion: reduce){ svg{animation:none;opacity:1;} }
+  .hl{font-family:'Anton',sans-serif;fill:var(--ink);letter-spacing:.5px;}
+  .nm{font-family:'Archivo',sans-serif;font-weight:700;fill:var(--ink);}
+  .vl{font-family:'Archivo',sans-serif;font-weight:800;fill:var(--ink);}
+  .sub2{font-family:'Archivo',sans-serif;font-weight:700;fill:var(--ink);letter-spacing:.8px;}
+  text{dominant-baseline:alphabetic;}
+</style>
+</head>
+<body>
+<div class="wrap"><div id="map"></div></div>
+<script>
+const LOW="#2A857A", MID="#C9962E", HIGH="#8B2E2E", INK="#13233b", MUT="#7c8794";
+const fmt = v => (v%1===0? v.toFixed(0) : v.toFixed(1).replace(".",","));
+
+/* Plot-Geometrie */
+const PL=60, PR=1010, AX=720, SWY=470, SW_TOP=332, SW_BOT=690;
+const x = v => PL + (v/100)*(PR-PL);
+const band = v => v<10?LOW : (v<50?MID:HIGH);
+
+/* 48 numerische p(doom)-Werte (%) — 6 rein qualitative Angaben sind nicht abgebildet */
+const VALUES = [27.5,5,10,30,50,14,20,46,10,0,20,0.38,3,25,5,33,35,97,17.5,82,50,27.5,15,60,10,70,0.01,40,10,14.4,99.9,15,50,55,20,92,15,50,7.5,8,75,92,10,15,12,70,25,85];
+const MEDIAN=22.5, MEAN=33.83;
+
+/* ---------- Beeswarm-Platzierung ---------- */
+const STEP=15.5, MINDX=15, MINDY=15, R=7;
+const offsets=[0]; for(let i=1;i<46;i++){ offsets.push(i*STEP); offsets.push(-i*STEP); }
+const placed=[];
+[...VALUES].sort((a,b)=>a-b).forEach(v=>{
+  const px=x(v);
+  let py=SWY;
+  for(const o of offsets){
+    const cand=SWY+o;
+    if(cand<SW_TOP||cand>SW_BOT) continue;
+    let ok=true;
+    for(const p of placed){ if(Math.abs(p.x-px)<MINDX && Math.abs(p.y-cand)<MINDY){ ok=false; break; } }
+    if(ok){ py=cand; break; }
+  }
+  placed.push({x:px,y:py,c:band(v),v});
+});
+let dots = placed.map(p=>
+  `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${R}" fill="${p.c}" fill-opacity="0.88" stroke="#fff" stroke-width="1.5"/>`
+).join("");
+
+/* ---------- Zonen-Bänder ---------- */
+const zones =
+  `<rect x="${x(0)}"  y="${SW_TOP-8}" width="${x(10)-x(0)}"   height="${AX-SW_TOP+8}" fill="${LOW}"  opacity="0.06"/>`+
+  `<rect x="${x(10)}" y="${SW_TOP-8}" width="${x(50)-x(10)}"  height="${AX-SW_TOP+8}" fill="${MID}"  opacity="0.06"/>`+
+  `<rect x="${x(50)}" y="${SW_TOP-8}" width="${x(100)-x(50)}" height="${AX-SW_TOP+8}" fill="${HIGH}" opacity="0.06"/>`;
+
+/* ---------- Achse ---------- */
+const ticks=[0,10,25,50,75,100];
+let axis = `<line x1="${PL}" y1="${AX}" x2="${PR}" y2="${AX}" stroke="${INK}" stroke-width="2"/>`;
+axis += ticks.map(t=>
+  `<line x1="${x(t)}" y1="${SW_TOP-8}" x2="${x(t)}" y2="${AX}" stroke="${INK}" stroke-width="1" opacity="0.10"/>`+
+  `<line x1="${x(t)}" y1="${AX}" x2="${x(t)}" y2="${AX+7}" stroke="${INK}" stroke-width="2"/>`+
+  `<text class="nm" x="${x(t)}" y="${AX+26}" font-size="14" text-anchor="middle" fill="${INK}">${t}%</text>`
+).join("");
+axis += `<text class="sub2" x="${(PL+PR)/2}" y="${AX+52}" font-size="11.5" text-anchor="middle" fill="${MUT}">p(doom) — GESCHÄTZTE WAHRSCHEINLICHKEIT EINER KI-KATASTROPHE</text>`;
+
+/* ---------- Median / Mittelwert ---------- */
+function statLine(v,label,sub){
+  const px=x(v);
+  return `<line x1="${px}" y1="166" x2="${px}" y2="${AX}" stroke="${INK}" stroke-width="2" stroke-dasharray="7 6" opacity="0.5"/>`+
+         `<text class="sub2" x="${px}" y="158" font-size="11" text-anchor="middle" fill="${INK}">${label}</text>`+
+         `<text class="hl"  x="${px}" y="${AX-8}" font-size="0" fill="none">${sub}</text>`;
+}
+const stats = statLine(MEDIAN,'MEDIAN 22,5 %','') + statLine(MEAN,'Ø 33,8 %','');
+
+/* ---------- Annotations-Rail (Schlüsselpersonen) ---------- */
+const LAB=[
+ {v:0.01,t:'LeCun · <0,01 %'},
+ {v:5,   t:'Große Umfrage · Median 5 %'},
+ {v:15,  t:'Musk · 10–20 %'},
+ {v:25,  t:'Amodei · 25 %'},
+ {v:50,  t:'Hinton · „50-50"'},
+ {v:75,  t:'Kokotajlo · 70–80 %'},
+ {v:92,  t:'Tegmark · >90 %'},
+ {v:97,  t:'Yudkowsky · >95 %'},
+ {v:99.9,t:'Yampolskiy · 99,9 %'},
+];
+const ROWY=[300,266,232,198];
+const rowRight=[];
+let rail="";
+LAB.sort((a,b)=>a.v-b.v).forEach(d=>{
+  const px=x(d.v);
+  const w=d.t.length*6.5+16;
+  let anchor='middle';
+  if(px<150) anchor='start'; else if(px>915) anchor='end';
+  const left = anchor==='start'? px : (anchor==='end'? px-w : px-w/2);
+  const right = left+w;
+  let row=0;
+  for(; row<ROWY.length; row++){ if((rowRight[row]??-9999) < left-12) break; }
+  if(row>=ROWY.length) row=ROWY.length-1;
+  rowRight[row]=right;
+  const ly=ROWY[row];
+  rail += `<line x1="${px}" y1="${ly+6}" x2="${px}" y2="${AX}" stroke="${INK}" stroke-width="1" opacity="0.16"/>`;
+  rail += `<circle cx="${px}" cy="${ly+6}" r="2.6" fill="${INK}"/>`;
+  rail += `<rect x="${(left-7).toFixed(1)}" y="${ly-13}" width="${(w+14).toFixed(1)}" height="20" rx="5" fill="#fff" stroke="${INK}" stroke-width="0.8" opacity="0.96"/>`;
+  rail += `<text class="nm" x="${anchor==='start'?left: anchor==='end'?right: px}" y="${ly+1}" font-size="11.5" text-anchor="${anchor==='start'?'start':anchor==='end'?'end':'middle'}" fill="${INK}">${d.t}</text>`;
+});
+
+/* ---------- Kopf + Legende ---------- */
+const head = `
+ <text class="hl" x="40" y="74"  font-size="58">p(doom)</text>
+ <text class="sub2" x="42" y="102" font-size="12.5" fill="${INK}">DIE GESCHÄTZTE WAHRSCHEINLICHKEIT EINER KI-KATASTROPHE</text>
+ <text class="sub2" x="42" y="120" font-size="12.5" fill="${MUT}">54 ÖFFENTLICHE SCHÄTZUNGEN · 2011–2025</text>
+`;
+const legend = `
+ <rect x="712" y="34" width="296" height="104" rx="12" fill="#fff" stroke="${INK}" stroke-width="1.5" opacity="0.95"/>
+ <text class="sub2" x="730" y="56" font-size="10.5" fill="${MUT}">WAHRSCHEINLICHKEIT p(doom)</text>
+ <circle cx="736" cy="74" r="6.5" fill="${LOW}"  stroke="#fff" stroke-width="1.5"/><text class="nm" x="750" y="78" font-size="12">Niedrig <tspan fill="${MUT}">· &lt; 10 %</tspan></text>
+ <circle cx="736" cy="96" r="6.5" fill="${MID}"  stroke="#fff" stroke-width="1.5"/><text class="nm" x="750" y="100" font-size="12">Mittel <tspan fill="${MUT}">· 10–50 %</tspan></text>
+ <circle cx="736" cy="118" r="6.5" fill="${HIGH}" stroke="#fff" stroke-width="1.5"/><text class="nm" x="750" y="122" font-size="12">Hoch <tspan fill="${MUT}">· &gt; 50 %</tspan></text>
+ <text class="sub2" x="900" y="78" font-size="9.5" fill="${MUT}">JEDER PUNKT</text>
+ <text class="sub2" x="900" y="92" font-size="9.5" fill="${MUT}">= EINE SCHÄTZUNG</text>
+ <text class="sub2" x="900" y="118" font-size="9.5" fill="${MUT}">48 MIT WERT</text>
+`;
+const source = `<text class="sub2" x="40" y="800" font-size="11" fill="${MUT}">QUELLE: WIKIPEDIA · PAUSEAI · AI IMPACTS · FORECASTING RESEARCH INSTITUTE (XPT) · METACULUS — 54 SCHÄTZUNGEN, STAND JUNI 2026</text>`;
+
+document.getElementById('map').innerHTML =
+ `<svg viewBox="0 0 1040 820" xmlns="http://www.w3.org/2000/svg">
+    ${head}${legend}${zones}${axis}${stats}${dots}${rail}${source}
+  </svg>`;
+</script>
+</body>
+</html>
