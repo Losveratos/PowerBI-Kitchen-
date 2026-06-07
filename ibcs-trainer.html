@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IBCS-Trainer — visuelle Regeln spielerisch lernen</title>
+<style>
+  :root{
+    --ink:#1c1c1c;--soft:#4c4c4c;--mute:#7d8488;
+    --rule:#e4e6e8;--bg:#eceef0;--card:#fff;--band:#16314e;
+    --ac:#3f3f3f;--py:#bdbdbd;
+    --pos:#5e9c33;--neg:#c43c2f;--neu:#2f6fb2;
+    --ok:#2e8b3d;--bad:#c43c2f;--warn:#e2a32f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.5;padding:26px 14px;display:flex;justify-content:center}
+  .app{width:100%;max-width:760px}
+  .band{background:var(--band);color:#fff;border-radius:12px 12px 0 0;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;gap:14px}
+  .band .t{font-size:19px;font-weight:700}
+  .band .s{font-size:11.5px;color:#bfd0e1;margin-top:2px}
+  .badge{font-weight:700;letter-spacing:.06em;background:#fff;color:var(--band);border-radius:7px;padding:6px 11px;flex:none}
+  .sheet{background:var(--card);border:1px solid #dfe2e5;border-top:none;border-radius:0 0 12px 12px;box-shadow:0 18px 44px -26px rgba(0,0,0,.35);padding:20px 24px 24px}
+
+  .progress{height:6px;background:#eef0f2;border-radius:99px;overflow:hidden;margin-bottom:4px}
+  .progress>i{display:block;height:100%;width:0;background:var(--neu);transition:width .3s ease}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mute);margin:8px 0 12px}
+  .chips{display:flex;gap:8px}
+  .chip{background:#f3f5f6;border:1px solid var(--rule);border-radius:99px;padding:3px 10px;font-weight:600;color:var(--soft)}
+  .chip b{color:var(--ink)}
+
+  .timerwrap{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .timer{flex:1;height:6px;background:#eef0f2;border-radius:99px;overflow:hidden}
+  .timer>i{display:block;height:100%;width:100%;background:var(--neu);transition:width .08s linear}
+  .tsec{font-size:12px;font-weight:700;color:var(--soft);min-width:36px;text-align:right}
+
+  .cat{display:inline-block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:#fff;background:#5b6b7c;border-radius:6px;padding:3px 9px;margin-bottom:10px}
+  .q{font-size:17px;font-weight:700;margin:0 0 12px}
+  .stage{display:flex;justify-content:center;background:#fafbfc;border:1px solid var(--rule);border-radius:10px;padding:14px;margin-bottom:16px}
+  .stage svg{display:block}
+
+  .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
+  .opt{display:flex;flex-direction:column;align-items:center;gap:7px;justify-content:center;border:1.6px solid var(--rule);border-radius:10px;background:#fff;padding:13px 12px;cursor:pointer;font-size:14px;color:var(--ink);text-align:center;transition:border-color .15s,background .15s,box-shadow .15s;min-height:58px}
+  .opt:hover{border-color:#aeb6bd;background:#fbfcfd}
+  .opt .otext{font-weight:600}
+  .opt .ocap{font-size:12px;color:var(--soft);font-weight:600}
+  .opt svg{display:block}
+  .opt .cswatch{width:46px;height:30px;border-radius:5px;border:1px solid rgba(0,0,0,.08)}
+  .opt[disabled]{cursor:default}
+  .opt.correct{border-color:var(--ok);background:#f0f8f1;box-shadow:0 0 0 1px var(--ok) inset}
+  .opt.wrong{border-color:var(--bad);background:#fbf0ef;box-shadow:0 0 0 1px var(--bad) inset}
+  .opt .mark{font-weight:800;font-size:13px}
+  .opt.correct .mark{color:var(--ok)} .opt.wrong .mark{color:var(--bad)}
+
+  .fb{margin-top:15px;border-radius:10px;padding:13px 15px;font-size:13.5px;display:none}
+  .fb.show{display:block;animation:rise .25s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  .fb.ok{background:#eef7ef;border:1px solid #cfe6d3}
+  .fb.no{background:#fbf0ef;border:1px solid #efcfcc}
+  .fb .h{font-weight:700;margin-bottom:2px}
+  .fb.ok .h{color:var(--ok)} .fb.no .h{color:var(--bad)}
+
+  .row{display:flex;justify-content:flex-end;margin-top:16px}
+  button.btn{font:inherit;font-weight:700;border:none;border-radius:9px;padding:11px 20px;cursor:pointer;background:var(--band);color:#fff;transition:filter .15s}
+  button.btn:hover{filter:brightness(1.12)}
+  button.ghost{background:#eef0f2;color:var(--ink)}
+
+  .intro p{font-size:13.5px;color:var(--soft);margin:0 0 14px}
+  .modes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0 12px}
+  @media(max-width:560px){.modes{grid-template-columns:1fr}}
+  .modebtn{text-align:left;border:1.6px solid var(--rule);border-radius:11px;background:#fff;padding:15px 16px;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .1s}
+  .modebtn:hover{border-color:var(--band);box-shadow:0 8px 20px -14px rgba(0,0,0,.3);transform:translateY(-1px)}
+  .modebtn .mt{font-size:16px;font-weight:800;color:var(--band)}
+  .modebtn .md{font-size:12px;color:var(--soft);margin-top:3px}
+  .toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--soft);font-weight:600;margin:2px 0 8px;cursor:pointer}
+  .toggle input{width:16px;height:16px;accent-color:var(--band)}
+  .hs{font-size:12px;color:var(--mute);margin-bottom:10px}
+
+  .endscore{font-size:34px;font-weight:800;text-align:center;margin:6px 0 2px}
+  .endtier{text-align:center;font-size:15px;font-weight:700;color:var(--neu);margin-bottom:4px}
+  .endsub{text-align:center;font-size:13px;color:var(--soft);margin-bottom:4px}
+  .endhs{text-align:center;font-size:13px;font-weight:700;color:var(--pos);margin-bottom:6px;min-height:18px}
+  .caphead{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);font-weight:700;margin:12px 0 7px}
+  .catbreak{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+  .catrow{display:grid;grid-template-columns:160px 1fr 42px;gap:9px;align-items:center;font-size:12px}
+  @media(max-width:520px){.catrow{grid-template-columns:120px 1fr 38px}}
+  .catname{color:var(--soft);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cattrack{height:9px;background:#eef0f2;border-radius:99px;overflow:hidden}
+  .cattrack>i{display:block;height:100%;width:0;transition:width .4s ease}
+  .catval{color:var(--mute);text-align:right;font-weight:600}
+
+  details.cheat{margin-top:4px}
+  details.cheat>summary{cursor:pointer;font-weight:700;color:var(--neu);font-size:13px;margin-bottom:8px;list-style:none}
+  details.cheat>summary::-webkit-details-marker{display:none}
+  details.cheat>summary::before{content:"▸ "}
+  details.cheat[open]>summary::before{content:"▾ "}
+  .sheetgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:6px 0 4px}
+  .scard{border:1px solid var(--rule);border-radius:9px;padding:11px;background:#fff}
+  .scard .lab{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--mute);font-weight:700;margin-bottom:8px}
+  .scard .item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--soft);margin:4px 0}
+  .scard .item b{color:var(--ink)}
+  .scard .sw{width:34px;height:22px;border-radius:4px;flex:none;border:1px solid rgba(0,0,0,.08)}
+  .hide{display:none}
+  .kbd{font-size:11px;color:var(--mute);margin-top:10px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="band">
+    <div><div class="t">IBCS-Trainer</div><div class="s">Die wichtigsten visuellen Regeln spielerisch lernen</div></div>
+    <div class="badge">IBCS</div>
+  </div>
+  <div class="sheet">
+
+    <!-- Start -->
+    <div id="screen-start">
+      <div class="intro"><p>Zwei Modi: <b>Quiz</b> (25 Fragen quer durch die Regeln) oder <b>Finde den Verstoß</b> (fehlerhafte Charts erkennen). Mit Zeitdruck und Punkten für den Highscore – oder ohne Timer in Ruhe lernen. Am Ende: Trefferquote je Thema und eine Fehler-Runde zum Nachüben.</p></div>
+      <div class="modes">
+        <button class="modebtn" onclick="startGame('quiz')"><div class="mt">Quiz</div><div class="md">25 Fragen quer durch alle IBCS-Regeln</div></button>
+        <button class="modebtn" onclick="startGame('violation')"><div class="mt">Finde den Verstoß</div><div class="md">8 fehlerhafte Charts – erkenne den IBCS-Verstoß</div></button>
+      </div>
+      <label class="toggle"><input type="checkbox" id="timerToggle" checked> Mit Zeit &amp; Punkten spielen (Highscore)</label>
+      <div class="hs" id="hs"></div>
+      <details class="cheat"><summary>Spickzettel anzeigen</summary><div id="cheatBox1"></div></details>
+    </div>
+
+    <!-- Quiz -->
+    <div id="screen-quiz" class="hide">
+      <div class="progress"><i id="bar"></i></div>
+      <div class="statusbar">
+        <span id="qcount">Frage 1 / 25</span>
+        <span class="chips"><span class="chip">Punkte <b id="score">0</b></span><span class="chip">Serie <b id="streak">0</b></span></span>
+      </div>
+      <div class="timerwrap hide" id="timerwrap"><div class="timer"><i id="tbar"></i></div><span class="tsec" id="tsec"></span></div>
+      <span class="cat" id="cat"></span>
+      <h2 class="q" id="prompt"></h2>
+      <div class="stage hide" id="stage"></div>
+      <div class="opts" id="opts"></div>
+      <div class="fb" id="fb"></div>
+      <div class="row"><button class="btn hide" id="next" onclick="next()">Weiter →</button></div>
+      <div class="kbd">Tasten 1–4 zum Antworten, Enter für „Weiter".</div>
+    </div>
+
+    <!-- Ende -->
+    <div id="screen-end" class="hide">
+      <div class="endscore" id="endHead"></div>
+      <div class="endtier" id="endTier"></div>
+      <div class="endsub" id="endSub"></div>
+      <div class="endhs" id="endHS"></div>
+      <div class="caphead">Trefferquote je Thema</div>
+      <div class="catbreak" id="catbreak"></div>
+      <div class="row" style="justify-content:center;gap:10px;flex-wrap:wrap;margin:14px 0 4px">
+        <button class="btn" id="btnReview" onclick="startReview()">Fehler wiederholen</button>
+        <button class="btn" id="btnAgain" onclick="startGame(MODE)">Nochmal</button>
+        <button class="btn ghost" onclick="toStart()">Zurück zur Auswahl</button>
+      </div>
+      <details class="cheat" style="margin-top:14px"><summary>Spickzettel zur Wiederholung</summary><div id="cheatBox2"></div></details>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let UID=0;
+const C={ac:'#3f3f3f',py:'#bdbdbd',pos:'#5e9c33',neg:'#c43c2f',neu:'#2f6fb2',axis:'#9aa0a4',base:'#cfd3d6'};
+
+/* ---------- Basis-Notation ---------- */
+function colSwatch(kind,scale=1){
+  const W=70*scale,H=86*scale,bw=30*scale,bx=(W-bw)/2,top=14*scale,base=H-16*scale,h=base-top;
+  let fill,stroke='none',sw=0,defs='';
+  if(kind==='AC'){fill=C.ac;}
+  else if(kind==='PY'){fill=C.py;}
+  else if(kind==='PL'){fill='#ffffff';stroke=C.ac;sw=1.7;}
+  else{const id='h'+(++UID);
+    defs=`<defs><pattern id="${id}" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="${C.ac}" stroke-width="3"/></pattern></defs>`;
+    fill=`url(#${id})`;stroke=C.ac;sw=1.3;}
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${defs}<line x1="${8*scale}" y1="${base}" x2="${W-8*scale}" y2="${base}" stroke="${C.base}" stroke-width="1"/><rect x="${bx}" y="${top}" width="${bw}" height="${h}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/></svg>`;
+}
+function axisOnly(type,x,H){
+  if(type==='pl') return `<line x1="${x-1.4}" y1="3" x2="${x-1.4}" y2="${H-3}" stroke="${C.axis}" stroke-width="0.9"/><line x1="${x+1.4}" y1="3" x2="${x+1.4}" y2="${H-3}" stroke="${C.axis}" stroke-width="0.9"/>`;
+  if(type==='thick') return `<line x1="${x}" y1="3" x2="${x}" y2="${H-3}" stroke="${C.axis}" stroke-width="3.2"/>`;
+  return `<line x1="${x}" y1="3" x2="${x}" y2="${H-3}" stroke="${C.axis}" stroke-width="1.4"/>`;
+}
+function axisSwatch(type){const W=64,H=64;return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${axisOnly(type,W/2,H)}</svg>`;}
+function barSwatch(){const W=118,H=30,ax=W/2;return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${axisOnly('py',ax,H)}<rect x="${ax}" y="9" width="40" height="12" fill="${C.pos}"/></svg>`;}
+function pinSwatch(){const W=118,H=30,ax=W/2,xe=ax+42;return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${axisOnly('py',ax,H)}<line x1="${ax}" y1="15" x2="${xe}" y2="15" stroke="${C.pos}" stroke-width="2.2"/><circle cx="${xe}" cy="15" r="4" fill="${C.pos}"/></svg>`;}
+function lineSwatch(){const W=118,H=30;return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><polyline points="12,22 40,9 66,18 92,7 106,14" fill="none" stroke="${C.pos}" stroke-width="2.2"/></svg>`;}
+function varChart(items){
+  const W=300,rowH=30,pad=6,H=pad*2+items.length*rowH,x0=70,x1=W-10,ax=Math.round((x0+x1)/2),reach=(x1-ax)-26,max=Math.max(...items.map(i=>Math.abs(i.v)));
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><line x1="${ax}" y1="2" x2="${ax}" y2="${H-2}" stroke="${C.axis}" stroke-width="1.2"/>`;
+  items.forEach((it,i)=>{const cy=pad+i*rowH+rowH/2,col=it.v>=0?C.pos:C.neg,L=Math.abs(it.v)/max*reach,bx=it.v>=0?ax:ax-L;
+    s+=`<text x="6" y="${cy}" dominant-baseline="central" font-size="12.5" fill="#4c4c4c">${it.l}</text><rect x="${bx}" y="${cy-6}" width="${L}" height="12" fill="${col}"/>`;
+    const lx=it.v>=0?ax+L+5:ax-L-5,an=it.v>=0?'start':'end';
+    s+=`<text x="${lx}" y="${cy}" dominant-baseline="central" text-anchor="${an}" font-size="11.5" fill="${col}">${(it.v>=0?'+':'−')+Math.abs(it.v)}</text>`;});
+  return s+`</svg>`;
+}
+function acpyPair(ac,py){
+  const W=180,H=130,base=H-20,top=14,maxV=Math.max(ac,py),span=base-top,h1=ac/maxV*span,h2=py/maxV*span;
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><line x1="14" y1="${base}" x2="${W-14}" y2="${base}" stroke="${C.base}" stroke-width="1"/><rect x="46" y="${base-h1}" width="36" height="${h1}" fill="${C.ac}"/><rect x="100" y="${base-h2}" width="36" height="${h2}" fill="${C.py}"/><text x="64" y="${base+14}" text-anchor="middle" font-size="12" fill="#4c4c4c">AC</text><text x="118" y="${base+14}" text-anchor="middle" font-size="12" fill="#4c4c4c">PY</text></svg>`;
+}
+
+/* ---------- Diagrammtypen (gut) ---------- */
+function columnChart(vals){
+  const W=132,H=86,base=H-18,top=10,span=base-top,max=Math.max(...vals),n=vals.length,slot=(W-20)/n,cw=slot*0.6,labs=['J','F','M','A','M','J'];
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><line x1="8" y1="${base}" x2="${W-8}" y2="${base}" stroke="${C.base}"/>`;
+  vals.forEach((v,i)=>{const h=v/max*span,x=12+i*slot+(slot-cw)/2;s+=`<rect x="${x}" y="${base-h}" width="${cw}" height="${h}" fill="${C.ac}"/><text x="${x+cw/2}" y="${base+12}" text-anchor="middle" font-size="8.5" fill="#9aa0a4">${labs[i]||''}</text>`;});
+  return s+`</svg>`;
+}
+function barChartH(items){
+  const W=140,rowH=16,pad=8,H=pad*2+items.length*rowH,x0=44,x1=W-8,max=Math.max(...items.map(i=>i.v));
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><line x1="${x0}" y1="${pad-2}" x2="${x0}" y2="${H-pad+2}" stroke="${C.base}"/>`;
+  items.forEach((it,i)=>{const cy=pad+i*rowH+rowH/2,L=it.v/max*(x1-x0);s+=`<text x="6" y="${cy}" dominant-baseline="central" font-size="9.5" fill="#6b7176">${it.l}</text><rect x="${x0}" y="${cy-5}" width="${L}" height="10" fill="${C.ac}"/>`;});
+  return s+`</svg>`;
+}
+function lineMini(){const pts=[[14,54],[40,40],[66,46],[92,26],[118,32]];return `<svg viewBox="0 0 132 80" width="132" height="80"><line x1="8" y1="64" x2="124" y2="64" stroke="${C.base}"/><polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${C.ac}" stroke-width="2.4"/>${pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="${C.ac}"/>`).join('')}</svg>`;}
+function pieMini(){const cx=40,cy=40,r=30,parts=[0.4,0.3,0.2,0.1],cols=['#5b6b7c','#9aa6b2','#c2cad2','#dfe3e8'];let a=-Math.PI/2,s=`<svg viewBox="0 0 80 80" width="80" height="80">`;parts.forEach((p,i)=>{const a2=a+p*2*Math.PI,x1=cx+r*Math.cos(a),y1=cy+r*Math.sin(a),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2),lg=p>0.5?1:0;s+=`<path d="M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${lg} 1 ${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="${cols[i]}"/>`;a=a2;});return s+`</svg>`;}
+function stackedColMini(){const W=132,H=84,base=H-14,top=8,span=base-top,n=3,slot=(W-20)/n,cw=slot*0.55,segs=[[0.4,0.35,0.25],[0.5,0.3,0.2],[0.35,0.4,0.25]],cols=['#5b6b7c','#9aa6b2','#cdd4db'];let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><line x1="8" y1="${base}" x2="${W-8}" y2="${base}" stroke="${C.base}"/>`;segs.forEach((col,i)=>{const x=12+i*slot+(slot-cw)/2;let y=base;col.forEach((p,k)=>{const h=p*span;y-=h;s+=`<rect x="${x}" y="${y}" width="${cw}" height="${h}" fill="${cols[k]}"/>`;});});return s+`</svg>`;}
+function gauge(){const cx=40,cy=52,r=30,ang=Math.PI-0.35*Math.PI,nx=cx+(r-6)*Math.cos(ang),ny=cy-(r-6)*Math.sin(ang);return `<svg viewBox="0 0 80 64" width="80" height="64"><path d="M${cx-r},${cy} A${r},${r} 0 0 1 ${cx+r},${cy}" fill="none" stroke="#cfd3d6" stroke-width="7"/><path d="M${cx-r},${cy} A${r},${r} 0 0 1 ${cx},${cy-r}" fill="none" stroke="#9aa6b2" stroke-width="7"/><line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="#3f3f3f" stroke-width="2.4"/><circle cx="${cx}" cy="${cy}" r="3" fill="#3f3f3f"/></svg>`;}
+function trafficLight(){return `<svg viewBox="0 0 40 86" width="40" height="86"><rect x="8" y="6" width="24" height="74" rx="6" fill="#2c3137"/><circle cx="20" cy="22" r="8" fill="#c43c2f"/><circle cx="20" cy="43" r="8" fill="#e2b93b"/><circle cx="20" cy="64" r="8" fill="#5e9c33"/></svg>`;}
+function waterfallMini(){const W=164,H=90,base=H-18,top=10,span=base-top,maxV=80,slot=(W-16)/5,cw=slot*0.6,sc=v=>v/maxV*span,xs=i=>10+i*slot+(slot-cw)/2,labs=['PY','+','−','+','AC'];let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><line x1="6" y1="${base}" x2="${W-6}" y2="${base}" stroke="${C.base}"/>`;
+  s+=`<rect x="${xs(0)}" y="${base-sc(60)}" width="${cw}" height="${sc(60)}" fill="${C.ac}"/><rect x="${xs(1)}" y="${base-sc(80)}" width="${cw}" height="${sc(20)}" fill="${C.pos}"/><rect x="${xs(2)}" y="${base-sc(80)}" width="${cw}" height="${sc(10)}" fill="${C.neg}"/><rect x="${xs(3)}" y="${base-sc(78)}" width="${cw}" height="${sc(8)}" fill="${C.pos}"/><rect x="${xs(4)}" y="${base-sc(78)}" width="${cw}" height="${sc(78)}" fill="${C.ac}"/>`;
+  labs.forEach((l,i)=>{s+=`<text x="${xs(i)+cw/2}" y="${base+13}" text-anchor="middle" font-size="8.5" fill="#9aa0a4">${l}</text>`;});return s+`</svg>`;}
+
+/* ---------- Fehlerhafte Charts (Negativbeispiele) ---------- */
+function badTruncated(){
+  const W=146,H=94,base=H-16,top=10,span=base-top,vals=[102,103,105,108],lo=100,hi=109,n=vals.length,slot=(W-32)/n,cw=slot*0.6,y=v=>base-(v-lo)/(hi-lo)*span;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><line x1="28" y1="6" x2="28" y2="${base}" stroke="${C.base}"/>`;
+  [100,104,108].forEach(t=>{const yy=y(t);s+=`<text x="24" y="${yy}" text-anchor="end" dominant-baseline="central" font-size="8" fill="#9aa0a4">${t}</text><line x1="26" y1="${yy}" x2="28" y2="${yy}" stroke="${C.base}"/>`;});
+  s+=`<line x1="28" y1="${base}" x2="${W-8}" y2="${base}" stroke="${C.base}"/>`;
+  vals.forEach((v,i)=>{const x=32+i*slot+(slot-cw)/2;s+=`<rect x="${x}" y="${y(v)}" width="${cw}" height="${base-y(v)}" fill="${C.ac}"/>`;});
+  s+=`<path d="M24,${base-7} l8,-3 l-8,-3" fill="none" stroke="${C.neg}" stroke-width="1.3"/>`;
+  return s+`</svg>`;
+}
+function badRainbow(){
+  const W=140,H=88,base=H-14,top=10,span=base-top,vals=[6,9,4,7,5],cols=['#e23b3b','#e8902f','#e7d038','#4caf50','#3b6fe2'],n=vals.length,slot=(W-16)/n,cw=slot*0.62,max=Math.max(...vals);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><line x1="8" y1="${base}" x2="${W-8}" y2="${base}" stroke="${C.base}"/>`;
+  vals.forEach((v,i)=>{const h=v/max*span,x=10+i*slot+(slot-cw)/2;s+=`<rect x="${x}" y="${base-h}" width="${cw}" height="${h}" fill="${cols[i]}"/>`;});
+  return s+`</svg>`;
+}
+function bad3D(){
+  const W=146,H=94,base=H-16,top=12,span=base-top,vals=[5,8,6,9],n=vals.length,slot=(W-26)/n,cw=slot*0.5,d=7,max=Math.max(...vals);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><line x1="10" y1="${base}" x2="${W-8}" y2="${base}" stroke="${C.base}"/>`;
+  vals.forEach((v,i)=>{const h=v/max*span,x=14+i*slot+(slot-cw)/2,yT=base-h;
+    s+=`<polygon points="${x},${yT} ${x+d},${yT-d} ${x+cw+d},${yT-d} ${x+cw},${yT}" fill="#8a99a8"/>`;
+    s+=`<polygon points="${x+cw},${yT} ${x+cw+d},${yT-d} ${x+cw+d},${base-d} ${x+cw},${base}" fill="#41505e"/>`;
+    s+=`<rect x="${x}" y="${yT}" width="${cw}" height="${h}" fill="#5b6b7c"/>`;});
+  return s+`</svg>`;
+}
+function badWrongColor(){
+  const W=156,H=46;
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"><text x="6" y="15" font-size="10.5" fill="#6b7176">Kosten ΔPL</text><rect x="20" y="22" width="104" height="14" fill="${C.pos}"/><text x="128" y="29" font-size="11" fill="${C.pos}" dominant-baseline="central">+8 %</text></svg>`;
+}
+function badTimeVertical(){return barChartH([{l:'Jan',v:6},{l:'Feb',v:8},{l:'Mär',v:7},{l:'Apr',v:9}]);}
+
+function chartSvg(kind){
+  switch(kind){
+    case 'col':return columnChart([3,4,4.5,5,6]);
+    case 'barh':return barChartH([{l:'DE',v:9},{l:'US',v:7},{l:'CN',v:5},{l:'FR',v:3}]);
+    case 'line':return lineMini();
+    case 'pie':return pieMini();
+    case 'stacked':return stackedColMini();
+    case 'gauge':return gauge();
+    case 'traffic':return trafficLight();
+    case 'wf':return waterfallMini();
+    case 'varbar':return barSwatch();
+    case 'trunc':return badTruncated();
+    case 'rainbow':return badRainbow();
+    case '3d':return bad3D();
+    case 'wrongcol':return badWrongColor();
+    case 'timev':return badTimeVertical();
+  }
+  return '';
+}
+
+/* ---------- Dispatcher ---------- */
+function renderStage(s){
+  if(!s) return null;
+  if(s.t==='scenario') return colSwatch(s.kind,1.1);
+  if(s.t==='varchart') return varChart(s.items);
+  if(s.t==='acpy') return acpyPair(s.ac,s.py);
+  if(s.t==='chart') return chartSvg(s.kind);
+  return null;
+}
+const colorHex={grün:C.pos,rot:C.neg,blau:C.neu};
+const markName={bar:'Balken',pin:'Nadel / Pin',line:'Linie'};
+const markSvg={bar:barSwatch,pin:pinSwatch,line:lineSwatch};
+function renderOpt(o){
+  if(o.t==='text') return `<span class="otext">${o.s}</span>`;
+  if(o.t==='scenario') return colSwatch(o.kind,0.85);
+  if(o.t==='axis') return axisSwatch(o.axis);
+  if(o.t==='mark') return markSvg[o.mark]()+`<span class="ocap">${markName[o.mark]}</span>`;
+  if(o.t==='color') return `<span class="cswatch" style="background:${colorHex[o.c]}"></span><span class="ocap">${o.c}</span>`;
+  if(o.t==='chart') return chartSvg(o.kind);
+  return '';
+}
+
+/* ===================== Quiz-Fragenpool (25) ===================== */
+const QUIZ=[
+ {cat:'Szenario-Notation',prompt:'Welches Szenario zeigt diese Säule?',stage:{t:'scenario',kind:'AC'},opts:[{t:'text',s:'AC – Ist',correct:1},{t:'text',s:'PY – Vorjahr'},{t:'text',s:'PL – Plan'},{t:'text',s:'FC – Forecast'}],ex:'Gemessene Ist-Daten = volle, dunkle Fläche (solid). → AC'},
+ {cat:'Szenario-Notation',prompt:'Welches Szenario zeigt diese Säule?',stage:{t:'scenario',kind:'PL'},opts:[{t:'text',s:'AC – Ist'},{t:'text',s:'PY – Vorjahr'},{t:'text',s:'PL – Plan',correct:1},{t:'text',s:'FC – Forecast'}],ex:'Geplante (fiktive) Daten = umrandete, leere Fläche (outline) – „füllt sich" beim Eintreten. → PL/BU'},
+ {cat:'Szenario-Notation',prompt:'Welches Szenario zeigt diese Säule?',stage:{t:'scenario',kind:'PY'},opts:[{t:'text',s:'AC – Ist'},{t:'text',s:'PY – Vorjahr',correct:1},{t:'text',s:'PL – Plan'},{t:'text',s:'FC – Forecast'}],ex:'Frühere Ist-Perioden im Vergleich (Vorjahr) = hellere Vollfläche. → PY'},
+ {cat:'Szenario-Notation',prompt:'Welches Szenario zeigt diese Säule?',stage:{t:'scenario',kind:'FC'},opts:[{t:'text',s:'AC – Ist'},{t:'text',s:'PY – Vorjahr'},{t:'text',s:'PL – Plan'},{t:'text',s:'FC – Forecast',correct:1}],ex:'Erwartete Daten (auf Ist-Basis) = schraffierte Fläche. → FC'},
+ {cat:'Szenario-Notation',prompt:'Welche Darstellung steht für „Plan" (PL)?',stage:null,opts:[{t:'scenario',kind:'AC'},{t:'scenario',kind:'PY'},{t:'scenario',kind:'PL',correct:1},{t:'scenario',kind:'FC'}],ex:'Plan = fiktive Daten → umrandete, nicht gefüllte Fläche.'},
+ {cat:'Szenario-Notation',prompt:'Welche Darstellung steht für „Forecast" (FC)?',stage:null,opts:[{t:'scenario',kind:'AC'},{t:'scenario',kind:'PY'},{t:'scenario',kind:'PL'},{t:'scenario',kind:'FC',correct:1}],ex:'Forecast = erwartete Daten → schraffierte Fläche.'},
+ {cat:'Abweichungen',prompt:'Wie wird eine ABSOLUTE Abweichung (z. B. ΔPY in Mio. €) dargestellt?',stage:null,opts:[{t:'mark',mark:'bar',correct:1},{t:'mark',mark:'pin'},{t:'mark',mark:'line'}],ex:'Absolute Abweichungen → Balken/Säulen (gleiche Breite & Skala wie die Basiswerte).'},
+ {cat:'Abweichungen',prompt:'Wie wird eine RELATIVE Abweichung (in %) dargestellt?',stage:null,opts:[{t:'mark',mark:'bar'},{t:'mark',mark:'pin',correct:1},{t:'mark',mark:'line'}],ex:'Relative Abweichungen (%) → dünne Nadeln / Pins (Lollipops).'},
+ {cat:'Farbe nach Wirkung',prompt:'Die Kosten steigen um +8 % ggü. Plan. Welche Farbe nutzt IBCS?',stage:null,opts:[{t:'color',c:'grün'},{t:'color',c:'rot',correct:1},{t:'color',c:'blau'}],ex:'IBCS färbt nach Geschäftswirkung, nicht nach Vorzeichen: steigende Kosten sind schlecht → rot (invertierte Wertung).'},
+ {cat:'Farbe nach Wirkung',prompt:'Der Gewinn steigt um +12 % ggü. Vorjahr. Welche Farbe?',stage:null,opts:[{t:'color',c:'grün',correct:1},{t:'color',c:'rot'},{t:'color',c:'blau'}],ex:'Positive Wirkung auf das Ergebnis → grün.'},
+ {cat:'Farbe nach Wirkung',prompt:'Eine Abweichung ist weder „gut" noch „schlecht" (neutral). Welche Farbe?',stage:null,opts:[{t:'color',c:'grün'},{t:'color',c:'rot'},{t:'color',c:'blau',correct:1}],ex:'Neutral → blau. (Ohne Farbe: rot→dunkelgrau, grün→hellgrau, blau→mittelgrau.)'},
+ {cat:'Referenzachse',prompt:'Abweichung gegen den PLAN (ΔPL): Wie sieht die Null-/Referenzachse aus?',stage:null,opts:[{t:'axis',axis:'py'},{t:'axis',axis:'pl',correct:1},{t:'axis',axis:'thick'}],ex:'Die Achse trägt die Notation der Referenz (Subtrahend). Plan = fiktiv → Achse als Umriss = zwei parallele Linien.'},
+ {cat:'Referenzachse',prompt:'Abweichung gegen das VORJAHR (ΔPY): Wie sieht die Referenzachse aus?',stage:null,opts:[{t:'axis',axis:'py',correct:1},{t:'axis',axis:'pl'},{t:'axis',axis:'thick'}],ex:'Vorjahr = gemessene Ist-Daten → durchgezogene, helle Achse (solid).'},
+ {cat:'Notation',prompt:'Was bedeutet die Schreibweise „ΔPL"?',stage:null,opts:[{t:'text',s:'AC − PL (Ist minus Plan)',correct:1},{t:'text',s:'PL − AC'},{t:'text',s:'AC − PY'},{t:'text',s:'Plan als Prozentwert'}],ex:'Δ steht vor dem Subtrahenden: ΔPL = AC − PL. Positive Abweichungen erhalten ein „+".'},
+ {cat:'Diagramm lesen',prompt:'Welcher Monat hat die größte NEGATIVE Abweichung?',stage:{t:'varchart',items:[{l:'Jan',v:12},{l:'Feb',v:-8},{l:'Mär',v:5},{l:'Apr',v:-15}]},opts:[{t:'text',s:'Jan'},{t:'text',s:'Feb'},{t:'text',s:'Mär'},{t:'text',s:'Apr',correct:1}],ex:'Apr hat den längsten roten Balken nach links (−15) → größte negative Abweichung.'},
+ {cat:'Diagramm lesen',prompt:'Liegt der Ist-Wert (AC) über oder unter dem Vorjahr (PY)?',stage:{t:'acpy',ac:78,py:60},opts:[{t:'text',s:'AC liegt über PY',correct:1},{t:'text',s:'AC liegt unter PY'},{t:'text',s:'beide gleich'}],ex:'Die dunkle AC-Säule ist höher als die helle PY-Säule → AC liegt über PY.'},
+ {cat:'Achsen & Orientierung',prompt:'Worüber läuft in IBCS-Diagrammen typischerweise die horizontale (x-)Achse?',stage:null,opts:[{t:'text',s:'Zeit (z. B. Monate, Jahre)',correct:1},{t:'text',s:'Strukturelemente (Produkte, Regionen)'},{t:'text',s:'Beträge / Werte'},{t:'text',s:'Szenarien'}],ex:'Zeitreihen laufen über die horizontale Kategorieachse (links → rechts). Die Struktur kommt auf die vertikale Achse.'},
+ {cat:'Achsen & Orientierung',prompt:'Strukturelemente (z. B. Länder, Produkte) zeigt IBCS …',stage:null,opts:[{t:'text',s:'auf der vertikalen Achse → waagerechte Balken',correct:1},{t:'text',s:'auf der horizontalen Achse → Säulen'},{t:'text',s:'immer als Linie'},{t:'text',s:'als Tortenstücke'}],ex:'Struktur/Kategorien → vertikale Kategorieachse, dargestellt als waagerechte Balken (oder horizontale Pins).'},
+ {cat:'Achsen & Orientierung',prompt:'Welcher Charttyp passt für eine ZEITREIHE (z. B. Umsatz je Monat)?',stage:null,opts:[{t:'chart',kind:'col',correct:1},{t:'chart',kind:'barh'},{t:'chart',kind:'pie'}],ex:'Zeit → Säulen (vertikale Balken), Zeit auf der x-Achse. Möglich sind auch Linien oder vertikale Pins.'},
+ {cat:'Achsen & Orientierung',prompt:'Welcher Charttyp passt für einen STRUKTURVERGLEICH (z. B. Umsatz je Land)?',stage:null,opts:[{t:'chart',kind:'barh',correct:1},{t:'chart',kind:'col'},{t:'chart',kind:'line'}],ex:'Struktur → waagerechte Balken, Kategorien auf der y-Achse (häufig absteigend sortiert).'},
+ {cat:'Achsen & Orientierung',prompt:'Eine vertikale Nadel (Pin) ist im Grunde …',stage:null,opts:[{t:'text',s:'eine sehr dünne Säule (Zeit-/Hochformat)',correct:1},{t:'text',s:'ein Tortenstück'},{t:'text',s:'eine Trendlinie'},{t:'text',s:'ein waagerechter Balken'}],ex:'Vertikale Pins = sehr dünne Säulen (horizontale Achse/Zeit). Horizontale Pins = sehr dünne Balken (Struktur).'},
+ {cat:'Diagrammwahl',prompt:'Wie zeigt IBCS Anteile an einem Ganzen (z. B. Umsatz nach Segment)?',stage:null,opts:[{t:'chart',kind:'stacked',correct:1},{t:'chart',kind:'pie'},{t:'chart',kind:'gauge'}],ex:'IBCS ersetzt Torten-/Kreisdiagramme (EX 2.1). Anteile besser als gestapelte Säulen/Balken – Längen sind leichter vergleichbar als Winkel.'},
+ {cat:'Diagrammwahl',prompt:'Statt einer roten/gelben/grünen Ampel empfiehlt IBCS …',stage:null,opts:[{t:'chart',kind:'varbar',correct:1},{t:'chart',kind:'traffic'},{t:'chart',kind:'gauge'}],ex:'Ampeln (EX 2.5) und Tachometer zeigen keine Größe. Besser: die Abweichung als Balken/Nadel mit Farbe nach Wirkung.'},
+ {cat:'Diagrammwahl',prompt:'Wozu dient ein Wasserfall-/Brückendiagramm?',stage:{t:'chart',kind:'wf'},opts:[{t:'text',s:'eine Veränderung in ihre Treiber zerlegen (z. B. PY → AC)',correct:1},{t:'text',s:'Anteile an einem Ganzen zeigen'},{t:'text',s:'Kategorien sortieren'},{t:'text',s:'Trends glätten'}],ex:'Wasserfälle zerlegen eine Differenz/Brücke in Beiträge: Basis- und Summen-Säulen, dazwischen positive (grün) und negative (rot) Beiträge.'},
+ {cat:'Skalierung & Integrität',prompt:'Mehrere Diagramme mit gleicher Einheit auf einer Seite sollten …',stage:null,opts:[{t:'text',s:'dieselbe Skala nutzen (sonst Skalierungslinien)',correct:1},{t:'text',s:'jeweils maximal gestreckt sein'},{t:'text',s:'unterschiedliche Farben je Chart haben'},{t:'text',s:'3D dargestellt werden'}],ex:'Gleiche Skalen sichern faire Vergleiche (CH 4). Sind unterschiedliche Skalen nötig, kennzeichnet man sie mit Skalierungslinien.'},
+];
+
+/* ===================== „Finde den Verstoß" (8) ===================== */
+const VIOLATIONS=[
+ {cat:'Diagrammwahl',prompt:'Dieses Diagramm zeigt Umsatzanteile. Welcher IBCS-Verstoß liegt vor?',stage:{t:'chart',kind:'pie'},opts:[{t:'text',s:'Tortendiagramm – Anteile besser als gestapelte Säule/Balken',correct:1},{t:'text',s:'Falsche Achsenbeschriftung'},{t:'text',s:'Zu wenige Farben'},{t:'text',s:'Fehlende Nulllinie'}],ex:'EX 2.1: Torten-/Kreisdiagramme vermeiden – Winkel sind schwer vergleichbar. Anteile besser als gestapelte Säulen/Balken.'},
+ {cat:'Visuelle Integrität',prompt:'Was ist an diesem Säulendiagramm problematisch?',stage:{t:'chart',kind:'trunc'},opts:[{t:'text',s:'Werteachse beginnt nicht bei 0 → Unterschiede übertrieben',correct:1},{t:'text',s:'Zu viele Kategorien'},{t:'text',s:'Falsche Farbe'},{t:'text',s:'Zeit auf der y-Achse'}],ex:'Balken/Säulen müssen bei 0 beginnen, sonst täuscht die Länge eine zu große Differenz vor (visuelle Integrität).'},
+ {cat:'Farbe',prompt:'Welcher Grundsatz wird hier verletzt?',stage:{t:'chart',kind:'rainbow'},opts:[{t:'text',s:'Farbe ohne Bedeutung (Regenbogen) – Farbe nur gezielt einsetzen',correct:1},{t:'text',s:'Fehlende Datenbeschriftung'},{t:'text',s:'Balken statt Säulen'},{t:'text',s:'Kein Titel'}],ex:'Farbe wird in IBCS sparsam und semantisch genutzt (Szenario, Hervorhebung, Wirkung) – nicht dekorativ.'},
+ {cat:'Visuelle Integrität',prompt:'Was ist an dieser Darstellung falsch?',stage:{t:'chart',kind:'3d'},opts:[{t:'text',s:'3D-Effekt verzerrt die Werte – flach (2D) darstellen',correct:1},{t:'text',s:'Zu wenig Kontrast'},{t:'text',s:'Fehlende Legende'},{t:'text',s:'Falsche Sortierung'}],ex:'3D verfälscht Längen und Flächen und erschwert das Ablesen – immer 2D darstellen.'},
+ {cat:'Farbe',prompt:'Die Kosten steigen (+8 %). Was stimmt mit der Farbe nicht?',stage:{t:'chart',kind:'wrongcol'},opts:[{t:'text',s:'Kostenanstieg ist negativ → muss rot sein (nicht grün)',correct:1},{t:'text',s:'Grün ist zu hell'},{t:'text',s:'Der Balken ist zu dünn'},{t:'text',s:'Die Achse fehlt'}],ex:'Farbe richtet sich nach der Geschäftswirkung: steigende Kosten = negativ = rot (invertierte Wertung).'},
+ {cat:'Achsen-Orientierung',prompt:'Es handelt sich um eine Zeitreihe (Jan–Apr). Welcher Verstoß liegt vor?',stage:{t:'chart',kind:'timev'},opts:[{t:'text',s:'Zeit gehört auf die x-Achse (Säulen), nicht als Balken auf die y-Achse',correct:1},{t:'text',s:'Zu wenige Monate'},{t:'text',s:'Falsche Farbe'},{t:'text',s:'Kein Nullpunkt'}],ex:'Zeitreihen laufen über die horizontale Kategorieachse (Säulen/Linien). Waagerechte Balken sind für Strukturvergleiche.'},
+ {cat:'Diagrammwahl',prompt:'Statt dieser Ampel sollte man …',stage:{t:'chart',kind:'traffic'},opts:[{t:'text',s:'die Abweichung als Balken/Nadel mit Wirkungssfarbe zeigen',correct:1},{t:'text',s:'drei größere Lichter nutzen'},{t:'text',s:'die Farben tauschen'},{t:'text',s:'einen Tacho nehmen'}],ex:'EX 2.5: Ampeln zeigen keine Größe und Richtung. Besser eine Abweichung mit Länge + Farbe nach Wirkung.'},
+ {cat:'Diagrammwahl',prompt:'Welcher IBCS-Grundsatz spricht gegen dieses Tacho-/Gauge-Element?',stage:{t:'chart',kind:'gauge'},opts:[{t:'text',s:'Tachos brauchen viel Platz und zeigen Werte ungenau – Säule/Balken nutzen',correct:1},{t:'text',s:'Zu wenig Farbe'},{t:'text',s:'Die Nadel ist zu kurz'},{t:'text',s:'Es fehlt der 3D-Effekt'}],ex:'Tachometer verschwenden Fläche für wenig Information. IBCS bevorzugt kompakte, vergleichbare Säulen/Balken.'},
+];
+
+/* ===================== Spielsteuerung ===================== */
+let MODE='quiz', useTimer=true, reviewMode=false;
+let game=[], idx=0, score=0, streak=0, correctCount=0, wrong=[], catStats={}, answered=false;
+let tMax=20, tLeft=20, tHandle=null, tStart=0;
+const $=id=>document.getElementById(id);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+function show(id){['screen-start','screen-quiz','screen-end'].forEach(s=>$(s).classList.toggle('hide',s!==id));}
+function toStart(){stopTimer();show('screen-start');refreshHSline();}
+
+/* Highscore (lokal; bricht nicht, falls nicht verfügbar) */
+const hsKey=m=>'ibcsTrainerBest_'+m;
+function getHS(k){try{return parseInt(localStorage.getItem(k)||'0',10)||0;}catch(e){return 0;}}
+function setHS(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
+function refreshHSline(){const q=getHS(hsKey('quiz')),v=getHS(hsKey('violation'));$('hs').textContent=`Bestwert — Quiz: ${q} · Finde den Verstoß: ${v}`;}
+
+function buildGame(pool){return shuffle(pool).map(q=>{const opts=shuffle(q.opts);return {...q,opts,ci:opts.findIndex(o=>o.correct)};});}
+
+function startGame(mode){
+  MODE=mode; useTimer=$('timerToggle').checked; reviewMode=false;
+  game=buildGame(mode==='violation'?VIOLATIONS:QUIZ);
+  idx=0;score=0;streak=0;correctCount=0;wrong=[];catStats={};
+  show('screen-quiz');renderQ();
+}
+function startReview(){
+  if(!wrong.length) return;
+  const pool=wrong.slice(); reviewMode=true;
+  game=buildGame(pool);
+  idx=0;score=0;streak=0;correctCount=0;wrong=[];catStats={};
+  show('screen-quiz');renderQ();
+}
+
+function renderQ(){
+  answered=false; const q=game[idx], N=game.length;
+  $('bar').style.width=(idx/N*100)+'%';
+  $('qcount').textContent=`Frage ${idx+1} / ${N}`;
+  $('score').textContent=score; $('streak').textContent=streak;
+  $('cat').textContent=q.cat; $('prompt').textContent=q.prompt;
+  const st=renderStage(q.stage), stEl=$('stage');
+  if(st){stEl.innerHTML=st;stEl.classList.remove('hide');}else{stEl.classList.add('hide');stEl.innerHTML='';}
+  $('opts').innerHTML=q.opts.map((o,i)=>`<button class="opt" data-i="${i}" onclick="choose(${i})">${renderOpt(o)}</button>`).join('');
+  const fb=$('fb'); fb.className='fb'; fb.innerHTML='';
+  $('next').classList.add('hide');
+  $('next').textContent = idx===N-1 ? 'Ergebnis →' : 'Weiter →';
+  const tw=$('timerwrap');
+  if(useTimer){tw.classList.remove('hide');startTimer();}else{tw.classList.add('hide');}
+}
+
+function startTimer(){stopTimer();tStart=Date.now();updTimer();tHandle=setInterval(()=>{tLeft=Math.max(0,tMax-(Date.now()-tStart)/1000);updTimer();if(tLeft<=0){stopTimer();timeUp();}},80);}
+function stopTimer(){if(tHandle){clearInterval(tHandle);tHandle=null;}}
+function updTimer(){const f=tLeft/tMax;$('tbar').style.width=(f*100)+'%';$('tbar').style.background=f<0.25?'#c43c2f':(f<0.5?'#e2a32f':'#2f6fb2');$('tsec').textContent=Math.ceil(tLeft)+' s';}
+
+function reveal(ci,chosenWrong){
+  document.querySelectorAll('.opt').forEach((el,j)=>{el.setAttribute('disabled','');
+    if(j===ci){el.classList.add('correct');el.insertAdjacentHTML('beforeend','<span class="mark">✓ richtig</span>');}
+    else if(j===chosenWrong){el.classList.add('wrong');el.insertAdjacentHTML('beforeend','<span class="mark">✗</span>');}});
+}
+function tally(q,ok){if(!catStats[q.cat])catStats[q.cat]={ok:0,total:0};catStats[q.cat].total++;if(ok)catStats[q.cat].ok++;}
+
+function choose(i){
+  if(answered) return; answered=true; if(useTimer) tLeft=Math.max(0,tMax-(Date.now()-tStart)/1000); stopTimer();
+  const q=game[idx], correct=i===q.ci; tally(q,correct);
+  let earned=0;
+  if(correct){correctCount++;streak++;
+    if(useTimer){const speed=Math.round((tLeft/tMax)*40),combo=Math.min((streak-1)*5,25);earned=50+speed+combo;score+=earned;}else{score+=1;}
+  }else{streak=0;wrong.push(q);}
+  $('score').textContent=score; $('streak').textContent=streak;
+  reveal(q.ci, correct?-1:i);
+  const fb=$('fb'); fb.className='fb show '+(correct?'ok':'no');
+  const head=correct?(useTimer?`Richtig!  +${earned} Punkte`:'Richtig!'):'Nicht ganz.';
+  fb.innerHTML=`<div class="h">${head}</div>${q.ex}`;
+  $('bar').style.width=((idx+1)/game.length*100)+'%';
+  $('next').classList.remove('hide');
+}
+function timeUp(){
+  if(answered) return; answered=true;
+  const q=game[idx]; tally(q,false); streak=0; wrong.push(q);
+  $('streak').textContent=streak;
+  reveal(q.ci,-1);
+  const fb=$('fb'); fb.className='fb show no';
+  fb.innerHTML=`<div class="h">Zeit abgelaufen ⏱</div>${q.ex}`;
+  $('next').classList.remove('hide');
+}
+function next(){stopTimer();if(idx<game.length-1){idx++;renderQ();}else endGame();}
+
+function catBreakdownHTML(){
+  return Object.keys(catStats).map(c=>{const {ok,total}=catStats[c],pct=Math.round(ok/total*100),col=pct>=80?C.pos:pct>=50?'#e2a32f':C.neg;
+    return `<div class="catrow"><div class="catname">${c}</div><div class="cattrack"><i style="width:${pct}%;background:${col}"></i></div><div class="catval">${ok}/${total}</div></div>`;}).join('');
+}
+
+function endGame(){
+  stopTimer(); show('screen-end'); const N=game.length;
+  $('catbreak').innerHTML=catBreakdownHTML();
+  $('cheatBox2').innerHTML=cheatHTML();
+  const fr=$('btnReview');
+  if(wrong.length){fr.classList.remove('hide');fr.textContent=reviewMode?`Verbleibende Fehler wiederholen (${wrong.length})`:`Fehler wiederholen (${wrong.length})`;}
+  else fr.classList.add('hide');
+  const r=correctCount/N;
+  if(reviewMode){
+    $('endHead').textContent='Fehler-Runde';
+    $('endTier').textContent = wrong.length===0?'Alles korrigiert! ✅':'Fast geschafft 💪';
+    $('endSub').textContent=`${correctCount} von ${N} jetzt richtig.`;
+    $('endHS').textContent='';
+    $('btnAgain').textContent='Neue Runde (gleicher Modus)';
+  }else{
+    $('endHead').textContent = useTimer ? `${score} Punkte` : `${correctCount} / ${N} richtig`;
+    $('endTier').textContent = r>=0.9?'IBCS-Profi 🏆':r>=0.7?'Stark unterwegs 👍':r>=0.5?'Solide Basis 🙂':'Weiter üben 💪';
+    $('endSub').textContent=`${correctCount} von ${N} Fragen richtig.`;
+    let msg='';
+    if(useTimer){const k=hsKey(MODE),best=getHS(k);if(score>best){setHS(k,score);msg=`🎉 Neuer Bestwert! (vorher ${best})`;}else{msg=`Bestwert: ${best}`;}}
+    $('endHS').textContent=msg;
+    $('btnAgain').textContent='Nochmal (gleicher Modus)';
+  }
+}
+
+/* ---------- Spickzettel ---------- */
+function cheatHTML(){
+  const sc=k=>`<span class="sw" style="padding:0;border:none">${colSwatch(k,0.42)}</span>`;
+  return `<div class="sheetgrid">
+    <div class="scard"><div class="lab">Szenarien (Flächen-Notation)</div>
+      <div class="item">${sc('AC')}<b>AC</b> – Ist (solid dunkel)</div>
+      <div class="item">${sc('PY')}<b>PY</b> – Vorjahr (solid hell)</div>
+      <div class="item">${sc('PL')}<b>PL/BU</b> – Plan (Umriss)</div>
+      <div class="item">${sc('FC')}<b>FC</b> – Forecast (schraffiert)</div></div>
+    <div class="scard"><div class="lab">Abweichungen</div>
+      <div class="item">${barSwatch()}</div>
+      <div class="item" style="margin-top:-2px"><b>absolut</b>&nbsp;(€) → Balken</div>
+      <div class="item">${pinSwatch()}</div>
+      <div class="item" style="margin-top:-2px"><b>relativ</b>&nbsp;(%) → Nadel / Pin</div></div>
+    <div class="scard"><div class="lab">Farbe = Geschäftswirkung</div>
+      <div class="item"><span class="sw" style="background:${C.pos}"></span><b>grün</b> – positiv</div>
+      <div class="item"><span class="sw" style="background:${C.neg}"></span><b>rot</b> – negativ</div>
+      <div class="item"><span class="sw" style="background:${C.neu}"></span><b>blau</b> – neutral</div>
+      <div class="item" style="font-size:11px;color:#8b9297">Kosten/Schulden: Anstieg = rot (invertiert)</div></div>
+    <div class="scard"><div class="lab">Referenzachse &amp; Notation</div>
+      <div class="item">${axisSwatch('py')}<b>ΔPY</b> – einfache helle Linie</div>
+      <div class="item">${axisSwatch('pl')}<b>ΔPL/BU</b> – Umriss (Doppellinie)</div>
+      <div class="item" style="font-size:11.5px;margin-top:6px">ΔPL = AC − PL · positive Werte mit „+"</div></div>
+    <div class="scard"><div class="lab">Achsen-Orientierung</div>
+      <div class="item">${chartSvg('col')}</div>
+      <div class="item" style="margin-top:-2px"><b>Zeit</b> → x-Achse, Säulen</div>
+      <div class="item">${chartSvg('barh')}</div>
+      <div class="item" style="margin-top:-2px"><b>Struktur</b> → y-Achse, Balken</div></div>
+    <div class="scard"><div class="lab">Vermeiden</div>
+      <div class="item">✗ Torte/Kreis → gestapelte Säule</div>
+      <div class="item">✗ Ampel/Tacho → Abweichung</div>
+      <div class="item">✗ 3D &amp; Regenbogenfarben</div>
+      <div class="item">✗ abgeschnittene Werteachse</div></div>
+  </div>`;
+}
+
+/* Tastatur */
+document.addEventListener('keydown',e=>{
+  if($('screen-quiz').classList.contains('hide')) return;
+  if(!answered && /^[1-9]$/.test(e.key)){const i=+e.key-1,b=document.querySelector(`.opt[data-i="${i}"]`);if(b)choose(i);}
+  else if(answered && e.key==='Enter'){next();}
+});
+
+/* Init */
+$('cheatBox1').innerHTML=cheatHTML();
+refreshHSline();
+</script>
+</body>
+</html>
