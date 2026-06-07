@@ -37,7 +37,7 @@
 <body>
 <div class="wrap"><div id="map"></div><div id="tip"></div></div>
 <script>
-const BINS = [{"lab":"0–10 %","c":8,"band":"low","names":["Marc Andreessen 0","Yann LeCun 0,01","Superforecaster 0,38","KI-Domaenenexperten 3","ML-Forschende 5","Kevin Roose 5","Nate Silver 7,5","Metaculus 8"]},{"lab":"10–20 %","c":13,"band":"mid","names":["Toby Ord 10","Geoffrey Hinton 10","Vitalik Buterin 10","Lex Fridman 10","Sundar Pichai 10","Vitalik Buterin 12","ML-Forschende 14","ML-Forschende 14,4","Lina Khan 15","Elon Musk 15","Geoffrey Hinton 15","Elon Musk 15","Dario Amodei 17,5"]},{"lab":"20–30 %","c":7,"band":"mid","names":["Dan Hendrycks 20","Yoshua Bengio 20","Reid Hoffman 20","Ajeya Cotra 25","Dario Amodei 25","Shane Legg 27,5","Emmett Shear 27,5"]},{"lab":"30–40 %","c":3,"band":"mid","names":["KI-Sicherheitsforschende 30","Scott Alexander 33","Eli Lifland 35"]},{"lab":"40–50 %","c":2,"band":"mid","names":["KI-Ingenieure 40","Paul Christiano 46"]},{"lab":"50–60 %","c":5,"band":"high","names":["Holden Karnofsky 50","Jan Leike 50","Geoffrey Hinton 50","Emad Mostaque 50","Geoffrey Hinton 55"]},{"lab":"60–70 %","c":1,"band":"high","names":["Zvi Mowshowitz 60"]},{"lab":"70–80 %","c":3,"band":"high","names":["Daniel Kokotajlo 70","Zvi Mowshowitz 70","Daniel Kokotajlo 75"]},{"lab":"80–90 %","c":2,"band":"high","names":["Dan Hendrycks 82","Anna Salamon 85"]},{"lab":"90–100 %","c":4,"band":"high","names":["Connor Leahy 92","Max Tegmark 92","Eliezer Yudkowsky 97","Roman Yampolskiy 99,9"]}];
+const BINS = [{"lab":"0–10 %","c":12,"band":"low","names":["Marc Andreessen 0","Grady Booch 0","Yann LeCun 0,01","Superforecaster 0,38","Scott Aaronson 2","KI-Domaenenexperten 3","ML-Forschende 5","Kevin Roose 5","Benjamin Mann 5","Casey Newton 5","Nate Silver 7,5","Metaculus 8"]},{"lab":"10–20 %","c":14,"band":"mid","names":["Toby Ord 10","Geoffrey Hinton 10","Vitalik Buterin 10","Lex Fridman 10","Sundar Pichai 10","Vitalik Buterin 12","Joe Carlsmith 12","ML-Forschende 14","ML-Forschende 14,4","Lina Khan 15","Elon Musk 15","Geoffrey Hinton 15","Elon Musk 15","Dario Amodei 17,5"]},{"lab":"20–30 %","c":7,"band":"mid","names":["Dan Hendrycks 20","Yoshua Bengio 20","Reid Hoffman 20","Ajeya Cotra 25","Dario Amodei 25","Shane Legg 27,5","Emmett Shear 27,5"]},{"lab":"30–40 %","c":3,"band":"mid","names":["KI-Sicherheitsforschende 30","Scott Alexander 33","Eli Lifland 35"]},{"lab":"40–50 %","c":3,"band":"mid","names":["KI-Ingenieure 40","Joep Meindertsma 40","Paul Christiano 46"]},{"lab":"50–60 %","c":7,"band":"high","names":["Holden Karnofsky 50","Jan Leike 50","Geoffrey Hinton 50","Emad Mostaque 50","Liron Shapira 50","Geoffrey Miller 50","Geoffrey Hinton 55"]},{"lab":"60–70 %","c":1,"band":"high","names":["Zvi Mowshowitz 60"]},{"lab":"70–80 %","c":3,"band":"high","names":["Daniel Kokotajlo 70","Zvi Mowshowitz 70","Daniel Kokotajlo 75"]},{"lab":"80–90 %","c":3,"band":"high","names":["Dan Hendrycks 82","Anna Salamon 85","Andrew Critch 85"]},{"lab":"90–100 %","c":4,"band":"high","names":["Connor Leahy 92","Max Tegmark 92","Eliezer Yudkowsky 97","Roman Yampolskiy 99,9"]}];
 const LOW="#2A857A", MID="#C9962E", HIGH="#8B2E2E", INK="#13233b", MUT="#7c8794";
 const colOf = b => b==='low'?LOW : b==='mid'?MID:HIGH;
 function esc(s){ return (''+s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -88,8 +88,8 @@ BINS.forEach((b,i)=>{
 /* Kopf + Legende + Insight */
 const head=`
  <text class="hl" x="40" y="66" font-size="40">VERTEILUNG DER SCHÄTZUNGEN</text>
- <text class="sub2" x="42" y="92" font-size="12.5" fill="${INK}">WIE VIELE DER 48 p(doom)-WERTE FALLEN IN WELCHEN BEREICH?</text>
- <text class="sub2" x="42" y="110" font-size="12.5" fill="${MUT}">54 SCHÄTZUNGEN GESAMT (48 MIT ZAHL) · 2011–2025</text>`;
+ <text class="sub2" x="42" y="92" font-size="12.5" fill="${INK}">WIE VIELE DER 57 p(doom)-WERTE FALLEN IN WELCHEN BEREICH?</text>
+ <text class="sub2" x="42" y="110" font-size="12.5" fill="${MUT}">63 SCHÄTZUNGEN GESAMT (57 MIT ZAHL) · 2011–2025</text>`;
 const lx=706, ly=44;
 const legend=`
  <rect x="${lx}" y="${ly}" width="300" height="92" rx="12" fill="#fff" stroke="${INK}" stroke-width="1.5" opacity="0.95"/>
@@ -98,10 +98,10 @@ const legend=`
  <rect x="${lx+18}" y="${ly+52}" width="22" height="11" rx="3" fill="${MID}"/><text class="nm" x="${lx+48}" y="${ly+61}" font-size="11.5">Mitte <tspan fill="${MUT}">10–50 %</tspan></text>
  <rect x="${lx+18}" y="${ly+70}" width="22" height="11" rx="3" fill="${HIGH}"/><text class="nm" x="${lx+48}" y="${ly+79}" font-size="11.5">Mahner <tspan fill="${MUT}">&gt; 50 %</tspan></text>`;
 const insight=`
- <text class="hl" x="1000" y="${ly+44}" font-size="34" text-anchor="end" fill="${MID}">21 / 48</text>
+ <text class="hl" x="1000" y="${ly+44}" font-size="34" text-anchor="end" fill="${MID}">26 / 57</text>
  <text class="sub2" x="1000" y="${ly+62}" font-size="10.5" text-anchor="end" fill="${MUT}">WERTE LIEGEN UNTER 20 %</text>
- <text class="sub2" x="1000" y="${ly+80}" font-size="10.5" text-anchor="end" fill="${MUT}">— ABER 15 LIEGEN ÜBER 50 %</text>`;
-const source=`<text class="sub2" x="40" y="700" font-size="11" fill="${MUT}">QUELLE: WIKIPEDIA · PAUSEAI · AI IMPACTS · XPT · METACULUS — 54 SCHÄTZUNGEN, STAND JUNI 2026 · BALKEN = ANZAHL SCHÄTZUNGEN JE 10-%-BEREICH</text>`;
+ <text class="sub2" x="1000" y="${ly+80}" font-size="10.5" text-anchor="end" fill="${MUT}">— ABER 18 LIEGEN ÜBER 50 %</text>`;
+const source=`<text class="sub2" x="40" y="700" font-size="11" fill="${MUT}">QUELLE: WIKIPEDIA · PAUSEAI · AI IMPACTS · XPT · METACULUS — 63 SCHÄTZUNGEN, STAND JUNI 2026 · BALKEN = ANZAHL SCHÄTZUNGEN JE 10-%-BEREICH</text>`;
 
 document.getElementById('map').innerHTML =
  `<svg viewBox="0 0 1040 720" xmlns="http://www.w3.org/2000/svg">
