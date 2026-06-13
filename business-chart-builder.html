@@ -30,6 +30,11 @@ header{
   font-size:12px; color:var(--ink3); text-decoration:none; white-space:nowrap;
   padding:5px 10px; border:1px solid var(--line2); border-radius:2px;
 }
+.hlabel{
+  font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
+  white-space:nowrap; margin-right:-2px;
+}
+.hsep{width:1px; height:20px; background:var(--line2); margin:0 4px}
 .backlink:hover{color:var(--ink); border-color:var(--ink3); background:#f0efec}
 .wordmark{display:flex; align-items:baseline; gap:10px}
 .wordmark b{font-weight:600; letter-spacing:.06em}
@@ -202,6 +207,9 @@ footer{
   max-width:1320px; margin:0 auto; padding:6px 22px 26px;
   font-size:11.5px; color:var(--ink3);
 }
+footer a{color:var(--ink2); text-decoration:underline; text-underline-offset:2px}
+footer a:hover{color:var(--ink)}
+.footer-meta{margin-bottom:8px; font-size:12px; color:var(--ink2)}
 </style>
 </head>
 <body>
@@ -211,22 +219,24 @@ footer{
   <div class="wordmark"><b>Business</b> <span>Chart Builder · semantische Notation · <b style="color:#1a6fb5">v6 Kachel-Workflow</b></span></div>
   <div class="spacer"></div>
   <button class="ghost" id="uiLangBtn" title="Switch the user interface to English / Bedienoberfläche auf Deutsch umschalten">EN</button>
-  <span style="color:var(--line2)">·</span>
+  <button class="ghost" id="btnUndo" title="Rückgängig (Strg+Z)" disabled>↶</button>
+  <button class="ghost" id="btnRedo" title="Wiederherstellen (Strg+Y)" disabled>↷</button>
+  <span class="hsep"></span>
+  <span class="hlabel">Stand</span>
   <button class="ghost" id="btnReset" title="Auf Standardzustand zurücksetzen und gespeicherten Stand verwerfen">Zurücksetzen</button>
   <button class="ghost" id="btnSave" title="Konfiguration als JSON-Datei sichern">Sichern</button>
   <button class="ghost" id="btnLoad" title="Konfiguration aus JSON-Datei laden">Laden</button>
-  <input type="file" id="fileLoad" accept="application/json,.json" style="display:none">
-  <span style="color:var(--line2)">·</span>
-  <button class="ghost" id="btnUndo" title="Rückgängig (Strg+Z)" disabled>↶</button>
-  <button class="ghost" id="btnRedo" title="Wiederherstellen (Strg+Y)" disabled>↷</button>
-  <span style="color:var(--line2)">·</span>
-  <button class="ghost" id="btnPng" title="Chart als PNG herunterladen (2×-Auflösung, scharf für Folien)">PNG</button>
-  <button class="ghost" id="btnPngCopy" title="Chart als PNG in die Zwischenablage – direkt in PowerPoint/Teams einfügen (2×-Auflösung)">PNG kopieren</button>
-  <button class="ghost" id="btnSvg">SVG kopieren</button>
-  <button id="btnVega" class="primary-cta" title="Spec für Deneb (Power BI) erzeugen – Format, Visual-Größe, Schrift, Tooltips und Cross-Filtering wählbar">⚡ Vega / Deneb</button>
   <button class="ghost" id="btnShare" title="Kompletten Zustand als Link kopieren – öffnet den Builder mit genau diesem Chart">Link teilen</button>
-  <button id="btnExport">HTML exportieren</button>
-  <span style="color:var(--line2)">·</span>
+  <input type="file" id="fileLoad" accept="application/json,.json" style="display:none">
+  <span class="hsep"></span>
+  <span class="hlabel">Export</span>
+  <button id="btnVega" class="primary-cta" title="Spec für Deneb (Power BI) erzeugen – Format, Visual-Größe, Schrift, Tooltips und Cross-Filtering wählbar">⚡ Vega / Deneb</button>
+  <button class="ghost" id="btnPngCopy" title="Chart als PNG in die Zwischenablage – direkt in PowerPoint/Teams einfügen (2×-Auflösung)">PNG kopieren</button>
+  <button class="ghost" id="btnPng" title="Chart als PNG herunterladen (2×-Auflösung, scharf für Folien)">PNG ↓</button>
+  <button class="ghost" id="btnSvg" title="Chart als SVG in die Zwischenablage kopieren">SVG</button>
+  <button class="ghost" id="btnExport" title="Berichtsseite als eigenständige HTML-Datei exportieren">HTML</button>
+  <span class="hsep"></span>
+  <span class="hlabel">Sammeln</span>
   <button class="ghost" id="btnAddDash" title="Aktuelles Chart dem Dashboard hinzufügen (ein kombiniertes Vega-Spec für Deneb)">+ Dashboard</button>
   <button id="btnDash" style="display:none"></button>
   <button class="ghost" id="btnAddReport" title="Aktuelles Chart dem Bericht hinzufügen">+ Bericht</button>
@@ -472,7 +482,10 @@ footer{
   </main>
 </div>
 
-<footer>Unabhängiges Projekt – nicht von der IBCS Association zertifiziert, geprüft oder mit ihr verbunden. Die Gestaltung orientiert sich an den frei verfügbaren IBCS® Standards v1.2 (ibcs.com, Lizenz CC BY‑SA 4.0); Regelverweise wie UN/EX/SA beziehen sich auf diese Quelle. IBCS® ist eine eingetragene Marke der IBCS Association bzw. ihrer Trägergesellschaft.</footer>
+<footer>
+  <div class="footer-meta">Gebaut von <a href="https://www.linkedin.com/in/michael-tenner-5b885970/" target="_blank" rel="noopener">Michael Tenner</a> · Teil der <a href="daten_wg_learn_buckets.html">Daten-WG Knowledge Kitchen</a> · <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a></div>
+  <div>Unabhängiges Projekt – nicht von der IBCS Association zertifiziert, geprüft oder mit ihr verbunden. Die Gestaltung orientiert sich an den frei verfügbaren IBCS® Standards v1.2 (ibcs.com, Lizenz CC BY‑SA 4.0); Regelverweise wie UN/EX/SA beziehen sich auf diese Quelle. IBCS® ist eine eingetragene Marke der IBCS Association bzw. ihrer Trägergesellschaft.</div>
+</footer>
 
 <dialog id="dlg">
   <div class="dlg-head"><h3>Export</h3><button class="ghost" id="dlgClose">Schließen</button></div>
@@ -5601,6 +5614,11 @@ function wizRecommend(a){
  ['Spec für Deneb (Power BI) erzeugen – Format, Visual-Größe, Schrift, Tooltips und Cross-Filtering wählbar','Generate a spec for Deneb (Power BI) – format, visual size, font, tooltips and cross-filtering selectable'],
  ['← Daten-Knowledge','← Data knowledge'],
  ['Zurück zur Daten-Knowledge-Hauptseite','Back to the data knowledge main page'],
+ ['Stand','State'],['Sammeln','Collect'],
+ ['Chart als SVG in die Zwischenablage kopieren','Copy the chart as SVG to the clipboard'],
+ ['Berichtsseite als eigenständige HTML-Datei exportieren','Export the report page as a standalone HTML file'],
+ ['Gebaut von','Built by'],['· Teil der','· Part of the'],
+ ['Impressum','Legal notice'],['Datenschutz','Privacy'],
 ].forEach(([d,e])=>UI_EN.set(d,e));
 function wizRender(){
   [...document.querySelectorAll('#wizDim .chip')].forEach(b=>b.classList.toggle('on', b.dataset.wd===wizA.dim));
