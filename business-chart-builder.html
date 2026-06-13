@@ -166,6 +166,15 @@ dialog::backdrop{background:rgba(28,28,28,.45)}
 .dlg-head h3{margin:0; font-size:13px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; flex:1}
 .wiz-label{font-size:11.5px; color:var(--ink2); margin:12px 0 5px}
 #wizDim .wiz-label{margin-top:0}
+/* ---------- Export-Optionen (Deneb) ---------- */
+.dlg-opts{border:1px solid var(--line); background:#fafaf8; padding:10px 12px; margin-bottom:10px}
+.opt-row{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:7px}
+.opt-row:last-of-type{margin-bottom:0}
+.opt-lbl{font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); width:54px; flex:none}
+.opt-note{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink3); margin-left:auto}
+#denebSteps{margin:10px 0 0; padding-left:18px; font-size:11.5px; color:var(--ink2); border-top:1px dashed var(--line2); padding-top:9px}
+#denebSteps li{margin-bottom:3px}
+#sizeInputs input{width:62px; font:inherit; padding:4px 6px; border:1px solid var(--line2); border-radius:2px; background:#fff}
 .dlg-body{padding:14px 18px 18px}
 #fieldMap{display:flex; flex-wrap:wrap; gap:8px 10px; margin-bottom:10px}
 #fieldMap .fm{display:flex; flex-direction:column; gap:3px}
@@ -465,6 +474,44 @@ footer{
       </div>
       <div id="dashList"></div>
     </div>
+    <div class="dlg-opts" id="specOpts" style="display:none">
+      <div class="opt-row"><span class="opt-lbl">Daten</span>
+        <button class="chip" id="odEmbed" type="button" title="Werte sind im Spec eingebettet – läuft sofort im Vega-Editor oder in Deneb">eingebettet</button>
+        <button class="chip" id="odDeneb" type="button" title="data → dataset: Deneb liefert die Daten aus Power BI; die benötigten Felder unten zuordnen">Deneb-dataset (Power BI)</button>
+      </div>
+      <div class="opt-row"><span class="opt-lbl">Format</span>
+        <button class="chip" id="ofVL" type="button">Vega-Lite</button>
+        <button class="chip" id="ofVG" type="button" title="Reines Vega v5 – skaliert in Deneb am saubersten (echte width/height-Signale)">Vega · für Deneb empfohlen</button>
+      </div>
+      <div class="opt-row"><span class="opt-lbl">Größe</span>
+        <button class="chip" id="osFit" type="button" title="Chart füllt das Visual und wächst mit der Kachelgröße – Schrift bleibt stabil">dynamisch</button>
+        <button class="chip" id="osFixed" type="button" title="Exakte Visual-Größe in Pixeln – die Vorschau zeigt das Chart 1:1 in dieser Größe">feste Größe</button>
+        <span class="row" id="sizeInputs" style="display:none; gap:6px; align-items:center">
+          <input type="number" id="vlWInp" min="200" max="2400" step="20"> ×
+          <input type="number" id="vlHInp" min="120" max="1600" step="20"> px
+          <button class="chip" data-sz="320,210" type="button">Karte</button>
+          <button class="chip" data-sz="600,340" type="button">¼ Seite</button>
+          <button class="chip" data-sz="1240,340" type="button">Streifen</button>
+          <button class="chip" data-sz="1240,700" type="button">Seite</button>
+        </span>
+      </div>
+      <div class="opt-row"><span class="opt-lbl">Schrift</span>
+        <select id="dlgFont">
+          <option value="0.9">S · ~10 px</option>
+          <option value="1">M · 11 px (IBCS-üblich)</option>
+          <option value="1.15">L · ~12,5 px</option>
+          <option value="1.3">XL · ~14,5 px</option>
+          <option value="1.5">XXL · ~16,5 px</option>
+        </select>
+        <span class="opt-note" id="specSummary"></span>
+      </div>
+      <ol id="denebSteps" style="display:none">
+        <li>In Power BI ein Deneb-Visual einfügen und die unten gelisteten Felder in „Values“ ziehen.</li>
+        <li>Spec kopieren, in Deneb „Edit“ öffnen und den JSON-Inhalt ersetzen.</li>
+        <li>Beim Vega-Format im Deneb-Editor „Vega“ als Provider wählen (Datei .vg.json).</li>
+        <li>Mehrteilige Charts (Varianzanalyse, Tabelle, Dashboard): Settings → Scaling auf „Auto“ stellen.</li>
+      </ol>
+    </div>
     <div id="fieldMap" style="display:none"></div>
     <textarea id="dlgCode" spellcheck="false"></textarea>
     <div id="vlPreview" style="display:none; margin-top:12px; padding:12px; border:1px solid var(--line2); border-radius:8px; background:#fff; overflow:auto"></div>
@@ -472,15 +519,6 @@ footer{
       <button id="dlgCopy">In Zwischenablage kopieren</button>
       <button class="ghost" id="dlgDownload">Als Datei herunterladen</button>
       <button class="ghost" id="dlgPreview" style="display:none" title="Spec mit Vega im Browser rendern – so sieht es in Deneb aus">▶ Vorschau</button>
-      <label class="check" id="dlgDenebWrap" style="display:none; margin:0">
-        <input type="checkbox" id="dlgDeneb"> Deneb-Modus (data → dataset, Felder via usermeta)
-      </label>
-      <label class="check" id="dlgFitWrap" style="display:none; margin:0" title="width/height = container: das Chart füllt das Deneb-Visual und wächst mit – Schriftgrößen bleiben stabil. Bei mehrteiligen Charts (Varianzanalyse, Tabelle, Dashboard) nicht möglich.">
-        <input type="checkbox" id="dlgFit"> An Visual-Größe anpassen
-      </label>
-      <label class="check" id="dlgVegaWrap" style="display:none; margin:0" title="Spec mit dem Vega-Lite-Compiler in reines Vega übersetzen – volle Kontrolle in Deneb, Container-Sizing wird zu echten width/height-Signalen.">
-        <input type="checkbox" id="dlgVega"> Vega statt Vega-Lite
-      </label>
     </div>
   </div>
 </dialog>
@@ -615,6 +653,10 @@ const state = {
   dashShare:false,
   vlFit:true,
   vlVega:false,
+  vlDeneb:false,
+  vlSizeMode:'fit',
+  vlW:600,
+  vlH:340,
   uiLang:'de',
   fields:{},
   series:['Produkt A','Produkt B','Produkt C'],
@@ -3900,7 +3942,7 @@ $('#btnExport').addEventListener('click', ()=>{
   $('#dlgCode').value = exportHTML(blocks);
   dlgFile = 'business-chart.html';
   $('#dashPanel').style.display = 'none';
-  $('#dlgDenebWrap').style.display = 'none';
+  $('#specOpts').style.display = 'none';
   $('#fieldMap').style.display = 'none';
   if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
 });
@@ -3953,8 +3995,16 @@ async function exportSpecText(spec){
     return '// Vega-Kompilierung nicht möglich (offline/CDN blockiert) – Fallback Vega-Lite:\n'+JSON.stringify(spec, null, 2);
   }
 }
+/* Kurz-Zusammenfassung der Export-Einstellungen über dem Code */
+function specSummary(){
+  const fmt = state.vlVega ? 'Vega v5' : 'Vega-Lite v5';
+  const size = state.vlSizeMode==='fixed' ? (state.vlW+'×'+state.vlH+' px') : TT('dynamisch');
+  const fs = Math.round(11*(state.fontScale||1)*10)/10;
+  return fmt+' · '+size+' · Arial '+String(fs).replace('.',',')+'px · '+(state.vlDeneb ? 'dataset' : TT('eingebettet'));
+}
 async function regenVegaCode(){
-  const spec = vegaSpec($('#dlgDeneb').checked);
+  const spec = vegaSpec(state.vlDeneb);
+  $('#specSummary').textContent = specSummary();
   if(!spec){
     $('#dlgCode').value = '// Vega/Deneb-Export für diesen Diagrammtyp noch nicht verfügbar.\n'+
       '// Bitte „SVG kopieren“ oder PNG-Export nutzen – die Vorschau ist vollständig.';
@@ -4008,12 +4058,16 @@ $('#dlgPreview').addEventListener('click', async ()=>{
     /* Vorschau immer mit eingebetteten Daten rendern, auch wenn der Deneb-Modus aktiv ist */
     const spec = dlgFile.startsWith('dashboard') ? dashboardSpec(false) : vegaSpec(false);
     if(!spec){ host.innerHTML = '<span style="font-size:12px;color:#8c8c8c">Kein Vega-Spec verfügbar.</span>'; return; }
-    host.innerHTML = $('#dlgDeneb').checked
+    host.innerHTML = state.vlDeneb
       ? '<div style="font-size:11px;color:#8c8c8c;margin-bottom:8px">Vorschau mit eingebetteten Daten – das Deneb-Spec rendert identisch, sobald die Felder zugeordnet sind.</div>'
       : '';
     const mount = document.createElement('div');
-    /* Container-Sizing braucht ein Element mit fester Größe (simuliert das Deneb-Visual) */
+    /* Vorschau simuliert das Deneb-Visual: dynamisch = volle Breite, fest = exakte Pixelgröße */
     if(spec.width==='container'){ mount.style.width='100%'; mount.style.height='320px'; }
+    else if(state.vlSizeMode==='fixed' && typeof spec.width==='number'){
+      mount.style.width=spec.width+'px'; mount.style.height=spec.height+'px';
+      mount.style.outline='1px dashed '+'#cfcecb'; mount.title='Visual-Größe '+spec.width+'×'+spec.height+' px';
+    }
     host.appendChild(mount);
     await window.vegaEmbed(mount, spec, {actions:false, renderer:'svg'});
   }catch(err){
@@ -4021,38 +4075,65 @@ $('#dlgPreview').addEventListener('click', async ()=>{
   }
 });
 function syncSpecOpts(){
-  $('#dlgFitWrap').style.display = 'flex';
-  $('#dlgVegaWrap').style.display = 'flex';
-  $('#dlgFit').checked = !!state.vlFit;
-  $('#dlgVega').checked = !!state.vlVega;
+  $('#specOpts').style.display = 'block';
+  $('#odEmbed').classList.toggle('on', !state.vlDeneb);
+  $('#odDeneb').classList.toggle('on', !!state.vlDeneb);
+  $('#ofVL').classList.toggle('on', !state.vlVega);
+  $('#ofVG').classList.toggle('on', !!state.vlVega);
+  $('#osFit').classList.toggle('on', state.vlSizeMode!=='fixed');
+  $('#osFixed').classList.toggle('on', state.vlSizeMode==='fixed');
+  $('#sizeInputs').style.display = state.vlSizeMode==='fixed' ? 'inline-flex' : 'none';
+  $('#vlWInp').value = state.vlW; $('#vlHInp').value = state.vlH;
+  $('#dlgFont').value = String(state.fontScale||1);
+  $('#denebSteps').style.display = state.vlDeneb ? 'block' : 'none';
+  const fm = state.vlDeneb && !dlgFile.startsWith('dashboard') && vegaSpec(false);
+  $('#fieldMap').style.display = fm ? 'flex' : 'none';
+  if(fm) renderFieldMap();
+  applyUILang();
 }
 $('#btnVega').addEventListener('click', ()=>{
   if(state.view==='dash' && state.dash.length){ $('#btnDash').click(); return; }
   dlgFile = state.vlVega ? 'business-chart.vg.json' : 'business-chart.vl.json';
   regenVegaCode();
   $('#dashPanel').style.display = 'none';
-  $('#dlgDenebWrap').style.display = 'flex';
   syncSpecOpts();
   $('#dlgPreview').style.display = '';
   $('#vlPreview').style.display = 'none'; $('#vlPreview').innerHTML = '';
-  $('#fieldMap').style.display = vegaSpec(false) ? 'flex' : 'none';
-  renderFieldMap();
   if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
 });
 function regenSpecDlg(){
   if(dlgFile.startsWith('dashboard')) regenDash();
   else if(dlgFile.includes('.v')) regenVegaCode();
 }
-$('#dlgDeneb').addEventListener('change', regenSpecDlg);
-$('#dlgFit').addEventListener('change', e=>{ state.vlFit = e.target.checked; schedulePersist(); regenSpecDlg(); });
-$('#dlgVega').addEventListener('change', e=>{ state.vlVega = e.target.checked; schedulePersist(); regenSpecDlg(); });
+function setSpecOpt(fn){ fn(); schedulePersist(); syncSpecOpts(); regenSpecDlg(); }
+$('#odEmbed').addEventListener('click', ()=> setSpecOpt(()=> state.vlDeneb=false));
+$('#odDeneb').addEventListener('click', ()=> setSpecOpt(()=> state.vlDeneb=true));
+$('#ofVL').addEventListener('click', ()=> setSpecOpt(()=> state.vlVega=false));
+$('#ofVG').addEventListener('click', ()=> setSpecOpt(()=> state.vlVega=true));
+$('#osFit').addEventListener('click', ()=> setSpecOpt(()=> state.vlSizeMode='fit'));
+$('#osFixed').addEventListener('click', ()=> setSpecOpt(()=> state.vlSizeMode='fixed'));
+$('#vlWInp').addEventListener('change', e=> setSpecOpt(()=> state.vlW = Math.max(120, +e.target.value||600)));
+$('#vlHInp').addEventListener('change', e=> setSpecOpt(()=> state.vlH = Math.max(80, +e.target.value||340)));
+$('#sizeInputs').addEventListener('click', e=>{
+  const b = e.target.closest('[data-sz]'); if(!b) return;
+  const [w,h] = b.dataset.sz.split(',').map(Number);
+  setSpecOpt(()=>{ state.vlSizeMode='fixed'; state.vlW=w; state.vlH=h; });
+});
+$('#dlgFont').addEventListener('change', e=>{
+  state.fontScale = +e.target.value;
+  $('#fontScale').value = e.target.value;
+  renderAll();
+  syncSpecOpts(); regenSpecDlg();
+});
 $('#btnSvg').addEventListener('click', async ()=>{
   const svg = exportSvgCurrent().svg;
   try{
     await navigator.clipboard.writeText(svg);
     flash($('#btnSvg'),'Kopiert ✓');
   }catch(err){
-    $('#dlgCode').value = svg; dlgFile='ibcs-chart.svg'; if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
+    $('#dlgCode').value = svg; dlgFile='ibcs-chart.svg';
+    $('#specOpts').style.display='none'; $('#dashPanel').style.display='none'; $('#fieldMap').style.display='none';
+    if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
   }
 });
 $('#dlgClose').addEventListener('click', ()=>dlg.close());
@@ -5047,12 +5128,21 @@ function vegaSpec(deneb){
   }, body);
   spec = remapSpec(spec, vFieldMap());
   scaleSpecFonts(spec);
-  /* Container-Sizing (Power BI/Deneb): Single-View-Specs füllen das Visual und
-     skalieren mit – Schriften bleiben stabil. Mehrteilige Layouts (h/vconcat,
-     facet) unterstützt Vega-Lite nicht; dort hilft Denebs „Scaling: Auto“.   */
+  /* Größe (Power BI/Deneb): „dynamisch“ = width/height container (füllt das
+     Visual, Schrift bleibt stabil) · „fest“ = exakte Pixelgröße mit autosize
+     fit. Mehrteilige Layouts (h/vconcat, facet) unterstützt Vega-Lite nicht;
+     dort hilft Denebs „Scaling: Auto“.                                       */
   const multiView = !!(spec.hconcat || spec.vconcat || spec.concat || spec.facet);
-  if(state.vlFit && !multiView){ spec.width = 'container'; spec.height = 'container'; }
-  if(deneb && state.vlFit && multiView) note = (note?note+' · ':'')+'Mehrteiliges Layout: Container-Sizing unterstützt Vega-Lite hier nicht – im Deneb-Visual „Scaling: Auto“ aktivieren.';
+  if(!multiView){
+    if(state.vlSizeMode==='fixed'){
+      spec.width = Math.max(120, +state.vlW||600);
+      spec.height = Math.max(80, +state.vlH||340);
+      spec.autosize = {type:'fit', contains:'padding'};
+    } else {
+      spec.width = 'container'; spec.height = 'container';
+    }
+  }
+  if(deneb && multiView) note = (note?note+' · ':'')+'Mehrteiliges Layout: feste/dynamische Größe unterstützt Vega-Lite hier nicht – im Deneb-Visual „Scaling: Auto“ aktivieren.';
   const uD = unitDiv();
   if(deneb && uD.div>1) note = (note?note+' · ':'')+'Titel sagt „'+unitSuffix().replace(' · ','')+'“ – das Deneb-Dataset liefert Rohwerte; Skalierung dort per Measure oder Format regeln.';
   spec.usermeta = {
@@ -5098,7 +5188,7 @@ function serialize(){
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source,
       multiMode:state.multiMode, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
-      vlFit:state.vlFit, vlVega:state.vlVega, uiLang:state.uiLang,
+      vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, uiLang:state.uiLang,
     },
     rows:state.rows, wrows:state.wrows, srows:state.srows, series:state.series,
     highlights:[...state.highlights], diffs:[...state.diffs], comments:[...state.comments],
@@ -5259,6 +5349,26 @@ function wizRecommend(a){
  ['Kategorien vergleichen: Balken, absteigend sortiert (EX 1.1-16).','Compare categories: bars, sorted descending (EX 1.1-16).'],
  ['Punkte/Dumbbell oder Tornado, wenn viele Kategorien ruhiger wirken sollen','Dots/dumbbell or tornado if many categories should look calmer'],
 ].forEach(([d,e])=>UI_EN.set(d,e));
+/* Export-Dialog (Deneb-UX) fürs EN-Wörterbuch */
+[
+ ['eingebettet','embedded'],
+ ['Deneb-dataset (Power BI)','Deneb dataset (Power BI)'],
+ ['Größe','Size'],['dynamisch','dynamic'],['feste Größe','fixed size'],
+ ['Karte','Card'],['¼ Seite','¼ page'],['Streifen','Strip'],['Seite','Page'],['Schrift','Font'],
+ ['Vega · für Deneb empfohlen','Vega · recommended for Deneb'],
+ ['M · 11 px (IBCS-üblich)','M · 11 px (IBCS default)'],
+ ['Werte sind im Spec eingebettet – läuft sofort im Vega-Editor oder in Deneb','Values are embedded in the spec – runs immediately in the Vega editor or in Deneb'],
+ ['data → dataset: Deneb liefert die Daten aus Power BI; die benötigten Felder unten zuordnen','data → dataset: Deneb supplies the data from Power BI; map the required fields below'],
+ ['Reines Vega v5 – skaliert in Deneb am saubersten (echte width/height-Signale)','Pure Vega v5 – scales most cleanly in Deneb (real width/height signals)'],
+ ['Chart füllt das Visual und wächst mit der Kachelgröße – Schrift bleibt stabil','Chart fills the visual and grows with the tile size – fonts stay stable'],
+ ['Exakte Visual-Größe in Pixeln – die Vorschau zeigt das Chart 1:1 in dieser Größe','Exact visual size in pixels – the preview shows the chart 1:1 at this size'],
+ ['In Power BI ein Deneb-Visual einfügen und die unten gelisteten Felder in „Values“ ziehen.','In Power BI, add a Deneb visual and drag the fields listed below into “Values”.'],
+ ['Spec kopieren, in Deneb „Edit“ öffnen und den JSON-Inhalt ersetzen.','Copy the spec, open “Edit” in Deneb and replace the JSON content.'],
+ ['Beim Vega-Format im Deneb-Editor „Vega“ als Provider wählen (Datei .vg.json).','For the Vega format, select “Vega” as the provider in the Deneb editor (file .vg.json).'],
+ ['Mehrteilige Charts (Varianzanalyse, Tabelle, Dashboard): Settings → Scaling auf „Auto“ stellen.','Multi-part charts (variance analysis, table, dashboard): set Settings → Scaling to “Auto”.'],
+ ['Vorschau mit eingebetteten Daten – das Deneb-Spec rendert identisch, sobald die Felder zugeordnet sind.','Preview with embedded data – the Deneb spec renders identically once the fields are mapped.'],
+ ['Kein Vega-Spec verfügbar.','No Vega spec available.'],
+].forEach(([d,e])=>UI_EN.set(d,e));
 function wizRender(){
   [...document.querySelectorAll('#wizDim .chip')].forEach(b=>b.classList.toggle('on', b.dataset.wd===wizA.dim));
   [...document.querySelectorAll('#wizFocus .chip')].forEach(b=>b.classList.toggle('on', b.dataset.wf===wizA.focus));
@@ -5304,7 +5414,8 @@ function renderDashList(){
   ).join('') || '<div style="font-size:12px;color:#8c8c8c">Dashboard ist leer.</div>';
 }
 async function regenDash(){
-  const spec = dashboardSpec($('#dlgDeneb').checked);
+  const spec = dashboardSpec(state.vlDeneb);
+  $('#specSummary').textContent = specSummary();
   dlgFile = state.vlVega ? 'dashboard.vg.json' : 'dashboard.vl.json';
   if(!spec){ $('#dlgCode').value = 'Dashboard ist leer – über „+ Dashboard“ Charts hinzufügen.'; renderDashList(); return; }
   $('#dlgCode').value = '… erzeuge Spec …';
@@ -5316,7 +5427,6 @@ $('#btnDash').addEventListener('click', ()=>{
   /* auch bei leerem Dashboard öffnen – die Liste erklärt den nächsten Schritt */
   regenDash();
   syncSpecOpts();
-  $('#dlgDenebWrap').style.display = 'flex';
   $('#dlgPreview').style.display = '';
   $('#vlPreview').style.display = 'none'; $('#vlPreview').innerHTML = '';
   $('#fieldMap').style.display = 'none';
@@ -5341,7 +5451,7 @@ $('#btnReport').addEventListener('click', ()=>{
   $('#dlgCode').value = exportHTML(state.report);
   dlgFile = 'berichtsseite.html';
   $('#dashPanel').style.display = 'none';
-  $('#dlgDenebWrap').style.display = 'none';
+  $('#specOpts').style.display = 'none';
   $('#fieldMap').style.display = 'none';
   if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
 });
