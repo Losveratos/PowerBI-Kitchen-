@@ -26,6 +26,11 @@ header{
   padding:14px 22px; background:var(--card); border-bottom:1px solid var(--line2);
   position:sticky; top:0; z-index:20;
 }
+.backlink{
+  font-size:12px; color:var(--ink3); text-decoration:none; white-space:nowrap;
+  padding:5px 10px; border:1px solid var(--line2); border-radius:2px;
+}
+.backlink:hover{color:var(--ink); border-color:var(--ink3); background:#f0efec}
 .wordmark{display:flex; align-items:baseline; gap:10px}
 .wordmark b{font-weight:600; letter-spacing:.06em}
 .wordmark span{color:var(--ink3); font-size:12.5px}
@@ -37,6 +42,11 @@ button{
 button:hover{background:var(--ink); color:#fff}
 button.ghost{border-color:var(--line2); color:var(--ink2)}
 button.ghost:hover{background:#f0efec; color:var(--ink); border-color:var(--ink3)}
+button.primary-cta{
+  background:#1a6fb5; border-color:#1a6fb5; color:#fff; font-weight:600;
+  box-shadow:0 1px 4px rgba(26,111,181,.35);
+}
+button.primary-cta:hover{background:#135a96; border-color:#135a96; color:#fff}
 button:focus-visible, input:focus-visible, select:focus-visible{outline:2px solid var(--ink); outline-offset:1px}
 
 /* ---------- Layout ---------- */
@@ -197,6 +207,7 @@ footer{
 <body>
 
 <header>
+  <a class="backlink" href="daten_wg_learn_buckets.html" title="Zurück zur Daten-Knowledge-Hauptseite">← Daten-Knowledge</a>
   <div class="wordmark"><b>Business</b> <span>Chart Builder · semantische Notation · <b style="color:#1a6fb5">v6 Kachel-Workflow</b></span></div>
   <div class="spacer"></div>
   <button class="ghost" id="uiLangBtn" title="Switch the user interface to English / Bedienoberfläche auf Deutsch umschalten">EN</button>
@@ -212,7 +223,7 @@ footer{
   <button class="ghost" id="btnPng" title="Chart als PNG herunterladen (2×-Auflösung, scharf für Folien)">PNG</button>
   <button class="ghost" id="btnPngCopy" title="Chart als PNG in die Zwischenablage – direkt in PowerPoint/Teams einfügen (2×-Auflösung)">PNG kopieren</button>
   <button class="ghost" id="btnSvg">SVG kopieren</button>
-  <button class="ghost" id="btnVega" title="Vega-Lite-Spezifikation für Deneb (Power BI)">Vega-Lite</button>
+  <button id="btnVega" class="primary-cta" title="Spec für Deneb (Power BI) erzeugen – Format, Visual-Größe, Schrift, Tooltips und Cross-Filtering wählbar">⚡ Vega / Deneb</button>
   <button class="ghost" id="btnShare" title="Kompletten Zustand als Link kopieren – öffnet den Builder mit genau diesem Chart">Link teilen</button>
   <button id="btnExport">HTML exportieren</button>
   <span style="color:var(--line2)">·</span>
@@ -495,6 +506,10 @@ footer{
           <button class="chip" data-sz="1240,700" type="button">Seite</button>
         </span>
       </div>
+      <div class="opt-row"><span class="opt-lbl">Interaktiv</span>
+        <button class="chip" id="oiTip" type="button" title="Marks bekommen Tooltips (alle Felder der Zeile) – in Deneb den Tooltip-Handler in den Settings aktivieren">Tooltips</button>
+        <button class="chip" id="oiCross" type="button" title="Klick auf einen Datenpunkt filtert andere Visuals im Report: nicht gewählte Punkte werden transparent (__selected__). In den Deneb-Settings „Expose cross-filtering values“ aktivieren.">Cross-Filtering</button>
+      </div>
       <div class="opt-row"><span class="opt-lbl">Schrift</span>
         <select id="dlgFont">
           <option value="0.9">S · ~10 px</option>
@@ -510,6 +525,7 @@ footer{
         <li>Spec kopieren, in Deneb „Edit“ öffnen und den JSON-Inhalt ersetzen.</li>
         <li>Beim Vega-Format im Deneb-Editor „Vega“ als Provider wählen (Datei .vg.json).</li>
         <li>Mehrteilige Charts (Varianzanalyse, Tabelle, Dashboard): Settings → Scaling auf „Auto“ stellen.</li>
+        <li id="stepInteractive" style="display:none">Interaktivität: in den Deneb-Settings den Tooltip-Handler bzw. „Expose cross-filtering values for dataset rows“ aktivieren.</li>
       </ol>
     </div>
     <div id="fieldMap" style="display:none"></div>
@@ -589,6 +605,8 @@ const TYPE_GROUPS = [
   ]},
   { name:'Struktur (vertikale Achse)', types:[
     { id:'bars',      name:'Balken' },
+    { id:'bullet',    name:'Bullet · Ziel' },
+    { id:'pareto',    name:'Pareto' },
     { id:'dotplot',   name:'Punkte · Dumbbell' },
     { id:'tornado',   name:'Tornado' },
     { id:'barskombi', name:'Varianzanalyse' },
@@ -657,6 +675,8 @@ const state = {
   vlSizeMode:'fit',
   vlW:600,
   vlH:340,
+  vlTooltip:true,
+  vlCross:false,
   uiLang:'de',
   fields:{},
   series:['Produkt A','Produkt B','Produkt C'],
@@ -704,13 +724,13 @@ const CHART_LANG = {
         gleitend:'12M gleitend', Monat:'Monat', und:'und', nach:'nach', PeriodenUnd:'Perioden und ',
         Serien:'Serien', jeSerie:'je Serie, gleiche Skala', vs:'vs.', Trend:'Trend', jePeriode:'je Periode',
         Beitraege:'als Beiträge, Σ', zChart:': Monat, kumuliert, 12M gleitend', keineXY:'Keine gültigen X/Y-Paare',
-        Saeulen:'Säulen', Linie:'Linie', jeSerieK:'je Serie' },
+        Saeulen:'Säulen', Linie:'Linie', jeSerieK:'je Serie', von:'von', kumPct:'kumuliert %' },
   en: { Tsd:'k', Mio:'m', in:'in', Summe:'Total', Uebrige:'Others', Quelle:'Source',
         Verlauf:'Trend', aktuell:'latest', Serie:'Series', kumuliert:'cumulative',
         gleitend:'12M rolling', Monat:'month', und:'and', nach:'by', PeriodenUnd:'periods and ',
         Serien:'series', jeSerie:'per series, same scale', vs:'vs.', Trend:'Trend', jePeriode:'per period',
         Beitraege:'as contributions, Σ', zChart:': month, cumulative, 12M rolling', keineXY:'No valid X/Y pairs',
-        Saeulen:'columns', Linie:'line', jeSerieK:'per series' },
+        Saeulen:'columns', Linie:'line', jeSerieK:'per series', von:'of', kumPct:'cumulative %' },
 };
 function CL(key){ return (CHART_LANG[state.chartLang]||CHART_LANG.de)[key] || key; }
 function numLocale(){ return state.chartLang==='en' ? 'en-US' : 'de-DE'; }
@@ -978,12 +998,12 @@ function relCap(vals){
   }
   return Infinity;
 }
-function needsRef(){ return ['absvar','relvar','kombi','barskombi','table','bridge','wfkombi','zchart'].includes(state.type); }
+function needsRef(){ return ['absvar','relvar','kombi','barskombi','table','bridge','wfkombi','zchart','bullet'].includes(state.type); }
 function usesWrows(){ return state.type==='waterfall' || state.type==='wfkombi'; }
 function isTime(){ return ['columns','absvar','relvar','kombi','line','zchart','colline'].includes(state.type); }
 function isStacked(){ return ['stackcol','stackbar','multiples'].includes(state.type); }
 function usesSrows(){ return isStacked() || state.type==='sparktable'; }
-function isStruct(){ return ['bars','barskombi','table','dotplot','tornado'].includes(state.type); }
+function isStruct(){ return ['bars','barskombi','table','dotplot','tornado','bullet','pareto'].includes(state.type); }
 
 function activeRows(){
   let r = state.rows.filter(x=>x.c!=='' || !isNaN(x.v1));
@@ -2096,8 +2116,17 @@ function renderKpi(){
   const refs = [];
   if(hasR1) refs.push({code:state.reference, key:'v2'});
   if(hasR2) refs.push({code:state.reference2, key:'v3'});
+  /* Zielerreichungs-Balken, wenn eine Referenz Plan/Budget ist (KPI-Best-Practice) */
+  const planRef = refs.find(rf=> rf.code==='PL'||rf.code==='BU');
+  /* Mini-Verlauf, wenn die Serien-Tabelle eine Serie mit dem KPI-Namen führt */
+  const sparkFor = name => {
+    const j = state.series.indexOf(name);
+    if(j<0) return null;
+    const vals = state.srows.filter(p=>p.c!=='').map(p=>p.v[j]).filter(v=>!isNaN(v));
+    return vals.length>1 ? vals : null;
+  };
   const perRow = 3, cw = 198, gapX = 16, gapY = 16;
-  const ch = 58 + refs.length*23 + 12;
+  const ch = 58 + refs.length*23 + (planRef?17:0) + 12;
   const gridRows = Math.ceil(rows.length/perRow);
   const padL=4, padT=4;
   const W = padL + perRow*cw + (perRow-1)*gapX + 6;
@@ -2116,15 +2145,37 @@ function renderKpi(){
     const gy = padT + Math.floor(i/perRow)*(ch+gapY);
     s += '<rect data-i="'+i+'" x="'+gx+'" y="'+gy+'" width="'+cw+'" height="'+ch+'" rx="7" fill="'+WHITE+'" stroke="#e3e1dc" stroke-width="1"/>';
     s += txt(gx+12, gy+19, r.c, {size:11.5, weight:'bold', fill:CAT});
-    /* großer Primärwert, FC-Kennung */
+    /* großer Primärwert + Einheit, FC-Kennung */
     const big = fmt(r.v1);
-    s += '<text x="'+(gx+12)+'" y="'+(gy+45)+'" font-family="'+FONT+'" font-size="21" font-weight="bold" fill="'+DARK+'">'+esc(big)+'</text>';
-    if(r.fc) s += txt(gx+12+String(big).length*12+8, gy+45, 'FC', {size:10, fill:SUB});
+    s += '<text x="'+(gx+12)+'" y="'+(gy+45)+'" font-family="'+FONT+'" font-size="'+fsc(21)+'" font-weight="bold" fill="'+(r.fc?FCINK:DARK)+'">'+esc(big)+'</text>';
+    let bx = gx+12+String(big).length*12+6;
+    if(state.unit){ s += txt(bx, gy+45, state.unit, {size:11, fill:SUB}); bx += String(state.unit).length*7+6; }
+    if(r.fc) s += txt(bx, gy+45, 'FC', {size:10, fill:SUB});
+    /* Mini-Sparkline rechts oben (Daten: Serien-Tabelle, Serie = KPI-Name) */
+    const sp = sparkFor(r.c);
+    if(sp){
+      const sx0 = gx+cw-12-56, sy0 = gy+30, sw = 56, sh = 16;
+      const mn = Math.min(...sp), mx = Math.max(...sp), rng = (mx-mn)||1;
+      let d = '';
+      sp.forEach((v,k)=>{ d += (k? ' L ':'M ')+(sx0+k/(sp.length-1)*sw)+','+(sy0+sh-(v-mn)/rng*sh); });
+      s += '<path d="'+d+'" fill="none" stroke="'+LIGHT+'" stroke-width="1.4"/>';
+      s += '<circle cx="'+(sx0+sw)+'" cy="'+(sy0+sh-(sp[sp.length-1]-mn)/rng*sh)+'" r="2.4" fill="'+DARK+'"/>';
+    }
     if(state.highlights.has(i)) s += hiliteEllipse(gx+12+String(big).length*6, gy+38, String(big).length*7+12, 13);
     s += cmark(i, gx+cw-16, gy+16);
+    /* Zielerreichung gegen Plan/Budget als schmaler Fortschrittsbalken */
+    if(planRef && !isNaN(r.v1) && !isNaN(r[planRef.key]) && r[planRef.key]>0){
+      const pct = r.v1/r[planRef.key]*100;
+      const by = gy+54, bw = cw-24, bh = 5;
+      const fillW = Math.min(pct,120)/120*bw, tickX = gx+12+100/120*bw;
+      s += '<rect x="'+(gx+12)+'" y="'+by+'" width="'+bw+'" height="'+bh+'" rx="2.5" fill="#efeeea"/>';
+      s += '<rect x="'+(gx+12)+'" y="'+by+'" width="'+Math.max(2,fillW)+'" height="'+bh+'" rx="2.5" fill="'+(pct>=100?'var-pos':DARK)+'"/>';
+      s += '<line x1="'+tickX+'" y1="'+(by-2)+'" x2="'+tickX+'" y2="'+(by+bh+2)+'" stroke="'+DARK+'" stroke-width="1.2"/>';
+      s += txt(gx+cw-12, by+5, Math.round(pct)+' % '+CL('von')+' '+planRef.code, {anchor:'end', size:8.5, fill:SUB});
+    }
     /* Vergleichszeilen */
     refs.forEach((rf,j)=>{
-      const cy = gy+58 + j*23 + 6;
+      const cy = gy+58 + (planRef?17:0) + j*23 + 6;
       const refv = r[rf.key];
       s += txt(gx+12, cy+3.5, 'Δ'+rf.code, {size:10, fill:SUB});
       /* Mini-Achse mit Referenz-Notation + Δ%-Pin (gemeinsame Skala) */
@@ -2155,7 +2206,7 @@ function renderKpi(){
         const col = dv>=0 ? 'var-pos' : 'var-neg';
         s += txt(gx+cw-66, cy+3.5, fmt(dv,true), {anchor:'end', size:10.5, fill:col, weight:'bold'});
       }
-      s += txt(gx+cw-12, cy+3.5, rv===null?'n.a.':fmtPct(rv), {anchor:'end', size:10.5, fill: rv===null?'#999':(rv>=0?'var-pos':'var-neg')});
+      s += txt(gx+cw-12, cy+3.5, rv===null?'n.a.':((rv>=0?'▲ ':'▼ ')+fmtPct(rv)), {anchor:'end', size:10.5, fill: rv===null?'#999':(rv>=0?'var-pos':'var-neg'), weight:'bold'});
     });
   });
   return { svg:s, W, H };
@@ -2803,6 +2854,95 @@ function renderSparkTable(){
   return { svg:s, W, H };
 }
 
+/* --- Bullet (Struktur): Ist-Balken auf Track, Ziel als Marke in Szenario-Notation --- */
+function renderBullet(rows, opt){
+  const rowH=26, padT=24, padB=8, W=640;
+  const padL=labelW(rows);
+  const hasRef=state.reference!=='—', hasRef2=state.reference2!=='—';
+  const showAbs=state.showAbs&&hasRef, showRel=state.showRel&&hasRef;
+  const nRight=1+(showAbs?1:0)+(showRel?1:0);
+  const padR=20+nRight*54;
+  const plotW=W-padL-padR;
+  const H=padT+rows.length*rowH+padB;
+  const vals=rows.flatMap(r=>[r.v1, hasRef?r.v2:NaN, hasRef2?r.v3:NaN]).filter(v=>!isNaN(v));
+  const sc=makeScale(Math.min(...vals,0), Math.max(...vals,0), plotW, 0.08, true);
+  const X=v=>padL+sc.x(v), x0=padL+sc.zeroX;
+  const colRel=showRel?W-20:null, colAbs=showAbs?W-20-(showRel?54:0):null;
+  const colVal=W-20-(showAbs?54:0)-(showRel?54:0);
+  let s='';
+  s+=txt(colVal, 14, state.primary, {anchor:'end', size:10.5, weight:'bold', fill:CAT});
+  if(showAbs) s+=txt(colAbs, 14, 'Δ'+state.reference, {anchor:'end', size:10.5, weight:'bold', fill:CAT});
+  if(showRel) s+=txt(colRel, 14, 'Δ'+state.reference+'%', {anchor:'end', size:10.5, weight:'bold', fill:CAT});
+  s+='<line x1="0" y1="'+(padT-6)+'" x2="'+W+'" y2="'+(padT-6)+'" stroke="'+DARK+'" stroke-width="1.1"/>';
+  rows.forEach((r,i)=>{
+    const cy=padT+rowH*i+rowH/2;
+    s+=catLabel(rows, i, padL-8, cy+4);
+    s+='<rect x="'+padL+'" y="'+(cy-rowH*0.36)+'" width="'+plotW+'" height="'+(rowH*0.72)+'" fill="#f1f0ec"/>';
+    if(!isNaN(r.v1)){
+      const p=scenPaint(state.primary, r.fc);
+      const w=Math.abs(sc.x(r.v1)-sc.zeroX), xx=r.v1>=0?x0:X(r.v1);
+      s+=rect(xx, cy-rowH*0.18, w, rowH*0.36, p, i);
+      s+=txt(colVal, cy+3.6, fmt(r.v1), {anchor:'end', size:11, weight:'bold', fill:r.fc?FCINK:DARK});
+      if(state.highlights.has(i)) s+=hiliteEllipse(X(r.v1), cy, 8, 9);
+      s+=cmark(i, X(r.v1)+10, cy);
+    }
+    /* Ziel-Marke trägt die Notation der Referenz: PY/FC hell, PL/BU Doppellinie */
+    if(hasRef && !isNaN(r.v2)){
+      const tx=X(r.v2);
+      if(state.reference==='PY'||state.reference==='FC')
+        s+='<rect x="'+(tx-1.75)+'" y="'+(cy-rowH*0.4)+'" width="3.5" height="'+(rowH*0.8)+'" fill="'+LIGHT+'"/>';
+      else {
+        s+='<line x1="'+(tx-1.5)+'" y1="'+(cy-rowH*0.4)+'" x2="'+(tx-1.5)+'" y2="'+(cy+rowH*0.4)+'" stroke="'+DARK+'" stroke-width="1.1"/>';
+        s+='<line x1="'+(tx+1.5)+'" y1="'+(cy-rowH*0.4)+'" x2="'+(tx+1.5)+'" y2="'+(cy+rowH*0.4)+'" stroke="'+DARK+'" stroke-width="1.1"/>';
+      }
+    }
+    if(hasRef2 && !isNaN(r.v3)) s+=scenDot(X(r.v3), cy, scenPaint(state.reference2), 3.4);
+    if((showAbs||showRel) && !isNaN(r.v1) && !isNaN(r.v2)){
+      const dv=r.v1-r.v2, rv=r.v2>0?dv/r.v2*100:null;
+      if(showAbs) s+=txt(colAbs, cy+3.6, fmt(dv,true), {anchor:'end', size:10.5, weight:'bold', fill:dv>=0?'var-pos':'var-neg'});
+      if(showRel) s+=txt(colRel, cy+3.6, rv===null?'n.a.':fmtPct(rv), {anchor:'end', size:10.5, weight:'bold', fill:(rv||0)>=0?'var-pos':'var-neg'});
+    }
+  });
+  if(Math.min(...vals,0)<0)
+    s+='<line x1="'+x0+'" y1="'+(padT-2)+'" x2="'+x0+'" y2="'+(H-padB)+'" stroke="'+DARK+'" stroke-width="1.2"/>';
+  return { svg:s, W, H };
+}
+
+/* --- Pareto: Säulen absteigend sortiert + kumulierte %-Linie mit 80 %-Marke --- */
+function renderPareto(rowsIn){
+  const rows=[...rowsIn].filter(r=>!isNaN(r.v1) && r.v1>0).sort((a,b)=>b.v1-a.v1);
+  const W=640, plotH=190, padT=22, padB=22, padL=10, padR=46;
+  const H=padT+plotH+padB;
+  if(!rows.length) return { svg:txt(W/2, H/2, 'n.a.', {anchor:'middle', fill:'#999'}), W, H };
+  const total=rows.reduce((a,r)=>a+r.v1, 0)||1;
+  const sc=makeScale(0, Math.max(...rows.map(r=>r.v1), 1), plotH, 0.10, true);
+  const slot=(W-padL-padR)/rows.length, y0=padT+sc.zeroY;
+  const X=i=>padL+slot*i+slot/2;
+  const Ypct=p=>padT+plotH-(p/100)*plotH;
+  let s='', cum=0;
+  const pts=[];
+  s+=txt(padL+2, 13, CL('kumPct'), {size:9.5, fill:SUB});
+  rows.forEach((r,i)=>{
+    const cx=X(i), h=Math.abs(sc.y(r.v1)-sc.zeroY);
+    s+=rect(cx-slot*0.27, padT+sc.y(r.v1), slot*0.54, h, scenPaint(state.primary, r.fc), i);
+    s+=txt(cx, padT+sc.y(r.v1)-6, fmt(r.v1), {anchor:'middle', size:10.5, halo:true, fill:r.fc?FCINK:DARK});
+    s+=txt(cx, y0+15, r.c, {anchor:'middle', size:11, fill:CAT});
+    cum+=r.v1;
+    pts.push({x:cx, y:Ypct(cum/total*100), pct:cum/total*100});
+  });
+  s+='<line x1="'+padL+'" y1="'+Ypct(80)+'" x2="'+(W-padR)+'" y2="'+Ypct(80)+'" stroke="'+HAIR+'" stroke-width="1" stroke-dasharray="4,3"/>';
+  s+=txt(W-padR+5, Ypct(80)+3.5, '80 %', {size:9.5, fill:SUB});
+  for(let k=1;k<pts.length;k++)
+    s+='<line x1="'+pts[k-1].x+'" y1="'+pts[k-1].y+'" x2="'+pts[k].x+'" y2="'+pts[k].y+'" stroke="'+DARK+'" stroke-width="1.8"/>';
+  pts.forEach((p,k)=>{
+    s+='<circle cx="'+p.x+'" cy="'+p.y+'" r="2.8" fill="'+WHITE+'" stroke="'+DARK+'" stroke-width="1.3"/>';
+    if(k===0 || k===pts.length-1 || (pts[k-1].pct<80 && p.pct>=80))
+      s+=txt(p.x, p.y-8, Math.round(p.pct)+'%', {anchor:'middle', size:9.5, fill:SUB, halo:true});
+  });
+  s+='<line x1="'+padL+'" y1="'+y0+'" x2="'+(W-padR)+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1.5"/>';
+  return { svg:s, W, H };
+}
+
 /* Reihen für die indexierte Linie auf gemeinsamen Startwert 100 normieren */
 function indexRows(rows){
   const base=key=>{ for(const r of rows){ if(!isNaN(r[key]) && r[key]!==0) return r[key]; } return null; };
@@ -2828,6 +2968,8 @@ function buildChart(){
   }
   else if(state.type==='dotplot')   r = renderDotPlot(rows);
   else if(state.type==='tornado')   r = renderTornado(rows);
+  else if(state.type==='bullet')    r = renderBullet(rows);
+  else if(state.type==='pareto')    r = renderPareto(rows);
   else if(state.type==='sparktable') r = renderSparkTable();
   else if(state.type==='zchart')    r = tiersOn ? withVarTiers(rows, renderZChart(rows,{plotH:210}), {padL:14,padR:96}, state.primary+CL('zChart')) : renderZChart(rows);
   else if(state.type==='stackcol')  r = state.stackAsMulti ? renderMultiples() : renderStackCol();
@@ -2897,6 +3039,7 @@ function autoT3Body(){
   }
   if(state.type==='stackcol' || state.type==='stackbar') return p + ' ' + state.primary + ' ' + CL('nach') + ' ' + (state.type==='stackcol'?CL('PeriodenUnd'):'') + CL('Serien');
   if(state.type==='sparktable') return p + ' ' + state.primary + ': ' + CL('Verlauf') + ' ' + CL('jeSerieK');
+  if(state.type==='pareto') return p + ' ' + prim + ', ' + CL('kumPct');
   if(state.type==='colline' && ref!=='—') return p + ' ' + prim + ' ('+CL('Saeulen')+')' + und + ref + ' ('+CL('Linie')+')';
   if(state.type==='multiples') return p + ' ' + state.primary + ' ' + CL('jeSerie');
   if(state.type==='scatter') return p + ' ' + state.primary + ': ' + state.xTitle + ' '+CL('vs')+' ' + state.yTitle;
@@ -2921,6 +3064,8 @@ function typeIcon(id){
     case 'colline': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="1" y="9" width="4" height="8" fill="'+g+'"/><rect x="8" y="5" width="4" height="12" fill="'+g+'"/><rect x="15" y="11" width="4" height="6" fill="'+g+'"/><rect x="21" y="3" width="4" height="14" fill="'+g+'"/><polyline points="3,11 10,8 17,12 23,6" fill="none" stroke="'+l+'" stroke-width="1.6"/><circle cx="3" cy="11" r="1.6" fill="'+l+'"/><circle cx="10" cy="8" r="1.6" fill="'+l+'"/><circle cx="17" cy="12" r="1.6" fill="'+l+'"/><circle cx="23" cy="6" r="1.6" fill="'+l+'"/></svg>';
     case 'bars': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="3" y1="0" x2="3" y2="18" stroke="'+g+'" stroke-width="1.5"/><rect x="3" y="2" width="18" height="3.4" fill="'+g+'"/><rect x="3" y="7.5" width="11" height="3.4" fill="'+g+'"/><rect x="3" y="13" width="15" height="3.4" fill="'+g+'"/></svg>';
     case 'dotplot': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="6" y1="3" x2="18" y2="3" stroke="'+l+'" stroke-width="1.4"/><circle cx="6" cy="3" r="2.4" fill="'+l+'"/><circle cx="18" cy="3" r="2.6" fill="'+g+'"/><line x1="9" y1="9" x2="21" y2="9" stroke="'+l+'" stroke-width="1.4"/><circle cx="9" cy="9" r="2.4" fill="'+l+'"/><circle cx="21" cy="9" r="2.6" fill="'+g+'"/><line x1="4" y1="15" x2="13" y2="15" stroke="'+l+'" stroke-width="1.4"/><circle cx="4" cy="15" r="2.4" fill="'+l+'"/><circle cx="13" cy="15" r="2.6" fill="'+g+'"/></svg>';
+    case 'bullet': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="1" y="2" width="24" height="5" fill="#f1f0ec"/><rect x="1" y="3" width="15" height="3" fill="'+g+'"/><line x1="19" y1="1" x2="19" y2="8" stroke="'+g+'" stroke-width="1.6"/><rect x="1" y="11" width="24" height="5" fill="#f1f0ec"/><rect x="1" y="12" width="20" height="3" fill="'+g+'"/><line x1="16" y1="10" x2="16" y2="17" stroke="'+g+'" stroke-width="1.6"/></svg>';
+    case 'pareto': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="1" y="6" width="4" height="11" fill="'+g+'"/><rect x="7" y="10" width="4" height="7" fill="'+g+'"/><rect x="13" y="13" width="4" height="4" fill="'+g+'"/><rect x="19" y="15" width="4" height="2" fill="'+g+'"/><polyline points="3,9 9,5 15,3 21,2" fill="none" stroke="'+g+'" stroke-width="1.4"/><circle cx="3" cy="9" r="1.6" fill="#fff" stroke="'+g+'"/><circle cx="21" cy="2" r="1.6" fill="#fff" stroke="'+g+'"/></svg>';
     case 'tornado': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="13" y1="0" x2="13" y2="18" stroke="'+g+'" stroke-width="1"/><rect x="4" y="2" width="9" height="3.4" fill="'+l+'"/><rect x="13" y="2" width="10" height="3.4" fill="'+g+'"/><rect x="6" y="7.3" width="7" height="3.4" fill="'+l+'"/><rect x="13" y="7.3" width="7" height="3.4" fill="'+g+'"/><rect x="8" y="12.6" width="5" height="3.4" fill="'+l+'"/><rect x="13" y="12.6" width="4" height="3.4" fill="'+g+'"/></svg>';
     case 'sparktable': return '<svg width="26" height="18" viewBox="0 0 26 18"><polyline points="1,5 4,3 7,6 10,2" fill="none" stroke="'+g+'" stroke-width="1.3"/><circle cx="10" cy="2" r="1.3" fill="'+g+'"/><polyline points="1,11 4,9 7,12 10,10" fill="none" stroke="'+g+'" stroke-width="1.3"/><circle cx="10" cy="10" r="1.3" fill="'+g+'"/><polyline points="1,16 4,15 7,17 10,14" fill="none" stroke="'+g+'" stroke-width="1.3"/><circle cx="10" cy="14" r="1.3" fill="'+g+'"/><line x1="15" y1="3" x2="24" y2="3" stroke="'+l+'" stroke-width="1.4"/><line x1="15" y1="9" x2="22" y2="9" stroke="'+l+'" stroke-width="1.4"/><line x1="15" y1="15" x2="25" y2="15" stroke="'+l+'" stroke-width="1.4"/></svg>';
     case 'absvar': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="9" x2="26" y2="9" stroke="'+g+'" stroke-width="1.4"/><rect x="2" y="3" width="4" height="6" fill="#469b3c"/><rect x="9" y="9" width="4" height="5" fill="#c0392b"/><rect x="16" y="5" width="4" height="4" fill="#469b3c"/><rect x="22" y="9" width="3.5" height="7" fill="#c0392b"/></svg>';
@@ -2964,7 +3109,7 @@ function renderTypeButtons(){
   '<details class="type-details"'+(HIDDEN_IN_GRID.includes(state.type)?' open':'')+'><summary>Fertige Kombinationen (Vorlagen)</summary><div class="types">'+pro.map(btn).join('')+'</div></details>';
 }
 function isMulti(){ return ['kombi','barskombi','table','kpi'].includes(state.type); }
-function usesRef2(){ return ['kombi','barskombi','table','kpi','columns','bars','colline','dotplot','tornado'].includes(state.type); }
+function usesRef2(){ return ['kombi','barskombi','table','kpi','columns','bars','colline','dotplot','tornado','bullet'].includes(state.type); }
 function renderChips(){
   const prims = ['AC','FC','PL'];
   const refs  = ['PY','PL','BU','FC','—'];
@@ -3006,6 +3151,8 @@ function renderChips(){
     colline:'Säulen + Linie: Primärszenario als Säulen, Referenz(en) als überlagerte Linie (PY hell, PL/BU gestrichelt). Δ und Δ% lassen sich als Ebenen darüber schalten.',
     dotplot:'Punktdiagramm/Dumbbell (Struktur): Primär- und Referenzpunkt je Zeile, verbunden – ruhiger als Balken bei vielen Kategorien. Werte und Δ/Δ% in festen rechten Spalten, sortierbar.',
     tornado:'Tornado/Butterfly (Struktur): Referenz links, Primär rechts, gespiegelt um die Mittelachse. Nach Größe sortierbar; Δ/Δ% optional zentriert je Zeile.',
+    bullet:'Bullet-Chart: Ist-Balken auf neutralem Track, Ziel als Marke in Szenario-Notation (PL/BU Doppellinie, PY hell). Δ/Δ% als Spalten zuschaltbar – der Klassiker für Ziel vs. Ist.',
+    pareto:'Pareto: Säulen automatisch absteigend sortiert, kumulierte %-Linie mit 80 %-Marke. Zeigt, welche wenigen Kategorien den Großteil ausmachen; Top-N + Übrige kombinierbar.',
     sparktable:'Sparkline-Tabelle: je Serie eine Zeile mit Periodenwerten, Inline-Trend, aktuellem Wert und Δ (erste→letzte). Daten über die Serien-/Perioden-Tabelle pflegen.',
     stackcol:'Gestapelte Säulen (EX 1.1-3): Graustufen-Segmente, Σ fett, Legende an der letzten Säule. Nur gleichvorzeichige Werte verwenden.',
     stackbar:'Gestapelte Balken (EX 1.1-11): Legende über dem obersten Balken, Σ rechts. Nur gleichvorzeichige Werte verwenden.',
@@ -3029,6 +3176,8 @@ function renderChips(){
     colline:'Columns + line: primary scenario as columns, reference(s) as an overlaid line (PY light, PL/BU dashed). Δ and Δ% can be switched on as tiers above.',
     dotplot:'Dot plot/dumbbell (structure): primary and reference dot per row, connected – calmer than bars with many categories. Values and Δ/Δ% in fixed right-hand columns, sortable.',
     tornado:'Tornado/butterfly (structure): reference left, primary right, mirrored around the central axis. Sortable by size; Δ/Δ% optionally centered per row.',
+    bullet:'Bullet chart: actual bar on a neutral track, target as a mark in scenario notation (PL/BU double line, PY light). Δ/Δ% available as columns – the classic for target vs. actual.',
+    pareto:'Pareto: columns sorted descending automatically, cumulative % line with an 80% mark. Shows which few categories make up most of the total; combinable with top N + others.',
     sparktable:'Sparkline table: one row per series with period values, inline trend, latest value and Δ (first→last). Maintain data via the series/period table.',
     stackcol:'Stacked columns (EX 1.1-3): greyscale segments, Σ bold, legend at the last column. Use same-sign values only.',
     stackbar:'Stacked bars (EX 1.1-11): legend above the top bar, Σ on the right. Use same-sign values only.',
@@ -3134,7 +3283,7 @@ function renderComments(){
 }
 /* Gemeinsame Wertskala (IBCS SC): Wertebereich eines Snapshots, sofern der Typ
    eine vergleichbare Primärwert-Skala hat. */
-const SHARE_OK = ['columns','colline','line','bars','dotplot','stackcol','stackbar'];
+const SHARE_OK = ['columns','colline','line','bars','dotplot','stackcol','stackbar','bullet','pareto'];
 function valueRange(){
   if(!SHARE_OK.includes(state.type)) return null;
   if(state.type==='line' && state.lineIndex) return null;
@@ -3488,7 +3637,10 @@ const PRESETS = {
   threeScen:{ type:'columns', primary:'AC', reference:'PL', reference2:'PY', t2:'Umsatz in mEUR',
     rows:[['Jan',97,92,90],['Feb',102,98,95],['Mär',88,99,96],['Apr',110,103,99],['Mai',105,107,108],['Jun',118,108,104],['Jul',112,110,106],['Aug',96,104,101],['Sep',121,112,107],['Okt',117,114,111,1],['Nov',124,116,113,1],['Dez',131,119,118,1]] },
   kpiDemo:{ type:'kpi', primary:'AC', reference:'PY', reference2:'PL', t2:'Konzern-Kennzahlen in mEUR',
-    rows:[['Umsatz',642,601,612],['Bruttoergebnis',404,389,398],['EBIT',172,154,166],['Free Cashflow',128,141,135],['Auftragseingang',703,648,690],['Nettoverschuldung',214,236,220]] },
+    rows:[['Umsatz',642,601,612],['Bruttoergebnis',404,389,398],['EBIT',172,154,166],['Free Cashflow',128,141,135],['Auftragseingang',703,648,690],['Nettoverschuldung',214,236,220]],
+    /* Serien mit gleichem Namen liefern den Mini-Verlauf auf der Karte */
+    series:['Umsatz','EBIT','Free Cashflow'],
+    srows:[['Q1',148,38,29],['Q2',157,41,33],['Q3',162,44,30],['Q4',175,49,36]] },
   scatterDemo:{ type:'scatter', t2:'Portfolio: Umsatz vs. Wachstum, Bubble = Kunden',
     xTitle:'Umsatz mEUR', yTitle:'Wachstum %',
     rows:[['Deutschland',186,4.2,310],['Frankreich',122,-1.8,240],['Schweiz',91,8.3,120],['Niederlande',77,10,95],['Österreich',64,10.3,88],['Italien',48,-7.7,110],['Polen',39,15.4,60],['Spanien',33,-4.1,72]] },
@@ -3586,8 +3738,8 @@ const VAR_TIER_TYPES = ['columns','line','zchart','bars','multiples'];
 const VAR_BUILTIN_TYPES = ['kombi','barskombi','table','wfkombi','kpi'];
 function updateCombinePanel(hasRef){
   const t = state.type;
-  const REL_OK = ['columns','line','zchart','bars','multiples','waterfall','bridge','colline','dotplot','tornado'];
-  const ABS_OK = ['columns','line','zchart','bars','multiples','waterfall','colline','dotplot','tornado'];
+  const REL_OK = ['columns','line','zchart','bars','multiples','waterfall','bridge','colline','dotplot','tornado','bullet'];
+  const ABS_OK = ['columns','line','zchart','bars','multiples','waterfall','colline','dotplot','tornado','bullet'];
   const builtin = VAR_BUILTIN_TYPES.includes(t);
   const relOk = REL_OK.includes(t), absOk = ABS_OK.includes(t);
   const curRel = t==='bridge' ? !!state.bridgeRel : state.showRel;
@@ -3995,12 +4147,29 @@ async function exportSpecText(spec){
     return '// Vega-Kompilierung nicht möglich (offline/CDN blockiert) – Fallback Vega-Lite:\n'+JSON.stringify(spec, null, 2);
   }
 }
+/* Tooltips/Cross-Filtering in alle Daten-Marks des Specs einfügen */
+function addInteractivity(node){
+  if(Array.isArray(node)){ node.forEach(addInteractivity); return; }
+  if(!node || typeof node!=='object') return;
+  if(node.mark && node.encoding){
+    const mt = typeof node.mark==='string' ? node.mark : node.mark.type;
+    if(['bar','point','circle','rect','area','line'].includes(mt)){
+      if(typeof node.mark==='string') node.mark = {type:mt};
+      if(state.vlTooltip && node.mark.tooltip===undefined) node.mark.tooltip = {content:'data'};
+      if(state.vlCross && !node.encoding.opacity && ['bar','point','circle','rect','area'].includes(mt)){
+        node.encoding.opacity = {condition:{test:{field:'__selected__', equal:'off'}, value:0.3}, value:1};
+      }
+    }
+  }
+  Object.keys(node).forEach(k=>{ if(k!=='usermeta') addInteractivity(node[k]); });
+}
 /* Kurz-Zusammenfassung der Export-Einstellungen über dem Code */
 function specSummary(){
   const fmt = state.vlVega ? 'Vega v5' : 'Vega-Lite v5';
   const size = state.vlSizeMode==='fixed' ? (state.vlW+'×'+state.vlH+' px') : TT('dynamisch');
   const fs = Math.round(11*(state.fontScale||1)*10)/10;
-  return fmt+' · '+size+' · Arial '+String(fs).replace('.',',')+'px · '+(state.vlDeneb ? 'dataset' : TT('eingebettet'));
+  const ia = (state.vlTooltip?' · Tooltips':'')+(state.vlCross?' · Cross-Filter':'');
+  return fmt+' · '+size+' · Arial '+String(fs).replace('.',',')+'px · '+(state.vlDeneb ? 'dataset' : TT('eingebettet'))+ia;
 }
 async function regenVegaCode(){
   const spec = vegaSpec(state.vlDeneb);
@@ -4085,7 +4254,10 @@ function syncSpecOpts(){
   $('#sizeInputs').style.display = state.vlSizeMode==='fixed' ? 'inline-flex' : 'none';
   $('#vlWInp').value = state.vlW; $('#vlHInp').value = state.vlH;
   $('#dlgFont').value = String(state.fontScale||1);
+  $('#oiTip').classList.toggle('on', !!state.vlTooltip);
+  $('#oiCross').classList.toggle('on', !!state.vlCross);
   $('#denebSteps').style.display = state.vlDeneb ? 'block' : 'none';
+  $('#stepInteractive').style.display = (state.vlTooltip||state.vlCross) ? 'list-item' : 'none';
   const fm = state.vlDeneb && !dlgFile.startsWith('dashboard') && vegaSpec(false);
   $('#fieldMap').style.display = fm ? 'flex' : 'none';
   if(fm) renderFieldMap();
@@ -4112,6 +4284,8 @@ $('#ofVL').addEventListener('click', ()=> setSpecOpt(()=> state.vlVega=false));
 $('#ofVG').addEventListener('click', ()=> setSpecOpt(()=> state.vlVega=true));
 $('#osFit').addEventListener('click', ()=> setSpecOpt(()=> state.vlSizeMode='fit'));
 $('#osFixed').addEventListener('click', ()=> setSpecOpt(()=> state.vlSizeMode='fixed'));
+$('#oiTip').addEventListener('click', ()=> setSpecOpt(()=> state.vlTooltip=!state.vlTooltip));
+$('#oiCross').addEventListener('click', ()=> setSpecOpt(()=> state.vlCross=!state.vlCross));
 $('#vlWInp').addEventListener('change', e=> setSpecOpt(()=> state.vlW = Math.max(120, +e.target.value||600)));
 $('#vlHInp').addEventListener('change', e=> setSpecOpt(()=> state.vlH = Math.max(80, +e.target.value||340)));
 $('#sizeInputs').addEventListener('click', e=>{
@@ -4762,6 +4936,49 @@ function vlTornado(deneb, ov){
     encoding:{y:{field:'k', type:'nominal', sort:null, axis:{labelPadding:8}}}, layer };
   return (ov && (ov.showAbs||ov.showRel)) ? vlWithStructTiers(base, deneb, ov) : base;
 }
+/* Bullet: Ist-Balken + Ziel-Tick; Δ/Δ% als hconcat-Spalten */
+function vlBullet(deneb, ov){
+  const hasRef = state.reference!=='—';
+  const layer = [vAnchor()];
+  layer.push({mark:{type:'bar', size:17, color:'#f1f0ec'},
+    encoding:{x:{aggregate:'max', field:'p', type:'quantitative', axis:null}}});
+  const pb = vPrimBarMark(9); pb.encoding.x = vYq('p'); layer.push(pb);
+  if(hasRef){
+    const py = state.reference==='PY'||state.reference==='FC';
+    layer.push({mark:{type:'tick', thickness:py?3.5:2, size:20, color:py?LIGHT:DARK, opacity:1},
+      encoding:{x:vYq('r')}});
+  }
+  if(state.reference2!=='—'){
+    const s2 = vScen(state.reference2);
+    layer.push({mark:{type:'point', size:46, filled:true, opacity:1,
+        fill:s2.stroke?'#ffffff':s2.fill, stroke:s2.stroke||s2.fill, strokeWidth:s2.stroke?1.2:0},
+      encoding:{x:vYq('r2')}});
+  }
+  vSignedText('p', vLab(deneb,'p','Lp',vNum()), false).forEach(l=>{ l.mark.dx = l.mark.dx>0? 10 : -10; layer.push(l); });
+  const base = { width:430, height:{step:26}, data:vData(vRows(),deneb),
+    encoding:{y:{field:'k', type:'nominal', sort:null, axis:{labelPadding:8}}}, layer };
+  return (ov && (ov.showAbs||ov.showRel)) ? vlWithStructTiers(base, deneb, ov) : base;
+}
+/* Pareto: Säulen absteigend + kumulierte %-Linie (eigene 0–100-Skala, 80 %-Marke) */
+function vlPareto(deneb){
+  const tf = [
+    {window:[{op:'sum', field:'p', as:'_cum'}], sort:[{field:'p', order:'descending'}], frame:[null,0]},
+    {joinaggregate:[{op:'sum', field:'p', as:'_tot'}]},
+    {calculate:'datum._cum/datum._tot*100', as:'_pct'},
+    {calculate:"format(datum._pct,'.0f')+'%'", as:'_pctL'},
+  ];
+  const xEnc = {field:'k', type:'nominal', sort:{field:'p', order:'descending'}, axis:{labelAngle:0, labelPadding:6}};
+  const pctY = {field:'_pct', type:'quantitative', axis:null, scale:{domain:[0,100]}};
+  const bar = vPrimBarMark(16); bar.encoding.y = vYq('p');
+  const lineGroup = { layer:[
+    {mark:{type:'rule', strokeDash:[4,3], color:HAIR}, encoding:{y:{datum:80, type:'quantitative'}}},
+    {mark:{type:'line', color:DARK, strokeWidth:1.8}, encoding:{y:pctY}},
+    {mark:{type:'point', size:42, filled:true, fill:'#ffffff', stroke:DARK, strokeWidth:1.3, opacity:1}, encoding:{y:pctY}},
+    {mark:{type:'text', dy:-10, fontSize:9.5, font:'Arial', color:SUB}, encoding:{y:pctY, text:{field:'_pctL'}}},
+  ]};
+  return { width:580, height:230, data:vData(vRows(),deneb), transform:tf,
+    encoding:{x:xEnc}, layer:[bar, lineGroup], resolve:{scale:{y:'independent'}} };
+}
 /* Sparkline-Tabelle: Facet je Serie, Mini-Linie mit Endpunkt + Wert */
 function vlSparkTable(deneb){
   const periods = state.srows.filter(r=>r.c!=='');
@@ -5032,6 +5249,8 @@ function vegaSpecCore(deneb){
   else if(t==='colline') body = tiersOn ? wrapTiers(vlColLine(deneb, {h:200})) : vlColLine(deneb);
   else if(t==='dotplot') body = vlDotPlot(deneb, tiersOn ? {showAbs:state.showAbs, showRel:state.showRel} : null);
   else if(t==='tornado') body = vlTornado(deneb, tiersOn ? {showAbs:state.showAbs, showRel:state.showRel} : null);
+  else if(t==='bullet') body = vlBullet(deneb, tiersOn ? {showAbs:state.showAbs, showRel:state.showRel} : null);
+  else if(t==='pareto') body = vlPareto(deneb);
   else if(t==='sparktable') body = vlSparkTable(deneb);
   else if(t==='bars') body = tiersOn ? vlBarsKombi(deneb, {showAbs:state.showAbs, showRel:state.showRel}) : vlBars(deneb);
   else if(t==='absvar') body = vlAbsVar(deneb);
@@ -5143,6 +5362,12 @@ function vegaSpec(deneb){
     }
   }
   if(deneb && multiView) note = (note?note+' · ':'')+'Mehrteiliges Layout: feste/dynamische Größe unterstützt Vega-Lite hier nicht – im Deneb-Visual „Scaling: Auto“ aktivieren.';
+  /* Interaktivität (Deneb): Tooltips an Daten-Marks; Cross-Filtering über das
+     von Deneb gepflegte __selected__-Feld (nicht gewählte Punkte 30 % Opacity).
+     In eingebetteten Daten fehlt __selected__ – die Bedingung greift dann nie. */
+  if(state.vlTooltip || state.vlCross) addInteractivity(spec);
+  if(deneb && state.vlCross) note = (note?note+' · ':'')+'Cross-Filtering: in den Deneb-Settings „Expose cross-filtering values for dataset rows“ aktivieren.';
+  if(deneb && state.vlTooltip) note = (note?note+' · ':'')+'Tooltips: in den Deneb-Settings den Tooltip-Handler aktivieren.';
   const uD = unitDiv();
   if(deneb && uD.div>1) note = (note?note+' · ':'')+'Titel sagt „'+unitSuffix().replace(' · ','')+'“ – das Deneb-Dataset liefert Rohwerte; Skalierung dort per Measure oder Format regeln.';
   spec.usermeta = {
@@ -5188,7 +5413,7 @@ function serialize(){
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source,
       multiMode:state.multiMode, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
-      vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, uiLang:state.uiLang,
+      vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, uiLang:state.uiLang,
     },
     rows:state.rows, wrows:state.wrows, srows:state.srows, series:state.series,
     highlights:[...state.highlights], diffs:[...state.diffs], comments:[...state.comments],
@@ -5368,6 +5593,14 @@ function wizRecommend(a){
  ['Mehrteilige Charts (Varianzanalyse, Tabelle, Dashboard): Settings → Scaling auf „Auto“ stellen.','Multi-part charts (variance analysis, table, dashboard): set Settings → Scaling to “Auto”.'],
  ['Vorschau mit eingebetteten Daten – das Deneb-Spec rendert identisch, sobald die Felder zugeordnet sind.','Preview with embedded data – the Deneb spec renders identically once the fields are mapped.'],
  ['Kein Vega-Spec verfügbar.','No Vega spec available.'],
+ ['Interaktiv','Interactive'],
+ ['Marks bekommen Tooltips (alle Felder der Zeile) – in Deneb den Tooltip-Handler in den Settings aktivieren','Marks get tooltips (all fields of the row) – enable the tooltip handler in the Deneb settings'],
+ ['Klick auf einen Datenpunkt filtert andere Visuals im Report: nicht gewählte Punkte werden transparent (__selected__). In den Deneb-Settings „Expose cross-filtering values“ aktivieren.','Clicking a data point filters other visuals in the report: unselected points turn transparent (__selected__). Enable “Expose cross-filtering values” in the Deneb settings.'],
+ ['Interaktivität: in den Deneb-Settings den Tooltip-Handler bzw. „Expose cross-filtering values for dataset rows“ aktivieren.','Interactivity: enable the tooltip handler and/or “Expose cross-filtering values for dataset rows” in the Deneb settings.'],
+ ['Bullet · Ziel','Bullet · target'],
+ ['Spec für Deneb (Power BI) erzeugen – Format, Visual-Größe, Schrift, Tooltips und Cross-Filtering wählbar','Generate a spec for Deneb (Power BI) – format, visual size, font, tooltips and cross-filtering selectable'],
+ ['← Daten-Knowledge','← Data knowledge'],
+ ['Zurück zur Daten-Knowledge-Hauptseite','Back to the data knowledge main page'],
 ].forEach(([d,e])=>UI_EN.set(d,e));
 function wizRender(){
   [...document.querySelectorAll('#wizDim .chip')].forEach(b=>b.classList.toggle('on', b.dataset.wd===wizA.dim));
