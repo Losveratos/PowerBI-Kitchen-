@@ -444,6 +444,7 @@ footer a:hover{color:var(--ink)}
         <button class="chip" id="ksIbcs" type="button" title="IBCS-konform: Ist neutral, Δ%-Pins auf gemeinsamer Skala">IBCS</button>
         <button class="chip" id="ksStatus" type="button" title="Großer Ist-Wert, eingefärbt nach Abweichung zu Referenz 1, mit ▲▼-Pfeil und Δ%/Δ">Status (groß)</button>
       </div>
+      <label class="check"><input type="checkbox" id="negParens"> Negative Werte in Klammern (123)</label>
       <label class="check"><input type="checkbox" id="cbSafe"> Farbfehlsichtigkeit: Grün → Blaugrün</label>
       <label class="check" id="refLblWrap"><input type="checkbox" id="showRefLabels"> Werte des Referenzszenarios beschriften</label>
     </section>
@@ -505,6 +506,7 @@ footer a:hover{color:var(--ink)}
         </span>
         <button class="ghost" id="addRow">+ Zeile</button>
         <button class="ghost" id="btnCsv" title="CSV/TSV-Datei laden (Tab, Semikolon oder Komma) – alternativ Datei einfach auf die Tabelle ziehen">CSV laden</button>
+        <button class="ghost" id="btnCsvOut" title="Aktuelle Datentabelle als CSV speichern (Semikolon, importkompatibel)">CSV speichern</button>
         <input type="file" id="fileCsv" accept=".csv,.tsv,.txt" style="display:none">
         <button class="ghost" id="btnDice" title="Plausible Demo-Daten für den aktuellen Diagrammtyp würfeln">⚄ Demo-Daten</button>
       </div>
@@ -1000,6 +1002,12 @@ function fmt(v, signed){
   const u = unitDiv();
   const sv = v/u.div;
   const dec = (u.div>1 && state.decimals===0) ? 1 : state.decimals;
+  /* negative in Klammern (Controlling-Konvention) – nur bei reinen Werten,
+     Δ-Werte behalten +/- für die Lesbarkeit */
+  if(!signed && state.negParens && sv<0){
+    const n = new Intl.NumberFormat(numLocale(),{minimumFractionDigits:dec, maximumFractionDigits:dec}).format(Math.abs(sv));
+    return '('+n+')';
+  }
   const n = new Intl.NumberFormat(numLocale(),{minimumFractionDigits:dec, maximumFractionDigits:dec}).format(sv);
   return (signed && v>0) ? '+'+n : n;
 }
@@ -3875,6 +3883,7 @@ $('#unitInp').addEventListener('input', e=>{ state.unit=e.target.value.trim(); r
 $('#unitScale').addEventListener('change', e=>{ state.unitScale=e.target.value; renderAll(); });
 $('#chartLang').addEventListener('change', e=>{ state.chartLang=e.target.value; renderAll(); });
 $('#cbSafe').addEventListener('change', e=>{ state.cbSafe=e.target.checked; renderAll(); });
+$('#negParens').addEventListener('change', e=>{ state.negParens=e.target.checked; renderPreview(); });
 $('#ksIbcs').addEventListener('click', ()=>{ state.kpiStyle='ibcs'; renderPreview(); });
 $('#ksStatus').addEventListener('click', ()=>{ state.kpiStyle='status'; renderPreview(); });
 $('#showRefLabels').addEventListener('change', e=>{ state.showRefLabels=e.target.checked; renderPreview(); });
@@ -4141,6 +4150,31 @@ function addDataRow(){
 }
 $('#addRow').addEventListener('click', addDataRow);
 $('#preset').addEventListener('change', e=>{ loadPreset(e.target.value); e.target.value=''; });
+/* Datentabelle als CSV exportieren (Semikolon, importkompatibel, mit BOM für Excel) */
+function exportDataCsv(){
+  const q = s => /[;\n"]/.test(s) ? '"'+String(s).replace(/"/g,'""')+'"' : String(s);
+  const num = v => (v===''||isNaN(v))?'':String(v).replace('.',',');
+  let head, lines;
+  if(state.type==='scatter'){
+    head=['Kategorie', state.xTitle||'X', state.yTitle||'Y', 'Größe'];
+    lines=state.rows.map(r=>[r.c, num(r.v1), num(r.v2), num(r.v3)]);
+  } else if(usesSrows()){
+    head=['Kategorie', ...state.series];
+    lines=state.srows.map(r=>[r.c, ...state.series.map((_,j)=>num(r.v[j]))]);
+  } else if(usesWrows()){
+    head=['Kategorie', state.primary, 'Typ'];
+    lines=state.wrows.map(r=>[r.c, num(r.v), r.t]);
+  } else {
+    const hasR=state.reference!=='—', hasR2=usesRef2()&&state.reference2!=='—', fc=state.primary==='AC';
+    head=['Kategorie', state.primary]; if(hasR)head.push(state.reference); if(hasR2)head.push(state.reference2); if(fc)head.push('FC');
+    lines=state.rows.map(r=>{ const a=[r.c, num(r.v1)]; if(hasR)a.push(num(r.v2)); if(hasR2)a.push(num(r.v3)); if(fc)a.push(r.fc?'true':'false'); return a; });
+  }
+  const csv='﻿'+[head,...lines].map(row=>row.map(q).join(';')).join('\r\n')+'\r\n';
+  const blob=new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='chart-daten.csv'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+$('#btnCsvOut').addEventListener('click', exportDataCsv);
 /* Excel-artige Navigation in der Datentabelle: Enter/↓ nächste Zeile (auto neue
    Zeile am Ende), ↑ vorherige Zeile – über die Zellposition, modellunabhängig. */
 $('#dataTable').addEventListener('keydown', e=>{
@@ -5873,6 +5907,7 @@ function withState(snap, fn){
 function syncControls(){
   $('#decimals').value = String(state.decimals);
   $('#cbSafe').checked = state.cbSafe;
+  $('#negParens').checked = !!state.negParens;
   $('#showRefLabels').checked = state.showRefLabels;
   $('#sortDesc').checked = state.sortDesc;
   $('#showSum').checked = state.showSum;
@@ -6018,6 +6053,9 @@ function wizRecommend(a){
  ['Freie Text-Annotation an der Klickposition platzieren','Place a free text annotation at the click position'],
  ['Gestrichelte Benchmark-/Ziellinie im Chart','Dashed benchmark/target line in the chart'],
  ['Label (z. B. Ziel)','Label (e.g. target)'],['Annotation entfernen','Remove annotation'],
+ ['Negative Werte in Klammern (123)','Negative values in parentheses (123)'],
+ ['CSV speichern','Save CSV'],
+ ['Aktuelle Datentabelle als CSV speichern (Semikolon, importkompatibel)','Save the current data table as CSV (semicolon, import-compatible)'],
  ['IBCS-konform: Ist neutral, Δ%-Pins auf gemeinsamer Skala','IBCS-compliant: actual neutral, Δ% pins on a shared scale'],
  ['Großer Ist-Wert, eingefärbt nach Abweichung zu Referenz 1, mit ▲▼-Pfeil und Δ%/Δ','Large actual value, colored by variance to reference 1, with ▲▼ arrow and Δ%/Δ'],
  ['Spec für Deneb (Power BI) erzeugen – Format, Visual-Größe, Schrift, Tooltips und Cross-Filtering wählbar','Generate a spec for Deneb (Power BI) – format, visual size, font, tooltips and cross-filtering selectable'],
