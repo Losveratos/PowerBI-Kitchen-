@@ -418,6 +418,11 @@ footer a:hover{color:var(--ink)}
             <option value="8">Top 8</option>
           </select></label>
       </div>
+      <div class="row" id="kpiStyleWrap" style="display:none; margin-top:8px">
+        <span style="font-size:11.5px;color:var(--ink2)">KPI-Stil</span>
+        <button class="chip" id="ksIbcs" type="button" title="IBCS-konform: Ist neutral, Δ%-Pins auf gemeinsamer Skala">IBCS</button>
+        <button class="chip" id="ksStatus" type="button" title="Großer Ist-Wert, eingefärbt nach Abweichung zu Referenz 1, mit ▲▼-Pfeil und Δ%/Δ">Status (groß)</button>
+      </div>
       <label class="check"><input type="checkbox" id="cbSafe"> Farbfehlsichtigkeit: Grün → Blaugrün</label>
       <label class="check" id="refLblWrap"><input type="checkbox" id="showRefLabels"> Werte des Referenzszenarios beschriften</label>
     </section>
@@ -682,6 +687,7 @@ const state = {
   stackAsMulti:false,
   lineFill:'none',
   lineIndex:false,
+  kpiStyle:'ibcs',
   fontScale:1,
   unit:'',
   unitScale:'auto',
@@ -2133,9 +2139,55 @@ function vpill(xR, cy, t, colVar){
   return '<rect x="'+(xR-w)+'" y="'+(cy-h/2)+'" width="'+w+'" height="'+h+'" rx="'+(h/2)+'" fill="'+colVar+'"/>'+
     '<text x="'+(xR-w/2)+'" y="'+(cy+fs*0.34)+'" font-family="'+FONT+'" font-size="'+fs+'" text-anchor="middle" font-weight="bold" fill="#fff">'+esc(t)+'</text>';
 }
+/* --- KPI-Karten „Status“: großer Ist-Wert, eingefärbt nach Abweichung zu
+       Referenz 1, mit ▲▼-Pfeil sowie Δ% und Δ absolut je Referenz. --- */
+function renderKpiStatus(){
+  const rows = activeRows();
+  const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
+  const perRow = 3, cw = 210, gapX = 16, gapY = 16;
+  const ch = 64 + (hasR1?26:0) + (hasR2?22:0) + 8;
+  const gridRows = Math.ceil(rows.length/perRow);
+  const padL=4, padT=4;
+  const W = padL + perRow*cw + (perRow-1)*gapX + 6;
+  const H = padT + gridRows*ch + (gridRows-1)*gapY + 6;
+  let s='';
+  rows.forEach((r,i)=>{
+    const gx = padL + (i%perRow)*(cw+gapX);
+    const gy = padT + Math.floor(i/perRow)*(ch+gapY);
+    const d1 = (hasR1 && !isNaN(r.v1) && !isNaN(r.v2)) ? r.v1-r.v2 : null;
+    const valCol = d1===null ? (r.fc?FCINK:DARK) : (d1>=0 ? 'var-pos' : 'var-neg');
+    s += '<rect data-i="'+i+'" x="'+gx+'" y="'+gy+'" width="'+cw+'" height="'+ch+'" rx="7" fill="'+WHITE+'" stroke="#e3e1dc" stroke-width="1"/>';
+    /* dünner Statusakzent oben in der Abweichungsfarbe */
+    s += '<rect x="'+(gx+1)+'" y="'+(gy+1)+'" width="'+(cw-2)+'" height="3" rx="1.5" fill="'+(d1===null?'#dad8d3':valCol)+'"/>';
+    s += txt(gx+14, gy+22, r.c, {size:11.5, weight:'bold', fill:CAT});
+    /* großer Ist-Wert, eingefärbt nach Δ zu Referenz 1 */
+    const big = fmt(r.v1);
+    s += '<text x="'+(gx+14)+'" y="'+(gy+54)+'" font-family="'+FONT+'" font-size="'+fsc(30)+'" font-weight="bold" fill="'+valCol+'">'+esc(big)+'</text>';
+    let bx = gx+14+String(big).length*fsc(17)+7;
+    if(state.unit) s += txt(bx, gy+54, state.unit, {size:12, fill:SUB});
+    if(r.fc) s += txt(gx+cw-14, gy+22, 'FC', {anchor:'end', size:10, fill:SUB});
+    if(state.highlights.has(i)) s += hiliteEllipse(gx+14+String(big).length*fsc(8.5), gy+46, String(big).length*fsc(9)+12, 16);
+    s += cmark(i, gx+cw-16, gy+ch-10);
+    /* Abweichungs-Zeile je Referenz: Pfeil + Δ% + Δ absolut, eingefärbt */
+    const devRow = (code, key, y)=>{
+      const dv = (!isNaN(r.v1)&&!isNaN(r[key])) ? r.v1-r[key] : null;
+      const rv = relOfK(r, key);
+      const col = dv===null ? SUB : (dv>=0 ? 'var-pos' : 'var-neg');
+      const tri = dv===null ? '' : (dv>=0 ? '▲ ' : '▼ ');
+      s += txt(gx+14, y, tri+(rv===null?'n.a.':fmtPct(rv)), {size:13, weight:'bold', fill:col});
+      s += txt(gx+14+72, y, dv===null?'':fmt(dv,true), {size:11.5, weight:'bold', fill:col});
+      s += txt(gx+cw-14, y, 'vs '+code, {anchor:'end', size:9.5, fill:SUB});
+    };
+    let y = gy+54+28;
+    if(hasR1){ devRow(state.reference, 'v2', y); y += 26; }
+    if(hasR2){ devRow(state.reference2, 'v3', y); y += 22; }
+  });
+  return { svg:s, W, H };
+}
 /* --- KPI-Karten: eine Kennzahl je Karte, Vergleich vs. 1-2 Referenzszenarien.
        Die Δ%-Pins teilen sich eine Skala über alle Karten (Vergleichbarkeit).  --- */
 function renderKpi(){
+  if(state.kpiStyle==='status') return renderKpiStatus();
   const rows = activeRows();
   const hasR1 = state.reference!=='—';
   const hasR2 = state.reference2!=='—';
@@ -3454,6 +3506,9 @@ function renderPreview(){
   /* Sortierung auch für Small Multiples (nach Σ absteigend) */
   if(state.type==='multiples') $('#sortWrap').style.display = 'flex';
   $('#refLblWrap').style.display = (state.type==='columns'||state.type==='bars') ? 'flex' : 'none';
+  $('#kpiStyleWrap').style.display = state.type==='kpi' ? 'flex' : 'none';
+  $('#ksIbcs').classList.toggle('on', state.kpiStyle!=='status');
+  $('#ksStatus').classList.toggle('on', state.kpiStyle==='status');
   applyUILang();
   pushHistory();
 }
@@ -3753,6 +3808,8 @@ $('#unitInp').addEventListener('input', e=>{ state.unit=e.target.value.trim(); r
 $('#unitScale').addEventListener('change', e=>{ state.unitScale=e.target.value; renderAll(); });
 $('#chartLang').addEventListener('change', e=>{ state.chartLang=e.target.value; renderAll(); });
 $('#cbSafe').addEventListener('change', e=>{ state.cbSafe=e.target.checked; renderAll(); });
+$('#ksIbcs').addEventListener('click', ()=>{ state.kpiStyle='ibcs'; renderPreview(); });
+$('#ksStatus').addEventListener('click', ()=>{ state.kpiStyle='status'; renderPreview(); });
 $('#showRefLabels').addEventListener('change', e=>{ state.showRefLabels=e.target.checked; renderPreview(); });
 $('#sortDesc').addEventListener('change', e=>{ state.sortDesc=e.target.checked; renderPreview(); });
 $('#showSum').addEventListener('change', e=>{ state.showSum=e.target.checked; renderPreview(); });
@@ -5246,7 +5303,55 @@ function vlWfKombi(deneb, ov){
   if(!ov || ov.rel) ch.push(t3);
   return { hconcat:ch, spacing:26, resolve:{scale:{y:'independent'}} };
 }
+/* KPI „Status“: großer Ist-Wert eingefärbt nach Δ zu Referenz 1, ▲▼ + Δ% + Δ */
+function vlKpiStatus(deneb){
+  const C = vCol();
+  const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
+  const values = activeRows().map(r=>{
+    const o = {k:r.c, p:isNaN(r.v1)?null:r.v1, fc:!!r.fc, Lp:fmt(r.v1)};
+    if(hasR1){ const d=(isNaN(r.v1)||isNaN(r.v2))?null:r.v1-r.v2;
+      o.r=isNaN(r.v2)?null:r.v2; o.d1=d; o.Ld1=fmt(r.v1-r.v2,true);
+      o.rv1=relOfK(r,'v2'); o.Lrv1=o.rv1===null?'n.a.':fmtPct(o.rv1); o.T1=d===null?'':(d>=0?'▲':'▼'); }
+    if(hasR2){ const d=(isNaN(r.v1)||isNaN(r.v3))?null:r.v1-r.v3;
+      o.r2=isNaN(r.v3)?null:r.v3; o.d2=d; o.Ld2=fmt(r.v1-r.v3,true);
+      o.rv2=relOfK(r,'v3'); o.Lrv2=o.rv2===null?'n.a.':fmtPct(o.rv2); o.T2=d===null?'':(d>=0?'▲':'▼'); }
+    return o;
+  });
+  const tf=[];
+  if(deneb){
+    if(hasR1) tf.push({calculate:'datum.p - datum.r', as:'d1'},
+      {calculate:'datum.r > 0 ? (datum.p - datum.r)/datum.r*100 : null', as:'rv1'},
+      {calculate:"(datum.p - datum.r) >= 0 ? '▲' : '▼'", as:'T1'});
+    if(hasR2) tf.push({calculate:'datum.p - datum.r2', as:'d2'},
+      {calculate:'datum.r2 > 0 ? (datum.p - datum.r2)/datum.r2*100 : null', as:'rv2'},
+      {calculate:"(datum.p - datum.r2) >= 0 ? '▲' : '▼'", as:'T2'});
+  }
+  const bigMark = {type:'text', x:14, y:50, align:'left', fontSize:30, fontWeight:'bold', font:'Arial'};
+  const big = {mark:bigMark, encoding:{text:vLab(deneb,'p','Lp',vNum())}};
+  if(hasR1) big.encoding.color = {condition:{test:'datum.d1 >= 0', value:C.pos}, value:C.neg}; else bigMark.color = DARK;
+  const layer = [ big,
+    {transform:[{filter:'datum.fc'}], mark:{type:'text', x:196, y:16, align:'right', fontSize:9.5, font:'Arial', color:SUB}, encoding:{text:{value:'FC'}}} ];
+  const devRow = (code, dF, rvF, TF, LrvF, LdF, y)=>{
+    const col = {condition:{test:'datum.'+dF+' >= 0', value:C.pos}, value:C.neg};
+    layer.push({mark:{type:'text', x:14, y, align:'left', fontSize:12, fontWeight:'bold', font:'Arial'},
+      encoding:{text:{field:TF, type:'nominal'}, color:col}});
+    layer.push({mark:{type:'text', x:28, y, align:'left', fontSize:13, fontWeight:'bold', font:'Arial'},
+      encoding:{text:vLab(deneb,rvF,LrvF,'+.1f'), color:col}});
+    layer.push({mark:{type:'text', x:92, y, align:'left', fontSize:11.5, fontWeight:'bold', font:'Arial'},
+      encoding:{text:vLab(deneb,dF,LdF,'+'+vNum()), color:col}});
+    layer.push({mark:{type:'text', x:196, y, align:'right', fontSize:9.5, font:'Arial', color:SUB},
+      encoding:{text:{value:'vs '+code}}});
+  };
+  let y=78;
+  if(hasR1){ devRow(state.reference,'d1','rv1','T1','Lrv1','Ld1',y); y+=26; }
+  if(hasR2){ devRow(state.reference2,'d2','rv2','T2','Lrv2','Ld2',y); y+=22; }
+  return { data:vData(values,deneb), transform: tf.length? tf : undefined, columns:3,
+    facet:{field:'k', type:'nominal', sort: deneb? null : values.map(v=>v.k),
+      header:{title:null, labelFont:'Arial', labelFontSize:11.5, labelFontWeight:'bold', labelColor:'#555555', labelAnchor:'start', labelPadding:4}},
+    spec:{ width:196, height:y-8, view:{stroke:'#e3e1dc', cornerRadius:6}, layer } };
+}
 function vlKpi(deneb){
+  if(state.kpiStyle==='status') return vlKpiStatus(deneb);
   const C = vCol();
   const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
   const values = activeRows().map(r=>{
@@ -5578,7 +5683,7 @@ function serialize(){
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source,
-      multiMode:state.multiMode, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, fontScale:state.fontScale, fromType:state.fromType,
+      multiMode:state.multiMode, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
       vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,
     },
@@ -5765,6 +5870,9 @@ function wizRecommend(a){
  ['Klick auf einen Datenpunkt filtert andere Visuals im Report: nicht gewählte Punkte werden transparent (__selected__). In den Deneb-Settings „Expose cross-filtering values“ aktivieren.','Clicking a data point filters other visuals in the report: unselected points turn transparent (__selected__). Enable “Expose cross-filtering values” in the Deneb settings.'],
  ['Interaktivität: in den Deneb-Settings den Tooltip-Handler bzw. „Expose cross-filtering values for dataset rows“ aktivieren.','Interactivity: enable the tooltip handler and/or “Expose cross-filtering values for dataset rows” in the Deneb settings.'],
  ['Bullet · Ziel','Bullet · target'],
+ ['KPI-Stil','KPI style'],['Status (groß)','Status (large)'],
+ ['IBCS-konform: Ist neutral, Δ%-Pins auf gemeinsamer Skala','IBCS-compliant: actual neutral, Δ% pins on a shared scale'],
+ ['Großer Ist-Wert, eingefärbt nach Abweichung zu Referenz 1, mit ▲▼-Pfeil und Δ%/Δ','Large actual value, colored by variance to reference 1, with ▲▼ arrow and Δ%/Δ'],
  ['Spec für Deneb (Power BI) erzeugen – Format, Visual-Größe, Schrift, Tooltips und Cross-Filtering wählbar','Generate a spec for Deneb (Power BI) – format, visual size, font, tooltips and cross-filtering selectable'],
  ['← Daten-Knowledge','← Data knowledge'],
  ['Zurück zur Daten-Knowledge-Hauptseite','Back to the data knowledge main page'],
