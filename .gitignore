@@ -22,6 +22,7 @@ notes/
 
 # Lab-Seiten — erst lokal testen, ggf. spaeter publizieren
 analysis.html
+fermi_paradox.html
 
 # Diagnose-Helfer (entstanden waehrend Bug-Hunting, nicht produktiv)
 scripts/debug_*
@@ -41,3 +42,4 @@ Thumbs.db
 
 # Claude Code lokal
 .claude/
+deneb-test/

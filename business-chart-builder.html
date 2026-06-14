@@ -4219,7 +4219,7 @@ function denebTemplate(){
   const spec = vegaSpec(true);
   state.vlVega = saveVega;
   if(!spec) return null;
-  const TK = { dim:['text','column'], serie:['text','column'], typ:['text','column'], fc:['text','column'], idx:['numeric','column'] };
+  const TK = { dim:['text','column'], serie:['text','column'], typ:['text','column'], fc:['bool','column'], idx:['numeric','column'] };
   const defs = vFieldDefs().map(([key,label],i)=>{
     const tk = TK[key] || ['numeric','measure'];
     return { ph:'__'+i+'__', name:F(key), label, type:tk[0], kind:tk[1] };
@@ -4470,8 +4470,11 @@ function remapSpec(node, map){
       } else if(k==='groupby' && Array.isArray(v)){
         out[k] = v.map(g=> map[g]!==undefined ? map[g] : g);
       } else if((k==='calculate'||k==='filter'||k==='test') && typeof v==='string'){
-        out[k] = v.replace(/datum\.([A-Za-z_][A-Za-z0-9_]*)/g,
-          (mm,name)=> map[name]!==undefined ? 'datum['+JSON.stringify(map[name])+']' : mm);
+        /* Feldnamen in Ausdrücken umschreiben – Punkt- UND Klammer-Notation */
+        out[k] = v
+          .replace(/datum\.([A-Za-z_][A-Za-z0-9_]*)/g, (mm,name)=> map[name]!==undefined ? 'datum['+JSON.stringify(map[name])+']' : mm)
+          .replace(/datum\["([^"]+)"\]/g, (mm,name)=> map[name]!==undefined ? 'datum['+JSON.stringify(map[name])+']' : mm)
+          .replace(/datum\['([^']+)'\]/g, (mm,name)=> map[name]!==undefined ? 'datum['+JSON.stringify(map[name])+']' : mm);
       } else {
         out[k] = remapSpec(v, map);
       }
@@ -5449,7 +5452,7 @@ function denebDashTemplate(){
   const spec = dashboardSpec(true);
   state.vlVega=saveVega; state.dashFields=saveDF;
   if(!spec) return null;
-  const TK={dim:['text','column'], serie:['text','column'], typ:['text','column'], fc:['text','column'], idx:['numeric','column']};
+  const TK={dim:['text','column'], serie:['text','column'], typ:['text','column'], fc:['bool','column'], idx:['numeric','column']};
   const agg = dashAggFields();
   const nameToPh={}, dataset=[];
   agg.forEach((f,i)=>{
