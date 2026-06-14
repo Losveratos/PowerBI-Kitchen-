@@ -452,6 +452,7 @@ footer a:hover{color:var(--ink)}
         <span style="font-size:11.5px;color:var(--ink2)">KPI-Stil</span>
         <button class="chip" id="ksIbcs" type="button" title="IBCS-konform: Ist neutral, Δ%-Pins auf gemeinsamer Skala">IBCS</button>
         <button class="chip" id="ksStatus" type="button" title="Großer Ist-Wert, eingefärbt nach Abweichung zu Referenz 1, mit ▲▼-Pfeil und Δ%/Δ">Status (groß)</button>
+        <button class="chip" id="ksTrend" type="button" title="Großer Wert + Vorjahr + GAP + 30-Tage-Mini-Trend (Tagesreihe aus der Serien-Tabelle)">Trend</button>
       </div>
       <label class="check"><input type="checkbox" id="negParens"> Negative Werte in Klammern (123)</label>
       <label class="check"><input type="checkbox" id="cbSafe"> Farbfehlsichtigkeit: Grün → Blaugrün</label>
@@ -506,6 +507,7 @@ footer a:hover{color:var(--ink)}
           <option value="multiDemo">Small Multiples je Land</option>
           <option value="scatterDemo">Portfolio-Streudiagramm (Bubbles)</option>
           <option value="kpiDemo">KPI-Karten AC vs. PY und PL</option>
+          <option value="kpiTrend">KPI-Trend-Karten (Wert + GAP + 30-Tage)</option>
           <option value="threeScen">3 Szenarien: AC, PL versetzt, PY ◀</option>
         </select>
         <span id="mEditWrap" style="display:none; gap:6px; align-items:center; margin-right:auto">
@@ -790,13 +792,15 @@ const CHART_LANG = {
         gleitend:'12M gleitend', Monat:'Monat', und:'und', nach:'nach', PeriodenUnd:'Perioden und ',
         Serien:'Serien', jeSerie:'je Serie, gleiche Skala', vs:'vs.', Trend:'Trend', jePeriode:'je Periode',
         Beitraege:'als Beiträge, Σ', zChart:': Monat, kumuliert, 12M gleitend', keineXY:'Keine gültigen X/Y-Paare',
-        Saeulen:'Säulen', Linie:'Linie', jeSerieK:'je Serie', von:'von', kumPct:'kumuliert %' },
+        Saeulen:'Säulen', Linie:'Linie', jeSerieK:'je Serie', von:'von', kumPct:'kumuliert %',
+        Last30:'LETZTE 30 TAGE', Avg5:'5T Ø', Daily:'TÄGLICH', Today:'HEUTE' },
   en: { Tsd:'k', Mio:'m', in:'in', Summe:'Total', Uebrige:'Others', Quelle:'Source',
         Verlauf:'Trend', aktuell:'latest', Serie:'Series', kumuliert:'cumulative',
         gleitend:'12M rolling', Monat:'month', und:'and', nach:'by', PeriodenUnd:'periods and ',
         Serien:'series', jeSerie:'per series, same scale', vs:'vs.', Trend:'Trend', jePeriode:'per period',
         Beitraege:'as contributions, Σ', zChart:': month, cumulative, 12M rolling', keineXY:'No valid X/Y pairs',
-        Saeulen:'columns', Linie:'line', jeSerieK:'per series', von:'of', kumPct:'cumulative %' },
+        Saeulen:'columns', Linie:'line', jeSerieK:'per series', von:'of', kumPct:'cumulative %',
+        Last30:'LAST 30 DAYS', Avg5:'5D AVG', Daily:'DAILY', Today:'TODAY' },
 };
 function CL(key){ return (CHART_LANG[state.chartLang]||CHART_LANG.de)[key] || key; }
 function numLocale(){ return state.chartLang==='en' ? 'en-US' : 'de-DE'; }
@@ -2207,6 +2211,72 @@ function vpill(xR, cy, t, colVar){
   return '<rect x="'+(xR-w)+'" y="'+(cy-h/2)+'" width="'+w+'" height="'+h+'" rx="'+(h/2)+'" fill="'+colVar+'"/>'+
     '<text x="'+(xR-w/2)+'" y="'+(cy+fs*0.34)+'" font-family="'+FONT+'" font-size="'+fs+'" text-anchor="middle" font-weight="bold" fill="#fff">'+esc(t)+'</text>';
 }
+/* Kompakte Zahl mit M/k-Suffix (z. B. 518M, 35,4M, 2,9M) */
+function compactFmt(v){
+  if(v===null || v===undefined || isNaN(v)) return '';
+  const a=Math.abs(v); let s=v, suf='';
+  if(a>=1e6){ s=v/1e6; suf='M'; } else if(a>=1e3){ s=v/1e3; suf='k'; }
+  const dec=(suf && Math.abs(s)<100)?1:0;
+  return new Intl.NumberFormat(numLocale(),{minimumFractionDigits:dec, maximumFractionDigits:dec}).format(s)+suf;
+}
+const KPI_PINK = '#d97a93';
+/* --- KPI-Karten „Trend“: großer Wert + Vorjahr + GAP + 30-Tage-Mini-Chart
+       (Tagesreihe aus der Serien-Tabelle, Serie = KPI-Name).               --- */
+function renderKpiTrend(){
+  const rows = activeRows();
+  const hasR1 = state.reference!=='—';
+  const dailyFor = name=>{ const j=state.series.indexOf(name); if(j<0) return null;
+    const v=state.srows.filter(p=>p.c!=='').map(p=>p.v[j]).filter(x=>!isNaN(x)); return v.length>1?v:null; };
+  const anyChart = rows.some(r=>dailyFor(r.c));
+  const cols=Math.min(3, Math.max(1, rows.length)), cw=320, gapX=18, gapY=18;
+  const ch = anyChart ? 212 : 108;
+  const gridRows=Math.ceil(rows.length/cols), padL=4, padT=4;
+  const W=padL+cols*cw+(cols-1)*gapX+6, H=padT+gridRows*ch+(gridRows-1)*gapY+6;
+  let s='';
+  rows.forEach((r,i)=>{
+    const gx=padL+(i%cols)*(cw+gapX), gy=padT+Math.floor(i/cols)*(ch+gapY);
+    s+='<rect data-i="'+i+'" x="'+gx+'" y="'+gy+'" width="'+cw+'" height="'+ch+'" rx="10" fill="'+WHITE+'" stroke="#e3e1dc"/>';
+    s+=txt(gx+16, gy+26, r.c+(state.unit?' ('+state.unit+')':''), {size:12.5, weight:'bold', fill:CAT});
+    s+='<text x="'+(gx+16)+'" y="'+(gy+66)+'" font-family="'+FONT+'" font-size="'+fsc(34)+'" font-weight="bold" fill="'+(r.fc?FCINK:DARK)+'">'+esc(compactFmt(r.v1))+'</text>';
+    const rx=gx+186;
+    if(hasR1){
+      s+=txt(rx, gy+24, state.reference, {size:10, fill:SUB});
+      s+='<text x="'+rx+'" y="'+(gy+43)+'" font-family="'+FONT+'" font-size="'+fsc(16)+'" fill="'+SUB+'">'+esc(compactFmt(r.v2))+'</text>';
+      const dv=(!isNaN(r.v1)&&!isNaN(r.v2))?r.v1-r.v2:null, rv=relOfK(r,'v2');
+      const col=dv===null?SUB:(dv>=0?'var-pos':'var-neg'), ar=dv===null?'':(dv>=0?'↗ ':'↘ ');
+      s+=txt(rx, gy+66, 'GAP', {size:10, fill:SUB});
+      s+=txt(rx, gy+84, ar+compactFmt(dv)+(rv!==null?' ('+ar+fmtPct(rv).replace('+','')+')':''), {size:11.5, weight:'bold', fill:col});
+    }
+    const daily=dailyFor(r.c);
+    if(daily){
+      s+='<line x1="'+(gx+16)+'" y1="'+(gy+101)+'" x2="'+(gx+cw-16)+'" y2="'+(gy+101)+'" stroke="#eceae5" stroke-width="1"/>';
+      s+=txt(gx+16, gy+118, CL('Last30'), {size:8.5, fill:SUB});
+      /* Mini-Legende rechts */
+      s+='<line x1="'+(gx+cw-128)+'" y1="'+(gy+115)+'" x2="'+(gx+cw-114)+'" y2="'+(gy+115)+'" stroke="'+DARK+'" stroke-width="1.8"/>';
+      s+=txt(gx+cw-110, gy+118, CL('Avg5'), {size:8, fill:SUB});
+      s+='<line x1="'+(gx+cw-64)+'" y1="'+(gy+115)+'" x2="'+(gx+cw-50)+'" y2="'+(gy+115)+'" stroke="'+KPI_PINK+'" stroke-width="1.2" stroke-dasharray="4,2"/>';
+      s+=txt(gx+cw-46, gy+118, CL('Daily'), {size:8, fill:SUB});
+      const cx0=gx+16, cy0=gy+132, cwd=cw-32, cht=ch-132-12;
+      const avg=daily.map((_,k)=>{ const a=daily.slice(Math.max(0,k-4),k+1); return a.reduce((x,y)=>x+y,0)/a.length; });
+      const base=daily.reduce((a,b)=>a+b,0)/daily.length;   /* durchschnittliches Tagesniveau */
+      const allv=daily.concat(avg).concat([base]);
+      const mn=Math.min(...allv), mx=Math.max(...allv), rng=(mx-mn)||1;
+      const sx=k=>cx0+(daily.length>1?k/(daily.length-1)*cwd:0), sy=v=>cy0+cht-(v-mn)/rng*cht;
+      s+='<line x1="'+cx0+'" y1="'+sy(base)+'" x2="'+(cx0+cwd)+'" y2="'+sy(base)+'" stroke="#d7d5d0" stroke-width="1" stroke-dasharray="3,3"/>';
+      s+=txt(cx0+2, sy(base)-3, hasR1?state.reference:'Ø', {size:8, fill:SUB});
+      let dp=''; daily.forEach((v,k)=> dp+=(k?' L ':'M ')+sx(k)+','+sy(v));
+      s+='<path d="'+dp+'" fill="none" stroke="'+KPI_PINK+'" stroke-width="1.2" stroke-dasharray="4,2"/>';
+      daily.forEach((v,k)=>{ if(k%3===0){ const x=sx(k),y=sy(v); s+='<path d="M '+x+','+(y-2.3)+' L '+(x+2.3)+','+y+' L '+x+','+(y+2.3)+' L '+(x-2.3)+','+y+' Z" fill="'+KPI_PINK+'"/>'; } });
+      let ap=''; avg.forEach((v,k)=> ap+=(k?' L ':'M ')+sx(k)+','+sy(v));
+      s+='<path d="'+ap+'" fill="none" stroke="'+DARK+'" stroke-width="1.8"/>';
+      const last=daily[daily.length-1], prev=daily[daily.length-2];
+      if(!isNaN(last)&&!isNaN(prev)){ const td=last-prev, ar=td>=0?'↗ ':'↘ ';
+        s+=txt(cx0+cwd, cy0-13, CL('Today'), {anchor:'end', size:8, fill:SUB});
+        s+=txt(cx0+cwd, cy0-1, ar+compactFmt(td), {anchor:'end', size:10, weight:'bold', fill:td>=0?'var-pos':'var-neg'}); }
+    }
+  });
+  return { svg:s, W, H };
+}
 /* --- KPI-Karten „Status“: großer Ist-Wert, eingefärbt nach Abweichung zu
        Referenz 1, mit ▲▼-Pfeil sowie Δ% und Δ absolut je Referenz. --- */
 function renderKpiStatus(){
@@ -2255,6 +2325,7 @@ function renderKpiStatus(){
 /* --- KPI-Karten: eine Kennzahl je Karte, Vergleich vs. 1-2 Referenzszenarien.
        Die Δ%-Pins teilen sich eine Skala über alle Karten (Vergleichbarkeit).  --- */
 function renderKpi(){
+  if(state.kpiStyle==='trend') return renderKpiTrend();
   if(state.kpiStyle==='status') return renderKpiStatus();
   const rows = activeRows();
   const hasR1 = state.reference!=='—';
@@ -3596,8 +3667,9 @@ function renderPreview(){
   if(state.type==='multiples') $('#sortWrap').style.display = 'flex';
   $('#refLblWrap').style.display = (state.type==='columns'||state.type==='bars') ? 'flex' : 'none';
   $('#kpiStyleWrap').style.display = state.type==='kpi' ? 'flex' : 'none';
-  $('#ksIbcs').classList.toggle('on', state.kpiStyle!=='status');
+  $('#ksIbcs').classList.toggle('on', !['status','trend'].includes(state.kpiStyle));
   $('#ksStatus').classList.toggle('on', state.kpiStyle==='status');
+  $('#ksTrend').classList.toggle('on', state.kpiStyle==='trend');
   applyUILang();
   pushHistory();
 }
@@ -3828,7 +3900,30 @@ const PRESETS = {
   outlier:{ type:'kombi', primary:'AC', reference:'PY', t2:'Umsatz in mEUR, neue Produktlinie ab Mai',
     rows:[['Jan',97,90],['Feb',102,95],['Mär',88,96],['Apr',110,99],['Mai',21,4],['Jun',118,104],['Jul',112,106],['Aug',96,101],['Sep',121,107],['Okt',117,111,,1],['Nov',124,113,,1],['Dez',131,118,,1]] },
 };
+/* Demo für die Trend-KPI-Karte: 3 Kennzahlen + 30-Tage-Tagesreihen */
+function loadKpiTrendDemo(){
+  state.highlights.clear(); state.diffs.clear(); state.comments.clear();
+  state.type='kpi'; state.kpiStyle='trend'; state.primary='AC'; state.reference='PY'; state.reference2='—';
+  state.unit='€'; state.unitScale='1'; state.decimals=0;
+  $('#t1').value='Sales Cockpit'; $('#t2').value='Monatswerte vs. Vorjahr';
+  state.rows=[
+    {c:'Orders MTD', v1:518e6, v2:483e6, fc:false},
+    {c:'Revenue MTD', v1:342e6, v2:351e6, fc:false},
+    {c:'New Customers', v1:1240, v2:1180, fc:false},
+  ];
+  state.series=['Orders MTD','Revenue MTD','New Customers'];
+  const N=30, lev=[17.3e6, 11.4e6, 41];
+  state.srows=Array.from({length:N},(_,k)=>({c:'D'+(k+1), v:lev.map((b,si)=>{
+    const wobble=Math.sin(k/3.3+si)*0.10 + Math.sin(k/1.7+si*2)*0.05 + (((k*7+si*3)%5)-2)*0.035;
+    const trend=(si===1?-0.004:0.005)*k;   /* Revenue leicht fallend, Rest steigend */
+    return Math.round(b*(1+wobble+trend));
+  })}));
+  state.target={on:false,v:NaN,label:''}; state.annos=[];
+  state.t3auto=true;
+  renderAll();
+}
 function loadPreset(key){
+  if(key==='kpiTrend'){ loadKpiTrendDemo(); return; }
   const p = PRESETS[key]; if(!p) return;
   state.highlights.clear(); state.diffs.clear(); state.comments.clear();
   if(p.rows) state.rows = p.rows.map(r=>({c:r[0], v1:r[1], v2:r[2], v3:r[3], fc:!!r[4]}));
@@ -3900,6 +3995,7 @@ $('#cbSafe').addEventListener('change', e=>{ state.cbSafe=e.target.checked; rend
 $('#negParens').addEventListener('change', e=>{ state.negParens=e.target.checked; renderPreview(); });
 $('#ksIbcs').addEventListener('click', ()=>{ state.kpiStyle='ibcs'; renderPreview(); });
 $('#ksStatus').addEventListener('click', ()=>{ state.kpiStyle='status'; renderPreview(); });
+$('#ksTrend').addEventListener('click', ()=>{ state.kpiStyle='trend'; renderPreview(); });
 $('#showRefLabels').addEventListener('change', e=>{ state.showRefLabels=e.target.checked; renderPreview(); });
 $('#sortDesc').addEventListener('change', e=>{ state.sortDesc=e.target.checked; renderPreview(); });
 $('#showSum').addEventListener('change', e=>{ state.showSum=e.target.checked; renderPreview(); });
@@ -5539,7 +5635,7 @@ function vlKpiStatus(deneb){
     spec:{ width:196, height:y-8, view:{stroke:'#e3e1dc', cornerRadius:6}, layer } };
 }
 function vlKpi(deneb){
-  if(state.kpiStyle==='status') return vlKpiStatus(deneb);
+  if(state.kpiStyle==='status' || state.kpiStyle==='trend') return vlKpiStatus(deneb);
   const C = vCol();
   const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
   const values = activeRows().map(r=>{
@@ -6121,6 +6217,8 @@ function wizRecommend(a){
  ['Interaktivität: in den Deneb-Settings den Tooltip-Handler bzw. „Expose cross-filtering values for dataset rows“ aktivieren.','Interactivity: enable the tooltip handler and/or “Expose cross-filtering values for dataset rows” in the Deneb settings.'],
  ['Bullet · Ziel','Bullet · target'],
  ['KPI-Stil','KPI style'],['Status (groß)','Status (large)'],
+ ['KPI-Trend-Karten (Wert + GAP + 30-Tage)','KPI trend cards (value + GAP + 30 days)'],
+ ['Großer Wert + Vorjahr + GAP + 30-Tage-Mini-Trend (Tagesreihe aus der Serien-Tabelle)','Large value + prior year + GAP + 30-day mini trend (daily series from the series table)'],
  ['Annotation ✎','Annotation ✎'],['Zielwert','Target'],
  ['Freie Text-Annotation an der Klickposition platzieren','Place a free text annotation at the click position'],
  ['Gestrichelte Benchmark-/Ziellinie im Chart','Dashed benchmark/target line in the chart'],
