@@ -4198,7 +4198,7 @@ function addInteractivity(node){
 }
 /* Kurz-Zusammenfassung der Export-Einstellungen über dem Code */
 function specSummary(){
-  const tmpl = state.vlTemplate && !dlgFile.startsWith('dashboard');
+  const tmpl = state.vlTemplate;
   const fmt = tmpl ? 'Deneb-Template' : (state.vlVega ? 'Vega v5' : 'Vega-Lite v5');
   const size = state.vlSizeMode==='fixed' ? (state.vlW+'×'+state.vlH+' px') : TT('dynamisch');
   const fs = Math.round(11*(state.fontScale||1)*10)/10;
@@ -4247,10 +4247,14 @@ function denebStepsHtml(){
     return '<li>'+TT('Läuft direkt im Vega-Editor (vega.github.io/editor) – zum Ausprobieren mit eingebetteten Daten.')+'</li>'+
            '<li>'+TT('Für Power BI auf „Power BI · Deneb-Template“ umschalten.')+'</li>';
   }
-  if(state.vlTemplate && !isDash){
-    return '<li>'+TT('In Deneb: „Neue Spezifikation → Aus Vorlage erstellen → Importieren“ und diese Datei wählen.')+'</li>'+
-           '<li>'+TT('Beim Import die gelisteten Felder deinen Power-BI-Spalten zuordnen – Deneb fragt danach.')+'</li>'+
-           '<li>'+TT('Fertig. Provider, Tooltips und Cross-Filter sind im Template bereits gesetzt.')+'</li>';
+  if(state.vlTemplate){
+    const lines = [
+      TT('In Deneb: „Neue Spezifikation → Aus Vorlage erstellen → Importieren“ und diese Datei wählen.'),
+      TT('Beim Import die gelisteten Felder deinen Power-BI-Spalten zuordnen – Deneb fragt danach.'),
+    ];
+    if(isDash) lines.push(TT('Mehrteiliges Dashboard: Settings → Scaling auf „Auto“ stellen.'));
+    lines.push(TT('Fertig. Provider, Tooltips und Cross-Filter sind im Template bereits gesetzt.'));
+    return lines.map(l=>'<li>'+l+'</li>').join('');
   }
   let h = '<li>'+TT('In Power BI ein Deneb-Visual einfügen und die gelisteten Felder in „Values“ ziehen.')+'</li>'+
           '<li>'+TT('Spec kopieren, in Deneb „Edit“ öffnen und den JSON-Inhalt ersetzen.')+'</li>';
@@ -4339,11 +4343,11 @@ $('#dlgPreview').addEventListener('click', async ()=>{
 });
 function syncSpecOpts(){
   const isDash = dlgFile.startsWith('dashboard');
-  const tmpl = state.vlTemplate && !isDash;
+  const tmpl = state.vlTemplate;
   $('#specOpts').style.display = 'block';
   $('#odEmbed').classList.toggle('on', !state.vlDeneb);
   $('#odDeneb').classList.toggle('on', !!state.vlDeneb);
-  $('#odDeneb').textContent = isDash ? TT('Power BI · Deneb-dataset') : TT('Power BI · Deneb-Template ⭐');
+  $('#odDeneb').textContent = TT('Power BI · Deneb-Template ⭐');
   /* Format ist beim Template fix Vega-Lite → Zeile ausblenden */
   $('#rowFormat').style.display = tmpl ? 'none' : 'flex';
   $('#ofVL').classList.toggle('on', !state.vlVega);
@@ -4357,10 +4361,11 @@ function syncSpecOpts(){
   $('#oiCross').classList.toggle('on', !!state.vlCross);
   $('#denebSteps').style.display = 'block';
   $('#denebSteps').innerHTML = denebStepsHtml();
-  /* Feld-Zuordnung in-app nur im dataset-Modus; beim Template macht Deneb das beim Import */
+  /* Feld-Zuordnung in-app nur im dataset-Modus (Einzelchart); beim Template macht Deneb das beim Import */
   const fm = state.vlDeneb && !tmpl && !isDash && vegaSpec(false);
   $('#fieldMap').style.display = fm ? 'flex' : 'none';
   if(fm) renderFieldMap();
+  if(isDash) renderDashFields();
   applyUILang();
 }
 $('#btnVega').addEventListener('click', ()=>{
@@ -4379,7 +4384,7 @@ function regenSpecDlg(){
 }
 function setSpecOpt(fn){ fn(); schedulePersist(); syncSpecOpts(); regenSpecDlg(); }
 $('#odEmbed').addEventListener('click', ()=> setSpecOpt(()=>{ state.vlDeneb=false; state.vlTemplate=false; }));
-$('#odDeneb').addEventListener('click', ()=> setSpecOpt(()=>{ state.vlDeneb=true; state.vlTemplate = !dlgFile.startsWith('dashboard'); }));
+$('#odDeneb').addEventListener('click', ()=> setSpecOpt(()=>{ state.vlDeneb=true; state.vlTemplate=true; }));
 $('#ofVL').addEventListener('click', ()=> setSpecOpt(()=> state.vlVega=false));
 $('#ofVG').addEventListener('click', ()=> setSpecOpt(()=> state.vlVega=true));
 $('#osFit').addEventListener('click', ()=> setSpecOpt(()=> state.vlSizeMode='fit'));
@@ -5424,6 +5429,44 @@ function dashFieldList(){
   });
   return [...map.entries()].map(([auto,info])=>({auto, label:info.label, tiles:info.tiles}));
 }
+/* Aggregierte Felder über alle Kacheln (mit Rolle/Typ) für das gemeinsame Dataset */
+function dashAggFields(){
+  const order=[], map=new Map();
+  state.dash.forEach((snap,i)=>{
+    if(!snap.s || !snap.s.type) return;
+    const defs = withState(snap, ()=> vFieldDefs().map(([key,label])=>({key, label, name:F(key)})));
+    defs.forEach(d=>{
+      if(!map.has(d.name)){ map.set(d.name, {label:d.label, key:d.key, tiles:[]}); order.push(d.name); }
+      map.get(d.name).tiles.push(i+1);
+    });
+  });
+  return order.map(name=> Object.assign({name}, map.get(name)));
+}
+/* Dashboard als 1-Klick-Deneb-Template: gemeinsame Platzhalter über alle Kacheln */
+function denebDashTemplate(){
+  const saveVega=state.vlVega, saveDF=state.dashFields;
+  state.vlVega=false; state.dashFields={};        /* Roh-Feldnamen, damit Platzhalter mappen */
+  const spec = dashboardSpec(true);
+  state.vlVega=saveVega; state.dashFields=saveDF;
+  if(!spec) return null;
+  const TK={dim:['text','column'], serie:['text','column'], typ:['text','column'], fc:['text','column'], idx:['numeric','column']};
+  const agg = dashAggFields();
+  const nameToPh={}, dataset=[];
+  agg.forEach((f,i)=>{
+    const ph='__'+i+'__'; nameToPh[f.name]=ph; const tk=TK[f.key]||['numeric','measure'];
+    dataset.push({key:ph, name:f.name, description:f.label+' ('+TT('Kacheln')+' '+f.tiles.join(', ')+')', type:tk[0], kind:tk[1]});
+  });
+  const tpl = remapSpec(spec, nameToPh);
+  if(state.vlTooltip||state.vlCross) addInteractivity(tpl);
+  delete tpl.usermeta;
+  tpl.usermeta = {
+    information:{ name:($('#t1').value||'Dashboard').trim(), description:(($('#t2').value||'')+' · '+TT('erzeugt mit dem Business Chart Builder (IBCS-Notation)')).trim(), author:'Business Chart Builder', uuid:tplUuid(), generated:new Date().toISOString() },
+    deneb:{ build:TPL_BUILD, metaVersion:1, provider:'vegaLite', providerVersion:'5.16.3' },
+    interactivity:{ tooltip:!!state.vlTooltip, contextMenu:true, selection:!!state.vlCross, highlight:false, dataPointLimit:60 },
+    dataset,
+  };
+  return tpl;
+}
 function dashboardSpec(deneb){
   if(!state.dash.length) return null;
   const subs = [];
@@ -5794,7 +5837,8 @@ function renderDashList(){
 }
 /* Editierbare Feld-Zuordnung fürs gemeinsame Deneb-Dataset (nur im Deneb-Modus) */
 function renderDashFields(){
-  const show = state.vlDeneb && state.dash.length;
+  /* Im Template-Modus übernimmt Deneb die Zuordnung beim Import → Liste aus */
+  const show = state.vlDeneb && !state.vlTemplate && state.dash.length;
   $('#dashFieldMap').style.display = show ? 'block' : 'none';
   if(!show){ $('#dashFields').innerHTML=''; return; }
   $('#dashFields').innerHTML = dashFieldList().map(f=>
@@ -5810,16 +5854,22 @@ $('#dashFields').addEventListener('input', e=>{
   schedulePersist();
 });
 async function regenDash(){
-  const spec = dashboardSpec(state.vlDeneb);
   $('#specSummary').textContent = specSummary();
+  if(!state.dash.length){ dlgFile='dashboard.vl.json'; $('#dlgCode').value = 'Dashboard ist leer – über „+ Dashboard“ Charts hinzufügen.'; renderDashList(); return; }
+  if(state.vlTemplate){
+    const tpl = denebDashTemplate();
+    dlgFile = 'dashboard.deneb.json';
+    $('#dlgCode').value = tpl ? JSON.stringify(tpl, null, 2) : 'Dashboard ist leer – über „+ Dashboard“ Charts hinzufügen.';
+    renderDashList(); return;
+  }
+  const spec = dashboardSpec(state.vlDeneb);
   dlgFile = state.vlVega ? 'dashboard.vg.json' : 'dashboard.vl.json';
-  if(!spec){ $('#dlgCode').value = 'Dashboard ist leer – über „+ Dashboard“ Charts hinzufügen.'; renderDashList(); return; }
   $('#dlgCode').value = '… erzeuge Spec …';
   $('#dlgCode').value = await exportSpecText(spec);
   renderDashList();
 }
 $('#btnDash').addEventListener('click', ()=>{
-  dlgFile = state.vlVega ? 'dashboard.vg.json' : 'dashboard.vl.json';
+  dlgFile = state.vlTemplate ? 'dashboard.deneb.json' : (state.vlVega ? 'dashboard.vg.json' : 'dashboard.vl.json');
   /* auch bei leerem Dashboard öffnen – die Liste erklärt den nächsten Schritt */
   regenDash();
   syncSpecOpts();
