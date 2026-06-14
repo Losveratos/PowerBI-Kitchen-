@@ -391,7 +391,14 @@ footer a:hover{color:var(--ink)}
         <button class="chip" id="hmEllipse" type="button" title="Hervorhebungs-Ellipse (UN 5.1)">Ellipse ◯</button>
         <button class="chip" id="hmDiff" type="button" title="Differenzmarker mit Hilfslinien (UN 5.1-2)">Δ‑Marker</button>
         <button class="chip" id="hmCmt" type="button" title="Nummerierte Kommentar-Referenz (UN 5.1-6)">Kommentar ①</button>
+        <button class="chip" id="hmAnno" type="button" title="Freie Text-Annotation an der Klickposition platzieren">Annotation ✎</button>
       </div>
+      <div class="row" id="targetWrap" style="display:none; margin-top:8px">
+        <span style="font-size:11.5px;color:var(--ink2)" title="Gestrichelte Benchmark-/Ziellinie im Chart">Zielwert</span>
+        <input type="text" id="targetVal" inputmode="decimal" placeholder="z. B. 110" style="width:74px">
+        <input type="text" id="targetLbl" placeholder="Label (z. B. Ziel)" style="width:108px">
+      </div>
+      <div id="annoList" style="margin-top:8px"></div>
       <label class="check" id="sumWrap" style="display:none"><input type="checkbox" id="showSum" checked> Summenzeile (Σ)</label>
       <label class="check" id="trendWrap" style="display:none"><input type="checkbox" id="trendChk"> Trendpfeil mit CAGR (UN 5.1‑3)</label>
       <label class="check" id="lineLblWrap" style="display:none"><input type="checkbox" id="lineAllLbl"> alle Werte beschriften</label>
@@ -705,6 +712,9 @@ const state = {
   fontScale:1,
   unit:'',
   unitScale:'auto',
+  target:{on:false, v:NaN, label:''},
+  negParens:false,
+  annos:[],
   chartLang:'de',
   dashShare:false,
   vlFit:true,
@@ -1125,6 +1135,21 @@ function refAxisV(x,y1,y2,ref){
 /* ---------- Skalen & Text ---------- */
 /* Globale Beschriftungsgröße: alle Chart-Texte skalieren mit state.fontScale */
 function fsc(v){ return Math.round(v*(state.fontScale||1)*10)/10; }
+/* Zielwert-/Referenzlinie (Benchmark) */
+function targetVal(){ return (state.target && state.target.on && !isNaN(state.target.v)) ? state.target.v : null; }
+function targetLabel(t){ return (state.target.label?state.target.label+' ':'')+fmt(t); }
+function targetLineH(sc, padL, padR, padT, W){
+  const t = targetVal(); if(t===null) return '';
+  const y = padT+sc.y(t);
+  return '<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="'+DARK+'" stroke-width="1.2" stroke-dasharray="6,3"/>'+
+    txt(W-padR-2, y-4, targetLabel(t), {anchor:'end', size:10, fill:SUB});
+}
+function targetLineV(sc, padL, padT, H, padB){
+  const t = targetVal(); if(t===null) return '';
+  const x = padL+sc.x(t);
+  return '<line x1="'+x+'" y1="'+padT+'" x2="'+x+'" y2="'+(H-padB)+'" stroke="'+DARK+'" stroke-width="1.2" stroke-dasharray="6,3"/>'+
+    txt(x+3, padT+8, targetLabel(t), {size:10, fill:SUB});
+}
 /* Gemeinsame Wertskala über Dashboard-Kacheln (IBCS SC): während des Dashboard-
    Renderings gesetzt; nur Primärwert-Skalen (shared=true) konsumieren sie. */
 let SHARED_SCALE = null;
@@ -1198,6 +1223,7 @@ function renderColumns(rows, opt){
   const hasRef2 = state.reference2!=='—';
   const style = hasRef ? state.refStyle : 'none';
   const vals = rows.flatMap(r=>[r.v1, hasRef?r.v2:NaN, hasRef2?r.v3:NaN]).filter(v=>!isNaN(v));
+  const _tv0=targetVal(); if(_tv0!==null) vals.push(_tv0);
   const sc = makeScale(Math.min(...vals,0), Math.max(...vals,0), plotH, 0.10, true);
   const slot = (W-padL-padR)/rows.length;
   const y0 = padT+sc.zeroY;
@@ -1271,7 +1297,7 @@ function renderColumns(rows, opt){
   const axis = '<line x1="'+padL+'" y1="'+y0+'" x2="'+(W-padR)+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1.5"/>';
   let trend='';
   if(state.trend && !opt.noCats) trend = trendArrow(rows, i=>padL+slot*i+slot/2, v=>padT+sc.y(v));
-  return { svg:bars+axis+labels+marks+trend, W, H };
+  return { svg:bars+axis+targetLineH(sc,padL,padR,padT,W)+labels+marks+trend, W, H };
 }
 
 /* Differenzmarker nach UN 5.1-2: Hilfslinien projizieren die Säulenlängen,
@@ -1584,6 +1610,7 @@ function renderLine(rows, opt){
   const H = padT+plotH+padB;
   const hasRef = state.reference!=='—';
   const vals = rows.flatMap(r=>[r.v1, hasRef?r.v2:NaN]).filter(v=>!isNaN(v));
+  const _tvL=(!state.lineIndex)?targetVal():null; if(_tvL!==null) vals.push(_tvL);
   const sc = makeScale(Math.min(...vals,0), Math.max(...vals,0), plotH, 0.16, !state.lineIndex);
   const slot=(W-padL-padR)/rows.length, y0=padT+sc.zeroY;
   const X = i => padL+slot*i+slot/2;
@@ -1673,6 +1700,7 @@ function renderLine(rows, opt){
   }
   rows.forEach((r,i)=> s += txt(X(i), y0+15, r.c, {anchor:'middle', size:11, fill:CAT}));
   s += '<line x1="'+padL+'" y1="'+y0+'" x2="'+(W-padR)+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1.5"/>';
+  if(!state.lineIndex) s += targetLineH(sc,padL,padR,padT,W);
   if(state.trend) s += trendArrow(rows, X, Y);
   return { svg:s, W, H };
 }
@@ -2492,6 +2520,7 @@ function renderBars(rows){
   const style = hasRef ? state.refStyle : 'none';
   const tri = style==='tri', off = style==='offset';
   const vals = rows.flatMap(r=>[r.v1, hasRef?r.v2:NaN, hasRef2?r.v3:NaN]).filter(v=>!isNaN(v));
+  const _tvB=targetVal(); if(_tvB!==null) vals.push(_tvB);
   const sc = makeScale(Math.min(...vals,0), Math.max(...vals,0), plotW, 0.14, true);
   const x0 = padL+sc.zeroX;
   const bh = tri ? rowH*0.46 : (off ? rowH*0.40 : rowH*0.42);
@@ -2545,6 +2574,7 @@ function renderBars(rows){
     s += catLabel(rows, i, padL-8, cy+4);
   });
   s += '<line x1="'+x0+'" y1="'+padT+'" x2="'+x0+'" y2="'+(H-padB)+'" stroke="'+DARK+'" stroke-width="1.5"/>';
+  s += targetLineV(sc, padL, padT, H, padB);
   return { svg:s, W, H };
 }
 
@@ -2779,6 +2809,7 @@ function renderColLine(rows, opt){
   const H=padT+plotH+padB;
   const hasRef=state.reference!=='—', hasRef2=state.reference2!=='—';
   const vals=rows.flatMap(r=>[r.v1, hasRef?r.v2:NaN, hasRef2?r.v3:NaN]).filter(v=>!isNaN(v));
+  const _tvCL=targetVal(); if(_tvCL!==null) vals.push(_tvCL);
   const sc=makeScale(Math.min(...vals,0), Math.max(...vals,0), plotH, 0.10, true);
   const slot=(W-padL-padR)/rows.length, y0=padT+sc.zeroY;
   const pw=slot*0.5;
@@ -2819,7 +2850,7 @@ function renderColLine(rows, opt){
   if(hasRef) lines += drawRefLine('v2', state.reference);
   if(hasRef2) lines += drawRefLine('v3', state.reference2);
   const axis='<line x1="'+padL+'" y1="'+y0+'" x2="'+(W-padR)+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1.5"/>';
-  return { svg:bars+axis+lines+labels, W, H };
+  return { svg:bars+axis+targetLineH(sc,padL,padR,padT,W)+lines+labels, W, H };
 }
 
 /* --- Punktdiagramm / Dumbbell (Struktur, UN 3.4-Alternative) ---
@@ -3114,7 +3145,20 @@ function buildChart(){
   else if(state.type==='table')     r = renderIbcsTable(rows);
   else                              r = renderKombi(rows);
   return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+r.W+' '+r.H+'" width="'+r.W+'" height="'+r.H+'" role="img">'+
-         svgDefs() + resolvePaint(r.svg) + '</svg>';
+         svgDefs() + resolvePaint(r.svg) + renderAnnos(r.W, r.H) + '</svg>';
+}
+/* Freie Text-Annotationen: per Klick platziert, Position als Bruchteil von W/H
+   gespeichert (skaliert mit). Erscheinen in SVG/PNG/HTML-Export.            */
+function renderAnnos(W, H){
+  if(!state.annos || !state.annos.length) return '';
+  let s='';
+  state.annos.forEach((a,i)=>{
+    const x = a.x*W, y = a.y*H;
+    s += '<circle cx="'+x+'" cy="'+y+'" r="2.6" fill="'+DARK+'"/>';
+    const lines = String(a.text||'').split('\n');
+    lines.forEach((ln,k)=> s += txt(x+7, y+4+k*14, ln, {size:11, fill:DARK, weight:'bold'}));
+  });
+  return s;
 }
 
 /* ---------- Titelzeile 3 automatisch (UN 2.2) ---------- */
@@ -3495,6 +3539,11 @@ function renderPreview(){
   $('#hmEllipse').classList.toggle('on', state.hlMode==='ellipse');
   $('#hmDiff').classList.toggle('on', state.hlMode==='diff');
   $('#hmCmt').classList.toggle('on', state.hlMode==='cmt');
+  $('#hmAnno').classList.toggle('on', state.hlMode==='anno');
+  $('#targetWrap').style.display = ['columns','colline','line','bars'].includes(state.type) ? 'flex' : 'none';
+  $('#targetVal').value = isNaN(state.target.v) ? '' : String(state.target.v).replace('.',',');
+  $('#targetLbl').value = state.target.label||'';
+  renderAnnoList();
   $('#sumWrap').style.display = state.type==='table' ? 'flex' : 'none';
   $('#trendWrap').style.display = (state.type==='columns'||state.type==='line') ? 'flex' : 'none';
   const lineBase = state.type==='line' || (state.type==='kombi' && state.kombiBase==='line');
@@ -3974,6 +4023,9 @@ $('#rsTri').addEventListener('click', ()=>{ state.refStyle='tri'; renderPreview(
 $('#hmEllipse').addEventListener('click', ()=>{ state.hlMode='ellipse'; renderPreview(); });
 $('#hmDiff').addEventListener('click', ()=>{ state.hlMode='diff'; renderPreview(); });
 $('#hmCmt').addEventListener('click', ()=>{ state.hlMode='cmt'; renderPreview(); });
+$('#hmAnno').addEventListener('click', ()=>{ state.hlMode = state.hlMode==='anno'?'ellipse':'anno'; renderPreview(); });
+$('#targetVal').addEventListener('input', e=>{ const v=parseNum(e.target.value); state.target.v=v; state.target.on=!isNaN(v); renderPreview(); });
+$('#targetLbl').addEventListener('input', e=>{ state.target.label=e.target.value; renderPreview(); });
 
 /* Tabelle */
 $('#dataTable').addEventListener('input', e=>{
@@ -4186,8 +4238,38 @@ dataWrap.addEventListener('drop', e=>{
   rd.readAsText(fle);
 });
 
+/* Annotation per Klick platzieren (Position als Bruchteil von W/H) */
+function renderAnnoList(){
+  const host = $('#annoList'); if(!host) return;
+  if(!state.annos || !state.annos.length){ host.innerHTML=''; return; }
+  host.innerHTML = state.annos.map((a,i)=>
+    '<div class="cmt-item"><span class="cmt-no">✎</span>'+
+    '<input data-anno="'+i+'" value="'+esc(a.text||'')+'" placeholder="Text …">'+
+    '<button class="del" data-adel="'+i+'" title="Annotation entfernen">×</button></div>').join('');
+}
+$('#annoList').addEventListener('input', e=>{
+  const el = e.target.closest('[data-anno]'); if(!el) return;
+  state.annos[+el.dataset.anno].text = el.value;
+  $('#chartHost').innerHTML = buildChart();   /* nur Chart neu, Liste/Fokus bleiben */
+});
+$('#annoList').addEventListener('click', e=>{
+  const d = e.target.closest('[data-adel]'); if(!d) return;
+  state.annos.splice(+d.dataset.adel, 1);
+  renderPreview();
+});
 /* Highlight per Klick: Ellipse (UN 5.1) oder Differenzmarker (UN 5.1-2) */
 $('#chartHost').addEventListener('click', e=>{
+  if(state.hlMode==='anno' && state.view!=='dash'){
+    const svg = e.target.closest('svg'); if(!svg) return;
+    const rc = svg.getBoundingClientRect();
+    const fx=(e.clientX-rc.left)/rc.width, fy=(e.clientY-rc.top)/rc.height;
+    if(fx<0||fx>1||fy<0||fy>1) return;
+    state.annos.push({x:Math.max(0,Math.min(1,fx)), y:Math.max(0,Math.min(1,fy)), text:'Text'});
+    renderPreview();
+    const inp = document.querySelector('[data-anno="'+(state.annos.length-1)+'"]');
+    if(inp){ inp.focus(); if(inp.select) inp.select(); }
+    return;
+  }
   const el = e.target.closest('[data-i]'); if(!el) return;
   const i = +el.dataset.i;
   if(state.hlMode==='cmt'){
@@ -4660,6 +4742,18 @@ function vPrimBarMark(size){
       strokeDash:{condition:{test:'datum.fc', value:[3,2]}, value:[1,0]},
     }};
 }
+/* Zielwert-Linie als Vega-Layer (horizontal für Zeit, vertikal für Balken) */
+function vTargetLayers(horizontal){
+  const t = targetVal(); if(t===null) return [];
+  const pos = horizontal ? {y:{datum:t}} : {x:{datum:t}};
+  const lblPos = horizontal ? {y:{datum:t}, x:{value:5}} : {x:{datum:t}, y:{value:8}};
+  const lblMark = horizontal ? {type:'text', align:'left', dy:-4, baseline:'bottom'} : {type:'text', align:'left', dx:3};
+  return [
+    {mark:{type:'rule', strokeDash:[6,3], color:DARK, strokeWidth:1.2}, encoding:pos},
+    {mark:Object.assign(lblMark, {font:'Arial', fontSize:10, color:SUB}),
+     encoding:Object.assign({}, lblPos, {text:{value:targetLabel(t)}})},
+  ];
+}
 function vRows(){ return activeRows().map(r=>{
   const o = {
     k:r.c, p:isNaN(r.v1)?null:r.v1, r:isNaN(r.v2)?null:r.v2, fc:!!r.fc,
@@ -4706,6 +4800,7 @@ function vlColumns(deneb, opt){
       encoding:{y:vYq('r2')}});
   }
   vSignedText('p', vLab(deneb,'p','Lp',vNum()), true, null, primOff).forEach(l=>layer.push(l));
+  vTargetLayers(true).forEach(l=>layer.push(l));
   return { width:580, height:opt.h||230, data:vData(vRows(),deneb),
     encoding:{x:vX(opt.x)}, layer };
 }
@@ -4739,6 +4834,7 @@ function vlBars(deneb){
       encoding:{x:vYq('r2')}});
   }
   vSignedText('p', vLab(deneb,'p','Lp',vNum()), false, null, primOff).forEach(l=>layer.push(l));
+  vTargetLayers(false).forEach(l=>layer.push(l));
   return { width:430, height:{step:28}, data:vData(vRows(),deneb),
     transform: deneb? [] : undefined,
     encoding:{y:{field:'k', type:'nominal', sort:null, axis:{labelPadding:8}}}, layer };
@@ -4919,6 +5015,7 @@ function vlLine(deneb){
       stroke:{value:DARK}}});
   layer.push({mark:{type:'text', dy:-11, fontSize:11, font:'Arial', color:DARK},
     encoding:{y:vYq('p'), text:vLab(deneb,'p','Lp',vNum())}});
+  if(!state.lineIndex) vTargetLayers(true).forEach(l=>layer.push(l));
   return { width:580, height:220, data:vData(vals2,deneb), transform:tfLine, encoding:{x:vX()}, layer };
 }
 function vlStack(deneb, vertical){
@@ -5092,6 +5189,7 @@ function vlColLine(deneb, opt){
   if(state.reference!=='—') refLine('r', state.reference, 50);
   if(state.reference2!=='—') refLine('r2', state.reference2, 36);
   vSignedText('p', vLab(deneb,'p','Lp',vNum()), true).forEach(l=>layer.push(l));
+  vTargetLayers(true).forEach(l=>layer.push(l));
   return { width:580, height:opt.h||230, data:vData(vRows(),deneb),
     encoding:{x:vX(opt.x)}, layer };
 }
@@ -5727,6 +5825,7 @@ function serialize(){
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source,
       multiMode:state.multiMode, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
+      target:state.target, negParens:state.negParens, annos:state.annos,
       vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,
     },
     rows:state.rows, wrows:state.wrows, srows:state.srows, series:state.series,
@@ -5739,6 +5838,8 @@ function applyConfig(cfg, silent){
   if(!cfg || cfg.v!==1) return false;
   Object.assign(state, cfg.s||{});
   if(!state.fields || typeof state.fields!=='object') state.fields = {};
+  if(!state.target || typeof state.target!=='object') state.target = {on:false, v:NaN, label:''};
+  if(!Array.isArray(state.annos)) state.annos = [];
   if(cfg.rows) state.rows = cfg.rows;
   if(cfg.wrows) state.wrows = cfg.wrows;
   if(cfg.srows) state.srows = cfg.srows;
@@ -5913,6 +6014,10 @@ function wizRecommend(a){
  ['Interaktivität: in den Deneb-Settings den Tooltip-Handler bzw. „Expose cross-filtering values for dataset rows“ aktivieren.','Interactivity: enable the tooltip handler and/or “Expose cross-filtering values for dataset rows” in the Deneb settings.'],
  ['Bullet · Ziel','Bullet · target'],
  ['KPI-Stil','KPI style'],['Status (groß)','Status (large)'],
+ ['Annotation ✎','Annotation ✎'],['Zielwert','Target'],
+ ['Freie Text-Annotation an der Klickposition platzieren','Place a free text annotation at the click position'],
+ ['Gestrichelte Benchmark-/Ziellinie im Chart','Dashed benchmark/target line in the chart'],
+ ['Label (z. B. Ziel)','Label (e.g. target)'],['Annotation entfernen','Remove annotation'],
  ['IBCS-konform: Ist neutral, Δ%-Pins auf gemeinsamer Skala','IBCS-compliant: actual neutral, Δ% pins on a shared scale'],
  ['Großer Ist-Wert, eingefärbt nach Abweichung zu Referenz 1, mit ▲▼-Pfeil und Δ%/Δ','Large actual value, colored by variance to reference 1, with ▲▼ arrow and Δ%/Δ'],
  ['Spec für Deneb (Power BI) erzeugen – Format, Visual-Größe, Schrift, Tooltips und Cross-Filtering wählbar','Generate a spec for Deneb (Power BI) – format, visual size, font, tooltips and cross-filtering selectable'],
