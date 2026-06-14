@@ -510,11 +510,11 @@ footer a:hover{color:var(--ink)}
       </div>
     </div>
     <div class="dlg-opts" id="specOpts" style="display:none">
-      <div class="opt-row"><span class="opt-lbl">Daten</span>
-        <button class="chip" id="odEmbed" type="button" title="Werte sind im Spec eingebettet – läuft sofort im Vega-Editor oder in Deneb">eingebettet</button>
-        <button class="chip" id="odDeneb" type="button" title="data → dataset: Deneb liefert die Daten aus Power BI; die benötigten Felder unten zuordnen">Deneb-dataset (Power BI)</button>
+      <div class="opt-row"><span class="opt-lbl">Ziel</span>
+        <button class="chip" id="odDeneb" type="button" title="Fertiges Deneb-Template: in Power BI importieren, Felder zuordnen – Provider, Tooltips und Cross-Filter sind schon gesetzt">Power BI · Deneb-Template ⭐</button>
+        <button class="chip" id="odEmbed" type="button" title="Werte sind im Spec eingebettet – läuft sofort im Vega-Editor (vega.github.io/editor) zum Ausprobieren">Vorschau · eingebettet</button>
       </div>
-      <div class="opt-row"><span class="opt-lbl">Format</span>
+      <div class="opt-row" id="rowFormat"><span class="opt-lbl">Format</span>
         <button class="chip" id="ofVL" type="button">Vega-Lite</button>
         <button class="chip" id="ofVG" type="button" title="Reines Vega v5 – skaliert in Deneb am saubersten (echte width/height-Signale)">Vega · für Deneb empfohlen</button>
       </div>
@@ -544,13 +544,7 @@ footer a:hover{color:var(--ink)}
         </select>
         <span class="opt-note" id="specSummary"></span>
       </div>
-      <ol id="denebSteps" style="display:none">
-        <li>In Power BI ein Deneb-Visual einfügen und die unten gelisteten Felder in „Values“ ziehen.</li>
-        <li>Spec kopieren, in Deneb „Edit“ öffnen und den JSON-Inhalt ersetzen.</li>
-        <li>Beim Vega-Format im Deneb-Editor „Vega“ als Provider wählen (Datei .vg.json).</li>
-        <li>Mehrteilige Charts (Varianzanalyse, Tabelle, Dashboard): Settings → Scaling auf „Auto“ stellen.</li>
-        <li id="stepInteractive" style="display:none">Interaktivität: in den Deneb-Settings den Tooltip-Handler bzw. „Expose cross-filtering values for dataset rows“ aktivieren.</li>
-      </ol>
+      <ol id="denebSteps" style="display:none"></ol>
     </div>
     <div id="fieldMap" style="display:none"></div>
     <textarea id="dlgCode" spellcheck="false"></textarea>
@@ -695,7 +689,8 @@ const state = {
   dashShare:false,
   vlFit:true,
   vlVega:false,
-  vlDeneb:false,
+  vlDeneb:true,
+  vlTemplate:true,
   vlSizeMode:'fit',
   vlW:600,
   vlH:340,
@@ -915,7 +910,7 @@ function TT(s){ return state.uiLang==='en' ? (uiLookup(s)||s) : s; }
 function applyUILang(){
   const btn = $('#uiLangBtn');
   if(btn) btn.textContent = state.uiLang==='en' ? 'DE' : 'EN';
-  const skipIds = new Set(['chartHost','dlgCode','vlPreview','pt1','pt2','pt3','pmsg','psource','commentList']);
+  const skipIds = new Set(['chartHost','dlgCode','vlPreview','pt1','pt2','pt3','pmsg','psource','commentList','denebSteps','specSummary','dashFields','fieldMap']);
   const walk = n=>{
     if(n.nodeType===Node.TEXT_NODE){
       const raw = n.nodeValue, t = raw.trim();
@@ -4154,7 +4149,7 @@ function vFieldDefs(){
   } else {
     defs.push(['p','Kennzahl · '+state.primary]);
     if(state.reference!=='—') defs.push(['r','Kennzahl · '+state.reference]);
-    if(['kombi','barskombi','kpi','columns','bars'].includes(t) && state.reference2!=='—') defs.push(['r2','Kennzahl · '+state.reference2]);
+    if(usesRef2() && state.reference2!=='—') defs.push(['r2','Kennzahl · '+state.reference2]);
     if(state.primary==='AC') defs.push(['fc','FC-Flag-Feld']);
   }
   return defs;
@@ -4203,15 +4198,76 @@ function addInteractivity(node){
 }
 /* Kurz-Zusammenfassung der Export-Einstellungen über dem Code */
 function specSummary(){
-  const fmt = state.vlVega ? 'Vega v5' : 'Vega-Lite v5';
+  const tmpl = state.vlTemplate && !dlgFile.startsWith('dashboard');
+  const fmt = tmpl ? 'Deneb-Template' : (state.vlVega ? 'Vega v5' : 'Vega-Lite v5');
   const size = state.vlSizeMode==='fixed' ? (state.vlW+'×'+state.vlH+' px') : TT('dynamisch');
   const fs = Math.round(11*(state.fontScale||1)*10)/10;
   const ia = (state.vlTooltip?' · Tooltips':'')+(state.vlCross?' · Cross-Filter':'');
-  return fmt+' · '+size+' · Arial '+String(fs).replace('.',',')+'px · '+(state.vlDeneb ? 'dataset' : TT('eingebettet'))+ia;
+  const data = tmpl ? TT('Felder im Import') : (state.vlDeneb ? 'dataset' : TT('eingebettet'));
+  return fmt+' · '+size+' · Arial '+String(fs).replace('.',',')+'px · '+data+ia;
+}
+/* Deneb-Import-Template: Feldnamen werden zu Platzhaltern __0__…, die der Nutzer
+   beim Import zuordnet; Provider und Interaktivität stehen im usermeta-Block. */
+const TPL_BUILD = '1.6.4.0';
+function tplUuid(){
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{
+    const r = Math.random()*16|0; return (c==='x'? r : (r&0x3|0x8)).toString(16);
+  });
+}
+function denebTemplate(){
+  const saveVega = state.vlVega; state.vlVega = false;   /* Templates immer Vega-Lite (Felder mappen zuverlässig) */
+  const spec = vegaSpec(true);
+  state.vlVega = saveVega;
+  if(!spec) return null;
+  const TK = { dim:['text','column'], serie:['text','column'], typ:['text','column'], fc:['text','column'], idx:['numeric','column'] };
+  const defs = vFieldDefs().map(([key,label],i)=>{
+    const tk = TK[key] || ['numeric','measure'];
+    return { ph:'__'+i+'__', name:F(key), label, type:tk[0], kind:tk[1] };
+  });
+  const nameToPh = {}; defs.forEach(d=>{ nameToPh[d.name] = d.ph; });
+  const tpl = remapSpec(spec, nameToPh);
+  delete tpl.usermeta;
+  tpl.usermeta = {
+    information: {
+      name: ($('#t1').value||'Business Chart').trim(),
+      description: (($('#t3').value||autoT3())+' · '+TT('erzeugt mit dem Business Chart Builder (IBCS-Notation)')).trim(),
+      author: 'Business Chart Builder',
+      uuid: tplUuid(),
+      generated: new Date().toISOString(),
+    },
+    deneb: { build:TPL_BUILD, metaVersion:1, provider:'vegaLite', providerVersion:'5.16.3' },
+    interactivity: { tooltip: !!state.vlTooltip, contextMenu:true, selection: !!state.vlCross, highlight:false, dataPointLimit:60 },
+    dataset: defs.map(d=> ({ key:d.ph, name:d.name, description:d.label, type:d.type, kind:d.kind })),
+  };
+  return tpl;
+}
+function denebStepsHtml(){
+  const isDash = dlgFile.startsWith('dashboard');
+  if(!state.vlDeneb){
+    return '<li>'+TT('Läuft direkt im Vega-Editor (vega.github.io/editor) – zum Ausprobieren mit eingebetteten Daten.')+'</li>'+
+           '<li>'+TT('Für Power BI auf „Power BI · Deneb-Template“ umschalten.')+'</li>';
+  }
+  if(state.vlTemplate && !isDash){
+    return '<li>'+TT('In Deneb: „Neue Spezifikation → Aus Vorlage erstellen → Importieren“ und diese Datei wählen.')+'</li>'+
+           '<li>'+TT('Beim Import die gelisteten Felder deinen Power-BI-Spalten zuordnen – Deneb fragt danach.')+'</li>'+
+           '<li>'+TT('Fertig. Provider, Tooltips und Cross-Filter sind im Template bereits gesetzt.')+'</li>';
+  }
+  let h = '<li>'+TT('In Power BI ein Deneb-Visual einfügen und die gelisteten Felder in „Values“ ziehen.')+'</li>'+
+          '<li>'+TT('Spec kopieren, in Deneb „Edit“ öffnen und den JSON-Inhalt ersetzen.')+'</li>';
+  if(isDash) h += '<li>'+TT('Mehrteiliges Dashboard: Settings → Scaling auf „Auto“ stellen.')+'</li>';
+  if(state.vlTooltip||state.vlCross) h += '<li>'+TT('Interaktivität: in den Deneb-Settings den Tooltip-Handler bzw. „Expose cross-filtering values“ aktivieren.')+'</li>';
+  return h;
 }
 async function regenVegaCode(){
-  const spec = vegaSpec(state.vlDeneb);
   $('#specSummary').textContent = specSummary();
+  if(state.vlTemplate){
+    const tpl = denebTemplate();
+    dlgFile = 'business-chart.deneb.json';
+    $('#dlgCode').value = tpl ? JSON.stringify(tpl, null, 2)
+      : '// Deneb-Template für diesen Diagrammtyp noch nicht verfügbar.\n// Bitte „SVG kopieren“ oder PNG-Export nutzen.';
+    return;
+  }
+  const spec = vegaSpec(state.vlDeneb);
   if(!spec){
     $('#dlgCode').value = '// Vega/Deneb-Export für diesen Diagrammtyp noch nicht verfügbar.\n'+
       '// Bitte „SVG kopieren“ oder PNG-Export nutzen – die Vorschau ist vollständig.';
@@ -4282,9 +4338,14 @@ $('#dlgPreview').addEventListener('click', async ()=>{
   }
 });
 function syncSpecOpts(){
+  const isDash = dlgFile.startsWith('dashboard');
+  const tmpl = state.vlTemplate && !isDash;
   $('#specOpts').style.display = 'block';
   $('#odEmbed').classList.toggle('on', !state.vlDeneb);
   $('#odDeneb').classList.toggle('on', !!state.vlDeneb);
+  $('#odDeneb').textContent = isDash ? TT('Power BI · Deneb-dataset') : TT('Power BI · Deneb-Template ⭐');
+  /* Format ist beim Template fix Vega-Lite → Zeile ausblenden */
+  $('#rowFormat').style.display = tmpl ? 'none' : 'flex';
   $('#ofVL').classList.toggle('on', !state.vlVega);
   $('#ofVG').classList.toggle('on', !!state.vlVega);
   $('#osFit').classList.toggle('on', state.vlSizeMode!=='fixed');
@@ -4294,16 +4355,17 @@ function syncSpecOpts(){
   $('#dlgFont').value = String(state.fontScale||1);
   $('#oiTip').classList.toggle('on', !!state.vlTooltip);
   $('#oiCross').classList.toggle('on', !!state.vlCross);
-  $('#denebSteps').style.display = state.vlDeneb ? 'block' : 'none';
-  $('#stepInteractive').style.display = (state.vlTooltip||state.vlCross) ? 'list-item' : 'none';
-  const fm = state.vlDeneb && !dlgFile.startsWith('dashboard') && vegaSpec(false);
+  $('#denebSteps').style.display = 'block';
+  $('#denebSteps').innerHTML = denebStepsHtml();
+  /* Feld-Zuordnung in-app nur im dataset-Modus; beim Template macht Deneb das beim Import */
+  const fm = state.vlDeneb && !tmpl && !isDash && vegaSpec(false);
   $('#fieldMap').style.display = fm ? 'flex' : 'none';
   if(fm) renderFieldMap();
   applyUILang();
 }
 $('#btnVega').addEventListener('click', ()=>{
   if(state.view==='dash' && state.dash.length){ $('#btnDash').click(); return; }
-  dlgFile = state.vlVega ? 'business-chart.vg.json' : 'business-chart.vl.json';
+  dlgFile = state.vlTemplate ? 'business-chart.deneb.json' : (state.vlVega ? 'business-chart.vg.json' : 'business-chart.vl.json');
   regenVegaCode();
   $('#dashPanel').style.display = 'none';
   syncSpecOpts();
@@ -4313,11 +4375,11 @@ $('#btnVega').addEventListener('click', ()=>{
 });
 function regenSpecDlg(){
   if(dlgFile.startsWith('dashboard')) regenDash();
-  else if(dlgFile.includes('.v')) regenVegaCode();
+  else regenVegaCode();   /* Spec-Dialog: Vega-Lite, Vega oder Deneb-Template */
 }
 function setSpecOpt(fn){ fn(); schedulePersist(); syncSpecOpts(); regenSpecDlg(); }
-$('#odEmbed').addEventListener('click', ()=> setSpecOpt(()=> state.vlDeneb=false));
-$('#odDeneb').addEventListener('click', ()=> setSpecOpt(()=> state.vlDeneb=true));
+$('#odEmbed').addEventListener('click', ()=> setSpecOpt(()=>{ state.vlDeneb=false; state.vlTemplate=false; }));
+$('#odDeneb').addEventListener('click', ()=> setSpecOpt(()=>{ state.vlDeneb=true; state.vlTemplate = !dlgFile.startsWith('dashboard'); }));
 $('#ofVL').addEventListener('click', ()=> setSpecOpt(()=> state.vlVega=false));
 $('#ofVG').addEventListener('click', ()=> setSpecOpt(()=> state.vlVega=true));
 $('#osFit').addEventListener('click', ()=> setSpecOpt(()=> state.vlSizeMode='fit'));
@@ -5472,7 +5534,7 @@ function serialize(){
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source,
       multiMode:state.multiMode, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
-      vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, dashFields:state.dashFields, uiLang:state.uiLang,
+      vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,
     },
     rows:state.rows, wrows:state.wrows, srows:state.srows, series:state.series,
     highlights:[...state.highlights], diffs:[...state.diffs], comments:[...state.comments],
@@ -5660,6 +5722,22 @@ function wizRecommend(a){
  ['Spec für Deneb (Power BI) erzeugen – Format, Visual-Größe, Schrift, Tooltips und Cross-Filtering wählbar','Generate a spec for Deneb (Power BI) – format, visual size, font, tooltips and cross-filtering selectable'],
  ['← Daten-Knowledge','← Data knowledge'],
  ['Zurück zur Daten-Knowledge-Hauptseite','Back to the data knowledge main page'],
+ ['Power BI · Deneb-Template ⭐','Power BI · Deneb template ⭐'],
+ ['Power BI · Deneb-dataset','Power BI · Deneb dataset'],
+ ['Vorschau · eingebettet','Preview · embedded'],
+ ['Ziel','Target'],['Felder im Import','fields on import'],
+ ['Fertiges Deneb-Template: in Power BI importieren, Felder zuordnen – Provider, Tooltips und Cross-Filter sind schon gesetzt','Ready-made Deneb template: import in Power BI, map fields – provider, tooltips and cross-filter are already set'],
+ ['Werte sind im Spec eingebettet – läuft sofort im Vega-Editor (vega.github.io/editor) zum Ausprobieren','Values are embedded in the spec – runs straight away in the Vega editor (vega.github.io/editor) for testing'],
+ ['erzeugt mit dem Business Chart Builder (IBCS-Notation)','created with the Business Chart Builder (IBCS notation)'],
+ ['In Deneb: „Neue Spezifikation → Aus Vorlage erstellen → Importieren“ und diese Datei wählen.','In Deneb: “New specification → Create from template → Import” and pick this file.'],
+ ['Beim Import die gelisteten Felder deinen Power-BI-Spalten zuordnen – Deneb fragt danach.','On import, map the listed fields to your Power BI columns – Deneb prompts you.'],
+ ['Fertig. Provider, Tooltips und Cross-Filter sind im Template bereits gesetzt.','Done. Provider, tooltips and cross-filter are already set in the template.'],
+ ['Läuft direkt im Vega-Editor (vega.github.io/editor) – zum Ausprobieren mit eingebetteten Daten.','Runs directly in the Vega editor (vega.github.io/editor) – for testing with embedded data.'],
+ ['Für Power BI auf „Power BI · Deneb-Template“ umschalten.','For Power BI, switch to “Power BI · Deneb template”.'],
+ ['In Power BI ein Deneb-Visual einfügen und die gelisteten Felder in „Values“ ziehen.','Add a Deneb visual in Power BI and drag the listed fields into “Values”.'],
+ ['Spec kopieren, in Deneb „Edit“ öffnen und den JSON-Inhalt ersetzen.','Copy the spec, open “Edit” in Deneb and replace the JSON content.'],
+ ['Mehrteiliges Dashboard: Settings → Scaling auf „Auto“ stellen.','Multi-part dashboard: set Settings → Scaling to “Auto”.'],
+ ['Interaktivität: in den Deneb-Settings den Tooltip-Handler bzw. „Expose cross-filtering values“ aktivieren.','Interactivity: enable the tooltip handler and/or “Expose cross-filtering values” in the Deneb settings.'],
  ['Felder für den Deneb-Datensatz','Fields for the Deneb dataset'],
  ['Alle Kacheln teilen sich einen Datensatz. Hier die Spalten benennen, wie sie in Power BI heißen – der Spec wird entsprechend umgeschrieben.','All tiles share one dataset. Name the columns here as they appear in Power BI – the spec is rewritten accordingly.'],
  ['Kacheln','tiles'],
