@@ -71,6 +71,15 @@ aside{display:flex; flex-direction:column; gap:14px}
   margin:0 0 10px; font-size:11px; font-weight:600; letter-spacing:.14em;
   text-transform:uppercase; color:var(--ink3);
 }
+/* Einklappbare Konfig-Panels (Sidebar): Klick auf die Überschrift */
+aside .panel > h2{ cursor:pointer; user-select:none; position:relative; }
+aside .panel > h2::after{
+  content:'–'; position:absolute; right:0; top:-1px; font-size:13px; font-weight:600;
+  color:var(--ink3); line-height:1;
+}
+aside .panel.collapsed > h2{ margin-bottom:0; }
+aside .panel.collapsed > h2::after{ content:'+'; }
+aside .panel.collapsed > *:not(h2){ display:none !important; }
 label.fld{display:block; margin-bottom:8px}
 label.fld span{display:block; font-size:11.5px; color:var(--ink2); margin-bottom:2px}
 input[type=text]{
@@ -6056,6 +6065,24 @@ $('#btnReset').addEventListener('click', async ()=>{
   flash($('#btnReset'), 'Standard ✓');
 });
 tryHashLoad().then(loaded=>{ if(!loaded) tryRestore(); });
+
+/* Einklappbare Konfig-Panels – Klick auf die Panel-Überschrift, Zustand gemerkt */
+(function(){
+  const KEY='bcb-collapsed';
+  const panels=[...document.querySelectorAll('aside .panel')];
+  let saved=[]; try{ saved=JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){}
+  panels.forEach((p,i)=>{ if(saved.includes(i)) p.classList.add('collapsed'); });
+  const aside=document.querySelector('aside');
+  if(aside) aside.addEventListener('click', e=>{
+    const h2=e.target.closest('h2');
+    if(!h2 || h2.parentElement.className.indexOf('panel')<0) return;
+    const p=h2.parentElement; p.classList.toggle('collapsed');
+    const idx=panels.indexOf(p);
+    let set; try{ set=new Set(JSON.parse(localStorage.getItem(KEY)||'[]')); }catch(e){ set=new Set(); }
+    p.classList.contains('collapsed') ? set.add(idx) : set.delete(idx);
+    try{ localStorage.setItem(KEY, JSON.stringify([...set])); }catch(e){}
+  });
+})();
 </script>
 </body>
 </html>
