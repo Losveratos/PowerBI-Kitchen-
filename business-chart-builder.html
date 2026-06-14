@@ -30,6 +30,8 @@ header{
   font-size:12px; color:var(--ink3); text-decoration:none; white-space:nowrap;
   padding:5px 10px; border:1px solid var(--line2); border-radius:2px;
 }
+#uiLangBtn{ display:inline-flex; align-items:center; gap:5px; }
+#uiLangBtn svg{ border:1px solid rgba(0,0,0,.14); border-radius:1px; display:block; flex:none; }
 .hlabel{
   font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3);
   white-space:nowrap; margin-right:-2px;
@@ -922,10 +924,14 @@ function uiLookup(s){
 function TT(s){ return state.uiLang==='en' ? (uiLookup(s)||s) : s; }
 /* Walker: übersetzt sichtbare Textknoten + title/placeholder; merkt sich das
    deutsche Original am Knoten, damit DE ↔ EN verlustfrei umschaltbar ist.   */
+/* Winzige Inline-SVG-Flaggen (Emoji-Flaggen rendern auf Windows nur als Buchstaben) */
+const FLAG_DE = '<svg width="15" height="10" viewBox="0 0 5 3" aria-hidden="true"><rect width="5" height="1" fill="#000"/><rect y="1" width="5" height="1" fill="#D00"/><rect y="2" width="5" height="1" fill="#FFCE00"/></svg>';
+const FLAG_EN = '<svg width="15" height="10" viewBox="0 0 60 30" aria-hidden="true"><rect width="60" height="30" fill="#012169"/><path d="M0,0 60,30 M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 60,30 M60,0 0,30" stroke="#C8102E" stroke-width="3"/><path d="M30,0 V30 M0,15 H60" stroke="#fff" stroke-width="10"/><path d="M30,0 V30 M0,15 H60" stroke="#C8102E" stroke-width="6"/></svg>';
 function applyUILang(){
   const btn = $('#uiLangBtn');
-  if(btn) btn.textContent = state.uiLang==='en' ? 'DE' : 'EN';
-  const skipIds = new Set(['chartHost','dlgCode','vlPreview','pt1','pt2','pt3','pmsg','psource','commentList','denebSteps','specSummary','dashFields','fieldMap']);
+  /* Button zeigt die Zielsprache mit passender Flagge */
+  if(btn) btn.innerHTML = state.uiLang==='en' ? (FLAG_DE+'<span>DE</span>') : (FLAG_EN+'<span>EN</span>');
+  const skipIds = new Set(['uiLangBtn','chartHost','dlgCode','vlPreview','pt1','pt2','pt3','pmsg','psource','commentList','denebSteps','specSummary','dashFields','fieldMap']);
   const walk = n=>{
     if(n.nodeType===Node.TEXT_NODE){
       const raw = n.nodeValue, t = raw.trim();
