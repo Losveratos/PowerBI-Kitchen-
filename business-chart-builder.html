@@ -126,8 +126,11 @@ select{font:inherit; padding:5px 6px; border:1px solid var(--line2); border-radi
 .stage{display:flex; flex-direction:column; gap:18px; min-width:0}
 .report{
   background:var(--card); border:1px solid var(--line);
-  padding:26px 30px 22px; position:relative; overflow-x:auto;
+  padding:26px 30px 22px; position:sticky; top:12px; z-index:1; overflow-x:auto;
 }
+/* Datentabelle scrollt opak über die fixierte Vorschau */
+.data-panel{position:relative; z-index:2}
+@media (max-width:920px){ .report{ position:relative; top:0; } }
 .report .msg-line{font-family:Arial,Helvetica,sans-serif; color:#1c1c1c; font-weight:bold; font-size:15.5px; margin-bottom:8px}
 .report .titles{font-family:Arial,Helvetica,sans-serif; color:var(--chart-dark); margin-bottom:14px}
 #psource{font-family:Arial,Helvetica,sans-serif; font-size:10.5px; color:#8c8c8c; margin-top:12px}
@@ -4078,13 +4081,37 @@ function diceData(){
   flash($('#btnDice'), 'Neu gewürfelt');
 }
 $('#btnDice').addEventListener('click', diceData);
-$('#addRow').addEventListener('click', ()=>{
+function addDataRow(){
   if(usesSrows()) state.srows.push({c:'', v:state.series.map(()=>NaN), rv:state.series.map(()=>NaN)});
   else if(usesWrows()) state.wrows.push({c:'', v:0, r2:NaN, t:'delta'});
   else state.rows.push({c:'', v1:NaN, v2:NaN, v3:NaN, fc:false});
   renderDataTable();
-});
+}
+$('#addRow').addEventListener('click', addDataRow);
 $('#preset').addEventListener('change', e=>{ loadPreset(e.target.value); e.target.value=''; });
+/* Excel-artige Navigation in der Datentabelle: Enter/↓ nächste Zeile (auto neue
+   Zeile am Ende), ↑ vorherige Zeile – über die Zellposition, modellunabhängig. */
+$('#dataTable').addEventListener('keydown', e=>{
+  const inp = e.target;
+  if(inp.tagName!=='INPUT' || inp.type==='checkbox') return;
+  if(!['Enter','ArrowDown','ArrowUp'].includes(e.key)) return;
+  const td = inp.closest('td'), tr = inp.closest('tr'); if(!td||!tr) return;
+  const colIdx = [...tr.parentNode.children].length ? [...tr.children].indexOf(td) : 0;
+  const body = $('#dataTable tbody');
+  let rows = [...body.querySelectorAll(':scope > tr')];
+  const rowIdx = rows.indexOf(tr);
+  const focusCell = (r, idx)=>{
+    const cur = [...$('#dataTable tbody').querySelectorAll(':scope > tr')];
+    const cell = cur[r] && cur[r].children[idx];
+    const t = cell && cell.querySelector('input:not([type=checkbox])');
+    if(t){ t.focus(); if(t.select) t.select(); }
+  };
+  if(e.key==='ArrowUp'){ e.preventDefault(); focusCell(rowIdx-1, colIdx); return; }
+  /* Enter oder ↓ */
+  e.preventDefault();
+  if(rowIdx >= rows.length-1){ addDataRow(); focusCell(rows.length, colIdx); }
+  else focusCell(rowIdx+1, colIdx);
+});
 
 /* Excel-Paste (TSV) */
 /* Tabellarischen Text (Excel-TSV oder CSV mit ;/,) ins aktive Datenmodell übernehmen */
