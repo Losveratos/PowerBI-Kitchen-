@@ -201,6 +201,14 @@ dialog::backdrop{background:rgba(28,28,28,.45)}
 .dlg-head h3{margin:0; font-size:13px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; flex:1}
 .wiz-label{font-size:11.5px; color:var(--ink2); margin:12px 0 5px}
 #wizDim .wiz-label{margin-top:0}
+#helpBody h4{margin:15px 0 5px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3)}
+#helpBody h4:first-child{margin-top:0}
+#helpBody ul{margin:0 0 4px; padding-left:18px}
+#helpBody li{margin-bottom:5px}
+#helpBody b{color:var(--ink)}
+#helpBody a{color:var(--ink2); text-decoration:underline}
+#helpBody kbd{font-family:'IBM Plex Mono',monospace; font-size:11px; background:#f0efec; border:1px solid var(--line2); border-radius:3px; padding:0 4px}
+#helpBody .help-license{margin-top:16px; padding-top:12px; border-top:1px dashed var(--line2); font-size:11.5px; color:var(--ink2)}
 /* ---------- Export-Optionen (Deneb) ---------- */
 .dlg-opts{border:1px solid var(--line); background:#fafaf8; padding:10px 12px; margin-bottom:10px}
 .opt-row{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:7px}
@@ -238,6 +246,7 @@ footer a:hover{color:var(--ink)}
   <a class="backlink" href="daten_wg_learn_buckets.html" title="Zurück zur Daten-Knowledge-Hauptseite">← Daten-Knowledge</a>
   <div class="wordmark"><b>Business</b> <span>Chart Builder · semantische Notation</span><span class="beta-badge" title="Beta-Phase · noch in Entwicklung">Beta</span></div>
   <div class="spacer"></div>
+  <button class="ghost" id="btnHelp" title="Funktionen erklärt + Lizenz/Hinweise">❓ Hilfe</button>
   <button class="ghost" id="uiLangBtn" title="Switch the user interface to English / Bedienoberfläche auf Deutsch umschalten">EN</button>
   <button class="ghost" id="btnUndo" title="Rückgängig (Strg+Z)" disabled>↶</button>
   <button class="ghost" id="btnRedo" title="Wiederherstellen (Strg+Y)" disabled>↷</button>
@@ -583,6 +592,11 @@ footer a:hover{color:var(--ink)}
       <button class="ghost" id="dlgPreview" style="display:none" title="Spec mit Vega im Browser rendern – so sieht es in Deneb aus">▶ Vorschau</button>
     </div>
   </div>
+</dialog>
+
+<dialog id="helpDlg" style="max-width:640px">
+  <div class="dlg-head"><h3 id="helpTitle">Hilfe</h3><button class="ghost" id="helpClose">Schließen</button></div>
+  <div class="dlg-body" id="helpBody" style="font-size:13px; line-height:1.5; color:var(--ink)"></div>
 </dialog>
 
 <dialog id="wizDlg" style="max-width:560px">
@@ -946,7 +960,7 @@ function applyUILang(){
   const btn = $('#uiLangBtn');
   /* Button zeigt die Zielsprache mit passender Flagge */
   if(btn) btn.innerHTML = state.uiLang==='en' ? (FLAG_DE+'<span>DE</span>') : (FLAG_EN+'<span>EN</span>');
-  const skipIds = new Set(['uiLangBtn','chartHost','dlgCode','vlPreview','pt1','pt2','pt3','pmsg','psource','commentList','denebSteps','specSummary','dashFields','fieldMap']);
+  const skipIds = new Set(['uiLangBtn','chartHost','dlgCode','vlPreview','pt1','pt2','pt3','pmsg','psource','commentList','denebSteps','specSummary','dashFields','fieldMap','helpBody','helpTitle']);
   const walk = n=>{
     if(n.nodeType===Node.TEXT_NODE){
       const raw = n.nodeValue, t = raw.trim();
@@ -5980,7 +5994,65 @@ $('#uiLangBtn').addEventListener('click', ()=>{
   state.chartLang = state.uiLang;
   $('#chartLang').value = state.chartLang;
   renderAll();
+  if($('#helpDlg').open) openHelp();   /* offene Hilfe in neuer Sprache neu aufbauen */
 });
+
+/* ---------- Hilfe-Popup: How-to + Lizenz (zweisprachig) ---------- */
+const LIC = 'Gebaut von <a href="https://www.linkedin.com/in/michael-tenner-5b885970/" target="_blank" rel="noopener">Michael Tenner</a> · Teil der <a href="daten_wg_learn_buckets.html">Daten-WG Knowledge Kitchen</a>. Unabhängiges Projekt – nicht von der IBCS Association zertifiziert, geprüft oder mit ihr verbunden. Die Gestaltung orientiert sich an den frei verfügbaren IBCS® Standards v1.2 (<a href="https://www.ibcs.com" target="_blank" rel="noopener">ibcs.com</a>, Lizenz CC BY-SA 4.0). IBCS® ist eine eingetragene Marke der IBCS Association bzw. ihrer Trägergesellschaft.';
+const LIC_EN = 'Built by <a href="https://www.linkedin.com/in/michael-tenner-5b885970/" target="_blank" rel="noopener">Michael Tenner</a> · part of the <a href="daten_wg_learn_buckets.html">Daten-WG Knowledge Kitchen</a>. Independent project – not certified, audited or affiliated with the IBCS Association. The design follows the freely available IBCS® Standards v1.2 (<a href="https://www.ibcs.com" target="_blank" rel="noopener">ibcs.com</a>, licensed CC BY-SA 4.0). IBCS® is a registered trademark of the IBCS Association or its operating company.';
+function helpHtml(){
+  if(state.uiLang==='en') return ''+
+    '<h4>1 · Chart type</h4><ul>'+
+    '<li>Pick one of 23 types on the left, or use <b>🧭 Which type fits?</b> for a recommendation.</li></ul>'+
+    '<h4>2 · Scenarios &amp; variance</h4><ul>'+
+    '<li>Set the <b>primary</b> and <b>reference</b> scenario (AC / PY / PL / BU / FC) via the chips.</li>'+
+    '<li>Add <b>Δ</b> and <b>Δ%</b> tiers under “Variance”. A second reference adds another tier.</li></ul>'+
+    '<h4>3 · Data</h4><ul>'+
+    '<li>Type in the table – <kbd>Enter</kbd> jumps to the next row (auto-adds one at the end), arrows move between rows.</li>'+
+    '<li>Paste from Excel with <kbd>Ctrl+V</kbd>, load a <b>CSV</b> (also drag &amp; drop), or <b>save CSV</b>.</li></ul>'+
+    '<h4>4 · Format &amp; language</h4><ul>'+
+    '<li><b>Unit</b> &amp; <b>scaling</b> (k/m) move into the title; set label size, “negatives in parentheses”, decimals.</li>'+
+    '<li>Switch the whole UI and chart between <b>DE / EN</b> top right.</li></ul>'+
+    '<h4>5 · Highlight &amp; annotate</h4><ul>'+
+    '<li>Choose what <b>“Click sets”</b>, then click the chart: ellipse, Δ marker, comment or a free <b>annotation</b>.</li>'+
+    '<li>Add a dashed <b>target line</b> (value + label) under “Target”.</li></ul>'+
+    '<h4>6 · Export to Power BI</h4><ul>'+
+    '<li><b>⚡ Vega / Deneb</b> builds a ready-made <b>Deneb template</b>: import it, map the fields – done. Provider, tooltips and cross-filter are already set.</li>'+
+    '<li>Also: <b>copy PNG</b>, SVG, HTML; fix the visual size or scale dynamically.</li></ul>'+
+    '<h4>7 · Dashboard &amp; share</h4><ul>'+
+    '<li>Collect charts with <b>+ Dashboard</b> (one combined Deneb template).</li>'+
+    '<li><b>Share link</b> packs the entire state into a URL; <b>Undo</b> with <kbd>Ctrl+Z</kbd>.</li></ul>'+
+    '<div class="help-license"><b>License &amp; notes.</b> '+LIC_EN+'</div>';
+  return ''+
+    '<h4>1 · Diagrammtyp</h4><ul>'+
+    '<li>Einen der 23 Typen links wählen – oder <b>🧭 Welcher Typ passt?</b> für eine Empfehlung.</li></ul>'+
+    '<h4>2 · Szenarien &amp; Varianz</h4><ul>'+
+    '<li><b>Primär-</b> und <b>Referenzszenario</b> (AC / PY / PL / BU / FC) über die Chips setzen.</li>'+
+    '<li><b>Δ</b> und <b>Δ%</b> unter „Varianz" zuschalten. Eine zweite Referenz ergänzt eine weitere Ebene.</li></ul>'+
+    '<h4>3 · Daten</h4><ul>'+
+    '<li>In der Tabelle tippen – <kbd>Enter</kbd> springt in die nächste Zeile (legt am Ende automatisch eine an), Pfeiltasten wechseln die Zeile.</li>'+
+    '<li>Aus Excel mit <kbd>Strg+V</kbd> einfügen, <b>CSV laden</b> (auch per Drag &amp; Drop) oder <b>CSV speichern</b>.</li></ul>'+
+    '<h4>4 · Format &amp; Sprache</h4><ul>'+
+    '<li><b>Einheit</b> &amp; <b>Skalierung</b> (Tsd/Mio) wandern in den Titel; Schriftgröße, „Negative in Klammern", Dezimalstellen einstellbar.</li>'+
+    '<li>Oben rechts die gesamte Oberfläche und das Chart auf <b>DE / EN</b> umschalten.</li></ul>'+
+    '<h4>5 · Hervorheben &amp; Annotieren</h4><ul>'+
+    '<li>Bei <b>„Klick setzt"</b> wählen, dann ins Chart klicken: Ellipse, Δ-Marker, Kommentar oder freie <b>Annotation</b>.</li>'+
+    '<li>Gestrichelte <b>Zielwert-Linie</b> (Wert + Label) unter „Zielwert".</li></ul>'+
+    '<h4>6 · Export nach Power BI</h4><ul>'+
+    '<li><b>⚡ Vega / Deneb</b> erzeugt ein fertiges <b>Deneb-Template</b>: importieren, Felder zuordnen – fertig. Provider, Tooltips und Cross-Filter sind schon gesetzt.</li>'+
+    '<li>Außerdem: <b>PNG kopieren</b>, SVG, HTML; Visual-Größe fix oder dynamisch.</li></ul>'+
+    '<h4>7 · Dashboard &amp; Teilen</h4><ul>'+
+    '<li>Mehrere Charts mit <b>+ Dashboard</b> sammeln (ein kombiniertes Deneb-Template).</li>'+
+    '<li><b>Link teilen</b> packt den ganzen Zustand in eine URL; <b>Rückgängig</b> mit <kbd>Strg+Z</kbd>.</li></ul>'+
+    '<div class="help-license"><b>Lizenz &amp; Hinweise.</b> '+LIC+'</div>';
+}
+function openHelp(){
+  $('#helpTitle').innerHTML = state.uiLang==='en' ? 'How to use &amp; license' : 'Bedienung &amp; Lizenz';
+  $('#helpBody').innerHTML = helpHtml();
+  const d=$('#helpDlg'); if(d.showModal) d.showModal(); else d.setAttribute('open','');
+}
+$('#btnHelp').addEventListener('click', openHelp);
+$('#helpClose').addEventListener('click', ()=> $('#helpDlg').close());
 
 /* ---------- Chart-Wizard: 3 Fragen → Typ-Empfehlung ---------- */
 const wizDlg = $('#wizDlg');
@@ -6056,6 +6128,7 @@ function wizRecommend(a){
  ['Negative Werte in Klammern (123)','Negative values in parentheses (123)'],
  ['CSV speichern','Save CSV'],
  ['Aktuelle Datentabelle als CSV speichern (Semikolon, importkompatibel)','Save the current data table as CSV (semicolon, import-compatible)'],
+ ['❓ Hilfe','❓ Help'],['Funktionen erklärt + Lizenz/Hinweise','Features explained + license/notes'],
  ['IBCS-konform: Ist neutral, Δ%-Pins auf gemeinsamer Skala','IBCS-compliant: actual neutral, Δ% pins on a shared scale'],
  ['Großer Ist-Wert, eingefärbt nach Abweichung zu Referenz 1, mit ▲▼-Pfeil und Δ%/Δ','Large actual value, colored by variance to reference 1, with ▲▼ arrow and Δ%/Δ'],
  ['Spec für Deneb (Power BI) erzeugen – Format, Visual-Größe, Schrift, Tooltips und Cross-Filtering wählbar','Generate a spec for Deneb (Power BI) – format, visual size, font, tooltips and cross-filtering selectable'],
