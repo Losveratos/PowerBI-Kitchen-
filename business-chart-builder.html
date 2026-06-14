@@ -503,6 +503,11 @@ footer a:hover{color:var(--ink)}
         <button class="chip" id="dc2" type="button">2 Spalten</button>
       </div>
       <div id="dashList"></div>
+      <div id="dashFieldMap" style="display:none; margin-top:10px; border-top:1px dashed var(--line2); padding-top:9px">
+        <div style="font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink3); margin-bottom:6px">Felder für den Deneb-Datensatz</div>
+        <div style="font-size:11px; color:var(--ink3); margin-bottom:8px">Alle Kacheln teilen sich einen Datensatz. Hier die Spalten benennen, wie sie in Power BI heißen – der Spec wird entsprechend umgeschrieben.</div>
+        <div id="dashFields"></div>
+      </div>
     </div>
     <div class="dlg-opts" id="specOpts" style="display:none">
       <div class="opt-row"><span class="opt-lbl">Daten</span>
@@ -696,6 +701,7 @@ const state = {
   vlH:340,
   vlTooltip:true,
   vlCross:false,
+  dashFields:{},
   uiLang:'de',
   fields:{},
   series:['Produkt A','Produkt B','Produkt C'],
@@ -2126,6 +2132,12 @@ function renderWfKombi(tiersOv){
   return { svg:s, W, H };
 }
 
+/* Δ%-Pill (gefülltes, abgerundetes Chip mit weißem Text) für KPI-Karten */
+function vpill(xR, cy, t, colVar){
+  const fs = fsc(9.5), w = t.length*fs*0.6+13, h = fs+6;
+  return '<rect x="'+(xR-w)+'" y="'+(cy-h/2)+'" width="'+w+'" height="'+h+'" rx="'+(h/2)+'" fill="'+colVar+'"/>'+
+    '<text x="'+(xR-w/2)+'" y="'+(cy+fs*0.34)+'" font-family="'+FONT+'" font-size="'+fs+'" text-anchor="middle" font-weight="bold" fill="#fff">'+esc(t)+'</text>';
+}
 /* --- KPI-Karten: eine Kennzahl je Karte, Vergleich vs. 1-2 Referenzszenarien.
        Die Δ%-Pins teilen sich eine Skala über alle Karten (Vergleichbarkeit).  --- */
 function renderKpi(){
@@ -2163,11 +2175,15 @@ function renderKpi(){
     const gx = padL + (i%perRow)*(cw+gapX);
     const gy = padT + Math.floor(i/perRow)*(ch+gapY);
     s += '<rect data-i="'+i+'" x="'+gx+'" y="'+gy+'" width="'+cw+'" height="'+ch+'" rx="7" fill="'+WHITE+'" stroke="#e3e1dc" stroke-width="1"/>';
-    s += txt(gx+12, gy+19, r.c, {size:11.5, weight:'bold', fill:CAT});
+    /* Status-Akzent am linken Rand: Zeichen der ersten Δ% (grün/rot, sonst neutral) */
+    const ar0 = refs[0] ? relOfK(r, refs[0].key) : null;
+    const accent = ar0===null ? '#dad8d3' : (ar0>=0 ? 'var-pos' : 'var-neg');
+    s += '<rect x="'+gx+'" y="'+(gy+7)+'" width="3.5" height="'+(ch-14)+'" rx="1.75" fill="'+accent+'"/>';
+    s += txt(gx+14, gy+19, r.c, {size:11.5, weight:'bold', fill:CAT});
     /* großer Primärwert + Einheit, FC-Kennung */
     const big = fmt(r.v1);
-    s += '<text x="'+(gx+12)+'" y="'+(gy+45)+'" font-family="'+FONT+'" font-size="'+fsc(21)+'" font-weight="bold" fill="'+(r.fc?FCINK:DARK)+'">'+esc(big)+'</text>';
-    let bx = gx+12+String(big).length*12+6;
+    s += '<text x="'+(gx+14)+'" y="'+(gy+45)+'" font-family="'+FONT+'" font-size="'+fsc(21)+'" font-weight="bold" fill="'+(r.fc?FCINK:DARK)+'">'+esc(big)+'</text>';
+    let bx = gx+14+String(big).length*12+6;
     if(state.unit){ s += txt(bx, gy+45, state.unit, {size:11, fill:SUB}); bx += String(state.unit).length*7+6; }
     if(r.fc) s += txt(bx, gy+45, 'FC', {size:10, fill:SUB});
     /* Mini-Sparkline rechts oben (Daten: Serien-Tabelle, Serie = KPI-Name) */
@@ -2175,8 +2191,13 @@ function renderKpi(){
     if(sp){
       const sx0 = gx+cw-12-56, sy0 = gy+30, sw = 56, sh = 16;
       const mn = Math.min(...sp), mx = Math.max(...sp), rng = (mx-mn)||1;
+      const sy = v => sy0+sh-(v-mn)/rng*sh, sxk = k => sx0+k/(sp.length-1)*sw;
+      let area = 'M '+sx0+','+(sy0+sh);
+      sp.forEach((v,k)=>{ area += ' L '+sxk(k)+','+sy(v); });
+      area += ' L '+(sx0+sw)+','+(sy0+sh)+' Z';
+      s += '<path d="'+area+'" fill="#edebe6"/>';
       let d = '';
-      sp.forEach((v,k)=>{ d += (k? ' L ':'M ')+(sx0+k/(sp.length-1)*sw)+','+(sy0+sh-(v-mn)/rng*sh); });
+      sp.forEach((v,k)=>{ d += (k? ' L ':'M ')+sxk(k)+','+sy(v); });
       s += '<path d="'+d+'" fill="none" stroke="'+LIGHT+'" stroke-width="1.4"/>';
       s += '<circle cx="'+(sx0+sw)+'" cy="'+(sy0+sh-(sp[sp.length-1]-mn)/rng*sh)+'" r="2.4" fill="'+DARK+'"/>';
     }
@@ -2219,13 +2240,11 @@ function renderKpi(){
           s += pinHead(xv, cy, rv>=0?'pos':'neg', r.fc, undefined, 3.2);
         }
       }
-      /* Δ und Δ% als Zahlen */
+      /* Δ als Zahl (gedämpft), Δ% als farbige Pill mit Pfeil */
       const dv = (isNaN(r.v1)||isNaN(refv)) ? NaN : r.v1-refv;
-      if(!isNaN(dv)){
-        const col = dv>=0 ? 'var-pos' : 'var-neg';
-        s += txt(gx+cw-66, cy+3.5, fmt(dv,true), {anchor:'end', size:10.5, fill:col, weight:'bold'});
-      }
-      s += txt(gx+cw-12, cy+3.5, rv===null?'n.a.':((rv>=0?'▲ ':'▼ ')+fmtPct(rv)), {anchor:'end', size:10.5, fill: rv===null?'#999':(rv>=0?'var-pos':'var-neg'), weight:'bold'});
+      if(!isNaN(dv)) s += txt(gx+cw-72, cy+3.5, fmt(dv,true), {anchor:'end', size:10, fill:SUB});
+      if(rv===null) s += txt(gx+cw-10, cy+3.5, 'n.a.', {anchor:'end', size:10, fill:'#999'});
+      else s += vpill(gx+cw-8, cy, (rv>=0?'▲':'▼')+' '+fmtPct(rv), rv>=0?'var-pos':'var-neg');
     });
   });
   return { svg:s, W, H };
@@ -5328,6 +5347,21 @@ function dashSnapshot(){
   snap.cap = $('#t3').value || autoT3();
   return snap;
 }
+/* Benutzer-Umbenennung eines Auto-Feldnamens auf den echten PBI-Spaltennamen */
+function dfName(auto){ const u = (state.dashFields[auto]||'').trim(); return u || auto; }
+/* Aggregierte Feldliste über alle Kacheln: [{auto, label, tiles:[1,3]}] */
+function dashFieldList(){
+  const map = new Map();
+  state.dash.forEach((snap,i)=>{
+    if(!snap.s || !snap.s.type) return;
+    const fields = withState(snap, ()=> usermetaFields(snap.s.type));
+    Object.entries(fields).forEach(([auto,label])=>{
+      if(!map.has(auto)) map.set(auto, {label, tiles:[]});
+      map.get(auto).tiles.push(i+1);
+    });
+  });
+  return [...map.entries()].map(([auto,info])=>({auto, label:info.label, tiles:info.tiles}));
+}
 function dashboardSpec(deneb){
   if(!state.dash.length) return null;
   const subs = [];
@@ -5335,7 +5369,10 @@ function dashboardSpec(deneb){
   state.dash.forEach(snap=>{
     const core = withState(snap, ()=> vegaSpecCore(deneb));
     if(!core || !core.body) return;
-    let sub = remapSpec(core.body, withState(snap, ()=> vFieldMap()));
+    /* Feldnamen je Kachel + globale Nutzer-Umbenennung auf echte PBI-Spalten */
+    const fm = withState(snap, ()=> vFieldMap());
+    Object.keys(fm).forEach(k=>{ fm[k] = dfName(fm[k]); });
+    let sub = remapSpec(core.body, fm);
     sub = Object.assign({title:{text:snap.cap||'', anchor:'start', font:'Arial', fontSize:12, color:'#8a8a8a', fontWeight:'normal', offset:10}}, sub);
     subs.push(sub);
     if(core.note) notes.push(snap.cap+': '+core.note);
@@ -5347,11 +5384,14 @@ function dashboardSpec(deneb){
     concat:subs, columns:state.dashCols, spacing:34,
   };
   scaleSpecFonts(spec);
+  /* Felder fürs gemeinsame Dataset (aggregiert, mit echten Namen) */
+  const felder = {};
+  if(deneb) dashFieldList().forEach(f=>{ felder[dfName(f.auto)] = f.label+' (Kacheln '+f.tiles.join(', ')+')'; });
   spec.usermeta = {
     generator:'Business Chart Builder (unabhängig, nicht IBCS®-zertifiziert)',
     notation:'angelehnt an die IBCS® Standards v1.2 (ibcs.com, CC BY-SA 4.0)',
     dashboard:{ charts: state.dash.map(s=>s.cap), hinweise: notes.length? notes : undefined },
-    deneb: deneb ? 'data.name=dataset je Teilchart – Felder siehe Einzel-Exports.' : 'Daten eingebettet – direkt in Deneb oder im Vega-Editor lauffähig.',
+    deneb: deneb ? { hinweis:'Alle Kacheln nutzen denselben Deneb-Datensatz – die folgenden Felder bereitstellen:', felder } : 'Daten eingebettet – direkt in Deneb oder im Vega-Editor lauffähig.',
   };
   return spec;
 }
@@ -5432,7 +5472,7 @@ function serialize(){
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source,
       multiMode:state.multiMode, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
-      vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, uiLang:state.uiLang,
+      vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, dashFields:state.dashFields, uiLang:state.uiLang,
     },
     rows:state.rows, wrows:state.wrows, srows:state.srows, series:state.series,
     highlights:[...state.highlights], diffs:[...state.diffs], comments:[...state.comments],
@@ -5620,6 +5660,9 @@ function wizRecommend(a){
  ['Spec für Deneb (Power BI) erzeugen – Format, Visual-Größe, Schrift, Tooltips und Cross-Filtering wählbar','Generate a spec for Deneb (Power BI) – format, visual size, font, tooltips and cross-filtering selectable'],
  ['← Daten-Knowledge','← Data knowledge'],
  ['Zurück zur Daten-Knowledge-Hauptseite','Back to the data knowledge main page'],
+ ['Felder für den Deneb-Datensatz','Fields for the Deneb dataset'],
+ ['Alle Kacheln teilen sich einen Datensatz. Hier die Spalten benennen, wie sie in Power BI heißen – der Spec wird entsprechend umgeschrieben.','All tiles share one dataset. Name the columns here as they appear in Power BI – the spec is rewritten accordingly.'],
+ ['Kacheln','tiles'],
  ['Stand','State'],['Sammeln','Collect'],
  ['Chart als SVG in die Zwischenablage kopieren','Copy the chart as SVG to the clipboard'],
  ['Berichtsseite als eigenständige HTML-Datei exportieren','Export the report page as a standalone HTML file'],
@@ -5669,7 +5712,25 @@ function renderDashList(){
     '<div class="dash-item"><span>'+(i+1)+'. '+esc(s.cap||'Chart')+'</span>'+
     '<button class="del" data-ddel="'+i+'" title="Aus dem Dashboard entfernen">×</button></div>'
   ).join('') || '<div style="font-size:12px;color:#8c8c8c">Dashboard ist leer.</div>';
+  renderDashFields();
 }
+/* Editierbare Feld-Zuordnung fürs gemeinsame Deneb-Dataset (nur im Deneb-Modus) */
+function renderDashFields(){
+  const show = state.vlDeneb && state.dash.length;
+  $('#dashFieldMap').style.display = show ? 'block' : 'none';
+  if(!show){ $('#dashFields').innerHTML=''; return; }
+  $('#dashFields').innerHTML = dashFieldList().map(f=>
+    '<label class="fm"><span>'+esc(f.label)+' · '+TT('Kacheln')+' '+f.tiles.join(', ')+'</span>'+
+    '<input data-df="'+esc(f.auto)+'" value="'+esc(state.dashFields[f.auto]||'')+'" placeholder="'+esc(f.auto)+'"></label>'
+  ).join('');
+}
+$('#dashFields').addEventListener('input', e=>{
+  const el = e.target.closest('[data-df]'); if(!el) return;
+  const auto = el.dataset.df, v = el.value.trim();
+  if(v) state.dashFields[auto] = v; else delete state.dashFields[auto];
+  clearTimeout(window.__dfT); window.__dfT = setTimeout(regenDash, 250);
+  schedulePersist();
+});
 async function regenDash(){
   const spec = dashboardSpec(state.vlDeneb);
   $('#specSummary').textContent = specSummary();
