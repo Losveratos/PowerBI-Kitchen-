@@ -4472,11 +4472,15 @@ $('#btnExport').addEventListener('click', ()=>{
 function vFieldDefs(){
   const t = state.type, defs = [['dim','Dimension']];
   if(t==='waterfall'){
-    defs.push(['v','Wert · '+state.primary], ['typ','Typ-Feld (sum/delta)']);
+    defs.push(['v','Wert · '+state.primary]);
+    if((state.showAbs||state.showRel) && state.reference!=='—') defs.push(['r','Referenz · '+state.reference]);
+    defs.push(['typ','Typ-Feld (sum/delta)']);
   } else if(t==='wfkombi'){
     defs.push(['v','Wert · '+state.primary], ['r','Referenz · '+state.reference], ['typ','Typ-Feld (sum/delta)']);
   } else if(t==='bridge'){
     defs.push(['p','Kennzahl · '+state.primary], ['r','Kennzahl · '+state.reference]);
+  } else if(t==='pareto'){
+    defs.push(['p','Kennzahl · '+state.primary]); /* einwertig: kumulierte %-Linie wird berechnet, keine Referenz */
   } else if(t==='scatter'){
     defs.push(['x','X-Feld'], ['y','Y-Feld'], ['g','Größen-Feld']);
   } else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'){
@@ -4489,7 +4493,10 @@ function vFieldDefs(){
     defs.push(['p','Kennzahl · '+state.primary]);
     if(state.reference!=='—') defs.push(['r','Kennzahl · '+state.reference]);
     if(usesRef2() && state.reference2!=='—') defs.push(['r2','Kennzahl · '+state.reference2]);
-    if(state.primary==='AC') defs.push(['fc','FC-Flag-Feld']);
+    /* FC-Flag nur für Typen, die das Forecast-Feld auch wirklich rendern
+       (Schraffur/Strichelung) – nicht bei reinen Varianz-/Struktur-Typen. */
+    const NO_FC = ['absvar','relvar','pareto','table'];
+    if(state.primary==='AC' && !NO_FC.includes(t)) defs.push(['fc','FC-Flag-Feld']);
   }
   return defs;
 }
@@ -5221,10 +5228,14 @@ function vlBridgeDyn(){
 }
 function vlLine(deneb){
   const rows = activeRows();
-  const tfLine = (deneb && state.lineFill==='diff') ? [
-    {calculate:'max(datum.p, datum.r)', as:'hvHi'},
-    {calculate:'min(datum.p, datum.r)', as:'hvLo'},
-  ] : undefined;
+  const tfLine = [];
+  if(deneb && state.lineFill==='diff'){
+    tfLine.push({calculate:'max(datum.p, datum.r)', as:'hvHi'},
+                {calculate:'min(datum.p, datum.r)', as:'hvLo'});
+  }
+  /* AC/FC-Trennung (Strichelung) muss in Power BI aus dem FC-Flag entstehen,
+     nicht aus vorberechneten Werten. */
+  if(deneb && state.primary==='AC') tfLine.push({calculate:"datum.fc ? 'fc' : 'ac'", as:'part'});
   /* Grenzpunkt duplizieren, damit die gestrichelte FC-Linie anschließt;
      hvHi/hvLo für Hills & Valleys direkt mitliefern */
   const vals2 = [];
@@ -5259,7 +5270,7 @@ function vlLine(deneb){
   layer.push({mark:{type:'text', dy:-11, fontSize:11, font:'Arial', color:DARK},
     encoding:{y:vYq('p'), text:vLab(deneb,'p','Lp',vNum())}});
   if(!state.lineIndex) vTargetLayers(true).forEach(l=>layer.push(l));
-  return { width:580, height:220, data:vData(vals2,deneb), transform:tfLine, encoding:{x:vX()}, layer };
+  return { width:580, height:220, data:vData(vals2,deneb), transform:tfLine.length?tfLine:undefined, encoding:{x:vX()}, layer };
 }
 function vlStack(deneb, vertical){
   const rows = state.srows.filter(r=>r.c!=='');
@@ -5274,7 +5285,8 @@ function vlStack(deneb, vertical){
     {mark:{type:'bar', stroke:'#ffffff', strokeWidth:0.75},
      encoding:Object.assign({[valCh]:{field:'v', type:'quantitative', axis:null},
        fill:{field:'serie', type:'nominal', scale:{domain:state.series, range:STACK_FILLS.slice(0,state.series.length)}, legend:{disable:false, orient: vertical?'top':'right', title:null, labelFont:'Arial', labelColor:CAT}},
-       order:{field:'ord'}})},
+       /* im Template nach Serie ordnen statt nach (nicht vorhandenem) ord-Index */
+       order: deneb ? {field:'serie', type:'nominal'} : {field:'ord'}})},
     {mark:Object.assign({type:'text', fontSize:11.5, font:'Arial', color:DARK, fontWeight:'bold'},
        vertical? {dx:6, align:'left'}:{dy:-8}),
      encoding:{[valCh]:{aggregate:'sum', field:'v', type:'quantitative'},
