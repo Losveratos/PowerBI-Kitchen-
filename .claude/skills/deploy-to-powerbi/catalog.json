@@ -1,0 +1,61 @@
+{
+  "_comment": "Katalog der gängigen Chart-Builder-Templates und ihrer Pflichtfelder. Das eigentliche Template-JSON wird im Builder per 1-Klick exportiert (Export-Dialog -> 'Power BI · Deneb-Template'). Feldtypen: text/numeric/bool · column = Gruppierung, measure = Kennzahl. FC ist eine ZAHL (1 = Forecast, 0/leer = Ist).",
+  "builderUrl": "https://datenwgknowledgekitchen.com/business-chart-builder.html",
+  "templates": [
+    {
+      "id": "columns_variance",
+      "name": "Säulen-Varianz (Monate, AC/FC vs PL + ΔPL + ΔPL%)",
+      "builderSteps": "Typ 'Säulen' (oder Preset 'months'), Referenz PL, Δ-absolut + Δ-relativ einschalten, FC-Monate markieren.",
+      "fields": [
+        {"ph": "__0__", "name": "Kategorie", "type": "text",    "kind": "column",  "rolle": "Periode/Monat (X-Achse)"},
+        {"ph": "__1__", "name": "AC",        "type": "numeric", "kind": "measure", "rolle": "Ist/Forecast-Wert (durchgehend)"},
+        {"ph": "__2__", "name": "PL",        "type": "numeric", "kind": "measure", "rolle": "Plan"},
+        {"ph": "__3__", "name": "FC",        "type": "numeric", "kind": "column",  "rolle": "Forecast-Flag (1/0)"}
+      ]
+    },
+    {
+      "id": "bars_structure",
+      "name": "Balken-Struktur (Kategorien, AC vs PL)",
+      "builderSteps": "Typ 'Balken' (oder Preset 'countries'), Referenz PL.",
+      "fields": [
+        {"ph": "__0__", "name": "Kategorie", "type": "text",    "kind": "column",  "rolle": "Kategorie (Y-Achse)"},
+        {"ph": "__1__", "name": "AC",        "type": "numeric", "kind": "measure", "rolle": "Ist"},
+        {"ph": "__2__", "name": "PL",        "type": "numeric", "kind": "measure", "rolle": "Plan"},
+        {"ph": "__3__", "name": "FC",        "type": "numeric", "kind": "column",  "rolle": "Forecast-Flag (1/0)"}
+      ]
+    },
+    {
+      "id": "kpi_status",
+      "name": "KPI-Karten (Status: großer Wert, eingefärbt, ▲▼ + Δ%/Δ)",
+      "builderSteps": "Typ 'KPI · Status' (oder Preset 'kpiDemo' + Stil Status), Referenz PY, 2. Referenz PL.",
+      "fields": [
+        {"ph": "__0__", "name": "Kategorie", "type": "text",    "kind": "column",  "rolle": "KPI-Name"},
+        {"ph": "__1__", "name": "AC",        "type": "numeric", "kind": "measure", "rolle": "Ist"},
+        {"ph": "__2__", "name": "PY",        "type": "numeric", "kind": "measure", "rolle": "Vorjahr"},
+        {"ph": "__3__", "name": "PL",        "type": "numeric", "kind": "measure", "rolle": "Plan"},
+        {"ph": "__4__", "name": "FC",        "type": "numeric", "kind": "column",  "rolle": "Forecast-Flag (1/0)"}
+      ]
+    },
+    {
+      "id": "scenario_bridge",
+      "name": "Szenario-Brücke (PL → AC, je Kategorie)",
+      "builderSteps": "Typ 'Brücke · Szenario', Primär AC, Referenz PL. Reihenfolge im Visual über die Achsen-Sortierung steuern.",
+      "fields": [
+        {"ph": "__0__", "name": "Kategorie", "type": "text",    "kind": "column",  "rolle": "Kategorie"},
+        {"ph": "__1__", "name": "AC",        "type": "numeric", "kind": "measure", "rolle": "Ist (Zielszenario)"},
+        {"ph": "__2__", "name": "PL",        "type": "numeric", "kind": "measure", "rolle": "Plan (Startszenario)"}
+      ]
+    },
+    {
+      "id": "waterfall_variance",
+      "name": "GuV-Wasserfall mit ΔPY (Varianz)",
+      "builderSteps": "Typ 'Wasserfall-Varianz' (oder Preset 'pnlVA'). Typ-Spalte mit 'sum'/'delta' je Zeile nötig.",
+      "fields": [
+        {"ph": "__0__", "name": "Kategorie", "type": "text",    "kind": "column",  "rolle": "GuV-Zeile"},
+        {"ph": "__1__", "name": "AC",        "type": "numeric", "kind": "measure", "rolle": "Ist"},
+        {"ph": "__2__", "name": "PY",        "type": "numeric", "kind": "measure", "rolle": "Vorjahr"},
+        {"ph": "__3__", "name": "Typ",       "type": "text",    "kind": "column",  "rolle": "'sum' (Zwischensumme) oder 'delta' (Bewegung)"}
+      ]
+    }
+  ]
+}

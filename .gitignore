@@ -24,6 +24,9 @@ notes/
 analysis.html
 fermi_paradox.html
 
+# Private Prompts / Test-Hilfen — nur lokal, nie publizieren
+prompts/
+
 # Diagnose-Helfer (entstanden waehrend Bug-Hunting, nicht produktiv)
 scripts/debug_*
 scripts/find_*
@@ -40,6 +43,7 @@ Thumbs.db
 .idea/
 *.swp
 
-# Claude Code lokal
-.claude/
+# Claude Code lokal (Skills aber versionieren, damit sie „in Git" liegen)
+.claude/*
+!.claude/skills/
 deneb-test/
