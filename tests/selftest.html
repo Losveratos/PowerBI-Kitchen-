@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Business Chart Builder · Selbsttest</title>
+<style>
+  :root{ --bg:#FAFAF7; --ink:#0F1E2E; --soft:#475569; --pass:#2e7d4f; --fail:#c0392b; --accent:#C25A2D; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font:14px/1.5 system-ui,Segoe UI,Arial,sans-serif; color:var(--ink); background:var(--bg); }
+  header{ padding:18px 22px; border-bottom:1px solid #e6e4df; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  h1{ font-size:17px; margin:0; }
+  button{ font:inherit; padding:8px 16px; border:1px solid var(--accent); background:var(--accent); color:#fff; border-radius:7px; cursor:pointer; }
+  button:disabled{ opacity:.5; cursor:default; }
+  #summary{ font-weight:600; }
+  #summary.pass{ color:var(--pass); } #summary.fail{ color:var(--fail); }
+  main{ padding:18px 22px; }
+  .row{ padding:5px 10px; border-radius:5px; display:flex; gap:10px; align-items:baseline; }
+  .row.pass{ color:var(--soft); } .row.fail{ background:#fdecea; color:var(--fail); font-weight:600; }
+  .mark{ width:18px; text-align:center; }
+  .detail{ color:#8a6d3b; font-size:12px; }
+  .group{ margin:14px 0 4px; font-weight:700; font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:var(--soft); }
+  iframe{ position:fixed; right:8px; bottom:8px; width:520px; height:360px; border:1px solid #ddd; background:#fff;
+          transform:scale(.5); transform-origin:bottom right; opacity:.5; pointer-events:none; }
+  .hint{ color:var(--soft); font-size:13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Business Chart Builder · Selbsttest</h1>
+  <button id="run">Erneut ausführen</button>
+  <span id="summary">läuft …</span>
+</header>
+<main>
+  <p class="hint">Lädt <code>../business-chart-builder.html</code> in einem (verkleinerten) iframe rechts unten,
+     spritzt <code>selftest.js</code> hinein und prüft Render, Vega-/Template-Kompilierung, varint-Korrektheit
+     unter vertauschter Datenreihenfolge und die Demo-Daten-Reaktivität.</p>
+  <div id="results"></div>
+</main>
+<iframe id="app" src="../business-chart-builder.html"></iframe>
+
+<script>
+const $ = s => document.querySelector(s);
+function render(report){
+  const sum = $('#summary');
+  sum.className = report.ok ? 'pass' : 'fail';
+  sum.textContent = (report.ok ? '✓ ALLE GRÜN · ' : '✗ FEHLER · ') + report.passed + '/' + report.total + ' bestanden';
+  const host = $('#results'); host.innerHTML='';
+  // gruppieren nach erstem Buchstaben (A/B/C/D)
+  const groups = {A:'A · Regression (alle Typen)', B:'B · varint-Template-Integrität',
+                  C:'C · varint-Korrektheit unter Shuffle', D:'D · Demo-Daten-Reaktivität'};
+  // Erfolge kompakt, Fehler ausführlich: wir zeigen nur Fehler + eine Gruppen-Bilanz.
+  const byGroup = {};
+  report._all.forEach(c=>{ const g=(c.name[0]); (byGroup[g]=byGroup[g]||[]).push(c); });
+  Object.keys(groups).forEach(g=>{
+    const arr = byGroup[g]||[]; if(!arr.length) return;
+    const fails = arr.filter(c=>!c.pass);
+    const gd = document.createElement('div'); gd.className='group';
+    gd.textContent = groups[g] + '  —  ' + (arr.length-fails.length) + '/' + arr.length + (fails.length?'  ✗':'  ✓');
+    host.appendChild(gd);
+    (fails.length?fails:arr.slice(0,0)).forEach(c=>{
+      const r=document.createElement('div'); r.className='row '+(c.pass?'pass':'fail');
+      r.innerHTML='<span class="mark">'+(c.pass?'✓':'✗')+'</span><span>'+c.name+'</span>'+
+        (c.detail?'<span class="detail">'+c.detail+'</span>':'');
+      host.appendChild(r);
+    });
+  });
+  if(report.ok){
+    const r=document.createElement('div'); r.className='row pass';
+    r.innerHTML='<span class="mark">✓</span><span>Keine Fehler – alle '+report.total+' Prüfungen bestanden.</span>';
+    host.appendChild(r);
+  }
+}
+
+async function runOnce(){
+  $('#run').disabled = true;
+  $('#summary').className=''; $('#summary').textContent='läuft …';
+  const win = $('#app').contentWindow;
+  try{
+    // selftest.js holen und im Builder-Kontext ausführen (greift dort auf state/vegaSpec/… zu)
+    const code = await (await fetch('selftest.js')).text();
+    win.eval(code);
+    const report = await win.runChartBuilderSelfTest({quiet:true});
+    // alle Checks fürs UI nachreichen (die Funktion gibt nur Failures zurück) -> erneut mit Detail
+    report._all = win.__lastSelfTestChecks || [];
+    render(report);
+  }catch(e){
+    $('#summary').className='fail'; $('#summary').textContent='✗ Testlauf-Fehler';
+    $('#results').textContent = String(e && e.stack || e);
+  }finally{ $('#run').disabled=false; }
+}
+
+$('#run').addEventListener('click', runOnce);
+// auf iframe-Load warten, dann etwas Puffer für die App-Init
+$('#app').addEventListener('load', ()=> setTimeout(runOnce, 600));
+</script>
+</body>
+</html>
