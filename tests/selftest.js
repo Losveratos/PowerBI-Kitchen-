@@ -338,6 +338,16 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
            'dpy='+JSON.stringify(dpy&&{sumP:dpy.sumP,sumR2:dpy.sumR2}));
       }catch(e){ ok('F · Brücke ΔRef2 · Template rendert', false, String(e)); }
       host.remove();
+      /* Niveausäule: graue ΣRef2-Säule (Szenario-Σ) */
+      const expSumR2 = vrows.reduce((a,r)=>a+r.v3,0);
+      state.bridgePYlevel=true; renderAll();
+      const segs2 = bridgeSegs(activeRows());
+      const lvl = segs2.find(g=>g.kind==='sum' && g.c==='PY' && g.scen==='PY');
+      ok('F · Brücke Niveau · ΣRef2-Säule angehängt (Szenario-Σ)', !!lvl && Math.abs(lvl.to-expSumR2)<1e-6, 'lvl='+(lvl&&lvl.to)+' soll='+expSumR2);
+      const tpl2 = denebTemplate(); const body2 = clone(tpl2); delete body2.usermeta;
+      let comp2=false; try{ comp2=!!VL.compile(body2).spec; }catch(e){}
+      ok('F · Brücke Niveau · Template kompiliert + scen-Ref2-Säule', comp2 && /"scen-PY"/.test(JSON.stringify(body2)));
+      state.bridgePYlevel=false;
     }
     state.bridgePY=false;
 
