@@ -4475,6 +4475,8 @@ function vFieldDefs(){
     defs.push(['v','Wert · '+state.primary], ['typ','Typ-Feld (sum/delta)']);
   } else if(t==='wfkombi'){
     defs.push(['v','Wert · '+state.primary], ['r','Referenz · '+state.reference], ['typ','Typ-Feld (sum/delta)']);
+  } else if(t==='bridge'){
+    defs.push(['p','Kennzahl · '+state.primary], ['r','Kennzahl · '+state.reference]);
   } else if(t==='scatter'){
     defs.push(['x','X-Feld'], ['y','Y-Feld'], ['g','Größen-Feld']);
   } else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'){
@@ -5132,6 +5134,91 @@ function vlSegs(deneb, segs, vertical){
   }
   return spec;
 }
+/* Dynamische Szenario-Brücke für Deneb: Start-Σ und Schluss-Σ werden per
+   joinaggregate aus dem Dataset summiert, die Δ-Segmente ab der Start-Σ
+   kumuliert. Σ-Balken zeichnen wir aus einer einzigen gefilterten Zeile
+   (vord===1) – mehrere aggregate-Layer auf derselben Deneb-Datenquelle
+   kollidieren sonst. Eine durchgehende, nach 'ord' sortierte X-Achse trägt
+   die synthetischen Σ-Slots links/rechts der Kategorien.                    */
+function vlBridgeDyn(){
+  const C = vCol();
+  const rev = state.bridgeDir==='rev';
+  const startScen = rev ? state.primary   : state.reference;
+  const endScen   = rev ? state.reference : state.primary;
+  const startK = rev ? 'p' : 'r';
+  const endK   = rev ? 'r' : 'p';
+  const fmtN = vNum();
+  const dom = ['pos','neg','scen-AC','scen-PY','scen-FC','scen-PL','scen-BU'];
+  const rng = [C.pos, C.neg, DARK, LIGHT, '#ffffff', '#ffffff', '#ffffff'];
+  const fillEnc = {field:'cls', type:'nominal', scale:{domain:dom, range:rng}, legend:null};
+  const strokeEnc = {condition:{test:"indexof(datum.cls,'scen-PL')>=0 || indexof(datum.cls,'scen-BU')>=0 || datum.cls==='scen-FC'", value:DARK}, value:'transparent'};
+  const xEnc = axis => ({field:'xlab', type:'nominal', sort:{field:'ord', op:'min'}, axis});
+  const D = {name:'dataset'};
+  /* gemeinsame Vorberechnung: Reihenfolge, Δ, Start-/End-Summe, laufende Summe */
+  const base = [
+    {window:[{op:'row_number', as:'vord'}]},
+    {calculate:'datum.'+endK+' - datum.'+startK, as:'d'},
+    {joinaggregate:[{op:'sum', field:startK, as:'sumStart'}, {op:'sum', field:endK, as:'sumEnd'}]},
+    {window:[{op:'sum', field:'d', as:'cum'}], sort:[{field:'vord'}], frame:[null,0], ignorePeers:true},
+  ];
+  const deltaTf = base.concat([
+    {calculate:'datum.sumStart + datum.cum - datum.d', as:'s'},
+    {calculate:'datum.sumStart + datum.cum', as:'e'},
+    {calculate:'datum.k', as:'xlab'},
+    {calculate:'datum.vord', as:'ord'},
+    {calculate:'datum.d >= 0 ? "pos" : "neg"', as:'cls'},
+    {calculate:"format(datum.d, '+"+fmtN+"')", as:'L'},
+    {calculate:'datum.sumStart != 0 ? datum.d / datum.sumStart * 100 : null', as:'rv'},
+    {calculate:"datum.sumStart != 0 ? format(datum.d / datum.sumStart, '+.1%') : ''", as:'Lrv'},
+  ]);
+  const totTf = (which, label, scen, ord)=> base.concat([
+    {filter:'datum.vord === 1'},
+    {calculate:'0', as:'s'},
+    {calculate:'datum.'+which, as:'e'},
+    {calculate:"'"+label+"'", as:'xlab'},
+    {calculate:String(ord), as:'ord'},
+    {calculate:"'scen-"+scen+"'", as:'cls'},
+    {calculate:"format(datum."+which+", '"+fmtN+"')", as:'L'},
+  ]);
+  const bar = (tf, axis)=> ({data:D, transform:tf, mark:{type:'bar', size:24},
+    encoding:{x:xEnc(axis), y:vYq('s'), y2:{field:'e'}, fill:fillEnc, stroke:strokeEnc, strokeWidth:{value:1.2}}});
+  const totLabel = (tf)=> ({data:D, transform:tf,
+    mark:{type:'text', dy:-8, fontSize:11, font:'Arial', color:DARK, fontWeight:'bold'},
+    encoding:{x:xEnc(null), y:vYq('e'), text:{field:'L', type:'nominal'}}});
+  const layers = [
+    bar(totTf('sumStart', startScen, startScen, 0), null),
+    bar(deltaTf, {labelAngle:0, labelPadding:6}),
+    bar(totTf('sumEnd', endScen, endScen, 999999), null),
+    totLabel(totTf('sumStart', startScen, startScen, 0)),
+    totLabel(totTf('sumEnd', endScen, endScen, 999999)),
+    {data:D, transform: deltaTf.concat([{filter:'datum.d >= 0'}]),
+     mark:{type:'text', dy:-8, fontSize:11, font:'Arial', color:DARK},
+     encoding:{x:xEnc(null), y:vYq('e'), text:{field:'L', type:'nominal'}}},
+    {data:D, transform: deltaTf.concat([{filter:'datum.d < 0'}]),
+     mark:{type:'text', dy:14, fontSize:11, font:'Arial', color:DARK},
+     encoding:{x:xEnc(null), y:vYq('e'), text:{field:'L', type:'nominal'}}},
+  ];
+  const barTier = { width:580, height:240, layer:layers };
+  if(!(state.bridgeRel && state.wfOrient!=='v')) return barTier;
+  /* Δ%-Ebene über der Brücke; unsichtbare Σ-Anker richten die X-Achse aus */
+  const anchor = (which,label,scen,ord)=> ({data:D, transform: totTf(which,label,scen,ord),
+    mark:{type:'point', size:0, opacity:0}, encoding:{x:xEnc(null), y:{datum:0}}});
+  const relTier = { width:580, height:85, layer:[
+    anchor('sumStart', startScen, startScen, 0),
+    {data:D, transform: deltaTf, mark:{type:'rule', strokeWidth:2},
+     encoding:{x:xEnc(null), y:vYq('rv'), y2:{datum:0}, color:{condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}}},
+    {data:D, transform: deltaTf, mark:{type:'point', filled:true, size:50},
+     encoding:{x:xEnc(null), y:vYq('rv'), color:{condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}}},
+    {data:D, transform: deltaTf.concat([{filter:'datum.rv >= 0'}]),
+     mark:{type:'text', dy:-12, fontSize:11, font:'Arial'},
+     encoding:{x:xEnc(null), y:vYq('rv'), text:{field:'Lrv', type:'nominal'}, color:{value:C.pos}}},
+    {data:D, transform: deltaTf.concat([{filter:'datum.rv < 0'}]),
+     mark:{type:'text', dy:17, fontSize:11, font:'Arial'},
+     encoding:{x:xEnc(null), y:vYq('rv'), text:{field:'Lrv', type:'nominal'}, color:{value:C.neg}}},
+    anchor('sumEnd', endScen, endScen, 999999),
+  ]};
+  return { vconcat:[relTier, barTier], spacing:14 };
+}
 function vlLine(deneb){
   const rows = activeRows();
   const tfLine = (deneb && state.lineFill==='diff') ? [
@@ -5775,6 +5862,8 @@ function vegaSpecCore(deneb){
     else body = vlSegs(deneb, wfSegs(state.wrows), state.wfOrient==='v');
   }
   else if(t==='bridge'){
+    if(deneb){ return {body: vlBridgeDyn(), t,
+      note:'Brücke: dynamisch – Start-/Schluss-Σ werden in Power BI aus den Feldern summiert. Reihenfolge über die Sortierung der Visual-Achse steuern.'}; }
     const segs = bridgeSegs(activeRows());
     body = vlSegs(false, segs, state.wfOrient==='v');
     if(state.bridgeRel && state.wfOrient!=='v'){
@@ -5808,7 +5897,6 @@ function vegaSpecCore(deneb){
   else if(t==='wfkombi') body = vlWfKombi(deneb);
   else if(t==='table') body = vlTable(deneb);
   else return null;
-  if(t==='bridge' && deneb) note = 'Brücke: Daten sind eingebettet (Totale werden im Builder berechnet).';
   if(t==='kombi' && state.kombiBase==='wf' && deneb) note = 'Wasserfall-Basis: Daten eingebettet (Σ-Zeile wird im Builder erzeugt).';
   if(t==='multiples' && state.multiMode==='wf' && deneb) note = 'Mini-Wasserfälle: Kumulierung je Serie per Window-Transform; die Σ-Spalte erscheint nur bei eingebetteten Daten.';
   return { body, note, t };
