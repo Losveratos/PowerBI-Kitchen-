@@ -462,6 +462,7 @@ footer a:hover{color:var(--ink)}
       <label class="check"><input type="checkbox" id="negParens"> Negative Werte in Klammern (123)</label>
       <label class="check"><input type="checkbox" id="cbSafe"> Farbfehlsichtigkeit: Grün → Blaugrün</label>
       <label class="check" id="refLblWrap"><input type="checkbox" id="showRefLabels"> Werte des Referenzszenarios beschriften</label>
+      <label class="check" id="endPinsWrap"><input type="checkbox" id="endPins"> Endvergleich: Δ des letzten Werts vs PL/PY am rechten Rand anpinnen</label>
     </section>
   </aside>
 
@@ -710,6 +711,7 @@ const state = {
   decimals:0,
   cbSafe:false,
   showRefLabels:false,
+  endPins:false,
   sortDesc:false,
   showSum:true,
   wfVar:true,
@@ -1259,10 +1261,14 @@ function catLabel(rows, i, xEnd, cy, size){
 /* --- Säulen (Zeitreihe, UN 3.3) --- */
 function renderColumns(rows, opt){
   opt = opt||{};
-  const W = 640, plotH = opt.plotH||190, padT = 20, padB = opt.noCats?8:22, padL=10, padR=10;
+  const W = 640, plotH = opt.plotH||190, padT = 20, padB = opt.noCats?8:22, padL=10;
   const H = padT+plotH+padB;
   const hasRef = state.reference!=='—';
   const hasRef2 = state.reference2!=='—';
+  /* Endvergleich (inspiriert von standard-charts ReferenceExtension): am rechten
+     Rand die Abweichung des letzten Werts vs Referenz(en) anpinnen (FC-PL/FC-PY) */
+  const endPins = state.endPins && hasRef && !opt.noCats && rows.length>0;
+  const padR = endPins ? (hasRef2 ? 104 : 60) : 10;
   const style = hasRef ? state.refStyle : 'none';
   const vals = rows.flatMap(r=>[r.v1, hasRef?r.v2:NaN, hasRef2?r.v3:NaN]).filter(v=>!isNaN(v));
   const _tv0=targetVal(); if(_tv0!==null) vals.push(_tv0);
@@ -1339,7 +1345,25 @@ function renderColumns(rows, opt){
   const axis = '<line x1="'+padL+'" y1="'+y0+'" x2="'+(W-padR)+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1.5"/>';
   let trend='';
   if(state.trend && !opt.noCats) trend = trendArrow(rows, i=>padL+slot*i+slot/2, v=>padT+sc.y(v));
-  return { svg:bars+axis+targetLineH(sc,padL,padR,padT,W)+labels+marks+trend, W, H };
+  let endPinsSvg='';
+  if(endPins){
+    const last = rows[rows.length-1];
+    const pin = (val, code, x)=>{
+      if(isNaN(last.v1) || isNaN(val)) return '';
+      const yP = padT+sc.y(last.v1), yR = padT+sc.y(val);
+      const d = last.v1-val, col = d>=0?'var-pos':'var-neg';
+      const yTop=Math.min(yP,yR), yBot=Math.max(yP,yR), my=(yP+yR)/2;
+      let g='<line x1="'+x+'" y1="'+yTop+'" x2="'+x+'" y2="'+yBot+'" stroke="'+col+'" stroke-width="2"/>';
+      g+='<circle cx="'+x+'" cy="'+yP+'" r="2.6" fill="'+col+'"/>';
+      g+=txt(x+5, my-2, 'Δ'+code, {anchor:'start', size:8.5, fill:SUB});
+      g+=txt(x+5, my+9, fmt(d,true), {anchor:'start', size:10, weight:'bold', fill:col});
+      return g;
+    };
+    const x1 = W-padR+16;
+    endPinsSvg += pin(last.v2, state.reference, x1);
+    if(hasRef2) endPinsSvg += pin(last.v3, state.reference2, x1+40);
+  }
+  return { svg:bars+axis+targetLineH(sc,padL,padR,padT,W)+labels+marks+trend+endPinsSvg, W, H };
 }
 
 /* Differenzmarker nach UN 5.1-2: Hilfslinien projizieren die Säulenlängen,
@@ -3712,6 +3736,7 @@ function renderPreview(){
   /* Sortierung auch für Small Multiples (nach Σ absteigend) */
   if(state.type==='multiples') $('#sortWrap').style.display = 'flex';
   $('#refLblWrap').style.display = (state.type==='columns'||state.type==='bars') ? 'flex' : 'none';
+  $('#endPinsWrap').style.display = (state.type==='columns'||state.type==='varint') ? 'flex' : 'none';
   /* KPI-Stil wird jetzt über die Typ-Kacheln (KPI · IBCS/Status/Trend) gewählt;
      der frühere Inline-Schalter ist ausgeblendet. */
   $('#kpiStyleWrap').style.display = 'none';
@@ -4047,6 +4072,7 @@ $('#ksIbcs').addEventListener('click', ()=>{ state.kpiStyle='ibcs'; renderPrevie
 $('#ksStatus').addEventListener('click', ()=>{ state.kpiStyle='status'; renderPreview(); });
 $('#ksTrend').addEventListener('click', ()=>{ state.kpiStyle='trend'; renderPreview(); });
 $('#showRefLabels').addEventListener('change', e=>{ state.showRefLabels=e.target.checked; renderPreview(); });
+$('#endPins').addEventListener('change', e=>{ state.endPins=e.target.checked; renderPreview(); });
 $('#sortDesc').addEventListener('change', e=>{ state.sortDesc=e.target.checked; renderPreview(); });
 $('#showSum').addEventListener('change', e=>{ state.showSum=e.target.checked; renderPreview(); });
 $('#trendChk').addEventListener('change', e=>{ state.trend=e.target.checked; renderPreview(); });
@@ -6132,7 +6158,7 @@ function serialize(){
     v:1,
     s:{
       type:state.type, primary:state.primary, reference:state.reference, reference2:state.reference2,
-      varSel:state.varSel, decimals:state.decimals, cbSafe:state.cbSafe, showRefLabels:state.showRefLabels,
+      varSel:state.varSel, decimals:state.decimals, cbSafe:state.cbSafe, showRefLabels:state.showRefLabels, endPins:state.endPins,
       sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient,
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel,
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend,
@@ -6190,6 +6216,7 @@ function syncControls(){
   $('#cbSafe').checked = state.cbSafe;
   $('#negParens').checked = !!state.negParens;
   $('#showRefLabels').checked = state.showRefLabels;
+  $('#endPins').checked = !!state.endPins;
   $('#sortDesc').checked = state.sortDesc;
   $('#showSum').checked = state.showSum;
   $('#wfVar').checked = state.wfVar;
