@@ -507,6 +507,7 @@ footer a:hover{color:var(--ink)}
           <option value="varintDemo">Integrierte Varianzanalyse (4 Tiers, AC/FC vs PL)</option>
           <option value="slopeDemo">Slope · Vorher/Nachher (PY → AC)</option>
           <option value="fanDemo">Fan · Ist + Forecast-Korridor</option>
+          <option value="heatmapDemo">Heatmap · Δ vs Plan (Region × Monat)</option>
           <option value="bridgeM">Brücke PL → AC je Monat</option>
           <option value="bridgeC">Brücke PY → AC je Land · vertikal</option>
           <option value="outlier">Varianzanalyse mit Δ%-Ausreißer</option>
@@ -692,6 +693,7 @@ const TYPE_GROUPS = [
   { name:'Weitere', types:[
     { id:'multiples', name:'Small Multiples' },
     { id:'sparktable', name:'Sparklines' },
+    { id:'heatmap',   name:'Heatmap-Matrix' },
     { id:'kpi',       name:'KPI · IBCS' },
     { id:'kpiStatus', name:'KPI · Status' },
     { id:'kpiTrend',  name:'KPI · Trend' },
@@ -2758,6 +2760,37 @@ function renderFan(rows){
   return { svg:s, W, H };
 }
 
+/* --- Heatmap-Matrix (Perioden × Serien): Zellen nach Wert eingefärbt.
+       Reine Plus-Werte → sequenziell (hell→dunkel); Plus/Minus → divergierend
+       grün/rot (Abweichungs-Sicht). Nutzt die Serien-Tabelle. --- */
+function renderHeatmap(){
+  const periods = state.srows.filter(r=>r.c!=='');
+  const series = state.series;
+  const W=640, padL=94, padT=26, padB=8, rowH=26;
+  const H = padT + Math.max(1,periods.length)*rowH + padB;
+  const allv=[]; periods.forEach(r=>series.forEach((_,j)=>{ const v=r.v[j]; if(!isNaN(v)) allv.push(v); }));
+  if(!allv.length) return { svg:txt(W/2,H/2,'Heatmap braucht die Serien-Tabelle (Perioden × Serien)',{anchor:'middle',size:12,fill:SUB}), W, H };
+  const mn=Math.min(...allv), mx=Math.max(...allv), diverging = mn<0 && mx>0;
+  const maxAbs=Math.max(Math.abs(mn),Math.abs(mx))||1, rng=(mx-mn)||1;
+  const colW=(W-padL-6)/Math.max(1,series.length);
+  const intensity = v => diverging ? Math.abs(v)/maxAbs : (v-mn)/rng;
+  let s='';
+  series.forEach((nm,j)=> s+=txt(padL+colW*j+colW/2, padT-9, nm, {anchor:'middle', size:9.5, weight:'bold', fill:CAT}));
+  periods.forEach((r,i)=>{
+    const y=padT+rowH*i;
+    s+=txt(padL-8, y+rowH/2+3.5, r.c, {anchor:'end', size:10.5, fill:CAT});
+    series.forEach((nm,j)=>{
+      const v=r.v[j], x=padL+colW*j;
+      if(isNaN(v)){ s+='<rect x="'+(x+1)+'" y="'+(y+1)+'" width="'+(colW-2)+'" height="'+(rowH-2)+'" fill="#f3f2ef"/>'; return; }
+      const t=intensity(v), op=(0.1+0.82*t).toFixed(2);
+      const fillc = diverging ? (v>=0?'var-pos':'var-neg') : DARK;
+      s+='<rect x="'+(x+1)+'" y="'+(y+1)+'" width="'+(colW-2)+'" height="'+(rowH-2)+'" fill="'+fillc+'" fill-opacity="'+op+'"/>';
+      s+=txt(x+colW/2, y+rowH/2+3.5, fmt(v), {anchor:'middle', size:10, fill: t>0.52?'#ffffff':DARK});
+    });
+  });
+  return { svg:s, W, H };
+}
+
 /* =========================================================================
    RENDERER · STRUKTUR
    ========================================================================= */
@@ -3368,6 +3401,7 @@ function buildChart(){
   else if(state.type==='varint')    r = renderVarInt(rows);
   else if(state.type==='slope')     r = renderSlope(rows);
   else if(state.type==='fan')       r = renderFan(rows);
+  else if(state.type==='heatmap')   r = renderHeatmap();
   else if(state.type==='kpi')       r = renderKpi();
   else if(state.type==='bars'){
     if(tiersOn){
@@ -3488,6 +3522,7 @@ function typeIcon(id){
     case 'scatter': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="3" y1="0" x2="3" y2="15" stroke="'+g+'" stroke-width="1.2"/><line x1="3" y1="15" x2="26" y2="15" stroke="'+g+'" stroke-width="1.2"/><circle cx="9" cy="10" r="2.6" fill="'+g+'"/><circle cx="15" cy="6" r="1.8" fill="'+g+'"/><circle cx="20" cy="9" r="3.4" fill="'+g+'" fill-opacity="0.7"/><circle cx="12" cy="3.5" r="1.4" fill="'+g+'"/></svg>';
     case 'barskombi': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="2" y1="1" x2="2" y2="17" stroke="'+g+'" stroke-width="1.2"/><rect x="2" y="2" width="8" height="2.8" fill="'+g+'"/><rect x="2" y="7.5" width="5" height="2.8" fill="'+g+'"/><rect x="2" y="13" width="7" height="2.8" fill="'+g+'"/><line x1="15" y1="1" x2="15" y2="17" stroke="'+g+'" stroke-width="1"/><rect x="15" y="2" width="6" height="2.8" fill="#469b3c"/><rect x="11" y="7.5" width="4" height="2.8" fill="#c0392b"/><rect x="15" y="13" width="8" height="2.8" fill="#469b3c"/></svg>';
     case 'table': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="4" x2="26" y2="4" stroke="'+g+'" stroke-width="1.4"/><text x="0" y="2.6" font-size="3.2" fill="'+g+'" font-family="Arial">AC PY</text><rect x="14" y="6.5" width="7" height="2.6" fill="#469b3c"/><rect x="10" y="11" width="4" height="2.6" fill="#c0392b"/><line x1="14" y1="5.5" x2="14" y2="17" stroke="'+l+'" stroke-width="1.6"/><circle cx="6" cy="7.8" r="1" fill="'+g+'"/><circle cx="6" cy="12.3" r="1" fill="'+g+'"/></svg>';
+    case 'heatmap': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="1" y="2" width="7" height="6" fill="#c0392b" fill-opacity="0.75"/><rect x="9" y="2" width="7" height="6" fill="#469b3c" fill-opacity="0.35"/><rect x="17" y="2" width="7" height="6" fill="#469b3c" fill-opacity="0.8"/><rect x="1" y="9" width="7" height="6" fill="#469b3c" fill-opacity="0.5"/><rect x="9" y="9" width="7" height="6" fill="#c0392b" fill-opacity="0.55"/><rect x="17" y="9" width="7" height="6" fill="#469b3c" fill-opacity="0.25"/></svg>';
     case 'fan': return '<svg width="26" height="18" viewBox="0 0 26 18"><path d="M13,10 L20,4 L24,3 L24,9 L20,9 Z" fill="#d7d5d0" fill-opacity="0.6"/><polyline points="2,12 6,10 9,11 13,8" fill="none" stroke="'+g+'" stroke-width="1.6"/><polyline points="13,8 17,6.5 21,5.5 24,5" fill="none" stroke="'+g+'" stroke-width="1.6" stroke-dasharray="3,2"/><line x1="0" y1="16" x2="26" y2="16" stroke="'+g+'" stroke-width="1"/></svg>';
     case 'slope': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="4" y1="1" x2="4" y2="17" stroke="#e2e1de"/><line x1="22" y1="1" x2="22" y2="17" stroke="#e2e1de"/><line x1="4" y1="13" x2="22" y2="4" stroke="#469b3c" stroke-width="1.5"/><line x1="4" y1="6" x2="22" y2="11" stroke="#c0392b" stroke-width="1.5"/><circle cx="4" cy="13" r="1.8" fill="#469b3c"/><circle cx="22" cy="4" r="1.8" fill="#469b3c"/><circle cx="4" cy="6" r="1.8" fill="#c0392b"/><circle cx="22" cy="11" r="1.8" fill="#c0392b"/></svg>';
     case 'varint': return '<svg width="26" height="18" viewBox="0 0 26 18"><circle cx="4" cy="1.6" r="1" fill="#469b3c"/><circle cx="11" cy="2" r="1" fill="#c0392b"/><circle cx="18" cy="1.4" r="1" fill="#469b3c"/><rect x="2" y="5.5" width="3" height="2" fill="#469b3c"/><rect x="9" y="5.5" width="3" height="2.4" fill="#c0392b"/><rect x="16" y="5.2" width="3" height="2" fill="#469b3c"/><rect x="2" y="11.5" width="2.6" height="4.5" fill="'+g+'"/><rect x="7" y="13" width="2.6" height="3" fill="'+g+'"/><rect x="12" y="12" width="2.6" height="4" fill="'+g+'"/><rect x="17" y="13.5" width="2.6" height="2.5" fill="'+l+'"/><rect x="21.5" y="12.5" width="2.6" height="3.5" fill="'+l+'"/><line x1="0" y1="16" x2="26" y2="16" stroke="'+g+'" stroke-width="1"/></svg>';
@@ -4040,6 +4075,9 @@ const PRESETS = {
     wrows:[['Umsatz',642,601,'sum'],['Materialkosten',-238,-221,'delta'],['Bruttoergebnis',0,0,'sum'],['Personal',-176,-168,'delta'],['Sonstige Kosten',-94,-89,'delta'],['Lizenzerträge',38,31,'delta'],['EBIT',0,0,'sum']] },
   slopeDemo:{ type:'slope', primary:'AC', reference:'PY', t2:'Umsatz je Region · PY → AC',
     rows:[['DACH',186,170],['North America',150,122],['EMEA',96,108],['APAC',64,52],['LATAM',38,47]] },
+  heatmapDemo:{ type:'heatmap', t2:'Abweichung vs Plan (Δ) · Region × Monat',
+    series:['DACH','North America','EMEA','APAC'],
+    srows:[['Jan',5,-3,2,-1],['Feb',8,-1,-4,3],['Mär',-2,4,1,-5],['Apr',6,2,-3,4],['Mai',-4,-2,5,1],['Jun',9,3,-1,-2]] },
   fanDemo:{ type:'fan', primary:'AC', reference:'—', t2:'Absatz in Tsd. · Ist + Forecast',
     rows:[['Jan',97],['Feb',102],['Mär',99],['Apr',110],['Mai',108],['Jun',118],['Jul',121],['Aug',116],['Sep',124,,,1],['Okt',129,,,1],['Nov',133,,,1],['Dez',138,,,1]] },
   varintDemo:{ type:'varint', primary:'AC', reference:'PL', t2:'Net sales in KEUR · 2026',
@@ -4651,7 +4689,7 @@ function vFieldDefs(){
     defs.push(['p','Kennzahl · '+state.primary]); /* einwertig: kumulierte %-Linie wird berechnet, keine Referenz */
   } else if(t==='scatter'){
     defs.push(['x','X-Feld'], ['y','Y-Feld'], ['g','Größen-Feld']);
-  } else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'){
+  } else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'||t==='heatmap'){
     defs.push(['serie','Serien-Feld'], ['v','Wert-Feld']);
     if(t==='multiples'){
       if(state.multiMode==='wf') defs.push(['idx','Index-Feld']); /* nur der Mini-Wasserfall sortiert über den Index */
@@ -4677,7 +4715,7 @@ function dataNeedHint(){
   const fields = vFieldDefs().map(([k,l])=>l).join(' · ');
   let src = 'Datentabelle';
   if(usesWrows()) src = 'Wasserfall-Tabelle (Σ/Δ-Zeilen)';
-  else if(['stackcol','stackbar','multiples','sparktable'].includes(state.type) || state.stackAsMulti) src = 'Serien-Tabelle';
+  else if(['stackcol','stackbar','multiples','sparktable','heatmap'].includes(state.type) || state.stackAsMulti) src = 'Serien-Tabelle';
   return '<strong>Benötigte Daten:</strong> '+esc(fields)+'<br><span style="opacity:.8">Quelle: '+esc(src)+'</span>';
 }
 function renderFieldMap(){
