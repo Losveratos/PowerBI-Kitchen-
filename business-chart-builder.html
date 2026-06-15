@@ -1136,7 +1136,7 @@ function isStacked(){ return ['stackcol','stackbar','multiples'].includes(state.
 /* Serien-Tabelle (Perioden × Serien): Stacked/Multiples/Sparktable plus die
    Matrix-Typen Heatmap & Marimekko – sie rendern aus state.srows, also müssen
    Daten-Editor, Demo-Würfel und CSV-Import dieselbe Quelle bedienen. */
-function usesSrows(){ return isStacked() || ['sparktable','heatmap','marimekko','boxplot'].includes(state.type); }
+function usesSrows(){ return isStacked() || ['sparktable','heatmap','marimekko'].includes(state.type); }
 function isStruct(){ return ['bars','barskombi','table','dotplot','tornado','bullet','pareto'].includes(state.type); }
 
 function activeRows(){
@@ -2882,21 +2882,26 @@ function quantileSorted(s, p){
   return lo===hi ? s[lo] : s[lo]+(s[hi]-s[lo])*(idx-lo);
 }
 function renderBoxplot(){
-  const rows = state.srows.filter(r=>r.c!=='');
+  /* Long-Format: Zeilen nach Kategorie (c) gruppieren – jede Gruppe ist die
+     Stichprobe. Reihenfolge = erstes Auftreten der Kategorie. */
+  const order=[], groups=new Map();
+  activeRows().forEach(r=>{ if(r.c==='' || isNaN(r.v1)) return;
+    if(!groups.has(r.c)){ groups.set(r.c, []); order.push(r.c); }
+    groups.get(r.c).push(r.v1); });
   const W=640, padT=20, padB=24, padL=14, padR=16, plotH=250;
   const H = padT+plotH+padB;
-  const stats = rows.map(r=>{
-    const s = r.v.filter(v=>!isNaN(v)).slice().sort((a,b)=>a-b);
-    if(!s.length) return {c:r.c, empty:true};
+  const stats = order.map(c=>{
+    const s = groups.get(c).slice().sort((a,b)=>a-b);
     const q1=quantileSorted(s,0.25), med=quantileSorted(s,0.5), q3=quantileSorted(s,0.75);
     const iqr=q3-q1, loF=q1-1.5*iqr, hiF=q3+1.5*iqr;
     const inl=s.filter(v=>v>=loF&&v<=hiF);
-    return {c:r.c, n:s.length, q1, med, q3,
+    return {c, n:s.length, q1, med, q3,
       wLo: inl.length?Math.min(...inl):s[0], wHi: inl.length?Math.max(...inl):s[s.length-1],
       out: s.filter(v=>v<loF||v>hiF)};
   });
-  const all = stats.filter(x=>!x.empty).flatMap(x=>[x.wLo,x.wHi].concat(x.out));
-  if(!all.length) return { svg:txt(W/2,H/2,'Boxplot braucht die Serien-Tabelle (≥1 Wert je Kategorie)',{anchor:'middle',size:12,fill:SUB}), W, H };
+  const rows = stats;
+  const all = stats.flatMap(x=>[x.wLo,x.wHi].concat(x.out));
+  if(!all.length) return { svg:txt(W/2,H/2,'Boxplot braucht eine Datentabelle im Long-Format (Kategorie + Wert je Beobachtung)',{anchor:'middle',size:12,fill:SUB}), W, H };
   const lo=Math.min(...all), hi=Math.max(...all), pad=(hi-lo)*0.12||1;
   const yMin=lo-pad, yMax=hi+pad;
   const Y = v => padT + (yMax-v)/(yMax-yMin)*plotH;
@@ -4221,10 +4226,11 @@ const PRESETS = {
   heatmapDemo:{ type:'heatmap', t2:'Abweichung vs Plan (Δ) · Region × Monat',
     series:['DACH','North America','EMEA','APAC'],
     srows:[['Jan',5,-3,2,-1],['Feb',8,-1,-4,3],['Mär',-2,4,1,-5],['Apr',6,2,-3,4],['Mai',-4,-2,5,1],['Jun',9,3,-1,-2]] },
-  boxplotDemo:{ type:'boxplot', t2:'Antwortzeit in ms · Verteilung je Service',
-    series:['m1','m2','m3','m4','m5','m6','m7','m8'],
-    srows:[['Auth',120,135,128,142,150,131,260,138],['Search',88,95,102,99,110,93,97,105],
-           ['Checkout',210,225,240,232,255,228,238,300],['Profile',70,82,76,88,79,84,91,77]] },
+  boxplotDemo:{ type:'boxplot', t2:'Antwortzeit in ms · Verteilung je Service (je Beobachtung eine Zeile)',
+    rows:[['Auth',120],['Auth',135],['Auth',128],['Auth',142],['Auth',150],['Auth',131],['Auth',260],['Auth',138],
+          ['Search',88],['Search',95],['Search',102],['Search',99],['Search',110],['Search',93],['Search',97],['Search',105],
+          ['Checkout',210],['Checkout',225],['Checkout',240],['Checkout',232],['Checkout',255],['Checkout',228],['Checkout',238],['Checkout',300],
+          ['Profile',70],['Profile',82],['Profile',76],['Profile',88],['Profile',79],['Profile',84],['Profile',91],['Profile',77]] },
   fanDemo:{ type:'fan', primary:'AC', reference:'—', t2:'Absatz in Tsd. · Ist + Forecast',
     rows:[['Jan',97],['Feb',102],['Mär',99],['Apr',110],['Mai',108],['Jun',118],['Jul',121],['Aug',116],['Sep',124,,,1],['Okt',129,,,1],['Nov',133,,,1],['Dez',138,,,1]] },
   varintDemo:{ type:'varint', primary:'AC', reference:'PL', t2:'Net sales in KEUR · 2026',
@@ -4593,6 +4599,14 @@ function diceData(){
       r.v = Math.round(costly ? -mag : (Math.random()<0.72 ? mag : -mag) );
       r.r2 = Math.round(r.v * R(0.82, 1.15));
     });
+  } else if(state.type==='boxplot'){
+    /* je Kategorie eine Basis + Streuung – plausible Verteilung je Gruppe */
+    const bases = {};
+    state.rows.forEach(r=>{
+      if(!(r.c in bases)) bases[r.c] = R(60, 180);
+      r.v1 = Math.round(bases[r.c] * R(0.78, 1.28));
+      r.fc = false;
+    });
   } else if(state.type==='scatter'){
     state.rows.forEach(r=>{
       r.v1 = RI(25, 200);
@@ -4837,9 +4851,13 @@ function vFieldDefs(){
     defs.push(['p','Kennzahl · '+state.primary], ['r','Kennzahl · '+state.reference]);
   } else if(t==='pareto'){
     defs.push(['p','Kennzahl · '+state.primary]); /* einwertig: kumulierte %-Linie wird berechnet, keine Referenz */
+  } else if(t==='boxplot'){
+    /* Long-Format: je Beobachtung eine Zeile, Kategorie wiederholt sich;
+       der boxplot-Mark aggregiert (Q1/Median/Q3) selbst. */
+    defs.push(['p','Wert · je Beobachtung']);
   } else if(t==='scatter'){
     defs.push(['x','X-Feld'], ['y','Y-Feld'], ['g','Größen-Feld']);
-  } else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'||t==='heatmap'||t==='marimekko'||t==='boxplot'){
+  } else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'||t==='heatmap'||t==='marimekko'){
     defs.push(['serie','Serien-Feld'], ['v','Wert-Feld']);
     if(t==='multiples'){
       if(state.multiMode==='wf') defs.push(['idx','Index-Feld']); /* nur der Mini-Wasserfall sortiert über den Index */
@@ -4865,7 +4883,8 @@ function dataNeedHint(){
   const fields = vFieldDefs().map(([k,l])=>l).join(' · ');
   let src = 'Datentabelle';
   if(usesWrows()) src = 'Wasserfall-Tabelle (Σ/Δ-Zeilen)';
-  else if(['stackcol','stackbar','multiples','sparktable','heatmap','marimekko','boxplot'].includes(state.type) || state.stackAsMulti) src = 'Serien-Tabelle';
+  else if(state.type==='boxplot') src = 'Datentabelle · Long-Format (je Beobachtung eine Zeile, Kategorie wiederholt sich)';
+  else if(['stackcol','stackbar','multiples','sparktable','heatmap','marimekko'].includes(state.type) || state.stackAsMulti) src = 'Serien-Tabelle';
   return '<strong>Benötigte Daten:</strong> '+esc(fields)+'<br><span style="opacity:.8">Quelle: '+esc(src)+'</span>';
 }
 function renderFieldMap(){
@@ -4935,7 +4954,9 @@ function denebTemplate(){
   if(!spec) return null;
   const TK = { dim:['text','column'], serie:['text','column'], typ:['text','column'], fc:['numeric','column'], idx:['numeric','column'] };
   const defs = vFieldDefs().map(([key,label],i)=>{
-    const tk = TK[key] || ['numeric','measure'];
+    /* Boxplot aggregiert die Rohwerte selbst → der Wert muss eine Spalte
+       (row-level) sein, keine Measure (sonst aggregiert Power BI vorab). */
+    const tk = (state.type==='boxplot' && key==='p') ? ['numeric','column'] : (TK[key] || ['numeric','measure']);
     return { ph:'__'+i+'__', name:F(key), label, type:tk[0], kind:tk[1] };
   });
   const nameToPh = {}; defs.forEach(d=>{ nameToPh[d.name] = d.ph; });
@@ -5173,7 +5194,9 @@ function F(key){
               fc:'FC', v:state.primary, typ:'Typ', serie:'Serie', idx:'Index',
               x:'X', y:'Y', g:'Groesse' };
   const u = (state.fields && state.fields[key] || '').trim();
-  return u || d[key] || key;
+  if(u) return u;
+  if(state.type==='boxplot' && key==='p') return 'Wert';  /* Verteilungswert, nicht Szenario */
+  return d[key] || key;
 }
 function vFieldMap(){
   return { k:F('dim'), p:F('p'), r:F('r'), r2:F('r2'), fc:F('fc'),
@@ -5842,6 +5865,29 @@ function vlStack(deneb, vertical){
   return Object.assign({ data:vData(values,deneb), encoding:enc, layer },
     vertical? {width:430, height:{step:30}} : {width:560, height:220});
 }
+/* Boxplot (EX 1.1) als nativer Vega-Lite-boxplot-Mark. Long-Format: je
+   Beobachtung eine Zeile (k=Kategorie, p=Wert) – der Mark aggregiert Q1/
+   Median/Q3 und 1,5·IQR-Whisker selbst. In Power BI muss der Wert eine
+   Spalte (row-level) sein, nicht aggregiert (siehe denebTemplate). IBCS-
+   schlicht: dunkle Kontur, kein Farbcode; Achse ohne erzwungene Null.        */
+function vlBoxplot(deneb){
+  const rows = activeRows().filter(r=>r.c!=='' && !isNaN(r.v1));
+  const values = rows.map(r=>({k:r.c, p:r.v1}));
+  return {
+    width:560, height:250,
+    data: vData(values, deneb),
+    mark:{ type:'boxplot', extent:1.5, size:30,
+      box:{fill:'#eceae6', stroke:DARK, strokeWidth:1.2},
+      median:{stroke:DARK, strokeWidth:2},
+      rule:{stroke:DARK, strokeWidth:1.2},
+      ticks:{stroke:DARK, strokeWidth:1.2},
+      outliers:{stroke:DARK, fill:'transparent', strokeWidth:1, size:28} },
+    encoding:{
+      x:{field:'k', type:'nominal', sort:null, axis:{labelAngle:0, labelPadding:6}},
+      y:{field:'p', type:'quantitative', axis:null, scale:{zero:false}}
+    }
+  };
+}
 function vlMultiples(deneb){
   const rows = state.srows.filter(r=>r.c!=='');
   const values = [];
@@ -6455,6 +6501,7 @@ function vegaSpecCore(deneb){
   else if(t==='zchart') body = tiersOn ? wrapTiers(vlZChart(deneb)) : vlZChart(deneb);
   else if(t==='wfkombi') body = vlWfKombi(deneb);
   else if(t==='varint') body = vlVarintDyn(deneb);
+  else if(t==='boxplot') body = vlBoxplot(deneb);
   else if(t==='table') body = vlTable(deneb);
   else return null;
   if(t==='kombi' && state.kombiBase==='wf' && deneb) note = 'Wasserfall-Basis: Daten eingebettet (Σ-Zeile wird im Builder erzeugt).';
@@ -6605,6 +6652,7 @@ function usermetaFields(t){
   if(t==='waterfall'){ o[F('v')] = 'Wert ('+state.primary+')'; o[F('typ')] = "'sum' oder 'delta'"; }
   else if(t==='wfkombi'){ o[F('v')]='Wert ('+state.primary+')'; o[F('r')]='Referenzwert ('+state.reference+')'; o[F('typ')]="'sum' oder 'delta' (spätere Σ-Zeilen: Werte 0)"; }
   else if(t==='scatter'){ o[F('x')]='X-Wert'; o[F('y')]='Y-Wert'; o[F('g')]='Größe (optional)'; }
+  else if(t==='boxplot'){ o[F('dim')]='Kategorie (wiederholt sich je Beobachtung)'; o[F('p')]='Wert je Beobachtung (Spalte, NICHT aggregieren)'; }
   else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'){
     o[F('serie')]='Serienname'; o[F('v')]='Wert';
     if(t==='multiples') o[F('idx')]='Sortierindex der Dimension';

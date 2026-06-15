@@ -38,7 +38,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     'barskombi','table','wfkombi','stackbar','multiples','sparktable','heatmap','marimekko','boxplot',
     'kpi','kpiStatus','kpiTrend','scatter'];
   /* Typen ohne Vega-/Deneb-Template (bewusst nur SVG/PNG) */
-  const SVG_ONLY = ['slope','fan','heatmap','marimekko','boxplot'];
+  const SVG_ONLY = ['slope','fan','heatmap','marimekko'];
 
   const setType = (id)=>{
     if(id in KPI){ state.type='kpi'; state.kpiStyle = KPI[id]; }
@@ -276,12 +276,34 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       ok('F · Zeitnotation · t3auto deaktiviert', state.t3auto===false);
     }
 
-    /* F3 · Boxplot: Verteilung je Kategorie, Whisker/Box/Median, Ausreißer */
+    /* F3 · Boxplot: Long-Format-Gruppierung, Whisker/Box/Median, Ausreißer,
+       + natives Deneb-Template (Wert als Spalte, nicht Measure) */
     loadPreset('boxplotDemo'); renderAll();
     const bx=(document.getElementById('chartHost')||{}).innerHTML||'';
-    ok('F · Boxplot · 4 Boxen gerendert', (bx.match(/data-i=/g)||[]).length===4);
+    ok('F · Boxplot · 4 Boxen (Long-Format gruppiert)', (bx.match(/data-i=/g)||[]).length===4);
     ok('F · Boxplot · Ausreißer als Ringe (≥2)', (bx.match(/<circle/g)||[]).length>=2);
-    ok('F · Boxplot · kein NaN', !/NaN/.test(bx));
+    ok('F · Boxplot · SVG kein NaN', !/NaN/.test(bx));
+    {
+      const tpl = denebTemplate();
+      ok('F · Boxplot · Deneb-Template erzeugt (nicht SVG-only)', !!tpl);
+      if(tpl){
+        const body=clone(tpl); delete body.usermeta;
+        let comp=false; try{ comp=!!VL.compile(body).spec; }catch(e){}
+        ok('F · Boxplot · Template kompiliert, baked=0', comp && tplBakedRows(tpl)===0);
+        ok('F · Boxplot · nativer boxplot-Mark', /"type":"boxplot"/.test(JSON.stringify(body)));
+        const valDef = tpl.usermeta.dataset.find(d=>d.type==='numeric');
+        ok('F · Boxplot · Wert ist Spalte (nicht Measure)', !!valDef && valDef.kind==='column',
+           'valDef='+JSON.stringify(valDef));
+        /* render template with long-format data -> no NaN */
+        const data=[]; activeRows().filter(r=>r.c!==''&&!isNaN(r.v1)).forEach(r=>data.push({'__0__':r.c,'__1__':r.v1}));
+        body.datasets={dataset:data};
+        const host=document.createElement('div'); document.body.appendChild(host);
+        try{ const res=await embed(host, body, {actions:false, renderer:'svg'});
+          ok('F · Boxplot · Template rendert mit Long-Daten (kein NaN)', !/NaN/.test(host.querySelector('svg').outerHTML)); }
+        catch(e){ ok('F · Boxplot · Template rendert mit Long-Daten', false, String(e)); }
+        host.remove();
+      }
+    }
 
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
