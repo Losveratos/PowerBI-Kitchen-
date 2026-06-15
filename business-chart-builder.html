@@ -346,6 +346,7 @@ footer a:hover{color:var(--ink)}
         </div></label>
       <label class="fld"><span>Periodenbezeichnung für „auto“</span>
         <input type="text" id="period" value="2025" style="width:110px"></label>
+      <button class="ghost" id="btnPeriodNot" type="button" style="width:100%; margin-bottom:6px" title="IBCS-Zeitnotation (_YTD, ~gleitend, Spanne, ISO) in das zuletzt angeklickte Titelfeld einfügen">🕔 Zeitnotation einfügen</button>
       <label class="fld"><span>Quelle (SA 4.4, optional)</span>
         <input type="text" id="source" placeholder="z. B. SAP CO-PA, Stand 2025-12-31"></label>
     </section>
@@ -656,6 +657,14 @@ footer a:hover{color:var(--ink)}
     <div id="ibcsSummary" style="font-weight:600;margin-bottom:6px"></div>
     <div style="font-size:11px;color:var(--ink3);margin-bottom:12px">Geprüft gegen die IBCS®-Compliance-Checkliste (Standards 1.2, CC BY-SA 4.0). Hinweise zur aktuellen Konfiguration – harte Anti-Pattern (Torte/Tacho/abgeschnittene Achse) verhindert das Tool bereits.</div>
     <div id="ibcsList"></div>
+  </div>
+</dialog>
+
+<dialog id="notDlg" style="max-width:560px">
+  <div class="dlg-head"><h3>IBCS-Zeitnotation</h3><button class="ghost" id="notClose">Schließen</button></div>
+  <div class="dlg-body">
+    <div style="font-size:11.5px;color:var(--ink2);margin-bottom:10px">Einheitliche Perioden-Notation (IBCS Standards 1.2). Klick fügt das Beispiel in das zuletzt angeklickte Titelfeld ein (Standard: Zeile 3). Monat/Datum danach anpassen.</div>
+    <div id="notList"></div>
   </div>
 </dialog>
 
@@ -6986,6 +6995,40 @@ function updateIbcsBadge(){
   }
 }
 $('#ibcsBadge').addEventListener('click', ()=>{ ibcsCheckRender(); if(ibcsDlg.showModal) ibcsDlg.showModal(); else ibcsDlg.setAttribute('open',''); });
+
+/* IBCS-Zeitnotation: fügt einheitliche Perioden-Token (_YTD, ~gleitend,
+   Spanne.., ISO-Datum) in das zuletzt fokussierte Titelfeld ein (Standard
+   Zeile 3). Reines Schreibwerkzeug – ändert nur den Titeltext.               */
+let lastTitleEl = $('#t3');
+['t1','t2','t3'].forEach(id=>{ const el=$('#'+id); if(el) el.addEventListener('focus', ()=>{ lastTitleEl = el; }); });
+function periodTokens(){
+  const iso = (()=>{ try{ return new Date().toISOString().slice(0,10); }catch(e){ return '2025-12-31'; } })();
+  return [
+    {tok:'_Jun',    name:'YTD · kumuliert',      desc:'Year-to-date bis Juni · Unterstrich-Präfix'},
+    {tok:'~Jun',    name:'Gleitend · 12 Monate', desc:'Gleitender Jahreswert (MAT) bis Juni · Tilde-Präfix'},
+    {tok:'Jan..Jun',name:'Zeitspanne',           desc:'von … bis · zwei Punkte, z. B. Jan..Jun'},
+    {tok:iso,       name:'ISO-Datum',            desc:'Jahr-Monat-Tag (ISO 8601), z. B. '+iso},
+  ];
+}
+function insertPeriodToken(tok){
+  const el = (lastTitleEl && document.body.contains(lastTitleEl)) ? lastTitleEl : $('#t3');
+  const cur = (el.value||'').trim();
+  el.value = cur ? (cur+' '+tok) : tok;
+  if(el.id==='t3') state.t3auto = false;
+  renderPreview();
+  return el.id;
+}
+const notDlg = $('#notDlg');
+function notRender(){
+  $('#notList').innerHTML = periodTokens().map(t=>
+    '<div style="display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:7px 10px;margin-bottom:7px;background:#fff">'+
+    '<button class="ghost" data-tok="'+esc(t.tok)+'" style="font-family:monospace;min-width:96px">'+esc(t.tok)+'</button>'+
+    '<div><div style="font-weight:600;font-size:12.5px">'+esc(t.name)+'</div>'+
+    '<div style="font-size:11px;color:var(--ink3)">'+esc(t.desc)+'</div></div></div>').join('');
+}
+$('#btnPeriodNot').addEventListener('click', ()=>{ notRender(); if(notDlg.showModal) notDlg.showModal(); else notDlg.setAttribute('open',''); });
+$('#notClose').addEventListener('click', ()=> notDlg.close());
+$('#notList').addEventListener('click', e=>{ const b=e.target.closest('[data-tok]'); if(!b) return; insertPeriodToken(b.dataset.tok); flash($('#btnPeriodNot'), 'Eingefügt ✓'); });
 
 /* Bericht sammeln & exportieren */
 $('#btnAddDash').addEventListener('click', ()=>{
