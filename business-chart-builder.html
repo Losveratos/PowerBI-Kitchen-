@@ -502,6 +502,7 @@ footer a:hover{color:var(--ink)}
           <option value="pnl">GuV-Brücke · horizontal (Wasserfall)</option>
           <option value="pnlV">GuV mit Zwischensumme · vertikal</option>
           <option value="pnlVA">GuV-Wasserfall mit ΔPY (Varianz)</option>
+          <option value="varintDemo">Integrierte Varianzanalyse (4 Tiers, AC/FC vs PL)</option>
           <option value="bridgeM">Brücke PL → AC je Monat</option>
           <option value="bridgeC">Brücke PY → AC je Land · vertikal</option>
           <option value="outlier">Varianzanalyse mit Δ%-Ausreißer</option>
@@ -669,6 +670,7 @@ const TYPE_GROUPS = [
     { id:'stackcol',  name:'Gestapelt' },
     { id:'waterfall', name:'Wasserfall' },
     { id:'bridge',    name:'Brücke · Szenario' },
+    { id:'varint',    name:'Integrierte Varianz' },
   ]},
   { name:'Struktur (vertikale Achse)', types:[
     { id:'bars',      name:'Balken' },
@@ -1092,7 +1094,7 @@ function relCap(vals){
   }
   return Infinity;
 }
-function needsRef(){ return ['absvar','relvar','kombi','barskombi','table','bridge','wfkombi','zchart','bullet'].includes(state.type); }
+function needsRef(){ return ['absvar','relvar','kombi','barskombi','table','bridge','wfkombi','zchart','bullet','varint'].includes(state.type); }
 function usesWrows(){ return state.type==='waterfall' || state.type==='wfkombi'; }
 function isTime(){ return ['columns','absvar','relvar','kombi','line','zchart','colline'].includes(state.type); }
 function isStacked(){ return ['stackcol','stackbar','multiples'].includes(state.type); }
@@ -2523,7 +2525,7 @@ function renderZChart(rows, opt){
 /* --- Zeit-Wasserfall: jede Periode als Beitrag, Σ am Ende (Kombi-Basis) --- */
 function renderTimeWf(rows, opt){
   opt = opt||{};
-  const W=640, plotH=opt.plotH||190, padT=26, padB=22, padL=opt.padL||10, padR=opt.padR||10;
+  const W=640, plotH=opt.plotH||190, padT=26, padB=opt.noCats?8:22, padL=opt.padL||10, padR=opt.padR||10;
   const H = padT+plotH+padB;
   let cum=0;
   const segs = rows.map(r=>{ const from=cum; cum += isNaN(r.v1)?0:r.v1; return {from, to:cum, v:isNaN(r.v1)?0:r.v1, fc:!!r.fc, c:r.c}; });
@@ -2543,7 +2545,7 @@ function renderTimeWf(rows, opt){
       conns += '<line x1="'+(padL+slot*(i-1)+slot/2+bw/2)+'" y1="'+yc+'" x2="'+(cx-bw/2)+'" y2="'+yc+'" stroke="#c9c9c9" stroke-width="0.9"/>';
     }
     if(slot>=34) s += txt(cx, g.v>=0? yTop-4 : yTop+h+11, fmt(g.v), {anchor:'middle', size:10});
-    s += txt(cx, y0+15, g.c, {anchor:'middle', size:11, fill:CAT});
+    if(!opt.noCats) s += txt(cx, y0+15, g.c, {anchor:'middle', size:11, fill:CAT});
   });
   /* Σ-Säule */
   const cxS = padL+slot*rows.length+slot/2;
@@ -2552,7 +2554,7 @@ function renderTimeWf(rows, opt){
   conns += '<line x1="'+(cxS-slot/2+slot*0.225)+'" y1="'+(padT+sc.y(total))+'" x2="'+(cxS-bw/2)+'" y2="'+(padT+sc.y(total))+'" stroke="#c9c9c9" stroke-width="0.9"/>';
   s += '<rect x="'+(cxS-bw/2)+'" y="'+yTopS+'" width="'+bw+'" height="'+hS+'" fill="'+DARK+'"/>';
   s += txt(cxS, total>=0? yTopS-5 : yTopS+hS+12, fmt(total), {anchor:'middle', weight:'bold'});
-  s += txt(cxS, y0+15, 'Σ', {anchor:'middle', size:11, fill:CAT});
+  if(!opt.noCats) s += txt(cxS, y0+15, 'Σ', {anchor:'middle', size:11, fill:CAT});
   s = conns + s + '<line x1="'+padL+'" y1="'+y0+'" x2="'+(W-padR)+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1.5"/>';
   return { svg:s, W, H };
 }
@@ -2608,6 +2610,32 @@ function renderKombi(rows){
                 : state.primary + (rows.some(x=>x.fc)?'&FC':'') + ' '+CL('und')+' ' + state.reference);
   s += '<g transform="translate(0,'+y+')">'+txt(12, 10, baseCap, {size:10.5, fill:'#8a8a8a'})+r3.svg+'</g>';
   y += r3.H;
+  return { svg:s, W:640, H:y };
+}
+
+/* --- Integrierte Varianzanalyse (IBCS): vier Tiers auf gemeinsamer Zeitachse
+       1) ΔRef%_YTD  (kumuliert, year-to-date)
+       2) ΔRef%      (je Periode)
+       3) Varianz-Brücke: die ΔRef-Beiträge laufen auf (Σ = Gesamtabweichung)
+       4) Säulen: Primär (AC) + FC-Schraffur, Referenz als Vergleich        --- */
+function renderVarInt(rows){
+  const gap=14, pads={padL:10, padR:10};
+  /* YTD-kumulierte Zeilen: laufende Summen von Primär und Referenz */
+  let ca=0, cp=0;
+  const ytd = rows.map(r=>{ ca += isNaN(r.v1)?0:r.v1; cp += isNaN(r.v2)?0:r.v2;
+    return {c:r.c, v1:ca, v2:cp, fc:r.fc}; });
+  /* Δ-Beiträge je Periode für die Brücke (Primär − Referenz) */
+  const delta = rows.map(r=>({c:r.c, v1:(isNaN(r.v1)||isNaN(r.v2))?0:r.v1-r.v2, fc:r.fc}));
+  const ref = state.reference;
+  let s='', y=0;
+  const tier=(cap, r)=>{ s += '<g transform="translate(0,'+y+')">'+txt(12,10,cap,{size:10.5,fill:'#8a8a8a'})+r.svg+'</g>'; y += r.H+gap; };
+  tier('Δ'+ref+'%_YTD', renderRelVar(ytd,  Object.assign({noCats:true, plotH:78}, pads)));
+  tier('Δ'+ref+'%',     renderRelVar(rows, Object.assign({noCats:true, plotH:78}, pads)));
+  tier('Δ'+ref+' '+CL('Beitraege'), renderTimeWf(delta, Object.assign({noCats:true, plotH:140}, pads)));
+  const base = renderColumns(rows, {plotH:150});
+  const baseCap = state.primary + (rows.some(x=>x.fc)?'&FC':'') + ' '+CL('und')+' ' + ref;
+  s += '<g transform="translate(0,'+y+')">'+txt(12,10,baseCap,{size:10.5,fill:'#8a8a8a'})+base.svg+'</g>';
+  y += base.H;
   return { svg:s, W:640, H:y };
 }
 
@@ -3218,6 +3246,7 @@ function buildChart(){
   else if(state.type==='multiples') r = renderMultiples();
   else if(state.type==='scatter')   r = renderScatter();
   else if(state.type==='wfkombi')   r = renderWfKombi();
+  else if(state.type==='varint')    r = renderVarInt(rows);
   else if(state.type==='kpi')       r = renderKpi();
   else if(state.type==='bars'){
     if(tiersOn){
@@ -3338,6 +3367,7 @@ function typeIcon(id){
     case 'scatter': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="3" y1="0" x2="3" y2="15" stroke="'+g+'" stroke-width="1.2"/><line x1="3" y1="15" x2="26" y2="15" stroke="'+g+'" stroke-width="1.2"/><circle cx="9" cy="10" r="2.6" fill="'+g+'"/><circle cx="15" cy="6" r="1.8" fill="'+g+'"/><circle cx="20" cy="9" r="3.4" fill="'+g+'" fill-opacity="0.7"/><circle cx="12" cy="3.5" r="1.4" fill="'+g+'"/></svg>';
     case 'barskombi': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="2" y1="1" x2="2" y2="17" stroke="'+g+'" stroke-width="1.2"/><rect x="2" y="2" width="8" height="2.8" fill="'+g+'"/><rect x="2" y="7.5" width="5" height="2.8" fill="'+g+'"/><rect x="2" y="13" width="7" height="2.8" fill="'+g+'"/><line x1="15" y1="1" x2="15" y2="17" stroke="'+g+'" stroke-width="1"/><rect x="15" y="2" width="6" height="2.8" fill="#469b3c"/><rect x="11" y="7.5" width="4" height="2.8" fill="#c0392b"/><rect x="15" y="13" width="8" height="2.8" fill="#469b3c"/></svg>';
     case 'table': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="4" x2="26" y2="4" stroke="'+g+'" stroke-width="1.4"/><text x="0" y="2.6" font-size="3.2" fill="'+g+'" font-family="Arial">AC PY</text><rect x="14" y="6.5" width="7" height="2.6" fill="#469b3c"/><rect x="10" y="11" width="4" height="2.6" fill="#c0392b"/><line x1="14" y1="5.5" x2="14" y2="17" stroke="'+l+'" stroke-width="1.6"/><circle cx="6" cy="7.8" r="1" fill="'+g+'"/><circle cx="6" cy="12.3" r="1" fill="'+g+'"/></svg>';
+    case 'varint': return '<svg width="26" height="18" viewBox="0 0 26 18"><circle cx="4" cy="1.6" r="1" fill="#469b3c"/><circle cx="11" cy="2" r="1" fill="#c0392b"/><circle cx="18" cy="1.4" r="1" fill="#469b3c"/><rect x="2" y="5.5" width="3" height="2" fill="#469b3c"/><rect x="9" y="5.5" width="3" height="2.4" fill="#c0392b"/><rect x="16" y="5.2" width="3" height="2" fill="#469b3c"/><rect x="2" y="11.5" width="2.6" height="4.5" fill="'+g+'"/><rect x="7" y="13" width="2.6" height="3" fill="'+g+'"/><rect x="12" y="12" width="2.6" height="4" fill="'+g+'"/><rect x="17" y="13.5" width="2.6" height="2.5" fill="'+l+'"/><rect x="21.5" y="12.5" width="2.6" height="3.5" fill="'+l+'"/><line x1="0" y1="16" x2="26" y2="16" stroke="'+g+'" stroke-width="1"/></svg>';
     default: return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="5" x2="26" y2="5" stroke="'+g+'" stroke-width="1"/><line x1="3" y1="5" x2="3" y2="2" stroke="#469b3c" stroke-width="1.4"/><circle cx="3" cy="2" r="1.4" fill="#469b3c"/><line x1="9" y1="5" x2="9" y2="8" stroke="#c0392b" stroke-width="1.4"/><circle cx="9" cy="8" r="1.4" fill="#c0392b"/><rect x="14" y="11" width="3" height="6" fill="'+g+'"/><rect x="20" y="13" width="3" height="4" fill="'+l+'"/><line x1="0" y1="17" x2="26" y2="17" stroke="'+g+'" stroke-width="1"/></svg>';
   }
 }
@@ -3883,6 +3913,9 @@ const PRESETS = {
     wrows:[['Umsatz',642,601,'sum'],['Materialkosten',-238,-221,'delta'],['Personal',-176,-168,'delta'],['Sonstige Kosten',-94,-89,'delta'],['Lizenzerträge',38,31,'delta'],['EBIT',0,0,'sum']] },
   pnlVA:{ type:'wfkombi', primary:'AC', reference:'PY', t2:'Ergebnisrechnung in mEUR',
     wrows:[['Umsatz',642,601,'sum'],['Materialkosten',-238,-221,'delta'],['Bruttoergebnis',0,0,'sum'],['Personal',-176,-168,'delta'],['Sonstige Kosten',-94,-89,'delta'],['Lizenzerträge',38,31,'delta'],['EBIT',0,0,'sum']] },
+  varintDemo:{ type:'varint', primary:'AC', reference:'PL', t2:'Net sales in KEUR · 2026',
+    rows:[['1',317,300],['2',311,300],['3',305,300],['4',301,300],['5',299,300],['6',298,300],
+          ['7',306,300,,1],['8',310,300,,1],['9',312,300,,1],['10',313,300,,1],['11',313,300,,1],['12',312,300,,1]] },
   pnlV:{ type:'waterfall', orient:'v', reference:'PY', t2:'Ergebnisrechnung in mEUR',
     wrows:[['Umsatz',642,601,'sum'],['Materialkosten',-238,-221,'delta'],['Bruttoergebnis',0,0,'sum'],['Personal',-176,-168,'delta'],['Sonstige Kosten',-94,-89,'delta'],['Lizenzerträge',38,31,'delta'],['EBIT',0,0,'sum']] },
   bridgeM:{ type:'bridge', orient:'h', primary:'AC', reference:'PL', t2:'Umsatz in mEUR, Überleitung je Monat',
