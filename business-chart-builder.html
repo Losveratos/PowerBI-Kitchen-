@@ -4486,7 +4486,10 @@ function vFieldDefs(){
   } else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'){
     defs.push(['serie','Serien-Feld'], ['v','Wert-Feld']);
     if(t==='multiples'){
-      defs.push(['idx','Index-Feld']);
+      if(state.multiMode==='wf') defs.push(['idx','Index-Feld']); /* nur der Mini-Wasserfall sortiert über den Index */
+      if(state.reference!=='—' && ['col','line'].includes(state.multiMode)) defs.push(['r','Referenz · '+state.reference]);
+    } else if((t==='stackcol'||t==='stackbar') && state.stackAsMulti){
+      /* als Small Multiples gerendert: Referenzfeld wie bei den Multiples deklarieren */
       if(state.reference!=='—' && ['col','line'].includes(state.multiMode)) defs.push(['r','Referenz · '+state.reference]);
     }
   } else {
@@ -4608,6 +4611,12 @@ function denebStepsHtml(){
   if(state.vlTooltip||state.vlCross) h += '<li>'+TT('Interaktivität: in den Deneb-Settings den Tooltip-Handler bzw. „Expose cross-filtering values“ aktivieren.')+'</li>';
   return h;
 }
+function tplBakedRows(tpl){
+  let n=0; (function w(x){ if(Array.isArray(x)){x.forEach(w);return;} if(x&&typeof x==='object'){
+    if(x.data&&Array.isArray(x.data.values)) n+=x.data.values.length;
+    Object.keys(x).forEach(k=>{ if(k!=='usermeta') w(x[k]); }); } })(tpl);
+  return n;
+}
 async function regenVegaCode(){
   $('#specSummary').textContent = specSummary();
   if(state.vlTemplate){
@@ -4615,6 +4624,12 @@ async function regenVegaCode(){
     dlgFile = 'business-chart.deneb.json';
     $('#dlgCode').value = tpl ? JSON.stringify(tpl, null, 2)
       : '// Deneb-Template für diesen Diagrammtyp noch nicht verfügbar.\n// Bitte „SVG kopieren“ oder PNG-Export nutzen.';
+    /* Ehrlichkeit: dieser Typ kann (wegen berechneter Σ-Zeile) nur mit
+       eingebetteten Daten exportieren – kein dynamisches Mapping. */
+    if(tpl && tplBakedRows(tpl)>0){
+      $('#specSummary').textContent = specSummary() + '  ·  ⚠ ' +
+        TT('Eingebettete Daten (statisch) – Power BI rechnet sie nicht neu. Für eine dynamische Brücke den Typ „Wasserfall-Varianz“ oder „Szenario-Brücke“ verwenden.');
+    }
     return;
   }
   const spec = vegaSpec(state.vlDeneb);
