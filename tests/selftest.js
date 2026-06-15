@@ -57,14 +57,16 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     rows:clone(state.rows), srows:clone(state.srows), series:clone(state.series),
     wrows:clone(state.wrows),
     unit:state.unit, unitScale:state.unitScale, decimals:state.decimals, msg:state.msg,
-    stack100:state.stack100, t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
+    stack100:state.stack100, bridgePY:state.bridgePY, bridgeRel:state.bridgeRel,
+    t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
   };
   const restore = ()=>{
     Object.assign(state, {type:snap.type, kpiStyle:snap.kpiStyle, primary:snap.primary,
       reference:snap.reference, reference2:snap.reference2,
       rows:clone(snap.rows), srows:clone(snap.srows), series:clone(snap.series),
       wrows:clone(snap.wrows), unit:snap.unit, unitScale:snap.unitScale,
-      decimals:snap.decimals, msg:snap.msg, stack100:snap.stack100});
+      decimals:snap.decimals, msg:snap.msg, stack100:snap.stack100,
+      bridgePY:snap.bridgePY, bridgeRel:snap.bridgeRel});
     const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v==null?'':v; };
     set('t1',snap.t1); set('t2',snap.t2); set('t3',snap.t3);
     try{ renderAll(); }catch(e){}
@@ -304,6 +306,40 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
         host.remove();
       }
     }
+
+    /* F4 · Brücke: optionale ΔRef2-Total-Säule (z. B. ΔVorjahr) */
+    loadPreset('bridgeM'); state.reference2='PY';
+    state.rows.forEach(r=>{ r.v3 = Math.round(r.v2*0.97); });
+    state.bridgePY=true; state.bridgeRel=true; renderAll();
+    {
+      const vrows = activeRows().filter(r=>!isNaN(r.v1)&&!isNaN(r.v2)&&!isNaN(r.v3));
+      const expDPY = vrows.reduce((a,r)=>a+r.v1,0) - vrows.reduce((a,r)=>a+r.v3,0);
+      const segs = bridgeSegs(activeRows());
+      const last = segs[segs.length-1];
+      ok('F · Brücke ΔRef2 · Säule angehängt (eigene Bezugsgröße)',
+         last && last.c==='ΔPY' && last.kind==='delta' && last.skipRel===true,
+         'last='+JSON.stringify(last&&{c:last.c,kind:last.kind}));
+      ok('F · Brücke ΔRef2 · Wert = ΣPrimär − ΣRef2', last && Math.abs(last.v-expDPY)<1e-6, 'v='+(last&&last.v)+' soll='+expDPY);
+      const svg=(document.getElementById('chartHost')||{}).innerHTML||'';
+      ok('F · Brücke ΔRef2 · SVG zeigt Säule, kein NaN', /ΔPY/.test(svg) && !/NaN/.test(svg));
+      /* Template: r2-Feld + ΔRef2-Säule, kompiliert, baked=0, rendert korrekt */
+      const tpl=denebTemplate(); const body=clone(tpl); delete body.usermeta;
+      ok('F · Brücke ΔRef2 · Template-Feld Referenz 2 deklariert', tpl.usermeta.dataset.some(d=>d.name==='PY'));
+      let comp=false; try{ comp=!!VL.compile(body).spec; }catch(e){}
+      ok('F · Brücke ΔRef2 · Template kompiliert, baked=0', comp && tplBakedRows(tpl)===0);
+      const data=vrows.map(r=>({'__0__':r.c,'__1__':r.v1,'__2__':r.v2,'__3__':r.v3}));
+      body.datasets={dataset:data};
+      const host=document.createElement('div'); document.body.appendChild(host);
+      try{
+        const res=await embed(host, body, {actions:false, renderer:'svg'});
+        let dpy=null; Object.keys(res.view._runtime.data).forEach(n=>{ try{ const d=res.view.data(n); if(d&&d.length===1&&d.some(x=>'sumP' in x&&'sumR2' in x)) dpy=d[0]; }catch(e){} });
+        ok('F · Brücke ΔRef2 · Template-Säule = ΣPrimär−ΣRef2 (kein NaN)',
+           !!dpy && Math.abs((dpy.sumP-dpy.sumR2)-expDPY)<1e-6 && !/NaN/.test(host.querySelector('svg').outerHTML),
+           'dpy='+JSON.stringify(dpy&&{sumP:dpy.sumP,sumR2:dpy.sumR2}));
+      }catch(e){ ok('F · Brücke ΔRef2 · Template rendert', false, String(e)); }
+      host.remove();
+    }
+    state.bridgePY=false;
 
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));

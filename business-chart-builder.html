@@ -427,6 +427,7 @@ footer a:hover{color:var(--ink)}
         <button class="chip" id="lfDiff" type="button" title="Differenzfläche zur Referenz, grün/rot (Hills & Valleys)">Differenz ±</button>
       </div>
       <label class="check" id="bridgeRelWrap" style="display:none"><input type="checkbox" id="bridgeRelChk"> Δ%-Ebene je Treiber (relativ zur Start-Σ)</label>
+      <label class="check" id="bridgePYWrap" style="display:none"><input type="checkbox" id="bridgePYChk"> Abweichungssäule vs Referenz 2 als Total (z. B. ΔVorjahr)</label>
 
       <div class="row" id="kombiBaseWrap" style="display:none; margin-top:8px">
         <span style="font-size:11.5px;color:var(--ink2)">Basis</span>
@@ -772,6 +773,7 @@ const state = {
   multiMode:'col',
   kombiBase:'col',
   bridgeRel:false,
+  bridgePY:false,
   showRel:false,
   showAbs:false,
   stackAsMulti:false,
@@ -1571,6 +1573,15 @@ function bridgeSegs(rows){
     run += d;
   });
   segs.push({c:fcLbl(endScen), from:0, to:run, v:run, kind:'sum', scen:endScen, fcAll:rev?false:allFC});
+  /* Optionale Abweichungssäule vs Referenz 2 (z. B. ΔVorjahr) als Total:
+     Varianzsäule, die vom Ref2-Gesamtniveau bis zum Primär-Gesamt reicht.
+     Minuend = Primärszenario → trägt dessen (AC/AC&FC-)Notation.            */
+  if(state.bridgePY && state.reference2!=='—' && valid.length && valid.every(r=>!isNaN(r.v3))){
+    const sumPrim = valid.reduce((a,r)=>a+r.v1,0);
+    const sumR2   = valid.reduce((a,r)=>a+r.v3,0);
+    segs.push({c:'Δ'+state.reference2, from:sumR2, to:sumPrim, v:sumPrim-sumR2,
+      kind:'delta', isVar:true, fc:anyFC, minuend:state.primary, noConn:true, skipRel:true});
+  }
   return segs;
 }
 
@@ -1592,7 +1603,7 @@ function renderBridgeRelTier(segs){
   const H = padT+plotH+padB;
   const start = segs.length ? Math.abs(segs[0].to) : 0;
   const rel = segs.map((g,i)=>{
-    if(!start) return null;
+    if(!start || g.skipRel) return null;   /* ΔRef2-Total hat eine andere Bezugsgröße */
     if(g.kind==='sum') return i===0 ? null : (g.to-segs[0].to)/start*100;
     return g.v/start*100;
   });
@@ -1647,7 +1658,7 @@ function renderSegsH(segs){
     const h = Math.max(0.75, Math.abs(Y(fromEff)-Y(g.to)));
     bars += rect(cx-bw/2, yTop, bw, h, segPaint(g), i);
     if(cut && g.kind==='sum') marks += cutMarkH(cx, bw, yAxis);
-    if(prevX!==null){
+    if(prevX!==null && !g.noConn){
       const yc = Y(g.kind==='sum'? g.to : g.from);
       conns += '<line x1="'+prevX+'" y1="'+prevY+'" x2="'+(cx-bw/2)+'" y2="'+yc+'" stroke="#c2c2c2" stroke-width="1"/>';
     }
@@ -3696,7 +3707,7 @@ function renderTypeButtons(){
   '<details class="type-details"'+(HIDDEN_IN_GRID.includes(state.type)?' open':'')+'><summary>Fertige Kombinationen (Vorlagen)</summary><div class="types">'+pro.map(btn).join('')+'</div></details>';
 }
 function isMulti(){ return ['kombi','barskombi','table','kpi'].includes(state.type); }
-function usesRef2(){ return ['kombi','barskombi','table','kpi','columns','bars','colline','dotplot','tornado','bullet'].includes(state.type); }
+function usesRef2(){ return ['kombi','barskombi','table','kpi','columns','bars','colline','dotplot','tornado','bullet','bridge'].includes(state.type); }
 function renderChips(){
   const prims = ['AC','FC','PL'];
   const refs  = ['PY','PL','BU','FC','—'];
@@ -3999,6 +4010,8 @@ function renderPreview(){
   $('#kbZ').classList.toggle('on', state.kombiBase==='zchart');
   $('#kbWf').classList.toggle('on', state.kombiBase==='wf');
   $('#bridgeRelWrap').style.display = (state.type==='bridge' && state.wfOrient!=='v') ? 'flex' : 'none';
+  $('#bridgePYWrap').style.display = (state.type==='bridge' && state.wfOrient!=='v' && state.reference2!=='—') ? 'flex' : 'none';
+  $('#bridgePYChk').checked = !!state.bridgePY;
   updateCombinePanel(hasRef);
   $('#topNWrap').style.display = isStruct() ? 'flex' : 'none';
   $('#bandWrap').style.display = (state.type==='multiples' && state.multiMode!=='delta') ? 'flex' : 'none';
@@ -4382,6 +4395,7 @@ $('#kbLine').addEventListener('click', ()=>{ state.kombiBase='line'; renderPrevi
 $('#kbZ').addEventListener('click', ()=>{ state.kombiBase='zchart'; renderPreview(); });
 $('#kbWf').addEventListener('click', ()=>{ state.kombiBase='wf'; renderPreview(); });
 $('#bridgeRelChk').addEventListener('change', e=>{ state.bridgeRel=e.target.checked; renderPreview(); });
+$('#bridgePYChk').addEventListener('change', e=>{ state.bridgePY=e.target.checked; renderPreview(); });
 const VAR_TIER_TYPES = ['columns','line','zchart','bars','multiples'];
 const VAR_BUILTIN_TYPES = ['kombi','barskombi','table','wfkombi','kpi'];
 function updateCombinePanel(hasRef){
@@ -4849,6 +4863,7 @@ function vFieldDefs(){
     defs.push(['v','Wert · '+state.primary], ['r','Referenz · '+state.reference], ['typ','Typ-Feld (sum/delta)']);
   } else if(t==='bridge'){
     defs.push(['p','Kennzahl · '+state.primary], ['r','Kennzahl · '+state.reference]);
+    if(state.bridgePY && state.reference2!=='—') defs.push(['r2','Kennzahl · '+state.reference2]);
   } else if(t==='pareto'){
     defs.push(['p','Kennzahl · '+state.primary]); /* einwertig: kumulierte %-Linie wird berechnet, keine Referenz */
   } else if(t==='boxplot'){
@@ -5611,12 +5626,40 @@ function vlBridgeDyn(){
      mark:{type:'text', dy:14, fontSize:11, font:'Arial', color:DARK},
      encoding:{x:xEnc(null), y:vYq('e'), text:{field:'L', type:'nominal'}}},
   ];
+  /* Optionale Abweichungssäule vs Referenz 2 als Total (z. B. ΔVorjahr):
+     Varianzsäule von der Ref2-Gesamtsumme (sumR2) bis zur Primär-Summe (sumP),
+     Slot ganz rechts (ord 1000000). Eigene joinaggregate (sumP/sumR2), eine
+     gefilterte Zeile (vord===1) trägt die Säule – wie die Σ-Säulen.          */
+  const usePY = state.bridgePY && state.reference2!=='—';
+  let dpyAnchor = null;
+  if(usePY){
+    const dpyTf = [
+      {window:[{op:'row_number', as:'vord'}]},
+      {joinaggregate:[{op:'sum', field:'p', as:'sumP'}, {op:'sum', field:'r2', as:'sumR2'}]},
+      {filter:'datum.vord === 1'},
+      {calculate:'datum.sumR2', as:'s'},
+      {calculate:'datum.sumP', as:'e'},
+      {calculate:'"Δ'+state.reference2+'"', as:'xlab'},
+      {calculate:'1000000', as:'ord'},
+      {calculate:'datum.sumP - datum.sumR2 >= 0 ? "pos" : "neg"', as:'cls'},
+      {calculate:"format(datum.sumP - datum.sumR2, '+"+fmtN+"')", as:'L'},
+    ];
+    layers.push({data:D, transform:dpyTf, mark:{type:'bar', size:24},
+      encoding:{x:xEnc(null), y:vYq('s'), y2:{field:'e'}, fill:fillEnc, stroke:strokeEnc, strokeWidth:{value:1.2}}});
+    layers.push({data:D, transform:dpyTf.concat([{filter:'datum.cls === "pos"'}]),
+      mark:{type:'text', dy:-8, fontSize:11, font:'Arial', color:DARK, fontWeight:'bold'},
+      encoding:{x:xEnc(null), y:vYq('e'), text:{field:'L', type:'nominal'}}});
+    layers.push({data:D, transform:dpyTf.concat([{filter:'datum.cls === "neg"'}]),
+      mark:{type:'text', dy:14, fontSize:11, font:'Arial', color:DARK, fontWeight:'bold'},
+      encoding:{x:xEnc(null), y:vYq('e'), text:{field:'L', type:'nominal'}}});
+    dpyAnchor = {data:D, transform:dpyTf, mark:{type:'point', size:0, opacity:0}, encoding:{x:xEnc(null), y:{datum:0}}};
+  }
   const barTier = { width:580, height:240, layer:layers };
   if(!(state.bridgeRel && state.wfOrient!=='v')) return barTier;
   /* Δ%-Ebene über der Brücke; unsichtbare Σ-Anker richten die X-Achse aus */
   const anchor = (which,label,scen,ord)=> ({data:D, transform: totTf(which,label,scen,ord),
     mark:{type:'point', size:0, opacity:0}, encoding:{x:xEnc(null), y:{datum:0}}});
-  const relTier = { width:580, height:85, layer:[
+  const relLayers = [
     anchor('sumStart', startScen, startScen, 0),
     {data:D, transform: deltaTf, mark:{type:'rule', strokeWidth:2},
      encoding:{x:xEnc(null), y:vYq('rv'), y2:{datum:0}, color:{condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}}},
@@ -5629,7 +5672,9 @@ function vlBridgeDyn(){
      mark:{type:'text', dy:17, fontSize:11, font:'Arial'},
      encoding:{x:xEnc(null), y:vYq('rv'), text:{field:'Lrv', type:'nominal'}, color:{value:C.neg}}},
     anchor('sumEnd', endScen, endScen, 999999),
-  ]};
+  ];
+  if(dpyAnchor) relLayers.push(dpyAnchor);   /* ΔRef2-Slot rechts ausrichten */
+  const relTier = { width:580, height:85, layer:relLayers };
   return { vconcat:[relTier, barTier], spacing:14 };
 }
 /* Integrierte Varianzanalyse als dynamisches 4-Tier-Template (Deneb/Vega-Lite).
@@ -6475,7 +6520,7 @@ function vegaSpecCore(deneb){
       const start = segs.length ? Math.abs(segs[0].to) : 0;
       const C3 = vCol();
       const tv = segs.map((g,i)=>{
-        const rv = !start ? null : (g.kind==='sum' ? (i===0 ? null : (g.to-segs[0].to)/start*100) : g.v/start*100);
+        const rv = (!start || g.skipRel) ? null : (g.kind==='sum' ? (i===0 ? null : (g.to-segs[0].to)/start*100) : g.v/start*100);
         return {k:g.c, rv, Lrv: rv===null? '' : fmtPct(rv)};
       });
       const tier = { width:580, height:85, data:{values:tv},
@@ -6660,7 +6705,7 @@ function usermetaFields(t){
   } else {
     o[F('p')]='Primärwert ('+state.primary+')';
     if(state.reference!=='—') o[F('r')]='Referenz ('+state.reference+')';
-    if(['kombi','barskombi','kpi','columns','bars'].includes(t) && state.reference2!=='—') o[F('r2')]='Referenz 2 ('+state.reference2+')';
+    if((['kombi','barskombi','kpi','columns','bars'].includes(t) || (t==='bridge'&&state.bridgePY)) && state.reference2!=='—') o[F('r2')]='Referenz 2 ('+state.reference2+')';
     if(state.primary==='AC') o[F('fc')]='Forecast-Flag (Zahl: 1 = Forecast, 0/leer = Ist)';
   }
   return o;
@@ -6675,7 +6720,7 @@ function serialize(){
       varSel:state.varSel, decimals:state.decimals, cbSafe:state.cbSafe, showRefLabels:state.showRefLabels, endPins:state.endPins,
       stack100:state.stack100,
       sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient,
-      bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel,
+      bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel, bridgePY:state.bridgePY,
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source,
@@ -6741,6 +6786,7 @@ function syncControls(){
   $('#lineAllLbl').checked = state.lineAllLabels;
   $('#lineIdxChk').checked = !!state.lineIndex;
   $('#bridgeRelChk').checked = !!state.bridgeRel;
+  $('#bridgePYChk').checked = !!state.bridgePY;
   /* Δ/Δ%-Kacheln (vtNone…vtBoth) synct updateCombinePanel beim nächsten renderPreview */
 
   if(state.lineArea){ state.lineFill='area'; delete state.lineArea; } /* Migration alter Konfigs */

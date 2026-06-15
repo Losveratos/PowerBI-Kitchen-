@@ -79,7 +79,7 @@ async function runOnce(){
   const win = $('#app').contentWindow;
   try{
     // selftest.js holen und im Builder-Kontext ausführen (greift dort auf state/vegaSpec/… zu)
-    const code = await (await fetch('selftest.js')).text();
+    const code = await (await fetch('selftest.js?cb='+Date.now())).text();
     win.eval(code);
     const report = await win.runChartBuilderSelfTest({quiet:true});
     // alle Checks fürs UI nachreichen (die Funktion gibt nur Failures zurück) -> erneut mit Detail
