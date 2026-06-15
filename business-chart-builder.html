@@ -506,6 +506,7 @@ footer a:hover{color:var(--ink)}
           <option value="pnlVA">GuV-Wasserfall mit ΔPY (Varianz)</option>
           <option value="varintDemo">Integrierte Varianzanalyse (4 Tiers, AC/FC vs PL)</option>
           <option value="slopeDemo">Slope · Vorher/Nachher (PY → AC)</option>
+          <option value="fanDemo">Fan · Ist + Forecast-Korridor</option>
           <option value="bridgeM">Brücke PL → AC je Monat</option>
           <option value="bridgeC">Brücke PY → AC je Land · vertikal</option>
           <option value="outlier">Varianzanalyse mit Δ%-Ausreißer</option>
@@ -670,6 +671,7 @@ const TYPE_GROUPS = [
     { id:'relvar',    name:'Δ% relativ' },
     { id:'line',      name:'Linie' },
     { id:'slope',     name:'Slope · Vorher/Nachher' },
+    { id:'fan',       name:'Fan · Forecast-Korridor' },
     { id:'zchart',    name:'Z-Chart' },
     { id:'stackcol',  name:'Gestapelt' },
     { id:'waterfall', name:'Wasserfall' },
@@ -2714,6 +2716,48 @@ function renderSlope(rows){
   return { svg:s, W, H };
 }
 
+/* --- Fan-Chart: durchgehende Linie (Ist solide, Forecast gestrichelt) mit
+       sich öffnendem Unsicherheits-Korridor über die Forecast-Perioden.
+       (Konzept inspiriert; eigene Umsetzung.) --- */
+function renderFan(rows){
+  const W=640, padT=20, padB=22, padL=10, padR=54, plotH=240;
+  const H=padT+plotH+padB;
+  const spread = 0.05;                 /* Korridor-Öffnung je Forecast-Schritt */
+  const firstFc = rows.findIndex(r=>r.fc);
+  let step=0;
+  const band = rows.map(r=>{ if(isNaN(r.v1)) return {has:false};
+    if(!r.fc){ step=0; return {v:r.v1, lo:r.v1, hi:r.v1, has:false}; }
+    step++; const w=Math.abs(r.v1)*spread*step; return {v:r.v1, lo:r.v1-w, hi:r.v1+w, has:true}; });
+  const allv = rows.map(r=>r.v1).concat(band.filter(b=>b.has).flatMap(b=>[b.lo,b.hi])).filter(v=>!isNaN(v));
+  if(!allv.length) return { svg:txt(W/2,H/2,'Fan-Chart braucht eine Wertreihe (+ FC-Flag)',{anchor:'middle',size:12,fill:SUB}), W, H };
+  const sc=makeScale(Math.min(...allv,0), Math.max(...allv,0), plotH, 0.10, true);
+  const n=rows.length, slot=(W-padL-padR)/Math.max(1,n-1);
+  const X=i=>padL+slot*i, Y=v=>padT+sc.y(v), y0=padT+sc.zeroY;
+  let s='';
+  /* Korridor-Fläche über die Forecast-Region (vom letzten Ist-Punkt aufgehend) */
+  const fcIdx = band.map((b,i)=>b.has?i:-1).filter(i=>i>=0);
+  if(fcIdx.length){
+    const a = Math.max(0, fcIdx[0]-1);
+    let d='M '+X(a)+','+Y(rows[a].v1);
+    fcIdx.forEach(i=> d+=' L '+X(i)+','+Y(band[i].hi));
+    for(let k=fcIdx.length-1;k>=0;k--) d+=' L '+X(fcIdx[k])+','+Y(band[fcIdx[k]].lo);
+    d+=' Z';
+    s+='<path d="'+d+'" fill="#d7d5d0" fill-opacity="0.5" stroke="none"/>';
+  }
+  /* Linie: durchgehend solide, Forecast-Abschnitt zusätzlich gestrichelt */
+  let full=''; rows.forEach((r,i)=>{ if(isNaN(r.v1))return; full+=(full?' L ':'M ')+X(i)+','+Y(r.v1); });
+  s+='<path d="'+full+'" fill="none" stroke="'+DARK+'" stroke-width="2"/>';
+  if(firstFc>0){ let f='M '+X(firstFc-1)+','+Y(rows[firstFc-1].v1);
+    for(let i=firstFc;i<n;i++) if(!isNaN(rows[i].v1)) f+=' L '+X(i)+','+Y(rows[i].v1);
+    s+='<path d="'+f+'" fill="none" stroke="'+DARK+'" stroke-width="2" stroke-dasharray="5,3"/>'; }
+  rows.forEach((r,i)=>{ if(isNaN(r.v1))return;
+    s+='<circle cx="'+X(i)+'" cy="'+Y(r.v1)+'" r="2.6" fill="'+(r.fc?WHITE:DARK)+'" stroke="'+DARK+'" stroke-width="'+(r.fc?1.2:0)+'"/>';
+    s+=txt(X(i), Y(r.v1)-8, fmt(r.v1), {anchor:'middle', size:9.5, fill:r.fc?FCINK:DARK});
+    s+=txt(X(i), y0+15, r.c, {anchor:'middle', size:10, fill:CAT}); });
+  s+='<line x1="'+padL+'" y1="'+y0+'" x2="'+(W-padR)+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1.2"/>';
+  return { svg:s, W, H };
+}
+
 /* =========================================================================
    RENDERER · STRUKTUR
    ========================================================================= */
@@ -3323,6 +3367,7 @@ function buildChart(){
   else if(state.type==='wfkombi')   r = renderWfKombi();
   else if(state.type==='varint')    r = renderVarInt(rows);
   else if(state.type==='slope')     r = renderSlope(rows);
+  else if(state.type==='fan')       r = renderFan(rows);
   else if(state.type==='kpi')       r = renderKpi();
   else if(state.type==='bars'){
     if(tiersOn){
@@ -3443,6 +3488,7 @@ function typeIcon(id){
     case 'scatter': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="3" y1="0" x2="3" y2="15" stroke="'+g+'" stroke-width="1.2"/><line x1="3" y1="15" x2="26" y2="15" stroke="'+g+'" stroke-width="1.2"/><circle cx="9" cy="10" r="2.6" fill="'+g+'"/><circle cx="15" cy="6" r="1.8" fill="'+g+'"/><circle cx="20" cy="9" r="3.4" fill="'+g+'" fill-opacity="0.7"/><circle cx="12" cy="3.5" r="1.4" fill="'+g+'"/></svg>';
     case 'barskombi': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="2" y1="1" x2="2" y2="17" stroke="'+g+'" stroke-width="1.2"/><rect x="2" y="2" width="8" height="2.8" fill="'+g+'"/><rect x="2" y="7.5" width="5" height="2.8" fill="'+g+'"/><rect x="2" y="13" width="7" height="2.8" fill="'+g+'"/><line x1="15" y1="1" x2="15" y2="17" stroke="'+g+'" stroke-width="1"/><rect x="15" y="2" width="6" height="2.8" fill="#469b3c"/><rect x="11" y="7.5" width="4" height="2.8" fill="#c0392b"/><rect x="15" y="13" width="8" height="2.8" fill="#469b3c"/></svg>';
     case 'table': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="4" x2="26" y2="4" stroke="'+g+'" stroke-width="1.4"/><text x="0" y="2.6" font-size="3.2" fill="'+g+'" font-family="Arial">AC PY</text><rect x="14" y="6.5" width="7" height="2.6" fill="#469b3c"/><rect x="10" y="11" width="4" height="2.6" fill="#c0392b"/><line x1="14" y1="5.5" x2="14" y2="17" stroke="'+l+'" stroke-width="1.6"/><circle cx="6" cy="7.8" r="1" fill="'+g+'"/><circle cx="6" cy="12.3" r="1" fill="'+g+'"/></svg>';
+    case 'fan': return '<svg width="26" height="18" viewBox="0 0 26 18"><path d="M13,10 L20,4 L24,3 L24,9 L20,9 Z" fill="#d7d5d0" fill-opacity="0.6"/><polyline points="2,12 6,10 9,11 13,8" fill="none" stroke="'+g+'" stroke-width="1.6"/><polyline points="13,8 17,6.5 21,5.5 24,5" fill="none" stroke="'+g+'" stroke-width="1.6" stroke-dasharray="3,2"/><line x1="0" y1="16" x2="26" y2="16" stroke="'+g+'" stroke-width="1"/></svg>';
     case 'slope': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="4" y1="1" x2="4" y2="17" stroke="#e2e1de"/><line x1="22" y1="1" x2="22" y2="17" stroke="#e2e1de"/><line x1="4" y1="13" x2="22" y2="4" stroke="#469b3c" stroke-width="1.5"/><line x1="4" y1="6" x2="22" y2="11" stroke="#c0392b" stroke-width="1.5"/><circle cx="4" cy="13" r="1.8" fill="#469b3c"/><circle cx="22" cy="4" r="1.8" fill="#469b3c"/><circle cx="4" cy="6" r="1.8" fill="#c0392b"/><circle cx="22" cy="11" r="1.8" fill="#c0392b"/></svg>';
     case 'varint': return '<svg width="26" height="18" viewBox="0 0 26 18"><circle cx="4" cy="1.6" r="1" fill="#469b3c"/><circle cx="11" cy="2" r="1" fill="#c0392b"/><circle cx="18" cy="1.4" r="1" fill="#469b3c"/><rect x="2" y="5.5" width="3" height="2" fill="#469b3c"/><rect x="9" y="5.5" width="3" height="2.4" fill="#c0392b"/><rect x="16" y="5.2" width="3" height="2" fill="#469b3c"/><rect x="2" y="11.5" width="2.6" height="4.5" fill="'+g+'"/><rect x="7" y="13" width="2.6" height="3" fill="'+g+'"/><rect x="12" y="12" width="2.6" height="4" fill="'+g+'"/><rect x="17" y="13.5" width="2.6" height="2.5" fill="'+l+'"/><rect x="21.5" y="12.5" width="2.6" height="3.5" fill="'+l+'"/><line x1="0" y1="16" x2="26" y2="16" stroke="'+g+'" stroke-width="1"/></svg>';
     default: return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="5" x2="26" y2="5" stroke="'+g+'" stroke-width="1"/><line x1="3" y1="5" x2="3" y2="2" stroke="#469b3c" stroke-width="1.4"/><circle cx="3" cy="2" r="1.4" fill="#469b3c"/><line x1="9" y1="5" x2="9" y2="8" stroke="#c0392b" stroke-width="1.4"/><circle cx="9" cy="8" r="1.4" fill="#c0392b"/><rect x="14" y="11" width="3" height="6" fill="'+g+'"/><rect x="20" y="13" width="3" height="4" fill="'+l+'"/><line x1="0" y1="17" x2="26" y2="17" stroke="'+g+'" stroke-width="1"/></svg>';
@@ -3994,6 +4040,8 @@ const PRESETS = {
     wrows:[['Umsatz',642,601,'sum'],['Materialkosten',-238,-221,'delta'],['Bruttoergebnis',0,0,'sum'],['Personal',-176,-168,'delta'],['Sonstige Kosten',-94,-89,'delta'],['Lizenzerträge',38,31,'delta'],['EBIT',0,0,'sum']] },
   slopeDemo:{ type:'slope', primary:'AC', reference:'PY', t2:'Umsatz je Region · PY → AC',
     rows:[['DACH',186,170],['North America',150,122],['EMEA',96,108],['APAC',64,52],['LATAM',38,47]] },
+  fanDemo:{ type:'fan', primary:'AC', reference:'—', t2:'Absatz in Tsd. · Ist + Forecast',
+    rows:[['Jan',97],['Feb',102],['Mär',99],['Apr',110],['Mai',108],['Jun',118],['Jul',121],['Aug',116],['Sep',124,,,1],['Okt',129,,,1],['Nov',133,,,1],['Dez',138,,,1]] },
   varintDemo:{ type:'varint', primary:'AC', reference:'PL', t2:'Net sales in KEUR · 2026',
     rows:[['1',317,300],['2',311,300],['3',305,300],['4',301,300],['5',299,300],['6',298,300],
           ['7',306,300,,1],['8',310,300,,1],['9',312,300,,1],['10',313,300,,1],['11',313,300,,1],['12',312,300,,1]] },
