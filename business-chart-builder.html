@@ -4474,7 +4474,7 @@ function vFieldDefs(){
   if(t==='waterfall'){
     defs.push(['v','Wert · '+state.primary], ['typ','Typ-Feld (sum/delta)']);
   } else if(t==='wfkombi'){
-    defs.push(['v','Wert · '+state.primary], ['r','Referenz · '+state.reference], ['typ','Typ-Feld (sum/delta)'], ['idx','Reihenfolge (1,2,3 …)']);
+    defs.push(['v','Wert · '+state.primary], ['r','Referenz · '+state.reference], ['typ','Typ-Feld (sum/delta)']);
   } else if(t==='scatter'){
     defs.push(['x','X-Feld'], ['y','Y-Feld'], ['g','Größen-Feld']);
   } else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'){
@@ -5529,7 +5529,7 @@ function vlWfKombi(deneb, ov){
   const C = vCol();
   /* parallele Kumulierung wie im SVG-Renderer */
   let runA=0, runR=0, started=false;
-  const values = state.wrows.map((r,i)=>{
+  const values = state.wrows.map(r=>{
     const rv2 = isNaN(r.r2)? NaN : r.r2;
     let o;
     if(r.t==='sum'){
@@ -5540,7 +5540,7 @@ function vlWfKombi(deneb, ov){
       started=true;
       o = {k:r.c, sum:false, s:from, e:runA, val:r.v||0, refv:rv2};
     }
-    o.idx = i; o.v = r.v||0; o.r = isNaN(rv2)?null:rv2; o.typ = r.t;
+    o.v = r.v||0; o.r = isNaN(rv2)?null:rv2; o.typ = r.t;
     o.d = isNaN(o.refv)? null : (o.sum? o.e-o.refv : o.val-o.refv);
     o.rv = (o.d===null || isNaN(o.refv) || o.refv<=0) ? null : o.d/o.refv*100;
     o.L = o.sum? fmt(o.val) : fmt(o.val,true);
@@ -5548,11 +5548,12 @@ function vlWfKombi(deneb, ov){
     o.Lrv = o.rv===null? 'n.a.' : fmtPct(o.rv);
     return o;
   });
-  /* In Power BI ist die Zeilenreihenfolge nicht garantiert (oft alphabetisch),
-     daher kumulieren wir explizit entlang des Reihenfolge-Felds 'idx'. */
+  /* Kumulierung folgt der Zeilenreihenfolge, wie Power BI sie liefert
+     (in PBI die Achse nach der gewünschten GuV-Reihenfolge sortieren). */
   const tf = deneb ? [
-    {window:[{op:'sum', field:'v', as:'cumA'}], sort:[{field:'idx'}], frame:[null,0], ignorePeers:true},
-    {window:[{op:'sum', field:'r', as:'cumR'}], sort:[{field:'idx'}], frame:[null,0], ignorePeers:true},
+    {window:[{op:'row_number', as:'vord'}]},
+    {window:[{op:'sum', field:'v', as:'cumA'}], sort:[{field:'vord'}], frame:[null,0], ignorePeers:true},
+    {window:[{op:'sum', field:'r', as:'cumR'}], sort:[{field:'vord'}], frame:[null,0], ignorePeers:true},
     {calculate:"datum.typ==='sum'", as:'sum'},
     {calculate:"datum.sum ? 0 : datum.cumA - datum.v", as:'s'},
     {calculate:'datum.cumA', as:'e'},
@@ -5560,8 +5561,7 @@ function vlWfKombi(deneb, ov){
     {calculate:'datum.sum ? datum.cumA - datum.cumR : datum.v - datum.r', as:'d'},
     {calculate:'datum.refv > 0 ? datum.d / datum.refv * 100 : null', as:'rv'},
   ] : undefined;
-  /* Achse in Power BI ebenfalls nach dem Reihenfolge-Feld ordnen (statt alphabetisch) */
-  const yCat = axis => ({field:'k', type:'nominal', sort: deneb ? {field:'idx', op:'min'} : null, axis});
+  const yCat = axis => ({field:'k', type:'nominal', sort:null, axis});
   /* Tier 1: vertikaler Wasserfall */
   const t1 = { width:230, height:{step:27}, data:vData(values,deneb), transform:tf,
     encoding:{y:yCat({labelPadding:8})},
@@ -5955,7 +5955,7 @@ function usermetaFields(t){
   const o = {};
   o[F('dim')] = 'Dimension (Kategorie/Zeit)';
   if(t==='waterfall'){ o[F('v')] = 'Wert ('+state.primary+')'; o[F('typ')] = "'sum' oder 'delta'"; }
-  else if(t==='wfkombi'){ o[F('v')]='Wert ('+state.primary+')'; o[F('r')]='Referenzwert ('+state.reference+')'; o[F('typ')]="'sum' oder 'delta' (spätere Σ-Zeilen: Werte 0)"; o[F('idx')]='Reihenfolge (1,2,3 … – wichtig für die Kumulierung)'; }
+  else if(t==='wfkombi'){ o[F('v')]='Wert ('+state.primary+')'; o[F('r')]='Referenzwert ('+state.reference+')'; o[F('typ')]="'sum' oder 'delta' (spätere Σ-Zeilen: Werte 0)"; }
   else if(t==='scatter'){ o[F('x')]='X-Wert'; o[F('y')]='Y-Wert'; o[F('g')]='Größe (optional)'; }
   else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'){
     o[F('serie')]='Serienname'; o[F('v')]='Wert';
