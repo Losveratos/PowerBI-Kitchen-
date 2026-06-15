@@ -5503,6 +5503,147 @@ function vlBridgeDyn(){
   ]};
   return { vconcat:[relTier, barTier], spacing:14 };
 }
+/* Integrierte Varianzanalyse als dynamisches 4-Tier-Template (Deneb/Vega-Lite).
+   Alle vier Tiers lesen dieselbe Datenquelle (k,p,r,fc) und berechnen
+   YTD-Kumulierung, Δ%, die Δ-Brücke und die kombinierte AC/FC-Total-Säule
+   dynamisch über window/joinaggregate – keine eingebetteten Σ-Werte. Technik
+   wie vlBridgeDyn: row_number (vord) als stabile Reihenfolge, joinaggregate +
+   filter:'datum.vord===1' für die synthetischen Σ-/Total-Slots, gemeinsame
+   nach 'ord' sortierte X-Achse. (Mehrere aggregate-Layer auf derselben
+   Deneb-Quelle kollidieren → daher window+joinaggregate.) FC-Feld bleibt
+   numerisch (1/0); die Ausdrücke nutzen datum.fc truthy.                     */
+function vlVarintDyn(deneb){
+  const C = vCol();
+  const fmtN = vNum();
+  const ref = state.reference;
+  const hasRef = ref!=='—';
+  const D = vData(vRows(), deneb);
+  const sp = vScen(state.primary), sr = vScen(ref);
+  const totLab = state.primary + '&FC';
+  /* X-Achse mit synthetischen Σ-/Total-Slots: nach 'ord' sortiert (Slot 999999
+     ganz rechts), Reihenfolge der Perioden = row_number 'vord'.               */
+  const xOrd = axis => ({field:'xlab', type:'nominal', sort:{field:'ord', op:'min'}, axis});
+  const ordTf = [{window:[{op:'row_number', as:'vord'}]}];
+
+  /* ---- Tiers 1 & 2: relative Abweichung (Pin + Kopf, je Vorzeichen) ------ */
+  const relTier = (tf, f, lf, h)=>{
+    const layer = vRefAxisLayer(ref, true);
+    layer.push({mark:{type:'rule', strokeWidth:2},
+      encoding:{y:vYq(f), y2:{datum:0},
+        color:{condition:{test:'datum.'+f+' >= 0', value:C.pos}, value:C.neg}}});
+    layer.push({mark:{type:'point', filled:true, size:55},
+      encoding:{y:vYq(f),
+        fill:{condition:[{test:'datum.fc', value:'#ffffff'}, {test:'datum.'+f+' >= 0', value:C.pos}], value:C.neg},
+        stroke:{condition:[{test:'datum.fc && datum.'+f+' >= 0', value:C.pos}, {test:'datum.fc', value:C.neg}], value:'transparent'},
+        strokeWidth:{condition:{test:'datum.fc', value:1.4}, value:0}}});
+    layer.push({transform:[{filter:'datum.'+f+' >= 0'}],
+      mark:{type:'text', dy:-12, fontSize:11, font:'Arial', color:DARK},
+      encoding:{y:vYq(f), text:{field:lf, type:'nominal'}}});
+    layer.push({transform:[{filter:'datum.'+f+' < 0'}],
+      mark:{type:'text', dy:17, fontSize:11, font:'Arial', color:DARK},
+      encoding:{y:vYq(f), text:{field:lf, type:'nominal'}}});
+    return { width:580, height:h, data:D, transform:tf, encoding:{x:vX({axis:null})}, layer };
+  };
+  /* Tier 1 – ΔRef%_YTD: kumulierte Summen von p und r (window, frame [null,0]) */
+  const ytdTf = ordTf.concat([
+    {window:[{op:'sum', field:'p', as:'cumP'}, {op:'sum', field:'r', as:'cumR'}],
+     sort:[{field:'vord'}], frame:[null,0], ignorePeers:true},
+    {calculate:'datum.cumR != 0 ? (datum.cumP - datum.cumR)/datum.cumR*100 : null', as:'rvy'},
+    {calculate:"datum.cumR != 0 ? format((datum.cumP - datum.cumR)/datum.cumR, '+.1%') : 'n.a.'", as:'Lrvy'},
+  ]);
+  /* Tier 2 – ΔRef% je Periode */
+  const relTf = [
+    {calculate:'datum.r != 0 ? (datum.p - datum.r)/datum.r*100 : null', as:'rv'},
+    {calculate:"datum.r != 0 ? format((datum.p - datum.r)/datum.r, '+.1%') : 'n.a.'", as:'Lrv'},
+  ];
+  const tier1 = relTier(ytdTf, 'rvy', 'Lrvy', 78);
+  const tier2 = relTier(relTf, 'rv', 'Lrv', 78);
+
+  /* ---- Tier 3: Δ-Brücke (Beiträge p−r laufen auf, Σ = Gesamtabweichung) --- */
+  const base3 = ordTf.concat([
+    {calculate:'(isValid(datum.p)?datum.p:0) - (isValid(datum.r)?datum.r:0)', as:'d'},
+  ]);
+  const deltaTf = base3.concat([
+    {window:[{op:'sum', field:'d', as:'cum'}], sort:[{field:'vord'}], frame:[null,0], ignorePeers:true},
+    {calculate:'datum.cum - datum.d', as:'s'},
+    {calculate:'datum.cum', as:'e'},
+    {calculate:'datum.k', as:'xlab'},
+    {calculate:'datum.vord', as:'ord'},
+    {calculate:"format(datum.d, '+"+fmtN+"')", as:'L'},
+  ]);
+  const sumTf = base3.concat([
+    {joinaggregate:[{op:'sum', field:'d', as:'sumD'}]},
+    {filter:'datum.vord === 1'},
+    {calculate:'0', as:'s'},
+    {calculate:'datum.sumD', as:'e'},
+    {calculate:'"\\u03a3"', as:'xlab'},
+    {calculate:'999999', as:'ord'},
+    {calculate:"format(datum.sumD, '+"+fmtN+"')", as:'L'},
+  ]);
+  /* Wachstumsrichtungs-Label (zwei Layer je Balkenrichtung e≷s) */
+  const segLabels = (tf, bold)=> [
+    {data:D, transform:tf.concat([{filter:'datum.e >= datum.s'}]),
+     mark:Object.assign({type:'text', dy:-8, fontSize:bold?11:10.5, font:'Arial', color:DARK}, bold?{fontWeight:'bold'}:{}),
+     encoding:{x:xOrd(null), y:vYq('e'), text:{field:'L', type:'nominal'}}},
+    {data:D, transform:tf.concat([{filter:'datum.e < datum.s'}]),
+     mark:Object.assign({type:'text', dy:13, fontSize:bold?11:10.5, font:'Arial', color:DARK}, bold?{fontWeight:'bold'}:{}),
+     encoding:{x:xOrd(null), y:vYq('e'), text:{field:'L', type:'nominal'}}},
+  ];
+  const tier3 = { width:580, height:140, layer:[
+    {data:D, transform:deltaTf, mark:{type:'bar', size:22},
+     encoding:{x:xOrd(null), y:vYq('s'), y2:{field:'e'},
+       fill:{condition:{test:'datum.d >= 0', value:C.pos}, value:C.neg}}},
+    {data:D, transform:sumTf, mark:{type:'bar', size:22, fill:DARK},
+     encoding:{x:xOrd(null), y:vYq('s'), y2:{field:'e'}}},
+  ].concat(segLabels(deltaTf, false)).concat(segLabels(sumTf, true)) };
+
+  /* ---- Tier 4: Säulen AC(+FC) vs Referenz + kombinierte AC/FC-Total-Säule -- */
+  const perTf = ordTf.concat([
+    {calculate:'datum.k', as:'xlab'},
+    {calculate:'datum.vord', as:'ord'},
+  ]);
+  /* AC- und FC-Anteil je Zeile vorbereiten, dann per joinaggregate aufsummieren
+     (eine gefilterte Zeile trägt die Total-Säule – kein aggregate-Layer).      */
+  const totBase = ordTf.concat([
+    {calculate:'datum.fc ? 0 : (isValid(datum.p)?datum.p:0)', as:'pac'},
+    {calculate:'datum.fc ? (isValid(datum.p)?datum.p:0) : 0', as:'pfc'},
+    {joinaggregate:[{op:'sum', field:'pac', as:'acSum'}, {op:'sum', field:'pfc', as:'fcSum'}]},
+    {filter:'datum.vord === 1'},
+    {calculate:'"'+totLab+'"', as:'xlab'},
+    {calculate:'999999', as:'ord'},
+  ]);
+  const t4 = [];
+  if(hasRef){
+    const refMark = {type:'bar', size:26, fill:sr.fill};
+    if(sr.stroke){ refMark.stroke = sr.stroke; refMark.strokeWidth = 1.3; }
+    t4.push({data:D, transform:perTf, mark:refMark, encoding:{x:xOrd(null), y:vYq('r')}});
+  }
+  const pb = vPrimBarMark(16);
+  pb.data = D; pb.transform = perTf;
+  pb.encoding.x = xOrd({labelAngle:0, labelPadding:6}); pb.encoding.y = vYq('p');
+  t4.push(pb);
+  t4.push({data:D, transform:perTf.concat([{filter:'datum.p >= 0'}]),
+    mark:{type:'text', dy:-9, fontSize:11, font:'Arial'},
+    encoding:{x:xOrd(null), y:vYq('p'), text:{field:'p', type:'quantitative', format:vNum()},
+      color:{condition:{test:'datum.fc', value:FCINK}, value:DARK}}});
+  t4.push({data:D, transform:perTf.concat([{filter:'datum.p < 0'}]),
+    mark:{type:'text', dy:14, fontSize:11, font:'Arial'},
+    encoding:{x:xOrd(null), y:vYq('p'), text:{field:'p', type:'quantitative', format:vNum()},
+      color:{condition:{test:'datum.fc', value:FCINK}, value:DARK}}});
+  const acMark = {type:'bar', size:34, fill:sp.fill};
+  if(sp.stroke){ acMark.stroke = sp.stroke; acMark.strokeWidth = 1.3; }
+  t4.push({data:D, transform:totBase.concat([{calculate:'0', as:'s'}, {calculate:'datum.acSum', as:'e'}]),
+    mark:acMark, encoding:{x:xOrd(null), y:vYq('s'), y2:{field:'e'}}});
+  t4.push({data:D, transform:totBase.concat([{calculate:'datum.acSum', as:'s'}, {calculate:'datum.acSum + datum.fcSum', as:'e'}]),
+    mark:{type:'bar', size:34, fill:'#ffffff', stroke:DARK, strokeWidth:1.2, strokeDash:[3,2]},
+    encoding:{x:xOrd(null), y:vYq('s'), y2:{field:'e'}}});
+  t4.push({data:D, transform:totBase.concat([{calculate:'datum.acSum + datum.fcSum', as:'e'}]),
+    mark:{type:'text', dy:-8, fontSize:11, font:'Arial', color:DARK, fontWeight:'bold'},
+    encoding:{x:xOrd(null), y:vYq('e'), text:{field:'e', type:'quantitative', format:vNum()}}});
+  const tier4 = { width:580, height:160, layer:t4 };
+
+  return { vconcat:[tier1, tier2, tier3, tier4], spacing:14 };
+}
 function vlLine(deneb){
   const rows = activeRows();
   const tfLine = [];
@@ -6184,6 +6325,7 @@ function vegaSpecCore(deneb){
   else if(t==='kpi') body = vlKpi(deneb);
   else if(t==='zchart') body = tiersOn ? wrapTiers(vlZChart(deneb)) : vlZChart(deneb);
   else if(t==='wfkombi') body = vlWfKombi(deneb);
+  else if(t==='varint') body = vlVarintDyn(deneb);
   else if(t==='table') body = vlTable(deneb);
   else return null;
   if(t==='kombi' && state.kombiBase==='wf' && deneb) note = 'Wasserfall-Basis: Daten eingebettet (Σ-Zeile wird im Builder erzeugt).';
