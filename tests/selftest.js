@@ -228,6 +228,15 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       setT('t1','Chocolate Corp.'); setT('t2','Net sales in kEUR'); setT('t3','');
       const good = ibcsFindings().filter(f=>f.level!=='ok');
       ok('E · saubere Konfiguration ohne Warnungen', good.length===0, 'übrig: '+good.map(f=>f.title).join(' | '));
+
+      /* Live-Badge spiegelt den Status (sauber -> „konform", sonst „Hinweis") */
+      if(typeof updateIbcsBadge==='function'){
+        renderPreview(); const bClean=(document.getElementById('ibcsBadge')||{}).textContent||'';
+        state.reference='—'; state.type='columns'; state.msg=''; renderPreview();
+        const bWarn=(document.getElementById('ibcsBadge')||{}).textContent||'';
+        ok('E · Badge zeigt „konform" bei sauberer Konfiguration', /konform/.test(bClean), 'badge='+bClean);
+        ok('E · Badge zeigt Hinweise bei Verstößen', /Hinweis/.test(bWarn), 'badge='+bWarn);
+      }
     }
 
   }catch(err){

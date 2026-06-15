@@ -487,6 +487,7 @@ footer a:hover{color:var(--ink)}
         <div class="t3" id="pt3"></div>
       </div>
       <div id="chartHost"></div>
+      <button type="button" id="ibcsBadge" title="IBCS-Compliance der aktuellen Grafik – für Details klicken" style="display:none;margin-top:10px;align-items:center;gap:6px;font:inherit;font-size:11.5px;font-weight:600;padding:4px 11px;border:1px solid;border-radius:999px;cursor:pointer;background:transparent"></button>
       <div id="commentList" style="margin-top:14px"></div>
       <div id="psource" style="display:none"></div>
     </div>
@@ -3929,6 +3930,7 @@ function renderPreview(){
   /* KPI-Stil wird jetzt über die Typ-Kacheln (KPI · IBCS/Status/Trend) gewählt;
      der frühere Inline-Schalter ist ausgeblendet. */
   $('#kpiStyleWrap').style.display = 'none';
+  updateIbcsBadge();
   applyUILang();
   pushHistory();
 }
@@ -6925,6 +6927,22 @@ function ibcsCheckRender(){
 }
 $('#btnIbcs').addEventListener('click', ()=>{ ibcsCheckRender(); if(ibcsDlg.showModal) ibcsDlg.showModal(); else ibcsDlg.setAttribute('open',''); });
 $('#ibcsClose').addEventListener('click', ()=> ibcsDlg.close());
+/* Live-Badge unter der Vorschau: spiegelt die IBCS-Hinweiszahl der aktuellen
+   Grafik (nur Einzelansicht), Klick öffnet den vollen Check-Dialog.          */
+function updateIbcsBadge(){
+  const el = $('#ibcsBadge'); if(!el) return;
+  if(state.view==='dash'){ el.style.display='none'; return; }
+  const issues = ibcsFindings().filter(f=>f.level!=='ok').length;
+  el.style.display = 'inline-flex';
+  if(issues===0){
+    el.textContent = '✓ IBCS-konform';
+    el.style.color = '#2e7d4f'; el.style.borderColor = '#bfe0cb'; el.style.background = '#f1f8f3';
+  } else {
+    el.textContent = '⚠ '+issues+' IBCS-Hinweis'+(issues>1?'e':'');
+    el.style.color = '#9a6a00'; el.style.borderColor = '#e8d6a8'; el.style.background = '#fbf6e9';
+  }
+}
+$('#ibcsBadge').addEventListener('click', ()=>{ ibcsCheckRender(); if(ibcsDlg.showModal) ibcsDlg.showModal(); else ibcsDlg.setAttribute('open',''); });
 
 /* Bericht sammeln & exportieren */
 $('#btnAddDash').addEventListener('click', ()=>{
