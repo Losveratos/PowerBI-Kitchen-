@@ -35,10 +35,10 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
   const KPI = {kpi:'ibcs', kpiStatus:'status', kpiTrend:'trend'};
   const TYPES = ['columns','colline','kombi','absvar','relvar','line','slope','fan','zchart',
     'stackcol','waterfall','bridge','varint','bars','bullet','pareto','dotplot','tornado',
-    'barskombi','table','wfkombi','stackbar','multiples','sparktable','heatmap','marimekko',
+    'barskombi','table','wfkombi','stackbar','multiples','sparktable','heatmap','marimekko','boxplot',
     'kpi','kpiStatus','kpiTrend','scatter'];
   /* Typen ohne Vega-/Deneb-Template (bewusst nur SVG/PNG) */
-  const SVG_ONLY = ['slope','fan','heatmap','marimekko'];
+  const SVG_ONLY = ['slope','fan','heatmap','marimekko','boxplot'];
 
   const setType = (id)=>{
     if(id in KPI){ state.type='kpi'; state.kpiStyle = KPI[id]; }
@@ -57,14 +57,14 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     rows:clone(state.rows), srows:clone(state.srows), series:clone(state.series),
     wrows:clone(state.wrows),
     unit:state.unit, unitScale:state.unitScale, decimals:state.decimals, msg:state.msg,
-    t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
+    stack100:state.stack100, t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
   };
   const restore = ()=>{
     Object.assign(state, {type:snap.type, kpiStyle:snap.kpiStyle, primary:snap.primary,
       reference:snap.reference, reference2:snap.reference2,
       rows:clone(snap.rows), srows:clone(snap.srows), series:clone(snap.series),
       wrows:clone(snap.wrows), unit:snap.unit, unitScale:snap.unitScale,
-      decimals:snap.decimals, msg:snap.msg});
+      decimals:snap.decimals, msg:snap.msg, stack100:snap.stack100});
     const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v==null?'':v; };
     set('t1',snap.t1); set('t2',snap.t2); set('t3',snap.t3);
     try{ renderAll(); }catch(e){}
@@ -238,6 +238,50 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
         ok('E · Badge zeigt Hinweise bei Verstößen', /Hinweis/.test(bWarn), 'badge='+bWarn);
       }
     }
+
+    /* === F) 100%-Stacked · Zeitnotation · Boxplot ==================== */
+    /* F1 · 100%-gestapelt: SVG-Anteile + Template normalisiert, Σ je Kategorie ~100% */
+    loadPreset('stackDemo'); state.stack100=true; renderAll();
+    const fSvg = (document.getElementById('chartHost')||{}).innerHTML||'';
+    ok('F · 100%-Stacked · SVG zeigt Anteile (%)', /%/.test(fSvg) && !/NaN/.test(fSvg));
+    {
+      const tpl = denebTemplate(); const body = clone(tpl); delete body.usermeta;
+      let comp=false; try{ comp = !!VL.compile(body).spec; }catch(e){}
+      ok('F · 100%-Stacked · Template kompiliert, baked=0', comp && tplBakedRows(tpl)===0);
+      const rws = state.srows.filter(r=>r.c!=='');
+      const data=[]; rws.forEach(r=> state.series.forEach((nm,j)=>{ if(!isNaN(r.v[j])) data.push({'__0__':r.c,'__1__':nm,'__2__':r.v[j]}); }));
+      body.datasets={dataset:data};
+      const host=document.createElement('div'); document.body.appendChild(host);
+      try{
+        const res=await embed(host, body, {actions:false, renderer:'svg'});
+        const view=res.view; let shareTbl=null;
+        Object.keys(view._runtime.data).forEach(n=>{ try{ const d=view.data(n); if(d&&d.length&&d.some(x=>'Lsh' in x)) shareTbl=d; }catch(e){} });
+        const sums={}; (shareTbl||[]).forEach(x=>{ const v=parseFloat(String(x.Lsh).replace('%','').replace(',','.')); sums[x['__0__']]=(sums[x['__0__']]||0)+(isNaN(v)?0:v); });
+        const cats=Object.keys(sums);
+        ok('F · 100%-Stacked · Anteile summieren je Kategorie auf ~100%',
+           cats.length>0 && cats.every(c=>Math.abs(sums[c]-100)<=2), 'sums='+JSON.stringify(sums));
+      }catch(e){ ok('F · 100%-Stacked · Template rendert mit Daten', false, String(e)); }
+      host.remove();
+    }
+    state.stack100=false;
+
+    /* F2 · Zeitnotation-Helfer: Token-Liste + Einfügen in Titel (Default Zeile 3) */
+    if(typeof periodTokens==='function'){
+      const toks = periodTokens();
+      ok('F · Zeitnotation · 4 Token inkl. ISO-Datum', toks.length===4 && toks.some(t=>/^\d{4}-\d{2}-\d{2}$/.test(t.tok)));
+      const setT=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v; };
+      setT('t3','2026 AC und PL'); lastTitleEl = document.getElementById('t3'); state.t3auto=true;
+      insertPeriodToken('_Jun');
+      ok('F · Zeitnotation · Token an Zeile 3 angehängt', (document.getElementById('t3').value||'').indexOf('_Jun')>=0);
+      ok('F · Zeitnotation · t3auto deaktiviert', state.t3auto===false);
+    }
+
+    /* F3 · Boxplot: Verteilung je Kategorie, Whisker/Box/Median, Ausreißer */
+    loadPreset('boxplotDemo'); renderAll();
+    const bx=(document.getElementById('chartHost')||{}).innerHTML||'';
+    ok('F · Boxplot · 4 Boxen gerendert', (bx.match(/data-i=/g)||[]).length===4);
+    ok('F · Boxplot · Ausreißer als Ringe (≥2)', (bx.match(/<circle/g)||[]).length>=2);
+    ok('F · Boxplot · kein NaN', !/NaN/.test(bx));
 
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));

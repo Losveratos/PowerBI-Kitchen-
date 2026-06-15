@@ -513,6 +513,7 @@ footer a:hover{color:var(--ink)}
           <option value="fanDemo">Fan · Ist + Forecast-Korridor</option>
           <option value="heatmapDemo">Heatmap · Δ vs Plan (Region × Monat)</option>
           <option value="marimekkoDemo">Marimekko · Anteil × Größe</option>
+          <option value="boxplotDemo">Boxplot · Verteilung je Service</option>
           <option value="bridgeM">Brücke PL → AC je Monat</option>
           <option value="bridgeC">Brücke PY → AC je Land · vertikal</option>
           <option value="outlier">Varianzanalyse mit Δ%-Ausreißer</option>
@@ -717,6 +718,7 @@ const TYPE_GROUPS = [
     { id:'sparktable', name:'Sparklines' },
     { id:'heatmap',   name:'Heatmap-Matrix' },
     { id:'marimekko', name:'Marimekko · Anteil×Größe' },
+    { id:'boxplot',   name:'Boxplot · Verteilung' },
     { id:'kpi',       name:'KPI · IBCS' },
     { id:'kpiStatus', name:'KPI · Status' },
     { id:'kpiTrend',  name:'KPI · Trend' },
@@ -1134,7 +1136,7 @@ function isStacked(){ return ['stackcol','stackbar','multiples'].includes(state.
 /* Serien-Tabelle (Perioden × Serien): Stacked/Multiples/Sparktable plus die
    Matrix-Typen Heatmap & Marimekko – sie rendern aus state.srows, also müssen
    Daten-Editor, Demo-Würfel und CSV-Import dieselbe Quelle bedienen. */
-function usesSrows(){ return isStacked() || ['sparktable','heatmap','marimekko'].includes(state.type); }
+function usesSrows(){ return isStacked() || ['sparktable','heatmap','marimekko','boxplot'].includes(state.type); }
 function isStruct(){ return ['bars','barskombi','table','dotplot','tornado','bullet','pareto'].includes(state.type); }
 
 function activeRows(){
@@ -2869,6 +2871,60 @@ function renderMarimekko(){
   return { svg:s, W, H };
 }
 
+/* --- Boxplot / Verteilung (EX 1.1): je Kategorie eine Verteilung aus den
+       Serienwerten der Zeile (Min · Q1 · Median · Q3 · Max). Whisker bis
+       1,5·IQR, Ausreißer als Ringe. IBCS-schlicht: dunkle Kontur, kein
+       Farbcode. Keine Nulllinien-Pflicht (CH 1.1 gilt für Säulen/Balken),
+       daher datenbasierte Skala. SVG/PNG-only (kein Deneb-Template).        --- */
+function quantileSorted(s, p){
+  if(!s.length) return NaN;
+  const idx=(s.length-1)*p, lo=Math.floor(idx), hi=Math.ceil(idx);
+  return lo===hi ? s[lo] : s[lo]+(s[hi]-s[lo])*(idx-lo);
+}
+function renderBoxplot(){
+  const rows = state.srows.filter(r=>r.c!=='');
+  const W=640, padT=20, padB=24, padL=14, padR=16, plotH=250;
+  const H = padT+plotH+padB;
+  const stats = rows.map(r=>{
+    const s = r.v.filter(v=>!isNaN(v)).slice().sort((a,b)=>a-b);
+    if(!s.length) return {c:r.c, empty:true};
+    const q1=quantileSorted(s,0.25), med=quantileSorted(s,0.5), q3=quantileSorted(s,0.75);
+    const iqr=q3-q1, loF=q1-1.5*iqr, hiF=q3+1.5*iqr;
+    const inl=s.filter(v=>v>=loF&&v<=hiF);
+    return {c:r.c, n:s.length, q1, med, q3,
+      wLo: inl.length?Math.min(...inl):s[0], wHi: inl.length?Math.max(...inl):s[s.length-1],
+      out: s.filter(v=>v<loF||v>hiF)};
+  });
+  const all = stats.filter(x=>!x.empty).flatMap(x=>[x.wLo,x.wHi].concat(x.out));
+  if(!all.length) return { svg:txt(W/2,H/2,'Boxplot braucht die Serien-Tabelle (≥1 Wert je Kategorie)',{anchor:'middle',size:12,fill:SUB}), W, H };
+  const lo=Math.min(...all), hi=Math.max(...all), pad=(hi-lo)*0.12||1;
+  const yMin=lo-pad, yMax=hi+pad;
+  const Y = v => padT + (yMax-v)/(yMax-yMin)*plotH;
+  const slot=(W-padL-padR)/rows.length, bw=Math.min(46, slot*0.5);
+  let s='';
+  s += '<line x1="'+padL+'" y1="'+padT+'" x2="'+padL+'" y2="'+(padT+plotH)+'" stroke="'+HAIR+'" stroke-width="1"/>';
+  stats.forEach((st,i)=>{
+    const cx = padL + slot*i + slot/2;
+    if(st.empty){ s += txt(cx, padT+plotH+15, st.c, {anchor:'middle', size:11, fill:CAT}); return; }
+    const x0=cx-bw/2, x1=cx+bw/2, cap=bw*0.28;
+    /* Whisker + Kappen */
+    s += '<line x1="'+cx+'" y1="'+Y(st.wHi)+'" x2="'+cx+'" y2="'+Y(st.q3)+'" stroke="'+DARK+'" stroke-width="1.2"/>';
+    s += '<line x1="'+cx+'" y1="'+Y(st.wLo)+'" x2="'+cx+'" y2="'+Y(st.q1)+'" stroke="'+DARK+'" stroke-width="1.2"/>';
+    s += '<line x1="'+(cx-cap)+'" y1="'+Y(st.wHi)+'" x2="'+(cx+cap)+'" y2="'+Y(st.wHi)+'" stroke="'+DARK+'" stroke-width="1.2"/>';
+    s += '<line x1="'+(cx-cap)+'" y1="'+Y(st.wLo)+'" x2="'+(cx+cap)+'" y2="'+Y(st.wLo)+'" stroke="'+DARK+'" stroke-width="1.2"/>';
+    /* Box Q1..Q3 + Median */
+    const yb=Y(st.q3), hb=Math.max(1, Y(st.q1)-Y(st.q3));
+    s += '<rect data-i="'+i+'" x="'+x0+'" y="'+yb+'" width="'+bw+'" height="'+hb+'" fill="#eceae6" stroke="'+DARK+'" stroke-width="1.2"/>';
+    s += '<line x1="'+x0+'" y1="'+Y(st.med)+'" x2="'+x1+'" y2="'+Y(st.med)+'" stroke="'+DARK+'" stroke-width="2"/>';
+    st.out.forEach(v=> s += '<circle cx="'+cx+'" cy="'+Y(v)+'" r="2" fill="none" stroke="'+DARK+'" stroke-width="1"/>');
+    s += txt(x1+5, Y(st.med)+3.5, fmt(st.med), {anchor:'start', size:10, fill:DARK});
+    s += txt(cx, padT+plotH+15, st.c, {anchor:'middle', size:11, fill:CAT});
+    if(state.highlights.has(i)) s += hiliteEllipse(cx, Y(st.med), bw/2+6, hb/2+8);
+    s += cmark(i, x1+5, yb-4);
+  });
+  return { svg:s, W, H };
+}
+
 /* =========================================================================
    RENDERER · STRUKTUR
    ========================================================================= */
@@ -3481,6 +3537,7 @@ function buildChart(){
   else if(state.type==='fan')       r = renderFan(rows);
   else if(state.type==='heatmap')   r = renderHeatmap();
   else if(state.type==='marimekko') r = renderMarimekko();
+  else if(state.type==='boxplot')   r = renderBoxplot();
   else if(state.type==='kpi')       r = renderKpi();
   else if(state.type==='bars'){
     if(tiersOn){
@@ -3604,6 +3661,7 @@ function typeIcon(id){
     case 'marimekko': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="1" y="1" width="10" height="9" fill="'+g+'"/><rect x="1" y="10" width="10" height="6" fill="'+l+'"/><rect x="12" y="1" width="6" height="11" fill="'+g+'"/><rect x="12" y="12" width="6" height="4" fill="'+l+'"/><rect x="19" y="1" width="6" height="6" fill="'+g+'"/><rect x="19" y="7" width="6" height="9" fill="'+l+'"/></svg>';
     case 'heatmap': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="1" y="2" width="7" height="6" fill="#c0392b" fill-opacity="0.75"/><rect x="9" y="2" width="7" height="6" fill="#469b3c" fill-opacity="0.35"/><rect x="17" y="2" width="7" height="6" fill="#469b3c" fill-opacity="0.8"/><rect x="1" y="9" width="7" height="6" fill="#469b3c" fill-opacity="0.5"/><rect x="9" y="9" width="7" height="6" fill="#c0392b" fill-opacity="0.55"/><rect x="17" y="9" width="7" height="6" fill="#469b3c" fill-opacity="0.25"/></svg>';
     case 'fan': return '<svg width="26" height="18" viewBox="0 0 26 18"><path d="M13,10 L20,4 L24,3 L24,9 L20,9 Z" fill="#d7d5d0" fill-opacity="0.6"/><polyline points="2,12 6,10 9,11 13,8" fill="none" stroke="'+g+'" stroke-width="1.6"/><polyline points="13,8 17,6.5 21,5.5 24,5" fill="none" stroke="'+g+'" stroke-width="1.6" stroke-dasharray="3,2"/><line x1="0" y1="16" x2="26" y2="16" stroke="'+g+'" stroke-width="1"/></svg>';
+    case 'boxplot': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="5" y1="2" x2="5" y2="16" stroke="'+g+'" stroke-width="1.1"/><rect x="2" y="6" width="6" height="6" fill="#eceae6" stroke="'+g+'" stroke-width="1.1"/><line x1="2" y1="9" x2="8" y2="9" stroke="'+g+'" stroke-width="1.6"/><line x1="13" y1="1" x2="13" y2="15" stroke="'+g+'" stroke-width="1.1"/><rect x="10" y="4" width="6" height="7" fill="#eceae6" stroke="'+g+'" stroke-width="1.1"/><line x1="10" y1="7" x2="16" y2="7" stroke="'+g+'" stroke-width="1.6"/><line x1="21" y1="3" x2="21" y2="17" stroke="'+g+'" stroke-width="1.1"/><rect x="18" y="8" width="6" height="6" fill="#eceae6" stroke="'+g+'" stroke-width="1.1"/><line x1="18" y1="11" x2="24" y2="11" stroke="'+g+'" stroke-width="1.6"/></svg>';
     case 'slope': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="4" y1="1" x2="4" y2="17" stroke="#e2e1de"/><line x1="22" y1="1" x2="22" y2="17" stroke="#e2e1de"/><line x1="4" y1="13" x2="22" y2="4" stroke="#469b3c" stroke-width="1.5"/><line x1="4" y1="6" x2="22" y2="11" stroke="#c0392b" stroke-width="1.5"/><circle cx="4" cy="13" r="1.8" fill="#469b3c"/><circle cx="22" cy="4" r="1.8" fill="#469b3c"/><circle cx="4" cy="6" r="1.8" fill="#c0392b"/><circle cx="22" cy="11" r="1.8" fill="#c0392b"/></svg>';
     case 'varint': return '<svg width="26" height="18" viewBox="0 0 26 18"><circle cx="4" cy="1.6" r="1" fill="#469b3c"/><circle cx="11" cy="2" r="1" fill="#c0392b"/><circle cx="18" cy="1.4" r="1" fill="#469b3c"/><rect x="2" y="5.5" width="3" height="2" fill="#469b3c"/><rect x="9" y="5.5" width="3" height="2.4" fill="#c0392b"/><rect x="16" y="5.2" width="3" height="2" fill="#469b3c"/><rect x="2" y="11.5" width="2.6" height="4.5" fill="'+g+'"/><rect x="7" y="13" width="2.6" height="3" fill="'+g+'"/><rect x="12" y="12" width="2.6" height="4" fill="'+g+'"/><rect x="17" y="13.5" width="2.6" height="2.5" fill="'+l+'"/><rect x="21.5" y="12.5" width="2.6" height="3.5" fill="'+l+'"/><line x1="0" y1="16" x2="26" y2="16" stroke="'+g+'" stroke-width="1"/></svg>';
     default: return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="5" x2="26" y2="5" stroke="'+g+'" stroke-width="1"/><line x1="3" y1="5" x2="3" y2="2" stroke="#469b3c" stroke-width="1.4"/><circle cx="3" cy="2" r="1.4" fill="#469b3c"/><line x1="9" y1="5" x2="9" y2="8" stroke="#c0392b" stroke-width="1.4"/><circle cx="9" cy="8" r="1.4" fill="#c0392b"/><rect x="14" y="11" width="3" height="6" fill="'+g+'"/><rect x="20" y="13" width="3" height="4" fill="'+l+'"/><line x1="0" y1="17" x2="26" y2="17" stroke="'+g+'" stroke-width="1"/></svg>';
@@ -4163,6 +4221,10 @@ const PRESETS = {
   heatmapDemo:{ type:'heatmap', t2:'Abweichung vs Plan (Δ) · Region × Monat',
     series:['DACH','North America','EMEA','APAC'],
     srows:[['Jan',5,-3,2,-1],['Feb',8,-1,-4,3],['Mär',-2,4,1,-5],['Apr',6,2,-3,4],['Mai',-4,-2,5,1],['Jun',9,3,-1,-2]] },
+  boxplotDemo:{ type:'boxplot', t2:'Antwortzeit in ms · Verteilung je Service',
+    series:['m1','m2','m3','m4','m5','m6','m7','m8'],
+    srows:[['Auth',120,135,128,142,150,131,260,138],['Search',88,95,102,99,110,93,97,105],
+           ['Checkout',210,225,240,232,255,228,238,300],['Profile',70,82,76,88,79,84,91,77]] },
   fanDemo:{ type:'fan', primary:'AC', reference:'—', t2:'Absatz in Tsd. · Ist + Forecast',
     rows:[['Jan',97],['Feb',102],['Mär',99],['Apr',110],['Mai',108],['Jun',118],['Jul',121],['Aug',116],['Sep',124,,,1],['Okt',129,,,1],['Nov',133,,,1],['Dez',138,,,1]] },
   varintDemo:{ type:'varint', primary:'AC', reference:'PL', t2:'Net sales in KEUR · 2026',
@@ -4777,7 +4839,7 @@ function vFieldDefs(){
     defs.push(['p','Kennzahl · '+state.primary]); /* einwertig: kumulierte %-Linie wird berechnet, keine Referenz */
   } else if(t==='scatter'){
     defs.push(['x','X-Feld'], ['y','Y-Feld'], ['g','Größen-Feld']);
-  } else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'||t==='heatmap'||t==='marimekko'){
+  } else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'||t==='heatmap'||t==='marimekko'||t==='boxplot'){
     defs.push(['serie','Serien-Feld'], ['v','Wert-Feld']);
     if(t==='multiples'){
       if(state.multiMode==='wf') defs.push(['idx','Index-Feld']); /* nur der Mini-Wasserfall sortiert über den Index */
@@ -4803,7 +4865,7 @@ function dataNeedHint(){
   const fields = vFieldDefs().map(([k,l])=>l).join(' · ');
   let src = 'Datentabelle';
   if(usesWrows()) src = 'Wasserfall-Tabelle (Σ/Δ-Zeilen)';
-  else if(['stackcol','stackbar','multiples','sparktable','heatmap','marimekko'].includes(state.type) || state.stackAsMulti) src = 'Serien-Tabelle';
+  else if(['stackcol','stackbar','multiples','sparktable','heatmap','marimekko','boxplot'].includes(state.type) || state.stackAsMulti) src = 'Serien-Tabelle';
   return '<strong>Benötigte Daten:</strong> '+esc(fields)+'<br><span style="opacity:.8">Quelle: '+esc(src)+'</span>';
 }
 function renderFieldMap(){
