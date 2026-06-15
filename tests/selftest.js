@@ -50,17 +50,23 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
 
   /* --- Zustand sichern, am Ende wiederherstellen ---------------------- */
   const clone = x => JSON.parse(JSON.stringify(x));
+  const $t = id => (document.getElementById(id)||{}).value;
   const snap = {
     type:state.type, kpiStyle:state.kpiStyle, primary:state.primary,
     reference:state.reference, reference2:state.reference2,
     rows:clone(state.rows), srows:clone(state.srows), series:clone(state.series),
     wrows:clone(state.wrows),
+    unit:state.unit, unitScale:state.unitScale, decimals:state.decimals, msg:state.msg,
+    t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
   };
   const restore = ()=>{
     Object.assign(state, {type:snap.type, kpiStyle:snap.kpiStyle, primary:snap.primary,
       reference:snap.reference, reference2:snap.reference2,
       rows:clone(snap.rows), srows:clone(snap.srows), series:clone(snap.series),
-      wrows:clone(snap.wrows)});
+      wrows:clone(snap.wrows), unit:snap.unit, unitScale:snap.unitScale,
+      decimals:snap.decimals, msg:snap.msg});
+    const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v==null?'':v; };
+    set('t1',snap.t1); set('t2',snap.t2); set('t3',snap.t3);
     try{ renderAll(); }catch(e){}
   };
 
@@ -193,6 +199,36 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       ok('D · '+id+' · Würfel rollt Forecast (FC)', p.fcRolled>0, 'fcRolled='+p.fcRolled);
       ok('D · '+id+' · Chart aktualisiert (kein NaN)', p.chartChanged && !p.nan);
     });
+
+    /* === E) IBCS-Check (Linter) ===================================== */
+    ok('E · ibcsFindings() vorhanden', typeof ibcsFindings==='function');
+    if(typeof ibcsFindings==='function'){
+      const setT = (id,v)=>{ const el=document.getElementById(id); if(el) el.value=v; };
+      let allRun = true;
+      for(const id of TYPES){ setType(id); try{ const f=ibcsFindings(); if(!Array.isArray(f)||!f.length) allRun=false; }
+                              catch(e){ allRun=false; } }
+      ok('E · Linter läuft fehlerfrei für alle Typen', allRun);
+
+      /* bewusst regelwidrige Konfiguration -> jede Regel muss anschlagen */
+      state.type='columns'; state.reference='—'; state.msg='';
+      setT('t1','Übersicht'); setT('t2',''); setT('t3','Umsatz stark gestiegen über Plan');
+      state.unit='€'; state.unitScale='1'; state.decimals=2;
+      state.rows = state.rows.map((r,i)=>({c:String(i+1), v1:12000+i*500, v2:NaN, v3:NaN, fc:false}));
+      const bad = ibcsFindings().filter(f=>f.level!=='ok').map(f=>f.title);
+      ['Kein Vergleich','Keine Message','Titel unvollständig','Wertung im Titel',
+       'Redundante Wörter','Lange Zahlen','Viele Nachkommastellen'].forEach(key=>
+        ok('E · erkennt „'+key+'"', bad.some(t=>t.indexOf(key)===0), 'gefunden: '+bad.join(' | ')));
+
+      /* gestapelt mit >5 Segmenten */
+      state.type='stackcol'; state.series=['A','B','C','D','E','F','G'];
+      ok('E · erkennt „Zu viele Segmente"', ibcsFindings().some(f=>f.title.indexOf('Zu viele Segmente')===0));
+
+      /* saubere Konfiguration -> keinerlei Warnungen */
+      loadPreset('varintDemo'); state.decimals=0; state.msg='EBIT 2,7% über Plan – getragen vom 2. Halbjahr';
+      setT('t1','Chocolate Corp.'); setT('t2','Net sales in kEUR'); setT('t3','');
+      const good = ibcsFindings().filter(f=>f.level!=='ok');
+      ok('E · saubere Konfiguration ohne Warnungen', good.length===0, 'übrig: '+good.map(f=>f.title).join(' | '));
+    }
 
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));

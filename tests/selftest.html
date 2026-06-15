@@ -47,7 +47,8 @@ function render(report){
   const host = $('#results'); host.innerHTML='';
   // gruppieren nach erstem Buchstaben (A/B/C/D)
   const groups = {A:'A · Regression (alle Typen)', B:'B · varint-Template-Integrität',
-                  C:'C · varint-Korrektheit unter Shuffle', D:'D · Demo-Daten-Reaktivität'};
+                  C:'C · varint-Korrektheit unter Shuffle', D:'D · Demo-Daten-Reaktivität',
+                  E:'E · IBCS-Check (Linter)'};
   // Erfolge kompakt, Fehler ausführlich: wir zeigen nur Fehler + eine Gruppen-Bilanz.
   const byGroup = {};
   report._all.forEach(c=>{ const g=(c.name[0]); (byGroup[g]=byGroup[g]||[]).push(c); });

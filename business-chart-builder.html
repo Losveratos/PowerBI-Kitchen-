@@ -284,6 +284,7 @@ footer a:hover{color:var(--ink)}
     <section class="panel">
       <h2>Diagrammtyp</h2>
       <button class="ghost" id="btnWiz" type="button" style="width:100%; margin-bottom:10px" title="3 kurze Fragen – der Wizard schlägt den passenden IBCS-Diagrammtyp vor">🧭 Welcher Typ passt?</button>
+      <button class="ghost" id="btnIbcs" type="button" style="width:100%; margin-bottom:10px" title="Prüft die aktuelle Konfiguration gegen die IBCS-Compliance-Checkliste">✓ IBCS-Check</button>
       <div id="typeBtns"></div>
       <div id="dataNeed" style="margin-top:10px;font-size:11px;line-height:1.5;color:var(--ink2);border-top:1px solid var(--line);padding-top:8px"></div>
     </section>
@@ -644,6 +645,15 @@ footer a:hover{color:var(--ink)}
     </div>
     <div id="wizOut" style="margin-top:14px; padding:12px 14px; border:1px solid var(--line); background:#fff"></div>
     <div class="dlg-actions"><button id="wizApply">Übernehmen</button></div>
+  </div>
+</dialog>
+
+<dialog id="ibcsDlg" style="max-width:600px">
+  <div class="dlg-head"><h3>IBCS-Check</h3><button class="ghost" id="ibcsClose">Schließen</button></div>
+  <div class="dlg-body">
+    <div id="ibcsSummary" style="font-weight:600;margin-bottom:6px"></div>
+    <div style="font-size:11px;color:var(--ink3);margin-bottom:12px">Geprüft gegen die IBCS®-Compliance-Checkliste (Standards 1.2, CC BY-SA 4.0). Hinweise zur aktuellen Konfiguration – harte Anti-Pattern (Torte/Tacho/abgeschnittene Achse) verhindert das Tool bereits.</div>
+    <div id="ibcsList"></div>
   </div>
 </dialog>
 
@@ -6828,6 +6838,93 @@ $('#wizApply').addEventListener('click', ()=>{
   wizDlg.close();
   flash($('#btnWiz'), 'Übernommen ✓');
 });
+
+/* IBCS-Check (Linter): prüft die aktuelle Konfiguration gegen die
+   IBCS-Compliance-Checkliste (Standards 1.2). Liefert Hinweise je Regel mit
+   Level ok|warn und einem konkreten Fix-Tipp; harte Anti-Pattern verhindert
+   das Tool schon durch sein Typ-Angebot, daher hier keine 'fail'.            */
+function ibcsFindings(){
+  const F = [], t = state.type, ref = state.reference;
+  const add = (level,title,msg,fix)=> F.push({level,title,msg:msg||'',fix:fix||''});
+  const t1 = ($('#t1').value||'').trim(), t2 = ($('#t2').value||'').trim();
+  const t3 = ($('#t3').value||'').trim() || autoT3();
+  const msg = (state.msg||'').trim();
+  const vals = dataVals().filter(v=>!isNaN(v));
+  const maxAbs = vals.length ? Math.max(...vals.map(Math.abs)) : 0;
+  const titleAll = [t1,t2,t3].join('  ');
+
+  /* 1 · Vergleich vorhanden (EX 4) */
+  const cmpTypes = ['columns','colline','line','bars','dotplot','tornado','bullet','kombi',
+    'barskombi','zchart','table','slope','varint','relvar','absvar','wfkombi','bridge'];
+  if(cmpTypes.includes(t)){
+    if(ref==='—') add('warn','Kein Vergleich (EX 4)','Eine Zahl ohne Vergleich trägt keine Botschaft.',
+      'Referenzszenario (PL/PY/BU) wählen oder eine Δ-Ebene aktivieren.');
+    else add('ok','Vergleich vorhanden (EX 4)','Primär '+state.primary+' vs. '+ref+'.');
+  }
+
+  /* 2 · Gestapelt: ≤ ~5 Segmente (EX 1.1) */
+  if(['stackcol','stackbar','marimekko'].includes(t)){
+    const n = (state.series||[]).length;
+    if(n>5) add('warn','Zu viele Segmente (EX 1.1)','Gestapelt mit '+n+' Serien – ab ~5 wird die Komposition unleserlich.',
+      'Auf die wichtigsten ≤5 reduzieren (Rest als „Übrige" bündeln) oder Small Multiples nutzen.');
+    else add('ok','Segmentzahl ok (EX 1.1)', n+' Serien (≤5).');
+  }
+
+  /* 3 · Message zuerst (SA 3.2) */
+  if(!msg) add('warn','Keine Message (SA 3.2)','Ein Bericht ohne Botschaft ist nur Daten – die Aussage gehört zuerst.',
+    'Im Feld „Message" eine wertende Kernaussage formulieren, z. B. „EBIT 12% unter Plan".');
+  else add('ok','Message gesetzt (SA 3.2)','„'+msg.slice(0,64)+(msg.length>64?'…':'')+'"');
+
+  /* 4 · Titel wer/was vorhanden */
+  if(!t1 || !t2) add('warn','Titel unvollständig','IBCS-Titel = wer (Einheit) · was (Kennzahl in Einheit) · wann (Zeit + Szenarien).',
+    (!t1?'Zeile 1 (Berichtseinheit) ':'')+(!t2?'Zeile 2 (Kennzahl in Einheit) ':'')+'ergänzen.');
+  else add('ok','Titel wer/was/wann','Dreizeiliger Titel vorhanden.');
+
+  /* 5 · Keine Wertung im Titel (SA 3.2) */
+  const evalRx = /(über plan|unter plan|gestiegen|gesunken|anstieg|rückgang|verbesser|verschlecht|\bstark\b|\bschwach\b|besser|schlechter|rekord|einbruch|deutlich|erfreulich|enttäusch)/i;
+  if(evalRx.test(titleAll)) add('warn','Wertung im Titel (SA 3.2)','Wertende Aussagen gehören in die Message, nicht in den beschreibenden Titel.',
+    'Wertung ins Message-Feld verschieben; Titel rein beschreibend halten.');
+
+  /* 6 · Keine Füllwörter (SIMPLIFY) */
+  const redRx = /(übersicht|overview|entwicklung von|development of|auswertung|darstellung von|analyse von|diagramm (zu|der|des))/i;
+  if(redRx.test(titleAll)) add('warn','Redundante Wörter (SI)','Füllwörter wie „Übersicht" / „Entwicklung von" tragen nichts bei.',
+    'Knapp formulieren – die Visualisierung zeigt „Entwicklung" bereits selbst.');
+
+  /* 7 · Zahlen ≤ 3 Stellen → skalieren (SI 5.2) */
+  const scaled = unitDiv().div>1 || state.unit==='%';
+  if(maxAbs>=1000 && !scaled) add('warn','Lange Zahlen (SI 5.2)','Größter Wert ≈ '+Math.round(maxAbs)+' – im Chart maximal 3 Stellen.',
+    'Einheit auf k/Mio skalieren (Format-Panel „Skalierung").');
+  else if(maxAbs>0) add('ok','Zahlenlänge ok (SI 5.2)','Werte ≤ 3 Stellen bzw. skaliert.');
+
+  /* 8 · Nachkommastellen sparsam (SI 5.2) */
+  if((state.decimals||0)>=2 && state.unit!=='%')
+    add('warn','Viele Nachkommastellen (SI 5.2)',(state.decimals)+' Dezimalstellen.','Auf 0–1 reduzieren (außer für Quoten/%).');
+
+  /* 9 · Nulllinie / Integrität (CH 1.1) – vom Tool erzwungen */
+  if(['columns','colline','bars','barskombi','kombi','stackcol','stackbar','waterfall','bullet','varint'].includes(t))
+    add('ok','Nulllinie (CH 1.1)','Werteachse startet bei 0 – keine abgeschnittene Achse.');
+
+  return F;
+}
+const ibcsDlg = $('#ibcsDlg');
+function ibcsCheckRender(){
+  const F = ibcsFindings();
+  const issues = F.filter(f=>f.level!=='ok');
+  const sum = $('#ibcsSummary');
+  sum.textContent = issues.length===0 ? '✓ Keine Hinweise – IBCS-konform'
+    : ('⚠ '+issues.length+' Hinweis'+(issues.length>1?'e':''));
+  sum.style.color = issues.length===0 ? '#2e7d4f' : '#b06a00';
+  const order = {fail:0, warn:1, ok:2}, col = {fail:'#c0392b', warn:'#c98a00', ok:'#2e7d4f'}, ic = {fail:'✗', warn:'⚠', ok:'✓'};
+  const sorted = F.slice().sort((a,b)=>order[a.level]-order[b.level]);
+  $('#ibcsList').innerHTML = sorted.map(f=>
+    '<div style="border-left:3px solid '+col[f.level]+';padding:6px 10px;margin-bottom:7px;background:#fff">'+
+    '<div style="font-weight:600;font-size:12.5px"><span style="color:'+col[f.level]+'">'+ic[f.level]+'</span> '+esc(f.title)+'</div>'+
+    (f.msg?'<div style="font-size:11.5px;color:var(--ink2);margin-top:2px">'+esc(f.msg)+'</div>':'')+
+    (f.fix?'<div style="font-size:11px;color:var(--ink3);margin-top:3px">→ '+esc(f.fix)+'</div>':'')+
+    '</div>').join('');
+}
+$('#btnIbcs').addEventListener('click', ()=>{ ibcsCheckRender(); if(ibcsDlg.showModal) ibcsDlg.showModal(); else ibcsDlg.setAttribute('open',''); });
+$('#ibcsClose').addEventListener('click', ()=> ibcsDlg.close());
 
 /* Bericht sammeln & exportieren */
 $('#btnAddDash').addEventListener('click', ()=>{
