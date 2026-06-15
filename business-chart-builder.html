@@ -465,6 +465,7 @@ footer a:hover{color:var(--ink)}
       <label class="check"><input type="checkbox" id="cbSafe"> Farbfehlsichtigkeit: Grün → Blaugrün</label>
       <label class="check" id="refLblWrap"><input type="checkbox" id="showRefLabels"> Werte des Referenzszenarios beschriften</label>
       <label class="check" id="endPinsWrap"><input type="checkbox" id="endPins"> Endvergleich: Δ des letzten Werts vs PL/PY am rechten Rand anpinnen</label>
+      <label class="check" id="stack100Wrap" style="display:none"><input type="checkbox" id="stack100"> 100% gestapelt – Anteile je Kategorie (EX 1.1)</label>
     </section>
   </aside>
 
@@ -732,6 +733,7 @@ const state = {
   cbSafe:false,
   showRefLabels:false,
   endPins:false,
+  stack100:false,
   sortDesc:false,
   showSum:true,
   wfVar:true,
@@ -1853,10 +1855,13 @@ function stackLabelFill(fill){ return ['#404040','#5d5d5d','#7f7f7f'].includes(f
 function renderStackCol(){
   const rows = state.srows.filter(r=>r.c!=='');
   const nS = state.series.length;
+  const norm = state.stack100;                 /* 100%-gestapelt: Anteile je Spalte */
+  const pf = v => (v>=9.5?Math.round(v):Math.round(v*10)/10)+'%';
   const W=640, plotH=210, padT=26, padB=22, padL=10, padR=96;
   const H = padT+plotH+padB;
   const sums = rows.map(r=> r.v.slice(0,nS).reduce((a,v)=>a+(isNaN(v)?0:v),0));
-  const sc = makeScale(0, Math.max(...sums,1), plotH, 0.14, true);
+  const dv = (i,j)=>{ const raw=rows[i].v[j]; if(isNaN(raw)||raw<=0) return 0; return norm ? (sums[i]>0?raw/sums[i]*100:0) : raw; };
+  const sc = makeScale(0, norm?100:Math.max(...sums,1), plotH, 0.14, true);
   const slot=(W-padL-padR)/rows.length, y0=padT+sc.zeroY;
   const bw = slot*0.58;
   let s='';
@@ -1864,25 +1869,29 @@ function renderStackCol(){
     const cx=padL+slot*i+slot/2;
     let acc=0;
     for(let j=0;j<nS;j++){
-      const v = r.v[j]; if(isNaN(v)||v<=0) continue;
+      const v = dv(i,j); if(v<=0) continue;
       const yTop = padT+sc.y(acc+v), h = Math.abs(sc.y(acc)-sc.y(acc+v));
       const fill = STACK_FILLS[j%STACK_FILLS.length];
       s += '<rect data-i="'+i+'" x="'+(cx-bw/2)+'" y="'+yTop+'" width="'+bw+'" height="'+h+'" fill="'+fill+'" stroke="'+WHITE+'" stroke-width="0.75"/>';
-      if(h>=14) s += txt(cx, yTop+h/2+3.5, fmt(v), {anchor:'middle', size:10, fill:stackLabelFill(fill)});
+      if(h>=14) s += txt(cx, yTop+h/2+3.5, norm?pf(v):fmt(r.v[j]), {anchor:'middle', size:10, fill:stackLabelFill(fill)});
       acc += v;
     }
     const ly = padT+sc.y(acc)-6;
-    s += txt(cx, ly, fmt(sums[i]), {anchor:'middle', weight:'bold'});
-    if(state.highlights.has(i)) s += hiliteEllipse(cx, ly-3.5, Math.max(20,String(fmt(sums[i])).length*4.2+8), 9.5);
-    s += cmark(i, cx + String(fmt(sums[i])).length*3.4 + 12, ly-4);
+    if(!norm){
+      s += txt(cx, ly, fmt(sums[i]), {anchor:'middle', weight:'bold'});
+      if(state.highlights.has(i)) s += hiliteEllipse(cx, ly-3.5, Math.max(20,String(fmt(sums[i])).length*4.2+8), 9.5);
+      s += cmark(i, cx + String(fmt(sums[i])).length*3.4 + 12, ly-4);
+    } else {
+      s += cmark(i, cx + 14, ly-4);
+    }
     s += txt(cx, y0+15, r.c, {anchor:'middle', size:11, fill:CAT});
   });
   /* Legende rechts an den Segmenten der letzten Säule */
   if(rows.length){
-    const r = rows[rows.length-1], cx = padL+slot*(rows.length-1)+slot/2;
+    const i = rows.length-1, cx = padL+slot*i+slot/2;
     let acc=0;
     for(let j=0;j<nS;j++){
-      const v = r.v[j]; if(isNaN(v)||v<=0) continue;
+      const v = dv(i,j); if(v<=0) continue;
       const cy = padT+sc.y(acc+v/2);
       s += txt(cx+bw/2+7, cy+3.5, state.series[j], {size:10.5, fill:CAT});
       acc += v;
@@ -1896,34 +1905,41 @@ function renderStackCol(){
 function renderStackBar(){
   const rows = state.srows.filter(r=>r.c!=='');
   const nS = state.series.length;
+  const norm = state.stack100;                 /* 100%-gestapelt: Anteile je Zeile */
+  const pf = v => (v>=9.5?Math.round(v):Math.round(v*10)/10)+'%';
   const rowH=30, padT=24, padB=8, W=640;
   const lw = labelW(rows);
   const padR=64, plotW=W-lw-padR;
   const H = padT + rows.length*rowH + padB;
   const sums = rows.map(r=> r.v.slice(0,nS).reduce((a,v)=>a+(isNaN(v)?0:v),0));
-  const sc = makeScale(0, Math.max(...sums,1), plotW, 0.12, true);
+  const dv = (i,j)=>{ const raw=rows[i].v[j]; if(isNaN(raw)||raw<=0) return 0; return norm ? (sums[i]>0?raw/sums[i]*100:0) : raw; };
+  const sc = makeScale(0, norm?100:Math.max(...sums,1), plotW, 0.12, true);
   const bh = rowH*0.6;
   let s='';
   rows.forEach((r,i)=>{
     const cy = padT+rowH*i+rowH/2;
     let acc=0;
     for(let j=0;j<nS;j++){
-      const v = r.v[j]; if(isNaN(v)||v<=0) continue;
+      const v = dv(i,j); if(v<=0) continue;
       const xa = lw+sc.x(acc), w = Math.abs(sc.x(acc+v)-sc.x(acc));
       const fill = STACK_FILLS[j%STACK_FILLS.length];
       s += '<rect data-i="'+i+'" x="'+xa+'" y="'+(cy-bh/2)+'" width="'+w+'" height="'+bh+'" fill="'+fill+'" stroke="'+WHITE+'" stroke-width="0.75"/>';
-      if(w>=26) s += txt(xa+w/2, cy+3.5, fmt(v), {anchor:'middle', size:10, fill:stackLabelFill(fill)});
+      if(w>=26) s += txt(xa+w/2, cy+3.5, norm?pf(v):fmt(r.v[j]), {anchor:'middle', size:10, fill:stackLabelFill(fill)});
       /* Legende über dem obersten Balken, segmentzentriert (EX 1.1-11) */
       if(i===0 && w>=24) s += txt(xa+w/2, padT-8, state.series[j], {anchor:'middle', size:10, fill:CAT});
       acc += v;
     }
     const lx = lw+sc.x(acc)+6;
-    s += txt(lx, cy+3.5, fmt(sums[i]), {anchor:'start', weight:'bold'});
-    if(state.highlights.has(i)){
-      const tw=String(fmt(sums[i])).length*6.4;
-      s += hiliteEllipse(lx+tw/2, cy, tw/2+8, 9);
+    if(!norm){
+      s += txt(lx, cy+3.5, fmt(sums[i]), {anchor:'start', weight:'bold'});
+      if(state.highlights.has(i)){
+        const tw=String(fmt(sums[i])).length*6.4;
+        s += hiliteEllipse(lx+tw/2, cy, tw/2+8, 9);
+      }
+      s += cmark(i, lx+String(fmt(sums[i])).length*6.4+12, cy);
+    } else {
+      s += cmark(i, lx+8, cy);
     }
-    s += cmark(i, lx+String(fmt(sums[i])).length*6.4+12, cy);
     s += txt(lw-8, cy+3.5, r.c, {anchor:'end', size:11, fill:CAT});
   });
   s += '<line x1="'+lw+'" y1="'+(padT-2)+'" x2="'+lw+'" y2="'+(H-padB)+'" stroke="'+DARK+'" stroke-width="1.5"/>';
@@ -3926,6 +3942,7 @@ function renderPreview(){
   if(state.type==='multiples') $('#sortWrap').style.display = 'flex';
   $('#refLblWrap').style.display = (state.type==='columns'||state.type==='bars') ? 'flex' : 'none';
   $('#endPinsWrap').style.display = (state.type==='columns'||state.type==='varint') ? 'flex' : 'none';
+  $('#stack100Wrap').style.display = ((state.type==='stackcol'||state.type==='stackbar') && !state.stackAsMulti) ? 'flex' : 'none';
   const dn=$('#dataNeed'); if(dn) dn.innerHTML = dataNeedHint();
   /* KPI-Stil wird jetzt über die Typ-Kacheln (KPI · IBCS/Status/Trend) gewählt;
      der frühere Inline-Schalter ist ausgeblendet. */
@@ -4274,6 +4291,7 @@ $('#ksStatus').addEventListener('click', ()=>{ state.kpiStyle='status'; renderPr
 $('#ksTrend').addEventListener('click', ()=>{ state.kpiStyle='trend'; renderPreview(); });
 $('#showRefLabels').addEventListener('change', e=>{ state.showRefLabels=e.target.checked; renderPreview(); });
 $('#endPins').addEventListener('change', e=>{ state.endPins=e.target.checked; renderPreview(); });
+$('#stack100').addEventListener('change', e=>{ state.stack100=e.target.checked; renderPreview(); });
 $('#sortDesc').addEventListener('change', e=>{ state.sortDesc=e.target.checked; renderPreview(); });
 $('#showSum').addEventListener('change', e=>{ state.showSum=e.target.checked; renderPreview(); });
 $('#trendChk').addEventListener('change', e=>{ state.trend=e.target.checked; renderPreview(); });
@@ -5709,24 +5727,47 @@ function vlLine(deneb){
 }
 function vlStack(deneb, vertical){
   const rows = state.srows.filter(r=>r.c!=='');
+  const norm = state.stack100;                 /* 100%-gestapelt: Anteile je Kategorie */
   const values = [];
-  rows.forEach(r=> state.series.forEach((nm,j)=>{
-    if(!isNaN(r.v[j])) values.push({k:r.c, serie:nm, ord:j, v:r.v[j], L:fmt(r.v[j])});
-  }));
+  rows.forEach(r=>{
+    const tot = state.series.reduce((a,nm,j)=> a+(isNaN(r.v[j])?0:r.v[j]), 0) || 1;
+    state.series.forEach((nm,j)=>{
+      if(!isNaN(r.v[j])) values.push({k:r.c, serie:nm, ord:j, v:r.v[j], L:fmt(r.v[j]),
+        Lsh:(v=>(v>=9.5?Math.round(v):Math.round(v*10)/10)+'%')(r.v[j]/tot*100)});
+    });
+  });
   const valCh = vertical? 'x':'y', catCh = vertical? 'y':'x';
   const enc = {};
   enc[catCh] = {field:'k', type:'nominal', sort:null, axis: vertical? {labelPadding:8}:{labelAngle:0, labelPadding:6}};
+  const orderEnc = deneb ? {field:'serie', type:'nominal'} : {field:'ord'};
+  const valEnc = Object.assign({field:'v', type:'quantitative', axis:null}, norm?{stack:'normalize'}:{});
   const layer = [
     {mark:{type:'bar', stroke:'#ffffff', strokeWidth:0.75},
-     encoding:Object.assign({[valCh]:{field:'v', type:'quantitative', axis:null},
+     encoding:Object.assign({[valCh]:valEnc,
        fill:{field:'serie', type:'nominal', scale:{domain:state.series, range:STACK_FILLS.slice(0,state.series.length)}, legend:{disable:false, orient: vertical?'top':'right', title:null, labelFont:'Arial', labelColor:CAT}},
        /* im Template nach Serie ordnen statt nach (nicht vorhandenem) ord-Index */
-       order: deneb ? {field:'serie', type:'nominal'} : {field:'ord'}})},
-    {mark:Object.assign({type:'text', fontSize:11.5, font:'Arial', color:DARK, fontWeight:'bold'},
+       order: orderEnc})},
+  ];
+  if(norm){
+    /* Anteils-Label je Segment, zentriert (bandPosition); Share aus dem Dataset
+       per joinaggregate (Template) bzw. vorberechnet (eingebettet). Textfarbe
+       folgt der Segmentfüllung wie im SVG (heller Grund -> dunkle Schrift).    */
+    const tf = deneb ? [
+      {joinaggregate:[{op:'sum', field:'v', as:'kTot'}], groupby:['k']},
+      {calculate:"format(datum.kTot>0 ? datum.v/datum.kTot : 0, '.0%')", as:'Lsh'},
+    ] : undefined;
+    const txtCol = state.series.map((nm,j)=> stackLabelFill(STACK_FILLS[j%STACK_FILLS.length]));
+    layer.push({transform:tf, mark:{type:'text', fontSize:10.5, font:'Arial'},
+      encoding:{[valCh]:Object.assign({field:'v', type:'quantitative', stack:'normalize', bandPosition:0.5}),
+        detail:{field:'serie', type:'nominal'}, order:orderEnc,
+        text:{field:'Lsh', type:'nominal'},
+        color:{field:'serie', type:'nominal', scale:{domain:state.series, range:txtCol}, legend:null}}});
+  } else {
+    layer.push({mark:Object.assign({type:'text', fontSize:11.5, font:'Arial', color:DARK, fontWeight:'bold'},
        vertical? {dx:6, align:'left'}:{dy:-8}),
      encoding:{[valCh]:{aggregate:'sum', field:'v', type:'quantitative'},
-       text:{aggregate:'sum', field:'v', type:'quantitative', format:vNum()}}},
-  ];
+       text:{aggregate:'sum', field:'v', type:'quantitative', format:vNum()}}});
+  }
   return Object.assign({ data:vData(values,deneb), encoding:enc, layer },
     vertical? {width:430, height:{step:30}} : {width:560, height:220});
 }
@@ -6513,6 +6554,7 @@ function serialize(){
     s:{
       type:state.type, primary:state.primary, reference:state.reference, reference2:state.reference2,
       varSel:state.varSel, decimals:state.decimals, cbSafe:state.cbSafe, showRefLabels:state.showRefLabels, endPins:state.endPins,
+      stack100:state.stack100,
       sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient,
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel,
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend,
@@ -6571,6 +6613,7 @@ function syncControls(){
   $('#negParens').checked = !!state.negParens;
   $('#showRefLabels').checked = state.showRefLabels;
   $('#endPins').checked = !!state.endPins;
+  $('#stack100').checked = !!state.stack100;
   $('#sortDesc').checked = state.sortDesc;
   $('#showSum').checked = state.showSum;
   $('#wfVar').checked = state.wfVar;
