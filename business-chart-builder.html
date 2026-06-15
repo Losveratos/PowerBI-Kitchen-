@@ -2,6 +2,11 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<!-- Content-Security-Policy: erlaubt nur eigene + Google-Fonts-Quellen, blockt
+     fremde Skript-/Ressourcenquellen (Supply-Chain/Injektion). 'unsafe-inline'
+     ist für die Inline-App nötig, 'unsafe-eval' für Vegas Ausdrucks-Codegen –
+     externe Skript-URLs bleiben dadurch trotzdem ausgeschlossen. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Business Chart Builder – semantische Notation für klare Berichte</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4667,11 +4672,14 @@ async function loadFirst(name, urls){
 function loadVegaLibs(){
   if(window.vegaEmbed) return Promise.resolve();
   if(!vegaLibsPromise){
-    const cdn = 'https://cdnjs.cloudflare.com/ajax/libs/';
+    /* Lokal gehostet (assets/vega/) statt CDN – schließt den Supply-Chain-
+       Vektor über fremde Skript-Quellen aus; Versionen: vega 5.30, vega-lite
+       5.21, vega-embed 6.26. */
+    const base = 'assets/vega/';
     vegaLibsPromise = (async ()=>{
-      await loadFirst('vega', ['vega/5.30.0/vega.min.js','vega/5.25.0/vega.min.js','vega/5.22.1/vega.min.js'].map(p=>cdn+p));
-      await loadFirst('vega-lite', ['vega-lite/5.21.0/vega-lite.min.js','vega-lite/5.16.3/vega-lite.min.js','vega-lite/5.6.0/vega-lite.min.js'].map(p=>cdn+p));
-      await loadFirst('vega-embed', ['vega-embed/6.26.0/vega-embed.min.js','vega-embed/6.22.2/vega-embed.min.js','vega-embed/6.20.8/vega-embed.min.js'].map(p=>cdn+p));
+      await loadFirst('vega', [base+'vega.min.js']);
+      await loadFirst('vega-lite', [base+'vega-lite.min.js']);
+      await loadFirst('vega-embed', [base+'vega-embed.min.js']);
     })();
     vegaLibsPromise.catch(()=>{ vegaLibsPromise = null; });
   }
