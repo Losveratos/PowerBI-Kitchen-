@@ -1109,7 +1109,10 @@ function needsRef(){ return ['absvar','relvar','kombi','barskombi','table','brid
 function usesWrows(){ return state.type==='waterfall' || state.type==='wfkombi'; }
 function isTime(){ return ['columns','absvar','relvar','kombi','line','zchart','colline'].includes(state.type); }
 function isStacked(){ return ['stackcol','stackbar','multiples'].includes(state.type); }
-function usesSrows(){ return isStacked() || state.type==='sparktable'; }
+/* Serien-Tabelle (Perioden × Serien): Stacked/Multiples/Sparktable plus die
+   Matrix-Typen Heatmap & Marimekko – sie rendern aus state.srows, also müssen
+   Daten-Editor, Demo-Würfel und CSV-Import dieselbe Quelle bedienen. */
+function usesSrows(){ return isStacked() || ['sparktable','heatmap','marimekko'].includes(state.type); }
 function isStruct(){ return ['bars','barskombi','table','dotplot','tornado','bullet','pareto'].includes(state.type); }
 
 function activeRows(){
@@ -4505,7 +4508,9 @@ function diceData(){
       r.v3 = hasR2 ? Math.round(walk * R(0.88, 1.08)) : r.v3;
       r.fc = false;
     });
-    if(isTime() && state.primary==='AC' && state.rows.length>=6){
+    /* Forecast-Perioden würfeln (letzte 3) – auch für die Zeit-Typen varint
+       (AC/FC-Split + Total-Säule) und fan (Forecast-Korridor). */
+    if((isTime() || ['varint','fan'].includes(state.type)) && state.primary==='AC' && state.rows.length>=6){
       for(let i=state.rows.length-3;i<state.rows.length;i++) state.rows[i].fc = true;
     }
   }
