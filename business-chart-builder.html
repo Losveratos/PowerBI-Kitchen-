@@ -1269,11 +1269,19 @@ function renderColumns(rows, opt){
      Rand die Abweichung des letzten Werts vs Referenz(en) anpinnen (FC-PL/FC-PY) */
   const endPins = state.endPins && hasRef && !opt.noCats && rows.length>0;
   const padR = endPins ? (hasRef2 ? 104 : 60) : 10;
+  /* Kombinierte AC+FC-Gesamtsäule (nur varint): Ist-Monate gefüllt + Forecast-
+     Monate schraffiert, gestapelt zum Jahres-Total (inspiriert von standard-charts) */
+  const totalCol = !!opt.totalCol && rows.length>0;
+  let acSum=0, fcSum=0;
+  if(totalCol){ rows.forEach(r=>{ if(isNaN(r.v1))return; if(r.fc) fcSum+=r.v1; else acSum+=r.v1; }); }
+  const total = acSum+fcSum;
+  const band = totalCol ? 64 : 0;   /* reservierter Bereich rechts für die Total-Säule */
   const style = hasRef ? state.refStyle : 'none';
   const vals = rows.flatMap(r=>[r.v1, hasRef?r.v2:NaN, hasRef2?r.v3:NaN]).filter(v=>!isNaN(v));
   const _tv0=targetVal(); if(_tv0!==null) vals.push(_tv0);
+  if(totalCol) vals.push(total, acSum);
   const sc = makeScale(Math.min(...vals,0), Math.max(...vals,0), plotH, 0.10, true);
-  const slot = (W-padL-padR)/rows.length;
+  const slot = (W-padL-padR-band)/rows.length;
   const y0 = padT+sc.zeroY;
   /* Geometrie je Stil: versetzt (UN 4.1 überlappende Gruppierung), zentriert, Dreiecke */
   const off = style==='offset', tri = style==='tri';
@@ -1345,6 +1353,17 @@ function renderColumns(rows, opt){
   const axis = '<line x1="'+padL+'" y1="'+y0+'" x2="'+(W-padR)+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1.5"/>';
   let trend='';
   if(state.trend && !opt.noCats) trend = trendArrow(rows, i=>padL+slot*i+slot/2, v=>padT+sc.y(v));
+  let totalSvg='';
+  if(totalCol){
+    const cxT = W-padR-band/2, bwT = Math.min(34, band*0.55);
+    const yAc = padT+sc.y(acSum), yTot = padT+sc.y(total);
+    totalSvg += rect(cxT-bwT/2, yAc, bwT, Math.abs(sc.y(acSum)-sc.zeroY), scenPaint(state.primary,false));
+    if(fcSum) totalSvg += rect(cxT-bwT/2, yTot, bwT, Math.abs(sc.y(total)-sc.y(acSum)), scenPaint(state.primary,true));
+    totalSvg += txt(cxT, yTot-6, fmt(total), {anchor:'middle', weight:'bold', fill:DARK});
+    if(Math.abs(sc.y(acSum)-sc.zeroY)>14) totalSvg += txt(cxT, (y0+yAc)/2+3, fmt(acSum), {anchor:'middle', size:9, fill:'#ffffff'});
+    if(fcSum && Math.abs(sc.y(total)-sc.y(acSum))>14) totalSvg += txt(cxT, (yAc+yTot)/2+3, fmt(fcSum), {anchor:'middle', size:9, fill:DARK});
+    if(!opt.noCats) totalSvg += txt(cxT, y0+15, state.primary+(fcSum?'&FC':''), {anchor:'middle', size:10, fill:CAT});
+  }
   let endPinsSvg='';
   if(endPins){
     const last = rows[rows.length-1];
@@ -1363,7 +1382,7 @@ function renderColumns(rows, opt){
     endPinsSvg += pin(last.v2, state.reference, x1);
     if(hasRef2) endPinsSvg += pin(last.v3, state.reference2, x1+40);
   }
-  return { svg:bars+axis+targetLineH(sc,padL,padR,padT,W)+labels+marks+trend+endPinsSvg, W, H };
+  return { svg:bars+axis+targetLineH(sc,padL,padR,padT,W)+labels+marks+trend+totalSvg+endPinsSvg, W, H };
 }
 
 /* Differenzmarker nach UN 5.1-2: Hilfslinien projizieren die Säulenlängen,
@@ -2656,7 +2675,7 @@ function renderVarInt(rows){
   tier('Δ'+ref+'%_YTD', renderRelVar(ytd,  Object.assign({noCats:true, plotH:78}, pads)));
   tier('Δ'+ref+'%',     renderRelVar(rows, Object.assign({noCats:true, plotH:78}, pads)));
   tier('Δ'+ref+' '+CL('Beitraege'), renderTimeWf(delta, Object.assign({noCats:true, plotH:140}, pads)));
-  const base = renderColumns(rows, {plotH:150});
+  const base = renderColumns(rows, {plotH:150, totalCol:true});
   const baseCap = state.primary + (rows.some(x=>x.fc)?'&FC':'') + ' '+CL('und')+' ' + ref;
   s += '<g transform="translate(0,'+y+')">'+txt(12,10,baseCap,{size:10.5,fill:'#8a8a8a'})+base.svg+'</g>';
   y += base.H;
