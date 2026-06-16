@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anleitung · Business Chart Builder — klare Charts & 1-Klick nach Power BI</title>
+<meta name="description" content="So baust du IBCS-orientierte Business-Charts im Browser und exportierst sie als Deneb-Template für Power BI – mit Live-Beispielen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#FAFAF7; --card:#fff; --ink:#1c1c1c; --ink2:#5d5d5d; --ink3:#8d8d8d;
+         --line:#e6e4e0; --accent:#C25A2D; --pos:#469b3c; --neg:#c0392b; }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:'IBM Plex Sans',system-ui,sans-serif; line-height:1.6}
+  .wrap{max-width:780px; margin:0 auto; padding:32px 20px 80px}
+  a{color:var(--accent)}
+  .top{display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; font-size:13px}
+  .badge{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.04em; color:#fff; background:var(--accent); padding:3px 9px; border-radius:20px}
+  h1{font-size:30px; line-height:1.2; margin:.2em 0 .1em; font-weight:700}
+  .lead{font-size:18px; color:var(--ink2); margin:.4em 0 1.4em}
+  h2{font-size:21px; margin:2em 0 .5em; padding-top:.4em; border-top:1px solid var(--line)}
+  h3{font-size:16px; margin:1.4em 0 .3em}
+  code,kbd{font-family:'IBM Plex Mono',monospace; font-size:.86em; background:#f0eee9; padding:1px 5px; border-radius:4px}
+  ol,ul{padding-left:22px} li{margin:.25em 0}
+  .cta{display:inline-block; background:var(--accent); color:#fff; text-decoration:none; font-weight:600;
+       padding:11px 18px; border-radius:9px; margin:6px 0}
+  .live{display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; text-decoration:none;
+        color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:7px 12px; margin-top:8px}
+  .live:hover{border-color:var(--accent); color:var(--accent)}
+  .tip{background:#fff; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:8px; padding:12px 16px; margin:14px 0; font-size:15px}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0}
+  .pill{font-family:'IBM Plex Mono',monospace; font-size:11px; padding:2px 7px; border-radius:5px; background:#eef1ee; color:var(--pos)}
+  .pill.n{background:#f6eceb; color:var(--neg)}
+  footer{margin-top:48px; padding-top:18px; border-top:1px solid var(--line); font-size:13px; color:var(--ink2)}
+  @media(max-width:560px){ .grid{grid-template-columns:1fr} h1{font-size:25px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <a href="business-chart-builder.html">← Zum Chart Builder</a>
+    <span class="badge">ANLEITUNG</span>
+  </div>
+
+  <h1>Klare Business-Charts in Minuten — und 1-Klick nach Power BI</h1>
+  <p class="lead">Der Business Chart Builder baut IBCS-orientierte Charts im Browser und exportiert sie als sauberes <strong>Deneb-Template</strong> für Power BI. Dazu PNG, SVG, HTML und zusammensetzbare Dashboards. Diese Seite zeigt die wichtigsten Funktionen — mit Beispielen, die du direkt live öffnen kannst.</p>
+
+  <a class="cta" href="business-chart-builder.html">▶ Tool öffnen</a>
+
+  <h2>In 60 Sekunden zum ersten Chart</h2>
+  <ol>
+    <li><strong>Diagrammtyp wählen</strong> (links). Unsicher? <code>🧭 Welcher Typ passt?</code> stellt drei kurze Fragen.</li>
+    <li><strong>Daten eingeben</strong> in der Tabelle (oder CSV einfügen). Unter dem Typ-Picker zeigt <strong>„Benötigte Daten"</strong> genau, welche Spalten/Szenarien der Typ braucht.</li>
+    <li><strong>Szenarien setzen</strong>: Primär (z. B. <span class="pill">AC</span>) und Referenz (<span class="pill">PL</span>/<span class="pill">PY</span>).</li>
+    <li>Fertig — die Vorschau aktualisiert sich live.</li>
+  </ol>
+
+  <h2>Abweichungen &amp; Szenarien — das Herzstück</h2>
+  <p>Der Builder denkt in IBCS-Szenarien: <span class="pill">AC</span> Ist, <span class="pill">PY</span> Vorjahr, <span class="pill">PL</span> Plan, <span class="pill">FC</span> Forecast. Für Zeit-Charts schaltest du <strong>Abweichungs-Ebenen</strong> dazu:</p>
+  <ul>
+    <li><strong>Δ absolut</strong> und <strong>Δ% relativ</strong> als eigene Tiers, grün/rot eingefärbt.</li>
+    <li><strong>Forecast</strong> wird über ein <strong>FC-Flag (Zahl 1/0)</strong> markiert und automatisch schraffiert dargestellt.</li>
+  </ul>
+  <a class="live" target="_blank" href="https://datenwgknowledgekitchen.com/business-chart-builder.html#s=bZZdbuM2EMevIgzQogXoQpIdx-ab4iTY3SZZI053sTD8QEsjiQhFCiRlbxIY6CEW6AX2Dn1v3nuInqSg9WHHqzdq-Jv_fHAo6QU2QAMCBugL2KcSgUKOzBasBAKl5gXTT0AhmgEBjSlqlLGD5l-ODSFQ-O_Pb0Bgw_QChVNjAVCrKySguxULO1uz2hFIMOYFEwaoTyBeL1iKQFMmDBIwudreY3rD1uiAxooymXN5eDaWxY-B7x8MSttLNPEbnUVVtNG36SemDw8fNUdpXelAYK15kuEl10Ah3SZAIK7soipMy9fAvauyUa8t8y8_GARujrC6mLfP0fqkjMjcVsLyzmiHrLKqjW01yqTbE1xiJMRJd6wq7_a9zMWtStxhoRC8NFif2MI-CWdUaWrQAgETM4EX7Ej36wO3e-aPwjD7DASeWstnFufGVoX3ExAoTAYUnISq9H4snNGl3wSOlQACKUeRuAnbEXhUxZpfMHPYdUVccyGAglQSG8t7meDXLqHHkrdp83VsnKaSduES349vqlXxsJ9eWQlBoJLc1tm4VcPBvpEE4pxpe8Okyz1x8RJm8kXO9GHsLNMZWjfFSnbGTasuXL-d_I6AxGzONB4NI5NSGaDLFYGNuHZ51Ee3EZ8wYwc1cYkS14fdBX_Gpm0pd-eyEZ-Bjn3frd4BHY72qwelhOXlwW-mlTFHsg9YlIJZbAlX3fXRCVT8UPuOgFZbl-0LxEDhA5MucAB0ek5gEwKd-gTS9h7tSI1d47rBAj9suLMe7vb1u27AyaThxj1cVLZYEPgNN-3TY7yLe1ZzgT_pAT9UshOctOCoFxQdGLZgb4pV1nZm3HJBD7fAshUMgxY87wE_PtouctPrIGgU6xdjzd2pTSc4arnhj9wlPrfcsA0cTI64FYHtm8PuLvcG6HgU1u_ksavK3R1TFXDou0XNmXhUxqKsPQbhcFK7DMKw8UlQWNZ5zVEbJZlo-OB83PDBeNLHL5Q0lmfo_X4cZjpqvCbTPqcb_ozyGbXVr98zrH3axIa9aV1dvH-oOb_G_KOCVwRM340AujwjgyEJySBYnVwDoMsJGQRkMCLD1enoA10OQjIiARmcrU7mHehy7BSHZLQ6GXHnNiKDkJyRQ7xmqoEup2S4jxiu9hmj5uhShstoNg4I3Cltcy8qUPOYAYGr26sICETzaAYrAjnPcsGz3DavqYSnabOMVVGgbDc0lkrbBmImr1fWfQrqH4YAKMxyFSv3wvFmSpe_AQHrfgei9RZ5nFcy8zbGmwsmvV_-_far98_f3j1mXEnv9S_vVknmroEdAoXQD8-8aPbz9cyrZOLt_zBK1FwlzSbsdv8D">▶ Live: Säulen mit ΔPL und ΔPL%</a>
+
+  <h2>Die wichtigsten Chart-Typen</h2>
+  <p><strong>Klassiker:</strong> Säulen, Balken, Linie, Wasserfall, Szenario-Brücke (PL → AC), Varianzanalyse, KPI-Karten (Stile IBCS / Status / Trend), Tabelle, Z-Chart, Sparklines, Bullet, Pareto, Scatter.</p>
+
+  <h3>Integrierte Varianz — die „große" IBCS-Komposition</h3>
+  <p>Vier Tiers auf einer Zeitachse: ΔPL%_YTD (kumuliert) · ΔPL% je Periode · Δ-Brücke · Säulen mit AC/FC-Gesamtsäule und Endvergleichs-Pins. Exportiert auch als dynamisches Deneb-Template.</p>
+  <a class="live" target="_blank" href="https://datenwgknowledgekitchen.com/business-chart-builder.html#s=jZZdbts4EICvIgyw-8Qu9GMrFt8cp8EWTbpu7LZYFH6gpZFFmCIFkrKbBAb2EHuE3qHv7U16koLWn5MNjH0bzXzzT9J-hB3QgIAB-gj2vkKgsGOaSwsEKs1Lpu-BwnQGBDTmqFGmjpnfnCpCoPDzn3-BON8FCheMBUCtrpGA7iUW9rpWOhDIMOUlEwaoTyBdL1iOQHMmDBIwhdrfYX7D1uiAVosym3M5fBvL0m3g-4NCaXuFJn0SZ1GXXfZ9_pHp4eMvzVFaoFAAgbXm2QavuAYK-T4DAmltF3VpOr4B7lyXbfRGM__7PwqBuxOsaebp93T9rI2pua2F5b3SRqy2qsttNcqstwkucSrEs-lYVb07zrIQtypzy0IheGWw2djC3gunVHlu0G3ZpEzgJTuJ-2XJ7ZH5UBpmH4DAfaf5xNLC2Lr0fgMCpdkABRdC1fp4LJzSld8mTpUAAjlHkbkDdiCwVeWaXzIzWF0T11wIoCCVxFbzRmb4pS9oW_GubL5OjYuppF24wo-nN9eqXB4Pr6yFIFBLbptqnNRycBwkgbRg2t4w6WrPXL6MmWJRMD0cO8v0Bq07xUr2yl0XXbh5u_AHAhI3c6bx5DAyKZUB-nlFYCeuXR3N6nbiI27YEE1cocT1YF3wB2zHlnO3l534BDT2fSf9CTQaHaWlUsLyavCbaWXMSdgllpVgFjvCdXd9soGaD70fCGi1d9U-QgoUApc2ABoFFwR2IdDIpc-7e3QgDRb2WHAOizrMH5_DRj12Ntq4xcIkOYfFPTY5h130SeNnWPMqNdSkb9Q_QyU9FZ6hAr_HonNY8P-w8HzSFYH9k9X2V3kHNB6FzQscu5G7m2LqErrQt8yi5kxslbEoG49XYTRpXF6FYeuTobCs95qjNkoy0fLBRdzyQTx5iV8oaSzfoPf2NE0yar0myUtON_wB5QNqq3983WDj0xUWvVjW68s3y4bzG8w_aXhFwDwZ0vugYT8HQUgmIzKKV12g92FnCgOS-GQcDqaoM_kjksRklAymUWeKYpIkZDxZHbOi5ujSwlyrrN5abwqkly9P5BmsCBR8Uwi-KWz7rmQ8z1sxVWWJsjNorJS2LcRM0UjWvd3ND3wAFGaFSpV7IbyZ0tUfQMC63-93aD3DBBqPS-_t6w933vdvXuiH7kLZyN16Pxx709nv1zOvlpl3_AdQoeYqa41wOPwC">▶ Live: Integrierte Varianzanalyse</a>
+
+  <h3>Neu — inspiriert von der FT Visual Vocabulary</h3>
+  <div class="grid">
+    <div>
+      <strong>Slope</strong> — Vorher/Nachher über zwei Szenarien (PY → AC), Δ inhärent.<br>
+      <a class="live" target="_blank" href="https://datenwgknowledgekitchen.com/business-chart-builder.html#s=bVXbjts2EP0VYYC-MYUkX9bmm9a7iwRdp87aSbAI_EBLI4k1RQokZWd3YaBP_YCin5B_6Hv7J_mSgrpY2tRvwzNnzlw4lF7gADQgYIC-gH0qESgYoUoEAqXmBdNPQCFaAAGNKWqUsaOsHodACBS-__4XEDgwvUbhtFgA1OoKCeizxcIz1lonAgnGvGDCAPUJxLs1SxFoyoRBAiZXxwdM79kOHaFFUSYrLvuzsSzeB77fA0rbGzTxK511VXTZj-knpvvDr5qjtEAhBwI7zZMMb7gGCukxAQJxZddVYTp-Q3hwXbbqDbJ6_B8g8DCgNc28Pke7H9qIzLISlp9BO2KVVV1uq1EmZ5_gEiMhfpiOVeX7epa5WKrEXRYKwUuDzY2t7ZNwoEpTgxYImJgJvGYD3a8bbmvOx8Iw-wwEnjrkM4tzY6vC-wkIFCYDCk5CVbpeCwe68tvEsRJAIOUoErdfJwJ7Vez4NTO91zVxx4UAClJJbJF3MsGv54L2Je_K5rvYOE0l7doVXi9vqlWxqXdXVkIQqCS3TTXOanlQD5JAnDNt75l0tScuX8JMvs6Z7tfOMp2hdVus5Bk8dOrCzdvJnwhIzFZM42AZmZTKAP2yJXAQd66O5uoO4hNmrFcTNyhx13vX_BnbsaXc3ctBfAY69X1nvQU6GtfWRilhednHLbQyZiC7waIUzGLHcN3dDW6g4n3vJwJaHV21LxADhZto8dZlDoAGsymBQwg0uPIJpN1TOpGG-V5pm3tRgZrHrAuZ-G1IGF4IuV3eRi1z3mn7swvEaFV_bhxxOm6Ik0uC99EmWrbE0awhjq-GxC2B46sGzwt9cNph8x2a-gEBty-mKqATXzKLmjOxV8aibCLehC6NC3kThm1MgsKyc9QKtVGSiZYfXE1bfjCdXeKvlTSWZ-j9MkwzH7dRs_mloHv-jPIZtdX_fsuwiekKG10s6_b63abh-Q3NHzS8JWBeDelD0HC_BEFIZmMynm47oQ9h5woDMvfJJOxdo87lj8l8Ssbz3jXuXKMpmc_JZLats6Lm6NLCSquk2lvP7UdnXw_sBWwJ5DzLBc9y276uhKdpa8aqKFB2Do2l0rYlMZM3lnVfsOYvFwCFRa5i5d6Jt1C6_BkI2PC8IN5v6D1gxpX0_vnbWz163__406uX0o6AQuiHEy9aeJVMvPpHWKLmKmk9cDr9Bw">▶ Live: Slope</a>
+    </div>
+    <div>
+      <strong>Heatmap-Matrix</strong> — Perioden × Serien, divergierend <span class="pill">+</span>/<span class="pill n">−</span> (Abweichungs-Sicht).<br>
+      <a class="live" target="_blank" href="https://datenwgknowledgekitchen.com/business-chart-builder.html#s=bZZdbts4EICvYgywfWIXkvwRm2-OU2PbTVo3TlsUhR9oaWQRpkiBpOwmgYE9xB6hN-lN9iQLWqTktHobzfzmP8PhSPYzHIDGBAzQZ7CPFQKFVIm6lAYIVJqXTD8ChfkCCGjMUaNMHbS6vXQkQOG_f_4FAgem1yicGouBWl0jAd1aLGl93joRyDDlJRMGaEQg3a5ZjkBzJgwSMIU63mN-y7boAO9Fma247J6NZek-jqLOobS9QZO-0FnXZah-zD8z3T180BylBQoFENhqnu3whmugkB8zIJDWdl2XJvANcO9O6dUbz-rrbw6BhwusOYwIOu5xvm1lz4eYm7taWN6m2CGrrQqI1SizNia4xLkQv8zGqur9eZKFuFOZuyoUglcGm_ta20fhnCrPDVogYFIm8Jpd6H5_4PbMfCoNs09A4DF4vrC0MLYuB38AgdLsgIKTULU-L4VzuvZ94VQJIJBzFJnbrxOBvSq3_JqZLuoOseRCAAWpJHrPW5nh97ahfcVD23ybusXMlbRr1_h5eXOtyofz7spaCAK15Lbpxlmeg_MgCaQF0_aWSdd75uplzBTrgulu6SzTO7Ruh5VsnYegLty8nfyJgMTdimm8WEUmpTJAv20IHMTS9dFc3UF8xh3r1MQNStx20TV_Qj-2nLt7OYgvQCdR5Ky_gA5HZ-tBKWF51eUttDLmQvYBy0owi4Fwp1te3EDNu7OfCGh1dN0-QwoU3jHpCsdAZ1cEDgnQWUQgD2_RiTTYErcei6PEc-Me7u7nD-3B6dRzkx5uXgUsjiPPzfr0GG_rjhsujqY94LtatoLTAI56QdGCSQB7W6x3YTKTwMU93BqrIJjEAbzqAT_sbVvZzzqOvWLzWWy49-rQCo4CN_ydu8GnwA1D4Xh6wW0IHF9cdvtyH4BORknzRZ64U7l3x9QldHO3qDkTe2UsyibjdTKcNimvk8TnZCgsa7NWqI2STHg-vpp4Pp5M-_i1ksbyHQ7-viwzG_ms6awv6ZY_oXxCbfXPHztsckJjw9623ly_fWi4qMGiiwNvCJgXQ_oYN-w3tx_TERlNNkHoYxJCSUxmERknXWgYQtGIzCZkNOtCoxAaTshsRsbTzbkqao6uLKy0yuq9HcyBtPb1hb2ADYGC7wrBd4X1X5qM57k3U1WWKENAY6W09RAzRWNZ9zVvfvFjoLAoVKrcN2OwULr6EwjYpF2QAZeD8s2ne-cdAoUkSsaD-eLVcjGoZTZYfXV_E1BzlfkgnE7_Aw">▶ Live: Heatmap</a>
+    </div>
+    <div>
+      <strong>Marimekko</strong> — Anteil × Größe (variable Säulenbreite).<br>
+      <a class="live" target="_blank" href="https://datenwgknowledgekitchen.com/business-chart-builder.html#s=bZbvbts2EMBfRThgwwawgyQ7jqxvjpOg7ZLWiLIWReEPtHSSCFOkQFJ248DAHmLAXqBvkjfZkwy0KMlp9Y26-91fnk56hh3EAQEN8TOYpxohhooqVuF2K4FArVhF1RPEsFgCAYU5KhSpxVZfzgUhxPDf3_8AgR1VCXLrjwYQG9UgAdWfaNjL3OlIIMOUVZRriH0C6SahOUKcU66RgC7l_gHzO7pBCzgpimzFxPCsDU23ge8PAqnMNer0lZ-kqbro-_wTVcPDR8VQGIihBAIbxbICr5mCGPJ9BgTSxiRNpTu-BR5slc57K1l9-UnAcXeGtcW8fl5sfihjoe8bblgvNBPaGNnFNgpF1us4E7jg_IfuGFl_OPWy5Pcys5eFnLNaY3tjiXniVijzXKMBAjqlHK_omd9vj8ycmL8qTc0BCDx1ks80LbVpKu8XIFDpAmKwLmSjTmNhhTZ9FziVHAjkDHlmZ-xIYCurDbuietDaIm4Z5xCDkAKd5J3I8Fuf0LZmXdpsk2rrUwqT2MRPA5wrWT2e5lc0nBNoBDNtNvbkODg1kkBaUmXuqLC5ZzZeRnWZlFQNY2eoKtDYKZaiF-4679z227o_EhBYrKjCs2GkQkgN8dc1gR2_tXm0V7fjn7Cggzd-jQI3gzZhB3Rty5m9lx3_DPHM9-3pLcST6en0KCU3rB7slkpqfeb2EauaU4MdYau7PbuBhg21HwkoubfZPkMKMbynwgYOIJ5fEtiFEM99Ann3Hh1Ji93ixmGBHzruYoS7f_muHBhFjpuNcIu6w4LAd9x8zB9lfdyLlgv8aAR834jeYdSB01GQ92DYgaMpNkXXmVnHBSNcgnXnMAw68HIE_Lg1fWTX6yBwHtvF2HIf5K53OO24yc_cNR46btIFDqIzbk1g_-qy-5d7B_FsGrY7eWarsu-ObioY-m5QMcq3UhsUrcWbcBK1Jm_C0NlkyA3trVaotBSUOz64nDk-mEVjfCKFNqxA78_zMPOps4rmY0Z37IDigMqol-8FtjZdYpPRtG6u3j22nN9i_lnBawL6VZOuF8u3Lf01iGYkCH0ym66Hy1Gm9BYVKpbSDrvwyaVPpn5P3dzfLJxyPiORTyaDbrE6fVqtbjYlk4gE0fqUBSqGNg1I0lJuJaenVbVS1G5H25yEMi3F3q6tNYGSFSVnRWnc6slYnrtjKqsKRadQWEtlHER12Z6MXe_tb0AAMSxLmUq7RLylVPUfQMCE_cR4gqal94AFk8L77UohM_i79_Kvt1Iya7aGM8FsrmYCMYR-eOEtlr_eLr1GZN7pt6FGxWTmlHA8_g8">▶ Live: Marimekko</a>
+    </div>
+    <div>
+      <strong>Fan</strong> — Ist solide + Forecast gestrichelt mit Unsicherheits-Korridor (im Builder unter „Fan · Forecast-Korridor").
+    </div>
+  </div>
+
+  <h2>IBCS-Check (eingebauter Linter)</h2>
+  <p>Der Button <code>✓ IBCS-Check</code> prüft deine Konfiguration gegen die wichtigsten IBCS-Regeln (klare Botschaft im Titel, ≤ 5 Segmente, einheitliche Skala, Nulllinie …) und gibt konkrete Hinweise mit Lösungsvorschlag.</p>
+
+  <h2>Export — der eigentliche Trick</h2>
+  <p><code>⚡ Vega / Deneb</code> öffnet den Export mit drei Modi:</p>
+  <ol>
+    <li><strong>Power BI · Deneb-Template</strong> — der Hauptanwendungsfall: eine <code>.json</code>, in Power BI per Deneb <em>Aus Vorlage erstellen → Importieren</em>, dann nur die gelisteten Felder zuordnen.</li>
+    <li><strong>Vega / Vega-Lite</strong> — zum Ausprobieren im Vega-Editor.</li>
+    <li><strong>PNG / SVG / HTML</strong> — für Folien, Doku, Web (SVG = gestochen scharf).</li>
+  </ol>
+  <div class="tip"><strong>Zwei Stolpersteine, die Zeit sparen:</strong><br>
+  • Das <strong>FC-Flag ist eine Zahl</strong> (1 = Forecast, 0/leer = Ist) — keine Boolean-Spalte nötig.<br>
+  • In Power BI das Visual auf <strong>ein Berichtsjahr filtern</strong>, sonst summieren sich AC/PL/PY/FC über mehrere Jahre.</div>
+
+  <h2>Zusammensetzen, Teilen, Sichern</h2>
+  <ul>
+    <li><strong>+ Dashboard</strong> / <strong>+ Bericht</strong>: mehrere Charts in ein Layout — der Dashboard-Export geht ebenfalls als ein Deneb-Template.</li>
+    <li><strong>Link teilen</strong>: die komplette Konfiguration steckt in der URL (genau das nutzen die Live-Beispiele oben).</li>
+    <li><strong>Sichern / Laden</strong>, Undo/Redo (<kbd>Strg+Z</kbd>), und <strong>DE/EN</strong> (Oberfläche und Chart-Sprache getrennt).</li>
+  </ul>
+
+  <a class="cta" href="business-chart-builder.html">▶ Jetzt selbst ausprobieren</a>
+
+  <footer>
+    Gebaut von <a href="https://www.linkedin.com/in/michael-tenner-5b885970/" target="_blank" rel="noopener">Michael Tenner</a> ·
+    <a href="https://www.daten-wg.com" target="_blank" rel="noopener">Daten-WG</a> ·
+    Teil der <a href="daten_wg_learn_buckets.html">Daten-WG Knowledge Kitchen</a><br>
+    Unabhängiges Projekt, IBCS-orientiert (nicht IBCS-zertifiziert).
+  </footer>
+
+</div>
+</body>
+</html>
