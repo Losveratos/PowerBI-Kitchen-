@@ -47,3 +47,6 @@ Thumbs.db
 .claude/*
 !.claude/skills/
 deneb-test/
+
+# Temp: pbix-Extraktion
+_gtmp/
