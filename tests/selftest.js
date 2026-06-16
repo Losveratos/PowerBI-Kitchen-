@@ -413,6 +413,13 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       /* Template exportiert weiterhin ALLE Zeilen (Collapse ist reine Darstellung) */
       let tComp=false, tBaked=1; try{ const b=clone(denebTemplate()); tBaked=tplBakedRows(b); delete b.usermeta; tComp=!!VL.compile(b).spec; }catch(e){}
       ok('H · Tabelle · Template trotz Collapse gültig (baked=0)', tComp && tBaked===0);
+      /* „bis Ebene"-Filter: collapseTableToLevel(0) klappt alle Eltern zu */
+      if(typeof collapseTableToLevel==='function'){
+        collapseTableToLevel(0); renderPreview();
+        const lv0=chartHtml();
+        ok('H · Tabelle · collapseTableToLevel(0) zeigt nur Ebene 0',
+           /Umsatz/.test(lv0) && /Kosten/.test(lv0) && !/Produkt A/.test(lv0) && !/Material/.test(lv0));
+      }
       state.rowCollapse=new Set();
 
       /* H2 · Vertikaler Wasserfall: Phase einklappen aggregiert, Σ bleibt korrekt */
