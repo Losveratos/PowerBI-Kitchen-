@@ -725,6 +725,7 @@ const TYPE_GROUPS = [
     { id:'kpiStatus', name:'KPI · Status' },
     { id:'kpiTrend',  name:'KPI · Trend' },
     { id:'scatter',   name:'Streudiagramm' },
+    { id:'gantt',     name:'Gantt · Projektplan' },
   ]},
 ];
 /* Virtuelle Typ-Kacheln: zeigen die KPI-Stile direkt im Typ-Picker, mappen
@@ -3536,6 +3537,12 @@ function indexRows(rows){
 
 /* ---------- Diagramm zusammensetzen ---------- */
 function buildChart(){
+  /* Gantt: Raw-Vega-Pfad – das gerenderte Vega-SVG aus dem Live-DOM
+     (für SVG/PNG/HTML-Export wiederverwenden). */
+  if(state.type==='gantt'){
+    return ganttSvgString() ||
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 120" width="600" height="120"><text x="12" y="34" font-family="Arial" font-size="13" fill="#8c8c8c">Gantt – Vorschau wird geladen …</text></svg>';
+  }
   const rows = activeRows();
   let r;
   const tiersOn = (state.showRel || state.showAbs) && state.reference!=='—';
@@ -3688,6 +3695,7 @@ function typeIcon(id){
     case 'boxplot': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="5" y1="2" x2="5" y2="16" stroke="'+g+'" stroke-width="1.1"/><rect x="2" y="6" width="6" height="6" fill="#eceae6" stroke="'+g+'" stroke-width="1.1"/><line x1="2" y1="9" x2="8" y2="9" stroke="'+g+'" stroke-width="1.6"/><line x1="13" y1="1" x2="13" y2="15" stroke="'+g+'" stroke-width="1.1"/><rect x="10" y="4" width="6" height="7" fill="#eceae6" stroke="'+g+'" stroke-width="1.1"/><line x1="10" y1="7" x2="16" y2="7" stroke="'+g+'" stroke-width="1.6"/><line x1="21" y1="3" x2="21" y2="17" stroke="'+g+'" stroke-width="1.1"/><rect x="18" y="8" width="6" height="6" fill="#eceae6" stroke="'+g+'" stroke-width="1.1"/><line x1="18" y1="11" x2="24" y2="11" stroke="'+g+'" stroke-width="1.6"/></svg>';
     case 'slope': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="4" y1="1" x2="4" y2="17" stroke="#e2e1de"/><line x1="22" y1="1" x2="22" y2="17" stroke="#e2e1de"/><line x1="4" y1="13" x2="22" y2="4" stroke="#469b3c" stroke-width="1.5"/><line x1="4" y1="6" x2="22" y2="11" stroke="#c0392b" stroke-width="1.5"/><circle cx="4" cy="13" r="1.8" fill="#469b3c"/><circle cx="22" cy="4" r="1.8" fill="#469b3c"/><circle cx="4" cy="6" r="1.8" fill="#c0392b"/><circle cx="22" cy="11" r="1.8" fill="#c0392b"/></svg>';
     case 'varint': return '<svg width="26" height="18" viewBox="0 0 26 18"><circle cx="4" cy="1.6" r="1" fill="#469b3c"/><circle cx="11" cy="2" r="1" fill="#c0392b"/><circle cx="18" cy="1.4" r="1" fill="#469b3c"/><rect x="2" y="5.5" width="3" height="2" fill="#469b3c"/><rect x="9" y="5.5" width="3" height="2.4" fill="#c0392b"/><rect x="16" y="5.2" width="3" height="2" fill="#469b3c"/><rect x="2" y="11.5" width="2.6" height="4.5" fill="'+g+'"/><rect x="7" y="13" width="2.6" height="3" fill="'+g+'"/><rect x="12" y="12" width="2.6" height="4" fill="'+g+'"/><rect x="17" y="13.5" width="2.6" height="2.5" fill="'+l+'"/><rect x="21.5" y="12.5" width="2.6" height="3.5" fill="'+l+'"/><line x1="0" y1="16" x2="26" y2="16" stroke="'+g+'" stroke-width="1"/></svg>';
+    case 'gantt': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="3" y="2" width="11" height="3" rx="1" fill="'+g+'"/><rect x="9" y="7" width="13" height="3" rx="1" fill="'+l+'"/><rect x="6" y="12" width="9" height="3" rx="1" fill="'+g+'"/><path d="M20,11 l1.6,1.6 l-1.6,1.6 l-1.6,-1.6 z" fill="#c0392b"/></svg>';
     default: return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="5" x2="26" y2="5" stroke="'+g+'" stroke-width="1"/><line x1="3" y1="5" x2="3" y2="2" stroke="#469b3c" stroke-width="1.4"/><circle cx="3" cy="2" r="1.4" fill="#469b3c"/><line x1="9" y1="5" x2="9" y2="8" stroke="#c0392b" stroke-width="1.4"/><circle cx="9" cy="8" r="1.4" fill="#c0392b"/><rect x="14" y="11" width="3" height="6" fill="'+g+'"/><rect x="20" y="13" width="3" height="4" fill="'+l+'"/><line x1="0" y1="17" x2="26" y2="17" stroke="'+g+'" stroke-width="1"/></svg>';
   }
 }
@@ -3800,6 +3808,16 @@ function renderChips(){
 /* ---------- Dateneingabe-Tabelle ---------- */
 function renderDataTable(){
   const thead = $('#dataTable thead'), tbody = $('#dataTable tbody');
+  if(state.type==='gantt'){
+    /* Gantt nutzt feste Demo-Daten (Raw-Vega-Vorlage) – nur lesbar anzeigen. */
+    thead.innerHTML = '<tr><th>Phase</th><th>Task</th><th>Start</th><th>Ende</th><th class="num">%</th></tr>';
+    tbody.innerHTML = ganttDemoData().map(r=>
+      '<tr><td>'+esc(r.phase)+'</td><td>'+esc(r.task)+(r.milestone?' ◆':'')+'</td>'+
+      '<td>'+esc(r.start)+'</td><td>'+esc(r.end)+'</td>'+
+      '<td class="num">'+r.completion+'</td></tr>'
+    ).join('');
+    return;
+  }
   if(state.type==='scatter'){
     thead.innerHTML = '<tr><th>Kategorie</th><th class="num">X · '+esc(state.xTitle)+'</th><th class="num">Y · '+esc(state.yTitle)+'</th><th class="num">Größe (opt.)</th><th></th></tr>';
     tbody.innerHTML = state.rows.map((r,i)=>
@@ -3957,8 +3975,14 @@ function renderPreview(){
   $('#dashColsCtl').style.display = state.view==='dash' ? '' : 'none';
   $('#dvc1').classList.toggle('on', state.dashCols===1);
   $('#dvc2').classList.toggle('on', state.dashCols===2);
+  /* Beim Verlassen des Gantt die Vega-View finalisieren (window-Listener lösen) */
+  const stayGantt = state.view!=='dash' && state.type==='gantt';
+  if(state._ganttView && !stayGantt){ try{ state._ganttView.finalize(); }catch(e){} state._ganttView = null; }
   if(state.view==='dash'){
     renderDashPreview();
+    $('#commentList').innerHTML = '';
+  } else if(state.type==='gantt'){
+    renderGanttPreview();        /* async Raw-Vega-Render in #chartHost */
     $('#commentList').innerHTML = '';
   } else {
     $('#chartHost').innerHTML = buildChart();
@@ -4157,6 +4181,12 @@ function buildDashExportSvg(){
     '<rect width="'+W+'" height="'+totalH+'" fill="'+WHITE+'"/>'+head+body+foot+'</svg>', W, H:totalH };
 }
 function exportSvgCurrent(){
+  /* Gantt: rohes Vega-SVG direkt exportieren (eigener Header, kein Titelblock-Wrap) */
+  if(state.type==='gantt' && state.view!=='dash'){
+    const svg = ganttSvgString() || '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="120"></svg>';
+    const m = svg.match(/\bwidth="([\d.]+)"[^>]*?\bheight="([\d.]+)"/);
+    return { svg, W: m ? +m[1] : 860, H: m ? +m[2] : 440 };
+  }
   return (state.view==='dash' && state.dash.length) ? buildDashExportSvg() : buildExportSvg();
 }
 /* SVG → PNG-Blob in 2×-Auflösung (scharf auf Folien und HiDPI-Displays) */
@@ -4606,6 +4636,7 @@ $('#dataTable').addEventListener('click', e=>{
 function diceData(){
   const R = (a,b)=> a + Math.random()*(b-a);
   const RI = (a,b)=> Math.round(R(a,b));
+  if(state.type==='gantt'){ flash($('#btnDice'), 'Gantt nutzt Demo-Daten'); return; }
   if(usesSrows()){
     state.series.forEach((nm,j)=>{
       const base = R(35, 140);
@@ -4866,6 +4897,11 @@ $('#btnExport').addEventListener('click', ()=>{
 /* Welche Feldnamen sind für den aktuellen Typ relevant? [key, Label] */
 function vFieldDefs(){
   const t = state.type, defs = [['dim','Dimension']];
+  if(t==='gantt'){
+    return [['phase','Phase'],['task','Task'],['start','Start (Datum)'],['end','Ende (Datum)'],
+            ['completion','Fortschritt %'],['id','ID'],['status','Status (optional)'],
+            ['assignee','Zuständig (optional)'],['dependencies','Abhängigkeiten (optional)']];
+  }
   if(t==='waterfall'){
     defs.push(['v','Wert · '+state.primary]);
     if((state.showAbs||state.showRel) && state.reference!=='—') defs.push(['r','Referenz · '+state.reference]);
@@ -4974,6 +5010,9 @@ function tplUuid(){
   });
 }
 function denebTemplate(){
+  /* Gantt: fertige Raw-Vega-Spec unverändert ausgeben (Power BI liefert Signale
+     + 'dataset' selbst). Attribution bleibt in spec.description erhalten. */
+  if(state.type==='gantt') return _ganttSpecRaw ? JSON.parse(JSON.stringify(_ganttSpecRaw)) : null;
   const saveVega = state.vlVega; state.vlVega = false;   /* Templates immer Vega-Lite (Felder mappen zuverlässig) */
   const spec = vegaSpec(true);
   state.vlVega = saveVega;
@@ -5031,6 +5070,15 @@ function tplBakedRows(tpl){
 }
 async function regenVegaCode(){
   $('#specSummary').textContent = specSummary();
+  /* Gantt: fertige Raw-Vega-Vorlage unverändert ausgeben */
+  if(state.type==='gantt'){
+    await loadGanttSpec();
+    dlgFile = 'pmo-gantt.deneb.json';
+    $('#dlgCode').value = _ganttSpecRaw
+      ? JSON.stringify(_ganttSpecRaw, null, 2)
+      : '// Gantt-Vorlage konnte nicht geladen werden (assets/gantt/pmo-gantt.deneb.json).';
+    return;
+  }
   if(state.vlTemplate){
     const tpl = denebTemplate();
     dlgFile = 'business-chart.deneb.json';
@@ -5092,6 +5140,97 @@ function loadVegaLibs(){
   }
   return vegaLibsPromise;
 }
+
+/* =========================================================================
+   GANTT (PMO Toolkit · Devon Locher / DL0K-pbi · MIT)
+   ---------------------------------------------------------------------
+   Eigener Pfad, NICHT die Vega-Lite-Pipeline: assets/gantt/pmo-gantt.deneb.json
+   ist fertiges Raw-Vega v5. Lokal rendern wir es mit eingebetteten Demo-Daten;
+   die Power-BI-Signale pbiContainerWidth/Height werden mit Defaults überschrieben
+   und der benannte Datensatz 'dataset' direkt eingebettet (in Power BI liefert
+   Deneb beides selbst). Der Deneb-Template-Export gibt die Spec unverändert aus.
+   ========================================================================= */
+let _ganttSpecRaw = null, _ganttSpecPromise = null;
+function loadGanttSpec(){
+  if(_ganttSpecRaw) return Promise.resolve(_ganttSpecRaw);
+  if(!_ganttSpecPromise){
+    _ganttSpecPromise = fetch('assets/gantt/pmo-gantt.deneb.json')
+      .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(j=>{ _ganttSpecRaw = j; return j; });
+    _ganttSpecPromise.catch(()=>{ _ganttSpecPromise = null; });
+  }
+  return _ganttSpecPromise;
+}
+/* Demo-Projekt im Gantt-Feldschema (phase, task, start, end, completion, id +
+   optional assignee, status, milestone, dependencies). Fixe Daten → deterministisch.
+   Angelehnt an die Original-Demo „Weekly Gantt" (Gantt Chart.xlsx) des PMO-Toolkits. */
+function ganttDemoData(){
+  return [
+    {id:1, phase:'Konzept',   task:'Anforderungen',     start:'2026-01-05', end:'2026-01-16', completion:100, assignee:'Lena', status:'Complete'},
+    {id:2, phase:'Konzept',   task:'Lastenheft',        start:'2026-01-19', end:'2026-01-30', completion:100, assignee:'Lena', status:'Complete', dependencies:'1'},
+    {id:3, phase:'Konzept',   task:'Freigabe Konzept',  start:'2026-02-02', end:'2026-02-02', completion:100, milestone:true, dependencies:'2'},
+    {id:4, phase:'Umsetzung', task:'Datenmodell',       start:'2026-02-03', end:'2026-02-20', completion:80,  assignee:'Mika', status:'In Progress', dependencies:'3'},
+    {id:5, phase:'Umsetzung', task:'Deneb-Visuals',     start:'2026-02-16', end:'2026-03-13', completion:45,  assignee:'Mika', status:'In Progress', dependencies:'4'},
+    {id:6, phase:'Umsetzung', task:'Datenanbindung',    start:'2026-02-23', end:'2026-03-20', completion:30,  assignee:'Sara', status:'Blocked', dependencies:'4'},
+    {id:7, phase:'Rollout',   task:'Test & QA',         start:'2026-03-23', end:'2026-04-10', completion:0,   assignee:'Sara', status:'Not Started', dependencies:'5,6'},
+    {id:8, phase:'Rollout',   task:'Schulung',          start:'2026-04-13', end:'2026-04-24', completion:0,   assignee:'Lena', status:'Not Started', dependencies:'7'},
+    {id:9, phase:'Rollout',   task:'Go-Live',           start:'2026-04-27', end:'2026-04-27', completion:0,   milestone:true, dependencies:'8'},
+  ];
+}
+/* Spec klonen, PBI-Signale als Default-Werte ergänzen, Demo-Daten in 'dataset'
+   einbetten (mit Datums-Parsing). Reihenfolge: pbiContainer* VOR den height/width-
+   Signalen, die darauf verweisen. */
+/* Die exportierte Vorlage nutzt die Power-BI/Deneb-Konvention, einfache
+   Anführungszeichen in Vega-Ausdrücken zu verdoppeln ('' statt '). Für die
+   lokale Raw-Vega-Vorschau machen wir das rückgängig – NUR auf dem Klon, die
+   Export-Spec (_ganttSpecRaw) bleibt unverändert. Alle Quote-Läufe sind gerade
+   (''=' , ''''=leerer String-Literal), daher ist die globale Ersetzung sicher. */
+function ganttUnescapeQuotes(node){
+  if(typeof node==='string') return node.indexOf("''")>=0 ? node.replace(/''/g, "'") : node;
+  if(Array.isArray(node)){ for(let i=0;i<node.length;i++) node[i]=ganttUnescapeQuotes(node[i]); return node; }
+  if(node && typeof node==='object'){ for(const k of Object.keys(node)) node[k]=ganttUnescapeQuotes(node[k]); return node; }
+  return node;
+}
+function buildGanttSpec(W, H){
+  const spec = ganttUnescapeQuotes(JSON.parse(JSON.stringify(_ganttSpecRaw)));
+  spec.signals = [
+    {name:'pbiContainerWidth',  value:W},
+    {name:'pbiContainerHeight', value:H},
+  ].concat(spec.signals || []);
+  const ds = (spec.data || []).find(d=>d.name==='dataset');
+  if(ds){ ds.values = ganttDemoData(); ds.format = {parse:{start:'date', end:'date'}}; }
+  return spec;
+}
+/* Aktuelles Gantt-SVG aus dem Live-DOM (immer der gerenderte Stand) – mit xmlns
+   für PNG-Rasterung / Datei-Export. */
+function ganttSvgString(){
+  const live = document.querySelector('#chartHost svg');
+  let s = live ? live.outerHTML : (state._ganttSVG || '');
+  if(s && !/xmlns=/.test(s)) s = s.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+  return s;
+}
+async function renderGanttPreview(){
+  const host = $('#chartHost');
+  host.innerHTML = '<div style="padding:26px;font-size:12px;color:#8c8c8c">'+TT('Gantt wird geladen …')+'</div>';
+  try{
+    await loadVegaLibs();
+    await loadGanttSpec();
+    const W = Math.max(560, Math.floor(host.clientWidth || 860));
+    const H = 440;
+    const spec = buildGanttSpec(W, H);
+    if(state._ganttView){ try{ state._ganttView.finalize(); }catch(e){} state._ganttView = null; }
+    host.innerHTML = '';
+    const view = new window.vega.View(window.vega.parse(spec), {renderer:'svg', container:host, hover:true});
+    await view.runAsync();
+    state._ganttView = view;
+    try{ state._ganttSVG = await view.toSVG(); }catch(e){ state._ganttSVG = null; }
+  }catch(err){
+    state._ganttView = null; state._ganttSVG = null;
+    host.innerHTML = '<div style="padding:26px;font-size:12px;color:#b06a00">'+
+      TT('Gantt-Vorschau nicht möglich')+': '+esc(String(err && err.message || err))+'</div>';
+  }
+}
+
 $('#dlgPreview').addEventListener('click', async ()=>{
   const host = $('#vlPreview');
   host.style.display = 'block';
@@ -5144,8 +5283,25 @@ function syncSpecOpts(){
   if(isDash) renderDashFields();
   applyUILang();
 }
-$('#btnVega').addEventListener('click', ()=>{
+$('#btnVega').addEventListener('click', async ()=>{
   if(state.view==='dash' && state.dash.length){ $('#btnDash').click(); return; }
+  /* Gantt: eigener Dialog – rohe Vorlage + kurze Anleitung, keine VL-Optionen */
+  if(state.type==='gantt'){
+    await regenVegaCode();
+    $('#dashPanel').style.display = 'none';
+    $('#specOpts').style.display = 'none';
+    $('#fieldMap').style.display = 'none';
+    $('#dlgPreview').style.display = 'none';
+    $('#vlPreview').style.display = 'block';
+    $('#vlPreview').innerHTML =
+      '<div style="font-size:11.5px;color:#5a5a5a;line-height:1.6">'+
+      '<b>'+TT('Fertige Gantt-Vorlage')+' · PMO Toolkit (MIT)</b><br>'+
+      TT('Raw-Vega v5 – unverändert ausgegeben. In Deneb: „Neue Spezifikation → Aus Vorlage erstellen → Importieren" und diese Datei wählen. Power BI liefert die Signale und den Datensatz dataset selbst.')+'<br>'+
+      TT('Felder im Deneb-Datenbereich bereitstellen')+': <code>phase, task, start, end, completion, id</code> ('+TT('optional')+' <code>assignee, status, milestone, dependencies, hyperlink</code>).<br>'+
+      TT('Attribution')+': Devon Locher / DL0K-pbi · MIT ('+TT('siehe Feld description')+').</div>';
+    if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
+    return;
+  }
   dlgFile = state.vlTemplate ? 'business-chart.deneb.json' : (state.vlVega ? 'business-chart.vg.json' : 'business-chart.vl.json');
   regenVegaCode();
   $('#dashPanel').style.display = 'none';

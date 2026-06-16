@@ -351,6 +351,30 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     }
     state.bridgePY=false;
 
+    /* === G) Gantt (Raw-Vega-Vorlage, eigener Pfad) ================== */
+    if(typeof renderGanttPreview==='function'){
+      state.type='gantt';
+      try{ renderDataTable(); await renderGanttPreview(); }catch(e){ ok('G · Gantt render', false, String(e)); }
+      const ghost=document.getElementById('chartHost');
+      const gsvg=ghost?ghost.querySelector('svg'):null;
+      const ghtml=ghost?ghost.innerHTML:'';
+      ok('G · Gantt rendert (SVG mit Demo-Daten)', !!gsvg && /Konzept/.test(ghtml) && /Go-Live/.test(ghtml),
+         'svg='+!!gsvg);
+      ok('G · Gantt · kein NaN', !!gsvg && !/NaN/.test(ghtml));
+      const gex = exportSvgCurrent();
+      ok('G · Gantt · SVG-Export mit Maßen', !!gex && gex.W>200 && gex.H>100 && /^<svg/.test(gex.svg),
+         'W='+(gex&&gex.W)+' H='+(gex&&gex.H));
+      await loadGanttSpec();
+      const gtpl = denebTemplate();
+      ok('G · Gantt · Deneb-Template = Vorlage unverändert',
+         !!gtpl && JSON.stringify(gtpl)===JSON.stringify(_ganttSpecRaw) && /''input''/.test(JSON.stringify(gtpl||{})));
+      ok('G · Gantt · dataset bleibt leer (PBI füllt selbst)',
+         !!gtpl && Array.isArray(gtpl.data) && gtpl.data.some(d=>d.name==='dataset' && !d.values));
+      ok('G · Gantt · keine VL-Pipeline (vegaSpec null)', vegaSpec(false)===null);
+      ok('G · Gantt · Attribution erhalten (MIT/DL0K-pbi)', /DL0K-pbi/.test(JSON.stringify(gtpl||{})));
+      if(state._ganttView){ try{ state._ganttView.finalize(); state._ganttView=null; }catch(e){} }
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{
