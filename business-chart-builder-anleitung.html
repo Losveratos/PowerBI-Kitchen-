@@ -33,6 +33,8 @@
   .pill.n{background:#f6eceb; color:var(--neg)}
   footer{margin-top:48px; padding-top:18px; border-top:1px solid var(--line); font-size:13px; color:var(--ink2)}
   @media(max-width:560px){ .grid{grid-template-columns:1fr} h1{font-size:25px} }
+  .shot{margin:8px 0 6px}
+  .shot img{display:block; width:100%; height:auto; border:1px solid var(--line); border-radius:10px; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.05)}
 </style>
 </head>
 <body>
@@ -63,6 +65,7 @@
     <li><strong>Forecast</strong> wird über ein <strong>FC-Flag (Zahl 1/0)</strong> markiert und automatisch schraffiert dargestellt.</li>
   </ul>
   <a class="live" target="_blank" href="https://datenwgknowledgekitchen.com/business-chart-builder.html#s=bZZdbuM2EMevIgzQogXoQpIdx-ab4iTY3SZZI053sTD8QEsjiQhFCiRlbxIY6CEW6AX2Dn1v3nuInqSg9WHHqzdq-Jv_fHAo6QU2QAMCBugL2KcSgUKOzBasBAKl5gXTT0AhmgEBjSlqlLGD5l-ODSFQ-O_Pb0Bgw_QChVNjAVCrKySguxULO1uz2hFIMOYFEwaoTyBeL1iKQFMmDBIwudreY3rD1uiAxooymXN5eDaWxY-B7x8MSttLNPEbnUVVtNG36SemDw8fNUdpXelAYK15kuEl10Ah3SZAIK7soipMy9fAvauyUa8t8y8_GARujrC6mLfP0fqkjMjcVsLyzmiHrLKqjW01yqTbE1xiJMRJd6wq7_a9zMWtStxhoRC8NFif2MI-CWdUaWrQAgETM4EX7Ej36wO3e-aPwjD7DASeWstnFufGVoX3ExAoTAYUnISq9H4snNGl3wSOlQACKUeRuAnbEXhUxZpfMHPYdUVccyGAglQSG8t7meDXLqHHkrdp83VsnKaSduES349vqlXxsJ9eWQlBoJLc1tm4VcPBvpEE4pxpe8Okyz1x8RJm8kXO9GHsLNMZWjfFSnbGTasuXL-d_I6AxGzONB4NI5NSGaDLFYGNuHZ51Ee3EZ8wYwc1cYkS14fdBX_Gpm0pd-eyEZ-Bjn3frd4BHY72qwelhOXlwW-mlTFHsg9YlIJZbAlX3fXRCVT8UPuOgFZbl-0LxEDhA5MucAB0ek5gEwKd-gTS9h7tSI1d47rBAj9suLMe7vb1u27AyaThxj1cVLZYEPgNN-3TY7yLe1ZzgT_pAT9UshOctOCoFxQdGLZgb4pV1nZm3HJBD7fAshUMgxY87wE_PtouctPrIGgU6xdjzd2pTSc4arnhj9wlPrfcsA0cTI64FYHtm8PuLvcG6HgU1u_ksavK3R1TFXDou0XNmXhUxqKsPQbhcFK7DMKw8UlQWNZ5zVEbJZlo-OB83PDBeNLHL5Q0lmfo_X4cZjpqvCbTPqcb_ozyGbXVr98zrH3axIa9aV1dvH-oOb_G_KOCVwRM340AujwjgyEJySBYnVwDoMsJGQRkMCLD1enoA10OQjIiARmcrU7mHehy7BSHZLQ6GXHnNiKDkJyRQ7xmqoEup2S4jxiu9hmj5uhShstoNg4I3Cltcy8qUPOYAYGr26sICETzaAYrAjnPcsGz3DavqYSnabOMVVGgbDc0lkrbBmImr1fWfQrqH4YAKMxyFSv3wvFmSpe_AQHrfgei9RZ5nFcy8zbGmwsmvV_-_far98_f3j1mXEnv9S_vVknmroEdAoXQD8-8aPbz9cyrZOLt_zBK1FwlzSbsdv8D">▶ Live: Säulen mit ΔPL und ΔPL%</a>
+  <figure class="shot"><img src="assets/guide/01-saeulen-varianz.svg" alt="Säulen-Varianz: AC vs PL mit ΔPL und ΔPL% (IBCS)"></figure>
 
   <h2>Die wichtigsten Chart-Typen</h2>
   <p><strong>Klassiker:</strong> Säulen, Balken, Linie, Wasserfall, Szenario-Brücke (PL → AC), Varianzanalyse, KPI-Karten (Stile IBCS / Status / Trend), Tabelle, Z-Chart, Sparklines, Bullet, Pareto, Scatter.</p>
@@ -76,10 +79,12 @@
     <div>
       <strong>Slope</strong> — Vorher/Nachher über zwei Szenarien (PY → AC), Δ inhärent.<br>
       <a class="live" target="_blank" href="https://datenwgknowledgekitchen.com/business-chart-builder.html#s=bVXbjts2EP0VYYC-MYUkX9bmm9a7iwRdp87aSbAI_EBLI4k1RQokZWd3YaBP_YCin5B_6Hv7J_mSgrpY2tRvwzNnzlw4lF7gADQgYIC-gH0qESgYoUoEAqXmBdNPQCFaAAGNKWqUsaOsHodACBS-__4XEDgwvUbhtFgA1OoKCeizxcIz1lonAgnGvGDCAPUJxLs1SxFoyoRBAiZXxwdM79kOHaFFUSYrLvuzsSzeB77fA0rbGzTxK511VXTZj-knpvvDr5qjtEAhBwI7zZMMb7gGCukxAQJxZddVYTp-Q3hwXbbqDbJ6_B8g8DCgNc28Pke7H9qIzLISlp9BO2KVVV1uq1EmZ5_gEiMhfpiOVeX7epa5WKrEXRYKwUuDzY2t7ZNwoEpTgxYImJgJvGYD3a8bbmvOx8Iw-wwEnjrkM4tzY6vC-wkIFCYDCk5CVbpeCwe68tvEsRJAIOUoErdfJwJ7Vez4NTO91zVxx4UAClJJbJF3MsGv54L2Je_K5rvYOE0l7doVXi9vqlWxqXdXVkIQqCS3TTXOanlQD5JAnDNt75l0tScuX8JMvs6Z7tfOMp2hdVus5Bk8dOrCzdvJnwhIzFZM42AZmZTKAP2yJXAQd66O5uoO4hNmrFcTNyhx13vX_BnbsaXc3ctBfAY69X1nvQU6GtfWRilhednHLbQyZiC7waIUzGLHcN3dDW6g4n3vJwJaHV21LxADhZto8dZlDoAGsymBQwg0uPIJpN1TOpGG-V5pm3tRgZrHrAuZ-G1IGF4IuV3eRi1z3mn7swvEaFV_bhxxOm6Ik0uC99EmWrbE0awhjq-GxC2B46sGzwt9cNph8x2a-gEBty-mKqATXzKLmjOxV8aibCLehC6NC3kThm1MgsKyc9QKtVGSiZYfXE1bfjCdXeKvlTSWZ-j9MkwzH7dRs_mloHv-jPIZtdX_fsuwiekKG10s6_b63abh-Q3NHzS8JWBeDelD0HC_BEFIZmMynm47oQ9h5woDMvfJJOxdo87lj8l8Ssbz3jXuXKMpmc_JZLats6Lm6NLCSquk2lvP7UdnXw_sBWwJ5DzLBc9y276uhKdpa8aqKFB2Do2l0rYlMZM3lnVfsOYvFwCFRa5i5d6Jt1C6_BkI2PC8IN5v6D1gxpX0_vnbWz163__406uX0o6AQuiHEy9aeJVMvPpHWKLmKmk9cDr9Bw">▶ Live: Slope</a>
+      <figure class="shot"><img src="assets/guide/02-slope.svg" alt="Slope-Chart PY zu AC je Region"></figure>
     </div>
     <div>
       <strong>Heatmap-Matrix</strong> — Perioden × Serien, divergierend <span class="pill">+</span>/<span class="pill n">−</span> (Abweichungs-Sicht).<br>
       <a class="live" target="_blank" href="https://datenwgknowledgekitchen.com/business-chart-builder.html#s=bZZdbts4EICvYgywfWIXkvwRm2-OU2PbTVo3TlsUhR9oaWQRpkiBpOwmgYE9xB6hN-lN9iQLWqTktHobzfzmP8PhSPYzHIDGBAzQZ7CPFQKFVIm6lAYIVJqXTD8ChfkCCGjMUaNMHbS6vXQkQOG_f_4FAgem1yicGouBWl0jAd1aLGl93joRyDDlJRMGaEQg3a5ZjkBzJgwSMIU63mN-y7boAO9Fma247J6NZek-jqLOobS9QZO-0FnXZah-zD8z3T180BylBQoFENhqnu3whmugkB8zIJDWdl2XJvANcO9O6dUbz-rrbw6BhwusOYwIOu5xvm1lz4eYm7taWN6m2CGrrQqI1SizNia4xLkQv8zGqur9eZKFuFOZuyoUglcGm_ta20fhnCrPDVogYFIm8Jpd6H5_4PbMfCoNs09A4DF4vrC0MLYuB38AgdLsgIKTULU-L4VzuvZ94VQJIJBzFJnbrxOBvSq3_JqZLuoOseRCAAWpJHrPW5nh97ahfcVD23ybusXMlbRr1_h5eXOtyofz7spaCAK15Lbpxlmeg_MgCaQF0_aWSdd75uplzBTrgulu6SzTO7Ruh5VsnYegLty8nfyJgMTdimm8WEUmpTJAv20IHMTS9dFc3UF8xh3r1MQNStx20TV_Qj-2nLt7OYgvQCdR5Ky_gA5HZ-tBKWF51eUttDLmQvYBy0owi4Fwp1te3EDNu7OfCGh1dN0-QwoU3jHpCsdAZ1cEDgnQWUQgD2_RiTTYErcei6PEc-Me7u7nD-3B6dRzkx5uXgUsjiPPzfr0GG_rjhsujqY94LtatoLTAI56QdGCSQB7W6x3YTKTwMU93BqrIJjEAbzqAT_sbVvZzzqOvWLzWWy49-rQCo4CN_ydu8GnwA1D4Xh6wW0IHF9cdvtyH4BORknzRZ64U7l3x9QldHO3qDkTe2UsyibjdTKcNimvk8TnZCgsa7NWqI2STHg-vpp4Pp5M-_i1ksbyHQ7-viwzG_ms6awv6ZY_oXxCbfXPHztsckJjw9623ly_fWi4qMGiiwNvCJgXQ_oYN-w3tx_TERlNNkHoYxJCSUxmERknXWgYQtGIzCZkNOtCoxAaTshsRsbTzbkqao6uLKy0yuq9HcyBtPb1hb2ADYGC7wrBd4X1X5qM57k3U1WWKENAY6W09RAzRWNZ9zVvfvFjoLAoVKrcN2OwULr6EwjYpF2QAZeD8s2ne-cdAoUkSsaD-eLVcjGoZTZYfXV_E1BzlfkgnE7_Aw">▶ Live: Heatmap</a>
+      <figure class="shot"><img src="assets/guide/03-heatmap.svg" alt="Heatmap-Matrix: Abweichung vs Plan, divergierend grün/rot"></figure>
     </div>
     <div>
       <strong>Marimekko</strong> — Anteil × Größe (variable Säulenbreite).<br>
