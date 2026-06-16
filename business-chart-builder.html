@@ -394,6 +394,11 @@ footer a:hover{color:var(--ink)}
         <span style="font-size:11.5px;color:var(--ink2)">Richtung</span>
         <button class="chip" id="dirBtn" type="button" title="Start- und Zielszenario der Brücke tauschen"></button>
       </div>
+      <div class="row" id="collapseWrap" style="display:none; margin-top:8px">
+        <span style="font-size:11.5px;color:var(--ink2)" title="Gruppen-/Phasenzeilen per Klick ein- und ausklappen (wie im Gantt)">Gruppen</span>
+        <button class="chip" id="collExpand" type="button" title="Alle Gruppen ausklappen">▾ alle auf</button>
+        <button class="chip" id="collCollapse" type="button" title="Alle Gruppen einklappen">▸ alle zu</button>
+      </div>
       <label class="check" id="cutWrap" style="display:none">
         <input type="checkbox" id="cutSums" checked> Σ‑Säulen kappen (Kappungszeichen)
       </label>
@@ -763,6 +768,8 @@ const state = {
   hlMode:'ellipse',
   refStyle:'offset',
   comments:new Map(),
+  rowCollapse:new Set(),   /* Tabelle: eingeklappte Eltern-Zeilen (Schlüssel = Label) */
+  wfCollapse:new Set(),    /* Vertikaler Wasserfall: eingeklappte Phasen (Schlüssel = Summen-/Phasen-Label) */
   scaleBand:false,
   xTitle:'Umsatz', yTitle:'Wachstum %',
   msg:'', source:'',
@@ -1287,6 +1294,50 @@ function labelW(rows){
    Folgezeile) werden fett. Bei Hierarchie sind Kategorien linksbündig.            */
 function hasHier(rows){ return rows.some(r=>(r.lvl||0)>0); }
 function isParentRow(rows,i){ return (rows[i].lvl||0) < ((rows[i+1]&&rows[i+1].lvl)||0); }
+/* Tabelle: Indizes der Zeilen, die wegen eines eingeklappten Elternteils
+   verborgen sind (alle Nachfahren mit größerem lvl bis zur nächsten Zeile
+   gleicher/kleinerer Ebene). */
+function tblHiddenSet(rows){
+  const hidden = new Set();
+  for(let i=0;i<rows.length;i++){
+    if(isParentRow(rows,i) && state.rowCollapse.has(rows[i].c)){
+      const pl = rows[i].lvl||0;
+      for(let j=i+1;j<rows.length && (rows[j].lvl||0)>pl;j++) hidden.add(j);
+    }
+  }
+  return hidden;
+}
+function tblHasGroups(rows){ return rows.some((_,i)=>isParentRow(rows,i)); }
+/* Wasserfall-Phasen: maximale Läufe aufeinanderfolgender Δ-Segmente, jeweils
+   benannt nach dem abschließenden Σ-Segment (Phasen-Header wie im Gantt). */
+function wfPhases(segs){
+  const phases=[]; let cur=[];
+  segs.forEach((g,i)=>{
+    if(g.kind==='delta') cur.push(i);
+    else { if(cur.length){ phases.push({key:g.c, deltaIdx:cur}); cur=[]; } }
+  });
+  if(cur.length) phases.push({key:'∑ '+(segs[cur[cur.length-1]]&&segs[cur[cur.length-1]].c||''), deltaIdx:cur});
+  return phases;
+}
+/* Eingeklappte Phasen durch je EINE aggregierte Δ-Säule ersetzen (Netto der
+   verborgenen Posten) – der Laufweg (from→to) bleibt korrekt erhalten.
+   Nicht-aggregierte Segmente behalten ihren Originalindex in _idx. */
+function wfApplyCollapse(segs){
+  const phases = wfPhases(segs).filter(p=> state.wfCollapse.has(p.key));
+  const out=[];
+  if(!phases.length) return segs.map((g,i)=>Object.assign({_idx:i}, g));
+  const aggAt={}, hide=new Set();
+  phases.forEach(p=>{
+    p.deltaIdx.forEach(j=>hide.add(j));
+    const first=p.deltaIdx[0], last=p.deltaIdx[p.deltaIdx.length-1];
+    const v = p.deltaIdx.reduce((a,j)=>a+(segs[j].v||0),0);
+    aggAt[first] = {c:p.deltaIdx.length+' Posten ▸', from:segs[first].from, to:segs[last].to,
+                    v, kind:'delta', _collapsed:true, _key:p.key};
+  });
+  segs.forEach((g,i)=>{ if(aggAt[i]) out.push(aggAt[i]); else if(!hide.has(i)) out.push(Object.assign({_idx:i}, g)); });
+  return out;
+}
+function wfHasPhases(segs){ return wfPhases(segs).length>0; }
 /* Kategorie-Label einer Struktur-Zeile: rechtsbündig ohne, linksbündig mit Hierarchie */
 function catLabel(rows, i, xEnd, cy, size){
   const r = rows[i];
@@ -1694,7 +1745,11 @@ function cutMarkH(cx,bw,yBottom){
 }
 
 /* Vertikaler Wasserfall: Balken, Rechenschema von oben nach unten (Template 06/12) */
-function renderSegsV(segs){
+function renderSegsV(segsIn){
+  /* Phasen einklappen: nur beim echten Wasserfall (Σ/Δ), nicht bei der Brücke */
+  const collapsible = state.type==='waterfall';
+  const phaseKeys = collapsible ? new Set(wfPhases(segsIn).map(p=>p.key)) : new Set();
+  const segs = collapsible ? wfApplyCollapse(segsIn) : segsIn.map((g,i)=>Object.assign({_idx:i}, g));
   const rowH=28, padT=8, padB=8, W=640;
   const lw = labelW(segs);
   const padR=64, plotW=W-lw-padR;
@@ -1713,26 +1768,34 @@ function renderSegsV(segs){
   let prev=null;
   segs.forEach((g,i)=>{
     const cy = padT+rowH*i+rowH/2;
+    const oi = g._idx;                 /* Originalindex (Highlights/Kommentare) – fehlt bei aggregierten Bündeln */
     const fromEff = (cut && g.kind==='sum') ? base : g.from;
     const xa = X(Math.min(fromEff,g.to));
     const w = Math.max(0.75, Math.abs(X(fromEff)-X(g.to)));
-    bars += rect(xa, cy-bh/2, w, bh, segPaint(g), i);
+    bars += rect(xa, cy-bh/2, w, bh, segPaint(g), oi);
     if(cut && g.kind==='sum') marks += cutMarkV(cy, bh, xAxis);
     if(prev!==null){
       const xc = X(prev.to);
       conns += '<line x1="'+xc+'" y1="'+(prev.cy+bh/2)+'" x2="'+xc+'" y2="'+(cy-bh/2)+'" stroke="#c2c2c2" stroke-width="1"/>';
     }
     prev = {to:g.to, cy};
+    /* Phasen-Header (Σ mit darüber liegenden Δ) oder aggregiertes Bündel → klickbar */
+    const isHdr = collapsible && g.kind==='sum' && phaseKeys.has(g.c);
+    const collKey = g._collapsed ? g._key : (isHdr ? g.c : null);
+    if(collKey){
+      bars += '<rect data-wfcollapse="'+esc(collKey)+'" x="'+Math.min(xa,lw)+'" y="'+(cy-rowH/2)+'" width="'+(W-padR-Math.min(xa,lw))+'" height="'+rowH+'" fill="transparent" style="cursor:pointer"/>';
+    }
     const right = g.kind==='sum' ? g.to>=0 : g.v>=0;
     const lx = right ? X(Math.max(fromEff,g.to))+6 : X(Math.min(fromEff,g.to))-6;
     const label = g.kind==='sum' ? fmt(g.v) : fmt(g.v,true);
     labels += txt(lx, cy+3.5, label, {anchor:right?'start':'end', weight:g.kind==='sum'?'bold':null});
-    if(state.highlights.has(i)){
+    if(oi!==undefined && state.highlights.has(oi)){
       const tw = String(label).length*6.4;
       labels += hiliteEllipse(right? lx+tw/2 : lx-tw/2, cy, tw/2+8, 9);
     }
-    labels += cmark(i, right ? lx+String(label).length*6.4+12 : lx-String(label).length*6.4-12, cy);
-    labels += txt(lw-8, cy+3.5, g.c, {anchor:'end', size:11, fill:CAT, weight:g.kind==='sum'?'bold':null});
+    if(oi!==undefined) labels += cmark(oi, right ? lx+String(label).length*6.4+12 : lx-String(label).length*6.4-12, cy);
+    const catText = isHdr ? (state.wfCollapse.has(g.c)?'▸ ':'▾ ')+g.c : g.c;
+    labels += txt(lw-8, cy+3.5, catText, {anchor:'end', size:11, fill: g._collapsed?SUB:CAT, weight:g.kind==='sum'?'bold':null});
   });
   const axis = '<line x1="'+xAxis+'" y1="'+padT+'" x2="'+xAxis+'" y2="'+(H-padB)+'" stroke="'+DARK+'" stroke-width="1.5"/>';
   return { svg:conns+bars+axis+marks+labels, W, H };
@@ -3148,9 +3211,16 @@ function renderIbcsTable(rows){
   });
   const W = x-30+padR;
   const sums = state.showSum && rows.length>1;
-  const offs = rowOffsets(rows, 8);
-  const offTotal = offs[offs.length-1]||0;
-  const n = rows.length + (sums?1:0);
+  /* Collapsible: verborgene Kind-Zeilen überspringen, Höhe/Position über die
+     sichtbaren Zeilen rechnen (Originalindex bleibt für Highlights erhalten). */
+  const hidden = tblHiddenSet(rows);
+  const visIdx = []; rows.forEach((r,i)=>{ if(!hidden.has(i)) visIdx.push(i); });
+  const visPos = {}; visIdx.forEach((i,pos)=>{ visPos[i]=pos; });
+  const nVis = visIdx.length;
+  const offsV = rowOffsets(visIdx.map(i=>rows[i]), 8);
+  const offByIdx = {}; visIdx.forEach((i,pos)=>{ offByIdx[i]=offsV[pos]; });
+  const offTotal = offsV[offsV.length-1]||0;
+  const n = nVis + (sums?1:0);
   const H = headH + n*rowH + 8 + offTotal;
 
   /* Summen */
@@ -3209,27 +3279,42 @@ function renderIbcsTable(rows){
   };
 
   const drawRow = (label, v1, v2, v3, i, bold, fc)=>{
-    const cy = headH + rowH*i + rowH/2 + 2 + (i<rows.length ? offs[i] : offTotal);
-    if(i>=0 && i<rows.length){
-      s += '<rect data-i="'+i+'" x="0" y="'+(cy-rowH/2-2)+'" width="'+W+'" height="'+rowH+'" fill="transparent"/>';
+    const isData = i>=0 && i<rows.length;
+    const pos = isData ? visPos[i] : nVis;
+    const cy = headH + rowH*pos + rowH/2 + 2 + (isData ? offByIdx[i] : offTotal);
+    const isParent = isData && isParentRow(rows,i);
+    if(isData){
+      /* Eltern-Zeile: ganze Zeile klappt ihre Kinder ein/aus (wie im Gantt).
+         Blatt-Zeile: behält den Highlight-/Kommentar-Klick (data-i). */
+      if(isParent) s += '<rect data-collapse="'+esc(rows[i].c)+'" x="0" y="'+(cy-rowH/2-2)+'" width="'+W+'" height="'+rowH+'" fill="transparent" style="cursor:pointer"/>';
+      else s += '<rect data-i="'+i+'" x="0" y="'+(cy-rowH/2-2)+'" width="'+W+'" height="'+rowH+'" fill="transparent"/>';
     }
-    const lvl = (i>=0 && i<rows.length) ? (rows[i].lvl||0) : 0;
-    const parentB = bold || (i>=0 && i<rows.length && isParentRow(rows,i));
-    s += txt(8+lvl*13, cy+3.5, label, {size:11, fill: parentB?DARK:CAT, weight:parentB?'bold':null});
+    const lvl = isData ? (rows[i].lvl||0) : 0;
+    const parentB = bold || isParent;
+    let labelX = 8+lvl*13;
+    if(isParent){
+      const open = !state.rowCollapse.has(rows[i].c);
+      const ty = cy+2.5;
+      s += open
+        ? '<path d="M'+(labelX)+','+(ty-3)+' L'+(labelX+6)+','+(ty-3)+' L'+(labelX+3)+','+(ty+2)+' Z" fill="'+DARK+'"/>'
+        : '<path d="M'+(labelX)+','+(ty-4)+' L'+(labelX+5)+','+(ty-1)+' L'+(labelX)+','+(ty+2)+' Z" fill="'+DARK+'"/>';
+      labelX += 12;
+    }
+    s += txt(labelX, cy+3.5, label, {size:11, fill: parentB?DARK:CAT, weight:parentB?'bold':null});
     s += txt(acR, cy+3.5, fmt(v1), {anchor:'end', size:11, weight:bold?'bold':null});
     s += txt(refR, cy+3.5, fmt(v2), {anchor:'end', size:11, weight:bold?'bold':null, fill:'#666'});
     if(hasRef2) s += txt(ref2R, cy+3.5, fmt(v3), {anchor:'end', size:11, weight:bold?'bold':null, fill:'#666'});
     cols.forEach(c=> drawCell(c, cy, v1, c.key==='v2'?v2:v3, bold, fc));
-    if(i>=0 && i<rows.length && state.highlights.has(i)){
+    if(isData && !isParent && state.highlights.has(i)){
       const tw = String(fmt(v1)).length*6.4;
       s += hiliteEllipse(acR-tw/2, cy, tw/2+8, 9);
     }
-    if(i>=0 && i<rows.length) s += cmark(i, acR+13, cy);
+    if(isData && !isParent) s += cmark(i, acR+13, cy);
   };
 
-  rows.forEach((r,i)=> drawRow(r.c, r.v1, r.v2, r.v3, i, false, r.fc));
+  visIdx.forEach(i=> drawRow(rows[i].c, rows[i].v1, rows[i].v2, rows[i].v3, i, false, rows[i].fc));
   if(sums){
-    const ySum = headH + rowH*rows.length + 1 + offTotal;
+    const ySum = headH + rowH*nVis + 1 + offTotal;
     s += '<line x1="0" y1="'+ySum+'" x2="'+W+'" y2="'+ySum+'" stroke="'+DARK+'" stroke-width="1"/>';
     drawRow(CL('Summe'), sAC, sRef, sRef2, rows.length, true, false);
   }
@@ -4005,6 +4090,10 @@ function renderPreview(){
   $('#orV').classList.toggle('on', state.wfOrient==='v');
   $('#dirWrap').style.display = state.type==='bridge' ? 'flex' : 'none';
   $('#cutWrap').style.display = state.type==='bridge' ? 'flex' : 'none';
+  /* Gruppen ein-/ausklappen: Tabelle (mit Hierarchie) und vertikaler Wasserfall (Phasen) */
+  const collOk = (state.type==='table' && tblHasGroups(activeRows()))
+              || (state.type==='waterfall' && state.wfOrient==='v' && wfHasPhases(wfSegs(state.wrows)));
+  $('#collapseWrap').style.display = collOk ? 'flex' : 'none';
   if(state.type==='bridge'){
     const rev = state.bridgeDir==='rev';
     $('#dirBtn').textContent = rev ? state.primary+' → '+state.reference : state.reference+' → '+state.primary;
@@ -4323,7 +4412,7 @@ const PRESETS = {
 };
 /* Demo für die Trend-KPI-Karte: 3 Kennzahlen + 30-Tage-Tagesreihen */
 function loadKpiTrendDemo(){
-  state.highlights.clear(); state.diffs.clear(); state.comments.clear();
+  state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
   state.type='kpi'; state.kpiStyle='trend'; state.primary='AC'; state.reference='PY'; state.reference2='—';
   state.unit='€'; state.unitScale='1'; state.decimals=0;
   $('#t1').value='Sales Cockpit'; $('#t2').value='Monatswerte vs. Vorjahr';
@@ -4346,7 +4435,7 @@ function loadKpiTrendDemo(){
 function loadPreset(key){
   if(key==='kpiTrend'){ loadKpiTrendDemo(); return; }
   const p = PRESETS[key]; if(!p) return;
-  state.highlights.clear(); state.diffs.clear(); state.comments.clear();
+  state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
   if(p.rows) state.rows = p.rows.map(r=>({c:r[0], v1:r[1], v2:r[2], v3:r[3], fc:!!r[4]}));
   if(p.series) state.series = p.series.slice();
   if(p.xTitle) state.xTitle = p.xTitle;
@@ -4374,7 +4463,7 @@ $('#typeBtns').addEventListener('click', e=>{
   if(id in VIRTUAL_KPI){ state.type='kpi'; state.kpiStyle=VIRTUAL_KPI[id]; }
   else state.type = id;
   if(needsRef() && state.reference==='—') state.reference='PY';
-  state.highlights.clear(); state.diffs.clear(); state.comments.clear();
+  state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
   renderAll();
 });
 $('#primChips').addEventListener('click', e=>{
@@ -4550,7 +4639,7 @@ $('#chartHost').addEventListener('click', e=>{
   }
 });
 $('#btnDash2').addEventListener('click', ()=>{ $('#btnDash').click(); });
-$('#topN').addEventListener('change', e=>{ state.topN=+e.target.value; state.highlights.clear(); state.diffs.clear(); state.comments.clear(); renderPreview(); });
+$('#topN').addEventListener('change', e=>{ state.topN=+e.target.value; state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear(); renderPreview(); });
 $('#bandChk').addEventListener('change', e=>{ state.scaleBand=e.target.checked; renderPreview(); });
 $('#mmCol').addEventListener('click', ()=>{ state.multiMode='col'; renderPreview(); });
 $('#mmDelta').addEventListener('click', ()=>{ state.multiMode='delta'; renderPreview(); });
@@ -4559,6 +4648,18 @@ $('#mmLine').addEventListener('click', ()=>{ state.multiMode='line'; renderPrevi
 $('#xTit').addEventListener('input', e=>{ state.xTitle=e.target.value; renderPreview(); renderDataTable(); });
 $('#yTit').addEventListener('input', e=>{ state.yTitle=e.target.value; renderPreview(); renderDataTable(); });
 $('#wfVar').addEventListener('change', e=>{ state.wfVar=e.target.checked; renderPreview(); });
+$('#collExpand').addEventListener('click', ()=>{
+  if(state.type==='table') state.rowCollapse.clear(); else state.wfCollapse.clear();
+  renderPreview();
+});
+$('#collCollapse').addEventListener('click', ()=>{
+  if(state.type==='table'){
+    const rows=activeRows(); rows.forEach((r,i)=>{ if(isParentRow(rows,i)) state.rowCollapse.add(r.c); });
+  } else {
+    wfPhases(wfSegs(state.wrows)).forEach(p=> state.wfCollapse.add(p.key));
+  }
+  renderPreview();
+});
 $('#orH').addEventListener('click', ()=>{ state.wfOrient='h'; renderPreview(); });
 $('#orV').addEventListener('click', ()=>{ state.wfOrient='v'; renderPreview(); });
 $('#dirBtn').addEventListener('click', ()=>{ state.bridgeDir = state.bridgeDir==='rev' ? 'fwd' : 'rev'; renderPreview(); });
@@ -4629,7 +4730,7 @@ $('#dataTable').addEventListener('click', e=>{
   if(usesSrows()) state.srows.splice(i,1);
   else if(usesWrows()) state.wrows.splice(i,1);
   else state.rows.splice(i,1);
-  state.highlights.clear(); state.diffs.clear(); state.comments.clear();
+  state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
   renderDataTable(); renderPreview();
 });
 /* Plausible Zufallsdaten je Datenmodell – zum schnellen Ausprobieren */
@@ -4685,7 +4786,7 @@ function diceData(){
       for(let i=state.rows.length-3;i<state.rows.length;i++) state.rows[i].fc = true;
     }
   }
-  state.highlights.clear(); state.diffs.clear(); state.comments.clear();
+  state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
   renderDataTable(); renderAll();
   flash($('#btnDice'), 'Neu gewürfelt');
 }
@@ -4775,7 +4876,7 @@ function applyTabularText(text){
       const c=split(l);
       return {c:c[0]||'', v:state.series.map((_,j)=>parseNum(c[j+1]))};
     });
-    state.highlights.clear(); state.diffs.clear(); state.comments.clear();
+    state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
     renderDataTable(); renderPreview(); return true;
   }
   /* Kopfzeile überspringen, wenn alle Wertzellen der ersten Zeile nicht numerisch sind */
@@ -4790,7 +4891,7 @@ function applyTabularText(text){
   } else {
     state.rows = body.map(l=>{ const c=split(l); return {c:c[0]||'', v1:parseNum(c[1]), v2:parseNum(c[2]), v3:parseNum(c[3]), fc:false}; });
   }
-  state.highlights.clear(); state.diffs.clear(); state.comments.clear();
+  state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
   renderDataTable(); renderPreview();
   return true;
 }
@@ -4841,6 +4942,11 @@ $('#annoList').addEventListener('click', e=>{
 });
 /* Highlight per Klick: Ellipse (UN 5.1) oder Differenzmarker (UN 5.1-2) */
 $('#chartHost').addEventListener('click', e=>{
+  /* Collapsible-Zeilen: Eltern-/Phasenzeile ein-/ausklappen (vor Highlight-Logik) */
+  const tc = e.target.closest('[data-collapse]');
+  if(tc){ const k=tc.dataset.collapse; state.rowCollapse.has(k)?state.rowCollapse.delete(k):state.rowCollapse.add(k); renderPreview(); return; }
+  const wc = e.target.closest('[data-wfcollapse]');
+  if(wc){ const k=wc.dataset.wfcollapse; state.wfCollapse.has(k)?state.wfCollapse.delete(k):state.wfCollapse.add(k); renderPreview(); return; }
   if(state.hlMode==='anno' && state.view!=='dash'){
     const svg = e.target.closest('svg'); if(!svg) return;
     const rc = svg.getBoundingClientRect();
@@ -6917,7 +7023,8 @@ function serialize(){
     },
     rows:state.rows, wrows:state.wrows, srows:state.srows, series:state.series,
     highlights:[...state.highlights], diffs:[...state.diffs], comments:[...state.comments],
-    report:state.report, dash:state.dash, 
+    rowCollapse:[...state.rowCollapse], wfCollapse:[...state.wfCollapse],
+    report:state.report, dash:state.dash,
     titles:{ t1:$('#t1').value, t2:$('#t2').value, t3:$('#t3').value, period:$('#period').value },
   };
 }
@@ -6938,6 +7045,8 @@ function applyConfig(cfg, silent){
   state.highlights = new Set(cfg.highlights||[]);
   state.diffs = new Set(cfg.diffs||[]);
   state.comments = new Map(cfg.comments||[]);
+  state.rowCollapse = new Set(cfg.rowCollapse||[]);
+  state.wfCollapse = new Set(cfg.wfCollapse||[]);
   if(cfg.report) state.report = cfg.report;
   if(cfg.dash) state.dash = cfg.dash;
   if(cfg.titles){

@@ -375,6 +375,61 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       if(state._ganttView){ try{ state._ganttView.finalize(); state._ganttView=null; }catch(e){} }
     }
 
+    /* === H) Collapsible-Zeilen (Tabelle + vertikaler Wasserfall) ===== */
+    if(typeof tblHiddenSet==='function'){
+      /* H1 · Tabelle mit Hierarchie: Eltern einklappen verbirgt Kinder */
+      state.type='table'; state.reference='PY'; state.reference2='—';
+      state.rows=[
+        {c:'Umsatz',v1:600,v2:560,v3:NaN,fc:false,lvl:0},
+        {c:'Produkt A',v1:360,v2:330,v3:NaN,fc:false,lvl:1},
+        {c:'Produkt B',v1:240,v2:230,v3:NaN,fc:false,lvl:1},
+        {c:'Kosten',v1:420,v2:400,v3:NaN,fc:false,lvl:0},
+        {c:'Material',v1:250,v2:240,v3:NaN,fc:false,lvl:1},
+        {c:'Personal',v1:170,v2:160,v3:NaN,fc:false,lvl:1},
+      ];
+      state.rowCollapse=new Set(); renderAll();
+      const tOpen=chartHtml();
+      ok('H · Tabelle · Gruppen erkannt (2 Eltern)', (tOpen.match(/data-collapse=/g)||[]).length===2);
+      ok('H · Tabelle · offen zeigt Kinder', /Produkt A/.test(tOpen) && /Material/.test(tOpen));
+      state.rowCollapse.add('Umsatz'); renderPreview();
+      const tColl=chartHtml();
+      ok('H · Tabelle · eingeklappt verbirgt Kinder', !/Produkt A/.test(tColl) && !/Produkt B/.test(tColl));
+      ok('H · Tabelle · Geschwister-Gruppe bleibt', /Material/.test(tColl) && /Umsatz/.test(tColl));
+      ok('H · Tabelle · kein NaN (offen/zu)', !/NaN/.test(tOpen) && !/NaN/.test(tColl));
+      /* Template exportiert weiterhin ALLE Zeilen (Collapse ist reine Darstellung) */
+      let tComp=false, tBaked=1; try{ const b=clone(denebTemplate()); tBaked=tplBakedRows(b); delete b.usermeta; tComp=!!VL.compile(b).spec; }catch(e){}
+      ok('H · Tabelle · Template trotz Collapse gültig (baked=0)', tComp && tBaked===0);
+      state.rowCollapse=new Set();
+
+      /* H2 · Vertikaler Wasserfall: Phase einklappen aggregiert, Σ bleibt korrekt */
+      loadPreset('pnl'); state.wfOrient='v'; state.wfCollapse=new Set(); renderAll();
+      const wOpen=chartHtml();
+      const ebitOpen=wfSegs(state.wrows).find(g=>g.c==='EBIT').to;
+      const phaseKeys=wfPhases(wfSegs(state.wrows)).map(p=>p.key);
+      ok('H · Wasserfall · Phase erkannt (endet bei Σ)', phaseKeys.includes('EBIT'));
+      state.wfCollapse.add('EBIT'); renderPreview();
+      const wColl=chartHtml();
+      const ebitColl=wfSegs(state.wrows).find(g=>g.c==='EBIT').to;
+      ok('H · Wasserfall · eingeklappt verbirgt Δ-Posten', !/Materialkosten/.test(wColl) && /Posten/.test(wColl));
+      ok('H · Wasserfall · Σ/Laufweg unverändert', ebitOpen===ebitColl);
+      ok('H · Wasserfall · Endsumme & Startsumme bleiben sichtbar', /EBIT/.test(wColl) && /Umsatz/.test(wColl));
+      ok('H · Wasserfall · kein NaN (offen/zu)', !/NaN/.test(wOpen) && !/NaN/.test(wColl));
+      /* Brücke (gleicher Renderer) bleibt vom Collapse unberührt */
+      loadPreset('bridgeM'); state.wfOrient='v'; renderAll();
+      ok('H · Brücke-vertikal · rendert ohne Collapse-Artefakte', !/data-wfcollapse/.test(chartHtml()) && !/NaN/.test(chartHtml()));
+
+      /* H3 · Collapse-Zustand überlebt serialize → applyConfig */
+      state.type='table'; state.rows[0]&&(state.rows=[
+        {c:'A',v1:10,v2:8,v3:NaN,fc:false,lvl:0},{c:'a1',v1:6,v2:5,v3:NaN,fc:false,lvl:1}]);
+      state.rowCollapse=new Set(['A']); state.wfCollapse=new Set(['X']);
+      const ser=JSON.parse(JSON.stringify(serialize()));
+      state.rowCollapse=new Set(); state.wfCollapse=new Set();
+      applyConfig(ser, true);
+      ok('H · Collapse-Zustand persistiert (serialize/applyConfig)',
+         state.rowCollapse.has('A') && state.wfCollapse.has('X'));
+      state.rowCollapse=new Set(); state.wfCollapse=new Set();
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{
