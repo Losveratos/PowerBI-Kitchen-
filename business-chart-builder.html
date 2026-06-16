@@ -1808,6 +1808,115 @@ function cutMarkV(cy,bh,xLeft){
     '<line x1="'+(x+9.5)+'" y1="'+y1+'" x2="'+(x+3.5)+'" y2="'+y2+'" stroke="'+DARK+'" stroke-width="1"/>';
 }
 
+/* =========================================================================
+   Vertikaler Wasserfall mit frei wählbaren Unter-Ebenen (lvl je Zeile)
+   ---------------------------------------------------------------------
+   Eine Δ-Zeile mit tiefer eingestuften Folgezeilen wird zum Gruppen-Header:
+   ein reiner Aggregator (Wert = Σ seiner Blatt-Δ), der NICHT selbst zum
+   Laufweg beiträgt – nur Blätter tun das. Einklappen ersetzt die Kinder durch
+   die eine aggregierte Header-Säule (Laufweg/Σ bleiben korrekt, beliebig tief).
+   ========================================================================= */
+function wfHasLevels(rows){ return hasHier(rows); }
+/* Laufwerte über Blatt-Δ; Gruppen-Header aggregieren ihre Blatt-Nachfahren. */
+function wfLeveledModel(rows){
+  const a = rows.map(r=> Object.assign({}, r, {lvl:r.lvl||0}));
+  let run=0, started=false;
+  a.forEach((r,i)=>{
+    r._parent = (r.t!=='sum') && isParentRow(a,i);
+    if(r.t==='sum'){ if(!started){ run=r.v||0; started=true; } r._from=0; r._to=run; r._leaf=false; return; }
+    if(r._parent){ r._leaf=false; return; }          /* Gruppen-Header: später füllen */
+    const from=run; run += (r.v||0); started=true;
+    r._from=from; r._to=run; r._leaf=true;
+  });
+  a.forEach((r,i)=>{
+    if(r.t==='sum' || r._leaf) return;
+    const pl=r.lvl; let f=null,t2=null,sum=0,cnt=0;
+    for(let j=i+1;j<a.length && a[j].lvl>pl;j++){
+      if(a[j]._leaf){ if(f===null) f=a[j]._from; t2=a[j]._to; sum+=a[j].v||0; cnt++; }
+    }
+    r._from=(f===null?run:f); r._to=(t2===null?r._from:t2); r._v=sum; r._cnt=cnt;
+  });
+  return a;
+}
+/* Anzeige-Liste (collapse-bewusst): eingeklappte Gruppen → eine Säule, Kinder weg. */
+function wfLeveledDisplay(rows){
+  const a = wfLeveledModel(rows);
+  const out=[]; let skipDeeperThan=-1;
+  a.forEach((r,i)=>{
+    if(skipDeeperThan>=0){ if(r.lvl>skipDeeperThan) return; else skipDeeperThan=-1; }
+    if(r.t==='sum'){ out.push({kind:'sum', c:r.c, lvl:r.lvl, from:0, to:r._to, v:r._to, bar:true, _idx:i}); return; }
+    if(r._parent){
+      if(state.wfCollapse.has(r.c)){
+        out.push({kind:'group', c:r.c, lvl:r.lvl, from:r._from, to:r._to, v:r._v, bar:true, collapsed:true, key:r.c, _idx:i, cnt:r._cnt});
+        skipDeeperThan = r.lvl;
+      } else out.push({kind:'grouphdr', c:r.c, lvl:r.lvl, bar:false, key:r.c, _idx:i});
+      return;
+    }
+    out.push({kind:'delta', c:r.c, lvl:r.lvl, from:r._from, to:r._to, v:r.v||0, bar:true, _idx:i});
+  });
+  return out;
+}
+/* Alle Gruppen-Header (für „alle zu" / „bis Ebene") */
+function wfLevelGroups(rows){
+  const a = wfLeveledModel(rows);
+  return a.filter((r,i)=>r._parent).map(r=>({key:r.c, lvl:r.lvl}));
+}
+function renderWfLeveledV(rows){
+  const disp = wfLeveledDisplay(rows);
+  const rowH=28, padT=8, padB=8, W=640;
+  const maxLvl = Math.max(0, ...disp.map(d=>d.lvl));
+  const lw = Math.min(250, labelW(rows) + maxLvl*14);
+  const padR=64, plotW=W-lw-padR;
+  const barItems = disp.filter(d=>d.bar);
+  const pv = barItems.flatMap(d=> d.kind==='sum' ? [d.to] : [d.from,d.to]);
+  const sc = makeScale(Math.min(0,...pv), Math.max(0,...pv), plotW, 0.12);
+  const X = v => lw+sc.x(v);
+  const xAxis = X(0);
+  const H = padT + disp.length*rowH + padB;
+  const bh = rowH*0.58;
+  let conns='', bars='', labels='';
+  let prevBar=null;
+  disp.forEach((d,i)=>{
+    const cy = padT+rowH*i+rowH/2;
+    if(d.bar){
+      const xa = X(Math.min(d.from,d.to));
+      const w = Math.max(0.75, Math.abs(X(d.from)-X(d.to)));
+      bars += rect(xa, cy-bh/2, w, bh, segPaint({kind:d.kind==='sum'?'sum':'delta', v:d.v, to:d.to}), d.kind==='delta'?d._idx:undefined);
+      if(prevBar!==null){
+        const xc = X(prevBar.to);
+        conns += '<line x1="'+xc+'" y1="'+(prevBar.cy+bh/2)+'" x2="'+xc+'" y2="'+(cy-bh/2)+'" stroke="#c2c2c2" stroke-width="1"/>';
+      }
+      prevBar = {to:d.to, cy};
+      const right = d.kind==='sum' ? d.to>=0 : d.v>=0;
+      const lx = right ? X(Math.max(d.from,d.to))+6 : X(Math.min(d.from,d.to))-6;
+      const label = d.kind==='sum' ? fmt(d.v) : fmt(d.v,true);
+      const bold = d.kind==='sum' || d.kind==='group';
+      labels += txt(lx, cy+3.5, label, {anchor:right?'start':'end', weight:bold?'bold':null});
+      if(d.kind==='delta' && state.highlights.has(d._idx)){
+        const tw=String(label).length*6.4;
+        labels += hiliteEllipse(right? lx+tw/2 : lx-tw/2, cy, tw/2+8, 9);
+      }
+      if(d.kind==='delta') labels += cmark(d._idx, right? lx+String(label).length*6.4+12 : lx-String(label).length*6.4-12, cy);
+    }
+    /* Kategorie links + Ein-/Ausklapp-Dreieck bei Gruppen */
+    const isGrp = d.kind==='group' || d.kind==='grouphdr';
+    let tx = 6 + d.lvl*14;
+    if(isGrp){
+      const open = d.kind==='grouphdr', ty=cy+2.5;
+      labels += open
+        ? '<path d="M'+tx+','+(ty-3)+' L'+(tx+6)+','+(ty-3)+' L'+(tx+3)+','+(ty+2)+' Z" fill="'+DARK+'"/>'
+        : '<path d="M'+tx+','+(ty-4)+' L'+(tx+5)+','+(ty-1)+' L'+tx+','+(ty+2)+' Z" fill="'+DARK+'"/>';
+      tx += 12;
+      labels += '<rect data-wfcollapse="'+esc(d.key)+'" x="0" y="'+(cy-rowH/2)+'" width="'+(W-padR)+'" height="'+rowH+'" fill="transparent" style="cursor:pointer"/>';
+    }
+    const lblName = (d.kind==='group' && d.cnt) ? d.c+' ('+d.cnt+')' : d.c;
+    labels += txt(tx, cy+3.5, lblName, {anchor:'start', size:11,
+      fill: d.collapsed?SUB:CAT, weight:(d.kind==='sum'||isGrp)?'bold':null});
+  });
+  const axis = '<line x1="'+xAxis+'" y1="'+padT+'" x2="'+xAxis+'" y2="'+(H-padB)+'" stroke="'+DARK+'" stroke-width="1.5"/>';
+  return { svg:conns+bars+axis+labels, W, H };
+}
+
 /* --- Liniendiagramm (EX 1.1-8/9): Notation über Linienstärke & Marker --- */
 function renderLine(rows, opt){
   opt = opt||{};
@@ -3669,6 +3778,8 @@ function buildChart(){
   else if(state.type==='waterfall'){
     if((state.showRel||state.showAbs) && state.reference!=='—'){
       r = renderWfKombi({abs:state.showAbs, rel:state.showRel});
+    } else if(state.wfOrient==='v' && wfHasLevels(state.wrows)){
+      r = renderWfLeveledV(state.wrows);
     } else {
       const segs = wfSegs(state.wrows);
       r = state.wfOrient==='v' ? renderSegsV(segs) : renderSegsH(segs);
@@ -3945,16 +4056,22 @@ function renderDataTable(){
   }
   if(usesWrows()){
     const wk = state.type==='wfkombi' || (state.type==='waterfall' && (state.showRel||state.showAbs) && state.reference!=='—');
+    /* Unter-Ebenen nur beim einfachen vertikalen Wasserfall (eigener Render-Pfad) */
+    const lvlOk = state.type==='waterfall' && state.wfOrient==='v' && !wk;
     thead.innerHTML = '<tr><th>Kategorie</th><th class="num">'+esc(state.primary)+'</th>'+
       (wk?'<th class="num">'+esc(state.reference)+'</th>':'')+
-      '<th>Typ</th><th></th></tr>';
+      '<th>Typ</th>'+(lvlOk?'<th title="Unter-Ebene – Zeile mit tieferen Folgezeilen wird ein-/ausklappbare Gruppe">Ebene</th>':'')+'<th></th></tr>';
     tbody.innerHTML = state.wrows.map((r,i)=>{
       const autoSum = r.t==='sum'&&!isFirstSum(i);
+      const isGrp = lvlOk && r.t==='delta' && isParentRow(state.wrows,i);  /* Gruppen-Header: Wert = Σ Kinder */
+      const autoVal = autoSum || isGrp;
+      const lvl = r.lvl||0;
       return '<tr>'+
-      '<td><input data-w="c" data-i="'+i+'" value="'+esc(r.c)+'"></td>'+
-      '<td class="num"><input data-w="v" data-i="'+i+'" inputmode="decimal" value="'+(autoSum?'(auto)':String(r.v).replace('.',','))+'"'+(autoSum?' disabled':'')+'></td>'+
+      '<td><input data-w="c" data-i="'+i+'" value="'+esc(r.c)+'"'+(lvlOk?' style="padding-left:'+(8+lvl*14)+'px"':'')+'></td>'+
+      '<td class="num"><input data-w="v" data-i="'+i+'" inputmode="decimal" value="'+(autoVal?'(auto)':String(r.v).replace('.',','))+'"'+(autoVal?' disabled':'')+'></td>'+
       (wk?'<td class="num"><input data-w="r2" data-i="'+i+'" inputmode="decimal" value="'+(autoSum?'(auto)':(isNaN(r.r2)||r.r2===undefined?'':String(r.r2).replace('.',',')))+'"'+(autoSum?' disabled':'')+'></td>':'')+
       '<td><select data-w="t" data-i="'+i+'"><option value="delta"'+(r.t==='delta'?' selected':'')+'>Δ Veränderung</option><option value="sum"'+(r.t==='sum'?' selected':'')+'>Σ Summe</option></select></td>'+
+      (lvlOk?'<td>'+(r.t==='delta'?'<select data-lvl data-i="'+i+'" title="Hierarchie-Ebene" style="font-size:11px;padding:2px 4px">'+[0,1,2,3].map(L=>'<option value="'+L+'"'+(lvl===L?' selected':'')+'>Ebene '+L+'</option>').join('')+'</select>':'')+'</td>':'')+
       '<td><button class="del" data-del="'+i+'" title="Zeile löschen">×</button></td></tr>';
     }).join('');
   } else {
@@ -4101,14 +4218,18 @@ function renderPreview(){
   $('#dirWrap').style.display = state.type==='bridge' ? 'flex' : 'none';
   $('#cutWrap').style.display = state.type==='bridge' ? 'flex' : 'none';
   /* Gruppen ein-/ausklappen: Tabelle (mit Hierarchie) und vertikaler Wasserfall (Phasen) */
+  const wfLeveled = state.type==='waterfall' && state.wfOrient==='v' && wfHasLevels(state.wrows);
   const collOk = (state.type==='table' && tblHasGroups(activeRows()))
-              || (state.type==='waterfall' && state.wfOrient==='v' && wfHasPhases(wfSegs(state.wrows)));
+              || (state.type==='waterfall' && state.wfOrient==='v'
+                  && (wfLeveled ? wfLevelGroups(state.wrows).length>0 : wfHasPhases(wfSegs(state.wrows))));
   $('#collapseWrap').style.display = collOk ? 'flex' : 'none';
-  /* „bis Ebene"-Selektor nur für die Tabelle (Hierarchie über Ebenen) */
+  /* „bis Ebene"-Selektor für die Tabelle und den geschichteten Wasserfall */
   const lvlSel = $('#collLevel');
-  if(collOk && state.type==='table'){
-    const rws = activeRows();
-    const maxPL = rws.reduce((m,r,i)=> isParentRow(rws,i) ? Math.max(m, r.lvl||0) : m, 0);
+  const lvlGroups = wfLeveled ? wfLevelGroups(state.wrows) : null;
+  if(collOk && (state.type==='table' || wfLeveled)){
+    let maxPL;
+    if(state.type==='table'){ const rws=activeRows(); maxPL = rws.reduce((m,r,i)=> isParentRow(rws,i)?Math.max(m,r.lvl||0):m, 0); }
+    else maxPL = lvlGroups.reduce((m,g)=>Math.max(m,g.lvl),0);
     let opts = '<option value="">Ebenen…</option><option value="all">alle aufklappen</option>';
     for(let L=0; L<=maxPL; L++) opts += '<option value="'+L+'">'+(L===0?'nur Ebene 0':'bis Ebene '+L)+'</option>';
     lvlSel.innerHTML = opts; lvlSel.style.display = '';
@@ -4674,19 +4795,26 @@ $('#collExpand').addEventListener('click', ()=>{
 $('#collCollapse').addEventListener('click', ()=>{
   if(state.type==='table'){
     const rows=activeRows(); rows.forEach((r,i)=>{ if(isParentRow(rows,i)) state.rowCollapse.add(r.c); });
+  } else if(wfHasLevels(state.wrows)){
+    wfLevelGroups(state.wrows).forEach(g=> state.wfCollapse.add(g.key));
   } else {
     wfPhases(wfSegs(state.wrows)).forEach(p=> state.wfCollapse.add(p.key));
   }
   renderPreview();
 });
-/* Tabelle bis zu einer wählbaren Ebene einklappen (Eltern ab Ebene L zu) */
+/* Bis zu einer wählbaren Ebene einklappen (Eltern/Gruppen ab Ebene L zu) */
 function collapseTableToLevel(L){
   const rows=activeRows(); state.rowCollapse.clear();
   rows.forEach((r,i)=>{ if(isParentRow(rows,i) && (r.lvl||0)>=L) state.rowCollapse.add(r.c); });
 }
+function collapseWfToLevel(L){
+  state.wfCollapse.clear();
+  wfLevelGroups(state.wrows).forEach(g=>{ if(g.lvl>=L) state.wfCollapse.add(g.key); });
+}
 $('#collLevel').addEventListener('change', e=>{
   const v=e.target.value; if(v==='') return;
-  if(v==='all') state.rowCollapse.clear(); else collapseTableToLevel(+v);
+  if(state.type==='waterfall'){ if(v==='all') state.wfCollapse.clear(); else collapseWfToLevel(+v); }
+  else { if(v==='all') state.rowCollapse.clear(); else collapseTableToLevel(+v); }
   renderPreview();
 });
 $('#orH').addEventListener('click', ()=>{ state.wfOrient='h'; renderPreview(); });
@@ -4720,7 +4848,7 @@ $('#dataTable').addEventListener('input', e=>{
     renderPreview(); return;
   }
   if(el.dataset.lvl!==undefined){
-    const r = state.rows[i]; if(!r) return;
+    const r = (usesWrows()?state.wrows:state.rows)[i]; if(!r) return;
     r.lvl = +el.value||0;
     renderDataTable(); renderPreview(); return;
   }

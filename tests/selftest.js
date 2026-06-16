@@ -439,6 +439,41 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       loadPreset('bridgeM'); state.wfOrient='v'; renderAll();
       ok('H · Brücke-vertikal · rendert ohne Collapse-Artefakte', !/data-wfcollapse/.test(chartHtml()) && !/NaN/.test(chartHtml()));
 
+      /* H2b · Wasserfall mit frei wählbaren Unter-Ebenen (verschachtelt) */
+      if(typeof wfLeveledModel==='function'){
+        state.type='waterfall'; state.wfOrient='v'; state.showRel=false; state.showAbs=false;
+        state.wrows=[
+          {c:'Umsatz',v:1000,t:'sum',lvl:0},
+          {c:'Kosten',v:0,t:'delta',lvl:0},
+          {c:'Personal',v:0,t:'delta',lvl:1},
+          {c:'Löhne',v:-300,t:'delta',lvl:2},
+          {c:'Abgaben',v:-120,t:'delta',lvl:2},
+          {c:'Material',v:-200,t:'delta',lvl:1},
+          {c:'EBIT',v:0,t:'sum',lvl:0},
+        ];
+        state.wfCollapse=new Set(); renderAll();
+        const m=wfLeveledModel(state.wrows);
+        const ebit=m.find(r=>r.c==='EBIT')._to;
+        ok('H · WF-Ebenen · Laufweg über Blätter (EBIT=380)', ebit===380, 'ebit='+ebit);
+        ok('H · WF-Ebenen · verschachtelte Gruppen erkannt',
+           wfLevelGroups(state.wrows).map(g=>g.key+'@'+g.lvl).join(',')==='Kosten@0,Personal@1');
+        ok('H · WF-Ebenen · Header = Σ Blatt-Nachfahren',
+           m.find(r=>r.c==='Kosten')._v===-620 && m.find(r=>r.c==='Personal')._v===-420);
+        ok('H · WF-Ebenen · offen zeigt Blätter, kein NaN', /Löhne/.test(chartHtml()) && !/NaN/.test(chartHtml()));
+        state.wfCollapse.add('Personal'); renderPreview();
+        const c1=chartHtml();
+        ok('H · WF-Ebenen · innere Gruppe zu verbirgt Blätter', !/Löhne/.test(c1) && /Personal/.test(c1) && /Material/.test(c1));
+        ok('H · WF-Ebenen · Σ unverändert nach Collapse',
+           wfLeveledModel(state.wrows).find(r=>r.c==='EBIT')._to===380 && !/NaN/.test(c1));
+        if(typeof collapseWfToLevel==='function'){
+          collapseWfToLevel(0); renderPreview();
+          const c0=chartHtml();
+          ok('H · WF-Ebenen · bis Ebene 0 verbirgt alle Kinder',
+             !/Material/.test(c0) && !/Löhne/.test(c0) && /Kosten/.test(c0) && !/NaN/.test(c0));
+        }
+        state.wfCollapse=new Set();
+      }
+
       /* H3 · Collapse-Zustand überlebt serialize → applyConfig */
       state.type='table'; state.rows[0]&&(state.rows=[
         {c:'A',v1:10,v2:8,v3:NaN,fc:false,lvl:0},{c:'a1',v1:6,v2:5,v3:NaN,fc:false,lvl:1}]);
