@@ -3894,12 +3894,19 @@ function renderChips(){
 function renderDataTable(){
   const thead = $('#dataTable thead'), tbody = $('#dataTable tbody');
   if(state.type==='gantt'){
-    /* Gantt nutzt feste Demo-Daten (Raw-Vega-Vorlage) – nur lesbar anzeigen. */
-    thead.innerHTML = '<tr><th>Phase</th><th>Task</th><th>Start</th><th>Ende</th><th class="num">%</th></tr>';
-    tbody.innerHTML = ganttDemoData().map(r=>
-      '<tr><td>'+esc(r.phase)+'</td><td>'+esc(r.task)+(r.milestone?' ◆':'')+'</td>'+
-      '<td>'+esc(r.start)+'</td><td>'+esc(r.end)+'</td>'+
-      '<td class="num">'+r.completion+'</td></tr>'
+    /* Editierbare Gantt-Tabelle (Phase/Task/Start/Ende/%/Meilenstein) → live ins Vega-Render. */
+    thead.innerHTML = '<tr><th>Phase</th><th>Task</th><th>Start</th><th>Ende</th><th class="num">%</th>'+
+      '<th title="Meilenstein (Raute)" style="text-align:center">◆</th><th></th></tr>';
+    tbody.innerHTML = ensureGanttData().map((r,i)=>
+      '<tr>'+
+      '<td><input data-g="phase" data-i="'+i+'" value="'+esc(r.phase||'')+'" placeholder="Phase"></td>'+
+      '<td><input data-g="task" data-i="'+i+'" value="'+esc(r.task||'')+'" placeholder="Task"></td>'+
+      '<td><input type="date" data-g="start" data-i="'+i+'" value="'+esc(r.start||'')+'"></td>'+
+      '<td><input type="date" data-g="end" data-i="'+i+'" value="'+esc(r.end||'')+'"></td>'+
+      '<td class="num"><input data-g="completion" data-i="'+i+'" inputmode="numeric" value="'+(isNaN(+r.completion)?'':r.completion)+'" style="width:46px"></td>'+
+      '<td style="text-align:center"><input type="checkbox" data-g="milestone" data-i="'+i+'"'+(r.milestone?' checked':'')+'></td>'+
+      '<td><button class="del" data-del="'+i+'" title="Zeile löschen">×</button></td>'+
+      '</tr>'
     ).join('');
     return;
   }
@@ -4690,6 +4697,14 @@ $('#dataTable').addEventListener('input', e=>{
     }
     renderPreview(); return;
   }
+  if(el.dataset.g){
+    const r = ensureGanttData()[i]; if(!r) return;
+    const f = el.dataset.g;
+    if(f==='completion') r.completion = parseNum(el.value);
+    else if(f==='milestone') r.milestone = el.checked;
+    else r[f] = el.value;
+    renderPreview(); return;
+  }
   if(el.dataset.k){
     const r = state.rows[i]; if(!r) return;
     if(el.dataset.k==='c') r.c = el.value;
@@ -4727,6 +4742,7 @@ $('#dataTable').addEventListener('click', e=>{
   }
   const d = e.target.closest('[data-del]'); if(!d) return;
   const i = +d.dataset.del;
+  if(state.type==='gantt'){ ensureGanttData().splice(i,1); renderDataTable(); renderPreview(); return; }
   if(usesSrows()) state.srows.splice(i,1);
   else if(usesWrows()) state.wrows.splice(i,1);
   else state.rows.splice(i,1);
@@ -4737,7 +4753,10 @@ $('#dataTable').addEventListener('click', e=>{
 function diceData(){
   const R = (a,b)=> a + Math.random()*(b-a);
   const RI = (a,b)=> Math.round(R(a,b));
-  if(state.type==='gantt'){ flash($('#btnDice'), 'Gantt nutzt Demo-Daten'); return; }
+  if(state.type==='gantt'){
+    ensureGanttData().forEach(r=>{ if(!r.milestone) r.completion = RI(0,100); });
+    renderDataTable(); renderPreview(); flash($('#btnDice'), 'Fortschritt gewürfelt'); return;
+  }
   if(usesSrows()){
     state.series.forEach((nm,j)=>{
       const base = R(35, 140);
@@ -4792,6 +4811,12 @@ function diceData(){
 }
 $('#btnDice').addEventListener('click', diceData);
 function addDataRow(){
+  if(state.type==='gantt'){
+    const ids = ensureGanttData().map(r=>+r.id||0);
+    const nextId = (ids.length?Math.max(...ids):0)+1;
+    state.gantt.push({id:nextId, phase:'', task:'', start:'', end:'', completion:0});
+    renderDataTable(); return;
+  }
   if(usesSrows()) state.srows.push({c:'', v:state.series.map(()=>NaN), rv:state.series.map(()=>NaN)});
   else if(usesWrows()) state.wrows.push({c:'', v:0, r2:NaN, t:'delta'});
   else state.rows.push({c:'', v1:NaN, v2:NaN, v3:NaN, fc:false});
@@ -5270,6 +5295,27 @@ function loadGanttSpec(){
 /* Demo-Projekt im Gantt-Feldschema (phase, task, start, end, completion, id +
    optional assignee, status, milestone, dependencies). Fixe Daten → deterministisch.
    Angelehnt an die Original-Demo „Weekly Gantt" (Gantt Chart.xlsx) des PMO-Toolkits. */
+/* Editierbare Gantt-Daten liegen in state.gantt (lazy aus der Demo initialisiert),
+   damit der Nutzer eigene Phasen/Tasks/Termine eintragen kann. */
+function ensureGanttData(){
+  if(!Array.isArray(state.gantt) || !state.gantt.length) state.gantt = ganttDemoData();
+  return state.gantt;
+}
+/* Für Vega aufbereiten: nur vollständige Zeilen, IDs/Defaults sichern. */
+function ganttRenderData(){
+  return ensureGanttData()
+    .filter(r=> r && String(r.task||'').trim() && r.start && r.end)
+    .map((r,i)=>{
+      const o = { id:(r.id!=null?r.id:i+1), phase:String(r.phase||'').trim()||'—',
+                  task:r.task, start:r.start, end:r.end,
+                  completion: isNaN(+r.completion)?0:Math.max(0,Math.min(100,+r.completion)) };
+      if(r.milestone) o.milestone = true;
+      if(r.status) o.status = r.status;
+      if(r.assignee) o.assignee = r.assignee;
+      if(r.dependencies) o.dependencies = String(r.dependencies);
+      return o;
+    });
+}
 function ganttDemoData(){
   return [
     {id:1, phase:'Konzept',   task:'Anforderungen',     start:'2026-01-05', end:'2026-01-16', completion:100, assignee:'Lena', status:'Complete'},
@@ -5304,7 +5350,7 @@ function buildGanttSpec(W, H){
     {name:'pbiContainerHeight', value:H},
   ].concat(spec.signals || []);
   const ds = (spec.data || []).find(d=>d.name==='dataset');
-  if(ds){ ds.values = ganttDemoData(); ds.format = {parse:{start:'date', end:'date'}}; }
+  if(ds){ ds.values = ganttRenderData(); ds.format = {parse:{start:'date', end:'date'}}; }
   return spec;
 }
 /* Aktuelles Gantt-SVG aus dem Live-DOM (immer der gerenderte Stand) – mit xmlns
@@ -5318,6 +5364,11 @@ function ganttSvgString(){
 async function renderGanttPreview(){
   const host = $('#chartHost');
   host.innerHTML = '<div style="padding:26px;font-size:12px;color:#8c8c8c">'+TT('Gantt wird geladen …')+'</div>';
+  if(!ganttRenderData().length){
+    host.innerHTML = '<div style="padding:26px;font-size:12px;color:#8c8c8c">'+
+      TT('Keine vollständigen Gantt-Zeilen – bitte mindestens Task, Start und Ende ausfüllen.')+'</div>';
+    return;
+  }
   try{
     await loadVegaLibs();
     await loadGanttSpec();
@@ -7021,7 +7072,7 @@ function serialize(){
       target:state.target, negParens:state.negParens, annos:state.annos,
       vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,
     },
-    rows:state.rows, wrows:state.wrows, srows:state.srows, series:state.series,
+    rows:state.rows, wrows:state.wrows, srows:state.srows, series:state.series, gantt:state.gantt,
     highlights:[...state.highlights], diffs:[...state.diffs], comments:[...state.comments],
     rowCollapse:[...state.rowCollapse], wfCollapse:[...state.wfCollapse],
     report:state.report, dash:state.dash,
@@ -7038,6 +7089,7 @@ function applyConfig(cfg, silent){
   if(cfg.wrows) state.wrows = cfg.wrows;
   if(cfg.srows) state.srows = cfg.srows;
   if(cfg.series) state.series = cfg.series;
+  if(cfg.gantt) state.gantt = cfg.gantt;
   /* JSON kennt kein NaN (→ null): leere Zellen nach dem Laden wieder als NaN führen */
   state.rows.forEach(r=>['v1','v2','v3'].forEach(k=>{ if(r[k]===null) r[k]=NaN; }));
   state.wrows.forEach(r=>{ if(r.r2===null) r.r2=NaN; });

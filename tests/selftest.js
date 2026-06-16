@@ -372,6 +372,20 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
          !!gtpl && Array.isArray(gtpl.data) && gtpl.data.some(d=>d.name==='dataset' && !d.values));
       ok('G · Gantt · keine VL-Pipeline (vegaSpec null)', vegaSpec(false)===null);
       ok('G · Gantt · Attribution erhalten (MIT/DL0K-pbi)', /DL0K-pbi/.test(JSON.stringify(gtpl||{})));
+      /* G2 · editierbare Gantt-Daten: Tabelle + Edit fließt in Render, Export unberührt */
+      if(typeof ensureGanttData==='function'){
+        renderDataTable();
+        const gEdit=(document.getElementById('dataTable')||{}).querySelector
+          ? document.querySelectorAll('#dataTable [data-g]').length : 0;
+        ok('G · Gantt · editierbare Tabelle (data-g-Felder)', gEdit>0, 'felder='+gEdit);
+        ensureGanttData()[0].task='SELFTEST-TASK';
+        await renderGanttPreview();
+        const e2=(document.getElementById('chartHost')||{}).innerHTML||'';
+        ok('G · Gantt · Edit erscheint im Render', /SELFTEST-TASK/.test(e2) && !/NaN/.test(e2));
+        ok('G · Gantt · User-Daten lecken NICHT ins Deneb-Template',
+           !/SELFTEST-TASK/.test(JSON.stringify(denebTemplate()||{})));
+        state.gantt=null;  /* Demo wiederherstellen */
+      }
       if(state._ganttView){ try{ state._ganttView.finalize(); state._ganttView=null; }catch(e){} }
     }
 
