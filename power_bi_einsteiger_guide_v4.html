@@ -1189,6 +1189,140 @@ a { color: inherit; }
   margin-bottom: 6px;
   font-weight: 700;
 }
+
+/* ============================================================
+   Daten-WG Folgen-Verweis (Inline & Sektion-Ende)
+============================================================ */
+.dwg-folgen-block {
+  margin: 36px 0 8px;
+  padding: 22px 24px 24px;
+  background: rgba(17, 120, 101, 0.04);
+  border: 1px solid rgba(17, 120, 101, 0.18);
+  border-radius: var(--radius);
+}
+.dwg-folgen-block-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.dwg-folgen-block-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+}
+.dwg-folgen-block-title {
+  font-family: var(--serif);
+  font-size: 17px;
+  color: var(--ink);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.dwg-folgen-block-hint {
+  font-size: 12.5px;
+  color: var(--ink-mute);
+  margin-bottom: 14px;
+}
+.dwg-folgen-list {
+  display: grid;
+  gap: 10px;
+}
+.dwg-folge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  transition: border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+}
+.dwg-folge:hover {
+  border-color: var(--accent);
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(17, 120, 101, 0.10);
+}
+.dwg-folge-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  text-decoration: none;
+  color: inherit;
+  font-size: 0;
+}
+.dwg-folge-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.dwg-folge-icon {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17, 120, 101, 0.12);
+  border-radius: 50%;
+  color: var(--accent);
+}
+.dwg-folge-icon svg { width: 14px; height: 14px; }
+.dwg-folge-main { flex: 1 1 auto; min-width: 0; }
+.dwg-folge-eyebrow {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.dwg-folge-title {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.35;
+  font-weight: 500;
+}
+.dwg-folge-meta {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.dwg-folge-yt {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  color: var(--ink-mute);
+  text-decoration: none;
+  transition: color .12s ease, background .12s ease;
+}
+.dwg-folge-yt:hover { color: #c4302b; background: rgba(196, 48, 43, 0.08); }
+.dwg-folge-yt svg { width: 16px; height: 16px; }
+
+.modal-body .dwg-folgen-block {
+  margin: 16px 0 4px;
+  padding: 14px 16px 16px;
+}
+.modal-body .dwg-folgen-block-head { margin-bottom: 10px; }
+.modal-body .dwg-folgen-block-title { font-size: 14.5px; }
+.modal-body .dwg-folge { padding: 10px 12px; }
+.modal-body .dwg-folge-title { font-size: 13.5px; }
+
 .modal-body figure {
   margin: 18px 0;
   padding: 12px;
@@ -1557,6 +1691,7 @@ a { color: inherit; }
   <div class="topnav-inner">
     <a class="topnav-brand" href="index.html" style="text-decoration:none; color:inherit;">Power BI <em>End-to-End</em> · Einsteiger-Guide<span class="beta-badge" title="Beta-Phase · noch in Entwicklung">Beta</span></a>
     <a class="topnav-link" href="index.html" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">← Knowledge Kitchen</a>
+    <a class="topnav-link" href="index.html#posts-talks">Posts &amp; Talks</a>
     <a class="topnav-link" href="#arch">Architektur</a>
     <a class="topnav-link" href="#pq">Power Query</a>
     <a class="topnav-link" href="#folding">Folding</a>
@@ -1956,6 +2091,38 @@ a { color: inherit; }
       </button>
     </aside>
   </div>
+
+  <div class="dwg-folgen-block">
+    <div class="dwg-folgen-block-head">
+      <span class="dwg-folgen-block-eyebrow">Aus dem Kanal</span>
+      <span class="dwg-folgen-block-title">Modellierung praktisch durchgespielt</span>
+    </div>
+    <p class="dwg-folgen-block-hint">Warum Modellierung das ist, woran Self-Service später scheitert — und wie Stern-Schemata für Nicht-Modellierer plausibel werden.</p>
+    <div class="dwg-folgen-list">
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-hbUYMyqb6r8" aria-label="Folge öffnen: Denken in Tabellen"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Talk · 39 min</div>
+          <div class="dwg-folge-title">Denken in Tabellen — Stern-Schema-Grundlagen</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/hbUYMyqb6r8" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-lH_-A8NAQ-k" aria-label="Folge öffnen: Datenmodellierung ist Governance"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Talk · 43 min</div>
+          <div class="dwg-folge-title">Datenmodellierung ist Governance</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/lH_-A8NAQ-k" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ============================================================
@@ -2011,6 +2178,38 @@ a { color: inherit; }
       <p class="card-desc">FILTER statt Boolean, IFERROR-Abuse, DIVIDE statt /, implizite Measures.</p>
       <div class="card-more">Mehr →</div>
     </button>
+  </div>
+
+  <div class="dwg-folgen-block">
+    <div class="dwg-folgen-block-head">
+      <span class="dwg-folgen-block-eyebrow">Aus dem Kanal</span>
+      <span class="dwg-folgen-block-title">DAX-Konzepte am Beispiel</span>
+    </div>
+    <p class="dwg-folgen-block-hint">Expanded Tables sind das Modell hinter Filter- und Row-Context. UDFs + TMDL zeigen, wohin DAX 2026 läuft.</p>
+    <div class="dwg-folgen-list">
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-LQQEn7IOb7w" aria-label="Folge öffnen: Expanded Tables in DAX verstehen"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Tutorial · 12 min</div>
+          <div class="dwg-folge-title">Expanded Tables in DAX verstehen — Beziehungen &amp; Filter erklärt</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/LQQEn7IOb7w" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-0FPA1k5YiTs" aria-label="Folge öffnen: Power BI Deep Dive DAX UDF + TMDL"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Deep Dive · 49 min</div>
+          <div class="dwg-folge-title">DAX User Defined Functions + TMDL</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/0FPA1k5YiTs" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -2156,6 +2355,38 @@ a { color: inherit; }
       <div class="card-more">Mehr →</div>
     </button>
   </div>
+
+  <div class="dwg-folgen-block">
+    <div class="dwg-folgen-block-head">
+      <span class="dwg-folgen-block-eyebrow">Aus dem Kanal</span>
+      <span class="dwg-folgen-block-title">Visualisierung in Aktion</span>
+    </div>
+    <p class="dwg-folgen-block-hint">Von IBCS-First-Principles bis zu deklarativer Custom-Visualisierung mit Deneb/Vega — beide Wege zeigen, warum Default-Charts selten reichen.</p>
+    <div class="dwg-folgen-list">
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-inko8wG9jlY" aria-label="Folge öffnen: Boring Charts, Better Insights"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">IBCS-Talk · 40 min</div>
+          <div class="dwg-folge-title">Boring Charts, Better Insights</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/inko8wG9jlY" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-AxLQtBVAI9o" aria-label="Folge öffnen: Declarative Visualization with DENEB"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Deep Dive · 47 min · EN</div>
+          <div class="dwg-folge-title">Declarative Visualization with DENEB</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/AxLQtBVAI9o" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ============================================================
@@ -2211,6 +2442,38 @@ a { color: inherit; }
       <p class="card-desc">Dynamische Titel, Farbskalen, Icons in Tabellen.</p>
       <div class="card-more">Mehr →</div>
     </button>
+  </div>
+
+  <div class="dwg-folgen-block">
+    <div class="dwg-folgen-block-head">
+      <span class="dwg-folgen-block-eyebrow">Aus dem Kanal</span>
+      <span class="dwg-folgen-block-title">Interaktivität konkret</span>
+    </div>
+    <p class="dwg-folgen-block-hint">Ein 54-Min-Solo-Deep-Dive verbindet Buttons, Drilling, Navigation und dynamisches Filtern in einem Report. TMDL-Magie zeigt, was Field Parameters jenseits der GUI können.</p>
+    <div class="dwg-folgen-list">
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-K27nB68nR1M" aria-label="Folge öffnen: Buttons, Drilling, Navigation und Dynamisches Filtern"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Solo Deep Dive · 54 min</div>
+          <div class="dwg-folge-title">Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/K27nB68nR1M" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-sShNdgnHjr4" aria-label="Folge öffnen: TMDL Magie Multi Parameter Tabelle"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Tutorial · 9 min</div>
+          <div class="dwg-folge-title">TMDL Magie: Multi-Parameter-Tabelle — Feldparameter Next Level</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/sShNdgnHjr4" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -2437,6 +2700,49 @@ a { color: inherit; }
       <div class="card-more">Mehr →</div>
     </button>
   </div>
+
+  <div class="dwg-folgen-block">
+    <div class="dwg-folgen-block-head">
+      <span class="dwg-folgen-block-eyebrow">Aus dem Kanal</span>
+      <span class="dwg-folgen-block-title">Fabric &amp; Tooling in der Praxis</span>
+    </div>
+    <p class="dwg-folgen-block-hint">OneLake-Speicherorte, Mirroring ohne ETL und MCP Server für Power-BI-Modelling — drei Folgen für das Drumherum jenseits von Desktop.</p>
+    <div class="dwg-folgen-list">
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-ZVVSPQj9dlc" aria-label="Folge öffnen: Wo liegen meine Daten im OneLake"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Tutorial · 5 min</div>
+          <div class="dwg-folge-title">Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/ZVVSPQj9dlc" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-7j34Ndng0Os" aria-label="Folge öffnen: Open Mirroring in Microsoft Fabric"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Tutorial · 10 min</div>
+          <div class="dwg-folge-title">Open Mirroring in Microsoft Fabric — Daten replizieren ohne ETL</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/7j34Ndng0Os" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-iinfiHxznOU" aria-label="Folge öffnen: Unboxing MCP Server for Power BI Modelling"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Deep Dive · 67 min</div>
+          <div class="dwg-folge-title">Unboxing MCP Server for Power BI Modelling</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/iinfiHxznOU" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ============================================================
@@ -2494,6 +2800,27 @@ a { color: inherit; }
       <a href="https://app.powerbi.com/view?r=eyJrIjoiNWI1ZWVlNTgtNjdmMy00YjM3LWFkMGEtMDFiYWU4YjI5NTA0IiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9" target="_blank" rel="noopener">In neuem Tab öffnen →</a>
     </div>
   </article>
+
+  <div class="dwg-folgen-block">
+    <div class="dwg-folgen-block-head">
+      <span class="dwg-folgen-block-eyebrow">Aus dem Kanal</span>
+      <span class="dwg-folgen-block-title">Reports von Grund auf</span>
+    </div>
+    <p class="dwg-folgen-block-hint">Ein knapp einstündiger Solo-Walkthrough vom leeren Power-BI-Canvas zum fertigen Report-Einreichung — Entscheidungen werden laut erklärt.</p>
+    <div class="dwg-folgen-list">
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="index.html#ep-z3eVRymUp30" aria-label="Folge öffnen: Maven Analytics Challenge Walkthrough"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Solo Deep Dive · 57 min · EN</div>
+          <div class="dwg-folge-title">Walkthrough for my first Submission to the Maven Analytics Challenge</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/z3eVRymUp30" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ============================================================
@@ -6997,6 +7324,75 @@ dim_region[UserEmail] = <span class="fn">USERPRINCIPALNAME</span>()</pre>
 
 
 // ═══════════════════════════════════════════════════════════
+// DATEN-WG FOLGEN-LINKS pro Modal-Key
+// ═══════════════════════════════════════════════════════════
+// Mapping: data-key der Karte -> Folgen, die genau dieses Thema vertiefen.
+// Format pro Folge: [ytId, eyebrow, title]
+// Primaerer Klick fuehrt zu index.html#ep-<ytId> (Site mit Auto-Expand),
+// das kleine YT-Icon rechts geht direkt zu youtu.be/<ytId>.
+const EPISODE_LINKS = {
+  'arch-fabric': [
+    ['ZVVSPQj9dlc', 'Tutorial · 5 min', 'Wo liegen meine Daten wirklich im OneLake?'],
+    ['mTVeZzshLzE', 'Talk · 48 min', 'Microsoft Fabric — braucht das wirklich jemand?'],
+  ],
+  'mod-snowflake': [
+    ['rrCi0lnGrCg', 'Talk · 33 min', 'Mythos Data Vault und richtig große Modelle'],
+  ],
+  'dax-context': [
+    ['LQQEn7IOb7w', 'Tutorial · 12 min', 'Expanded Tables in DAX verstehen'],
+  ],
+  'dax-time': [
+    ['GsLfiuPlsQE', 'Tutorial · 7 min', 'Visual Calculations erklärt — Prozent vom übergeordneten Wert'],
+  ],
+  'viz-axis': [
+    ['8DsgIfWJkoI', 'Tutorial · 3 min', 'Die 3 Zustände der sekundären Y-Achse'],
+    ['9BpzcWErzwQ', 'Tutorial · 6 min', 'Sekundäre Y-Achse umkehren'],
+  ],
+  'int-drill': [
+    ['0n8hZ6v_0Lc', 'Tutorial · 7 min', 'Drillthrough-Auswahl sortieren — Reihenfolge kontrollieren'],
+  ],
+  'int-fieldp': [
+    ['v8dvnqqa7f8', 'Tutorial · 5 min', 'Field Parameter (Feldparameter) richtig nutzen'],
+    ['sShNdgnHjr4', 'Tutorial · 9 min', 'TMDL Magie: Multi-Parameter-Tabelle — Feldparameter Next Level'],
+  ],
+  'int-condformat': [
+    ['c5zxZLRuV_s', 'Tutorial · 6 min', 'Jedes Power BI Visual dynamisch — auch ohne fx-Button'],
+  ],
+  'ext-fabric': [
+    ['mTVeZzshLzE', 'Talk · 48 min', 'Microsoft Fabric — braucht das wirklich jemand?'],
+    ['7j34Ndng0Os', 'Tutorial · 10 min', 'Open Mirroring in Microsoft Fabric — replizieren ohne ETL'],
+  ],
+};
+
+const YT_GLYPH = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>';
+const PLAY_GLYPH = '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg>';
+
+function renderEpisodeLinks(key) {
+  const items = EPISODE_LINKS[key];
+  if (!items || items.length === 0) return '';
+  const rows = items.map(([yt, eyebrow, title]) => `
+    <div class="dwg-folge">
+      <a class="dwg-folge-link" href="index.html#ep-${yt}" aria-label="Folge öffnen: ${title.replace(/"/g, '&quot;')}"></a>
+      <span class="dwg-folge-icon">${PLAY_GLYPH}</span>
+      <div class="dwg-folge-main">
+        <div class="dwg-folge-eyebrow">${eyebrow}</div>
+        <div class="dwg-folge-title">${title}</div>
+      </div>
+      <div class="dwg-folge-meta">
+        <a class="dwg-folge-yt" href="https://youtu.be/${yt}" target="_blank" rel="noopener" title="Direkt auf YouTube">${YT_GLYPH}</a>
+      </div>
+    </div>`).join('');
+  return `
+    <div class="dwg-folgen-block">
+      <div class="dwg-folgen-block-head">
+        <span class="dwg-folgen-block-eyebrow">Daten-WG dazu</span>
+        <span class="dwg-folgen-block-title">${items.length === 1 ? 'Folge zum Thema' : 'Folgen zum Thema'}</span>
+      </div>
+      <div class="dwg-folgen-list">${rows}</div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
 // MODAL LOGIC
 // ═══════════════════════════════════════════════════════════
 const backdrop      = document.getElementById('modal-backdrop');
@@ -7017,7 +7413,7 @@ function openModal(key) {
   }
   modalEyebrow.textContent = data.eyebrow;
   modalTitle.textContent   = data.title;
-  modalBody.innerHTML      = data.body;
+  modalBody.innerHTML      = data.body + renderEpisodeLinks(key);
   const idx = allKeys.indexOf(key);
   modalCounter.textContent = (idx + 1) + ' / ' + allKeys.length;
   backdrop.classList.add('is-open');
