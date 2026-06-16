@@ -450,6 +450,15 @@ footer a:hover{color:var(--ink)}
         <button class="chip" id="mmWf" type="button" title="Mini-Wasserfall je Serie mit Σ">Wasserfall</button>
         <button class="chip" id="mmLine" type="button" title="Mini-Linien je Serie (statt Spaghetti-Chart)">Linie</button>
       </div>
+      <div class="row" id="multiGridWrap" style="display:none; margin-top:8px">
+        <span style="font-size:11.5px;color:var(--ink2)" title="Raster und Skala der Small Multiples (Trellis)">Trellis</span>
+        <select id="multiColsSel" title="Spalten je Zeile" style="font-size:11px;padding:2px 4px">
+          <option value="1">1 Spalte</option><option value="2">2 Spalten</option>
+          <option value="3">3 Spalten</option><option value="4">4 Spalten</option>
+        </select>
+        <button class="chip" id="msShared" type="button" title="Gleiche Y-Skala über alle Kacheln – Niveaus vergleichbar (UN 5.2)">Skala gemeinsam</button>
+        <button class="chip" id="msFree" type="button" title="Je Kachel eigene Y-Skala – betont die Form/den Verlauf statt das Niveau">Skala frei</button>
+      </div>
       <label class="check" id="bandWrap" style="display:none"><input type="checkbox" id="bandChk"> Scale Band (Fläche bis zur Skalierungslinie)</label>
       <div class="row" id="axisTitleWrap" style="display:none; margin-top:8px">
         <label class="fld" style="margin:0;flex:1"><span>X-Achse</span><input type="text" id="xTit"></label>
@@ -781,6 +790,8 @@ const state = {
   mEdit:'p',
   fromType:null,
   multiMode:'col',
+  multiCols:3,
+  multiScale:'shared',
   kombiBase:'col',
   bridgeRel:false,
   bridgePY:false,
@@ -2164,7 +2175,7 @@ function renderMultiples(){
   let order = state.series.map((nm,j)=>j);
   const total = j => rows.reduce((a,r)=>a+(isNaN(r.v[j])?0:r.v[j]),0);
   if(state.sortDesc) order = order.sort((a,b)=>total(b)-total(a));
-  const perRow = 3, cw = 198, gapX = 18, gapY = 26;
+  const perRow = Math.max(1, Math.min(4, state.multiCols||3)), cw = 198, gapX = 18, gapY = 26;
   const hasRefData = rows.some(r=> (r.rv||[]).some(v=>!isNaN(v)));
   const tiers = [];
   if(hasRefData && mode!=='delta'){
@@ -2188,8 +2199,10 @@ function renderMultiples(){
     const allv = rows.flatMap(r=>r.v.concat(r.rv||[])).filter(v=>!isNaN(v));
     vmax = Math.max(...allv,1); vmin = Math.min(...allv,0);
   }
-  const sc = makeScale(vmin, vmax, plotH, 0.14);
-  const scaleVal = (mode!=='delta' && vmax>0) ? niceBelow(vmax*0.97) : 0;
+  /* sc/scaleVal sind „shared"; bei „free" werden sie je Facette unten neu gesetzt */
+  let sc = makeScale(vmin, vmax, plotH, 0.14);
+  let scaleVal = (mode!=='delta' && vmax>0) ? niceBelow(vmax*0.97) : 0;
+  const freeScale = state.multiScale==='free';
 
   /* gemeinsame Skalen für die Mini-Varianz-Ebenen */
   let relMax=1, absMax=1, relCapV=Infinity;
@@ -2210,6 +2223,19 @@ function renderMultiples(){
     const gx = padL + (k%perRow)*(cw+gapX);
     const gy0 = padT + Math.floor(k/perRow)*(ch+gapY);
     const innerW = cw-12;
+    /* Freie Skala: Wertebereich nur dieser Serie (Form schlägt Niveau-Vergleich) */
+    if(freeScale){
+      if(mode==='wf'){
+        let run=0, lmax=0, lmin=0;
+        rows.forEach(r=>{ run+=isNaN(r.v[j])?0:r.v[j]; lmax=Math.max(lmax,run); lmin=Math.min(lmin,run); });
+        sc = makeScale(lmin, lmax, plotH, 0.14); scaleVal = 0;
+      } else {
+        const sv = rows.flatMap(r=>[r.v[j]].concat((r.rv||[])[j]!==undefined?[r.rv[j]]:[])).filter(v=>!isNaN(v));
+        const lmax = Math.max(...sv,1), lmin = Math.min(...sv,0);
+        sc = makeScale(lmin, lmax, plotH, 0.14);
+        scaleVal = (mode!=='delta' && lmax>0) ? niceBelow(lmax*0.97) : 0;
+      }
+    }
     const nSlots = mode==='wf' ? rows.length+1 : rows.length;
     const slot = innerW/nSlots;
     /* Mini-Tiers zwischen Kopf und Basischart */
@@ -4283,6 +4309,10 @@ function renderPreview(){
   $('#mmDelta').classList.toggle('on', state.multiMode==='delta');
   $('#mmWf').classList.toggle('on', state.multiMode==='wf');
   $('#mmLine').classList.toggle('on', state.multiMode==='line');
+  $('#multiGridWrap').style.display = state.type==='multiples' ? 'flex' : 'none';
+  $('#multiColsSel').value = String(Math.max(1,Math.min(4,state.multiCols||3)));
+  $('#msShared').classList.toggle('on', state.multiScale!=='free');
+  $('#msFree').classList.toggle('on', state.multiScale==='free');
   $('#wfVarWrap').style.display = (state.type==='waterfall' || (state.type==='multiples'&&state.multiMode==='wf')) ? 'flex' : 'none';
   $('#axisTitleWrap').style.display = state.type==='scatter' ? 'flex' : 'none';
   if(state.type==='scatter'){ $('#xTit').value = state.xTitle; $('#yTit').value = state.yTitle; }
@@ -4781,6 +4811,9 @@ $('#chartHost').addEventListener('click', e=>{
 $('#btnDash2').addEventListener('click', ()=>{ $('#btnDash').click(); });
 $('#topN').addEventListener('change', e=>{ state.topN=+e.target.value; state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear(); renderPreview(); });
 $('#bandChk').addEventListener('change', e=>{ state.scaleBand=e.target.checked; renderPreview(); });
+$('#multiColsSel').addEventListener('change', e=>{ state.multiCols = +e.target.value||3; renderPreview(); });
+$('#msShared').addEventListener('click', ()=>{ state.multiScale='shared'; renderPreview(); });
+$('#msFree').addEventListener('click', ()=>{ state.multiScale='free'; renderPreview(); });
 $('#mmCol').addEventListener('click', ()=>{ state.multiMode='col'; renderPreview(); });
 $('#mmDelta').addEventListener('click', ()=>{ state.multiMode='delta'; renderPreview(); });
 $('#mmWf').addEventListener('click', ()=>{ state.multiMode='wf'; renderPreview(); });
@@ -6495,10 +6528,10 @@ function vlMultiples(deneb){
           ? {condition:{test:'datum.v >= 0', value:C.pos}, value:C.neg}
           : {value:DARK}}});
   }
-  return { data:vData(values,deneb), columns:3,
+  return { data:vData(values,deneb), columns:Math.max(1,Math.min(4,state.multiCols||3)),
     facet:{field:'serie', type:'nominal', sort: deneb? null : state.series.slice(),
       header:{title:null, labelFont:'Arial', labelFontSize:11, labelFontWeight:'bold', labelColor:'#1c1c1c', labelAnchor:'start'}},
-    spec:inner, resolve:{scale:{y:'shared'}} };
+    spec:inner, resolve:{scale:{y: state.multiScale==='free'?'independent':'shared'}} };
 }
 function vlScatter(deneb){
   const rows = state.rows.filter(r=>r.c!=='' && !isNaN(r.v1) && !isNaN(r.v2));
@@ -7216,7 +7249,7 @@ function serialize(){
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source,
-      multiMode:state.multiMode, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
+      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
       target:state.target, negParens:state.negParens, annos:state.annos,
       vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,

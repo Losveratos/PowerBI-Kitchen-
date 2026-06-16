@@ -486,6 +486,23 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       state.rowCollapse=new Set(); state.wfCollapse=new Set();
     }
 
+    /* === I) Flexibler Trellis (Spaltenzahl + Y-Skala gemeinsam/frei) === */
+    if('multiCols' in state){
+      loadPreset('marimekkoDemo'); state.type='multiples'; state.multiMode='col'; state.multiScale='shared';
+      state.multiCols=1; renderAll(); const w1=+document.querySelector('#chartHost svg').getAttribute('width');
+      state.multiCols=4; renderPreview(); const w4=+document.querySelector('#chartHost svg').getAttribute('width');
+      ok('I · Trellis · Spaltenzahl skaliert SVG-Breite (1<4)', w1>0 && w4>w1 && !/NaN/.test(chartHtml()));
+      state.multiCols=2; state.multiScale='free';
+      const vlF=vegaSpec(false);
+      ok('I · Trellis · VL columns=2 + freie Skala (independent)', vlF.columns===2 && vlF.resolve.scale.y==='independent');
+      state.multiScale='shared';
+      ok('I · Trellis · VL gemeinsame Skala (shared)', vegaSpec(false).resolve.scale.y==='shared');
+      const itpl=denebTemplate(); const ib=clone(itpl); delete ib.usermeta;
+      let icomp=false; try{ icomp=!!VL.compile(ib).spec; }catch(e){}
+      ok('I · Trellis · Template kompiliert mit columns/resolve', icomp && itpl.columns===2 && tplBakedRows(itpl)===0);
+      state.multiCols=3; state.multiScale='shared';
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{
