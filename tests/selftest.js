@@ -59,7 +59,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     unit:state.unit, unitScale:state.unitScale, decimals:state.decimals, msg:state.msg,
     stack100:state.stack100, bridgePY:state.bridgePY, bridgeRel:state.bridgeRel,
     treeJson:state.treeJson, varRefCols:state.varRefCols, varYTD:state.varYTD,
-    grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef,
+    grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef, tableDims:state.tableDims,
     t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
   };
   const restore = ()=>{
@@ -70,7 +70,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       decimals:snap.decimals, msg:snap.msg, stack100:snap.stack100,
       bridgePY:snap.bridgePY, bridgeRel:snap.bridgeRel,
       treeJson:snap.treeJson, varRefCols:snap.varRefCols, varYTD:snap.varYTD,
-      grpFacet:snap.grpFacet, grpScale:snap.grpScale, zMonthCol:snap.zMonthCol, zMonthRef:snap.zMonthRef});
+      grpFacet:snap.grpFacet, grpScale:snap.grpScale, zMonthCol:snap.zMonthCol, zMonthRef:snap.zMonthRef, tableDims:snap.tableDims});
     const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v==null?'':v; };
     set('t1',snap.t1); set('t2',snap.t2); set('t3',snap.t3);
     try{ renderAll(); }catch(e){}
@@ -833,6 +833,35 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       /* sticky-frei: Folge-Preset ohne grpFacet schaltet ab + columns-Vorschau wieder 1 Kachel */
       loadPreset('months');
       ok('T · grpFacet nicht sticky (Folge-Preset → aus) + nicht faceted', state.grpFacet===false && !timeIsFaceted());
+    }
+
+    /* === V) Hierarchie-Tabelle: Blätter mit N Dim-Spalten → Multi-Dim-Template === */
+    if('tableDims' in state && typeof PRESETS==='object' && PRESETS.tableHier){
+      loadPreset('tableHier');
+      ok('V · tableHier-Preset · table, tableDims=2, 6 Blattzeilen',
+         state.type==='table' && state.tableDims===2 && state.rows.length===6 && tableIsHier());
+      /* Vorschau: berechnete Eltern-Σ (278/192/227) + Gesamt-Σ 697, kein NaN */
+      const svgV=chartHtml();
+      ok('V · Vorschau · Eltern-Σ (278/192/227) + Σ 697 aus Blättern',
+         />278</.test(svgV) && />192</.test(svgV) && />227</.test(svgV) && />697</.test(svgV) && !/NaN/.test(svgV));
+      /* Deneb-Template: 2 Dim-Platzhalter (text/column) + Messwerte, kompiliert, baked=0, keine Leaks */
+      const tV=denebTemplate(); const bV=clone(tV); delete bV.usermeta;
+      let vc=false; try{ vc=!!VL.compile(bV).spec; }catch(e){}
+      const ds=tV.usermeta.dataset;
+      const dimFields=ds.filter(d=>d.type==='text'&&d.kind==='column');
+      const bodyV=JSON.stringify(bV);
+      ok('V · Template · ≥2 Dim-Felder (text/column) + kompiliert + baked=0',
+         vc && tplBakedRows(tV)===0 && dimFields.length>=2 && /__0__/.test(bodyV) && /__1__/.test(bodyV));
+      ok('V · Template · keine rohen internen Feldnamen-Leaks (d0/d1/klf als field)',
+         !/"field":"d0"/.test(bodyV) && !/"field":"d1"/.test(bodyV) && !/"field":"p"/.test(bodyV));
+      /* embedded (Vega-Editor) kompiliert ebenfalls */
+      const embV=vegaSpec(false); let ev=false; try{ ev=!!VL.compile(embV).spec; }catch(e){}
+      ok('V · embedded VL (Vega-Editor) kompiliert', ev);
+      /* sticky-frei: Folge-Preset ohne tableDims → Liste */
+      loadPreset('countriesTab');
+      ok('V · tableDims nicht sticky (Folge-Preset → Liste)', (state.tableDims||0)<2 && !tableIsHier());
+      /* Guide-Karte */
+      ok('V · Guide-Karte tableDims', (()=>{ state.type='table'; return /data-opt="tableDims"/.test(guideCardsHtml()); })());
     }
 
   }catch(err){

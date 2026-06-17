@@ -572,6 +572,7 @@ footer a:hover{color:var(--ink)}
           <option value="fanDemo">Fan · Ist + Forecast-Korridor</option>
           <option value="heatmapDemo">Heatmap · Δ vs Plan (Region × Monat)</option>
           <option value="marimekkoDemo">Marimekko · Anteil × Größe</option>
+          <option value="tableHier">Tabelle · Hierarchie (2 Dim-Felder, PBI-Export)</option>
           <option value="roiTree">Treiberbaum · ROI-Tree (Alpha Software)</option>
           <option value="regionFacet">Szenariovergleich je Gruppe · Small Multiples (Säule/Linie)</option>
           <option value="boxplotDemo">Boxplot · Verteilung je Service</option>
@@ -861,6 +862,7 @@ const state = {
   grpScale:'shared',
   zMonthCol:false,
   zMonthRef:false,
+  tableDims:0,
   refLine:'none',
   lineAllLabels:false,
   topN:0,
@@ -1434,6 +1436,30 @@ function labelW(rows){
    Folgezeile) werden fett. Bei Hierarchie sind Kategorien linksbündig.            */
 function hasHier(rows){ return rows.some(r=>(r.lvl||0)>0); }
 function isParentRow(rows,i){ return (rows[i].lvl||0) < ((rows[i+1]&&rows[i+1].lvl)||0); }
+/* Hierarchie-Tabelle über mehrere Dimensionsspalten (PBI-konform): jede Zeile
+   ist ein Blatt mit d0..d(N-1); Zwischensummen werden aggregiert, nicht eingegeben. */
+function tableIsHier(){ return state.type==='table' && (state.tableDims||0) >= 2; }
+function tableDimKeys(){ const n=state.tableDims||0; return Array.from({length:n}, (_,i)=>'d'+i); }
+/* Blatt-Zeilen → lvl-basierte Zeilenliste mit berechneten Eltern-Σ (für den
+   bestehenden Hierarchie-Renderer: Σ, Collapse, Highlights laufen darüber). */
+function expandDimRows(leaves, N){
+  const out=[];
+  const rec=(items, depth)=>{
+    if(depth===N-1){
+      items.forEach(r=> out.push({c:String(r['d'+depth]||'').trim()||'—', v1:r.v1, v2:r.v2, v3:r.v3, fc:!!r.fc, lvl:depth}));
+      return;
+    }
+    const order=[], map=new Map();
+    items.forEach(r=>{ const g=String(r['d'+depth]||'').trim()||'—'; if(!map.has(g)){map.set(g,[]); order.push(g);} map.get(g).push(r); });
+    order.forEach(g=>{ const kids=map.get(g);
+      const sum=k=>{ let any=false,s=0; kids.forEach(r=>{ if(!isNaN(r[k])){any=true; s+=r[k];} }); return any?s:NaN; };
+      out.push({c:g, v1:sum('v1'), v2:sum('v2'), v3:sum('v3'), fc:false, lvl:depth});
+      rec(kids, depth+1);
+    });
+  };
+  rec(leaves, 0);
+  return out;
+}
 /* Tabelle: Indizes der Zeilen, die wegen eines eingeklappten Elternteils
    verborgen sind (alle Nachfahren mit größerem lvl bis zur nächsten Zeile
    gleicher/kleinerer Ebene). */
@@ -4291,7 +4317,7 @@ function buildChart(){
     }
   }
   else if(state.type==='barskombi') r = renderBarsKombi(rows);
-  else if(state.type==='table')     r = renderIbcsTable(rows);
+  else if(state.type==='table')     r = renderIbcsTable(tableIsHier() ? expandDimRows(rows, state.tableDims) : rows);
   else                              r = renderKombi(rows);
   return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+r.W+' '+r.H+'" width="'+r.W+'" height="'+r.H+'" role="img">'+
          svgDefs() + resolvePaint(r.svg) + renderAnnos(r.W, r.H) + '</svg>';
@@ -4546,6 +4572,24 @@ function renderDataTable(){
       '<td class="num"><input data-k="v2" data-i="'+i+'" inputmode="decimal" value="'+(isNaN(r.v2)?'':String(r.v2).replace('.',','))+'"></td>'+
       '<td class="num"><input data-k="v3" data-i="'+i+'" inputmode="decimal" value="'+(isNaN(r.v3)?'':String(r.v3).replace('.',','))+'"></td>'+
       (fac?'<td><input data-k="grp" data-i="'+i+'" value="'+esc(r.grp||'')+'" placeholder="z. B. Region"></td>':'')+
+      '<td><button class="del" data-del="'+i+'" title="Zeile löschen">×</button></td></tr>'
+    ).join('');
+    return;
+  }
+  if(tableIsHier()){
+    /* Hierarchie-Tabelle: Blattzeilen mit N Dimensionsspalten (Σ aggregiert PBI) */
+    const keys = tableDimKeys();
+    const hasRef = state.reference!=='—', hasRef2 = state.reference2!=='—';
+    thead.innerHTML = '<tr>'+keys.map((k,d)=>'<th>Ebene '+(d+1)+'</th>').join('')+
+      '<th class="num">'+esc(state.primary)+'</th>'+
+      (hasRef?'<th class="num">'+esc(state.reference)+'</th>':'')+
+      (hasRef2?'<th class="num">'+esc(state.reference2)+'</th>':'')+'<th></th></tr>';
+    tbody.innerHTML = state.rows.map((r,i)=>
+      '<tr>'+
+      keys.map(k=>'<td><input data-k="'+k+'" data-i="'+i+'" value="'+esc(r[k]||'')+'" placeholder="'+(k==='d0'?'Hauptgruppe':'Untergruppe')+'"></td>').join('')+
+      '<td class="num"><input data-k="v1" data-i="'+i+'" inputmode="decimal" value="'+(isNaN(r.v1)?'':String(r.v1).replace('.',','))+'"></td>'+
+      (hasRef?'<td class="num"><input data-k="v2" data-i="'+i+'" inputmode="decimal" value="'+(isNaN(r.v2)?'':String(r.v2).replace('.',','))+'"></td>':'')+
+      (hasRef2?'<td class="num"><input data-k="v3" data-i="'+i+'" inputmode="decimal" value="'+(isNaN(r.v3)?'':String(r.v3).replace('.',','))+'"></td>':'')+
       '<td><button class="del" data-del="'+i+'" title="Zeile löschen">×</button></td></tr>'
     ).join('');
     return;
@@ -5067,6 +5111,8 @@ const PRESETS = {
           ['Jan',62,70,,,'EMEA'],['Feb',66,72,,,'EMEA'],['Mär',81,76,,,'EMEA'],['Apr',88,80,,1,'EMEA'],
           ['Jan',40,38,,,'APAC'],['Feb',48,42,,,'APAC'],['Mär',52,50,,,'APAC'],['Apr',57,53,,1,'APAC'],
           ['Jan',31,40,,,'LATAM'],['Feb',35,42,,,'LATAM'],['Mär',39,44,,,'LATAM'],['Apr',44,47,,1,'LATAM']] },
+  tableHier:{ type:'table', primary:'AC', reference:'PL', tableDims:2, t2:'Umsatz nach Region & Produktlinie in mEUR',
+    leaves:[['DACH','Software',186,170],['DACH','Services',92,99],['EMEA','Software',128,118],['EMEA','Services',64,70],['Americas','Software',150,140],['Americas','Services',77,72]] },
   roiTree:{ type:'tree', t1:'Alpha Software Corporation, Germany', t2:'ROI tree', t3:'2021..2027',
     msg:'We plan to achieve a ROI of 19.2% in 2026 despite of increasing invested capital',
     treeJson:DEFAULT_TREE_JSON },
@@ -5157,6 +5203,8 @@ function loadPreset(key){
   const p = PRESETS[key]; if(!p) return;
   state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
   if(p.rows) state.rows = p.rows.map(r=>({c:r[0], v1:r[1], v2:r[2], v3:r[3], fc:!!r[4], grp:r[5]}));
+  if(p.leaves) state.rows = p.leaves.map(r=>({d0:r[0], d1:r[1], v1:r[2], v2:r[3], v3:r[4]}));   /* Hierarchie-Blätter (2 Dim) */
+  state.tableDims = p.tableDims || 0;   /* nicht sticky */
   if(p.series) state.series = p.series.slice();
   if(p.xTitle) state.xTitle = p.xTitle;
   if(p.yTitle) state.yTitle = p.yTitle;
@@ -5294,6 +5342,10 @@ function guideCardsHtml(){
       gchip('varYTD','toggle',(state.varYTD!==false?'✓ ':'')+'Δ%_YTD-Ebene (kumuliert)',state.varYTD!==false)+
       gchip('varRefCols','toggle',(state.varRefCols?'✓ ':'')+'Σ-Referenzsäulen + Total-Pin',!!state.varRefCols)));
   }
+  if(t==='table'){
+    out.push(gcard('Hierarchie · Dimensionen','Für den Deneb-Export: die Kategorie als echte Hierarchie aus mehreren Dimensionsfeldern (Ebene 1 › Ebene 2 …). Daten = Blattzeilen, Zwischensummen aggregiert Power BI. „Liste" = eine Kategorie wie bisher.',
+      gchip('tableDims',0,'Liste (1 Dim)',(state.tableDims||0)<2)+gchip('tableDims',2,'2 Ebenen',state.tableDims===2)+gchip('tableDims',3,'3 Ebenen',state.tableDims===3)));
+  }
   if(t==='zchart'){
     let zb = gchip('zMonthCol','line','Monate als Linie',!state.zMonthCol)+gchip('zMonthCol','col','Monate als Säulen',!!state.zMonthCol);
     if(state.reference!=='—') zb += '<span style="flex-basis:100%;height:0"></span>'+
@@ -5377,6 +5429,7 @@ function applyGuideOpt(opt,val){
     case 'grpScale': state.grpScale=val; renderPreview(); break;
     case 'zMonthCol': state.zMonthCol = (val==='col'); renderPreview(); break;
     case 'zMonthRef': state.zMonthRef = !state.zMonthRef; renderPreview(); break;
+    case 'tableDims': state.tableDims = +val; renderAll(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
     case 'fromMulti': morphBack(); break;
   }
@@ -5679,6 +5732,7 @@ $('#dataTable').addEventListener('input', e=>{
     if(el.dataset.k==='c') r.c = el.value;
     else if(el.dataset.k==='fc') r.fc = el.checked;
     else if(el.dataset.k==='grp') r.grp = el.value;   /* Gruppe = Text, nicht Zahl */
+    else if(/^d\d$/.test(el.dataset.k)) r[el.dataset.k] = el.value;   /* Hierarchie-Dimension = Text */
     else r[el.dataset.k] = parseNum(el.value);
     if(state.t3auto) $('#t3').value = autoT3();
     renderPreview();
@@ -5991,7 +6045,16 @@ $('#btnExport').addEventListener('click', ()=>{
 });
 /* Welche Feldnamen sind für den aktuellen Typ relevant? [key, Label] */
 function vFieldDefs(){
-  const t = state.type, defs = [['dim','Dimension']];
+  const t = state.type;
+  /* Hierarchie-Tabelle: je Ebene eine eigene Dimension (statt einer Kategorie) */
+  if(tableIsHier()){
+    const defs = tableDimKeys().map((k,i)=>[k, 'Ebene '+(i+1)]);
+    defs.push(['p','Kennzahl · '+state.primary]);
+    if(state.reference!=='—') defs.push(['r','Kennzahl · '+state.reference]);
+    if(usesRef2() && state.reference2!=='—') defs.push(['r2','Kennzahl · '+state.reference2]);
+    return defs;
+  }
+  const defs = [['dim','Dimension']];
   if(t==='gantt'){
     return [['phase','Phase'],['task','Task'],['start','Start (Datum)'],['end','Ende (Datum)'],
             ['completion','Fortschritt %'],['id','ID'],['status','Status (optional)'],
@@ -6114,7 +6177,8 @@ function denebTemplate(){
   const spec = vegaSpec(true);
   state.vlVega = saveVega;
   if(!spec) return null;
-  const TK = { dim:['text','column'], serie:['text','column'], typ:['text','column'], grp:['text','column'], fc:['numeric','column'], idx:['numeric','column'] };
+  const TK = { dim:['text','column'], serie:['text','column'], typ:['text','column'], grp:['text','column'], fc:['numeric','column'], idx:['numeric','column'],
+    d0:['text','column'], d1:['text','column'], d2:['text','column'] };
   const defs = vFieldDefs().map(([key,label],i)=>{
     /* Boxplot aggregiert die Rohwerte selbst → der Wert muss eine Spalte
        (row-level) sein, keine Measure (sonst aggregiert Power BI vorab). */
@@ -6534,7 +6598,8 @@ function vCol(){ const c = varColors(); return { pos:c.pos, neg:c.neg, dark:DARK
 function F(key){
   const d = { dim:'Kategorie', p:state.primary, r:state.reference, r2:state.reference2,
               fc:'FC', v:state.primary, typ:'Typ', serie:'Serie', idx:'Index',
-              x:'X', y:'Y', g:'Groesse', grp:'Gruppe' };
+              x:'X', y:'Y', g:'Groesse', grp:'Gruppe',
+              d0:'Ebene 1', d1:'Ebene 2', d2:'Ebene 3' };
   const u = (state.fields && state.fields[key] || '').trim();
   if(u) return u;
   if(state.type==='boxplot' && key==='p') return 'Wert';  /* Verteilungswert, nicht Szenario */
@@ -6543,7 +6608,8 @@ function F(key){
 function vFieldMap(){
   return { k:F('dim'), p:F('p'), r:F('r'), r2:F('r2'), fc:F('fc'),
            v:F('v'), typ:F('typ'), serie:F('serie'), idx:F('idx'),
-           x:F('x'), y:F('y'), g:F('g'), grp:F('grp') };
+           x:F('x'), y:F('y'), g:F('g'), grp:F('grp'),
+           d0:F('d0'), d1:F('d1'), d2:F('d2') };
 }
 /* Spec nachträglich auf die Nutzer-Feldnamen umschreiben:
    field-Referenzen, values-Schlüssel, groupby, calculate/filter/test-Ausdrücke */
@@ -6677,7 +6743,10 @@ function vTargetLayers(horizontal){
      encoding:Object.assign({}, lblPos, {text:{value:targetLabel(t)}})},
   ];
 }
-function vRows(){ return activeRows().map(r=>{
+function vRows(){
+  const hier = tableIsHier(), dimK = hier ? tableDimKeys() : [];
+  const grp = {};   /* Erst-in-Gruppe-Zähler je Ebene (eingebetteter Modus) */
+  return activeRows().map((r,i)=>{
   const o = {
     k:r.c, p:isNaN(r.v1)?null:r.v1, r:isNaN(r.v2)?null:r.v2, fc:!!r.fc,
     Lp:fmt(r.v1), Lr:fmt(r.v2), Lr2:fmt(r.v3),
@@ -6688,6 +6757,16 @@ function vRows(){ return activeRows().map(r=>{
     o.r2 = isNaN(r.v3)?null:r.v3;
     o.d2 = (isNaN(r.v1)||isNaN(r.v3))?null:r.v1-r.v3; o.Ld2 = fmt(r.v1-r.v3,true);
     o.rv2 = relOfK(r,'v3'); o.Lrv2 = o.rv2===null?'n.a.':fmtPct(o.rv2);
+  }
+  if(hier){
+    dimK.forEach(k=> o[k] = String(r[k]||'').trim());
+    o.ord = i;                                   /* stabile Reihenfolge der Blätter */
+    o.klf = dimK.map(k=>o[k]).join(' | ');       /* eindeutiger Blatt-Schlüssel (y-Achse) */
+    dimK.forEach((k,di)=>{                        /* Erst-in-Gruppe-Flags (eingebettete Werte) */
+      const path = dimK.slice(0,di+1).map(kk=>o[kk]).join('');
+      grp[di] = grp[di] || {}; grp[di][path] = (grp[di][path]||0)+1;
+      o['rnG'+di] = grp[di][path];
+    });
   }
   return o;
 }); }
@@ -7970,6 +8049,68 @@ function vlKpi(deneb){
       header:{title:null, labelFont:'Arial', labelFontSize:11.5, labelFontWeight:'bold', labelColor:'#555555', labelAnchor:'start', labelPadding:4}},
     spec:{ width:160, height:y-14, view:{stroke:'#e3e1dc', cornerRadius:6}, layer } };
 }
+/* Hierarchie-Tabelle (mehrere Dimensionen): je Ebene eine eigene Dim-Spalte;
+   Blattzeilen aus dem PBI-Dataset, Eltern-Σ blendet Power BI bzw. der native
+   Matrix-Visual ein (Vega-Lite zeigt Blätter gruppiert + Δ-Spalten je Blatt).
+   Übergeordnete Dim wird je Gruppe nur einmal gezeigt (row_number-Window). */
+function vlTableHier(deneb){
+  const C = vCol();
+  const dimK = tableDimKeys();
+  const baseTf = deneb ? [
+    {window:[{op:'row_number', as:'ord'}]},
+    {calculate: dimK.map(k=>'datum.'+k).join(" + ' | ' + "), as:'klf'},
+  ].concat(dimK.map((k,di)=>(
+    {window:[{op:'row_number', as:'rnG'+di}], groupby: dimK.slice(0,di+1), sort:[{field:'ord'}]}
+  ))) : undefined;
+  const yLeaf = axis => ({field:'klf', type:'nominal', sort:{field:'ord'}, axis});
+  const head = t => ({text:t, anchor:'start', font:'Arial', fontSize:10.5, color:'#8a8a8a', fontWeight:'normal', offset:6});
+  /* Dimensions-Textspalten (Eltern nur erste Zeile je Gruppe, Blatt immer) */
+  const dimCols = dimK.map((k,di)=>{
+    const leaf = di===dimK.length-1;
+    return { title: head('Ebene '+(di+1)), width:78, height:{step:25}, data:vData(vRows(),deneb), transform:baseTf,
+      encoding:{y:yLeaf(null)},
+      layer:[ vAnchor(),
+        {mark:{type:'text', x:4, align:'left', fontSize:11, font:'Arial', color: di===0?DARK:'#444', fontWeight: di===0?'bold':'normal'},
+         encoding:{ text:{field:k, type:'nominal'},
+           opacity: leaf ? {value:1} : {condition:{test:'datum.rnG'+di+' === 1', value:1}, value:0} }} ]};
+  });
+  const textCol = (lbl, f, labF)=>({
+    title: head(lbl), width:62, height:{step:25}, data:vData(vRows(),deneb), transform:baseTf,
+    encoding:{y:yLeaf(null)},
+    layer:[ vAnchor(),
+      {mark:{type:'text', x:58, align:'right', fontSize:11, font:'Arial', color:DARK},
+       encoding:{text:vLab(deneb,f,labF,vNum())}} ]});
+  const children = dimCols.concat([ textCol(state.primary,'p','Lp') ]);
+  if(state.reference!=='—') children.push(textCol(state.reference,'r','Lr'));
+  if(state.reference2!=='—') children.push(textCol(state.reference2,'r2','Lr2'));
+  structTiers().forEach(t=>{
+    const fldD = t.key==='v3' ? 'd2' : 'd', fldR = t.key==='v3' ? 'rv2' : 'rv', refK = t.key==='v3' ? 'r2' : 'r';
+    const dtf = (baseTf||[]).concat([
+      {calculate:'datum.p - datum.'+refK, as:fldD},
+      {calculate:'datum.'+refK+' > 0 ? (datum.p - datum.'+refK+')/datum.'+refK+'*100 : null', as:fldR},
+    ]);
+    if(t.kind==='abs'){
+      children.push({ title: head('Δ'+t.code), width:150, height:{step:25}, data:vData(vRows(),deneb), transform:dtf,
+        encoding:{y:yLeaf(null)},
+        layer:[vAnchor()].concat(vRefAxisLayer(t.code,false)).concat([
+          {mark:{type:'bar', size:11}, encoding:{x:{field:fldD,type:'quantitative',axis:null},
+            fill:{condition:{test:'datum.'+fldD+' >= 0', value:C.pos}, value:C.neg}}},
+        ]).concat(vSignedText(fldD, vLab(deneb,fldD, t.key==='v3'?'Ld2':'Ld', '+'+vNum()), false,
+          {condition:{test:'datum.'+fldD+' >= 0', value:C.pos}, value:C.neg}))});
+    } else {
+      children.push({ title: head('Δ'+t.code+'%'), width:140, height:{step:25}, data:vData(vRows(),deneb), transform:dtf,
+        encoding:{y:yLeaf(null)},
+        layer:[vAnchor()].concat(vRefAxisLayer(t.code,false)).concat([
+          {mark:{type:'rule', strokeWidth:2}, encoding:{x:{field:fldR,type:'quantitative',axis:null}, x2:{datum:0},
+            color:{condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}}},
+          {mark:{type:'point', filled:true, size:46}, encoding:{x:{field:fldR,type:'quantitative',axis:null},
+            color:{condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}}},
+        ]).concat(vSignedText(fldR, vLab(deneb,fldR, t.key==='v3'?'Lrv2':'Lrv', '+.1f'), false,
+          {condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}).map(l=>{ l.mark.dx = l.mark.dx>0 ? 10 : -10; return l; }))});
+    }
+  });
+  return { hconcat:children, spacing:18, resolve:{scale:{y:'independent'}} };
+}
 function vlTable(deneb){
   const C = vCol();
   const yCat = axis => ({field:'k', type:'nominal', sort:null, axis});
@@ -8084,7 +8225,7 @@ function vegaSpecCore(deneb){
   else if(t==='varint') body = vlVarintDyn(deneb);
   else if(t==='boxplot') body = vlBoxplot(deneb);
   else if(t==='heatmap') body = vlHeatmap(deneb);
-  else if(t==='table') body = vlTable(deneb);
+  else if(t==='table') body = tableIsHier() ? vlTableHier(deneb) : vlTable(deneb);
   else return null;
   if(t==='kombi' && state.kombiBase==='wf' && deneb) note = 'Wasserfall-Basis: Daten eingebettet (Σ-Zeile wird im Builder erzeugt).';
   if(t==='multiples' && state.multiMode==='wf' && deneb) note = 'Mini-Wasserfälle: Kumulierung je Serie per Window-Transform; die Σ-Spalte erscheint nur bei eingebetteten Daten.';
@@ -8134,7 +8275,8 @@ function denebDashTemplate(){
   const spec = dashboardSpec(true);
   state.vlVega=saveVega; state.dashFields=saveDF;
   if(!spec) return null;
-  const TK={dim:['text','column'], serie:['text','column'], typ:['text','column'], fc:['numeric','column'], idx:['numeric','column']};
+  const TK={dim:['text','column'], serie:['text','column'], typ:['text','column'], fc:['numeric','column'], idx:['numeric','column'],
+    d0:['text','column'], d1:['text','column'], d2:['text','column']};
   const agg = dashAggFields();
   const nameToPh={}, dataset=[];
   agg.forEach((f,i)=>{
@@ -8278,7 +8420,7 @@ function serialize(){
       stack100:state.stack100,
       sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient, wfRefCol:state.wfRefCol,
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel, bridgePY:state.bridgePY, bridgePYlevel:state.bridgePYlevel,
-      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef,
+      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef, tableDims:state.tableDims,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
       multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
