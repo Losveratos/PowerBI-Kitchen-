@@ -4315,6 +4315,15 @@ function buildChart(){
     } else {
       r = state.wfOrient==='v' ? renderSegsV(segs) : renderSegsH(segs);
     }
+    /* Referenz-2-Säulen gewollt, aber v3 unvollständig → erklärender Hinweis
+       (sonst „passiert nichts", weil ΣRef2 nur bei vollständigen Werten rendert). */
+    if(state.wfOrient!=='v' && (state.bridgePY||state.bridgePYlevel) && state.reference2!=='—'){
+      const valid = rows.filter(x=>!isNaN(x.v1)&&!isNaN(x.v2));
+      if(!valid.length || !valid.every(x=>!isNaN(x.v3))){
+        r = { svg: r.svg + txt(12, r.H+12, '⚠ '+state.reference2+'-Säulen: bitte die '+state.reference2+'-Spalte (Referenz 2) für alle Zeilen in der Datentabelle ausfüllen.', {size:10.5, fill:'#b06a00'}),
+              W:r.W, H:r.H+22 };
+      }
+    }
   }
   else if(state.type==='barskombi') r = renderBarsKombi(rows);
   else if(state.type==='table')     r = renderIbcsTable(tableIsHier() ? expandDimRows(rows, state.tableDims) : rows);

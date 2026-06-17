@@ -645,6 +645,16 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
          /data-opt="var"/.test(cardsFor('columns')) && /data-opt="refLine"/.test(cardsFor('columns')) && /data-optin="facetField"/.test(cardsFor('columns')));
       ok('O · Scatter · Korrelations-Optionen', /data-opt="scReg"/.test(cardsFor('scatter')) && /data-opt="scFacet"/.test(cardsFor('scatter')));
       ok('O · Wasserfall · Ausrichtung', /data-opt="wfOrient"/.test(cardsFor('waterfall')));
+      ok('O · Brücke · Ref-2-Säule: Hinweis bei fehlendem v3, Säule bei v3', (()=>{
+        const sv=clone(state.rows);
+        state.type='bridge'; state.wfOrient='h'; state.reference2='PY'; state.bridgePYlevel=true;
+        state.rows=[{c:'A',v1:50,v2:40},{c:'B',v1:30,v2:35}]; renderAll();
+        const hintNo = /PY-Säulen: bitte/.test(chartHtml());
+        state.rows=[{c:'A',v1:50,v2:40,v3:38},{c:'B',v1:30,v2:35,v3:33}]; renderAll();
+        const html2 = chartHtml(); const hintYes = /PY-Säulen: bitte/.test(html2);
+        state.rows=sv; state.bridgePYlevel=false; state.reference2='—'; state.type='bridge'; renderAll();
+        return hintNo && !hintYes && />PY</.test(html2);
+      })());
       ok('O · Brücke · Referenz-2-Säulen-Optionen erscheinen bei gesetzter Ref 2', (()=>{
         state.type='bridge'; state.wfOrient='h'; state.reference2='PY';
         const g=guideCardsHtml();
