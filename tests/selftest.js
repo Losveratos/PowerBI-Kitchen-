@@ -560,6 +560,54 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       }
     }
 
+    /* === M) Review-Fixes (pareto/barskombi/bullet/table/kpiTrend) ====== */
+    {
+      const filterGt0 = sp => Array.isArray(sp.transform) && sp.transform.some(t=>t.filter && /> *0/.test(t.filter));
+      /* M1 pareto: VL filtert positive Beiträge (Kumulierung monoton) */
+      loadPreset('countries'); state.type='pareto'; renderAll();
+      ok('M · pareto · VL filtert datum>0 vor window', filterGt0(vegaSpec(false)));
+      let pc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; pc=!!VL.compile(b).spec; }catch(e){}
+      ok('M · pareto · Template kompiliert', pc);
+
+      /* M2 barskombi: Referenz-2-Δ-Tiers im Template */
+      loadPreset('countriesVA'); state.type='barskombi'; state.reference='PL'; state.reference2='PY';
+      state.rows.forEach(r=>{ if(isNaN(r.v3)) r.v3=Math.round(r.v2*0.95); });
+      state.varSel={a1:true,r1:true,a2:true,r2:true}; renderAll();
+      ok('M · barskombi · Ref-2-Tiers (d2/rv2) im Template', /"d2"|"rv2"/.test(JSON.stringify(denebTemplate())));
+      let bkc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; bkc=!!VL.compile(b).spec; }catch(e){}
+      ok('M · barskombi · Template kompiliert (Ref1+Ref2, baked=0)', bkc && tplBakedRows(denebTemplate())===0);
+
+      /* M3 bullet: negative Ist-Werte → Track über _t0/_t1, kompiliert */
+      state.type='bullet'; state.reference='PL'; state.reference2='—';
+      state.rows=[{c:'A',v1:-50,v2:-40,v3:NaN,fc:false},{c:'B',v1:-30,v2:-35,v3:NaN,fc:false}];
+      renderAll();
+      let buc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; buc=!!VL.compile(b).spec; }catch(e){}
+      ok('M · bullet · Track datengetrieben (_t0/_t1), kompiliert bei Negativen',
+         /_t0/.test(JSON.stringify(vegaSpec(false))) && buc && !/NaN/.test(chartHtml()));
+
+      /* M4 table: Σ nur Blätter (Eltern nicht doppelt) */
+      state.type='table'; state.reference='—'; state.reference2='—'; state.showSum=true;
+      state.rows=[{c:'P',v1:999,v2:NaN,v3:NaN,fc:false,lvl:0},
+                  {c:'a',v1:60,v2:NaN,v3:NaN,fc:false,lvl:1},
+                  {c:'b',v1:40,v2:NaN,v3:NaN,fc:false,lvl:1}];
+      renderAll();
+      ok('M · table · Σ nur Blätter (kein Doppelzählen)', !/1099/.test(chartHtml()) && !/NaN/.test(chartHtml()));
+
+      /* M5 kpiTrend: eigenes dynamisches Template (Sparkline), nicht Status */
+      state.type='kpi'; state.kpiStyle='trend'; state.reference='—';
+      state.series=['Umsatz','Marge'];
+      state.srows=[]; for(let i=0;i<12;i++) state.srows.push({c:'T'+(i+1), v:[100+i*3, 20+i]});
+      state.rows=[{c:'Umsatz',v1:131,v2:NaN,v3:NaN,fc:false},{c:'Marge',v1:31,v2:NaN,v3:NaN,fc:false}];
+      renderAll();
+      const ktSp=vegaSpec(false);
+      ok('M · kpiTrend · eigenes Facet-Template (Sparkline, nicht Status)',
+         !!ktSp.facet && JSON.stringify(ktSp).includes('"_avg"'));
+      let ktc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; ktc=!!VL.compile(b).spec; }catch(e){}
+      ok('M · kpiTrend · Template kompiliert (baked=0) + dim/serie/v deklariert',
+         ktc && tplBakedRows(denebTemplate())===0 && denebTemplate().usermeta.dataset.length===3);
+      state.kpiStyle='ibcs'; state.varSel={a1:true,r1:true,a2:true,r2:true};
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{

@@ -3419,7 +3419,8 @@ function renderIbcsTable(rows){
   const H = headH + n*rowH + 8 + offTotal;
 
   /* Summen */
-  const sum = key => rows.reduce((a,r)=>a+(isNaN(r[key])?0:r[key]),0);
+  /* Nur Blätter summieren – Eltern-Zeilen (Aggregat-Header) sonst doppelt gezählt */
+  const sum = key => rows.reduce((a,r,i)=> a + (isParentRow(rows,i) ? 0 : (isNaN(r[key])?0:r[key])), 0);
   const sAC = sum('v1'), sRef = sum('v2'), sRef2 = sum('v3');
   const sOf = key => key==='v1' ? sAC : (key==='v2' ? sRef : sRef2);
 
@@ -5322,6 +5323,7 @@ function vFieldDefs(){
             ['completion','Fortschritt %'],['id','ID'],['status','Status (optional)'],
             ['assignee','Zuständig (optional)'],['dependencies','Abhängigkeiten (optional)']];
   }
+  if(t==='kpi' && state.kpiStyle==='trend') return [['dim','Tag/Periode (Reihe je KPI)'],['serie','KPI-Name'],['v','Tageswert']];
   if(t==='waterfall'){
     defs.push(['v','Wert · '+state.primary]);
     if((state.showAbs||state.showRel) && state.reference!=='—') defs.push(['r','Referenz · '+state.reference]);
@@ -6673,38 +6675,53 @@ function vlScatter(deneb){
     ]};
 }
 /* Δ-Säulen-Spalte (horizontal) für Struktur-Kombis – auch von Dot-Plot/Tornado genutzt */
-function vlAbsTierH(deneb){
+/* Tier-Feldzuordnung je Referenz: v2→r/d/rv, v3→r2/d2/rv2 (vgl. vRows) */
+function tierFor(key, code, kind){
+  const v2 = key!=='v3';
+  return { key, code, kind, refField:v2?'r':'r2',
+    outAbs:v2?'d':'d2', LAbs:v2?'Ld':'Ld2', outRel:v2?'rv':'rv2', LRel:v2?'Lrv':'Lrv2' };
+}
+function vlAbsTierH(deneb, tier){
+  tier = tier || tierFor('v2', state.reference, 'abs');
   const noAxis = {field:'k', type:'nominal', sort:null, axis:null};
   return { width:150, height:{step:28}, data:vData(vRows(),deneb),
-    transform: deneb? [{calculate:'datum.p - datum.r', as:'d'}] : undefined,
+    transform: deneb? [{calculate:'datum.p - datum.'+tier.refField, as:tier.outAbs}] : undefined,
     encoding:{y:noAxis},
-    layer: [vAnchor()].concat(vRefAxisLayer(state.reference, false)).concat([
+    layer: [vAnchor()].concat(vRefAxisLayer(tier.code, false)).concat([
       {mark:{type:'bar', size:11},
-       encoding:{x:vYq('d'), fill:{condition:{test:'datum.d >= 0', value:vCol().pos}, value:vCol().neg}}},
-    ]).concat(vSignedText('d', vLab(deneb,'d','Ld','+'+vNum()), false,
-      {condition:{test:'datum.d >= 0', value:vCol().pos}, value:vCol().neg}))};
+       encoding:{x:vYq(tier.outAbs), fill:{condition:{test:'datum.'+tier.outAbs+' >= 0', value:vCol().pos}, value:vCol().neg}}},
+    ]).concat(vSignedText(tier.outAbs, vLab(deneb,tier.outAbs,tier.LAbs,'+'+vNum()), false,
+      {condition:{test:'datum.'+tier.outAbs+' >= 0', value:vCol().pos}, value:vCol().neg}))};
 }
 /* Δ%-Pin-Spalte (horizontal) für Struktur-Kombis */
-function vlRelTierH(deneb){
+function vlRelTierH(deneb, tier){
+  tier = tier || tierFor('v2', state.reference, 'rel');
   const noAxis = {field:'k', type:'nominal', sort:null, axis:null};
   return { width:140, height:{step:28}, data:vData(vRows(),deneb),
-    transform: deneb? [{calculate:'datum.r > 0 ? (datum.p - datum.r)/datum.r*100 : null', as:'rv'}] : undefined,
+    transform: deneb? [{calculate:'datum.'+tier.refField+' > 0 ? (datum.p - datum.'+tier.refField+')/datum.'+tier.refField+'*100 : null', as:tier.outRel}] : undefined,
     encoding:{y:noAxis},
-    layer: [vAnchor()].concat(vRefAxisLayer(state.reference, false)).concat([
+    layer: [vAnchor()].concat(vRefAxisLayer(tier.code, false)).concat([
       {mark:{type:'rule', strokeWidth:2},
-       encoding:{x:vYq('rv'), x2:{datum:0},
-         color:{condition:{test:'datum.rv >= 0', value:vCol().pos}, value:vCol().neg}}},
+       encoding:{x:vYq(tier.outRel), x2:{datum:0},
+         color:{condition:{test:'datum.'+tier.outRel+' >= 0', value:vCol().pos}, value:vCol().neg}}},
       {mark:{type:'point', filled:true, size:48},
-       encoding:{x:vYq('rv'),
-         color:{condition:{test:'datum.rv >= 0', value:vCol().pos}, value:vCol().neg}}},
-    ]).concat(vSignedText('rv', vLab(deneb,'rv','Lrv','+.1f'), false,
-      {condition:{test:'datum.rv >= 0', value:vCol().pos}, value:vCol().neg}).map(l=>{ l.mark.dx = l.mark.dx>0 ? 10 : -10; return l; }))};
+       encoding:{x:vYq(tier.outRel),
+         color:{condition:{test:'datum.'+tier.outRel+' >= 0', value:vCol().pos}, value:vCol().neg}}},
+    ]).concat(vSignedText(tier.outRel, vLab(deneb,tier.outRel,tier.LRel,'+.1f'), false,
+      {condition:{test:'datum.'+tier.outRel+' >= 0', value:vCol().pos}, value:vCol().neg}).map(l=>{ l.mark.dx = l.mark.dx>0 ? 10 : -10; return l; }))};
 }
-/* Basis-Spec um Δ/Δ%-Spalten ergänzen (zeilenweise ausgerichtet) */
+/* Basis-Spec um Δ/Δ%-Spalten ergänzen (zeilenweise ausgerichtet). Ohne ov:
+   alle Tiers aus structTiers() (respektiert Referenz 2 + Varianzauswahl). */
 function vlWithStructTiers(base, deneb, ov){
-  const abs = vlAbsTierH(deneb), rel = vlRelTierH(deneb);
-  let children = [base, abs, rel];
-  if(ov) children = [base].concat(ov.showAbs?[abs]:[]).concat(ov.showRel?[rel]:[]);
+  let tiers;
+  if(ov){
+    tiers = [];
+    if(ov.showAbs) tiers.push(tierFor('v2', state.reference, 'abs'));
+    if(ov.showRel) tiers.push(tierFor('v2', state.reference, 'rel'));
+  } else {
+    tiers = structTiers().map(t=> tierFor(t.key, t.code, t.kind));
+  }
+  const children = [base].concat(tiers.map(t=> t.kind==='abs' ? vlAbsTierH(deneb,t) : vlRelTierH(deneb,t)));
   return { hconcat:children, spacing:26, resolve:{scale:{y:'independent'}} };
 }
 function vlBarsKombi(deneb, ov){
@@ -6798,9 +6815,16 @@ function vlTornado(deneb, ov){
 /* Bullet: Ist-Balken + Ziel-Tick; Δ/Δ% als hconcat-Spalten */
 function vlBullet(deneb, ov){
   const hasRef = state.reference!=='—';
+  /* Track über den vollen Wertebereich inkl. 0 – robust bei negativen Ist-Werten
+     (aggregate:'max' allein liefert sonst einen leeren/gekippten Track). */
+  const tf = [
+    {joinaggregate:[{op:'min', field:'p', as:'_pmn'}, {op:'max', field:'p', as:'_pmx'}]},
+    {calculate:'min(0, datum._pmn)', as:'_t0'},
+    {calculate:'max(0, datum._pmx)', as:'_t1'},
+  ];
   const layer = [vAnchor()];
   layer.push({mark:{type:'bar', size:17, color:'#f1f0ec'},
-    encoding:{x:{aggregate:'max', field:'p', type:'quantitative', axis:null}}});
+    encoding:{x:{field:'_t0', type:'quantitative', axis:null}, x2:{field:'_t1'}}});
   const pb = vPrimBarMark(9); pb.encoding.x = vYq('p'); layer.push(pb);
   if(hasRef){
     const py = state.reference==='PY'||state.reference==='FC';
@@ -6814,13 +6838,14 @@ function vlBullet(deneb, ov){
       encoding:{x:vYq('r2')}});
   }
   vSignedText('p', vLab(deneb,'p','Lp',vNum()), false).forEach(l=>{ l.mark.dx = l.mark.dx>0? 10 : -10; layer.push(l); });
-  const base = { width:430, height:{step:26}, data:vData(vRows(),deneb),
+  const base = { width:430, height:{step:26}, data:vData(vRows(),deneb), transform:tf,
     encoding:{y:{field:'k', type:'nominal', sort:null, axis:{labelPadding:8}}}, layer };
   return (ov && (ov.showAbs||ov.showRel)) ? vlWithStructTiers(base, deneb, ov) : base;
 }
 /* Pareto: Säulen absteigend + kumulierte %-Linie (eigene 0–100-Skala, 80 %-Marke) */
 function vlPareto(deneb){
   const tf = [
+    {filter:'datum.p > 0'},   /* wie SVG: nur positive Beiträge, sonst Kumulierung unmonoton/>100% */
     {window:[{op:'sum', field:'p', as:'_cum'}], sort:[{field:'p', order:'descending'}], frame:[null,0]},
     {joinaggregate:[{op:'sum', field:'p', as:'_tot'}]},
     {calculate:'datum._cum/datum._tot*100', as:'_pct'},
@@ -7047,8 +7072,52 @@ function vlKpiStatus(deneb){
       header:{title:null, labelFont:'Arial', labelFontSize:11.5, labelFontWeight:'bold', labelColor:'#555555', labelAnchor:'start', labelPadding:4}},
     spec:{ width:196, height:y-8, view:{stroke:'#e3e1dc', cornerRadius:6}, layer } };
 }
+/* KPI-Trend als Sparkline-Trellis je KPI (Tageslinie gestrichelt + 5-Tage-Schnitt
+   solide + Ø-Basislinie; großer Last-Wert + Heute-Δ). Datensatz = Tagesreihe je
+   Serie (long: serie, v). Reihenfolge wie von Power BI geliefert (Achse sortieren).
+   GAP vs. Referenz braucht eine eigene Measure und entfällt hier bewusst. */
+function vlKpiTrend(deneb){
+  const C = vCol();
+  const values = [];
+  state.srows.filter(r=>r.c!=='').forEach((r,i)=> state.series.forEach((nm,j)=>{
+    /* dim (Tag/Periode) ist Pflicht, damit Power BI die Reihe je KPI tages-
+       granular liefert (sonst aggregiert es auf eine Zeile = keine Linie). */
+    if(!isNaN(r.v[j])) values.push({dim:r.c, serie:nm, _idx:i, v:r.v[j], L:fmt(r.v[j])});
+  }));
+  /* _idx mit Unterstrich: NICHT in vFieldMap → wird nicht zu einem Feldnamen
+     umgeschrieben (sonst Mismatch window-as ↔ encoding-field). */
+  const tf = (deneb ? [{window:[{op:'row_number', as:'_idx'}], groupby:['serie']}] : []).concat([
+    {joinaggregate:[{op:'max', field:'_idx', as:'_mx'}], groupby:['serie']},
+    {window:[{op:'mean', field:'v', as:'_avg'}], frame:[-4,0], sort:[{field:'_idx'}], groupby:['serie']},
+    {window:[{op:'lag', field:'v', as:'_prev'}], sort:[{field:'_idx'}], groupby:['serie']},
+    {calculate:'datum.v - datum._prev', as:'_td'},
+    {calculate:"(datum._td >= 0 ? '↗ ' : '↘ ') + format(datum._td, '+"+vNum()+"')", as:'_tdL'},
+  ]);
+  const xq = {field:'_idx', type:'quantitative', axis:null};
+  const yq = {field:'v', type:'quantitative', axis:null};
+  return {
+    data:vData(values,deneb), transform:tf,
+    columns: Math.min(3, Math.max(1, state.series.length||1)),
+    facet:{field:'serie', type:'nominal', sort:null,
+      header:{title:null, labelFont:'Arial', labelFontSize:12, labelFontWeight:'bold', labelColor:CAT, labelAnchor:'start'}},
+    spec:{ width:240, height:96, layer:[
+      {mark:{type:'rule', strokeDash:[3,3], color:'#d7d5d0'}, encoding:{y:{aggregate:'mean', field:'v', type:'quantitative'}}},
+      {mark:{type:'line', color:KPI_PINK, strokeWidth:1.2, strokeDash:[4,2]}, encoding:{x:xq, y:yq}},
+      {mark:{type:'line', color:DARK, strokeWidth:1.8}, encoding:{x:xq, y:{field:'_avg', type:'quantitative', axis:null}}},
+      {transform:[{filter:'datum._idx === datum._mx'}],
+       mark:{type:'text', x:4, y:6, align:'left', baseline:'top', fontSize:22, fontWeight:'bold', font:'Arial', color:DARK},
+       encoding:{text:vLab(deneb,'v','L',vNum())}},
+      {transform:[{filter:'datum._idx === datum._mx'}],
+       mark:{type:'text', x:236, y:8, align:'right', baseline:'top', fontSize:11, fontWeight:'bold', font:'Arial'},
+       encoding:{text:{field:'_tdL', type:'nominal'},
+         color:{condition:{test:'datum._td >= 0', value:C.pos}, value:C.neg}}},
+    ]},
+    resolve:{scale:{y:'independent', x:'shared'}},
+  };
+}
 function vlKpi(deneb){
-  if(state.kpiStyle==='status' || state.kpiStyle==='trend') return vlKpiStatus(deneb);
+  if(state.kpiStyle==='trend') return vlKpiTrend(deneb);
+  if(state.kpiStyle==='status') return vlKpiStatus(deneb);
   const C = vCol();
   const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
   const values = activeRows().map(r=>{
@@ -7212,6 +7281,7 @@ function vegaSpecCore(deneb){
   else return null;
   if(t==='kombi' && state.kombiBase==='wf' && deneb) note = 'Wasserfall-Basis: Daten eingebettet (Σ-Zeile wird im Builder erzeugt).';
   if(t==='multiples' && state.multiMode==='wf' && deneb) note = 'Mini-Wasserfälle: Kumulierung je Serie per Window-Transform; die Σ-Spalte erscheint nur bei eingebetteten Daten.';
+  if(t==='table' && deneb && state.showSum) note = 'Summenzeile (Σ) nur in Vorschau/PNG – das Deneb-Template liefert die Zeilenwerte; Gesamtsummen über die Power-BI-Tabellen-Summenzeile oder ein Measure.';
   return { body, note, t };
 }
 function dashSnapshot(){
