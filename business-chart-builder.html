@@ -488,6 +488,15 @@ footer a:hover{color:var(--ink)}
         <label class="fld" style="margin:0;flex:1"><span>X-Achse</span><input type="text" id="xTit"></label>
         <label class="fld" style="margin:0;flex:1"><span>Y-Achse</span><input type="text" id="yTit"></label>
       </div>
+      <div class="row" id="scatterWrap" style="display:none; margin-top:8px; flex-wrap:wrap">
+        <span style="font-size:11.5px;color:var(--ink2)" title="Korrelations-Optionen: Trendlinie und Small Multiples je Gruppe">Korrelation</span>
+        <label class="check" style="margin:0"><input type="checkbox" id="scatterRegChk"> Trendlinie + R²</label>
+        <label class="check" style="margin:0"><input type="checkbox" id="scatterFacetChk"> nach Gruppe facetten</label>
+        <select id="scatterColsSel" title="Spalten je Zeile" style="display:none; font-size:11px;padding:2px 4px">
+          <option value="1">1 Sp.</option><option value="2">2 Sp.</option><option value="3">3 Sp.</option><option value="4">4 Sp.</option>
+        </select>
+        <span id="scatterHint" style="font-size:10.5px;color:var(--ink3);flex-basis:100%"></span>
+      </div>
       <div class="row" id="topNWrap" style="display:none; margin-top:8px">
         <label class="fld" style="margin:0"><span>Top‑N + Übrige (EX 1.1‑16)</span>
           <select id="topN">
@@ -821,6 +830,9 @@ const state = {
   collineAxis:'shared',
   facetField:'',
   facetCols:2,
+  scatterFacet:false,
+  scatterCols:2,
+  scatterReg:false,
   kombiBase:'col',
   bridgeRel:false,
   bridgePY:false,
@@ -2428,7 +2440,87 @@ function niceTicks(min, max, count){
   for(let v=start; v<=max+1e-9; v+=step) t.push(Math.round(v*1e6)/1e6);
   return t;
 }
+/* Lineare Regression (kleinste Quadrate) – für Trendlinie + Bestimmtheitsmaß R² */
+function linReg(pts){
+  const n = pts.length; if(n<2) return null;
+  let sx=0,sy=0,sxx=0,sxy=0,syy=0;
+  pts.forEach(p=>{ sx+=p.x; sy+=p.y; sxx+=p.x*p.x; sxy+=p.x*p.y; syy+=p.y*p.y; });
+  const dx = n*sxx - sx*sx; if(dx===0) return null;
+  const slope = (n*sxy - sx*sy)/dx, intercept = (sy - slope*sx)/n;
+  const den = Math.sqrt(dx*(n*syy - sy*sy)), r = den===0 ? 0 : (n*sxy - sx*sy)/den;
+  return { slope, intercept, r, r2:r*r };
+}
+function scatterGroups(rows){
+  const order=[], map=new Map();
+  rows.forEach(r=>{ const g=String(r.grp||'').trim()||'—'; if(!map.has(g)){ map.set(g,[]); order.push(g); } map.get(g).push(r); });
+  return order.map(g=>({g, rows:map.get(g)}));
+}
+function scatterIsFaceted(){
+  return state.scatterFacet && state.rows.some(r=>String(r.grp||'').trim() && !isNaN(r.v1) && !isNaN(r.v2));
+}
+/* Eine Scatter-Kachel (für Facetten-Grid): Rahmen, Punkte, Ø-Linien, optional
+   Regressionsgerade + R². Geteilte Skala via X/Y-Funktionen von außen. */
+function scatterPanel(rows, X, Y, gx, gy, pw, ph, opt){
+  opt = opt||{};
+  let s = '<rect x="'+gx+'" y="'+gy+'" width="'+pw+'" height="'+ph+'" fill="'+WHITE+'" stroke="#e3e1dc"/>';
+  const valid = rows.filter(r=>!isNaN(r.v1)&&!isNaN(r.v2));
+  if(opt.title) s += txt(gx+8, gy+15, opt.title, {size:11, weight:'bold', fill:CAT});
+  /* Ø-Quadrantenlinien je Kachel */
+  if(valid.length){
+    const mx = valid.reduce((a,r)=>a+r.v1,0)/valid.length, my = valid.reduce((a,r)=>a+r.v2,0)/valid.length;
+    s += '<line x1="'+X(mx)+'" y1="'+(gy+opt.padT)+'" x2="'+X(mx)+'" y2="'+(gy+ph-opt.padB)+'" stroke="#dcdbd7" stroke-width="1" stroke-dasharray="3,3"/>';
+    s += '<line x1="'+(gx+opt.padL)+'" y1="'+Y(my)+'" x2="'+(gx+pw-opt.padR)+'" y2="'+Y(my)+'" stroke="#dcdbd7" stroke-width="1" stroke-dasharray="3,3"/>';
+  }
+  /* Regressionsgerade + R² je Kachel */
+  if(state.scatterReg){
+    const reg = linReg(valid.map(r=>({x:r.v1, y:r.v2})));
+    if(reg){
+      const xa = opt.xMin, xb = opt.xMax;
+      s += '<line x1="'+X(xa)+'" y1="'+Y(reg.slope*xa+reg.intercept)+'" x2="'+X(xb)+'" y2="'+Y(reg.slope*xb+reg.intercept)+'" stroke="'+DARK+'" stroke-width="1.6"/>';
+      s += txt(gx+pw-opt.padR, gy+ph-opt.padB-4, 'R² '+reg.r2.toFixed(2), {anchor:'end', size:9, fill:SUB});
+    }
+  }
+  valid.forEach(r=>{
+    const p = scenPaint(state.primary, r.fc), rad = opt.R(r.v3);
+    s += '<circle cx="'+X(r.v1)+'" cy="'+Y(r.v2)+'" r="'+rad+'" fill="'+p.fill+'"'+
+      (p.stroke && p.stroke!=='none' ? ' stroke="'+p.stroke+'" stroke-width="'+p.sw+'"' : '')+
+      (p.fill===DARK ? ' fill-opacity="0.82"' : '')+'/>';
+  });
+  return s;
+}
+/* Facettiertes Streudiagramm: Small Multiples je Gruppe, gemeinsame Skala
+   (Korrelations-Vergleich über Segmente). */
+function renderScatterFacet(){
+  const all = state.rows.filter(r=>r.c!=='' && !isNaN(r.v1) && !isNaN(r.v2));
+  const groups = scatterGroups(all);
+  const cols = Math.max(1, Math.min(4, state.scatterCols||2));
+  const gridRows = Math.ceil(groups.length/cols);
+  const pw=300, ph=210, gapX=18, gapY=20, padL=8, padT=8;
+  const W = padL + cols*pw + (cols-1)*gapX + 8;
+  const H = padT + 22 + gridRows*ph + (gridRows-1)*gapY + 6;
+  const ipadL=40, ipadR=14, ipadT=22, ipadB=28;
+  /* gemeinsame Skala über alle Punkte */
+  const xs=all.map(r=>r.v1), ys=all.map(r=>r.v2);
+  const xMin=Math.min(...xs,0)>=0?0:Math.min(...xs), yMin=Math.min(...ys,0)>=0?0:Math.min(...ys);
+  const xMax=Math.max(...xs)*1.08||1, yMax=Math.max(...ys)*1.12||1;
+  const sizes=all.map(r=>r.v3).filter(v=>!isNaN(v)&&v>0), hasSize=sizes.length>0, sMax=hasSize?Math.max(...sizes):1;
+  const R=v=>(!hasSize||isNaN(v)||v<=0)?3.4:3+8*Math.sqrt(v/sMax);
+  let s = txt(padL, padT+12, state.yTitle+' '+CL('vs')+' '+state.xTitle+(state.scatterReg?' · R² je Gruppe':''), {size:11, weight:'bold', fill:CAT});
+  groups.forEach((grp,k)=>{
+    const gx = padL + (k%cols)*(pw+gapX);
+    const gy = padT + 22 + Math.floor(k/cols)*(ph+gapY);
+    const X = v => gx+ipadL + (v-xMin)/(xMax-xMin)*(pw-ipadL-ipadR);
+    const Y = v => gy+ipadT + (yMax-v)/(yMax-yMin)*(ph-ipadT-ipadB);
+    s += scatterPanel(grp.rows, X, Y, gx, gy, pw, ph,
+      {title:grp.g+' (n='+grp.rows.length+')', R, xMin, xMax, padL:ipadL, padR:ipadR, padT:ipadT, padB:ipadB});
+    /* schlanke Achsen je Kachel */
+    s += '<line x1="'+(gx+ipadL)+'" y1="'+(gy+ph-ipadB)+'" x2="'+(gx+pw-ipadR)+'" y2="'+(gy+ph-ipadB)+'" stroke="'+DARK+'" stroke-width="1"/>';
+    s += '<line x1="'+(gx+ipadL)+'" y1="'+(gy+ipadT)+'" x2="'+(gx+ipadL)+'" y2="'+(gy+ph-ipadB)+'" stroke="'+DARK+'" stroke-width="1"/>';
+  });
+  return { svg:s, W, H };
+}
 function renderScatter(){
+  if(scatterIsFaceted()) return renderScatterFacet();
   const rows = state.rows.filter(r=>r.c!=='' && !isNaN(r.v1) && !isNaN(r.v2));
   const W=640, H=370, padL=58, padR=24, padT=20, padB=46;
   const plotW=W-padL-padR, plotH=H-padT-padB;
@@ -2481,6 +2573,15 @@ function renderScatter(){
       (p.stroke && p.stroke!=='none' ? ' stroke="'+p.stroke+'" stroke-width="'+p.sw+'"' : '')+
       (p.fill===DARK ? ' fill-opacity="0.88"' : '')+'/>';
   });
+  /* Regressionsgerade + R² (Korrelations-Trend) */
+  if(state.scatterReg){
+    const reg = linReg(rows.map(r=>({x:r.v1, y:r.v2})));
+    if(reg){
+      const xa = xMin, xb = xMax;
+      s += '<line x1="'+X(xa)+'" y1="'+Y(reg.slope*xa+reg.intercept)+'" x2="'+X(xb)+'" y2="'+Y(reg.slope*xb+reg.intercept)+'" stroke="'+DARK+'" stroke-width="1.8"/>';
+      s += txt(W-padR-4, padT+12, 'R² = '+reg.r2.toFixed(2)+' · r = '+(reg.r>=0?'+':'')+reg.r.toFixed(2), {anchor:'end', size:10, fill:SUB, halo:true});
+    }
+  }
   rows.forEach((r,i)=>{
     const tw = String(r.c).length*5.6;
     const flip = X(r.v1)+R(r.v3)+5+tw > W-6;
@@ -4129,12 +4230,15 @@ function renderDataTable(){
     return;
   }
   if(state.type==='scatter'){
-    thead.innerHTML = '<tr><th>Kategorie</th><th class="num">X · '+esc(state.xTitle)+'</th><th class="num">Y · '+esc(state.yTitle)+'</th><th class="num">Größe (opt.)</th><th></th></tr>';
+    const fac = !!state.scatterFacet;
+    thead.innerHTML = '<tr><th>Kategorie</th><th class="num">X · '+esc(state.xTitle)+'</th><th class="num">Y · '+esc(state.yTitle)+'</th><th class="num">Größe (opt.)</th>'+
+      (fac?'<th>Gruppe</th>':'')+'<th></th></tr>';
     tbody.innerHTML = state.rows.map((r,i)=>
       '<tr><td><input data-k="c" data-i="'+i+'" value="'+esc(r.c)+'"></td>'+
       '<td class="num"><input data-k="v1" data-i="'+i+'" inputmode="decimal" value="'+(isNaN(r.v1)?'':String(r.v1).replace('.',','))+'"></td>'+
       '<td class="num"><input data-k="v2" data-i="'+i+'" inputmode="decimal" value="'+(isNaN(r.v2)?'':String(r.v2).replace('.',','))+'"></td>'+
       '<td class="num"><input data-k="v3" data-i="'+i+'" inputmode="decimal" value="'+(isNaN(r.v3)?'':String(r.v3).replace('.',','))+'"></td>'+
+      (fac?'<td><input data-k="grp" data-i="'+i+'" value="'+esc(r.grp||'')+'" placeholder="z. B. Region"></td>':'')+
       '<td><button class="del" data-del="'+i+'" title="Zeile löschen">×</button></td></tr>'
     ).join('');
     return;
@@ -4415,6 +4519,17 @@ function renderPreview(){
   $('#wfVarWrap').style.display = (state.type==='waterfall' || (state.type==='multiples'&&state.multiMode==='wf')) ? 'flex' : 'none';
   $('#axisTitleWrap').style.display = state.type==='scatter' ? 'flex' : 'none';
   if(state.type==='scatter'){ $('#xTit').value = state.xTitle; $('#yTit').value = state.yTitle; }
+  $('#scatterWrap').style.display = state.type==='scatter' ? 'flex' : 'none';
+  if(state.type==='scatter'){
+    $('#scatterRegChk').checked = !!state.scatterReg;
+    $('#scatterFacetChk').checked = !!state.scatterFacet;
+    $('#scatterColsSel').style.display = state.scatterFacet ? '' : 'none';
+    $('#scatterColsSel').value = String(Math.max(1,Math.min(4,state.scatterCols||2)));
+    $('#scatterHint').textContent = state.scatterFacet
+      ? (scatterIsFaceted() ? 'Small Multiples je Gruppe (gemeinsame Skala) – Gruppenspalte in der Tabelle füllen.'
+                            : 'Gruppenspalte in der Datentabelle ausfüllen, dann erscheinen die Facetten.')
+      : '';
+  }
   /* Sortierung auch für Small Multiples (nach Σ absteigend) */
   if(state.type==='multiples') $('#sortWrap').style.display = 'flex';
   $('#refLblWrap').style.display = (state.type==='columns'||state.type==='bars') ? 'flex' : 'none';
@@ -4923,6 +5038,9 @@ $('#mmCol').addEventListener('click', ()=>{ state.multiMode='col'; renderPreview
 $('#mmDelta').addEventListener('click', ()=>{ state.multiMode='delta'; renderPreview(); });
 $('#mmWf').addEventListener('click', ()=>{ state.multiMode='wf'; renderPreview(); });
 $('#mmLine').addEventListener('click', ()=>{ state.multiMode='line'; renderPreview(); });
+$('#scatterRegChk').addEventListener('change', e=>{ state.scatterReg=e.target.checked; renderPreview(); });
+$('#scatterFacetChk').addEventListener('change', e=>{ state.scatterFacet=e.target.checked; renderDataTable(); renderPreview(); });
+$('#scatterColsSel').addEventListener('change', e=>{ state.scatterCols=+e.target.value||2; renderPreview(); });
 $('#xTit').addEventListener('input', e=>{ state.xTitle=e.target.value; renderPreview(); renderDataTable(); });
 $('#yTit').addEventListener('input', e=>{ state.yTitle=e.target.value; renderPreview(); renderDataTable(); });
 $('#wfVar').addEventListener('change', e=>{ state.wfVar=e.target.checked; renderPreview(); });
@@ -5005,6 +5123,7 @@ $('#dataTable').addEventListener('input', e=>{
     const r = state.rows[i]; if(!r) return;
     if(el.dataset.k==='c') r.c = el.value;
     else if(el.dataset.k==='fc') r.fc = el.checked;
+    else if(el.dataset.k==='grp') r.grp = el.value;   /* Gruppe = Text, nicht Zahl */
     else r[el.dataset.k] = parseNum(el.value);
     if(state.t3auto) $('#t3').value = autoT3();
     renderPreview();
@@ -5341,6 +5460,7 @@ function vFieldDefs(){
     defs.push(['p','Wert · je Beobachtung']);
   } else if(t==='scatter'){
     defs.push(['x','X-Feld'], ['y','Y-Feld'], ['g','Größen-Feld']);
+    if(scatterIsFaceted()) defs.push(['grp','Gruppe (Facette)']);
   } else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'||t==='heatmap'||t==='marimekko'){
     defs.push(['serie','Serien-Feld'], ['v','Wert-Feld']);
     if(t==='multiples'){
@@ -5439,7 +5559,7 @@ function denebTemplate(){
   const spec = vegaSpec(true);
   state.vlVega = saveVega;
   if(!spec) return null;
-  const TK = { dim:['text','column'], serie:['text','column'], typ:['text','column'], fc:['numeric','column'], idx:['numeric','column'] };
+  const TK = { dim:['text','column'], serie:['text','column'], typ:['text','column'], grp:['text','column'], fc:['numeric','column'], idx:['numeric','column'] };
   const defs = vFieldDefs().map(([key,label],i)=>{
     /* Boxplot aggregiert die Rohwerte selbst → der Wert muss eine Spalte
        (row-level) sein, keine Measure (sonst aggregiert Power BI vorab). */
@@ -5827,7 +5947,7 @@ function vCol(){ const c = varColors(); return { pos:c.pos, neg:c.neg, dark:DARK
 function F(key){
   const d = { dim:'Kategorie', p:state.primary, r:state.reference, r2:state.reference2,
               fc:'FC', v:state.primary, typ:'Typ', serie:'Serie', idx:'Index',
-              x:'X', y:'Y', g:'Groesse' };
+              x:'X', y:'Y', g:'Groesse', grp:'Gruppe' };
   const u = (state.fields && state.fields[key] || '').trim();
   if(u) return u;
   if(state.type==='boxplot' && key==='p') return 'Wert';  /* Verteilungswert, nicht Szenario */
@@ -5836,7 +5956,7 @@ function F(key){
 function vFieldMap(){
   return { k:F('dim'), p:F('p'), r:F('r'), r2:F('r2'), fc:F('fc'),
            v:F('v'), typ:F('typ'), serie:F('serie'), idx:F('idx'),
-           x:F('x'), y:F('y'), g:F('g') };
+           x:F('x'), y:F('y'), g:F('g'), grp:F('grp') };
 }
 /* Spec nachträglich auf die Nutzer-Feldnamen umschreiben:
    field-Referenzen, values-Schlüssel, groupby, calculate/filter/test-Ausdrücke */
@@ -5856,6 +5976,9 @@ function remapSpec(node, map){
         out[k] = String(map[v]).replace(/\./g,'\\.');
       } else if(k==='groupby' && Array.isArray(v)){
         out[k] = v.map(g=> map[g]!==undefined ? map[g] : g);
+      } else if((k==='on'||k==='regression'||k==='loess'||k==='density'||k==='quantile') && typeof v==='string' && map[v]!==undefined){
+        /* Feld-Referenzen statistischer Transforms (regression/loess/…) mitumschreiben */
+        out[k] = map[v];
       } else if((k==='calculate'||k==='filter'||k==='test') && typeof v==='string'){
         /* Feldnamen in Ausdrücken umschreiben – Punkt- UND Klammer-Notation */
         out[k] = v
@@ -6658,21 +6781,38 @@ function vlMultiples(deneb){
 }
 function vlScatter(deneb){
   const rows = state.rows.filter(r=>r.c!=='' && !isNaN(r.v1) && !isNaN(r.v2));
-  const values = rows.map(r=>({k:r.c, x:r.v1, y:r.v2, g:isNaN(r.v3)?null:r.v3}));
+  const faceting = scatterIsFaceted();
+  const values = rows.map(r=>({k:r.c, x:r.v1, y:r.v2, g:isNaN(r.v3)?null:r.v3, grp:String(r.grp||'').trim()||'—'}));
   const sp = vScen(state.primary);
-  return { width:560, height:320, data:vData(values,deneb),
-    encoding:{
-      x:{field:'x', type:'quantitative', axis:{title:state.xTitle, titleFont:'Arial', titleColor:CAT, titleFontSize:11, labelFontSize:9, grid:false}},
-      y:{field:'y', type:'quantitative', axis:{title:state.yTitle, titleFont:'Arial', titleColor:CAT, titleFontSize:11, labelFontSize:9, grid:false}},
-    },
-    layer:[
-      {mark:{type:'rule', color:'#c9c9c9', strokeDash:[4,3]}, encoding:{x:{aggregate:'mean', field:'x'}}},
-      {mark:{type:'rule', color:'#c9c9c9', strokeDash:[4,3]}, encoding:{y:{aggregate:'mean', field:'y'}}},
-      {mark:{type:'circle', fill:sp.fill, stroke:sp.stroke||null, fillOpacity:0.88},
-       encoding:{size:{field:'g', type:'quantitative', scale:{range:[60,900]}, legend:null}}},
-      {mark:{type:'text', dx:12, align:'left', fontSize:10, font:'Arial', color:CAT},
-       encoding:{text:{field:'k'}}},
-    ]};
+  const axe = ttl => ({title:ttl, titleFont:'Arial', titleColor:CAT, titleFontSize:11, labelFontSize:9, grid:false});
+  const enc = { x:{field:'x', type:'quantitative', axis:axe(state.xTitle)},
+                y:{field:'y', type:'quantitative', axis:axe(state.yTitle)} };
+  const layer = [
+    {mark:{type:'rule', color:'#c9c9c9', strokeDash:[4,3]}, encoding:{x:{aggregate:'mean', field:'x'}}},
+    {mark:{type:'rule', color:'#c9c9c9', strokeDash:[4,3]}, encoding:{y:{aggregate:'mean', field:'y'}}},
+    {mark:{type:'circle', fill:sp.fill, stroke:sp.stroke||null, fillOpacity:0.88},
+     encoding:{size:{field:'g', type:'quantitative', scale:{range: faceting?[30,500]:[60,900]}, legend:null}}},
+  ];
+  /* Regressionsgerade + R² (je Facette automatisch über die Facetten-Daten) */
+  if(state.scatterReg){
+    layer.push({transform:[{regression:'y', on:'x'}],
+      mark:{type:'line', color:DARK, strokeWidth:1.7},
+      encoding:{x:{field:'x', type:'quantitative'}, y:{field:'y', type:'quantitative'}}});
+    layer.push({transform:[{regression:'y', on:'x', params:true},
+        {calculate:"'R² '+format(datum.rSquared,'.2f')", as:'_r2'}],
+      mark:{type:'text', align:'right', baseline:'top', x:{expr:'width-4'}, y:4, fontSize:9.5, font:'Arial', color:SUB},
+      encoding:{text:{field:'_r2', type:'nominal'}}});
+  }
+  if(!faceting) layer.push({mark:{type:'text', dx:12, align:'left', fontSize:10, font:'Arial', color:CAT},
+    encoding:{text:{field:'k'}}});
+  if(faceting){
+    return { data:vData(values,deneb), columns:Math.max(1,Math.min(4,state.scatterCols||2)),
+      facet:{field:'grp', type:'nominal', sort:null,
+        header:{title:null, labelFont:'Arial', labelFontSize:11, labelFontWeight:'bold', labelColor:CAT, labelAnchor:'start'}},
+      spec:{ width:220, height:170, encoding:enc, layer },
+      resolve:{scale:{x:'shared', y:'shared'}} };
+  }
+  return { width:560, height:320, data:vData(values,deneb), encoding:enc, layer };
 }
 /* Δ-Säulen-Spalte (horizontal) für Struktur-Kombis – auch von Dot-Plot/Tornado genutzt */
 /* Tier-Feldzuordnung je Referenz: v2→r/d/rv, v3→r2/d2/rv2 (vgl. vRows) */
@@ -7473,7 +7613,7 @@ function serialize(){
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
-      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
+      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
       target:state.target, negParens:state.negParens, annos:state.annos,
       vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,

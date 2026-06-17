@@ -608,6 +608,32 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       state.kpiStyle='ibcs'; state.varSel={a1:true,r1:true,a2:true,r2:true};
     }
 
+    /* === N) Korrelations-Scatter: Trendlinie + Facetten je Gruppe ====== */
+    if('scatterFacet' in state){
+      const mk=(c,x,y,g)=>({c,v1:x,v2:y,v3:NaN,fc:false,grp:g});
+      state.type='scatter'; state.xTitle='X'; state.yTitle='Y';
+      state.rows=[mk('A',10,12,'West'),mk('B',20,19,'West'),mk('C',30,31,'West'),
+                  mk('D',12,30,'Ost'),mk('E',22,24,'Ost'),mk('F',32,18,'Ost')];
+      /* N1 · einzeln + Regression */
+      state.scatterFacet=false; state.scatterReg=true; renderAll();
+      ok('N · scatter · Trendlinie+R² in SVG, kein NaN', /R² =/.test(chartHtml()) && !/NaN/.test(chartHtml()));
+      ok('N · scatter · VL hat regression-Layer', JSON.stringify(vegaSpec(false)).includes('"regression"'));
+      let n1=false; try{ const b=clone(denebTemplate()); delete b.usermeta; n1=!!VL.compile(b).spec; }catch(e){}
+      ok('N · scatter · Template (einzeln) kompiliert', n1 && tplBakedRows(denebTemplate())===0);
+      /* N2 · facettiert je Gruppe */
+      state.scatterFacet=true; state.scatterCols=2; renderAll();
+      ok('N · scatter · SVG-Facetten je Gruppe (West/Ost), kein NaN',
+         /West/.test(chartHtml()) && /Ost/.test(chartHtml()) && !/NaN/.test(chartHtml()));
+      const vlf=vegaSpec(false);
+      ok('N · scatter · VL facettiert nach Gruppe', !!vlf.facet && JSON.stringify(vlf).includes('"regression"'));
+      const tplN=denebTemplate(); const gd=tplN.usermeta.dataset.find(d=>d.name==='Gruppe');
+      let n2=false; try{ const b=clone(tplN); delete b.usermeta; n2=!!VL.compile(b).spec; }catch(e){}
+      ok('N · scatter · Template facettiert + Gruppe als text-column-Platzhalter',
+         n2 && tplBakedRows(tplN)===0 && !!tplN.facet && /^__\d+__$/.test(tplN.facet.field)
+         && !!gd && gd.kind==='column' && gd.type==='text');
+      state.scatterFacet=false; state.scatterReg=false;
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{
