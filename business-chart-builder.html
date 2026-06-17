@@ -8242,17 +8242,26 @@ function rvTableSpec(deneb){
       fontSize:{value:11}, fontWeight:{signal:"datum.isParent?'bold':'normal'"}, fill:{value:DARK}, opacity:{signal:dim}}}},
     {type:'text', from:{data:'all'}, encode:{enter:{align:{value:'right'}, baseline:{value:'middle'}, font:{value:'Arial'}}, update:{
       x:{signal:'labelW+numW'}, y:yB, text:{signal:'format(datum.p,",.0f")'}, fontSize:{value:11}, fontWeight:{signal:"datum.isParent?'bold':'normal'"}, fill:{value:DARK}, opacity:{signal:dim}}}}];
-  if(refOn) marks.push({type:'text', from:{data:'all'}, encode:{enter:{align:{value:'right'}, baseline:{value:'middle'}, font:{value:'Arial'}}, update:{
+  if(refOn){
+    /* Spalten-Header: Referenz · ΔRef · ΔRef% */
+    marks.push({type:'text', encode:{update:{x:{signal:'labelW+numW*2'}, y:{value:12}, text:{value:state.reference}, align:{value:'right'}, font:{value:'Arial'}, fontSize:{value:10.5}, fontWeight:{value:'bold'}, fill:{value:SUBC}}}});
+    marks.push({type:'text', encode:{update:{x:{signal:'labelW+numW*2+gap+60'}, y:{value:12}, text:{value:'Δ'+state.reference}, align:{value:'center'}, font:{value:'Arial'}, fontSize:{value:10.5}, fontWeight:{value:'bold'}, fill:{value:DARK}}}});
+    marks.push({type:'text', encode:{update:{x:{signal:'(labelW+numW*2+gap+140 + width-12)/2'}, y:{value:12}, text:{value:'Δ'+state.reference+'%'}, align:{value:'center'}, font:{value:'Arial'}, fontSize:{value:10.5}, fontWeight:{value:'bold'}, fill:{value:DARK}}}});
+    /* Referenz-Wertspalte */
+    marks.push({type:'text', from:{data:'all'}, encode:{enter:{align:{value:'right'}, baseline:{value:'middle'}, font:{value:'Arial'}}, update:{
       x:{signal:'labelW+numW*2'}, y:yB, text:{signal:'datum.r==null?"":format(datum.r,",.0f")'}, fontSize:{value:11}, fill:{value:SUBC}, opacity:{signal:dim}}}});
-  marks.push({type:'rect', from:{data:'all'}, encode:{enter:{height:{value:11}}, update:{
-    x:{scale:'xd', value:0}, x2:{scale:'xd', field:'d'}, y:{scale:'y', field:'k', band:0.5, offset:-5.5},
-    fill:{signal:"datum.d>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:dim}}}});
-  marks.push({type:'rule', from:{data:'all'}, encode:{update:{
-    x:{scale:'xr', value:0}, x2:{scale:'xr', field:'rel'}, y:yB,
-    stroke:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, strokeWidth:{value:2}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
-  marks.push({type:'symbol', from:{data:'all'}, encode:{update:{
-    x:{scale:'xr', field:'rel'}, y:yB, size:{value:42},
-    fill:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
+    /* Δ-absolut-Balken */
+    marks.push({type:'rect', from:{data:'all'}, encode:{enter:{height:{value:11}}, update:{
+      x:{scale:'xd', value:0}, x2:{scale:'xd', field:'d'}, y:{scale:'y', field:'k', band:0.5, offset:-5.5},
+      fill:{signal:"datum.d>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:dim}}}});
+    /* Δ%-Pins */
+    marks.push({type:'rule', from:{data:'all'}, encode:{update:{
+      x:{scale:'xr', value:0}, x2:{scale:'xr', field:'rel'}, y:yB,
+      stroke:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, strokeWidth:{value:2}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
+    marks.push({type:'symbol', from:{data:'all'}, encode:{update:{
+      x:{scale:'xr', field:'rel'}, y:yB, size:{value:42},
+      fill:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
+  }
   const scales=[
     {name:'y', type:'band', domain:{data:'all', field:'k', sort:{field:'ord', op:'min'}}, range:[{signal:'rowH'},{signal:'height'}], paddingInner:0.18},
     {name:'xd', type:'linear', domain:{data:'all', field:'d'}, range:[{signal:'labelW+numW*2+gap'},{signal:'labelW+numW*2+gap+120'}], nice:true, zero:true},
