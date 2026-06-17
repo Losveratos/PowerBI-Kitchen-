@@ -863,6 +863,7 @@ const state = {
   zMonthCol:false,
   zMonthRef:false,
   tableDims:0,
+  rawVega:false,
   refLine:'none',
   lineAllLabels:false,
   topN:0,
@@ -4256,6 +4257,10 @@ function buildChart(){
     return ganttSvgString() ||
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 120" width="600" height="120"><text x="12" y="34" font-family="Arial" font-size="13" fill="#8c8c8c">Gantt – Vorschau wird geladen …</text></svg>';
   }
+  if(state.type==='table' && state.rawVega){
+    return rvTableSvgString() ||
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 120" width="600" height="120"><text x="12" y="34" font-family="Arial" font-size="13" fill="#8c8c8c">Raw-Vega-Tabelle – Vorschau wird geladen …</text></svg>';
+  }
   const rows = activeRows();
   let r;
   const tiersOn = (state.showRel || state.showAbs) && state.reference!=='—';
@@ -4760,14 +4765,18 @@ function renderPreview(){
   $('#dashColsCtl').style.display = state.view==='dash' ? '' : 'none';
   $('#dvc1').classList.toggle('on', state.dashCols===1);
   $('#dvc2').classList.toggle('on', state.dashCols===2);
-  /* Beim Verlassen des Gantt die Vega-View finalisieren (window-Listener lösen) */
+  /* Beim Verlassen eines Raw-Vega-Views (Gantt/Tabelle) die Vega-View finalisieren */
+  const rvTab = state.view!=='dash' && state.type==='table' && state.rawVega;
   const stayGantt = state.view!=='dash' && state.type==='gantt';
-  if(state._ganttView && !stayGantt){ try{ state._ganttView.finalize(); }catch(e){} state._ganttView = null; }
+  if(state._ganttView && !stayGantt && !rvTab){ try{ state._ganttView.finalize(); }catch(e){} state._ganttView = null; }
   if(state.view==='dash'){
     renderDashPreview();
     $('#commentList').innerHTML = '';
   } else if(state.type==='gantt'){
     renderGanttPreview();        /* async Raw-Vega-Render in #chartHost */
+    $('#commentList').innerHTML = '';
+  } else if(rvTab){
+    renderRawVegaTablePreview();  /* async interaktives Raw-Vega-Render */
     $('#commentList').innerHTML = '';
   } else {
     $('#chartHost').innerHTML = buildChart();
@@ -5392,6 +5401,8 @@ function guideCardsHtml(){
   if(t==='table'){
     out.push(gcard('Hierarchie · Dimensionen','Für den Deneb-Export: die Kategorie als echte Hierarchie aus mehreren Dimensionsfeldern (Ebene 1 › Ebene 2 …). Daten = Blattzeilen, Zwischensummen aggregiert Power BI. „Liste" = eine Kategorie wie bisher.',
       gchip('tableDims',0,'Liste (1 Dim)',(state.tableDims||0)<2)+gchip('tableDims',2,'2 Ebenen',state.tableDims===2)+gchip('tableDims',3,'3 Ebenen',state.tableDims===3)));
+    out.push(gcard('Engine · Raw-Vega (interaktiv)','Interaktive Tabelle für große Datenmengen: Cross-Filtering (Klick filtert den Report), Drill/Collapse je Hierarchie-Gruppe (Klick auf Elternzeile), kein 60-Zeilen-Limit. Vorschau & Export laufen als Raw-Vega. „Vega-Lite" = das klassische, statische Template.',
+      gchip('rawVega','vl','Vega-Lite (statisch)',!state.rawVega)+gchip('rawVega','raw','Raw-Vega (interaktiv)',!!state.rawVega)));
   }
   if(t==='zchart'){
     let zb = gchip('zMonthCol','line','Monate als Linie',!state.zMonthCol)+gchip('zMonthCol','col','Monate als Säulen',!!state.zMonthCol);
@@ -5477,6 +5488,7 @@ function applyGuideOpt(opt,val){
     case 'zMonthCol': state.zMonthCol = (val==='col'); renderPreview(); break;
     case 'zMonthRef': state.zMonthRef = !state.zMonthRef; renderPreview(); break;
     case 'tableDims': state.tableDims = +val; autofillDemo(); renderAll(); break;
+    case 'rawVega': state.rawVega = (val==='raw'); renderAll(); break;
     case 'bridgePY': state.bridgePY = !state.bridgePY; autofillDemo(); renderAll(); break;
     case 'bridgePYlevel': state.bridgePYlevel = !state.bridgePYlevel; autofillDemo(); renderAll(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
@@ -6223,6 +6235,25 @@ function denebTemplate(){
   /* Gantt: fertige Raw-Vega-Spec unverändert ausgeben (Power BI liefert Signale
      + 'dataset' selbst). Attribution bleibt in spec.description erhalten. */
   if(state.type==='gantt') return _ganttSpecRaw ? JSON.parse(JSON.stringify(_ganttSpecRaw)) : null;
+  /* Raw-Vega-Tabelle: interaktives Template (provider:'vega'), große Datenmengen,
+     Cross-Filter (selection/highlight), Drill/Collapse via Signale. */
+  if(state.type==='table' && state.rawVega){
+    const sp = rvTableSpec(true);
+    const TKr = { d0:['text','column'], d1:['text','column'], d2:['text','column'], dim:['text','column'] };
+    const defs = vFieldDefs().map(([key,label],i)=>{ const tk = TKr[key] || ['numeric','measure'];
+      return { ph:'__'+i+'__', name:F(key), label, type:tk[0], kind:tk[1] }; });
+    sp.usermeta = {
+      information: {
+        name: ($('#t1').value||'IBCS-Tabelle').trim(),
+        description: (($('#t3').value||autoT3())+' · '+TT('erzeugt mit dem Business Chart Builder (IBCS-Notation)')+' · Raw-Vega interaktiv').trim(),
+        author: 'Business Chart Builder', uuid: tplUuid(), generated: new Date().toISOString(),
+      },
+      deneb: { build:TPL_BUILD, metaVersion:1, provider:'vega', providerVersion:'5.30.0' },
+      interactivity: { tooltip:true, contextMenu:true, selection:true, highlight:true, dataPointLimit:5000 },
+      dataset: defs.map(d=> ({ key:d.ph, name:d.name, description:d.label, type:d.type, kind:d.kind })),
+    };
+    return sp;
+  }
   const saveVega = state.vlVega; state.vlVega = false;   /* Templates immer Vega-Lite (Felder mappen zuverlässig) */
   const spec = vegaSpec(true);
   state.vlVega = saveVega;
@@ -6445,6 +6476,33 @@ function ganttSvgString(){
   let s = live ? live.outerHTML : (state._ganttSVG || '');
   if(s && !/xmlns=/.test(s)) s = s.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
   return s;
+}
+/* Raw-Vega-Tabelle live rendern (interaktiv: Drill/Collapse + Cross-Filter
+   funktionieren in der Vorschau wie später im Deneb-Visual). */
+function rvTableSvgString(){
+  const live = document.querySelector('#chartHost svg');
+  let s = live ? live.outerHTML : '';
+  if(s && !/xmlns=/.test(s)) s = s.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+  return s;
+}
+async function renderRawVegaTablePreview(){
+  const host = $('#chartHost');
+  host.innerHTML = '<div style="padding:26px;font-size:12px;color:#8c8c8c">'+TT('Tabelle wird geladen …')+'</div>';
+  try{
+    await loadVegaLibs();
+    const spec = rvTableSpec(false);
+    const W = Math.max(420, Math.floor(host.clientWidth || 760));
+    spec.signals.find(s=>s.name==='pbiContainerWidth').value = W;
+    if(state._ganttView){ try{ state._ganttView.finalize(); }catch(e){} state._ganttView = null; }
+    host.innerHTML = '';
+    const view = new window.vega.View(window.vega.parse(spec), {renderer:'svg', container:host, hover:true});
+    await view.runAsync();
+    state._ganttView = view;   /* gemeinsamer View-Slot (wird beim Typwechsel finalisiert) */
+  }catch(err){
+    state._ganttView = null;
+    host.innerHTML = '<div style="padding:26px;font-size:12px;color:#b06a00">'+
+      TT('Vorschau nicht möglich')+': '+esc(String(err && err.message || err))+'</div>';
+  }
 }
 async function renderGanttPreview(){
   const host = $('#chartHost');
@@ -8103,6 +8161,89 @@ function vlKpi(deneb){
    Blattzeilen aus dem PBI-Dataset, Eltern-Σ blendet Power BI bzw. der native
    Matrix-Visual ein (Vega-Lite zeigt Blätter gruppiert + Δ-Spalten je Blatt).
    Übergeordnete Dim wird je Gruppe nur einmal gezeigt (row_number-Window). */
+/* ===== Raw-Vega-IBCS-Tabelle (interaktiv, Deneb) =========================
+   Im Gegensatz zu den Vega-Lite-Templates nutzt sie Vega-Signale + reaktive
+   Datasets: (1) GROSSE Datenmengen (kein 60-Zeilen-Limit), (2) Cross-Filtering
+   (datum.__selected__), (3) im-Visual Drill/Collapse je Hierarchie-Gruppe
+   (Klick auf Elternzeile). Eltern-Σ synthetisiert Vega aus den Blättern
+   (aggregate + source-Union [parents,leaves]) – PBI liefert nur Blätter. */
+function rvTableData(){
+  const rows = activeRows();
+  if(tableIsHier()) return rows.map(r=>({d0:String(r.d0||'').trim()||'—', d1:String(r.d1||'').trim()||'—', p:isNaN(r.v1)?0:r.v1, r:isNaN(r.v2)?null:r.v2}));
+  return rows.map(r=>({k:r.c, p:isNaN(r.v1)?0:r.v1, r:isNaN(r.v2)?null:r.v2}));
+}
+function rvTableSpec(deneb){
+  const hier = tableIsHier(), c = varColors(), POS=c.pos, NEG=c.neg, DARK='#0F1E2E', SUBC='#7a7a7a';
+  const F_D0=deneb?'__0__':'d0', F_D1=deneb?'__1__':'d1', F_K=deneb?'__0__':'k';
+  const F_P=deneb?(hier?'__2__':'__1__'):'p', F_R=deneb?(hier?'__3__':'__2__'):'r';
+  const dim="((sel!=null&&sel!==datum.k)||datum.__selected__==='off')?0.4:1";
+  const values = deneb ? undefined : rvTableData();
+  let data;
+  if(hier){
+    data=[
+      {name:'dataset', ...(deneb?{}:{values}), transform:[
+        {type:'window', ops:['row_number'], as:['rid']},
+        {type:'joinaggregate', groupby:[F_D0], ops:['min'], fields:['rid'], as:['gord']}]},
+      {name:'collapsedData', on:[{trigger:'clickParent', toggle:'clickParent'}]},
+      {name:'parents', source:'dataset', transform:[
+        {type:'aggregate', groupby:[F_D0], ops:['sum','sum','min'], fields:[F_P,F_R,'gord'], as:['p','r','gord']},
+        {type:'formula', as:'k', expr:'datum.'+F_D0}, {type:'formula', as:'lvl', expr:'0'},
+        {type:'formula', as:'isParent', expr:'true'}, {type:'formula', as:'parentKey', expr:"''"},
+        {type:'formula', as:'ord', expr:'datum.gord*1000'}]},
+      {name:'leaves', source:'dataset', transform:[
+        {type:'formula', as:'k', expr:'datum.'+F_D1}, {type:'formula', as:'p', expr:'datum.'+F_P}, {type:'formula', as:'r', expr:'datum.'+F_R},
+        {type:'formula', as:'lvl', expr:'1'}, {type:'formula', as:'isParent', expr:'false'},
+        {type:'formula', as:'parentKey', expr:'datum.'+F_D0}, {type:'formula', as:'ord', expr:'datum.gord*1000 + datum.rid'}]},
+      {name:'all', source:['parents','leaves'], transform:[
+        {type:'formula', as:'d', expr:'datum.p - (datum.r==null?0:datum.r)'},
+        {type:'formula', as:'rel', expr:'datum.r ? (datum.p-datum.r)/abs(datum.r)*100 : null'},
+        {type:'filter', expr:"!datum.parentKey || !indata('collapsedData','k',datum.parentKey)"}]}];
+  } else {
+    data=[
+      {name:'dataset', ...(deneb?{}:{values}), transform:[{type:'window', ops:['row_number'], as:['ord']}]},
+      {name:'all', source:'dataset', transform:[
+        {type:'formula', as:'k', expr:'datum.'+F_K}, {type:'formula', as:'p', expr:'datum.'+F_P}, {type:'formula', as:'r', expr:'datum.'+F_R},
+        {type:'formula', as:'lvl', expr:'0'}, {type:'formula', as:'isParent', expr:'false'},
+        {type:'formula', as:'d', expr:'datum.p - (datum.r==null?0:datum.r)'},
+        {type:'formula', as:'rel', expr:'datum.r ? (datum.p-datum.r)/abs(datum.r)*100 : null'}]}];
+  }
+  const signals=[
+    {name:'pbiContainerWidth', value:660}, {name:'pbiContainerHeight', value:300},
+    {name:'width', update:'pbiContainerWidth'},
+    {name:'rowH', value:25}, {name:'labelW', value:190}, {name:'numW', value:56}, {name:'gap', value:16},
+    {name:'nRows', update:"length(data('all'))"},
+    {name:'height', update:'max(pbiContainerHeight, nRows*rowH + rowH + 6)'},
+    {name:'sel', value:null, on:[{events:'@cat:click', update:'datum && datum.isParent ? sel : (sel===datum.k?null:datum.k)'}]}];
+  if(hier) signals.push({name:'clickParent', value:null, on:[{events:'@cat:click', update:'datum && datum.isParent ? datum : clickParent', force:true}]});
+  const yB={scale:'y', field:'k', band:0.5};
+  const refOn = state.reference!=='—';
+  const marks=[
+    {type:'rule', encode:{update:{x:{value:0}, x2:{signal:'width'}, y:{signal:'rowH-3'}, stroke:{value:DARK}, strokeWidth:{value:1.2}}}},
+    {type:'text', encode:{update:{x:{signal:'labelW+numW'}, y:{value:12}, text:{value:state.primary}, align:{value:'right'}, font:{value:'Arial'}, fontSize:{value:10.5}, fontWeight:{value:'bold'}, fill:{value:DARK}}}},
+    {type:'text', name:'cat', from:{data:'all'}, encode:{enter:{align:{value:'left'}, baseline:{value:'middle'}, font:{value:'Arial'}, cursor:{value:'pointer'}}, update:{
+      x:{signal:'2+datum.lvl*14'}, y:yB, text:{signal: hier ? "(datum.isParent?(indata('collapsedData','k',datum.k)?'▸ ':'▾ '):'')+datum.k" : 'datum.k'},
+      fontSize:{value:11}, fontWeight:{signal:"datum.isParent?'bold':'normal'"}, fill:{value:DARK}, opacity:{signal:dim}}}},
+    {type:'text', from:{data:'all'}, encode:{enter:{align:{value:'right'}, baseline:{value:'middle'}, font:{value:'Arial'}}, update:{
+      x:{signal:'labelW+numW'}, y:yB, text:{signal:'format(datum.p,",.0f")'}, fontSize:{value:11}, fontWeight:{signal:"datum.isParent?'bold':'normal'"}, fill:{value:DARK}, opacity:{signal:dim}}}}];
+  if(refOn) marks.push({type:'text', from:{data:'all'}, encode:{enter:{align:{value:'right'}, baseline:{value:'middle'}, font:{value:'Arial'}}, update:{
+      x:{signal:'labelW+numW*2'}, y:yB, text:{signal:'datum.r==null?"":format(datum.r,",.0f")'}, fontSize:{value:11}, fill:{value:SUBC}, opacity:{signal:dim}}}});
+  marks.push({type:'rect', from:{data:'all'}, encode:{enter:{height:{value:11}}, update:{
+    x:{scale:'xd', value:0}, x2:{scale:'xd', field:'d'}, y:{scale:'y', field:'k', band:0.5, offset:-5.5},
+    fill:{signal:"datum.d>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:dim}}}});
+  marks.push({type:'rule', from:{data:'all'}, encode:{update:{
+    x:{scale:'xr', value:0}, x2:{scale:'xr', field:'rel'}, y:yB,
+    stroke:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, strokeWidth:{value:2}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
+  marks.push({type:'symbol', from:{data:'all'}, encode:{update:{
+    x:{scale:'xr', field:'rel'}, y:yB, size:{value:42},
+    fill:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
+  const scales=[
+    {name:'y', type:'band', domain:{data:'all', field:'k', sort:{field:'ord', op:'min'}}, range:[{signal:'rowH'},{signal:'height'}], paddingInner:0.18},
+    {name:'xd', type:'linear', domain:{data:'all', field:'d'}, range:[{signal:'labelW+numW*2+gap'},{signal:'labelW+numW*2+gap+120'}], nice:true, zero:true},
+    {name:'xr', type:'linear', domain:{data:'all', field:'rel'}, range:[{signal:'labelW+numW*2+gap+140'},{signal:'width-12'}], nice:true, zero:true}];
+  return { $schema:'https://vega.github.io/schema/vega/v5.json',
+    description:'IBCS-Datentabelle · Raw-Vega (interaktiv: Cross-Filter'+(hier?' + Drill/Collapse':'')+', grosse Datenmengen)',
+    padding:5, autosize:{type:'fit', resize:true, contains:'padding'}, signals, data, scales, marks };
+}
 function vlTableHier(deneb){
   const C = vCol();
   const dimK = tableDimKeys();
@@ -8378,6 +8519,8 @@ function dashboardSpec(deneb){
   return spec;
 }
 function vegaSpec(deneb){
+  /* Raw-Vega-Tabelle: eigener interaktiver Pfad (kein VL-Wrapping) */
+  if(state.type==='table' && state.rawVega) return rvTableSpec(deneb);
   const core = vegaSpecCore(deneb);
   if(!core) return null;
   let body = core.body; const t = core.t;
@@ -8470,7 +8613,7 @@ function serialize(){
       stack100:state.stack100,
       sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient, wfRefCol:state.wfRefCol,
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel, bridgePY:state.bridgePY, bridgePYlevel:state.bridgePYlevel,
-      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef, tableDims:state.tableDims,
+      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef, tableDims:state.tableDims, rawVega:state.rawVega,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
       multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,

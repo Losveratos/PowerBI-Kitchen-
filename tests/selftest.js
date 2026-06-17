@@ -59,7 +59,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     unit:state.unit, unitScale:state.unitScale, decimals:state.decimals, msg:state.msg,
     stack100:state.stack100, bridgePY:state.bridgePY, bridgeRel:state.bridgeRel,
     treeJson:state.treeJson, varRefCols:state.varRefCols, varYTD:state.varYTD,
-    grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef, tableDims:state.tableDims,
+    grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef, tableDims:state.tableDims, rawVega:state.rawVega,
     t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
   };
   const restore = ()=>{
@@ -70,7 +70,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       decimals:snap.decimals, msg:snap.msg, stack100:snap.stack100,
       bridgePY:snap.bridgePY, bridgeRel:snap.bridgeRel,
       treeJson:snap.treeJson, varRefCols:snap.varRefCols, varYTD:snap.varYTD,
-      grpFacet:snap.grpFacet, grpScale:snap.grpScale, zMonthCol:snap.zMonthCol, zMonthRef:snap.zMonthRef, tableDims:snap.tableDims});
+      grpFacet:snap.grpFacet, grpScale:snap.grpScale, zMonthCol:snap.zMonthCol, zMonthRef:snap.zMonthRef, tableDims:snap.tableDims, rawVega:snap.rawVega});
     const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v==null?'':v; };
     set('t1',snap.t1); set('t2',snap.t2); set('t3',snap.t3);
     try{ renderAll(); }catch(e){}
@@ -895,6 +895,35 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       ok('V · tableDims nicht sticky (Folge-Preset → Liste)', (state.tableDims||0)<2 && !tableIsHier());
       /* Guide-Karte */
       ok('V · Guide-Karte tableDims', (()=>{ state.type='table'; return /data-opt="tableDims"/.test(guideCardsHtml()); })());
+    }
+
+    /* === W) Raw-Vega-Tabelle: interaktiv, große Daten, Cross-Filter, Drill === */
+    if('rawVega' in state && typeof rvTableSpec==='function' && window.vega){
+      loadPreset('tableHier'); state.rawVega=true;
+      const tpl=denebTemplate();
+      let parses=false; try{ parses=!!window.vega.parse(tpl); }catch(e){}
+      ok('W · Raw-Vega-Tabelle · Deneb-Template gültiges Vega (provider vega, baked=0, Limit≥1000, Signale)',
+         parses && tpl.usermeta && tpl.usermeta.deneb.provider==='vega' && tplBakedRows(tpl)===0 &&
+         tpl.usermeta.interactivity.dataPointLimit>=1000 && Array.isArray(tpl.signals));
+      ok('W · Raw-Vega-Tabelle · Hierarchie-Dims + Messwerte im Dataset',
+         tpl.usermeta.dataset.filter(d=>d.kind==='column'&&d.type==='text').length>=2 && tpl.usermeta.dataset.some(d=>d.kind==='measure'));
+      /* eingebettet rendern + Collapse versteckt Kinder (Eltern-Synthese + Signal) */
+      let collapseOk=false; try{
+        const sp=rvTableSpec(false);
+        const v=new window.vega.View(window.vega.parse(sp),{renderer:'none'}); await v.runAsync();
+        const before=v.data('all').length; const par=v.data('all').find(d=>d.isParent);
+        v.signal('clickParent', par); await v.runAsync();
+        const after=v.data('all').length; v.finalize();
+        collapseOk = before>after && after>0;
+      }catch(e){}
+      ok('W · Raw-Vega-Tabelle · eingebettet rendert + Collapse versteckt Kinder', collapseOk);
+      /* flache Liste (kein Hierarchie) parst ebenfalls als Raw-Vega */
+      loadPreset('countriesTab'); state.rawVega=true; state.tableDims=0;
+      const tF=denebTemplate(); let pf=false; try{ pf=!!window.vega.parse(tF); }catch(e){}
+      ok('W · Raw-Vega-Tabelle · flache Liste parst + baked=0', pf && tplBakedRows(tF)===0);
+      /* Guide-Karte */
+      ok('W · Raw-Vega-Tabelle · Guide-Karte (Engine-Umschalter)', (()=>{ state.type='table'; return /data-opt="rawVega"/.test(guideCardsHtml()); })());
+      state.rawVega=false;
     }
 
   }catch(err){
