@@ -286,6 +286,7 @@ footer a:hover{color:var(--ink)}
       <button class="ghost" id="btnWiz" type="button" style="width:100%; margin-bottom:10px" title="3 kurze Fragen – der Wizard schlägt den passenden IBCS-Diagrammtyp vor">🧭 Welcher Typ passt?</button>
       <button class="ghost" id="btnIbcs" type="button" style="width:100%; margin-bottom:10px" title="Prüft die aktuelle Konfiguration gegen die IBCS-Compliance-Checkliste">✓ IBCS-Check</button>
       <div id="typeBtns"></div>
+      <button class="primary-cta" id="btnGuide" type="button" style="width:100%; margin-top:10px" title="Öffnet alle passenden Einstellungen für den gewählten Diagrammtyp (oder die aktive Kachel erneut anklicken)">⚙ Optionen für diesen Typ</button>
       <div id="dataNeed" style="margin-top:10px;font-size:11px;line-height:1.5;color:var(--ink2);border-top:1px solid var(--line);padding-top:8px"></div>
     </section>
 
@@ -666,6 +667,11 @@ footer a:hover{color:var(--ink)}
 <dialog id="helpDlg" style="max-width:640px">
   <div class="dlg-head"><h3 id="helpTitle">Hilfe</h3><button class="ghost" id="helpClose">Schließen</button></div>
   <div class="dlg-body" id="helpBody" style="font-size:13px; line-height:1.5; color:var(--ink)"></div>
+</dialog>
+
+<dialog id="guideDlg" style="max-width:540px">
+  <div class="dlg-head"><h3 id="guideTitle">Optionen</h3><button class="ghost" id="guideClose">Schließen</button></div>
+  <div class="dlg-body" id="guideBody" style="display:flex; flex-direction:column; gap:13px"></div>
 </dialog>
 
 <dialog id="wizDlg" style="max-width:560px">
@@ -4117,7 +4123,7 @@ function chipSwatch(code){
 
 function renderTypeButtons(){
   const HIDDEN_IN_GRID = ['kombi','absvar','relvar','barskombi','wfkombi'];
-  const btn = t => '<button class="type-btn'+(typeIsOn(t.id)?' on':'')+'" data-type="'+t.id+'" type="button">'+typeIcon(t.id)+'<span>'+t.name+'</span></button>';
+  const btn = t => '<button class="type-btn'+(typeIsOn(t.id)?' on':'')+'" data-type="'+t.id+'" type="button"'+(typeIsOn(t.id)?' title="Nochmal klicken für die Optionen dieses Typs"':'')+'>'+typeIcon(t.id)+'<span>'+t.name+'</span></button>';
   const pro = [];
   $('#typeBtns').innerHTML = TYPE_GROUPS.map(g=>{
     const vis = g.types.filter(t=>{ const h = HIDDEN_IN_GRID.includes(t.id); if(h) pro.push(t); return !h; });
@@ -4844,11 +4850,142 @@ function loadPreset(key){
 $('#typeBtns').addEventListener('click', e=>{
   const b = e.target.closest('[data-type]'); if(!b) return;
   const id = b.dataset.type;
+  if(typeIsOn(id)){ openGuide(); return; }   /* erneuter Klick auf die aktive Kachel → geführte Optionen */
   if(id in VIRTUAL_KPI){ state.type='kpi'; state.kpiStyle=VIRTUAL_KPI[id]; }
   else state.type = id;
   if(needsRef() && state.reference==='—') state.reference='PY';
   state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
   renderAll();
+});
+
+/* =========================================================================
+   Geführte Optionen: ein typ-bewusster Kasten mit allen passenden Einstellungen.
+   Geöffnet per „⚙ Optionen" oder erneutem Klick auf die aktive Typ-Kachel.
+   Schreibt direkt in state; renderPreview() hält die Sidebar synchron.
+   ========================================================================= */
+function typeName(t){
+  for(const g of TYPE_GROUPS) for(const x of g.types) if(typeIsOn(x.id) && (x.id===t || (t==='kpi'))) return x.name;
+  for(const g of TYPE_GROUPS) for(const x of g.types) if(x.id===t) return x.name;
+  return t;
+}
+function gchip(opt,val,label,active,title){
+  return '<button class="chip'+(active?' on':'')+'" data-opt="'+opt+'" data-val="'+esc(String(val))+'"'+(title?' title="'+esc(title)+'"':'')+'>'+esc(label)+'</button>';
+}
+function gcard(title, hint, body){
+  return '<div style="border-top:1px solid var(--line);padding-top:11px">'+
+    '<div style="font-weight:600;font-size:12.5px;color:var(--ink);margin-bottom:3px">'+esc(title)+'</div>'+
+    (hint?'<div style="font-size:11px;color:var(--ink3);margin-bottom:7px;line-height:1.45">'+esc(hint)+'</div>':'')+
+    '<div class="row" style="flex-wrap:wrap;gap:6px;align-items:center">'+body+'</div></div>';
+}
+function guideCardsHtml(){
+  const t=state.type, out=[];
+  const REL_OK=['columns','line','zchart','bars','multiples','waterfall','bridge','colline','dotplot','tornado','bullet'];
+  const ABS_OK=['columns','line','zchart','bars','multiples','waterfall','colline','dotplot','tornado','bullet'];
+  if(t==='bridge'){
+    out.push(gcard('Abweichung','Δ%-Ebene je Treiber über der Brücke.',
+      gchip('var','none','keine',!state.bridgeRel)+gchip('var','rel','Δ% zeigen',!!state.bridgeRel)));
+  } else if(REL_OK.includes(t)||ABS_OK.includes(t)){
+    const r=state.showRel,a=state.showAbs;
+    out.push(gcard('Abweichung (Plan/Vorjahr)','Abweichung zur Referenz als zusätzliche Ebene: Δ absolut und/oder Δ% relativ.',
+      gchip('var','none','keine',!r&&!a)+gchip('var','rel','Δ% relativ',r&&!a)+gchip('var','abs','Δ absolut',a&&!r)+gchip('var','both','beide',r&&a)));
+  }
+  if(['columns','line','bars','colline'].includes(t)){
+    const v=state.refLine;
+    out.push(gcard('Referenzlinie','Dezente Ø- oder Median-Linie als zusätzlicher Layer.',
+      gchip('refLine','none','keine',v!=='mean'&&v!=='median')+gchip('refLine','mean','Ø Mittel',v==='mean')+gchip('refLine','median','Md Median',v==='median')));
+  }
+  if(t==='colline'){
+    out.push(gcard('Säule/Linie & Achse','Welche Größe ist Säule vs. Linie; gemeinsame oder getrennte (unabhängige) Skala.',
+      gchip('clSwap','col','Primär: Säule',!state.collineSwap)+gchip('clSwap','line','Primär: Linie',!!state.collineSwap)+
+      '<span style="flex-basis:100%;height:0"></span>'+
+      gchip('clAxis','shared','Achse gemeinsam',state.collineAxis!=='dual')+gchip('clAxis','dual','Achse getrennt',state.collineAxis==='dual')));
+  }
+  if(t==='scatter'){
+    out.push(gcard('Korrelation','Trendlinie (Regression) + R²; optional Small Multiples je Gruppe (Gruppen-Spalte in der Tabelle füllen).',
+      gchip('scReg','toggle',(state.scatterReg?'✓ ':'')+'Trendlinie + R²',!!state.scatterReg)+
+      gchip('scFacet','toggle',(state.scatterFacet?'✓ ':'')+'nach Gruppe facetten',!!state.scatterFacet)+
+      (state.scatterFacet?('<span style="flex-basis:100%;height:0"></span>'+[1,2,3,4].map(n=>gchip('scCols',n,n+' Sp.',(state.scatterCols||2)===n)).join('')):'')));
+  }
+  if(t==='waterfall'||t==='bridge'){
+    let b=gchip('wfOrient','h','horizontal',state.wfOrient!=='v')+gchip('wfOrient','v','vertikal',state.wfOrient==='v');
+    if(t==='bridge') b+='<span style="flex-basis:100%;height:0"></span>'+gchip('cutSums','toggle',(state.cutSums?'✓ ':'')+'Σ-Säulen kappen',!!state.cutSums);
+    out.push(gcard('Ausrichtung','Säulen (Zeit) oder vertikales Rechenschema. Vertikal: Phasen ein-/ausklappbar – Ebene je Zeile in der Datentabelle wählen.',b));
+  }
+  if(t==='multiples'){
+    out.push(gcard('Trellis (Small Multiples)','Spalten und Y-Skala: gemeinsam = Niveaus vergleichbar, frei = Form je Kachel.',
+      [1,2,3,4].map(n=>gchip('multiCols',n,n+' Sp.',(state.multiCols||3)===n)).join('')+'<span style="flex-basis:100%;height:0"></span>'+
+      gchip('multiScale','shared','Skala gemeinsam',state.multiScale!=='free')+gchip('multiScale','free','Skala frei',state.multiScale==='free')));
+    out.push(gcard('Layout','Zurück zur Einzelansicht.', gchip('fromMulti','go','← Zurück zu Einzeln',false)));
+  }
+  if(AS_MULTI_OK.includes(t)){
+    out.push(gcard('Layout','Einzelchart oder kleine Vielfache (eine Mini-Kachel je Serie).',
+      gchip('toMulti','go','→ Als Small Multiples',false,'Wandelt in kleine Vielfache je Serie um')));
+  }
+  if(t==='stackcol'||t==='stackbar'){
+    out.push(gcard('Gestapelt','100 %-Normierung: Anteile je Kategorie statt absoluter Werte.',
+      gchip('stack100','toggle',(state.stack100?'✓ ':'')+'100 %-gestapelt',!!state.stack100)));
+  }
+  if(['columns','line','bars'].includes(t)){
+    out.push(gcard('Trellis-Export (Power BI)','Exportiert als Small-Multiples-Visual je Feld – nur im Deneb-Template; die Vorschau bleibt eine Kachel.',
+      '<input data-optin="facetField" value="'+esc(state.facetField||'')+'" placeholder="Feld, z. B. Region" style="width:150px">'+
+      (state.facetField?('<span style="width:6px"></span>'+[1,2,3,4].map(n=>gchip('facetCols',n,n+' Sp.',(state.facetCols||2)===n)).join('')):'')));
+  }
+  out.push(gcard('Titel & Botschaft','Botschaft (fett), Titel und Untertitel. Quelle und Einheit optional.',
+    '<div style="display:flex;flex-direction:column;gap:6px;width:100%">'+
+    '<input data-optin="msg" value="'+esc(state.msg||'')+'" placeholder="Botschaft – z. B. „EBIT 3 % über Plan“" style="width:100%">'+
+    '<input data-optin="t1" value="'+esc($('#t1')?$('#t1').value||'':'')+'" placeholder="Titel" style="width:100%">'+
+    '<input data-optin="t2" value="'+esc($('#t2')?$('#t2').value||'':'')+'" placeholder="Untertitel – z. B. Umsatz in mEUR" style="width:100%">'+
+    '<div class="row" style="gap:6px"><input data-optin="source" value="'+esc(state.source||'')+'" placeholder="Quelle" style="flex:1">'+
+    '<input data-optin="unit" value="'+esc(state.unit||'')+'" placeholder="Einheit €/%" style="width:84px"></div>'+
+    '</div>'));
+  return out.join('');
+}
+function renderGuide(){
+  $('#guideTitle').textContent = 'Optionen · '+typeName(state.type);
+  $('#guideBody').innerHTML = guideCardsHtml();
+}
+function openGuide(){ renderGuide(); const d=$('#guideDlg'); if(d.showModal) d.showModal(); else d.setAttribute('open',''); }
+function applyGuideOpt(opt,val){
+  switch(opt){
+    case 'var':
+      if(state.type==='bridge') setVariance(val==='rel', false);
+      else setVariance(val==='rel'||val==='both', val==='abs'||val==='both');
+      break;
+    case 'refLine': state.refLine=val; renderPreview(); break;
+    case 'clSwap': if(!(val==='line' && state.reference==='—')){ state.collineSwap=(val==='line'); renderPreview(); } break;
+    case 'clAxis': state.collineAxis=val; renderPreview(); break;
+    case 'scReg': state.scatterReg=!state.scatterReg; renderPreview(); break;
+    case 'scFacet': state.scatterFacet=!state.scatterFacet; renderDataTable(); renderPreview(); break;
+    case 'scCols': state.scatterCols=+val; renderPreview(); break;
+    case 'wfOrient': state.wfOrient=val; renderPreview(); break;
+    case 'cutSums': state.cutSums=!state.cutSums; renderPreview(); break;
+    case 'multiCols': state.multiCols=+val; renderPreview(); break;
+    case 'multiScale': state.multiScale=val; renderPreview(); break;
+    case 'stack100': state.stack100=!state.stack100; renderPreview(); break;
+    case 'facetCols': state.facetCols=+val; renderPreview(); break;
+    case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
+    case 'fromMulti': morphBack(); break;
+  }
+}
+$('#btnGuide').addEventListener('click', openGuide);
+$('#guideClose').addEventListener('click', ()=> $('#guideDlg').close());
+$('#guideBody').addEventListener('click', e=>{
+  const b=e.target.closest('[data-opt]'); if(!b) return;
+  const opt=b.dataset.opt;
+  applyGuideOpt(opt, b.dataset.val);
+  if(opt==='toMulti'||opt==='fromMulti'){ $('#guideDlg').close(); return; }
+  renderGuide();   /* aktive Zustände aktualisieren */
+});
+$('#guideBody').addEventListener('input', e=>{
+  const el=e.target.closest('[data-optin]'); if(!el) return;
+  const k=el.dataset.optin, v=el.value;
+  if(k==='msg') state.msg=v;
+  else if(k==='source') state.source=v;
+  else if(k==='unit'){ state.unit=v.trim(); }
+  else if(k==='t1' && $('#t1')) $('#t1').value=v;
+  else if(k==='t2' && $('#t2')) $('#t2').value=v;
+  else if(k==='facetField') state.facetField=v;
+  if(k==='unit') renderAll(); else renderPreview();
 });
 $('#primChips').addEventListener('click', e=>{
   const b = e.target.closest('[data-prim]'); if(!b) return;

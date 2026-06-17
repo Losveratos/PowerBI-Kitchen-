@@ -634,6 +634,21 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       state.scatterFacet=false; state.scatterReg=false;
     }
 
+    /* === O) Geführte Optionen: typ-bewusste Karten-Registry =========== */
+    if(typeof guideCardsHtml==='function'){
+      const cardsFor = ty=>{ state.type=ty; if(needsRef()&&state.reference==='—') state.reference='PY'; return guideCardsHtml(); };
+      ok('O · Säulen · Abweichung+Referenzlinie+Trellis-Export',
+         /data-opt="var"/.test(cardsFor('columns')) && /data-opt="refLine"/.test(cardsFor('columns')) && /data-optin="facetField"/.test(cardsFor('columns')));
+      ok('O · Scatter · Korrelations-Optionen', /data-opt="scReg"/.test(cardsFor('scatter')) && /data-opt="scFacet"/.test(cardsFor('scatter')));
+      ok('O · Wasserfall · Ausrichtung', /data-opt="wfOrient"/.test(cardsFor('waterfall')));
+      ok('O · colline · Dual-Axis-Optionen', /data-opt="clSwap"/.test(cardsFor('colline')) && /data-opt="clAxis"/.test(cardsFor('colline')));
+      ok('O · jeder Typ liefert Titel-Karte + keine Exception', (()=>{
+        try{ return ['columns','line','bars','scatter','waterfall','bridge','multiples','stackcol','table','kpi','boxplot','pareto']
+          .every(ty=>/data-optin="t1"/.test(cardsFor(ty))); }catch(e){ return false; }
+      })());
+      state.refLine='none';
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{
