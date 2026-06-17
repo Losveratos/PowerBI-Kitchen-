@@ -78,18 +78,40 @@ Referenzen im Builder: `vlBridgeDyn()` (Brücke), `vlVarintDyn()` (integrierte V
   (siehe `reference/vega.md`). Vega-Lite kann das nicht – dort ist Collapse eine
   Builder-seitige Darstellungsoption, das Template exportiert alle Zeilen.
 
+## 7b · Trellis-Facet-Export (Deneb-only Small Multiples)
+Einen Single-View-Body (columns/line/bars) **nur fürs Deneb-Template** in einen
+`facet`-Operator wickeln – die eingebettete Vorschau bleibt EINE Kachel (das
+Facet-Feld liefert erst Power BI):
+```js
+if(deneb && facetField && singleView){
+  const data = body.data; const inner = {...body}; delete inner.data;
+  body = { data, facet:{field:facetField, type:'nominal', header:{…}},
+           columns:N, spec:inner, resolve:{scale:{y:'shared'}} };
+}
+```
+Das Facet-Feld als **eigenen** `__N__`-`column`-Platzhalter in `denebTemplate`
+führen (zu `defs`/`nameToPh` hinzufügen, damit `remapSpec` den Literal-Namen
+ersetzt) und in `usermeta.dataset` deklarieren – sonst Roh-Feldname-Leak. Eine
+in-app Trellis ist dagegen der Typ Small Multiples (`vlMultiples`, eigener
+`srows`-Datensatz).
+
 ## 8 · Builder-Funktionslandkarte (`business-chart-builder.html`)
 | Funktion | Zweck |
 |---|---|
 | `vegaSpecCore(deneb)` | dispatch nach `state.type` → VL-Body (oder `null` für SVG-only/gantt) |
-| `vegaSpec(deneb)` | Body + Schema/Config/Size/Interaktivität/usermeta |
+| `vegaSpec(deneb)` | Body + Schema/Config/Size/Interaktivität/usermeta; **Facet-Wrap** (deneb-only) |
 | `denebTemplate()` | VL-Spec → Platzhalter-Template (Gantt: rohe Raw-Vega-Spec unverändert) |
 | `vFieldMap()` / `F(key)` | interne Keys → Feldnamen (User-überschreibbar) |
 | `remapSpec(node,map)` | Feldnamen/Platzhalter im Spec umschreiben |
 | `vlBridgeDyn` / `vlVarintDyn` | dynamische Σ-/Brücken-Templates |
+| `vlMultiples` | Trellis (`facet` by serie); `state.multiCols` + `multiScale` (shared/independent) |
+| `vlColLine` / `vBarMarkScen` | Dual-Axis-Kombi (Tausch + 2 Layer-Gruppen/`resolve`); Säule in beliebiger Szenario-Notation |
+| `vStatLayers` / `statLineH/V` | Ø-/Median-Overlay (`rule`+`aggregate`) VL + SVG |
+| `wfLeveledModel` / `renderWfLeveledV` | Wasserfall mit verschachtelten Unter-Ebenen (Σ-erhaltend) |
+| `tblHiddenSet` / `wfApplyCollapse` | Collapsible-Zeilen Tabelle/Wasserfall |
 | `loadVegaLibs()` | vega/vega-lite/vega-embed **lokal** (assets/vega/, kein CDN; CSP) |
 | `loadGanttSpec` / `buildGanttSpec` / `ganttUnescapeQuotes` | Raw-Vega-Gantt-Pfad |
-| `tests/selftest.js` | A) alle Typen render+kompilieren · B/C) Σ-Korrektheit · …G) Gantt · H) Collapse |
+| `tests/selftest.js` | A) alle Typen render+kompilieren · B/C) Σ · …G) Gantt · H) Collapse/Ebenen · I) Trellis · J) Ø/Median · K) Dual-Axis · L) Facet-Export (264/264) |
 
 ## 9 · Checkliste „neuen Diagrammtyp hinzufügen"
 1. Renderer `renderXxx(rows)` → `{svg,W,H}` (SVG-Vorschau, kein `NaN`).

@@ -104,3 +104,52 @@ Mark-spezifisch: `config.bar`, `config.line`, `config.text`, … überschreiben 
 `isValid isNaN abs round floor ceil sqrt pow min max` · String `lower upper substring indexof split length replace` ·
 Datum `datetime year month date hours timeFormat utcFormat now` · `format(v,'.1%')` · `if(test,a,b)`.
 Feld mit Punkt im Namen: `datum['a.b']` (in VL-`field` Punkt mit `\\.` escapen).
+
+## Erprobte Kompositions-Patterns (aus dem Builder)
+
+### Dual-Axis (zwei Skalen, IBCS ohne 2. Achse)
+`resolve:{scale:{y:'independent'}}` macht in einem flachen `layer` JEDEN Layer
+unabhängig – falsch, wenn Bars eine Skala teilen sollen und Lines eine andere.
+Richtig: **zwei Layer-Gruppen**, independent nur auf der obersten Ebene:
+```json
+{ "data": {…}, "encoding": {"x": {…}},
+  "layer": [ {"layer": [ …alle Bar-Layer… ]}, {"layer": [ …alle Line-Layer… ]} ],
+  "resolve": {"scale": {"y": "independent"}} }
+```
+Child 1 (Bars) teilt Skala A, Child 2 (Lines) teilt Skala B. Achsen `axis:null`
+(direkt beschriftet) → „Form statt Niveau" ohne sichtbare 2. Achse. Gemeinsame
+Achse = einfach ein flacher `layer` ohne `resolve`. (Builder: `vlColLine`.)
+
+### Overlay-Referenzlinie (Ø/Median) als zusätzlicher Layer
+Aggregat-`rule` braucht keine Vorberechnung – `aggregate` darf direkt im
+Encoding stehen (auch `median`):
+```json
+{"mark": {"type": "rule", "strokeDash": [4,3]},
+ "encoding": {"y": {"aggregate": "median", "field": "p", "type": "quantitative"}}}
+```
+In Power BI aggregiert Deneb selbst → robust, kein gebackener Wert. (Builder: `vStatLayers`.)
+
+### Trellis / Small Multiples (`facet`)
+```json
+{ "data": {"name":"dataset"},
+  "facet": {"field": "Region", "type": "nominal",
+            "header": {"title": null, "labelAnchor": "start"}},
+  "columns": 3,
+  "spec": { "width":170, "height":95, "encoding": {"x": {…}}, "layer": [ … ] },
+  "resolve": {"scale": {"y": "shared"}} }   // "independent" = freie Skala je Kachel
+```
+`columns` steuert das Raster, `resolve.scale.y` = `shared` (Niveau-Vergleich) vs
+`independent` (Form je Kachel). **Wichtig:** `data` gehört auf die FACET-Ebene,
+NICHT in `spec`. (Builder: `vlMultiples`; Deneb-Facet-Export: `vegaSpec` wickelt
+einen Single-View-Body nur fürs Template in `facet`.)
+
+### Mark in beliebiger Szenario-Notation (parametrisiert)
+Statt fester Primär-Säule eine Funktion, die Fill/Stroke/Strichelung aus dem
+Szenario-Code ableitet – FC-Schraffur (weiß + Outline + dash) nur bei der
+Primärgröße per `condition:{test:'datum.fc'}`. (Builder: `vBarMarkScen`.)
+
+### Σ-/Aggregat-Slot, der den Laufweg erhält (Wasserfall-Gruppen)
+Gruppen-Header = reiner Aggregator (Wert = Σ der Blätter), trägt NICHT selbst
+zum Running-Total bei; nur Blätter tun das. Einklappen ersetzt die Blätter durch
+EINE Säule mit `from=erstes Blatt`, `to=letztes Blatt` → Endsumme unverändert,
+beliebig tief schachtelbar. (Builder: `wfLeveledModel`/`renderWfLeveledV`.)

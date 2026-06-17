@@ -127,6 +127,12 @@ joinaggregate (sumStart/sumEnd als neue Spalten)
 So entstehen Σ-/Brücken-Slots dynamisch aus den PBI-Feldern (keine eingebackenen
 Werte). Referenz-Implementierungen im Builder: `vlBridgeDyn()`, `vlVarintDyn()`.
 
+## 5b · Weitere erprobte Patterns (Details in `reference/vega-lite.md`)
+- **Dual-Axis ohne 2. Achse:** zwei Layer-**Gruppen** + `resolve:{scale:{y:'independent'}}` (NICHT flacher Layer – der macht jeden Layer einzeln unabhängig). Bars teilen Skala A, Lines Skala B; Achsen `axis:null` (direkt beschriftet). → `vlColLine`.
+- **Overlay-Referenzlinie:** `rule` mit `aggregate:'mean'|'median'` direkt im Encoding (Deneb aggregiert selbst, kein gebackener Wert). → `vStatLayers`.
+- **Trellis/Facet:** `facet`+`columns`+`resolve.scale.y` (`shared`=Niveau, `independent`=Form); `data` auf die Facet-Ebene, nicht in `spec`. Deneb-Facet-Export wickelt einen Single-View-Body nur fürs Template, Facet-Feld als eigener `__N__`-Platzhalter.
+- **Wasserfall-Gruppen:** Header = reiner Aggregator (Σ der Blätter), trägt nicht zum Laufweg bei → Einklappen erhält die Endsumme. → `wfLeveledModel`.
+
 ## 6 · Verifikation (immer, bevor „fertig")
 
 - **Kompiliert?** VL: `vegaLite.compile(JSON.parse(spec)).spec` wirft nicht. Vega: `vega.parse(spec)` wirft nicht.
