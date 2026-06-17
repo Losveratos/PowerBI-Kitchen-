@@ -923,6 +923,12 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       ok('W · Raw-Vega-Tabelle · flache Liste parst + baked=0', pf && tplBakedRows(tF)===0);
       /* Guide-Karte */
       ok('W · Raw-Vega-Tabelle · Guide-Karte (Engine-Umschalter)', (()=>{ state.type='table'; return /data-opt="rawVega"/.test(guideCardsHtml()); })());
+      /* Varianz-Raw-Vega (columns): Template gültiges Vega + Cross-Filter-Engine */
+      loadPreset('countries'); state.type='columns'; state.reference='PL'; state.rawVega=true;
+      const tV=denebTemplate(); let pV=false; try{ pV=!!window.vega.parse(tV); }catch(e){}
+      ok('W · Raw-Vega-Varianz (columns) · gültiges Vega-Template (provider vega, baked=0)',
+         pV && tV.usermeta.deneb.provider==='vega' && tplBakedRows(tV)===0);
+      ok('W · Raw-Vega-Varianz · Engine-Karte auch bei Varianz-Typen', (()=>{ state.type='columns'; return /data-opt="rawVega"/.test(guideCardsHtml()); })());
       state.rawVega=false;
     }
 
