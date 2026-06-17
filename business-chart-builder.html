@@ -8270,15 +8270,15 @@ function rvVarSpec(deneb){
     {name:'pinsH', value: refOn?80:0},
     {name:'sel', value:null, on:[{events:'rect:click,symbol:click,text:click', update:'datum&&datum.k?(sel===datum.k?null:datum.k):sel'}]}];
   const marks=[
-    {type:'rect', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, width:{scale:'x', band:0.62}, y:{scale:'yv', field:'p'}, y2:{scale:'yv', value:0}, fill:{value:DARK}, opacity:{signal:dim}}}},
-    {type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k', band:0.5}, y:{scale:'yv', field:'p', offset:-6}, text:{signal:'format(datum.p,",.0f")'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:DARK}, opacity:{signal:dim}}}},
+    {type:'rect', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k', band:0.19}, width:{scale:'x', band:0.62}, y:{scale:'yv', field:'p'}, y2:{scale:'yv', value:0}, fill:{value:DARK}, opacity:{signal:dim}}}},
+    {type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k', band:0.5}, y:{scale:'yv', field:'p'}, dy:{signal:'datum.p>=0?-6:12'}, text:{signal:'format(datum.p,",.0f")'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:DARK}, opacity:{signal:dim}}}},
     {type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k', band:0.5}, y:{signal:'height-7'}, text:{field:'k'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:SUBC}}}}];
   if(refOn){
-    marks.push({type:'rule', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k', offset:{signal:'bandwidth("x")*0.19'}}, x2:{scale:'x', field:'k', offset:{signal:'bandwidth("x")*0.81'}}, y:{scale:'yv', field:'r'}, stroke:{value:DARK}, strokeWidth:{value:1.6}, opacity:{signal:'datum.r==null?0:('+dim+')'}}}});
+    marks.push({type:'rule', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k', band:0.19}, x2:{scale:'x', field:'k', band:0.81}, y:{scale:'yv', field:'r'}, stroke:{value:DARK}, strokeWidth:{value:1.6}, opacity:{signal:'datum.r==null?0:('+dim+')'}}}});
     marks.unshift({type:'rule', encode:{update:{x:{value:10}, x2:{signal:'width-10'}, y:{scale:'yr', value:0}, stroke:{value:DARK}, strokeWidth:{value:1}}}});
     marks.push({type:'rule', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k', band:0.5}, y:{scale:'yr', value:0}, y2:{scale:'yr', field:'rel'}, stroke:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, strokeWidth:{value:2}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
     marks.push({type:'symbol', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k', band:0.5}, y:{scale:'yr', field:'rel'}, size:{value:50}, fill:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
-    marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k', band:0.5}, y:{scale:'yr', field:'rel', offset:-8}, text:{signal:"(datum.rel>=0?'+':'')+format(datum.rel,'.1f')+'%'"}, align:{value:'center'}, fontSize:{value:9.5}, font:{value:'Arial'}, fill:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
+    marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k', band:0.5}, y:{scale:'yr', field:'rel'}, dy:{signal:'datum.rel>=0?-9:14'}, baseline:{value:'middle'}, text:{signal:"(datum.rel>=0?'+':'')+format(datum.rel,'.1f')+'%'"}, align:{value:'center'}, fontSize:{value:9.5}, font:{value:'Arial'}, fill:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
   }
   const scales=[
     {name:'x', type:'band', domain:{data:'all', field:'k'}, range:[10,{signal:'width-10'}], paddingInner:0.35},
