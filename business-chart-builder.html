@@ -6513,7 +6513,6 @@ async function renderRawVegaTablePreview(){
     host.innerHTML = '';
     const view = new window.vega.View(window.vega.parse(spec), {renderer:'svg', container:host, hover:true});
     await view.runAsync();
-    rvInjectHatch(host);   /* echte IBCS-Schraffur (FC) als eingebettetes SVG-Pattern */
     state._ganttView = view;   /* gemeinsamer View-Slot (wird beim Typwechsel finalisiert) */
   }catch(err){
     state._ganttView = null;
@@ -8322,7 +8321,9 @@ function rvVarSpec(deneb){
       {type:'formula', as:'fc', expr:'datum.'+FFC},
       {type:'formula', as:'d', expr:'datum.r==null?null:datum.p-datum.r'},
       {type:'formula', as:'rel', expr:'datum.r?(datum.p-datum.r)/abs(datum.r)*100:null'},
-      {type:'window', ops:['row_number'], as:['ord']}]}];
+      {type:'window', ops:['row_number'], as:['ord']}]},
+    {name:'fcOnly', source:'all', transform:[{type:'filter', expr:'datum.fc'}]},
+    {name:'stripes', transform:[{type:'sequence', start:-280, stop:600, step:8, as:'o'}]}];
   const signals=[
     {name:'pbiContainerWidth', value:600}, {name:'pbiContainerHeight', value:340},
     {name:'width', update:'pbiContainerWidth'}, {name:'height', update:'pbiContainerHeight'},
@@ -8339,8 +8340,9 @@ function rvVarSpec(deneb){
     if(rStroke){ refEnc.stroke={value:rStroke}; refEnc.strokeWidth={value:rSW}; }
     marks.push({type:'rect', from:{data:'all'}, encode:{update:refEnc}});
   }
-  const fcFill = deneb ? '#ffffff' : 'url(#rvHatchDark)';   /* Export: portabel weiß+gestrichelt · Vorschau: echte Schraffur */
-  marks.push({type:'rect', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:acB}, width:{scale:'x',band:acW}, y:{scale:'yv',field:'p'}, y2:{scale:'yv',value:0}, fill:{signal:"datum.fc?'"+fcFill+"':'"+DARK+"'"}, stroke:{value:DARK}, strokeWidth:{signal:'datum.fc?'+(deneb?'1.1':'0.7')+':0'}, strokeDash:{value: deneb?[3,2]:[1,0]}, opacity:{signal:dim}}}});
+  marks.push({type:'rect', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:acB}, width:{scale:'x',band:acW}, y:{scale:'yv',field:'p'}, y2:{scale:'yv',value:0}, fill:{signal:"datum.fc?'#ffffff':'"+DARK+"'"}, stroke:{value:DARK}, strokeWidth:{signal:'datum.fc?0.8:0'}, opacity:{signal:dim}}}});
+  /* FC-Schraffur: echte Vega-Marks (Diagonal-Stripes, je FC-Balken geclippt) – portabel auch im PBI-Export */
+  marks.push({type:'group', from:{data:'fcOnly'}, clip:true, encode:{update:{x:{scale:'x',field:'k',band:acB}, width:{scale:'x',band:acW}, y:{signal:'min(scale("yv",datum.p),scale("yv",0))'}, height:{signal:'abs(scale("yv",datum.p)-scale("yv",0))'}, opacity:{signal:dim}}}, marks:[{type:'rule', from:{data:'stripes'}, encode:{update:{x:{field:'o'}, y:{value:0}, x2:{signal:'datum.o+height'}, y2:{signal:'height'}, stroke:{value:DARK}, strokeWidth:{value:1.1}}}}]});
   if(refTri) marks.push({type:'symbol', from:{data:'all'}, encode:{update:{shape:{value:'triangle-left'}, x:{scale:'x',field:'k',band:0.86}, y:{scale:'yv',field:'r'}, size:{value:60}, fill:{value: RS==='PY'?'#a8a8a8':DARK}, opacity:{signal:'datum.r==null?0:('+dim+')'}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:acC}, y:{scale:'yv',field:'p'}, dy:{signal:'datum.p>=0?-6:12'}, text:{signal:'format(datum.p,",.0f")'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{signal:"datum.fc?'"+FCINK+"':'"+DARK+"'"}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:0.5}, y:{signal:'height-7'}, text:{field:'k'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:SUBC}}}});
@@ -8376,7 +8378,9 @@ function rvBarsSpec(deneb){
     {name:'all', source:'dataset', transform:[
       {type:'formula', as:'k', expr:'datum.'+FK}, {type:'formula', as:'p', expr:'datum.'+FP}, {type:'formula', as:'r', expr:'datum.'+FR}, {type:'formula', as:'fc', expr:'datum.'+FFC},
       {type:'formula', as:'rel', expr:'datum.r?(datum.p-datum.r)/abs(datum.r)*100:null'},
-      {type:'window', ops:['row_number'], as:['ord']}]}];
+      {type:'window', ops:['row_number'], as:['ord']}]},
+    {name:'fcOnly', source:'all', transform:[{type:'filter', expr:'datum.fc'}]},
+    {name:'stripes', transform:[{type:'sequence', start:-280, stop:600, step:8, as:'o'}]}];
   const signals=[
     {name:'pbiContainerWidth', value:600}, {name:'pbiContainerHeight', value:320},
     {name:'width', update:'pbiContainerWidth'}, {name:'height', update:'pbiContainerHeight'},
@@ -8388,8 +8392,9 @@ function rvBarsSpec(deneb){
   /* Wert-Basisachse (vertikal am Nullwert) */
   marks.push({type:'rule', encode:{update:{x:{scale:'xv', value:0}, y:{value:6}, y2:{signal:'height-6'}, stroke:{value:DARK}, strokeWidth:{value:1.4}}}});
   if(refOn) marks.push({type:'rect', from:{data:'all'}, encode:{update:refBarEnc}});
-  const fcFill = deneb ? '#ffffff' : 'url(#rvHatchDark)';
-  marks.push({type:'rect', from:{data:'all'}, encode:{update:{y:{scale:'y', field:'k', band: refOn?0.28:0.18}, height:{scale:'y', band: refOn?0.44:0.64}, x:{scale:'xv', value:0}, x2:{scale:'xv', field:'p'}, fill:{signal:"datum.fc?'"+fcFill+"':'"+DARK+"'"}, stroke:{value:DARK}, strokeWidth:{signal:'datum.fc?'+(deneb?'1.1':'0.7')+':0'}, strokeDash:{value: deneb?[3,2]:[1,0]}, opacity:{signal:dim}}}});
+  marks.push({type:'rect', from:{data:'all'}, encode:{update:{y:{scale:'y', field:'k', band: refOn?0.28:0.18}, height:{scale:'y', band: refOn?0.44:0.64}, x:{scale:'xv', value:0}, x2:{scale:'xv', field:'p'}, fill:{signal:"datum.fc?'#ffffff':'"+DARK+"'"}, stroke:{value:DARK}, strokeWidth:{signal:'datum.fc?0.8:0'}, opacity:{signal:dim}}}});
+  /* FC-Schraffur (portabel, echte Marks + Vega-clip) – horizontal */
+  marks.push({type:'group', from:{data:'fcOnly'}, clip:true, encode:{update:{y:{scale:'y', field:'k', band: refOn?0.28:0.18}, height:{scale:'y', band: refOn?0.44:0.64}, x:{signal:'min(scale("xv",0),scale("xv",datum.p))'}, width:{signal:'abs(scale("xv",datum.p)-scale("xv",0))'}, opacity:{signal:dim}}}, marks:[{type:'rule', from:{data:'stripes'}, encode:{update:{x:{field:'o'}, y:{value:0}, x2:{signal:'datum.o+height'}, y2:{signal:'height'}, stroke:{value:DARK}, strokeWidth:{value:1.1}}}}]});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{value:4}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, text:{field:'k'}, fontSize:{value:10.5}, font:{value:'Arial'}, fill:{value:SUBC}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'xv', field:'p', offset:5}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, align:{value:'left'}, text:{signal:'format(datum.p,",.0f")'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:DARK}, opacity:{signal:dim}}}});
   if(refOn) marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{signal:'width-6'}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, align:{value:'right'}, text:{signal:"datum.rel==null?'':(datum.rel>=0?'+':'')+format(datum.rel,'.1f')+'%'"}, fontSize:{value:9.5}, font:{value:'Arial'}, fill:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
