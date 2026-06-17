@@ -8285,9 +8285,11 @@ function rvVarSpec(deneb){
   /* Referenz-Szenario-Notation */
   const RS=state.reference; let rFill='#a8a8a8', rStroke=null, rSW=0;
   if(RS==='PL'||RS==='BU'){ rFill='#ffffff'; rStroke=DARK; rSW=1.3; } else if(RS==='FC'){ rFill='#ffffff'; rStroke=DARK; rSW=1; }
+  /* Säulen+Linie (colline): Referenz als Linie statt Balken */
+  const isColLine = state.type==='colline';
   /* Balken-Stil: versetzt (offset) · überlappend (overlap) · Dreieck (tri) */
-  let acB,acW,refB,refW; const refTri = refOn && state.refStyle==='tri';
-  if(!refOn){ acB=0.19; acW=0.62; }
+  let acB,acW,refB,refW; const refTri = refOn && !isColLine && state.refStyle==='tri';
+  if(!refOn || isColLine){ acB=0.19; acW=0.62; }   /* AC zentriert; Referenz = Linie */
   else if(state.refStyle==='offset'){ refB=0.10; refW=0.42; acB=0.32; acW=0.42; }
   else if(refTri){ acB=0.19; acW=0.62; }
   else { refB=0.12; refW=0.76; acB=0.28; acW=0.44; }   /* overlap */
@@ -8311,7 +8313,7 @@ function rvVarSpec(deneb){
       {type:'formula', as:'fc', expr:'datum.'+FFC},
       {type:'formula', as:'d', expr:'datum.r==null?null:datum.p-datum.r'},
       {type:'formula', as:'rel', expr:'datum.r?(datum.p-datum.r)/abs(datum.r)*100:null'},
-      {type:'window', ops:['row_number'], as:['ord']}]},
+      {type:'window', ops:['row_number'], as:['ord']}, {type:'collect', sort:{field:'ord'}}]},
     {name:'fcOnly', source:'all', transform:[{type:'filter', expr:'datum.fc'}]},
     {name:'hatch', source:'fcOnly', transform:[
       {type:'formula', as:'bx0', expr:"scale('x',datum.k)+bandwidth('x')*"+acB},
@@ -8336,7 +8338,7 @@ function rvVarSpec(deneb){
   if(showA) scales.push({name:'ya', type:'linear', domain:{data:'all', field:'d'}, range:[absTop+absH, absTop], nice:true, zero:true});
   const marks=[];
   /* Säulen: Referenz + AC (versetzt/überlappend), oder AC + Referenz-Dreieck */
-  if(refOn && !refTri){
+  if(refOn && !refTri && !isColLine){
     const refEnc={x:{scale:'x',field:'k',band:refB}, width:{scale:'x',band:refW}, y:{scale:'yv',field:'r'}, y2:{scale:'yv',value:0}, fill:{value:rFill}, opacity:{signal:'datum.r==null?0:('+dim+')'}};
     if(rStroke){ refEnc.stroke={value:rStroke}; refEnc.strokeWidth={value:rSW}; }
     marks.push({type:'rect', from:{data:'all'}, encode:{update:refEnc}});
@@ -8344,6 +8346,14 @@ function rvVarSpec(deneb){
   marks.push({type:'rect', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:acB}, width:{scale:'x',band:acW}, y:{scale:'yv',field:'p'}, y2:{scale:'yv',value:0}, fill:{signal:"datum.fc?'#ffffff':'"+DARK+"'"}, stroke:{value:DARK}, strokeWidth:{signal:'datum.fc?0.8:0'}, opacity:{signal:dim}}}});
   /* FC-Schraffur: echte Vega-Marks, je FC-Balken analytisch zugeschnitten (45°, kein clip nötig) – portabel auch im PBI-Export */
   marks.push({type:'rule', from:{data:'hatch'}, encode:{update:{x:{field:'xa'}, y:{field:'ya'}, x2:{field:'xb'}, y2:{field:'yb'}, stroke:{value:DARK}, strokeWidth:{value:1}, opacity:{signal:dim}}}});
+  /* Säulen+Linie: Referenz als Linie über den Säulenmitten + Marker (Szenario-Notation) */
+  if(refOn && isColLine){
+    const lineCol = RS==='PY' ? '#a8a8a8' : DARK, lineDash = (RS==='PL'||RS==='BU');
+    const lm = {type:'line', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:0.5}, y:{scale:'yv',field:'r'}, stroke:{value:lineCol}, strokeWidth:{value:2}, defined:{signal:'datum.r!=null'}}}};
+    if(lineDash) lm.encode.update.strokeDash={value:[4,3]};
+    marks.push(lm);
+    marks.push({type:'symbol', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:0.5}, y:{scale:'yv',field:'r'}, size:{value:34}, fill:{value: RS==='PY'?'#a8a8a8':'#ffffff'}, stroke:{value:lineCol}, strokeWidth:{value:1.2}, opacity:{signal:'datum.r==null?0:('+dim+')'}}}});
+  }
   if(refTri) marks.push({type:'symbol', from:{data:'all'}, encode:{update:{shape:{value:'triangle-left'}, x:{scale:'x',field:'k',band:0.86}, y:{scale:'yv',field:'r'}, size:{value:60}, fill:{value: RS==='PY'?'#a8a8a8':DARK}, opacity:{signal:'datum.r==null?0:('+dim+')'}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:acC}, y:{scale:'yv',field:'p'}, dy:{signal:'datum.p>=0?-6:12'}, text:{signal:'format(datum.p,",.0f")'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{signal:"datum.fc?'"+FCINK+"':'"+DARK+"'"}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:0.5}, y:{signal:'height-7'}, text:{field:'k'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:SUBC}}}});
