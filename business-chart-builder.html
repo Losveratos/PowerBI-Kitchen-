@@ -8278,6 +8278,15 @@ function rvVarSpec(deneb){
   else if(refTri){ acB=0.19; acW=0.62; }
   else { refB=0.12; refW=0.76; acB=0.28; acW=0.44; }   /* overlap */
   const acC = refOn ? acB+acW/2 : 0.5;
+  /* Achsen-Linie an einer Skalen-Null: schlicht (Säulen-Basis) oder in
+     Referenz-Szenario-Notation (Varianz-Ebenen: PY hell, PL/BU Doppellinie). */
+  const axisMarks = (scn, refN)=>{
+    if(refN && RS==='PY') return [{type:'rect', encode:{update:{x:{value:10}, x2:{signal:'width-10'}, y:{scale:scn, value:0, offset:-1.75}, height:{value:3.5}, fill:{value:'#a8a8a8'}}}}];
+    if(refN && (RS==='PL'||RS==='BU')) return [
+      {type:'rule', encode:{update:{x:{value:10}, x2:{signal:'width-10'}, y:{scale:scn, value:0, offset:-1.8}, stroke:{value:DARK}, strokeWidth:{value:1}}}},
+      {type:'rule', encode:{update:{x:{value:10}, x2:{signal:'width-10'}, y:{scale:scn, value:0, offset:1.8}, stroke:{value:DARK}, strokeWidth:{value:1}}}}];
+    return [{type:'rule', encode:{update:{x:{value:10}, x2:{signal:'width-10'}, y:{scale:scn, value:0}, stroke:{value:DARK}, strokeWidth:{value:1.4}}}}];
+  };
   /* gestapelte Tiers oben: Δ% · Δ absolut · darunter die Säulen */
   const relTop=12, relH=56, absH=56, gap=8;
   const absTop = relTop + (showR? relH+gap : 0);
@@ -8308,15 +8317,17 @@ function rvVarSpec(deneb){
   if(refTri) marks.push({type:'symbol', from:{data:'all'}, encode:{update:{shape:{value:'triangle-left'}, x:{scale:'x',field:'k',band:0.86}, y:{scale:'yv',field:'r'}, size:{value:60}, fill:{value: RS==='PY'?'#a8a8a8':DARK}, opacity:{signal:'datum.r==null?0:('+dim+')'}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:acC}, y:{scale:'yv',field:'p'}, dy:{signal:'datum.p>=0?-6:12'}, text:{signal:'format(datum.p,",.0f")'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:DARK}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:0.5}, y:{signal:'height-7'}, text:{field:'k'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:SUBC}}}});
-  /* Δ-absolut-Ebene (Balken) */
+  /* Säulen-Basis (x-Achse) – schlicht, am Primär-Nullwert */
+  axisMarks('yv', false).forEach(m=>marks.unshift(m));
+  /* Δ-absolut-Ebene (Balken) – Achse in Referenz-Notation */
   if(showA){
-    marks.unshift({type:'rule', encode:{update:{x:{value:10}, x2:{signal:'width-10'}, y:{scale:'ya',value:0}, stroke:{value:DARK}, strokeWidth:{value:1}}}});
+    axisMarks('ya', true).forEach(m=>marks.push(m));
     marks.push({type:'rect', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:0.32}, width:{scale:'x',band:0.36}, y:{scale:'ya',field:'d'}, y2:{scale:'ya',value:0}, fill:{signal:"datum.d>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.d==null?0:('+dim+')'}}}});
     marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:0.5}, y:{scale:'ya',field:'d'}, dy:{signal:'datum.d>=0?-6:13'}, baseline:{value:'middle'}, text:{signal:"datum.d==null?'':(datum.d>=0?'+':'')+format(datum.d,',.0f')"}, align:{value:'center'}, fontSize:{value:9}, font:{value:'Arial'}, fill:{signal:"datum.d>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.d==null?0:('+dim+')'}}}});
   }
-  /* Δ%-Ebene (Pins) */
+  /* Δ%-Ebene (Pins) – Achse in Referenz-Notation */
   if(showR){
-    marks.unshift({type:'rule', encode:{update:{x:{value:10}, x2:{signal:'width-10'}, y:{scale:'yr',value:0}, stroke:{value:DARK}, strokeWidth:{value:1}}}});
+    axisMarks('yr', true).forEach(m=>marks.push(m));
     marks.push({type:'rule', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:0.5}, y:{scale:'yr',value:0}, y2:{scale:'yr',field:'rel'}, stroke:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, strokeWidth:{value:2}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
     marks.push({type:'symbol', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:0.5}, y:{scale:'yr',field:'rel'}, size:{value:50}, fill:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
     marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:0.5}, y:{scale:'yr',field:'rel'}, dy:{signal:'datum.rel>=0?-9:14'}, baseline:{value:'middle'}, text:{signal:"(datum.rel>=0?'+':'')+format(datum.rel,'.1f')+'%'"}, align:{value:'center'}, fontSize:{value:9.5}, font:{value:'Arial'}, fill:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
@@ -8347,6 +8358,8 @@ function rvBarsSpec(deneb){
   const refBarEnc={y:{scale:'y', field:'k', band:0.12}, height:{scale:'y', band:0.76}, x:{scale:'xv', value:0}, x2:{scale:'xv', field:'r'}, fill:{value:rFill}, opacity:{signal:'datum.r==null?0:('+dim+')'}};
   if(rStroke){ refBarEnc.stroke={value:rStroke}; refBarEnc.strokeWidth={value:rSW}; }
   const marks=[];
+  /* Wert-Basisachse (vertikal am Nullwert) */
+  marks.push({type:'rule', encode:{update:{x:{scale:'xv', value:0}, y:{value:6}, y2:{signal:'height-6'}, stroke:{value:DARK}, strokeWidth:{value:1.4}}}});
   if(refOn) marks.push({type:'rect', from:{data:'all'}, encode:{update:refBarEnc}});
   marks.push({type:'rect', from:{data:'all'}, encode:{update:{y:{scale:'y', field:'k', band: refOn?0.28:0.18}, height:{scale:'y', band: refOn?0.44:0.64}, x:{scale:'xv', value:0}, x2:{scale:'xv', field:'p'}, fill:{value:DARK}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{value:4}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, text:{field:'k'}, fontSize:{value:10.5}, font:{value:'Arial'}, fill:{value:SUBC}, opacity:{signal:dim}}}});
@@ -8377,6 +8390,8 @@ function rvLineSpec(deneb){
     {name:'width', update:'pbiContainerWidth'}, {name:'height', update:'pbiContainerHeight'},
     {name:'sel', value:null, on:[{events:'symbol:click,text:click', update:'datum&&datum.k?(sel===datum.k?null:datum.k):sel'}]}];
   const marks=[];
+  /* Basisachse (horizontal am Nullwert) */
+  marks.push({type:'rule', encode:{update:{x:{value:24}, x2:{signal:'width-16'}, y:{scale:'y', value:0}, stroke:{value:DARK}, strokeWidth:{value:1.2}}}});
   if(refOn){
     marks.push({type:'line', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{scale:'y', field:'r'}, stroke:{value:refCol}, strokeWidth:{value:1.6}, ...(refDash?{strokeDash:{value:[4,3]}}:{}), defined:{signal:'datum.r!=null'}}}});
     marks.push({type:'symbol', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{scale:'y', field:'r'}, size:{value:24}, fill:{value: state.reference==='PY'?LIGHTC:'#ffffff'}, stroke:{value:refCol}, strokeWidth:{value:1}, opacity:{signal:'datum.r==null?0:1'}}}});
