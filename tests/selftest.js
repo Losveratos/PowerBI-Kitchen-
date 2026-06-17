@@ -655,6 +655,22 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
         state.rows=sv; state.bridgePYlevel=false; state.reference2='—'; state.type='bridge'; renderAll();
         return hintNo && !hintYes && />PY</.test(html2);
       })());
+      ok('O · Auto-Demo · leere v3/grp/Dim-Spalten füllen sich beim Aktivieren', (()=>{
+        if(typeof autofillDemo!=='function') return false;
+        const sv=clone(state.rows), st=state.type, sr2=state.reference2, sgf=state.grpFacet, std=state.tableDims;
+        let okV3=false, okGrp=false, okDim=false;
+        // v3 via Referenz 2
+        state.type='bridge'; state.reference2='PY'; state.rows=[{c:'A',v1:50,v2:40},{c:'B',v1:30,v2:35}];
+        autofillDemo(); okV3 = state.rows.every(r=>!isNaN(r.v3));
+        // grp via columns-Facette
+        state.type='columns'; state.grpFacet=true; state.rows=[{c:'Jan',v1:10,v2:9},{c:'Feb',v1:12,v2:10},{c:'Mär',v1:8,v2:9}];
+        autofillDemo(); okGrp = state.rows.every(r=>String(r.grp||'').trim());
+        // Dim-Spalten via Tabellen-Hierarchie
+        state.type='table'; state.tableDims=2; state.grpFacet=false; state.rows=[{c:'X',v1:5,v2:4},{c:'Y',v1:6,v2:5}];
+        autofillDemo(); okDim = state.rows.every(r=>r.d0 && r.d1);
+        state.rows=sv; state.type=st; state.reference2=sr2; state.grpFacet=sgf; state.tableDims=std; renderAll();
+        return okV3 && okGrp && okDim;
+      })());
       ok('O · Brücke · Referenz-2-Säulen-Optionen erscheinen bei gesetzter Ref 2', (()=>{
         state.type='bridge'; state.wfOrient='h'; state.reference2='PY';
         const g=guideCardsHtml();

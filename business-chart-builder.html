@@ -5207,6 +5207,35 @@ function loadKpiTrendDemo(){
   state.t3auto=true;
   renderAll();
 }
+/* Auto-Demo-Daten: wenn eine Option ein neues Datenfeld braucht, das noch leer
+   ist, füllt sie sich beim Aktivieren mit plausiblen Werten (nur LEERE Felder –
+   bestehende Eingaben bleiben). Wird aus den Options-Handlern aufgerufen. */
+function autofillDemo(){
+  const rs = state.rows;
+  if(!rs || !rs.length) return;
+  /* Referenz 2 (v3): nur wenn ein Typ/Option sie nutzt und die Spalte leer ist */
+  if(usesRef2() && state.reference2!=='—' && rs.every(r=>isNaN(r.v3))){
+    rs.forEach((r,i)=>{ const b = !isNaN(r.v1)?r.v1 : (!isNaN(r.v2)?r.v2 : 100);
+      r.v3 = Math.round(b * (0.90 + ((i*13)%7)/100)); });   /* 90–96 % des Primärwerts, variiert */
+  }
+  /* Gruppen-Spalte für Facetten (scatter / columns / line) – in Blöcke aufteilen */
+  const facetOn = (state.scatterFacet && state.type==='scatter') || (state.grpFacet && ['columns','line'].includes(state.type));
+  if(facetOn && rs.every(r=>!String(r.grp||'').trim())){
+    const G=['Gruppe A','Gruppe B','Gruppe C'], per=Math.max(1, Math.ceil(rs.length/Math.min(3,rs.length)));
+    rs.forEach((r,i)=>{ r.grp = G[Math.min(2, Math.floor(i/per))]; });
+  }
+  /* Tabellen-Hierarchie: leere Dim-Spalten → Kategorie als Blatt + rotierende Obergruppe */
+  if(tableIsHier()){
+    const dimK = tableDimKeys();
+    if(rs.every(r=> dimK.every(k=>!String(r[k]||'').trim()))){
+      const G=['Region Nord','Region Süd','Region West'], per=Math.max(1, Math.ceil(rs.length/3));
+      rs.forEach((r,i)=>{
+        r[dimK[dimK.length-1]] = String(r.c||'').trim() || ('Position '+(i+1));
+        for(let d=0; d<dimK.length-1; d++) r[dimK[d]] = G[Math.min(2, Math.floor(i/per))];
+      });
+    }
+  }
+}
 function loadPreset(key){
   if(key==='kpiTrend'){ loadKpiTrendDemo(); return; }
   const p = PRESETS[key]; if(!p) return;
@@ -5420,7 +5449,7 @@ function applyGuideOpt(opt,val){
     case 'clSwap': if(!(val==='line' && state.reference==='—')){ state.collineSwap=(val==='line'); renderPreview(); } break;
     case 'clAxis': state.collineAxis=val; renderPreview(); break;
     case 'scReg': state.scatterReg=!state.scatterReg; renderPreview(); break;
-    case 'scFacet': state.scatterFacet=!state.scatterFacet; renderDataTable(); renderPreview(); break;
+    case 'scFacet': state.scatterFacet=!state.scatterFacet; autofillDemo(); renderDataTable(); renderPreview(); break;
     case 'scCols': state.scatterCols=+val; renderPreview(); break;
     case 'wfOrient': state.wfOrient=val; renderPreview(); break;
     case 'cutSums': state.cutSums=!state.cutSums; renderPreview(); break;
@@ -5441,15 +5470,15 @@ function applyGuideOpt(opt,val){
       if(needsRef() && state.reference==='—') state.reference='PY';
       if(state.reference2===state.reference) state.reference2='—';
       renderAll(); break;
-    case 'ref2': state.reference2=val; renderAll(); break;
+    case 'ref2': state.reference2=val; autofillDemo(); renderAll(); break;
     case 'facetCols': state.facetCols=+val; renderPreview(); break;
-    case 'grpFacet': state.grpFacet=!state.grpFacet; renderAll(); break;
+    case 'grpFacet': state.grpFacet=!state.grpFacet; autofillDemo(); renderAll(); break;
     case 'grpScale': state.grpScale=val; renderPreview(); break;
     case 'zMonthCol': state.zMonthCol = (val==='col'); renderPreview(); break;
     case 'zMonthRef': state.zMonthRef = !state.zMonthRef; renderPreview(); break;
-    case 'tableDims': state.tableDims = +val; renderAll(); break;
-    case 'bridgePY': state.bridgePY = !state.bridgePY; renderPreview(); break;
-    case 'bridgePYlevel': state.bridgePYlevel = !state.bridgePYlevel; renderPreview(); break;
+    case 'tableDims': state.tableDims = +val; autofillDemo(); renderAll(); break;
+    case 'bridgePY': state.bridgePY = !state.bridgePY; autofillDemo(); renderAll(); break;
+    case 'bridgePYlevel': state.bridgePYlevel = !state.bridgePYlevel; autofillDemo(); renderAll(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
     case 'fromMulti': morphBack(); break;
   }
@@ -5491,6 +5520,7 @@ $('#refChips').addEventListener('click', e=>{
 $('#ref2Chips').addEventListener('click', e=>{
   const b = e.target.closest('[data-ref2]'); if(!b) return;
   state.reference2 = b.dataset.ref2;
+  autofillDemo();
   renderAll();
 });
 $('#varSelChips').addEventListener('click', e=>{
@@ -5530,7 +5560,7 @@ $('#lfArea').addEventListener('click', ()=>{ state.lineFill='area'; renderPrevie
 $('#lfDiff').addEventListener('click', ()=>{ state.lineFill='diff'; renderPreview(); });
 $('#facetFieldInp').addEventListener('input', e=>{ state.facetField = e.target.value; renderPreview(); });
 $('#facetColsSel').addEventListener('change', e=>{ state.facetCols = +e.target.value||2; renderPreview(); });
-$('#grpFacetChk').addEventListener('change', e=>{ state.grpFacet = e.target.checked; renderAll(); });
+$('#grpFacetChk').addEventListener('change', e=>{ state.grpFacet = e.target.checked; autofillDemo(); renderAll(); });
 $('#gsShared').addEventListener('click', ()=>{ state.grpScale='shared'; renderPreview(); });
 $('#gsFree').addEventListener('click', ()=>{ state.grpScale='free'; renderPreview(); });
 $('#clPrimCol').addEventListener('click', ()=>{ state.collineSwap=false; renderPreview(); });
@@ -5542,8 +5572,8 @@ $('#kbLine').addEventListener('click', ()=>{ state.kombiBase='line'; renderPrevi
 $('#kbZ').addEventListener('click', ()=>{ state.kombiBase='zchart'; renderPreview(); });
 $('#kbWf').addEventListener('click', ()=>{ state.kombiBase='wf'; renderPreview(); });
 $('#bridgeRelChk').addEventListener('change', e=>{ state.bridgeRel=e.target.checked; renderPreview(); });
-$('#bridgePYChk').addEventListener('change', e=>{ state.bridgePY=e.target.checked; renderPreview(); });
-$('#bridgePYlevelChk').addEventListener('change', e=>{ state.bridgePYlevel=e.target.checked; renderPreview(); });
+$('#bridgePYChk').addEventListener('change', e=>{ state.bridgePY=e.target.checked; autofillDemo(); renderAll(); });
+$('#bridgePYlevelChk').addEventListener('change', e=>{ state.bridgePYlevel=e.target.checked; autofillDemo(); renderAll(); });
 const VAR_TIER_TYPES = ['columns','line','zchart','bars','multiples'];
 const VAR_BUILTIN_TYPES = ['kombi','barskombi','table','wfkombi','kpi'];
 function updateCombinePanel(hasRef){
@@ -5667,7 +5697,7 @@ $('#mmDelta').addEventListener('click', ()=>{ state.multiMode='delta'; renderPre
 $('#mmWf').addEventListener('click', ()=>{ state.multiMode='wf'; renderPreview(); });
 $('#mmLine').addEventListener('click', ()=>{ state.multiMode='line'; renderPreview(); });
 $('#scatterRegChk').addEventListener('change', e=>{ state.scatterReg=e.target.checked; renderPreview(); });
-$('#scatterFacetChk').addEventListener('change', e=>{ state.scatterFacet=e.target.checked; renderDataTable(); renderPreview(); });
+$('#scatterFacetChk').addEventListener('change', e=>{ state.scatterFacet=e.target.checked; autofillDemo(); renderDataTable(); renderPreview(); });
 $('#scatterColsSel').addEventListener('change', e=>{ state.scatterCols=+e.target.value||2; renderPreview(); });
 $('#xTit').addEventListener('input', e=>{ state.xTitle=e.target.value; renderPreview(); renderDataTable(); });
 $('#yTit').addEventListener('input', e=>{ state.yTitle=e.target.value; renderPreview(); renderDataTable(); });
