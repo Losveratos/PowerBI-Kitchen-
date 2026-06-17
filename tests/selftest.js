@@ -686,6 +686,13 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       let qc=false; try{ qc=!!VL.compile(bQ).spec; }catch(e){}
       ok('Q · wfkombi · Template kompiliert (baked=0) + AC/FC-Felder',
          qc && tplBakedRows(tQ)===0 && tQ.usermeta.dataset.some(d=>d.name==='AC') && tQ.usermeta.dataset.some(d=>d.name==='FC'));
+      /* Virtuelle Kachel „Integrierte GuV" (wfint) ist gegenseitig exklusiv zu wfkombi */
+      if(typeof typeIsOn==='function'){
+        state.type='wfkombi'; state.wfRefCol=true;
+        ok('Q · wfint · Kachel aktiv bei wfkombi+wfRefCol (exklusiv)', typeIsOn('wfint') && !typeIsOn('wfkombi'));
+        state.wfRefCol=false;
+        ok('Q · wfkombi · Kachel aktiv ohne wfRefCol', typeIsOn('wfkombi') && !typeIsOn('wfint'));
+      }
       state.wfRefCol=false;
     }
 

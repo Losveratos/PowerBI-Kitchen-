@@ -768,6 +768,7 @@ const TYPE_GROUPS = [
     { id:'barskombi', name:'Varianzanalyse' },
     { id:'table',     name:'Tabelle' },
     { id:'wfkombi',   name:'Wasserfall-Varianz' },
+    { id:'wfint',     name:'Integrierte GuV' },
     { id:'stackbar',  name:'Gestapelt' },
   ]},
   { name:'Weitere', types:[
@@ -786,7 +787,10 @@ const TYPE_GROUPS = [
 /* Virtuelle Typ-Kacheln: zeigen die KPI-Stile direkt im Typ-Picker, mappen
    aber alle auf state.type='kpi' + state.kpiStyle (Render-/Export-Logik bleibt). */
 const VIRTUAL_KPI = { kpi:'ibcs', kpiStatus:'status', kpiTrend:'trend' };
+/* „Integrierte GuV" ist eine virtuelle Kachel: wfkombi + 2. Szenario-Wasserfall. */
 function typeIsOn(id){
+  if(id==='wfint')   return state.type==='wfkombi' && !!state.wfRefCol;
+  if(id==='wfkombi') return state.type==='wfkombi' && !state.wfRefCol;
   return id in VIRTUAL_KPI ? (state.type==='kpi' && (state.kpiStyle||'ibcs')===VIRTUAL_KPI[id])
                            : state.type===id;
 }
@@ -4119,6 +4123,7 @@ function typeIcon(id){
     case 'stackbar': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="2" y1="0" x2="2" y2="18" stroke="'+g+'" stroke-width="1.2"/><rect x="2" y="2" width="11" height="3.6" fill="'+g+'"/><rect x="13" y="2" width="6" height="3.6" fill="#7f7f7f"/><rect x="19" y="2" width="4" height="3.6" fill="'+l+'"/><rect x="2" y="7.5" width="8" height="3.6" fill="'+g+'"/><rect x="10" y="7.5" width="5" height="3.6" fill="#7f7f7f"/><rect x="15" y="7.5" width="3" height="3.6" fill="'+l+'"/><rect x="2" y="13" width="10" height="3.6" fill="'+g+'"/><rect x="12" y="13" width="4" height="3.6" fill="#7f7f7f"/><rect x="16" y="13" width="4" height="3.6" fill="'+l+'"/></svg>';
     case 'multiples': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="8" x2="12" y2="8" stroke="'+g+'" stroke-width="1"/><rect x="1" y="3" width="2.4" height="5" fill="'+g+'"/><rect x="5" y="1.5" width="2.4" height="6.5" fill="'+g+'"/><rect x="9" y="4" width="2.4" height="4" fill="'+g+'"/><line x1="14" y1="8" x2="26" y2="8" stroke="'+g+'" stroke-width="1"/><rect x="15" y="5" width="2.4" height="3" fill="'+g+'"/><rect x="19" y="3.5" width="2.4" height="4.5" fill="'+g+'"/><rect x="23" y="6" width="2.4" height="2" fill="'+g+'"/><line x1="0" y1="17" x2="12" y2="17" stroke="'+g+'" stroke-width="1"/><rect x="1" y="13" width="2.4" height="4" fill="'+g+'"/><rect x="5" y="14" width="2.4" height="3" fill="'+g+'"/><rect x="9" y="12" width="2.4" height="5" fill="'+g+'"/><line x1="2" y1="5.2" x2="11.5" y2="5.2" stroke="#b8b8b8" stroke-width="0.8"/><line x1="15" y1="5.2" x2="25.5" y2="5.2" stroke="#b8b8b8" stroke-width="0.8"/></svg>';
     case 'wfkombi': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="2" y1="1" x2="2" y2="17" stroke="'+g+'" stroke-width="1.2"/><rect x="2" y="2" width="9" height="2.8" fill="'+g+'"/><rect x="7" y="7.5" width="4" height="2.8" fill="'+g+'"/><rect x="2" y="13" width="5" height="2.8" fill="'+g+'"/><line x1="15" y1="1" x2="15" y2="17" stroke="'+g+'" stroke-width="1"/><rect x="15" y="2" width="5" height="2.8" fill="#469b3c"/><rect x="12" y="7.5" width="3" height="2.8" fill="#c0392b"/><line x1="22" y1="13.9" x2="25" y2="13.9" stroke="#469b3c" stroke-width="1.4"/><circle cx="25" cy="13.9" r="1.5" fill="#469b3c"/></svg>';
+    case 'wfint': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="1.5" y1="1" x2="1.5" y2="17" stroke="'+g+'" stroke-width="1"/><rect x="1.5" y="2" width="7" height="2.6" fill="'+g+'"/><rect x="5" y="7" width="3.5" height="2.6" fill="'+g+'"/><rect x="1.5" y="12" width="4" height="2.6" fill="'+g+'"/><line x1="10.5" y1="1" x2="10.5" y2="17" stroke="'+g+'" stroke-width="1"/><rect x="10.5" y="2" width="7" height="2.6" fill="url(#tiH)"/><rect x="14" y="7" width="3.5" height="2.6" fill="url(#tiH)"/><rect x="10.5" y="12" width="4" height="2.6" fill="url(#tiH)"/><line x1="20" y1="1" x2="20" y2="17" stroke="'+g+'" stroke-width="1"/><rect x="20" y="2.4" width="4" height="2" fill="#469b3c"/><rect x="20" y="7.4" width="2.5" height="2" fill="#c0392b"/><rect x="20" y="12.4" width="3" height="2" fill="#469b3c"/><defs><pattern id="tiH" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="3" fill="#fff"/><line x1="0" y1="0" x2="0" y2="3" stroke="'+g+'" stroke-width="1.4"/></pattern></defs></svg>';
     case 'kpi': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="0.5" y="0.5" width="11" height="17" rx="2" fill="none" stroke="'+g+'"/><rect x="14.5" y="0.5" width="11" height="17" rx="2" fill="none" stroke="'+g+'"/><rect x="2.5" y="3" width="5" height="2.6" fill="'+g+'"/><line x1="2.5" y1="9" x2="7" y2="9" stroke="#469b3c" stroke-width="1.8"/><line x1="2.5" y1="13" x2="6" y2="13" stroke="#c0392b" stroke-width="1.8"/><rect x="16.5" y="3" width="6" height="2.6" fill="'+g+'"/><line x1="16.5" y1="9" x2="22" y2="9" stroke="#469b3c" stroke-width="1.8"/><line x1="16.5" y1="13" x2="20" y2="13" stroke="#469b3c" stroke-width="1.8"/></svg>';
     case 'kpiStatus': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="0.5" y="0.5" width="25" height="17" rx="2" fill="none" stroke="'+g+'"/><rect x="0.5" y="0.5" width="25" height="2.2" rx="1" fill="#469b3c"/><text x="3" y="13" font-size="8.5" font-weight="bold" fill="#469b3c" font-family="Arial">518</text><path d="M19,11 l2,-3 l2,3 Z" fill="#469b3c"/><text x="18" y="16.5" font-size="3.6" fill="'+g+'" font-family="Arial">7%</text></svg>';
     case 'kpiTrend': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="0.5" y="0.5" width="25" height="17" rx="2" fill="none" stroke="'+g+'"/><text x="2.5" y="8" font-size="6.5" font-weight="bold" fill="'+g+'" font-family="Arial">518</text><polyline points="2.5,16 6,14 9,15 12,12.5 15,13.5 18,11 21,12 24,9.5" fill="none" stroke="#d97a93" stroke-width="1" stroke-dasharray="2,1.2"/><polyline points="2.5,15.5 6,14.5 9,14 12,13.5 15,13 18,12.5 21,12 24,11" fill="none" stroke="'+g+'" stroke-width="1.3"/></svg>';
@@ -4877,7 +4882,9 @@ $('#typeBtns').addEventListener('click', e=>{
   const b = e.target.closest('[data-type]'); if(!b) return;
   const id = b.dataset.type;
   if(typeIsOn(id)){ openGuide(); return; }   /* erneuter Klick auf die aktive Kachel → geführte Optionen */
-  if(id in VIRTUAL_KPI){ state.type='kpi'; state.kpiStyle=VIRTUAL_KPI[id]; }
+  if(id==='wfint'){ state.type='wfkombi'; state.wfRefCol=true; }
+  else if(id==='wfkombi'){ state.type='wfkombi'; state.wfRefCol=false; }
+  else if(id in VIRTUAL_KPI){ state.type='kpi'; state.kpiStyle=VIRTUAL_KPI[id]; }
   else state.type = id;
   if(needsRef() && state.reference==='—') state.reference='PY';
   state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
@@ -4890,7 +4897,7 @@ $('#typeBtns').addEventListener('click', e=>{
    Schreibt direkt in state; renderPreview() hält die Sidebar synchron.
    ========================================================================= */
 function typeName(t){
-  for(const g of TYPE_GROUPS) for(const x of g.types) if(typeIsOn(x.id) && (x.id===t || (t==='kpi'))) return x.name;
+  for(const g of TYPE_GROUPS) for(const x of g.types) if(typeIsOn(x.id)) return x.name;
   for(const g of TYPE_GROUPS) for(const x of g.types) if(x.id===t) return x.name;
   return t;
 }
@@ -5006,7 +5013,7 @@ function applyGuideOpt(opt,val){
     case 'multiCols': state.multiCols=+val; renderPreview(); break;
     case 'multiScale': state.multiScale=val; renderPreview(); break;
     case 'stack100': state.stack100=!state.stack100; renderPreview(); break;
-    case 'wfRefCol': state.wfRefCol=!state.wfRefCol; renderPreview(); break;
+    case 'wfRefCol': state.wfRefCol=!state.wfRefCol; renderAll(); break;
     case 'cbSafe': state.cbSafe=!state.cbSafe; renderAll(); break;
     case 'facetCols': state.facetCols=+val; renderPreview(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
