@@ -459,6 +459,12 @@ footer a:hover{color:var(--ink)}
           <option value="1">1 Sp.</option><option value="2">2 Sp.</option><option value="3">3 Sp.</option><option value="4">4 Sp.</option>
         </select>
         <span style="font-size:10.5px;color:var(--ink3);flex-basis:100%">Facettet den Deneb-Export je Feld (Vorschau zeigt eine Kachel). Für einen Trellis direkt im Builder den Typ „Small Multiples" nutzen.</span>
+        <label class="check" id="grpFacetWrap" style="flex-basis:100%; margin-top:6px" title="Rendert die Vorschau als Small Multiples je Gruppe (Gruppen-Spalte in der Tabelle). Säule vs Linie = der gewählte Typ."><input type="checkbox" id="grpFacetChk"> Je Gruppe facetten (direkt in der Vorschau)</label>
+        <span id="grpScaleWrap" style="display:none; gap:6px; align-items:center; flex-basis:100%">
+          <span style="font-size:11px;color:var(--ink2)">Skala</span>
+          <button class="chip" id="gsShared" type="button" title="Gleiche Y-Skala über alle Gruppen (Niveau-Vergleich)">gemeinsam</button>
+          <button class="chip" id="gsFree" type="button" title="Eigene Y-Skala je Gruppe (Form-Vergleich)">frei</button>
+        </span>
       </div>
 
       <div class="row" id="kombiBaseWrap" style="display:none; margin-top:8px">
@@ -567,6 +573,7 @@ footer a:hover{color:var(--ink)}
           <option value="heatmapDemo">Heatmap · Δ vs Plan (Region × Monat)</option>
           <option value="marimekkoDemo">Marimekko · Anteil × Größe</option>
           <option value="roiTree">Treiberbaum · ROI-Tree (Alpha Software)</option>
+          <option value="regionFacet">Szenariovergleich je Gruppe · Small Multiples (Säule/Linie)</option>
           <option value="boxplotDemo">Boxplot · Verteilung je Service</option>
           <option value="bridgeM">Brücke PL → AC je Monat</option>
           <option value="bridgeC">Brücke PY → AC je Land · vertikal</option>
@@ -850,6 +857,8 @@ const state = {
   varYTD:true,
   varRefCols:false,
   treeJson:DEFAULT_TREE_JSON,
+  grpFacet:false,
+  grpScale:'shared',
   refLine:'none',
   lineAllLabels:false,
   topN:0,
@@ -2596,6 +2605,53 @@ function renderScatterFacet(){
   });
   return { svg:s, W, H };
 }
+/* --- Szenariovergleich über Zeit als In-Preview Small Multiples je Gruppe:
+       gruppiert die Zeilen nach r.grp und rendert je Gruppe ein vollwertiges
+       Säulen- ODER Linien-Comparison (AC vs Referenz) in ein Raster. Gemeinsame
+       Skala via SHARED_SCALE (vergleichbare Niveaus), optional frei. Der Typ
+       (columns|line) bestimmt Säule vs Linie. --- */
+function timeGroups(rows){
+  const order=[], map=new Map();
+  rows.forEach(r=>{ const g=String(r.grp||'').trim()||'—'; if(!map.has(g)){ map.set(g,[]); order.push(g); } map.get(g).push(r); });
+  return order.map(g=>({g, rows:map.get(g)}));
+}
+function timeIsFaceted(){
+  return state.grpFacet && ['columns','line'].includes(state.type)
+    && state.rows.some(r=>String(r.grp||'').trim() && !isNaN(r.v1));
+}
+function renderTimeFacet(){
+  const kind = state.type;                       /* 'columns' | 'line' */
+  const all = state.rows.filter(r=>r.c!=='');
+  const groups = timeGroups(all);
+  const cols = Math.max(1, Math.min(4, state.facetCols||2));
+  const gridRows = Math.ceil(groups.length/cols);
+  const pw=380, gapX=16, gapY=10, padL=8, padT=8, titleH=18;
+  const k = pw/640;
+  const shareBak = SHARED_SCALE;
+  if(state.grpScale!=='free'){
+    const hasRef = state.reference!=='—', hasRef2 = usesRef2() && state.reference2!=='—';
+    const vals = all.flatMap(r=>[r.v1, hasRef?r.v2:NaN, hasRef2?r.v3:NaN]).filter(v=>!isNaN(v));
+    const tv=targetVal(); if(tv!==null) vals.push(tv);
+    SHARED_SCALE = vals.length ? {min:Math.min(...vals,0), max:Math.max(...vals,0)} : null;
+  } else SHARED_SCALE = null;
+  const fsBak = state.fontScale;
+  state.fontScale = (fsBak||1) * 0.82 / k;        /* hochskalieren, damit Text nach scale() lesbar bleibt */
+  const panels = [];
+  try{
+    groups.forEach(grp=>{ panels.push(kind==='line' ? renderLine(grp.rows) : renderColumns(grp.rows)); });
+  } finally { state.fontScale = fsBak; SHARED_SCALE = shareBak; }
+  const panelH = (panels[0] ? panels[0].H : 232) * k;
+  let s='';
+  groups.forEach((grp,gi)=>{
+    const gx = padL + (gi%cols)*(pw+gapX);
+    const gy = padT + Math.floor(gi/cols)*(panelH+titleH+gapY);
+    s += txt(gx+4, gy+13, grp.g, {size:11.5, weight:'bold', fill:CAT});
+    s += '<g transform="translate('+gx+','+(gy+titleH)+') scale('+k.toFixed(4)+')">'+panels[gi].svg+'</g>';
+  });
+  const W = padL + cols*pw + (cols-1)*gapX + 6;
+  const H = padT + gridRows*(panelH+titleH+gapY) + 4;
+  return { svg:s, W, H };
+}
 function renderScatter(){
   if(scatterIsFaceted()) return renderScatterFacet();
   const rows = state.rows.filter(r=>r.c!=='' && !isNaN(r.v1) && !isNaN(r.v2));
@@ -4140,7 +4196,8 @@ function buildChart(){
   const rows = activeRows();
   let r;
   const tiersOn = (state.showRel || state.showAbs) && state.reference!=='—';
-  if(state.type==='columns')        r = tiersOn ? withVarTiers(rows, renderColumns(rows,{plotH:168}), {padL:10,padR:10}, state.primary+(rows.some(x=>x.fc)?'&FC':'')+' '+CL('und')+' '+state.reference) : renderColumns(rows);
+  if(timeIsFaceted())               r = renderTimeFacet();
+  else if(state.type==='columns')   r = tiersOn ? withVarTiers(rows, renderColumns(rows,{plotH:168}), {padL:10,padR:10}, state.primary+(rows.some(x=>x.fc)?'&FC':'')+' '+CL('und')+' '+state.reference) : renderColumns(rows);
   else if(state.type==='colline')   r = tiersOn ? withVarTiers(rows, renderColLine(rows,{plotH:168}), {padL:10,padR:52}, state.primary+(rows.some(x=>x.fc)?'&FC':'')+' '+CL('und')+' '+state.reference) : renderColLine(rows);
   else if(state.type==='line'){
     const lr = state.lineIndex ? indexRows(rows) : rows;
@@ -4502,10 +4559,12 @@ function renderDataTable(){
     const hasRef2 = usesRef2() && state.reference2!=='—';
     const showFC = state.primary==='AC';
     const hier = isStruct() && state.type!=='tornado';
+    const gfac = state.grpFacet && ['columns','line'].includes(state.type);
     thead.innerHTML = '<tr><th>Kategorie</th><th class="num">'+esc(state.primary)+'</th>'+
       (hasRef?'<th class="num">'+esc(state.reference)+'</th>':'')+
       (hasRef2?'<th class="num">'+esc(state.reference2)+'</th>':'')+
       (showFC?'<th title="Wert als Forecast (schraffiert) darstellen">FC</th>':'')+
+      (gfac?'<th title="Gruppe für die Small-Multiples-Facetten (z. B. Region)">Gruppe</th>':'')+
       (hier?'<th title="Hierarchie-Ebene je Zeile wählen – Eltern-Zeilen werden ein-/ausklappbar">Ebene</th>':'')+'<th></th></tr>';
     tbody.innerHTML = state.rows.map((r,i)=>
       '<tr>'+
@@ -4514,6 +4573,7 @@ function renderDataTable(){
       (hasRef?'<td class="num"><input data-k="v2" data-i="'+i+'" inputmode="decimal" value="'+(isNaN(r.v2)?'':String(r.v2).replace('.',','))+'"></td>':'')+
       (hasRef2?'<td class="num"><input data-k="v3" data-i="'+i+'" inputmode="decimal" value="'+(isNaN(r.v3)?'':String(r.v3).replace('.',','))+'"></td>':'')+
       (showFC?'<td class="fc-cell"><input type="checkbox" data-k="fc" data-i="'+i+'"'+(r.fc?' checked':'')+'></td>':'')+
+      (gfac?'<td><input data-k="grp" data-i="'+i+'" value="'+esc(r.grp||'')+'" placeholder="z. B. Region"></td>':'')+
       (hier?'<td><select data-lvl data-i="'+i+'" title="Hierarchie-Ebene" style="font-size:11px;padding:2px 4px">'+
         [0,1,2,3].map(L=>'<option value="'+L+'"'+((r.lvl||0)===L?' selected':'')+'>Ebene '+L+'</option>').join('')+
         '</select></td>':'')+
@@ -4707,6 +4767,13 @@ function renderPreview(){
     if($('#facetFieldInp').value !== (state.facetField||'')) $('#facetFieldInp').value = state.facetField||'';
     $('#facetColsSel').value = String(Math.max(1,Math.min(4,state.facetCols||2)));
   }
+  /* In-Vorschau Gruppen-Facetten nur für columns/line */
+  const gfacOk = ['columns','line'].includes(state.type);
+  $('#grpFacetWrap').style.display = gfacOk ? 'flex' : 'none';
+  $('#grpFacetChk').checked = !!state.grpFacet;
+  $('#grpScaleWrap').style.display = (gfacOk && state.grpFacet) ? 'flex' : 'none';
+  $('#gsShared').classList.toggle('on', state.grpScale!=='free');
+  $('#gsFree').classList.toggle('on', state.grpScale==='free');
   $('#kombiBaseWrap').style.display = state.type==='kombi' ? 'flex' : 'none';
   $('#kbCol').classList.toggle('on', state.kombiBase==='col');
   $('#kbLine').classList.toggle('on', state.kombiBase==='line');
@@ -4957,6 +5024,12 @@ const PRESETS = {
     wrows:[['Umsatz',642,601,'sum'],['Materialkosten',-238,-221,'delta'],['Personal',-176,-168,'delta'],['Sonstige Kosten',-94,-89,'delta'],['Lizenzerträge',38,31,'delta'],['EBIT',0,0,'sum']] },
   pnlVA:{ type:'wfkombi', primary:'AC', reference:'PY', t2:'Ergebnisrechnung in mEUR',
     wrows:[['Umsatz',642,601,'sum'],['Materialkosten',-238,-221,'delta'],['Bruttoergebnis',0,0,'sum'],['Personal',-176,-168,'delta'],['Sonstige Kosten',-94,-89,'delta'],['Lizenzerträge',38,31,'delta'],['EBIT',0,0,'sum']] },
+  regionFacet:{ type:'columns', primary:'AC', reference:'PL', t2:'Umsatz je Monat · AC vs PL, Small Multiples je Region',
+    grpFacet:true, grpScale:'shared',
+    rows:[['Jan',100,90,,,'DACH'],['Feb',112,95,,,'DACH'],['Mär',121,104,,,'DACH'],['Apr',118,108,,1,'DACH'],
+          ['Jan',62,70,,,'EMEA'],['Feb',66,72,,,'EMEA'],['Mär',81,76,,,'EMEA'],['Apr',88,80,,1,'EMEA'],
+          ['Jan',40,38,,,'APAC'],['Feb',48,42,,,'APAC'],['Mär',52,50,,,'APAC'],['Apr',57,53,,1,'APAC'],
+          ['Jan',31,40,,,'LATAM'],['Feb',35,42,,,'LATAM'],['Mär',39,44,,,'LATAM'],['Apr',44,47,,1,'LATAM']] },
   roiTree:{ type:'tree', t1:'Alpha Software Corporation, Germany', t2:'ROI tree', t3:'2021..2027',
     msg:'We plan to achieve a ROI of 19.2% in 2026 despite of increasing invested capital',
     treeJson:DEFAULT_TREE_JSON },
@@ -5046,7 +5119,7 @@ function loadPreset(key){
   if(key==='kpiTrend'){ loadKpiTrendDemo(); return; }
   const p = PRESETS[key]; if(!p) return;
   state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
-  if(p.rows) state.rows = p.rows.map(r=>({c:r[0], v1:r[1], v2:r[2], v3:r[3], fc:!!r[4]}));
+  if(p.rows) state.rows = p.rows.map(r=>({c:r[0], v1:r[1], v2:r[2], v3:r[3], fc:!!r[4], grp:r[5]}));
   if(p.series) state.series = p.series.slice();
   if(p.xTitle) state.xTitle = p.xTitle;
   if(p.yTitle) state.yTitle = p.yTitle;
@@ -5068,6 +5141,8 @@ function loadPreset(key){
   if(p.endPins!==undefined) state.endPins = !!p.endPins;
   if(p.varYTD!==undefined) state.varYTD = p.varYTD;
   state.varRefCols = !!p.varRefCols;   /* nur explizit aktiviert (sonst aus, sticky vermeiden) */
+  state.grpFacet = !!p.grpFacet;       /* dito */
+  if(p.grpScale) state.grpScale = p.grpScale;
   if(p.treeJson!==undefined) state.treeJson = p.treeJson;
   renderAll();
 }
@@ -5164,6 +5239,12 @@ function guideCardsHtml(){
       gchip('varYTD','toggle',(state.varYTD!==false?'✓ ':'')+'Δ%_YTD-Ebene (kumuliert)',state.varYTD!==false)+
       gchip('varRefCols','toggle',(state.varRefCols?'✓ ':'')+'Σ-Referenzsäulen + Total-Pin',!!state.varRefCols)));
   }
+  if(['columns','line'].includes(t)){
+    out.push(gcard('Small Multiples je Gruppe (Vorschau)','Szenariovergleich über die Zeit, aufgeteilt in kleine Vielfache je Gruppe – direkt in der Vorschau (Gruppen-Spalte in der Datentabelle füllen). Säule vs Linie = der Diagrammtyp.',
+      gchip('grpFacet','toggle',(state.grpFacet?'✓ ':'')+'Je Gruppe facetten',!!state.grpFacet)+
+      (state.grpFacet?('<span style="flex-basis:100%;height:0"></span>'+[1,2,3,4].map(n=>gchip('facetCols',n,n+' Sp.',(state.facetCols||2)===n)).join('')+
+        '<span style="width:8px"></span>'+gchip('grpScale','shared','Skala gemeinsam',state.grpScale!=='free')+gchip('grpScale','free','Skala frei',state.grpScale==='free')):'')));
+  }
   if(['columns','line','bars'].includes(t)){
     out.push(gcard('Trellis-Export (Power BI)','Exportiert als Small-Multiples-Visual je Feld – nur im Deneb-Template; die Vorschau bleibt eine Kachel.',
       '<input data-optin="facetField" value="'+esc(state.facetField||'')+'" placeholder="Feld, z. B. Region" style="width:150px">'+
@@ -5220,6 +5301,8 @@ function applyGuideOpt(opt,val){
     case 'varRefCols': state.varRefCols = !state.varRefCols; renderPreview(); break;
     case 'cbSafe': state.cbSafe=!state.cbSafe; renderAll(); break;
     case 'facetCols': state.facetCols=+val; renderPreview(); break;
+    case 'grpFacet': state.grpFacet=!state.grpFacet; renderAll(); break;
+    case 'grpScale': state.grpScale=val; renderPreview(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
     case 'fromMulti': morphBack(); break;
   }
@@ -5300,6 +5383,9 @@ $('#lfArea').addEventListener('click', ()=>{ state.lineFill='area'; renderPrevie
 $('#lfDiff').addEventListener('click', ()=>{ state.lineFill='diff'; renderPreview(); });
 $('#facetFieldInp').addEventListener('input', e=>{ state.facetField = e.target.value; renderPreview(); });
 $('#facetColsSel').addEventListener('change', e=>{ state.facetCols = +e.target.value||2; renderPreview(); });
+$('#grpFacetChk').addEventListener('change', e=>{ state.grpFacet = e.target.checked; renderAll(); });
+$('#gsShared').addEventListener('click', ()=>{ state.grpScale='shared'; renderPreview(); });
+$('#gsFree').addEventListener('click', ()=>{ state.grpScale='free'; renderPreview(); });
 $('#clPrimCol').addEventListener('click', ()=>{ state.collineSwap=false; renderPreview(); });
 $('#clPrimLine').addEventListener('click', ()=>{ if(state.reference!=='—'){ state.collineSwap=true; renderPreview(); } });
 $('#clAxShared').addEventListener('click', ()=>{ state.collineAxis='shared'; renderPreview(); });
@@ -8102,7 +8188,7 @@ function serialize(){
       stack100:state.stack100,
       sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient, wfRefCol:state.wfRefCol,
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel, bridgePY:state.bridgePY, bridgePYlevel:state.bridgePYlevel,
-      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson,
+      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
       multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,

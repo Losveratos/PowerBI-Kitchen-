@@ -59,6 +59,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     unit:state.unit, unitScale:state.unitScale, decimals:state.decimals, msg:state.msg,
     stack100:state.stack100, bridgePY:state.bridgePY, bridgeRel:state.bridgeRel,
     treeJson:state.treeJson, varRefCols:state.varRefCols, varYTD:state.varYTD,
+    grpFacet:state.grpFacet, grpScale:state.grpScale,
     t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
   };
   const restore = ()=>{
@@ -68,7 +69,8 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       wrows:clone(snap.wrows), unit:snap.unit, unitScale:snap.unitScale,
       decimals:snap.decimals, msg:snap.msg, stack100:snap.stack100,
       bridgePY:snap.bridgePY, bridgeRel:snap.bridgeRel,
-      treeJson:snap.treeJson, varRefCols:snap.varRefCols, varYTD:snap.varYTD});
+      treeJson:snap.treeJson, varRefCols:snap.varRefCols, varYTD:snap.varYTD,
+      grpFacet:snap.grpFacet, grpScale:snap.grpScale});
     const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v==null?'':v; };
     set('t1',snap.t1); set('t2',snap.t2); set('t3',snap.t3);
     try{ renderAll(); }catch(e){}
@@ -767,6 +769,28 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       ok('S · tree · ungültiges JSON → Fehlerhinweis, kein Absturz',
          !crash && /Treiberbaum/.test(errSvg) && !/NaN/.test(errSvg));
       state.treeJson=good; renderAll();
+    }
+
+    /* === T) Szenariovergleich je Gruppe · In-Preview Small Multiples (columns/line) === */
+    if('grpFacet' in state && typeof PRESETS==='object' && PRESETS.regionFacet){
+      loadPreset('regionFacet');
+      ok('T · regionFacet-Preset · columns + grpFacet, 4 Gruppen, kein NaN',
+         state.type==='columns' && state.grpFacet===true && typeof timeIsFaceted==='function' && timeIsFaceted());
+      const svgC=chartHtml();
+      ok('T · Säulen-Facetten · alle Gruppentitel sichtbar',
+         />DACH</.test(svgC) && />EMEA</.test(svgC) && />APAC</.test(svgC) && />LATAM</.test(svgC) && !/NaN/.test(svgC));
+      /* gemeinsame vs freie Skala erzeugen unterschiedliche Ausgabe */
+      state.grpScale='shared'; renderPreview(); const a=chartHtml().length;
+      state.grpScale='free';   renderPreview(); const b=chartHtml().length;
+      ok('T · Skala gemeinsam ≠ frei (SHARED_SCALE greift)', a!==b);
+      state.grpScale='shared';
+      /* Linien-Variante facettet ebenfalls */
+      state.type='line'; renderPreview();
+      ok('T · Linien-Facetten rendern (Liniensegmente, kein NaN)',
+         timeIsFaceted() && document.getElementById('chartHost').querySelectorAll('line').length>0 && !/NaN/.test(chartHtml()));
+      /* sticky-frei: Folge-Preset ohne grpFacet schaltet ab + columns-Vorschau wieder 1 Kachel */
+      loadPreset('months');
+      ok('T · grpFacet nicht sticky (Folge-Preset → aus) + nicht faceted', state.grpFacet===false && !timeIsFaceted());
     }
 
   }catch(err){
