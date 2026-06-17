@@ -36,9 +36,9 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
   const TYPES = ['columns','colline','kombi','absvar','relvar','line','slope','fan','zchart',
     'stackcol','waterfall','bridge','varint','bars','bullet','pareto','dotplot','tornado',
     'barskombi','table','wfkombi','stackbar','multiples','sparktable','heatmap','marimekko','boxplot',
-    'kpi','kpiStatus','kpiTrend','scatter'];
+    'kpi','kpiStatus','kpiTrend','scatter','tree'];
   /* Typen ohne Vega-/Deneb-Template (bewusst nur SVG/PNG) */
-  const SVG_ONLY = ['slope','fan','marimekko'];
+  const SVG_ONLY = ['slope','fan','marimekko','tree'];
 
   const setType = (id)=>{
     if(id in KPI){ state.type='kpi'; state.kpiStyle = KPI[id]; }
@@ -58,6 +58,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     wrows:clone(state.wrows),
     unit:state.unit, unitScale:state.unitScale, decimals:state.decimals, msg:state.msg,
     stack100:state.stack100, bridgePY:state.bridgePY, bridgeRel:state.bridgeRel,
+    treeJson:state.treeJson, varRefCols:state.varRefCols, varYTD:state.varYTD,
     t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
   };
   const restore = ()=>{
@@ -66,7 +67,8 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       rows:clone(snap.rows), srows:clone(snap.srows), series:clone(snap.series),
       wrows:clone(snap.wrows), unit:snap.unit, unitScale:snap.unitScale,
       decimals:snap.decimals, msg:snap.msg, stack100:snap.stack100,
-      bridgePY:snap.bridgePY, bridgeRel:snap.bridgeRel});
+      bridgePY:snap.bridgePY, bridgeRel:snap.bridgeRel,
+      treeJson:snap.treeJson, varRefCols:snap.varRefCols, varYTD:snap.varYTD});
     const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v==null?'':v; };
     set('t1',snap.t1); set('t2',snap.t2); set('t3',snap.t3);
     try{ renderAll(); }catch(e){}
@@ -742,6 +744,29 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       const tA=denebTemplate(); const bA=clone(tA); delete bA.usermeta;
       let ac=false; try{ ac=!!VL.compile(bA).spec; }catch(e){}
       ok('R2 · Alpha-Preset · Template kompiliert trotz varRefCols', ac && tplBakedRows(tA)===0);
+    }
+
+    /* === S) Treiberbaum (tree) · frei definierbares JSON-Modell, SVG-only === */
+    if('treeJson' in state){
+      loadPreset('roiTree');
+      const svgT=chartHtml();
+      ok('S · tree · ROI-Preset rendert alle Knoten + Operatoren, kein NaN',
+         />Return on investment</.test(svgT) && />Capital turnover</.test(svgT) &&
+         />Invested capital</.test(svgT) && svgT.indexOf('×')>=0 && svgT.indexOf('÷')>=0 && !/NaN/.test(svgT));
+      /* 7 Knoten-Boxen (rx=4) + 3 Operator-Kreise */
+      const host=document.getElementById('chartHost');
+      ok('S · tree · 7 Knoten-Boxen + 3 Operator-Knoten',
+         host.querySelectorAll('rect[rx="4"]').length===7 && host.querySelectorAll('circle').length===3);
+      /* SVG-only: kein Vega/Deneb-Template */
+      ok('S · tree · ist SVG-only (vegaSpecCore→null)', vegaSpecCore(false)===null);
+      /* robust gegen ungültiges JSON: Fehlerhinweis statt Crash */
+      const good=state.treeJson;
+      state.treeJson='{ kaputt';
+      let crash=false, errSvg='';
+      try{ renderAll(); errSvg=chartHtml(); }catch(e){ crash=true; }
+      ok('S · tree · ungültiges JSON → Fehlerhinweis, kein Absturz',
+         !crash && /Treiberbaum/.test(errSvg) && !/NaN/.test(errSvg));
+      state.treeJson=good; renderAll();
     }
 
   }catch(err){

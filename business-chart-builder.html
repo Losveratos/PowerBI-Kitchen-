@@ -566,6 +566,7 @@ footer a:hover{color:var(--ink)}
           <option value="fanDemo">Fan · Ist + Forecast-Korridor</option>
           <option value="heatmapDemo">Heatmap · Δ vs Plan (Region × Monat)</option>
           <option value="marimekkoDemo">Marimekko · Anteil × Größe</option>
+          <option value="roiTree">Treiberbaum · ROI-Tree (Alpha Software)</option>
           <option value="boxplotDemo">Boxplot · Verteilung je Service</option>
           <option value="bridgeM">Brücke PL → AC je Monat</option>
           <option value="bridgeC">Brücke PY → AC je Land · vertikal</option>
@@ -592,7 +593,11 @@ footer a:hover{color:var(--ink)}
         <button class="ghost" id="btnDice" title="Plausible Demo-Daten für den aktuellen Diagrammtyp würfeln">⚄ Demo-Daten</button>
       </div>
       <table class="data" id="dataTable"><thead></thead><tbody></tbody></table>
-      <div class="hint">Einfügen aus Excel funktioniert (Strg+V) – oder CSV-Datei per Drag & Drop auf die Tabelle ziehen.</div>
+      <div id="treeEditWrap" style="display:none">
+        <textarea id="treeJson" spellcheck="false" style="width:100%;min-height:280px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.5;border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical;white-space:pre;color:var(--ink)"></textarea>
+        <div id="treeErr" style="display:none;color:#c0392b;font-size:11.5px;margin-top:4px"></div>
+      </div>
+      <div class="hint" id="dataHint">Einfügen aus Excel funktioniert (Strg+V) – oder CSV-Datei per Drag & Drop auf die Tabelle ziehen.</div>
     </section>
   </main>
 </div>
@@ -778,6 +783,7 @@ const TYPE_GROUPS = [
     { id:'sparktable', name:'Sparklines' },
     { id:'heatmap',   name:'Heatmap-Matrix' },
     { id:'marimekko', name:'Marimekko · Anteil×Größe' },
+    { id:'tree',      name:'Treiberbaum · ROI-Tree' },
     { id:'boxplot',   name:'Boxplot · Verteilung' },
     { id:'kpi',       name:'KPI · IBCS' },
     { id:'kpiStatus', name:'KPI · Status' },
@@ -796,6 +802,29 @@ function typeIsOn(id){
   return id in VIRTUAL_KPI ? (state.type==='kpi' && (state.kpiStyle||'ibcs')===VIRTUAL_KPI[id])
                            : state.type===id;
 }
+
+/* Default-Treiberbaum (Bild „ROI-Tree" der IBCS-Vorlagen, Alpha Software Corp.).
+   Frei editierbar als JSON im Daten-Editor; siehe renderTree(). */
+const DEFAULT_TREE_JSON = JSON.stringify({
+  periods:['2021','2022','2023','2024','2025','2026','2027'],
+  scenarios:['AC','AC','AC','AC','AC','PL','PL'],
+  root:{ label:'Return on investment', unit:'%', op:'×', highlight:5,
+    values:[24.9,-9.7,-17.8,14.7,17.9,19.2,22.4],
+    children:[
+      { label:'Return on sales', unit:'%', op:'÷',
+        values:[19.2,-7.0,-13.1,14.0,17.2,19.8,19.9],
+        children:[
+          { label:'Return', unit:'kEUR', values:[5.0,-1.8,-3.5,3.1,4.1,4.7,5.5] },
+          { label:'Net sales', unit:'kEUR', values:[26.1,25.7,26.4,22.1,23.8,23.7,27.7] }
+        ]},
+      { label:'Capital turnover', unit:'', op:'÷',
+        values:[1.3,1.4,1.4,1.0,1.0,1.0,1.1],
+        children:[
+          { label:'Net sales', unit:'kEUR', values:[26.1,25.7,26.4,22.1,23.8,23.7,27.7] },
+          { label:'Invested capital', unit:'kEUR', values:[20.1,18.5,19.4,21.1,22.9,24.5,24.5] }
+        ]}
+    ]}
+}, null, 2);
 
 /* ---------- Zustand ---------- */
 const state = {
@@ -820,6 +849,7 @@ const state = {
   trend:false,
   varYTD:true,
   varRefCols:false,
+  treeJson:DEFAULT_TREE_JSON,
   refLine:'none',
   lineAllLabels:false,
   topN:0,
@@ -4010,6 +4040,96 @@ function indexRows(rows){
 }
 
 /* ---------- Diagramm zusammensetzen ---------- */
+/* --- Treiber-/Berechnungsbaum (ROI-Tree · IBCS strukturierte Analyse):
+       frei definierbare Hierarchie aus Mini-Szenario-Säulencharts, verbunden
+       über Operator-Knoten (× ÷ + −). Datenmodell als JSON (state.treeJson):
+       { periods:[…], scenarios:[…], root:{label,unit,values,op,children,highlight} }
+       SVG-only – Vega-Lite kann diese Komposition nicht ausdrücken. --- */
+function parseTreeModel(){
+  try{
+    const m = JSON.parse(state.treeJson||'{}');
+    if(!m || typeof m!=='object') return {err:'Kein Objekt.'};
+    if(!m.root) return {err:'„root"-Knoten fehlt.'};
+    return {model:m};
+  }catch(e){ return {err:'JSON: '+e.message}; }
+}
+function treeOpNode(op, cx, cy){
+  const sym = ({'x':'×','*':'×','×':'×','/':'÷','÷':'÷','-':'−','−':'−','+':'+'})[op] || op || '·';
+  return '<circle cx="'+cx+'" cy="'+cy+'" r="10" fill="'+WHITE+'" stroke="'+DARK+'" stroke-width="1.2"/>'+
+         txt(cx, cy+4.5, sym, {anchor:'middle', size:13, weight:'bold', fill:DARK});
+}
+function treeNodeBox(node, x, y, w, h, periods, scen){
+  const tf = v => isNaN(v) ? '' : new Intl.NumberFormat(numLocale(),{maximumFractionDigits:1}).format(v);
+  let s = '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="4" fill="'+WHITE+'" stroke="#d8d6d1" stroke-width="1"/>';
+  const label = node.label||'';
+  s += txt(x+8, y+15, label, {size:10.5, weight:'bold', fill:DARK});
+  if(node.unit) s += txt(x+8+String(label).length*5.7+5, y+15, 'in '+node.unit, {size:9, fill:SUB});
+  const raw = node.values||[];
+  const valid = raw.filter(v=>!isNaN(v));
+  if(valid.length){
+    const plotTop=y+26, plotH=h-26-15, plotL=x+9, plotR=x+w-9;
+    const sc = makeScale(Math.min(...valid,0), Math.max(...valid,0), plotH, 0.20, false);
+    const n=raw.length, slot=(plotR-plotL)/Math.max(1,n), y0=plotTop+sc.zeroY;
+    let firstPL=-1;
+    raw.forEach((v,i)=>{
+      const cx=plotL+slot*i+slot/2;
+      const isPL=(scen[i]||'AC')!=='AC'; if(isPL && firstPL<0) firstPL=i;
+      if(!isNaN(v)){
+        const p = isPL ? scenPaint('PL') : (v>=0 ? scenPaint('AC',false) : {fill:'#9a9a9a', stroke:'none'});
+        const bh=Math.max(0.5,Math.abs(sc.y(v)-sc.zeroY)), yy=v>=0?plotTop+sc.y(v):y0;
+        s += rect(cx-slot*0.3, yy, slot*0.6, bh, p);
+        s += txt(cx, v>=0?yy-2.5:yy+bh+7.5, tf(v), {anchor:'middle', size:7.5, fill:v>=0?DARK:SUB});
+        if(node.highlight===i) s += hiliteEllipse(cx, yy-6.5, Math.max(13,String(tf(v)).length*3+5), 7);
+      }
+    });
+    s += '<line x1="'+plotL+'" y1="'+y0+'" x2="'+plotR+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1"/>';
+    /* sparsame Periodenbeschriftung: erste Periode + erster PL-Übergang (IBCS-Stil) */
+    const lab=(i,scl)=>{ if(i<0||i>=n) return; const cx=plotL+slot*i+slot/2;
+      s += txt(cx, y0+9.5, String(periods[i]||''), {anchor:'middle', size:7.5, fill:CAT});
+      if(scl) s += txt(cx, y0+18, scl, {anchor:'middle', size:7, fill:CAT}); };
+    lab(0, (scen[0]||'AC'));
+    if(firstPL>0) lab(firstPL, (scen[firstPL]||'PL'));
+  }
+  return s;
+}
+function renderTree(){
+  const pr = parseTreeModel();
+  if(pr.err) return { svg:txt(16,34,'Treiberbaum – '+pr.err,{size:12,weight:'bold',fill:'#c0392b'})+
+    txt(16,54,'Erwartet: { "periods":[…], "scenarios":[…], "root":{ "label","unit","values","op","children" } }',{size:10.5,fill:SUB}), W:660, H:80 };
+  const m = pr.model, periods=m.periods||[], scen=m.scenarios||[];
+  const boxW=152, boxH=104, colGap=64, rowGap=20, padT=8, padL=8;
+  let leaf=0, maxDepth=0;
+  const layout=(node,depth)=>{
+    if(!node || typeof node!=='object') return;
+    node._d=depth; maxDepth=Math.max(maxDepth,depth);
+    const kids=Array.isArray(node.children)?node.children:[];
+    if(kids.length){ kids.forEach(c=>layout(c,depth+1));
+      node._slot = kids.reduce((a,c)=>a+(c._slot||0),0)/kids.length; }
+    else node._slot = leaf++;
+  };
+  layout(m.root,0);
+  const nLeaves=Math.max(1,leaf);
+  const colX=d=>padL+d*(boxW+colGap), slotY=s=>padT+s*(boxH+rowGap);
+  const W=colX(maxDepth)+boxW+padL+4, H=slotY(nLeaves-1)+boxH+padT+4;
+  let conns='', ops='', boxes='';
+  const walk=(node)=>{
+    const x=colX(node._d), y=slotY(node._slot), pc=y+boxH/2;
+    boxes += treeNodeBox(node, x, y, boxW, boxH, periods, scen);
+    const kids=Array.isArray(node.children)?node.children:[];
+    if(kids.length){
+      const opx=x+boxW+colGap/2;
+      const cys=kids.map(c=>slotY(c._slot)+boxH/2);
+      conns += '<line x1="'+(x+boxW)+'" y1="'+pc+'" x2="'+opx+'" y2="'+pc+'" stroke="'+HAIR+'" stroke-width="1"/>';
+      conns += '<line x1="'+opx+'" y1="'+Math.min(pc,...cys)+'" x2="'+opx+'" y2="'+Math.max(pc,...cys)+'" stroke="'+HAIR+'" stroke-width="1"/>';
+      kids.forEach((c,k)=>{ conns += '<line x1="'+opx+'" y1="'+cys[k]+'" x2="'+colX(c._d)+'" y2="'+cys[k]+'" stroke="'+HAIR+'" stroke-width="1"/>'; });
+      ops += treeOpNode(node.op, opx, pc);
+      kids.forEach(walk);
+    }
+  };
+  walk(m.root);
+  return { svg:conns+ops+boxes, W, H };
+}
+
 function buildChart(){
   /* Gantt: Raw-Vega-Pfad – das gerenderte Vega-SVG aus dem Live-DOM
      (für SVG/PNG/HTML-Export wiederverwenden). */
@@ -4041,6 +4161,7 @@ function buildChart(){
   else if(state.type==='slope')     r = renderSlope(rows);
   else if(state.type==='fan')       r = renderFan(rows);
   else if(state.type==='heatmap')   r = renderHeatmap();
+  else if(state.type==='tree')      r = renderTree();
   else if(state.type==='marimekko') r = renderMarimekko();
   else if(state.type==='boxplot')   r = renderBoxplot();
   else if(state.type==='kpi')       r = renderKpi();
@@ -4173,6 +4294,7 @@ function typeIcon(id){
     case 'slope': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="4" y1="1" x2="4" y2="17" stroke="#e2e1de"/><line x1="22" y1="1" x2="22" y2="17" stroke="#e2e1de"/><line x1="4" y1="13" x2="22" y2="4" stroke="#469b3c" stroke-width="1.5"/><line x1="4" y1="6" x2="22" y2="11" stroke="#c0392b" stroke-width="1.5"/><circle cx="4" cy="13" r="1.8" fill="#469b3c"/><circle cx="22" cy="4" r="1.8" fill="#469b3c"/><circle cx="4" cy="6" r="1.8" fill="#c0392b"/><circle cx="22" cy="11" r="1.8" fill="#c0392b"/></svg>';
     case 'varint': return '<svg width="26" height="18" viewBox="0 0 26 18"><circle cx="4" cy="1.6" r="1" fill="#469b3c"/><circle cx="11" cy="2" r="1" fill="#c0392b"/><circle cx="18" cy="1.4" r="1" fill="#469b3c"/><rect x="2" y="5.5" width="3" height="2" fill="#469b3c"/><rect x="9" y="5.5" width="3" height="2.4" fill="#c0392b"/><rect x="16" y="5.2" width="3" height="2" fill="#469b3c"/><rect x="2" y="11.5" width="2.6" height="4.5" fill="'+g+'"/><rect x="7" y="13" width="2.6" height="3" fill="'+g+'"/><rect x="12" y="12" width="2.6" height="4" fill="'+g+'"/><rect x="17" y="13.5" width="2.6" height="2.5" fill="'+l+'"/><rect x="21.5" y="12.5" width="2.6" height="3.5" fill="'+l+'"/><line x1="0" y1="16" x2="26" y2="16" stroke="'+g+'" stroke-width="1"/></svg>';
     case 'gantt': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="3" y="2" width="11" height="3" rx="1" fill="'+g+'"/><rect x="9" y="7" width="13" height="3" rx="1" fill="'+l+'"/><rect x="6" y="12" width="9" height="3" rx="1" fill="'+g+'"/><path d="M20,11 l1.6,1.6 l-1.6,1.6 l-1.6,-1.6 z" fill="#c0392b"/></svg>';
+    case 'tree': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="1" y="6" width="6" height="6" rx="1" fill="'+g+'"/><rect x="19" y="1" width="6" height="6" rx="1" fill="'+l+'"/><rect x="19" y="11" width="6" height="6" rx="1" fill="'+l+'"/><circle cx="13" cy="9" r="2.4" fill="'+WHITE+'" stroke="'+g+'" stroke-width="1"/><line x1="14.6" y1="7.4" x2="11.4" y2="10.6" stroke="'+g+'" stroke-width="0.9"/><line x1="11.4" y1="7.4" x2="14.6" y2="10.6" stroke="'+g+'" stroke-width="0.9"/><path d="M7,9 H10.6 M15.4,9 H17 M17,4 V14 M17,4 H19 M17,14 H19" fill="none" stroke="'+g+'" stroke-width="0.9"/></svg>';
     default: return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="5" x2="26" y2="5" stroke="'+g+'" stroke-width="1"/><line x1="3" y1="5" x2="3" y2="2" stroke="#469b3c" stroke-width="1.4"/><circle cx="3" cy="2" r="1.4" fill="#469b3c"/><line x1="9" y1="5" x2="9" y2="8" stroke="#c0392b" stroke-width="1.4"/><circle cx="9" cy="8" r="1.4" fill="#c0392b"/><rect x="14" y="11" width="3" height="6" fill="'+g+'"/><rect x="20" y="13" width="3" height="4" fill="'+l+'"/><line x1="0" y1="17" x2="26" y2="17" stroke="'+g+'" stroke-width="1"/></svg>';
   }
 }
@@ -4285,6 +4407,24 @@ function renderChips(){
 /* ---------- Dateneingabe-Tabelle ---------- */
 function renderDataTable(){
   const thead = $('#dataTable thead'), tbody = $('#dataTable tbody');
+  /* Treiberbaum: JSON-Editor statt Tabelle */
+  const isTree = state.type==='tree';
+  const tw = $('#treeEditWrap');
+  if(tw){
+    tw.style.display = isTree ? 'block' : 'none';
+    $('#dataTable').style.display = isTree ? 'none' : '';
+    if($('#dataHint')) $('#dataHint').style.display = isTree ? 'none' : '';
+    ['addRow','btnCsv','btnCsvOut','btnDice'].forEach(id=>{ const el=$('#'+id); if(el) el.style.display = isTree ? 'none' : ''; });
+    if(isTree){
+      const ta = $('#treeJson');
+      if(ta && ta.value !== state.treeJson) ta.value = state.treeJson;
+      const pr = parseTreeModel();
+      const err = $('#treeErr');
+      if(err){ err.style.display = pr.err ? 'block' : 'none'; err.textContent = pr.err ? ('⚠ '+pr.err) : ''; }
+      thead.innerHTML=''; tbody.innerHTML='';
+      return;
+    }
+  }
   if(state.type==='gantt'){
     /* Editierbare Gantt-Tabelle (Phase/Task/Start/Ende/%/Meilenstein) → live ins Vega-Render. */
     thead.innerHTML = '<tr><th>Phase</th><th>Task</th><th>Start</th><th>Ende</th><th class="num">%</th>'+
@@ -4817,6 +4957,9 @@ const PRESETS = {
     wrows:[['Umsatz',642,601,'sum'],['Materialkosten',-238,-221,'delta'],['Personal',-176,-168,'delta'],['Sonstige Kosten',-94,-89,'delta'],['Lizenzerträge',38,31,'delta'],['EBIT',0,0,'sum']] },
   pnlVA:{ type:'wfkombi', primary:'AC', reference:'PY', t2:'Ergebnisrechnung in mEUR',
     wrows:[['Umsatz',642,601,'sum'],['Materialkosten',-238,-221,'delta'],['Bruttoergebnis',0,0,'sum'],['Personal',-176,-168,'delta'],['Sonstige Kosten',-94,-89,'delta'],['Lizenzerträge',38,31,'delta'],['EBIT',0,0,'sum']] },
+  roiTree:{ type:'tree', t1:'Alpha Software Corporation, Germany', t2:'ROI tree', t3:'2021..2027',
+    msg:'We plan to achieve a ROI of 19.2% in 2026 despite of increasing invested capital',
+    treeJson:DEFAULT_TREE_JSON },
   slopeDemo:{ type:'slope', primary:'AC', reference:'PY', t2:'Umsatz je Region · PY → AC',
     rows:[['DACH',186,170],['North America',150,122],['EMEA',96,108],['APAC',64,52],['LATAM',38,47]] },
   marimekkoDemo:{ type:'marimekko', t2:'Umsatz nach Region (Breite) × Produktlinie',
@@ -4925,6 +5068,7 @@ function loadPreset(key){
   if(p.endPins!==undefined) state.endPins = !!p.endPins;
   if(p.varYTD!==undefined) state.varYTD = p.varYTD;
   state.varRefCols = !!p.varRefCols;   /* nur explizit aktiviert (sonst aus, sticky vermeiden) */
+  if(p.treeJson!==undefined) state.treeJson = p.treeJson;
   renderAll();
 }
 
@@ -7958,7 +8102,7 @@ function serialize(){
       stack100:state.stack100,
       sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient, wfRefCol:state.wfRefCol,
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel, bridgePY:state.bridgePY, bridgePYlevel:state.bridgePYlevel,
-      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols,
+      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
       multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
@@ -8075,6 +8219,14 @@ $('#fileLoad').addEventListener('change', e=>{
   };
   rd.readAsText(f);
   e.target.value = '';
+});
+
+/* Treiberbaum-JSON live */
+if($('#treeJson')) $('#treeJson').addEventListener('input', e=>{
+  state.treeJson = e.target.value;
+  const pr = parseTreeModel(), err = $('#treeErr');
+  if(err){ err.style.display = pr.err ? 'block' : 'none'; err.textContent = pr.err ? ('⚠ '+pr.err) : ''; }
+  renderPreview();
 });
 
 /* Botschaft & Quelle */
