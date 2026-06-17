@@ -725,6 +725,25 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       state.varYTD=true;
     }
 
+    /* === R2) varint · Σ-Referenzsäulen + Total-Varianz-Pin (Alpha-Preset) === */
+    if('varRefCols' in state && typeof PRESETS==='object' && PRESETS.alphaSoftware){
+      loadPreset('alphaSoftware');
+      ok('R2 · Alpha-Preset · varint, varRefCols=true, decimals=0, 12 Zeilen',
+         state.type==='varint' && state.varRefCols===true && state.decimals===0 && state.rows.length===12);
+      const svgA=chartHtml();
+      /* Σ-PL-Referenz (154), AC+FC-Total (178/83/95), +24-Pin, kein NaN */
+      ok('R2 · Alpha-Preset · Σ-Referenz 154 + Total 178/83/95 + Pin +24',
+         />154</.test(svgA) && />178</.test(svgA) && />83</.test(svgA) && />95</.test(svgA) && /\+24/.test(svgA) && !/NaN/.test(svgA));
+      /* varRefCols ist sticky-frei: ein Folge-Preset ohne refCols schaltet es ab */
+      loadPreset('varintDemo');
+      ok('R2 · varRefCols nicht sticky (Folge-Preset ohne refCols → aus)', state.varRefCols===false);
+      /* Template kompiliert weiterhin (refCols ist SVG-Preview-Feature) */
+      loadPreset('alphaSoftware');
+      const tA=denebTemplate(); const bA=clone(tA); delete bA.usermeta;
+      let ac=false; try{ ac=!!VL.compile(bA).spec; }catch(e){}
+      ok('R2 · Alpha-Preset · Template kompiliert trotz varRefCols', ac && tplBakedRows(tA)===0);
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{

@@ -561,6 +561,7 @@ footer a:hover{color:var(--ink)}
           <option value="pnlVA">GuV-Wasserfall mit ΔPY (Varianz)</option>
           <option value="varintDemo">Integrierte Varianzanalyse (4 Tiers, AC/FC vs PL)</option>
           <option value="furnitureInc">Furniture Inc. · Net sales (IBCS, AC/FC vs PY)</option>
+          <option value="alphaSoftware">Alpha Software · Net sales (IBCS, Σ-Ref. + Total-Pin, vs PL)</option>
           <option value="slopeDemo">Slope · Vorher/Nachher (PY → AC)</option>
           <option value="fanDemo">Fan · Ist + Forecast-Korridor</option>
           <option value="heatmapDemo">Heatmap · Δ vs Plan (Region × Monat)</option>
@@ -818,6 +819,7 @@ const state = {
   t3auto:true,
   trend:false,
   varYTD:true,
+  varRefCols:false,
   refLine:'none',
   lineAllLabels:false,
   topN:0,
@@ -1454,6 +1456,13 @@ function renderColumns(rows, opt){
   const H = padT+plotH+padB;
   const hasRef = state.reference!=='—';
   const hasRef2 = state.reference2!=='—';
+  /* Linke Σ-Referenzsäulen (nur varint, IBCS integrierte Varianz): die Referenz
+     als Jahres-Total links als Anker der Brücke; Σ aus den Monats-Referenzen
+     ableitbar (inspiriert von standard-charts integrated variance) */
+  const refCols = !!opt.refCols && hasRef && rows.length>0;
+  const bandL = refCols ? 84 : 0;
+  let refSum=0, ref2Sum=0;
+  if(refCols){ rows.forEach(r=>{ if(!isNaN(r.v2)) refSum+=r.v2; if(hasRef2 && !isNaN(r.v3)) ref2Sum+=r.v3; }); }
   /* Endvergleich (inspiriert von standard-charts ReferenceExtension): am rechten
      Rand die Abweichung des letzten Werts vs Referenz(en) anpinnen (FC-PL/FC-PY) */
   const endPins = state.endPins && hasRef && !opt.noCats && rows.length>0;
@@ -1469,8 +1478,10 @@ function renderColumns(rows, opt){
   const vals = rows.flatMap(r=>[r.v1, hasRef?r.v2:NaN, hasRef2?r.v3:NaN]).filter(v=>!isNaN(v));
   const _tv0=targetVal(); if(_tv0!==null) vals.push(_tv0);
   if(totalCol) vals.push(total, acSum);
+  if(refCols){ vals.push(refSum); if(hasRef2) vals.push(ref2Sum); }
   const sc = makeScale(Math.min(...vals,0), Math.max(...vals,0), plotH, 0.10, true);
-  const slot = (W-padL-padR-band)/rows.length;
+  const monL = padL + bandL;                       /* Monatsregion beginnt nach den Σ-Referenzsäulen */
+  const slot = (W-monL-padR-band)/rows.length;
   const y0 = padT+sc.zeroY;
   /* Geometrie je Stil: versetzt (UN 4.1 überlappende Gruppierung), zentriert, Dreiecke */
   const off = style==='offset', tri = style==='tri';
@@ -1480,7 +1491,7 @@ function renderColumns(rows, opt){
   let bars='', labels='', marks='';
 
   rows.forEach((r,i)=>{
-    const cx = padL + slot*i + slot/2;
+    const cx = monL + slot*i + slot/2;
     const cxR = cx-dx, cxP = cx+dx;
     let primTopY = null;
     if(!isNaN(r.v1)){
@@ -1542,6 +1553,20 @@ function renderColumns(rows, opt){
   const axis = '<line x1="'+padL+'" y1="'+y0+'" x2="'+(W-padR)+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1.5"/>';
   let trend='';
   if(state.trend && !opt.noCats) trend = trendArrow(rows, i=>padL+slot*i+slot/2, v=>padT+sc.y(v));
+  /* Σ-Referenzsäulen links (reference2 zuerst, dann reference – wie IBCS „2024 AC · 2025 PL") */
+  let refColsSvg='';
+  if(refCols){
+    const cols=[]; if(hasRef2) cols.push({sum:ref2Sum, code:state.reference2});
+    cols.push({sum:refSum, code:state.reference});
+    const cw = bandL/cols.length, bwR = Math.min(30, cw*0.5);
+    cols.forEach((c,k)=>{
+      if(isNaN(c.sum)) return;
+      const cxR = padL + cw*k + cw/2, yR = padT+sc.y(c.sum), hR = Math.abs(sc.y(c.sum)-sc.zeroY);
+      refColsSvg += rect(cxR-bwR/2, c.sum>=0?yR:y0, bwR, hR, scenPaint(c.code));
+      refColsSvg += txt(cxR, (c.sum>=0?yR:y0)-6, fmt(c.sum), {anchor:'middle', weight:'bold', fill:SUB});
+      if(!opt.noCats) refColsSvg += txt(cxR, y0+15, c.code+' Σ', {anchor:'middle', size:10, fill:CAT});
+    });
+  }
   let totalSvg='';
   if(totalCol){
     const cxT = W-padR-band/2, bwT = Math.min(34, band*0.55);
@@ -1552,6 +1577,14 @@ function renderColumns(rows, opt){
     if(Math.abs(sc.y(acSum)-sc.zeroY)>14) totalSvg += txt(cxT, (y0+yAc)/2+3, fmt(acSum), {anchor:'middle', size:9, fill:'#ffffff'});
     if(fcSum && Math.abs(sc.y(total)-sc.y(acSum))>14) totalSvg += txt(cxT, (yAc+yTot)/2+3, fmt(fcSum), {anchor:'middle', size:9, fill:DARK});
     if(!opt.noCats) totalSvg += txt(cxT, y0+15, state.primary+(fcSum?'&FC':''), {anchor:'middle', size:10, fill:CAT});
+    /* Varianz-Pin am Total: AC+FC-Gesamt vs Σ-Referenz (IBCS „+24") */
+    if(refCols && !isNaN(refSum)){
+      const d = total-refSum, col = d>=0?'var-pos':'var-neg';
+      const xp = cxT+bwT/2+9, yTopP=Math.min(yTot,padT+sc.y(refSum)), yBotP=Math.max(yTot,padT+sc.y(refSum));
+      totalSvg += '<line x1="'+xp+'" y1="'+yTopP+'" x2="'+xp+'" y2="'+yBotP+'" stroke="'+col+'" stroke-width="2"/>';
+      totalSvg += hiliteEllipse(xp+String(fmt(d,true)).length*3.1+6, (yTopP+yBotP)/2, String(fmt(d,true)).length*3.4+8, 8.5);
+      totalSvg += txt(xp+5, (yTopP+yBotP)/2+3.5, fmt(d,true), {anchor:'start', size:10, weight:'bold', fill:col});
+    }
   }
   let endPinsSvg='';
   if(endPins){
@@ -1571,7 +1604,7 @@ function renderColumns(rows, opt){
     endPinsSvg += pin(last.v2, state.reference, x1);
     if(hasRef2) endPinsSvg += pin(last.v3, state.reference2, x1+40);
   }
-  return { svg:bars+axis+statLineH(sc,rows,padL,padR,padT,W)+targetLineH(sc,padL,padR,padT,W)+labels+marks+trend+totalSvg+endPinsSvg, W, H };
+  return { svg:bars+axis+statLineH(sc,rows,padL,padR,padT,W)+targetLineH(sc,padL,padR,padT,W)+labels+marks+trend+refColsSvg+totalSvg+endPinsSvg, W, H };
 }
 
 /* Differenzmarker nach UN 5.1-2: Hilfslinien projizieren die Säulenlängen,
@@ -3129,7 +3162,8 @@ function renderKombi(rows){
        3) Varianz-Brücke: die ΔRef-Beiträge laufen auf (Σ = Gesamtabweichung)
        4) Säulen: Primär (AC) + FC-Schraffur, Referenz als Vergleich        --- */
 function renderVarInt(rows){
-  const gap=14, pads={padL:10, padR:10};
+  const gap=14, bandL = (state.varRefCols && state.reference!=='—') ? 84 : 0;
+  const pads={padL:10+bandL, padR:10};
   /* YTD-kumulierte Zeilen: laufende Summen von Primär und Referenz */
   let ca=0, cp=0;
   const ytd = rows.map(r=>{ ca += isNaN(r.v1)?0:r.v1; cp += isNaN(r.v2)?0:r.v2;
@@ -3142,7 +3176,7 @@ function renderVarInt(rows){
   if(state.varYTD!==false) tier('Δ'+ref+'%_YTD', renderRelVar(ytd,  Object.assign({noCats:true, plotH:78}, pads)));
   tier('Δ'+ref+'%',     renderRelVar(rows, Object.assign({noCats:true, plotH:78}, pads)));
   tier('Δ'+ref+' '+CL('Beitraege'), renderTimeWf(delta, Object.assign({noCats:true, plotH:140}, pads)));
-  const base = renderColumns(rows, {plotH:150, totalCol:true});
+  const base = renderColumns(rows, {plotH:150, totalCol:true, refCols:state.varRefCols});
   const baseCap = state.primary + (rows.some(x=>x.fc)?'&FC':'') + ' '+CL('und')+' ' + ref;
   s += '<g transform="translate(0,'+y+')">'+txt(12,10,baseCap,{size:10.5,fill:'#8a8a8a'})+base.svg+'</g>';
   y += base.H;
@@ -4806,6 +4840,11 @@ const PRESETS = {
     decimals:0, endPins:true, varYTD:false,
     rows:[['Jan',15,14],['Feb',13,16],['Mar',17,14],['Apr',7,9],['May',5,11],['Jun',6,9],
           ['Jul',11,16],['Aug',9,14],['Sep',22,16,,1],['Oct',8,17,,1],['Nov',7,16,,1],['Dec',12,22,,1]] },
+  alphaSoftware:{ type:'varint', primary:'AC', reference:'PL', t1:'Alpha Software Corp.', t2:'Net sales in kUSD', t3:'2025',
+    msg:'Full year net sales of 178 kUSD are 24 kUSD (+15.6%) above plan because the strong forecast more than offsets the weak summer months',
+    decimals:0, varYTD:false, varRefCols:true,
+    rows:[['Jan',15,11],['Feb',13,10],['Mar',17,10],['Apr',7,10],['May',5,10],['Jun',6,10],
+          ['Jul',11,15],['Aug',9,14],['Sep',26,15,,1],['Oct',22,15,,1],['Nov',18,15,,1],['Dec',29,19,,1]] },
   pnlV:{ type:'waterfall', orient:'v', reference:'PY', t2:'Ergebnisrechnung in mEUR',
     wrows:[['Umsatz',642,601,'sum'],['Materialkosten',-238,-221,'delta'],['Bruttoergebnis',0,0,'sum'],['Personal',-176,-168,'delta'],['Sonstige Kosten',-94,-89,'delta'],['Lizenzerträge',38,31,'delta'],['EBIT',0,0,'sum']] },
   bridgeM:{ type:'bridge', orient:'h', primary:'AC', reference:'PL', t2:'Umsatz in mEUR, Überleitung je Monat',
@@ -4885,6 +4924,7 @@ function loadPreset(key){
   if(p.decimals!==undefined) state.decimals = p.decimals;
   if(p.endPins!==undefined) state.endPins = !!p.endPins;
   if(p.varYTD!==undefined) state.varYTD = p.varYTD;
+  state.varRefCols = !!p.varRefCols;   /* nur explizit aktiviert (sonst aus, sticky vermeiden) */
   renderAll();
 }
 
@@ -4976,8 +5016,9 @@ function guideCardsHtml(){
       gchip('wfRefCol','toggle',(state.wfRefCol?'✓ ':'')+'Referenz-Wasserfall-Spalte',!!state.wfRefCol)));
   }
   if(t==='varint'){
-    out.push(gcard('Integrierte Varianz','Die kumulierte Δ%_YTD-Ebene zeigen oder weglassen (ohne = klassische 3-Tier-IBCS-Darstellung: Δ% · Δ-Brücke · Säulen).',
-      gchip('varYTD','toggle',(state.varYTD!==false?'✓ ':'')+'Δ%_YTD-Ebene (kumuliert)',state.varYTD!==false)));
+    out.push(gcard('Integrierte Varianz','Die kumulierte Δ%_YTD-Ebene zeigen oder weglassen (ohne = klassische 3-Tier-IBCS-Darstellung: Δ% · Δ-Brücke · Säulen). Σ-Referenzsäulen blenden die Referenz als Jahres-Total links als Brücken-Anker ein, plus Varianz-Pin am AC+FC-Total (wie IBCS „2025 PL · +24").',
+      gchip('varYTD','toggle',(state.varYTD!==false?'✓ ':'')+'Δ%_YTD-Ebene (kumuliert)',state.varYTD!==false)+
+      gchip('varRefCols','toggle',(state.varRefCols?'✓ ':'')+'Σ-Referenzsäulen + Total-Pin',!!state.varRefCols)));
   }
   if(['columns','line','bars'].includes(t)){
     out.push(gcard('Trellis-Export (Power BI)','Exportiert als Small-Multiples-Visual je Feld – nur im Deneb-Template; die Vorschau bleibt eine Kachel.',
@@ -5032,6 +5073,7 @@ function applyGuideOpt(opt,val){
     case 'stack100': state.stack100=!state.stack100; renderPreview(); break;
     case 'wfRefCol': state.wfRefCol=!state.wfRefCol; renderAll(); break;
     case 'varYTD': state.varYTD = state.varYTD===false; renderPreview(); break;
+    case 'varRefCols': state.varRefCols = !state.varRefCols; renderPreview(); break;
     case 'cbSafe': state.cbSafe=!state.cbSafe; renderAll(); break;
     case 'facetCols': state.facetCols=+val; renderPreview(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
@@ -7916,7 +7958,7 @@ function serialize(){
       stack100:state.stack100,
       sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient, wfRefCol:state.wfRefCol,
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel, bridgePY:state.bridgePY, bridgePYlevel:state.bridgePYlevel,
-      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD,
+      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
       multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
