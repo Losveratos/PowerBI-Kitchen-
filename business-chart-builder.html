@@ -451,6 +451,15 @@ footer a:hover{color:var(--ink)}
         <button class="chip" id="clAxDual" type="button" title="Getrennte (unabhängige) Skala je Größe – betont die Form, nicht das Niveau">Achse: getrennt</button>
       </div>
 
+      <div class="row" id="facetWrap" style="display:none; margin-top:8px; flex-wrap:wrap">
+        <span style="font-size:11.5px;color:var(--ink2)" title="Nur für den Deneb-/Power-BI-Export: erzeugt Small Multiples je Feld. Die In-App-Vorschau bleibt eine Kachel.">Trellis (Power BI)</span>
+        <input type="text" id="facetFieldInp" placeholder="Feld, z. B. Region" style="width:128px" title="Feldname der 2. Dimension – in Power BI bereitstellen">
+        <select id="facetColsSel" title="Spalten je Zeile" style="font-size:11px;padding:2px 4px">
+          <option value="1">1 Sp.</option><option value="2">2 Sp.</option><option value="3">3 Sp.</option><option value="4">4 Sp.</option>
+        </select>
+        <span style="font-size:10.5px;color:var(--ink3);flex-basis:100%">Facettet den Deneb-Export je Feld (Vorschau zeigt eine Kachel). Für einen Trellis direkt im Builder den Typ „Small Multiples" nutzen.</span>
+      </div>
+
       <div class="row" id="kombiBaseWrap" style="display:none; margin-top:8px">
         <span style="font-size:11.5px;color:var(--ink2)">Basis</span>
         <button class="chip" id="kbCol" type="button">Säulen</button>
@@ -810,6 +819,8 @@ const state = {
   multiScale:'shared',
   collineSwap:false,
   collineAxis:'shared',
+  facetField:'',
+  facetCols:2,
   kombiBase:'col',
   bridgeRel:false,
   bridgePY:false,
@@ -4373,6 +4384,11 @@ function renderPreview(){
     $('#clAxShared').classList.toggle('on', state.collineAxis!=='dual');
     $('#clAxDual').classList.toggle('on', state.collineAxis==='dual');
   }
+  $('#facetWrap').style.display = ['columns','line','bars'].includes(state.type) ? 'flex' : 'none';
+  if(['columns','line','bars'].includes(state.type)){
+    if($('#facetFieldInp').value !== (state.facetField||'')) $('#facetFieldInp').value = state.facetField||'';
+    $('#facetColsSel').value = String(Math.max(1,Math.min(4,state.facetCols||2)));
+  }
   $('#kombiBaseWrap').style.display = state.type==='kombi' ? 'flex' : 'none';
   $('#kbCol').classList.toggle('on', state.kombiBase==='col');
   $('#kbLine').classList.toggle('on', state.kombiBase==='line');
@@ -4771,6 +4787,8 @@ $('#lineIdxChk').addEventListener('change', e=>{ state.lineIndex=e.target.checke
 $('#lfNone').addEventListener('click', ()=>{ state.lineFill='none'; renderPreview(); });
 $('#lfArea').addEventListener('click', ()=>{ state.lineFill='area'; renderPreview(); });
 $('#lfDiff').addEventListener('click', ()=>{ state.lineFill='diff'; renderPreview(); });
+$('#facetFieldInp').addEventListener('input', e=>{ state.facetField = e.target.value; renderPreview(); });
+$('#facetColsSel').addEventListener('change', e=>{ state.facetCols = +e.target.value||2; renderPreview(); });
 $('#clPrimCol').addEventListener('click', ()=>{ state.collineSwap=false; renderPreview(); });
 $('#clPrimLine').addEventListener('click', ()=>{ if(state.reference!=='—'){ state.collineSwap=true; renderPreview(); } });
 $('#clAxShared').addEventListener('click', ()=>{ state.collineAxis='shared'; renderPreview(); });
@@ -5426,6 +5444,11 @@ function denebTemplate(){
     const tk = (state.type==='boxplot' && key==='p') ? ['numeric','column'] : (TK[key] || ['numeric','measure']);
     return { ph:'__'+i+'__', name:F(key), label, type:tk[0], kind:tk[1] };
   });
+  /* Trellis-Facet-Feld (Deneb-Export von columns/line/bars) als eigenen Platzhalter führen */
+  const fField = (state.facetField||'').trim();
+  if(fField && ['columns','line','bars'].includes(state.type) && spec.facet){
+    defs.push({ ph:'__'+defs.length+'__', name:fField, label:'2. Dimension – Trellis-Facet', type:'text', kind:'column' });
+  }
   const nameToPh = {}; defs.forEach(d=>{ nameToPh[d.name] = d.ph; });
   const tpl = remapSpec(spec, nameToPh);
   delete tpl.usermeta;
@@ -7288,8 +7311,26 @@ function dashboardSpec(deneb){
 function vegaSpec(deneb){
   const core = vegaSpecCore(deneb);
   if(!core) return null;
-  const body = core.body, t = core.t;
+  let body = core.body; const t = core.t;
   let note = core.note;
+  /* Trellis-Export (nur Deneb/Power BI): Standard-Chart als Small Multiples je
+     2. Dimension facetten. Vorschau/eingebettet bleibt einzeln (kein Feld da). */
+  const fField = (state.facetField||'').trim();
+  const facetable = ['columns','line','bars'].includes(t) && !(body.hconcat||body.vconcat||body.concat||body.facet);
+  const faceted = deneb && fField && facetable;
+  if(faceted){
+    const data = body.data;
+    const inner = Object.assign({}, body); delete inner.data;
+    body = {
+      data,
+      facet:{ field:fField, type:'nominal',
+        header:{title:null, labelFont:'Arial', labelFontSize:11, labelFontWeight:'bold', labelColor:'#1c1c1c', labelAnchor:'start'} },
+      columns: Math.max(1, Math.min(4, state.facetCols||2)),
+      spec: inner,
+      resolve:{scale:{y: state.multiScale==='free' ? 'independent' : 'shared'}},
+    };
+    note = (note?note+' · ':'')+'Trellis: Small Multiples je „'+fField+'“ – dieses Feld in Power BI bereitstellen (die In-App-Vorschau zeigt eine Kachel).';
+  }
   let spec = Object.assign({
     $schema:'https://vega.github.io/schema/vega-lite/v5.json',
     title:vTitle(), config:vConfig(),
@@ -7324,7 +7365,7 @@ function vegaSpec(deneb){
     notation:'angelehnt an die IBCS® Standards v1.2 (ibcs.com, CC BY-SA 4.0)',
     deneb: deneb ? {
       hinweis: note || 'data.name=dataset – die folgenden Felder im Deneb-Datenbereich bereitstellen.',
-      felder: usermetaFields(t),
+      felder: (()=>{ const f = usermetaFields(t); if(faceted) f[fField] = '2. Dimension – Trellis-Facet (Small Multiples)'; return f; })(),
     } : 'Daten eingebettet – direkt in Deneb oder im Vega-Editor lauffähig.',
   };
   return spec;
@@ -7362,7 +7403,7 @@ function serialize(){
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
-      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
+      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
       target:state.target, negParens:state.negParens, annos:state.annos,
       vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,

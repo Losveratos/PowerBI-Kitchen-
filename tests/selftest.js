@@ -539,6 +539,27 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       state.collineSwap=false; state.collineAxis='shared';
     }
 
+    /* === L) Trellis-Facet-Export (Deneb only) für columns/line/bars ==== */
+    if('facetField' in state){
+      for(const ty of ['columns','line','bars']){
+        loadPreset(ty==='bars'?'countries':'months'); state.type=ty;
+        state.facetField='Region'; state.facetCols=2; renderAll();
+        /* In-App-Vorschau + eingebettet bleiben einzeln (kein Facet) */
+        ok('L · '+ty+' · Vorschau bleibt einzeln (kein NaN)', !/facet/.test(chartHtml()) && !/NaN/.test(chartHtml()));
+        ok('L · '+ty+' · eingebettet NICHT facettiert', !vegaSpec(false).facet);
+        /* Deneb-Template facettiert + Feld als Platzhalter + kompiliert */
+        const tpl=denebTemplate(); const lb=clone(tpl); const baked=tplBakedRows(lb); delete lb.usermeta;
+        let lc=false; try{ lc=!!VL.compile(lb).spec; }catch(e){}
+        const regionDef=tpl.usermeta.dataset.find(d=>d.name==='Region');
+        ok('L · '+ty+' · Template facettiert + kompiliert (baked=0)',
+           lc && baked===0 && !!tpl.facet && /^__\d+__$/.test(tpl.facet.field));
+        ok('L · '+ty+' · Facet-Feld als column-Platzhalter deklariert',
+           !!regionDef && regionDef.kind==='column' && !/"Region"/.test(JSON.stringify(lb)));
+        state.facetField='';
+        ok('L · '+ty+' · ohne Feld kein Facet', !denebTemplate().facet);
+      }
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{
