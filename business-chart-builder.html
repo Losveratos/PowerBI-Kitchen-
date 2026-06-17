@@ -859,6 +859,7 @@ const state = {
   treeJson:DEFAULT_TREE_JSON,
   grpFacet:false,
   grpScale:'shared',
+  zMonthCol:false,
   refLine:'none',
   lineAllLabels:false,
   topN:0,
@@ -3118,9 +3119,21 @@ function renderZChart(rows, opt){
     });
     return {svg:out, pts};
   };
-  const mLine = drawZ(i=>rows[i].v1, 1.6, 2.7);
   const cLine = drawZ(i=>cumA[i], 2.1, 3.1);
   const tLine = drawZ(i=>mat[i], 2.1, 3.1);
+  /* Monatswerte als Linie ODER (IBCS-MAT-Stil) als Szenario-Säulen */
+  let mLine;
+  if(state.zMonthCol){
+    let cols='', mpts=[]; const bw=Math.min(slot*0.5, 22);
+    rows.forEach((r,i)=>{ if(isNaN(r.v1)) return;
+      const h=Math.max(0.5, Math.abs(sc.y(r.v1)-sc.zeroY)), yy=r.v1>=0?Y(r.v1):y0;
+      cols += rect(X(i)-bw/2, yy, bw, h, scenPaint(state.primary, r.fc), i);
+      mpts.push({i, v:r.v1, fc:!!r.fc});
+    });
+    mLine = {svg:cols, pts:mpts};
+  } else {
+    mLine = drawZ(i=>rows[i].v1, 1.6, 2.7);
+  }
   s += tLine.svg + cLine.svg + mLine.svg;
 
   /* Beschriftung: letzter Monatswert, Z-Eckpunkt (kumuliert), Start der Jahressumme */
@@ -5257,6 +5270,10 @@ function guideCardsHtml(){
       gchip('varYTD','toggle',(state.varYTD!==false?'✓ ':'')+'Δ%_YTD-Ebene (kumuliert)',state.varYTD!==false)+
       gchip('varRefCols','toggle',(state.varRefCols?'✓ ':'')+'Σ-Referenzsäulen + Total-Pin',!!state.varRefCols)));
   }
+  if(t==='zchart'){
+    out.push(gcard('Z-Chart · Monatswerte','Die Monatsreihe als ruhige Linie oder als Szenario-Säulen (AC/FC) im IBCS-MAT-Stil – kumulierte Diagonale und gleitende 12-Monats-Summe bleiben Linien.',
+      gchip('zMonthCol','line','Monate als Linie',!state.zMonthCol)+gchip('zMonthCol','col','Monate als Säulen',!!state.zMonthCol)));
+  }
   if(['columns','line'].includes(t)){
     out.push(gcard('Small Multiples je Gruppe (Vorschau)','Szenariovergleich über die Zeit, aufgeteilt in kleine Vielfache je Gruppe – direkt in der Vorschau (Gruppen-Spalte in der Datentabelle füllen). Säule vs Linie = der Diagrammtyp.',
       gchip('grpFacet','toggle',(state.grpFacet?'✓ ':'')+'Je Gruppe facetten',!!state.grpFacet)+
@@ -5332,6 +5349,7 @@ function applyGuideOpt(opt,val){
     case 'facetCols': state.facetCols=+val; renderPreview(); break;
     case 'grpFacet': state.grpFacet=!state.grpFacet; renderAll(); break;
     case 'grpScale': state.grpScale=val; renderPreview(); break;
+    case 'zMonthCol': state.zMonthCol = (val==='col'); renderPreview(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
     case 'fromMulti': morphBack(); break;
   }
@@ -7653,11 +7671,13 @@ function vlZChart(deneb){
      mark:Object.assign({type:'text', dy:-10, fontSize:11, font:'Arial', color:DARK}, bold?{fontWeight:'bold'}:{}),
      encoding:{y:vYq(f), text:vLab(deneb,f,labF,fm)}},
   ]);
+  /* Monatsreihe als Linie ODER als Szenario-Säulen (IBCS-MAT-Stil) */
+  const zbar = ()=>{ const m=vBarMarkScen(state.primary,14,true); m.encoding=Object.assign({y:vYq('p')}, m.encoding||{}); return m; };
+  const monthly = state.zMonthCol ? [zbar()] : [zline('p',1.6), zpts('p')];
   const layer = [
     zline('mat',2.1), zpts('mat'),
     zline('cum',2.1), zpts('cum'),
-    zline('p',1.6), zpts('p'),
-  ]
+  ].concat(monthly)
   .concat(lastTxt('p','Lp',vNum(), state.primary+' '+CL('Monat'), false))
   .concat(lastTxt('cum','Lc',vNum(), CL('kumuliert'), true))
   .concat([
@@ -8217,7 +8237,7 @@ function serialize(){
       stack100:state.stack100,
       sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient, wfRefCol:state.wfRefCol,
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel, bridgePY:state.bridgePY, bridgePYlevel:state.bridgePYlevel,
-      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale,
+      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
       multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
