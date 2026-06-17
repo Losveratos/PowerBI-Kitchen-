@@ -6483,16 +6483,6 @@ function ganttSvgString(){
 }
 /* Raw-Vega-Tabelle live rendern (interaktiv: Drill/Collapse + Cross-Filter
    funktionieren in der Vorschau wie später im Deneb-Visual). */
-/* IBCS-Schraffur (FC) als eingebettetes SVG-Pattern in die gerenderte Vorschau-
-   SVG injizieren – die Raw-Vega-Marks referenzieren fill:"url(#rvHatchDark)". */
-function rvInjectHatch(host){
-  const svg = host && host.querySelector('svg'); if(!svg || svg.querySelector('#rvHatchDark')) return;
-  const cc = varColors();
-  const pat = (id,col)=>'<pattern id="'+id+'" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" fill="#ffffff"/><line x1="0" y1="0" x2="0" y2="5" stroke="'+col+'" stroke-width="2.4"/></pattern>';
-  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
-  defs.innerHTML = pat('rvHatchDark','#0F1E2E')+pat('rvHatchPos',cc.pos)+pat('rvHatchNeg',cc.neg);
-  svg.insertBefore(defs, svg.firstChild);
-}
 function rvTableSvgString(){
   const live = document.querySelector('#chartHost svg');
   let s = live ? live.outerHTML : '';
@@ -8323,7 +8313,18 @@ function rvVarSpec(deneb){
       {type:'formula', as:'rel', expr:'datum.r?(datum.p-datum.r)/abs(datum.r)*100:null'},
       {type:'window', ops:['row_number'], as:['ord']}]},
     {name:'fcOnly', source:'all', transform:[{type:'filter', expr:'datum.fc'}]},
-    {name:'stripes', transform:[{type:'sequence', start:-280, stop:600, step:8, as:'o'}]}];
+    {name:'hatch', source:'fcOnly', transform:[
+      {type:'formula', as:'bx0', expr:"scale('x',datum.k)+bandwidth('x')*"+acB},
+      {type:'formula', as:'bx1', expr:"scale('x',datum.k)+bandwidth('x')*"+(acB+acW)},
+      {type:'formula', as:'byt', expr:"min(scale('yv',datum.p),scale('yv',0))"},
+      {type:'formula', as:'byb', expr:"max(scale('yv',datum.p),scale('yv',0))"},
+      {type:'formula', as:'cs', expr:"sequence(datum.bx0+datum.byt, datum.bx1+datum.byb, 7)"},
+      {type:'flatten', fields:['cs'], as:['c']},
+      {type:'formula', as:'xa', expr:"max(datum.bx0, datum.c-datum.byb)"},
+      {type:'formula', as:'xb', expr:"min(datum.bx1, datum.c-datum.byt)"},
+      {type:'formula', as:'ya', expr:"datum.c-datum.xa"},
+      {type:'formula', as:'yb', expr:"datum.c-datum.xb"},
+      {type:'filter', expr:"datum.xa <= datum.xb"}]}];
   const signals=[
     {name:'pbiContainerWidth', value:600}, {name:'pbiContainerHeight', value:340},
     {name:'width', update:'pbiContainerWidth'}, {name:'height', update:'pbiContainerHeight'},
@@ -8341,8 +8342,8 @@ function rvVarSpec(deneb){
     marks.push({type:'rect', from:{data:'all'}, encode:{update:refEnc}});
   }
   marks.push({type:'rect', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:acB}, width:{scale:'x',band:acW}, y:{scale:'yv',field:'p'}, y2:{scale:'yv',value:0}, fill:{signal:"datum.fc?'#ffffff':'"+DARK+"'"}, stroke:{value:DARK}, strokeWidth:{signal:'datum.fc?0.8:0'}, opacity:{signal:dim}}}});
-  /* FC-Schraffur: echte Vega-Marks (Diagonal-Stripes, je FC-Balken geclippt) – portabel auch im PBI-Export */
-  marks.push({type:'group', from:{data:'fcOnly'}, clip:true, encode:{update:{x:{scale:'x',field:'k',band:acB}, width:{scale:'x',band:acW}, y:{signal:'min(scale("yv",datum.p),scale("yv",0))'}, height:{signal:'abs(scale("yv",datum.p)-scale("yv",0))'}, opacity:{signal:dim}}}, marks:[{type:'rule', from:{data:'stripes'}, encode:{update:{x:{field:'o'}, y:{value:0}, x2:{signal:'datum.o+height'}, y2:{signal:'height'}, stroke:{value:DARK}, strokeWidth:{value:1.1}}}}]});
+  /* FC-Schraffur: echte Vega-Marks, je FC-Balken analytisch zugeschnitten (45°, kein clip nötig) – portabel auch im PBI-Export */
+  marks.push({type:'rule', from:{data:'hatch'}, encode:{update:{x:{field:'xa'}, y:{field:'ya'}, x2:{field:'xb'}, y2:{field:'yb'}, stroke:{value:DARK}, strokeWidth:{value:1}, opacity:{signal:dim}}}});
   if(refTri) marks.push({type:'symbol', from:{data:'all'}, encode:{update:{shape:{value:'triangle-left'}, x:{scale:'x',field:'k',band:0.86}, y:{scale:'yv',field:'r'}, size:{value:60}, fill:{value: RS==='PY'?'#a8a8a8':DARK}, opacity:{signal:'datum.r==null?0:('+dim+')'}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:acC}, y:{scale:'yv',field:'p'}, dy:{signal:'datum.p>=0?-6:12'}, text:{signal:'format(datum.p,",.0f")'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{signal:"datum.fc?'"+FCINK+"':'"+DARK+"'"}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:0.5}, y:{signal:'height-7'}, text:{field:'k'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:SUBC}}}});
@@ -8380,7 +8381,18 @@ function rvBarsSpec(deneb){
       {type:'formula', as:'rel', expr:'datum.r?(datum.p-datum.r)/abs(datum.r)*100:null'},
       {type:'window', ops:['row_number'], as:['ord']}]},
     {name:'fcOnly', source:'all', transform:[{type:'filter', expr:'datum.fc'}]},
-    {name:'stripes', transform:[{type:'sequence', start:-280, stop:600, step:8, as:'o'}]}];
+    {name:'hatch', source:'fcOnly', transform:[
+      {type:'formula', as:'byt', expr:"scale('y',datum.k)+bandwidth('y')*"+(refOn?0.28:0.18)},
+      {type:'formula', as:'byb', expr:"scale('y',datum.k)+bandwidth('y')*"+(refOn?0.72:0.82)},
+      {type:'formula', as:'bx0', expr:"min(scale('xv',0),scale('xv',datum.p))"},
+      {type:'formula', as:'bx1', expr:"max(scale('xv',0),scale('xv',datum.p))"},
+      {type:'formula', as:'cs', expr:"sequence(datum.bx0+datum.byt, datum.bx1+datum.byb, 7)"},
+      {type:'flatten', fields:['cs'], as:['c']},
+      {type:'formula', as:'xa', expr:"max(datum.bx0, datum.c-datum.byb)"},
+      {type:'formula', as:'xb', expr:"min(datum.bx1, datum.c-datum.byt)"},
+      {type:'formula', as:'ya', expr:"datum.c-datum.xa"},
+      {type:'formula', as:'yb', expr:"datum.c-datum.xb"},
+      {type:'filter', expr:"datum.xa <= datum.xb"}]}];
   const signals=[
     {name:'pbiContainerWidth', value:600}, {name:'pbiContainerHeight', value:320},
     {name:'width', update:'pbiContainerWidth'}, {name:'height', update:'pbiContainerHeight'},
@@ -8393,8 +8405,8 @@ function rvBarsSpec(deneb){
   marks.push({type:'rule', encode:{update:{x:{scale:'xv', value:0}, y:{value:6}, y2:{signal:'height-6'}, stroke:{value:DARK}, strokeWidth:{value:1.4}}}});
   if(refOn) marks.push({type:'rect', from:{data:'all'}, encode:{update:refBarEnc}});
   marks.push({type:'rect', from:{data:'all'}, encode:{update:{y:{scale:'y', field:'k', band: refOn?0.28:0.18}, height:{scale:'y', band: refOn?0.44:0.64}, x:{scale:'xv', value:0}, x2:{scale:'xv', field:'p'}, fill:{signal:"datum.fc?'#ffffff':'"+DARK+"'"}, stroke:{value:DARK}, strokeWidth:{signal:'datum.fc?0.8:0'}, opacity:{signal:dim}}}});
-  /* FC-Schraffur (portabel, echte Marks + Vega-clip) – horizontal */
-  marks.push({type:'group', from:{data:'fcOnly'}, clip:true, encode:{update:{y:{scale:'y', field:'k', band: refOn?0.28:0.18}, height:{scale:'y', band: refOn?0.44:0.64}, x:{signal:'min(scale("xv",0),scale("xv",datum.p))'}, width:{signal:'abs(scale("xv",datum.p)-scale("xv",0))'}, opacity:{signal:dim}}}, marks:[{type:'rule', from:{data:'stripes'}, encode:{update:{x:{field:'o'}, y:{value:0}, x2:{signal:'datum.o+height'}, y2:{signal:'height'}, stroke:{value:DARK}, strokeWidth:{value:1.1}}}}]});
+  /* FC-Schraffur (portabel, analytisch je FC-Balken zugeschnitten) – horizontal */
+  marks.push({type:'rule', from:{data:'hatch'}, encode:{update:{x:{field:'xa'}, y:{field:'ya'}, x2:{field:'xb'}, y2:{field:'yb'}, stroke:{value:DARK}, strokeWidth:{value:1}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{value:4}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, text:{field:'k'}, fontSize:{value:10.5}, font:{value:'Arial'}, fill:{value:SUBC}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'xv', field:'p', offset:5}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, align:{value:'left'}, text:{signal:'format(datum.p,",.0f")'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:DARK}, opacity:{signal:dim}}}});
   if(refOn) marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{signal:'width-6'}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, align:{value:'right'}, text:{signal:"datum.rel==null?'':(datum.rel>=0?'+':'')+format(datum.rel,'.1f')+'%'"}, fontSize:{value:9.5}, font:{value:'Arial'}, fill:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
