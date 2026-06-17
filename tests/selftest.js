@@ -929,6 +929,18 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       ok('W · Raw-Vega-Varianz (columns) · gültiges Vega-Template (provider vega, baked=0)',
          pV && tV.usermeta.deneb.provider==='vega' && tplBakedRows(tV)===0);
       ok('W · Raw-Vega-Varianz · Engine-Karte auch bei Varianz-Typen', (()=>{ state.type='columns'; return /data-opt="rawVega"/.test(guideCardsHtml()); })());
+      /* alle freigeschalteten Raw-Vega-Typen: rendern embedded + parsen als Deneb */
+      if(typeof RAWVAR_TYPES!=='undefined' && typeof rvSpecFor==='function'){
+        let allOk=true, bad='';
+        for(const ty of RAWVAR_TYPES){
+          state.type=ty; state.reference = (ty==='line'?'PY':'PL'); state.rawVega=true;
+          try{
+            const sp=rvSpecFor(false); const v=new window.vega.View(window.vega.parse(sp),{renderer:'none'}); await v.runAsync(); v.finalize();
+            const tpl=denebTemplate(); if(!window.vega.parse(tpl) || tplBakedRows(tpl)!==0) { allOk=false; bad=ty+':template'; break; }
+          }catch(e){ allOk=false; bad=ty+':'+(e.message||e); break; }
+        }
+        ok('W · Raw-Vega · alle Typen ('+RAWVAR_TYPES.join('/')+') rendern + Deneb-Template parst', allOk, bad);
+      }
       state.rawVega=false;
     }
 

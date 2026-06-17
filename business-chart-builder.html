@@ -6241,7 +6241,7 @@ function denebTemplate(){
   /* Raw-Vega (Tabelle/Varianz): interaktives Template (provider:'vega'), große
      Datenmengen, Cross-Filter (selection/highlight), Drill/Collapse via Signale. */
   if(rawVegaOn()){
-    const sp = rawVegaTableOn() ? rvTableSpec(true) : rvVarSpec(true);
+    const sp = rawVegaTableOn() ? rvTableSpec(true) : rvSpecFor(true);
     const TKr = { d0:['text','column'], d1:['text','column'], d2:['text','column'], dim:['text','column'] };
     const defs = vFieldDefs().filter(([k])=>['dim','d0','d1','d2','p','r'].includes(k)).map((pair,i)=>{ const key=pair[0], label=pair[1]; const tk = TKr[key] || ['numeric','measure'];
       return { ph:'__'+i+'__', name:F(key), label, type:tk[0], kind:tk[1] }; });
@@ -6493,7 +6493,7 @@ async function renderRawVegaTablePreview(){
   host.innerHTML = '<div style="padding:26px;font-size:12px;color:#8c8c8c">'+TT('Tabelle wird geladen …')+'</div>';
   try{
     await loadVegaLibs();
-    const spec = rawVegaTableOn() ? rvTableSpec(false) : rvVarSpec(false);
+    const spec = rawVegaTableOn() ? rvTableSpec(false) : rvSpecFor(false);
     const W = Math.max(420, Math.floor(host.clientWidth || 760));
     spec.signals.find(s=>s.name==='pbiContainerWidth').value = W;
     if(state._ganttView){ try{ state._ganttView.finalize(); }catch(e){} state._ganttView = null; }
@@ -8249,10 +8249,15 @@ function rvTableSpec(deneb){
 }
 /* Raw-Vega-Varianzanalyse (interaktiv): AC-Säulen + Referenzmarke + Δ%-Pin-Ebene,
    Cross-Filter (datum.__selected__), große Kategorienzahl, Container-Sizing. */
-const RAWVAR_TYPES = ['columns','kombi','bars','barskombi','absvar','relvar'];
+const RV_COL = ['columns','colline','kombi','absvar','relvar'];   /* vertikale Säulen + Δ%-Pins */
+const RV_BAR = ['bars','barskombi'];                              /* horizontale Balken */
+const RV_LINE = ['line'];                                         /* Zeitreihen-Linie(n) */
+const RAWVAR_TYPES = RV_COL.concat(RV_BAR, RV_LINE);
 function rawVegaTableOn(){ return state.rawVega && state.type==='table'; }
 function rawVegaVarOn(){ return state.rawVega && RAWVAR_TYPES.includes(state.type); }
 function rawVegaOn(){ return rawVegaTableOn() || rawVegaVarOn(); }
+/* passende Raw-Vega-Spec je Typ */
+function rvSpecFor(deneb){ return RV_BAR.includes(state.type) ? rvBarsSpec(deneb) : (RV_LINE.includes(state.type) ? rvLineSpec(deneb) : rvVarSpec(deneb)); }
 function rvVarData(){ return activeRows().filter(r=>!isNaN(r.v1)).map(r=>({k:r.c, p:r.v1, r:isNaN(r.v2)?null:r.v2})); }
 function rvVarSpec(deneb){
   const c=varColors(), POS=c.pos, NEG=c.neg, DARK='#0F1E2E', SUBC='#475569';
@@ -8293,6 +8298,73 @@ function rvVarSpec(deneb){
     {name:'yr', type:'linear', domain:{data:'all', field:'rel'}, range:[{signal:'pinsH'},{signal:'14'}], nice:true, zero:true}];
   return { $schema:'https://vega.github.io/schema/vega/v5.json',
     description:'IBCS-Varianzanalyse · Raw-Vega (interaktiv: Cross-Filter, große Datenmengen)',
+    padding:5, autosize:{type:'fit', resize:true, contains:'padding'}, signals, data, scales, marks };
+}
+/* Raw-Vega horizontale Balken (Struktur): AC-Balken + Referenz-Szenariobalken,
+   Δ% als farbiges Label rechts. Cross-Filter, große Kategorienzahl. */
+function rvBarsSpec(deneb){
+  const c=varColors(), POS=c.pos, NEG=c.neg, DARK='#0F1E2E', SUBC='#475569';
+  const FK=deneb?'__0__':'k', FP=deneb?'__1__':'p', FR=deneb?'__2__':'r';
+  const dim="((sel!=null&&sel!==datum.k)||datum.__selected__==='off')?0.4:1";
+  const refOn = state.reference!=='—';
+  const RS=state.reference; let rFill='#a8a8a8', rStroke=null, rSW=0;
+  if(RS==='PL'||RS==='BU'){ rFill='#ffffff'; rStroke=DARK; rSW=1.3; } else if(RS==='FC'){ rFill='#ffffff'; rStroke=DARK; rSW=1; }
+  const data=[{name:'dataset', ...(deneb?{}:{values:rvVarData()})},
+    {name:'all', source:'dataset', transform:[
+      {type:'formula', as:'k', expr:'datum.'+FK}, {type:'formula', as:'p', expr:'datum.'+FP}, {type:'formula', as:'r', expr:'datum.'+FR},
+      {type:'formula', as:'rel', expr:'datum.r?(datum.p-datum.r)/abs(datum.r)*100:null'},
+      {type:'window', ops:['row_number'], as:['ord']}]}];
+  const signals=[
+    {name:'pbiContainerWidth', value:600}, {name:'pbiContainerHeight', value:320},
+    {name:'width', update:'pbiContainerWidth'}, {name:'height', update:'pbiContainerHeight'},
+    {name:'labelW', value:120}, {name:'relW', value:62},
+    {name:'sel', value:null, on:[{events:'rect:click,text:click', update:'datum&&datum.k?(sel===datum.k?null:datum.k):sel'}]}];
+  const refBarEnc={y:{scale:'y', field:'k', band:0.12}, height:{scale:'y', band:0.76}, x:{scale:'xv', value:0}, x2:{scale:'xv', field:'r'}, fill:{value:rFill}, opacity:{signal:'datum.r==null?0:('+dim+')'}};
+  if(rStroke){ refBarEnc.stroke={value:rStroke}; refBarEnc.strokeWidth={value:rSW}; }
+  const marks=[];
+  if(refOn) marks.push({type:'rect', from:{data:'all'}, encode:{update:refBarEnc}});
+  marks.push({type:'rect', from:{data:'all'}, encode:{update:{y:{scale:'y', field:'k', band: refOn?0.28:0.18}, height:{scale:'y', band: refOn?0.44:0.64}, x:{scale:'xv', value:0}, x2:{scale:'xv', field:'p'}, fill:{value:DARK}, opacity:{signal:dim}}}});
+  marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{value:4}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, text:{field:'k'}, fontSize:{value:10.5}, font:{value:'Arial'}, fill:{value:SUBC}, opacity:{signal:dim}}}});
+  marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'xv', field:'p', offset:5}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, align:{value:'left'}, text:{signal:'format(datum.p,",.0f")'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:DARK}, opacity:{signal:dim}}}});
+  if(refOn) marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{signal:'width-6'}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, align:{value:'right'}, text:{signal:"datum.rel==null?'':(datum.rel>=0?'+':'')+format(datum.rel,'.1f')+'%'"}, fontSize:{value:9.5}, font:{value:'Arial'}, fill:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
+  const scales=[
+    {name:'y', type:'band', domain:{data:'all', field:'k', sort:{field:'ord', op:'min'}}, range:[6,{signal:'height-6'}], paddingInner:0.3},
+    {name:'xv', type:'linear', domain:{data:'all', fields:['p','r']}, range:[{signal:'labelW'},{signal:'width-relW-10'}], nice:true, zero:true}];
+  return { $schema:'https://vega.github.io/schema/vega/v5.json',
+    description:'IBCS-Balken-Varianz · Raw-Vega (interaktiv: Cross-Filter, große Datenmengen)',
+    padding:5, autosize:{type:'fit', resize:true, contains:'padding'}, signals, data, scales, marks };
+}
+/* Raw-Vega Zeitreihen-Linie: AC-Linie + Referenzlinie (Szenario-Notation) +
+   klickbare Marker (Cross-Filter), Container-Sizing, große Periodenzahl. */
+function rvLineSpec(deneb){
+  const POS='#3a8a3a', NEG='#c0392b', DARK='#0F1E2E', SUBC='#475569', LIGHTC='#a8a8a8';
+  const FK=deneb?'__0__':'k', FP=deneb?'__1__':'p', FR=deneb?'__2__':'r';
+  const dim="((sel!=null&&sel!==datum.k)||datum.__selected__==='off')?0.45:1";
+  const refOn = state.reference!=='—';
+  const refDash = (state.reference==='PL'||state.reference==='BU');
+  const refCol = state.reference==='PY' ? LIGHTC : DARK;
+  const data=[{name:'dataset', ...(deneb?{}:{values:rvVarData()})},
+    {name:'all', source:'dataset', transform:[
+      {type:'formula', as:'k', expr:'datum.'+FK}, {type:'formula', as:'p', expr:'datum.'+FP}, {type:'formula', as:'r', expr:'datum.'+FR},
+      {type:'window', ops:['row_number'], as:['ord']}, {type:'collect', sort:{field:'ord'}}]}];
+  const signals=[
+    {name:'pbiContainerWidth', value:620}, {name:'pbiContainerHeight', value:300},
+    {name:'width', update:'pbiContainerWidth'}, {name:'height', update:'pbiContainerHeight'},
+    {name:'sel', value:null, on:[{events:'symbol:click,text:click', update:'datum&&datum.k?(sel===datum.k?null:datum.k):sel'}]}];
+  const marks=[];
+  if(refOn){
+    marks.push({type:'line', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{scale:'y', field:'r'}, stroke:{value:refCol}, strokeWidth:{value:1.6}, ...(refDash?{strokeDash:{value:[4,3]}}:{}), defined:{signal:'datum.r!=null'}}}});
+    marks.push({type:'symbol', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{scale:'y', field:'r'}, size:{value:24}, fill:{value: state.reference==='PY'?LIGHTC:'#ffffff'}, stroke:{value:refCol}, strokeWidth:{value:1}, opacity:{signal:'datum.r==null?0:1'}}}});
+  }
+  marks.push({type:'line', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{scale:'y', field:'p'}, stroke:{value:DARK}, strokeWidth:{value:2.2}}}});
+  marks.push({type:'symbol', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{scale:'y', field:'p'}, size:{value:46}, fill:{value:DARK}, opacity:{signal:dim}}}});
+  marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{scale:'y', field:'p', offset:-9}, align:{value:'center'}, text:{signal:'format(datum.p,",.0f")'}, fontSize:{value:9.5}, font:{value:'Arial'}, fill:{value:DARK}, opacity:{signal:dim}}}});
+  marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{signal:'height-7'}, align:{value:'center'}, text:{field:'k'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:SUBC}}}});
+  const scales=[
+    {name:'x', type:'point', domain:{data:'all', field:'k', sort:{field:'ord', op:'min'}}, range:[24,{signal:'width-16'}], padding:0.5},
+    {name:'y', type:'linear', domain:{data:'all', fields:['p','r']}, range:[{signal:'height-20'},{signal:'18'}], nice:true, zero:true}];
+  return { $schema:'https://vega.github.io/schema/vega/v5.json',
+    description:'IBCS-Linie · Raw-Vega (interaktiv: Cross-Filter, große Datenmengen)',
     padding:5, autosize:{type:'fit', resize:true, contains:'padding'}, signals, data, scales, marks };
 }
 function vlTableHier(deneb){
@@ -8572,7 +8644,7 @@ function dashboardSpec(deneb){
 function vegaSpec(deneb){
   /* Raw-Vega-Pfad (interaktiv, kein VL-Wrapping) */
   if(rawVegaTableOn()) return rvTableSpec(deneb);
-  if(rawVegaVarOn())   return rvVarSpec(deneb);
+  if(rawVegaVarOn())   return rvSpecFor(deneb);
   const core = vegaSpecCore(deneb);
   if(!core) return null;
   let body = core.body; const t = core.t;
