@@ -560,6 +560,7 @@ footer a:hover{color:var(--ink)}
           <option value="pnlV">GuV mit Zwischensumme · vertikal</option>
           <option value="pnlVA">GuV-Wasserfall mit ΔPY (Varianz)</option>
           <option value="varintDemo">Integrierte Varianzanalyse (4 Tiers, AC/FC vs PL)</option>
+          <option value="furnitureInc">Furniture Inc. · Net sales (IBCS, AC/FC vs PY)</option>
           <option value="slopeDemo">Slope · Vorher/Nachher (PY → AC)</option>
           <option value="fanDemo">Fan · Ist + Forecast-Korridor</option>
           <option value="heatmapDemo">Heatmap · Δ vs Plan (Region × Monat)</option>
@@ -816,6 +817,7 @@ const state = {
   cutSums:true,
   t3auto:true,
   trend:false,
+  varYTD:true,
   refLine:'none',
   lineAllLabels:false,
   topN:0,
@@ -3137,7 +3139,7 @@ function renderVarInt(rows){
   const ref = state.reference;
   let s='', y=0;
   const tier=(cap, r)=>{ s += '<g transform="translate(0,'+y+')">'+txt(12,10,cap,{size:10.5,fill:'#8a8a8a'})+r.svg+'</g>'; y += r.H+gap; };
-  tier('Δ'+ref+'%_YTD', renderRelVar(ytd,  Object.assign({noCats:true, plotH:78}, pads)));
+  if(state.varYTD!==false) tier('Δ'+ref+'%_YTD', renderRelVar(ytd,  Object.assign({noCats:true, plotH:78}, pads)));
   tier('Δ'+ref+'%',     renderRelVar(rows, Object.assign({noCats:true, plotH:78}, pads)));
   tier('Δ'+ref+' '+CL('Beitraege'), renderTimeWf(delta, Object.assign({noCats:true, plotH:140}, pads)));
   const base = renderColumns(rows, {plotH:150, totalCol:true});
@@ -4799,6 +4801,11 @@ const PRESETS = {
   varintDemo:{ type:'varint', primary:'AC', reference:'PL', t2:'Net sales in KEUR · 2026',
     rows:[['1',317,300],['2',311,300],['3',305,300],['4',301,300],['5',299,300],['6',298,300],
           ['7',306,300,,1],['8',310,300,,1],['9',312,300,,1],['10',313,300,,1],['11',313,300,,1],['12',312,300,,1]] },
+  furnitureInc:{ type:'varint', primary:'AC', reference:'PY', t1:'Furniture Inc.', t2:'Net sales in kEUR', t3:'2025',
+    msg:'We expect a decrease of 42 kEUR (-24.1%) vs previous year until end of the year because of the negative forecast beginning in October',
+    decimals:0, endPins:true, varYTD:false,
+    rows:[['Jan',15,14],['Feb',13,16],['Mar',17,14],['Apr',7,9],['May',5,11],['Jun',6,9],
+          ['Jul',11,16],['Aug',9,14],['Sep',22,16,,1],['Oct',8,17,,1],['Nov',7,16,,1],['Dec',12,22,,1]] },
   pnlV:{ type:'waterfall', orient:'v', reference:'PY', t2:'Ergebnisrechnung in mEUR',
     wrows:[['Umsatz',642,601,'sum'],['Materialkosten',-238,-221,'delta'],['Bruttoergebnis',0,0,'sum'],['Personal',-176,-168,'delta'],['Sonstige Kosten',-94,-89,'delta'],['Lizenzerträge',38,31,'delta'],['EBIT',0,0,'sum']] },
   bridgeM:{ type:'bridge', orient:'h', primary:'AC', reference:'PL', t2:'Umsatz in mEUR, Überleitung je Monat',
@@ -4870,8 +4877,14 @@ function loadPreset(key){
   state.bridgeDir = 'fwd';
   if(p.primary) state.primary = p.primary;
   if(p.reference) state.reference = p.reference;
+  if(p.t1!==undefined) $('#t1').value = p.t1;
   if(p.t2) $('#t2').value = p.t2;
   state.t3auto = true;
+  if(p.t3!==undefined){ $('#t3').value = p.t3; state.t3auto = false; }
+  if(p.msg!==undefined) state.msg = p.msg;
+  if(p.decimals!==undefined) state.decimals = p.decimals;
+  if(p.endPins!==undefined) state.endPins = !!p.endPins;
+  if(p.varYTD!==undefined) state.varYTD = p.varYTD;
   renderAll();
 }
 
@@ -4962,6 +4975,10 @@ function guideCardsHtml(){
     out.push(gcard('Integrierte GuV','Zweite Szenario-Wasserfall-Spalte (Referenz, z. B. FC schraffiert) neben dem Primär-Wasserfall – ergibt die integrierte IBCS-Darstellung AC · '+esc(state.reference)+' · Δ · Δ%.',
       gchip('wfRefCol','toggle',(state.wfRefCol?'✓ ':'')+'Referenz-Wasserfall-Spalte',!!state.wfRefCol)));
   }
+  if(t==='varint'){
+    out.push(gcard('Integrierte Varianz','Die kumulierte Δ%_YTD-Ebene zeigen oder weglassen (ohne = klassische 3-Tier-IBCS-Darstellung: Δ% · Δ-Brücke · Säulen).',
+      gchip('varYTD','toggle',(state.varYTD!==false?'✓ ':'')+'Δ%_YTD-Ebene (kumuliert)',state.varYTD!==false)));
+  }
   if(['columns','line','bars'].includes(t)){
     out.push(gcard('Trellis-Export (Power BI)','Exportiert als Small-Multiples-Visual je Feld – nur im Deneb-Template; die Vorschau bleibt eine Kachel.',
       '<input data-optin="facetField" value="'+esc(state.facetField||'')+'" placeholder="Feld, z. B. Region" style="width:150px">'+
@@ -5014,6 +5031,7 @@ function applyGuideOpt(opt,val){
     case 'multiScale': state.multiScale=val; renderPreview(); break;
     case 'stack100': state.stack100=!state.stack100; renderPreview(); break;
     case 'wfRefCol': state.wfRefCol=!state.wfRefCol; renderAll(); break;
+    case 'varYTD': state.varYTD = state.varYTD===false; renderPreview(); break;
     case 'cbSafe': state.cbSafe=!state.cbSafe; renderAll(); break;
     case 'facetCols': state.facetCols=+val; renderPreview(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
@@ -6810,7 +6828,8 @@ function vlVarintDyn(deneb){
     encoding:{x:xOrd(null), y:vYq('e'), text:{field:'e', type:'quantitative', format:vNum()}}});
   const tier4 = { width:580, height:160, layer:t4 };
 
-  return { vconcat:[tier1, tier2, tier3, tier4], spacing:14 };
+  const tiers = (state.varYTD!==false ? [tier1] : []).concat([tier2, tier3, tier4]);
+  return { vconcat:tiers, spacing:14 };
 }
 function vlLine(deneb){
   const rows = activeRows();
@@ -7897,7 +7916,7 @@ function serialize(){
       stack100:state.stack100,
       sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient, wfRefCol:state.wfRefCol,
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel, bridgePY:state.bridgePY, bridgePYlevel:state.bridgePYlevel,
-      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend,
+      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
       multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,

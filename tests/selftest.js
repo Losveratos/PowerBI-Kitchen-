@@ -696,6 +696,35 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       state.wfRefCol=false;
     }
 
+    /* === R) varint · YTD-Tier-Toggle + Furniture-Inc.-Preset (IBCS 1:1) === */
+    if('varYTD' in state){
+      /* Toggle blendet den kumulierten ΔRef%_YTD-Tier ein/aus (4 vs 3 Tiers) */
+      loadPreset('varintDemo'); state.varYTD=true; renderAll();
+      const tiersOn=(vegaSpec(false).vconcat||[]).length;
+      state.varYTD=false; renderAll();
+      const tiersOff=(vegaSpec(false).vconcat||[]).length;
+      ok('R · varint · varYTD schaltet YTD-Tier (4→3 im VL-vconcat)',
+         tiersOn===4 && tiersOff===3, 'on='+tiersOn+' off='+tiersOff);
+      const svgOn=(state.varYTD=true, renderAll(), chartHtml());
+      const svgOff=(state.varYTD=false, renderAll(), chartHtml());
+      ok('R · varint · YTD aus → SVG ohne _YTD-Tier, kein NaN',
+         /_YTD/.test(svgOn) && !/_YTD/.test(svgOff) && !/NaN/.test(svgOff));
+      /* Furniture-Inc.-Preset: 3 Tiers, decimals=0, endPins, varYTD=false, 12 Monate */
+      if(typeof PRESETS==='object' && PRESETS.furnitureInc){
+        loadPreset('furnitureInc');
+        ok('R · Furniture-Inc.-Preset · varint, varYTD=false, decimals=0, 12 Zeilen',
+           state.type==='varint' && state.varYTD===false && state.decimals===0 && state.rows.length===12);
+        const svgF=chartHtml();
+        ok('R · Furniture-Inc.-Preset · 3 Tiers + Σ-Totale (132/83/49), kein NaN',
+           />132</.test(svgF) && />83</.test(svgF) && />49</.test(svgF) && !/_YTD/.test(svgF) && !/NaN/.test(svgF));
+        const tF=denebTemplate(); const bF=clone(tF); delete bF.usermeta;
+        let fc=false; try{ fc=!!VL.compile(bF).spec; }catch(e){}
+        ok('R · Furniture-Inc.-Preset · Template kompiliert (baked=0)',
+           fc && tplBakedRows(tF)===0 && (bF.vconcat||[]).length===3);
+      }
+      state.varYTD=true;
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{
