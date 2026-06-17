@@ -860,6 +860,7 @@ const state = {
   grpFacet:false,
   grpScale:'shared',
   zMonthCol:false,
+  zMonthRef:false,
   refLine:'none',
   lineAllLabels:false,
   topN:0,
@@ -3098,7 +3099,9 @@ function renderZChart(rows, opt){
   const W=640, plotH=opt.plotH||240, padT=26, padB=22, padL=opt.padL||14, padR=opt.padR||96;
   const H = padT+plotH+padB;
   const {cumA, mat, totR} = zSeries(rows);
-  const vals = rows.map(r=>r.v1).concat(cumA, mat).filter(v=>!isNaN(v));
+  const hasRef = state.reference!=='—';
+  const showRef = state.zMonthRef && hasRef;
+  const vals = rows.map(r=>r.v1).concat(showRef?rows.map(r=>r.v2):[], cumA, mat).filter(v=>!isNaN(v));
   const sc = makeScale(Math.min(...vals,0), Math.max(...vals,0), plotH, 0.10);
   const slot=(W-padL-padR)/rows.length, y0=padT+sc.zeroY;
   const X = i => padL+slot*i+slot/2;
@@ -3119,22 +3122,43 @@ function renderZChart(rows, opt){
     });
     return {svg:out, pts};
   };
+  /* Referenz-Monatslinie (Szenario-Notation: PY hell, PL/BU gestrichelt/hohl) */
+  const drawZRef = (get, scen)=>{
+    const col = scen==='PY'?LIGHT:DARK, dash=(scen==='PL'||scen==='BU'), hollow=dash;
+    const pts = rows.map((r,i)=>({i, v:get(i)})).filter(p=>!isNaN(p.v));
+    let out='';
+    for(let k=1;k<pts.length;k++){ const a=pts[k-1], b=pts[k];
+      out += '<line x1="'+X(a.i)+'" y1="'+Y(a.v)+'" x2="'+X(b.i)+'" y2="'+Y(b.v)+'" stroke="'+col+'" stroke-width="1.5"'+(dash?' stroke-dasharray="4,3"':'')+'/>'; }
+    pts.forEach(p=>{ out += '<circle cx="'+X(p.i)+'" cy="'+Y(p.v)+'" r="2.6" fill="'+(hollow?WHITE:col)+'" stroke="'+col+'" stroke-width="'+(hollow?1.3:0)+'"/>'; });
+    const last = pts[pts.length-1];
+    if(last) out += txt(X(last.i)+9, Y(last.v)+3.5, scen, {size:9.5, fill: scen==='PY'?SUB:DARK});
+    return out;
+  };
   const cLine = drawZ(i=>cumA[i], 2.1, 3.1);
   const tLine = drawZ(i=>mat[i], 2.1, 3.1);
-  /* Monatswerte als Linie ODER (IBCS-MAT-Stil) als Szenario-Säulen */
-  let mLine;
+  /* Monatswerte als Linie(n) ODER Szenario-Säulen; optional Referenz vergleichen */
+  let mLine, mRef='';
   if(state.zMonthCol){
-    let cols='', mpts=[]; const bw=Math.min(slot*0.5, 22);
-    rows.forEach((r,i)=>{ if(isNaN(r.v1)) return;
-      const h=Math.max(0.5, Math.abs(sc.y(r.v1)-sc.zeroY)), yy=r.v1>=0?Y(r.v1):y0;
-      cols += rect(X(i)-bw/2, yy, bw, h, scenPaint(state.primary, r.fc), i);
-      mpts.push({i, v:r.v1, fc:!!r.fc});
+    let cols='', refcols='', mpts=[];
+    const bw = showRef ? Math.min(slot*0.30, 13) : Math.min(slot*0.5, 22);
+    const off = showRef ? bw*0.58 : 0;
+    rows.forEach((r,i)=>{
+      if(showRef && !isNaN(r.v2)){
+        const h=Math.max(0.5, Math.abs(sc.y(r.v2)-sc.zeroY)), yy=r.v2>=0?Y(r.v2):y0;
+        refcols += rect(X(i)+off-bw/2, yy, bw, h, scenPaint(state.reference));
+      }
+      if(!isNaN(r.v1)){
+        const h=Math.max(0.5, Math.abs(sc.y(r.v1)-sc.zeroY)), yy=r.v1>=0?Y(r.v1):y0;
+        cols += rect(X(i)-off-bw/2, yy, bw, h, scenPaint(state.primary, r.fc), i);
+        mpts.push({i, v:r.v1, fc:!!r.fc});
+      }
     });
-    mLine = {svg:cols, pts:mpts};
+    mRef = refcols; mLine = {svg:cols, pts:mpts};
   } else {
+    if(showRef) mRef = drawZRef(i=>rows[i].v2, state.reference);
     mLine = drawZ(i=>rows[i].v1, 1.6, 2.7);
   }
-  s += tLine.svg + cLine.svg + mLine.svg;
+  s += tLine.svg + cLine.svg + mRef + mLine.svg;
 
   /* Beschriftung: letzter Monatswert, Z-Eckpunkt (kumuliert), Start der Jahressumme */
   const lastOf = L => L.pts.length ? L.pts[L.pts.length-1] : null;
@@ -5271,8 +5295,10 @@ function guideCardsHtml(){
       gchip('varRefCols','toggle',(state.varRefCols?'✓ ':'')+'Σ-Referenzsäulen + Total-Pin',!!state.varRefCols)));
   }
   if(t==='zchart'){
-    out.push(gcard('Z-Chart · Monatswerte','Die Monatsreihe als ruhige Linie oder als Szenario-Säulen (AC/FC) im IBCS-MAT-Stil – kumulierte Diagonale und gleitende 12-Monats-Summe bleiben Linien.',
-      gchip('zMonthCol','line','Monate als Linie',!state.zMonthCol)+gchip('zMonthCol','col','Monate als Säulen',!!state.zMonthCol)));
+    let zb = gchip('zMonthCol','line','Monate als Linie',!state.zMonthCol)+gchip('zMonthCol','col','Monate als Säulen',!!state.zMonthCol);
+    if(state.reference!=='—') zb += '<span style="flex-basis:100%;height:0"></span>'+
+      gchip('zMonthRef','toggle',(state.zMonthRef?'✓ ':'')+'Referenz ('+state.reference+') vergleichen',!!state.zMonthRef);
+    out.push(gcard('Z-Chart · Monatswerte','Die Monatsreihe als ruhige Linie oder als Szenario-Säulen (IBCS-MAT-Stil). Optional die Referenz als 2. Reihe vergleichen – dann 2 Säulen bzw. 2 Linien. Kumulierte Diagonale und 12-Monats-Summe bleiben Linien.', zb));
   }
   if(['columns','line'].includes(t)){
     out.push(gcard('Small Multiples je Gruppe (Vorschau)','Szenariovergleich über die Zeit, aufgeteilt in kleine Vielfache je Gruppe – direkt in der Vorschau (Gruppen-Spalte in der Datentabelle füllen). Säule vs Linie = der Diagrammtyp.',
@@ -5350,6 +5376,7 @@ function applyGuideOpt(opt,val){
     case 'grpFacet': state.grpFacet=!state.grpFacet; renderAll(); break;
     case 'grpScale': state.grpScale=val; renderPreview(); break;
     case 'zMonthCol': state.zMonthCol = (val==='col'); renderPreview(); break;
+    case 'zMonthRef': state.zMonthRef = !state.zMonthRef; renderPreview(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
     case 'fromMulti': morphBack(); break;
   }
@@ -7671,9 +7698,23 @@ function vlZChart(deneb){
      mark:Object.assign({type:'text', dy:-10, fontSize:11, font:'Arial', color:DARK}, bold?{fontWeight:'bold'}:{}),
      encoding:{y:vYq(f), text:vLab(deneb,f,labF,fm)}},
   ]);
-  /* Monatsreihe als Linie ODER als Szenario-Säulen (IBCS-MAT-Stil) */
-  const zbar = ()=>{ const m=vBarMarkScen(state.primary,14,true); m.encoding=Object.assign({y:vYq('p')}, m.encoding||{}); return m; };
-  const monthly = state.zMonthCol ? [zbar()] : [zline('p',1.6), zpts('p')];
+  /* Monatsreihe als Linie(n) ODER als Szenario-Säulen (IBCS-MAT-Stil),
+     optional die Referenz als 2. Reihe (2 Säulen via xOffset bzw. 2 Linien) */
+  const hasRefM = state.reference!=='—';
+  const showRefM = state.zMonthRef && hasRefM;
+  const zbar = (f, code, fcAware, xoff)=>{ const m=vBarMarkScen(code, showRefM?10:14, fcAware);
+    m.encoding=Object.assign({y:vYq(f)}, m.encoding||{}); if(xoff) m.encoding.xOffset={value:xoff}; return m; };
+  const refCol = state.reference==='PY'?LIGHT:DARK, refDash=(state.reference==='PL'||state.reference==='BU');
+  const zlineRef = (f)=>({mark:{type:'line', color:refCol, strokeWidth:1.5, strokeDash:refDash?[4,3]:[1,0]}, encoding:{y:vYq(f)}});
+  const zptsRef = (f)=>({mark:{type:'point', size:26, filled:!refDash, color:refCol}, encoding:{y:vYq(f)}});
+  let monthly;
+  if(state.zMonthCol){
+    monthly = showRefM ? [zbar('r', state.reference, false, 6), zbar('p', state.primary, true, -6)]
+                       : [zbar('p', state.primary, true, 0)];
+  } else {
+    monthly = showRefM ? [zlineRef('r'), zptsRef('r'), zline('p',1.6), zpts('p')]
+                       : [zline('p',1.6), zpts('p')];
+  }
   const layer = [
     zline('mat',2.1), zpts('mat'),
     zline('cum',2.1), zpts('cum'),
@@ -8237,7 +8278,7 @@ function serialize(){
       stack100:state.stack100,
       sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient, wfRefCol:state.wfRefCol,
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel, bridgePY:state.bridgePY, bridgePYlevel:state.bridgePYlevel,
-      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol,
+      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
       multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,

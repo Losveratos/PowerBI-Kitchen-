@@ -59,7 +59,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     unit:state.unit, unitScale:state.unitScale, decimals:state.decimals, msg:state.msg,
     stack100:state.stack100, bridgePY:state.bridgePY, bridgeRel:state.bridgeRel,
     treeJson:state.treeJson, varRefCols:state.varRefCols, varYTD:state.varYTD,
-    grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol,
+    grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef,
     t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
   };
   const restore = ()=>{
@@ -70,7 +70,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       decimals:snap.decimals, msg:snap.msg, stack100:snap.stack100,
       bridgePY:snap.bridgePY, bridgeRel:snap.bridgeRel,
       treeJson:snap.treeJson, varRefCols:snap.varRefCols, varYTD:snap.varYTD,
-      grpFacet:snap.grpFacet, grpScale:snap.grpScale, zMonthCol:snap.zMonthCol});
+      grpFacet:snap.grpFacet, grpScale:snap.grpScale, zMonthCol:snap.zMonthCol, zMonthRef:snap.zMonthRef});
     const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v==null?'':v; };
     set('t1',snap.t1); set('t2',snap.t2); set('t3',snap.t3);
     try{ renderAll(); }catch(e){}
@@ -793,9 +793,24 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       let uc=false; try{ uc=!!VL.compile(bU).spec; }catch(e){}
       ok('U · Z-Chart · Säulen-Template kompiliert (bar-Mark, baked=0)',
          uc && /"type":"bar"/.test(JSON.stringify(bU)) && tplBakedRows(tU)===0);
-      /* Guide-Karte vorhanden */
-      ok('U · Z-Chart · Guide-Karte zMonthCol', (()=>{ state.type='zchart'; return /data-opt="zMonthCol"/.test(guideCardsHtml()); })());
-      state.zMonthCol=false;
+      /* 2-Szenarien-Vergleich: 2 Säulen (xOffset im Template) bzw. 2 Linien */
+      state.reference='PL'; state.zMonthCol=true; state.zMonthRef=true; renderPreview();
+      const rects2 = document.getElementById('chartHost').querySelectorAll('svg rect').length;
+      const t2col=denebTemplate(); const b2=clone(t2col); delete b2.usermeta;
+      let c2=false; try{ c2=!!VL.compile(b2).spec; }catch(e){}
+      ok('U · Z-Chart · 2 Szenarien als Säulen (Referenz-Säulen + xOffset-Template)',
+         rects2 > rectsCol && c2 && /"xOffset"/.test(JSON.stringify(b2)) && tplBakedRows(t2col)===0);
+      state.zMonthCol=false; renderPreview();
+      const lines2 = document.getElementById('chartHost').querySelectorAll('svg line').length;
+      state.zMonthRef=false; renderPreview();
+      const lines1 = document.getElementById('chartHost').querySelectorAll('svg line').length;
+      const t2line=denebTemplate(); const bl=clone(t2line); delete bl.usermeta;
+      let cl=false; try{ cl=!!VL.compile(bl).spec; }catch(e){}
+      ok('U · Z-Chart · 2 Szenarien als Linien (mehr Liniensegmente + Template kompiliert)',
+         lines2 > lines1 && cl && tplBakedRows(t2line)===0 && !/NaN/.test(chartHtml()));
+      /* Guide-Karte vorhanden (zMonthCol + zMonthRef bei gesetzter Referenz) */
+      ok('U · Z-Chart · Guide-Karte zMonthCol + zMonthRef', (()=>{ state.type='zchart'; state.reference='PL'; const g=guideCardsHtml(); return /data-opt="zMonthCol"/.test(g) && /data-opt="zMonthRef"/.test(g); })());
+      state.zMonthCol=false; state.zMonthRef=false;
     }
 
     /* === T) Szenariovergleich je Gruppe · In-Preview Small Multiples (columns/line) === */
