@@ -8217,6 +8217,8 @@ function rvTableSpec(deneb){
     {name:'pbiContainerWidth', value:660}, {name:'pbiContainerHeight', value:300},
     {name:'width', update:'pbiContainerWidth'},
     {name:'rowH', value:25}, {name:'labelW', value:190}, {name:'numW', value:56}, {name:'gap', value:16},
+    {name:'dx0', update:'labelW+numW*2+gap'}, {name:'dx1', update:'dx0+140'},
+    {name:'rx0', update:'dx1+26'}, {name:'rx1', update:'rx0+150'},
     {name:'nRows', update:"length(data('all'))"},
     {name:'height', update:'max(pbiContainerHeight, nRows*rowH + rowH + 6)'},
     {name:'sel', value:null, on:[{events:'@cat:click', update:'datum && datum.isParent ? sel : (sel===datum.k?null:datum.k)'}]}];
@@ -8224,7 +8226,7 @@ function rvTableSpec(deneb){
   const yB={scale:'y', field:'k', band:0.5};
   const refOn = state.reference!=='—';
   const marks=[
-    {type:'rule', encode:{update:{x:{value:0}, x2:{signal:'width'}, y:{signal:'rowH-3'}, stroke:{value:DARK}, strokeWidth:{value:1.2}}}},
+    {type:'rule', encode:{update:{x:{value:0}, x2:{signal: refOn?'rx1+12':'labelW+numW+10'}, y:{signal:'rowH-3'}, stroke:{value:DARK}, strokeWidth:{value:1.2}}}},
     {type:'text', encode:{update:{x:{signal:'labelW+numW'}, y:{value:12}, text:{value:state.primary}, align:{value:'right'}, font:{value:'Arial'}, fontSize:{value:10.5}, fontWeight:{value:'bold'}, fill:{value:DARK}}}},
     {type:'text', name:'cat', from:{data:'all'}, encode:{enter:{align:{value:'left'}, baseline:{value:'middle'}, font:{value:'Arial'}, cursor:{value:'pointer'}}, update:{
       x:{signal:'2+datum.lvl*14'}, y:yB, text:{signal: hier ? "(datum.isParent?(indata('collapsedData','k',datum.k)?'▸ ':'▾ '):'')+datum.k" : 'datum.k'},
@@ -8234,8 +8236,11 @@ function rvTableSpec(deneb){
   if(refOn){
     /* Spalten-Header: Referenz · ΔRef · ΔRef% */
     marks.push({type:'text', encode:{update:{x:{signal:'labelW+numW*2'}, y:{value:12}, text:{value:state.reference}, align:{value:'right'}, font:{value:'Arial'}, fontSize:{value:10.5}, fontWeight:{value:'bold'}, fill:{value:SUBC}}}});
-    marks.push({type:'text', encode:{update:{x:{signal:'labelW+numW*2+gap+60'}, y:{value:12}, text:{value:'Δ'+state.reference}, align:{value:'center'}, font:{value:'Arial'}, fontSize:{value:10.5}, fontWeight:{value:'bold'}, fill:{value:DARK}}}});
-    marks.push({type:'text', encode:{update:{x:{signal:'(labelW+numW*2+gap+140 + width-12)/2'}, y:{value:12}, text:{value:'Δ'+state.reference+'%'}, align:{value:'center'}, font:{value:'Arial'}, fontSize:{value:10.5}, fontWeight:{value:'bold'}, fill:{value:DARK}}}});
+    marks.push({type:'text', encode:{update:{x:{signal:'(dx0+dx1)/2'}, y:{value:12}, text:{value:'Δ'+state.reference}, align:{value:'center'}, font:{value:'Arial'}, fontSize:{value:10.5}, fontWeight:{value:'bold'}, fill:{value:DARK}}}});
+    marks.push({type:'text', encode:{update:{x:{signal:'(rx0+rx1)/2'}, y:{value:12}, text:{value:'Δ'+state.reference+'%'}, align:{value:'center'}, font:{value:'Arial'}, fontSize:{value:10.5}, fontWeight:{value:'bold'}, fill:{value:DARK}}}});
+    /* Null-Referenzlinien der Δ-Spalten (vertikal, in PY-Notation hellgrau) */
+    marks.push({type:'rule', encode:{update:{x:{scale:'xd', value:0}, y:{signal:'rowH-3'}, y2:{signal:'height'}, stroke:{value:'#c8c8c4'}, strokeWidth:{value:1}}}});
+    marks.push({type:'rule', encode:{update:{x:{scale:'xr', value:0}, y:{signal:'rowH-3'}, y2:{signal:'height'}, stroke:{value:'#c8c8c4'}, strokeWidth:{value:1}}}});
     /* Referenz-Wertspalte */
     marks.push({type:'text', from:{data:'all'}, encode:{enter:{align:{value:'right'}, baseline:{value:'middle'}, font:{value:'Arial'}}, update:{
       x:{signal:'labelW+numW*2'}, y:yB, text:{signal:'datum.r==null?"":format(datum.r,",.0f")'}, fontSize:{value:11}, fill:{value:SUBC}, opacity:{signal:dim}}}});
@@ -8253,8 +8258,8 @@ function rvTableSpec(deneb){
   }
   const scales=[
     {name:'y', type:'band', domain:{data:'all', field:'k', sort:{field:'ord', op:'min'}}, range:[{signal:'rowH'},{signal:'height'}], paddingInner:0.18},
-    {name:'xd', type:'linear', domain:{data:'all', field:'d'}, range:[{signal:'labelW+numW*2+gap'},{signal:'labelW+numW*2+gap+120'}], nice:true, zero:true},
-    {name:'xr', type:'linear', domain:{data:'all', field:'rel'}, range:[{signal:'labelW+numW*2+gap+140'},{signal:'width-12'}], nice:true, zero:true}];
+    {name:'xd', type:'linear', domain:{data:'all', field:'d'}, range:[{signal:'dx0'},{signal:'dx1'}], nice:true, zero:true},
+    {name:'xr', type:'linear', domain:{data:'all', field:'rel'}, range:[{signal:'rx0'},{signal:'rx1'}], nice:true, zero:true}];
   return { $schema:'https://vega.github.io/schema/vega/v5.json',
     description:'IBCS-Datentabelle · Raw-Vega (interaktiv: Cross-Filter'+(hier?' + Drill/Collapse':'')+', grosse Datenmengen)',
     padding:5, autosize:{type:'fit', resize:true, contains:'padding'}, signals, data, scales, marks };
