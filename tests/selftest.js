@@ -669,6 +669,26 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       state.reference='PY'; state.refStyle='offset';
     }
 
+    /* === Q) Integrierte GuV: wfkombi mit 2. Szenario-Wasserfall-Spalte ==== */
+    if('wfRefCol' in state){
+      loadPreset('pnlVA'); state.type='wfkombi'; state.reference='FC';
+      state.wfRefCol=false; renderAll();
+      const wOff=+(document.querySelector('#chartHost svg')||{}).getAttribute?.('width')||0;
+      state.wfRefCol=true; renderAll();
+      const svg=chartHtml();
+      const wOn=+document.querySelector('#chartHost svg').getAttribute('width');
+      ok('Q · wfkombi · SVG zeigt 2. Szenario-Wasserfall (AC+FC, schraffiert)',
+         />AC</.test(svg) && />FC</.test(svg) && /h-dark/.test(svg) && !/NaN/.test(svg) && wOn>wOff);
+      const vl=vegaSpec(false);
+      ok('Q · wfkombi · VL hat Referenz-Wasserfall (sR/eR) + shared-x',
+         /"sR"/.test(JSON.stringify(vl)) && /"x":"shared"/.test(JSON.stringify(vl)));
+      const tQ=denebTemplate(); const bQ=clone(tQ); delete bQ.usermeta;
+      let qc=false; try{ qc=!!VL.compile(bQ).spec; }catch(e){}
+      ok('Q · wfkombi · Template kompiliert (baked=0) + AC/FC-Felder',
+         qc && tplBakedRows(tQ)===0 && tQ.usermeta.dataset.some(d=>d.name==='AC') && tQ.usermeta.dataset.some(d=>d.name==='FC'));
+      state.wfRefCol=false;
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{

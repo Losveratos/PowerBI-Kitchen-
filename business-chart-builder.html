@@ -807,6 +807,7 @@ const state = {
   showSum:true,
   wfVar:true,
   wfOrient:'h',
+  wfRefCol:false,
   bridgeDir:'fwd',
   cutSums:true,
   t3auto:true,
@@ -2614,23 +2615,30 @@ function renderWfKombi(tiersOv){
   const items = rows.map(r=>{
     const rv2 = isNaN(r.r2)? NaN : r.r2;
     if(r.t==='sum'){
-      if(!started){ runA=r.v||0; runR=isNaN(rv2)?NaN:rv2; started=true; }
-      return {c:r.c, sum:true, from:0, to:runA, v:runA, refv:runR};
+      if(!started){ runA=r.v||0; runR=isNaN(rv2)?NaN:(rv2||0); started=true; }
+      return {c:r.c, sum:true, from:0, to:runA, v:runA, refFrom:0, refTo:runR, refv:runR};
     }
-    const from=runA; runA+=(r.v||0); if(!isNaN(runR)&&!isNaN(rv2)) runR+=rv2; else if(isNaN(rv2)) runR=NaN;
+    const from=runA; runA+=(r.v||0);
+    const refFrom=runR; if(!isNaN(runR)&&!isNaN(rv2)) runR+=rv2; else if(isNaN(rv2)) runR=NaN;
     started=true;
-    return {c:r.c, sum:false, from, to:runA, v:r.v||0, refv:rv2};
+    return {c:r.c, sum:false, from, to:runA, v:r.v||0, refFrom, refTo:runR, refv:rv2};
   });
+  /* Optionale 2. Szenario-Wasserfall-Spalte (Referenz, z. B. FC schraffiert) */
+  const refOn = state.wfRefCol && ref!=='—' && items.some(g=>!isNaN(g.refTo));
   const rowH=27, padT=24, padB=8, padR=46, gap=30;
   const lw = labelW(items);
-  const t1W=235, t2W=showT2?150:0, t3W=showT3?140:0;
-  const x1=lw, x2=x1+t1W+gap, x3=x2+t2W+(showT2?gap:0);
+  const t1W=refOn?210:235, trwW=refOn?210:0, t2W=showT2?150:0, t3W=showT3?140:0;
+  const x1=lw;
+  const xRW=x1+t1W+gap;
+  const x2=(refOn? xRW+trwW+gap : x1+t1W+gap);
+  const x3=x2+t2W+(showT2?gap:0);
   const W = x3+t3W+padR;
   const H = padT + items.length*rowH + padB;
 
-  const allv = items.flatMap(g=>[g.from,g.to]);
+  /* gemeinsame Skala über beide Wasserfälle → Balkenlängen vergleichbar (IBCS) */
+  const allv = items.flatMap(g=> refOn ? [g.from,g.to,g.refFrom,g.refTo] : [g.from,g.to]).filter(v=>!isNaN(v));
   const sc1 = makeScale(Math.min(...allv,0), Math.max(...allv,0), t1W, 0.12);
-  const a1x = x1+sc1.zeroX;
+  const a1x = x1+sc1.zeroX, aRWx = xRW+sc1.zeroX;
   const dv = items.map(g=> isNaN(g.refv)? NaN : (g.sum? g.to-g.refv : g.v-g.refv));
   const dvv = dv.filter(v=>!isNaN(v));
   const sc2 = makeScale(Math.min(...dvv,0), Math.max(...dvv,0,1), t2W, 0.24);
@@ -2644,11 +2652,13 @@ function renderWfKombi(tiersOv){
 
   let s='';
   s += txt(x1, 12, prim, {size:10.5, fill:'#8a8a8a'});
+  if(refOn) s += txt(xRW, 12, ref, {size:10.5, fill:'#8a8a8a'});
   if(showT2) s += txt(x2, 12, 'Δ'+ref, {size:10.5, fill:'#8a8a8a'});
   if(showT3) s += txt(x3, 12, 'Δ'+ref+'%', {size:10.5, fill:'#8a8a8a'});
 
   const bh = rowH*0.58;
-  let prev=null, conns='';
+  const refPaint = scenPaint(ref);   /* FC → schraffiert, PY → hell, PL/BU → umrandet */
+  let prev=null, prevR=null, conns='';
   items.forEach((g,i)=>{
     const cy = padT+rowH*i+rowH/2;
     s += txt(lw-8, cy+3.5, g.c, {anchor:'end', size:11, fill:CAT, weight:g.sum?'bold':null});
@@ -2664,6 +2674,20 @@ function renderWfKombi(tiersOv){
     const right = g.sum ? g.to>=0 : g.v>=0;
     const lxx = right ? x1+sc1.x(Math.max(g.from,g.to))+5 : x1+sc1.x(Math.min(g.from,g.to))-5;
     s += txt(lxx, cy+3.5, g.sum? fmt(g.v) : fmt(g.v,true), {anchor:right?'start':'end', size:10.5, weight:g.sum?'bold':null});
+    /* Tier RW: Referenz-Wasserfall (Szenario-Notation) */
+    if(refOn && !isNaN(g.refFrom) && !isNaN(g.refTo)){
+      const xar = xRW+sc1.x(Math.min(g.refFrom,g.refTo));
+      const wr = Math.max(0.75, Math.abs(sc1.x(g.refFrom)-sc1.x(g.refTo)));
+      s += rect(xar, cy-bh/2, wr, bh, refPaint, i);
+      if(prevR!==null){
+        const xcr = xRW+sc1.x(prevR.to);
+        conns += '<line x1="'+xcr+'" y1="'+(prevR.cy+bh/2)+'" x2="'+xcr+'" y2="'+(cy-bh/2)+'" stroke="#c2c2c2" stroke-width="1"/>';
+      }
+      prevR = {to:g.refTo, cy};
+      const rightR = g.sum ? g.refTo>=0 : g.refv>=0;
+      const lxr = rightR ? xRW+sc1.x(Math.max(g.refFrom,g.refTo))+5 : xRW+sc1.x(Math.min(g.refFrom,g.refTo))-5;
+      s += txt(lxr, cy+3.5, g.sum? fmt(g.refTo) : fmt(g.refv,true), {anchor:rightR?'start':'end', size:10.5, weight:g.sum?'bold':null, fill: ref==='FC'?FCINK:DARK, halo:true});
+    }
     /* Tier 2: ΔRef */
     const d = dv[i];
     if(showT2 && !isNaN(d)){
@@ -2695,6 +2719,7 @@ function renderWfKombi(tiersOv){
   });
   s = conns + s;
   s += '<line x1="'+a1x+'" y1="'+(padT-4)+'" x2="'+a1x+'" y2="'+(H-padB)+'" stroke="'+DARK+'" stroke-width="1.5"/>';
+  if(refOn) s += '<line x1="'+aRWx+'" y1="'+(padT-4)+'" x2="'+aRWx+'" y2="'+(H-padB)+'" stroke="'+DARK+'" stroke-width="1.5"/>';
   if(showT2) s += refAxisV(a2, padT-4, H-padB, ref);
   if(showT3) s += refAxisV(a3, padT-4, H-padB, ref);
   return { svg:s, W, H };
@@ -4926,6 +4951,10 @@ function guideCardsHtml(){
     out.push(gcard('Gestapelt','100 %-Normierung: Anteile je Kategorie statt absoluter Werte.',
       gchip('stack100','toggle',(state.stack100?'✓ ':'')+'100 %-gestapelt',!!state.stack100)));
   }
+  if(t==='wfkombi'){
+    out.push(gcard('Integrierte GuV','Zweite Szenario-Wasserfall-Spalte (Referenz, z. B. FC schraffiert) neben dem Primär-Wasserfall – ergibt die integrierte IBCS-Darstellung AC · '+esc(state.reference)+' · Δ · Δ%.',
+      gchip('wfRefCol','toggle',(state.wfRefCol?'✓ ':'')+'Referenz-Wasserfall-Spalte',!!state.wfRefCol)));
+  }
   if(['columns','line','bars'].includes(t)){
     out.push(gcard('Trellis-Export (Power BI)','Exportiert als Small-Multiples-Visual je Feld – nur im Deneb-Template; die Vorschau bleibt eine Kachel.',
       '<input data-optin="facetField" value="'+esc(state.facetField||'')+'" placeholder="Feld, z. B. Region" style="width:150px">'+
@@ -4977,6 +5006,7 @@ function applyGuideOpt(opt,val){
     case 'multiCols': state.multiCols=+val; renderPreview(); break;
     case 'multiScale': state.multiScale=val; renderPreview(); break;
     case 'stack100': state.stack100=!state.stack100; renderPreview(); break;
+    case 'wfRefCol': state.wfRefCol=!state.wfRefCol; renderPreview(); break;
     case 'cbSafe': state.cbSafe=!state.cbSafe; renderAll(); break;
     case 'facetCols': state.facetCols=+val; renderPreview(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
@@ -7319,12 +7349,13 @@ function vlWfKombi(deneb, ov){
     const rv2 = isNaN(r.r2)? NaN : r.r2;
     let o;
     if(r.t==='sum'){
-      if(!started){ runA=r.v||0; runR=isNaN(rv2)?NaN:rv2; started=true; }
-      o = {k:r.c, sum:true, s:0, e:runA, val:runA, refv:runR};
+      if(!started){ runA=r.v||0; runR=isNaN(rv2)?NaN:(rv2||0); started=true; }
+      o = {k:r.c, sum:true, s:0, e:runA, val:runA, refv:runR, sR:0, eR:runR, LR:fmt(runR)};
     } else {
-      const from=runA; runA+=(r.v||0); if(!isNaN(runR)&&!isNaN(rv2)) runR+=rv2; else if(isNaN(rv2)) runR=NaN;
+      const from=runA; runA+=(r.v||0);
+      const refFrom=runR; if(!isNaN(runR)&&!isNaN(rv2)) runR+=rv2; else if(isNaN(rv2)) runR=NaN;
       started=true;
-      o = {k:r.c, sum:false, s:from, e:runA, val:r.v||0, refv:rv2};
+      o = {k:r.c, sum:false, s:from, e:runA, val:r.v||0, refv:rv2, sR:refFrom, eR:runR, LR:fmt(rv2,true)};
     }
     o.v = r.v||0; o.r = isNaN(rv2)?null:rv2; o.typ = r.t;
     o.d = isNaN(o.refv)? null : (o.sum? o.e-o.refv : o.val-o.refv);
@@ -7343,6 +7374,8 @@ function vlWfKombi(deneb, ov){
     {calculate:"datum.typ==='sum'", as:'sum'},
     {calculate:"datum.sum ? 0 : datum.cumA - datum.v", as:'s'},
     {calculate:'datum.cumA', as:'e'},
+    {calculate:"datum.sum ? 0 : datum.cumR - datum.r", as:'sR'},
+    {calculate:'datum.cumR', as:'eR'},
     {calculate:'datum.sum ? datum.cumR : datum.r', as:'refv'},
     {calculate:'datum.sum ? datum.cumA - datum.cumR : datum.v - datum.r', as:'d'},
     {calculate:'datum.refv > 0 ? datum.d / datum.refv * 100 : null', as:'rv'},
@@ -7383,7 +7416,29 @@ function vlWfKombi(deneb, ov){
          color:{condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}}},
     ]).concat(vSignedText('rv', vLab(deneb,'rv','Lrv','+.1f'), false,
       {condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}).map(l=>{ l.mark.dx = l.mark.dx>0 ? 10 : -10; return l; }))};
-  let ch = [t1];
+  /* Tier RW: 2. Szenario-Wasserfall (Referenz, Szenario-Notation) – integrierte GuV */
+  let tRef = null;
+  if(state.wfRefCol && state.reference!=='—'){
+    const rsc = vScen(state.reference);
+    tRef = { width:210, height:{step:27}, data:vData(values,deneb), transform:tf,
+      encoding:{y:yCat(null)},
+      layer:[
+        {mark:{type:'bar', size:15, fill:rsc.fill, stroke:rsc.stroke||null, strokeWidth:rsc.stroke?1:0, strokeDash:rsc.dash},
+         encoding:{x:vYq('sR'), x2:{field:'eR'}}},
+        {transform:[{filter:'datum.sum'}],
+         mark:{type:'text', dx:6, align:'left', fontSize:11, font:'Arial', color:DARK, fontWeight:'bold'},
+         encoding:{x:vYq('eR'), text:vLab(deneb,'eR','LR',vNum())}},
+        {transform:[{filter:'!datum.sum && datum.eR >= datum.sR'}],
+         mark:{type:'text', dx:6, align:'left', fontSize:11, font:'Arial', color:DARK},
+         encoding:{x:vYq('eR'), text:vLab(deneb,'r','LR','+'+vNum())}},
+        {transform:[{filter:'!datum.sum && datum.eR < datum.sR'}],
+         mark:{type:'text', dx:-6, align:'right', fontSize:11, font:'Arial', color:DARK},
+         encoding:{x:vYq('eR'), text:vLab(deneb,'r','LR','+'+vNum())}},
+      ]};
+  }
+  /* Beide Wasserfälle teilen die x-Skala (vergleichbare Balkenlängen, IBCS) */
+  const wfBlock = tRef ? { hconcat:[t1, tRef], spacing:26, resolve:{scale:{x:'shared', y:'shared'}} } : t1;
+  let ch = [wfBlock];
   if(!ov || ov.abs) ch.push(t2);
   if(!ov || ov.rel) ch.push(t3);
   return { hconcat:ch, spacing:26, resolve:{scale:{y:'independent'}} };
@@ -7833,7 +7888,7 @@ function serialize(){
       type:state.type, primary:state.primary, reference:state.reference, reference2:state.reference2,
       varSel:state.varSel, decimals:state.decimals, cbSafe:state.cbSafe, showRefLabels:state.showRefLabels, endPins:state.endPins,
       stack100:state.stack100,
-      sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient,
+      sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient, wfRefCol:state.wfRefCol,
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel, bridgePY:state.bridgePY, bridgePYlevel:state.bridgePYlevel,
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
