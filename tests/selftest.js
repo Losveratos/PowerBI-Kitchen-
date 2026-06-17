@@ -652,6 +652,14 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
         try{ return ['columns','line','bars','scatter','waterfall','bridge','multiples','stackcol','table','kpi','boxplot','pareto']
           .every(ty=>/data-optin="t1"/.test(cardsFor(ty))); }catch(e){ return false; }
       })());
+      /* Szenarien-Karte (Primär/Referenz) in skalaren Typen, Referenz 2 nur bei usesRef2 */
+      ok('O · Szenarien-Karte (prim/ref) in columns, nicht in tree',
+         /data-opt="prim"/.test(cardsFor('columns')) && /data-opt="ref"/.test(cardsFor('columns')) && !/data-opt="prim"/.test(cardsFor('tree')));
+      ok('O · Referenz 2 nur bei Varianz-Typen (barskombi ja, line nein)', (()=>{
+        state.reference2='PY'; const bk=cardsFor('barskombi'); const ln=cardsFor('line');
+        return /data-opt="ref2"/.test(bk) && !/data-opt="ref2"/.test(ln);
+      })());
+      state.reference2='—';
       state.refLine='none';
     }
 

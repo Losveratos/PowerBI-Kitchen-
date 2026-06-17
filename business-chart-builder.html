@@ -5186,6 +5186,24 @@ function guideCardsHtml(){
   const t=state.type, out=[];
   const REL_OK=['columns','line','zchart','bars','multiples','waterfall','bridge','colline','dotplot','tornado','bullet'];
   const ABS_OK=['columns','line','zchart','bars','multiples','waterfall','colline','dotplot','tornado','bullet'];
+  /* Szenarien (Primär · Referenz · Referenz 2) – wie in der Sidebar, jetzt auch hier */
+  if(!['tree','gantt'].includes(t)){
+    const scChip=(opt,code,active,dis)=>'<button class="chip'+(active?' on':'')+'" data-opt="'+opt+'" data-val="'+esc(code)+'"'+
+      (dis?' disabled style="opacity:.45;cursor:not-allowed"':'')+' title="'+esc(SCEN_LABEL[code]||(code==='—'?'kein Vergleich':''))+'">'+chipSwatch(code)+' '+esc(code)+'</button>';
+    const lbl=tx=>'<div style="font-size:11px;color:var(--ink3);margin:8px 0 4px">'+tx+'</div>';
+    const roww=html=>'<div style="display:flex;flex-wrap:wrap;gap:6px">'+html+'</div>';
+    let sc='<div style="width:100%">';
+    sc += lbl('Primär (Minuend)').replace('margin:8px','margin:0px')+
+      roww(['AC','FC','PL'].map(c=>scChip('prim',c,state.primary===c)).join(''));
+    sc += lbl('Referenz (Vergleich)')+
+      roww(['PY','PL','BU','FC','—'].filter(c=>c!==state.primary).map(c=>scChip('ref',c,state.reference===c, needsRef()&&c==='—')).join(''));
+    if(usesRef2()){
+      sc += lbl('Referenz 2 (optional, weitere Δ-Ebenen)')+
+        roww(['—','PY','PL','BU','FC'].filter(c=>c!==state.primary && c!==state.reference).map(c=>scChip('ref2',c,state.reference2===c)).join(''));
+    }
+    sc += '</div>';
+    out.push(gcard('Szenarien','Primäres und Vergleichs-Szenario (AC · PY · PL · BU · FC). Referenz 2 erzeugt weitere Δ-Ebenen.', sc));
+  }
   if(t==='bridge'){
     out.push(gcard('Abweichung','Δ%-Ebene je Treiber über der Brücke.',
       gchip('var','none','keine',!state.bridgeRel)+gchip('var','rel','Δ% zeigen',!!state.bridgeRel)));
@@ -5300,6 +5318,17 @@ function applyGuideOpt(opt,val){
     case 'varYTD': state.varYTD = state.varYTD===false; renderPreview(); break;
     case 'varRefCols': state.varRefCols = !state.varRefCols; renderPreview(); break;
     case 'cbSafe': state.cbSafe=!state.cbSafe; renderAll(); break;
+    case 'prim':
+      state.primary=val;
+      if(state.reference===state.primary) state.reference = state.primary==='PY'?'PL':'PY';
+      if(state.reference2===state.primary) state.reference2='—';
+      renderAll(); break;
+    case 'ref':
+      state.reference=val;
+      if(needsRef() && state.reference==='—') state.reference='PY';
+      if(state.reference2===state.reference) state.reference2='—';
+      renderAll(); break;
+    case 'ref2': state.reference2=val; renderAll(); break;
     case 'facetCols': state.facetCols=+val; renderPreview(); break;
     case 'grpFacet': state.grpFacet=!state.grpFacet; renderAll(); break;
     case 'grpScale': state.grpScale=val; renderPreview(); break;
