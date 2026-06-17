@@ -337,7 +337,7 @@ footer a:hover{color:var(--ink)}
       <label class="fld"><span>Botschaft – Aussage zuerst (SA 3.2, optional)</span>
         <input type="text" id="msg" placeholder="z. B. Umsatz wächst trotz Q3-Delle um +6%"></label>
       <label class="fld"><span>Zeile 1 – Berichtseinheit („wer“)</span>
-        <input type="text" id="t1" value="Chocolate Corp."></label>
+        <input type="text" id="t1" value="DataKitchen Inc."></label>
       <label class="fld"><span>Zeile 2 – Maßgröße &amp; Einheit („was“)</span>
         <input type="text" id="t2" value="Umsatz in mEUR"></label>
       <label class="fld"><span>Zeile 3 – Periode &amp; Szenarien („wann“)</span>
@@ -566,14 +566,14 @@ footer a:hover{color:var(--ink)}
           <option value="pnlV">GuV mit Zwischensumme · vertikal</option>
           <option value="pnlVA">GuV-Wasserfall mit ΔPY (Varianz)</option>
           <option value="varintDemo">Integrierte Varianzanalyse (4 Tiers, AC/FC vs PL)</option>
-          <option value="furnitureInc">Furniture Inc. · Net sales (IBCS, AC/FC vs PY)</option>
-          <option value="alphaSoftware">Alpha Software · Net sales (IBCS, Σ-Ref. + Total-Pin, vs PL)</option>
+          <option value="furnitureInc">DataKitchen Inc. · Net sales (IBCS, AC/FC vs PY)</option>
+          <option value="alphaSoftware">DataKitchen Inc. · Net sales (IBCS, Σ-Ref. + Total-Pin, vs PL)</option>
           <option value="slopeDemo">Slope · Vorher/Nachher (PY → AC)</option>
           <option value="fanDemo">Fan · Ist + Forecast-Korridor</option>
           <option value="heatmapDemo">Heatmap · Δ vs Plan (Region × Monat)</option>
           <option value="marimekkoDemo">Marimekko · Anteil × Größe</option>
           <option value="tableHier">Tabelle · Hierarchie (2 Dim-Felder, PBI-Export)</option>
-          <option value="roiTree">Treiberbaum · ROI-Tree (Alpha Software)</option>
+          <option value="roiTree">Treiberbaum · ROI-Tree (DataKitchen Inc.)</option>
           <option value="regionFacet">Szenariovergleich je Gruppe · Small Multiples (Säule/Linie)</option>
           <option value="boxplotDemo">Boxplot · Verteilung je Service</option>
           <option value="bridgeM">Brücke PL → AC je Monat</option>
@@ -811,7 +811,7 @@ function typeIsOn(id){
                            : state.type===id;
 }
 
-/* Default-Treiberbaum (Bild „ROI-Tree" der IBCS-Vorlagen, Alpha Software Corp.).
+/* Default-Treiberbaum (Bild „ROI-Tree" der IBCS-Vorlagen, DataKitchen Inc.).
    Frei editierbar als JSON im Daten-Editor; siehe renderTree(). */
 const DEFAULT_TREE_JSON = JSON.stringify({
   periods:['2021','2022','2023','2024','2025','2026','2027'],
@@ -5122,7 +5122,7 @@ const PRESETS = {
           ['Jan',31,40,,,'LATAM'],['Feb',35,42,,,'LATAM'],['Mär',39,44,,,'LATAM'],['Apr',44,47,,1,'LATAM']] },
   tableHier:{ type:'table', primary:'AC', reference:'PL', tableDims:2, t2:'Umsatz nach Region & Produktlinie in mEUR',
     leaves:[['DACH','Software',186,170],['DACH','Services',92,99],['EMEA','Software',128,118],['EMEA','Services',64,70],['Americas','Software',150,140],['Americas','Services',77,72]] },
-  roiTree:{ type:'tree', t1:'Alpha Software Corporation, Germany', t2:'ROI tree', t3:'2021..2027',
+  roiTree:{ type:'tree', t1:'DataKitchen Inc., Germany', t2:'ROI tree', t3:'2021..2027',
     msg:'We plan to achieve a ROI of 19.2% in 2026 despite of increasing invested capital',
     treeJson:DEFAULT_TREE_JSON },
   slopeDemo:{ type:'slope', primary:'AC', reference:'PY', t2:'Umsatz je Region · PY → AC',
@@ -5143,20 +5143,20 @@ const PRESETS = {
   varintDemo:{ type:'varint', primary:'AC', reference:'PL', t2:'Net sales in KEUR · 2026',
     rows:[['1',317,300],['2',311,300],['3',305,300],['4',301,300],['5',299,300],['6',298,300],
           ['7',306,300,,1],['8',310,300,,1],['9',312,300,,1],['10',313,300,,1],['11',313,300,,1],['12',312,300,,1]] },
-  furnitureInc:{ type:'varint', primary:'AC', reference:'PY', t1:'Furniture Inc.', t2:'Net sales in kEUR', t3:'2025',
+  furnitureInc:{ type:'varint', primary:'AC', reference:'PY', t1:'DataKitchen Inc.', t2:'Net sales in kEUR', t3:'2025',
     msg:'We expect a decrease of 42 kEUR (-24.1%) vs previous year until end of the year because of the negative forecast beginning in October',
     decimals:0, endPins:true, varYTD:false,
     rows:[['Jan',15,14],['Feb',13,16],['Mar',17,14],['Apr',7,9],['May',5,11],['Jun',6,9],
           ['Jul',11,16],['Aug',9,14],['Sep',22,16,,1],['Oct',8,17,,1],['Nov',7,16,,1],['Dec',12,22,,1]] },
-  alphaSoftware:{ type:'varint', primary:'AC', reference:'PL', t1:'Alpha Software Corp.', t2:'Net sales in kUSD', t3:'2025',
+  alphaSoftware:{ type:'varint', primary:'AC', reference:'PL', t1:'DataKitchen Inc.', t2:'Net sales in kUSD', t3:'2025',
     msg:'Full year net sales of 178 kUSD are 24 kUSD (+15.6%) above plan because the strong forecast more than offsets the weak summer months',
     decimals:0, varYTD:false, varRefCols:true,
     rows:[['Jan',15,11],['Feb',13,10],['Mar',17,10],['Apr',7,10],['May',5,10],['Jun',6,10],
           ['Jul',11,15],['Aug',9,14],['Sep',26,15,,1],['Oct',22,15,,1],['Nov',18,15,,1],['Dec',29,19,,1]] },
   pnlV:{ type:'waterfall', orient:'v', reference:'PY', t2:'Ergebnisrechnung in mEUR',
     wrows:[['Umsatz',642,601,'sum'],['Materialkosten',-238,-221,'delta'],['Bruttoergebnis',0,0,'sum'],['Personal',-176,-168,'delta'],['Sonstige Kosten',-94,-89,'delta'],['Lizenzerträge',38,31,'delta'],['EBIT',0,0,'sum']] },
-  bridgeM:{ type:'bridge', orient:'h', primary:'AC', reference:'PL', t2:'Umsatz in mEUR, Überleitung je Monat',
-    rows:[['Jan',97,90],['Feb',102,95],['Mär',88,96],['Apr',110,99],['Mai',105,108],['Jun',118,104],['Jul',112,106],['Aug',96,101],['Sep',121,107],['Okt',117,111,,1],['Nov',124,113,,1],['Dez',131,118,,1]] },
+  bridgeM:{ type:'bridge', orient:'h', primary:'AC', reference:'PL', reference2:'PY', bridgePYlevel:true, t2:'Umsatz in mEUR, Überleitung je Monat',
+    rows:[['Jan',97,90,84],['Feb',102,95,88],['Mär',88,96,90],['Apr',110,99,92],['Mai',105,108,99],['Jun',118,104,96],['Jul',112,106,100],['Aug',96,101,94],['Sep',121,107,99],['Okt',117,111,103,1],['Nov',124,113,106,1],['Dez',131,118,110,1]] },
   bridgeC:{ type:'bridge', orient:'v', primary:'AC', reference:'PY', t2:'Umsatz in mEUR, Überleitung je Land', rows:COUNTRY_ROWS },
   zDemo:{ type:'zchart', primary:'AC', reference:'PY', t2:'Umsatz in mEUR · Monat, kumuliert, 12M gleitend',
     rows:[['Jan',97,90],['Feb',102,95],['Mär',88,96],['Apr',110,99],['Mai',105,108],['Jun',118,104],['Jul',112,106],['Aug',96,101],['Sep',121,107],['Okt',117,111,,1],['Nov',124,113,,1],['Dez',131,118,,1]] },
@@ -5214,6 +5214,7 @@ function loadPreset(key){
   if(p.rows) state.rows = p.rows.map(r=>({c:r[0], v1:r[1], v2:r[2], v3:r[3], fc:!!r[4], grp:r[5]}));
   if(p.leaves) state.rows = p.leaves.map(r=>({d0:r[0], d1:r[1], v1:r[2], v2:r[3], v3:r[4]}));   /* Hierarchie-Blätter (2 Dim) */
   state.tableDims = p.tableDims || 0;   /* nicht sticky */
+  state.bridgePY = !!p.bridgePY; state.bridgePYlevel = !!p.bridgePYlevel;   /* dito */
   if(p.series) state.series = p.series.slice();
   if(p.xTitle) state.xTitle = p.xTitle;
   if(p.yTitle) state.yTitle = p.yTitle;
