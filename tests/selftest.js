@@ -645,6 +645,13 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
          /data-opt="var"/.test(cardsFor('columns')) && /data-opt="refLine"/.test(cardsFor('columns')) && /data-optin="facetField"/.test(cardsFor('columns')));
       ok('O · Scatter · Korrelations-Optionen', /data-opt="scReg"/.test(cardsFor('scatter')) && /data-opt="scFacet"/.test(cardsFor('scatter')));
       ok('O · Wasserfall · Ausrichtung', /data-opt="wfOrient"/.test(cardsFor('waterfall')));
+      ok('O · Brücke · Referenz-2-Säulen-Optionen erscheinen bei gesetzter Ref 2', (()=>{
+        state.type='bridge'; state.wfOrient='h'; state.reference2='PY';
+        const g=guideCardsHtml();
+        const has = /data-opt="bridgePY"/.test(g) && /data-opt="bridgePYlevel"/.test(g);
+        state.reference2='—'; const g2=guideCardsHtml();
+        return has && !/data-opt="bridgePYlevel"/.test(g2);   /* ohne Ref 2 keine Toggles */
+      })());
       ok('O · colline · Dual-Axis-Optionen', /data-opt="clSwap"/.test(cardsFor('colline')) && /data-opt="clAxis"/.test(cardsFor('colline')));
       ok('O · Barrierefreiheit · Farb-Option (cbSafe) in jedem Typ',
          ['columns','scatter','waterfall','table','kpi'].every(ty=>/data-opt="cbSafe"/.test(cardsFor(ty))));

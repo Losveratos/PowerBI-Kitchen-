@@ -5292,6 +5292,14 @@ function guideCardsHtml(){
   if(t==='bridge'){
     out.push(gcard('Abweichung','Δ%-Ebene je Treiber über der Brücke.',
       gchip('var','none','keine',!state.bridgeRel)+gchip('var','rel','Δ% zeigen',!!state.bridgeRel)));
+    /* Referenz-2-Säulen rechts neben dem Schluss-Σ – nur horizontal + Referenz 2 gesetzt */
+    if(state.reference2!=='—' && state.wfOrient!=='v'){
+      out.push(gcard('Referenz 2 ('+esc(state.reference2)+')','Zwei Säulen rechts neben dem Schluss-Σ: Niveausäule = Σ'+esc(state.reference2)+' (Niveauvergleich), Δ-Säule = Σ'+esc(state.primary)+' − Σ'+esc(state.reference2)+' (Gesamtabweichung). Kombinierbar.',
+        gchip('bridgePYlevel','toggle',(state.bridgePYlevel?'✓ ':'')+'Σ'+esc(state.reference2)+'-Niveausäule',!!state.bridgePYlevel)+
+        gchip('bridgePY','toggle',(state.bridgePY?'✓ ':'')+'Δ'+esc(state.reference2)+'-Säule',!!state.bridgePY)));
+    } else if(state.reference2==='—'){
+      out.push(gcard('Referenz 2','Für eine zweite Vergleichsebene (Δ'+'/Niveau gegen z. B. Vorjahr) oben „Referenz 2" setzen – dann erscheinen hier die Säulen-Optionen. Nur bei horizontaler Brücke.', '<span style="font-size:11px;color:var(--ink3)">Referenz 2 ist aktuell „—".</span>'));
+    }
   } else if(REL_OK.includes(t)||ABS_OK.includes(t)){
     const r=state.showRel,a=state.showAbs;
     out.push(gcard('Abweichung (Plan/Vorjahr)','Abweichung zur Referenz als zusätzliche Ebene: Δ absolut und/oder Δ% relativ.',
@@ -5430,6 +5438,8 @@ function applyGuideOpt(opt,val){
     case 'zMonthCol': state.zMonthCol = (val==='col'); renderPreview(); break;
     case 'zMonthRef': state.zMonthRef = !state.zMonthRef; renderPreview(); break;
     case 'tableDims': state.tableDims = +val; renderAll(); break;
+    case 'bridgePY': state.bridgePY = !state.bridgePY; renderPreview(); break;
+    case 'bridgePYlevel': state.bridgePYlevel = !state.bridgePYlevel; renderPreview(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
     case 'fromMulti': morphBack(); break;
   }
