@@ -442,6 +442,15 @@ footer a:hover{color:var(--ink)}
       <label class="check" id="bridgePYWrap" style="display:none"><input type="checkbox" id="bridgePYChk"> Abweichungssäule vs Referenz 2 als Total (z. B. ΔVorjahr)</label>
       <label class="check" id="bridgePYlevelWrap" style="display:none"><input type="checkbox" id="bridgePYlevelChk"> Referenz-2-Gesamtsäule (Niveau) neben dem Schluss-Σ</label>
 
+      <div class="row" id="collineWrap" style="display:none; margin-top:8px">
+        <span style="font-size:11.5px;color:var(--ink2)" title="Welche Größe als Säule/Linie und ob gemeinsame oder getrennte (unabhängige) Skala">Kombi</span>
+        <button class="chip" id="clPrimCol" type="button" title="Primär = Säule, Referenz = Linie">Primär: Säule</button>
+        <button class="chip" id="clPrimLine" type="button" title="Primär = Linie, Referenz = Säule (Tausch)">Primär: Linie</button>
+        <span style="width:8px"></span>
+        <button class="chip" id="clAxShared" type="button" title="Gemeinsame Y-Skala – Niveaus direkt vergleichbar">Achse: gemeinsam</button>
+        <button class="chip" id="clAxDual" type="button" title="Getrennte (unabhängige) Skala je Größe – betont die Form, nicht das Niveau">Achse: getrennt</button>
+      </div>
+
       <div class="row" id="kombiBaseWrap" style="display:none; margin-top:8px">
         <span style="font-size:11.5px;color:var(--ink2)">Basis</span>
         <button class="chip" id="kbCol" type="button">Säulen</button>
@@ -799,6 +808,8 @@ const state = {
   multiMode:'col',
   multiCols:3,
   multiScale:'shared',
+  collineSwap:false,
+  collineAxis:'shared',
   kombiBase:'col',
   bridgeRel:false,
   bridgePY:false,
@@ -3506,55 +3517,75 @@ function scenDot(x,y,p,r){
     (p.stroke && p.stroke!=='none' ? ' stroke="'+p.stroke+'" stroke-width="'+(p.sw||1.2)+'"' : '')+'/>';
 }
 
-/* --- Säulen + Linie (Zeit): Primär als Säulen, Referenz(en) als Linie überlagert --- */
+/* --- Säulen + Linie (Zeit): wählbar welche Größe Säule/Linie ist (collineSwap)
+   und ob Säule/Linie eine gemeinsame oder getrennte (unabhängige) Skala nutzen
+   (collineAxis). Getrennt = die Linie bekommt ihren eigenen Wertebereich (Form
+   statt Niveau) – IBCS-konform ohne zusätzliche Achse, da direkt beschriftet. */
 function renderColLine(rows, opt){
   opt = opt||{};
   const W=640, plotH=opt.plotH||190, padT=20, padB=opt.noCats?8:22, padL=10, padR=opt.padR||52;
   const H=padT+plotH+padB;
   const hasRef=state.reference!=='—', hasRef2=state.reference2!=='—';
-  const vals=rows.flatMap(r=>[r.v1, hasRef?r.v2:NaN, hasRef2?r.v3:NaN]).filter(v=>!isNaN(v));
-  const _tvCL=targetVal(); if(_tvCL!==null) vals.push(_tvCL);
-  const sc=makeScale(Math.min(...vals,0), Math.max(...vals,0), plotH, 0.10, true);
-  const slot=(W-padL-padR)/rows.length, y0=padT+sc.zeroY;
+  const swap = !!state.collineSwap && hasRef;       /* Tausch braucht eine Referenz */
+  const dual = state.collineAxis==='dual';
+  const barKey = swap ? 'v2' : 'v1';
+  const barScen = swap ? state.reference : state.primary;
+  const lineList = [];
+  if(swap) lineList.push({key:'v1', scen:state.primary});
+  else if(hasRef) lineList.push({key:'v2', scen:state.reference});
+  if(hasRef2) lineList.push({key:'v3', scen:state.reference2});
+  const barVals = rows.map(r=>r[barKey]).filter(v=>!isNaN(v));
+  const lineVals = lineList.flatMap(L=>rows.map(r=>r[L.key])).filter(v=>!isNaN(v));
+  const _tvCL=targetVal();
+  const allVals = barVals.concat(lineVals); if(_tvCL!==null && !swap) allVals.push(_tvCL);
+  let scBar, scLine;
+  if(dual && lineVals.length){
+    scBar  = makeScale(Math.min(...barVals,0),  Math.max(...barVals,0),  plotH, 0.10, true);
+    scLine = makeScale(Math.min(...lineVals,0), Math.max(...lineVals,0), plotH, 0.10);
+  } else {
+    scBar = scLine = makeScale(Math.min(...allVals,0), Math.max(...allVals,0), plotH, 0.10, true);
+  }
+  const slot=(W-padL-padR)/rows.length, y0=padT+scBar.zeroY;
   const pw=slot*0.5;
-  const X=i=>padL+slot*i+slot/2, Y=v=>padT+sc.y(v);
+  const X=i=>padL+slot*i+slot/2, Yb=v=>padT+scBar.y(v), Yl=v=>padT+scLine.y(v);
   let bars='', lines='', labels='';
   rows.forEach((r,i)=>{
-    const cx=X(i);
-    if(!isNaN(r.v1)){
-      const p=scenPaint(state.primary, r.fc);
-      const h=Math.abs(sc.y(r.v1)-sc.zeroY), yy=r.v1>=0?padT+sc.y(r.v1):y0;
+    const cx=X(i), bv=r[barKey];
+    if(!isNaN(bv)){
+      const p=scenPaint(barScen, swap?false:r.fc);
+      const h=Math.abs(scBar.y(bv)-scBar.zeroY), yy=bv>=0?Yb(bv):y0;
       bars += rect(cx-pw/2, yy, pw, h, p, i);
-      const ly=r.v1>=0?yy-6:yy+h+12;
-      labels += txt(cx, ly, fmt(r.v1), {anchor:'middle', halo:true, fill:r.fc?FCINK:DARK});
-      if(state.highlights.has(i)) labels += hiliteEllipse(cx, ly-3.5, Math.max(20,String(fmt(r.v1)).length*4.2+8), 9.5);
-      labels += cmark(i, cx+String(fmt(r.v1)).length*3.2+12, ly-4);
+      const ly=bv>=0?yy-6:yy+h+12;
+      labels += txt(cx, ly, fmt(bv), {anchor:'middle', halo:true, fill:(!swap&&r.fc)?FCINK:DARK});
+      if(state.highlights.has(i)) labels += hiliteEllipse(cx, ly-3.5, Math.max(20,String(fmt(bv)).length*4.2+8), 9.5);
+      labels += cmark(i, cx+String(fmt(bv)).length*3.2+12, ly-4);
     }
     if(!opt.noCats){
-      const below=isNaN(r.v1)||r.v1>=0;
+      const below=isNaN(bv)||bv>=0;
       labels += txt(cx, below?y0+15:y0-6, r.c, {anchor:'middle', size:11, fill:CAT});
     }
   });
   const drawRefLine=(key, scen)=>{
     const pts=rows.map((r,i)=>({i,v:r[key]})).filter(p=>!isNaN(p.v));
     if(!pts.length) return '';
-    const col=scen==='PY'?LIGHT:DARK;
+    const col=scen===state.primary?DARK:(scen==='PY'?LIGHT:DARK);
     const dash=(scen==='PL'||scen==='BU')?' stroke-dasharray="5,3"':'';
     let out='';
     for(let k=1;k<pts.length;k++){
       const a=pts[k-1], b=pts[k];
-      out += '<line x1="'+X(a.i)+'" y1="'+Y(a.v)+'" x2="'+X(b.i)+'" y2="'+Y(b.v)+'" stroke="'+col+'" stroke-width="2"'+dash+'/>';
+      out += '<line x1="'+X(a.i)+'" y1="'+Yl(a.v)+'" x2="'+X(b.i)+'" y2="'+Yl(b.v)+'" stroke="'+col+'" stroke-width="2"'+dash+'/>';
     }
-    pts.forEach(p=>{ out += scenDot(X(p.i), Y(p.v), scenPaint(scen), 3); });
+    pts.forEach(p=>{ out += scenDot(X(p.i), Yl(p.v), scenPaint(scen), 3); });
     const last=pts[pts.length-1];
-    out += txt(X(last.i)+8, Y(last.v)+3.5, scen, {size:10.5, fill:scen==='PY'?SUB:DARK});
-    if(state.showRefLabels) pts.forEach(p=>{ out += txt(X(p.i), Y(p.v)-7, fmt(p.v), {anchor:'middle', size:10, fill:SUB, halo:true}); });
+    out += txt(X(last.i)+8, Yl(last.v)+3.5, scen, {size:10.5, fill:scen==='PY'?SUB:DARK});
+    if(state.showRefLabels) pts.forEach(p=>{ out += txt(X(p.i), Yl(p.v)-7, fmt(p.v), {anchor:'middle', size:10, fill:SUB, halo:true}); });
     return out;
   };
-  if(hasRef) lines += drawRefLine('v2', state.reference);
-  if(hasRef2) lines += drawRefLine('v3', state.reference2);
+  lineList.forEach(L=> lines += drawRefLine(L.key, L.scen));
   const axis='<line x1="'+padL+'" y1="'+y0+'" x2="'+(W-padR)+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1.5"/>';
-  return { svg:bars+axis+statLineH(sc,rows,padL,padR,padT,W)+targetLineH(sc,padL,padR,padT,W)+lines+labels, W, H };
+  /* Ø/Ziel-Linie auf der Primär-Skala – nur sinnvoll, wenn Primär = Säule */
+  const overlays = !swap ? statLineH(scBar,rows,padL,padR,padT,W)+targetLineH(scBar,padL,padR,padT,W) : '';
+  return { svg:bars+axis+overlays+lines+labels, W, H };
 }
 
 /* --- Punktdiagramm / Dumbbell (Struktur, UN 3.4-Alternative) ---
@@ -4332,6 +4363,16 @@ function renderPreview(){
   $('#lfNone').classList.toggle('on', state.lineFill==='none');
   $('#lfArea').classList.toggle('on', state.lineFill==='area');
   $('#lfDiff').classList.toggle('on', state.lineFill==='diff');
+  $('#collineWrap').style.display = state.type==='colline' ? 'flex' : 'none';
+  if(state.type==='colline'){
+    const canSwap = state.reference!=='—';
+    $('#clPrimLine').disabled = !canSwap;
+    if(!canSwap && state.collineSwap) state.collineSwap = false;
+    $('#clPrimCol').classList.toggle('on', !state.collineSwap);
+    $('#clPrimLine').classList.toggle('on', !!state.collineSwap);
+    $('#clAxShared').classList.toggle('on', state.collineAxis!=='dual');
+    $('#clAxDual').classList.toggle('on', state.collineAxis==='dual');
+  }
   $('#kombiBaseWrap').style.display = state.type==='kombi' ? 'flex' : 'none';
   $('#kbCol').classList.toggle('on', state.kombiBase==='col');
   $('#kbLine').classList.toggle('on', state.kombiBase==='line');
@@ -4730,6 +4771,10 @@ $('#lineIdxChk').addEventListener('change', e=>{ state.lineIndex=e.target.checke
 $('#lfNone').addEventListener('click', ()=>{ state.lineFill='none'; renderPreview(); });
 $('#lfArea').addEventListener('click', ()=>{ state.lineFill='area'; renderPreview(); });
 $('#lfDiff').addEventListener('click', ()=>{ state.lineFill='diff'; renderPreview(); });
+$('#clPrimCol').addEventListener('click', ()=>{ state.collineSwap=false; renderPreview(); });
+$('#clPrimLine').addEventListener('click', ()=>{ if(state.reference!=='—'){ state.collineSwap=true; renderPreview(); } });
+$('#clAxShared').addEventListener('click', ()=>{ state.collineAxis='shared'; renderPreview(); });
+$('#clAxDual').addEventListener('click', ()=>{ state.collineAxis='dual'; renderPreview(); });
 $('#kbCol').addEventListener('click', ()=>{ state.kombiBase='col'; renderPreview(); });
 $('#kbLine').addEventListener('click', ()=>{ state.kombiBase='line'; renderPreview(); });
 $('#kbZ').addEventListener('click', ()=>{ state.kombiBase='zchart'; renderPreview(); });
@@ -5869,15 +5914,22 @@ function vRefAxisLayer(ref, horizontal){
   }
   return [{mark:{type:'rule', color:DARK, strokeWidth:1.4}, encoding:enc}];
 }
-function vPrimBarMark(size){
+/* Säulen-Mark in beliebiger Szenario-Notation; fcAware nur fürs Primär-FC-Flag */
+function vBarMarkScen(code, size, fcAware){
+  const sc = vScen(code);
+  if(!fcAware){
+    return {mark:{type:'bar', size:size,
+      fill:sc.fill, stroke:(sc.stroke||null), strokeWidth:(sc.stroke?1.3:0)}};
+  }
   return {mark:{type:'bar', size:size},
     encoding:{
-      fill:{condition:{test:'datum.fc', value:'#ffffff'}, value:vScen(state.primary).fill},
-      stroke:{condition:{test:'datum.fc', value:DARK}, value:(vScen(state.primary).stroke||'transparent')},
-      strokeWidth:{condition:{test:'datum.fc', value:1.2}, value:(vScen(state.primary).stroke?1.3:0)},
+      fill:{condition:{test:'datum.fc', value:'#ffffff'}, value:sc.fill},
+      stroke:{condition:{test:'datum.fc', value:DARK}, value:(sc.stroke||'transparent')},
+      strokeWidth:{condition:{test:'datum.fc', value:1.2}, value:(sc.stroke?1.3:0)},
       strokeDash:{condition:{test:'datum.fc', value:[3,2]}, value:[1,0]},
     }};
 }
+function vPrimBarMark(size){ return vBarMarkScen(state.primary, size, true); }
 /* Zielwert-Linie als Vega-Layer (horizontal für Zeit, vertikal für Balken) */
 function vTargetLayers(horizontal){
   const t = targetVal(); if(t===null) return [];
@@ -6635,28 +6687,42 @@ function vlWithStructTiers(base, deneb, ov){
 function vlBarsKombi(deneb, ov){
   return vlWithStructTiers(vlBars(deneb), deneb, ov);
 }
-/* Säulen + Linie: Primär als Säulen, Referenz(en) als überlagerte Linie */
+/* Säulen + Linie: wählbar welche Größe Säule/Linie ist (collineSwap) und ob
+   gemeinsame oder getrennte (unabhängige) Y-Skala (collineAxis). Getrennt =
+   Bar-Layer und Line-Layer als zwei Gruppen mit resolve:y=independent. */
 function vlColLine(deneb, opt){
   opt = opt||{};
-  const layer = [];
-  const pb = vPrimBarMark(16); pb.encoding.y = vYq('p');
-  layer.push(pb);
-  const refLine = (f, code, pt)=>{
-    const sc = vScen(code);
-    const col = code==='PY' ? LIGHT : DARK;
-    layer.push({mark:{type:'line', color:col, strokeWidth:2, strokeDash:(code==='PL'||code==='BU')?[5,3]:[1,0]},
-      encoding:{y:vYq(f)}});
-    layer.push({mark:{type:'point', size:pt, filled:true, opacity:1,
+  const hasRef = state.reference!=='—';
+  const swap = !!state.collineSwap && hasRef;
+  const dual = state.collineAxis==='dual';
+  const barField = swap ? 'r' : 'p';
+  const barCode  = swap ? state.reference : state.primary;
+  const lines = [];
+  if(swap) lines.push({f:'p', code:state.primary, pt:50});
+  else if(hasRef) lines.push({f:'r', code:state.reference, pt:50});
+  if(state.reference2!=='—') lines.push({f:'r2', code:state.reference2, pt:36});
+
+  const barLayers = [];
+  const pb = vBarMarkScen(barCode, 16, !swap); pb.encoding = Object.assign({}, pb.encoding, {y:vYq(barField)});
+  barLayers.push(pb);
+  vSignedText(barField, vLab(deneb, barField, barField==='p'?'Lp':'Lr', vNum()), true).forEach(l=>barLayers.push(l));
+  if(!swap){ vStatLayers(true).forEach(l=>barLayers.push(l)); vTargetLayers(true).forEach(l=>barLayers.push(l)); }
+
+  const lineLayers = [];
+  lines.forEach(ls=>{
+    const sc = vScen(ls.code), col = ls.code==='PY' ? LIGHT : DARK;
+    lineLayers.push({mark:{type:'line', color:col, strokeWidth:2, strokeDash:(ls.code==='PL'||ls.code==='BU')?[5,3]:[1,0]},
+      encoding:{y:vYq(ls.f)}});
+    lineLayers.push({mark:{type:'point', size:ls.pt, filled:true, opacity:1,
         fill: sc.stroke ? '#ffffff' : sc.fill, stroke: sc.stroke||sc.fill, strokeWidth: sc.stroke?1.3:0},
-      encoding:{y:vYq(f)}});
-  };
-  if(state.reference!=='—') refLine('r', state.reference, 50);
-  if(state.reference2!=='—') refLine('r2', state.reference2, 36);
-  vSignedText('p', vLab(deneb,'p','Lp',vNum()), true).forEach(l=>layer.push(l));
-  vStatLayers(true).forEach(l=>layer.push(l));
-  vTargetLayers(true).forEach(l=>layer.push(l));
-  return { width:580, height:opt.h||230, data:vData(vRows(),deneb),
-    encoding:{x:vX(opt.x)}, layer };
+      encoding:{y:vYq(ls.f)}});
+  });
+
+  const base = { width:580, height:opt.h||230, data:vData(vRows(),deneb), encoding:{x:vX(opt.x)} };
+  if(dual && lineLayers.length){
+    return Object.assign(base, { layer:[{layer:barLayers},{layer:lineLayers}], resolve:{scale:{y:'independent'}} });
+  }
+  return Object.assign(base, { layer: barLayers.concat(lineLayers) });
 }
 /* Punktdiagramm/Dumbbell (Struktur); Δ/Δ% als hconcat-Spalten */
 function vlDotPlot(deneb, ov){
@@ -7296,7 +7362,7 @@ function serialize(){
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
-      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
+      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
       target:state.target, negParens:state.negParens, annos:state.annos,
       vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,

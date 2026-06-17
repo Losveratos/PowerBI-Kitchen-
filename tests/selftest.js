@@ -522,6 +522,23 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       state.refLine='none';
     }
 
+    /* === K) Dual-Axis-Kombi (colline): Tausch + gemeinsame/getrennte Skala == */
+    if('collineSwap' in state){
+      loadPreset('months'); state.type='colline'; state.reference='PY'; state.reference2='—';
+      for(const swap of [false,true]) for(const axis of ['shared','dual']){
+        state.collineSwap=swap; state.collineAxis=axis; renderAll();
+        const lbl=(swap?'Linie':'Säule')+'/'+axis;
+        ok('K · colline '+lbl+' · SVG ohne NaN', /<rect/.test(chartHtml()) && /<line/.test(chartHtml()) && !/NaN/.test(chartHtml()));
+        const vl=vegaSpec(false);
+        const dual = !!(vl.resolve && vl.resolve.scale && vl.resolve.scale.y==='independent');
+        ok('K · colline '+lbl+' · VL Achse korrekt', axis==='dual' ? (dual && vl.layer.length===2 && vl.layer.every(l=>l.layer)) : !dual);
+        const kb=clone(denebTemplate()); const baked=tplBakedRows(kb); delete kb.usermeta;
+        let kc=false; try{ kc=!!VL.compile(kb).spec; }catch(e){}
+        ok('K · colline '+lbl+' · Template kompiliert (baked=0)', kc && baked===0);
+      }
+      state.collineSwap=false; state.collineAxis='shared';
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{
