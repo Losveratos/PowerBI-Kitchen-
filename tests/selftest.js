@@ -642,6 +642,8 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       ok('O · Scatter · Korrelations-Optionen', /data-opt="scReg"/.test(cardsFor('scatter')) && /data-opt="scFacet"/.test(cardsFor('scatter')));
       ok('O · Wasserfall · Ausrichtung', /data-opt="wfOrient"/.test(cardsFor('waterfall')));
       ok('O · colline · Dual-Axis-Optionen', /data-opt="clSwap"/.test(cardsFor('colline')) && /data-opt="clAxis"/.test(cardsFor('colline')));
+      ok('O · Barrierefreiheit · Farb-Option (cbSafe) in jedem Typ',
+         ['columns','scatter','waterfall','table','kpi'].every(ty=>/data-opt="cbSafe"/.test(cardsFor(ty))));
       ok('O · jeder Typ liefert Titel-Karte + keine Exception', (()=>{
         try{ return ['columns','line','bars','scatter','waterfall','bridge','multiples','stackcol','table','kpi','boxplot','pareto']
           .every(ty=>/data-optin="t1"/.test(cardsFor(ty))); }catch(e){ return false; }

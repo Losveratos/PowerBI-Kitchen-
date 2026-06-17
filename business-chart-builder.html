@@ -4930,6 +4930,8 @@ function guideCardsHtml(){
       '<input data-optin="facetField" value="'+esc(state.facetField||'')+'" placeholder="Feld, z. B. Region" style="width:150px">'+
       (state.facetField?('<span style="width:6px"></span>'+[1,2,3,4].map(n=>gchip('facetCols',n,n+' Sp.',(state.facetCols||2)===n)).join('')):'')));
   }
+  out.push(gcard('Farben · Barrierefreiheit','Farbsichere Variante: positives Δ wird Blaugrün statt Grün – besser unterscheidbar bei Rot‑Grün‑Sehschwäche. Negativ bleibt Rot.',
+    gchip('cbSafe','toggle',(state.cbSafe?'✓ ':'')+'Farbsicher (Grün → Blaugrün)',!!state.cbSafe)));
   out.push(gcard('Titel & Botschaft','Botschaft (fett), Titel und Untertitel. Quelle und Einheit optional.',
     '<div style="display:flex;flex-direction:column;gap:6px;width:100%">'+
     '<input data-optin="msg" value="'+esc(state.msg||'')+'" placeholder="Botschaft – z. B. „EBIT 3 % über Plan“" style="width:100%">'+
@@ -4962,10 +4964,12 @@ function applyGuideOpt(opt,val){
     case 'multiCols': state.multiCols=+val; renderPreview(); break;
     case 'multiScale': state.multiScale=val; renderPreview(); break;
     case 'stack100': state.stack100=!state.stack100; renderPreview(); break;
+    case 'cbSafe': state.cbSafe=!state.cbSafe; renderAll(); break;
     case 'facetCols': state.facetCols=+val; renderPreview(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
     case 'fromMulti': morphBack(); break;
   }
+  syncControls();   /* Sidebar-Regler (Checkboxen/Einheit/Botschaft …) mit dem State abgleichen */
 }
 $('#btnGuide').addEventListener('click', openGuide);
 $('#guideClose').addEventListener('click', ()=> $('#guideDlg').close());
