@@ -38,7 +38,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     'barskombi','table','wfkombi','stackbar','multiples','sparktable','heatmap','marimekko','boxplot',
     'kpi','kpiStatus','kpiTrend','scatter'];
   /* Typen ohne Vega-/Deneb-Template (bewusst nur SVG/PNG) */
-  const SVG_ONLY = ['slope','fan','heatmap','marimekko'];
+  const SVG_ONLY = ['slope','fan','marimekko'];
 
   const setType = (id)=>{
     if(id in KPI){ state.type='kpi'; state.kpiStyle = KPI[id]; }
@@ -649,6 +649,24 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
           .every(ty=>/data-optin="t1"/.test(cardsFor(ty))); }catch(e){ return false; }
       })());
       state.refLine='none';
+    }
+
+    /* === P) Heatmap-Deneb-Template + Szenario-Notation der VL-Referenzlinien = */
+    {
+      /* P1 · Heatmap als echtes Template (rect + Farbskala, kein SVG-only) */
+      loadPreset('heatmapDemo'); state.type='heatmap'; renderAll();
+      const vlH=vegaSpec(false);
+      ok('P · heatmap · VL ist rect-Heatmap (kein null/SVG-only)', !!vlH && /"rect"/.test(JSON.stringify(vlH)) && /(domainMid|#efeee9)/.test(JSON.stringify(vlH)));
+      const tH=denebTemplate(); const bH=clone(tH); delete bH.usermeta;
+      let hc=false; try{ hc=!!VL.compile(bH).spec; }catch(e){}
+      ok('P · heatmap · Template kompiliert (baked=0) + serie/v deklariert',
+         hc && tplBakedRows(tH)===0 && tH.usermeta.dataset.length===3);
+      /* P2 · Referenzlinien-Notation im VL-Template = Vorschau */
+      loadPreset('months'); state.type='line'; state.reference='PL'; renderAll();
+      ok('P · line · PL-Referenz gestrichelt im VL', /"strokeDash":\[5,3\]/.test(JSON.stringify(vegaSpec(false))));
+      state.type='columns'; state.reference='FC'; state.refStyle='offset'; renderAll();
+      ok('P · columns · FC-Referenzsäule mit strokeDash', /"strokeDash"/.test(JSON.stringify(vegaSpec(false))));
+      state.reference='PY'; state.refStyle='offset';
     }
 
   }catch(err){

@@ -660,6 +660,7 @@ footer a:hover{color:var(--ink)}
       <button id="dlgCopy">In Zwischenablage kopieren</button>
       <button class="ghost" id="dlgDownload">Als Datei herunterladen</button>
       <button class="ghost" id="dlgPreview" style="display:none" title="Spec mit Vega im Browser rendern – so sieht es in Deneb aus">▶ Vorschau</button>
+      <button class="ghost" id="dlgEditor" style="display:none" title="Im Vega-Editor öffnen (mit eingebetteten Daten) – zum Feintunen">↗ Vega-Editor</button>
     </div>
   </div>
 </dialog>
@@ -4946,7 +4947,19 @@ function renderGuide(){
   $('#guideTitle').textContent = 'Optionen · '+typeName(state.type);
   $('#guideBody').innerHTML = guideCardsHtml();
 }
-function openGuide(){ renderGuide(); const d=$('#guideDlg'); if(d.showModal) d.showModal(); else d.setAttribute('open',''); }
+function openGuide(){ dismissGuideCoach(); renderGuide(); const d=$('#guideDlg'); if(d.showModal) d.showModal(); else d.setAttribute('open',''); }
+/* Einmaliger, dezenter Hinweis auf den Optionen-Button (Onboarding) */
+function dismissGuideCoach(){ try{ localStorage.setItem('cb_guideCoach_v1','1'); }catch(e){} const c=$('#guideCoach'); if(c) c.remove(); }
+function maybeShowGuideCoach(){
+  try{ if(localStorage.getItem('cb_guideCoach_v1')) return; }catch(e){ return; }
+  const btn=$('#btnGuide'); if(!btn || $('#guideCoach')) return;
+  const c=document.createElement('div'); c.id='guideCoach';
+  c.style.cssText='margin-top:8px;padding:8px 26px 8px 10px;border:1px solid var(--accent);border-radius:8px;background:#fdf3ec;font-size:11.5px;color:var(--ink);line-height:1.45;position:relative;cursor:pointer';
+  c.innerHTML='💡 <b>Tipp:</b> Alle passenden Einstellungen für den gewählten Chart findest du über „⚙ Optionen" (oder die aktive Kachel nochmal anklicken).'+
+    '<span style="position:absolute;top:5px;right:7px;font-size:13px;color:var(--ink3)">×</span>';
+  btn.insertAdjacentElement('afterend', c);
+  c.addEventListener('click', dismissGuideCoach);
+}
 function applyGuideOpt(opt,val){
   switch(opt){
     case 'var':
@@ -6006,6 +6019,7 @@ $('#btnVega').addEventListener('click', async ()=>{
     $('#specOpts').style.display = 'none';
     $('#fieldMap').style.display = 'none';
     $('#dlgPreview').style.display = 'none';
+    $('#dlgEditor').style.display = '';
     $('#vlPreview').style.display = 'block';
     $('#vlPreview').innerHTML =
       '<div style="font-size:11.5px;color:#5a5a5a;line-height:1.6">'+
@@ -6021,8 +6035,38 @@ $('#btnVega').addEventListener('click', async ()=>{
   $('#dashPanel').style.display = 'none';
   syncSpecOpts();
   $('#dlgPreview').style.display = '';
+  $('#dlgEditor').style.display = '';
   $('#vlPreview').style.display = 'none'; $('#vlPreview').innerHTML = '';
   if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
+});
+/* Aktuelles Spec im Vega-Editor öffnen (postMessage wie vega-embed) – mit
+   eingebetteten Daten, damit es dort sofort rendert. */
+function openInVegaEditor(spec, mode){
+  const editorUrl = 'https://vega.github.io/editor/';
+  const w = window.open(editorUrl);
+  if(!w){
+    try{ navigator.clipboard.writeText(JSON.stringify(spec, null, 2)); }catch(e){}
+    alert(TT('Popup blockiert – das Spec liegt in der Zwischenablage; im Vega-Editor einfügen.'));
+    return;
+  }
+  let count = 40;
+  const listener = ev=>{ if(ev.source===w){ count=0; window.removeEventListener('message', listener, false); } };
+  window.addEventListener('message', listener, false);
+  (function send(){
+    if(count<=0) return;
+    try{ w.postMessage({mode, renderer:'svg', spec: JSON.stringify(spec)}, editorUrl); }catch(e){}
+    count--; setTimeout(send, 250);
+  })();
+}
+$('#dlgEditor').addEventListener('click', ()=>{
+  if(state.type==='gantt'){
+    if(!_ganttSpecRaw){ alert(TT('Gantt-Vorlage noch nicht geladen – kurz die Vorschau im Builder öffnen.')); return; }
+    openInVegaEditor(buildGanttSpec(860, 440), 'vega');   /* lokal lauffähig (Signale+Demo-Daten) */
+    return;
+  }
+  const spec = (typeof dlgFile==='string' && dlgFile.startsWith('dashboard')) ? dashboardSpec(false) : vegaSpec(false);
+  if(spec) openInVegaEditor(spec, 'vega-lite');
+  else alert(TT('Für diesen Typ ist kein Vega-Lite-Spec verfügbar (nur SVG/PNG).'));
 });
 function regenSpecDlg(){
   if(dlgFile.startsWith('dashboard')) regenDash();
@@ -6058,6 +6102,7 @@ $('#btnSvg').addEventListener('click', async ()=>{
   }catch(err){
     $('#dlgCode').value = svg; dlgFile='ibcs-chart.svg';
     $('#specOpts').style.display='none'; $('#dashPanel').style.display='none'; $('#fieldMap').style.display='none';
+    $('#dlgPreview').style.display='none'; $('#dlgEditor').style.display='none';
     if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
   }
 });
@@ -6260,10 +6305,10 @@ function vlColumns(deneb, opt){
         encoding:{y:vYq('r')}});
     } else if(style==='offset'){
       primOff = 5.5;
-      layer.push({mark:{type:'bar', size:16, xOffset:-5.5, fill:sr.fill, stroke:sr.stroke||null, strokeWidth:sr.stroke?1.3:0},
+      layer.push({mark:{type:'bar', size:16, xOffset:-5.5, fill:sr.fill, stroke:sr.stroke||null, strokeWidth:sr.stroke?1.3:0, strokeDash:sr.dash},
         encoding:{y:vYq('r')}});
     } else {
-      layer.push({mark:{type:'bar', size:26, fill:sr.fill, stroke:sr.stroke||null, strokeWidth:sr.stroke?1.3:0},
+      layer.push({mark:{type:'bar', size:26, fill:sr.fill, stroke:sr.stroke||null, strokeWidth:sr.stroke?1.3:0, strokeDash:sr.dash},
         encoding:{y:vYq('r')}});
     }
   }
@@ -6762,8 +6807,15 @@ function vlLine(deneb){
     layer.push({mark:{type:'area', color:C2.neg, opacity:0.28, line:false},
       encoding:{y:{field:'hvLo', type:'quantitative'}, y2:{field:'r'}}});
   }
-  if(hasRef) layer.push({mark:{type:'line', color:LIGHT, strokeWidth:2, point:{filled:true, fill:LIGHT, size:38}},
-    encoding:{y:vYq('r')}});
+  if(hasRef){
+    /* Referenzlinie in Szenario-Notation: PY hell solid, PL/BU gestrichelt, FC/sonstige hohl */
+    const rc = state.reference, rsc = vScen(rc);
+    layer.push({mark:{type:'line', color: rc==='PY'?LIGHT:DARK, strokeWidth:2, strokeDash:(rc==='PL'||rc==='BU')?[5,3]:[1,0]},
+      encoding:{y:vYq('r')}});
+    layer.push({mark:{type:'point', size:38, filled:true, opacity:1,
+        fill: rsc.stroke?'#ffffff':rsc.fill, stroke: rsc.stroke||rsc.fill, strokeWidth: rsc.stroke?1.3:0},
+      encoding:{y:vYq('r')}});
+  }
   layer.push({mark:{type:'line', color:DARK, strokeWidth:2.2},
     encoding:{y:vYq('p'),
       strokeDash:{field:'part', type:'nominal', scale:{domain:['ac','fc'], range:[[1,0],[5,3]]}, legend:null}}});
@@ -6919,6 +6971,36 @@ function vlMultiples(deneb){
     facet:{field:'serie', type:'nominal', sort: deneb? null : state.series.slice(),
       header:{title:null, labelFont:'Arial', labelFontSize:11, labelFontWeight:'bold', labelColor:'#1c1c1c', labelAnchor:'start'}},
     spec:inner, resolve:{scale:{y: state.multiScale==='free'?'independent':'shared'}} };
+}
+/* Heatmap-Matrix: rect + divergierende Farbskala (Mittelpunkt 0, cbSafe-aware).
+   Datensatz long: serie × periode (dim) × wert. */
+function vlHeatmap(deneb){
+  const periods = state.srows.filter(r=>r.c!=='');
+  const values=[];
+  periods.forEach(r=> state.series.forEach((nm,j)=>{ if(!isNaN(r.v[j])) values.push({k:r.c, serie:nm, v:r.v[j], L:fmt(r.v[j])}); }));
+  const allv=values.map(o=>o.v);
+  const C=vCol();
+  const diverging = allv.length && Math.min(...allv)<0 && Math.max(...allv)>0;
+  const colorScale = diverging ? {domainMid:0, range:[C.neg,'#ffffff',C.pos]} : {range:['#efeee9', DARK]};
+  /* Textfarbe (weiß auf kräftigen Zellen) – Schwellwert als Legibilitäts-Heuristik */
+  const maxAbs = allv.length? Math.max(...allv.map(Math.abs)) : 1;
+  const mid = allv.length? (Math.min(...allv)+Math.max(...allv))/2 : 0;
+  const whiteTest = diverging ? 'abs(datum.v) > '+(0.55*maxAbs).toFixed(3) : 'datum.v > '+mid.toFixed(3);
+  return {
+    data:vData(values,deneb),
+    encoding:{
+      x:{field:'serie', type:'nominal', sort:null, axis:{orient:'top', labelAngle:0, labelFontSize:9.5, labelFontWeight:'bold', title:null, domain:false, ticks:false, labelPadding:6}},
+      y:{field:'k', type:'nominal', sort:null, axis:{labelFontSize:10.5, title:null, domain:false, ticks:false, labelPadding:6}},
+    },
+    layer:[
+      {mark:{type:'rect', stroke:'#ffffff', strokeWidth:2},
+       encoding:{color:{field:'v', type:'quantitative', scale:colorScale, legend:null}}},
+      {mark:{type:'text', fontSize:10, font:'Arial'},
+       encoding:{text:vLab(deneb,'v','L',vNum()),
+         color:{condition:{test:whiteTest, value:'#ffffff'}, value:DARK}}},
+    ],
+    width:{step:48}, height:{step:26},
+  };
 }
 function vlScatter(deneb){
   const rows = state.rows.filter(r=>r.c!=='' && !isNaN(r.v1) && !isNaN(r.v2));
@@ -7558,6 +7640,7 @@ function vegaSpecCore(deneb){
   else if(t==='wfkombi') body = vlWfKombi(deneb);
   else if(t==='varint') body = vlVarintDyn(deneb);
   else if(t==='boxplot') body = vlBoxplot(deneb);
+  else if(t==='heatmap') body = vlHeatmap(deneb);
   else if(t==='table') body = vlTable(deneb);
   else return null;
   if(t==='kombi' && state.kombiBase==='wf' && deneb) note = 'Wasserfall-Basis: Daten eingebettet (Σ-Zeile wird im Builder erzeugt).';
@@ -7728,10 +7811,11 @@ function usermetaFields(t){
   else if(t==='wfkombi'){ o[F('v')]='Wert ('+state.primary+')'; o[F('r')]='Referenzwert ('+state.reference+')'; o[F('typ')]="'sum' oder 'delta' (spätere Σ-Zeilen: Werte 0)"; }
   else if(t==='scatter'){ o[F('x')]='X-Wert'; o[F('y')]='Y-Wert'; o[F('g')]='Größe (optional)'; }
   else if(t==='boxplot'){ o[F('dim')]='Kategorie (wiederholt sich je Beobachtung)'; o[F('p')]='Wert je Beobachtung (Spalte, NICHT aggregieren)'; }
-  else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'){
+  else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'||t==='heatmap'){
     o[F('serie')]='Serienname'; o[F('v')]='Wert';
     if(t==='multiples') o[F('idx')]='Sortierindex der Dimension';
     if(t==='sparktable') o[F('dim')]='Periode (Sortierung = Datenreihenfolge)';
+    if(t==='heatmap') o[F('dim')]='Zeile (Periode/Kategorie)';
   } else {
     o[F('p')]='Primärwert ('+state.primary+')';
     if(state.reference!=='—') o[F('r')]='Referenz ('+state.reference+')';
@@ -8275,6 +8359,7 @@ $('#btnDash').addEventListener('click', ()=>{
   regenDash();
   syncSpecOpts();
   $('#dlgPreview').style.display = '';
+  $('#dlgEditor').style.display = '';
   $('#vlPreview').style.display = 'none'; $('#vlPreview').innerHTML = '';
   $('#fieldMap').style.display = 'none';
   $('#dashPanel').style.display = 'block';
@@ -8346,6 +8431,7 @@ $('#btnReset').addEventListener('click', async ()=>{
   flash($('#btnReset'), 'Standard ✓');
 });
 tryHashLoad().then(loaded=>{ if(!loaded) tryRestore(); });
+setTimeout(maybeShowGuideCoach, 600);   /* einmaliger Onboarding-Hinweis */
 
 /* Einklappbare Konfig-Panels – Klick auf die Panel-Überschrift, Zustand gemerkt */
 (function(){
