@@ -6242,8 +6242,9 @@ function denebTemplate(){
      Datenmengen, Cross-Filter (selection/highlight), Drill/Collapse via Signale. */
   if(rawVegaOn()){
     const sp = rawVegaTableOn() ? rvTableSpec(true) : rvSpecFor(true);
-    const TKr = { d0:['text','column'], d1:['text','column'], d2:['text','column'], dim:['text','column'] };
-    const defs = vFieldDefs().filter(([k])=>['dim','d0','d1','d2','p','r'].includes(k)).map((pair,i)=>{ const key=pair[0], label=pair[1]; const tk = TKr[key] || ['numeric','measure'];
+    const TKr = { d0:['text','column'], d1:['text','column'], d2:['text','column'], dim:['text','column'], fc:['numeric','column'] };
+    const keep = rawVegaTableOn() ? ['dim','d0','d1','d2','p','r'] : ['dim','p','r','fc'];
+    const defs = vFieldDefs().filter(([k])=>keep.includes(k)).map((pair,i)=>{ const key=pair[0], label=pair[1]; const tk = TKr[key] || ['numeric','measure'];
       return { ph:'__'+i+'__', name:F(key), label, type:tk[0], kind:tk[1] }; });
     sp.usermeta = {
       information: {
@@ -8260,10 +8261,14 @@ function rawVegaVarOn(){ return state.rawVega && RAWVAR_TYPES.includes(state.typ
 function rawVegaOn(){ return rawVegaTableOn() || rawVegaVarOn(); }
 /* passende Raw-Vega-Spec je Typ */
 function rvSpecFor(deneb){ return RV_BAR.includes(state.type) ? rvBarsSpec(deneb) : (RV_LINE.includes(state.type) ? rvLineSpec(deneb) : rvVarSpec(deneb)); }
-function rvVarData(){ return activeRows().filter(r=>!isNaN(r.v1)).map(r=>({k:r.c, p:r.v1, r:isNaN(r.v2)?null:r.v2})); }
+function rvVarData(){ return activeRows().filter(r=>!isNaN(r.v1)).map(r=>({k:r.c, p:r.v1, r:isNaN(r.v2)?null:r.v2, fc:r.fc?1:0})); }
+/* Feld→Platzhalter für die Raw-Vega-Var/Bars/Line-Specs – identisch zur Auswahl
+   in denebTemplate, damit die __N__-Indizes immer übereinstimmen. */
+function rvVarDefs(){ return vFieldDefs().filter(p=>['dim','p','r','fc'].includes(p[0])); }
+function rvVarPh(key, deneb){ if(!deneb) return ({dim:'k'})[key]||key; const i=rvVarDefs().findIndex(p=>p[0]===key); return i>=0?'__'+i+'__':'__nr__'; }
 function rvVarSpec(deneb){
-  const c=varColors(), POS=c.pos, NEG=c.neg, DARK='#0F1E2E', SUBC='#475569';
-  const FK=deneb?'__0__':'k', FP=deneb?'__1__':'p', FR=deneb?'__2__':'r';
+  const c=varColors(), POS=c.pos, NEG=c.neg, DARK='#0F1E2E', SUBC='#475569', FCINK='#5a5a5a';
+  const FK=rvVarPh('dim',deneb), FP=rvVarPh('p',deneb), FR=rvVarPh('r',deneb), FFC=rvVarPh('fc',deneb);
   const dim="((sel!=null&&sel!==datum.k)||datum.__selected__==='off')?0.4:1";
   const refOn = state.reference!=='—';
   const showR = refOn && state.showRel;   /* Δ%-Ebene (Abweichung „relativ"/„beide") */
@@ -8294,6 +8299,7 @@ function rvVarSpec(deneb){
   const data=[{name:'dataset', ...(deneb?{}:{values:rvVarData()})},
     {name:'all', source:'dataset', transform:[
       {type:'formula', as:'k', expr:'datum.'+FK}, {type:'formula', as:'p', expr:'datum.'+FP}, {type:'formula', as:'r', expr:'datum.'+FR},
+      {type:'formula', as:'fc', expr:'datum.'+FFC},
       {type:'formula', as:'d', expr:'datum.r==null?null:datum.p-datum.r'},
       {type:'formula', as:'rel', expr:'datum.r?(datum.p-datum.r)/abs(datum.r)*100:null'},
       {type:'window', ops:['row_number'], as:['ord']}]}];
@@ -8313,9 +8319,9 @@ function rvVarSpec(deneb){
     if(rStroke){ refEnc.stroke={value:rStroke}; refEnc.strokeWidth={value:rSW}; }
     marks.push({type:'rect', from:{data:'all'}, encode:{update:refEnc}});
   }
-  marks.push({type:'rect', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:acB}, width:{scale:'x',band:acW}, y:{scale:'yv',field:'p'}, y2:{scale:'yv',value:0}, fill:{value:DARK}, opacity:{signal:dim}}}});
+  marks.push({type:'rect', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:acB}, width:{scale:'x',band:acW}, y:{scale:'yv',field:'p'}, y2:{scale:'yv',value:0}, fill:{signal:"datum.fc?'#ffffff':'"+DARK+"'"}, stroke:{value:DARK}, strokeWidth:{signal:'datum.fc?1.1:0'}, strokeDash:{value:[3,2]}, opacity:{signal:dim}}}});
   if(refTri) marks.push({type:'symbol', from:{data:'all'}, encode:{update:{shape:{value:'triangle-left'}, x:{scale:'x',field:'k',band:0.86}, y:{scale:'yv',field:'r'}, size:{value:60}, fill:{value: RS==='PY'?'#a8a8a8':DARK}, opacity:{signal:'datum.r==null?0:('+dim+')'}}}});
-  marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:acC}, y:{scale:'yv',field:'p'}, dy:{signal:'datum.p>=0?-6:12'}, text:{signal:'format(datum.p,",.0f")'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:DARK}, opacity:{signal:dim}}}});
+  marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:acC}, y:{scale:'yv',field:'p'}, dy:{signal:'datum.p>=0?-6:12'}, text:{signal:'format(datum.p,",.0f")'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{signal:"datum.fc?'"+FCINK+"':'"+DARK+"'"}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x',field:'k',band:0.5}, y:{signal:'height-7'}, text:{field:'k'}, align:{value:'center'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:SUBC}}}});
   /* Säulen-Basis (x-Achse) – schlicht, am Primär-Nullwert */
   axisMarks('yv', false).forEach(m=>marks.unshift(m));
@@ -8340,14 +8346,14 @@ function rvVarSpec(deneb){
    Δ% als farbiges Label rechts. Cross-Filter, große Kategorienzahl. */
 function rvBarsSpec(deneb){
   const c=varColors(), POS=c.pos, NEG=c.neg, DARK='#0F1E2E', SUBC='#475569';
-  const FK=deneb?'__0__':'k', FP=deneb?'__1__':'p', FR=deneb?'__2__':'r';
+  const FK=rvVarPh('dim',deneb), FP=rvVarPh('p',deneb), FR=rvVarPh('r',deneb), FFC=rvVarPh('fc',deneb);
   const dim="((sel!=null&&sel!==datum.k)||datum.__selected__==='off')?0.4:1";
   const refOn = state.reference!=='—';
   const RS=state.reference; let rFill='#a8a8a8', rStroke=null, rSW=0;
   if(RS==='PL'||RS==='BU'){ rFill='#ffffff'; rStroke=DARK; rSW=1.3; } else if(RS==='FC'){ rFill='#ffffff'; rStroke=DARK; rSW=1; }
   const data=[{name:'dataset', ...(deneb?{}:{values:rvVarData()})},
     {name:'all', source:'dataset', transform:[
-      {type:'formula', as:'k', expr:'datum.'+FK}, {type:'formula', as:'p', expr:'datum.'+FP}, {type:'formula', as:'r', expr:'datum.'+FR},
+      {type:'formula', as:'k', expr:'datum.'+FK}, {type:'formula', as:'p', expr:'datum.'+FP}, {type:'formula', as:'r', expr:'datum.'+FR}, {type:'formula', as:'fc', expr:'datum.'+FFC},
       {type:'formula', as:'rel', expr:'datum.r?(datum.p-datum.r)/abs(datum.r)*100:null'},
       {type:'window', ops:['row_number'], as:['ord']}]}];
   const signals=[
@@ -8361,7 +8367,7 @@ function rvBarsSpec(deneb){
   /* Wert-Basisachse (vertikal am Nullwert) */
   marks.push({type:'rule', encode:{update:{x:{scale:'xv', value:0}, y:{value:6}, y2:{signal:'height-6'}, stroke:{value:DARK}, strokeWidth:{value:1.4}}}});
   if(refOn) marks.push({type:'rect', from:{data:'all'}, encode:{update:refBarEnc}});
-  marks.push({type:'rect', from:{data:'all'}, encode:{update:{y:{scale:'y', field:'k', band: refOn?0.28:0.18}, height:{scale:'y', band: refOn?0.44:0.64}, x:{scale:'xv', value:0}, x2:{scale:'xv', field:'p'}, fill:{value:DARK}, opacity:{signal:dim}}}});
+  marks.push({type:'rect', from:{data:'all'}, encode:{update:{y:{scale:'y', field:'k', band: refOn?0.28:0.18}, height:{scale:'y', band: refOn?0.44:0.64}, x:{scale:'xv', value:0}, x2:{scale:'xv', field:'p'}, fill:{signal:"datum.fc?'#ffffff':'"+DARK+"'"}, stroke:{value:DARK}, strokeWidth:{signal:'datum.fc?1.1:0'}, strokeDash:{value:[3,2]}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{value:4}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, text:{field:'k'}, fontSize:{value:10.5}, font:{value:'Arial'}, fill:{value:SUBC}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'xv', field:'p', offset:5}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, align:{value:'left'}, text:{signal:'format(datum.p,",.0f")'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:DARK}, opacity:{signal:dim}}}});
   if(refOn) marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{signal:'width-6'}, y:{scale:'y', field:'k', band:0.5}, baseline:{value:'middle'}, align:{value:'right'}, text:{signal:"datum.rel==null?'':(datum.rel>=0?'+':'')+format(datum.rel,'.1f')+'%'"}, fontSize:{value:9.5}, font:{value:'Arial'}, fill:{signal:"datum.rel>=0?'"+POS+"':'"+NEG+"'"}, opacity:{signal:'datum.rel==null?0:('+dim+')'}}}});
@@ -8376,14 +8382,14 @@ function rvBarsSpec(deneb){
    klickbare Marker (Cross-Filter), Container-Sizing, große Periodenzahl. */
 function rvLineSpec(deneb){
   const POS='#3a8a3a', NEG='#c0392b', DARK='#0F1E2E', SUBC='#475569', LIGHTC='#a8a8a8';
-  const FK=deneb?'__0__':'k', FP=deneb?'__1__':'p', FR=deneb?'__2__':'r';
+  const FK=rvVarPh('dim',deneb), FP=rvVarPh('p',deneb), FR=rvVarPh('r',deneb), FFC=rvVarPh('fc',deneb);
   const dim="((sel!=null&&sel!==datum.k)||datum.__selected__==='off')?0.45:1";
   const refOn = state.reference!=='—';
   const refDash = (state.reference==='PL'||state.reference==='BU');
   const refCol = state.reference==='PY' ? LIGHTC : DARK;
   const data=[{name:'dataset', ...(deneb?{}:{values:rvVarData()})},
     {name:'all', source:'dataset', transform:[
-      {type:'formula', as:'k', expr:'datum.'+FK}, {type:'formula', as:'p', expr:'datum.'+FP}, {type:'formula', as:'r', expr:'datum.'+FR},
+      {type:'formula', as:'k', expr:'datum.'+FK}, {type:'formula', as:'p', expr:'datum.'+FP}, {type:'formula', as:'r', expr:'datum.'+FR}, {type:'formula', as:'fc', expr:'datum.'+FFC},
       {type:'window', ops:['row_number'], as:['ord']}, {type:'collect', sort:{field:'ord'}}]}];
   const signals=[
     {name:'pbiContainerWidth', value:620}, {name:'pbiContainerHeight', value:300},
@@ -8397,7 +8403,7 @@ function rvLineSpec(deneb){
     marks.push({type:'symbol', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{scale:'y', field:'r'}, size:{value:24}, fill:{value: state.reference==='PY'?LIGHTC:'#ffffff'}, stroke:{value:refCol}, strokeWidth:{value:1}, opacity:{signal:'datum.r==null?0:1'}}}});
   }
   marks.push({type:'line', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{scale:'y', field:'p'}, stroke:{value:DARK}, strokeWidth:{value:2.2}}}});
-  marks.push({type:'symbol', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{scale:'y', field:'p'}, size:{value:46}, fill:{value:DARK}, opacity:{signal:dim}}}});
+  marks.push({type:'symbol', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{scale:'y', field:'p'}, size:{value:46}, fill:{signal:"datum.fc?'#ffffff':'"+DARK+"'"}, stroke:{value:DARK}, strokeWidth:{signal:'datum.fc?1.2:0'}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{scale:'y', field:'p', offset:-9}, align:{value:'center'}, text:{signal:'format(datum.p,",.0f")'}, fontSize:{value:9.5}, font:{value:'Arial'}, fill:{value:DARK}, opacity:{signal:dim}}}});
   marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{scale:'x', field:'k'}, y:{signal:'height-7'}, align:{value:'center'}, text:{field:'k'}, fontSize:{value:10}, font:{value:'Arial'}, fill:{value:SUBC}}}});
   const scales=[
