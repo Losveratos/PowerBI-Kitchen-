@@ -503,6 +503,25 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       state.multiCols=3; state.multiScale='shared';
     }
 
+    /* === J) Referenzlinie-Overlay (Ø/Median) als zusätzlicher Layer ==== */
+    if('refLine' in state){
+      for(const ty of ['columns','line','bars','colline']){
+        loadPreset('months'); state.type=ty; if(ty==='colline') state.reference='PY';
+        state.refLine='mean'; renderAll();
+        const sMean=chartHtml();
+        state.refLine='median'; renderPreview();
+        const sMed=chartHtml();
+        ok('J · '+ty+' · SVG zeigt Ø/Md-Linie, kein NaN',
+           /Ø /.test(sMean) && /Md /.test(sMed) && !/NaN/.test(sMean) && !/NaN/.test(sMed));
+        const vl=vegaSpec(false);
+        ok('J · '+ty+' · VL-Layer mit aggregate median', JSON.stringify(vl).includes('"aggregate":"median"'));
+        const jb=clone(denebTemplate()); const baked=tplBakedRows(jb); delete jb.usermeta;
+        let jcomp=false; try{ jcomp=!!VL.compile(jb).spec; }catch(e){}
+        ok('J · '+ty+' · Template kompiliert (baked=0)', jcomp && baked===0);
+      }
+      state.refLine='none';
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{

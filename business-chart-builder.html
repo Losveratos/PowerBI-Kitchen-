@@ -421,6 +421,12 @@ footer a:hover{color:var(--ink)}
         <input type="text" id="targetVal" inputmode="decimal" placeholder="z. B. 110" style="width:74px">
         <input type="text" id="targetLbl" placeholder="Label (z. B. Ziel)" style="width:108px">
       </div>
+      <div class="row" id="refLineWrap2" style="display:none; margin-top:8px">
+        <span style="font-size:11.5px;color:var(--ink2)" title="Dezente gestrichelte Referenzlinie als zusätzlicher Layer (über dem Primärwert)">Referenzlinie</span>
+        <button class="chip" id="rlNone" type="button">keine</button>
+        <button class="chip" id="rlMean" type="button" title="Durchschnitt (arithmetisches Mittel) der Primärwerte">Ø Mittel</button>
+        <button class="chip" id="rlMedian" type="button" title="Median (robust gegen Ausreißer)">Md Median</button>
+      </div>
       <div id="annoList" style="margin-top:8px"></div>
       <label class="check" id="sumWrap" style="display:none"><input type="checkbox" id="showSum" checked> Summenzeile (Σ)</label>
       <label class="check" id="trendWrap" style="display:none"><input type="checkbox" id="trendChk"> Trendpfeil mit CAGR (UN 5.1‑3)</label>
@@ -771,6 +777,7 @@ const state = {
   cutSums:true,
   t3auto:true,
   trend:false,
+  refLine:'none',
   lineAllLabels:false,
   topN:0,
   highlights:new Set(),
@@ -1254,6 +1261,36 @@ function targetLineV(sc, padL, padT, H, padB){
   return '<line x1="'+x+'" y1="'+padT+'" x2="'+x+'" y2="'+(H-padB)+'" stroke="'+DARK+'" stroke-width="1.2" stroke-dasharray="6,3"/>'+
     txt(x+3, padT+8, targetLabel(t), {size:10, fill:SUB});
 }
+/* Statistik-Overlay: Durchschnitts- oder Median-Referenzlinie über v1.
+   Eigene, dezente gestrichelte Linie – zusätzlicher Layer, keine Wertung. */
+function statKind(){ return (state.refLine==='mean'||state.refLine==='median') ? state.refLine : null; }
+function statVal(rows){
+  const k = statKind(); if(!k) return null;
+  const vs = rows.map(r=>r.v1).filter(v=>!isNaN(v)); if(!vs.length) return null;
+  if(k==='mean') return vs.reduce((a,b)=>a+b,0)/vs.length;
+  const s = vs.slice().sort((a,b)=>a-b), m = s.length>>1;
+  return s.length%2 ? s[m] : (s[m-1]+s[m])/2;
+}
+function statLabel(v){ return (state.refLine==='median'?'Md ':'Ø ')+fmt(v); }
+function statLineH(sc, rows, padL, padR, padT, W){
+  const v = statVal(rows); if(v===null) return '';
+  const y = padT+sc.y(v);
+  return '<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="'+SUB+'" stroke-width="1" stroke-dasharray="4,3"/>'+
+    txt(padL+2, y-4, statLabel(v), {size:9.5, fill:SUB});
+}
+function statLineV(sc, rows, padL, padT, H, padB){
+  const v = statVal(rows); if(v===null) return '';
+  const x = padL+sc.x(v);
+  return '<line x1="'+x+'" y1="'+padT+'" x2="'+x+'" y2="'+(H-padB)+'" stroke="'+SUB+'" stroke-width="1" stroke-dasharray="4,3"/>'+
+    txt(x+3, H-padB-3, statLabel(v), {size:9.5, fill:SUB});
+}
+/* Statistik-Linie als Vega-Layer (aggregate mean/median auf Feld 'p') */
+function vStatLayers(horizontal){
+  const k = statKind(); if(!k) return [];
+  const enc = horizontal ? {y:{aggregate:k, field:'p', type:'quantitative'}}
+                         : {x:{aggregate:k, field:'p', type:'quantitative'}};
+  return [{mark:{type:'rule', strokeDash:[4,3], color:SUB, strokeWidth:1, opacity:0.85}, encoding:enc}];
+}
 /* Gemeinsame Wertskala über Dashboard-Kacheln (IBCS SC): während des Dashboard-
    Renderings gesetzt; nur Primärwert-Skalen (shared=true) konsumieren sie. */
 let SHARED_SCALE = null;
@@ -1486,7 +1523,7 @@ function renderColumns(rows, opt){
     endPinsSvg += pin(last.v2, state.reference, x1);
     if(hasRef2) endPinsSvg += pin(last.v3, state.reference2, x1+40);
   }
-  return { svg:bars+axis+targetLineH(sc,padL,padR,padT,W)+labels+marks+trend+totalSvg+endPinsSvg, W, H };
+  return { svg:bars+axis+statLineH(sc,rows,padL,padR,padT,W)+targetLineH(sc,padL,padR,padT,W)+labels+marks+trend+totalSvg+endPinsSvg, W, H };
 }
 
 /* Differenzmarker nach UN 5.1-2: Hilfslinien projizieren die Säulenlängen,
@@ -2025,7 +2062,7 @@ function renderLine(rows, opt){
   }
   rows.forEach((r,i)=> s += txt(X(i), y0+15, r.c, {anchor:'middle', size:11, fill:CAT}));
   s += '<line x1="'+padL+'" y1="'+y0+'" x2="'+(W-padR)+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1.5"/>';
-  if(!state.lineIndex) s += targetLineH(sc,padL,padR,padT,W);
+  if(!state.lineIndex) s += statLineH(sc,rows,padL,padR,padT,W) + targetLineH(sc,padL,padR,padT,W);
   if(state.trend) s += trendArrow(rows, X, Y);
   return { svg:s, W, H };
 }
@@ -3219,7 +3256,7 @@ function renderBars(rows){
     s += catLabel(rows, i, padL-8, cy+4);
   });
   s += '<line x1="'+x0+'" y1="'+padT+'" x2="'+x0+'" y2="'+(H-padB)+'" stroke="'+DARK+'" stroke-width="1.5"/>';
-  s += targetLineV(sc, padL, padT, H, padB);
+  s += statLineV(sc, rows, padL, padT, H, padB) + targetLineV(sc, padL, padT, H, padB);
   return { svg:s, W, H };
 }
 
@@ -3517,7 +3554,7 @@ function renderColLine(rows, opt){
   if(hasRef) lines += drawRefLine('v2', state.reference);
   if(hasRef2) lines += drawRefLine('v3', state.reference2);
   const axis='<line x1="'+padL+'" y1="'+y0+'" x2="'+(W-padR)+'" y2="'+y0+'" stroke="'+DARK+'" stroke-width="1.5"/>';
-  return { svg:bars+axis+targetLineH(sc,padL,padR,padT,W)+lines+labels, W, H };
+  return { svg:bars+axis+statLineH(sc,rows,padL,padR,padT,W)+targetLineH(sc,padL,padR,padT,W)+lines+labels, W, H };
 }
 
 /* --- Punktdiagramm / Dumbbell (Struktur, UN 3.4-Alternative) ---
@@ -4281,6 +4318,10 @@ function renderPreview(){
   $('#targetWrap').style.display = ['columns','colline','line','bars'].includes(state.type) ? 'flex' : 'none';
   $('#targetVal').value = isNaN(state.target.v) ? '' : String(state.target.v).replace('.',',');
   $('#targetLbl').value = state.target.label||'';
+  $('#refLineWrap2').style.display = ['columns','colline','line','bars'].includes(state.type) ? 'flex' : 'none';
+  $('#rlNone').classList.toggle('on', state.refLine!=='mean' && state.refLine!=='median');
+  $('#rlMean').classList.toggle('on', state.refLine==='mean');
+  $('#rlMedian').classList.toggle('on', state.refLine==='median');
   renderAnnoList();
   $('#sumWrap').style.display = state.type==='table' ? 'flex' : 'none';
   $('#trendWrap').style.display = (state.type==='columns'||state.type==='line') ? 'flex' : 'none';
@@ -4861,6 +4902,9 @@ $('#hmEllipse').addEventListener('click', ()=>{ state.hlMode='ellipse'; renderPr
 $('#hmDiff').addEventListener('click', ()=>{ state.hlMode='diff'; renderPreview(); });
 $('#hmCmt').addEventListener('click', ()=>{ state.hlMode='cmt'; renderPreview(); });
 $('#hmAnno').addEventListener('click', ()=>{ state.hlMode = state.hlMode==='anno'?'ellipse':'anno'; renderPreview(); });
+$('#rlNone').addEventListener('click', ()=>{ state.refLine='none'; renderPreview(); });
+$('#rlMean').addEventListener('click', ()=>{ state.refLine='mean'; renderPreview(); });
+$('#rlMedian').addEventListener('click', ()=>{ state.refLine='median'; renderPreview(); });
 $('#targetVal').addEventListener('input', e=>{ const v=parseNum(e.target.value); state.target.v=v; state.target.on=!isNaN(v); renderPreview(); });
 $('#targetLbl').addEventListener('input', e=>{ state.target.label=e.target.value; renderPreview(); });
 
@@ -5892,6 +5936,7 @@ function vlColumns(deneb, opt){
       encoding:{y:vYq('r2')}});
   }
   vSignedText('p', vLab(deneb,'p','Lp',vNum()), true, null, primOff).forEach(l=>layer.push(l));
+  vStatLayers(true).forEach(l=>layer.push(l));
   vTargetLayers(true).forEach(l=>layer.push(l));
   return { width:580, height:opt.h||230, data:vData(vRows(),deneb),
     encoding:{x:vX(opt.x)}, layer };
@@ -5926,6 +5971,7 @@ function vlBars(deneb){
       encoding:{x:vYq('r2')}});
   }
   vSignedText('p', vLab(deneb,'p','Lp',vNum()), false, null, primOff).forEach(l=>layer.push(l));
+  vStatLayers(false).forEach(l=>layer.push(l));
   vTargetLayers(false).forEach(l=>layer.push(l));
   return { width:430, height:{step:28}, data:vData(vRows(),deneb),
     transform: deneb? [] : undefined,
@@ -6386,7 +6432,7 @@ function vlLine(deneb){
       stroke:{value:DARK}}});
   layer.push({mark:{type:'text', dy:-11, fontSize:11, font:'Arial', color:DARK},
     encoding:{y:vYq('p'), text:vLab(deneb,'p','Lp',vNum())}});
-  if(!state.lineIndex) vTargetLayers(true).forEach(l=>layer.push(l));
+  if(!state.lineIndex){ vStatLayers(true).forEach(l=>layer.push(l)); vTargetLayers(true).forEach(l=>layer.push(l)); }
   return { width:580, height:220, data:vData(vals2,deneb), transform:tfLine.length?tfLine:undefined, encoding:{x:vX()}, layer };
 }
 function vlStack(deneb, vertical){
@@ -6607,6 +6653,7 @@ function vlColLine(deneb, opt){
   if(state.reference!=='—') refLine('r', state.reference, 50);
   if(state.reference2!=='—') refLine('r2', state.reference2, 36);
   vSignedText('p', vLab(deneb,'p','Lp',vNum()), true).forEach(l=>layer.push(l));
+  vStatLayers(true).forEach(l=>layer.push(l));
   vTargetLayers(true).forEach(l=>layer.push(l));
   return { width:580, height:opt.h||230, data:vData(vRows(),deneb),
     encoding:{x:vX(opt.x)}, layer };
@@ -7248,7 +7295,7 @@ function serialize(){
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel, bridgePY:state.bridgePY, bridgePYlevel:state.bridgePYlevel,
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
-      scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source,
+      scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
       multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
       target:state.target, negParens:state.negParens, annos:state.annos,
