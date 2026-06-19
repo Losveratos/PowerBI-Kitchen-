@@ -6109,6 +6109,22 @@ $('#btnExport').addEventListener('click', ()=>{
   if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
 });
 /* Welche Feldnamen sind für den aktuellen Typ relevant? [key, Label] */
+/* Gantt-Template-Felder (eine Quelle für Feld-Map-UI, dataNeedHint UND Deneb-
+   usermeta). key = kanonischer Vega-Feldname in der Spec; label = UI-Text;
+   type/kind = Deneb-Metadaten; opt = optionales Feld (degradiert sauber, wenn
+   nicht gemappt). Reihenfolge = Platzhalter-Reihenfolge __0__ … */
+const GANTT_TPL_FIELDS = [
+  ['phase',        'Phase',                       'text',     'column', false],
+  ['task',         'Task',                        'text',     'column', false],
+  ['start',        'Start (Datum)',               'dateTime', 'column', false],
+  ['end',          'Ende (Datum)',                'dateTime', 'column', false],
+  ['completion',   'Fortschritt %',               'numeric',  'column', false],
+  ['id',           'ID',                          'numeric',  'column', false],
+  ['status',       'Status (optional)',           'text',     'column', true ],
+  ['assignee',     'Zuständig (optional)',        'text',     'column', true ],
+  ['dependencies', 'Abhängigkeiten (optional)',   'text',     'column', true ],
+  ['milestone',    'Meilenstein-Flag (optional)', 'bool',     'column', true ],
+];
 function vFieldDefs(){
   const t = state.type;
   /* Hierarchie-Tabelle: je Ebene eine eigene Dimension (statt einer Kategorie) */
@@ -6121,9 +6137,7 @@ function vFieldDefs(){
   }
   const defs = [['dim','Dimension']];
   if(t==='gantt'){
-    return [['phase','Phase'],['task','Task'],['start','Start (Datum)'],['end','Ende (Datum)'],
-            ['completion','Fortschritt %'],['id','ID'],['status','Status (optional)'],
-            ['assignee','Zuständig (optional)'],['dependencies','Abhängigkeiten (optional)']];
+    return GANTT_TPL_FIELDS.map(f=>[f[0], f[1]]);
   }
   if(t==='kpi' && state.kpiStyle==='trend') return [['dim','Tag/Periode (Reihe je KPI)'],['serie','KPI-Name'],['v','Tageswert']];
   if(t==='waterfall'){
@@ -6235,9 +6249,9 @@ function tplUuid(){
   });
 }
 function denebTemplate(){
-  /* Gantt: fertige Raw-Vega-Spec unverändert ausgeben (Power BI liefert Signale
-     + 'dataset' selbst). Attribution bleibt in spec.description erhalten. */
-  if(state.type==='gantt') return _ganttSpecRaw ? JSON.parse(JSON.stringify(_ganttSpecRaw)) : null;
+  /* Gantt: echtes Deneb-Template mit Feld-Mapping (usermeta.dataset + Platzhalter),
+     Power BI liefert die Werte. Attribution bleibt in spec.description erhalten. */
+  if(state.type==='gantt') return ganttDenebTemplate();
   /* Raw-Vega (Tabelle/Varianz): interaktives Template (provider:'vega'), große
      Datenmengen, Cross-Filter (selection/highlight), Drill/Collapse via Signale. */
   if(rawVegaOn()){
@@ -6321,12 +6335,14 @@ function tplBakedRows(tpl){
 }
 async function regenVegaCode(){
   $('#specSummary').textContent = specSummary();
-  /* Gantt: fertige Raw-Vega-Vorlage unverändert ausgeben */
+  /* Gantt: Deneb-Template mit Feld-Mapping ausgeben (Felder werden beim Import
+     zugeordnet). Feld-Map-UI darunter erlaubt Vorab-Benennung der Spalten. */
   if(state.type==='gantt'){
     await loadGanttSpec();
-    dlgFile = 'pmo-gantt.deneb.json';
-    $('#dlgCode').value = _ganttSpecRaw
-      ? JSON.stringify(_ganttSpecRaw, null, 2)
+    dlgFile = 'pmo-gantt.template.deneb.json';
+    const tpl = denebTemplate();
+    $('#dlgCode').value = tpl
+      ? JSON.stringify(tpl, null, 2)
       : '// Gantt-Vorlage konnte nicht geladen werden (assets/gantt/pmo-gantt.deneb.json).';
     return;
   }
@@ -6467,6 +6483,50 @@ function buildGanttSpec(W, H){
   if(ds){ ds.values = ganttRenderData(); ds.format = {parse:{start:'date', end:'date'}}; }
   return spec;
 }
+/* Gantt als echtes Deneb-Template mit Feld-Mapping. Statt die ~2800-Zeilen-Spec
+   überall zu tokenisieren (Feldnamen wie 'start' kollidieren mit 'startGrain'
+   usw.), aliasen wir die Nutzer-Spalten EINMAL ganz vorne im 'input'-Datensatz
+   auf die kanonischen Feldnamen. Deneb ersetzt beim Import nur die Platzhalter
+   __0__ …; der gesamte restliche Spec-Body bleibt unverändert lauffähig.
+   Die zwei Signale, die 'dataset' direkt (vor 'input') lesen, werden ebenfalls
+   auf Platzhalter umgestellt. 'dataset' bleibt leer – Power BI füllt es. */
+function ganttDenebTemplate(){
+  if(!_ganttSpecRaw) return null;
+  const spec = JSON.parse(JSON.stringify(_ganttSpecRaw));
+  const defs = GANTT_TPL_FIELDS.map((f,i)=>({
+    ph:'__'+i+'__', key:f[0], name:F(f[0]), label:f[1], type:f[2], kind:f[3], opt:f[4],
+  }));
+  const phOf = {}; defs.forEach(d=>{ phOf[d.key] = d.ph; });
+  /* 1) Alias-Formeln vorne in 'input' einfügen: canonical <- datum['__i__'] */
+  const input = (spec.data||[]).find(d=>d.name==='input');
+  if(input){
+    input.transform = (defs.map(d=>({ type:'formula', as:d.key, expr:"datum['"+d.ph+"']" })))
+      .concat(input.transform || []);
+  }
+  /* 2) Direkte dataset-Lesungen (Signale, laufen vor 'input') auf Platzhalter */
+  (spec.signals||[]).forEach(s=>{
+    if(s.name==='statusColumnPresent' && typeof s.init==='string')
+      s.init = s.init.replace("['status']", "['"+phOf['status']+"']");
+    if(s.name==='timeoffset' && typeof s.init==='string')
+      s.init = s.init.replace("['start']", "['"+phOf['start']+"']");
+  });
+  /* 3) dataset bleibt leer – Power BI/Deneb liefert die Werte */
+  const ds = (spec.data||[]).find(d=>d.name==='dataset');
+  if(ds) delete ds.values;
+  /* 4) usermeta: Provider, Interaktivität, Feld-Mapping */
+  spec.usermeta = {
+    information: {
+      name: ($('#t1') && $('#t1').value || '').trim() || 'PMO Gantt · IBCS-Projektplan',
+      description: 'Interaktives Gantt (Zoom/Pan/Collapse, Cross-Filter) · PMO Toolkit '+
+                   '(Devon Locher / DL0K-pbi · MIT) · Feld-Mapping beim Deneb-Import.',
+      author: 'Business Chart Builder · PMO Toolkit (MIT)', uuid: tplUuid(), generated: new Date().toISOString(),
+    },
+    deneb: { build:TPL_BUILD, metaVersion:1, provider:'vega', providerVersion:'5.30.0' },
+    interactivity: { tooltip:true, contextMenu:true, selection:true, highlight:false, dataPointLimit:5000 },
+    dataset: defs.map(d=>({ key:d.ph, name:d.name, description:d.label, type:d.type, kind:d.kind })),
+  };
+  return spec;
+}
 /* Aktuelles Gantt-SVG aus dem Live-DOM (immer der gerenderte Stand) – mit xmlns
    für PNG-Rasterung / Datei-Export. */
 function ganttSvgString(){
@@ -6590,15 +6650,17 @@ $('#btnVega').addEventListener('click', async ()=>{
     await regenVegaCode();
     $('#dashPanel').style.display = 'none';
     $('#specOpts').style.display = 'none';
-    $('#fieldMap').style.display = 'none';
+    $('#fieldMap').style.display = 'flex';   /* Feld-Mapping (Vorab-Benennung der Spalten) */
+    renderFieldMap();
     $('#dlgPreview').style.display = 'none';
     $('#dlgEditor').style.display = '';
     $('#vlPreview').style.display = 'block';
     $('#vlPreview').innerHTML =
       '<div style="font-size:11.5px;color:#5a5a5a;line-height:1.6">'+
-      '<b>'+TT('Fertige Gantt-Vorlage')+' · PMO Toolkit (MIT)</b><br>'+
-      TT('Raw-Vega v5 – unverändert ausgegeben. In Deneb: „Neue Spezifikation → Aus Vorlage erstellen → Importieren" und diese Datei wählen. Power BI liefert die Signale und den Datensatz dataset selbst.')+'<br>'+
-      TT('Felder im Deneb-Datenbereich bereitstellen')+': <code>phase, task, start, end, completion, id</code> ('+TT('optional')+' <code>assignee, status, milestone, dependencies, hyperlink</code>).<br>'+
+      '<b>'+TT('Gantt · Deneb-Template mit Feld-Mapping')+' · PMO Toolkit (MIT)</b><br>'+
+      TT('Echtes Deneb-Template (Raw-Vega v5). In Deneb: „Neue Spezifikation → Aus Vorlage erstellen → Importieren" und diese Datei wählen – Deneb fragt dann jede Spalte ab.')+'<br>'+
+      TT('Die Feldnamen unten sind nur Vorschläge für die Zuordnung; die echte Bindung machst du beim Import in Deneb. Power BI liefert Signale und Datensatz selbst.')+'<br>'+
+      TT('Pflichtfelder')+': <code>phase, task, start, end, completion, id</code> · '+TT('optional')+': <code>status, assignee, dependencies, milestone</code>.<br>'+
       TT('Attribution')+': Devon Locher / DL0K-pbi · MIT ('+TT('siehe Feld description')+').</div>';
     if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open','');
     return;

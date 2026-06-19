@@ -370,11 +370,24 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
          'W='+(gex&&gex.W)+' H='+(gex&&gex.H));
       await loadGanttSpec();
       const gtpl = denebTemplate();
-      ok('G · Gantt · Deneb-Template = Vorlage unverändert (kanonische Einfach-Quotes)',
-         !!gtpl && JSON.stringify(gtpl)===JSON.stringify(_ganttSpecRaw)
-         && /data\('input'\)/.test(JSON.stringify(gtpl||{}))      /* einfache Quotes: Deneb-Import-tauglich */
-         && !/''input''/.test(JSON.stringify(gtpl||{}))           /* keine kaputte ''-Verdopplung mehr */
-         && /!=''/.test(JSON.stringify(gtpl||{})));                /* echte Leer-String-Literale erhalten */
+      const gtplStr = JSON.stringify(gtpl||{});
+      const gInput = gtpl && (gtpl.data||[]).find(d=>d.name==='input');
+      ok('G · Gantt · Deneb-Template mit Feld-Mapping (usermeta.dataset + Platzhalter)',
+         !!gtpl && gtpl.usermeta && gtpl.usermeta.deneb && gtpl.usermeta.deneb.provider==='vega'
+         && Array.isArray(gtpl.usermeta.dataset) && gtpl.usermeta.dataset.length>=6
+         && gtpl.usermeta.dataset.every(d=>/^__\d+__$/.test(d.key))     /* alle Felder als Platzhalter */
+         && /datum\['__0__'\]/.test(gtplStr)                            /* Alias-Formel nutzt Platzhalter */
+         && gInput && gInput.transform[0] && gInput.transform[0].as==='phase'  /* Alias vorne in 'input' */
+         && /data\('input'\)/.test(gtplStr) && !/''input''/.test(gtplStr));   /* kanonische Einfach-Quotes */
+      ok('G · Gantt · Platzhalter-Spec parst als Vega (Felder ersetzt)', (function(){
+         if(!gtpl || !window.vega) return false;
+         try{
+           const p=JSON.parse(gtplStr.replace(/__(\d+)__/g,'fld$1')); delete p.usermeta;
+           /* Power BI liefert pbiContainerWidth/Height zur Laufzeit – lokal als Default ergänzen */
+           p.signals = [{name:'pbiContainerWidth',value:800},{name:'pbiContainerHeight',value:400}].concat(p.signals||[]);
+           return !!window.vega.parse(p);
+         }catch(e){ return false; }
+      })());
       ok('G · Gantt · dataset bleibt leer (PBI füllt selbst)',
          !!gtpl && Array.isArray(gtpl.data) && gtpl.data.some(d=>d.name==='dataset' && !d.values));
       ok('G · Gantt · keine VL-Pipeline (vegaSpec null)', vegaSpec(false)===null);
