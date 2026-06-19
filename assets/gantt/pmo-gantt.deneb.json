@@ -24,7 +24,7 @@
     {
       "name": "initDate",
       "value": "project",
-      "description": "The initial date shown in the Gantt. Can be either ''today'' or ''project''"
+      "description": "The initial date shown in the Gantt. Can be either 'today' or 'project'"
     },
     {
       "name": "showButtons",
@@ -151,7 +151,7 @@
     },
     {
       "name": "statusColumnPresent",
-      "init": "data(''dataset'')[0][''status'']!=null"
+      "init": "data('dataset')[0]['status']!=null"
     },
     {
       "name": "oneDay",
@@ -159,11 +159,11 @@
     },
     {
       "name": "timeoffset",
-      "init": "timezoneoffset(data(''dataset'')[0][''start'']) * 60 *1000"
+      "init": "timezoneoffset(data('dataset')[0]['start']) * 60 *1000"
     },
     {
       "name": "dayBandwidth",
-      "update": "scale(''x'', timeOffset(''day'', datetime(2000,1,1),1)) - scale(''x'', datetime(2000,1,1))"
+      "update": "scale('x', timeOffset('day', datetime(2000,1,1),1)) - scale('x', datetime(2000,1,1))"
     },
     {
       "name": "dayBandwidthRound",
@@ -191,7 +191,7 @@
     },
     {
       "name": "phaseSymbolHeight",
-      "init": "bandwidth(''y'')-yPaddingInner-5"
+      "init": "bandwidth('y')-yPaddingInner-5"
     },
     {
       "name": "phaseSymbolWidth",
@@ -207,23 +207,23 @@
     },
     {
       "name": "dayExt",
-      "init": "initDate==''project''? [data(''xExt'')[0][''s'']-oneDay,data(''xExt'')[0][''s'']+ ((ganttWidth-minDayBandwidth)/minDayBandwidth)*oneDay]:[today-oneDay,today+ ((ganttWidth-minDayBandwidth)/minDayBandwidth)*oneDay]"
+      "init": "initDate=='project'? [data('xExt')[0]['s']-oneDay,data('xExt')[0]['s']+ ((ganttWidth-minDayBandwidth)/minDayBandwidth)*oneDay]:[today-oneDay,today+ ((ganttWidth-minDayBandwidth)/minDayBandwidth)*oneDay]"
     },
     {
       "name": "monthExt",
-      "init": "initDate==''project''? [data(''xExt'')[0][''s'']-oneDay ,data(''xExt'')[0][''s''] + ganttWidth/2*oneDay]:[today-(oneDay*15) ,today + ganttWidth/2*oneDay]"
+      "init": "initDate=='project'? [data('xExt')[0]['s']-oneDay ,data('xExt')[0]['s'] + ganttWidth/2*oneDay]:[today-(oneDay*15) ,today + ganttWidth/2*oneDay]"
     },
     {
       "name": "yearExt",
-      "init": "initDate==''project''? [data(''xExt'')[0][''s'']-oneDay,data(''xExt'')[0][''s''] + ganttWidth/0.35*oneDay]:[today-(oneDay*180),today + ganttWidth/0.35*oneDay]"
+      "init": "initDate=='project'? [data('xExt')[0]['s']-oneDay,data('xExt')[0]['s'] + ganttWidth/0.35*oneDay]:[today-(oneDay*180),today + ganttWidth/0.35*oneDay]"
     },
     {
       "name": "allExt",
-      "init": "[data(''xExt'')[0][''s'']-oneDay,data(''xExt'')[0][''e'']+oneDay*9]"
+      "init": "[data('xExt')[0]['s']-oneDay,data('xExt')[0]['e']+oneDay*9]"
     },
     {
       "name": "xExt",
-      "update": "startGrain==''All''?allExt:startGrain==''Years''?yearExt:startGrain==''Months''?monthExt:dayExt"
+      "update": "startGrain=='All'?allExt:startGrain=='Years'?yearExt:startGrain=='Months'?monthExt:dayExt"
     },
     {
       "name": "today",
@@ -231,7 +231,7 @@
     },
     {
       "name": "todayRule",
-      "init": "timeFormat(today,''%m/%d/%y'')"
+      "init": "timeFormat(today,'%m/%d/%y')"
     },
     {
       "name": "zoom",
@@ -274,7 +274,7 @@
         },
         {
           "events": "@buttonMarks:click",
-          "update": "datum.name==''All''?allExt:datum.name==''Years''?yearExt:datum.name==''Months''?monthExt:datum.name==''Days''?dayExt:xDom"
+          "update": "datum.name=='All'?allExt:datum.name=='Years'?yearExt:datum.name=='Months'?monthExt:datum.name=='Days'?dayExt:xDom"
         },
         {
           "events": {
@@ -298,7 +298,7 @@
     },
     {
       "name": "scaledHeight",
-      "update": "data(''yScale'').length * yRowHeight"
+      "update": "data('yScale').length * yRowHeight"
     },
     {
       "name": "yRange",
@@ -345,7 +345,7 @@
       "on": [
         {
           "events": "wheel",
-          "update": "+invert(''x'', x()-columnsWidth)"
+          "update": "+invert('x', x()-columnsWidth)"
         }
       ]
     },
@@ -442,15 +442,15 @@
       "on": [
         {
           "events": "@taskSelector:mouseover,@phaseOutline:mouseover,@milestoneSymbols:mouseover,@taskBars:mouseover,@taskNames:mouseover,@taskLabels:mouseover",
-          "update": "{''id'': datum.id, ''dependencies'':split(datum.dependencies,'','')}"
+          "update": "{'id': datum.id, 'dependencies':split(datum.dependencies,',')}"
         },
         {
           "events": "@taskTooltips:mouseover",
-          "update": "{''id'': toString(datum.datum.id), ''dependencies'':split(datum.datum.dependencies,'','')}"
+          "update": "{'id': toString(datum.datum.id), 'dependencies':split(datum.datum.dependencies,',')}"
         },
         {
           "events": "@taskSelector:mouseout,@phaseOutline:mouseout,@milestoneSymbols:mouseout,@taskBars:mouseout,@taskNames:mouseout,@taskLabels:mouseout,@taskTooltips:mouseout",
-          "update": "{''id'': '''', ''dependencies'':[]}"
+          "update": "{'id': '', 'dependencies':[]}"
         }
       ]
     },
@@ -460,23 +460,23 @@
       "on": [
         {
           "events": "@buttonMarks:pointerover",
-          "update": "datum.name?datum.name:''''",
+          "update": "datum.name?datum.name:''",
           "force": true
         },
         {
           "events": "@buttonMarks:pointerout",
-          "update": "''''",
+          "update": "''",
           "force": true
         }
       ]
     },
     {
       "name": "showColumns",
-      "update": "initColumnState==''openColumns''?true:false",
+      "update": "initColumnState=='openColumns'?true:false",
       "on": [
         {
           "events": "@buttonMarks:click",
-          "update": "datum.name==''closeColumns''?false:datum.name==''openColumns''?true:showColumns",
+          "update": "datum.name=='closeColumns'?false:datum.name=='openColumns'?true:showColumns",
           "force": true
         }
       ]
@@ -486,7 +486,7 @@
       "on": [
         {
           "events": "@buttonMarks:click",
-          "update": "datum.name==''closeRows''?true:false",
+          "update": "datum.name=='closeRows'?true:false",
           "force": true
         }
       ]
@@ -496,7 +496,7 @@
       "on": [
         {
           "events": "@buttonMarks:click",
-          "update": "datum.name==''openRows''?true:false",
+          "update": "datum.name=='openRows'?true:false",
           "force": true
         }
       ]
@@ -538,7 +538,7 @@
         {
           "type": "formula",
           "as": "completionLabel",
-          "expr": "datum.completion+''%''"
+          "expr": "datum.completion+'%'"
         },
         {
           "type": "window",
@@ -640,7 +640,7 @@
         {
           "type": "formula",
           "as": "id",
-          "expr": "length(data(''input''))+datum.id+''^^^^^''"
+          "expr": "length(data('input'))+datum.id+'^^^^^'"
         }
       ]
     },
@@ -653,7 +653,7 @@
         },
         {
           "trigger": "initPhaseState",
-          "insert": "initPhaseState==''closeRows''? data(''phases''):null"
+          "insert": "initPhaseState=='closeRows'? data('phases'):null"
         },
         {
           "trigger": "closeRowsAll",
@@ -661,7 +661,7 @@
         },
         {
           "trigger": "closeRowsAll",
-          "insert": "data(''phases'')"
+          "insert": "data('phases')"
         },
         {
           "trigger": "openRowsAll",
@@ -676,7 +676,7 @@
         {
           "type": "formula",
           "as": "phasePath",
-          "expr": "''M '' + scale(''x'', datum.start)+'' ''  +   (scale(''y'', datum.id)+yPaddingInner) + '' H '' +  scale(''x'', datum.end)+'' ''   + '' v '' +  phaseSymbolHeight + '' L '' +  (scale(''x'', datum.end) - phaseSymbolWidth) +'' ''  +   (scale(''y'', datum.id)+yPaddingInner+phaseSymbolHeight/2 ) + '' L '' +  (scale(''x'', datum.start)+phaseSymbolWidth) + '' ''  +   (scale(''y'', datum.id)+yPaddingInner+phaseSymbolHeight/2) + '' L '' +  (scale(''x'', datum.start)) + '' ''  +   (scale(''y'', datum.id)+ yPaddingInner+phaseSymbolHeight) + '' z''"
+          "expr": "'M ' + scale('x', datum.start)+' '  +   (scale('y', datum.id)+yPaddingInner) + ' H ' +  scale('x', datum.end)+' '   + ' v ' +  phaseSymbolHeight + ' L ' +  (scale('x', datum.end) - phaseSymbolWidth) +' '  +   (scale('y', datum.id)+yPaddingInner+phaseSymbolHeight/2 ) + ' L ' +  (scale('x', datum.start)+phaseSymbolWidth) + ' '  +   (scale('y', datum.id)+yPaddingInner+phaseSymbolHeight/2) + ' L ' +  (scale('x', datum.start)) + ' '  +   (scale('y', datum.id)+ yPaddingInner+phaseSymbolHeight) + ' z'"
         }
       ]
     },
@@ -690,7 +690,7 @@
         },
         {
           "type": "filter",
-          "expr": "!indata(''collapsedPhases'', ''phase'', datum.phase)"
+          "expr": "!indata('collapsedPhases', 'phase', datum.phase)"
         }
       ]
     },
@@ -704,7 +704,7 @@
         },
         {
           "type": "filter",
-          "expr": "!indata(''collapsedPhases'', ''phase'', datum.phase)"
+          "expr": "!indata('collapsedPhases', 'phase', datum.phase)"
         }
       ]
     },
@@ -807,7 +807,7 @@
       "transform": [
         {
           "type": "filter",
-          "expr": "isValid(datum.dependencies) && datum.dependencies!='''' "
+          "expr": "isValid(datum.dependencies) && datum.dependencies!='' "
         }
       ]
     },
@@ -817,7 +817,7 @@
       "transform": [
         {
           "type": "filter",
-          "expr": "indata(''collapsedPhases'', ''phase'', datum.phase) "
+          "expr": "indata('collapsedPhases', 'phase', datum.phase) "
         },
         {
           "type": "joinaggregate",
@@ -845,12 +845,12 @@
         {
           "type": "formula",
           "as": "allPhaseIds",
-          "expr": "pluck(datum.allPhaseIds, ''id'')"
+          "expr": "pluck(datum.allPhaseIds, 'id')"
         },
         {
           "type": "formula",
           "as": "dependencies",
-          "expr": "split(datum.dependencies,'','')"
+          "expr": "split(datum.dependencies,',')"
         },
         {
           "type": "flatten",
@@ -870,7 +870,7 @@
         },
         {
           "type": "filter",
-          "expr": "datum.dependencies!=''null'' && datum.dependencies!='''' && datum.dependencies!=''undefined'' && datum.internalDependenciesIndex == -1 "
+          "expr": "datum.dependencies!='null' && datum.dependencies!='' && datum.dependencies!='undefined' && datum.internalDependenciesIndex == -1 "
         },
         {
           "type": "lookup",
@@ -904,12 +904,12 @@
       "transform": [
         {
           "type": "filter",
-          "expr": "isValid(datum.dependencies) && datum.dependencies!='''' "
+          "expr": "isValid(datum.dependencies) && datum.dependencies!='' "
         },
         {
           "type": "formula",
           "as": "dependencies",
-          "expr": "split(datum.dependencies,'','')"
+          "expr": "split(datum.dependencies,',')"
         },
         {
           "type": "flatten",
@@ -956,47 +956,47 @@
         {
           "type": "formula",
           "as": "sourceId",
-          "expr": "indata(''collapsedPhases'', ''phase'', datum.sourcePhase) == true?datum.sourcePhaseId:datum.sourceId"
+          "expr": "indata('collapsedPhases', 'phase', datum.sourcePhase) == true?datum.sourcePhaseId:datum.sourceId"
         },
         {
           "type": "formula",
           "as": "sourceEnd",
-          "expr": "indata(''collapsedPhases'', ''phase'', datum.sourcePhase) == true?datum.sourcePhaseEnd:datum.sourceEnd"
+          "expr": "indata('collapsedPhases', 'phase', datum.sourcePhase) == true?datum.sourcePhaseEnd:datum.sourceEnd"
         },
         {
           "type": "formula",
           "as": "plottedStart",
-          "expr": "datum.milestone == null || datum.milestone == false?scale(''x'',datum.start)- sqrt(arrowSymbolSize) - 1:(scale(''x'',datum.start) +(dayBandwidth/2) - (sqrt(milestoneSymbolSize)/2) - sqrt(arrowSymbolSize)) - 1"
+          "expr": "datum.milestone == null || datum.milestone == false?scale('x',datum.start)- sqrt(arrowSymbolSize) - 1:(scale('x',datum.start) +(dayBandwidth/2) - (sqrt(milestoneSymbolSize)/2) - sqrt(arrowSymbolSize)) - 1"
         },
         {
           "type": "formula",
           "as": "plottedSourceEnd",
-          "expr": "scale(''x'',datum.sourceEnd) - (dayBandwidth/2) "
+          "expr": "scale('x',datum.sourceEnd) - (dayBandwidth/2) "
         },
         {
           "type": "formula",
           "as": "a",
-          "expr": "[datum.milestone == null || datum.milestone == false?scale(''x'',datum.start):scale(''x'',datum.start) +(dayBandwidth/2) - (sqrt(milestoneSymbolSize)/2)  ,scale(''y'', datum.id)+bandwidth(''y'')/2 ]"
+          "expr": "[datum.milestone == null || datum.milestone == false?scale('x',datum.start):scale('x',datum.start) +(dayBandwidth/2) - (sqrt(milestoneSymbolSize)/2)  ,scale('y', datum.id)+bandwidth('y')/2 ]"
         },
         {
           "type": "formula",
           "as": "b",
-          "expr": "[datum.plottedStart >= datum.plottedSourceEnd?datum.plottedSourceEnd :datum.plottedStart ,scale(''y'', datum.id)+bandwidth(''y'')/2]"
+          "expr": "[datum.plottedStart >= datum.plottedSourceEnd?datum.plottedSourceEnd :datum.plottedStart ,scale('y', datum.id)+bandwidth('y')/2]"
         },
         {
           "type": "formula",
           "as": "c",
-          "expr": "[datum.plottedSourceEnd,scale(''y'',datum.sourceId)+bandwidth(''y'')/2]"
+          "expr": "[datum.plottedSourceEnd,scale('y',datum.sourceId)+bandwidth('y')/2]"
         },
         {
           "type": "formula",
           "as": "d",
-          "expr": "[datum.plottedStart > datum.plottedSourceEnd?null:datum.plottedStart ,datum.plottedStart > datum.plottedSourceEnd?null:scale(''y'',datum.sourceId)+(bandwidth(''y''))]"
+          "expr": "[datum.plottedStart > datum.plottedSourceEnd?null:datum.plottedStart ,datum.plottedStart > datum.plottedSourceEnd?null:scale('y',datum.sourceId)+(bandwidth('y'))]"
         },
         {
           "type": "formula",
           "as": "e",
-          "expr": "[datum.plottedStart > datum.plottedSourceEnd?null:datum.plottedSourceEnd,datum.plottedStart > datum.plottedSourceEnd?null:scale(''y'',datum.sourceId)+(bandwidth(''y''))]"
+          "expr": "[datum.plottedStart > datum.plottedSourceEnd?null:datum.plottedSourceEnd,datum.plottedStart > datum.plottedSourceEnd?null:scale('y',datum.sourceId)+(bandwidth('y'))]"
         },
         {
           "type": "fold",
@@ -1121,10 +1121,10 @@
       "encode": {
         "update": {
           "x": {
-            "signal": "datum.side==''left''?datum.x:columnsWidth+ganttWidth-datum.x"
+            "signal": "datum.side=='left'?datum.x:columnsWidth+ganttWidth-datum.x"
           },
           "width": {
-            "signal": "datum.side==''left''?30:50"
+            "signal": "datum.side=='left'?30:50"
           },
           "y": {
             "value": -60
@@ -1133,7 +1133,7 @@
             "signal": "18"
           },
           "stroke": {
-            "signal": "''#7f7f7f''"
+            "signal": "'#7f7f7f'"
           },
           "strokeWidth": {
             "value": 1
@@ -1159,31 +1159,31 @@
               "value": "#4e95d9"
             },
             {
-              "test": "datum.name==''closeRows'' && data(''collapsedPhases'').length == data(''phases'').length",
+              "test": "datum.name=='closeRows' && data('collapsedPhases').length == data('phases').length",
               "value": "#4e95d9"
             },
             {
-              "test": "datum.name==''closeColumns'' && !showColumns",
+              "test": "datum.name=='closeColumns' && !showColumns",
               "value": "#4e95d9"
             },
             {
-              "test": "datum.name==''openColumns'' && showColumns",
+              "test": "datum.name=='openColumns' && showColumns",
               "value": "#4e95d9"
             },
             {
-              "test": "datum.name==''openRows'' && data(''collapsedPhases'').length == 0",
+              "test": "datum.name=='openRows' && data('collapsedPhases').length == 0",
               "value": "#4e95d9"
             },
             {
-              "test": "datum.name==''Days'' && dayBandwidthRound == minDayBandwidth",
+              "test": "datum.name=='Days' && dayBandwidthRound == minDayBandwidth",
               "value": "#4e95d9"
             },
             {
-              "test": "datum.name==''Months'' && dayBandwidthRound>=minYearBandwidth && dayBandwidthRound<minDayBandwidth",
+              "test": "datum.name=='Months' && dayBandwidthRound>=minYearBandwidth && dayBandwidthRound<minDayBandwidth",
               "value": "#4e95d9"
             },
             {
-              "test": "datum.name==''Years'' && dayBandwidthRound<minYearBandwidth",
+              "test": "datum.name=='Years' && dayBandwidthRound<minYearBandwidth",
               "value": "#4e95d9"
             },
             {
@@ -1220,23 +1220,23 @@
                   "value": "white"
                 },
                 {
-                  "test": "parent.text==''closeRows'' && data(''collapsedPhases'').length == data(''phases'').length",
+                  "test": "parent.text=='closeRows' && data('collapsedPhases').length == data('phases').length",
                   "value": "white"
                 },
                 {
-                  "test": "parent.text==''openRows'' && data(''collapsedPhases'').length == 0",
+                  "test": "parent.text=='openRows' && data('collapsedPhases').length == 0",
                   "value": "white"
                 },
                 {
-                  "test": "parent.text==''Days'' && dayBandwidthRound == minDayBandwidth",
+                  "test": "parent.text=='Days' && dayBandwidthRound == minDayBandwidth",
                   "value": "white"
                 },
                 {
-                  "test": "parent.text==''Months'' && dayBandwidthRound>=minYearBandwidth && dayBandwidthRound<minDayBandwidth",
+                  "test": "parent.text=='Months' && dayBandwidthRound>=minYearBandwidth && dayBandwidthRound<minDayBandwidth",
                   "value": "white"
                 },
                 {
-                  "test": "parent.text==''Years'' && dayBandwidthRound<minYearBandwidth",
+                  "test": "parent.text=='Years' && dayBandwidthRound<minYearBandwidth",
                   "value": "white"
                 },
                 {
@@ -1267,19 +1267,19 @@
                   "value": "white"
                 },
                 {
-                  "test": "parent.name==''closeColumns'' && !showColumns",
+                  "test": "parent.name=='closeColumns' && !showColumns",
                   "value": "white"
                 },
                 {
-                  "test": "parent.name==''openColumns'' && showColumns",
+                  "test": "parent.name=='openColumns' && showColumns",
                   "value": "white"
                 },
                 {
-                  "test": "parent.name==''closeRows'' && data(''collapsedPhases'').length == data(''phases'').length",
+                  "test": "parent.name=='closeRows' && data('collapsedPhases').length == data('phases').length",
                   "value": "white"
                 },
                 {
-                  "test": "parent.name==''openRows'' && data(''collapsedPhases'').length == 0",
+                  "test": "parent.name=='openRows' && data('collapsedPhases').length == 0",
                   "value": "white"
                 },
                 {
@@ -1301,7 +1301,7 @@
       "encode": {
         "update": {
           "text": {
-            "signal": "showDomainSpanLabel?timeFormat(xDom[0],''%m/%d/%y'') +'' - '' + timeFormat(xDom[1],''%m/%d/%y''):null"
+            "signal": "showDomainSpanLabel?timeFormat(xDom[0],'%m/%d/%y') +' - ' + timeFormat(xDom[1],'%m/%d/%y'):null"
           },
           "baseline": {
             "value": "bottom"
@@ -1339,10 +1339,10 @@
             "signal": "columnsWidth"
           },
           "y": {
-            "signal": "scale(''y'', datum.id)"
+            "signal": "scale('y', datum.id)"
           },
           "height": {
-            "signal": "bandwidth(''y'')"
+            "signal": "bandwidth('y')"
           },
           "fill": {
             "value": "#dceaf7"
@@ -1355,7 +1355,7 @@
     },
     {
       "name": "taskLabelSizes",
-      "description": "Hidden label sizes to support tooltips when the task name doesn''t completely fit",
+      "description": "Hidden label sizes to support tooltips when the task name doesn't completely fit",
       "type": "text",
       "clip": true,
       "from": {
@@ -1379,10 +1379,10 @@
             "signal": "datum.phase == datum.task?upper(datum.task):datum.task"
           },
           "font": {
-            "signal": "datum.phase == datum.task?''Arial'':''Segoe UI''"
+            "signal": "datum.phase == datum.task?'Arial':'Segoe UI'"
           },
           "fontWeight": {
-            "signal": "datum.phase == datum.task?''bold'':''normal''"
+            "signal": "datum.phase == datum.task?'bold':'normal'"
           }
         }
       }
@@ -1390,7 +1390,7 @@
     {
       "type": "rect",
       "name": "taskTooltips",
-      "description": "Hidden rect to support tooltips when the task name doesn''t completely fit",
+      "description": "Hidden rect to support tooltips when the task name doesn't completely fit",
       "from": {
         "data": "taskLabelSizes"
       },
@@ -1405,10 +1405,10 @@
             "signal": "taskColumnWidth"
           },
           "y": {
-            "signal": "scale(''y'', datum.datum.id)"
+            "signal": "scale('y', datum.datum.id)"
           },
           "height": {
-            "signal": "bandwidth(''y'')"
+            "signal": "bandwidth('y')"
           },
           "fill": {
             "value": "transparent"
@@ -1417,7 +1417,7 @@
             "signal": "datum.bounds.x2 - datum.bounds.x1>=taskColumnWidth-columnPadding-16? datum.datum.task:null"
           },
           "cursor": {
-            "signal": "datum.datum.phase == datum.datum.task?''pointer'':''auto''"
+            "signal": "datum.datum.phase == datum.datum.task?'pointer':'auto'"
           },
           "href": {
             "field": "datum.hyperlink"
@@ -1490,22 +1490,22 @@
                     "value": 16
                   },
                   "y": {
-                    "signal": "scale(''y'', datum.id)+bandwidth(''y'')/2"
+                    "signal": "scale('y', datum.id)+bandwidth('y')/2"
                   },
                   "text": {
                     "signal": "datum.phase == datum.task?upper(datum.task):datum.task"
                   },
                   "font": {
-                    "signal": "datum.phase == datum.task?''Arial'':''Segoe UI''"
+                    "signal": "datum.phase == datum.task?'Arial':'Segoe UI'"
                   },
                   "fontWeight": {
-                    "signal": "datum.phase == datum.task?''bold'':''normal''"
+                    "signal": "datum.phase == datum.task?'bold':'normal'"
                   },
                   "limit": {
                     "signal": "taskColumnWidth-16-columnPadding"
                   },
                   "fill": {
-                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale(''cDark'', datum.phase)), {l:0.40}):textColour"
+                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
                   }
                 }
               }
@@ -1519,7 +1519,7 @@
               "encode": {
                 "update": {
                   "fill": {
-                    "signal": "datum.id == itemHovered.id && datum.phase == datum.task ?merge(hsl(scale(''cDark'', datum.phase)), {l:0.40}):datum.phase == datum.task ?scale(''cDark'', datum.phase):''transparent''"
+                    "signal": "datum.id == itemHovered.id && datum.phase == datum.task ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):datum.phase == datum.task ?scale('cDark', datum.phase):'transparent'"
                   },
                   "x": {
                     "signal": "sqrt(90)/2"
@@ -1528,10 +1528,10 @@
                     "value": 90
                   },
                   "yc": {
-                    "signal": "(scale(''y'', datum.id)+bandwidth(''y'')/2)-1"
+                    "signal": "(scale('y', datum.id)+bandwidth('y')/2)-1"
                   },
                   "shape": {
-                    "signal": "datum.phase == datum.task && !indata(''collapsedPhases'', ''phase'', datum.phase)?''triangle-down'':datum.phase == datum.task && indata(''collapsedPhases'', ''phase'', datum.phase)?''triangle-right'':''''"
+                    "signal": "datum.phase == datum.task && !indata('collapsedPhases', 'phase', datum.phase)?'triangle-down':datum.phase == datum.task && indata('collapsedPhases', 'phase', datum.phase)?'triangle-right':''"
                   }
                 }
               }
@@ -1546,7 +1546,7 @@
           },
           "title": {
             "text": {
-              "signal": "''Start''"
+              "signal": "'Start'"
             },
             "anchor": "middle",
             "dx": {
@@ -1585,19 +1585,19 @@
                     "signal": "(startColumnWidth-columnPadding)/2"
                   },
                   "y": {
-                    "signal": "scale(''y'', datum.id)+bandwidth(''y'')/2"
+                    "signal": "scale('y', datum.id)+bandwidth('y')/2"
                   },
                   "text": {
-                    "signal": "timeFormat(datum.start,'' %m/%d/%y'')"
+                    "signal": "timeFormat(datum.start,' %m/%d/%y')"
                   },
                   "font": {
-                    "signal": "datum.phase == datum.task?''Arial'':''Segoe UI''"
+                    "signal": "datum.phase == datum.task?'Arial':'Segoe UI'"
                   },
                   "fontWeight": {
-                    "signal": "datum.phase == datum.task?''bold'':''normal''"
+                    "signal": "datum.phase == datum.task?'bold':'normal'"
                   },
                   "fill": {
-                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale(''cDark'', datum.phase)), {l:0.40}):textColour"
+                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
                   }
                 }
               }
@@ -1612,7 +1612,7 @@
           },
           "title": {
             "text": {
-              "signal": "''End''"
+              "signal": "'End'"
             },
             "anchor": "middle",
             "dx": {
@@ -1651,19 +1651,19 @@
                     "signal": "(startColumnWidth-columnPadding)/2"
                   },
                   "y": {
-                    "signal": "scale(''y'', datum.id)+bandwidth(''y'')/2"
+                    "signal": "scale('y', datum.id)+bandwidth('y')/2"
                   },
                   "text": {
-                    "signal": "timeFormat(datum.labelEnd,'' %m/%d/%y'')"
+                    "signal": "timeFormat(datum.labelEnd,' %m/%d/%y')"
                   },
                   "font": {
-                    "signal": "datum.phase == datum.task?''Arial'':''Segoe UI''"
+                    "signal": "datum.phase == datum.task?'Arial':'Segoe UI'"
                   },
                   "fontWeight": {
-                    "signal": "datum.phase == datum.task?''bold'':''normal''"
+                    "signal": "datum.phase == datum.task?'bold':'normal'"
                   },
                   "fill": {
-                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale(''cDark'', datum.phase)), {l:0.40}):textColour"
+                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
                   }
                 }
               }
@@ -1678,7 +1678,7 @@
           },
           "title": {
             "text": {
-              "signal": "''Days''"
+              "signal": "'Days'"
             },
             "anchor": "end",
             "dx": {
@@ -1717,19 +1717,19 @@
                     "signal": "daysColumnWidth-columnPadding"
                   },
                   "y": {
-                    "signal": "scale(''y'', datum.id)+bandwidth(''y'')/2"
+                    "signal": "scale('y', datum.id)+bandwidth('y')/2"
                   },
                   "text": {
-                    "signal": "format(datum.days,'','')+'' d''"
+                    "signal": "format(datum.days,',')+' d'"
                   },
                   "fontWeight": {
-                    "signal": "datum.phase == datum.task?''bold'':''normal''"
+                    "signal": "datum.phase == datum.task?'bold':'normal'"
                   },
                   "font": {
-                    "signal": "datum.phase == datum.task?''Arial'':''Segoe UI''"
+                    "signal": "datum.phase == datum.task?'Arial':'Segoe UI'"
                   },
                   "fill": {
-                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale(''cDark'', datum.phase)), {l:0.40}):textColour"
+                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
                   }
                 }
               }
@@ -1744,7 +1744,7 @@
           },
           "title": {
             "text": {
-              "signal": "statusColumnPresent?''Status'':''''"
+              "signal": "statusColumnPresent?'Status':''"
             },
             "anchor": "middle",
             "frame": "group",
@@ -1782,10 +1782,10 @@
                     "value": 20
                   },
                   "fill": {
-                    "signal": "datum.id == itemHovered.id && isValid(datum.status) && datum.status!='''' ?merge(hsl(scale(''statusBackground'',datum.status)), {l:0.72}):scale(''statusBackground'',datum.status)"
+                    "signal": "datum.id == itemHovered.id && isValid(datum.status) && datum.status!='' ?merge(hsl(scale('statusBackground',datum.status)), {l:0.72}):scale('statusBackground',datum.status)"
                   },
                   "yc": {
-                    "signal": "(scale(''y'',datum.id)+bandwidth(''y'')/2)"
+                    "signal": "(scale('y',datum.id)+bandwidth('y')/2)"
                   }
                 }
               }
@@ -1808,13 +1808,13 @@
                     "signal": "statusColumnWidth/2"
                   },
                   "fill": {
-                    "signal": "datum.id == itemHovered.id && isValid(datum.status) && datum.status!='''' ?merge(hsl(scale(''statusFont'',datum.status)), {l:0.20}):scale(''statusFont'',datum.status)"
+                    "signal": "datum.id == itemHovered.id && isValid(datum.status) && datum.status!='' ?merge(hsl(scale('statusFont',datum.status)), {l:0.20}):scale('statusFont',datum.status)"
                   },
                   "y": {
-                    "signal": "(scale(''y'',datum.id)+bandwidth(''y'')/2)+1"
+                    "signal": "(scale('y',datum.id)+bandwidth('y')/2)+1"
                   },
                   "text": {
-                    "signal": "scale(''statusText'',datum.status)"
+                    "signal": "scale('statusText',datum.status)"
                   }
                 }
               }
@@ -1829,7 +1829,7 @@
           },
           "title": {
             "text": {
-              "signal": "''Progress''"
+              "signal": "'Progress'"
             },
             "anchor": "start",
             "frame": "group",
@@ -1864,16 +1864,16 @@
                     "signal": "item.mark.group.width-2-columnPadding"
                   },
                   "stroke": {
-                    "signal": "''#a0d786''"
+                    "signal": "'#a0d786'"
                   },
                   "yc": {
-                    "signal": "(scale(''y'',datum.id)+bandwidth(''y'')/2)"
+                    "signal": "(scale('y',datum.id)+bandwidth('y')/2)"
                   },
                   "fill": {
                     "value": "white"
                   },
                   "height": {
-                    "signal": "bandwidth(''y'')-yPaddingInner*1"
+                    "signal": "bandwidth('y')-yPaddingInner*1"
                   },
                   "strokeWidth": {
                     "signal": "datum.id == itemHovered.id?2:1"
@@ -1896,16 +1896,16 @@
                     "signal": "((item.mark.group.width-columnPadding)/100)*datum.completion"
                   },
                   "fill": {
-                    "signal": "''#00B050''"
+                    "signal": "'#00B050'"
                   },
                   "yc": {
-                    "signal": "(scale(''y'',datum.id)+bandwidth(''y'')/2)"
+                    "signal": "(scale('y',datum.id)+bandwidth('y')/2)"
                   },
                   "strokeWidth": {
                     "value": 1
                   },
                   "height": {
-                    "signal": "bandwidth(''y'')-yPaddingInner*1"
+                    "signal": "bandwidth('y')-yPaddingInner*1"
                   }
                 }
               }
@@ -1928,10 +1928,10 @@
                     "signal": "textColour"
                   },
                   "y": {
-                    "signal": "scale(''y'',datum.id)+bandwidth(''y'')/2"
+                    "signal": "scale('y',datum.id)+bandwidth('y')/2"
                   },
                   "text": {
-                    "signal": "datum.completion+''%''"
+                    "signal": "datum.completion+'%'"
                   }
                 }
               }
@@ -1976,10 +1976,10 @@
           "encode": {
             "update": {
               "x": {
-                "signal": "scale(''x'',datum.start)"
+                "signal": "scale('x',datum.start)"
               },
               "x2": {
-                "signal": "scale(''x'',datum.end)"
+                "signal": "scale('x',datum.end)"
               },
               "y": {
                 "signal": "dayBandwidthRound>=minDayBandwidth?0:15"
@@ -2009,7 +2009,7 @@
           "encode": {
             "update": {
               "x": {
-                "signal": "scale(''x'',today) "
+                "signal": "scale('x',today) "
               },
               "width": {
                 "signal": "dayBandwidth"
@@ -2085,22 +2085,22 @@
                 "field": "end"
               },
               "align": {
-                "signal": "''left''"
+                "signal": "'left'"
               },
               "dx": {
                 "signal": "datum.milestone?sqrt(milestoneSymbolSize)/2 - dayBandwidth/2 + 5:5"
               },
               "y": {
-                "signal": "datum.phase == datum.task?scale(''y'', datum.id)-2:scale(''y'', datum.id)"
+                "signal": "datum.phase == datum.task?scale('y', datum.id)-2:scale('y', datum.id)"
               },
               "dy": {
-                "signal": "bandwidth(''y'')/2"
+                "signal": "bandwidth('y')/2"
               },
               "fill": {
-                "signal": "datum.id == itemHovered.id  ?merge(hsl(scale(''cDark'', datum.phase)), {l:0.40}):textColour"
+                "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):textColour"
               },
               "text": {
-                "signal": "datum.milestone?datum.task:datum.task && datum.assignee? datum.task + '' (''+ datum.days+'' d''+'')'' +'' - '' + datum.assignee:datum.task + '' (''+ datum.days+'' d''+'')''"
+                "signal": "datum.milestone?datum.task:datum.task && datum.assignee? datum.task + ' ('+ datum.days+' d'+')' +' - ' + datum.assignee:datum.task + ' ('+ datum.days+' d'+')'"
               }
             }
           }
@@ -2152,7 +2152,7 @@
                 },
                 "update": {
                   "stroke": {
-                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale(''cDark'', datum.phase)), {l:0.40}):''#888888''"
+                    "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):'#888888'"
                   },
                   "strokeWidth": {
                     "signal": "datum.id == itemHovered.id?1.5:1"
@@ -2172,7 +2172,7 @@
           "encode": {
             "update": {
               "x": {
-                "signal": "scale(''x'',today+oneDay/2) "
+                "signal": "scale('x',today+oneDay/2) "
               },
               "y2": {
                 "signal": "scaledHeight<height?yRange[1]:height"
@@ -2205,7 +2205,7 @@
           "encode": {
             "update": {
               "x": {
-                "signal": "scale(''x'',today+oneDay/2)"
+                "signal": "scale('x',today+oneDay/2)"
               },
               "fill": {
                 "value": "#FF0000"
@@ -2252,19 +2252,19 @@
                 "field": "end"
               },
               "yc": {
-                "signal": "(scale(''y'',datum.id)+bandwidth(''y'')/2)"
+                "signal": "(scale('y',datum.id)+bandwidth('y')/2)"
               },
               "height": {
-                "signal": "bandwidth(''y'')-yPaddingInner*2"
+                "signal": "bandwidth('y')-yPaddingInner*2"
               },
               "tooltip": {
-                "signal": "showTooltips&&down==null?{''Phase'':datum.phase ,''Task'':datum.task , ''Start'':timeFormat(datum.start,''%a, %d %B %Y'' ),''End'':timeFormat(datum.labelEnd,''%a, %d %B %Y'' ), ''Days'':datum.days, ''Assignee'':datum.assignee ,''Progress'':datum.completionLabel }:null"
+                "signal": "showTooltips&&down==null?{'Phase':datum.phase ,'Task':datum.task , 'Start':timeFormat(datum.start,'%a, %d %B %Y' ),'End':timeFormat(datum.labelEnd,'%a, %d %B %Y' ), 'Days':datum.days, 'Assignee':datum.assignee ,'Progress':datum.completionLabel }:null"
               },
               "fill": {
-                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale(''cLight'', datum.phase)), {l:0.65}):scale(''cLight'', datum.phase)"
+                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale('cLight', datum.phase)), {l:0.65}):scale('cLight', datum.phase)"
               },
               "stroke": {
-                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale(''cDark'', datum.phase)), {l:0.40}):scale(''cDark'', datum.phase)"
+                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):scale('cDark', datum.phase)"
               },
               "cornerRadius": {
                 "value": 5
@@ -2319,7 +2319,7 @@
                     "signal": "(item.mark.group.width/100)* item.mark.group.datum.completion"
                   },
                   "fill": {
-                    "signal": "toString(item.mark.group.datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(item.mark.group.datum.id) )> -1 ?merge(hsl(scale(''cDark'', item.mark.group.datum.phase)), {l:0.40}):scale(''cDark'', item.mark.group.datum.phase)"
+                    "signal": "toString(item.mark.group.datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(item.mark.group.datum.id) )> -1 ?merge(hsl(scale('cDark', item.mark.group.datum.phase)), {l:0.40}):scale('cDark', item.mark.group.datum.phase)"
                   },
                   "strokeWidth": {
                     "value": 0
@@ -2344,7 +2344,7 @@
                     "signal": "(item.mark.group.width/100)* parent.completion"
                   },
                   "align": {
-                    "signal": "''right''"
+                    "signal": "'right'"
                   },
                   "dx": {
                     "signal": "-2"
@@ -2356,10 +2356,10 @@
                     "signal": "item.mark.group.height/2+1"
                   },
                   "text": {
-                    "signal": "round(((item.mark.group.width/100)* parent.completion))>=(item.mark.group.b+4) && parent.completion>0?parent.completionLabel:''''"
+                    "signal": "round(((item.mark.group.width/100)* parent.completion))>=(item.mark.group.b+4) && parent.completion>0?parent.completionLabel:''"
                   },
                   "fill": {
-                    "signal": "luminance(item.mark.group.stroke) >=0.45?''black'':''white''"
+                    "signal": "luminance(item.mark.group.stroke) >=0.45?'black':'white'"
                   }
                 }
               }
@@ -2379,16 +2379,16 @@
                 "signal": "datum.phasePath"
               },
               "fill": {
-                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale(''cLight'', datum.phase)), {l:0.65}):scale(''cLight'', datum.phase)"
+                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale('cLight', datum.phase)), {l:0.65}):scale('cLight', datum.phase)"
               },
               "stroke": {
-                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale(''cDark'', datum.phase)), {l:0.40}):scale(''cDark'', datum.phase)"
+                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):scale('cDark', datum.phase)"
               },
               "strokeWidth": {
                 "signal": "datum.id == itemHovered.id?1.5:1"
               },
               "tooltip": {
-                "signal": "showTooltips&&down==null?{''Phase'':datum.phase , ''Start'':timeFormat(datum.start,''%a, %d %B %Y'' ),''End'':timeFormat(datum.labelEnd,''%a, %d %B %Y'' ), ''Days'':datum.days,''Progress'':datum.completion+''%'' }:null"
+                "signal": "showTooltips&&down==null?{'Phase':datum.phase , 'Start':timeFormat(datum.start,'%a, %d %B %Y' ),'End':timeFormat(datum.labelEnd,'%a, %d %B %Y' ), 'Days':datum.days,'Progress':datum.completion+'%' }:null"
               },
               "cursor": {
                 "value": "pointer"
@@ -2423,10 +2423,10 @@
                 "offset": 0
               },
               "yc": {
-                "signal": "scale(''y'',datum.id)+bandwidth(''y'')/2"
+                "signal": "scale('y',datum.id)+bandwidth('y')/2"
               },
               "height": {
-                "signal": "bandwidth(''y'')-yPaddingInner*2"
+                "signal": "bandwidth('y')-yPaddingInner*2"
               }
             }
           },
@@ -2438,7 +2438,7 @@
               "interactive": false,
               "clip": {
                 "path": {
-                  "signal": "''M 0 0''  + '' L '' +   (scale(''x'', parent.end) - scale(''x'', parent.start)) +'' 0''    + '' v '' +  phaseSymbolHeight + '' L '' + (scale(''x'', parent.end) - scale(''x'', parent.start) - phaseSymbolWidth) +'' ''  +   (phaseSymbolHeight/2) + '' H '' +  phaseSymbolWidth + '' L 0 ''   +   phaseSymbolHeight + '' z''"
+                  "signal": "'M 0 0'  + ' L ' +   (scale('x', parent.end) - scale('x', parent.start)) +' 0'    + ' v ' +  phaseSymbolHeight + ' L ' + (scale('x', parent.end) - scale('x', parent.start) - phaseSymbolWidth) +' '  +   (phaseSymbolHeight/2) + ' H ' +  phaseSymbolWidth + ' L 0 '   +   phaseSymbolHeight + ' z'"
                 }
               },
               "encode": {
@@ -2450,7 +2450,7 @@
                     "signal": "(item.mark.group.width/100)* item.mark.group.datum.completion"
                   },
                   "fill": {
-                    "signal": "toString(item.mark.group.datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(item.mark.group.datum.id) )> -1 ?merge(hsl(scale(''cDark'', item.mark.group.datum.phase)), {l:0.40}):scale(''cDark'', item.mark.group.datum.phase)"
+                    "signal": "toString(item.mark.group.datum.id) == itemHovered.id  || indexof(itemHovered.dependencies,toString(item.mark.group.datum.id) )> -1 ?merge(hsl(scale('cDark', item.mark.group.datum.phase)), {l:0.40}):scale('cDark', item.mark.group.datum.phase)"
                   },
                   "strokeWidth": {
                     "value": 0
@@ -2473,10 +2473,10 @@
           "encode": {
             "update": {
               "x": {
-                "signal": "scale(''x'',datum.start)+dayBandwidth/2"
+                "signal": "scale('x',datum.start)+dayBandwidth/2"
               },
               "y": {
-                "signal": "scale(''y'', datum.id)+bandwidth(''y'')/2"
+                "signal": "scale('y', datum.id)+bandwidth('y')/2"
               },
               "size": {
                 "signal": "milestoneSymbolSize"
@@ -2485,16 +2485,16 @@
                 "value": "diamond"
               },
               "fill": {
-                "signal": "(datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1)  && datum.completion > 0 ?merge(hsl(scale( ''cDark'', datum.phase)), {l:0.40}):datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1   ?merge(hsl(scale( ''cLight'', datum.phase)), {l:0.65}):datum.completion > 0?  scale(''cDark'', datum.phase):scale(''cLight'', datum.phase)"
+                "signal": "(datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1)  && datum.completion > 0 ?merge(hsl(scale( 'cDark', datum.phase)), {l:0.40}):datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1   ?merge(hsl(scale( 'cLight', datum.phase)), {l:0.65}):datum.completion > 0?  scale('cDark', datum.phase):scale('cLight', datum.phase)"
               },
               "stroke": {
-                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale(''cDark'', datum.phase)), {l:0.40}):scale(''cDark'', datum.phase)"
+                "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1 ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):scale('cDark', datum.phase)"
               },
               "strokeWidth": {
                 "signal": "datum.id == itemHovered.id  || indexof(itemHovered.dependencies,datum.id )> -1  ?1.5:1"
               },
               "tooltip": {
-                "signal": "showTooltips&&down==null?{''Phase'':datum.phase ,''Task'':datum.task , ''Start'':timeFormat(datum.start,''%a, %d %B %Y'' ),''End'':timeFormat(datum.labelEnd,''%a, %d %B %Y'' ), ''Days'':datum.days,''Assignee'':datum.assignee ,''Progress'':datum.completionLabel }:null"
+                "signal": "showTooltips&&down==null?{'Phase':datum.phase ,'Task':datum.task , 'Start':timeFormat(datum.start,'%a, %d %B %Y' ),'End':timeFormat(datum.labelEnd,'%a, %d %B %Y' ), 'Days':datum.days,'Assignee':datum.assignee ,'Progress':datum.completionLabel }:null"
               }
             }
           }
@@ -2512,16 +2512,16 @@
                 "value": "triangle-right"
               },
               "x": {
-                "signal": "scale(''x'',datum.start)",
+                "signal": "scale('x',datum.start)",
                 "offset": {
                   "signal": "datum.milestone!=null && datum.milestone != false? -(sqrt(arrowSymbolSize))/2 + dayBandwidth/2 - (sqrt(milestoneSymbolSize))/2 +1:-(sqrt(arrowSymbolSize)/2) +1"
                 }
               },
               "y": {
-                "signal": "scale(''y'', datum.id)+bandwidth(''y'')/2"
+                "signal": "scale('y', datum.id)+bandwidth('y')/2"
               },
               "fill": {
-                "signal": "datum.id == itemHovered.id  ?merge(hsl(scale(''cDark'', datum.phase)), {l:0.40}):''#6a6a6a''"
+                "signal": "datum.id == itemHovered.id  ?merge(hsl(scale('cDark', datum.phase)), {l:0.40}):'#6a6a6a'"
               },
               "size": {
                 "signal": "arrowSymbolSize"
@@ -2549,16 +2549,16 @@
             "signal": "columnsWidth"
           },
           "y": {
-            "signal": "scale(''y'', datum.id)"
+            "signal": "scale('y', datum.id)"
           },
           "height": {
-            "signal": "bandwidth(''y'')"
+            "signal": "bandwidth('y')"
           },
           "fill": {
             "value": "transparent"
           },
           "cursor": {
-            "signal": "datum.phase == datum.task?''pointer'':''auto''"
+            "signal": "datum.phase == datum.task?'pointer':'auto'"
           },
           "href": {
             "field": "hyperlink"
@@ -2624,7 +2624,7 @@
       "labelOverlap": false,
       "formatType": "time",
       "tickCount": {
-        "signal": "dayBandwidthRound>=minYearBandwidth?''day'':''month''"
+        "signal": "dayBandwidthRound>=minYearBandwidth?'day':'month'"
       },
       "encode": {
         "ticks": {
@@ -2657,19 +2657,19 @@
             "text": [
               {
                 "test": "dayBandwidthRound>=minDayBandwidth",
-                "signal": "timeFormat(datum.value,''%d'')"
+                "signal": "timeFormat(datum.value,'%d')"
               },
               {
                 "test": "dayBandwidthRound>=minMonthBandwidth && dayBandwidthRound<minDayBandwidth && date(datum.value) == 15",
-                "signal": "timeFormat(datum.value,''%B %y'')"
+                "signal": "timeFormat(datum.value,'%B %y')"
               },
               {
                 "test": "dayBandwidthRound>=minYearBandwidth && dayBandwidthRound<minMonthBandwidth && date(datum.value) == 15",
-                "signal": "timeFormat(datum.value,''%b'')"
+                "signal": "timeFormat(datum.value,'%b')"
               },
               {
                 "test": "dayBandwidthRound<minYearBandwidth && month(datum.value) == 6",
-                "signal": "timeFormat(datum.value,''%Y'')"
+                "signal": "timeFormat(datum.value,'%Y')"
               },
               {
                 "value": ""
@@ -2696,7 +2696,7 @@
       "grid": false,
       "zindex": 0,
       "tickCount": {
-        "signal": "dayBandwidthRound>=minYearBandwidth?''day'':''month''"
+        "signal": "dayBandwidthRound>=minYearBandwidth?'day':'month'"
       },
       "encode": {
         "ticks": {
@@ -2721,11 +2721,11 @@
             "text": [
               {
                 "test": "dayBandwidthRound>=minDayBandwidth && date(datum.value) == 15",
-                "signal": "timeFormat(datum.value,''%B %y'')"
+                "signal": "timeFormat(datum.value,'%B %y')"
               },
               {
                 "test": "dayBandwidthRound>=minYearBandwidth && dayBandwidthRound<minMonthBandwidth && month(datum.value) == 5 && date(datum.value) == 15",
-                "signal": "timeFormat(datum.value,''%Y'')"
+                "signal": "timeFormat(datum.value,'%Y')"
               },
               {
                 "value": ""
@@ -2751,7 +2751,7 @@
       "tickSize": 0,
       "zindex": 0,
       "tickCount": {
-        "signal": " dayBandwidthRound>=minMonthBandwidth || dayBandwidthRound<=0.35?0:''month''"
+        "signal": " dayBandwidthRound>=minMonthBandwidth || dayBandwidthRound<=0.35?0:'month'"
       }
     }
   ],

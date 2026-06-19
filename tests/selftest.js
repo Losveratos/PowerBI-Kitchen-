@@ -370,8 +370,11 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
          'W='+(gex&&gex.W)+' H='+(gex&&gex.H));
       await loadGanttSpec();
       const gtpl = denebTemplate();
-      ok('G · Gantt · Deneb-Template = Vorlage unverändert',
-         !!gtpl && JSON.stringify(gtpl)===JSON.stringify(_ganttSpecRaw) && /''input''/.test(JSON.stringify(gtpl||{})));
+      ok('G · Gantt · Deneb-Template = Vorlage unverändert (kanonische Einfach-Quotes)',
+         !!gtpl && JSON.stringify(gtpl)===JSON.stringify(_ganttSpecRaw)
+         && /data\('input'\)/.test(JSON.stringify(gtpl||{}))      /* einfache Quotes: Deneb-Import-tauglich */
+         && !/''input''/.test(JSON.stringify(gtpl||{}))           /* keine kaputte ''-Verdopplung mehr */
+         && /!=''/.test(JSON.stringify(gtpl||{})));                /* echte Leer-String-Literale erhalten */
       ok('G · Gantt · dataset bleibt leer (PBI füllt selbst)',
          !!gtpl && Array.isArray(gtpl.data) && gtpl.data.some(d=>d.name==='dataset' && !d.values));
       ok('G · Gantt · keine VL-Pipeline (vegaSpec null)', vegaSpec(false)===null);
