@@ -906,6 +906,8 @@ const state = {
   kpiStyle:'ibcs',
   kpiBars:false,        /* KPI-Brücke: Säulen (false) ↔ horizontale Balken (true) */
   kpiMultiScen:false,   /* KPI-Brücke: 2. Referenz als volle Szenario-Säule statt Niveau-Marke */
+  kpiSingle:false,      /* KPI: Einzelkarte ohne Kategorie (statt Small Multiples je Kategorie) */
+  kpiNoTitle:false,     /* KPI: Titel/Botschaft ausblenden (saubere Power-BI-Karte) */
   fontScale:1,
   unit:'',
   unitScale:'auto',
@@ -2902,7 +2904,7 @@ const KPI_PINK = '#d97a93';
 /* --- KPI-Karten „Trend“: großer Wert + Vorjahr + GAP + 30-Tage-Mini-Chart
        (Tagesreihe aus der Serien-Tabelle, Serie = KPI-Name).               --- */
 function renderKpiTrend(){
-  const rows = activeRows();
+  const rows = kpiRows();
   const hasR1 = state.reference!=='—';
   const dailyFor = name=>{ const j=state.series.indexOf(name); if(j<0) return null;
     const v=state.srows.filter(p=>p.c!=='').map(p=>p.v[j]).filter(x=>!isNaN(x)); return v.length>1?v:null; };
@@ -2959,9 +2961,9 @@ function renderKpiTrend(){
 /* --- KPI-Karten „Status“: großer Ist-Wert, eingefärbt nach Abweichung zu
        Referenz 1, mit ▲▼-Pfeil sowie Δ% und Δ absolut je Referenz. --- */
 function renderKpiStatus(){
-  const rows = activeRows();
+  const rows = kpiRows();
   const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
-  const perRow = 3, cw = 210, gapX = 16, gapY = 16;
+  const perRow = Math.min(3, Math.max(1, rows.length)), cw = 210, gapX = 16, gapY = 16;
   const ch = 64 + (hasR1?26:0) + (hasR2?22:0) + 8;
   const gridRows = Math.ceil(rows.length/perRow);
   const padL=4, padT=4;
@@ -3006,6 +3008,9 @@ function renderKpiStatus(){
        entsteht. Ausrichtung Säulen (vertikal) ODER Balken (horizontal); optional
        Mehr-Szenarien (2. Referenz als volle Säule/Balken statt Niveau-Marke,
        sonst Bullet-Niveau-Marke über AC). Gemeinsame Δ%-Notation.            --- */
+/* Karten-Zeilen: Einzelkarte (ohne Kategorie) zeigt nur die erste Zeile;
+   sonst eine Karte je Kategorie (Small Multiples). */
+function kpiRows(){ const r = activeRows(); return state.kpiSingle ? r.slice(0,1) : r; }
 function kpiBridgeSlots(r){
   const hasR2 = state.reference2!=='—';
   const multi = !!state.kpiMultiScen && hasR2;
@@ -3018,12 +3023,12 @@ function kpiBridgeSlots(r){
   return {slots, iRef1, iDelta:iRef1+1, iAc:iRef1+2, multi};
 }
 function renderKpiBridge(){
-  const rows = activeRows();
+  const rows = kpiRows();
   const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
   const bars = !!state.kpiBars;
   const multi = !!state.kpiMultiScen && hasR2;
   const nSlots = 3 + (multi?1:0);
-  const perRow = bars ? 2 : 3;
+  const perRow = Math.min(bars ? 2 : 3, Math.max(1, rows.length));
   const cw = bars ? 312 : (42 + nSlots*64);
   const ch = bars ? (58 + nSlots*30 + 18) : 162;
   const gapX = 16, gapY = 16;
@@ -3136,7 +3141,7 @@ function renderKpi(){
   if(state.kpiStyle==='trend') return renderKpiTrend();
   if(state.kpiStyle==='status') return renderKpiStatus();
   if(state.kpiStyle==='bridge') return renderKpiBridge();
-  const rows = activeRows();
+  const rows = kpiRows();
   const hasR1 = state.reference!=='—';
   const hasR2 = state.reference2!=='—';
   const refs = [];
@@ -3151,7 +3156,7 @@ function renderKpi(){
     const vals = state.srows.filter(p=>p.c!=='').map(p=>p.v[j]).filter(v=>!isNaN(v));
     return vals.length>1 ? vals : null;
   };
-  const perRow = 3, cw = 198, gapX = 16, gapY = 16;
+  const perRow = Math.min(3, Math.max(1, rows.length)), cw = 198, gapX = 16, gapY = 16;
   const ch = 58 + refs.length*23 + (planRef?17:0) + 12;
   const gridRows = Math.ceil(rows.length/perRow);
   const padL=4, padT=4;
@@ -4921,7 +4926,10 @@ function renderPreview(){
     $('#chartHost').innerHTML = buildChart();
     renderComments();
   }
-  $('#pmsg').style.display = state.msg ? 'block' : 'none';
+  /* KPI-Karte ohne Titel/Botschaft: Vorschau-Titelblock ausblenden (wie der Export) */
+  const hideTitle = state.kpiNoTitle && state.type==='kpi';
+  const titlesEl = document.querySelector('.titles'); if(titlesEl) titlesEl.style.display = hideTitle ? 'none' : '';
+  $('#pmsg').style.display = (state.msg && !hideTitle) ? 'block' : 'none';
   $('#pmsg').textContent = state.msg;
   $('#psource').style.display = state.source ? 'block' : 'none';
   $('#psource').textContent = state.source ? CL('Quelle')+': '+state.source : '';
@@ -5563,6 +5571,12 @@ function guideCardsHtml(){
       '<input data-optin="facetField" value="'+esc(state.facetField||'')+'" placeholder="Feld, z. B. Region" style="width:150px">'+
       (state.facetField?('<span style="width:6px"></span>'+[1,2,3,4].map(n=>gchip('facetCols',n,n+' Sp.',(state.facetCols||2)===n)).join('')):'')));
   }
+  if(t==='kpi'){
+    out.push(gcard('Karte · Layout','Einzelkarte ohne Kategorie (ideal als Power-BI-Karten-Visual – nur Kennzahlen, kein Dimensionsfeld nötig) oder eine Karte je Kategorie (Small Multiples). Titel/Botschaft lassen sich für die Karte ausblenden (Power BI bringt eigenen Visual-Titel mit).',
+      gchip('kpiSingle','single','Einzelkarte (ohne Kategorie)',!!state.kpiSingle)+gchip('kpiSingle','cat','Je Kategorie (Small Multiples)',!state.kpiSingle)+
+      '<span style="flex-basis:100%;height:0"></span>'+
+      gchip('kpiNoTitle','toggle',(state.kpiNoTitle?'✓ ':'')+'Titel/Botschaft ausblenden',!!state.kpiNoTitle)));
+  }
   if(t==='kpi' && state.kpiStyle==='bridge'){
     out.push(gcard('Brücke · Darstellung','Ausrichtung der Mini-Varianz-Brücke (Säulen vertikal oder Balken horizontal). Mehr-Szenarien zeigt die 2. Referenz als eigene Säule/Balken statt als Niveau-Marke über dem AC.',
       gchip('kpiBars','col','Säulen (vertikal)',!state.kpiBars)+gchip('kpiBars','bar','Balken (horizontal)',!!state.kpiBars)+
@@ -5638,6 +5652,8 @@ function applyGuideOpt(opt,val){
     case 'tableDims': state.tableDims = +val; autofillDemo(); renderAll(); break;
     case 'rawVega': state.rawVega = (val==='raw'); renderAll(); break;
     case 'kpiBars': state.kpiBars = (val==='bar'); renderPreview(); break;
+    case 'kpiSingle': state.kpiSingle = (val==='single'); renderAll(); break;
+    case 'kpiNoTitle': state.kpiNoTitle = !state.kpiNoTitle; renderAll(); break;
     case 'kpiMultiScen':
       state.kpiMultiScen = !state.kpiMultiScen;
       if(state.kpiMultiScen && state.reference2==='—'){
@@ -6287,11 +6303,15 @@ function vFieldDefs(){
     if(usesRef2() && state.reference2!=='—') defs.push(['r2','Kennzahl · '+state.reference2]);
     return defs;
   }
-  const defs = [['dim','Dimension']];
+  /* KPI-Einzelkarte (ohne Kategorie): kein Dimensionsfeld – nur die Kennzahlen */
+  const kpiSingle = t==='kpi' && state.kpiSingle;
+  const defs = kpiSingle ? [] : [['dim','Dimension']];
   if(t==='gantt'){
     return GANTT_TPL_FIELDS.map(f=>[f[0], f[1]]);
   }
-  if(t==='kpi' && state.kpiStyle==='trend') return [['dim','Tag/Periode (Reihe je KPI)'],['serie','KPI-Name'],['v','Tageswert']];
+  if(t==='kpi' && state.kpiStyle==='trend') return kpiSingle
+    ? [['dim','Tag/Periode'],['v','Tageswert']]
+    : [['dim','Tag/Periode (Reihe je KPI)'],['serie','KPI-Name'],['v','Tageswert']];
   if(t==='waterfall'){
     defs.push(['v','Wert · '+state.primary]);
     if((state.showAbs||state.showRel) && state.reference!=='—') defs.push(['r','Referenz · '+state.reference]);
@@ -8274,10 +8294,13 @@ function vlKpiStatus(deneb){
   let y=78;
   if(hasR1){ devRow(state.reference,'d1','rv1','T1','Lrv1','Ld1',y); y+=26; }
   if(hasR2){ devRow(state.reference2,'d2','rv2','T2','Lrv2','Ld2',y); y+=22; }
-  return { data:vData(values,deneb), transform: tf.length? tf : undefined, columns:3,
-    facet:{field:'k', type:'nominal', sort: deneb? null : values.map(v=>v.k),
+  const vals = state.kpiSingle ? values.slice(0,1) : values;
+  const view = { width:196, height:y-8, view:{stroke:'#e3e1dc', cornerRadius:6}, layer };
+  if(state.kpiSingle) return Object.assign({data:vData(vals,deneb)}, tf.length?{transform:tf}:{}, view);
+  return { data:vData(vals,deneb), transform: tf.length? tf : undefined, columns:3,
+    facet:{field:'k', type:'nominal', sort: deneb? null : vals.map(v=>v.k),
       header:{title:null, labelFont:'Arial', labelFontSize:11.5, labelFontWeight:'bold', labelColor:'#555555', labelAnchor:'start', labelPadding:4}},
-    spec:{ width:196, height:y-8, view:{stroke:'#e3e1dc', cornerRadius:6}, layer } };
+    spec:view };
 }
 /* KPI-Trend als Sparkline-Trellis je KPI (Tageslinie gestrichelt + 5-Tage-Schnitt
    solide + Ø-Basislinie; großer Last-Wert + Heute-Δ). Datensatz = Tagesreihe je
@@ -8302,12 +8325,7 @@ function vlKpiTrend(deneb){
   ]);
   const xq = {field:'_idx', type:'quantitative', axis:null};
   const yq = {field:'v', type:'quantitative', axis:null};
-  return {
-    data:vData(values,deneb), transform:tf,
-    columns: Math.min(3, Math.max(1, state.series.length||1)),
-    facet:{field:'serie', type:'nominal', sort:null,
-      header:{title:null, labelFont:'Arial', labelFontSize:12, labelFontWeight:'bold', labelColor:CAT, labelAnchor:'start'}},
-    spec:{ width:240, height:96, layer:[
+  const view = { width:240, height:96, layer:[
       {mark:{type:'rule', strokeDash:[3,3], color:'#d7d5d0'}, encoding:{y:{aggregate:'mean', field:'v', type:'quantitative'}}},
       {mark:{type:'line', color:KPI_PINK, strokeWidth:1.2, strokeDash:[4,2]}, encoding:{x:xq, y:yq}},
       {mark:{type:'line', color:DARK, strokeWidth:1.8}, encoding:{x:xq, y:{field:'_avg', type:'quantitative', axis:null}}},
@@ -8318,7 +8336,19 @@ function vlKpiTrend(deneb){
        mark:{type:'text', x:236, y:8, align:'right', baseline:'top', fontSize:11, fontWeight:'bold', font:'Arial'},
        encoding:{text:{field:'_tdL', type:'nominal'},
          color:{condition:{test:'datum._td >= 0', value:C.pos}, value:C.neg}}},
-    ]},
+    ]};
+  /* Einzelkarte: nur die erste Serie, kein Facet (Power-BI-Karte = Tagesreihe ohne KPI-Dimension) */
+  if(state.kpiSingle){
+    const s0 = state.series[0];
+    const vals = values.filter(d=>d.serie===s0);
+    return Object.assign({data:vData(vals,deneb), transform:tf}, view);
+  }
+  return {
+    data:vData(values,deneb), transform:tf,
+    columns: Math.min(3, Math.max(1, state.series.length||1)),
+    facet:{field:'serie', type:'nominal', sort:null,
+      header:{title:null, labelFont:'Arial', labelFontSize:12, labelFontWeight:'bold', labelColor:CAT, labelAnchor:'start'}},
+    spec:view,
     resolve:{scale:{y:'independent', x:'shared'}},
   };
 }
@@ -8438,10 +8468,13 @@ function vlKpiBridge(deneb){
     {mark:{type:'text', x:Wc-36, y:9, align:'left', baseline:'top', fontSize:11, fontWeight:'bold', font:'Arial'}, encoding:{text:vLab(deneb,'rv','Lrv','+.1f'), color:{condition:{test:'datum.dlt >= 0', value:C.pos}, value:C.neg}}},
     {transform:[{filter:'datum.fc'}], mark:{type:'text', x:4, y:32, align:'left', baseline:'top', fontSize:9.5, font:'Arial', color:SUB}, encoding:{text:{value:'FC'}}}
   );
-  return { data:vData(values,deneb), transform:tf, columns: bars?2:3,
-    facet:{field:'k', type:'nominal', sort: deneb? null : values.map(v=>v.k),
+  const vals = state.kpiSingle ? values.slice(0,1) : values;
+  const view = { width:Wc, height:Hc, view:{stroke:'#e3e1dc', cornerRadius:6}, layer };
+  if(state.kpiSingle) return Object.assign({data:vData(vals,deneb)}, tf?{transform:tf}:{}, view);
+  return { data:vData(vals,deneb), transform:tf, columns: bars?2:3,
+    facet:{field:'k', type:'nominal', sort: deneb? null : vals.map(v=>v.k),
       header:{title:null, labelFont:'Arial', labelFontSize:11.5, labelFontWeight:'bold', labelColor:'#555555', labelAnchor:'start', labelPadding:4}},
-    spec:{ width:Wc, height:Hc, view:{stroke:'#e3e1dc', cornerRadius:6}, layer } };
+    spec:view };
 }
 function vlKpi(deneb){
   if(state.kpiStyle==='trend') return vlKpiTrend(deneb);
@@ -8488,10 +8521,13 @@ function vlKpi(deneb){
   let y = 56;
   if(hasR1){ refRow(state.reference,'d1','rv1','Ld1','Lrv1',y); y += 22; }
   if(hasR2){ refRow(state.reference2,'d2','rv2','Ld2','Lrv2',y); y += 22; }
-  return { data:vData(values,deneb), transform: tf.length? tf : undefined, columns:3,
-    facet:{field:'k', type:'nominal', sort: deneb? null : values.map(v=>v.k),
+  const vals = state.kpiSingle ? values.slice(0,1) : values;
+  const view = { width:160, height:y-14, view:{stroke:'#e3e1dc', cornerRadius:6}, layer };
+  if(state.kpiSingle) return Object.assign({data:vData(vals,deneb)}, tf.length?{transform:tf}:{}, view);
+  return { data:vData(vals,deneb), transform: tf.length? tf : undefined, columns:3,
+    facet:{field:'k', type:'nominal', sort: deneb? null : vals.map(v=>v.k),
       header:{title:null, labelFont:'Arial', labelFontSize:11.5, labelFontWeight:'bold', labelColor:'#555555', labelAnchor:'start', labelPadding:4}},
-    spec:{ width:160, height:y-14, view:{stroke:'#e3e1dc', cornerRadius:6}, layer } };
+    spec:view };
 }
 /* Hierarchie-Tabelle (mehrere Dimensionen): je Ebene eine eigene Dim-Spalte;
    Blattzeilen aus dem PBI-Dataset, Eltern-Σ blendet Power BI bzw. der native
@@ -9097,10 +9133,12 @@ function vegaSpec(deneb){
     };
     note = (note?note+' · ':'')+'Trellis: Small Multiples je „'+fField+'“ – dieses Feld in Power BI bereitstellen (die In-App-Vorschau zeigt eine Kachel).';
   }
+  /* Titel/Botschaft weglassen (saubere Power-BI-Karte) */
+  const omitTitle = state.kpiNoTitle && state.type==='kpi';
   let spec = Object.assign({
     $schema:'https://vega.github.io/schema/vega-lite/v5.json',
-    title:vTitle(), config:vConfig(),
-  }, body);
+    config:vConfig(),
+  }, omitTitle ? {} : {title:vTitle()}, body);
   spec = remapSpec(spec, vFieldMap());
   scaleSpecFonts(spec);
   /* Größe (Power BI/Deneb): „dynamisch“ = width/height container (füllt das
@@ -9170,7 +9208,7 @@ function serialize(){
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef, tableDims:state.tableDims, rawVega:state.rawVega,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
-      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, fontScale:state.fontScale, fromType:state.fromType,
+      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, kpiSingle:state.kpiSingle, kpiNoTitle:state.kpiNoTitle, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
       target:state.target, negParens:state.negParens, annos:state.annos,
       vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,

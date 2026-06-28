@@ -52,7 +52,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
   const clone = x => JSON.parse(JSON.stringify(x));
   const $t = id => (document.getElementById(id)||{}).value;
   const snap = {
-    type:state.type, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, primary:state.primary,
+    type:state.type, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, kpiSingle:state.kpiSingle, kpiNoTitle:state.kpiNoTitle, primary:state.primary,
     reference:state.reference, reference2:state.reference2,
     rows:clone(state.rows), srows:clone(state.srows), series:clone(state.series),
     wrows:clone(state.wrows),
@@ -63,7 +63,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
   };
   const restore = ()=>{
-    Object.assign(state, {type:snap.type, kpiStyle:snap.kpiStyle, kpiBars:snap.kpiBars, kpiMultiScen:snap.kpiMultiScen, primary:snap.primary,
+    Object.assign(state, {type:snap.type, kpiStyle:snap.kpiStyle, kpiBars:snap.kpiBars, kpiMultiScen:snap.kpiMultiScen, kpiSingle:snap.kpiSingle, kpiNoTitle:snap.kpiNoTitle, primary:snap.primary,
       reference:snap.reference, reference2:snap.reference2,
       rows:clone(snap.rows), srows:clone(snap.srows), series:clone(snap.series),
       wrows:clone(snap.wrows), unit:snap.unit, unitScale:snap.unitScale,
@@ -659,7 +659,22 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
          (JSON.stringify(kbm).match(/"type":"bar"/g)||[]).length>=4);
       let kbmc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; kbmc=!!VL.compile(b).spec; }catch(e){}
       ok('X · kpiBridge · Mehr-Szenarien-Template kompiliert', kbmc && tplBakedRows(denebTemplate())===0);
-      state.kpiStyle='ibcs'; state.reference2='—'; state.kpiBars=false; state.kpiMultiScen=false;
+      /* X4 · Einzelkarte ohne Kategorie + ohne Titel (Power-BI-Karte) */
+      state.kpiMultiScen=false; state.kpiSingle=true; state.kpiNoTitle=true; renderAll();
+      const kbs=vegaSpec(false);
+      ok('X · kpiBridge · Einzelkarte: kein Facet im Template', !kbs.facet && !kbs.spec);
+      ok('X · kpiBridge · ohne Titel: kein title im Spec', !('title' in kbs));
+      ok('X · kpiBridge · Einzelkarte: kein dim-Feld in vFieldDefs',
+         !vFieldDefs().some(d=>d[0]==='dim'));
+      let kbsc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; kbsc=!!VL.compile(b).spec; }catch(e){}
+      ok('X · kpiBridge · Einzelkarte-Template kompiliert (baked=0)', kbsc && tplBakedRows(denebTemplate())===0);
+      ok('X · kpiBridge · Einzelkarte rendert genau eine Karte', (chartHtml().match(/data-i=/g)||[]).length===1);
+      /* X5 · andere KPI-Stile als Einzelkarte (ibcs/status) ohne Facet */
+      state.kpiStyle='ibcs'; renderAll();
+      ok('X · kpiIBCS · Einzelkarte: kein Facet', !vegaSpec(false).facet);
+      state.kpiStyle='status'; renderAll();
+      ok('X · kpiStatus · Einzelkarte: kein Facet', !vegaSpec(false).facet);
+      state.kpiStyle='ibcs'; state.reference2='—'; state.kpiBars=false; state.kpiMultiScen=false; state.kpiSingle=false; state.kpiNoTitle=false;
     }
 
     /* === N) Korrelations-Scatter: Trendlinie + Facetten je Gruppe ====== */
