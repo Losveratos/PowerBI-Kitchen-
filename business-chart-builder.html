@@ -796,13 +796,14 @@ const TYPE_GROUPS = [
     { id:'kpi',       name:'KPI · IBCS' },
     { id:'kpiStatus', name:'KPI · Status' },
     { id:'kpiTrend',  name:'KPI · Trend' },
+    { id:'kpiBridge', name:'KPI · Brücke' },
     { id:'scatter',   name:'Streudiagramm' },
     { id:'gantt',     name:'Gantt · Projektplan' },
   ]},
 ];
 /* Virtuelle Typ-Kacheln: zeigen die KPI-Stile direkt im Typ-Picker, mappen
    aber alle auf state.type='kpi' + state.kpiStyle (Render-/Export-Logik bleibt). */
-const VIRTUAL_KPI = { kpi:'ibcs', kpiStatus:'status', kpiTrend:'trend' };
+const VIRTUAL_KPI = { kpi:'ibcs', kpiStatus:'status', kpiTrend:'trend', kpiBridge:'bridge' };
 /* „Integrierte GuV" ist eine virtuelle Kachel: wfkombi + 2. Szenario-Wasserfall. */
 function typeIsOn(id){
   if(id==='wfint')   return state.type==='wfkombi' && !!state.wfRefCol;
@@ -903,6 +904,8 @@ const state = {
   lineFill:'none',
   lineIndex:false,
   kpiStyle:'ibcs',
+  kpiBars:false,        /* KPI-Brücke: Säulen (false) ↔ horizontale Balken (true) */
+  kpiMultiScen:false,   /* KPI-Brücke: 2. Referenz als volle Szenario-Säule statt Niveau-Marke */
   fontScale:1,
   unit:'',
   unitScale:'auto',
@@ -969,14 +972,16 @@ const CHART_LANG = {
         Serien:'Serien', jeSerie:'je Serie, gleiche Skala', vs:'vs.', Trend:'Trend', jePeriode:'je Periode',
         Beitraege:'als Beiträge, Σ', zChart:': Monat, kumuliert, 12M gleitend', keineXY:'Keine gültigen X/Y-Paare',
         Saeulen:'Säulen', Linie:'Linie', jeSerieK:'je Serie', von:'von', kumPct:'kumuliert %',
-        Last30:'LETZTE 30 TAGE', Avg5:'5T Ø', Daily:'TÄGLICH', Today:'HEUTE' },
+        Last30:'LETZTE 30 TAGE', Avg5:'5T Ø', Daily:'TÄGLICH', Today:'HEUTE',
+        refMissing:'Referenz wählen für die Brücke' },
   en: { Tsd:'k', Mio:'m', in:'in', Summe:'Total', Uebrige:'Others', Quelle:'Source',
         Verlauf:'Trend', aktuell:'latest', Serie:'Series', kumuliert:'cumulative',
         gleitend:'12M rolling', Monat:'month', und:'and', nach:'by', PeriodenUnd:'periods and ',
         Serien:'series', jeSerie:'per series, same scale', vs:'vs.', Trend:'Trend', jePeriode:'per period',
         Beitraege:'as contributions, Σ', zChart:': month, cumulative, 12M rolling', keineXY:'No valid X/Y pairs',
         Saeulen:'columns', Linie:'line', jeSerieK:'per series', von:'of', kumPct:'cumulative %',
-        Last30:'LAST 30 DAYS', Avg5:'5D AVG', Daily:'DAILY', Today:'TODAY' },
+        Last30:'LAST 30 DAYS', Avg5:'5D AVG', Daily:'DAILY', Today:'TODAY',
+        refMissing:'pick a reference for the bridge' },
 };
 function CL(key){ return (CHART_LANG[state.chartLang]||CHART_LANG.de)[key] || key; }
 function numLocale(){ return state.chartLang==='en' ? 'en-US' : 'de-DE'; }
@@ -2996,11 +3001,141 @@ function renderKpiStatus(){
   });
   return { svg:s, W, H };
 }
+/* --- KPI-Karten „Brücke": große Hero-Kennzahl je KPI plus eine eingebettete
+       Mini-Varianz-Brücke (Referenz → Δ → AC), die zeigt, WARUM die Abweichung
+       entsteht. Ausrichtung Säulen (vertikal) ODER Balken (horizontal); optional
+       Mehr-Szenarien (2. Referenz als volle Säule/Balken statt Niveau-Marke,
+       sonst Bullet-Niveau-Marke über AC). Gemeinsame Δ%-Notation.            --- */
+function kpiBridgeSlots(r){
+  const hasR2 = state.reference2!=='—';
+  const multi = !!state.kpiMultiScen && hasR2;
+  const slots = [];
+  if(multi) slots.push({kind:'scen', code:state.reference2, val:r.v3});
+  slots.push({kind:'scen', code:state.reference, val:r.v2});
+  slots.push({kind:'delta', val:(isNaN(r.v1)||isNaN(r.v2))?NaN:r.v1-r.v2, from:r.v2, to:r.v1});
+  slots.push({kind:'ac', code:state.primary, val:r.v1});
+  const iRef1 = multi?1:0;
+  return {slots, iRef1, iDelta:iRef1+1, iAc:iRef1+2, multi};
+}
+function renderKpiBridge(){
+  const rows = activeRows();
+  const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
+  const bars = !!state.kpiBars;
+  const multi = !!state.kpiMultiScen && hasR2;
+  const nSlots = 3 + (multi?1:0);
+  const perRow = bars ? 2 : 3;
+  const cw = bars ? 312 : (42 + nSlots*64);
+  const ch = bars ? (58 + nSlots*30 + 18) : 162;
+  const gapX = 16, gapY = 16;
+  const gridRows = Math.ceil(rows.length/perRow);
+  const padL=4, padT=4;
+  const W = padL + perRow*cw + (perRow-1)*gapX + 6;
+  const H = padT + gridRows*ch + (gridRows-1)*gapY + 6;
+  const paintFor = (sl,r) => sl.kind==='delta' ? varPaint(sl.val>=0?'pos':'neg', state.primary, r.fc)
+    : (sl.kind==='ac' ? scenPaint(state.primary, r.fc) : scenPaint(sl.code));
+  let s='';
+  rows.forEach((r,i)=>{
+    const gx = padL + (i%perRow)*(cw+gapX);
+    const gy = padT + Math.floor(i/perRow)*(ch+gapY);
+    const ac = r.v1, ref = r.v2, rv = relOfK(r,'v2');
+    s += '<rect data-i="'+i+'" x="'+gx+'" y="'+gy+'" width="'+cw+'" height="'+ch+'" rx="7" fill="'+WHITE+'" stroke="#e3e1dc" stroke-width="1"/>';
+    /* Status-Akzent links nach Zeichen der Δ% (grün/rot, sonst neutral) */
+    const accent = rv===null ? '#dad8d3' : (rv>=0 ? 'var-pos' : 'var-neg');
+    s += '<rect x="'+gx+'" y="'+(gy+7)+'" width="3.5" height="'+(ch-14)+'" rx="1.75" fill="'+accent+'"/>';
+    s += txt(gx+14, gy+19, r.c, {size:11.5, weight:'bold', fill:CAT});
+    /* großer Primärwert + Einheit + FC-Kennung */
+    const big = fmt(ac);
+    s += '<text x="'+(gx+14)+'" y="'+(gy+46)+'" font-family="'+FONT+'" font-size="'+fsc(22)+'" font-weight="bold" fill="'+(r.fc?FCINK:DARK)+'">'+esc(big)+'</text>';
+    let bx = gx+14+String(big).length*fsc(12.5)+6;
+    if(state.unit){ s += txt(bx, gy+46, state.unit, {size:11, fill:SUB}); bx += String(state.unit).length*fsc(7)+5; }
+    if(r.fc) s += txt(bx, gy+46, 'FC', {size:10, fill:SUB});
+    if(state.highlights.has(i)) s += hiliteEllipse(gx+14+String(big).length*fsc(6.3), gy+39, String(big).length*fsc(6.6)+12, 14);
+    /* Δ%-Pill rechts oben (gegen Referenz 1) */
+    if(rv!==null) s += vpill(gx+cw-10, gy+18, (rv>=0?'▲':'▼')+' '+fmtPct(rv), rv>=0?'var-pos':'var-neg');
+    s += cmark(i, gx+cw-16, gy+ch-12);
+    if(!hasR1){ s += txt(gx+14, gy+ch-30, CL('refMissing'), {size:10.5, fill:SUB}); return; }
+    const {slots, iRef1, iDelta, iAc} = kpiBridgeSlots(r);
+    /* gemeinsame Wert-Achse über alle Slots inkl. 0 */
+    const dv=[0]; slots.forEach(sl=>{ if(sl.kind==='delta'){ if(!isNaN(sl.from))dv.push(sl.from); if(!isNaN(sl.to))dv.push(sl.to); } else if(!isNaN(sl.val)) dv.push(sl.val); });
+    let lo=Math.min(...dv), hi=Math.max(...dv); if(hi===lo) hi=lo+1;
+    const pad=(hi-lo)*0.16; hi+=pad; if(lo<0) lo-=pad;
+    const lvl1 = ref, lvlA = ac;
+    if(bars){
+      /* ---- horizontale Balken ---- */
+      const plotL = gx+58, plotR = gx+cw-18, plotW = plotR-plotL;
+      const rowsTop = gy+58, rowStep = (ch-58-14)/nSlots, barH = Math.min(18, rowStep*0.6);
+      const x = v => plotL + (v-lo)/(hi-lo)*plotW, x0 = x(0);
+      const cY = k => rowsTop + rowStep*(k+0.5);
+      s += '<line x1="'+x0+'" y1="'+rowsTop+'" x2="'+x0+'" y2="'+(gy+ch-14)+'" stroke="#dcdad5" stroke-width="1"/>';
+      const drawH = (xa,xb,yc,p)=>{ const xx=Math.min(xa,xb), ww=Math.abs(xb-xa); return rect(xx, yc-barH/2, Math.max(ww,0.5), barH, p); };
+      slots.forEach((sl,k)=>{
+        const yc=cY(k);
+        if(sl.kind==='delta'){ if(isNaN(sl.from)||isNaN(sl.to)) return; s += drawH(x(sl.from), x(sl.to), yc, paintFor(sl,r)); }
+        else { if(isNaN(sl.val)) return; s += drawH(x0, x(sl.val), yc, paintFor(sl,r)); }
+        /* Zeilen-Label (Szenario / Δ) im linken Gutter */
+        s += txt(gx+14, yc+3.2, sl.kind==='delta'?'Δ':sl.code, {size:9.5, fill:SUB});
+        /* Wert-Label am Balkenende */
+        if(sl.kind==='delta' && !isNaN(sl.val)){
+          const xe = Math.max(x(sl.from), x(sl.to));
+          s += txt(xe+5, yc+3.2, fmt(sl.val,true), {size:9.5, weight:'bold', fill:sl.val>=0?'var-pos':'var-neg'});
+        } else if(!isNaN(sl.val)){
+          s += txt(x(sl.val)+5, yc+3.2, fmt(sl.val), {size:9.5, weight:(sl.kind==='ac'?'bold':'normal'), fill:sl.kind==='ac'?(r.fc?FCINK:DARK):SUB});
+        }
+      });
+      /* Konnektoren (vertikal, am jeweiligen Niveau) */
+      if(!isNaN(lvl1)) s += '<line x1="'+x(lvl1)+'" y1="'+(cY(iRef1)+barH/2)+'" x2="'+x(lvl1)+'" y2="'+(cY(iDelta)-barH/2)+'" stroke="#bdbbb6" stroke-width="1"/>';
+      if(!isNaN(lvlA)) s += '<line x1="'+x(lvlA)+'" y1="'+(cY(iDelta)+barH/2)+'" x2="'+x(lvlA)+'" y2="'+(cY(iAc)-barH/2)+'" stroke="#bdbbb6" stroke-width="1"/>';
+      /* 2. Referenz als Niveau-Marke über der AC-Zeile (nur wenn nicht Mehr-Szenarien) */
+      if(!multi && hasR2 && !isNaN(r.v3)){
+        const xr2=x(r.v3), mp=scenPaint(state.reference2), yc=cY(iAc);
+        const dash=(state.reference2==='PL'||state.reference2==='BU')?' stroke-dasharray="3,2"':'';
+        const mcol=mp.stroke&&mp.stroke!=='none'?mp.stroke:(mp.fill&&mp.fill[0]==='#'?mp.fill:DARK);
+        s += '<line x1="'+xr2+'" y1="'+(yc-barH/2-3)+'" x2="'+xr2+'" y2="'+(yc+barH/2+3)+'" stroke="'+mcol+'" stroke-width="1.4"'+dash+'/>';
+        s += txt(xr2, yc-barH/2-5, state.reference2, {anchor:'middle', size:8, fill:SUB});
+      }
+    } else {
+      /* ---- vertikale Säulen ---- */
+      const bx0 = gx+16, bw = cw-30, plotTop = gy+72, plotBot = gy+ch-26, plotH = plotBot-plotTop;
+      const y = v => plotBot - (v-lo)/(hi-lo)*plotH, y0 = y(0);
+      const slotW = bw/nSlots, barW = Math.min(40, slotW*0.56), cX = k => bx0 + slotW*(k+0.5);
+      s += '<line x1="'+bx0+'" y1="'+y0+'" x2="'+(bx0+bw)+'" y2="'+y0+'" stroke="#dcdad5" stroke-width="1"/>';
+      const drawV = (cx,yTop,yBot,p)=>{ const yy=Math.min(yTop,yBot), hh=Math.abs(yBot-yTop); return rect(cx-barW/2, yy, barW, Math.max(hh,0.5), p); };
+      slots.forEach((sl,k)=>{
+        const cx=cX(k);
+        if(sl.kind==='delta'){ if(isNaN(sl.from)||isNaN(sl.to)) return; s += drawV(cx, y(sl.from), y(sl.to), paintFor(sl,r)); }
+        else { if(isNaN(sl.val)) return; s += drawV(cx, y0, y(sl.val), paintFor(sl,r)); }
+        /* Wert-Label */
+        if(sl.kind==='delta' && !isNaN(sl.val)){
+          const dyMid=(y(sl.from)+y(sl.to))/2;
+          s += txt(cx, dyMid+3, fmt(sl.val,true), {anchor:'middle', size:9.5, weight:'bold', fill:sl.val>=0?'var-pos':'var-neg', halo:true});
+        } else if(!isNaN(sl.val)){
+          s += txt(cx, y(sl.val)-4, fmt(sl.val), {anchor:'middle', size:9.5, weight:(sl.kind==='ac'?'bold':'normal'), fill:sl.kind==='ac'?(r.fc?FCINK:DARK):SUB});
+        }
+        /* Achsenbeschriftung unter den Säulen */
+        s += txt(cx, plotBot+13, sl.kind==='delta'?'Δ':sl.code, {anchor:'middle', size:9, fill:SUB});
+      });
+      /* Konnektoren (horizontal, am jeweiligen Niveau) */
+      if(!isNaN(lvl1)) s += '<line x1="'+(cX(iRef1)+barW/2)+'" y1="'+y(lvl1)+'" x2="'+(cX(iDelta)-barW/2)+'" y2="'+y(lvl1)+'" stroke="#bdbbb6" stroke-width="1"/>';
+      if(!isNaN(lvlA)) s += '<line x1="'+(cX(iDelta)+barW/2)+'" y1="'+y(lvlA)+'" x2="'+(cX(iAc)-barW/2)+'" y2="'+y(lvlA)+'" stroke="#bdbbb6" stroke-width="1"/>';
+      /* 2. Referenz als Niveau-Marke über der AC-Säule (nur wenn nicht Mehr-Szenarien) */
+      if(!multi && hasR2 && !isNaN(r.v3)){
+        const yr2=y(r.v3), mp=scenPaint(state.reference2), cx=cX(iAc);
+        const dash=(state.reference2==='PL'||state.reference2==='BU')?' stroke-dasharray="3,2"':'';
+        const mcol=mp.stroke&&mp.stroke!=='none'?mp.stroke:(mp.fill&&mp.fill[0]==='#'?mp.fill:DARK);
+        s += '<line x1="'+(cx-barW/2-3)+'" y1="'+yr2+'" x2="'+(cx+barW/2+3)+'" y2="'+yr2+'" stroke="'+mcol+'" stroke-width="1.4"'+dash+'/>';
+        s += txt(cx+barW/2+5, yr2+3.2, state.reference2, {size:8, fill:SUB});
+      }
+    }
+  });
+  return { svg:s, W, H };
+}
+
 /* --- KPI-Karten: eine Kennzahl je Karte, Vergleich vs. 1-2 Referenzszenarien.
        Die Δ%-Pins teilen sich eine Skala über alle Karten (Vergleichbarkeit).  --- */
 function renderKpi(){
   if(state.kpiStyle==='trend') return renderKpiTrend();
   if(state.kpiStyle==='status') return renderKpiStatus();
+  if(state.kpiStyle==='bridge') return renderKpiBridge();
   const rows = activeRows();
   const hasR1 = state.reference!=='—';
   const hasR2 = state.reference2!=='—';
@@ -4418,6 +4553,7 @@ function typeIcon(id){
     case 'kpi': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="0.5" y="0.5" width="11" height="17" rx="2" fill="none" stroke="'+g+'"/><rect x="14.5" y="0.5" width="11" height="17" rx="2" fill="none" stroke="'+g+'"/><rect x="2.5" y="3" width="5" height="2.6" fill="'+g+'"/><line x1="2.5" y1="9" x2="7" y2="9" stroke="#469b3c" stroke-width="1.8"/><line x1="2.5" y1="13" x2="6" y2="13" stroke="#c0392b" stroke-width="1.8"/><rect x="16.5" y="3" width="6" height="2.6" fill="'+g+'"/><line x1="16.5" y1="9" x2="22" y2="9" stroke="#469b3c" stroke-width="1.8"/><line x1="16.5" y1="13" x2="20" y2="13" stroke="#469b3c" stroke-width="1.8"/></svg>';
     case 'kpiStatus': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="0.5" y="0.5" width="25" height="17" rx="2" fill="none" stroke="'+g+'"/><rect x="0.5" y="0.5" width="25" height="2.2" rx="1" fill="#469b3c"/><text x="3" y="13" font-size="8.5" font-weight="bold" fill="#469b3c" font-family="Arial">518</text><path d="M19,11 l2,-3 l2,3 Z" fill="#469b3c"/><text x="18" y="16.5" font-size="3.6" fill="'+g+'" font-family="Arial">7%</text></svg>';
     case 'kpiTrend': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="0.5" y="0.5" width="25" height="17" rx="2" fill="none" stroke="'+g+'"/><text x="2.5" y="8" font-size="6.5" font-weight="bold" fill="'+g+'" font-family="Arial">518</text><polyline points="2.5,16 6,14 9,15 12,12.5 15,13.5 18,11 21,12 24,9.5" fill="none" stroke="#d97a93" stroke-width="1" stroke-dasharray="2,1.2"/><polyline points="2.5,15.5 6,14.5 9,14 12,13.5 15,13 18,12.5 21,12 24,11" fill="none" stroke="'+g+'" stroke-width="1.3"/></svg>';
+    case 'kpiBridge': return '<svg width="26" height="18" viewBox="0 0 26 18"><rect x="0.5" y="0.5" width="25" height="17" rx="2" fill="none" stroke="'+g+'"/><text x="2.5" y="7.5" font-size="6" font-weight="bold" fill="'+g+'" font-family="Arial">518</text><line x1="2.5" y1="16.5" x2="23.5" y2="16.5" stroke="#cfcdc8" stroke-width="0.7"/><rect x="3" y="12.5" width="4" height="4" fill="'+l+'"/><rect x="11" y="10.5" width="4" height="2" fill="#469b3c"/><rect x="19" y="10.5" width="4" height="6" fill="'+g+'"/><line x1="7" y1="12.5" x2="11" y2="12.5" stroke="#bbb" stroke-width="0.7"/><line x1="15" y1="10.5" x2="19" y2="10.5" stroke="#bbb" stroke-width="0.7"/></svg>';
     case 'scatter': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="3" y1="0" x2="3" y2="15" stroke="'+g+'" stroke-width="1.2"/><line x1="3" y1="15" x2="26" y2="15" stroke="'+g+'" stroke-width="1.2"/><circle cx="9" cy="10" r="2.6" fill="'+g+'"/><circle cx="15" cy="6" r="1.8" fill="'+g+'"/><circle cx="20" cy="9" r="3.4" fill="'+g+'" fill-opacity="0.7"/><circle cx="12" cy="3.5" r="1.4" fill="'+g+'"/></svg>';
     case 'barskombi': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="2" y1="1" x2="2" y2="17" stroke="'+g+'" stroke-width="1.2"/><rect x="2" y="2" width="8" height="2.8" fill="'+g+'"/><rect x="2" y="7.5" width="5" height="2.8" fill="'+g+'"/><rect x="2" y="13" width="7" height="2.8" fill="'+g+'"/><line x1="15" y1="1" x2="15" y2="17" stroke="'+g+'" stroke-width="1"/><rect x="15" y="2" width="6" height="2.8" fill="#469b3c"/><rect x="11" y="7.5" width="4" height="2.8" fill="#c0392b"/><rect x="15" y="13" width="8" height="2.8" fill="#469b3c"/></svg>';
     case 'table': return '<svg width="26" height="18" viewBox="0 0 26 18"><line x1="0" y1="4" x2="26" y2="4" stroke="'+g+'" stroke-width="1.4"/><text x="0" y="2.6" font-size="3.2" fill="'+g+'" font-family="Arial">AC PY</text><rect x="14" y="6.5" width="7" height="2.6" fill="#469b3c"/><rect x="10" y="11" width="4" height="2.6" fill="#c0392b"/><line x1="14" y1="5.5" x2="14" y2="17" stroke="'+l+'" stroke-width="1.6"/><circle cx="6" cy="7.8" r="1" fill="'+g+'"/><circle cx="6" cy="12.3" r="1" fill="'+g+'"/></svg>';
@@ -4506,6 +4642,7 @@ function renderChips(){
     multiples:'Small Multiples (UN 5.2): ein Mini-Chart je Serie, identische Skala. Die Skalierungslinie liegt in allen Charts auf derselben numerischen Höhe; optional als Scale Band.',
     wfkombi:'Wasserfall-Varianz: vertikaler Σ/Δ-Wasserfall (z. B. GuV) mit Δ'+state.reference+' und Δ'+state.reference+'% je Zeile – Σ-Zeilen werden automatisch parallel kumuliert.',
     kpi:'KPI-Karten: eine Kennzahl je Karte mit großem '+state.primary+'-Wert und Δ/Δ% gegen bis zu zwei Referenzen. Die Δ%-Pins teilen sich eine Skala über alle Karten; die Mini-Achse trägt die Referenz-Notation.',
+    kpiBridge:'KPI-Brücke: große '+state.primary+'-Kennzahl je Karte plus eingebettete Mini-Varianz-Brücke '+state.reference+' → Δ → '+state.primary+' – zeigt, WARUM die Abweichung entsteht. Δ-Säule grün/rot nach Vorzeichen, FC schraffiert; eine 2. Referenz erscheint als Niveau-Marke über der '+state.primary+'-Säule.',
     scatter:'Streudiagramm/Bubbles (EX 1.1-17): X/Y-Wertachsen (zulässige Ausnahme), Mittelwert-Hilfslinien als Quadranten, Bubble-Fläche ∝ Größe. Punkte tragen die Notation des primären Szenarios.',
     table:'Berichtstabelle im Notationsstil: Wertspalten plus Δ‑Balken und Δ%‑Pins in der Zeile.',
   };
@@ -4533,9 +4670,11 @@ function renderChips(){
     kpi:'KPI cards: one measure per card with a large '+state.primary+' value and Δ/Δ% against up to two references. The Δ% pins share one scale across all cards; the mini axis carries the reference notation.',
     scatter:'Scatter/bubbles (EX 1.1-17): X/Y value axes (permitted exception), mean guides as quadrants, bubble area ∝ size. Dots carry the primary scenario notation.',
     table:'Report table in notation style: value columns plus Δ bars and Δ% pins per row.',
+    kpiBridge:'KPI bridge: a large '+state.primary+' value per card plus an embedded mini variance bridge '+state.reference+' → Δ → '+state.primary+' – it shows WHY the deviation arises. The Δ column is green/red by sign, FC hatched; a 2nd reference appears as a level marker over the '+state.primary+' column.',
   };
   const hints = state.uiLang==='en' ? hintsEn : hintsDe;
-  $('#scenHint').textContent = hints[state.type]||'';
+  const hintKey = (state.type==='kpi' && state.kpiStyle==='bridge') ? 'kpiBridge' : state.type;
+  $('#scenHint').textContent = hints[hintKey] || hints[state.type] || '';
 }
 
 /* ---------- Dateneingabe-Tabelle ---------- */
@@ -5291,7 +5430,7 @@ $('#typeBtns').addEventListener('click', e=>{
   else if(id==='wfkombi'){ state.type='wfkombi'; state.wfRefCol=false; }
   else if(id in VIRTUAL_KPI){ state.type='kpi'; state.kpiStyle=VIRTUAL_KPI[id]; }
   else state.type = id;
-  if(needsRef() && state.reference==='—') state.reference='PY';
+  if((needsRef() || (state.type==='kpi' && state.kpiStyle==='bridge')) && state.reference==='—') state.reference='PY';
   state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
   renderAll();
 });
@@ -5424,6 +5563,12 @@ function guideCardsHtml(){
       '<input data-optin="facetField" value="'+esc(state.facetField||'')+'" placeholder="Feld, z. B. Region" style="width:150px">'+
       (state.facetField?('<span style="width:6px"></span>'+[1,2,3,4].map(n=>gchip('facetCols',n,n+' Sp.',(state.facetCols||2)===n)).join('')):'')));
   }
+  if(t==='kpi' && state.kpiStyle==='bridge'){
+    out.push(gcard('Brücke · Darstellung','Ausrichtung der Mini-Varianz-Brücke (Säulen vertikal oder Balken horizontal). Mehr-Szenarien zeigt die 2. Referenz als eigene Säule/Balken statt als Niveau-Marke über dem AC.',
+      gchip('kpiBars','col','Säulen (vertikal)',!state.kpiBars)+gchip('kpiBars','bar','Balken (horizontal)',!!state.kpiBars)+
+      '<span style="flex-basis:100%;height:0"></span>'+
+      gchip('kpiMultiScen','toggle',(state.kpiMultiScen?'✓ ':'')+'2. Referenz als volle Säule'+(state.reference2==='—'?' (Ref 2 setzen)':''),!!state.kpiMultiScen)));
+  }
   out.push(gcard('Farben · Barrierefreiheit','Farbsichere Variante: positives Δ wird Blaugrün statt Grün – besser unterscheidbar bei Rot‑Grün‑Sehschwäche. Negativ bleibt Rot.',
     gchip('cbSafe','toggle',(state.cbSafe?'✓ ':'')+'Farbsicher (Grün → Blaugrün)',!!state.cbSafe)));
   out.push(gcard('Titel & Botschaft','Botschaft (fett), Titel und Untertitel. Quelle und Einheit optional.',
@@ -5492,6 +5637,13 @@ function applyGuideOpt(opt,val){
     case 'zMonthRef': state.zMonthRef = !state.zMonthRef; renderPreview(); break;
     case 'tableDims': state.tableDims = +val; autofillDemo(); renderAll(); break;
     case 'rawVega': state.rawVega = (val==='raw'); renderAll(); break;
+    case 'kpiBars': state.kpiBars = (val==='bar'); renderPreview(); break;
+    case 'kpiMultiScen':
+      state.kpiMultiScen = !state.kpiMultiScen;
+      if(state.kpiMultiScen && state.reference2==='—'){
+        state.reference2 = ['PL','PY','BU','FC'].find(c=>c!==state.primary && c!==state.reference) || 'PL';
+      }
+      autofillDemo(); renderAll(); break;
     case 'bridgePY': state.bridgePY = !state.bridgePY; autofillDemo(); renderAll(); break;
     case 'bridgePYlevel': state.bridgePYlevel = !state.bridgePYlevel; autofillDemo(); renderAll(); break;
     case 'toMulti': if(AS_MULTI_OK.includes(state.type)) morphToMultiples(); break;
@@ -8170,9 +8322,131 @@ function vlKpiTrend(deneb){
     resolve:{scale:{y:'independent', x:'shared'}},
   };
 }
+/* KPI „Brücke": Hero-AC + eingebettete Mini-Varianz-Brücke (Ref → Δ → AC) je
+   Karte. Ausrichtung Säulen (vertikal, Wertachse = y) ODER Balken (horizontal,
+   Wertachse = x); je Slot eine feste Pixel-Hauptachse + gemeinsame quantitative
+   Wert-Skala (zero:true) richtet die Balken aus. Mehr-Szenarien = 2. Referenz
+   als zusätzlicher voller Slot; sonst Niveau-Marke über der AC-Säule. */
+function vlKpiBridge(deneb){
+  const C = vCol();
+  const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
+  const bars = !!state.kpiBars, multi = !!state.kpiMultiScen && hasR2;
+  const nSlots = 3 + (multi?1:0);
+  const values = activeRows().map(r=>{
+    const o = {k:r.c, p:isNaN(r.v1)?null:r.v1, r:isNaN(r.v2)?null:r.v2, fc:!!r.fc, Lp:fmt(r.v1), Lr:fmt(r.v2)};
+    o.dlt = (isNaN(r.v1)||isNaN(r.v2))?null:r.v1-r.v2; o.Ldlt = fmt(r.v1-r.v2,true);
+    o.mid = (o.dlt===null)?null:(r.v2+r.v1)/2;
+    o.dEnd = (isNaN(r.v1)||isNaN(r.v2))?null:Math.max(r.v1,r.v2);
+    o.rv = relOfK(r,'v2'); o.Lrv = o.rv===null?'n.a.':fmtPct(o.rv);
+    o.T = o.dlt===null?'':(o.dlt>=0?'▲':'▼');
+    if(hasR2){ o.r2 = isNaN(r.v3)?null:r.v3; o.Lr2 = fmt(r.v3); }
+    return o;
+  });
+  const tf = deneb ? [
+    {calculate:'datum.p - datum.r', as:'dlt'},
+    {calculate:'(datum.r + datum.p)/2', as:'mid'},
+    {calculate:'max(datum.r, datum.p)', as:'dEnd'},
+    {calculate:'datum.r > 0 ? (datum.p - datum.r)/datum.r*100 : null', as:'rv'},
+    {calculate:"(datum.p - datum.r) >= 0 ? '▲' : '▼'", as:'T'},
+  ] : undefined;
+  /* Brücken-Slots: [opt. Ref2] · Ref1 · Δ · AC */
+  const slots = [];
+  if(multi) slots.push({kind:'scen', code:state.reference2, vfield:'r2', Lf:'Lr2'});
+  slots.push({kind:'scen', code:state.reference, vfield:'r', Lf:'Lr'});
+  slots.push({kind:'delta'});
+  slots.push({kind:'ac', code:state.primary, vfield:'p', Lf:'Lp'});
+  const iRef1 = multi?1:0, iDelta = iRef1+1, iAc = iRef1+2;
+  /* Geometrie + Achsen-Helfer je Ausrichtung */
+  let Wc, Hc, barThick, scaleObj, center, zA, zB;
+  if(bars){
+    Wc = 214; Hc = 56 + nSlots*26 + 14; barThick = 16;
+    const plotL=58, plotR=Wc-16, rowsTop=52, rowStep=(Hc-52-12)/nSlots;
+    scaleObj = {zero:true, nice:false, range:[plotL, plotR]};
+    center = k => rowsTop + rowStep*(k+0.5); zA = rowsTop; zB = Hc-12;
+  } else {
+    Wc = 40 + nSlots*44; Hc = 132;
+    const plotTop=50, plotBot=Hc-18, leftPad=24, usable=Wc-40;
+    barThick = Math.min(28, usable/nSlots*0.56);
+    scaleObj = {zero:true, nice:false, range:[plotBot, plotTop]};
+    center = k => leftPad + usable*(k+0.5)/nSlots; zA = 16; zB = Wc-8;
+  }
+  const crossCh = bars?'x':'y', mainCh = bars?'y':'x', half = barThick/2;
+  const cross      = f => ({[crossCh]:{field:f, type:'quantitative', axis:null, scale:scaleObj}});
+  const crossDatum = d => ({[crossCh]:{datum:d, type:'quantitative', scale:scaleObj}});
+  const cross2     = f => ({[crossCh+'2']:{field:f}});
+  const cross2zero = () => ({[crossCh+'2']:{datum:0}});
+  const mainAt     = px => ({[mainCh]:{value:px}});
+  const mainSeg    = (a,b) => ({[mainCh]:{value:a}, [mainCh+'2']:{value:b}});
+  const layer = [];
+  /* Nulllinie */
+  layer.push({mark:{type:'rule', color:'#dcdad5', strokeWidth:1}, encoding:Object.assign({}, crossDatum(0), mainSeg(zA, zB))});
+  /* Säulen/Balken je Slot */
+  slots.forEach((sl,k)=>{
+    if(sl.kind==='delta'){
+      layer.push({mark:{type:'bar', size:barThick},
+        encoding:Object.assign({}, mainAt(center(k)), cross('r'), cross2('p'),
+          {fill:{condition:{test:'datum.dlt >= 0', value:C.pos}, value:C.neg}})});
+    } else if(sl.kind==='ac'){
+      const sc = vScen(sl.code);
+      layer.push({mark:{type:'bar', size:barThick},
+        encoding:Object.assign({}, mainAt(center(k)), cross('p'), cross2zero(), {
+          fill:{condition:{test:'datum.fc', value:'#ffffff'}, value:sc.fill},
+          stroke:{condition:{test:'datum.fc', value:DARK}, value:(sc.stroke||'transparent')},
+          strokeWidth:{condition:{test:'datum.fc', value:1.2}, value:(sc.stroke?1.3:0)}})});
+    } else {
+      const sc = vScen(sl.code);
+      layer.push({mark:{type:'bar', size:barThick, fill:sc.fill, stroke:sc.stroke||null, strokeWidth:sc.stroke?1.3:0, strokeDash:sc.dash||null},
+        encoding:Object.assign({}, mainAt(center(k)), cross(sl.vfield), cross2zero())});
+    }
+  });
+  /* Konnektoren am jeweiligen Niveau */
+  layer.push({mark:{type:'rule', color:'#bdbbb6', strokeWidth:1}, encoding:Object.assign({}, cross('r'), mainSeg(center(iRef1)+half, center(iDelta)-half))});
+  layer.push({mark:{type:'rule', color:'#bdbbb6', strokeWidth:1}, encoding:Object.assign({}, cross('p'), mainSeg(center(iDelta)+half, center(iAc)-half))});
+  /* Wert-Labels */
+  slots.forEach((sl,k)=>{
+    if(sl.kind==='delta'){
+      const m = bars ? {type:'text', dx:5, align:'left', baseline:'middle', fontSize:9.5, fontWeight:'bold', font:'Arial'}
+                     : {type:'text', dy:2, align:'center', fontSize:9.5, fontWeight:'bold', font:'Arial'};
+      layer.push({mark:m, encoding:Object.assign({}, mainAt(center(k)), cross(bars?'dEnd':'mid'),
+        {text:vLab(deneb,'dlt','Ldlt','+'+vNum()), color:{condition:{test:'datum.dlt >= 0', value:C.pos}, value:C.neg}})});
+    } else {
+      const w = sl.kind==='ac'?'bold':'normal', col = sl.kind==='ac'?DARK:SUB;
+      const m = bars ? {type:'text', dx:5, align:'left', baseline:'middle', fontSize:9.5, fontWeight:w, font:'Arial', color:col}
+                     : {type:'text', dy:-5, baseline:'bottom', align:'center', fontSize:9.5, fontWeight:w, font:'Arial', color:col};
+      layer.push({mark:m, encoding:Object.assign({}, mainAt(center(k)), cross(sl.vfield), {text:vLab(deneb,sl.vfield,sl.Lf,vNum())})});
+    }
+  });
+  /* Achsen-/Zeilen-Beschriftung */
+  slots.forEach((sl,k)=>{
+    const lab = sl.kind==='delta'?'Δ':sl.code;
+    if(bars) layer.push({mark:{type:'text', x:6, y:center(k), align:'left', baseline:'middle', fontSize:9, font:'Arial', color:SUB}, encoding:{text:{value:lab}}});
+    else     layer.push({mark:{type:'text', x:center(k), y:Hc-6, align:'center', fontSize:9, font:'Arial', color:SUB}, encoding:{text:{value:lab}}});
+  });
+  /* 2. Referenz als Niveau-Marke (nur wenn nicht Mehr-Szenarien) */
+  if(!multi && hasR2){
+    const sR2 = vScen(state.reference2), r2col = sR2.stroke || sR2.fill || DARK, cAc = center(iAc);
+    layer.push({mark:{type:'rule', color:r2col, strokeWidth:1.4, strokeDash:sR2.dash||null},
+      encoding:Object.assign({}, cross('r2'), mainSeg(cAc-half-3, cAc+half+3))});
+    const m = bars ? {type:'text', dy:-(half+4), align:'center', baseline:'bottom', fontSize:8, font:'Arial', color:SUB}
+                   : {type:'text', dx:half+5, align:'left', baseline:'middle', fontSize:8, font:'Arial', color:SUB};
+    layer.push({mark:m, encoding:Object.assign({}, mainAt(cAc), cross('r2'), {text:{value:state.reference2}})});
+  }
+  /* Hero-AC + Δ% oben + FC-Kennung (pixel) */
+  layer.push(
+    {mark:{type:'text', x:4, y:8, align:'left', baseline:'top', fontSize:22, fontWeight:'bold', font:'Arial', color:DARK}, encoding:{text:vLab(deneb,'p','Lp',vNum())}},
+    {mark:{type:'text', x:Wc-46, y:9, align:'left', baseline:'top', fontSize:11, fontWeight:'bold', font:'Arial'}, encoding:{text:{field:'T', type:'nominal'}, color:{condition:{test:'datum.dlt >= 0', value:C.pos}, value:C.neg}}},
+    {mark:{type:'text', x:Wc-36, y:9, align:'left', baseline:'top', fontSize:11, fontWeight:'bold', font:'Arial'}, encoding:{text:vLab(deneb,'rv','Lrv','+.1f'), color:{condition:{test:'datum.dlt >= 0', value:C.pos}, value:C.neg}}},
+    {transform:[{filter:'datum.fc'}], mark:{type:'text', x:4, y:32, align:'left', baseline:'top', fontSize:9.5, font:'Arial', color:SUB}, encoding:{text:{value:'FC'}}}
+  );
+  return { data:vData(values,deneb), transform:tf, columns: bars?2:3,
+    facet:{field:'k', type:'nominal', sort: deneb? null : values.map(v=>v.k),
+      header:{title:null, labelFont:'Arial', labelFontSize:11.5, labelFontWeight:'bold', labelColor:'#555555', labelAnchor:'start', labelPadding:4}},
+    spec:{ width:Wc, height:Hc, view:{stroke:'#e3e1dc', cornerRadius:6}, layer } };
+}
 function vlKpi(deneb){
   if(state.kpiStyle==='trend') return vlKpiTrend(deneb);
   if(state.kpiStyle==='status') return vlKpiStatus(deneb);
+  if(state.kpiStyle==='bridge') return vlKpiBridge(deneb);
   const C = vCol();
   const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
   const values = activeRows().map(r=>{
@@ -8896,7 +9170,7 @@ function serialize(){
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef, tableDims:state.tableDims, rawVega:state.rawVega,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
-      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, fontScale:state.fontScale, fromType:state.fromType,
+      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
       target:state.target, negParens:state.negParens, annos:state.annos,
       vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,

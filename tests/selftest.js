@@ -32,11 +32,11 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
   const ok  = (name, cond, detail)=> checks.push({name, pass:!!cond, detail: cond ? '' : (detail||'')});
 
   /* alle Typ-IDs inkl. virtueller KPI-Kacheln */
-  const KPI = {kpi:'ibcs', kpiStatus:'status', kpiTrend:'trend'};
+  const KPI = {kpi:'ibcs', kpiStatus:'status', kpiTrend:'trend', kpiBridge:'bridge'};
   const TYPES = ['columns','colline','kombi','absvar','relvar','line','slope','fan','zchart',
     'stackcol','waterfall','bridge','varint','bars','bullet','pareto','dotplot','tornado',
     'barskombi','table','wfkombi','stackbar','multiples','sparktable','heatmap','marimekko','boxplot',
-    'kpi','kpiStatus','kpiTrend','scatter','tree'];
+    'kpi','kpiStatus','kpiTrend','kpiBridge','scatter','tree'];
   /* Typen ohne Vega-/Deneb-Template (bewusst nur SVG/PNG) */
   const SVG_ONLY = ['slope','fan','marimekko','tree'];
 
@@ -52,7 +52,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
   const clone = x => JSON.parse(JSON.stringify(x));
   const $t = id => (document.getElementById(id)||{}).value;
   const snap = {
-    type:state.type, kpiStyle:state.kpiStyle, primary:state.primary,
+    type:state.type, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, primary:state.primary,
     reference:state.reference, reference2:state.reference2,
     rows:clone(state.rows), srows:clone(state.srows), series:clone(state.series),
     wrows:clone(state.wrows),
@@ -63,7 +63,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
   };
   const restore = ()=>{
-    Object.assign(state, {type:snap.type, kpiStyle:snap.kpiStyle, primary:snap.primary,
+    Object.assign(state, {type:snap.type, kpiStyle:snap.kpiStyle, kpiBars:snap.kpiBars, kpiMultiScen:snap.kpiMultiScen, primary:snap.primary,
       reference:snap.reference, reference2:snap.reference2,
       rows:clone(snap.rows), srows:clone(snap.srows), series:clone(snap.series),
       wrows:clone(snap.wrows), unit:snap.unit, unitScale:snap.unitScale,
@@ -626,6 +626,40 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       ok('M · kpiTrend · Template kompiliert (baked=0) + dim/serie/v deklariert',
          ktc && tplBakedRows(denebTemplate())===0 && denebTemplate().usermeta.dataset.length===3);
       state.kpiStyle='ibcs'; state.varSel={a1:true,r1:true,a2:true,r2:true};
+    }
+
+    /* === X) KPI-Brücke: Hero + Mini-Varianz-Brücke (Ref→Δ→AC) je Karte == */
+    {
+      state.type='kpi'; state.kpiStyle='bridge'; state.primary='AC'; state.reference='PY'; state.reference2='—';
+      state.kpiBars=false; state.kpiMultiScen=false;
+      state.rows=[{c:'Umsatz',v1:120,v2:100,v3:NaN,fc:false},{c:'Marge',v1:18,v2:22,v3:NaN,fc:false}];
+      renderAll();
+      const kbHtml=chartHtml();
+      ok('X · kpiBridge · rendert Brücken-Achse (Δ) ohne NaN',
+         /Δ/.test(kbHtml) && !/NaN/.test(kbHtml) && hasSvg());
+      const kbSp=vegaSpec(false);
+      ok('X · kpiBridge · eigenes Facet-Template (3 Säulen via y2)',
+         !!kbSp.facet && JSON.stringify(kbSp).includes('"y2"'));
+      let kbc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; kbc=!!VL.compile(b).spec; }catch(e){}
+      ok('X · kpiBridge · Template kompiliert (baked=0)',
+         kbc && tplBakedRows(denebTemplate())===0);
+      /* 2. Referenz als Niveau-Marke über der AC-Säule */
+      state.reference2='PL'; state.rows[0].v3=130; state.rows[1].v3=19; renderAll();
+      ok('X · kpiBridge · 2. Referenz als Niveau-Marke (PL sichtbar)', /PL/.test(chartHtml()));
+      /* X2 · Balken-Ausrichtung (horizontal) */
+      state.kpiBars=true; renderAll();
+      ok('X · kpiBridge · Balken-Variante rendert ohne NaN', hasSvg() && !/NaN/.test(chartHtml()));
+      let kbb=false; try{ const b=clone(denebTemplate()); delete b.usermeta; kbb=!!VL.compile(b).spec; }catch(e){}
+      ok('X · kpiBridge · Balken-Template kompiliert (x2 statt y2)',
+         kbb && JSON.stringify(vegaSpec(false)).includes('"x2"') && tplBakedRows(denebTemplate())===0);
+      /* X3 · Mehr-Szenarien (Ref2 als voller Slot, kein Niveau-Mark mehr) */
+      state.kpiBars=false; state.kpiMultiScen=true; renderAll();
+      const kbm=vegaSpec(false);
+      ok('X · kpiBridge · Mehr-Szenarien: 4 Slots im Template (Ref2 voll)',
+         (JSON.stringify(kbm).match(/"type":"bar"/g)||[]).length>=4);
+      let kbmc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; kbmc=!!VL.compile(b).spec; }catch(e){}
+      ok('X · kpiBridge · Mehr-Szenarien-Template kompiliert', kbmc && tplBakedRows(denebTemplate())===0);
+      state.kpiStyle='ibcs'; state.reference2='—'; state.kpiBars=false; state.kpiMultiScen=false;
     }
 
     /* === N) Korrelations-Scatter: Trendlinie + Facetten je Gruppe ====== */
