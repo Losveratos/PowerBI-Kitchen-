@@ -52,7 +52,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
   const clone = x => JSON.parse(JSON.stringify(x));
   const $t = id => (document.getElementById(id)||{}).value;
   const snap = {
-    type:state.type, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, kpiSingle:state.kpiSingle, kpiNoTitle:state.kpiNoTitle, primary:state.primary,
+    type:state.type, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, kpiSingle:state.kpiSingle, kpiNoTitle:state.kpiNoTitle, kpiNoLabels:state.kpiNoLabels, primary:state.primary,
     reference:state.reference, reference2:state.reference2,
     rows:clone(state.rows), srows:clone(state.srows), series:clone(state.series),
     wrows:clone(state.wrows),
@@ -63,7 +63,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
   };
   const restore = ()=>{
-    Object.assign(state, {type:snap.type, kpiStyle:snap.kpiStyle, kpiBars:snap.kpiBars, kpiMultiScen:snap.kpiMultiScen, kpiSingle:snap.kpiSingle, kpiNoTitle:snap.kpiNoTitle, primary:snap.primary,
+    Object.assign(state, {type:snap.type, kpiStyle:snap.kpiStyle, kpiBars:snap.kpiBars, kpiMultiScen:snap.kpiMultiScen, kpiSingle:snap.kpiSingle, kpiNoTitle:snap.kpiNoTitle, kpiNoLabels:snap.kpiNoLabels, primary:snap.primary,
       reference:snap.reference, reference2:snap.reference2,
       rows:clone(snap.rows), srows:clone(snap.srows), series:clone(snap.series),
       wrows:clone(snap.wrows), unit:snap.unit, unitScale:snap.unitScale,
@@ -674,7 +674,26 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       ok('X · kpiIBCS · Einzelkarte: kein Facet', !vegaSpec(false).facet);
       state.kpiStyle='status'; renderAll();
       ok('X · kpiStatus · Einzelkarte: kein Facet', !vegaSpec(false).facet);
-      state.kpiStyle='ibcs'; state.reference2='—'; state.kpiBars=false; state.kpiMultiScen=false; state.kpiSingle=false; state.kpiNoTitle=false;
+      /* X6 · Beschriftung ausblenden (Text in Power BI ergänzen) */
+      state.kpiStyle='bridge'; state.kpiSingle=false; state.kpiNoTitle=false; state.kpiBars=false; state.kpiMultiScen=false;
+      state.reference='PY'; state.reference2='PL';
+      state.rows=[{c:'Umsatz',v1:120,v2:100,v3:130,fc:false},{c:'Marge',v1:18,v2:22,v3:19,fc:false}];
+      state.kpiNoLabels=false; renderAll();
+      const lblOn=(chartHtml().match(/<text/g)||[]).length;
+      const tplOn=(JSON.stringify(vegaSpec(false)).match(/"type":"text"/g)||[]).length;
+      state.kpiNoLabels=true; renderAll();
+      const lblOff=(chartHtml().match(/<text/g)||[]).length;
+      const tplOff=(JSON.stringify(vegaSpec(false)).match(/"type":"text"/g)||[]).length;
+      ok('X · kpiBridge · Beschriftung ausblenden reduziert SVG-Labels', lblOff<lblOn && lblOff>0);
+      ok('X · kpiBridge · Beschriftung ausblenden reduziert Template-Text-Marks', tplOff<tplOn);
+      let nlc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; nlc=!!VL.compile(b).spec; }catch(e){}
+      ok('X · kpiBridge · Template ohne Beschriftung kompiliert (baked=0)', nlc && tplBakedRows(denebTemplate())===0);
+      /* X7 · Wizard empfiehlt KPI-Stile nach Fokus */
+      ok('X · Wizard · KPI+Abweichung → Brücke',
+         (()=>{ const r=wizRecommend({dim:'kpi',focus:'variance',ref:'PY'}); return r.type==='kpi'&&r.style==='bridge'; })());
+      ok('X · Wizard · KPI+Trend → Trend', wizRecommend({dim:'kpi',focus:'trend',ref:'PY'}).style==='trend');
+      ok('X · Wizard · KPI+Werte → IBCS', wizRecommend({dim:'kpi',focus:'values',ref:'PY'}).style==='ibcs');
+      state.kpiStyle='ibcs'; state.reference2='—'; state.kpiBars=false; state.kpiMultiScen=false; state.kpiSingle=false; state.kpiNoTitle=false; state.kpiNoLabels=false;
     }
 
     /* === N) Korrelations-Scatter: Trendlinie + Facetten je Gruppe ====== */

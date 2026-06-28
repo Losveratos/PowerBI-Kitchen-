@@ -908,6 +908,7 @@ const state = {
   kpiMultiScen:false,   /* KPI-Brücke: 2. Referenz als volle Szenario-Säule statt Niveau-Marke */
   kpiSingle:false,      /* KPI: Einzelkarte ohne Kategorie (statt Small Multiples je Kategorie) */
   kpiNoTitle:false,     /* KPI: Titel/Botschaft ausblenden (saubere Power-BI-Karte) */
+  kpiNoLabels:false,    /* KPI: Beschriftung (Kategorie/Achsen/Wert-Labels) ausblenden – Text in Power BI ergänzen */
   fontScale:1,
   unit:'',
   unitScale:'auto',
@@ -3027,6 +3028,7 @@ function renderKpiBridge(){
   const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
   const bars = !!state.kpiBars;
   const multi = !!state.kpiMultiScen && hasR2;
+  const noLabels = !!state.kpiNoLabels;
   const nSlots = 3 + (multi?1:0);
   const perRow = Math.min(bars ? 2 : 3, Math.max(1, rows.length));
   const cw = bars ? 312 : (42 + nSlots*64);
@@ -3047,7 +3049,7 @@ function renderKpiBridge(){
     /* Status-Akzent links nach Zeichen der Δ% (grün/rot, sonst neutral) */
     const accent = rv===null ? '#dad8d3' : (rv>=0 ? 'var-pos' : 'var-neg');
     s += '<rect x="'+gx+'" y="'+(gy+7)+'" width="3.5" height="'+(ch-14)+'" rx="1.75" fill="'+accent+'"/>';
-    s += txt(gx+14, gy+19, r.c, {size:11.5, weight:'bold', fill:CAT});
+    if(!noLabels) s += txt(gx+14, gy+19, r.c, {size:11.5, weight:'bold', fill:CAT});
     /* großer Primärwert + Einheit + FC-Kennung */
     const big = fmt(ac);
     s += '<text x="'+(gx+14)+'" y="'+(gy+46)+'" font-family="'+FONT+'" font-size="'+fsc(22)+'" font-weight="bold" fill="'+(r.fc?FCINK:DARK)+'">'+esc(big)+'</text>';
@@ -3077,6 +3079,7 @@ function renderKpiBridge(){
         const yc=cY(k);
         if(sl.kind==='delta'){ if(isNaN(sl.from)||isNaN(sl.to)) return; s += drawH(x(sl.from), x(sl.to), yc, paintFor(sl,r)); }
         else { if(isNaN(sl.val)) return; s += drawH(x0, x(sl.val), yc, paintFor(sl,r)); }
+        if(noLabels) return;
         /* Zeilen-Label (Szenario / Δ) im linken Gutter */
         s += txt(gx+14, yc+3.2, sl.kind==='delta'?'Δ':sl.code, {size:9.5, fill:SUB});
         /* Wert-Label am Balkenende */
@@ -3096,7 +3099,7 @@ function renderKpiBridge(){
         const dash=(state.reference2==='PL'||state.reference2==='BU')?' stroke-dasharray="3,2"':'';
         const mcol=mp.stroke&&mp.stroke!=='none'?mp.stroke:(mp.fill&&mp.fill[0]==='#'?mp.fill:DARK);
         s += '<line x1="'+xr2+'" y1="'+(yc-barH/2-3)+'" x2="'+xr2+'" y2="'+(yc+barH/2+3)+'" stroke="'+mcol+'" stroke-width="1.4"'+dash+'/>';
-        s += txt(xr2, yc-barH/2-5, state.reference2, {anchor:'middle', size:8, fill:SUB});
+        if(!noLabels) s += txt(xr2, yc-barH/2-5, state.reference2, {anchor:'middle', size:8, fill:SUB});
       }
     } else {
       /* ---- vertikale Säulen ---- */
@@ -3109,6 +3112,7 @@ function renderKpiBridge(){
         const cx=cX(k);
         if(sl.kind==='delta'){ if(isNaN(sl.from)||isNaN(sl.to)) return; s += drawV(cx, y(sl.from), y(sl.to), paintFor(sl,r)); }
         else { if(isNaN(sl.val)) return; s += drawV(cx, y0, y(sl.val), paintFor(sl,r)); }
+        if(noLabels) return;
         /* Wert-Label */
         if(sl.kind==='delta' && !isNaN(sl.val)){
           const dyMid=(y(sl.from)+y(sl.to))/2;
@@ -3128,7 +3132,7 @@ function renderKpiBridge(){
         const dash=(state.reference2==='PL'||state.reference2==='BU')?' stroke-dasharray="3,2"':'';
         const mcol=mp.stroke&&mp.stroke!=='none'?mp.stroke:(mp.fill&&mp.fill[0]==='#'?mp.fill:DARK);
         s += '<line x1="'+(cx-barW/2-3)+'" y1="'+yr2+'" x2="'+(cx+barW/2+3)+'" y2="'+yr2+'" stroke="'+mcol+'" stroke-width="1.4"'+dash+'/>';
-        s += txt(cx+barW/2+5, yr2+3.2, state.reference2, {size:8, fill:SUB});
+        if(!noLabels) s += txt(cx+barW/2+5, yr2+3.2, state.reference2, {size:8, fill:SUB});
       }
     }
   });
@@ -5572,10 +5576,11 @@ function guideCardsHtml(){
       (state.facetField?('<span style="width:6px"></span>'+[1,2,3,4].map(n=>gchip('facetCols',n,n+' Sp.',(state.facetCols||2)===n)).join('')):'')));
   }
   if(t==='kpi'){
-    out.push(gcard('Karte · Layout','Einzelkarte ohne Kategorie (ideal als Power-BI-Karten-Visual – nur Kennzahlen, kein Dimensionsfeld nötig) oder eine Karte je Kategorie (Small Multiples). Titel/Botschaft lassen sich für die Karte ausblenden (Power BI bringt eigenen Visual-Titel mit).',
+    out.push(gcard('Karte · Layout','Einzelkarte ohne Kategorie (ideal als Power-BI-Karten-Visual – nur Kennzahlen, kein Dimensionsfeld nötig) oder eine Karte je Kategorie (Small Multiples). Titel/Botschaft und die Karten-Beschriftung lassen sich getrennt ausblenden – z. B. um in Power BI eigene Textfelder darüberzulegen.',
       gchip('kpiSingle','single','Einzelkarte (ohne Kategorie)',!!state.kpiSingle)+gchip('kpiSingle','cat','Je Kategorie (Small Multiples)',!state.kpiSingle)+
       '<span style="flex-basis:100%;height:0"></span>'+
-      gchip('kpiNoTitle','toggle',(state.kpiNoTitle?'✓ ':'')+'Titel/Botschaft ausblenden',!!state.kpiNoTitle)));
+      gchip('kpiNoTitle','toggle',(state.kpiNoTitle?'✓ ':'')+'Titel/Botschaft ausblenden',!!state.kpiNoTitle)+
+      gchip('kpiNoLabels','toggle',(state.kpiNoLabels?'✓ ':'')+'Beschriftung ausblenden',!!state.kpiNoLabels)));
   }
   if(t==='kpi' && state.kpiStyle==='bridge'){
     out.push(gcard('Brücke · Darstellung','Ausrichtung der Mini-Varianz-Brücke (Säulen vertikal oder Balken horizontal). Mehr-Szenarien zeigt die 2. Referenz als eigene Säule/Balken statt als Niveau-Marke über dem AC.',
@@ -5654,6 +5659,7 @@ function applyGuideOpt(opt,val){
     case 'kpiBars': state.kpiBars = (val==='bar'); renderPreview(); break;
     case 'kpiSingle': state.kpiSingle = (val==='single'); renderAll(); break;
     case 'kpiNoTitle': state.kpiNoTitle = !state.kpiNoTitle; renderAll(); break;
+    case 'kpiNoLabels': state.kpiNoLabels = !state.kpiNoLabels; renderPreview(); break;
     case 'kpiMultiScen':
       state.kpiMultiScen = !state.kpiMultiScen;
       if(state.kpiMultiScen && state.reference2==='—'){
@@ -8360,7 +8366,7 @@ function vlKpiTrend(deneb){
 function vlKpiBridge(deneb){
   const C = vCol();
   const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
-  const bars = !!state.kpiBars, multi = !!state.kpiMultiScen && hasR2;
+  const bars = !!state.kpiBars, multi = !!state.kpiMultiScen && hasR2, noLabels = !!state.kpiNoLabels;
   const nSlots = 3 + (multi?1:0);
   const values = activeRows().map(r=>{
     const o = {k:r.c, p:isNaN(r.v1)?null:r.v1, r:isNaN(r.v2)?null:r.v2, fc:!!r.fc, Lp:fmt(r.v1), Lr:fmt(r.v2)};
@@ -8433,7 +8439,7 @@ function vlKpiBridge(deneb){
   layer.push({mark:{type:'rule', color:'#bdbbb6', strokeWidth:1}, encoding:Object.assign({}, cross('r'), mainSeg(center(iRef1)+half, center(iDelta)-half))});
   layer.push({mark:{type:'rule', color:'#bdbbb6', strokeWidth:1}, encoding:Object.assign({}, cross('p'), mainSeg(center(iDelta)+half, center(iAc)-half))});
   /* Wert-Labels */
-  slots.forEach((sl,k)=>{
+  if(!noLabels) slots.forEach((sl,k)=>{
     if(sl.kind==='delta'){
       const m = bars ? {type:'text', dx:5, align:'left', baseline:'middle', fontSize:9.5, fontWeight:'bold', font:'Arial'}
                      : {type:'text', dy:2, align:'center', fontSize:9.5, fontWeight:'bold', font:'Arial'};
@@ -8447,7 +8453,7 @@ function vlKpiBridge(deneb){
     }
   });
   /* Achsen-/Zeilen-Beschriftung */
-  slots.forEach((sl,k)=>{
+  if(!noLabels) slots.forEach((sl,k)=>{
     const lab = sl.kind==='delta'?'Δ':sl.code;
     if(bars) layer.push({mark:{type:'text', x:6, y:center(k), align:'left', baseline:'middle', fontSize:9, font:'Arial', color:SUB}, encoding:{text:{value:lab}}});
     else     layer.push({mark:{type:'text', x:center(k), y:Hc-6, align:'center', fontSize:9, font:'Arial', color:SUB}, encoding:{text:{value:lab}}});
@@ -8457,9 +8463,11 @@ function vlKpiBridge(deneb){
     const sR2 = vScen(state.reference2), r2col = sR2.stroke || sR2.fill || DARK, cAc = center(iAc);
     layer.push({mark:{type:'rule', color:r2col, strokeWidth:1.4, strokeDash:sR2.dash||null},
       encoding:Object.assign({}, cross('r2'), mainSeg(cAc-half-3, cAc+half+3))});
-    const m = bars ? {type:'text', dy:-(half+4), align:'center', baseline:'bottom', fontSize:8, font:'Arial', color:SUB}
-                   : {type:'text', dx:half+5, align:'left', baseline:'middle', fontSize:8, font:'Arial', color:SUB};
-    layer.push({mark:m, encoding:Object.assign({}, mainAt(cAc), cross('r2'), {text:{value:state.reference2}})});
+    if(!noLabels){
+      const m = bars ? {type:'text', dy:-(half+4), align:'center', baseline:'bottom', fontSize:8, font:'Arial', color:SUB}
+                     : {type:'text', dx:half+5, align:'left', baseline:'middle', fontSize:8, font:'Arial', color:SUB};
+      layer.push({mark:m, encoding:Object.assign({}, mainAt(cAc), cross('r2'), {text:{value:state.reference2}})});
+    }
   }
   /* Hero-AC + Δ% oben + FC-Kennung (pixel) */
   layer.push(
@@ -9208,7 +9216,7 @@ function serialize(){
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef, tableDims:state.tableDims, rawVega:state.rawVega,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
-      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, kpiSingle:state.kpiSingle, kpiNoTitle:state.kpiNoTitle, fontScale:state.fontScale, fromType:state.fromType,
+      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, kpiSingle:state.kpiSingle, kpiNoTitle:state.kpiNoTitle, kpiNoLabels:state.kpiNoLabels, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
       target:state.target, negParens:state.negParens, annos:state.annos,
       vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,
@@ -9413,7 +9421,14 @@ $('#helpClose').addEventListener('click', ()=> $('#helpDlg').close());
 const wizDlg = $('#wizDlg');
 const wizA = { dim:'time', focus:'values', ref:'PY' };
 function wizRecommend(a){
-  if(a.dim==='kpi')  return { type:'kpi', why:'Wenige Kennzahlen im Überblick: große Zahl je Karte, Δ und Δ% gegen bis zu zwei Referenzen.' };
+  if(a.dim==='kpi'){
+    /* KPI-Stil je nach Fokus; als Power-BI-Karte: „Einzelkarte ohne Kategorie“ im Optionen-Kasten */
+    if(a.focus==='variance'||a.focus==='drivers')
+      return { type:'kpi', style:'bridge', why:'Wenige Kennzahlen, aber das WARUM zählt: KPI-Karte mit eingebetteter Mini-Varianz-Brücke (Referenz → Δ → AC). Als Einzelkarte ohne Kategorie direkt als Power-BI-Karte nutzbar.', alt:'„Status“ für eine große, nach Abweichung eingefärbte Zahl' };
+    if(a.focus==='trend')
+      return { type:'kpi', style:'trend', why:'Kennzahl plus Entwicklung: große Zahl je Karte mit 30-Tage-Mini-Trend (Tagesreihe aus der Serien-Tabelle).' };
+    return { type:'kpi', style:'ibcs', why:'Wenige Kennzahlen im Überblick: große Zahl je Karte, Δ und Δ% gegen bis zu zwei Referenzen. Als Einzelkarte (ohne Kategorie) direkt als Power-BI-Karte nutzbar.', alt:'„Brücke“, wenn die Abweichung erklärt werden soll' };
+  }
   if(a.dim==='corr') return { type:'scatter', why:'Zusammenhang zweier Größen: Streudiagramm mit Mittelwert-Quadranten (EX 1.1-17), Bubble-Größe optional.' };
   if(a.dim==='time'){
     if(a.focus==='variance') return { type:'kombi', why:'Klassische Varianzanalyse (vgl. IBCS® Template 03): Δ%-Pins und Δ-Säulen über dem Basisvergleich.', alt:'„Δ absolut“ / „Δ% relativ“, wenn nur eine einzelne Ebene gebraucht wird' };
@@ -9431,6 +9446,11 @@ function wizRecommend(a){
 /* Wizard-Begründungen fürs EN-Wörterbuch */
 [
  ['Wenige Kennzahlen im Überblick: große Zahl je Karte, Δ und Δ% gegen bis zu zwei Referenzen.','A few KPIs at a glance: large figure per card, Δ and Δ% against up to two references.'],
+ ['Wenige Kennzahlen, aber das WARUM zählt: KPI-Karte mit eingebetteter Mini-Varianz-Brücke (Referenz → Δ → AC). Als Einzelkarte ohne Kategorie direkt als Power-BI-Karte nutzbar.','A few KPIs, but the WHY matters: KPI card with an embedded mini variance bridge (reference → Δ → AC). Usable directly as a Power BI card as a single card without a category.'],
+ ['„Status“ für eine große, nach Abweichung eingefärbte Zahl','“Status” for a large figure coloured by variance'],
+ ['Kennzahl plus Entwicklung: große Zahl je Karte mit 30-Tage-Mini-Trend (Tagesreihe aus der Serien-Tabelle).','KPI plus development: large figure per card with a 30-day mini trend (daily series from the series table).'],
+ ['Wenige Kennzahlen im Überblick: große Zahl je Karte, Δ und Δ% gegen bis zu zwei Referenzen. Als Einzelkarte (ohne Kategorie) direkt als Power-BI-Karte nutzbar.','A few KPIs at a glance: large figure per card, Δ and Δ% against up to two references. Usable directly as a Power BI card as a single card (without a category).'],
+ ['„Brücke“, wenn die Abweichung erklärt werden soll','“Bridge” when the variance should be explained'],
  ['Zusammenhang zweier Größen: Streudiagramm mit Mittelwert-Quadranten (EX 1.1-17), Bubble-Größe optional.','Relationship of two measures: scatter with mean quadrants (EX 1.1-17), optional bubble size.'],
  ['Klassische Varianzanalyse (vgl. IBCS® Template 03): Δ%-Pins und Δ-Säulen über dem Basisvergleich.','Classic variance analysis (cf. IBCS® Template 03): Δ% pins and Δ columns above the base comparison.'],
  ['„Δ absolut“ / „Δ% relativ“, wenn nur eine einzelne Ebene gebraucht wird','“Δ absolute” / “Δ% relative” if only a single tier is needed'],
@@ -9520,12 +9540,14 @@ function wizRender(){
   [...document.querySelectorAll('#wizDim .chip')].forEach(b=>b.classList.toggle('on', b.dataset.wd===wizA.dim));
   [...document.querySelectorAll('#wizFocus .chip')].forEach(b=>b.classList.toggle('on', b.dataset.wf===wizA.focus));
   [...document.querySelectorAll('#wizRef .chip')].forEach(b=>b.classList.toggle('on', b.dataset.wr===wizA.ref));
-  $('#wizFocusWrap').style.display = (wizA.dim==='time'||wizA.dim==='struct') ? '' : 'none';
+  $('#wizFocusWrap').style.display = (wizA.dim==='time'||wizA.dim==='struct'||wizA.dim==='kpi') ? '' : 'none';
   $('#wizRefWrap').style.display = wizA.dim!=='corr' ? '' : 'none';
   const r = wizRecommend(wizA);
-  const tName = (TYPE_GROUPS.flatMap(g=>g.types).find(t=>t.id===r.type)||{name:r.type}).name;
+  /* bei KPI-Stilen die passende virtuelle Kachel (Name + Icon) zeigen */
+  const tileId = r.style ? ({ibcs:'kpi', status:'kpiStatus', trend:'kpiTrend', bridge:'kpiBridge'}[r.style]||r.type) : r.type;
+  const tName = (TYPE_GROUPS.flatMap(g=>g.types).find(t=>t.id===tileId)||{name:r.type}).name;
   $('#wizOut').innerHTML =
-    '<div style="display:flex;align-items:center;gap:10px">'+typeIcon(r.type)+'<b>'+esc(TT(tName))+'</b></div>'+
+    '<div style="display:flex;align-items:center;gap:10px">'+typeIcon(tileId)+'<b>'+esc(TT(tName))+'</b></div>'+
     '<div style="font-size:12px;color:var(--ink2);margin-top:6px">'+esc(TT(r.why))+'</div>'+
     (r.alt ? '<div style="font-size:11px;color:var(--ink3);margin-top:4px">Alternative: '+esc(TT(r.alt))+'</div>' : '');
   applyUILang();
@@ -9540,8 +9562,10 @@ wizDlg.addEventListener('click', e=>{
 $('#wizApply').addEventListener('click', ()=>{
   const r = wizRecommend(wizA);
   state.type = r.type;
+  if(r.style) state.kpiStyle = r.style;   /* KPI-Stil (IBCS/Status/Trend/Brücke) übernehmen */
   if(wizA.dim!=='corr') state.reference = wizA.ref;
-  if(needsRef() && state.reference==='—') state.reference = 'PY';
+  /* Brücke braucht ein Referenzszenario */
+  if(((needsRef()) || (state.type==='kpi' && state.kpiStyle==='bridge')) && state.reference==='—') state.reference = 'PY';
   if(state.reference===state.primary) state.primary = 'AC';
   renderAll();
   wizDlg.close();
