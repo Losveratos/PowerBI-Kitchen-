@@ -103,6 +103,18 @@ select{font:inherit; padding:5px 6px; border:1px solid var(--line2); border-radi
   color:var(--ink3); margin:10px 0 5px;
 }
 .type-group:first-child{margin-top:0}
+.type-group-d{margin:10px 0 0}
+.type-group-d:first-child{margin-top:0}
+.type-group-d > summary{
+  list-style:none; cursor:pointer; user-select:none;
+  font-size:10px; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink3); margin:0 0 5px; display:flex; align-items:center; gap:5px;
+}
+.type-group-d > summary::-webkit-details-marker{display:none}
+.type-group-d > summary::before{content:'▾'; font-size:9px; color:var(--ink3); transition:transform .15s}
+.type-group-d:not([open]) > summary{margin-bottom:0}
+.type-group-d:not([open]) > summary::before{transform:rotate(-90deg)}
+.type-group-d > summary:hover{color:var(--ink2)}
 .types{display:grid; grid-template-columns:1fr 1fr; gap:6px}
 .type-btn{
   display:flex; align-items:center; gap:8px; padding:7px 8px;
@@ -4601,6 +4613,10 @@ function chipSwatch(code){
   return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 '+sz+' '+sz+'">'+inner+'</svg>';
 }
 
+/* Auf-/Zugeklappt-Zustand der Typ-Gruppen (gemerkt über localStorage) */
+let typeGroupOpen = {};
+try{ typeGroupOpen = JSON.parse(localStorage.getItem('cb_typeGroups')||'{}') || {}; }catch(e){ typeGroupOpen = {}; }
+function persistTypeGroups(){ try{ localStorage.setItem('cb_typeGroups', JSON.stringify(typeGroupOpen)); }catch(e){} }
 function renderTypeButtons(){
   const HIDDEN_IN_GRID = ['kombi','absvar','relvar','barskombi','wfkombi'];
   const btn = t => '<button class="type-btn'+(typeIsOn(t.id)?' on':'')+'" data-type="'+t.id+'" type="button"'+(typeIsOn(t.id)?' title="Nochmal klicken für die Optionen dieses Typs"':'')+'>'+typeIcon(t.id)+'<span>'+t.name+'</span></button>';
@@ -4608,9 +4624,16 @@ function renderTypeButtons(){
   $('#typeBtns').innerHTML = TYPE_GROUPS.map(g=>{
     const vis = g.types.filter(t=>{ const h = HIDDEN_IN_GRID.includes(t.id); if(h) pro.push(t); return !h; });
     if(!vis.length) return '';
-    return '<div class="type-group">'+g.name+'</div><div class="types">'+vis.map(btn).join('')+'</div>';
+    /* offen, wenn der aktive Typ drin liegt oder der Nutzer die Gruppe nicht zugeklappt hat */
+    const hasActive = vis.some(t=>typeIsOn(t.id));
+    const open = hasActive || typeGroupOpen[g.name] !== false;
+    return '<details class="type-group-d" data-group="'+esc(g.name)+'"'+(open?' open':'')+'><summary>'+esc(g.name)+'</summary><div class="types">'+vis.map(btn).join('')+'</div></details>';
   }).join('') +
   '<details class="type-details"'+(HIDDEN_IN_GRID.includes(state.type)?' open':'')+'><summary>Fertige Kombinationen (Vorlagen)</summary><div class="types">'+pro.map(btn).join('')+'</div></details>';
+  /* Auf-/Zuklappen merken (toggle bubbelt nicht → je Gruppe binden) */
+  document.querySelectorAll('#typeBtns .type-group-d').forEach(d=>{
+    d.addEventListener('toggle', ()=>{ typeGroupOpen[d.dataset.group] = d.open; persistTypeGroups(); });
+  });
 }
 function isMulti(){ return ['kombi','barskombi','table','kpi'].includes(state.type); }
 function usesRef2(){ return ['kombi','barskombi','table','kpi','columns','bars','colline','dotplot','tornado','bullet','bridge'].includes(state.type); }
