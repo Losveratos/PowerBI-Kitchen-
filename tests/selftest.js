@@ -705,11 +705,12 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       });
       state.kpiStyle='bridge';
       state.rows=[{c:'Umsatz',v1:120,v2:100,v3:130,fc:false},{c:'Marge',v1:18,v2:22,v3:19,fc:false}];
-      /* X7 · Wizard empfiehlt KPI-Stile nach Fokus */
-      ok('X · Wizard · KPI+Abweichung → Brücke',
-         (()=>{ const r=wizRecommend({dim:'kpi',focus:'variance',ref:'PY'}); return r.type==='kpi'&&r.style==='bridge'; })());
-      ok('X · Wizard · KPI+Trend → Trend', wizRecommend({dim:'kpi',focus:'trend',ref:'PY'}).style==='trend');
-      ok('X · Wizard · KPI+Werte → IBCS', wizRecommend({dim:'kpi',focus:'values',ref:'PY'}).style==='ibcs');
+      /* X7 · Wizard empfiehlt alle 4 KPI-Stile nach Fokus */
+      ok('X · Wizard · KPI+Werte → IBCS', wizRecommend({dim:'kpi',focus:'values'}).style==='ibcs');
+      ok('X · Wizard · KPI+Status → Status', wizRecommend({dim:'kpi',focus:'status'}).style==='status');
+      ok('X · Wizard · KPI+Verlauf → Trend', wizRecommend({dim:'kpi',focus:'trend'}).style==='trend');
+      ok('X · Wizard · KPI+Brücke → Bridge', wizRecommend({dim:'kpi',focus:'bridge'}).style==='bridge');
+      ok('X · Wizard · KPI+Abweichung (Alias) → Bridge', wizRecommend({dim:'kpi',focus:'variance'}).style==='bridge');
       state.kpiStyle='ibcs'; state.reference2='—'; state.kpiBars=false; state.kpiMultiScen=false; state.kpiSingle=false; state.kpiNoTitle=false; state.kpiNoLabels=false;
     }
 

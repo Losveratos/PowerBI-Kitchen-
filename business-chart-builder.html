@@ -710,6 +710,13 @@ footer a:hover{color:var(--ink)}
         <button class="chip" type="button" data-wf="drivers">Treiber / Überleitung</button>
       </div>
     </div>
+    <div id="wizUseWrap" style="display:none">
+      <div class="wiz-label">Verwendung</div>
+      <div class="chips" id="wizUse">
+        <button class="chip on" type="button" data-wu="overview">Übersicht (mehrere Karten)</button>
+        <button class="chip" type="button" data-wu="card">Einzelne Power-BI-Karte</button>
+      </div>
+    </div>
     <div id="wizRefWrap">
       <div class="wiz-label">3 · Wogegen wird verglichen?</div>
       <div class="chips" id="wizRef">
@@ -9426,15 +9433,23 @@ $('#helpClose').addEventListener('click', ()=> $('#helpDlg').close());
 
 /* ---------- Chart-Wizard: 3 Fragen → Typ-Empfehlung ---------- */
 const wizDlg = $('#wizDlg');
-const wizA = { dim:'time', focus:'values', ref:'PY' };
+const wizA = { dim:'time', focus:'values', ref:'PY', use:'overview' };
+/* Fokus-Optionen je Achsen-Dimension – bei KPI sind es die 4 Karten-Stile. */
+const WIZ_FOCUS = {
+  generic:[['values','Die Werte selbst'],['variance','Abweichung zur Referenz'],['parts','Zusammensetzung / Anteile'],['trend','Verlauf / Trend'],['drivers','Treiber / Überleitung']],
+  kpi:[['values','Wert + Δ% / Δ (IBCS)'],['status','Status-Ampel (Ist eingefärbt)'],['trend','Verlauf (30 Tage)'],['bridge','Warum: Varianz-Brücke']],
+};
 function wizRecommend(a){
   if(a.dim==='kpi'){
-    /* KPI-Stil je nach Fokus; als Power-BI-Karte: „Einzelkarte ohne Kategorie“ im Optionen-Kasten */
-    if(a.focus==='variance'||a.focus==='drivers')
-      return { type:'kpi', style:'bridge', why:'Wenige Kennzahlen, aber das WARUM zählt: KPI-Karte mit eingebetteter Mini-Varianz-Brücke (Referenz → Δ → AC). Als Einzelkarte ohne Kategorie direkt als Power-BI-Karte nutzbar.', alt:'„Status“ für eine große, nach Abweichung eingefärbte Zahl' };
-    if(a.focus==='trend')
+    /* Fokus = direkt der KPI-Stil; „variance/drivers“ bleiben Aliase auf die Brücke */
+    const f = a.focus;
+    if(f==='status')
+      return { type:'kpi', style:'status', why:'Eine große Ist-Zahl, eingefärbt nach Abweichung zur Referenz (▲▼ + Δ%) – die Ampel-Statuskarte.', alt:'„Wert + Δ%“ (IBCS) für die neutrale Variante mit Δ%-Pins' };
+    if(f==='trend')
       return { type:'kpi', style:'trend', why:'Kennzahl plus Entwicklung: große Zahl je Karte mit 30-Tage-Mini-Trend (Tagesreihe aus der Serien-Tabelle).' };
-    return { type:'kpi', style:'ibcs', why:'Wenige Kennzahlen im Überblick: große Zahl je Karte, Δ und Δ% gegen bis zu zwei Referenzen. Als Einzelkarte (ohne Kategorie) direkt als Power-BI-Karte nutzbar.', alt:'„Brücke“, wenn die Abweichung erklärt werden soll' };
+    if(f==='bridge'||f==='variance'||f==='drivers')
+      return { type:'kpi', style:'bridge', why:'Wenige Kennzahlen, aber das WARUM zählt: KPI-Karte mit eingebetteter Mini-Varianz-Brücke (Referenz → Δ → AC). Säulen/Balken, Mehr-Szenarien und Beschriftung im Optionen-Kasten.', alt:'„Status“ für eine große, nach Abweichung eingefärbte Zahl' };
+    return { type:'kpi', style:'ibcs', why:'Wenige Kennzahlen im Überblick: große Zahl je Karte, Δ und Δ% gegen bis zu zwei Referenzen.', alt:'„Warum: Varianz-Brücke“, wenn die Abweichung erklärt werden soll' };
   }
   if(a.dim==='corr') return { type:'scatter', why:'Zusammenhang zweier Größen: Streudiagramm mit Mittelwert-Quadranten (EX 1.1-17), Bubble-Größe optional.' };
   if(a.dim==='time'){
@@ -9458,6 +9473,19 @@ function wizRecommend(a){
  ['Kennzahl plus Entwicklung: große Zahl je Karte mit 30-Tage-Mini-Trend (Tagesreihe aus der Serien-Tabelle).','KPI plus development: large figure per card with a 30-day mini trend (daily series from the series table).'],
  ['Wenige Kennzahlen im Überblick: große Zahl je Karte, Δ und Δ% gegen bis zu zwei Referenzen. Als Einzelkarte (ohne Kategorie) direkt als Power-BI-Karte nutzbar.','A few KPIs at a glance: large figure per card, Δ and Δ% against up to two references. Usable directly as a Power BI card as a single card (without a category).'],
  ['„Brücke“, wenn die Abweichung erklärt werden soll','“Bridge” when the variance should be explained'],
+ ['Wert + Δ% / Δ (IBCS)','Value + Δ% / Δ (IBCS)'],
+ ['Status-Ampel (Ist eingefärbt)','Status light (actual coloured)'],
+ ['Verlauf (30 Tage)','Trend (30 days)'],
+ ['Warum: Varianz-Brücke','Why: variance bridge'],
+ ['Verwendung','Use'],
+ ['Übersicht (mehrere Karten)','Overview (multiple cards)'],
+ ['Einzelne Power-BI-Karte','Single Power BI card'],
+ ['Eine große Ist-Zahl, eingefärbt nach Abweichung zur Referenz (▲▼ + Δ%) – die Ampel-Statuskarte.','A large actual figure coloured by variance to the reference (▲▼ + Δ%) – the status light card.'],
+ ['„Wert + Δ%“ (IBCS) für die neutrale Variante mit Δ%-Pins','“Value + Δ%” (IBCS) for the neutral variant with Δ% pins'],
+ ['Wenige Kennzahlen, aber das WARUM zählt: KPI-Karte mit eingebetteter Mini-Varianz-Brücke (Referenz → Δ → AC). Säulen/Balken, Mehr-Szenarien und Beschriftung im Optionen-Kasten.','A few KPIs, but the WHY matters: KPI card with an embedded mini variance bridge (reference → Δ → AC). Columns/bars, multi-scenario and labels in the options box.'],
+ ['„Warum: Varianz-Brücke“, wenn die Abweichung erklärt werden soll','“Why: variance bridge” when the variance should be explained'],
+ ['Wird als einzelne Power-BI-Karte angelegt (ohne Kategorie, ohne Titel). Säulen/Balken, Mehr-Szenarien und Beschriftung im Optionen-Kasten.','Created as a single Power BI card (no category, no title). Columns/bars, multi-scenario and labels in the options box.'],
+ ['Eine Karte je Kategorie (Small Multiples). Für eine Power-BI-Karte „Einzelne Power-BI-Karte“ wählen.','One card per category (small multiples). For a Power BI card choose “Single Power BI card”.'],
  ['Zusammenhang zweier Größen: Streudiagramm mit Mittelwert-Quadranten (EX 1.1-17), Bubble-Größe optional.','Relationship of two measures: scatter with mean quadrants (EX 1.1-17), optional bubble size.'],
  ['Klassische Varianzanalyse (vgl. IBCS® Template 03): Δ%-Pins und Δ-Säulen über dem Basisvergleich.','Classic variance analysis (cf. IBCS® Template 03): Δ% pins and Δ columns above the base comparison.'],
  ['„Δ absolut“ / „Δ% relativ“, wenn nur eine einzelne Ebene gebraucht wird','“Δ absolute” / “Δ% relative” if only a single tier is needed'],
@@ -9545,31 +9573,47 @@ function wizRecommend(a){
 ].forEach(([d,e])=>UI_EN.set(d,e));
 function wizRender(){
   [...document.querySelectorAll('#wizDim .chip')].forEach(b=>b.classList.toggle('on', b.dataset.wd===wizA.dim));
-  [...document.querySelectorAll('#wizFocus .chip')].forEach(b=>b.classList.toggle('on', b.dataset.wf===wizA.focus));
+  const isKpi = wizA.dim==='kpi';
+  /* Fokus-Chips je Dimension neu aufbauen (bei KPI = die 4 Karten-Stile) */
+  const focusList = isKpi ? WIZ_FOCUS.kpi : WIZ_FOCUS.generic;
+  if(!focusList.some(o=>o[0]===wizA.focus)) wizA.focus = 'values';
+  $('#wizFocus').innerHTML = focusList.map(([v,l])=>
+    '<button class="chip'+(wizA.focus===v?' on':'')+'" type="button" data-wf="'+v+'">'+esc(TT(l))+'</button>').join('');
   [...document.querySelectorAll('#wizRef .chip')].forEach(b=>b.classList.toggle('on', b.dataset.wr===wizA.ref));
-  $('#wizFocusWrap').style.display = (wizA.dim==='time'||wizA.dim==='struct'||wizA.dim==='kpi') ? '' : 'none';
+  [...document.querySelectorAll('#wizUse .chip')].forEach(b=>b.classList.toggle('on', b.dataset.wu===wizA.use));
+  $('#wizFocusWrap').style.display = (wizA.dim==='time'||wizA.dim==='struct'||isKpi) ? '' : 'none';
+  $('#wizUseWrap').style.display = isKpi ? '' : 'none';
   $('#wizRefWrap').style.display = wizA.dim!=='corr' ? '' : 'none';
   const r = wizRecommend(wizA);
   /* bei KPI-Stilen die passende virtuelle Kachel (Name + Icon) zeigen */
   const tileId = r.style ? ({ibcs:'kpi', status:'kpiStatus', trend:'kpiTrend', bridge:'kpiBridge'}[r.style]||r.type) : r.type;
   const tName = (TYPE_GROUPS.flatMap(g=>g.types).find(t=>t.id===tileId)||{name:r.type}).name;
+  const useTip = isKpi ? ('<div style="font-size:11px;color:var(--ink3);margin-top:4px">'+esc(TT(wizA.use==='card'
+      ? 'Wird als einzelne Power-BI-Karte angelegt (ohne Kategorie, ohne Titel). Säulen/Balken, Mehr-Szenarien und Beschriftung im Optionen-Kasten.'
+      : 'Eine Karte je Kategorie (Small Multiples). Für eine Power-BI-Karte „Einzelne Power-BI-Karte“ wählen.'))+'</div>') : '';
   $('#wizOut').innerHTML =
     '<div style="display:flex;align-items:center;gap:10px">'+typeIcon(tileId)+'<b>'+esc(TT(tName))+'</b></div>'+
     '<div style="font-size:12px;color:var(--ink2);margin-top:6px">'+esc(TT(r.why))+'</div>'+
-    (r.alt ? '<div style="font-size:11px;color:var(--ink3);margin-top:4px">Alternative: '+esc(TT(r.alt))+'</div>' : '');
+    (r.alt ? '<div style="font-size:11px;color:var(--ink3);margin-top:4px">Alternative: '+esc(TT(r.alt))+'</div>' : '')+
+    useTip;
   applyUILang();
 }
 $('#btnWiz').addEventListener('click', ()=>{ wizRender(); if(wizDlg.showModal) wizDlg.showModal(); else wizDlg.setAttribute('open',''); });
 $('#wizClose').addEventListener('click', ()=> wizDlg.close());
 wizDlg.addEventListener('click', e=>{
-  const d=e.target.closest('[data-wd]'), f=e.target.closest('[data-wf]'), rr=e.target.closest('[data-wr]');
-  if(d) wizA.dim=d.dataset.wd; else if(f) wizA.focus=f.dataset.wf; else if(rr) wizA.ref=rr.dataset.wr; else return;
+  const d=e.target.closest('[data-wd]'), f=e.target.closest('[data-wf]'), rr=e.target.closest('[data-wr]'), u=e.target.closest('[data-wu]');
+  if(d) wizA.dim=d.dataset.wd; else if(f) wizA.focus=f.dataset.wf; else if(rr) wizA.ref=rr.dataset.wr; else if(u) wizA.use=u.dataset.wu; else return;
   wizRender();
 });
 $('#wizApply').addEventListener('click', ()=>{
   const r = wizRecommend(wizA);
   state.type = r.type;
   if(r.style) state.kpiStyle = r.style;   /* KPI-Stil (IBCS/Status/Trend/Brücke) übernehmen */
+  /* KPI-Verwendung: einzelne Power-BI-Karte (ohne Kategorie/Titel) ↔ Übersicht je Kategorie */
+  if(r.type==='kpi'){
+    const card = wizA.use==='card';
+    state.kpiSingle = card; state.kpiNoTitle = card;
+  }
   if(wizA.dim!=='corr') state.reference = wizA.ref;
   /* Brücke braucht ein Referenzszenario */
   if(((needsRef()) || (state.type==='kpi' && state.kpiStyle==='bridge')) && state.reference==='—') state.reference = 'PY';
