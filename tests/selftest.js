@@ -688,6 +688,23 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       ok('X · kpiBridge · Beschriftung ausblenden reduziert Template-Text-Marks', tplOff<tplOn);
       let nlc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; nlc=!!VL.compile(b).spec; }catch(e){}
       ok('X · kpiBridge · Template ohne Beschriftung kompiliert (baked=0)', nlc && tplBakedRows(denebTemplate())===0);
+      /* X6b · Beschriftung ausblenden auch für IBCS/Status/Trend */
+      ['ibcs','status','trend'].forEach(st=>{
+        state.kpiStyle=st;
+        if(st==='trend'){ state.series=['Umsatz']; state.srows=[]; for(let i=0;i<10;i++) state.srows.push({c:'T'+i, v:[100+i*2]}); state.rows=[{c:'Umsatz',v1:118,v2:100,v3:NaN,fc:false}]; }
+        else state.rows=[{c:'Umsatz',v1:120,v2:100,v3:130,fc:false},{c:'Marge',v1:18,v2:22,v3:19,fc:false}];
+        state.kpiNoLabels=false; renderAll(); const on=(chartHtml().match(/<text/g)||[]).length;
+        const tOn=(JSON.stringify(vegaSpec(false)).match(/"type":"text"/g)||[]).length;
+        state.kpiNoLabels=true; renderAll(); const off=(chartHtml().match(/<text/g)||[]).length;
+        const tOff=(JSON.stringify(vegaSpec(false)).match(/"type":"text"/g)||[]).length;
+        ok('X · kpi'+st+' · Beschriftung ausblenden reduziert Labels (SVG+Template)',
+           off<on && off>0 && tOff<=tOn);
+        let c=false; try{ const b=clone(denebTemplate()); delete b.usermeta; c=!!VL.compile(b).spec; }catch(e){}
+        ok('X · kpi'+st+' · Template ohne Beschriftung kompiliert', c);
+        state.kpiNoLabels=false;
+      });
+      state.kpiStyle='bridge';
+      state.rows=[{c:'Umsatz',v1:120,v2:100,v3:130,fc:false},{c:'Marge',v1:18,v2:22,v3:19,fc:false}];
       /* X7 · Wizard empfiehlt KPI-Stile nach Fokus */
       ok('X · Wizard · KPI+Abweichung → Brücke',
          (()=>{ const r=wizRecommend({dim:'kpi',focus:'variance',ref:'PY'}); return r.type==='kpi'&&r.style==='bridge'; })());

@@ -2906,6 +2906,7 @@ const KPI_PINK = '#d97a93';
        (Tagesreihe aus der Serien-Tabelle, Serie = KPI-Name).               --- */
 function renderKpiTrend(){
   const rows = kpiRows();
+  const noLabels = !!state.kpiNoLabels;
   const hasR1 = state.reference!=='—';
   const dailyFor = name=>{ const j=state.series.indexOf(name); if(j<0) return null;
     const v=state.srows.filter(p=>p.c!=='').map(p=>p.v[j]).filter(x=>!isNaN(x)); return v.length>1?v:null; };
@@ -2918,10 +2919,10 @@ function renderKpiTrend(){
   rows.forEach((r,i)=>{
     const gx=padL+(i%cols)*(cw+gapX), gy=padT+Math.floor(i/cols)*(ch+gapY);
     s+='<rect data-i="'+i+'" x="'+gx+'" y="'+gy+'" width="'+cw+'" height="'+ch+'" rx="10" fill="'+WHITE+'" stroke="#e3e1dc"/>';
-    s+=txt(gx+16, gy+26, r.c+(state.unit?' ('+state.unit+')':''), {size:12.5, weight:'bold', fill:CAT});
+    if(!noLabels) s+=txt(gx+16, gy+26, r.c+(state.unit?' ('+state.unit+')':''), {size:12.5, weight:'bold', fill:CAT});
     s+='<text x="'+(gx+16)+'" y="'+(gy+66)+'" font-family="'+FONT+'" font-size="'+fsc(34)+'" font-weight="bold" fill="'+(r.fc?FCINK:DARK)+'">'+esc(compactFmt(r.v1))+'</text>';
     const rx=gx+186;
-    if(hasR1){
+    if(hasR1 && !noLabels){
       s+=txt(rx, gy+24, state.reference, {size:10, fill:SUB});
       s+='<text x="'+rx+'" y="'+(gy+43)+'" font-family="'+FONT+'" font-size="'+fsc(16)+'" fill="'+SUB+'">'+esc(compactFmt(r.v2))+'</text>';
       const dv=(!isNaN(r.v1)&&!isNaN(r.v2))?r.v1-r.v2:null, rv=relOfK(r,'v2');
@@ -2932,12 +2933,14 @@ function renderKpiTrend(){
     const daily=dailyFor(r.c);
     if(daily){
       s+='<line x1="'+(gx+16)+'" y1="'+(gy+101)+'" x2="'+(gx+cw-16)+'" y2="'+(gy+101)+'" stroke="#eceae5" stroke-width="1"/>';
-      s+=txt(gx+16, gy+118, CL('Last30'), {size:8.5, fill:SUB});
-      /* Mini-Legende rechts */
-      s+='<line x1="'+(gx+cw-128)+'" y1="'+(gy+115)+'" x2="'+(gx+cw-114)+'" y2="'+(gy+115)+'" stroke="'+DARK+'" stroke-width="1.8"/>';
-      s+=txt(gx+cw-110, gy+118, CL('Avg5'), {size:8, fill:SUB});
-      s+='<line x1="'+(gx+cw-64)+'" y1="'+(gy+115)+'" x2="'+(gx+cw-50)+'" y2="'+(gy+115)+'" stroke="'+KPI_PINK+'" stroke-width="1.2" stroke-dasharray="4,2"/>';
-      s+=txt(gx+cw-46, gy+118, CL('Daily'), {size:8, fill:SUB});
+      if(!noLabels){
+        s+=txt(gx+16, gy+118, CL('Last30'), {size:8.5, fill:SUB});
+        /* Mini-Legende rechts */
+        s+='<line x1="'+(gx+cw-128)+'" y1="'+(gy+115)+'" x2="'+(gx+cw-114)+'" y2="'+(gy+115)+'" stroke="'+DARK+'" stroke-width="1.8"/>';
+        s+=txt(gx+cw-110, gy+118, CL('Avg5'), {size:8, fill:SUB});
+        s+='<line x1="'+(gx+cw-64)+'" y1="'+(gy+115)+'" x2="'+(gx+cw-50)+'" y2="'+(gy+115)+'" stroke="'+KPI_PINK+'" stroke-width="1.2" stroke-dasharray="4,2"/>';
+        s+=txt(gx+cw-46, gy+118, CL('Daily'), {size:8, fill:SUB});
+      }
       const cx0=gx+16, cy0=gy+132, cwd=cw-32, cht=ch-132-12;
       const avg=daily.map((_,k)=>{ const a=daily.slice(Math.max(0,k-4),k+1); return a.reduce((x,y)=>x+y,0)/a.length; });
       const base=daily.reduce((a,b)=>a+b,0)/daily.length;   /* durchschnittliches Tagesniveau */
@@ -2945,7 +2948,7 @@ function renderKpiTrend(){
       const mn=Math.min(...allv), mx=Math.max(...allv), rng=(mx-mn)||1;
       const sx=k=>cx0+(daily.length>1?k/(daily.length-1)*cwd:0), sy=v=>cy0+cht-(v-mn)/rng*cht;
       s+='<line x1="'+cx0+'" y1="'+sy(base)+'" x2="'+(cx0+cwd)+'" y2="'+sy(base)+'" stroke="#d7d5d0" stroke-width="1" stroke-dasharray="3,3"/>';
-      s+=txt(cx0+2, sy(base)-3, hasR1?state.reference:'Ø', {size:8, fill:SUB});
+      if(!noLabels) s+=txt(cx0+2, sy(base)-3, hasR1?state.reference:'Ø', {size:8, fill:SUB});
       let dp=''; daily.forEach((v,k)=> dp+=(k?' L ':'M ')+sx(k)+','+sy(v));
       s+='<path d="'+dp+'" fill="none" stroke="'+KPI_PINK+'" stroke-width="1.2" stroke-dasharray="4,2"/>';
       daily.forEach((v,k)=>{ if(k%3===0){ const x=sx(k),y=sy(v); s+='<path d="M '+x+','+(y-2.3)+' L '+(x+2.3)+','+y+' L '+x+','+(y+2.3)+' L '+(x-2.3)+','+y+' Z" fill="'+KPI_PINK+'"/>'; } });
@@ -2953,7 +2956,7 @@ function renderKpiTrend(){
       s+='<path d="'+ap+'" fill="none" stroke="'+DARK+'" stroke-width="1.8"/>';
       const last=daily[daily.length-1], prev=daily[daily.length-2];
       if(!isNaN(last)&&!isNaN(prev)){ const td=last-prev, ar=td>=0?'↗ ':'↘ ';
-        s+=txt(cx0+cwd, cy0-13, CL('Today'), {anchor:'end', size:8, fill:SUB});
+        if(!noLabels) s+=txt(cx0+cwd, cy0-13, CL('Today'), {anchor:'end', size:8, fill:SUB});
         s+=txt(cx0+cwd, cy0-1, ar+compactFmt(td), {anchor:'end', size:10, weight:'bold', fill:td>=0?'var-pos':'var-neg'}); }
     }
   });
@@ -2963,6 +2966,7 @@ function renderKpiTrend(){
        Referenz 1, mit ▲▼-Pfeil sowie Δ% und Δ absolut je Referenz. --- */
 function renderKpiStatus(){
   const rows = kpiRows();
+  const noLabels = !!state.kpiNoLabels;
   const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
   const perRow = Math.min(3, Math.max(1, rows.length)), cw = 210, gapX = 16, gapY = 16;
   const ch = 64 + (hasR1?26:0) + (hasR2?22:0) + 8;
@@ -2979,7 +2983,7 @@ function renderKpiStatus(){
     s += '<rect data-i="'+i+'" x="'+gx+'" y="'+gy+'" width="'+cw+'" height="'+ch+'" rx="7" fill="'+WHITE+'" stroke="#e3e1dc" stroke-width="1"/>';
     /* dünner Statusakzent oben in der Abweichungsfarbe */
     s += '<rect x="'+(gx+1)+'" y="'+(gy+1)+'" width="'+(cw-2)+'" height="3" rx="1.5" fill="'+(d1===null?'#dad8d3':valCol)+'"/>';
-    s += txt(gx+14, gy+22, r.c, {size:11.5, weight:'bold', fill:CAT});
+    if(!noLabels) s += txt(gx+14, gy+22, r.c, {size:11.5, weight:'bold', fill:CAT});
     /* großer Ist-Wert, eingefärbt nach Δ zu Referenz 1 */
     const big = fmt(r.v1);
     s += '<text x="'+(gx+14)+'" y="'+(gy+54)+'" font-family="'+FONT+'" font-size="'+fsc(30)+'" font-weight="bold" fill="'+valCol+'">'+esc(big)+'</text>';
@@ -2995,8 +2999,8 @@ function renderKpiStatus(){
       const col = dv===null ? SUB : (dv>=0 ? 'var-pos' : 'var-neg');
       const tri = dv===null ? '' : (dv>=0 ? '▲ ' : '▼ ');
       s += txt(gx+14, y, tri+(rv===null?'n.a.':fmtPct(rv)), {size:13, weight:'bold', fill:col});
-      s += txt(gx+14+72, y, dv===null?'':fmt(dv,true), {size:11.5, weight:'bold', fill:col});
-      s += txt(gx+cw-14, y, 'vs '+code, {anchor:'end', size:9.5, fill:SUB});
+      if(!noLabels) s += txt(gx+14+72, y, dv===null?'':fmt(dv,true), {size:11.5, weight:'bold', fill:col});
+      if(!noLabels) s += txt(gx+cw-14, y, 'vs '+code, {anchor:'end', size:9.5, fill:SUB});
     };
     let y = gy+54+28;
     if(hasR1){ devRow(state.reference, 'v2', y); y += 26; }
@@ -3146,6 +3150,7 @@ function renderKpi(){
   if(state.kpiStyle==='status') return renderKpiStatus();
   if(state.kpiStyle==='bridge') return renderKpiBridge();
   const rows = kpiRows();
+  const noLabels = !!state.kpiNoLabels;
   const hasR1 = state.reference!=='—';
   const hasR2 = state.reference2!=='—';
   const refs = [];
@@ -3183,7 +3188,7 @@ function renderKpi(){
     const ar0 = refs[0] ? relOfK(r, refs[0].key) : null;
     const accent = ar0===null ? '#dad8d3' : (ar0>=0 ? 'var-pos' : 'var-neg');
     s += '<rect x="'+gx+'" y="'+(gy+7)+'" width="3.5" height="'+(ch-14)+'" rx="1.75" fill="'+accent+'"/>';
-    s += txt(gx+14, gy+19, r.c, {size:11.5, weight:'bold', fill:CAT});
+    if(!noLabels) s += txt(gx+14, gy+19, r.c, {size:11.5, weight:'bold', fill:CAT});
     /* großer Primärwert + Einheit, FC-Kennung */
     const big = fmt(r.v1);
     s += '<text x="'+(gx+14)+'" y="'+(gy+45)+'" font-family="'+FONT+'" font-size="'+fsc(21)+'" font-weight="bold" fill="'+(r.fc?FCINK:DARK)+'">'+esc(big)+'</text>';
@@ -3215,13 +3220,13 @@ function renderKpi(){
       s += '<rect x="'+(gx+12)+'" y="'+by+'" width="'+bw+'" height="'+bh+'" rx="2.5" fill="#efeeea"/>';
       s += '<rect x="'+(gx+12)+'" y="'+by+'" width="'+Math.max(2,fillW)+'" height="'+bh+'" rx="2.5" fill="'+(pct>=100?'var-pos':DARK)+'"/>';
       s += '<line x1="'+tickX+'" y1="'+(by-2)+'" x2="'+tickX+'" y2="'+(by+bh+2)+'" stroke="'+DARK+'" stroke-width="1.2"/>';
-      s += txt(gx+cw-12, by+5, Math.round(pct)+' % '+CL('von')+' '+planRef.code, {anchor:'end', size:8.5, fill:SUB});
+      if(!noLabels) s += txt(gx+cw-12, by+5, Math.round(pct)+' % '+CL('von')+' '+planRef.code, {anchor:'end', size:8.5, fill:SUB});
     }
     /* Vergleichszeilen */
     refs.forEach((rf,j)=>{
       const cy = gy+58 + (planRef?17:0) + j*23 + 6;
       const refv = r[rf.key];
-      s += txt(gx+12, cy+3.5, 'Δ'+rf.code, {size:10, fill:SUB});
+      if(!noLabels) s += txt(gx+12, cy+3.5, 'Δ'+rf.code, {size:10, fill:SUB});
       /* Mini-Achse mit Referenz-Notation + Δ%-Pin (gemeinsame Skala) */
       const ax = gx+48+pinMax;
       if(rf.code==='PY' || rf.code==='FC'){
@@ -3246,8 +3251,8 @@ function renderKpi(){
       }
       /* Δ als Zahl (gedämpft), Δ% als farbige Pill mit Pfeil */
       const dv = (isNaN(r.v1)||isNaN(refv)) ? NaN : r.v1-refv;
-      if(!isNaN(dv)) s += txt(gx+cw-72, cy+3.5, fmt(dv,true), {anchor:'end', size:10, fill:SUB});
-      if(rv===null) s += txt(gx+cw-10, cy+3.5, 'n.a.', {anchor:'end', size:10, fill:'#999'});
+      if(!isNaN(dv) && !noLabels) s += txt(gx+cw-72, cy+3.5, fmt(dv,true), {anchor:'end', size:10, fill:SUB});
+      if(rv===null){ if(!noLabels) s += txt(gx+cw-10, cy+3.5, 'n.a.', {anchor:'end', size:10, fill:'#999'}); }
       else s += vpill(gx+cw-8, cy, (rv>=0?'▲':'▼')+' '+fmtPct(rv), rv>=0?'var-pos':'var-neg');
     });
   });
@@ -8261,6 +8266,7 @@ function vlWfKombi(deneb, ov){
 /* KPI „Status“: großer Ist-Wert eingefärbt nach Δ zu Referenz 1, ▲▼ + Δ% + Δ */
 function vlKpiStatus(deneb){
   const C = vCol();
+  const noLabels = !!state.kpiNoLabels;
   const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
   const values = activeRows().map(r=>{
     const o = {k:r.c, p:isNaN(r.v1)?null:r.v1, fc:!!r.fc, Lp:fmt(r.v1)};
@@ -8292,9 +8298,9 @@ function vlKpiStatus(deneb){
       encoding:{text:{field:TF, type:'nominal'}, color:col}});
     layer.push({mark:{type:'text', x:28, y, align:'left', fontSize:13, fontWeight:'bold', font:'Arial'},
       encoding:{text:vLab(deneb,rvF,LrvF,'+.1f'), color:col}});
-    layer.push({mark:{type:'text', x:92, y, align:'left', fontSize:11.5, fontWeight:'bold', font:'Arial'},
+    if(!noLabels) layer.push({mark:{type:'text', x:92, y, align:'left', fontSize:11.5, fontWeight:'bold', font:'Arial'},
       encoding:{text:vLab(deneb,dF,LdF,'+'+vNum()), color:col}});
-    layer.push({mark:{type:'text', x:196, y, align:'right', fontSize:9.5, font:'Arial', color:SUB},
+    if(!noLabels) layer.push({mark:{type:'text', x:196, y, align:'right', fontSize:9.5, font:'Arial', color:SUB},
       encoding:{text:{value:'vs '+code}}});
   };
   let y=78;
@@ -8489,6 +8495,7 @@ function vlKpi(deneb){
   if(state.kpiStyle==='status') return vlKpiStatus(deneb);
   if(state.kpiStyle==='bridge') return vlKpiBridge(deneb);
   const C = vCol();
+  const noLabels = !!state.kpiNoLabels;
   const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
   const values = activeRows().map(r=>{
     const o = {k:r.c, p:isNaN(r.v1)?null:r.v1, fc:!!r.fc, Lp:fmt(r.v1)};
@@ -8517,9 +8524,9 @@ function vlKpi(deneb){
      encoding:{text:{value:'FC'}}},
   ];
   const refRow = (code, dF, rvF, LdF, LrvF, y)=>{
-    layer.push({mark:{type:'text', x:2, y, align:'left', fontSize:10, font:'Arial', color:SUB},
+    if(!noLabels) layer.push({mark:{type:'text', x:2, y, align:'left', fontSize:10, font:'Arial', color:SUB},
       encoding:{text:{value:'Δ'+code}}});
-    layer.push({mark:{type:'text', x:96, y, align:'right', fontSize:11, fontWeight:'bold', font:'Arial'},
+    if(!noLabels) layer.push({mark:{type:'text', x:96, y, align:'right', fontSize:11, fontWeight:'bold', font:'Arial'},
       encoding:{text:vLab(deneb,dF,LdF,'+'+vNum()),
         color:{condition:{test:'datum.'+dF+' >= 0', value:C.pos}, value:C.neg}}});
     layer.push({mark:{type:'text', x:158, y, align:'right', fontSize:11, font:'Arial'},
