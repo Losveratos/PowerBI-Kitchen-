@@ -7322,10 +7322,16 @@ function vlSegs(deneb, segs, vertical){
     return {k:g.c, s:(g.kind==='sum'?0:g.from), e:g.to, sum:g.kind==='sum',
             cls, L:(g.kind==='sum'? fmt(g.v) : fmt(g.v,true))};
   });
+  /* Folge-Kategorie je Stufe für die Wasserfall-/Brücken-Konnektoren */
+  for(let i=0;i<values.length;i++) values[i].leadK = (i+1<values.length) ? values[i+1].k : null;
   const domain = ['sum','pos','neg','scen-AC','scen-PY','scen-FC'];
   const range  = [DARK, C.pos, C.neg, DARK, LIGHT, '#ffffff'];
   const valEnc = vertical ? {x:vYq('s'), x2:{field:'e'}} : {y:vYq('s'), y2:{field:'e'}};
+  /* Konnektor am Stufenende (e) zur Folgezeile/-spalte (leadK) – unter den Balken */
+  const connEnc = vertical ? {x:vYq('e'), y2:{field:'leadK', type:'nominal'}}
+                           : {y:vYq('e'), x2:{field:'leadK', type:'nominal'}};
   const layer = [
+    {transform:[{filter:'datum.leadK != null'}], mark:{type:'rule', color:'#c2c2c2', strokeWidth:1}, encoding:connEnc},
     Object.assign({mark:{type:'bar', size: vertical?16:24},
       encoding:Object.assign({}, valEnc, {
         fill:{field:'cls', type:'nominal', scale:{domain, range}, legend:null},
@@ -7357,6 +7363,7 @@ function vlSegs(deneb, segs, vertical){
     spec.data = {name:'dataset'};
     spec.transform = [
       {window:[{op:'sum', field:'v', as:'cum'}]},
+      {window:[{op:'lead', field:'k', as:'leadK'}]},
       {calculate:"datum.typ==='sum' ? 0 : datum.cum - datum.v", as:'s'},
       {calculate:'datum.cum', as:'e'},
       {calculate:"datum.typ==='sum'", as:'sum'},
@@ -8218,10 +8225,14 @@ function vlWfKombi(deneb, ov){
     o.Lrv = o.rv===null? 'n.a.' : fmtPct(o.rv);
     return o;
   });
+  /* Folge-Kategorie je Zeile (für die Wasserfall-Konnektoren – eingebettete
+     Vorschau; im Deneb-Pfad via window-lead aus der PBI-Reihenfolge). */
+  for(let i=0;i<values.length;i++) values[i].leadK = (i+1<values.length) ? values[i+1].k : null;
   /* Kumulierung folgt der Zeilenreihenfolge, wie Power BI sie liefert
      (in PBI die Achse nach der gewünschten GuV-Reihenfolge sortieren). */
   const tf = deneb ? [
     {window:[{op:'row_number', as:'vord'}]},
+    {window:[{op:'lead', field:'k', as:'leadK'}], sort:[{field:'vord'}]},
     {window:[{op:'sum', field:'v', as:'cumA'}], sort:[{field:'vord'}], frame:[null,0], ignorePeers:true},
     {window:[{op:'sum', field:'r', as:'cumR'}], sort:[{field:'vord'}], frame:[null,0], ignorePeers:true},
     {calculate:"datum.typ==='sum'", as:'sum'},
@@ -8238,6 +8249,9 @@ function vlWfKombi(deneb, ov){
   const t1 = { width:230, height:{step:27}, data:vData(values,deneb), transform:tf,
     encoding:{y:yCat({labelPadding:8})},
     layer:[
+      /* Wasserfall-Konnektoren: senkrechte Linie am Stufenende (e) zur Folgezeile */
+      {transform:[{filter:'datum.leadK != null'}],
+       mark:{type:'rule', color:'#c2c2c2', strokeWidth:1}, encoding:{x:vYq('e'), y2:{field:'leadK', type:'nominal'}}},
       {mark:{type:'bar', size:15, fill:DARK}, encoding:{x:vYq('s'), x2:{field:'e'}}},
       {transform:[{filter:'datum.sum'}],
        mark:{type:'text', dx:6, align:'left', fontSize:11, font:'Arial', color:DARK, fontWeight:'bold'},
@@ -8276,6 +8290,9 @@ function vlWfKombi(deneb, ov){
     tRef = { width:210, height:{step:27}, data:vData(values,deneb), transform:tf,
       encoding:{y:yCat(null)},
       layer:[
+        /* Konnektoren des Referenz-Wasserfalls (am Stufenende eR zur Folgezeile) */
+        {transform:[{filter:'datum.leadK != null'}],
+         mark:{type:'rule', color:'#c2c2c2', strokeWidth:1}, encoding:{x:vYq('eR'), y2:{field:'leadK', type:'nominal'}}},
         {mark:{type:'bar', size:15, fill:rsc.fill, stroke:rsc.stroke||null, strokeWidth:rsc.stroke?1:0, strokeDash:rsc.dash},
          encoding:{x:vYq('sR'), x2:{field:'eR'}}},
         {transform:[{filter:'datum.sum'}],

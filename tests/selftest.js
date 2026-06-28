@@ -841,6 +841,18 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       let qc=false; try{ qc=!!VL.compile(bQ).spec; }catch(e){}
       ok('Q · wfkombi · Template kompiliert (baked=0) + AC/FC-Felder',
          qc && tplBakedRows(tQ)===0 && tQ.usermeta.dataset.some(d=>d.name==='AC') && tQ.usermeta.dataset.some(d=>d.name==='FC'));
+      /* Q2: Wasserfall-Konnektoren im Template (window-lead + Konnektor-Rule #c2c2c2) */
+      const jQ=JSON.stringify(tQ);
+      ok('Q · wfkombi · Wasserfall-Konnektoren im Template (lead-window + #c2c2c2)',
+         /"op":"lead"/.test(jQ) && /"y2":\{"field":"leadK"/.test(jQ) && /#c2c2c2/.test(jQ));
+      /* Q3: auch der einfache Wasserfall-Export hat Konnektoren */
+      state.type='waterfall'; state.wfRefCol=false; state.reference='—'; state.showAbs=false; state.showRel=false; state.wfOrient='v';
+      state.wrows=[{c:'Start',v:100,r2:NaN,t:'sum'},{c:'A',v:30,r2:NaN,t:'delta'},{c:'Ende',v:130,r2:NaN,t:'sum'}];
+      renderAll();
+      const tW=denebTemplate(); const jW=JSON.stringify(tW); const bW=clone(tW); delete bW.usermeta;
+      let wc=false; try{ wc=!!VL.compile(bW).spec; }catch(e){}
+      ok('Q · waterfall · Konnektoren im Template (lead-window + #c2c2c2), kompiliert',
+         wc && /"op":"lead"/.test(jW) && /#c2c2c2/.test(jW) && tplBakedRows(tW)===0);
       /* Virtuelle Kachel „Integrierte GuV" (wfint) ist gegenseitig exklusiv zu wfkombi */
       if(typeof typeIsOn==='function'){
         state.type='wfkombi'; state.wfRefCol=true;
