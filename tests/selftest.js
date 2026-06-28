@@ -597,6 +597,14 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       let bkc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; bkc=!!VL.compile(b).spec; }catch(e){}
       ok('M · barskombi · Template kompiliert (Ref1+Ref2, baked=0)', bkc && tplBakedRows(denebTemplate())===0);
 
+      /* M2b: PL/BU-Referenzachse in den Varianz-Tiers = Doppellinie via xOffset-
+         ENCODING (value), NICHT als Mark-Property (sonst von Deneb verworfen →
+         Linien fehlen). Beide Versatz-Werte müssen im Spec stehen. */
+      state.reference='BU'; state.reference2='—'; state.varSel={a1:true,r1:true,a2:false,r2:false}; renderAll();
+      const bkj=JSON.stringify(vegaSpec(false));
+      ok('M · barskombi · PL/BU-Refachse als xOffset-Encoding-Doppellinie (nicht Mark-Prop)',
+         /"xOffset":\{"value":-1\.6\}/.test(bkj) && /"xOffset":\{"value":1\.6\}/.test(bkj));
+
       /* M3 bullet: negative Ist-Werte → Track über _t0/_t1, kompiliert */
       state.type='bullet'; state.reference='PL'; state.reference2='—';
       state.rows=[{c:'A',v1:-50,v2:-40,v3:NaN,fc:false},{c:'B',v1:-30,v2:-35,v3:NaN,fc:false}];

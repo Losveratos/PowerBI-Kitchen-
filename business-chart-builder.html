@@ -7090,10 +7090,13 @@ function vRefAxisLayer(ref, horizontal){
   const enc = horizontal ? {y:{datum:0}, x:null} : {x:{datum:0}, y:null};
   if(ref==='PY') return [{mark:{type:'rule', color:LIGHT, strokeWidth:3.5}, encoding:enc}];
   if(ref==='PL'||ref==='BU'){
+    /* Doppellinie (PL/BU-Notation): konstanter Pixel-Versatz über die xOffset/
+       yOffset-ENCODING (value) – NICHT als Mark-Property (ungültig in Vega-Lite,
+       wird von Power-BI-Deneb verworfen → Linien fehlten). */
     const off = horizontal ? 'yOffset' : 'xOffset';
     return [
-      {mark:Object.assign({type:'rule', color:DARK, strokeWidth:1},{[off]:-1.6}), encoding:enc},
-      {mark:Object.assign({type:'rule', color:DARK, strokeWidth:1},{[off]:1.6}), encoding:enc},
+      {mark:{type:'rule', color:DARK, strokeWidth:1}, encoding:Object.assign({[off]:{value:-1.6}}, enc)},
+      {mark:{type:'rule', color:DARK, strokeWidth:1}, encoding:Object.assign({[off]:{value:1.6}}, enc)},
     ];
   }
   return [{mark:{type:'rule', color:DARK, strokeWidth:1.4}, encoding:enc}];
