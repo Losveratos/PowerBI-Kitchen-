@@ -7424,7 +7424,25 @@ function vlBridgeDyn(){
   const totLabel = (tf)=> ({data:D, transform:tf,
     mark:{type:'text', dy:-8, fontSize:11, font:'Arial', color:DARK, fontWeight:'bold'},
     encoding:{x:xEnc(null), y:vYq('e'), text:{field:'L', type:'nominal'}}});
+  /* Wasserfall-Konnektoren (Σstart → Δ … → Σend); die Ref2-Vergleichsspalten
+     bleiben bewusst ohne Konnektor (eigene Bezugsgröße). Technik: am Stufenende
+     (e) eine waagerechte Linie zur nächsten Slot-Kategorie (x2 = Folge-xlab). */
+  const connTf = base.concat([
+    {window:[{op:'lead', field:'k', as:'leadK'}], sort:[{field:'vord'}]},
+    {joinaggregate:[{op:'max', field:'vord', as:'maxV'}]},
+    {calculate:'datum.sumStart + datum.cum', as:'e'},
+    {calculate:'datum.k', as:'xlab'},
+    {calculate:'datum.vord', as:'ord'},
+    {calculate:"datum.vord === datum.maxV ? '"+endScen+"' : datum.leadK", as:'leadX'},
+  ]);
+  const connMark = {type:'rule', color:'#c2c2c2', strokeWidth:1};
   const layers = [
+    /* Σstart → erste Δ-Stufe (am oberen Ende der Start-Σ) */
+    {data:D, transform: totTf('sumStart', startScen, startScen, 0), mark:connMark,
+     encoding:{x:xEnc(null), x2:{field:'k'}, y:vYq('e')}},
+    /* Δ-Stufen → jeweils nächste Stufe bzw. Schluss-Σ */
+    {data:D, transform: connTf, mark:connMark,
+     encoding:{x:xEnc(null), x2:{field:'leadX'}, y:vYq('e')}},
     bar(totTf('sumStart', startScen, startScen, 0), null),
     bar(deltaTf, {labelAngle:0, labelPadding:6}),
     bar(totTf('sumEnd', endScen, endScen, 999999), null),

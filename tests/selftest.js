@@ -355,6 +355,29 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     }
     state.bridgePY=false;
 
+    /* F5 · Brücken-Deneb-Vorlage: Wasserfall-Konnektoren (Σ→Δ…→Σ) rendern */
+    {
+      state.type='bridge'; state.wfOrient='h'; state.primary='AC'; state.reference='PY';
+      state.reference2='—'; state.bridgeDir='fwd'; state.bridgeRel=false; state.bridgePY=false; state.bridgePYlevel=false;
+      state.rows=[{c:'Umsatz',v1:600,v2:560,v3:NaN,fc:false},{c:'Material',v1:-200,v2:-180,v3:NaN,fc:false},{c:'EBIT',v1:400,v2:380,v3:NaN,fc:false}];
+      renderAll();
+      const tplB=denebTemplate(); const bodyB=clone(tplB); delete bodyB.usermeta;
+      ok('F · Brücke · Konnektoren im Template (lead-window + #c2c2c2)',
+         /"op":"lead"/.test(JSON.stringify(tplB)) && /#c2c2c2/.test(JSON.stringify(tplB)));
+      let compB=false; try{ compB=!!VL.compile(bodyB).spec; }catch(e){}
+      ok('F · Brücke · Konnektor-Template kompiliert (baked=0)', compB && tplBakedRows(tplB)===0);
+      bodyB.datasets={dataset: state.rows.map(r=>({'__0__':r.c,'__1__':r.v1,'__2__':r.v2}))};
+      const hostB=document.createElement('div'); document.body.appendChild(hostB);
+      try{
+        const res=await embed(hostB, bodyB, {actions:false, renderer:'svg'});
+        const s=await res.view.toSVG();
+        /* 3 Δ + Σstart + Σend = 4 Konnektoren */
+        ok('F · Brücke · 4 Konnektoren gerendert (Σ→Δ…→Σ), kein NaN',
+           (s.match(/stroke="#c2c2c2"/g)||[]).length===4 && !/NaN/.test(s));
+      }catch(e){ ok('F · Brücke · Konnektor-Render', false, String(e)); }
+      hostB.remove();
+    }
+
     /* === G) Gantt (Raw-Vega-Vorlage, eigener Pfad) ================== */
     if(typeof renderGanttPreview==='function'){
       state.type='gantt';
