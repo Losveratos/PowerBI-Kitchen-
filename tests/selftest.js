@@ -646,6 +646,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
 
       /* M5 kpiTrend: eigenes dynamisches Template (Sparkline), nicht Status */
       state.type='kpi'; state.kpiStyle='trend'; state.reference='—';
+      state.kpiSingle=false; state.kpiBars=false; state.kpiMultiScen=false; state.noFC=false;
       state.series=['Umsatz','Marge'];
       state.srows=[]; for(let i=0;i<12;i++) state.srows.push({c:'T'+(i+1), v:[100+i*3, 20+i]});
       state.rows=[{c:'Umsatz',v1:131,v2:NaN,v3:NaN,fc:false},{c:'Marge',v1:31,v2:NaN,v3:NaN,fc:false}];
@@ -662,7 +663,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     /* === X) KPI-Brücke: Hero + Mini-Varianz-Brücke (Ref→Δ→AC) je Karte == */
     {
       state.type='kpi'; state.kpiStyle='bridge'; state.primary='AC'; state.reference='PY'; state.reference2='—';
-      state.kpiBars=false; state.kpiMultiScen=false;
+      state.kpiBars=false; state.kpiMultiScen=false; state.kpiSingle=false; state.noFC=false;
       state.rows=[{c:'Umsatz',v1:120,v2:100,v3:NaN,fc:false},{c:'Marge',v1:18,v2:22,v3:NaN,fc:false}];
       renderAll();
       const kbHtml=chartHtml();
@@ -767,6 +768,12 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       const Wc=+svgEl.getAttribute('viewBox').split(' ')[2];
       let over=0; svgEl.querySelectorAll('text').forEach(t=>{ try{ const bb=t.getBBox(); if(bb.x+bb.width>Wc-1) over++; }catch(e){} });
       ok('Y · KPI-Brücke Balken · Wert-Labels innerhalb der Karte (kein Überlauf)', over===0);
+      /* Δ%-Pille: gefüllter, abgerundeter Hintergrund + weißer Text im VL-Template */
+      const yTpl=denebTemplate(); const yJson=JSON.stringify(yTpl);
+      ok('Y · KPI-Brücke · gefüllte Δ%-Pille im Template (rect cornerRadius + Lpill)',
+         /"cornerRadius":8/.test(yJson) && /"as":"Lpill"/.test(yJson) && /"fill":"#ffffff"/.test(yJson));
+      let yc=false; try{ const b=clone(yTpl); delete b.usermeta; yc=!!VL.compile(b).spec; }catch(e){}
+      ok('Y · KPI-Brücke · Pillen-Template kompiliert (baked=0)', yc && tplBakedRows(yTpl)===0);
       state.kpiStyle='ibcs'; state.kpiBars=false; state.kpiSingle=false; state.kpiMultiScen=false; state.reference2='—';
     }
 

@@ -8463,6 +8463,7 @@ function vlKpiBridge(deneb){
     o.dEnd = (isNaN(r.v1)||isNaN(r.v2))?null:Math.max(r.v1,r.v2);
     o.rv = relOfK(r,'v2'); o.Lrv = o.rv===null?'n.a.':fmtPct(o.rv);
     o.T = o.dlt===null?'':(o.dlt>=0?'▲':'▼');
+    o.Lpill = o.rv===null?'':((o.rv>=0?'▲ ':'▼ ')+fmtPct(o.rv));   /* gefüllte Δ%-Pille */
     if(hasR2){ o.r2 = isNaN(r.v3)?null:r.v3; o.Lr2 = fmt(r.v3); }
     return o;
   });
@@ -8472,6 +8473,7 @@ function vlKpiBridge(deneb){
     {calculate:'max(datum.r, datum.p)', as:'dEnd'},
     {calculate:'datum.r > 0 ? (datum.p - datum.r)/datum.r*100 : null', as:'rv'},
     {calculate:"(datum.p - datum.r) >= 0 ? '▲' : '▼'", as:'T'},
+    {calculate:"datum.rv == null ? '' : ((datum.rv >= 0 ? '▲ ' : '▼ ') + format(datum.rv, '+.1f') + '%')", as:'Lpill'},
   ] : undefined;
   /* Brücken-Slots: [opt. Ref2] · Ref1 · Δ · AC */
   const slots = [];
@@ -8561,11 +8563,19 @@ function vlKpiBridge(deneb){
       layer.push({mark:m, encoding:Object.assign({}, mainAt(cAc), cross('r2'), {text:{value:state.reference2}})});
     }
   }
-  /* Hero-AC + Δ% oben + FC-Kennung (pixel) */
+  /* Hero-AC + Δ%-Pille (gefüllt, rot/grün bzw. cbSafe-blaugrün) + FC-Kennung */
+  const pillW = 58, pillR = Wc-8, pillL = pillR-pillW;
   layer.push(
     {mark:{type:'text', x:4, y:8, align:'left', baseline:'top', fontSize:22, fontWeight:'bold', font:'Arial', color:DARK}, encoding:{text:vLab(deneb,'p','Lp',vNum())}},
-    {mark:{type:'text', x:Wc-46, y:9, align:'left', baseline:'top', fontSize:11, fontWeight:'bold', font:'Arial'}, encoding:{text:{field:'T', type:'nominal'}, color:{condition:{test:'datum.dlt >= 0', value:C.pos}, value:C.neg}}},
-    {mark:{type:'text', x:Wc-36, y:9, align:'left', baseline:'top', fontSize:11, fontWeight:'bold', font:'Arial'}, encoding:{text:vLab(deneb,'rv','Lrv','+.1f'), color:{condition:{test:'datum.dlt >= 0', value:C.pos}, value:C.neg}}},
+    /* Pillen-Hintergrund (gefüllt, abgerundet) – nur wenn Δ% vorhanden */
+    {transform:[{filter:'datum.rv != null'}],
+     mark:{type:'rect', cornerRadius:8},
+     encoding:{x:{value:pillL}, x2:{value:pillR}, y:{value:11}, y2:{value:27},
+       fill:{condition:{test:'datum.dlt >= 0', value:C.pos}, value:C.neg}}},
+    /* Pillen-Text (weiß, zentriert): Pfeil + Δ% */
+    {transform:[{filter:'datum.rv != null'}],
+     mark:{type:'text', x:(pillL+pillR)/2, y:19.5, align:'center', baseline:'middle', fontSize:9.5, fontWeight:'bold', font:'Arial', fill:'#ffffff'},
+     encoding:{text:{field:'Lpill', type:'nominal'}}},
     {transform:[{filter:'datum.fc'}], mark:{type:'text', x:4, y:32, align:'left', baseline:'top', fontSize:9.5, font:'Arial', color:SUB}, encoding:{text:{value:'FC'}}}
   );
   const vals = state.kpiSingle ? values.slice(0,1) : values;
