@@ -115,6 +115,16 @@ select{font:inherit; padding:5px 6px; border:1px solid var(--line2); border-radi
 .type-group-d:not([open]) > summary{margin-bottom:0}
 .type-group-d:not([open]) > summary::before{transform:rotate(-90deg)}
 .type-group-d > summary:hover{color:var(--ink2)}
+/* Einklappbare Unter-Gruppen innerhalb eines Panels (z. B. Varianz/Layout) */
+.subgrp{margin-top:9px}
+.subgrp .subhead{
+  cursor:pointer; user-select:none; font-size:11.5px; color:var(--ink2);
+  display:flex; align-items:center; gap:5px;
+}
+.subgrp .subhead::before{content:'▾'; font-size:9px; color:var(--ink3); transition:transform .15s}
+.subgrp.collapsed .subhead::before{transform:rotate(-90deg)}
+.subgrp.collapsed > :not(.subhead){display:none !important}
+.subgrp .subhead:hover{color:var(--ink)}
 .types{display:grid; grid-template-columns:1fr 1fr; gap:6px}
 .type-btn{
   display:flex; align-items:center; gap:8px; padding:7px 8px;
@@ -324,7 +334,8 @@ footer a:hover{color:var(--ink)}
 
     <section class="panel">
       <h2>Aufbau: Varianz &amp; Layout</h2>
-      <div style="font-size:11.5px;color:var(--ink2)">2 · Varianz</div>
+      <div class="subgrp" data-sg="aufbau-var" style="margin-top:0">
+      <div class="subhead">2 · Varianz</div>
       <div class="tile-row">
         <button class="tile" id="vtNone" type="button" title="Nur der Basisvergleich"><svg width="34" height="20" viewBox="0 0 34 20"><rect x="4" y="8" width="5" height="11" fill="#555"/><rect x="13" y="4" width="5" height="15" fill="#555"/><rect x="22" y="10" width="5" height="9" fill="#555"/></svg>ohne</button>
         <button class="tile" id="vtRel" type="button" title="Δ%-Pin-Ebene ergänzen"><svg width="34" height="20" viewBox="0 0 34 20"><line x1="2" y1="13" x2="32" y2="13" stroke="#a8a8a8" stroke-width="2"/><line x1="8" y1="13" x2="8" y2="5" stroke="#469b3c" stroke-width="1.8"/><circle cx="8" cy="5" r="2.4" fill="#469b3c"/><line x1="17" y1="13" x2="17" y2="18" stroke="#c0392b" stroke-width="1.8"/><circle cx="17" cy="18" r="2.4" fill="#c0392b"/><line x1="26" y1="13" x2="26" y2="7" stroke="#469b3c" stroke-width="1.8"/><circle cx="26" cy="7" r="2.4" fill="#469b3c"/></svg>Δ %</button>
@@ -332,10 +343,13 @@ footer a:hover{color:var(--ink)}
         <button class="tile" id="vtBoth" type="button" title="Δ% und Δ ergänzen"><svg width="34" height="20" viewBox="0 0 34 20"><line x1="2" y1="7" x2="32" y2="7" stroke="#a8a8a8" stroke-width="1.6"/><line x1="9" y1="7" x2="9" y2="3" stroke="#469b3c" stroke-width="1.5"/><circle cx="9" cy="3" r="1.8" fill="#469b3c"/><line x1="21" y1="7" x2="21" y2="11" stroke="#c0392b" stroke-width="1.5"/><circle cx="21" cy="11" r="1.8" fill="#c0392b"/><line x1="2" y1="16" x2="32" y2="16" stroke="#a8a8a8" stroke-width="1.6"/><rect x="7" y="12" width="4" height="4" fill="#469b3c"/><rect x="19" y="16" width="4" height="3" fill="#c0392b"/></svg>beides</button>
       </div>
       <div id="combineHint" style="font-size:11px; color:#8c8c8c; margin-top:5px"></div>
-      <div style="font-size:11.5px;color:var(--ink2); margin-top:9px">3 · Layout</div>
+      </div>
+      <div class="subgrp" data-sg="aufbau-lay">
+      <div class="subhead">3 · Layout</div>
       <div class="tile-row">
         <button class="tile" id="lySingle" type="button" title="Ein Chart"><svg width="34" height="20" viewBox="0 0 34 20"><rect x="3" y="2" width="28" height="16" rx="2" fill="none" stroke="#555" stroke-width="1.4"/><rect x="8" y="9" width="4" height="6" fill="#555"/><rect x="15" y="6" width="4" height="9" fill="#555"/><rect x="22" y="11" width="4" height="4" fill="#555"/></svg>einzeln</button>
         <button class="tile" id="lyMulti" type="button" title="Ein Mini-Chart je Serie (gemeinsame Skala)"><svg width="34" height="20" viewBox="0 0 34 20"><rect x="2" y="1" width="14" height="8" rx="1.5" fill="none" stroke="#555"/><rect x="18" y="1" width="14" height="8" rx="1.5" fill="none" stroke="#555"/><rect x="2" y="11" width="14" height="8" rx="1.5" fill="none" stroke="#555"/><rect x="18" y="11" width="14" height="8" rx="1.5" fill="none" stroke="#555"/></svg>Multiples</button>
+      </div>
       </div>
       <div style="border-top:1px dashed var(--line2); margin:10px 0 8px"></div>
       <div class="row">
@@ -10000,6 +10014,18 @@ setTimeout(maybeShowGuideCoach, 600);   /* einmaliger Onboarding-Hinweis */
     let set; try{ set=new Set(JSON.parse(localStorage.getItem(KEY)||'[]')); }catch(e){ set=new Set(); }
     p.classList.contains('collapsed') ? set.add(idx) : set.delete(idx);
     try{ localStorage.setItem(KEY, JSON.stringify([...set])); }catch(e){}
+  });
+  /* Einklappbare Unter-Gruppen (z. B. Aufbau → Varianz/Layout), Zustand gemerkt */
+  const SKEY='bcb-subcollapsed';
+  let ssaved=[]; try{ ssaved=JSON.parse(localStorage.getItem(SKEY)||'[]'); }catch(e){}
+  document.querySelectorAll('.subgrp[data-sg]').forEach(sg=>{ if(ssaved.includes(sg.dataset.sg)) sg.classList.add('collapsed'); });
+  if(aside) aside.addEventListener('click', e=>{
+    const head=e.target.closest('.subhead'); if(!head) return;
+    const sg=head.closest('.subgrp[data-sg]'); if(!sg) return;
+    sg.classList.toggle('collapsed');
+    let set; try{ set=new Set(JSON.parse(localStorage.getItem(SKEY)||'[]')); }catch(e){ set=new Set(); }
+    sg.classList.contains('collapsed') ? set.add(sg.dataset.sg) : set.delete(sg.dataset.sg);
+    try{ localStorage.setItem(SKEY, JSON.stringify([...set])); }catch(e){}
   });
 })();
 </script>
