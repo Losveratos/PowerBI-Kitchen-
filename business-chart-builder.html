@@ -8599,18 +8599,21 @@ function vlKpi(deneb){
       o.r = isNaN(r.v2)?null:r.v2;
       o.d1 = (isNaN(r.v1)||isNaN(r.v2))?null:r.v1-r.v2; o.Ld1 = fmt(r.v1-r.v2,true);
       o.rv1 = relOfK(r,'v2'); o.Lrv1 = o.rv1===null?'n.a.':fmtPct(o.rv1);
+      o.Lpill1 = o.rv1===null?'':((o.rv1>=0?'▲ ':'▼ ')+fmtPct(o.rv1));
     }
     if(hasR2){
       o.r2 = isNaN(r.v3)?null:r.v3;
       o.d2 = (isNaN(r.v1)||isNaN(r.v3))?null:r.v1-r.v3; o.Ld2 = fmt(r.v1-r.v3,true);
       o.rv2 = relOfK(r,'v3'); o.Lrv2 = o.rv2===null?'n.a.':fmtPct(o.rv2);
+      o.Lpill2 = o.rv2===null?'':((o.rv2>=0?'▲ ':'▼ ')+fmtPct(o.rv2));
     }
     return o;
   });
+  const pillCalc = f => "datum."+f+" == null ? '' : ((datum."+f+" >= 0 ? '▲ ' : '▼ ') + format(datum."+f+", '+.1f') + '%')";
   const tf = [];
   if(deneb){
-    if(hasR1){ tf.push({calculate:'datum.p - datum.r', as:'d1'}); tf.push({calculate:'datum.r > 0 ? (datum.p - datum.r)/datum.r*100 : null', as:'rv1'}); }
-    if(hasR2){ tf.push({calculate:'datum.p - datum.r2', as:'d2'}); tf.push({calculate:'datum.r2 > 0 ? (datum.p - datum.r2)/datum.r2*100 : null', as:'rv2'}); }
+    if(hasR1){ tf.push({calculate:'datum.p - datum.r', as:'d1'}); tf.push({calculate:'datum.r > 0 ? (datum.p - datum.r)/datum.r*100 : null', as:'rv1'}); tf.push({calculate:pillCalc('rv1'), as:'Lpill1'}); }
+    if(hasR2){ tf.push({calculate:'datum.p - datum.r2', as:'d2'}); tf.push({calculate:'datum.r2 > 0 ? (datum.p - datum.r2)/datum.r2*100 : null', as:'rv2'}); tf.push({calculate:pillCalc('rv2'), as:'Lpill2'}); }
   }
   const layer = [
     {mark:{type:'text', x:2, y:24, align:'left', fontSize:21, fontWeight:'bold', font:'Arial', color:DARK},
@@ -8619,21 +8622,28 @@ function vlKpi(deneb){
      mark:{type:'text', x:2, y:40, align:'left', fontSize:9.5, font:'Arial', color:SUB},
      encoding:{text:{value:'FC'}}},
   ];
-  const refRow = (code, dF, rvF, LdF, LrvF, y)=>{
+  const W = 176, pw = 52, pr = W-8, pl = pr-pw;   /* Δ%-Pille rechts (wie SVG vpill) */
+  const refRow = (code, dF, rvF, LpillF, LdF, y)=>{
     if(!noLabels) layer.push({mark:{type:'text', x:2, y, align:'left', fontSize:10, font:'Arial', color:SUB},
       encoding:{text:{value:'Δ'+code}}});
-    if(!noLabels) layer.push({mark:{type:'text', x:96, y, align:'right', fontSize:11, fontWeight:'bold', font:'Arial'},
-      encoding:{text:vLab(deneb,dF,LdF,'+'+vNum()),
-        color:{condition:{test:'datum.'+dF+' >= 0', value:C.pos}, value:C.neg}}});
-    layer.push({mark:{type:'text', x:158, y, align:'right', fontSize:11, font:'Arial'},
-      encoding:{text:vLab(deneb,rvF,LrvF,'+.1f'),
-        color:{condition:{test:'datum.'+rvF+' >= 0', value:C.pos}, value:C.neg}}});
+    /* Δ absolut (gedämpft) links neben der Pille */
+    if(!noLabels) layer.push({mark:{type:'text', x:pl-8, y, align:'right', fontSize:10, font:'Arial', color:SUB},
+      encoding:{text:vLab(deneb,dF,LdF,'+'+vNum())}});
+    /* gefüllte Δ%-Pille (rot/grün, cbSafe-blaugrün) + weißer Text */
+    const col = {condition:{test:'datum.'+rvF+' >= 0', value:C.pos}, value:C.neg};
+    const pcy = y-3.5;
+    layer.push({transform:[{filter:'datum.'+rvF+' != null'}],
+      mark:{type:'rect', cornerRadius:8},
+      encoding:{x:{value:pl}, x2:{value:pr}, y:{value:pcy-7.5}, y2:{value:pcy+7.5}, fill:col}});
+    layer.push({transform:[{filter:'datum.'+rvF+' != null'}],
+      mark:{type:'text', x:(pl+pr)/2, y:pcy, align:'center', baseline:'middle', fontSize:9.5, fontWeight:'bold', font:'Arial', fill:'#ffffff'},
+      encoding:{text:{field:LpillF, type:'nominal'}}});
   };
   let y = 56;
-  if(hasR1){ refRow(state.reference,'d1','rv1','Ld1','Lrv1',y); y += 22; }
-  if(hasR2){ refRow(state.reference2,'d2','rv2','Ld2','Lrv2',y); y += 22; }
+  if(hasR1){ refRow(state.reference,'d1','rv1','Lpill1','Ld1',y); y += 22; }
+  if(hasR2){ refRow(state.reference2,'d2','rv2','Lpill2','Ld2',y); y += 22; }
   const vals = state.kpiSingle ? values.slice(0,1) : values;
-  const view = { width:160, height:y-14, view:{stroke:'#e3e1dc', cornerRadius:6}, layer };
+  const view = { width:W, height:y-14, view:{stroke:'#e3e1dc', cornerRadius:6}, layer };
   if(state.kpiSingle) return Object.assign({data:vData(vals,deneb)}, tf.length?{transform:tf}:{}, view);
   return { data:vData(vals,deneb), transform: tf.length? tf : undefined, columns:3,
     facet:{field:'k', type:'nominal', sort: deneb? null : vals.map(v=>v.k),

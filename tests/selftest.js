@@ -774,6 +774,16 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
          /"cornerRadius":8/.test(yJson) && /"as":"Lpill"/.test(yJson) && /"fill":"#ffffff"/.test(yJson));
       let yc=false; try{ const b=clone(yTpl); delete b.usermeta; yc=!!VL.compile(b).spec; }catch(e){}
       ok('Y · KPI-Brücke · Pillen-Template kompiliert (baked=0)', yc && tplBakedRows(yTpl)===0);
+      /* IBCS-Karte: gleiche gefüllte Δ%-Pille im VL-Template (Parität zur SVG) */
+      state.kpiStyle='ibcs'; state.kpiBars=false; state.kpiSingle=false; state.kpiMultiScen=false;
+      state.reference='PY'; state.reference2='PL';
+      state.rows=[{c:'Umsatz',v1:120,v2:100,v3:130,fc:false},{c:'Marge',v1:18,v2:22,v3:19,fc:false}];
+      renderAll();
+      const yT2=denebTemplate(); const yJ2=JSON.stringify(yT2);
+      ok('Y · KPI-IBCS · gefüllte Δ%-Pille im Template (cornerRadius + Lpill1/2 + weiß)',
+         /"cornerRadius":8/.test(yJ2) && /"as":"Lpill1"/.test(yJ2) && /"fill":"#ffffff"/.test(yJ2));
+      let yc2=false; try{ const b=clone(yT2); delete b.usermeta; yc2=!!VL.compile(b).spec; }catch(e){}
+      ok('Y · KPI-IBCS · Pillen-Template kompiliert (baked=0)', yc2 && tplBakedRows(yT2)===0);
       state.kpiStyle='ibcs'; state.kpiBars=false; state.kpiSingle=false; state.kpiMultiScen=false; state.reference2='—';
     }
 
