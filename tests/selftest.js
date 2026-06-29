@@ -52,7 +52,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
   const clone = x => JSON.parse(JSON.stringify(x));
   const $t = id => (document.getElementById(id)||{}).value;
   const snap = {
-    type:state.type, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, kpiSingle:state.kpiSingle, kpiNoTitle:state.kpiNoTitle, kpiNoLabels:state.kpiNoLabels, primary:state.primary,
+    type:state.type, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, kpiSingle:state.kpiSingle, kpiNoTitle:state.kpiNoTitle, kpiNoLabels:state.kpiNoLabels, noFC:state.noFC, primary:state.primary,
     reference:state.reference, reference2:state.reference2,
     rows:clone(state.rows), srows:clone(state.srows), series:clone(state.series),
     wrows:clone(state.wrows),
@@ -63,7 +63,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
     t1:$t('t1'), t2:$t('t2'), t3:$t('t3'),
   };
   const restore = ()=>{
-    Object.assign(state, {type:snap.type, kpiStyle:snap.kpiStyle, kpiBars:snap.kpiBars, kpiMultiScen:snap.kpiMultiScen, kpiSingle:snap.kpiSingle, kpiNoTitle:snap.kpiNoTitle, kpiNoLabels:snap.kpiNoLabels, primary:snap.primary,
+    Object.assign(state, {type:snap.type, kpiStyle:snap.kpiStyle, kpiBars:snap.kpiBars, kpiMultiScen:snap.kpiMultiScen, kpiSingle:snap.kpiSingle, kpiNoTitle:snap.kpiNoTitle, kpiNoLabels:snap.kpiNoLabels, noFC:snap.noFC, primary:snap.primary,
       reference:snap.reference, reference2:snap.reference2,
       rows:clone(snap.rows), srows:clone(snap.srows), series:clone(snap.series),
       wrows:clone(snap.wrows), unit:snap.unit, unitScale:snap.unitScale,
@@ -743,6 +743,31 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       ok('X · Wizard · KPI+Brücke → Bridge', wizRecommend({dim:'kpi',focus:'bridge'}).style==='bridge');
       ok('X · Wizard · KPI+Abweichung (Alias) → Bridge', wizRecommend({dim:'kpi',focus:'variance'}).style==='bridge');
       state.kpiStyle='ibcs'; state.reference2='—'; state.kpiBars=false; state.kpiMultiScen=false; state.kpiSingle=false; state.kpiNoTitle=false; state.kpiNoLabels=false;
+    }
+
+    /* === Y) „ohne FC" global + Karten-Überlauf ========================= */
+    {
+      /* noFC ignoriert das FC-Flag (keine Schraffur, kein fc-Feld im Export) */
+      state.type='columns'; state.kpiStyle='ibcs'; state.primary='AC'; state.reference='PY'; state.reference2='—';
+      state.rows=[{c:'Q1',v1:100,v2:90,v3:NaN,fc:false},{c:'Q2',v1:110,v2:95,v3:NaN,fc:true}];
+      state.noFC=false; renderAll();
+      ok('Y · FC · Schraffur + fc-Feld vorhanden (mit FC)',
+         /url\(#h-/.test(chartHtml()) && vFieldDefs().some(d=>d[0]==='fc'));
+      state.noFC=true; renderAll();
+      let nc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; nc=!!VL.compile(b).spec; }catch(e){}
+      ok('Y · ohne FC · keine Schraffur, kein fc-Feld, Template kompiliert',
+         !/url\(#h-/.test(chartHtml()) && !vFieldDefs().some(d=>d[0]==='fc') && nc && tplBakedRows(denebTemplate())===0);
+      state.noFC=false;
+      /* Karten-Überlauf: KPI-Brücke Balken/Einzelkarte – Texte innerhalb der Karte */
+      state.type='kpi'; state.kpiStyle='bridge'; state.kpiBars=true; state.kpiSingle=true; state.kpiMultiScen=true;
+      state.primary='AC'; state.reference='PL'; state.reference2='PY'; state.unit=''; state.decimals=0;
+      state.rows=[{c:'Measure',v1:3730,v2:7407,v3:7100,fc:false}];
+      renderAll();
+      const svgEl=document.getElementById('chartHost').querySelector('svg');
+      const Wc=+svgEl.getAttribute('viewBox').split(' ')[2];
+      let over=0; svgEl.querySelectorAll('text').forEach(t=>{ try{ const bb=t.getBBox(); if(bb.x+bb.width>Wc-1) over++; }catch(e){} });
+      ok('Y · KPI-Brücke Balken · Wert-Labels innerhalb der Karte (kein Überlauf)', over===0);
+      state.kpiStyle='ibcs'; state.kpiBars=false; state.kpiSingle=false; state.kpiMultiScen=false; state.reference2='—';
     }
 
     /* === N) Korrelations-Scatter: Trendlinie + Facetten je Gruppe ====== */

@@ -928,6 +928,7 @@ const state = {
   kpiSingle:false,      /* KPI: Einzelkarte ohne Kategorie (statt Small Multiples je Kategorie) */
   kpiNoTitle:false,     /* KPI: Titel/Botschaft ausblenden (saubere Power-BI-Karte) */
   kpiNoLabels:false,    /* KPI: Beschriftung (Kategorie/Achsen/Wert-Labels) ausblenden – Text in Power BI ergänzen */
+  noFC:false,           /* global: Forecast (FC-Flag) ausblenden – FC zählt als Ist, keine Schraffur/FC-Kennung */
   fontScale:1,
   unit:'',
   unitScale:'auto',
@@ -1304,6 +1305,10 @@ function activeRows(){
     keep.push({c:CL('Uebrige')+' ('+rest.length+')', v1:sumK('v1'), v2:sumK('v2'), v3:sumK('v3'), fc:false, rem:true});
     r = keep;
   }
+  /* „ohne FC“: das Forecast-Flag global ignorieren (FC zählt als Ist) – Kopien,
+     damit state.rows unangetastet bleibt; greift in allen Render-/VL-Pfaden,
+     die über activeRows()/vRows()/kpiRows() gehen. */
+  if(state.noFC) r = r.map(x=> x.fc ? Object.assign({}, x, {fc:false}) : x);
   return r;
 }
 /* Zusätzlicher Abstand vor dem Rest-Balken (breiterer Gap C) */
@@ -3092,7 +3097,10 @@ function renderKpiBridge(){
     const lvl1 = ref, lvlA = ac;
     if(bars){
       /* ---- horizontale Balken ---- */
-      const plotL = gx+58, plotR = gx+cw-18, plotW = plotR-plotL;
+      /* rechts Platz fürs Wert-Label am Balkenende reservieren (sonst Überlauf) */
+      const maxLab = Math.max(3, ...slots.map(sl=> (sl.kind==='delta'? fmt(sl.val,true) : fmt(sl.val)).length));
+      const labGut = Math.round(maxLab*fsc(5.9))+10;
+      const plotL = gx+58, plotR = gx+cw-12-labGut, plotW = Math.max(40, plotR-plotL);
       const rowsTop = gy+58, rowStep = (ch-58-14)/nSlots, barH = Math.min(18, rowStep*0.6);
       const x = v => plotL + (v-lo)/(hi-lo)*plotW, x0 = x(0);
       const cY = k => rowsTop + rowStep*(k+0.5);
@@ -5623,6 +5631,11 @@ function guideCardsHtml(){
       '<span style="flex-basis:100%;height:0"></span>'+
       gchip('kpiMultiScen','toggle',(state.kpiMultiScen?'✓ ':'')+'2. Referenz als volle Säule'+(state.reference2==='—'?' (Ref 2 setzen)':''),!!state.kpiMultiScen)));
   }
+  /* Forecast (FC) global ausblenden – greift in allen Chart-Typen mit FC-Flag */
+  if(state.primary==='AC' && ['columns','line','colline','kombi','bars','barskombi','dotplot','tornado','bullet','kpi','zchart','bridge','slope','fan','stackcol','stackbar','multiples'].includes(t)){
+    out.push(gcard('Forecast (FC)','Das FC-Flag (AC&FC) global ein- oder ausblenden. „Ohne FC" zeigt die Forecast-Werte als normales Ist (keine Schraffur/FC-Kennung) und lässt das FC-Feld aus dem Deneb-Export.',
+      gchip('noFC','on','Mit FC',!state.noFC)+gchip('noFC','off','Ohne FC',!!state.noFC)));
+  }
   out.push(gcard('Farben · Barrierefreiheit','Farbsichere Variante: positives Δ wird Blaugrün statt Grün – besser unterscheidbar bei Rot‑Grün‑Sehschwäche. Negativ bleibt Rot.',
     gchip('cbSafe','toggle',(state.cbSafe?'✓ ':'')+'Farbsicher (Grün → Blaugrün)',!!state.cbSafe)));
   out.push(gcard('Titel & Botschaft','Botschaft (fett), Titel und Untertitel. Quelle und Einheit optional.',
@@ -5695,6 +5708,7 @@ function applyGuideOpt(opt,val){
     case 'kpiSingle': state.kpiSingle = (val==='single'); renderAll(); break;
     case 'kpiNoTitle': state.kpiNoTitle = !state.kpiNoTitle; renderAll(); break;
     case 'kpiNoLabels': state.kpiNoLabels = !state.kpiNoLabels; renderPreview(); break;
+    case 'noFC': state.noFC = (val==='off'); renderAll(); break;
     case 'kpiMultiScen':
       state.kpiMultiScen = !state.kpiMultiScen;
       if(state.kpiMultiScen && state.reference2==='—'){
@@ -6387,7 +6401,7 @@ function vFieldDefs(){
     /* FC-Flag nur für Typen, die das Forecast-Feld auch wirklich rendern
        (Schraffur/Strichelung) – nicht bei reinen Varianz-/Struktur-Typen. */
     const NO_FC = ['absvar','relvar','pareto','table'];
-    if(state.primary==='AC' && !NO_FC.includes(t)) defs.push(['fc','FC-Flag (1 = Forecast, 0/leer = Ist)']);
+    if(state.primary==='AC' && !NO_FC.includes(t) && !state.noFC) defs.push(['fc','FC-Flag (1 = Forecast, 0/leer = Ist)']);
   }
   return defs;
 }
@@ -8469,8 +8483,12 @@ function vlKpiBridge(deneb){
   /* Geometrie + Achsen-Helfer je Ausrichtung */
   let Wc, Hc, barThick, scaleObj, center, zA, zB;
   if(bars){
-    Wc = 214; Hc = 56 + nSlots*26 + 14; barThick = 16;
-    const plotL=58, plotR=Wc-16, rowsTop=52, rowStep=(Hc-52-12)/nSlots;
+    /* rechts Platz fürs Wert-Label am Balkenende reservieren (sonst Überlauf) */
+    const labLens = values.flatMap(o=>[o.Lp,o.Lr,o.Ldlt].concat(hasR2?[o.Lr2]:[])).filter(Boolean).map(x=>String(x).length);
+    const maxLab = Math.max(3, ...(labLens.length?labLens:[3]));
+    const labGut = Math.round(maxLab*6)+12;
+    Wc = 58 + 120 + labGut; Hc = 56 + nSlots*26 + 14; barThick = 16;
+    const plotL=58, plotR=Wc-labGut, rowsTop=52, rowStep=(Hc-52-12)/nSlots;
     scaleObj = {zero:true, nice:false, range:[plotL, plotR]};
     center = k => rowsTop + rowStep*(k+0.5); zA = rowsTop; zB = Hc-12;
   } else {
@@ -9291,7 +9309,7 @@ function serialize(){
       showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef, tableDims:state.tableDims, rawVega:state.rawVega,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
-      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, kpiSingle:state.kpiSingle, kpiNoTitle:state.kpiNoTitle, kpiNoLabels:state.kpiNoLabels, fontScale:state.fontScale, fromType:state.fromType,
+      multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, kpiSingle:state.kpiSingle, kpiNoTitle:state.kpiNoTitle, kpiNoLabels:state.kpiNoLabels, noFC:state.noFC, fontScale:state.fontScale, fromType:state.fromType,
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
       target:state.target, negParens:state.negParens, annos:state.annos,
       vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,
