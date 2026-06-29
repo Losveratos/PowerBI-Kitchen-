@@ -1,0 +1,233 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "config": {
+    "background": "#ffffff",
+    "font": "Arial, Helvetica, sans-serif",
+    "view": {
+      "stroke": null
+    },
+    "axis": {
+      "domainColor": "#404040",
+      "domainWidth": 1.5,
+      "ticks": false,
+      "grid": false,
+      "labelColor": "#555555",
+      "labelFont": "Arial",
+      "labelFontSize": 11,
+      "title": null
+    },
+    "legend": {
+      "disable": true
+    }
+  },
+  "title": {
+    "anchor": "start",
+    "font": "Arial",
+    "fontSize": 13.5,
+    "color": "#404040",
+    "subtitleFont": "Arial",
+    "subtitleFontSize": 12.5,
+    "subtitleColor": "#404040",
+    "offset": 16,
+    "text": "DataKitchen Inc.",
+    "subtitle": [
+      "Umsatz in mEUR",
+      "2025 AC&FC und PY"
+    ]
+  },
+  "width": "container",
+  "height": "container",
+  "data": {
+    "name": "dataset"
+  },
+  "encoding": {
+    "x": {
+      "field": "__0__",
+      "type": "nominal",
+      "sort": null,
+      "axis": {
+        "labelAngle": 0,
+        "labelPadding": 6
+      }
+    }
+  },
+  "layer": [
+    {
+      "mark": {
+        "type": "bar",
+        "size": 16,
+        "xOffset": -5.5,
+        "fill": "#a8a8a8",
+        "stroke": null,
+        "strokeWidth": 0,
+        "tooltip": {
+          "content": "data"
+        }
+      },
+      "encoding": {
+        "y": {
+          "field": "__2__",
+          "type": "quantitative",
+          "axis": null
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "bar",
+        "size": 16,
+        "xOffset": 5.5,
+        "tooltip": {
+          "content": "data"
+        }
+      },
+      "encoding": {
+        "fill": {
+          "condition": {
+            "test": "datum[\"__3__\"]",
+            "value": "#ffffff"
+          },
+          "value": "#404040"
+        },
+        "stroke": {
+          "condition": {
+            "test": "datum[\"__3__\"]",
+            "value": "#404040"
+          },
+          "value": "transparent"
+        },
+        "strokeWidth": {
+          "condition": {
+            "test": "datum[\"__3__\"]",
+            "value": 1.2
+          },
+          "value": 0
+        },
+        "strokeDash": {
+          "condition": {
+            "test": "datum[\"__3__\"]",
+            "value": [
+              3,
+              2
+            ]
+          },
+          "value": [
+            1,
+            0
+          ]
+        },
+        "y": {
+          "field": "__1__",
+          "type": "quantitative",
+          "axis": null
+        }
+      }
+    },
+    {
+      "transform": [
+        {
+          "filter": "datum[\"__1__\"] >= 0"
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "dy": -9,
+        "fontSize": 11,
+        "font": "Arial",
+        "xOffset": 5.5,
+        "color": "#404040"
+      },
+      "encoding": {
+        "y": {
+          "field": "__1__",
+          "type": "quantitative",
+          "axis": null
+        },
+        "text": {
+          "field": "__1__",
+          "type": "quantitative",
+          "format": ",.0f"
+        }
+      }
+    },
+    {
+      "transform": [
+        {
+          "filter": "datum[\"__1__\"] < 0"
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "dy": 14,
+        "fontSize": 11,
+        "font": "Arial",
+        "xOffset": 5.5,
+        "color": "#404040"
+      },
+      "encoding": {
+        "y": {
+          "field": "__1__",
+          "type": "quantitative",
+          "axis": null
+        },
+        "text": {
+          "field": "__1__",
+          "type": "quantitative",
+          "format": ",.0f"
+        }
+      }
+    }
+  ],
+  "usermeta": {
+    "information": {
+      "name": "DataKitchen Inc.",
+      "description": "2025 AC&FC und PY · erzeugt mit dem Business Chart Builder (IBCS-Notation)",
+      "author": "Business Chart Builder",
+      "uuid": "20b2e48c-488f-4989-9fd1-c758df6d078c",
+      "generated": "2026-06-29T17:00:23.450Z"
+    },
+    "deneb": {
+      "build": "1.6.4.0",
+      "metaVersion": 1,
+      "provider": "vegaLite",
+      "providerVersion": "5.16.3"
+    },
+    "interactivity": {
+      "tooltip": true,
+      "contextMenu": true,
+      "selection": false,
+      "highlight": false,
+      "dataPointLimit": 60
+    },
+    "dataset": [
+      {
+        "key": "__0__",
+        "name": "Kategorie",
+        "description": "Dimension",
+        "type": "text",
+        "kind": "column"
+      },
+      {
+        "key": "__1__",
+        "name": "AC",
+        "description": "Kennzahl · AC",
+        "type": "numeric",
+        "kind": "measure"
+      },
+      {
+        "key": "__2__",
+        "name": "PY",
+        "description": "Kennzahl · PY",
+        "type": "numeric",
+        "kind": "measure"
+      },
+      {
+        "key": "__3__",
+        "name": "FC",
+        "description": "FC-Flag (1 = Forecast, 0/leer = Ist)",
+        "type": "numeric",
+        "kind": "column"
+      }
+    ]
+  }
+}
