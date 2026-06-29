@@ -785,6 +785,19 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       let yc2=false; try{ const b=clone(yT2); delete b.usermeta; yc2=!!VL.compile(b).spec; }catch(e){}
       ok('Y · KPI-IBCS · Pillen-Template kompiliert (baked=0)', yc2 && tplBakedRows(yT2)===0);
       state.kpiStyle='ibcs'; state.kpiBars=false; state.kpiSingle=false; state.kpiMultiScen=false; state.reference2='—';
+      /* Y2 · Zeichenflächen-Größe: feste Größe skaliert die Vorschau (svg width/height) */
+      if('vlSizeMode' in state){
+        state.type='columns'; state.reference='PY';
+        state.rows=[{c:'Q1',v1:100,v2:90,v3:NaN,fc:false},{c:'Q2',v1:110,v2:95,v3:NaN,fc:false}];
+        state.vlSizeMode='fixed'; state.vlW=1240; state.vlH=340; renderAll();
+        const sv=document.getElementById('chartHost').querySelector('svg');
+        ok('Y · Zeichenfläche fest · Vorschau-SVG auf vlW×vlH skaliert',
+           sv && sv.style.width==='1240px' && sv.style.height==='340px' && sv.getAttribute('preserveAspectRatio')==='xMidYMid meet');
+        state.vlSizeMode='fit'; renderAll();
+        const sv2=document.getElementById('chartHost').querySelector('svg');
+        ok('Y · Zeichenfläche Auto · responsiv (keine feste SVG-Breite)', sv2 && !sv2.style.width);
+        state.vlSizeMode='fit'; state.vlW=600; state.vlH=340;
+      }
     }
 
     /* === N) Korrelations-Scatter: Trendlinie + Facetten je Gruppe ====== */

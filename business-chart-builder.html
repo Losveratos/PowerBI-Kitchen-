@@ -565,6 +565,17 @@ footer a:hover{color:var(--ink)}
           <button class="chip" id="dvc2" type="button">2 Spalten</button>
         </span>
       </div>
+      <div class="row" id="sizeCtl" style="margin-bottom:12px; gap:5px; align-items:center; flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--ink2)" title="Größe der Zeichenfläche – gilt für die Vorschau UND den Deneb/Vega-Export">Zeichenfläche</span>
+        <button class="chip" id="szAuto" type="button" title="Responsiv – passt sich dem Vorschaufenster an (Export: dynamisch)">Auto</button>
+        <button class="chip" data-pvsz="320,210" type="button">Karte</button>
+        <button class="chip" data-pvsz="600,340" type="button">¼ Seite</button>
+        <button class="chip" data-pvsz="1240,340" type="button">Streifen</button>
+        <button class="chip" data-pvsz="1240,700" type="button">Seite</button>
+        <span style="width:4px"></span>
+        <input type="number" id="pvW" min="160" max="2400" step="20" style="width:64px" title="Breite in px"> ×
+        <input type="number" id="pvH" min="100" max="1600" step="20" style="width:64px" title="Höhe in px"> px
+      </div>
       <div class="msg-line" id="pmsg" style="display:none"></div>
       <div class="titles">
         <div class="t1" id="pt1"></div>
@@ -4959,6 +4970,24 @@ function setView(v){
   state.view = v;
   renderPreview();
 }
+/* Feste Zeichenflächen-Größe in der Vorschau anwenden: das SVG wird (vektoriell,
+   Seitenverhältnis erhaltend) auf vlW×vlH skaliert – alles wird entsprechend
+   größer/kleiner. „Auto" = responsiv (max-width:100%). Greift nur für die
+   Standard-SVG-Charts (Gantt/Raw-Vega/Dashboard bringen eigene Größe mit). */
+function applyCanvasSize(){
+  const host = $('#chartHost'); if(!host) return;
+  const svg = host.querySelector('svg'); if(!svg) return;
+  if(state.vlSizeMode==='fixed' && state.type!=='gantt' && !rawVegaOn() && state.view!=='dash'){
+    svg.style.width = state.vlW+'px';
+    svg.style.height = state.vlH+'px';
+    svg.style.maxWidth = 'none';
+    svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+    host.style.overflow = 'auto';
+  } else {
+    svg.style.width = ''; svg.style.height = ''; svg.style.maxWidth = '';
+    host.style.overflow = '';
+  }
+}
 function renderPreview(){
   $('#pt1').textContent = $('#t1').value;
   $('#pt2').textContent = $('#t2').value;
@@ -4986,6 +5015,17 @@ function renderPreview(){
   } else {
     $('#chartHost').innerHTML = buildChart();
     renderComments();
+  }
+  applyCanvasSize();   /* feste Zeichenflächen-Größe in der Vorschau anwenden (skaliert) */
+  /* Zeichenflächen-Steuerung (gilt für Vorschau + Export) synchron halten */
+  const sizeCtl = $('#sizeCtl');
+  if(sizeCtl){
+    sizeCtl.style.display = state.view==='dash' ? 'none' : 'flex';
+    const fixed = state.vlSizeMode==='fixed';
+    $('#szAuto').classList.toggle('on', !fixed);
+    [...sizeCtl.querySelectorAll('[data-pvsz]')].forEach(b=> b.classList.toggle('on', fixed && b.dataset.pvsz===(state.vlW+','+state.vlH)));
+    if($('#pvW')!==document.activeElement) $('#pvW').value = state.vlW;
+    if($('#pvH')!==document.activeElement) $('#pvH').value = state.vlH;
   }
   /* KPI-Karte ohne Titel/Botschaft: Vorschau-Titelblock ausblenden (wie der Export) */
   const hideTitle = state.kpiNoTitle && state.type==='kpi';
@@ -6964,6 +7004,14 @@ $('#sizeInputs').addEventListener('click', e=>{
   const [w,h] = b.dataset.sz.split(',').map(Number);
   setSpecOpt(()=>{ state.vlSizeMode='fixed'; state.vlW=w; state.vlH=h; });
 });
+/* Zeichenflächen-Größe direkt in der Vorschau (teilt sich den State mit dem Export) */
+$('#szAuto').addEventListener('click', ()=>{ setSpecOpt(()=> state.vlSizeMode='fit'); renderPreview(); });
+document.querySelectorAll('#sizeCtl [data-pvsz]').forEach(b=> b.addEventListener('click', ()=>{
+  const [w,h] = b.dataset.pvsz.split(',').map(Number);
+  setSpecOpt(()=>{ state.vlSizeMode='fixed'; state.vlW=w; state.vlH=h; }); renderPreview();
+}));
+$('#pvW').addEventListener('change', e=>{ setSpecOpt(()=>{ state.vlSizeMode='fixed'; state.vlW=Math.max(160,+e.target.value||600); }); renderPreview(); });
+$('#pvH').addEventListener('change', e=>{ setSpecOpt(()=>{ state.vlSizeMode='fixed'; state.vlH=Math.max(100,+e.target.value||340); }); renderPreview(); });
 $('#dlgFont').addEventListener('change', e=>{
   state.fontScale = +e.target.value;
   $('#fontScale').value = e.target.value;
