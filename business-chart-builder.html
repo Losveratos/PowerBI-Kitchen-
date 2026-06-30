@@ -9336,6 +9336,10 @@ function vegaSpec(deneb){
       spec.autosize = {type:'fit', contains:'padding'};
     } else {
       spec.width = 'container'; spec.height = 'container';
+      /* fit: Visual füllt die Power-BI-Kachel exakt. Ohne autosize gilt VL-Default
+         „pad" → Rand/Unterfüllung; „fit"+contains:padding zwingt die Sicht in die
+         Kachel (inkl. Achsen/Titel), resize:true re-fittet beim Ziehen der Kachel. */
+      spec.autosize = {type:'fit', contains:'padding', resize:true};
     }
   }
   if(deneb && multiView) note = (note?note+' · ':'')+'Mehrteiliges Layout: feste/dynamische Größe unterstützt Vega-Lite hier nicht – im Deneb-Visual „Scaling: Auto“ aktivieren.';

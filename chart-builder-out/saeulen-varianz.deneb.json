@@ -178,13 +178,18 @@
       }
     }
   ],
+  "autosize": {
+    "type": "fit",
+    "contains": "padding",
+    "resize": true
+  },
   "usermeta": {
     "information": {
       "name": "DataKitchen Inc.",
       "description": "2025 AC&FC und PY · erzeugt mit dem Business Chart Builder (IBCS-Notation)",
       "author": "Business Chart Builder",
-      "uuid": "20b2e48c-488f-4989-9fd1-c758df6d078c",
-      "generated": "2026-06-29T17:00:23.450Z"
+      "uuid": "3cb18bb0-aae2-4501-90b4-6749dfad3c94",
+      "generated": "2026-06-30T14:05:54.218Z"
     },
     "deneb": {
       "build": "1.6.4.0",

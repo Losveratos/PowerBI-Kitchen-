@@ -23,6 +23,24 @@ nutzt sie in `height`/`width`-Signalen:
 spec.signals = [{name:'pbiContainerWidth',value:W},{name:'pbiContainerHeight',value:H}].concat(spec.signals);
 ```
 
+## 2b · Kachel-Füllen bei Vega-Lite (Einzelview)
+Vega-Lite kennt die `pbiContainer*`-Signale nicht. Damit ein Einzelview die
+Power-BI-Kachel **sauber füllt**, reicht `width/height:'container'` allein nicht –
+der VL-Default `autosize:'pad'` lässt Rand/Unterfüllung und re-fittet nicht beim
+Ziehen. Daher im `fit`-Export zusätzlich:
+```json
+{"width":"container","height":"container",
+ "autosize":{"type":"fit","contains":"padding","resize":true}}
+```
+`fit` zwingt die Sicht (inkl. Achsen/Titel) exakt in die Kachel, `resize:true`
+re-fittet bei Kachel-Resize. Implementiert in `vegaSpec()` (Zweig `vlSizeMode!=='fixed'`).
+
+**Mehrteilige Layouts** (`hconcat`/`vconcat`/`concat`/`facet` → KPI-Raster,
+Trellis/`multiples`, Dashboards): VL unterstützt `container` dort **nicht**;
+width/height bleiben offen, das Füllen übernimmt die Deneb-Einstellung
+**„Scaling: Auto"**. (Robuster, aber aufwändiger: nach Vega kompilieren und
+`pbiContainerWidth/Height`-Signale injizieren wie beim Gantt.)
+
 ## 3 · `''`-Quoting (die Stolperfalle bei .pbix-Exporten)
 Aus `.pbix` extrahierte Specs **verdoppeln einfache Anführungszeichen** in Vega-
 Ausdrücken: `"length(data(''input''))"`. Das ist Deneb/Power-BI-Konvention und
