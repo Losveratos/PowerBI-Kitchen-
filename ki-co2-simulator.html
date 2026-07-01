@@ -47,8 +47,6 @@ h1{font-family:'Space Grotesk',sans-serif;font-size:32px;line-height:1.15;margin
 .io-hint{font-size:11px;color:var(--ink-soft);margin:2px 0 22px;}
 
 .gauge{position:relative;background:linear-gradient(160deg,var(--panel),var(--panel-2));border-radius:14px;padding:26px 28px;color:var(--paper);display:flex;flex-wrap:wrap;gap:28px;align-items:center;margin-bottom:30px;box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 12px 30px -18px rgba(0,0,0,.5);}
-.gauge-share-btn{position:absolute;top:16px;right:18px;width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:var(--paper);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s ease, transform .15s ease;}
-.gauge-share-btn:hover{background:rgba(255,255,255,.16);transform:translateY(-1px);}
 .gauge-main{flex:1 1 260px;}
 .gauge-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9AA3AD;margin-bottom:6px;}
 .gauge-value{font-family:'IBM Plex Mono',monospace;font-size:44px;font-weight:700;color:var(--co2-soft);line-height:1;letter-spacing:-.01em;text-shadow:0 0 26px rgba(62,156,143,.4);}
@@ -214,6 +212,7 @@ footer b{color:var(--ink);}
   <div class="toolbar">
     <button class="btn" id="btn-reset" data-i18n="btnReset">↺ Auf Standard zurücksetzen</button>
     <button class="btn dark" id="btn-share" data-i18n="btnShare">🔗 Einstellungen exportieren</button>
+    <button class="btn dark" id="btn-share-png" data-i18n="btnSharePng">📷 Ergebnis als Bild teilen</button>
     <div class="lang-toggle">
       <button class="lang-btn" id="lang-de" data-lang="de" aria-label="Deutsch">🇩🇪 DE</button>
       <button class="lang-btn" id="lang-en" data-lang="en" aria-label="English">🇬🇧 EN</button>
@@ -240,7 +239,6 @@ footer b{color:var(--ink);}
   <div class="toast" id="toast"></div>
 
   <div class="gauge" id="gauge-anchor">
-    <button class="gauge-share-btn" id="btn-share-png" type="button" data-i18n-aria="sharePngAria">📷</button>
     <div class="gauge-main">
       <div class="gauge-label" data-i18n="gaugeLabel">Unternehmen · CO₂ pro Jahr</div>
       <div class="gauge-value" id="g-total">–<small>kg CO₂e</small></div>
@@ -458,7 +456,7 @@ const I18N = {
     eyebrow:'Modellhafte Schätzung · ESG-Vorbereitung',
     title:'Wie viel CO₂ steckt in einem Token?',
     subtitle:'Simulator für den Energie- und CO₂-Fußabdruck der KI-Nutzung im Unternehmen — pro Token, pro 1.000 Tokens, pro Mitarbeiter und Jahr, und für die gesamte Organisation. Alle Annahmen sind editierbar und werden als Min–Max-Band ausgewiesen.',
-    btnReset:'↺ Auf Standard zurücksetzen', btnShare:'🔗 Einstellungen exportieren', btnApply:'Übernehmen',
+    btnReset:'↺ Auf Standard zurücksetzen', btnShare:'🔗 Einstellungen exportieren', btnSharePng:'📷 Ergebnis als Bild teilen', btnApply:'Übernehmen',
     shareLabel:'Code zum Teilen', importLabel:'Code einfügen', importPh:'Code oder Link einfügen…',
     ioHint:'Der Code enthält ausschließlich eure Einstellungen — es wird nichts an einen Server gesendet.',
     toastReset:'Auf Standardwerte zurückgesetzt.', toastCopied:'Code kopiert!',
@@ -468,7 +466,7 @@ const I18N = {
     gaugeLabel:'Unternehmen · CO₂ pro Jahr', gaugeEnergy:'Energie / Jahr', gaugePerDay:'Ø pro Mitarbeiter/Tag', gaugeHeads:'Aktive Mitarbeiter',
     gaugeOffsetPriceLabel:'Kompensationspreis (€/t CO₂)', gaugeOffsetCostLabel:'Kompensation / Jahr',
     offsetPriceMinAria:'Kompensationspreis Minimum in Euro pro Tonne CO₂', offsetPriceMaxAria:'Kompensationspreis Maximum in Euro pro Tonne CO₂',
-    sharePngAria:'Ergebnis als PNG-Bild herunterladen', toastPngSaved:'Bild gespeichert — bereit zum Teilen.',
+    toastPngSaved:'Bild gespeichert — bereit zum Teilen.',
     gaugeCompareTemplate:'🚗 <b>{km} Auto-km</b>  ·  🛫 <b>{flight} Flug-km</b>',
     shareLabelCar:'Auto-km', shareLabelFlight:'Flug-km', shareLabelTrees:'Bäume/Jahr',
     bestCase:'Best Case', worstCase:'Worst Case', gaugeRealPrefix:'📏 Realwert (eigene Messung):', perYearSuffix:'kg CO₂e/Jahr',
@@ -539,7 +537,7 @@ const I18N = {
     eyebrow:'Model-based estimate · ESG preparation',
     title:'How much CO₂ is in a token?',
     subtitle:'A simulator for the energy and CO₂ footprint of AI usage in your organization — per token, per 1,000 tokens, per employee and year, and for the whole company. Every assumption is editable and shown as a min–max range.',
-    btnReset:'↺ Reset to default', btnShare:'🔗 Export settings', btnApply:'Apply',
+    btnReset:'↺ Reset to default', btnShare:'🔗 Export settings', btnSharePng:'📷 Share result as image', btnApply:'Apply',
     shareLabel:'Code to share', importLabel:'Paste code', importPh:'Paste code or link…',
     ioHint:'The code only contains your settings — nothing is sent to a server.',
     toastReset:'Reset to default values.', toastCopied:'Code copied!',
@@ -549,7 +547,7 @@ const I18N = {
     gaugeLabel:'Company · CO₂ per year', gaugeEnergy:'Energy / year', gaugePerDay:'Avg. per employee/day', gaugeHeads:'Active employees',
     gaugeOffsetPriceLabel:'Offset price (€/t CO₂)', gaugeOffsetCostLabel:'Offset cost / year',
     offsetPriceMinAria:'Minimum offset price in euros per tonne CO₂', offsetPriceMaxAria:'Maximum offset price in euros per tonne CO₂',
-    sharePngAria:'Download result as PNG image', toastPngSaved:'Image saved — ready to share.',
+    toastPngSaved:'Image saved — ready to share.',
     gaugeCompareTemplate:'🚗 <b>{km} car-km</b>  ·  🛫 <b>{flight} flight-km</b>',
     shareLabelCar:'car-km', shareLabelFlight:'flight-km', shareLabelTrees:'trees/year',
     bestCase:'Best case', worstCase:'Worst case', gaugeRealPrefix:'📏 Real value (own measurement):', perYearSuffix:'kg CO₂e/year',
