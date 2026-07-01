@@ -178,11 +178,19 @@ td.mono{font-family:'IBM Plex Mono',monospace;}
 .proj-controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;}
 @media(max-width:760px){.proj-controls{grid-template-columns:1fr;}}
 
+.appendix-table{border-collapse:separate;border-spacing:0;}
+.appendix-table tbody tr{transition:background .15s ease;}
+.appendix-table tbody tr:hover{background:var(--paper-2);}
 .appendix-table td{font-size:12.5px;line-height:1.55;}
-.appendix-table a{color:var(--co2);text-decoration:underline;word-break:break-all;}
-.appendix-param{font-weight:600;white-space:nowrap;}
-.appendix-range{font-family:'IBM Plex Mono',monospace;white-space:nowrap;color:var(--energy);}
-.appendix-note{font-size:11.5px;color:var(--ink-soft);margin-top:12px;line-height:1.6;background:var(--paper-2);border-radius:8px;padding:12px 14px;}
+.appendix-table a{color:var(--co2);text-decoration:none;border-bottom:1px solid rgba(62,156,143,.35);transition:border-color .15s ease;}
+.appendix-table a:hover{border-bottom-color:var(--co2);}
+.appendix-param{font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:8px;}
+.appendix-icon{font-size:15px;line-height:1;}
+.appendix-range{white-space:nowrap;}
+.appendix-range-pill{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:var(--energy);background:var(--paper-2);border:1px solid var(--line);border-radius:20px;padding:4px 10px;}
+.appendix-note{font-size:11.5px;color:var(--ink-soft);margin-top:12px;line-height:1.6;background:var(--paper-2);border-left:3px solid var(--co2);border-radius:8px;padding:12px 14px;display:flex;gap:8px;align-items:flex-start;}
+.appendix-note-icon{flex:0 0 auto;font-size:13px;}
+.appendix-count{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);background:var(--paper-2);border-radius:20px;padding:4px 11px;margin-left:10px;vertical-align:middle;}
 
 footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-soft);line-height:1.7;}
 footer b{color:var(--ink);}
@@ -416,7 +424,7 @@ footer b{color:var(--ink);}
   <div class="section-title" data-i18n="contextTitle">Einordnung</div>
   <div class="equiv-grid" id="equiv-grid"></div>
 
-  <div class="section-title" data-i18n="appendixTitle">Anhang: Quellen & Annahmen</div>
+  <div class="section-title"><span data-i18n="appendixTitle">Anhang: Quellen & Annahmen</span><span class="appendix-count" id="appendix-count"></span></div>
   <div class="card" style="margin-bottom:24px;">
     <p class="hint" data-i18n="appendixIntro" style="margin-bottom:16px;"></p>
     <table class="appendix-table">
@@ -514,7 +522,7 @@ const I18N = {
     thGroup:'Gruppe', thPeople:'Personen', thTokensYear:'Tokens/Jahr', thCo2Min:'CO₂/Jahr (Min)', thCo2Max:'CO₂/Jahr (Max)', thShare:'Anteil', totalRow:'Gesamt', millionAbbr:'Mio.',
     contextTitle:'Einordnung',
     eqCar:'gefahrene Auto-Kilometer (Ø EU-Pkw-Bestand, ~150 g/km)', eqFlight:'geflogene Kilometer (Kurzstrecke, ~246 g/km)', eqPhone:'Smartphone-Ladezyklen (~8,5 g CO₂e je Ladung)', eqTree:'Bäume, die diese Menge CO₂ pro Jahr binden würden',
-    appendixTitle:'Anhang: Quellen & Annahmen',
+    appendixTitle:'Anhang: Quellen & Annahmen', appendixCountTemplate:'{n} Quellen',
     appendixIntro:'Alle Basisannahmen dieses Simulators stützen sich auf öffentlich verfügbare Studien und Datensätze (Stand 2025/26). Da Methodik und Messgrenzen zwischen Quellen variieren, dienen die Zahlen als Orientierung, nicht als exakte Messung eurer eigenen KI-Nutzung. Für belastbares ESG-Reporting nach Möglichkeit anbieterspezifische bzw. gemessene Werte verwenden (siehe „Reale Nutzungsdaten" oben).',
     apColParam:'Parameter', apColRange:'Genutzter Bereich', apColSource:'Quelle & Begründung',
     appendixNote:'Hinweis: Außer Google hat bislang (Stand Anfang 2026) kein großer KI-Anbieter — etwa OpenAI oder Anthropic — eine vergleichbar detaillierte Pro-Prompt-Methodik für Energie/CO₂ veröffentlicht. Die Modell-Tiers in diesem Tool sind daher eine Größenordnungs-Ableitung aus den verfügbaren Einzeldatenpunkten, keine anbieterbestätigten Werte. Die Sensitivitäts- und Projektions-Regler (Nutzungsunsicherheit, Effizienz-/Wachstumsraten) sind explizit einstellbare Was-wäre-wenn-Hebel und keine Prognosen — daher nicht Teil dieser Quellenliste.',
@@ -594,7 +602,7 @@ const I18N = {
     thGroup:'Group', thPeople:'People', thTokensYear:'Tokens/year', thCo2Min:'CO₂/year (min)', thCo2Max:'CO₂/year (max)', thShare:'Share', totalRow:'Total', millionAbbr:'M',
     contextTitle:'Context',
     eqCar:'km driven by car (avg. EU car fleet, ~150 g/km)', eqFlight:'km flown (short-haul, ~246 g/km)', eqPhone:'smartphone charge cycles (~8.5 g CO₂e per charge)', eqTree:'trees that would absorb this much CO₂ per year',
-    appendixTitle:'Appendix: sources & assumptions',
+    appendixTitle:'Appendix: sources & assumptions', appendixCountTemplate:'{n} sources',
     appendixIntro:"All baseline assumptions in this simulator are grounded in publicly available studies and datasets (as of 2025/26). Because methodology and measurement boundaries vary between sources, the figures are meant as orientation, not an exact measurement of your own AI usage. For robust ESG reporting, prefer provider-specific or measured values where possible (see \"Real usage data\" above).",
     apColParam:'Parameter', apColRange:'Range used', apColSource:'Source & rationale',
     appendixNote:"Note: as of early 2026, no major AI provider besides Google — including OpenAI or Anthropic — has published a comparably detailed per-prompt energy/CO₂ methodology. The model tiers in this tool are therefore an order-of-magnitude derivation from the available individual data points, not provider-confirmed figures. The sensitivity and projection controls (usage uncertainty, efficiency/growth rates) are explicitly adjustable what-if levers, not forecasts — so they are not part of this source list.",
@@ -632,39 +640,39 @@ const QUICKSTART_TEMPLATES = [
 ];
 
 const APPENDIX_ROWS = [
-  {param:{de:'Energie je 1.000 Output-Tokens (Modell-Tiers)', en:'Energy per 1,000 output tokens (model tiers)'},
+  {icon:'⚡', param:{de:'Energie je 1.000 Output-Tokens (Modell-Tiers)', en:'Energy per 1,000 output tokens (model tiers)'},
    range:{de:'0,15 – 22 Wh, je nach Modellklasse', en:'0.15 – 22 Wh, depending on model class'},
    source:{de:'Abgeleitet aus Googles Vollstack-Messung für einen realen Gemini-Prompt (Median: 0,24 Wh / 0,03 g CO₂e; vor 12 Monaten rund 33× höher), Mistral AI’s eigener Lebenszyklus-Wert (~1,14 g CO₂e je ~400-Token-Antwort) sowie Cross-Modell-Benchmarks wie dem ML.Energy-Leaderboard (Uni Michigan) und dem AI Energy Score (Hugging Face/Salesforce), die für lange Prompts Spannen bis über 29 Wh zeigen. Diese Werte sind pro Prompt veröffentlicht, nicht pro 1.000 Tokens — die Tool-Tiers sind daher eine Größenordnungs-Ableitung. <a href="https://cloud.google.com/blog/products/infrastructure/measuring-the-environmental-impact-of-ai-inference" target="_blank" rel="noopener">Google (2025)</a>, <a href="https://services.google.com/fh/files/misc/measuring_the_environmental_impact_of_delivering_ai_at_google_scale.pdf" target="_blank" rel="noopener">Google Technical Paper</a>, <a href="https://www.cnaught.com/blog/how-much-carbon-does-ai-actually-use-and-why-its-so-hard-to-find-out" target="_blank" rel="noopener">CNaught (2026)</a>',
            en:'Derived from Google’s full-stack measurement of a real Gemini prompt (median: 0.24 Wh / 0.03 g CO₂e; about 33× higher a year earlier), Mistral AI’s own life-cycle figure (~1.14 g CO₂e for a ~400-token response), and cross-model benchmarks such as the ML.Energy Leaderboard (University of Michigan) and the AI Energy Score (Hugging Face/Salesforce), which show spreads up to over 29 Wh for long prompts. These figures are published per prompt, not per 1,000 tokens — the tool’s tiers are therefore an order-of-magnitude derivation. <a href="https://cloud.google.com/blog/products/infrastructure/measuring-the-environmental-impact-of-ai-inference" target="_blank" rel="noopener">Google (2025)</a>, <a href="https://services.google.com/fh/files/misc/measuring_the_environmental_impact_of_delivering_ai_at_google_scale.pdf" target="_blank" rel="noopener">Google technical paper</a>, <a href="https://www.cnaught.com/blog/how-much-carbon-does-ai-actually-use-and-why-its-so-hard-to-find-out" target="_blank" rel="noopener">CNaught (2026)</a>'}},
-  {param:{de:'PUE (Rechenzentrums-Effizienz)', en:'PUE (data-center efficiency)'},
+  {icon:'🏭', param:{de:'PUE (Rechenzentrums-Effizienz)', en:'PUE (data-center efficiency)'},
    range:{de:'1,15 – 1,56', en:'1.15 – 1.56'},
    source:{de:'Uptime Institute Global Data Center Survey 2024/2025: Branchendurchschnitt 1,56 (2024) bzw. 1,54 (2025-Erhebung); neue Großanlagen erreichen 1,3 und teils deutlich weniger. <a href="https://datacenter.uptimeinstitute.com/rs/711-RIA-145/images/2024.GlobalDataCenterSurvey.Report.pdf" target="_blank" rel="noopener">Uptime Institute (2024)</a>',
            en:'Uptime Institute Global Data Center Survey 2024/2025: industry average 1.56 (2024) and 1.54 (2025 survey); new large-scale builds reach 1.3 and sometimes significantly less. <a href="https://datacenter.uptimeinstitute.com/rs/711-RIA-145/images/2024.GlobalDataCenterSurvey.Report.pdf" target="_blank" rel="noopener">Uptime Institute (2024)</a>'}},
-  {param:{de:'Strommix — EU-Durchschnitt', en:'Grid mix — EU average'},
+  {icon:'🔌', param:{de:'Strommix — EU-Durchschnitt', en:'Grid mix — EU average'},
    range:{de:'180 – 280 g CO₂/kWh', en:'180 – 280 g CO₂/kWh'},
    source:{de:'Ember: EU-Durchschnitt 242 g/kWh (2023), fallend von 292 g (2022); Trend seither weiter rückläufig. <a href="https://reglobal.org/coal-continues-to-be-undercut-by-new-wind-and-solar-in-eu-ember/" target="_blank" rel="noopener">Ember via REGlobal (2024)</a>',
            en:'Ember: EU average 242 g/kWh (2023), down from 292 g (2022); trend has continued downward since. <a href="https://reglobal.org/coal-continues-to-be-undercut-by-new-wind-and-solar-in-eu-ember/" target="_blank" rel="noopener">Ember via REGlobal (2024)</a>'}},
-  {param:{de:'Strommix — Global / Deutschland / Kohle-Beispiel', en:'Grid mix — global / Germany / coal example'},
+  {icon:'🌍', param:{de:'Strommix — Global / Deutschland / Kohle-Beispiel', en:'Grid mix — global / Germany / coal example'},
    range:{de:'Global 420–480; Deutschland 280–400; Polen (Kohle-Beispiel) 550–800 g CO₂/kWh', en:'Global 420–480; Germany 280–400; Poland (coal example) 550–800 g CO₂/kWh'},
    source:{de:'Ember Global Electricity Review 2026: 458 g/kWh weltweit (2025); IEA: 445 g/kWh (2024), Prognose 400 g/kWh (2027). Ember: Deutschland 371 g/kWh, Polen 662 g/kWh (jeweils 2023). <a href="https://ember-energy.org/latest-insights/global-electricity-review-2026/electricity-demand-and-supply-trends/" target="_blank" rel="noopener">Ember (2026)</a>, <a href="https://www.iea.org/reports/electricity-2025/emissions" target="_blank" rel="noopener">IEA (2025)</a>',
            en:'Ember Global Electricity Review 2026: 458 g/kWh globally (2025); IEA: 445 g/kWh (2024), forecast 400 g/kWh (2027). Ember: Germany 371 g/kWh, Poland 662 g/kWh (both 2023). <a href="https://ember-energy.org/latest-insights/global-electricity-review-2026/electricity-demand-and-supply-trends/" target="_blank" rel="noopener">Ember (2026)</a>, <a href="https://www.iea.org/reports/electricity-2025/emissions" target="_blank" rel="noopener">IEA (2025)</a>'}},
-  {param:{de:'Auto-Vergleichsfaktor', en:'Car comparison factor'},
+  {icon:'🚗', param:{de:'Auto-Vergleichsfaktor', en:'Car comparison factor'},
    range:{de:'150 g CO₂/km (Fahrzeugbestand)', en:'150 g CO₂/km (vehicle fleet)'},
    source:{de:'EEA: Neuwagen EU 2025 im Schnitt 96,7 g/km (WLTP-Testwert, nur Neuzulassungen, stark EV-getrieben fallend). Der reale Fahrzeugbestand inkl. älterer Fahrzeuge und Realverbrauch liegt praxisnah spürbar höher — das Tool nutzt dafür 150 g/km als Näherung. <a href="https://www.eea.europa.eu/en/newsroom/news/average-co2-emissions-from-new-cars-and-vans-significantly-decreased-in-2025" target="_blank" rel="noopener">EEA (2026)</a>',
            en:'EEA: new EU cars averaged 96.7 g/km in 2025 (WLTP test value, new registrations only, falling fast due to EV uptake). The real on-road fleet, including older vehicles and real-world driving, sits noticeably higher in practice — the tool uses 150 g/km as an approximation. <a href="https://www.eea.europa.eu/en/newsroom/news/average-co2-emissions-from-new-cars-and-vans-significantly-decreased-in-2025" target="_blank" rel="noopener">EEA (2026)</a>'}},
-  {param:{de:'Flug-Vergleichsfaktor', en:'Flight comparison factor'},
+  {icon:'🛫', param:{de:'Flug-Vergleichsfaktor', en:'Flight comparison factor'},
    range:{de:'246 g CO₂e/km (Kurzstrecke/Inland, pro Passagier)', en:'246 g CO₂e/km (short-haul/domestic, per passenger)'},
    source:{de:'Our World in Data, basierend auf den offiziellen Emissionsfaktoren des UK Department for Energy Security and Net Zero: Inlandsflüge ~246 g CO₂e/Passagier-km, Kurzstrecke ~154 g/km. Das Tool nutzt den höheren Inlandsflug-Wert als griffigen Vergleichspunkt. <a href="https://ourworldindata.org/travel-carbon-footprint" target="_blank" rel="noopener">Our World in Data</a>',
            en:'Our World in Data, based on official UK Department for Energy Security and Net Zero emission factors: domestic flights ~246 g CO₂e per passenger-km, short-haul ~154 g/km. The tool uses the higher domestic-flight figure as a punchy reference point. <a href="https://ourworldindata.org/travel-carbon-footprint" target="_blank" rel="noopener">Our World in Data</a>'}},
-  {param:{de:'Smartphone-Ladung', en:'Smartphone charge'},
+  {icon:'📱', param:{de:'Smartphone-Ladung', en:'Smartphone charge'},
    range:{de:'~8,5 g CO₂e je Ladung', en:'~8.5 g CO₂e per charge'},
    source:{de:'Eigene Kurzrechnung: ca. 15–20 Wh Akkukapazität ÷ Ladeeffizienz × globaler Strommix-Durchschnitt (Ember, s. o.) ≈ 8–9 g CO₂e pro voller Ladung.',
            en:'Own short calculation: approx. 15–20 Wh battery capacity ÷ charging efficiency × global grid average (Ember, see above) ≈ 8–9 g CO₂e per full charge.'}},
-  {param:{de:'CO₂-Bindung pro Baum', en:'CO₂ absorption per tree'},
+  {icon:'🌳', param:{de:'CO₂-Bindung pro Baum', en:'CO₂ absorption per tree'},
    range:{de:'~20 kg CO₂/Jahr (Literaturspanne: 10–25 kg)', en:'~20 kg CO₂/year (literature range: 10–25 kg)'},
    source:{de:'Breit genutzte Faustregel, u. a. zitiert von Umweltinitiativen; je nach Baumart, Alter und Studie schwankt der Wert erheblich. <a href="https://reboxed.co/blogs/outsidethebox/carbon-neutral-phones-how-planting-trees-can-offset-the-lifetime-carbon-footprint-of-your-phone" target="_blank" rel="noopener">Reboxed / Ecologi</a>',
            en:'A widely used rule of thumb, cited by various environmental initiatives; the value varies considerably by species, age and study. <a href="https://reboxed.co/blogs/outsidethebox/carbon-neutral-phones-how-planting-trees-can-offset-the-lifetime-carbon-footprint-of-your-phone" target="_blank" rel="noopener">Reboxed / Ecologi</a>'}},
-  {param:{de:'Kompensationspreis (freiwilliger CO₂-Markt)', en:'Offset price (voluntary carbon market)'},
+  {icon:'💶', param:{de:'Kompensationspreis (freiwilliger CO₂-Markt)', en:'Offset price (voluntary carbon market)'},
    range:{de:'8 – 30 €/t CO₂e (Standard-Zertifikate)', en:'€8 – 30/t CO₂e (standard credits)'},
    source:{de:'2026-Marktdaten für den freiwilligen CO₂-Markt: durchschnittliche Zertifikatspreise ca. 8–30 €/t, mit großer Spanne je nach Projekttyp und Qualität — von REDD+/Wald-Erhalt (~6 $/t) über Aufforstung/verbessertes Waldmanagement (~15–22 $/t) bis zu technischer CO₂-Entnahme wie Biochar oder Direct Air Capture (170–500+ $/t). Diese Spanne ist bewusst konservativ für „Standard"-Zertifikate gewählt; Premium-Removal-Zertifikate liegen deutlich höher. <a href="https://www.sylvera.com/blog/carbon-offset-price" target="_blank" rel="noopener">Sylvera (2026)</a>, <a href="https://www.senken.io/academy/carbon-credit-price" target="_blank" rel="noopener">Senken (2026)</a>',
            en:'2026 voluntary carbon market data: average credit prices around €8–30/t, with a wide spread by project type and quality — from REDD+/forest protection (~$6/t) to afforestation/improved forest management (~$15–22/t) up to technical carbon removal such as biochar or direct air capture ($170–500+/t). This range is deliberately conservative for "standard" credits; premium removal credits trade well above it. <a href="https://www.sylvera.com/blog/carbon-offset-price" target="_blank" rel="noopener">Sylvera (2026)</a>, <a href="https://www.senken.io/academy/carbon-credit-price" target="_blank" rel="noopener">Senken (2026)</a>'}},
@@ -1395,9 +1403,15 @@ function renderAppendix(){
   const t = I18N[currentLang];
   const tbody = $('appendix-table'); tbody.innerHTML='';
   APPENDIX_ROWS.forEach(row=>{
-    tbody.innerHTML += `<tr><td class="appendix-param">${row.param[currentLang]}</td><td class="appendix-range">${row.range[currentLang]}</td><td>${row.source[currentLang]}</td></tr>`;
+    tbody.innerHTML += `<tr>
+      <td class="appendix-param"><span class="appendix-icon">${row.icon}</span>${row.param[currentLang]}</td>
+      <td class="appendix-range"><span class="appendix-range-pill">${row.range[currentLang]}</span></td>
+      <td>${row.source[currentLang]}</td>
+    </tr>`;
   });
-  $('appendix-note').textContent = t.appendixNote;
+  $('appendix-note').innerHTML = `<span class="appendix-note-icon">ℹ️</span>${escapeHtml(t.appendixNote)}`;
+  const countEl = $('appendix-count');
+  if(countEl) countEl.textContent = t.appendixCountTemplate.replace('{n}', APPENDIX_ROWS.length);
 }
 
 function renderTimeline(r){
