@@ -142,6 +142,70 @@ a { color: inherit; text-decoration: none; }
   background: var(--ink);
   color: white;
 }
+
+/* Nav-Dropdown · Talks & Post */
+.topnav-dd { position: relative; }
+.topnav-dd-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.topnav-dd-toggle::after {
+  content: '';
+  width: 6px; height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+  transition: transform .18s ease;
+}
+.topnav-dd:hover .topnav-dd-toggle::after,
+.topnav-dd:focus-within .topnav-dd-toggle::after { transform: rotate(225deg); margin-bottom: -2px; }
+.topnav-dd-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 248px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity .16s ease, transform .16s ease, visibility .16s;
+  z-index: 60;
+}
+.topnav-dd:hover .topnav-dd-menu,
+.topnav-dd:focus-within .topnav-dd-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+.topnav-dd-item {
+  display: block;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--ink);
+  transition: background .14s ease;
+}
+.topnav-dd-item:hover { background: var(--bg-soft); }
+.topnav-dd-item-name {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--black);
+  display: block;
+  line-height: 1.2;
+}
+.topnav-dd-item-meta {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-top: 2px;
+  display: block;
+}
+
 @media (max-width: 1100px) {
   .topnav { display: none; }
   .container { padding-top: 32px; }
@@ -1849,6 +1913,31 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <a class="topnav-link" href="#buckets-overview">Buckets</a>
     <a class="topnav-link" href="power_bi_einsteiger_guide_v4.html#beispiele">Beispiele</a>
     <a class="topnav-link" href="business-chart-builder.html" title="IBCS-Charts bauen und als Vega-Spec für Deneb (Power BI) exportieren">Chart-Builder</a>
+    <div class="topnav-dd">
+      <a class="topnav-link topnav-dd-toggle" href="pdoom-ki-risiko.html">Talks &amp; Post</a>
+      <div class="topnav-dd-menu">
+        <a class="topnav-dd-item" href="ibcs-trainer.html">
+          <span class="topnav-dd-item-name">IBCS-Trainer</span>
+          <span class="topnav-dd-item-meta">Tool · Quiz &amp; „Finde den Verstoß"</span>
+        </a>
+        <a class="topnav-dd-item" href="pdoom-ki-risiko.html">
+          <span class="topnav-dd-item-name">Wie wahrscheinlich ist die KI-Apokalypse?</span>
+          <span class="topnav-dd-item-meta">Post · p(doom) / KI-Risiko</span>
+        </a>
+        <a class="topnav-dd-item" href="zugfahrten-infografik.html">
+          <span class="topnav-dd-item-name">Die Schweiz fährt Europa davon</span>
+          <span class="topnav-dd-item-meta">Post · Infografik-Experiment</span>
+        </a>
+        <a class="topnav-dd-item" href="morally_aligned_ai.html">
+          <span class="topnav-dd-item-name">Morally Aligned AI</span>
+          <span class="topnav-dd-item-meta">Talk · Daten Grillen '26</span>
+        </a>
+        <a class="topnav-dd-item" href="ki-co2-simulator.html">
+          <span class="topnav-dd-item-name">Wie viel CO₂ steckt in einem Token?</span>
+          <span class="topnav-dd-item-meta">Tool · CO₂- &amp; Energie-Simulator für KI-Nutzung</span>
+        </a>
+      </div>
+    </div>
     <a class="topnav-link" href="#einsteiger-guide" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">Einsteiger-Guide</a>
   </div>
 </nav>
@@ -1874,9 +1963,9 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <div>
     <div class="eyebrow">Daten-WG · Knowledge Kitchen</div>
     <h1 class="title">Power BI lernen,<br><em>strukturiert &amp; durchsuchbar.</em></h1>
-    <p class="subtitle">129 Folgen aus dem <strong>Daten-WG-Podcast</strong> — geclustert in 9 Themen-Buckets, mit Volltextsuche bis in die Auto-Transkripte und einem End-to-End-Einsteiger-Guide. Kein Chrono-Scroll, sondern Curriculum.</p>
+    <p class="subtitle">132 Folgen aus dem <strong>Daten-WG-Podcast</strong> — geclustert in 9 Themen-Buckets, mit Volltextsuche bis in die Auto-Transkripte und einem End-to-End-Einsteiger-Guide. Kein Chrono-Scroll, sondern Curriculum.</p>
     <div class="header-stats">
-      <span class="header-stat"><strong>129</strong>Folgen</span>
+      <span class="header-stat"><strong>132</strong>Folgen</span>
       <span class="header-stat"><strong>105</strong>Transkripte</span>
       <span class="header-stat"><strong>10</strong>Guide-Kapitel</span>
       <span class="header-stat"><strong>9</strong>Buckets</span>
@@ -1915,7 +2004,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <div>
     <h2 class="start-here-title">Wie nutzt du diese Seite?</h2>
     <div class="start-here-text">
-      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 129 Folgen sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
+      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 132 Folgen sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
       <p>Jede Folge ist eine Karte mit Gast, Dauer, kurzer Zusammenfassung und Tags. Ein Klick auf die Karte zeigt die <strong>Kapitel-Timestamps</strong> (bei 60 Folgen detailliert eingepflegt) — du kannst direkt zur Stelle springen, die dich interessiert.</p>
       <p>Empfohlener Einstieg, wenn du den Kanal noch nicht kennst: Quarterly-Updates für die Tools-Lage, dann das Bucket, das gerade zu deiner Arbeit passt.</p>
     </div>
@@ -2007,6 +2096,15 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <span class="guide-promo-cta">Zum Guide ↓</span>
 </a>
 
+<a class="guide-promo" href="ibcs-trainer.html" style="border-left-color: var(--c-viz); margin-top: -24px;">
+  <div>
+    <div class="guide-promo-eyebrow" style="color: var(--c-viz);">Interaktiv · IBCS-Trainer</div>
+    <div class="guide-promo-title">IBCS-Regeln <em>spielerisch lernen</em></div>
+    <div class="guide-promo-text">Zwei Modi: <strong>Quiz</strong> (25 Fragen quer durch die IBCS-Regeln) und „<strong>Finde den Verstoß</strong>" (fehlerhafte Charts erkennen) — mit Punkten &amp; Highscore oder in Ruhe ohne Timer. Inklusive Spickzettel und Auswertung je Thema.</div>
+  </div>
+  <span class="guide-promo-cta" style="background: var(--c-viz);">Trainer starten →</span>
+</a>
+
 <!-- ============================================================
      FILTER BAR
 ============================================================ -->
@@ -2028,7 +2126,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
       <div class="search-help-foot">Sucht in Titel, Gast, Beschreibung und (lazy geladen) Transkripten.</div>
     </div>
     <div class="filter-meta">
-      <span><strong id="result-count">129</strong> von 129 Folgen</span>
+      <span><strong id="result-count">132</strong> von 132 Folgen</span>
       <button class="filter-reset" id="reset-filters">Filter zurücksetzen</button>
       <button class="tags-peek" id="tags-peek" type="button" aria-expanded="true" aria-controls="tag-list" title="Tag-Filter ein-/ausblenden"><span id="tags-peek-label">Tags ausblenden</span><span class="tags-peek-badge" id="tags-peek-badge">0</span><span class="tags-peek-chevron" aria-hidden="true"></span></button>
     </div>
@@ -2052,7 +2150,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-num">01 · QUARTERLY</div>
     <div class="bucket-tile-name">Updates & News</div>
     <div class="bucket-tile-teaser">Quarterly Updates: was ist neu in Power BI &amp; Fabric.</div>
-    <div class="bucket-tile-count">18 Folgen</div>
+    <div class="bucket-tile-count">19 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-2" style="--bucket-color: var(--c-fabric);">
     <div class="bucket-tile-num">02 · PLATTFORM</div>
@@ -2076,7 +2174,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-num">05 · CRAFT</div>
     <div class="bucket-tile-name">Visualisierung</div>
     <div class="bucket-tile-teaser">IBCS, Deneb, Boring Charts — wie Visualisierung wirklich wirkt.</div>
-    <div class="bucket-tile-count">11 Folgen</div>
+    <div class="bucket-tile-count">12 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-6" style="--bucket-color: var(--c-pbi);">
     <div class="bucket-tile-num">06 · TOOL</div>
@@ -2094,7 +2192,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-num">08 · BIG PICTURE</div>
     <div class="bucket-tile-name">Strategie</div>
     <div class="bucket-tile-teaser">Digitalisierung im Mittelstand, BI-Strategie, Big Picture.</div>
-    <div class="bucket-tile-count">5 Folgen</div>
+    <div class="bucket-tile-count">6 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-9" style="--bucket-color: var(--c-event);">
     <div class="bucket-tile-num">09 · EVENT</div>
@@ -2412,6 +2510,31 @@ const BUCKETS = [
 const EPISODES = [
 
   /* ========== BUCKET 1: QUARTERLY ========== */
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update Juni 2026',
+    guest: 'Solo',
+    solo: true,
+    date: 'Juni 2026',
+    duration: '7 min',
+    lang: 'DE',
+    desc: 'Zehn Features gehen im Juni-Update 2026 in die General Availability — darunter nach zehn Jahren Preview endlich die Shape Map und die produktiv nutzbaren DAX User Defined Functions. Das eigentliche Highlight ist aber ein Preview-Feature: die dynamische Datumsauswahl mit relativen Zeiträumen direkt im normalen Slicer.',
+    tags: ['Update', 'Power BI', 'GA', 'DE'],
+    podcastUrl: null,
+    ytId: '5xB_oKdvAwQ',
+    chapters: [
+      ['00:00', 'Intro: Juni-Update 2026, zehn Features werden GA'],
+      ['00:20', 'GA-Überblick: kleine Verbesserungen an Matrix, Achsen, Filtern'],
+      ['01:04', 'Shape Map endlich GA — nach zehn Jahren Preview'],
+      ['01:29', 'Slicer-Ausblick: das Highlight des Monats'],
+      ['01:44', 'Highlight: dynamische Datumsauswahl direkt im Slicer'],
+      ['03:29', 'Tooltips: Quick-Infos mit erklärendem Text'],
+      ['04:28', 'DAX User Defined Functions sind generally available'],
+      ['05:13', 'DAX Query View: Ergebnisse filtern und sortieren'],
+      ['05:42', 'Fabric Apps: dynamische Dashboards auf dem Power-BI-Modell'],
+      ['06:57', 'Outro']
+    ]
+  },
   {
     bucket: 'bucket-1',
     title: 'Power BI Update Mai 2026',
@@ -3833,6 +3956,42 @@ const EPISODES = [
   /* ========== BUCKET 5: VISUALISIERUNG & IBCS ========== */
   {
     bucket: 'bucket-5',
+    title: 'Objektive Daten gibt es nicht',
+    guest: 'Nadine Keil',
+    solo: false,
+    date: 'Juni 2026',
+    duration: '48 min',
+    lang: 'DE',
+    desc: 'Data-Storytelling-Expertin Nadine Keil und Artur darüber, warum Daten nicht für sich selbst sprechen und wann ein Analyst eine Empfehlung geben sollte statt sich nur die passende Statistik herauszupicken. Es geht um das Spannungsfeld aus Standard und Kreativität im Reporting, schlichte Schwarz-Weiß-Dashboards versus die Beförderung — und die Streitfrage, ob Self-Service-Dashboards überhaupt eine Berechtigung haben.',
+    tags: ['Storytelling', 'Visualisierung', 'Self-Service', 'DE'],
+    podcastUrl: null,
+    ytId: '-_4bfrjRCVo',
+    chapters: [
+      ['00:00', 'Intro: Daten sind Kommunikation – und was Comics damit zu tun haben'],
+      ['02:20', 'Müssten Daten nicht eigentlich für sich selbst sprechen?'],
+      ['03:17', 'Warum auch „harte Fakten" immer schon interpretiert sind'],
+      ['04:15', 'Empfehlung geben oder neutral bleiben? Das Spannungsverhältnis für Analysten'],
+      ['06:04', 'Daten liefern nicht die Lösung, sondern Input, Ideen und Diskussion'],
+      ['09:07', 'Der entscheidende Hebel: erst die knackige Botschaft, dann die Details'],
+      ['11:39', 'Visualisierung ist Kommunikation – nicht Kartografie'],
+      ['14:05', '„Ich will lieber eine Tabelle" – und warum man dann nachfragt'],
+      ['15:28', 'Klischees Controller vs. Sales – und warum sie nicht stimmen'],
+      ['16:30', 'Wie viel Standard, wie viel Kreativität? Das Rezeptkarten-Dashboard'],
+      ['18:43', 'Gamification, Warming Stripes und der Survivorship-Bias schöner Visualisierungen'],
+      ['20:01', 'Kreativität kostet Zeit: erst Klarheit, dann Schönheit'],
+      ['22:40', 'Schlicht und schwarz-weiß – aber bekommt man dafür die Beförderung?'],
+      ['24:54', 'Feste Grundregeln – und der erste Dissens: Self-Service-Dashboards'],
+      ['28:12', 'Warum Self-Service oft scheitert: keine direkten Antworten'],
+      ['31:30', 'Alibi-Self-Service vs. echtes Vertrauen und Entscheidungsfreiheit'],
+      ['33:48', 'Die Excel-Export-Spirale – und warum Unflexibilität dazugehört'],
+      ['35:09', 'Und jetzt die KI: Braucht es überhaupt noch Dashboards?'],
+      ['42:39', 'Ego, Spaß an der Analyse und wann Automatisieren reicht'],
+      ['44:22', 'Daten-WG 2026: Slam-Abend und Dashboard-Roast'],
+      ['46:58', 'Der eine konkrete Tipp zum Schluss']
+    ]
+  },
+  {
+    bucket: 'bucket-5',
     title: 'Declarative Visualization with DENEB',
     guest: 'Daniel Marsh-Patrick',
     solo: false,
@@ -4698,6 +4857,45 @@ const EPISODES = [
   },
 
   /* ========== BUCKET 8: STRATEGIE & BIG PICTURE ========== */
+  {
+    bucket: 'bucket-8',
+    title: 'Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools',
+    guest: 'Ulrik Harnisch · Marcus Wegener · Artur König',
+    solo: false,
+    date: 'Juni 2026',
+    duration: '47 min',
+    lang: 'DE',
+    desc: 'Artur, Ulrik, Marcus und Michael sitzen mal wieder zu viert im Raum und geben sich ein ehrliches State of Data: was lief, was nervt, woran kommt man gerade nicht vorbei. Es geht um Copilot und den Microsoft-Tool-Zoo, die Frage ob Power BI ein sterbendes Tool ist, Kennzahlen on the fly versus saubere semantische Modelle — und am Ende um Cloud-Security und die Idee, Vibe-Coding einfach zu versichern.',
+    tags: ['State of Data', 'Strategie', 'AI', 'Fabric', 'DE'],
+    podcastUrl: null,
+    ytId: 'd3HdhRe_nK8',
+    chapters: [
+      ['00:00', 'Intro: Zu viert im Raum und ein gegenseitiges Update'],
+      ['00:44', 'Marcus\' Projekt: Fabric-Ladestrecken von SAP bis in den Cube'],
+      ['02:10', 'Warum die Analytics-Welt Richtung Microsoft geht und nicht zu SAP'],
+      ['03:48', '"Copilot nutze ich fast nie" – ist Copilot eine Totgeburt?'],
+      ['04:47', 'Welcher Copilot eigentlich? Der Tool-Zoo und der Vorteil eines Anbieters'],
+      ['08:14', 'Copilot im SharePoint-Alltag und warum Schulung der Knackpunkt ist'],
+      ['09:08', 'Besser als ChatGPT oder Claude? GitHub Copilot und das Lizenz-Wirrwarr'],
+      ['11:39', 'Wo liegen die Daten? Tenant, eigene Konzern-GPTs, Firstmover vs. Mittelstand'],
+      ['13:36', 'Lineage-Doku mit KI und ein Copilot-Studio-Agent direkt in Teams'],
+      ['16:05', 'Kann man einem Agent trauen? Instructions, die niemand zu sehen bekommt'],
+      ['17:00', 'Enablement, die Angst des Controllings und Copilot als bessere Suchmaschine'],
+      ['21:35', 'Copilot ersetzt keine semantischen Modelle – "Ask your Data" und seine Grenzen'],
+      ['22:14', 'Direkt auf Databricks statt Power BI? Ein Markt im Mittelstand'],
+      ['23:36', 'Kennzahlen on the fly: Agent oder semantisches Modell?'],
+      ['26:17', 'Ist Power BI ein totes Tool? Der Purpose einer Power-BI-Boutique'],
+      ['29:43', 'Token verbrennen oder Skills: Abfragen festschreiben statt neu generieren'],
+      ['31:41', 'Das Dashboard als Lagerfeuer und warum gemeinsame Sichten zählen'],
+      ['33:30', 'Arturs Zeiterfassung läuft jetzt über MCP statt über Power BI'],
+      ['36:35', 'Flat Table schlägt Starschema? Die Architektur ist noch nicht fertig'],
+      ['37:50', 'Wer haftet für KI-generierten Code? Human in the loop'],
+      ['38:39', 'Cloud-Security: ein Service Principal, der die ganze AD ausliest'],
+      ['41:12', 'Eine Versicherung für Vibe-Coding? Ein neues Geschäftsmodell entsteht'],
+      ['44:28', 'State of Data: Fazit und die Ankündigung einer zweiten Folge'],
+      ['45:08', 'Die Daten-WG 2026 und ihre auffällig vielen KI-Vorträge']
+    ]
+  },
   {
     bucket: 'bucket-8',
     title: 'LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management',
