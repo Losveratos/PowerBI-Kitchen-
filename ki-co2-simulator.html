@@ -615,7 +615,7 @@ const I18N = {
 };
 
 const DEFAULT_LABEL_PAIRS = [
-  ['Leichtnutzer','Light user'], ['Mittelnutzer','Medium user'], ['Intensivnutzer','Heavy user'], ['Neue Gruppe','New group']
+  ['Leichtnutzer','Light user'], ['Mittelnutzer','Medium user'], ['Intensivnutzer','Heavy user'], ['Freelancer (KI-Poweruser)','Freelancer (AI power user)'], ['Neue Gruppe','New group']
 ];
 
 const MODEL_PRESETS = [
@@ -687,7 +687,7 @@ const DEFAULT_STATE = {
   eMin:0.6, eMax:2.5, outShare:30, ratio:3,
   pueMin:1.15, pueMax:1.56, co2Min:180, co2Max:280, days:220,
   co2PriceMin:8, co2PriceMax:30,
-  groups:[ {label:'Leichtnutzer', n:120, t:4000}, {label:'Mittelnutzer', n:60, t:20000}, {label:'Intensivnutzer', n:20, t:90000} ],
+  groups:[ {label:'Leichtnutzer', n:120, t:4000}, {label:'Mittelnutzer', n:60, t:20000}, {label:'Intensivnutzer', n:20, t:90000}, {label:'Freelancer (KI-Poweruser)', n:1, t:250000} ],
   real:{enabled:false, period:'year', tokens:'', kwh:'', intensity:''},
   volUncertainty:20, materialityTotal:'', projYears:5, projEfficiency:15, projGrowth:30
 };
