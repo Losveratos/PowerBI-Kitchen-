@@ -888,11 +888,12 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
         ok('X · kpiDemo · Nettoverschuldung hat polarity=lower (Schulden sinken = günstig)', netto && netto.polarity==='lower');
         const html = chartHtml();
         const seg = html.slice(html.indexOf('Nettoverschuldung'), html.indexOf('Nettoverschuldung')+1200);
-        ok('X · KPI ibcs · Nettoverschuldung (Δ<0, lower) rendert grün statt rot', /#469b3c|#0e8c7f/.test(seg) && !/#c0392b/.test(seg), 'seg enthält kein var-neg-Rot');
+        const posCol = varColors().pos, negCol = varColors().neg;
+        ok('X · KPI ibcs · Nettoverschuldung (Δ<0, lower) rendert grün statt rot', seg.includes(posCol) && !seg.includes(negCol), 'seg enthält kein var-neg-Rot');
         state.kpiStyle='status'; renderAll();
         const html2 = chartHtml();
         const seg2 = html2.slice(html2.indexOf('Nettoverschuldung'), html2.indexOf('Nettoverschuldung')+900);
-        ok('X · KPI status · Nettoverschuldung (Δ<0, lower) rendert grün statt rot', /#469b3c|#0e8c7f/.test(seg2) && !/#c0392b/.test(seg2));
+        ok('X · KPI status · Nettoverschuldung (Δ<0, lower) rendert grün statt rot', seg2.includes(posCol) && !seg2.includes(negCol));
         state.kpiStyle='ibcs';
       }
       /* Generischer Fall: Tabelle mit einer polarity=lower-Zeile */
@@ -902,7 +903,7 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       {
         const html = chartHtml();
         const seg = html.slice(html.indexOf('>Kosten<'), html.indexOf('>Kosten<')+700);
-        ok('X · Tabelle · Kosten gesunken (lower) rendert grün, kein Rot', /#469b3c|#0e8c7f/.test(seg) && !/#c0392b/.test(seg));
+        ok('X · Tabelle · Kosten gesunken (lower) rendert grün, kein Rot', seg.includes(varColors().pos) && !seg.includes(varColors().neg));
       }
 
       /* X9 · KPI ibcs · Deneb-Export: Zielbalken + Mini-Achsen-Pin + Polarity, kein NaN
@@ -996,8 +997,8 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
         state.rows=[{c:'Q1',v1:100,v2:90,v3:NaN,fc:false},{c:'Q2',v1:110,v2:95,v3:NaN,fc:false}];
         state.vlSizeMode='fixed'; state.vlW=1240; state.vlH=340; renderAll();
         const sv=document.getElementById('chartHost').querySelector('svg');
-        ok('Y · Zeichenfläche fest · Vorschau-SVG auf vlW×vlH skaliert',
-           sv && sv.style.width==='1240px' && sv.style.height==='340px' && sv.getAttribute('preserveAspectRatio')==='xMidYMid meet');
+        ok('Y · Zeichenfläche fest · Vorschau-SVG auf vlW×vlH skaliert (füllt die Fläche, kein Letterboxing)',
+           sv && sv.style.width==='1240px' && sv.style.height==='340px' && sv.getAttribute('preserveAspectRatio')==='none');
         state.vlSizeMode='fit'; renderAll();
         const sv2=document.getElementById('chartHost').querySelector('svg');
         ok('Y · Zeichenfläche Auto · responsiv (keine feste SVG-Breite)', sv2 && !sv2.style.width);
