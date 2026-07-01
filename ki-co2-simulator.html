@@ -22,6 +22,8 @@ html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-famil
 .sticky-bar.show{transform:translateY(0);}
 .sticky-bar .sv{font-size:15px;font-weight:600;color:var(--co2-soft);}
 
+.back-link{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);text-decoration:none;padding:8px 14px;border:1px solid var(--line);border-radius:100px;transition:all .15s ease;margin-bottom:20px;}
+.back-link:hover{color:var(--co2);border-color:var(--co2);background:var(--paper-2);}
 .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);}
 h1{font-family:'Space Grotesk',sans-serif;font-size:32px;line-height:1.15;margin:6px 0 8px;letter-spacing:-.01em;}
 .sub{font-size:14.5px;color:var(--ink-soft);max-width:680px;line-height:1.55;margin-bottom:18px;}
@@ -202,6 +204,8 @@ footer b{color:var(--ink);}
   <span class="sv" id="sticky-value">–</span>
 </div>
 <div class="wrap">
+
+  <a class="back-link" href="index.html" data-i18n="backLink">← Zurück zur Knowledge Kitchen</a>
 
   <div class="eyebrow" data-i18n="eyebrow">Modellhafte Schätzung · ESG-Vorbereitung</div>
   <h1 data-i18n="title">Wie viel CO₂ steckt in einem Token?</h1>
@@ -450,6 +454,7 @@ const PALETTE = ['#6FA96B','#D98A3D','#C4573A','#3E9C8F','#8B6BAF','#4C7DBF','#B
 const I18N = {
   de:{
     pageTitle:'KI-Token → CO₂ & Energie Simulator',
+    backLink:'← Zurück zur Knowledge Kitchen',
     eyebrow:'Modellhafte Schätzung · ESG-Vorbereitung',
     title:'Wie viel CO₂ steckt in einem Token?',
     subtitle:'Simulator für den Energie- und CO₂-Fußabdruck der KI-Nutzung im Unternehmen — pro Token, pro 1.000 Tokens, pro Mitarbeiter und Jahr, und für die gesamte Organisation. Alle Annahmen sind editierbar und werden als Min–Max-Band ausgewiesen.',
@@ -530,6 +535,7 @@ const I18N = {
   },
   en:{
     pageTitle:'AI Token → CO₂ & Energy Simulator',
+    backLink:'← Back to Knowledge Kitchen',
     eyebrow:'Model-based estimate · ESG preparation',
     title:'How much CO₂ is in a token?',
     subtitle:'A simulator for the energy and CO₂ footprint of AI usage in your organization — per token, per 1,000 tokens, per employee and year, and for the whole company. Every assumption is editable and shown as a min–max range.',
