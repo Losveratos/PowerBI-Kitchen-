@@ -110,6 +110,9 @@ select{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:6px
 input[type=checkbox]{accent-color:var(--co2);width:15px;height:15px;}
 
 .section-title{font-family:'Space Grotesk',sans-serif;font-size:18px;margin:36px 0 14px;}
+.result-headline{background:linear-gradient(135deg,var(--panel),var(--panel-2));color:var(--paper);border-left:4px solid var(--co2);border-radius:var(--radius);padding:18px 22px;margin-bottom:18px;font-size:14.5px;line-height:1.7;box-shadow:0 12px 28px -18px rgba(0,0,0,.45);}
+.result-headline b{color:var(--co2-soft);font-weight:700;}
+.result-headline .rh-cost{color:var(--energy-soft);font-weight:700;}
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:26px;}
 .kpi{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px 14px 16px;}
 .kpi.realkpi{border-color:var(--real);background:#F2F6FC;}
@@ -324,6 +327,7 @@ footer b{color:var(--ink);}
   </div>
 
   <div class="section-title" data-i18n="resultsTitle">Ergebnis</div>
+  <div class="result-headline" id="result-headline"></div>
   <div class="kpi-grid" id="kpi-grid"></div>
 
   <div class="card" style="margin-bottom:24px;">
@@ -465,6 +469,7 @@ const I18N = {
     realIntensityLabel:'Gemessene CO₂-Intensität (gCO₂/kWh, optional)', realIntensityPh:'sonst Mittelwert d. Schätzung',
     realNote:'Wenn kWh angegeben ist, wird direkt daraus die reale CO₂-Menge berechnet. Sonst wird die reale Token-Zahl mit dem mittleren Energie-/PUE-Wert eurer aktuellen Schätzung hochgerechnet.',
     resultsTitle:'Ergebnis: CO₂ & Energie unter aktuellen Annahmen',
+    resultsInsightTemplate:'📊 Kurz gesagt: Eure geschätzte KI-Nutzung verursacht <b>{co2min}–{co2max} kg CO₂e pro Jahr</b> — das entspricht etwa <b>{km} gefahrenen Auto-Kilometern</b> oder <b>{trees} Bäumen</b>, die diese Menge ein Jahr lang binden müssten. Kompensieren ließe sich das für schätzungsweise <span class="rh-cost">{costmin}–{costmax} €</span> pro Jahr.',
     kpiPerToken:'Pro Token', kpiPer1000:'Pro 1.000 Tokens', kpiPerDay:'Pro Mitarbeiter / Tag', kpiPerYear:'Pro Mitarbeiter / Jahr', kpiCompany:'Unternehmen / Jahr', kpiReal:'Realwert / Jahr',
     sensTitle:'Sensitivitätsanalyse: Was treibt die Bandbreite?',
     sensHint:'Zeigt, wie stark jede einzelne Annahme das Jahresergebnis verschiebt, wenn alle anderen Parameter auf ihrem Mittelwert bleiben. Je breiter der Balken, desto größer der Hebel.',
@@ -541,6 +546,7 @@ const I18N = {
     realIntensityLabel:'Measured CO₂ intensity (gCO₂/kWh, optional)', realIntensityPh:'otherwise midpoint of estimate',
     realNote:'If kWh is provided, the real CO₂ amount is calculated directly from it. Otherwise the real token count is extrapolated using the mid-point energy/PUE value of your current estimate.',
     resultsTitle:'Result: CO₂ & energy under current assumptions',
+    resultsInsightTemplate:'📊 In short: your estimated AI usage causes <b>{co2min}–{co2max} kg CO₂e per year</b> — roughly the same as <b>{km} km driven by car</b> or <b>{trees} trees</b> absorbing that much CO₂ for a year. Offsetting it would cost an estimated <span class="rh-cost">{costmin}–{costmax} €</span> per year.',
     kpiPerToken:'Per token', kpiPer1000:'Per 1,000 tokens', kpiPerDay:'Per employee / day', kpiPerYear:'Per employee / year', kpiCompany:'Company / year', kpiReal:'Real value / year',
     sensTitle:'Sensitivity analysis: what drives the range?',
     sensHint:'Shows how much each individual assumption shifts the annual result when all other parameters stay at their mid-point. The wider the bar, the bigger the lever.',
@@ -1244,6 +1250,12 @@ function render(r){
 
   const meanKg = gToKg((r.yearCo2Min+r.yearCo2Max)/2);
   const kmAuto = meanKg/0.15, smartphoneCharges=(meanKg*1000)/8.5, trees=meanKg/20;
+
+  $('result-headline').innerHTML = t.resultsInsightTemplate
+    .replace('{co2min}', fmt(gToKg(r.yearCo2Min),0)).replace('{co2max}', fmt(gToKg(r.yearCo2Max),0))
+    .replace('{km}', fmt(kmAuto,0)).replace('{trees}', fmt(trees,1))
+    .replace('{costmin}', fmt(offsetCostMin,0)).replace('{costmax}', fmt(offsetCostMax,0));
+
   const eqGrid = $('equiv-grid'); eqGrid.innerHTML='';
   [ {big:fmt(kmAuto,0), lbl:t.eqCar}, {big:fmt(smartphoneCharges,0), lbl:t.eqPhone}, {big:fmt(trees,1), lbl:t.eqTree} ]
   .forEach(e=>{ const d=document.createElement('div'); d.className='equiv'; d.innerHTML=`<div class="big">${e.big}</div><div class="lbl">${e.lbl}</div>`; eqGrid.appendChild(d); });
