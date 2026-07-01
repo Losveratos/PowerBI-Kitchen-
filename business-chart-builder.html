@@ -65,7 +65,8 @@ button.primary-cta{
   box-shadow:0 1px 4px rgba(26,111,181,.35);
 }
 button.primary-cta:hover{background:#135a96; border-color:#135a96; color:#fff}
-button:focus-visible, input:focus-visible, select:focus-visible{outline:2px solid var(--ink); outline-offset:1px}
+button:focus-visible, input:focus-visible, select:focus-visible, [role="button"]:focus-visible{outline:2px solid var(--ink); outline-offset:1px}
+aside .panel > h2, .subgrp .subhead{ cursor:pointer }
 
 /* ---------- Layout ---------- */
 .wrap{display:grid; grid-template-columns:330px 1fr; gap:18px; padding:18px 22px; max-width:1320px; margin:0 auto}
@@ -652,8 +653,8 @@ footer a:hover{color:var(--ink)}
   <div>Unabhängiges Projekt – nicht von der IBCS Association zertifiziert, geprüft oder mit ihr verbunden. Die Gestaltung orientiert sich an den frei verfügbaren IBCS® Standards v1.2 (ibcs.com, Lizenz CC BY‑SA 4.0); Regelverweise wie UN/EX/SA beziehen sich auf diese Quelle. IBCS® ist eine eingetragene Marke der IBCS Association bzw. ihrer Trägergesellschaft.</div>
 </footer>
 
-<dialog id="dlg">
-  <div class="dlg-head"><h3>Export</h3><button class="ghost" id="dlgClose">Schließen</button></div>
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <div class="dlg-head"><h3 id="dlgTitle">Export</h3><button class="ghost" id="dlgClose">Schließen</button></div>
   <div class="dlg-body">
     <div id="dashPanel" style="display:none; margin-bottom:10px">
       <div class="row" style="margin-bottom:8px">
@@ -717,18 +718,18 @@ footer a:hover{color:var(--ink)}
   </div>
 </dialog>
 
-<dialog id="helpDlg" style="max-width:640px">
+<dialog id="helpDlg" style="max-width:640px" aria-labelledby="helpTitle">
   <div class="dlg-head"><h3 id="helpTitle">Hilfe</h3><button class="ghost" id="helpClose">Schließen</button></div>
   <div class="dlg-body" id="helpBody" style="font-size:13px; line-height:1.5; color:var(--ink)"></div>
 </dialog>
 
-<dialog id="guideDlg" style="max-width:540px">
+<dialog id="guideDlg" style="max-width:540px" aria-labelledby="guideTitle">
   <div class="dlg-head"><h3 id="guideTitle">Optionen</h3><button class="ghost" id="guideClose">Schließen</button></div>
   <div class="dlg-body" id="guideBody" style="display:flex; flex-direction:column; gap:13px"></div>
 </dialog>
 
-<dialog id="wizDlg" style="max-width:560px">
-  <div class="dlg-head"><h3>Welcher Diagrammtyp passt?</h3><button class="ghost" id="wizClose">Schließen</button></div>
+<dialog id="wizDlg" style="max-width:560px" aria-labelledby="wizTitle">
+  <div class="dlg-head"><h3 id="wizTitle">Welcher Diagrammtyp passt?</h3><button class="ghost" id="wizClose">Schließen</button></div>
   <div class="dlg-body">
     <div class="wiz-label">1 · Was liegt auf der Achse?</div>
     <div class="chips" id="wizDim">
@@ -768,8 +769,8 @@ footer a:hover{color:var(--ink)}
   </div>
 </dialog>
 
-<dialog id="ibcsDlg" style="max-width:600px">
-  <div class="dlg-head"><h3>IBCS-Check</h3><button class="ghost" id="ibcsClose">Schließen</button></div>
+<dialog id="ibcsDlg" style="max-width:600px" aria-labelledby="ibcsTitle">
+  <div class="dlg-head"><h3 id="ibcsTitle">IBCS-Check</h3><button class="ghost" id="ibcsClose">Schließen</button></div>
   <div class="dlg-body">
     <div id="ibcsSummary" style="font-weight:600;margin-bottom:6px"></div>
     <div style="font-size:11px;color:var(--ink3);margin-bottom:12px">Geprüft gegen die IBCS®-Compliance-Checkliste (Standards 1.2, CC BY-SA 4.0). Hinweise zur aktuellen Konfiguration – harte Anti-Pattern (Torte/Tacho/abgeschnittene Achse) verhindert das Tool bereits.</div>
@@ -777,8 +778,8 @@ footer a:hover{color:var(--ink)}
   </div>
 </dialog>
 
-<dialog id="notDlg" style="max-width:560px">
-  <div class="dlg-head"><h3>IBCS-Zeitnotation</h3><button class="ghost" id="notClose">Schließen</button></div>
+<dialog id="notDlg" style="max-width:560px" aria-labelledby="notTitle">
+  <div class="dlg-head"><h3 id="notTitle">IBCS-Zeitnotation</h3><button class="ghost" id="notClose">Schließen</button></div>
   <div class="dlg-body">
     <div style="font-size:11.5px;color:var(--ink2);margin-bottom:10px">Einheitliche Perioden-Notation (IBCS Standards 1.2). Klick fügt das Beispiel in das zuletzt angeklickte Titelfeld ein (Standard: Zeile 3). Monat/Datum danach anpassen.</div>
     <div id="notList"></div>
@@ -1012,6 +1013,15 @@ const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 function varColors(){
   return { pos: state.cbSafe ? '#0e8c7f' : '#469b3c', neg:'#c0392b', neu:HILITE };
 }
+/* IBCS-Semantik: "günstig" hängt von der Ausrichtung der Kennzahl ab (z. B. Kosten/Schulden sind
+   bei sinkendem Wert günstig), nicht vom reinen Vorzeichen des Deltas. rowOrPol ist entweder eine
+   Zeile mit .polarity ('lower'|'higher'/unset) oder direkt der Polarity-String. */
+function favorable(delta, rowOrPol){
+  const pol = (rowOrPol && typeof rowOrPol==='object') ? rowOrPol.polarity : rowOrPol;
+  return pol==='lower' ? delta<=0 : delta>=0;
+}
+/* Chart-Typen, die die Δ-Farbgebung bereits per Zeilen-Polarity umsetzen (Datentabelle zeigt hier den Toggle) */
+const POLARITY_TYPES = ['kpi','table','absvar','relvar','dotplot','tornado','bullet','barskombi','slope'];
 /* Chart-Sprache: alle im Diagramm gerenderten Begriffe (Bedienoberfläche bleibt Deutsch) */
 const CHART_LANG = {
   de: { Tsd:'Tsd', Mio:'Mio', in:'in', Summe:'Summe', Uebrige:'Übrige', Quelle:'Quelle',
@@ -1171,6 +1181,19 @@ const UI_EN = new Map(Object.entries({
   'PNG-Export wird von diesem Browser nicht unterstützt.':'PNG export is not supported by this browser.',
   /* Footer */
   'Unabhängiges Projekt – nicht von der IBCS Association zertifiziert, geprüft oder mit ihr verbunden. Die Gestaltung orientiert sich an den frei verfügbaren IBCS® Standards v1.2 (ibcs.com, Lizenz CC BY‑SA 4.0); Regelverweise wie UN/EX/SA beziehen sich auf diese Quelle. IBCS® ist eine eingetragene Marke der IBCS Association bzw. ihrer Trägergesellschaft.':'Independent project – not certified, audited or affiliated with the IBCS Association. The design follows the freely available IBCS® Standards v1.2 (ibcs.com, licensed CC BY‑SA 4.0); rule references such as UN/EX/SA refer to this source. IBCS® is a registered trademark of the IBCS Association or its operating company.',
+  /* Gantt/Export (Juni 2026 Fix): bisher nur Deutsch, weil nach dem großen i18n-Durchlauf ergänzt */
+  'Tabelle wird geladen …':'Loading table …',
+  'Vorschau nicht möglich':'Preview not possible',
+  'Gantt wird geladen …':'Loading Gantt chart …',
+  'Gantt-Vorschau nicht möglich':'Gantt preview not possible',
+  'Vorschau nicht möglich (offline oder CDN blockiert). Das Spec lässt sich im Vega-Editor unter vega.github.io/editor testen.':'Preview not possible (offline or CDN blocked). You can test the spec in the Vega Editor at vega.github.io/editor.',
+  'Gantt · Deneb-Template mit Feld-Mapping':'Gantt · Deneb template with field mapping',
+  'Echtes Deneb-Template (Raw-Vega v5). In Deneb: „Neue Spezifikation → Aus Vorlage erstellen → Importieren" und diese Datei wählen – Deneb fragt dann jede Spalte ab.':'Genuine Deneb template (raw Vega v5). In Deneb: “New specification → Create from template → Import” and pick this file – Deneb will then ask for each column.',
+  'Pflichtfelder':'Required fields', 'optional':'optional',
+  'Attribution':'Attribution', 'siehe Feld description':'see field description',
+  'Popup blockiert – das Spec liegt in der Zwischenablage; im Vega-Editor einfügen.':'Popup blocked – the spec is on the clipboard; paste it into the Vega Editor.',
+  'Gantt-Vorlage noch nicht geladen – kurz die Vorschau im Builder öffnen.':'Gantt template not loaded yet – briefly open the preview in the builder.',
+  'Für diesen Typ ist kein Vega-Lite-Spec verfügbar (nur SVG/PNG).':'No Vega-Lite spec is available for this type (SVG/PNG only).',
 }));
 /* Schmale/geschützte Leerzeichen (U+202F/U+00A0) und geschützte Bindestriche
    (U+2011) normalisieren, damit Wörterbuch-Lookups zeichengenau treffen. */
@@ -1776,7 +1799,7 @@ function renderAbsVar(rows, opt){
   rows.forEach((r,i)=>{
     const v = dv[i]; if(isNaN(v)) return;
     const cx = padL+slot*i+slot/2;
-    const p = varPaint(v>=0?'pos':'neg', state.primary, r.fc);
+    const p = varPaint(favorable(v,r)?'pos':'neg', state.primary, r.fc);
     const h = Math.max(0.5, Math.abs(sc.y(v)-sc.zeroY));
     const yy = v>=0 ? padT+sc.y(v) : y0;
     s += rect(cx-slot*0.225, yy, slot*0.45, h, p, i);
@@ -1810,7 +1833,7 @@ function renderRelVar(rows, opt){
     if(v===null){
       s += txt(cx, y0-8, 'n.a.', {anchor:'middle', size:10, fill:'#999'});
     } else {
-      const col = v>=0?'pos':'neg';
+      const col = favorable(v,r)?'pos':'neg';
       const outlier = Math.abs(v) > cap;
       const vDraw = outlier ? Math.sign(v)*cap : v;
       const yv = padT+sc.y(vDraw);
@@ -2038,7 +2061,7 @@ function renderSegsV(segsIn){
     const isHdr = collapsible && g.kind==='sum' && phaseKeys.has(g.c);
     const collKey = g._collapsed ? g._key : (isHdr ? g.c : null);
     if(collKey){
-      bars += '<rect data-wfcollapse="'+esc(collKey)+'" x="'+Math.min(xa,lw)+'" y="'+(cy-rowH/2)+'" width="'+(W-padR-Math.min(xa,lw))+'" height="'+rowH+'" fill="transparent" style="cursor:pointer"/>';
+      bars += '<rect data-wfcollapse="'+esc(collKey)+'" tabindex="0" role="button" aria-label="'+esc(collKey)+' ein-/ausklappen" x="'+Math.min(xa,lw)+'" y="'+(cy-rowH/2)+'" width="'+(W-padR-Math.min(xa,lw))+'" height="'+rowH+'" fill="transparent" style="cursor:pointer"/>';
     }
     const right = g.kind==='sum' ? g.to>=0 : g.v>=0;
     const lx = right ? X(Math.max(fromEff,g.to))+6 : X(Math.min(fromEff,g.to))-6;
@@ -2161,7 +2184,7 @@ function renderWfLeveledV(rows){
         ? '<path d="M'+tx+','+(ty-3)+' L'+(tx+6)+','+(ty-3)+' L'+(tx+3)+','+(ty+2)+' Z" fill="'+DARK+'"/>'
         : '<path d="M'+tx+','+(ty-4)+' L'+(tx+5)+','+(ty-1)+' L'+tx+','+(ty+2)+' Z" fill="'+DARK+'"/>';
       tx += 12;
-      labels += '<rect data-wfcollapse="'+esc(d.key)+'" x="0" y="'+(cy-rowH/2)+'" width="'+(W-padR)+'" height="'+rowH+'" fill="transparent" style="cursor:pointer"/>';
+      labels += '<rect data-wfcollapse="'+esc(d.key)+'" tabindex="0" role="button" aria-label="'+esc(d.key)+' ein-/ausklappen" x="0" y="'+(cy-rowH/2)+'" width="'+(W-padR)+'" height="'+rowH+'" fill="transparent" style="cursor:pointer"/>';
     }
     const lblName = (d.kind==='group' && d.cnt) ? d.c+' ('+d.cnt+')' : d.c;
     labels += txt(tx, cy+3.5, lblName, {anchor:'start', size:11,
@@ -2581,10 +2604,11 @@ function renderMultiples(){
         if(mode==='col' && !isNaN(rv)){
           const hr = Math.abs(sc.y(rv)-sc.zeroY);
           const yr = rv>=0 ? gy+capH+sc.y(rv) : y0;
-          s += '<rect x="'+(cx-slot*0.275-slot*0.13)+'" y="'+yr+'" width="'+(slot*0.5)+'" height="'+hr+'" fill="'+LIGHT+'"/>';
+          /* Referenz in Szenario-Notation (PY hell / PL,BU hohl / FC schraffiert) statt hartem Grau */
+          s += rect(cx-slot*0.275-slot*0.13, yr, slot*0.5, hr, scenPaint(state.reference));
         }
-        const fill = mode==='delta' ? (v>=0?'var-pos':'var-neg') : DARK;
-        s += '<rect x="'+(cx-slot*0.275+(mode==='col'&&!isNaN(rv)?slot*0.10:0))+'" y="'+yy+'" width="'+(slot*0.55)+'" height="'+h+'" fill="'+fill+'"/>';
+        const primPaint = mode==='delta' ? {fill: v>=0?'var-pos':'var-neg', stroke:'none'} : scenPaint(state.primary);
+        s += rect(cx-slot*0.275+(mode==='col'&&!isNaN(rv)?slot*0.10:0), yy, slot*0.55, h, primPaint);
         if(slot>=34) s += txt(cx, v>=0? yy-4 : yy+h+10, mode==='delta'?fmt(v,true):fmt(v), {anchor:'middle', size:9});
         const showCat = rows.length<=6 || i===0 || i===rows.length-1;
         if(showCat) s += txt(cx, (v<0 && mode==='delta') ? y0-5 : y0+12, r.c, {anchor:'middle', size:9, fill:'#777'});
@@ -2975,7 +2999,7 @@ function renderKpiTrend(){
       s+=txt(rx, gy+24, state.reference, {size:10, fill:SUB});
       s+='<text x="'+rx+'" y="'+(gy+43)+'" font-family="'+FONT+'" font-size="'+fsc(16)+'" fill="'+SUB+'">'+esc(compactFmt(r.v2))+'</text>';
       const dv=(!isNaN(r.v1)&&!isNaN(r.v2))?r.v1-r.v2:null, rv=relOfK(r,'v2');
-      const col=dv===null?SUB:(dv>=0?'var-pos':'var-neg'), ar=dv===null?'':(dv>=0?'↗ ':'↘ ');
+      const col=dv===null?SUB:(favorable(dv,r)?'var-pos':'var-neg'), ar=dv===null?'':(dv>=0?'↗ ':'↘ ');
       s+=txt(rx, gy+66, 'GAP', {size:10, fill:SUB});
       s+=txt(rx, gy+84, ar+compactFmt(dv)+(rv!==null?' ('+ar+fmtPct(rv).replace('+','')+')':''), {size:11.5, weight:'bold', fill:col});
     }
@@ -3006,7 +3030,7 @@ function renderKpiTrend(){
       const last=daily[daily.length-1], prev=daily[daily.length-2];
       if(!isNaN(last)&&!isNaN(prev)){ const td=last-prev, ar=td>=0?'↗ ':'↘ ';
         if(!noLabels) s+=txt(cx0+cwd, cy0-13, CL('Today'), {anchor:'end', size:8, fill:SUB});
-        s+=txt(cx0+cwd, cy0-1, ar+compactFmt(td), {anchor:'end', size:10, weight:'bold', fill:td>=0?'var-pos':'var-neg'}); }
+        s+=txt(cx0+cwd, cy0-1, ar+compactFmt(td), {anchor:'end', size:10, weight:'bold', fill:favorable(td,r)?'var-pos':'var-neg'}); }
     }
   });
   return { svg:s, W, H };
@@ -3028,7 +3052,7 @@ function renderKpiStatus(){
     const gx = padL + (i%perRow)*(cw+gapX);
     const gy = padT + Math.floor(i/perRow)*(ch+gapY);
     const d1 = (hasR1 && !isNaN(r.v1) && !isNaN(r.v2)) ? r.v1-r.v2 : null;
-    const valCol = d1===null ? (r.fc?FCINK:DARK) : (d1>=0 ? 'var-pos' : 'var-neg');
+    const valCol = d1===null ? (r.fc?FCINK:DARK) : (favorable(d1,r) ? 'var-pos' : 'var-neg');
     s += '<rect data-i="'+i+'" x="'+gx+'" y="'+gy+'" width="'+cw+'" height="'+ch+'" rx="7" fill="'+WHITE+'" stroke="#e3e1dc" stroke-width="1"/>';
     /* dünner Statusakzent oben in der Abweichungsfarbe */
     s += '<rect x="'+(gx+1)+'" y="'+(gy+1)+'" width="'+(cw-2)+'" height="3" rx="1.5" fill="'+(d1===null?'#dad8d3':valCol)+'"/>';
@@ -3045,7 +3069,7 @@ function renderKpiStatus(){
     const devRow = (code, key, y)=>{
       const dv = (!isNaN(r.v1)&&!isNaN(r[key])) ? r.v1-r[key] : null;
       const rv = relOfK(r, key);
-      const col = dv===null ? SUB : (dv>=0 ? 'var-pos' : 'var-neg');
+      const col = dv===null ? SUB : (favorable(dv,r) ? 'var-pos' : 'var-neg');
       const tri = dv===null ? '' : (dv>=0 ? '▲ ' : '▼ ');
       s += txt(gx+14, y, tri+(rv===null?'n.a.':fmtPct(rv)), {size:13, weight:'bold', fill:col});
       if(!noLabels) s += txt(gx+14+72, y, dv===null?'':fmt(dv,true), {size:11.5, weight:'bold', fill:col});
@@ -3091,7 +3115,7 @@ function renderKpiBridge(){
   const padL=4, padT=4;
   const W = padL + perRow*cw + (perRow-1)*gapX + 6;
   const H = padT + gridRows*ch + (gridRows-1)*gapY + 6;
-  const paintFor = (sl,r) => sl.kind==='delta' ? varPaint(sl.val>=0?'pos':'neg', state.primary, r.fc)
+  const paintFor = (sl,r) => sl.kind==='delta' ? varPaint(favorable(sl.val,r)?'pos':'neg', state.primary, r.fc)
     : (sl.kind==='ac' ? scenPaint(state.primary, r.fc) : scenPaint(sl.code));
   let s='';
   rows.forEach((r,i)=>{
@@ -3100,7 +3124,7 @@ function renderKpiBridge(){
     const ac = r.v1, ref = r.v2, rv = relOfK(r,'v2');
     s += '<rect data-i="'+i+'" x="'+gx+'" y="'+gy+'" width="'+cw+'" height="'+ch+'" rx="7" fill="'+WHITE+'" stroke="#e3e1dc" stroke-width="1"/>';
     /* Status-Akzent links nach Zeichen der Δ% (grün/rot, sonst neutral) */
-    const accent = rv===null ? '#dad8d3' : (rv>=0 ? 'var-pos' : 'var-neg');
+    const accent = rv===null ? '#dad8d3' : (favorable(rv,r) ? 'var-pos' : 'var-neg');
     s += '<rect x="'+gx+'" y="'+(gy+7)+'" width="3.5" height="'+(ch-14)+'" rx="1.75" fill="'+accent+'"/>';
     if(!noLabels) s += txt(gx+14, gy+19, r.c, {size:11.5, weight:'bold', fill:CAT});
     /* großer Primärwert + Einheit + FC-Kennung */
@@ -3111,7 +3135,7 @@ function renderKpiBridge(){
     if(r.fc) s += txt(bx, gy+46, 'FC', {size:10, fill:SUB});
     if(state.highlights.has(i)) s += hiliteEllipse(gx+14+String(big).length*fsc(6.3), gy+39, String(big).length*fsc(6.6)+12, 14);
     /* Δ%-Pill rechts oben (gegen Referenz 1) */
-    if(rv!==null) s += vpill(gx+cw-10, gy+18, (rv>=0?'▲':'▼')+' '+fmtPct(rv), rv>=0?'var-pos':'var-neg');
+    if(rv!==null) s += vpill(gx+cw-10, gy+18, (rv>=0?'▲':'▼')+' '+fmtPct(rv), favorable(rv,r)?'var-pos':'var-neg');
     s += cmark(i, gx+cw-16, gy+ch-12);
     if(!hasR1){ s += txt(gx+14, gy+ch-30, CL('refMissing'), {size:10.5, fill:SUB}); return; }
     const {slots, iRef1, iDelta, iAc} = kpiBridgeSlots(r);
@@ -3141,7 +3165,7 @@ function renderKpiBridge(){
         /* Wert-Label am Balkenende */
         if(sl.kind==='delta' && !isNaN(sl.val)){
           const xe = Math.max(x(sl.from), x(sl.to));
-          s += txt(xe+5, yc+3.2, fmt(sl.val,true), {size:9.5, weight:'bold', fill:sl.val>=0?'var-pos':'var-neg'});
+          s += txt(xe+5, yc+3.2, fmt(sl.val,true), {size:9.5, weight:'bold', fill:favorable(sl.val,r)?'var-pos':'var-neg'});
         } else if(!isNaN(sl.val)){
           s += txt(x(sl.val)+5, yc+3.2, fmt(sl.val), {size:9.5, weight:(sl.kind==='ac'?'bold':'normal'), fill:sl.kind==='ac'?(r.fc?FCINK:DARK):SUB});
         }
@@ -3172,7 +3196,7 @@ function renderKpiBridge(){
         /* Wert-Label */
         if(sl.kind==='delta' && !isNaN(sl.val)){
           const dyMid=(y(sl.from)+y(sl.to))/2;
-          s += txt(cx, dyMid+3, fmt(sl.val,true), {anchor:'middle', size:9.5, weight:'bold', fill:sl.val>=0?'var-pos':'var-neg', halo:true});
+          s += txt(cx, dyMid+3, fmt(sl.val,true), {anchor:'middle', size:9.5, weight:'bold', fill:favorable(sl.val,r)?'var-pos':'var-neg', halo:true});
         } else if(!isNaN(sl.val)){
           s += txt(cx, y(sl.val)-4, fmt(sl.val), {anchor:'middle', size:9.5, weight:(sl.kind==='ac'?'bold':'normal'), fill:sl.kind==='ac'?(r.fc?FCINK:DARK):SUB});
         }
@@ -3238,7 +3262,7 @@ function renderKpi(){
     s += '<rect data-i="'+i+'" x="'+gx+'" y="'+gy+'" width="'+cw+'" height="'+ch+'" rx="7" fill="'+WHITE+'" stroke="#e3e1dc" stroke-width="1"/>';
     /* Status-Akzent am linken Rand: Zeichen der ersten Δ% (grün/rot, sonst neutral) */
     const ar0 = refs[0] ? relOfK(r, refs[0].key) : null;
-    const accent = ar0===null ? '#dad8d3' : (ar0>=0 ? 'var-pos' : 'var-neg');
+    const accent = ar0===null ? '#dad8d3' : (favorable(ar0,r) ? 'var-pos' : 'var-neg');
     s += '<rect x="'+gx+'" y="'+(gy+7)+'" width="3.5" height="'+(ch-14)+'" rx="1.75" fill="'+accent+'"/>';
     if(!noLabels) s += txt(gx+14, gy+19, r.c, {size:11.5, weight:'bold', fill:CAT});
     /* großer Primärwert + Einheit, FC-Kennung */
@@ -3270,7 +3294,7 @@ function renderKpi(){
       const by = gy+54, bw = cw-24, bh = 5;
       const fillW = Math.min(pct,120)/120*bw, tickX = gx+12+100/120*bw;
       s += '<rect x="'+(gx+12)+'" y="'+by+'" width="'+bw+'" height="'+bh+'" rx="2.5" fill="#efeeea"/>';
-      s += '<rect x="'+(gx+12)+'" y="'+by+'" width="'+Math.max(2,fillW)+'" height="'+bh+'" rx="2.5" fill="'+(pct>=100?'var-pos':DARK)+'"/>';
+      s += '<rect x="'+(gx+12)+'" y="'+by+'" width="'+Math.max(2,fillW)+'" height="'+bh+'" rx="2.5" fill="'+(favorable(pct-100,r)?'var-pos':DARK)+'"/>';
       s += '<line x1="'+tickX+'" y1="'+(by-2)+'" x2="'+tickX+'" y2="'+(by+bh+2)+'" stroke="'+DARK+'" stroke-width="1.2"/>';
       if(!noLabels) s += txt(gx+cw-12, by+5, Math.round(pct)+' % '+CL('von')+' '+planRef.code, {anchor:'end', size:8.5, fill:SUB});
     }
@@ -3289,7 +3313,7 @@ function renderKpi(){
       }
       const rv = relOfK(r, rf.key);
       if(rv!==null){
-        const col = rv>=0 ? 'var-pos' : 'var-neg';
+        const col = favorable(rv,r) ? 'var-pos' : 'var-neg';
         const outl = Math.abs(rv) > cap;
         const len = Math.min(Math.abs(rv),cap)/relMax*pinMax;
         const xv = ax + (rv>=0 ? len : -len);
@@ -3298,14 +3322,14 @@ function renderKpi(){
           const dir = rv>=0 ? 1 : -1;
           s += '<polygon points="'+(xv+dir*6.5)+','+cy+' '+(xv+dir*0.5)+','+(cy-3.5)+' '+(xv+dir*0.5)+','+(cy+3.5)+'" fill="'+col+'"/>';
         } else {
-          s += pinHead(xv, cy, rv>=0?'pos':'neg', r.fc, undefined, 3.2);
+          s += pinHead(xv, cy, favorable(rv,r)?'pos':'neg', r.fc, undefined, 3.2);
         }
       }
       /* Δ als Zahl (gedämpft), Δ% als farbige Pill mit Pfeil */
       const dv = (isNaN(r.v1)||isNaN(refv)) ? NaN : r.v1-refv;
       if(!isNaN(dv) && !noLabels) s += txt(gx+cw-72, cy+3.5, fmt(dv,true), {anchor:'end', size:10, fill:SUB});
       if(rv===null){ if(!noLabels) s += txt(gx+cw-10, cy+3.5, 'n.a.', {anchor:'end', size:10, fill:'#999'}); }
-      else s += vpill(gx+cw-8, cy, (rv>=0?'▲':'▼')+' '+fmtPct(rv), rv>=0?'var-pos':'var-neg');
+      else s += vpill(gx+cw-8, cy, (rv>=0?'▲':'▼')+' '+fmtPct(rv), favorable(rv,r)?'var-pos':'var-neg');
     });
   });
   return { svg:s, W, H };
@@ -3553,7 +3577,7 @@ function renderSlope(rows){
   rows.forEach((r,i)=>{
     if(isNaN(r.v1)||isNaN(r.v2)) return;
     const yL=padT+sc.y(r.v2), yR=padT+sc.y(r.v1);
-    const d=r.v1-r.v2, col=d>=0?'var-pos':'var-neg';
+    const d=r.v1-r.v2, col=favorable(d,r)?'var-pos':'var-neg';
     s += '<line x1="'+xL+'" y1="'+yL+'" x2="'+xR+'" y2="'+yR+'" stroke="'+col+'" stroke-width="1.8"/>';
     s += '<circle cx="'+xL+'" cy="'+yL+'" r="3.1" fill="'+col+'"/><circle cx="'+xR+'" cy="'+yR+'" r="3.1" fill="'+(r.fc?WHITE:col)+'"'+(r.fc?' stroke="'+col+'" stroke-width="1.3"':'')+'/>';
     s += txt(xL-9, yL+3.5, r.c+'  '+fmt(r.v2), {anchor:'end', size:10.5, fill:DARK});
@@ -3886,15 +3910,15 @@ function renderBarsKombi(rows, tiersOv){
       if(c.kind==='abs'){
         const v = r.v1-r[c.key];
         if(isNaN(v)) return;
-        const p = varPaint(v>=0?'pos':'neg', state.primary, r.fc);
+        const p = varPaint(favorable(v,r)?'pos':'neg', state.primary, r.fc);
         const w = Math.max(0.5, Math.abs(c.sc.x(v)-c.sc.zeroX));
         const xx = v>=0 ? c.a : c.x+c.sc.x(v);
         s += rect(xx, cy-5.5, w, 11, p, i);
-        s += txt(v>=0? xx+w+5 : xx-5, cy+3.5, fmt(v,true), {anchor:v>=0?'start':'end', size:10.5, fill:v>=0?'var-pos':'var-neg'});
+        s += txt(v>=0? xx+w+5 : xx-5, cy+3.5, fmt(v,true), {anchor:v>=0?'start':'end', size:10.5, fill:favorable(v,r)?'var-pos':'var-neg'});
       } else {
         const rv = relOfK(r,c.key);
         if(rv===null){ s += txt(c.a+8, cy+3.5, 'n.a.', {size:10, fill:'#999'}); return; }
-        const col = rv>=0?'pos':'neg';
+        const col = favorable(rv,r)?'pos':'neg';
         const outl = Math.abs(rv) > c.cap;
         const xv = c.x+c.sc.x(outl ? Math.sign(rv)*c.cap : rv);
         s += '<line data-i="'+i+'" x1="'+c.a+'" y1="'+cy+'" x2="'+xv+'" y2="'+cy+'" stroke="var-'+col+'" stroke-width="2"/>';
@@ -3971,19 +3995,19 @@ function renderIbcsTable(rows){
   cols.forEach(c=> s += txt(c.a, 17, 'Δ'+c.code+(c.kind==='rel'?'%':''), {anchor:'middle', weight:'bold', size:11.5}));
   s += '<line x1="0" y1="'+(headH-6)+'" x2="'+W+'" y2="'+(headH-6)+'" stroke="'+DARK+'" stroke-width="1.2"/>';
 
-  const drawCell = (c, cy, v1, refv, bold, fc)=>{
+  const drawCell = (c, cy, v1, refv, bold, fc, pol)=>{
     if(c.kind==='abs'){
       const dv = v1-refv;
       if(isNaN(dv)) return;
-      const p = varPaint(dv>=0?'pos':'neg', state.primary, fc);
+      const p = varPaint(favorable(dv,pol)?'pos':'neg', state.primary, fc);
       const w = Math.max(0.5, Math.abs(c.sc.x(dv)-c.sc.zeroX));
       const xx = dv>=0 ? c.a : c.x+c.sc.x(dv);
       s += rect(xx, cy-5, w, 10, p);
-      s += txt(dv>=0? xx+w+5 : xx-5, cy+3.5, fmt(dv,true), {anchor:dv>=0?'start':'end', size:10.5, fill:dv>=0?'var-pos':'var-neg', weight:bold?'bold':null});
+      s += txt(dv>=0? xx+w+5 : xx-5, cy+3.5, fmt(dv,true), {anchor:dv>=0?'start':'end', size:10.5, fill:favorable(dv,pol)?'var-pos':'var-neg', weight:bold?'bold':null});
     } else {
       const rv = (isNaN(v1)||isNaN(refv)||refv<=0) ? null : (v1-refv)/refv*100;
       if(rv===null){ s += txt(c.a+8, cy+3.5, 'n.a.', {size:10, fill:'#999'}); return; }
-      const col = rv>=0?'pos':'neg';
+      const col = favorable(rv,pol)?'pos':'neg';
       const outl = Math.abs(rv) > c.cap;
       const xv = c.x+c.sc.x(outl ? Math.sign(rv)*c.cap : rv);
       s += '<line x1="'+c.a+'" y1="'+cy+'" x2="'+xv+'" y2="'+cy+'" stroke="var-'+col+'" stroke-width="2"/>';
@@ -3998,7 +4022,7 @@ function renderIbcsTable(rows){
     }
   };
 
-  const drawRow = (label, v1, v2, v3, i, bold, fc)=>{
+  const drawRow = (label, v1, v2, v3, i, bold, fc, pol)=>{
     const isData = i>=0 && i<rows.length;
     const pos = isData ? visPos[i] : nVis;
     const cy = headH + rowH*pos + rowH/2 + 2 + (isData ? offByIdx[i] : offTotal);
@@ -4006,7 +4030,7 @@ function renderIbcsTable(rows){
     if(isData){
       /* Eltern-Zeile: ganze Zeile klappt ihre Kinder ein/aus (wie im Gantt).
          Blatt-Zeile: behält den Highlight-/Kommentar-Klick (data-i). */
-      if(isParent) s += '<rect data-collapse="'+esc(rows[i].c)+'" x="0" y="'+(cy-rowH/2-2)+'" width="'+W+'" height="'+rowH+'" fill="transparent" style="cursor:pointer"/>';
+      if(isParent) s += '<rect data-collapse="'+esc(rows[i].c)+'" tabindex="0" role="button" aria-label="'+esc(rows[i].c)+' ein-/ausklappen" x="0" y="'+(cy-rowH/2-2)+'" width="'+W+'" height="'+rowH+'" fill="transparent" style="cursor:pointer"/>';
       else s += '<rect data-i="'+i+'" x="0" y="'+(cy-rowH/2-2)+'" width="'+W+'" height="'+rowH+'" fill="transparent"/>';
     }
     const lvl = isData ? (rows[i].lvl||0) : 0;
@@ -4024,7 +4048,7 @@ function renderIbcsTable(rows){
     s += txt(acR, cy+3.5, fmt(v1), {anchor:'end', size:11, weight:bold?'bold':null});
     s += txt(refR, cy+3.5, fmt(v2), {anchor:'end', size:11, weight:bold?'bold':null, fill:'#666'});
     if(hasRef2) s += txt(ref2R, cy+3.5, fmt(v3), {anchor:'end', size:11, weight:bold?'bold':null, fill:'#666'});
-    cols.forEach(c=> drawCell(c, cy, v1, c.key==='v2'?v2:v3, bold, fc));
+    cols.forEach(c=> drawCell(c, cy, v1, c.key==='v2'?v2:v3, bold, fc, pol));
     if(isData && !isParent && state.highlights.has(i)){
       const tw = String(fmt(v1)).length*6.4;
       s += hiliteEllipse(acR-tw/2, cy, tw/2+8, 9);
@@ -4032,7 +4056,7 @@ function renderIbcsTable(rows){
     if(isData && !isParent) s += cmark(i, acR+13, cy);
   };
 
-  visIdx.forEach(i=> drawRow(rows[i].c, rows[i].v1, rows[i].v2, rows[i].v3, i, false, rows[i].fc));
+  visIdx.forEach(i=> drawRow(rows[i].c, rows[i].v1, rows[i].v2, rows[i].v3, i, false, rows[i].fc, rows[i].polarity));
   if(sums){
     const ySum = headH + rowH*nVis + 1 + offTotal;
     s += '<line x1="0" y1="'+ySum+'" x2="'+W+'" y2="'+ySum+'" stroke="'+DARK+'" stroke-width="1"/>';
@@ -4166,8 +4190,8 @@ function renderDotPlot(rows, opt){
     }
     if((showAbs||showRel) && !isNaN(r.v1) && !isNaN(r.v2)){
       const dv=r.v1-r.v2, rv=r.v2>0?dv/r.v2*100:null;
-      if(showAbs) s += txt(colAbs, cy+3.6, fmt(dv,true), {anchor:'end', size:10.5, weight:'bold', fill:dv>=0?'var-pos':'var-neg'});
-      if(showRel) s += txt(colRel, cy+3.6, rv===null?'n.a.':fmtPct(rv), {anchor:'end', size:10.5, weight:'bold', fill:(rv||0)>=0?'var-pos':'var-neg'});
+      if(showAbs) s += txt(colAbs, cy+3.6, fmt(dv,true), {anchor:'end', size:10.5, weight:'bold', fill:favorable(dv,r)?'var-pos':'var-neg'});
+      if(showRel) s += txt(colRel, cy+3.6, rv===null?'n.a.':fmtPct(rv), {anchor:'end', size:10.5, weight:'bold', fill:favorable(rv||0,r)?'var-pos':'var-neg'});
     }
   });
   return { svg:s, W, H };
@@ -4205,7 +4229,7 @@ function renderTornado(rows, opt){
     if(hasD){
       const dv=r.v1-r.v2, rv=r.v2>0?dv/r.v2*100:null;
       const lab=(showAbs?fmt(dv,true):'')+(showAbs&&showRel?' · ':'')+(showRel?(rv===null?'n.a.':fmtPct(rv)):'');
-      s += txt(cxC, cy+10, lab, {anchor:'middle', size:9.5, weight:'bold', fill:dv>=0?'var-pos':'var-neg'});
+      s += txt(cxC, cy+10, lab, {anchor:'middle', size:9.5, weight:'bold', fill:favorable(dv,r)?'var-pos':'var-neg'});
     }
   });
   s += '<line x1="'+cxL+'" y1="'+padT+'" x2="'+cxL+'" y2="'+(H-padB)+'" stroke="'+DARK+'" stroke-width="1.2"/>';
@@ -4304,8 +4328,8 @@ function renderBullet(rows, opt){
     if(hasRef2 && !isNaN(r.v3)) s+=scenDot(X(r.v3), cy, scenPaint(state.reference2), 3.4);
     if((showAbs||showRel) && !isNaN(r.v1) && !isNaN(r.v2)){
       const dv=r.v1-r.v2, rv=r.v2>0?dv/r.v2*100:null;
-      if(showAbs) s+=txt(colAbs, cy+3.6, fmt(dv,true), {anchor:'end', size:10.5, weight:'bold', fill:dv>=0?'var-pos':'var-neg'});
-      if(showRel) s+=txt(colRel, cy+3.6, rv===null?'n.a.':fmtPct(rv), {anchor:'end', size:10.5, weight:'bold', fill:(rv||0)>=0?'var-pos':'var-neg'});
+      if(showAbs) s+=txt(colAbs, cy+3.6, fmt(dv,true), {anchor:'end', size:10.5, weight:'bold', fill:favorable(dv,r)?'var-pos':'var-neg'});
+      if(showRel) s+=txt(colRel, cy+3.6, rv===null?'n.a.':fmtPct(rv), {anchor:'end', size:10.5, weight:'bold', fill:favorable(rv||0,r)?'var-pos':'var-neg'});
     }
   });
   if(Math.min(...vals,0)<0)
@@ -4396,7 +4420,8 @@ function treeNodeBox(node, x, y, w, h, periods, scen){
       const cx=plotL+slot*i+slot/2;
       const isPL=(scen[i]||'AC')!=='AC'; if(isPL && firstPL<0) firstPL=i;
       if(!isNaN(v)){
-        const p = isPL ? scenPaint('PL') : (v>=0 ? scenPaint('AC',false) : {fill:'#9a9a9a', stroke:'none'});
+        /* Echte Szenario-Notation je Spalte statt hartem 'PL' (PY/FC-Spalten sahen sonst wie Plan aus) */
+        const p = isPL ? scenPaint(scen[i]) : (v>=0 ? scenPaint('AC',false) : {fill:'#9a9a9a', stroke:'none'});
         const bh=Math.max(0.5,Math.abs(sc.y(v)-sc.zeroY)), yy=v>=0?plotTop+sc.y(v):y0;
         s += rect(cx-slot*0.3, yy, slot*0.6, bh, p);
         s += txt(cx, v>=0?yy-2.5:yy+bh+7.5, tf(v), {anchor:'middle', size:7.5, fill:v>=0?DARK:SUB});
@@ -4534,7 +4559,10 @@ function buildChart(){
   else if(state.type==='barskombi') r = renderBarsKombi(rows);
   else if(state.type==='table')     r = renderIbcsTable(tableIsHier() ? expandDimRows(rows, state.tableDims) : rows);
   else                              r = renderKombi(rows);
+  /* Accessible Name für Screenreader (role="img" ohne <title> ist ein unbenanntes Bild) */
+  const chartTitle = [state.msg, $('#t1').value, $('#t2').value, $('#t3').value].filter(Boolean).join(' – ') || 'Diagramm';
   return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+r.W+' '+r.H+'" width="'+r.W+'" height="'+r.H+'" role="img">'+
+         '<title>'+esc(chartTitle)+'</title>'+
          svgDefs() + resolvePaint(r.svg) + renderAnnos(r.W, r.H) + '</svg>';
 }
 /* Freie Text-Annotationen: per Klick platziert, Position als Bruchteil von W/H
@@ -4871,10 +4899,12 @@ function renderDataTable(){
     const showFC = state.primary==='AC';
     const hier = isStruct() && state.type!=='tornado';
     const gfac = state.grpFacet && ['columns','line'].includes(state.type);
+    const showPol = POLARITY_TYPES.includes(state.type);
     thead.innerHTML = '<tr><th>Kategorie</th><th class="num">'+esc(state.primary)+'</th>'+
       (hasRef?'<th class="num">'+esc(state.reference)+'</th>':'')+
       (hasRef2?'<th class="num">'+esc(state.reference2)+'</th>':'')+
       (showFC?'<th title="Wert als Forecast (schraffiert) darstellen">FC</th>':'')+
+      (showPol?'<th title="Aktivieren, wenn bei dieser Zeile ein NIEDRIGERER Wert günstig ist (z. B. Kosten, Schulden) – ändert die Δ-Farbe (grün/rot)">↓ günstig</th>':'')+
       (gfac?'<th title="Gruppe für die Small-Multiples-Facetten (z. B. Region)">Gruppe</th>':'')+
       (hier?'<th title="Hierarchie-Ebene je Zeile wählen – Eltern-Zeilen werden ein-/ausklappbar">Ebene</th>':'')+'<th></th></tr>';
     tbody.innerHTML = state.rows.map((r,i)=>
@@ -4884,6 +4914,7 @@ function renderDataTable(){
       (hasRef?'<td class="num"><input data-k="v2" data-i="'+i+'" inputmode="decimal" value="'+(isNaN(r.v2)?'':String(r.v2).replace('.',','))+'"></td>':'')+
       (hasRef2?'<td class="num"><input data-k="v3" data-i="'+i+'" inputmode="decimal" value="'+(isNaN(r.v3)?'':String(r.v3).replace('.',','))+'"></td>':'')+
       (showFC?'<td class="fc-cell"><input type="checkbox" data-k="fc" data-i="'+i+'"'+(r.fc?' checked':'')+'></td>':'')+
+      (showPol?'<td class="fc-cell"><input type="checkbox" data-k="polarity" data-i="'+i+'" title="Niedriger = günstig (Kosten/Schulden)"'+(r.polarity==='lower'?' checked':'')+'></td>':'')+
       (gfac?'<td><input data-k="grp" data-i="'+i+'" value="'+esc(r.grp||'')+'" placeholder="z. B. Region"></td>':'')+
       (hier?'<td><select data-lvl data-i="'+i+'" title="Hierarchie-Ebene" style="font-size:11px;padding:2px 4px">'+
         [0,1,2,3].map(L=>'<option value="'+L+'"'+((r.lvl||0)===L?' selected':'')+'>Ebene '+L+'</option>').join('')+
@@ -5428,7 +5459,7 @@ const PRESETS = {
   threeScen:{ type:'columns', primary:'AC', reference:'PL', reference2:'PY', t2:'Umsatz in mEUR',
     rows:[['Jan',97,92,90],['Feb',102,98,95],['Mär',88,99,96],['Apr',110,103,99],['Mai',105,107,108],['Jun',118,108,104],['Jul',112,110,106],['Aug',96,104,101],['Sep',121,112,107],['Okt',117,114,111,1],['Nov',124,116,113,1],['Dez',131,119,118,1]] },
   kpiDemo:{ type:'kpi', primary:'AC', reference:'PY', reference2:'PL', t2:'Konzern-Kennzahlen in mEUR',
-    rows:[['Umsatz',642,601,612],['Bruttoergebnis',404,389,398],['EBIT',172,154,166],['Free Cashflow',128,141,135],['Auftragseingang',703,648,690],['Nettoverschuldung',214,236,220]],
+    rows:[['Umsatz',642,601,612],['Bruttoergebnis',404,389,398],['EBIT',172,154,166],['Free Cashflow',128,141,135],['Auftragseingang',703,648,690],['Nettoverschuldung',214,236,220,,,'lower']],
     /* Serien mit gleichem Namen liefern den Mini-Verlauf auf der Karte */
     series:['Umsatz','EBIT','Free Cashflow'],
     srows:[['Q1',148,38,29],['Q2',157,41,33],['Q3',162,44,30],['Q4',175,49,36]] },
@@ -5497,7 +5528,7 @@ function loadPreset(key){
   if(key==='kpiTrend'){ loadKpiTrendDemo(); return; }
   const p = PRESETS[key]; if(!p) return;
   state.highlights.clear(); state.diffs.clear(); state.comments.clear(); state.rowCollapse.clear(); state.wfCollapse.clear();
-  if(p.rows) state.rows = p.rows.map(r=>({c:r[0], v1:r[1], v2:r[2], v3:r[3], fc:!!r[4], grp:r[5]}));
+  if(p.rows) state.rows = p.rows.map(r=>({c:r[0], v1:r[1], v2:r[2], v3:r[3], fc:!!r[4], grp:r[5], polarity:r[6]}));
   if(p.leaves) state.rows = p.leaves.map(r=>({d0:r[0], d1:r[1], v1:r[2], v2:r[3], v3:r[4]}));   /* Hierarchie-Blätter (2 Dim) */
   state.tableDims = p.tableDims || 0;   /* nicht sticky */
   state.bridgePY = !!p.bridgePY; state.bridgePYlevel = !!p.bridgePYlevel;   /* dito */
@@ -6073,6 +6104,7 @@ $('#dataTable').addEventListener('input', e=>{
     const r = state.rows[i]; if(!r) return;
     if(el.dataset.k==='c') r.c = el.value;
     else if(el.dataset.k==='fc') r.fc = el.checked;
+    else if(el.dataset.k==='polarity') r.polarity = el.checked ? 'lower' : 'higher';
     else if(el.dataset.k==='grp') r.grp = el.value;   /* Gruppe = Text, nicht Zahl */
     else if(/^d\d$/.test(el.dataset.k)) r[el.dataset.k] = el.value;   /* Hierarchie-Dimension = Text */
     else r[el.dataset.k] = parseNum(el.value);
@@ -6326,6 +6358,16 @@ $('#annoList').addEventListener('click', e=>{
   renderPreview();
 });
 /* Highlight per Klick: Ellipse (UN 5.1) oder Differenzmarker (UN 5.1-2) */
+/* Tastatur-Pendant zu den Collapsible-Zeilen unten (data-collapse/data-wfcollapse sind
+   fokussierbare <rect> mit tabindex/role="button", aber SVG-Rects reagieren nicht auf
+   den nativen Klick-Simulationspfad von Enter/Space – daher eigener keydown-Handler). */
+$('#chartHost').addEventListener('keydown', e=>{
+  if(e.key!=='Enter' && e.key!==' ') return;
+  const tc = e.target.closest('[data-collapse]');
+  if(tc){ e.preventDefault(); const k=tc.dataset.collapse; state.rowCollapse.has(k)?state.rowCollapse.delete(k):state.rowCollapse.add(k); renderPreview(); return; }
+  const wc = e.target.closest('[data-wfcollapse]');
+  if(wc){ e.preventDefault(); const k=wc.dataset.wfcollapse; state.wfCollapse.has(k)?state.wfCollapse.delete(k):state.wfCollapse.add(k); renderPreview(); return; }
+});
 $('#chartHost').addEventListener('click', e=>{
   /* Collapsible-Zeilen: Eltern-/Phasenzeile ein-/ausklappen (vor Highlight-Logik) */
   const tc = e.target.closest('[data-collapse]');
@@ -6439,6 +6481,7 @@ function vFieldDefs(){
   } else if(t==='scatter'){
     defs.push(['x','X-Feld'], ['y','Y-Feld'], ['g','Größen-Feld']);
     if(scatterIsFaceted()) defs.push(['grp','Gruppe (Facette)']);
+    if(state.primary==='AC' && !state.noFC) defs.push(['fc','FC-Flag (1 = Forecast, 0/leer = Ist)']);
   } else if(t==='stackcol'||t==='stackbar'||t==='multiples'||t==='sparktable'||t==='heatmap'||t==='marimekko'){
     defs.push(['serie','Serien-Feld'], ['v','Wert-Feld']);
     if(t==='multiples'){
@@ -6894,7 +6937,7 @@ $('#dlgPreview').addEventListener('click', async ()=>{
     host.appendChild(mount);
     await window.vegaEmbed(mount, spec, {actions:false, renderer:'svg'});
   }catch(err){
-    host.innerHTML = '<span style="font-size:12px;color:#b06a00">Vorschau nicht möglich (offline oder CDN blockiert). Das Spec lässt sich im Vega-Editor unter vega.github.io/editor testen.</span>';
+    host.innerHTML = '<span style="font-size:12px;color:#b06a00">'+TT('Vorschau nicht möglich (offline oder CDN blockiert). Das Spec lässt sich im Vega-Editor unter vega.github.io/editor testen.')+'</span>';
   }
 });
 function syncSpecOpts(){
@@ -6966,7 +7009,7 @@ function openInVegaEditor(spec, mode){
     return;
   }
   let count = 40;
-  const listener = ev=>{ if(ev.source===w){ count=0; window.removeEventListener('message', listener, false); } };
+  const listener = ev=>{ if(ev.origin==='https://vega.github.io' && ev.source===w){ count=0; window.removeEventListener('message', listener, false); } };
   window.addEventListener('message', listener, false);
   (function send(){
     if(count<=0) return;
@@ -7065,10 +7108,14 @@ function F(key){
   return d[key] || key;
 }
 function vFieldMap(){
-  return { k:F('dim'), p:F('p'), r:F('r'), r2:F('r2'), fc:F('fc'),
+  const m = { k:F('dim'), p:F('p'), r:F('r'), r2:F('r2'), fc:F('fc'),
            v:F('v'), typ:F('typ'), serie:F('serie'), idx:F('idx'),
-           x:F('x'), y:F('y'), g:F('g'), grp:F('grp'),
-           d0:F('d0'), d1:F('d1'), d2:F('d2') };
+           x:F('x'), y:F('y'), g:F('g'), grp:F('grp') };
+  /* d0/d1/d2 nur bei der Hierarchie-Tabelle mappen (Ebene 1-3) – sonst kollidieren sie mit
+     internen Delta-Feldnamen 'd1'/'d2', die andere Chart-Typen (z. B. KPI) intern verwenden
+     (remapSpec würde deren datum.d1/d2-Referenzen sonst fälschlich auf "Ebene 2/3" umschreiben). */
+  if(tableIsHier()){ m.d0=F('d0'); m.d1=F('d1'); m.d2=F('d2'); }
+  return m;
 }
 /* Spec nachträglich auf die Nutzer-Feldnamen umschreiben:
    field-Referenzen, values-Schlüssel, groupby, calculate/filter/test-Ausdrücke */
@@ -7915,7 +7962,9 @@ function vlMultiples(deneb){
     inner.layer.push({mark:{type:'line', color:DARK, strokeWidth:1.8, point:{filled:true, fill:DARK, size:22}},
       encoding:{y:{field:'v', type:'quantitative', axis:null}}});
   } else {
-    if(hasR && state.multiMode==='col') inner.layer.push({mark:{type:'bar', size:14, xOffset:-3.5, fill:LIGHT},
+    /* Referenz in Szenario-Notation (PY hell/PL,BU hohl/FC schraffiert) statt hartem Grau */
+    const rsc = vScen(state.reference);
+    if(hasR && state.multiMode==='col') inner.layer.push({mark:Object.assign({type:'bar', size:14, xOffset:-3.5}, rsc),
       encoding:{y:{field:'r', type:'quantitative', axis:null}}});
     if(hasR && state.multiMode==='col' && (state.showRel||state.showAbs)){
       if(state.showRel) inner.layer.push({
@@ -7929,11 +7978,13 @@ function vlMultiples(deneb){
         encoding:{y:{field:'v', type:'quantitative'}, text:{field:'dx', format:'+.0f'},
           color:{condition:{test:'datum.dx >= 0', value:C.pos}, value:C.neg}}});
     }
-    inner.layer.push({mark: hasR && state.multiMode==='col' ? {type:'bar', size:14, xOffset:3.5} : {type:'bar', size:14},
-      encoding:{y:{field:'v', type:'quantitative', axis:null},
-        fill: state.multiMode==='delta'
-          ? {condition:{test:'datum.v >= 0', value:C.pos}, value:C.neg}
-          : {value:DARK}}});
+    /* Primär ebenfalls in Szenario-Notation (nicht mehr hartes DARK), Delta-Modus bleibt pos/neg */
+    const psc = vScen(state.primary);
+    const primMark = Object.assign(hasR && state.multiMode==='col' ? {type:'bar', size:14, xOffset:3.5} : {type:'bar', size:14},
+      state.multiMode==='delta' ? {} : psc);
+    const primEnc = {y:{field:'v', type:'quantitative', axis:null}};
+    if(state.multiMode==='delta') primEnc.fill = {condition:{test:'datum.v >= 0', value:C.pos}, value:C.neg};
+    inner.layer.push({mark: primMark, encoding: primEnc});
   }
   return { data:vData(values,deneb), columns:Math.max(1,Math.min(4,state.multiCols||3)),
     facet:{field:'serie', type:'nominal', sort: deneb? null : state.series.slice(),
@@ -7973,16 +8024,31 @@ function vlHeatmap(deneb){
 function vlScatter(deneb){
   const rows = state.rows.filter(r=>r.c!=='' && !isNaN(r.v1) && !isNaN(r.v2));
   const faceting = scatterIsFaceted();
-  const values = rows.map(r=>({k:r.c, x:r.v1, y:r.v2, g:isNaN(r.v3)?null:r.v3, grp:String(r.grp||'').trim()||'—'}));
-  const sp = vScen(state.primary);
+  const values = rows.map(r=>({k:r.c, x:r.v1, y:r.v2, g:isNaN(r.v3)?null:r.v3, grp:String(r.grp||'').trim()||'—', fc:!!r.fc}));
+  const sp = vScen(state.primary), spFC = vScen('FC');
   const axe = ttl => ({title:ttl, titleFont:'Arial', titleColor:CAT, titleFontSize:11, labelFontSize:9, grid:false});
   const enc = { x:{field:'x', type:'quantitative', axis:axe(state.xTitle)},
                 y:{field:'y', type:'quantitative', axis:axe(state.yTitle)} };
   const layer = [
     {mark:{type:'rule', color:'#c9c9c9', strokeDash:[4,3]}, encoding:{x:{aggregate:'mean', field:'x'}}},
     {mark:{type:'rule', color:'#c9c9c9', strokeDash:[4,3]}, encoding:{y:{aggregate:'mean', field:'y'}}},
-    {mark:{type:'circle', fill:sp.fill, stroke:sp.stroke||null, fillOpacity:0.88},
-     encoding:{size:{field:'g', type:'quantitative', scale:{range: faceting?[30,500]:[60,900]}, legend:null}}},
+    /* Ø-Beschriftung neben den Mittelwertlinien (wie SVG-Vorschau) */
+    {mark:{type:'text', text:'Ø '+state.xTitle, dx:4, dy:9, align:'left', baseline:'top', fontSize:8.5, font:'Arial', color:'#aaaaaa'},
+     encoding:{x:{aggregate:'mean', field:'x'}, y:{value:0}}},
+    {mark:{type:'text', text:'Ø '+state.yTitle, dx:4, dy:-4, align:'left', baseline:'bottom', fontSize:8.5, font:'Arial', color:'#aaaaaa'},
+     encoding:{y:{aggregate:'mean', field:'y'}, x:{value:0}}},
+    /* Forecast-Punkte in FC-Notation (hohl/gestrichelt) statt ununterscheidbar von Ist (wie SVG scenPaint).
+       gEff coalesct fehlende Größenwerte auf eine feste Default-Fläche – Vega-Lite würde Punkte mit
+       null im size-Feld sonst komplett herausfiltern (SVG zeigt bei fehlender Größe einen festen
+       Radius statt den Punkt wegzulassen, R() in renderScatter). */
+    {mark:{type:'circle', fillOpacity:0.88},
+     transform:[{calculate:'datum.g == null ? 200 : datum.g', as:'gEff'}],
+     encoding:{
+       size:{field:'gEff', type:'quantitative', scale:{range: faceting?[30,500]:[60,900]}, legend:null},
+       fill:{condition:{test:'datum.fc', value:spFC.fill}, value:sp.fill},
+       stroke:{condition:{test:'datum.fc', value:spFC.stroke}, value:sp.stroke||null},
+       strokeDash:{condition:{test:'datum.fc', value:spFC.dash||[3,2]}, value:[1,0]},
+     }},
   ];
   /* Regressionsgerade + R² (je Facette automatisch über die Facetten-Daten) */
   if(state.scatterReg){
@@ -8242,10 +8308,12 @@ function vlZChart(deneb){
   const tf = deneb ? [
     {window:[{op:'sum', field:'p', as:'cum'}]},
     {window:[{op:'sum', field:'r', as:'cumR'}]},
-    {joinaggregate:[{op:'sum', field:'r', as:'totR'}]},
+    /* 'missing' zählt fehlende Referenzwerte über die ganze Reihe (kein groupby) – Deneb-Pendant
+       zu zSeries()' rows.every(!isNaN(r.v2)); Vegas joinaggregate-sum würde nulls sonst still überspringen. */
+    {joinaggregate:[{op:'sum', field:'r', as:'totR'}, {op:'missing', field:'r', as:'rMissing'}]},
     {window:[{op:'count', as:'rn'}]},
     {joinaggregate:[{op:'max', field:'rn', as:'rnMax'}]},
-    {calculate:'datum.cum + datum.totR - datum.cumR', as:'mat'},
+    {calculate:'datum.rMissing > 0 ? null : datum.cum + datum.totR - datum.cumR', as:'mat'},
     {calculate:'datum.rn === datum.rnMax', as:'last'},
     {calculate:'datum.rn === 1', as:'first'},
   ] : undefined;
@@ -8291,7 +8359,14 @@ function vlZChart(deneb){
     {transform:[{filter:'datum.first'}],
      mark:{type:'text', dy:-10, dx:-2, align:'left', fontSize:10.5, font:'Arial', color:'#555555'},
      encoding:{y:vYq('mat'), text: deneb ? {value:CL('gleitend')} : {value:CL('gleitend')+' · '+fmt(mat[0])}}},
-  ]);
+  ])
+  .concat(deneb ? [
+    /* Deneb-Pendant zur SVG-Warnung (renderZChart): gleitende Jahressumme bei unvollständigen
+       Referenzwerten nicht kommentarlos anzeigen (Zeile ~3405) */
+    {transform:[{filter:'datum.first && datum.rMissing > 0'}],
+     mark:{type:'text', dy:-24, dx:2, align:'left', fontSize:10, font:'Arial', color:'#b06a00'},
+     encoding:{y:{value:0}, text:{value:'Hinweis: '+state.reference+'-Werte unvollständig – gleitende Jahressumme nicht berechenbar'}}},
+  ] : []);
   return { width:580, height:250, data:vData(values,deneb), transform:tf,
     encoding:{x:vX()}, layer };
 }
@@ -8365,15 +8440,18 @@ function vlWfKombi(deneb, ov){
        encoding:{x:vYq('d'), fill:{condition:{test:'datum.d >= 0', value:C.pos}, value:C.neg}}},
     ]).concat(vSignedText('d', vLab(deneb,'d','Ld','+'+vNum()), false,
       {condition:{test:'datum.d >= 0', value:C.pos}, value:C.neg}))};
-  /* Tier 3: ΔRef% */
+  /* Tier 3: ΔRef% – Ausreißer kappen (wie cap3=relCap() in renderWfKombi), sonst
+     staucht eine extreme Zeile die ganze Spalte. */
+  const cap3 = relCap(values.map(v=>v.rv).filter(v=>v!==null && v!==undefined));
+  const xScale3 = isFinite(cap3) ? {domain:[-cap3, cap3], clamp:true} : undefined;
   const t3 = { width:140, height:{step:27}, data:vData(values,deneb), transform:tf,
     encoding:{y:yCat(null)},
     layer: [vAnchor()].concat(vRefAxisLayer(state.reference, false)).concat([
       {mark:{type:'rule', strokeWidth:2},
-       encoding:{x:vYq('rv'), x2:{datum:0},
+       encoding:{x:{field:'rv', type:'quantitative', axis:null, scale:xScale3}, x2:{datum:0},
          color:{condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}}},
       {mark:{type:'point', filled:true, size:48},
-       encoding:{x:vYq('rv'),
+       encoding:{x:{field:'rv', type:'quantitative', axis:null, scale:xScale3},
          color:{condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}}},
     ]).concat(vSignedText('rv', vLab(deneb,'rv','Lrv','+.1f'), false,
       {condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}).map(l=>{ l.mark.dx = l.mark.dx>0 ? 10 : -10; return l; }))};
@@ -8481,9 +8559,14 @@ function vlKpiTrend(deneb){
   ]);
   const xq = {field:'_idx', type:'quantitative', axis:null};
   const yq = {field:'v', type:'quantitative', axis:null};
+  const noLabels = !!state.kpiNoLabels;
   const view = { width:240, height:96, layer:[
       {mark:{type:'rule', strokeDash:[3,3], color:'#d7d5d0'}, encoding:{y:{aggregate:'mean', field:'v', type:'quantitative'}}},
       {mark:{type:'line', color:KPI_PINK, strokeWidth:1.2, strokeDash:[4,2]}, encoding:{x:xq, y:yq}},
+      /* Diamant-Marker auf jedem 3. Tagespunkt (wie renderKpiTrend, k%3===0) */
+      {transform:[{calculate:'datum._idx % 3 === 0', as:'_dot3'}, {filter:'datum._dot3'}],
+       mark:{type:'point', shape:'diamond', size:20, filled:true, color:KPI_PINK, opacity:1},
+       encoding:{x:xq, y:yq}},
       {mark:{type:'line', color:DARK, strokeWidth:1.8}, encoding:{x:xq, y:{field:'_avg', type:'quantitative', axis:null}}},
       {transform:[{filter:'datum._idx === datum._mx'}],
        mark:{type:'text', x:4, y:6, align:'left', baseline:'top', fontSize:22, fontWeight:'bold', font:'Arial', color:DARK},
@@ -8492,7 +8575,15 @@ function vlKpiTrend(deneb){
        mark:{type:'text', x:236, y:8, align:'right', baseline:'top', fontSize:11, fontWeight:'bold', font:'Arial'},
        encoding:{text:{field:'_tdL', type:'nominal'},
          color:{condition:{test:'datum._td >= 0', value:C.pos}, value:C.neg}}},
-    ]};
+    ].concat(noLabels ? [] : [
+      /* Mini-Legende (Last30/Avg5/Daily), statisch – wie renderKpiTrend Zeile ~2993-3000.
+         encoding:{} ist Pflicht – ein Layer ganz ohne encoding-Schlüssel lässt Vega-Lite abstürzen. */
+      {mark:{type:'text', text:CL('Last30'), x:4, y:22, align:'left', baseline:'top', fontSize:8, font:'Arial', color:SUB}, encoding:{}},
+      {mark:{type:'rule', x:150, x2:164, y:22, strokeWidth:1.8, color:DARK}, encoding:{}},
+      {mark:{type:'text', text:CL('Avg5'), x:168, y:22, align:'left', baseline:'top', fontSize:8, font:'Arial', color:SUB}, encoding:{}},
+      {mark:{type:'rule', x:195, x2:209, y:22, strokeWidth:1.2, strokeDash:[4,2], color:KPI_PINK}, encoding:{}},
+      {mark:{type:'text', text:CL('Daily'), x:213, y:22, align:'left', baseline:'top', fontSize:8, font:'Arial', color:SUB}, encoding:{}},
+    ])};
   /* Einzelkarte: nur die erste Serie, kein Facet (Power-BI-Karte = Tagesreihe ohne KPI-Dimension) */
   if(state.kpiSingle){
     const s0 = state.series[0];
@@ -8655,7 +8746,13 @@ function vlKpi(deneb){
   const C = vCol();
   const noLabels = !!state.kpiNoLabels;
   const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
-  const values = activeRows().map(r=>{
+  const rowsAR = activeRows();
+  const lowerCats = rowsAR.filter(r=>r.polarity==='lower').map(r=>r.c);
+  /* Zielerreichungs-Balken, wenn eine Referenz Plan/Budget ist (wie renderKpi) */
+  let planRef = null;
+  if(hasR1 && (state.reference==='PL'||state.reference==='BU')) planRef = {code:state.reference, refField:'r'};
+  else if(hasR2 && (state.reference2==='PL'||state.reference2==='BU')) planRef = {code:state.reference2, refField:'r2'};
+  const values = rowsAR.map(r=>{
     const o = {k:r.c, p:isNaN(r.v1)?null:r.v1, fc:!!r.fc, Lp:fmt(r.v1)};
     if(hasR1){
       o.r = isNaN(r.v2)?null:r.v2;
@@ -8673,9 +8770,18 @@ function vlKpi(deneb){
   });
   const pillCalc = f => "datum."+f+" == null ? '' : ((datum."+f+" >= 0 ? '▲ ' : '▼ ') + format(datum."+f+", '+.1f') + '%')";
   const tf = [];
+  /* Polarity (UN 4.2): "günstig" hängt von der Kategorie ab, nicht vom reinen Vorzeichen –
+     Kategorienamen mit polarity==='lower' werden als Literalliste gebacken (Design-Entscheidung
+     des Autors, kein Live-PBI-Feld nötig). */
+  tf.push({calculate:'indexof('+JSON.stringify(lowerCats)+', datum.k) >= 0', as:'pol'});
   if(deneb){
     if(hasR1){ tf.push({calculate:'datum.p - datum.r', as:'d1'}); tf.push({calculate:'datum.r > 0 ? (datum.p - datum.r)/datum.r*100 : null', as:'rv1'}); tf.push({calculate:pillCalc('rv1'), as:'Lpill1'}); }
     if(hasR2){ tf.push({calculate:'datum.p - datum.r2', as:'d2'}); tf.push({calculate:'datum.r2 > 0 ? (datum.p - datum.r2)/datum.r2*100 : null', as:'rv2'}); tf.push({calculate:pillCalc('rv2'), as:'Lpill2'}); }
+  }
+  const W = 176;
+  if(planRef){
+    tf.push({calculate:'datum.'+planRef.refField+' > 0 ? datum.p/datum.'+planRef.refField+'*100 : null', as:'pct'});
+    tf.push({calculate:"datum.pct == null ? '' : (format(datum.pct,'.0f') + ' % "+CL('von')+" "+planRef.code+"')", as:'pctLabel'});
   }
   const layer = [
     {mark:{type:'text', x:2, y:24, align:'left', fontSize:21, fontWeight:'bold', font:'Arial', color:DARK},
@@ -8684,15 +8790,50 @@ function vlKpi(deneb){
      mark:{type:'text', x:2, y:40, align:'left', fontSize:9.5, font:'Arial', color:SUB},
      encoding:{text:{value:'FC'}}},
   ];
-  const W = 176, pw = 52, pr = W-8, pl = pr-pw;   /* Δ%-Pille rechts (wie SVG vpill) */
+  let y = 56;
+  /* Zielerreichung gegen Plan/Budget als schmaler Fortschrittsbalken (wie renderKpi) */
+  if(planRef){
+    const barY=48, barH=5, bx0=2, bw=W-12-2;
+    layer.push({transform:[{filter:'datum.pct != null'}], mark:{type:'rect', cornerRadius:2.5},
+      encoding:{x:{value:bx0}, x2:{value:bx0+bw}, y:{value:barY}, y2:{value:barY+barH}, fill:{value:'#efeeea'}}});
+    layer.push({transform:[{filter:'datum.pct != null'}], mark:{type:'rect', cornerRadius:2.5},
+      encoding:{x:{value:bx0},
+        x2:{field:'pct', type:'quantitative', scale:{domain:[0,120], range:[bx0,bx0+bw], clamp:true}, axis:null},
+        y:{value:barY}, y2:{value:barY+barH},
+        fill:{condition:{test:'(datum.pol ? datum.pct <= 100 : datum.pct >= 100)', value:C.pos}, value:DARK}}});
+    layer.push({mark:{type:'rule', strokeWidth:1.2, color:DARK},
+      encoding:{x:{value:bx0+100/120*bw}, y:{value:barY-2}, y2:{value:barY+barH+2}}});
+    if(!noLabels) layer.push({transform:[{filter:'datum.pct != null'}],
+      mark:{type:'text', x:W-8, y:barY+barH+9, align:'right', fontSize:8.5, font:'Arial', color:SUB},
+      encoding:{text:{field:'pctLabel', type:'nominal'}}});
+    y += 17;
+  }
+  const pw = 52, pr = W-8, pl = pr-pw;   /* Δ%-Pille rechts (wie SVG vpill) */
+  const pinX = pl-64, pinW = 40;         /* Mini-Referenzachse + Δ%-Pin (wie SVG refRow) */
   const refRow = (code, dF, rvF, LpillF, LdF, y)=>{
     if(!noLabels) layer.push({mark:{type:'text', x:2, y, align:'left', fontSize:10, font:'Arial', color:SUB},
       encoding:{text:{value:'Δ'+code}}});
+    /* Mini-Achse: PY/FC = helle Fläche, PL/BU = Doppellinie (Referenz-Notation UN 3.2) */
+    if(code==='PY'||code==='FC'){
+      layer.push({mark:{type:'rect', x:pinX-1.75, width:3.5, color:LIGHT}, encoding:{y:{value:y-7}, y2:{value:y+7}}});
+    } else {
+      layer.push({mark:{type:'rule', x:pinX-1.4, strokeWidth:1, color:DARK}, encoding:{y:{value:y-7}, y2:{value:y+7}}});
+      layer.push({mark:{type:'rule', x:pinX+1.4, strokeWidth:1, color:DARK}, encoding:{y:{value:y-7}, y2:{value:y+7}}});
+    }
+    /* Δ%-Pin: Länge gemeinsam über alle Kategorien skaliert (Facet teilt die Skala), gekappt via clamp */
+    const pinCol = {condition:{test:'(datum.pol ? datum.'+rvF+' <= 0 : datum.'+rvF+' >= 0)', value:C.pos}, value:C.neg};
+    layer.push({transform:[{filter:'datum.'+rvF+' != null'}], mark:{type:'rule', strokeWidth:2},
+      encoding:{x:{value:pinX},
+        x2:{field:rvF, type:'quantitative', scale:{domainMid:0, range:[pinX-pinW/2, pinX+pinW/2], clamp:true}, axis:null},
+        y:{value:y}, y2:{value:y}, stroke:pinCol}});
+    layer.push({transform:[{filter:'datum.'+rvF+' != null'}], mark:{type:'point', shape:'circle', size:24, filled:true},
+      encoding:{x:{field:rvF, type:'quantitative', scale:{domainMid:0, range:[pinX-pinW/2, pinX+pinW/2], clamp:true}, axis:null},
+        y:{value:y}, fill:pinCol}});
     /* Δ absolut (gedämpft) links neben der Pille */
     if(!noLabels) layer.push({mark:{type:'text', x:pl-8, y, align:'right', fontSize:10, font:'Arial', color:SUB},
       encoding:{text:vLab(deneb,dF,LdF,'+'+vNum())}});
     /* gefüllte Δ%-Pille (rot/grün, cbSafe-blaugrün) + weißer Text */
-    const col = {condition:{test:'datum.'+rvF+' >= 0', value:C.pos}, value:C.neg};
+    const col = {condition:{test:'(datum.pol ? datum.'+rvF+' <= 0 : datum.'+rvF+' >= 0)', value:C.pos}, value:C.neg};
     const pcy = y-3.5;
     layer.push({transform:[{filter:'datum.'+rvF+' != null'}],
       mark:{type:'rect', cornerRadius:8},
@@ -8701,7 +8842,6 @@ function vlKpi(deneb){
       mark:{type:'text', x:(pl+pr)/2, y:pcy, align:'center', baseline:'middle', fontSize:9.5, fontWeight:'bold', font:'Arial', fill:'#ffffff'},
       encoding:{text:{field:LpillF, type:'nominal'}}});
   };
-  let y = 56;
   if(hasR1){ refRow(state.reference,'d1','rv1','Lpill1','Ld1',y); y += 22; }
   if(hasR2){ refRow(state.reference2,'d2','rv2','Lpill2','Ld2',y); y += 22; }
   const vals = state.kpiSingle ? values.slice(0,1) : values;
@@ -9061,12 +9201,15 @@ function vlTableHier(deneb){
         ]).concat(vSignedText(fldD, vLab(deneb,fldD, t.key==='v3'?'Ld2':'Ld', '+'+vNum()), false,
           {condition:{test:'datum.'+fldD+' >= 0', value:C.pos}, value:C.neg}))});
     } else {
+      /* Δ%-Ausreißer kappen (wie relCap() in renderIbcsTable) */
+      const capRH = relCap(vRows().map(r=>r[fldR]).filter(v=>v!==null && v!==undefined));
+      const xScaleRH = isFinite(capRH) ? {domain:[-capRH, capRH], clamp:true} : undefined;
       children.push({ title: head('Δ'+t.code+'%'), width:140, height:{step:25}, data:vData(vRows(),deneb), transform:dtf,
         encoding:{y:yLeaf(null)},
         layer:[vAnchor()].concat(vRefAxisLayer(t.code,false)).concat([
-          {mark:{type:'rule', strokeWidth:2}, encoding:{x:{field:fldR,type:'quantitative',axis:null}, x2:{datum:0},
+          {mark:{type:'rule', strokeWidth:2}, encoding:{x:{field:fldR,type:'quantitative',axis:null, scale:xScaleRH}, x2:{datum:0},
             color:{condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}}},
-          {mark:{type:'point', filled:true, size:46}, encoding:{x:{field:fldR,type:'quantitative',axis:null},
+          {mark:{type:'point', filled:true, size:46}, encoding:{x:{field:fldR,type:'quantitative',axis:null, scale:xScaleRH},
             color:{condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}}},
         ]).concat(vSignedText(fldR, vLab(deneb,fldR, t.key==='v3'?'Lrv2':'Lrv', '+.1f'), false,
           {condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}).map(l=>{ l.mark.dx = l.mark.dx>0 ? 10 : -10; return l; }))});
@@ -9106,15 +9249,19 @@ function vlTable(deneb){
         ]).concat(vSignedText(fldD, vLab(deneb,fldD, t.key==='v3'?'Ld2':'Ld', '+'+vNum()), false,
           {condition:{test:'datum.'+fldD+' >= 0', value:C.pos}, value:C.neg}))});
     } else {
+      /* Δ%-Ausreißer kappen (wie relCap() in renderIbcsTable) – sonst staucht ein
+         Extremwert die ganze Spalte und alle anderen Zeilen werden unlesbar. */
+      const capR = relCap(vRows().map(r=>r[fldR]).filter(v=>v!==null && v!==undefined));
+      const xScaleR = isFinite(capR) ? {domain:[-capR, capR], clamp:true} : undefined;
       children.push({ title: head('Δ'+t.code+'%'), width:140, height:{step:27},
         data:vData(vRows(),deneb), transform:tf,
         encoding:{y:yCat(null)},
         layer:[vAnchor()].concat(vRefAxisLayer(t.code, false)).concat([
           {mark:{type:'rule', strokeWidth:2},
-           encoding:{x:{field:fldR, type:'quantitative', axis:null}, x2:{datum:0},
+           encoding:{x:{field:fldR, type:'quantitative', axis:null, scale:xScaleR}, x2:{datum:0},
              color:{condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}}},
           {mark:{type:'point', filled:true, size:46},
-           encoding:{x:{field:fldR, type:'quantitative', axis:null},
+           encoding:{x:{field:fldR, type:'quantitative', axis:null, scale:xScaleR},
              color:{condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}}},
         ]).concat(vSignedText(fldR, vLab(deneb,fldR, t.key==='v3'?'Lrv2':'Lrv', '+.1f'), false,
           {condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}).map(l=>{ l.mark.dx = l.mark.dx>0 ? 10 : -10; return l; }))});
@@ -9395,6 +9542,7 @@ function serialize(){
       unit:state.unit, unitScale:state.unitScale, chartLang:state.chartLang, dashShare:state.dashShare,
       target:state.target, negParens:state.negParens, annos:state.annos,
       vlFit:state.vlFit, vlVega:state.vlVega, vlDeneb:state.vlDeneb, vlSizeMode:state.vlSizeMode, vlW:state.vlW, vlH:state.vlH, vlTooltip:state.vlTooltip, vlCross:state.vlCross, vlTemplate:state.vlTemplate, dashFields:state.dashFields, uiLang:state.uiLang,
+      dashCols:state.dashCols, view:state.view, mEdit:state.mEdit,
     },
     rows:state.rows, wrows:state.wrows, srows:state.srows, series:state.series, gantt:state.gantt,
     highlights:[...state.highlights], diffs:[...state.diffs], comments:[...state.comments],
@@ -9403,8 +9551,21 @@ function serialize(){
     titles:{ t1:$('#t1').value, t2:$('#t2').value, t3:$('#t3').value, period:$('#period').value },
   };
 }
+/* Entfernt __proto__/constructor/prototype-Schlüssel aus geparstem, nicht vertrauenswürdigem JSON
+   (Share-Link, importierte Konfig-Datei), bevor es per Object.assign in state gemischt wird –
+   sonst kann JSON.parse('{"__proto__":{...}}') den Prototyp von state (bzw. verschachtelten Objekten) kapern. */
+function stripProtoPollution(obj, seen){
+  if(!obj || typeof obj!=='object') return obj;
+  seen = seen || new WeakSet();
+  if(seen.has(obj)) return obj;
+  seen.add(obj);
+  ['__proto__','constructor','prototype'].forEach(k=>{ if(Object.prototype.hasOwnProperty.call(obj,k)) delete obj[k]; });
+  Object.keys(obj).forEach(k=>stripProtoPollution(obj[k], seen));
+  return obj;
+}
 function applyConfig(cfg, silent){
   if(!cfg || cfg.v!==1) return false;
+  cfg = stripProtoPollution(cfg);
   Object.assign(state, cfg.s||{});
   if(!state.fields || typeof state.fields!=='object') state.fields = {};
   if(!state.target || typeof state.target!=='object') state.target = {on:false, v:NaN, label:''};
@@ -9433,6 +9594,15 @@ function applyConfig(cfg, silent){
   }
   if(!silent){ syncControls(); renderAll(); }
   return true;
+}
+/* Entwickler-Warnung: jedes state.*-Feld muss hier ODER im Top-Level-Objekt oben
+   auftauchen – sonst geht es bei Speichern/Undo/Reload/Share-Link stillschweigend verloren. */
+function checkStateSchemaCompleteness(){
+  const cfg = serialize();
+  const persisted = new Set([...Object.keys(cfg.s||{}), ...Object.keys(cfg)]);
+  Object.keys(state).forEach(k=>{
+    if(!persisted.has(k)) console.warn('[chart-builder] state.'+k+' wird von serialize() nicht persistiert (geht bei Speichern/Undo/Reload/Share-Link verloren).');
+  });
 }
 /* Zustand temporär auf einen Schnappschuss umschalten (für Dashboard-Specs) */
 function withState(snap, fn){
@@ -9782,6 +9952,7 @@ $('#wizApply').addEventListener('click', ()=>{
   renderAll();
   wizDlg.close();
   flash($('#btnWiz'), 'Übernommen ✓');
+  openGuide();   /* direkt weiter zur Feinjustierung (Wizard wählt nur den Typ, nicht die Optionen) */
 });
 
 /* IBCS-Check (Linter): prüft die aktuelle Konfiguration gegen die
@@ -9800,11 +9971,22 @@ function ibcsFindings(){
 
   /* 1 · Vergleich vorhanden (EX 4) */
   const cmpTypes = ['columns','colline','line','bars','dotplot','tornado','bullet','kombi',
-    'barskombi','zchart','table','slope','varint','relvar','absvar','wfkombi','bridge'];
+    'barskombi','zchart','table','slope','varint','relvar','absvar','wfkombi','bridge',
+    'kpi','multiples','pareto'];
   if(cmpTypes.includes(t)){
     if(ref==='—') add('warn','Kein Vergleich (EX 4)','Eine Zahl ohne Vergleich trägt keine Botschaft.',
       'Referenzszenario (PL/PY/BU) wählen oder eine Δ-Ebene aktivieren.');
-    else add('ok','Vergleich vorhanden (EX 4)','Primär '+state.primary+' vs. '+ref+'.');
+    else{
+      /* Δ absolut UND Δ% sollten gemeinsam gezeigt werden – nur bei den Typen prüfbar, die
+         wirklich beide Ebenen unabhängig ein-/ausschalten (varSel-Kacheln: kombi/barskombi/table;
+         isMulti() ohne kpi). Andere Typen (absvar/relvar sind bewusst einschichtig, etc.) auslassen. */
+      const usesVarSel = ['kombi','barskombi','table'].includes(t);
+      const vs = state.varSel || {};
+      const bothOn = (vs.a1!==false) && (vs.r1!==false);
+      if(usesVarSel && !bothOn) add('warn','Nur Δ oder nur Δ% aktiv (EX 4)','Absolute und relative Abweichung sollten gemeinsam gezeigt werden – nur eine Ebene wirkt unvollständig.',
+        'Beide Ebenen (Δ und Δ%) für die Referenz aktivieren.');
+      else add('ok','Vergleich vorhanden (EX 4)','Primär '+state.primary+' vs. '+ref+'.');
+    }
   }
 
   /* 2 · Gestapelt: ≤ ~5 Segmente (EX 1.1) */
@@ -9825,13 +10007,14 @@ function ibcsFindings(){
     (!t1?'Zeile 1 (Berichtseinheit) ':'')+(!t2?'Zeile 2 (Kennzahl in Einheit) ':'')+'ergänzen.');
   else add('ok','Titel wer/was/wann','Dreizeiliger Titel vorhanden.');
 
-  /* 5 · Keine Wertung im Titel (SA 3.2) */
-  const evalRx = /(über plan|unter plan|gestiegen|gesunken|anstieg|rückgang|verbesser|verschlecht|\bstark\b|\bschwach\b|besser|schlechter|rekord|einbruch|deutlich|erfreulich|enttäusch)/i;
+  /* 5 · Keine Wertung im Titel (SA 3.2) – DE + EN, da die Titel-Felder freitextig
+     und die Bedienoberfläche/der Chart-Export auch auf Englisch genutzt werden */
+  const evalRx = /(über plan|unter plan|gestiegen|gesunken|anstieg|rückgang|verbesser|verschlecht|\bstark\b|\bschwach\b|besser|schlechter|rekord|einbruch|deutlich|erfreulich|enttäusch|above plan|below plan|\bincreased\b|\bdecreased\b|\bimproved\b|\bworsened\b|\bstrong\b|\bweak\b|\bbetter\b|\bworse\b|\brecord\b|\bslump(ed)?\b|significant(ly)?|disappointing|\bsurged?\b|\bdeclined?\b)/i;
   if(evalRx.test(titleAll)) add('warn','Wertung im Titel (SA 3.2)','Wertende Aussagen gehören in die Message, nicht in den beschreibenden Titel.',
     'Wertung ins Message-Feld verschieben; Titel rein beschreibend halten.');
 
-  /* 6 · Keine Füllwörter (SIMPLIFY) */
-  const redRx = /(übersicht|overview|entwicklung von|development of|auswertung|darstellung von|analyse von|diagramm (zu|der|des))/i;
+  /* 6 · Keine Füllwörter (SIMPLIFY) – DE + EN */
+  const redRx = /(übersicht|overview|entwicklung von|development of|auswertung|darstellung von|analyse von|analysis of|diagramm (zu|der|des)|chart (of|for|showing))/i;
   if(redRx.test(titleAll)) add('warn','Redundante Wörter (SI)','Füllwörter wie „Übersicht" / „Entwicklung von" tragen nichts bei.',
     'Knapp formulieren – die Visualisierung zeigt „Entwicklung" bereits selbst.');
 
@@ -9848,6 +10031,20 @@ function ibcsFindings(){
   /* 9 · Nulllinie / Integrität (CH 1.1) – vom Tool erzwungen */
   if(['columns','colline','bars','barskombi','kombi','stackcol','stackbar','waterfall','bullet','varint'].includes(t))
     add('ok','Nulllinie (CH 1.1)','Werteachse startet bei 0 – keine abgeschnittene Achse.');
+
+  /* 10 · Semantische Notation: Kosten/Schulden-artige Kennzahlen ohne "niedriger=günstig" (UN 4.2) */
+  if(POLARITY_TYPES.includes(t)){
+    const costRx = /(kosten|aufwand|schuld|verschuldung|fehlerquote|ausfallzeit|durchlaufzeit|reklamation|fluktuation|cost|expense|debt|defect|downtime|churn|complaint)/i;
+    const suspects = activeRows().filter(r=> r.polarity!=='lower' && costRx.test(r.c||''));
+    if(suspects.length) add('warn','Polarity prüfen (UN 4.2)','„'+suspects.map(r=>r.c).join('", "')+'" klingt nach einer Kennzahl, bei der ein NIEDRIGERER Wert günstig ist – aktuell aber auf „höher = günstig" (Standard) eingestellt.',
+      'Falls zutreffend: in der Datentabelle „↓ günstig" für diese Zeile(n) aktivieren – sonst wird ein Rückgang fälschlich rot statt grün dargestellt.');
+    else add('ok','Polarity-Prüfung (UN 4.2)','Keine erkennbaren Kosten-/Schulden-Kennzahlen ohne „niedriger = günstig"-Kennzeichnung.');
+  }
+
+  /* 11 · Small Multiples mit freier Skala: Niveauvergleich zwischen Kacheln nicht mehr gültig (UN 5.2) */
+  if(t==='multiples' && state.multiScale==='free')
+    add('warn','Freie Skala je Kachel (UN 5.2)','Jede Kachel hat ihren eigenen Wertebereich – ein Niveauvergleich zwischen den Kacheln ist damit nicht mehr gültig (nur die Form ist vergleichbar).',
+      'Für Niveauvergleiche „gemeinsame Skala" wählen; freie Skala nur wenn bewusst Form vor Niveau gewünscht ist.');
 
   return F;
 }
@@ -10038,6 +10235,7 @@ async function tryHashLoad(){
 
 /* Start: Standardzustand festhalten, dann Link-Zustand (Vorrang) oder gespeicherten Stand laden */
 renderAll();
+checkStateSchemaCompleteness();
 const DEFAULT_CFG = JSON.stringify(serialize());
 $('#btnReset').addEventListener('click', async ()=>{
   applyConfig(JSON.parse(DEFAULT_CFG));
@@ -10047,34 +10245,64 @@ $('#btnReset').addEventListener('click', async ()=>{
 tryHashLoad().then(loaded=>{ if(!loaded) tryRestore(); });
 setTimeout(maybeShowGuideCoach, 600);   /* einmaliger Onboarding-Hinweis */
 
-/* Einklappbare Konfig-Panels – Klick auf die Panel-Überschrift, Zustand gemerkt */
+/* Einklappbare Konfig-Panels – Klick ODER Enter/Space auf die Panel-Überschrift (Tastatur-
+   Bedienbarkeit), Zustand gemerkt. h2/.subhead sind keine <button>, daher tabindex/role/
+   aria-expanded + eigener keydown-Handler nötig (sonst nur mit der Maus erreichbar). */
 (function(){
   const KEY='bcb-collapsed';
   const panels=[...document.querySelectorAll('aside .panel')];
   let saved=[]; try{ saved=JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){}
-  panels.forEach((p,i)=>{ if(saved.includes(i)) p.classList.add('collapsed'); });
+  panels.forEach((p,i)=>{
+    const h2=p.querySelector('h2'); if(!h2) return;
+    h2.tabIndex=0; h2.setAttribute('role','button');
+    const collapsed = saved.includes(i);
+    if(collapsed) p.classList.add('collapsed');
+    h2.setAttribute('aria-expanded', collapsed?'false':'true');
+  });
   const aside=document.querySelector('aside');
-  if(aside) aside.addEventListener('click', e=>{
-    const h2=e.target.closest('h2');
+  const togglePanel = h2=>{
     if(!h2 || h2.parentElement.className.indexOf('panel')<0) return;
     const p=h2.parentElement; p.classList.toggle('collapsed');
     const idx=panels.indexOf(p);
     let set; try{ set=new Set(JSON.parse(localStorage.getItem(KEY)||'[]')); }catch(e){ set=new Set(); }
     p.classList.contains('collapsed') ? set.add(idx) : set.delete(idx);
     try{ localStorage.setItem(KEY, JSON.stringify([...set])); }catch(e){}
-  });
+    h2.setAttribute('aria-expanded', p.classList.contains('collapsed')?'false':'true');
+  };
+  if(aside){
+    aside.addEventListener('click', e=>{ const h2=e.target.closest('h2'); if(h2) togglePanel(h2); });
+    aside.addEventListener('keydown', e=>{
+      if(e.key!=='Enter' && e.key!==' ') return;
+      const h2=e.target.closest('h2'); if(!h2) return;
+      e.preventDefault(); togglePanel(h2);
+    });
+  }
   /* Einklappbare Unter-Gruppen (z. B. Aufbau → Varianz/Layout), Zustand gemerkt */
   const SKEY='bcb-subcollapsed';
   let ssaved=[]; try{ ssaved=JSON.parse(localStorage.getItem(SKEY)||'[]'); }catch(e){}
-  document.querySelectorAll('.subgrp[data-sg]').forEach(sg=>{ if(ssaved.includes(sg.dataset.sg)) sg.classList.add('collapsed'); });
-  if(aside) aside.addEventListener('click', e=>{
-    const head=e.target.closest('.subhead'); if(!head) return;
+  document.querySelectorAll('.subgrp[data-sg]').forEach(sg=>{
+    const head=sg.querySelector('.subhead'); if(!head) return;
+    head.tabIndex=0; head.setAttribute('role','button');
+    const collapsed = ssaved.includes(sg.dataset.sg);
+    if(collapsed) sg.classList.add('collapsed');
+    head.setAttribute('aria-expanded', collapsed?'false':'true');
+  });
+  const toggleSub = head=>{
     const sg=head.closest('.subgrp[data-sg]'); if(!sg) return;
     sg.classList.toggle('collapsed');
     let set; try{ set=new Set(JSON.parse(localStorage.getItem(SKEY)||'[]')); }catch(e){ set=new Set(); }
     sg.classList.contains('collapsed') ? set.add(sg.dataset.sg) : set.delete(sg.dataset.sg);
     try{ localStorage.setItem(SKEY, JSON.stringify([...set])); }catch(e){}
-  });
+    head.setAttribute('aria-expanded', sg.classList.contains('collapsed')?'false':'true');
+  };
+  if(aside){
+    aside.addEventListener('click', e=>{ const head=e.target.closest('.subhead'); if(head) toggleSub(head); });
+    aside.addEventListener('keydown', e=>{
+      if(e.key!=='Enter' && e.key!==' ') return;
+      const head=e.target.closest('.subhead'); if(!head) return;
+      e.preventDefault(); toggleSub(head);
+    });
+  }
 })();
 </script>
 </body>

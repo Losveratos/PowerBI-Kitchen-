@@ -243,6 +243,49 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
         ok('E · Badge zeigt „konform" bei sauberer Konfiguration', /konform/.test(bClean), 'badge='+bClean);
         ok('E · Badge zeigt Hinweise bei Verstößen', /Hinweis/.test(bWarn), 'badge='+bWarn);
       }
+
+      /* E2 · Polarity-Regel (UN 4.2): Kosten/Schulden-Zeile ohne "lower" markiert -> warn; mit -> ok */
+      state.type='table'; state.reference='PY';
+      state.rows=[{c:'Umsatz',v1:120,v2:100,fc:false},{c:'Kosten',v1:80,v2:100,fc:false}];
+      let polF = ibcsFindings().find(f=>/Polarity/.test(f.title));
+      ok('E · Polarity · Kosten-Zeile ohne Kennzeichnung -> warn', !!polF && polF.level==='warn', JSON.stringify(polF));
+      state.rows[1].polarity = 'lower';
+      polF = ibcsFindings().find(f=>/Polarity/.test(f.title));
+      ok('E · Polarity · Kosten-Zeile mit "lower" gesetzt -> ok', !!polF && polF.level==='ok', JSON.stringify(polF));
+      state.type='columns'; state.rows=[{c:'Kosten',v1:80,v2:100,fc:false}];
+      ok('E · Polarity-Regel greift nur bei POLARITY_TYPES (nicht bei columns)', !ibcsFindings().some(f=>/Polarity/.test(f.title)));
+
+      /* E3 · Small Multiples freie Skala -> warn (UN 5.2) */
+      state.type='multiples'; state.multiScale='free';
+      ok('E · Small Multiples · freie Skala -> Warnhinweis (UN 5.2)', ibcsFindings().some(f=>f.level==='warn' && /Freie Skala/.test(f.title)));
+      state.multiScale='shared';
+      ok('E · Small Multiples · gemeinsame Skala -> kein Hinweis', !ibcsFindings().some(f=>/Freie Skala/.test(f.title)));
+
+      /* E4 · EX4-Lücken (Batch 4): kpi/multiples/pareto jetzt im Vergleichs-Check + Δ/Δ%-beide-aktiv */
+      state.type='kpi'; state.kpiStyle='ibcs'; state.reference='—';
+      state.rows=[{c:'X',v1:100,v2:NaN,v3:NaN,fc:false}]; renderAll();
+      ok('E4 · kpi ohne Referenz -> EX4-Warnung (vorher gar nicht geprüft)',
+         ibcsFindings().some(f=>f.level==='warn' && /Vergleich/.test(f.title)));
+      state.type='kombi'; state.reference='PY';
+      state.varSel={a1:true, r1:false, a2:true, r2:true}; renderAll();
+      ok('E4 · kombi mit nur Δ (r1 aus) -> "Nur Δ oder nur Δ%"-Warnung',
+         ibcsFindings().some(f=>f.level==='warn' && /Nur Δ/.test(f.title)));
+      state.varSel={a1:true, r1:true, a2:true, r2:true}; renderAll();
+      ok('E4 · kombi mit Δ+Δ% -> Vergleich ok', ibcsFindings().some(f=>f.level==='ok' && /Vergleich vorhanden/.test(f.title)));
+      ok('E4 · absvar (einschichtig) bleibt unberührt vom Δ/Δ%-Check', (()=>{
+        state.type='absvar'; state.reference='PY'; renderAll();
+        return ibcsFindings().some(f=>f.level==='ok' && /Vergleich vorhanden/.test(f.title)) && !ibcsFindings().some(f=>/Nur Δ/.test(f.title));
+      })());
+
+      /* E5 · Wertung im Titel jetzt auch auf Englisch erkannt (SA 3.2) */
+      state.type='columns'; state.reference='PY';
+      $('#t1').value='Business Unit'; $('#t2').value='Revenue increased significantly'; $('#t3').value='';
+      ok('E5 · englischer wertender Titel ("increased significantly") -> Warnung',
+         ibcsFindings().some(f=>f.level==='warn' && /Wertung/.test(f.title)));
+      $('#t2').value='Net sales in kEUR';
+      ok('E5 · neutraler englischer Titel -> keine Wertungs-Warnung',
+         !ibcsFindings().some(f=>/Wertung/.test(f.title)));
+      $('#t1').value=''; $('#t2').value=''; $('#t3').value='';
     }
 
     /* === F) 100%-Stacked · Zeitnotation · Boxplot ==================== */
@@ -544,6 +587,33 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       let icomp=false; try{ icomp=!!VL.compile(ib).spec; }catch(e){}
       ok('I · Trellis · Template kompiliert mit columns/resolve', icomp && itpl.columns===2 && tplBakedRows(itpl)===0);
       state.multiCols=3; state.multiScale='shared';
+
+      /* I2 · Small Multiples: Referenz in Szenario-Notation statt hartem Grau (UN 3.2) */
+      loadPreset('multiDemo'); state.type='multiples'; state.multiMode='col'; state.reference='PL';
+      state.srows.forEach(r=>{ r.rv = r.v.map(v=>v*0.9); });
+      renderAll();
+      const svgI2 = chartHtml();
+      ok('I2 · Multiples SVG · Referenz PL hohl (weiß+dunkle Kontur) statt Grau, kein NaN',
+         /fill="#ffffff" stroke="#404040"/.test(svgI2) && !/NaN/.test(svgI2));
+      {
+        const tplI2 = clone(denebTemplate()); const bI2 = clone(tplI2); delete bI2.usermeta;
+        const fdefsI2 = vFieldDefs();
+        const dataI2 = [];
+        state.srows.forEach(r=> state.series.forEach((nm,j)=>{
+          const o={}; fdefsI2.forEach((d,k)=>{ const key='__'+k+'__';
+            if(d[0]==='serie') o[key]=nm; else if(d[0]==='v') o[key]=r.v[j]; else if(d[0]==='r') o[key]=(r.rv||[])[j]; });
+          dataI2.push(o);
+        }));
+        bI2.datasets = {dataset:dataI2};
+        const host=document.createElement('div'); host.style.width='900px'; host.style.height='400px'; document.body.appendChild(host);
+        let html='', ok_=false;
+        try{ await embed(host, bI2, {actions:false, renderer:'svg'}); html=host.innerHTML; ok_=true; }catch(e){}
+        const hollowBars = (html.match(/fill="#ffffff" stroke="#404040"/g)||[]).length;
+        host.remove();
+        ok('I2 · Multiples Deneb-Export · Referenz-Balken PL hohl, kompiliert baked=0, kein NaN',
+           ok_ && hollowBars>0 && tplBakedRows(tplI2)===0 && !/NaN/.test(html));
+      }
+      state.reference='PY'; state.type='columns';
     }
 
     /* === J) Referenzlinie-Overlay (Ø/Median) als zusätzlicher Layer ==== */
@@ -644,6 +714,34 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       renderAll();
       ok('M · table · Σ nur Blätter (kein Doppelzählen)', !/1099/.test(chartHtml()) && !/NaN/.test(chartHtml()));
 
+      /* M4b · Tabelle/WfKombi: Δ%-Ausreißer im Deneb-Export gekappt (relCap), sonst
+         staucht eine Extremzeile die ganze Spalte */
+      {
+        state.type='table'; state.reference='PY'; state.reference2='—';
+        state.rows=[{c:'A',v1:105,v2:100,fc:false},{c:'B',v1:104,v2:100,fc:false},
+                    {c:'C',v1:103,v2:100,fc:false},{c:'D',v1:900,v2:100,fc:false}];
+        renderAll();
+        const cap = relCap(vRows().map(r=>r.rv).filter(v=>v!==null));
+        ok('M4b · relCap() erkennt Ausreißer (800% vs ~5%) -> cap=5', cap===5, 'cap='+cap);
+        const tplT = clone(denebTemplate()); const bodyT = clone(tplT); delete bodyT.usermeta;
+        const fdefsT = vFieldDefs();
+        const dataT = state.rows.map(r=>{
+          const o={}; fdefsT.forEach((d,i)=>{ const key='__'+i+'__';
+            if(d[0]==='dim') o[key]=r.c; else if(d[0]==='p') o[key]=r.v1; else if(d[0]==='r') o[key]=r.v2; });
+          return o;
+        });
+        bodyT.datasets = {dataset:dataT};
+        const host=document.createElement('div'); host.style.width='900px'; host.style.height='300px'; document.body.appendChild(host);
+        let html='', renderOk=false;
+        try{ await embed(host, bodyT, {actions:false, renderer:'svg'}); html=host.innerHTML; renderOk=true; }catch(e){}
+        const pts = (html.match(/aria-roledescription="point"[^>]*transform="translate\(([\d.]+),/g)||[]).map(p=>parseFloat(p.match(/translate\(([\d.]+),/)[1]));
+        const lastFour = pts.slice(-4);
+        host.remove();
+        ok('M4b · Tabelle · Deneb-Export kompiliert (baked=0), kein NaN', renderOk && tplBakedRows(tplT)===0 && !/NaN/.test(html));
+        ok('M4b · Tabelle · Ausreißer-Pin (D, 800%) auf denselben x wie Cap-Zeile (A, 5%) geklemmt',
+           lastFour.length===4 && Math.abs(lastFour[0]-lastFour[3])<0.5, 'x='+JSON.stringify(lastFour));
+      }
+
       /* M5 kpiTrend: eigenes dynamisches Template (Sparkline), nicht Status */
       state.type='kpi'; state.kpiStyle='trend'; state.reference='—';
       state.kpiSingle=false; state.kpiBars=false; state.kpiMultiScen=false; state.noFC=false;
@@ -657,6 +755,41 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       let ktc=false; try{ const b=clone(denebTemplate()); delete b.usermeta; ktc=!!VL.compile(b).spec; }catch(e){}
       ok('M · kpiTrend · Template kompiliert (baked=0) + dim/serie/v deklariert',
          ktc && tplBakedRows(denebTemplate())===0 && denebTemplate().usermeta.dataset.length===3);
+
+      /* M5b · kpiTrend: Diamant-Marker (jeder 3. Tagespunkt) + Mini-Legende im Deneb-Export
+         (renderKpiTrend Zeile ~2993-3012 hatte das, vlKpiTrend vorher nicht) */
+      {
+        const tplT = clone(denebTemplate()); const bodyT = clone(tplT); delete bodyT.usermeta;
+        const fdefsT = vFieldDefs();
+        const dataT = [];
+        state.srows.forEach(r=> state.series.forEach((nm,j)=>{
+          const o={}; fdefsT.forEach((d,k)=>{ const key='__'+k+'__';
+            if(d[0]==='dim') o[key]=r.c; else if(d[0]==='serie') o[key]=nm; else if(d[0]==='v') o[key]=r.v[j]; });
+          dataT.push(o);
+        }));
+        bodyT.datasets = {dataset:dataT};
+        const host=document.createElement('div'); host.style.width='700px'; host.style.height='300px'; document.body.appendChild(host);
+        let renderOk=false, html='';
+        try{ await embed(host, bodyT, {actions:false, renderer:'svg'}); html=host.innerHTML; renderOk=true; }catch(e){}
+        const diamondCount = (html.match(/aria-roledescription="point"/g)||[]).length;
+        const hasLegend = ['LETZTE 30 TAGE','5T Ø','TÄGLICH'].every(t=>html.includes(t));
+        host.remove();
+        ok('M · kpiTrend · Deneb-Export: Diamant-Marker vorhanden, kein NaN',
+           renderOk && diamondCount>0 && !/NaN/.test(html), 'diamondCount='+diamondCount);
+        ok('M · kpiTrend · Deneb-Export: Mini-Legende (Last30/Avg5/Daily) vorhanden', hasLegend);
+        /* kpiNoLabels blendet die Legende aus, Marker bleiben */
+        state.kpiNoLabels = true; renderAll();
+        const tplT2 = clone(denebTemplate()); const bodyT2 = clone(tplT2); delete bodyT2.usermeta;
+        bodyT2.datasets = {dataset:dataT};
+        const host2=document.createElement('div'); host2.style.width='700px'; host2.style.height='300px'; document.body.appendChild(host2);
+        let html2='';
+        try{ await embed(host2, bodyT2, {actions:false, renderer:'svg'}); html2=host2.innerHTML; }catch(e){}
+        const diamondCount2 = (html2.match(/aria-roledescription="point"/g)||[]).length;
+        host2.remove();
+        ok('M · kpiTrend · kpiNoLabels blendet Legende aus, Marker bleiben',
+           !['LETZTE 30 TAGE','5T Ø','TÄGLICH'].some(t=>html2.includes(t)) && diamondCount2===diamondCount);
+        state.kpiNoLabels = false;
+      }
       state.kpiStyle='ibcs'; state.varSel={a1:true,r1:true,a2:true,r2:true};
     }
 
@@ -744,6 +877,78 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       ok('X · Wizard · KPI+Brücke → Bridge', wizRecommend({dim:'kpi',focus:'bridge'}).style==='bridge');
       ok('X · Wizard · KPI+Abweichung (Alias) → Bridge', wizRecommend({dim:'kpi',focus:'variance'}).style==='bridge');
       state.kpiStyle='ibcs'; state.reference2='—'; state.kpiBars=false; state.kpiMultiScen=false; state.kpiSingle=false; state.kpiNoTitle=false; state.kpiNoLabels=false;
+
+      /* X8 · IBCS-Polarity (higher/lower-is-better): "günstig" hängt von der
+         Zeilen-Ausrichtung ab, nicht vom reinen Vorzeichen des Deltas */
+      ok('X · favorable() · higher (Default): positives Delta ist günstig', favorable(5,{}) && !favorable(-5,{}));
+      ok('X · favorable() · lower: negatives Delta ist günstig', favorable(-5,{polarity:'lower'}) && !favorable(5,{polarity:'lower'}));
+      loadPreset('kpiDemo'); state.kpiStyle='ibcs'; renderAll();
+      {
+        const netto = state.rows.find(r=>r.c==='Nettoverschuldung');
+        ok('X · kpiDemo · Nettoverschuldung hat polarity=lower (Schulden sinken = günstig)', netto && netto.polarity==='lower');
+        const html = chartHtml();
+        const seg = html.slice(html.indexOf('Nettoverschuldung'), html.indexOf('Nettoverschuldung')+1200);
+        ok('X · KPI ibcs · Nettoverschuldung (Δ<0, lower) rendert grün statt rot', /#469b3c|#0e8c7f/.test(seg) && !/#c0392b/.test(seg), 'seg enthält kein var-neg-Rot');
+        state.kpiStyle='status'; renderAll();
+        const html2 = chartHtml();
+        const seg2 = html2.slice(html2.indexOf('Nettoverschuldung'), html2.indexOf('Nettoverschuldung')+900);
+        ok('X · KPI status · Nettoverschuldung (Δ<0, lower) rendert grün statt rot', /#469b3c|#0e8c7f/.test(seg2) && !/#c0392b/.test(seg2));
+        state.kpiStyle='ibcs';
+      }
+      /* Generischer Fall: Tabelle mit einer polarity=lower-Zeile */
+      state.type='table'; state.reference='PY';
+      state.rows=[{c:'Umsatz',v1:120,v2:100,fc:false},{c:'Kosten',v1:80,v2:100,fc:false,polarity:'lower'}];
+      renderAll();
+      {
+        const html = chartHtml();
+        const seg = html.slice(html.indexOf('>Kosten<'), html.indexOf('>Kosten<')+700);
+        ok('X · Tabelle · Kosten gesunken (lower) rendert grün, kein Rot', /#469b3c|#0e8c7f/.test(seg) && !/#c0392b/.test(seg));
+      }
+
+      /* X9 · KPI ibcs · Deneb-Export: Zielbalken + Mini-Achsen-Pin + Polarity, kein NaN
+         (deckt auch den vFieldMap-Fix ab: internes Feld 'd1'/'d2' kollidierte vorher mit
+         der Hierarchie-Tabellen-Feldzuordnung 'Ebene 2'/'Ebene 3' -> +NaN im Export) */
+      state.type='kpi'; state.kpiStyle='ibcs'; state.kpiSingle=false; state.kpiNoLabels=false;
+      loadPreset('kpiDemo'); renderAll();
+      {
+        const tpl = denebTemplate(); const body = clone(tpl); delete body.usermeta;
+        const fdefs = vFieldDefs();
+        const data = activeRows().map(r=>{
+          const o={}; fdefs.forEach((d,i)=>{ const key='__'+i+'__';
+            if(d[0]==='dim') o[key]=r.c; else if(d[0]==='p') o[key]=r.v1;
+            else if(d[0]==='r') o[key]=(r.v2===undefined||isNaN(r.v2))?null:r.v2;
+            else if(d[0]==='r2') o[key]=(r.v3===undefined||isNaN(r.v3))?null:r.v3;
+            else if(d[0]==='fc') o[key]=r.fc?1:0; });
+          return o;
+        });
+        body.datasets = {dataset:data};
+        const host=document.createElement('div'); document.body.appendChild(host);
+        let ok_=false, nanCount=-1, nettoRow=null;
+        try{
+          const res = await embed(host, body, {actions:false, renderer:'svg'});
+          nanCount = (host.innerHTML.match(/NaN/g)||[]).length;
+          Object.keys(res.view._runtime.data).forEach(n=>{
+            try{ const d=res.view.data(n); if(d && d.length===state.rows.length && d[0] && ('pol' in d[0])){
+              const hit=d.find(x=>x.__0__==='Nettoverschuldung'); if(hit) nettoRow=hit; } }catch(e){}
+          });
+          ok_=true;
+        }catch(e){}
+        host.remove();
+        ok('X · KPI ibcs · Deneb-Template kompiliert baked=0', ok_ && tplBakedRows(tpl)===0);
+        ok('X · KPI ibcs · Deneb-Export ohne NaN (vFieldMap d1/d2-Kollision behoben)', nanCount===0, 'nanCount='+nanCount);
+        ok('X · KPI ibcs · Deneb-Export: pol/pct/d1 für Nettoverschuldung korrekt berechnet',
+           !!nettoRow && nettoRow.pol===true && nettoRow.d1===-22 && Math.abs(nettoRow.pct-97.27)<0.1,
+           JSON.stringify(nettoRow));
+      }
+      /* Hierarchie-Tabelle bleibt vom vFieldMap-Fix unberührt (d0/d1/d2 weiterhin gemappt) */
+      {
+        loadPreset('tableHier'); renderAll();
+        const fm = vFieldMap();
+        ok('X · vFieldMap · Hierarchie-Tabelle behält d0/d1/d2-Mapping', fm.d0==='Ebene 1' && fm.d1==='Ebene 2');
+        state.type='kpi'; loadPreset('kpiDemo'); renderAll();
+        const fm2 = vFieldMap();
+        ok('X · vFieldMap · KPI (kein Hierarchie-Typ) hat kein d1/d2-Mapping', fm2.d1===undefined && fm2.d2===undefined);
+      }
     }
 
     /* === Y) „ohne FC" global + Karten-Überlauf ========================= */
@@ -824,6 +1029,37 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
          n2 && tplBakedRows(tplN)===0 && !!tplN.facet && /^__\d+__$/.test(tplN.facet.field)
          && !!gd && gd.kind==='column' && gd.type==='text');
       state.scatterFacet=false; state.scatterReg=false;
+
+      /* N3 · FC-Punkte (hohl/gestrichelt statt ununterscheidbar von Ist) + Ø-Beschriftung im Deneb-Export */
+      state.rows[0].fc = true; renderAll();
+      const svgN3 = chartHtml();
+      ok('N · scatter · Ø-Beschriftung in der SVG-Vorschau', /Ø X/.test(svgN3) && /Ø Y/.test(svgN3));
+      {
+        const tpl = clone(denebTemplate()); const body = clone(tpl); delete body.usermeta;
+        ok('N · scatter · fc als eigenes Platzhalter-Feld deklariert', tpl.usermeta.dataset.some(d=>d.key && /^__\d+__$/.test(d.key) && /FC-Flag/.test(d.description||'')));
+        const fdefs = vFieldDefs();
+        const data = state.rows.map(r=>{
+          const o={}; fdefs.forEach((d,i)=>{ const key='__'+i+'__';
+            if(d[0]==='x') o[key]=r.v1; else if(d[0]==='y') o[key]=r.v2;
+            else if(d[0]==='g') o[key]=(r.v3===undefined||isNaN(r.v3))?null:r.v3;
+            else if(d[0]==='fc') o[key]=r.fc?1:0; });
+          return o;
+        });
+        body.datasets = {dataset:data};
+        const host = document.createElement('div'); document.body.appendChild(host);
+        let compiled=false, html='';
+        try{ await embed(host, body, {actions:false, renderer:'svg'}); html = host.innerHTML; compiled=true; }catch(e){}
+        const circles = (html.match(/<path[^>]*aria-roledescription="circle"[^>]*>/g)||[]);
+        const fcCircle = circles.find(c=>/stroke-dasharray="3,2"/.test(c) && /fill="#ffffff"/.test(c));
+        const acCircles = circles.filter(c=>!/stroke-dasharray="3,2"/.test(c));
+        host.remove();
+        ok('N · scatter · Deneb-Export kompiliert, kein NaN, baked=0',
+           compiled && !/NaN/.test(html) && tplBakedRows(tpl)===0);
+        ok('N · scatter · Deneb-Export: FC-Punkt hohl+gestrichelt, Ist-Punkte solide',
+           !!fcCircle && acCircles.length===state.rows.length-1);
+        ok('N · scatter · Deneb-Export zeigt Ø-Beschriftung', /Ø X/.test(html) && /Ø Y/.test(html));
+      }
+      state.rows[0].fc = false;
     }
 
     /* === O) Geführte Optionen: typ-bewusste Karten-Registry =========== */
@@ -1044,6 +1280,41 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       /* Guide-Karte vorhanden (zMonthCol + zMonthRef bei gesetzter Referenz) */
       ok('U · Z-Chart · Guide-Karte zMonthCol + zMonthRef', (()=>{ state.type='zchart'; state.reference='PL'; const g=guideCardsHtml(); return /data-opt="zMonthCol"/.test(g) && /data-opt="zMonthRef"/.test(g); })());
       state.zMonthCol=false; state.zMonthRef=false;
+
+      /* U2 · unvollständige Referenzwerte: Deneb-Export darf die gleitende Jahressumme
+         nicht kommentarlos falsch anzeigen (Vega-Bug-Klasse: joinaggregate sum überspringt nulls) */
+      loadPreset('zDemo'); state.reference='PY'; renderAll();
+      const zFieldDefs = vFieldDefs();
+      const toDenebData = rowsArr => rowsArr.map(r=>{
+        const o={}; zFieldDefs.forEach((d,i)=>{ const key='__'+i+'__';
+          if(d[0]==='dim') o[key]=r.c; else if(d[0]==='p') o[key]=r.v1;
+          else if(d[0]==='r') o[key]=(r.v2===undefined||isNaN(r.v2))?null:r.v2;
+          else if(d[0]==='fc') o[key]=r.fc?1:0; });
+        return o;
+      });
+      const renderDenebZ = async rowsArr => {
+        const body=clone(denebTemplate()); delete body.usermeta;
+        body.datasets={dataset:toDenebData(rowsArr)};
+        const host=document.createElement('div'); document.body.appendChild(host);
+        let mats=null, warn=false, ok_=false;
+        try{
+          const res=await embed(host, body, {actions:false, renderer:'svg'});
+          Object.keys(res.view._runtime.data).forEach(n=>{
+            try{ const d=res.view.data(n); if(d && d.length===rowsArr.length && d[0] && ('mat' in d[0])) mats=d.map(x=>x.mat); }catch(e){}
+          });
+          warn = /unvollständig/.test(host.innerHTML); ok_=true;
+        }catch(e){}
+        host.remove();
+        return {mats, warn, ok_};
+      };
+      const zRowsOk = JSON.parse(JSON.stringify(activeRows()));
+      const zRowsBad = JSON.parse(JSON.stringify(zRowsOk)); zRowsBad[2].v2 = null;
+      const resOk = await renderDenebZ(zRowsOk);
+      const resBad = await renderDenebZ(zRowsBad);
+      ok('U · Z-Chart · vollständige Referenz: gleitende Summe berechnet, kein Warnhinweis',
+         resOk.ok_ && resOk.mats && resOk.mats.every(v=>v!==null) && !resOk.warn);
+      ok('U · Z-Chart · unvollständige Referenz: Deneb-Export nullt die gleitende Summe (kein Fantasiewert) + zeigt Warnhinweis',
+         resBad.ok_ && resBad.mats && resBad.mats.every(v=>v===null) && resBad.warn);
     }
 
     /* === T) Szenariovergleich je Gruppe · In-Preview Small Multiples (columns/line) === */
@@ -1142,6 +1413,187 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
         ok('W · Raw-Vega · alle Typen ('+RAWVAR_TYPES.join('/')+') rendern + Deneb-Template parst', allOk, bad);
       }
       state.rawVega=false;
+    }
+
+    /* === Z1) Dashboard-Export (Mehr-Chart-Deneb-Spec) – bisher komplett ungetestet ===== */
+    if(typeof dashboardSpec==='function' && typeof denebDashTemplate==='function'){
+      /* Zwei kompatible Kacheln (beide 'columns', gleiche Kategorien-Achse Jan..Dez, aber
+         unterschiedliche Referenz) – Dashboard teilt sich EIN Deneb-Dataset über alle Kacheln,
+         daher hier bewusst kein Mix mit einem facettierenden Typ (z.B. KPI), sonst sieht jede
+         Kachel auch die Kategorien der anderen (eigene, separate Design-Grenze des Features). */
+      state.dash = [];
+      loadPreset('months'); state.type='columns'; state.reference='PY'; renderAll();
+      state.dash.push(dashSnapshot());
+      loadPreset('months'); state.type='columns'; state.reference='PL'; renderAll();
+      state.dash.push(dashSnapshot());
+      state.dashCols = 2;
+
+      const specEmbed = dashboardSpec(false);
+      ok('Z1 · Dashboard · Spec mit 2 Kacheln (concat, columns=dashCols)',
+         !!specEmbed && Array.isArray(specEmbed.concat) && specEmbed.concat.length===2 && specEmbed.columns===2);
+
+      let compEmbed=false; try{ compEmbed=!!VL.compile(clone(specEmbed)).spec; }catch(e){}
+      ok('Z1 · Dashboard · eingebetteter Spec kompiliert', compEmbed);
+
+      const tpl = denebDashTemplate();
+      ok('Z1 · Dashboard · Deneb-Template vorhanden (usermeta.dataset über beide Kacheln)',
+         !!tpl && Array.isArray(tpl.usermeta.dataset) && tpl.usermeta.dataset.length>0);
+      const tb = clone(tpl); delete tb.usermeta;
+      let compDeneb=false; try{ compDeneb=!!VL.compile(tb).spec; }catch(e){}
+      ok('Z1 · Dashboard · Deneb-Template kompiliert (baked=0)', compDeneb && tplBakedRows(tpl)===0);
+
+      /* Echtes Rendering mit injizierten Daten je Kachel-Feldliste (wie im Power-BI-Report) */
+      {
+        const agg = dashAggFields();
+        const nameToIdx = {}; agg.forEach((f,i)=> nameToIdx[f.name]=i);
+        const rowsPerTile = state.dash.map(snap=> withState(snap, ()=> {
+          const defs = vFieldDefs();
+          return activeRows().map(r=>{
+            const o={};
+            defs.forEach(([key])=>{
+              const fname = F(key); const idx = nameToIdx[fname]; if(idx===undefined) return;
+              const ph = '__'+idx+'__';
+              if(key==='dim') o[ph]=r.c; else if(key==='p') o[ph]=r.v1; else if(key==='r') o[ph]=isNaN(r.v2)?null:r.v2;
+              else if(key==='r2') o[ph]=isNaN(r.v3)?null:r.v3; else if(key==='fc') o[ph]=r.fc?1:0;
+            });
+            return o;
+          });
+        }));
+        const data = rowsPerTile.flat();
+        const body = clone(tpl); delete body.usermeta; body.datasets = {dataset:data};
+        const host=document.createElement('div'); host.style.width='900px'; host.style.height='500px'; document.body.appendChild(host);
+        let renderOk=false, html='';
+        try{ await embed(host, body, {actions:false, renderer:'svg'}); html=host.innerHTML; renderOk=true; }catch(e){}
+        host.remove();
+        ok('Z1 · Dashboard · Deneb-Template rendert mit echten Daten, kein NaN', renderOk && !/NaN/.test(html));
+      }
+      state.dash = []; state.dashCols = 2;
+    }
+
+    /* === Z1b) Export-Modus-Schalter (vlVega/vlCross/vlTooltip) – bisher nur die
+       Default-Kombination (vlDeneb=true, vlTooltip=true, vlCross=false, vlVega=false)
+       wurde implizit durch die Compile-Checks in Sektion A geprüft ===== */
+    if(typeof exportSpecText==='function'){
+      loadPreset('months'); state.type='columns'; state.reference='PY'; renderAll();
+
+      /* Cross-Filter: __selected__-Opazitätsbedingung landet im Template */
+      const saveTip=state.vlTooltip, saveCross=state.vlCross;
+      state.vlTooltip=true; state.vlCross=true; renderAll();
+      const tplCross = denebTemplate();
+      ok('Z1b · vlCross · Template enthält __selected__-Opazitätsbedingung',
+         JSON.stringify(tplCross).includes('__selected__'));
+      let compCross=false; try{ const b=clone(tplCross); delete b.usermeta; compCross=!!VL.compile(b).spec; }catch(e){}
+      ok('Z1b · vlCross · Template kompiliert weiterhin (baked=0)', compCross && tplBakedRows(tplCross)===0);
+
+      state.vlCross=false; renderAll();
+      const tplTip = denebTemplate();
+      ok('Z1b · vlTooltip · Mark bekommt tooltip:{content:"data"}, kein __selected__ ohne vlCross',
+         JSON.stringify(tplTip).includes('"content":"data"') && !JSON.stringify(tplTip).includes('__selected__'));
+
+      state.vlTooltip=false; renderAll();
+      ok('Z1b · ohne Tooltip/Cross · Template ohne tooltip/__selected__',
+         !JSON.stringify(denebTemplate()).includes('"content":"data"') && !JSON.stringify(denebTemplate()).includes('__selected__'));
+      state.vlTooltip=saveTip; state.vlCross=saveCross;
+
+      /* vlVega: Export als reines Vega v5 (vegaLite.compile), nicht mehr Vega-Lite-JSON */
+      const saveVega=state.vlVega; state.vlVega=true; renderAll();
+      const spec = vegaSpec(false);
+      let vegaText=null, err=null;
+      try{ vegaText = await exportSpecText(spec); }catch(e){ err=String(e); }
+      let parsedOk=false, isRawVega=false;
+      try{
+        const parsed = JSON.parse(vegaText);
+        parsedOk = !!window.vega.parse(parsed);
+        isRawVega = Array.isArray(parsed.marks) && !('encoding' in parsed) && !('mark' in parsed);
+      }catch(e){}
+      ok('Z1b · vlVega · exportSpecText liefert gültiges, geparstes Vega v5 (kein Vega-Lite mehr)',
+         !err && parsedOk && isRawVega, err||'');
+      state.vlVega=saveVega;
+    }
+
+    /* === Z2) Barrierefreiheit: Tastatur-Bedienbarkeit + Accessible Name ===== */
+    {
+      const h2 = document.querySelector('aside .panel > h2');
+      ok('Z2 · Panel-Header ist per Tastatur fokussierbar (tabindex/role=button)',
+         !!h2 && h2.tabIndex===0 && h2.getAttribute('role')==='button');
+      if(h2){
+        const panel = h2.parentElement;
+        const before = panel.classList.contains('collapsed');
+        h2.dispatchEvent(new KeyboardEvent('keydown', {key:'Enter', bubbles:true}));
+        const after = panel.classList.contains('collapsed');
+        ok('Z2 · Panel-Header · Enter klappt ein/aus + aria-expanded spiegelt Zustand',
+           after!==before && h2.getAttribute('aria-expanded')===(after?'false':'true'));
+        h2.dispatchEvent(new KeyboardEvent('keydown', {key:'Enter', bubbles:true})); /* zurück */
+      }
+      const subhead = document.querySelector('.subgrp .subhead');
+      if(subhead){
+        const sg = subhead.closest('.subgrp[data-sg]');
+        const before = sg.classList.contains('collapsed');
+        subhead.dispatchEvent(new KeyboardEvent('keydown', {key:' ', bubbles:true}));
+        const after = sg.classList.contains('collapsed');
+        ok('Z2 · Aufbau-Untergruppe · Space klappt ein/aus (tabindex/role/aria-expanded)',
+           subhead.tabIndex===0 && subhead.getAttribute('role')==='button' && after!==before);
+        subhead.dispatchEvent(new KeyboardEvent('keydown', {key:' ', bubbles:true})); /* zurück */
+      }
+      /* SVG hat einen Accessible Name (<title>) statt unbenanntem role="img" */
+      state.type='columns'; $('#t1').value='Firma X'; $('#t2').value='Umsatz in mEUR'; renderAll();
+      const titleEl = document.querySelector('#chartHost svg title');
+      ok('Z2 · Haupt-SVG hat <title> (Accessible Name) mit Chart-Inhalt',
+         !!titleEl && /Firma X/.test(titleEl.textContent) && /Umsatz/.test(titleEl.textContent));
+      $('#t1').value=''; $('#t2').value='';
+      /* In-Chart-Collapse (Hierarchie-Tabelle): Rect ist fokussierbar + Enter klappt ein */
+      state.type='table';
+      state.rows=[{c:'Umsatz',v1:1000,v2:900,fc:false,lvl:0},{c:'Region A',v1:600,v2:500,fc:false,lvl:1},{c:'Region B',v1:400,v2:400,fc:false,lvl:1}];
+      renderAll();
+      const collRect = document.querySelector('#chartHost [data-collapse]');
+      ok('Z2 · Tabelle · Eltern-Zeile (data-collapse) ist fokussierbar (tabindex/role/aria-label)',
+         !!collRect && collRect.tabIndex===0 && collRect.getAttribute('role')==='button' && !!collRect.getAttribute('aria-label'));
+      if(collRect){
+        const key = collRect.getAttribute('data-collapse');
+        const before = state.rowCollapse.has(key);
+        collRect.dispatchEvent(new KeyboardEvent('keydown', {key:'Enter', bubbles:true}));
+        ok('Z2 · Tabelle · Enter auf Eltern-Zeile klappt Kinder ein/aus', state.rowCollapse.has(key)!==before);
+      }
+      state.rowCollapse.clear();
+
+      /* Dialoge: aria-labelledby zeigt auf existierende Überschrift */
+      const dlgIds = ['dlg','helpDlg','guideDlg','wizDlg','ibcsDlg','notDlg'];
+      const dlgOk = dlgIds.every(id=>{ const d=document.getElementById(id); const lbl=d&&d.getAttribute('aria-labelledby');
+        return !!lbl && !!document.getElementById(lbl); });
+      ok('Z2 · Alle 6 Dialoge haben aria-labelledby auf eine existierende Überschrift', dlgOk);
+
+      /* Wizard → Guide-Dialog verkettet (Übernehmen öffnet direkt die Feinjustierung) */
+      {
+        const wizDlg=document.getElementById('wizDlg'), guideDlg=document.getElementById('guideDlg');
+        if(wizDlg.showModal) wizDlg.showModal(); else wizDlg.setAttribute('open','');
+        document.getElementById('wizApply').click();
+        ok('Z2 · Wizard „Übernehmen" öffnet direkt den Optionen-Dialog', guideDlg.hasAttribute('open') && !wizDlg.hasAttribute('open'));
+        if(guideDlg.close) guideDlg.close(); else guideDlg.removeAttribute('open');
+      }
+
+      /* Tree: PY/FC-Spalten in echter Szenario-Notation statt hartem 'PL' */
+      state.type='tree';
+      state.treeJson = JSON.stringify({periods:['P1','P2'], scenarios:['AC','PY'],
+        root:{label:'Test', unit:'', values:[100,90], op:null, children:[]}});
+      renderAll();
+      {
+        const rects = (chartHtml().match(/<rect[^>]*>/g)||[]);
+        const pyRect = rects.find(r=>r.includes('fill="'+LIGHT+'"'));
+        ok('Z2 · Treiberbaum · PY-Spalte zeigt Szenario-Notation (hell, kein Rahmen) statt PL-Optik',
+           !!pyRect && !pyRect.includes('stroke='));
+      }
+
+      /* Neue Gantt/Export-EN-Strings übersetzt statt stillem DE-Fallback */
+      state.uiLang='en';
+      const enChecks = [
+        ['Tabelle wird geladen …','Loading table …'],
+        ['Gantt wird geladen …','Loading Gantt chart …'],
+        ['Gantt-Vorschau nicht möglich','Gantt preview not possible'],
+        ['Für diesen Typ ist kein Vega-Lite-Spec verfügbar (nur SVG/PNG).','No Vega-Lite spec is available for this type (SVG/PNG only).'],
+      ];
+      ok('Z2 · Gantt/Export-Strings jetzt auf Englisch übersetzt (vorher stiller DE-Fallback)',
+         enChecks.every(([de,en])=>TT(de)===en));
+      state.uiLang='de';
     }
 
   }catch(err){

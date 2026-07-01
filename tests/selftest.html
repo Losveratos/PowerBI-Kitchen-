@@ -45,19 +45,33 @@ function render(report){
   sum.className = report.ok ? 'pass' : 'fail';
   sum.textContent = (report.ok ? '✓ ALLE GRÜN · ' : '✗ FEHLER · ') + report.passed + '/' + report.total + ' bestanden';
   const host = $('#results'); host.innerHTML='';
-  // gruppieren nach erstem Buchstaben (A/B/C/D)
-  const groups = {A:'A · Regression (alle Typen)', B:'B · varint-Template-Integrität',
-                  C:'C · varint-Korrektheit unter Shuffle', D:'D · Demo-Daten-Reaktivität',
-                  E:'E · IBCS-Check (Linter)',
-                  F:'F · 100%-Stacked · Zeitnotation · Boxplot'};
+  // gruppieren nach erstem Buchstaben (A, B, … R2 fällt unter R, X4 unter X, …)
+  // Titel nur zur Beschriftung – die Gruppenliste selbst kommt dynamisch aus report._all,
+  // damit eine neue Sektion nie wieder unsichtbar wird, nur weil sie hier fehlt.
+  const TITLES = {
+    A:'A · Regression (alle Typen)', B:'B · varint-Template-Integrität',
+    C:'C · varint-Korrektheit unter Shuffle', D:'D · Demo-Daten-Reaktivität',
+    E:'E · IBCS-Check (Linter)', F:'F · 100%-Stacked · Zeitnotation · Boxplot · Brücke ΔRef2',
+    G:'G · Gantt (Raw-Vega-Vorlage)', H:'H · Collapsible-Zeilen (Tabelle + Wasserfall)',
+    I:'I · Flexibler Trellis', J:'J · Referenzlinie-Overlay (Ø/Median)',
+    K:'K · Dual-Axis-Kombi (colline)', L:'L · Trellis-Facet-Export (Deneb)',
+    M:'M · Review-Fixes (pareto/barskombi/bullet/table/kpiTrend)',
+    N:'N · Korrelations-Scatter (Trendlinie + Facetten)',
+    O:'O · Geführte Optionen (Karten-Registry)', P:'P · Heatmap-Template + Referenzlinien-Notation',
+    Q:'Q · Integrierte GuV (wfkombi)', R:'R · varint (YTD-Toggle, Σ-Referenzsäulen, Total-Pin)',
+    S:'S · Treiberbaum (tree)', T:'T · Szenariovergleich je Gruppe (Small Multiples)',
+    U:'U · Z-Chart · Monatswerte', V:'V · Hierarchie-Tabelle (Multi-Dim)',
+    W:'W · Raw-Vega-Tabelle', X:'X · KPI-Brücke', Y:'Y · „ohne FC" + Karten-Überlauf',
+    Z:'Z · Dashboard-Export & Barrierefreiheit',
+  };
   // Erfolge kompakt, Fehler ausführlich: wir zeigen nur Fehler + eine Gruppen-Bilanz.
   const byGroup = {};
   report._all.forEach(c=>{ const g=(c.name[0]); (byGroup[g]=byGroup[g]||[]).push(c); });
-  Object.keys(groups).forEach(g=>{
+  Object.keys(byGroup).sort().forEach(g=>{
     const arr = byGroup[g]||[]; if(!arr.length) return;
     const fails = arr.filter(c=>!c.pass);
     const gd = document.createElement('div'); gd.className='group';
-    gd.textContent = groups[g] + '  —  ' + (arr.length-fails.length) + '/' + arr.length + (fails.length?'  ✗':'  ✓');
+    gd.textContent = (TITLES[g] || (g + ' · (unbenannt)')) + '  —  ' + (arr.length-fails.length) + '/' + arr.length + (fails.length?'  ✗':'  ✓');
     host.appendChild(gd);
     (fails.length?fails:arr.slice(0,0)).forEach(c=>{
       const r=document.createElement('div'); r.className='row '+(c.pass?'pass':'fail');
