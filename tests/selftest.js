@@ -1597,6 +1597,38 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       state.uiLang='de';
     }
 
+    /* === Z3) HD/Full-HD-Zeichenflächen-Presets + synchronisierte Beschriftungsgröße ===== */
+    if(document.getElementById('pvFont')){
+      loadPreset('months'); state.type='columns'; state.reference='PY';
+      const hdBtn = [...document.querySelectorAll('#sizeCtl [data-pvsz]')].find(b=>b.dataset.pvsz==='1280,720');
+      const fhdBtn = [...document.querySelectorAll('#sizeCtl [data-pvsz]')].find(b=>b.dataset.pvsz==='1920,1080');
+      ok('Z3 · HD/Full-HD-Presets vorhanden', !!hdBtn && !!fhdBtn);
+      if(hdBtn && fhdBtn){
+        hdBtn.click();
+        ok('Z3 · HD-Preset setzt 1280×720 + Beschriftung 130 % (XL), alle 3 Selects synchron',
+           state.vlW===1280 && state.vlH===720 && state.fontScale===1.3 &&
+           document.getElementById('pvFont').value==='1.3' && document.getElementById('dlgFont').value==='1.3' && document.getElementById('fontScale').value==='1.3');
+        fhdBtn.click();
+        ok('Z3 · Full-HD-Preset setzt 1920×1080 + Beschriftung 160 % (XXL+), alle 3 Selects synchron',
+           state.vlW===1920 && state.vlH===1080 && state.fontScale===1.6 &&
+           document.getElementById('pvFont').value==='1.6' && document.getElementById('dlgFont').value==='1.6' && document.getElementById('fontScale').value==='1.6');
+        /* Deneb-Export übernimmt die größere Schrift 1:1 (fontSize * fontScale) */
+        const tplFhd = clone(denebTemplate());
+        const sizesFhd = [...new Set(JSON.stringify(tplFhd).match(/"fontSize":[\d.]+/g)||[])].map(s=>+s.split(':')[1]);
+        state.fontScale = 1; renderAll();
+        const tplBase = clone(denebTemplate());
+        const sizesBase = [...new Set(JSON.stringify(tplBase).match(/"fontSize":[\d.]+/g)||[])].map(s=>+s.split(':')[1]);
+        const ratioOk = sizesBase.length && sizesFhd.length && sizesBase.every(b=> sizesFhd.some(f=> Math.abs(f/b-1.6)<0.01));
+        ok('Z3 · Deneb-Export: Schriftgrößen skalieren exakt mit fontScale (1.6× bei Full HD)', ratioOk, JSON.stringify({sizesBase, sizesFhd}));
+        /* Die dritte Preset-Zeile im Export-Dialog (#sizeInputs) hat dieselben HD/Full-HD-Buttons */
+        const hdDlg = [...document.querySelectorAll('#sizeInputs [data-sz]')].find(b=>b.dataset.sz==='1280,720');
+        const fhdDlg = [...document.querySelectorAll('#sizeInputs [data-sz]')].find(b=>b.dataset.sz==='1920,1080');
+        ok('Z3 · Export-Dialog hat dieselben HD/Full-HD-Presets (mit passender Schriftgröße)',
+           !!hdDlg && hdDlg.dataset.szfont==='1.3' && !!fhdDlg && fhdDlg.dataset.szfont==='1.6');
+      }
+      state.vlSizeMode='fit'; state.fontScale=1; renderAll();
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{

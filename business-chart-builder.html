@@ -401,13 +401,16 @@ footer a:hover{color:var(--ink)}
             <option value="de" selected>DE</option>
             <option value="en">EN</option>
           </select></label>
-        <label class="fld" style="margin:0" title="Skaliert alle Beschriftungen im Chart – gilt auch für den SVG/PNG- und Vega/Deneb-Export"><span>Beschriftung</span>
+        <label class="fld" style="margin:0" title="Skaliert alle Beschriftungen im Chart – gilt auch für den SVG/PNG- und Vega/Deneb-Export. Für Dashboards/Wandbildschirme eher XXL+ oder größer wählen."><span>Beschriftung</span>
           <select id="fontScale">
             <option value="0.9">S · 90 %</option>
             <option value="1" selected>M · 100 %</option>
             <option value="1.15">L · 115 %</option>
             <option value="1.3">XL · 130 %</option>
             <option value="1.5">XXL · 150 %</option>
+            <option value="1.6">XXL+ · 160 %</option>
+            <option value="1.75">XXXL · 175 %</option>
+            <option value="2">Riesig · 200 %</option>
           </select></label>
         <label class="check" id="sortWrap" style="display:none; margin:0">
           <input type="checkbox" id="sortDesc"> absteigend sortieren (↓)
@@ -573,9 +576,23 @@ footer a:hover{color:var(--ink)}
         <button class="chip" data-pvsz="600,340" type="button">¼ Seite</button>
         <button class="chip" data-pvsz="1240,340" type="button">Streifen</button>
         <button class="chip" data-pvsz="1240,700" type="button">Seite</button>
+        <button class="chip" data-pvsz="1280,720" data-font="1.3" type="button" title="16:9 Dashboard-Kachel, HD (1280×720) – Beschriftung wird automatisch auf „XL" hochgesetzt, damit sie auf dem Bildschirm lesbar bleibt">HD</button>
+        <button class="chip" data-pvsz="1920,1080" data-font="1.6" type="button" title="16:9 Dashboard-Kachel, Full HD (1920×1080, z. B. Wandbildschirm) – Beschriftung wird automatisch stärker hochgesetzt als bei HD">Full HD</button>
         <span style="width:4px"></span>
         <input type="number" id="pvW" min="160" max="2400" step="20" style="width:64px" title="Breite in px"> ×
         <input type="number" id="pvH" min="100" max="1600" step="20" style="width:64px" title="Höhe in px"> px
+        <span style="width:8px"></span>
+        <span style="font-size:11px;color:var(--ink2)" title="Beschriftungsgröße – gilt für die Vorschau UND den Deneb/Vega-Export; bei HD/Full HD automatisch größer für Lesbarkeit auf Dashboards">Lesbarkeit</span>
+        <select id="pvFont" title="Beschriftungsgröße (Vorschau + Export) – bei Full-HD-Dashboards/Wandbildschirmen eher XXL+/XXXL wählen">
+          <option value="0.9">S · 90 %</option>
+          <option value="1">M · 100 %</option>
+          <option value="1.15">L · 115 %</option>
+          <option value="1.3">XL · 130 %</option>
+          <option value="1.5">XXL · 150 %</option>
+          <option value="1.6">XXL+ · 160 %</option>
+          <option value="1.75">XXXL · 175 %</option>
+          <option value="2">Riesig · 200 %</option>
+        </select>
       </div>
       <div class="msg-line" id="pmsg" style="display:none"></div>
       <div class="titles">
@@ -688,6 +705,8 @@ footer a:hover{color:var(--ink)}
           <button class="chip" data-sz="600,340" type="button">¼ Seite</button>
           <button class="chip" data-sz="1240,340" type="button">Streifen</button>
           <button class="chip" data-sz="1240,700" type="button">Seite</button>
+          <button class="chip" data-sz="1280,720" data-szfont="1.3" type="button" title="16:9 Dashboard, HD – setzt die Schrift automatisch auf XL">HD</button>
+          <button class="chip" data-sz="1920,1080" data-szfont="1.6" type="button" title="16:9 Dashboard, Full HD (z. B. Wandbildschirm) – setzt die Schrift automatisch auf XXL+">Full HD</button>
         </span>
       </div>
       <div class="opt-row"><span class="opt-lbl">Interaktiv</span>
@@ -695,12 +714,15 @@ footer a:hover{color:var(--ink)}
         <button class="chip" id="oiCross" type="button" title="Klick auf einen Datenpunkt filtert andere Visuals im Report: nicht gewählte Punkte werden transparent (__selected__). In den Deneb-Settings „Expose cross-filtering values“ aktivieren.">Cross-Filtering</button>
       </div>
       <div class="opt-row"><span class="opt-lbl">Schrift</span>
-        <select id="dlgFont">
+        <select id="dlgFont" title="Bei Full-HD-Dashboards/Wandbildschirmen eher XXL+/XXXL wählen">
           <option value="0.9">S · ~10 px</option>
           <option value="1">M · 11 px (IBCS-üblich)</option>
           <option value="1.15">L · ~12,5 px</option>
           <option value="1.3">XL · ~14,5 px</option>
           <option value="1.5">XXL · ~16,5 px</option>
+          <option value="1.6">XXL+ · ~17,5 px</option>
+          <option value="1.75">XXXL · ~19 px</option>
+          <option value="2">Riesig · 22 px</option>
         </select>
         <span class="opt-note" id="specSummary"></span>
       </div>
@@ -5064,6 +5086,7 @@ function renderPreview(){
     [...sizeCtl.querySelectorAll('[data-pvsz]')].forEach(b=> b.classList.toggle('on', fixed && b.dataset.pvsz===(state.vlW+','+state.vlH)));
     if($('#pvW')!==document.activeElement) $('#pvW').value = state.vlW;
     if($('#pvH')!==document.activeElement) $('#pvH').value = state.vlH;
+    if($('#pvFont') && $('#pvFont')!==document.activeElement) $('#pvFont').value = String(state.fontScale||1);
   }
   /* KPI-Karte ohne Titel/Botschaft: Vorschau-Titelblock ausblenden (wie der Export) */
   const hideTitle = state.kpiNoTitle && state.type==='kpi';
@@ -5868,7 +5891,13 @@ $('#t3').addEventListener('input', ()=>{ state.t3auto=false; renderPreview(); })
 $('#t3auto').addEventListener('click', ()=>{ state.t3auto=true; renderPreview(); });
 $('#period').addEventListener('input', ()=>{ if(state.t3auto) renderPreview(); });
 $('#decimals').addEventListener('change', e=>{ state.decimals=+e.target.value; renderPreview(); });
-$('#fontScale').addEventListener('change', e=>{ state.fontScale=+e.target.value; renderAll(); });
+/* Beschriftungsgröße: drei synchronisierte Selects (Sidebar #fontScale, Export-Dialog #dlgFont,
+   Zeichenflächen-Leiste #pvFont) – alle drei schreiben/lesen dasselbe state.fontScale. */
+function syncFontSelects(){
+  const v = String(state.fontScale||1);
+  ['fontScale','dlgFont','pvFont'].forEach(id=>{ const el=$('#'+id); if(el) el.value=v; });
+}
+$('#fontScale').addEventListener('change', e=>{ state.fontScale=+e.target.value; syncFontSelects(); renderAll(); });
 $('#unitInp').addEventListener('input', e=>{ state.unit=e.target.value.trim(); renderPreview(); });
 $('#unitScale').addEventListener('change', e=>{ state.unitScale=e.target.value; renderAll(); });
 $('#chartLang').addEventListener('change', e=>{ state.chartLang=e.target.value; renderAll(); });
@@ -6962,7 +6991,8 @@ function syncSpecOpts(){
   $('#osFixed').classList.toggle('on', state.vlSizeMode==='fixed');
   $('#sizeInputs').style.display = state.vlSizeMode==='fixed' ? 'inline-flex' : 'none';
   $('#vlWInp').value = state.vlW; $('#vlHInp').value = state.vlH;
-  $('#dlgFont').value = String(state.fontScale||1);
+  $('#pvW').value = state.vlW; $('#pvH').value = state.vlH;
+  syncFontSelects();
   $('#oiTip').classList.toggle('on', !!state.vlTooltip);
   $('#oiCross').classList.toggle('on', !!state.vlCross);
   $('#denebSteps').style.display = 'block';
@@ -7052,19 +7082,27 @@ $('#vlHInp').addEventListener('change', e=> setSpecOpt(()=> state.vlH = Math.max
 $('#sizeInputs').addEventListener('click', e=>{
   const b = e.target.closest('[data-sz]'); if(!b) return;
   const [w,h] = b.dataset.sz.split(',').map(Number);
-  setSpecOpt(()=>{ state.vlSizeMode='fixed'; state.vlW=w; state.vlH=h; });
+  const fs = b.dataset.szfont ? +b.dataset.szfont : null;   /* HD/Full HD setzen zusätzlich eine lesbare Schriftgröße */
+  setSpecOpt(()=>{ state.vlSizeMode='fixed'; state.vlW=w; state.vlH=h; if(fs) state.fontScale=fs; });
 });
 /* Zeichenflächen-Größe direkt in der Vorschau (teilt sich den State mit dem Export) */
 $('#szAuto').addEventListener('click', ()=>{ setSpecOpt(()=> state.vlSizeMode='fit'); renderPreview(); });
 document.querySelectorAll('#sizeCtl [data-pvsz]').forEach(b=> b.addEventListener('click', ()=>{
   const [w,h] = b.dataset.pvsz.split(',').map(Number);
-  setSpecOpt(()=>{ state.vlSizeMode='fixed'; state.vlW=w; state.vlH=h; }); renderPreview();
+  const fs = b.dataset.font ? +b.dataset.font : null;   /* HD/Full HD setzen zusätzlich eine lesbare Schriftgröße */
+  setSpecOpt(()=>{ state.vlSizeMode='fixed'; state.vlW=w; state.vlH=h; if(fs) state.fontScale=fs; }); renderPreview();
 }));
 $('#pvW').addEventListener('change', e=>{ setSpecOpt(()=>{ state.vlSizeMode='fixed'; state.vlW=Math.max(160,+e.target.value||600); }); renderPreview(); });
 $('#pvH').addEventListener('change', e=>{ setSpecOpt(()=>{ state.vlSizeMode='fixed'; state.vlH=Math.max(100,+e.target.value||340); }); renderPreview(); });
 $('#dlgFont').addEventListener('change', e=>{
   state.fontScale = +e.target.value;
-  $('#fontScale').value = e.target.value;
+  syncFontSelects();
+  renderAll();
+  syncSpecOpts(); regenSpecDlg();
+});
+$('#pvFont').addEventListener('change', e=>{
+  state.fontScale = +e.target.value;
+  syncFontSelects();
   renderAll();
   syncSpecOpts(); regenSpecDlg();
 });
@@ -9639,7 +9677,7 @@ function syncControls(){
   /* Δ/Δ%-Kacheln (vtNone…vtBoth) synct updateCombinePanel beim nächsten renderPreview */
 
   if(state.lineArea){ state.lineFill='area'; delete state.lineArea; } /* Migration alter Konfigs */
-  $('#fontScale').value = String(state.fontScale||1);
+  syncFontSelects();
   $('#unitInp').value = state.unit||'';
   $('#unitScale').value = state.unitScale||'auto';
   $('#chartLang').value = state.chartLang||'de';
