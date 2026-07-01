@@ -53,11 +53,16 @@ h1{font-family:'Space Grotesk',sans-serif;font-size:32px;line-height:1.15;margin
 .gauge-real{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#8FB4E8;margin-top:4px;}
 .gauge-bar{flex:2 1 320px;}
 .gauge-track{position:relative;height:10px;background:#0F1318;border-radius:6px;overflow:hidden;margin-top:8px;}
-.gauge-fill{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,var(--min),var(--energy),var(--max));border-radius:6px;}
+.gauge-fill{position:absolute;top:0;bottom:0;left:0;right:0;background:linear-gradient(90deg,var(--min),var(--energy),var(--max));border-radius:6px;}
 .gauge-ticks{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#7C8791;margin-top:6px;}
 .gauge-mini{flex:1 1 150px;display:flex;flex-direction:column;gap:10px;}
-.mini-row{display:flex;justify-content:space-between;font-size:12.5px;border-bottom:1px solid var(--line-dark);padding-bottom:6px;}
+.mini-row{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;border-bottom:1px solid var(--line-dark);padding-bottom:6px;}
 .mini-row span:last-child{font-family:'IBM Plex Mono',monospace;color:var(--energy-soft);}
+.mini-price-inputs{display:inline-flex;align-items:center;gap:4px;}
+.mini-price-inputs input{width:36px;padding:3px 4px;border:1px solid var(--line-dark);border-radius:5px;background:#2A323C;color:var(--paper);font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-align:right;}
+.mini-price-inputs input:focus{outline:none;border-color:var(--co2-soft);}
+.mini-price-unit{font-size:10.5px;color:#7C8791;margin-left:2px;}
+.gauge-mini .warn-msg{font-size:10.5px;margin:-4px 0 0;}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
 @media(max-width:860px){.grid{grid-template-columns:1fr;}}
@@ -225,6 +230,14 @@ footer b{color:var(--ink);}
       <div class="mini-row"><span data-i18n="gaugeEnergy">Energie / Jahr</span><span id="g-energy">–</span></div>
       <div class="mini-row"><span data-i18n="gaugePerDay">Ø pro Mitarbeiter/Tag</span><span id="g-perday">–</span></div>
       <div class="mini-row"><span data-i18n="gaugeHeads">Aktive Mitarbeiter</span><span id="g-heads">–</span></div>
+      <div class="mini-row">
+        <span data-i18n="gaugeOffsetPriceLabel">Kompensationspreis (€/t CO₂)</span>
+        <span class="mini-price-inputs">
+          <input type="number" id="offset-price-min" step="1" min="0" data-i18n-aria="offsetPriceMinAria">–<input type="number" id="offset-price-max" step="1" min="0" data-i18n-aria="offsetPriceMaxAria">
+        </span>
+      </div>
+      <div class="warn-msg" id="warn-offset"></div>
+      <div class="mini-row"><span data-i18n="gaugeOffsetCostLabel">Kompensation / Jahr</span><span id="g-offset-cost">–</span></div>
     </div>
   </div>
 
@@ -425,6 +438,8 @@ const I18N = {
     toastInvalid:'Ungültiger Code.', toastEmptyImport:'Bitte zuerst einen Code einfügen.',
     toastGroupRemoved:'Gruppe entfernt', undoBtn:'Rückgängig',
     gaugeLabel:'Unternehmen · CO₂ pro Jahr', gaugeEnergy:'Energie / Jahr', gaugePerDay:'Ø pro Mitarbeiter/Tag', gaugeHeads:'Aktive Mitarbeiter',
+    gaugeOffsetPriceLabel:'Kompensationspreis (€/t CO₂)', gaugeOffsetCostLabel:'Kompensation / Jahr',
+    offsetPriceMinAria:'Kompensationspreis Minimum in Euro pro Tonne CO₂', offsetPriceMaxAria:'Kompensationspreis Maximum in Euro pro Tonne CO₂',
     bestCase:'Best Case', worstCase:'Worst Case', gaugeRealPrefix:'📏 Realwert (eigene Messung):', perYearSuffix:'kg CO₂e/Jahr',
     tickMin:'min', tickMax:'max',
     quickstartTitle:'Schnellstart: Beispiel-Unternehmen', quickstartHint:'Ein Klick setzt Mitarbeitergruppen und Modell-Preset als Ausgangspunkt — danach beliebig anpassen.',
@@ -499,6 +514,8 @@ const I18N = {
     toastInvalid:'Invalid code.', toastEmptyImport:'Please paste a code first.',
     toastGroupRemoved:'Group removed', undoBtn:'Undo',
     gaugeLabel:'Company · CO₂ per year', gaugeEnergy:'Energy / year', gaugePerDay:'Avg. per employee/day', gaugeHeads:'Active employees',
+    gaugeOffsetPriceLabel:'Offset price (€/t CO₂)', gaugeOffsetCostLabel:'Offset cost / year',
+    offsetPriceMinAria:'Minimum offset price in euros per tonne CO₂', offsetPriceMaxAria:'Maximum offset price in euros per tonne CO₂',
     bestCase:'Best case', worstCase:'Worst case', gaugeRealPrefix:'📏 Real value (own measurement):', perYearSuffix:'kg CO₂e/year',
     tickMin:'min', tickMax:'max',
     quickstartTitle:'Quick start: example companies', quickstartHint:'One click sets employee groups and model preset as a starting point — adjust freely afterward.',
@@ -620,12 +637,17 @@ const APPENDIX_ROWS = [
    range:{de:'~20 kg CO₂/Jahr (Literaturspanne: 10–25 kg)', en:'~20 kg CO₂/year (literature range: 10–25 kg)'},
    source:{de:'Breit genutzte Faustregel, u. a. zitiert von Umweltinitiativen; je nach Baumart, Alter und Studie schwankt der Wert erheblich. <a href="https://reboxed.co/blogs/outsidethebox/carbon-neutral-phones-how-planting-trees-can-offset-the-lifetime-carbon-footprint-of-your-phone" target="_blank" rel="noopener">Reboxed / Ecologi</a>',
            en:'A widely used rule of thumb, cited by various environmental initiatives; the value varies considerably by species, age and study. <a href="https://reboxed.co/blogs/outsidethebox/carbon-neutral-phones-how-planting-trees-can-offset-the-lifetime-carbon-footprint-of-your-phone" target="_blank" rel="noopener">Reboxed / Ecologi</a>'}},
+  {param:{de:'Kompensationspreis (freiwilliger CO₂-Markt)', en:'Offset price (voluntary carbon market)'},
+   range:{de:'8 – 30 €/t CO₂e (Standard-Zertifikate)', en:'€8 – 30/t CO₂e (standard credits)'},
+   source:{de:'2026-Marktdaten für den freiwilligen CO₂-Markt: durchschnittliche Zertifikatspreise ca. 8–30 €/t, mit großer Spanne je nach Projekttyp und Qualität — von REDD+/Wald-Erhalt (~6 $/t) über Aufforstung/verbessertes Waldmanagement (~15–22 $/t) bis zu technischer CO₂-Entnahme wie Biochar oder Direct Air Capture (170–500+ $/t). Diese Spanne ist bewusst konservativ für „Standard"-Zertifikate gewählt; Premium-Removal-Zertifikate liegen deutlich höher. <a href="https://www.sylvera.com/blog/carbon-offset-price" target="_blank" rel="noopener">Sylvera (2026)</a>, <a href="https://www.senken.io/academy/carbon-credit-price" target="_blank" rel="noopener">Senken (2026)</a>',
+           en:'2026 voluntary carbon market data: average credit prices around €8–30/t, with a wide spread by project type and quality — from REDD+/forest protection (~$6/t) to afforestation/improved forest management (~$15–22/t) up to technical carbon removal such as biochar or direct air capture ($170–500+/t). This range is deliberately conservative for "standard" credits; premium removal credits trade well above it. <a href="https://www.sylvera.com/blog/carbon-offset-price" target="_blank" rel="noopener">Sylvera (2026)</a>, <a href="https://www.senken.io/academy/carbon-credit-price" target="_blank" rel="noopener">Senken (2026)</a>'}},
 ];
 
 const DEFAULT_STATE = {
   presetIdx:1, gridIdx:0,
   eMin:0.6, eMax:2.5, outShare:30, ratio:3,
   pueMin:1.15, pueMax:1.56, co2Min:180, co2Max:280, days:220,
+  co2PriceMin:8, co2PriceMax:30,
   groups:[ {label:'Leichtnutzer', n:120, t:4000}, {label:'Mittelnutzer', n:60, t:20000}, {label:'Intensivnutzer', n:20, t:90000} ],
   real:{enabled:false, period:'year', tokens:'', kwh:'', intensity:''},
   volUncertainty:20, materialityTotal:'', projYears:5, projEfficiency:15, projGrowth:30
@@ -660,6 +682,7 @@ function applyStaticI18n(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(dict[k]!==undefined) el.textContent = dict[k]; });
   document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const k=el.getAttribute('data-i18n-html'); if(dict[k]!==undefined) el.innerHTML = dict[k]; });
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ const k=el.getAttribute('data-i18n-ph'); if(dict[k]!==undefined) el.placeholder = dict[k]; });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el=>{ const k=el.getAttribute('data-i18n-aria'); if(dict[k]!==undefined) el.setAttribute('aria-label', dict[k]); });
   $('lang-de').classList.toggle('active', currentLang==='de');
   $('lang-en').classList.toggle('active', currentLang==='en');
 }
@@ -796,6 +819,7 @@ function bindNumber(id, key){ $(id).addEventListener('input', ()=>{ state[key]=p
 bindNumber('e-min','eMin'); bindNumber('e-max','eMax');
 bindNumber('pue-min','pueMin'); bindNumber('pue-max','pueMax');
 bindNumber('co2-min','co2Min'); bindNumber('co2-max','co2Max');
+bindNumber('offset-price-min','co2PriceMin'); bindNumber('offset-price-max','co2PriceMax');
 $('outshare').addEventListener('input', ()=>{ state.outShare=parseFloat($('outshare').value); $('v-outshare').textContent=state.outShare+' %'; recompute(); });
 $('ratio').addEventListener('input', ()=>{ state.ratio=parseFloat($('ratio').value); $('v-ratio').textContent='x'+state.ratio; recompute(); });
 $('days').addEventListener('input', ()=>{ state.days=parseInt($('days').value); $('v-days').textContent=state.days; recompute(); });
@@ -892,6 +916,7 @@ function syncInputsFromState(){
   $('ratio').value=state.ratio; $('v-ratio').textContent='x'+state.ratio;
   $('pue-min').value=state.pueMin; $('pue-max').value=state.pueMax;
   $('co2-min').value=state.co2Min; $('co2-max').value=state.co2Max;
+  $('offset-price-min').value=state.co2PriceMin; $('offset-price-max').value=state.co2PriceMax;
   $('days').value=state.days; $('v-days').textContent=state.days;
   $('real-enable').checked = !!state.real.enabled;
   $('real-fields').classList.toggle('on', !!state.real.enabled);
@@ -923,6 +948,7 @@ function validateInputs(){
   const pueBad = s.pueMin<1 || s.pueMax<1;
   toggleWarn('warn-pue', pueBad || s.pueMin>s.pueMax, pueBad? t.warnPue : t.warnMinMax);
   toggleWarn('warn-grid', s.co2Min>s.co2Max, t.warnMinMax);
+  toggleWarn('warn-offset', s.co2PriceMin>s.co2PriceMax, t.warnMinMax);
 }
 
 /* ---------- Core math ---------- */
@@ -1157,6 +1183,10 @@ function render(r){
   $('g-heads').textContent = `${fmt(r.totalHeads,0)}`;
   $('tick-min').textContent = `${t.tickMin} ${fmt(gToKg(r.yearCo2Min),0)} kg`;
   $('tick-max').textContent = `${t.tickMax} ${fmt(gToKg(r.yearCo2Max),0)} kg`;
+
+  const offsetCostMin = (gToKg(r.yearCo2Min)/1000) * state.co2PriceMin;
+  const offsetCostMax = (gToKg(r.yearCo2Max)/1000) * state.co2PriceMax;
+  $('g-offset-cost').textContent = `${fmt(offsetCostMin,0)}–${fmt(offsetCostMax,0)} €`;
   $('sticky-value').textContent = `${fmt(gToKg(r.yearCo2Min),0)}\u2013${fmt(gToKg(r.yearCo2Max),0)} kg CO₂e`;
 
   const gReal = $('g-real');
