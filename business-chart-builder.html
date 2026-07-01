@@ -6650,12 +6650,15 @@ function denebTemplate(){
     defs.push({ ph:'__'+defs.length+'__', name:fField, label:'2. Dimension – Trellis-Facet', type:'text', kind:'column' });
   }
   const nameToPh = {}; defs.forEach(d=>{ nameToPh[d.name] = d.ph; });
+  const hinweis = spec.usermeta && spec.usermeta.deneb && spec.usermeta.deneb.hinweis;
   const tpl = remapSpec(spec, nameToPh);
   delete tpl.usermeta;
   tpl.usermeta = {
     information: {
       name: ($('#t1').value||'Business Chart').trim(),
-      description: (($('#t3').value||autoT3())+' · '+TT('erzeugt mit dem Business Chart Builder (IBCS-Notation)')).trim(),
+      /* Deneb zeigt diese description beim Vorlagen-Import an – Scaling/Interaktivitäts-
+         Hinweise landen hier direkt sichtbar statt nur im Builder-Dialog. */
+      description: (($('#t3').value||autoT3())+' · '+TT('erzeugt mit dem Business Chart Builder (IBCS-Notation)')+(hinweis?' · '+hinweis:'')).trim(),
       author: 'Business Chart Builder',
       uuid: tplUuid(),
       generated: new Date().toISOString(),
@@ -6666,8 +6669,17 @@ function denebTemplate(){
   };
   return tpl;
 }
+function currentSpecIsMultiView(){
+  /* Facet/Concat-Layouts (KPI-Kacheln, Tabelle, Multiples, Wf-Kombi, …) füllen
+     das Deneb-Visual nicht automatisch – Vega-Lite unterstützt dafür kein
+     width/height:'container'. Nur Denebs „Scaling: Auto“ behebt das. */
+  if(state.type==='gantt' || rawVegaOn()) return false;
+  const spec = vegaSpec(false);
+  return !!(spec && (spec.hconcat || spec.vconcat || spec.concat || spec.facet));
+}
 function denebStepsHtml(){
   const isDash = dlgFile.startsWith('dashboard');
+  const scalingHint = isDash || currentSpecIsMultiView();
   if(!state.vlDeneb){
     return '<li>'+TT('Läuft direkt im Vega-Editor (vega.github.io/editor) – zum Ausprobieren mit eingebetteten Daten.')+'</li>'+
            '<li>'+TT('Für Power BI auf „Power BI · Deneb-Template“ umschalten.')+'</li>';
@@ -6677,13 +6689,13 @@ function denebStepsHtml(){
       TT('In Deneb: „Neue Spezifikation → Aus Vorlage erstellen → Importieren“ und diese Datei wählen.'),
       TT('Beim Import die gelisteten Felder deinen Power-BI-Spalten zuordnen – Deneb fragt danach.'),
     ];
-    if(isDash) lines.push(TT('Mehrteiliges Dashboard: Settings → Scaling auf „Auto“ stellen.'));
+    if(scalingHint) lines.push(TT('Mehrteiliges Layout (Kacheln/Tabelle/Facet): Settings → Scaling auf „Auto“ stellen, sonst bleibt die Karte klein im Visual.'));
     lines.push(TT('Fertig. Provider, Tooltips und Cross-Filter sind im Template bereits gesetzt.'));
     return lines.map(l=>'<li>'+l+'</li>').join('');
   }
   let h = '<li>'+TT('In Power BI ein Deneb-Visual einfügen und die gelisteten Felder in „Values“ ziehen.')+'</li>'+
           '<li>'+TT('Spec kopieren, in Deneb „Edit“ öffnen und den JSON-Inhalt ersetzen.')+'</li>';
-  if(isDash) h += '<li>'+TT('Mehrteiliges Dashboard: Settings → Scaling auf „Auto“ stellen.')+'</li>';
+  if(scalingHint) h += '<li>'+TT('Mehrteiliges Layout (Kacheln/Tabelle/Facet): Settings → Scaling auf „Auto“ stellen, sonst bleibt die Karte klein im Visual.')+'</li>';
   if(state.vlTooltip||state.vlCross) h += '<li>'+TT('Interaktivität: in den Deneb-Settings den Tooltip-Handler bzw. „Expose cross-filtering values“ aktivieren.')+'</li>';
   return h;
 }

@@ -1629,6 +1629,23 @@ window.runChartBuilderSelfTest = async function runChartBuilderSelfTest(opts){
       state.vlSizeMode='fit'; state.fontScale=1; renderAll();
     }
 
+    /* === Z4) "Scaling: Auto"-Hinweis für JEDES mehrteilige Layout, nicht nur Dashboard === */
+    if(typeof denebStepsHtml==='function' && typeof currentSpecIsMultiView==='function'){
+      loadPreset('months'); state.type='kpi'; state.kpiStyle='bridge'; state.kpiSingle=false;
+      state.reference='PL'; state.reference2='PY'; state.kpiMultiScen=true; renderAll();
+      const wasDlgFile = dlgFile; dlgFile = 'business-chart.deneb.json';
+      ok('Z4 · KPI-Kachel (Facet) wird als mehrteiliges Layout erkannt', currentSpecIsMultiView());
+      ok('Z4 · Export-Dialog nennt „Scaling: Auto“ auch bei Einzelchart-Facet (nicht nur Dashboard)',
+         denebStepsHtml().includes('Scaling'));
+      const tpl = denebTemplate();
+      ok('Z4 · Deneb-Template-Description enthält denselben Scaling-Hinweis (sichtbar beim Import)',
+         tpl && /Scaling: Auto/.test(tpl.usermeta.information.description));
+
+      state.type='columns'; state.reference='PY'; renderAll();
+      ok('Z4 · Normales Säulendiagramm (single view) bekommt KEINEN Scaling-Hinweis', !currentSpecIsMultiView() && !denebStepsHtml().includes('Scaling'));
+      dlgFile = wasDlgFile;
+    }
+
   }catch(err){
     ok('Selbsttest lief durch', false, 'Abbruch: '+(err && err.stack || err));
   }finally{
