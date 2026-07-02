@@ -700,16 +700,74 @@ let lastRender = null;
 /* ---------- encode/decode ---------- */
 function encodeState(obj){ try{ return btoa(unescape(encodeURIComponent(JSON.stringify(obj)))); }catch(e){ return null; } }
 function decodeState(str){ try{ return JSON.parse(decodeURIComponent(escape(atob(str)))); }catch(e){ return null; } }
+
+/* ---------- import safety: shared/pasted state is untrusted input ---------- */
+function sanitizeNum(val, fallback, {min=-Infinity, max=Infinity}={}){
+  const n = Number(val);
+  if(!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+function sanitizeGroup(g, i){
+  const label = (g && typeof g.label==='string' && g.label.trim()) ? g.label.slice(0,80) : `Gruppe ${i+1}`;
+  return { label, n: sanitizeNum(g && g.n, 0, {min:0}), t: sanitizeNum(g && g.t, 0, {min:0}) };
+}
+function sanitizeReal(r, fallback){
+  if(!r || typeof r!=='object') return JSON.parse(JSON.stringify(fallback));
+  const strOrNum = v => (typeof v==='string' || typeof v==='number') ? v : '';
+  return {
+    enabled: !!r.enabled,
+    period: r.period==='month' ? 'month' : 'year',
+    tokens: strOrNum(r.tokens), kwh: strOrNum(r.kwh), intensity: strOrNum(r.intensity),
+  };
+}
+function sanitizeState(raw){
+  const base = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  if(!raw || typeof raw!=='object') return base;
+  const s = Object.assign({}, base);
+  s.presetIdx = sanitizeNum(raw.presetIdx, base.presetIdx, {min:0});
+  s.gridIdx = sanitizeNum(raw.gridIdx, base.gridIdx, {min:0});
+  s.eMin = sanitizeNum(raw.eMin, base.eMin, {min:0});
+  s.eMax = sanitizeNum(raw.eMax, base.eMax, {min:0});
+  s.outShare = sanitizeNum(raw.outShare, base.outShare, {min:5, max:80});
+  s.ratio = sanitizeNum(raw.ratio, base.ratio, {min:1, max:10});
+  s.pueMin = sanitizeNum(raw.pueMin, base.pueMin, {min:0});
+  s.pueMax = sanitizeNum(raw.pueMax, base.pueMax, {min:0});
+  s.co2Min = sanitizeNum(raw.co2Min, base.co2Min, {min:0});
+  s.co2Max = sanitizeNum(raw.co2Max, base.co2Max, {min:0});
+  s.days = sanitizeNum(raw.days, base.days, {min:180, max:260});
+  s.co2PriceMin = sanitizeNum(raw.co2PriceMin, base.co2PriceMin, {min:0});
+  s.co2PriceMax = sanitizeNum(raw.co2PriceMax, base.co2PriceMax, {min:0});
+  s.volUncertainty = sanitizeNum(raw.volUncertainty, base.volUncertainty, {min:0, max:50});
+  s.projYears = sanitizeNum(raw.projYears, base.projYears, {min:2, max:8});
+  s.projEfficiency = sanitizeNum(raw.projEfficiency, base.projEfficiency, {min:0, max:40});
+  s.projGrowth = sanitizeNum(raw.projGrowth, base.projGrowth, {min:0, max:100});
+  s.materialityTotal = (typeof raw.materialityTotal==='string' || typeof raw.materialityTotal==='number') ? raw.materialityTotal : '';
+  s.groups = (Array.isArray(raw.groups) && raw.groups.length) ? raw.groups.slice(0,50).map(sanitizeGroup) : base.groups;
+  s.real = sanitizeReal(raw.real, base.real);
+  return s;
+}
+function sanitizeScenarioSlots(raw){
+  const out = {A:null, B:null};
+  if(raw && typeof raw==='object'){
+    for(const key of ['A','B']){
+      const slot = raw[key];
+      if(slot && typeof slot==='object' && slot.state && typeof slot.state==='object'){
+        out[key] = { name: typeof slot.name==='string' ? slot.name.slice(0,60) : '', state: sanitizeState(slot.state) };
+      }
+    }
+  }
+  return out;
+}
+
 function tryLoadFromHash(){
   try{
     const h = location.hash;
     if(h && h.indexOf('s=')===1){
       const decoded = decodeState(h.slice(3));
       if(decoded){
-        const {lang, scenarios, ...rest} = decoded;
-        state = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), rest);
-        if(lang==='de'||lang==='en') currentLang = lang;
-        scenarioSlots = scenarios || {A:null,B:null};
+        state = sanitizeState(decoded);
+        if(decoded.lang==='de'||decoded.lang==='en') currentLang = decoded.lang;
+        scenarioSlots = sanitizeScenarioSlots(decoded.scenarios);
       }
     }
   }catch(e){ /* ignore malformed/blocked hash access */ }
@@ -797,8 +855,8 @@ function renderGroupRows(){
     const disabledAttr = state.groups.length<=1 ? 'disabled' : '';
     row.innerHTML = `
       <input type="text" value="${escapeHtml(g.label)}" data-role="label" data-i="${i}" style="border-left:4px solid ${color};">
-      <input type="number" value="${g.n}" data-role="n" data-i="${i}">
-      <input type="number" value="${g.t}" data-role="t" data-i="${i}">
+      <input type="number" value="${escapeHtml(String(g.n))}" data-role="n" data-i="${i}">
+      <input type="number" value="${escapeHtml(String(g.t))}" data-role="t" data-i="${i}">
       <button class="rm-btn" data-i="${i}" ${disabledAttr} title="×">×</button>
     `;
     c.appendChild(row);
@@ -922,7 +980,7 @@ $('btn-copy').addEventListener('click', ()=>{
   if(!el.value){ showToast(I18N[currentLang].toastEmptyImport); return; }
   el.select();
   try{
-    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(el.value).then(()=>showToast(I18N[currentLang].toastCopied)); }
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(el.value).then(()=>showToast(I18N[currentLang].toastCopied)).catch(()=>showToast(I18N[currentLang].toastGenerated)); }
     else { document.execCommand('copy'); showToast(I18N[currentLang].toastCopied); }
   }catch(e){ showToast(I18N[currentLang].toastGenerated); }
 });
@@ -936,10 +994,9 @@ $('btn-apply-code').addEventListener('click', ()=>{
   else if(str.startsWith('s=')) str = str.slice(2);
   const decoded = decodeState(str);
   if(!decoded){ showToast(I18N[currentLang].toastInvalid); return; }
-  const {lang, scenarios, ...rest} = decoded;
-  state = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), rest);
-  if(lang==='de'||lang==='en') currentLang = lang;
-  scenarioSlots = scenarios || {A:null,B:null};
+  state = sanitizeState(decoded);
+  if(decoded.lang==='de'||decoded.lang==='en') currentLang = decoded.lang;
+  scenarioSlots = sanitizeScenarioSlots(decoded.scenarios);
   syncInputsFromState();
   refreshAll();
   showToast(I18N[currentLang].toastApplied);
