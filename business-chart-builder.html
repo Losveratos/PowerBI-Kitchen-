@@ -933,6 +933,7 @@ const state = {
   zMonthRef:false,
   tableDims:0,
   rawVega:false,
+  rawVegaTouched:false,   /* hat der Nutzer die Engine je bewusst umgeschaltet? Solange nicht: smarter Default (siehe rawVegaEffective) */
   refLine:'none',
   lineAllLabels:false,
   topN:0,
@@ -5714,7 +5715,11 @@ function guideCardsHtml(){
   if(t==='table' || RAWVAR_TYPES.includes(t)){
     const drill = t==='table' ? ', Drill/Collapse je Hierarchie-Gruppe (Klick auf Elternzeile)' : '';
     out.push(gcard('Engine · Raw-Vega (interaktiv)','Interaktiv für große Datenmengen: Cross-Filtering (Klick filtert den Report)'+drill+', kein 60-Zeilen-Limit. Vorschau & Deneb-Export laufen als Raw-Vega. „Vega-Lite" = das klassische, statische Template.',
-      gchip('rawVega','vl','Vega-Lite (statisch)',!state.rawVega)+gchip('rawVega','raw','Raw-Vega (interaktiv)',!!state.rawVega)));
+      gchip('rawVega','vl','Vega-Lite (statisch)',!rawVegaEffective())+gchip('rawVega','raw','Raw-Vega (interaktiv)',rawVegaEffective())));
+  }
+  if(t==='kpi'){
+    out.push(gcard('Engine · Raw-Vega (füllt die Kachel automatisch)','Die Vega-Lite-Kacheln bleiben in Power BI/Deneb klein (facettiertes Layout, kein width/height:\'container\' möglich). Raw-Vega streckt die ganze Karte – Zahlen, Balken, Pillen – auf die tatsächliche Kachelgröße, kein „Scaling: Auto"-Handgriff in Deneb nötig. Standardmäßig aktiv.',
+      gchip('rawVega','vl','Vega-Lite (feste Größe)',!rawVegaEffective())+gchip('rawVega','raw','Raw-Vega (füllt die Kachel)',rawVegaEffective())));
   }
   if(t==='zchart'){
     let zb = gchip('zMonthCol','line','Monate als Linie',!state.zMonthCol)+gchip('zMonthCol','col','Monate als Säulen',!!state.zMonthCol);
@@ -5818,7 +5823,7 @@ function applyGuideOpt(opt,val){
     case 'zMonthCol': state.zMonthCol = (val==='col'); renderPreview(); break;
     case 'zMonthRef': state.zMonthRef = !state.zMonthRef; renderPreview(); break;
     case 'tableDims': state.tableDims = +val; autofillDemo(); renderAll(); break;
-    case 'rawVega': state.rawVega = (val==='raw'); renderAll(); break;
+    case 'rawVega': state.rawVega = (val==='raw'); state.rawVegaTouched = true; renderAll(); break;
     case 'kpiBars': state.kpiBars = (val==='bar'); renderPreview(); break;
     case 'kpiSingle': state.kpiSingle = (val==='single'); renderAll(); break;
     case 'kpiNoTitle': state.kpiNoTitle = !state.kpiNoTitle; renderAll(); break;
@@ -6615,9 +6620,9 @@ function denebTemplate(){
   /* Raw-Vega (Tabelle/Varianz): interaktives Template (provider:'vega'), große
      Datenmengen, Cross-Filter (selection/highlight), Drill/Collapse via Signale. */
   if(rawVegaOn()){
-    const sp = rawVegaTableOn() ? rvTableSpec(true) : rvSpecFor(true);
-    const TKr = { d0:['text','column'], d1:['text','column'], d2:['text','column'], dim:['text','column'], fc:['numeric','column'] };
-    const keep = rawVegaTableOn() ? ['dim','d0','d1','d2','p','r'] : ['dim','p','r','fc'];
+    const sp = rawVegaTableOn() ? rvTableSpec(true) : (rawVegaKpiOn() ? rvKpiSpecFor(true) : rvSpecFor(true));
+    const TKr = { d0:['text','column'], d1:['text','column'], d2:['text','column'], dim:['text','column'], serie:['text','column'], fc:['numeric','column'] };
+    const keep = rawVegaTableOn() ? ['dim','d0','d1','d2','p','r'] : (rawVegaKpiOn() ? rvKpiFieldKeys() : ['dim','p','r','fc']);
     const defs = vFieldDefs().filter(([k])=>keep.includes(k)).map((pair,i)=>{ const key=pair[0], label=pair[1]; const tk = TKr[key] || ['numeric','measure'];
       return { ph:'__'+i+'__', name:F(key), label, type:tk[0], kind:tk[1] }; });
     sp.usermeta = {
@@ -6920,7 +6925,7 @@ async function renderRawVegaTablePreview(){
   host.innerHTML = '<div style="padding:26px;font-size:12px;color:#8c8c8c">'+TT('Tabelle wird geladen …')+'</div>';
   try{
     await loadVegaLibs();
-    const spec = rawVegaTableOn() ? rvTableSpec(false) : rvSpecFor(false);
+    const spec = rawVegaTableOn() ? rvTableSpec(false) : (rawVegaKpiOn() ? rvKpiSpecFor(false) : rvSpecFor(false));
     const W = Math.max(420, Math.floor(host.clientWidth || 760));
     spec.signals.find(s=>s.name==='pbiContainerWidth').value = W;
     const hSig = spec.signals.find(s=>s.name==='pbiContainerHeight');
@@ -7246,8 +7251,14 @@ function vConfig(){
           labelColor:'#555555', labelFont:'Arial', labelFontSize:11, title:null},
     legend:{disable:true} };
 }
+/* axis:vNoAxis() auf einem Feld-Encoding crasht Vega-Lite 5.21.0 (parseAxesAndHeaders,
+   "Cannot read properties of undefined (reading 'forEach')"), sobald ein Geschwister-
+   Layer im selben layer[] keinen eigenen y/x-Kanal hat (z. B. Nulllinien-rule mit
+   y:null) – betrifft Deviation-/%-/Brücken-Panels. Fix: statt axis:vNoAxis() ein Achsen-
+   Objekt mit allem deaktiviert liefern (optisch identisch, kompiliert aber sauber). */
+function vNoAxis(){ return {domain:false, ticks:false, labels:false, grid:false, title:null}; }
 function vX(extra){ return Object.assign({field:'k', type:'nominal', sort:null, axis:{labelAngle:0, labelPadding:6}}, extra||{}); }
-function vYq(f){ return {field:f, type:'quantitative', axis:null}; }
+function vYq(f){ return {field:f, type:'quantitative', axis:vNoAxis()}; }
 function vNum(s){ return state.decimals===0 ? ',.0f' : ',.'+state.decimals+'f'; }
 function vData(values, deneb){ return deneb ? {name:'dataset'} : {values}; }
 /* Wertlabels außerhalb, in Wachstumsrichtung – zwei Layer je Vorzeichen */
@@ -7472,7 +7483,7 @@ function vlTimeWf(){
     ]};
 }
 function vlKombi(deneb){
-  const noCat = {axis:null};
+  const noCat = {axis:vNoAxis()};
   let tierVals, dn = deneb;
   if(state.kombiBase==='wf'){
     dn = false; /* Σ-Zeile lässt sich nicht aus dem Dataset erzeugen – Daten eingebettet */
@@ -7603,7 +7614,7 @@ function vlBridgeDyn(){
     encoding:{x:xEnc(axis), y:vYq('s'), y2:{field:'e'}, fill:fillEnc, stroke:strokeEnc, strokeWidth:{value:1.2}}});
   const totLabel = (tf)=> ({data:D, transform:tf,
     mark:{type:'text', dy:-8, fontSize:11, font:'Arial', color:DARK, fontWeight:'bold'},
-    encoding:{x:xEnc(null), y:vYq('e'), text:{field:'L', type:'nominal'}}});
+    encoding:{x:xEnc(vNoAxis()), y:vYq('e'), text:{field:'L', type:'nominal'}}});
   /* Wasserfall-Konnektoren (Σstart → Δ … → Σend); die Ref2-Vergleichsspalten
      bleiben bewusst ohne Konnektor (eigene Bezugsgröße). Technik: am Stufenende
      (e) eine waagerechte Linie zur nächsten Slot-Kategorie (x2 = Folge-xlab). */
@@ -7619,10 +7630,10 @@ function vlBridgeDyn(){
   const layers = [
     /* Σstart → erste Δ-Stufe (am oberen Ende der Start-Σ) */
     {data:D, transform: totTf('sumStart', startScen, startScen, 0), mark:connMark,
-     encoding:{x:xEnc(null), x2:{field:'k'}, y:vYq('e')}},
+     encoding:{x:xEnc(vNoAxis()), x2:{field:'k'}, y:vYq('e')}},
     /* Δ-Stufen → jeweils nächste Stufe bzw. Schluss-Σ */
     {data:D, transform: connTf, mark:connMark,
-     encoding:{x:xEnc(null), x2:{field:'leadX'}, y:vYq('e')}},
+     encoding:{x:xEnc(vNoAxis()), x2:{field:'leadX'}, y:vYq('e')}},
     bar(totTf('sumStart', startScen, startScen, 0), null),
     bar(deltaTf, {labelAngle:0, labelPadding:6}),
     bar(totTf('sumEnd', endScen, endScen, 999999), null),
@@ -7630,10 +7641,10 @@ function vlBridgeDyn(){
     totLabel(totTf('sumEnd', endScen, endScen, 999999)),
     {data:D, transform: deltaTf.concat([{filter:'datum.d >= 0'}]),
      mark:{type:'text', dy:-8, fontSize:11, font:'Arial', color:DARK},
-     encoding:{x:xEnc(null), y:vYq('e'), text:{field:'L', type:'nominal'}}},
+     encoding:{x:xEnc(vNoAxis()), y:vYq('e'), text:{field:'L', type:'nominal'}}},
     {data:D, transform: deltaTf.concat([{filter:'datum.d < 0'}]),
      mark:{type:'text', dy:14, fontSize:11, font:'Arial', color:DARK},
-     encoding:{x:xEnc(null), y:vYq('e'), text:{field:'L', type:'nominal'}}},
+     encoding:{x:xEnc(vNoAxis()), y:vYq('e'), text:{field:'L', type:'nominal'}}},
   ];
   /* Optionale Abweichungssäule vs Referenz 2 als Total (z. B. ΔVorjahr):
      Varianzsäule von der Ref2-Gesamtsumme (sumR2) bis zur Primär-Summe (sumP),
@@ -7657,7 +7668,7 @@ function vlBridgeDyn(){
     ];
     layers.push(bar(levelTf, null));
     layers.push(totLabel(levelTf));
-    levelAnchor = {data:D, transform:levelTf, mark:{type:'point', size:0, opacity:0}, encoding:{x:xEnc(null), y:{datum:0}}};
+    levelAnchor = {data:D, transform:levelTf, mark:{type:'point', size:0, opacity:0}, encoding:{x:xEnc(vNoAxis()), y:{datum:0}}};
   }
   if(usePY){
     const dpyTf = [
@@ -7672,32 +7683,32 @@ function vlBridgeDyn(){
       {calculate:"format(datum.sumP - datum.sumR2, '+"+fmtN+"')", as:'L'},
     ];
     layers.push({data:D, transform:dpyTf, mark:{type:'bar', size:24},
-      encoding:{x:xEnc(null), y:vYq('s'), y2:{field:'e'}, fill:fillEnc, stroke:strokeEnc, strokeWidth:{value:1.2}}});
+      encoding:{x:xEnc(vNoAxis()), y:vYq('s'), y2:{field:'e'}, fill:fillEnc, stroke:strokeEnc, strokeWidth:{value:1.2}}});
     layers.push({data:D, transform:dpyTf.concat([{filter:'datum.cls === "pos"'}]),
       mark:{type:'text', dy:-8, fontSize:11, font:'Arial', color:DARK, fontWeight:'bold'},
-      encoding:{x:xEnc(null), y:vYq('e'), text:{field:'L', type:'nominal'}}});
+      encoding:{x:xEnc(vNoAxis()), y:vYq('e'), text:{field:'L', type:'nominal'}}});
     layers.push({data:D, transform:dpyTf.concat([{filter:'datum.cls === "neg"'}]),
       mark:{type:'text', dy:14, fontSize:11, font:'Arial', color:DARK, fontWeight:'bold'},
-      encoding:{x:xEnc(null), y:vYq('e'), text:{field:'L', type:'nominal'}}});
-    dpyAnchor = {data:D, transform:dpyTf, mark:{type:'point', size:0, opacity:0}, encoding:{x:xEnc(null), y:{datum:0}}};
+      encoding:{x:xEnc(vNoAxis()), y:vYq('e'), text:{field:'L', type:'nominal'}}});
+    dpyAnchor = {data:D, transform:dpyTf, mark:{type:'point', size:0, opacity:0}, encoding:{x:xEnc(vNoAxis()), y:{datum:0}}};
   }
   const barTier = { width:580, height:240, layer:layers };
   if(!(state.bridgeRel && state.wfOrient!=='v')) return barTier;
   /* Δ%-Ebene über der Brücke; unsichtbare Σ-Anker richten die X-Achse aus */
   const anchor = (which,label,scen,ord)=> ({data:D, transform: totTf(which,label,scen,ord),
-    mark:{type:'point', size:0, opacity:0}, encoding:{x:xEnc(null), y:{datum:0}}});
+    mark:{type:'point', size:0, opacity:0}, encoding:{x:xEnc(vNoAxis()), y:{datum:0}}});
   const relLayers = [
     anchor('sumStart', startScen, startScen, 0),
     {data:D, transform: deltaTf, mark:{type:'rule', strokeWidth:2},
-     encoding:{x:xEnc(null), y:vYq('rv'), y2:{datum:0}, color:{condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}}},
+     encoding:{x:xEnc(vNoAxis()), y:vYq('rv'), y2:{datum:0}, color:{condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}}},
     {data:D, transform: deltaTf, mark:{type:'point', filled:true, size:50},
-     encoding:{x:xEnc(null), y:vYq('rv'), color:{condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}}},
+     encoding:{x:xEnc(vNoAxis()), y:vYq('rv'), color:{condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}}},
     {data:D, transform: deltaTf.concat([{filter:'datum.rv >= 0'}]),
      mark:{type:'text', dy:-12, fontSize:11, font:'Arial'},
-     encoding:{x:xEnc(null), y:vYq('rv'), text:{field:'Lrv', type:'nominal'}, color:{value:C.pos}}},
+     encoding:{x:xEnc(vNoAxis()), y:vYq('rv'), text:{field:'Lrv', type:'nominal'}, color:{value:C.pos}}},
     {data:D, transform: deltaTf.concat([{filter:'datum.rv < 0'}]),
      mark:{type:'text', dy:17, fontSize:11, font:'Arial'},
-     encoding:{x:xEnc(null), y:vYq('rv'), text:{field:'Lrv', type:'nominal'}, color:{value:C.neg}}},
+     encoding:{x:xEnc(vNoAxis()), y:vYq('rv'), text:{field:'Lrv', type:'nominal'}, color:{value:C.neg}}},
     anchor('sumEnd', endScen, endScen, 999999),
   ];
   if(levelAnchor) relLayers.push(levelAnchor);   /* Ref2-Niveau-Slot ausrichten */
@@ -7744,7 +7755,7 @@ function vlVarintDyn(deneb){
     layer.push({transform:[{filter:'datum.'+f+' < 0'}],
       mark:{type:'text', dy:17, fontSize:11, font:'Arial', color:DARK},
       encoding:{y:vYq(f), text:{field:lf, type:'nominal'}}});
-    return { width:580, height:h, data:D, transform:tf, encoding:{x:vX({axis:null})}, layer };
+    return { width:580, height:h, data:D, transform:tf, encoding:{x:vX({axis:vNoAxis()})}, layer };
   };
   /* Tier 1 – ΔRef%_YTD: kumulierte Summen von p und r (window, frame [null,0]) */
   const ytdTf = ordTf.concat([
@@ -7786,17 +7797,17 @@ function vlVarintDyn(deneb){
   const segLabels = (tf, bold)=> [
     {data:D, transform:tf.concat([{filter:'datum.e >= datum.s'}]),
      mark:Object.assign({type:'text', dy:-8, fontSize:bold?11:10.5, font:'Arial', color:DARK}, bold?{fontWeight:'bold'}:{}),
-     encoding:{x:xOrd(null), y:vYq('e'), text:{field:'L', type:'nominal'}}},
+     encoding:{x:xOrd(vNoAxis()), y:vYq('e'), text:{field:'L', type:'nominal'}}},
     {data:D, transform:tf.concat([{filter:'datum.e < datum.s'}]),
      mark:Object.assign({type:'text', dy:13, fontSize:bold?11:10.5, font:'Arial', color:DARK}, bold?{fontWeight:'bold'}:{}),
-     encoding:{x:xOrd(null), y:vYq('e'), text:{field:'L', type:'nominal'}}},
+     encoding:{x:xOrd(vNoAxis()), y:vYq('e'), text:{field:'L', type:'nominal'}}},
   ];
   const tier3 = { width:580, height:140, layer:[
     {data:D, transform:deltaTf, mark:{type:'bar', size:22},
-     encoding:{x:xOrd(null), y:vYq('s'), y2:{field:'e'},
+     encoding:{x:xOrd(vNoAxis()), y:vYq('s'), y2:{field:'e'},
        fill:{condition:{test:'datum.d >= 0', value:C.pos}, value:C.neg}}},
     {data:D, transform:sumTf, mark:{type:'bar', size:22, fill:DARK},
-     encoding:{x:xOrd(null), y:vYq('s'), y2:{field:'e'}}},
+     encoding:{x:xOrd(vNoAxis()), y:vYq('s'), y2:{field:'e'}}},
   ].concat(segLabels(deltaTf, false)).concat(segLabels(sumTf, true)) };
 
   /* ---- Tier 4: Säulen AC(+FC) vs Referenz + kombinierte AC/FC-Total-Säule -- */
@@ -7818,7 +7829,7 @@ function vlVarintDyn(deneb){
   if(hasRef){
     const refMark = {type:'bar', size:26, fill:sr.fill};
     if(sr.stroke){ refMark.stroke = sr.stroke; refMark.strokeWidth = 1.3; }
-    t4.push({data:D, transform:perTf, mark:refMark, encoding:{x:xOrd(null), y:vYq('r')}});
+    t4.push({data:D, transform:perTf, mark:refMark, encoding:{x:xOrd(vNoAxis()), y:vYq('r')}});
   }
   const pb = vPrimBarMark(16);
   pb.data = D; pb.transform = perTf;
@@ -7826,22 +7837,22 @@ function vlVarintDyn(deneb){
   t4.push(pb);
   t4.push({data:D, transform:perTf.concat([{filter:'datum.p >= 0'}]),
     mark:{type:'text', dy:-9, fontSize:11, font:'Arial'},
-    encoding:{x:xOrd(null), y:vYq('p'), text:{field:'p', type:'quantitative', format:vNum()},
+    encoding:{x:xOrd(vNoAxis()), y:vYq('p'), text:{field:'p', type:'quantitative', format:vNum()},
       color:{condition:{test:'datum.fc', value:FCINK}, value:DARK}}});
   t4.push({data:D, transform:perTf.concat([{filter:'datum.p < 0'}]),
     mark:{type:'text', dy:14, fontSize:11, font:'Arial'},
-    encoding:{x:xOrd(null), y:vYq('p'), text:{field:'p', type:'quantitative', format:vNum()},
+    encoding:{x:xOrd(vNoAxis()), y:vYq('p'), text:{field:'p', type:'quantitative', format:vNum()},
       color:{condition:{test:'datum.fc', value:FCINK}, value:DARK}}});
   const acMark = {type:'bar', size:34, fill:sp.fill};
   if(sp.stroke){ acMark.stroke = sp.stroke; acMark.strokeWidth = 1.3; }
   t4.push({data:D, transform:totBase.concat([{calculate:'0', as:'s'}, {calculate:'datum.acSum', as:'e'}]),
-    mark:acMark, encoding:{x:xOrd(null), y:vYq('s'), y2:{field:'e'}}});
+    mark:acMark, encoding:{x:xOrd(vNoAxis()), y:vYq('s'), y2:{field:'e'}}});
   t4.push({data:D, transform:totBase.concat([{calculate:'datum.acSum', as:'s'}, {calculate:'datum.acSum + datum.fcSum', as:'e'}]),
     mark:{type:'bar', size:34, fill:'#ffffff', stroke:DARK, strokeWidth:1.2, strokeDash:[3,2]},
-    encoding:{x:xOrd(null), y:vYq('s'), y2:{field:'e'}}});
+    encoding:{x:xOrd(vNoAxis()), y:vYq('s'), y2:{field:'e'}}});
   t4.push({data:D, transform:totBase.concat([{calculate:'datum.acSum + datum.fcSum', as:'e'}]),
     mark:{type:'text', dy:-8, fontSize:11, font:'Arial', color:DARK, fontWeight:'bold'},
-    encoding:{x:xOrd(null), y:vYq('e'), text:{field:'e', type:'quantitative', format:vNum()}}});
+    encoding:{x:xOrd(vNoAxis()), y:vYq('e'), text:{field:'e', type:'quantitative', format:vNum()}}});
   const tier4 = { width:580, height:160, layer:t4 };
 
   const tiers = (state.varYTD!==false ? [tier1] : []).concat([tier2, tier3, tier4]);
@@ -7915,7 +7926,7 @@ function vlStack(deneb, vertical){
   const enc = {};
   enc[catCh] = {field:'k', type:'nominal', sort:null, axis: vertical? {labelPadding:8}:{labelAngle:0, labelPadding:6}};
   const orderEnc = deneb ? {field:'serie', type:'nominal'} : {field:'ord'};
-  const valEnc = Object.assign({field:'v', type:'quantitative', axis:null}, norm?{stack:'normalize'}:{});
+  const valEnc = Object.assign({field:'v', type:'quantitative', axis:vNoAxis()}, norm?{stack:'normalize'}:{});
   const layer = [
     {mark:{type:'bar', stroke:'#ffffff', strokeWidth:0.75},
      encoding:Object.assign({[valCh]:valEnc,
@@ -7965,7 +7976,7 @@ function vlBoxplot(deneb){
       outliers:{stroke:DARK, fill:'transparent', strokeWidth:1, size:28} },
     encoding:{
       x:{field:'k', type:'nominal', sort:null, axis:{labelAngle:0, labelPadding:6}},
-      y:{field:'p', type:'quantitative', axis:null, scale:{zero:false}}
+      y:{field:'p', type:'quantitative', axis:vNoAxis(), scale:{zero:false}}
     }
   };
 }
@@ -8005,7 +8016,7 @@ function vlMultiples(deneb){
       ];
     }
     inner.layer.push({mark:{type:'bar', size:14},
-      encoding:{y:{field:'s', type:'quantitative', axis:null}, y2:{field:'cum'},
+      encoding:{y:{field:'s', type:'quantitative', axis:vNoAxis()}, y2:{field:'cum'},
         fill: state.wfVar? {condition:{test:'datum.v >= 0', value:C.pos}, value:C.neg} : {value:DARK}}});
     if(!deneb){
       inner.layer.push({transform:[{filter:'datum.sum'}],
@@ -8015,14 +8026,14 @@ function vlMultiples(deneb){
     }
   } else if(state.multiMode==='line'){
     if(hasR) inner.layer.push({mark:{type:'line', color:LIGHT, strokeWidth:1.6},
-      encoding:{y:{field:'r', type:'quantitative', axis:null}}});
+      encoding:{y:{field:'r', type:'quantitative', axis:vNoAxis()}}});
     inner.layer.push({mark:{type:'line', color:DARK, strokeWidth:1.8, point:{filled:true, fill:DARK, size:22}},
-      encoding:{y:{field:'v', type:'quantitative', axis:null}}});
+      encoding:{y:{field:'v', type:'quantitative', axis:vNoAxis()}}});
   } else {
     /* Referenz in Szenario-Notation (PY hell/PL,BU hohl/FC schraffiert) statt hartem Grau */
     const rsc = vScen(state.reference);
     if(hasR && state.multiMode==='col') inner.layer.push({mark:Object.assign({type:'bar', size:14, xOffset:-3.5}, rsc),
-      encoding:{y:{field:'r', type:'quantitative', axis:null}}});
+      encoding:{y:{field:'r', type:'quantitative', axis:vNoAxis()}}});
     if(hasR && state.multiMode==='col' && (state.showRel||state.showAbs)){
       if(state.showRel) inner.layer.push({
         transform:[{calculate:'datum.r > 0 ? (datum.v - datum.r)/datum.r*100 : null', as:'rvx'}],
@@ -8039,7 +8050,7 @@ function vlMultiples(deneb){
     const psc = vScen(state.primary);
     const primMark = Object.assign(hasR && state.multiMode==='col' ? {type:'bar', size:14, xOffset:3.5} : {type:'bar', size:14},
       state.multiMode==='delta' ? {} : psc);
-    const primEnc = {y:{field:'v', type:'quantitative', axis:null}};
+    const primEnc = {y:{field:'v', type:'quantitative', axis:vNoAxis()}};
     if(state.multiMode==='delta') primEnc.fill = {condition:{test:'datum.v >= 0', value:C.pos}, value:C.neg};
     inner.layer.push({mark: primMark, encoding: primEnc});
   }
@@ -8137,7 +8148,7 @@ function tierFor(key, code, kind){
 }
 function vlAbsTierH(deneb, tier){
   tier = tier || tierFor('v2', state.reference, 'abs');
-  const noAxis = {field:'k', type:'nominal', sort:null, axis:null};
+  const noAxis = {field:'k', type:'nominal', sort:null, axis:vNoAxis()};
   return { width:150, height:{step:28}, data:vData(vRows(),deneb),
     transform: deneb? [{calculate:'datum.p - datum.'+tier.refField, as:tier.outAbs}] : undefined,
     encoding:{y:noAxis},
@@ -8150,7 +8161,7 @@ function vlAbsTierH(deneb, tier){
 /* Δ%-Pin-Spalte (horizontal) für Struktur-Kombis */
 function vlRelTierH(deneb, tier){
   tier = tier || tierFor('v2', state.reference, 'rel');
-  const noAxis = {field:'k', type:'nominal', sort:null, axis:null};
+  const noAxis = {field:'k', type:'nominal', sort:null, axis:vNoAxis()};
   return { width:140, height:{step:28}, data:vData(vRows(),deneb),
     transform: deneb? [{calculate:'datum.'+tier.refField+' > 0 ? (datum.p - datum.'+tier.refField+')/datum.'+tier.refField+'*100 : null', as:tier.outRel}] : undefined,
     encoding:{y:noAxis},
@@ -8253,7 +8264,7 @@ function vlTornado(deneb, ov){
   if(hasRef){
     const sr = vScen(state.reference);
     layer.push({mark:{type:'bar', size:14, fill:sr.fill, stroke:sr.stroke||null, strokeWidth:sr.stroke?1.3:0},
-      encoding:{x:{field:'_rNeg', type:'quantitative', axis:null}}});
+      encoding:{x:{field:'_rNeg', type:'quantitative', axis:vNoAxis()}}});
     layer.push({mark:{type:'text', dx:-6, align:'right', fontSize:10, font:'Arial', color:SUB},
       encoding:{x:{field:'_rNeg', type:'quantitative'}, text:vLab(deneb,'r','Lr',vNum())}});
   }
@@ -8278,7 +8289,7 @@ function vlBullet(deneb, ov){
   ];
   const layer = [vAnchor()];
   layer.push({mark:{type:'bar', size:17, color:'#f1f0ec'},
-    encoding:{x:{field:'_t0', type:'quantitative', axis:null}, x2:{field:'_t1'}}});
+    encoding:{x:{field:'_t0', type:'quantitative', axis:vNoAxis()}, x2:{field:'_t1'}}});
   const pb = vPrimBarMark(9); pb.encoding.x = vYq('p'); layer.push(pb);
   if(hasRef){
     const py = state.reference==='PY'||state.reference==='FC';
@@ -8306,7 +8317,7 @@ function vlPareto(deneb){
     {calculate:"format(datum._pct,'.0f')+'%'", as:'_pctL'},
   ];
   const xEnc = {field:'k', type:'nominal', sort:{field:'p', order:'descending'}, axis:{labelAngle:0, labelPadding:6}};
-  const pctY = {field:'_pct', type:'quantitative', axis:null, scale:{domain:[0,100]}};
+  const pctY = {field:'_pct', type:'quantitative', axis:vNoAxis(), scale:{domain:[0,100]}};
   const bar = vPrimBarMark(16); bar.encoding.y = vYq('p');
   const lineGroup = { layer:[
     {mark:{type:'rule', strokeDash:[4,3], color:HAIR}, encoding:{y:{datum:80, type:'quantitative'}}},
@@ -8328,8 +8339,8 @@ function vlSparkTable(deneb){
     ? [{window:[{op:'row_number', as:'_i'}], groupby:['serie']},
        {joinaggregate:[{op:'max', field:'_i', as:'_mx'}], groupby:['serie']}]
     : [{joinaggregate:[{op:'max', field:'_i', as:'_mx'}], groupby:['serie']}];
-  const xq = {field:'_i', type:'quantitative', axis:null};
-  const yq = {field:'v', type:'quantitative', axis:null};
+  const xq = {field:'_i', type:'quantitative', axis:vNoAxis()};
+  const yq = {field:'v', type:'quantitative', axis:vNoAxis()};
   return {
     data:vData(values,deneb), transform:tf,
     facet:{row:{field:'serie', sort:null,
@@ -8491,7 +8502,7 @@ function vlWfKombi(deneb, ov){
     ]};
   /* Tier 2: ΔRef */
   const t2 = { width:150, height:{step:27}, data:vData(values,deneb), transform:tf,
-    encoding:{y:yCat(null)},
+    encoding:{y:yCat(vNoAxis())},
     layer: [vAnchor()].concat(vRefAxisLayer(state.reference, false)).concat([
       {mark:{type:'bar', size:11},
        encoding:{x:vYq('d'), fill:{condition:{test:'datum.d >= 0', value:C.pos}, value:C.neg}}},
@@ -8502,13 +8513,13 @@ function vlWfKombi(deneb, ov){
   const cap3 = relCap(values.map(v=>v.rv).filter(v=>v!==null && v!==undefined));
   const xScale3 = isFinite(cap3) ? {domain:[-cap3, cap3], clamp:true} : undefined;
   const t3 = { width:140, height:{step:27}, data:vData(values,deneb), transform:tf,
-    encoding:{y:yCat(null)},
+    encoding:{y:yCat(vNoAxis())},
     layer: [vAnchor()].concat(vRefAxisLayer(state.reference, false)).concat([
       {mark:{type:'rule', strokeWidth:2},
-       encoding:{x:{field:'rv', type:'quantitative', axis:null, scale:xScale3}, x2:{datum:0},
+       encoding:{x:{field:'rv', type:'quantitative', axis:vNoAxis(), scale:xScale3}, x2:{datum:0},
          color:{condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}}},
       {mark:{type:'point', filled:true, size:48},
-       encoding:{x:{field:'rv', type:'quantitative', axis:null, scale:xScale3},
+       encoding:{x:{field:'rv', type:'quantitative', axis:vNoAxis(), scale:xScale3},
          color:{condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}}},
     ]).concat(vSignedText('rv', vLab(deneb,'rv','Lrv','+.1f'), false,
       {condition:{test:'datum.rv >= 0', value:C.pos}, value:C.neg}).map(l=>{ l.mark.dx = l.mark.dx>0 ? 10 : -10; return l; }))};
@@ -8517,7 +8528,7 @@ function vlWfKombi(deneb, ov){
   if(state.wfRefCol && state.reference!=='—'){
     const rsc = vScen(state.reference);
     tRef = { width:210, height:{step:27}, data:vData(values,deneb), transform:tf,
-      encoding:{y:yCat(null)},
+      encoding:{y:yCat(vNoAxis())},
       layer:[
         /* Konnektoren des Referenz-Wasserfalls (am Stufenende eR zur Folgezeile) */
         {transform:[{filter:'datum.leadK != null'}],
@@ -8614,8 +8625,8 @@ function vlKpiTrend(deneb){
     {calculate:'datum.v - datum._prev', as:'_td'},
     {calculate:"(datum._td >= 0 ? '↗ ' : '↘ ') + format(datum._td, '+"+vNum()+"')", as:'_tdL'},
   ]);
-  const xq = {field:'_idx', type:'quantitative', axis:null};
-  const yq = {field:'v', type:'quantitative', axis:null};
+  const xq = {field:'_idx', type:'quantitative', axis:vNoAxis()};
+  const yq = {field:'v', type:'quantitative', axis:vNoAxis()};
   const noLabels = !!state.kpiNoLabels;
   const view = { width:240, height:96, layer:[
       {mark:{type:'rule', strokeDash:[3,3], color:'#d7d5d0'}, encoding:{y:{aggregate:'mean', field:'v', type:'quantitative'}}},
@@ -8624,7 +8635,7 @@ function vlKpiTrend(deneb){
       {transform:[{calculate:'datum._idx % 3 === 0', as:'_dot3'}, {filter:'datum._dot3'}],
        mark:{type:'point', shape:'diamond', size:20, filled:true, color:KPI_PINK, opacity:1},
        encoding:{x:xq, y:yq}},
-      {mark:{type:'line', color:DARK, strokeWidth:1.8}, encoding:{x:xq, y:{field:'_avg', type:'quantitative', axis:null}}},
+      {mark:{type:'line', color:DARK, strokeWidth:1.8}, encoding:{x:xq, y:{field:'_avg', type:'quantitative', axis:vNoAxis()}}},
       {transform:[{filter:'datum._idx === datum._mx'}],
        mark:{type:'text', x:4, y:6, align:'left', baseline:'top', fontSize:22, fontWeight:'bold', font:'Arial', color:DARK},
        encoding:{text:vLab(deneb,'v','L',vNum())}},
@@ -8711,7 +8722,7 @@ function vlKpiBridge(deneb){
     center = k => leftPad + usable*(k+0.5)/nSlots; zA = 16; zB = Wc-8;
   }
   const crossCh = bars?'x':'y', mainCh = bars?'y':'x', half = barThick/2;
-  const cross      = f => ({[crossCh]:{field:f, type:'quantitative', axis:null, scale:scaleObj}});
+  const cross      = f => ({[crossCh]:{field:f, type:'quantitative', axis:vNoAxis(), scale:scaleObj}});
   const crossDatum = d => ({[crossCh]:{datum:d, type:'quantitative', scale:scaleObj}});
   const cross2     = f => ({[crossCh+'2']:{field:f}});
   const cross2zero = () => ({[crossCh+'2']:{datum:0}});
@@ -8855,7 +8866,7 @@ function vlKpi(deneb){
       encoding:{x:{value:bx0}, x2:{value:bx0+bw}, y:{value:barY}, y2:{value:barY+barH}, fill:{value:'#efeeea'}}});
     layer.push({transform:[{filter:'datum.pct != null'}], mark:{type:'rect', cornerRadius:2.5},
       encoding:{x:{value:bx0},
-        x2:{field:'pct', type:'quantitative', scale:{domain:[0,120], range:[bx0,bx0+bw], clamp:true}, axis:null},
+        x2:{field:'pct', type:'quantitative', scale:{domain:[0,120], range:[bx0,bx0+bw], clamp:true}, axis:vNoAxis()},
         y:{value:barY}, y2:{value:barY+barH},
         fill:{condition:{test:'(datum.pol ? datum.pct <= 100 : datum.pct >= 100)', value:C.pos}, value:DARK}}});
     layer.push({mark:{type:'rule', strokeWidth:1.2, color:DARK},
@@ -8881,10 +8892,10 @@ function vlKpi(deneb){
     const pinCol = {condition:{test:'(datum.pol ? datum.'+rvF+' <= 0 : datum.'+rvF+' >= 0)', value:C.pos}, value:C.neg};
     layer.push({transform:[{filter:'datum.'+rvF+' != null'}], mark:{type:'rule', strokeWidth:2},
       encoding:{x:{value:pinX},
-        x2:{field:rvF, type:'quantitative', scale:{domainMid:0, range:[pinX-pinW/2, pinX+pinW/2], clamp:true}, axis:null},
+        x2:{field:rvF, type:'quantitative', scale:{domainMid:0, range:[pinX-pinW/2, pinX+pinW/2], clamp:true}, axis:vNoAxis()},
         y:{value:y}, y2:{value:y}, stroke:pinCol}});
     layer.push({transform:[{filter:'datum.'+rvF+' != null'}], mark:{type:'point', shape:'circle', size:24, filled:true},
-      encoding:{x:{field:rvF, type:'quantitative', scale:{domainMid:0, range:[pinX-pinW/2, pinX+pinW/2], clamp:true}, axis:null},
+      encoding:{x:{field:rvF, type:'quantitative', scale:{domainMid:0, range:[pinX-pinW/2, pinX+pinW/2], clamp:true}, axis:vNoAxis()},
         y:{value:y}, fill:pinCol}});
     /* Δ absolut (gedämpft) links neben der Pille */
     if(!noLabels) layer.push({mark:{type:'text', x:pl-8, y, align:'right', fontSize:10, font:'Arial', color:SUB},
@@ -9016,9 +9027,29 @@ const RV_COL = ['columns','colline','kombi','absvar','relvar'];   /* vertikale S
 const RV_BAR = ['bars','barskombi'];                              /* horizontale Balken */
 const RV_LINE = ['line'];                                         /* Zeitreihen-Linie(n) */
 const RAWVAR_TYPES = RV_COL.concat(RV_BAR, RV_LINE);
-function rawVegaTableOn(){ return state.rawVega && state.type==='table'; }
-function rawVegaVarOn(){ return state.rawVega && RAWVAR_TYPES.includes(state.type); }
-function rawVegaOn(){ return rawVegaTableOn() || rawVegaVarOn(); }
+/* Solange der Nutzer die Engine nie bewusst umgeschaltet hat: smarter Default
+   je Typ statt eines global erzwungenen Werts. Für KPI-Brücke ist Raw-Vega
+   die einzige Möglichkeit, die Kachel automatisch zu füllen (Vega-Lite kann
+   bei facet/hconcat kein width/height:'container') – dort daher an; bei
+   Tabelle/Varianz-Typen bleibt Vega-Lite (statisch) der unveränderte Default,
+   weil deren Vega-Lite-Export bereits container-responsiv ist. */
+function rawVegaEffective(){
+  if(state.rawVegaTouched) return !!state.rawVega;
+  return state.type==='kpi';
+}
+function rawVegaTableOn(){ return rawVegaEffective() && state.type==='table'; }
+function rawVegaVarOn(){ return rawVegaEffective() && RAWVAR_TYPES.includes(state.type); }
+/* KPI-Kacheln sind facettiert (Vega-Lite kann dafür nicht width/height:'container'
+   nutzen) – bislang nur der Stil "Brücke" auf Raw-Vega umgestellt (Status/Trend/
+   ibcs-Standard folgen). */
+function rawVegaKpiOn(){ return rawVegaEffective() && state.type==='kpi'; }
+function rvKpiSpecFor(deneb){
+  if(state.kpiStyle==='status') return rvKpiStatusSpec(deneb);
+  if(state.kpiStyle==='trend') return rvKpiTrendSpec(deneb);
+  if(state.kpiStyle==='bridge') return rvKpiBridgeSpec(deneb);
+  return rvKpiIbcsSpec(deneb);
+}
+function rawVegaOn(){ return rawVegaTableOn() || rawVegaVarOn() || rawVegaKpiOn(); }
 /* passende Raw-Vega-Spec je Typ */
 function rvSpecFor(deneb){ return RV_BAR.includes(state.type) ? rvBarsSpec(deneb) : (RV_LINE.includes(state.type) ? rvLineSpec(deneb) : rvVarSpec(deneb)); }
 function rvVarData(){ return activeRows().filter(r=>!isNaN(r.v1)).map(r=>({k:r.c, p:r.v1, r:isNaN(r.v2)?null:r.v2, fc:r.fc?1:0})); }
@@ -9213,6 +9244,496 @@ function rvLineSpec(deneb){
     description:'IBCS-Linie · Raw-Vega (interaktiv: Cross-Filter, große Datenmengen)',
     padding:5, autosize:{type:'fit', resize:true, contains:'padding'}, signals, data, scales, marks };
 }
+/* ============================================================
+   Raw-Vega: KPI-Karten als container-responsives Grid. Ersetzt die
+   facettierte Vega-Lite-Variante im Deneb-Export – Vega-Lite kann bei
+   facet/hconcat/vconcat kein width/height:'container' nutzen, Raw-Vega
+   schon (pbiContainerWidth/-Height). Ein gemeinsamer Skalierungsfaktor
+   `sc` = Kachelbreite / Basis-Rasterbreite lässt die GANZE Karten-Ration
+   (Zahlen, Balken, Pillen) mit der Kachelgröße mitwachsen, nicht nur die
+   Fläche. Jede Kategorie ist genau eine Datenzeile – Karten-Inhalte sind
+   daher normale, pro-Zeile wiederholte Marks (from:{data:'all'}),
+   positioniert über datum.gx/datum.gy; kein verschachteltes group/facet
+   nötig (nur der Trend-Stil mit mehreren Tageswerten je KPI braucht das). */
+function rvKpiFieldKeys(){
+  if(state.kpiStyle==='trend') return state.kpiSingle ? ['dim','v'] : ['dim','serie','v'];
+  const hasR1 = state.reference!=='—', hasR2 = usesRef2() && state.reference2!=='—';
+  const keys = state.kpiSingle ? [] : ['dim'];
+  keys.push('p');
+  if(hasR1) keys.push('r');
+  if(hasR2) keys.push('r2');
+  if(state.primary==='AC' && !state.noFC) keys.push('fc');
+  return keys;
+}
+function rvKpiPh(key, deneb){
+  if(!deneb) return ({dim:'k'})[key] || key;
+  const i = rvKpiFieldKeys().indexOf(key);
+  return i>=0 ? '__'+i+'__' : '__nr__';
+}
+/* Grid-/Skalierungs-Signale, gemeinsam für alle KPI-Stile */
+function rvKpiGridSignals(nCols, cardBaseW, cardBaseH, gap, itemsData){
+  /* itemsData: welcher Datensatz genau eine Zeile je Karte hat (Default 'all' –
+     bei Trend liegen dort mehrere Tageszeilen je Karte, daher dort 'keys' übergeben) */
+  return [
+    {name:'pbiContainerWidth', value: Math.max(360, nCols*cardBaseW+(nCols-1)*gap)},
+    {name:'pbiContainerHeight', value: cardBaseH+30},
+    {name:'gap', value: gap},
+    {name:'nCols', value: nCols},
+    {name:'sc', update: 'clamp(pbiContainerWidth/('+nCols+'*'+cardBaseW+'+'+(nCols-1)+'*gap), 0.55, 2.5)'},
+    {name:'cardW', update: cardBaseW+'*sc'},
+    {name:'cardH', update: cardBaseH+'*sc'},
+    {name:'nItems', update: "max(1, length(data('"+(itemsData||'all')+"')))"},
+    {name:'nRows', update: 'ceil(nItems/nCols)'},
+    {name:'width', update: 'pbiContainerWidth'},
+    {name:'height', update: 'nRows*(cardH+gap)-gap'},
+  ];
+}
+function rvKpiGridTransform(){
+  return [
+    {type:'window', ops:['row_number'], as:['_rn']},
+    {type:'formula', expr:'(datum._rn-1)%nCols', as:'_col'},
+    {type:'formula', expr:'floor((datum._rn-1)/nCols)', as:'_row'},
+    {type:'formula', expr:'datum._col*(cardW+gap)', as:'gx'},
+    {type:'formula', expr:'datum._row*(cardH+gap)', as:'gy'},
+  ];
+}
+function rvKpiCardFrame(){
+  return {type:'rect', from:{data:'all'}, encode:{update:{
+    x:{signal:'datum.gx'}, y:{signal:'datum.gy'}, width:{signal:'cardW'}, height:{signal:'cardH'},
+    cornerRadius:{value:6}, fill:{value:'#ffffff'}, stroke:{value:'#e3e1dc'}, strokeWidth:{value:1}}}};
+}
+/* KPI „Brücke": Hero-AC + eingebettete Mini-Varianz-Brücke ([Ref2] · Ref1 · Δ · AC) je Karte */
+function rvKpiBridgeSpec(deneb){
+  const C = varColors();
+  const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
+  const bars = !!state.kpiBars, multi = !!state.kpiMultiScen && hasR2, noLabels = !!state.kpiNoLabels;
+  const nSlots = 3 + (multi?1:0);
+  const rowsAR = activeRows();
+  const fs = state.fontScale||1;
+  let Wc, Hc, barThick, plotL=0, plotR=0, rowsTop=0, rowStep=0, leftPad=0, usable=0, plotTop=0, plotBot=0, zA, zB;
+  if(bars){
+    const labLens = rowsAR.flatMap(r=>[fmt(r.v1),fmt(r.v2),fmt(r.v1-r.v2,true)].concat(hasR2?[fmt(r.v3)]:[])).filter(Boolean).map(x=>String(x).length);
+    const maxLab = Math.max(3, ...(labLens.length?labLens:[3]));
+    const labGut = Math.round(maxLab*6)+12;
+    Wc = 58+120+labGut; Hc = 56+nSlots*26+14; barThick = 16;
+    plotL=58; plotR=Wc-labGut; rowsTop=52; rowStep=(Hc-52-12)/nSlots;
+    zA = rowsTop; zB = Hc-12;
+  } else {
+    Wc = 40+nSlots*44; Hc = 132;
+    leftPad=24; usable=Wc-40; plotTop=50; plotBot=Hc-18;
+    barThick = Math.min(28, usable/nSlots*0.56);
+    zA = 16; zB = Wc-8;
+  }
+  const center = k => bars ? (rowsTop + rowStep*(k+0.5)) : (leftPad + usable*(k+0.5)/nSlots);
+  const nCols = bars?2:3, gap = 14;
+  const crossG = bars?'gx':'gy', mainG = bars?'gy':'gx';
+  const crossCh = bars?'x':'y', mainCh = bars?'y':'x';
+  const val = expr => ({signal:"datum."+crossG+" + scale('val', "+expr+")"});
+  const mainAt = px => ({signal:'datum.'+mainG+'+('+px+')*sc'});
+  const chSpan = (v1,v2) => { const o={}; o[crossCh]=v1; o[crossCh+'2']=v2; return o; };
+  const chMain = (m1,m2) => { const o={}; o[mainCh]=m1; if(m2!==undefined) o[mainCh+'2']=m2; return o; };
+  const FK = rvKpiPh('dim',deneb), FP = rvKpiPh('p',deneb), FR = rvKpiPh('r',deneb), FR2 = rvKpiPh('r2',deneb), FFC = rvKpiPh('fc',deneb);
+  const tf = [
+    {type:'formula', expr:'datum.'+FK, as:'k'},
+    {type:'formula', expr:'datum.'+FP, as:'p'},
+    {type:'formula', expr:'datum.'+FR, as:'r'},
+  ];
+  if(hasR2) tf.push({type:'formula', expr:'datum.'+FR2, as:'r2'});
+  tf.push({type:'formula', expr:'toBoolean(datum.'+FFC+')', as:'fc'});
+  tf.push(
+    {type:'formula', expr:'datum.r==null||datum.p==null?null:datum.p-datum.r', as:'dlt'},
+    {type:'formula', expr:'datum.r==null||datum.p==null?null:(datum.r+datum.p)/2', as:'mid'},
+    {type:'formula', expr:'datum.r==null||datum.p==null?null:max(datum.r,datum.p)', as:'dEnd'},
+    {type:'formula', expr:'datum.r>0?(datum.p-datum.r)/datum.r*100:null', as:'rv'},
+    {type:'formula', expr:"datum.dlt==null?'':(datum.dlt>=0?'▲':'▼')", as:'T'},
+    {type:'formula', expr:"datum.rv==null?'':((datum.rv>=0?'▲ ':'▼ ')+format(datum.rv,'+.1f')+'%')", as:'Lpill'}
+  );
+  tf.push(...rvKpiGridTransform());
+  const data = [
+    {name:'dataset', ...(deneb?{}:{values: rowsAR.map(r=>({k:r.c,p:isNaN(r.v1)?null:r.v1,r:isNaN(r.v2)?null:r.v2,r2:isNaN(r.v3)?null:r.v3,fc:r.fc?1:0}))})},
+    {name:'all', source:'dataset', transform:tf}
+  ];
+  const signals = rvKpiGridSignals(nCols, Wc, Hc, gap).concat([
+    {name:'sel', value:null, on:[{events:'rect:click,text:click', update:"datum&&datum.k?(sel===datum.k?null:datum.k):sel"}]}
+  ]);
+  const valFields = ['p','r','mid'].concat(hasR2?['r2']:[]);
+  const scales = [{name:'val', type:'linear', zero:true, nice:false, domain:{data:'all', fields:valFields},
+    range: bars ? [{signal:plotL+'*sc'},{signal:plotR+'*sc'}] : [{signal:plotBot+'*sc'},{signal:plotTop+'*sc'}] }];
+  const marks = [rvKpiCardFrame()];
+  const dimOp = "((sel!=null&&sel!==datum.k)||datum.__selected__==='off')?0.4:1";
+  /* Nulllinie */
+  marks.push({type:'rule', from:{data:'all'}, encode:{update:Object.assign({}, chSpan(val('0'),undefined), chMain(mainAt(zA), mainAt(zB)), {stroke:{value:'#dcdad5'}, strokeWidth:{value:1}})}});
+  /* Slots: [Ref2] · Ref1 · Δ · AC */
+  const slots = [];
+  if(multi) slots.push({kind:'scen', code:state.reference2, vfield:'r2'});
+  slots.push({kind:'scen', code:state.reference, vfield:'r'});
+  slots.push({kind:'delta'});
+  slots.push({kind:'ac', code:state.primary, vfield:'p'});
+  const iRef1 = multi?1:0, iDelta = iRef1+1, iAc = iRef1+2;
+  slots.forEach((sl,k)=>{
+    const half = barThick/2;
+    if(sl.kind==='delta'){
+      marks.push({type:'rect', from:{data:'all'}, encode:{update:Object.assign({},
+        chMain(mainAt(center(k)-half), mainAt(center(k)+half)), chSpan(val('datum.r'), val('datum.p')),
+        {fill:[{test:'datum.dlt>=0', value:C.pos}, {value:C.neg}]})}});
+    } else if(sl.kind==='ac'){
+      const sc0 = vScen(sl.code);
+      marks.push({type:'rect', from:{data:'all'}, encode:{update:Object.assign({},
+        chMain(mainAt(center(k)-half), mainAt(center(k)+half)), chSpan(val('0'), val('datum.'+sl.vfield)),
+        {fill:[{test:'datum.fc', value:'#ffffff'}, {value:sc0.fill}],
+         stroke:[{test:'datum.fc', value:DARK}, {value:(sc0.stroke||'transparent')}],
+         strokeWidth:[{test:'datum.fc', value:1.2}, {value:(sc0.stroke?1.3:0)}]})}});
+    } else {
+      const sc0 = vScen(sl.code);
+      marks.push({type:'rect', from:{data:'all'}, encode:{update:Object.assign({},
+        chMain(mainAt(center(k)-half), mainAt(center(k)+half)), chSpan(val('0'), val('datum.'+sl.vfield)),
+        {fill:{value:sc0.fill}, stroke:{value:sc0.stroke||'transparent'}, strokeWidth:{value:sc0.stroke?1.3:0},
+         strokeDash: sc0.dash?{value:sc0.dash}:undefined})}});
+    }
+  });
+  /* Konnektoren */
+  marks.push({type:'rule', from:{data:'all'}, encode:{update:Object.assign({}, chSpan(val('datum.r'),undefined), chMain(mainAt(center(iRef1)+barThick/2), mainAt(center(iDelta)-barThick/2)), {stroke:{value:'#bdbbb6'}, strokeWidth:{value:1}})}});
+  marks.push({type:'rule', from:{data:'all'}, encode:{update:Object.assign({}, chSpan(val('datum.p'),undefined), chMain(mainAt(center(iDelta)+barThick/2), mainAt(center(iAc)-barThick/2)), {stroke:{value:'#bdbbb6'}, strokeWidth:{value:1}})}});
+  /* Wert-Labels */
+  if(!noLabels) slots.forEach((sl,k)=>{
+    if(sl.kind==='delta'){
+      const enc = bars
+        ? Object.assign({}, chMain(mainAt(center(k)), undefined), {x:val('datum.dEnd'), dx:{value:5*fs}, align:{value:'left'}, baseline:{value:'middle'}})
+        : Object.assign({}, chMain(mainAt(center(k)), undefined), {y:val('datum.mid'), dy:{value:2*fs}, align:{value:'center'}});
+      marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, enc, {
+        text:{signal: deneb ? "format(datum.dlt,'+"+vNum()+"')" : "datum.dlt==null?'':format(datum.dlt,'+"+vNum()+"')"},
+        fontSize:{value:9.5*fs}, fontWeight:{value:'bold'}, font:{value:'Arial'},
+        fill:[{test:'datum.dlt>=0', value:C.pos}, {value:C.neg}]})}});
+    } else {
+      const w = sl.kind==='ac'?'bold':'normal', col = sl.kind==='ac'?DARK:SUB;
+      const enc = bars
+        ? Object.assign({}, chMain(mainAt(center(k)),undefined), {x:val('datum.'+sl.vfield), dx:{value:5*fs}, align:{value:'left'}, baseline:{value:'middle'}})
+        : Object.assign({}, chMain(mainAt(center(k)),undefined), {y:val('datum.'+sl.vfield), dy:{value:-5*fs}, align:{value:'center'}, baseline:{value:'bottom'}});
+      marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, enc, {
+        text:{signal: deneb ? "format(datum."+sl.vfield+",'"+vNum()+"')" : "datum."+sl.vfield+"==null?'':format(datum."+sl.vfield+",'"+vNum()+"')"},
+        fontSize:{value:9.5*fs}, fontWeight:{value:w}, font:{value:'Arial'}, fill:{value:col}})}});
+    }
+  });
+  /* Achsen-/Zeilen-Beschriftung */
+  if(!noLabels) slots.forEach((sl,k)=>{
+    const lab = sl.kind==='delta'?'Δ':sl.code;
+    if(bars) marks.push({type:'text', from:{data:'all'}, encode:{update:{x:{signal:'datum.gx+6*sc'}, y:mainAt(center(k)), align:{value:'left'}, baseline:{value:'middle'}, fontSize:{value:9*fs}, font:{value:'Arial'}, fill:{value:SUB}, text:{value:lab}}}});
+    else marks.push({type:'text', from:{data:'all'}, encode:{update:{x:mainAt(center(k)), y:{signal:'datum.gy+'+(Hc-6)+'*sc'}, align:{value:'center'}, fontSize:{value:9*fs}, font:{value:'Arial'}, fill:{value:SUB}, text:{value:lab}}}});
+  });
+  /* 2. Referenz als Niveau-Marke (nur wenn nicht Mehr-Szenarien) */
+  if(!multi && hasR2){
+    const sR2 = vScen(state.reference2), r2col = sR2.stroke || sR2.fill || DARK, cAc = center(iAc), half = barThick/2;
+    marks.push({type:'rule', from:{data:'all'}, encode:{update:Object.assign({}, chSpan(val('datum.r2'),undefined), chMain(mainAt(cAc-half-3), mainAt(cAc+half+3)), {stroke:{value:r2col}, strokeWidth:{value:1.4}, strokeDash: sR2.dash?{value:sR2.dash}:undefined})}});
+    if(!noLabels){
+      const enc = bars
+        ? Object.assign({}, chMain(mainAt(cAc),undefined), {x:val('datum.r2'), dy:{value:-(half+4)*fs}, align:{value:'center'}, baseline:{value:'bottom'}})
+        : Object.assign({}, chMain(mainAt(cAc),undefined), {y:val('datum.r2'), dx:{value:(half+5)*fs}, align:{value:'left'}, baseline:{value:'middle'}});
+      marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, enc, {fontSize:{value:8*fs}, font:{value:'Arial'}, fill:{value:SUB}, text:{value:state.reference2}})}});
+    }
+  }
+  /* Hero-AC + Δ%-Pille + FC-Kennung */
+  const pillW = 58, pillR = Wc-8, pillL = pillR-pillW;
+  marks.push({type:'text', from:{data:'all'}, encode:{update:{
+    x:{signal:'datum.gx+4*sc'}, y:{signal:'datum.gy+8*sc'}, align:{value:'left'}, baseline:{value:'top'},
+    fontSize:{value:22*fs}, fontWeight:{value:'bold'}, font:{value:'Arial'}, fill:{value:DARK},
+    text:{signal: deneb ? "format(datum.p,'"+vNum()+"')" : "datum.p==null?'':format(datum.p,'"+vNum()+"')"}}}});
+  marks.push({type:'rect', from:{data:'all'},
+    encode:{update:{
+      x:{signal:'datum.gx+'+pillL+'*sc'}, x2:{signal:'datum.gx+'+pillR+'*sc'},
+      y:{signal:'datum.gy+11*sc'}, y2:{signal:'datum.gy+27*sc'}, cornerRadius:{value:8},
+      opacity:{signal:'datum.rv==null?0:1'},
+      fill:[{test:'datum.dlt>=0', value:C.pos}, {value:C.neg}]}}});
+  marks.push({type:'text', from:{data:'all'}, encode:{update:{
+    x:{signal:'datum.gx+'+((pillL+pillR)/2)+'*sc'}, y:{signal:'datum.gy+19.5*sc'}, align:{value:'center'}, baseline:{value:'middle'},
+    fontSize:{value:9.5*fs}, fontWeight:{value:'bold'}, font:{value:'Arial'}, fill:{value:'#ffffff'},
+    opacity:{signal:'datum.rv==null?0:1'}, text:{field:'Lpill'}}}});
+  marks.push({type:'text', from:{data:'all'}, encode:{update:{
+    x:{signal:'datum.gx+4*sc'}, y:{signal:'datum.gy+32*sc'}, align:{value:'left'}, baseline:{value:'top'},
+    fontSize:{value:9.5*fs}, font:{value:'Arial'}, fill:{value:SUB},
+    opacity:{signal:'datum.fc?1:0'}, text:{value:'FC'}}}});
+  return { $schema:'https://vega.github.io/schema/vega/v5.json',
+    description:'IBCS-KPI-Brücke · Raw-Vega (container-responsiv, interaktiv)',
+    padding:8, autosize:{type:'none'}, signals, data, scales, marks };
+}
+/* KPI „Status": große Kennzahl (rot/grün eingefärbt) + bis zu 2 Abweichungszeilen (▲/▼ Δ% · Δ · vs Code) */
+function rvKpiStatusSpec(deneb){
+  const C = varColors();
+  const noLabels = !!state.kpiNoLabels;
+  const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
+  const fs = state.fontScale||1;
+  const W = 196;
+  let y = 78;
+  if(hasR1) y += 26;
+  if(hasR2) y += 22;
+  const H = y-8;
+  const nCols = 3, gap = 14;
+  const FK = rvKpiPh('dim',deneb), FP = rvKpiPh('p',deneb), FR = rvKpiPh('r',deneb), FR2 = rvKpiPh('r2',deneb), FFC = rvKpiPh('fc',deneb);
+  const tf = [
+    {type:'formula', expr:'datum.'+FK, as:'k'},
+    {type:'formula', expr:'datum.'+FP, as:'p'},
+  ];
+  if(hasR1) tf.push({type:'formula', expr:'datum.'+FR, as:'r'});
+  if(hasR2) tf.push({type:'formula', expr:'datum.'+FR2, as:'r2'});
+  tf.push({type:'formula', expr:'toBoolean(datum.'+FFC+')', as:'fc'});
+  if(hasR1) tf.push(
+    {type:'formula', expr:'datum.r==null||datum.p==null?null:datum.p-datum.r', as:'d1'},
+    {type:'formula', expr:'datum.r>0?(datum.p-datum.r)/datum.r*100:null', as:'rv1'},
+    {type:'formula', expr:"datum.d1==null?'':(datum.d1>=0?'▲':'▼')", as:'T1'}
+  );
+  if(hasR2) tf.push(
+    {type:'formula', expr:'datum.r2==null||datum.p==null?null:datum.p-datum.r2', as:'d2'},
+    {type:'formula', expr:'datum.r2>0?(datum.p-datum.r2)/datum.r2*100:null', as:'rv2'},
+    {type:'formula', expr:"datum.d2==null?'':(datum.d2>=0?'▲':'▼')", as:'T2'}
+  );
+  tf.push(...rvKpiGridTransform());
+  const rowsAR = activeRows();
+  const seed = rowsAR.map(r=>({k:r.c, p:isNaN(r.v1)?null:r.v1, r:isNaN(r.v2)?null:r.v2, r2:isNaN(r.v3)?null:r.v3, fc:r.fc?1:0}));
+  const data = [
+    {name:'dataset', ...(deneb?{}:{values: seed})},
+    {name:'all', source:'dataset', transform:tf}
+  ];
+  const signals = rvKpiGridSignals(nCols, W, H, gap);
+  const marks = [rvKpiCardFrame()];
+  const at = (px,py) => ({x:{signal:'datum.gx+('+px+')*sc'}, y:{signal:'datum.gy+('+py+')*sc'}});
+  /* Hero-Kennzahl: rot/grün wenn Referenz 1 vorhanden, sonst dunkelgrau */
+  marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, at(14,50), {
+    align:{value:'left'}, fontSize:{value:30*fs}, fontWeight:{value:'bold'}, font:{value:'Arial'},
+    fill: hasR1 ? [{test:'datum.d1>=0', value:C.pos}, {value:C.neg}] : {value:DARK},
+    text:{signal: deneb ? "format(datum.p,'"+vNum()+"')" : "datum.p==null?'':format(datum.p,'"+vNum()+"')"}})}});
+  marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, at(196,16), {
+    align:{value:'right'}, fontSize:{value:9.5*fs}, font:{value:'Arial'}, fill:{value:SUB},
+    opacity:{signal:'datum.fc?1:0'}, text:{value:'FC'}})}});
+  const devRow = (dF,rvF,TF,code,py)=>{
+    const col = [{test:'datum.'+dF+'>=0', value:C.pos}, {value:C.neg}];
+    marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, at(14,py), {
+      align:{value:'left'}, fontSize:{value:12*fs}, fontWeight:{value:'bold'}, font:{value:'Arial'}, fill:col, text:{field:TF}})}});
+    marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, at(28,py), {
+      align:{value:'left'}, fontSize:{value:13*fs}, fontWeight:{value:'bold'}, font:{value:'Arial'}, fill:col,
+      text:{signal: deneb ? "format(datum."+rvF+",'+.1f')" : "datum."+rvF+"==null?'n.a.':format(datum."+rvF+",'+.1f')"}})}});
+    if(!noLabels){
+      marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, at(92,py), {
+        align:{value:'left'}, fontSize:{value:11.5*fs}, fontWeight:{value:'bold'}, font:{value:'Arial'}, fill:col,
+        text:{signal: deneb ? "format(datum."+dF+",'+"+vNum()+"')" : "datum."+dF+"==null?'':format(datum."+dF+",'+"+vNum()+"')"}})}});
+      marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, at(196,py), {
+        align:{value:'right'}, fontSize:{value:9.5*fs}, font:{value:'Arial'}, fill:{value:SUB}, text:{value:'vs '+code}})}});
+    }
+  };
+  let yy=78;
+  if(hasR1){ devRow('d1','rv1','T1',state.reference,yy); yy+=26; }
+  if(hasR2){ devRow('d2','rv2','T2',state.reference2,yy); yy+=22; }
+  return { $schema:'https://vega.github.io/schema/vega/v5.json',
+    description:'IBCS-KPI-Status · Raw-Vega (container-responsiv)',
+    padding:8, autosize:{type:'none'}, signals, data, marks };
+}
+/* KPI „Trend": Sparkline-Trellis je KPI (Tageslinie gestrichelt + 5-Tage-Ø
+   solide + Ø-Basislinie, Diamant-Marker jeden 3. Tag; Hero-Letztwert + Δ-heute).
+   Braucht – anders als Status/Brücke – echte Vega-Gruppen (mehrere Tages-
+   zeilen je Karte), Hero/Legende bleiben aber einfache Marks je Karte
+   (from:'keys', ein Wert je Serie). */
+function rvKpiTrendSpec(deneb){
+  const C = varColors();
+  const noLabels = !!state.kpiNoLabels;
+  const fs = state.fontScale||1;
+  const nCols = Math.min(3, Math.max(1, state.series.length||1));
+  const W = 240, H = 96, gap = 14;
+  const FDIM = rvKpiPh('dim',deneb), FSERIE = rvKpiPh('serie',deneb), FV = rvKpiPh('v',deneb);
+  const allTf = [
+    {type:'formula', expr:'datum.'+FDIM, as:'dim'},
+    {type:'formula', expr:'datum.'+FSERIE, as:'serie'},
+    {type:'formula', expr:'datum.'+FV, as:'v'},
+  ];
+  if(deneb) allTf.push({type:'window', groupby:['serie'], ops:['row_number'], as:['_idx0']}, {type:'formula', expr:'datum._idx0-1', as:'_idx'});
+  else allTf.push({type:'formula', expr:'datum._idx', as:'_idx'});
+  allTf.push(
+    {type:'joinaggregate', groupby:['serie'], fields:['_idx'], ops:['max'], as:['_mx']},
+    {type:'window', groupby:['serie'], sort:{field:'_idx'}, ops:['mean'], fields:['v'], as:['_avg'], frame:[-4,0]},
+    {type:'window', groupby:['serie'], sort:{field:'_idx'}, ops:['lag'], fields:['v'], as:['_prev']},
+    {type:'formula', expr:'datum._prev==null?null:datum.v-datum._prev', as:'_td'},
+    {type:'formula', expr:"datum._td==null?'':((datum._td>=0?'↗ ':'↘ ')+format(datum._td,'+"+vNum()+"'))", as:'_tdL'},
+    {type:'joinaggregate', groupby:['serie'], fields:['v','v','_avg','_avg'], ops:['min','max','min','max'], as:['_vMin','_vMax','_aMin','_aMax']},
+    {type:'formula', expr:'min(datum._vMin,datum._aMin)', as:'_lo'},
+    {type:'formula', expr:'max(datum._vMax,datum._aMax)', as:'_hi'}
+  );
+  const keysTf = [
+    {type:'aggregate', groupby:['serie'], fields:['_idx'], ops:['argmax'], as:['_last']},
+    {type:'formula', expr:'datum._last.v', as:'v'},
+    {type:'formula', expr:'datum._last._td', as:'_td'},
+    {type:'formula', expr:'datum._last._tdL', as:'_tdL'},
+  ];
+  keysTf.push(...rvKpiGridTransform());
+  const rowsSrc = state.srows.filter(r=>r.c!=='');
+  const seed = [];
+  rowsSrc.forEach((r,i)=> state.series.forEach(nm=>{ const j=state.series.indexOf(nm); if(!isNaN(r.v[j])) seed.push({dim:r.c, serie:nm, _idx:i, v:r.v[j]}); }));
+  const data = [
+    {name:'dataset', ...(deneb?{}:{values: seed})},
+    {name:'all', source:'dataset', transform:allTf},
+    {name:'keys', source:'all', transform:keysTf},
+    {name:'allG', source:'all', transform:[{type:'lookup', from:'keys', key:'serie', fields:['serie'], values:['gx','gy'], as:['gx','gy']}]},
+  ];
+  const signals = rvKpiGridSignals(nCols, W, H, gap, 'keys');
+  const at = (px,py) => ({x:{signal:'datum.gx+('+px+')*sc'}, y:{signal:'datum.gy+('+py+')*sc'}});
+  const marks = [];
+  /* Kartenrahmen + Hero/Legende: ein Datensatz je Karte (from:'keys') */
+  marks.push({type:'rect', from:{data:'keys'}, encode:{update:{
+    x:{signal:'datum.gx'}, y:{signal:'datum.gy'}, width:{signal:'cardW'}, height:{signal:'cardH'},
+    cornerRadius:{value:6}, fill:{value:'#ffffff'}, stroke:{value:'#e3e1dc'}, strokeWidth:{value:1}}}});
+  marks.push({type:'text', from:{data:'keys'}, encode:{update:Object.assign({}, at(4,6), {
+    align:{value:'left'}, baseline:{value:'top'}, fontSize:{value:22*fs}, fontWeight:{value:'bold'}, font:{value:'Arial'}, fill:{value:DARK},
+    text:{signal: deneb ? "format(datum.v,'"+vNum()+"')" : "datum.v==null?'':format(datum.v,'"+vNum()+"')"}})}});
+  marks.push({type:'text', from:{data:'keys'}, encode:{update:Object.assign({}, at(236,8), {
+    align:{value:'right'}, baseline:{value:'top'}, fontSize:{value:11*fs}, fontWeight:{value:'bold'}, font:{value:'Arial'},
+    fill:[{test:'datum._td>=0', value:C.pos}, {value:C.neg}], text:{field:'_tdL'}})}});
+  if(!noLabels){
+    marks.push({type:'text', from:{data:'keys'}, encode:{update:Object.assign({}, at(4,22), {align:{value:'left'}, baseline:{value:'top'}, fontSize:{value:8*fs}, font:{value:'Arial'}, fill:{value:SUB}, text:{value:CL('Last30')}})}});
+    marks.push({type:'rule', from:{data:'keys'}, encode:{update:Object.assign({}, at(150,22), {x2:{signal:'datum.gx+164*sc'}, strokeWidth:{value:1.8}, stroke:{value:DARK}})}});
+    marks.push({type:'text', from:{data:'keys'}, encode:{update:Object.assign({}, at(168,22), {align:{value:'left'}, baseline:{value:'top'}, fontSize:{value:8*fs}, font:{value:'Arial'}, fill:{value:SUB}, text:{value:CL('Avg5')}})}});
+    marks.push({type:'rule', from:{data:'keys'}, encode:{update:Object.assign({}, at(195,22), {x2:{signal:'datum.gx+209*sc'}, strokeWidth:{value:1.2}, strokeDash:{value:[4,2]}, stroke:{value:KPI_PINK}})}});
+    marks.push({type:'text', from:{data:'keys'}, encode:{update:Object.assign({}, at(213,22), {align:{value:'left'}, baseline:{value:'top'}, fontSize:{value:8*fs}, font:{value:'Arial'}, fill:{value:SUB}, text:{value:CL('Daily')}})}});
+  }
+  /* Tagesreihe je Karte: echte Vega-Gruppe (facettiert nach 'serie'), sonst
+     würde eine einzelne Linie/Punkt-Mark alle Karten durchgehend verbinden. */
+  /* Plotfläche unterhalb der Legende (y 30..88 im Karten-Koordinatensystem) */
+  const yExpr = f => "(datum.gy + (88 - (datum."+f+"-datum._lo)/((datum._hi-datum._lo)==0?1:(datum._hi-datum._lo))*(88-30))*sc)";
+  const xExpr = "(datum.gx + (4 + (datum._idx/(datum._mx==0?1:datum._mx))*232)*sc)";
+  marks.push({type:'group', encode:{update:{x:{value:0}, y:{value:0}, width:{signal:'width'}, height:{signal:'height'}}},
+    from:{facet:{data:'allG', name:'facetT', groupby:['serie']}},
+    marks:[
+      {type:'rule', from:{data:'facetT'}, encode:{update:{
+        x:{signal:xExpr}, x2:{signal:xExpr}, y:{signal:'(datum.gy + (88 - (((datum._lo+datum._hi)/2)-datum._lo)/((datum._hi-datum._lo)==0?1:(datum._hi-datum._lo))*(88-30))*sc)'},
+        strokeDash:{value:[3,3]}, stroke:{value:'#d7d5d0'}}}},
+      {type:'line', from:{data:'facetT'}, encode:{update:{
+        x:{signal:xExpr}, y:{signal:yExpr('v')}, stroke:{value:KPI_PINK}, strokeWidth:{value:1.2*fs}, strokeDash:{value:[4,2]}}}},
+      {type:'symbol', from:{data:'facetT'}, encode:{update:{
+        x:{signal:xExpr}, y:{signal:yExpr('v')}, shape:{value:'diamond'}, size:{value:20*fs}, fill:{value:KPI_PINK},
+        opacity:{signal:'datum._idx%3===0?1:0'}}}},
+      {type:'line', from:{data:'facetT'}, encode:{update:{
+        x:{signal:xExpr}, y:{signal:yExpr('_avg')}, stroke:{value:DARK}, strokeWidth:{value:1.8*fs}}}},
+    ]});
+  return { $schema:'https://vega.github.io/schema/vega/v5.json',
+    description:'IBCS-KPI-Trend · Raw-Vega (container-responsiv, Sparkline-Trellis)',
+    padding:8, autosize:{type:'none'}, signals, data, marks };
+}
+/* KPI „ibcs" (Standard): Hero + optionaler Zielerreichungs-Balken (Plan/Budget)
+   + bis zu 2 Abweichungszeilen mit Mini-Achse, Δ%-Pin und gefüllter Pille.
+   Polarity (günstig hängt von der Kategorie ab) wird wie im VL-Original als
+   Literalliste der Kategorienamen gebacken (Design-Entscheidung, kein Live-Feld). */
+function rvKpiIbcsSpec(deneb){
+  const C = varColors();
+  const noLabels = !!state.kpiNoLabels;
+  const hasR1 = state.reference!=='—', hasR2 = state.reference2!=='—';
+  const fs = state.fontScale||1;
+  const rowsAR = activeRows();
+  const lowerCats = rowsAR.filter(r=>r.polarity==='lower').map(r=>r.c);
+  let planRef = null;
+  if(hasR1 && (state.reference==='PL'||state.reference==='BU')) planRef = {code:state.reference, refField:'r'};
+  else if(hasR2 && (state.reference2==='PL'||state.reference2==='BU')) planRef = {code:state.reference2, refField:'r2'};
+  const W = 176;
+  let y = 56;
+  if(planRef) y += 17;
+  if(hasR1) y += 22;
+  if(hasR2) y += 22;
+  const H = y-14;
+  const nCols = 3, gap = 14;
+  const FK = rvKpiPh('dim',deneb), FP = rvKpiPh('p',deneb), FR = rvKpiPh('r',deneb), FR2 = rvKpiPh('r2',deneb), FFC = rvKpiPh('fc',deneb);
+  const tf = [
+    {type:'formula', expr:'datum.'+FK, as:'k'},
+    {type:'formula', expr:'datum.'+FP, as:'p'},
+  ];
+  if(hasR1) tf.push({type:'formula', expr:'datum.'+FR, as:'r'});
+  if(hasR2) tf.push({type:'formula', expr:'datum.'+FR2, as:'r2'});
+  tf.push({type:'formula', expr:'toBoolean(datum.'+FFC+')', as:'fc'});
+  tf.push({type:'formula', expr:'indexof('+JSON.stringify(lowerCats)+', datum.k) >= 0', as:'pol'});
+  if(hasR1) tf.push(
+    {type:'formula', expr:'datum.r==null||datum.p==null?null:datum.p-datum.r', as:'d1'},
+    {type:'formula', expr:'datum.r>0?(datum.p-datum.r)/datum.r*100:null', as:'rv1'},
+    {type:'formula', expr:"datum.rv1==null?'':((datum.rv1>=0?'▲ ':'▼ ')+format(datum.rv1,'+.1f')+'%')", as:'Lpill1'}
+  );
+  if(hasR2) tf.push(
+    {type:'formula', expr:'datum.r2==null||datum.p==null?null:datum.p-datum.r2', as:'d2'},
+    {type:'formula', expr:'datum.r2>0?(datum.p-datum.r2)/datum.r2*100:null', as:'rv2'},
+    {type:'formula', expr:"datum.rv2==null?'':((datum.rv2>=0?'▲ ':'▼ ')+format(datum.rv2,'+.1f')+'%')", as:'Lpill2'}
+  );
+  if(planRef) tf.push(
+    {type:'formula', expr:'datum.'+planRef.refField+'>0?datum.p/datum.'+planRef.refField+'*100:null', as:'pct'},
+    {type:'formula', expr:"datum.pct==null?'':(format(datum.pct,'.0f')+' % "+CL('von')+" "+planRef.code+"')", as:'pctLabel'}
+  );
+  tf.push(...rvKpiGridTransform());
+  const rowsSeed = rowsAR.map(r=>({k:r.c, p:isNaN(r.v1)?null:r.v1, r:isNaN(r.v2)?null:r.v2, r2:isNaN(r.v3)?null:r.v3, fc:r.fc?1:0}));
+  const data = [
+    {name:'dataset', ...(deneb?{}:{values: rowsSeed})},
+    {name:'all', source:'dataset', transform:tf}
+  ];
+  const signals = rvKpiGridSignals(nCols, W, H, gap);
+  const scales = [];
+  const pw=52, pr=W-8, pl=pr-pw, pinX=pl-64, pinW=40;
+  if(hasR1) scales.push({name:'pin1', type:'linear', nice:false, domain:{data:'all', field:'rv1'}, range:[{signal:(pinX-pinW/2)+'*sc'},{signal:(pinX+pinW/2)+'*sc'}], clamp:true});
+  if(hasR2) scales.push({name:'pin2', type:'linear', nice:false, domain:{data:'all', field:'rv2'}, range:[{signal:(pinX-pinW/2)+'*sc'},{signal:(pinX+pinW/2)+'*sc'}], clamp:true});
+  const marks = [rvKpiCardFrame()];
+  const at = (px,py) => ({x:{signal:'datum.gx+('+px+')*sc'}, y:{signal:'datum.gy+('+py+')*sc'}});
+  marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, at(2,24), {
+    align:{value:'left'}, fontSize:{value:21*fs}, fontWeight:{value:'bold'}, font:{value:'Arial'}, fill:{value:DARK},
+    text:{signal: deneb ? "format(datum.p,'"+vNum()+"')" : "datum.p==null?'':format(datum.p,'"+vNum()+"')"}})}});
+  marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, at(2,40), {
+    align:{value:'left'}, fontSize:{value:9.5*fs}, font:{value:'Arial'}, fill:{value:SUB},
+    opacity:{signal:'datum.fc?1:0'}, text:{value:'FC'}})}});
+  if(planRef){
+    const barY=48, barH=5, bx0=2, bw=W-12-2;
+    marks.push({type:'rect', from:{data:'all'}, encode:{update:Object.assign({}, at(bx0,barY), {
+      x2:{signal:'datum.gx+'+(bx0+bw)+'*sc'}, y2:{signal:'datum.gy+'+(barY+barH)+'*sc'}, cornerRadius:{value:2.5},
+      opacity:{signal:'datum.pct==null?0:1'}, fill:{value:'#efeeea'}})}});
+    marks.push({type:'rect', from:{data:'all'}, encode:{update:Object.assign({}, at(bx0,barY), {
+      x2:{signal:'(datum.gx+('+bx0+'+clamp(datum.pct==null?0:datum.pct,0,120)/120*'+bw+')*sc)'}, y2:{signal:'datum.gy+'+(barY+barH)+'*sc'},
+      opacity:{signal:'datum.pct==null?0:1'},
+      fill:[{test:'(datum.pol ? datum.pct<=100 : datum.pct>=100)', value:C.pos}, {value:DARK}]})}});
+    marks.push({type:'rule', from:{data:'all'}, encode:{update:Object.assign({}, at(bx0+100/120*bw, barY-2), {
+      y2:{signal:'datum.gy+'+(barY+barH+2)+'*sc'}, strokeWidth:{value:1.2}, stroke:{value:DARK}})}});
+    if(!noLabels) marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, at(W-8, barY+barH+9), {
+      align:{value:'right'}, fontSize:{value:8.5*fs}, font:{value:'Arial'}, fill:{value:SUB},
+      opacity:{signal:'datum.pct==null?0:1'}, text:{field:'pctLabel'}})}});
+  }
+  const refRow = (code, dF, rvF, LpillF, pinScale, py)=>{
+    if(!noLabels) marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, at(2,py), {
+      align:{value:'left'}, fontSize:{value:10*fs}, font:{value:'Arial'}, fill:{value:SUB}, text:{value:'Δ'+code}})}});
+    if(code==='PY'||code==='FC'){
+      marks.push({type:'rect', from:{data:'all'}, encode:{update:{
+        x:{signal:'datum.gx+('+(pinX-1.75)+')*sc'}, width:{signal:'3.5*sc'}, fill:{value:LIGHT},
+        y:{signal:'datum.gy+('+(py-7)+')*sc'}, y2:{signal:'datum.gy+('+(py+7)+')*sc'}}}});
+    } else {
+      marks.push({type:'rule', from:{data:'all'}, encode:{update:{
+        x:{signal:'datum.gx+('+(pinX-1.4)+')*sc'}, strokeWidth:{value:1}, stroke:{value:DARK},
+        y:{signal:'datum.gy+('+(py-7)+')*sc'}, y2:{signal:'datum.gy+('+(py+7)+')*sc'}}}});
+      marks.push({type:'rule', from:{data:'all'}, encode:{update:{
+        x:{signal:'datum.gx+('+(pinX+1.4)+')*sc'}, strokeWidth:{value:1}, stroke:{value:DARK},
+        y:{signal:'datum.gy+('+(py-7)+')*sc'}, y2:{signal:'datum.gy+('+(py+7)+')*sc'}}}});
+    }
+    const pinCol = [{test:'(datum.pol ? datum.'+rvF+'<=0 : datum.'+rvF+'>=0)', value:C.pos}, {value:C.neg}];
+    /* datum.rvF null-sicher an scale() übergeben – sonst rendert Vega buchstäblich
+       "NaN" in die (per opacity:0 unsichtbare) Geometrie, statt einfach 0 zu nehmen */
+    const rvSafe = 'datum.'+rvF+'==null?0:datum.'+rvF;
+    marks.push({type:'rule', from:{data:'all'}, encode:{update:Object.assign({}, at(pinX,py), {
+      x2:{signal:'datum.gx+scale(\''+pinScale+'\','+rvSafe+')'}, y2:{signal:'datum.gy+('+py+')*sc'},
+      strokeWidth:{value:2}, opacity:{signal:'datum.'+rvF+'==null?0:1'}, stroke:pinCol})}});
+    marks.push({type:'symbol', from:{data:'all'}, encode:{update:{
+      x:{signal:'datum.gx+scale(\''+pinScale+'\','+rvSafe+')'}, y:{signal:'datum.gy+('+py+')*sc'},
+      shape:{value:'circle'}, size:{value:24*fs}, opacity:{signal:'datum.'+rvF+'==null?0:1'}, fill:pinCol}}});
+    if(!noLabels) marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, at(pl-8,py), {
+      align:{value:'right'}, fontSize:{value:10*fs}, font:{value:'Arial'}, fill:{value:SUB},
+      text:{signal: deneb ? "format(datum."+dF+",'+"+vNum()+"')" : "datum."+dF+"==null?'':format(datum."+dF+",'+"+vNum()+"')"}})}});
+    const pcy = py-3.5;
+    marks.push({type:'rect', from:{data:'all'}, encode:{update:Object.assign({}, at(pl,pcy-7.5), {
+      x2:{signal:'datum.gx+'+pr+'*sc'}, y2:{signal:'datum.gy+('+(pcy+7.5)+')*sc'}, cornerRadius:{value:8},
+      opacity:{signal:'datum.'+rvF+'==null?0:1'}, fill:pinCol})}});
+    marks.push({type:'text', from:{data:'all'}, encode:{update:Object.assign({}, at((pl+pr)/2,pcy), {
+      align:{value:'center'}, baseline:{value:'middle'}, fontSize:{value:9.5*fs}, fontWeight:{value:'bold'}, font:{value:'Arial'}, fill:{value:'#ffffff'},
+      opacity:{signal:'datum.'+rvF+'==null?0:1'}, text:{field:LpillF}})}});
+  };
+  let yy = 56; if(planRef) yy += 17;
+  if(hasR1){ refRow(state.reference,'d1','rv1','Lpill1','pin1',yy); yy += 22; }
+  if(hasR2){ refRow(state.reference2,'d2','rv2','Lpill2','pin2',yy); yy += 22; }
+  return { $schema:'https://vega.github.io/schema/vega/v5.json',
+    description:'IBCS-KPI · Raw-Vega (container-responsiv, Polarity + Zielbalken)',
+    padding:8, autosize:{type:'none'}, signals, data, scales, marks };
+}
 function vlTableHier(deneb){
   const C = vCol();
   const dimK = tableDimKeys();
@@ -9228,7 +9749,7 @@ function vlTableHier(deneb){
   const dimCols = dimK.map((k,di)=>{
     const leaf = di===dimK.length-1;
     return { title: head('Ebene '+(di+1)), width:78, height:{step:25}, data:vData(vRows(),deneb), transform:baseTf,
-      encoding:{y:yLeaf(null)},
+      encoding:{y:yLeaf(vNoAxis())},
       layer:[ vAnchor(),
         {mark:{type:'text', x:4, align:'left', fontSize:11, font:'Arial', color: di===0?DARK:'#444', fontWeight: di===0?'bold':'normal'},
          encoding:{ text:{field:k, type:'nominal'},
@@ -9236,7 +9757,7 @@ function vlTableHier(deneb){
   });
   const textCol = (lbl, f, labF)=>({
     title: head(lbl), width:62, height:{step:25}, data:vData(vRows(),deneb), transform:baseTf,
-    encoding:{y:yLeaf(null)},
+    encoding:{y:yLeaf(vNoAxis())},
     layer:[ vAnchor(),
       {mark:{type:'text', x:58, align:'right', fontSize:11, font:'Arial', color:DARK},
        encoding:{text:vLab(deneb,f,labF,vNum())}} ]});
@@ -9251,9 +9772,9 @@ function vlTableHier(deneb){
     ]);
     if(t.kind==='abs'){
       children.push({ title: head('Δ'+t.code), width:150, height:{step:25}, data:vData(vRows(),deneb), transform:dtf,
-        encoding:{y:yLeaf(null)},
+        encoding:{y:yLeaf(vNoAxis())},
         layer:[vAnchor()].concat(vRefAxisLayer(t.code,false)).concat([
-          {mark:{type:'bar', size:11}, encoding:{x:{field:fldD,type:'quantitative',axis:null},
+          {mark:{type:'bar', size:11}, encoding:{x:{field:fldD,type:'quantitative',axis:vNoAxis()},
             fill:{condition:{test:'datum.'+fldD+' >= 0', value:C.pos}, value:C.neg}}},
         ]).concat(vSignedText(fldD, vLab(deneb,fldD, t.key==='v3'?'Ld2':'Ld', '+'+vNum()), false,
           {condition:{test:'datum.'+fldD+' >= 0', value:C.pos}, value:C.neg}))});
@@ -9262,11 +9783,11 @@ function vlTableHier(deneb){
       const capRH = relCap(vRows().map(r=>r[fldR]).filter(v=>v!==null && v!==undefined));
       const xScaleRH = isFinite(capRH) ? {domain:[-capRH, capRH], clamp:true} : undefined;
       children.push({ title: head('Δ'+t.code+'%'), width:140, height:{step:25}, data:vData(vRows(),deneb), transform:dtf,
-        encoding:{y:yLeaf(null)},
+        encoding:{y:yLeaf(vNoAxis())},
         layer:[vAnchor()].concat(vRefAxisLayer(t.code,false)).concat([
-          {mark:{type:'rule', strokeWidth:2}, encoding:{x:{field:fldR,type:'quantitative',axis:null, scale:xScaleRH}, x2:{datum:0},
+          {mark:{type:'rule', strokeWidth:2}, encoding:{x:{field:fldR,type:'quantitative',axis:vNoAxis(), scale:xScaleRH}, x2:{datum:0},
             color:{condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}}},
-          {mark:{type:'point', filled:true, size:46}, encoding:{x:{field:fldR,type:'quantitative',axis:null, scale:xScaleRH},
+          {mark:{type:'point', filled:true, size:46}, encoding:{x:{field:fldR,type:'quantitative',axis:vNoAxis(), scale:xScaleRH},
             color:{condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}}},
         ]).concat(vSignedText(fldR, vLab(deneb,fldR, t.key==='v3'?'Lrv2':'Lrv', '+.1f'), false,
           {condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}).map(l=>{ l.mark.dx = l.mark.dx>0 ? 10 : -10; return l; }))});
@@ -9298,10 +9819,10 @@ function vlTable(deneb){
     if(t.kind==='abs'){
       children.push({ title: head('Δ'+t.code), width:150, height:{step:27},
         data:vData(vRows(),deneb), transform:tf,
-        encoding:{y:yCat(null)},
+        encoding:{y:yCat(vNoAxis())},
         layer:[vAnchor()].concat(vRefAxisLayer(t.code, false)).concat([
           {mark:{type:'bar', size:11},
-           encoding:{x:{field:fldD, type:'quantitative', axis:null},
+           encoding:{x:{field:fldD, type:'quantitative', axis:vNoAxis()},
              fill:{condition:{test:'datum.'+fldD+' >= 0', value:C.pos}, value:C.neg}}},
         ]).concat(vSignedText(fldD, vLab(deneb,fldD, t.key==='v3'?'Ld2':'Ld', '+'+vNum()), false,
           {condition:{test:'datum.'+fldD+' >= 0', value:C.pos}, value:C.neg}))});
@@ -9312,13 +9833,13 @@ function vlTable(deneb){
       const xScaleR = isFinite(capR) ? {domain:[-capR, capR], clamp:true} : undefined;
       children.push({ title: head('Δ'+t.code+'%'), width:140, height:{step:27},
         data:vData(vRows(),deneb), transform:tf,
-        encoding:{y:yCat(null)},
+        encoding:{y:yCat(vNoAxis())},
         layer:[vAnchor()].concat(vRefAxisLayer(t.code, false)).concat([
           {mark:{type:'rule', strokeWidth:2},
-           encoding:{x:{field:fldR, type:'quantitative', axis:null, scale:xScaleR}, x2:{datum:0},
+           encoding:{x:{field:fldR, type:'quantitative', axis:vNoAxis(), scale:xScaleR}, x2:{datum:0},
              color:{condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}}},
           {mark:{type:'point', filled:true, size:46},
-           encoding:{x:{field:fldR, type:'quantitative', axis:null, scale:xScaleR},
+           encoding:{x:{field:fldR, type:'quantitative', axis:vNoAxis(), scale:xScaleR},
              color:{condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}}},
         ]).concat(vSignedText(fldR, vLab(deneb,fldR, t.key==='v3'?'Lrv2':'Lrv', '+.1f'), false,
           {condition:{test:'datum.'+fldR+' >= 0', value:C.pos}, value:C.neg}).map(l=>{ l.mark.dx = l.mark.dx>0 ? 10 : -10; return l; }))});
@@ -9331,7 +9852,7 @@ function vegaSpecCore(deneb){
   const t = state.type;
   const tiersOn = (state.showRel || state.showAbs) && state.reference!=='—';
   const wrapTiers = (base)=>{
-    const noCat = {axis:null};
+    const noCat = {axis:vNoAxis()};
     const parts = [];
     if(state.showRel) parts.push(vlRelVar(deneb, {h:95, x:noCat}));
     if(state.showAbs) parts.push(vlAbsVar(deneb, {h:110, x:noCat}));
@@ -9368,7 +9889,7 @@ function vegaSpecCore(deneb){
         return {k:g.c, rv, Lrv: rv===null? '' : fmtPct(rv)};
       });
       const tier = { width:580, height:85, data:{values:tv},
-        encoding:{x:vX({axis:null})},
+        encoding:{x:vX({axis:vNoAxis()})},
         layer:[vAnchor()].concat(vRefAxisLayer(state.reference, true)).concat([
           {mark:{type:'rule', strokeWidth:2},
            encoding:{y:vYq('rv'), y2:{datum:0},
@@ -9498,6 +10019,7 @@ function vegaSpec(deneb){
   /* Raw-Vega-Pfad (interaktiv, kein VL-Wrapping) */
   if(rawVegaTableOn()) return rvTableSpec(deneb);
   if(rawVegaVarOn())   return rvSpecFor(deneb);
+  if(rawVegaKpiOn())   return rvKpiSpecFor(deneb);
   const core = vegaSpecCore(deneb);
   if(!core) return null;
   let body = core.body; const t = core.t;
@@ -9592,7 +10114,7 @@ function serialize(){
       stack100:state.stack100,
       sortDesc:state.sortDesc, showSum:state.showSum, wfVar:state.wfVar, wfOrient:state.wfOrient, wfRefCol:state.wfRefCol,
       bridgeDir:state.bridgeDir, cutSums:state.cutSums, bridgeRel:state.bridgeRel, bridgePY:state.bridgePY, bridgePYlevel:state.bridgePYlevel,
-      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef, tableDims:state.tableDims, rawVega:state.rawVega,
+      showRel:state.showRel, showAbs:state.showAbs, stackAsMulti:state.stackAsMulti, t3auto:state.t3auto, trend:state.trend, varYTD:state.varYTD, varRefCols:state.varRefCols, treeJson:state.treeJson, grpFacet:state.grpFacet, grpScale:state.grpScale, zMonthCol:state.zMonthCol, zMonthRef:state.zMonthRef, tableDims:state.tableDims, rawVega:state.rawVega, rawVegaTouched:state.rawVegaTouched,
       lineAllLabels:state.lineAllLabels, topN:state.topN, hlMode:state.hlMode, refStyle:state.refStyle,
       scaleBand:state.scaleBand, xTitle:state.xTitle, yTitle:state.yTitle, msg:state.msg, source:state.source, refLine:state.refLine,
       multiMode:state.multiMode, multiCols:state.multiCols, multiScale:state.multiScale, collineSwap:state.collineSwap, collineAxis:state.collineAxis, facetField:state.facetField, facetCols:state.facetCols, scatterFacet:state.scatterFacet, scatterCols:state.scatterCols, scatterReg:state.scatterReg, fields:state.fields, kombiBase:state.kombiBase, lineFill:state.lineFill, lineIndex:state.lineIndex, kpiStyle:state.kpiStyle, kpiBars:state.kpiBars, kpiMultiScen:state.kpiMultiScen, kpiSingle:state.kpiSingle, kpiNoTitle:state.kpiNoTitle, kpiNoLabels:state.kpiNoLabels, noFC:state.noFC, fontScale:state.fontScale, fromType:state.fromType,
