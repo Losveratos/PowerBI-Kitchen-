@@ -4,9 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title data-i18n="pageTitle">KI-Token → CO₂ & Energie Simulator</title>
+<meta name="description" content="Simulator für den Energie- und CO₂-Fußabdruck der KI-Nutzung im Unternehmen — editierbare Min–Max-Annahmen, DE/EN, ohne Server-Anbindung.">
+<meta property="og:title" content="KI-Token → CO₂ & Energie Simulator">
+<meta property="og:description" content="Wie viel CO₂ steckt in einem Token? Simulator für den Energie- und CO₂-Fußabdruck der KI-Nutzung im Unternehmen.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/ki-co2-simulator.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="KI-Token → CO₂ & Energie Simulator">
+<meta name="twitter:description" content="Simulator für den Energie- und CO₂-Fußabdruck der KI-Nutzung im Unternehmen.">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/ki-co2-simulator.html">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
-
 :root{
   --paper:#F1EEE5; --paper-2:#E7E2D4; --ink:#23261F; --ink-soft:#5B5D52;
   --panel:#1B2027; --panel-2:#242B33; --line:#D8D2C0; --line-dark:#38414C;
@@ -56,6 +67,7 @@ h1{font-family:'Space Grotesk',sans-serif;font-size:32px;line-height:1.15;margin
 .gauge-real{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#8FB4E8;margin-top:4px;}
 .gauge-compare{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#C7CDD3;margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;}
 .gauge-compare b{color:var(--energy-soft);font-weight:600;}
+.gauge-note{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#9AA3AD;margin-top:8px;line-height:1.5;max-width:520px;}
 .gauge-bar{flex:2 1 320px;}
 .gauge-track{position:relative;height:10px;background:#0F1318;border-radius:6px;overflow:hidden;margin-top:8px;}
 .gauge-fill{position:absolute;top:0;bottom:0;left:0;right:0;background:linear-gradient(90deg,var(--min),var(--energy),var(--max));border-radius:6px;}
@@ -195,6 +207,7 @@ td.mono{font-family:'IBM Plex Mono',monospace;}
 
 footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-soft);line-height:1.7;}
 footer b{color:var(--ink);}
+.footer-version{margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);}
 </style>
 </head>
 <body>
@@ -214,6 +227,7 @@ footer b{color:var(--ink);}
     <button class="btn" id="btn-reset" data-i18n="btnReset">↺ Auf Standard zurücksetzen</button>
     <button class="btn dark" id="btn-share" data-i18n="btnShare">🔗 Einstellungen exportieren</button>
     <button class="btn dark" id="btn-share-png" data-i18n="btnSharePng">📷 Ergebnis als Bild teilen</button>
+    <button class="btn dark" id="btn-export-csv" data-i18n="btnExportCsv">📊 CSV exportieren</button>
     <div class="lang-toggle">
       <button class="lang-btn" id="lang-de" data-lang="de" aria-label="Deutsch">🇩🇪 DE</button>
       <button class="lang-btn" id="lang-en" data-lang="en" aria-label="English">🇬🇧 EN</button>
@@ -244,6 +258,7 @@ footer b{color:var(--ink);}
       <div class="gauge-label" data-i18n="gaugeLabel">Unternehmen · CO₂ pro Jahr</div>
       <div class="gauge-value" id="g-total">–<small>kg CO₂e</small></div>
       <div class="gauge-range" id="g-total-range"></div>
+      <div class="gauge-note" id="g-band-note" data-i18n="gaugeBandNote"></div>
       <div class="gauge-real" id="g-real" style="display:none;"></div>
       <div class="gauge-compare" id="g-compare"></div>
     </div>
@@ -362,6 +377,7 @@ footer b{color:var(--ink);}
     </div>
     <div id="sens-chart" style="margin-top:10px;"></div>
     <div class="sens-insight" id="sens-insight"></div>
+    <div class="sens-insight" id="sens-action" style="margin-top:8px;"></div>
   </div>
 
   <div class="card" style="margin-bottom:24px;">
@@ -437,6 +453,7 @@ footer b{color:var(--ink);}
       <tbody id="appendix-table"></tbody>
     </table>
     <div class="appendix-note" id="appendix-note"></div>
+    <div class="appendix-note" id="scope-note" data-i18n-html="scopeNoteHtml" style="margin-top:12px;"></div>
   </div>
 
   <footer id="footer"></footer>
@@ -448,6 +465,9 @@ let currentLang = 'de';
 const fmt = (n,d=2) => Number(n).toLocaleString(currentLang==='de'?'de-DE':'en-US',{maximumFractionDigits:d,minimumFractionDigits:0});
 const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const PALETTE = ['#6FA96B','#D98A3D','#C4573A','#3E9C8F','#8B6BAF','#4C7DBF','#B7943B','#7C8791'];
+const METHOD_VERSION = '1.1';
+const METHOD_LAST_UPDATED = {de:'3. Juli 2026', en:'July 3, 2026'};
+const SENS_ACTION_KEYS = {model:'sensActionModel', pue:'sensActionPue', grid:'sensActionGrid', volume:'sensActionVolume'};
 
 /* ================= i18n ================= */
 const I18N = {
@@ -457,13 +477,14 @@ const I18N = {
     eyebrow:'Modellhafte Schätzung · ESG-Vorbereitung',
     title:'Wie viel CO₂ steckt in einem Token?',
     subtitle:'Simulator für den Energie- und CO₂-Fußabdruck der KI-Nutzung im Unternehmen — pro Token, pro 1.000 Tokens, pro Mitarbeiter und Jahr, und für die gesamte Organisation. Alle Annahmen sind editierbar und werden als Min–Max-Band ausgewiesen.',
-    btnReset:'↺ Auf Standard zurücksetzen', btnShare:'🔗 Einstellungen exportieren', btnSharePng:'📷 Ergebnis als Bild teilen', btnApply:'Übernehmen',
+    btnReset:'↺ Auf Standard zurücksetzen', btnShare:'🔗 Einstellungen exportieren', btnSharePng:'📷 Ergebnis als Bild teilen', btnExportCsv:'📊 CSV exportieren', btnApply:'Übernehmen',
     shareLabel:'Code zum Teilen', importLabel:'Code einfügen', importPh:'Code oder Link einfügen…',
     ioHint:'Der Code enthält ausschließlich eure Einstellungen — es wird nichts an einen Server gesendet.',
     toastReset:'Auf Standardwerte zurückgesetzt.', toastCopied:'Code kopiert!',
     toastGenerated:'Code erzeugt — bitte manuell kopieren.', toastApplied:'Einstellungen übernommen.',
     toastInvalid:'Ungültiger Code.', toastEmptyImport:'Bitte zuerst einen Code einfügen.',
-    toastGroupRemoved:'Gruppe entfernt', undoBtn:'Rückgängig',
+    toastGroupRemoved:'Gruppe entfernt', undoBtn:'Rückgängig', toastCsvSaved:'CSV gespeichert — bereit zum Teilen.',
+    confirmReset:'Wirklich alle Einstellungen auf die Standardwerte zurücksetzen? Eigene Gruppen und Anpassungen gehen verloren.',
     gaugeLabel:'Unternehmen · CO₂ pro Jahr', gaugeEnergy:'Energie / Jahr', gaugePerDay:'Ø pro Mitarbeiter/Tag', gaugeHeads:'Aktive Mitarbeiter',
     gaugeOffsetPriceLabel:'Kompensationspreis (€/t CO₂)', gaugeOffsetCostLabel:'Kompensation / Jahr',
     offsetPriceMinAria:'Kompensationspreis Minimum in Euro pro Tonne CO₂', offsetPriceMaxAria:'Kompensationspreis Maximum in Euro pro Tonne CO₂',
@@ -471,6 +492,7 @@ const I18N = {
     gaugeCompareTemplate:'🚗 <b>{km} Auto-km</b>  ·  🛫 <b>{flight} Flug-km</b>',
     shareLabelCar:'Auto-km', shareLabelFlight:'Flug-km', shareLabelTrees:'Bäume/Jahr',
     bestCase:'Best Case', worstCase:'Worst Case', gaugeRealPrefix:'📏 Realwert (eigene Messung):', perYearSuffix:'kg CO₂e/Jahr',
+    gaugeBandNote:'Hinweis: Die Min–Max-Spanne kombiniert die veröffentlichten Extremwerte aller Annahmen — sie ist eine Bandbreite möglicher Szenarien, kein statistisches Konfidenzintervall.',
     tickMin:'min', tickMax:'max',
     quickstartTitle:'Schnellstart: Beispiel-Unternehmen', quickstartHint:'Ein Klick setzt Mitarbeitergruppen und Modell-Preset als Ausgangspunkt — danach beliebig anpassen.',
     qsBoutique:'Kleine Beratung (~50 MA)', qsMid:'Mittelstand (~500 MA)', qsEnterprise:'Konzern / Tech (~5.000 MA)', qsDev:'Software-Team, intensiv (~80 MA)',
@@ -503,6 +525,10 @@ const I18N = {
     sensModel:'Modell-Energie', sensPue:'Rechenzentrum (PUE)', sensGrid:'Strommix', sensVolume:'Nutzungsvolumen',
     sensVolumeLabel:'Unsicherheit Nutzungsvolumen (±%)', sensVolumeHint:'Nur für diese Analyse: Wie stark könnte euer geschätztes Tokenvolumen abweichen?',
     sensBaseline:'Referenz', sensSpan:'Spanne', sensBiggest:'größter Hebel',
+    sensActionModel:'💡 Größter Hebel: Ein effizienteres Modell für Vielnutzer (z. B. Sonnet- statt Opus-Klasse) senkt den Energieverbrauch pro Token am stärksten.',
+    sensActionPue:'💡 Größter Hebel: Fragt euren Cloud-/Rechenzentrumsanbieter nach dessen PUE-Wert bzw. wählt Regionen/Anbieter mit effizienterer Kühlung.',
+    sensActionGrid:'💡 Größter Hebel: Rechenzentrums-Regionen mit CO₂-ärmerem Strommix (hoher Anteil erneuerbarer Energien) oder eine Grünstrom-PPA des Anbieters wirken hier am stärksten.',
+    sensActionVolume:'💡 Größter Hebel: Das Nutzungsvolumen selbst hat den größten Einfluss — Guidelines für sinnvolle KI-Nutzung (kürzere Prompts, Caching, Batch-Verarbeitung) wirken hier am stärksten.',
     sensInsightTemplate:'{label} beeinflusst das Jahresergebnis am stärksten (Spanne: {span} kg um die Referenz von {baseline} kg) — hier liegt der wirksamste Hebel.',
     matTitle:'Materialität: Wie groß ist das im Vergleich?',
     matHint:'Ordnet die KI-Emissionen in euren Gesamt-Fußabdruck ein — eine zentrale Frage jeder Wesentlichkeitsanalyse.',
@@ -533,7 +559,9 @@ const I18N = {
     appendixIntro:'Alle Basisannahmen dieses Simulators stützen sich auf öffentlich verfügbare Studien und Datensätze (Stand 2025/26). Da Methodik und Messgrenzen zwischen Quellen variieren, dienen die Zahlen als Orientierung, nicht als exakte Messung eurer eigenen KI-Nutzung. Für belastbares ESG-Reporting nach Möglichkeit anbieterspezifische bzw. gemessene Werte verwenden (siehe „Reale Nutzungsdaten" oben).',
     apColParam:'Parameter', apColRange:'Genutzter Bereich', apColSource:'Quelle & Begründung',
     appendixNote:'Hinweis: Außer Google hat bislang (Stand Anfang 2026) kein großer KI-Anbieter — etwa OpenAI oder Anthropic — eine vergleichbar detaillierte Pro-Prompt-Methodik für Energie/CO₂ veröffentlicht. Die Modell-Tiers in diesem Tool sind daher eine Größenordnungs-Ableitung aus den verfügbaren Einzeldatenpunkten, keine anbieterbestätigten Werte. Die Sensitivitäts- und Projektions-Regler (Nutzungsunsicherheit, Effizienz-/Wachstumsraten) sind explizit einstellbare Was-wäre-wenn-Hebel und keine Prognosen — daher nicht Teil dieser Quellenliste.',
-    footerMethod:'<b>Methodik:</b> Energie pro Token = Basiswert für Output-Tokens (editierbar) × Anteil Output/Input, geteilt durch das Output:Input-Verhältnis für Input-Tokens; multipliziert mit dem PUE-Faktor ergibt den Netzbezug; multipliziert mit der CO₂-Intensität des Strommixes ergibt die CO₂e-Emission. Min- und Max-Szenario kombinieren jeweils alle unteren bzw. alle oberen Annahmen. Der Jahresverlauf nimmt eine gleichmäßige Verteilung der Nutzung über das Jahr an. Alle Zahlen sind <b>grobe Orientierungswerte</b> — Quellen siehe Anhang oben. Über „Einstellungen exportieren" lässt sich der aktuelle Parametersatz inkl. gespeicherter Szenarien als Code mit Kollegen teilen (die Daten sind im Code selbst kodiert, es werden keine Daten an einen Server gesendet).'
+    scopeNoteHtml:'<span class="appendix-note-icon">🚫</span>Was dieses Modell <b>nicht</b> abdeckt: Embodied Carbon der Hardware (Herstellung/Entsorgung von GPUs & Rechenzentren), das Training der Modelle (geschätzt wird nur die Inferenz/Nutzung), Netzwerk- und Endgeräte-Energie sowie eine explizite Zuordnung zu GHG-Protocol Scope 1/2/3. Für eine vollständige CSRD-Bilanzierung diese Lücken separat abdecken.',
+    footerMethod:'<b>Methodik:</b> Energie pro Token = Basiswert für Output-Tokens (editierbar) × Anteil Output/Input, geteilt durch das Output:Input-Verhältnis für Input-Tokens; multipliziert mit dem PUE-Faktor ergibt den Netzbezug; multipliziert mit der CO₂-Intensität des Strommixes ergibt die CO₂e-Emission. Min- und Max-Szenario kombinieren jeweils alle unteren bzw. alle oberen Annahmen. Der Jahresverlauf nimmt eine gleichmäßige Verteilung der Nutzung über das Jahr an. Alle Zahlen sind <b>grobe Orientierungswerte</b> — Quellen siehe Anhang oben. Über „Einstellungen exportieren" lässt sich der aktuelle Parametersatz inkl. gespeicherter Szenarien als Code mit Kollegen teilen (die Daten sind im Code selbst kodiert, es werden keine Daten an einen Server gesendet). Für die Darstellung werden Schriften von Google Fonts nachgeladen.',
+    footerVersionTemplate:'Methodik {version} · Stand: {date}'
   },
   en:{
     pageTitle:'AI Token → CO₂ & Energy Simulator',
@@ -541,13 +569,14 @@ const I18N = {
     eyebrow:'Model-based estimate · ESG preparation',
     title:'How much CO₂ is in a token?',
     subtitle:'A simulator for the energy and CO₂ footprint of AI usage in your organization — per token, per 1,000 tokens, per employee and year, and for the whole company. Every assumption is editable and shown as a min–max range.',
-    btnReset:'↺ Reset to default', btnShare:'🔗 Export settings', btnSharePng:'📷 Share result as image', btnApply:'Apply',
+    btnReset:'↺ Reset to default', btnShare:'🔗 Export settings', btnSharePng:'📷 Share result as image', btnExportCsv:'📊 Export CSV', btnApply:'Apply',
     shareLabel:'Code to share', importLabel:'Paste code', importPh:'Paste code or link…',
     ioHint:'The code only contains your settings — nothing is sent to a server.',
     toastReset:'Reset to default values.', toastCopied:'Code copied!',
     toastGenerated:'Code generated — please copy manually.', toastApplied:'Settings applied.',
     toastInvalid:'Invalid code.', toastEmptyImport:'Please paste a code first.',
-    toastGroupRemoved:'Group removed', undoBtn:'Undo',
+    toastGroupRemoved:'Group removed', undoBtn:'Undo', toastCsvSaved:'CSV saved — ready to share.',
+    confirmReset:'Really reset all settings to default? Custom groups and adjustments will be lost.',
     gaugeLabel:'Company · CO₂ per year', gaugeEnergy:'Energy / year', gaugePerDay:'Avg. per employee/day', gaugeHeads:'Active employees',
     gaugeOffsetPriceLabel:'Offset price (€/t CO₂)', gaugeOffsetCostLabel:'Offset cost / year',
     offsetPriceMinAria:'Minimum offset price in euros per tonne CO₂', offsetPriceMaxAria:'Maximum offset price in euros per tonne CO₂',
@@ -555,6 +584,7 @@ const I18N = {
     gaugeCompareTemplate:'🚗 <b>{km} car-km</b>  ·  🛫 <b>{flight} flight-km</b>',
     shareLabelCar:'car-km', shareLabelFlight:'flight-km', shareLabelTrees:'trees/year',
     bestCase:'Best case', worstCase:'Worst case', gaugeRealPrefix:'📏 Real value (own measurement):', perYearSuffix:'kg CO₂e/year',
+    gaugeBandNote:'Note: the min–max range combines the published low/high extremes of every assumption — it is a range of possible scenarios, not a statistical confidence interval.',
     tickMin:'min', tickMax:'max',
     quickstartTitle:'Quick start: example companies', quickstartHint:'One click sets employee groups and model preset as a starting point — adjust freely afterward.',
     qsBoutique:'Small consultancy (~50 employees)', qsMid:'Mid-size company (~500 employees)', qsEnterprise:'Enterprise / tech (~5,000 employees)', qsDev:'Software team, heavy usage (~80 employees)',
@@ -587,6 +617,10 @@ const I18N = {
     sensModel:'Model energy', sensPue:'Data center (PUE)', sensGrid:'Grid mix', sensVolume:'Usage volume',
     sensVolumeLabel:'Usage volume uncertainty (±%)', sensVolumeHint:'For this analysis only: how much could your estimated token volume deviate?',
     sensBaseline:'Reference', sensSpan:'Range', sensBiggest:'biggest lever',
+    sensActionModel:'💡 Biggest lever: switching heavy users to a more efficient model (e.g. Sonnet-class instead of Opus-class) cuts energy per token the most.',
+    sensActionPue:'💡 Biggest lever: ask your cloud/data-center provider about its PUE, or choose regions/providers with more efficient cooling.',
+    sensActionGrid:'💡 Biggest lever: data-center regions with a cleaner grid mix (high renewable share) or a green-power PPA from your provider have the biggest effect here.',
+    sensActionVolume:'💡 Biggest lever: usage volume itself has the biggest influence — guidelines for mindful AI use (shorter prompts, caching, batching) are the most effective lever here.',
     sensInsightTemplate:'{label} has the biggest influence on the annual result (range: {span} kg around the {baseline} kg reference) — this is the most effective lever.',
     matTitle:'Materiality: how big is this in comparison?',
     matHint:'Puts AI emissions in the context of your total footprint — a core question in any materiality assessment.',
@@ -617,7 +651,9 @@ const I18N = {
     appendixIntro:"All baseline assumptions in this simulator are grounded in publicly available studies and datasets (as of 2025/26). Because methodology and measurement boundaries vary between sources, the figures are meant as orientation, not an exact measurement of your own AI usage. For robust ESG reporting, prefer provider-specific or measured values where possible (see \"Real usage data\" above).",
     apColParam:'Parameter', apColRange:'Range used', apColSource:'Source & rationale',
     appendixNote:"Note: as of early 2026, no major AI provider besides Google — including OpenAI or Anthropic — has published a comparably detailed per-prompt energy/CO₂ methodology. The model tiers in this tool are therefore an order-of-magnitude derivation from the available individual data points, not provider-confirmed figures. The sensitivity and projection controls (usage uncertainty, efficiency/growth rates) are explicitly adjustable what-if levers, not forecasts — so they are not part of this source list.",
-    footerMethod:'<b>Methodology:</b> Energy per token = baseline value for output tokens (editable) × share of output/input, divided by the output:input ratio for input tokens; multiplied by the PUE factor gives grid draw; multiplied by the CO₂ intensity of the grid mix gives CO₂e emissions. Min and max scenarios combine all lower or all upper assumptions respectively. The annual trend assumes usage is spread evenly across the year. All figures are <b>rough orientation values</b> — see sources in the appendix above. "Export settings" lets you share the current parameter set, including saved scenarios, as a code with colleagues (the data is encoded in the code itself; nothing is sent to a server).'
+    scopeNoteHtml:'<span class="appendix-note-icon">🚫</span>What this model does <b>not</b> cover: embodied carbon of hardware (manufacturing/disposal of GPUs & data centers), model training (only inference/usage is estimated), networking and end-user-device energy, and an explicit mapping to GHG Protocol Scope 1/2/3. For a complete CSRD accounting, cover these gaps separately.',
+    footerMethod:'<b>Methodology:</b> Energy per token = baseline value for output tokens (editable) × share of output/input, divided by the output:input ratio for input tokens; multiplied by the PUE factor gives grid draw; multiplied by the CO₂ intensity of the grid mix gives CO₂e emissions. Min and max scenarios combine all lower or all upper assumptions respectively. The annual trend assumes usage is spread evenly across the year. All figures are <b>rough orientation values</b> — see sources in the appendix above. "Export settings" lets you share the current parameter set, including saved scenarios, as a code with colleagues (the data is encoded in the code itself; nothing is sent to a server). Fonts are loaded from Google Fonts for display.',
+    footerVersionTemplate:'Methodology {version} · Last updated: {date}'
   }
 };
 
@@ -956,6 +992,7 @@ $('scen-table').addEventListener('click', e=>{
 
 /* ---------- Reset / Export / Import ---------- */
 $('btn-reset').addEventListener('click', ()=>{
+  if(!confirm(I18N[currentLang].confirmReset)) return;
   state = JSON.parse(JSON.stringify(DEFAULT_STATE));
   $('share-out').value=''; $('import-in').value='';
   syncInputsFromState();
@@ -1159,10 +1196,10 @@ function renderSensitivity(){
   const mid = {eVal:(s.eMin+s.eMax)/2, pueVal:(s.pueMin+s.pueMax)/2, co2Val:(s.co2Min+s.co2Max)/2, volumeMultiplier:1};
   const baseline = gToKg(computeScenarioTotals({...base,...mid}).annualCo2g);
   const dims = [
-    {label:t.sensModel, low:gToKg(computeScenarioTotals({...base,...mid, eVal:s.eMin}).annualCo2g), high:gToKg(computeScenarioTotals({...base,...mid, eVal:s.eMax}).annualCo2g)},
-    {label:t.sensPue, low:gToKg(computeScenarioTotals({...base,...mid, pueVal:s.pueMin}).annualCo2g), high:gToKg(computeScenarioTotals({...base,...mid, pueVal:s.pueMax}).annualCo2g)},
-    {label:t.sensGrid, low:gToKg(computeScenarioTotals({...base,...mid, co2Val:s.co2Min}).annualCo2g), high:gToKg(computeScenarioTotals({...base,...mid, co2Val:s.co2Max}).annualCo2g)},
-    {label:t.sensVolume, low:gToKg(computeScenarioTotals({...base,...mid, volumeMultiplier:1-s.volUncertainty/100}).annualCo2g), high:gToKg(computeScenarioTotals({...base,...mid, volumeMultiplier:1+s.volUncertainty/100}).annualCo2g)},
+    {key:'model', label:t.sensModel, low:gToKg(computeScenarioTotals({...base,...mid, eVal:s.eMin}).annualCo2g), high:gToKg(computeScenarioTotals({...base,...mid, eVal:s.eMax}).annualCo2g)},
+    {key:'pue', label:t.sensPue, low:gToKg(computeScenarioTotals({...base,...mid, pueVal:s.pueMin}).annualCo2g), high:gToKg(computeScenarioTotals({...base,...mid, pueVal:s.pueMax}).annualCo2g)},
+    {key:'grid', label:t.sensGrid, low:gToKg(computeScenarioTotals({...base,...mid, co2Val:s.co2Min}).annualCo2g), high:gToKg(computeScenarioTotals({...base,...mid, co2Val:s.co2Max}).annualCo2g)},
+    {key:'volume', label:t.sensVolume, low:gToKg(computeScenarioTotals({...base,...mid, volumeMultiplier:1-s.volUncertainty/100}).annualCo2g), high:gToKg(computeScenarioTotals({...base,...mid, volumeMultiplier:1+s.volUncertainty/100}).annualCo2g)},
   ];
   dims.forEach(d=>{ if(d.low>d.high){ const tmp=d.low; d.low=d.high; d.high=tmp; } });
   dims.sort((a,b)=> (b.high-b.low)-(a.high-a.low));
@@ -1194,6 +1231,8 @@ function renderSensitivity(){
   $('sens-chart').innerHTML = svg;
 
   $('sens-insight').textContent = insightText;
+  const actionKey = SENS_ACTION_KEYS[top.key];
+  $('sens-action').textContent = actionKey ? t[actionKey] : '';
 }
 
 /* ---------- Materiality ---------- */
@@ -1363,7 +1402,8 @@ function render(r){
   .forEach(e=>{ const d=document.createElement('div'); d.className='equiv'; d.innerHTML=`<div class="big">${e.big}</div><div class="lbl">${e.lbl}</div>`; eqGrid.appendChild(d); });
 
   renderAppendix();
-  $('footer').innerHTML = t.footerMethod;
+  const versionLine = t.footerVersionTemplate.replace('{version}', METHOD_VERSION).replace('{date}', METHOD_LAST_UPDATED[currentLang]);
+  $('footer').innerHTML = t.footerMethod + `<div class="footer-version">${versionLine}</div>`;
 
   lastRender = {r, meanKg, kmAuto, flightKm, trees, offsetCostMin, offsetCostMax};
 }
@@ -1460,16 +1500,60 @@ async function exportSharePNG(){
 
   canvas.toBlob(blob=>{
     if(!blob) return;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'ki-co2-fussabdruck.png';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    triggerDownload(blob, 'ki-co2-fussabdruck.png');
     showToast(t.toastPngSaved);
-    setTimeout(()=>URL.revokeObjectURL(url), 4000);
   }, 'image/png');
 }
 
 $('btn-share-png').addEventListener('click', exportSharePNG);
+
+function triggerDownload(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+}
+function csvEscape(v){
+  const s = String(v==null?'':v);
+  return /[",\n;]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+}
+function htmlToPlain(html){
+  return String(html)
+    .replace(/<a[^>]*href="([^"]+)"[^>]*>([^<]*)<\/a>/g, '$2 ($1)')
+    .replace(/<[^>]+>/g,'');
+}
+function exportCSV(){
+  if(!lastRender) return;
+  const t = I18N[currentLang];
+  const { r, offsetCostMin, offsetCostMax } = lastRender;
+  const rows = [];
+  rows.push([t.pageTitle]);
+  rows.push([t.footerVersionTemplate.replace('{version}',METHOD_VERSION).replace('{date}',METHOD_LAST_UPDATED[currentLang])]);
+  rows.push([]);
+  rows.push([t.kpiCompany, fmt(gToKg(r.yearCo2Min),1), fmt(gToKg(r.yearCo2Max),1), 'kg CO2e']);
+  rows.push([t.gaugeEnergy, fmt(r.yearWhMin/1000,1), fmt(r.yearWhMax/1000,1), 'kWh']);
+  rows.push([t.kpiPerYear, fmt(gToKg(r.perHeadYearCo2Min),2), fmt(gToKg(r.perHeadYearCo2Max),2), 'kg CO2e']);
+  rows.push([t.gaugeOffsetCostLabel, fmt(offsetCostMin,0), fmt(offsetCostMax,0), 'EUR']);
+  rows.push([t.gaugeHeads, fmt(r.totalHeads,0)]);
+  rows.push([]);
+  rows.push([t.thGroup, t.thPeople, t.thTokensYear, t.thCo2Min, t.thCo2Max, t.thShare]);
+  const totalAvg = r.groupResults.reduce((s,g)=>s+(g.yrCo2Min+g.yrCo2Max)/2,0)||1;
+  r.groupResults.forEach(g=>{
+    const pct = ((g.yrCo2Min+g.yrCo2Max)/2/totalAvg*100)||0;
+    rows.push([g.label, fmt(g.n,0), fmt(g.yrTokens,0), fmt(gToKg(g.yrCo2Min),1), fmt(gToKg(g.yrCo2Max),1), fmt(pct,0)+'%']);
+  });
+  rows.push([]);
+  rows.push([t.apColParam, t.apColRange, t.apColSource]);
+  APPENDIX_ROWS.forEach(row=>{
+    rows.push([row.param[currentLang], row.range[currentLang], htmlToPlain(row.source[currentLang])]);
+  });
+  const csv = '﻿' + rows.map(row=>row.map(csvEscape).join(',')).join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  triggerDownload(blob, 'ki-co2-simulator-export.csv');
+  showToast(t.toastCsvSaved);
+}
+$('btn-export-csv').addEventListener('click', exportCSV);
 
 function renderAppendix(){
   const t = I18N[currentLang];
