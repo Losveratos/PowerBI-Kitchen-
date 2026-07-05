@@ -7384,6 +7384,25 @@ function vlColumns(deneb, opt){
   return { width:580, height:opt.h||230, data:vData(vRows(),deneb),
     encoding:{x:vX(opt.x)}, layer };
 }
+/* Checkbox „Werte des Referenzszenarios beschriften“ (state.showRefLabels) – Pendant
+   zu renderBars (SVG): AC-Label sitzt hinter dem weiter aussen liegenden der beiden
+   Balkenenden (_labX), damit ein längerer Referenz-Balken (Stil „zentriert“) das
+   AC-Label nicht überdeckt; die Referenz-Zahl wird direkt darunter gestapelt. */
+function vRefLabelLayersH(deneb, primOff){
+  const posX = vYq('_labX');
+  const acLab = vLab(deneb,'p','Lp',vNum()), rLab = vLab(deneb,'r','Lr',vNum());
+  const mk = (dx, align, yOff, color)=>{
+    const o = {type:'text', fontSize:11, font:'Arial', color, dx, align};
+    if(yOff) o.yOffset = yOff;
+    return o;
+  };
+  return [
+    {transform:[{filter:'datum.p >= 0'}], mark:mk(6,'left',primOff,DARK), encoding:{x:posX, text:acLab}},
+    {transform:[{filter:'datum.p < 0'}],  mark:mk(-6,'right',primOff,DARK), encoding:{x:posX, text:acLab}},
+    {transform:[{filter:'datum.p >= 0 && datum.r != null'}], mark:mk(6,'left', primOff+11, SUB), encoding:{x:posX, text:rLab}},
+    {transform:[{filter:'datum.p < 0 && datum.r != null'}],  mark:mk(-6,'right',primOff+11, SUB), encoding:{x:posX, text:rLab}},
+  ];
+}
 function vlBars(deneb){
   const hasRef = state.reference!=='—';
   const style = hasRef ? state.refStyle : 'none';
@@ -7413,11 +7432,14 @@ function vlBars(deneb){
         fill:s2.fill, stroke:s2.stroke||s2.fill, strokeWidth:s2.stroke?1.1:0, opacity:1},
       encoding:{x:vYq('r2')}});
   }
-  vSignedText('p', vLab(deneb,'p','Lp',vNum()), false, null, primOff).forEach(l=>layer.push(l));
+  const showRefLab = state.showRefLabels && hasRef && style!=='tri';
+  if(showRefLab) vRefLabelLayersH(deneb, primOff).forEach(l=>layer.push(l));
+  else vSignedText('p', vLab(deneb,'p','Lp',vNum()), false, null, primOff).forEach(l=>layer.push(l));
   vStatLayers(false).forEach(l=>layer.push(l));
   vTargetLayers(false).forEach(l=>layer.push(l));
+  const labXTf = {calculate:'datum.r != null && abs(datum.r) > abs(datum.p) ? datum.r : datum.p', as:'_labX'};
   return { width:430, height:{step:28}, data:vData(vRows(),deneb),
-    transform: deneb? [] : undefined,
+    transform: showRefLab ? [labXTf] : (deneb? [] : undefined),
     encoding:{y:{field:'k', type:'nominal', sort:null, axis:{labelPadding:8}}}, layer };
 }
 function vlAbsVar(deneb, opt){
