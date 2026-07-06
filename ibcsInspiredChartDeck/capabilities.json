@@ -133,6 +133,14 @@
     "sorting": {
         "default": {}
     },
+    "tooltips": {
+        "supportedTypes": {
+            "default": true,
+            "canvas": true
+        }
+    },
+    "supportsKeyboardFocus": true,
+    "supportsMultiVisualSelection": true,
     "supportsLandingPage": true,
     "supportsEmptyDataView": true,
     "privileges": []

@@ -78,6 +78,11 @@ interface ChartConfig {
     hasPy: boolean;
     hasPl: boolean;
     hasFc: boolean;
+    /** high-contrast mode: only foreground/background colors, outlines for distinction */
+    hc: boolean;
+    ink: string;
+    paper: string;
+    subtle: string;
 }
 
 function linearScale(d0: number, d1: number, r0: number, r1: number): Scale {
@@ -316,19 +321,29 @@ export class Visual implements IVisual {
 
         const basisMode: Basis = this.resolveBasisLabel(points);
         const hasVar = points.some(p => p.varAbs != null);
+
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette;
+        const hc: boolean = !!(palette && palette.isHighContrast);
+        const fg: string = hc ? palette.foreground.value : INK;
+        const bgc: string = hc ? palette.background.value : "#FFFFFF";
+
         const cfg: ChartConfig = {
             orientation,
             showLabels: s.labelsCard.show.value,
             labelFont: s.labelsCard.fontSize.value,
             catFont: s.categoryAxisCard.fontSize.value,
             invert: s.chartCard.invert.value,
-            colors: {
+            colors: hc ? { ac: fg, py: fg, pl: fg, good: fg, bad: fg } : {
                 ac: s.colorsCard.actualColor.value.value,
                 py: s.colorsCard.previousYearColor.value.value,
                 pl: s.colorsCard.planColor.value.value,
                 good: s.colorsCard.goodColor.value.value,
                 bad: s.colorsCard.badColor.value.value
             },
+            hc,
+            ink: fg,
+            paper: bgc,
+            subtle: hc ? fg : "#8A8A8A",
             basisMode,
             basisLabel: basisMode === "plan" ? "PL" : "PY",
             showAbs: s.chartCard.showAbsoluteVariance.value && hasVar,
@@ -348,7 +363,7 @@ export class Visual implements IVisual {
             id: cfg.patId, patternUnits: "userSpaceOnUse", width: 5, height: 5,
             patternTransform: "rotate(45)"
         }, defs);
-        this.el("rect", { width: 5, height: 5, fill: "#FFFFFF" }, pat);
+        this.el("rect", { width: 5, height: 5, fill: cfg.paper }, pat);
         this.el("line", { x1: 0, y1: 0, x2: 0, y2: 5, stroke: cfg.colors.ac, "stroke-width": 2.5 }, pat);
 
         this.renderChart(points, { x: 0, y: 0, w: width, h: height }, cfg);
@@ -424,14 +439,14 @@ export class Visual implements IVisual {
             ? `  ·  Δ${cfg.basisLabel}${cfg.showRel ? " %" : ""}` : "";
         const barsTitleY = orientation === "bars" ? bandStart - 6 : undefined;
         this.drawPanelTitle(bg, panels.main, scenarioTitle + compactVarHint,
-            orientation, titleH, region, barsTitleY);
+            orientation, titleH, region, barsTitleY, cfg.subtle);
         if (panels.abs && absScale) {
             this.drawBaseline(bg, panels.abs, absScale, orientation, bandStart, bandEnd, cfg.basisMode, cfg.colors);
-            this.drawPanelTitle(bg, panels.abs, `Δ${cfg.basisLabel}`, orientation, titleH, region, barsTitleY);
+            this.drawPanelTitle(bg, panels.abs, `Δ${cfg.basisLabel}`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
         if (panels.rel && relScale) {
             this.drawBaseline(bg, panels.rel, relScale, orientation, bandStart, bandEnd, cfg.basisMode, cfg.colors);
-            this.drawPanelTitle(bg, panels.rel, `Δ${cfg.basisLabel} %`, orientation, titleH, region, barsTitleY);
+            this.drawPanelTitle(bg, panels.rel, `Δ${cfg.basisLabel} %`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
 
         // ------- total (Σ) header
@@ -451,7 +466,7 @@ export class Visual implements IVisual {
                 const yBot = panels.main.y + panels.main.h;
                 this.el("line", {
                     x1: x, y1: yTop + 2, x2: x, y2: yBot,
-                    stroke: "#9A9A9A", "stroke-width": 1, "stroke-dasharray": "3,3"
+                    stroke: cfg.subtle, "stroke-width": 1, "stroke-dasharray": "3,3"
                 }, bg);
             }
         }
@@ -466,11 +481,13 @@ export class Visual implements IVisual {
             // base chart: PY behind, PL outline, AC/FC on top
             if (p.py != null) {
                 this.drawBar(g, pos, barW, 0, p.py, mainScale, orientation,
-                    { fill: cfg.colors.py });
+                    cfg.hc
+                        ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
+                        : { fill: cfg.colors.py });
             }
             if (p.pl != null) {
                 this.drawBar(g, pos + pyShift, barW, 0, p.pl, mainScale, orientation,
-                    { fill: "#FFFFFF", stroke: cfg.colors.pl, "stroke-width": 1.4 });
+                    { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 });
             }
             if (p.value != null) {
                 this.drawBar(g, pos + pyShift, barW, 0, p.value, mainScale, orientation,
@@ -483,7 +500,7 @@ export class Visual implements IVisual {
                         ? (p.value >= 0 ? Math.max(p.value, p.pl) : Math.min(p.value, p.pl))
                         : p.value;
                     this.drawEndLabelAt(g, pos + pyShift + barW / 2, anchor, p.value >= 0, mainScale,
-                        orientation, valueTexts[i], cfg.labelFont, INK);
+                        orientation, valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
                     // compact mode: variance becomes a colored second label at the bar end
                     if (compact && p.varAbs != null) {
                         const good = cfg.invert ? p.varAbs < 0 : p.varAbs > 0;
@@ -493,7 +510,7 @@ export class Visual implements IVisual {
                             ? cfg.labelFont + 2
                             : valueTexts[i].length * cfg.labelFont * 0.56 + 8;
                         this.drawEndLabelAt(g, pos + pyShift + barW / 2, anchor, p.value >= 0, mainScale,
-                            orientation, vText, cfg.labelFont, vColor, gap);
+                            orientation, vText, cfg.labelFont, vColor, gap, cfg.paper);
                     }
                 }
             }
@@ -504,13 +521,16 @@ export class Visual implements IVisual {
                 const color = p.varAbs === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const vw = slotW * 0.55;
                 const vx = pos + pyShift + barW / 2 - vw / 2;
+                const hollowBad = cfg.hc && !good && p.varAbs !== 0;
                 this.drawBar(g, vx, vw, 0, p.varAbs, absScale, orientation,
-                    p.isFc
-                        ? { fill: color, "fill-opacity": 0.55, stroke: color, "stroke-width": 1 }
-                        : { fill: color });
+                    hollowBad
+                        ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4 }
+                        : p.isFc
+                            ? { fill: color, "fill-opacity": 0.55, stroke: color, "stroke-width": 1 }
+                            : { fill: color });
                 if (cfg.showLabels && showAbsAt(i)) {
                     this.drawEndLabel(g, vx + vw / 2, p.varAbs, absScale, orientation,
-                        absTexts[i], cfg.labelFont, INK);
+                        absTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
                 }
             }
 
@@ -522,23 +542,24 @@ export class Visual implements IVisual {
                 const zero = relScale(0);
                 const end = relScale(p.varRel);
                 const r = Math.max(2.5, Math.min(4.5, slotW * 0.12));
+                const hollowPin = p.isFc || (cfg.hc && !good && p.varRel !== 0);
                 if (orientation === "columns") {
                     this.el("line", { x1: c, y1: zero, x2: c, y2: end, stroke: color, "stroke-width": 1.6 }, g);
-                    this.el("circle", { cx: c, cy: end, r, fill: p.isFc ? "#FFFFFF" : color, stroke: color, "stroke-width": 1.6 }, g);
+                    this.el("circle", { cx: c, cy: end, r, fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }, g);
                 } else {
                     this.el("line", { x1: zero, y1: c, x2: end, y2: c, stroke: color, "stroke-width": 1.6 }, g);
-                    this.el("circle", { cx: end, cy: c, r, fill: p.isFc ? "#FFFFFF" : color, stroke: color, "stroke-width": 1.6 }, g);
+                    this.el("circle", { cx: end, cy: c, r, fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }, g);
                 }
                 if (cfg.showLabels && showRelAt(i)) {
                     this.drawEndLabel(g, c, p.varRel, relScale, orientation,
-                        relTexts[i], cfg.labelFont, INK, r + 3);
+                        relTexts[i], cfg.labelFont, cfg.ink, r + 3, cfg.paper);
                 }
             }
 
             // category label
             if (showCatAt(i)) {
                 this.drawCategoryLabel(g, p.cat, pos + slotW / 2, orientation, cfg.catFont,
-                    region, step, panels.main);
+                    region, step, panels.main, cfg.ink);
             }
 
             // comment marker (numbered circle at the inner end of the bar)
@@ -596,11 +617,11 @@ export class Visual implements IVisual {
         const cx = orientation === "columns" ? bandCenter : end + towardZero;
         const cy = orientation === "columns" ? end + towardZero : bandCenter;
         this.el("circle", {
-            cx, cy, r, fill: "#FFFFFF", stroke: INK, "stroke-width": 1.2
+            cx, cy, r, fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2
         }, parent);
         const t = this.el("text", {
             x: cx, y: cy + 3, "text-anchor": "middle",
-            "font-size": 9, fill: INK, "font-family": FONT, "font-weight": 600
+            "font-size": 9, fill: cfg.ink, "font-family": FONT, "font-weight": 600
         }, parent);
         t.textContent = String(p.commentNo);
     }
@@ -634,11 +655,11 @@ export class Visual implements IVisual {
             ts.textContent = text;
             t.appendChild(ts);
         };
-        span(`Σ ${cfg.fmt.format(sum)}`, INK, true);
+        span(`Σ ${cfg.fmt.format(sum)}`, cfg.ink, true);
         if (anyVar) {
             const good = cfg.invert ? sumVar < 0 : sumVar > 0;
-            const color = sumVar === 0 ? "#8A8A8A" : (good ? cfg.colors.good : cfg.colors.bad);
-            span(`   Δ${cfg.basisLabel} `, "#8A8A8A", false);
+            const color = sumVar === 0 ? cfg.subtle : (good ? cfg.colors.good : cfg.colors.bad);
+            span(`   Δ${cfg.basisLabel} `, cfg.subtle, false);
             span(this.fmtSigned(cfg.fmtVar, sumVar), color, true);
             if (sumBasis !== 0) {
                 span(` · ${this.fmtPercent((sumVar / sumBasis) * 100)}`, color, true);
@@ -768,12 +789,12 @@ export class Visual implements IVisual {
     }
 
     private drawPanelTitle(parent: SVGElement, rect: Rect, text: string, orientation: Orientation,
-        titleH: number, region: Rect, barsTitleY?: number): void {
+        titleH: number, region: Rect, barsTitleY?: number, color = "#8A8A8A"): void {
         const attrs = orientation === "columns"
             ? { x: region.x + 6, y: rect.y + titleH - 4 }
             : { x: rect.x + 2, y: barsTitleY ?? (region.y + 12) };
         const t = this.el("text", {
-            ...attrs, "font-size": 10, fill: "#8A8A8A",
+            ...attrs, "font-size": 10, fill: color,
             "font-family": FONT, "font-weight": 600
         }, parent);
         t.textContent = text;
@@ -793,12 +814,12 @@ export class Visual implements IVisual {
     }
 
     private drawEndLabel(parent: SVGElement, bandCenter: number, v: number, scale: Scale,
-        orientation: Orientation, text: string, fontSize: number, fill: string, extraGap = 0): void {
-        this.drawEndLabelAt(parent, bandCenter, v, v >= 0, scale, orientation, text, fontSize, fill, extraGap);
+        orientation: Orientation, text: string, fontSize: number, fill: string, extraGap = 0, halo = "#FFFFFF"): void {
+        this.drawEndLabelAt(parent, bandCenter, v, v >= 0, scale, orientation, text, fontSize, fill, extraGap, halo);
     }
 
     private drawEndLabelAt(parent: SVGElement, bandCenter: number, anchorValue: number, positive: boolean,
-        scale: Scale, orientation: Orientation, text: string, fontSize: number, fill: string, extraGap = 0): void {
+        scale: Scale, orientation: Orientation, text: string, fontSize: number, fill: string, extraGap = 0, halo = "#FFFFFF"): void {
         const end = scale(anchorValue);
         let attrs: Record<string, string | number>;
         if (orientation === "columns") {
@@ -813,7 +834,7 @@ export class Visual implements IVisual {
         const t = this.el("text", {
             ...attrs, "font-size": fontSize, fill,
             "font-family": FONT,
-            stroke: "#FFFFFF", "stroke-width": 3, "paint-order": "stroke",
+            stroke: halo, "stroke-width": 3, "paint-order": "stroke",
             "stroke-linejoin": "round"
         }, parent);
         t.textContent = text;
@@ -821,7 +842,7 @@ export class Visual implements IVisual {
 
     private drawCategoryLabel(parent: SVGElement, text: string, bandCenter: number,
         orientation: Orientation, fontSize: number, region: Rect,
-        step: number, mainRect: Rect): void {
+        step: number, mainRect: Rect, ink = INK): void {
         let attrs: Record<string, string | number>;
         let maxW: number;
         if (orientation === "columns") {
@@ -832,7 +853,7 @@ export class Visual implements IVisual {
             maxW = mainRect.x - region.x - 8;
         }
         const t = this.el("text", {
-            ...attrs, "font-size": fontSize, fill: INK,
+            ...attrs, "font-size": fontSize, fill: ink,
             "font-family": FONT
         }, parent);
         t.textContent = this.truncate(text, maxW, fontSize);
@@ -855,6 +876,25 @@ export class Visual implements IVisual {
 
     private attachInteraction(g: SVGGElement, p: DataPoint, cfg: ChartConfig): void {
         g.style.cursor = "pointer";
+
+        // keyboard navigation: tab through categories, Enter/Space selects
+        g.setAttribute("tabindex", "0");
+        g.setAttribute("role", "option");
+        const aria = [`${p.cat}`];
+        if (p.value != null) { aria.push(cfg.fmt.format(p.value)); }
+        if (p.varAbs != null) { aria.push(`Δ${cfg.basisLabel} ${this.fmtSigned(cfg.fmtVar, p.varAbs)}`); }
+        if (p.comment) { aria.push(p.comment); }
+        g.setAttribute("aria-label", aria.join(", "));
+        g.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key !== "Enter" && e.key !== " ") { return; }
+            e.preventDefault();
+            e.stopPropagation();
+            if (!p.sel) { return; }
+            this.selectionManager.select(p.sel, e.ctrlKey || e.metaKey).then((ids: ISelectionId[]) => {
+                this.applySelectionOpacity(ids);
+            });
+        });
+
         g.addEventListener("click", (e: MouseEvent) => {
             e.stopPropagation();
             if (!p.sel) { return; }
