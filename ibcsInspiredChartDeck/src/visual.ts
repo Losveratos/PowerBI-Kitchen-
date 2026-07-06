@@ -397,6 +397,19 @@ export class Visual implements IVisual {
             rel: extent(points.map(p => p.varRel))
         };
 
+        // scale sync: stretch domains at least to the configured maxima
+        const fixedMax = s.scaleCard.fixedMax.value ?? 0;
+        if (fixedMax > 0) {
+            domains.main = [domains.main[0], Math.max(domains.main[1], fixedMax)];
+        }
+        const fixedVarMax = s.scaleCard.fixedVarMax.value ?? 0;
+        if (fixedVarMax > 0) {
+            domains.abs = [
+                Math.min(domains.abs[0], -fixedVarMax),
+                Math.max(domains.abs[1], fixedVarMax)
+            ];
+        }
+
         if (groups.length <= 1) {
             this.renderChart(points, { x: 0, y: 0, w: width, h: height }, cfg, domains);
             return;

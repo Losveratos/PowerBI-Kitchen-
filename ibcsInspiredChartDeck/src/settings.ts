@@ -178,6 +178,32 @@ export class LabelsCardSettings extends FormattingSettingsCard {
     ];
 }
 
+export class ScaleCardSettings extends FormattingSettingsCard {
+    fixedMax = new formattingSettings.NumUpDown({
+        name: "fixedMax",
+        displayName: "Scale minimum-maximum",
+        description: "Skaliert das Basis-Chart mindestens bis zu diesem Wert — für identische Skalen über mehrere Visuals (IBCS). 0 = automatisch. Größere Datenwerte erweitern die Skala weiterhin.",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 }
+        }
+    });
+
+    fixedVarMax = new formattingSettings.NumUpDown({
+        name: "fixedVarMax",
+        displayName: "Variance minimum-maximum",
+        description: "Wie oben, für das absolute Abweichungs-Panel (symmetrisch ±). 0 = automatisch.",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 }
+        }
+    });
+
+    name: string = "scale";
+    displayName: string = "Scale sync";
+    slices: Array<FormattingSettingsSlice> = [this.fixedMax, this.fixedVarMax];
+}
+
 export class CategoryAxisCardSettings extends FormattingSettingsCard {
     fontSize = new formattingSettings.NumUpDown({
         name: "fontSize",
@@ -198,7 +224,8 @@ export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     chartCard = new ChartCardSettings();
     colorsCard = new ColorsCardSettings();
     labelsCard = new LabelsCardSettings();
+    scaleCard = new ScaleCardSettings();
     categoryAxisCard = new CategoryAxisCardSettings();
 
-    cards = [this.chartCard, this.colorsCard, this.labelsCard, this.categoryAxisCard];
+    cards = [this.chartCard, this.colorsCard, this.labelsCard, this.scaleCard, this.categoryAxisCard];
 }

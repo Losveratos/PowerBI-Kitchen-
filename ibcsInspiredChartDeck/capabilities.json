@@ -101,6 +101,12 @@
                 }
             }
         },
+        "scale": {
+            "properties": {
+                "fixedMax": { "type": { "numeric": true } },
+                "fixedVarMax": { "type": { "numeric": true } }
+            }
+        },
         "categoryAxis": {
             "properties": {
                 "fontSize": { "type": { "formatting": { "fontSize": true } } }
