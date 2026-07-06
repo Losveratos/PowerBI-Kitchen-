@@ -151,6 +151,14 @@ export class ChartCardSettings extends FormattingSettingsCard {
 }
 
 export class ColorsCardSettings extends FormattingSettingsCard {
+    useTheme = new formattingSettings.ToggleSwitch({
+        name: "useTheme",
+        displayName: "Use report theme colors",
+        displayNameKey: "Colors_UseTheme",
+        description: "Übernimmt Good/Bad und Neutralfarben aus dem Berichtsdesign (Theme) statt der Farbwähler unten.",
+        value: false
+    });
+
     actualColor = new formattingSettings.ColorPicker({
         name: "actualColor",
         displayName: "Actual (AC)",
@@ -190,6 +198,7 @@ export class ColorsCardSettings extends FormattingSettingsCard {
     displayName: string = "IBCS colors";
     displayNameKey: string = "Card_Colors";
     slices: Array<FormattingSettingsSlice> = [
+        this.useTheme,
         this.actualColor,
         this.previousYearColor,
         this.planColor,

@@ -107,6 +107,7 @@
         },
         "colors": {
             "properties": {
+                "useTheme": { "type": { "bool": true } },
                 "actualColor": { "type": { "fill": { "solid": { "color": true } } } },
                 "previousYearColor": { "type": { "fill": { "solid": { "color": true } } } },
                 "planColor": { "type": { "fill": { "solid": { "color": true } } } },

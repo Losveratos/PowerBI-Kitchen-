@@ -390,6 +390,12 @@ export class Visual implements IVisual {
         const fg: string = hc ? palette.foreground.value : INK;
         const bgc: string = hc ? palette.background.value : "#FFFFFF";
 
+        // report theme colors: sentiment + neutral tones from the palette,
+        // falling back to the color pickers when the theme doesn't define them
+        const useTheme = s.colorsCard.useTheme.value && !hc && !!palette;
+        const themed = (info: { value: string } | undefined, fallback: string) =>
+            useTheme && info && info.value ? info.value : fallback;
+
         const cfg: ChartConfig = {
             orientation,
             showLabels: s.labelsCard.show.value,
@@ -397,11 +403,11 @@ export class Visual implements IVisual {
             catFont: s.categoryAxisCard.fontSize.value,
             invert: s.chartCard.invert.value,
             colors: hc ? { ac: fg, py: fg, pl: fg, good: fg, bad: fg } : {
-                ac: s.colorsCard.actualColor.value.value,
-                py: s.colorsCard.previousYearColor.value.value,
-                pl: s.colorsCard.planColor.value.value,
-                good: s.colorsCard.goodColor.value.value,
-                bad: s.colorsCard.badColor.value.value
+                ac: themed(palette?.foregroundNeutralDark, s.colorsCard.actualColor.value.value),
+                py: themed(palette?.foregroundNeutralTertiary, s.colorsCard.previousYearColor.value.value),
+                pl: themed(palette?.foregroundNeutralDark, s.colorsCard.planColor.value.value),
+                good: themed(palette?.positive, s.colorsCard.goodColor.value.value),
+                bad: themed(palette?.negative, s.colorsCard.badColor.value.value)
             },
             hc,
             ink: fg,

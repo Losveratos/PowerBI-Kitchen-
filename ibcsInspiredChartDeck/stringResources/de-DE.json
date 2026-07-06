@@ -40,6 +40,7 @@
         "Scale_FixedMax": "Skalen-Mindest-Maximum",
         "Scale_FixedVarMax": "Abweichungs-Mindest-Maximum",
         "Scale_CapOverflow": "Ausreißer am Maximum kappen",
-        "CategoryAxis_FontSize": "Textgröße"
+        "CategoryAxis_FontSize": "Textgröße",
+        "Colors_UseTheme": "Theme-Farben des Berichts verwenden"
     }
 }
