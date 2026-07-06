@@ -94,6 +94,8 @@ interface ChartConfig {
     showRel: boolean;
     showTotal: boolean;
     patId: string;
+    patGood: string;
+    patBad: string;
     fmt: IValueFormatter;
     /** formatter scaled to the variance magnitudes (auto units) */
     fmtVar: IValueFormatter;
@@ -399,6 +401,8 @@ export class Visual implements IVisual {
             showRel: s.chartCard.showRelativeVariance.value && points.some(p => p.varRel != null),
             showTotal: s.chartCard.showTotal.value,
             patId: `icd-hatch-${this.instanceId}`,
+            patGood: `icd-hatch-good-${this.instanceId}`,
+            patBad: `icd-hatch-bad-${this.instanceId}`,
             fmt: this.makeFormatter(maxAbs, allInt),
             fmtVar: this.makeFormatter(maxVarAbs, allVarInt),
             hasPy: points.some(p => p.py != null),
@@ -406,14 +410,19 @@ export class Visual implements IVisual {
             hasFc: points.some(p => p.isFc)
         };
 
-        // hatch pattern for forecast
+        // hatch patterns for forecast (base chart + good/bad variance colors)
         const defs = this.el("defs", {}, this.svg);
-        const pat = this.el("pattern", {
-            id: cfg.patId, patternUnits: "userSpaceOnUse", width: 5, height: 5,
-            patternTransform: "rotate(45)"
-        }, defs);
-        this.el("rect", { width: 5, height: 5, fill: cfg.paper }, pat);
-        this.el("line", { x1: 0, y1: 0, x2: 0, y2: 5, stroke: cfg.colors.ac, "stroke-width": 2.5 }, pat);
+        const makeHatch = (id: string, stroke: string) => {
+            const pat = this.el("pattern", {
+                id, patternUnits: "userSpaceOnUse", width: 5, height: 5,
+                patternTransform: "rotate(45)"
+            }, defs);
+            this.el("rect", { width: 5, height: 5, fill: cfg.paper }, pat);
+            this.el("line", { x1: 0, y1: 0, x2: 0, y2: 5, stroke, "stroke-width": 2.5 }, pat);
+        };
+        makeHatch(cfg.patId, cfg.colors.ac);
+        makeHatch(cfg.patGood, cfg.colors.good);
+        makeHatch(cfg.patBad, cfg.colors.bad);
 
         // shared value domains across all multiples (IBCS: identical scales)
         const domains: Domains = {
@@ -584,7 +593,7 @@ export class Visual implements IVisual {
                 style = hollowBad
                     ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4 }
                     : sg.hatched
-                        ? { fill: color, "fill-opacity": 0.55, stroke: color, "stroke-width": 1 }
+                        ? { fill: `url(#${sg.good ? cfg.patGood : cfg.patBad})`, stroke: color, "stroke-width": 1 }
                         : { fill: color };
             }
             this.drawBar(g, pos(i), slotW, sg.from, sg.to, scale, "columns", style);
@@ -678,18 +687,35 @@ export class Visual implements IVisual {
         const bg = this.el("g", {}, this.svg);
         const scenarioTitle = ["AC", cfg.hasPy ? "PY" : "", cfg.hasPl ? "PL" : "",
             cfg.hasFc ? "FC" : ""].filter(x => x).join(" · ");
-        this.drawBaseline(bg, panels.main, mainScale, orientation, bandStart, bandEnd, "ac", cfg.colors);
+
+        // AC -> FC boundary (time series with a forecast tail)
+        let fcBoundary: number | null = null;
+        if (orientation === "columns" && cfg.hasFc) {
+            const fcStart = points.findIndex(p => p.isFc);
+            const isTail = fcStart > 0 && points.slice(fcStart).every(p => p.isFc || p.value == null);
+            if (isTail) { fcBoundary = bandStart + fcStart * step; }
+        }
+        // baselines are dashed underneath the forecast section (IBCS notation)
+        const baseline = (rect: Rect, scale: Scale, kind: "ac" | Basis) => {
+            if (fcBoundary == null) {
+                this.drawBaseline(bg, rect, scale, orientation, bandStart, bandEnd, kind, cfg.colors);
+            } else {
+                this.drawBaseline(bg, rect, scale, orientation, bandStart, fcBoundary, kind, cfg.colors);
+                this.drawBaseline(bg, rect, scale, orientation, fcBoundary, bandEnd, kind, cfg.colors, true);
+            }
+        };
+        baseline(panels.main, mainScale, "ac");
         const compactVarHint = compact && (cfg.showAbs || cfg.showRel)
             ? `  ·  Δ${cfg.basisLabel}${cfg.showRel ? " %" : ""}` : "";
         const barsTitleY = orientation === "bars" ? bandStart - 6 : undefined;
         this.drawPanelTitle(bg, panels.main, scenarioTitle + compactVarHint,
             orientation, titleH, region, barsTitleY, cfg.subtle);
         if (panels.abs && absScale) {
-            this.drawBaseline(bg, panels.abs, absScale, orientation, bandStart, bandEnd, cfg.basisMode, cfg.colors);
+            baseline(panels.abs, absScale, cfg.basisMode);
             this.drawPanelTitle(bg, panels.abs, `Δ${cfg.basisLabel}`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
         if (panels.rel && relScale) {
-            this.drawBaseline(bg, panels.rel, relScale, orientation, bandStart, bandEnd, cfg.basisMode, cfg.colors);
+            baseline(panels.rel, relScale, cfg.basisMode);
             this.drawPanelTitle(bg, panels.rel, `Δ${cfg.basisLabel} %`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
 
@@ -699,20 +725,15 @@ export class Visual implements IVisual {
         }
 
         // ------- AC → FC boundary separator (time series only)
-        if (orientation === "columns" && cfg.hasFc) {
-            const fcStart = points.findIndex(p => p.isFc);
-            const isTail = fcStart > 0 && points.slice(fcStart).every(p => p.isFc || p.value == null);
-            if (isTail) {
-                const x = bandStart + fcStart * step;
-                const yTop = Math.min(panels.main.y,
-                    panels.abs ? panels.abs.y : Infinity,
-                    panels.rel ? panels.rel.y : Infinity);
-                const yBot = panels.main.y + panels.main.h;
-                this.el("line", {
-                    x1: x, y1: yTop + 2, x2: x, y2: yBot,
-                    stroke: cfg.subtle, "stroke-width": 1, "stroke-dasharray": "3,3"
-                }, bg);
-            }
+        if (fcBoundary != null) {
+            const yTop = Math.min(panels.main.y,
+                panels.abs ? panels.abs.y : Infinity,
+                panels.rel ? panels.rel.y : Infinity);
+            const yBot = panels.main.y + panels.main.h;
+            this.el("line", {
+                x1: fcBoundary, y1: yTop + 2, x2: fcBoundary, y2: yBot,
+                stroke: cfg.subtle, "stroke-width": 1, "stroke-dasharray": "3,3"
+            }, bg);
         }
 
         // ------- category groups with all marks
@@ -770,7 +791,7 @@ export class Visual implements IVisual {
                     hollowBad
                         ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4 }
                         : p.isFc
-                            ? { fill: color, "fill-opacity": 0.55, stroke: color, "stroke-width": 1 }
+                            ? { fill: `url(#${good ? cfg.patGood : cfg.patBad})`, stroke: color, "stroke-width": 1 }
                             : { fill: color });
                 if (cfg.showLabels && showAbsAt(i)) {
                     this.drawEndLabel(g, vx + vw / 2, p.varAbs, absScale, orientation,
@@ -1062,13 +1083,14 @@ export class Visual implements IVisual {
     /** IBCS baseline notation: AC solid black, PY fat grey, PL double line */
     private drawBaseline(parent: SVGElement, rect: Rect, scale: Scale, orientation: Orientation,
         bandStart: number, bandEnd: number, kind: "ac" | Basis,
-        colors: { ac: string; py: string; pl: string }): void {
+        colors: { ac: string; py: string; pl: string }, dashed = false): void {
         const zero = scale(0);
         const line = (offset: number, stroke: string, w: number) => {
+            const dash = dashed ? { "stroke-dasharray": "4,3" } : {};
             if (orientation === "columns") {
-                this.el("line", { x1: bandStart, y1: zero + offset, x2: bandEnd, y2: zero + offset, stroke, "stroke-width": w }, parent);
+                this.el("line", { x1: bandStart, y1: zero + offset, x2: bandEnd, y2: zero + offset, stroke, "stroke-width": w, ...dash }, parent);
             } else {
-                this.el("line", { x1: zero + offset, y1: bandStart, x2: zero + offset, y2: bandEnd, stroke, "stroke-width": w }, parent);
+                this.el("line", { x1: zero + offset, y1: bandStart, x2: zero + offset, y2: bandEnd, stroke, "stroke-width": w, ...dash }, parent);
             }
         };
         if (kind === "ac") {
