@@ -150,7 +150,6 @@ export class Visual implements IVisual {
     private host: IVisualHost;
     private root: HTMLElement;
     private svg: SVGSVGElement;
-    private landing: HTMLDivElement;
     private selectionManager: ISelectionManager;
     private tooltipService: ITooltipService;
     private formattingSettings: VisualFormattingSettingsModel;
@@ -176,11 +175,6 @@ export class Visual implements IVisual {
 
         this.svg = document.createElementNS(SVG_NS, "svg");
         this.root.appendChild(this.svg);
-
-        this.landing = document.createElement("div");
-        this.landing.className = "icd-landing";
-        this.landing.style.display = "none";
-        this.root.appendChild(this.landing);
 
         // click on empty space clears selection, right click opens context menu
         this.svg.addEventListener("click", () => {
@@ -211,7 +205,6 @@ export class Visual implements IVisual {
                 this.events.renderingFinished(options);
                 return;
             }
-            this.landing.style.display = "none";
             this.svg.style.display = "block";
             this.render(points, width, height);
             this.events.renderingFinished(options);
@@ -329,7 +322,9 @@ export class Visual implements IVisual {
             case "k": unitValue = 1e3; break;
             case "m": unitValue = 1e6; break;
             case "b": unitValue = 1e9; break;
-            default: unitValue = maxAbs >= 1e4 ? maxAbs : 0; break;
+            default:
+                unitValue = maxAbs >= 1e9 ? 1e9 : maxAbs >= 1e6 ? 1e6 : maxAbs >= 1e4 ? 1e3 : 0;
+                break;
         }
         // unscaled integers need no forced decimals
         const precision = unitValue === 0 && allIntegers ? 0 : decimals;
@@ -357,7 +352,6 @@ export class Visual implements IVisual {
 
     /** landing page renders a live sample chart instead of a text hint */
     private renderDemo(width: number, height: number): void {
-        this.landing.style.display = "none";
         this.svg.style.display = "block";
         const months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
         const ac = [820, 771, 900, 955, 1020, 980, 1105, null, null, null, null, null];
@@ -1364,7 +1358,7 @@ export class Visual implements IVisual {
             d, fill: "none", stroke: cfg.subtle, "stroke-width": 1.5, "stroke-opacity": 0.9
         }, parent);
         const t = this.el("text", {
-            x: lastX + 4, y: lastY + 3, "font-size": 9, fill: cfg.subtle, "font-family": FONT,
+            x: lastX + 2, y: lastY + 12, "font-size": 9, fill: cfg.subtle, "font-family": FONT,
             stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
         }, parent);
         t.textContent = `Ø${win}`;
