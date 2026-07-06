@@ -51,7 +51,15 @@ interface DataPoint {
     comment: string | null;
     /** 1-based comment marker number, assigned in category order */
     commentNo: number | null;
+    /** small-multiples group label, null when the multiples role is empty */
+    group: string | null;
     sel: ISelectionId | null;
+}
+
+interface Domains {
+    main: [number, number];
+    abs: [number, number];
+    rel: [number, number];
 }
 
 interface Rect { x: number; y: number; w: number; h: number; }
@@ -178,7 +186,9 @@ export class Visual implements IVisual {
     // ------------------------------------------------------------------ data
 
     private parseData(dataView: DataView | undefined): DataPoint[] | null {
-        const cat = dataView?.categorical?.categories?.[0];
+        const catCols = dataView?.categorical?.categories;
+        const cat = catCols?.find(c => c.source.roles?.["category"]);
+        const mult = catCols?.find(c => c.source.roles?.["multiples"]);
         const valueCols = dataView?.categorical?.values;
         if (!cat || !valueCols || valueCols.length === 0) { return null; }
 
@@ -217,12 +227,15 @@ export class Visual implements IVisual {
             const varRel = (varAbs != null && basis != null && basis !== 0)
                 ? (varAbs / Math.abs(basis)) * 100 : null;
             const comment = comments ? comments[i] : null;
+            let selBuilder = this.host.createSelectionIdBuilder().withCategory(cat, i);
+            if (mult) { selBuilder = selBuilder.withCategory(mult, i); }
             points.push({
                 cat: this.categoryLabel(cat.values[i]),
                 ac, py, pl, fc, value, isFc, basis, varAbs, varRel,
                 comment,
                 commentNo: comment != null ? ++commentCounter : null,
-                sel: this.host.createSelectionIdBuilder().withCategory(cat, i).createSelectionId()
+                group: mult ? this.categoryLabel(mult.values[i]) : null,
+                sel: selBuilder.createSelectionId()
             });
         }
         return points;
@@ -306,11 +319,22 @@ export class Visual implements IVisual {
         const s = this.formattingSettings;
         const orientation = String(s.chartCard.orientation.value.value) as Orientation;
 
-        // top N + rest aggregation (structure comparisons only)
-        const topN = Math.round(s.chartCard.topN.value ?? 0);
-        if (orientation === "bars" && topN > 0 && points.length > topN + 1) {
-            points = this.applyTopN(points, topN);
+        // small multiples: group by the multiples role, in order of appearance
+        const groups: { name: string | null; pts: DataPoint[] }[] = [];
+        for (const p of points) {
+            const last = groups.length > 0 ? groups[groups.length - 1] : null;
+            const found = last && last.name === p.group ? last : groups.find(g => g.name === p.group);
+            if (found) { found.pts.push(p); } else { groups.push({ name: p.group, pts: [p] }); }
         }
+
+        // top N + rest aggregation (structure comparisons only), per group
+        const topN = Math.round(s.chartCard.topN.value ?? 0);
+        if (orientation === "bars" && topN > 0) {
+            for (const g of groups) {
+                if (g.pts.length > topN + 1) { g.pts = this.applyTopN(g.pts, topN); }
+            }
+        }
+        points = groups.reduce<DataPoint[]>((acc, g) => acc.concat(g.pts), []);
 
         const maxAbs = Math.max(...points.map(p =>
             Math.max(Math.abs(p.value ?? 0), Math.abs(p.py ?? 0), Math.abs(p.pl ?? 0))), 0);
@@ -366,11 +390,49 @@ export class Visual implements IVisual {
         this.el("rect", { width: 5, height: 5, fill: cfg.paper }, pat);
         this.el("line", { x1: 0, y1: 0, x2: 0, y2: 5, stroke: cfg.colors.ac, "stroke-width": 2.5 }, pat);
 
-        this.renderChart(points, { x: 0, y: 0, w: width, h: height }, cfg);
+        // shared value domains across all multiples (IBCS: identical scales)
+        const domains: Domains = {
+            main: extent(points.flatMap(p => [p.value, p.py, p.pl, p.fc])),
+            abs: extent(points.map(p => p.varAbs)),
+            rel: extent(points.map(p => p.varRel))
+        };
+
+        if (groups.length <= 1) {
+            this.renderChart(points, { x: 0, y: 0, w: width, h: height }, cfg, domains);
+            return;
+        }
+
+        // grid layout for small multiples: keep cells at a usable width
+        const MAX_CELLS = 24;
+        const shown = groups.slice(0, MAX_CELLS);
+        const n = shown.length;
+        let cols = Math.ceil(Math.sqrt(n));
+        cols = Math.max(1, Math.min(cols, Math.floor(width / 220) || 1));
+        const rows = Math.ceil(n / cols);
+        const cellW = width / cols;
+        const cellH = height / rows;
+        const groupTitleH = 16;
+
+        for (let gi = 0; gi < n; gi++) {
+            const cx = (gi % cols) * cellW;
+            const cy = Math.floor(gi / cols) * cellH;
+            let title = shown[gi].name ?? "";
+            if (gi === n - 1 && groups.length > n) {
+                title += `  (+${groups.length - n} weitere)`;
+            }
+            const t = this.el("text", {
+                x: cx + 6, y: cy + 12, "font-size": 11, fill: cfg.ink,
+                "font-family": FONT, "font-weight": 600
+            }, this.svg);
+            t.textContent = this.truncate(title, cellW - 12, 11);
+            this.renderChart(shown[gi].pts,
+                { x: cx + 2, y: cy + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 },
+                cfg, domains);
+        }
     }
 
     /** renders one complete IBCS chart (base + variance panels) into the given region */
-    private renderChart(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+    private renderChart(points: DataPoint[], region: Rect, cfg: ChartConfig, domains: Domains): void {
         const n = points.length;
         const pad = 4;
         const titleH = 14;
@@ -422,13 +484,11 @@ export class Visual implements IVisual {
         const labelPad = cfg.showLabels ? cfg.labelFont + 6 : 6;
         const compactLabelPad = compact && cfg.showLabels && orientation === "columns"
             ? labelPad + cfg.labelFont + 4 : labelPad;
-        const mainScale = this.makePanelScale(
-            extent(points.flatMap(p => [p.value, p.py, p.pl, p.fc])),
-            panels.main, orientation, compactLabelPad);
-        const absScale = panels.abs ? this.makePanelScale(
-            extent(points.map(p => p.varAbs)), panels.abs, orientation, labelPad) : null;
-        const relScale = panels.rel ? this.makePanelScale(
-            extent(points.map(p => p.varRel)), panels.rel, orientation, labelPad) : null;
+        const mainScale = this.makePanelScale(domains.main, panels.main, orientation, compactLabelPad);
+        const absScale = panels.abs
+            ? this.makePanelScale(domains.abs, panels.abs, orientation, labelPad) : null;
+        const relScale = panels.rel
+            ? this.makePanelScale(domains.rel, panels.rel, orientation, labelPad) : null;
 
         // ------- background layer: baselines + panel titles
         const bg = this.el("g", {}, this.svg);
@@ -600,6 +660,7 @@ export class Visual implements IVisual {
             ac, py, pl, fc, value,
             isFc: false, basis, varAbs, varRel,
             comment: null, commentNo: null,
+            group: head.length > 0 ? head[0].group : null,
             sel: null
         };
         return [...head, rest];

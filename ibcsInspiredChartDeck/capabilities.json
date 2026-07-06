@@ -39,6 +39,12 @@
             "name": "comments",
             "kind": "Measure",
             "description": "Text-Measure: Kategorien mit Kommentar bekommen einen nummerierten Marker, Text im Tooltip"
+        },
+        {
+            "displayName": "Small Multiples",
+            "name": "multiples",
+            "kind": "Grouping",
+            "description": "Teilt das Chart in kleine Kacheln pro Gruppe — mit identischer Skalierung (IBCS)"
         }
     ],
     "objects": {
@@ -106,6 +112,7 @@
             "conditions": [
                 {
                     "category": { "max": 1 },
+                    "multiples": { "max": 1 },
                     "actual": { "max": 1 },
                     "previousYear": { "max": 1 },
                     "plan": { "max": 1 },
@@ -115,7 +122,10 @@
             ],
             "categorical": {
                 "categories": {
-                    "for": { "in": "category" },
+                    "select": [
+                        { "for": { "in": "category" } },
+                        { "for": { "in": "multiples" } }
+                    ],
                     "dataReductionAlgorithm": { "top": { "count": 1000 } }
                 },
                 "values": {
