@@ -303,6 +303,23 @@ export class ScaleCardSettings extends FormattingSettingsCard {
         }
     });
 
+    refLine = new formattingSettings.TextInput({
+        name: "refLine",
+        displayName: "Reference line value",
+        displayNameKey: "Scale_RefLine",
+        description: "Zeichnet eine Ziel-/Schwellenlinie bei diesem Wert quer durch das Basis-Chart. Leer = aus.",
+        placeholder: "z. B. 1200000",
+        value: ""
+    });
+
+    refLineLabel = new formattingSettings.TextInput({
+        name: "refLineLabel",
+        displayName: "Reference line label",
+        displayNameKey: "Scale_RefLineLabel",
+        placeholder: "z. B. Ziel",
+        value: ""
+    });
+
     capOverflow = new formattingSettings.ToggleSwitch({
         name: "capOverflow",
         displayName: "Cap outliers at maximum",
@@ -314,7 +331,8 @@ export class ScaleCardSettings extends FormattingSettingsCard {
     name: string = "scale";
     displayName: string = "Scale sync";
     displayNameKey: string = "Card_Scale";
-    slices: Array<FormattingSettingsSlice> = [this.fixedMax, this.fixedVarMax, this.capOverflow];
+    slices: Array<FormattingSettingsSlice> = [this.fixedMax, this.fixedVarMax, this.capOverflow,
+        this.refLine, this.refLineLabel];
 }
 
 export class CategoryAxisCardSettings extends FormattingSettingsCard {

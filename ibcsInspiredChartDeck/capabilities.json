@@ -143,7 +143,9 @@
             "properties": {
                 "fixedMax": { "type": { "numeric": true } },
                 "fixedVarMax": { "type": { "numeric": true } },
-                "capOverflow": { "type": { "bool": true } }
+                "capOverflow": { "type": { "bool": true } },
+                "refLine": { "type": { "text": true } },
+                "refLineLabel": { "type": { "text": true } }
             }
         },
         "categoryAxis": {

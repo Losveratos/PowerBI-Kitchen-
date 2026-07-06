@@ -113,6 +113,9 @@ interface ChartConfig {
     capMax: number | null;
     /** cumulative (YTD) view: totals header shows the last running value */
     cumulative: boolean;
+    /** target / threshold line across the base chart */
+    refLine: number | null;
+    refLineLabel: string;
 }
 
 function linearScale(d0: number, d1: number, r0: number, r1: number): Scale {
@@ -428,6 +431,8 @@ export class Visual implements IVisual {
             capMax: (s.scaleCard.capOverflow.value && (s.scaleCard.fixedMax.value ?? 0) > 0)
                 ? s.scaleCard.fixedMax.value : null,
             cumulative: s.chartCard.cumulative.value,
+            refLine: this.parseRefLine(),
+            refLineLabel: (s.scaleCard.refLineLabel.value || "").trim(),
             basisMode,
             basisLabel: basisMode === "plan" ? "PL" : "PY",
             showAbs: s.chartCard.showAbsoluteVariance.value && hasVar,
@@ -489,6 +494,10 @@ export class Visual implements IVisual {
             wfByGroup.forEach(segs => allSegs.push(...segs));
             domains.main = extent(allSegs.flatMap(sg => [sg.from, sg.to]));
             this.sharedWfDomain = domains.main;
+        }
+        if (cfg.refLine != null) {
+            domains.main = [Math.min(domains.main[0], cfg.refLine), Math.max(domains.main[1], cfg.refLine)];
+            if (this.sharedWfDomain) { this.sharedWfDomain = domains.main; }
         }
 
         const renderCell = (grp: { name: string | null; pts: DataPoint[] }, region: Rect) => {
@@ -618,6 +627,9 @@ export class Visual implements IVisual {
 
         const bg = this.el("g", {}, this.svg);
         this.drawBaseline(bg, rect, scale, "columns", bandStart, bandEnd, "ac", cfg.colors);
+        if (cfg.refLine != null) {
+            this.drawRefLine(bg, rect, scale, "columns", bandStart, bandEnd, cfg);
+        }
         const title = segs[0].outlined ? `${cfg.basisLabel} → AC` : "AC";
         this.drawPanelTitle(bg, rect, title, "columns", titleH, region, undefined, cfg.subtle);
 
@@ -915,6 +927,12 @@ export class Visual implements IVisual {
             this.attachInteraction(g, p, cfg);
             this.catGroups.push({ g, sel: p.sel });
         }
+
+        // ------- reference line on top of the marks (thin, dashed)
+        if (cfg.refLine != null) {
+            const overlay = this.el("g", {}, this.svg);
+            this.drawRefLine(overlay, panels.main, mainScale, orientation, bandStart, bandEnd, cfg);
+        }
     }
 
     /**
@@ -1145,6 +1163,45 @@ export class Visual implements IVisual {
             if (sumBasis !== 0) {
                 span(` · ${this.fmtPercent((sumVar / sumBasis) * 100)}`, color, true);
             }
+        }
+    }
+
+    private parseRefLine(): number | null {
+        const raw = String(this.formattingSettings.scaleCard.refLine.value || "")
+            .trim().replace(/\s/g, "").replace(",", ".");
+        if (!raw) { return null; }
+        const v = parseFloat(raw);
+        return isFinite(v) ? v : null;
+    }
+
+    /** dashed target/threshold line with label at the far end of the base chart */
+    private drawRefLine(parent: SVGElement, rect: Rect, scale: Scale, orientation: Orientation,
+        bandStart: number, bandEnd: number, cfg: ChartConfig): void {
+        const v = cfg.refLine as number;
+        const pos = scale(v);
+        const label = cfg.refLineLabel || cfg.fmt.format(v);
+        if (orientation === "columns") {
+            this.el("line", {
+                x1: bandStart, y1: pos, x2: bandEnd, y2: pos,
+                stroke: cfg.ink, "stroke-width": 1.1, "stroke-dasharray": "7,3"
+            }, parent);
+            const t = this.el("text", {
+                x: bandStart + 2, y: pos - 4, "text-anchor": "start", "font-size": 9,
+                fill: cfg.ink, "font-family": FONT,
+                stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+            }, parent);
+            t.textContent = label;
+        } else {
+            this.el("line", {
+                x1: pos, y1: bandStart, x2: pos, y2: bandEnd,
+                stroke: cfg.ink, "stroke-width": 1.1, "stroke-dasharray": "7,3"
+            }, parent);
+            const t = this.el("text", {
+                x: pos + 3, y: bandStart + 8, "text-anchor": "start", "font-size": 9,
+                fill: cfg.ink, "font-family": FONT,
+                stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+            }, parent);
+            t.textContent = label;
         }
     }
 
