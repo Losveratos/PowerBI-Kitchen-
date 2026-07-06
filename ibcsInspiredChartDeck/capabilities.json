@@ -102,6 +102,7 @@
                 "showRelativeVariance": { "type": { "bool": true } },
                 "showTotal": { "type": { "bool": true } },
                 "topN": { "type": { "numeric": true } },
+                "movingAverage": { "type": { "numeric": true } },
                 "cumulative": { "type": { "bool": true } },
                 "highlight": { "type": { "text": true } },
                 "invert": { "type": { "bool": true } }

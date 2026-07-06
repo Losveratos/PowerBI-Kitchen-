@@ -118,6 +118,8 @@ interface ChartConfig {
     refLineLabel: string;
     /** line chart mode for long time series (IBCS line notation) */
     lineMode: boolean;
+    /** moving average window (0 = off), columns/line only */
+    movingAvg: number;
 }
 
 function linearScale(d0: number, d1: number, r0: number, r1: number): Scale {
@@ -437,6 +439,7 @@ export class Visual implements IVisual {
             refLine: this.parseRefLine(),
             refLineLabel: (s.scaleCard.refLineLabel.value || "").trim(),
             lineMode,
+            movingAvg: Math.round(s.chartCard.movingAverage.value ?? 0),
             basisMode,
             basisLabel: basisMode === "plan" ? "PL" : "PY",
             showAbs: s.chartCard.showAbsoluteVariance.value && hasVar,
@@ -833,6 +836,13 @@ export class Visual implements IVisual {
             this.drawLinePaths(bg, points, (i: number) => slotPos(i) + slotW / 2, mainScale, cfg);
         }
 
+        // ------- moving average overlay (time series only)
+        if (cfg.movingAvg >= 2 && orientation === "columns") {
+            this.drawMovingAverage(bg, points, (i: number) => lineMode
+                ? slotPos(i) + slotW / 2
+                : slotPos(i) + pyShift + barW / 2, mainScale, cfg);
+        }
+
         // ------- category groups with all marks
         const marks = this.el("g", {}, this.svg);
         for (let i = 0; i < n; i++) {
@@ -1188,6 +1198,31 @@ export class Visual implements IVisual {
                 span(` · ${this.fmtPercent((sumVar / sumBasis) * 100)}`, color, true);
             }
         }
+    }
+
+    /** thin overlay line with the trailing N-period average of the base values */
+    private drawMovingAverage(parent: SVGElement, points: DataPoint[],
+        cxOf: (i: number) => number, scale: Scale, cfg: ChartConfig): void {
+        const win = cfg.movingAvg;
+        let d = "";
+        let lastX = 0, lastY = 0, any = false;
+        for (let i = win - 1; i < points.length; i++) {
+            const slice = points.slice(i - win + 1, i + 1).map(p => p.value);
+            if (slice.some(v => v == null)) { continue; }
+            const avg = (slice as number[]).reduce((a, b) => a + b, 0) / win;
+            const x = cxOf(i), y = scale(avg);
+            d += d && any ? `L${x},${y}` : `M${x},${y}`;
+            lastX = x; lastY = y; any = true;
+        }
+        if (!any) { return; }
+        this.el("path", {
+            d, fill: "none", stroke: cfg.subtle, "stroke-width": 1.5, "stroke-opacity": 0.9
+        }, parent);
+        const t = this.el("text", {
+            x: lastX + 4, y: lastY + 3, "font-size": 9, fill: cfg.subtle, "font-family": FONT,
+            stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+        }, parent);
+        t.textContent = `Ø${win}`;
     }
 
     /** IBCS line notation: AC solid (FC segments dashed), PY thin grey, PL thin dashed */

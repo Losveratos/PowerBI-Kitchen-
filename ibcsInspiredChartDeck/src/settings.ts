@@ -127,6 +127,18 @@ export class ChartCardSettings extends FormattingSettingsCard {
         }
     });
 
+    movingAverage = new formattingSettings.NumUpDown({
+        name: "movingAverage",
+        displayName: "Moving average (periods)",
+        displayNameKey: "Chart_MovingAverage",
+        description: "Dünne Overlay-Linie mit gleitendem Durchschnitt über N Perioden (Columns/Line). 0 = aus.",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 24 }
+        }
+    });
+
     cumulative = new formattingSettings.ToggleSwitch({
         name: "cumulative",
         displayName: "Cumulative (YTD)",
@@ -154,6 +166,7 @@ export class ChartCardSettings extends FormattingSettingsCard {
         this.showRelativeVariance,
         this.showTotal,
         this.topN,
+        this.movingAverage,
         this.cumulative,
         this.highlight,
         this.invert

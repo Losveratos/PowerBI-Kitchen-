@@ -35,6 +35,11 @@ in **einem** Visual löst:
 - **Theme-Farben**: optional Good/Bad und Neutraltöne aus dem Berichtsdesign übernehmen
 - **Drilldown & Drillthrough**: Datums-/Kategorien-Hierarchien per Drill-Steuerung
   bzw. Rechtsklick → Drillthrough auf Detailseiten
+- **Linien-Modus** für lange Zeitreihen: AC solide mit Punktmarkern (FC gestrichelt,
+  hohle Marker), PY dünn grau, PL dünn gestrichelt — IBCS-Liniennotation
+- **Kumuliert (YTD)**: Umschalter stellt alle Panels auf Year-to-Date-Sicht um
+- **Referenzlinie**: Ziel-/Schwellenwert als gestrichelte Linie mit Beschriftung
+- **Gleitender Durchschnitt**: Ø-N-Overlay-Linie zur Glättung von Saisonalität
 - **Small Multiples**: Grouping-Feld teilt das Chart in Kacheln pro Gruppe —
   alle mit identischer Skalierung (IBCS-Regel „gleiche Skalen")
 - **Σ-Header**: Summe + Gesamtabweichung (absolut & %) als Kopfzeile, gut/schlecht gefärbt
@@ -80,14 +85,15 @@ Im Formatbereich unter **Chart → Variance basis** umstellbar.
 ## Formatbereich
 
 - **IBCS title**: an/aus, KPI-Name, Zeitraum, Botschafts-Zeile (auto wenn leer)
-- **Chart**: Orientation (Columns/Bars/Waterfall), Variance basis (Auto/PY/PL),
+- **Chart**: Orientation (Columns/Bars/Line/Waterfall), Variance basis (Auto/PY/PL),
   Absolute/Relative variance ein-aus, Total (Σ) header, Top N (Bars),
-  Highlight categories, Invert (higher is bad)
+  Moving average, Cumulative (YTD), Highlight categories, Invert (higher is bad)
 - **IBCS colors**: AC, PY, PL-Outline, Good/Bad
 - **Data labels**: an/aus, Textgröße, Dezimalstellen, Einheiten (Auto/k/M/B)
 - **Comments**: Kommentarliste rechts an/aus
 - **Scale sync**: Skalen-Mindest-Maximum für Basis-Chart und Varianz-Panel
-  (gleiche Werte auf mehreren Instanzen = gleiche Skalen), Ausreißer-Kappung
+  (gleiche Werte auf mehreren Instanzen = gleiche Skalen), Ausreißer-Kappung,
+  Referenzlinie mit Beschriftung
 - **Category axis**: Textgröße
 
 ## Selbst bauen
