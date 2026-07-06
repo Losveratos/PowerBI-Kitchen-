@@ -22,6 +22,8 @@
 <div class="case"><h4>Doppel-Varianz · ΔPL und ΔPY parallel (560px hoch)</h4><div class="stage" id="c12" style="width:960px;height:560px"></div></div>
 <div class="case"><h4>YTD kumuliert · gleiche Daten wie oben</h4><div class="stage" id="c10" style="width:960px;height:420px"></div></div>
 <div class="case"><h4>Leeres Visual · Live-Demo-Landing + Auto-Message</h4><div class="stage" id="c11" style="width:960px;height:380px"></div></div>
+<div class="case"><h4>Stress · negative Werte (Ergebnis) + Doppel-Varianz</h4><div class="stage" id="c13" style="width:960px;height:480px"></div></div>
+<div class="case"><h4>Stress · 1 Kategorie / Null-Reihe / 500 Kategorien (Timing in Konsole)</h4><div class="stage" id="c14" style="width:300px;height:200px;display:inline-block"></div><div class="stage" id="c15" style="width:300px;height:200px;display:inline-block"></div><div class="stage" id="c16" style="width:340px;height:200px;display:inline-block"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -137,6 +139,24 @@ run("c10", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", p
 
 // empty field wells -> demo landing
 run("c11", { metadata: { columns: [], objects: {} }, categorical: { categories: [], values: [] } }, 960, 380);
+
+// stress: profit/loss series crossing zero, dual variance
+const resAc = [120, -80, 40, -150, 90, 200, -30, null, null, null, null, null];
+const resFc = [null,null,null,null,null,null,null, 60, -40, 110, 150, 220];
+const resPy = [100, -60, 70, -120, 60, 150, 20, 40, -70, 90, 120, 180];
+const resPl = [110, -40, 60, -100, 100, 170, 0, 50, -20, 120, 140, 200];
+run("c13", dataView(months, [col("actual", resAc), col("previousYear", resPy), col("plan", resPl), col("forecast", resFc)],
+  { chart: { dualVariance: true }, ibcsTitle: { kpi: "Ergebnis" } }), 960, 480);
+
+// stress: single category / all-null-except-one / 500 categories timing
+run("c14", dataView(["Q1"], [col("actual", [42]), col("plan", [40])]), 300, 200);
+run("c15", dataView(["A","B","C"], [col("actual", [null, 0, null]), col("plan", [null, null, null])]), 300, 200);
+const bigCats = Array.from({length: 500}, (_, i) => "T" + i);
+const bigAc = bigCats.map((_, i) => 100 + (i % 37) * 3);
+const bigPy = bigCats.map((_, i) => 95 + (i % 41) * 3);
+console.time("render-500");
+run("c16", dataView(bigCats, [col("actual", bigAc), col("previousYear", bigPy)]), 340, 200);
+console.timeEnd("render-500");
 
 run("c6", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")]), 960, 420, true);
 </script>
