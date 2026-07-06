@@ -116,6 +116,8 @@ interface ChartConfig {
     /** target / threshold line across the base chart */
     refLine: number | null;
     refLineLabel: string;
+    /** line chart mode for long time series (IBCS line notation) */
+    lineMode: boolean;
 }
 
 function linearScale(d0: number, d1: number, r0: number, r1: number): Scale {
@@ -364,6 +366,7 @@ export class Visual implements IVisual {
         const s = this.formattingSettings;
         const orientationRaw = String(s.chartCard.orientation.value.value);
         const isWaterfall = orientationRaw === "waterfall";
+        const lineMode = orientationRaw === "line";
         const orientation: Orientation = orientationRaw === "bars" ? "bars" : "columns";
 
         // small multiples: group by the multiples role, in order of appearance
@@ -433,6 +436,7 @@ export class Visual implements IVisual {
             cumulative: s.chartCard.cumulative.value,
             refLine: this.parseRefLine(),
             refLineLabel: (s.scaleCard.refLineLabel.value || "").trim(),
+            lineMode,
             basisMode,
             basisLabel: basisMode === "plan" ? "PL" : "PY",
             showAbs: s.chartCard.showAbsoluteVariance.value && hasVar,
@@ -823,39 +827,59 @@ export class Visual implements IVisual {
             }
         }
 
+        // ------- line mode: scenario paths underneath the markers
+        const lineMode = cfg.lineMode && orientation === "columns";
+        if (lineMode) {
+            this.drawLinePaths(bg, points, (i: number) => slotPos(i) + slotW / 2, mainScale, cfg);
+        }
+
         // ------- category groups with all marks
         const marks = this.el("g", {}, this.svg);
         for (let i = 0; i < n; i++) {
             const p = points[i];
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
             const pos = slotPos(i);
+            const cx = lineMode ? pos + slotW / 2 : pos + pyShift + barW / 2;
 
             // base chart: PY behind, PL outline, AC/FC on top
             const capV = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
-            if (p.py != null) {
+            if (!lineMode && p.py != null) {
                 this.drawBar(g, pos, barW, 0, capV(p.py), mainScale, orientation,
                     cfg.hc
                         ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
                         : { fill: cfg.colors.py });
             }
-            if (p.pl != null) {
+            if (!lineMode && p.pl != null) {
                 this.drawBar(g, pos + pyShift, barW, 0, capV(p.pl), mainScale, orientation,
                     { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 });
             }
             if (p.value != null) {
-                this.drawBar(g, pos + pyShift, barW, 0, capV(p.value), mainScale, orientation,
-                    p.isFc
-                        ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
-                        : { fill: cfg.colors.ac });
-                if (cfg.capMax != null && p.value > cfg.capMax) {
-                    this.drawCapMarker(g, pos + pyShift, barW, mainScale, orientation, cfg);
+                if (lineMode) {
+                    // transparent hit area for tooltips/selection + point marker
+                    this.el("rect", {
+                        x: pos, y: panels.main.y, width: slotW, height: panels.main.h,
+                        fill: cfg.paper, "fill-opacity": 0, "pointer-events": "all"
+                    }, g);
+                    this.el("circle", {
+                        cx, cy: mainScale(capV(p.value)), r: 2.6,
+                        fill: p.isFc ? cfg.paper : cfg.colors.ac,
+                        stroke: cfg.colors.ac, "stroke-width": 1.4
+                    }, g);
+                } else {
+                    this.drawBar(g, pos + pyShift, barW, 0, capV(p.value), mainScale, orientation,
+                        p.isFc
+                            ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                            : { fill: cfg.colors.ac });
+                    if (cfg.capMax != null && p.value > cfg.capMax) {
+                        this.drawCapMarker(g, pos + pyShift, barW, mainScale, orientation, cfg);
+                    }
                 }
                 if (cfg.showLabels && showValueAt(i)) {
                     // anchor the label beyond the PL outline when the plan column is taller
-                    const anchor = capV(p.pl != null
+                    const anchor = capV(!lineMode && p.pl != null
                         ? (p.value >= 0 ? Math.max(p.value, p.pl) : Math.min(p.value, p.pl))
                         : p.value);
-                    this.drawEndLabelAt(g, pos + pyShift + barW / 2, anchor, p.value >= 0, mainScale,
+                    this.drawEndLabelAt(g, cx, anchor, p.value >= 0, mainScale,
                         orientation, valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
                     // compact mode: variance becomes a colored second label at the bar end
                     if (compact && p.varAbs != null) {
@@ -865,7 +889,7 @@ export class Visual implements IVisual {
                         const gap = orientation === "columns"
                             ? cfg.labelFont + 2
                             : valueTexts[i].length * cfg.labelFont * 0.56 + 8;
-                        this.drawEndLabelAt(g, pos + pyShift + barW / 2, anchor, p.value >= 0, mainScale,
+                        this.drawEndLabelAt(g, cx, anchor, p.value >= 0, mainScale,
                             orientation, vText, cfg.labelFont, vColor, gap, cfg.paper);
                     }
                 }
@@ -876,7 +900,7 @@ export class Visual implements IVisual {
                 const good = cfg.invert ? p.varAbs < 0 : p.varAbs > 0;
                 const color = p.varAbs === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const vw = slotW * 0.55;
-                const vx = pos + pyShift + barW / 2 - vw / 2;
+                const vx = cx - vw / 2;
                 const hollowBad = cfg.hc && !good && p.varAbs !== 0;
                 this.drawBar(g, vx, vw, 0, p.varAbs, absScale, orientation,
                     hollowBad
@@ -894,7 +918,7 @@ export class Visual implements IVisual {
             if (panels.rel && relScale && p.varRel != null) {
                 const good = cfg.invert ? p.varRel < 0 : p.varRel > 0;
                 const color = p.varRel === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
-                const c = pos + pyShift + barW / 2;
+                const c = cx;
                 const zero = relScale(0);
                 const end = relScale(p.varRel);
                 const r = Math.max(2.5, Math.min(4.5, slotW * 0.12));
@@ -921,7 +945,7 @@ export class Visual implements IVisual {
 
             // comment marker (numbered circle at the inner end of the bar)
             if (p.commentNo != null && p.value != null) {
-                this.drawCommentMarker(g, pos + pyShift + barW / 2, p, mainScale, orientation, cfg);
+                this.drawCommentMarker(g, cx, p, mainScale, orientation, cfg);
             }
 
             this.attachInteraction(g, p, cfg);
@@ -1164,6 +1188,34 @@ export class Visual implements IVisual {
                 span(` · ${this.fmtPercent((sumVar / sumBasis) * 100)}`, color, true);
             }
         }
+    }
+
+    /** IBCS line notation: AC solid (FC segments dashed), PY thin grey, PL thin dashed */
+    private drawLinePaths(parent: SVGElement, points: DataPoint[],
+        cxOf: (i: number) => number, scale: Scale, cfg: ChartConfig): void {
+        const cap = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
+        const path = (acc: (p: DataPoint) => number | null,
+            style: Record<string, string | number>, splitFc: boolean) => {
+            let dSolid = "", dDash = "";
+            let prev: { x: number; y: number; fc: boolean } | null = null;
+            for (let i = 0; i < points.length; i++) {
+                const v = acc(points[i]);
+                if (v == null) { prev = null; continue; }
+                const pt = { x: cxOf(i), y: scale(cap(v)), fc: points[i].isFc };
+                if (prev) {
+                    const seg = `M${prev.x},${prev.y}L${pt.x},${pt.y}`;
+                    if (splitFc && (prev.fc || pt.fc)) { dDash += seg; } else { dSolid += seg; }
+                }
+                prev = pt;
+            }
+            if (dSolid) { this.el("path", { d: dSolid, fill: "none", ...style }, parent); }
+            if (dDash) {
+                this.el("path", { d: dDash, fill: "none", ...style, "stroke-dasharray": "5,4" }, parent);
+            }
+        };
+        if (cfg.hasPy) { path(p => p.py, { stroke: cfg.colors.py, "stroke-width": 1.4 }, false); }
+        if (cfg.hasPl) { path(p => p.pl, { stroke: cfg.colors.pl, "stroke-width": 1.2, "stroke-dasharray": "5,3" }, false); }
+        path(p => p.value, { stroke: cfg.colors.ac, "stroke-width": 2 }, true);
     }
 
     private parseRefLine(): number | null {
