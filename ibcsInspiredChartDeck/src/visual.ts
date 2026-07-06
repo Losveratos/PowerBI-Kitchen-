@@ -235,7 +235,10 @@ export class Visual implements IVisual {
 
     // ------------------------------------------------------------------ data
 
+    private missingHint: string | null = null;
+
     private parseData(dataView: DataView | undefined): DataPoint[] | null {
+        this.missingHint = null;
         const catCols = dataView?.categorical?.categories;
         // with drilldown, "expand all" delivers several category-role columns (one per level)
         const catLevels = catCols?.filter(c => c.source.roles?.["category"]) ?? [];
@@ -246,6 +249,7 @@ export class Visual implements IVisual {
         const valueCols = dataView?.categorical?.values;
         if (!cat || !valueCols || valueCols.length === 0) { return null; }
 
+        this.missingHint = null;
         const byRole: { [role: string]: (number | null)[] } = {};
         let comments: (string | null)[] | null = null;
         this.measureFormat = undefined;
@@ -270,7 +274,13 @@ export class Visual implements IVisual {
         this.paneHasPy = !!byRole["previousYear"];
         this.paneHasPl = !!byRole["plan"];
         this.paneHasComments = comments != null;
-        if (!byRole["actual"] && !byRole["forecast"]) { return null; }
+        if (!byRole["actual"] && !byRole["forecast"]) {
+            // some fields are bound but the value measure is missing — say so
+            if (valueCols.length > 0 || mult || rowTypeCol || fcFlagCol) {
+                this.missingHint = "Actual (AC) fehlt — bitte Ist-Measure ins Actual-Feld ziehen";
+            }
+            return null;
+        }
 
         const basisMode = this.resolveBasis(byRole);
         const points: DataPoint[] = [];
@@ -396,7 +406,7 @@ export class Visual implements IVisual {
 
         // hint pill on top of the sample
         const g = this.el("g", {}, this.svg);
-        const msg = "Beispieldaten — füge Category und Actual (AC) hinzu";
+        const msg = this.missingHint || "Beispieldaten — füge Category und Actual (AC) hinzu";
         const w = Math.min(width - 16, msg.length * 6.2 + 24);
         this.el("rect", {
             x: (width - w) / 2, y: height - 30, width: w, height: 22, rx: 11,
@@ -1415,7 +1425,11 @@ export class Visual implements IVisual {
         const raw = String(this.formattingSettings.scaleCard.refLine.value || "")
             .trim().replace(/\s/g, "").replace(",", ".");
         if (!raw) { return null; }
-        const v = parseFloat(raw);
+        // accept k/M/B (and German Mio/Mrd initials) as magnitude suffixes
+        const m = /^(-?\d*\.?\d+)([kKmMbB]?)$/.exec(raw);
+        if (!m) { return null; }
+        const mult = { k: 1e3, m: 1e6, b: 1e9 }[m[2].toLowerCase()] ?? 1;
+        const v = parseFloat(m[1]) * mult;
         return isFinite(v) ? v : null;
     }
 
