@@ -288,6 +288,13 @@ export class Visual implements IVisual {
 
         const s = this.formattingSettings;
         const orientation = String(s.chartCard.orientation.value.value) as Orientation;
+
+        // top N + rest aggregation (structure comparisons only)
+        const topN = Math.round(s.chartCard.topN.value ?? 0);
+        if (orientation === "bars" && topN > 0 && points.length > topN + 1) {
+            points = this.applyTopN(points, topN);
+        }
+
         const maxAbs = Math.max(...points.map(p =>
             Math.max(Math.abs(p.value ?? 0), Math.abs(p.py ?? 0), Math.abs(p.pl ?? 0))), 0);
         const maxVarAbs = Math.max(...points.map(p => Math.abs(p.varAbs ?? 0)), 0);
@@ -525,6 +532,38 @@ export class Visual implements IVisual {
             this.attachInteraction(g, p, cfg);
             this.catGroups.push({ g, sel: p.sel });
         }
+    }
+
+    /** keeps the N largest categories (by base value) and aggregates the tail into one "Rest" row */
+    private applyTopN(points: DataPoint[], topN: number): DataPoint[] {
+        const sorted = [...points].sort((a, b) => (b.value ?? -Infinity) - (a.value ?? -Infinity));
+        const head = sorted.slice(0, topN);
+        const tail = sorted.slice(topN);
+
+        const sum = (vals: (number | null)[]): number | null => {
+            let acc: number | null = null;
+            for (const v of vals) {
+                if (v == null) { continue; }
+                acc = (acc ?? 0) + v;
+            }
+            return acc;
+        };
+        const ac = sum(tail.map(p => p.ac));
+        const py = sum(tail.map(p => p.py));
+        const pl = sum(tail.map(p => p.pl));
+        const fc = sum(tail.map(p => p.fc));
+        const value = sum(tail.map(p => p.value));
+        const basis = sum(tail.map(p => p.basis));
+        const varAbs = (value != null && basis != null) ? value - basis : null;
+        const varRel = (varAbs != null && basis != null && basis !== 0)
+            ? (varAbs / Math.abs(basis)) * 100 : null;
+        const rest: DataPoint = {
+            cat: `Rest (${tail.length})`,
+            ac, py, pl, fc, value,
+            isFc: false, basis, varAbs, varRel,
+            sel: null
+        };
+        return [...head, rest];
     }
 
     /** Σ header: total value plus overall variance vs. the comparison basis */

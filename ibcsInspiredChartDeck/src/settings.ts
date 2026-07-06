@@ -68,6 +68,17 @@ export class ChartCardSettings extends FormattingSettingsCard {
         value: true
     });
 
+    topN = new formattingSettings.NumUpDown({
+        name: "topN",
+        displayName: "Top N (Bars)",
+        description: "Nur im Bars-Modus: zeigt die N größten Kategorien, der Rest wird aggregiert. 0 = alle.",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 50 }
+        }
+    });
+
     name: string = "chart";
     displayName: string = "Chart";
     slices: Array<FormattingSettingsSlice> = [
@@ -76,6 +87,7 @@ export class ChartCardSettings extends FormattingSettingsCard {
         this.showAbsoluteVariance,
         this.showRelativeVariance,
         this.showTotal,
+        this.topN,
         this.invert
     ];
 }
