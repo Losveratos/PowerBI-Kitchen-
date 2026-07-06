@@ -1,0 +1,53 @@
+name: IBCS Visual — build & verify
+
+on:
+  push:
+    paths:
+      - "ibcsInspiredChartDeck/**"
+      - ".github/workflows/visual-build.yml"
+  pull_request:
+    paths:
+      - "ibcsInspiredChartDeck/**"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ibcsInspiredChartDeck
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ibcsInspiredChartDeck/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npx eslint .
+
+      - name: Package visual
+        run: npx pbiviz package
+
+      - name: Render harness (screenshot regression)
+        run: |
+          npm i -D playwright
+          npx playwright install --with-deps chromium
+          npm run test:render
+
+      - name: Upload pbiviz package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ibcsInspiredChartDeck-pbiviz
+          path: ibcsInspiredChartDeck/dist/*.pbiviz
+
+      - name: Upload render screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: render-regression
+          path: ibcsInspiredChartDeck/test/render.png
