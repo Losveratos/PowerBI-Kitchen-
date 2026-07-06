@@ -6,11 +6,13 @@
  *    - Absolute variance panel (ΔPY / ΔPL) with good/bad coloring
  *    - Relative variance panel (ΔPY % / ΔPL %) as pin chart
  *    - Columns (time) and bars (structure) orientation
+ *    - Compact mode for small tiles, label thinning for dense axes
  */
 "use strict";
 
 import powerbi from "powerbi-visuals-api";
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
+import { valueFormatter } from "powerbi-visuals-utils-formattingutils";
 import "./../style/visual.less";
 
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
@@ -23,10 +25,13 @@ import ISelectionId = powerbi.visuals.ISelectionId;
 import ITooltipService = powerbi.extensibility.ITooltipService;
 import DataView = powerbi.DataView;
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
+import IValueFormatter = valueFormatter.IValueFormatter;
 
 import { VisualFormattingSettingsModel } from "./settings";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
+const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
+const INK = "#404040";
 
 type Orientation = "columns" | "bars";
 type Basis = "py" | "plan";
@@ -43,17 +48,32 @@ interface DataPoint {
     basis: number | null;
     varAbs: number | null;
     varRel: number | null;
-    sel: ISelectionId;
+    sel: ISelectionId | null;
 }
 
 interface Rect { x: number; y: number; w: number; h: number; }
 
 interface Scale { (v: number): number; }
 
-interface PanelCtx {
-    rect: Rect;
-    scale: Scale;
-    title: string;
+/** per-render configuration shared by all chart regions */
+interface ChartConfig {
+    orientation: Orientation;
+    showLabels: boolean;
+    labelFont: number;
+    catFont: number;
+    invert: boolean;
+    colors: { ac: string; py: string; pl: string; good: string; bad: string };
+    basisMode: Basis;
+    basisLabel: string;
+    showAbs: boolean;
+    showRel: boolean;
+    patId: string;
+    fmt: IValueFormatter;
+    /** formatter scaled to the variance magnitudes (auto units) */
+    fmtVar: IValueFormatter;
+    hasPy: boolean;
+    hasPl: boolean;
+    hasFc: boolean;
 }
 
 function linearScale(d0: number, d1: number, r0: number, r1: number): Scale {
@@ -81,7 +101,8 @@ export class Visual implements IVisual {
     private tooltipService: ITooltipService;
     private formattingSettings: VisualFormattingSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
-    private catGroups: { g: SVGGElement; sel: ISelectionId }[] = [];
+    private catGroups: { g: SVGGElement; sel: ISelectionId | null }[] = [];
+    private measureFormat: string | undefined;
     private static instanceCounter = 0;
     private instanceId: number;
 
@@ -153,11 +174,15 @@ export class Visual implements IVisual {
         if (!cat || !valueCols || valueCols.length === 0) { return null; }
 
         const byRole: { [role: string]: (number | null)[] } = {};
+        this.measureFormat = undefined;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
             for (const role of ["actual", "previousYear", "plan", "forecast"]) {
                 if (roles[role]) {
                     byRole[role] = col.values.map(v => (typeof v === "number" && isFinite(v)) ? v : null);
+                    if ((role === "actual" || (role === "forecast" && !this.measureFormat)) && col.source.format) {
+                        this.measureFormat = col.source.format;
+                    }
                 }
             }
         }
@@ -203,28 +228,29 @@ export class Visual implements IVisual {
 
     // ------------------------------------------------------------ formatting
 
-    private unitDivisor(maxAbs: number): { div: number; suffix: string } {
+    private makeFormatter(maxAbs: number, allIntegers: boolean): IValueFormatter {
+        const decimals = Math.max(0, Math.min(3, this.formattingSettings.labelsCard.decimals.value ?? 1));
         const unit = String(this.formattingSettings.labelsCard.displayUnits.value.value);
-        if (unit === "k") { return { div: 1e3, suffix: "k" }; }
-        if (unit === "m") { return { div: 1e6, suffix: "M" }; }
-        if (unit === "b") { return { div: 1e9, suffix: "B" }; }
-        if (unit === "none") { return { div: 1, suffix: "" }; }
-        if (maxAbs >= 1e9) { return { div: 1e9, suffix: "B" }; }
-        if (maxAbs >= 1e6) { return { div: 1e6, suffix: "M" }; }
-        if (maxAbs >= 1e4) { return { div: 1e3, suffix: "k" }; }
-        return { div: 1, suffix: "" };
+        let unitValue: number;
+        switch (unit) {
+            case "none": unitValue = 0; break;
+            case "k": unitValue = 1e3; break;
+            case "m": unitValue = 1e6; break;
+            case "b": unitValue = 1e9; break;
+            default: unitValue = maxAbs >= 1e4 ? maxAbs : 0; break;
+        }
+        // unscaled integers need no forced decimals
+        const precision = unitValue === 0 && allIntegers ? 0 : decimals;
+        return valueFormatter.create({
+            format: this.measureFormat,
+            value: unitValue,
+            precision,
+            cultureSelector: this.host.locale
+        });
     }
 
-    private fmtValue(v: number, unit: { div: number; suffix: string }, signed = false): string {
-        const decimals = Math.max(0, Math.min(3, this.formattingSettings.labelsCard.decimals.value ?? 1));
-        const scaled = v / unit.div;
-        const abs = Math.abs(scaled);
-        const nf = new Intl.NumberFormat(this.host.locale, {
-            minimumFractionDigits: unit.div === 1 && Number.isInteger(scaled) ? 0 : decimals,
-            maximumFractionDigits: unit.div === 1 && Number.isInteger(scaled) ? 0 : decimals
-        });
-        const sign = signed ? (v > 0 ? "+" : v < 0 ? "−" : "") : (v < 0 ? "−" : "");
-        return sign + nf.format(abs) + unit.suffix;
+    private fmtSigned(fmt: IValueFormatter, v: number): string {
+        return (v > 0 ? "+" : "") + fmt.format(v);
     }
 
     private fmtPercent(v: number): string {
@@ -261,72 +287,104 @@ export class Visual implements IVisual {
 
         const s = this.formattingSettings;
         const orientation = String(s.chartCard.orientation.value.value) as Orientation;
-        const showLabels = s.labelsCard.show.value;
-        const labelFont = s.labelsCard.fontSize.value;
-        const catFont = s.categoryAxisCard.fontSize.value;
-        const invert = s.chartCard.invert.value;
-        const colors = {
-            ac: s.colorsCard.actualColor.value.value,
-            py: s.colorsCard.previousYearColor.value.value,
-            pl: s.colorsCard.planColor.value.value,
-            good: s.colorsCard.goodColor.value.value,
-            bad: s.colorsCard.badColor.value.value
-        };
+        const maxAbs = Math.max(...points.map(p =>
+            Math.max(Math.abs(p.value ?? 0), Math.abs(p.py ?? 0), Math.abs(p.pl ?? 0))), 0);
+        const maxVarAbs = Math.max(...points.map(p => Math.abs(p.varAbs ?? 0)), 0);
+        const allInt = points.every(p =>
+            [p.value, p.py, p.pl, p.fc].every(v => v == null || Number.isInteger(v)));
+        const allVarInt = points.every(p => p.varAbs == null || Number.isInteger(p.varAbs));
 
-        const hasPy = points.some(p => p.py != null);
-        const hasPl = points.some(p => p.pl != null);
-        const hasVar = points.some(p => p.varAbs != null);
         const basisMode: Basis = this.resolveBasisLabel(points);
-        const basisLabel = basisMode === "plan" ? "PL" : "PY";
-        const showAbs = s.chartCard.showAbsoluteVariance.value && hasVar;
-        const showRel = s.chartCard.showRelativeVariance.value && points.some(p => p.varRel != null);
+        const hasVar = points.some(p => p.varAbs != null);
+        const cfg: ChartConfig = {
+            orientation,
+            showLabels: s.labelsCard.show.value,
+            labelFont: s.labelsCard.fontSize.value,
+            catFont: s.categoryAxisCard.fontSize.value,
+            invert: s.chartCard.invert.value,
+            colors: {
+                ac: s.colorsCard.actualColor.value.value,
+                py: s.colorsCard.previousYearColor.value.value,
+                pl: s.colorsCard.planColor.value.value,
+                good: s.colorsCard.goodColor.value.value,
+                bad: s.colorsCard.badColor.value.value
+            },
+            basisMode,
+            basisLabel: basisMode === "plan" ? "PL" : "PY",
+            showAbs: s.chartCard.showAbsoluteVariance.value && hasVar,
+            showRel: s.chartCard.showRelativeVariance.value && points.some(p => p.varRel != null),
+            patId: `icd-hatch-${this.instanceId}`,
+            fmt: this.makeFormatter(maxAbs, allInt),
+            fmtVar: this.makeFormatter(maxVarAbs, allVarInt),
+            hasPy: points.some(p => p.py != null),
+            hasPl: points.some(p => p.pl != null),
+            hasFc: points.some(p => p.isFc)
+        };
 
         // hatch pattern for forecast
         const defs = this.el("defs", {}, this.svg);
-        const patId = `icd-hatch-${this.instanceId}`;
         const pat = this.el("pattern", {
-            id: patId, patternUnits: "userSpaceOnUse", width: 5, height: 5,
+            id: cfg.patId, patternUnits: "userSpaceOnUse", width: 5, height: 5,
             patternTransform: "rotate(45)"
         }, defs);
         this.el("rect", { width: 5, height: 5, fill: "#FFFFFF" }, pat);
-        this.el("line", { x1: 0, y1: 0, x2: 0, y2: 5, stroke: colors.ac, "stroke-width": 2.5 }, pat);
+        this.el("line", { x1: 0, y1: 0, x2: 0, y2: 5, stroke: cfg.colors.ac, "stroke-width": 2.5 }, pat);
 
-        // ------- layout: band axis shared, panels split along the value axis
+        this.renderChart(points, { x: 0, y: 0, w: width, h: height }, cfg);
+    }
+
+    /** renders one complete IBCS chart (base + variance panels) into the given region */
+    private renderChart(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
         const n = points.length;
         const pad = 4;
         const titleH = 14;
-        const unit = this.unitDivisor(Math.max(...points.map(p =>
-            Math.max(Math.abs(p.value ?? 0), Math.abs(p.py ?? 0), Math.abs(p.pl ?? 0)))));
+        const orientation = cfg.orientation;
+
+        // compact mode: too little room for variance panels → deltas become labels
+        const compact = orientation === "columns" ? region.h < 190 : region.w < 420;
+        const showAbs = cfg.showAbs && !compact;
+        const showRel = cfg.showRel && !compact;
 
         let bandStart: number, bandEnd: number;
         let panels: { main: Rect; abs?: Rect; rel?: Rect };
 
         if (orientation === "columns") {
-            const catArea = catFont + 10;
-            bandStart = pad + 2;
-            bandEnd = width - pad;
-            const plotTop = pad, plotBottom = height - catArea;
-            panels = this.splitPanels(plotTop, plotBottom - plotTop, showAbs, showRel, true);
+            const catArea = cfg.catFont + 10;
+            bandStart = region.x + pad + 2;
+            bandEnd = region.x + region.w - pad;
+            const plotTop = region.y + pad, plotBottom = region.y + region.h - catArea;
+            panels = this.splitPanels(plotTop, plotBottom - plotTop, showAbs, showRel, true, region);
         } else {
-            const catArea = Math.min(width * 0.28, this.maxTextWidth(points.map(p => p.cat), catFont) + 12);
-            bandStart = pad + titleH + 2; // room for panel titles above the first bar
-            bandEnd = height - pad;
-            const plotLeft = pad + catArea, plotRight = width - pad;
-            panels = this.splitPanels(plotLeft, plotRight - plotLeft, showAbs, showRel, false);
+            const catArea = Math.min(region.w * 0.28, this.maxTextWidth(points.map(p => p.cat), cfg.catFont) + 12);
+            bandStart = region.y + pad + titleH + 2; // room for panel titles above the first bar
+            bandEnd = region.y + region.h - pad;
+            const plotLeft = region.x + pad + catArea, plotRight = region.x + region.w - pad;
+            panels = this.splitPanels(plotLeft, plotRight - plotLeft, showAbs, showRel, false, region);
         }
 
         const bandSpan = bandEnd - bandStart;
         const step = bandSpan / n;
         const slotW = Math.max(2, step * 0.62);
-        const barW = hasPy ? slotW * 0.82 : slotW;
-        const pyShift = hasPy ? slotW - barW : 0;
+        const barW = cfg.hasPy ? slotW * 0.82 : slotW;
+        const pyShift = cfg.hasPy ? slotW - barW : 0;
         const slotPos = (i: number) => bandStart + i * step + (step - slotW) / 2;
 
+        // ------- precompute label texts + thinning predicates
+        const valueTexts = points.map(p => p.value != null ? cfg.fmt.format(p.value) : "");
+        const absTexts = points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : "");
+        const relTexts = points.map(p => p.varRel != null ? this.fmtPercent(p.varRel) : "");
+        const showValueAt = this.labelPredicate(points, valueTexts, cfg.labelFont, step, orientation);
+        const showAbsAt = this.labelPredicate(points, absTexts, cfg.labelFont, step, orientation);
+        const showRelAt = this.labelPredicate(points, relTexts, cfg.labelFont, step, orientation);
+        const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cfg.catFont, step, orientation);
+
         // ------- scales
-        const labelPad = showLabels ? labelFont + 6 : 6;
+        const labelPad = cfg.showLabels ? cfg.labelFont + 6 : 6;
+        const compactLabelPad = compact && cfg.showLabels && orientation === "columns"
+            ? labelPad + cfg.labelFont + 4 : labelPad;
         const mainScale = this.makePanelScale(
             extent(points.flatMap(p => [p.value, p.py, p.pl, p.fc])),
-            panels.main, orientation, labelPad);
+            panels.main, orientation, compactLabelPad);
         const absScale = panels.abs ? this.makePanelScale(
             extent(points.map(p => p.varAbs)), panels.abs, orientation, labelPad) : null;
         const relScale = panels.rel ? this.makePanelScale(
@@ -334,17 +392,37 @@ export class Visual implements IVisual {
 
         // ------- background layer: baselines + panel titles
         const bg = this.el("g", {}, this.svg);
-        const scenarioTitle = ["AC", hasPy ? "PY" : "", hasPl ? "PL" : "",
-            points.some(p => p.isFc) ? "FC" : ""].filter(x => x).join(" · ");
-        this.drawBaseline(bg, panels.main, mainScale, orientation, bandStart, bandEnd, "ac", colors);
-        this.drawPanelTitle(bg, panels.main, scenarioTitle, orientation, titleH);
+        const scenarioTitle = ["AC", cfg.hasPy ? "PY" : "", cfg.hasPl ? "PL" : "",
+            cfg.hasFc ? "FC" : ""].filter(x => x).join(" · ");
+        this.drawBaseline(bg, panels.main, mainScale, orientation, bandStart, bandEnd, "ac", cfg.colors);
+        const compactVarHint = compact && (cfg.showAbs || cfg.showRel)
+            ? `  ·  Δ${cfg.basisLabel}${cfg.showRel ? " %" : ""}` : "";
+        this.drawPanelTitle(bg, panels.main, scenarioTitle + compactVarHint,
+            orientation, titleH, region);
         if (panels.abs && absScale) {
-            this.drawBaseline(bg, panels.abs, absScale, orientation, bandStart, bandEnd, basisMode, colors);
-            this.drawPanelTitle(bg, panels.abs, `Δ${basisLabel}`, orientation, titleH);
+            this.drawBaseline(bg, panels.abs, absScale, orientation, bandStart, bandEnd, cfg.basisMode, cfg.colors);
+            this.drawPanelTitle(bg, panels.abs, `Δ${cfg.basisLabel}`, orientation, titleH, region);
         }
         if (panels.rel && relScale) {
-            this.drawBaseline(bg, panels.rel, relScale, orientation, bandStart, bandEnd, basisMode, colors);
-            this.drawPanelTitle(bg, panels.rel, `Δ${basisLabel} %`, orientation, titleH);
+            this.drawBaseline(bg, panels.rel, relScale, orientation, bandStart, bandEnd, cfg.basisMode, cfg.colors);
+            this.drawPanelTitle(bg, panels.rel, `Δ${cfg.basisLabel} %`, orientation, titleH, region);
+        }
+
+        // ------- AC → FC boundary separator (time series only)
+        if (orientation === "columns" && cfg.hasFc) {
+            const fcStart = points.findIndex(p => p.isFc);
+            const isTail = fcStart > 0 && points.slice(fcStart).every(p => p.isFc || p.value == null);
+            if (isTail) {
+                const x = bandStart + fcStart * step;
+                const yTop = Math.min(panels.main.y,
+                    panels.abs ? panels.abs.y : Infinity,
+                    panels.rel ? panels.rel.y : Infinity);
+                const yBot = panels.main.y + panels.main.h;
+                this.el("line", {
+                    x1: x, y1: yTop + 2, x2: x, y2: yBot,
+                    stroke: "#9A9A9A", "stroke-width": 1, "stroke-dasharray": "3,3"
+                }, bg);
+            }
         }
 
         // ------- category groups with all marks
@@ -357,47 +435,58 @@ export class Visual implements IVisual {
             // base chart: PY behind, PL outline, AC/FC on top
             if (p.py != null) {
                 this.drawBar(g, pos, barW, 0, p.py, mainScale, orientation,
-                    { fill: colors.py });
+                    { fill: cfg.colors.py });
             }
             if (p.pl != null) {
                 this.drawBar(g, pos + pyShift, barW, 0, p.pl, mainScale, orientation,
-                    { fill: "#FFFFFF", stroke: colors.pl, "stroke-width": 1.4 });
+                    { fill: "#FFFFFF", stroke: cfg.colors.pl, "stroke-width": 1.4 });
             }
             if (p.value != null) {
                 this.drawBar(g, pos + pyShift, barW, 0, p.value, mainScale, orientation,
                     p.isFc
-                        ? { fill: `url(#${patId})`, stroke: colors.ac, "stroke-width": 1 }
-                        : { fill: colors.ac });
-                if (showLabels && step > labelFont * 1.4) {
+                        ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                        : { fill: cfg.colors.ac });
+                if (cfg.showLabels && showValueAt(i)) {
                     // anchor the label beyond the PL outline when the plan column is taller
                     const anchor = p.pl != null
                         ? (p.value >= 0 ? Math.max(p.value, p.pl) : Math.min(p.value, p.pl))
                         : p.value;
                     this.drawEndLabelAt(g, pos + pyShift + barW / 2, anchor, p.value >= 0, mainScale,
-                        orientation, this.fmtValue(p.value, unit), labelFont, "#404040");
+                        orientation, valueTexts[i], cfg.labelFont, INK);
+                    // compact mode: variance becomes a colored second label at the bar end
+                    if (compact && p.varAbs != null) {
+                        const good = cfg.invert ? p.varAbs < 0 : p.varAbs > 0;
+                        const vColor = p.varAbs === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                        const vText = p.varRel != null ? relTexts[i] : absTexts[i];
+                        const gap = orientation === "columns"
+                            ? cfg.labelFont + 2
+                            : valueTexts[i].length * cfg.labelFont * 0.56 + 8;
+                        this.drawEndLabelAt(g, pos + pyShift + barW / 2, anchor, p.value >= 0, mainScale,
+                            orientation, vText, cfg.labelFont, vColor, gap);
+                    }
                 }
             }
 
             // absolute variance bars
             if (panels.abs && absScale && p.varAbs != null) {
-                const good = invert ? p.varAbs < 0 : p.varAbs > 0;
-                const color = p.varAbs === 0 ? colors.py : (good ? colors.good : colors.bad);
+                const good = cfg.invert ? p.varAbs < 0 : p.varAbs > 0;
+                const color = p.varAbs === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const vw = slotW * 0.55;
                 const vx = pos + pyShift + barW / 2 - vw / 2;
                 this.drawBar(g, vx, vw, 0, p.varAbs, absScale, orientation,
                     p.isFc
                         ? { fill: color, "fill-opacity": 0.55, stroke: color, "stroke-width": 1 }
                         : { fill: color });
-                if (showLabels && step > labelFont * 1.4) {
+                if (cfg.showLabels && showAbsAt(i)) {
                     this.drawEndLabel(g, vx + vw / 2, p.varAbs, absScale, orientation,
-                        this.fmtValue(p.varAbs, unit, true), labelFont, "#404040");
+                        absTexts[i], cfg.labelFont, INK);
                 }
             }
 
             // relative variance pins
             if (panels.rel && relScale && p.varRel != null) {
-                const good = invert ? p.varRel < 0 : p.varRel > 0;
-                const color = p.varRel === 0 ? colors.py : (good ? colors.good : colors.bad);
+                const good = cfg.invert ? p.varRel < 0 : p.varRel > 0;
+                const color = p.varRel === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const c = pos + pyShift + barW / 2;
                 const zero = relScale(0);
                 const end = relScale(p.varRel);
@@ -409,19 +498,49 @@ export class Visual implements IVisual {
                     this.el("line", { x1: zero, y1: c, x2: end, y2: c, stroke: color, "stroke-width": 1.6 }, g);
                     this.el("circle", { cx: end, cy: c, r, fill: p.isFc ? "#FFFFFF" : color, stroke: color, "stroke-width": 1.6 }, g);
                 }
-                if (showLabels && step > labelFont * 1.4) {
+                if (cfg.showLabels && showRelAt(i)) {
                     this.drawEndLabel(g, c, p.varRel, relScale, orientation,
-                        this.fmtPercent(p.varRel), labelFont, "#404040", r + 3);
+                        relTexts[i], cfg.labelFont, INK, r + 3);
                 }
             }
 
             // category label
-            this.drawCategoryLabel(g, p.cat, pos + slotW / 2, orientation, catFont,
-                width, height, step, bandStart, panels.main);
+            if (showCatAt(i)) {
+                this.drawCategoryLabel(g, p.cat, pos + slotW / 2, orientation, cfg.catFont,
+                    region, step, panels.main);
+            }
 
-            this.attachInteraction(g, p, unit, basisLabel);
+            this.attachInteraction(g, p, cfg);
             this.catGroups.push({ g, sel: p.sel });
         }
+    }
+
+    /**
+     * label thinning: returns a predicate deciding which indices get a label.
+     * k <= 1 → all; k <= 4 → every k-th anchored at the last point;
+     * denser → only first, last, min and max.
+     */
+    private labelPredicate(points: DataPoint[], texts: string[], fontSize: number,
+        step: number, orientation: Orientation): (i: number) => boolean {
+        const n = points.length;
+        let need: number;
+        if (orientation === "columns") {
+            const maxLen = texts.reduce((a, t) => Math.max(a, t.length), 0);
+            need = maxLen * fontSize * 0.56 + 6;
+        } else {
+            need = fontSize + 4;
+        }
+        const k = Math.max(1, Math.ceil(need / Math.max(step, 1)));
+        if (k <= 1) { return () => true; }
+        if (k <= 4) { return (i: number) => (n - 1 - i) % k === 0; }
+        let iMin = 0, iMax = 0;
+        for (let i = 0; i < n; i++) {
+            const v = points[i].value;
+            if (v == null) { continue; }
+            if (v < (points[iMin].value ?? Infinity)) { iMin = i; }
+            if (v > (points[iMax].value ?? -Infinity)) { iMax = i; }
+        }
+        return (i: number) => i === 0 || i === n - 1 || i === iMin || i === iMax;
     }
 
     private resolveBasisLabel(points: DataPoint[]): Basis {
@@ -449,8 +568,8 @@ export class Visual implements IVisual {
         return node;
     }
 
-    private splitPanels(start: number, span: number, showAbs: boolean, showRel: boolean, vertical: boolean)
-        : { main: Rect; abs?: Rect; rel?: Rect } {
+    private splitPanels(start: number, span: number, showAbs: boolean, showRel: boolean,
+        vertical: boolean, region: Rect): { main: Rect; abs?: Rect; rel?: Rect } {
         const gap = 10;
         // vertical (columns): order top→bottom rel, abs, main; horizontal (bars): main, abs, rel
         const parts: { key: "main" | "abs" | "rel"; share: number }[] = [];
@@ -470,8 +589,8 @@ export class Visual implements IVisual {
         for (const part of parts) {
             const size = usable * (part.share / totalShare);
             out[part.key] = vertical
-                ? { x: 0, y: cursor, w: 0, h: size }
-                : { x: cursor, y: 0, w: size, h: 0 };
+                ? { x: region.x, y: cursor, w: region.w, h: size }
+                : { x: cursor, y: region.y, w: size, h: region.h };
             cursor += size + gap;
         }
         return out as { main: Rect; abs?: Rect; rel?: Rect };
@@ -481,7 +600,6 @@ export class Visual implements IVisual {
         let [mn, mx] = domain;
         if (mn === 0 && mx === 0) { mx = 1; }
         const span = mx - mn;
-        // headroom for labels at both value ends
         const padFrac = 0.02;
         const mnp = mn < 0 ? mn - span * padFrac : mn;
         const mxp = mx > 0 ? mx + span * padFrac : mx;
@@ -518,18 +636,19 @@ export class Visual implements IVisual {
         }
     }
 
-    private drawPanelTitle(parent: SVGElement, rect: Rect, text: string, orientation: Orientation, titleH: number): void {
+    private drawPanelTitle(parent: SVGElement, rect: Rect, text: string, orientation: Orientation,
+        titleH: number, region: Rect): void {
         const attrs = orientation === "columns"
-            ? { x: 6, y: rect.y + titleH - 4 }
-            : { x: rect.x + 2, y: 12 };
+            ? { x: region.x + 6, y: rect.y + titleH - 4 }
+            : { x: rect.x + 2, y: region.y + 12 };
         const t = this.el("text", {
             ...attrs, "font-size": 10, fill: "#8A8A8A",
-            "font-family": "'Segoe UI', sans-serif", "font-weight": 600
+            "font-family": FONT, "font-weight": 600
         }, parent);
         t.textContent = text;
     }
 
-    /** draws a rect from 0 to v along the value axis at band position bp with band width bw */
+    /** draws a rect from `from` to `to` along the value axis at band position bp with band width bw */
     private drawBar(parent: SVGElement, bp: number, bw: number, from: number, to: number,
         scale: Scale, orientation: Orientation, style: Record<string, string | number>): void {
         const a = scale(from), b = scale(to);
@@ -562,7 +681,7 @@ export class Visual implements IVisual {
         }
         const t = this.el("text", {
             ...attrs, "font-size": fontSize, fill,
-            "font-family": "'Segoe UI', sans-serif",
+            "font-family": FONT,
             stroke: "#FFFFFF", "stroke-width": 3, "paint-order": "stroke",
             "stroke-linejoin": "round"
         }, parent);
@@ -570,20 +689,20 @@ export class Visual implements IVisual {
     }
 
     private drawCategoryLabel(parent: SVGElement, text: string, bandCenter: number,
-        orientation: Orientation, fontSize: number, width: number, height: number,
-        step: number, bandStart: number, mainRect: Rect): void {
+        orientation: Orientation, fontSize: number, region: Rect,
+        step: number, mainRect: Rect): void {
         let attrs: Record<string, string | number>;
         let maxW: number;
         if (orientation === "columns") {
-            attrs = { x: bandCenter, y: height - 3, "text-anchor": "middle" };
+            attrs = { x: bandCenter, y: region.y + region.h - 3, "text-anchor": "middle" };
             maxW = step - 2;
         } else {
             attrs = { x: mainRect.x - 6, y: bandCenter + fontSize * 0.35, "text-anchor": "end" };
-            maxW = mainRect.x - 8;
+            maxW = mainRect.x - region.x - 8;
         }
         const t = this.el("text", {
-            ...attrs, "font-size": fontSize, fill: "#404040",
-            "font-family": "'Segoe UI', sans-serif"
+            ...attrs, "font-size": fontSize, fill: INK,
+            "font-family": FONT
         }, parent);
         t.textContent = this.truncate(text, maxW, fontSize);
     }
@@ -603,11 +722,11 @@ export class Visual implements IVisual {
 
     // ---------------------------------------------------------- interaction
 
-    private attachInteraction(g: SVGGElement, p: DataPoint,
-        unit: { div: number; suffix: string }, basisLabel: string): void {
+    private attachInteraction(g: SVGGElement, p: DataPoint, cfg: ChartConfig): void {
         g.style.cursor = "pointer";
         g.addEventListener("click", (e: MouseEvent) => {
             e.stopPropagation();
+            if (!p.sel) { return; }
             this.selectionManager.select(p.sel, e.ctrlKey || e.metaKey).then((ids: ISelectionId[]) => {
                 this.applySelectionOpacity(ids);
             });
@@ -624,7 +743,7 @@ export class Visual implements IVisual {
                 if (v == null) { return; }
                 out.push({
                     displayName: name,
-                    value: pct ? this.fmtPercent(v) : this.fmtValue(v, unit, signed)
+                    value: pct ? this.fmtPercent(v) : (signed ? this.fmtSigned(cfg.fmt, v) : cfg.fmt.format(v))
                 });
             };
             out.push({ displayName: "Category", value: p.cat });
@@ -632,14 +751,16 @@ export class Visual implements IVisual {
             add("Forecast (FC)", p.fc);
             add("Previous Year (PY)", p.py);
             add("Plan (PL)", p.pl);
-            add(`Δ${basisLabel}`, p.varAbs, true);
-            add(`Δ${basisLabel} %`, p.varRel, true, true);
+            if (p.varAbs != null) {
+                out.push({ displayName: `Δ${cfg.basisLabel}`, value: this.fmtSigned(cfg.fmtVar, p.varAbs) });
+            }
+            add(`Δ${cfg.basisLabel} %`, p.varRel, true, true);
             return out;
         };
         g.addEventListener("mouseover", (e: MouseEvent) => {
             this.tooltipService.show({
                 dataItems: items(),
-                identities: [p.sel],
+                identities: p.sel ? [p.sel] : [],
                 coordinates: [e.clientX, e.clientY],
                 isTouchEvent: false
             });
@@ -647,7 +768,7 @@ export class Visual implements IVisual {
         g.addEventListener("mousemove", (e: MouseEvent) => {
             this.tooltipService.move({
                 dataItems: items(),
-                identities: [p.sel],
+                identities: p.sel ? [p.sel] : [],
                 coordinates: [e.clientX, e.clientY],
                 isTouchEvent: false
             });
@@ -660,7 +781,7 @@ export class Visual implements IVisual {
     private applySelectionOpacity(selected: ISelectionId[]): void {
         const hasSelection = selected && selected.length > 0;
         for (const cg of this.catGroups) {
-            const isSel = hasSelection && selected.some(s => s.equals(cg.sel));
+            const isSel = hasSelection && cg.sel != null && selected.some(s => s.equals(cg.sel));
             cg.g.setAttribute("opacity", !hasSelection || isSel ? "1" : "0.35");
         }
     }
