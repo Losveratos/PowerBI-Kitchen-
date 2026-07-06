@@ -149,7 +149,8 @@ export class Visual implements IVisual {
     constructor(options: VisualConstructorOptions) {
         this.events = options.host.eventService;
         this.host = options.host;
-        this.formattingSettingsService = new FormattingSettingsService();
+        this.formattingSettingsService = new FormattingSettingsService(
+            options.host.createLocalizationManager());
         this.selectionManager = options.host.createSelectionManager();
         this.tooltipService = options.host.tooltipService;
         this.root = options.element;

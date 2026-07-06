@@ -19,6 +19,17 @@ in **einem** Visual löst:
 - **Columns & Bars**: vertikale Säulen für Zeitreihen, horizontale Balken für
   Struktur-Vergleiche (Panels dann nebeneinander)
 - **Invert-Schalter** für Kosten-KPIs (Mehrwert = schlecht = rot)
+- **IBCS-Titelblock**: automatischer Titel „KPI in Einheit · Zeitraum: AC, FC vs. PL"
+  plus optionale Botschafts-Zeile (SAY) — alle Teile überschreibbar
+- **Waterfall / Brücke**: GuV-Wasserfall (sum/delta-Rolle), Varianz-Brücke PL→AC
+  oder Beitrags-Wasserfall mit Σ-Anker — inkl. Konnektoren und FC-Schraffur
+- **Hervorhebung** (EMPHASIZE): Kategorien per Formatbereich markieren —
+  schattiertes Band über alle Panels, fettes Label
+- **Ausreißer-Kappung**: hartes Skalen-Maximum mit IBCS-Doppelstrich-Marker,
+  Label zeigt den echten Wert
+- **FC-Flag-Spalte** (1/0) als Alternative zur FC-Measure — kompatibel zu den
+  Deneb-Templates des Chart-Builders
+- **Formatbereich lokalisiert** (EN-Standard, deutsche Übersetzung)
 - **Small Multiples**: Grouping-Feld teilt das Chart in Kacheln pro Gruppe —
   alle mit identischer Skalierung (IBCS-Regel „gleiche Skalen")
 - **Σ-Header**: Summe + Gesamtabweichung (absolut & %) als Kopfzeile, gut/schlecht gefärbt
@@ -55,19 +66,22 @@ in **einem** Visual löst:
 | Forecast (FC) | Forecast-Measure | optional |
 | Comments | Text-Measure → nummerierte Marker + Tooltip | optional |
 | Small Multiples | Grouping → Kachel-Grid mit gleicher Skala | optional |
+| Waterfall Type | Spalte 'sum'/'delta' → GuV-Wasserfall | optional |
+| Forecast Flag | 1/0-Spalte → AC-Zeilen als Forecast (schraffiert) | optional |
 
 **Abweichungsbasis**: Standardmäßig „Auto" — PL, wenn befüllt, sonst PY.
 Im Formatbereich unter **Chart → Variance basis** umstellbar.
 
 ## Formatbereich
 
-- **Chart**: Orientation (Columns/Bars), Variance basis (Auto/PY/PL),
+- **IBCS title**: an/aus, KPI-Name, Zeitraum, Botschafts-Zeile (auto wenn leer)
+- **Chart**: Orientation (Columns/Bars/Waterfall), Variance basis (Auto/PY/PL),
   Absolute/Relative variance ein-aus, Total (Σ) header, Top N (Bars),
-  Invert (higher is bad)
+  Highlight categories, Invert (higher is bad)
 - **IBCS colors**: AC, PY, PL-Outline, Good/Bad
 - **Data labels**: an/aus, Textgröße, Dezimalstellen, Einheiten (Auto/k/M/B)
 - **Scale sync**: Skalen-Mindest-Maximum für Basis-Chart und Varianz-Panel
-  (gleiche Werte auf mehreren Instanzen = gleiche Skalen)
+  (gleiche Werte auf mehreren Instanzen = gleiche Skalen), Ausreißer-Kappung
 - **Category axis**: Textgröße
 
 ## Selbst bauen
@@ -84,6 +98,6 @@ ein Entwickler-Visual-Setup im Power-BI-Dienst
 
 ## Roadmap-Ideen
 
-- Waterfall-Modus für Beitragsanalysen
-- Lokalisierung (DE/EN) der Formatbereich-Labels
 - Report-Page-Tooltips mit eigener Tooltip-Seite
+- Skalenband-Indikator bei bewusst abweichenden Skalen
+- Weitere Sprachen für den Formatbereich

@@ -2,12 +2,14 @@
     "dataRoles": [
         {
             "displayName": "Category",
+            "displayNameKey": "Role_Category",
             "name": "category",
             "kind": "Grouping",
             "description": "Zeitachse (Monate) oder Struktur (z. B. Länder, Produkte)"
         },
         {
             "displayName": "Actual (AC)",
+            "displayNameKey": "Role_Actual",
             "name": "actual",
             "kind": "Measure",
             "description": "Ist-Wert",
@@ -15,6 +17,7 @@
         },
         {
             "displayName": "Previous Year (PY)",
+            "displayNameKey": "Role_PreviousYear",
             "name": "previousYear",
             "kind": "Measure",
             "description": "Vorjahreswert",
@@ -22,6 +25,7 @@
         },
         {
             "displayName": "Plan / Budget (PL)",
+            "displayNameKey": "Role_Plan",
             "name": "plan",
             "kind": "Measure",
             "description": "Plan- oder Budgetwert",
@@ -29,6 +33,7 @@
         },
         {
             "displayName": "Forecast (FC)",
+            "displayNameKey": "Role_Forecast",
             "name": "forecast",
             "kind": "Measure",
             "description": "Forecast-Wert (wird schraffiert dargestellt)",
@@ -36,24 +41,28 @@
         },
         {
             "displayName": "Comments",
+            "displayNameKey": "Role_Comments",
             "name": "comments",
             "kind": "Measure",
             "description": "Text-Measure: Kategorien mit Kommentar bekommen einen nummerierten Marker, Text im Tooltip"
         },
         {
             "displayName": "Small Multiples",
+            "displayNameKey": "Role_Multiples",
             "name": "multiples",
             "kind": "Grouping",
             "description": "Teilt das Chart in kleine Kacheln pro Gruppe — mit identischer Skalierung (IBCS)"
         },
         {
             "displayName": "Waterfall Type (sum/delta)",
+            "displayNameKey": "Role_RowType",
             "name": "rowType",
             "kind": "Grouping",
             "description": "Nur Waterfall-Modus: 'sum' = absolute Zwischensumme, 'delta' = Bewegung (GuV-Wasserfall)"
         },
         {
             "displayName": "Forecast Flag (1/0)",
+            "displayNameKey": "Role_FcFlag",
             "name": "fcFlag",
             "kind": "Grouping",
             "description": "Alternative zur FC-Measure: 1/0-Spalte — Zeilen mit 1 werden als Forecast (schraffiert) dargestellt, AC-Measure läuft durch"
