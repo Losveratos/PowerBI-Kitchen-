@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background: #f2f2f2; margin: 20px; }
+  .case { background: #fff; border: 1px solid #ddd; margin-bottom: 24px; padding: 8px; }
+  .case h4 { margin: 0 0 6px 0; font-size: 12px; color: #666; }
+  .stage { position: relative; }
+  g.icd-cat:hover { opacity: 0.8; }
+</style>
+</head>
+<body>
+<div class="case"><h4>Columns · AC + PY + PL + FC · Format "#,0 €" · AC/FC-Trennlinie</h4><div class="stage" id="c1" style="width:960px;height:480px"></div></div>
+<div class="case"><h4>Kompakt-Kachel (960×160) · Varianz als farbige Labels</h4><div class="stage" id="c2" style="width:960px;height:160px"></div></div>
+<div class="case"><h4>Line-Modus · 36 Wochen · AC solid, PY dünn grau</h4><div class="stage" id="c3" style="width:960px;height:380px"></div></div>
+<div class="case"><h4>Bars · AC + PY invertiert</h4><div class="stage" id="c4" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Bars · Top 5 + Rest (aus 14 Ländern)</h4><div class="stage" id="c5" style="width:960px;height:360px"></div></div>
+<div class="case"><h4>Small Multiples · 4 Regionen × 12 Monate · gleiche Skala</h4><div class="stage" id="c7" style="width:960px;height:560px"></div></div>
+<div class="case"><h4>Waterfall · GuV mit sum/delta-Rolle</h4><div class="stage" id="c8" style="width:960px;height:380px"></div></div>
+<div class="case"><h4>Brücke · PL → AC (aus Länder-Daten)</h4><div class="stage" id="c9" style="width:960px;height:360px"></div></div>
+<div class="case"><h4>Doppel-Varianz · ΔPL und ΔPY parallel (560px hoch)</h4><div class="stage" id="c12" style="width:960px;height:560px"></div></div>
+<div class="case"><h4>YTD kumuliert · gleiche Daten wie oben</h4><div class="stage" id="c10" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Leeres Visual · Live-Demo-Landing + Auto-Message</h4><div class="stage" id="c11" style="width:960px;height:380px"></div></div>
+<div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
+<script src="visual.bundle.js"></script>
+<script>
+const Visual = ZebraIBCS.Visual;
+
+function makeHost(hc) {
+  return {
+    colorPalette: hc ? { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" } }
+      : { isHighContrast: false, positive: { value: "#1B7F4D" }, negative: { value: "#B3282D" },
+          foregroundNeutralDark: { value: "#252423" }, foregroundNeutralTertiary: { value: "#C8C6C4" } },
+    eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o,e){ console.error("renderfail", e); } },
+    createSelectionManager: () => ({ select: () => Promise.resolve([]), clear: () => Promise.resolve(), showContextMenu(){} }),
+    createSelectionIdBuilder: () => ({ withCategory(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
+    tooltipService: { show(){}, move(){}, hide(){} },
+    createLocalizationManager: () => ({ getDisplayName: () => "" }),
+    locale: "de-DE"
+  };
+}
+
+function col(role, values, format) {
+  return { source: { displayName: role === "actual" ? "Umsatz" : role, roles: { [role]: true }, isMeasure: true, format }, values };
+}
+
+function dataView(cats, cols, objects, multValues, rowTypes) {
+  const categories = [{ source: { displayName: "Category", roles: { category: true } }, values: cats }];
+  if (multValues) {
+    categories.push({ source: { displayName: "Region", roles: { multiples: true } }, values: multValues });
+  }
+  if (rowTypes) {
+    categories.push({ source: { displayName: "Typ", roles: { rowType: true } }, values: rowTypes });
+  }
+  if (objects && objects.__fcFlags) {
+    categories.push({ source: { displayName: "FC", roles: { fcFlag: true } }, values: objects.__fcFlags });
+  }
+  return {
+    metadata: { columns: [], objects: objects || {} },
+    categorical: { categories, values: cols }
+  };
+}
+
+function run(id, dv, w, h, hc) {
+  const el = document.getElementById(id);
+  const v = new Visual({ element: el, host: makeHost(hc) });
+  v.update({ viewport: { width: w, height: h }, dataViews: [dv] });
+}
+
+const months = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+const ac  = [820000, 771000, 900000, 955000, 1020000, 980000, 1105000, null, null, null, null, null];
+const fc  = [null,null,null,null,null,null,null, 1150000, 1080000, 1210000, 1260000, 1400000];
+const py  = [760000, 800000, 850000, 900000, 940000, 1010000, 1000000, 1040000, 1010000, 1120000, 1180000, 1300000];
+const pl  = [800000, 810000, 870000, 980000, 1000000, 1000000, 1050000, 1100000, 1120000, 1180000, 1220000, 1350000];
+
+const comments = [null,null,"Produktionsausfall Werk 2",null,null,null,"Preiserhöhung zum 1.7. wirksam",null,null,null,null,"Großauftrag Kunde X erwartet"];
+run("c1", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €"), col("comments", comments)],
+  { ibcsTitle: { message: "Umsatz liegt YTD +171K€ über Plan — Preiserhöhung trägt ab Juli." }, chart: { highlight: "Jul" },
+    scale: { refLine: "1200000", refLineLabel: "Ziel 1,2M" } }), 960, 480);
+// compact tile now also exercises the fcFlag column (continuous AC measure + 1/0 flag)
+const acFull = ac.map((v, i) => v != null ? v : fc[i]);
+run("c2", dataView(months, [col("actual", acFull, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €")],
+  { __fcFlags: [0,0,0,0,0,0,0,1,1,1,1,1] }), 960, 160);
+
+const weeks = Array.from({length: 36}, (_, i) => "KW" + (i + 1));
+const wAc = weeks.map((_, i) => 400 + Math.round(200 * Math.sin(i / 4)) + i * 8);
+const wPy = weeks.map((_, i) => 420 + Math.round(150 * Math.sin(i / 4 + 1)) + i * 7);
+run("c3", dataView(weeks, [col("actual", wAc), col("previousYear", wPy)],
+  { colors: { useTheme: true }, chart: { orientation: "line", movingAverage: 6 } }), 960, 380);
+
+const countries = ["Deutschland","Österreich","Schweiz","Frankreich","Italien","Benelux","Nordics"];
+const costAc = [5400, 1900, 2400, 3100, 2800, 1500, 1750];
+const costPy = [5100, 2000, 2200, 3300, 2600, 1450, 1900];
+run("c4", dataView(countries, [col("actual", costAc), col("previousYear", costPy)],
+  { chart: { orientation: "bars", invert: true }, scale: { fixedMax: 3000, capOverflow: true } }), 960, 420);
+
+const many = ["Deutschland","Österreich","Schweiz","Frankreich","Italien","Belgien","Niederlande","Polen","Tschechien","Dänemark","Schweden","Norwegen","Spanien","Portugal"];
+const mAc = [5400, 1900, 2400, 3100, 2800, 700, 950, 1200, 640, 420, 810, 530, 1600, 380];
+const mPl = [5000, 2000, 2300, 3200, 2600, 750, 900, 1100, 700, 450, 800, 560, 1700, 400];
+run("c5", dataView(many, [col("actual", mAc), col("plan", mPl)],
+  { chart: { orientation: "bars", topN: 5 } }), 960, 360);
+
+// small multiples: 4 regions x 12 months, region 1 much bigger than region 4
+const regions = ["Nord", "Süd", "West", "Ost"];
+const smCats = [], smMult = [], smAc = [], smPl = [];
+regions.forEach((r, ri) => {
+  const base = [1200, 900, 600, 300][ri];
+  months.forEach((m, mi) => {
+    smCats.push(m); smMult.push(r);
+    smAc.push(Math.round(base * (1 + 0.04 * Math.sin(mi / 2) + mi * 0.01)));
+    smPl.push(Math.round(base * (1 + 0.03 * Math.cos(mi / 2) + mi * 0.012)));
+  });
+});
+run("c7", dataView(smCats, [col("actual", smAc), col("plan", smPl)], {}, smMult), 960, 560);
+
+// P&L waterfall with sum/delta rows
+const pnlCats = ["Umsatz","Materialaufwand","Personal","Bruttoergebnis","Vertrieb","Verwaltung","EBIT"];
+const pnlVals = [9800, -4200, -2400, 3200, -900, -600, 1700];
+const pnlTypes = ["sum","delta","delta","sum","delta","delta","sum"];
+run("c8", dataView(pnlCats, [col("actual", pnlVals, "#,0 T€")], {
+  chart: { orientation: "waterfall", showTotal: false },
+  ibcsTitle: { kpi: "GuV", period: "2026" }
+}, null, pnlTypes), 960, 380);
+
+// bridge PL -> AC from country data
+run("c9", dataView(countries, [col("actual", costAc), col("plan", [5000,2000,2300,3200,2600,1450,1800])], {
+  chart: { orientation: "waterfall", showTotal: false },
+  ibcsTitle: { kpi: "Umsatz", period: "2026" }
+}), 960, 360);
+
+run("c12", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")],
+  { chart: { dualVariance: true } }), 960, 560);
+
+run("c10", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")],
+  { chart: { cumulative: true } }), 960, 420);
+
+// empty field wells -> demo landing
+run("c11", { metadata: { columns: [], objects: {} }, categorical: { categories: [], values: [] } }, 960, 380);
+
+run("c6", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")]), 960, 420, true);
+</script>
+</body>
+</html>
