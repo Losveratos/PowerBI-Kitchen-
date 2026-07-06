@@ -48,6 +48,9 @@ interface DataPoint {
     basis: number | null;
     varAbs: number | null;
     varRel: number | null;
+    comment: string | null;
+    /** 1-based comment marker number, assigned in category order */
+    commentNo: number | null;
     sel: ISelectionId | null;
 }
 
@@ -175,6 +178,7 @@ export class Visual implements IVisual {
         if (!cat || !valueCols || valueCols.length === 0) { return null; }
 
         const byRole: { [role: string]: (number | null)[] } = {};
+        let comments: (string | null)[] | null = null;
         this.measureFormat = undefined;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
@@ -186,11 +190,16 @@ export class Visual implements IVisual {
                     }
                 }
             }
+            if (roles["comments"]) {
+                comments = col.values.map(v =>
+                    v != null && String(v).trim() !== "" ? String(v) : null);
+            }
         }
         if (!byRole["actual"] && !byRole["forecast"]) { return null; }
 
         const basisMode = this.resolveBasis(byRole);
         const points: DataPoint[] = [];
+        let commentCounter = 0;
         for (let i = 0; i < cat.values.length; i++) {
             const ac = byRole["actual"] ? byRole["actual"][i] : null;
             const py = byRole["previousYear"] ? byRole["previousYear"][i] : null;
@@ -202,9 +211,12 @@ export class Visual implements IVisual {
             const varAbs = (value != null && basis != null) ? value - basis : null;
             const varRel = (varAbs != null && basis != null && basis !== 0)
                 ? (varAbs / Math.abs(basis)) * 100 : null;
+            const comment = comments ? comments[i] : null;
             points.push({
                 cat: this.categoryLabel(cat.values[i]),
                 ac, py, pl, fc, value, isFc, basis, varAbs, varRel,
+                comment,
+                commentNo: comment != null ? ++commentCounter : null,
                 sel: this.host.createSelectionIdBuilder().withCategory(cat, i).createSelectionId()
             });
         }
@@ -529,6 +541,11 @@ export class Visual implements IVisual {
                     region, step, panels.main);
             }
 
+            // comment marker (numbered circle at the inner end of the bar)
+            if (p.commentNo != null && p.value != null) {
+                this.drawCommentMarker(g, pos + pyShift + barW / 2, p, mainScale, orientation, cfg);
+            }
+
             this.attachInteraction(g, p, cfg);
             this.catGroups.push({ g, sel: p.sel });
         }
@@ -561,9 +578,36 @@ export class Visual implements IVisual {
             cat: `Rest (${tail.length})`,
             ac, py, pl, fc, value,
             isFc: false, basis, varAbs, varRel,
+            comment: null, commentNo: null,
             sel: null
         };
         return [...head, rest];
+    }
+
+    private drawCommentMarker(parent: SVGElement, bandCenter: number, p: DataPoint,
+        scale: Scale, orientation: Orientation, cfg: ChartConfig): void {
+        const r = 7;
+        const end = scale(p.value as number);
+        const zero = scale(0);
+        const len = Math.abs(end - zero);
+        // sit just inside the bar end; center in very short bars
+        const inset = len >= 2 * r + 8 ? r + 5 : len / 2;
+        const towardZero = end < zero ? inset : -inset;
+        const cx = orientation === "columns" ? bandCenter : end + towardZero;
+        const cy = orientation === "columns" ? end + towardZero : bandCenter;
+        this.el("circle", {
+            cx, cy, r, fill: "#FFFFFF", stroke: INK, "stroke-width": 1.2
+        }, parent);
+        const t = this.el("text", {
+            x: cx, y: cy + 3, "text-anchor": "middle",
+            "font-size": 9, fill: INK, "font-family": FONT, "font-weight": 600
+        }, parent);
+        t.textContent = String(p.commentNo);
+    }
+
+    /** circled digit for tooltips: ①…⑳, then (n) */
+    private circledNo(no: number): string {
+        return no >= 1 && no <= 20 ? String.fromCodePoint(0x2460 + no - 1) : `(${no})`;
     }
 
     /** Σ header: total value plus overall variance vs. the comparison basis */
@@ -842,6 +886,9 @@ export class Visual implements IVisual {
                 out.push({ displayName: `Δ${cfg.basisLabel}`, value: this.fmtSigned(cfg.fmtVar, p.varAbs) });
             }
             add(`Δ${cfg.basisLabel} %`, p.varRel, true, true);
+            if (p.comment != null && p.commentNo != null) {
+                out.push({ displayName: `${this.circledNo(p.commentNo)} Kommentar`, value: p.comment });
+            }
             return out;
         };
         g.addEventListener("mouseover", (e: MouseEvent) => {

@@ -33,6 +33,12 @@
             "kind": "Measure",
             "description": "Forecast-Wert (wird schraffiert dargestellt)",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Comments",
+            "name": "comments",
+            "kind": "Measure",
+            "description": "Text-Measure: Kategorien mit Kommentar bekommen einen nummerierten Marker, Text im Tooltip"
         }
     ],
     "objects": {
@@ -103,7 +109,8 @@
                     "actual": { "max": 1 },
                     "previousYear": { "max": 1 },
                     "plan": { "max": 1 },
-                    "forecast": { "max": 1 }
+                    "forecast": { "max": 1 },
+                    "comments": { "max": 1 }
                 }
             ],
             "categorical": {
@@ -116,7 +123,8 @@
                         { "bind": { "to": "actual" } },
                         { "bind": { "to": "previousYear" } },
                         { "bind": { "to": "plan" } },
-                        { "bind": { "to": "forecast" } }
+                        { "bind": { "to": "forecast" } },
+                        { "bind": { "to": "comments" } }
                     ]
                 }
             }
