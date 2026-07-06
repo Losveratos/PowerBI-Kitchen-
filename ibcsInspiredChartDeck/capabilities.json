@@ -51,6 +51,12 @@
             "name": "rowType",
             "kind": "Grouping",
             "description": "Nur Waterfall-Modus: 'sum' = absolute Zwischensumme, 'delta' = Bewegung (GuV-Wasserfall)"
+        },
+        {
+            "displayName": "Forecast Flag (1/0)",
+            "name": "fcFlag",
+            "kind": "Grouping",
+            "description": "Alternative zur FC-Measure: 1/0-Spalte — Zeilen mit 1 werden als Forecast (schraffiert) dargestellt, AC-Measure läuft durch"
         }
     ],
     "objects": {
@@ -137,6 +143,7 @@
                     "category": { "max": 1 },
                     "multiples": { "max": 1 },
                     "rowType": { "max": 1 },
+                    "fcFlag": { "max": 1 },
                     "actual": { "max": 1 },
                     "previousYear": { "max": 1 },
                     "plan": { "max": 1 },
@@ -149,7 +156,8 @@
                     "select": [
                         { "for": { "in": "category" } },
                         { "for": { "in": "multiples" } },
-                        { "for": { "in": "rowType" } }
+                        { "for": { "in": "rowType" } },
+                        { "for": { "in": "fcFlag" } }
                     ],
                     "dataReductionAlgorithm": { "top": { "count": 1000 } }
                 },

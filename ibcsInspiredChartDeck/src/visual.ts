@@ -213,6 +213,7 @@ export class Visual implements IVisual {
         const cat = catCols?.find(c => c.source.roles?.["category"]);
         const mult = catCols?.find(c => c.source.roles?.["multiples"]);
         const rowTypeCol = catCols?.find(c => c.source.roles?.["rowType"]);
+        const fcFlagCol = catCols?.find(c => c.source.roles?.["fcFlag"]);
         const valueCols = dataView?.categorical?.values;
         if (!cat || !valueCols || valueCols.length === 0) { return null; }
 
@@ -243,10 +244,16 @@ export class Visual implements IVisual {
         const points: DataPoint[] = [];
         let commentCounter = 0;
         for (let i = 0; i < cat.values.length; i++) {
-            const ac = byRole["actual"] ? byRole["actual"][i] : null;
+            let ac = byRole["actual"] ? byRole["actual"][i] : null;
             const py = byRole["previousYear"] ? byRole["previousYear"][i] : null;
             const pl = byRole["plan"] ? byRole["plan"][i] : null;
-            const fc = byRole["forecast"] ? byRole["forecast"][i] : null;
+            let fc = byRole["forecast"] ? byRole["forecast"][i] : null;
+            // chart-builder compatible flag column: 1/true marks the AC value as forecast
+            const flag = fcFlagCol ? fcFlagCol.values[i] : null;
+            if (flag != null && flag !== 0 && flag !== "0" && flag !== false && ac != null && fc == null) {
+                fc = ac;
+                ac = null;
+            }
             const isFc = ac == null && fc != null;
             const value = ac != null ? ac : fc;
             const basis = basisMode === "plan" ? pl : py;
