@@ -996,7 +996,7 @@ export class Visual implements IVisual {
             if (panels.abs && absScale && p.varAbs != null) {
                 const good = cfg.invert ? p.varAbs < 0 : p.varAbs > 0;
                 const color = p.varAbs === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
-                const vw = slotW * 0.55;
+                const vw = barW; // IBCS: same width as the base bars
                 const vx = cx - vw / 2;
                 const hollowBad = cfg.hc && !good && p.varAbs !== 0;
                 this.drawBar(g, vx, vw, 0, p.varAbs, absScale, orientation,
@@ -1037,7 +1037,7 @@ export class Visual implements IVisual {
             if (panels.abs2 && abs2Scale && p.var2Abs != null) {
                 const good = cfg.invert ? p.var2Abs < 0 : p.var2Abs > 0;
                 const color = p.var2Abs === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
-                const vw = slotW * 0.55;
+                const vw = barW; // IBCS: same width as the base bars
                 const vx = cx - vw / 2;
                 const hollowBad = cfg.hc && !good && p.var2Abs !== 0;
                 this.drawBar(g, vx, vw, 0, p.var2Abs, abs2Scale, orientation,
