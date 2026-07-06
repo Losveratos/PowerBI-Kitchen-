@@ -126,6 +126,14 @@ export class ChartCardSettings extends FormattingSettingsCard {
         }
     });
 
+    cumulative = new formattingSettings.ToggleSwitch({
+        name: "cumulative",
+        displayName: "Cumulative (YTD)",
+        displayNameKey: "Chart_Cumulative",
+        description: "Schaltet alle Panels auf kumulierte Sicht: Säulen, ΔBasis und ΔBasis % zeigen Year-to-Date-Werte.",
+        value: false
+    });
+
     highlight = new formattingSettings.TextInput({
         name: "highlight",
         displayName: "Highlight categories",
@@ -145,6 +153,7 @@ export class ChartCardSettings extends FormattingSettingsCard {
         this.showRelativeVariance,
         this.showTotal,
         this.topN,
+        this.cumulative,
         this.highlight,
         this.invert
     ];

@@ -43,6 +43,7 @@
         "CategoryAxis_FontSize": "Textgröße",
         "Colors_UseTheme": "Theme-Farben des Berichts verwenden",
         "Card_Comments": "Kommentare",
-        "Comments_ShowPanel": "Kommentarliste anzeigen"
+        "Comments_ShowPanel": "Kommentarliste anzeigen",
+        "Chart_Cumulative": "Kumuliert (YTD)"
     }
 }

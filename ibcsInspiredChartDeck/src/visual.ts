@@ -111,6 +111,8 @@ interface ChartConfig {
     highlight: Set<string>;
     /** hard scale maximum: larger base values are capped with a break marker */
     capMax: number | null;
+    /** cumulative (YTD) view: totals header shows the last running value */
+    cumulative: boolean;
 }
 
 function linearScale(d0: number, d1: number, r0: number, r1: number): Scale {
@@ -376,6 +378,11 @@ export class Visual implements IVisual {
                 if (g.pts.length > topN + 1) { g.pts = this.applyTopN(g.pts, topN); }
             }
         }
+        // cumulative (YTD) view: running totals per group, variances recomputed
+        if (s.chartCard.cumulative.value) {
+            const basisMode = this.resolveBasisLabel(points);
+            for (const g of groups) { g.pts = this.cumulate(g.pts, basisMode); }
+        }
         points = groups.reduce<DataPoint[]>((acc, g) => acc.concat(g.pts), []);
 
         const maxAbs = Math.max(...points.map(p =>
@@ -420,6 +427,7 @@ export class Visual implements IVisual {
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
             capMax: (s.scaleCard.capOverflow.value && (s.scaleCard.fixedMax.value ?? 0) > 0)
                 ? s.scaleCard.fixedMax.value : null,
+            cumulative: s.chartCard.cumulative.value,
             basisMode,
             basisLabel: basisMode === "plan" ? "PL" : "PY",
             showAbs: s.chartCard.showAbsoluteVariance.value && hasVar,
@@ -723,8 +731,9 @@ export class Visual implements IVisual {
 
         // ------- background layer: baselines + panel titles
         const bg = this.el("g", {}, this.svg);
-        const scenarioTitle = ["AC", cfg.hasPy ? "PY" : "", cfg.hasPl ? "PL" : "",
-            cfg.hasFc ? "FC" : ""].filter(x => x).join(" · ");
+        const scenarioTitle = (cfg.cumulative ? "YTD · " : "")
+            + ["AC", cfg.hasPy ? "PY" : "", cfg.hasPl ? "PL" : "",
+                cfg.hasFc ? "FC" : ""].filter(x => x).join(" · ");
 
         // AC -> FC boundary (time series with a forecast tail)
         let fcBoundary: number | null = null;
@@ -955,6 +964,29 @@ export class Visual implements IVisual {
         return 22;
     }
 
+    /** running YTD totals for value/PY/PL with variances recomputed on the cumulated numbers */
+    private cumulate(pts: DataPoint[], basisMode: Basis): DataPoint[] {
+        let cv = 0, cpy = 0, cpl = 0;
+        return pts.map(p => {
+            if (p.value != null) { cv += p.value; }
+            if (p.py != null) { cpy += p.py; }
+            if (p.pl != null) { cpl += p.pl; }
+            const value = p.value != null ? cv : null;
+            const py = p.py != null ? cpy : null;
+            const pl = p.pl != null ? cpl : null;
+            const basis = basisMode === "plan" ? pl : py;
+            const varAbs = (value != null && basis != null) ? value - basis : null;
+            const varRel = (varAbs != null && basis != null && basis !== 0)
+                ? (varAbs / Math.abs(basis)) * 100 : null;
+            return {
+                ...p,
+                ac: p.isFc ? null : value,
+                fc: p.isFc ? value : null,
+                value, py, pl, basis, varAbs, varRel
+            };
+        });
+    }
+
     /** keeps the N largest categories (by base value) and aggregates the tail into one "Rest" row */
     private applyTopN(points: DataPoint[], topN: number): DataPoint[] {
         const sorted = [...points].sort((a, b) => (b.value ?? -Infinity) - (a.value ?? -Infinity));
@@ -1077,11 +1109,18 @@ export class Visual implements IVisual {
     private drawTotalHeader(parent: SVGElement, region: Rect, points: DataPoint[], cfg: ChartConfig): void {
         let sum = 0, sumVar = 0, sumBasis = 0, any = false, anyVar = false;
         for (const p of points) {
-            if (p.value != null) { sum += p.value; any = true; }
-            if (p.varAbs != null && p.basis != null) {
-                sumVar += p.varAbs;
-                sumBasis += Math.abs(p.basis);
-                anyVar = true;
+            if (p.value != null) { any = true; }
+            if (p.varAbs != null && p.basis != null) { anyVar = true; }
+            if (cfg.cumulative) {
+                // cumulated points already carry running totals — take the last ones
+                if (p.value != null) { sum = p.value; }
+                if (p.varAbs != null && p.basis != null) { sumVar = p.varAbs; sumBasis = Math.abs(p.basis); }
+            } else {
+                if (p.value != null) { sum += p.value; }
+                if (p.varAbs != null && p.basis != null) {
+                    sumVar += p.varAbs;
+                    sumBasis += Math.abs(p.basis);
+                }
             }
         }
         if (!any) { return; }
