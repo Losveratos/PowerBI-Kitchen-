@@ -211,7 +211,9 @@ export class Visual implements IVisual {
 
     private parseData(dataView: DataView | undefined): DataPoint[] | null {
         const catCols = dataView?.categorical?.categories;
-        const cat = catCols?.find(c => c.source.roles?.["category"]);
+        // with drilldown, "expand all" delivers several category-role columns (one per level)
+        const catLevels = catCols?.filter(c => c.source.roles?.["category"]) ?? [];
+        const cat = catLevels[0];
         const mult = catCols?.find(c => c.source.roles?.["multiples"]);
         const rowTypeCol = catCols?.find(c => c.source.roles?.["rowType"]);
         const fcFlagCol = catCols?.find(c => c.source.roles?.["fcFlag"]);
@@ -262,10 +264,11 @@ export class Visual implements IVisual {
             const varRel = (varAbs != null && basis != null && basis !== 0)
                 ? (varAbs / Math.abs(basis)) * 100 : null;
             const comment = comments ? comments[i] : null;
-            let selBuilder = this.host.createSelectionIdBuilder().withCategory(cat, i);
+            let selBuilder = this.host.createSelectionIdBuilder();
+            for (const level of catLevels) { selBuilder = selBuilder.withCategory(level, i); }
             if (mult) { selBuilder = selBuilder.withCategory(mult, i); }
             points.push({
-                cat: this.categoryLabel(cat.values[i]),
+                cat: catLevels.map(level => this.categoryLabel(level.values[i])).join(" · "),
                 ac, py, pl, fc, value, isFc, basis, varAbs, varRel,
                 comment,
                 commentNo: comment != null ? ++commentCounter : null,

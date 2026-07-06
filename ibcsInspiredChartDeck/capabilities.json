@@ -191,6 +191,9 @@
     "sorting": {
         "default": {}
     },
+    "drilldown": {
+        "roles": [ "category" ]
+    },
     "tooltips": {
         "supportedTypes": {
             "default": true,

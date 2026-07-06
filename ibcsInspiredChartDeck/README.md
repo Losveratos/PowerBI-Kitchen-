@@ -30,6 +30,11 @@ in **einem** Visual löst:
 - **FC-Flag-Spalte** (1/0) als Alternative zur FC-Measure — kompatibel zu den
   Deneb-Templates des Chart-Builders
 - **Formatbereich lokalisiert** (EN-Standard, deutsche Übersetzung)
+- **Kommentar-Liste**: Kommentare erscheinen als nummerierte Fußnoten-Spalte rechts
+  neben dem Chart — bleibt in PDF/PowerPoint-Exporten sichtbar (Tooltips nicht)
+- **Theme-Farben**: optional Good/Bad und Neutraltöne aus dem Berichtsdesign übernehmen
+- **Drilldown & Drillthrough**: Datums-/Kategorien-Hierarchien per Drill-Steuerung
+  bzw. Rechtsklick → Drillthrough auf Detailseiten
 - **Small Multiples**: Grouping-Feld teilt das Chart in Kacheln pro Gruppe —
   alle mit identischer Skalierung (IBCS-Regel „gleiche Skalen")
 - **Σ-Header**: Summe + Gesamtabweichung (absolut & %) als Kopfzeile, gut/schlecht gefärbt
@@ -80,6 +85,7 @@ Im Formatbereich unter **Chart → Variance basis** umstellbar.
   Highlight categories, Invert (higher is bad)
 - **IBCS colors**: AC, PY, PL-Outline, Good/Bad
 - **Data labels**: an/aus, Textgröße, Dezimalstellen, Einheiten (Auto/k/M/B)
+- **Comments**: Kommentarliste rechts an/aus
 - **Scale sync**: Skalen-Mindest-Maximum für Basis-Chart und Varianz-Panel
   (gleiche Werte auf mehreren Instanzen = gleiche Skalen), Ausreißer-Kappung
 - **Category axis**: Textgröße
