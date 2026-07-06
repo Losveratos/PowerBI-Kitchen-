@@ -49,6 +49,10 @@
         "Scale_RefLineLabel": "Referenzlinie (Beschriftung)",
         "Chart_MovingAverage": "Gleitender Durchschnitt (Perioden)",
         "Title_AutoMessage": "Automatische Botschaft",
-        "Chart_DualVariance": "Doppelte Abweichung (PL + PY)"
+        "Chart_DualVariance": "Doppelte Abweichung (PL + PY)",
+        "Group_Layout": "Layout",
+        "Group_Analysis": "Analyse",
+        "Group_ScaleSync": "Skalen-Sync",
+        "Group_RefLine": "Referenzlinie"
     }
 }

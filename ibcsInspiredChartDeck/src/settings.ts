@@ -75,7 +75,7 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [this.show, this.kpi, this.period, this.message, this.autoMessage];
 }
 
-export class ChartCardSettings extends FormattingSettingsCard {
+export class ChartCardSettings extends formattingSettings.CompositeCard {
     orientation = new formattingSettings.ItemDropdown({
         name: "orientation",
         displayName: "Orientation",
@@ -172,22 +172,25 @@ export class ChartCardSettings extends FormattingSettingsCard {
         value: ""
     });
 
+    layoutGroup = new formattingSettings.Group({
+        name: "chartLayout",
+        displayName: "Layout",
+        displayNameKey: "Group_Layout",
+        slices: [this.orientation, this.comparisonMode, this.showAbsoluteVariance,
+            this.showRelativeVariance, this.dualVariance, this.showTotal]
+    });
+
+    analysisGroup = new formattingSettings.Group({
+        name: "chartAnalysis",
+        displayName: "Analysis",
+        displayNameKey: "Group_Analysis",
+        slices: [this.cumulative, this.movingAverage, this.topN, this.highlight, this.invert]
+    });
+
     name: string = "chart";
     displayName: string = "Chart";
     displayNameKey: string = "Card_Chart";
-    slices: Array<FormattingSettingsSlice> = [
-        this.orientation,
-        this.comparisonMode,
-        this.showAbsoluteVariance,
-        this.showRelativeVariance,
-        this.showTotal,
-        this.topN,
-        this.movingAverage,
-        this.dualVariance,
-        this.cumulative,
-        this.highlight,
-        this.invert
-    ];
+    groups = [this.layoutGroup, this.analysisGroup];
 }
 
 export class ColorsCardSettings extends FormattingSettingsCard {
@@ -311,7 +314,7 @@ export class CommentsCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [this.showPanel];
 }
 
-export class ScaleCardSettings extends FormattingSettingsCard {
+export class ScaleCardSettings extends formattingSettings.CompositeCard {
     fixedMax = new formattingSettings.NumUpDown({
         name: "fixedMax",
         displayName: "Scale minimum-maximum",
@@ -359,11 +362,24 @@ export class ScaleCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    syncGroup = new formattingSettings.Group({
+        name: "scaleSync",
+        displayName: "Scale sync",
+        displayNameKey: "Group_ScaleSync",
+        slices: [this.fixedMax, this.fixedVarMax, this.capOverflow]
+    });
+
+    refLineGroup = new formattingSettings.Group({
+        name: "scaleRefLine",
+        displayName: "Reference line",
+        displayNameKey: "Group_RefLine",
+        slices: [this.refLine, this.refLineLabel]
+    });
+
     name: string = "scale";
-    displayName: string = "Scale sync";
+    displayName: string = "Scale";
     displayNameKey: string = "Card_Scale";
-    slices: Array<FormattingSettingsSlice> = [this.fixedMax, this.fixedVarMax, this.capOverflow,
-        this.refLine, this.refLineLabel];
+    groups = [this.syncGroup, this.refLineGroup];
 }
 
 export class CategoryAxisCardSettings extends FormattingSettingsCard {

@@ -159,6 +159,10 @@ export class Visual implements IVisual {
     private measureName: string | undefined;
     /** shared waterfall domain across small-multiples cells (IBCS same scale) */
     private sharedWfDomain: [number, number] | null = null;
+    /** data facts driving context-sensitive visibility in the format pane */
+    private paneHasPy = false;
+    private paneHasPl = false;
+    private paneHasComments = false;
     private static instanceCounter = 0;
     private instanceId: number;
 
@@ -214,6 +218,18 @@ export class Visual implements IVisual {
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
+        // context-sensitive pane: hide options that cannot apply right now
+        const fs = this.formattingSettings;
+        const orient = String(fs.chartCard.orientation.value.value);
+        const bothBases = this.paneHasPy && this.paneHasPl;
+        fs.chartCard.topN.visible = orient === "bars";
+        fs.chartCard.movingAverage.visible = orient === "columns" || orient === "line";
+        fs.chartCard.dualVariance.visible = bothBases;
+        fs.chartCard.comparisonMode.visible = bothBases;
+        fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
+        fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
+        fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value;
+        fs.commentsCard.visible = this.paneHasComments;
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
@@ -251,6 +267,9 @@ export class Visual implements IVisual {
                     v != null && String(v).trim() !== "" ? String(v) : null);
             }
         }
+        this.paneHasPy = !!byRole["previousYear"];
+        this.paneHasPl = !!byRole["plan"];
+        this.paneHasComments = comments != null;
         if (!byRole["actual"] && !byRole["forecast"]) { return null; }
 
         const basisMode = this.resolveBasis(byRole);
