@@ -1671,7 +1671,9 @@ export class Visual implements IVisual {
     // ---------------------------------------------------------- interaction
 
     private attachInteraction(g: SVGGElement, p: DataPoint, cfg: ChartConfig): void {
-        g.style.cursor = "pointer";
+        // dashboards disable interactions — keep tooltips, skip selection affordances
+        const allow = this.host.hostCapabilities?.allowInteractions !== false;
+        g.style.cursor = allow ? "pointer" : "default";
 
         // keyboard navigation: tab through categories, Enter/Space selects
         g.setAttribute("tabindex", "0");
@@ -1685,7 +1687,7 @@ export class Visual implements IVisual {
             if (e.key !== "Enter" && e.key !== " ") { return; }
             e.preventDefault();
             e.stopPropagation();
-            if (!p.sel) { return; }
+            if (!p.sel || !allow) { return; }
             this.selectionManager.select(p.sel, e.ctrlKey || e.metaKey).then((ids: ISelectionId[]) => {
                 this.applySelectionOpacity(ids);
             });
@@ -1693,7 +1695,7 @@ export class Visual implements IVisual {
 
         g.addEventListener("click", (e: MouseEvent) => {
             e.stopPropagation();
-            if (!p.sel) { return; }
+            if (!p.sel || !allow) { return; }
             this.selectionManager.select(p.sel, e.ctrlKey || e.metaKey).then((ids: ISelectionId[]) => {
                 this.applySelectionOpacity(ids);
             });
