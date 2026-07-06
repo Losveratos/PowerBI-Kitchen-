@@ -1,0 +1,129 @@
+{
+    "dataRoles": [
+        {
+            "displayName": "Category",
+            "name": "category",
+            "kind": "Grouping",
+            "description": "Zeitachse (Monate) oder Struktur (z. B. Länder, Produkte)"
+        },
+        {
+            "displayName": "Actual (AC)",
+            "name": "actual",
+            "kind": "Measure",
+            "description": "Ist-Wert",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Previous Year (PY)",
+            "name": "previousYear",
+            "kind": "Measure",
+            "description": "Vorjahreswert",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Plan / Budget (PL)",
+            "name": "plan",
+            "kind": "Measure",
+            "description": "Plan- oder Budgetwert",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Forecast (FC)",
+            "name": "forecast",
+            "kind": "Measure",
+            "description": "Forecast-Wert (wird schraffiert dargestellt)",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        }
+    ],
+    "objects": {
+        "chart": {
+            "properties": {
+                "orientation": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "columns", "displayName": "Columns (Zeit)" },
+                            { "value": "bars", "displayName": "Bars (Struktur)" }
+                        ]
+                    }
+                },
+                "comparisonMode": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Auto" },
+                            { "value": "py", "displayName": "Previous Year (PY)" },
+                            { "value": "plan", "displayName": "Plan (PL)" }
+                        ]
+                    }
+                },
+                "showAbsoluteVariance": { "type": { "bool": true } },
+                "showRelativeVariance": { "type": { "bool": true } },
+                "invert": { "type": { "bool": true } }
+            }
+        },
+        "colors": {
+            "properties": {
+                "actualColor": { "type": { "fill": { "solid": { "color": true } } } },
+                "previousYearColor": { "type": { "fill": { "solid": { "color": true } } } },
+                "planColor": { "type": { "fill": { "solid": { "color": true } } } },
+                "goodColor": { "type": { "fill": { "solid": { "color": true } } } },
+                "badColor": { "type": { "fill": { "solid": { "color": true } } } }
+            }
+        },
+        "labels": {
+            "properties": {
+                "show": { "type": { "bool": true } },
+                "fontSize": { "type": { "formatting": { "fontSize": true } } },
+                "decimals": { "type": { "numeric": true } },
+                "displayUnits": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Auto" },
+                            { "value": "none", "displayName": "None" },
+                            { "value": "k", "displayName": "Thousands (k)" },
+                            { "value": "m", "displayName": "Millions (M)" },
+                            { "value": "b", "displayName": "Billions (B)" }
+                        ]
+                    }
+                }
+            }
+        },
+        "categoryAxis": {
+            "properties": {
+                "fontSize": { "type": { "formatting": { "fontSize": true } } }
+            }
+        }
+    },
+    "dataViewMappings": [
+        {
+            "conditions": [
+                {
+                    "category": { "max": 1 },
+                    "actual": { "max": 1 },
+                    "previousYear": { "max": 1 },
+                    "plan": { "max": 1 },
+                    "forecast": { "max": 1 }
+                }
+            ],
+            "categorical": {
+                "categories": {
+                    "for": { "in": "category" },
+                    "dataReductionAlgorithm": { "top": { "count": 1000 } }
+                },
+                "values": {
+                    "select": [
+                        { "bind": { "to": "actual" } },
+                        { "bind": { "to": "previousYear" } },
+                        { "bind": { "to": "plan" } },
+                        { "bind": { "to": "forecast" } }
+                    ]
+                }
+            }
+        }
+    ],
+    "sorting": {
+        "default": {}
+    },
+    "supportsLandingPage": true,
+    "supportsEmptyDataView": true,
+    "privileges": []
+}
