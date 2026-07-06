@@ -86,6 +86,7 @@
                 "showRelativeVariance": { "type": { "bool": true } },
                 "showTotal": { "type": { "bool": true } },
                 "topN": { "type": { "numeric": true } },
+                "highlight": { "type": { "text": true } },
                 "invert": { "type": { "bool": true } }
             }
         },

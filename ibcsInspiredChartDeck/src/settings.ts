@@ -114,6 +114,14 @@ export class ChartCardSettings extends FormattingSettingsCard {
         }
     });
 
+    highlight = new formattingSettings.TextInput({
+        name: "highlight",
+        displayName: "Highlight categories",
+        description: "Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat.",
+        placeholder: "z. B. Jul, Aug",
+        value: ""
+    });
+
     name: string = "chart";
     displayName: string = "Chart";
     slices: Array<FormattingSettingsSlice> = [
@@ -123,6 +131,7 @@ export class ChartCardSettings extends FormattingSettingsCard {
         this.showRelativeVariance,
         this.showTotal,
         this.topN,
+        this.highlight,
         this.invert
     ];
 }

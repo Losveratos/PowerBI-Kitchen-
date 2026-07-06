@@ -107,6 +107,8 @@ interface ChartConfig {
     ink: string;
     paper: string;
     subtle: string;
+    /** lower-cased category labels to emphasize (IBCS EMPHASIZE) */
+    highlight: Set<string>;
 }
 
 function linearScale(d0: number, d1: number, r0: number, r1: number): Scale {
@@ -395,6 +397,8 @@ export class Visual implements IVisual {
             ink: fg,
             paper: bgc,
             subtle: hc ? fg : "#8A8A8A",
+            highlight: new Set(String(s.chartCard.highlight.value || "")
+                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
             basisMode,
             basisLabel: basisMode === "plan" ? "PL" : "PY",
             showAbs: s.chartCard.showAbsoluteVariance.value && hasVar,
@@ -736,6 +740,34 @@ export class Visual implements IVisual {
             }, bg);
         }
 
+        // ------- highlight bands (IBCS EMPHASIZE): shaded slot background
+        if (cfg.highlight.size > 0) {
+            const hlTop = Math.min(panels.main.y,
+                panels.abs ? panels.abs.y : Infinity,
+                panels.rel ? panels.rel.y : Infinity) + 2;
+            for (let i = 0; i < n; i++) {
+                if (!cfg.highlight.has(points[i].cat.toLowerCase())) { continue; }
+                const x0 = bandStart + i * step;
+                if (orientation === "columns") {
+                    this.el("rect", {
+                        x: x0 + 1, y: hlTop, width: step - 2,
+                        height: region.y + region.h - hlTop,
+                        fill: cfg.hc ? "none" : cfg.ink,
+                        "fill-opacity": cfg.hc ? 0 : 0.07,
+                        stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 1 : 0
+                    }, bg);
+                } else {
+                    this.el("rect", {
+                        x: region.x + 1, y: x0 + 1,
+                        width: region.w - 2, height: step - 2,
+                        fill: cfg.hc ? "none" : cfg.ink,
+                        "fill-opacity": cfg.hc ? 0 : 0.07,
+                        stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 1 : 0
+                    }, bg);
+                }
+            }
+        }
+
         // ------- category groups with all marks
         const marks = this.el("g", {}, this.svg);
         for (let i = 0; i < n; i++) {
@@ -821,10 +853,11 @@ export class Visual implements IVisual {
                 }
             }
 
-            // category label
-            if (showCatAt(i)) {
+            // category label (highlighted categories always get one, in bold)
+            const isHl = cfg.highlight.has(p.cat.toLowerCase());
+            if (showCatAt(i) || isHl) {
                 this.drawCategoryLabel(g, p.cat, pos + slotW / 2, orientation, cfg.catFont,
-                    region, step, panels.main, cfg.ink);
+                    region, step, panels.main, cfg.ink, isHl);
             }
 
             // comment marker (numbered circle at the inner end of the bar)
@@ -1157,7 +1190,7 @@ export class Visual implements IVisual {
 
     private drawCategoryLabel(parent: SVGElement, text: string, bandCenter: number,
         orientation: Orientation, fontSize: number, region: Rect,
-        step: number, mainRect: Rect, ink = INK): void {
+        step: number, mainRect: Rect, ink = INK, bold = false): void {
         let attrs: Record<string, string | number>;
         let maxW: number;
         if (orientation === "columns") {
@@ -1169,7 +1202,7 @@ export class Visual implements IVisual {
         }
         const t = this.el("text", {
             ...attrs, "font-size": fontSize, fill: ink,
-            "font-family": FONT
+            "font-family": FONT, "font-weight": bold ? 600 : 400
         }, parent);
         t.textContent = this.truncate(text, maxW, fontSize);
     }
