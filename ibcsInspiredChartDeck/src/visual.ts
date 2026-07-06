@@ -48,6 +48,9 @@ interface DataPoint {
     basis: number | null;
     varAbs: number | null;
     varRel: number | null;
+    /** variance vs. the second basis (the scenario not used as primary) */
+    var2Abs: number | null;
+    var2Rel: number | null;
     comment: string | null;
     /** 1-based comment marker number, assigned in category order */
     commentNo: number | null;
@@ -74,6 +77,8 @@ interface Domains {
     main: [number, number];
     abs: [number, number];
     rel: [number, number];
+    abs2: [number, number];
+    rel2: [number, number];
 }
 
 interface Rect { x: number; y: number; w: number; h: number; }
@@ -92,6 +97,9 @@ interface ChartConfig {
     basisLabel: string;
     showAbs: boolean;
     showRel: boolean;
+    /** second-basis variance panels (dual variance) */
+    showDual: boolean;
+    basis2Label: string;
     showTotal: boolean;
     patId: string;
     patGood: string;
@@ -272,13 +280,17 @@ export class Visual implements IVisual {
             const varAbs = (value != null && basis != null) ? value - basis : null;
             const varRel = (varAbs != null && basis != null && basis !== 0)
                 ? (varAbs / Math.abs(basis)) * 100 : null;
+            const basis2 = basisMode === "plan" ? py : pl;
+            const var2Abs = (value != null && basis2 != null) ? value - basis2 : null;
+            const var2Rel = (var2Abs != null && basis2 != null && basis2 !== 0)
+                ? (var2Abs / Math.abs(basis2)) * 100 : null;
             const comment = comments ? comments[i] : null;
             let selBuilder = this.host.createSelectionIdBuilder();
             for (const level of catLevels) { selBuilder = selBuilder.withCategory(level, i); }
             if (mult) { selBuilder = selBuilder.withCategory(mult, i); }
             points.push({
                 cat: catLevels.map(level => this.categoryLabel(level.values[i])).join(" · "),
-                ac, py, pl, fc, value, isFc, basis, varAbs, varRel,
+                ac, py, pl, fc, value, isFc, basis, varAbs, varRel, var2Abs, var2Rel,
                 comment,
                 commentNo: comment != null ? ++commentCounter : null,
                 group: mult ? this.categoryLabel(mult.values[i]) : null,
@@ -362,6 +374,8 @@ export class Visual implements IVisual {
                 cat: m, ac: ac[i], py: py[i], pl: pl[i], fc: fc[i],
                 value, isFc, basis: pl[i],
                 varAbs, varRel: (varAbs / Math.abs(pl[i] as number)) * 100,
+                var2Abs: (value as number) - (py[i] as number),
+                var2Rel: (((value as number) - (py[i] as number)) / Math.abs(py[i] as number)) * 100,
                 comment: null, commentNo: null, group: null, rowType: null, sel: null
             };
         });
@@ -467,6 +481,8 @@ export class Visual implements IVisual {
             basisLabel: basisMode === "plan" ? "PL" : "PY",
             showAbs: s.chartCard.showAbsoluteVariance.value && hasVar,
             showRel: s.chartCard.showRelativeVariance.value && points.some(p => p.varRel != null),
+            showDual: s.chartCard.dualVariance.value && points.some(p => p.var2Abs != null),
+            basis2Label: basisMode === "plan" ? "PY" : "PL",
             showTotal: s.chartCard.showTotal.value,
             patId: `icd-hatch-${this.instanceId}`,
             patGood: `icd-hatch-good-${this.instanceId}`,
@@ -496,7 +512,9 @@ export class Visual implements IVisual {
         const domains: Domains = {
             main: extent(points.flatMap(p => [p.value, p.py, p.pl, p.fc])),
             abs: extent(points.map(p => p.varAbs)),
-            rel: extent(points.map(p => p.varRel))
+            rel: extent(points.map(p => p.varRel)),
+            abs2: extent(points.map(p => p.var2Abs)),
+            rel2: extent(points.map(p => p.var2Rel))
         };
 
         // scale sync: stretch domains at least to the configured maxima;
@@ -723,26 +741,28 @@ export class Visual implements IVisual {
         const compact = orientation === "columns" ? region.h < 190 : region.w < 420;
         const showAbs = cfg.showAbs && !compact;
         const showRel = cfg.showRel && !compact;
+        const showDual = cfg.showDual && !compact
+            && (orientation === "columns" ? region.h >= 320 : region.w >= 640);
         // total (Σ) header row on top of the region
         const showTotal = cfg.showTotal && region.w > 240;
         const headerH = showTotal ? 17 : 0;
 
         let bandStart: number, bandEnd: number;
-        let panels: { main: Rect; abs?: Rect; rel?: Rect };
+        let panels: { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect };
 
         if (orientation === "columns") {
             const catArea = cfg.catFont + 10;
             bandStart = region.x + pad + 2;
             bandEnd = region.x + region.w - pad;
             const plotTop = region.y + pad + headerH, plotBottom = region.y + region.h - catArea;
-            panels = this.splitPanels(plotTop, plotBottom - plotTop, showAbs, showRel, true, region);
+            panels = this.splitPanels(plotTop, plotBottom - plotTop, showAbs, showRel, true, region, showDual);
         } else {
             const catArea = Math.min(region.w * 0.28, this.maxTextWidth(points.map(p => p.cat), cfg.catFont) + 12);
             // room for the header and the panel titles above the first bar
             bandStart = region.y + pad + headerH + titleH + 2;
             bandEnd = region.y + region.h - pad;
             const plotLeft = region.x + pad + catArea, plotRight = region.x + region.w - pad;
-            panels = this.splitPanels(plotLeft, plotRight - plotLeft, showAbs, showRel, false, region);
+            panels = this.splitPanels(plotLeft, plotRight - plotLeft, showAbs, showRel, false, region, showDual);
         }
 
         const bandSpan = bandEnd - bandStart;
@@ -756,9 +776,13 @@ export class Visual implements IVisual {
         const valueTexts = points.map(p => p.value != null ? cfg.fmt.format(p.value) : "");
         const absTexts = points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : "");
         const relTexts = points.map(p => p.varRel != null ? this.fmtPercent(p.varRel) : "");
+        const abs2Texts = points.map(p => p.var2Abs != null ? this.fmtSigned(cfg.fmtVar, p.var2Abs) : "");
+        const rel2Texts = points.map(p => p.var2Rel != null ? this.fmtPercent(p.var2Rel) : "");
         const showValueAt = this.labelPredicate(points, valueTexts, cfg.labelFont, step, orientation);
         const showAbsAt = this.labelPredicate(points, absTexts, cfg.labelFont, step, orientation);
         const showRelAt = this.labelPredicate(points, relTexts, cfg.labelFont, step, orientation);
+        const showAbs2At = this.labelPredicate(points, abs2Texts, cfg.labelFont, step, orientation);
+        const showRel2At = this.labelPredicate(points, rel2Texts, cfg.labelFont, step, orientation);
         const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cfg.catFont, step, orientation);
 
         // ------- scales
@@ -770,6 +794,10 @@ export class Visual implements IVisual {
             ? this.makePanelScale(domains.abs, panels.abs, orientation, labelPad) : null;
         const relScale = panels.rel
             ? this.makePanelScale(domains.rel, panels.rel, orientation, labelPad) : null;
+        const abs2Scale = panels.abs2
+            ? this.makePanelScale(domains.abs2, panels.abs2, orientation, labelPad) : null;
+        const rel2Scale = panels.rel2
+            ? this.makePanelScale(domains.rel2, panels.rel2, orientation, labelPad) : null;
 
         // ------- background layer: baselines + panel titles
         const bg = this.el("g", {}, this.svg);
@@ -807,6 +835,15 @@ export class Visual implements IVisual {
             baseline(panels.rel, relScale, cfg.basisMode);
             this.drawPanelTitle(bg, panels.rel, `Δ${cfg.basisLabel} %`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
+        const basis2Mode: Basis = cfg.basisMode === "plan" ? "py" : "plan";
+        if (panels.abs2 && abs2Scale) {
+            baseline(panels.abs2, abs2Scale, basis2Mode);
+            this.drawPanelTitle(bg, panels.abs2, `Δ${cfg.basis2Label}`, orientation, titleH, region, barsTitleY, cfg.subtle);
+        }
+        if (panels.rel2 && rel2Scale) {
+            baseline(panels.rel2, rel2Scale, basis2Mode);
+            this.drawPanelTitle(bg, panels.rel2, `Δ${cfg.basis2Label} %`, orientation, titleH, region, barsTitleY, cfg.subtle);
+        }
 
         // ------- total (Σ) header
         if (showTotal) {
@@ -817,7 +854,9 @@ export class Visual implements IVisual {
         if (fcBoundary != null) {
             const yTop = Math.min(panels.main.y,
                 panels.abs ? panels.abs.y : Infinity,
-                panels.rel ? panels.rel.y : Infinity);
+                panels.rel ? panels.rel.y : Infinity,
+                panels.abs2 ? panels.abs2.y : Infinity,
+                panels.rel2 ? panels.rel2.y : Infinity);
             const yBot = panels.main.y + panels.main.h;
             this.el("line", {
                 x1: fcBoundary, y1: yTop + 2, x2: fcBoundary, y2: yBot,
@@ -829,7 +868,9 @@ export class Visual implements IVisual {
         if (cfg.highlight.size > 0) {
             const hlTop = Math.min(panels.main.y,
                 panels.abs ? panels.abs.y : Infinity,
-                panels.rel ? panels.rel.y : Infinity) + 2;
+                panels.rel ? panels.rel.y : Infinity,
+                panels.abs2 ? panels.abs2.y : Infinity,
+                panels.rel2 ? panels.rel2.y : Infinity) + 2;
             for (let i = 0; i < n; i++) {
                 if (!cfg.highlight.has(points[i].cat.toLowerCase())) { continue; }
                 const x0 = bandStart + i * step;
@@ -969,6 +1010,44 @@ export class Visual implements IVisual {
                 }
             }
 
+            // second-basis variance: bars + pins (dual variance)
+            if (panels.abs2 && abs2Scale && p.var2Abs != null) {
+                const good = cfg.invert ? p.var2Abs < 0 : p.var2Abs > 0;
+                const color = p.var2Abs === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                const vw = slotW * 0.55;
+                const vx = cx - vw / 2;
+                const hollowBad = cfg.hc && !good && p.var2Abs !== 0;
+                this.drawBar(g, vx, vw, 0, p.var2Abs, abs2Scale, orientation,
+                    hollowBad
+                        ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4 }
+                        : p.isFc
+                            ? { fill: `url(#${good ? cfg.patGood : cfg.patBad})`, stroke: color, "stroke-width": 1 }
+                            : { fill: color });
+                if (cfg.showLabels && showAbs2At(i)) {
+                    this.drawEndLabel(g, cx, p.var2Abs, abs2Scale, orientation,
+                        abs2Texts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
+                }
+            }
+            if (panels.rel2 && rel2Scale && p.var2Rel != null) {
+                const good = cfg.invert ? p.var2Rel < 0 : p.var2Rel > 0;
+                const color = p.var2Rel === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                const zero = rel2Scale(0);
+                const end = rel2Scale(p.var2Rel);
+                const r = Math.max(2.5, Math.min(4.5, slotW * 0.12));
+                const hollowPin = p.isFc || (cfg.hc && !good && p.var2Rel !== 0);
+                if (orientation === "columns") {
+                    this.el("line", { x1: cx, y1: zero, x2: cx, y2: end, stroke: color, "stroke-width": 1.6 }, g);
+                    this.el("circle", { cx, cy: end, r, fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }, g);
+                } else {
+                    this.el("line", { x1: zero, y1: cx, x2: end, y2: cx, stroke: color, "stroke-width": 1.6 }, g);
+                    this.el("circle", { cx: end, cy: cx, r, fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }, g);
+                }
+                if (cfg.showLabels && showRel2At(i)) {
+                    this.drawEndLabel(g, cx, p.var2Rel, rel2Scale, orientation,
+                        rel2Texts[i], cfg.labelFont, cfg.ink, r + 3, cfg.paper);
+                }
+            }
+
             // category label (highlighted categories always get one, in bold)
             const isHl = cfg.highlight.has(p.cat.toLowerCase());
             if (showCatAt(i) || isHl) {
@@ -1088,11 +1167,15 @@ export class Visual implements IVisual {
             const varAbs = (value != null && basis != null) ? value - basis : null;
             const varRel = (varAbs != null && basis != null && basis !== 0)
                 ? (varAbs / Math.abs(basis)) * 100 : null;
+            const basis2 = basisMode === "plan" ? py : pl;
+            const var2Abs = (value != null && basis2 != null) ? value - basis2 : null;
+            const var2Rel = (var2Abs != null && basis2 != null && basis2 !== 0)
+                ? (var2Abs / Math.abs(basis2)) * 100 : null;
             return {
                 ...p,
                 ac: p.isFc ? null : value,
                 fc: p.isFc ? value : null,
-                value, py, pl, basis, varAbs, varRel
+                value, py, pl, basis, varAbs, varRel, var2Abs, var2Rel
             };
         });
     }
@@ -1120,10 +1203,14 @@ export class Visual implements IVisual {
         const varAbs = (value != null && basis != null) ? value - basis : null;
         const varRel = (varAbs != null && basis != null && basis !== 0)
             ? (varAbs / Math.abs(basis)) * 100 : null;
+        const basis2Sum = sum(tail.map(p => (p.var2Abs != null && p.value != null) ? p.value - p.var2Abs : null));
+        const var2Abs = (value != null && basis2Sum != null) ? value - basis2Sum : null;
+        const var2Rel = (var2Abs != null && basis2Sum != null && basis2Sum !== 0)
+            ? (var2Abs / Math.abs(basis2Sum)) * 100 : null;
         const rest: DataPoint = {
             cat: `Rest (${tail.length})`,
             ac, py, pl, fc, value,
-            isFc: false, basis, varAbs, varRel,
+            isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
             comment: null, commentNo: null,
             group: head.length > 0 ? head[0].group : null,
             rowType: null,
@@ -1429,22 +1516,28 @@ export class Visual implements IVisual {
     }
 
     private splitPanels(start: number, span: number, showAbs: boolean, showRel: boolean,
-        vertical: boolean, region: Rect): { main: Rect; abs?: Rect; rel?: Rect } {
+        vertical: boolean, region: Rect, showDual = false)
+        : { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect } {
         const gap = 10;
-        // vertical (columns): order top→bottom rel, abs, main; horizontal (bars): main, abs, rel
-        const parts: { key: "main" | "abs" | "rel"; share: number }[] = [];
+        type Key = "main" | "abs" | "rel" | "abs2" | "rel2";
+        // vertical (columns): variance panels stacked above the base chart
+        const parts: { key: Key; share: number }[] = [];
         if (vertical) {
             if (showRel) { parts.push({ key: "rel", share: 0.34 }); }
             if (showAbs) { parts.push({ key: "abs", share: 0.38 }); }
+            if (showDual && showRel) { parts.push({ key: "rel2", share: 0.30 }); }
+            if (showDual && showAbs) { parts.push({ key: "abs2", share: 0.34 }); }
             parts.push({ key: "main", share: 1 });
         } else {
             parts.push({ key: "main", share: 1 });
             if (showAbs) { parts.push({ key: "abs", share: 0.32 }); }
             if (showRel) { parts.push({ key: "rel", share: 0.26 }); }
+            if (showDual && showAbs) { parts.push({ key: "abs2", share: 0.28 }); }
+            if (showDual && showRel) { parts.push({ key: "rel2", share: 0.24 }); }
         }
         const totalShare = parts.reduce((a, b) => a + b.share, 0);
         const usable = span - gap * (parts.length - 1);
-        const out: { main?: Rect; abs?: Rect; rel?: Rect } = {};
+        const out: Partial<Record<Key, Rect>> = {};
         let cursor = start;
         for (const part of parts) {
             const size = usable * (part.share / totalShare);
@@ -1453,7 +1546,7 @@ export class Visual implements IVisual {
                 : { x: cursor, y: region.y, w: size, h: region.h };
             cursor += size + gap;
         }
-        return out as { main: Rect; abs?: Rect; rel?: Rect };
+        return out as { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect };
     }
 
     private makePanelScale(domain: [number, number], rect: Rect, orientation: Orientation, labelPad: number): Scale {
@@ -1635,6 +1728,10 @@ export class Visual implements IVisual {
                 out.push({ displayName: `Δ${cfg.basisLabel}`, value: this.fmtSigned(cfg.fmtVar, p.varAbs) });
             }
             add(`Δ${cfg.basisLabel} %`, p.varRel, true, true);
+            if (p.var2Abs != null) {
+                out.push({ displayName: `Δ${cfg.basis2Label}`, value: this.fmtSigned(cfg.fmtVar, p.var2Abs) });
+            }
+            add(`Δ${cfg.basis2Label} %`, p.var2Rel, true, true);
             if (p.comment != null && p.commentNo != null) {
                 out.push({ displayName: `${this.circledNo(p.commentNo)} Kommentar`, value: p.comment });
             }

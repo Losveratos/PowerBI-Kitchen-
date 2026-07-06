@@ -40,6 +40,12 @@ in **einem** Visual löst:
 - **Kumuliert (YTD)**: Umschalter stellt alle Panels auf Year-to-Date-Sicht um
 - **Referenzlinie**: Ziel-/Schwellenwert als gestrichelte Linie mit Beschriftung
 - **Gleitender Durchschnitt**: Ø-N-Overlay-Linie zur Glättung von Saisonalität
+- **Doppel-Varianz**: ΔPL und ΔPY gleichzeitig — bis zu fünf Panels mit je
+  korrekter IBCS-Baseline-Notation
+- **Auto-Message**: die Botschafts-Zeile schreibt sich selbst (Gesamtabweichung
+  plus stärkster/schwächster Treiber), eigene Texte haben Vorrang
+- **Live-Demo**: ohne Felder rendert das Visual ein Beispiel-Chart statt einer
+  leeren Fläche
 - **Small Multiples**: Grouping-Feld teilt das Chart in Kacheln pro Gruppe —
   alle mit identischer Skalierung (IBCS-Regel „gleiche Skalen")
 - **Σ-Header**: Summe + Gesamtabweichung (absolut & %) als Kopfzeile, gut/schlecht gefärbt

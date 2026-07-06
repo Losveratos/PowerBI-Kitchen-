@@ -48,6 +48,7 @@
         "Scale_RefLine": "Referenzlinie (Wert)",
         "Scale_RefLineLabel": "Referenzlinie (Beschriftung)",
         "Chart_MovingAverage": "Gleitender Durchschnitt (Perioden)",
-        "Title_AutoMessage": "Automatische Botschaft"
+        "Title_AutoMessage": "Automatische Botschaft",
+        "Chart_DualVariance": "Doppelte Abweichung (PL + PY)"
     }
 }

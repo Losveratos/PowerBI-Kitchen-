@@ -147,6 +147,14 @@ export class ChartCardSettings extends FormattingSettingsCard {
         }
     });
 
+    dualVariance = new formattingSettings.ToggleSwitch({
+        name: "dualVariance",
+        displayName: "Dual variance (PL + PY)",
+        displayNameKey: "Chart_DualVariance",
+        description: "Zeigt zusätzlich die Abweichungs-Panels zur zweiten Basis — ΔPL und ΔPY gleichzeitig (benötigt PY und PL).",
+        value: false
+    });
+
     cumulative = new formattingSettings.ToggleSwitch({
         name: "cumulative",
         displayName: "Cumulative (YTD)",
@@ -175,6 +183,7 @@ export class ChartCardSettings extends FormattingSettingsCard {
         this.showTotal,
         this.topN,
         this.movingAverage,
+        this.dualVariance,
         this.cumulative,
         this.highlight,
         this.invert
