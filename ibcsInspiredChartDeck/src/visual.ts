@@ -67,6 +67,7 @@ interface ChartConfig {
     basisLabel: string;
     showAbs: boolean;
     showRel: boolean;
+    showTotal: boolean;
     patId: string;
     fmt: IValueFormatter;
     /** formatter scaled to the variance magnitudes (auto units) */
@@ -313,6 +314,7 @@ export class Visual implements IVisual {
             basisLabel: basisMode === "plan" ? "PL" : "PY",
             showAbs: s.chartCard.showAbsoluteVariance.value && hasVar,
             showRel: s.chartCard.showRelativeVariance.value && points.some(p => p.varRel != null),
+            showTotal: s.chartCard.showTotal.value,
             patId: `icd-hatch-${this.instanceId}`,
             fmt: this.makeFormatter(maxAbs, allInt),
             fmtVar: this.makeFormatter(maxVarAbs, allVarInt),
@@ -344,6 +346,9 @@ export class Visual implements IVisual {
         const compact = orientation === "columns" ? region.h < 190 : region.w < 420;
         const showAbs = cfg.showAbs && !compact;
         const showRel = cfg.showRel && !compact;
+        // total (Σ) header row on top of the region
+        const showTotal = cfg.showTotal && region.w > 240;
+        const headerH = showTotal ? 17 : 0;
 
         let bandStart: number, bandEnd: number;
         let panels: { main: Rect; abs?: Rect; rel?: Rect };
@@ -352,11 +357,12 @@ export class Visual implements IVisual {
             const catArea = cfg.catFont + 10;
             bandStart = region.x + pad + 2;
             bandEnd = region.x + region.w - pad;
-            const plotTop = region.y + pad, plotBottom = region.y + region.h - catArea;
+            const plotTop = region.y + pad + headerH, plotBottom = region.y + region.h - catArea;
             panels = this.splitPanels(plotTop, plotBottom - plotTop, showAbs, showRel, true, region);
         } else {
             const catArea = Math.min(region.w * 0.28, this.maxTextWidth(points.map(p => p.cat), cfg.catFont) + 12);
-            bandStart = region.y + pad + titleH + 2; // room for panel titles above the first bar
+            // room for the header and the panel titles above the first bar
+            bandStart = region.y + pad + headerH + titleH + 2;
             bandEnd = region.y + region.h - pad;
             const plotLeft = region.x + pad + catArea, plotRight = region.x + region.w - pad;
             panels = this.splitPanels(plotLeft, plotRight - plotLeft, showAbs, showRel, false, region);
@@ -397,15 +403,21 @@ export class Visual implements IVisual {
         this.drawBaseline(bg, panels.main, mainScale, orientation, bandStart, bandEnd, "ac", cfg.colors);
         const compactVarHint = compact && (cfg.showAbs || cfg.showRel)
             ? `  ·  Δ${cfg.basisLabel}${cfg.showRel ? " %" : ""}` : "";
+        const barsTitleY = orientation === "bars" ? bandStart - 6 : undefined;
         this.drawPanelTitle(bg, panels.main, scenarioTitle + compactVarHint,
-            orientation, titleH, region);
+            orientation, titleH, region, barsTitleY);
         if (panels.abs && absScale) {
             this.drawBaseline(bg, panels.abs, absScale, orientation, bandStart, bandEnd, cfg.basisMode, cfg.colors);
-            this.drawPanelTitle(bg, panels.abs, `Δ${cfg.basisLabel}`, orientation, titleH, region);
+            this.drawPanelTitle(bg, panels.abs, `Δ${cfg.basisLabel}`, orientation, titleH, region, barsTitleY);
         }
         if (panels.rel && relScale) {
             this.drawBaseline(bg, panels.rel, relScale, orientation, bandStart, bandEnd, cfg.basisMode, cfg.colors);
-            this.drawPanelTitle(bg, panels.rel, `Δ${cfg.basisLabel} %`, orientation, titleH, region);
+            this.drawPanelTitle(bg, panels.rel, `Δ${cfg.basisLabel} %`, orientation, titleH, region, barsTitleY);
+        }
+
+        // ------- total (Σ) header
+        if (showTotal) {
+            this.drawTotalHeader(bg, region, points, cfg);
         }
 
         // ------- AC → FC boundary separator (time series only)
@@ -512,6 +524,42 @@ export class Visual implements IVisual {
 
             this.attachInteraction(g, p, cfg);
             this.catGroups.push({ g, sel: p.sel });
+        }
+    }
+
+    /** Σ header: total value plus overall variance vs. the comparison basis */
+    private drawTotalHeader(parent: SVGElement, region: Rect, points: DataPoint[], cfg: ChartConfig): void {
+        let sum = 0, sumVar = 0, sumBasis = 0, any = false, anyVar = false;
+        for (const p of points) {
+            if (p.value != null) { sum += p.value; any = true; }
+            if (p.varAbs != null && p.basis != null) {
+                sumVar += p.varAbs;
+                sumBasis += Math.abs(p.basis);
+                anyVar = true;
+            }
+        }
+        if (!any) { return; }
+
+        const t = this.el("text", {
+            x: region.x + region.w - 6, y: region.y + 12, "text-anchor": "end",
+            "font-size": 11, "font-family": FONT
+        }, parent);
+        const span = (text: string, fill: string, bold: boolean) => {
+            const ts = document.createElementNS(SVG_NS, "tspan");
+            ts.setAttribute("fill", fill);
+            if (bold) { ts.setAttribute("font-weight", "600"); }
+            ts.textContent = text;
+            t.appendChild(ts);
+        };
+        span(`Σ ${cfg.fmt.format(sum)}`, INK, true);
+        if (anyVar) {
+            const good = cfg.invert ? sumVar < 0 : sumVar > 0;
+            const color = sumVar === 0 ? "#8A8A8A" : (good ? cfg.colors.good : cfg.colors.bad);
+            span(`   Δ${cfg.basisLabel} `, "#8A8A8A", false);
+            span(this.fmtSigned(cfg.fmtVar, sumVar), color, true);
+            if (sumBasis !== 0) {
+                span(` · ${this.fmtPercent((sumVar / sumBasis) * 100)}`, color, true);
+            }
         }
     }
 
@@ -637,10 +685,10 @@ export class Visual implements IVisual {
     }
 
     private drawPanelTitle(parent: SVGElement, rect: Rect, text: string, orientation: Orientation,
-        titleH: number, region: Rect): void {
+        titleH: number, region: Rect, barsTitleY?: number): void {
         const attrs = orientation === "columns"
             ? { x: region.x + 6, y: rect.y + titleH - 4 }
-            : { x: rect.x + 2, y: region.y + 12 };
+            : { x: rect.x + 2, y: barsTitleY ?? (region.y + 12) };
         const t = this.el("text", {
             ...attrs, "font-size": 10, fill: "#8A8A8A",
             "font-family": FONT, "font-weight": 600

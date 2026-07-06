@@ -57,6 +57,7 @@
                 },
                 "showAbsoluteVariance": { "type": { "bool": true } },
                 "showRelativeVariance": { "type": { "bool": true } },
+                "showTotal": { "type": { "bool": true } },
                 "invert": { "type": { "bool": true } }
             }
         },

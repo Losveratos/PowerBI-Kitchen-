@@ -61,6 +61,13 @@ export class ChartCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    showTotal = new formattingSettings.ToggleSwitch({
+        name: "showTotal",
+        displayName: "Total (Σ) header",
+        description: "Zeigt Summe und Gesamtabweichung als Kopfzeile.",
+        value: true
+    });
+
     name: string = "chart";
     displayName: string = "Chart";
     slices: Array<FormattingSettingsSlice> = [
@@ -68,6 +75,7 @@ export class ChartCardSettings extends FormattingSettingsCard {
         this.comparisonMode,
         this.showAbsoluteVariance,
         this.showRelativeVariance,
+        this.showTotal,
         this.invert
     ];
 }
