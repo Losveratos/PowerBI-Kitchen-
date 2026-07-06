@@ -41,6 +41,8 @@
         "Scale_FixedVarMax": "Abweichungs-Mindest-Maximum",
         "Scale_CapOverflow": "Ausreißer am Maximum kappen",
         "CategoryAxis_FontSize": "Textgröße",
-        "Colors_UseTheme": "Theme-Farben des Berichts verwenden"
+        "Colors_UseTheme": "Theme-Farben des Berichts verwenden",
+        "Card_Comments": "Kommentare",
+        "Comments_ShowPanel": "Kommentarliste anzeigen"
     }
 }

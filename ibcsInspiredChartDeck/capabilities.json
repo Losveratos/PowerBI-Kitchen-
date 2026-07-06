@@ -133,6 +133,11 @@
                 }
             }
         },
+        "commentsPanel": {
+            "properties": {
+                "showPanel": { "type": { "bool": true } }
+            }
+        },
         "scale": {
             "properties": {
                 "fixedMax": { "type": { "numeric": true } },

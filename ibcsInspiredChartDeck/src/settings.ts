@@ -256,6 +256,21 @@ export class LabelsCardSettings extends FormattingSettingsCard {
     ];
 }
 
+export class CommentsCardSettings extends FormattingSettingsCard {
+    showPanel = new formattingSettings.ToggleSwitch({
+        name: "showPanel",
+        displayName: "Show comment list",
+        displayNameKey: "Comments_ShowPanel",
+        description: "Zeigt die Kommentare als nummerierte Liste rechts neben dem Chart — bleibt auch im PDF/PowerPoint-Export sichtbar.",
+        value: true
+    });
+
+    name: string = "commentsPanel";
+    displayName: string = "Comments";
+    displayNameKey: string = "Card_Comments";
+    slices: Array<FormattingSettingsSlice> = [this.showPanel];
+}
+
 export class ScaleCardSettings extends FormattingSettingsCard {
     fixedMax = new formattingSettings.NumUpDown({
         name: "fixedMax",
@@ -316,9 +331,10 @@ export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     chartCard = new ChartCardSettings();
     colorsCard = new ColorsCardSettings();
     labelsCard = new LabelsCardSettings();
+    commentsCard = new CommentsCardSettings();
     scaleCard = new ScaleCardSettings();
     categoryAxisCard = new CategoryAxisCardSettings();
 
     cards = [this.ibcsTitleCard, this.chartCard, this.colorsCard, this.labelsCard,
-        this.scaleCard, this.categoryAxisCard];
+        this.commentsCard, this.scaleCard, this.categoryAxisCard];
 }

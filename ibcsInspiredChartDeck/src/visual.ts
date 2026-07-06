@@ -493,9 +493,19 @@ export class Visual implements IVisual {
             : 0;
         const availH = height - topOffset;
 
+        // comment panel: numbered footnote list to the right of the chart
+        const commentPts = points.filter(p => p.commentNo != null);
+        let chartW = width;
+        if (this.formattingSettings.commentsCard.showPanel.value
+            && commentPts.length > 0 && groups.length <= 1 && width >= 480) {
+            const panelW = Math.min(260, Math.round(width * 0.28));
+            chartW = width - panelW;
+            this.drawCommentPanel({ x: chartW, y: topOffset, w: panelW, h: availH }, commentPts, cfg);
+        }
+
         if (groups.length <= 1) {
             renderCell(groups[0] ?? { name: null, pts: points },
-                { x: 0, y: topOffset, w: width, h: availH });
+                { x: 0, y: topOffset, w: chartW, h: availH });
             return;
         }
 
@@ -996,6 +1006,63 @@ export class Visual implements IVisual {
             "font-size": 9, fill: cfg.ink, "font-family": FONT, "font-weight": 600
         }, parent);
         t.textContent = String(p.commentNo);
+    }
+
+    /** numbered footnote list; stays visible in PDF/PPT exports where tooltips are lost */
+    private drawCommentPanel(region: Rect, pts: DataPoint[], cfg: ChartConfig): void {
+        const font = 10;
+        const lineH = font + 4;
+        const textX = region.x + 26;
+        const maxChars = Math.max(8, Math.floor((region.w - 34) / (font * 0.52)));
+        // subtle divider between chart and comments
+        this.el("line", {
+            x1: region.x + 4, y1: region.y + 6, x2: region.x + 4, y2: region.y + region.h - 6,
+            stroke: cfg.hc ? cfg.ink : "#E0E0E0", "stroke-width": 1
+        }, this.svg);
+
+        let y = region.y + 16;
+        for (const p of pts) {
+            const lines = this.wrapText(`${p.cat} — ${p.comment}`, maxChars);
+            const needed = lines.length * lineH + 8;
+            if (y + needed > region.y + region.h) {
+                const more = this.el("text", {
+                    x: textX, y, "font-size": font, fill: cfg.subtle, "font-family": FONT
+                }, this.svg);
+                more.textContent = "…";
+                break;
+            }
+            const no = this.el("text", {
+                x: region.x + 12, y: y + 1, "font-size": font + 2, fill: cfg.ink,
+                "font-family": FONT
+            }, this.svg);
+            no.textContent = this.circledNo(p.commentNo as number);
+            for (let li = 0; li < lines.length; li++) {
+                const t = this.el("text", {
+                    x: textX, y: y + li * lineH, "font-size": font,
+                    fill: cfg.ink, "font-family": FONT,
+                    "font-weight": li === 0 ? 600 : 400
+                }, this.svg);
+                t.textContent = lines[li];
+            }
+            y += needed;
+        }
+    }
+
+    /** greedy word wrap by estimated character budget per line */
+    private wrapText(text: string, maxChars: number): string[] {
+        const words = text.split(/\s+/);
+        const lines: string[] = [];
+        let cur = "";
+        for (const w of words) {
+            if (cur && (cur.length + 1 + w.length) > maxChars) {
+                lines.push(cur);
+                cur = w;
+            } else {
+                cur = cur ? cur + " " + w : w;
+            }
+        }
+        if (cur) { lines.push(cur); }
+        return lines;
     }
 
     /** circled digit for tooltips: ①…⑳, then (n) */
