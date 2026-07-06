@@ -61,10 +61,18 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
         value: ""
     });
 
+    autoMessage = new formattingSettings.ToggleSwitch({
+        name: "autoMessage",
+        displayName: "Auto message",
+        displayNameKey: "Title_AutoMessage",
+        description: "Erzeugt die Botschafts-Zeile automatisch aus Gesamtabweichung und größten Treibern, wenn keine eigene Botschaft eingegeben ist.",
+        value: true
+    });
+
     name: string = "ibcsTitle";
     displayName: string = "IBCS title";
     displayNameKey: string = "Card_IbcsTitle";
-    slices: Array<FormattingSettingsSlice> = [this.show, this.kpi, this.period, this.message];
+    slices: Array<FormattingSettingsSlice> = [this.show, this.kpi, this.period, this.message, this.autoMessage];
 }
 
 export class ChartCardSettings extends FormattingSettingsCard {

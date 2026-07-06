@@ -47,6 +47,7 @@
         "Chart_Cumulative": "Kumuliert (YTD)",
         "Scale_RefLine": "Referenzlinie (Wert)",
         "Scale_RefLineLabel": "Referenzlinie (Beschriftung)",
-        "Chart_MovingAverage": "Gleitender Durchschnitt (Perioden)"
+        "Chart_MovingAverage": "Gleitender Durchschnitt (Perioden)",
+        "Title_AutoMessage": "Automatische Botschaft"
     }
 }

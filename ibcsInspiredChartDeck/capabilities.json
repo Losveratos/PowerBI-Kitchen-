@@ -74,7 +74,8 @@
                 "show": { "type": { "bool": true } },
                 "kpi": { "type": { "text": true } },
                 "period": { "type": { "text": true } },
-                "message": { "type": { "text": true } }
+                "message": { "type": { "text": true } },
+                "autoMessage": { "type": { "bool": true } }
             }
         },
         "chart": {

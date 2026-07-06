@@ -199,7 +199,7 @@ export class Visual implements IVisual {
 
             const points = this.parseData(dataView);
             if (!points || points.length === 0) {
-                this.showLanding();
+                this.renderDemo(width, height);
                 this.events.renderingFinished(options);
                 return;
             }
@@ -343,20 +343,43 @@ export class Visual implements IVisual {
 
     // --------------------------------------------------------------- landing
 
-    private showLanding(): void {
-        this.svg.style.display = "none";
-        this.landing.style.display = "flex";
-        while (this.landing.firstChild) { this.landing.removeChild(this.landing.firstChild); }
-        const box = document.createElement("div");
-        const h = document.createElement("h3");
-        h.textContent = "IBCS Inspired Chart Deck";
-        const p = document.createElement("p");
-        p.textContent = "Füge mindestens Category und Actual (AC) hinzu. "
-            + "Optional: Previous Year (PY), Plan/Budget (PL) und Forecast (FC) "
-            + "für IBCS-Szenario-Notation und Abweichungs-Panels.";
-        box.appendChild(h);
-        box.appendChild(p);
-        this.landing.appendChild(box);
+    /** landing page renders a live sample chart instead of a text hint */
+    private renderDemo(width: number, height: number): void {
+        this.landing.style.display = "none";
+        this.svg.style.display = "block";
+        const months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+        const ac = [820, 771, 900, 955, 1020, 980, 1105, null, null, null, null, null];
+        const fc = [null, null, null, null, null, null, null, 1150, 1080, 1210, 1260, 1400];
+        const py = [760, 800, 850, 900, 940, 1010, 1000, 1040, 1010, 1120, 1180, 1300];
+        const pl = [800, 810, 870, 980, 1000, 1000, 1050, 1100, 1120, 1180, 1220, 1350];
+        this.measureName = "Demo-KPI";
+        this.measureFormat = undefined;
+        const pts: DataPoint[] = months.map((m, i) => {
+            const isFc = ac[i] == null;
+            const value = ac[i] != null ? ac[i] : fc[i];
+            const varAbs = (value as number) - (pl[i] as number);
+            return {
+                cat: m, ac: ac[i], py: py[i], pl: pl[i], fc: fc[i],
+                value, isFc, basis: pl[i],
+                varAbs, varRel: (varAbs / Math.abs(pl[i] as number)) * 100,
+                comment: null, commentNo: null, group: null, rowType: null, sel: null
+            };
+        });
+        this.render(pts, width, height);
+
+        // hint pill on top of the sample
+        const g = this.el("g", {}, this.svg);
+        const msg = "Beispieldaten — füge Category und Actual (AC) hinzu";
+        const w = Math.min(width - 16, msg.length * 6.2 + 24);
+        this.el("rect", {
+            x: (width - w) / 2, y: height - 30, width: w, height: 22, rx: 11,
+            fill: "#404040", "fill-opacity": 0.85
+        }, g);
+        const t = this.el("text", {
+            x: width / 2, y: height - 15, "text-anchor": "middle",
+            "font-size": 10.5, fill: "#FFFFFF", "font-family": FONT
+        }, g);
+        t.textContent = msg;
     }
 
     // ---------------------------------------------------------------- render
@@ -1004,7 +1027,10 @@ export class Visual implements IVisual {
         if (unit) { span(` in ${unit}`, false); }
         span(`${kpi || unit ? " · " : ""}${period ? period + ": " : ""}${valueScen}${hasRef ? " vs. " + refScen : ""}`, false);
 
-        const message = (s.message.value || "").trim();
+        let message = (s.message.value || "").trim();
+        if (!message && s.autoMessage.value) {
+            message = this.buildAutoMessage(points, cfg);
+        }
         if (message) {
             const m = this.el("text", {
                 x: 6, y: 30, "font-size": 11, "font-family": FONT,
@@ -1014,6 +1040,38 @@ export class Visual implements IVisual {
             return 38;
         }
         return 22;
+    }
+
+    /**
+     * IBCS SAY, automated: overall variance plus the strongest and weakest
+     * driver — e.g. "ΔPL +171K€ (+1,4%) · stärkster Treiber: Jul (+55K€) · schwächster: Feb (−39K€)"
+     */
+    private buildAutoMessage(points: DataPoint[], cfg: ChartConfig): string {
+        const withVar = points.filter(p => p.varAbs != null);
+        if (withVar.length === 0) { return ""; }
+        let sumVar = 0, sumBasis = 0;
+        if (cfg.cumulative) {
+            const last = withVar[withVar.length - 1];
+            sumVar = last.varAbs as number;
+            sumBasis = Math.abs(last.basis as number);
+        } else {
+            for (const p of withVar) {
+                sumVar += p.varAbs as number;
+                sumBasis += Math.abs(p.basis as number);
+            }
+        }
+        const sorted = [...withVar].sort((a, b) => (b.varAbs as number) - (a.varAbs as number));
+        const best = cfg.invert ? sorted[sorted.length - 1] : sorted[0];
+        const worst = cfg.invert ? sorted[0] : sorted[sorted.length - 1];
+        const parts = [
+            `Δ${cfg.basisLabel} ${this.fmtSigned(cfg.fmtVar, sumVar)}`
+            + (sumBasis !== 0 ? ` (${this.fmtPercent((sumVar / sumBasis) * 100)})` : "")
+        ];
+        if (withVar.length >= 3 && best !== worst && !cfg.cumulative) {
+            parts.push(`stärkster Treiber: ${best.cat} (${this.fmtSigned(cfg.fmtVar, best.varAbs as number)})`);
+            parts.push(`schwächster: ${worst.cat} (${this.fmtSigned(cfg.fmtVar, worst.varAbs as number)})`);
+        }
+        return parts.join(" · ");
     }
 
     /** running YTD totals for value/PY/PL with variances recomputed on the cumulated numbers */
