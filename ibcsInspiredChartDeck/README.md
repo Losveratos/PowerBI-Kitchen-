@@ -19,8 +19,24 @@ in **einem** Visual löst:
 - **Columns & Bars**: vertikale Säulen für Zeitreihen, horizontale Balken für
   Struktur-Vergleiche (Panels dann nebeneinander)
 - **Invert-Schalter** für Kosten-KPIs (Mehrwert = schlecht = rot)
-- Wertelabels mit weißem Halo, kompakte Einheiten (k/M/B, auto), Dezimalstellen einstellbar
-- Tooltips (AC/FC/PY/PL/ΔBasis/ΔBasis %), Cross-Filtering per Klick (Strg = Mehrfachauswahl),
+- **Small Multiples**: Grouping-Feld teilt das Chart in Kacheln pro Gruppe —
+  alle mit identischer Skalierung (IBCS-Regel „gleiche Skalen")
+- **Σ-Header**: Summe + Gesamtabweichung (absolut & %) als Kopfzeile, gut/schlecht gefärbt
+- **Kompakt-Modus**: unter ~190 px Höhe klappen die Varianz-Panels automatisch zu
+  farbigen Δ-Labels an den Säulenenden — funktioniert auch als kleine Dashboard-Kachel
+- **Label-Ausdünnung** bei vielen Kategorien (jedes k-te Label, danach Min/Max/Erster/Letzter)
+- **AC/FC-Trennlinie**: gestrichelte Linie markiert den Übergang Ist → Forecast
+- **Top N + Rest** (Bars-Modus): zeigt die N größten Kategorien, Rest wird korrekt aggregiert
+- **Kommentar-Marker**: Text-Measure im Feld „Comments" erzeugt nummerierte Marker
+  (①②③) an den Datenpunkten, Kommentartext im Tooltip
+- **Skalen-Synchronisation**: fixierbares Skalen-Maximum (Basis-Chart und Varianz-Panel),
+  damit mehrere Instanzen auf einer Seite dieselbe Skala nutzen
+- **Measure-Formatstrings** werden übernommen (€, %, Dezimalstellen aus dem Modell),
+  Varianz-Panels bekommen automatisch passende Einheiten
+- **Barrierefreiheit**: Keyboard-Navigation (Tab, Enter/Space = Auswahl),
+  High-Contrast-Modus (nur Vorder-/Hintergrundfarbe, Unterscheidung über Outlines/Muster)
+- Wertelabels mit Halo, kompakte Einheiten (k/M/B, auto), Hover-Feedback,
+  Tooltips (AC/FC/PY/PL/ΔBasis/ΔBasis %), Cross-Filtering per Klick (Strg = Mehrfachauswahl),
   Kontextmenü (Rechtsklick), Landing Page bei leeren Feldern
 
 ## Installation in Power BI
@@ -37,6 +53,8 @@ in **einem** Visual löst:
 | Previous Year (PY) | Vorjahres-Measure | optional |
 | Plan / Budget (PL) | Plan-Measure | optional |
 | Forecast (FC) | Forecast-Measure | optional |
+| Comments | Text-Measure → nummerierte Marker + Tooltip | optional |
+| Small Multiples | Grouping → Kachel-Grid mit gleicher Skala | optional |
 
 **Abweichungsbasis**: Standardmäßig „Auto" — PL, wenn befüllt, sonst PY.
 Im Formatbereich unter **Chart → Variance basis** umstellbar.
@@ -44,9 +62,12 @@ Im Formatbereich unter **Chart → Variance basis** umstellbar.
 ## Formatbereich
 
 - **Chart**: Orientation (Columns/Bars), Variance basis (Auto/PY/PL),
-  Absolute/Relative variance ein-aus, Invert (higher is bad)
+  Absolute/Relative variance ein-aus, Total (Σ) header, Top N (Bars),
+  Invert (higher is bad)
 - **IBCS colors**: AC, PY, PL-Outline, Good/Bad
 - **Data labels**: an/aus, Textgröße, Dezimalstellen, Einheiten (Auto/k/M/B)
+- **Scale sync**: Skalen-Mindest-Maximum für Basis-Chart und Varianz-Panel
+  (gleiche Werte auf mehreren Instanzen = gleiche Skalen)
 - **Category axis**: Textgröße
 
 ## Selbst bauen
@@ -63,8 +84,6 @@ ein Entwickler-Visual-Setup im Power-BI-Dienst
 
 ## Roadmap-Ideen
 
-- Small Multiples (mehrere Kategorien-Gruppen mit konsistenter Skalierung)
 - Waterfall-Modus für Beitragsanalysen
-- High-Contrast- und Keyboard-Navigation-Support
 - Lokalisierung (DE/EN) der Formatbereich-Labels
-- Skalierungs-Synchronisation zwischen mehreren Instanzen (IBCS-Regel „gleiche Skalen")
+- Report-Page-Tooltips mit eigener Tooltip-Seite
