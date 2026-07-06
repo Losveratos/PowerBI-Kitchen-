@@ -1,11 +1,11 @@
 {
     "visual": {
-        "name": "zebraIBCS",
-        "displayName": "IBCS Business Chart",
-        "guid": "zebraIBCSE73997CF4C7D44978F8112A4E5FA0B4D",
+        "name": "ibcsInspiredChartDeck",
+        "displayName": "IBCS Inspired Chart Deck",
+        "guid": "ibcsInspiredChartDeckE73997CF4C7D44978F8112A4E5FA0B4D",
         "visualClassName": "Visual",
         "version": "1.0.0.0",
-        "description": "Zebra BI inspired IBCS chart: base chart with scenario notation (AC solid, PY grey, PL outlined, FC hatched) plus absolute and relative variance panels — columns for time, bars for structure.",
+        "description": "IBCS inspired chart deck: base chart with scenario notation (AC solid, PY grey, PL outlined, FC hatched) plus absolute and relative variance panels \u2014 columns for time, bars for structure.",
         "supportUrl": "https://github.com/losveratos/powerbi-kitchen-/issues",
         "gitHubUrl": "https://github.com/losveratos/powerbi-kitchen-"
     },

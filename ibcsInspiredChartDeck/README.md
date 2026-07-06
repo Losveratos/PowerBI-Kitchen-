@@ -1,7 +1,7 @@
-# IBCS Business Chart — Zebra-BI-inspiriertes Custom Visual für Power BI
+# IBCS Inspired Chart Deck — Custom Visual für Power BI
 
-Ein Custom Visual, das die wichtigsten IBCS-Bausteine in **einem** Visual löst —
-inspiriert von Zebra BI Charts:
+Ein echtes Power BI Custom Visual (`.pbiviz`), das die wichtigsten IBCS-Bausteine
+in **einem** Visual löst:
 
 ![Screenshot](assets/screenshot.png)
 
@@ -25,7 +25,7 @@ inspiriert von Zebra BI Charts:
 
 ## Installation in Power BI
 
-1. Fertiges Paket: [`dist/zebraIBCSE73997CF4C7D44978F8112A4E5FA0B4D.1.0.0.0.pbiviz`](dist/)
+1. Fertiges Paket: [`dist/`](dist/) (`ibcsInspiredChartDeck….pbiviz`)
 2. In Power BI Desktop: **Visualisierungen → ⋯ → Visual aus Datei importieren**
    und die `.pbiviz`-Datei auswählen.
 3. Felder zuordnen:
@@ -52,7 +52,7 @@ Im Formatbereich unter **Chart → Variance basis** umstellbar.
 ## Selbst bauen
 
 ```bash
-cd zebraIBCS
+cd ibcsInspiredChartDeck
 npm install
 npx pbiviz package        # erzeugt dist/*.pbiviz
 ```

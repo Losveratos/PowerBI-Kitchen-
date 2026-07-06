@@ -1,5 +1,5 @@
 /*
- *  zebraIBCS — IBCS business chart for Power BI (Zebra BI inspired)
+ *  IBCS Inspired Chart Deck — IBCS business chart custom visual for Power BI
  *
  *  One visual that covers the core IBCS report chart:
  *    - Base chart with scenario notation: AC solid, PY grey, PL outlined, FC hatched
@@ -92,14 +92,14 @@ export class Visual implements IVisual {
         this.selectionManager = options.host.createSelectionManager();
         this.tooltipService = options.host.tooltipService;
         this.root = options.element;
-        this.root.classList.add("zebra-ibcs-root");
+        this.root.classList.add("icd-root");
         this.instanceId = Visual.instanceCounter++;
 
         this.svg = document.createElementNS(SVG_NS, "svg");
         this.root.appendChild(this.svg);
 
         this.landing = document.createElement("div");
-        this.landing.className = "zebra-ibcs-landing";
+        this.landing.className = "icd-landing";
         this.landing.style.display = "none";
         this.root.appendChild(this.landing);
 
@@ -243,7 +243,7 @@ export class Visual implements IVisual {
         while (this.landing.firstChild) { this.landing.removeChild(this.landing.firstChild); }
         const box = document.createElement("div");
         const h = document.createElement("h3");
-        h.textContent = "IBCS Business Chart";
+        h.textContent = "IBCS Inspired Chart Deck";
         const p = document.createElement("p");
         p.textContent = "Füge mindestens Category und Actual (AC) hinzu. "
             + "Optional: Previous Year (PY), Plan/Budget (PL) und Forecast (FC) "
@@ -283,7 +283,7 @@ export class Visual implements IVisual {
 
         // hatch pattern for forecast
         const defs = this.el("defs", {}, this.svg);
-        const patId = `zibcs-hatch-${this.instanceId}`;
+        const patId = `icd-hatch-${this.instanceId}`;
         const pat = this.el("pattern", {
             id: patId, patternUnits: "userSpaceOnUse", width: 5, height: 5,
             patternTransform: "rotate(45)"
@@ -351,7 +351,7 @@ export class Visual implements IVisual {
         const marks = this.el("g", {}, this.svg);
         for (let i = 0; i < n; i++) {
             const p = points[i];
-            const g = this.el("g", { "class": "zibcs-cat" }, marks) as SVGGElement;
+            const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
             const pos = slotPos(i);
 
             // base chart: PY behind, PL outline, AC/FC on top

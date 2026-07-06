@@ -1,6 +1,6 @@
 {
-  "name": "zebra-ibcs",
-  "description": "Zebra BI inspired IBCS business chart for Power BI",
+  "name": "ibcs-inspired-chart-deck",
+  "description": "IBCS inspired chart deck custom visual for Power BI",
   "version": "1.0.0.0",
   "repository": {
     "type": "default_template_value",
