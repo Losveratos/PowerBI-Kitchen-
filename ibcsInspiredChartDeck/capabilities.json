@@ -48,6 +48,14 @@
         }
     ],
     "objects": {
+        "ibcsTitle": {
+            "properties": {
+                "show": { "type": { "bool": true } },
+                "kpi": { "type": { "text": true } },
+                "period": { "type": { "text": true } },
+                "message": { "type": { "text": true } }
+            }
+        },
         "chart": {
             "properties": {
                 "orientation": {

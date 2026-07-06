@@ -120,6 +120,7 @@ export class Visual implements IVisual {
     private formattingSettingsService: FormattingSettingsService;
     private catGroups: { g: SVGGElement; sel: ISelectionId | null }[] = [];
     private measureFormat: string | undefined;
+    private measureName: string | undefined;
     private static instanceCounter = 0;
     private instanceId: number;
 
@@ -200,8 +201,11 @@ export class Visual implements IVisual {
             for (const role of ["actual", "previousYear", "plan", "forecast"]) {
                 if (roles[role]) {
                     byRole[role] = col.values.map(v => (typeof v === "number" && isFinite(v)) ? v : null);
-                    if ((role === "actual" || (role === "forecast" && !this.measureFormat)) && col.source.format) {
-                        this.measureFormat = col.source.format;
+                    if (role === "actual" || (role === "forecast" && !this.measureFormat)) {
+                        if (col.source.format) { this.measureFormat = col.source.format; }
+                        if (!this.measureName || role === "actual") {
+                            this.measureName = col.source.displayName;
+                        }
                     }
                 }
             }
@@ -410,8 +414,14 @@ export class Visual implements IVisual {
             ];
         }
 
+        // IBCS title block on top of everything (incl. multiples grid)
+        const topOffset = s.ibcsTitleCard.show.value
+            ? this.drawTitleBlock(width, points, cfg, maxAbs, orientation)
+            : 0;
+        const availH = height - topOffset;
+
         if (groups.length <= 1) {
-            this.renderChart(points, { x: 0, y: 0, w: width, h: height }, cfg, domains);
+            this.renderChart(points, { x: 0, y: topOffset, w: width, h: availH }, cfg, domains);
             return;
         }
 
@@ -423,12 +433,12 @@ export class Visual implements IVisual {
         cols = Math.max(1, Math.min(cols, Math.floor(width / 220) || 1));
         const rows = Math.ceil(n / cols);
         const cellW = width / cols;
-        const cellH = height / rows;
+        const cellH = availH / rows;
         const groupTitleH = 16;
 
         for (let gi = 0; gi < n; gi++) {
             const cx = (gi % cols) * cellW;
-            const cy = Math.floor(gi / cols) * cellH;
+            const cy = topOffset + Math.floor(gi / cols) * cellH;
             let title = shown[gi].name ?? "";
             if (gi === n - 1 && groups.length > n) {
                 title += `  (+${groups.length - n} weitere)`;
@@ -643,6 +653,53 @@ export class Visual implements IVisual {
             this.attachInteraction(g, p, cfg);
             this.catGroups.push({ g, sel: p.sel });
         }
+    }
+
+    /**
+     * IBCS title block: "KPI in Unit · Period: AC, FC vs. PL" plus optional
+     * message line (IBCS SAY). Returns the consumed height.
+     */
+    private drawTitleBlock(width: number, points: DataPoint[], cfg: ChartConfig,
+        maxAbs: number, orientation: Orientation): number {
+        const s = this.formattingSettings.ibcsTitleCard;
+        const kpi = (s.kpi.value || this.measureName || "").trim();
+        // derive the unit suffix (e.g. "M€") from a formatted sample value
+        const unit = cfg.fmt.format(maxAbs).replace(/[0-9.,\s +\-−]/g, "");
+        let period = (s.period.value || "").trim();
+        if (!period && orientation === "columns" && points.length > 1) {
+            period = `${points[0].cat} – ${points[points.length - 1].cat}`;
+        }
+        const valueScen = ["AC", cfg.hasFc ? "FC" : ""].filter(x => x).join(", ");
+        const refScen = [
+            cfg.basisMode === "plan" ? "PL" : "PY",
+            cfg.basisMode === "plan" && cfg.hasPy ? "PY" : "",
+            cfg.basisMode === "py" && cfg.hasPl ? "PL" : ""
+        ].filter(x => x).join(", ");
+        const hasRef = cfg.hasPy || cfg.hasPl;
+
+        const t = this.el("text", {
+            x: 6, y: 14, "font-size": 12, "font-family": FONT, fill: cfg.ink
+        }, this.svg);
+        const span = (text: string, bold: boolean) => {
+            const ts = document.createElementNS(SVG_NS, "tspan");
+            if (bold) { ts.setAttribute("font-weight", "600"); }
+            ts.textContent = text;
+            t.appendChild(ts);
+        };
+        if (kpi) { span(kpi, true); }
+        if (unit) { span(` in ${unit}`, false); }
+        span(`${kpi || unit ? " · " : ""}${period ? period + ": " : ""}${valueScen}${hasRef ? " vs. " + refScen : ""}`, false);
+
+        const message = (s.message.value || "").trim();
+        if (message) {
+            const m = this.el("text", {
+                x: 6, y: 30, "font-size": 11, "font-family": FONT,
+                fill: cfg.ink, "font-style": "italic"
+            }, this.svg);
+            m.textContent = this.truncate(message, width - 12, 11);
+            return 38;
+        }
+        return 22;
     }
 
     /** keeps the N largest categories (by base value) and aggregates the tail into one "Rest" row */

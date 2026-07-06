@@ -26,6 +26,40 @@ const displayUnitsItems: powerbi.IEnumMember[] = [
     { value: "b", displayName: "Billions (B)" }
 ];
 
+export class IbcsTitleCardSettings extends FormattingSettingsCard {
+    show = new formattingSettings.ToggleSwitch({
+        name: "show",
+        displayName: "Show IBCS title",
+        description: "Standardisierter IBCS-Titel: KPI · Einheit · Zeitraum: Szenarien.",
+        value: true
+    });
+
+    kpi = new formattingSettings.TextInput({
+        name: "kpi",
+        displayName: "KPI name (auto if empty)",
+        placeholder: "z. B. Umsatz",
+        value: ""
+    });
+
+    period = new formattingSettings.TextInput({
+        name: "period",
+        displayName: "Period (auto if empty)",
+        placeholder: "z. B. 2026",
+        value: ""
+    });
+
+    message = new formattingSettings.TextInput({
+        name: "message",
+        displayName: "Message line",
+        placeholder: "Kernbotschaft der Grafik (IBCS: SAY)",
+        value: ""
+    });
+
+    name: string = "ibcsTitle";
+    displayName: string = "IBCS title";
+    slices: Array<FormattingSettingsSlice> = [this.show, this.kpi, this.period, this.message];
+}
+
 export class ChartCardSettings extends FormattingSettingsCard {
     orientation = new formattingSettings.ItemDropdown({
         name: "orientation",
@@ -221,11 +255,13 @@ export class CategoryAxisCardSettings extends FormattingSettingsCard {
 }
 
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
+    ibcsTitleCard = new IbcsTitleCardSettings();
     chartCard = new ChartCardSettings();
     colorsCard = new ColorsCardSettings();
     labelsCard = new LabelsCardSettings();
     scaleCard = new ScaleCardSettings();
     categoryAxisCard = new CategoryAxisCardSettings();
 
-    cards = [this.chartCard, this.colorsCard, this.labelsCard, this.scaleCard, this.categoryAxisCard];
+    cards = [this.ibcsTitleCard, this.chartCard, this.colorsCard, this.labelsCard,
+        this.scaleCard, this.categoryAxisCard];
 }
