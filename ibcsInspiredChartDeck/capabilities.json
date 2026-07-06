@@ -45,6 +45,12 @@
             "name": "multiples",
             "kind": "Grouping",
             "description": "Teilt das Chart in kleine Kacheln pro Gruppe — mit identischer Skalierung (IBCS)"
+        },
+        {
+            "displayName": "Waterfall Type (sum/delta)",
+            "name": "rowType",
+            "kind": "Grouping",
+            "description": "Nur Waterfall-Modus: 'sum' = absolute Zwischensumme, 'delta' = Bewegung (GuV-Wasserfall)"
         }
     ],
     "objects": {
@@ -62,7 +68,8 @@
                     "type": {
                         "enumeration": [
                             { "value": "columns", "displayName": "Columns (Zeit)" },
-                            { "value": "bars", "displayName": "Bars (Struktur)" }
+                            { "value": "bars", "displayName": "Bars (Struktur)" },
+                            { "value": "waterfall", "displayName": "Waterfall / Brücke" }
                         ]
                     }
                 },
@@ -127,6 +134,7 @@
                 {
                     "category": { "max": 1 },
                     "multiples": { "max": 1 },
+                    "rowType": { "max": 1 },
                     "actual": { "max": 1 },
                     "previousYear": { "max": 1 },
                     "plan": { "max": 1 },
@@ -138,7 +146,8 @@
                 "categories": {
                     "select": [
                         { "for": { "in": "category" } },
-                        { "for": { "in": "multiples" } }
+                        { "for": { "in": "multiples" } },
+                        { "for": { "in": "rowType" } }
                     ],
                     "dataReductionAlgorithm": { "top": { "count": 1000 } }
                 },

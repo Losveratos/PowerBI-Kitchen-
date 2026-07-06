@@ -9,7 +9,8 @@ import FormattingSettingsModel = formattingSettings.Model;
 
 const orientationItems: powerbi.IEnumMember[] = [
     { value: "columns", displayName: "Columns (Zeit)" },
-    { value: "bars", displayName: "Bars (Struktur)" }
+    { value: "bars", displayName: "Bars (Struktur)" },
+    { value: "waterfall", displayName: "Waterfall / Brücke" }
 ];
 
 const comparisonItems: powerbi.IEnumMember[] = [

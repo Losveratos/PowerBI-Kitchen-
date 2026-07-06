@@ -53,7 +53,21 @@ interface DataPoint {
     commentNo: number | null;
     /** small-multiples group label, null when the multiples role is empty */
     group: string | null;
+    /** waterfall row type: 'sum' | 'delta' | null */
+    rowType: string | null;
     sel: ISelectionId | null;
+}
+
+/** one bar of a waterfall / bridge */
+interface WfSeg {
+    label: string;
+    from: number;
+    to: number;
+    kind: "anchor" | "delta";
+    outlined?: boolean;
+    hatched?: boolean;
+    good?: boolean;
+    p?: DataPoint;
 }
 
 interface Domains {
@@ -121,6 +135,8 @@ export class Visual implements IVisual {
     private catGroups: { g: SVGGElement; sel: ISelectionId | null }[] = [];
     private measureFormat: string | undefined;
     private measureName: string | undefined;
+    /** shared waterfall domain across small-multiples cells (IBCS same scale) */
+    private sharedWfDomain: [number, number] | null = null;
     private static instanceCounter = 0;
     private instanceId: number;
 
@@ -190,6 +206,7 @@ export class Visual implements IVisual {
         const catCols = dataView?.categorical?.categories;
         const cat = catCols?.find(c => c.source.roles?.["category"]);
         const mult = catCols?.find(c => c.source.roles?.["multiples"]);
+        const rowTypeCol = catCols?.find(c => c.source.roles?.["rowType"]);
         const valueCols = dataView?.categorical?.values;
         if (!cat || !valueCols || valueCols.length === 0) { return null; }
 
@@ -239,6 +256,8 @@ export class Visual implements IVisual {
                 comment,
                 commentNo: comment != null ? ++commentCounter : null,
                 group: mult ? this.categoryLabel(mult.values[i]) : null,
+                rowType: rowTypeCol && rowTypeCol.values[i] != null
+                    ? String(rowTypeCol.values[i]).toLowerCase() : null,
                 sel: selBuilder.createSelectionId()
             });
         }
@@ -321,7 +340,9 @@ export class Visual implements IVisual {
         this.catGroups = [];
 
         const s = this.formattingSettings;
-        const orientation = String(s.chartCard.orientation.value.value) as Orientation;
+        const orientationRaw = String(s.chartCard.orientation.value.value);
+        const isWaterfall = orientationRaw === "waterfall";
+        const orientation: Orientation = orientationRaw === "bars" ? "bars" : "columns";
 
         // small multiples: group by the multiples role, in order of appearance
         const groups: { name: string | null; pts: DataPoint[] }[] = [];
@@ -414,6 +435,24 @@ export class Visual implements IVisual {
             ];
         }
 
+        // waterfall: precompute segments per group, shared domain over all cells
+        const wfByGroup = new Map<string | null, WfSeg[]>();
+        this.sharedWfDomain = null;
+        if (isWaterfall) {
+            for (const g of groups) { wfByGroup.set(g.name, this.buildWaterfall(g.pts, cfg)); }
+            const allSegs: WfSeg[] = [];
+            wfByGroup.forEach(segs => allSegs.push(...segs));
+            domains.main = extent(allSegs.flatMap(sg => [sg.from, sg.to]));
+            this.sharedWfDomain = domains.main;
+        }
+
+        const renderCell = (grp: { name: string | null; pts: DataPoint[] }, region: Rect) => {
+            if (isWaterfall) {
+                this.renderWaterfall(wfByGroup.get(grp.name) || [], region, cfg);
+                return;
+            }
+            this.renderChart(grp.pts, region, cfg, domains);
+        };
         // IBCS title block on top of everything (incl. multiples grid)
         const topOffset = s.ibcsTitleCard.show.value
             ? this.drawTitleBlock(width, points, cfg, maxAbs, orientation)
@@ -421,7 +460,8 @@ export class Visual implements IVisual {
         const availH = height - topOffset;
 
         if (groups.length <= 1) {
-            this.renderChart(points, { x: 0, y: topOffset, w: width, h: availH }, cfg, domains);
+            renderCell(groups[0] ?? { name: null, pts: points },
+                { x: 0, y: topOffset, w: width, h: availH });
             return;
         }
 
@@ -448,9 +488,130 @@ export class Visual implements IVisual {
                 "font-family": FONT, "font-weight": 600
             }, this.svg);
             t.textContent = this.truncate(title, cellW - 12, 11);
-            this.renderChart(shown[gi].pts,
-                { x: cx + 2, y: cy + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 },
-                cfg, domains);
+            renderCell(shown[gi],
+                { x: cx + 2, y: cy + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 });
+        }
+    }
+
+    /**
+     * builds waterfall segments from the points. Three modes:
+     * - rowType present: P&L waterfall — 'sum' rows are absolute anchors, others cumulate
+     * - comparison basis present: variance bridge basis → AC (deltas are ΔPY/ΔPL)
+     * - otherwise: contribution waterfall of the base values ending in a Σ anchor
+     */
+    private buildWaterfall(pts: DataPoint[], cfg: ChartConfig): WfSeg[] {
+        const segs: WfSeg[] = [];
+        const good = (v: number) => cfg.invert ? v < 0 : v > 0;
+        if (pts.some(p => p.rowType != null)) {
+            let cum = 0;
+            for (const p of pts) {
+                if (p.value == null) { continue; }
+                if (p.rowType != null && p.rowType.startsWith("sum")) {
+                    segs.push({ label: p.cat, from: 0, to: p.value, kind: "anchor", hatched: p.isFc, p });
+                    cum = p.value;
+                } else {
+                    segs.push({ label: p.cat, from: cum, to: cum + p.value, kind: "delta", good: good(p.value), hatched: p.isFc, p });
+                    cum += p.value;
+                }
+            }
+        } else if (pts.some(p => p.varAbs != null)) {
+            const basisSum = pts.reduce((a, p) => a + (p.basis ?? 0), 0);
+            const valueSum = pts.reduce((a, p) => a + (p.value ?? 0), 0);
+            segs.push({ label: cfg.basisLabel, from: 0, to: basisSum, kind: "anchor", outlined: true });
+            let cum = basisSum;
+            for (const p of pts) {
+                if (p.varAbs == null) { continue; }
+                segs.push({ label: p.cat, from: cum, to: cum + p.varAbs, kind: "delta", good: good(p.varAbs), hatched: p.isFc, p });
+                cum += p.varAbs;
+            }
+            segs.push({ label: cfg.hasFc ? "AC/FC" : "AC", from: 0, to: valueSum, kind: "anchor", hatched: cfg.hasFc });
+        } else {
+            let cum = 0;
+            for (const p of pts) {
+                if (p.value == null) { continue; }
+                segs.push({ label: p.cat, from: cum, to: cum + p.value, kind: "delta", good: good(p.value), hatched: p.isFc, p });
+                cum += p.value;
+            }
+            segs.push({ label: "Σ", from: 0, to: cum, kind: "anchor" });
+        }
+        return segs;
+    }
+
+    /** renders a waterfall / bridge into the region (vertical bars, shared domain via cfg call site) */
+    private renderWaterfall(segs: WfSeg[], region: Rect, cfg: ChartConfig): void {
+        if (segs.length === 0) { return; }
+        const pad = 4;
+        const titleH = 14;
+        const catArea = cfg.catFont + 10;
+        const bandStart = region.x + pad + 2;
+        const bandEnd = region.x + region.w - pad;
+        const rect: Rect = {
+            x: region.x, y: region.y + pad,
+            w: region.w, h: region.h - pad - catArea
+        };
+        const domain = extent(segs.flatMap(sg => [sg.from, sg.to]));
+        if (this.sharedWfDomain) {
+            domain[0] = Math.min(domain[0], this.sharedWfDomain[0]);
+            domain[1] = Math.max(domain[1], this.sharedWfDomain[1]);
+        }
+        const labelPad = cfg.showLabels ? cfg.labelFont + 6 : 6;
+        const scale = this.makePanelScale(domain, rect, "columns", labelPad);
+        const n = segs.length;
+        const step = (bandEnd - bandStart) / n;
+        const slotW = Math.max(2, step * 0.62);
+        const pos = (i: number) => bandStart + i * step + (step - slotW) / 2;
+
+        const bg = this.el("g", {}, this.svg);
+        this.drawBaseline(bg, rect, scale, "columns", bandStart, bandEnd, "ac", cfg.colors);
+        const title = segs[0].outlined ? `${cfg.basisLabel} → AC` : "AC";
+        this.drawPanelTitle(bg, rect, title, "columns", titleH, region, undefined, cfg.subtle);
+
+        const marks = this.el("g", {}, this.svg);
+        for (let i = 0; i < n; i++) {
+            const sg = segs[i];
+            const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
+            let style: Record<string, string | number>;
+            if (sg.kind === "anchor") {
+                style = sg.outlined
+                    ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 }
+                    : sg.hatched
+                        ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                        : { fill: cfg.colors.ac };
+            } else {
+                const delta = sg.to - sg.from;
+                const color = delta === 0 ? cfg.colors.py : (sg.good ? cfg.colors.good : cfg.colors.bad);
+                const hollowBad = cfg.hc && !sg.good && delta !== 0;
+                style = hollowBad
+                    ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4 }
+                    : sg.hatched
+                        ? { fill: color, "fill-opacity": 0.55, stroke: color, "stroke-width": 1 }
+                        : { fill: color };
+            }
+            this.drawBar(g, pos(i), slotW, sg.from, sg.to, scale, "columns", style);
+
+            // connector to the next bar at the running level
+            if (i < n - 1) {
+                const y = scale(sg.to);
+                this.el("line", {
+                    x1: pos(i) + slotW, y1: y, x2: pos(i + 1), y2: y,
+                    stroke: cfg.subtle, "stroke-width": 1
+                }, bg);
+            }
+
+            if (cfg.showLabels && step > cfg.labelFont * 1.4) {
+                const text = sg.kind === "anchor"
+                    ? cfg.fmt.format(sg.to)
+                    : this.fmtSigned(cfg.fmtVar, sg.to - sg.from);
+                this.drawEndLabelAt(g, pos(i) + slotW / 2, sg.to, sg.to >= sg.from, scale,
+                    "columns", text, cfg.labelFont, cfg.ink, 0, cfg.paper);
+            }
+            this.drawCategoryLabel(g, sg.label, pos(i) + slotW / 2, "columns", cfg.catFont,
+                region, step, rect, cfg.ink);
+
+            if (sg.p) {
+                this.attachInteraction(g, sg.p, cfg);
+                this.catGroups.push({ g, sel: sg.p.sel });
+            }
         }
     }
 
@@ -731,6 +892,7 @@ export class Visual implements IVisual {
             isFc: false, basis, varAbs, varRel,
             comment: null, commentNo: null,
             group: head.length > 0 ? head[0].group : null,
+            rowType: null,
             sel: null
         };
         return [...head, rest];
