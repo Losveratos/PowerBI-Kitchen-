@@ -243,9 +243,16 @@ export class ScaleCardSettings extends FormattingSettingsCard {
         }
     });
 
+    capOverflow = new formattingSettings.ToggleSwitch({
+        name: "capOverflow",
+        displayName: "Cap outliers at maximum",
+        description: "Macht das Skalen-Maximum hart: größere Werte werden gekappt und mit Doppelstrich markiert (Label zeigt den echten Wert).",
+        value: false
+    });
+
     name: string = "scale";
     displayName: string = "Scale sync";
-    slices: Array<FormattingSettingsSlice> = [this.fixedMax, this.fixedVarMax];
+    slices: Array<FormattingSettingsSlice> = [this.fixedMax, this.fixedVarMax, this.capOverflow];
 }
 
 export class CategoryAxisCardSettings extends FormattingSettingsCard {

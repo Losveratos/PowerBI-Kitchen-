@@ -120,7 +120,8 @@
         "scale": {
             "properties": {
                 "fixedMax": { "type": { "numeric": true } },
-                "fixedVarMax": { "type": { "numeric": true } }
+                "fixedVarMax": { "type": { "numeric": true } },
+                "capOverflow": { "type": { "bool": true } }
             }
         },
         "categoryAxis": {

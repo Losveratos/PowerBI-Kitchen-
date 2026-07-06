@@ -109,6 +109,8 @@ interface ChartConfig {
     subtle: string;
     /** lower-cased category labels to emphasize (IBCS EMPHASIZE) */
     highlight: Set<string>;
+    /** hard scale maximum: larger base values are capped with a break marker */
+    capMax: number | null;
 }
 
 function linearScale(d0: number, d1: number, r0: number, r1: number): Scale {
@@ -399,6 +401,8 @@ export class Visual implements IVisual {
             subtle: hc ? fg : "#8A8A8A",
             highlight: new Set(String(s.chartCard.highlight.value || "")
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
+            capMax: (s.scaleCard.capOverflow.value && (s.scaleCard.fixedMax.value ?? 0) > 0)
+                ? s.scaleCard.fixedMax.value : null,
             basisMode,
             basisLabel: basisMode === "plan" ? "PL" : "PY",
             showAbs: s.chartCard.showAbsoluteVariance.value && hasVar,
@@ -435,10 +439,13 @@ export class Visual implements IVisual {
             rel: extent(points.map(p => p.varRel))
         };
 
-        // scale sync: stretch domains at least to the configured maxima
+        // scale sync: stretch domains at least to the configured maxima;
+        // with capping enabled the maximum is hard instead
         const fixedMax = s.scaleCard.fixedMax.value ?? 0;
         if (fixedMax > 0) {
-            domains.main = [domains.main[0], Math.max(domains.main[1], fixedMax)];
+            domains.main = cfg.capMax != null
+                ? [domains.main[0], fixedMax]
+                : [domains.main[0], Math.max(domains.main[1], fixedMax)];
         }
         const fixedVarMax = s.scaleCard.fixedVarMax.value ?? 0;
         if (fixedVarMax > 0) {
@@ -776,26 +783,30 @@ export class Visual implements IVisual {
             const pos = slotPos(i);
 
             // base chart: PY behind, PL outline, AC/FC on top
+            const capV = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
             if (p.py != null) {
-                this.drawBar(g, pos, barW, 0, p.py, mainScale, orientation,
+                this.drawBar(g, pos, barW, 0, capV(p.py), mainScale, orientation,
                     cfg.hc
                         ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
                         : { fill: cfg.colors.py });
             }
             if (p.pl != null) {
-                this.drawBar(g, pos + pyShift, barW, 0, p.pl, mainScale, orientation,
+                this.drawBar(g, pos + pyShift, barW, 0, capV(p.pl), mainScale, orientation,
                     { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 });
             }
             if (p.value != null) {
-                this.drawBar(g, pos + pyShift, barW, 0, p.value, mainScale, orientation,
+                this.drawBar(g, pos + pyShift, barW, 0, capV(p.value), mainScale, orientation,
                     p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : { fill: cfg.colors.ac });
+                if (cfg.capMax != null && p.value > cfg.capMax) {
+                    this.drawCapMarker(g, pos + pyShift, barW, mainScale, orientation, cfg);
+                }
                 if (cfg.showLabels && showValueAt(i)) {
                     // anchor the label beyond the PL outline when the plan column is taller
-                    const anchor = p.pl != null
+                    const anchor = capV(p.pl != null
                         ? (p.value >= 0 ? Math.max(p.value, p.pl) : Math.min(p.value, p.pl))
-                        : p.value;
+                        : p.value);
                     this.drawEndLabelAt(g, pos + pyShift + barW / 2, anchor, p.value >= 0, mainScale,
                         orientation, valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
                     // compact mode: variance becomes a colored second label at the bar end
@@ -1012,6 +1023,31 @@ export class Visual implements IVisual {
                 span(` · ${this.fmtPercent((sumVar / sumBasis) * 100)}`, color, true);
             }
         }
+    }
+
+    /** IBCS outlier notation: double break stroke near the capped bar end */
+    private drawCapMarker(parent: SVGElement, bp: number, bw: number, scale: Scale,
+        orientation: Orientation, cfg: ChartConfig): void {
+        const end = scale(cfg.capMax as number);
+        const stroke = (offset: number, color: string, w: number) => {
+            if (orientation === "columns") {
+                this.el("line", {
+                    x1: bp - bw * 0.15, y1: end + 10 + offset + 2,
+                    x2: bp + bw * 1.15, y2: end + 10 + offset - 2,
+                    stroke: color, "stroke-width": w
+                }, parent);
+            } else {
+                this.el("line", {
+                    x1: end - 10 - offset - 2, y1: bp - bw * 0.15,
+                    x2: end - 10 - offset + 2, y2: bp + bw * 1.15,
+                    stroke: color, "stroke-width": w
+                }, parent);
+            }
+        };
+        // paper gap first, then the two ink strokes
+        stroke(2, cfg.paper, 7);
+        stroke(0, cfg.ink, 1.4);
+        stroke(4, cfg.ink, 1.4);
     }
 
     /**
