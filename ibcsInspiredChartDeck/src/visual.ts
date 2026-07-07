@@ -51,6 +51,8 @@ interface DataPoint {
     /** variance vs. the second basis (the scenario not used as primary) */
     var2Abs: number | null;
     var2Rel: number | null;
+    /** benchmark marker value (e.g. market average) */
+    bm: number | null;
     comment: string | null;
     /** 1-based comment marker number, assigned in category order */
     commentNo: number | null;
@@ -110,6 +112,7 @@ interface ChartConfig {
     hasPy: boolean;
     hasPl: boolean;
     hasFc: boolean;
+    hasBm: boolean;
     /** high-contrast mode: only foreground/background colors, outlines for distinction */
     hc: boolean;
     ink: string;
@@ -255,7 +258,7 @@ export class Visual implements IVisual {
         this.measureFormat = undefined;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
-            for (const role of ["actual", "previousYear", "plan", "forecast"]) {
+            for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark"]) {
                 if (roles[role]) {
                     byRole[role] = col.values.map(v => (typeof v === "number" && isFinite(v)) ? v : null);
                     if (role === "actual" || (role === "forecast" && !this.measureFormat)) {
@@ -313,6 +316,7 @@ export class Visual implements IVisual {
             points.push({
                 cat: catLevels.map(level => this.categoryLabel(level.values[i])).join(" · "),
                 ac, py, pl, fc, value, isFc, basis, varAbs, varRel, var2Abs, var2Rel,
+                bm: byRole["benchmark"] ? byRole["benchmark"][i] : null,
                 comment,
                 commentNo: comment != null ? ++commentCounter : null,
                 group: mult ? this.categoryLabel(mult.values[i]) : null,
@@ -399,6 +403,7 @@ export class Visual implements IVisual {
                 varAbs, varRel: (varAbs / Math.abs(pl[i] as number)) * 100,
                 var2Abs: (value as number) - (py[i] as number),
                 var2Rel: (((value as number) - (py[i] as number)) / Math.abs(py[i] as number)) * 100,
+                bm: null,
                 comment: null, commentNo: null, group: null, rowType: null, sel: null
             };
         });
@@ -514,7 +519,8 @@ export class Visual implements IVisual {
             fmtVar: this.makeFormatter(maxVarAbs, allVarInt),
             hasPy: points.some(p => p.py != null),
             hasPl: points.some(p => p.pl != null),
-            hasFc: points.some(p => p.isFc)
+            hasFc: points.some(p => p.isFc),
+            hasBm: points.some(p => p.bm != null)
         };
 
         // hatch patterns for forecast (base chart + good/bad variance colors)
@@ -533,7 +539,7 @@ export class Visual implements IVisual {
 
         // shared value domains across all multiples (IBCS: identical scales)
         const domains: Domains = {
-            main: extent(points.flatMap(p => [p.value, p.py, p.pl, p.fc])),
+            main: extent(points.flatMap(p => [p.value, p.py, p.pl, p.fc, p.bm])),
             abs: extent(points.map(p => p.varAbs)),
             rel: extent(points.map(p => p.varRel)),
             abs2: extent(points.map(p => p.var2Abs)),
@@ -826,7 +832,7 @@ export class Visual implements IVisual {
         const bg = this.el("g", {}, this.svg);
         const scenarioTitle = (cfg.cumulative ? "YTD · " : "")
             + ["AC", cfg.hasPy ? "PY" : "", cfg.hasPl ? "PL" : "",
-                cfg.hasFc ? "FC" : ""].filter(x => x).join(" · ");
+                cfg.hasFc ? "FC" : "", cfg.hasBm ? "BM ‒" : ""].filter(x => x).join(" · ");
 
         // AC -> FC boundary (time series with a forecast tail)
         let fcBoundary: number | null = null;
@@ -950,6 +956,22 @@ export class Visual implements IVisual {
                 this.drawBar(g, pos + pyShift, barW, 0, capV(p.pl), mainScale, orientation,
                     { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 });
             }
+            // benchmark marker: bold tick across the slot at the BM value
+            if (p.bm != null) {
+                const bpos = mainScale(capV(p.bm));
+                if (orientation === "columns") {
+                    this.el("line", {
+                        x1: pos - 1, y1: bpos, x2: pos + slotW + 1, y2: bpos,
+                        stroke: cfg.ink, "stroke-width": 2.4
+                    }, g);
+                } else {
+                    this.el("line", {
+                        x1: bpos, y1: pos - 1, x2: bpos, y2: pos + slotW + 1,
+                        stroke: cfg.ink, "stroke-width": 2.4
+                    }, g);
+                }
+            }
+
             if (p.value != null) {
                 if (lineMode) {
                     // transparent hit area for tooltips/selection + point marker
@@ -1178,11 +1200,12 @@ export class Visual implements IVisual {
 
     /** running YTD totals for value/PY/PL with variances recomputed on the cumulated numbers */
     private cumulate(pts: DataPoint[], basisMode: Basis): DataPoint[] {
-        let cv = 0, cpy = 0, cpl = 0;
+        let cv = 0, cpy = 0, cpl = 0, cbm = 0;
         return pts.map(p => {
             if (p.value != null) { cv += p.value; }
             if (p.py != null) { cpy += p.py; }
             if (p.pl != null) { cpl += p.pl; }
+            if (p.bm != null) { cbm += p.bm; }
             const value = p.value != null ? cv : null;
             const py = p.py != null ? cpy : null;
             const pl = p.pl != null ? cpl : null;
@@ -1198,7 +1221,8 @@ export class Visual implements IVisual {
                 ...p,
                 ac: p.isFc ? null : value,
                 fc: p.isFc ? value : null,
-                value, py, pl, basis, varAbs, varRel, var2Abs, var2Rel
+                value, py, pl, basis, varAbs, varRel, var2Abs, var2Rel,
+                bm: p.bm != null ? cbm : null
             };
         });
     }
@@ -1234,6 +1258,7 @@ export class Visual implements IVisual {
             cat: `Rest (${tail.length})`,
             ac, py, pl, fc, value,
             isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
+            bm: sum(tail.map(p => p.bm)),
             comment: null, commentNo: null,
             group: head.length > 0 ? head[0].group : null,
             rowType: null,
@@ -1753,6 +1778,7 @@ export class Visual implements IVisual {
             add("Forecast (FC)", p.fc);
             add("Previous Year (PY)", p.py);
             add("Plan (PL)", p.pl);
+            add("Benchmark (BM)", p.bm);
             if (p.varAbs != null) {
                 out.push({ displayName: `Δ${cfg.basisLabel}`, value: this.fmtSigned(cfg.fmtVar, p.varAbs) });
             }

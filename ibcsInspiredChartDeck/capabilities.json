@@ -40,6 +40,14 @@
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
+            "displayName": "Benchmark (BM)",
+            "displayNameKey": "Role_Benchmark",
+            "name": "benchmark",
+            "kind": "Measure",
+            "description": "Vergleichswert je Kategorie (z. B. Marktdurchschnitt, Ziel) — als Querstrich-Marker",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
             "displayName": "Comments",
             "displayNameKey": "Role_Comments",
             "name": "comments",
@@ -170,6 +178,7 @@
                     "previousYear": { "max": 1 },
                     "plan": { "max": 1 },
                     "forecast": { "max": 1 },
+                    "benchmark": { "max": 1 },
                     "comments": { "max": 1 }
                 }
             ],
@@ -189,6 +198,7 @@
                         { "bind": { "to": "previousYear" } },
                         { "bind": { "to": "plan" } },
                         { "bind": { "to": "forecast" } },
+                        { "bind": { "to": "benchmark" } },
                         { "bind": { "to": "comments" } }
                     ]
                 }

@@ -53,6 +53,7 @@
         "Group_Layout": "Layout",
         "Group_Analysis": "Analyse",
         "Group_ScaleSync": "Skalen-Sync",
-        "Group_RefLine": "Referenzlinie"
+        "Group_RefLine": "Referenzlinie",
+        "Role_Benchmark": "Benchmark (BM)"
     }
 }

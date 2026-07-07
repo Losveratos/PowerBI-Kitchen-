@@ -77,7 +77,7 @@ const py  = [760000, 800000, 850000, 900000, 940000, 1010000, 1000000, 1040000, 
 const pl  = [800000, 810000, 870000, 980000, 1000000, 1000000, 1050000, 1100000, 1120000, 1180000, 1220000, 1350000];
 
 const comments = [null,null,"Produktionsausfall Werk 2",null,null,null,"Preiserhöhung zum 1.7. wirksam",null,null,null,null,"Großauftrag Kunde X erwartet"];
-run("c1", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €"), col("comments", comments)],
+run("c1", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €"), col("comments", comments), col("benchmark", py.map(v => Math.round(v * 1.08)), "#,0 €")],
   { ibcsTitle: { message: "Umsatz liegt YTD +171K€ über Plan — Preiserhöhung trägt ab Juli." }, chart: { highlight: "Jul" },
     scale: { refLine: "1200000", refLineLabel: "Ziel 1,2M" } }), 960, 480);
 // compact tile now also exercises the fcFlag column (continuous AC measure + 1/0 flag)
