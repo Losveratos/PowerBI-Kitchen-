@@ -1,17 +1,5 @@
 # Changelog · IBCS Inspired Chart Deck
 
-## 1.4.0.0 (2026-07-07)
-
-**Total rows** (Chart → Bridge → Total rows, nur bei Waterfall bridge, Standard aus):
-- PL und PY erscheinen als eigene Summen-Balken am Anfang der Kategorienliste (PL als
-  Outline, PY als graue Fläche), AC (bzw. schraffiert AC/FC) als Summen-Balken am
-  Ende — statt der bisherigen Hintergrund-/Outline-Bars je Kategorie. Jede Kategorie
-  zeigt dann nur noch ihren eigenen AC-Wert als einzelnen Balken, auf derselben Skala
-  wie die drei Summen-Anker (IBCS same-scale-Regel).
-- Funktioniert in Columns und Bars, inkl. AC/FC-Trennlinie, Gruppentrennlinien und
-  Sort by impact. Matcht die "IBCS Kategorie-Brücke"-Referenzvisuals mit expliziten
-  Total-Zeilen.
-
 ## 1.3.0.0 (2026-07-07)
 
 **Echte Anker-Balken in der Waterfall-Brücke** (Chart → Bridge), statt der bisherigen

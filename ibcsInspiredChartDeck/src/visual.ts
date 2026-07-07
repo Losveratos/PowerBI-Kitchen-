@@ -138,8 +138,6 @@ interface ChartConfig {
     /** waterfall-bridge rendering layered on top of columns/bars orientation */
     waterfallStyle: boolean;
     sortByImpact: boolean;
-    /** main panel: PL/PY as summed anchor bars flanking the categories instead of per-category overlay */
-    totalRows: boolean;
 }
 
 /** running cascade of "from"/"to" positions for the waterfall-bridge style */
@@ -555,7 +553,6 @@ export class Visual implements IVisual {
             movingAvg: Math.round(s.chartCard.movingAverage.value ?? 0),
             waterfallStyle: wfStyleGlobal,
             sortByImpact: sortByImpactOn,
-            totalRows: wfStyleGlobal && s.chartCard.totalRows.value,
             basisMode,
             basisLabel: basisMode === "plan" ? "PL" : "PY",
             showAbs: s.chartCard.showAbsoluteVariance.value && hasVar,
@@ -634,23 +631,6 @@ export class Visual implements IVisual {
             const allVals: (number | null)[] = [];
             cascadeByGroup.forEach(c => { allVals.push(...c.from, ...c.to); });
             domains.bridge = extentTight(allVals);
-        }
-        // total rows: PL/PY/AC anchor bars are group SUMS, easily larger than any single
-        // category's value — fold them into the shared main domain (IBCS same-scale rule)
-        if (cfg.totalRows) {
-            const sums: number[] = [];
-            for (const g of groups) {
-                let ac = 0, py = 0, pl = 0, anyPy = false, anyPl = false;
-                for (const p of g.pts) {
-                    if (p.value != null) { ac += p.value; }
-                    if (p.py != null) { py += p.py; anyPy = true; }
-                    if (p.pl != null) { pl += p.pl; anyPl = true; }
-                }
-                sums.push(ac);
-                if (anyPy) { sums.push(py); }
-                if (anyPl) { sums.push(pl); }
-            }
-            domains.main = extent([...domains.main, ...sums]);
         }
         if (cfg.refLine != null) {
             domains.main = [Math.min(domains.main[0], cfg.refLine), Math.max(domains.main[1], cfg.refLine)];
@@ -855,24 +835,6 @@ export class Visual implements IVisual {
         // showing the same categories cascading from the basis total to AC with connectors
         const wfStyle = cascade != null;
 
-        // total rows: PL/PY as anchor bars flanking the category list (start), AC as a
-        // trailing anchor (end) — replaces the per-category PY/PL overlay when enabled
-        const showTotalRows = wfStyle && cfg.totalRows;
-        const leadAnchors: { label: string; value: number; kind: "pl" | "py" }[] = [];
-        let acSumAll = 0;
-        if (showTotalRows) {
-            let plSum = 0, pySum = 0, anyPl = false, anyPy = false;
-            for (const p of points) {
-                if (p.value != null) { acSumAll += p.value; }
-                if (p.pl != null) { plSum += p.pl; anyPl = true; }
-                if (p.py != null) { pySum += p.py; anyPy = true; }
-            }
-            if (anyPl) { leadAnchors.push({ label: "PL", value: plSum, kind: "pl" }); }
-            if (anyPy) { leadAnchors.push({ label: "PY", value: pySum, kind: "py" }); }
-        }
-        const catOffset = leadAnchors.length;
-        const trailSlots = showTotalRows ? 1 : 0;
-
         // compact mode: too little room for variance panels → deltas become labels
         const compact = orientation === "columns" ? region.h < 190 : region.w < 420;
         const showAbs = cfg.showAbs && !compact;
@@ -904,11 +866,11 @@ export class Visual implements IVisual {
         }
 
         const bandSpan = bandEnd - bandStart;
-        const step = bandSpan / (n + catOffset + trailSlots);
+        const step = bandSpan / n;
         const slotW = Math.max(2, step * 0.62);
-        const barW = cfg.hasPy && !showTotalRows ? slotW * 0.82 : slotW;
-        const pyShift = cfg.hasPy && !showTotalRows ? slotW - barW : 0;
-        const slotPos = (i: number) => bandStart + (i + catOffset) * step + (step - slotW) / 2;
+        const barW = cfg.hasPy ? slotW * 0.82 : slotW;
+        const pyShift = cfg.hasPy ? slotW - barW : 0;
+        const slotPos = (i: number) => bandStart + i * step + (step - slotW) / 2;
 
         // the bridge panel gets its own n+2 slot grid (basis anchor, n bricks, value
         // anchor) — real anchor bars flanking the cascade, like the reference bridge
@@ -962,7 +924,7 @@ export class Visual implements IVisual {
         if (orientation === "columns" && cfg.hasFc && !(wfStyle && cfg.sortByImpact)) {
             const fcStart = points.findIndex(p => p.isFc);
             const isTail = fcStart > 0 && points.slice(fcStart).every(p => p.isFc || p.value == null);
-            if (isTail) { fcBoundary = bandStart + (fcStart + catOffset) * step; }
+            if (isTail) { fcBoundary = bandStart + fcStart * step; }
         }
         // baselines are dashed underneath the forecast section (IBCS notation)
         const baseline = (rect: Rect, scale: Scale, kind: "ac" | Basis) => {
@@ -1033,7 +995,7 @@ export class Visual implements IVisual {
             const stackX0 = Math.min(...allPanels.map(r => r.x));
             const stackX1 = Math.max(...allPanels.map(r => r.x + r.w));
             for (let i = groupEvery; i < n; i += groupEvery) {
-                const p1 = bandStart + (i + catOffset) * step;
+                const p1 = bandStart + i * step;
                 if (orientation === "columns") {
                     this.el("line", {
                         x1: p1, y1: stackY0, x2: p1, y2: stackY1,
@@ -1058,7 +1020,7 @@ export class Visual implements IVisual {
                 panels.bridge ? panels.bridge.y : Infinity) + 2;
             for (let i = 0; i < n; i++) {
                 if (!cfg.highlight.has(points[i].cat.toLowerCase())) { continue; }
-                const x0 = bandStart + (i + catOffset) * step;
+                const x0 = bandStart + i * step;
                 if (orientation === "columns") {
                     this.el("rect", {
                         x: x0 + 1, y: hlTop, width: step - 2,
@@ -1094,33 +1056,6 @@ export class Visual implements IVisual {
 
         // ------- category groups with all marks
         const marks = this.el("g", {}, this.svg);
-
-        // total rows: PL/PY anchor bars at the start of the main panel, AC(+FC) anchor
-        // at the end — the per-category PY/PL overlay is suppressed above in favor of
-        // these dedicated summed rows, matching reference charts with explicit totals
-        if (showTotalRows) {
-            leadAnchors.forEach((a, idx) => {
-                const aPos = slotPos(idx - catOffset);
-                const style = a.kind === "pl"
-                    ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 }
-                    : { fill: cfg.colors.py };
-                this.drawBar(marks, aPos, slotW, 0, a.value, mainScale, orientation, style);
-                if (cfg.showLabels) {
-                    this.drawEndLabelAt(marks, aPos + slotW / 2, a.value, a.value >= 0, mainScale,
-                        orientation, `${a.label} ${cfg.fmt.format(a.value)}`, cfg.labelFont, cfg.ink, 0, cfg.paper);
-                }
-            });
-            const acStyle = cfg.hasFc
-                ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
-                : { fill: cfg.colors.ac };
-            const acPos = slotPos(n);
-            this.drawBar(marks, acPos, slotW, 0, acSumAll, mainScale, orientation, acStyle);
-            if (cfg.showLabels) {
-                this.drawEndLabelAt(marks, acPos + slotW / 2, acSumAll, acSumAll >= 0, mainScale,
-                    orientation, `${cfg.hasFc ? "AC/FC" : "AC"} ${cfg.fmt.format(acSumAll)}`,
-                    cfg.labelFont, cfg.ink, 0, cfg.paper);
-            }
-        }
 
         // bridge anchor bars: real PL/PY-total and AC(+FC)-total bars flanking the
         // cascade, drawn from the panel floor (domains.bridge[0]) up to each total —
@@ -1160,16 +1095,15 @@ export class Visual implements IVisual {
             const cx = lineMode ? pos + slotW / 2 : pos + pyShift + barW / 2;
 
             // base chart: PY behind, PL outline, AC/FC on top (unchanged by waterfall-bridge —
-            // the cascade renders into its own panel below, see "bridge brick" further down).
-            // Total rows replace this per-category overlay with dedicated PL/PY anchor bars.
+            // the cascade renders into its own panel below, see "bridge brick" further down)
             const capV = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
-            if (!lineMode && !showTotalRows && p.py != null) {
+            if (!lineMode && p.py != null) {
                 this.drawBar(g, pos, barW, 0, capV(p.py), mainScale, orientation,
                     cfg.hc
                         ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
                         : { fill: cfg.colors.py });
             }
-            if (!lineMode && !showTotalRows && p.pl != null) {
+            if (!lineMode && p.pl != null) {
                 this.drawBar(g, pos + pyShift, barW, 0, capV(p.pl), mainScale, orientation,
                     { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 });
             }
@@ -1212,7 +1146,7 @@ export class Visual implements IVisual {
                 }
                 if (cfg.showLabels && showValueAt(i)) {
                     // anchor the label beyond the PL outline when the plan column is taller
-                    const anchor = capV(!lineMode && !showTotalRows && p.pl != null
+                    const anchor = capV(!lineMode && p.pl != null
                         ? (p.value >= 0 ? Math.max(p.value, p.pl) : Math.min(p.value, p.pl))
                         : p.value);
                     this.drawEndLabelAt(g, cx, anchor, p.value >= 0, mainScale,
