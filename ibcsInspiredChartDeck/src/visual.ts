@@ -144,6 +144,10 @@ interface ChartConfig {
 interface Cascade {
     from: (number | null)[];
     to: (number | null)[];
+    /** sum of all basis values — where the cascade starts */
+    basisSum: number;
+    /** sum of all AC/FC values — where the cascade ends */
+    valueSum: number;
 }
 
 function linearScale(d0: number, d1: number, r0: number, r1: number): Scale {
@@ -941,8 +945,21 @@ export class Visual implements IVisual {
             baseline(panels.rel2, rel2Scale, basis2Mode);
             this.drawPanelTitle(bg, panels.rel2, `Δ${cfg.basis2Label} %`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
-        if (panels.bridge && bridgeScale) {
-            this.drawBaseline(bg, panels.bridge, bridgeScale, orientation, bandStart, bandEnd, "ac", cfg.colors);
+        if (panels.bridge && bridgeScale && cascade) {
+            // guide lines at the basis total (dashed) and the AC total (solid) — traces
+            // where the cascade starts and ends across the whole panel, like the reference
+            // bridge chart's vertical PL/PY/AC reference lines
+            const guideLine = (level: number, dashed: boolean, stroke: string) => {
+                const p1 = bridgeScale(level);
+                const dash = dashed ? { "stroke-dasharray": "4,3" } : {};
+                if (orientation === "columns") {
+                    this.el("line", { x1: bandStart, y1: p1, x2: bandEnd, y2: p1, stroke, "stroke-width": 1, ...dash }, bg);
+                } else {
+                    this.el("line", { x1: p1, y1: bandStart, x2: p1, y2: bandEnd, stroke, "stroke-width": 1, ...dash }, bg);
+                }
+            };
+            guideLine(cascade.basisSum, true, cfg.colors.py);
+            guideLine(cascade.valueSum, false, cfg.colors.ac);
             const bridgeTitle = `${cfg.basisLabel} → AC` + (cfg.sortByImpact ? " ⇅" : "");
             this.drawPanelTitle(bg, panels.bridge, bridgeTitle, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
@@ -1226,6 +1243,10 @@ export class Visual implements IVisual {
                     }, bg);
                 }
             }
+            // ------- reconciliation callout: the net bridge total as a circled badge
+            // (IBCS "Überleitung" made explicit, e.g. "-343" / "+82" in the reference chart)
+            const totalVar = cascade.valueSum - cascade.basisSum;
+            this.drawBridgeCallout(panels.bridge, orientation, cfg, totalVar);
         }
 
         // ------- reference line on top of the marks (thin, dashed)
@@ -1236,9 +1257,29 @@ export class Visual implements IVisual {
     }
 
     /**
-     * IBCS title block: "KPI in Unit · Period: AC, FC vs. PL" plus optional
-     * message line (IBCS SAY). Returns the consumed height.
+     * reconciliation callout for the waterfall-bridge panel: the net total variance
+     * (valueSum - basisSum) as a circled badge — the "Überleitung" made explicit,
+     * matching the reference chart's circled "-343" / "+82" summary boxes.
      */
+    private drawBridgeCallout(rect: Rect, orientation: Orientation, cfg: ChartConfig, totalVar: number): void {
+        const text = this.fmtSigned(cfg.fmtVar, totalVar);
+        const w = Math.max(44, text.length * 6.5 + 16), h = 20;
+        const cx = rect.x + rect.w - w / 2 - 4;
+        const cy = orientation === "columns" ? rect.y + rect.h - h / 2 - 2 : rect.y + rect.h / 2;
+        const good = cfg.invert ? totalVar < 0 : totalVar > 0;
+        const color = totalVar === 0 ? cfg.subtle : (good ? cfg.colors.good : cfg.colors.bad);
+        const g = this.el("g", {}, this.svg);
+        this.el("rect", {
+            x: cx - w / 2, y: cy - h / 2, width: w, height: h, rx: h / 2,
+            fill: cfg.paper, stroke: color, "stroke-width": 1.6
+        }, g);
+        const t = this.el("text", {
+            x: cx, y: cy + 4, "text-anchor": "middle", "font-size": 11,
+            "font-weight": 600, fill: color, "font-family": FONT
+        }, g);
+        t.textContent = text;
+    }
+
     /**
      * clickable sort toggle for the waterfall-bridge style. Persists the choice to the
      * 'chart.sortByImpact' format-pane property via the host, so it survives re-renders,
@@ -1372,7 +1413,8 @@ export class Visual implements IVisual {
      * comparison-basis mode but stays in the caller's chosen orientation (columns/bars).
      */
     private buildCascade(pts: DataPoint[]): Cascade {
-        let cum = pts.reduce((a, p) => a + (p.basis ?? 0), 0);
+        const basisSum = pts.reduce((a, p) => a + (p.basis ?? 0), 0);
+        let cum = basisSum;
         const from: (number | null)[] = [], to: (number | null)[] = [];
         for (const p of pts) {
             if (p.varAbs == null) { from.push(null); to.push(null); continue; }
@@ -1380,7 +1422,7 @@ export class Visual implements IVisual {
             cum += p.varAbs;
             to.push(cum);
         }
-        return { from, to };
+        return { from, to, basisSum, valueSum: cum };
     }
 
     private cumulate(pts: DataPoint[], basisMode: Basis): DataPoint[] {

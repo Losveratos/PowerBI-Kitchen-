@@ -18,6 +18,12 @@
 - Bridge-Panel-Wertelabels zeigen die Brick-eigene Delta-Änderung; die
   Panel-Skala verankert sich nicht künstlich bei null, sondern zeigt exakt
   die relevante Bandbreite der Kaskade.
+- **Referenzlinien + Überleitungs-Callout**: Im Bridge-Panel markiert eine
+  gestrichelte Linie in PY-Farbe die Basis-Summe (Start der Brücke) und eine
+  durchgezogene Linie in AC-Farbe die AC-Summe (Ende der Brücke). Ein
+  eingekreistes Badge zeigt den Netto-Saldo der gesamten Brücke (grün/rot
+  je nach Geschäftswirkung) — die Überleitung als expliziter Callout, wie
+  in den Zebra-BI-Referenzcharts.
 
 ## 1.1.0.0 (2026-07-06)
 

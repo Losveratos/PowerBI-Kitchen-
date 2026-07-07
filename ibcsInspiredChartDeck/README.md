@@ -27,8 +27,10 @@ in **einem** Visual löst:
   Panel neben den normalen AC/PY/PL-Vergleichsbalken, das dieselben Kategorien als
   kaskadierende Brücke von der Basis zu AC mit Verbindungslinien zeigt — Absolutwerte,
   Überleitung und Abweichungs-Panels (ΔPY/ΔPL, ΔPY %/ΔPL %) sind gleichzeitig sichtbar.
-  Inkl. **Sort by impact** (größter Treiber zuerst, Top-N-Rest bleibt am Ende) und
-  einem klickbaren ⇅-Button im Chart, der die Sortierung persistiert umschaltet
+  Gestrichelte/durchgezogene Referenzlinien markieren Start (Basis-Summe) und Ende
+  (AC-Summe) der Brücke, ein eingekreistes Badge zeigt den Netto-Saldo als Überleitungs-
+  Callout. Inkl. **Sort by impact** (größter Treiber zuerst, Top-N-Rest bleibt am Ende)
+  und einem klickbaren ⇅-Button im Chart, der die Sortierung persistiert umschaltet
 - **Hervorhebung** (EMPHASIZE): Kategorien per Formatbereich markieren —
   schattiertes Band über alle Panels, fettes Label
 - **Ausreißer-Kappung**: hartes Skalen-Maximum mit IBCS-Doppelstrich-Marker,
