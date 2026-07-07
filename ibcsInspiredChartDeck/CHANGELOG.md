@@ -1,5 +1,23 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.3.0.0 (2026-07-07)
+
+**Echte Anker-Balken in der Waterfall-Brücke** (Chart → Bridge), statt der bisherigen
+Referenzlinien — matcht die Zebra-BI-Referenzcharts genauer:
+- Die Brücke bekommt ihr eigenes Raster (Kategorien + 2 zusätzliche Slots): ein
+  Anker-Balken am Anfang zeigt die Basis-Summe (PL als Outline, PY als graue Fläche —
+  je nach Abweichungsbasis) mit Wertlabel, ein Anker-Balken am Ende zeigt die
+  AC-Summe (bzw. schraffiert AC/FC-Summe bei vorhandenem Forecast). Beide sind über
+  Verbindungslinien in die Kaskade eingebunden, genau wie die einzelnen Bricks.
+- Funktioniert unverändert in beiden Ausrichtungen (Columns/Bars), mit Sort by
+  impact, Top-N + Rest und Small Multiples.
+
+**Gruppen-Trennlinien** (Chart → Layout → Group separator every N, 0 = aus):
+- Zeichnet eine dünne Trennlinie quer durch alle sichtbaren Panels (Basis-Chart,
+  Brücke, Abweichungs-Panels) nach jeweils N Kategorien — eine Lesehilfe für
+  Struktur-Vergleiche mit natürlichen Untergruppen (z. B. Regionen bei einer
+  Länder-/Bundesstaaten-Liste), wie im Referenzchart mit den US-Bundesstaaten.
+
 ## 1.2.0.0 (2026-07-07)
 
 **Waterfall bridge für Columns und Bars** (Chart → Bridge, optional, Standard aus):

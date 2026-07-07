@@ -27,10 +27,14 @@ in **einem** Visual löst:
   Panel neben den normalen AC/PY/PL-Vergleichsbalken, das dieselben Kategorien als
   kaskadierende Brücke von der Basis zu AC mit Verbindungslinien zeigt — Absolutwerte,
   Überleitung und Abweichungs-Panels (ΔPY/ΔPL, ΔPY %/ΔPL %) sind gleichzeitig sichtbar.
-  Gestrichelte/durchgezogene Referenzlinien markieren Start (Basis-Summe) und Ende
-  (AC-Summe) der Brücke, ein eingekreistes Badge zeigt den Netto-Saldo als Überleitungs-
-  Callout. Inkl. **Sort by impact** (größter Treiber zuerst, Top-N-Rest bleibt am Ende)
-  und einem klickbaren ⇅-Button im Chart, der die Sortierung persistiert umschaltet
+  Echte Anker-Balken markieren Start (Basis-Summe, PL-Outline oder PY-grau) und Ende
+  (AC- bzw. gestrichelt AC/FC-Summe) der Brücke, ein eingekreistes Badge zeigt den
+  Netto-Saldo als Überleitungs-Callout. Inkl. **Sort by impact** (größter Treiber
+  zuerst, Top-N-Rest bleibt am Ende) und einem klickbaren ⇅-Button im Chart, der die
+  Sortierung persistiert umschaltet
+- **Gruppen-Trennlinien** (Chart → Layout → Group separator every N): dünne Linien
+  quer durch alle Panels nach jeweils N Kategorien — Lesehilfe für Struktur-Vergleiche
+  mit natürlichen Untergruppen (z. B. Regionen), 0 = aus
 - **Hervorhebung** (EMPHASIZE): Kategorien per Formatbereich markieren —
   schattiertes Band über alle Panels, fettes Label
 - **Ausreißer-Kappung**: hartes Skalen-Maximum mit IBCS-Doppelstrich-Marker,
@@ -100,9 +104,9 @@ Im Formatbereich unter **Chart → Variance basis** umstellbar.
 
 - **IBCS title**: an/aus, KPI-Name, Zeitraum, Botschafts-Zeile (auto wenn leer)
 - **Chart**: unterteilt in die Gruppen **Layout** (Orientation Columns/Bars/Line/Waterfall,
-  Variance basis, Absolute/Relative variance, Dual variance, Total-Header), **Analysis**
-  (Cumulative YTD, Moving average, Top N, Highlight, Invert) und **Bridge** (Waterfall
-  bridge, Sort by impact — nur bei Columns/Bars sichtbar)
+  Variance basis, Absolute/Relative variance, Dual variance, Total-Header, Group separator
+  every N), **Analysis** (Cumulative YTD, Moving average, Top N, Highlight, Invert) und
+  **Bridge** (Waterfall bridge, Sort by impact — nur bei Columns/Bars sichtbar)
 - **IBCS colors**: AC, PY, PL-Outline, Good/Bad
 - **Data labels**: an/aus, Textgröße, Dezimalstellen, Einheiten (Auto/k/M/B)
 - **Comments**: Kommentarliste rechts an/aus

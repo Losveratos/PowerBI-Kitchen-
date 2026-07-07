@@ -172,6 +172,18 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    groupEvery = new formattingSettings.NumUpDown({
+        name: "groupEvery",
+        displayName: "Group separator every N",
+        displayNameKey: "Chart_GroupEvery",
+        description: "Zeichnet eine dünne Trennlinie nach jeweils N Kategorien, quer durch alle Panels — für Struktur-Vergleiche mit natürlichen Untergruppen (z. B. Regionen). 0 = aus.",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 50 }
+        }
+    });
+
     waterfallStyle = new formattingSettings.ToggleSwitch({
         name: "waterfallStyle",
         displayName: "Waterfall bridge",
@@ -193,7 +205,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Layout",
         displayNameKey: "Group_Layout",
         slices: [this.orientation, this.comparisonMode, this.showAbsoluteVariance,
-            this.showRelativeVariance, this.dualVariance, this.showTotal]
+            this.showRelativeVariance, this.dualVariance, this.showTotal, this.groupEvery]
     });
 
     analysisGroup = new formattingSettings.Group({

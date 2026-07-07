@@ -28,6 +28,7 @@
 <div class="case"><h4>Waterfall-Brücke · Columns (Zeit) · unsortiert</h4><div class="stage" id="c18" style="width:960px;height:420px"></div></div>
 <div class="case"><h4>Waterfall-Brücke · Bars + Top 5 + Rest, sortiert</h4><div class="stage" id="c19" style="width:960px;height:380px"></div></div>
 <div class="case"><h4>Waterfall-Brücke · Small Multiples (2 Regionen), sortiert</h4><div class="stage" id="c20" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Waterfall-Brücke · Bars · 15 Kategorien · Gruppentrennlinien alle 4</h4><div class="stage" id="c21" style="width:960px;height:640px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -194,6 +195,15 @@ const wfSmCats = [], wfSmMult = [], wfSmAc = [], wfSmPy = [];
 run("c20", dataView(wfSmCats, [col("actual", wfSmAc), col("previousYear", wfSmPy)], {
   chart: { orientation: "bars", waterfallStyle: true, sortByImpact: true }
 }, wfSmMult), 960, 420);
+
+// waterfall-bridge + group separators — 15-category structure comparison modeled on the
+// reference "US states" bridge chart (4 regions of ~4 states each)
+const wfStates = ["Alaska","California","Connecticut","Hawaii","Illinois","Iowa","Michigan","Minnesota",
+  "Missouri","Nebraska","New York","Texas","Washington","Wisconsin","Others"];
+const wfStAc = [89, 257, 64, 20, 169, 179, 67, 55, 18, 42, 216, 134, 29, 157, 234];
+const wfStPy = [68, 305, 83, 33, 456, 135, 66, 58, 21, 35, 246, 149, 56, 180, 180];
+run("c21", dataView(wfStates, [col("actual", wfStAc), col("previousYear", wfStPy)],
+  { chart: { orientation: "bars", waterfallStyle: true, sortByImpact: false, groupEvery: 4 } }), 960, 640);
 </script>
 </body>
 </html>

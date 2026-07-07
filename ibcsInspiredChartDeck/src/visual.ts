@@ -148,6 +148,10 @@ interface Cascade {
     basisSum: number;
     /** sum of all AC/FC values — where the cascade ends */
     valueSum: number;
+    /** AC-only portion of valueSum (hatched vs. solid end anchor) */
+    acSum: number;
+    /** FC-only portion of valueSum */
+    fcSum: number;
 }
 
 function linearScale(d0: number, d1: number, r0: number, r1: number): Scale {
@@ -868,6 +872,15 @@ export class Visual implements IVisual {
         const pyShift = cfg.hasPy ? slotW - barW : 0;
         const slotPos = (i: number) => bandStart + i * step + (step - slotW) / 2;
 
+        // the bridge panel gets its own n+2 slot grid (basis anchor, n bricks, value
+        // anchor) — real anchor bars flanking the cascade, like the reference bridge
+        // charts' PL/PY/AC total columns. Slightly narrower slots than the main panel
+        // to make room for the two extra anchors.
+        const bridgeN = n + 2;
+        const bridgeStep = bandSpan / bridgeN;
+        const bridgeSlotW = Math.max(2, bridgeStep * 0.62);
+        const bridgeSlotPos = (i: number) => bandStart + i * bridgeStep + (bridgeStep - bridgeSlotW) / 2;
+
         // ------- precompute label texts + thinning predicates
         const valueTexts = points.map(p => p.value != null ? cfg.fmt.format(p.value) : "");
         const absTexts = points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : "");
@@ -946,20 +959,6 @@ export class Visual implements IVisual {
             this.drawPanelTitle(bg, panels.rel2, `Δ${cfg.basis2Label} %`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
         if (panels.bridge && bridgeScale && cascade) {
-            // guide lines at the basis total (dashed) and the AC total (solid) — traces
-            // where the cascade starts and ends across the whole panel, like the reference
-            // bridge chart's vertical PL/PY/AC reference lines
-            const guideLine = (level: number, dashed: boolean, stroke: string) => {
-                const p1 = bridgeScale(level);
-                const dash = dashed ? { "stroke-dasharray": "4,3" } : {};
-                if (orientation === "columns") {
-                    this.el("line", { x1: bandStart, y1: p1, x2: bandEnd, y2: p1, stroke, "stroke-width": 1, ...dash }, bg);
-                } else {
-                    this.el("line", { x1: p1, y1: bandStart, x2: p1, y2: bandEnd, stroke, "stroke-width": 1, ...dash }, bg);
-                }
-            };
-            guideLine(cascade.basisSum, true, cfg.colors.py);
-            guideLine(cascade.valueSum, false, cfg.colors.ac);
             const bridgeTitle = `${cfg.basisLabel} → AC` + (cfg.sortByImpact ? " ⇅" : "");
             this.drawPanelTitle(bg, panels.bridge, bridgeTitle, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
@@ -982,6 +981,33 @@ export class Visual implements IVisual {
                 x1: fcBoundary, y1: yTop + 2, x2: fcBoundary, y2: yBot,
                 stroke: cfg.subtle, "stroke-width": 1, "stroke-dasharray": "3,3"
             }, bg);
+        }
+
+        // ------- category group separators: thin lines every N categories, spanning all
+        // active panels — a reading aid for structure comparisons with natural subgroups
+        // (e.g. regions), matching the reference bridge charts' grouped state lists
+        const groupEvery = Math.round(this.formattingSettings.chartCard.groupEvery.value ?? 0);
+        if (groupEvery > 0 && groupEvery < n) {
+            const allPanels = [panels.main, panels.abs, panels.rel, panels.abs2, panels.rel2, panels.bridge]
+                .filter((r): r is Rect => r != null);
+            const stackY0 = Math.min(...allPanels.map(r => r.y));
+            const stackY1 = Math.max(...allPanels.map(r => r.y + r.h));
+            const stackX0 = Math.min(...allPanels.map(r => r.x));
+            const stackX1 = Math.max(...allPanels.map(r => r.x + r.w));
+            for (let i = groupEvery; i < n; i += groupEvery) {
+                const p1 = bandStart + i * step;
+                if (orientation === "columns") {
+                    this.el("line", {
+                        x1: p1, y1: stackY0, x2: p1, y2: stackY1,
+                        stroke: cfg.subtle, "stroke-width": 1, "stroke-opacity": 0.5
+                    }, bg);
+                } else {
+                    this.el("line", {
+                        x1: stackX0, y1: p1, x2: stackX1, y2: p1,
+                        stroke: cfg.subtle, "stroke-width": 1, "stroke-opacity": 0.5
+                    }, bg);
+                }
+            }
         }
 
         // ------- highlight bands (IBCS EMPHASIZE): shaded slot background
@@ -1030,6 +1056,38 @@ export class Visual implements IVisual {
 
         // ------- category groups with all marks
         const marks = this.el("g", {}, this.svg);
+
+        // bridge anchor bars: real PL/PY-total and AC(+FC)-total bars flanking the
+        // cascade, drawn from the panel floor (domains.bridge[0]) up to each total —
+        // replaces plain guide lines with literal bars, like the reference bridge
+        // charts' PL/PY/AC total columns
+        if (panels.bridge && bridgeScale && cascade) {
+            const basisStyle = cfg.basisMode === "plan"
+                ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 }
+                : { fill: cfg.colors.py };
+            const basisPos = bridgeSlotPos(0);
+            this.drawBar(marks, basisPos, bridgeSlotW, domains.bridge[0], cascade.basisSum,
+                bridgeScale, orientation, basisStyle);
+            if (cfg.showLabels) {
+                this.drawEndLabelAt(marks, basisPos + bridgeSlotW / 2, cascade.basisSum, true, bridgeScale,
+                    orientation, `${cfg.basisLabel} ${cfg.fmt.format(cascade.basisSum)}`,
+                    cfg.labelFont, cfg.ink, 0, cfg.paper);
+            }
+
+            const valueLabel = cascade.fcSum > 0 ? "AC/FC" : "AC";
+            const valueStyle = cascade.fcSum > 0
+                ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                : { fill: cfg.colors.ac };
+            const valuePos = bridgeSlotPos(n + 1);
+            this.drawBar(marks, valuePos, bridgeSlotW, domains.bridge[0], cascade.valueSum,
+                bridgeScale, orientation, valueStyle);
+            if (cfg.showLabels) {
+                this.drawEndLabelAt(marks, valuePos + bridgeSlotW / 2, cascade.valueSum, true, bridgeScale,
+                    orientation, `${valueLabel} ${cfg.fmt.format(cascade.valueSum)}`,
+                    cfg.labelFont, cfg.ink, 0, cfg.paper);
+            }
+        }
+
         for (let i = 0; i < n; i++) {
             const p = points[i];
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
@@ -1108,21 +1166,24 @@ export class Visual implements IVisual {
             }
 
             // waterfall-bridge brick: cascades from the running basis level to this
-            // category's own contribution, in its own panel (bandCenter shared with main)
+            // category's own contribution — on the bridge's own n+2 grid (index i+1,
+            // slot 0 and n+1 are the basis/value anchor bars)
             if (panels.bridge && bridgeScale && cascade) {
                 const bFrom = cascade.from[i], bTo = cascade.to[i];
                 if (bFrom != null && bTo != null) {
+                    const bPos = bridgeSlotPos(i + 1);
+                    const bCx = bPos + bridgeSlotW / 2;
                     const good = cfg.invert ? (bTo < bFrom) : (bTo > bFrom);
                     const brickColor = bTo === bFrom ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                     const hollowBad = cfg.hc && !good && bTo !== bFrom;
-                    this.drawBar(g, pos + pyShift, barW, bFrom, bTo, bridgeScale, orientation,
+                    this.drawBar(g, bPos, bridgeSlotW, bFrom, bTo, bridgeScale, orientation,
                         hollowBad
                             ? { fill: cfg.paper, stroke: brickColor, "stroke-width": 1.4 }
                             : p.isFc
                                 ? { fill: `url(#${good ? cfg.patGood : cfg.patBad})`, stroke: brickColor, "stroke-width": 1 }
                                 : { fill: brickColor });
                     if (cfg.showLabels && showValueAt(i)) {
-                        this.drawEndLabelAt(g, cx, bTo, bTo >= bFrom, bridgeScale,
+                        this.drawEndLabelAt(g, bCx, bTo, bTo >= bFrom, bridgeScale,
                             orientation, absTexts[i] || valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
                     }
                 }
@@ -1223,14 +1284,10 @@ export class Visual implements IVisual {
             this.catGroups.push({ g, sel: p.sel });
         }
 
-        // ------- waterfall-bridge connectors: link each brick's end to the next one's start
+        // ------- waterfall-bridge connectors: link the basis anchor to the first brick,
+        // each brick's end to the next one's start, and the last brick to the value anchor
         if (panels.bridge && bridgeScale && cascade) {
-            for (let i = 0; i < n - 1; i++) {
-                const a = cascade.to[i], b = cascade.from[i + 1];
-                if (a == null || b == null) { continue; }
-                const level = bridgeScale(a);
-                const edgeEnd = slotPos(i) + pyShift + barW;
-                const edgeStart = slotPos(i + 1) + pyShift;
+            const connector = (level: number, edgeEnd: number, edgeStart: number) => {
                 if (orientation === "columns") {
                     this.el("line", {
                         x1: edgeEnd, y1: level, x2: edgeStart, y2: level,
@@ -1242,6 +1299,18 @@ export class Visual implements IVisual {
                         stroke: cfg.subtle, "stroke-width": 1
                     }, bg);
                 }
+            };
+            if (cascade.from[0] != null) {
+                connector(bridgeScale(cascade.basisSum), bridgeSlotPos(0) + bridgeSlotW, bridgeSlotPos(1));
+            }
+            for (let i = 0; i < n - 1; i++) {
+                const a = cascade.to[i], b = cascade.from[i + 1];
+                if (a == null || b == null) { continue; }
+                connector(bridgeScale(a), bridgeSlotPos(i + 1) + bridgeSlotW, bridgeSlotPos(i + 2));
+            }
+            const lastTo = [...cascade.to].reverse().find(v => v != null);
+            if (lastTo != null) {
+                connector(bridgeScale(lastTo), bridgeSlotPos(n) + bridgeSlotW, bridgeSlotPos(n + 1));
             }
             // ------- reconciliation callout: the net bridge total as a circled badge
             // (IBCS "Überleitung" made explicit, e.g. "-343" / "+82" in the reference chart)
@@ -1414,15 +1483,16 @@ export class Visual implements IVisual {
      */
     private buildCascade(pts: DataPoint[]): Cascade {
         const basisSum = pts.reduce((a, p) => a + (p.basis ?? 0), 0);
-        let cum = basisSum;
+        let cum = basisSum, acSum = 0, fcSum = 0;
         const from: (number | null)[] = [], to: (number | null)[] = [];
         for (const p of pts) {
             if (p.varAbs == null) { from.push(null); to.push(null); continue; }
             from.push(cum);
             cum += p.varAbs;
             to.push(cum);
+            if (p.isFc) { fcSum += p.value ?? 0; } else { acSum += p.value ?? 0; }
         }
-        return { from, to, basisSum, valueSum: cum };
+        return { from, to, basisSum, valueSum: cum, acSum, fcSum };
     }
 
     private cumulate(pts: DataPoint[], basisMode: Basis): DataPoint[] {
