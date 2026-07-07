@@ -29,6 +29,9 @@
 <div class="case"><h4>Waterfall-Brücke · Bars + Top 5 + Rest, sortiert</h4><div class="stage" id="c19" style="width:960px;height:380px"></div></div>
 <div class="case"><h4>Waterfall-Brücke · Small Multiples (2 Regionen), sortiert</h4><div class="stage" id="c20" style="width:960px;height:420px"></div></div>
 <div class="case"><h4>Waterfall-Brücke · Bars · 15 Kategorien · Gruppentrennlinien alle 4</h4><div class="stage" id="c21" style="width:960px;height:640px"></div></div>
+<div class="case"><h4>Integrierte Brücke (Zeit) · PY-Total links, Kaskade, Monatssäulen, AC+FC-Total rechts</h4><div class="stage" id="c22" style="width:1120px;height:660px"></div></div>
+<div class="case"><h4>Kategorie-Brücke (Struktur) · PL/PY-Zeilen, Kaskade, ΔPY%-Pins, Doppel-Überleitung</h4><div class="stage" id="c23" style="width:1340px;height:790px"></div></div>
+<div class="case"><h4>Kategorie-Brücke · Full-HD-Preset (Schrift ×1,5) · ΔPL-Referenz</h4><div class="stage" id="c24" style="width:1340px;height:820px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -204,6 +207,30 @@ const wfStAc = [89, 257, 64, 20, 169, 179, 67, 55, 18, 42, 216, 134, 29, 157, 23
 const wfStPy = [68, 305, 83, 33, 456, 135, 66, 58, 21, 35, 246, 149, 56, 180, 180];
 run("c21", dataView(wfStates, [col("actual", wfStAc), col("previousYear", wfStPy)],
   { chart: { orientation: "bars", waterfallStyle: true, sortByImpact: false, groupEvery: 4 } }), 960, 640);
+
+// integrated bridge (time): PY total left, ΔPY cascade, monthly mini-columns, stacked
+// AC+FC total right + circled net callout — from the "IBCS Chart Standalone" reference
+const iwCats = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const iwAc = [15, 13, 17, 7, 5, 6, 11, 9, null, null, null, null];
+const iwFc = [null,null,null,null,null,null,null,null, 22, 8, 7, 12];
+const iwPy = [14, 16, 14, 9, 11, 9, 16, 14, 16, 17, 16, 22];
+run("c22", dataView(iwCats, [col("actual", iwAc), col("previousYear", iwPy), col("forecast", iwFc)],
+  { chart: { orientation: "intwaterfall" } }), 1120, 660);
+
+// category bridge (structure): PL/PY total rows, per-category AC·PY bars + cascade +
+// ΔPY% pins, AC row, double reconciliation — from the "Waterfall Chart v2" reference
+const cbCats = ["Iowa","Alaska","Nebraska","Michigan","Minnesota","Missouri","Hawaii","Texas",
+  "Connecticut","Wisconsin","Washington","New York","California","Illinois","Others"];
+const cbAc = [179, 89, 42, 67, 55, 18, 20, 134, 64, 157, 29, 216, 257, 169, 234];
+const cbPy = [135, 68, 35, 66, 58, 21, 33, 149, 83, 180, 56, 246, 305, 456, 180];
+const cbPl = [107, 54, 28, 52, 46, 17, 26, 118, 66, 143, 45, 196, 243, 363, 143];
+run("c23", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)],
+  { chart: { orientation: "catbridge", groupEvery: 4 } }), 1340, 790);
+
+// same, Full HD font preset + ΔPL reference + sorted by impact
+run("c24", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)],
+  { chart: { orientation: "catbridge", comparisonMode: "plan", sortByImpact: true },
+    labels: { fontPreset: "fullhd" } }), 1340, 820);
 </script>
 </body>
 </html>

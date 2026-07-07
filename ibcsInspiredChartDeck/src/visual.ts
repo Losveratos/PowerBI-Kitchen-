@@ -199,6 +199,11 @@ export class Visual implements IVisual {
     private measureName: string | undefined;
     /** shared waterfall domain across small-multiples cells (IBCS same scale) */
     private sharedWfDomain: [number, number] | null = null;
+    /** global font multiplier from the labels "Size preset" (Full HD = 1.5) */
+    private fontK = 1;
+    /** per-category mark groups in build order, for the ▶ reveal animation */
+    private animGroups: SVGGElement[][] = [];
+    private animTimers: number[] = [];
     /** data facts driving context-sensitive visibility in the format pane */
     private paneHasPy = false;
     private paneHasPl = false;
@@ -262,10 +267,13 @@ export class Visual implements IVisual {
         const fs = this.formattingSettings;
         const orient = String(fs.chartCard.orientation.value.value);
         const bothBases = this.paneHasPy && this.paneHasPl;
-        fs.chartCard.topN.visible = orient === "bars";
+        fs.chartCard.topN.visible = orient === "bars" || orient === "catbridge";
         fs.chartCard.movingAverage.visible = orient === "columns" || orient === "line";
         fs.chartCard.dualVariance.visible = bothBases;
         fs.chartCard.comparisonMode.visible = bothBases;
+        fs.chartCard.waterfallStyle.visible = orient === "columns" || orient === "bars";
+        fs.chartCard.sortByImpact.visible = orient === "columns" || orient === "bars" || orient === "catbridge";
+        fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge";
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
         fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
         fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value;
@@ -472,11 +480,20 @@ export class Visual implements IVisual {
         const orientationRaw = String(s.chartCard.orientation.value.value);
         const isWaterfall = orientationRaw === "waterfall";
         const lineMode = orientationRaw === "line";
-        const orientation: Orientation = orientationRaw === "bars" ? "bars" : "columns";
+        // integrated bridge (time waterfall + monthly columns + pins) and category bridge
+        // (structure rows + cascade + double reconciliation) are standalone chart modes
+        const isIntWf = orientationRaw === "intwaterfall";
+        const isCatBridge = orientationRaw === "catbridge";
+        const orientation: Orientation = orientationRaw === "bars" || isCatBridge ? "bars" : "columns";
         // waterfall-bridge is an optional add-on to columns/bars, not a separate orientation
         const wfStyleGlobal = s.chartCard.waterfallStyle.value
             && (orientationRaw === "columns" || orientationRaw === "bars");
-        const sortByImpactOn = wfStyleGlobal && s.chartCard.sortByImpact.value;
+        const sortByImpactOn = (wfStyleGlobal || isCatBridge) && s.chartCard.sortByImpact.value;
+
+        // font preset: one switch scaling every text in the visual (Full HD = ×1.5)
+        this.fontK = { compact: 1, fullhd: 1.5, presentation: 2 }[
+            String(s.labelsCard.fontPreset.value.value)] ?? 1;
+        this.animGroups = [];
 
         // small multiples: group by the multiples role, in order of appearance
         const groups: { name: string | null; pts: DataPoint[] }[] = [];
@@ -528,8 +545,8 @@ export class Visual implements IVisual {
         const cfg: ChartConfig = {
             orientation,
             showLabels: s.labelsCard.show.value,
-            labelFont: s.labelsCard.fontSize.value,
-            catFont: s.categoryAxisCard.fontSize.value,
+            labelFont: Math.round(s.labelsCard.fontSize.value * this.fontK),
+            catFont: Math.round(s.categoryAxisCard.fontSize.value * this.fontK),
             invert: s.chartCard.invert.value,
             colors: hc ? { ac: fg, py: fg, pl: fg, good: fg, bad: fg } : {
                 ac: themed(palette?.foregroundNeutralDark, s.colorsCard.actualColor.value.value),
@@ -642,12 +659,29 @@ export class Visual implements IVisual {
                 this.renderWaterfall(wfByGroup.get(grp.name) || [], region, cfg);
                 return;
             }
+            if (isIntWf) {
+                this.renderIntegratedWaterfall(grp.pts, region, cfg);
+                return;
+            }
+            if (isCatBridge) {
+                this.renderCategoryBridge(grp.pts, region, cfg);
+                return;
+            }
             this.renderChart(grp.pts, region, cfg, domains, cascadeByGroup.get(grp.name) ?? null);
         };
         // sort button (once, top-right of the whole visual) — the only literal "button":
         // toggles the format-pane property so the choice persists and stays bookmarkable
         if (wfStyleGlobal) {
             this.drawSortButton(width, cfg);
+        }
+        // in-chart toolbar for the bridge modes: ΔPY/ΔPL reference switch (persisted, so
+        // the end user can re-base the variances in the report), sort toggle + ▶ build
+        if ((isIntWf || isCatBridge) && s.chartCard.chartButtons.value) {
+            this.drawChartButtons(width, cfg, {
+                showRef: cfg.hasPy && cfg.hasPl,
+                showSort: isCatBridge,
+                showPlay: true
+            });
         }
         // IBCS title block on top of everything (incl. multiples grid)
         const topOffset = s.ibcsTitleCard.show.value
@@ -680,7 +714,7 @@ export class Visual implements IVisual {
         const rows = Math.ceil(n / cols);
         const cellW = width / cols;
         const cellH = availH / rows;
-        const groupTitleH = 16;
+        const groupTitleH = Math.round(16 * this.fontK);
 
         for (let gi = 0; gi < n; gi++) {
             const cx = (gi % cols) * cellW;
@@ -689,11 +723,12 @@ export class Visual implements IVisual {
             if (gi === n - 1 && groups.length > n) {
                 title += `  (+${groups.length - n} weitere)`;
             }
+            const gtFont = Math.round(11 * this.fontK);
             const t = this.el("text", {
-                x: cx + 6, y: cy + 12, "font-size": 11, fill: cfg.ink,
+                x: cx + 6, y: cy + gtFont + 1, "font-size": gtFont, fill: cfg.ink,
                 "font-family": FONT, "font-weight": 600
             }, this.svg);
-            t.textContent = this.truncate(title, cellW - 12, 11);
+            t.textContent = this.truncate(title, cellW - 12, gtFont);
             renderCell(shown[gi],
                 { x: cx + 2, y: cy + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 });
         }
@@ -747,7 +782,7 @@ export class Visual implements IVisual {
     private renderWaterfall(segs: WfSeg[], region: Rect, cfg: ChartConfig): void {
         if (segs.length === 0) { return; }
         const pad = 4;
-        const titleH = 14;
+        const titleH = Math.round(14 * this.fontK);
         const catArea = cfg.catFont + 10;
         const bandStart = region.x + pad + 2;
         const bandEnd = region.x + region.w - pad;
@@ -824,12 +859,633 @@ export class Visual implements IVisual {
         }
     }
 
+    /** centered hint when a chart mode is missing its required reference measure */
+    private drawModeHint(region: Rect, cfg: ChartConfig, msg: string): void {
+        const t = this.el("text", {
+            x: region.x + region.w / 2, y: region.y + region.h / 2, "text-anchor": "middle",
+            "font-size": Math.round(11 * this.fontK), fill: cfg.subtle, "font-family": FONT
+        }, this.svg);
+        t.textContent = msg;
+    }
+
+    /**
+     * Integrated bridge (time): PY/PL total column left, ΔBasis waterfall cascading
+     * across the months, monthly AC·PY mini-columns at the bottom, ΔBasis% pin chart
+     * on top and a stacked AC+FC total column right with a circled net callout —
+     * ported from the "IBCS Chart Standalone" reference (integrierte GuV).
+     */
+    private renderIntegratedWaterfall(pts: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const n = pts.length;
+        if (n === 0) { return; }
+        if (!pts.some(p => p.varAbs != null)) {
+            this.drawModeHint(region, cfg, "Integrierte Brücke benötigt PY oder PL als Vergleichsbasis");
+            return;
+        }
+        const k = this.fontK;
+        const lf = cfg.labelFont, cf = cfg.catFont;
+        const pad = 6;
+
+        // ------- totals
+        const basisSum = pts.reduce((a, p) => a + (p.basis ?? 0), 0);
+        const vTot = pts.reduce((a, p) => a + (p.value ?? 0), 0);
+        const acTot = pts.filter(p => !p.isFc).reduce((a, p) => a + (p.value ?? 0), 0);
+        const fcTot = vTot - acTot;
+        const dTot = vTot - basisSum;
+        const pctTot = basisSum !== 0 ? (dTot / basisSum) * 100 : 0;
+        const firstFc = pts.findIndex(p => p.isFc);
+        const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const colOf = (v: number) => v === 0 ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+
+        // ------- layout
+        const catArea = cf * 2 + 10;
+        const yBase = region.y + region.h - pad - catArea;
+        const showPins = cfg.showRel && region.h >= 280 && pts.some(p => p.varRel != null);
+        const pinArea = showPins ? Math.max(70, region.h * 0.24) : lf + 14;
+        const plotTop = region.y + pad + pinArea;
+
+        const left = region.x + pad;
+        const right = region.x + region.w - pad;
+        const calloutW = Math.max(54, Math.min(96, region.w * 0.085)) + lf * 1.6;
+        const sideLblW = lf * 2.4;
+        const totW = Math.max(26, Math.min(60, region.w * 0.055));
+        const bandStart = left + totW + 10;
+        const bandEnd = right - calloutW - sideLblW - totW - 10;
+        if (bandEnd - bandStart < n * 8) {
+            this.drawModeHint(region, cfg, "Zu wenig Platz für die integrierte Brücke");
+            return;
+        }
+        const step = (bandEnd - bandStart) / n;
+        const segW = Math.max(6, step * 0.8);
+        const colW = Math.max(3, step * 0.5);
+        const cx = (i: number) => bandStart + i * step + step / 2;
+        const cxTot = bandEnd + 10 + totW / 2;
+
+        const maxTot = Math.max(basisSum, vTot, 1);
+        const S = linearScale(0, maxTot, yBase, plotTop + lf + 8);
+        const maxMon = Math.max(...pts.map(p => Math.max(p.value ?? 0, p.basis ?? 0)), 1);
+        const miniH = Math.min((yBase - plotTop) * 0.30, region.h * 0.16);
+        const BS = linearScale(0, maxMon, 0, miniH);
+
+        const bg = this.el("g", {}, this.svg);
+        const marks = this.el("g", {}, this.svg);
+        const fmtD = (v: number) => this.fmtSigned(cfg.fmtVar, v);
+
+        // ------- ΔBasis% pin chart (top)
+        if (showPins) {
+            const axisY = region.y + pad + pinArea * 0.55;
+            const maxPct = Math.max(...pts.map(p => Math.abs(p.varRel ?? 0)), Math.abs(pctTot), 1);
+            const pinMax = pinArea * 0.42 - lf;
+            const PS = (v: number) => Math.max(2, Math.abs(v) / maxPct * Math.max(pinMax, 8));
+            const tPin = this.el("text", {
+                x: left, y: axisY + lf * 0.35, "font-size": Math.round(11 * k),
+                fill: cfg.subtle, "font-family": FONT, "font-weight": 600
+            }, bg);
+            tPin.textContent = `Δ${cfg.basisLabel}%`;
+            this.el("line", {
+                x1: bandStart - 4, y1: axisY, x2: bandEnd + 4, y2: axisY,
+                stroke: cfg.colors.py, "stroke-width": 2.4
+            }, bg);
+            this.el("line", {
+                x1: cxTot - totW / 2 - 2, y1: axisY, x2: cxTot + totW / 2 + 2, y2: axisY,
+                stroke: cfg.colors.py, "stroke-width": 2.4
+            }, bg);
+            // pin direction follows the sign, color follows the business impact (invert-aware)
+            const pin = (x: number, pct: number, hollow: boolean, parent: SVGElement) => {
+                const h = PS(pct);
+                const yEnd = pct >= 0 ? axisY - h : axisY + h;
+                this.el("line", { x1: x, y1: axisY, x2: x, y2: yEnd, stroke: colOf(pct), "stroke-width": 2.2 }, parent);
+                const r = Math.max(2.6, 3.4 * k);
+                this.el("rect", {
+                    x: x - r, y: yEnd - r, width: 2 * r, height: 2 * r,
+                    fill: hollow ? `url(#${cfg.patId})` : cfg.ink,
+                    stroke: cfg.ink, "stroke-width": hollow ? 1 : 0
+                }, parent);
+                const lt = this.el("text", {
+                    x, y: pct >= 0 ? yEnd - r - 3 : yEnd + r + lf, "text-anchor": "middle",
+                    "font-size": lf, fill: cfg.ink, "font-family": FONT,
+                    stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+                }, parent);
+                lt.textContent = this.fmtPercent(pct);
+            };
+            const showPinAt = this.labelPredicate(pts, pts.map(p => p.varRel != null ? this.fmtPercent(p.varRel) : ""), lf, step, "columns");
+            pts.forEach((p, i) => {
+                if (p.varRel == null || !showPinAt(i)) { return; }
+                pin(cx(i), p.varRel, p.isFc, marks);
+            });
+            pin(cxTot, pctTot, true, bg);
+        }
+
+        // ------- AC | FC separator
+        if (firstFc > 0) {
+            this.el("line", {
+                x1: cx(firstFc) - step / 2, y1: region.y + pad + 4, x2: cx(firstFc) - step / 2, y2: yBase + catArea * 0.55,
+                stroke: cfg.ink, "stroke-width": 1.4
+            }, bg);
+        }
+
+        // ------- basis total column (left)
+        const yB = S(basisSum);
+        const basisStyle = cfg.basisMode === "plan"
+            ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 }
+            : cfg.hc
+                ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
+                : { fill: cfg.colors.py };
+        this.el("rect", { x: left, y: yB, width: totW, height: Math.max(yBase - yB, 1), ...basisStyle }, bg);
+        const bl = this.el("text", {
+            x: left + totW / 2, y: yB - 5, "text-anchor": "middle", "font-size": lf,
+            fill: cfg.ink, "font-family": FONT
+        }, bg);
+        bl.textContent = cfg.fmt.format(basisSum);
+        const bc = this.el("text", {
+            x: left + totW / 2, y: yBase + cf + 4, "text-anchor": "middle", "font-size": cf,
+            fill: cfg.ink, "font-family": FONT
+        }, bg);
+        bc.textContent = cfg.basisLabel;
+
+        // ------- level guide lines
+        const yV = S(vTot);
+        this.el("line", { x1: left + totW, y1: yB, x2: cxTot + totW / 2, y2: yB, stroke: cfg.colors.py, "stroke-width": 1.4 }, bg);
+        this.el("line", { x1: cx(n - 1) + segW / 2, y1: yV, x2: right - calloutW + 10, y2: yV, stroke: cfg.colors.py, "stroke-width": 1.4 }, bg);
+
+        // ------- cascade + mini columns
+        const showValAt = this.labelPredicate(pts, pts.map(p => p.varAbs != null ? fmtD(p.varAbs) : ""), lf, step, "columns");
+        let level = basisSum;
+        pts.forEach((p, i) => {
+            const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
+            const x = cx(i);
+
+            // connector at the incoming level
+            const conX1 = i === 0 ? left + totW : cx(i - 1) + segW / 2;
+            this.el("line", {
+                x1: conX1, y1: S(level), x2: x - segW / 2, y2: S(level),
+                stroke: cfg.subtle, "stroke-width": 1
+            }, g);
+
+            if (p.varAbs != null) {
+                const d = p.varAbs;
+                const prev = level;
+                level += d;
+                const segTop = S(Math.max(prev, level));
+                const segH = Math.max(4, Math.abs(S(prev) - S(level)));
+                const c = colOf(d);
+                const hollowBad = cfg.hc && !goodOf(d) && d !== 0;
+                this.el("rect", {
+                    x: x - segW / 2, y: segTop, width: segW, height: segH,
+                    ...(hollowBad
+                        ? { fill: cfg.paper, stroke: c, "stroke-width": 1.4 }
+                        : p.isFc
+                            ? { fill: `url(#${goodOf(d) ? cfg.patGood : cfg.patBad})`, stroke: c, "stroke-width": 1 }
+                            : { fill: c })
+                }, g);
+                if (cfg.showLabels && showValAt(i)) {
+                    const up = d >= 0;
+                    const lt = this.el("text", {
+                        x, y: up ? segTop - 4 : segTop + segH + lf, "text-anchor": "middle",
+                        "font-size": lf, fill: cfg.ink, "font-family": FONT,
+                        stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+                    }, g);
+                    lt.textContent = fmtD(d);
+                }
+            }
+
+            // mini columns at the base: basis grey behind, AC/FC in front
+            if (p.basis != null) {
+                const h = BS(p.basis);
+                this.el("rect", {
+                    x: x - colW * 0.8, y: yBase - h, width: colW, height: h,
+                    ...(cfg.hc
+                        ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1, "stroke-dasharray": "3,2" }
+                        : { fill: cfg.colors.py })
+                }, g);
+            }
+            if (p.value != null) {
+                const h = BS(p.value);
+                this.el("rect", {
+                    x: x - colW * 0.2, y: yBase - h, width: colW, height: h,
+                    ...(p.isFc
+                        ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                        : { fill: cfg.colors.ac })
+                }, g);
+                if (cfg.showLabels && showValAt(i)) {
+                    const hMax = Math.max(BS(p.value), p.basis != null ? BS(p.basis) : 0);
+                    const vt = this.el("text", {
+                        x: x + colW * 0.3 - colW * 0.5, y: yBase - hMax - 3, "text-anchor": "middle",
+                        "font-size": lf, fill: cfg.ink, "font-family": FONT,
+                        stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+                    }, g);
+                    vt.textContent = cfg.fmt.format(p.value);
+                }
+            }
+
+            // category labels (month + FC/first-year hint)
+            const showCatAt = this.labelPredicate(pts, pts.map(q => q.cat), cf, step, "columns");
+            if (showCatAt(i)) {
+                const ct = this.el("text", {
+                    x, y: yBase + cf + 4, "text-anchor": "middle", "font-size": cf,
+                    fill: cfg.ink, "font-family": FONT
+                }, g);
+                ct.textContent = this.truncate(p.cat, step - 2, cf);
+            }
+            if (i === firstFc) {
+                const ft = this.el("text", {
+                    x, y: yBase + cf * 2 + 8, "text-anchor": "middle", "font-size": cf,
+                    fill: cfg.ink, "font-family": FONT, "font-weight": 600
+                }, g);
+                ft.textContent = "FC";
+            }
+
+            this.attachInteraction(g, p, cfg);
+            this.catGroups.push({ g, sel: p.sel });
+            this.animGroups.push([g]);
+        });
+
+        // ------- axis
+        this.el("line", {
+            x1: left, y1: yBase, x2: right - calloutW + 16, y2: yBase,
+            stroke: cfg.ink, "stroke-width": 1.6
+        }, bg);
+
+        // ------- stacked AC+FC total column (right)
+        const xT = bandEnd + 10;
+        const acH = Math.max(yBase - S(acTot), 0);
+        this.el("rect", { x: xT, y: yBase - acH, width: totW, height: Math.max(acH, 1), fill: cfg.colors.ac }, bg);
+        if (fcTot > 0) {
+            const fcH = S(acTot) - S(vTot);
+            this.el("rect", {
+                x: xT, y: yBase - acH - fcH, width: totW, height: Math.max(fcH, 1),
+                fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1.2
+            }, bg);
+            const fl = this.el("text", {
+                x: xT + totW + 4, y: yBase - acH - fcH / 2 + lf * 0.35, "font-size": lf,
+                fill: cfg.ink, "font-family": FONT
+            }, bg);
+            fl.textContent = "FC";
+            const fv = this.el("text", {
+                x: xT + totW / 2, y: yBase - acH - fcH / 2 + lf * 0.35, "text-anchor": "middle",
+                "font-size": lf, fill: cfg.ink, "font-family": FONT,
+                stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+            }, bg);
+            fv.textContent = cfg.fmt.format(fcTot);
+            const al = this.el("text", {
+                x: xT + totW + 4, y: yBase - acH / 2 + lf * 0.35, "font-size": lf,
+                fill: cfg.ink, "font-family": FONT
+            }, bg);
+            al.textContent = "AC";
+            const av = this.el("text", {
+                x: xT + totW / 2, y: yBase - acH / 2 + lf * 0.35, "text-anchor": "middle",
+                "font-size": lf, fill: cfg.paper, "font-family": FONT
+            }, bg);
+            av.textContent = cfg.fmt.format(acTot);
+        }
+        const tv = this.el("text", {
+            x: xT + totW / 2, y: S(vTot) - 5, "text-anchor": "middle", "font-size": lf,
+            fill: cfg.ink, "font-family": FONT, "font-weight": 600
+        }, bg);
+        tv.textContent = cfg.fmt.format(vTot);
+        const tc = this.el("text", {
+            x: xT + totW / 2, y: yBase + cf + 4, "text-anchor": "middle", "font-size": cf,
+            fill: cfg.ink, "font-family": FONT
+        }, bg);
+        tc.textContent = fcTot > 0 ? "AC+FC" : "AC";
+
+        // ------- net variance bar + circled callout (right edge)
+        const xv = xT + totW + sideLblW;
+        this.el("rect", {
+            x: xv, y: Math.min(yB, yV), width: 6, height: Math.max(Math.abs(yV - yB), 2),
+            fill: colOf(dTot)
+        }, bg);
+        const text = fmtD(dTot);
+        const pw = Math.max(40, text.length * lf * 0.62 + 14), ph = lf + 10;
+        const pcx = Math.min(xv + 10 + pw / 2, right - pw / 2);
+        const pcy = (yB + yV) / 2;
+        this.el("rect", {
+            x: pcx - pw / 2, y: pcy - ph / 2, width: pw, height: ph, rx: ph / 2,
+            fill: cfg.paper, stroke: colOf(dTot), "stroke-width": 1.8
+        }, bg);
+        const pt = this.el("text", {
+            x: pcx, y: pcy + lf * 0.36, "text-anchor": "middle", "font-size": lf,
+            "font-weight": 600, fill: colOf(dTot), "font-family": FONT
+        }, bg);
+        pt.textContent = text;
+
+        // ------- scenario caption top-left
+        this.drawPanelTitle(bg, { x: region.x, y: region.y + pad, w: region.w, h: 12 },
+            `${cfg.basisLabel} → AC${cfg.hasFc ? "/FC" : ""} · Brücke + Monatssäulen`,
+            "columns", Math.round(12 * k), region, undefined, cfg.subtle);
+    }
+
+    /**
+     * Category bridge (structure): PL/PY total rows on top, one row per category with
+     * AC·PY mini-bars, a cascading ΔBasis brick and a ΔBasis% pin, an AC total row and
+     * a double reconciliation (ΔBasis + Δother) with circled callout at the bottom —
+     * ported from the "Waterfall Chart v2" reference.
+     */
+    private renderCategoryBridge(pts: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const n = pts.length;
+        if (n === 0) { return; }
+        const hasPy = pts.some(p => p.py != null);
+        const hasPl = pts.some(p => p.pl != null);
+        if (!hasPy && !hasPl) {
+            this.drawModeHint(region, cfg, "Kategorie-Brücke benötigt PY oder PL als Vergleichsbasis");
+            return;
+        }
+        const k = this.fontK;
+        const lf = cfg.labelFont, cf = cfg.catFont;
+        const pad = 6;
+
+        const PYt = pts.reduce((a, p) => a + (p.py ?? 0), 0);
+        const PLt = pts.reduce((a, p) => a + (p.pl ?? 0), 0);
+        const ACt = pts.reduce((a, p) => a + (p.value ?? 0), 0);
+        const refIsPl = cfg.basisMode === "plan" && hasPl;
+        const refLabel = refIsPl ? "PL" : "PY";
+        const REF = refIsPl ? PLt : PYt;
+        const hasOther = refIsPl ? hasPy : hasPl;
+        const otherTot = refIsPl ? PYt : PLt;
+        const otherLabel = refIsPl ? "PY" : "PL";
+        const dTot = ACt - REF;
+        const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const colOf = (v: number) => v === 0 ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+        const fmtD = (v: number) => this.fmtSigned(cfg.fmtVar, v);
+
+        // ------- layout
+        const rightEdge = region.x + region.w - pad;
+        const catArea = Math.min(region.w * 0.22,
+            this.maxTextWidth(pts.map(p => p.cat), cf) + 16);
+        const x0 = region.x + pad + catArea;
+        const showPins = cfg.showRel && region.w >= 520 && pts.some(p => p.varRel != null);
+        const pinW = showPins ? Math.max(110, region.w * 0.15) + lf * 3 : 0;
+        const valLblW = lf * 4.2;
+        const xValEnd = rightEdge - pinW - valLblW;
+        const maxV = Math.max(REF, ACt, hasOther ? otherTot : 0, 1);
+        const X = linearScale(0, maxV, x0, xValEnd);
+        const axisX = rightEdge - pinW * 0.52;
+        const maxPinLen = Math.max(20, pinW * 0.52 - lf * 4.2 - 14);
+
+        const headRows = (hasPl ? 1 : 0) + (hasPy ? 1 : 0);
+        const footUnits = 1 + (hasOther ? 2.6 : 1.6);
+        const availH = region.h - pad * 2 - 8;
+        const rowH = availH / (n + headRows + footUnits + 0.6);
+        let y = region.y + pad + 6;
+        const yPL = hasPl ? y : null;
+        if (hasPl) { y += rowH; }
+        const yPY = hasPy ? y : null;
+        if (hasPy) { y += rowH; }
+        y += rowH * 0.3;
+        const yS0 = y;
+        const yAC = yS0 + n * rowH + rowH * 0.3;
+        const yBr1 = yAC + rowH * 1.15;
+        const yBr2 = hasOther ? yBr1 + rowH * 1.25 : null;
+
+        const bg = this.el("g", {}, this.svg);
+        const marks = this.el("g", {}, this.svg);
+        const rowLabel = (yy: number, text: string, bold: boolean, parent: SVGElement) => {
+            const t = this.el("text", {
+                x: x0 - 8, y: yy + rowH / 2 + cf * 0.35, "text-anchor": "end",
+                "font-size": cf, fill: cfg.ink, "font-family": FONT, "font-weight": bold ? 700 : 400
+            }, parent);
+            t.textContent = this.truncate(text, catArea - 10, cf);
+        };
+        const valLabel = (xx: number, yy: number, text: string, bold: boolean, parent: SVGElement,
+            anchor: "start" | "end" = "start", color = cfg.ink) => {
+            const t = this.el("text", {
+                x: xx, y: yy, "text-anchor": anchor, "font-size": lf, fill: color,
+                "font-family": FONT, "font-weight": bold ? 700 : 400,
+                stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+            }, parent);
+            t.textContent = text;
+        };
+        const guide = (xx: number, y1: number, y2: number, strong: boolean, parent: SVGElement) => {
+            this.el("line", {
+                x1: xx, y1, x2: xx, y2, stroke: cfg.subtle, "stroke-width": 1,
+                "stroke-opacity": strong ? 0.9 : 0.5
+            }, parent);
+        };
+
+        // ------- top total rows (PL outline, PY grey)
+        const barH = Math.max(6, rowH * 0.55);
+        const endPrim = yBr1 + rowH * 0.5;
+        const endSec = yBr2 != null ? yBr2 + rowH * 0.5 : endPrim;
+        if (yPL != null) {
+            rowLabel(yPL, "PL", true, bg);
+            this.el("rect", {
+                x: x0, y: yPL + (rowH - barH) / 2, width: Math.max(X(PLt) - x0, 1), height: barH,
+                fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.5
+            }, bg);
+            valLabel(X(PLt) + 8, yPL + rowH / 2 + lf * 0.35, cfg.fmt.format(PLt), true, bg);
+            guide(X(PLt), yPL + rowH, refIsPl ? endPrim : endSec, false, bg);
+        }
+        if (yPY != null) {
+            rowLabel(yPY, "PY", true, bg);
+            this.el("rect", {
+                x: x0, y: yPY + (rowH - barH) / 2, width: Math.max(X(PYt) - x0, 1), height: barH,
+                ...(cfg.hc
+                    ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
+                    : { fill: cfg.colors.py })
+            }, bg);
+            valLabel(X(PYt) + 8, yPY + rowH / 2 + lf * 0.35, cfg.fmt.format(PYt), true, bg);
+            guide(X(PYt), yPY + rowH, refIsPl ? endSec : endPrim, false, bg);
+        }
+
+        // ------- group separators
+        const groupEvery = Math.round(this.formattingSettings.chartCard.groupEvery.value ?? 0);
+        if (groupEvery > 0 && groupEvery < n) {
+            for (let i = groupEvery; i < n; i += groupEvery) {
+                this.el("line", {
+                    x1: region.x + pad, y1: yS0 + i * rowH - 1, x2: rightEdge, y2: yS0 + i * rowH - 1,
+                    stroke: cfg.subtle, "stroke-width": 1, "stroke-opacity": 0.35
+                }, bg);
+            }
+        }
+
+        // ------- ΔBasis% pin axis
+        if (showPins) {
+            const tp = this.el("text", {
+                x: axisX, y: yS0 - 8, "text-anchor": "middle", "font-size": Math.round(11 * k),
+                fill: cfg.subtle, "font-family": FONT, "font-weight": 600
+            }, bg);
+            tp.textContent = `Δ${refLabel}%`;
+            this.el("rect", {
+                x: axisX - 1.5, y: yS0, width: 3, height: yAC - yS0 - rowH * 0.2,
+                fill: cfg.colors.py
+            }, bg);
+            this.el("rect", {
+                x: axisX - 1.5, y: yAC + rowH * 0.1, width: 3, height: rowH * 0.8,
+                fill: cfg.colors.py
+            }, bg);
+        }
+        const maxPct = Math.max(...pts.map(p => Math.abs(p.varRel ?? 0)),
+            REF !== 0 ? Math.abs(dTot / REF * 100) : 0, 1);
+        const pinLen = (v: number) => Math.max(2, Math.abs(v) / maxPct * maxPinLen);
+        const drawPin = (yy: number, pct: number, bold: boolean, parent: SVGElement) => {
+            const w = pinLen(pct);
+            const yMid = yy + rowH / 2;
+            const c = colOf(pct);
+            const r = Math.max(2.6, 3.4 * k);
+            if (pct >= 0) {
+                this.el("rect", { x: axisX + 2, y: yMid - 1.5, width: w, height: 3, fill: c }, parent);
+                this.el("rect", { x: axisX + 2 + w, y: yMid - r, width: 2 * r, height: 2 * r, fill: cfg.ink }, parent);
+                valLabel(axisX + 2 + w + 2 * r + 4, yMid + lf * 0.35, this.fmtPercent(pct), bold, parent);
+            } else {
+                this.el("rect", { x: axisX - 2 - w, y: yMid - 1.5, width: w, height: 3, fill: c }, parent);
+                this.el("rect", { x: axisX - 2 - w - 2 * r, y: yMid - r, width: 2 * r, height: 2 * r, fill: cfg.ink }, parent);
+                valLabel(axisX - 2 - w - 2 * r - 4, yMid + lf * 0.35, this.fmtPercent(pct), bold, parent, "end");
+            }
+        };
+
+        // ------- biggest driver
+        let drvIdx = -1;
+        pts.forEach((p, i) => {
+            if (p.varAbs == null) { return; }
+            if (drvIdx < 0 || Math.abs(p.varAbs) > Math.abs(pts[drvIdx].varAbs ?? 0)) { drvIdx = i; }
+        });
+
+        // ------- category rows
+        const pyBarH = Math.max(3, rowH * 0.30);
+        const acBarH = Math.max(4, rowH * 0.42);
+        const brickH = Math.max(5, rowH * 0.48);
+        let cum = REF;
+        const refRowY = refIsPl ? (yPL as number) : (yPY as number);
+        guide(X(REF), refRowY + rowH, yS0 + rowH * 0.26, true, bg);
+        pts.forEach((p, i) => {
+            const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
+            const yy = yS0 + i * rowH;
+            rowLabel(yy, p.cat, false, g);
+
+            // mini bars: reference (PY grey / PL outline) behind, AC in front
+            const behind = hasPy ? p.py : p.pl;
+            if (behind != null) {
+                this.el("rect", {
+                    x: x0, y: yy + rowH * 0.12, width: Math.max(X(behind) - x0, 1), height: pyBarH,
+                    ...(cfg.hc || !hasPy
+                        ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1 }
+                        : { fill: cfg.colors.py })
+                }, g);
+            }
+            if (p.value != null) {
+                this.el("rect", {
+                    x: x0, y: yy + rowH * 0.30, width: Math.max(X(p.value) - x0, 1), height: acBarH,
+                    ...(p.isFc
+                        ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                        : { fill: cfg.colors.ac })
+                }, g);
+                if (cfg.showLabels) {
+                    const xl = Math.max(X(p.value), behind != null ? X(behind) : 0);
+                    valLabel(xl + 6, yy + rowH / 2 + lf * 0.35, cfg.fmt.format(p.value), false, g);
+                }
+            }
+
+            // cascade brick + connector
+            if (p.varAbs != null) {
+                const d = p.varAbs;
+                const a = cum, b = cum + d;
+                const xA = X(Math.min(a, b)), xB = X(Math.max(a, b));
+                const c = colOf(d);
+                const hollowBad = cfg.hc && !goodOf(d) && d !== 0;
+                this.el("rect", {
+                    x: xA, y: yy + rowH * 0.26, width: Math.max(xB - xA, 2), height: brickH,
+                    ...(hollowBad
+                        ? { fill: cfg.paper, stroke: c, "stroke-width": 1.4 }
+                        : p.isFc
+                            ? { fill: `url(#${goodOf(d) ? cfg.patGood : cfg.patBad})`, stroke: c, "stroke-width": 1 }
+                            : { fill: c })
+                }, g);
+                if (cfg.showLabels) {
+                    if (d >= 0) { valLabel(xB + 6, yy + rowH / 2 + lf * 0.35, fmtD(d), false, g); }
+                    else { valLabel(xA - 6, yy + rowH / 2 + lf * 0.35, fmtD(d), false, g, "end"); }
+                }
+                // größter Treiber annotation
+                if (i === drvIdx && dTot !== 0 && region.w >= 640) {
+                    const share = Math.round(Math.abs(d / dTot) * 100);
+                    let note: string;
+                    if (Math.sign(d) === Math.sign(dTot) && share <= 100) {
+                        note = `größter Treiber · ${share} % der Gesamtabweichung`;
+                    } else {
+                        const sameSum = pts.reduce((a2, q) =>
+                            a2 + (q.varAbs != null && Math.sign(q.varAbs) === Math.sign(d) ? Math.abs(q.varAbs) : 0), 0);
+                        const sh2 = sameSum ? Math.round(Math.abs(d) / sameSum * 100) : 0;
+                        note = `größter Treiber · ${sh2} % aller ${d < 0 ? "Rückgänge" : "Zuwächse"}`;
+                    }
+                    const noteFont = Math.round(Math.max(9, lf * 0.85));
+                    const nt = this.el("text", {
+                        x: d >= 0 ? xB + 6 + fmtD(d).length * lf * 0.62 + 12 : xA - 6 - fmtD(d).length * lf * 0.62 - 12,
+                        y: yy + rowH / 2 + lf * 0.35, "text-anchor": d >= 0 ? "start" : "end",
+                        "font-size": noteFont, fill: cfg.subtle, "font-family": FONT, "font-style": "italic",
+                        stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+                    }, g);
+                    nt.textContent = note;
+                }
+                // vertical connector to the next row / to the AC row
+                const nextY = i < n - 1 ? yy + rowH + rowH * 0.26 : yAC + rowH * 0.2;
+                guide(X(b), yy + rowH * 0.26 + brickH, nextY, true, bg);
+                cum = b;
+            }
+
+            if (showPins && p.varRel != null) {
+                drawPin(yy, p.varRel, false, g);
+            }
+
+            this.attachInteraction(g, p, cfg);
+            this.catGroups.push({ g, sel: p.sel });
+            this.animGroups.push([g]);
+        });
+
+        // ------- AC total row
+        rowLabel(yAC, "AC", true, bg);
+        this.el("rect", {
+            x: x0, y: yAC + (rowH - barH) / 2, width: Math.max(X(ACt) - x0, 1), height: barH,
+            ...(cfg.hasFc
+                ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1.2 }
+                : { fill: cfg.colors.ac })
+        }, bg);
+        valLabel(X(ACt) + 8, yAC + rowH / 2 + lf * 0.35, cfg.fmt.format(ACt), true, bg);
+        guide(X(ACt), yAC + rowH, endSec, false, bg);
+        if (showPins && REF !== 0) {
+            drawPin(yAC, dTot / REF * 100, true, bg);
+        }
+
+        // ------- reconciliation rows: primary ΔRef with circled callout, then Δother
+        const brH = Math.max(5, rowH * 0.4);
+        const drawBridgeRow = (yy: number, from: number, to: number, label: string,
+            withCallout: boolean) => {
+            const d = to - from;
+            const xA = X(Math.min(from, to)), xB = X(Math.max(from, to));
+            this.el("rect", {
+                x: xA, y: yy, width: Math.max(xB - xA, 2), height: brH, fill: colOf(d)
+            }, bg);
+            const mid = (X(from) + X(to)) / 2;
+            if (withCallout) {
+                const text = fmtD(d);
+                const pw = Math.max(44, text.length * lf * 0.62 + 16), ph = lf + 9;
+                this.el("rect", {
+                    x: mid - pw / 2, y: yy + brH + 4, width: pw, height: ph, rx: ph / 2,
+                    fill: cfg.paper, stroke: colOf(d), "stroke-width": 1.8
+                }, bg);
+                valLabel(mid, yy + brH + 4 + ph / 2 + lf * 0.36, text, true, bg, "start", colOf(d));
+                const tt = bg.lastChild as SVGTextElement;
+                tt.setAttribute("text-anchor", "middle");
+            } else {
+                valLabel(mid, yy + brH + lf + 4, fmtD(d), false, bg, "start");
+                const tt = bg.lastChild as SVGTextElement;
+                tt.setAttribute("text-anchor", "middle");
+            }
+            const lt = this.el("text", {
+                x: xB + 10, y: yy + brH * 0.5 + lf * 0.35, "font-size": Math.round(Math.max(9, lf * 0.85)),
+                fill: cfg.subtle, "font-family": FONT
+            }, bg);
+            lt.textContent = label;
+        };
+        drawBridgeRow(yBr1, REF, ACt, `Δ${refLabel}`, true);
+        if (yBr2 != null) {
+            drawBridgeRow(yBr2, otherTot, ACt, `Δ${otherLabel}`, false);
+        }
+    }
+
     /** renders one complete IBCS chart (base + variance panels) into the given region */
     private renderChart(points: DataPoint[], region: Rect, cfg: ChartConfig, domains: Domains,
         cascade: Cascade | null = null): void {
         const n = points.length;
         const pad = 4;
-        const titleH = 14;
+        const titleH = Math.round(14 * this.fontK);
         const orientation = cfg.orientation;
         // waterfall-bridge: an extra panel alongside the normal AC/PY/PL comparison bars,
         // showing the same categories cascading from the basis total to AC with connectors
@@ -845,7 +1501,7 @@ export class Visual implements IVisual {
             && (orientation === "columns" ? region.h >= 260 : region.w >= 520);
         // total (Σ) header row on top of the region
         const showTotal = cfg.showTotal && region.w > 240;
-        const headerH = showTotal ? 17 : 0;
+        const headerH = showTotal ? Math.round(17 * this.fontK) : 0;
 
         let bandStart: number, bandEnd: number;
         let panels: { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect };
@@ -1387,6 +2043,99 @@ export class Visual implements IVisual {
         });
     }
 
+    /**
+     * in-chart button row for the integrated/category bridge modes (top-right):
+     * ΔPY|ΔPL segmented reference switch (persists chart.comparisonMode so the end
+     * user can flip the variance basis in the report), ⇅ sort toggle and ▶ build
+     * animation — mirroring the reference charts' interactive toolbar.
+     */
+    private drawChartButtons(width: number, cfg: ChartConfig,
+        opts: { showRef: boolean; showSort: boolean; showPlay: boolean }): void {
+        const k = this.fontK;
+        const bh = Math.round(18 * k), font = Math.round(11 * k);
+        let xRight = width - 6;
+        const persist = (properties: Record<string, unknown>) => {
+            this.host.persistProperties({ merge: [{ objectName: "chart", selector: null, properties }] });
+        };
+        const roundBtn = (icon: string, active: boolean, label: string, onClick: () => void) => {
+            const r = bh / 2;
+            const cx = xRight - r, cy = 6 + r;
+            xRight -= bh + 6;
+            const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+            btn.setAttribute("aria-label", label);
+            this.el("circle", {
+                cx, cy, r, fill: active ? cfg.colors.ac : cfg.paper,
+                stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
+            }, btn);
+            const t = this.el("text", {
+                x: cx, y: cy + font * 0.36, "text-anchor": "middle", "font-size": font,
+                fill: active ? cfg.paper : cfg.ink, "font-family": FONT
+            }, btn);
+            t.textContent = icon;
+            btn.style.cursor = "pointer";
+            btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); onClick(); });
+            btn.addEventListener("keydown", (e: KeyboardEvent) => {
+                if (e.key !== "Enter" && e.key !== " ") { return; }
+                e.preventDefault(); e.stopPropagation(); onClick();
+            });
+        };
+        if (opts.showPlay) {
+            roundBtn("▶", false, "Aufbau-Animation abspielen", () => this.playBuild());
+        }
+        if (opts.showSort) {
+            roundBtn("⇅", cfg.sortByImpact, cfg.sortByImpact
+                ? "Sortierung nach Wirkung aufheben" : "Nach Wirkung sortieren",
+                () => persist({ sortByImpact: !cfg.sortByImpact }));
+        }
+        if (opts.showRef) {
+            // segmented ΔPY | ΔPL — active side filled dark, like the reference toolbar
+            const segW = Math.round(34 * k);
+            const x0 = xRight - segW * 2;
+            const seg = (x: number, text: string, active: boolean, label: string, onClick: () => void) => {
+                const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+                btn.setAttribute("aria-label", label);
+                this.el("rect", {
+                    x, y: 6, width: segW, height: bh,
+                    fill: active ? cfg.colors.ac : cfg.paper,
+                    stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
+                }, btn);
+                const t = this.el("text", {
+                    x: x + segW / 2, y: 6 + bh / 2 + font * 0.36, "text-anchor": "middle",
+                    "font-size": font, fill: active ? cfg.paper : cfg.ink, "font-family": FONT
+                }, btn);
+                t.textContent = text;
+                btn.style.cursor = "pointer";
+                btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); onClick(); });
+                btn.addEventListener("keydown", (e: KeyboardEvent) => {
+                    if (e.key !== "Enter" && e.key !== " ") { return; }
+                    e.preventDefault(); e.stopPropagation(); onClick();
+                });
+            };
+            seg(x0, "ΔPY", cfg.basisMode === "py", "Abweichungsbasis: Vorjahr (PY)",
+                () => persist({ comparisonMode: "py" }));
+            seg(x0 + segW, "ΔPL", cfg.basisMode === "plan", "Abweichungsbasis: Plan (PL)",
+                () => persist({ comparisonMode: "plan" }));
+            xRight = x0 - 6;
+        }
+    }
+
+    /** ▶ build animation: reveals the per-category mark groups one after another */
+    private playBuild(): void {
+        for (const t of this.animTimers) { clearTimeout(t); }
+        this.animTimers = [];
+        const seq = this.animGroups;
+        if (seq.length === 0) { return; }
+        for (const gs of seq) { for (const g of gs) { g.style.opacity = "0"; } }
+        seq.forEach((gs, i) => {
+            this.animTimers.push(window.setTimeout(() => {
+                for (const g of gs) {
+                    g.style.transition = "opacity 0.18s";
+                    g.style.opacity = "1";
+                }
+            }, 80 + i * 140));
+        });
+    }
+
     private drawTitleBlock(width: number, points: DataPoint[], cfg: ChartConfig,
         maxAbs: number, orientation: Orientation): number {
         const s = this.formattingSettings.ibcsTitleCard;
@@ -1405,8 +2154,10 @@ export class Visual implements IVisual {
         ].filter(x => x).join(", ");
         const hasRef = cfg.hasPy || cfg.hasPl;
 
+        const k = this.fontK;
+        const f1 = Math.round(12 * k), f2 = Math.round(11 * k);
         const t = this.el("text", {
-            x: 6, y: 14, "font-size": 12, "font-family": FONT, fill: cfg.ink
+            x: 6, y: f1 + 2, "font-size": f1, "font-family": FONT, fill: cfg.ink
         }, this.svg);
         const span = (text: string, bold: boolean) => {
             const ts = document.createElementNS(SVG_NS, "tspan");
@@ -1424,13 +2175,13 @@ export class Visual implements IVisual {
         }
         if (message) {
             const m = this.el("text", {
-                x: 6, y: 30, "font-size": 11, "font-family": FONT,
+                x: 6, y: f1 + f2 + 7, "font-size": f2, "font-family": FONT,
                 fill: cfg.ink, "font-style": "italic"
             }, this.svg);
-            m.textContent = this.truncate(message, width - 12, 11);
-            return 38;
+            m.textContent = this.truncate(message, width - 12, f2);
+            return f1 + f2 + 15;
         }
-        return 22;
+        return f1 + 10;
     }
 
     /**
@@ -1667,9 +2418,10 @@ export class Visual implements IVisual {
         }
         if (!any) { return; }
 
+        const hFont = Math.round(11 * this.fontK);
         const t = this.el("text", {
-            x: region.x + region.w - 6, y: region.y + 12, "text-anchor": "end",
-            "font-size": 11, "font-family": FONT
+            x: region.x + region.w - 6, y: region.y + hFont + 1, "text-anchor": "end",
+            "font-size": hFont, "font-family": FONT
         }, parent);
         const span = (text: string, fill: string, bold: boolean) => {
             const ts = document.createElementNS(SVG_NS, "tspan");
@@ -1945,17 +2697,18 @@ export class Visual implements IVisual {
 
     private drawPanelTitle(parent: SVGElement, rect: Rect, text: string, orientation: Orientation,
         titleH: number, region: Rect, barsTitleY?: number, color = "#8A8A8A"): void {
+        const font = Math.round(10 * this.fontK);
         const attrs = orientation === "columns"
             ? { x: region.x + 6, y: rect.y + titleH - 4 }
-            : { x: rect.x + 2, y: barsTitleY ?? (region.y + 12) };
+            : { x: rect.x + 2, y: barsTitleY ?? (region.y + font + 2) };
         // "bars" titles sit above their own (possibly narrow) panel and must not bleed into
         // the next one; "columns" titles have the full region width above the stacked panels
         const maxW = orientation === "columns" ? region.w - 12 : rect.w - 6;
         const t = this.el("text", {
-            ...attrs, "font-size": 10, fill: color,
+            ...attrs, "font-size": font, fill: color,
             "font-family": FONT, "font-weight": 600
         }, parent);
-        t.textContent = this.truncate(text, maxW, 10);
+        t.textContent = this.truncate(text, maxW, font);
     }
 
     /** draws a rect from `from` to `to` along the value axis at band position bp with band width bw */

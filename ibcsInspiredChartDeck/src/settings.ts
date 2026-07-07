@@ -11,7 +11,9 @@ const orientationItems: powerbi.IEnumMember[] = [
     { value: "columns", displayName: "Columns (Zeit)" },
     { value: "bars", displayName: "Bars (Struktur)" },
     { value: "line", displayName: "Line (Zeit, viele Punkte)" },
-    { value: "waterfall", displayName: "Waterfall / Brücke" }
+    { value: "waterfall", displayName: "Waterfall / Brücke" },
+    { value: "intwaterfall", displayName: "Integrierte Brücke (Zeit)" },
+    { value: "catbridge", displayName: "Kategorie-Brücke (Struktur)" }
 ];
 
 const comparisonItems: powerbi.IEnumMember[] = [
@@ -26,6 +28,12 @@ const displayUnitsItems: powerbi.IEnumMember[] = [
     { value: "k", displayName: "Thousands (k)" },
     { value: "m", displayName: "Millions (M)" },
     { value: "b", displayName: "Billions (B)" }
+];
+
+const fontPresetItems: powerbi.IEnumMember[] = [
+    { value: "compact", displayName: "Kompakt (Dashboard-Kachel)" },
+    { value: "fullhd", displayName: "Full HD (1080p)" },
+    { value: "presentation", displayName: "Präsentation (4K / Beamer)" }
 ];
 
 export class IbcsTitleCardSettings extends FormattingSettingsCard {
@@ -200,6 +208,14 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    chartButtons = new formattingSettings.ToggleSwitch({
+        name: "chartButtons",
+        displayName: "In-chart buttons",
+        displayNameKey: "Chart_Buttons",
+        description: "Integrierte/Kategorie-Brücke: zeigt klickbare Buttons oben rechts im Chart — ΔPY/ΔPL-Referenz-Umschalter, ⇅ Sortierung und ▶ Aufbau-Animation. Der Enduser kann die Varianz-Basis direkt im Bericht wechseln; die Wahl wird persistiert.",
+        value: true
+    });
+
     layoutGroup = new formattingSettings.Group({
         name: "chartLayout",
         displayName: "Layout",
@@ -219,7 +235,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartBridge",
         displayName: "Bridge",
         displayNameKey: "Group_Bridge",
-        slices: [this.waterfallStyle, this.sortByImpact]
+        slices: [this.waterfallStyle, this.sortByImpact, this.chartButtons]
     });
 
     name: string = "chart";
@@ -293,6 +309,15 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         value: true
     });
 
+    fontPreset = new formattingSettings.ItemDropdown({
+        name: "fontPreset",
+        displayName: "Size preset",
+        displayNameKey: "Labels_FontPreset",
+        description: "Skaliert alle Schriften im Visual auf einmal: Kompakt (×1, kleine Kacheln), Full HD (×1,5 — Standard für 1080p-Berichte) oder Präsentation (×2, 4K/Beamer). Die Textgrößen unten wirken zusätzlich als Feinjustierung.",
+        items: fontPresetItems,
+        value: fontPresetItems[0]
+    });
+
     fontSize = new formattingSettings.NumUpDown({
         name: "fontSize",
         displayName: "Text size",
@@ -328,6 +353,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
     displayNameKey: string = "Card_Labels";
     slices: Array<FormattingSettingsSlice> = [
         this.show,
+        this.fontPreset,
         this.fontSize,
         this.decimals,
         this.displayUnits

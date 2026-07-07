@@ -35,6 +35,19 @@ in **einem** Visual löst:
 - **Gruppen-Trennlinien** (Chart → Layout → Group separator every N): dünne Linien
   quer durch alle Panels nach jeweils N Kategorien — Lesehilfe für Struktur-Vergleiche
   mit natürlichen Untergruppen (z. B. Regionen), 0 = aus
+- **Integrierte Brücke (Zeit)** (eigener Chart-Modus): PY/PL-Totalsäule links,
+  ΔBasis-Wasserfall quer über die Monate, AC·PY-Monatssäulen am Fuß, ΔBasis%-Pins
+  oben, AC|FC-Trennlinie, gestapelte AC+FC-Totalsäule rechts + Netto-Callout
+- **Kategorie-Brücke (Struktur)** (eigener Chart-Modus): PL/PY-Summenzeilen oben,
+  je Kategorie AC·PY-Balken + Kaskaden-Brick + ΔBasis%-Pin, AC-Summenzeile und
+  doppelte Überleitung (ΔBasis mit Callout + ΔZweitbasis) unten — inkl.
+  "größter Treiber"-Notiz, Gruppentrennlinien, Top N + Rest, Sort by impact
+- **In-Chart-Buttons** (optional, Chart → Bridge): ΔPY|ΔPL-Referenz-Umschalter
+  (persistiert — Enduser wechselt die Varianz-Basis direkt im Bericht),
+  ⇅ Sortierung und ▶ Aufbau-Animation für die beiden Brücken-Modi
+- **Schriftgrößen-Preset** (Data labels → Size preset): Kompakt ×1 ·
+  **Full HD ×1,5** (Standard für 1080p-Berichte) · Präsentation ×2 — skaliert alle
+  Schriften im Visual auf einmal, Textgrößen-Regler bleiben zur Feinjustierung
 - **Hervorhebung** (EMPHASIZE): Kategorien per Formatbereich markieren —
   schattiertes Band über alle Panels, fettes Label
 - **Ausreißer-Kappung**: hartes Skalen-Maximum mit IBCS-Doppelstrich-Marker,

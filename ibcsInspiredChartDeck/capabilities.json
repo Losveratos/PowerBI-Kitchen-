@@ -94,7 +94,9 @@
                             { "value": "columns", "displayName": "Columns (Zeit)" },
                             { "value": "bars", "displayName": "Bars (Struktur)" },
                             { "value": "line", "displayName": "Line (Zeit, viele Punkte)" },
-                            { "value": "waterfall", "displayName": "Waterfall / Brücke" }
+                            { "value": "waterfall", "displayName": "Waterfall / Brücke" },
+                            { "value": "intwaterfall", "displayName": "Integrierte Brücke (Zeit)" },
+                            { "value": "catbridge", "displayName": "Kategorie-Brücke (Struktur)" }
                         ]
                     }
                 },
@@ -118,6 +120,7 @@
                 "groupEvery": { "type": { "numeric": true } },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
+                "chartButtons": { "type": { "bool": true } },
                 "invert": { "type": { "bool": true } }
             }
         },
@@ -134,6 +137,15 @@
         "labels": {
             "properties": {
                 "show": { "type": { "bool": true } },
+                "fontPreset": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "compact", "displayName": "Kompakt (Dashboard-Kachel)" },
+                            { "value": "fullhd", "displayName": "Full HD (1080p)" },
+                            { "value": "presentation", "displayName": "Präsentation (4K / Beamer)" }
+                        ]
+                    }
+                },
                 "fontSize": { "type": { "formatting": { "fontSize": true } } },
                 "decimals": { "type": { "numeric": true } },
                 "displayUnits": {

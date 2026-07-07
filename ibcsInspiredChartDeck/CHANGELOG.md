@@ -1,5 +1,33 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.4.0.0 (2026-07-07)
+
+**Zwei neue Chart-Modi** (Orientation-Dropdown), portiert aus den
+HTML-Referenz-Prototypen:
+- **Integrierte Brücke (Zeit)**: PY/PL-Totalsäule links, ΔBasis-Wasserfall
+  quer über die Monate mit Verbindungslinien, AC·PY-Monatssäulen am Fuß,
+  ΔBasis%-Pin-Chart oben, AC|FC-Trennlinie, gestapelte AC+FC-Totalsäule
+  rechts und Netto-Abweichung als eingekreistes Callout am rechten Rand.
+- **Kategorie-Brücke (Struktur)**: PL- (Outline) und PY-Summenzeilen oben,
+  je Kategorie AC·PY-Balken + kaskadierender ΔBasis-Brick + ΔBasis%-Pin,
+  AC-Summenzeile, doppelte Überleitung unten (ΔBasis mit Callout-Badge +
+  ΔZweitbasis), "größter Treiber"-Notiz an der stärksten Position,
+  Gruppentrennlinien (Group separator every N), Top N + Rest und
+  Sort by impact werden unterstützt.
+
+**In-Chart-Buttons** (Chart → Bridge → In-chart buttons, Standard an,
+nur in den beiden neuen Modi): ΔPY|ΔPL-Umschalter (persistiert
+chart.comparisonMode — der Enduser wechselt die Varianz-Basis direkt im
+Bericht), ⇅ Sortierung (Kategorie-Brücke) und ▶ Aufbau-Animation, die die
+Positionen nacheinander einblendet.
+
+**Schriftgrößen-Preset** (Data labels → Size preset): skaliert sämtliche
+Schriften des Visuals auf einmal — Kompakt (×1), **Full HD (×1,5)** für
+1080p-Berichte als neuer Standard-Anwendungsfall, Präsentation (×2) für
+4K/Beamer. Wirkt auf Wertelabels, Kategorieachse, Panel-Titel, Σ-Header,
+IBCS-Titelblock und Small-Multiples-Titel; die Textgrößen-Regler bleiben
+als Feinjustierung erhalten.
+
 ## 1.3.0.0 (2026-07-07)
 
 **Echte Anker-Balken in der Waterfall-Brücke** (Chart → Bridge), statt der bisherigen
