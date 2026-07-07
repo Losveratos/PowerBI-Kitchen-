@@ -118,6 +118,7 @@
                 "groupEvery": { "type": { "numeric": true } },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
+                "totalRows": { "type": { "bool": true } },
                 "invert": { "type": { "bool": true } }
             }
         },

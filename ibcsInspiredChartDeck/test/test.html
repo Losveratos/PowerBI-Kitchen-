@@ -29,6 +29,8 @@
 <div class="case"><h4>Waterfall-Brücke · Bars + Top 5 + Rest, sortiert</h4><div class="stage" id="c19" style="width:960px;height:380px"></div></div>
 <div class="case"><h4>Waterfall-Brücke · Small Multiples (2 Regionen), sortiert</h4><div class="stage" id="c20" style="width:960px;height:420px"></div></div>
 <div class="case"><h4>Waterfall-Brücke · Bars · 15 Kategorien · Gruppentrennlinien alle 4</h4><div class="stage" id="c21" style="width:960px;height:640px"></div></div>
+<div class="case"><h4>Waterfall-Brücke · Bars · Total rows (PL/PY/AC)</h4><div class="stage" id="c22" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Waterfall-Brücke · Columns · Total rows (PL/PY/AC)</h4><div class="stage" id="c23" style="width:960px;height:420px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -204,6 +206,15 @@ const wfStAc = [89, 257, 64, 20, 169, 179, 67, 55, 18, 42, 216, 134, 29, 157, 23
 const wfStPy = [68, 305, 83, 33, 456, 135, 66, 58, 21, 35, 246, 149, 56, 180, 180];
 run("c21", dataView(wfStates, [col("actual", wfStAc), col("previousYear", wfStPy)],
   { chart: { orientation: "bars", waterfallStyle: true, sortByImpact: false, groupEvery: 4 } }), 960, 640);
+
+// waterfall-bridge + total rows — PL/PY/AC as dedicated anchor bars flanking the category
+// list instead of the per-category PY/PL overlay, modeled on the "IBCS Kategorie-Brücke"
+// reference visual (bars: PL top, PY next, categories, AC bottom)
+run("c22", dataView(countries, [col("actual", costAc), col("previousYear", costPy), col("plan", costAc.map((v, i) => Math.round(v * 0.97)))],
+  { chart: { orientation: "bars", waterfallStyle: true, totalRows: true } }), 960, 420);
+
+run("c23", dataView(months, [col("actual", ac, "#,0 €"), col("plan", pl, "#,0 €"), col("previousYear", py, "#,0 €"), col("forecast", fc, "#,0 €")],
+  { chart: { orientation: "columns", waterfallStyle: true, totalRows: true } }), 960, 420);
 </script>
 </body>
 </html>

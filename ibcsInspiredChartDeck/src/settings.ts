@@ -200,6 +200,14 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    totalRows = new formattingSettings.ToggleSwitch({
+        name: "totalRows",
+        displayName: "Total rows (PL/PY/AC)",
+        displayNameKey: "Chart_TotalRows",
+        description: "Nur bei Waterfall bridge: PL und PY erscheinen als eigene Summen-Balken am Anfang und AC als Summen-Balken am Ende der Kategorienliste, statt als Hintergrund-/Outline-Balken je Kategorie — matcht Referenzcharts mit expliziten Total-Zeilen.",
+        value: false
+    });
+
     layoutGroup = new formattingSettings.Group({
         name: "chartLayout",
         displayName: "Layout",
@@ -219,7 +227,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartBridge",
         displayName: "Bridge",
         displayNameKey: "Group_Bridge",
-        slices: [this.waterfallStyle, this.sortByImpact]
+        slices: [this.waterfallStyle, this.sortByImpact, this.totalRows]
     });
 
     name: string = "chart";

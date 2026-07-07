@@ -35,6 +35,10 @@ in **einem** Visual löst:
 - **Gruppen-Trennlinien** (Chart → Layout → Group separator every N): dünne Linien
   quer durch alle Panels nach jeweils N Kategorien — Lesehilfe für Struktur-Vergleiche
   mit natürlichen Untergruppen (z. B. Regionen), 0 = aus
+- **Total rows** (Chart → Bridge → Total rows, nur bei Waterfall bridge): PL und PY
+  erscheinen als eigene Summen-Balken am Anfang der Kategorienliste, AC (bzw. AC/FC)
+  als Summen-Balken am Ende — statt der Hintergrund-/Outline-Balken je Kategorie.
+  Jede Kategorie zeigt dann nur noch ihren eigenen AC-Wert als einzelnen Balken
 - **Hervorhebung** (EMPHASIZE): Kategorien per Formatbereich markieren —
   schattiertes Band über alle Panels, fettes Label
 - **Ausreißer-Kappung**: hartes Skalen-Maximum mit IBCS-Doppelstrich-Marker,
@@ -106,7 +110,7 @@ Im Formatbereich unter **Chart → Variance basis** umstellbar.
 - **Chart**: unterteilt in die Gruppen **Layout** (Orientation Columns/Bars/Line/Waterfall,
   Variance basis, Absolute/Relative variance, Dual variance, Total-Header, Group separator
   every N), **Analysis** (Cumulative YTD, Moving average, Top N, Highlight, Invert) und
-  **Bridge** (Waterfall bridge, Sort by impact — nur bei Columns/Bars sichtbar)
+  **Bridge** (Waterfall bridge, Sort by impact, Total rows — nur bei Columns/Bars sichtbar)
 - **IBCS colors**: AC, PY, PL-Outline, Good/Bad
 - **Data labels**: an/aus, Textgröße, Dezimalstellen, Einheiten (Auto/k/M/B)
 - **Comments**: Kommentarliste rechts an/aus
