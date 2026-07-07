@@ -23,6 +23,10 @@ in **einem** Visual löst:
   plus optionale Botschafts-Zeile (SAY) — alle Teile überschreibbar
 - **Waterfall / Brücke**: GuV-Wasserfall (sum/delta-Rolle), Varianz-Brücke PL→AC
   oder Beitrags-Wasserfall mit Σ-Anker — inkl. Konnektoren und FC-Schraffur
+- **Waterfall bridge für Columns/Bars** (optional, Chart → Bridge): kaskadierende
+  Brücke von der Basis zu AC direkt in der gewählten Ausrichtung — inkl. **Sort by
+  impact** (größter Treiber zuerst, Top-N-Rest bleibt am Ende) und einem klickbaren
+  ⇅-Button im Chart, der die Sortierung persistiert umschaltet
 - **Hervorhebung** (EMPHASIZE): Kategorien per Formatbereich markieren —
   schattiertes Band über alle Panels, fettes Label
 - **Ausreißer-Kappung**: hartes Skalen-Maximum mit IBCS-Doppelstrich-Marker,
@@ -91,9 +95,10 @@ Im Formatbereich unter **Chart → Variance basis** umstellbar.
 ## Formatbereich
 
 - **IBCS title**: an/aus, KPI-Name, Zeitraum, Botschafts-Zeile (auto wenn leer)
-- **Chart**: Orientation (Columns/Bars/Line/Waterfall), Variance basis (Auto/PY/PL),
-  Absolute/Relative variance ein-aus, Total (Σ) header, Top N (Bars),
-  Moving average, Cumulative (YTD), Highlight categories, Invert (higher is bad)
+- **Chart**: unterteilt in die Gruppen **Layout** (Orientation Columns/Bars/Line/Waterfall,
+  Variance basis, Absolute/Relative variance, Dual variance, Total-Header), **Analysis**
+  (Cumulative YTD, Moving average, Top N, Highlight, Invert) und **Bridge** (Waterfall
+  bridge, Sort by impact — nur bei Columns/Bars sichtbar)
 - **IBCS colors**: AC, PY, PL-Outline, Good/Bad
 - **Data labels**: an/aus, Textgröße, Dezimalstellen, Einheiten (Auto/k/M/B)
 - **Comments**: Kommentarliste rechts an/aus

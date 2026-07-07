@@ -172,6 +172,22 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    waterfallStyle = new formattingSettings.ToggleSwitch({
+        name: "waterfallStyle",
+        displayName: "Waterfall bridge",
+        displayNameKey: "Chart_WaterfallStyle",
+        description: "Nur Columns/Bars: zeigt die Kategorien als Wasserfall-Brücke von der Basis (PY/PL) zu AC mit Verbindungslinien, statt als einzelne Balken. Optional — Standard ist aus.",
+        value: false
+    });
+
+    sortByImpact = new formattingSettings.ToggleSwitch({
+        name: "sortByImpact",
+        displayName: "Sort by impact",
+        displayNameKey: "Chart_SortByImpact",
+        description: "Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar.",
+        value: false
+    });
+
     layoutGroup = new formattingSettings.Group({
         name: "chartLayout",
         displayName: "Layout",
@@ -187,10 +203,17 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         slices: [this.cumulative, this.movingAverage, this.topN, this.highlight, this.invert]
     });
 
+    bridgeGroup = new formattingSettings.Group({
+        name: "chartBridge",
+        displayName: "Bridge",
+        displayNameKey: "Group_Bridge",
+        slices: [this.waterfallStyle, this.sortByImpact]
+    });
+
     name: string = "chart";
     displayName: string = "Chart";
     displayNameKey: string = "Card_Chart";
-    groups = [this.layoutGroup, this.analysisGroup];
+    groups = [this.layoutGroup, this.analysisGroup, this.bridgeGroup];
 }
 
 export class ColorsCardSettings extends FormattingSettingsCard {

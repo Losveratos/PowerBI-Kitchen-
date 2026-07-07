@@ -24,6 +24,10 @@
 <div class="case"><h4>Leeres Visual · Live-Demo-Landing + Auto-Message</h4><div class="stage" id="c11" style="width:960px;height:380px"></div></div>
 <div class="case"><h4>Stress · negative Werte (Ergebnis) + Doppel-Varianz</h4><div class="stage" id="c13" style="width:960px;height:480px"></div></div>
 <div class="case"><h4>Stress · 1 Kategorie / Null-Reihe / 500 Kategorien (Timing in Konsole)</h4><div class="stage" id="c14" style="width:300px;height:200px;display:inline-block"></div><div class="stage" id="c15" style="width:300px;height:200px;display:inline-block"></div><div class="stage" id="c16" style="width:340px;height:200px;display:inline-block"></div></div>
+<div class="case"><h4>Waterfall-Brücke · Bars (Struktur) · sortiert nach Wirkung</h4><div class="stage" id="c17" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Waterfall-Brücke · Columns (Zeit) · unsortiert</h4><div class="stage" id="c18" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Waterfall-Brücke · Bars + Top 5 + Rest, sortiert</h4><div class="stage" id="c19" style="width:960px;height:380px"></div></div>
+<div class="case"><h4>Waterfall-Brücke · Small Multiples (2 Regionen), sortiert</h4><div class="stage" id="c20" style="width:960px;height:420px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -39,6 +43,7 @@ function makeHost(hc) {
     createSelectionIdBuilder: () => ({ withCategory(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
     tooltipService: { show(){}, move(){}, hide(){} },
     createLocalizationManager: () => ({ getDisplayName: () => "" }),
+    persistProperties: (changes) => console.log("persistProperties", JSON.stringify(changes)),
     locale: "de-DE"
   };
 }
@@ -159,6 +164,36 @@ run("c16", dataView(bigCats, [col("actual", bigAc), col("previousYear", bigPy)])
 console.timeEnd("render-500");
 
 run("c6", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")]), 960, 420, true);
+
+// waterfall-bridge: structure comparison (bars), sorted by impact — the requested feature,
+// modeled on the reference "US states vs PY" bridge chart
+const wfCountries = ["Deutschland","Österreich","Schweiz","Frankreich","Italien","Belgien","Niederlande","Illinois-Style-Outlier"];
+const wfAc = [5400, 1900, 2400, 3100, 2800, 700, 950, 200];
+const wfPy = [5100, 2000, 2200, 3300, 2600, 750, 900, 900];
+run("c17", dataView(wfCountries, [col("actual", wfAc), col("previousYear", wfPy)],
+  { chart: { orientation: "bars", waterfallStyle: true, sortByImpact: true } }), 960, 420);
+
+// waterfall-bridge: time series (columns), unsorted — bridge from PL to AC month by month
+run("c18", dataView(months, [col("actual", ac, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")],
+  { chart: { orientation: "columns", waterfallStyle: true } }), 960, 420);
+
+// waterfall-bridge combined with top-N + rest — rest row must stay pinned last even when sorted
+run("c19", dataView(many, [col("actual", mAc), col("plan", mPl)],
+  { chart: { orientation: "bars", topN: 5, waterfallStyle: true, sortByImpact: true } }), 960, 380);
+
+// waterfall-bridge + small multiples — shared cascade domain across regions, each sorted independently
+const wfSmCats = [], wfSmMult = [], wfSmAc = [], wfSmPy = [];
+["Nord", "Süd"].forEach((r, ri) => {
+  const base = [1200, 700][ri];
+  ["A","B","C","D","E"].forEach((c, ci) => {
+    wfSmCats.push(c); wfSmMult.push(r);
+    wfSmAc.push(Math.round(base * (0.8 + ci * 0.15)));
+    wfSmPy.push(Math.round(base * (0.85 + ci * 0.1)));
+  });
+});
+run("c20", dataView(wfSmCats, [col("actual", wfSmAc), col("previousYear", wfSmPy)], {
+  chart: { orientation: "bars", waterfallStyle: true, sortByImpact: true }
+}, wfSmMult), 960, 420);
 </script>
 </body>
 </html>

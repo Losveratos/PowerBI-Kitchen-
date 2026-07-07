@@ -115,6 +115,8 @@
                 "dualVariance": { "type": { "bool": true } },
                 "cumulative": { "type": { "bool": true } },
                 "highlight": { "type": { "text": true } },
+                "waterfallStyle": { "type": { "bool": true } },
+                "sortByImpact": { "type": { "bool": true } },
                 "invert": { "type": { "bool": true } }
             }
         },

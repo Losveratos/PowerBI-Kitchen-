@@ -54,6 +54,9 @@
         "Group_Analysis": "Analyse",
         "Group_ScaleSync": "Skalen-Sync",
         "Group_RefLine": "Referenzlinie",
-        "Role_Benchmark": "Benchmark (BM)"
+        "Role_Benchmark": "Benchmark (BM)",
+        "Chart_WaterfallStyle": "Wasserfall-Brücke",
+        "Chart_SortByImpact": "Nach Wirkung sortieren",
+        "Group_Bridge": "Brücke"
     }
 }
