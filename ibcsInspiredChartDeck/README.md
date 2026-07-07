@@ -23,10 +23,12 @@ in **einem** Visual löst:
   plus optionale Botschafts-Zeile (SAY) — alle Teile überschreibbar
 - **Waterfall / Brücke**: GuV-Wasserfall (sum/delta-Rolle), Varianz-Brücke PL→AC
   oder Beitrags-Wasserfall mit Σ-Anker — inkl. Konnektoren und FC-Schraffur
-- **Waterfall bridge für Columns/Bars** (optional, Chart → Bridge): kaskadierende
-  Brücke von der Basis zu AC direkt in der gewählten Ausrichtung — inkl. **Sort by
-  impact** (größter Treiber zuerst, Top-N-Rest bleibt am Ende) und einem klickbaren
-  ⇅-Button im Chart, der die Sortierung persistiert umschaltet
+- **Waterfall bridge für Columns/Bars** (optional, Chart → Bridge): zusätzliches
+  Panel neben den normalen AC/PY/PL-Vergleichsbalken, das dieselben Kategorien als
+  kaskadierende Brücke von der Basis zu AC mit Verbindungslinien zeigt — Absolutwerte,
+  Überleitung und Abweichungs-Panels (ΔPY/ΔPL, ΔPY %/ΔPL %) sind gleichzeitig sichtbar.
+  Inkl. **Sort by impact** (größter Treiber zuerst, Top-N-Rest bleibt am Ende) und
+  einem klickbaren ⇅-Button im Chart, der die Sortierung persistiert umschaltet
 - **Hervorhebung** (EMPHASIZE): Kategorien per Formatbereich markieren —
   schattiertes Band über alle Panels, fettes Label
 - **Ausreißer-Kappung**: hartes Skalen-Maximum mit IBCS-Doppelstrich-Marker,

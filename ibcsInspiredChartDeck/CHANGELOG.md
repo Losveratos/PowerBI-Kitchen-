@@ -3,18 +3,21 @@
 ## 1.2.0.0 (2026-07-07)
 
 **Waterfall bridge für Columns und Bars** (Chart → Bridge, optional, Standard aus):
-- Zeigt die Kategorien als kaskadierende Brücke von der Basis (PY/PL) zu AC,
-  mit Verbindungslinien zwischen den Bricks — statt einzelner Balken ab null.
+- Zusätzliches Panel neben den normalen AC/PY/PL-Vergleichsbalken (die unverändert
+  bleiben): zeigt dieselben Kategorien als kaskadierende Brücke von der Basis
+  (PY/PL) zu AC, mit Verbindungslinien zwischen den Bricks — Absolutwerte,
+  Überleitung und Abweichungen (ΔPY/ΔPL, ΔPY %/ΔPL %) sind gleichzeitig sichtbar.
   Funktioniert in beiden Ausrichtungen (Columns für Zeitreihen-Brücken,
-  Bars für Struktur-Brücken) sowie in Small Multiples.
+  Bars für Struktur-Brücken) sowie in Small Multiples (blendet sich bei zu
+  wenig Platz pro Kachel automatisch aus, wie das Dual-Variance-Panel).
 - **Sort by impact**: sortiert die Kategorien nach Abweichungsgröße
   (größter Treiber zuerst); eine Top-N-Rest-Zeile bleibt am Ende gepinnt.
   Auch per Klick auf den ⇅-Button oben rechts im Chart umschaltbar — der
   Klick persistiert die Formatbereich-Einstellung, bleibt also über
   Neu-Renders, Lesezeichen und Berichts-Neuladen hinweg erhalten.
-- Wertelabels zeigen die Brick-eigene Delta-Änderung statt des
-  kumulierten Zwischenstands; die Skala verankert sich nicht mehr
-  künstlich bei null, sondern zeigt exakt die relevante Bandbreite.
+- Bridge-Panel-Wertelabels zeigen die Brick-eigene Delta-Änderung; die
+  Panel-Skala verankert sich nicht künstlich bei null, sondern zeigt exakt
+  die relevante Bandbreite der Kaskade.
 
 ## 1.1.0.0 (2026-07-06)
 

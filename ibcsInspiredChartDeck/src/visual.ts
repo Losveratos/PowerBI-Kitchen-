@@ -83,6 +83,8 @@ interface Domains {
     rel: [number, number];
     abs2: [number, number];
     rel2: [number, number];
+    /** waterfall-bridge companion panel: floats away from zero, computed with extentTight */
+    bridge: [number, number];
 }
 
 interface Rect { x: number; y: number; w: number; h: number; }
@@ -581,7 +583,8 @@ export class Visual implements IVisual {
             abs: extent(points.map(p => p.varAbs)),
             rel: extent(points.map(p => p.varRel)),
             abs2: extent(points.map(p => p.var2Abs)),
-            rel2: extent(points.map(p => p.var2Rel))
+            rel2: extent(points.map(p => p.var2Rel)),
+            bridge: [0, 0]
         };
 
         // scale sync: stretch domains at least to the configured maxima;
@@ -610,16 +613,16 @@ export class Visual implements IVisual {
             domains.main = extent(allSegs.flatMap(sg => [sg.from, sg.to]));
             this.sharedWfDomain = domains.main;
         }
-        // waterfall-bridge (columns/bars add-on): running cascade per group, shared domain.
-        // Replaces (not merges with) the raw per-category domain — PY/PL bars are suppressed
-        // in this mode, so the visible range is the cascade's own basisSum..valueSum swing,
-        // not the much larger per-category AC/PY spread.
+        // waterfall-bridge (columns/bars add-on): running cascade per group, own shared
+        // domain — a separate "bridge" panel alongside the normal AC/PY/PL comparison bars,
+        // not a replacement for them. extentTight (no zero anchor) because the cascade
+        // floats at a running level with no "from zero" anchor bar to justify one.
         const cascadeByGroup = new Map<string | null, Cascade>();
         if (wfStyleGlobal) {
             for (const g of groups) { cascadeByGroup.set(g.name, this.buildCascade(g.pts)); }
             const allVals: (number | null)[] = [];
             cascadeByGroup.forEach(c => { allVals.push(...c.from, ...c.to); });
-            domains.main = extentTight(allVals);
+            domains.bridge = extentTight(allVals);
         }
         if (cfg.refLine != null) {
             domains.main = [Math.min(domains.main[0], cfg.refLine), Math.max(domains.main[1], cfg.refLine)];
@@ -820,8 +823,8 @@ export class Visual implements IVisual {
         const pad = 4;
         const titleH = 14;
         const orientation = cfg.orientation;
-        // waterfall-bridge: cascading bricks from the basis total to AC, with connectors,
-        // instead of each category's bar starting at zero
+        // waterfall-bridge: an extra panel alongside the normal AC/PY/PL comparison bars,
+        // showing the same categories cascading from the basis total to AC with connectors
         const wfStyle = cascade != null;
 
         // compact mode: too little room for variance panels → deltas become labels
@@ -830,26 +833,28 @@ export class Visual implements IVisual {
         const showRel = cfg.showRel && !compact;
         const showDual = cfg.showDual && !compact
             && (orientation === "columns" ? region.h >= 320 : region.w >= 640);
+        const showBridge = wfStyle && !compact
+            && (orientation === "columns" ? region.h >= 260 : region.w >= 520);
         // total (Σ) header row on top of the region
         const showTotal = cfg.showTotal && region.w > 240;
         const headerH = showTotal ? 17 : 0;
 
         let bandStart: number, bandEnd: number;
-        let panels: { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect };
+        let panels: { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect };
 
         if (orientation === "columns") {
             const catArea = cfg.catFont + 10;
             bandStart = region.x + pad + 2;
             bandEnd = region.x + region.w - pad;
             const plotTop = region.y + pad + headerH, plotBottom = region.y + region.h - catArea;
-            panels = this.splitPanels(plotTop, plotBottom - plotTop, showAbs, showRel, true, region, showDual);
+            panels = this.splitPanels(plotTop, plotBottom - plotTop, showAbs, showRel, true, region, showDual, showBridge);
         } else {
             const catArea = Math.min(region.w * 0.28, this.maxTextWidth(points.map(p => p.cat), cfg.catFont) + 12);
             // room for the header and the panel titles above the first bar
             bandStart = region.y + pad + headerH + titleH + 2;
             bandEnd = region.y + region.h - pad;
             const plotLeft = region.x + pad + catArea, plotRight = region.x + region.w - pad;
-            panels = this.splitPanels(plotLeft, plotRight - plotLeft, showAbs, showRel, false, region, showDual);
+            panels = this.splitPanels(plotLeft, plotRight - plotLeft, showAbs, showRel, false, region, showDual, showBridge);
         }
 
         const bandSpan = bandEnd - bandStart;
@@ -876,9 +881,7 @@ export class Visual implements IVisual {
         const labelPad = cfg.showLabels ? cfg.labelFont + 6 : 6;
         const compactLabelPad = compact && cfg.showLabels && orientation === "columns"
             ? labelPad + cfg.labelFont + 4 : labelPad;
-        // waterfall-bridge domains float away from zero on both sides — reserve label
-        // room at both ends instead of just the side a zero-anchored chart would need
-        const mainScale = this.makePanelScale(domains.main, panels.main, orientation, compactLabelPad, wfStyle);
+        const mainScale = this.makePanelScale(domains.main, panels.main, orientation, compactLabelPad);
         const absScale = panels.abs
             ? this.makePanelScale(domains.abs, panels.abs, orientation, labelPad) : null;
         const relScale = panels.rel
@@ -887,19 +890,21 @@ export class Visual implements IVisual {
             ? this.makePanelScale(domains.abs2, panels.abs2, orientation, labelPad) : null;
         const rel2Scale = panels.rel2
             ? this.makePanelScale(domains.rel2, panels.rel2, orientation, labelPad) : null;
+        // the bridge domain floats away from zero on both sides — reserve label room at
+        // both ends instead of just the side a zero-anchored chart would need
+        const bridgeScale = panels.bridge
+            ? this.makePanelScale(domains.bridge, panels.bridge, orientation, labelPad, true) : null;
 
         // ------- background layer: baselines + panel titles
         const bg = this.el("g", {}, this.svg);
-        const scenarioTitle = wfStyle
-            ? `${cfg.basisLabel} → AC` + (cfg.sortByImpact ? "  ·  sortiert nach Wirkung" : "")
-            : (cfg.cumulative ? "YTD · " : "")
-                + ["AC", cfg.hasPy ? "PY" : "", cfg.hasPl ? "PL" : "",
-                    cfg.hasFc ? "FC" : "", cfg.hasBm ? "BM ‒" : ""].filter(x => x).join(" · ");
+        const scenarioTitle = (cfg.cumulative ? "YTD · " : "")
+            + ["AC", cfg.hasPy ? "PY" : "", cfg.hasPl ? "PL" : "",
+                cfg.hasFc ? "FC" : "", cfg.hasBm ? "BM ‒" : ""].filter(x => x).join(" · ");
 
         // AC -> FC boundary (time series with a forecast tail) — not meaningful once
-        // waterfall-bridge reorders categories by impact instead of chronology
+        // waterfall-bridge sorting reorders categories by impact instead of chronology
         let fcBoundary: number | null = null;
-        if (orientation === "columns" && cfg.hasFc && !wfStyle) {
+        if (orientation === "columns" && cfg.hasFc && !(wfStyle && cfg.sortByImpact)) {
             const fcStart = points.findIndex(p => p.isFc);
             const isTail = fcStart > 0 && points.slice(fcStart).every(p => p.isFc || p.value == null);
             if (isTail) { fcBoundary = bandStart + fcStart * step; }
@@ -936,6 +941,11 @@ export class Visual implements IVisual {
             baseline(panels.rel2, rel2Scale, basis2Mode);
             this.drawPanelTitle(bg, panels.rel2, `Δ${cfg.basis2Label} %`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
+        if (panels.bridge && bridgeScale) {
+            this.drawBaseline(bg, panels.bridge, bridgeScale, orientation, bandStart, bandEnd, "ac", cfg.colors);
+            const bridgeTitle = `${cfg.basisLabel} → AC` + (cfg.sortByImpact ? " ⇅" : "");
+            this.drawPanelTitle(bg, panels.bridge, bridgeTitle, orientation, titleH, region, barsTitleY, cfg.subtle);
+        }
 
         // ------- total (Σ) header
         if (showTotal) {
@@ -948,7 +958,8 @@ export class Visual implements IVisual {
                 panels.abs ? panels.abs.y : Infinity,
                 panels.rel ? panels.rel.y : Infinity,
                 panels.abs2 ? panels.abs2.y : Infinity,
-                panels.rel2 ? panels.rel2.y : Infinity);
+                panels.rel2 ? panels.rel2.y : Infinity,
+                panels.bridge ? panels.bridge.y : Infinity);
             const yBot = panels.main.y + panels.main.h;
             this.el("line", {
                 x1: fcBoundary, y1: yTop + 2, x2: fcBoundary, y2: yBot,
@@ -962,7 +973,8 @@ export class Visual implements IVisual {
                 panels.abs ? panels.abs.y : Infinity,
                 panels.rel ? panels.rel.y : Infinity,
                 panels.abs2 ? panels.abs2.y : Infinity,
-                panels.rel2 ? panels.rel2.y : Infinity) + 2;
+                panels.rel2 ? panels.rel2.y : Infinity,
+                panels.bridge ? panels.bridge.y : Infinity) + 2;
             for (let i = 0; i < n; i++) {
                 if (!cfg.highlight.has(points[i].cat.toLowerCase())) { continue; }
                 const x0 = bandStart + i * step;
@@ -992,8 +1004,8 @@ export class Visual implements IVisual {
             this.drawLinePaths(bg, points, (i: number) => slotPos(i) + slotW / 2, mainScale, cfg);
         }
 
-        // ------- moving average overlay (time series only, not meaningful once bars cascade)
-        if (cfg.movingAvg >= 2 && orientation === "columns" && !wfStyle) {
+        // ------- moving average overlay (time series only)
+        if (cfg.movingAvg >= 2 && orientation === "columns") {
             this.drawMovingAverage(bg, points, (i: number) => lineMode
                 ? slotPos(i) + slotW / 2
                 : slotPos(i) + pyShift + barW / 2, mainScale, cfg);
@@ -1007,17 +1019,16 @@ export class Visual implements IVisual {
             const pos = slotPos(i);
             const cx = lineMode ? pos + slotW / 2 : pos + pyShift + barW / 2;
 
-            // base chart: PY behind, PL outline, AC/FC on top
-            // (waterfall-bridge: per-category PY/PL bars don't apply — the cascade itself
-            // reconciles the basis total to AC, see the connector pass after this loop)
+            // base chart: PY behind, PL outline, AC/FC on top (unchanged by waterfall-bridge —
+            // the cascade renders into its own panel below, see "bridge brick" further down)
             const capV = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
-            if (!lineMode && !wfStyle && p.py != null) {
+            if (!lineMode && p.py != null) {
                 this.drawBar(g, pos, barW, 0, capV(p.py), mainScale, orientation,
                     cfg.hc
                         ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
                         : { fill: cfg.colors.py });
             }
-            if (!lineMode && !wfStyle && p.pl != null) {
+            if (!lineMode && p.pl != null) {
                 this.drawBar(g, pos + pyShift, barW, 0, capV(p.pl), mainScale, orientation,
                     { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 });
             }
@@ -1049,20 +1060,6 @@ export class Visual implements IVisual {
                         fill: p.isFc ? cfg.paper : cfg.colors.ac,
                         stroke: cfg.colors.ac, "stroke-width": 1.4
                     }, g);
-                } else if (wfStyle && cascade) {
-                    // waterfall-bridge: the brick runs from the running cascade start to end,
-                    // not from zero — the connector pass below stitches bricks together
-                    const barFrom = capV(cascade.from[i] ?? 0);
-                    const barTo = capV(cascade.to[i] ?? p.value);
-                    const good = cfg.invert ? (barTo < barFrom) : (barTo > barFrom);
-                    const brickColor = barTo === barFrom ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
-                    const hollowBad = cfg.hc && !good && barTo !== barFrom;
-                    this.drawBar(g, pos + pyShift, barW, barFrom, barTo, mainScale, orientation,
-                        hollowBad
-                            ? { fill: cfg.paper, stroke: brickColor, "stroke-width": 1.4 }
-                            : p.isFc
-                                ? { fill: `url(#${good ? cfg.patGood : cfg.patBad})`, stroke: brickColor, "stroke-width": 1 }
-                                : { fill: brickColor });
                 } else {
                     this.drawBar(g, pos + pyShift, barW, 0, capV(p.value), mainScale, orientation,
                         p.isFc
@@ -1073,30 +1070,43 @@ export class Visual implements IVisual {
                     }
                 }
                 if (cfg.showLabels && showValueAt(i)) {
-                    if (wfStyle && cascade) {
-                        // label the brick with its own delta (Δ), not the running total
-                        const barFrom = capV(cascade.from[i] ?? 0);
-                        const barTo = capV(cascade.to[i] ?? p.value);
-                        this.drawEndLabelAt(g, cx, barTo, barTo >= barFrom, mainScale,
-                            orientation, absTexts[i] || valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
-                    } else {
-                        // anchor the label beyond the PL outline when the plan column is taller
-                        const anchor = capV(!lineMode && p.pl != null
-                            ? (p.value >= 0 ? Math.max(p.value, p.pl) : Math.min(p.value, p.pl))
-                            : p.value);
+                    // anchor the label beyond the PL outline when the plan column is taller
+                    const anchor = capV(!lineMode && p.pl != null
+                        ? (p.value >= 0 ? Math.max(p.value, p.pl) : Math.min(p.value, p.pl))
+                        : p.value);
+                    this.drawEndLabelAt(g, cx, anchor, p.value >= 0, mainScale,
+                        orientation, valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
+                    // compact mode: variance becomes a colored second label at the bar end
+                    if (compact && p.varAbs != null) {
+                        const good = cfg.invert ? p.varAbs < 0 : p.varAbs > 0;
+                        const vColor = p.varAbs === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                        const vText = p.varRel != null ? relTexts[i] : absTexts[i];
+                        const gap = orientation === "columns"
+                            ? cfg.labelFont + 2
+                            : valueTexts[i].length * cfg.labelFont * 0.56 + 8;
                         this.drawEndLabelAt(g, cx, anchor, p.value >= 0, mainScale,
-                            orientation, valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
-                        // compact mode: variance becomes a colored second label at the bar end
-                        if (compact && p.varAbs != null) {
-                            const good = cfg.invert ? p.varAbs < 0 : p.varAbs > 0;
-                            const vColor = p.varAbs === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
-                            const vText = p.varRel != null ? relTexts[i] : absTexts[i];
-                            const gap = orientation === "columns"
-                                ? cfg.labelFont + 2
-                                : valueTexts[i].length * cfg.labelFont * 0.56 + 8;
-                            this.drawEndLabelAt(g, cx, anchor, p.value >= 0, mainScale,
-                                orientation, vText, cfg.labelFont, vColor, gap, cfg.paper);
-                        }
+                            orientation, vText, cfg.labelFont, vColor, gap, cfg.paper);
+                    }
+                }
+            }
+
+            // waterfall-bridge brick: cascades from the running basis level to this
+            // category's own contribution, in its own panel (bandCenter shared with main)
+            if (panels.bridge && bridgeScale && cascade) {
+                const bFrom = cascade.from[i], bTo = cascade.to[i];
+                if (bFrom != null && bTo != null) {
+                    const good = cfg.invert ? (bTo < bFrom) : (bTo > bFrom);
+                    const brickColor = bTo === bFrom ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                    const hollowBad = cfg.hc && !good && bTo !== bFrom;
+                    this.drawBar(g, pos + pyShift, barW, bFrom, bTo, bridgeScale, orientation,
+                        hollowBad
+                            ? { fill: cfg.paper, stroke: brickColor, "stroke-width": 1.4 }
+                            : p.isFc
+                                ? { fill: `url(#${good ? cfg.patGood : cfg.patBad})`, stroke: brickColor, "stroke-width": 1 }
+                                : { fill: brickColor });
+                    if (cfg.showLabels && showValueAt(i)) {
+                        this.drawEndLabelAt(g, cx, bTo, bTo >= bFrom, bridgeScale,
+                            orientation, absTexts[i] || valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
                     }
                 }
             }
@@ -1197,12 +1207,11 @@ export class Visual implements IVisual {
         }
 
         // ------- waterfall-bridge connectors: link each brick's end to the next one's start
-        if (wfStyle && cascade) {
-            const capV2 = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
+        if (panels.bridge && bridgeScale && cascade) {
             for (let i = 0; i < n - 1; i++) {
                 const a = cascade.to[i], b = cascade.from[i + 1];
                 if (a == null || b == null) { continue; }
-                const level = mainScale(capV2(a));
+                const level = bridgeScale(a);
                 const edgeEnd = slotPos(i) + pyShift + barW;
                 const edgeStart = slotPos(i + 1) + pyShift;
                 if (orientation === "columns") {
@@ -1744,20 +1753,23 @@ export class Visual implements IVisual {
     }
 
     private splitPanels(start: number, span: number, showAbs: boolean, showRel: boolean,
-        vertical: boolean, region: Rect, showDual = false)
-        : { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect } {
+        vertical: boolean, region: Rect, showDual = false, showBridge = false)
+        : { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect } {
         const gap = 10;
-        type Key = "main" | "abs" | "rel" | "abs2" | "rel2";
-        // vertical (columns): variance panels stacked above the base chart
+        type Key = "main" | "abs" | "rel" | "abs2" | "rel2" | "bridge";
+        // vertical (columns): variance panels stacked above the base chart, bridge just
+        // above it (closest to main, since it explains the same base values)
         const parts: { key: Key; share: number }[] = [];
         if (vertical) {
             if (showRel) { parts.push({ key: "rel", share: 0.34 }); }
             if (showAbs) { parts.push({ key: "abs", share: 0.38 }); }
             if (showDual && showRel) { parts.push({ key: "rel2", share: 0.30 }); }
             if (showDual && showAbs) { parts.push({ key: "abs2", share: 0.34 }); }
+            if (showBridge) { parts.push({ key: "bridge", share: 0.34 }); }
             parts.push({ key: "main", share: 1 });
         } else {
             parts.push({ key: "main", share: 1 });
+            if (showBridge) { parts.push({ key: "bridge", share: 0.30 }); }
             if (showAbs) { parts.push({ key: "abs", share: 0.32 }); }
             if (showRel) { parts.push({ key: "rel", share: 0.26 }); }
             if (showDual && showAbs) { parts.push({ key: "abs2", share: 0.28 }); }
@@ -1774,7 +1786,7 @@ export class Visual implements IVisual {
                 : { x: cursor, y: region.y, w: size, h: region.h };
             cursor += size + gap;
         }
-        return out as { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect };
+        return out as { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect };
     }
 
     private makePanelScale(domain: [number, number], rect: Rect, orientation: Orientation,
@@ -1824,11 +1836,14 @@ export class Visual implements IVisual {
         const attrs = orientation === "columns"
             ? { x: region.x + 6, y: rect.y + titleH - 4 }
             : { x: rect.x + 2, y: barsTitleY ?? (region.y + 12) };
+        // "bars" titles sit above their own (possibly narrow) panel and must not bleed into
+        // the next one; "columns" titles have the full region width above the stacked panels
+        const maxW = orientation === "columns" ? region.w - 12 : rect.w - 6;
         const t = this.el("text", {
             ...attrs, "font-size": 10, fill: color,
             "font-family": FONT, "font-weight": 600
         }, parent);
-        t.textContent = text;
+        t.textContent = this.truncate(text, maxW, 10);
     }
 
     /** draws a rect from `from` to `to` along the value axis at band position bp with band width bw */
