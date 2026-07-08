@@ -38,7 +38,9 @@ in **einem** Visual löst:
 - **Tabelle (IBCS)** (eigener Chart-Modus): Kennzahlen-Tabelle mit integrierten
   Chart-Spalten — AC·PY·PL-Balken, ΔBasis-Zahl + -Balken, ΔBasis %-Pins, fette
   'sum'-Zwischensummen (GuV), Doppel-Varianz-Spalten; Grafikspalten fallen bei
-  schmalen Visuals gestuft weg
+  schmalen Visuals gestuft weg. **Mit Hierarchie im Category-Feld** („Alle
+  erweitern"): Oberkategorien aggregiert mit ▸/▾ — Klick auf die Zeile klappt
+  die Unterzeilen auf und zu
 - **Kachel-Zoom**: ⤢ an jeder Small-Multiples-Kachel vergrößert die Gruppe auf
   die volle Fläche (gleiche Skalen), „← Alle Gruppen" führt zurück
 - **Vergleich per Klick** (optional): zwei Säulen/Balken anklicken zeigt die

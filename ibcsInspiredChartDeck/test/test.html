@@ -37,6 +37,7 @@
 <div class="case"><h4>Tabelle (IBCS) · schmal (460px) — Grafikspalten fallen weg</h4><div class="stage" id="c27" style="width:460px;height:360px"></div></div>
 <div class="case"><h4>Small Multiples mit ⤢-Zoom-Icons (Klick-Test in Konsole)</h4><div class="stage" id="c28" style="width:960px;height:480px"></div></div>
 <div class="case"><h4>Vergleich per Klick · Bars (Overlay wird per Test-Klick erzeugt)</h4><div class="stage" id="c29" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Tabelle · Hierarchie Region→Land · Aufklappen per Klick auf die Kategorie</h4><div class="stage" id="c30" style="width:1200px;height:400px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -261,6 +262,23 @@ run("c28", dataView(wfSmCats, [col("actual", wfSmAc), col("previousYear", wfSmPy
 // compare-on-click: the shot script clicks two bars and screenshots the overlay
 run("c29", dataView(countries, [col("actual", costAc), col("previousYear", costPy)],
   { chart: { orientation: "bars", compareClick: true } }), 960, 420);
+
+// hierarchical table: two category-role columns (expanded hierarchy Region -> Land);
+// parents render aggregated with a chevron, clicking the row expands the children
+const hReg = ["DACH","DACH","DACH","West","West","Nord","Nord","Nord"];
+const hLand = ["Deutschland","Österreich","Schweiz","Frankreich","Benelux","Dänemark","Schweden","Norwegen"];
+const hAc = [5400, 1900, 2400, 3100, 1500, 420, 810, 530];
+const hPy = [5100, 2000, 2200, 3300, 1450, 450, 760, 560];
+run("c30", {
+  metadata: { columns: [], objects: { chart: { orientation: "table" } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: hReg },
+      { source: { displayName: "Land", roles: { category: true } }, values: hLand }
+    ],
+    values: [col("actual", hAc), col("previousYear", hPy)]
+  }
+}, 1200, 400);
 </script>
 </body>
 </html>

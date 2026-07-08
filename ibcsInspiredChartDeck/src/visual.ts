@@ -38,6 +38,8 @@ type Basis = "py" | "plan";
 
 interface DataPoint {
     cat: string;
+    /** per-level labels when the category field is an expanded hierarchy (else null) */
+    catLevels: string[] | null;
     ac: number | null;
     py: number | null;
     pl: number | null;
@@ -206,6 +208,8 @@ export class Visual implements IVisual {
     private animTimers: number[] = [];
     /** small multiples: currently zoomed-in group (transient, ⤢/← in the chart) */
     private zoomGroup: string | null = null;
+    /** table mode: expanded hierarchy parents (transient, chevron click in the chart) */
+    private expandedRows = new Set<string>();
     /** compare-on-click: whether the mode is active this render + picked categories */
     private compareActive = false;
     private compareCats: string[] = [];
@@ -379,8 +383,10 @@ export class Visual implements IVisual {
             let selBuilder = this.host.createSelectionIdBuilder();
             for (const level of catLevels) { selBuilder = selBuilder.withCategory(level, i); }
             if (mult) { selBuilder = selBuilder.withCategory(mult, i); }
+            const levelLabels = catLevels.map(level => this.categoryLabel(level.values[i]));
             points.push({
-                cat: catLevels.map(level => this.categoryLabel(level.values[i])).join(" · "),
+                cat: levelLabels.join(" · "),
+                catLevels: levelLabels.length > 1 ? levelLabels : null,
                 ac, py, pl, fc, value, isFc, basis, varAbs, varRel, var2Abs, var2Rel,
                 bm: byRole["benchmark"] ? byRole["benchmark"][i] : null,
                 comment,
@@ -471,7 +477,7 @@ export class Visual implements IVisual {
                 var2Abs: (value as number) - (py[i] as number),
                 var2Rel: (((value as number) - (py[i] as number)) / Math.abs(py[i] as number)) * 100,
                 bm: null,
-                comment: null, commentNo: null, group: null, rowType: null, isRest: false, sel: null
+                comment: null, commentNo: null, group: null, rowType: null, isRest: false, sel: null, catLevels: null
             };
         });
         this.render(pts, width, height);
@@ -1602,19 +1608,58 @@ export class Visual implements IVisual {
      * when the region gets narrow, so plain value tables still work on small tiles.
      */
     private renderTable(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
-        const n = points.length;
-        if (n === 0) { return; }
+        if (points.length === 0) { return; }
         const k = this.fontK;
         const lf = cfg.labelFont, cf = cfg.catFont;
         const pad = 6;
-        const hasVar = points.some(p => p.varAbs != null);
-        const hasVar2 = cfg.showDual && points.some(p => p.var2Abs != null);
+
+        // ------- expandable hierarchy: with an expanded category hierarchy (≥2 level
+        // columns in the field well), level-0 rows render aggregated with a ▸/▾
+        // chevron — clicking the category toggles its indented child rows in and out
+        type TableRow = { p: DataPoint; indent: boolean; parentKey?: string; expanded?: boolean };
+        const hasLevels = points.some(p => (p.catLevels?.length ?? 0) >= 2);
+        let rows: TableRow[];
+        if (hasLevels) {
+            rows = [];
+            const orderKeys: string[] = [];
+            const byKey = new Map<string, DataPoint[]>();
+            for (const p of points) {
+                const key = p.catLevels && p.catLevels.length > 1 ? p.catLevels[0] : p.cat;
+                if (!byKey.has(key)) { byKey.set(key, []); orderKeys.push(key); }
+                (byKey.get(key) as DataPoint[]).push(p);
+            }
+            for (const key of orderKeys) {
+                const kids = byKey.get(key) as DataPoint[];
+                if (kids.length === 1 && !(kids[0].catLevels && kids[0].catLevels.length > 1)) {
+                    rows.push({ p: kids[0], indent: false });
+                    continue;
+                }
+                const expanded = this.expandedRows.has(key);
+                rows.push({ p: this.aggregateHierarchy(key, kids), indent: false, parentKey: key, expanded });
+                if (expanded) {
+                    for (const c of kids) {
+                        rows.push({
+                            p: { ...c, cat: c.catLevels ? c.catLevels.slice(1).join(" · ") : c.cat },
+                            indent: true
+                        });
+                    }
+                }
+            }
+        } else {
+            rows = points.map(p => ({ p, indent: false }));
+        }
+        const rowPts = rows.map(r => r.p);
+        const n = rows.length;
+
+        const hasVar = rowPts.some(p => p.varAbs != null);
+        const hasVar2 = cfg.showDual && rowPts.some(p => p.var2Abs != null);
         const showPct = cfg.showRel && hasVar;
         const isSum = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("sum");
 
         // ------- column layout: fixed text columns, graphic columns share the rest
-        const nameW = Math.min(region.w * 0.24,
-            this.maxTextWidth(points.map(p => p.cat), cf) + 18);
+        const chevW = hasLevels ? 14 * k : 0;
+        const nameW = Math.min(region.w * 0.26,
+            this.maxTextWidth(rowPts.map(p => p.cat), cf) + 18 + chevW);
         const valW = lf * 4.8;
         const dValW = hasVar ? lf * 4.6 : 0;
         const d2ValW = hasVar2 ? lf * 4.6 : 0;
@@ -1658,12 +1703,12 @@ export class Visual implements IVisual {
         const rowH = Math.max(cf + 6, (region.h - pad * 2 - headerH) / n);
         const top = region.y + pad + headerH;
         const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH);
-        const shown = points.slice(0, Math.max(1, maxRows));
+        const shown = rows.slice(0, Math.max(1, maxRows));
 
-        const barDomain = extent(points.flatMap(p => [p.value, p.py, p.pl]));
-        const dDomain = Math.max(...points.map(p => Math.abs(p.varAbs ?? 0)), 1);
-        const d2Domain = Math.max(...points.map(p => Math.abs(p.var2Abs ?? 0)), 1);
-        const maxPct = Math.max(...points.map(p => Math.abs(p.varRel ?? 0)), 1);
+        const barDomain = extent(rowPts.flatMap(p => [p.value, p.py, p.pl]));
+        const dDomain = Math.max(...rowPts.map(p => Math.abs(p.varAbs ?? 0)), 1);
+        const d2Domain = Math.max(...rowPts.map(p => Math.abs(p.var2Abs ?? 0)), 1);
+        const maxPct = Math.max(...rowPts.map(p => Math.abs(p.varRel ?? 0)), 1);
 
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
@@ -1718,10 +1763,12 @@ export class Visual implements IVisual {
         }
 
         // ------- rows
-        shown.forEach((p, i) => {
+        shown.forEach((row, i) => {
+            const p = row.p;
+            const isParent = row.parentKey != null;
             const y = top + i * rowH;
             const yMid = y + rowH / 2;
-            const sum = isSum(p);
+            const sum = isSum(p) || isParent;
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
 
             // separators: subtle under every row, strong above subtotals
@@ -1729,7 +1776,7 @@ export class Visual implements IVisual {
                 x1: region.x + pad, y1: y + rowH, x2: region.x + region.w - pad, y2: y + rowH,
                 stroke: cfg.subtle, "stroke-width": 0.6, "stroke-opacity": 0.4
             }, bg);
-            if (sum) {
+            if (isSum(p)) {
                 this.el("line", {
                     x1: region.x + pad, y1: y, x2: region.x + region.w - pad, y2: y,
                     stroke: cfg.ink, "stroke-width": 1.2
@@ -1744,8 +1791,14 @@ export class Visual implements IVisual {
             }
 
             const rowFont = Math.min(cf, rowH - 4);
-            txt(colX["name"].x + (sum ? 0 : Math.round(6 * k)), yMid + rowFont * 0.35,
-                this.truncate(p.cat, colX["name"].w - 8, rowFont), "start", rowFont, sum, cfg.ink, g);
+            const indentX = row.indent ? Math.round(14 * k) : 0;
+            const nameText = isParent
+                ? `${row.expanded ? "▾" : "▸"} ${p.cat}`
+                : p.cat;
+            txt(colX["name"].x + (sum && !row.indent ? 0 : Math.round(6 * k)) + indentX,
+                yMid + rowFont * 0.35,
+                this.truncate(nameText, colX["name"].w - 8 - indentX, rowFont),
+                "start", rowFont, sum, cfg.ink, g);
             if (p.value != null) {
                 txt(colX["val"].x + colX["val"].w, yMid + rowFont * 0.35,
                     cfg.fmt.format(p.value), "end", rowFont, sum, cfg.ink, g);
@@ -1836,7 +1889,29 @@ export class Visual implements IVisual {
                     `(${p.commentNo})`, "end", Math.round(rowFont * 0.85), false, cfg.subtle, g);
             }
 
+            // full-width transparent hit area so the whole row is clickable
+            this.el("rect", {
+                x: region.x + pad, y, width: region.w - pad * 2, height: rowH,
+                fill: cfg.paper, "fill-opacity": 0.01
+            }, g);
+
             this.attachInteraction(g, p, cfg);
+            if (isParent) {
+                // clicking a parent row toggles its children (crossfilter stays on the
+                // child rows — the parent's sel is null, so attachInteraction is inert)
+                g.setAttribute("aria-expanded", String(!!row.expanded));
+                const key = row.parentKey as string;
+                const toggle = () => {
+                    if (this.expandedRows.has(key)) { this.expandedRows.delete(key); }
+                    else { this.expandedRows.add(key); }
+                    this.rerender();
+                };
+                g.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); toggle(); });
+                g.addEventListener("keydown", (e: KeyboardEvent) => {
+                    if (e.key !== "Enter" && e.key !== " ") { return; }
+                    e.preventDefault(); e.stopPropagation(); toggle();
+                });
+            }
             this.catGroups.push({ g, sel: p.sel });
             this.animGroups.push([g]);
         });
@@ -1845,6 +1920,33 @@ export class Visual implements IVisual {
             txt(region.x + pad, rowsBottom + cf, `… ${n - shown.length} weitere Zeilen (Visual höher ziehen)`,
                 "start", Math.round(cf * 0.9), false, cfg.subtle, bg);
         }
+    }
+
+    /** aggregates the child rows of one hierarchy parent into a synthetic table row */
+    private aggregateHierarchy(key: string, kids: DataPoint[]): DataPoint {
+        const sum = (get: (p: DataPoint) => number | null): number | null => {
+            let acc: number | null = null;
+            for (const c of kids) {
+                const v = get(c);
+                if (v != null) { acc = (acc ?? 0) + v; }
+            }
+            return acc;
+        };
+        const ac = sum(p => p.ac), py = sum(p => p.py), pl = sum(p => p.pl), fc = sum(p => p.fc);
+        const value = sum(p => p.value), basis = sum(p => p.basis);
+        const varAbs = (value != null && basis != null) ? value - basis : null;
+        const varRel = (varAbs != null && basis != null && basis !== 0)
+            ? (varAbs / Math.abs(basis)) * 100 : null;
+        const basis2 = sum(p => (p.var2Abs != null && p.value != null) ? p.value - p.var2Abs : null);
+        const var2Abs = (value != null && basis2 != null) ? value - basis2 : null;
+        const var2Rel = (var2Abs != null && basis2 != null && basis2 !== 0)
+            ? (var2Abs / Math.abs(basis2)) * 100 : null;
+        return {
+            cat: key, catLevels: null,
+            ac, py, pl, fc, value, isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
+            bm: null, comment: null, commentNo: null,
+            group: kids[0].group, rowType: null, isRest: false, sel: null
+        };
     }
 
     /** renders one complete IBCS chart (base + variance panels) into the given region */
@@ -2733,6 +2835,7 @@ export class Visual implements IVisual {
             ? (var2Abs / Math.abs(basis2Sum)) * 100 : null;
         const rest: DataPoint = {
             cat: `Rest (${tail.length})`,
+            catLevels: null,
             ac, py, pl, fc, value,
             isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
             bm: sum(tail.map(p => p.bm)),

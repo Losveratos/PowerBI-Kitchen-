@@ -1,5 +1,19 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.6.0.0 (2026-07-08)
+
+**Aufklappbare Hierarchie in der Tabelle (IBCS)**:
+- Liegt im Category-Feld eine erweiterte Hierarchie (≥ 2 Ebenen, z. B.
+  Region → Land über „Alle erweitern" im Drill-Menü), zeigt die Tabelle
+  zunächst die Oberkategorien **aggregiert** mit ▸-Chevron. Klick auf die
+  Zeile klappt die eingerückten Unterzeilen auf (▾), erneuter Klick wieder
+  zu — Kennzahlen, Balken und Varianzen der Eltern-Zeile sind die Summen
+  der Kinder, Δ % korrekt auf der summierten Basis gerechnet.
+- Kinder-Zeilen behalten Crossfilter/Tooltips; die ganze Zeile ist
+  Klickfläche (aria-expanded für Screenreader). Zustand ist transient.
+- Ohne Hierarchie rendert die Tabelle unverändert flach — nichts ändert
+  sich für einfache Nutzung.
+
 ## 1.5.1.0 (2026-07-08)
 
 **Fix: Kachel-Zoom zuverlässig klickbar.** Zwei Ursachen behoben:
