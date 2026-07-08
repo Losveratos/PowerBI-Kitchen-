@@ -231,6 +231,7 @@ export class Visual implements IVisual {
     private paneHasPy = false;
     private paneHasPl = false;
     private paneHasComments = false;
+    private paneHasMultiples = false;
     private static instanceCounter = 0;
     private instanceId: number;
 
@@ -313,6 +314,7 @@ export class Visual implements IVisual {
         fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
         fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value;
         fs.commentsCard.visible = this.paneHasComments;
+        fs.chartCard.multiplesGroup.visible = this.paneHasMultiples;
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
@@ -327,6 +329,7 @@ export class Visual implements IVisual {
         const catLevels = catCols?.filter(c => c.source.roles?.["category"]) ?? [];
         const cat = catLevels[0];
         const mult = catCols?.find(c => c.source.roles?.["multiples"]);
+        this.paneHasMultiples = !!mult;
         const seriesCol = catCols?.find(c => c.source.roles?.["series"]);
         const rowTypeCol = catCols?.find(c => c.source.roles?.["rowType"]);
         const fcFlagCol = catCols?.find(c => c.source.roles?.["fcFlag"]);
@@ -563,6 +566,26 @@ export class Visual implements IVisual {
             const last = groups.length > 0 ? groups[groups.length - 1] : null;
             const found = last && last.name === p.group ? last : groups.find(g => g.name === p.group);
             if (found) { found.pts.push(p); } else { groups.push({ name: p.group, pts: [p] }); }
+        }
+
+        // multiples options: Top-N tiles (remainder merged into one "Rest" tile) and a
+        // leading "Σ Gesamt" tile — applied before the per-group transforms and domain
+        // computation so all tiles, including the larger total, share one IBCS scale
+        if (groups.length > 1 && groups[0].name != null) {
+            const mTopN = Math.round(s.chartCard.multiplesTopN.value ?? 0);
+            const allGroups = groups.slice();
+            if (mTopN > 0 && groups.length > mTopN + 1) {
+                const size = (g: { pts: DataPoint[] }) =>
+                    g.pts.reduce((a, p) => a + Math.abs(p.value ?? 0), 0);
+                const ranked = groups.slice().sort((a, b) => size(b) - size(a));
+                const rest = ranked.slice(mTopN);
+                groups.length = 0;
+                groups.push(...ranked.slice(0, mTopN),
+                    this.aggregateGroups(rest.map(g => g.pts), `Rest (${rest.length})`));
+            }
+            if (s.chartCard.multiplesTotal.value) {
+                groups.unshift(this.aggregateGroups(allGroups.map(g => g.pts), "Σ Gesamt"));
+            }
         }
 
         // top N + rest aggregation (structure comparisons only), per group
@@ -1996,6 +2019,37 @@ export class Visual implements IVisual {
             bm: null, lineVal: null, stackSeries: null, comment: null, commentNo: null,
             group: kids[0].group, rowType: null, isRest: false, sel: null
         };
+    }
+
+    /**
+     * merges the point lists of several small-multiples groups into one synthetic tile
+     * ("Σ Gesamt" / "Rest (n)"): categories aligned by label (+ stack series), values
+     * summed, variances recomputed on the sums
+     */
+    private aggregateGroups(subsets: DataPoint[][], name: string): { name: string; pts: DataPoint[] } {
+        const order: string[] = [];
+        const byKey = new Map<string, DataPoint[]>();
+        for (const pts of subsets) {
+            for (const p of pts) {
+                const key = `${p.cat}¦${p.stackSeries ?? ""}`;
+                const bucket = byKey.get(key);
+                if (bucket) { bucket.push(p); } else { byKey.set(key, [p]); order.push(key); }
+            }
+        }
+        const pts = order.map(key => {
+            const kids = byKey.get(key) as DataPoint[];
+            const agg = this.aggregateHierarchy(kids[0].cat, kids);
+            agg.group = name;
+            agg.stackSeries = kids[0].stackSeries;
+            // a period is still forecast in the total only if every tile flags it
+            agg.isFc = kids.every(c => c.isFc);
+            agg.rowType = kids[0].rowType;
+            let bm: number | null = null;
+            for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
+            agg.bm = bm;
+            return agg;
+        });
+        return { name, pts };
     }
 
     /**

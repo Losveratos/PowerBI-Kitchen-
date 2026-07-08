@@ -63,6 +63,9 @@
         "Role_Benchmark": "Benchmark (BM)",
         "Chart_WaterfallStyle": "Wasserfall-Brücke",
         "Chart_SortByImpact": "Nach Wirkung sortieren",
+        "Chart_MultiplesTotal": "Gesamt-Kachel (Σ)",
+        "Chart_MultiplesTopN": "Top N Kacheln",
+        "Group_Multiples": "Small Multiples",
         "Group_Bridge": "Brücke"
     }
 }

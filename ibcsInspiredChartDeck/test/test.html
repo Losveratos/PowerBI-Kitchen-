@@ -44,6 +44,7 @@
 <div class="case"><h4>Kombi · Säulen + Marge-%-Linie (Feld „Line" gefüllt)</h4><div class="stage" id="c34" style="width:960px;height:440px"></div></div>
 <div class="case"><h4>Gestapelt · Feld „Stack Series" gefüllt → Säulen stapeln automatisch (mit Legende)</h4><div class="stage" id="c35" style="width:960px;height:440px"></div></div>
 <div class="case"><h4>Gestapelt · Bars</h4><div class="stage" id="c36" style="width:960px;height:400px"></div></div>
+<div class="case"><h4>Small Multiples · Top 3 + Rest + Σ Gesamt (6 Regionen)</h4><div class="stage" id="c37" style="width:960px;height:560px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -333,6 +334,21 @@ run("c36", {
     values: [col("actual", stAc, "#,0 €")]
   }
 }, 960, 400);
+
+// multiples options: 6 regions -> Top 3 tiles + "Rest (3)" + leading "Σ Gesamt",
+// all on the shared scale set by the (much larger) total tile
+const m6 = ["Nord", "Süd", "West", "Ost", "Mitte", "Export"];
+const m6Cats = [], m6Mult = [], m6Ac = [], m6Pl = [];
+m6.forEach((r, ri) => {
+  const base = [1200, 900, 600, 300, 450, 220][ri];
+  months.slice(0, 6).forEach((m, mi) => {
+    m6Cats.push(m); m6Mult.push(r);
+    m6Ac.push(Math.round(base * (1 + 0.05 * Math.sin(mi + ri) + mi * 0.02)));
+    m6Pl.push(Math.round(base * (1 + 0.04 * Math.cos(mi + ri) + mi * 0.02)));
+  });
+});
+run("c37", dataView(m6Cats, [col("actual", m6Ac), col("plan", m6Pl)],
+  { chart: { multiplesTopN: 3, multiplesTotal: true } }, m6Mult), 960, 560);
 </script>
 </body>
 </html>

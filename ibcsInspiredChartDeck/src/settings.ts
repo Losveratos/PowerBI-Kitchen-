@@ -243,6 +243,33 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         slices: [this.cumulative, this.movingAverage, this.topN, this.highlight, this.invert, this.compareClick]
     });
 
+    multiplesTotal = new formattingSettings.ToggleSwitch({
+        name: "multiplesTotal",
+        displayName: "Total tile (Σ)",
+        displayNameKey: "Chart_MultiplesTotal",
+        description: "Stellt eine „Σ Gesamt\"-Kachel voran — Summe über alle Gruppen, auf derselben Skala (IBCS).",
+        value: false
+    });
+
+    multiplesTopN = new formattingSettings.NumUpDown({
+        name: "multiplesTopN",
+        displayName: "Top N tiles",
+        displayNameKey: "Chart_MultiplesTopN",
+        description: "Zeigt nur die N größten Gruppen (nach Summe AC) als Kacheln — die übrigen werden zu einer „Rest\"-Kachel aggregiert. 0 = alle.",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 24 }
+        }
+    });
+
+    multiplesGroup = new formattingSettings.Group({
+        name: "chartMultiples",
+        displayName: "Small Multiples",
+        displayNameKey: "Group_Multiples",
+        slices: [this.multiplesTotal, this.multiplesTopN]
+    });
+
     bridgeGroup = new formattingSettings.Group({
         name: "chartBridge",
         displayName: "Bridge",
@@ -253,7 +280,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
     name: string = "chart";
     displayName: string = "Chart";
     displayNameKey: string = "Card_Chart";
-    groups = [this.layoutGroup, this.analysisGroup, this.bridgeGroup];
+    groups = [this.layoutGroup, this.analysisGroup, this.multiplesGroup, this.bridgeGroup];
 }
 
 export class ColorsCardSettings extends FormattingSettingsCard {

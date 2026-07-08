@@ -92,6 +92,10 @@ in **einem** Visual löst:
   leeren Fläche
 - **Small Multiples**: Grouping-Feld teilt das Chart in Kacheln pro Gruppe —
   alle mit identischer Skalierung (IBCS-Regel „gleiche Skalen")
+- **Multiples-Optionen** (Gruppe „Small Multiples", nur bei gefülltem
+  Multiples-Feld): **Top N Kacheln** (die übrigen Gruppen werden zu einer
+  „Rest (k)"-Kachel aggregiert) und **Gesamt-Kachel (Σ)** — „Σ Gesamt" als
+  erste Kachel, Summe über alle Gruppen auf derselben Skala
 - **Σ-Header**: Summe + Gesamtabweichung (absolut & %) als Kopfzeile, gut/schlecht gefärbt
 - **Kompakt-Modus**: unter ~190 px Höhe klappen die Varianz-Panels automatisch zu
   farbigen Δ-Labels an den Säulenenden — funktioniert auch als kleine Dashboard-Kachel

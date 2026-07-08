@@ -1,5 +1,25 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.8.0.0 (2026-07-08)
+
+**Small-Multiples-Optionen: Top N Kacheln + Gesamt-Kachel (Σ)** — neue
+Gruppe „Small Multiples" im Chart-Formatbereich, nur sichtbar wenn das
+Multiples-Feld gefüllt ist; beide Optionen sind standardmäßig aus:
+- **Top N Kacheln**: zeigt nur die N größten Gruppen (nach Summe |AC|,
+  absteigend sortiert) — die übrigen werden zu einer Kachel
+  **„Rest (k)"** aggregiert (Kategorien nach Label ausgerichtet, Werte
+  summiert, Δ/Δ % auf den Summen neu gerechnet). 0 = alle Kacheln.
+- **Gesamt-Kachel (Σ)**: stellt eine Kachel **„Σ Gesamt"** voran —
+  Summe über *alle* ursprünglichen Gruppen (auch bei aktivem Top N).
+  Die gemeinsame IBCS-Skala schließt die größere Gesamt-Kachel mit ein,
+  Proportionen zwischen Kacheln bleiben damit ablesbar.
+- Funktioniert in allen Kachel-Modi inkl. Gestapelt (Ausrichtung über
+  Kategorie + Serie), Waterfall (sum/delta-Typ bleibt erhalten) und mit
+  YTD/Top-N-Balken/Sortierung, die danach pro Kachel greifen. Zoom per
+  Klick auf den Kachel-Titel funktioniert auch für Σ/Rest-Kacheln.
+  Forecast-Schraffur in Σ/Rest nur, wenn die Periode in allen Gruppen
+  Forecast ist.
+
 ## 1.7.0.0 (2026-07-08)
 
 **Runde 1 — drei neue Chart-Modi ohne neue Felder** (Orientation-Dropdown,

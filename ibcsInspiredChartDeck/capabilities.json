@@ -137,6 +137,8 @@
                 "cumulative": { "type": { "bool": true } },
                 "highlight": { "type": { "text": true } },
                 "groupEvery": { "type": { "numeric": true } },
+                "multiplesTotal": { "type": { "bool": true } },
+                "multiplesTopN": { "type": { "numeric": true } },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
                 "chartButtons": { "type": { "bool": true } },
