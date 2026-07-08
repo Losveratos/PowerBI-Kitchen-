@@ -743,8 +743,10 @@ export class Visual implements IVisual {
         if (this.zoomGroup != null) {
             const grp = groups.find(g => (g.name ?? "") === this.zoomGroup);
             if (grp) {
-                const chipH = this.drawZoomBackChip(topOffset, grp.name ?? "", cfg);
+                // chart first, chip after — the click target must stay on top of the marks
+                const chipH = Math.round(11 * this.fontK) + 17;
                 renderCell(grp, { x: 0, y: topOffset + chipH, w: chartW, h: availH - chipH });
+                this.drawZoomBackChip(topOffset, grp.name ?? "", cfg);
                 return;
             }
             this.zoomGroup = null;
@@ -768,34 +770,43 @@ export class Visual implements IVisual {
             if (gi === n - 1 && groups.length > n) {
                 title += `  (+${groups.length - n} weitere)`;
             }
-            const gtFont = Math.round(11 * this.fontK);
-            const t = this.el("text", {
-                x: cx + 6, y: cy + gtFont + 1, "font-size": gtFont, fill: cfg.ink,
-                "font-family": FONT, "font-weight": 600
-            }, this.svg);
-            t.textContent = this.truncate(title, cellW - 12 - 16 * this.fontK, gtFont);
-            this.drawExpandIcon(cx + cellW - 12 * this.fontK, cy + 3, shown[gi].name ?? "", cfg);
+            // cell content first, header strip after — the click target must sit ON TOP
+            // of any chart marks (labels can reach into the strip), or clicks get eaten
             renderCell(shown[gi],
                 { x: cx + 2, y: cy + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 });
+            this.drawTileHeader(cx, cy, cellW, groupTitleH, title, shown[gi].name ?? "", cfg);
         }
     }
 
-    /** ⤢ zoom-in affordance on a small-multiples tile */
-    private drawExpandIcon(x: number, y: number, groupName: string, cfg: ChartConfig): void {
+    /**
+     * small-multiples tile header: the WHOLE title strip is the zoom-in click target
+     * (a 12px glyph alone is too easy to miss), with the ⤢ affordance at the right.
+     */
+    private drawTileHeader(x: number, y: number, w: number, h: number,
+        title: string, groupName: string, cfg: ChartConfig): void {
         const k = this.fontK;
-        const size = Math.round(12 * k);
+        const gtFont = Math.round(11 * k);
         const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
         btn.setAttribute("aria-label", `${groupName} vergrößern`);
+        (btn.style as CSSStyleDeclaration & { pointerEvents: string }).pointerEvents = "all";
+        // hit area across the full strip (nearly invisible, but clickable everywhere)
         this.el("rect", {
-            x: x - 2, y, width: size + 4, height: size + 4, rx: 3,
+            x: x + 1, y: y + 1, width: Math.max(w - 2, 1), height: h + 2,
             fill: cfg.paper, "fill-opacity": 0.01
         }, btn);
         const t = this.el("text", {
-            x: x + size / 2, y: y + size, "text-anchor": "middle",
-            "font-size": size, fill: cfg.subtle, "font-family": FONT
+            x: x + 6, y: y + gtFont + 1, "font-size": gtFont, fill: cfg.ink,
+            "font-family": FONT, "font-weight": 600
         }, btn);
-        t.textContent = "⤢";
+        t.textContent = this.truncate(title, w - 16 - 14 * k, gtFont);
+        const icon = this.el("text", {
+            x: x + w - 6, y: y + gtFont + 1, "text-anchor": "end",
+            "font-size": Math.round(12 * k), fill: cfg.subtle, "font-family": FONT
+        }, btn);
+        icon.textContent = "⤢";
         btn.style.cursor = "pointer";
+        btn.addEventListener("mouseenter", () => { icon.setAttribute("fill", cfg.ink); });
+        btn.addEventListener("mouseleave", () => { icon.setAttribute("fill", cfg.subtle); });
         const zoom = () => { this.zoomGroup = groupName; this.rerender(); };
         btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); zoom(); });
         btn.addEventListener("keydown", (e: KeyboardEvent) => {

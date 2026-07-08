@@ -1,5 +1,18 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.5.1.0 (2026-07-08)
+
+**Fix: Kachel-Zoom zuverlässig klickbar.** Zwei Ursachen behoben:
+- Das ⤢-Icon war nur ~12 px groß und wurde vor dem Kachel-Inhalt gezeichnet —
+  Chart-Elemente (Labels, Hit-Flächen) konnten darüber liegen und Klicks
+  schlucken. Jetzt ist die **gesamte Titelzeile der Kachel** der Klick-Bereich
+  (mit ⤢ rechts und Hover-Feedback) und wird nach dem Inhalt gezeichnet,
+  liegt also garantiert obenauf.
+- Gleiches Z-Order-Problem beim „← Alle Gruppen"-Chip in der Zoom-Ansicht:
+  der Chip wird jetzt nach dem Chart gezeichnet.
+- Verifiziert mit echten Maus-Klicks (statt synthetischer Events) im
+  Headless-Browser: Klick mitten auf den Titel zoomt, Chip führt zurück.
+
 ## 1.5.0.0 (2026-07-08)
 
 **Tabelle (IBCS)** (neuer Chart-Modus im Orientation-Dropdown):
