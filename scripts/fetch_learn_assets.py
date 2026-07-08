@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Lädt alle Microsoft-Learn-Screenshots des Fabric-Guides nach assets/learn/.
+"""Lädt alle Microsoft-Learn-Screenshots der Einsteiger-Guides nach assets/learn/.
 
-Der Guide bindet die Bilder primär vom Learn-CDN ein; bricht ein CDN-Pfad
+Die Guides binden die Bilder primär vom Learn-CDN ein; bricht ein CDN-Pfad
 (Microsoft verschiebt Media-Ordner gelegentlich), greift der JS-Fallback im
 Guide auf assets/learn/<dateiname> zu. Dieses Skript erzeugt genau diese
 lokalen Kopien. Einmal lokal ausführen und die Dateien mitcommitten:
@@ -9,7 +9,7 @@ lokalen Kopien. Einmal lokal ausführen und die Dateien mitcommitten:
     python3 scripts/fetch_learn_assets.py
 
 Lizenz der Bilder: Microsoft-Dokumentation, CC BY 4.0 (Quellenangabe steht
-in den figcaptions des Guides).
+in den figcaptions der Guides).
 """
 import re
 import sys
@@ -17,15 +17,20 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-GUIDE = ROOT / "fabric_einsteiger_guide_v1.html"
+GUIDES = [
+    ROOT / "fabric_einsteiger_guide_v1.html",
+    ROOT / "power_bi_einsteiger_guide_v4.html",
+]
 TARGET = ROOT / "assets" / "learn"
 
 IMG_RX = re.compile(r'<img src="(https://learn\.microsoft\.com/[^"]+)"')
 
 
 def main() -> int:
-    html = GUIDE.read_text(encoding="utf-8")
-    urls = sorted(set(IMG_RX.findall(html)))
+    urls = set()
+    for guide in GUIDES:
+        urls |= set(IMG_RX.findall(guide.read_text(encoding="utf-8")))
+    urls = sorted(urls)
     if not urls:
         print("Keine Learn-Bild-URLs im Guide gefunden.")
         return 1
