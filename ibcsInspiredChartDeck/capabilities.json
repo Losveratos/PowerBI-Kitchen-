@@ -96,7 +96,8 @@
                             { "value": "line", "displayName": "Line (Zeit, viele Punkte)" },
                             { "value": "waterfall", "displayName": "Waterfall / Brücke" },
                             { "value": "intwaterfall", "displayName": "Integrierte Brücke (Zeit)" },
-                            { "value": "catbridge", "displayName": "Kategorie-Brücke (Struktur)" }
+                            { "value": "catbridge", "displayName": "Kategorie-Brücke (Struktur)" },
+                            { "value": "table", "displayName": "Tabelle (IBCS)" }
                         ]
                     }
                 },
@@ -121,6 +122,7 @@
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
                 "chartButtons": { "type": { "bool": true } },
+                "compareClick": { "type": { "bool": true } },
                 "invert": { "type": { "bool": true } }
             }
         },

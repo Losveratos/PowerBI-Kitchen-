@@ -35,6 +35,14 @@ in **einem** Visual löst:
 - **Gruppen-Trennlinien** (Chart → Layout → Group separator every N): dünne Linien
   quer durch alle Panels nach jeweils N Kategorien — Lesehilfe für Struktur-Vergleiche
   mit natürlichen Untergruppen (z. B. Regionen), 0 = aus
+- **Tabelle (IBCS)** (eigener Chart-Modus): Kennzahlen-Tabelle mit integrierten
+  Chart-Spalten — AC·PY·PL-Balken, ΔBasis-Zahl + -Balken, ΔBasis %-Pins, fette
+  'sum'-Zwischensummen (GuV), Doppel-Varianz-Spalten; Grafikspalten fallen bei
+  schmalen Visuals gestuft weg
+- **Kachel-Zoom**: ⤢ an jeder Small-Multiples-Kachel vergrößert die Gruppe auf
+  die volle Fläche (gleiche Skalen), „← Alle Gruppen" führt zurück
+- **Vergleich per Klick** (optional): zwei Säulen/Balken anklicken zeigt die
+  Differenz (absolut + %) als Klammer-Overlay
 - **Integrierte Brücke (Zeit)** (eigener Chart-Modus): PY/PL-Totalsäule links,
   ΔBasis-Wasserfall quer über die Monate, AC·PY-Monatssäulen am Fuß, ΔBasis%-Pins
   oben, AC|FC-Trennlinie, gestapelte AC+FC-Totalsäule rechts + Netto-Callout

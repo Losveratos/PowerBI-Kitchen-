@@ -1,5 +1,30 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.5.0.0 (2026-07-08)
+
+**Tabelle (IBCS)** (neuer Chart-Modus im Orientation-Dropdown):
+- Eine Zeile je Kategorie mit Wert, AC·PY·PL-Balkenzelle (gemeinsame Skala,
+  Nulllinie bei negativen Werten), ΔBasis als Zahl + Balken und ΔBasis % als
+  Pin — Kennzahlen-Tabelle mit integrierten Chart-Spalten im Zebra-Stil.
+- 'sum'-Zeilen (Waterfall-Type-Rolle) rendern fett mit starker Trennlinie —
+  GuV-Zwischensummen wie Bruttoergebnis/EBIT.
+- Doppel-Varianz als zusätzliche ΔZweitbasis-Spalten, Highlight-Zeilen,
+  Kommentar-Nummern, Crossfilter je Zeile, Tooltips.
+- Grafikspalten fallen bei schmalen Visuals gestuft weg — die reine
+  Werte-Tabelle bleibt lesbar; bei zu wenig Höhe erscheint ein Hinweis
+  statt gequetschter Zeilen.
+
+**Kachel-Zoom bei Small Multiples**:
+- ⤢ oben rechts an jeder Kachel vergrößert die Gruppe auf die volle Fläche
+  (mit unveränderten gemeinsamen Skalen — IBCS), „← Alle Gruppen" führt
+  zurück. Funktioniert in allen Chart-Modi, transienter Zustand.
+
+**Vergleich per Klick** (Chart → Analysis → Compare on click, Standard aus):
+- Zwei Säulen/Balken anklicken zeigt die Differenz (absolut + %) als
+  gestrichelte Klammer mit Δ-Label — zweiter minus erster Wert. Ein Klick
+  wählt (gestrichelter Ring als Merker), Klick ins Leere setzt zurück.
+  Solange der Modus aktiv ist, ersetzen die Klicks das Quer-Filtern.
+
 ## 1.4.0.0 (2026-07-07)
 
 **Zwei neue Chart-Modi** (Orientation-Dropdown), portiert aus den

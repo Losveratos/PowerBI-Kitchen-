@@ -13,7 +13,8 @@ const orientationItems: powerbi.IEnumMember[] = [
     { value: "line", displayName: "Line (Zeit, viele Punkte)" },
     { value: "waterfall", displayName: "Waterfall / Brücke" },
     { value: "intwaterfall", displayName: "Integrierte Brücke (Zeit)" },
-    { value: "catbridge", displayName: "Kategorie-Brücke (Struktur)" }
+    { value: "catbridge", displayName: "Kategorie-Brücke (Struktur)" },
+    { value: "table", displayName: "Tabelle (IBCS)" }
 ];
 
 const comparisonItems: powerbi.IEnumMember[] = [
@@ -180,6 +181,14 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    compareClick = new formattingSettings.ToggleSwitch({
+        name: "compareClick",
+        displayName: "Compare on click",
+        displayNameKey: "Chart_CompareClick",
+        description: "Nur Columns/Bars: zwei Säulen/Balken anklicken zeigt die Differenz (absolut + %) als Overlay — Klicks filtern dann nicht mehr quer. Klick ins Leere setzt zurück. Standard aus.",
+        value: false
+    });
+
     groupEvery = new formattingSettings.NumUpDown({
         name: "groupEvery",
         displayName: "Group separator every N",
@@ -228,7 +237,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartAnalysis",
         displayName: "Analysis",
         displayNameKey: "Group_Analysis",
-        slices: [this.cumulative, this.movingAverage, this.topN, this.highlight, this.invert]
+        slices: [this.cumulative, this.movingAverage, this.topN, this.highlight, this.invert, this.compareClick]
     });
 
     bridgeGroup = new formattingSettings.Group({

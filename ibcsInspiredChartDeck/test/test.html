@@ -32,6 +32,11 @@
 <div class="case"><h4>Integrierte Brücke (Zeit) · PY-Total links, Kaskade, Monatssäulen, AC+FC-Total rechts</h4><div class="stage" id="c22" style="width:1120px;height:660px"></div></div>
 <div class="case"><h4>Kategorie-Brücke (Struktur) · PL/PY-Zeilen, Kaskade, ΔPY%-Pins, Doppel-Überleitung</h4><div class="stage" id="c23" style="width:1340px;height:790px"></div></div>
 <div class="case"><h4>Kategorie-Brücke · Full-HD-Preset (Schrift ×1,5) · ΔPL-Referenz</h4><div class="stage" id="c24" style="width:1340px;height:820px"></div></div>
+<div class="case"><h4>Tabelle (IBCS) · GuV mit sum/delta · AC·PY-Balken + ΔPY + ΔPY%-Pins</h4><div class="stage" id="c25" style="width:1200px;height:420px"></div></div>
+<div class="case"><h4>Tabelle (IBCS) · Länder + Dual (ΔPL & ΔPY) · Full HD · Highlight</h4><div class="stage" id="c26" style="width:1340px;height:520px"></div></div>
+<div class="case"><h4>Tabelle (IBCS) · schmal (460px) — Grafikspalten fallen weg</h4><div class="stage" id="c27" style="width:460px;height:360px"></div></div>
+<div class="case"><h4>Small Multiples mit ⤢-Zoom-Icons (Klick-Test in Konsole)</h4><div class="stage" id="c28" style="width:960px;height:480px"></div></div>
+<div class="case"><h4>Vergleich per Klick · Bars (Overlay wird per Test-Klick erzeugt)</h4><div class="stage" id="c29" style="width:960px;height:420px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -231,6 +236,31 @@ run("c23", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col
 run("c24", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)],
   { chart: { orientation: "catbridge", comparisonMode: "plan", sortByImpact: true },
     labels: { fontPreset: "fullhd" } }), 1340, 820);
+
+// IBCS table: P&L rows with sum/delta role, AC·PY bars + variance columns
+const tabRows = ["Umsatz","Materialaufwand","Personal","Bruttoergebnis","Vertrieb","Verwaltung","EBIT"];
+const tabTypes = ["delta","delta","delta","sum","delta","delta","sum"];
+const tabAc = [9800, -4200, -2400, 3200, -900, -600, 1700];
+const tabPy = [9200, -3900, -2300, 3000, -850, -640, 1510];
+run("c25", dataView(tabRows, [col("actual", tabAc, "#,0 T€"), col("previousYear", tabPy, "#,0 T€")],
+  { chart: { orientation: "table" } }, null, tabTypes), 1200, 420);
+
+// IBCS table: structure with dual variance, Full HD preset, one highlighted row
+run("c26", dataView(many, [col("actual", mAc), col("previousYear", mAc.map((v,i)=>Math.round(v*0.94)+((i%3)-1)*90)), col("plan", mPl)],
+  { chart: { orientation: "table", dualVariance: true, highlight: "Frankreich" },
+    labels: { fontPreset: "fullhd" } }), 1340, 520);
+
+// narrow table: graphic columns drop, plain value table stays readable
+run("c27", dataView(tabRows, [col("actual", tabAc, "#,0 T€"), col("previousYear", tabPy, "#,0 T€")],
+  { chart: { orientation: "table" } }, null, tabTypes), 460, 360);
+
+// small multiples with zoom icons — the shot script clicks one and screenshots
+run("c28", dataView(wfSmCats, [col("actual", wfSmAc), col("previousYear", wfSmPy)],
+  {}, wfSmMult), 960, 480);
+
+// compare-on-click: the shot script clicks two bars and screenshots the overlay
+run("c29", dataView(countries, [col("actual", costAc), col("previousYear", costPy)],
+  { chart: { orientation: "bars", compareClick: true } }), 960, 420);
 </script>
 </body>
 </html>

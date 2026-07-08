@@ -204,6 +204,15 @@ export class Visual implements IVisual {
     /** per-category mark groups in build order, for the ▶ reveal animation */
     private animGroups: SVGGElement[][] = [];
     private animTimers: number[] = [];
+    /** small multiples: currently zoomed-in group (transient, ⤢/← in the chart) */
+    private zoomGroup: string | null = null;
+    /** compare-on-click: whether the mode is active this render + picked categories */
+    private compareActive = false;
+    private compareCats: string[] = [];
+    /** bar-end anchors of the current render, for the compare overlay */
+    private compareAnchors = new Map<string, { band: number; end: number; value: number }>();
+    /** last update args so in-chart interactions (zoom, compare) can re-render */
+    private lastRender: { points: DataPoint[]; width: number; height: number } | null = null;
     /** data facts driving context-sensitive visibility in the format pane */
     private paneHasPy = false;
     private paneHasPl = false;
@@ -225,10 +234,14 @@ export class Visual implements IVisual {
         this.svg = document.createElementNS(SVG_NS, "svg");
         this.root.appendChild(this.svg);
 
-        // click on empty space clears selection, right click opens context menu
+        // click on empty space clears selection (and a pending compare pick)
         this.svg.addEventListener("click", () => {
             this.selectionManager.clear();
             this.applySelectionOpacity([]);
+            if (this.compareCats.length > 0) {
+                this.compareCats = [];
+                this.rerender();
+            }
         });
         this.svg.addEventListener("contextmenu", (e: MouseEvent) => {
             e.preventDefault();
@@ -255,11 +268,19 @@ export class Visual implements IVisual {
                 return;
             }
             this.svg.style.display = "block";
+            this.lastRender = { points, width, height };
             this.render(points, width, height);
             this.events.renderingFinished(options);
         } catch (error) {
             this.events.renderingFailed(options, String(error));
         }
+    }
+
+    /** re-render from the last update args — used by in-chart interactions (zoom, compare) */
+    private rerender(): void {
+        if (!this.lastRender) { return; }
+        // render() mutates order in place via groups — pass a copy of the point list
+        this.render([...this.lastRender.points], this.lastRender.width, this.lastRender.height);
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
@@ -484,7 +505,9 @@ export class Visual implements IVisual {
         // (structure rows + cascade + double reconciliation) are standalone chart modes
         const isIntWf = orientationRaw === "intwaterfall";
         const isCatBridge = orientationRaw === "catbridge";
-        const orientation: Orientation = orientationRaw === "bars" || isCatBridge ? "bars" : "columns";
+        // IBCS table: one row per category with value + AC·PY bars + ΔBasis bars + Δ% pins
+        const isTable = orientationRaw === "table";
+        const orientation: Orientation = orientationRaw === "bars" || isCatBridge || isTable ? "bars" : "columns";
         // waterfall-bridge is an optional add-on to columns/bars, not a separate orientation
         const wfStyleGlobal = s.chartCard.waterfallStyle.value
             && (orientationRaw === "columns" || orientationRaw === "bars");
@@ -494,6 +517,12 @@ export class Visual implements IVisual {
         this.fontK = { compact: 1, fullhd: 1.5, presentation: 2 }[
             String(s.labelsCard.fontPreset.value.value)] ?? 1;
         this.animGroups = [];
+
+        // compare-on-click: only meaningful where per-category value bars exist
+        this.compareActive = s.chartCard.compareClick.value
+            && (orientationRaw === "columns" || orientationRaw === "bars");
+        this.compareAnchors.clear();
+        if (!this.compareActive) { this.compareCats = []; }
 
         // small multiples: group by the multiples role, in order of appearance
         const groups: { name: string | null; pts: DataPoint[] }[] = [];
@@ -667,6 +696,10 @@ export class Visual implements IVisual {
                 this.renderCategoryBridge(grp.pts, region, cfg);
                 return;
             }
+            if (isTable) {
+                this.renderTable(grp.pts, region, cfg);
+                return;
+            }
             this.renderChart(grp.pts, region, cfg, domains, cascadeByGroup.get(grp.name) ?? null);
         };
         // sort button (once, top-right of the whole visual) — the only literal "button":
@@ -705,6 +738,18 @@ export class Visual implements IVisual {
             return;
         }
 
+        // small multiples zoom: ⤢ on a tile shows just that group full-size (same
+        // shared scales — IBCS), the ← chip goes back to the grid. Transient state.
+        if (this.zoomGroup != null) {
+            const grp = groups.find(g => (g.name ?? "") === this.zoomGroup);
+            if (grp) {
+                const chipH = this.drawZoomBackChip(topOffset, grp.name ?? "", cfg);
+                renderCell(grp, { x: 0, y: topOffset + chipH, w: chartW, h: availH - chipH });
+                return;
+            }
+            this.zoomGroup = null;
+        }
+
         // grid layout for small multiples: keep cells at a usable width
         const MAX_CELLS = 24;
         const shown = groups.slice(0, MAX_CELLS);
@@ -728,10 +773,68 @@ export class Visual implements IVisual {
                 x: cx + 6, y: cy + gtFont + 1, "font-size": gtFont, fill: cfg.ink,
                 "font-family": FONT, "font-weight": 600
             }, this.svg);
-            t.textContent = this.truncate(title, cellW - 12, gtFont);
+            t.textContent = this.truncate(title, cellW - 12 - 16 * this.fontK, gtFont);
+            this.drawExpandIcon(cx + cellW - 12 * this.fontK, cy + 3, shown[gi].name ?? "", cfg);
             renderCell(shown[gi],
                 { x: cx + 2, y: cy + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 });
         }
+    }
+
+    /** ⤢ zoom-in affordance on a small-multiples tile */
+    private drawExpandIcon(x: number, y: number, groupName: string, cfg: ChartConfig): void {
+        const k = this.fontK;
+        const size = Math.round(12 * k);
+        const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+        btn.setAttribute("aria-label", `${groupName} vergrößern`);
+        this.el("rect", {
+            x: x - 2, y, width: size + 4, height: size + 4, rx: 3,
+            fill: cfg.paper, "fill-opacity": 0.01
+        }, btn);
+        const t = this.el("text", {
+            x: x + size / 2, y: y + size, "text-anchor": "middle",
+            "font-size": size, fill: cfg.subtle, "font-family": FONT
+        }, btn);
+        t.textContent = "⤢";
+        btn.style.cursor = "pointer";
+        const zoom = () => { this.zoomGroup = groupName; this.rerender(); };
+        btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); zoom(); });
+        btn.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key !== "Enter" && e.key !== " ") { return; }
+            e.preventDefault(); e.stopPropagation(); zoom();
+        });
+    }
+
+    /** back chip when a small-multiples tile is zoomed in; returns consumed height */
+    private drawZoomBackChip(top: number, groupName: string, cfg: ChartConfig): number {
+        const k = this.fontK;
+        const font = Math.round(11 * k);
+        const text = "← Alle Gruppen";
+        const w = text.length * font * 0.56 + 18;
+        const h = font + 9;
+        const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+        btn.setAttribute("aria-label", "Zurück zur Kachel-Übersicht");
+        this.el("rect", {
+            x: 6, y: top + 3, width: w, height: h, rx: h / 2,
+            fill: cfg.paper, stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
+        }, btn);
+        const t = this.el("text", {
+            x: 6 + w / 2, y: top + 3 + h / 2 + font * 0.36, "text-anchor": "middle",
+            "font-size": font, fill: cfg.ink, "font-family": FONT
+        }, btn);
+        t.textContent = text;
+        btn.style.cursor = "pointer";
+        const back = () => { this.zoomGroup = null; this.rerender(); };
+        btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); back(); });
+        btn.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key !== "Enter" && e.key !== " ") { return; }
+            e.preventDefault(); e.stopPropagation(); back();
+        });
+        const gl = this.el("text", {
+            x: 6 + w + 10, y: top + 3 + h / 2 + font * 0.36, "font-size": font,
+            fill: cfg.ink, "font-family": FONT, "font-weight": 600
+        }, this.svg);
+        gl.textContent = groupName;
+        return h + 8;
     }
 
     /**
@@ -1480,6 +1583,259 @@ export class Visual implements IVisual {
         }
     }
 
+    /**
+     * IBCS table: one row per category with the value, an AC·PY·PL bar cell, the
+     * ΔBasis as number + bar and ΔBasis % as pin — a financial-statement style
+     * table with integrated chart columns. 'sum' rows (Waterfall-Type role) render
+     * bold with a stronger separator, like P&L subtotals. Columns drop gracefully
+     * when the region gets narrow, so plain value tables still work on small tiles.
+     */
+    private renderTable(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const n = points.length;
+        if (n === 0) { return; }
+        const k = this.fontK;
+        const lf = cfg.labelFont, cf = cfg.catFont;
+        const pad = 6;
+        const hasVar = points.some(p => p.varAbs != null);
+        const hasVar2 = cfg.showDual && points.some(p => p.var2Abs != null);
+        const showPct = cfg.showRel && hasVar;
+        const isSum = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("sum");
+
+        // ------- column layout: fixed text columns, graphic columns share the rest
+        const nameW = Math.min(region.w * 0.24,
+            this.maxTextWidth(points.map(p => p.cat), cf) + 18);
+        const valW = lf * 4.8;
+        const dValW = hasVar ? lf * 4.6 : 0;
+        const d2ValW = hasVar2 ? lf * 4.6 : 0;
+        const gap = 10;
+        const fixed = nameW + valW + dValW + d2ValW;
+        type GCol = { key: "bars" | "dbar" | "pct" | "d2bar"; min: number; w: number };
+        const wanted: GCol[] = [];
+        if (cfg.showAbs || cfg.hasPy || cfg.hasPl) { wanted.push({ key: "bars", min: 110 * k, w: 0 }); }
+        if (hasVar && cfg.showAbs) { wanted.push({ key: "dbar", min: 80 * k, w: 0 }); }
+        if (showPct) { wanted.push({ key: "pct", min: 95 * k, w: 0 }); }
+        if (hasVar2) { wanted.push({ key: "d2bar", min: 80 * k, w: 0 }); }
+        // greedily keep graphic columns while the leftover width fits their minimums
+        const graphic: GCol[] = [];
+        for (const c of wanted) {
+            const need = graphic.reduce((a, g) => a + g.min, 0) + c.min;
+            const leftover = region.w - pad * 2 - fixed - gap * (graphic.length + 3);
+            if (need <= leftover) { graphic.push(c); }
+        }
+        const spare = region.w - pad * 2 - fixed - gap * (graphic.length + 3)
+            - graphic.reduce((a, g) => a + g.min, 0);
+        for (const g of graphic) {
+            g.w = g.min + (graphic.length > 0 ? spare / graphic.length : 0);
+        }
+        const colX: { [key: string]: { x: number; w: number } } = {};
+        let x = region.x + pad;
+        colX["name"] = { x, w: nameW }; x += nameW + gap;
+        colX["val"] = { x, w: valW }; x += valW + gap;
+        const barsCol = graphic.find(g => g.key === "bars");
+        if (barsCol) { colX["bars"] = { x, w: barsCol.w }; x += barsCol.w + gap; }
+        if (hasVar) { colX["dval"] = { x, w: dValW }; x += dValW + gap; }
+        const dbarCol = graphic.find(g => g.key === "dbar");
+        if (dbarCol) { colX["dbar"] = { x, w: dbarCol.w }; x += dbarCol.w + gap; }
+        const pctCol = graphic.find(g => g.key === "pct");
+        if (pctCol) { colX["pct"] = { x, w: pctCol.w }; x += pctCol.w + gap; }
+        if (hasVar2) { colX["d2val"] = { x, w: d2ValW }; x += d2ValW + gap; }
+        const d2barCol = graphic.find(g => g.key === "d2bar");
+        if (d2barCol) { colX["d2bar"] = { x, w: d2barCol.w }; }
+
+        // ------- row layout + shared scales
+        const headerH = Math.round(cf + 12);
+        const rowH = Math.max(cf + 6, (region.h - pad * 2 - headerH) / n);
+        const top = region.y + pad + headerH;
+        const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH);
+        const shown = points.slice(0, Math.max(1, maxRows));
+
+        const barDomain = extent(points.flatMap(p => [p.value, p.py, p.pl]));
+        const dDomain = Math.max(...points.map(p => Math.abs(p.varAbs ?? 0)), 1);
+        const d2Domain = Math.max(...points.map(p => Math.abs(p.var2Abs ?? 0)), 1);
+        const maxPct = Math.max(...points.map(p => Math.abs(p.varRel ?? 0)), 1);
+
+        const bg = this.el("g", {}, this.svg);
+        const marks = this.el("g", {}, this.svg);
+        const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const colOf = (v: number) => v === 0 ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+        const txt = (xx: number, yy: number, text: string, anchor: string, font: number,
+            bold: boolean, color: string, parent: SVGElement) => {
+            const t = this.el("text", {
+                x: xx, y: yy, "text-anchor": anchor, "font-size": font, fill: color,
+                "font-family": FONT, "font-weight": bold ? 700 : 400
+            }, parent);
+            t.textContent = text;
+            return t;
+        };
+
+        // ------- header row (column titles)
+        const hFont = Math.round(10 * k);
+        const hy = region.y + pad + hFont + 2;
+        const scen = ["AC", cfg.hasPy ? "PY" : "", cfg.hasPl ? "PL" : ""].filter(v => v).join(" · ");
+        txt(colX["val"].x + colX["val"].w, hy, "AC", "end", hFont, true, cfg.subtle, bg);
+        if (colX["bars"]) { txt(colX["bars"].x + 2, hy, scen, "start", hFont, true, cfg.subtle, bg); }
+        if (colX["dval"]) { txt(colX["dval"].x + colX["dval"].w, hy, `Δ${cfg.basisLabel}`, "end", hFont, true, cfg.subtle, bg); }
+        if (colX["pct"]) { txt(colX["pct"].x + colX["pct"].w / 2, hy, `Δ${cfg.basisLabel} %`, "middle", hFont, true, cfg.subtle, bg); }
+        if (colX["d2val"]) { txt(colX["d2val"].x + colX["d2val"].w, hy, `Δ${cfg.basis2Label}`, "end", hFont, true, cfg.subtle, bg); }
+        this.el("line", {
+            x1: region.x + pad, y1: top - 2, x2: region.x + region.w - pad, y2: top - 2,
+            stroke: cfg.ink, "stroke-width": 1.2
+        }, bg);
+
+        // ------- shared axes for the graphic columns
+        const barScale = colX["bars"]
+            ? linearScale(Math.min(barDomain[0], 0), Math.max(barDomain[1], 1), colX["bars"].x + 2, colX["bars"].x + colX["bars"].w - 2)
+            : null;
+        const rowsBottom = top + shown.length * rowH;
+        if (barScale && Math.min(barDomain[0], 0) < 0) {
+            this.el("line", {
+                x1: barScale(0), y1: top, x2: barScale(0), y2: rowsBottom,
+                stroke: cfg.subtle, "stroke-width": 1
+            }, bg);
+        }
+        const dAxis = colX["dbar"] ? colX["dbar"].x + colX["dbar"].w / 2 : 0;
+        if (colX["dbar"]) {
+            this.el("rect", { x: dAxis - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
+        }
+        const pctAxis = colX["pct"] ? colX["pct"].x + colX["pct"].w / 2 : 0;
+        if (colX["pct"]) {
+            this.el("rect", { x: pctAxis - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
+        }
+        const d2Axis = colX["d2bar"] ? colX["d2bar"].x + colX["d2bar"].w / 2 : 0;
+        if (colX["d2bar"]) {
+            this.el("rect", { x: d2Axis - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
+        }
+
+        // ------- rows
+        shown.forEach((p, i) => {
+            const y = top + i * rowH;
+            const yMid = y + rowH / 2;
+            const sum = isSum(p);
+            const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
+
+            // separators: subtle under every row, strong above subtotals
+            this.el("line", {
+                x1: region.x + pad, y1: y + rowH, x2: region.x + region.w - pad, y2: y + rowH,
+                stroke: cfg.subtle, "stroke-width": 0.6, "stroke-opacity": 0.4
+            }, bg);
+            if (sum) {
+                this.el("line", {
+                    x1: region.x + pad, y1: y, x2: region.x + region.w - pad, y2: y,
+                    stroke: cfg.ink, "stroke-width": 1.2
+                }, bg);
+            }
+            if (cfg.highlight.has(p.cat.toLowerCase())) {
+                this.el("rect", {
+                    x: region.x + pad, y: y + 1, width: region.w - pad * 2, height: rowH - 2,
+                    fill: cfg.hc ? "none" : cfg.ink, "fill-opacity": cfg.hc ? 0 : 0.07,
+                    stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 1 : 0
+                }, bg);
+            }
+
+            const rowFont = Math.min(cf, rowH - 4);
+            txt(colX["name"].x + (sum ? 0 : Math.round(6 * k)), yMid + rowFont * 0.35,
+                this.truncate(p.cat, colX["name"].w - 8, rowFont), "start", rowFont, sum, cfg.ink, g);
+            if (p.value != null) {
+                txt(colX["val"].x + colX["val"].w, yMid + rowFont * 0.35,
+                    cfg.fmt.format(p.value), "end", rowFont, sum, cfg.ink, g);
+            }
+
+            // AC·PY·PL bar cell (shared scale across all rows — IBCS)
+            if (barScale) {
+                const zero = barScale(0);
+                const barCell = (v: number, h: number, off: number, style: Record<string, string | number>) => {
+                    const e = barScale(v);
+                    this.el("rect", {
+                        x: Math.min(zero, e), y: y + rowH * off,
+                        width: Math.max(Math.abs(e - zero), 1), height: h, ...style
+                    }, g);
+                };
+                const pyH = Math.max(2, rowH * 0.26), acH = Math.max(3, rowH * 0.42);
+                if (p.py != null) {
+                    barCell(p.py, pyH, 0.12, cfg.hc
+                        ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1, "stroke-dasharray": "3,2" }
+                        : { fill: cfg.colors.py });
+                }
+                if (p.pl != null) {
+                    barCell(p.pl, acH, 0.30, { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.2 });
+                }
+                if (p.value != null) {
+                    barCell(p.value, acH, 0.36, p.isFc
+                        ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                        : { fill: cfg.colors.ac });
+                }
+            }
+
+            // ΔBasis: number + bar
+            if (p.varAbs != null && colX["dval"]) {
+                txt(colX["dval"].x + colX["dval"].w, yMid + rowFont * 0.35,
+                    this.fmtSigned(cfg.fmtVar, p.varAbs), "end", rowFont, sum,
+                    p.varAbs === 0 ? cfg.subtle : colOf(p.varAbs), g);
+            }
+            if (p.varAbs != null && colX["dbar"]) {
+                const len = Math.abs(p.varAbs) / dDomain * (colX["dbar"].w / 2 - 4);
+                const h = Math.max(3, rowH * 0.42);
+                const c = colOf(p.varAbs);
+                const hollowBad = cfg.hc && !goodOf(p.varAbs) && p.varAbs !== 0;
+                this.el("rect", {
+                    x: p.varAbs >= 0 ? dAxis + 1 : dAxis - 1 - len, y: yMid - h / 2,
+                    width: Math.max(len, 1), height: h,
+                    ...(hollowBad
+                        ? { fill: cfg.paper, stroke: c, "stroke-width": 1.2 }
+                        : p.isFc
+                            ? { fill: `url(#${goodOf(p.varAbs) ? cfg.patGood : cfg.patBad})`, stroke: c, "stroke-width": 1 }
+                            : { fill: c })
+                }, g);
+            }
+
+            // ΔBasis %: pin with label
+            if (p.varRel != null && colX["pct"]) {
+                const len = Math.abs(p.varRel) / maxPct * (colX["pct"].w / 2 - lf * 3);
+                const c = colOf(p.varRel);
+                const r = Math.max(2.4, 3 * k);
+                const dir = p.varRel >= 0 ? 1 : -1;
+                const endX = pctAxis + dir * Math.max(len, 2);
+                this.el("line", { x1: pctAxis, y1: yMid, x2: endX, y2: yMid, stroke: c, "stroke-width": 2 }, g);
+                this.el("rect", {
+                    x: endX - r, y: yMid - r, width: 2 * r, height: 2 * r,
+                    fill: p.isFc ? cfg.paper : cfg.ink, stroke: cfg.ink, "stroke-width": p.isFc ? 1 : 0
+                }, g);
+                txt(endX + dir * (r + 4), yMid + rowFont * 0.35, this.fmtPercent(p.varRel),
+                    dir > 0 ? "start" : "end", Math.round(rowFont * 0.92), sum, cfg.ink, g);
+            }
+
+            // ΔBasis2 (dual): number + bar
+            if (hasVar2 && p.var2Abs != null && colX["d2val"]) {
+                txt(colX["d2val"].x + colX["d2val"].w, yMid + rowFont * 0.35,
+                    this.fmtSigned(cfg.fmtVar, p.var2Abs), "end", rowFont, sum,
+                    p.var2Abs === 0 ? cfg.subtle : colOf(p.var2Abs), g);
+            }
+            if (hasVar2 && p.var2Abs != null && colX["d2bar"]) {
+                const len = Math.abs(p.var2Abs) / d2Domain * (colX["d2bar"].w / 2 - 4);
+                const h = Math.max(3, rowH * 0.42);
+                this.el("rect", {
+                    x: p.var2Abs >= 0 ? d2Axis + 1 : d2Axis - 1 - len, y: yMid - h / 2,
+                    width: Math.max(len, 1), height: h, fill: colOf(p.var2Abs)
+                }, g);
+            }
+
+            // comment marker number, if bound
+            if (p.commentNo != null) {
+                txt(colX["name"].x + colX["name"].w - 4, yMid + rowFont * 0.35,
+                    `(${p.commentNo})`, "end", Math.round(rowFont * 0.85), false, cfg.subtle, g);
+            }
+
+            this.attachInteraction(g, p, cfg);
+            this.catGroups.push({ g, sel: p.sel });
+            this.animGroups.push([g]);
+        });
+
+        if (shown.length < n) {
+            txt(region.x + pad, rowsBottom + cf, `… ${n - shown.length} weitere Zeilen (Visual höher ziehen)`,
+                "start", Math.round(cf * 0.9), false, cfg.subtle, bg);
+        }
+    }
+
     /** renders one complete IBCS chart (base + variance panels) into the given region */
     private renderChart(points: DataPoint[], region: Rect, cfg: ChartConfig, domains: Domains,
         cascade: Cascade | null = null): void {
@@ -1780,6 +2136,9 @@ export class Visual implements IVisual {
             }
 
             if (p.value != null) {
+                if (this.compareActive) {
+                    this.compareAnchors.set(p.cat, { band: cx, end: mainScale(capV(p.value)), value: p.value });
+                }
                 if (lineMode) {
                     // transparent hit area for tooltips/selection + point marker
                     this.el("rect", {
@@ -1978,6 +2337,66 @@ export class Visual implements IVisual {
         if (cfg.refLine != null) {
             const overlay = this.el("g", {}, this.svg);
             this.drawRefLine(overlay, panels.main, mainScale, orientation, bandStart, bandEnd, cfg);
+        }
+
+        // ------- compare-on-click overlay: Δ between two picked categories
+        if (this.compareActive && this.compareCats.length > 0) {
+            this.drawCompareOverlay(cfg, orientation);
+        }
+    }
+
+    /**
+     * compare-on-click: with one pick, a dashed ring marks the pending selection;
+     * with two, a bracket connects both bar ends and shows the difference
+     * (second minus first) as absolute + % — like a hand-drawn Δ annotation.
+     */
+    private drawCompareOverlay(cfg: ChartConfig, orientation: Orientation): void {
+        const k = this.fontK;
+        const picked = this.compareCats
+            .map(c => ({ cat: c, a: this.compareAnchors.get(c) }))
+            .filter(x => x.a != null) as { cat: string; a: { band: number; end: number; value: number } }[];
+        if (picked.length === 0) { return; }
+        const overlay = this.el("g", {}, this.svg);
+        if (picked.length === 1) {
+            const { a } = picked[0];
+            const cx = orientation === "columns" ? a.band : a.end;
+            const cy = orientation === "columns" ? a.end : a.band;
+            this.el("circle", {
+                cx, cy, r: 5.5 * k, fill: "none", stroke: cfg.ink,
+                "stroke-width": 1.6, "stroke-dasharray": "3,2"
+            }, overlay);
+            return;
+        }
+        const [p1, p2] = picked;
+        const d = p2.a.value - p1.a.value;
+        const pct = p1.a.value !== 0 ? (d / Math.abs(p1.a.value)) * 100 : null;
+        const text = `Δ ${this.fmtSigned(cfg.fmtVar, d)}${pct != null ? ` (${this.fmtPercent(pct)})` : ""}`;
+        const font = Math.round(Math.max(10, cfg.labelFont));
+        const stroke = { stroke: cfg.ink, "stroke-width": 1.4, fill: "none" } as const;
+        if (orientation === "columns") {
+            const yLine = Math.min(p1.a.end, p2.a.end) - 14 * k;
+            this.el("path", {
+                d: `M${p1.a.band},${p1.a.end}L${p1.a.band},${yLine}L${p2.a.band},${yLine}L${p2.a.band},${p2.a.end}`,
+                ...stroke, "stroke-dasharray": "4,3"
+            }, overlay);
+            const t = this.el("text", {
+                x: (p1.a.band + p2.a.band) / 2, y: yLine - 5, "text-anchor": "middle",
+                "font-size": font, "font-weight": 600, fill: cfg.ink, "font-family": FONT,
+                stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+            }, overlay);
+            t.textContent = text;
+        } else {
+            const xLine = Math.max(p1.a.end, p2.a.end) + 14 * k;
+            this.el("path", {
+                d: `M${p1.a.end},${p1.a.band}L${xLine},${p1.a.band}L${xLine},${p2.a.band}L${p2.a.end},${p2.a.band}`,
+                ...stroke, "stroke-dasharray": "4,3"
+            }, overlay);
+            const t = this.el("text", {
+                x: xLine + 5, y: (p1.a.band + p2.a.band) / 2 + font * 0.35,
+                "font-size": font, "font-weight": 600, fill: cfg.ink, "font-family": FONT,
+                stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+            }, overlay);
+            t.textContent = text;
         }
     }
 
@@ -2810,7 +3229,18 @@ export class Visual implements IVisual {
 
         g.addEventListener("click", (e: MouseEvent) => {
             e.stopPropagation();
-            if (!p.sel || !allow) { return; }
+            if (!allow) { return; }
+            // compare mode: clicks collect two categories for the Δ overlay instead
+            // of cross-filtering (the toggle decides which behavior clicks have)
+            if (this.compareActive) {
+                const i = this.compareCats.indexOf(p.cat);
+                if (i >= 0) { this.compareCats.splice(i, 1); }
+                else if (this.compareCats.length >= 2) { this.compareCats = [p.cat]; }
+                else { this.compareCats.push(p.cat); }
+                this.rerender();
+                return;
+            }
+            if (!p.sel) { return; }
             this.selectionManager.select(p.sel, e.ctrlKey || e.metaKey).then((ids: ISelectionId[]) => {
                 this.applySelectionOpacity(ids);
             });
