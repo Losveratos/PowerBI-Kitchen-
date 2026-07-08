@@ -101,6 +101,14 @@ in **einem** Visual löst:
 - **Varianz-Stufen am Wasserfall** (IBCS CT 12): mit PY/PL am Waterfall
   erscheinen ΔBasis-Balken und ΔBasis-%-Pins je Rechenzeile über der
   Brücke, mit korrekter Referenzachsen-Notation und Farbe nach Wirkung
+- **Kommentare im Chart erfassen** (optional): Kommentar-Modus an → Klick
+  auf eine Kategorie öffnet einen Editor, der Kommentar wird im Bericht
+  gespeichert (✎-Marker, Tooltip, Kommentarliste, bookmark-fähig)
+- **Wesentlichkeits-Schwellen** (optional): Abweichungen unter der
+  absoluten und/oder %-Schwelle werden grau statt rot/grün — weniger
+  Ampel-Rauschen, Fokus auf materielle Abweichungen
+- **YTD-Button im Chart** (optional): Enduser schaltet die kumulierte
+  Sicht per Chip oben rechts um, persistiert wie die Brücken-Buttons
 - **Σ-Header**: Summe + Gesamtabweichung (absolut & %) als Kopfzeile, gut/schlecht gefärbt
 - **Kompakt-Modus**: unter ~190 px Höhe klappen die Varianz-Panels automatisch zu
   farbigen Δ-Labels an den Säulenenden — funktioniert auch als kleine Dashboard-Kachel

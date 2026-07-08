@@ -135,6 +135,9 @@
                 "movingAverage": { "type": { "numeric": true } },
                 "dualVariance": { "type": { "bool": true } },
                 "cumulative": { "type": { "bool": true } },
+                "cumulativeButton": { "type": { "bool": true } },
+                "materialityAbs": { "type": { "numeric": true } },
+                "materialityPct": { "type": { "numeric": true } },
                 "highlight": { "type": { "text": true } },
                 "groupEvery": { "type": { "numeric": true } },
                 "multiplesTotal": { "type": { "bool": true } },
@@ -186,7 +189,9 @@
         },
         "commentsPanel": {
             "properties": {
-                "showPanel": { "type": { "bool": true } }
+                "showPanel": { "type": { "bool": true } },
+                "editComments": { "type": { "bool": true } },
+                "userComments": { "type": { "text": true } }
             }
         },
         "scale": {

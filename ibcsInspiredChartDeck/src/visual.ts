@@ -123,6 +123,8 @@ interface ChartConfig {
     hasPl: boolean;
     hasFc: boolean;
     hasBm: boolean;
+    /** materiality: false → variance is drawn grey instead of good/bad (thresholds in the pane) */
+    isMaterial: (p: DataPoint | null | undefined) => boolean;
     /** high-contrast mode: only foreground/background colors, outlines for distinction */
     hc: boolean;
     ink: string;
@@ -232,6 +234,10 @@ export class Visual implements IVisual {
     private paneHasPl = false;
     private paneHasComments = false;
     private paneHasMultiples = false;
+    /** user-entered comments persisted in the report (commentsPanel.userComments JSON) */
+    private userComments = new Map<string, string>();
+    private commentEdit = false;
+    private commentEditor: HTMLDivElement | null = null;
     private static instanceCounter = 0;
     private instanceId: number;
 
@@ -276,6 +282,7 @@ export class Visual implements IVisual {
             this.svg.setAttribute("width", String(width));
             this.svg.setAttribute("height", String(height));
 
+            this.userComments = this.readUserComments(dataView);
             const points = this.parseData(dataView);
             if (!points || points.length === 0) {
                 this.renderDemo(width, height);
@@ -313,8 +320,13 @@ export class Visual implements IVisual {
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
         fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
         fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value;
-        fs.commentsCard.visible = this.paneHasComments;
+        // comments card stays visible without a comment measure — the in-chart
+        // capture mode works on any category
+        fs.commentsCard.visible = true;
         fs.chartCard.multiplesGroup.visible = this.paneHasMultiples;
+        fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line";
+        fs.chartCard.materialityAbs.visible = this.paneHasPy || this.paneHasPl;
+        fs.chartCard.materialityPct.visible = this.paneHasPy || this.paneHasPl;
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
@@ -418,6 +430,21 @@ export class Visual implements IVisual {
                 isRest: false,
                 sel: selBuilder.createSelectionId()
             });
+        }
+        // merge user-entered comments (persisted via the in-chart editor) and renumber;
+        // with a stack series the same category repeats — only its first point gets the marker
+        if (this.userComments.size > 0) {
+            const seen = new Set<string>();
+            for (const p of points) {
+                const key = this.commentKey(p);
+                if (seen.has(key)) { continue; }
+                const uc = this.userComments.get(key);
+                if (uc == null) { continue; }
+                seen.add(key);
+                p.comment = p.comment ? `${p.comment} · ✎ ${uc}` : `✎ ${uc}`;
+            }
+            let no = 0;
+            for (const p of points) { p.commentNo = p.comment != null ? ++no : null; }
         }
         return points;
     }
@@ -560,6 +587,11 @@ export class Visual implements IVisual {
         this.compareAnchors.clear();
         if (!this.compareActive) { this.compareCats = []; }
 
+        // comment capture mode: clicks open the editor instead of cross-filtering
+        this.commentEdit = s.commentsCard.editComments.value
+            && this.host.hostCapabilities?.allowInteractions !== false;
+        this.closeCommentEditor();
+
         // small multiples: group by the multiples role, in order of appearance
         const groups: { name: string | null; pts: DataPoint[] }[] = [];
         for (const p of points) {
@@ -676,7 +708,20 @@ export class Visual implements IVisual {
             hasPy: points.some(p => p.py != null),
             hasPl: points.some(p => p.pl != null),
             hasFc: points.some(p => p.isFc),
-            hasBm: points.some(p => p.bm != null)
+            hasBm: points.some(p => p.bm != null),
+            isMaterial: (() => {
+                const mAbs = s.chartCard.materialityAbs.value ?? 0;
+                const mPct = s.chartCard.materialityPct.value ?? 0;
+                if (mAbs <= 0 && mPct <= 0) { return () => true; }
+                // material = every configured threshold exceeded (AND) — filters both
+                // small absolute noise and small percentage noise
+                return (p: DataPoint | null | undefined) => {
+                    if (!p || (p.varAbs == null && p.varRel == null)) { return true; }
+                    if (mAbs > 0 && p.varAbs != null && Math.abs(p.varAbs) < mAbs) { return false; }
+                    if (mPct > 0 && p.varRel != null && Math.abs(p.varRel) < mPct) { return false; }
+                    return true;
+                };
+            })()
         };
 
         // hatch patterns for forecast (base chart + good/bad variance colors)
@@ -794,6 +839,12 @@ export class Visual implements IVisual {
                 showSort: isCatBridge,
                 showPlay: true
             });
+        }
+        // YTD chip (opt-in): the end user flips the cumulative view on the report
+        // canvas; persisted like the other in-chart buttons
+        if (s.chartCard.cumulativeButton.value
+            && (orientationRaw === "columns" || orientationRaw === "line")) {
+            this.drawCumButton(width - (wfStyleGlobal ? 30 : 6), cfg);
         }
         // IBCS title block on top of everything (incl. multiples grid)
         const topOffset = s.ibcsTitleCard.show.value
@@ -1053,7 +1104,8 @@ export class Visual implements IVisual {
                 const v = tierPts[i]?.varRel;
                 if (v == null) { continue; }
                 const c = pos(i) + slotW / 2;
-                const col = v === 0 ? cfg.colors.py : (good(v) ? cfg.colors.good : cfg.colors.bad);
+                const col = (v === 0 || !cfg.isMaterial(tierPts[i]))
+                    ? cfg.colors.py : (good(v) ? cfg.colors.good : cfg.colors.bad);
                 const y = relScale(v);
                 this.el("line", { x1: c, y1: zero, x2: c, y2: y, stroke: col, "stroke-width": Math.max(1.6, 1.4 * k) }, tg);
                 this.el("circle", { cx: c, cy: y, r: Math.max(2.6, 2.2 * k), fill: col }, tg);
@@ -1076,8 +1128,9 @@ export class Visual implements IVisual {
                 const p = tierPts[i];
                 const v = p?.varAbs;
                 if (p == null || v == null) { continue; }
-                const col = v === 0 ? cfg.colors.py : (good(v) ? cfg.colors.good : cfg.colors.bad);
-                const style = p.isFc
+                const mat = cfg.isMaterial(p);
+                const col = (v === 0 || !mat) ? cfg.colors.py : (good(v) ? cfg.colors.good : cfg.colors.bad);
+                const style = p.isFc && mat
                     ? { fill: `url(#${good(v) ? cfg.patGood : cfg.patBad})`, stroke: col, "stroke-width": 1 }
                     : { fill: col };
                 this.drawBar(tg, pos(i), slotW, 0, v, absScale, "columns", style);
@@ -1109,11 +1162,13 @@ export class Visual implements IVisual {
                         : { fill: cfg.colors.ac };
             } else {
                 const delta = sg.to - sg.from;
-                const color = delta === 0 ? cfg.colors.py : (sg.good ? cfg.colors.good : cfg.colors.bad);
+                // in the variance bridge the delta bars ARE variances — materiality greys them
+                const imm = isVarBridge && sg.p != null && !cfg.isMaterial(sg.p);
+                const color = (delta === 0 || imm) ? cfg.colors.py : (sg.good ? cfg.colors.good : cfg.colors.bad);
                 const hollowBad = cfg.hc && !sg.good && delta !== 0;
                 style = hollowBad
                     ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4 }
-                    : sg.hatched
+                    : sg.hatched && !imm
                         ? { fill: `url(#${sg.good ? cfg.patGood : cfg.patBad})`, stroke: color, "stroke-width": 1 }
                         : { fill: color };
             }
@@ -1879,7 +1934,8 @@ export class Visual implements IVisual {
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
         const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
-        const colOf = (v: number) => v === 0 ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+        const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
+            ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
         const txt = (xx: number, yy: number, text: string, anchor: string, font: number,
             bold: boolean, color: string, parent: SVGElement) => {
             const t = this.el("text", {
@@ -2000,19 +2056,19 @@ export class Visual implements IVisual {
             if (p.varAbs != null && colX["dval"]) {
                 txt(colX["dval"].x + colX["dval"].w, yMid + rowFont * 0.35,
                     this.fmtSigned(cfg.fmtVar, p.varAbs), "end", rowFont, sum,
-                    p.varAbs === 0 ? cfg.subtle : colOf(p.varAbs), g);
+                    p.varAbs === 0 ? cfg.subtle : colOf(p.varAbs, p), g);
             }
             if (p.varAbs != null && colX["dbar"]) {
                 const len = Math.abs(p.varAbs) / dDomain * (colX["dbar"].w / 2 - 4);
                 const h = Math.max(3, rowH * 0.42);
-                const c = colOf(p.varAbs);
+                const c = colOf(p.varAbs, p);
                 const hollowBad = cfg.hc && !goodOf(p.varAbs) && p.varAbs !== 0;
                 this.el("rect", {
                     x: p.varAbs >= 0 ? dAxis + 1 : dAxis - 1 - len, y: yMid - h / 2,
                     width: Math.max(len, 1), height: h,
                     ...(hollowBad
                         ? { fill: cfg.paper, stroke: c, "stroke-width": 1.2 }
-                        : p.isFc
+                        : p.isFc && cfg.isMaterial(p)
                             ? { fill: `url(#${goodOf(p.varAbs) ? cfg.patGood : cfg.patBad})`, stroke: c, "stroke-width": 1 }
                             : { fill: c })
                 }, g);
@@ -2021,7 +2077,7 @@ export class Visual implements IVisual {
             // ΔBasis %: pin with label
             if (p.varRel != null && colX["pct"]) {
                 const len = Math.abs(p.varRel) / maxPct * (colX["pct"].w / 2 - lf * 3);
-                const c = colOf(p.varRel);
+                const c = colOf(p.varRel, p);
                 const r = Math.max(2.4, 3 * k);
                 const dir = p.varRel >= 0 ? 1 : -1;
                 const endX = pctAxis + dir * Math.max(len, 2);
@@ -2038,14 +2094,14 @@ export class Visual implements IVisual {
             if (hasVar2 && p.var2Abs != null && colX["d2val"]) {
                 txt(colX["d2val"].x + colX["d2val"].w, yMid + rowFont * 0.35,
                     this.fmtSigned(cfg.fmtVar, p.var2Abs), "end", rowFont, sum,
-                    p.var2Abs === 0 ? cfg.subtle : colOf(p.var2Abs), g);
+                    p.var2Abs === 0 ? cfg.subtle : colOf(p.var2Abs, p), g);
             }
             if (hasVar2 && p.var2Abs != null && colX["d2bar"]) {
                 const len = Math.abs(p.var2Abs) / d2Domain * (colX["d2bar"].w / 2 - 4);
                 const h = Math.max(3, rowH * 0.42);
                 this.el("rect", {
                     x: p.var2Abs >= 0 ? d2Axis + 1 : d2Axis - 1 - len, y: yMid - h / 2,
-                    width: Math.max(len, 1), height: h, fill: colOf(p.var2Abs)
+                    width: Math.max(len, 1), height: h, fill: colOf(p.var2Abs, p)
                 }, g);
             }
 
@@ -2891,7 +2947,8 @@ export class Visual implements IVisual {
                     // compact mode: variance becomes a colored second label at the bar end
                     if (compact && p.varAbs != null) {
                         const good = cfg.invert ? p.varAbs < 0 : p.varAbs > 0;
-                        const vColor = p.varAbs === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                        const vColor = (p.varAbs === 0 || !cfg.isMaterial(p))
+                            ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                         const vText = p.varRel != null ? relTexts[i] : absTexts[i];
                         const gap = orientation === "columns"
                             ? cfg.labelFont + 2
@@ -2929,14 +2986,15 @@ export class Visual implements IVisual {
             // absolute variance bars
             if (panels.abs && absScale && p.varAbs != null) {
                 const good = cfg.invert ? p.varAbs < 0 : p.varAbs > 0;
-                const color = p.varAbs === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                const mat = cfg.isMaterial(p);
+                const color = (p.varAbs === 0 || !mat) ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const vw = barW; // IBCS: same width as the base bars
                 const vx = cx - vw / 2;
                 const hollowBad = cfg.hc && !good && p.varAbs !== 0;
                 this.drawBar(g, vx, vw, 0, p.varAbs, absScale, orientation,
                     hollowBad
                         ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4 }
-                        : p.isFc
+                        : p.isFc && mat
                             ? { fill: `url(#${good ? cfg.patGood : cfg.patBad})`, stroke: color, "stroke-width": 1 }
                             : { fill: color });
                 if (cfg.showLabels && showAbsAt(i)) {
@@ -2948,7 +3006,8 @@ export class Visual implements IVisual {
             // relative variance pins
             if (panels.rel && relScale && p.varRel != null) {
                 const good = cfg.invert ? p.varRel < 0 : p.varRel > 0;
-                const color = p.varRel === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                const color = (p.varRel === 0 || !cfg.isMaterial(p))
+                    ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const c = cx;
                 const zero = relScale(0);
                 const end = relScale(p.varRel);
@@ -2970,14 +3029,15 @@ export class Visual implements IVisual {
             // second-basis variance: bars + pins (dual variance)
             if (panels.abs2 && abs2Scale && p.var2Abs != null) {
                 const good = cfg.invert ? p.var2Abs < 0 : p.var2Abs > 0;
-                const color = p.var2Abs === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                const mat = cfg.isMaterial(p);
+                const color = (p.var2Abs === 0 || !mat) ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const vw = barW; // IBCS: same width as the base bars
                 const vx = cx - vw / 2;
                 const hollowBad = cfg.hc && !good && p.var2Abs !== 0;
                 this.drawBar(g, vx, vw, 0, p.var2Abs, abs2Scale, orientation,
                     hollowBad
                         ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4 }
-                        : p.isFc
+                        : p.isFc && mat
                             ? { fill: `url(#${good ? cfg.patGood : cfg.patBad})`, stroke: color, "stroke-width": 1 }
                             : { fill: color });
                 if (cfg.showLabels && showAbs2At(i)) {
@@ -2987,7 +3047,8 @@ export class Visual implements IVisual {
             }
             if (panels.rel2 && rel2Scale && p.var2Rel != null) {
                 const good = cfg.invert ? p.var2Rel < 0 : p.var2Rel > 0;
-                const color = p.var2Rel === 0 ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                const color = (p.var2Rel === 0 || !cfg.isMaterial(p))
+                    ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const zero = rel2Scale(0);
                 const end = rel2Scale(p.var2Rel);
                 const r = Math.max(2.5, Math.min(4.5, slotW * 0.12));
@@ -3992,6 +4053,11 @@ export class Visual implements IVisual {
         g.addEventListener("click", (e: MouseEvent) => {
             e.stopPropagation();
             if (!allow) { return; }
+            // comment capture mode: clicks open the editor instead of cross-filtering
+            if (this.commentEdit) {
+                this.openCommentEditor(p, e);
+                return;
+            }
             // compare mode: clicks collect two categories for the Δ overlay instead
             // of cross-filtering (the toggle decides which behavior clicks have)
             if (this.compareActive) {
@@ -4074,5 +4140,153 @@ export class Visual implements IVisual {
             const isSel = hasSelection && cg.sel != null && selected.some(s => s.equals(cg.sel));
             cg.g.setAttribute("opacity", !hasSelection || isSel ? "1" : "0.35");
         }
+    }
+
+    // ------------------------------------------------- user comments (in-chart)
+
+    /** parses the persisted commentsPanel.userComments JSON store */
+    private readUserComments(dataView: DataView | undefined): Map<string, string> {
+        const raw = dataView?.metadata?.objects?.["commentsPanel"]?.["userComments"];
+        const map = new Map<string, string>();
+        if (typeof raw === "string" && raw.trim() !== "") {
+            try {
+                const obj = JSON.parse(raw) as Record<string, string>;
+                for (const key of Object.keys(obj)) {
+                    const v = obj[key];
+                    if (typeof v === "string" && v.trim() !== "") { map.set(key, v); }
+                }
+            } catch { /* corrupt store: start clean rather than fail the visual */ }
+        }
+        return map;
+    }
+
+    private commentKey(p: DataPoint): string {
+        return `${p.group ?? ""}¦${p.cat}`;
+    }
+
+    private persistUserComments(): void {
+        const obj: Record<string, string> = {};
+        this.userComments.forEach((v, k) => { obj[k] = v; });
+        this.host.persistProperties({
+            merge: [{
+                objectName: "commentsPanel", selector: null,
+                properties: { userComments: JSON.stringify(obj) }
+            }]
+        });
+    }
+
+    private closeCommentEditor(): void {
+        if (this.commentEditor) {
+            this.commentEditor.remove();
+            this.commentEditor = null;
+        }
+    }
+
+    /** small HTML editor next to the clicked category; saving persists into the report */
+    private openCommentEditor(p: DataPoint, e: MouseEvent): void {
+        this.closeCommentEditor();
+        const key = this.commentKey(p);
+        const rootRect = this.root.getBoundingClientRect();
+        if (window.getComputedStyle(this.root).position === "static") {
+            this.root.style.position = "relative";
+        }
+        const boxW = 250, boxH = 132;
+        const left = Math.max(2, Math.min(e.clientX - rootRect.left, rootRect.width - boxW - 4));
+        const top = Math.max(2, Math.min(e.clientY - rootRect.top, rootRect.height - boxH - 4));
+
+        const box = document.createElement("div");
+        this.commentEditor = box;
+        box.style.cssText = `position:absolute;left:${left}px;top:${top}px;z-index:10;`
+            + `width:${boxW}px;box-sizing:border-box;background:#FFFFFF;color:#252423;`
+            + "border:1px solid #8A8A8A;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,0.25);"
+            + "padding:8px;font-family:'Segoe UI',sans-serif;font-size:12px;";
+        box.addEventListener("click", ev => ev.stopPropagation());
+        box.addEventListener("contextmenu", ev => ev.stopPropagation());
+
+        const title = document.createElement("div");
+        title.style.cssText = "font-weight:600;margin-bottom:5px;white-space:nowrap;"
+            + "overflow:hidden;text-overflow:ellipsis;";
+        title.textContent = `✎ ${p.group != null ? `${p.group} · ` : ""}${p.cat}`;
+        box.appendChild(title);
+
+        const ta = document.createElement("textarea");
+        ta.rows = 3;
+        ta.style.cssText = "width:100%;box-sizing:border-box;resize:vertical;"
+            + "font-family:inherit;font-size:12px;padding:4px;";
+        ta.value = this.userComments.get(key) ?? "";
+        ta.addEventListener("keydown", ev => {
+            ev.stopPropagation();
+            if (ev.key === "Escape") { this.closeCommentEditor(); }
+            if (ev.key === "Enter" && (ev.ctrlKey || ev.metaKey)) { save(); }
+        });
+        box.appendChild(ta);
+
+        const row = document.createElement("div");
+        row.style.cssText = "display:flex;gap:6px;margin-top:6px;justify-content:flex-end;";
+        const mkBtn = (label: string, primary: boolean, onClick: () => void) => {
+            const b = document.createElement("button");
+            b.textContent = label;
+            b.style.cssText = "font-size:12px;padding:3px 10px;cursor:pointer;border-radius:3px;"
+                + (primary
+                    ? "background:#252423;color:#FFFFFF;border:1px solid #252423;"
+                    : "background:#FFFFFF;color:#252423;border:1px solid #8A8A8A;");
+            b.addEventListener("click", ev => { ev.stopPropagation(); onClick(); });
+            row.appendChild(b);
+        };
+        const save = () => {
+            const text = ta.value.trim();
+            if (text) { this.userComments.set(key, text); }
+            else { this.userComments.delete(key); }
+            this.closeCommentEditor();
+            this.persistUserComments();
+        };
+        if (this.userComments.has(key)) {
+            mkBtn("Löschen", false, () => {
+                this.userComments.delete(key);
+                this.closeCommentEditor();
+                this.persistUserComments();
+            });
+        }
+        mkBtn("Abbrechen", false, () => this.closeCommentEditor());
+        mkBtn("Speichern", true, save);
+        box.appendChild(row);
+
+        this.root.appendChild(box);
+        ta.focus();
+    }
+
+    /** YTD chip top-right: persists chart.cumulative so end users can flip the view */
+    private drawCumButton(xRight: number, cfg: ChartConfig): void {
+        const k = this.fontK;
+        const bh = Math.round(18 * k), font = Math.round(11 * k);
+        const segW = Math.round(38 * k);
+        const x = xRight - segW;
+        const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+        btn.setAttribute("aria-label", cfg.cumulative
+            ? "Kumulierte Sicht (YTD) ausschalten" : "Kumulierte Sicht (YTD) einschalten");
+        this.el("rect", {
+            x, y: 6, width: segW, height: bh, rx: bh / 2,
+            fill: cfg.cumulative ? cfg.colors.ac : cfg.paper,
+            stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
+        }, btn);
+        const t = this.el("text", {
+            x: x + segW / 2, y: 6 + bh / 2 + font * 0.36, "text-anchor": "middle",
+            "font-size": font, fill: cfg.cumulative ? cfg.paper : cfg.ink, "font-family": FONT
+        }, btn);
+        t.textContent = "YTD";
+        btn.style.cursor = "pointer";
+        const toggle = () => {
+            this.host.persistProperties({
+                merge: [{
+                    objectName: "chart", selector: null,
+                    properties: { cumulative: !cfg.cumulative }
+                }]
+            });
+        };
+        btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); toggle(); });
+        btn.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key !== "Enter" && e.key !== " ") { return; }
+            e.preventDefault(); e.stopPropagation(); toggle();
+        });
     }
 }

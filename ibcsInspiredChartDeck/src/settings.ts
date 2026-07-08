@@ -236,11 +236,43 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
             this.showRelativeVariance, this.dualVariance, this.showTotal, this.groupEvery]
     });
 
+    cumulativeButton = new formattingSettings.ToggleSwitch({
+        name: "cumulativeButton",
+        displayName: "YTD button in chart",
+        displayNameKey: "Chart_CumButton",
+        description: "Zeigt einen klickbaren „YTD\"-Button oben rechts im Chart (Columns/Line) — der Enduser schaltet die kumulierte Sicht direkt im Bericht um; die Wahl wird persistiert. Standard aus.",
+        value: false
+    });
+
+    materialityAbs = new formattingSettings.NumUpDown({
+        name: "materialityAbs",
+        displayName: "Materiality from (absolute)",
+        displayNameKey: "Chart_MaterialityAbs",
+        description: "Wesentlichkeits-Schwelle: Abweichungen unter diesem absoluten Betrag werden grau statt rot/grün dargestellt (Panels, Wasserfall-Stufen, Tabelle). 0 = aus.",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 }
+        }
+    });
+
+    materialityPct = new formattingSettings.NumUpDown({
+        name: "materialityPct",
+        displayName: "Materiality from (%)",
+        displayNameKey: "Chart_MaterialityPct",
+        description: "Wesentlichkeits-Schwelle in Prozent: Abweichungen unter diesem Δ % werden grau dargestellt. Sind beide Schwellen gesetzt, muss eine Abweichung beide überschreiten, um farbig zu sein. 0 = aus.",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 100 }
+        }
+    });
+
     analysisGroup = new formattingSettings.Group({
         name: "chartAnalysis",
         displayName: "Analysis",
         displayNameKey: "Group_Analysis",
-        slices: [this.cumulative, this.movingAverage, this.topN, this.highlight, this.invert, this.compareClick]
+        slices: [this.cumulative, this.cumulativeButton, this.movingAverage, this.topN,
+            this.highlight, this.invert, this.compareClick, this.materialityAbs, this.materialityPct]
     });
 
     multiplesTotal = new formattingSettings.ToggleSwitch({
@@ -416,10 +448,18 @@ export class CommentsCardSettings extends FormattingSettingsCard {
         value: true
     });
 
+    editComments = new formattingSettings.ToggleSwitch({
+        name: "editComments",
+        displayName: "Capture comments in chart",
+        displayNameKey: "Comments_Edit",
+        description: "Kommentar-Modus: Klick auf eine Kategorie öffnet ein Eingabefeld — der Kommentar wird im Bericht gespeichert (bookmark-fähig, wandert mit der PBIX). Solange der Modus an ist, filtern Klicks nicht quer. Standard aus.",
+        value: false
+    });
+
     name: string = "commentsPanel";
     displayName: string = "Comments";
     displayNameKey: string = "Card_Comments";
-    slices: Array<FormattingSettingsSlice> = [this.showPanel];
+    slices: Array<FormattingSettingsSlice> = [this.showPanel, this.editComments];
 }
 
 export class ScaleCardSettings extends formattingSettings.CompositeCard {

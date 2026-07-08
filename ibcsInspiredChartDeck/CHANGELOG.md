@@ -1,5 +1,29 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.10.0.0 (2026-07-08)
+
+**Drei Controller-Extras — alle einzeln zuschaltbar, Standard aus:**
+
+- **Kommentare im Chart erfassen** (Karte „Kommentare"): Kommentar-Modus
+  einschalten → Klick auf eine Kategorie öffnet ein Eingabefeld direkt
+  im Chart. Gespeicherte Kommentare werden im Bericht persistiert
+  (bookmark-fähig, wandern mit der PBIX), bekommen einen ✎-Marker mit
+  Nummer, erscheinen im Tooltip und in der Kommentarliste — auch
+  kombiniert mit Kommentaren aus dem Text-Measure. Löschen über
+  denselben Editor; solange der Modus an ist, filtern Klicks nicht
+  quer. Die Kommentare-Karte ist dafür jetzt immer sichtbar.
+- **Wesentlichkeits-Schwellen** (Gruppe „Analyse"): „Wesentlichkeit ab
+  (absolut)" und „ab (%)" — Abweichungen unterhalb der Schwellen werden
+  grau statt rot/grün dargestellt (Panels inkl. Doppel-Varianz und
+  Kompakt-Labels, Wasserfall-Varianz-Stufen und -Brücke, Tabelle).
+  Sind beide Schwellen gesetzt, muss eine Abweichung beide
+  überschreiten, um farbig zu sein — filtert absolutes und
+  prozentuales Rauschen zugleich. Σ-Kopfzeile bleibt immer farbig.
+- **YTD-Button im Chart** (Gruppe „Analyse", Columns/Line): klickbarer
+  „YTD"-Chip oben rechts — der Enduser schaltet die kumulierte Sicht
+  direkt im Bericht um, die Wahl wird persistiert (wie die
+  Brücken-Buttons).
+
 ## 1.9.0.0 (2026-07-08)
 
 **Zwei Ergänzungen nach Abgleich mit den offiziellen IBCS-Chart-Templates:**

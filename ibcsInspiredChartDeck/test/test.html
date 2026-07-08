@@ -47,6 +47,8 @@
 <div class="case"><h4>Small Multiples · Top 3 + Rest + Σ Gesamt (6 Regionen)</h4><div class="stage" id="c37" style="width:960px;height:560px"></div></div>
 <div class="case"><h4>Small Multiples · Erste Kachel groß (CT 13) + Σ Gesamt</h4><div class="stage" id="c38" style="width:960px;height:560px"></div></div>
 <div class="case"><h4>GuV-Wasserfall + ΔPY-Varianz-Stufen (CT 12)</h4><div class="stage" id="c39" style="width:960px;height:520px"></div></div>
+<div class="case"><h4>Wesentlichkeit (|Δ|&lt;30k grau) + gespeicherter ✎-Kommentar + YTD-Button</h4><div class="stage" id="c40" style="width:960px;height:480px"></div></div>
+<div class="case"><h4>Kommentar-Modus an (Klick öffnet Editor)</h4><div class="stage" id="c41" style="width:960px;height:400px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -362,6 +364,18 @@ run("c39", dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousY
   chart: { orientation: "waterfall", showTotal: false },
   ibcsTitle: { kpi: "GuV", period: "2026" }
 }, null, pnlTypes), 960, 520);
+
+// controller extras: materiality thresholds grey immaterial deltas, a stored
+// in-chart comment renders its ✎ marker, the YTD chip sits top-right
+run("c40", dataView(months, [col("actual", acFull, "#,0 €"), col("plan", pl, "#,0 €")], {
+  chart: { materialityAbs: 30000, materialityPct: 3, cumulativeButton: true },
+  commentsPanel: { userComments: JSON.stringify({ "¦Mär": "Preiserhöhung ab März wirksam" }) }
+}), 960, 480);
+
+// comment capture mode on: clicking a column opens the editor (interactive test)
+run("c41", dataView(months.slice(0, 6), [col("actual", ac.slice(0, 6), "#,0 €"), col("previousYear", py.slice(0, 6), "#,0 €")], {
+  commentsPanel: { editComments: true }
+}), 960, 400);
 </script>
 </body>
 </html>
