@@ -55,6 +55,10 @@ interface DataPoint {
     var2Rel: number | null;
     /** benchmark marker value (e.g. market average) */
     bm: number | null;
+    /** combo: second measure rendered as a line over the columns (own scale) */
+    lineVal: number | null;
+    /** stacked mode: series label when the Stack-Series role is bound (else null) */
+    stackSeries: string | null;
     comment: string | null;
     /** 1-based comment marker number, assigned in category order */
     commentNo: number | null;
@@ -137,6 +141,10 @@ interface ChartConfig {
     lineMode: boolean;
     /** moving average window (0 = off), columns/line only */
     movingAvg: number;
+    /** combo: second measure as a line over the columns (own zero-anchored scale) */
+    hasLine: boolean;
+    lineName: string;
+    fmtLine: IValueFormatter;
     /** waterfall-bridge rendering layered on top of columns/bars orientation */
     waterfallStyle: boolean;
     sortByImpact: boolean;
@@ -199,6 +207,8 @@ export class Visual implements IVisual {
     private catGroups: { g: SVGGElement; sel: ISelectionId | null }[] = [];
     private measureFormat: string | undefined;
     private measureName: string | undefined;
+    private lineFormat: string | undefined;
+    private lineName: string | undefined;
     /** shared waterfall domain across small-multiples cells (IBCS same scale) */
     private sharedWfDomain: [number, number] | null = null;
     /** global font multiplier from the labels "Size preset" (Full HD = 1.5) */
@@ -317,6 +327,7 @@ export class Visual implements IVisual {
         const catLevels = catCols?.filter(c => c.source.roles?.["category"]) ?? [];
         const cat = catLevels[0];
         const mult = catCols?.find(c => c.source.roles?.["multiples"]);
+        const seriesCol = catCols?.find(c => c.source.roles?.["series"]);
         const rowTypeCol = catCols?.find(c => c.source.roles?.["rowType"]);
         const fcFlagCol = catCols?.find(c => c.source.roles?.["fcFlag"]);
         const valueCols = dataView?.categorical?.values;
@@ -328,7 +339,7 @@ export class Visual implements IVisual {
         this.measureFormat = undefined;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
-            for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark"]) {
+            for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark", "lineMeasure"]) {
                 if (roles[role]) {
                     byRole[role] = col.values.map(v => (typeof v === "number" && isFinite(v)) ? v : null);
                     if (role === "actual" || (role === "forecast" && !this.measureFormat)) {
@@ -336,6 +347,10 @@ export class Visual implements IVisual {
                         if (!this.measureName || role === "actual") {
                             this.measureName = col.source.displayName;
                         }
+                    }
+                    if (role === "lineMeasure") {
+                        this.lineFormat = col.source.format;
+                        this.lineName = col.source.displayName;
                     }
                 }
             }
@@ -389,6 +404,9 @@ export class Visual implements IVisual {
                 catLevels: levelLabels.length > 1 ? levelLabels : null,
                 ac, py, pl, fc, value, isFc, basis, varAbs, varRel, var2Abs, var2Rel,
                 bm: byRole["benchmark"] ? byRole["benchmark"][i] : null,
+                lineVal: byRole["lineMeasure"] ? byRole["lineMeasure"][i] : null,
+                stackSeries: seriesCol && seriesCol.values[i] != null
+                    ? this.categoryLabel(seriesCol.values[i]) : null,
                 comment,
                 commentNo: comment != null ? ++commentCounter : null,
                 group: mult ? this.categoryLabel(mult.values[i]) : null,
@@ -419,7 +437,7 @@ export class Visual implements IVisual {
 
     // ------------------------------------------------------------ formatting
 
-    private makeFormatter(maxAbs: number, allIntegers: boolean): IValueFormatter {
+    private makeFormatter(maxAbs: number, allIntegers: boolean, formatOverride?: string): IValueFormatter {
         const decimals = Math.max(0, Math.min(3, this.formattingSettings.labelsCard.decimals.value ?? 1));
         const unit = String(this.formattingSettings.labelsCard.displayUnits.value.value);
         let unitValue: number;
@@ -435,7 +453,7 @@ export class Visual implements IVisual {
         // unscaled integers need no forced decimals
         const precision = unitValue === 0 && allIntegers ? 0 : decimals;
         return valueFormatter.create({
-            format: this.measureFormat,
+            format: formatOverride ?? this.measureFormat,
             value: unitValue,
             precision,
             cultureSelector: this.host.locale
@@ -477,7 +495,7 @@ export class Visual implements IVisual {
                 var2Abs: (value as number) - (py[i] as number),
                 var2Rel: (((value as number) - (py[i] as number)) / Math.abs(py[i] as number)) * 100,
                 bm: null,
-                comment: null, commentNo: null, group: null, rowType: null, isRest: false, sel: null, catLevels: null
+                comment: null, commentNo: null, group: null, rowType: null, isRest: false, sel: null, catLevels: null, lineVal: null, stackSeries: null
             };
         });
         this.render(pts, width, height);
@@ -513,9 +531,18 @@ export class Visual implements IVisual {
         const isCatBridge = orientationRaw === "catbridge";
         // IBCS table: one row per category with value + AC·PY bars + ΔBasis bars + Δ% pins
         const isTable = orientationRaw === "table";
-        const orientation: Orientation = orientationRaw === "bars" || isCatBridge || isTable ? "bars" : "columns";
+        // builder-parity modes on existing AC/PY data — no extra fields needed
+        const isPareto = orientationRaw === "pareto";
+        const isDumbbell = orientationRaw === "dumbbell";
+        const isSlope = orientationRaw === "slope";
+        const orientation: Orientation =
+            orientationRaw === "bars" || isCatBridge || isTable || isDumbbell ? "bars" : "columns";
+        // stacked mode: field-driven — filling the Stack-Series role stacks the plain
+        // columns/bars automatically, an empty role leaves everything untouched
+        const isStacked = (orientationRaw === "columns" || orientationRaw === "bars")
+            && points.some(p => p.stackSeries != null);
         // waterfall-bridge is an optional add-on to columns/bars, not a separate orientation
-        const wfStyleGlobal = s.chartCard.waterfallStyle.value
+        const wfStyleGlobal = s.chartCard.waterfallStyle.value && !isStacked
             && (orientationRaw === "columns" || orientationRaw === "bars");
         const sortByImpactOn = (wfStyleGlobal || isCatBridge) && s.chartCard.sortByImpact.value;
 
@@ -525,7 +552,7 @@ export class Visual implements IVisual {
         this.animGroups = [];
 
         // compare-on-click: only meaningful where per-category value bars exist
-        this.compareActive = s.chartCard.compareClick.value
+        this.compareActive = s.chartCard.compareClick.value && !isStacked
             && (orientationRaw === "columns" || orientationRaw === "bars");
         this.compareAnchors.clear();
         if (!this.compareActive) { this.compareCats = []; }
@@ -603,6 +630,12 @@ export class Visual implements IVisual {
             refLineLabel: (s.scaleCard.refLineLabel.value || "").trim(),
             lineMode,
             movingAvg: Math.round(s.chartCard.movingAverage.value ?? 0),
+            hasLine: orientationRaw === "columns" && !isStacked && points.some(p => p.lineVal != null),
+            lineName: this.lineName ?? "Linie",
+            fmtLine: this.makeFormatter(
+                Math.max(...points.map(p => Math.abs(p.lineVal ?? 0)), 0),
+                points.every(p => p.lineVal == null || Number.isInteger(p.lineVal)),
+                this.lineFormat),
             waterfallStyle: wfStyleGlobal,
             sortByImpact: sortByImpactOn,
             basisMode,
@@ -704,6 +737,22 @@ export class Visual implements IVisual {
             }
             if (isTable) {
                 this.renderTable(grp.pts, region, cfg);
+                return;
+            }
+            if (isPareto) {
+                this.renderPareto(grp.pts, region, cfg);
+                return;
+            }
+            if (isDumbbell) {
+                this.renderDumbbell(grp.pts, region, cfg);
+                return;
+            }
+            if (isSlope) {
+                this.renderSlope(grp.pts, region, cfg);
+                return;
+            }
+            if (isStacked) {
+                this.renderStacked(grp.pts, region, cfg);
                 return;
             }
             this.renderChart(grp.pts, region, cfg, domains, cascadeByGroup.get(grp.name) ?? null);
@@ -1944,9 +1993,421 @@ export class Visual implements IVisual {
         return {
             cat: key, catLevels: null,
             ac, py, pl, fc, value, isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
-            bm: null, comment: null, commentNo: null,
+            bm: null, lineVal: null, stackSeries: null, comment: null, commentNo: null,
             group: kids[0].group, rowType: null, isRest: false, sel: null
         };
+    }
+
+    /**
+     * Pareto (structure): AC columns sorted descending plus the cumulative share as
+     * a line with markers, an 80 % reference and a marker at the category where the
+     * cumulative share crosses it — works on Category + AC alone.
+     */
+    private renderPareto(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const pts = points.filter(p => p.value != null)
+            .slice().sort((a, b) => (b.value as number) - (a.value as number));
+        const n = pts.length;
+        if (n === 0) { return; }
+        const k = this.fontK;
+        const lf = cfg.labelFont, cf = cfg.catFont;
+        const pad = 4;
+        const titleH = Math.round(14 * k);
+
+        const catArea = cf + 10;
+        const bandStart = region.x + pad + 2;
+        const bandEnd = region.x + region.w - pad;
+        const rect: Rect = { x: region.x, y: region.y + pad, w: region.w, h: region.h - pad - catArea };
+        const labelPad = cfg.showLabels ? lf + 6 : 6;
+        const total = pts.reduce((a, p) => a + Math.max(p.value as number, 0), 0);
+        const scale = this.makePanelScale([0, Math.max(...pts.map(p => p.value as number), 1)],
+            rect, "columns", labelPad);
+        // own cumulative-% scale sharing the plot area (top padding for the line labels)
+        const pctTop = rect.y + titleH + lf + 10;
+        const pctBottom = rect.y + rect.h - 2;
+        const pctY = (v: number) => pctBottom - (v / 100) * (pctBottom - pctTop);
+
+        const step = (bandEnd - bandStart) / n;
+        const slotW = Math.max(2, step * 0.62);
+        const pos = (i: number) => bandStart + i * step + (step - slotW) / 2;
+        const cx = (i: number) => pos(i) + slotW / 2;
+
+        const bg = this.el("g", {}, this.svg);
+        this.drawBaseline(bg, rect, scale, "columns", bandStart, bandEnd, "ac", cfg.colors);
+        this.drawPanelTitle(bg, rect, "Pareto · AC · kumulierter Anteil", "columns", titleH, region, undefined, cfg.subtle);
+
+        // 80 % reference line
+        this.el("line", {
+            x1: bandStart, y1: pctY(80), x2: bandEnd, y2: pctY(80),
+            stroke: cfg.subtle, "stroke-width": 1, "stroke-dasharray": "5,3"
+        }, bg);
+        const t80 = this.el("text", {
+            x: bandEnd - 2, y: pctY(80) - 3, "text-anchor": "end", "font-size": Math.round(9 * k),
+            fill: cfg.subtle, "font-family": FONT
+        }, bg);
+        t80.textContent = "80 %";
+
+        const marks = this.el("g", {}, this.svg);
+        const valueTexts = pts.map(p => cfg.fmt.format(p.value as number));
+        const showValueAt = this.labelPredicate(pts, valueTexts, lf, step, "columns");
+        const showCatAt = this.labelPredicate(pts, pts.map(p => p.cat), cf, step, "columns");
+
+        let cum = 0;
+        let cross = -1;
+        let d = "";
+        pts.forEach((p, i) => {
+            const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
+            this.drawBar(g, pos(i), slotW, 0, Math.max(p.value as number, 0), scale, "columns",
+                p.isFc
+                    ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                    : { fill: cfg.colors.ac });
+            if (cfg.showLabels && showValueAt(i)) {
+                this.drawEndLabelAt(g, cx(i), Math.max(p.value as number, 0), true, scale,
+                    "columns", valueTexts[i], lf, cfg.ink, 0, cfg.paper);
+            }
+            if (showCatAt(i)) {
+                this.drawCategoryLabel(g, p.cat, cx(i), "columns", cf, region, step, rect, cfg.ink);
+            }
+            cum += Math.max(p.value as number, 0) / (total || 1) * 100;
+            if (cross < 0 && cum >= 80) { cross = i; }
+            d += `${d ? "L" : "M"}${cx(i).toFixed(1)},${pctY(Math.min(cum, 100)).toFixed(1)}`;
+            this.attachInteraction(g, p, cfg);
+            this.catGroups.push({ g, sel: p.sel });
+            this.animGroups.push([g]);
+        });
+
+        // cumulative line + markers + thinned % labels, on top of the bars
+        const overlay = this.el("g", {}, this.svg);
+        this.el("path", { d, fill: "none", stroke: cfg.ink, "stroke-width": 1.8 }, overlay);
+        cum = 0;
+        pts.forEach((p, i) => {
+            cum += Math.max(p.value as number, 0) / (total || 1) * 100;
+            const y = pctY(Math.min(cum, 100));
+            this.el("circle", {
+                cx: cx(i), cy: y, r: Math.max(2.4, 2.8 * k),
+                fill: i === cross ? cfg.ink : cfg.paper, stroke: cfg.ink, "stroke-width": 1.4
+            }, overlay);
+            // label only when the marker sits clearly above the bar (avoids collisions
+            // on the tall leading bars, where the value label already tells the story)
+            const barTop = scale(Math.max(p.value as number, 0));
+            if (cfg.showLabels && (showValueAt(i) || i === cross) && (y < barTop - lf || i === cross)) {
+                const lt = this.el("text", {
+                    x: cx(i), y: y - 6, "text-anchor": "middle", "font-size": Math.round(lf * 0.9),
+                    fill: i === cross ? cfg.ink : cfg.subtle, "font-family": FONT,
+                    "font-weight": i === cross ? 700 : 400,
+                    stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+                }, overlay);
+                lt.textContent = this.fmtPercent(cum).replace("+", "");
+            }
+        });
+        // vertical marker at the 80 % crossing
+        if (cross >= 0) {
+            this.el("line", {
+                x1: cx(cross), y1: pctTop, x2: cx(cross), y2: rect.y + rect.h,
+                stroke: cfg.subtle, "stroke-width": 1, "stroke-dasharray": "3,3"
+            }, bg);
+        }
+    }
+
+    /**
+     * Dumbbell (structure): basis → AC per category as two dots with a connector in
+     * the variance color — reads like "where from, where to" per category.
+     */
+    private renderDumbbell(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const n = points.length;
+        if (n === 0) { return; }
+        if (!points.some(p => p.basis != null)) {
+            this.drawModeHint(region, cfg, "Dumbbell benötigt PY oder PL als Vergleichsbasis");
+            return;
+        }
+        const k = this.fontK;
+        const lf = cfg.labelFont, cf = cfg.catFont;
+        const pad = 4;
+        const titleH = Math.round(14 * k);
+
+        const catArea = Math.min(region.w * 0.24, this.maxTextWidth(points.map(p => p.cat), cf) + 12);
+        const bandStart = region.y + pad + titleH + 4;
+        const bandEnd = region.y + region.h - pad;
+        const rect: Rect = { x: region.x + pad + catArea, y: region.y, w: region.w - pad * 2 - catArea, h: region.h };
+        const labelPad = cfg.showLabels ? lf + 6 : 6;
+        const domain = extent(points.flatMap(p => [p.value, p.basis]));
+        const scale = this.makePanelScale(domain, rect, "bars", labelPad);
+
+        const step = (bandEnd - bandStart) / n;
+        const rowMid = (i: number) => bandStart + i * step + step / 2;
+        const r = Math.max(3.5, Math.min(6, step * 0.16)) * Math.min(k, 1.4);
+
+        const bg = this.el("g", {}, this.svg);
+        this.drawBaseline(bg, rect, scale, "bars", bandStart, bandEnd, "ac", cfg.colors);
+        this.drawPanelTitle(bg, rect, `${cfg.basisLabel} ⟶ AC · Dumbbell`, "bars", titleH, region,
+            bandStart - 6, cfg.subtle);
+
+        const marks = this.el("g", {}, this.svg);
+        const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const colOf = (v: number) => v === 0 ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+        const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cf, step, "bars");
+        const showValAt = this.labelPredicate(points,
+            points.map(p => p.value != null ? cfg.fmt.format(p.value) : ""), lf, step, "bars");
+
+        points.forEach((p, i) => {
+            const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
+            const y = rowMid(i);
+            const xV = p.value != null ? scale(p.value) : null;
+            const xB = p.basis != null ? scale(p.basis) : null;
+            if (xV != null && xB != null) {
+                const d = (p.value as number) - (p.basis as number);
+                this.el("line", {
+                    x1: xB, y1: y, x2: xV, y2: y, stroke: colOf(d),
+                    "stroke-width": Math.max(2.5, r * 0.7), "stroke-linecap": "round"
+                }, g);
+            }
+            if (xB != null) {
+                // basis dot in scenario notation: PY solid grey, PL outlined
+                this.el("circle", {
+                    cx: xB, cy: y, r,
+                    ...(cfg.basisMode === "plan"
+                        ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.6 }
+                        : { fill: cfg.hc ? cfg.paper : cfg.colors.py, stroke: cfg.colors.py, "stroke-width": 1.2 })
+                }, g);
+            }
+            if (xV != null) {
+                this.el("circle", {
+                    cx: xV, cy: y, r,
+                    fill: p.isFc ? cfg.paper : (cfg.hc ? cfg.ink : cfg.colors.ac),
+                    stroke: cfg.colors.ac, "stroke-width": 1.6
+                }, g);
+                if (cfg.showLabels && showValAt(i)) {
+                    const outward = xB == null || xV >= xB;
+                    const lt = this.el("text", {
+                        x: outward ? xV + r + 4 : xV - r - 4, y: y + lf * 0.35,
+                        "text-anchor": outward ? "start" : "end", "font-size": lf, fill: cfg.ink,
+                        "font-family": FONT, "font-weight": 600,
+                        stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+                    }, g);
+                    lt.textContent = cfg.fmt.format(p.value as number);
+                }
+            }
+            if (showCatAt(i)) {
+                this.drawCategoryLabel(g, p.cat, y, "bars", cf, region, step, rect, cfg.ink,
+                    cfg.highlight.has(p.cat.toLowerCase()));
+            }
+            this.attachInteraction(g, p, cfg);
+            this.catGroups.push({ g, sel: p.sel });
+            this.animGroups.push([g]);
+        });
+    }
+
+    /**
+     * Slope (before/after): basis on the left axis, AC on the right, one line per
+     * category in the variance color — the classic Vorher/Nachher comparison.
+     */
+    private renderSlope(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const pts = points.filter(p => p.value != null && p.basis != null);
+        if (pts.length === 0) {
+            this.drawModeHint(region, cfg, "Slope benötigt AC und PY/PL je Kategorie");
+            return;
+        }
+        const k = this.fontK;
+        const cf = cfg.catFont;
+        const pad = 6;
+        const headFont = Math.round(11 * k);
+
+        const x0 = region.x + region.w * 0.30;
+        const x1 = region.x + region.w * 0.70;
+        const top = region.y + pad + headFont + 10;
+        const bottom = region.y + region.h - pad - 6;
+        const dom = extentTight(pts.flatMap(p => [p.value, p.basis]));
+        const span = (dom[1] - dom[0]) || 1;
+        const Y = (v: number) => bottom - ((v - (dom[0] - span * 0.06)) / (span * 1.12)) * (bottom - top);
+
+        const bg = this.el("g", {}, this.svg);
+        for (const [x, label] of [[x0, cfg.basisLabel], [x1, "AC"]] as [number, string][]) {
+            this.el("line", { x1: x, y1: top - 4, x2: x, y2: bottom, stroke: cfg.subtle, "stroke-width": 1, "stroke-opacity": 0.6 }, bg);
+            const ht = this.el("text", {
+                x, y: region.y + pad + headFont, "text-anchor": "middle", "font-size": headFont,
+                fill: cfg.subtle, "font-family": FONT, "font-weight": 700
+            }, bg);
+            ht.textContent = label;
+        }
+
+        // greedy de-overlap for the side labels: sort by y, push down to a minimum gap
+        const gap = cf + 2;
+        const place = (ys: number[]): number[] => {
+            const order = ys.map((y, i) => ({ y, i })).sort((a, b) => a.y - b.y);
+            let prev = -Infinity;
+            const out = new Array(ys.length).fill(0);
+            for (const o of order) {
+                const y = Math.max(o.y, prev + gap);
+                out[o.i] = y;
+                prev = y;
+            }
+            return out;
+        };
+        const leftY = place(pts.map(p => Y(p.basis as number)));
+        const rightY = place(pts.map(p => Y(p.value as number)));
+
+        const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const colOf = (v: number) => v === 0 ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+        const marks = this.el("g", {}, this.svg);
+        pts.forEach((p, i) => {
+            const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
+            const yB = Y(p.basis as number), yV = Y(p.value as number);
+            const d = (p.value as number) - (p.basis as number);
+            const c = colOf(d);
+            this.el("line", {
+                x1: x0, y1: yB, x2: x1, y2: yV, stroke: c, "stroke-width": 2,
+                ...(p.isFc ? { "stroke-dasharray": "5,4" } : {})
+            }, g);
+            this.el("circle", { cx: x0, cy: yB, r: 3 * Math.min(k, 1.4), fill: cfg.hc ? cfg.paper : cfg.colors.py, stroke: cfg.colors.py, "stroke-width": 1.2 }, g);
+            this.el("circle", { cx: x1, cy: yV, r: 3 * Math.min(k, 1.4), fill: p.isFc ? cfg.paper : cfg.colors.ac, stroke: cfg.colors.ac, "stroke-width": 1.4 }, g);
+            const isHl = cfg.highlight.has(p.cat.toLowerCase());
+            const lt = this.el("text", {
+                x: x0 - 8, y: leftY[i] + cf * 0.35, "text-anchor": "end", "font-size": cf,
+                fill: cfg.ink, "font-family": FONT, "font-weight": isHl ? 700 : 400
+            }, g);
+            lt.textContent = this.truncate(`${p.cat}  ${cfg.fmt.format(p.basis as number)}`, x0 - region.x - 12, cf);
+            const rt = this.el("text", {
+                x: x1 + 8, y: rightY[i] + cf * 0.35, "text-anchor": "start", "font-size": cf,
+                fill: cfg.ink, "font-family": FONT, "font-weight": isHl ? 700 : 400
+            }, g);
+            rt.textContent = this.truncate(`${cfg.fmt.format(p.value as number)}  ${p.cat}`, region.x + region.w - x1 - 12, cf);
+            this.attachInteraction(g, p, cfg);
+            this.catGroups.push({ g, sel: p.sel });
+            this.animGroups.push([g]);
+        });
+    }
+
+    /**
+     * Stacked columns/bars — field-driven: filling the Stack-Series role stacks AC by
+     * series with a legend and total labels. PY/PL/variance panels don't apply here;
+     * an empty role leaves the plain chart untouched.
+     */
+    private renderStacked(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const cats: string[] = [];
+        const series: string[] = [];
+        const cell = new Map<string, DataPoint>();
+        for (const p of points) {
+            if (!cats.includes(p.cat)) { cats.push(p.cat); }
+            const s = p.stackSeries ?? "(leer)";
+            if (!series.includes(s)) { series.push(s); }
+            const key = `${p.cat}¦${s}`;
+            if (!cell.has(key)) { cell.set(key, p); }
+        }
+        const n = cats.length;
+        if (n === 0) { return; }
+        const k = this.fontK;
+        const lf = cfg.labelFont, cf = cfg.catFont;
+        const pad = 4;
+        const titleH = Math.round(14 * k);
+        const orientation = cfg.orientation;
+
+        // legend row under the panel title
+        const legFont = Math.round(10 * k);
+        const legendH = legFont + 10;
+        const shade = (idx: number): string => {
+            // ramp from the AC color towards light grey, first series darkest
+            const mix = series.length > 1 ? idx / (series.length - 1) : 0;
+            const from = cfg.hc ? [26, 26, 26] : this.hexRgb(cfg.colors.ac);
+            const to = [200, 200, 200];
+            const c = from.map((f, ci) => Math.round(f + (to[ci] - f) * mix * 0.85));
+            return `rgb(${c[0]},${c[1]},${c[2]})`;
+        };
+
+        const totals = cats.map(c => series.reduce((a, s) => {
+            const p = cell.get(`${c}¦${s}`);
+            return a + Math.max(p?.value ?? 0, 0);
+        }, 0));
+        const domain: [number, number] = [0, Math.max(...totals, 1)];
+
+        let bandStart: number, bandEnd: number, rect: Rect;
+        if (orientation === "columns") {
+            const catArea = cf + 10;
+            bandStart = region.x + pad + 2;
+            bandEnd = region.x + region.w - pad;
+            rect = { x: region.x, y: region.y + pad + legendH, w: region.w, h: region.h - pad - catArea - legendH };
+        } else {
+            const catArea = Math.min(region.w * 0.24, this.maxTextWidth(cats, cf) + 12);
+            bandStart = region.y + pad + titleH + legendH + 2;
+            bandEnd = region.y + region.h - pad;
+            rect = { x: region.x + pad + catArea, y: region.y + legendH, w: region.w - pad * 2 - catArea, h: region.h - legendH };
+        }
+        const labelPad = cfg.showLabels ? lf + 6 : 6;
+        const scale = this.makePanelScale(domain, rect, orientation, labelPad);
+        const step = (bandEnd - bandStart) / n;
+        const slotW = Math.max(2, step * 0.62);
+        const pos = (i: number) => bandStart + i * step + (step - slotW) / 2;
+
+        const bg = this.el("g", {}, this.svg);
+        this.drawBaseline(bg, rect, scale, orientation, bandStart, bandEnd, "ac", cfg.colors);
+        this.drawPanelTitle(bg, rect, "AC · gestapelt", orientation, titleH, region,
+            orientation === "bars" ? region.y + legendH + Math.round(10 * k) : undefined, cfg.subtle);
+
+        // legend (top-left, truncating to the region width)
+        let lx = region.x + 6;
+        const ly = region.y + (orientation === "columns" ? pad + legendH - 4 : legendH - 2);
+        for (let si = 0; si < series.length; si++) {
+            if (lx > region.x + region.w - 60) { break; }
+            this.el("rect", {
+                x: lx, y: ly - legFont + 1, width: legFont, height: legFont,
+                fill: shade(si), ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {})
+            }, bg);
+            const st = this.el("text", {
+                x: lx + legFont + 4, y: ly, "font-size": legFont, fill: cfg.ink, "font-family": FONT
+            }, bg);
+            const label = this.truncate(series[si], 120 * k, legFont);
+            st.textContent = label;
+            lx += legFont + 8 + label.length * legFont * 0.56;
+        }
+
+        const marks = this.el("g", {}, this.svg);
+        const totalTexts = totals.map(t => cfg.fmt.format(t));
+        const fakePts = cats.map((c, i) => ({ cat: c, value: totals[i] } as DataPoint));
+        const showTotalAt = this.labelPredicate(fakePts, totalTexts, lf, step, orientation);
+        const showCatAt = this.labelPredicate(fakePts, cats, cf, step, orientation);
+
+        cats.forEach((c, i) => {
+            const gCat = this.el("g", {}, marks) as SVGGElement;
+            let cum = 0;
+            series.forEach((s, si) => {
+                const p = cell.get(`${c}¦${s}`);
+                const v = Math.max(p?.value ?? 0, 0);
+                if (v <= 0 || !p) { cum += v; return; }
+                const g = this.el("g", { "class": "icd-cat" }, gCat) as SVGGElement;
+                this.drawBar(g, pos(i), slotW, cum, cum + v, scale, orientation,
+                    { fill: shade(si), ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) });
+                // segment label when the slice is tall/wide enough
+                const a = scale(cum), b = scale(cum + v);
+                if (cfg.showLabels && Math.abs(a - b) > lf + 6) {
+                    const mid = (a + b) / 2;
+                    const light = si > (series.length - 1) / 2;
+                    const st = this.el("text", {
+                        x: orientation === "columns" ? pos(i) + slotW / 2 : mid,
+                        y: orientation === "columns" ? mid + lf * 0.35 : pos(i) + slotW / 2 + lf * 0.35,
+                        "text-anchor": "middle", "font-size": Math.round(lf * 0.92),
+                        fill: cfg.hc ? cfg.ink : (light ? cfg.ink : cfg.paper), "font-family": FONT
+                    }, g);
+                    st.textContent = cfg.fmt.format(v);
+                }
+                this.attachInteraction(g, p, cfg);
+                this.catGroups.push({ g, sel: p.sel });
+                cum += v;
+            });
+            // total label at the stack end
+            if (cfg.showLabels && showTotalAt(i)) {
+                this.drawEndLabelAt(gCat, pos(i) + slotW / 2, totals[i], true, scale,
+                    orientation, totalTexts[i], lf, cfg.ink, 0, cfg.paper);
+            }
+            if (showCatAt(i)) {
+                this.drawCategoryLabel(gCat, c, pos(i) + slotW / 2, orientation, cf, region, step, rect, cfg.ink);
+            }
+            this.animGroups.push([gCat]);
+        });
+    }
+
+    /** hex "#rrggbb" → [r,g,b] (defaults to dark grey on malformed input) */
+    private hexRgb(hex: string): number[] {
+        const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+        if (!m) { return [64, 64, 64]; }
+        return [0, 2, 4].map(o => parseInt(m[1].slice(o, o + 2), 16));
     }
 
     /** renders one complete IBCS chart (base + variance panels) into the given region */
@@ -2446,6 +2907,44 @@ export class Visual implements IVisual {
             this.drawBridgeCallout(panels.bridge, orientation, cfg, totalVar);
         }
 
+        // ------- combo line: second measure over the columns, own zero-anchored scale
+        if (cfg.hasLine && orientation === "columns" && !lineMode) {
+            const overlay = this.el("g", {}, this.svg);
+            const lVals = points.map(p => p.lineVal);
+            const lScale = this.makePanelScale(extent(lVals), panels.main, "columns", labelPad);
+            const cxOf = (i: number) => slotPos(i) + pyShift + barW / 2;
+            let d = "";
+            points.forEach((p, i) => {
+                if (p.lineVal == null) { return; }
+                d += `${d ? "L" : "M"}${cxOf(i).toFixed(1)},${lScale(p.lineVal).toFixed(1)}`;
+            });
+            this.el("path", { d, fill: "none", stroke: cfg.ink, "stroke-width": 2 }, overlay);
+            const lineTexts = points.map(p => p.lineVal != null ? cfg.fmtLine.format(p.lineVal) : "");
+            const showLineAt = this.labelPredicate(points, lineTexts, cfg.labelFont, step, "columns");
+            points.forEach((p, i) => {
+                if (p.lineVal == null) { return; }
+                this.el("circle", {
+                    cx: cxOf(i), cy: lScale(p.lineVal), r: Math.max(2.6, 3 * this.fontK),
+                    fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.6
+                }, overlay);
+                if (cfg.showLabels && showLineAt(i)) {
+                    const lt = this.el("text", {
+                        x: cxOf(i), y: lScale(p.lineVal) - 7, "text-anchor": "middle",
+                        "font-size": Math.round(cfg.labelFont * 0.92), fill: cfg.ink, "font-family": FONT,
+                        stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+                    }, overlay);
+                    lt.textContent = lineTexts[i];
+                }
+            });
+            // line-measure name at the top right of the main panel (its scale is its own)
+            const nt = this.el("text", {
+                x: panels.main.x + panels.main.w - 6, y: panels.main.y + Math.round(14 * this.fontK) - 4,
+                "text-anchor": "end", "font-size": Math.round(10 * this.fontK), fill: cfg.subtle,
+                "font-family": FONT, "font-weight": 600
+            }, overlay);
+            nt.textContent = this.truncate(`— ${cfg.lineName}`, panels.main.w * 0.5, 10 * this.fontK);
+        }
+
         // ------- reference line on top of the marks (thin, dashed)
         if (cfg.refLine != null) {
             const overlay = this.el("g", {}, this.svg);
@@ -2839,6 +3338,7 @@ export class Visual implements IVisual {
             ac, py, pl, fc, value,
             isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
             bm: sum(tail.map(p => p.bm)),
+            lineVal: null, stackSeries: null,
             comment: null, commentNo: null,
             group: head.length > 0 ? head[0].group : null,
             rowType: null,
@@ -3380,6 +3880,12 @@ export class Visual implements IVisual {
             add("Previous Year (PY)", p.py);
             add("Plan (PL)", p.pl);
             add("Benchmark (BM)", p.bm);
+            if (p.lineVal != null) {
+                out.push({ displayName: cfg.lineName, value: cfg.fmtLine.format(p.lineVal) });
+            }
+            if (p.stackSeries != null) {
+                out.push({ displayName: "Serie", value: p.stackSeries });
+            }
             if (p.varAbs != null) {
                 out.push({ displayName: `Δ${cfg.basisLabel}`, value: this.fmtSigned(cfg.fmtVar, p.varAbs) });
             }

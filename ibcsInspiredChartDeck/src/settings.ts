@@ -14,7 +14,10 @@ const orientationItems: powerbi.IEnumMember[] = [
     { value: "waterfall", displayName: "Waterfall / Brücke" },
     { value: "intwaterfall", displayName: "Integrierte Brücke (Zeit)" },
     { value: "catbridge", displayName: "Kategorie-Brücke (Struktur)" },
-    { value: "table", displayName: "Tabelle (IBCS)" }
+    { value: "table", displayName: "Tabelle (IBCS)" },
+    { value: "pareto", displayName: "Pareto (Struktur)" },
+    { value: "dumbbell", displayName: "Dumbbell (Struktur)" },
+    { value: "slope", displayName: "Slope · Vorher/Nachher" }
 ];
 
 const comparisonItems: powerbi.IEnumMember[] = [

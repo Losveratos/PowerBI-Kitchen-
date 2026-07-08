@@ -48,6 +48,21 @@
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
+            "displayName": "Line (Kombi)",
+            "displayNameKey": "Role_LineMeasure",
+            "name": "lineMeasure",
+            "kind": "Measure",
+            "description": "Zweite Kennzahl als Linie über den Säulen (z. B. Marge %) — eigene Skala rechts. Nur Columns.",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Stack Series (Gestapelt)",
+            "displayNameKey": "Role_Series",
+            "name": "series",
+            "kind": "Grouping",
+            "description": "Feld gefüllt = Säulen/Balken stapeln sich nach dieser Serie (AC je Serie, mit Legende und Summen-Label)."
+        },
+        {
             "displayName": "Comments",
             "displayNameKey": "Role_Comments",
             "name": "comments",
@@ -97,7 +112,10 @@
                             { "value": "waterfall", "displayName": "Waterfall / Brücke" },
                             { "value": "intwaterfall", "displayName": "Integrierte Brücke (Zeit)" },
                             { "value": "catbridge", "displayName": "Kategorie-Brücke (Struktur)" },
-                            { "value": "table", "displayName": "Tabelle (IBCS)" }
+                            { "value": "table", "displayName": "Tabelle (IBCS)" },
+                            { "value": "pareto", "displayName": "Pareto (Struktur)" },
+                            { "value": "dumbbell", "displayName": "Dumbbell (Struktur)" },
+                            { "value": "slope", "displayName": "Slope · Vorher/Nachher" }
                         ]
                     }
                 },
@@ -189,6 +207,8 @@
                 {
                     "category": { "max": 1 },
                     "multiples": { "max": 1 },
+                    "series": { "max": 1 },
+                    "lineMeasure": { "max": 1 },
                     "rowType": { "max": 1 },
                     "fcFlag": { "max": 1 },
                     "actual": { "max": 1 },
@@ -204,6 +224,7 @@
                     "select": [
                         { "for": { "in": "category" } },
                         { "for": { "in": "multiples" } },
+                        { "for": { "in": "series" } },
                         { "for": { "in": "rowType" } },
                         { "for": { "in": "fcFlag" } }
                     ],
@@ -216,6 +237,7 @@
                         { "bind": { "to": "plan" } },
                         { "bind": { "to": "forecast" } },
                         { "bind": { "to": "benchmark" } },
+                        { "bind": { "to": "lineMeasure" } },
                         { "bind": { "to": "comments" } }
                     ]
                 }

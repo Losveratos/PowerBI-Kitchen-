@@ -41,6 +41,15 @@ in **einem** Visual löst:
   schmalen Visuals gestuft weg. **Mit Hierarchie im Category-Feld** („Alle
   erweitern"): Oberkategorien aggregiert mit ▸/▾ — Klick auf die Zeile klappt
   die Unterzeilen auf und zu
+- **Pareto (Struktur)**: AC absteigend + kumulierte %-Linie, 80 %-Marke —
+  braucht nur Category + AC
+- **Dumbbell (Struktur)**: Basis → AC als zwei Punkte mit Verbinder in der
+  Abweichungsfarbe
+- **Slope · Vorher/Nachher**: Basis links, AC rechts, eine Linie je Kategorie
+- **Kombi Säulen + Linie** (Feld „Line (Kombi)" füllen): zweite Kennzahl als
+  Linie über den Säulen (z. B. Marge %), eigene Skala + Formatstring
+- **Gestapelt** (Feld „Stack Series" füllen): Säulen/Balken stapeln sich
+  automatisch nach der Serie — Legende, Segment- + Summen-Labels
 - **Kachel-Zoom**: ⤢ an jeder Small-Multiples-Kachel vergrößert die Gruppe auf
   die volle Fläche (gleiche Skalen), „← Alle Gruppen" führt zurück
 - **Vergleich per Klick** (optional): zwei Säulen/Balken anklicken zeigt die
@@ -115,6 +124,8 @@ in **einem** Visual löst:
 | Previous Year (PY) | Vorjahres-Measure | optional |
 | Plan / Budget (PL) | Plan-Measure | optional |
 | Forecast (FC) | Forecast-Measure | optional |
+| Line (Kombi) | zweite Kennzahl als Linie über den Säulen | optional |
+| Stack Series | Grouping → gestapelte Säulen/Balken mit Legende | optional |
 | Comments | Text-Measure → nummerierte Marker + Tooltip | optional |
 | Small Multiples | Grouping → Kachel-Grid mit gleicher Skala | optional |
 | Waterfall Type | Spalte 'sum'/'delta' → GuV-Wasserfall | optional |

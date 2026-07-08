@@ -1,5 +1,31 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.7.0.0 (2026-07-08)
+
+**Runde 1 — drei neue Chart-Modi ohne neue Felder** (Orientation-Dropdown,
+reine Renderer auf vorhandenen AC/PY/PL-Daten):
+- **Pareto (Struktur)**: AC-Säulen absteigend sortiert + kumulierte
+  %-Linie mit Markern, 80 %-Referenzlinie und hervorgehobenem Marker an
+  der Kategorie, die die 80 % reißt — funktioniert schon mit Category + AC.
+- **Dumbbell (Struktur)**: Basis → AC je Kategorie als zwei Punkte
+  (PY grau bzw. PL als Outline, AC dunkel) mit Verbinder in der
+  Abweichungsfarbe; Top N + Rest wird unterstützt.
+- **Slope · Vorher/Nachher**: Basis links, AC rechts, eine Linie je
+  Kategorie in der Abweichungsfarbe (FC gestrichelt), Labels mit
+  Anti-Überlappung auf beiden Seiten.
+
+**Runde 2 — zwei feld-gesteuerte Alltags-Features** (kein Modus-Wechsel
+nötig, leeres Feld = alles wie bisher):
+- **Kombi Säulen + Linie**: neues optionales Measure-Feld „Line (Kombi)"
+  (z. B. Marge %) — erscheint als Linie mit Punktmarkern über den Säulen,
+  eigene nullbasierte Skala, eigener Formatstring, Name oben rechts,
+  eigene Tooltip-Zeile. Nur Columns.
+- **Gestapelt**: neues optionales Grouping-Feld „Stack Series" — Säulen
+  oder Balken stapeln sich automatisch nach der Serie (AC je Serie),
+  IBCS-Grauabstufung ab der AC-Farbe, Legende, Segment- und
+  Summen-Labels, Crossfilter je Segment. Varianz-Panels/Brücke sind im
+  Stapel-Modus bewusst aus.
+
 ## 1.6.0.0 (2026-07-08)
 
 **Aufklappbare Hierarchie in der Tabelle (IBCS)**:

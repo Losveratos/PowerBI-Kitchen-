@@ -38,6 +38,12 @@
 <div class="case"><h4>Small Multiples mit ⤢-Zoom-Icons (Klick-Test in Konsole)</h4><div class="stage" id="c28" style="width:960px;height:480px"></div></div>
 <div class="case"><h4>Vergleich per Klick · Bars (Overlay wird per Test-Klick erzeugt)</h4><div class="stage" id="c29" style="width:960px;height:420px"></div></div>
 <div class="case"><h4>Tabelle · Hierarchie Region→Land · Aufklappen per Klick auf die Kategorie</h4><div class="stage" id="c30" style="width:1200px;height:400px"></div></div>
+<div class="case"><h4>Pareto · absteigende AC-Säulen + kum. %-Linie + 80 %-Marke</h4><div class="stage" id="c31" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Dumbbell · PY ⟶ AC je Kategorie</h4><div class="stage" id="c32" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Slope · Vorher/Nachher (PY → AC)</h4><div class="stage" id="c33" style="width:760px;height:440px"></div></div>
+<div class="case"><h4>Kombi · Säulen + Marge-%-Linie (Feld „Line" gefüllt)</h4><div class="stage" id="c34" style="width:960px;height:440px"></div></div>
+<div class="case"><h4>Gestapelt · Feld „Stack Series" gefüllt → Säulen stapeln automatisch (mit Legende)</h4><div class="stage" id="c35" style="width:960px;height:440px"></div></div>
+<div class="case"><h4>Gestapelt · Bars</h4><div class="stage" id="c36" style="width:960px;height:400px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -279,6 +285,54 @@ run("c30", {
     values: [col("actual", hAc), col("previousYear", hPy)]
   }
 }, 1200, 400);
+
+// pareto: descending AC + cumulative-% line, 80% marker — Category + AC alone
+run("c31", dataView(many, [col("actual", mAc)],
+  { chart: { orientation: "pareto" } }), 960, 420);
+
+// dumbbell: basis -> AC dots with variance-colored connector
+run("c32", dataView(countries, [col("actual", costAc), col("previousYear", costPy)],
+  { chart: { orientation: "dumbbell" } }), 960, 420);
+
+// slope: before/after per category, PY left / AC right
+run("c33", dataView(countries, [col("actual", costAc), col("previousYear", costPy)],
+  { chart: { orientation: "slope" } }), 760, 440);
+
+// combo: columns + a margin-% line measure on its own scale (field-driven)
+const marge = [0.221, 0.204, 0.230, 0.212, 0.245, 0.231, 0.252, 0.240, 0.228, 0.256, 0.260, 0.272];
+run("c34", dataView(months, [col("actual", acFull, "#,0 €"), col("previousYear", py, "#,0 €"),
+    col("lineMeasure", marge, "0.0 %")],
+  { chart: { orientation: "columns" } }), 960, 440);
+
+// stacked: filling the Stack-Series role stacks the plain columns automatically
+const stCats = [], stSeries = [], stAc = [];
+months.slice(0, 6).forEach((m, mi) => {
+  ["Produkt A", "Produkt B", "Produkt C"].forEach((s, si) => {
+    stCats.push(m); stSeries.push(s);
+    stAc.push((80 + mi * 6) * (3 - si) * 1000);
+  });
+});
+run("c35", {
+  metadata: { columns: [], objects: {} },
+  categorical: {
+    categories: [
+      { source: { displayName: "Monat", roles: { category: true } }, values: stCats },
+      { source: { displayName: "Produkt", roles: { series: true } }, values: stSeries }
+    ],
+    values: [col("actual", stAc, "#,0 €")]
+  }
+}, 960, 440);
+
+run("c36", {
+  metadata: { columns: [], objects: { chart: { orientation: "bars" } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Monat", roles: { category: true } }, values: stCats },
+      { source: { displayName: "Produkt", roles: { series: true } }, values: stSeries }
+    ],
+    values: [col("actual", stAc, "#,0 €")]
+  }
+}, 960, 400);
 </script>
 </body>
 </html>

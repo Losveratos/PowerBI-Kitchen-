@@ -6,6 +6,8 @@
         "Role_PreviousYear": "Vorjahr (PY)",
         "Role_Plan": "Plan / Budget (PL)",
         "Role_Forecast": "Forecast (FC)",
+        "Role_LineMeasure": "Linie (Kombi)",
+        "Role_Series": "Stack-Serie (Gestapelt)",
         "Role_Comments": "Kommentare",
         "Role_Multiples": "Small Multiples",
         "Role_RowType": "Waterfall-Typ (sum/delta)",
