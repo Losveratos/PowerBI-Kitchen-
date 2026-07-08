@@ -46,9 +46,11 @@ interface Datum {
 
 interface CardConfig {
     title: string;
+    titleSize: number;
     periodLabel: string;
     basis: Basis;
     showBridge: boolean;
+    bridgeHorizontal: boolean;
     showSecondary: boolean;
     invert: boolean;
     good: string;
@@ -206,9 +208,11 @@ export class Visual implements IVisual {
 
         const cfg: CardConfig = {
             title: (s.displayCard.title.value || this.measureName || "KPI").trim(),
+            titleSize: Math.max(8, Math.min(40, s.displayCard.titleSize.value ?? 11)),
             periodLabel: (s.displayCard.periodLabel.value || "").trim(),
             basis,
             showBridge: s.displayCard.showBridge.value,
+            bridgeHorizontal: String(s.displayCard.bridgeOrientation.value.value) === "bars",
             showSecondary: s.displayCard.showSecondary.value && hasPl && hasPy,
             invert: s.displayCard.invert.value,
             good: hc ? ink : s.colorsCard.goodColor.value.value,
@@ -276,7 +280,7 @@ export class Visual implements IVisual {
         // header: title (category name on tiles) + period
         const head = document.createElement("div");
         head.style.cssText = `display:flex;justify-content:space-between;gap:${px(8)};` +
-            `font-size:${px(11)};letter-spacing:0.06em;text-transform:uppercase;color:${cfg.subtle};white-space:nowrap`;
+            `font-size:${px(cfg.titleSize)};letter-spacing:0.06em;text-transform:uppercase;color:${cfg.subtle};white-space:nowrap`;
         const ht = document.createElement("div");
         ht.style.cssText = "overflow:hidden;text-overflow:ellipsis";
         ht.textContent = isTile && d.name ? d.name : cfg.title;
@@ -367,19 +371,56 @@ export class Visual implements IVisual {
         return card;
     }
 
-    /** mini bridge: three columns basis → Δ → AC with connectors and a baseline */
+    /** mini bridge: basis → Δ → AC with connectors and a baseline (columns or bars) */
     private buildBridge(ac: number, basisVal: number, basisLabel: string,
         vColor: string, cfg: CardConfig, k: number): HTMLElement {
         const px = (v: number) => `${Math.round(v * k * 10) / 10}px`;
-        const W = 150, H = 104, baseY = 86, maxH = 72;
         const wrap = document.createElement("div");
-        wrap.style.cssText = `position:relative;width:${px(W)};height:${px(H)};flex-shrink:0`;
         const div = (style: string, text?: string) => {
             const el = document.createElement("div");
             el.style.cssText = "position:absolute;" + style;
             if (text !== undefined) { el.textContent = text; }
             wrap.appendChild(el);
         };
+        // IBCS scenario styles: PY solid grey, PL outlined, AC solid dark
+        const basisStyle = basisLabel === "PL"
+            ? `background:${cfg.paper};border:1.5px solid ${cfg.ink};box-sizing:border-box`
+            : `background:${cfg.hc ? cfg.paper : "#c9c7c3"};${cfg.hc ? `border:1px dashed ${cfg.ink};box-sizing:border-box` : ""}`;
+        const acBg = cfg.hc ? cfg.ink : "#1a1a1a";
+
+        if (cfg.bridgeHorizontal) {
+            // three bars below each other: basis on top, Δ floating, AC at the bottom
+            const W = 150, H = 104, x0 = 26, maxW = W - x0 - 4;
+            wrap.style.cssText = `position:relative;width:${px(W)};height:${px(H)};flex-shrink:0`;
+            const S = maxW / Math.max(Math.abs(ac), Math.abs(basisVal), 1);
+            const wB = Math.round(Math.abs(basisVal) * S);
+            const wA = Math.round(Math.abs(ac) * S);
+            const endB = x0 + wB, endA = x0 + wA;
+            const dLeft = Math.min(endB, endA);
+            const dW = Math.max(4, Math.abs(endB - endA));
+            const rowH = 18, yB = 8, yD = 42, yA = 76;
+            // baseline (vertical)
+            div(`left:${px(x0)};top:${px(4)};width:1px;height:${px(H - 8)};background:${cfg.faint}`);
+            // row labels
+            const lbl = `width:${px(x0 - 5)};text-align:right;font-size:${px(10)};line-height:${px(rowH)}`;
+            div(`left:0;top:${px(yB)};${lbl};color:${cfg.subtle}`, basisLabel);
+            div(`left:0;top:${px(yD)};${lbl};font-weight:700;color:${vColor}`, "Δ");
+            div(`left:0;top:${px(yA)};${lbl};font-weight:700;color:${cfg.ink}`, "AC");
+            // basis bar
+            div(`left:${px(x0)};top:${px(yB)};width:${px(wB)};height:${px(rowH)};${basisStyle};border-radius:0 ${px(2)} ${px(2)} 0`);
+            // connectors (vertical, at the bar ends)
+            div(`left:${px(endB)};top:${px(yB + rowH)};width:1px;height:${px(yD - yB - rowH)};background:${cfg.faint}`);
+            div(`left:${px(endA)};top:${px(yD + rowH)};width:1px;height:${px(yA - yD - rowH)};background:${cfg.faint}`);
+            // Δ float
+            div(`left:${px(dLeft)};top:${px(yD)};width:${px(dW)};height:${px(rowH)};background:${vColor};border-radius:${px(2)}`);
+            // AC bar
+            div(`left:${px(x0)};top:${px(yA)};width:${px(wA)};height:${px(rowH)};background:${acBg};border-radius:0 ${px(2)} ${px(2)} 0`);
+            return wrap;
+        }
+
+        // vertical: three columns next to each other (basis | Δ | AC)
+        const W = 150, H = 104, baseY = 86, maxH = 72;
+        wrap.style.cssText = `position:relative;width:${px(W)};height:${px(H)};flex-shrink:0`;
         // negative-safe scale over the magnitudes
         const S = maxH / Math.max(Math.abs(ac), Math.abs(basisVal), 1);
         const hB = Math.round(Math.abs(basisVal) * S);
@@ -390,10 +431,7 @@ export class Visual implements IVisual {
 
         // baseline
         div(`left:0;top:${px(baseY)};width:${px(W)};height:1px;background:${cfg.faint}`);
-        // basis column: PY solid grey / PL outlined (IBCS)
-        const basisStyle = basisLabel === "PL"
-            ? `background:${cfg.paper};border:1.5px solid ${cfg.ink};box-sizing:border-box`
-            : `background:${cfg.hc ? cfg.paper : "#c9c7c3"};${cfg.hc ? `border:1px dashed ${cfg.ink};box-sizing:border-box` : ""}`;
+        // basis column
         div(`left:0;top:${px(topB)};width:${px(40)};height:${px(hB)};${basisStyle};border-radius:${px(2)} ${px(2)} 0 0`);
         // connectors
         div(`left:${px(40)};top:${px(topB)};width:${px(15)};height:1px;background:${cfg.faint}`);
@@ -401,7 +439,7 @@ export class Visual implements IVisual {
         // Δ float
         div(`left:${px(55)};top:${px(dTop)};width:${px(40)};height:${px(dH)};background:${vColor};border-radius:${px(2)}`);
         // AC column (solid dark)
-        div(`left:${px(110)};top:${px(topA)};width:${px(40)};height:${px(hA)};background:${cfg.hc ? cfg.ink : "#1a1a1a"};border-radius:${px(2)} ${px(2)} 0 0`);
+        div(`left:${px(110)};top:${px(topA)};width:${px(40)};height:${px(hA)};background:${acBg};border-radius:${px(2)} ${px(2)} 0 0`);
         // labels
         div(`left:0;top:${px(92)};width:${px(40)};text-align:center;font-size:${px(10)};color:${cfg.subtle}`, basisLabel);
         div(`left:${px(55)};top:${px(92)};width:${px(40)};text-align:center;font-size:${px(10)};font-weight:700;color:${vColor}`, "Δ");

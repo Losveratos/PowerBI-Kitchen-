@@ -245,7 +245,7 @@
     {
       "id": "ibcs_kpi_card",
       "name": "IBCS KPI Card (natives Custom Visual)",
-      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682.2.0.0.0.pbiviz",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682.2.1.0.0.pbiviz",
       "readme": "ibcsKpiCard/README.md",
       "hinweis": "KPI-Karte mit Mini-Bruecke Basis->Delta->AC (IBCS-Notation), Variance basis Auto/PY/PL, Invert fuer Kosten, Auto-Einheiten k/M/B, Schrift-Presets (Full HD), Kachel-Raster mit Crossfilter. Import: Visualisierungen -> Visual aus Datei importieren.",
       "fields": [

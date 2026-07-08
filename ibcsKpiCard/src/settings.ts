@@ -19,6 +19,11 @@ const fontPresetItems: powerbi.IEnumMember[] = [
     { value: "presentation", displayName: "Präsentation (4K / Beamer)" }
 ];
 
+const bridgeOrientationItems: powerbi.IEnumMember[] = [
+    { value: "columns", displayName: "Vertikal (Säulen)" },
+    { value: "bars", displayName: "Horizontal (Balken)" }
+];
+
 const displayUnitsItems: powerbi.IEnumMember[] = [
     { value: "auto", displayName: "Auto" },
     { value: "none", displayName: "None" },
@@ -62,6 +67,27 @@ export class DisplayCardSettings extends FormattingSettingsCard {
         value: true
     });
 
+    bridgeOrientation = new formattingSettings.ItemDropdown({
+        name: "bridgeOrientation",
+        displayName: "Bridge orientation",
+        displayNameKey: "Display_BridgeOrientation",
+        description: "Vertikal: drei Säulen nebeneinander (Zeit-Optik). Horizontal: drei Balken untereinander (Struktur-Optik).",
+        items: bridgeOrientationItems,
+        value: bridgeOrientationItems[0]
+    });
+
+    titleSize = new formattingSettings.NumUpDown({
+        name: "titleSize",
+        displayName: "Title size",
+        displayNameKey: "Display_TitleSize",
+        description: "Schriftgröße der Karten-Überschrift (Kategorie/Titel). Wirkt zusätzlich zum Größen-Preset.",
+        value: 11,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 8 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 40 }
+        }
+    });
+
     showSecondary = new formattingSettings.ToggleSwitch({
         name: "showSecondary",
         displayName: "Second reference row",
@@ -94,8 +120,8 @@ export class DisplayCardSettings extends FormattingSettingsCard {
     displayName: string = "KPI card";
     displayNameKey: string = "Card_Display";
     slices: Array<FormattingSettingsSlice> = [
-        this.title, this.periodLabel, this.comparisonMode,
-        this.showBridge, this.showSecondary, this.invert, this.minTileWidth
+        this.title, this.titleSize, this.periodLabel, this.comparisonMode,
+        this.showBridge, this.bridgeOrientation, this.showSecondary, this.invert, this.minTileWidth
     ];
 }
 

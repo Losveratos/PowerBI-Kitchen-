@@ -17,6 +17,8 @@
 <div class="case"><h4>k5 · negative Werte (Ergebnis) · Brücke bleibt korrekt</h4><div class="stage" id="k5" style="width:520px;height:170px"></div></div>
 <div class="case"><h4>k6 · High Contrast (gelb auf schwarz)</h4><div class="stage" id="k6" style="width:520px;height:170px;background:#000"></div></div>
 <div class="case"><h4>k7 · nur AC (keine Basis) · keine Pill, keine Brücke</h4><div class="stage" id="k7" style="width:520px;height:170px"></div></div>
+<div class="case"><h4>k8 · horizontale Brücke (Balken) · Einzelkarte</h4><div class="stage" id="k8" style="width:520px;height:170px"></div></div>
+<div class="case"><h4>k9 · 7 Kacheln · Full HD · Titelgröße 15 · horizontale Brücke</h4><div class="stage" id="k9" style="width:1400px;height:520px"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
 const Visual = IbcsKpiCard.Visual;
@@ -69,6 +71,14 @@ run("k6", dv([col("ac", [1245000], "#,0 €"), col("py", [1180000], "#,0 €")],
   { display: { title: "Umsatz" } }), 520, 170, true);
 
 run("k7", dv([col("ac", [1245000], "#,0 €")], { display: { title: "Umsatz" } }), 520, 170);
+
+run("k8", dv([col("ac", [1245000], "#,0 €"), col("py", [1180000], "#,0 €")],
+  { display: { title: "Umsatz", periodLabel: "MTD", bridgeOrientation: "bars" } }), 520, 170);
+
+run("k9", dv([col("ac", [420000, 380000, 290000, 150000, 260000, 510000, 330000], "#,0 €"),
+    col("py", [400000, 415000, 250000, 180000, 240000, 380000, 350000], "#,0 €")],
+  { display: { periodLabel: "MTD", titleSize: 15, bridgeOrientation: "bars" }, labels: { fontPreset: "fullhd" } },
+  ["Nord", "Süd", "West", "Ost", "Zentral", "Online", "Export"]), 1400, 520);
 </script>
 </body>
 </html>

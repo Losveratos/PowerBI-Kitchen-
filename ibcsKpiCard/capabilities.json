@@ -44,6 +44,15 @@
                     }
                 },
                 "showBridge": { "type": { "bool": true } },
+                "bridgeOrientation": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "columns", "displayName": "Vertikal (Säulen)" },
+                            { "value": "bars", "displayName": "Horizontal (Balken)" }
+                        ]
+                    }
+                },
+                "titleSize": { "type": { "formatting": { "fontSize": true } } },
                 "showSecondary": { "type": { "bool": true } },
                 "invert": { "type": { "bool": true } },
                 "minTileWidth": { "type": { "numeric": true } }

@@ -1,5 +1,16 @@
 # Changelog · IBCS KPI Card
 
+## 2.1.0.0 (2026-07-08)
+
+- **Brücken-Ausrichtung** (KPI card → Bridge orientation): die Mini-Brücke
+  wahlweise vertikal (drei Säulen nebeneinander, Zeit-Optik) oder
+  **horizontal** (drei Balken untereinander, Struktur-Optik) — beide
+  IBCS-konform (PY grau, PL Outline, AC dunkel), beide negativ-sicher.
+- **Titelgröße** (KPI card → Title size): Schriftgröße der Karten-Überschrift
+  (Kategorie/Titel) separat einstellbar (8–40) — behebt zu kleine
+  Kachel-Titel bei Full HD mit vielen Kacheln; wirkt zusätzlich zum
+  Größen-Preset.
+
 ## 2.0.0.0 (2026-07-08)
 
 Kompletter Neubau des v1.1-Prototyps als Quellcode-Projekt im Repo

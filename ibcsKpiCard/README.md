@@ -12,7 +12,8 @@ Schwerpunkte **Lesbarkeit** und **Flexibilität**:
 
 - **Mini-Brücke** Basis → Δ → AC in IBCS-Notation: PY grau, **PL als Outline**,
   AC solide dunkel — abschaltbar (KPI card → Mini bridge), negativ-sicher
-  (auch Ergebnis-KPIs unter null brechen das Layout nicht mehr)
+  (auch Ergebnis-KPIs unter null brechen das Layout nicht mehr).
+  **Ausrichtung wählbar**: vertikal (Säulen) oder horizontal (Balken)
 - **Variance basis Auto/PY/PL**: die Δ-Pill, die Akzentleiste und die Brücke
   rechnen gegen PL, wenn vorhanden (Auto), sonst PY — umstellbar. Die jeweils
   andere Basis erscheint als **zweite Referenzzeile** (abschaltbar)
@@ -43,8 +44,9 @@ Schwerpunkte **Lesbarkeit** und **Flexibilität**:
 
 ## Formatbereich
 
-- **KPI card**: Titel (leer = Measure-Name), Zeitraum-Label, Variance basis
-  (Auto/PY/PL), Mini bridge an/aus, zweite Referenzzeile an/aus, Invert,
+- **KPI card**: Titel (leer = Measure-Name), **Titelgröße**, Zeitraum-Label,
+  Variance basis (Auto/PY/PL), Mini bridge an/aus + **Ausrichtung
+  vertikal/horizontal**, zweite Referenzzeile an/aus, Invert,
   Mindest-Kachelbreite
 - **Number format**: Größen-Preset (Kompakt/Full HD/Präsentation),
   Dezimalstellen, Einheiten (Auto/k/M/B)
