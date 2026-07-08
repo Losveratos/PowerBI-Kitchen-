@@ -45,6 +45,8 @@
 <div class="case"><h4>Gestapelt · Feld „Stack Series" gefüllt → Säulen stapeln automatisch (mit Legende)</h4><div class="stage" id="c35" style="width:960px;height:440px"></div></div>
 <div class="case"><h4>Gestapelt · Bars</h4><div class="stage" id="c36" style="width:960px;height:400px"></div></div>
 <div class="case"><h4>Small Multiples · Top 3 + Rest + Σ Gesamt (6 Regionen)</h4><div class="stage" id="c37" style="width:960px;height:560px"></div></div>
+<div class="case"><h4>Small Multiples · Erste Kachel groß (CT 13) + Σ Gesamt</h4><div class="stage" id="c38" style="width:960px;height:560px"></div></div>
+<div class="case"><h4>GuV-Wasserfall + ΔPY-Varianz-Stufen (CT 12)</h4><div class="stage" id="c39" style="width:960px;height:520px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -349,6 +351,17 @@ m6.forEach((r, ri) => {
 });
 run("c37", dataView(m6Cats, [col("actual", m6Ac), col("plan", m6Pl)],
   { chart: { multiplesTopN: 3, multiplesTotal: true } }, m6Mult), 960, 560);
+
+// hero layout (CT 13): the leading Σ tile gets a full-height cell, rest as grid
+run("c38", dataView(m6Cats, [col("actual", m6Ac), col("plan", m6Pl)],
+  { chart: { multiplesTotal: true, multiplesHero: true } }, m6Mult), 960, 560);
+
+// P&L waterfall + variance tiers (CT 12): AC waterfall with ΔPY bars + ΔPY % pins per row
+const pnlPy = [9100, -3900, -2300, 2900, -950, -560, 1390];
+run("c39", dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousYear", pnlPy, "#,0 T€")], {
+  chart: { orientation: "waterfall", showTotal: false },
+  ibcsTitle: { kpi: "GuV", period: "2026" }
+}, null, pnlTypes), 960, 520);
 </script>
 </body>
 </html>

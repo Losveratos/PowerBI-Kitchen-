@@ -1,5 +1,26 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.9.0.0 (2026-07-08)
+
+**Zwei Ergänzungen nach Abgleich mit den offiziellen IBCS-Chart-Templates:**
+
+- **Erste Kachel groß (IBCS CT 13)** — neue Option in der Gruppe „Small
+  Multiples": die erste Kachel (z. B. „Σ Gesamt" oder die größte Gruppe)
+  bekommt eine Zelle über die volle Höhe links, die übrigen Kacheln
+  rücken als Raster daneben. Die gemeinsame Skala bleibt unangetastet —
+  nur der Platz unterscheidet sich; die kleinen Kacheln fallen bei Bedarf
+  automatisch in den Kompakt-Modus. Standard aus; unter 460 px Breite
+  greift das normale Raster.
+- **Varianz-Stufen am Wasserfall (IBCS CT 12)** — der Waterfall-Modus
+  zeigt jetzt, wenn PY oder PL gebunden ist und die Abweichungs-Schalter
+  an sind, ΔBasis-Balken und ΔBasis-%-Pins je Rechenzeile über der
+  Brücke — mit korrekter Referenzachsen-Notation (PY = fette graue
+  Linie, PL = Doppellinie) und Farbe nach Wirkung (Invert wird
+  respektiert, FC schraffiert). In der Varianz-Brücke (Basis → AC), wo
+  die Brücken-Balken selbst schon die absoluten Deltas sind, kommt nur
+  die %-Stufe dazu. Ohne Vergleichs-Measure ändert sich nichts; bei
+  wenig Höhe (< ~170 px) bleiben die Stufen aus.
+
 ## 1.8.0.0 (2026-07-08)
 
 **Small-Multiples-Optionen: Top N Kacheln + Gesamt-Kachel (Σ)** — neue

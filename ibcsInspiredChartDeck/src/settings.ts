@@ -263,11 +263,19 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         }
     });
 
+    multiplesHero = new formattingSettings.ToggleSwitch({
+        name: "multiplesHero",
+        displayName: "First tile large",
+        displayNameKey: "Chart_MultiplesHero",
+        description: "Gibt der ersten Kachel (z. B. „Σ Gesamt\" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13).",
+        value: false
+    });
+
     multiplesGroup = new formattingSettings.Group({
         name: "chartMultiples",
         displayName: "Small Multiples",
         displayNameKey: "Group_Multiples",
-        slices: [this.multiplesTotal, this.multiplesTopN]
+        slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero]
     });
 
     bridgeGroup = new formattingSettings.Group({

@@ -65,6 +65,7 @@
         "Chart_SortByImpact": "Nach Wirkung sortieren",
         "Chart_MultiplesTotal": "Gesamt-Kachel (Σ)",
         "Chart_MultiplesTopN": "Top N Kacheln",
+        "Chart_MultiplesHero": "Erste Kachel groß",
         "Group_Multiples": "Small Multiples",
         "Group_Bridge": "Brücke"
     }

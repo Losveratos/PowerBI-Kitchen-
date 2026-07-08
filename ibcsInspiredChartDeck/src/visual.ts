@@ -747,7 +747,8 @@ export class Visual implements IVisual {
 
         const renderCell = (grp: { name: string | null; pts: DataPoint[] }, region: Rect) => {
             if (isWaterfall) {
-                this.renderWaterfall(wfByGroup.get(grp.name) || [], region, cfg);
+                this.renderWaterfall(wfByGroup.get(grp.name) || [], region, cfg,
+                    { abs: domains.abs, rel: domains.rel });
                 return;
             }
             if (isIntWf) {
@@ -834,25 +835,41 @@ export class Visual implements IVisual {
         const MAX_CELLS = 24;
         const shown = groups.slice(0, MAX_CELLS);
         const n = shown.length;
-        let cols = Math.ceil(Math.sqrt(n));
-        cols = Math.max(1, Math.min(cols, Math.floor(width / 220) || 1));
-        const rows = Math.ceil(n / cols);
-        const cellW = width / cols;
-        const cellH = availH / rows;
         const groupTitleH = Math.round(16 * this.fontK);
 
-        for (let gi = 0; gi < n; gi++) {
-            const cx = (gi % cols) * cellW;
+        // hero layout (IBCS CT 13): the first tile — Σ Gesamt or the largest group —
+        // gets a full-height cell on the left, the rest form a grid beside it; the
+        // shared scale is untouched, only the allotted space differs
+        const heroOn = s.chartCard.multiplesHero.value && n >= 2 && width >= 460;
+        const heroW = heroOn ? Math.round(Math.min(Math.max(width * 0.42, 250), width * 0.55)) : 0;
+        const gridX = heroW;
+        const gridW = width - heroW;
+        const rest = heroOn ? shown.slice(1) : shown;
+        const rn = rest.length;
+        let cols = Math.ceil(Math.sqrt(rn));
+        cols = Math.max(1, Math.min(cols, Math.floor(gridW / 220) || 1));
+        const rows = Math.ceil(rn / cols);
+        const cellW = gridW / cols;
+        const cellH = availH / rows;
+
+        if (heroOn) {
+            renderCell(shown[0],
+                { x: 2, y: topOffset + groupTitleH, w: heroW - 6, h: availH - groupTitleH - 2 });
+            this.drawTileHeader(0, topOffset, heroW, groupTitleH,
+                shown[0].name ?? "", shown[0].name ?? "", cfg);
+        }
+        for (let gi = 0; gi < rn; gi++) {
+            const cx = gridX + (gi % cols) * cellW;
             const cy = topOffset + Math.floor(gi / cols) * cellH;
-            let title = shown[gi].name ?? "";
-            if (gi === n - 1 && groups.length > n) {
+            let title = rest[gi].name ?? "";
+            if (gi === rn - 1 && groups.length > n) {
                 title += `  (+${groups.length - n} weitere)`;
             }
             // cell content first, header strip after — the click target must sit ON TOP
             // of any chart marks (labels can reach into the strip), or clicks get eaten
-            renderCell(shown[gi],
+            renderCell(rest[gi],
                 { x: cx + 2, y: cy + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 });
-            this.drawTileHeader(cx, cy, cellW, groupTitleH, title, shown[gi].name ?? "", cfg);
+            this.drawTileHeader(cx, cy, cellW, groupTitleH, title, rest[gi].name ?? "", cfg);
         }
     }
 
@@ -971,17 +988,44 @@ export class Visual implements IVisual {
     }
 
     /** renders a waterfall / bridge into the region (vertical bars, shared domain via cfg call site) */
-    private renderWaterfall(segs: WfSeg[], region: Rect, cfg: ChartConfig): void {
+    private renderWaterfall(segs: WfSeg[], region: Rect, cfg: ChartConfig,
+        varDomains?: { abs: [number, number]; rel: [number, number] }): void {
         if (segs.length === 0) { return; }
         const pad = 4;
-        const titleH = Math.round(14 * this.fontK);
+        const k = this.fontK;
+        const titleH = Math.round(14 * k);
         const catArea = cfg.catFont + 10;
         const bandStart = region.x + pad + 2;
         const bandEnd = region.x + region.w - pad;
-        const rect: Rect = {
+        const outer: Rect = {
             x: region.x, y: region.y + pad,
             w: region.w, h: region.h - pad - catArea
         };
+
+        // variance tiers above the waterfall (IBCS CT 12): ΔBasis bars and ΔBasis %
+        // pins per calculation line. In the variance-bridge mode the waterfall bars
+        // ARE the absolute deltas, so only the relative tier is added there.
+        const good = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const isVarBridge = segs.some(sg => sg.outlined);
+        const tierPts = segs.map(sg => (sg.p && sg.p.varAbs != null) ? sg.p : null);
+        const compactH = outer.h < 170 * k;
+        const wantRel = cfg.showRel && !compactH && tierPts.some(p => p?.varRel != null);
+        const wantAbs = cfg.showAbs && !compactH && !isVarBridge && tierPts.some(p => p != null);
+        let rect = outer;
+        let relRect: Rect | null = null, absRect: Rect | null = null;
+        if (wantRel || wantAbs) {
+            let yCur = outer.y;
+            if (wantRel) {
+                relRect = { x: outer.x, y: yCur, w: outer.w, h: Math.round(outer.h * 0.20) };
+                yCur += relRect.h;
+            }
+            if (wantAbs) {
+                absRect = { x: outer.x, y: yCur, w: outer.w, h: Math.round(outer.h * 0.24) };
+                yCur += absRect.h;
+            }
+            rect = { x: outer.x, y: yCur, w: outer.w, h: outer.y + outer.h - yCur };
+        }
+
         const domain = extent(segs.flatMap(sg => [sg.from, sg.to]));
         if (this.sharedWfDomain) {
             domain[0] = Math.min(domain[0], this.sharedWfDomain[0]);
@@ -993,6 +1037,56 @@ export class Visual implements IVisual {
         const step = (bandEnd - bandStart) / n;
         const slotW = Math.max(2, step * 0.62);
         const pos = (i: number) => bandStart + i * step + (step - slotW) / 2;
+        const showTierLabels = cfg.showLabels && step > cfg.labelFont * 1.4;
+
+        // ΔBasis % pins tier
+        if (relRect) {
+            const tg = this.el("g", {}, this.svg);
+            const relDomain: [number, number] = varDomains
+                ? [...varDomains.rel] as [number, number]
+                : extent(tierPts.map(p => p?.varRel ?? null));
+            const relScale = this.makePanelScale(relDomain, relRect, "columns", labelPad, true);
+            this.drawBaseline(tg, relRect, relScale, "columns", bandStart, bandEnd, cfg.basisMode, cfg.colors);
+            this.drawPanelTitle(tg, relRect, `Δ${cfg.basisLabel} %`, "columns", titleH, region, undefined, cfg.subtle);
+            const zero = relScale(0);
+            for (let i = 0; i < n; i++) {
+                const v = tierPts[i]?.varRel;
+                if (v == null) { continue; }
+                const c = pos(i) + slotW / 2;
+                const col = v === 0 ? cfg.colors.py : (good(v) ? cfg.colors.good : cfg.colors.bad);
+                const y = relScale(v);
+                this.el("line", { x1: c, y1: zero, x2: c, y2: y, stroke: col, "stroke-width": Math.max(1.6, 1.4 * k) }, tg);
+                this.el("circle", { cx: c, cy: y, r: Math.max(2.6, 2.2 * k), fill: col }, tg);
+                if (showTierLabels) {
+                    this.drawEndLabel(tg, c, v, relScale, "columns", this.fmtPercent(v),
+                        cfg.labelFont, cfg.ink, Math.round(2 * k), cfg.paper);
+                }
+            }
+        }
+        // ΔBasis bars tier
+        if (absRect) {
+            const tg = this.el("g", {}, this.svg);
+            const absDomain: [number, number] = varDomains
+                ? [...varDomains.abs] as [number, number]
+                : extent(tierPts.map(p => p?.varAbs ?? null));
+            const absScale = this.makePanelScale(absDomain, absRect, "columns", labelPad, true);
+            this.drawBaseline(tg, absRect, absScale, "columns", bandStart, bandEnd, cfg.basisMode, cfg.colors);
+            this.drawPanelTitle(tg, absRect, `Δ${cfg.basisLabel}`, "columns", titleH, region, undefined, cfg.subtle);
+            for (let i = 0; i < n; i++) {
+                const p = tierPts[i];
+                const v = p?.varAbs;
+                if (p == null || v == null) { continue; }
+                const col = v === 0 ? cfg.colors.py : (good(v) ? cfg.colors.good : cfg.colors.bad);
+                const style = p.isFc
+                    ? { fill: `url(#${good(v) ? cfg.patGood : cfg.patBad})`, stroke: col, "stroke-width": 1 }
+                    : { fill: col };
+                this.drawBar(tg, pos(i), slotW, 0, v, absScale, "columns", style);
+                if (showTierLabels) {
+                    this.drawEndLabel(tg, pos(i) + slotW / 2, v, absScale, "columns",
+                        this.fmtSigned(cfg.fmtVar, v), cfg.labelFont, cfg.ink, 0, cfg.paper);
+                }
+            }
+        }
 
         const bg = this.el("g", {}, this.svg);
         this.drawBaseline(bg, rect, scale, "columns", bandStart, bandEnd, "ac", cfg.colors);

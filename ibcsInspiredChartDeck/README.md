@@ -94,8 +94,13 @@ in **einem** Visual löst:
   alle mit identischer Skalierung (IBCS-Regel „gleiche Skalen")
 - **Multiples-Optionen** (Gruppe „Small Multiples", nur bei gefülltem
   Multiples-Feld): **Top N Kacheln** (die übrigen Gruppen werden zu einer
-  „Rest (k)"-Kachel aggregiert) und **Gesamt-Kachel (Σ)** — „Σ Gesamt" als
-  erste Kachel, Summe über alle Gruppen auf derselben Skala
+  „Rest (k)"-Kachel aggregiert), **Gesamt-Kachel (Σ)** — „Σ Gesamt" als
+  erste Kachel, Summe über alle Gruppen auf derselben Skala — und
+  **Erste Kachel groß** (IBCS CT 13): die erste Kachel bekommt volle Höhe
+  links, der Rest rückt als Raster daneben, Skala bleibt identisch
+- **Varianz-Stufen am Wasserfall** (IBCS CT 12): mit PY/PL am Waterfall
+  erscheinen ΔBasis-Balken und ΔBasis-%-Pins je Rechenzeile über der
+  Brücke, mit korrekter Referenzachsen-Notation und Farbe nach Wirkung
 - **Σ-Header**: Summe + Gesamtabweichung (absolut & %) als Kopfzeile, gut/schlecht gefärbt
 - **Kompakt-Modus**: unter ~190 px Höhe klappen die Varianz-Panels automatisch zu
   farbigen Δ-Labels an den Säulenenden — funktioniert auch als kleine Dashboard-Kachel
