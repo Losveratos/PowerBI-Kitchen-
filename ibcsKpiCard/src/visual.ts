@@ -10,6 +10,11 @@
  *    - invert for cost KPIs, negative-safe mini bridge, IBCS notation
  *      (PY grey, PL outlined, AC solid dark)
  *    - native tooltips, high-contrast mode, keyboard focus
+ *  v2.2:
+ *    - Trend role → sparkline per card (AC solid, FC dashed, PY thin grey)
+ *    - FC role: fills missing AC (AC+FC), hatched share in the bridge
+ *    - tile sorting (Δ absolut / Δ % / AC), neutral tolerance zone (Ampel),
+ *      compact stages for narrow tiles
  */
 "use strict";
 
@@ -36,11 +41,26 @@ const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 
 type Basis = "py" | "plan";
 
+/** one period of the optional trend series */
+interface TrendPoint {
+    label: string;
+    v: number | null;
+    py: number | null;
+    isFc: boolean;
+}
+
 interface Datum {
     name: string;
+    /** display value: AC, with FC filling missing periods (AC+FC) */
     ac: number | null;
+    /** solid AC share of `ac` (rest is forecast) */
+    acOnly: number;
+    /** FC share of `ac` */
+    fcPart: number;
     py: number | null;
     pl: number | null;
+    /** per-period series when the Trend role is bound */
+    series: TrendPoint[] | null;
     sel: ISelectionId | null;
 }
 
@@ -51,8 +71,11 @@ interface CardConfig {
     basis: Basis;
     showBridge: boolean;
     bridgeHorizontal: boolean;
+    showSparkline: boolean;
     showSecondary: boolean;
     invert: boolean;
+    /** neutral tolerance zone in ±% — inside it variances stay grey (0 = off) */
+    tolerance: number;
     good: string;
     bad: string;
     ink: string;
@@ -85,7 +108,9 @@ export class Visual implements IVisual {
         this.selectionManager = options.host.createSelectionManager();
         this.tooltipService = options.host.tooltipService;
         this.root = options.element;
-        this.root.style.cssText = "width:100%;height:100%;overflow:auto;box-sizing:border-box";
+        // append, don't replace: cssText would wipe the host's own sizing styles
+        this.root.style.overflow = "auto";
+        this.root.style.boxSizing = "border-box";
         this.root.addEventListener("click", (e: MouseEvent) => {
             if (e.target !== this.root) { return; }
             this.selectionManager.clear().then(() => this.syncSelection());
@@ -114,28 +139,60 @@ export class Visual implements IVisual {
     // ------------------------------------------------------------------ data
 
     private parseData(dataView: DataView | undefined): Datum[] {
-        const cat = dataView?.categorical?.categories?.find(c => c.source.roles?.["category"]);
+        const cats = dataView?.categorical?.categories;
+        const catCol = cats?.find(c => c.source.roles?.["category"]);
+        const trendCol = cats?.find(c => c.source.roles?.["trend"]);
         const values = dataView?.categorical?.values;
         if (!values || values.length === 0) { return []; }
 
         const byRole = (role: string) => values.find(v => v.source.roles?.[role]);
-        const acCol = byRole("ac"), pyCol = byRole("py"), plCol = byRole("pl");
-        if (!acCol) { return []; }
-        this.measureFormat = acCol.source.format;
-        this.measureName = acCol.source.displayName;
+        const acCol = byRole("ac"), pyCol = byRole("py"), plCol = byRole("pl"), fcCol = byRole("fc");
+        if (!acCol && !fcCol) { return []; }
+        this.measureFormat = acCol?.source.format ?? fcCol?.source.format;
+        this.measureName = acCol?.source.displayName ?? fcCol?.source.displayName;
         const num = (col: powerbi.DataViewValueColumn | undefined, i: number): number | null => {
             const v = col ? col.values[i] : null;
             return typeof v === "number" && isFinite(v) ? v : null;
         };
+        const rowCount = (catCol ?? trendCol)?.values.length ?? 1;
 
-        if (cat && cat.values.length > 0) {
-            return cat.values.map((v, i) => ({
-                name: v == null ? "(leer)" : String(v),
-                ac: num(acCol, i), py: num(pyCol, i), pl: num(plCol, i),
-                sel: this.host.createSelectionIdBuilder().withCategory(cat, i).createSelectionId()
-            }));
+        // aggregate rows into one datum per category (order of appearance);
+        // with a trend column each datum also collects its per-period series
+        const makeDatum = (name: string, sel: ISelectionId | null): Datum => ({
+            name, ac: null, acOnly: 0, fcPart: 0, py: null, pl: null,
+            series: trendCol ? [] : null, sel
+        });
+        const order: Datum[] = [];
+        const index = new Map<string, Datum>();
+        for (let i = 0; i < rowCount; i++) {
+            const key = catCol ? (catCol.values[i] == null ? "(leer)" : String(catCol.values[i])) : "";
+            let d = index.get(key);
+            if (!d) {
+                const sel = catCol
+                    ? this.host.createSelectionIdBuilder().withCategory(catCol, i).createSelectionId()
+                    : null;
+                d = makeDatum(key, sel);
+                index.set(key, d);
+                order.push(d);
+            }
+            const acV = num(acCol, i), fcV = num(fcCol, i);
+            const v = acV != null ? acV : fcV;
+            const isFc = acV == null && fcV != null;
+            if (v != null) {
+                d.ac = (d.ac ?? 0) + v;
+                if (isFc) { d.fcPart += v; } else { d.acOnly += v; }
+            }
+            const pyV = num(pyCol, i), plV = num(plCol, i);
+            if (pyV != null) { d.py = (d.py ?? 0) + pyV; }
+            if (plV != null) { d.pl = (d.pl ?? 0) + plV; }
+            if (d.series) {
+                d.series.push({
+                    label: trendCol && trendCol.values[i] != null ? String(trendCol.values[i]) : "",
+                    v, py: pyV, isFc
+                });
+            }
         }
-        return [{ name: "", ac: num(acCol, 0), py: num(pyCol, 0), pl: num(plCol, 0), sel: null }];
+        return order;
     }
 
     // ------------------------------------------------------------ formatting
@@ -183,7 +240,7 @@ export class Visual implements IVisual {
         if (this.data.length === 0 || this.data.every(d => d.ac == null)) {
             const hint = document.createElement("div");
             hint.style.cssText = `font-family:${FONT};color:#8a8886;padding:16px;font-size:12px`;
-            hint.textContent = "Keine Daten — Actual (AC) zuweisen, optional PY/PL und Category.";
+            hint.textContent = "Keine Daten — Actual (AC) zuweisen, optional PY/PL/FC, Category und Trend.";
             this.root.replaceChildren(hint);
             return;
         }
@@ -213,8 +270,10 @@ export class Visual implements IVisual {
             basis,
             showBridge: s.displayCard.showBridge.value,
             bridgeHorizontal: String(s.displayCard.bridgeOrientation.value.value) === "bars",
+            showSparkline: s.displayCard.showSparkline.value && this.data.some(d => (d.series?.length ?? 0) > 1),
             showSecondary: s.displayCard.showSecondary.value && hasPl && hasPy,
             invert: s.displayCard.invert.value,
+            tolerance: Math.max(0, s.displayCard.tolerance.value ?? 0),
             good: hc ? ink : s.colorsCard.goodColor.value.value,
             bad: hc ? ink : s.colorsCard.badColor.value.value,
             ink, paper, hc,
@@ -231,17 +290,40 @@ export class Visual implements IVisual {
             const scale = Math.max(0.7, Math.min(2.6, Math.min(width / 460, height / 150))) * fontK;
             const wrap = document.createElement("div");
             wrap.style.cssText = "width:100%;height:100%;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:8px";
-            wrap.appendChild(this.buildCard(this.data[0], cfg, scale, false));
+            wrap.appendChild(this.buildCard(this.data[0], cfg, scale, false, width / scale));
             this.root.replaceChildren(wrap);
             return;
         }
 
+        // tile sort: original / by |Δ| / by Δ% / by AC (largest first)
+        const sortMode = String(s.displayCard.sortTiles.value.value);
+        let tilesData = this.data;
+        if (sortMode !== "orig") {
+            const basisOf = (d: Datum) => cfg.basis === "plan" ? d.pl : d.py;
+            const key = (d: Datum): number => {
+                const b = basisOf(d);
+                if (sortMode === "ac") { return d.ac ?? -Infinity; }
+                if (d.ac == null || b == null) { return -Infinity; }
+                const dd = d.ac - b;
+                return sortMode === "pct"
+                    ? (b !== 0 ? Math.abs(dd / b) : 0)
+                    : Math.abs(dd);
+            };
+            tilesData = [...this.data]
+                .map((d, i) => ({ d, i }))
+                .sort((a, b) => (key(b.d) - key(a.d)) || (a.i - b.i))
+                .map(x => x.d);
+        }
+
         const minTile = Math.max(140, Math.round((s.displayCard.minTileWidth.value ?? 240) * fontK));
+        const gap = 10;
+        const cols = Math.max(1, Math.floor((width - 8 + gap) / (minTile + gap)));
+        const tileW = (width - 8 - gap * (cols - 1)) / cols;
         const tileScale = Math.max(0.55, Math.min(1.4, minTile / 380));
         const grid = document.createElement("div");
-        grid.style.cssText = `display:grid;grid-template-columns:repeat(auto-fill,minmax(${minTile}px,1fr));gap:10px;width:100%;box-sizing:border-box;padding:4px`;
-        for (const d of this.data) {
-            const el = this.buildCard(d, cfg, tileScale, true);
+        grid.style.cssText = `display:grid;grid-template-columns:repeat(auto-fill,minmax(${minTile}px,1fr));gap:${gap}px;width:100%;box-sizing:border-box;padding:4px`;
+        for (const d of tilesData) {
+            const el = this.buildCard(d, cfg, tileScale, true, tileW / tileScale);
             grid.appendChild(el);
             this.tiles.push({ datum: d, el });
         }
@@ -249,9 +331,15 @@ export class Visual implements IVisual {
         this.syncSelection();
     }
 
-    /** one KPI card: header, big AC + Δ pill, reference row(s), mini bridge */
-    private buildCard(d: Datum, cfg: CardConfig, k: number, isTile: boolean): HTMLElement {
+    /**
+     * one KPI card: header, big AC + Δ pill, reference row(s), mini bridge and/or
+     * sparkline. `availW` is the card width in unscaled units — drives the compact
+     * stages: < 340 drops bridge/sparkline, < 210 also drops the reference rows.
+     */
+    private buildCard(d: Datum, cfg: CardConfig, k: number, isTile: boolean, availW: number): HTMLElement {
         const px = (v: number) => `${Math.round(v * k * 10) / 10}px`;
+        const compact = availW < 340;
+        const ultra = availW < 210;
         const basisVal = cfg.basis === "plan" ? d.pl : d.py;
         const basisLabel = cfg.basis === "plan" ? "PL" : "PY";
         const otherVal = cfg.basis === "plan" ? d.py : d.pl;
@@ -260,16 +348,18 @@ export class Visual implements IVisual {
         const dAbs = basisVal != null ? ac - basisVal : null;
         const dPct = dAbs != null && basisVal !== 0 && basisVal != null
             ? (dAbs / Math.abs(basisVal)) * 100 : null;
+        // neutral tolerance zone (Ampel): inside ±N % the variance stays grey
+        const neutral = cfg.tolerance > 0 && dPct != null && Math.abs(dPct) <= cfg.tolerance;
         const good = dAbs == null ? true : (cfg.invert ? dAbs < 0 : dAbs >= 0);
-        const vColor = dAbs == null || dAbs === 0 ? cfg.subtle : (good ? cfg.good : cfg.bad);
+        const vColor = dAbs == null || dAbs === 0 || neutral
+            ? cfg.subtle : (good ? cfg.good : cfg.bad);
 
         const card = document.createElement("div");
         card.style.cssText =
-            `position:relative;display:flex;align-items:center;gap:${px(14)};box-sizing:border-box;` +
+            `position:relative;display:flex;align-items:center;gap:${px(12)};box-sizing:border-box;` +
             `background:${cfg.paper};border:1px solid ${cfg.hc ? cfg.ink : "#e4e2de"};border-radius:${px(8)};` +
-            `padding:${px(14)} ${px(16)} ${px(14)} ${px(18)};font-family:${FONT};color:${cfg.ink};` +
+            `padding:${px(12)} ${px(14)} ${px(12)} ${px(16)};font-family:${FONT};color:${cfg.ink};` +
             (isTile ? "cursor:pointer;" : "") + "overflow:hidden";
-        // left accent bar in variance color
         const accent = document.createElement("div");
         accent.style.cssText = `position:absolute;left:0;top:0;bottom:0;width:${px(4)};background:${vColor}`;
         card.appendChild(accent);
@@ -285,7 +375,7 @@ export class Visual implements IVisual {
         ht.style.cssText = "overflow:hidden;text-overflow:ellipsis";
         ht.textContent = isTile && d.name ? d.name : cfg.title;
         head.appendChild(ht);
-        if (cfg.periodLabel) {
+        if (cfg.periodLabel && !ultra) {
             const hp = document.createElement("div");
             hp.textContent = cfg.periodLabel;
             head.appendChild(hp);
@@ -307,7 +397,9 @@ export class Visual implements IVisual {
                 `padding:${px(2)} ${px(7)};border-radius:99px;white-space:nowrap`
                 : `font-size:${px(12)};font-weight:700;color:#ffffff;background:${vColor};` +
                 `padding:${px(2)} ${px(7)};border-radius:99px;white-space:nowrap`;
-            pill.textContent = `${dAbs != null && dAbs >= 0 ? "▲" : "▼"} ${this.fmtPercent(dPct)}`;
+            pill.textContent = neutral
+                ? `● ${this.fmtPercent(dPct)}`
+                : `${dAbs != null && dAbs >= 0 ? "▲" : "▼"} ${this.fmtPercent(dPct)}`;
             row.appendChild(pill);
         }
         main.appendChild(row);
@@ -323,19 +415,26 @@ export class Visual implements IVisual {
             r.appendChild(lv);
             const dd = ac - val;
             const g = cfg.invert ? dd < 0 : dd >= 0;
+            const pct = val !== 0 ? (dd / Math.abs(val)) * 100 : null;
+            const isNeutral = cfg.tolerance > 0 && pct != null && Math.abs(pct) <= cfg.tolerance;
             const dv = document.createElement("div");
-            dv.style.cssText = `font-weight:700;color:${dd === 0 ? cfg.subtle : (g ? cfg.good : cfg.bad)}`;
+            dv.style.cssText = `font-weight:700;color:${dd === 0 || isNeutral ? cfg.subtle : (g ? cfg.good : cfg.bad)}`;
             dv.textContent = this.fmtSigned(cfg.fmtVar, dd);
             r.appendChild(dv);
             main.appendChild(r);
         };
-        if (basisVal != null) { refRow(basisLabel, basisVal, true); }
-        if (cfg.showSecondary && otherVal != null) { refRow(otherLabel, otherVal, false); }
+        if (!ultra && basisVal != null) { refRow(basisLabel, basisVal, true); }
+        if (!ultra && cfg.showSecondary && otherVal != null) { refRow(otherLabel, otherVal, false); }
         card.appendChild(main);
 
-        // mini bridge: basis | Δ | AC — IBCS styles, negative-safe
-        if (cfg.showBridge && basisVal != null && d.ac != null) {
-            card.appendChild(this.buildBridge(d.ac, basisVal, basisLabel, vColor, cfg, k));
+        // right side: sparkline and/or mini bridge (dropped in compact tiles)
+        if (!compact && cfg.showSparkline && (d.series?.length ?? 0) > 1) {
+            card.appendChild(this.buildSparkline(d.series as TrendPoint[], vColor, cfg, k));
+        }
+        const roomForBoth = availW >= 460;
+        if (!compact && cfg.showBridge && basisVal != null && d.ac != null
+            && (roomForBoth || !cfg.showSparkline || (d.series?.length ?? 0) <= 1)) {
+            card.appendChild(this.buildBridge(d, basisVal, basisLabel, vColor, cfg, k));
         }
 
         // interaction: crossfilter + context menu + tooltip
@@ -371,9 +470,87 @@ export class Visual implements IVisual {
         return card;
     }
 
+    /** sparkline: AC solid (FC periods dashed), PY thin grey — SVG, negative-safe */
+    private buildSparkline(series: TrendPoint[], vColor: string, cfg: CardConfig, k: number): HTMLElement {
+        const W = 130, H = 104, padY = 14;
+        const wrap = document.createElement("div");
+        wrap.style.cssText = `position:relative;width:${Math.round(W * k)}px;height:${Math.round(H * k)}px;flex-shrink:0`;
+        const NS = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(NS, "svg");
+        svg.setAttribute("width", String(Math.round(W * k)));
+        svg.setAttribute("height", String(Math.round(H * k)));
+        svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+        wrap.appendChild(svg);
+
+        const vals: number[] = [];
+        for (const p of series) {
+            if (p.v != null) { vals.push(p.v); }
+            if (p.py != null) { vals.push(p.py); }
+        }
+        if (vals.length === 0) { return wrap; }
+        let mn = Math.min(...vals, 0), mx = Math.max(...vals, 0);
+        if (mn === mx) { mx = mn + 1; }
+        const X = (i: number) => 4 + i * ((W - 8) / Math.max(series.length - 1, 1));
+        const Y = (v: number) => H - padY - ((v - mn) / (mx - mn)) * (H - padY * 2);
+
+        const path = (acc: (p: TrendPoint) => number | null, stroke: string, width: number,
+            dashWhenFc: boolean) => {
+            let dSolid = "", dDash = "";
+            let prev: { x: number; y: number; fc: boolean } | null = null;
+            series.forEach((p, i) => {
+                const v = acc(p);
+                if (v == null) { prev = null; return; }
+                const pt = { x: X(i), y: Y(v), fc: p.isFc };
+                if (prev) {
+                    const seg = `M${prev.x.toFixed(1)},${prev.y.toFixed(1)}L${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+                    if (dashWhenFc && (prev.fc || pt.fc)) { dDash += seg; } else { dSolid += seg; }
+                }
+                prev = pt;
+            });
+            const mk = (dd: string, dashed: boolean) => {
+                if (!dd) { return; }
+                const el = document.createElementNS(NS, "path");
+                el.setAttribute("d", dd);
+                el.setAttribute("fill", "none");
+                el.setAttribute("stroke", stroke);
+                el.setAttribute("stroke-width", String(width));
+                if (dashed) { el.setAttribute("stroke-dasharray", "4,3"); }
+                svg.appendChild(el);
+            };
+            mk(dSolid, false);
+            mk(dDash, true);
+        };
+        // zero line if the range crosses zero
+        if (mn < 0 && mx > 0) {
+            const zl = document.createElementNS(NS, "line");
+            zl.setAttribute("x1", "2"); zl.setAttribute("x2", String(W - 2));
+            zl.setAttribute("y1", Y(0).toFixed(1)); zl.setAttribute("y2", Y(0).toFixed(1));
+            zl.setAttribute("stroke", cfg.faint); zl.setAttribute("stroke-width", "1");
+            svg.appendChild(zl);
+        }
+        path(p => p.py, cfg.hc ? cfg.ink : "#c9c7c3", 1.4, false);
+        path(p => p.v, cfg.hc ? cfg.ink : "#1a1a1a", 2, true);
+        // end-point marker in variance color
+        for (let i = series.length - 1; i >= 0; i--) {
+            const v = series[i].v;
+            if (v == null) { continue; }
+            const c = document.createElementNS(NS, "circle");
+            c.setAttribute("cx", X(i).toFixed(1));
+            c.setAttribute("cy", Y(v).toFixed(1));
+            c.setAttribute("r", "3");
+            c.setAttribute("fill", series[i].isFc ? cfg.paper : vColor);
+            c.setAttribute("stroke", vColor);
+            c.setAttribute("stroke-width", "1.6");
+            svg.appendChild(c);
+            break;
+        }
+        return wrap;
+    }
+
     /** mini bridge: basis → Δ → AC with connectors and a baseline (columns or bars) */
-    private buildBridge(ac: number, basisVal: number, basisLabel: string,
+    private buildBridge(d: Datum, basisVal: number, basisLabel: string,
         vColor: string, cfg: CardConfig, k: number): HTMLElement {
+        const ac = d.ac ?? 0;
         const px = (v: number) => `${Math.round(v * k * 10) / 10}px`;
         const wrap = document.createElement("div");
         const div = (style: string, text?: string) => {
@@ -382,11 +559,15 @@ export class Visual implements IVisual {
             if (text !== undefined) { el.textContent = text; }
             wrap.appendChild(el);
         };
-        // IBCS scenario styles: PY solid grey, PL outlined, AC solid dark
+        // IBCS scenario styles: PY solid grey, PL outlined, AC solid dark (FC hatched)
         const basisStyle = basisLabel === "PL"
             ? `background:${cfg.paper};border:1.5px solid ${cfg.ink};box-sizing:border-box`
             : `background:${cfg.hc ? cfg.paper : "#c9c7c3"};${cfg.hc ? `border:1px dashed ${cfg.ink};box-sizing:border-box` : ""}`;
         const acBg = cfg.hc ? cfg.ink : "#1a1a1a";
+        const hatch = `repeating-linear-gradient(45deg,${cfg.paper} 0 3px,${acBg} 3px 5px)`;
+        // FC share of the AC column/bar (0..1 of its length)
+        const fcFrac = d.ac != null && d.ac !== 0 && d.fcPart > 0
+            ? Math.min(1, Math.max(0, d.fcPart / Math.abs(d.ac))) : 0;
 
         if (cfg.bridgeHorizontal) {
             // three bars below each other: basis on top, Δ floating, AC at the bottom
@@ -399,29 +580,28 @@ export class Visual implements IVisual {
             const dLeft = Math.min(endB, endA);
             const dW = Math.max(4, Math.abs(endB - endA));
             const rowH = 18, yB = 8, yD = 42, yA = 76;
-            // baseline (vertical)
             div(`left:${px(x0)};top:${px(4)};width:1px;height:${px(H - 8)};background:${cfg.faint}`);
-            // row labels
             const lbl = `width:${px(x0 - 5)};text-align:right;font-size:${px(10)};line-height:${px(rowH)}`;
             div(`left:0;top:${px(yB)};${lbl};color:${cfg.subtle}`, basisLabel);
             div(`left:0;top:${px(yD)};${lbl};font-weight:700;color:${vColor}`, "Δ");
             div(`left:0;top:${px(yA)};${lbl};font-weight:700;color:${cfg.ink}`, "AC");
-            // basis bar
             div(`left:${px(x0)};top:${px(yB)};width:${px(wB)};height:${px(rowH)};${basisStyle};border-radius:0 ${px(2)} ${px(2)} 0`);
-            // connectors (vertical, at the bar ends)
             div(`left:${px(endB)};top:${px(yB + rowH)};width:1px;height:${px(yD - yB - rowH)};background:${cfg.faint}`);
             div(`left:${px(endA)};top:${px(yD + rowH)};width:1px;height:${px(yA - yD - rowH)};background:${cfg.faint}`);
-            // Δ float
             div(`left:${px(dLeft)};top:${px(yD)};width:${px(dW)};height:${px(rowH)};background:${vColor};border-radius:${px(2)}`);
-            // AC bar
-            div(`left:${px(x0)};top:${px(yA)};width:${px(wA)};height:${px(rowH)};background:${acBg};border-radius:0 ${px(2)} ${px(2)} 0`);
+            // AC bar: solid part + hatched FC share at the outer end
+            const wFc = Math.round(wA * fcFrac);
+            div(`left:${px(x0)};top:${px(yA)};width:${px(wA - wFc)};height:${px(rowH)};background:${acBg}`);
+            if (wFc > 0) {
+                div(`left:${px(x0 + wA - wFc)};top:${px(yA)};width:${px(wFc)};height:${px(rowH)};` +
+                    `background:${hatch};border:1px solid ${acBg};box-sizing:border-box;border-radius:0 ${px(2)} ${px(2)} 0`);
+            }
             return wrap;
         }
 
         // vertical: three columns next to each other (basis | Δ | AC)
         const W = 150, H = 104, baseY = 86, maxH = 72;
         wrap.style.cssText = `position:relative;width:${px(W)};height:${px(H)};flex-shrink:0`;
-        // negative-safe scale over the magnitudes
         const S = maxH / Math.max(Math.abs(ac), Math.abs(basisVal), 1);
         const hB = Math.round(Math.abs(basisVal) * S);
         const hA = Math.round(Math.abs(ac) * S);
@@ -429,18 +609,18 @@ export class Visual implements IVisual {
         const dTop = Math.min(topB, topA);
         const dH = Math.max(4, Math.abs(topB - topA));
 
-        // baseline
         div(`left:0;top:${px(baseY)};width:${px(W)};height:1px;background:${cfg.faint}`);
-        // basis column
         div(`left:0;top:${px(topB)};width:${px(40)};height:${px(hB)};${basisStyle};border-radius:${px(2)} ${px(2)} 0 0`);
-        // connectors
         div(`left:${px(40)};top:${px(topB)};width:${px(15)};height:1px;background:${cfg.faint}`);
         div(`left:${px(95)};top:${px(topA)};width:${px(15)};height:1px;background:${cfg.faint}`);
-        // Δ float
         div(`left:${px(55)};top:${px(dTop)};width:${px(40)};height:${px(dH)};background:${vColor};border-radius:${px(2)}`);
-        // AC column (solid dark)
-        div(`left:${px(110)};top:${px(topA)};width:${px(40)};height:${px(hA)};background:${acBg};border-radius:${px(2)} ${px(2)} 0 0`);
-        // labels
+        // AC column: solid part + hatched FC share at the top
+        const hFc = Math.round(hA * fcFrac);
+        div(`left:${px(110)};top:${px(topA + hFc)};width:${px(40)};height:${px(hA - hFc)};background:${acBg}`);
+        if (hFc > 0) {
+            div(`left:${px(110)};top:${px(topA)};width:${px(40)};height:${px(hFc)};` +
+                `background:${hatch};border:1px solid ${acBg};box-sizing:border-box;border-radius:${px(2)} ${px(2)} 0 0`);
+        }
         div(`left:0;top:${px(92)};width:${px(40)};text-align:center;font-size:${px(10)};color:${cfg.subtle}`, basisLabel);
         div(`left:${px(55)};top:${px(92)};width:${px(40)};text-align:center;font-size:${px(10)};font-weight:700;color:${vColor}`, "Δ");
         div(`left:${px(110)};top:${px(92)};width:${px(40)};text-align:center;font-size:${px(10)};font-weight:700;color:${cfg.ink}`, "AC");
@@ -450,7 +630,15 @@ export class Visual implements IVisual {
     private tooltipItems(d: Datum, cfg: CardConfig): VisualTooltipDataItem[] {
         const items: VisualTooltipDataItem[] = [];
         const name = d.name || cfg.title;
-        if (d.ac != null) { items.push({ displayName: "AC", value: cfg.fmt.format(d.ac), header: name }); }
+        if (d.ac != null) {
+            items.push({
+                displayName: d.fcPart > 0 ? "AC+FC" : "AC",
+                value: cfg.fmt.format(d.ac), header: name
+            });
+        }
+        if (d.fcPart > 0) {
+            items.push({ displayName: "davon FC", value: cfg.fmt.format(d.fcPart), header: name });
+        }
         if (d.py != null) { items.push({ displayName: "PY", value: cfg.fmt.format(d.py), header: name }); }
         if (d.pl != null) { items.push({ displayName: "PL", value: cfg.fmt.format(d.pl), header: name }); }
         const basisVal = cfg.basis === "plan" ? d.pl : d.py;

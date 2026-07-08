@@ -24,6 +24,13 @@ const bridgeOrientationItems: powerbi.IEnumMember[] = [
     { value: "bars", displayName: "Horizontal (Balken)" }
 ];
 
+const sortTilesItems: powerbi.IEnumMember[] = [
+    { value: "orig", displayName: "Original (Datenreihenfolge)" },
+    { value: "delta", displayName: "Δ absolut (größte zuerst)" },
+    { value: "pct", displayName: "Δ % (größte zuerst)" },
+    { value: "ac", displayName: "Größe (AC, größte zuerst)" }
+];
+
 const displayUnitsItems: powerbi.IEnumMember[] = [
     { value: "auto", displayName: "Auto" },
     { value: "none", displayName: "None" },
@@ -104,6 +111,35 @@ export class DisplayCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    showSparkline = new formattingSettings.ToggleSwitch({
+        name: "showSparkline",
+        displayName: "Sparkline (needs Trend field)",
+        displayNameKey: "Display_ShowSparkline",
+        description: "Mini-Trend je Karte (AC solide, FC gestrichelt, PY dünn grau) — erscheint, wenn das Trend-Feld (z. B. Monat) gefüllt ist.",
+        value: true
+    });
+
+    sortTiles = new formattingSettings.ItemDropdown({
+        name: "sortTiles",
+        displayName: "Sort tiles",
+        displayNameKey: "Display_SortTiles",
+        description: "Reihenfolge der Kacheln: Original, nach absoluter Abweichung, nach Δ % oder nach Größe (AC) — größte Treiber zuerst.",
+        items: sortTilesItems,
+        value: sortTilesItems[0]
+    });
+
+    tolerance = new formattingSettings.NumUpDown({
+        name: "tolerance",
+        displayName: "Neutral zone ± %",
+        displayNameKey: "Display_Tolerance",
+        description: "Ampel-Logik: Abweichungen innerhalb ±N % gelten als neutral (grau statt grün/rot) — verhindert Alles-rot/grün-Rauschen. 0 = aus.",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 50 }
+        }
+    });
+
     minTileWidth = new formattingSettings.NumUpDown({
         name: "minTileWidth",
         displayName: "Min tile width (px)",
@@ -121,7 +157,8 @@ export class DisplayCardSettings extends FormattingSettingsCard {
     displayNameKey: string = "Card_Display";
     slices: Array<FormattingSettingsSlice> = [
         this.title, this.titleSize, this.periodLabel, this.comparisonMode,
-        this.showBridge, this.bridgeOrientation, this.showSecondary, this.invert, this.minTileWidth
+        this.showBridge, this.bridgeOrientation, this.showSparkline, this.showSecondary,
+        this.invert, this.tolerance, this.sortTiles, this.minTileWidth
     ];
 }
 

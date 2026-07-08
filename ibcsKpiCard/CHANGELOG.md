@@ -1,5 +1,29 @@
 # Changelog · IBCS KPI Card
 
+## 2.2.0.0 (2026-07-08)
+
+- **Sparkline** (neues Trend-Feld, z. B. Monat): jede Karte zeigt einen
+  Mini-Trend — AC solide, FC-Perioden gestrichelt mit hohlem Endpunkt,
+  PY dünn grau, Nulllinie bei Vorzeichenwechsel; Endpunkt-Marker in der
+  Abweichungsfarbe. Kennzahlen werden über die Perioden summiert.
+  Abschaltbar (KPI card → Sparkline). Bei genug Platz erscheinen
+  Sparkline und Brücke nebeneinander, sonst hat die Sparkline Vorrang.
+- **Forecast-Feld (FC)**: füllt fehlende AC-Perioden (AC+FC) — der
+  FC-Anteil erscheint schraffiert in der Brücke (vertikal wie horizontal),
+  gestrichelt in der Sparkline und als eigene Tooltip-Zeile.
+- **Kacheln sortieren** (KPI card → Sort tiles): Original, Δ absolut,
+  Δ % oder Größe (AC) — größte Treiber zuerst.
+- **Neutralzone ± %** (KPI card → Neutral zone, 0 = aus): Ampel-Logik —
+  Abweichungen innerhalb der Toleranz bleiben grau (Pill mit ●,
+  Akzentleiste und Δ-Werte neutral) statt grün/rot.
+- **Kompakt-Stufen**: schmale Kacheln lassen Brücke/Sparkline automatisch
+  weg (< 340 Einheiten), sehr schmale zusätzlich die Referenzzeilen und
+  das Zeitraum-Label (< 210) — keine gequetschten Karten mehr.
+- **Bugfix**: der Konstruktor überschrieb sämtliche Inline-Styles des
+  Host-Elements (`style.cssText`) — dadurch konnte die tatsächliche
+  Breite von der Viewport-Breite abweichen und das Raster falsch
+  umbrechen. Styles werden jetzt additiv gesetzt.
+
 ## 2.1.0.0 (2026-07-08)
 
 - **Brücken-Ausrichtung** (KPI card → Bridge orientation): die Mini-Brücke

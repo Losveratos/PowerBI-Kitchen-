@@ -27,6 +27,21 @@
             "name": "pl",
             "kind": "Measure",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Forecast (FC)",
+            "displayNameKey": "Role_Fc",
+            "name": "fc",
+            "kind": "Measure",
+            "description": "Füllt fehlende AC-Werte auf (AC+FC) — FC-Anteil erscheint schraffiert bzw. gestrichelt.",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Trend (optional → Sparkline)",
+            "displayNameKey": "Role_Trend",
+            "name": "trend",
+            "kind": "Grouping",
+            "description": "Perioden-Spalte (z. B. Monat): jede Karte zeigt einen Mini-Trend, die Kennzahlen werden über die Perioden summiert."
         }
     ],
     "objects": {
@@ -53,8 +68,20 @@
                     }
                 },
                 "titleSize": { "type": { "formatting": { "fontSize": true } } },
+                "showSparkline": { "type": { "bool": true } },
                 "showSecondary": { "type": { "bool": true } },
                 "invert": { "type": { "bool": true } },
+                "tolerance": { "type": { "numeric": true } },
+                "sortTiles": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "orig", "displayName": "Original (Datenreihenfolge)" },
+                            { "value": "delta", "displayName": "Δ absolut (größte zuerst)" },
+                            { "value": "pct", "displayName": "Δ % (größte zuerst)" },
+                            { "value": "ac", "displayName": "Größe (AC, größte zuerst)" }
+                        ]
+                    }
+                },
                 "minTileWidth": { "type": { "numeric": true } }
             }
         },
@@ -95,21 +122,27 @@
             "conditions": [
                 {
                     "category": { "max": 1 },
+                    "trend": { "max": 1 },
                     "ac": { "max": 1 },
                     "py": { "max": 1 },
-                    "pl": { "max": 1 }
+                    "pl": { "max": 1 },
+                    "fc": { "max": 1 }
                 }
             ],
             "categorical": {
                 "categories": {
-                    "for": { "in": "category" },
-                    "dataReductionAlgorithm": { "top": { "count": 100 } }
+                    "select": [
+                        { "for": { "in": "category" } },
+                        { "for": { "in": "trend" } }
+                    ],
+                    "dataReductionAlgorithm": { "top": { "count": 2000 } }
                 },
                 "values": {
                     "select": [
                         { "bind": { "to": "ac" } },
                         { "bind": { "to": "py" } },
-                        { "bind": { "to": "pl" } }
+                        { "bind": { "to": "pl" } },
+                        { "bind": { "to": "fc" } }
                     ]
                 }
             }

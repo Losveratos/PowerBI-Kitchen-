@@ -14,6 +14,15 @@ Schwerpunkte **Lesbarkeit** und **Flexibilität**:
   AC solide dunkel — abschaltbar (KPI card → Mini bridge), negativ-sicher
   (auch Ergebnis-KPIs unter null brechen das Layout nicht mehr).
   **Ausrichtung wählbar**: vertikal (Säulen) oder horizontal (Balken)
+- **Sparkline** (Trend-Feld, z. B. Monat): Mini-Trend je Karte — AC solide,
+  FC gestrichelt, PY dünn grau; Kennzahlen werden über die Perioden summiert
+- **Forecast (FC)**: füllt fehlende AC-Perioden (AC+FC), FC-Anteil schraffiert
+  in der Brücke und gestrichelt in der Sparkline
+- **Kacheln sortieren**: Original / Δ absolut / Δ % / Größe (AC)
+- **Neutralzone ± %** (Ampel): Abweichungen innerhalb der Toleranz bleiben
+  grau statt grün/rot — verhindert Alles-rot/grün-Rauschen, 0 = aus
+- **Kompakt-Stufen**: schmale Kacheln reduzieren sich automatisch auf
+  Wert + Pill (+ Referenzzeile), statt gequetscht zu rendern
 - **Variance basis Auto/PY/PL**: die Δ-Pill, die Akzentleiste und die Brücke
   rechnen gegen PL, wenn vorhanden (Auto), sonst PY — umstellbar. Die jeweils
   andere Basis erscheint als **zweite Referenzzeile** (abschaltbar)
@@ -41,13 +50,15 @@ Schwerpunkte **Lesbarkeit** und **Flexibilität**:
 | Actual (AC) | Ist-Measure | ✔ |
 | Previous Year (PY) | Vorjahres-Measure | optional |
 | Plan / Budget (PL) | Plan-Measure | optional |
+| Forecast (FC) | füllt fehlende AC-Perioden (AC+FC), schraffiert | optional |
+| Trend | Perioden-Spalte → Sparkline je Karte | optional |
 
 ## Formatbereich
 
 - **KPI card**: Titel (leer = Measure-Name), **Titelgröße**, Zeitraum-Label,
   Variance basis (Auto/PY/PL), Mini bridge an/aus + **Ausrichtung
-  vertikal/horizontal**, zweite Referenzzeile an/aus, Invert,
-  Mindest-Kachelbreite
+  vertikal/horizontal**, Sparkline an/aus, zweite Referenzzeile an/aus,
+  Invert, **Neutralzone ± %**, **Kacheln sortieren**, Mindest-Kachelbreite
 - **Number format**: Größen-Preset (Kompakt/Full HD/Präsentation),
   Dezimalstellen, Einheiten (Auto/k/M/B)
 - **Colors**: Good/Bad
@@ -64,5 +75,5 @@ Schwerpunkte **Lesbarkeit** und **Flexibilität**:
 cd ibcsKpiCard
 npm install
 npx pbiviz package        # erzeugt dist/*.pbiviz
-npm run test:render       # Render-Harness (7 Szenarien) in headless Chromium
+npm run test:render       # Render-Harness (13 Szenarien) in headless Chromium
 ```

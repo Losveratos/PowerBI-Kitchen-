@@ -4,7 +4,7 @@
         "displayName": "IBCS KPI Card",
         "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
         "visualClassName": "Visual",
-        "version": "2.1.0.0",
+        "version": "2.2.0.0",
         "description": "IBCS KPI-Karte mit Mini-Brücke Basis→Δ→AC: AC vs. PY oder PL (Auto-Basis), zweite Referenzzeile, Invert für Kosten-KPIs, Measure-Formatstrings mit Auto-Einheiten (k/M/B), Schriftgrößen-Presets (Full HD), Kachel-Raster mit Crossfilter, Tooltips und High-Contrast.",
         "supportUrl": "https://github.com/losveratos/powerbi-kitchen-/issues",
         "gitHubUrl": "https://github.com/losveratos/powerbi-kitchen-"
@@ -24,5 +24,5 @@
     "stringResources": [
         "stringResources/de-DE.json"
     ],
-    "version": "2.1.0.0"
+    "version": "2.2.0.0"
 }
