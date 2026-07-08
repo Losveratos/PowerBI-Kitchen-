@@ -1,0 +1,117 @@
+{
+    "dataRoles": [
+        {
+            "displayName": "Category (optional → tile grid)",
+            "displayNameKey": "Role_Category",
+            "name": "category",
+            "kind": "Grouping",
+            "description": "Ohne Feld: eine Einzelkarte. Mit Feld: eine Kachel je Kategorie, Crossfilter per Klick."
+        },
+        {
+            "displayName": "Actual (AC)",
+            "displayNameKey": "Role_Actual",
+            "name": "ac",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Previous Year (PY)",
+            "displayNameKey": "Role_Py",
+            "name": "py",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Plan / Budget (PL)",
+            "displayNameKey": "Role_Pl",
+            "name": "pl",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        }
+    ],
+    "objects": {
+        "display": {
+            "properties": {
+                "title": { "type": { "text": true } },
+                "periodLabel": { "type": { "text": true } },
+                "comparisonMode": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Auto" },
+                            { "value": "py", "displayName": "Previous Year (PY)" },
+                            { "value": "plan", "displayName": "Plan (PL)" }
+                        ]
+                    }
+                },
+                "showBridge": { "type": { "bool": true } },
+                "showSecondary": { "type": { "bool": true } },
+                "invert": { "type": { "bool": true } },
+                "minTileWidth": { "type": { "numeric": true } }
+            }
+        },
+        "labels": {
+            "properties": {
+                "fontPreset": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "compact", "displayName": "Kompakt (Dashboard-Kachel)" },
+                            { "value": "fullhd", "displayName": "Full HD (1080p)" },
+                            { "value": "presentation", "displayName": "Präsentation (4K / Beamer)" }
+                        ]
+                    }
+                },
+                "decimals": { "type": { "numeric": true } },
+                "displayUnits": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Auto" },
+                            { "value": "none", "displayName": "None" },
+                            { "value": "k", "displayName": "Thousands (k)" },
+                            { "value": "m", "displayName": "Millions (M)" },
+                            { "value": "b", "displayName": "Billions (B)" }
+                        ]
+                    }
+                }
+            }
+        },
+        "colors": {
+            "properties": {
+                "goodColor": { "type": { "fill": { "solid": { "color": true } } } },
+                "badColor": { "type": { "fill": { "solid": { "color": true } } } }
+            }
+        }
+    },
+    "dataViewMappings": [
+        {
+            "conditions": [
+                {
+                    "category": { "max": 1 },
+                    "ac": { "max": 1 },
+                    "py": { "max": 1 },
+                    "pl": { "max": 1 }
+                }
+            ],
+            "categorical": {
+                "categories": {
+                    "for": { "in": "category" },
+                    "dataReductionAlgorithm": { "top": { "count": 100 } }
+                },
+                "values": {
+                    "select": [
+                        { "bind": { "to": "ac" } },
+                        { "bind": { "to": "py" } },
+                        { "bind": { "to": "pl" } }
+                    ]
+                }
+            }
+        }
+    ],
+    "tooltips": {
+        "supportedTypes": { "default": true, "canvas": true }
+    },
+    "supportsHighlight": false,
+    "supportsKeyboardFocus": true,
+    "supportsMultiVisualSelection": true,
+    "sorting": { "default": {} },
+    "privileges": []
+}

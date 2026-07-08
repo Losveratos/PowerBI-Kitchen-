@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background: #f2f2f2; margin: 20px; }
+  .case { background: #fff; border: 1px solid #ddd; margin-bottom: 24px; padding: 8px; }
+  .case h4 { margin: 0 0 6px 0; font-size: 12px; color: #666; }
+  .stage { position: relative; }
+</style>
+</head>
+<body>
+<div class="case"><h4>k1 · Einzelkarte · AC+PY+PL (Auto-Basis = PL) · Format "#,0 €" · Auto-Einheiten</h4><div class="stage" id="k1" style="width:520px;height:170px"></div></div>
+<div class="case"><h4>k2 · Einzelkarte groß (900×260) · skaliert mit</h4><div class="stage" id="k2" style="width:900px;height:260px"></div></div>
+<div class="case"><h4>k3 · Kachel-Raster · 6 Regionen · AC+PY</h4><div class="stage" id="k3" style="width:1000px;height:420px"></div></div>
+<div class="case"><h4>k4 · Kachel-Raster · Full-HD-Preset · AC+PY+PL + Invert (Kosten)</h4><div class="stage" id="k4" style="width:1200px;height:500px"></div></div>
+<div class="case"><h4>k5 · negative Werte (Ergebnis) · Brücke bleibt korrekt</h4><div class="stage" id="k5" style="width:520px;height:170px"></div></div>
+<div class="case"><h4>k6 · High Contrast (gelb auf schwarz)</h4><div class="stage" id="k6" style="width:520px;height:170px;background:#000"></div></div>
+<div class="case"><h4>k7 · nur AC (keine Basis) · keine Pill, keine Brücke</h4><div class="stage" id="k7" style="width:520px;height:170px"></div></div>
+<script src="visual.bundle.js"></script>
+<script>
+const Visual = IbcsKpiCard.Visual;
+
+function makeHost(hc) {
+  return {
+    colorPalette: hc ? { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" } }
+      : { isHighContrast: false },
+    eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o,e){ console.error("renderfail", e); } },
+    createSelectionManager: () => ({ select: () => Promise.resolve([]), clear: () => Promise.resolve(), showContextMenu(){}, registerOnSelectCallback(){}, getSelectionIds: () => [] }),
+    createSelectionIdBuilder: () => ({ withCategory(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
+    tooltipService: { show(){}, move(){}, hide(){} },
+    createLocalizationManager: () => ({ getDisplayName: () => "" }),
+    hostCapabilities: { allowInteractions: true },
+    locale: "de-DE"
+  };
+}
+function col(role, values, format) {
+  return { source: { displayName: role === "ac" ? "Umsatz" : role, roles: { [role]: true }, isMeasure: true, format }, values };
+}
+function dv(cols, objects, cats) {
+  const d = { metadata: { columns: [], objects: objects || {} }, categorical: { values: cols } };
+  if (cats) { d.categorical.categories = [{ source: { displayName: "Region", roles: { category: true } }, values: cats }]; }
+  return d;
+}
+function run(id, dataView, w, h, hc) {
+  const el = document.getElementById(id);
+  const v = new Visual({ element: el, host: makeHost(hc) });
+  v.update({ viewport: { width: w, height: h }, dataViews: [dataView] });
+}
+
+run("k1", dv([col("ac", [1245000], "#,0 €"), col("py", [1180000], "#,0 €"), col("pl", [1300000], "#,0 €")],
+  { display: { periodLabel: "MTD Jun 2026" } }), 520, 170);
+
+run("k2", dv([col("ac", [1245000], "#,0 €"), col("py", [1180000], "#,0 €")],
+  { display: { title: "Umsatz", periodLabel: "YTD" } }), 900, 260);
+
+run("k3", dv([col("ac", [420000, 380000, 290000, 150000, 260000, 510000], "#,0 €"), col("py", [400000, 415000, 250000, 180000, 240000, 380000], "#,0 €")],
+  { display: { periodLabel: "MTD" } },
+  ["Nord", "Süd", "West", "Ost", "Zentral", "Online"]), 1000, 420);
+
+run("k4", dv([col("ac", [92000, 61000, 78000, 44000], "#,0 €"), col("py", [88000, 70000, 71000, 52000], "#,0 €"), col("pl", [90000, 65000, 80000, 40000], "#,0 €")],
+  { display: { periodLabel: "Kosten MTD", invert: true }, labels: { fontPreset: "fullhd" } },
+  ["Personal", "Material", "Vertrieb", "IT"]), 1200, 500);
+
+run("k5", dv([col("ac", [-45000], "#,0 €"), col("py", [-80000], "#,0 €")],
+  { display: { title: "Ergebnis", periodLabel: "Q2" } }), 520, 170);
+
+run("k6", dv([col("ac", [1245000], "#,0 €"), col("py", [1180000], "#,0 €")],
+  { display: { title: "Umsatz" } }), 520, 170, true);
+
+run("k7", dv([col("ac", [1245000], "#,0 €")], { display: { title: "Umsatz" } }), 520, 170);
+</script>
+</body>
+</html>

@@ -241,6 +241,39 @@
           "pflicht": false
         }
       ]
+    },
+    {
+      "id": "ibcs_kpi_card",
+      "name": "IBCS KPI Card (natives Custom Visual)",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682.2.0.0.0.pbiviz",
+      "readme": "ibcsKpiCard/README.md",
+      "hinweis": "KPI-Karte mit Mini-Bruecke Basis->Delta->AC (IBCS-Notation), Variance basis Auto/PY/PL, Invert fuer Kosten, Auto-Einheiten k/M/B, Schrift-Presets (Full HD), Kachel-Raster mit Crossfilter. Import: Visualisierungen -> Visual aus Datei importieren.",
+      "fields": [
+        {
+          "name": "Category",
+          "kind": "column",
+          "rolle": "optional -> Kachel je Kategorie",
+          "pflicht": false
+        },
+        {
+          "name": "Actual (AC)",
+          "kind": "measure",
+          "rolle": "Ist-Wert",
+          "pflicht": true
+        },
+        {
+          "name": "Previous Year (PY)",
+          "kind": "measure",
+          "rolle": "Vorjahr",
+          "pflicht": false
+        },
+        {
+          "name": "Plan / Budget (PL)",
+          "kind": "measure",
+          "rolle": "Plan (Auto-Basis wenn gefuellt)",
+          "pflicht": false
+        }
+      ]
     }
   ]
 }
