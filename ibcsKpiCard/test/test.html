@@ -23,6 +23,7 @@
 <div class="case"><h4>k11 · FC-Anteil (AC+FC) · schraffiert in Brücke · Sparkline gestrichelt</h4><div class="stage" id="k11" style="width:700px;height:190px"></div></div>
 <div class="case"><h4>k12 · Kacheln sortiert nach Δ absolut · Neutralzone ±5 % (Ampel)</h4><div class="stage" id="k12" style="width:1000px;height:420px"></div></div>
 <div class="case"><h4>k13 · Kompakt-Stufen: 170px-Kacheln (nur Wert+Pill) neben 260px (mit Referenz)</h4><div class="stage" id="k13a" style="width:560px;height:300px;display:inline-block"></div><div class="stage" id="k13b" style="width:560px;height:300px;display:inline-block"></div></div>
+<div class="case"><h4>k14 · In-Chart-Buttons (ΔPY|ΔPL + ⇅) · Ziel-Marker (PL-Strich auf AC, Basis PY) · Auto-Zeitraum aus Trend</h4><div class="stage" id="k14" style="width:1100px;height:300px"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
 const Visual = IbcsKpiCard.Visual;
@@ -36,6 +37,7 @@ function makeHost(hc) {
     createSelectionIdBuilder: () => ({ withCategory(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
     tooltipService: { show(){}, move(){}, hide(){} },
     createLocalizationManager: () => ({ getDisplayName: () => "" }),
+    persistProperties: (changes) => console.log("persistProperties", JSON.stringify(changes)),
     hostCapabilities: { allowInteractions: true },
     locale: "de-DE"
   };
@@ -110,6 +112,21 @@ run("k13a", dv([col("ac", [420000, 380000, 290000, 150000], "#,0 €"), col("py"
   { display: { minTileWidth: 170 } }, ["Nord", "Süd", "West", "Ost"]), 560, 300);
 run("k13b", dv([col("ac", [420000, 380000, 290000, 150000], "#,0 €"), col("py", [400000, 415000, 250000, 180000], "#,0 €")],
   { display: { minTileWidth: 260 } }, ["Nord", "Süd", "West", "Ost"]), 560, 300);
+
+// in-chart buttons + target tick + auto period label: basis forced to PY, PL present
+// as target marker on the AC column; period label derived from the trend series
+const k14cats = [], k14trend = [], k14ac = [], k14py = [], k14pl = [];
+["Nord", "Süd"].forEach(r => {
+  ["Jan","Feb","Mär","Apr"].forEach((m, mi) => {
+    k14cats.push(r); k14trend.push(m + " 26");
+    const base = { Nord: 100, Süd: 90 }[r];
+    k14ac.push((base + mi * 6) * 1000);
+    k14py.push((base + mi * 4) * 1000);
+    k14pl.push((base + mi * 8) * 1000);
+  });
+});
+run("k14", dv([col("ac", k14ac, "#,0 €"), col("py", k14py, "#,0 €"), col("pl", k14pl, "#,0 €")],
+  { display: { comparisonMode: "py", minTileWidth: 700 } }, k14cats, k14trend), 1100, 380);
 </script>
 </body>
 </html>

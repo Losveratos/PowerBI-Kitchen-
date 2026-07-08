@@ -128,6 +128,14 @@ export class DisplayCardSettings extends FormattingSettingsCard {
         value: sortTilesItems[0]
     });
 
+    chartButtons = new formattingSettings.ToggleSwitch({
+        name: "chartButtons",
+        displayName: "In-chart buttons",
+        displayNameKey: "Display_ChartButtons",
+        description: "Klickbare Buttons oben rechts: ΔPY|ΔPL-Basis-Umschalter und ⇅ Kachel-Sortierung (größte Abweichung zuerst) — die Wahl wird persistiert.",
+        value: true
+    });
+
     tolerance = new formattingSettings.NumUpDown({
         name: "tolerance",
         displayName: "Neutral zone ± %",
@@ -158,7 +166,7 @@ export class DisplayCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [
         this.title, this.titleSize, this.periodLabel, this.comparisonMode,
         this.showBridge, this.bridgeOrientation, this.showSparkline, this.showSecondary,
-        this.invert, this.tolerance, this.sortTiles, this.minTileWidth
+        this.invert, this.tolerance, this.sortTiles, this.chartButtons, this.minTileWidth
     ];
 }
 

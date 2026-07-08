@@ -19,6 +19,7 @@
         "Display_ShowSparkline": "Sparkline (braucht Trend-Feld)",
         "Display_SortTiles": "Kacheln sortieren",
         "Display_Tolerance": "Neutralzone ± %",
+        "Display_ChartButtons": "In-Chart-Buttons",
         "Display_MinTileWidth": "Mindest-Kachelbreite (px)",
         "Card_Labels": "Zahlenformat",
         "Labels_FontPreset": "Größen-Preset",

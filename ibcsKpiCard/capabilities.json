@@ -72,6 +72,7 @@
                 "showSecondary": { "type": { "bool": true } },
                 "invert": { "type": { "bool": true } },
                 "tolerance": { "type": { "numeric": true } },
+                "chartButtons": { "type": { "bool": true } },
                 "sortTiles": {
                     "type": {
                         "enumeration": [

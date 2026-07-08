@@ -23,6 +23,12 @@ Schwerpunkte **Lesbarkeit** und **Flexibilität**:
   grau statt grün/rot — verhindert Alles-rot/grün-Rauschen, 0 = aus
 - **Kompakt-Stufen**: schmale Kacheln reduzieren sich automatisch auf
   Wert + Pill (+ Referenzzeile), statt gequetscht zu rendern
+- **Ziel-Marker**: die zweite Referenz (PL bzw. PY) als Strich quer über der
+  AC-Säule der Brücke — über Vorjahr, aber unter Plan? Auf einen Blick
+- **In-Chart-Buttons** (abschaltbar): ΔPY|ΔPL-Umschalter + ⇅ Kachel-Sortierung
+  oben rechts, persistiert — der Enduser stellt direkt im Bericht um
+- **Auto-Zeitraum**: leeres Zeitraum-Label wird aus dem Trend-Feld gebaut
+  („Jan 26 – Apr 26")
 - **Variance basis Auto/PY/PL**: die Δ-Pill, die Akzentleiste und die Brücke
   rechnen gegen PL, wenn vorhanden (Auto), sonst PY — umstellbar. Die jeweils
   andere Basis erscheint als **zweite Referenzzeile** (abschaltbar)
@@ -58,7 +64,7 @@ Schwerpunkte **Lesbarkeit** und **Flexibilität**:
 - **KPI card**: Titel (leer = Measure-Name), **Titelgröße**, Zeitraum-Label,
   Variance basis (Auto/PY/PL), Mini bridge an/aus + **Ausrichtung
   vertikal/horizontal**, Sparkline an/aus, zweite Referenzzeile an/aus,
-  Invert, **Neutralzone ± %**, **Kacheln sortieren**, Mindest-Kachelbreite
+  Invert, **Neutralzone ± %**, **Kacheln sortieren**, In-chart buttons, Mindest-Kachelbreite
 - **Number format**: Größen-Preset (Kompakt/Full HD/Präsentation),
   Dezimalstellen, Einheiten (Auto/k/M/B)
 - **Colors**: Good/Bad
@@ -75,5 +81,5 @@ Schwerpunkte **Lesbarkeit** und **Flexibilität**:
 cd ibcsKpiCard
 npm install
 npx pbiviz package        # erzeugt dist/*.pbiviz
-npm run test:render       # Render-Harness (13 Szenarien) in headless Chromium
+npm run test:render       # Render-Harness (14 Szenarien) in headless Chromium
 ```

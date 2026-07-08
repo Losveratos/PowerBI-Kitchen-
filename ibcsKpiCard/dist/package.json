@@ -1,5 +1,5 @@
 {
-		"version": "2.2.0.0",
+		"version": "2.3.0.0",
 		"author": {"name":"PowerBI Kitchen","email":"michael.tenner84@gmail.com"},
 		"resources": [
 			{
@@ -8,7 +8,7 @@
 				"file": "resources/ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682.pbiviz.json"
 			}
 		],
-		"visual": {"name":"ibcsKpiCard","displayName":"IBCS KPI Card","guid":"ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682","visualClassName":"Visual","version":"2.2.0.0","description":"IBCS KPI-Karte mit Mini-Brücke Basis→Δ→AC: AC vs. PY oder PL (Auto-Basis), zweite Referenzzeile, Invert für Kosten-KPIs, Measure-Formatstrings mit Auto-Einheiten (k/M/B), Schriftgrößen-Presets (Full HD), Kachel-Raster mit Crossfilter, Tooltips und High-Contrast.","supportUrl":"https://github.com/losveratos/powerbi-kitchen-/issues","gitHubUrl":"https://github.com/losveratos/powerbi-kitchen-"},
+		"visual": {"name":"ibcsKpiCard","displayName":"IBCS KPI Card","guid":"ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682","visualClassName":"Visual","version":"2.3.0.0","description":"IBCS KPI-Karte mit Mini-Brücke Basis→Δ→AC: AC vs. PY oder PL (Auto-Basis), zweite Referenzzeile, Invert für Kosten-KPIs, Measure-Formatstrings mit Auto-Einheiten (k/M/B), Schriftgrößen-Presets (Full HD), Kachel-Raster mit Crossfilter, Tooltips und High-Contrast.","supportUrl":"https://github.com/losveratos/powerbi-kitchen-/issues","gitHubUrl":"https://github.com/losveratos/powerbi-kitchen-"},
 		"metadata": {
 			"pbivizjson": {
 				"resourceId": "rId0"

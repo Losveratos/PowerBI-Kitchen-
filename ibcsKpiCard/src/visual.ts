@@ -285,18 +285,31 @@ export class Visual implements IVisual {
         const fontK = { compact: 1, fullhd: 1.5, presentation: 2 }[
             String(s.labelsCard.fontPreset.value.value)] ?? 1;
 
+        // auto period label: first – last trend period when no label is configured
+        if (!cfg.periodLabel) {
+            const withSeries = this.data.find(d => (d.series?.length ?? 0) > 1);
+            const labels = withSeries?.series?.map(p => p.label).filter(l => l) ?? [];
+            if (labels.length > 1) { cfg.periodLabel = `${labels[0]} – ${labels[labels.length - 1]}`; }
+        }
+
+        // in-chart toolbar: ΔPY|ΔPL basis switch + ⇅ tile sort, persisted like the deck
+        const isGrid = !(this.data.length === 1 && this.data[0].sel == null);
+        const sortMode = String(s.displayCard.sortTiles.value.value);
+        const toolbar = s.displayCard.chartButtons.value && (hasPy && hasPl || isGrid)
+            ? this.buildToolbar(cfg, hasPy && hasPl, isGrid, sortMode, fontK)
+            : null;
+
         // single card: scale with the viewport; grid: scale with the tile width
-        if (this.data.length === 1 && this.data[0].sel == null) {
+        if (!isGrid) {
             const scale = Math.max(0.7, Math.min(2.6, Math.min(width / 460, height / 150))) * fontK;
             const wrap = document.createElement("div");
             wrap.style.cssText = "width:100%;height:100%;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:8px";
             wrap.appendChild(this.buildCard(this.data[0], cfg, scale, false, width / scale));
-            this.root.replaceChildren(wrap);
+            this.root.replaceChildren(...(toolbar ? [toolbar, wrap] : [wrap]));
             return;
         }
 
         // tile sort: original / by |Δ| / by Δ% / by AC (largest first)
-        const sortMode = String(s.displayCard.sortTiles.value.value);
         let tilesData = this.data;
         if (sortMode !== "orig") {
             const basisOf = (d: Datum) => cfg.basis === "plan" ? d.pl : d.py;
@@ -327,8 +340,57 @@ export class Visual implements IVisual {
             grid.appendChild(el);
             this.tiles.push({ datum: d, el });
         }
-        this.root.replaceChildren(grid);
+        this.root.replaceChildren(...(toolbar ? [toolbar, grid] : [grid]));
         this.syncSelection();
+    }
+
+    /**
+     * in-chart toolbar (sticky top-right): ΔPY|ΔPL segmented basis switch and the
+     * ⇅ sort toggle (orig ↔ Δ absolut). Both persist their format-pane property via
+     * the host, so the end user's choice survives re-renders, bookmarks and reloads.
+     */
+    private buildToolbar(cfg: CardConfig, showRef: boolean, showSort: boolean,
+        sortMode: string, fontK: number): HTMLElement {
+        const k = fontK;
+        const px = (v: number) => `${Math.round(v * k)}px`;
+        const bar = document.createElement("div");
+        bar.style.cssText = "position:sticky;top:0;text-align:right;z-index:5;pointer-events:none";
+        const inner = document.createElement("div");
+        inner.style.cssText = `display:inline-flex;gap:${px(6)};padding:${px(4)} ${px(6)} ${px(4)} 0;pointer-events:auto`;
+        bar.appendChild(inner);
+        const persist = (properties: Record<string, unknown>) => {
+            this.host.persistProperties({ merge: [{ objectName: "display", selector: null, properties }] });
+        };
+        const btnBase = `font-family:${FONT};font-size:${px(11)};line-height:${px(18)};height:${px(20)};` +
+            `padding:0 ${px(8)};border:1px solid ${cfg.hc ? cfg.ink : "#c9c7c3"};cursor:pointer;box-sizing:border-box`;
+        const mkBtn = (text: string, active: boolean, label: string, radius: string,
+            onClick: () => void): HTMLElement => {
+            const b = document.createElement("button");
+            b.style.cssText = btnBase + `;background:${active ? cfg.ink : cfg.paper};` +
+                `color:${active ? cfg.paper : cfg.ink};border-radius:${radius}`;
+            b.textContent = text;
+            b.setAttribute("aria-label", label);
+            b.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); onClick(); });
+            return b;
+        };
+        if (showRef) {
+            const seg = document.createElement("div");
+            seg.style.cssText = "display:inline-flex";
+            const py = mkBtn("ΔPY", cfg.basis === "py", "Abweichungsbasis: Vorjahr (PY)",
+                `${px(10)} 0 0 ${px(10)}`, () => persist({ comparisonMode: "py" }));
+            const pl = mkBtn("ΔPL", cfg.basis === "plan", "Abweichungsbasis: Plan (PL)",
+                `0 ${px(10)} ${px(10)} 0`, () => persist({ comparisonMode: "plan" }));
+            pl.style.borderLeft = "none";
+            seg.appendChild(py); seg.appendChild(pl);
+            inner.appendChild(seg);
+        }
+        if (showSort) {
+            const active = sortMode !== "orig";
+            inner.appendChild(mkBtn("⇅", active,
+                active ? "Sortierung zurücksetzen (Datenreihenfolge)" : "Nach Abweichung sortieren (größte zuerst)",
+                px(10), () => persist({ sortTiles: active ? "orig" : "delta" })));
+        }
+        return bar;
     }
 
     /**
@@ -568,12 +630,16 @@ export class Visual implements IVisual {
         // FC share of the AC column/bar (0..1 of its length)
         const fcFrac = d.ac != null && d.ac !== 0 && d.fcPart > 0
             ? Math.min(1, Math.max(0, d.fcPart / Math.abs(d.ac))) : 0;
+        // target marker: the OTHER reference (PL when comparing vs PY, and vice versa)
+        // as a tick across the AC column — "über Vorjahr, aber unter Plan?" at a glance
+        const otherVal = cfg.basis === "plan" ? d.py : d.pl;
+        const otherAbs = otherVal != null ? Math.abs(otherVal) : 0;
 
         if (cfg.bridgeHorizontal) {
             // three bars below each other: basis on top, Δ floating, AC at the bottom
             const W = 150, H = 104, x0 = 26, maxW = W - x0 - 4;
             wrap.style.cssText = `position:relative;width:${px(W)};height:${px(H)};flex-shrink:0`;
-            const S = maxW / Math.max(Math.abs(ac), Math.abs(basisVal), 1);
+            const S = maxW / Math.max(Math.abs(ac), Math.abs(basisVal), otherAbs, 1);
             const wB = Math.round(Math.abs(basisVal) * S);
             const wA = Math.round(Math.abs(ac) * S);
             const endB = x0 + wB, endA = x0 + wA;
@@ -596,13 +662,18 @@ export class Visual implements IVisual {
                 div(`left:${px(x0 + wA - wFc)};top:${px(yA)};width:${px(wFc)};height:${px(rowH)};` +
                     `background:${hatch};border:1px solid ${acBg};box-sizing:border-box;border-radius:0 ${px(2)} ${px(2)} 0`);
             }
+            // target tick: the other reference on the AC row
+            if (otherVal != null) {
+                const xT = x0 + Math.round(otherAbs * S);
+                div(`left:${px(xT - 1)};top:${px(yA - 3)};width:${px(2)};height:${px(rowH + 6)};background:${cfg.ink}`);
+            }
             return wrap;
         }
 
         // vertical: three columns next to each other (basis | Δ | AC)
         const W = 150, H = 104, baseY = 86, maxH = 72;
         wrap.style.cssText = `position:relative;width:${px(W)};height:${px(H)};flex-shrink:0`;
-        const S = maxH / Math.max(Math.abs(ac), Math.abs(basisVal), 1);
+        const S = maxH / Math.max(Math.abs(ac), Math.abs(basisVal), otherAbs, 1);
         const hB = Math.round(Math.abs(basisVal) * S);
         const hA = Math.round(Math.abs(ac) * S);
         const topB = baseY - hB, topA = baseY - hA;
@@ -620,6 +691,11 @@ export class Visual implements IVisual {
         if (hFc > 0) {
             div(`left:${px(110)};top:${px(topA)};width:${px(40)};height:${px(hFc)};` +
                 `background:${hatch};border:1px solid ${acBg};box-sizing:border-box;border-radius:${px(2)} ${px(2)} 0 0`);
+        }
+        // target tick: the other reference across the AC column
+        if (otherVal != null) {
+            const yT = baseY - Math.round(otherAbs * S);
+            div(`left:${px(107)};top:${px(yT - 1)};width:${px(46)};height:${px(2)};background:${cfg.ink}`);
         }
         div(`left:0;top:${px(92)};width:${px(40)};text-align:center;font-size:${px(10)};color:${cfg.subtle}`, basisLabel);
         div(`left:${px(55)};top:${px(92)};width:${px(40)};text-align:center;font-size:${px(10)};font-weight:700;color:${vColor}`, "Δ");

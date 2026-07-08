@@ -1,5 +1,20 @@
 # Changelog · IBCS KPI Card
 
+## 2.3.0.0 (2026-07-08)
+
+- **Ziel-Marker in der Brücke**: die jeweils andere Referenz (PL bei Basis PY,
+  PY bei Basis PL) erscheint als schwarzer Strich quer über der AC-Säule
+  bzw. dem AC-Balken — „über Vorjahr, aber unter Plan?" auf einen Blick.
+  Die Brücken-Skala bezieht den Marker mit ein, er bleibt immer sichtbar.
+- **In-Chart-Buttons** (KPI card → In-chart buttons, Standard an): oben
+  rechts ein ΔPY|ΔPL-Umschalter (nur wenn beide Basen gefüllt) und ein
+  ⇅-Button, der die Kachel-Sortierung zwischen Original und Δ absolut
+  umschaltet. Beide persistieren die Formatbereich-Einstellung — die Wahl
+  des Endusers überlebt Reload und Lesezeichen. Die Leiste ist sticky und
+  scrollt nicht mit dem Raster weg.
+- **Auto-Zeitraum**: ist das Zeitraum-Label leer und das Trend-Feld gefüllt,
+  wird es automatisch aus erster–letzter Periode gebaut („Jan 26 – Apr 26").
+
 ## 2.2.0.0 (2026-07-08)
 
 - **Sparkline** (neues Trend-Feld, z. B. Monat): jede Karte zeigt einen
