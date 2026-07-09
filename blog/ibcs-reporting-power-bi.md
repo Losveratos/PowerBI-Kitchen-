@@ -47,6 +47,8 @@ Wer die Notation exakt und ohne Lizenzkosten pro Empfänger will, baut selbst: e
 
 **Ehrlich eingeordnet:** Das ist ein Entwicklungsprojekt. Es braucht jemanden, der TypeScript bzw. Vega-Lite beherrscht, Rendering-Tests aufsetzt und das Visual pflegt. Dafür gehört das Ergebnis dem Unternehmen, kostet keine Empfänger-Lizenzen und lässt sich exakt auf die eigenen Berichtsprozesse zuschneiden — bis hin zu Funktionen, die kein Standardprodukt bietet.
 
+**Als Faustregel für die Entscheidung:** Wer unter zehn Berichte standardisieren will und Support-Verträge schätzt, fährt mit Weg 2 am schnellsten. Wer viele Empfänger hat, langfristig denkt und BI-Kompetenz im Haus aufbauen will, rechnet Weg 3 durch — die Entwicklungskosten stehen einmal an, die Lizenzkosten jedes Jahr. Weg 1 ist die Brücke für den Start: Er zwingt das Team, die Notation zu lernen, bevor Geld für Werkzeuge fließt. Und alle drei Wege lassen sich kombinieren — ein Custom Visual für die Standard-Monatsberichte schließt Zebra BI für eine Spezialanwendung nicht aus.
+
 ## Wie das konkret aussieht: vier Beispiele aus der Praxis
 
 Die folgenden Beispiele stammen aus einem Custom Visual, das die Daten-WG als eigenes `.pbiviz` entwickelt hat — sie zeigen, was mit Weg 3 erreichbar ist.
@@ -63,9 +65,33 @@ Die folgenden Beispiele stammen aus einem Custom Visual, das die Daten-WG als ei
 
 ![Small Multiples mit großer Gesamt-Kachel und identischer Skalierung über alle Regionen](assets/ibcs-small-multiples-gesamt.png)
 
+**Auch Brücken funktionieren im Kachel-Raster.** Die Wasserfall-Brücke — Basis, Beiträge je Kategorie, Ist-Wert — beantwortet die Frage „woher kommt die Abweichung?" schneller als jede Tabelle. Als Small Multiples gerechnet zeigt sie dieselbe Überleitung je Region, nach Wirkung sortiert und mit identischer Skala, sodass sich sofort erkennen lässt, welche Region welchen Treiber hat:
+
+![Wasserfall-Brücken als Small Multiples: dieselbe Überleitung je Region, nach Wirkung sortiert, gleiche Skala](assets/ibcs-bruecken-small-multiples.png)
+
+**Die Königsdisziplin ist die Kategorie-Brücke**: Plan- und Vorjahres-Summen oben, je Kategorie der Ist-Vergleich, der Kaskaden-Beitrag und die relative Abweichung als Nadel, unten die doppelte Überleitung zu beiden Referenzen — ein komplettes Abweichungs-Storyboard in einem Chart, inklusive automatischer „größter Treiber"-Notiz:
+
+![Kategorie-Brücke mit Kaskade, ΔPL-%-Nadeln, doppelter Überleitung und In-Chart-Umschaltern](assets/ibcs-kategorie-bruecke.png)
+
 **Und weil Notation allein keinen Monatsabschluss macht**, gehören Workflow-Funktionen dazu: Wesentlichkeits-Schwellen stellen unwesentliche Abweichungen grau (im Beispiel bleibt +30K€ grau, weil es relativ unter der Schwelle liegt), Kommentare werden per Klick direkt im Bericht erfasst, und der YTD-Umschalter sitzt als Button im Chart:
 
 ![Wesentlichkeits-Schwellen, im Bericht erfasster Kommentar und YTD-Button in einem IBCS-Chart](assets/ibcs-wesentlichkeit-kommentare.png)
+
+## Die Extras, die den Berichtsalltag tragen
+
+Der Unterschied zwischen einem schönen Chart und einem Bericht, der im Monatsabschluss wirklich benutzt wird, liegt in unscheinbaren Funktionen. Vier davon haben sich in der Praxis als besonders wirksam erwiesen:
+
+**Referenz wechseln, ohne den Bericht zu verlassen.** Oben rechts in der Kategorie-Brücke sitzen klickbare Umschalter: ΔPY oder ΔPL als Abweichungsbasis, Sortierung nach Wirkung, eine Aufbau-Animation für Präsentationen. Die Wahl wird im Bericht persistiert — sie überlebt also Aktualisierungen und funktioniert mit Lesezeichen. Der Empfänger braucht keinen Bearbeitungsmodus und keinen Slicer-Wald am Seitenrand.
+
+**Kommentare dort erfassen, wo die Zahl steht.** Im Kommentar-Modus öffnet ein Klick auf eine Kategorie ein Eingabefeld direkt im Chart. Der Kommentar wandert als ✎-Marker an den Datenpunkt, in den Tooltip und in die nummerierte Fußnotenliste — und wird in der Berichtsdatei gespeichert, nicht in einem Nebensystem. Für den klassischen Abschluss-Workflow („wer schreibt die Erläuterung zur Planabweichung?") ersetzt das die Excel-Nebenbuchhaltung:
+
+![Kommentar-Erfassung direkt im Chart: Klick auf die Kategorie öffnet den Editor, gespeichert wird im Bericht](assets/ibcs-kommentar-editor.png)
+
+**Die Tabelle, die ein Chart ist.** IBCS-Tabellen kombinieren Zahlenspalten mit Grafikspalten — AC-PY-Balken, Δ-Balken, Δ-%-Nadeln — und fetten Zwischensummen für die GuV. Bei schmalen Kacheln fallen die Grafikspalten gestuft weg, statt sich zu quetschen; mit einer Kategorien-Hierarchie klappen Oberkategorien per Klick auf:
+
+![IBCS-Tabelle einer GuV: Zahlen- und Grafikspalten kombiniert, sum/delta-Zeilen, ΔPY-Balken und -Nadeln](assets/ibcs-tabelle-guv.png)
+
+**Kachel-Zoom und Vergleich per Klick** runden das ab: Ein Klick auf den Kachel-Titel vergrößert eine Region auf die volle Fläche — mit unveränderter Skala, wie es der Standard verlangt —, und im Vergleichsmodus markiert man zwei Säulen und bekommt die Differenz absolut und prozentual als Overlay eingeblendet. Beides sind Antworten auf Fragen, die sonst im Meeting an die BI-Abteilung delegiert werden.
 
 ## Governance nicht vergessen: Custom Visuals sauber ausrollen
 
