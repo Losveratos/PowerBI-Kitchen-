@@ -1389,6 +1389,19 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   border-radius: var(--radius-sm);
   display: block;
 }
+.embed-privacy-note {
+  margin: 8px 2px 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  color: var(--ink-mute);
+}
+.embed-privacy-note a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.embed-privacy-note a:hover { text-decoration: underline; }
 .chapters-title {
   font-family: var(--mono);
   font-size: 10px;
@@ -1818,6 +1831,9 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   transition: background .15s ease;
 }
 .eg-cta-card:hover .eg-cta-card-btn { background: var(--brand-soft); }
+.eg-cta-card--fabric { background: var(--brand-deep); margin-top: -16px; }
+.eg-cta-card--fabric .eg-cta-card-btn { background: rgba(255, 255, 255, 0.16); }
+.eg-cta-card--fabric:hover .eg-cta-card-btn { background: rgba(255, 255, 255, 0.28); }
 
 .eg-embed-note {
   margin-top: 24px;
@@ -1911,6 +1927,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <a class="topnav-link" href="#top-picks">Top-Picks</a>
     <a class="topnav-link" href="#posts-talks">Posts &amp; Talks</a>
     <a class="topnav-link" href="#buckets-overview">Buckets</a>
+    <a class="topnav-link" href="fabric_einsteiger_guide_v1.html" title="Microsoft Fabric End-to-End · Einsteiger-Guide">Fabric-Guide</a>
     <a class="topnav-link" href="power_bi_einsteiger_guide_v4.html#beispiele">Beispiele</a>
     <a class="topnav-link" href="business-chart-builder.html" title="IBCS-Charts bauen und als Vega-Spec für Deneb (Power BI) exportieren">Chart-Builder</a>
     <div class="topnav-dd">
@@ -2271,6 +2288,15 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <span class="eg-cta-card-btn">Zum vollen Guide →</span>
   </a>
 
+  <a class="eg-cta-card eg-cta-card--fabric" href="fabric_einsteiger_guide_v1.html">
+    <div class="eg-cta-card-text">
+      <span class="eg-cta-card-eyebrow">Neu · Microsoft Fabric · End-to-End</span>
+      <span class="eg-cta-card-title">Microsoft Fabric von OneLake bis zum Direct-Lake-Bericht</span>
+      <span class="eg-cta-card-sub">Der nächste Schritt nach Power BI: OneLake, Lakehouse, Direct Lake und Snowflake-Integration — 40 klickbare Detail-Karten.</span>
+    </div>
+    <span class="eg-cta-card-btn">Zum Fabric-Guide →</span>
+  </a>
+
   <div class="eg-progress" role="status" aria-live="polite">
     <span class="eg-progress-label">Lernpfad</span>
     <span class="eg-progress-track"><span class="eg-progress-fill" id="eg-progress-fill"></span></span>
@@ -2426,7 +2452,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   </a>
 
   <div class="eg-embed-note">
-    <strong>Tiefer einsteigen:</strong> Diese Übersicht ist die Lehrstruktur. Die detaillierten Klick-Karten pro Kapitel (Schritt-für-Schritt, Beispiele, Anfänger-Fallen) findest du im <a href="power_bi_einsteiger_guide_v4.html" style="color: var(--accent); text-decoration: underline;">vollen Einsteiger-Guide →</a>.
+    <strong>Tiefer einsteigen:</strong> Diese Übersicht ist die Lehrstruktur. Die detaillierten Klick-Karten pro Kapitel (Schritt-für-Schritt, Beispiele, Anfänger-Fallen) findest du im <a href="power_bi_einsteiger_guide_v4.html" style="color: var(--accent); text-decoration: underline;">vollen Einsteiger-Guide →</a>. Und wenn du wissen willst, was unter Power BI liegt: <a href="fabric_einsteiger_guide_v1.html" style="color: var(--accent); text-decoration: underline;">Microsoft-Fabric-Guide →</a>.
   </div>
 </section>
 
@@ -2441,6 +2467,8 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <a class="footer-link" href="https://www.daten-wg.com" target="_blank" rel="noopener">daten-wg.com</a>
     <a class="footer-link" href="https://www.daten-wg.com/daten-wg-2026" target="_blank" rel="noopener">Daten-WG 2026</a>
     <a class="footer-link" href="https://podcasters.spotify.com/pod/show/daten-wg" target="_blank" rel="noopener">Spotify</a>
+    <a class="footer-link" href="power_bi_einsteiger_guide_v4.html">Power-BI-Guide</a>
+    <a class="footer-link" href="fabric_einsteiger_guide_v1.html">Fabric-Guide</a>
     <a class="footer-link" href="impressum.html">Impressum</a>
     <a class="footer-link" href="datenschutz.html">Datenschutz</a>
   </div>
@@ -5242,10 +5270,11 @@ function renderCard(ep, idx) {
 
   const embedHtml = hasYtEmbed ? `
     <div class="video-card-embed" data-ytid="${ep.ytId}">
-      <button class="video-embed-placeholder" type="button" aria-label="Video laden">
+      <button class="video-embed-placeholder" type="button" aria-label="Video laden — beim Laden werden Daten an YouTube (Google) übertragen">
         <span class="embed-play">▶</span>
         <span class="embed-label">Video laden</span>
       </button>
+      <p class="embed-privacy-note">Beim Laden wird eine Verbindung zu YouTube (Google) hergestellt und dabei werden Daten (z.&nbsp;B. deine IP-Adresse) übertragen. <a href="datenschutz.html">Datenschutz</a></p>
     </div>` : '';
 
   return `
@@ -5338,6 +5367,8 @@ function renderBuckets() {
       iframe.title = 'YouTube video';
       iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
       iframe.allowFullscreen = true;
+      const note = wrap.querySelector('.embed-privacy-note');
+      if (note) note.remove();
       wrap.replaceChild(iframe, ph);
     });
   });
