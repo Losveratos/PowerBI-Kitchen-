@@ -111,8 +111,19 @@ a { color: inherit; }
   font-size: 15px;
   letter-spacing: -0.01em;
   margin-right: auto;
+  text-decoration: none;
+  color: inherit;
 }
 .topnav-brand em { font-style: italic; color: var(--accent); }
+.topnav-link-home {
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  font-weight: 600;
+}
+.topnav-link-em {
+  color: var(--accent);
+  font-weight: 600;
+}
 .beta-badge {
   display: inline-block;
   margin-left: 10px;
@@ -374,6 +385,66 @@ a { color: inherit; }
   height: 6px;
   border-radius: 50%;
   background: var(--accent-color, var(--accent));
+}
+
+/* ========== LESE-FORTSCHRITT ========== */
+.read-progress {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.read-progress-bar {
+  flex: 1;
+  height: 5px;
+  background: var(--bg-soft);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.read-progress-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  border-radius: 100px;
+  transition: width .35s ease;
+}
+.read-progress-text {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.read-progress-reset {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: all .18s ease;
+}
+.read-progress-reset:hover { color: var(--ink); border-color: var(--ink-soft); }
+.card.is-read::after {
+  content: '✓';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  background: var(--accent);
+  border-radius: 50%;
 }
 
 /* ========== SECTION ========== */
@@ -1335,8 +1406,22 @@ a { color: inherit; }
   width: 100%;
   max-width: 100%;
   height: auto;
+  min-height: 120px;
+  object-fit: contain;
   border-radius: var(--radius-sm);
   border: 1px solid var(--line-strong);
+  background: var(--bg-card);
+}
+.modal-body figure.img-missing::before {
+  content: 'Screenshot derzeit nicht erreichbar — Original über den Quell-Link unten öffnen.';
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+  padding: 18px 12px;
+  text-align: center;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
   background: var(--bg-card);
 }
 .modal-body figcaption {
@@ -1671,6 +1756,38 @@ a { color: inherit; }
   color: var(--ink);
   letter-spacing: 0;
 }
+.footer-nav {
+  width: 100%;
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+}
+.footer-nav a { text-decoration: none; color: var(--ink); }
+.footer-nav a.footer-link-accent { color: var(--accent); }
+.footer-nav a.footer-link-home { color: var(--accent); font-weight: 700; }
+.footer-nav-sep { color: var(--ink-mute); }
+.footer-note {
+  width: 100%;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--ink-mute);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  line-height: 1.5;
+}
+.footer-note a { color: var(--accent); text-decoration: none; }
+kbd.kbd {
+  font-family: var(--mono);
+  background: var(--bg-soft);
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--line-strong);
+  font-size: 11px;
+}
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
@@ -1689,8 +1806,9 @@ a { color: inherit; }
 ============================================================ -->
 <nav class="topnav">
   <div class="topnav-inner">
-    <a class="topnav-brand" href="index.html" style="text-decoration:none; color:inherit;">Power BI <em>End-to-End</em> · Einsteiger-Guide<span class="beta-badge" title="Beta-Phase · noch in Entwicklung">Beta</span></a>
-    <a class="topnav-link" href="index.html" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">← Knowledge Kitchen</a>
+    <a class="topnav-brand" href="index.html">Power BI <em>End-to-End</em> · Einsteiger-Guide<span class="beta-badge" title="Beta-Phase · noch in Entwicklung">Beta</span></a>
+    <a class="topnav-link topnav-link-home" href="index.html">← Knowledge Kitchen</a>
+    <a class="topnav-link" href="fabric_einsteiger_guide_v1.html">Fabric-Guide</a>
     <a class="topnav-link" href="index.html#posts-talks">Posts &amp; Talks</a>
     <a class="topnav-link" href="#arch">Architektur</a>
     <a class="topnav-link" href="#pq">Power Query</a>
@@ -1702,7 +1820,7 @@ a { color: inherit; }
     <a class="topnav-link" href="#service">Service</a>
     <a class="topnav-link" href="#rls">RLS</a>
     <a class="topnav-link" href="#ext">Tools</a>
-    <a class="topnav-link" href="#beispiele" style="color: var(--accent); font-weight: 600;">Beispiele</a>
+    <a class="topnav-link topnav-link-em" href="#beispiele">Beispiele</a>
     <a class="topnav-link" href="#quellen">Quellen</a>
     <a class="topnav-link" href="fabric_einsteiger_guide_v1.html" style="color: var(--accent-info); border: 1px solid var(--accent-info); font-weight: 600;">Weiter zu Fabric →</a>
   </div>
@@ -1719,7 +1837,7 @@ a { color: inherit; }
   </div>
   <div class="header-meta">
     <strong>v 4 · Einsteiger</strong>
-    Vollständig · DE<br>
+    Beta · Stand Mai 2026 · DE<br>
     10 Sektionen<br>
     87 klickbare Detail-Karten
   </div>
@@ -1750,7 +1868,7 @@ a { color: inherit; }
     <div class="start-here-text">
       <p>Dieser Guide ist <strong>kein Buch</strong>, das du von vorn nach hinten liest. Es ist eine Klick-Erkundung: zehn Sektionen, je 4–10 anklickbare Karten, jede führt zu einem Detail-Fenster mit Schritt-für-Schritt, Beispielen und Anfänger-Fallen.</p>
       <p>Wenn du <strong>1–2 Jahre Power BI</strong> gemacht hast, kennst du die Oberfläche, aber wahrscheinlich noch nicht das <em>Warum</em> dahinter. Genau das schließen wir hier. Empfohlene Reihenfolge: <strong>Sektion 1 → 2 → 4 → 5 → 6</strong> abdecken die Kern-Workflows; Sektion 3, 7–10 sind Vertiefung.</p>
-      <p>Wenn du eine Karte anklickst, öffnet sich ein Modal. Mit <kbd style="font-family:var(--mono);background:var(--bg-soft);padding:1px 6px;border-radius:3px;border:1px solid var(--line-strong);font-size:11px;">Esc</kbd> schließen, oder neben das Fenster klicken.</p>
+      <p>Wenn du eine Karte anklickst, öffnet sich ein Modal. Mit <kbd class="kbd">Esc</kbd> schließen, oder neben das Fenster klicken.</p>
     </div>
   </div>
 </div>
@@ -1772,6 +1890,11 @@ a { color: inherit; }
     <a class="journey-step" href="#service"><div class="journey-step-num">08 · DEPLOY</div><div class="journey-step-name">Service &amp; Sharing</div><span class="journey-step-dot" style="background: var(--c-service);"></span></a>
     <a class="journey-step" href="#rls"><div class="journey-step-num">09 · GOVERNANCE</div><div class="journey-step-name">RLS</div><span class="journey-step-dot" style="background: var(--c-rls);"></span></a>
     <a class="journey-step" href="#ext"><div class="journey-step-num">10 · ERWEITERT</div><div class="journey-step-name">Tools</div><span class="journey-step-dot" style="background: var(--c-ext);"></span></a>
+  </div>
+  <div class="read-progress">
+    <div class="read-progress-bar"><span class="read-progress-fill" id="read-progress-fill"></span></div>
+    <span class="read-progress-text" id="read-progress-text">0 von 87 Karten gelesen</span>
+    <button class="read-progress-reset" id="read-progress-reset" title="Lese-Fortschritt zurücksetzen">Zurücksetzen</button>
   </div>
 </div>
 
@@ -2021,7 +2144,7 @@ a { color: inherit; }
   <div class="section-head">
     <span class="section-num">04</span>
     <h2 class="section-title">Datenmodell &amp; <em>Stern-Schema</em></h2>
-    <span class="section-hint">9 Karten · Tabellen klickbar</span>
+    <span class="section-hint">10 Karten · Tabellen klickbar</span>
   </div>
   <p class="section-intro">Microsoft Learn ist eindeutig: Power BI ist auf Stern-Schemata optimiert. Ein gut entworfenes Modell macht DAX einfacher, Berichte schneller und verhindert die häufigste Fehlerquelle — falsche oder mehrdeutige Beziehungen.</p>
 
@@ -2996,15 +3119,15 @@ a { color: inherit; }
     VON MICHAEL TENNER · DEUTSCH · 10 SEKTIONEN · 87 DETAIL-KARTEN
   </div>
   <div>BASIEREND AUF MICROSOFT LEARN &amp; IBCS STANDARDS</div>
-  <div style="grid-column: 1 / -1; padding-top: 12px; margin-top: 4px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 18px; align-items: center;">
-    <a href="index.html" style="color: var(--accent); text-decoration: none; font-weight: 700;">← Zurück zur Knowledge Kitchen</a>
-    <a href="fabric_einsteiger_guide_v1.html" style="color: var(--accent-info); text-decoration: none; font-weight: 700;">Weiter zum Fabric-Einsteiger-Guide →</a>
-    <span style="color: var(--ink-mute);">·</span>
-    <a href="impressum.html" style="color: var(--ink); text-decoration: none;">Impressum</a>
-    <a href="datenschutz.html" style="color: var(--ink); text-decoration: none;">Datenschutz</a>
+  <div class="footer-nav">
+    <a href="index.html" class="footer-link-home">← Zurück zur Knowledge Kitchen</a>
+    <a href="fabric_einsteiger_guide_v1.html" class="footer-link-accent">Microsoft-Fabric-Einsteiger-Guide</a>
+    <span class="footer-nav-sep">·</span>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
   </div>
-  <div style="grid-column: 1 / -1; margin-top: 10px; font-size: 11px; color: var(--ink-mute); letter-spacing: 0.04em; text-transform: none; line-height: 1.5;">
-    Privates Projekt von Michael Tenner · derzeit in der Beta-Phase · inhaltlich verbunden mit der <a href="https://www.daten-wg.com" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: none;">Daten-WG-Community</a>.
+  <div class="footer-note">
+    Privates Projekt von Michael Tenner · derzeit in der Beta-Phase · inhaltlich verbunden mit der <a href="https://www.daten-wg.com" target="_blank" rel="noopener">Daten-WG-Community</a>.
   </div>
 </footer>
 
@@ -7429,6 +7552,51 @@ const modalClose    = document.getElementById('modal-close');
 
 const allKeys = Object.keys(DETAILS);
 
+// ═══════════════════════════════════════════════════════════
+// LESE-FORTSCHRITT (localStorage)
+// ═══════════════════════════════════════════════════════════
+const READ_STORAGE_KEY = 'pbiGuideV4ReadCards';
+let readCards;
+try {
+  readCards = new Set(JSON.parse(localStorage.getItem(READ_STORAGE_KEY) || '[]'));
+} catch (e) {
+  readCards = new Set();
+}
+
+function persistReadCards() {
+  try {
+    localStorage.setItem(READ_STORAGE_KEY, JSON.stringify([...readCards]));
+  } catch (e) { /* Private Mode o. ä. — Fortschritt gilt dann nur für die Sitzung */ }
+}
+
+function updateReadUI() {
+  document.querySelectorAll('.card[data-key]').forEach(card => {
+    card.classList.toggle('is-read', readCards.has(card.getAttribute('data-key')));
+  });
+  const readCount = allKeys.filter(k => readCards.has(k)).length;
+  const fill = document.getElementById('read-progress-fill');
+  const text = document.getElementById('read-progress-text');
+  if (fill) fill.style.width = (readCount / allKeys.length * 100) + '%';
+  if (text) text.textContent = readCount + ' von ' + allKeys.length + ' Karten gelesen';
+}
+
+function markRead(key) {
+  if (readCards.has(key)) return;
+  readCards.add(key);
+  persistReadCards();
+  updateReadUI();
+}
+
+const resetBtn = document.getElementById('read-progress-reset');
+if (resetBtn) {
+  resetBtn.addEventListener('click', () => {
+    readCards.clear();
+    persistReadCards();
+    updateReadUI();
+  });
+}
+updateReadUI();
+
 function openModal(key) {
   const data = DETAILS[key];
   if (!data) {
@@ -7438,8 +7606,23 @@ function openModal(key) {
   modalEyebrow.textContent = data.eyebrow;
   modalTitle.textContent   = data.title;
   modalBody.innerHTML      = data.body + renderEpisodeLinks(key);
+  // Screenshot-Fallback: Learn-CDN -> lokale Kopie (assets/learn/) -> Hinweis.
+  // Lokale Kopien erzeugt scripts/fetch_learn_assets.py.
+  modalBody.querySelectorAll('figure img').forEach(img => {
+    img.addEventListener('error', () => {
+      if (!img.dataset.triedLocal) {
+        img.dataset.triedLocal = '1';
+        img.src = 'assets/learn/' + img.src.split('/').pop().split('?')[0];
+      } else {
+        img.style.display = 'none';
+        const fig = img.closest('figure');
+        if (fig) fig.classList.add('img-missing');
+      }
+    });
+  });
   const idx = allKeys.indexOf(key);
   modalCounter.textContent = (idx + 1) + ' / ' + allKeys.length;
+  markRead(key);
   backdrop.classList.add('is-open');
   document.body.style.overflow = 'hidden';
   modal.scrollTop = 0;
