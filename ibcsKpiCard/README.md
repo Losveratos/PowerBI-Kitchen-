@@ -83,3 +83,9 @@ npm install
 npx pbiviz package        # erzeugt dist/*.pbiviz
 npm run test:render       # Render-Harness (14 Szenarien) in headless Chromium
 ```
+
+## Lizenz
+
+MIT — © 2026 Michael Tenner · PowerBI Kitchen (siehe [LICENSE](../LICENSE)).
+Nutzung, Änderung und Weitergabe sind frei, auch kommerziell — der
+Autor-/Copyright-Hinweis muss dabei erhalten bleiben.

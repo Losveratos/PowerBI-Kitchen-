@@ -61,4 +61,8 @@ Siehe [.gitignore](.gitignore). Kurz:
 
 ## Lizenz
 
-Privat-Projekt. Video-Inhalte gehören dem Daten-WG-Kanal.
+Der Code in diesem Repository (inkl. der Power-BI-Custom-Visuals) steht unter
+der [MIT-Lizenz](LICENSE): Nutzung, Änderung und Weitergabe sind frei — auch
+kommerziell —, solange der Autor-/Copyright-Hinweis
+(© Michael Tenner · PowerBI Kitchen) erhalten bleibt.
+Video-Inhalte gehören dem Daten-WG-Kanal.

@@ -1,5 +1,7 @@
 /*
  *  IBCS Inspired Chart Deck — IBCS business chart custom visual for Power BI
+ *  © 2026 Michael Tenner · PowerBI Kitchen — MIT License (see LICENSE in the repo root):
+ *  free to use and modify, keep this author notice.
  *
  *  One visual that covers the core IBCS report chart:
  *    - Base chart with scenario notation: AC solid, PY grey, PL outlined, FC hatched

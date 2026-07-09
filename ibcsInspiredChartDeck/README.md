@@ -183,3 +183,9 @@ ein Entwickler-Visual-Setup im Power-BI-Dienst
 - Report-Page-Tooltips mit eigener Tooltip-Seite
 - Skalenband-Indikator bei bewusst abweichenden Skalen
 - Weitere Sprachen für den Formatbereich
+
+## Lizenz
+
+MIT — © 2026 Michael Tenner · PowerBI Kitchen (siehe [LICENSE](../LICENSE)).
+Nutzung, Änderung und Weitergabe sind frei, auch kommerziell — der
+Autor-/Copyright-Hinweis muss dabei erhalten bleiben.

@@ -1,5 +1,7 @@
 /*
  *  IBCS KPI Card — KPI tile with a mini bridge (basis → Δ → AC) for Power BI
+ *  © 2026 Michael Tenner · PowerBI Kitchen — MIT License (see LICENSE in the repo root):
+ *  free to use and modify, keep this author notice.
  *
  *  v2: rebuilt from the v1.1 prototype with the chart-deck learnings:
  *    - PL support + variance basis Auto/PY/PL, second reference row
