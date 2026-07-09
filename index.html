@@ -1389,6 +1389,19 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   border-radius: var(--radius-sm);
   display: block;
 }
+.embed-privacy-note {
+  margin: 8px 2px 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  color: var(--ink-mute);
+}
+.embed-privacy-note a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.embed-privacy-note a:hover { text-decoration: underline; }
 .chapters-title {
   font-family: var(--mono);
   font-size: 10px;
@@ -5257,10 +5270,11 @@ function renderCard(ep, idx) {
 
   const embedHtml = hasYtEmbed ? `
     <div class="video-card-embed" data-ytid="${ep.ytId}">
-      <button class="video-embed-placeholder" type="button" aria-label="Video laden">
+      <button class="video-embed-placeholder" type="button" aria-label="Video laden — beim Laden werden Daten an YouTube (Google) übertragen">
         <span class="embed-play">▶</span>
         <span class="embed-label">Video laden</span>
       </button>
+      <p class="embed-privacy-note">Beim Laden wird eine Verbindung zu YouTube (Google) hergestellt und dabei werden Daten (z.&nbsp;B. deine IP-Adresse) übertragen. <a href="datenschutz.html">Datenschutz</a></p>
     </div>` : '';
 
   return `
@@ -5353,6 +5367,8 @@ function renderBuckets() {
       iframe.title = 'YouTube video';
       iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
       iframe.allowFullscreen = true;
+      const note = wrap.querySelector('.embed-privacy-note');
+      if (note) note.remove();
       wrap.replaceChild(iframe, ph);
     });
   });
