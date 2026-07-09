@@ -1704,6 +1704,7 @@ a { color: inherit; }
     <a class="topnav-link" href="#ext">Tools</a>
     <a class="topnav-link" href="#beispiele" style="color: var(--accent); font-weight: 600;">Beispiele</a>
     <a class="topnav-link" href="#quellen">Quellen</a>
+    <a class="topnav-link" href="fabric_einsteiger_guide_v1.html" style="color: var(--accent-info); border: 1px solid var(--accent-info); font-weight: 600;">Weiter zu Fabric →</a>
   </div>
 </nav>
 
@@ -2752,9 +2753,9 @@ a { color: inherit; }
   <div class="beispiele-head">
     <span class="beispiele-num">B</span>
     <h2 class="beispiele-title">Beispiele · <em>Live Power BI Reports</em></h2>
-    <span class="beispiele-hint">3 eingebettete Reports</span>
+    <span class="beispiele-hint">4 eingebettete Reports</span>
   </div>
-  <p class="beispiele-intro">Drei produktive Reports, direkt aus dem Power BI Service eingebettet. Anklicken, Filter setzen, durch die Seiten navigieren — die Konzepte aus den Sektionen darüber in echt angewendet.</p>
+  <p class="beispiele-intro">Vier produktive Reports, direkt aus dem Power BI Service eingebettet. Anklicken, Filter setzen, durch die Seiten navigieren — die Konzepte aus den Sektionen darüber in echt angewendet.</p>
 
   <article class="beispiel" id="beispiel-travel">
     <div class="beispiel-body">
@@ -2798,6 +2799,21 @@ a { color: inherit; }
     <div class="beispiel-meta">
       <span>Power BI Service · Public Embed</span>
       <a href="https://app.powerbi.com/view?r=eyJrIjoiNWI1ZWVlNTgtNjdmMy00YjM3LWFkMGEtMDFiYWU4YjI5NTA0IiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9" target="_blank" rel="noopener">In neuem Tab öffnen →</a>
+    </div>
+  </article>
+
+  <article class="beispiel" id="beispiel-customviz">
+    <div class="beispiel-body">
+      <div class="beispiel-eyebrow">Custom Visuals · Von Claude Code gebaut</div>
+      <h3 class="beispiel-title">Custom IBCS Viz Demo</h3>
+      <p class="beispiel-desc">Eigene Power-BI-Custom-Visuals — IBCS-Waterfall, KPI-Card, interaktives Gantt — ganz ohne klassisches Pflichtenheft entstanden: im Describe-Render-Refine-Loop mit Claude Code, vom HTML-Prototyp über Deneb/Vega-Lite bis zum echten <code>.pbiviz</code>.</p>
+    </div>
+    <div class="beispiel-frame">
+      <iframe title="Custom IBCS Viz Demo" src="https://app.powerbi.com/view?r=eyJrIjoiZDAxYzk2YWUtMDI4My00ZWM5LTljZjAtYzkxYmUzMGJkMjRkIiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9" frameborder="0" allowfullscreen="true" loading="lazy"></iframe>
+    </div>
+    <div class="beispiel-meta">
+      <span>Power BI Service · Public Embed</span>
+      <a href="https://app.powerbi.com/view?r=eyJrIjoiZDAxYzk2YWUtMDI4My00ZWM5LTljZjAtYzkxYmUzMGJkMjRkIiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9" target="_blank" rel="noopener">In neuem Tab öffnen →</a>
     </div>
   </article>
 
@@ -2982,6 +2998,7 @@ a { color: inherit; }
   <div>BASIEREND AUF MICROSOFT LEARN &amp; IBCS STANDARDS</div>
   <div style="grid-column: 1 / -1; padding-top: 12px; margin-top: 4px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 18px; align-items: center;">
     <a href="index.html" style="color: var(--accent); text-decoration: none; font-weight: 700;">← Zurück zur Knowledge Kitchen</a>
+    <a href="fabric_einsteiger_guide_v1.html" style="color: var(--accent-info); text-decoration: none; font-weight: 700;">Weiter zum Fabric-Einsteiger-Guide →</a>
     <span style="color: var(--ink-mute);">·</span>
     <a href="impressum.html" style="color: var(--ink); text-decoration: none;">Impressum</a>
     <a href="datenschutz.html" style="color: var(--ink); text-decoration: none;">Datenschutz</a>
@@ -3261,6 +3278,11 @@ const DETAILS = {
       </div>
 
       <p><strong>Status:</strong> Fabric ist seit November 2023 GA. Die Plattform entwickelt sich monatlich weiter — vor Produktiv-Entscheidungen den aktuellen Release Plan prüfen.</p>
+
+      <div class="tip" style="border-color: var(--accent-info);">
+        <strong>Tiefer einsteigen</strong>
+        Dieser Guide bleibt bewusst an der Oberfläche von Fabric — Power BI ist hier der Fokus. Für OneLake, Lakehouse vs. Warehouse, Direct Lake im Detail, ein komplettes End-to-End-Beispiel und Snowflake-Integration: <a href="fabric_einsteiger_guide_v1.html" style="color: var(--accent-info); font-weight: 600;">Microsoft-Fabric-Einsteiger-Guide →</a>
+      </div>
     `
   },
 
@@ -3298,6 +3320,8 @@ const DETAILS = {
         <li><strong>Contra:</strong> braucht Fabric-Capacity, fällt bei unsupported features auf DirectQuery zurück</li>
         <li>Aktuell die spannendste Innovation — verändert die Modus-Wahl für viele neue Modelle</li>
       </ul>
+
+      <p style="font-size: 13px; color: var(--ink-mute);">Framing, Guardrails pro F-SKU und die zwei Direct-Lake-Varianten (on OneLake vs. on SQL endpoints) im Detail: <a href="fabric_einsteiger_guide_v1.html" style="color: var(--accent-info);">Fabric-Guide → Sektion „Semantik &amp; Direct Lake"</a></p>
 
       <div class="example">
         <strong>Entscheidungs-Beispiel</strong>
