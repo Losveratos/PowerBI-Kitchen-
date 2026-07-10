@@ -1,5 +1,14 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.11.1.0 (2026-07-10)
+
+- **Automatische Botschaft (Treiber-Text) jetzt Standard aus.** Die
+  Zeile „ΔPL … · stärkster Treiber: … · schwächster: …" unter dem
+  IBCS-Titel erscheint nur noch, wenn sie im Menü eingeschaltet wird:
+  **IBCS-Titel → Automatische Botschaft**. Eigene Botschafts-Texte
+  (Feld „Botschafts-Zeile") erscheinen unabhängig davon weiterhin.
+
+
 ## 1.11.0.0 (2026-07-10)
 
 **PY als Dreieck bei drei Szenarien (IBCS-Jahreschart-Notation):**

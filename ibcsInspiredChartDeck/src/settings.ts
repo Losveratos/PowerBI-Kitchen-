@@ -77,8 +77,8 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
         name: "autoMessage",
         displayName: "Auto message",
         displayNameKey: "Title_AutoMessage",
-        description: "Erzeugt die Botschafts-Zeile automatisch aus Gesamtabweichung und größten Treibern, wenn keine eigene Botschaft eingegeben ist.",
-        value: true
+        description: "Erzeugt die Botschafts-Zeile (Treiber-Text) automatisch aus Gesamtabweichung und größten Treibern, wenn keine eigene Botschaft eingegeben ist. Standard aus.",
+        value: false
     });
 
     name: string = "ibcsTitle";
