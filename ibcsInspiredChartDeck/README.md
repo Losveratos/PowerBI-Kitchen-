@@ -210,6 +210,11 @@ Formatbereich vollständig lokalisiert für Deutsch (`de-DE`), Englisch
 Dropdown-Werte (Ausrichtung, Abweichungsbasis, Einheiten etc.). Power BI
 wählt automatisch anhand der Berichts-/Anzeigesprache.
 
+Hinweis nach Versions-Update: Power BI cached importierte Visuals pro
+Bericht — nach dem Import einer neuen `.pbiviz` das Visual einmal frisch
+auf die Seite ziehen. Zeigt der Formatbereich rohe Schlüssel wie
+`Title_Show`, ist noch eine alte Instanz/Version aktiv.
+
 ## Roadmap-Ideen
 
 - Report-Page-Tooltips mit eigener Tooltip-Seite
