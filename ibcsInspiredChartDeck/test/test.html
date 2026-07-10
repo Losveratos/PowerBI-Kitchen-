@@ -32,6 +32,9 @@
 <div class="case"><h4>Integrierte Brücke (Zeit) · PY-Total links, Kaskade, Monatssäulen, AC+FC-Total rechts</h4><div class="stage" id="c22" style="width:1120px;height:660px"></div></div>
 <div class="case"><h4>Kategorie-Brücke (Struktur) · PL/PY-Zeilen, Kaskade, ΔPY%-Pins, Doppel-Überleitung</h4><div class="stage" id="c23" style="width:1340px;height:790px"></div></div>
 <div class="case"><h4>Integrierte Brücke · Basis PL · zwei Totalsäulen (PY+PL), versetzte PL-Umriss-Minisäulen, PY-Dreiecke</h4><div class="stage" id="c50" style="width:1120px;height:660px"></div></div>
+<div class="case"><h4>GuV-Statement · Sicht AC (solid) vs. PY, Kaskaden-Spalten, ΔPY + ΔPY%-Pins, Ebenen-Buttons</h4><div class="stage" id="c51" style="width:1280px;height:480px"></div></div>
+<div class="case"><h4>GuV-Statement · Sicht AC&amp;FC (Split solid+schraffiert), Varianzen schraffiert</h4><div class="stage" id="c52" style="width:1280px;height:480px"></div></div>
+<div class="case"><h4>GuV-Statement · Sicht PL (Umriss), Varianzen umrandet</h4><div class="stage" id="c53" style="width:1280px;height:480px"></div></div>
 <div class="case"><h4>Kategorie-Brücke · Full-HD-Preset (Schrift ×1,5) · ΔPL-Referenz</h4><div class="stage" id="c24" style="width:1340px;height:820px"></div></div>
 <div class="case"><h4>Tabelle (IBCS) · GuV mit sum/delta · AC·PY-Balken + ΔPY + ΔPY%-Pins</h4><div class="stage" id="c25" style="width:1200px;height:420px"></div></div>
 <div class="case"><h4>Tabelle (IBCS) · Länder + Dual (ΔPL & ΔPY) · Full HD · Highlight</h4><div class="stage" id="c26" style="width:1340px;height:520px"></div></div>
@@ -444,6 +447,21 @@ run("c47", dataView(["Umsatz", "Opex", "EBIT"],
 // QTD with fiscal year starting in April: cumulation resets at Apr/Jul/Okt/Jan
 run("c48", dataView(months, [col("actual", acFull, "#,0 €"), col("plan", pl, "#,0 €")],
   { chart: { cumulative: true, cumulativeKind: "qtd", fiscalStart: 4 } }), 960, 420);
+
+// GuV-Statement (IBCS P&L): sum/delta/pct row types drive anchors, collapse levels
+// and margin rows; FC carries the rest-of-year forecast for the AC&FC split view
+const guvCats = ["Umsatzerlöse","Materialaufwand","Bruttoergebnis","Brutto-Marge %","Personalaufwand","Sonstige Opex","EBITDA","EBITDA-Marge %","Abschreibungen","EBIT","EBIT-Marge %","Finanzergebnis","EBT"];
+const guvTypes = ["sum","delta","sum","pct","delta","delta","sum","pct","delta","sum","pct","delta","sum"];
+const guvAc = [9800,-4200,5600,57.1,-1850,-1050,2700,27.6,-380,2320,23.7,-95,2225];
+const guvPy = [9100,-3900,5200,57.1,-1740,-960,2500,27.5,-360,2140,23.5,-110,2030];
+const guvPl = [9600,-4050,5550,57.8,-1800,-1000,2750,28.6,-370,2380,24.8,-100,2280];
+const guvFc = [4400,-1900,2500,null,-830,-470,1200,null,-170,1030,null,-45,985];
+run("c51", dataView(guvCats, [col("actual", guvAc, "#,0 T€"), col("previousYear", guvPy, "#,0 T€"), col("plan", guvPl, "#,0 T€"), col("forecast", guvFc, "#,0 T€")],
+  { chart: { orientation: "pnl" } }, null, guvTypes), 1280, 480);
+run("c52", dataView(guvCats, [col("actual", guvAc, "#,0 T€"), col("previousYear", guvPy, "#,0 T€"), col("plan", guvPl, "#,0 T€"), col("forecast", guvFc, "#,0 T€")],
+  { chart: { orientation: "pnl", pnlView: "acfc" } }, null, guvTypes), 1280, 480);
+run("c53", dataView(guvCats, [col("actual", guvAc, "#,0 T€"), col("previousYear", guvPy, "#,0 T€"), col("plan", guvPl, "#,0 T€"), col("forecast", guvFc, "#,0 T€")],
+  { chart: { orientation: "pnl", pnlView: "pl" } }, null, guvTypes), 1280, 480);
 
 // P&L table with margin rows: value as %, deltas as percentage points
 run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],

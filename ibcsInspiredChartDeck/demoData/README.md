@@ -22,8 +22,11 @@ Margen-Zeilen. Feld-Mapping im Visual:
 - Kosten-Zeilen sind **negativ** — so erwartet es der Wasserfall
 - Sortierung: Spalte `Position` in Power BI **nach `Nr` sortieren**
   (Spalte auswählen → Nach Spalte sortieren), sonst alphabetisch
-- Modi zum Testen: Orientation **Waterfall** (GuV-Kaskade) und
-  **Table** (AC·PY-Balken + Varianz-Spalten + Margen-Zeilen)
+- Modi zum Testen: Orientation **Waterfall** (GuV-Kaskade),
+  **Table** (AC·PY-Balken + Varianz-Spalten + Margen-Zeilen) und
+  **GuV-Statement (IBCS)** (Kaskaden-Spalten + Sicht-/Ebenen-Buttons;
+  für die AC&FC-Sicht zusätzlich ein FC-Measure mit dem
+  Rest-Jahres-Forecast je Zeile binden)
 
 ## kategorie_bruecke_demo.csv — Kategorie-Brücke (Struktur)
 

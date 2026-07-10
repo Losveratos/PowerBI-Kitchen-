@@ -18,7 +18,8 @@ const orientationItems: powerbi.IEnumMember[] = [
     { value: "pareto", displayName: "Pareto (Struktur)" },
     { value: "dumbbell", displayName: "Dumbbell (Struktur)" },
     { value: "slope", displayName: "Slope · Vorher/Nachher" },
-    { value: "cards", displayName: "KPI-Karten (Kacheln)" }
+    { value: "cards", displayName: "KPI-Karten (Kacheln)" },
+    { value: "pnl", displayName: "GuV-Statement (IBCS)" }
 ];
 
 const comparisonItems: powerbi.IEnumMember[] = [

@@ -31,6 +31,12 @@ in **einem** Visual löst:
   plus optionale Botschafts-Zeile (SAY) — alle Teile überschreibbar
 - **Waterfall / Brücke**: GuV-Wasserfall (sum/delta-Rolle), Varianz-Brücke PL→AC
   oder Beitrags-Wasserfall mit Σ-Anker — inkl. Konnektoren und FC-Schraffur
+- **GuV-Statement (IBCS)** (eigener Chart-Modus): P&L-Zeilen mit PY- und
+  Szenario-Kaskaden-Spalten (Wasserfall-Positionierung), ΔPY-Balken und
+  ΔPY%-Pins an Referenzachsen; Szenario-Sichten AC · AC&FC (Split schraffiert)
+  · PL (Umriss) als In-Chart-Buttons (nur gebundene Szenarien, persistiert);
+  sum/delta-Blöcke klappen per Chevron oder Ebenen-Buttons 1/2 zusammen,
+  pct-Zeilen als Margen-Text (Wert %, Δ in Pp)
 - **Waterfall bridge für Columns/Bars** (optional, Chart → Bridge): zusätzliches
   Panel neben den normalen AC/PY/PL-Vergleichsbalken, das dieselben Kategorien als
   kaskadierende Brücke von der Basis zu AC mit Verbindungslinien zeigt — Absolutwerte,

@@ -255,6 +255,10 @@ export class Visual implements IVisual {
     private basis2Mode: "py" | "plan" = "plan";
     private paneHasFcPrev = false;
     private paneHasFc = false;
+    /** GuV-Statement: persisted scenario view ("ac" | "acfc" | "pl", "" = auto) */
+    private pnlView = "";
+    /** GuV-Statement: collapsed sum blocks (session state, like expandedRows) */
+    private pnlCollapsed = new Set<string>();
     /** user-entered comments persisted in the report (commentsPanel.userComments JSON) */
     private userComments = new Map<string, string>();
     private commentEdit = false;
@@ -314,6 +318,8 @@ export class Visual implements IVisual {
                 this.pendingCommentsJson = null;
                 this.userComments = this.readUserComments(dataView);
             }
+            const rawView = dataView?.metadata?.objects?.["chart"]?.["pnlView"];
+            this.pnlView = typeof rawView === "string" ? rawView : "";
             const points = this.parseData(dataView);
             if (!points || points.length === 0) {
                 this.renderDemo(width, height);
@@ -356,8 +362,9 @@ export class Visual implements IVisual {
         fs.chartCard.groupEvery.visible = orient === "columns" || orient === "bars"
             || orient === "line" || orient === "catbridge";
         fs.chartCard.bridgeGroup.visible = orient === "columns" || orient === "bars"
-            || orient === "intwaterfall" || orient === "catbridge";
-        fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge";
+            || orient === "intwaterfall" || orient === "catbridge" || orient === "pnl";
+        fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge"
+            || orient === "pnl";
         fs.chartCard.driverNote.visible = orient === "catbridge";
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
         fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
@@ -637,8 +644,11 @@ export class Visual implements IVisual {
         const isSlope = orientationRaw === "slope";
         // KPI cards: one tile per category — the KPI-card visual folded into the deck
         const isCards = orientationRaw === "cards";
+        // GuV-Statement: row-based P&L with PY + scenario waterfall columns
+        const isPnl = orientationRaw === "pnl";
         const orientation: Orientation =
-            orientationRaw === "bars" || isCatBridge || isTable || isDumbbell || isCards ? "bars" : "columns";
+            orientationRaw === "bars" || isCatBridge || isTable || isDumbbell || isCards || isPnl
+                ? "bars" : "columns";
         // stacked mode: field-driven — filling the Stack-Series role stacks the plain
         // columns/bars automatically, an empty role leaves everything untouched
         const isStacked = (orientationRaw === "columns" || orientationRaw === "bars")
@@ -916,6 +926,10 @@ export class Visual implements IVisual {
                 this.renderTable(grp.pts, region, cfg);
                 return;
             }
+            if (isPnl) {
+                this.renderPnlStatement(grp.pts, region, cfg);
+                return;
+            }
             if (isCards) {
                 this.renderCards(grp.pts, region, cfg);
                 return;
@@ -951,6 +965,10 @@ export class Visual implements IVisual {
                 showSort: isCatBridge,
                 showPlay: true
             });
+        }
+        // GuV-Statement toolbar: scenario view (only scenarios that exist) + levels
+        if (isPnl && s.chartCard.chartButtons.value) {
+            this.drawPnlButtons(width, cfg, points);
         }
         // active-mode chip: comment capture and compare-on-click silently repurpose
         // clicks — show a pill so nobody wonders why crossfiltering stopped working
@@ -2007,6 +2025,379 @@ export class Visual implements IVisual {
         drawBridgeRow(yBr1, REF, ACt, `Δ${refLabel}`, true);
         if (yBr2 != null) {
             drawBridgeRow(yBr2, otherTot, ACt, `Δ${otherLabel}`, false);
+        }
+    }
+
+    /** GuV-Statement: scenario views available from the bound measures + active one */
+    private resolvePnlView(pts: DataPoint[]): { view: "ac" | "acfc" | "pl"; avail: ("ac" | "acfc" | "pl")[] } {
+        const avail: ("ac" | "acfc" | "pl")[] = [];
+        if (pts.some(p => p.ac != null)) { avail.push("ac"); }
+        if (pts.some(p => p.fc != null)) { avail.push("acfc"); }
+        if (pts.some(p => p.pl != null)) { avail.push("pl"); }
+        const v = this.pnlView as "ac" | "acfc" | "pl";
+        return { view: avail.includes(v) ? v : (avail[0] ?? "ac"), avail };
+    }
+
+    /** GuV-Statement: each delta run belongs to the next sum row (its collapse owner) */
+    private pnlBlocks(pts: DataPoint[]): Map<string, string> {
+        const owner = new Map<string, string>();
+        let run: DataPoint[] = [];
+        for (const p of pts) {
+            const rt = p.rowType ?? "";
+            if (rt.startsWith("sum")) {
+                for (const d of run) { owner.set(d.cat, p.cat); }
+                run = [];
+            } else if (!rt.startsWith("pct")) {
+                run.push(p);
+            }
+        }
+        return owner;
+    }
+
+    /**
+     * GuV-Statement (IBCS P&L): one row per P&L line with a PY waterfall-bar column,
+     * a scenario waterfall-bar column (AC solid / AC&FC split-hatched / PL outlined),
+     * ΔRef variance bars and ΔRef% pins — modelled on the interactive IBCS P&L
+     * reference. 'sum' rows are bold anchors with rules; the delta rows between two
+     * anchors collapse behind the sum's chevron. 'pct' rows render text-only.
+     */
+    private renderPnlStatement(pts: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        if (pts.length === 0) { return; }
+        const k = this.fontK;
+        const lf = cfg.labelFont, cf = cfg.catFont;
+        const pad = 6;
+        const { view } = this.resolvePnlView(pts);
+        const hasRef = cfg.hasPy || (view !== "pl" && cfg.hasPl);
+        if (!hasRef) {
+            this.drawModeHint(region, cfg, "GuV-Statement benötigt PY (oder PL) als Referenz");
+            return;
+        }
+        const refIsPy = cfg.hasPy;
+        const refLabel = refIsPy ? "PY" : "PL";
+        const viewHead = view === "ac" ? "AC" : view === "acfc" ? "AC&FC" : "PL";
+        // notation per IBCS: realized solid, partly-forecast hatched, plan outlined
+        const style: "solid" | "hatched" | "outlined" =
+            view === "ac" ? "solid" : view === "acfc" ? "hatched" : "outlined";
+
+        const isSum = (p: DataPoint) => (p.rowType ?? "").startsWith("sum");
+        const isPct = (p: DataPoint) => (p.rowType ?? "").startsWith("pct");
+        const mVal = (p: DataPoint): number | null => view === "ac" ? (p.ac ?? p.value)
+            : view === "pl" ? p.pl
+                : (p.ac == null && p.fc == null ? null : (p.ac ?? 0) + (p.fc ?? 0));
+        const rVal = (p: DataPoint): number | null => refIsPy ? p.py : p.pl;
+
+        // ------- collapsible rows: deltas hide behind their sum's chevron
+        const owner = this.pnlBlocks(pts);
+        const collapsible = new Set(owner.values());
+        const rows = pts.filter(p => {
+            const o = owner.get(p.cat);
+            return !(o != null && this.pnlCollapsed.has(o));
+        });
+        const n = rows.length;
+
+        // ------- waterfall chains (hidden rows still cumulate — sums are anchors)
+        const chain = (val: (p: DataPoint) => number | null): Map<string, [number, number]> => {
+            const seg = new Map<string, [number, number]>();
+            let cum = 0;
+            for (const p of pts) {
+                if (isPct(p)) { continue; }
+                const v = val(p);
+                if (isSum(p)) {
+                    cum = v ?? cum;
+                    seg.set(p.cat, [0, cum]);
+                } else {
+                    seg.set(p.cat, [cum, cum + (v ?? 0)]);
+                    cum += v ?? 0;
+                }
+            }
+            return seg;
+        };
+        const segM = chain(mVal), segR = chain(rVal);
+        let lo = 0, hi = 1;
+        const eat = (s: Map<string, [number, number]>) => s.forEach(([a, b]) => {
+            lo = Math.min(lo, a, b); hi = Math.max(hi, a, b);
+        });
+        eat(segM); eat(segR);
+
+        // ------- column layout: label | ref bars | scenario bars | Δ | Δ%
+        const chevW = collapsible.size > 0 ? 13 * k : 0;
+        const nameW = Math.min(region.w * 0.24,
+            this.maxTextWidth(pts.map(p => p.cat), cf) + 26 + chevW);
+        const gap = 12;
+        const graphW = region.w - pad * 2 - nameW - gap * 4;
+        if (graphW < 220 * k) {
+            this.drawModeHint(region, cfg, "Zu wenig Platz für das GuV-Statement");
+            return;
+        }
+        const showPct = cfg.showRel && graphW >= 340 * k;
+        const showD = cfg.showAbs;
+        const wBar = graphW * (showPct && showD ? 0.28 : showD ? 0.34 : 0.42);
+        const wD = showD ? graphW * (showPct ? 0.26 : 0.32) : 0;
+        const wP = showPct ? graphW - wBar * 2 - wD : 0;
+        let x = region.x + pad;
+        const xName = x; x += nameW + gap;
+        const xRef = x; x += wBar + gap;
+        const xM = x; x += wBar + gap;
+        const xD = x; x += wD + (showD ? gap : 0);
+        const xP = x;
+
+        // labels live at bar ends — reserve space for them inside the bar columns
+        const lblRes = lf * 3.6;
+        const PX = (wBar - lblRes) / Math.max(hi - lo, 1e-9);
+        const bx = (col: number, v: number) => col + (v - lo) * PX;
+
+        // ------- row layout
+        const headerH = Math.round(cf + 12);
+        const rowH = Math.min(cf * 2.4, Math.max(cf + 6, (region.h - pad * 2 - headerH) / n));
+        const top = region.y + pad + headerH;
+        const shown = rows.slice(0, Math.max(1, Math.floor((region.h - pad * 2 - headerH) / rowH)));
+
+        const bg = this.el("g", {}, this.svg);
+        const marks = this.el("g", {}, this.svg);
+        const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
+            ? cfg.colors.py : (cfg.isGood(v, pp) ? cfg.colors.good : cfg.colors.bad);
+        const txt = (xx: number, yy: number, text: string, anchor: string, font: number,
+            bold: boolean, color: string, parent: SVGElement, italic = false) => {
+            const t = this.el("text", {
+                x: xx, y: yy, "text-anchor": anchor, "font-size": font, fill: color,
+                "font-family": FONT, "font-weight": bold ? 700 : 400,
+                ...(italic ? { "font-style": "italic" } : {})
+            }, parent);
+            t.textContent = text;
+            return t;
+        };
+
+        // ------- column headers
+        const hy = region.y + pad + cf;
+        txt(xRef + wBar / 2, hy, refLabel, "middle", cf, false, cfg.subtle, bg);
+        txt(xM + wBar / 2, hy, viewHead, "middle", cf, false, cfg.subtle, bg);
+        if (showD) { txt(xD + wD / 2, hy, `Δ${refLabel}`, "middle", cf, false, cfg.subtle, bg); }
+        if (showPct) { txt(xP + wP / 2, hy, `Δ${refLabel}%`, "middle", cf, false, cfg.subtle, bg); }
+
+        // ------- variance axes (reference-scenario grey, full height)
+        const dAxis = xD + wD * 0.46;
+        const pAxis = xP + wP * 0.34;
+        const axH = top + shown.length * rowH;
+        if (showD) {
+            this.el("line", {
+                x1: dAxis, y1: top - 3, x2: dAxis, y2: axH,
+                stroke: cfg.colors.py, "stroke-width": 2.6
+            }, bg);
+        }
+        if (showPct) {
+            this.el("line", {
+                x1: pAxis, y1: top - 3, x2: pAxis, y2: axH,
+                stroke: cfg.colors.py, "stroke-width": 2.6
+            }, bg);
+        }
+        const maxD = Math.max(...pts.filter(p => !isPct(p))
+            .map(p => Math.abs((mVal(p) ?? 0) - (rVal(p) ?? 0))), 1e-9);
+        const dPX = (wD * 0.42 - lf * 2.6) / maxD;
+        const P_CAP = 100;
+        const pLen = wP * 0.38 - lf * 2.2;
+
+        const scenFill = (scen: "ref" | "m"): Record<string, unknown> => {
+            if (scen === "ref") {
+                return refIsPy
+                    ? (cfg.hc
+                        ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1, "stroke-dasharray": "3,2" }
+                        : { fill: cfg.colors.py })
+                    : { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.2 };
+            }
+            if (style === "solid") { return { fill: cfg.colors.ac }; }
+            if (style === "hatched") { return { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }; }
+            return { fill: cfg.paper, stroke: cfg.colors.ac, "stroke-width": 1.4 };
+        };
+        const varFill = (c: string): Record<string, unknown> => {
+            if (style === "solid") { return { fill: c }; }
+            if (style === "hatched") {
+                return { fill: `url(#${c === cfg.colors.good ? cfg.patGood : cfg.patBad})`, stroke: c, "stroke-width": 1 };
+            }
+            return { fill: cfg.paper, stroke: c, "stroke-width": 1.4 };
+        };
+        const fmtM = (v: number) => cfg.fmt.format(Math.abs(v));
+        const fmtD = (v: number) => this.fmtSigned(cfg.fmtVar, v);
+        const pctFmt = new Intl.NumberFormat("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+        // ------- rows
+        shown.forEach((p, i) => {
+            const y = top + i * rowH;
+            const cy = y + rowH / 2;
+            const sum = isSum(p), pct = isPct(p);
+            const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
+
+            if (sum) {
+                this.el("line", { x1: xName, y1: y, x2: region.x + region.w - pad, y2: y, stroke: cfg.ink, "stroke-width": 1.3 }, bg);
+                this.el("line", { x1: xName, y1: y + rowH, x2: region.x + region.w - pad, y2: y + rowH, stroke: cfg.ink, "stroke-width": 1.3 }, bg);
+            }
+
+            // label: chevron (sum with kids) + derived +/−/= prefix + indent for deltas
+            const mv = mVal(p);
+            const pre = sum ? "=" : pct ? "" : (mv ?? 0) < 0 ? "−" : "+";
+            let lx = xName;
+            if (collapsible.size > 0) {
+                if (sum && collapsible.has(p.cat)) {
+                    const open = !this.pnlCollapsed.has(p.cat);
+                    const ch = txt(lx, cy + cf * 0.36, open ? "▾" : "▸", "start", Math.round(cf * 0.9), false, cfg.subtle, g);
+                    ch.style.cursor = "pointer";
+                    (ch as SVGElement).addEventListener("click", (e: Event) => {
+                        e.stopPropagation();
+                        if (this.pnlCollapsed.has(p.cat)) { this.pnlCollapsed.delete(p.cat); }
+                        else { this.pnlCollapsed.add(p.cat); }
+                        this.rerender();
+                    });
+                }
+                lx += chevW;
+            }
+            txt(lx, cy + cf * 0.36, pre, "start", cf, false, cfg.subtle, g);
+            const indent = !sum && !pct && owner.has(p.cat) ? 10 * k : 0;
+            txt(lx + cf * 0.9 + indent, cy + cf * 0.36,
+                this.truncate(p.cat, nameW - chevW - cf * 0.9 - indent - 4, cf), "start", cf, sum, cfg.ink, g);
+
+            const rv = rVal(p);
+            if (pct) {
+                // margin rows: percentages as text, Δ in percentage points
+                if (rv != null) { txt(bx(xRef, 0) + 4, cy + lf * 0.36, `${pctFmt.format(rv)} %`, "start", lf, false, cfg.subtle, g); }
+                if (mv != null) { txt(bx(xM, 0) + 4, cy + lf * 0.36, `${pctFmt.format(mv)} %`, "start", lf, false, cfg.ink, g); }
+                if (showD && mv != null && rv != null) {
+                    const d = mv - rv;
+                    txt(dAxis + 6, cy + lf * 0.36, `${d > 0 ? "+" : d < 0 ? "−" : "±"}${pctFmt.format(Math.abs(d))}Pp`,
+                        "start", lf, false, colOf(d, p), g);
+                }
+            } else {
+                // scenario waterfall bars: ref column + view column at cumulated offsets
+                const barH = Math.max(6, rowH * 0.58);
+                const by = cy - barH / 2;
+                const drawSeg = (col: number, seg: [number, number] | undefined, scen: "ref" | "m",
+                    split: number | null) => {
+                    if (!seg) { return; }
+                    const [a, b] = seg;
+                    const x0 = bx(col, Math.min(a, b));
+                    const w = Math.max(2, Math.abs(b - a) * PX);
+                    const rightSide = b >= a;
+                    if (scen === "m" && style === "hatched" && split != null && split > 0 && split < 1) {
+                        const wAc = w * split;
+                        const acX = rightSide ? x0 : x0 + w - wAc;
+                        const fcX = rightSide ? x0 + wAc : x0;
+                        this.el("rect", { x: acX, y: by, width: wAc, height: barH, fill: cfg.colors.ac }, g);
+                        this.el("rect", {
+                            x: fcX, y: by, width: Math.max(0, w - wAc), height: barH,
+                            fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1
+                        }, g);
+                    } else {
+                        this.el("rect", { x: x0, y: by, width: w, height: barH, ...scenFill(scen) }, g);
+                    }
+                    const v = Math.abs(b - a);
+                    const tx = rightSide ? x0 + w + 4 : x0 - 4;
+                    txt(tx, cy + lf * 0.36, fmtM(v), rightSide ? "start" : "end", lf,
+                        sum && scen === "m", scen === "ref" ? cfg.subtle : cfg.ink, g);
+                };
+                const split = view === "acfc" && mv != null && mv !== 0 && p.ac != null
+                    ? Math.max(0, Math.min(1, (p.ac ?? 0) / mv)) : null;
+                drawSeg(xRef, segR.get(p.cat), "ref", null);
+                drawSeg(xM, segM.get(p.cat), "m", split);
+
+                // ΔRef bar + label
+                if (showD && mv != null && rv != null) {
+                    const d = mv - rv;
+                    const c = colOf(d, p);
+                    const w = Math.abs(d) * dPX;
+                    const x0 = d >= 0 ? dAxis : dAxis - w;
+                    this.el("rect", {
+                        x: x0, y: cy - Math.max(5, rowH * 0.42) / 2,
+                        width: Math.max(2, w), height: Math.max(5, rowH * 0.42), ...varFill(c)
+                    }, g);
+                    txt(d >= 0 ? dAxis + w + 5 : dAxis - w - 5, cy + lf * 0.36, fmtD(d),
+                        d >= 0 ? "start" : "end", lf, sum, cfg.ink, g);
+                }
+                // ΔRef% pin, capped with outlier arrows like the reference
+                if (showPct && mv != null && rv != null && rv !== 0) {
+                    const dp = (mv - rv) / Math.abs(rv) * 100;
+                    const c = colOf(dp, p);
+                    const outlier = Math.abs(dp) > P_CAP;
+                    const w = Math.min(Math.abs(dp), P_CAP) / P_CAP * pLen;
+                    const x0 = dp >= 0 ? pAxis : pAxis - w;
+                    this.el("rect", { x: x0, y: cy - 1.1, width: Math.max(2, w), height: 2.2, fill: c }, g);
+                    const hr = Math.max(2.6, 3.2 * k);
+                    const hx = dp >= 0 ? pAxis + w - hr : pAxis - w - hr;
+                    this.el("rect", {
+                        x: hx, y: cy - hr, width: hr * 2, height: hr * 2,
+                        ...(style === "solid" ? { fill: cfg.ink }
+                            : style === "hatched" ? { fill: `url(#${cfg.patId})`, stroke: cfg.ink, "stroke-width": 1 }
+                                : { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 })
+                    }, g);
+                    const lxp = dp >= 0 ? pAxis + w + (outlier ? 16 : 6) : pAxis - w - (outlier ? 16 : 6);
+                    if (outlier) {
+                        txt(dp >= 0 ? pAxis + w + 3 : pAxis - w - 3, cy + lf * 0.3, "▸▸",
+                            dp >= 0 ? "start" : "end", Math.round(lf * 0.8), false, c, g);
+                    }
+                    txt(lxp, cy + lf * 0.36, `${dp > 0 ? "+" : dp < 0 ? "−" : "±"}${Math.round(Math.abs(dp))}%`,
+                        dp >= 0 ? "start" : "end", lf, sum, cfg.ink, g);
+                }
+            }
+
+            this.attachInteraction(g, p, cfg);
+            this.catGroups.push({ g, sel: p.sel });
+            this.animGroups.push([g]);
+        });
+    }
+
+    /** GuV-Statement toolbar: scenario view segments (existing scenarios only) + levels */
+    private drawPnlButtons(width: number, cfg: ChartConfig, pts: DataPoint[]): void {
+        const k = this.fontK;
+        const bh = Math.round(18 * k), font = Math.round(11 * k);
+        const { view, avail } = this.resolvePnlView(pts);
+        const collapsible = new Set(this.pnlBlocks(pts).values());
+        let xRight = width - 6;
+        const btn = (w: number, text: string, active: boolean, label: string, onClick: () => void) => {
+            const x = xRight - w;
+            const b = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+            b.setAttribute("aria-label", label);
+            const tip = this.el("title", {}, b);
+            tip.textContent = label;
+            this.el("rect", {
+                x, y: 6, width: w, height: bh, fill: active ? cfg.colors.ac : cfg.paper,
+                stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
+            }, b);
+            const t = this.el("text", {
+                x: x + w / 2, y: 6 + bh / 2 + font * 0.36, "text-anchor": "middle",
+                "font-size": font, fill: active ? cfg.paper : cfg.ink, "font-family": FONT
+            }, b);
+            t.textContent = text;
+            b.style.cursor = "pointer";
+            b.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); onClick(); });
+            b.addEventListener("keydown", (e: KeyboardEvent) => {
+                if (e.key !== "Enter" && e.key !== " ") { return; }
+                e.preventDefault(); e.stopPropagation(); onClick();
+            });
+            xRight = x;
+        };
+        // level buttons: 1 = sums only, 2 = everything (only when blocks exist)
+        if (collapsible.size > 0) {
+            const allCollapsed = [...collapsible].every(c => this.pnlCollapsed.has(c));
+            btn(Math.round(22 * k), "2", !allCollapsed && this.pnlCollapsed.size === 0,
+                "Ebene 2: alle Positionen", () => { this.pnlCollapsed.clear(); this.rerender(); });
+            btn(Math.round(22 * k), "1", allCollapsed, "Ebene 1: nur Zwischensummen", () => {
+                this.pnlCollapsed = new Set(collapsible);
+                this.rerender();
+            });
+            xRight -= 6;
+        }
+        // scenario view segments — a scenario without data gets no button
+        if (avail.length > 1) {
+            const segLbl: Record<string, string> = { ac: "AC", acfc: "AC&FC", pl: "PL" };
+            const segTip: Record<string, string> = {
+                ac: "Sicht: Ist (AC)", acfc: "Sicht: Ist + Forecast (AC&FC)", pl: "Sicht: Plan (PL)"
+            };
+            for (const v of [...avail].reverse()) {
+                btn(Math.round((v === "acfc" ? 48 : 30) * k), segLbl[v], view === v, segTip[v], () => {
+                    this.pnlView = v;
+                    this.host.persistProperties({
+                        merge: [{ objectName: "chart", selector: null, properties: { pnlView: v } }]
+                    });
+                    this.rerender();
+                });
+            }
         }
     }
 

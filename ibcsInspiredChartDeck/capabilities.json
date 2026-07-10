@@ -125,10 +125,12 @@
                             { "value": "pareto", "displayName": "Pareto (Struktur)" },
                             { "value": "dumbbell", "displayName": "Dumbbell (Struktur)" },
                             { "value": "slope", "displayName": "Slope · Vorher/Nachher" },
-                            { "value": "cards", "displayName": "KPI-Karten (Kacheln)" }
+                            { "value": "cards", "displayName": "KPI-Karten (Kacheln)" },
+                            { "value": "pnl", "displayName": "GuV-Statement (IBCS)" }
                         ]
                     }
                 },
+                "pnlView": { "type": { "text": true } },
                 "comparisonMode": {
                     "type": {
                         "enumeration": [

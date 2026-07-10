@@ -1,5 +1,23 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.15.0.0 (2026-07-10)
+
+**Neuer Modus: GuV-Statement (IBCS):**
+- Zeilen-basiertes P&L-Statement nach der interaktiven IBCS-Referenz:
+  je GuV-Zeile eine **PY-Kaskaden-Spalte** und eine **Szenario-Spalte**
+  (Wasserfall-Positionierung — Kosten wandern nach links), daneben
+  **ΔPY-Varianzbalken** und **ΔPY%-Pins** (gedeckelt bei 100 %, Ausreißer
+  mit ▸▸) an durchgehenden grauen Referenzachsen.
+- **Szenario-Sichten im Chart**: AC (solid) · AC&FC (Split: AC solid +
+  FC-Rest schraffiert, Varianzen schraffiert) · PL (Umriss, Varianzen
+  umrandet). Buttons erscheinen **nur für gebundene Szenarien** und die
+  Wahl wird persistiert (bookmarkfähig); FC ist der Rest-Jahres-Anteil.
+- **Ebenen aus sum/delta**: Delta-Blöcke klappen hinter dem Chevron
+  ihrer Zwischensumme zu; Buttons „1" (nur Zwischensummen) / „2" (alles).
+  `pct`-Zeilen (Margen) bleiben Text: Wert in %, Δ in Prozentpunkten.
+- Zwischensummen fett mit IBCS-Doppellinien, abgeleitete +/−/=-Präfixe,
+  Crossfilter je Zeile. Ein-/ausschaltbar über „Buttons im Chart".
+
 ## 1.14.2.0 (2026-07-10)
 
 **Integrierte Brücke: PL-Notation & zwei Totalsäulen:**
