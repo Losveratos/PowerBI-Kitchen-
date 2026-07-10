@@ -7,51 +7,68 @@ import FormattingSettingsCard = formattingSettings.SimpleCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
 
-/** localized enum-member label: resolved per report locale from stringResources/*.json */
-type ResourceProvider = { get(id: string): string };
-const t = (key: string) => (rp: ResourceProvider): string => rp.get(key);
+/**
+ * Enum-member labels with a resource key: the format pane serializes the items
+ * across the sandbox boundary, so a DisplayNameGetter function would be dropped.
+ * Instead, localizeEnumItems() resolves the keys once via the host's
+ * localizationManager (called from the visual constructor); the English literal
+ * stays as fallback for locales without a resources.resjson.
+ */
+type LocEnumMember = powerbi.IEnumMember & { key: string };
 
-const orientationItems: powerbi.IEnumMember[] = [
-    { value: "columns", displayName: t("Enum_Orientation_Columns") },
-    { value: "bars", displayName: t("Enum_Orientation_Bars") },
-    { value: "line", displayName: t("Enum_Orientation_Line") },
-    { value: "waterfall", displayName: t("Enum_Orientation_Waterfall") },
-    { value: "intwaterfall", displayName: t("Enum_Orientation_IntWaterfall") },
-    { value: "catbridge", displayName: t("Enum_Orientation_CatBridge") },
-    { value: "table", displayName: t("Enum_Orientation_Table") },
-    { value: "pareto", displayName: t("Enum_Orientation_Pareto") },
-    { value: "dumbbell", displayName: t("Enum_Orientation_Dumbbell") },
-    { value: "slope", displayName: t("Enum_Orientation_Slope") },
-    { value: "cards", displayName: t("Enum_Orientation_Cards") },
-    { value: "pnl", displayName: t("Enum_Orientation_Pnl") }
+const orientationItems: LocEnumMember[] = [
+    { value: "columns", displayName: "Columns (Time)", key: "Enum_Orientation_Columns" },
+    { value: "bars", displayName: "Bars (Structure)", key: "Enum_Orientation_Bars" },
+    { value: "line", displayName: "Line (Time, many points)", key: "Enum_Orientation_Line" },
+    { value: "waterfall", displayName: "Waterfall / Bridge", key: "Enum_Orientation_Waterfall" },
+    { value: "intwaterfall", displayName: "Integrated Bridge (Time)", key: "Enum_Orientation_IntWaterfall" },
+    { value: "catbridge", displayName: "Category Bridge (Structure)", key: "Enum_Orientation_CatBridge" },
+    { value: "table", displayName: "Table (IBCS)", key: "Enum_Orientation_Table" },
+    { value: "pareto", displayName: "Pareto (Structure)", key: "Enum_Orientation_Pareto" },
+    { value: "dumbbell", displayName: "Dumbbell (Structure)", key: "Enum_Orientation_Dumbbell" },
+    { value: "slope", displayName: "Slope · Before/After", key: "Enum_Orientation_Slope" },
+    { value: "cards", displayName: "KPI Cards (Tiles)", key: "Enum_Orientation_Cards" },
+    { value: "pnl", displayName: "P&L Statement (IBCS)", key: "Enum_Orientation_Pnl" }
 ];
 
-const comparisonItems: powerbi.IEnumMember[] = [
-    { value: "auto", displayName: t("Enum_Comparison_Auto") },
-    { value: "py", displayName: t("Enum_Comparison_Py") },
-    { value: "plan", displayName: t("Enum_Comparison_Plan") },
-    { value: "fcrev", displayName: t("Enum_Comparison_FcRev") }
+const comparisonItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Auto", key: "Enum_Comparison_Auto" },
+    { value: "py", displayName: "Previous Year (PY)", key: "Enum_Comparison_Py" },
+    { value: "plan", displayName: "Plan (PL)", key: "Enum_Comparison_Plan" },
+    { value: "fcrev", displayName: "Prior-month FC (revision)", key: "Enum_Comparison_FcRev" }
 ];
 
-const displayUnitsItems: powerbi.IEnumMember[] = [
-    { value: "auto", displayName: t("Enum_Units_Auto") },
-    { value: "none", displayName: t("Enum_Units_None") },
-    { value: "k", displayName: t("Enum_Units_K") },
-    { value: "m", displayName: t("Enum_Units_M") },
-    { value: "b", displayName: t("Enum_Units_B") }
+const displayUnitsItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Auto", key: "Enum_Units_Auto" },
+    { value: "none", displayName: "None", key: "Enum_Units_None" },
+    { value: "k", displayName: "Thousands (k)", key: "Enum_Units_K" },
+    { value: "m", displayName: "Millions (M)", key: "Enum_Units_M" },
+    { value: "b", displayName: "Billions (B)", key: "Enum_Units_B" }
 ];
 
-const cumulativeKindItems: powerbi.IEnumMember[] = [
-    { value: "ytd", displayName: t("Enum_CumKind_Ytd") },
-    { value: "qtd", displayName: t("Enum_CumKind_Qtd") },
-    { value: "r12", displayName: t("Enum_CumKind_R12") }
+const cumulativeKindItems: LocEnumMember[] = [
+    { value: "ytd", displayName: "YTD (year to date)", key: "Enum_CumKind_Ytd" },
+    { value: "qtd", displayName: "QTD (quarter to date)", key: "Enum_CumKind_Qtd" },
+    { value: "r12", displayName: "R12 (rolling 12 periods)", key: "Enum_CumKind_R12" }
 ];
 
-const fontPresetItems: powerbi.IEnumMember[] = [
-    { value: "compact", displayName: t("Enum_FontPreset_Compact") },
-    { value: "fullhd", displayName: t("Enum_FontPreset_FullHd") },
-    { value: "presentation", displayName: t("Enum_FontPreset_Presentation") }
+const fontPresetItems: LocEnumMember[] = [
+    { value: "compact", displayName: "Compact (dashboard tile)", key: "Enum_FontPreset_Compact" },
+    { value: "fullhd", displayName: "Full HD (1080p)", key: "Enum_FontPreset_FullHd" },
+    { value: "presentation", displayName: "Presentation (4K / projector)", key: "Enum_FontPreset_Presentation" }
 ];
+
+/** resolve all enum-member labels once via the host's localization manager */
+export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
+    const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
+        displayUnitsItems, cumulativeKindItems, fontPresetItems];
+    for (const items of lists) {
+        for (const it of items) {
+            const loc = lm.getDisplayName(it.key);
+            if (loc && loc !== it.key) { it.displayName = loc; }
+        }
+    }
+}
 
 export class IbcsTitleCardSettings extends FormattingSettingsCard {
     show = new formattingSettings.ToggleSwitch({

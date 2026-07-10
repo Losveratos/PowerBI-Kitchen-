@@ -29,7 +29,7 @@ import DataView = powerbi.DataView;
 import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import IValueFormatter = valueFormatter.IValueFormatter;
 
-import { VisualFormattingSettingsModel } from "./settings";
+import { VisualFormattingSettingsModel, localizeEnumItems } from "./settings";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
@@ -271,8 +271,11 @@ export class Visual implements IVisual {
     constructor(options: VisualConstructorOptions) {
         this.events = options.host.eventService;
         this.host = options.host;
-        this.formattingSettingsService = new FormattingSettingsService(
-            options.host.createLocalizationManager());
+        const localizationManager = options.host.createLocalizationManager();
+        this.formattingSettingsService = new FormattingSettingsService(localizationManager);
+        // dropdown items serialize to the host, so their labels must be resolved
+        // here — a DisplayNameGetter function would be dropped at the sandbox edge
+        localizeEnumItems(localizationManager);
         this.selectionManager = options.host.createSelectionManager();
         this.tooltipService = options.host.tooltipService;
         this.root = options.element;

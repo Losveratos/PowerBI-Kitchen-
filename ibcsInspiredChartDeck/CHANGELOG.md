@@ -1,5 +1,19 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.15.2.0 (2026-07-10)
+
+**Lokalisierungs-Fix — Sprachen greifen jetzt wirklich:**
+- 1.15.1.0 nutzte das Legacy-Ressourcen-Format (einzelne JSON-Dateien im
+  pbiviz.json-Array), das Power BI Desktop nicht mehr auflöst — Japanisch
+  & Co. blieben deshalb im englischen Fallback. Jetzt das offizielle
+  Format: `stringResources/<locale>/resources.resjson` je Sprache
+  (de-DE, en-US, es-ES, ja-JP, je 105 Schlüssel).
+- **Dropdown-Labels**: Die Funktions-Form von `IEnumMember.displayName`
+  wird an der Sandbox-Grenze verworfen (Items werden zum Host
+  serialisiert). Die Labels werden jetzt einmalig im Konstruktor über
+  `localizationManager.getDisplayName()` aufgelöst; englische Literale
+  bleiben als Fallback für nicht übersetzte Sprachen.
+
 ## 1.15.1.0 (2026-07-10)
 
 **Vollständige Lokalisierung: Englisch, Spanisch, Japanisch:**
