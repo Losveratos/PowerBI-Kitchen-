@@ -1,5 +1,36 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.12.3.0 (2026-07-10)
+
+**Bugfix-Release — sechs bestätigte Funde aus der Multi-Agenten-Review,
+alle adversarial verifiziert:**
+
+- **Δ2 in Aggregaten korrigiert**: Die Zweitbasis von „Rest"-Zeilen
+  (Top N), „Σ Gesamt"/„Rest"-Kacheln und Tabellen-Hierarchie-Eltern
+  wird jetzt direkt aus den summierten PY/PL-Werten gebildet statt aus
+  var2Abs rekonstruiert — Punkte ohne AC/FC (z. B. eingestellte
+  Produkte) zählten vorher im ΔPL, aber nicht im ΔPY.
+- **YTD nur noch in Zeit-Modi**: „Kumuliert" wirkt auf Columns, Line
+  und Tabelle — Pareto (Reihenfolge drehte sich um), Wasserfälle,
+  Brücken, Dumbbell/Slope/Karten und der Stacked-Modus (kumulierte
+  über Serien-Grenzen!) werden nicht mehr still kumuliert; die Option
+  ist in anderen Modi ausgeblendet.
+- **Gemeinsame Skala für Pareto/Dumbbell/Slope in Small Multiples**:
+  Diese Renderer skalierten pro Kachel neu — mit Σ-Gesamt-/Hero-Kachel
+  ein Widerspruch zur IBCS-Regel. Jetzt teilen alle Kacheln die
+  gemeinsame Domain (Testfall c44).
+- **ΔBasis-Beschriftung stabil**: Explizit gewählte Plan-Basis zeigte
+  „ΔPY", wenn beim ersten Datenpunkt zufällig PL = PY war — die Basis
+  wird jetzt aus parseData durchgereicht statt per Wertvergleich
+  rekonstruiert.
+- **Gesamt-%-Pin bei negativer Basissumme**: Integrierte und
+  Kategorie-Brücke teilen jetzt durch |Basis| — Vorzeichen und
+  Ampelfarbe des Total-Pins kippten sonst bei negativen Summen.
+- **Wesentlichkeit misst Δ2 an Δ2**: Das Zweitbasis-Panel (Charts,
+  Tabelle, KPI-Karten) wird jetzt an var2Abs/var2Rel gemessen statt an
+  der Erstbasis-Varianz.
+
+
 ## 1.12.2.0 (2026-07-10)
 
 **KPI-Karten: flaches Layout + Einheiten je Karte:**

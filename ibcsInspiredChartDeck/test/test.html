@@ -51,6 +51,7 @@
 <div class="case"><h4>Kommentar-Modus an (Klick öffnet Editor)</h4><div class="stage" id="c41" style="width:960px;height:400px"></div></div>
 <div class="case"><h4>KPI-Karten (Kacheln) · AC+PY+PL, ein FC</h4><div class="stage" id="c42" style="width:960px;height:400px"></div></div>
 <div class="case"><h4>KPI-Karten · flacher Streifen (1420×130) — Δ-Zeilen + Brücke rutschen nach rechts</h4><div class="stage" id="c43" style="width:1420px;height:130px"></div></div>
+<div class="case"><h4>Pareto · Small Multiples + Σ Gesamt — gemeinsame Skala (Fix 1.12.3)</h4><div class="stage" id="c44" style="width:960px;height:420px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -393,6 +394,14 @@ run("c43", dataView(["Revenue", "COGS", "Profit", "Units Sold"],
    col("previousYear", [41200000, 25100000, 16100000, 121000], "#,0 €"),
    col("plan", [43500000, 26900000, 16600000, 131000], "#,0 €")],
   { chart: { orientation: "cards" }, ibcsTitle: { kpi: "AC YTD" } }), 1420, 130);
+
+// pareto in multiples with a total tile: all tiles must share one scale
+const pmCats = [], pmMult = [], pmAc = [];
+[["Nord", [520, 380, 260, 140, 90]], ["Süd", [300, 220, 150, 90, 60]]].forEach(([r, vals]) => {
+  vals.forEach((v, i) => { pmCats.push("P" + (i + 1)); pmMult.push(r); pmAc.push(v * 1000); });
+});
+run("c44", dataView(pmCats, [col("actual", pmAc, "#,0 €")],
+  { chart: { orientation: "pareto", multiplesTotal: true } }, pmMult), 960, 420);
 </script>
 </body>
 </html>

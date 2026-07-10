@@ -127,8 +127,13 @@ interface ChartConfig {
     hasBm: boolean;
     /** IBCS three-scenario notation: PY drawn as a grey triangle marker instead of a third column */
     pyTriangle: boolean;
-    /** materiality: false → variance is drawn grey instead of good/bad (thresholds in the pane) */
-    isMaterial: (p: DataPoint | null | undefined) => boolean;
+    /** small multiples active: self-scaling renderers must use the shared domain */
+    sharedScale: boolean;
+    /** shared value domain over ALL groups (assigned once domains are computed) */
+    mainDomain: [number, number];
+    /** materiality: false → variance is drawn grey instead of good/bad (thresholds in the
+     *  pane). Callers pass the variance pair of the basis they draw; defaults to Δ1. */
+    isMaterial: (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => boolean;
     /** high-contrast mode: only foreground/background colors, outlines for distinction */
     hc: boolean;
     ink: string;
@@ -238,6 +243,8 @@ export class Visual implements IVisual {
     private paneHasPl = false;
     private paneHasComments = false;
     private paneHasMultiples = false;
+    /** basis parseData actually used — single source of truth for ΔBasis labels */
+    private basisMode: Basis = "py";
     /** user-entered comments persisted in the report (commentsPanel.userComments JSON) */
     private userComments = new Map<string, string>();
     private commentEdit = false;
@@ -331,6 +338,7 @@ export class Visual implements IVisual {
         fs.commentsCard.visible = true;
         fs.chartCard.multiplesGroup.visible = this.paneHasMultiples;
         fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line";
+        fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table";
         fs.chartCard.materialityAbs.visible = this.paneHasPy || this.paneHasPl;
         fs.chartCard.materialityPct.visible = this.paneHasPy || this.paneHasPl;
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
@@ -392,6 +400,7 @@ export class Visual implements IVisual {
         }
 
         const basisMode = this.resolveBasis(byRole);
+        this.basisMode = basisMode;
         const points: DataPoint[] = [];
         let commentCounter = 0;
         for (let i = 0; i < cat.values.length; i++) {
@@ -534,6 +543,7 @@ export class Visual implements IVisual {
                 comment: null, commentNo: null, group: null, rowType: null, isRest: false, sel: null, catLevels: null, lineVal: null, stackSeries: null
             };
         });
+        this.basisMode = "plan";
         this.render(pts, width, height);
 
         // hint pill on top of the sample
@@ -583,6 +593,10 @@ export class Visual implements IVisual {
         const wfStyleGlobal = s.chartCard.waterfallStyle.value && !isStacked
             && (orientationRaw === "columns" || orientationRaw === "bars");
         const sortByImpactOn = (wfStyleGlobal || isCatBridge) && s.chartCard.sortByImpact.value;
+        // YTD only where a running total over the category axis makes sense — bridge,
+        // structure and stacked modes would silently cumulate nonsense
+        const cumulativeOn = s.chartCard.cumulative.value && !isStacked
+            && (orientationRaw === "columns" || orientationRaw === "line" || orientationRaw === "table");
 
         // font preset: one switch scaling every text in the visual (Full HD = ×1.5)
         this.fontK = { compact: 1, fullhd: 1.5, presentation: 2 }[
@@ -636,8 +650,8 @@ export class Visual implements IVisual {
             }
         }
         // cumulative (YTD) view: running totals per group, variances recomputed
-        if (s.chartCard.cumulative.value) {
-            const basisMode = this.resolveBasisLabel(points);
+        if (cumulativeOn) {
+            const basisMode = this.resolveBasisLabel();
             for (const g of groups) { g.pts = this.cumulate(g.pts, basisMode); }
         }
         // waterfall-bridge: order categories by impact, largest driver first (Rest row stays last)
@@ -653,7 +667,7 @@ export class Visual implements IVisual {
             [p.value, p.py, p.pl, p.fc].every(v => v == null || Number.isInteger(v)));
         const allVarInt = points.every(p => p.varAbs == null || Number.isInteger(p.varAbs));
 
-        const basisMode: Basis = this.resolveBasisLabel(points);
+        const basisMode: Basis = this.resolveBasisLabel();
         const hasVar = points.some(p => p.varAbs != null);
 
         const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette;
@@ -688,7 +702,7 @@ export class Visual implements IVisual {
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
             capMax: (s.scaleCard.capOverflow.value && (s.scaleCard.fixedMax.value ?? 0) > 0)
                 ? s.scaleCard.fixedMax.value : null,
-            cumulative: s.chartCard.cumulative.value,
+            cumulative: cumulativeOn,
             refLine: this.parseRefLine(),
             refLineLabel: (s.scaleCard.refLineLabel.value || "").trim(),
             lineMode,
@@ -720,16 +734,21 @@ export class Visual implements IVisual {
             // triangle notation only when all three scenarios actually appear together
             pyTriangle: s.chartCard.pyTriangle.value
                 && points.some(p => p.py != null) && points.some(p => p.pl != null),
+            sharedScale: groups.length > 1,
+            mainDomain: [0, 0],
             isMaterial: (() => {
                 const mAbs = s.chartCard.materialityAbs.value ?? 0;
                 const mPct = s.chartCard.materialityPct.value ?? 0;
                 if (mAbs <= 0 && mPct <= 0) { return () => true; }
                 // material = every configured threshold exceeded (AND) — filters both
                 // small absolute noise and small percentage noise
-                return (p: DataPoint | null | undefined) => {
-                    if (!p || (p.varAbs == null && p.varRel == null)) { return true; }
-                    if (mAbs > 0 && p.varAbs != null && Math.abs(p.varAbs) < mAbs) { return false; }
-                    if (mPct > 0 && p.varRel != null && Math.abs(p.varRel) < mPct) { return false; }
+                return (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => {
+                    if (!p) { return true; }
+                    const a = vAbs !== undefined ? vAbs : p.varAbs;
+                    const r = vRel !== undefined ? vRel : p.varRel;
+                    if (a == null && r == null) { return true; }
+                    if (mAbs > 0 && a != null && Math.abs(a) < mAbs) { return false; }
+                    if (mPct > 0 && r != null && Math.abs(r) < mPct) { return false; }
                     return true;
                 };
             })()
@@ -801,6 +820,9 @@ export class Visual implements IVisual {
             if (this.sharedWfDomain) { this.sharedWfDomain = domains.main; }
         }
 
+        // IBCS same-scale rule also for the self-scaling renderers (pareto/dumbbell/slope)
+        cfg.mainDomain = domains.main;
+
         const renderCell = (grp: { name: string | null; pts: DataPoint[] }, region: Rect) => {
             if (isWaterfall) {
                 this.renderWaterfall(wfByGroup.get(grp.name) || [], region, cfg,
@@ -857,7 +879,7 @@ export class Visual implements IVisual {
         }
         // YTD chip (opt-in): the end user flips the cumulative view on the report
         // canvas; persisted like the other in-chart buttons
-        if (s.chartCard.cumulativeButton.value
+        if (s.chartCard.cumulativeButton.value && !isStacked
             && (orientationRaw === "columns" || orientationRaw === "line")) {
             this.drawCumButton(width - (wfStyleGlobal ? 30 : 6), cfg);
         }
@@ -1247,7 +1269,7 @@ export class Visual implements IVisual {
         const acTot = pts.filter(p => !p.isFc).reduce((a, p) => a + (p.value ?? 0), 0);
         const fcTot = vTot - acTot;
         const dTot = vTot - basisSum;
-        const pctTot = basisSum !== 0 ? (dTot / basisSum) * 100 : 0;
+        const pctTot = basisSum !== 0 ? (dTot / Math.abs(basisSum)) * 100 : 0;
         const firstFc = pts.findIndex(p => p.isFc);
         const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
         const colOf = (v: number) => v === 0 ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
@@ -1796,7 +1818,7 @@ export class Visual implements IVisual {
         valLabel(X(ACt) + 8, yAC + rowH / 2 + lf * 0.35, cfg.fmt.format(ACt), true, bg);
         guide(X(ACt), yAC + rowH, endSec, false, bg);
         if (showPins && REF !== 0) {
-            drawPin(yAC, dTot / REF * 100, true, bg);
+            drawPin(yAC, dTot / Math.abs(REF) * 100, true, bg);
         }
 
         // ------- reconciliation rows: primary ΔRef with circled callout, then Δother
@@ -1950,6 +1972,8 @@ export class Visual implements IVisual {
         const marks = this.el("g", {}, this.svg);
         const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
         const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
+            ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+        const colOf2 = (v: number, pp: DataPoint) => (v === 0 || !cfg.isMaterial(pp, pp.var2Abs, pp.var2Rel))
             ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
         const txt = (xx: number, yy: number, text: string, anchor: string, font: number,
             bold: boolean, color: string, parent: SVGElement) => {
@@ -2115,14 +2139,14 @@ export class Visual implements IVisual {
             if (hasVar2 && p.var2Abs != null && colX["d2val"]) {
                 txt(colX["d2val"].x + colX["d2val"].w, yMid + rowFont * 0.35,
                     this.fmtSigned(cfg.fmtVar, p.var2Abs), "end", rowFont, sum,
-                    p.var2Abs === 0 ? cfg.subtle : colOf(p.var2Abs, p), g);
+                    p.var2Abs === 0 ? cfg.subtle : colOf2(p.var2Abs, p), g);
             }
             if (hasVar2 && p.var2Abs != null && colX["d2bar"]) {
                 const len = Math.abs(p.var2Abs) / d2Domain * (colX["d2bar"].w / 2 - 4);
                 const h = Math.max(3, rowH * 0.42);
                 this.el("rect", {
                     x: p.var2Abs >= 0 ? d2Axis + 1 : d2Axis - 1 - len, y: yMid - h / 2,
-                    width: Math.max(len, 1), height: h, fill: colOf(p.var2Abs, p)
+                    width: Math.max(len, 1), height: h, fill: colOf2(p.var2Abs, p)
                 }, g);
             }
 
@@ -2180,7 +2204,9 @@ export class Visual implements IVisual {
         const varAbs = (value != null && basis != null) ? value - basis : null;
         const varRel = (varAbs != null && basis != null && basis !== 0)
             ? (varAbs / Math.abs(basis)) * 100 : null;
-        const basis2 = sum(p => (p.var2Abs != null && p.value != null) ? p.value - p.var2Abs : null);
+        // secondary basis summed directly from the scenario fields — reconstructing it
+        // from var2Abs dropped points whose AC/FC is missing
+        const basis2 = this.basisMode === "plan" ? py : pl;
         const var2Abs = (value != null && basis2 != null) ? value - basis2 : null;
         const var2Rel = (var2Abs != null && basis2 != null && basis2 !== 0)
             ? (var2Abs / Math.abs(basis2)) * 100 : null;
@@ -2302,7 +2328,7 @@ export class Visual implements IVisual {
             const refRowAt = (tx: number, ty: number, label: string,
                 vAbs: number | null, vRel: number | null) => {
                 if (vAbs == null) { return; }
-                const col = (vAbs === 0 || !cfg.isMaterial(p))
+                const col = (vAbs === 0 || !cfg.isMaterial(p, vAbs, vRel))
                     ? cfg.subtle : (good(vAbs) ? cfg.colors.good : cfg.colors.bad);
                 txt(tx, ty, `Δ${label}`, refF, false, cfg.subtle);
                 txt(tx + refF * 2.6, ty, refText(vAbs, vRel), refF, true, col);
@@ -2444,7 +2470,8 @@ export class Visual implements IVisual {
         const rect: Rect = { x: region.x, y: region.y + pad, w: region.w, h: region.h - pad - catArea };
         const labelPad = cfg.showLabels ? lf + 6 : 6;
         const total = pts.reduce((a, p) => a + Math.max(p.value as number, 0), 0);
-        const scale = this.makePanelScale([0, Math.max(...pts.map(p => p.value as number), 1)],
+        const scale = this.makePanelScale(
+            [0, cfg.sharedScale ? Math.max(cfg.mainDomain[1], 1) : Math.max(...pts.map(p => p.value as number), 1)],
             rect, "columns", labelPad);
         // own cumulative-% scale sharing the plot area (top padding for the line labels)
         const pctTop = rect.y + titleH + lf + 10;
@@ -2554,7 +2581,9 @@ export class Visual implements IVisual {
         const bandEnd = region.y + region.h - pad;
         const rect: Rect = { x: region.x + pad + catArea, y: region.y, w: region.w - pad * 2 - catArea, h: region.h };
         const labelPad = cfg.showLabels ? lf + 6 : 6;
-        const domain = extent(points.flatMap(p => [p.value, p.basis]));
+        const domain: [number, number] = cfg.sharedScale
+            ? [cfg.mainDomain[0], cfg.mainDomain[1]]
+            : extent(points.flatMap(p => [p.value, p.basis]));
         const scale = this.makePanelScale(domain, rect, "bars", labelPad);
 
         const step = (bandEnd - bandStart) / n;
@@ -2640,7 +2669,9 @@ export class Visual implements IVisual {
         const x1 = region.x + region.w * 0.70;
         const top = region.y + pad + headFont + 10;
         const bottom = region.y + region.h - pad - 6;
-        const dom = extentTight(pts.flatMap(p => [p.value, p.basis]));
+        const dom: [number, number] = cfg.sharedScale
+            ? [cfg.mainDomain[0], cfg.mainDomain[1]]
+            : extentTight(pts.flatMap(p => [p.value, p.basis]));
         const span = (dom[1] - dom[0]) || 1;
         const Y = (v: number) => bottom - ((v - (dom[0] - span * 0.06)) / (span * 1.12)) * (bottom - top);
 
@@ -3256,7 +3287,7 @@ export class Visual implements IVisual {
             // second-basis variance: bars + pins (dual variance)
             if (panels.abs2 && abs2Scale && p.var2Abs != null) {
                 const good = cfg.invert ? p.var2Abs < 0 : p.var2Abs > 0;
-                const mat = cfg.isMaterial(p);
+                const mat = cfg.isMaterial(p, p.var2Abs, p.var2Rel);
                 const color = (p.var2Abs === 0 || !mat) ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const vw = barW; // IBCS: same width as the base bars
                 const vx = cx - vw / 2;
@@ -3274,7 +3305,7 @@ export class Visual implements IVisual {
             }
             if (panels.rel2 && rel2Scale && p.var2Rel != null) {
                 const good = cfg.invert ? p.var2Rel < 0 : p.var2Rel > 0;
-                const color = (p.var2Rel === 0 || !cfg.isMaterial(p))
+                const color = (p.var2Rel === 0 || !cfg.isMaterial(p, p.var2Abs, p.var2Rel))
                     ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const zero = rel2Scale(0);
                 const end = rel2Scale(p.var2Rel);
@@ -3764,7 +3795,7 @@ export class Visual implements IVisual {
         const varAbs = (value != null && basis != null) ? value - basis : null;
         const varRel = (varAbs != null && basis != null && basis !== 0)
             ? (varAbs / Math.abs(basis)) * 100 : null;
-        const basis2Sum = sum(tail.map(p => (p.var2Abs != null && p.value != null) ? p.value - p.var2Abs : null));
+        const basis2Sum = this.basisMode === "plan" ? py : pl;
         const var2Abs = (value != null && basis2Sum != null) ? value - basis2Sum : null;
         const var2Rel = (var2Abs != null && basis2Sum != null && basis2Sum !== 0)
             ? (var2Abs / Math.abs(basis2Sum)) * 100 : null;
@@ -4060,16 +4091,10 @@ export class Visual implements IVisual {
         return (i: number) => i === 0 || i === n - 1 || i === iMin || i === iMax;
     }
 
-    private resolveBasisLabel(points: DataPoint[]): Basis {
-        // the basis that parseData actually used: check whether basis matches pl
-        for (const p of points) {
-            if (p.basis != null) {
-                if (p.pl != null && p.basis === p.pl && p.basis !== p.py) { return "plan"; }
-                if (p.py != null && p.basis === p.py) { return "py"; }
-            }
-        }
-        const mode = String(this.formattingSettings.chartCard.comparisonMode.value.value);
-        return mode === "plan" ? "plan" : "py";
+    private resolveBasisLabel(): Basis {
+        // the basis parseData actually used — stored there, so an explicit
+        // comparisonMode wins even when PL happens to equal PY
+        return this.basisMode;
     }
 
     // ------------------------------------------------------------ primitives
