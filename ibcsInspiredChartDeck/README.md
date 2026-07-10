@@ -68,9 +68,11 @@ in **einem** Visual löst:
   die volle Fläche (gleiche Skalen), „← Alle Gruppen" führt zurück
 - **Vergleich per Klick** (optional): zwei Säulen/Balken anklicken zeigt die
   Differenz (absolut + %) als Klammer-Overlay
-- **Integrierte Brücke (Zeit)** (eigener Chart-Modus): PY/PL-Totalsäule links,
-  ΔBasis-Wasserfall quer über die Monate, AC·PY-Monatssäulen am Fuß, ΔBasis%-Pins
-  oben, AC|FC-Trennlinie, gestapelte AC+FC-Totalsäule rechts + Netto-Callout
+- **Integrierte Brücke (Zeit)** (eigener Chart-Modus): PY/PL-Totalsäulen links
+  (beide, wenn beide gebunden — Kaskade startet an der gewählten Basis),
+  ΔBasis-Wasserfall quer über die Monate, versetzte Basis·AC-Monatssäulen am Fuß
+  (PL als Umriss, PY grau oder als Dreieck), ΔBasis%-Pins oben, AC|FC-Trennlinie,
+  gestapelte AC+FC-Totalsäule rechts + Netto-Callout
 - **Kategorie-Brücke (Struktur)** (eigener Chart-Modus): PL/PY-Summenzeilen oben,
   je Kategorie AC·PY-Balken + Kaskaden-Brick + ΔBasis%-Pin, AC-Summenzeile und
   doppelte Überleitung (ΔBasis mit Callout + ΔZweitbasis) unten — inkl.

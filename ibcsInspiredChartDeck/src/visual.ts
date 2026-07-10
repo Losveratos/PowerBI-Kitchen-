@@ -1399,7 +1399,12 @@ export class Visual implements IVisual {
         const calloutW = Math.max(54, Math.min(96, region.w * 0.085)) + lf * 1.6;
         const sideLblW = lf * 2.4;
         const totW = Math.max(26, Math.min(60, region.w * 0.055));
-        const bandStart = left + totW + 10;
+        // with both PY and PL bound, the left side shows two total columns
+        // (like the category bridge's PY/PL total rows) — reserve the space
+        const pySum = pts.reduce((a, p) => a + (p.py ?? 0), 0);
+        const plSum = pts.reduce((a, p) => a + (p.pl ?? 0), 0);
+        const twoTotals = pts.some(p => p.py != null) && pts.some(p => p.pl != null);
+        const bandStart = left + totW + (twoTotals ? totW + 8 : 0) + 10;
         const bandEnd = right - calloutW - sideLblW - totW - 10;
         if (bandEnd - bandStart < n * 8) {
             this.drawModeHint(region, cfg, "Zu wenig Platz für die integrierte Brücke");
@@ -1411,9 +1416,10 @@ export class Visual implements IVisual {
         const cx = (i: number) => bandStart + i * step + step / 2;
         const cxTot = bandEnd + 10 + totW / 2;
 
-        const maxTot = Math.max(basisSum, vTot, 1);
+        const maxTot = Math.max(basisSum, vTot, twoTotals ? Math.max(pySum, plSum) : 0, 1);
         const S = linearScale(0, maxTot, yBase, plotTop + lf + 8);
-        const maxMon = Math.max(...pts.map(p => Math.max(p.value ?? 0, p.basis ?? 0)), 1);
+        const maxMon = Math.max(...pts.map(p =>
+            Math.max(p.value ?? 0, p.basis ?? 0, cfg.pyTriangle ? (p.py ?? 0) : 0)), 1);
         const miniH = Math.min((yBase - plotTop) * 0.30, region.h * 0.16);
         const BS = linearScale(0, maxMon, 0, miniH);
 
@@ -1474,28 +1480,40 @@ export class Visual implements IVisual {
             }, bg);
         }
 
-        // ------- basis total column (left)
+        // ------- total columns (left): the second scenario first (outermost),
+        // then the basis column the cascade starts from — like the category
+        // bridge's PY/PL total rows
         const yB = S(basisSum);
-        const basisStyle = cfg.basisMode === "plan"
-            ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 }
-            : cfg.hc
-                ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
-                : { fill: cfg.colors.py };
-        this.el("rect", { x: left, y: yB, width: totW, height: Math.max(yBase - yB, 1), ...basisStyle }, bg);
-        const bl = this.el("text", {
-            x: left + totW / 2, y: yB - 5, "text-anchor": "middle", "font-size": lf,
-            fill: cfg.ink, "font-family": FONT
-        }, bg);
-        bl.textContent = cfg.fmt.format(basisSum);
-        const bc = this.el("text", {
-            x: left + totW / 2, y: yBase + cf + 4, "text-anchor": "middle", "font-size": cf,
-            fill: cfg.ink, "font-family": FONT
-        }, bg);
-        bc.textContent = cfg.basisLabel;
+        const xBasisTot = twoTotals ? left + totW + 8 : left;
+        const pyStyle = cfg.hc
+            ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
+            : { fill: cfg.colors.py };
+        const plStyle = { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 };
+        const drawTotal = (x: number, sum: number, style: object, label: string, bold: boolean) => {
+            const yT = S(sum);
+            this.el("rect", { x, y: yT, width: totW, height: Math.max(yBase - yT, 1), ...style }, bg);
+            const vl = this.el("text", {
+                x: x + totW / 2, y: yT - 5, "text-anchor": "middle", "font-size": lf,
+                fill: cfg.ink, "font-family": FONT, ...(bold ? { "font-weight": 600 } : {})
+            }, bg);
+            vl.textContent = cfg.fmt.format(sum);
+            const cl = this.el("text", {
+                x: x + totW / 2, y: yBase + cf + 4, "text-anchor": "middle", "font-size": cf,
+                fill: cfg.ink, "font-family": FONT
+            }, bg);
+            cl.textContent = label;
+        };
+        if (twoTotals) {
+            const basisIsPl = cfg.basisMode === "plan";
+            drawTotal(left, basisIsPl ? pySum : plSum,
+                basisIsPl ? pyStyle : plStyle, basisIsPl ? "PY" : "PL", false);
+        }
+        drawTotal(xBasisTot, basisSum,
+            cfg.basisMode === "plan" ? plStyle : pyStyle, cfg.basisLabel, false);
 
         // ------- level guide lines
         const yV = S(vTot);
-        this.el("line", { x1: left + totW, y1: yB, x2: cxTot + totW / 2, y2: yB, stroke: cfg.colors.py, "stroke-width": 1.4 }, bg);
+        this.el("line", { x1: xBasisTot + totW, y1: yB, x2: cxTot + totW / 2, y2: yB, stroke: cfg.colors.py, "stroke-width": 1.4 }, bg);
         this.el("line", { x1: cx(n - 1) + segW / 2, y1: yV, x2: right - calloutW + 10, y2: yV, stroke: cfg.colors.py, "stroke-width": 1.4 }, bg);
 
         // ------- cascade + mini columns
@@ -1506,7 +1524,7 @@ export class Visual implements IVisual {
             const x = cx(i);
 
             // connector at the incoming level
-            const conX1 = i === 0 ? left + totW : cx(i - 1) + segW / 2;
+            const conX1 = i === 0 ? xBasisTot + totW : cx(i - 1) + segW / 2;
             this.el("line", {
                 x1: conX1, y1: S(level), x2: x - segW / 2, y2: S(level),
                 stroke: cfg.subtle, "stroke-width": 1
@@ -1539,8 +1557,9 @@ export class Visual implements IVisual {
                 }
             }
 
-            // mini columns at the base: basis grey behind, AC/FC in front; when the
-            // basis is PY and all three scenarios are bound, use the triangle marker
+            // mini columns at the base, offset IBCS pairs: basis behind (PY grey /
+            // PL outlined), AC/FC in front; with three scenarios PY becomes the
+            // triangle marker (as basis, or next to a PL basis)
             if (p.basis != null) {
                 if (cfg.pyTriangle && cfg.basisMode === "py") {
                     const triScale: Scale = (v: number) => yBase - BS(v);
@@ -1549,11 +1568,17 @@ export class Visual implements IVisual {
                     const h = BS(p.basis);
                     this.el("rect", {
                         x: x - colW * 0.8, y: yBase - h, width: colW, height: h,
-                        ...(cfg.hc
-                            ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1, "stroke-dasharray": "3,2" }
-                            : { fill: cfg.colors.py })
+                        ...(cfg.basisMode === "plan"
+                            ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.2 }
+                            : cfg.hc
+                                ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1, "stroke-dasharray": "3,2" }
+                                : { fill: cfg.colors.py })
                     }, g);
                 }
+            }
+            if (cfg.pyTriangle && cfg.basisMode !== "py" && p.py != null) {
+                const triScale: Scale = (v: number) => yBase - BS(v);
+                this.drawPyTriangle(g, x - colW * 0.2, colW * 1.4, p.py, triScale, "columns", cfg);
             }
             if (p.value != null) {
                 const h = BS(p.value);
@@ -1564,7 +1589,8 @@ export class Visual implements IVisual {
                         : { fill: cfg.colors.ac })
                 }, g);
                 if (cfg.showLabels && showValAt(i)) {
-                    const hMax = Math.max(BS(p.value), p.basis != null ? BS(p.basis) : 0);
+                    const hMax = Math.max(BS(p.value), p.basis != null ? BS(p.basis) : 0,
+                        cfg.pyTriangle && p.py != null ? BS(p.py) + 4 : 0);
                     const vt = this.el("text", {
                         x: x + colW * 0.3 - colW * 0.5, y: yBase - hMax - 3, "text-anchor": "middle",
                         "font-size": lf, fill: cfg.ink, "font-family": FONT,

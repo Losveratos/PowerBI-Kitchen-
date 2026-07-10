@@ -31,6 +31,7 @@
 <div class="case"><h4>Waterfall-Brücke · Bars · 15 Kategorien · Gruppentrennlinien alle 4</h4><div class="stage" id="c21" style="width:960px;height:640px"></div></div>
 <div class="case"><h4>Integrierte Brücke (Zeit) · PY-Total links, Kaskade, Monatssäulen, AC+FC-Total rechts</h4><div class="stage" id="c22" style="width:1120px;height:660px"></div></div>
 <div class="case"><h4>Kategorie-Brücke (Struktur) · PL/PY-Zeilen, Kaskade, ΔPY%-Pins, Doppel-Überleitung</h4><div class="stage" id="c23" style="width:1340px;height:790px"></div></div>
+<div class="case"><h4>Integrierte Brücke · Basis PL · zwei Totalsäulen (PY+PL), versetzte PL-Umriss-Minisäulen, PY-Dreiecke</h4><div class="stage" id="c50" style="width:1120px;height:660px"></div></div>
 <div class="case"><h4>Kategorie-Brücke · Full-HD-Preset (Schrift ×1,5) · ΔPL-Referenz</h4><div class="stage" id="c24" style="width:1340px;height:820px"></div></div>
 <div class="case"><h4>Tabelle (IBCS) · GuV mit sum/delta · AC·PY-Balken + ΔPY + ΔPY%-Pins</h4><div class="stage" id="c25" style="width:1200px;height:420px"></div></div>
 <div class="case"><h4>Tabelle (IBCS) · Länder + Dual (ΔPL & ΔPY) · Full HD · Highlight</h4><div class="stage" id="c26" style="width:1340px;height:520px"></div></div>
@@ -241,6 +242,12 @@ const iwFc = [null,null,null,null,null,null,null,null, 22, 8, 7, 12];
 const iwPy = [14, 16, 14, 9, 11, 9, 16, 14, 16, 17, 16, 22];
 run("c22", dataView(iwCats, [col("actual", iwAc), col("previousYear", iwPy), col("forecast", iwFc)],
   { chart: { orientation: "intwaterfall" } }), 1120, 660);
+
+// same bridge with plan as basis and all four series bound — two total columns
+// left (PY grey + PL outlined), offset PL outline mini-columns, PY triangles
+const iwPl = [14, 12, 14, 10, 10, 10, 12, 14, 15, 15, 15, 19];
+run("c50", dataView(iwCats, [col("actual", iwAc), col("previousYear", iwPy), col("plan", iwPl), col("forecast", iwFc)],
+  { chart: { orientation: "intwaterfall", comparisonMode: "plan" } }), 1120, 660);
 
 // category bridge (structure): PL/PY total rows, per-category AC·PY bars + cascade +
 // ΔPY% pins, AC row, double reconciliation — from the "Waterfall Chart v2" reference

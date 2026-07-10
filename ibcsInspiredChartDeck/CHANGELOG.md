@@ -1,5 +1,19 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.14.2.0 (2026-07-10)
+
+**Integrierte Brücke: PL-Notation & zwei Totalsäulen:**
+- **Versetzte PL-Minisäulen**: Ist PL die Vergleichsbasis, erscheinen die
+  Monats-Basissäulen als weiße Umriss-Säulen (IBCS-PL-Notation) leicht
+  versetzt hinter der AC-/FC-Säule — statt grau und überdeckt.
+- **Zwei Totalsäulen links** (wie die PL/PY-Summenzeilen der
+  Kategorie-Brücke): Sind PY und PL beide gebunden, stehen links beide
+  Jahres-Totale — außen das Zweitszenario (PY grau bzw. PL Umriss),
+  innen die Basis, an der die Kaskade startet.
+- **PY-Dreieck auch bei PL-Basis**: Bei AC + PY + PL (Schalter „PY als
+  Dreieck") markiert das graue Dreieck das Vorjahr an den Minisäulen
+  zusätzlich zur PL-Umriss-Säule; Wertlabels weichen dem Dreieck aus.
+
 ## 1.14.1.0 (2026-07-10)
 
 **PY-Dreiecke in den Brücken + Treiber-Notiz abschaltbar:**
