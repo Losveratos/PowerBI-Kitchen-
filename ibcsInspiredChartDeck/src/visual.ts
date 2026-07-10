@@ -2225,8 +2225,10 @@ export class Visual implements IVisual {
 
     /**
      * KPI cards: one tile per category with the KPI-card layout — big value, mini
-     * bridge basis → Δ → AC in IBCS notation, and Δ reference rows. Space stages:
-     * small tiles drop the bridge, tiny tiles drop the second reference row.
+     * bridge basis → Δ → AC in IBCS notation, and Δ reference rows. Two layouts:
+     * stacked (default) and flat — wide, short tiles put the Δ rows and the bridge
+     * to the RIGHT of the value instead of dropping them, so a KPI strip across the
+     * top of a page keeps its variances.
      */
     private renderCards(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
         const k = this.fontK;
@@ -2268,7 +2270,15 @@ export class Visual implements IVisual {
             const titleF = Math.round(11.5 * k);
             const valueF = Math.round(21 * k);
             const refF = Math.round(10.5 * k);
-            let yCur = y + pad + titleF;
+            const legRoom = Math.round(11 * k);
+            // per-card formatters: KPI tiles often mix magnitudes (revenue vs. units),
+            // so auto display units scale per card instead of across the whole deck
+            const pInt = [p.value, p.py, p.pl, p.fc].every(v => v == null || Number.isInteger(v));
+            const fmtP = this.makeFormatter(Math.max(
+                Math.abs(p.value ?? 0), Math.abs(p.basis ?? 0), Math.abs(p.py ?? 0), Math.abs(p.pl ?? 0)), pInt);
+            const fmtVarP = this.makeFormatter(Math.max(
+                Math.abs(p.varAbs ?? 0), Math.abs(p.var2Abs ?? 0)), pInt);
+            const valueText = fmtP.format(p.value as number);
 
             const txt = (tx: number, ty: number, text: string, font: number, bold: boolean,
                 color: string, anchor = "start") => {
@@ -2279,62 +2289,48 @@ export class Visual implements IVisual {
                 t.textContent = text;
                 return t;
             };
-
-            txt(x + pad, yCur, this.truncate(p.cat, w - pad * 2, titleF), titleF, false, cfg.subtle);
-            yCur += valueF + Math.round(4 * k);
-            txt(x + pad, yCur, cfg.fmt.format(p.value as number), valueF, true, cfg.ink);
-            if (p.isFc) {
-                const vw = (cfg.fmt.format(p.value as number).length) * valueF * 0.58;
-                txt(x + pad + vw + 6 * k, yCur, "FC", Math.round(9 * k), true, cfg.subtle);
-            }
-            yCur += refF + Math.round(9 * k);
-
-            // Δ reference rows (primary basis first, second basis when bound)
-            const refRow = (label: string, vAbs: number | null, vRel: number | null) => {
-                if (vAbs == null || yCur > y + h - 4) { return; }
+            const titleValue = (tyTitle: number, tyValue: number, maxW: number) => {
+                txt(x + pad, tyTitle, this.truncate(p.cat, maxW, titleF), titleF, false, cfg.subtle);
+                txt(x + pad, tyValue, valueText, valueF, true, cfg.ink);
+                if (p.isFc) {
+                    const vw = valueText.length * valueF * 0.58;
+                    txt(x + pad + vw + 6 * k, tyValue, "FC", Math.round(9 * k), true, cfg.subtle);
+                }
+            };
+            const refText = (vAbs: number, vRel: number | null) =>
+                `${this.fmtSigned(fmtVarP, vAbs)}${vRel != null ? ` · ${this.fmtPercent(vRel)}` : ""}`;
+            const refRowAt = (tx: number, ty: number, label: string,
+                vAbs: number | null, vRel: number | null) => {
+                if (vAbs == null) { return; }
                 const col = (vAbs === 0 || !cfg.isMaterial(p))
                     ? cfg.subtle : (good(vAbs) ? cfg.colors.good : cfg.colors.bad);
-                const rel = vRel != null ? ` · ${this.fmtPercent(vRel)}` : "";
-                txt(x + pad, yCur, `Δ${label}`, refF, false, cfg.subtle);
-                txt(x + pad + refF * 2.6, yCur,
-                    `${this.fmtSigned(cfg.fmtVar, vAbs)}${rel}`, refF, true, col);
-                yCur += refF + Math.round(5 * k);
+                txt(tx, ty, `Δ${label}`, refF, false, cfg.subtle);
+                txt(tx + refF * 2.6, ty, refText(vAbs, vRel), refF, true, col);
             };
-            refRow(cfg.basisLabel, p.varAbs, p.varRel);
-            if (h >= 118 * k) { refRow(cfg.basis2Label, p.var2Abs, p.var2Rel); }
-
-            // mini bridge basis → Δ → AC (IBCS notation), when there is room for it
-            const bridgeH = Math.round(40 * k);
-            const legRoom = Math.round(11 * k);
-            if (p.basis != null && h - (yCur - y) >= bridgeH + pad + legRoom && w >= 150 * k) {
-                // compact left-aligned bridge — three columns close together like the KPI card
-                const bx = x + pad;
-                const bw2 = Math.min(w - pad * 2, 190 * k);
-                const by = y + h - pad - legRoom;
+            // mini bridge basis → Δ → AC in IBCS notation; byBottom is the axis line
+            const drawBridge = (bx: number, byBottom: number, bw2: number, bridgeH: number) => {
+                if (p.basis == null) { return; }
                 const maxV = Math.max(Math.abs(p.basis), Math.abs(p.value as number), 1);
                 const hOf = (v: number) => Math.max(1.5, Math.abs(v) / maxV * bridgeH);
                 const colW = Math.min(44 * k, bw2 / 3.6);
                 const step2 = bw2 / 3;
                 const cxs = [bx + step2 / 2, bx + step2 * 1.5, bx + step2 * 2.5];
                 // baseline in the notation of the basis scenario
-                const axis = this.el("g", {}, g);
                 if (cfg.basisMode === "py") {
-                    this.el("line", { x1: bx, y1: by, x2: bx + bw2, y2: by, stroke: cfg.colors.py, "stroke-width": 3 }, axis);
+                    this.el("line", { x1: bx, y1: byBottom, x2: bx + bw2, y2: byBottom, stroke: cfg.colors.py, "stroke-width": 3 }, g);
                 } else {
-                    this.el("line", { x1: bx, y1: by - 1.2, x2: bx + bw2, y2: by - 1.2, stroke: cfg.colors.pl, "stroke-width": 1 }, axis);
-                    this.el("line", { x1: bx, y1: by + 1.2, x2: bx + bw2, y2: by + 1.2, stroke: cfg.colors.pl, "stroke-width": 1 }, axis);
+                    this.el("line", { x1: bx, y1: byBottom - 1.2, x2: bx + bw2, y2: byBottom - 1.2, stroke: cfg.colors.pl, "stroke-width": 1 }, g);
+                    this.el("line", { x1: bx, y1: byBottom + 1.2, x2: bx + bw2, y2: byBottom + 1.2, stroke: cfg.colors.pl, "stroke-width": 1 }, g);
                 }
-                // basis anchor: PL outline / PY grey
                 const basisStyle = cfg.basisMode === "plan"
                     ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.3 }
                     : cfg.hc
                         ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
                         : { fill: cfg.colors.py };
-                this.el("rect", { x: cxs[0] - colW / 2, y: by - hOf(p.basis), width: colW, height: hOf(p.basis), ...basisStyle }, g);
-                // floating delta between basis and AC level
+                this.el("rect", { x: cxs[0] - colW / 2, y: byBottom - hOf(p.basis), width: colW, height: hOf(p.basis), ...basisStyle }, g);
                 if (p.varAbs != null && p.varAbs !== 0) {
                     const lo = Math.min(p.basis, p.value as number), hi = Math.max(p.basis, p.value as number);
-                    const dTop = by - hOf(hi), dH = Math.max(1.5, (hi - lo) / maxV * bridgeH);
+                    const dTop = byBottom - hOf(hi), dH = Math.max(1.5, (hi - lo) / maxV * bridgeH);
                     const dCol = !cfg.isMaterial(p) ? cfg.colors.py
                         : (good(p.varAbs) ? cfg.colors.good : cfg.colors.bad);
                     this.el("rect", {
@@ -2343,27 +2339,76 @@ export class Visual implements IVisual {
                             ? { fill: `url(#${good(p.varAbs) ? cfg.patGood : cfg.patBad})`, stroke: dCol, "stroke-width": 1 }
                             : { fill: dCol })
                     }, g);
-                    // connectors at basis and AC level
                     this.el("line", {
-                        x1: cxs[0] + colW / 2, y1: by - hOf(p.basis), x2: cxs[1] - colW / 2, y2: by - hOf(p.basis),
+                        x1: cxs[0] + colW / 2, y1: byBottom - hOf(p.basis), x2: cxs[1] - colW / 2, y2: byBottom - hOf(p.basis),
                         stroke: cfg.subtle, "stroke-width": 1
                     }, g);
                     this.el("line", {
-                        x1: cxs[1] + colW / 2, y1: by - hOf(p.value as number), x2: cxs[2] - colW / 2, y2: by - hOf(p.value as number),
+                        x1: cxs[1] + colW / 2, y1: byBottom - hOf(p.value as number), x2: cxs[2] - colW / 2, y2: byBottom - hOf(p.value as number),
                         stroke: cfg.subtle, "stroke-width": 1
                     }, g);
                 }
-                // AC anchor (hatched when forecast)
                 this.el("rect", {
-                    x: cxs[2] - colW / 2, y: by - hOf(p.value as number), width: colW, height: hOf(p.value as number),
+                    x: cxs[2] - colW / 2, y: byBottom - hOf(p.value as number), width: colW, height: hOf(p.value as number),
                     ...(p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : { fill: cfg.colors.ac })
                 }, g);
                 const legF = Math.round(8 * k);
-                txt(cxs[0], by + legF + 2, cfg.basisLabel, legF, false, cfg.subtle, "middle");
-                txt(cxs[1], by + legF + 2, "Δ", legF, false, cfg.subtle, "middle");
-                txt(cxs[2], by + legF + 2, cfg.hasFc && p.isFc ? "FC" : "AC", legF, false, cfg.subtle, "middle");
+                txt(cxs[0], byBottom + legF + 2, cfg.basisLabel, legF, false, cfg.subtle, "middle");
+                txt(cxs[1], byBottom + legF + 2, "Δ", legF, false, cfg.subtle, "middle");
+                txt(cxs[2], byBottom + legF + 2, cfg.hasFc && p.isFc ? "FC" : "AC", legF, false, cfg.subtle, "middle");
+            };
+
+            // flat layout: wide + short tile → Δ rows and bridge move to the right
+            const flat = h < 118 * k && w >= 250 * k;
+            if (flat) {
+                const blockH = titleF + Math.round(4 * k) + valueF;
+                const top = y + Math.max(Math.round(6 * k), (h - blockH) / 2);
+                const valueW = valueText.length * valueF * 0.58 + (p.isFc ? 24 * k : 0);
+                const titleFull = this.maxTextWidth([p.cat], titleF);
+                const leftW = Math.max(valueW, Math.min(titleFull, 170 * k));
+                titleValue(top + titleF, top + titleF + Math.round(4 * k) + valueF, leftW);
+
+                let refX = x + pad + leftW + Math.round(20 * k);
+                let maxRefW = 0;
+                if (p.varAbs != null) { maxRefW = this.maxTextWidth([refText(p.varAbs, p.varRel)], refF); }
+                if (p.var2Abs != null) { maxRefW = Math.max(maxRefW, this.maxTextWidth([refText(p.var2Abs, p.var2Rel)], refF)); }
+                const hasRow2 = p.var2Abs != null && h >= 52 * k;
+                if (p.varAbs != null && refX + refF * 2.6 + maxRefW <= x + w - pad) {
+                    const yMid = y + h / 2;
+                    if (hasRow2) {
+                        refRowAt(refX, yMid - Math.round(2 * k), cfg.basisLabel, p.varAbs, p.varRel);
+                        refRowAt(refX, yMid + refF + Math.round(4 * k), cfg.basis2Label, p.var2Abs, p.var2Rel);
+                    } else {
+                        refRowAt(refX, yMid + refF * 0.35, cfg.basisLabel, p.varAbs, p.varRel);
+                    }
+                    refX += refF * 2.6 + maxRefW + Math.round(24 * k);
+                }
+                // bridge on the right edge when there is still room for it
+                const bw2 = Math.min(170 * k, x + w - pad - refX);
+                const bh2 = Math.min(Math.round(34 * k), h - Math.round(12 * k) - legRoom);
+                if (p.basis != null && bw2 >= 100 * k && bh2 >= 18 * k) {
+                    const byBottom = y + (h - legRoom + bh2) / 2;
+                    drawBridge(x + w - pad - bw2, byBottom, bw2, bh2);
+                }
+            } else {
+                let yCur = y + pad + titleF;
+                titleValue(yCur, yCur + valueF + Math.round(4 * k), w - pad * 2);
+                yCur += valueF + Math.round(4 * k) + refF + Math.round(9 * k);
+                if (p.varAbs != null && yCur <= y + h - 4) {
+                    refRowAt(x + pad, yCur, cfg.basisLabel, p.varAbs, p.varRel);
+                    yCur += refF + Math.round(5 * k);
+                }
+                if (p.var2Abs != null && h >= 118 * k && yCur <= y + h - 4) {
+                    refRowAt(x + pad, yCur, cfg.basis2Label, p.var2Abs, p.var2Rel);
+                    yCur += refF + Math.round(5 * k);
+                }
+                const bridgeH = Math.round(40 * k);
+                if (p.basis != null && h - (yCur - y) >= bridgeH + pad + legRoom && w >= 150 * k) {
+                    const bw2 = Math.min(w - pad * 2, 190 * k);
+                    drawBridge(x + pad, y + h - pad - legRoom, bw2, bridgeH);
+                }
             }
 
             // comment marker number, if present

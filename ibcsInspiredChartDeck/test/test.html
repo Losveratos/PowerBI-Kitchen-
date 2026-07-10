@@ -50,6 +50,7 @@
 <div class="case"><h4>Wesentlichkeit (|Δ|&lt;30k grau) + gespeicherter ✎-Kommentar + YTD-Button</h4><div class="stage" id="c40" style="width:960px;height:480px"></div></div>
 <div class="case"><h4>Kommentar-Modus an (Klick öffnet Editor)</h4><div class="stage" id="c41" style="width:960px;height:400px"></div></div>
 <div class="case"><h4>KPI-Karten (Kacheln) · AC+PY+PL, ein FC</h4><div class="stage" id="c42" style="width:960px;height:400px"></div></div>
+<div class="case"><h4>KPI-Karten · flacher Streifen (1420×130) — Δ-Zeilen + Brücke rutschen nach rechts</h4><div class="stage" id="c43" style="width:1420px;height:130px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -385,6 +386,13 @@ run("c42", dataView(["Umsatz", "Rohertrag", "Opex", "EBIT", "Cashflow", "Auftrag
    col("plan", [9500000, 4100000, 2800000, 1250000, 900000, 11800000], "#,0 €"),
    col("forecast", [null, null, null, null, 860000, null], "#,0 €")],
   { chart: { orientation: "cards" } }), 960, 400);
+
+// flat KPI strip (like a page header): variances + bridge move beside the value
+run("c43", dataView(["Revenue", "COGS", "Profit", "Units Sold"],
+  [col("actual", [44800000, 26700000, 18000000, 128000], "#,0 €"),
+   col("previousYear", [41200000, 25100000, 16100000, 121000], "#,0 €"),
+   col("plan", [43500000, 26900000, 16600000, 131000], "#,0 €")],
+  { chart: { orientation: "cards" }, ibcsTitle: { kpi: "AC YTD" } }), 1420, 130);
 </script>
 </body>
 </html>

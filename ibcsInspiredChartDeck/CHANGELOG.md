@@ -1,5 +1,19 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.12.2.0 (2026-07-10)
+
+**KPI-Karten: flaches Layout + Einheiten je Karte:**
+- **Breite, niedrige Kacheln nutzen den Leerraum**: Ist die Karte flach
+  (z. B. KPI-Streifen oben auf der Seite), rutschen die Δ-Zeilen
+  (ΔPL/ΔPY absolut + %) neben den großen Wert statt darunter — und wenn
+  rechts noch Platz ist, kommt auch die Mini-Brücke daneben. Nichts
+  wird mehr stillschweigend abgeschnitten.
+- **Auto-Einheiten skalieren pro Karte**: KPI-Kacheln mischen oft
+  Größenordnungen (Umsatz in Mio. neben Stückzahlen) — der Wert und die
+  Δ-Angaben jeder Karte bekommen jetzt ihre eigene k/M/B-Skalierung
+  statt der gemeinsamen des ganzen Visuals (0,1M€ → 128,0K).
+
+
 ## 1.12.1.0 (2026-07-10)
 
 - **KPI-Karten: Indikator-Streifen** — wie im Card-Visual zeigt jede
