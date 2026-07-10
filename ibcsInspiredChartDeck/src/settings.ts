@@ -24,7 +24,8 @@ const orientationItems: powerbi.IEnumMember[] = [
 const comparisonItems: powerbi.IEnumMember[] = [
     { value: "auto", displayName: "Auto" },
     { value: "py", displayName: "Previous Year (PY)" },
-    { value: "plan", displayName: "Plan (PL)" }
+    { value: "plan", displayName: "Plan (PL)" },
+    { value: "fcrev", displayName: "FC Vormonat (Revision)" }
 ];
 
 const displayUnitsItems: powerbi.IEnumMember[] = [
@@ -74,6 +75,15 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
         value: ""
     });
 
+    footer = new formattingSettings.TextInput({
+        name: "footer",
+        displayName: "Footer (data status)",
+        displayNameKey: "Title_Footer",
+        description: "Fußzeile unten links — z. B. Datenstand und Quelle: „Ist per Jun 2026 · Stand 05.07. · Quelle: SAP FI\".",
+        placeholder: "z. B. Ist per Jun 2026 · Stand 05.07.",
+        value: ""
+    });
+
     autoMessage = new formattingSettings.ToggleSwitch({
         name: "autoMessage",
         displayName: "Auto message",
@@ -85,7 +95,7 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
     name: string = "ibcsTitle";
     displayName: string = "IBCS title";
     displayNameKey: string = "Card_IbcsTitle";
-    slices: Array<FormattingSettingsSlice> = [this.show, this.kpi, this.period, this.message, this.autoMessage];
+    slices: Array<FormattingSettingsSlice> = [this.show, this.kpi, this.period, this.message, this.autoMessage, this.footer];
 }
 
 export class ChartCardSettings extends formattingSettings.CompositeCard {
@@ -126,6 +136,15 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Chart_Invert",
         description: "Für Kosten-KPIs: Mehrwert ist schlecht (rot), Minderwert ist gut (grün).",
         value: false
+    });
+
+    invertList = new formattingSettings.TextInput({
+        name: "invertList",
+        displayName: "Invert per category",
+        displayNameKey: "Chart_InvertList",
+        description: "Kommagetrennte Kategorien, deren Wertung umgekehrt wird (z. B. Kosten-Zeilen neben Umsatz-Zeilen in KPI-Karten oder der GuV-Tabelle). Wirkt zusätzlich zum globalen Invert-Schalter.",
+        placeholder: "z. B. Opex, Materialaufwand",
+        value: ""
     });
 
     showTotal = new formattingSettings.ToggleSwitch({
@@ -281,7 +300,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Analysis",
         displayNameKey: "Group_Analysis",
         slices: [this.cumulative, this.cumulativeButton, this.movingAverage, this.topN,
-            this.highlight, this.invert, this.compareClick, this.materialityAbs, this.materialityPct]
+            this.highlight, this.invert, this.invertList, this.compareClick,
+            this.materialityAbs, this.materialityPct]
     });
 
     multiplesTotal = new formattingSettings.ToggleSwitch({

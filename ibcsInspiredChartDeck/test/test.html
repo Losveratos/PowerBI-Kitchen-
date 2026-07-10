@@ -53,6 +53,8 @@
 <div class="case"><h4>KPI-Karten · flacher Streifen (1420×130) — Δ-Zeilen + Brücke rutschen nach rechts</h4><div class="stage" id="c43" style="width:1420px;height:130px"></div></div>
 <div class="case"><h4>Pareto · Small Multiples + Σ Gesamt — gemeinsame Skala (Fix 1.12.3)</h4><div class="stage" id="c44" style="width:960px;height:420px"></div></div>
 <div class="case"><h4>Integrierte Brücke · negative Werte → Hinweis statt kaputtem SVG (Fix 1.12.4)</h4><div class="stage" id="c45" style="width:960px;height:280px"></div></div>
+<div class="case"><h4>FC-Revision · AC/FC vs. FC Vormonat (Basis „fcrev") + Datenstand-Fußzeile</h4><div class="stage" id="c46" style="width:960px;height:460px"></div></div>
+<div class="case"><h4>KPI-Karten · Per-KPI-Invert (Opex invertiert: Mehrkosten rot)</h4><div class="stage" id="c47" style="width:960px;height:260px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -408,6 +410,27 @@ run("c44", dataView(pmCats, [col("actual", pmAc, "#,0 €")],
 run("c45", dataView(months.slice(0, 6),
   [col("actual", [-820, -771, -900, -955, -1020, -980]), col("previousYear", [-760, -800, -850, -900, -940, -1010])],
   { chart: { orientation: "intwaterfall" } }), 960, 280);
+
+// forecast revision: current AC/FC vs the forecast of the previous cycle
+const fcNow  = [820, 771, 900, 955, 1020, 980, 1105, 1150, 1080, 1210, 1260, 1400].map(v => v * 1000);
+const fcPrev = [820, 771, 900, 940, 1000, 990, 1080, 1170, 1060, 1180, 1300, 1360].map(v => v * 1000);
+run("c46", {
+  metadata: { columns: [], objects: { chart: { comparisonMode: "fcrev" },
+    ibcsTitle: { footer: "Ist per Jul 2026 · FC-Zyklus 07/26 vs. 06/26 · Stand 10.07." } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Monat", roles: { category: true } }, values: months },
+      { source: { displayName: "FC", roles: { fcFlag: true } }, values: [0,0,0,0,0,0,0,1,1,1,1,1] }
+    ],
+    values: [col("actual", fcNow, "#,0 €"), col("prevForecast", fcPrev, "#,0 €")]
+  }
+}, 960, 460);
+
+// per-category invert: Opex is a cost KPI between revenue KPIs
+run("c47", dataView(["Umsatz", "Opex", "EBIT"],
+  [col("actual", [9800000, 3100000, 1300000], "#,0 €"),
+   col("plan", [9500000, 2800000, 1250000], "#,0 €")],
+  { chart: { orientation: "cards", invertList: "Opex" } }), 960, 260);
 </script>
 </body>
 </html>

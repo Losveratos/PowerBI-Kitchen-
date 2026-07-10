@@ -1,5 +1,26 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.13.0.0 (2026-07-10)
+
+**Controller-Paket — drei Kernwünsche aus der Review:**
+- **Datenstand-Fußzeile** (IBCS-Titel → Fußzeile): freier Text unten
+  links, z. B. „Ist per Jun 2026 · Stand 05.07. · Quelle: SAP FI" —
+  das Chart reserviert den Platz automatisch.
+- **Invertieren je Kategorie** (Analyse → Invertieren je Kategorie):
+  kommagetrennte Liste von Kategorien mit umgekehrter Wertung — die
+  Kosten-Zeile neben der Umsatz-Zeile wird endlich richtig gefärbt
+  (KPI-Karten, GuV-Tabelle, alle Chart-Modi; wirkt auf Farben,
+  Streifen, Schraffur-Auswahl und Wesentlichkeit gleichermaßen).
+  Intern: zentrales isGood(v, punkt) statt verstreuter invert-Ternaries.
+- **FC-Revision als Abweichungsbasis**: neues Feld „FC Vormonat
+  (Revision)" + Basis-Option „FC Vormonat" — Panels zeigen ΔFC Vm
+  (absolut + %): was hat sich seit dem letzten Forecast-Zyklus
+  verschoben? Ist-Monate laufen auf 0 zu, FC-Monate zeigen die echte
+  Revision. Titel/Σ-Header/Tooltips ziehen mit; in der KPI-Karten-
+  Brücke erscheint der FC-Vm-Anker schraffiert. YTD und Aggregate
+  (Σ/Rest/Tabelle) rechnen auf der neuen Basis korrekt.
+
+
 ## 1.12.6.0 (2026-07-10)
 
 **Feinschliff-Paket (Review-Kleinfunde + UX-Schnellgewinne):**

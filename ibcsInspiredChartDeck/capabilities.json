@@ -48,6 +48,14 @@
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
+            "displayName": "FC Vormonat (Revision)",
+            "displayNameKey": "Role_PrevForecast",
+            "name": "prevForecast",
+            "kind": "Measure",
+            "description": "Forecast des vorherigen Zyklus — als Abweichungsbasis wählbar (FC-Revision: was hat sich seit dem letzten Forecast verschoben?)",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
             "displayName": "Line (Kombi)",
             "displayNameKey": "Role_LineMeasure",
             "name": "lineMeasure",
@@ -98,7 +106,8 @@
                 "kpi": { "type": { "text": true } },
                 "period": { "type": { "text": true } },
                 "message": { "type": { "text": true } },
-                "autoMessage": { "type": { "bool": true } }
+                "autoMessage": { "type": { "bool": true } },
+                "footer": { "type": { "text": true } }
             }
         },
         "chart": {
@@ -125,7 +134,8 @@
                         "enumeration": [
                             { "value": "auto", "displayName": "Auto" },
                             { "value": "py", "displayName": "Previous Year (PY)" },
-                            { "value": "plan", "displayName": "Plan (PL)" }
+                            { "value": "plan", "displayName": "Plan (PL)" },
+                            { "value": "fcrev", "displayName": "FC Vormonat (Revision)" }
                         ]
                     }
                 },
@@ -149,7 +159,8 @@
                 "sortByImpact": { "type": { "bool": true } },
                 "chartButtons": { "type": { "bool": true } },
                 "compareClick": { "type": { "bool": true } },
-                "invert": { "type": { "bool": true } }
+                "invert": { "type": { "bool": true } },
+                "invertList": { "type": { "text": true } }
             }
         },
         "colors": {
@@ -225,6 +236,7 @@
                     "previousYear": { "max": 1 },
                     "plan": { "max": 1 },
                     "forecast": { "max": 1 },
+                    "prevForecast": { "max": 1 },
                     "benchmark": { "max": 1 },
                     "comments": { "max": 1 }
                 }
@@ -246,6 +258,7 @@
                         { "bind": { "to": "previousYear" } },
                         { "bind": { "to": "plan" } },
                         { "bind": { "to": "forecast" } },
+                        { "bind": { "to": "prevForecast" } },
                         { "bind": { "to": "benchmark" } },
                         { "bind": { "to": "lineMeasure" } },
                         { "bind": { "to": "comments" } }

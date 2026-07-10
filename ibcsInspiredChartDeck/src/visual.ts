@@ -36,7 +36,7 @@ const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const INK = "#404040";
 
 type Orientation = "columns" | "bars";
-type Basis = "py" | "plan";
+type Basis = "py" | "plan" | "fcrev";
 
 interface DataPoint {
     cat: string;
@@ -57,6 +57,8 @@ interface DataPoint {
     var2Rel: number | null;
     /** benchmark marker value (e.g. market average) */
     bm: number | null;
+    /** forecast of the previous cycle (revision basis, role prevForecast) */
+    fcPrev: number | null;
     /** combo: second measure rendered as a line over the columns (own scale) */
     lineVal: number | null;
     /** stacked mode: series label when the Stack-Series role is bound (else null) */
@@ -106,6 +108,8 @@ interface ChartConfig {
     labelFont: number;
     catFont: number;
     invert: boolean;
+    /** per-point polarity: global invert XOR per-category invert list */
+    isGood: (v: number, pp?: DataPoint | null) => boolean;
     colors: { ac: string; py: string; pl: string; good: string; bad: string };
     basisMode: Basis;
     basisLabel: string;
@@ -247,6 +251,9 @@ export class Visual implements IVisual {
     private paneHasMultiples = false;
     /** basis parseData actually used — single source of truth for ΔBasis labels */
     private basisMode: Basis = "py";
+    /** secondary basis (the dual-variance counterpart of basisMode) */
+    private basis2Mode: "py" | "plan" = "plan";
+    private paneHasFcPrev = false;
     /** user-entered comments persisted in the report (commentsPanel.userComments JSON) */
     private userComments = new Map<string, string>();
     private commentEdit = false;
@@ -337,7 +344,7 @@ export class Visual implements IVisual {
             || orient === "table" || orient === "dumbbell" || orient === "cards";
         fs.chartCard.movingAverage.visible = orient === "columns" || orient === "line";
         fs.chartCard.dualVariance.visible = bothBases;
-        fs.chartCard.comparisonMode.visible = bothBases;
+        fs.chartCard.comparisonMode.visible = bothBases || this.paneHasFcPrev;
         fs.chartCard.pyTriangle.visible = bothBases
             && (orient === "columns" || orient === "bars" || orient === "table");
         fs.chartCard.waterfallStyle.visible = orient === "columns" || orient === "bars";
@@ -393,7 +400,7 @@ export class Visual implements IVisual {
         this.measureFormat = undefined;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
-            for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark", "lineMeasure"]) {
+            for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark", "lineMeasure", "prevForecast"]) {
                 if (roles[role]) {
                     byRole[role] = col.values.map(v => (typeof v === "number" && isFinite(v)) ? v : null);
                     if (role === "actual" || (role === "forecast" && !this.measureFormat)) {
@@ -415,6 +422,7 @@ export class Visual implements IVisual {
         }
         this.paneHasPy = !!byRole["previousYear"];
         this.paneHasPl = !!byRole["plan"];
+        this.paneHasFcPrev = !!byRole["prevForecast"];
         this.paneHasComments = comments != null;
         if (!byRole["actual"] && !byRole["forecast"]) {
             // some fields are bound but the value measure is missing — say so
@@ -426,6 +434,8 @@ export class Visual implements IVisual {
 
         const basisMode = this.resolveBasis(byRole);
         this.basisMode = basisMode;
+        this.basis2Mode = basisMode === "plan" ? "py"
+            : basisMode === "fcrev" ? (byRole["plan"] ? "plan" : "py") : "plan";
         const points: DataPoint[] = [];
         let commentCounter = 0;
         for (let i = 0; i < cat.values.length; i++) {
@@ -444,11 +454,12 @@ export class Visual implements IVisual {
             }
             const isFc = ac == null && fc != null;
             const value = ac != null ? ac : fc;
-            const basis = basisMode === "plan" ? pl : py;
+            const fcPrev = byRole["prevForecast"] ? byRole["prevForecast"][i] : null;
+            const basis = basisMode === "plan" ? pl : basisMode === "fcrev" ? fcPrev : py;
             const varAbs = (value != null && basis != null) ? value - basis : null;
             const varRel = (varAbs != null && basis != null && basis !== 0)
                 ? (varAbs / Math.abs(basis)) * 100 : null;
-            const basis2 = basisMode === "plan" ? py : pl;
+            const basis2 = this.basis2Mode === "plan" ? pl : py;
             const var2Abs = (value != null && basis2 != null) ? value - basis2 : null;
             const var2Rel = (var2Abs != null && basis2 != null && basis2 !== 0)
                 ? (var2Abs / Math.abs(basis2)) * 100 : null;
@@ -462,6 +473,7 @@ export class Visual implements IVisual {
                 catLevels: levelLabels.length > 1 ? levelLabels : null,
                 ac, py, pl, fc, value, isFc, basis, varAbs, varRel, var2Abs, var2Rel,
                 bm: byRole["benchmark"] ? byRole["benchmark"][i] : null,
+                fcPrev,
                 lineVal: byRole["lineMeasure"] ? byRole["lineMeasure"][i] : null,
                 stackSeries: seriesCol && seriesCol.values[i] != null
                     ? this.categoryLabel(seriesCol.values[i]) : null,
@@ -504,7 +516,10 @@ export class Visual implements IVisual {
         const mode = String(this.formattingSettings.chartCard.comparisonMode.value.value);
         if (mode === "py") { return "py"; }
         if (mode === "plan") { return "plan"; }
-        // auto: prefer plan if the role is filled, otherwise previous year
+        if (mode === "fcrev" && byRole["prevForecast"] && byRole["prevForecast"].some(v => v != null)) {
+            return "fcrev";
+        }
+        // auto (or fcrev without the role): prefer plan, otherwise previous year
         return byRole["plan"] && byRole["plan"].some(v => v != null) ? "plan" : "py";
     }
 
@@ -570,7 +585,7 @@ export class Visual implements IVisual {
                 varAbs, varRel: (varAbs / Math.abs(pl[i] as number)) * 100,
                 var2Abs: (value as number) - (py[i] as number),
                 var2Rel: (((value as number) - (py[i] as number)) / Math.abs(py[i] as number)) * 100,
-                bm: null,
+                bm: null, fcPrev: null,
                 comment: null, commentNo: null, group: null, rowType: null, isRest: false, sel: null, catLevels: null, lineVal: null, stackSeries: null
             };
         });
@@ -725,6 +740,13 @@ export class Visual implements IVisual {
             labelFont: Math.round(s.labelsCard.fontSize.value * this.fontK),
             catFont: Math.round(s.categoryAxisCard.fontSize.value * this.fontK),
             invert: s.chartCard.invert.value,
+            isGood: (() => {
+                const inv = s.chartCard.invert.value;
+                const invSet = new Set(String(s.chartCard.invertList.value || "")
+                    .split(",").map(x => x.trim().toLowerCase()).filter(x => x));
+                return (v: number, pp?: DataPoint | null) =>
+                    (inv !== (pp != null && invSet.has(pp.cat.toLowerCase()))) ? v < 0 : v > 0;
+            })(),
             colors: hc ? { ac: fg, py: fg, pl: fg, good: fg, bad: fg } : {
                 ac: themed(palette?.foregroundNeutralDark, s.colorsCard.actualColor.value.value),
                 py: themed(palette?.foregroundNeutralTertiary, s.colorsCard.previousYearColor.value.value),
@@ -754,11 +776,11 @@ export class Visual implements IVisual {
             waterfallStyle: wfStyleGlobal,
             sortByImpact: sortByImpactOn,
             basisMode,
-            basisLabel: basisMode === "plan" ? "PL" : "PY",
+            basisLabel: basisMode === "plan" ? "PL" : basisMode === "fcrev" ? "FC Vm" : "PY",
             showAbs: s.chartCard.showAbsoluteVariance.value && hasVar,
             showRel: s.chartCard.showRelativeVariance.value && points.some(p => p.varRel != null),
             showDual: s.chartCard.dualVariance.value && points.some(p => p.var2Abs != null),
-            basis2Label: basisMode === "plan" ? "PY" : "PL",
+            basis2Label: this.basis2Mode === "plan" ? "PL" : "PY",
             showTotal: s.chartCard.showTotal.value,
             patId: `icd-hatch-${this.instanceId}`,
             patGood: `icd-hatch-good-${this.instanceId}`,
@@ -942,7 +964,16 @@ export class Visual implements IVisual {
         const topOffset = s.ibcsTitleCard.show.value
             ? this.drawTitleBlock(width, points, cfg, maxAbs, orientation)
             : 0;
-        const availH = height - topOffset;
+        const footerText = (s.ibcsTitleCard.footer.value || "").trim();
+        const footerH = footerText ? Math.round(11 * this.fontK) + 6 : 0;
+        const availH = height - topOffset - footerH;
+        if (footerText) {
+            const ff = Math.round(9.5 * this.fontK);
+            const ft = this.el("text", {
+                x: 6, y: height - 5, "font-size": ff, fill: cfg.subtle, "font-family": FONT
+            }, this.svg);
+            ft.textContent = this.truncate(footerText, width - 12, ff);
+        }
 
         // comment panel: numbered footnote list to the right of the chart
         const commentPts = points.filter(p => p.commentNo != null);
@@ -1096,7 +1127,7 @@ export class Visual implements IVisual {
      */
     private buildWaterfall(pts: DataPoint[], cfg: ChartConfig): WfSeg[] {
         const segs: WfSeg[] = [];
-        const good = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const good = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
         if (pts.some(p => p.rowType != null)) {
             let cum = 0;
             for (const p of pts) {
@@ -1105,7 +1136,7 @@ export class Visual implements IVisual {
                     segs.push({ label: p.cat, from: 0, to: p.value, kind: "anchor", hatched: p.isFc, p });
                     cum = p.value;
                 } else {
-                    segs.push({ label: p.cat, from: cum, to: cum + p.value, kind: "delta", good: good(p.value), hatched: p.isFc, p });
+                    segs.push({ label: p.cat, from: cum, to: cum + p.value, kind: "delta", good: good(p.value, p), hatched: p.isFc, p });
                     cum += p.value;
                 }
             }
@@ -1116,7 +1147,7 @@ export class Visual implements IVisual {
             let cum = basisSum;
             for (const p of pts) {
                 if (p.varAbs == null) { continue; }
-                segs.push({ label: p.cat, from: cum, to: cum + p.varAbs, kind: "delta", good: good(p.varAbs), hatched: p.isFc, p });
+                segs.push({ label: p.cat, from: cum, to: cum + p.varAbs, kind: "delta", good: good(p.varAbs, p), hatched: p.isFc, p });
                 cum += p.varAbs;
             }
             segs.push({ label: cfg.hasFc ? "AC/FC" : "AC", from: 0, to: valueSum, kind: "anchor", hatched: cfg.hasFc });
@@ -1124,7 +1155,7 @@ export class Visual implements IVisual {
             let cum = 0;
             for (const p of pts) {
                 if (p.value == null) { continue; }
-                segs.push({ label: p.cat, from: cum, to: cum + p.value, kind: "delta", good: good(p.value), hatched: p.isFc, p });
+                segs.push({ label: p.cat, from: cum, to: cum + p.value, kind: "delta", good: good(p.value, p), hatched: p.isFc, p });
                 cum += p.value;
             }
             segs.push({ label: "Σ", from: 0, to: cum, kind: "anchor" });
@@ -1150,7 +1181,7 @@ export class Visual implements IVisual {
         // variance tiers above the waterfall (IBCS CT 12): ΔBasis bars and ΔBasis %
         // pins per calculation line. In the variance-bridge mode the waterfall bars
         // ARE the absolute deltas, so only the relative tier is added there.
-        const good = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const good = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
         const isVarBridge = segs.some(sg => sg.outlined);
         const tierPts = segs.map(sg => (sg.p && sg.p.varAbs != null) ? sg.p : null);
         const compactH = outer.h < 170 * k;
@@ -1199,7 +1230,7 @@ export class Visual implements IVisual {
                 if (v == null) { continue; }
                 const c = pos(i) + slotW / 2;
                 const col = (v === 0 || !cfg.isMaterial(tierPts[i]))
-                    ? cfg.colors.py : (good(v) ? cfg.colors.good : cfg.colors.bad);
+                    ? cfg.colors.py : (good(v, tierPts[i]) ? cfg.colors.good : cfg.colors.bad);
                 const y = relScale(v);
                 this.el("line", { x1: c, y1: zero, x2: c, y2: y, stroke: col, "stroke-width": Math.max(1.6, 1.4 * k) }, tg);
                 this.el("circle", { cx: c, cy: y, r: Math.max(2.6, 2.2 * k), fill: col }, tg);
@@ -1226,9 +1257,9 @@ export class Visual implements IVisual {
                 const v = p?.varAbs;
                 if (p == null || v == null) { continue; }
                 const mat = cfg.isMaterial(p);
-                const col = (v === 0 || !mat) ? cfg.colors.py : (good(v) ? cfg.colors.good : cfg.colors.bad);
+                const col = (v === 0 || !mat) ? cfg.colors.py : (good(v, p) ? cfg.colors.good : cfg.colors.bad);
                 const style = p.isFc && mat
-                    ? { fill: `url(#${good(v) ? cfg.patGood : cfg.patBad})`, stroke: col, "stroke-width": 1 }
+                    ? { fill: `url(#${good(v, p) ? cfg.patGood : cfg.patBad})`, stroke: col, "stroke-width": 1 }
                     : { fill: col };
                 this.drawBar(tg, pos(i), slotW, 0, v, absScale, "columns", style);
                 if (showTierLabels) {
@@ -1338,9 +1369,9 @@ export class Visual implements IVisual {
         const dTot = vTot - basisSum;
         const pctTot = basisSum !== 0 ? (dTot / Math.abs(basisSum)) * 100 : 0;
         const firstFc = pts.findIndex(p => p.isFc);
-        const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const goodOf = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
         const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
-            ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+            ? cfg.colors.py : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
 
         // ------- layout
         const catArea = cf * 2 + 10;
@@ -1474,13 +1505,13 @@ export class Visual implements IVisual {
                 const segTop = S(Math.max(prev, level));
                 const segH = Math.max(4, Math.abs(S(prev) - S(level)));
                 const c = colOf(d, p);
-                const hollowBad = cfg.hc && !goodOf(d) && d !== 0;
+                const hollowBad = cfg.hc && !goodOf(d, p) && d !== 0;
                 this.el("rect", {
                     x: x - segW / 2, y: segTop, width: segW, height: segH,
                     ...(hollowBad
                         ? { fill: cfg.paper, stroke: c, "stroke-width": 1.4 }
                         : p.isFc
-                            ? { fill: `url(#${goodOf(d) ? cfg.patGood : cfg.patBad})`, stroke: c, "stroke-width": 1 }
+                            ? { fill: `url(#${goodOf(d, p) ? cfg.patGood : cfg.patBad})`, stroke: c, "stroke-width": 1 }
                             : { fill: c })
                 }, g);
                 if (cfg.showLabels && showValAt(i)) {
@@ -1649,9 +1680,9 @@ export class Visual implements IVisual {
         const otherTot = refIsPl ? PYt : PLt;
         const otherLabel = refIsPl ? "PY" : "PL";
         const dTot = ACt - REF;
-        const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const goodOf = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
         const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
-            ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+            ? cfg.colors.py : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
         const fmtD = (v: number) => this.fmtSigned(cfg.fmtVar, v);
 
         // ------- layout
@@ -1827,13 +1858,13 @@ export class Visual implements IVisual {
                 const a = cum, b = cum + d;
                 const xA = X(Math.min(a, b)), xB = X(Math.max(a, b));
                 const c = colOf(d, p);
-                const hollowBad = cfg.hc && !goodOf(d) && d !== 0;
+                const hollowBad = cfg.hc && !goodOf(d, p) && d !== 0;
                 this.el("rect", {
                     x: xA, y: yy + rowH * 0.26, width: Math.max(xB - xA, 2), height: brickH,
                     ...(hollowBad
                         ? { fill: cfg.paper, stroke: c, "stroke-width": 1.4 }
                         : p.isFc
-                            ? { fill: `url(#${goodOf(d) ? cfg.patGood : cfg.patBad})`, stroke: c, "stroke-width": 1 }
+                            ? { fill: `url(#${goodOf(d, p) ? cfg.patGood : cfg.patBad})`, stroke: c, "stroke-width": 1 }
                             : { fill: c })
                 }, g);
                 if (cfg.showLabels) {
@@ -2039,11 +2070,11 @@ export class Visual implements IVisual {
 
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
-        const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const goodOf = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
         const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
-            ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+            ? cfg.colors.py : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
         const colOf2 = (v: number, pp: DataPoint) => (v === 0 || !cfg.isMaterial(pp, pp.var2Abs, pp.var2Rel))
-            ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+            ? cfg.colors.py : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
         const txt = (xx: number, yy: number, text: string, anchor: string, font: number,
             bold: boolean, color: string, parent: SVGElement) => {
             const t = this.el("text", {
@@ -2183,14 +2214,14 @@ export class Visual implements IVisual {
                 const len = Math.abs(p.varAbs) / dDomain * (colX["dbar"].w / 2 - 4);
                 const h = Math.max(3, rowH * 0.42);
                 const c = colOf(p.varAbs, p);
-                const hollowBad = cfg.hc && !goodOf(p.varAbs) && p.varAbs !== 0;
+                const hollowBad = cfg.hc && !goodOf(p.varAbs, p) && p.varAbs !== 0;
                 this.el("rect", {
                     x: p.varAbs >= 0 ? dAxis + 1 : dAxis - 1 - len, y: yMid - h / 2,
                     width: Math.max(len, 1), height: h,
                     ...(hollowBad
                         ? { fill: cfg.paper, stroke: c, "stroke-width": 1.2 }
                         : p.isFc && cfg.isMaterial(p)
-                            ? { fill: `url(#${goodOf(p.varAbs) ? cfg.patGood : cfg.patBad})`, stroke: c, "stroke-width": 1 }
+                            ? { fill: `url(#${goodOf(p.varAbs, p) ? cfg.patGood : cfg.patBad})`, stroke: c, "stroke-width": 1 }
                             : { fill: c })
                 }, g);
             }
@@ -2290,14 +2321,14 @@ export class Visual implements IVisual {
             ? (varAbs / Math.abs(basis)) * 100 : null;
         // secondary basis summed directly from the scenario fields — reconstructing it
         // from var2Abs dropped points whose AC/FC is missing
-        const basis2 = this.basisMode === "plan" ? py : pl;
+        const basis2 = this.basis2Mode === "plan" ? pl : py;
         const var2Abs = (value != null && basis2 != null) ? value - basis2 : null;
         const var2Rel = (var2Abs != null && basis2 != null && basis2 !== 0)
             ? (var2Abs / Math.abs(basis2)) * 100 : null;
         return {
             cat: key, catLevels: null,
             ac, py, pl, fc, value, isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
-            bm: null, lineVal: null, stackSeries: null, comment: null, commentNo: null,
+            bm: null, fcPrev: sum(p => p.fcPrev), lineVal: null, stackSeries: null, comment: null, commentNo: null,
             group: kids[0].group, rowType: null, isRest: false, sel: null
         };
     }
@@ -2352,7 +2383,7 @@ export class Visual implements IVisual {
         const rows = Math.ceil(n / cols);
         const cw = (region.w - gap) / cols;
         const ch = (region.h - gap) / rows;
-        const good = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const good = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
 
         pts.forEach((p, i) => {
             const x = region.x + gap / 2 + (i % cols) * cw + 2;
@@ -2370,7 +2401,7 @@ export class Visual implements IVisual {
             // glance — grey without basis, when Δ = 0 or below the materiality thresholds
             const stripeCol = (p.varAbs == null || p.varAbs === 0 || !cfg.isMaterial(p))
                 ? (cfg.hc ? cfg.ink : cfg.colors.py)
-                : (good(p.varAbs) ? cfg.colors.good : cfg.colors.bad);
+                : (good(p.varAbs, p) ? cfg.colors.good : cfg.colors.bad);
             this.el("rect", {
                 x: x + 1.2, y: y + 1.2, width: Math.round(4 * k), height: h - 2.4,
                 rx: Math.round(3 * k), fill: stripeCol
@@ -2415,7 +2446,7 @@ export class Visual implements IVisual {
                 vAbs: number | null, vRel: number | null) => {
                 if (vAbs == null) { return; }
                 const col = (vAbs === 0 || !cfg.isMaterial(p, vAbs, vRel))
-                    ? cfg.subtle : (good(vAbs) ? cfg.colors.good : cfg.colors.bad);
+                    ? cfg.subtle : (good(vAbs, p) ? cfg.colors.good : cfg.colors.bad);
                 txt(tx, ty, `Δ${label}`, refF, false, cfg.subtle);
                 txt(tx + refF * 2.6, ty, refText(vAbs, vRel), refF, true, col);
             };
@@ -2436,6 +2467,8 @@ export class Visual implements IVisual {
                 }
                 const basisStyle = cfg.basisMode === "plan"
                     ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.3 }
+                    : cfg.basisMode === "fcrev"
+                    ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                     : cfg.hc
                         ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
                         : { fill: cfg.colors.py };
@@ -2444,11 +2477,11 @@ export class Visual implements IVisual {
                     const lo = Math.min(p.basis, p.value as number), hi = Math.max(p.basis, p.value as number);
                     const dTop = byBottom - hOf(hi), dH = Math.max(1.5, (hi - lo) / maxV * bridgeH);
                     const dCol = !cfg.isMaterial(p) ? cfg.colors.py
-                        : (good(p.varAbs) ? cfg.colors.good : cfg.colors.bad);
+                        : (good(p.varAbs, p) ? cfg.colors.good : cfg.colors.bad);
                     this.el("rect", {
                         x: cxs[1] - colW / 2, y: dTop, width: colW, height: dH,
                         ...(p.isFc && cfg.isMaterial(p)
-                            ? { fill: `url(#${good(p.varAbs) ? cfg.patGood : cfg.patBad})`, stroke: dCol, "stroke-width": 1 }
+                            ? { fill: `url(#${good(p.varAbs, p) ? cfg.patGood : cfg.patBad})`, stroke: dCol, "stroke-width": 1 }
                             : { fill: dCol })
                     }, g);
                     this.el("line", {
@@ -2685,9 +2718,9 @@ export class Visual implements IVisual {
             bandStart - 6, cfg.subtle);
 
         const marks = this.el("g", {}, this.svg);
-        const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const goodOf = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
         const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
-            ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+            ? cfg.colors.py : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
         const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cf, step, "bars");
         const showValAt = this.labelPredicate(points,
             points.map(p => p.value != null ? cfg.fmt.format(p.value) : ""), lf, step, "bars");
@@ -2794,9 +2827,9 @@ export class Visual implements IVisual {
         const leftY = place(pts.map(p => Y(p.basis as number)));
         const rightY = place(pts.map(p => Y(p.value as number)));
 
-        const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
+        const goodOf = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
         const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
-            ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+            ? cfg.colors.py : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
         const marks = this.el("g", {}, this.svg);
         pts.forEach((p, i) => {
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
@@ -3299,7 +3332,7 @@ export class Visual implements IVisual {
                         orientation, valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
                     // compact mode: variance becomes a colored second label at the bar end
                     if (compact && p.varAbs != null) {
-                        const good = cfg.invert ? p.varAbs < 0 : p.varAbs > 0;
+                        const good = cfg.isGood(p.varAbs, p);
                         const vColor = (p.varAbs === 0 || !cfg.isMaterial(p))
                             ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                         const vText = p.varRel != null ? relTexts[i] : absTexts[i];
@@ -3320,7 +3353,7 @@ export class Visual implements IVisual {
                 if (bFrom != null && bTo != null) {
                     const bPos = bridgeSlotPos(i + 1);
                     const bCx = bPos + bridgeSlotW / 2;
-                    const good = cfg.invert ? (bTo < bFrom) : (bTo > bFrom);
+                    const good = cfg.isGood(bTo - bFrom, p);
                     const brickColor = bTo === bFrom ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                     const hollowBad = cfg.hc && !good && bTo !== bFrom;
                     this.drawBar(g, bPos, bridgeSlotW, bFrom, bTo, bridgeScale, orientation,
@@ -3338,7 +3371,7 @@ export class Visual implements IVisual {
 
             // absolute variance bars
             if (panels.abs && absScale && p.varAbs != null) {
-                const good = cfg.invert ? p.varAbs < 0 : p.varAbs > 0;
+                const good = cfg.isGood(p.varAbs, p);
                 const mat = cfg.isMaterial(p);
                 const color = (p.varAbs === 0 || !mat) ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const vw = barW; // IBCS: same width as the base bars
@@ -3358,7 +3391,7 @@ export class Visual implements IVisual {
 
             // relative variance pins
             if (panels.rel && relScale && p.varRel != null) {
-                const good = cfg.invert ? p.varRel < 0 : p.varRel > 0;
+                const good = cfg.isGood(p.varRel, p);
                 const color = (p.varRel === 0 || !cfg.isMaterial(p))
                     ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const c = cx;
@@ -3385,7 +3418,7 @@ export class Visual implements IVisual {
 
             // second-basis variance: bars + pins (dual variance)
             if (panels.abs2 && abs2Scale && p.var2Abs != null) {
-                const good = cfg.invert ? p.var2Abs < 0 : p.var2Abs > 0;
+                const good = cfg.isGood(p.var2Abs, p);
                 const mat = cfg.isMaterial(p, p.var2Abs, p.var2Rel);
                 const color = (p.var2Abs === 0 || !mat) ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const vw = barW; // IBCS: same width as the base bars
@@ -3403,7 +3436,7 @@ export class Visual implements IVisual {
                 }
             }
             if (panels.rel2 && rel2Scale && p.var2Rel != null) {
-                const good = cfg.invert ? p.var2Rel < 0 : p.var2Rel > 0;
+                const good = cfg.isGood(p.var2Rel, p);
                 const color = (p.var2Rel === 0 || !cfg.isMaterial(p, p.var2Abs, p.var2Rel))
                     ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const zero = rel2Scale(0);
@@ -3592,7 +3625,7 @@ export class Visual implements IVisual {
         const w = Math.max(44, text.length * 6.5 + 16), h = 20;
         const cx = rect.x + rect.w - w / 2 - 4;
         const cy = orientation === "columns" ? rect.y + rect.h - h / 2 - 2 : rect.y + rect.h / 2;
-        const good = cfg.invert ? totalVar < 0 : totalVar > 0;
+        const good = cfg.isGood(totalVar);
         const color = totalVar === 0 ? cfg.subtle : (good ? cfg.colors.good : cfg.colors.bad);
         const g = this.el("g", {}, this.svg);
         this.el("rect", {
@@ -3756,11 +3789,11 @@ export class Visual implements IVisual {
         }
         const valueScen = ["AC", cfg.hasFc ? "FC" : ""].filter(x => x).join(", ");
         const refScen = [
-            cfg.basisMode === "plan" ? "PL" : "PY",
-            cfg.basisMode === "plan" && cfg.hasPy ? "PY" : "",
-            cfg.basisMode === "py" && cfg.hasPl ? "PL" : ""
+            cfg.basisMode === "plan" ? "PL" : cfg.basisMode === "fcrev" ? "FC Vm" : "PY",
+            cfg.basisMode !== "py" && cfg.hasPy ? "PY" : "",
+            cfg.basisMode !== "plan" && cfg.hasPl ? "PL" : ""
         ].filter(x => x).join(", ");
-        const hasRef = cfg.hasPy || cfg.hasPl;
+        const hasRef = cfg.hasPy || cfg.hasPl || cfg.basisMode === "fcrev";
 
         const k = this.fontK;
         const f1 = Math.round(12 * k), f2 = Math.round(11 * k);
@@ -3862,20 +3895,22 @@ export class Visual implements IVisual {
     }
 
     private cumulate(pts: DataPoint[], basisMode: Basis): DataPoint[] {
-        let cv = 0, cpy = 0, cpl = 0, cbm = 0;
+        let cv = 0, cpy = 0, cpl = 0, cbm = 0, cfp = 0;
         return pts.map(p => {
             if (p.value != null) { cv += p.value; }
             if (p.py != null) { cpy += p.py; }
             if (p.pl != null) { cpl += p.pl; }
             if (p.bm != null) { cbm += p.bm; }
+            if (p.fcPrev != null) { cfp += p.fcPrev; }
             const value = p.value != null ? cv : null;
             const py = p.py != null ? cpy : null;
             const pl = p.pl != null ? cpl : null;
-            const basis = basisMode === "plan" ? pl : py;
+            const fcPrev = p.fcPrev != null ? cfp : null;
+            const basis = basisMode === "plan" ? pl : basisMode === "fcrev" ? fcPrev : py;
             const varAbs = (value != null && basis != null) ? value - basis : null;
             const varRel = (varAbs != null && basis != null && basis !== 0)
                 ? (varAbs / Math.abs(basis)) * 100 : null;
-            const basis2 = basisMode === "plan" ? py : pl;
+            const basis2 = this.basis2Mode === "plan" ? pl : py;
             const var2Abs = (value != null && basis2 != null) ? value - basis2 : null;
             const var2Rel = (var2Abs != null && basis2 != null && basis2 !== 0)
                 ? (var2Abs / Math.abs(basis2)) * 100 : null;
@@ -3883,7 +3918,7 @@ export class Visual implements IVisual {
                 ...p,
                 ac: p.isFc ? null : value,
                 fc: p.isFc ? value : null,
-                value, py, pl, basis, varAbs, varRel, var2Abs, var2Rel,
+                value, py, pl, fcPrev, basis, varAbs, varRel, var2Abs, var2Rel,
                 bm: p.bm != null ? cbm : null
             };
         });
@@ -3912,7 +3947,7 @@ export class Visual implements IVisual {
         const varAbs = (value != null && basis != null) ? value - basis : null;
         const varRel = (varAbs != null && basis != null && basis !== 0)
             ? (varAbs / Math.abs(basis)) * 100 : null;
-        const basis2Sum = this.basisMode === "plan" ? py : pl;
+        const basis2Sum = this.basis2Mode === "plan" ? pl : py;
         const var2Abs = (value != null && basis2Sum != null) ? value - basis2Sum : null;
         const var2Rel = (var2Abs != null && basis2Sum != null && basis2Sum !== 0)
             ? (var2Abs / Math.abs(basis2Sum)) * 100 : null;
@@ -3922,6 +3957,7 @@ export class Visual implements IVisual {
             ac, py, pl, fc, value,
             isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
             bm: sum(tail.map(p => p.bm)),
+            fcPrev: sum(tail.map(p => p.fcPrev)),
             lineVal: null, stackSeries: null,
             comment: null, commentNo: null,
             group: head.length > 0 ? head[0].group : null,
@@ -4049,7 +4085,7 @@ export class Visual implements IVisual {
         };
         span(`Σ ${cfg.fmt.format(sum)}`, cfg.ink, true);
         if (anyVar) {
-            const good = cfg.invert ? sumVar < 0 : sumVar > 0;
+            const good = cfg.isGood(sumVar);
             const color = sumVar === 0 ? cfg.subtle : (good ? cfg.colors.good : cfg.colors.bad);
             span(`   Δ${cfg.basisLabel} `, cfg.subtle, false);
             span(this.fmtSigned(cfg.fmtVar, sumVar), color, true);
@@ -4491,6 +4527,7 @@ export class Visual implements IVisual {
             add("Forecast (FC)", p.fc);
             add("Previous Year (PY)", p.py);
             add("Plan (PL)", p.pl);
+            add("FC Vormonat", p.fcPrev);
             if (cfg.bmInChart) { add("Benchmark (BM)", p.bm); }
             if (p.lineVal != null) {
                 out.push({ displayName: cfg.lineName, value: cfg.fmtLine.format(p.lineVal) });
