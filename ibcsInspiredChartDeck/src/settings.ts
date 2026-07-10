@@ -401,7 +401,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         name: "fontPreset",
         displayName: "Size preset",
         displayNameKey: "Labels_FontPreset",
-        description: "Skaliert alle Schriften im Visual auf einmal: Kompakt (×1, kleine Kacheln), Full HD (×1,5 — Standard für 1080p-Berichte) oder Präsentation (×2, 4K/Beamer). Die Textgrößen unten wirken zusätzlich als Feinjustierung.",
+        description: "Skaliert alle Schriften im Visual auf einmal: Kompakt ×1 (Standard) · Full HD ×1,5 (empfohlen für 1080p-Berichte) · Präsentation ×2.",
         items: fontPresetItems,
         value: fontPresetItems[0]
     });

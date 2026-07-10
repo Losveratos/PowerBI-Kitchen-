@@ -1,5 +1,23 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.12.6.0 (2026-07-10)
+
+**Feinschliff-Paket (Review-Kleinfunde + UX-Schnellgewinne):**
+- fcFlag-Spalte wertet "false"/"nein"/"no"/Leerstring nicht mehr als
+  Forecast (robustes Text-Parsing).
+- **Sichtbarer Modus-Chip**: Solange Kommentar- oder Vergleichs-Modus
+  aktiv ist, zeigt eine dunkle Pille oben rechts den Zustand
+  („✎ Kommentar-Modus" / „⇄ Vergleich (n/2)") — inkl. Erklär-Tooltip;
+  im Kommentar-Modus wird der Cursor zum Text-Cursor.
+- Kommentar-Editor schließt jetzt auch bei Klick ins Leere.
+- Hover-Tooltips (<title>) an allen In-Chart-Buttons (ΔPY/ΔPL, ⇅, ▶,
+  YTD, Kachel-Zoom).
+- Tooltip erklärt das Wesentlichkeits-Grau („unter Schwelle").
+- Formatbereich: Brücke-Gruppe nur noch in Brücken-fähigen Modi,
+  sortByImpact nur wenn wirksam, groupEvery-Gate; Karten-Titel
+  „Skala & Referenzlinie", präzisere Preset-Beschreibung.
+
+
 ## 1.12.5.0 (2026-07-10)
 
 **Bugfix-Release Teil 3 — die 13 nachverifizierten Review-Funde:**

@@ -272,6 +272,7 @@ export class Visual implements IVisual {
 
         // click on empty space clears selection (and a pending compare pick)
         this.svg.addEventListener("click", () => {
+            this.closeCommentEditor();
             this.selectionManager.clear();
             this.applySelectionOpacity([]);
             if (this.compareCats.length > 0) {
@@ -340,7 +341,12 @@ export class Visual implements IVisual {
         fs.chartCard.pyTriangle.visible = bothBases
             && (orient === "columns" || orient === "bars" || orient === "table");
         fs.chartCard.waterfallStyle.visible = orient === "columns" || orient === "bars";
-        fs.chartCard.sortByImpact.visible = orient === "columns" || orient === "bars" || orient === "catbridge";
+        fs.chartCard.sortByImpact.visible = orient === "catbridge"
+            || ((orient === "columns" || orient === "bars") && fs.chartCard.waterfallStyle.value);
+        fs.chartCard.groupEvery.visible = orient === "columns" || orient === "bars"
+            || orient === "line" || orient === "catbridge";
+        fs.chartCard.bridgeGroup.visible = orient === "columns" || orient === "bars"
+            || orient === "intwaterfall" || orient === "catbridge";
         fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge";
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
         fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
@@ -429,7 +435,10 @@ export class Visual implements IVisual {
             let fc = byRole["forecast"] ? byRole["forecast"][i] : null;
             // chart-builder compatible flag column: 1/true marks the AC value as forecast
             const flag = fcFlagCol ? fcFlagCol.values[i] : null;
-            if (flag != null && flag !== 0 && flag !== "0" && flag !== false && ac != null && fc == null) {
+            const flagStr = flag != null ? String(flag).trim().toLowerCase() : "";
+            const flagOn = flagStr !== "" && flagStr !== "0" && flagStr !== "false"
+                && flagStr !== "nein" && flagStr !== "no";
+            if (flagOn && ac != null && fc == null) {
                 fc = ac;
                 ac = null;
             }
@@ -908,6 +917,21 @@ export class Visual implements IVisual {
                 showPlay: true
             });
         }
+        // active-mode chip: comment capture and compare-on-click silently repurpose
+        // clicks — show a pill so nobody wonders why crossfiltering stopped working
+        if (this.commentEdit || this.compareActive) {
+            const toolbarReserve = ((isIntWf || isCatBridge) && s.chartCard.chartButtons.value)
+                ? Math.round(170 * this.fontK) : 0;
+            const sortReserve = wfStyleGlobal ? 26 : 0;
+            const ytdReserve = (s.chartCard.cumulativeButton.value && !isStacked
+                && (orientationRaw === "columns" || orientationRaw === "line"))
+                ? Math.round(44 * this.fontK) : 0;
+            const text = this.commentEdit
+                ? "✎ Kommentar-Modus"
+                : `⇄ Vergleich (${this.compareCats.length}/2)`;
+            this.drawModeChip(width - 6 - toolbarReserve - sortReserve - ytdReserve, text, cfg);
+        }
+
         // YTD chip (opt-in): the end user flips the cumulative view on the report
         // canvas; persisted like the other in-chart buttons
         if (s.chartCard.cumulativeButton.value && !isStacked
@@ -1002,6 +1026,8 @@ export class Visual implements IVisual {
         const gtFont = Math.round(11 * k);
         const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
         btn.setAttribute("aria-label", `${groupName} vergrößern`);
+        const zoomTip = this.el("title", {}, btn);
+        zoomTip.textContent = `${groupName} vergrößern (Klick auf die Titelzeile)`;
         (btn.style as CSSStyleDeclaration & { pointerEvents: string }).pointerEvents = "all";
         // hit area across the full strip (nearly invisible, but clickable everywhere)
         this.el("rect", {
@@ -3592,6 +3618,9 @@ export class Visual implements IVisual {
         }, this.svg) as SVGGElement;
         btn.setAttribute("aria-label", cfg.sortByImpact
             ? "Sortierung nach Wirkung aufheben" : "Nach Wirkung sortieren (größter Treiber zuerst)");
+        const sortTip = this.el("title", {}, btn);
+        sortTip.textContent = cfg.sortByImpact
+            ? "Sortierung nach Wirkung aufheben" : "Nach Wirkung sortieren (größter Treiber zuerst)";
         this.el("circle", {
             cx, cy, r: 9, fill: cfg.sortByImpact ? cfg.colors.ac : cfg.paper,
             stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
@@ -3638,6 +3667,8 @@ export class Visual implements IVisual {
             xRight -= bh + 6;
             const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
             btn.setAttribute("aria-label", label);
+            const tip = this.el("title", {}, btn);
+            tip.textContent = label;
             this.el("circle", {
                 cx, cy, r, fill: active ? cfg.colors.ac : cfg.paper,
                 stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
@@ -3669,6 +3700,8 @@ export class Visual implements IVisual {
             const seg = (x: number, text: string, active: boolean, label: string, onClick: () => void) => {
                 const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
                 btn.setAttribute("aria-label", label);
+                const tip = this.el("title", {}, btn);
+                tip.textContent = label;
                 this.el("rect", {
                     x, y: 6, width: segW, height: bh,
                     fill: active ? cfg.colors.ac : cfg.paper,
@@ -4395,7 +4428,7 @@ export class Visual implements IVisual {
     private attachInteraction(g: SVGGElement, p: DataPoint, cfg: ChartConfig): void {
         // dashboards disable interactions — keep tooltips, skip selection affordances
         const allow = this.host.hostCapabilities?.allowInteractions !== false;
-        g.style.cursor = allow ? "pointer" : "default";
+        g.style.cursor = !allow ? "default" : this.commentEdit ? "text" : "pointer";
 
         // keyboard navigation: tab through categories, Enter/Space selects
         g.setAttribute("tabindex", "0");
@@ -4473,6 +4506,9 @@ export class Visual implements IVisual {
                 out.push({ displayName: `Δ${cfg.basis2Label}`, value: this.fmtSigned(cfg.fmtVar, p.var2Abs) });
             }
             add(`Δ${cfg.basis2Label} %`, p.var2Rel, true, true);
+            if (!cfg.isMaterial(p)) {
+                out.push({ displayName: "Wesentlichkeit", value: "unter Schwelle — grau dargestellt" });
+            }
             if (p.comment != null && p.commentNo != null) {
                 out.push({ displayName: `${this.circledNo(p.commentNo)} Kommentar`, value: p.comment });
             }
@@ -4622,6 +4658,28 @@ export class Visual implements IVisual {
         ta.focus();
     }
 
+    /** small dark pill top-right announcing an active click mode (comment/compare) */
+    private drawModeChip(xRight: number, text: string, cfg: ChartConfig): void {
+        const k = this.fontK;
+        const bh = Math.round(18 * k), font = Math.round(10 * k);
+        const w = Math.round(text.length * font * 0.62) + Math.round(16 * k);
+        const g = this.el("g", {}, this.svg);
+        this.el("rect", {
+            x: xRight - w, y: 6, width: w, height: bh, rx: bh / 2,
+            fill: cfg.hc ? cfg.paper : cfg.colors.ac,
+            stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 1.2 : 0
+        }, g);
+        const t = this.el("text", {
+            x: xRight - w / 2, y: 6 + bh / 2 + font * 0.36, "text-anchor": "middle",
+            "font-size": font, fill: cfg.hc ? cfg.ink : cfg.paper, "font-family": FONT, "font-weight": 600
+        }, g);
+        t.textContent = text;
+        const tip = this.el("title", {}, g);
+        tip.textContent = text.startsWith("✎")
+            ? "Kommentar-Modus aktiv: Klick auf eine Kategorie öffnet den Editor (ausschalten unter Kommentare → Kommentare im Chart erfassen)"
+            : "Vergleichs-Modus aktiv: zwei Elemente anklicken zeigt die Differenz, Klick ins Leere setzt zurück";
+    }
+
     /** YTD chip top-right: persists chart.cumulative so end users can flip the view */
     private drawCumButton(xRight: number, cfg: ChartConfig): void {
         const k = this.fontK;
@@ -4631,6 +4689,9 @@ export class Visual implements IVisual {
         const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
         btn.setAttribute("aria-label", cfg.cumulative
             ? "Kumulierte Sicht (YTD) ausschalten" : "Kumulierte Sicht (YTD) einschalten");
+        const cumTip = this.el("title", {}, btn);
+        cumTip.textContent = cfg.cumulative
+            ? "Kumulierte Sicht (YTD) ausschalten" : "Kumulierte Sicht (YTD) einschalten";
         this.el("rect", {
             x, y: 6, width: segW, height: bh, rx: bh / 2,
             fill: cfg.cumulative ? cfg.colors.ac : cfg.paper,
