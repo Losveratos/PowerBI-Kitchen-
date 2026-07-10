@@ -1,5 +1,33 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.12.4.0 (2026-07-10)
+
+**Bugfix-Release Teil 2 — restliche bestätigte Review-Funde (7–13):**
+
+- **Wesentlichkeit greift jetzt überall**: Dumbbell-Verbinder,
+  Slope-Linien, die Monats-Pins und Kaskaden-Segmente der Integrierten
+  Brücke sowie Zeilen-Pins und Kaskaden-Bricks der Kategorie-Brücke
+  werden unterhalb der Schwellen grau. Gesamt-/Überleitungs-Pins
+  bleiben bewusst farbig (wie die Σ-Kopfzeile).
+- **Brücken-Kaskade zählt einseitige Punkte**: Kategorien mit AC aber
+  ohne Basis (Neugeschäft) bzw. Basis ohne AC (weggefallen) erzeugen
+  jetzt eine eigene Kaskadenstufe (Δ = Wert bzw. −Basis) — der
+  AC/FC-Endanker stimmt wieder mit der echten Summe überein, die
+  FC-Schraffur geht nicht mehr verloren.
+- **Integrierte Brücke bei negativen Werten**: statt kaputter
+  SVG-Rechtecke erscheint ein klarer Hinweis („unterstützt keine
+  negativen Werte — bitte Waterfall oder Columns + Brücke nutzen").
+- **BM-Tick durchstreicht keine Labels mehr**: Der Wertelabel-Anker
+  berücksichtigt jetzt auch den Benchmark-Marker.
+- **Referenzlinie hinter den Marks**: Die gestrichelte Ziellinie läuft
+  nicht mehr durch die Wertelabels.
+- **„ΔPL %"-Titel-Kollision behoben**: Kollidiert das erste Pin-Label
+  mit dem Panel-Titel (kleine Kacheln, positiver erster Wert), weicht
+  es automatisch unter den Pin-Kopf aus — in den Rel-Panels (auch
+  Doppel-Varianz) und den Wasserfall-Varianz-Stufen. Testfälle c45
+  (negative IntWf) ergänzt; c37/c1 dienen als Regressions-Referenz.
+
+
 ## 1.12.3.0 (2026-07-10)
 
 **Bugfix-Release — sechs bestätigte Funde aus der Multi-Agenten-Review,

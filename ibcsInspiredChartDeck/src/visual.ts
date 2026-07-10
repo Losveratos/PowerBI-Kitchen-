@@ -1147,7 +1147,10 @@ export class Visual implements IVisual {
                 this.el("line", { x1: c, y1: zero, x2: c, y2: y, stroke: col, "stroke-width": Math.max(1.6, 1.4 * k) }, tg);
                 this.el("circle", { cx: c, cy: y, r: Math.max(2.6, 2.2 * k), fill: col }, tg);
                 if (showTierLabels) {
-                    this.drawEndLabel(tg, c, v, relScale, "columns", this.fmtPercent(v),
+                    const headR = Math.max(2.6, 2.2 * k);
+                    const flip = v > 0 && this.collidesPanelTitle(c, this.fmtPercent(v), cfg.labelFont,
+                        relScale(v) - headR - cfg.labelFont, relRect.y, region.x, `Δ${cfg.basisLabel} %`);
+                    this.drawEndLabelAt(tg, c, v, v >= 0 && !flip, relScale, "columns", this.fmtPercent(v),
                         cfg.labelFont, cfg.ink, Math.round(2 * k), cfg.paper);
                 }
             }
@@ -1255,6 +1258,13 @@ export class Visual implements IVisual {
     private renderIntegratedWaterfall(pts: DataPoint[], region: Rect, cfg: ChartConfig): void {
         const n = pts.length;
         if (n === 0) { return; }
+        // the stacked totals and mini columns assume positive magnitudes — negative
+        // series would render negative rect heights; fail loudly instead of wrongly
+        if (pts.some(p => (p.value ?? 0) < 0 || (p.basis ?? 0) < 0)) {
+            this.drawModeHint(region, cfg,
+                "Integrierte Brücke unterstützt keine negativen Werte — bitte Waterfall oder Columns + Brücke nutzen");
+            return;
+        }
         if (!pts.some(p => p.varAbs != null)) {
             this.drawModeHint(region, cfg, "Integrierte Brücke benötigt PY oder PL als Vergleichsbasis");
             return;
@@ -1272,7 +1282,8 @@ export class Visual implements IVisual {
         const pctTot = basisSum !== 0 ? (dTot / Math.abs(basisSum)) * 100 : 0;
         const firstFc = pts.findIndex(p => p.isFc);
         const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
-        const colOf = (v: number) => v === 0 ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+        const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
+            ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
 
         // ------- layout
         const catArea = cf * 2 + 10;
@@ -1328,10 +1339,10 @@ export class Visual implements IVisual {
                 stroke: cfg.colors.py, "stroke-width": 2.4
             }, bg);
             // pin direction follows the sign, color follows the business impact (invert-aware)
-            const pin = (x: number, pct: number, hollow: boolean, parent: SVGElement) => {
+            const pin = (x: number, pct: number, hollow: boolean, parent: SVGElement, pp?: DataPoint) => {
                 const h = PS(pct);
                 const yEnd = pct >= 0 ? axisY - h : axisY + h;
-                this.el("line", { x1: x, y1: axisY, x2: x, y2: yEnd, stroke: colOf(pct), "stroke-width": 2.2 }, parent);
+                this.el("line", { x1: x, y1: axisY, x2: x, y2: yEnd, stroke: colOf(pct, pp), "stroke-width": 2.2 }, parent);
                 const r = Math.max(2.6, 3.4 * k);
                 this.el("rect", {
                     x: x - r, y: yEnd - r, width: 2 * r, height: 2 * r,
@@ -1348,7 +1359,7 @@ export class Visual implements IVisual {
             const showPinAt = this.labelPredicate(pts, pts.map(p => p.varRel != null ? this.fmtPercent(p.varRel) : ""), lf, step, "columns");
             pts.forEach((p, i) => {
                 if (p.varRel == null || !showPinAt(i)) { return; }
-                pin(cx(i), p.varRel, p.isFc, marks);
+                pin(cx(i), p.varRel, p.isFc, marks, p);
             });
             pin(cxTot, pctTot, true, bg);
         }
@@ -1405,7 +1416,7 @@ export class Visual implements IVisual {
                 level += d;
                 const segTop = S(Math.max(prev, level));
                 const segH = Math.max(4, Math.abs(S(prev) - S(level)));
-                const c = colOf(d);
+                const c = colOf(d, p);
                 const hollowBad = cfg.hc && !goodOf(d) && d !== 0;
                 this.el("rect", {
                     x: x - segW / 2, y: segTop, width: segW, height: segH,
@@ -1582,7 +1593,8 @@ export class Visual implements IVisual {
         const otherLabel = refIsPl ? "PY" : "PL";
         const dTot = ACt - REF;
         const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
-        const colOf = (v: number) => v === 0 ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+        const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
+            ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
         const fmtD = (v: number) => this.fmtSigned(cfg.fmtVar, v);
 
         // ------- layout
@@ -1694,10 +1706,10 @@ export class Visual implements IVisual {
         const maxPct = Math.max(...pts.map(p => Math.abs(p.varRel ?? 0)),
             REF !== 0 ? Math.abs(dTot / REF * 100) : 0, 1);
         const pinLen = (v: number) => Math.max(2, Math.abs(v) / maxPct * maxPinLen);
-        const drawPin = (yy: number, pct: number, bold: boolean, parent: SVGElement) => {
+        const drawPin = (yy: number, pct: number, bold: boolean, parent: SVGElement, pp?: DataPoint) => {
             const w = pinLen(pct);
             const yMid = yy + rowH / 2;
-            const c = colOf(pct);
+            const c = colOf(pct, pp);
             const r = Math.max(2.6, 3.4 * k);
             if (pct >= 0) {
                 this.el("rect", { x: axisX + 2, y: yMid - 1.5, width: w, height: 3, fill: c }, parent);
@@ -1757,7 +1769,7 @@ export class Visual implements IVisual {
                 const d = p.varAbs;
                 const a = cum, b = cum + d;
                 const xA = X(Math.min(a, b)), xB = X(Math.max(a, b));
-                const c = colOf(d);
+                const c = colOf(d, p);
                 const hollowBad = cfg.hc && !goodOf(d) && d !== 0;
                 this.el("rect", {
                     x: xA, y: yy + rowH * 0.26, width: Math.max(xB - xA, 2), height: brickH,
@@ -1799,7 +1811,7 @@ export class Visual implements IVisual {
             }
 
             if (showPins && p.varRel != null) {
-                drawPin(yy, p.varRel, false, g);
+                drawPin(yy, p.varRel, false, g, p);
             }
 
             this.attachInteraction(g, p, cfg);
@@ -2597,7 +2609,8 @@ export class Visual implements IVisual {
 
         const marks = this.el("g", {}, this.svg);
         const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
-        const colOf = (v: number) => v === 0 ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+        const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
+            ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
         const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cf, step, "bars");
         const showValAt = this.labelPredicate(points,
             points.map(p => p.value != null ? cfg.fmt.format(p.value) : ""), lf, step, "bars");
@@ -2610,7 +2623,7 @@ export class Visual implements IVisual {
             if (xV != null && xB != null) {
                 const d = (p.value as number) - (p.basis as number);
                 this.el("line", {
-                    x1: xB, y1: y, x2: xV, y2: y, stroke: colOf(d),
+                    x1: xB, y1: y, x2: xV, y2: y, stroke: colOf(d, p),
                     "stroke-width": Math.max(2.5, r * 0.7), "stroke-linecap": "round"
                 }, g);
             }
@@ -2702,13 +2715,14 @@ export class Visual implements IVisual {
         const rightY = place(pts.map(p => Y(p.value as number)));
 
         const goodOf = (v: number) => cfg.invert ? v < 0 : v > 0;
-        const colOf = (v: number) => v === 0 ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
+        const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
+            ? cfg.colors.py : (goodOf(v) ? cfg.colors.good : cfg.colors.bad);
         const marks = this.el("g", {}, this.svg);
         pts.forEach((p, i) => {
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
             const yB = Y(p.basis as number), yV = Y(p.value as number);
             const d = (p.value as number) - (p.basis as number);
-            const c = colOf(d);
+            const c = colOf(d, p);
             this.el("line", {
                 x1: x0, y1: yB, x2: x1, y2: yV, stroke: c, "stroke-width": 2,
                 ...(p.isFc ? { "stroke-dasharray": "5,4" } : {})
@@ -3197,9 +3211,10 @@ export class Visual implements IVisual {
                 }
                 if (cfg.showLabels && showValueAt(i)) {
                     // anchor the label beyond the PL outline when the plan column is taller
-                    const anchor = capV(!lineMode && p.pl != null
-                        ? (p.value >= 0 ? Math.max(p.value, p.pl) : Math.min(p.value, p.pl))
-                        : p.value);
+                    const cand = [p.value];
+                    if (!lineMode && p.pl != null) { cand.push(p.pl); }
+                    if (!lineMode && p.bm != null) { cand.push(p.bm); }
+                    const anchor = capV(p.value >= 0 ? Math.max(...cand) : Math.min(...cand));
                     this.drawEndLabelAt(g, cx, anchor, p.value >= 0, mainScale,
                         orientation, valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
                     // compact mode: variance becomes a colored second label at the bar end
@@ -3279,7 +3294,11 @@ export class Visual implements IVisual {
                     this.el("circle", { cx: end, cy: c, r, fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }, g);
                 }
                 if (cfg.showLabels && showRelAt(i)) {
-                    this.drawEndLabel(g, c, p.varRel, relScale, orientation,
+                    const flip = orientation === "columns" && p.varRel > 0 && panels.rel != null
+                        && this.collidesPanelTitle(c, relTexts[i], cfg.labelFont,
+                            relScale(p.varRel) - (r + 3) - cfg.labelFont,
+                            panels.rel.y, region.x, `Δ${cfg.basisLabel} %`);
+                    this.drawEndLabelAt(g, c, p.varRel, p.varRel >= 0 && !flip, relScale, orientation,
                         relTexts[i], cfg.labelFont, cfg.ink, r + 3, cfg.paper);
                 }
             }
@@ -3319,7 +3338,11 @@ export class Visual implements IVisual {
                     this.el("circle", { cx: end, cy: cx, r, fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }, g);
                 }
                 if (cfg.showLabels && showRel2At(i)) {
-                    this.drawEndLabel(g, cx, p.var2Rel, rel2Scale, orientation,
+                    const flip = orientation === "columns" && p.var2Rel > 0 && panels.rel2 != null
+                        && this.collidesPanelTitle(cx, rel2Texts[i], cfg.labelFont,
+                            rel2Scale(p.var2Rel) - (r + 3) - cfg.labelFont,
+                            panels.rel2.y, region.x, `Δ${cfg.basis2Label} %`);
+                    this.drawEndLabelAt(g, cx, p.var2Rel, p.var2Rel >= 0 && !flip, rel2Scale, orientation,
                         rel2Texts[i], cfg.labelFont, cfg.ink, r + 3, cfg.paper);
                 }
             }
@@ -3412,10 +3435,10 @@ export class Visual implements IVisual {
             nt.textContent = this.truncate(`— ${cfg.lineName}`, panels.main.w * 0.5, 10 * this.fontK);
         }
 
-        // ------- reference line on top of the marks (thin, dashed)
+        // ------- reference line behind the marks: dashed target line must not
+        // strike through the value labels (they carry the message)
         if (cfg.refLine != null) {
-            const overlay = this.el("g", {}, this.svg);
-            this.drawRefLine(overlay, panels.main, mainScale, orientation, bandStart, bandEnd, cfg);
+            this.drawRefLine(bg, panels.main, mainScale, orientation, bandStart, bandEnd, cfg);
         }
 
         // ------- compare-on-click overlay: Δ between two picked categories
@@ -3735,11 +3758,18 @@ export class Visual implements IVisual {
         let cum = basisSum, acSum = 0, fcSum = 0;
         const from: (number | null)[] = [], to: (number | null)[] = [];
         for (const p of pts) {
-            if (p.varAbs == null) { from.push(null); to.push(null); continue; }
+            // points with only one side still move the bridge (new category: Δ = value,
+            // discontinued: Δ = −basis) — the end anchor stays the true AC/FC total
+            const delta = p.varAbs != null
+                ? p.varAbs
+                : (p.value != null || p.basis != null) ? (p.value ?? 0) - (p.basis ?? 0) : null;
+            if (delta == null) { from.push(null); to.push(null); continue; }
             from.push(cum);
-            cum += p.varAbs;
+            cum += delta;
             to.push(cum);
-            if (p.isFc) { fcSum += p.value ?? 0; } else { acSum += p.value ?? 0; }
+            if (p.value != null) {
+                if (p.isFc) { fcSum += p.value; } else { acSum += p.value; }
+            }
         }
         return { from, to, basisSum, valueSum: cum, acSum, fcSum };
     }
@@ -4236,6 +4266,15 @@ export class Visual implements IVisual {
         } else {
             this.el("rect", { x: lo, y: bp, width: size, height: bw, ...style }, parent);
         }
+    }
+
+    /** true when a label ABOVE this pin would run into the panel title (top-left corner) */
+    private collidesPanelTitle(bandCenter: number, text: string, font: number,
+        labelTop: number, panelY: number, regionX: number, title: string): boolean {
+        const tF = Math.round(10 * this.fontK);
+        const titleRight = regionX + 6 + title.length * tF * 0.66 + 8;
+        const titleBottom = panelY + tF + 6;
+        return bandCenter - text.length * font * 0.28 < titleRight && labelTop < titleBottom;
     }
 
     private drawEndLabel(parent: SVGElement, bandCenter: number, v: number, scale: Scale,

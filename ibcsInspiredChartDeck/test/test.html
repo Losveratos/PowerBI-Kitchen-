@@ -52,6 +52,7 @@
 <div class="case"><h4>KPI-Karten (Kacheln) · AC+PY+PL, ein FC</h4><div class="stage" id="c42" style="width:960px;height:400px"></div></div>
 <div class="case"><h4>KPI-Karten · flacher Streifen (1420×130) — Δ-Zeilen + Brücke rutschen nach rechts</h4><div class="stage" id="c43" style="width:1420px;height:130px"></div></div>
 <div class="case"><h4>Pareto · Small Multiples + Σ Gesamt — gemeinsame Skala (Fix 1.12.3)</h4><div class="stage" id="c44" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Integrierte Brücke · negative Werte → Hinweis statt kaputtem SVG (Fix 1.12.4)</h4><div class="stage" id="c45" style="width:960px;height:280px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -402,6 +403,11 @@ const pmCats = [], pmMult = [], pmAc = [];
 });
 run("c44", dataView(pmCats, [col("actual", pmAc, "#,0 €")],
   { chart: { orientation: "pareto", multiplesTotal: true } }, pmMult), 960, 420);
+
+// negative series in the integrated bridge: explicit hint, no broken rects
+run("c45", dataView(months.slice(0, 6),
+  [col("actual", [-820, -771, -900, -955, -1020, -980]), col("previousYear", [-760, -800, -850, -900, -940, -1010])],
+  { chart: { orientation: "intwaterfall" } }), 960, 280);
 </script>
 </body>
 </html>
