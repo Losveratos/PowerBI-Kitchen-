@@ -55,6 +55,8 @@
 <div class="case"><h4>Integrierte Brücke · negative Werte → Hinweis statt kaputtem SVG (Fix 1.12.4)</h4><div class="stage" id="c45" style="width:960px;height:280px"></div></div>
 <div class="case"><h4>FC-Revision · AC/FC vs. FC Vormonat (Basis „fcrev") + Datenstand-Fußzeile</h4><div class="stage" id="c46" style="width:960px;height:460px"></div></div>
 <div class="case"><h4>KPI-Karten · Per-KPI-Invert (Opex invertiert: Mehrkosten rot)</h4><div class="stage" id="c47" style="width:960px;height:260px"></div></div>
+<div class="case"><h4>QTD · Fiskaljahr ab April — Reset an jedem Quartalsstart</h4><div class="stage" id="c48" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>GuV-Tabelle · Margen-%-Zeilen (rowType "pct"): Wert in %, Δ in Pp, keine €-Grafiken</h4><div class="stage" id="c49" style="width:1200px;height:420px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -431,6 +433,17 @@ run("c47", dataView(["Umsatz", "Opex", "EBIT"],
   [col("actual", [9800000, 3100000, 1300000], "#,0 €"),
    col("plan", [9500000, 2800000, 1250000], "#,0 €")],
   { chart: { orientation: "cards", invertList: "Opex" } }), 960, 260);
+
+// QTD with fiscal year starting in April: cumulation resets at Apr/Jul/Okt/Jan
+run("c48", dataView(months, [col("actual", acFull, "#,0 €"), col("plan", pl, "#,0 €")],
+  { chart: { cumulative: true, cumulativeKind: "qtd", fiscalStart: 4 } }), 960, 420);
+
+// P&L table with margin rows: value as %, deltas as percentage points
+run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],
+  [col("actual", [9800, -4200, 5600, 57.1, -2900, 2700, 27.6], "#,0 T€"),
+   col("previousYear", [9100, -3900, 5200, 57.1, -2700, 2500, 27.5], "#,0 T€")],
+  { chart: { orientation: "table" } }, null,
+  ["sum", "delta", "sum", "pct", "delta", "sum", "pct"]), 1200, 420);
 </script>
 </body>
 </html>

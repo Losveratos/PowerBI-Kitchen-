@@ -1,5 +1,23 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.14.0.0 (2026-07-10)
+
+**Zeitintelligenz & GuV-Paket:**
+- **Kumulierungs-Arten**: Neben YTD jetzt **QTD** (Reset an jedem
+  Quartalsstart) und **R12** (rollierende 12 Perioden) — Auswahl unter
+  Analyse → Kumulierungs-Art, sichtbar sobald „Kumuliert" an ist.
+- **Fiskaljahr**: „Fiskaljahr beginnt im Monat" (1–12) verschiebt die
+  YTD-/QTD-Resets (z. B. 4 für ein Geschäftsjahr ab April). Die
+  Monats-Erkennung liest die Kategorie-Labels (Jan…Dez, MM); ohne
+  erkennbare Monate läuft YTD durch und QTD nutzt 3er-Blöcke.
+  Der In-Chart-Button und die Panel-Titel zeigen die gewählte Art.
+- **Margen-%-Zeilen in der GuV** (Waterfall-Typ-Spalte = „pct"):
+  Tabellen-Zeilen wie „Marge %" zeigen den Wert als Prozent und die
+  Abweichungen als **Prozentpunkte** (+0,1Pp), ohne €-Balken/-Pins —
+  die €-Skalen der übrigen Zeilen bleiben unverfälscht. Im
+  Waterfall-Modus fließen pct-Zeilen nicht in die Kaskade ein.
+
+
 ## 1.13.0.0 (2026-07-10)
 
 **Controller-Paket — drei Kernwünsche aus der Review:**

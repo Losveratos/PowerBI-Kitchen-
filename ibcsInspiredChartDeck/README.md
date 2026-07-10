@@ -21,7 +21,11 @@ in **einem** Visual löst:
   dritte Säule (Columns, Bars, Tabelle; abschaltbar) — IBCS-Jahreschart-Notation
 - **Columns & Bars**: vertikale Säulen für Zeitreihen, horizontale Balken für
   Struktur-Vergleiche (Panels dann nebeneinander)
-- **Invert-Schalter** für Kosten-KPIs (Mehrwert = schlecht = rot)
+- **Invert-Schalter** für Kosten-KPIs (Mehrwert = schlecht = rot) — global oder
+  **je Kategorie** (kommagetrennte Liste, z. B. Opex neben Umsatz in KPI-Karten)
+- **Datenstand-Fußzeile**: „Ist per Jun 2026 · Stand 05.07. · Quelle: …" unten links
+- **FC-Revision**: Feld „FC Vormonat" + Basis „FC Vormonat (Revision)" — ΔFC Vm
+  zeigt, was sich seit dem letzten Forecast-Zyklus verschoben hat
 - **IBCS-Titelblock**: automatischer Titel „KPI in Einheit · Zeitraum: AC, FC vs. PL"
   plus optionale Botschafts-Zeile (SAY) — alle Teile überschreibbar
 - **Waterfall / Brücke**: GuV-Wasserfall (sum/delta-Rolle), Varianz-Brücke PL→AC
@@ -38,6 +42,8 @@ in **einem** Visual löst:
 - **Gruppen-Trennlinien** (Chart → Layout → Group separator every N): dünne Linien
   quer durch alle Panels nach jeweils N Kategorien — Lesehilfe für Struktur-Vergleiche
   mit natürlichen Untergruppen (z. B. Regionen), 0 = aus
+- **Margen-%-Zeilen** (Waterfall-Typ „pct"): GuV-Zeilen wie „Marge %" zeigen
+  Prozente statt €, Abweichungen in Prozentpunkten — ohne die €-Skalen zu stören
 - **Tabelle (IBCS)** (eigener Chart-Modus): Kennzahlen-Tabelle mit integrierten
   Chart-Spalten — AC·PY·PL-Balken, ΔBasis-Zahl + -Balken, ΔBasis %-Pins, fette
   'sum'-Zwischensummen (GuV), Doppel-Varianz-Spalten; Grafikspalten fallen bei
@@ -88,7 +94,9 @@ in **einem** Visual löst:
   bzw. Rechtsklick → Drillthrough auf Detailseiten
 - **Linien-Modus** für lange Zeitreihen: AC solide mit Punktmarkern (FC gestrichelt,
   hohle Marker), PY dünn grau, PL dünn gestrichelt — IBCS-Liniennotation
-- **Kumuliert (YTD)**: Umschalter stellt alle Panels auf Year-to-Date-Sicht um
+- **Kumuliert (YTD/QTD/R12)**: Umschalter stellt alle Panels auf kumulierte
+  Sicht um — wahlweise Jahr, Quartal oder rollierende 12 Perioden, mit
+  einstellbarem Fiskaljahres-Beginn (z. B. April)
 - **Referenzlinie**: Ziel-/Schwellenwert als gestrichelte Linie mit Beschriftung
 - **Gleitender Durchschnitt**: Ø-N-Overlay-Linie zur Glättung von Saisonalität
 - **Doppel-Varianz**: ΔPL und ΔPY gleichzeitig — bis zu fünf Panels mit je

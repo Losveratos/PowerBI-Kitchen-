@@ -36,6 +36,12 @@ const displayUnitsItems: powerbi.IEnumMember[] = [
     { value: "b", displayName: "Billions (B)" }
 ];
 
+const cumulativeKindItems: powerbi.IEnumMember[] = [
+    { value: "ytd", displayName: "YTD (Jahr kumuliert)" },
+    { value: "qtd", displayName: "QTD (Quartal kumuliert)" },
+    { value: "r12", displayName: "R12 (rollierende 12 Perioden)" }
+];
+
 const fontPresetItems: powerbi.IEnumMember[] = [
     { value: "compact", displayName: "Kompakt (Dashboard-Kachel)" },
     { value: "fullhd", displayName: "Full HD (1080p)" },
@@ -195,6 +201,27 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    cumulativeKind = new formattingSettings.ItemDropdown({
+        name: "cumulativeKind",
+        displayName: "Cumulation kind",
+        displayNameKey: "Chart_CumKind",
+        description: "YTD setzt am Fiskaljahres-Beginn zurück, QTD an jedem Quartalsstart, R12 summiert rollierend die letzten 12 Perioden. Monats-Erkennung über die Kategorie-Labels (Jan…Dez, 01…12).",
+        items: cumulativeKindItems,
+        value: cumulativeKindItems[0]
+    });
+
+    fiscalStart = new formattingSettings.NumUpDown({
+        name: "fiscalStart",
+        displayName: "Fiscal year starts in month",
+        displayNameKey: "Chart_FiscalStart",
+        description: "1 = Januar … 12 = Dezember. Bestimmt, wo YTD/QTD zurücksetzen (z. B. 4 für ein Fiskaljahr ab April).",
+        value: 1,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 1 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 12 }
+        }
+    });
+
     highlight = new formattingSettings.TextInput({
         name: "highlight",
         displayName: "Highlight categories",
@@ -299,7 +326,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartAnalysis",
         displayName: "Analysis",
         displayNameKey: "Group_Analysis",
-        slices: [this.cumulative, this.cumulativeButton, this.movingAverage, this.topN,
+        slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.cumulativeButton, this.movingAverage, this.topN,
             this.highlight, this.invert, this.invertList, this.compareClick,
             this.materialityAbs, this.materialityPct]
     });

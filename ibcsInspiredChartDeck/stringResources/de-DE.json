@@ -54,6 +54,8 @@
         "Card_Comments": "Kommentare",
         "Comments_ShowPanel": "Kommentarliste anzeigen",
         "Chart_Cumulative": "Kumuliert (YTD)",
+        "Chart_CumKind": "Kumulierungs-Art",
+        "Chart_FiscalStart": "Fiskaljahr beginnt im Monat",
         "Scale_RefLine": "Referenzlinie (Wert)",
         "Scale_RefLineLabel": "Referenzlinie (Beschriftung)",
         "Chart_MovingAverage": "Gleitender Durchschnitt (Perioden)",

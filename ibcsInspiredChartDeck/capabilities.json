@@ -147,6 +147,16 @@
                 "dualVariance": { "type": { "bool": true } },
                 "pyTriangle": { "type": { "bool": true } },
                 "cumulative": { "type": { "bool": true } },
+                "cumulativeKind": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "ytd", "displayName": "YTD" },
+                            { "value": "qtd", "displayName": "QTD" },
+                            { "value": "r12", "displayName": "R12" }
+                        ]
+                    }
+                },
+                "fiscalStart": { "type": { "numeric": true } },
                 "cumulativeButton": { "type": { "bool": true } },
                 "materialityAbs": { "type": { "numeric": true } },
                 "materialityPct": { "type": { "numeric": true } },

@@ -364,6 +364,9 @@ export class Visual implements IVisual {
         fs.chartCard.multiplesGroup.visible = this.paneHasMultiples;
         fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line";
         fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table";
+        fs.chartCard.cumulativeKind.visible = fs.chartCard.cumulative.visible && fs.chartCard.cumulative.value;
+        fs.chartCard.fiscalStart.visible = fs.chartCard.cumulativeKind.visible
+            && String(fs.chartCard.cumulativeKind.value.value) !== "r12";
         fs.chartCard.materialityAbs.visible = this.paneHasPy || this.paneHasPl;
         fs.chartCard.materialityPct.visible = this.paneHasPy || this.paneHasPl;
         fs.chartCard.compareClick.visible = orient === "columns" || orient === "bars";
@@ -705,7 +708,9 @@ export class Visual implements IVisual {
         // cumulative (YTD) view: running totals per group, variances recomputed
         if (cumulativeOn) {
             const basisMode = this.resolveBasisLabel();
-            for (const g of groups) { g.pts = this.cumulate(g.pts, basisMode); }
+            const kind = String(s.chartCard.cumulativeKind.value.value) as "ytd" | "qtd" | "r12";
+            const fiscal = Math.min(12, Math.max(1, Math.round(s.chartCard.fiscalStart.value ?? 1)));
+            for (const g of groups) { g.pts = this.cumulate(g.pts, basisMode, kind, fiscal); }
         }
         // waterfall-bridge: order categories by impact, largest driver first (Rest row stays last)
         if (sortByImpactOn) {
@@ -1132,6 +1137,7 @@ export class Visual implements IVisual {
             let cum = 0;
             for (const p of pts) {
                 if (p.value == null) { continue; }
+                if (p.rowType != null && p.rowType.startsWith("pct")) { continue; }
                 if (p.rowType != null && p.rowType.startsWith("sum")) {
                     segs.push({ label: p.cat, from: 0, to: p.value, kind: "anchor", hatched: p.isFc, p });
                     cum = p.value;
@@ -2063,10 +2069,13 @@ export class Visual implements IVisual {
         const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH);
         const shown = rows.slice(0, Math.max(1, maxRows));
 
-        const barDomain = extent(rowPts.flatMap(p => [p.value, p.py, p.pl]));
-        const dDomain = Math.max(...rowPts.map(p => Math.abs(p.varAbs ?? 0)), 1);
-        const d2Domain = Math.max(...rowPts.map(p => Math.abs(p.var2Abs ?? 0)), 1);
-        const maxPct = Math.max(...rowPts.map(p => Math.abs(p.varRel ?? 0)), 1);
+        // margin rows (rowType "pct") carry percentages — keep them out of the € scales
+        const isPct = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("pct");
+        const numPts = rowPts.filter(p => !isPct(p));
+        const barDomain = extent(numPts.flatMap(p => [p.value, p.py, p.pl]));
+        const dDomain = Math.max(...numPts.map(p => Math.abs(p.varAbs ?? 0)), 1);
+        const d2Domain = Math.max(...numPts.map(p => Math.abs(p.var2Abs ?? 0)), 1);
+        const maxPct = Math.max(...numPts.map(p => Math.abs(p.varRel ?? 0)), 1);
 
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
@@ -2160,13 +2169,23 @@ export class Visual implements IVisual {
                 yMid + rowFont * 0.35,
                 this.truncate(nameText, colX["name"].w - 8 - indentX, rowFont),
                 "start", rowFont, sum, cfg.ink, g);
+            const rowPct = isPct(p);
+            const pctText = (v: number) => new Intl.NumberFormat(this.host.locale, {
+                minimumFractionDigits: 1, maximumFractionDigits: 1
+            }).format(v) + " %";
+            const ppText = (v: number) => (v > 0 ? "+" : v < 0 ? "−" : "")
+                + new Intl.NumberFormat(this.host.locale, {
+                    minimumFractionDigits: 1, maximumFractionDigits: 1
+                }).format(Math.abs(v)) + "Pp";
             if (p.value != null) {
                 txt(colX["val"].x + colX["val"].w, yMid + rowFont * 0.35,
-                    cfg.fmt.format(p.value), "end", rowFont, sum, cfg.ink, g);
+                    rowPct ? pctText(p.value) : cfg.fmt.format(p.value), "end", rowFont, sum,
+                    rowPct ? cfg.subtle : cfg.ink, g);
             }
 
-            // AC·PY·PL bar cell (shared scale across all rows — IBCS)
-            if (barScale) {
+            // AC·PY·PL bar cell (shared scale across all rows — IBCS);
+            // margin rows are percentages and get no € graphics
+            if (barScale && !rowPct) {
                 const zero = barScale(0);
                 const barCell = (v: number, h: number, off: number, style: Record<string, string | number>) => {
                     const e = barScale(v);
@@ -2204,13 +2223,13 @@ export class Visual implements IVisual {
                 }
             }
 
-            // ΔBasis: number + bar
+            // ΔBasis: number + bar (margin rows show percentage points instead)
             if (p.varAbs != null && colX["dval"]) {
                 txt(colX["dval"].x + colX["dval"].w, yMid + rowFont * 0.35,
-                    this.fmtSigned(cfg.fmtVar, p.varAbs), "end", rowFont, sum,
+                    rowPct ? ppText(p.varAbs) : this.fmtSigned(cfg.fmtVar, p.varAbs), "end", rowFont, sum,
                     p.varAbs === 0 ? cfg.subtle : colOf(p.varAbs, p), g);
             }
-            if (p.varAbs != null && colX["dbar"]) {
+            if (p.varAbs != null && colX["dbar"] && !rowPct) {
                 const len = Math.abs(p.varAbs) / dDomain * (colX["dbar"].w / 2 - 4);
                 const h = Math.max(3, rowH * 0.42);
                 const c = colOf(p.varAbs, p);
@@ -2226,8 +2245,8 @@ export class Visual implements IVisual {
                 }, g);
             }
 
-            // ΔBasis %: pin with label
-            if (p.varRel != null && colX["pct"]) {
+            // ΔBasis %: pin with label (margin rows: pp is already in the Δ column)
+            if (p.varRel != null && colX["pct"] && !rowPct) {
                 const len = Math.abs(p.varRel) / maxPct * (colX["pct"].w / 2 - lf * 3);
                 const c = colOf(p.varRel, p);
                 const r = Math.max(2.4, 3 * k);
@@ -2245,10 +2264,10 @@ export class Visual implements IVisual {
             // ΔBasis2 (dual): number + bar
             if (hasVar2 && p.var2Abs != null && colX["d2val"]) {
                 txt(colX["d2val"].x + colX["d2val"].w, yMid + rowFont * 0.35,
-                    this.fmtSigned(cfg.fmtVar, p.var2Abs), "end", rowFont, sum,
+                    rowPct ? ppText(p.var2Abs) : this.fmtSigned(cfg.fmtVar, p.var2Abs), "end", rowFont, sum,
                     p.var2Abs === 0 ? cfg.subtle : colOf2(p.var2Abs, p), g);
             }
-            if (hasVar2 && p.var2Abs != null && colX["d2bar"]) {
+            if (hasVar2 && p.var2Abs != null && colX["d2bar"] && !rowPct) {
                 const len = Math.abs(p.var2Abs) / d2Domain * (colX["d2bar"].w / 2 - 4);
                 const h = Math.max(3, rowH * 0.42);
                 this.el("rect", {
@@ -3085,7 +3104,9 @@ export class Visual implements IVisual {
 
         // ------- background layer: baselines + panel titles
         const bg = this.el("g", {}, this.svg);
-        const scenarioTitle = (cfg.cumulative ? "YTD · " : "")
+        const cumLabel = { ytd: "YTD", qtd: "QTD", r12: "R12" }[
+            String(this.formattingSettings.chartCard.cumulativeKind.value.value)] ?? "YTD";
+        const scenarioTitle = (cfg.cumulative ? `${cumLabel} · ` : "")
             + ["AC", cfg.hasPy ? "PY" : "", cfg.hasPl ? "PL" : "",
                 cfg.hasFc ? "FC" : "", cfg.hasBm ? "BM ‒" : ""].filter(x => x).join(" · ");
 
@@ -3894,18 +3915,35 @@ export class Visual implements IVisual {
         return { from, to, basisSum, valueSum: cum, acSum, fcSum };
     }
 
-    private cumulate(pts: DataPoint[], basisMode: Basis): DataPoint[] {
+    private cumulate(pts: DataPoint[], basisMode: Basis,
+        kind: "ytd" | "qtd" | "r12" = "ytd", fiscalStart = 1): DataPoint[] {
+        // YTD resets at the fiscal-year start, QTD at each fiscal quarter start; when
+        // the labels carry no parseable month, YTD runs through and QTD uses 3er-Blöcke.
+        const months = pts.map(p => this.monthOf(p.cat));
+        const parsed = months.every(m => m != null);
+        const resetAt = (i: number): boolean => {
+            if (i === 0 || kind === "r12") { return false; }
+            if (kind === "ytd") { return parsed ? months[i] === fiscalStart : false; }
+            return parsed ? ((months[i] as number) - fiscalStart + 12) % 3 === 0 : i % 3 === 0;
+        };
+        const winStart = (i: number) => kind === "r12" ? Math.max(0, i - 11) : 0;
+        const winSum = (i: number, get: (p: DataPoint) => number | null): number => {
+            let acc = 0;
+            for (let j = winStart(i); j <= i; j++) { acc += get(pts[j]) ?? 0; }
+            return acc;
+        };
         let cv = 0, cpy = 0, cpl = 0, cbm = 0, cfp = 0;
-        return pts.map(p => {
+        return pts.map((p, i) => {
+            if (resetAt(i)) { cv = 0; cpy = 0; cpl = 0; cbm = 0; cfp = 0; }
             if (p.value != null) { cv += p.value; }
             if (p.py != null) { cpy += p.py; }
             if (p.pl != null) { cpl += p.pl; }
             if (p.bm != null) { cbm += p.bm; }
             if (p.fcPrev != null) { cfp += p.fcPrev; }
-            const value = p.value != null ? cv : null;
-            const py = p.py != null ? cpy : null;
-            const pl = p.pl != null ? cpl : null;
-            const fcPrev = p.fcPrev != null ? cfp : null;
+            const value = p.value != null ? (kind === "r12" ? winSum(i, x => x.value) : cv) : null;
+            const py = p.py != null ? (kind === "r12" ? winSum(i, x => x.py) : cpy) : null;
+            const pl = p.pl != null ? (kind === "r12" ? winSum(i, x => x.pl) : cpl) : null;
+            const fcPrev = p.fcPrev != null ? (kind === "r12" ? winSum(i, x => x.fcPrev) : cfp) : null;
             const basis = basisMode === "plan" ? pl : basisMode === "fcrev" ? fcPrev : py;
             const varAbs = (value != null && basis != null) ? value - basis : null;
             const varRel = (varAbs != null && basis != null && basis !== 0)
@@ -3919,7 +3957,7 @@ export class Visual implements IVisual {
                 ac: p.isFc ? null : value,
                 fc: p.isFc ? value : null,
                 value, py, pl, fcPrev, basis, varAbs, varRel, var2Abs, var2Rel,
-                bm: p.bm != null ? cbm : null
+                bm: p.bm != null ? (kind === "r12" ? winSum(i, x => x.bm) : cbm) : null
             };
         });
     }
@@ -4242,6 +4280,19 @@ export class Visual implements IVisual {
             if (v > (points[iMax].value ?? -Infinity)) { iMax = i; }
         }
         return (i: number) => i === 0 || i === n - 1 || i === iMin || i === iMax;
+    }
+
+    /** best-effort month number (1-12) from a category label, else null */
+    private monthOf(label: string): number | null {
+        const names: { [k: string]: number } = {
+            jan: 1, feb: 2, "mär": 3, maerz: 3, mar: 3, apr: 4, mai: 5, may: 5, jun: 6,
+            jul: 7, aug: 8, sep: 9, okt: 10, oct: 10, nov: 11, dez: 12, dec: 12
+        };
+        const m = label.toLowerCase().match(/jan|feb|mär|maerz|mar|apr|mai|may|jun|jul|aug|sep|okt|oct|nov|dez|dec/);
+        if (m) { return names[m[0]]; }
+        const num = label.match(/^(\d{1,2})(?:[./-]|$)/);
+        if (num) { const n = parseInt(num[1], 10); if (n >= 1 && n <= 12) { return n; } }
+        return null;
     }
 
     private resolveBasisLabel(): Basis {
@@ -4738,7 +4789,8 @@ export class Visual implements IVisual {
             x: x + segW / 2, y: 6 + bh / 2 + font * 0.36, "text-anchor": "middle",
             "font-size": font, fill: cfg.cumulative ? cfg.paper : cfg.ink, "font-family": FONT
         }, btn);
-        t.textContent = "YTD";
+        t.textContent = { ytd: "YTD", qtd: "QTD", r12: "R12" }[
+            String(this.formattingSettings.chartCard.cumulativeKind.value.value)] ?? "YTD";
         btn.style.cursor = "pointer";
         const toggle = () => {
             this.host.persistProperties({
