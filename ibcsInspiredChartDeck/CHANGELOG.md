@@ -1,5 +1,18 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.12.1.0 (2026-07-10)
+
+- **KPI-Karten: Indikator-Streifen** — wie im Card-Visual zeigt jede
+  Kachel links einen 4-px-Statusstreifen in der Abweichungsfarbe der
+  primären Basis (grün/rot nach Wirkung inkl. Invert; grau ohne Basis,
+  bei Δ = 0 oder unterhalb der Wesentlichkeits-Schwellen).
+- **Crossfilter per Karten-Klick verifiziert**: Klick auf eine Karte
+  filtert andere Visuals der Seite (Selection-API, Strg-Klick für
+  Mehrfachauswahl, Klick ins Leere hebt auf) — per echtem Klick-Test
+  im Harness abgesichert. Im Kommentar-Modus öffnet der Klick weiterhin
+  den Editor statt zu filtern.
+
+
 ## 1.12.0.0 (2026-07-10)
 
 **KPI-Karten (Kacheln) — das KPI-Card-Visual als Chart-Modus im Deck:**

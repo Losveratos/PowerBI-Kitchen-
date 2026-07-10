@@ -182,7 +182,7 @@
     {
       "id": "ibcs_chart_deck",
       "name": "IBCS Inspired Chart Deck (natives Custom Visual)",
-      "pbiviz": "ibcsInspiredChartDeck/dist/ibcsInspiredChartDeckE73997CF4C7D44978F8112A4E5FA0B4D.1.12.0.0.pbiviz",
+      "pbiviz": "ibcsInspiredChartDeck/dist/ibcsInspiredChartDeckE73997CF4C7D44978F8112A4E5FA0B4D.1.12.1.0.pbiviz",
       "readme": "ibcsInspiredChartDeck/README.md",
       "hinweis": "Alternative zu den Deneb-Templates: ein .pbiviz mit vier Chart-Modi (Columns/Bars/Line/Waterfall), Doppel-Varianz, YTD, Small Multiples, Kommentaren und IBCS-Titelblock. Import: Visualisierungen -> Visual aus Datei importieren.",
       "fields": [

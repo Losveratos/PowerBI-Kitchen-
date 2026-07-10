@@ -61,7 +61,7 @@ function makeHost(hc) {
       : { isHighContrast: false, positive: { value: "#1B7F4D" }, negative: { value: "#B3282D" },
           foregroundNeutralDark: { value: "#252423" }, foregroundNeutralTertiary: { value: "#C8C6C4" } },
     eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o,e){ console.error("renderfail", e); } },
-    createSelectionManager: () => ({ select: () => Promise.resolve([]), clear: () => Promise.resolve(), showContextMenu(){} }),
+    createSelectionManager: () => ({ select: (ids, multi) => { console.log("crossfilter-select", JSON.stringify({multi: !!multi})); return Promise.resolve([]); }, clear: () => Promise.resolve(), showContextMenu(){} }),
     createSelectionIdBuilder: () => ({ withCategory(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
     tooltipService: { show(){}, move(){}, hide(){} },
     createLocalizationManager: () => ({ getDisplayName: () => "" }),

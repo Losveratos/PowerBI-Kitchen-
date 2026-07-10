@@ -2254,8 +2254,17 @@ export class Visual implements IVisual {
                 stroke: emph ? cfg.ink : (cfg.hc ? cfg.ink : "#DDDDD8"),
                 "stroke-width": emph ? 1.6 : 1
             }, g);
+            // status stripe at the left edge (KPI-card style): variance direction at a
+            // glance — grey without basis, when Δ = 0 or below the materiality thresholds
+            const stripeCol = (p.varAbs == null || p.varAbs === 0 || !cfg.isMaterial(p))
+                ? (cfg.hc ? cfg.ink : cfg.colors.py)
+                : (good(p.varAbs) ? cfg.colors.good : cfg.colors.bad);
+            this.el("rect", {
+                x: x + 1.2, y: y + 1.2, width: Math.round(4 * k), height: h - 2.4,
+                rx: Math.round(3 * k), fill: stripeCol
+            }, g);
 
-            const pad = Math.round(10 * k);
+            const pad = Math.round(10 * k) + Math.round(5 * k);
             const titleF = Math.round(11.5 * k);
             const valueF = Math.round(21 * k);
             const refF = Math.round(10.5 * k);
