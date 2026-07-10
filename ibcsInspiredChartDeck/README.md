@@ -16,6 +16,9 @@ in **einem** Visual löst:
 - **Relatives Abweichungs-Panel** (ΔPY % / ΔPL %): Pin-Chart (Lollipop), FC-Pins hohl
 - **IBCS-Baseline-Notation**: AC = solide schwarze Achse, PY = dicke graue Achse,
   PL = doppelte dünne Linie
+- **PY als Dreieck** bei drei Szenarien: Sind AC, PY und PL gebunden, erscheint
+  das Vorjahr als graues Dreieck am Säulen-/Balkenrand auf PY-Höhe statt als
+  dritte Säule (Columns, Bars, Tabelle; abschaltbar) — IBCS-Jahreschart-Notation
 - **Columns & Bars**: vertikale Säulen für Zeitreihen, horizontale Balken für
   Struktur-Vergleiche (Panels dann nebeneinander)
 - **Invert-Schalter** für Kosten-KPIs (Mehrwert = schlecht = rot)

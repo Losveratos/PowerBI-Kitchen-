@@ -1,5 +1,23 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.11.0.0 (2026-07-10)
+
+**PY als Dreieck bei drei Szenarien (IBCS-Jahreschart-Notation):**
+- Sind **AC, PY und PL** gleichzeitig gebunden, wird das Vorjahr nicht
+  mehr als dritte graue Säule gezeichnet, sondern als **graues Dreieck**
+  am Säulenrand auf PY-Höhe (Columns: ▶ links an der Säule, Bars/Tabelle:
+  ▼ über dem Balken) — wie im IBCS-Jahreschart. AC und PL-Umriss
+  bekommen die volle Slot-Breite zurück, das Tripel wirkt deutlich
+  aufgeräumter.
+- Gilt überall, wo alle drei Szenarien als Säulen/Balken erscheinen:
+  **Columns, Bars (inkl. Kompakt-Modus) und Tabelle**. Linien-Modus
+  behält die IBCS-Liniennotation, Brücken-Modi ihre Anker-Logik.
+- Neue Option **„PY als Dreieck (bei AC + PY + PL)"** (Layout-Gruppe,
+  Standard an, nur sichtbar wenn PY und PL gebunden sind) — ausschalten
+  stellt die bisherige graue PY-Säule wieder her.
+- Ist nur PY (ohne PL) gebunden, bleibt alles unverändert: PY-Säule wie
+  bisher.
+
 ## 1.10.0.0 (2026-07-08)
 
 **Drei Controller-Extras — alle einzeln zuschaltbar, Standard aus:**

@@ -228,12 +228,20 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    pyTriangle = new formattingSettings.ToggleSwitch({
+        name: "pyTriangle",
+        displayName: "PY as triangle (AC + PY + PL)",
+        displayNameKey: "Chart_PyTriangle",
+        description: "IBCS-Notation bei drei Szenarien: Sind AC, PY und PL gebunden, wird das Vorjahr als graues Dreieck (\u25b6) am Säulen-/Balkenrand auf PY-Höhe gezeigt statt als dritte Säule — weniger überladen. Aus = PY wieder als graue Säule.",
+        value: true
+    });
+
     layoutGroup = new formattingSettings.Group({
         name: "chartLayout",
         displayName: "Layout",
         displayNameKey: "Group_Layout",
         slices: [this.orientation, this.comparisonMode, this.showAbsoluteVariance,
-            this.showRelativeVariance, this.dualVariance, this.showTotal, this.groupEvery]
+            this.showRelativeVariance, this.dualVariance, this.pyTriangle, this.showTotal, this.groupEvery]
     });
 
     cumulativeButton = new formattingSettings.ToggleSwitch({

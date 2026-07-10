@@ -125,6 +125,8 @@ interface ChartConfig {
     hasPl: boolean;
     hasFc: boolean;
     hasBm: boolean;
+    /** IBCS three-scenario notation: PY drawn as a grey triangle marker instead of a third column */
+    pyTriangle: boolean;
     /** materiality: false → variance is drawn grey instead of good/bad (thresholds in the pane) */
     isMaterial: (p: DataPoint | null | undefined) => boolean;
     /** high-contrast mode: only foreground/background colors, outlines for distinction */
@@ -316,6 +318,8 @@ export class Visual implements IVisual {
         fs.chartCard.movingAverage.visible = orient === "columns" || orient === "line";
         fs.chartCard.dualVariance.visible = bothBases;
         fs.chartCard.comparisonMode.visible = bothBases;
+        fs.chartCard.pyTriangle.visible = bothBases
+            && (orient === "columns" || orient === "bars" || orient === "table");
         fs.chartCard.waterfallStyle.visible = orient === "columns" || orient === "bars";
         fs.chartCard.sortByImpact.visible = orient === "columns" || orient === "bars" || orient === "catbridge";
         fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge";
@@ -711,6 +715,9 @@ export class Visual implements IVisual {
             hasPl: points.some(p => p.pl != null),
             hasFc: points.some(p => p.isFc),
             hasBm: points.some(p => p.bm != null),
+            // triangle notation only when all three scenarios actually appear together
+            pyTriangle: s.chartCard.pyTriangle.value
+                && points.some(p => p.py != null) && points.some(p => p.pl != null),
             isMaterial: (() => {
                 const mAbs = s.chartCard.materialityAbs.value ?? 0;
                 const mPct = s.chartCard.materialityPct.value ?? 0;
@@ -2040,9 +2047,15 @@ export class Visual implements IVisual {
                 };
                 const pyH = Math.max(2, rowH * 0.26), acH = Math.max(3, rowH * 0.42);
                 if (p.py != null) {
-                    barCell(p.py, pyH, 0.12, cfg.hc
-                        ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1, "stroke-dasharray": "3,2" }
-                        : { fill: cfg.colors.py });
+                    if (cfg.pyTriangle) {
+                        // triangle above the AC bar at PY level (three-scenario notation);
+                        // scaled to the row height so it stays subtle in dense tables
+                        this.drawPyTriangle(g, y + rowH * 0.36, rowH * 0.55, p.py, barScale, "bars", cfg);
+                    } else {
+                        barCell(p.py, pyH, 0.12, cfg.hc
+                            ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1, "stroke-dasharray": "3,2" }
+                            : { fill: cfg.colors.py });
+                    }
                 }
                 if (p.pl != null) {
                     barCell(p.pl, acH, 0.30, { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.2 });
@@ -2660,8 +2673,10 @@ export class Visual implements IVisual {
         const bandSpan = bandEnd - bandStart;
         const step = bandSpan / n;
         const slotW = Math.max(2, step * 0.62);
-        const barW = cfg.hasPy ? slotW * 0.82 : slotW;
-        const pyShift = cfg.hasPy ? slotW - barW : 0;
+        // with the PY triangle the third column disappears — AC/PL get the full slot back
+        const pyAsCol = cfg.hasPy && !cfg.pyTriangle;
+        const barW = pyAsCol ? slotW * 0.82 : slotW;
+        const pyShift = pyAsCol ? slotW - barW : 0;
         const slotPos = (i: number) => bandStart + i * step + (step - slotW) / 2;
 
         // the bridge panel gets its own n+2 slot grid (basis anchor, n bricks, value
@@ -2890,10 +2905,14 @@ export class Visual implements IVisual {
             // the cascade renders into its own panel below, see "bridge brick" further down)
             const capV = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
             if (!lineMode && p.py != null) {
-                this.drawBar(g, pos, barW, 0, capV(p.py), mainScale, orientation,
-                    cfg.hc
-                        ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
-                        : { fill: cfg.colors.py });
+                if (cfg.pyTriangle) {
+                    this.drawPyTriangle(g, pos, slotW, capV(p.py), mainScale, orientation, cfg);
+                } else {
+                    this.drawBar(g, pos, barW, 0, capV(p.py), mainScale, orientation,
+                        cfg.hc
+                            ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
+                            : { fill: cfg.colors.py });
+                }
             }
             if (!lineMode && p.pl != null) {
                 this.drawBar(g, pos + pyShift, barW, 0, capV(p.pl), mainScale, orientation,
@@ -3953,6 +3972,26 @@ export class Visual implements IVisual {
             "font-family": FONT, "font-weight": 600
         }, parent);
         t.textContent = this.truncate(text, maxW, font);
+    }
+
+    /**
+     * IBCS three-scenario notation: PY as a small grey triangle pointing at the
+     * column/bar at previous-year level (like the reference year chart) — right-pointing
+     * at the left edge for columns, down-pointing above the bar for bars.
+     */
+    private drawPyTriangle(parent: SVGElement, slotStart: number, slotW: number, py: number,
+        scale: Scale, orientation: Orientation, cfg: ChartConfig): void {
+        const s = Math.max(4.5, Math.min(9, slotW * 0.3)) * Math.min(this.fontK, 1.6);
+        const v = scale(py);
+        const points = orientation === "columns"
+            ? `${slotStart - s},${v - s * 0.8} ${slotStart - s},${v + s * 0.8} ${slotStart},${v}`
+            : `${v - s * 0.8},${slotStart - s} ${v + s * 0.8},${slotStart - s} ${v},${slotStart}`;
+        this.el("polygon", {
+            points,
+            fill: cfg.hc ? cfg.paper : cfg.colors.py,
+            stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": cfg.hc ? 1.2 : 0.8,
+            "stroke-linejoin": "round"
+        }, parent);
     }
 
     /** draws a rect from `from` to `to` along the value axis at band position bp with band width bw */
