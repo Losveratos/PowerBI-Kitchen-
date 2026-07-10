@@ -49,6 +49,10 @@ in **einem** Visual löst:
 - **Dumbbell (Struktur)**: Basis → AC als zwei Punkte mit Verbinder in der
   Abweichungsfarbe
 - **Slope · Vorher/Nachher**: Basis links, AC rechts, eine Linie je Kategorie
+- **KPI-Karten (Kacheln)** (eigener Chart-Modus): eine Kachel je Kategorie mit
+  großem Wert, Δ-Referenzzeilen (ΔPL/ΔPY) und Mini-Brücke Basis → Δ → AC in
+  IBCS-Notation — das KPI-Card-Layout direkt im Deck, inkl. Crossfilter,
+  Kommentaren und Wesentlichkeit
 - **Kombi Säulen + Linie** (Feld „Line (Kombi)" füllen): zweite Kennzahl als
   Linie über den Säulen (z. B. Marge %), eigene Skala + Formatstring
 - **Gestapelt** (Feld „Stack Series" füllen): Säulen/Balken stapeln sich

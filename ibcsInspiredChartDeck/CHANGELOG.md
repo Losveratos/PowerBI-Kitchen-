@@ -1,5 +1,26 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.12.0.0 (2026-07-10)
+
+**KPI-Karten (Kacheln) — das KPI-Card-Visual als Chart-Modus im Deck:**
+- Neuer Eintrag im Ausrichtungs-Dropdown: **„KPI-Karten (Kacheln)"** —
+  eine Kachel je Kategorie mit großem Wert (Auto-Einheiten k/M/B,
+  FC-Kennzeichnung), **Δ-Referenzzeilen** (ΔPL und ΔPY absolut + %,
+  Farbe nach Wirkung inkl. Invert und Wesentlichkeits-Schwellen) und
+  der **Mini-Brücke Basis → Δ → AC** in IBCS-Notation: PL-Umriss bzw.
+  PY-grau als Anker, schwebendes Δ in gut/schlecht, AC solide
+  (FC schraffiert), Referenzachse je Basis (PL-Doppellinie / PY-grau).
+- Platz-Stufen: kleine Kacheln lassen die Brücke weg, sehr kleine die
+  zweite Referenzzeile — Grid passt Spalten an die Breite an.
+- Alles Bestehende greift auch hier: Crossfilter + Tooltips je Karte,
+  Kommentar-Marker (inkl. Kommentar-Erfassung per Klick), Hervorhebung,
+  Schrift-Presets, High-Contrast, YTD und Small Multiples (Karten je
+  Gruppe in Kacheln).
+- Keine neuen Felder nötig — Category + AC reichen, PY/PL/FC ergänzen
+  Referenzen und Brücke. Das separate ibcsKpiCard-Visual bleibt für
+  Karten mit Sparkline/Trend-Feld weiter verfügbar.
+
+
 ## 1.11.1.0 (2026-07-10)
 
 - **Automatische Botschaft (Treiber-Text) jetzt Standard aus.** Die

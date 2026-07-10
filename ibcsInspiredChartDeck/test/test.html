@@ -49,6 +49,7 @@
 <div class="case"><h4>GuV-Wasserfall + ΔPY-Varianz-Stufen (CT 12)</h4><div class="stage" id="c39" style="width:960px;height:520px"></div></div>
 <div class="case"><h4>Wesentlichkeit (|Δ|&lt;30k grau) + gespeicherter ✎-Kommentar + YTD-Button</h4><div class="stage" id="c40" style="width:960px;height:480px"></div></div>
 <div class="case"><h4>Kommentar-Modus an (Klick öffnet Editor)</h4><div class="stage" id="c41" style="width:960px;height:400px"></div></div>
+<div class="case"><h4>KPI-Karten (Kacheln) · AC+PY+PL, ein FC</h4><div class="stage" id="c42" style="width:960px;height:400px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -376,6 +377,14 @@ run("c40", dataView(months, [col("actual", acFull, "#,0 €"), col("plan", pl, "
 run("c41", dataView(months.slice(0, 6), [col("actual", ac.slice(0, 6), "#,0 €"), col("previousYear", py.slice(0, 6), "#,0 €")], {
   commentsPanel: { editComments: true }
 }), 960, 400);
+
+// KPI cards mode: one tile per category, mini bridge basis->delta->AC, ref rows
+run("c42", dataView(["Umsatz", "Rohertrag", "Opex", "EBIT", "Cashflow", "Auftragseingang"],
+  [col("actual", [9800000, 4200000, 2950000, 1300000, null, 11200000], "#,0 €"),
+   col("previousYear", [9100000, 3900000, 2700000, 1200000, 910000, 10400000], "#,0 €"),
+   col("plan", [9500000, 4100000, 2800000, 1250000, 900000, 11800000], "#,0 €"),
+   col("forecast", [null, null, null, null, 860000, null], "#,0 €")],
+  { chart: { orientation: "cards" } }), 960, 400);
 </script>
 </body>
 </html>

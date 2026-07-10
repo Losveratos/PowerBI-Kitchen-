@@ -571,8 +571,10 @@ export class Visual implements IVisual {
         const isPareto = orientationRaw === "pareto";
         const isDumbbell = orientationRaw === "dumbbell";
         const isSlope = orientationRaw === "slope";
+        // KPI cards: one tile per category — the KPI-card visual folded into the deck
+        const isCards = orientationRaw === "cards";
         const orientation: Orientation =
-            orientationRaw === "bars" || isCatBridge || isTable || isDumbbell ? "bars" : "columns";
+            orientationRaw === "bars" || isCatBridge || isTable || isDumbbell || isCards ? "bars" : "columns";
         // stacked mode: field-driven — filling the Stack-Series role stacks the plain
         // columns/bars automatically, an empty role leaves everything untouched
         const isStacked = (orientationRaw === "columns" || orientationRaw === "bars")
@@ -815,6 +817,10 @@ export class Visual implements IVisual {
             }
             if (isTable) {
                 this.renderTable(grp.pts, region, cfg);
+                return;
+            }
+            if (isCards) {
+                this.renderCards(grp.pts, region, cfg);
                 return;
             }
             if (isPareto) {
@@ -2215,6 +2221,152 @@ export class Visual implements IVisual {
             return agg;
         });
         return { name, pts };
+    }
+
+    /**
+     * KPI cards: one tile per category with the KPI-card layout — big value, mini
+     * bridge basis → Δ → AC in IBCS notation, and Δ reference rows. Space stages:
+     * small tiles drop the bridge, tiny tiles drop the second reference row.
+     */
+    private renderCards(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const k = this.fontK;
+        const pts = points.filter(p => p.value != null);
+        const n = pts.length;
+        if (n === 0) { return; }
+        const gap = Math.round(8 * k);
+        let cols = Math.max(1, Math.min(n, Math.floor(region.w / (185 * k)) || 1));
+        // avoid a lonely last row when a squarer grid fits the same width
+        cols = Math.min(cols, Math.ceil(n / Math.ceil(n / cols)));
+        const rows = Math.ceil(n / cols);
+        const cw = (region.w - gap) / cols;
+        const ch = (region.h - gap) / rows;
+        const good = (v: number) => cfg.invert ? v < 0 : v > 0;
+
+        pts.forEach((p, i) => {
+            const x = region.x + gap / 2 + (i % cols) * cw + 2;
+            const y = region.y + gap / 2 + Math.floor(i / cols) * ch + 2;
+            const w = cw - gap, h = ch - gap;
+            const g = this.el("g", { "class": "icd-cat" }, this.svg) as SVGGElement;
+            const emph = cfg.highlight.has(p.cat.toLowerCase());
+            this.el("rect", {
+                x, y, width: w, height: h, rx: Math.round(6 * k),
+                fill: cfg.hc ? cfg.paper : (emph ? "#F4F4F0" : cfg.paper),
+                stroke: emph ? cfg.ink : (cfg.hc ? cfg.ink : "#DDDDD8"),
+                "stroke-width": emph ? 1.6 : 1
+            }, g);
+
+            const pad = Math.round(10 * k);
+            const titleF = Math.round(11.5 * k);
+            const valueF = Math.round(21 * k);
+            const refF = Math.round(10.5 * k);
+            let yCur = y + pad + titleF;
+
+            const txt = (tx: number, ty: number, text: string, font: number, bold: boolean,
+                color: string, anchor = "start") => {
+                const t = this.el("text", {
+                    x: tx, y: ty, "font-size": font, fill: color, "font-family": FONT,
+                    "font-weight": bold ? 700 : 400, "text-anchor": anchor
+                }, g);
+                t.textContent = text;
+                return t;
+            };
+
+            txt(x + pad, yCur, this.truncate(p.cat, w - pad * 2, titleF), titleF, false, cfg.subtle);
+            yCur += valueF + Math.round(4 * k);
+            txt(x + pad, yCur, cfg.fmt.format(p.value as number), valueF, true, cfg.ink);
+            if (p.isFc) {
+                const vw = (cfg.fmt.format(p.value as number).length) * valueF * 0.58;
+                txt(x + pad + vw + 6 * k, yCur, "FC", Math.round(9 * k), true, cfg.subtle);
+            }
+            yCur += refF + Math.round(9 * k);
+
+            // Δ reference rows (primary basis first, second basis when bound)
+            const refRow = (label: string, vAbs: number | null, vRel: number | null) => {
+                if (vAbs == null || yCur > y + h - 4) { return; }
+                const col = (vAbs === 0 || !cfg.isMaterial(p))
+                    ? cfg.subtle : (good(vAbs) ? cfg.colors.good : cfg.colors.bad);
+                const rel = vRel != null ? ` · ${this.fmtPercent(vRel)}` : "";
+                txt(x + pad, yCur, `Δ${label}`, refF, false, cfg.subtle);
+                txt(x + pad + refF * 2.6, yCur,
+                    `${this.fmtSigned(cfg.fmtVar, vAbs)}${rel}`, refF, true, col);
+                yCur += refF + Math.round(5 * k);
+            };
+            refRow(cfg.basisLabel, p.varAbs, p.varRel);
+            if (h >= 118 * k) { refRow(cfg.basis2Label, p.var2Abs, p.var2Rel); }
+
+            // mini bridge basis → Δ → AC (IBCS notation), when there is room for it
+            const bridgeH = Math.round(40 * k);
+            const legRoom = Math.round(11 * k);
+            if (p.basis != null && h - (yCur - y) >= bridgeH + pad + legRoom && w >= 150 * k) {
+                // compact left-aligned bridge — three columns close together like the KPI card
+                const bx = x + pad;
+                const bw2 = Math.min(w - pad * 2, 190 * k);
+                const by = y + h - pad - legRoom;
+                const maxV = Math.max(Math.abs(p.basis), Math.abs(p.value as number), 1);
+                const hOf = (v: number) => Math.max(1.5, Math.abs(v) / maxV * bridgeH);
+                const colW = Math.min(44 * k, bw2 / 3.6);
+                const step2 = bw2 / 3;
+                const cxs = [bx + step2 / 2, bx + step2 * 1.5, bx + step2 * 2.5];
+                // baseline in the notation of the basis scenario
+                const axis = this.el("g", {}, g);
+                if (cfg.basisMode === "py") {
+                    this.el("line", { x1: bx, y1: by, x2: bx + bw2, y2: by, stroke: cfg.colors.py, "stroke-width": 3 }, axis);
+                } else {
+                    this.el("line", { x1: bx, y1: by - 1.2, x2: bx + bw2, y2: by - 1.2, stroke: cfg.colors.pl, "stroke-width": 1 }, axis);
+                    this.el("line", { x1: bx, y1: by + 1.2, x2: bx + bw2, y2: by + 1.2, stroke: cfg.colors.pl, "stroke-width": 1 }, axis);
+                }
+                // basis anchor: PL outline / PY grey
+                const basisStyle = cfg.basisMode === "plan"
+                    ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.3 }
+                    : cfg.hc
+                        ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
+                        : { fill: cfg.colors.py };
+                this.el("rect", { x: cxs[0] - colW / 2, y: by - hOf(p.basis), width: colW, height: hOf(p.basis), ...basisStyle }, g);
+                // floating delta between basis and AC level
+                if (p.varAbs != null && p.varAbs !== 0) {
+                    const lo = Math.min(p.basis, p.value as number), hi = Math.max(p.basis, p.value as number);
+                    const dTop = by - hOf(hi), dH = Math.max(1.5, (hi - lo) / maxV * bridgeH);
+                    const dCol = !cfg.isMaterial(p) ? cfg.colors.py
+                        : (good(p.varAbs) ? cfg.colors.good : cfg.colors.bad);
+                    this.el("rect", {
+                        x: cxs[1] - colW / 2, y: dTop, width: colW, height: dH,
+                        ...(p.isFc && cfg.isMaterial(p)
+                            ? { fill: `url(#${good(p.varAbs) ? cfg.patGood : cfg.patBad})`, stroke: dCol, "stroke-width": 1 }
+                            : { fill: dCol })
+                    }, g);
+                    // connectors at basis and AC level
+                    this.el("line", {
+                        x1: cxs[0] + colW / 2, y1: by - hOf(p.basis), x2: cxs[1] - colW / 2, y2: by - hOf(p.basis),
+                        stroke: cfg.subtle, "stroke-width": 1
+                    }, g);
+                    this.el("line", {
+                        x1: cxs[1] + colW / 2, y1: by - hOf(p.value as number), x2: cxs[2] - colW / 2, y2: by - hOf(p.value as number),
+                        stroke: cfg.subtle, "stroke-width": 1
+                    }, g);
+                }
+                // AC anchor (hatched when forecast)
+                this.el("rect", {
+                    x: cxs[2] - colW / 2, y: by - hOf(p.value as number), width: colW, height: hOf(p.value as number),
+                    ...(p.isFc
+                        ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                        : { fill: cfg.colors.ac })
+                }, g);
+                const legF = Math.round(8 * k);
+                txt(cxs[0], by + legF + 2, cfg.basisLabel, legF, false, cfg.subtle, "middle");
+                txt(cxs[1], by + legF + 2, "Δ", legF, false, cfg.subtle, "middle");
+                txt(cxs[2], by + legF + 2, cfg.hasFc && p.isFc ? "FC" : "AC", legF, false, cfg.subtle, "middle");
+            }
+
+            // comment marker number, if present
+            if (p.commentNo != null) {
+                txt(x + w - pad, y + pad + titleF, this.circledNo(p.commentNo),
+                    Math.round(10 * k), false, cfg.subtle, "end");
+            }
+
+            this.attachInteraction(g, p, cfg);
+            this.catGroups.push({ g, sel: p.sel });
+            this.animGroups.push([g]);
+        });
     }
 
     /**
