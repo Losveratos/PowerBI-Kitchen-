@@ -1,0 +1,14 @@
+Nr;Position;Typ;AC;PY;PL
+1;Umsatzerlöse;sum;9800;9100;9600
+2;Materialaufwand;delta;-4200;-3900;-4050
+3;Bruttoergebnis;sum;5600;5200;5550
+4;Brutto-Marge %;pct;57,1;57,1;57,8
+5;Personalaufwand;delta;-1850;-1740;-1800
+6;Sonstige Opex;delta;-1050;-960;-1000
+7;EBITDA;sum;2700;2500;2750
+8;EBITDA-Marge %;pct;27,6;27,5;28,6
+9;Abschreibungen;delta;-380;-360;-370
+10;EBIT;sum;2320;2140;2380
+11;EBIT-Marge %;pct;23,7;23,5;24,8
+12;Finanzergebnis;delta;-95;-110;-100
+13;EBT;sum;2225;2030;2280
