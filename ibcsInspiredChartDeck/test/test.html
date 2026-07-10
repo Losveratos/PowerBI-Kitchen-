@@ -262,7 +262,7 @@ run("c25", dataView(tabRows, [col("actual", tabAc, "#,0 T€"), col("previousYea
   { chart: { orientation: "table" } }, null, tabTypes), 1200, 420);
 
 // IBCS table: structure with dual variance, Full HD preset, one highlighted row
-run("c26", dataView(many, [col("actual", mAc), col("previousYear", mAc.map((v,i)=>Math.round(v*0.94)+((i%3)-1)*90)), col("plan", mPl)],
+run("c26", dataView(many, [col("actual", mAc), col("previousYear", mAc.map((v,i)=>Math.round(v*0.94)+((i%3)-1)*90)), col("plan", mPl), col("benchmark", mAc.map(v => Math.round(v * 1.06)))],
   { chart: { orientation: "table", dualVariance: true, highlight: "Frankreich" },
     labels: { fontPreset: "fullhd" } }), 1340, 520);
 

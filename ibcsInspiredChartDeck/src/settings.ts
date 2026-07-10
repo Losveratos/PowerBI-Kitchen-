@@ -140,7 +140,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "topN",
         displayName: "Top N (Bars)",
         displayNameKey: "Chart_TopN",
-        description: "Nur im Bars-Modus: zeigt die N größten Kategorien, der Rest wird aggregiert. 0 = alle.",
+        description: "Struktur-Modi (Bars, Kategorie-Brücke, Tabelle, Dumbbell, KPI-Karten): zeigt die N größten Kategorien, der Rest wird aggregiert. 0 = alle.",
         value: 0,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 0 },

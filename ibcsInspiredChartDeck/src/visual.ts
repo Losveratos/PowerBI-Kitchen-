@@ -125,6 +125,8 @@ interface ChartConfig {
     hasPl: boolean;
     hasFc: boolean;
     hasBm: boolean;
+    /** true only in modes that actually draw the BM marker — gates the tooltip row */
+    bmInChart: boolean;
     /** IBCS three-scenario notation: PY drawn as a grey triangle marker instead of a third column */
     pyTriangle: boolean;
     /** small multiples active: self-scaling renderers must use the shared domain */
@@ -249,6 +251,8 @@ export class Visual implements IVisual {
     private userComments = new Map<string, string>();
     private commentEdit = false;
     private commentEditor: HTMLDivElement | null = null;
+    /** JSON just persisted, until the host round-trip echoes it back */
+    private pendingCommentsJson: string | null = null;
     private static instanceCounter = 0;
     private instanceId: number;
 
@@ -293,7 +297,14 @@ export class Visual implements IVisual {
             this.svg.setAttribute("width", String(width));
             this.svg.setAttribute("height", String(height));
 
-            this.userComments = this.readUserComments(dataView);
+            // a just-persisted comment must survive a stale metadata update that
+            // arrives before the host round-trip echoes the new store back
+            const rawStore = dataView?.metadata?.objects?.["commentsPanel"]?.["userComments"];
+            const rawJson = typeof rawStore === "string" ? rawStore : "";
+            if (this.pendingCommentsJson == null || rawJson === this.pendingCommentsJson) {
+                this.pendingCommentsJson = null;
+                this.userComments = this.readUserComments(dataView);
+            }
             const points = this.parseData(dataView);
             if (!points || points.length === 0) {
                 this.renderDemo(width, height);
@@ -321,7 +332,8 @@ export class Visual implements IVisual {
         const fs = this.formattingSettings;
         const orient = String(fs.chartCard.orientation.value.value);
         const bothBases = this.paneHasPy && this.paneHasPl;
-        fs.chartCard.topN.visible = orient === "bars" || orient === "catbridge";
+        fs.chartCard.topN.visible = orient === "bars" || orient === "catbridge"
+            || orient === "table" || orient === "dumbbell" || orient === "cards";
         fs.chartCard.movingAverage.visible = orient === "columns" || orient === "line";
         fs.chartCard.dualVariance.visible = bothBases;
         fs.chartCard.comparisonMode.visible = bothBases;
@@ -341,6 +353,13 @@ export class Visual implements IVisual {
         fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table";
         fs.chartCard.materialityAbs.visible = this.paneHasPy || this.paneHasPl;
         fs.chartCard.materialityPct.visible = this.paneHasPy || this.paneHasPl;
+        fs.chartCard.compareClick.visible = orient === "columns" || orient === "bars";
+        fs.chartCard.showTotal.visible = orient === "columns" || orient === "bars" || orient === "line";
+        // scale card only where the shared main scale exists; the sync group
+        // additionally needs renderChart (waterfall computes its own domain)
+        fs.scaleCard.visible = orient === "columns" || orient === "bars"
+            || orient === "line" || orient === "waterfall";
+        fs.scaleCard.syncGroup.visible = orient !== "waterfall";
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
@@ -521,6 +540,9 @@ export class Visual implements IVisual {
 
     /** landing page renders a live sample chart instead of a text hint */
     private renderDemo(width: number, height: number): void {
+        // no live data: in-chart interactions must not re-render a stale dataset
+        this.lastRender = null;
+        this.compareCats = [];
         this.svg.style.display = "block";
         const months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
         const ac = [820, 771, 900, 955, 1020, 980, 1105, null, null, null, null, null];
@@ -642,6 +664,13 @@ export class Visual implements IVisual {
             }
         }
 
+        // compare-on-click anchors per category label — ambiguous across multiples
+        // tiles (same categories in every tile), so the mode is off in a grid
+        if (this.compareActive && groups.length > 1) {
+            this.compareActive = false;
+            this.compareCats = [];
+        }
+
         // top N + rest aggregation (structure comparisons only), per group
         const topN = Math.round(s.chartCard.topN.value ?? 0);
         if (orientation === "bars" && topN > 0) {
@@ -731,6 +760,8 @@ export class Visual implements IVisual {
             hasPl: points.some(p => p.pl != null),
             hasFc: points.some(p => p.isFc),
             hasBm: points.some(p => p.bm != null),
+            bmInChart: (orientationRaw === "columns" || orientationRaw === "bars"
+                || orientationRaw === "line" || isTable) && points.some(p => p.bm != null),
             // triangle notation only when all three scenarios actually appear together
             pyTriangle: s.chartCard.pyTriangle.value
                 && points.some(p => p.py != null) && points.some(p => p.pl != null),
@@ -2107,6 +2138,13 @@ export class Visual implements IVisual {
                         ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : { fill: cfg.colors.ac });
                 }
+                if (p.bm != null) {
+                    const bx = barScale(p.bm);
+                    this.el("rect", {
+                        x: bx - 1.2, y: y + rowH * 0.22, width: 2.4, height: rowH * 0.56,
+                        fill: cfg.ink
+                    }, g);
+                }
             }
 
             // ΔBasis: number + bar
@@ -2185,10 +2223,18 @@ export class Visual implements IVisual {
                     else { this.expandedRows.add(key); }
                     this.rerender();
                 };
-                g.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); toggle(); });
+                // comment mode wins: attachInteraction opens the editor on this row,
+                // the expand toggle would immediately re-render and close it again
+                g.addEventListener("click", (e: MouseEvent) => {
+                    e.stopPropagation();
+                    if (this.commentEdit) { return; }
+                    toggle();
+                });
                 g.addEventListener("keydown", (e: KeyboardEvent) => {
                     if (e.key !== "Enter" && e.key !== " ") { return; }
-                    e.preventDefault(); e.stopPropagation(); toggle();
+                    e.preventDefault(); e.stopPropagation();
+                    if (this.commentEdit) { return; }
+                    toggle();
                 });
             }
             this.catGroups.push({ g, sel: p.sel });
@@ -2305,9 +2351,11 @@ export class Visual implements IVisual {
             }, g);
 
             const pad = Math.round(10 * k) + Math.round(5 * k);
-            const titleF = Math.round(11.5 * k);
-            const valueF = Math.round(21 * k);
-            const refF = Math.round(10.5 * k);
+            // wired to the pane: data-label size drives value/Δ rows, category-axis
+            // size drives the card title (both already include the font preset)
+            const titleF = Math.max(9, cfg.catFont);
+            const valueF = Math.round(cfg.labelFont * 1.9);
+            const refF = Math.max(9, Math.round(cfg.labelFont * 0.95));
             const legRoom = Math.round(11 * k);
             // per-card formatters: KPI tiles often mix magnitudes (revenue vs. units),
             // so auto display units scale per card instead of across the whole deck
@@ -2534,6 +2582,9 @@ export class Visual implements IVisual {
             cum += Math.max(p.value as number, 0) / (total || 1) * 100;
             if (cross < 0 && cum >= 80) { cross = i; }
             d += `${d ? "L" : "M"}${cx(i).toFixed(1)},${pctY(Math.min(cum, 100)).toFixed(1)}`;
+            if (p.commentNo != null && p.value != null) {
+                this.drawCommentMarker(g, cx(i), p, scale, "columns", cfg);
+            }
             this.attachInteraction(g, p, cfg);
             this.catGroups.push({ g, sel: p.sel });
             this.animGroups.push([g]);
@@ -2656,6 +2707,9 @@ export class Visual implements IVisual {
             if (showCatAt(i)) {
                 this.drawCategoryLabel(g, p.cat, y, "bars", cf, region, step, rect, cfg.ink,
                     cfg.highlight.has(p.cat.toLowerCase()));
+            }
+            if (p.commentNo != null && p.value != null) {
+                this.drawCommentMarker(g, y, p, scale, "bars", cfg);
             }
             this.attachInteraction(g, p, cfg);
             this.catGroups.push({ g, sel: p.sel });
@@ -4404,7 +4458,7 @@ export class Visual implements IVisual {
             add("Forecast (FC)", p.fc);
             add("Previous Year (PY)", p.py);
             add("Plan (PL)", p.pl);
-            add("Benchmark (BM)", p.bm);
+            if (cfg.bmInChart) { add("Benchmark (BM)", p.bm); }
             if (p.lineVal != null) {
                 out.push({ displayName: cfg.lineName, value: cfg.fmtLine.format(p.lineVal) });
             }
@@ -4478,10 +4532,12 @@ export class Visual implements IVisual {
     private persistUserComments(): void {
         const obj: Record<string, string> = {};
         this.userComments.forEach((v, k) => { obj[k] = v; });
+        const json = JSON.stringify(obj);
+        this.pendingCommentsJson = json;
         this.host.persistProperties({
             merge: [{
                 objectName: "commentsPanel", selector: null,
-                properties: { userComments: JSON.stringify(obj) }
+                properties: { userComments: json }
             }]
         });
     }

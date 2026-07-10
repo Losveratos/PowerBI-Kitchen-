@@ -1,5 +1,35 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.12.5.0 (2026-07-10)
+
+**Bugfix-Release Teil 3 — die 13 nachverifizierten Review-Funde:**
+
+- **Kein Geister-Rendering mehr**: Wird die Datenbindung entfernt,
+  verwirft das Visual den letzten Datensatz — ein Klick im
+  Vergleichs-Modus konnte sonst entfernte Daten zurückrendern.
+- **Vergleich per Klick in Small Multiples deaktiviert**: Die Anker
+  waren über Kacheln hinweg mehrdeutig (gleiche Kategorien je Kachel).
+- **Kommentar-Editor an Tabellen-Eltern-Zeilen**: Das Auf-/Zuklappen
+  schluckte den Editor sofort wieder — im Kommentar-Modus hat der
+  Editor jetzt Vorrang vor dem Hierarchie-Toggle.
+- **Kommentar-Speicherung race-sicher**: Ein zwischenzeitliches Update
+  mit altem Metadaten-Stand kann frisch gespeicherte Kommentare nicht
+  mehr verwerfen (persistierter Stand wird bis zum Host-Echo gehalten).
+- **Benchmark auch in der Tabelle**: BM-Tick in der AC·PY·PL-Balkenzelle;
+  die BM-Tooltip-Zeile erscheint nur noch in Modi, die den Marker
+  auch zeichnen (Columns, Bars, Line, Tabelle).
+- **Kommentar-Marker in Pareto und Dumbbell** (①②③ am Datenpunkt) —
+  bisher gab es dort nur die Fußnoten-Liste.
+- **KPI-Karten an die Schriftregler gekoppelt**: Textgröße
+  (Datenbeschriftungen) skaliert Wert/Δ-Zeilen, Kategorienachsen-Größe
+  den Kartentitel — bisher waren beide Regler im Karten-Modus tot.
+- **Formatbereich ohne tote Schalter**: Top N zeigt sich jetzt überall,
+  wo es wirkt (Bars, Brücke, Tabelle, Dumbbell, Karten); Vergleich per
+  Klick nur in Columns/Bars; Σ-Kopfzeile nur in Columns/Bars/Line;
+  die Skalen-Karte (Sync/Referenzlinie) nur in Modi, die sie umsetzen
+  (Columns/Bars/Line, Referenzlinie auch Waterfall).
+
+
 ## 1.12.4.0 (2026-07-10)
 
 **Bugfix-Release Teil 2 — restliche bestätigte Review-Funde (7–13):**
