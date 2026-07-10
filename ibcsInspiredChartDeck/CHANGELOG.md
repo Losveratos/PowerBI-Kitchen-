@@ -1,5 +1,21 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.15.1.0 (2026-07-10)
+
+**Vollständige Lokalisierung: Englisch, Spanisch, Japanisch:**
+- Bisher gab es nur eine saubere Sprache (Deutsch); der Rest war ein
+  zufälliger Mix aus englischen Code-Fallbacks und durchrutschenden
+  deutschen Enum-Labels. Jetzt vier vollständige, konsistente
+  Sprachdateien (je 105 Schlüssel): `de-DE`, `en-US`, `es-ES`, `ja-JP`.
+- **Auch die Dropdown-Werte sind jetzt lokalisiert** (Ausrichtung,
+  Abweichungsbasis, Kumulierungs-Art, Einheiten, Größen-Preset) — nicht
+  nur die Feld-/Property-Labels. Nutzt dafür `IEnumMember.displayName`
+  als Funktion (`(resourceProvider) => resourceProvider.get(key)`),
+  aufgelöst vom Power-BI-Host anhand der Berichtssprache.
+- Formatmenü folgt jetzt vollständig der Power-BI-/Berichtssprache;
+  ohne passende Sprachdatei fällt Power BI auf die Code-Fallbacks
+  zurück wie bisher.
+
 ## 1.15.0.0 (2026-07-10)
 
 **Neuer Modus: GuV-Statement (IBCS):**

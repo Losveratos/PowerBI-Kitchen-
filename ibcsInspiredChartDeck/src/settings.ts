@@ -7,46 +7,50 @@ import FormattingSettingsCard = formattingSettings.SimpleCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
 
+/** localized enum-member label: resolved per report locale from stringResources/*.json */
+type ResourceProvider = { get(id: string): string };
+const t = (key: string) => (rp: ResourceProvider): string => rp.get(key);
+
 const orientationItems: powerbi.IEnumMember[] = [
-    { value: "columns", displayName: "Columns (Zeit)" },
-    { value: "bars", displayName: "Bars (Struktur)" },
-    { value: "line", displayName: "Line (Zeit, viele Punkte)" },
-    { value: "waterfall", displayName: "Waterfall / Brücke" },
-    { value: "intwaterfall", displayName: "Integrierte Brücke (Zeit)" },
-    { value: "catbridge", displayName: "Kategorie-Brücke (Struktur)" },
-    { value: "table", displayName: "Tabelle (IBCS)" },
-    { value: "pareto", displayName: "Pareto (Struktur)" },
-    { value: "dumbbell", displayName: "Dumbbell (Struktur)" },
-    { value: "slope", displayName: "Slope · Vorher/Nachher" },
-    { value: "cards", displayName: "KPI-Karten (Kacheln)" },
-    { value: "pnl", displayName: "GuV-Statement (IBCS)" }
+    { value: "columns", displayName: t("Enum_Orientation_Columns") },
+    { value: "bars", displayName: t("Enum_Orientation_Bars") },
+    { value: "line", displayName: t("Enum_Orientation_Line") },
+    { value: "waterfall", displayName: t("Enum_Orientation_Waterfall") },
+    { value: "intwaterfall", displayName: t("Enum_Orientation_IntWaterfall") },
+    { value: "catbridge", displayName: t("Enum_Orientation_CatBridge") },
+    { value: "table", displayName: t("Enum_Orientation_Table") },
+    { value: "pareto", displayName: t("Enum_Orientation_Pareto") },
+    { value: "dumbbell", displayName: t("Enum_Orientation_Dumbbell") },
+    { value: "slope", displayName: t("Enum_Orientation_Slope") },
+    { value: "cards", displayName: t("Enum_Orientation_Cards") },
+    { value: "pnl", displayName: t("Enum_Orientation_Pnl") }
 ];
 
 const comparisonItems: powerbi.IEnumMember[] = [
-    { value: "auto", displayName: "Auto" },
-    { value: "py", displayName: "Previous Year (PY)" },
-    { value: "plan", displayName: "Plan (PL)" },
-    { value: "fcrev", displayName: "FC Vormonat (Revision)" }
+    { value: "auto", displayName: t("Enum_Comparison_Auto") },
+    { value: "py", displayName: t("Enum_Comparison_Py") },
+    { value: "plan", displayName: t("Enum_Comparison_Plan") },
+    { value: "fcrev", displayName: t("Enum_Comparison_FcRev") }
 ];
 
 const displayUnitsItems: powerbi.IEnumMember[] = [
-    { value: "auto", displayName: "Auto" },
-    { value: "none", displayName: "None" },
-    { value: "k", displayName: "Thousands (k)" },
-    { value: "m", displayName: "Millions (M)" },
-    { value: "b", displayName: "Billions (B)" }
+    { value: "auto", displayName: t("Enum_Units_Auto") },
+    { value: "none", displayName: t("Enum_Units_None") },
+    { value: "k", displayName: t("Enum_Units_K") },
+    { value: "m", displayName: t("Enum_Units_M") },
+    { value: "b", displayName: t("Enum_Units_B") }
 ];
 
 const cumulativeKindItems: powerbi.IEnumMember[] = [
-    { value: "ytd", displayName: "YTD (Jahr kumuliert)" },
-    { value: "qtd", displayName: "QTD (Quartal kumuliert)" },
-    { value: "r12", displayName: "R12 (rollierende 12 Perioden)" }
+    { value: "ytd", displayName: t("Enum_CumKind_Ytd") },
+    { value: "qtd", displayName: t("Enum_CumKind_Qtd") },
+    { value: "r12", displayName: t("Enum_CumKind_R12") }
 ];
 
 const fontPresetItems: powerbi.IEnumMember[] = [
-    { value: "compact", displayName: "Kompakt (Dashboard-Kachel)" },
-    { value: "fullhd", displayName: "Full HD (1080p)" },
-    { value: "presentation", displayName: "Präsentation (4K / Beamer)" }
+    { value: "compact", displayName: t("Enum_FontPreset_Compact") },
+    { value: "fullhd", displayName: t("Enum_FontPreset_FullHd") },
+    { value: "presentation", displayName: t("Enum_FontPreset_Presentation") }
 ];
 
 export class IbcsTitleCardSettings extends FormattingSettingsCard {

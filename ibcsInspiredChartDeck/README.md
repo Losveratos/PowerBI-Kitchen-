@@ -203,11 +203,18 @@ Voraussetzungen: Node ≥ 18. Für den Dev-Server (`npx pbiviz start`) zusätzli
 ein Entwickler-Visual-Setup im Power-BI-Dienst
 (https://learn.microsoft.com/power-bi/developer/visuals/environment-setup).
 
+## Sprachen
+
+Formatbereich vollständig lokalisiert für Deutsch (`de-DE`), Englisch
+(`en-US`), Spanisch (`es-ES`) und Japanisch (`ja-JP`) — inkl. aller
+Dropdown-Werte (Ausrichtung, Abweichungsbasis, Einheiten etc.). Power BI
+wählt automatisch anhand der Berichts-/Anzeigesprache.
+
 ## Roadmap-Ideen
 
 - Report-Page-Tooltips mit eigener Tooltip-Seite
 - Skalenband-Indikator bei bewusst abweichenden Skalen
-- Weitere Sprachen für den Formatbereich
+- Weitere Sprachen für den Formatbereich (z. B. Französisch, Italienisch)
 
 ## Lizenz
 
