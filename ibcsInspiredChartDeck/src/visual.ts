@@ -254,6 +254,7 @@ export class Visual implements IVisual {
     /** secondary basis (the dual-variance counterpart of basisMode) */
     private basis2Mode: "py" | "plan" = "plan";
     private paneHasFcPrev = false;
+    private paneHasFc = false;
     /** user-entered comments persisted in the report (commentsPanel.userComments JSON) */
     private userComments = new Map<string, string>();
     private commentEdit = false;
@@ -345,8 +346,10 @@ export class Visual implements IVisual {
         fs.chartCard.movingAverage.visible = orient === "columns" || orient === "line";
         fs.chartCard.dualVariance.visible = bothBases;
         fs.chartCard.comparisonMode.visible = bothBases || this.paneHasFcPrev;
-        fs.chartCard.pyTriangle.visible = bothBases
-            && (orient === "columns" || orient === "bars" || orient === "table");
+        fs.chartCard.pyTriangle.visible = (bothBases
+            && (orient === "columns" || orient === "bars" || orient === "table"
+                || orient === "catbridge" || orient === "intwaterfall"))
+            || (orient === "intwaterfall" && this.paneHasPy && this.paneHasFc);
         fs.chartCard.waterfallStyle.visible = orient === "columns" || orient === "bars";
         fs.chartCard.sortByImpact.visible = orient === "catbridge"
             || ((orient === "columns" || orient === "bars") && fs.chartCard.waterfallStyle.value);
@@ -355,6 +358,7 @@ export class Visual implements IVisual {
         fs.chartCard.bridgeGroup.visible = orient === "columns" || orient === "bars"
             || orient === "intwaterfall" || orient === "catbridge";
         fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge";
+        fs.chartCard.driverNote.visible = orient === "catbridge";
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
         fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
         fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value;
@@ -426,6 +430,7 @@ export class Visual implements IVisual {
         this.paneHasPy = !!byRole["previousYear"];
         this.paneHasPl = !!byRole["plan"];
         this.paneHasFcPrev = !!byRole["prevForecast"];
+        this.paneHasFc = !!byRole["forecast"];
         this.paneHasComments = comments != null;
         if (!byRole["actual"] && !byRole["forecast"]) {
             // some fields are bound but the value measure is missing — say so
@@ -798,9 +803,12 @@ export class Visual implements IVisual {
             hasBm: points.some(p => p.bm != null),
             bmInChart: (orientationRaw === "columns" || orientationRaw === "bars"
                 || orientationRaw === "line" || isTable) && points.some(p => p.bm != null),
-            // triangle notation only when all three scenarios actually appear together
+            // triangle notation only when three scenarios actually appear together —
+            // AC+PY+PL generally; in the integrated bridge AC+FC+PY also qualifies
             pyTriangle: s.chartCard.pyTriangle.value
-                && points.some(p => p.py != null) && points.some(p => p.pl != null),
+                && points.some(p => p.py != null)
+                && (points.some(p => p.pl != null)
+                    || (orientationRaw === "intwaterfall" && points.some(p => p.isFc))),
             sharedScale: groups.length > 1,
             mainDomain: [0, 0],
             isMaterial: (() => {
@@ -1531,15 +1539,21 @@ export class Visual implements IVisual {
                 }
             }
 
-            // mini columns at the base: basis grey behind, AC/FC in front
+            // mini columns at the base: basis grey behind, AC/FC in front; when the
+            // basis is PY and all three scenarios are bound, use the triangle marker
             if (p.basis != null) {
-                const h = BS(p.basis);
-                this.el("rect", {
-                    x: x - colW * 0.8, y: yBase - h, width: colW, height: h,
-                    ...(cfg.hc
-                        ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1, "stroke-dasharray": "3,2" }
-                        : { fill: cfg.colors.py })
-                }, g);
+                if (cfg.pyTriangle && cfg.basisMode === "py") {
+                    const triScale: Scale = (v: number) => yBase - BS(v);
+                    this.drawPyTriangle(g, x - colW * 0.2, colW * 1.4, p.basis, triScale, "columns", cfg);
+                } else {
+                    const h = BS(p.basis);
+                    this.el("rect", {
+                        x: x - colW * 0.8, y: yBase - h, width: colW, height: h,
+                        ...(cfg.hc
+                            ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1, "stroke-dasharray": "3,2" }
+                            : { fill: cfg.colors.py })
+                    }, g);
+                }
             }
             if (p.value != null) {
                 const h = BS(p.value);
@@ -1835,15 +1849,20 @@ export class Visual implements IVisual {
             const yy = yS0 + i * rowH;
             rowLabel(yy, p.cat, false, g);
 
-            // mini bars: reference (PY grey / PL outline) behind, AC in front
+            // mini bars: reference (PY grey / PL outline) behind, AC in front;
+            // with three scenarios the PY reference collapses to the triangle marker
             const behind = hasPy ? p.py : p.pl;
             if (behind != null) {
-                this.el("rect", {
-                    x: x0, y: yy + rowH * 0.12, width: Math.max(X(behind) - x0, 1), height: pyBarH,
-                    ...(cfg.hc || !hasPy
-                        ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1 }
-                        : { fill: cfg.colors.py })
-                }, g);
+                if (cfg.pyTriangle && hasPy) {
+                    this.drawPyTriangle(g, yy + rowH * 0.28, rowH * 0.5, behind, X, "bars", cfg);
+                } else {
+                    this.el("rect", {
+                        x: x0, y: yy + rowH * 0.12, width: Math.max(X(behind) - x0, 1), height: pyBarH,
+                        ...(cfg.hc || !hasPy
+                            ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1 }
+                            : { fill: cfg.colors.py })
+                    }, g);
+                }
             }
             if (p.value != null) {
                 this.el("rect", {
@@ -1877,8 +1896,9 @@ export class Visual implements IVisual {
                     if (d >= 0) { valLabel(xB + 6, yy + rowH / 2 + lf * 0.35, fmtD(d), false, g); }
                     else { valLabel(xA - 6, yy + rowH / 2 + lf * 0.35, fmtD(d), false, g, "end"); }
                 }
-                // größter Treiber annotation
-                if (i === drvIdx && dTot !== 0 && region.w >= 640) {
+                // größter Treiber annotation (optional — overlays the row area)
+                if (i === drvIdx && dTot !== 0 && region.w >= 640
+                    && this.formattingSettings.chartCard.driverNote.value) {
                     const share = Math.round(Math.abs(d / dTot) * 100);
                     let note: string;
                     if (Math.sign(d) === Math.sign(dTot) && share <= 100) {

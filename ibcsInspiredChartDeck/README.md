@@ -18,7 +18,8 @@ in **einem** Visual löst:
   PL = doppelte dünne Linie
 - **PY als Dreieck** bei drei Szenarien: Sind AC, PY und PL gebunden, erscheint
   das Vorjahr als graues Dreieck am Säulen-/Balkenrand auf PY-Höhe statt als
-  dritte Säule (Columns, Bars, Tabelle; abschaltbar) — IBCS-Jahreschart-Notation
+  dritte Säule (Columns, Bars, Tabelle, Kategorie-Brücke; in der Integrierten
+  Brücke zählt auch AC + FC + PY; abschaltbar) — IBCS-Jahreschart-Notation
 - **Columns & Bars**: vertikale Säulen für Zeitreihen, horizontale Balken für
   Struktur-Vergleiche (Panels dann nebeneinander)
 - **Invert-Schalter** für Kosten-KPIs (Mehrwert = schlecht = rot) — global oder
@@ -73,7 +74,8 @@ in **einem** Visual löst:
 - **Kategorie-Brücke (Struktur)** (eigener Chart-Modus): PL/PY-Summenzeilen oben,
   je Kategorie AC·PY-Balken + Kaskaden-Brick + ΔBasis%-Pin, AC-Summenzeile und
   doppelte Überleitung (ΔBasis mit Callout + ΔZweitbasis) unten — inkl.
-  "größter Treiber"-Notiz, Gruppentrennlinien, Top N + Rest, Sort by impact
+  "größter Treiber"-Notiz (abschaltbar), Gruppentrennlinien, Top N + Rest,
+  Sort by impact
 - **In-Chart-Buttons** (optional, Chart → Bridge): ΔPY|ΔPL-Referenz-Umschalter
   (persistiert — Enduser wechselt die Varianz-Basis direkt im Bericht),
   ⇅ Sortierung und ▶ Aufbau-Animation für die beiden Brücken-Modi

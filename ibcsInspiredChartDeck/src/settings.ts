@@ -283,6 +283,14 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    driverNote = new formattingSettings.ToggleSwitch({
+        name: "driverNote",
+        displayName: "Driver note in chart",
+        displayNameKey: "Chart_DriverNote",
+        description: "Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar.",
+        value: true
+    });
+
     layoutGroup = new formattingSettings.Group({
         name: "chartLayout",
         displayName: "Layout",
@@ -370,7 +378,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartBridge",
         displayName: "Bridge",
         displayNameKey: "Group_Bridge",
-        slices: [this.waterfallStyle, this.sortByImpact, this.chartButtons]
+        slices: [this.waterfallStyle, this.sortByImpact, this.chartButtons, this.driverNote]
     });
 
     name: string = "chart";

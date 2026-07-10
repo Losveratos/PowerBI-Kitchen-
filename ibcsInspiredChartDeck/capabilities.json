@@ -168,6 +168,7 @@
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
                 "chartButtons": { "type": { "bool": true } },
+                "driverNote": { "type": { "bool": true } },
                 "compareClick": { "type": { "bool": true } },
                 "invert": { "type": { "bool": true } },
                 "invertList": { "type": { "text": true } }

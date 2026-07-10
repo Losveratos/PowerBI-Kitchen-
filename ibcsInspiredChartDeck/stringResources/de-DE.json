@@ -32,6 +32,7 @@
         "Chart_Highlight": "Kategorien hervorheben",
         "Chart_GroupEvery": "Trennlinie alle N Kategorien",
         "Chart_Buttons": "In-Chart-Buttons",
+        "Chart_DriverNote": "Treiber-Notiz im Chart",
         "Chart_CompareClick": "Vergleich per Klick",
         "Chart_Invert": "Invertieren (mehr ist schlecht)",
         "Chart_InvertList": "Invertieren je Kategorie",

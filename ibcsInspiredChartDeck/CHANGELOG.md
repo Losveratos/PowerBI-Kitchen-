@@ -1,5 +1,19 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.14.1.0 (2026-07-10)
+
+**PY-Dreiecke in den Brücken + Treiber-Notiz abschaltbar:**
+- **Kategorie-Brücke**: Sind AC, PY und PL gebunden, zeigt jede
+  Kategorie-Zeile das Vorjahr als graues Dreieck (▼) über dem Balken
+  statt als grauen Hintergrund-Balken — gleiche IBCS-Notation wie in
+  den Säulen-/Balken-Modi. Schalter: Layout → „PY als Dreieck".
+- **Integrierte Brücke (Zeit)**: Die Monats-Minisäulen zeigen PY als
+  Dreieck (▶) neben der AC-/FC-Säule; hier zählt auch AC + FC + PY
+  als Drei-Szenarien-Fall (der Basis-Vergleich der Brücke ist PY).
+- **Treiber-Notiz schaltbar** (Brücken-Optionen → Treiber-Notiz im
+  Chart): die kursive Notiz „größter Treiber · n % …" in der
+  Kategorie-Brücke lässt sich jetzt ausblenden (Standard: an).
+
 ## 1.14.0.0 (2026-07-10)
 
 **Zeitintelligenz & GuV-Paket:**
