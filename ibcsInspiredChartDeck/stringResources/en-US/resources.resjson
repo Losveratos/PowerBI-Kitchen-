@@ -147,5 +147,8 @@
     "Tooltip_Series": "Series",
     "Tooltip_Materiality": "Materiality",
     "Tooltip_MaterialityBelow": "below threshold — shown in grey",
-    "Tooltip_Comment": "Comment"
+    "Tooltip_Comment": "Comment",
+    "Hint_MoreRows": "more rows (increase the visual height)",
+    "Btn_ExpandAll": "Expand all",
+    "Btn_CollapseAll": "Collapse all"
 }

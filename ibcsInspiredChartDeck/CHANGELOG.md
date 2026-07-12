@@ -1,5 +1,32 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.17.0.0 (2026-07-12)
+
+**Tabelle 2.0 — Welle 1 (Richtung Zebra-BI-Tables-Klasse):**
+- **Σ-Gesamtzeile ohne Vorarbeit**: „Summen-Kopfzeile (Σ)" wirkt jetzt
+  auch im Table-Modus — die Tabelle summiert selbst (fett, unten
+  fixiert, inkl. Σ-Varianzen). Automatisch unterdrückt, wenn die Daten
+  eigene sum-Zeilen mitbringen oder Kumulierung aktiv ist.
+- **Δ% verschwindet nie mehr**: Fällt die Pin-Spalte auf schmalen
+  Kacheln weg, rückt eine bezifferte, farbige Δ%-Spalte nach. Die
+  Zweitbasis bekommt erstmals eine eigene **Δ2-%-Zahlenspalte** (war
+  bisher nur im Tooltip); der Δ2-Balken trägt jetzt FC-Schraffur,
+  High-Contrast- und Wesentlichkeits-Notation wie der Primär-Balken.
+- **Drill-Zustand persistent + „Alle auf-/zuklappen"**: Hierarchie-
+  Expand überlebt Reload/Bookmarks (persistiert mit Race-Guard), Kacheln
+  in Small Multiples klappen unabhängig, und ein ▸▸/▾▾-Chevron im
+  Tabellenkopf öffnet/schließt alle Ebenen auf einmal.
+- **Skalen-Sync**: Die Skala-Karte gilt jetzt auch für Tabellen —
+  Balken- und Δ-Spalten teilen die deck-weiten Domains (fixedMax/
+  fixedVarMax, Small-Multiples-Kacheln identisch skaliert).
+- **Feinschliff**: Σ-treue Rundung wirkt in der Tabelle (Zeilen addieren
+  sichtbar auf die Σ-Zeile), „vorläufig"-Schraffur auf dem AC-Balken,
+  AC-Balkenspalte auch ohne Vergleichsbasis, Überlauf-Hinweis
+  lokalisiert, „Beschriftungen anzeigen" wird respektiert.
+- **Echte Textmessung**: Canvas-basierte Breitenmessung (mit Cache)
+  ersetzt deck-weit die Zeichenzähl-Heuristik — lange deutsche
+  Kontennamen werden exakt gekürzt statt zu früh/zu spät ellipsiert.
+
 ## 1.16.0.0 (2026-07-12)
 
 **Drei Controller-Features:**

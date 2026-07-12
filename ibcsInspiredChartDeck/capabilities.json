@@ -131,6 +131,7 @@
                     }
                 },
                 "pnlView": { "type": { "text": true } },
+                "tableExpanded": { "type": { "text": true } },
                 "comparisonMode": {
                     "type": {
                         "enumeration": [

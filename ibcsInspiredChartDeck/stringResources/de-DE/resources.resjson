@@ -147,5 +147,8 @@
     "Tooltip_Series": "Serie",
     "Tooltip_Materiality": "Wesentlichkeit",
     "Tooltip_MaterialityBelow": "unter Schwelle — grau dargestellt",
-    "Tooltip_Comment": "Kommentar"
+    "Tooltip_Comment": "Kommentar",
+    "Hint_MoreRows": "weitere Zeilen (Visual höher ziehen)",
+    "Btn_ExpandAll": "Alle aufklappen",
+    "Btn_CollapseAll": "Alle zuklappen"
 }

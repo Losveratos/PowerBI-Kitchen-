@@ -65,6 +65,10 @@
 <div class="case"><h4>Σ-treue Rundung AN — Labels addieren exakt auf die Σ-Kopfzeile</h4><div class="stage" id="c55" style="width:960px;height:300px"></div></div>
 <div class="case"><h4>Σ-treue Rundung AUS — Rundungshinweis unter der Σ-Zeile</h4><div class="stage" id="c56" style="width:960px;height:300px"></div></div>
 <div class="case"><h4>Export-Modus (allowInteractions=false) · Kategorie-Brücke ohne In-Chart-Buttons</h4><div class="stage" id="c57" style="width:1340px;height:600px"></div></div>
+<div class="case"><h4>Tabelle · synthetische Σ-Zeile (showTotal, ohne rowType-Daten) + Skalen-Sync</h4><div class="stage" id="c58" style="width:1200px;height:420px"></div></div>
+<div class="case"><h4>Tabelle · schmal (620px): Pin-Spalte fällt weg → numerische Δ%-Spalte rückt nach</h4><div class="stage" id="c59" style="width:470px;height:380px"></div></div>
+<div class="case"><h4>Tabelle · Dual-Varianz: neue Δ2-%-Zahlenspalte + FC-Schraffur im Δ2-Balken</h4><div class="stage" id="c60" style="width:1340px;height:420px"></div></div>
+<div class="case"><h4>Tabelle · Σ-treue Rundung + Σ-Zeile (3×10.440 → 10,4+10,4+10,5 = 31,3) + Prelim-Zeile</h4><div class="stage" id="c61" style="width:1100px;height:300px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -271,6 +275,21 @@ run("c23", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col
 run("c24", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)],
   { chart: { orientation: "catbridge", comparisonMode: "plan", sortByImpact: true },
     labels: { fontPreset: "fullhd" } }), 1340, 820);
+
+// table 2.0: synthetic Σ row (no rowType), scale-sync, Δ% fallback, Δ2 %, sum-safe
+const t2Cats = ["Nord", "West", "Süd", "Ost", "Zentral"];
+const t2Ac = [4200, 3100, 2800, 1900, 1200];
+const t2Py = [3900, 3300, 2600, 2000, 1050];
+const t2Pl = [4000, 3200, 2750, 2100, 1150];
+run("c58", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€"), col("plan", t2Pl, "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true } }), 1200, 420);
+run("c59", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€")],
+  { chart: { orientation: "table" } }), 470, 380);
+run("c60", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€"), col("plan", t2Pl, "#,0 T€")],
+  { chart: { orientation: "table", dualVariance: true }, __fcFlags: [0, 0, 0, 0, 1] }), 1340, 420);
+run("c61", dataView(["Nord", "Mitte", "Süd"], [col("actual", [10440, 10440, 10440], "#,0 €")],
+  { chart: { orientation: "table", showTotal: true }, labels: { sumSafeRounding: true },
+    __fcFlags: [0, 2, 0] }), 1100, 300);
 
 // IBCS table: P&L rows with sum/delta role, AC·PY bars + variance columns
 const tabRows = ["Umsatz","Materialaufwand","Personal","Bruttoergebnis","Vertrieb","Verwaltung","EBIT"];

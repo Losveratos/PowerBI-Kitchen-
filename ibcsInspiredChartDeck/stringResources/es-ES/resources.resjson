@@ -147,5 +147,8 @@
     "Tooltip_Series": "Serie",
     "Tooltip_Materiality": "Materialidad",
     "Tooltip_MaterialityBelow": "por debajo del umbral: se muestra en gris",
-    "Tooltip_Comment": "Comentario"
+    "Tooltip_Comment": "Comentario",
+    "Hint_MoreRows": "filas más (aumente la altura del objeto visual)",
+    "Btn_ExpandAll": "Expandir todo",
+    "Btn_CollapseAll": "Contraer todo"
 }

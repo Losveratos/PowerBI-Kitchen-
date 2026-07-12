@@ -147,5 +147,8 @@
     "Tooltip_Series": "系列",
     "Tooltip_Materiality": "重要性",
     "Tooltip_MaterialityBelow": "しきい値未満 — グレー表示",
-    "Tooltip_Comment": "コメント"
+    "Tooltip_Comment": "コメント",
+    "Hint_MoreRows": "行が非表示(ビジュアルの高さを拡大してください)",
+    "Btn_ExpandAll": "すべて展開",
+    "Btn_CollapseAll": "すべて折りたたむ"
 }

@@ -127,6 +127,8 @@ interface ChartConfig {
     patPrelim: string;
     /** sum-safe label rounding (largest remainder): labels add up to the Σ header */
     sumSafe: boolean;
+    /** deck-wide absolute-variance domain (incl. fixedVarMax) for scale sync */
+    varDomain: [number, number];
     /** display-unit divisor and decimals of cfg.fmt — for sum-safe adjustment */
     fmtUnit: number;
     fmtPrec: number;
@@ -245,6 +247,8 @@ export class Visual implements IVisual {
     private zoomGroup: string | null = null;
     /** table mode: expanded hierarchy parents (transient, chevron click in the chart) */
     private expandedRows = new Set<string>();
+    /** persist-race guard: expand-state JSON we wrote but the host has not echoed */
+    private pendingTableExpanded: string | null = null;
     /** compare-on-click: whether the mode is active this render + picked categories */
     private compareActive = false;
     private compareCats: string[] = [];
@@ -346,6 +350,16 @@ export class Visual implements IVisual {
                 this.pendingPnlView = null;
                 this.pnlView = rawViewStr;
             }
+            // persisted table drill state (bookmarkable), same echo-guard pattern
+            const rawExp = dataView?.metadata?.objects?.["chart"]?.["tableExpanded"];
+            const rawExpStr = typeof rawExp === "string" ? rawExp : "";
+            if (this.pendingTableExpanded == null || rawExpStr === this.pendingTableExpanded) {
+                this.pendingTableExpanded = null;
+                if (rawExpStr !== "") {
+                    try { this.expandedRows = new Set(JSON.parse(rawExpStr) as string[]); }
+                    catch { /* corrupt store: keep the session state */ }
+                }
+            }
             const points = this.parseData(dataView);
             if (!points || points.length === 0) {
                 this.renderDemo(width, height);
@@ -407,12 +421,16 @@ export class Visual implements IVisual {
         fs.chartCard.materialityAbs.visible = this.paneHasPy || this.paneHasPl;
         fs.chartCard.materialityPct.visible = this.paneHasPy || this.paneHasPl;
         fs.chartCard.compareClick.visible = orient === "columns" || orient === "bars";
-        fs.chartCard.showTotal.visible = orient === "columns" || orient === "bars" || orient === "line";
+        fs.chartCard.showTotal.visible = orient === "columns" || orient === "bars"
+            || orient === "line" || orient === "table";
         // scale card only where the shared main scale exists; the sync group
-        // additionally needs renderChart (waterfall computes its own domain)
+        // additionally needs renderChart (waterfall computes its own domain);
+        // the table consumes the sync domains but has no ref line / cap marker
         fs.scaleCard.visible = orient === "columns" || orient === "bars"
-            || orient === "line" || orient === "waterfall";
+            || orient === "line" || orient === "waterfall" || orient === "table";
         fs.scaleCard.syncGroup.visible = orient !== "waterfall";
+        fs.scaleCard.refLineGroup.visible = orient !== "table";
+        if (orient === "table") { fs.scaleCard.capOverflow.visible = false; }
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
@@ -902,6 +920,7 @@ export class Visual implements IVisual {
                     || (orientationRaw === "intwaterfall" && points.some(p => p.isFc))),
             sharedScale: groups.length > 1,
             mainDomain: [0, 0],
+            varDomain: [0, 0],
             isMaterial: (() => {
                 const mAbs = s.chartCard.materialityAbs.value ?? 0;
                 const mPct = s.chartCard.materialityPct.value ?? 0;
@@ -995,6 +1014,7 @@ export class Visual implements IVisual {
 
         // IBCS same-scale rule also for the self-scaling renderers (pareto/dumbbell/slope)
         cfg.mainDomain = domains.main;
+        cfg.varDomain = domains.abs;
 
         const renderCell = (grp: { name: string | null; pts: DataPoint[] }, region: Rect) => {
             if (isWaterfall) {
@@ -2548,26 +2568,31 @@ export class Visual implements IVisual {
         // ------- expandable hierarchy: with an expanded category hierarchy (≥2 level
         // columns in the field well), level-0 rows render aggregated with a ▸/▾
         // chevron — clicking the category toggles its indented child rows in and out
-        type TableRow = { p: DataPoint; indent: boolean; parentKey?: string; expanded?: boolean };
+        type TableRow = { p: DataPoint; indent: boolean; parentKey?: string; expanded?: boolean; isTotal?: boolean };
+        const isSum = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("sum");
+        const isPct = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("pct");
         const hasLevels = points.some(p => (p.catLevels?.length ?? 0) >= 2);
         let rows: TableRow[];
         if (hasLevels) {
             rows = [];
-            const orderKeys: string[] = [];
+            // drill keys are tile-scoped (group¦label) so same-named parents in
+            // small-multiples tiles expand independently; the label stays clean
+            const orderKeys: { mk: string; label: string }[] = [];
             const byKey = new Map<string, DataPoint[]>();
             for (const p of points) {
-                const key = p.catLevels && p.catLevels.length > 1 ? p.catLevels[0] : p.cat;
-                if (!byKey.has(key)) { byKey.set(key, []); orderKeys.push(key); }
-                (byKey.get(key) as DataPoint[]).push(p);
+                const label = p.catLevels && p.catLevels.length > 1 ? p.catLevels[0] : p.cat;
+                const mk = `${p.group ?? ""}¦${label}`;
+                if (!byKey.has(mk)) { byKey.set(mk, []); orderKeys.push({ mk, label }); }
+                (byKey.get(mk) as DataPoint[]).push(p);
             }
-            for (const key of orderKeys) {
-                const kids = byKey.get(key) as DataPoint[];
+            for (const { mk, label } of orderKeys) {
+                const kids = byKey.get(mk) as DataPoint[];
                 if (kids.length === 1 && !(kids[0].catLevels && kids[0].catLevels.length > 1)) {
                     rows.push({ p: kids[0], indent: false });
                     continue;
                 }
-                const expanded = this.expandedRows.has(key);
-                rows.push({ p: this.aggregateHierarchy(key, kids), indent: false, parentKey: key, expanded });
+                const expanded = this.expandedRows.has(mk);
+                rows.push({ p: this.aggregateHierarchy(label, kids), indent: false, parentKey: mk, expanded });
                 if (expanded) {
                     for (const c of kids) {
                         rows.push({
@@ -2580,13 +2605,24 @@ export class Visual implements IVisual {
         } else {
             rows = points.map(p => ({ p, indent: false }));
         }
-        const rowPts = rows.map(r => r.p);
-        const n = rows.length;
+
+        // visual-computed grand total (Σ): only when the data brings no sum rows
+        // of its own and no running totals are active (cumulative IS a total)
+        let totalRow: TableRow | null = null;
+        if (cfg.showTotal && !cfg.cumulative && !points.some(p => isSum(p))) {
+            const base = rows.filter(r => !r.indent && !isPct(r.p)).map(r => r.p);
+            if (base.length > 1) {
+                const tp = this.aggregateHierarchy(this.locStr("Label_Total", "Σ Total"), base);
+                tp.rowType = "sum";
+                totalRow = { p: tp, indent: false, isTotal: true };
+            }
+        }
+        const rowPts = rows.map(r => r.p).concat(totalRow ? [totalRow.p] : []);
+        const n = rows.length + (totalRow ? 1 : 0);
 
         const hasVar = rowPts.some(p => p.varAbs != null);
         const hasVar2 = cfg.showDual && rowPts.some(p => p.var2Abs != null);
         const showPct = cfg.showRel && hasVar;
-        const isSum = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("sum");
 
         // ------- column layout: fixed text columns, graphic columns share the rest
         const chevW = hasLevels ? 14 * k : 0;
@@ -2595,20 +2631,37 @@ export class Visual implements IVisual {
         const valW = lf * 4.8;
         const dValW = hasVar ? lf * 4.6 : 0;
         const d2ValW = hasVar2 ? lf * 4.6 : 0;
+        // Δ2 % has no graphic pin — it is always a numeric column when dual is on
+        const d2PctValW = hasVar2 && cfg.showRel ? lf * 4.2 : 0;
         const gap = 10;
-        const fixed = nameW + valW + dValW + d2ValW;
+        let fixed = nameW + valW + dValW + d2ValW + d2PctValW;
         type GCol = { key: "bars" | "dbar" | "pct" | "d2bar"; min: number; w: number };
         const wanted: GCol[] = [];
-        if (cfg.showAbs || cfg.hasPy || cfg.hasPl) { wanted.push({ key: "bars", min: 110 * k, w: 0 }); }
+        // the AC bar cell is useful even without any comparison basis (plain lists)
+        if (cfg.showAbs || cfg.hasPy || cfg.hasPl || rowPts.some(p => p.value != null)) {
+            wanted.push({ key: "bars", min: 110 * k, w: 0 });
+        }
         if (hasVar && cfg.showAbs) { wanted.push({ key: "dbar", min: 80 * k, w: 0 }); }
         if (showPct) { wanted.push({ key: "pct", min: 95 * k, w: 0 }); }
         if (hasVar2) { wanted.push({ key: "d2bar", min: 80 * k, w: 0 }); }
         // greedily keep graphic columns while the leftover width fits their minimums
         const graphic: GCol[] = [];
-        for (const c of wanted) {
-            const need = graphic.reduce((a, g) => a + g.min, 0) + c.min;
-            const leftover = region.w - pad * 2 - fixed - gap * (graphic.length + 3);
-            if (need <= leftover) { graphic.push(c); }
+        const runGreedy = () => {
+            graphic.length = 0;
+            for (const c of wanted) {
+                const need = graphic.reduce((a, g) => a + g.min, 0) + c.min;
+                const leftover = region.w - pad * 2 - fixed - gap * (graphic.length + 3);
+                if (need <= leftover) { graphic.push(c); }
+            }
+        };
+        runGreedy();
+        // Δ% must never disappear entirely: when the pin column is dropped, a
+        // numeric Δ% column takes its place (second pass with the extra width)
+        let dPctValW = 0;
+        if (showPct && !graphic.find(g => g.key === "pct")) {
+            dPctValW = lf * 4.2;
+            fixed += dPctValW;
+            runGreedy();
         }
         const spare = region.w - pad * 2 - fixed - gap * (graphic.length + 3)
             - graphic.reduce((a, g) => a + g.min, 0);
@@ -2626,22 +2679,29 @@ export class Visual implements IVisual {
         if (dbarCol) { colX["dbar"] = { x, w: dbarCol.w }; x += dbarCol.w + gap; }
         const pctCol = graphic.find(g => g.key === "pct");
         if (pctCol) { colX["pct"] = { x, w: pctCol.w }; x += pctCol.w + gap; }
+        if (dPctValW > 0) { colX["dpctval"] = { x, w: dPctValW }; x += dPctValW + gap; }
         if (hasVar2) { colX["d2val"] = { x, w: d2ValW }; x += d2ValW + gap; }
+        if (d2PctValW > 0) { colX["d2pctval"] = { x, w: d2PctValW }; x += d2PctValW + gap; }
         const d2barCol = graphic.find(g => g.key === "d2bar");
         if (d2barCol) { colX["d2bar"] = { x, w: d2barCol.w }; }
 
-        // ------- row layout + shared scales
+        // ------- row layout + shared scales; the Σ row is pinned as last visible row
         const headerH = Math.round(cf + 12);
         const rowH = Math.max(cf + 6, (region.h - pad * 2 - headerH) / n);
         const top = region.y + pad + headerH;
         const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH);
-        const shown = rows.slice(0, Math.max(1, maxRows));
+        const bodyRows = rows.slice(0, Math.max(1, maxRows - (totalRow ? 1 : 0)));
+        const shown = totalRow ? [...bodyRows, totalRow] : bodyRows;
 
         // margin rows (rowType "pct") carry percentages — keep them out of the € scales
-        const isPct = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("pct");
         const numPts = rowPts.filter(p => !isPct(p));
         const barDomain = extent(numPts.flatMap(p => [p.value, p.py, p.pl]));
-        const dDomain = Math.max(...numPts.map(p => Math.abs(p.varAbs ?? 0)), 1);
+        // IBCS scale sync: share the deck-wide domains so multiple tables (and
+        // small-multiples tiles) on a page use identical scales incl. fixedMax
+        barDomain[0] = Math.min(barDomain[0], cfg.mainDomain[0]);
+        barDomain[1] = Math.max(barDomain[1], cfg.mainDomain[1]);
+        const dDomain = Math.max(...numPts.map(p => Math.abs(p.varAbs ?? 0)),
+            Math.abs(cfg.varDomain[0]), Math.abs(cfg.varDomain[1]), 1);
         const d2Domain = Math.max(...numPts.map(p => Math.abs(p.var2Abs ?? 0)), 1);
         const maxPct = Math.max(...numPts.map(p => Math.abs(p.varRel ?? 0)), 1);
 
@@ -2666,11 +2726,34 @@ export class Visual implements IVisual {
         const hFont = Math.round(10 * k);
         const hy = region.y + pad + hFont + 2;
         const scen = ["AC", cfg.hasPy ? "PY" : "", cfg.hasPl ? "PL" : ""].filter(v => v).join(" · ");
+        // expand/collapse all: header chevron in front of the name column
+        const parentRows = rows.filter(r => r.parentKey != null);
+        if (hasLevels && parentRows.length > 0 && this.allowInteractions) {
+            const allOpen = parentRows.every(r => r.expanded);
+            const label = allOpen
+                ? this.locStr("Btn_CollapseAll", "Collapse all")
+                : this.locStr("Btn_ExpandAll", "Expand all");
+            const ch = txt(colX["name"].x, hy, allOpen ? "▾▾" : "▸▸", "start", hFont, true, cfg.subtle, bg);
+            const tip = this.el("title", {}, ch);
+            tip.textContent = label;
+            ch.setAttribute("role", "button");
+            ch.setAttribute("aria-label", label);
+            ch.style.cursor = "pointer";
+            ch.addEventListener("click", (e: MouseEvent) => {
+                e.stopPropagation();
+                if (allOpen) { parentRows.forEach(r => this.expandedRows.delete(r.parentKey as string)); }
+                else { parentRows.forEach(r => this.expandedRows.add(r.parentKey as string)); }
+                this.persistTableExpanded();
+                this.rerender();
+            });
+        }
         txt(colX["val"].x + colX["val"].w, hy, "AC", "end", hFont, true, cfg.subtle, bg);
-        if (colX["bars"]) { txt(colX["bars"].x + 2, hy, scen, "start", hFont, true, cfg.subtle, bg); }
+        if (colX["bars"] && scen !== "AC") { txt(colX["bars"].x + 2, hy, scen, "start", hFont, true, cfg.subtle, bg); }
         if (colX["dval"]) { txt(colX["dval"].x + colX["dval"].w, hy, `Δ${cfg.basisLabel}`, "end", hFont, true, cfg.subtle, bg); }
         if (colX["pct"]) { txt(colX["pct"].x + colX["pct"].w / 2, hy, `Δ${cfg.basisLabel} %`, "middle", hFont, true, cfg.subtle, bg); }
+        if (colX["dpctval"]) { txt(colX["dpctval"].x + colX["dpctval"].w, hy, `Δ${cfg.basisLabel} %`, "end", hFont, true, cfg.subtle, bg); }
         if (colX["d2val"]) { txt(colX["d2val"].x + colX["d2val"].w, hy, `Δ${cfg.basis2Label}`, "end", hFont, true, cfg.subtle, bg); }
+        if (colX["d2pctval"]) { txt(colX["d2pctval"].x + colX["d2pctval"].w, hy, `Δ${cfg.basis2Label} %`, "end", hFont, true, cfg.subtle, bg); }
         this.el("line", {
             x1: region.x + pad, y1: top - 2, x2: region.x + region.w - pad, y2: top - 2,
             stroke: cfg.ink, "stroke-width": 1.2
@@ -2699,6 +2782,22 @@ export class Visual implements IVisual {
         if (colX["d2bar"]) {
             this.el("rect", { x: d2Axis - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
         }
+
+        // sum-safe rounding: adjust the level-0 detail labels (largest remainder)
+        // so they visibly add up to the synthetic Σ row
+        const sumSafeVals = (cfg.sumSafe && !cfg.cumulative && totalRow)
+            ? (() => {
+                const base = rows.filter(r => !r.indent && !isPct(r.p) && !isSum(r.p)).map(r => r.p);
+                const adj = this.sumSafeAdjust(base.map(q => q.value), cfg.fmtUnit, cfg.fmtPrec);
+                const m = new Map<DataPoint, number | null>();
+                base.forEach((q, ix) => m.set(q, adj[ix]));
+                const div = cfg.fmtUnit || 1, f = Math.pow(10, cfg.fmtPrec);
+                if (totalRow.p.value != null) {
+                    m.set(totalRow.p, Math.round((totalRow.p.value / div) * f) / f * div);
+                }
+                return m;
+            })()
+            : null;
 
         // ------- rows
         shown.forEach((row, i) => {
@@ -2745,9 +2844,10 @@ export class Visual implements IVisual {
                 + new Intl.NumberFormat(this.host.locale, {
                     minimumFractionDigits: 1, maximumFractionDigits: 1
                 }).format(Math.abs(v)) + "Pp";
-            if (p.value != null) {
+            if (p.value != null && cfg.showLabels) {
+                const shownVal = sumSafeVals?.has(p) ? sumSafeVals.get(p) as number : p.value;
                 txt(colX["val"].x + colX["val"].w, yMid + rowFont * 0.35,
-                    rowPct ? pctText(p.value) : cfg.fmt.format(p.value), "end", rowFont, sum,
+                    rowPct ? pctText(p.value) : cfg.fmt.format(shownVal), "end", rowFont, sum,
                     rowPct ? cfg.subtle : cfg.ink, g);
             }
 
@@ -2781,6 +2881,10 @@ export class Visual implements IVisual {
                     barCell(p.value, acH, 0.36, p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : { fill: cfg.colors.ac });
+                    if (p.isPrelim && !p.isFc) {
+                        // preliminary actual: thin paper hatch over the solid bar
+                        barCell(p.value, acH, 0.36, { fill: `url(#${cfg.patPrelim})` });
+                    }
                 }
                 if (p.bm != null) {
                     const bx = barScale(p.bm);
@@ -2792,10 +2896,16 @@ export class Visual implements IVisual {
             }
 
             // ΔBasis: number + bar (margin rows show percentage points instead)
-            if (p.varAbs != null && colX["dval"]) {
+            if (p.varAbs != null && colX["dval"] && cfg.showLabels) {
                 txt(colX["dval"].x + colX["dval"].w, yMid + rowFont * 0.35,
                     rowPct ? ppText(p.varAbs) : this.fmtSigned(cfg.fmtVar, p.varAbs), "end", rowFont, sum,
                     p.varAbs === 0 ? cfg.subtle : colOf(p.varAbs, p), g);
+            }
+            // numeric Δ% fallback column (pin column dropped on narrow tiles)
+            if (p.varRel != null && colX["dpctval"] && !rowPct && cfg.showLabels) {
+                txt(colX["dpctval"].x + colX["dpctval"].w, yMid + rowFont * 0.35,
+                    this.fmtPercent(p.varRel), "end", rowFont, sum,
+                    p.varRel === 0 ? cfg.subtle : colOf(p.varRel, p), g);
             }
             if (p.varAbs != null && colX["dbar"] && !rowPct) {
                 const len = Math.abs(p.varAbs) / dDomain * (colX["dbar"].w / 2 - 4);
@@ -2825,22 +2935,36 @@ export class Visual implements IVisual {
                     x: endX - r, y: yMid - r, width: 2 * r, height: 2 * r,
                     fill: p.isFc ? cfg.paper : cfg.ink, stroke: cfg.ink, "stroke-width": p.isFc ? 1 : 0
                 }, g);
-                txt(endX + dir * (r + 4), yMid + rowFont * 0.35, this.fmtPercent(p.varRel),
-                    dir > 0 ? "start" : "end", Math.round(rowFont * 0.92), sum, cfg.ink, g);
+                if (cfg.showLabels) {
+                    txt(endX + dir * (r + 4), yMid + rowFont * 0.35, this.fmtPercent(p.varRel),
+                        dir > 0 ? "start" : "end", Math.round(rowFont * 0.92), sum, cfg.ink, g);
+                }
             }
 
-            // ΔBasis2 (dual): number + bar
-            if (hasVar2 && p.var2Abs != null && colX["d2val"]) {
+            // ΔBasis2 (dual): number + Δ2 % number + bar (same notation as ΔBasis)
+            if (hasVar2 && p.var2Abs != null && colX["d2val"] && cfg.showLabels) {
                 txt(colX["d2val"].x + colX["d2val"].w, yMid + rowFont * 0.35,
                     rowPct ? ppText(p.var2Abs) : this.fmtSigned(cfg.fmtVar, p.var2Abs), "end", rowFont, sum,
                     p.var2Abs === 0 ? cfg.subtle : colOf2(p.var2Abs, p), g);
             }
+            if (hasVar2 && p.var2Rel != null && colX["d2pctval"] && !rowPct && cfg.showLabels) {
+                txt(colX["d2pctval"].x + colX["d2pctval"].w, yMid + rowFont * 0.35,
+                    this.fmtPercent(p.var2Rel), "end", rowFont, sum,
+                    p.var2Rel === 0 ? cfg.subtle : colOf2(p.var2Rel, p), g);
+            }
             if (hasVar2 && p.var2Abs != null && colX["d2bar"] && !rowPct) {
                 const len = Math.abs(p.var2Abs) / d2Domain * (colX["d2bar"].w / 2 - 4);
                 const h = Math.max(3, rowH * 0.42);
+                const c2 = colOf2(p.var2Abs, p);
+                const hollowBad2 = cfg.hc && !goodOf(p.var2Abs, p) && p.var2Abs !== 0;
                 this.el("rect", {
                     x: p.var2Abs >= 0 ? d2Axis + 1 : d2Axis - 1 - len, y: yMid - h / 2,
-                    width: Math.max(len, 1), height: h, fill: colOf2(p.var2Abs, p)
+                    width: Math.max(len, 1), height: h,
+                    ...(hollowBad2
+                        ? { fill: cfg.paper, stroke: c2, "stroke-width": 1.2 }
+                        : p.isFc && cfg.isMaterial(p, p.var2Abs, p.var2Rel)
+                            ? { fill: `url(#${goodOf(p.var2Abs, p) ? cfg.patGood : cfg.patBad})`, stroke: c2, "stroke-width": 1 }
+                            : { fill: c2 })
                 }, g);
             }
 
@@ -2865,6 +2989,7 @@ export class Visual implements IVisual {
                 const toggle = () => {
                     if (this.expandedRows.has(key)) { this.expandedRows.delete(key); }
                     else { this.expandedRows.add(key); }
+                    this.persistTableExpanded();
                     this.rerender();
                 };
                 // comment mode wins: attachInteraction opens the editor on this row,
@@ -2885,8 +3010,10 @@ export class Visual implements IVisual {
             this.animGroups.push([g]);
         });
 
-        if (shown.length < n) {
-            txt(region.x + pad, rowsBottom + cf, `… ${n - shown.length} weitere Zeilen (Visual höher ziehen)`,
+        const hiddenRows = rows.length - bodyRows.length;
+        if (hiddenRows > 0) {
+            txt(region.x + pad, rowsBottom + cf,
+                `… ${hiddenRows} ${this.locStr("Hint_MoreRows", "more rows (increase the visual height)")}`,
                 "start", Math.round(cf * 0.9), false, cfg.subtle, bg);
         }
     }
@@ -5127,17 +5254,42 @@ export class Visual implements IVisual {
         t.textContent = this.truncate(text, maxW, fontSize);
     }
 
+    private static measureCtx: CanvasRenderingContext2D | null | undefined;
+    private static measureCache = new Map<string, number>();
+
+    /** real text width via an offscreen canvas (cached); falls back to the old
+     *  0.56×fontSize character heuristic when no 2D context is available */
+    private textWidth(text: string, fontSize: number): number {
+        if (Visual.measureCtx === undefined) {
+            try { Visual.measureCtx = document.createElement("canvas").getContext("2d"); }
+            catch { Visual.measureCtx = null; }
+        }
+        const ctx = Visual.measureCtx;
+        if (!ctx) { return text.length * fontSize * 0.56; }
+        const key = `${fontSize}|${text}`;
+        const hit = Visual.measureCache.get(key);
+        if (hit !== undefined) { return hit; }
+        ctx.font = `${fontSize}px ${FONT}`;
+        const w = ctx.measureText(text).width;
+        if (Visual.measureCache.size > 20000) { Visual.measureCache.clear(); }
+        Visual.measureCache.set(key, w);
+        return w;
+    }
+
     private truncate(text: string, maxWidth: number, fontSize: number): string {
-        const charW = fontSize * 0.56;
-        const maxChars = Math.max(1, Math.floor(maxWidth / charW));
-        if (text.length <= maxChars) { return text; }
-        if (maxChars <= 2) { return text.slice(0, 1); }
-        return text.slice(0, maxChars - 1) + "…";
+        if (this.textWidth(text, fontSize) <= maxWidth) { return text; }
+        // binary search for the longest prefix whose width incl. ellipsis fits
+        let lo = 1, hi = text.length;
+        while (lo < hi) {
+            const mid = (lo + hi + 1) >> 1;
+            if (this.textWidth(text.slice(0, mid) + "…", fontSize) <= maxWidth) { lo = mid; }
+            else { hi = mid - 1; }
+        }
+        return lo <= 1 ? text.slice(0, 1) : text.slice(0, lo) + "…";
     }
 
     private maxTextWidth(labels: string[], fontSize: number): number {
-        const longest = labels.reduce((a, b) => (b.length > a.length ? b : a), "");
-        return longest.length * fontSize * 0.56;
+        return labels.reduce((a, l) => Math.max(a, this.textWidth(l, fontSize)), 0);
     }
 
     // ---------------------------------------------------------- interaction
@@ -5287,6 +5439,15 @@ export class Visual implements IVisual {
 
     private commentKey(p: DataPoint): string {
         return `${p.group ?? ""}¦${p.cat}`;
+    }
+
+    /** persists the table drill state so it survives reload and bookmarks */
+    private persistTableExpanded(): void {
+        const json = JSON.stringify([...this.expandedRows]);
+        this.pendingTableExpanded = json;
+        this.host.persistProperties({
+            merge: [{ objectName: "chart", selector: null, properties: { tableExpanded: json } }]
+        });
     }
 
     private persistUserComments(): void {

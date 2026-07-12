@@ -59,10 +59,14 @@ in **einem** Visual löst:
   Prozente statt €, Abweichungen in Prozentpunkten — ohne die €-Skalen zu stören
 - **Tabelle (IBCS)** (eigener Chart-Modus): Kennzahlen-Tabelle mit integrierten
   Chart-Spalten — AC·PY·PL-Balken, ΔBasis-Zahl + -Balken, ΔBasis %-Pins, fette
-  'sum'-Zwischensummen (GuV), Doppel-Varianz-Spalten; Grafikspalten fallen bei
-  schmalen Visuals gestuft weg. **Mit Hierarchie im Category-Feld** („Alle
-  erweitern"): Oberkategorien aggregiert mit ▸/▾ — Klick auf die Zeile klappt
-  die Unterzeilen auf und zu
+  'sum'-Zwischensummen (GuV), Doppel-Varianz-Spalten inkl. Δ2-%-Zahl; auto-
+  berechnete **Σ-Gesamtzeile** (unten fixiert, abschaltbar über „Summen-Kopfzeile");
+  Grafikspalten fallen bei schmalen Visuals gestuft weg, die Δ%-Spalte rückt
+  dann als bezifferte Zahl nach. **Mit Hierarchie im Category-Feld**:
+  Oberkategorien aggregiert mit ▸/▾ (Klick klappt Unterzeilen auf/zu),
+  ▸▸/▾▾ im Kopf klappt alle auf einmal, Drill-Zustand wird persistiert
+  (bookmarkfähig, je Small-Multiples-Kachel getrennt); Skala-Karte wirkt
+  auch hier (deck-weiter Skalen-Sync)
 - **Pareto (Struktur)**: AC absteigend + kumulierte %-Linie, 80 %-Marke —
   braucht nur Category + AC
 - **Dumbbell (Struktur)**: Basis → AC als zwei Punkte mit Verbinder in der
