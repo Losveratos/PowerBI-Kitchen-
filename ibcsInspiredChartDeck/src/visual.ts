@@ -3961,10 +3961,14 @@ export class Visual implements IVisual {
         const bandSpan = bandEnd - bandStart;
         const step = bandSpan / n;
         const slotW = Math.max(2, step * 0.62);
-        // with the PY triangle the third column disappears — AC/PL get the full slot back
+        // with the PY triangle the third column disappears — AC/PL get the full slot back.
+        // scenario bars are OFFSET, never stacked on top of each other (table look):
+        // PY at the back, the PL outline slightly shifted, AC in front
         const pyAsCol = cfg.hasPy && !cfg.pyTriangle;
-        const barW = pyAsCol ? slotW * 0.82 : slotW;
-        const pyShift = pyAsCol ? slotW - barW : 0;
+        const plAsBar = cfg.hasPl;
+        const barW = pyAsCol ? slotW * 0.82 : plAsBar ? slotW * 0.88 : slotW;
+        const acShift = pyAsCol || plAsBar ? slotW - barW : 0;
+        const plShift = pyAsCol ? acShift * 0.5 : 0;
         const slotPos = (i: number) => bandStart + i * step + (step - slotW) / 2;
 
         // the bridge panel gets its own n+2 slot grid (basis anchor, n bricks, value
@@ -4155,7 +4159,7 @@ export class Visual implements IVisual {
         if (cfg.movingAvg >= 2 && orientation === "columns") {
             this.drawMovingAverage(bg, points, (i: number) => lineMode
                 ? slotPos(i) + slotW / 2
-                : slotPos(i) + pyShift + barW / 2, mainScale, cfg);
+                : slotPos(i) + acShift + barW / 2, mainScale, cfg);
         }
 
         // ------- category groups with all marks
@@ -4196,7 +4200,7 @@ export class Visual implements IVisual {
             const p = points[i];
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
             const pos = slotPos(i);
-            const cx = lineMode ? pos + slotW / 2 : pos + pyShift + barW / 2;
+            const cx = lineMode ? pos + slotW / 2 : pos + acShift + barW / 2;
 
             // base chart: PY behind, PL outline, AC/FC on top (unchanged by waterfall-bridge —
             // the cascade renders into its own panel below, see "bridge brick" further down)
@@ -4212,7 +4216,7 @@ export class Visual implements IVisual {
                 }
             }
             if (!lineMode && p.pl != null) {
-                this.drawBar(g, pos + pyShift, barW, 0, capV(p.pl), mainScale, orientation,
+                this.drawBar(g, pos + plShift, barW, 0, capV(p.pl), mainScale, orientation,
                     { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 });
             }
             // benchmark marker: bold tick across the slot at the BM value
@@ -4247,17 +4251,17 @@ export class Visual implements IVisual {
                         stroke: cfg.colors.ac, "stroke-width": 1.4
                     }, g);
                 } else {
-                    this.drawBar(g, pos + pyShift, barW, 0, capV(p.value), mainScale, orientation,
+                    this.drawBar(g, pos + acShift, barW, 0, capV(p.value), mainScale, orientation,
                         p.isFc
                             ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                             : { fill: cfg.colors.ac });
                     if (p.isPrelim && !p.isFc) {
                         // preliminary actual: thin paper hatch over the solid bar
-                        this.drawBar(g, pos + pyShift, barW, 0, capV(p.value), mainScale, orientation,
+                        this.drawBar(g, pos + acShift, barW, 0, capV(p.value), mainScale, orientation,
                             { fill: `url(#${cfg.patPrelim})` });
                     }
                     if (cfg.capMax != null && p.value > cfg.capMax) {
-                        this.drawCapMarker(g, pos + pyShift, barW, mainScale, orientation, cfg);
+                        this.drawCapMarker(g, pos + acShift, barW, mainScale, orientation, cfg);
                     }
                 }
                 if (cfg.showLabels && showValueAt(i)) {
@@ -4453,7 +4457,7 @@ export class Visual implements IVisual {
             const overlay = this.el("g", {}, this.svg);
             const lVals = points.map(p => p.lineVal);
             const lScale = this.makePanelScale(extent(lVals), panels.main, "columns", labelPad);
-            const cxOf = (i: number) => slotPos(i) + pyShift + barW / 2;
+            const cxOf = (i: number) => slotPos(i) + acShift + barW / 2;
             let d = "";
             points.forEach((p, i) => {
                 if (p.lineVal == null) { return; }

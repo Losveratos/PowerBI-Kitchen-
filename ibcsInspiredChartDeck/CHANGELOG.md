@@ -1,5 +1,15 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.18.1.0 (2026-07-12)
+
+**Szenario-Versatz vereinheitlicht (User-Feedback):** In Columns und
+Bars liegt die PL-Umriss-Säule jetzt leicht versetzt HINTER der
+AC-Säule statt exakt darauf — derselbe Look wie in der Tabelle und den
+Brücken-Minisäulen. Bei drei Szenarien ohne PY-Dreieck entsteht das
+Sandwich PY → PL → AC; mit Dreieck rückt PL auf die hintere Position.
+Alle anderen Modi hatten den Versatz bereits bzw. nutzen getrennte
+Spalten/Anker.
+
 ## 1.18.0.0 (2026-07-12)
 
 **Tabelle 2.0 — Welle 2 (die Zebra-Kern-Features):**
