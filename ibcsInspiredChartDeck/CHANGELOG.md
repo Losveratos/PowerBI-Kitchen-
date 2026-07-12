@@ -1,5 +1,12 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.19.2.0 (2026-07-12)
+
+**Zertifizierungs-Vorarbeiten:** apiVersion auf 5.11.0 angehoben (Paket
+und pbiviz.json jetzt synchron), npm audit auf 0 Findings (uuid-Override
+für den dev-only webpack-dev-server-Pfad der Build-Tools). Keine
+funktionalen Änderungen.
+
 ## 1.19.1.0 (2026-07-12)
 
 **Daten-WG-Icon:** Das Visual trägt jetzt das DWG-Kochmützen-Logo
