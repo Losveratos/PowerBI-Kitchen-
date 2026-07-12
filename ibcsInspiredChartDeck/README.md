@@ -25,6 +25,12 @@ in **einem** Visual löst:
 - **Invert-Schalter** für Kosten-KPIs (Mehrwert = schlecht = rot) — global oder
   **je Kategorie** (kommagetrennte Liste, z. B. Opex neben Umsatz in KPI-Karten)
 - **Datenstand-Fußzeile**: „Ist per Jun 2026 · Stand 05.07. · Quelle: …" unten links
+- **Perioden-Status „vorläufig"**: Forecast-Flag `2` (oder „vorläufig") markiert
+  vorläufige Ist-Monate — solide Säule mit dünner Überlagerungs-Schraffur + Tooltip-Status
+- **Σ-treue Rundung** (opt-in): Labels addieren per Restwertverfahren exakt auf die
+  Σ-Kopfzeile; ausgeschaltet erscheint bei Differenz automatisch ein Rundungshinweis
+- **Export-Modus**: PDF-/PowerPoint-Export und Abo-Mails zeigen das Chart automatisch
+  ohne In-Chart-Buttons und Chips
 - **FC-Revision**: Feld „FC Vormonat" + Basis „FC Vormonat (Revision)" — ΔFC Vm
   zeigt, was sich seit dem letzten Forecast-Zyklus verschoben hat
 - **IBCS-Titelblock**: automatischer Titel „KPI in Einheit · Zeitraum: AC, FC vs. PL"
@@ -205,10 +211,11 @@ ein Entwickler-Visual-Setup im Power-BI-Dienst
 
 ## Sprachen
 
-Formatbereich vollständig lokalisiert für Deutsch (`de-DE`), Englisch
-(`en-US`), Spanisch (`es-ES`) und Japanisch (`ja-JP`) — inkl. aller
-Dropdown-Werte (Ausrichtung, Abweichungsbasis, Einheiten etc.). Power BI
-wählt automatisch anhand der Berichts-/Anzeigesprache.
+Formatbereich und In-Chart-Texte (Tooltips, Hinweise, Button-Tooltips,
+Chips, Treiber-Notiz, Editor) vollständig lokalisiert für Deutsch
+(`de-DE`), Englisch (`en-US`), Spanisch (`es-ES`) und Japanisch (`ja-JP`)
+— inkl. aller Dropdown-Werte. Power BI wählt automatisch anhand der
+Berichts-/Anzeigesprache.
 
 Hinweis nach Versions-Update: Power BI cached importierte Visuals pro
 Bericht — nach dem Import einer neuen `.pbiviz` das Visual einmal frisch

@@ -49,6 +49,8 @@ interface DataPoint {
     /** value shown in the base chart: AC, or FC where AC is missing */
     value: number | null;
     isFc: boolean;
+    /** preliminary actual (fcFlag = 2 / "vorläufig"): solid with thin overlay hatch */
+    isPrelim?: boolean;
     basis: number | null;
     varAbs: number | null;
     varRel: number | null;
@@ -122,6 +124,12 @@ interface ChartConfig {
     patId: string;
     patGood: string;
     patBad: string;
+    patPrelim: string;
+    /** sum-safe label rounding (largest remainder): labels add up to the Σ header */
+    sumSafe: boolean;
+    /** display-unit divisor and decimals of cfg.fmt — for sum-safe adjustment */
+    fmtUnit: number;
+    fmtPrec: number;
     fmt: IValueFormatter;
     /** formatter scaled to the variance magnitudes (auto units) */
     fmtVar: IValueFormatter;
@@ -255,8 +263,13 @@ export class Visual implements IVisual {
     private basis2Mode: "py" | "plan" = "plan";
     private paneHasFcPrev = false;
     private paneHasFc = false;
+    /** false in export/print contexts — suppresses all in-chart buttons/chrome */
+    private allowInteractions = true;
+    private locMgr: powerbi.extensibility.ILocalizationManager | null = null;
     /** GuV-Statement: persisted scenario view ("ac" | "acfc" | "pl", "" = auto) */
     private pnlView = "";
+    /** persist-race guard: view value we wrote but the host has not echoed yet */
+    private pendingPnlView: string | null = null;
     /** GuV-Statement: collapsed sum blocks (session state, like expandedRows) */
     private pnlCollapsed = new Set<string>();
     /** user-entered comments persisted in the report (commentsPanel.userComments JSON) */
@@ -272,10 +285,14 @@ export class Visual implements IVisual {
         this.events = options.host.eventService;
         this.host = options.host;
         const localizationManager = options.host.createLocalizationManager();
+        this.locMgr = localizationManager;
         this.formattingSettingsService = new FormattingSettingsService(localizationManager);
         // dropdown items serialize to the host, so their labels must be resolved
         // here — a DisplayNameGetter function would be dropped at the sandbox edge
         localizeEnumItems(localizationManager);
+        // export/print contexts (PDF, PowerPoint, subscriptions) render without
+        // interactions — hide the in-chart buttons there instead of dead chrome
+        this.allowInteractions = options.host.hostCapabilities?.allowInteractions !== false;
         this.selectionManager = options.host.createSelectionManager();
         this.tooltipService = options.host.tooltipService;
         this.root = options.element;
@@ -321,8 +338,14 @@ export class Visual implements IVisual {
                 this.pendingCommentsJson = null;
                 this.userComments = this.readUserComments(dataView);
             }
+            // a just-persisted view choice must survive a stale metadata update
+            // that arrives before the host round-trip echoes the property back
             const rawView = dataView?.metadata?.objects?.["chart"]?.["pnlView"];
-            this.pnlView = typeof rawView === "string" ? rawView : "";
+            const rawViewStr = typeof rawView === "string" ? rawView : "";
+            if (this.pendingPnlView == null || rawViewStr === this.pendingPnlView) {
+                this.pendingPnlView = null;
+                this.pnlView = rawViewStr;
+            }
             const points = this.parseData(dataView);
             if (!points || points.length === 0) {
                 this.renderDemo(width, height);
@@ -461,10 +484,13 @@ export class Visual implements IVisual {
             const py = byRole["previousYear"] ? byRole["previousYear"][i] : null;
             const pl = byRole["plan"] ? byRole["plan"][i] : null;
             let fc = byRole["forecast"] ? byRole["forecast"][i] : null;
-            // chart-builder compatible flag column: 1/true marks the AC value as forecast
+            // chart-builder compatible flag column: 1/true marks the AC value as
+            // forecast, 2/"vorläufig"/"prelim" marks it as a preliminary actual
             const flag = fcFlagCol ? fcFlagCol.values[i] : null;
             const flagStr = flag != null ? String(flag).trim().toLowerCase() : "";
-            const flagOn = flagStr !== "" && flagStr !== "0" && flagStr !== "false"
+            const isPrelim = flagStr === "2" || flagStr === "vorläufig" || flagStr === "vorlaeufig"
+                || flagStr === "prelim" || flagStr === "preliminary" || flagStr === "p";
+            const flagOn = !isPrelim && flagStr !== "" && flagStr !== "0" && flagStr !== "false"
                 && flagStr !== "nein" && flagStr !== "no";
             if (flagOn && ac != null && fc == null) {
                 fc = ac;
@@ -489,7 +515,8 @@ export class Visual implements IVisual {
             points.push({
                 cat: levelLabels.join(" · "),
                 catLevels: levelLabels.length > 1 ? levelLabels : null,
-                ac, py, pl, fc, value, isFc, basis, varAbs, varRel, var2Abs, var2Rel,
+                ac, py, pl, fc, value, isFc, isPrelim: isPrelim && value != null,
+                basis, varAbs, varRel, var2Abs, var2Rel,
                 bm: byRole["benchmark"] ? byRole["benchmark"][i] : null,
                 fcPrev,
                 lineVal: byRole["lineMeasure"] ? byRole["lineMeasure"][i] : null,
@@ -543,7 +570,8 @@ export class Visual implements IVisual {
 
     // ------------------------------------------------------------ formatting
 
-    private makeFormatter(maxAbs: number, allIntegers: boolean, formatOverride?: string): IValueFormatter {
+    /** display-unit divisor + decimals the label formatter will use for maxAbs */
+    private formatterParams(maxAbs: number, allIntegers: boolean): { unit: number; prec: number } {
         const decimals = Math.max(0, Math.min(3, this.formattingSettings.labelsCard.decimals.value ?? 1));
         const unit = String(this.formattingSettings.labelsCard.displayUnits.value.value);
         let unitValue: number;
@@ -558,12 +586,48 @@ export class Visual implements IVisual {
         }
         // unscaled integers need no forced decimals
         const precision = unitValue === 0 && allIntegers ? 0 : decimals;
+        return { unit: unitValue, prec: precision };
+    }
+
+    private makeFormatter(maxAbs: number, allIntegers: boolean, formatOverride?: string): IValueFormatter {
+        const { unit, prec } = this.formatterParams(maxAbs, allIntegers);
         return valueFormatter.create({
             format: formatOverride ?? this.measureFormat,
-            value: unitValue,
-            precision,
+            value: unit,
+            precision: prec,
             cultureSelector: this.host.locale
         });
+    }
+
+    /**
+     * Sum-safe rounding (largest remainder): nudges the values in label quanta
+     * (display unit × decimals) so the rounded labels add up to the rounded total.
+     * Returns adjusted values that format exactly at the label precision.
+     */
+    private sumSafeAdjust(values: (number | null)[], unit: number, prec: number): (number | null)[] {
+        const div = unit || 1;
+        const f = Math.pow(10, prec);
+        const quanta = values.map(v => v == null ? null : (v / div) * f);
+        const total = quanta.reduce((a: number, v) => a + (v ?? 0), 0);
+        const target = Math.round(total);
+        const out = quanta.map(v => v == null ? null : Math.floor(v));
+        let need = target - out.reduce((a: number, v) => a + (v ?? 0), 0);
+        const byRemainder = quanta
+            .map((v, i) => v == null ? null : { i, r: v - Math.floor(v) })
+            .filter((e): e is { i: number; r: number } => e != null)
+            .sort((a, b) => b.r - a.r);
+        for (const e of byRemainder) {
+            if (need <= 0) { break; }
+            (out[e.i] as number)++;
+            need--;
+        }
+        return out.map(v => v == null ? null : (v / f) * div);
+    }
+
+    /** localized in-chart string with English fallback (resources.resjson key) */
+    private locStr(key: string, fallback: string): string {
+        const s = this.locMgr?.getDisplayName(key);
+        return s && s !== key ? s : fallback;
     }
 
     private fmtSigned(fmt: IValueFormatter, v: number): string {
@@ -612,7 +676,7 @@ export class Visual implements IVisual {
 
         // hint pill on top of the sample
         const g = this.el("g", {}, this.svg);
-        const msg = this.missingHint || "Beispieldaten — füge Category und Actual (AC) hinzu";
+        const msg = this.missingHint || this.locStr("Demo_Hint", "Sample data — add Category and Actual (AC)");
         const w = Math.min(width - 16, msg.length * 6.2 + 24);
         this.el("rect", {
             x: (width - w) / 2, y: height - 30, width: w, height: 22, rx: 11,
@@ -652,6 +716,13 @@ export class Visual implements IVisual {
         const orientation: Orientation =
             orientationRaw === "bars" || isCatBridge || isTable || isDumbbell || isCards || isPnl
                 ? "bars" : "columns";
+        // margin rows (rowType "pct") carry percentages, not € — only table, waterfall
+        // and the P&L statement can render them; everywhere else they would corrupt
+        // scales, Σ headers and rankings, so they are dropped up front
+        if (!isTable && !isWaterfall && !isPnl) {
+            points = points.filter(p => !(p.rowType ?? "").startsWith("pct"));
+            if (points.length === 0) { return; }
+        }
         // stacked mode: field-driven — filling the Stack-Series role stacks the plain
         // columns/bars automatically, an empty role leaves everything untouched
         const isStacked = (orientationRaw === "columns" || orientationRaw === "bars")
@@ -661,9 +732,11 @@ export class Visual implements IVisual {
             && (orientationRaw === "columns" || orientationRaw === "bars");
         const sortByImpactOn = (wfStyleGlobal || isCatBridge) && s.chartCard.sortByImpact.value;
         // YTD only where a running total over the category axis makes sense — bridge,
-        // structure and stacked modes would silently cumulate nonsense
+        // structure and stacked modes would silently cumulate nonsense; the same goes
+        // for structured P&L rows (sum/delta/pct): those are accounts, not periods
         const cumulativeOn = s.chartCard.cumulative.value && !isStacked
-            && (orientationRaw === "columns" || orientationRaw === "line" || orientationRaw === "table");
+            && (orientationRaw === "columns" || orientationRaw === "line" || orientationRaw === "table")
+            && !points.some(p => p.rowType != null);
 
         // font preset: one switch scaling every text in the visual (Full HD = ×1.5)
         this.fontK = { compact: 1, fullhd: 1.5, presentation: 2 }[
@@ -702,10 +775,10 @@ export class Visual implements IVisual {
                 const rest = ranked.slice(mTopN);
                 groups.length = 0;
                 groups.push(...ranked.slice(0, mTopN),
-                    this.aggregateGroups(rest.map(g => g.pts), `Rest (${rest.length})`));
+                    this.aggregateGroups(rest.map(g => g.pts), `${this.locStr("Label_Rest", "Other")} (${rest.length})`));
             }
             if (s.chartCard.multiplesTotal.value) {
-                groups.unshift(this.aggregateGroups(allGroups.map(g => g.pts), "Σ Gesamt"));
+                groups.unshift(this.aggregateGroups(allGroups.map(g => g.pts), this.locStr("Label_Total", "Σ Total")));
             }
         }
 
@@ -716,9 +789,11 @@ export class Visual implements IVisual {
             this.compareCats = [];
         }
 
-        // top N + rest aggregation (structure comparisons only), per group
+        // top N + rest aggregation (structure comparisons only), per group —
+        // never combined with cumulation: topN re-sorts by value, cumulate needs
+        // the chronological order, the combination would sum a scrambled sequence
         const topN = Math.round(s.chartCard.topN.value ?? 0);
-        if (orientation === "bars" && topN > 0) {
+        if (orientation === "bars" && topN > 0 && !cumulativeOn) {
             for (const g of groups) {
                 if (g.pts.length > topN + 1) { g.pts = this.applyTopN(g.pts, topN); }
             }
@@ -808,6 +883,9 @@ export class Visual implements IVisual {
             patId: `icd-hatch-${this.instanceId}`,
             patGood: `icd-hatch-good-${this.instanceId}`,
             patBad: `icd-hatch-bad-${this.instanceId}`,
+            patPrelim: `icd-prelim-${this.instanceId}`,
+            sumSafe: s.labelsCard.sumSafeRounding.value,
+            ...(() => { const fp = this.formatterParams(maxAbs, allInt); return { fmtUnit: fp.unit, fmtPrec: fp.prec }; })(),
             fmt: this.makeFormatter(maxAbs, allInt),
             fmtVar: this.makeFormatter(maxVarAbs, allVarInt),
             hasPy: points.some(p => p.py != null),
@@ -855,6 +933,13 @@ export class Visual implements IVisual {
         makeHatch(cfg.patId, cfg.colors.ac);
         makeHatch(cfg.patGood, cfg.colors.good);
         makeHatch(cfg.patBad, cfg.colors.bad);
+        // preliminary actuals: thin paper-colored lines OVER the solid fill —
+        // reads as "almost final", clearly lighter than the dense FC hatch
+        const patP = this.el("pattern", {
+            id: cfg.patPrelim, patternUnits: "userSpaceOnUse", width: 7, height: 7,
+            patternTransform: "rotate(45)"
+        }, defs);
+        this.el("line", { x1: 0, y1: 0, x2: 0, y2: 7, stroke: cfg.paper, "stroke-width": 1.6 }, patP);
 
         // shared value domains across all multiples (IBCS: identical scales)
         const domains: Domains = {
@@ -955,44 +1040,48 @@ export class Visual implements IVisual {
             }
             this.renderChart(grp.pts, region, cfg, domains, cascadeByGroup.get(grp.name) ?? null);
         };
-        // sort button (once, top-right of the whole visual) — the only literal "button":
-        // toggles the format-pane property so the choice persists and stays bookmarkable
-        if (wfStyleGlobal) {
-            this.drawSortButton(width, cfg);
-        }
-        // in-chart toolbar for the bridge modes: ΔPY/ΔPL reference switch (persisted, so
-        // the end user can re-base the variances in the report), sort toggle + ▶ build
-        if ((isIntWf || isCatBridge) && s.chartCard.chartButtons.value) {
-            this.drawChartButtons(width, cfg, {
-                showRef: cfg.hasPy && cfg.hasPl,
-                showSort: isCatBridge,
-                showPlay: true
-            });
-        }
-        // GuV-Statement toolbar: scenario view (only scenarios that exist) + levels
-        if (isPnl && s.chartCard.chartButtons.value) {
-            this.drawPnlButtons(width, cfg, points);
-        }
-        // active-mode chip: comment capture and compare-on-click silently repurpose
-        // clicks — show a pill so nobody wonders why crossfiltering stopped working
-        if (this.commentEdit || this.compareActive) {
-            const toolbarReserve = ((isIntWf || isCatBridge) && s.chartCard.chartButtons.value)
-                ? Math.round(170 * this.fontK) : 0;
-            const sortReserve = wfStyleGlobal ? 26 : 0;
-            const ytdReserve = (s.chartCard.cumulativeButton.value && !isStacked
-                && (orientationRaw === "columns" || orientationRaw === "line"))
-                ? Math.round(44 * this.fontK) : 0;
-            const text = this.commentEdit
-                ? "✎ Kommentar-Modus"
-                : `⇄ Vergleich (${this.compareCats.length}/2)`;
-            this.drawModeChip(width - 6 - toolbarReserve - sortReserve - ytdReserve, text, cfg);
-        }
+        // in-chart chrome only where the host allows interactions — exports to
+        // PDF/PowerPoint and subscription mails get a clean chart without buttons
+        if (this.allowInteractions) {
+            // sort button (once, top-right of the whole visual) — the only literal "button":
+            // toggles the format-pane property so the choice persists and stays bookmarkable
+            if (wfStyleGlobal) {
+                this.drawSortButton(width, cfg);
+            }
+            // in-chart toolbar for the bridge modes: ΔPY/ΔPL reference switch (persisted, so
+            // the end user can re-base the variances in the report), sort toggle + ▶ build
+            if ((isIntWf || isCatBridge) && s.chartCard.chartButtons.value) {
+                this.drawChartButtons(width, cfg, {
+                    showRef: cfg.hasPy && cfg.hasPl,
+                    showSort: isCatBridge,
+                    showPlay: true
+                });
+            }
+            // GuV-Statement toolbar: scenario view (only scenarios that exist) + levels
+            if (isPnl && s.chartCard.chartButtons.value) {
+                this.drawPnlButtons(width, cfg, points);
+            }
+            // active-mode chip: comment capture and compare-on-click silently repurpose
+            // clicks — show a pill so nobody wonders why crossfiltering stopped working
+            if (this.commentEdit || this.compareActive) {
+                const toolbarReserve = ((isIntWf || isCatBridge) && s.chartCard.chartButtons.value)
+                    ? Math.round(170 * this.fontK) : 0;
+                const sortReserve = wfStyleGlobal ? 26 : 0;
+                const ytdReserve = (s.chartCard.cumulativeButton.value && !isStacked
+                    && (orientationRaw === "columns" || orientationRaw === "line"))
+                    ? Math.round(44 * this.fontK) : 0;
+                const text = this.commentEdit
+                    ? this.locStr("Chip_CommentMode", "✎ Comment mode")
+                    : `${this.locStr("Chip_Compare", "⇄ Compare")} (${this.compareCats.length}/2)`;
+                this.drawModeChip(width - 6 - toolbarReserve - sortReserve - ytdReserve, text, cfg);
+            }
 
-        // YTD chip (opt-in): the end user flips the cumulative view on the report
-        // canvas; persisted like the other in-chart buttons
-        if (s.chartCard.cumulativeButton.value && !isStacked
-            && (orientationRaw === "columns" || orientationRaw === "line")) {
-            this.drawCumButton(width - (wfStyleGlobal ? 30 : 6), cfg);
+            // YTD chip (opt-in): the end user flips the cumulative view on the report
+            // canvas; persisted like the other in-chart buttons
+            if (s.chartCard.cumulativeButton.value && !isStacked
+                && (orientationRaw === "columns" || orientationRaw === "line")) {
+                this.drawCumButton(width - (wfStyleGlobal ? 30 : 6), cfg);
+            }
         }
         // IBCS title block on top of everything (incl. multiples grid)
         const topOffset = s.ibcsTitleCard.show.value
@@ -1090,9 +1179,9 @@ export class Visual implements IVisual {
         const k = this.fontK;
         const gtFont = Math.round(11 * k);
         const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
-        btn.setAttribute("aria-label", `${groupName} vergrößern`);
+        btn.setAttribute("aria-label", `${groupName} ${this.locStr("Btn_Zoom", "enlarge (click the title row)")}`);
         const zoomTip = this.el("title", {}, btn);
-        zoomTip.textContent = `${groupName} vergrößern (Klick auf die Titelzeile)`;
+        zoomTip.textContent = `${groupName} ${this.locStr("Btn_Zoom", "enlarge (click the title row)")}`;
         (btn.style as CSSStyleDeclaration & { pointerEvents: string }).pointerEvents = "all";
         // hit area across the full strip (nearly invisible, but clickable everywhere)
         this.el("rect", {
@@ -1384,12 +1473,12 @@ export class Visual implements IVisual {
         // the stacked totals and mini columns assume positive magnitudes — negative
         // series would render negative rect heights; fail loudly instead of wrongly
         if (pts.some(p => (p.value ?? 0) < 0 || (p.basis ?? 0) < 0)) {
-            this.drawModeHint(region, cfg,
-                "Integrierte Brücke unterstützt keine negativen Werte — bitte Waterfall oder Columns + Brücke nutzen");
+            this.drawModeHint(region, cfg, this.locStr("Hint_IntWfNeg",
+                "Integrated bridge does not support negative values — use waterfall or columns + bridge"));
             return;
         }
         if (!pts.some(p => p.varAbs != null)) {
-            this.drawModeHint(region, cfg, "Integrierte Brücke benötigt PY oder PL als Vergleichsbasis");
+            this.drawModeHint(region, cfg, this.locStr("Hint_IntWfBasis", "Integrated bridge requires PY or PL as comparison basis"));
             return;
         }
         const k = this.fontK;
@@ -1428,7 +1517,7 @@ export class Visual implements IVisual {
         const bandStart = left + totW + (twoTotals ? totW + 8 : 0) + 10;
         const bandEnd = right - calloutW - sideLblW - totW - 10;
         if (bandEnd - bandStart < n * 8) {
-            this.drawModeHint(region, cfg, "Zu wenig Platz für die integrierte Brücke");
+            this.drawModeHint(region, cfg, this.locStr("Hint_IntWfSpace", "Not enough space for the integrated bridge"));
             return;
         }
         const step = (bandEnd - bandStart) / n;
@@ -1730,7 +1819,7 @@ export class Visual implements IVisual {
         const hasPy = pts.some(p => p.py != null);
         const hasPl = pts.some(p => p.pl != null);
         if (!hasPy && !hasPl) {
-            this.drawModeHint(region, cfg, "Kategorie-Brücke benötigt PY oder PL als Vergleichsbasis");
+            this.drawModeHint(region, cfg, this.locStr("Hint_CatBridgeBasis", "Category bridge requires PY or PL as comparison basis"));
             return;
         }
         const k = this.fontK;
@@ -1748,7 +1837,17 @@ export class Visual implements IVisual {
         const otherLabel = refIsPl ? "PY" : "PL";
         const dTot = ACt - REF;
         const goodOf = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
-        const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
+        // per-row deltas LOCALLY against the bridge's own PY/PL reference — p.varAbs
+        // follows comparisonMode (e.g. fcrev) and would not reconcile with the anchors
+        const refValOf = (p: DataPoint): number | null => refIsPl ? p.pl : p.py;
+        const dOf = (p: DataPoint): number | null =>
+            p.value != null && refValOf(p) != null ? p.value - (refValOf(p) as number) : null;
+        const dRelOf = (p: DataPoint): number | null => {
+            const rv = refValOf(p), d = dOf(p);
+            return d != null && rv != null && rv !== 0 ? d / Math.abs(rv) * 100 : null;
+        };
+        const colOf = (v: number, pp?: DataPoint) => (v === 0
+            || (pp != null && !cfg.isMaterial(pp, dOf(pp), dRelOf(pp))))
             ? cfg.colors.py : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
         const fmtD = (v: number) => this.fmtSigned(cfg.fmtVar, v);
 
@@ -1757,7 +1856,7 @@ export class Visual implements IVisual {
         const catArea = Math.min(region.w * 0.22,
             this.maxTextWidth(pts.map(p => p.cat), cf) + 16);
         const x0 = region.x + pad + catArea;
-        const showPins = cfg.showRel && region.w >= 520 && pts.some(p => p.varRel != null);
+        const showPins = cfg.showRel && region.w >= 520 && pts.some(p => dRelOf(p) != null);
         const pinW = showPins ? Math.max(110, region.w * 0.15) + lf * 3 : 0;
         const valLblW = lf * 4.2;
         const xValEnd = rightEdge - pinW - valLblW;
@@ -1858,7 +1957,7 @@ export class Visual implements IVisual {
                 fill: cfg.colors.py
             }, bg);
         }
-        const maxPct = Math.max(...pts.map(p => Math.abs(p.varRel ?? 0)),
+        const maxPct = Math.max(...pts.map(p => Math.abs(dRelOf(p) ?? 0)),
             REF !== 0 ? Math.abs(dTot / REF * 100) : 0, 1);
         const pinLen = (v: number) => Math.max(2, Math.abs(v) / maxPct * maxPinLen);
         const drawPin = (yy: number, pct: number, bold: boolean, parent: SVGElement, pp?: DataPoint) => {
@@ -1880,8 +1979,8 @@ export class Visual implements IVisual {
         // ------- biggest driver
         let drvIdx = -1;
         pts.forEach((p, i) => {
-            if (p.varAbs == null) { return; }
-            if (drvIdx < 0 || Math.abs(p.varAbs) > Math.abs(pts[drvIdx].varAbs ?? 0)) { drvIdx = i; }
+            if (dOf(p) == null) { return; }
+            if (drvIdx < 0 || Math.abs(dOf(p) as number) > Math.abs(dOf(pts[drvIdx]) ?? 0)) { drvIdx = i; }
         });
 
         // ------- category rows
@@ -1925,8 +2024,8 @@ export class Visual implements IVisual {
             }
 
             // cascade brick + connector
-            if (p.varAbs != null) {
-                const d = p.varAbs;
+            if (dOf(p) != null) {
+                const d = dOf(p) as number;
                 const a = cum, b = cum + d;
                 const xA = X(Math.min(a, b)), xB = X(Math.max(a, b));
                 const c = colOf(d, p);
@@ -1949,12 +2048,16 @@ export class Visual implements IVisual {
                     const share = Math.round(Math.abs(d / dTot) * 100);
                     let note: string;
                     if (Math.sign(d) === Math.sign(dTot) && share <= 100) {
-                        note = `größter Treiber · ${share} % der Gesamtabweichung`;
+                        note = `${this.locStr("Note_Driver", "largest driver")} · ${share} ${this.locStr("Note_OfTotal", "% of total variance")}`;
                     } else {
-                        const sameSum = pts.reduce((a2, q) =>
-                            a2 + (q.varAbs != null && Math.sign(q.varAbs) === Math.sign(d) ? Math.abs(q.varAbs) : 0), 0);
+                        const sameSum = pts.reduce((a2, q) => {
+                            const qd = dOf(q);
+                            return a2 + (qd != null && Math.sign(qd) === Math.sign(d) ? Math.abs(qd) : 0);
+                        }, 0);
                         const sh2 = sameSum ? Math.round(Math.abs(d) / sameSum * 100) : 0;
-                        note = `größter Treiber · ${sh2} % aller ${d < 0 ? "Rückgänge" : "Zuwächse"}`;
+                        note = `${this.locStr("Note_Driver", "largest driver")} · ${sh2} ${d < 0
+                            ? this.locStr("Note_OfDeclines", "% of all declines")
+                            : this.locStr("Note_OfIncreases", "% of all increases")}`;
                     }
                     const noteFont = Math.round(Math.max(9, lf * 0.85));
                     const nt = this.el("text", {
@@ -1971,8 +2074,8 @@ export class Visual implements IVisual {
                 cum = b;
             }
 
-            if (showPins && p.varRel != null) {
-                drawPin(yy, p.varRel, false, g, p);
+            if (showPins && dRelOf(p) != null) {
+                drawPin(yy, dRelOf(p) as number, false, g, p);
             }
 
             this.attachInteraction(g, p, cfg);
@@ -2041,19 +2144,28 @@ export class Visual implements IVisual {
         return { view: avail.includes(v) ? v : (avail[0] ?? "ac"), avail };
     }
 
-    /** GuV-Statement: each delta run belongs to the next sum row (its collapse owner) */
-    private pnlBlocks(pts: DataPoint[]): Map<string, string> {
-        const owner = new Map<string, string>();
-        let run: DataPoint[] = [];
-        for (const p of pts) {
+    /** GuV-Statement: pane-scoped collapse key of a sum row (group-qualified) */
+    private pnlKey(p: DataPoint): string {
+        return `${p.group ?? ""}¦${p.cat}`;
+    }
+
+    /**
+     * GuV-Statement: each delta run belongs to the next sum row (its collapse
+     * owner). Keyed by row INDEX (duplicate category names must not collide);
+     * the owner value is the sum row's pane-scoped collapse key.
+     */
+    private pnlBlocks(pts: DataPoint[]): Map<number, string> {
+        const owner = new Map<number, string>();
+        let run: number[] = [];
+        pts.forEach((p, i) => {
             const rt = p.rowType ?? "";
             if (rt.startsWith("sum")) {
-                for (const d of run) { owner.set(d.cat, p.cat); }
+                for (const d of run) { owner.set(d, this.pnlKey(p)); }
                 run = [];
             } else if (!rt.startsWith("pct")) {
-                run.push(p);
+                run.push(i);
             }
-        }
+        });
         return owner;
     }
 
@@ -2072,7 +2184,7 @@ export class Visual implements IVisual {
         const { view } = this.resolvePnlView(pts);
         const hasRef = cfg.hasPy || (view !== "pl" && cfg.hasPl);
         if (!hasRef) {
-            this.drawModeHint(region, cfg, "GuV-Statement benötigt PY (oder PL) als Referenz");
+            this.drawModeHint(region, cfg, this.locStr("Hint_PnlRef", "P&L statement requires PY (or PL) as reference"));
             return;
         }
         const refIsPy = cfg.hasPy;
@@ -2084,7 +2196,9 @@ export class Visual implements IVisual {
 
         const isSum = (p: DataPoint) => (p.rowType ?? "").startsWith("sum");
         const isPct = (p: DataPoint) => (p.rowType ?? "").startsWith("pct");
-        const mVal = (p: DataPoint): number | null => view === "ac" ? (p.ac ?? p.value)
+        // AC view shows ONLY actuals — falling back to p.value would render
+        // forecast rows (value = fc) as solid realized bars (IBCS violation)
+        const mVal = (p: DataPoint): number | null => view === "ac" ? p.ac
             : view === "pl" ? p.pl
                 : (p.ac == null && p.fc == null ? null : (p.ac ?? 0) + (p.fc ?? 0));
         const rVal = (p: DataPoint): number | null => refIsPy ? p.py : p.pl;
@@ -2092,32 +2206,33 @@ export class Visual implements IVisual {
         // ------- collapsible rows: deltas hide behind their sum's chevron
         const owner = this.pnlBlocks(pts);
         const collapsible = new Set(owner.values());
-        const rows = pts.filter(p => {
-            const o = owner.get(p.cat);
+        const rows = pts.map((p, idx) => ({ p, idx })).filter(r => {
+            const o = owner.get(r.idx);
             return !(o != null && this.pnlCollapsed.has(o));
         });
         const n = rows.length;
 
-        // ------- waterfall chains (hidden rows still cumulate — sums are anchors)
-        const chain = (val: (p: DataPoint) => number | null): Map<string, [number, number]> => {
-            const seg = new Map<string, [number, number]>();
+        // ------- waterfall chains, keyed by row index (hidden rows still
+        // cumulate — sums are anchors; duplicate category names must not collide)
+        const chain = (val: (p: DataPoint) => number | null): Map<number, [number, number]> => {
+            const seg = new Map<number, [number, number]>();
             let cum = 0;
-            for (const p of pts) {
-                if (isPct(p)) { continue; }
+            pts.forEach((p, i) => {
+                if (isPct(p)) { return; }
                 const v = val(p);
                 if (isSum(p)) {
                     cum = v ?? cum;
-                    seg.set(p.cat, [0, cum]);
+                    seg.set(i, [0, cum]);
                 } else {
-                    seg.set(p.cat, [cum, cum + (v ?? 0)]);
+                    seg.set(i, [cum, cum + (v ?? 0)]);
                     cum += v ?? 0;
                 }
-            }
+            });
             return seg;
         };
         const segM = chain(mVal), segR = chain(rVal);
         let lo = 0, hi = 1;
-        const eat = (s: Map<string, [number, number]>) => s.forEach(([a, b]) => {
+        const eat = (s: Map<number, [number, number]>) => s.forEach(([a, b]) => {
             lo = Math.min(lo, a, b); hi = Math.max(hi, a, b);
         });
         eat(segM); eat(segR);
@@ -2129,7 +2244,7 @@ export class Visual implements IVisual {
         const gap = 12;
         const graphW = region.w - pad * 2 - nameW - gap * 4;
         if (graphW < 220 * k) {
-            this.drawModeHint(region, cfg, "Zu wenig Platz für das GuV-Statement");
+            this.drawModeHint(region, cfg, this.locStr("Hint_PnlSpace", "Not enough space for the P&L statement"));
             return;
         }
         const showPct = cfg.showRel && graphW >= 340 * k;
@@ -2157,7 +2272,10 @@ export class Visual implements IVisual {
 
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
-        const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
+        // materiality must be measured on the DISPLAYED variance (mVal−rVal of the
+        // chosen view/reference), not on parseData's comparisonMode-based varAbs
+        const colOf = (v: number, pp?: DataPoint, vRel?: number | null) => (v === 0
+            || (pp != null && !cfg.isMaterial(pp, Math.abs(v), vRel != null ? Math.abs(vRel) : undefined)))
             ? cfg.colors.py : (cfg.isGood(v, pp) ? cfg.colors.good : cfg.colors.bad);
         const txt = (xx: number, yy: number, text: string, anchor: string, font: number,
             bold: boolean, color: string, parent: SVGElement, italic = false) => {
@@ -2195,9 +2313,10 @@ export class Visual implements IVisual {
         }
         const maxD = Math.max(...pts.filter(p => !isPct(p))
             .map(p => Math.abs((mVal(p) ?? 0) - (rVal(p) ?? 0))), 1e-9);
-        const dPX = (wD * 0.42 - lf * 2.6) / maxD;
+        // clamp to ≥0: negative room would flip bars/pins to the wrong axis side
+        const dPX = Math.max(0, (wD * 0.42 - lf * 2.6)) / maxD;
         const P_CAP = 100;
-        const pLen = wP * 0.38 - lf * 2.2;
+        const pLen = Math.max(0, wP * 0.38 - lf * 2.2);
 
         const scenFill = (scen: "ref" | "m"): Record<string, unknown> => {
             if (scen === "ref") {
@@ -2223,7 +2342,8 @@ export class Visual implements IVisual {
         const pctFmt = new Intl.NumberFormat("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
         // ------- rows
-        shown.forEach((p, i) => {
+        shown.forEach((r, i) => {
+            const p = r.p;
             const y = top + i * rowH;
             const cy = y + rowH / 2;
             const sum = isSum(p), pct = isPct(p);
@@ -2236,24 +2356,25 @@ export class Visual implements IVisual {
 
             // label: chevron (sum with kids) + derived +/−/= prefix + indent for deltas
             const mv = mVal(p);
+            const key = this.pnlKey(p);
             const pre = sum ? "=" : pct ? "" : (mv ?? 0) < 0 ? "−" : "+";
             let lx = xName;
             if (collapsible.size > 0) {
-                if (sum && collapsible.has(p.cat)) {
-                    const open = !this.pnlCollapsed.has(p.cat);
+                if (sum && collapsible.has(key)) {
+                    const open = !this.pnlCollapsed.has(key);
                     const ch = txt(lx, cy + cf * 0.36, open ? "▾" : "▸", "start", Math.round(cf * 0.9), false, cfg.subtle, g);
                     ch.style.cursor = "pointer";
                     (ch as SVGElement).addEventListener("click", (e: Event) => {
                         e.stopPropagation();
-                        if (this.pnlCollapsed.has(p.cat)) { this.pnlCollapsed.delete(p.cat); }
-                        else { this.pnlCollapsed.add(p.cat); }
+                        if (this.pnlCollapsed.has(key)) { this.pnlCollapsed.delete(key); }
+                        else { this.pnlCollapsed.add(key); }
                         this.rerender();
                     });
                 }
                 lx += chevW;
             }
             txt(lx, cy + cf * 0.36, pre, "start", cf, false, cfg.subtle, g);
-            const indent = !sum && !pct && owner.has(p.cat) ? 10 * k : 0;
+            const indent = !sum && !pct && owner.has(r.idx) ? 10 * k : 0;
             txt(lx + cf * 0.9 + indent, cy + cf * 0.36,
                 this.truncate(p.cat, nameW - chevW - cf * 0.9 - indent - 4, cf), "start", cf, sum, cfg.ink, g);
 
@@ -2265,7 +2386,7 @@ export class Visual implements IVisual {
                 if (showD && mv != null && rv != null) {
                     const d = mv - rv;
                     txt(dAxis + 6, cy + lf * 0.36, `${d > 0 ? "+" : d < 0 ? "−" : "±"}${pctFmt.format(Math.abs(d))}Pp`,
-                        "start", lf, false, colOf(d, p), g);
+                        "start", lf, false, colOf(d, p, d), g);
                 }
             } else {
                 // scenario waterfall bars: ref column + view column at cumulated offsets
@@ -2295,15 +2416,19 @@ export class Visual implements IVisual {
                     txt(tx, cy + lf * 0.36, fmtM(v), rightSide ? "start" : "end", lf,
                         sum && scen === "m", scen === "ref" ? cfg.subtle : cfg.ink, g);
                 };
-                const split = view === "acfc" && mv != null && mv !== 0 && p.ac != null
-                    ? Math.max(0, Math.min(1, (p.ac ?? 0) / mv)) : null;
-                drawSeg(xRef, segR.get(p.cat), "ref", null);
-                drawSeg(xM, segM.get(p.cat), "m", split);
+                // split by magnitudes: with an actual and a forecast of opposite
+                // sign the signed ratio would collapse the split entirely
+                const split = view === "acfc" && p.ac != null && p.fc != null
+                    && (Math.abs(p.ac) + Math.abs(p.fc)) > 0
+                    ? Math.abs(p.ac) / (Math.abs(p.ac) + Math.abs(p.fc)) : null;
+                drawSeg(xRef, segR.get(r.idx), "ref", null);
+                drawSeg(xM, segM.get(r.idx), "m", split);
 
                 // ΔRef bar + label
                 if (showD && mv != null && rv != null) {
                     const d = mv - rv;
-                    const c = colOf(d, p);
+                    const dpm = rv !== 0 ? d / Math.abs(rv) * 100 : null;
+                    const c = colOf(d, p, dpm);
                     const w = Math.abs(d) * dPX;
                     const x0 = d >= 0 ? dAxis : dAxis - w;
                     this.el("rect", {
@@ -2316,7 +2441,7 @@ export class Visual implements IVisual {
                 // ΔRef% pin, capped with outlier arrows like the reference
                 if (showPct && mv != null && rv != null && rv !== 0) {
                     const dp = (mv - rv) / Math.abs(rv) * 100;
-                    const c = colOf(dp, p);
+                    const c = colOf(mv - rv, p, dp);
                     const outlier = Math.abs(dp) > P_CAP;
                     const w = Math.min(Math.abs(dp), P_CAP) / P_CAP * pLen;
                     const x0 = dp >= 0 ? pAxis : pAxis - w;
@@ -2379,8 +2504,8 @@ export class Visual implements IVisual {
         if (collapsible.size > 0) {
             const allCollapsed = [...collapsible].every(c => this.pnlCollapsed.has(c));
             btn(Math.round(22 * k), "2", !allCollapsed && this.pnlCollapsed.size === 0,
-                "Ebene 2: alle Positionen", () => { this.pnlCollapsed.clear(); this.rerender(); });
-            btn(Math.round(22 * k), "1", allCollapsed, "Ebene 1: nur Zwischensummen", () => {
+                this.locStr("Btn_Level2", "Level 2: all line items"), () => { this.pnlCollapsed.clear(); this.rerender(); });
+            btn(Math.round(22 * k), "1", allCollapsed, this.locStr("Btn_Level1", "Level 1: subtotals only"), () => {
                 this.pnlCollapsed = new Set(collapsible);
                 this.rerender();
             });
@@ -2390,11 +2515,14 @@ export class Visual implements IVisual {
         if (avail.length > 1) {
             const segLbl: Record<string, string> = { ac: "AC", acfc: "AC&FC", pl: "PL" };
             const segTip: Record<string, string> = {
-                ac: "Sicht: Ist (AC)", acfc: "Sicht: Ist + Forecast (AC&FC)", pl: "Sicht: Plan (PL)"
+                ac: this.locStr("Btn_ViewAc", "View: actuals (AC)"),
+                acfc: this.locStr("Btn_ViewAcFc", "View: actuals + forecast (AC&FC)"),
+                pl: this.locStr("Btn_ViewPl", "View: plan (PL)")
             };
             for (const v of [...avail].reverse()) {
                 btn(Math.round((v === "acfc" ? 48 : 30) * k), segLbl[v], view === v, segTip[v], () => {
                     this.pnlView = v;
+                    this.pendingPnlView = v;
                     this.host.persistProperties({
                         merge: [{ objectName: "chart", selector: null, properties: { pnlView: v } }]
                     });
@@ -3063,7 +3191,7 @@ export class Visual implements IVisual {
 
         const bg = this.el("g", {}, this.svg);
         this.drawBaseline(bg, rect, scale, "columns", bandStart, bandEnd, "ac", cfg.colors);
-        this.drawPanelTitle(bg, rect, "Pareto · AC · kumulierter Anteil", "columns", titleH, region, undefined, cfg.subtle);
+        this.drawPanelTitle(bg, rect, this.locStr("Title_ParetoPanel", "Pareto · AC · cumulative share"), "columns", titleH, region, undefined, cfg.subtle);
 
         // 80 % reference line
         this.el("line", {
@@ -3149,7 +3277,7 @@ export class Visual implements IVisual {
         const n = points.length;
         if (n === 0) { return; }
         if (!points.some(p => p.basis != null)) {
-            this.drawModeHint(region, cfg, "Dumbbell benötigt PY oder PL als Vergleichsbasis");
+            this.drawModeHint(region, cfg, this.locStr("Hint_DumbbellBasis", "Dumbbell requires PY or PL as comparison basis"));
             return;
         }
         const k = this.fontK;
@@ -3242,7 +3370,7 @@ export class Visual implements IVisual {
     private renderSlope(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
         const pts = points.filter(p => p.value != null && p.basis != null);
         if (pts.length === 0) {
-            this.drawModeHint(region, cfg, "Slope benötigt AC und PY/PL je Kategorie");
+            this.drawModeHint(region, cfg, this.locStr("Hint_SlopeBasis", "Slope requires AC and PY/PL per category"));
             return;
         }
         const k = this.fontK;
@@ -3380,7 +3508,7 @@ export class Visual implements IVisual {
 
         const bg = this.el("g", {}, this.svg);
         this.drawBaseline(bg, rect, scale, orientation, bandStart, bandEnd, "ac", cfg.colors);
-        this.drawPanelTitle(bg, rect, "AC · gestapelt", orientation, titleH, region,
+        this.drawPanelTitle(bg, rect, this.locStr("Title_StackedPanel", "AC · stacked"), orientation, titleH, region,
             orientation === "bars" ? region.y + legendH + Math.round(10 * k) : undefined, cfg.subtle);
 
         // legend (top-left, truncating to the region width)
@@ -3512,7 +3640,12 @@ export class Visual implements IVisual {
         const bridgeSlotPos = (i: number) => bandStart + i * bridgeStep + (bridgeStep - bridgeSlotW) / 2;
 
         // ------- precompute label texts + thinning predicates
-        const valueTexts = points.map(p => p.value != null ? cfg.fmt.format(p.value) : "");
+        // sum-safe rounding: adjust label values (largest remainder) so the visible
+        // labels add up to the Σ header — pointless for running totals (cumulative)
+        const labelVals = cfg.sumSafe && !cfg.cumulative
+            ? this.sumSafeAdjust(points.map(p => p.value), cfg.fmtUnit, cfg.fmtPrec)
+            : points.map(p => p.value);
+        const valueTexts = labelVals.map(v => v != null ? cfg.fmt.format(v) : "");
         const absTexts = points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : "");
         const relTexts = points.map(p => p.varRel != null ? this.fmtPercent(p.varRel) : "");
         const abs2Texts = points.map(p => p.var2Abs != null ? this.fmtSigned(cfg.fmtVar, p.var2Abs) : "");
@@ -3581,7 +3714,9 @@ export class Visual implements IVisual {
             baseline(panels.rel, relScale, cfg.basisMode);
             this.drawPanelTitle(bg, panels.rel, `Δ${cfg.basisLabel} %`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
-        const basis2Mode: Basis = cfg.basisMode === "plan" ? "py" : "plan";
+        // the REAL second basis from parseData — a local re-derivation would miss
+        // the fcrev-without-plan case (second basis PY, not PL)
+        const basis2Mode: Basis = this.basis2Mode;
         if (panels.abs2 && abs2Scale) {
             baseline(panels.abs2, abs2Scale, basis2Mode);
             this.drawPanelTitle(bg, panels.abs2, `Δ${cfg.basis2Label}`, orientation, titleH, region, barsTitleY, cfg.subtle);
@@ -3779,6 +3914,11 @@ export class Visual implements IVisual {
                         p.isFc
                             ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                             : { fill: cfg.colors.ac });
+                    if (p.isPrelim && !p.isFc) {
+                        // preliminary actual: thin paper hatch over the solid bar
+                        this.drawBar(g, pos + pyShift, barW, 0, capV(p.value), mainScale, orientation,
+                            { fill: `url(#${cfg.patPrelim})` });
+                    }
                     if (cfg.capMax != null && p.value > cfg.capMax) {
                         this.drawCapMarker(g, pos + pyShift, barW, mainScale, orientation, cfg);
                     }
@@ -4110,11 +4250,12 @@ export class Visual implements IVisual {
         const btn = this.el("g", {
             "class": "icd-sortbtn", tabindex: "0", role: "button"
         }, this.svg) as SVGGElement;
-        btn.setAttribute("aria-label", cfg.sortByImpact
-            ? "Sortierung nach Wirkung aufheben" : "Nach Wirkung sortieren (größter Treiber zuerst)");
+        const sortLabel = cfg.sortByImpact
+            ? this.locStr("Btn_SortOff", "Remove impact sorting")
+            : this.locStr("Btn_SortOn", "Sort by impact (largest driver first)");
+        btn.setAttribute("aria-label", sortLabel);
         const sortTip = this.el("title", {}, btn);
-        sortTip.textContent = cfg.sortByImpact
-            ? "Sortierung nach Wirkung aufheben" : "Nach Wirkung sortieren (größter Treiber zuerst)";
+        sortTip.textContent = sortLabel;
         this.el("circle", {
             cx, cy, r: 9, fill: cfg.sortByImpact ? cfg.colors.ac : cfg.paper,
             stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
@@ -4180,11 +4321,11 @@ export class Visual implements IVisual {
             });
         };
         if (opts.showPlay) {
-            roundBtn("▶", false, "Aufbau-Animation abspielen", () => this.playBuild());
+            roundBtn("▶", false, this.locStr("Btn_Play", "Play build-up animation"), () => this.playBuild());
         }
         if (opts.showSort) {
             roundBtn("⇅", cfg.sortByImpact, cfg.sortByImpact
-                ? "Sortierung nach Wirkung aufheben" : "Nach Wirkung sortieren",
+                ? this.locStr("Btn_SortOff", "Remove impact sorting") : this.locStr("Btn_SortOn", "Sort by impact (largest driver first)"),
                 () => persist({ sortByImpact: !cfg.sortByImpact }));
         }
         if (opts.showRef) {
@@ -4213,9 +4354,9 @@ export class Visual implements IVisual {
                     e.preventDefault(); e.stopPropagation(); onClick();
                 });
             };
-            seg(x0, "ΔPY", cfg.basisMode === "py", "Abweichungsbasis: Vorjahr (PY)",
+            seg(x0, "ΔPY", cfg.basisMode === "py", this.locStr("Btn_BasisPy", "Variance basis: previous year (PY)"),
                 () => persist({ comparisonMode: "py" }));
-            seg(x0 + segW, "ΔPL", cfg.basisMode === "plan", "Abweichungsbasis: Plan (PL)",
+            seg(x0 + segW, "ΔPL", cfg.basisMode === "plan", this.locStr("Btn_BasisPl", "Variance basis: plan (PL)"),
                 () => persist({ comparisonMode: "plan" }));
             xRight = x0 - 6;
         }
@@ -4304,9 +4445,15 @@ export class Visual implements IVisual {
                 sumBasis += Math.abs(p.basis as number);
             }
         }
-        const sorted = [...withVar].sort((a, b) => (b.varAbs as number) - (a.varAbs as number));
-        const best = cfg.invert ? sorted[sorted.length - 1] : sorted[0];
-        const worst = cfg.invert ? sorted[0] : sorted[sorted.length - 1];
+        // rank by business impact via cfg.isGood — the global invert alone would
+        // ignore the per-category invert list (e.g. an inverted cost KPI)
+        const score = (p: DataPoint) => {
+            const v = p.varAbs as number;
+            return cfg.isGood(v, p) ? Math.abs(v) : -Math.abs(v);
+        };
+        const sorted = [...withVar].sort((a, b) => score(b) - score(a));
+        const best = sorted[0];
+        const worst = sorted[sorted.length - 1];
         const parts = [
             `Δ${cfg.basisLabel} ${this.fmtSigned(cfg.fmtVar, sumVar)}`
             + (sumBasis !== 0 ? ` (${this.fmtPercent((sumVar / sumBasis) * 100)})` : "")
@@ -4430,7 +4577,7 @@ export class Visual implements IVisual {
         const var2Rel = (var2Abs != null && basis2Sum != null && basis2Sum !== 0)
             ? (var2Abs / Math.abs(basis2Sum)) * 100 : null;
         const rest: DataPoint = {
-            cat: `Rest (${tail.length})`,
+            cat: `${this.locStr("Label_Rest", "Other")} (${tail.length})`,
             catLevels: null,
             ac, py, pl, fc, value,
             isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
@@ -4561,7 +4708,13 @@ export class Visual implements IVisual {
             ts.textContent = text;
             t.appendChild(ts);
         };
-        span(`Σ ${cfg.fmt.format(sum)}`, cfg.ink, true);
+        // with sum-safe labels the Σ must be quantized identically to the labels,
+        // otherwise formatter edge-rounding could still disagree by one quantum
+        const sumShown = cfg.sumSafe && !cfg.cumulative
+            ? (() => { const div = cfg.fmtUnit || 1, f = Math.pow(10, cfg.fmtPrec);
+                return Math.round((sum / div) * f) / f * div; })()
+            : sum;
+        span(`Σ ${cfg.fmt.format(sumShown)}`, cfg.ink, true);
         if (anyVar) {
             const good = cfg.isGood(sumVar);
             const color = sumVar === 0 ? cfg.subtle : (good ? cfg.colors.good : cfg.colors.bad);
@@ -4569,6 +4722,27 @@ export class Visual implements IVisual {
             span(this.fmtSigned(cfg.fmtVar, sumVar), color, true);
             if (sumBasis !== 0) {
                 span(` · ${this.fmtPercent((sumVar / sumBasis) * 100)}`, color, true);
+            }
+        }
+        // rounding hint: with sum-safe rounding OFF, flag when the rounded labels
+        // do not add up to the rounded Σ (the classic board-meeting question)
+        if (!cfg.sumSafe && !cfg.cumulative && cfg.showLabels) {
+            const div = cfg.fmtUnit || 1;
+            const f = Math.pow(10, cfg.fmtPrec);
+            let labelSum = 0, totalQ = 0;
+            for (const p of points) {
+                if (p.value == null) { continue; }
+                const q = (p.value / div) * f;
+                labelSum += Math.round(q);
+                totalQ += q;
+            }
+            if (labelSum !== Math.round(totalQ)) {
+                const ht = this.el("text", {
+                    x: region.x + region.w - 6, y: region.y + hFont * 2 + 3, "text-anchor": "end",
+                    "font-size": Math.round(hFont * 0.82), fill: cfg.subtle,
+                    "font-family": FONT, "font-style": "italic"
+                }, parent);
+                ht.textContent = this.locStr("Hint_Rounding", "Totals may differ due to rounding");
             }
         }
     }
@@ -4722,7 +4896,9 @@ export class Visual implements IVisual {
         return (i: number) => i === 0 || i === n - 1 || i === iMin || i === iMax;
     }
 
-    /** best-effort month number (1-12) from a category label, else null */
+    /** best-effort month number (1-12) from a category label, else null;
+     *  quarter labels (Q1…Q4 / "Quartal 1") map to their first month, so the
+     *  YTD reset fires at the fiscal-year quarter and QTD resets each quarter */
     private monthOf(label: string): number | null {
         const names: { [k: string]: number } = {
             jan: 1, feb: 2, "mär": 3, maerz: 3, mar: 3, apr: 4, mai: 5, may: 5, jun: 6,
@@ -4730,6 +4906,8 @@ export class Visual implements IVisual {
         };
         const m = label.toLowerCase().match(/jan|feb|mär|maerz|mar|apr|mai|may|jun|jul|aug|sep|okt|oct|nov|dez|dec/);
         if (m) { return names[m[0]]; }
+        const q = label.toLowerCase().match(/^q(?:uartal)?\s*([1-4])/);
+        if (q) { return (parseInt(q[1], 10) - 1) * 3 + 1; }
         const num = label.match(/^(\d{1,2})(?:[./-]|$)/);
         if (num) { const n = parseInt(num[1], 10); if (n >= 1 && n <= 12) { return n; } }
         return null;
@@ -4827,6 +5005,18 @@ export class Visual implements IVisual {
             line(0, colors.ac, 1.6);
         } else if (kind === "py") {
             line(0, colors.py, 3);
+        } else if (kind === "fcrev") {
+            // prior-cycle forecast basis: double line like plan, but dashed —
+            // a soft target, distinct from the solid PL notation
+            const dashLine = (offset: number) => {
+                if (orientation === "columns") {
+                    this.el("line", { x1: bandStart, y1: zero + offset, x2: bandEnd, y2: zero + offset, stroke: colors.pl, "stroke-width": 1, "stroke-dasharray": "5,3" }, parent);
+                } else {
+                    this.el("line", { x1: zero + offset, y1: bandStart, x2: zero + offset, y2: bandEnd, stroke: colors.pl, "stroke-width": 1, "stroke-dasharray": "5,3" }, parent);
+                }
+            };
+            dashLine(-1.2);
+            dashLine(1.2);
         } else {
             line(-1.2, colors.pl, 1);
             line(1.2, colors.pl, 1);
@@ -5013,18 +5203,21 @@ export class Visual implements IVisual {
                     value: pct ? this.fmtPercent(v) : (signed ? this.fmtSigned(cfg.fmt, v) : cfg.fmt.format(v))
                 });
             };
-            out.push({ displayName: "Category", value: p.cat });
-            add("Actual (AC)", p.ac);
-            add("Forecast (FC)", p.fc);
-            add("Previous Year (PY)", p.py);
-            add("Plan (PL)", p.pl);
-            add("FC Vormonat", p.fcPrev);
+            out.push({ displayName: this.locStr("Role_Category", "Category"), value: p.cat });
+            add(this.locStr("Role_Actual", "Actual (AC)"), p.ac);
+            if (p.isPrelim) {
+                out.push({ displayName: "Status", value: this.locStr("Tooltip_Prelim", "preliminary") });
+            }
+            add(this.locStr("Role_Forecast", "Forecast (FC)"), p.fc);
+            add(this.locStr("Role_PreviousYear", "Previous Year (PY)"), p.py);
+            add(this.locStr("Role_Plan", "Plan (PL)"), p.pl);
+            add(this.locStr("Role_PrevForecast", "Prior-month FC"), p.fcPrev);
             if (cfg.bmInChart) { add("Benchmark (BM)", p.bm); }
             if (p.lineVal != null) {
                 out.push({ displayName: cfg.lineName, value: cfg.fmtLine.format(p.lineVal) });
             }
             if (p.stackSeries != null) {
-                out.push({ displayName: "Serie", value: p.stackSeries });
+                out.push({ displayName: this.locStr("Tooltip_Series", "Series"), value: p.stackSeries });
             }
             if (p.varAbs != null) {
                 out.push({ displayName: `Δ${cfg.basisLabel}`, value: this.fmtSigned(cfg.fmtVar, p.varAbs) });
@@ -5035,10 +5228,13 @@ export class Visual implements IVisual {
             }
             add(`Δ${cfg.basis2Label} %`, p.var2Rel, true, true);
             if (!cfg.isMaterial(p)) {
-                out.push({ displayName: "Wesentlichkeit", value: "unter Schwelle — grau dargestellt" });
+                out.push({
+                    displayName: this.locStr("Tooltip_Materiality", "Materiality"),
+                    value: this.locStr("Tooltip_MaterialityBelow", "below threshold — shown in grey")
+                });
             }
             if (p.comment != null && p.commentNo != null) {
-                out.push({ displayName: `${this.circledNo(p.commentNo)} Kommentar`, value: p.comment });
+                out.push({ displayName: `${this.circledNo(p.commentNo)} ${this.locStr("Tooltip_Comment", "Comment")}`, value: p.comment });
             }
             return out;
         };
@@ -5172,14 +5368,14 @@ export class Visual implements IVisual {
             this.persistUserComments();
         };
         if (this.userComments.has(key)) {
-            mkBtn("Löschen", false, () => {
+            mkBtn(this.locStr("Editor_Delete", "Delete"), false, () => {
                 this.userComments.delete(key);
                 this.closeCommentEditor();
                 this.persistUserComments();
             });
         }
-        mkBtn("Abbrechen", false, () => this.closeCommentEditor());
-        mkBtn("Speichern", true, save);
+        mkBtn(this.locStr("Editor_Cancel", "Cancel"), false, () => this.closeCommentEditor());
+        mkBtn(this.locStr("Editor_Save", "Save"), true, save);
         box.appendChild(row);
 
         this.root.appendChild(box);
@@ -5204,8 +5400,8 @@ export class Visual implements IVisual {
         t.textContent = text;
         const tip = this.el("title", {}, g);
         tip.textContent = text.startsWith("✎")
-            ? "Kommentar-Modus aktiv: Klick auf eine Kategorie öffnet den Editor (ausschalten unter Kommentare → Kommentare im Chart erfassen)"
-            : "Vergleichs-Modus aktiv: zwei Elemente anklicken zeigt die Differenz, Klick ins Leere setzt zurück";
+            ? this.locStr("ChipTip_Comment", "Comment mode active: clicking a category opens the editor")
+            : this.locStr("ChipTip_Compare", "Compare mode active: click two elements to show the difference, click empty space to reset");
     }
 
     /** YTD chip top-right: persists chart.cumulative so end users can flip the view */
@@ -5216,10 +5412,10 @@ export class Visual implements IVisual {
         const x = xRight - segW;
         const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
         btn.setAttribute("aria-label", cfg.cumulative
-            ? "Kumulierte Sicht (YTD) ausschalten" : "Kumulierte Sicht (YTD) einschalten");
+            ? this.locStr("Btn_CumOff", "Turn cumulative view (YTD) off") : this.locStr("Btn_CumOn", "Turn cumulative view (YTD) on"));
         const cumTip = this.el("title", {}, btn);
         cumTip.textContent = cfg.cumulative
-            ? "Kumulierte Sicht (YTD) ausschalten" : "Kumulierte Sicht (YTD) einschalten";
+            ? this.locStr("Btn_CumOff", "Turn cumulative view (YTD) off") : this.locStr("Btn_CumOn", "Turn cumulative view (YTD) on");
         this.el("rect", {
             x, y: 6, width: segW, height: bh, rx: bh / 2,
             fill: cfg.cumulative ? cfg.colors.ac : cfg.paper,

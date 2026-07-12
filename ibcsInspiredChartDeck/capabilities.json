@@ -189,6 +189,7 @@
         "labels": {
             "properties": {
                 "show": { "type": { "bool": true } },
+                "sumSafeRounding": { "type": { "bool": true } },
                 "fontPreset": {
                     "type": {
                         "enumeration": [

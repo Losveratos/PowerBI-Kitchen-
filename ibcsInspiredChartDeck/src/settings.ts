@@ -513,6 +513,14 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         value: displayUnitsItems[0]
     });
 
+    sumSafeRounding = new formattingSettings.ToggleSwitch({
+        name: "sumSafeRounding",
+        displayName: "Sum-safe label rounding",
+        displayNameKey: "Labels_SumSafe",
+        description: "Rundet die Wertbeschriftungen nach dem Restwertverfahren so, dass sie exakt auf die Σ-Kopfzeile aufaddieren — keine Rundungsdifferenz-Nachfragen mehr. Aus = mathematisch exakte Einzelrundung, dafür erscheint bei Abweichung ein Rundungshinweis unter der Σ-Zeile.",
+        value: false
+    });
+
     name: string = "labels";
     displayName: string = "Data labels";
     displayNameKey: string = "Card_Labels";
@@ -521,7 +529,8 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         this.fontPreset,
         this.fontSize,
         this.decimals,
-        this.displayUnits
+        this.displayUnits,
+        this.sumSafeRounding
     ];
 }
 

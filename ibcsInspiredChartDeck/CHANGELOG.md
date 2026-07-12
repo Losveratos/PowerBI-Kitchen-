@@ -1,5 +1,47 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.16.0.0 (2026-07-12)
+
+**Drei Controller-Features:**
+- **Perioden-Status „vorläufig"**: Forecast-Flag versteht jetzt `2` (oder
+  „vorläufig"/„prelim") — die Säule bleibt Ist (solide), bekommt aber eine
+  dünne Überlagerungs-Schraffur und einen Status-Eintrag im Tooltip.
+  Vorläufige Monate zählen als AC (Summen, YTD, AC|FC-Trennlinie).
+- **Σ-treue Rundung** (Datenbeschriftungen → Σ-treue Rundung): Labels
+  werden per Restwertverfahren so gerundet, dass sie exakt auf die
+  Σ-Kopfzeile aufaddieren. Aus (Standard): exakte Einzelrundung, dafür
+  erscheint bei Differenz automatisch ein Rundungshinweis unter der Σ-Zeile.
+- **Export-Modus**: In PDF-/PowerPoint-Exporten und Abo-Mails
+  (`allowInteractions = false`) verschwinden alle In-Chart-Buttons und
+  Chips automatisch — der Export zeigt das nackte Chart.
+
+**14 Fixes aus der adversarialen Verifikations-Runde (4 Prüf-Agenten):**
+- GuV-Statement: AC-Sicht zeigte Forecast-only-Zeilen als solide
+  Ist-Balken; Kaskaden-Segmente kollidierten bei doppelten
+  Positionsnamen (jetzt index-basiert); Wesentlichkeit wurde an der
+  falschen (comparisonMode-)Varianz gemessen statt an der angezeigten;
+  Sicht-Wahl konnte durch ein stales Update zurückspringen
+  (Persist-Guard); Einklappen wirkte über alle Small-Multiples-Kacheln
+  (jetzt pane-bezogen); Δ-Balken/Pins kippten bei sehr schmalen Spalten
+  auf die falsche Achsseite; AC&FC-Split kollabierte bei
+  Vorzeichenwechsel (jetzt betragsbasiert).
+- Zeitintelligenz: Kumulierung ist bei GuV-Zeilen (sum/delta/pct)
+  gesperrt (Prozente/Anker wurden mitkumuliert); Top N wird bei aktiver
+  Kumulierung ausgesetzt (wertsortierte „Laufsummen"); Quartals-Labels
+  (Q1–Q4) werden jetzt für YTD-/QTD-Resets erkannt.
+- Brücken/Basis: Kategorie-Brücke rechnet ihre Kaskade jetzt lokal gegen
+  die eigene PY/PL-Referenz (bei fcrev-Basis rekonzilierte sie nicht auf
+  AC); ΔFC-Vm-Referenzachse hat eine eigene gestrichelte Doppellinie
+  statt der PL-Notation; Zweitbasis-Achse nutzt die echte basis2-Logik;
+  Margen-%-Zeilen fliegen aus allen Modi raus, die sie nicht darstellen
+  können (verzerrten Skalen/Σ in Columns/Cards/Pareto); die automatische
+  SAY-Botschaft respektiert jetzt „Invertieren je Kategorie".
+
+**In-Chart-Texte lokalisiert:** Tooltips, Hinweis-Meldungen, Button-
+Tooltips, Chips, Kommentar-Editor, Treiber-Notiz, „Rest"/„Σ Gesamt" und
+Panel-Titel laufen jetzt über die Sprachdateien (DE/EN/ES/JA, je 149
+Schlüssel) — vorher hart deutsch/englisch gemischt.
+
 ## 1.15.2.0 (2026-07-10)
 
 **Lokalisierungs-Fix — Sprachen greifen jetzt wirklich:**

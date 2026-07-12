@@ -61,13 +61,18 @@
 <div class="case"><h4>KPI-Karten · Per-KPI-Invert (Opex invertiert: Mehrkosten rot)</h4><div class="stage" id="c47" style="width:960px;height:260px"></div></div>
 <div class="case"><h4>QTD · Fiskaljahr ab April — Reset an jedem Quartalsstart</h4><div class="stage" id="c48" style="width:960px;height:420px"></div></div>
 <div class="case"><h4>GuV-Tabelle · Margen-%-Zeilen (rowType "pct"): Wert in %, Δ in Pp, keine €-Grafiken</h4><div class="stage" id="c49" style="width:1200px;height:420px"></div></div>
+<div class="case"><h4>Perioden-Status: Jul „vorläufig" (fcFlag=2, dünne Schraffur), Aug–Dez FC (fcFlag=1)</h4><div class="stage" id="c54" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Σ-treue Rundung AN — Labels addieren exakt auf die Σ-Kopfzeile</h4><div class="stage" id="c55" style="width:960px;height:300px"></div></div>
+<div class="case"><h4>Σ-treue Rundung AUS — Rundungshinweis unter der Σ-Zeile</h4><div class="stage" id="c56" style="width:960px;height:300px"></div></div>
+<div class="case"><h4>Export-Modus (allowInteractions=false) · Kategorie-Brücke ohne In-Chart-Buttons</h4><div class="stage" id="c57" style="width:1340px;height:600px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
 const Visual = ZebraIBCS.Visual;
 
-function makeHost(hc) {
+function makeHost(hc, noInteract) {
   return {
+    hostCapabilities: { allowInteractions: !noInteract },
     colorPalette: hc ? { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" } }
       : { isHighContrast: false, positive: { value: "#1B7F4D" }, negative: { value: "#B3282D" },
           foregroundNeutralDark: { value: "#252423" }, foregroundNeutralTertiary: { value: "#C8C6C4" } },
@@ -102,9 +107,9 @@ function dataView(cats, cols, objects, multValues, rowTypes) {
   };
 }
 
-function run(id, dv, w, h, hc) {
+function run(id, dv, w, h, hc, noInteract) {
   const el = document.getElementById(id);
-  const v = new Visual({ element: el, host: makeHost(hc) });
+  const v = new Visual({ element: el, host: makeHost(hc, noInteract) });
   v.update({ viewport: { width: w, height: h }, dataViews: [dv] });
 }
 
@@ -462,6 +467,25 @@ run("c52", dataView(guvCats, [col("actual", guvAc, "#,0 T€"), col("previousYea
   { chart: { orientation: "pnl", pnlView: "acfc" } }, null, guvTypes), 1280, 480);
 run("c53", dataView(guvCats, [col("actual", guvAc, "#,0 T€"), col("previousYear", guvPy, "#,0 T€"), col("plan", guvPl, "#,0 T€"), col("forecast", guvFc, "#,0 T€")],
   { chart: { orientation: "pnl", pnlView: "pl" } }, null, guvTypes), 1280, 480);
+
+// period status: months up to Jun final, Jul preliminary (flag 2), Aug+ forecast (flag 1)
+const psCats = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+const psAc = [820, 771, 900, 955, 1020, 980, 1105, 1150, 1080, 1210, 1260, 1400].map(v => v * 1000);
+const psPy = [790, 800, 860, 930, 985, 1010, 1060, 1090, 1120, 1180, 1220, 1350].map(v => v * 1000);
+run("c54", dataView(psCats, [col("actual", psAc, "#,0 €"), col("previousYear", psPy, "#,0 €")],
+  { __fcFlags: [0,0,0,0,0,0,2,1,1,1,1,1], chart: {} }), 960, 420);
+
+// sum-safe rounding: 3×10.440 → labels 10,4k each, Σ 31,3k — largest remainder bumps one to 10,5
+const srCats = ["Nord", "Mitte", "Süd"];
+const srAc = [10440, 10440, 10440];
+run("c55", dataView(srCats, [col("actual", srAc, "#,0 €")],
+  { chart: { orientation: "bars", showTotal: true }, labels: { sumSafeRounding: true } }), 960, 300);
+run("c56", dataView(srCats, [col("actual", srAc, "#,0 €")],
+  { chart: { orientation: "bars", showTotal: true } }), 960, 300);
+
+// export context: allowInteractions=false suppresses all in-chart buttons/chrome
+run("c57", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)],
+  { chart: { orientation: "catbridge", groupEvery: 4 } }, null, null), 1340, 600, false, true);
 
 // P&L table with margin rows: value as %, deltas as percentage points
 run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],
