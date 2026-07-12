@@ -1,5 +1,11 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.19.1.0 (2026-07-12)
+
+**Daten-WG-Icon:** Das Visual trägt jetzt das DWG-Kochmützen-Logo
+(Balken-Chart in der Mütze, Teal/Gelb) als Icon in der
+Visualisierungs-Galerie. Quelle als SVG unter assets/icon-source.svg.
+
 ## 1.19.0.0 (2026-07-12)
 
 **Tabelle 2.0 — Welle 3 (Hierarchie, Scrolling, Formelzeilen):**
