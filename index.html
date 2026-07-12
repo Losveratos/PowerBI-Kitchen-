@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daten-WG · Knowledge Kitchen · Podcast & Tutorials</title>
 
+<!-- Favicon · Daten-WG Knowledge Kitchen -->
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+<meta name="theme-color" content="#117865">
+
 <style>
 :root {
   /* Flächen — Paper/Cream Editorial-Palette */
@@ -206,9 +214,78 @@ a { color: inherit; text-decoration: none; }
   display: block;
 }
 
+/* Burger-Button · nur mobile sichtbar */
+.nav-burger {
+  display: none;
+  margin-left: 12px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  transition: background .18s ease, border-color .18s ease;
+}
+.nav-burger:hover { border-color: var(--ink); }
+.nav-burger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform .22s ease, opacity .18s ease;
+}
+.topnav.nav-open .nav-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.topnav.nav-open .nav-burger span:nth-child(2) { opacity: 0; }
+.topnav.nav-open .nav-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
 @media (max-width: 1100px) {
-  .topnav { display: none; }
   .container { padding-top: 32px; }
+
+  .nav-burger { display: flex; }
+
+  .topnav-inner { row-gap: 0; }
+
+  /* Nav-Links standardmäßig einklappen */
+  .topnav-inner > .topnav-link,
+  .topnav-inner > .topnav-dd {
+    display: none;
+    flex-basis: 100%;
+    width: 100%;
+  }
+
+  /* Geöffnetes Menü · gestapelte Links */
+  .topnav.nav-open .topnav-inner > .topnav-link,
+  .topnav.nav-open .topnav-inner > .topnav-dd {
+    display: block;
+  }
+  .topnav.nav-open .topnav-inner > .topnav-link:first-of-type { margin-top: 12px; }
+  .topnav.nav-open .topnav-link {
+    font-size: 12px;
+    padding: 12px 12px;
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+  }
+  .topnav.nav-open .topnav-dd-toggle { justify-content: flex-start; }
+
+  /* Dropdown „Talks & Post" auf Touch inline ausklappen */
+  .topnav.nav-open .topnav-dd-menu {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+    border: none;
+    padding: 4px 0 8px 16px;
+    min-width: 0;
+    z-index: auto;
+  }
+  .topnav.nav-open .topnav-dd-toggle::after { display: none; }
 }
 
 /* ========== CONFERENCE STRIP (slim) ========== */
@@ -1921,9 +1998,12 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
 <!-- ============================================================
      STICKY TOP NAV
 ============================================================ -->
-<nav class="topnav">
+<nav class="topnav" id="topnav">
   <div class="topnav-inner">
     <div class="topnav-brand">Daten-WG · <em>Knowledge Kitchen</em><span class="beta-badge" title="Beta-Phase · noch in Entwicklung">Beta</span></div>
+    <button class="nav-burger" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="topnav">
+      <span></span><span></span><span></span>
+    </button>
     <a class="topnav-link" href="#top-picks">Top-Picks</a>
     <a class="topnav-link" href="#posts-talks">Posts &amp; Talks</a>
     <a class="topnav-link" href="#buckets-overview">Buckets</a>
@@ -5978,6 +6058,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+</script>
+
+<!-- Mobile-Navigation · Burger-Menü-Toggle -->
+<script>
+(function () {
+  var nav = document.getElementById('topnav');
+  if (!nav) return;
+  var burger = nav.querySelector('.nav-burger');
+  if (!burger) return;
+
+  function setOpen(open) {
+    nav.classList.toggle('nav-open', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    burger.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
+  }
+
+  burger.addEventListener('click', function () {
+    setOpen(!nav.classList.contains('nav-open'));
+  });
+
+  // Menü nach Klick auf einen echten Link (kein Dropdown-Toggle) schließen
+  nav.querySelectorAll('.topnav-link').forEach(function (link) {
+    link.addEventListener('click', function () {
+      if (link.classList.contains('topnav-dd-toggle')) return;
+      setOpen(false);
+    });
+  });
+
+  // ESC schließt das Menü
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && nav.classList.contains('nav-open')) setOpen(false);
+  });
+
+  // Beim Wechsel auf Desktop-Breite zurücksetzen
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 1100 && nav.classList.contains('nav-open')) setOpen(false);
+  });
+})();
 </script>
 </body>
 </html>
