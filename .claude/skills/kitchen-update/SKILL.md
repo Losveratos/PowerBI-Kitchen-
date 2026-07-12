@@ -1,18 +1,20 @@
 ---
 name: kitchen-update
-description: Daten-WG YouTube-Kanal auf neue Folgen checken und in daten_wg_learn_buckets.html einpflegen. Nutzen, wenn User sinngemaess sagt "neue Videos einpflegen", "Kitchen updaten", "Daten-WG checken", "neue Folgen rein", oder einen Channel-Refresh anfordert.
+description: Daten-WG YouTube-Kanal auf neue Folgen checken, in daten_wg_learn_buckets.html einpflegen und index.html (Live-Startseite) synchronisieren. Nutzen, wenn User sinngemaess sagt "neue Videos einpflegen", "Kitchen updaten", "Daten-WG checken", "neue Folgen rein", oder einen Channel-Refresh anfordert.
 ---
 
 # Daten-WG Knowledge Kitchen · Update-Workflow
 
-Hol neue Folgen vom @Daten-WG YouTube-Kanal, klassifiziere sie, und schreib sie in `daten_wg_learn_buckets.html`.
+Hol neue Folgen vom @Daten-WG YouTube-Kanal, klassifiziere sie, und schreib sie in `daten_wg_learn_buckets.html` — **und synchronisiere anschliessend `index.html`** (das ist die Live-Startseite auf datenwgknowledgekitchen.com).
+
+> ⚠️ **Zwei Dateien.** `daten_wg_learn_buckets.html` ist die Arbeitsdatei, aber ausgeliefert wird `index.html` (GitHub Pages, Source main / Root). Beide tragen dieselbe `EPISODES`-Konstante und dieselben Counts. Wer nur die Buckets-Datei anfasst, sieht sein Update **nicht live** — die Startseite driftet zurueck. Darum am Ende immer Schritt 11 (Sync) ausfuehren und beide Dateien committen.
 
 ## Voraussetzungen
 
 - `yt-dlp` installiert (mind. 2026.x; aktuelle Version checken mit `yt-dlp --version`)
 - `node` verfuegbar (fuer Parser-Helper)
-- Arbeitsverzeichnis: Repo-Root (`daten_wg_learn_buckets.html` direkt sichtbar)
-- Vor Beginn `git status` checken — Working Tree sollte sauber sein oder klar abgrenzbar
+- Arbeitsverzeichnis: Repo-Root (`daten_wg_learn_buckets.html` und `index.html` direkt sichtbar)
+- Vor Beginn `git status` checken — Working Tree sollte sauber sein oder klar abgrenzbar. Achte besonders auf **uncommittete Aenderungen an `index.html`** (`git diff index.html`): die muessen vor dem Sync zuerst in die Buckets-Datei uebernommen werden, sonst gehen sie beim Sync verloren.
 
 ## Workflow
 
@@ -139,9 +141,37 @@ node scripts/_dump_eps.js
 
 Pruefen: Summe der Buckets = Neuer Gesamtcount. Wenn das Skript einen Parse-Error wirft (Syntax kaputt), zurueck zur Insertion und Anfuehrungszeichen pruefen.
 
-### 11. Commit
+### 11. `index.html` synchronisieren (PFLICHT)
 
-Nur wenn der User explizit committen will. Commit-Message-Konvention:
+`index.html` ist die Live-Startseite und muss denselben Stand wie `daten_wg_learn_buckets.html` bekommen — sonst ist das Update **nicht live**.
+
+Erst pruefen, ob sich die beiden **nur** in Folgen + Counts unterscheiden (Normalfall):
+
+```bash
+# Zeigt alle Unterschiede AUSSER EPISODES-Eintraegen und Count-Strings.
+# Leere Ausgabe = sauberer cp moeglich.
+diff index.html daten_wg_learn_buckets.html | grep -E "^[<>]" \
+  | grep -vE "Folgen|bucket-tile-count|result-count|ytId:|bucket: '|title: '|guest: '|solo: |date: '|duration: '|lang: '|desc: '|tags: |podcastUrl:|chapters:|\['[0-9]|^[<>] *\]|^[<>] *\},?|^[<>] *\{" \
+  | grep -E "^<"
+```
+
+- **Nur `>`-Zeilen bzw. leer** (index.html hat nichts Eigenes) → einfach spiegeln:
+  ```bash
+  cp daten_wg_learn_buckets.html index.html
+  diff -q index.html daten_wg_learn_buckets.html && echo "IDENTICAL"
+  ```
+- **`<`-Zeilen mit echtem Eigen-Content in index.html** (z. B. jemand hat nur die Startseite umgebaut) → **nicht** blind `cp`. Diese Aenderungen zuerst in `daten_wg_learn_buckets.html` uebernehmen, dann spiegeln. Im Zweifel den User fragen.
+
+Danach Counts in `index.html` gegenchecken:
+
+```bash
+grep -oE "header-stat\"><strong>[0-9]+</strong>Folgen|result-count\">[0-9]+</strong>" index.html
+grep -c "bucket: 'bucket-" index.html   # muss == Neuer Gesamtcount sein
+```
+
+### 12. Commit
+
+Nur wenn der User explizit committen will. **Beide** Dateien committen. Commit-Message-Konvention:
 
 ```
 Kitchen: N neue Folgen - <Kurzfassung>
@@ -152,7 +182,13 @@ Kitchen: N neue Folgen - <Kurzfassung>
 Counts: AlterTotal -> NeuerTotal Folgen, bucket-N M -> M+1.
 ```
 
-`git add daten_wg_learn_buckets.html` (NICHT `git add -A` — internal Helper-Files mit `_`-Praefix sollen lokal bleiben). Push erst auf explizite Bitte.
+`git add daten_wg_learn_buckets.html index.html` (NICHT `git add -A` — internal Helper-Files mit `_`-Praefix sollen lokal bleiben). Push erst auf explizite Bitte.
+
+Nach dem Push braucht GitHub Pages (legacy build) oft 1–3 Min; der `pages/builds/latest`-API-Status hinkt dem CDN teils noch weiter hinterher. „Noch nicht live" ist fast immer Build-Lag oder Browser-Cache (Strg+F5), kein fehlgeschlagener Push. Live gegenchecken:
+
+```bash
+curl -s "https://datenwgknowledgekitchen.com/?cb=$(date +%s)" | grep -o 'header-stat"><strong>[0-9]*</strong>Folgen' | head -1
+```
 
 ## Edge Cases
 
@@ -166,4 +202,5 @@ Counts: AlterTotal -> NeuerTotal Folgen, bucket-N M -> M+1.
 - Keine Eintraege ohne ytId mit Daten-WG-Inhalten anlegen
 - Keine `analysis.html` oder `_*.json` Dateien committen — sind via `.gitignore` lokal
 - Keinen automatischen Push — immer auf User-Greenlight warten
+- **Nicht `index.html` vergessen** — nur die Buckets-Datei zu aendern heisst: Update ist nicht live (Schritt 11 ist Pflicht)
 - Keine Aenderungen an `power_bi_einsteiger_guide_v4.html` oder `morally_aligned_ai*.html` — andere Subseiten
