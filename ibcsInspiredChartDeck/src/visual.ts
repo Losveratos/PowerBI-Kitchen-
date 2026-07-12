@@ -2671,6 +2671,10 @@ export class Visual implements IVisual {
         // every branch node across ALL depths (also inside collapsed parents) —
         // drives the header expand-all chevron so deep levels open too
         const allParentKeys: string[] = [];
+        // full point source independent of the expand state (branch aggregates +
+        // every leaf): formula lookups and the shared scales must not change when
+        // the user collapses a branch
+        const allPts: DataPoint[] = [];
         if (hasLevels) {
             // real multi-level tree: one node per catLevels prefix. Drill keys are
             // tile-scoped path keys (group¦l0¦l1…) so same-named branches in
@@ -2703,9 +2707,16 @@ export class Visual implements IVisual {
             const aggFor = (nd: TNode): DataPoint => {
                 let a = aggOf.get(nd);
                 if (!a) {
-                    a = nd.pts.length === 1
-                        ? { ...nd.pts[0], cat: nd.label }
-                        : this.aggregateHierarchy(nd.label, nd.pts);
+                    if (nd.pts.length === 1) {
+                        a = { ...nd.pts[0], cat: nd.label };
+                    } else {
+                        // branch totals follow the Σ-row base rule: data-provided
+                        // sum/result rows would double-count, pct rows are percentages,
+                        // skip rows are excluded from totals by definition
+                        const base = nd.pts.filter(p => !isSum(p) && !isResult(p)
+                            && !isSkip(p) && !isPct(p));
+                        a = this.aggregateHierarchy(nd.label, base.length > 0 ? base : nd.pts);
+                    }
                     aggOf.set(nd, a);
                 }
                 return a;
@@ -2748,6 +2759,15 @@ export class Visual implements IVisual {
             for (const nd of sortSiblings(root.order.map(l => root.kids.get(l) as TNode))) {
                 emit(nd, 0);
             }
+            const collectAll = (nd: TNode) => {
+                if (nd.kids.size === 0) {
+                    for (const c of nd.pts) { allPts.push({ ...c, cat: nd.label }); }
+                    return;
+                }
+                allPts.push(aggFor(nd));
+                for (const l of nd.order) { collectAll(nd.kids.get(l) as TNode); }
+            };
+            for (const l of root.order) { collectAll(root.kids.get(l) as TNode); }
         } else if (getter) {
             // flat: sort segment-wise BETWEEN anchor rows (sum/result/pct keep
             // their position — sorting across subtotal blocks would scramble a P&L)
@@ -2772,10 +2792,13 @@ export class Visual implements IVisual {
         // labels; operators need surrounding spaces so names like "E-Commerce" work.
         // Formula rows never feed the Σ row or sum-safe rounding (no double counting)
         if (cfg.formulaRows.trim()) {
+            // lookup over the FULL tree (not just visible rows) so a formula keeps
+            // its value when the branch containing its operands is collapsed;
+            // document order → a branch aggregate wins over a same-named leaf
             const byLabel = new Map<string, DataPoint>();
-            for (const r of rows) {
-                const kk = r.p.cat.trim().toLowerCase();
-                if (!byLabel.has(kk)) { byLabel.set(kk, r.p); }
+            for (const p of (allPts.length > 0 ? allPts : rows.map(r => r.p))) {
+                const kk = p.cat.trim().toLowerCase();
+                if (!byLabel.has(kk)) { byLabel.set(kk, p); }
             }
             const FIELDS = ["ac", "py", "pl", "fc", "value", "basis"] as const;
             type Agg = { [f in typeof FIELDS[number]]: number | null };
@@ -2785,13 +2808,18 @@ export class Visual implements IVisual {
                 const parts = (`+ ${expr.trim()}`).split(/\s*([+\-−])\s+/).filter(t => t.trim());
                 if (parts.length < 2 || parts.length % 2 !== 0) { return null; }
                 const acc: Agg = { ac: null, py: null, pl: null, fc: null, value: null, basis: null };
+                // strict null semantics: one operand missing a scenario → that
+                // scenario is null in the result (a difference with an implicit 0
+                // would show a wildly wrong Δ instead of no Δ)
+                const dead = new Set<string>();
                 for (let ti = 0; ti < parts.length; ti += 2) {
                     const sign = parts[ti] === "+" ? 1 : -1;
                     const src = byLabel.get(parts[ti + 1].trim().toLowerCase());
                     if (!src || isPct(src)) { return null; }
                     for (const f of FIELDS) {
                         const v = src[f];
-                        if (v != null) { acc[f] = (acc[f] ?? 0) + sign * v; }
+                        if (v == null) { dead.add(f); acc[f] = null; }
+                        else if (!dead.has(f)) { acc[f] = (acc[f] ?? 0) + sign * v; }
                     }
                 }
                 return acc;
@@ -2954,7 +2982,9 @@ export class Visual implements IVisual {
         const headerH = Math.round(cf + 12);
         const rowH = Math.max(cf + 6, (region.h - pad * 2 - headerH) / n);
         const top = region.y + pad + headerH;
-        const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH);
+        // epsilon guards the FP edge where avail/n rounds up in rowH and
+        // avail/rowH lands at n−ε — all rows fit, no scrollbar wanted
+        const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH + 1e-6);
         const bodyCap = Math.max(1, maxRows - (totalRow ? 1 : 0));
         // vertical scrolling (interactive only): header and Σ row stay frozen, the
         // body rows scroll by wheel or thumb drag — export/print keeps the old
@@ -2970,8 +3000,13 @@ export class Visual implements IVisual {
         const shown = totalRow ? [...bodyRows, totalRow] : bodyRows;
 
         // margin rows (rowType "pct") carry percentages, skip rows are excluded
-        // from totals — keep both out of the € scales
-        const numPts = rowPts.filter(p => !isPct(p) && !isSkip(p));
+        // from totals — keep both out of the € scales. Scales use the FULL tree
+        // (also collapsed branches) so expanding a branch never rescales the bars
+        const scalePts = allPts.length > 0
+            ? allPts.concat(rows.filter(r => r.formula).map(r => r.p),
+                totalRow ? [totalRow.p] : [])
+            : rowPts;
+        const numPts = scalePts.filter(p => !isPct(p) && !isSkip(p));
         const barDomain = extent(numPts.flatMap(p => [p.value, p.py, p.pl]));
         // IBCS scale sync: share the deck-wide domains so multiple tables (and
         // small-multiples tiles) on a page use identical scales incl. fixedMax

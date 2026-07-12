@@ -1,5 +1,35 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.19.0.0 (2026-07-12)
+
+**Tabelle 2.0 — Welle 3 (Hierarchie, Scrolling, Formelzeilen):**
+- **Echte Mehr-Ebenen-Hierarchie:** Die Tabelle baut aus allen
+  Kategorie-Spalten einen richtigen Baum — jeder Zweig (Region → Land →
+  Produkt …) bekommt sein eigenes ▸/▾-Chevron und rückt pro Ebene ein.
+  Zweige lassen sich unabhängig auf-/zuklappen, das ▸▸-Chevron im
+  Header öffnet/schließt jetzt auch verschachtelte Ebenen. Gespeicherte
+  Aufklapp-Zustände von 2-Ebenen-Tabellen bleiben gültig.
+- **Vertikales Scrolling mit Freeze:** Passen die Zeilen nicht in die
+  Kachel, scrollt der Tabellenkörper per Mausrad, Scrollbar-Ziehen oder
+  Pfeil-/Bild-Tasten — Spalten-Header und Σ-Zeile bleiben stehen. Im
+  Export/Druck (keine Interaktionen) bleibt das bisherige Abschneiden
+  mit Hinweis, damit sich im gerenderten Bericht nichts bewegt.
+- **Formelzeilen (light)** (Chart → Tabelle → Formelzeilen):
+  „EBIT = Umsatz - Kosten" ergänzt eine berechnete Summenzeile,
+  „Marge = EBIT / Umsatz" eine %-Zeile mit Pp-Abweichungen. Operanden
+  sind Zeilennamen (Operatoren mit Leerzeichen umgeben); Formeln dürfen
+  frühere Formelzeilen referenzieren und fließen nie in die Σ-Zeile
+  oder die Σ-treue Rundung ein.
+- **Härtung aus der adversarialen Prüf-Runde:** Zweig-Aggregate folgen
+  jetzt der Σ-Basisregel (keine Doppelzählung von sum-/result-Zeilen,
+  keine pct-/skip-Beimischung); Formel-Lookup und Balken-Skalen nutzen
+  den vollen Baum, damit Auf-/Zuklappen weder Formelwerte noch Skalen
+  verändert; strikte null-Semantik in Formeln (fehlendes Szenario eines
+  Operanden → Szenario null statt implizit 0); FP-Kante beseitigt, bei
+  der eine Scrollbar erschien, obwohl alle Zeilen exakt passten.
+- Neue Sprach-Keys Table_FormulaRows/Table_Scroll (de/en/es/ja),
+  Render-Fälle c66–c68.
+
 ## 1.18.1.0 (2026-07-12)
 
 **Szenario-Versatz vereinheitlicht (User-Feedback):** In Columns und
