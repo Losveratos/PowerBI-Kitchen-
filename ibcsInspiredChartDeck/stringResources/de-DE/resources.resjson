@@ -163,5 +163,6 @@
     "Struct_Invert": "Invertieren (mehr ist schlecht)",
     "Struct_Result": "Ergebniszeile (fett, Anker)",
     "Struct_Skip": "Aus Summen ausnehmen",
-    "Btn_SortHeader": "Nach dieser Spalte sortieren (erneut: aufsteigend / aus)"
+    "Btn_SortHeader": "Nach dieser Spalte sortieren (erneut: aufsteigend / aus)",
+    "Struct_CommaHint": "Name enthält ein Komma — bitte über die Waterfall-Typ-Rolle strukturieren"
 }

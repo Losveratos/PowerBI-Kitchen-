@@ -261,6 +261,11 @@ export class Visual implements IVisual {
     /** structure-edit mode (one-click P&L): row clicks open the structure menu */
     private structureEdit = false;
     private structEditor: HTMLDivElement | null = null;
+    /** category the open structure menu belongs to (closed when it disappears) */
+    private structCat: string | null = null;
+    private structOutside: ((ev: MouseEvent) => void) | null = null;
+    /** persist-race guard for the one-click-P&L lists (invert/result/skip) */
+    private pendingListProps = new Map<"invertList" | "resultList" | "skipList", string>();
     /** compare-on-click: whether the mode is active this render + picked categories */
     private compareActive = false;
     private compareCats: string[] = [];
@@ -340,6 +345,13 @@ export class Visual implements IVisual {
             const dataView: DataView | undefined = options.dataViews && options.dataViews[0];
             this.formattingSettings = this.formattingSettingsService
                 .populateFormattingSettingsModel(VisualFormattingSettingsModel, dataView);
+            // one-click-P&L lists: a just-persisted value must survive a stale
+            // metadata update that arrives before the host echoes it back
+            for (const [prop, val] of [...this.pendingListProps]) {
+                const slice = this.formattingSettings.chartCard[prop];
+                if (String(slice.value || "") === val) { this.pendingListProps.delete(prop); }
+                else { slice.value = val; }
+            }
 
             const width = options.viewport.width;
             const height = options.viewport.height;
@@ -380,6 +392,11 @@ export class Visual implements IVisual {
                 this.tableSort = rawSortStr;
             }
             const points = this.parseData(dataView);
+            // an open structure menu must not outlive its row (filter/data change)
+            if (this.structEditor && this.structCat != null
+                && !(points ?? []).some(p => p.cat === this.structCat)) {
+                this.closeStructureMenu();
+            }
             if (!points || points.length === 0) {
                 this.renderDemo(width, height);
                 this.events.renderingFinished(options);
@@ -772,9 +789,16 @@ export class Visual implements IVisual {
         // YTD only where a running total over the category axis makes sense — bridge,
         // structure and stacked modes would silently cumulate nonsense; the same goes
         // for structured P&L rows (sum/delta/pct): those are accounts, not periods
+        const parseList = (v: string) => new Set(String(v || "")
+            .split(",").map(x => x.trim().toLowerCase()).filter(x => x));
+        const listResult = parseList(String(s.chartCard.resultList.value));
+        const listSkip = parseList(String(s.chartCard.skipList.value));
+        const listPnl = orientationRaw === "table" && (listResult.size > 0 || listSkip.size > 0)
+            && points.some(p => listResult.has(p.cat.trim().toLowerCase())
+                || listSkip.has(p.cat.trim().toLowerCase()));
         const cumulativeOn = s.chartCard.cumulative.value && !isStacked
             && (orientationRaw === "columns" || orientationRaw === "line" || orientationRaw === "table")
-            && !points.some(p => p.rowType != null);
+            && !points.some(p => p.rowType != null) && !listPnl;
 
         // font preset: one switch scaling every text in the visual (Full HD = ×1.5)
         this.fontK = { compact: 1, fullhd: 1.5, presentation: 2 }[
@@ -793,7 +817,8 @@ export class Visual implements IVisual {
         this.closeCommentEditor();
         // structure-edit mode (table only): row clicks open the one-click-P&L menu
         this.structureEdit = s.chartCard.structureEdit.value
-            && orientationRaw === "table" && this.allowInteractions;
+            && orientationRaw === "table" && this.allowInteractions
+            && !this.commentEdit;
         if (!this.structureEdit) { this.closeStructureMenu(); }
 
         // small multiples: group by the multiples role, in order of appearance
@@ -990,12 +1015,17 @@ export class Visual implements IVisual {
         this.el("line", { x1: 0, y1: 0, x2: 0, y2: 7, stroke: cfg.paper, "stroke-width": 1.6 }, patP);
 
         // shared value domains across all multiples (IBCS: identical scales)
+        // skip rows are excluded from totals AND scales — keep them out of the
+        // deck-wide domains too, or the table's domain merge re-imports them
+        const domPts = isTable && cfg.skipSet.size > 0
+            ? points.filter(p => !cfg.skipSet.has(p.cat.trim().toLowerCase()))
+            : points;
         const domains: Domains = {
-            main: extent(points.flatMap(p => [p.value, p.py, p.pl, p.fc, p.bm])),
-            abs: extent(points.map(p => p.varAbs)),
-            rel: extent(points.map(p => p.varRel)),
-            abs2: extent(points.map(p => p.var2Abs)),
-            rel2: extent(points.map(p => p.var2Rel)),
+            main: extent(domPts.flatMap(p => [p.value, p.py, p.pl, p.fc, p.bm])),
+            abs: extent(domPts.map(p => p.varAbs)),
+            rel: extent(domPts.map(p => p.varRel)),
+            abs2: extent(domPts.map(p => p.var2Abs)),
+            rel2: extent(domPts.map(p => p.var2Rel)),
             bridge: [0, 0]
         };
 
@@ -2624,7 +2654,10 @@ export class Visual implements IVisual {
         const getter = sortGet[sortKey];
         const cmp = getter
             ? (a: DataPoint, b: DataPoint) => {
-                const av = getter(a) ?? -Infinity, bv = getter(b) ?? -Infinity;
+                const av = getter(a), bv = getter(b);
+                if (av == null && bv == null) { return 0; }
+                if (av == null) { return 1; }
+                if (bv == null) { return -1; }
                 return sortDir === "asc" ? av - bv : bv - av;
             }
             : () => 0;
@@ -2648,8 +2681,26 @@ export class Visual implements IVisual {
                 aggFor.set(mk, kids.length === 1 ? kids[0] : this.aggregateHierarchy(label, kids));
             }
             if (getter) {
-                // sort parents by their aggregate, children within their parent
-                orderKeys.sort((a, b) => cmp(aggFor.get(a.mk) as DataPoint, aggFor.get(b.mk) as DataPoint));
+                // sort parents by their aggregate — but only BETWEEN anchor parents
+                // (sum/result/pct aggregates keep their position, like the flat path)
+                const isAnchorKey = (mk: string) => {
+                    const a = aggFor.get(mk) as DataPoint;
+                    return isAnchor(a) || isPct(a);
+                };
+                const sortedKeys: { mk: string; label: string }[] = [];
+                let run: { mk: string; label: string }[] = [];
+                const flush = () => {
+                    run.sort((a, b) => cmp(aggFor.get(a.mk) as DataPoint, aggFor.get(b.mk) as DataPoint));
+                    sortedKeys.push(...run);
+                    run = [];
+                };
+                for (const e of orderKeys) {
+                    if (isAnchorKey(e.mk)) { flush(); sortedKeys.push(e); }
+                    else { run.push(e); }
+                }
+                flush();
+                orderKeys.length = 0;
+                orderKeys.push(...sortedKeys);
                 for (const kids of byKey.values()) { if (kids.length > 1) { kids.sort(cmp); } }
             }
             for (const { mk } of orderKeys) {
@@ -2691,7 +2742,7 @@ export class Visual implements IVisual {
         // visual-computed grand total (Σ): only when the data brings no sum rows
         // of its own and no running totals are active (cumulative IS a total)
         let totalRow: TableRow | null = null;
-        if (cfg.showTotal && !cfg.cumulative && !points.some(p => isSum(p))) {
+        if (cfg.showTotal && !cfg.cumulative && !points.some(p => isSum(p) || isResult(p))) {
             const base = rows.filter(r => !r.indent && !isPct(r.p) && !isResult(r.p) && !isSkip(r.p))
                 .map(r => r.p);
             if (base.length > 1) {
@@ -2727,6 +2778,13 @@ export class Visual implements IVisual {
             if (cfg.hasPl) { extraCols.push({ key: "plval", label: "PL", get: p => p.pl }); }
         }
         const gap = 10;
+        // never let the fixed numeric columns overflow narrow tiles — drop the
+        // reference columns first (nice-to-have; the AC number column is not)
+        while (extraCols.length > 0
+            && nameW + valW * (1 + extraCols.length) + dValW + d2ValW + d2PctValW
+                > region.w - pad * 2 - gap * 4 - 80 * k) {
+            extraCols.pop();
+        }
         let fixed = nameW + valW + dValW + d2ValW + d2PctValW + extraCols.length * valW;
         type GCol = { key: "bars" | "dbar" | "pct" | "d2bar"; min: number; w: number };
         const wanted: GCol[] = [];
@@ -2927,7 +2985,8 @@ export class Visual implements IVisual {
         // so they visibly add up to the synthetic Σ row
         const sumSafeVals = (cfg.sumSafe && !cfg.cumulative && totalRow)
             ? (() => {
-                const base = rows.filter(r => !r.indent && !isPct(r.p) && !isSum(r.p)).map(r => r.p);
+                const base = rows.filter(r => !r.indent && !isPct(r.p) && !isSum(r.p)
+                    && !isResult(r.p) && !isSkip(r.p)).map(r => r.p);
                 const adj = this.sumSafeAdjust(base.map(q => q.value), cfg.fmtUnit, cfg.fmtPrec);
                 const m = new Map<DataPoint, number | null>();
                 base.forEach((q, ix) => m.set(q, adj[ix]));
@@ -3147,13 +3206,13 @@ export class Visual implements IVisual {
                 // the expand toggle would immediately re-render and close it again
                 g.addEventListener("click", (e: MouseEvent) => {
                     e.stopPropagation();
-                    if (this.commentEdit) { return; }
+                    if (this.commentEdit || this.structureEdit) { return; }
                     toggle();
                 });
                 g.addEventListener("keydown", (e: KeyboardEvent) => {
                     if (e.key !== "Enter" && e.key !== " ") { return; }
                     e.preventDefault(); e.stopPropagation();
-                    if (this.commentEdit) { return; }
+                    if (this.commentEdit || this.structureEdit) { return; }
                     toggle();
                 });
             }
@@ -5632,10 +5691,18 @@ export class Visual implements IVisual {
             this.structEditor.remove();
             this.structEditor = null;
         }
+        this.structCat = null;
+        if (this.structOutside) {
+            document.removeEventListener("mousedown", this.structOutside);
+            this.structOutside = null;
+        }
     }
 
     /** adds/removes the row label in one of the persisted comma lists */
     private toggleListEntry(prop: "invertList" | "resultList" | "skipList", cat: string, on: boolean): void {
+        // names containing a comma cannot round-trip a comma-separated list —
+        // the structure menu disables its checkboxes for those rows
+        if (cat.includes(",")) { return; }
         const raw = String(this.formattingSettings.chartCard[prop].value || "");
         const parts = raw.split(",").map(x => x.trim()).filter(x => x);
         const norm = cat.trim().toLowerCase();
@@ -5643,6 +5710,7 @@ export class Visual implements IVisual {
         if (on) { rest.push(cat.trim()); }
         const next = rest.join(", ");
         this.formattingSettings.chartCard[prop].value = next;
+        this.pendingListProps.set(prop, next);
         this.host.persistProperties({
             merge: [{ objectName: "chart", selector: null, properties: { [prop]: next } }]
         });
@@ -5656,6 +5724,7 @@ export class Visual implements IVisual {
      */
     private openStructureMenu(p: DataPoint, e: MouseEvent): void {
         this.closeStructureMenu();
+        this.structCat = p.cat;
         const rootRect = this.root.getBoundingClientRect();
         if (window.getComputedStyle(this.root).position === "static") {
             this.root.style.position = "relative";
@@ -5706,6 +5775,27 @@ export class Visual implements IVisual {
         mkCheck(this.locStr("Struct_Invert", "Invert (higher is bad)"), "invertList");
         mkCheck(this.locStr("Struct_Result", "Result row (bold anchor)"), "resultList");
         mkCheck(this.locStr("Struct_Skip", "Exclude from totals"), "skipList");
+        if (p.cat.includes(",")) {
+            // comma names cannot round-trip the comma lists — disable the menu
+            box.querySelectorAll("input").forEach(i => { (i as HTMLInputElement).disabled = true; });
+            const hint = document.createElement("div");
+            hint.style.cssText = "margin-top:4px;color:#8A8A8A;font-style:italic;";
+            hint.textContent = this.locStr("Struct_CommaHint",
+                "Name contains a comma — use the Waterfall Type role instead");
+            box.appendChild(hint);
+        }
+
+        // clicking anywhere outside closes the menu (registered async so the
+        // opening click itself does not immediately close it again)
+        const outside = (ev: MouseEvent) => {
+            if (this.structEditor && !this.structEditor.contains(ev.target as Node)) {
+                this.closeStructureMenu();
+            }
+        };
+        this.structOutside = outside;
+        setTimeout(() => {
+            if (this.structOutside === outside) { document.addEventListener("mousedown", outside); }
+        }, 0);
 
         this.root.appendChild(box);
     }

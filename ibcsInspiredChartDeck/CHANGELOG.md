@@ -21,6 +21,17 @@
   (GuV-Blöcke bleiben intakt), in Hierarchien Eltern nach Aggregat und
   Kinder innerhalb; bei aktiver Kumulierung deaktiviert.
 
+**14 Härtungs-Fixes aus der adversarialen Prüfung (2 Agenten) vor dem
+Release**, u. a.: Persist-Race-Guard für die Struktur-Listen;
+Hierarchie-Parent-Klick respektiert den Struktur-Modus; Kommanamen
+können die Listen nicht mehr korrumpieren (Menü sperrt + Hinweis);
+Skip-Zeilen fliegen auch aus den deck-weiten Sync-Domains;
+Ein-Klick-GuV sperrt die Kumulierung wie rowType-Daten; Σ-treue
+Rundung und Σ-Zeile konsistent mit Result/Skip; Anker-Eltern bleiben
+beim Hierarchie-Sortieren stehen; Null-Werte sortieren stabil ans
+Ende; feste Wertspalten laufen auf schmalen Kacheln nicht mehr über;
+Struktur-Menü schließt bei Außenklick und Datenwechsel.
+
 ## 1.17.0.0 (2026-07-12)
 
 **Tabelle 2.0 — Welle 1 (Richtung Zebra-BI-Tables-Klasse):**

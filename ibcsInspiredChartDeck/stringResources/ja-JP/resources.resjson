@@ -163,5 +163,6 @@
     "Struct_Invert": "反転(値が高いほど悪い)",
     "Struct_Result": "結果行(太字・アンカー)",
     "Struct_Skip": "合計から除外",
-    "Btn_SortHeader": "この列で並べ替え(再クリック: 昇順/解除)"
+    "Btn_SortHeader": "この列で並べ替え(再クリック: 昇順/解除)",
+    "Struct_CommaHint": "名前にカンマが含まれています — ウォーターフォール種別ロールをご利用ください"
 }

@@ -163,5 +163,6 @@
     "Struct_Invert": "Invertir (más alto es peor)",
     "Struct_Result": "Fila de resultado (ancla en negrita)",
     "Struct_Skip": "Excluir de los totales",
-    "Btn_SortHeader": "Ordenar por esta columna (otro clic: ascendente / desactivar)"
+    "Btn_SortHeader": "Ordenar por esta columna (otro clic: ascendente / desactivar)",
+    "Struct_CommaHint": "El nombre contiene una coma: use el rol de tipo de cascada"
 }

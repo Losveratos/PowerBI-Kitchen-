@@ -163,5 +163,6 @@
     "Struct_Invert": "Invert (higher is bad)",
     "Struct_Result": "Result row (bold anchor)",
     "Struct_Skip": "Exclude from totals",
-    "Btn_SortHeader": "Sort by this column (click again: ascending / off)"
+    "Btn_SortHeader": "Sort by this column (click again: ascending / off)",
+    "Struct_CommaHint": "Name contains a comma — use the Waterfall Type role instead"
 }
