@@ -150,5 +150,18 @@
     "Tooltip_Comment": "Comment",
     "Hint_MoreRows": "more rows (increase the visual height)",
     "Btn_ExpandAll": "Expand all",
-    "Btn_CollapseAll": "Collapse all"
+    "Btn_CollapseAll": "Collapse all",
+    "Group_Table": "Table",
+    "Table_ValueCols": "Value columns",
+    "Table_StructureEdit": "Edit row structure (click)",
+    "Table_ResultList": "Result rows",
+    "Table_SkipList": "Skip rows (exclude from totals)",
+    "Enum_ValueCols_Ac": "AC only",
+    "Enum_ValueCols_Basis": "AC + variance basis",
+    "Enum_ValueCols_All": "AC · PY · PL",
+    "Chip_StructureMode": "⚙ Structure mode",
+    "Struct_Invert": "Invert (higher is bad)",
+    "Struct_Result": "Result row (bold anchor)",
+    "Struct_Skip": "Exclude from totals",
+    "Btn_SortHeader": "Sort by this column (click again: ascending / off)"
 }

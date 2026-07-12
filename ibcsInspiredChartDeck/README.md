@@ -66,7 +66,11 @@ in **einem** Visual löst:
   Oberkategorien aggregiert mit ▸/▾ (Klick klappt Unterzeilen auf/zu),
   ▸▸/▾▾ im Kopf klappt alle auf einmal, Drill-Zustand wird persistiert
   (bookmarkfähig, je Small-Multiples-Kachel getrennt); Skala-Karte wirkt
-  auch hier (deck-weiter Skalen-Sync)
+  auch hier (deck-weiter Skalen-Sync). **Zebra-Kern**: numerische
+  PY/PL-Wertspalten (Chart → Tabelle), Klick-Sortierung auf Spaltenköpfe
+  (persistiert, segmentweise zwischen Zwischensummen) und die
+  **Ein-Klick-GuV** — Struktur-Modus mit Invertieren/Ergebniszeile/
+  Aus-Summen-ausnehmen je Zeile, wirkt bis in den GuV-Wasserfall
 - **Pareto (Struktur)**: AC absteigend + kumulierte %-Linie, 80 %-Marke —
   braucht nur Category + AC
 - **Dumbbell (Struktur)**: Basis → AC als zwei Punkte mit Verbinder in der

@@ -150,5 +150,18 @@
     "Tooltip_Comment": "Kommentar",
     "Hint_MoreRows": "weitere Zeilen (Visual höher ziehen)",
     "Btn_ExpandAll": "Alle aufklappen",
-    "Btn_CollapseAll": "Alle zuklappen"
+    "Btn_CollapseAll": "Alle zuklappen",
+    "Group_Table": "Tabelle",
+    "Table_ValueCols": "Werte-Spalten",
+    "Table_StructureEdit": "Zeilen-Struktur bearbeiten (Klick)",
+    "Table_ResultList": "Ergebniszeilen",
+    "Table_SkipList": "Zeilen aus Summen ausnehmen",
+    "Enum_ValueCols_Ac": "Nur AC",
+    "Enum_ValueCols_Basis": "AC + Varianzbasis",
+    "Enum_ValueCols_All": "AC · PY · PL",
+    "Chip_StructureMode": "⚙ Struktur-Modus",
+    "Struct_Invert": "Invertieren (mehr ist schlecht)",
+    "Struct_Result": "Ergebniszeile (fett, Anker)",
+    "Struct_Skip": "Aus Summen ausnehmen",
+    "Btn_SortHeader": "Nach dieser Spalte sortieren (erneut: aufsteigend / aus)"
 }

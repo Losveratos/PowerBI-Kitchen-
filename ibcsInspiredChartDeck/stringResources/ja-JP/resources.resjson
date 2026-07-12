@@ -150,5 +150,18 @@
     "Tooltip_Comment": "コメント",
     "Hint_MoreRows": "行が非表示(ビジュアルの高さを拡大してください)",
     "Btn_ExpandAll": "すべて展開",
-    "Btn_CollapseAll": "すべて折りたたむ"
+    "Btn_CollapseAll": "すべて折りたたむ",
+    "Group_Table": "テーブル",
+    "Table_ValueCols": "値の列",
+    "Table_StructureEdit": "行構成を編集(クリック)",
+    "Table_ResultList": "結果行",
+    "Table_SkipList": "合計から除外する行",
+    "Enum_ValueCols_Ac": "ACのみ",
+    "Enum_ValueCols_Basis": "AC + 差異基準",
+    "Enum_ValueCols_All": "AC · PY · PL",
+    "Chip_StructureMode": "⚙ 構成編集モード",
+    "Struct_Invert": "反転(値が高いほど悪い)",
+    "Struct_Result": "結果行(太字・アンカー)",
+    "Struct_Skip": "合計から除外",
+    "Btn_SortHeader": "この列で並べ替え(再クリック: 昇順/解除)"
 }

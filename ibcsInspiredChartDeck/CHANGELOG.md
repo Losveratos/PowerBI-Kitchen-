@@ -1,5 +1,26 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.18.0.0 (2026-07-12)
+
+**Tabelle 2.0 — Welle 2 (die Zebra-Kern-Features):**
+- **Numerische Wertspalten** (Chart → Tabelle → Werte-Spalten): PY- und
+  PL-Zahlen (oder die gewählte Varianzbasis) beziffert neben AC — für
+  druck- und boardtaugliche Tabellen ohne Balken-Interpretation.
+- **Ein-Klick-GuV** (Chart → Tabelle → Zeilen-Struktur bearbeiten):
+  Im Struktur-Modus (⚙-Chip) öffnet ein Klick auf eine Zeile das Menü
+  „Invertieren · Ergebniszeile · Aus Summen ausnehmen". Ergebniszeilen
+  werden fett mit Anker-Linie formatiert und wirken auch im
+  GuV-Wasserfall als Anker; Skip-Zeilen bleiben sichtbar (kursiv,
+  dezent), fließen aber nicht in Σ, Skalen und Kaskade ein. Alles wird
+  in editierbaren Listen persistiert — ohne Datenmodell-Änderung,
+  weiterhin kompatibel zur Waterfall-Typ-Rolle.
+- **Klick-Sortierung auf Spaltenköpfe**: Klick auf AC, ΔBasis, ΔBasis %
+  oder ΔBasis2 sortiert ab-/aufsteigend (▼/▲-Marker), dritter Klick
+  stellt die Datenreihenfolge wieder her. Persistiert und
+  bookmarkfähig; sortiert segmentweise zwischen Zwischensummen
+  (GuV-Blöcke bleiben intakt), in Hierarchien Eltern nach Aggregat und
+  Kinder innerhalb; bei aktiver Kumulierung deaktiviert.
+
 ## 1.17.0.0 (2026-07-12)
 
 **Tabelle 2.0 — Welle 1 (Richtung Zebra-BI-Tables-Klasse):**

@@ -132,6 +132,19 @@
                 },
                 "pnlView": { "type": { "text": true } },
                 "tableExpanded": { "type": { "text": true } },
+                "tableSort": { "type": { "text": true } },
+                "valueColumns": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "ac", "displayName": "AC only" },
+                            { "value": "basis", "displayName": "AC + variance basis" },
+                            { "value": "all", "displayName": "AC · PY · PL" }
+                        ]
+                    }
+                },
+                "structureEdit": { "type": { "bool": true } },
+                "resultList": { "type": { "text": true } },
+                "skipList": { "type": { "text": true } },
                 "comparisonMode": {
                     "type": {
                         "enumeration": [

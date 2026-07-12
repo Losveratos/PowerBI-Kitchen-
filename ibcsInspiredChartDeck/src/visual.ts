@@ -125,6 +125,12 @@ interface ChartConfig {
     patGood: string;
     patBad: string;
     patPrelim: string;
+    /** table: extra numeric value columns ("ac" | "basis" | "all") */
+    valueCols: string;
+    /** rows promoted to result/subtotal rows via chart.resultList (normalized) */
+    resultSet: Set<string>;
+    /** rows excluded from totals, scales and cascades via chart.skipList */
+    skipSet: Set<string>;
     /** sum-safe label rounding (largest remainder): labels add up to the Σ header */
     sumSafe: boolean;
     /** deck-wide absolute-variance domain (incl. fixedVarMax) for scale sync */
@@ -249,6 +255,12 @@ export class Visual implements IVisual {
     private expandedRows = new Set<string>();
     /** persist-race guard: expand-state JSON we wrote but the host has not echoed */
     private pendingTableExpanded: string | null = null;
+    /** table header sort, e.g. "dabs_desc" ("" = data order), persisted */
+    private tableSort = "";
+    private pendingTableSort: string | null = null;
+    /** structure-edit mode (one-click P&L): row clicks open the structure menu */
+    private structureEdit = false;
+    private structEditor: HTMLDivElement | null = null;
     /** compare-on-click: whether the mode is active this render + picked categories */
     private compareActive = false;
     private compareCats: string[] = [];
@@ -360,6 +372,13 @@ export class Visual implements IVisual {
                     catch { /* corrupt store: keep the session state */ }
                 }
             }
+            // persisted table header sort (bookmarkable), same echo-guard pattern
+            const rawSort = dataView?.metadata?.objects?.["chart"]?.["tableSort"];
+            const rawSortStr = typeof rawSort === "string" ? rawSort : "";
+            if (this.pendingTableSort == null || rawSortStr === this.pendingTableSort) {
+                this.pendingTableSort = null;
+                this.tableSort = rawSortStr;
+            }
             const points = this.parseData(dataView);
             if (!points || points.length === 0) {
                 this.renderDemo(width, height);
@@ -431,6 +450,7 @@ export class Visual implements IVisual {
         fs.scaleCard.syncGroup.visible = orient !== "waterfall";
         fs.scaleCard.refLineGroup.visible = orient !== "table";
         if (orient === "table") { fs.scaleCard.capOverflow.visible = false; }
+        fs.chartCard.tableGroup.visible = orient === "table";
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
 
@@ -771,6 +791,10 @@ export class Visual implements IVisual {
         this.commentEdit = s.commentsCard.editComments.value
             && this.host.hostCapabilities?.allowInteractions !== false;
         this.closeCommentEditor();
+        // structure-edit mode (table only): row clicks open the one-click-P&L menu
+        this.structureEdit = s.chartCard.structureEdit.value
+            && orientationRaw === "table" && this.allowInteractions;
+        if (!this.structureEdit) { this.closeStructureMenu(); }
 
         // small multiples: group by the multiples role, in order of appearance
         const groups: { name: string | null; pts: DataPoint[] }[] = [];
@@ -902,6 +926,11 @@ export class Visual implements IVisual {
             patGood: `icd-hatch-good-${this.instanceId}`,
             patBad: `icd-hatch-bad-${this.instanceId}`,
             patPrelim: `icd-prelim-${this.instanceId}`,
+            valueCols: String(s.chartCard.valueColumns.value.value),
+            resultSet: new Set(String(s.chartCard.resultList.value || "")
+                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
+            skipSet: new Set(String(s.chartCard.skipList.value || "")
+                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
             sumSafe: s.labelsCard.sumSafeRounding.value,
             ...(() => { const fp = this.formatterParams(maxAbs, allInt); return { fmtUnit: fp.unit, fmtPrec: fp.prec }; })(),
             fmt: this.makeFormatter(maxAbs, allInt),
@@ -1081,9 +1110,10 @@ export class Visual implements IVisual {
             if (isPnl && s.chartCard.chartButtons.value) {
                 this.drawPnlButtons(width, cfg, points);
             }
-            // active-mode chip: comment capture and compare-on-click silently repurpose
-            // clicks — show a pill so nobody wonders why crossfiltering stopped working
-            if (this.commentEdit || this.compareActive) {
+            // active-mode chip: comment capture, structure edit and compare-on-click
+            // silently repurpose clicks — show a pill so nobody wonders why
+            // crossfiltering stopped working
+            if (this.commentEdit || this.compareActive || this.structureEdit) {
                 const toolbarReserve = ((isIntWf || isCatBridge) && s.chartCard.chartButtons.value)
                     ? Math.round(170 * this.fontK) : 0;
                 const sortReserve = wfStyleGlobal ? 26 : 0;
@@ -1092,7 +1122,9 @@ export class Visual implements IVisual {
                     ? Math.round(44 * this.fontK) : 0;
                 const text = this.commentEdit
                     ? this.locStr("Chip_CommentMode", "✎ Comment mode")
-                    : `${this.locStr("Chip_Compare", "⇄ Compare")} (${this.compareCats.length}/2)`;
+                    : this.structureEdit
+                        ? this.locStr("Chip_StructureMode", "⚙ Structure mode")
+                        : `${this.locStr("Chip_Compare", "⇄ Compare")} (${this.compareCats.length}/2)`;
                 this.drawModeChip(width - 6 - toolbarReserve - sortReserve - ytdReserve, text, cfg);
             }
 
@@ -1271,12 +1303,16 @@ export class Visual implements IVisual {
     private buildWaterfall(pts: DataPoint[], cfg: ChartConfig): WfSeg[] {
         const segs: WfSeg[] = [];
         const good = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
-        if (pts.some(p => p.rowType != null)) {
+        // one-click P&L lists work here too: result rows anchor, skip rows drop out
+        const isResult = (p: DataPoint) => cfg.resultSet.has(p.cat.trim().toLowerCase());
+        const isSkip = (p: DataPoint) => cfg.skipSet.has(p.cat.trim().toLowerCase());
+        if (pts.some(p => p.rowType != null) || pts.some(p => isResult(p))) {
             let cum = 0;
             for (const p of pts) {
                 if (p.value == null) { continue; }
+                if (isSkip(p)) { continue; }
                 if (p.rowType != null && p.rowType.startsWith("pct")) { continue; }
-                if (p.rowType != null && p.rowType.startsWith("sum")) {
+                if ((p.rowType != null && p.rowType.startsWith("sum")) || isResult(p)) {
                     segs.push({ label: p.cat, from: 0, to: p.value, kind: "anchor", hatched: p.isFc, p });
                     cum = p.value;
                 } else {
@@ -2571,7 +2607,28 @@ export class Visual implements IVisual {
         type TableRow = { p: DataPoint; indent: boolean; parentKey?: string; expanded?: boolean; isTotal?: boolean };
         const isSum = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("sum");
         const isPct = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("pct");
+        // one-click P&L lists (structure-edit mode): promoted result rows and
+        // rows excluded from totals/scales, matched by the displayed row label
+        const isResult = (p: DataPoint) => cfg.resultSet.has(p.cat.trim().toLowerCase());
+        const isSkip = (p: DataPoint) => cfg.skipSet.has(p.cat.trim().toLowerCase());
+        const isAnchor = (p: DataPoint) => isSum(p) || isResult(p);
         const hasLevels = points.some(p => (p.catLevels?.length ?? 0) >= 2);
+
+        // header sort (persisted): disabled while cumulating — a running total
+        // is chronological by definition and must not be re-ordered
+        const sortSpec = !cfg.cumulative && this.tableSort ? this.tableSort : "";
+        const [sortKey, sortDir] = sortSpec ? sortSpec.split("_") : ["", ""];
+        const sortGet: { [k: string]: (p: DataPoint) => number | null } = {
+            ac: p => p.value, dabs: p => p.varAbs, drel: p => p.varRel, d2abs: p => p.var2Abs
+        };
+        const getter = sortGet[sortKey];
+        const cmp = getter
+            ? (a: DataPoint, b: DataPoint) => {
+                const av = getter(a) ?? -Infinity, bv = getter(b) ?? -Infinity;
+                return sortDir === "asc" ? av - bv : bv - av;
+            }
+            : () => 0;
+
         let rows: TableRow[];
         if (hasLevels) {
             rows = [];
@@ -2585,14 +2642,24 @@ export class Visual implements IVisual {
                 if (!byKey.has(mk)) { byKey.set(mk, []); orderKeys.push({ mk, label }); }
                 (byKey.get(mk) as DataPoint[]).push(p);
             }
+            const aggFor = new Map<string, DataPoint>();
             for (const { mk, label } of orderKeys) {
+                const kids = byKey.get(mk) as DataPoint[];
+                aggFor.set(mk, kids.length === 1 ? kids[0] : this.aggregateHierarchy(label, kids));
+            }
+            if (getter) {
+                // sort parents by their aggregate, children within their parent
+                orderKeys.sort((a, b) => cmp(aggFor.get(a.mk) as DataPoint, aggFor.get(b.mk) as DataPoint));
+                for (const kids of byKey.values()) { if (kids.length > 1) { kids.sort(cmp); } }
+            }
+            for (const { mk } of orderKeys) {
                 const kids = byKey.get(mk) as DataPoint[];
                 if (kids.length === 1 && !(kids[0].catLevels && kids[0].catLevels.length > 1)) {
                     rows.push({ p: kids[0], indent: false });
                     continue;
                 }
                 const expanded = this.expandedRows.has(mk);
-                rows.push({ p: this.aggregateHierarchy(label, kids), indent: false, parentKey: mk, expanded });
+                rows.push({ p: aggFor.get(mk) as DataPoint, indent: false, parentKey: mk, expanded });
                 if (expanded) {
                     for (const c of kids) {
                         rows.push({
@@ -2602,6 +2669,21 @@ export class Visual implements IVisual {
                     }
                 }
             }
+        } else if (getter) {
+            // flat: sort segment-wise BETWEEN anchor rows (sum/result/pct keep
+            // their position — sorting across subtotal blocks would scramble a P&L)
+            const sorted: DataPoint[] = [];
+            let seg: DataPoint[] = [];
+            for (const p of points) {
+                if (isAnchor(p) || isPct(p)) {
+                    seg.sort(cmp);
+                    sorted.push(...seg, p);
+                    seg = [];
+                } else { seg.push(p); }
+            }
+            seg.sort(cmp);
+            sorted.push(...seg);
+            rows = sorted.map(p => ({ p, indent: false }));
         } else {
             rows = points.map(p => ({ p, indent: false }));
         }
@@ -2610,7 +2692,8 @@ export class Visual implements IVisual {
         // of its own and no running totals are active (cumulative IS a total)
         let totalRow: TableRow | null = null;
         if (cfg.showTotal && !cfg.cumulative && !points.some(p => isSum(p))) {
-            const base = rows.filter(r => !r.indent && !isPct(r.p)).map(r => r.p);
+            const base = rows.filter(r => !r.indent && !isPct(r.p) && !isResult(r.p) && !isSkip(r.p))
+                .map(r => r.p);
             if (base.length > 1) {
                 const tp = this.aggregateHierarchy(this.locStr("Label_Total", "Σ Total"), base);
                 tp.rowType = "sum";
@@ -2633,8 +2716,18 @@ export class Visual implements IVisual {
         const d2ValW = hasVar2 ? lf * 4.6 : 0;
         // Δ2 % has no graphic pin — it is always a numeric column when dual is on
         const d2PctValW = hasVar2 && cfg.showRel ? lf * 4.2 : 0;
+        // optional numeric reference columns (print/board-ready tables): the
+        // variance basis or both scenarios, next to the AC number
+        type VCol = { key: string; label: string; get: (p: DataPoint) => number | null };
+        const extraCols: VCol[] = [];
+        if (cfg.valueCols === "basis" && rowPts.some(p => p.basis != null)) {
+            extraCols.push({ key: "bval", label: cfg.basisLabel, get: p => p.basis });
+        } else if (cfg.valueCols === "all") {
+            if (cfg.hasPy) { extraCols.push({ key: "pyval", label: "PY", get: p => p.py }); }
+            if (cfg.hasPl) { extraCols.push({ key: "plval", label: "PL", get: p => p.pl }); }
+        }
         const gap = 10;
-        let fixed = nameW + valW + dValW + d2ValW + d2PctValW;
+        let fixed = nameW + valW + dValW + d2ValW + d2PctValW + extraCols.length * valW;
         type GCol = { key: "bars" | "dbar" | "pct" | "d2bar"; min: number; w: number };
         const wanted: GCol[] = [];
         // the AC bar cell is useful even without any comparison basis (plain lists)
@@ -2672,6 +2765,7 @@ export class Visual implements IVisual {
         let x = region.x + pad;
         colX["name"] = { x, w: nameW }; x += nameW + gap;
         colX["val"] = { x, w: valW }; x += valW + gap;
+        for (const c of extraCols) { colX[c.key] = { x, w: valW }; x += valW + gap; }
         const barsCol = graphic.find(g => g.key === "bars");
         if (barsCol) { colX["bars"] = { x, w: barsCol.w }; x += barsCol.w + gap; }
         if (hasVar) { colX["dval"] = { x, w: dValW }; x += dValW + gap; }
@@ -2693,8 +2787,9 @@ export class Visual implements IVisual {
         const bodyRows = rows.slice(0, Math.max(1, maxRows - (totalRow ? 1 : 0)));
         const shown = totalRow ? [...bodyRows, totalRow] : bodyRows;
 
-        // margin rows (rowType "pct") carry percentages — keep them out of the € scales
-        const numPts = rowPts.filter(p => !isPct(p));
+        // margin rows (rowType "pct") carry percentages, skip rows are excluded
+        // from totals — keep both out of the € scales
+        const numPts = rowPts.filter(p => !isPct(p) && !isSkip(p));
         const barDomain = extent(numPts.flatMap(p => [p.value, p.py, p.pl]));
         // IBCS scale sync: share the deck-wide domains so multiple tables (and
         // small-multiples tiles) on a page use identical scales incl. fixedMax
@@ -2747,12 +2842,57 @@ export class Visual implements IVisual {
                 this.rerender();
             });
         }
-        txt(colX["val"].x + colX["val"].w, hy, "AC", "end", hFont, true, cfg.subtle, bg);
+        // sortable headers: ▲/▼ marker on the active column, click cycles
+        // desc → asc → data order; persisted (bookmarkable), off while cumulating
+        const marker = (key: string) => sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
+        const sortHit = (key: string, col: { x: number; w: number }) => {
+            if (!this.allowInteractions || cfg.cumulative) { return; }
+            const r = this.el("rect", {
+                x: col.x - 2, y: region.y + pad, width: col.w + 4, height: headerH - 2,
+                fill: cfg.paper, "fill-opacity": 0.01, role: "button", tabindex: "0"
+            }, bg) as SVGElement;
+            const tip = this.el("title", {}, r);
+            tip.textContent = this.locStr("Btn_SortHeader", "Sort by this column (click again: ascending / off)");
+            r.setAttribute("aria-label", tip.textContent);
+            (r as unknown as SVGGraphicsElement).style.cursor = "pointer";
+            const cycle = () => {
+                const next = this.tableSort === `${key}_desc` ? `${key}_asc`
+                    : this.tableSort === `${key}_asc` ? "" : `${key}_desc`;
+                this.tableSort = next;
+                this.pendingTableSort = next;
+                this.host.persistProperties({
+                    merge: [{ objectName: "chart", selector: null, properties: { tableSort: next } }]
+                });
+                this.rerender();
+            };
+            r.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); cycle(); });
+            r.addEventListener("keydown", (e: KeyboardEvent) => {
+                if (e.key !== "Enter" && e.key !== " ") { return; }
+                e.preventDefault(); e.stopPropagation(); cycle();
+            });
+        };
+        txt(colX["val"].x + colX["val"].w, hy, `AC${marker("ac")}`, "end", hFont, true, cfg.subtle, bg);
+        sortHit("ac", colX["val"]);
+        for (const c of extraCols) {
+            txt(colX[c.key].x + colX[c.key].w, hy, c.label, "end", hFont, true, cfg.subtle, bg);
+        }
         if (colX["bars"] && scen !== "AC") { txt(colX["bars"].x + 2, hy, scen, "start", hFont, true, cfg.subtle, bg); }
-        if (colX["dval"]) { txt(colX["dval"].x + colX["dval"].w, hy, `Δ${cfg.basisLabel}`, "end", hFont, true, cfg.subtle, bg); }
-        if (colX["pct"]) { txt(colX["pct"].x + colX["pct"].w / 2, hy, `Δ${cfg.basisLabel} %`, "middle", hFont, true, cfg.subtle, bg); }
-        if (colX["dpctval"]) { txt(colX["dpctval"].x + colX["dpctval"].w, hy, `Δ${cfg.basisLabel} %`, "end", hFont, true, cfg.subtle, bg); }
-        if (colX["d2val"]) { txt(colX["d2val"].x + colX["d2val"].w, hy, `Δ${cfg.basis2Label}`, "end", hFont, true, cfg.subtle, bg); }
+        if (colX["dval"]) {
+            txt(colX["dval"].x + colX["dval"].w, hy, `Δ${cfg.basisLabel}${marker("dabs")}`, "end", hFont, true, cfg.subtle, bg);
+            sortHit("dabs", colX["dval"]);
+        }
+        if (colX["pct"]) {
+            txt(colX["pct"].x + colX["pct"].w / 2, hy, `Δ${cfg.basisLabel} %${marker("drel")}`, "middle", hFont, true, cfg.subtle, bg);
+            sortHit("drel", colX["pct"]);
+        }
+        if (colX["dpctval"]) {
+            txt(colX["dpctval"].x + colX["dpctval"].w, hy, `Δ${cfg.basisLabel} %${marker("drel")}`, "end", hFont, true, cfg.subtle, bg);
+            sortHit("drel", colX["dpctval"]);
+        }
+        if (colX["d2val"]) {
+            txt(colX["d2val"].x + colX["d2val"].w, hy, `Δ${cfg.basis2Label}${marker("d2abs")}`, "end", hFont, true, cfg.subtle, bg);
+            sortHit("d2abs", colX["d2val"]);
+        }
         if (colX["d2pctval"]) { txt(colX["d2pctval"].x + colX["d2pctval"].w, hy, `Δ${cfg.basis2Label} %`, "end", hFont, true, cfg.subtle, bg); }
         this.el("line", {
             x1: region.x + pad, y1: top - 2, x2: region.x + region.w - pad, y2: top - 2,
@@ -2805,7 +2945,8 @@ export class Visual implements IVisual {
             const isParent = row.parentKey != null;
             const y = top + i * rowH;
             const yMid = y + rowH / 2;
-            const sum = isSum(p) || isParent;
+            const sum = isSum(p) || isParent || isResult(p);
+            const skip = isSkip(p);
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
 
             // separators: subtle under every row, strong above subtotals
@@ -2813,7 +2954,7 @@ export class Visual implements IVisual {
                 x1: region.x + pad, y1: y + rowH, x2: region.x + region.w - pad, y2: y + rowH,
                 stroke: cfg.subtle, "stroke-width": 0.6, "stroke-opacity": 0.4
             }, bg);
-            if (isSum(p)) {
+            if (isAnchor(p)) {
                 this.el("line", {
                     x1: region.x + pad, y1: y, x2: region.x + region.w - pad, y2: y,
                     stroke: cfg.ink, "stroke-width": 1.2
@@ -2832,10 +2973,11 @@ export class Visual implements IVisual {
             const nameText = isParent
                 ? `${row.expanded ? "▾" : "▸"} ${p.cat}`
                 : p.cat;
-            txt(colX["name"].x + (sum && !row.indent ? 0 : Math.round(6 * k)) + indentX,
+            const nameEl = txt(colX["name"].x + (sum && !row.indent ? 0 : Math.round(6 * k)) + indentX,
                 yMid + rowFont * 0.35,
                 this.truncate(nameText, colX["name"].w - 8 - indentX, rowFont),
-                "start", rowFont, sum, cfg.ink, g);
+                "start", rowFont, sum, skip ? cfg.subtle : cfg.ink, g);
+            if (skip) { nameEl.setAttribute("font-style", "italic"); }
             const rowPct = isPct(p);
             const pctText = (v: number) => new Intl.NumberFormat(this.host.locale, {
                 minimumFractionDigits: 1, maximumFractionDigits: 1
@@ -2848,7 +2990,16 @@ export class Visual implements IVisual {
                 const shownVal = sumSafeVals?.has(p) ? sumSafeVals.get(p) as number : p.value;
                 txt(colX["val"].x + colX["val"].w, yMid + rowFont * 0.35,
                     rowPct ? pctText(p.value) : cfg.fmt.format(shownVal), "end", rowFont, sum,
-                    rowPct ? cfg.subtle : cfg.ink, g);
+                    rowPct || skip ? cfg.subtle : cfg.ink, g);
+            }
+            // numeric reference columns (PY/PL or the variance basis)
+            if (cfg.showLabels) {
+                for (const c of extraCols) {
+                    const v = c.get(p);
+                    if (v == null) { continue; }
+                    txt(colX[c.key].x + colX[c.key].w, yMid + rowFont * 0.35,
+                        rowPct ? pctText(v) : cfg.fmt.format(v), "end", rowFont, sum, cfg.subtle, g);
+                }
             }
 
             // AC·PY·PL bar cell (shared scale across all rows — IBCS);
@@ -5325,6 +5476,11 @@ export class Visual implements IVisual {
                 this.openCommentEditor(p, e);
                 return;
             }
+            // structure-edit mode: clicks open the one-click-P&L row menu
+            if (this.structureEdit) {
+                this.openStructureMenu(p, e);
+                return;
+            }
             // compare mode: clicks collect two categories for the Δ overlay instead
             // of cross-filtering (the toggle decides which behavior clicks have)
             if (this.compareActive) {
@@ -5471,6 +5627,89 @@ export class Visual implements IVisual {
     }
 
     /** small HTML editor next to the clicked category; saving persists into the report */
+    private closeStructureMenu(): void {
+        if (this.structEditor) {
+            this.structEditor.remove();
+            this.structEditor = null;
+        }
+    }
+
+    /** adds/removes the row label in one of the persisted comma lists */
+    private toggleListEntry(prop: "invertList" | "resultList" | "skipList", cat: string, on: boolean): void {
+        const raw = String(this.formattingSettings.chartCard[prop].value || "");
+        const parts = raw.split(",").map(x => x.trim()).filter(x => x);
+        const norm = cat.trim().toLowerCase();
+        const rest = parts.filter(x => x.toLowerCase() !== norm);
+        if (on) { rest.push(cat.trim()); }
+        const next = rest.join(", ");
+        this.formattingSettings.chartCard[prop].value = next;
+        this.host.persistProperties({
+            merge: [{ objectName: "chart", selector: null, properties: { [prop]: next } }]
+        });
+    }
+
+    /**
+     * One-click P&L menu (structure-edit mode): three checkboxes that persist the
+     * row into invertList / resultList / skipList — Zebra-style Invert/Result/Skip
+     * without touching the data model. The menu survives the persist round-trip;
+     * clicking another row or pressing Escape closes it.
+     */
+    private openStructureMenu(p: DataPoint, e: MouseEvent): void {
+        this.closeStructureMenu();
+        const rootRect = this.root.getBoundingClientRect();
+        if (window.getComputedStyle(this.root).position === "static") {
+            this.root.style.position = "relative";
+        }
+        const boxW = 240, boxH = 128;
+        const left = Math.max(2, Math.min(e.clientX - rootRect.left, rootRect.width - boxW - 4));
+        const top = Math.max(2, Math.min(e.clientY - rootRect.top, rootRect.height - boxH - 4));
+
+        const box = document.createElement("div");
+        this.structEditor = box;
+        box.style.cssText = `position:absolute;left:${left}px;top:${top}px;z-index:10;`
+            + `width:${boxW}px;box-sizing:border-box;background:#FFFFFF;color:#252423;`
+            + "border:1px solid #8A8A8A;border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,0.25);"
+            + "padding:8px;font-family:'Segoe UI',sans-serif;font-size:12px;";
+        box.addEventListener("click", ev => ev.stopPropagation());
+        box.addEventListener("contextmenu", ev => ev.stopPropagation());
+        box.addEventListener("keydown", ev => {
+            ev.stopPropagation();
+            if (ev.key === "Escape") { this.closeStructureMenu(); }
+        });
+
+        const title = document.createElement("div");
+        title.style.cssText = "font-weight:600;margin-bottom:6px;white-space:nowrap;"
+            + "overflow:hidden;text-overflow:ellipsis;";
+        title.textContent = `⚙ ${p.cat}`;
+        box.appendChild(title);
+
+        const inList = (prop: "invertList" | "resultList" | "skipList") =>
+            String(this.formattingSettings.chartCard[prop].value || "")
+                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)
+                .includes(p.cat.trim().toLowerCase());
+        const mkCheck = (label: string, prop: "invertList" | "resultList" | "skipList") => {
+            const row = document.createElement("label");
+            row.style.cssText = "display:flex;align-items:center;gap:6px;margin:4px 0;cursor:pointer;";
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.checked = inList(prop);
+            cb.addEventListener("change", ev => {
+                ev.stopPropagation();
+                this.toggleListEntry(prop, p.cat, cb.checked);
+            });
+            const span = document.createElement("span");
+            span.textContent = label;
+            row.appendChild(cb);
+            row.appendChild(span);
+            box.appendChild(row);
+        };
+        mkCheck(this.locStr("Struct_Invert", "Invert (higher is bad)"), "invertList");
+        mkCheck(this.locStr("Struct_Result", "Result row (bold anchor)"), "resultList");
+        mkCheck(this.locStr("Struct_Skip", "Exclude from totals"), "skipList");
+
+        this.root.appendChild(box);
+    }
+
     private openCommentEditor(p: DataPoint, e: MouseEvent): void {
         this.closeCommentEditor();
         const key = this.commentKey(p);

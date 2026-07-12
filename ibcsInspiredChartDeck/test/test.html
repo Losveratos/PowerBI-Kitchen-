@@ -69,6 +69,10 @@
 <div class="case"><h4>Tabelle · schmal (620px): Pin-Spalte fällt weg → numerische Δ%-Spalte rückt nach</h4><div class="stage" id="c59" style="width:470px;height:380px"></div></div>
 <div class="case"><h4>Tabelle · Dual-Varianz: neue Δ2-%-Zahlenspalte + FC-Schraffur im Δ2-Balken</h4><div class="stage" id="c60" style="width:1340px;height:420px"></div></div>
 <div class="case"><h4>Tabelle · Σ-treue Rundung + Σ-Zeile (3×10.440 → 10,4+10,4+10,5 = 31,3) + Prelim-Zeile</h4><div class="stage" id="c61" style="width:1100px;height:300px"></div></div>
+<div class="case"><h4>Tabelle · Werte-Spalten „AC · PY · PL" — bezifferte Referenzwerte neben AC</h4><div class="stage" id="c62" style="width:1340px;height:420px"></div></div>
+<div class="case"><h4>Tabelle · Ein-Klick-GuV: resultList=Rohertrag (Anker) + skipList=nachrichtlich (kursiv, ohne Σ)</h4><div class="stage" id="c63" style="width:1200px;height:420px"></div></div>
+<div class="case"><h4>Tabelle · Header-Sortierung persistiert (tableSort=dabs_desc, ▼-Marker)</h4><div class="stage" id="c64" style="width:1200px;height:400px"></div></div>
+<div class="case"><h4>Tabelle · Struktur-Modus an (Klick öffnet Invert/Result/Skip-Menü, ⚙-Chip)</h4><div class="stage" id="c65" style="width:1100px;height:380px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -290,6 +294,20 @@ run("c60", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear"
 run("c61", dataView(["Nord", "Mitte", "Süd"], [col("actual", [10440, 10440, 10440], "#,0 €")],
   { chart: { orientation: "table", showTotal: true }, labels: { sumSafeRounding: true },
     __fcFlags: [0, 2, 0] }), 1100, 300);
+
+// table wave 2: numeric value columns, one-click P&L lists, persisted header sort
+run("c62", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€"), col("plan", t2Pl, "#,0 T€")],
+  { chart: { orientation: "table", valueColumns: "all", showTotal: true } }), 1340, 420);
+const okCats = ["Umsatz", "Materialaufwand", "Rohertrag", "Personal", "nachrichtlich: Export", "Opex"];
+const okAc = [9800, -4200, 5600, -1850, 3100, -1050];
+const okPy = [9100, -3900, 5200, -1740, 2800, -960];
+run("c63", dataView(okCats, [col("actual", okAc, "#,0 T€"), col("previousYear", okPy, "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true, resultList: "Rohertrag",
+    skipList: "nachrichtlich: Export" } }), 1200, 420);
+run("c64", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€")],
+  { chart: { orientation: "table", tableSort: "dabs_desc" } }), 1200, 400);
+run("c65", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€")],
+  { chart: { orientation: "table", structureEdit: true } }), 1100, 380);
 
 // IBCS table: P&L rows with sum/delta role, AC·PY bars + variance columns
 const tabRows = ["Umsatz","Materialaufwand","Personal","Bruttoergebnis","Vertrieb","Verwaltung","EBIT"];

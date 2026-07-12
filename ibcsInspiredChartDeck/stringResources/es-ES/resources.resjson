@@ -150,5 +150,18 @@
     "Tooltip_Comment": "Comentario",
     "Hint_MoreRows": "filas más (aumente la altura del objeto visual)",
     "Btn_ExpandAll": "Expandir todo",
-    "Btn_CollapseAll": "Contraer todo"
+    "Btn_CollapseAll": "Contraer todo",
+    "Group_Table": "Tabla",
+    "Table_ValueCols": "Columnas de valores",
+    "Table_StructureEdit": "Editar estructura de filas (clic)",
+    "Table_ResultList": "Filas de resultado",
+    "Table_SkipList": "Excluir filas de los totales",
+    "Enum_ValueCols_Ac": "Solo AC",
+    "Enum_ValueCols_Basis": "AC + base de desviación",
+    "Enum_ValueCols_All": "AC · PY · PL",
+    "Chip_StructureMode": "⚙ Modo estructura",
+    "Struct_Invert": "Invertir (más alto es peor)",
+    "Struct_Result": "Fila de resultado (ancla en negrita)",
+    "Struct_Skip": "Excluir de los totales",
+    "Btn_SortHeader": "Ordenar por esta columna (otro clic: ascendente / desactivar)"
 }

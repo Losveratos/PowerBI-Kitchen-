@@ -58,10 +58,16 @@ const fontPresetItems: LocEnumMember[] = [
     { value: "presentation", displayName: "Presentation (4K / projector)", key: "Enum_FontPreset_Presentation" }
 ];
 
+const valueColumnsItems: LocEnumMember[] = [
+    { value: "ac", displayName: "AC only", key: "Enum_ValueCols_Ac" },
+    { value: "basis", displayName: "AC + variance basis", key: "Enum_ValueCols_Basis" },
+    { value: "all", displayName: "AC · PY · PL", key: "Enum_ValueCols_All" }
+];
+
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
-        displayUnitsItems, cumulativeKindItems, fontPresetItems];
+        displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -403,10 +409,52 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         slices: [this.waterfallStyle, this.sortByImpact, this.chartButtons, this.driverNote]
     });
 
+    valueColumns = new formattingSettings.ItemDropdown({
+        name: "valueColumns",
+        displayName: "Value columns",
+        displayNameKey: "Table_ValueCols",
+        description: "Zusätzliche Zahlenspalten neben AC: die Varianzbasis (PY oder PL, je nach Abweichungsbasis) oder beide Referenzszenarien — für druck- und boardtaugliche Tabellen ohne Balken-Interpretation.",
+        items: valueColumnsItems,
+        value: valueColumnsItems[0]
+    });
+
+    structureEdit = new formattingSettings.ToggleSwitch({
+        name: "structureEdit",
+        displayName: "Edit row structure (click)",
+        displayNameKey: "Table_StructureEdit",
+        description: "Bearbeitungsmodus: Klick auf eine Zeile öffnet ein kleines Menü mit „Invertieren“, „Ergebniszeile“ und „Aus Summen ausnehmen“ — die Ein-Klick-GuV ohne Datenmodell-Änderung. Die Wahl wird in den Listen unten persistiert; zum Berichten wieder ausschalten.",
+        value: false
+    });
+
+    resultList = new formattingSettings.TextInput({
+        name: "resultList",
+        displayName: "Result rows",
+        displayNameKey: "Table_ResultList",
+        description: "Kommagetrennte Zeilennamen, die als Ergebniszeilen formatiert werden (fett, Trennlinie, vom Σ ausgenommen; im Wasserfall als Anker) — Alternative zur Waterfall-Typ-Rolle.",
+        placeholder: "z. B. EBIT, Rohertrag",
+        value: ""
+    });
+
+    skipList = new formattingSettings.TextInput({
+        name: "skipList",
+        displayName: "Skip rows (exclude from totals)",
+        displayNameKey: "Table_SkipList",
+        description: "Kommagetrennte Zeilennamen, die nicht in Σ-Zeile, Skalen und Wasserfall-Kaskade einfließen (z. B. nachrichtliche Positionen). Die Zeile bleibt sichtbar, wird aber dezent dargestellt.",
+        placeholder: "z. B. Davon-Positionen",
+        value: ""
+    });
+
+    tableGroup = new formattingSettings.Group({
+        name: "chartTable",
+        displayName: "Table",
+        displayNameKey: "Group_Table",
+        slices: [this.valueColumns, this.structureEdit, this.resultList, this.skipList]
+    });
+
     name: string = "chart";
     displayName: string = "Chart";
     displayNameKey: string = "Card_Chart";
-    groups = [this.layoutGroup, this.analysisGroup, this.multiplesGroup, this.bridgeGroup];
+    groups = [this.layoutGroup, this.analysisGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup];
 }
 
 export class ColorsCardSettings extends FormattingSettingsCard {
