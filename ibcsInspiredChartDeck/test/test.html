@@ -73,6 +73,9 @@
 <div class="case"><h4>Tabelle · Ein-Klick-GuV: resultList=Rohertrag (Anker) + skipList=nachrichtlich (kursiv, ohne Σ)</h4><div class="stage" id="c63" style="width:1200px;height:420px"></div></div>
 <div class="case"><h4>Tabelle · Header-Sortierung persistiert (tableSort=dabs_desc, ▼-Marker)</h4><div class="stage" id="c64" style="width:1200px;height:400px"></div></div>
 <div class="case"><h4>Tabelle · Struktur-Modus an (Klick öffnet Invert/Result/Skip-Menü, ⚙-Chip)</h4><div class="stage" id="c65" style="width:1100px;height:380px"></div></div>
+<div class="case"><h4>Tabelle · 3-Ebenen-Hierarchie Region→Land→Produkt (Chevrons je Ebene, Einrückung ×Tiefe)</h4><div class="stage" id="c66" style="width:1200px;height:440px"></div></div>
+<div class="case"><h4>Tabelle · Scrolling: 30 Zeilen in 320px — Header + Σ fixiert, Scrollbar rechts</h4><div class="stage" id="c67" style="width:1200px;height:320px"></div></div>
+<div class="case"><h4>Tabelle · Formelzeilen: „Rohertrag = Umsatz + Materialaufwand“ (Summe) + „Marge = Rohertrag / Umsatz“ (%-Zeile)</h4><div class="stage" id="c68" style="width:1200px;height:420px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -523,6 +526,42 @@ run("c56", dataView(srCats, [col("actual", srAc, "#,0 €")],
 // export context: allowInteractions=false suppresses all in-chart buttons/chrome
 run("c57", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)],
   { chart: { orientation: "catbridge", groupEvery: 4 } }, null, null), 1340, 600, false, true);
+
+// wave 3 — real multi-level hierarchy: three category-role columns; every branch
+// node gets its own chevron, indentation grows with depth
+const h3L1 = ["DACH","DACH","DACH","DACH","West","West","West"];
+const h3L2 = ["Deutschland","Deutschland","Österreich","Schweiz","Frankreich","Frankreich","Benelux"];
+const h3L3 = ["Produkt A","Produkt B","Produkt A","Produkt A","Produkt A","Produkt B","Produkt A"];
+const h3Ac = [3400, 2000, 1900, 2400, 1800, 1300, 1500];
+const h3Py = [3200, 1900, 2000, 2200, 1950, 1350, 1450];
+run("c66", {
+  metadata: { columns: [], objects: { chart: { orientation: "table",
+    tableExpanded: JSON.stringify(["¦DACH", "¦DACH¦Deutschland", "¦West"]) } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: h3L1 },
+      { source: { displayName: "Land", roles: { category: true } }, values: h3L2 },
+      { source: { displayName: "Produkt", roles: { category: true } }, values: h3L3 }
+    ],
+    values: [col("actual", h3Ac), col("previousYear", h3Py)]
+  }
+}, 1200, 440);
+
+// wave 3 — vertical scrolling: 30 rows in a 320px tile, header + synthetic Σ frozen,
+// slim scrollbar at the right edge (wheel/drag/keys); export mode keeps truncation
+const scCats = Array.from({length: 30}, (_, i) => "Konto " + String(i + 1).padStart(2, "0"));
+const scAc = scCats.map((_, i) => 4200 - i * 90 + (i % 4) * 35);
+const scPy = scCats.map((_, i) => 4000 - i * 85 + (i % 3) * 40);
+run("c67", dataView(scCats, [col("actual", scAc, "#,0 T€"), col("previousYear", scPy, "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true } }), 1200, 320);
+
+// wave 3 — formula rows light: sum formula (subtotal styling) + ratio formula (%-row
+// with pp deltas); neither feeds the synthetic Σ row
+run("c68", dataView(["Umsatz", "Materialaufwand", "Personal", "Opex"],
+  [col("actual", [9800, -4200, -2400, -900], "#,0 T€"),
+   col("previousYear", [9100, -3900, -2300, -850], "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true,
+    formulaRows: "Rohertrag = Umsatz + Materialaufwand; Marge = Rohertrag / Umsatz" } }), 1200, 420);
 
 // P&L table with margin rows: value as %, deltas as percentage points
 run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],

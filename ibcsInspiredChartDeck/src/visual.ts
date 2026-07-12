@@ -131,6 +131,8 @@ interface ChartConfig {
     resultSet: Set<string>;
     /** rows excluded from totals, scales and cascades via chart.skipList */
     skipSet: Set<string>;
+    /** table: formula-row definitions ("Label = A + B; Marge = X / Y"), raw text */
+    formulaRows: string;
     /** sum-safe label rounding (largest remainder): labels add up to the Σ header */
     sumSafe: boolean;
     /** deck-wide absolute-variance domain (incl. fixedVarMax) for scale sync */
@@ -255,6 +257,8 @@ export class Visual implements IVisual {
     private expandedRows = new Set<string>();
     /** persist-race guard: expand-state JSON we wrote but the host has not echoed */
     private pendingTableExpanded: string | null = null;
+    /** table mode: vertical scroll offset in rows per tile (transient, wheel/drag) */
+    private tableScroll = new Map<string, number>();
     /** table header sort, e.g. "dabs_desc" ("" = data order), persisted */
     private tableSort = "";
     private pendingTableSort: string | null = null;
@@ -956,6 +960,7 @@ export class Visual implements IVisual {
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
             skipSet: new Set(String(s.chartCard.skipList.value || "")
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
+            formulaRows: String(s.chartCard.formulaRows.value || ""),
             sumSafe: s.labelsCard.sumSafeRounding.value,
             ...(() => { const fp = this.formatterParams(maxAbs, allInt); return { fmtUnit: fp.unit, fmtPrec: fp.prec }; })(),
             fmt: this.makeFormatter(maxAbs, allInt),
@@ -2632,9 +2637,9 @@ export class Visual implements IVisual {
         const pad = 6;
 
         // ------- expandable hierarchy: with an expanded category hierarchy (≥2 level
-        // columns in the field well), level-0 rows render aggregated with a ▸/▾
+        // columns in the field well), parent rows render aggregated with a ▸/▾
         // chevron — clicking the category toggles its indented child rows in and out
-        type TableRow = { p: DataPoint; indent: boolean; parentKey?: string; expanded?: boolean; isTotal?: boolean };
+        type TableRow = { p: DataPoint; depth: number; parentKey?: string; expanded?: boolean; isTotal?: boolean; formula?: boolean };
         const isSum = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("sum");
         const isPct = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("pct");
         // one-click P&L lists (structure-edit mode): promoted result rows and
@@ -2663,62 +2668,85 @@ export class Visual implements IVisual {
             : () => 0;
 
         let rows: TableRow[];
+        // every branch node across ALL depths (also inside collapsed parents) —
+        // drives the header expand-all chevron so deep levels open too
+        const allParentKeys: string[] = [];
         if (hasLevels) {
-            rows = [];
-            // drill keys are tile-scoped (group¦label) so same-named parents in
-            // small-multiples tiles expand independently; the label stays clean
-            const orderKeys: { mk: string; label: string }[] = [];
-            const byKey = new Map<string, DataPoint[]>();
+            // real multi-level tree: one node per catLevels prefix. Drill keys are
+            // tile-scoped path keys (group¦l0¦l1…) so same-named branches in
+            // small-multiples tiles expand independently; level-0 keys match the
+            // old group¦label format, so persisted expand state stays valid
+            type TNode = { label: string; key: string; order: string[]; kids: Map<string, TNode>; pts: DataPoint[] };
+            const root: TNode = { label: "", key: "", order: [], kids: new Map(), pts: [] };
             for (const p of points) {
-                const label = p.catLevels && p.catLevels.length > 1 ? p.catLevels[0] : p.cat;
-                const mk = `${p.group ?? ""}¦${label}`;
-                if (!byKey.has(mk)) { byKey.set(mk, []); orderKeys.push({ mk, label }); }
-                (byKey.get(mk) as DataPoint[]).push(p);
+                const path = p.catLevels && p.catLevels.length > 1 ? p.catLevels : [p.cat];
+                let node = root;
+                let key = p.group ?? "";
+                for (const lvl of path) {
+                    key += `¦${lvl}`;
+                    let ch = node.kids.get(lvl);
+                    if (!ch) {
+                        ch = { label: lvl, key, order: [], kids: new Map(), pts: [] };
+                        node.kids.set(lvl, ch);
+                        node.order.push(lvl);
+                    }
+                    ch.pts.push(p);
+                    node = ch;
+                }
             }
-            const aggFor = new Map<string, DataPoint>();
-            for (const { mk, label } of orderKeys) {
-                const kids = byKey.get(mk) as DataPoint[];
-                aggFor.set(mk, kids.length === 1 ? kids[0] : this.aggregateHierarchy(label, kids));
-            }
-            if (getter) {
-                // sort parents by their aggregate — but only BETWEEN anchor parents
-                // (sum/result/pct aggregates keep their position, like the flat path)
-                const isAnchorKey = (mk: string) => {
-                    const a = aggFor.get(mk) as DataPoint;
-                    return isAnchor(a) || isPct(a);
-                };
-                const sortedKeys: { mk: string; label: string }[] = [];
-                let run: { mk: string; label: string }[] = [];
+            const collectKeys = (nd: TNode) => {
+                if (nd !== root && nd.kids.size > 0) { allParentKeys.push(nd.key); }
+                nd.kids.forEach(collectKeys);
+            };
+            collectKeys(root);
+            const aggOf = new Map<TNode, DataPoint>();
+            const aggFor = (nd: TNode): DataPoint => {
+                let a = aggOf.get(nd);
+                if (!a) {
+                    a = nd.pts.length === 1
+                        ? { ...nd.pts[0], cat: nd.label }
+                        : this.aggregateHierarchy(nd.label, nd.pts);
+                    aggOf.set(nd, a);
+                }
+                return a;
+            };
+            // sort siblings by their aggregate — but only BETWEEN anchor siblings
+            // (sum/result/pct aggregates keep their position, like the flat path)
+            const sortSiblings = (list: TNode[]): TNode[] => {
+                if (!getter) { return list; }
+                const out: TNode[] = [];
+                let run: TNode[] = [];
                 const flush = () => {
-                    run.sort((a, b) => cmp(aggFor.get(a.mk) as DataPoint, aggFor.get(b.mk) as DataPoint));
-                    sortedKeys.push(...run);
+                    run.sort((a, b) => cmp(aggFor(a), aggFor(b)));
+                    out.push(...run);
                     run = [];
                 };
-                for (const e of orderKeys) {
-                    if (isAnchorKey(e.mk)) { flush(); sortedKeys.push(e); }
-                    else { run.push(e); }
+                for (const nd of list) {
+                    const a = aggFor(nd);
+                    if (isAnchor(a) || isPct(a)) { flush(); out.push(nd); }
+                    else { run.push(nd); }
                 }
                 flush();
-                orderKeys.length = 0;
-                orderKeys.push(...sortedKeys);
-                for (const kids of byKey.values()) { if (kids.length > 1) { kids.sort(cmp); } }
-            }
-            for (const { mk } of orderKeys) {
-                const kids = byKey.get(mk) as DataPoint[];
-                if (kids.length === 1 && !(kids[0].catLevels && kids[0].catLevels.length > 1)) {
-                    rows.push({ p: kids[0], indent: false });
-                    continue;
+                return out;
+            };
+            rows = [];
+            const emit = (nd: TNode, depth: number) => {
+                if (nd.kids.size === 0) {
+                    // leaf: one row per point (duplicate labels stay separate rows)
+                    const pts = nd.pts.length > 1 && getter ? [...nd.pts].sort(cmp) : nd.pts;
+                    for (const c of pts) { rows.push({ p: { ...c, cat: nd.label }, depth }); }
+                    return;
                 }
-                const expanded = this.expandedRows.has(mk);
-                rows.push({ p: aggFor.get(mk) as DataPoint, indent: false, parentKey: mk, expanded });
+                const expanded = this.expandedRows.has(nd.key);
+                rows.push({ p: aggFor(nd), depth, parentKey: nd.key, expanded });
                 if (expanded) {
-                    for (const c of kids) {
-                        rows.push({
-                            p: { ...c, cat: c.catLevels ? c.catLevels.slice(1).join(" · ") : c.cat },
-                            indent: true
-                        });
+                    for (const ch of sortSiblings(nd.order.map(l => nd.kids.get(l) as TNode))) {
+                        emit(ch, depth + 1);
                     }
                 }
+            };
+            for (const nd of sortSiblings(root.order.map(l => root.kids.get(l) as TNode))) {
+                emit(nd, 0);
             }
         } else if (getter) {
             // flat: sort segment-wise BETWEEN anchor rows (sum/result/pct keep
@@ -2734,21 +2762,106 @@ export class Visual implements IVisual {
             }
             seg.sort(cmp);
             sorted.push(...seg);
-            rows = sorted.map(p => ({ p, indent: false }));
+            rows = sorted.map(p => ({ p, depth: 0 }));
         } else {
-            rows = points.map(p => ({ p, indent: false }));
+            rows = points.map(p => ({ p, depth: 0 }));
+        }
+
+        // ------- formula rows light: "Label = A + B - C" appends a computed row in
+        // subtotal styling, "Label = A / B" a %-row (margin). Operands reference row
+        // labels; operators need surrounding spaces so names like "E-Commerce" work.
+        // Formula rows never feed the Σ row or sum-safe rounding (no double counting)
+        if (cfg.formulaRows.trim()) {
+            const byLabel = new Map<string, DataPoint>();
+            for (const r of rows) {
+                const kk = r.p.cat.trim().toLowerCase();
+                if (!byLabel.has(kk)) { byLabel.set(kk, r.p); }
+            }
+            const FIELDS = ["ac", "py", "pl", "fc", "value", "basis"] as const;
+            type Agg = { [f in typeof FIELDS[number]]: number | null };
+            const evalSum = (expr: string): Agg | null => {
+                // " + " prefix gives the first operand an explicit sign, then split
+                // on space-padded +/− only (labels keep their inner hyphens)
+                const parts = (`+ ${expr.trim()}`).split(/\s*([+\-−])\s+/).filter(t => t.trim());
+                if (parts.length < 2 || parts.length % 2 !== 0) { return null; }
+                const acc: Agg = { ac: null, py: null, pl: null, fc: null, value: null, basis: null };
+                for (let ti = 0; ti < parts.length; ti += 2) {
+                    const sign = parts[ti] === "+" ? 1 : -1;
+                    const src = byLabel.get(parts[ti + 1].trim().toLowerCase());
+                    if (!src || isPct(src)) { return null; }
+                    for (const f of FIELDS) {
+                        const v = src[f];
+                        if (v != null) { acc[f] = (acc[f] ?? 0) + sign * v; }
+                    }
+                }
+                return acc;
+            };
+            const pctOf = (a: number | null, b: number | null) =>
+                (a != null && b != null && b !== 0) ? (a / b) * 100 : null;
+            const blank = {
+                catLevels: null, isFc: false, bm: null, fcPrev: null, lineVal: null,
+                stackSeries: null, comment: null, commentNo: null,
+                group: points[0].group, isRest: false, sel: null
+            };
+            for (const entry of cfg.formulaRows.split(/[;\n]/)) {
+                const eq = entry.indexOf("=");
+                if (eq < 1) { continue; }
+                const label = entry.slice(0, eq).trim();
+                const expr = entry.slice(eq + 1).trim();
+                if (!label || !expr) { continue; }
+                const ratio = expr.split(/\s\/\s/);
+                let fp: DataPoint | null = null;
+                if (ratio.length === 2) {
+                    const num = evalSum(ratio[0]), den = evalSum(ratio[1]);
+                    if (!num || !den) { continue; }
+                    const value = pctOf(num.value, den.value);
+                    const py = pctOf(num.py, den.py), pl = pctOf(num.pl, den.pl);
+                    const basis = pctOf(num.basis, den.basis);
+                    const b2 = this.basis2Mode === "plan" ? pl : py;
+                    fp = {
+                        ...blank, cat: label, ac: pctOf(num.ac, den.ac), py, pl,
+                        fc: pctOf(num.fc, den.fc), value, basis,
+                        // margin rows compare in percentage POINTS (pp), like GuV
+                        varAbs: (value != null && basis != null) ? value - basis : null,
+                        varRel: null,
+                        var2Abs: (value != null && b2 != null) ? value - b2 : null,
+                        var2Rel: null, rowType: "pct"
+                    };
+                } else if (ratio.length === 1) {
+                    const a = evalSum(expr);
+                    if (!a) { continue; }
+                    const varAbs = (a.value != null && a.basis != null) ? a.value - a.basis : null;
+                    const b2 = this.basis2Mode === "plan" ? a.pl : a.py;
+                    const var2Abs = (a.value != null && b2 != null) ? a.value - b2 : null;
+                    fp = {
+                        ...blank, cat: label, ac: a.ac, py: a.py, pl: a.pl, fc: a.fc,
+                        value: a.value, basis: a.basis, varAbs,
+                        varRel: (varAbs != null && a.basis != null && a.basis !== 0)
+                            ? (varAbs / Math.abs(a.basis)) * 100 : null,
+                        var2Abs,
+                        var2Rel: (var2Abs != null && b2 != null && b2 !== 0)
+                            ? (var2Abs / Math.abs(b2)) * 100 : null,
+                        rowType: "sum"
+                    };
+                }
+                if (!fp) { continue; }
+                rows.push({ p: fp, depth: 0, formula: true });
+                // later formulas may build on earlier ones ("Marge = Rohertrag / Umsatz")
+                const kk = label.toLowerCase();
+                if (!byLabel.has(kk)) { byLabel.set(kk, fp); }
+            }
         }
 
         // visual-computed grand total (Σ): only when the data brings no sum rows
         // of its own and no running totals are active (cumulative IS a total)
         let totalRow: TableRow | null = null;
         if (cfg.showTotal && !cfg.cumulative && !points.some(p => isSum(p) || isResult(p))) {
-            const base = rows.filter(r => !r.indent && !isPct(r.p) && !isResult(r.p) && !isSkip(r.p))
-                .map(r => r.p);
+            const base = rows.filter(r => r.depth === 0 && !r.formula
+                && !isPct(r.p) && !isResult(r.p) && !isSkip(r.p)).map(r => r.p);
             if (base.length > 1) {
                 const tp = this.aggregateHierarchy(this.locStr("Label_Total", "Σ Total"), base);
                 tp.rowType = "sum";
-                totalRow = { p: tp, indent: false, isTotal: true };
+                totalRow = { p: tp, depth: 0, isTotal: true };
             }
         }
         const rowPts = rows.map(r => r.p).concat(totalRow ? [totalRow.p] : []);
@@ -2842,7 +2955,18 @@ export class Visual implements IVisual {
         const rowH = Math.max(cf + 6, (region.h - pad * 2 - headerH) / n);
         const top = region.y + pad + headerH;
         const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH);
-        const bodyRows = rows.slice(0, Math.max(1, maxRows - (totalRow ? 1 : 0)));
+        const bodyCap = Math.max(1, maxRows - (totalRow ? 1 : 0));
+        // vertical scrolling (interactive only): header and Σ row stay frozen, the
+        // body rows scroll by wheel or thumb drag — export/print keeps the old
+        // top-anchored truncation so nothing moves in a rendered report
+        const paneKey = points[0].group ?? "";
+        const maxScroll = Math.max(0, rows.length - bodyCap);
+        const canScroll = this.allowInteractions && maxScroll > 0;
+        const scroll = canScroll
+            ? Math.max(0, Math.min(this.tableScroll.get(paneKey) ?? 0, maxScroll))
+            : 0;
+        if (canScroll) { this.tableScroll.set(paneKey, scroll); }
+        const bodyRows = rows.slice(scroll, scroll + bodyCap);
         const shown = totalRow ? [...bodyRows, totalRow] : bodyRows;
 
         // margin rows (rowType "pct") carry percentages, skip rows are excluded
@@ -2879,10 +3003,10 @@ export class Visual implements IVisual {
         const hFont = Math.round(10 * k);
         const hy = region.y + pad + hFont + 2;
         const scen = ["AC", cfg.hasPy ? "PY" : "", cfg.hasPl ? "PL" : ""].filter(v => v).join(" · ");
-        // expand/collapse all: header chevron in front of the name column
-        const parentRows = rows.filter(r => r.parentKey != null);
-        if (hasLevels && parentRows.length > 0 && this.allowInteractions) {
-            const allOpen = parentRows.every(r => r.expanded);
+        // expand/collapse all: header chevron in front of the name column —
+        // uses ALL branch keys (also inside collapsed parents) so every level opens
+        if (hasLevels && allParentKeys.length > 0 && this.allowInteractions) {
+            const allOpen = allParentKeys.every(kk => this.expandedRows.has(kk));
             const label = allOpen
                 ? this.locStr("Btn_CollapseAll", "Collapse all")
                 : this.locStr("Btn_ExpandAll", "Expand all");
@@ -2894,8 +3018,8 @@ export class Visual implements IVisual {
             ch.style.cursor = "pointer";
             ch.addEventListener("click", (e: MouseEvent) => {
                 e.stopPropagation();
-                if (allOpen) { parentRows.forEach(r => this.expandedRows.delete(r.parentKey as string)); }
-                else { parentRows.forEach(r => this.expandedRows.add(r.parentKey as string)); }
+                if (allOpen) { allParentKeys.forEach(kk => this.expandedRows.delete(kk)); }
+                else { allParentKeys.forEach(kk => this.expandedRows.add(kk)); }
                 this.persistTableExpanded();
                 this.rerender();
             });
@@ -2985,8 +3109,8 @@ export class Visual implements IVisual {
         // so they visibly add up to the synthetic Σ row
         const sumSafeVals = (cfg.sumSafe && !cfg.cumulative && totalRow)
             ? (() => {
-                const base = rows.filter(r => !r.indent && !isPct(r.p) && !isSum(r.p)
-                    && !isResult(r.p) && !isSkip(r.p)).map(r => r.p);
+                const base = rows.filter(r => r.depth === 0 && !r.formula && !isPct(r.p)
+                    && !isSum(r.p) && !isResult(r.p) && !isSkip(r.p)).map(r => r.p);
                 const adj = this.sumSafeAdjust(base.map(q => q.value), cfg.fmtUnit, cfg.fmtPrec);
                 const m = new Map<DataPoint, number | null>();
                 base.forEach((q, ix) => m.set(q, adj[ix]));
@@ -3028,11 +3152,11 @@ export class Visual implements IVisual {
             }
 
             const rowFont = Math.min(cf, rowH - 4);
-            const indentX = row.indent ? Math.round(14 * k) : 0;
+            const indentX = row.depth * Math.round(14 * k);
             const nameText = isParent
                 ? `${row.expanded ? "▾" : "▸"} ${p.cat}`
                 : p.cat;
-            const nameEl = txt(colX["name"].x + (sum && !row.indent ? 0 : Math.round(6 * k)) + indentX,
+            const nameEl = txt(colX["name"].x + (sum && row.depth === 0 ? 0 : Math.round(6 * k)) + indentX,
                 yMid + rowFont * 0.35,
                 this.truncate(nameText, colX["name"].w - 8 - indentX, rowFont),
                 "start", rowFont, sum, skip ? cfg.subtle : cfg.ink, g);
@@ -3221,7 +3345,62 @@ export class Visual implements IVisual {
         });
 
         const hiddenRows = rows.length - bodyRows.length;
-        if (hiddenRows > 0) {
+        if (canScroll) {
+            // slim scrollbar at the right edge: wheel anywhere over the table or
+            // drag the thumb; state is per tile and transient (not persisted)
+            const trackX = region.x + region.w - 4;
+            const trackH = rowsBottom - top;
+            this.el("rect", {
+                x: trackX, y: top, width: 3, height: trackH, rx: 1.5,
+                fill: cfg.subtle, "fill-opacity": 0.18
+            }, bg);
+            const thumbH = Math.max(Math.min(18, trackH), trackH * bodyCap / rows.length);
+            const thumbY = top + (trackH - thumbH) * (scroll / maxScroll);
+            const thumb = this.el("rect", {
+                x: trackX - 1, y: thumbY, width: 5, height: thumbH, rx: 2.5,
+                fill: cfg.subtle, "fill-opacity": 0.75, role: "scrollbar", tabindex: "0",
+                "aria-valuemin": 0, "aria-valuemax": maxScroll, "aria-valuenow": scroll,
+                "aria-orientation": "vertical",
+                "aria-label": this.locStr("Table_Scroll", "Scroll rows")
+            }, this.svg) as SVGGraphicsElement;
+            thumb.style.cursor = "grab";
+            const setScroll = (next: number) => {
+                const cl = Math.max(0, Math.min(Math.round(next), maxScroll));
+                if (cl === (this.tableScroll.get(paneKey) ?? 0)) { return; }
+                this.tableScroll.set(paneKey, cl);
+                this.rerender();
+            };
+            const onWheel = (e: WheelEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const mag = Math.max(1, Math.min(bodyCap, Math.round(Math.abs(e.deltaY) / 50)));
+                setScroll((this.tableScroll.get(paneKey) ?? 0) + (e.deltaY > 0 ? mag : -mag));
+            };
+            bg.addEventListener("wheel", onWheel, { passive: false });
+            marks.addEventListener("wheel", onWheel, { passive: false });
+            thumb.addEventListener("mousedown", (e: MouseEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const startY = e.clientY, startScroll = scroll;
+                const move = (ev: MouseEvent) => {
+                    setScroll(startScroll + (ev.clientY - startY) / trackH * rows.length);
+                };
+                const up = () => {
+                    window.removeEventListener("mousemove", move);
+                    window.removeEventListener("mouseup", up);
+                };
+                window.addEventListener("mousemove", move);
+                window.addEventListener("mouseup", up);
+            });
+            thumb.addEventListener("keydown", (e: KeyboardEvent) => {
+                const step = e.key === "ArrowDown" ? 1 : e.key === "ArrowUp" ? -1
+                    : e.key === "PageDown" ? bodyCap : e.key === "PageUp" ? -bodyCap : 0;
+                if (step === 0) { return; }
+                e.preventDefault();
+                e.stopPropagation();
+                setScroll((this.tableScroll.get(paneKey) ?? 0) + step);
+            });
+        } else if (hiddenRows > 0) {
             txt(region.x + pad, rowsBottom + cf,
                 `… ${hiddenRows} ${this.locStr("Hint_MoreRows", "more rows (increase the visual height)")}`,
                 "start", Math.round(cf * 0.9), false, cfg.subtle, bg);

@@ -444,11 +444,21 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    formulaRows = new formattingSettings.TextInput({
+        name: "formulaRows",
+        displayName: "Formula rows",
+        displayNameKey: "Table_FormulaRows",
+        description: "Berechnete Zeilen, mit Semikolon getrennt: „EBIT = Umsatz - Kosten“ ergänzt eine Summenzeile, „Marge = EBIT / Umsatz“ eine %-Zeile. Operanden sind Zeilennamen; Operatoren bitte mit Leerzeichen umgeben. Formelzeilen fließen nicht in die Σ-Zeile ein.",
+        placeholder: "z. B. Marge = EBIT / Umsatz",
+        value: ""
+    });
+
     tableGroup = new formattingSettings.Group({
         name: "chartTable",
         displayName: "Table",
         displayNameKey: "Group_Table",
-        slices: [this.valueColumns, this.structureEdit, this.resultList, this.skipList]
+        slices: [this.valueColumns, this.structureEdit, this.resultList, this.skipList,
+            this.formulaRows]
     });
 
     name: string = "chart";
