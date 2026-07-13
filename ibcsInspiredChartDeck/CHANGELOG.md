@@ -1,5 +1,17 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.25.1.0 (2026-07-13)
+
+**KPI-Karten — zwei Optionen (Kundenwunsch):**
+- **Highlight-Status** (Auswahl): „Gut & schlecht“ (Ampel, wie bisher),
+  „Nur schlechte“ (Problem-Monitoring — Positives bleibt neutral grau)
+  oder „Nur gute“ (Erfolgs-Board). Gilt für Streifen, Hintergrund-Tönung,
+  Δ-Zeilen und Mini-Brücke.
+- **Mini-Brücke zeigen (AC/PY-Balken)** (Schalter, Standard an): aus
+  ergibt reine Zahlen-Karten (großer Wert + Δ-Zeilen) — ruhiger für
+  dichte KPI-Wände.
+Render-Fall c78; neue Keys in de/en/es/ja.
+
 ## 1.25.0.0 (2026-07-13)
 
 **Großes Tabellen-/Matrix-Paket:**

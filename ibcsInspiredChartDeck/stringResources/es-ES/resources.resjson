@@ -191,5 +191,10 @@
   "Struct_Indent": "Sangrar (fila «de lo cual»)",
   "Matrix_DPrev": "Δ ant.",
   "Table_Search": "Buscar filas",
-  "Table_NoMatch": "Ninguna fila coincide con la búsqueda"
+  "Table_NoMatch": "Ninguna fila coincide con la búsqueda",
+  "Cards_Highlight": "Estado a resaltar",
+  "Cards_Bars": "Mostrar mini-puente (barras AC/PY)",
+  "Enum_CardHl_Both": "Bueno y malo",
+  "Enum_CardHl_Bad": "Solo malo",
+  "Enum_CardHl_Good": "Solo bueno"
 }

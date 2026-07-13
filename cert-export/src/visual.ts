@@ -158,6 +158,10 @@ interface ChartConfig {
     cardBullet: boolean;
     /** KPI cards: bullet zooms to the AC/BM range instead of anchoring at zero */
     cardBulletZoom: boolean;
+    /** KPI cards: which direction to color ("both" | "bad" | "good") */
+    cardHl: string;
+    /** KPI cards: show the mini bridge (AC/PY bars) */
+    cardBars: boolean;
     /** sum-safe label rounding (largest remainder): labels add up to the Σ header */
     sumSafe: boolean;
     /** deck-wide absolute-variance domain (incl. fixedVarMax) for scale sync */
@@ -1047,6 +1051,8 @@ export class Visual implements IVisual {
             cardTintPct: Math.max(4, Math.min(40, Number(s.chartCard.cardTintStrength.value ?? 12))),
             cardBullet: s.chartCard.cardBullet.value,
             cardBulletZoom: s.chartCard.cardBulletZoom.value,
+            cardHl: String(s.chartCard.cardHighlight.value.value),
+            cardBars: s.chartCard.cardBars.value,
             sumSafe: s.labelsCard.sumSafeRounding.value,
             ...(() => { const fp = this.formatterParams(maxAbs, allInt); return { fmtUnit: fp.unit, fmtPrec: fp.prec }; })(),
             fmt: this.makeFormatter(maxAbs, allInt),
@@ -4472,6 +4478,11 @@ export class Visual implements IVisual {
         const cw = (region.w - gap) / cols;
         const ch = (region.h - gap) / rows;
         const good = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
+        // highlight-status filter: "bad" colors only negatives, "good" only
+        // positives, "both" colors everything (subject to materiality). When a
+        // direction is suppressed it renders in the neutral scenario grey
+        const hlShow = (v: number, pp?: DataPoint | null) =>
+            cfg.cardHl === "both" || (cfg.cardHl === "good" ? good(v, pp) : !good(v, pp));
 
         pts.forEach((p, i) => {
             const x = region.x + gap / 2 + (i % cols) * cw + 2;
@@ -4492,7 +4503,10 @@ export class Visual implements IVisual {
             const sv = cfg.cardBasis === "benchmark" && bmV != null
                 ? { v: bmV, rel: bmRel }
                 : { v: p.varAbs, rel: p.varRel };
-            const neutral = sv.v == null || sv.v === 0 || !cfg.isMaterial(p, sv.v, sv.rel);
+            // neutral: no status, immaterial, OR the highlight-status filter hides
+            // this direction (e.g. "only bad" leaves the good ones grey)
+            const neutral = sv.v == null || sv.v === 0 || !cfg.isMaterial(p, sv.v, sv.rel)
+                || !hlShow(sv.v as number, p);
             // optional status tint over the whole card (light green/red, neutral stays
             // paper); suppressed in high-contrast mode where color must not carry meaning
             if (cfg.cardTint && !cfg.hc && !neutral) {
@@ -4550,7 +4564,7 @@ export class Visual implements IVisual {
             const refRowAt = (tx: number, ty: number, label: string,
                 vAbs: number | null, vRel: number | null) => {
                 if (vAbs == null) { return; }
-                const col = (vAbs === 0 || !cfg.isMaterial(p, vAbs, vRel))
+                const col = (vAbs === 0 || !cfg.isMaterial(p, vAbs, vRel) || !hlShow(vAbs, p))
                     ? cfg.subtle : (good(vAbs, p) ? cfg.colors.good : cfg.colors.bad);
                 txt(tx, ty, `Δ${label}`, refF, false, cfg.subtle);
                 txt(tx + refF * 2.6, ty, refText(vAbs, vRel), refF, true, col);
@@ -4581,7 +4595,7 @@ export class Visual implements IVisual {
                 if (p.varAbs != null && p.varAbs !== 0) {
                     const lo = Math.min(p.basis, p.value as number), hi = Math.max(p.basis, p.value as number);
                     const dTop = byBottom - hOf(hi), dH = Math.max(1.5, (hi - lo) / maxV * bridgeH);
-                    const dCol = !cfg.isMaterial(p) ? cfg.colors.py
+                    const dCol = (!cfg.isMaterial(p) || !hlShow(p.varAbs, p)) ? cfg.colors.py
                         : (good(p.varAbs, p) ? cfg.colors.good : cfg.colors.bad);
                     this.el("rect", {
                         x: cxs[1] - colW / 2, y: dTop, width: colW, height: dH,
@@ -4706,10 +4720,10 @@ export class Visual implements IVisual {
                         refX += bw3 + Math.round(20 * k);
                     }
                 }
-                // bridge on the right edge when there is still room for it
+                // bridge on the right edge when there is still room for it (toggle)
                 const bw2 = Math.min(170 * k, x + w - pad - refX);
                 const bh2 = Math.min(Math.round(34 * k), h - Math.round(12 * k) - legRoom);
-                if (p.basis != null && bw2 >= 100 * k && bh2 >= 18 * k) {
+                if (cfg.cardBars && p.basis != null && bw2 >= 100 * k && bh2 >= 18 * k) {
                     const byBottom = y + (h - legRoom + bh2) / 2;
                     drawBridge(x + w - pad - bw2, byBottom, bw2, bh2);
                 }
@@ -4733,7 +4747,7 @@ export class Visual implements IVisual {
                     yCur += Math.round(18 * k);
                 }
                 const bridgeH = Math.round(40 * k);
-                if (p.basis != null && h - (yCur - y) >= bridgeH + pad + legRoom && w >= 150 * k) {
+                if (cfg.cardBars && p.basis != null && h - (yCur - y) >= bridgeH + pad + legRoom && w >= 150 * k) {
                     const bw2 = Math.min(w - pad * 2, 190 * k);
                     drawBridge(x + pad, y + h - pad - legRoom, bw2, bridgeH);
                 }

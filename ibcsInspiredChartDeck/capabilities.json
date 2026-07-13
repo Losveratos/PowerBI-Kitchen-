@@ -184,6 +184,16 @@
                         ]
                     }
                 },
+                "cardHighlight": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "both", "displayName": "Good & bad" },
+                            { "value": "bad", "displayName": "Only bad" },
+                            { "value": "good", "displayName": "Only good" }
+                        ]
+                    }
+                },
+                "cardBars": { "type": { "bool": true } },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
                 "cardBullet": { "type": { "bool": true } },

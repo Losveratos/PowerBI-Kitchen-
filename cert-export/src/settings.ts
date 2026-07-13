@@ -74,11 +74,17 @@ const cardBasisItems: LocEnumMember[] = [
     { value: "benchmark", displayName: "Benchmark (BM)", key: "Enum_CardBasis_Bm" }
 ];
 
+const cardHighlightItems: LocEnumMember[] = [
+    { value: "both", displayName: "Good & bad", key: "Enum_CardHl_Both" },
+    { value: "bad", displayName: "Only bad", key: "Enum_CardHl_Bad" },
+    { value: "good", displayName: "Only good", key: "Enum_CardHl_Good" }
+];
+
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
         displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
-        cardBasisItems, matrixCompareItems];
+        cardBasisItems, matrixCompareItems, cardHighlightItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -571,12 +577,29 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    cardHighlight = new formattingSettings.ItemDropdown({
+        name: "cardHighlight",
+        displayName: "Highlight status",
+        displayNameKey: "Cards_Highlight",
+        description: "Welche Richtung farbig hervorgehoben wird: beide (Ampel), nur schlechte (Problem-Monitoring — Positives bleibt neutral) oder nur gute (Erfolgs-Board). Gilt für Streifen, Hintergrund, Δ-Zeilen und Bullet.",
+        items: cardHighlightItems,
+        value: cardHighlightItems[0]
+    });
+
+    cardBars = new formattingSettings.ToggleSwitch({
+        name: "cardBars",
+        displayName: "Show mini bridge (AC/PY bars)",
+        displayNameKey: "Cards_Bars",
+        description: "Zeigt die kleine Balken-Brücke Basis → Δ → AC unten auf der Karte. Aus: reine Zahlen-Karte (großer Wert + Δ-Zeilen), ruhiger für dichte KPI-Wände.",
+        value: true
+    });
+
     cardsGroup = new formattingSettings.Group({
         name: "chartCards",
         displayName: "KPI cards",
         displayNameKey: "Group_Cards",
-        slices: [this.cardStatusBasis, this.cardTint, this.cardTintStrength, this.cardBullet,
-            this.cardBulletZoom]
+        slices: [this.cardStatusBasis, this.cardHighlight, this.cardBars, this.cardTint,
+            this.cardTintStrength, this.cardBullet, this.cardBulletZoom]
     });
 
     name: string = "chart";

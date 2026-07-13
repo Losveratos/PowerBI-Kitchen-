@@ -191,5 +191,10 @@
   "Struct_Indent": "Indent (thereof row)",
   "Matrix_DPrev": "Δ prev.",
   "Table_Search": "Search rows",
-  "Table_NoMatch": "No rows match the search"
+  "Table_NoMatch": "No rows match the search",
+  "Cards_Highlight": "Highlight status",
+  "Cards_Bars": "Show mini bridge (AC/PY bars)",
+  "Enum_CardHl_Both": "Good & bad",
+  "Enum_CardHl_Bad": "Only bad",
+  "Enum_CardHl_Good": "Only good"
 }

@@ -191,5 +191,10 @@
   "Struct_Indent": "Einrücken (davon-Zeile)",
   "Matrix_DPrev": "Δ Vorsp.",
   "Table_Search": "Zeilen durchsuchen",
-  "Table_NoMatch": "Keine Zeile passt zur Suche"
+  "Table_NoMatch": "Keine Zeile passt zur Suche",
+  "Cards_Highlight": "Highlight-Status",
+  "Cards_Bars": "Mini-Brücke zeigen (AC/PY-Balken)",
+  "Enum_CardHl_Both": "Gut & schlecht",
+  "Enum_CardHl_Bad": "Nur schlechte",
+  "Enum_CardHl_Good": "Nur gute"
 }

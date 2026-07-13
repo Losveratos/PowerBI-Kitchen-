@@ -191,5 +191,10 @@
   "Struct_Indent": "インデント（内訳行）",
   "Matrix_DPrev": "前列Δ",
   "Table_Search": "行を検索",
-  "Table_NoMatch": "検索に一致する行がありません"
+  "Table_NoMatch": "検索に一致する行がありません",
+  "Cards_Highlight": "ハイライト対象",
+  "Cards_Bars": "ミニブリッジを表示（AC/PYバー）",
+  "Enum_CardHl_Both": "良・悪の両方",
+  "Enum_CardHl_Bad": "悪のみ",
+  "Enum_CardHl_Good": "良のみ"
 }
