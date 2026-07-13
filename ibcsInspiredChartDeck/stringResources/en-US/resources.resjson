@@ -169,5 +169,11 @@
   "Struct_Skip": "Exclude from totals",
   "Btn_SortHeader": "Sort by this column (click again: ascending / off)",
   "Struct_CommaHint": "Name contains a comma — use the Waterfall Type role instead",
-  "Foot_Filter": "Filter"
+  "Foot_Filter": "Filter",
+  "Group_Cards": "KPI cards",
+  "Cards_StatusBasis": "Status basis (stripe & background)",
+  "Cards_Tint": "Tint card background",
+  "Cards_TintStrength": "Tint intensity %",
+  "Enum_CardBasis_Basis": "Variance basis (ΔPL/ΔPY)",
+  "Enum_CardBasis_Bm": "Benchmark (BM)"
 }

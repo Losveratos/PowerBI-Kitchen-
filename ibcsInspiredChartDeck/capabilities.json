@@ -155,6 +155,16 @@
                 "resultList": { "type": { "text": true } },
                 "skipList": { "type": { "text": true } },
                 "formulaRows": { "type": { "text": true } },
+                "cardStatusBasis": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "basis", "displayName": "Variance basis" },
+                            { "value": "benchmark", "displayName": "Benchmark (BM)" }
+                        ]
+                    }
+                },
+                "cardTint": { "type": { "bool": true } },
+                "cardTintStrength": { "type": { "numeric": true } },
                 "comparisonMode": {
                     "type": {
                         "enumeration": [

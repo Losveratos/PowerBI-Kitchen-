@@ -1,5 +1,23 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.21.0.0 (2026-07-12)
+
+**KPI-Karten für Monitoring (Kundenwunsch):** Neue Formatgruppe
+„KPI-Karten“ (nur im Cards-Modus sichtbar):
+- **Status-Basis wählbar** — Streifen und Ampel bewerten wahlweise gegen
+  die Abweichungsbasis (ΔPL/ΔPY, wie bisher) oder gegen die gebundene
+  **Benchmark-Measure** (Zielwert/Schwelle) — AC vs. BM.
+- **Hintergrund-Ampel** — optional färbt sich die ganze Karte dezent
+  grün (besser) oder rot (schlechter); neutral (unter der Wesentlichkeit
+  oder Δ=0) bleibt bewusst ohne Farbe. Intensität einstellbar (4–40 %,
+  Standard 12). Im Hochkontrast-Modus deaktiviert.
+- **ΔBM-Referenzzeile** auf den Karten, sobald Benchmark gebunden ist;
+  im Benchmark-Status-Modus führt sie die Δ-Zeilen an.
+- Die **Invert-Liste** wirkt dabei pro KPI (Kosten/Ausschuss/Verbrauch:
+  weniger = grün), die **Wesentlichkeits-Schwellen** sind jetzt auch
+  sichtbar, wenn nur AC + BM gebunden sind (Monitoring ohne PY/PL).
+Render-Fälle c70/c71.
+
 ## 1.20.0.0 (2026-07-12)
 
 **Filter-Fußzeile:** Optionale zweite Fußzeile mit dem Filterkontext

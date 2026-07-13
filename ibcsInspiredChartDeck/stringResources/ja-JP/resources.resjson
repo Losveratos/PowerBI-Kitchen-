@@ -169,5 +169,11 @@
   "Struct_Skip": "合計から除外",
   "Btn_SortHeader": "この列で並べ替え(再クリック: 昇順/解除)",
   "Struct_CommaHint": "名前にカンマが含まれています — ウォーターフォール種別ロールをご利用ください",
-  "Foot_Filter": "フィルター"
+  "Foot_Filter": "フィルター",
+  "Group_Cards": "KPIカード",
+  "Cards_StatusBasis": "ステータス基準（ストライプと背景）",
+  "Cards_Tint": "背景を色付け（ステータス）",
+  "Cards_TintStrength": "色の濃さ %",
+  "Enum_CardBasis_Basis": "偏差基準（ΔPL/ΔPY）",
+  "Enum_CardBasis_Bm": "ベンチマーク（BM）"
 }

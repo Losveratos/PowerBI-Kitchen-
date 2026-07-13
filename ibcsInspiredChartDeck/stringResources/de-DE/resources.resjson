@@ -169,5 +169,11 @@
   "Struct_Skip": "Aus Summen ausnehmen",
   "Btn_SortHeader": "Nach dieser Spalte sortieren (erneut: aufsteigend / aus)",
   "Struct_CommaHint": "Name enthält ein Komma — bitte über die Waterfall-Typ-Rolle strukturieren",
-  "Foot_Filter": "Filter"
+  "Foot_Filter": "Filter",
+  "Group_Cards": "KPI-Karten",
+  "Cards_StatusBasis": "Status-Basis (Streifen & Hintergrund)",
+  "Cards_Tint": "Hintergrund einfärben (Ampel)",
+  "Cards_TintStrength": "Färbe-Intensität %",
+  "Enum_CardBasis_Basis": "Abweichungsbasis (ΔPL/ΔPY)",
+  "Enum_CardBasis_Bm": "Benchmark (BM)"
 }

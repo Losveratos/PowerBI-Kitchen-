@@ -77,6 +77,8 @@
 <div class="case"><h4>Tabelle · Scrolling: 30 Zeilen in 320px — Header + Σ fixiert, Scrollbar rechts</h4><div class="stage" id="c67" style="width:1200px;height:320px"></div></div>
 <div class="case"><h4>Tabelle · Formelzeilen: „Rohertrag = Umsatz + Materialaufwand“ (Summe) + „Marge = Rohertrag / Umsatz“ (%-Zeile)</h4><div class="stage" id="c68" style="width:1200px;height:420px"></div></div>
 <div class="case"><h4>Filter-Fußzeile: gebundene Filter-Info-Measure + Auto-Status (Sortierung, Σ-Ausschluss) über der Datenstand-Zeile</h4><div class="stage" id="c69" style="width:1200px;height:460px"></div></div>
+<div class="case"><h4>KPI-Karten · Monitoring: Status + Hintergrund-Ampel gegen Benchmark (AC vs BM, Tönung 14 %)</h4><div class="stage" id="c70" style="width:1200px;height:400px"></div></div>
+<div class="case"><h4>KPI-Karten · Benchmark-Ampel ohne Tönung (nur Streifen), ΔBM-Zeile führt, ΔPY zweite Zeile</h4><div class="stage" id="c71" style="width:1200px;height:400px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -571,6 +573,22 @@ run("c69", dataView(okCats, [col("actual", okAc, "#,0 T€"), col("previousYear"
   { chart: { orientation: "table", showTotal: true, skipList: "nachrichtlich: Export",
       tableSort: "dabs_desc" },
     ibcsTitle: { footer: "Ist per Jun 2026 · Stand 05.07. · Quelle: SAP FI", filterFooter: true } }), 1200, 460);
+
+// KPI cards vs benchmark: stripe + light background tint judge AC against BM
+// (monitoring mode); the middle card sits within materiality -> stays neutral
+const monCats = ["Verfügbarkeit %", "Durchsatz", "Ausschuss", "Energie kWh", "OEE %", "Kosten"];
+const monAc = [97.1, 4180, 118, 5230, 71.4, 88200];
+const monBm = [99.0, 4000, 120, 5600, 75.0, 90000];
+run("c70", dataView(monCats, [col("actual", monAc), col("benchmark", monBm)],
+  { chart: { orientation: "cards", cardStatusBasis: "benchmark", cardTint: true,
+    cardTintStrength: 14, invertList: "Ausschuss, Energie kWh, Kosten",
+    materialityPct: 3 } }), 1200, 400);
+
+// benchmark status without tint: stripe only, delta-BM row leads, delta-PY second
+run("c71", dataView(monCats.slice(0, 4),
+  [col("actual", monAc.slice(0, 4)), col("previousYear", [98.0, 3900, 121, 5100]),
+   col("benchmark", monBm.slice(0, 4))],
+  { chart: { orientation: "cards", cardStatusBasis: "benchmark" } }), 1200, 400);
 
 // P&L table with margin rows: value as %, deltas as percentage points
 run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],

@@ -169,5 +169,11 @@
   "Struct_Skip": "Excluir de los totales",
   "Btn_SortHeader": "Ordenar por esta columna (otro clic: ascendente / desactivar)",
   "Struct_CommaHint": "El nombre contiene una coma: use el rol de tipo de cascada",
-  "Foot_Filter": "Filtros"
+  "Foot_Filter": "Filtros",
+  "Group_Cards": "Tarjetas KPI",
+  "Cards_StatusBasis": "Base del estado (franja y fondo)",
+  "Cards_Tint": "Colorear fondo (semáforo)",
+  "Cards_TintStrength": "Intensidad del color %",
+  "Enum_CardBasis_Basis": "Base de desviación (ΔPL/ΔPY)",
+  "Enum_CardBasis_Bm": "Benchmark (BM)"
 }

@@ -64,10 +64,16 @@ const valueColumnsItems: LocEnumMember[] = [
     { value: "all", displayName: "AC · PY · PL", key: "Enum_ValueCols_All" }
 ];
 
+const cardBasisItems: LocEnumMember[] = [
+    { value: "basis", displayName: "Variance basis (ΔPL/ΔPY)", key: "Enum_CardBasis_Basis" },
+    { value: "benchmark", displayName: "Benchmark (BM)", key: "Enum_CardBasis_Bm" }
+];
+
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
-        displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems];
+        displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
+        cardBasisItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -469,10 +475,46 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
             this.formulaRows]
     });
 
+    cardStatusBasis = new formattingSettings.ItemDropdown({
+        name: "cardStatusBasis",
+        displayName: "Status basis (stripe & background)",
+        displayNameKey: "Cards_StatusBasis",
+        description: "Wogegen Streifen und Hintergrund-Ampel bewerten: gegen die Abweichungsbasis (ΔPL bzw. ΔPY) oder gegen die gebundene Benchmark-Measure — für Monitoring gegen Zielwerte/Schwellen.",
+        items: cardBasisItems,
+        value: cardBasisItems[0]
+    });
+
+    cardTint = new formattingSettings.ToggleSwitch({
+        name: "cardTint",
+        displayName: "Tint card background",
+        displayNameKey: "Cards_Tint",
+        description: "Färbt den Karten-Hintergrund dezent: leicht grün wenn besser, leicht rot wenn schlechter als die Status-Basis — neutral (unterhalb der Wesentlichkeit) bleibt ohne Farbe. Für Monitoring-Wände; im Hochkontrast-Modus aus.",
+        value: false
+    });
+
+    cardTintStrength = new formattingSettings.NumUpDown({
+        name: "cardTintStrength",
+        displayName: "Tint intensity %",
+        displayNameKey: "Cards_TintStrength",
+        description: "Deckkraft der Hintergrund-Färbung in Prozent (4–40). Standard 12 — kräftiger für Kontrollraum-Monitore, dezenter für Board-Reports.",
+        value: 12,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 4 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 40 }
+        }
+    });
+
+    cardsGroup = new formattingSettings.Group({
+        name: "chartCards",
+        displayName: "KPI cards",
+        displayNameKey: "Group_Cards",
+        slices: [this.cardStatusBasis, this.cardTint, this.cardTintStrength]
+    });
+
     name: string = "chart";
     displayName: string = "Chart";
     displayNameKey: string = "Card_Chart";
-    groups = [this.layoutGroup, this.analysisGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup];
+    groups = [this.layoutGroup, this.analysisGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup];
 }
 
 export class ColorsCardSettings extends FormattingSettingsCard {

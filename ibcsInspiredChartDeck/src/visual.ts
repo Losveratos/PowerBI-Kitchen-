@@ -133,6 +133,12 @@ interface ChartConfig {
     skipSet: Set<string>;
     /** table: formula-row definitions ("Label = A + B; Marge = X / Y"), raw text */
     formulaRows: string;
+    /** KPI cards: what stripe + background judge against ("basis" | "benchmark") */
+    cardBasis: string;
+    /** KPI cards: tint the card background by status (monitoring mode) */
+    cardTint: boolean;
+    /** KPI cards: tint opacity in percent (4–40) */
+    cardTintPct: number;
     /** sum-safe label rounding (largest remainder): labels add up to the Σ header */
     sumSafe: boolean;
     /** deck-wide absolute-variance domain (incl. fixedVarMax) for scale sync */
@@ -290,6 +296,7 @@ export class Visual implements IVisual {
     private basis2Mode: "py" | "plan" = "plan";
     private paneHasFcPrev = false;
     private paneHasFc = false;
+    private paneHasBm = false;
     /** false in export/print contexts — suppresses all in-chart buttons/chrome */
     private allowInteractions = true;
     private locMgr: powerbi.extensibility.ILocalizationManager | null = null;
@@ -448,6 +455,7 @@ export class Visual implements IVisual {
         fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge"
             || orient === "pnl";
         fs.chartCard.driverNote.visible = orient === "catbridge";
+        fs.chartCard.cardsGroup.visible = orient === "cards";
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
         fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
         fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value;
@@ -460,8 +468,10 @@ export class Visual implements IVisual {
         fs.chartCard.cumulativeKind.visible = fs.chartCard.cumulative.visible && fs.chartCard.cumulative.value;
         fs.chartCard.fiscalStart.visible = fs.chartCard.cumulativeKind.visible
             && String(fs.chartCard.cumulativeKind.value.value) !== "r12";
-        fs.chartCard.materialityAbs.visible = this.paneHasPy || this.paneHasPl;
-        fs.chartCard.materialityPct.visible = this.paneHasPy || this.paneHasPl;
+        // benchmark counts: cards in monitoring mode (AC + BM only) judge against
+        // BM and need the materiality thresholds just as much
+        fs.chartCard.materialityAbs.visible = this.paneHasPy || this.paneHasPl || this.paneHasBm;
+        fs.chartCard.materialityPct.visible = this.paneHasPy || this.paneHasPl || this.paneHasBm;
         fs.chartCard.compareClick.visible = orient === "columns" || orient === "bars";
         fs.chartCard.showTotal.visible = orient === "columns" || orient === "bars"
             || orient === "line" || orient === "table";
@@ -531,6 +541,7 @@ export class Visual implements IVisual {
         this.paneHasPl = !!byRole["plan"];
         this.paneHasFcPrev = !!byRole["prevForecast"];
         this.paneHasFc = !!byRole["forecast"];
+        this.paneHasBm = !!byRole["benchmark"];
         this.paneHasComments = comments != null;
         if (!byRole["actual"] && !byRole["forecast"]) {
             // some fields are bound but the value measure is missing — say so
@@ -969,6 +980,9 @@ export class Visual implements IVisual {
             skipSet: new Set(String(s.chartCard.skipList.value || "")
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
             formulaRows: String(s.chartCard.formulaRows.value || ""),
+            cardBasis: String(s.chartCard.cardStatusBasis.value.value),
+            cardTint: s.chartCard.cardTint.value,
+            cardTintPct: Math.max(4, Math.min(40, Number(s.chartCard.cardTintStrength.value ?? 12))),
             sumSafe: s.labelsCard.sumSafeRounding.value,
             ...(() => { const fp = this.formatterParams(maxAbs, allInt); return { fmtUnit: fp.unit, fmtPrec: fp.prec }; })(),
             fmt: this.makeFormatter(maxAbs, allInt),
@@ -3579,11 +3593,28 @@ export class Visual implements IVisual {
                 stroke: emph ? cfg.ink : (cfg.hc ? cfg.ink : "#DDDDD8"),
                 "stroke-width": emph ? 1.6 : 1
             }, g);
-            // status stripe at the left edge (KPI-card style): variance direction at a
-            // glance — grey without basis, when Δ = 0 or below the materiality thresholds
-            const stripeCol = (p.varAbs == null || p.varAbs === 0 || !cfg.isMaterial(p))
+            // status source: the variance basis (ΔPL/ΔPY) or the bound benchmark —
+            // monitoring mode judges AC against BM (target/threshold measure)
+            const bmV = (p.bm != null && p.value != null) ? (p.value as number) - p.bm : null;
+            const bmRel = (bmV != null && p.bm !== 0) ? bmV / Math.abs(p.bm as number) * 100 : null;
+            const sv = cfg.cardBasis === "benchmark" && bmV != null
+                ? { v: bmV, rel: bmRel }
+                : { v: p.varAbs, rel: p.varRel };
+            const neutral = sv.v == null || sv.v === 0 || !cfg.isMaterial(p, sv.v, sv.rel);
+            // optional status tint over the whole card (light green/red, neutral stays
+            // paper); suppressed in high-contrast mode where color must not carry meaning
+            if (cfg.cardTint && !cfg.hc && !neutral) {
+                this.el("rect", {
+                    x, y, width: w, height: h, rx: Math.round(6 * k),
+                    fill: good(sv.v as number, p) ? cfg.colors.good : cfg.colors.bad,
+                    "fill-opacity": cfg.cardTintPct / 100
+                }, g);
+            }
+            // status stripe at the left edge (KPI-card style): direction at a glance —
+            // grey without status, when Δ = 0 or below the materiality thresholds
+            const stripeCol = neutral
                 ? (cfg.hc ? cfg.ink : cfg.colors.py)
-                : (good(p.varAbs, p) ? cfg.colors.good : cfg.colors.bad);
+                : (good(sv.v as number, p) ? cfg.colors.good : cfg.colors.bad);
             this.el("rect", {
                 x: x + 1.2, y: y + 1.2, width: Math.round(4 * k), height: h - 2.4,
                 rx: Math.round(3 * k), fill: stripeCol
@@ -3602,7 +3633,7 @@ export class Visual implements IVisual {
             const fmtP = this.makeFormatter(Math.max(
                 Math.abs(p.value ?? 0), Math.abs(p.basis ?? 0), Math.abs(p.py ?? 0), Math.abs(p.pl ?? 0)), pInt);
             const fmtVarP = this.makeFormatter(Math.max(
-                Math.abs(p.varAbs ?? 0), Math.abs(p.var2Abs ?? 0)), pInt);
+                Math.abs(p.varAbs ?? 0), Math.abs(p.var2Abs ?? 0), Math.abs(bmV ?? 0)), pInt);
             const valueText = fmtP.format(p.value as number);
 
             const txt = (tx: number, ty: number, text: string, font: number, bold: boolean,
@@ -3687,6 +3718,16 @@ export class Visual implements IVisual {
                 txt(cxs[2], byBottom + legF + 2, cfg.hasFc && p.isFc ? "FC" : "AC", legF, false, cfg.subtle, "middle");
             };
 
+            // Δ reference rows: variance basis, second basis, benchmark — in
+            // benchmark-status mode the BM row leads (it carries the judgement)
+            const refRows: [string, number, number | null][] = [];
+            if (p.varAbs != null) { refRows.push([cfg.basisLabel, p.varAbs, p.varRel]); }
+            if (p.var2Abs != null) { refRows.push([cfg.basis2Label, p.var2Abs, p.var2Rel]); }
+            if (bmV != null) {
+                if (cfg.cardBasis === "benchmark") { refRows.unshift(["BM", bmV, bmRel]); }
+                else { refRows.push(["BM", bmV, bmRel]); }
+            }
+
             // flat layout: wide + short tile → Δ rows and bridge move to the right
             const flat = h < 118 * k && w >= 250 * k;
             if (flat) {
@@ -3699,16 +3740,17 @@ export class Visual implements IVisual {
 
                 let refX = x + pad + leftW + Math.round(20 * k);
                 let maxRefW = 0;
-                if (p.varAbs != null) { maxRefW = this.maxTextWidth([refText(p.varAbs, p.varRel)], refF); }
-                if (p.var2Abs != null) { maxRefW = Math.max(maxRefW, this.maxTextWidth([refText(p.var2Abs, p.var2Rel)], refF)); }
-                const hasRow2 = p.var2Abs != null && h >= 52 * k;
-                if (p.varAbs != null && refX + refF * 2.6 + maxRefW <= x + w - pad) {
+                for (const [, va, vr] of refRows) {
+                    maxRefW = Math.max(maxRefW, this.maxTextWidth([refText(va, vr)], refF));
+                }
+                const rowsShown = refRows.slice(0, refRows.length >= 2 && h >= 52 * k ? 2 : 1);
+                if (rowsShown.length > 0 && refX + refF * 2.6 + maxRefW <= x + w - pad) {
                     const yMid = y + h / 2;
-                    if (hasRow2) {
-                        refRowAt(refX, yMid - Math.round(2 * k), cfg.basisLabel, p.varAbs, p.varRel);
-                        refRowAt(refX, yMid + refF + Math.round(4 * k), cfg.basis2Label, p.var2Abs, p.var2Rel);
+                    if (rowsShown.length === 2) {
+                        refRowAt(refX, yMid - Math.round(2 * k), rowsShown[0][0], rowsShown[0][1], rowsShown[0][2]);
+                        refRowAt(refX, yMid + refF + Math.round(4 * k), rowsShown[1][0], rowsShown[1][1], rowsShown[1][2]);
                     } else {
-                        refRowAt(refX, yMid + refF * 0.35, cfg.basisLabel, p.varAbs, p.varRel);
+                        refRowAt(refX, yMid + refF * 0.35, rowsShown[0][0], rowsShown[0][1], rowsShown[0][2]);
                     }
                     refX += refF * 2.6 + maxRefW + Math.round(24 * k);
                 }
@@ -3723,12 +3765,13 @@ export class Visual implements IVisual {
                 let yCur = y + pad + titleF;
                 titleValue(yCur, yCur + valueF + Math.round(4 * k), w - pad * 2);
                 yCur += valueF + Math.round(4 * k) + refF + Math.round(9 * k);
-                if (p.varAbs != null && yCur <= y + h - 4) {
-                    refRowAt(x + pad, yCur, cfg.basisLabel, p.varAbs, p.varRel);
+                if (refRows.length > 0 && yCur <= y + h - 4) {
+                    refRowAt(x + pad, yCur, refRows[0][0], refRows[0][1], refRows[0][2]);
                     yCur += refF + Math.round(5 * k);
                 }
-                if (p.var2Abs != null && h >= 118 * k && yCur <= y + h - 4) {
-                    refRowAt(x + pad, yCur, cfg.basis2Label, p.var2Abs, p.var2Rel);
+                for (const [rLbl, rVa, rVr] of refRows.slice(1)) {
+                    if (h < 118 * k || yCur > y + h - 4) { break; }
+                    refRowAt(x + pad, yCur, rLbl, rVa, rVr);
                     yCur += refF + Math.round(5 * k);
                 }
                 const bridgeH = Math.round(40 * k);
