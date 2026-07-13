@@ -71,6 +71,13 @@
             "description": "Feld gefüllt = Säulen/Balken stapeln sich nach dieser Serie (AC je Serie, mit Legende und Summen-Label)."
         },
         {
+            "displayName": "Spalten (Matrix)",
+            "displayNameKey": "Role_ColGroup",
+            "name": "colgroup",
+            "kind": "Grouping",
+            "description": "Nur Tabelle: pivotiert die Werte in Spaltengruppen (z. B. Quartal → Monat, max. 2 Ebenen) — mit klappbarer Spalten-Hierarchie wie in der Power-BI-Matrix"
+        },
+        {
             "displayName": "Filter-Info (Fußzeile)",
             "displayNameKey": "Role_FilterInfo",
             "name": "filterInfo",
@@ -142,6 +149,7 @@
                 "pnlView": { "type": { "text": true } },
                 "tableExpanded": { "type": { "text": true } },
                 "tableSort": { "type": { "text": true } },
+                "tableColExpanded": { "type": { "text": true } },
                 "valueColumns": {
                     "type": {
                         "enumeration": [
@@ -289,7 +297,8 @@
                     "prevForecast": { "max": 1 },
                     "benchmark": { "max": 1 },
                     "comments": { "max": 1 },
-                    "filterInfo": { "max": 1 }
+                    "filterInfo": { "max": 1 },
+                    "colgroup": { "max": 2 }
                 }
             ],
             "categorical": {
@@ -299,7 +308,8 @@
                         { "for": { "in": "multiples" } },
                         { "for": { "in": "series" } },
                         { "for": { "in": "rowType" } },
-                        { "for": { "in": "fcFlag" } }
+                        { "for": { "in": "fcFlag" } },
+                        { "for": { "in": "colgroup" } }
                     ],
                     "dataReductionAlgorithm": { "top": { "count": 1000 } }
                 },

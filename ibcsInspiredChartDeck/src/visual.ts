@@ -42,6 +42,8 @@ interface DataPoint {
     cat: string;
     /** per-level labels when the category field is an expanded hierarchy (else null) */
     catLevels: string[] | null;
+    /** matrix columns: per-level labels of the column-group role (else null/absent) */
+    colLevels?: string[] | null;
     ac: number | null;
     py: number | null;
     pl: number | null;
@@ -269,6 +271,9 @@ export class Visual implements IVisual {
     private pendingTableExpanded: string | null = null;
     /** table mode: vertical scroll offset in rows per tile (transient, wheel/drag) */
     private tableScroll = new Map<string, number>();
+    /** matrix mode: expanded column groups (persisted, chevron in the header) */
+    private colExpanded = new Set<string>();
+    private pendingTableColExpanded: string | null = null;
     /** bound Filter-Info text measure (filter context for the filter footer) */
     private filterInfo: string | null = null;
     /** table header sort, e.g. "dabs_desc" ("" = data order), persisted */
@@ -401,6 +406,16 @@ export class Visual implements IVisual {
                     catch { /* corrupt store: keep the session state */ }
                 }
             }
+            // persisted matrix column drill state, same echo-guard pattern
+            const rawColExp = dataView?.metadata?.objects?.["chart"]?.["tableColExpanded"];
+            const rawColExpStr = typeof rawColExp === "string" ? rawColExp : "";
+            if (this.pendingTableColExpanded == null || rawColExpStr === this.pendingTableColExpanded) {
+                this.pendingTableColExpanded = null;
+                if (rawColExpStr !== "") {
+                    try { this.colExpanded = new Set(JSON.parse(rawColExpStr) as string[]); }
+                    catch { /* corrupt store: keep the session state */ }
+                }
+            }
             // persisted table header sort (bookmarkable), same echo-guard pattern
             const rawSort = dataView?.metadata?.objects?.["chart"]?.["tableSort"];
             const rawSortStr = typeof rawSort === "string" ? rawSort : "";
@@ -506,6 +521,7 @@ export class Visual implements IVisual {
         const seriesCol = catCols?.find(c => c.source.roles?.["series"]);
         const rowTypeCol = catCols?.find(c => c.source.roles?.["rowType"]);
         const fcFlagCol = catCols?.find(c => c.source.roles?.["fcFlag"]);
+        const colCols = catCols?.filter(c => c.source.roles?.["colgroup"]) ?? [];
         const valueCols = dataView?.categorical?.values;
         if (!cat || !valueCols || valueCols.length === 0) { return null; }
 
@@ -597,6 +613,8 @@ export class Visual implements IVisual {
             points.push({
                 cat: levelLabels.join(" · "),
                 catLevels: levelLabels.length > 1 ? levelLabels : null,
+                colLevels: colCols.length > 0
+                    ? colCols.map(c => this.categoryLabel(c.values[i])) : null,
                 ac, py, pl, fc, value, isFc, isPrelim: isPrelim && value != null,
                 basis, varAbs, varRel, var2Abs, var2Rel,
                 bm: byRole["benchmark"] ? byRole["benchmark"][i] : null,
@@ -798,6 +816,11 @@ export class Visual implements IVisual {
         const orientation: Orientation =
             orientationRaw === "bars" || isCatBridge || isTable || isDumbbell || isCards || isPnl
                 ? "bars" : "columns";
+        // matrix column groups only pivot in table mode — everywhere else the same
+        // category repeats once per column value; merge back to one point per category
+        if (!isTable && points.some(p => p.colLevels && p.colLevels.length > 0)) {
+            points = this.mergeColPoints(points);
+        }
         // margin rows (rowType "pct") carry percentages, not € — only table, waterfall
         // and the P&L statement can render them; everywhere else they would corrupt
         // scales, Σ headers and rankings, so they are dropped up front
@@ -2696,6 +2719,12 @@ export class Visual implements IVisual {
      */
     private renderTable(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
         if (points.length === 0) { return; }
+        // matrix mode: a bound column-group role pivots the table into column
+        // blocks with a collapsible header hierarchy (Power-BI-Matrix-style)
+        if (points.some(p => p.colLevels && p.colLevels.length > 0)) {
+            this.renderTableMatrix(points, region, cfg);
+            return;
+        }
         const k = this.fontK;
         const lf = cfg.labelFont, cf = cfg.catFont;
         const pad = 6;
@@ -3504,6 +3533,380 @@ export class Visual implements IVisual {
                 `… ${hiddenRows} ${this.locStr("Hint_MoreRows", "more rows (increase the visual height)")}`,
                 "start", Math.round(cf * 0.9), false, cfg.subtle, bg);
         }
+    }
+
+    /**
+     * matrix table: rows = categories, column blocks = values of the column-group
+     * role (up to 2 levels, Matrix-style collapsible headers). Each block shows the
+     * AC number plus a colored ΔBasis number; a bold Σ block on the right carries
+     * the row total with Δ and Δ%. Level-1 groups collapse to one aggregated block
+     * (persisted). Row hierarchy/sort/formulas are not applied in matrix mode.
+     */
+    private renderTableMatrix(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const k = this.fontK;
+        const lf = cfg.labelFont, cf = cfg.catFont;
+        const pad = 6;
+        const isSum = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("sum");
+        const isPct = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("pct");
+        const isResult = (p: DataPoint) => cfg.resultSet.has(p.cat.trim().toLowerCase());
+        const isSkip = (p: DataPoint) => cfg.skipSet.has(p.cat.trim().toLowerCase());
+        const twoLv = points.some(p => (p.colLevels?.length ?? 0) >= 2);
+
+        // ------- row list (data order, one entry per category label)
+        const rowOrder: string[] = [];
+        const rowPtsBy = new Map<string, DataPoint[]>();
+        for (const p of points) {
+            const b = rowPtsBy.get(p.cat);
+            if (b) { b.push(p); } else { rowPtsBy.set(p.cat, [p]); rowOrder.push(p.cat); }
+        }
+        const rowAgg = new Map<string, DataPoint>();
+        for (const cat of rowOrder) {
+            const kids = rowPtsBy.get(cat) as DataPoint[];
+            const a = kids.length === 1 ? kids[0] : this.aggregateHierarchy(cat, kids);
+            a.rowType = kids[0].rowType;
+            rowAgg.set(cat, a);
+        }
+
+        // ------- column tree: level-0 groups with optional level-1 children
+        type CNode = { label: string; kids: string[] };
+        const colOrder: CNode[] = [];
+        const colBy = new Map<string, CNode>();
+        for (const p of points) {
+            const l0 = p.colLevels?.[0] ?? "";
+            let nd = colBy.get(l0);
+            if (!nd) { nd = { label: l0, kids: [] }; colBy.set(l0, nd); colOrder.push(nd); }
+            const l1 = p.colLevels && p.colLevels.length > 1 ? p.colLevels[1] : null;
+            if (l1 != null && !nd.kids.includes(l1)) { nd.kids.push(l1); }
+        }
+        type Block = { key: string; label: string; l0: string; l1: string | null; parent?: CNode };
+        const blocks: Block[] = [];
+        for (const nd of colOrder) {
+            const open = twoLv && nd.kids.length > 0 && this.colExpanded.has(`col¦${nd.label}`);
+            if (open) {
+                for (const kid of nd.kids) {
+                    blocks.push({ key: `${nd.label}¦${kid}`, label: kid, l0: nd.label, l1: kid, parent: nd });
+                }
+            } else {
+                blocks.push({ key: nd.label, label: nd.label, l0: nd.label, l1: null, parent: nd });
+            }
+        }
+
+        // cell aggregates per (row × block)
+        const cellOf = (cat: string, b: Block): DataPoint | null => {
+            const kids = (rowPtsBy.get(cat) as DataPoint[]).filter(p =>
+                (p.colLevels?.[0] ?? "") === b.l0
+                && (b.l1 == null || (p.colLevels && p.colLevels[1] === b.l1)));
+            if (kids.length === 0) { return null; }
+            const a = kids.length === 1 ? kids[0] : this.aggregateHierarchy(cat, kids);
+            return a;
+        };
+
+        const hasVar = points.some(p => p.varAbs != null);
+
+        // ------- widths: name column, per-block [AC (+Δ)], Σ block [AC, Δ, Δ%]
+        const nameW = Math.min(region.w * 0.24,
+            this.maxTextWidth(rowOrder, cf) + 18);
+        let valW = lf * 4.6;
+        let dW = lf * 4.4;
+        const gap = 8;
+        // the Σ block keeps fixed widths — the spread below only widens the blocks
+        const sValW = valW, sDW = dW;
+        const sumW = sValW + (hasVar ? sDW + lf * 3.6 : 0) + gap;
+        const availW = region.w - pad * 2 - nameW - sumW - gap * 2;
+        let showD = hasVar;
+        const blockW = () => valW + (showD ? dW : 0) + gap;
+        // overflow strategy: drop the per-block Δ first, then shrink the value
+        // column, then cut blocks from the right (header hints the cut count)
+        if (blocks.length * blockW() > availW && showD) { showD = false; }
+        if (blocks.length * blockW() > availW) {
+            valW = Math.max(lf * 3.4, availW / blocks.length - gap);
+        }
+        let shownBlocks = blocks;
+        if (blocks.length * blockW() > availW) {
+            const fit = Math.max(1, Math.floor(availW / blockW()));
+            shownBlocks = blocks.slice(0, fit);
+        }
+        const cut = blocks.length - shownBlocks.length;
+        // spread leftover width over the blocks (capped) so few blocks fill the tile
+        const spread = Math.min(1.7, availW / Math.max(1, shownBlocks.length * blockW()));
+        if (spread > 1) { valW *= spread; dW *= spread; }
+
+        // ------- vertical layout + scrolling (same pattern as the flat table)
+        const headerH = Math.round(cf + 12) + (twoLv ? Math.round(cf * 0.9 + 6) : 0);
+        const showTotalRow = cfg.showTotal
+            && !rowOrder.some(cat => isSum(rowAgg.get(cat) as DataPoint) || isResult(rowAgg.get(cat) as DataPoint));
+        const n = rowOrder.length + (showTotalRow ? 1 : 0);
+        const rowH = Math.max(cf + 6, (region.h - pad * 2 - headerH) / n);
+        const top = region.y + pad + headerH;
+        const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH + 1e-6);
+        const bodyCap = Math.max(1, maxRows - (showTotalRow ? 1 : 0));
+        const paneKey = `${points[0].group ?? ""}¦mx`;
+        const maxScroll = Math.max(0, rowOrder.length - bodyCap);
+        const canScroll = this.allowInteractions && maxScroll > 0;
+        const scroll = canScroll
+            ? Math.max(0, Math.min(this.tableScroll.get(paneKey) ?? 0, maxScroll)) : 0;
+        if (canScroll) { this.tableScroll.set(paneKey, scroll); }
+        const bodyCats = rowOrder.slice(scroll, scroll + bodyCap);
+
+        const bg = this.el("g", {}, this.svg);
+        const marks = this.el("g", {}, this.svg);
+        const txt = (xx: number, yy: number, text: string, anchor: string, font: number,
+            bold: boolean, color: string, parent: SVGElement) => {
+            const t = this.el("text", {
+                x: xx, y: yy, "text-anchor": anchor, "font-size": font, fill: color,
+                "font-family": FONT, "font-weight": bold ? 700 : 400
+            }, parent);
+            t.textContent = text;
+            return t;
+        };
+        const goodOf = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
+        const colOf = (v: number, pp: DataPoint) => (v === 0 || !cfg.isMaterial(pp))
+            ? cfg.subtle : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
+
+        // ------- column x positions
+        const colX: { x: number; w: number }[] = [];
+        let x = region.x + pad + nameW + gap;
+        for (let bi = 0; bi < shownBlocks.length; bi++) {
+            colX.push({ x, w: valW + (showD ? dW : 0) });
+            x += valW + (showD ? dW : 0) + gap;
+        }
+        const sumX = { x, w: sumW - gap };
+
+        // ------- headers
+        const hFont = Math.round(10 * k);
+        const hy0 = region.y + pad + hFont + 2;               // level-0 line
+        const hy = top - 6;                                    // block line
+        if (twoLv) {
+            // level-0 spans with ▸/▾ chevrons (Matrix look)
+            let bi = 0;
+            while (bi < shownBlocks.length) {
+                const l0 = shownBlocks[bi].l0;
+                let end = bi;
+                while (end + 1 < shownBlocks.length && shownBlocks[end + 1].l0 === l0) { end++; }
+                const nd = shownBlocks[bi].parent as CNode;
+                const spanX = colX[bi].x, spanW = colX[end].x + colX[end].w - spanX;
+                const open = this.colExpanded.has(`col¦${l0}`);
+                const hasKids = nd.kids.length > 0;
+                const lbl = `${hasKids ? (open ? "▾ " : "▸ ") : ""}${l0}`;
+                const ht = txt(spanX + spanW / 2, hy0, this.truncate(lbl, spanW, hFont),
+                    "middle", hFont, true, cfg.ink, bg);
+                if (hasKids && this.allowInteractions) {
+                    ht.setAttribute("role", "button");
+                    ht.setAttribute("aria-expanded", String(open));
+                    (ht as unknown as SVGGraphicsElement).style.cursor = "pointer";
+                    ht.addEventListener("click", (e: MouseEvent) => {
+                        e.stopPropagation();
+                        const key = `col¦${l0}`;
+                        if (this.colExpanded.has(key)) { this.colExpanded.delete(key); }
+                        else { this.colExpanded.add(key); }
+                        this.persistTableColExpanded();
+                        this.rerender();
+                    });
+                }
+                this.el("line", {
+                    x1: spanX + 2, y1: hy0 + 4, x2: spanX + spanW - 2, y2: hy0 + 4,
+                    stroke: cfg.subtle, "stroke-width": 0.8
+                }, bg);
+                bi = end + 1;
+            }
+        }
+        for (let bi = 0; bi < shownBlocks.length; bi++) {
+            const b = shownBlocks[bi];
+            const label = twoLv && b.l1 == null && (b.parent as CNode).kids.length > 0
+                ? "Σ" : b.label;
+            txt(colX[bi].x + valW, hy, this.truncate(twoLv ? label : b.label, valW + 4, hFont),
+                "end", hFont, true, cfg.subtle, bg);
+            if (showD) {
+                txt(colX[bi].x + valW + dW, hy, `Δ${cfg.basisLabel}`, "end", hFont, true, cfg.subtle, bg);
+            }
+        }
+        txt(sumX.x + sValW, hy, "Σ", "end", hFont, true, cfg.ink, bg);
+        if (hasVar) {
+            txt(sumX.x + sValW + sDW, hy, `Δ${cfg.basisLabel}`, "end", hFont, true, cfg.subtle, bg);
+            txt(sumX.x + sumX.w, hy, `Δ${cfg.basisLabel} %`, "end", hFont, true, cfg.subtle, bg);
+        }
+        if (cut > 0) {
+            txt(region.x + region.w - pad, hy0 - hFont - 2, `… +${cut}`, "end",
+                Math.round(hFont * 0.9), false, cfg.subtle, bg);
+        }
+        this.el("line", {
+            x1: region.x + pad, y1: top - 2, x2: region.x + region.w - pad, y2: top - 2,
+            stroke: cfg.ink, "stroke-width": 1.2
+        }, bg);
+
+        // ------- rows
+        const pctText = (v: number) => new Intl.NumberFormat(this.host.locale, {
+            minimumFractionDigits: 1, maximumFractionDigits: 1
+        }).format(v) + " %";
+        const drawRow = (cat: string | null, i: number, isTotal: boolean) => {
+            const y = top + i * rowH;
+            const yMid = y + rowH / 2;
+            const rowFont = Math.min(cf, rowH - 4);
+            const agg = isTotal
+                ? (() => {
+                    const base = rowOrder.filter(c => {
+                        const a = rowAgg.get(c) as DataPoint;
+                        return !isPct(a) && !isSkip(a) && !isResult(a);
+                    }).map(c => rowAgg.get(c) as DataPoint);
+                    return this.aggregateHierarchy(this.locStr("Label_Total", "Σ Total"), base);
+                })()
+                : rowAgg.get(cat as string) as DataPoint;
+            const sum = isTotal || isSum(agg) || isResult(agg);
+            const skip = !isTotal && isSkip(agg);
+            const rowPct = !isTotal && isPct(agg);
+            const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
+            this.el("line", {
+                x1: region.x + pad, y1: y + rowH, x2: region.x + region.w - pad, y2: y + rowH,
+                stroke: cfg.subtle, "stroke-width": 0.6, "stroke-opacity": 0.4
+            }, bg);
+            if (sum) {
+                this.el("line", {
+                    x1: region.x + pad, y1: y, x2: region.x + region.w - pad, y2: y,
+                    stroke: cfg.ink, "stroke-width": 1.2
+                }, bg);
+            }
+            const nameEl = txt(region.x + pad + (sum ? 0 : Math.round(6 * k)),
+                yMid + rowFont * 0.35,
+                this.truncate(isTotal ? agg.cat : cat as string, nameW - 8, rowFont),
+                "start", rowFont, sum, skip ? cfg.subtle : cfg.ink, g);
+            if (skip) { nameEl.setAttribute("font-style", "italic"); }
+            const cellTxt = (cx: { x: number; w: number }, off: number, p2: DataPoint | null) => {
+                if (p2 == null || p2.value == null) { return; }
+                txt(cx.x + off, yMid + rowFont * 0.35,
+                    rowPct ? pctText(p2.value) : cfg.fmt.format(p2.value),
+                    "end", rowFont, sum, rowPct || skip ? cfg.subtle : cfg.ink, g);
+                if (showD && !rowPct && p2.varAbs != null) {
+                    txt(cx.x + off + dW, yMid + rowFont * 0.35,
+                        this.fmtSigned(cfg.fmtVar, p2.varAbs), "end", Math.round(rowFont * 0.95),
+                        sum, colOf(p2.varAbs, p2), g);
+                }
+            };
+            for (let bi = 0; bi < shownBlocks.length; bi++) {
+                const p2 = isTotal
+                    ? (() => {
+                        const base = rowOrder.filter(c => {
+                            const a = rowAgg.get(c) as DataPoint;
+                            return !isPct(a) && !isSkip(a) && !isResult(a);
+                        }).map(c => cellOf(c, shownBlocks[bi])).filter(Boolean) as DataPoint[];
+                        return base.length > 0 ? this.aggregateHierarchy("Σ", base) : null;
+                    })()
+                    : cellOf(cat as string, shownBlocks[bi]);
+                cellTxt(colX[bi], valW, p2);
+            }
+            // Σ block: row total with Δ and Δ%
+            if (agg.value != null) {
+                txt(sumX.x + sValW, yMid + rowFont * 0.35,
+                    rowPct ? pctText(agg.value) : cfg.fmt.format(agg.value),
+                    "end", rowFont, true, rowPct || skip ? cfg.subtle : cfg.ink, g);
+            }
+            if (hasVar && !rowPct && agg.varAbs != null) {
+                txt(sumX.x + sValW + sDW, yMid + rowFont * 0.35,
+                    this.fmtSigned(cfg.fmtVar, agg.varAbs), "end", Math.round(rowFont * 0.95),
+                    sum, colOf(agg.varAbs, agg), g);
+                if (agg.varRel != null) {
+                    txt(sumX.x + sumX.w, yMid + rowFont * 0.35,
+                        this.fmtPercent(agg.varRel), "end", Math.round(rowFont * 0.95),
+                        sum, colOf(agg.varRel, agg), g);
+                }
+            }
+            this.el("rect", {
+                x: region.x + pad, y, width: region.w - pad * 2, height: rowH,
+                fill: cfg.paper, "fill-opacity": 0.01
+            }, g);
+            this.attachInteraction(g, agg, cfg);
+            this.catGroups.push({ g, sel: agg.sel });
+            this.animGroups.push([g]);
+        };
+        bodyCats.forEach((cat, i) => drawRow(cat, i, false));
+        if (showTotalRow && rowOrder.length > 1) { drawRow(null, bodyCats.length, true); }
+        const rowsBottom = top + (bodyCats.length + (showTotalRow ? 1 : 0)) * rowH;
+
+        // Σ block separator
+        this.el("line", {
+            x1: sumX.x - gap / 2, y1: region.y + pad, x2: sumX.x - gap / 2, y2: rowsBottom,
+            stroke: cfg.subtle, "stroke-width": 0.8
+        }, bg);
+
+        // ------- scrollbar (same interaction pattern as the flat table)
+        if (canScroll) {
+            const trackX = region.x + region.w - 4;
+            const trackH = rowsBottom - top;
+            this.el("rect", {
+                x: trackX, y: top, width: 3, height: trackH, rx: 1.5,
+                fill: cfg.subtle, "fill-opacity": 0.18
+            }, bg);
+            const thumbH = Math.max(Math.min(18, trackH), trackH * bodyCap / rowOrder.length);
+            const thumbY = top + (trackH - thumbH) * (scroll / maxScroll);
+            const thumb = this.el("rect", {
+                x: trackX - 1, y: thumbY, width: 5, height: thumbH, rx: 2.5,
+                fill: cfg.subtle, "fill-opacity": 0.75, role: "scrollbar", tabindex: "0",
+                "aria-valuemin": 0, "aria-valuemax": maxScroll, "aria-valuenow": scroll,
+                "aria-orientation": "vertical",
+                "aria-label": this.locStr("Table_Scroll", "Scroll rows")
+            }, this.svg) as SVGGraphicsElement;
+            thumb.style.cursor = "grab";
+            const setScroll = (next: number) => {
+                const cl = Math.max(0, Math.min(Math.round(next), maxScroll));
+                if (cl === (this.tableScroll.get(paneKey) ?? 0)) { return; }
+                this.tableScroll.set(paneKey, cl);
+                this.rerender();
+            };
+            const onWheel = (e: WheelEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const mag = Math.max(1, Math.min(bodyCap, Math.round(Math.abs(e.deltaY) / 50)));
+                setScroll((this.tableScroll.get(paneKey) ?? 0) + (e.deltaY > 0 ? mag : -mag));
+            };
+            bg.addEventListener("wheel", onWheel, { passive: false });
+            marks.addEventListener("wheel", onWheel, { passive: false });
+            thumb.addEventListener("mousedown", (e: MouseEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const startY = e.clientY, startScroll = scroll;
+                const move = (ev: MouseEvent) => {
+                    setScroll(startScroll + (ev.clientY - startY) / trackH * rowOrder.length);
+                };
+                const up = () => {
+                    window.removeEventListener("mousemove", move);
+                    window.removeEventListener("mouseup", up);
+                };
+                window.addEventListener("mousemove", move);
+                window.addEventListener("mouseup", up);
+            });
+        } else if (rowOrder.length > bodyCats.length) {
+            txt(region.x + pad, rowsBottom + cf,
+                `… ${rowOrder.length - bodyCats.length} ${this.locStr("Hint_MoreRows", "more rows (increase the visual height)")}`,
+                "start", Math.round(cf * 0.9), false, cfg.subtle, bg);
+        }
+    }
+
+    /** merges points that repeat per matrix-column value back to one per category */
+    private mergeColPoints(points: DataPoint[]): DataPoint[] {
+        const order: string[] = [];
+        const byKey = new Map<string, DataPoint[]>();
+        for (const p of points) {
+            const key = `${p.group ?? ""}¦${p.stackSeries ?? ""}¦${p.cat}`;
+            const b = byKey.get(key);
+            if (b) { b.push(p); } else { byKey.set(key, [p]); order.push(key); }
+        }
+        if (order.length === points.length) { return points; }
+        return order.map(key => {
+            const kids = byKey.get(key) as DataPoint[];
+            if (kids.length === 1) { return kids[0]; }
+            const agg = this.aggregateHierarchy(kids[0].cat, kids);
+            agg.catLevels = kids[0].catLevels;
+            agg.group = kids[0].group;
+            agg.stackSeries = kids[0].stackSeries;
+            agg.rowType = kids[0].rowType;
+            agg.isFc = kids.every(c => c.isFc);
+            let bm: number | null = null;
+            for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
+            agg.bm = bm;
+            agg.comment = kids[0].comment;
+            agg.commentNo = kids[0].commentNo;
+            agg.sel = kids[0].sel;
+            return agg;
+        });
     }
 
     /** aggregates the child rows of one hierarchy parent into a synthetic table row */
@@ -6039,6 +6442,14 @@ export class Visual implements IVisual {
         this.pendingTableExpanded = json;
         this.host.persistProperties({
             merge: [{ objectName: "chart", selector: null, properties: { tableExpanded: json } }]
+        });
+    }
+
+    private persistTableColExpanded(): void {
+        const json = JSON.stringify([...this.colExpanded]);
+        this.pendingTableColExpanded = json;
+        this.host.persistProperties({
+            merge: [{ objectName: "chart", selector: null, properties: { tableColExpanded: json } }]
         });
     }
 

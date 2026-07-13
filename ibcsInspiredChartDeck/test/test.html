@@ -79,6 +79,8 @@
 <div class="case"><h4>Filter-Fußzeile: gebundene Filter-Info-Measure + Auto-Status (Sortierung, Σ-Ausschluss) über der Datenstand-Zeile</h4><div class="stage" id="c69" style="width:1200px;height:460px"></div></div>
 <div class="case"><h4>KPI-Karten · Monitoring: Status + Hintergrund-Ampel gegen Benchmark (AC vs BM, Tönung 14 %)</h4><div class="stage" id="c70" style="width:1200px;height:400px"></div></div>
 <div class="case"><h4>KPI-Karten · Benchmark-Ampel ohne Tönung (nur Streifen), ΔBM-Zeile führt, ΔPY zweite Zeile</h4><div class="stage" id="c71" style="width:1200px;height:400px"></div></div>
+<div class="case"><h4>Tabelle · Matrix-Spalten: Quartal→Monat (2 Ebenen), alles zugeklappt — Q-Blöcke mit AC+ΔPY, Σ-Block rechts</h4><div class="stage" id="c72" style="width:1340px;height:400px"></div></div>
+<div class="case"><h4>Tabelle · Matrix-Spalten: Q1 aufgeklappt (Preset) — Monats-Blöcke unter dem Q1-Span, Q2 bleibt zu</h4><div class="stage" id="c73" style="width:1340px;height:400px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -589,6 +591,37 @@ run("c71", dataView(monCats.slice(0, 4),
   [col("actual", monAc.slice(0, 4)), col("previousYear", [98.0, 3900, 121, 5100]),
    col("benchmark", monBm.slice(0, 4))],
   { chart: { orientation: "cards", cardStatusBasis: "benchmark", cardBullet: true } }), 1200, 400);
+
+// matrix columns: category rows x (Quartal -> Monat) column hierarchy; every
+// (row, month) pair is one data row, blocks collapse to quarter aggregates
+const mxRegions = ["Nord", "West", "Süd", "Ost"];
+const mxQ = ["Q1", "Q2"], mxM = { Q1: ["Jan", "Feb", "Mär"], Q2: ["Apr", "Mai", "Jun"] };
+const mxCats = [], mxL0 = [], mxL1 = [], mxAc = [], mxPy = [];
+mxRegions.forEach((r, ri) => {
+  mxQ.forEach(q => {
+    mxM[q].forEach((m, mi) => {
+      mxCats.push(r); mxL0.push(q); mxL1.push(m);
+      mxAc.push(900 + ri * 300 + mi * 40 + (q === "Q2" ? 120 : 0));
+      mxPy.push(880 + ri * 290 + mi * 35 + (q === "Q2" ? 100 : 0));
+    });
+  });
+});
+function mxDataView(extraObjects) {
+  return {
+    metadata: { columns: [], objects: Object.assign({ chart: { orientation: "table", showTotal: true } }, extraObjects || {}) },
+    categorical: {
+      categories: [
+        { source: { displayName: "Region", roles: { category: true } }, values: mxCats },
+        { source: { displayName: "Quartal", roles: { colgroup: true } }, values: mxL0 },
+        { source: { displayName: "Monat", roles: { colgroup: true } }, values: mxL1 }
+      ],
+      values: [col("actual", mxAc, "#,0 T€"), col("previousYear", mxPy, "#,0 T€")]
+    }
+  };
+}
+run("c72", mxDataView(), 1340, 400);
+run("c73", mxDataView({ chart: { orientation: "table", showTotal: true,
+  tableColExpanded: JSON.stringify(["col¦Q1"]) } }), 1340, 400);
 
 // P&L table with margin rows: value as %, deltas as percentage points
 run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],

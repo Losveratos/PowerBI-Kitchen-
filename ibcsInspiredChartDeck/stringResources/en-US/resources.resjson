@@ -177,5 +177,6 @@
   "Enum_CardBasis_Basis": "Variance basis (ΔPL/ΔPY)",
   "Enum_CardBasis_Bm": "Benchmark (BM)",
   "Cards_Bullet": "Bullet vs. benchmark",
-  "Cards_BulletZoom": "Bullet: zoom to target range"
+  "Cards_BulletZoom": "Bullet: zoom to target range",
+  "Role_ColGroup": "Columns (matrix)"
 }

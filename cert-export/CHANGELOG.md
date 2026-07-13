@@ -1,5 +1,25 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.23.0.0 (2026-07-12)
+
+**Matrix-Spaltenhierarchie in der Tabelle:** Neue Feld-Rolle
+**„Spalten (Matrix)“** (max. 2 Ebenen, z. B. Quartal → Monat) pivotiert
+die Tabelle in Spaltengruppen — mit klappbarer Spalten-Hierarchie wie in
+der Power-BI-Matrix:
+- Zugeklappt zeigt jede Level-1-Gruppe eine aggregierte Σ-Spalte;
+  ▸/▾-Klick im Header öffnet die Unterspalten (persistiert/bookmarkfähig).
+- Jeder Block zeigt AC + gefärbtes ΔBasis; rechts ein fester **Σ-Block**
+  (Zeilensumme, Δ, Δ %). Σ-Zeile, Skip-/Ergebnis-/Margen-Zeilen und
+  vertikales Scrolling funktionieren wie in der flachen Tabelle.
+- Breiten-Logik: erst entfällt das Δ je Block, dann schrumpfen die
+  Spalten, dann werden Blöcke rechts gekappt („… +n“-Hinweis).
+- In allen anderen Diagramm-Modi werden die Spalten-Duplikate
+  automatisch zur Kategorie aggregiert (kein kaputtes Chart bei
+  Moduswechsel).
+- Noch nicht im Matrix-Modus: Zeilen-Hierarchie, Header-Sortierung,
+  Formelzeilen (bewusst v1 — auf Zuruf).
+Render-Fälle c72/c73; Key Role_ColGroup in de/en/es/ja.
+
 ## 1.22.1.0 (2026-07-12)
 
 **Bullet-Zoom:** Schalter „Bullet: Zoom auf Zielbereich“ — das Bullet

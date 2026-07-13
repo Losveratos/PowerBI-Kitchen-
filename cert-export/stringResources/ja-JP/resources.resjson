@@ -177,5 +177,6 @@
   "Enum_CardBasis_Basis": "偏差基準（ΔPL/ΔPY）",
   "Enum_CardBasis_Bm": "ベンチマーク（BM）",
   "Cards_Bullet": "ブレット（BM比較）",
-  "Cards_BulletZoom": "ブレット：目標域にズーム"
+  "Cards_BulletZoom": "ブレット：目標域にズーム",
+  "Role_ColGroup": "列（マトリックス）"
 }
