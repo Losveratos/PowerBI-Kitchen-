@@ -196,5 +196,8 @@
   "Cards_Bars": "ミニブリッジを表示（AC/PYバー）",
   "Enum_CardHl_Both": "良・悪の両方",
   "Enum_CardHl_Bad": "悪のみ",
-  "Enum_CardHl_Good": "良のみ"
+  "Enum_CardHl_Good": "良のみ",
+  "Cards_Sort": "偏差で並べ替え",
+  "Enum_CardSort_None": "データ順",
+  "Enum_CardSort_Dev": "偏差の大きい順"
 }

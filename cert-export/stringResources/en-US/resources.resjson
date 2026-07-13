@@ -196,5 +196,8 @@
   "Cards_Bars": "Show mini bridge (AC/PY bars)",
   "Enum_CardHl_Both": "Good & bad",
   "Enum_CardHl_Bad": "Only bad",
-  "Enum_CardHl_Good": "Only good"
+  "Enum_CardHl_Good": "Only good",
+  "Cards_Sort": "Sort by deviation",
+  "Enum_CardSort_None": "Data order",
+  "Enum_CardSort_Dev": "Biggest deviation first"
 }

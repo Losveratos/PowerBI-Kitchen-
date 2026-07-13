@@ -194,6 +194,14 @@
                     }
                 },
                 "cardBars": { "type": { "bool": true } },
+                "cardSort": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "none", "displayName": "Data order" },
+                            { "value": "deviation", "displayName": "Biggest deviation first" }
+                        ]
+                    }
+                },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
                 "cardBullet": { "type": { "bool": true } },

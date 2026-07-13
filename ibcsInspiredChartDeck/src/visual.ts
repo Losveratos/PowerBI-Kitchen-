@@ -162,6 +162,8 @@ interface ChartConfig {
     cardHl: string;
     /** KPI cards: show the mini bridge (AC/PY bars) */
     cardBars: boolean;
+    /** KPI cards: order ("none" | "deviation" — biggest color deviation first) */
+    cardSort: string;
     /** sum-safe label rounding (largest remainder): labels add up to the Σ header */
     sumSafe: boolean;
     /** deck-wide absolute-variance domain (incl. fixedVarMax) for scale sync */
@@ -1053,6 +1055,7 @@ export class Visual implements IVisual {
             cardBulletZoom: s.chartCard.cardBulletZoom.value,
             cardHl: String(s.chartCard.cardHighlight.value.value),
             cardBars: s.chartCard.cardBars.value,
+            cardSort: String(s.chartCard.cardSort.value.value),
             sumSafe: s.labelsCard.sumSafeRounding.value,
             ...(() => { const fp = this.formatterParams(maxAbs, allInt); return { fmtUnit: fp.unit, fmtPrec: fp.prec }; })(),
             fmt: this.makeFormatter(maxAbs, allInt),
@@ -4470,6 +4473,32 @@ export class Visual implements IVisual {
         const pts = points.filter(p => p.value != null);
         const n = pts.length;
         if (n === 0) { return; }
+        // the status deviation that also drives the color: benchmark when the card
+        // basis is BM, otherwise the variance basis (ΔPL/ΔPY)
+        const statusDev = (p: DataPoint): { v: number | null; rel: number | null } => {
+            if (cfg.cardBasis === "benchmark" && p.bm != null && p.value != null) {
+                const v = (p.value as number) - p.bm;
+                return { v, rel: p.bm !== 0 ? v / Math.abs(p.bm) * 100 : null };
+            }
+            return { v: p.varAbs, rel: p.varRel };
+        };
+        // focus sort: biggest color-relevant deviation first (top-left). Relative
+        // deviation ranks first (comparable across mixed KPIs), absolute breaks
+        // ties; cards without a status go last, data order otherwise preserved
+        if (cfg.cardSort === "deviation") {
+            const rank = (p: DataPoint) => {
+                const d = statusDev(p);
+                if (d.v == null) { return -1; }
+                return d.rel != null ? Math.abs(d.rel) : Math.abs(d.v);
+            };
+            pts.sort((a, b) => {
+                const ra = rank(a), rb = rank(b);
+                if (ra < 0 && rb < 0) { return 0; }
+                if (ra < 0) { return 1; }
+                if (rb < 0) { return -1; }
+                return rb - ra;
+            });
+        }
         const gap = Math.round(8 * k);
         let cols = Math.max(1, Math.min(n, Math.floor(region.w / (185 * k)) || 1));
         // avoid a lonely last row when a squarer grid fits the same width
@@ -4500,9 +4529,7 @@ export class Visual implements IVisual {
             // monitoring mode judges AC against BM (target/threshold measure)
             const bmV = (p.bm != null && p.value != null) ? (p.value as number) - p.bm : null;
             const bmRel = (bmV != null && p.bm !== 0) ? bmV / Math.abs(p.bm as number) * 100 : null;
-            const sv = cfg.cardBasis === "benchmark" && bmV != null
-                ? { v: bmV, rel: bmRel }
-                : { v: p.varAbs, rel: p.varRel };
+            const sv = statusDev(p);
             // neutral: no status, immaterial, OR the highlight-status filter hides
             // this direction (e.g. "only bad" leaves the good ones grey)
             const neutral = sv.v == null || sv.v === 0 || !cfg.isMaterial(p, sv.v, sv.rel)

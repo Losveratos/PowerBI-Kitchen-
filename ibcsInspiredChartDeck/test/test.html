@@ -80,6 +80,7 @@
 <div class="case"><h4>KPI-Karten · Monitoring: Status + Hintergrund-Ampel gegen Benchmark (AC vs BM, Tönung 14 %)</h4><div class="stage" id="c70" style="width:1200px;height:400px"></div></div>
 <div class="case"><h4>KPI-Karten · Benchmark-Ampel ohne Tönung (nur Streifen), ΔBM-Zeile führt, ΔPY zweite Zeile</h4><div class="stage" id="c71" style="width:1200px;height:400px"></div></div>
 <div class="case"><h4>KPI-Karten · Nur-Schlechte-Highlight (gute bleiben neutral) + Balken aus (reine Zahlen-Karten)</h4><div class="stage" id="c78" style="width:1200px;height:300px"></div></div>
+<div class="case"><h4>KPI-Karten · Fokus-Sortierung: größte ΔPY%-Abweichung oben-links (Cash −9,1 % zuerst)</h4><div class="stage" id="c79" style="width:1200px;height:300px"></div></div>
 <div class="case"><h4>Tabelle · Matrix-Spalten: Quartal→Monat (2 Ebenen), alles zugeklappt — Q-Blöcke mit AC+ΔPY, Σ-Block rechts</h4><div class="stage" id="c72" style="width:1340px;height:400px"></div></div>
 <div class="case"><h4>Tabelle · Matrix-Spalten: Q1 aufgeklappt (Preset) — Monats-Blöcke unter dem Q1-Span, Q2 bleibt zu</h4><div class="stage" id="c73" style="width:1340px;height:400px"></div></div>
 <div class="case"><h4>Tabelle · hideList („Ost“ unsichtbar, Σ 14.300 bleibt) + chartList (Grafiken nur Umsatz-Zeilen Nord/Süd)</h4><div class="stage" id="c74" style="width:1200px;height:400px"></div></div>
@@ -695,6 +696,13 @@ run("c78", dataView(["Umsatz", "Kosten", "Marge", "Cash", "Auftragseingang"],
   [col("actual", [9800, 4200, 2100, 1500, 8800]),
    col("previousYear", [9100, 3900, 2300, 1650, 8200])],
   { chart: { orientation: "cards", cardHighlight: "bad", cardBars: false,
+    invertList: "Kosten" } }), 1200, 300);
+
+// cards focus sort: biggest color-relevant deviation first (top-left)
+run("c79", dataView(["Umsatz", "Kosten", "Marge", "Cash", "Auftragseingang"],
+  [col("actual", [9800, 4200, 2100, 1500, 8800]),
+   col("previousYear", [9100, 3900, 2300, 1650, 8200])],
+  { chart: { orientation: "cards", cardSort: "deviation", cardBars: false,
     invertList: "Kosten" } }), 1200, 300);
 
 // P&L table with margin rows: value as %, deltas as percentage points

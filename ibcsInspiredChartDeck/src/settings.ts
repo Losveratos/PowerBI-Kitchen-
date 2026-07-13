@@ -80,11 +80,16 @@ const cardHighlightItems: LocEnumMember[] = [
     { value: "good", displayName: "Only good", key: "Enum_CardHl_Good" }
 ];
 
+const cardSortItems: LocEnumMember[] = [
+    { value: "none", displayName: "Data order", key: "Enum_CardSort_None" },
+    { value: "deviation", displayName: "Biggest deviation first", key: "Enum_CardSort_Dev" }
+];
+
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
         displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
-        cardBasisItems, matrixCompareItems, cardHighlightItems];
+        cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -594,12 +599,21 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    cardSort = new formattingSettings.ItemDropdown({
+        name: "cardSort",
+        displayName: "Sort by deviation",
+        displayNameKey: "Cards_Sort",
+        description: "Ordnet die Karten nach der farbrelevanten Abweichung (Benchmark bzw. ΔPL/ΔPY, je nach Status-Basis): größte Abweichung oben-links — für maximalen Fokus. „Datenreihenfolge“ lässt sie wie im Modell.",
+        items: cardSortItems,
+        value: cardSortItems[0]
+    });
+
     cardsGroup = new formattingSettings.Group({
         name: "chartCards",
         displayName: "KPI cards",
         displayNameKey: "Group_Cards",
-        slices: [this.cardStatusBasis, this.cardHighlight, this.cardBars, this.cardTint,
-            this.cardTintStrength, this.cardBullet, this.cardBulletZoom]
+        slices: [this.cardStatusBasis, this.cardHighlight, this.cardSort, this.cardBars,
+            this.cardTint, this.cardTintStrength, this.cardBullet, this.cardBulletZoom]
     });
 
     name: string = "chart";

@@ -196,5 +196,8 @@
   "Cards_Bars": "Mostrar mini-puente (barras AC/PY)",
   "Enum_CardHl_Both": "Bueno y malo",
   "Enum_CardHl_Bad": "Solo malo",
-  "Enum_CardHl_Good": "Solo bueno"
+  "Enum_CardHl_Good": "Solo bueno",
+  "Cards_Sort": "Ordenar por desviación",
+  "Enum_CardSort_None": "Orden de datos",
+  "Enum_CardSort_Dev": "Mayor desviación primero"
 }

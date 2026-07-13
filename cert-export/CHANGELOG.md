@@ -1,5 +1,15 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.25.2.0 (2026-07-13)
+
+**KPI-Karten — Fokus-Sortierung:** Neue Option „Nach Abweichung
+sortieren": ordnet die Karten nach der farbrelevanten Abweichung
+(Benchmark bzw. ΔPL/ΔPY, je nach Status-Basis) — größte Abweichung
+oben-links, für maximalen Fokus. Relative Abweichung führt (vergleichbar
+über gemischte KPIs), absolute bricht Gleichstände; Karten ohne Status
+landen hinten. „Datenreihenfolge" lässt alles wie im Modell.
+Render-Fall c79; neue Keys in de/en/es/ja.
+
 ## 1.25.1.0 (2026-07-13)
 
 **KPI-Karten — zwei Optionen (Kundenwunsch):**
