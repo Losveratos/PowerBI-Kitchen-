@@ -1,5 +1,22 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.24.0.0 (2026-07-12)
+
+**Zeilen ausblenden + Grafik pro Zeile (Tabelle):**
+- **„Zeilen ausblenden“ (hideList):** blendet einzelne Zeilen rein
+  visuell aus — Σ-Zeile, Skalen und Formeln rechnen weiter mit ihnen
+  (anders als „Aus Summen ausnehmen“). In der Hierarchie verschwindet
+  der ganze Teilbaum, im Matrix-Modus die Zeile; die Σ-treue Rundung
+  pausiert bei aktiven Ausblendungen (die Identität wäre sonst
+  gebrochen).
+- **„Grafik nur für diese Zeilen“ (chartList):** Wenn befüllt, zeigen
+  nur die gelisteten Zeilen die Balken-/Pin-Grafiken — alle anderen
+  bleiben reine Zahlenzeilen (Δ % als Zahl statt Pin). Die Σ-Zeile
+  behält ihre Grafik immer.
+- Beide Listen sind auch per **Klick im Struktur-Modus** setzbar (das
+  Menü hat jetzt fünf Checkboxen) und in allen 4 Sprachen beschriftet.
+Render-Fall c74.
+
 ## 1.23.0.0 (2026-07-12)
 
 **Matrix-Spaltenhierarchie in der Tabelle:** Neue Feld-Rolle

@@ -458,6 +458,24 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    hideList = new formattingSettings.TextInput({
+        name: "hideList",
+        displayName: "Hide rows",
+        displayNameKey: "Table_HideList",
+        description: "Kommagetrennte Zeilennamen, die nur ausgeblendet werden — Σ-Zeile, Skalen und Formeln rechnen weiter mit ihnen (anders als „Aus Summen ausnehmen“). Auch per Klick im Struktur-Modus setzbar.",
+        placeholder: "z. B. Sonstige, Intern",
+        value: ""
+    });
+
+    chartList = new formattingSettings.TextInput({
+        name: "chartList",
+        displayName: "Chart only these rows",
+        displayNameKey: "Table_ChartList",
+        description: "Kommagetrennte Zeilennamen: Wenn befüllt, zeigen nur diese Zeilen die Balken-/Pin-Grafiken — alle anderen bleiben reine Zahlenzeilen. Leer = Grafiken überall. Die Σ-Zeile behält ihre Grafik immer.",
+        placeholder: "z. B. Umsatz, EBIT",
+        value: ""
+    });
+
     formulaRows = new formattingSettings.TextInput({
         name: "formulaRows",
         displayName: "Formula rows",
@@ -472,7 +490,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Table",
         displayNameKey: "Group_Table",
         slices: [this.valueColumns, this.structureEdit, this.resultList, this.skipList,
-            this.formulaRows]
+            this.hideList, this.chartList, this.formulaRows]
     });
 
     cardStatusBasis = new formattingSettings.ItemDropdown({

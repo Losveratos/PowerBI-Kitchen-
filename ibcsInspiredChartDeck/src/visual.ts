@@ -38,6 +38,9 @@ const INK = "#404040";
 type Orientation = "columns" | "bars";
 type Basis = "py" | "plan" | "fcrev";
 
+/** persisted comma lists editable via the one-click structure menu */
+type ListProp = "invertList" | "resultList" | "skipList" | "hideList" | "chartList";
+
 interface DataPoint {
     cat: string;
     /** per-level labels when the category field is an expanded hierarchy (else null) */
@@ -133,6 +136,10 @@ interface ChartConfig {
     resultSet: Set<string>;
     /** rows excluded from totals, scales and cascades via chart.skipList */
     skipSet: Set<string>;
+    /** rows hidden from the table display — totals still include them */
+    hideSet: Set<string>;
+    /** when non-empty: bar/pin graphics only on the listed rows */
+    chartSet: Set<string>;
     /** table: formula-row definitions ("Label = A + B; Marge = X / Y"), raw text */
     formulaRows: string;
     /** KPI cards: what stripe + background judge against ("basis" | "benchmark") */
@@ -285,8 +292,8 @@ export class Visual implements IVisual {
     /** category the open structure menu belongs to (closed when it disappears) */
     private structCat: string | null = null;
     private structOutside: ((ev: MouseEvent) => void) | null = null;
-    /** persist-race guard for the one-click-P&L lists (invert/result/skip) */
-    private pendingListProps = new Map<"invertList" | "resultList" | "skipList", string>();
+    /** persist-race guard for the one-click-P&L lists (invert/result/skip/hide/chart) */
+    private pendingListProps = new Map<ListProp, string>();
     /** compare-on-click: whether the mode is active this render + picked categories */
     private compareActive = false;
     private compareCats: string[] = [];
@@ -1005,6 +1012,10 @@ export class Visual implements IVisual {
             resultSet: new Set(String(s.chartCard.resultList.value || "")
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
             skipSet: new Set(String(s.chartCard.skipList.value || "")
+                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
+            hideSet: new Set(String(s.chartCard.hideList.value || "")
+                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
+            chartSet: new Set(String(s.chartCard.chartList.value || "")
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
             formulaRows: String(s.chartCard.formulaRows.value || ""),
             cardBasis: String(s.chartCard.cardStatusBasis.value.value),
@@ -2985,6 +2996,23 @@ export class Visual implements IVisual {
                 totalRow = { p: tp, depth: 0, isTotal: true };
             }
         }
+        // hidden rows: display-only removal AFTER Σ/formulas/scales are computed —
+        // the numbers stay honest, only the line disappears. Hiding a parent
+        // hides its whole subtree
+        if (cfg.hideSet.size > 0) {
+            const out: TableRow[] = [];
+            let hideBelow = -1;
+            for (const r of rows) {
+                if (hideBelow >= 0 && r.depth > hideBelow) { continue; }
+                hideBelow = -1;
+                if (cfg.hideSet.has(r.p.cat.trim().toLowerCase())) {
+                    hideBelow = r.depth;
+                    continue;
+                }
+                out.push(r);
+            }
+            rows = out;
+        }
         const rowPts = rows.map(r => r.p).concat(totalRow ? [totalRow.p] : []);
         const n = rows.length + (totalRow ? 1 : 0);
 
@@ -3235,7 +3263,9 @@ export class Visual implements IVisual {
 
         // sum-safe rounding: adjust the level-0 detail labels (largest remainder)
         // so they visibly add up to the synthetic Σ row
-        const sumSafeVals = (cfg.sumSafe && !cfg.cumulative && totalRow)
+        // hidden rows would break the largest-remainder identity (their share is
+        // in Σ but not on screen) — sum-safe only without hidden rows
+        const sumSafeVals = (cfg.sumSafe && !cfg.cumulative && totalRow && cfg.hideSet.size === 0)
             ? (() => {
                 const base = rows.filter(r => r.depth === 0 && !r.formula && !isPct(r.p)
                     && !isSum(r.p) && !isResult(r.p) && !isSkip(r.p)).map(r => r.p);
@@ -3258,6 +3288,10 @@ export class Visual implements IVisual {
             const yMid = y + rowH / 2;
             const sum = isSum(p) || isParent || isResult(p);
             const skip = isSkip(p);
+            // chart list: when filled, bar/pin graphics render only on listed rows
+            // (numbers always stay); the Σ row keeps its graphics
+            const rowChart = cfg.chartSet.size === 0 || row.isTotal
+                || cfg.chartSet.has(p.cat.trim().toLowerCase());
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
 
             // separators: subtle under every row, strong above subtotals
@@ -3315,7 +3349,7 @@ export class Visual implements IVisual {
 
             // AC·PY·PL bar cell (shared scale across all rows — IBCS);
             // margin rows are percentages and get no € graphics
-            if (barScale && !rowPct) {
+            if (barScale && !rowPct && rowChart) {
                 const zero = barScale(0);
                 const barCell = (v: number, h: number, off: number, style: Record<string, string | number>) => {
                     const e = barScale(v);
@@ -3369,7 +3403,7 @@ export class Visual implements IVisual {
                     this.fmtPercent(p.varRel), "end", rowFont, sum,
                     p.varRel === 0 ? cfg.subtle : colOf(p.varRel, p), g);
             }
-            if (p.varAbs != null && colX["dbar"] && !rowPct) {
+            if (p.varAbs != null && colX["dbar"] && !rowPct && rowChart) {
                 const len = Math.abs(p.varAbs) / dDomain * (colX["dbar"].w / 2 - 4);
                 const h = Math.max(3, rowH * 0.42);
                 const c = colOf(p.varAbs, p);
@@ -3385,8 +3419,13 @@ export class Visual implements IVisual {
                 }, g);
             }
 
-            // ΔBasis %: pin with label (margin rows: pp is already in the Δ column)
-            if (p.varRel != null && colX["pct"] && !rowPct) {
+            // ΔBasis %: pin with label (margin rows: pp is already in the Δ column);
+            // rows outside the chart list keep the plain Δ%-number, just no pin
+            if (p.varRel != null && colX["pct"] && !rowPct && !rowChart && cfg.showLabels) {
+                txt(pctAxis, yMid + rowFont * 0.35, this.fmtPercent(p.varRel),
+                    "middle", Math.round(rowFont * 0.92), sum, colOf(p.varRel, p), g);
+            }
+            if (p.varRel != null && colX["pct"] && !rowPct && rowChart) {
                 const len = Math.abs(p.varRel) / maxPct * (colX["pct"].w / 2 - lf * 3);
                 const c = colOf(p.varRel, p);
                 const r = Math.max(2.4, 3 * k);
@@ -3414,7 +3453,7 @@ export class Visual implements IVisual {
                     this.fmtPercent(p.var2Rel), "end", rowFont, sum,
                     p.var2Rel === 0 ? cfg.subtle : colOf2(p.var2Rel, p), g);
             }
-            if (hasVar2 && p.var2Abs != null && colX["d2bar"] && !rowPct) {
+            if (hasVar2 && p.var2Abs != null && colX["d2bar"] && !rowPct && rowChart) {
                 const len = Math.abs(p.var2Abs) / d2Domain * (colX["d2bar"].w / 2 - 4);
                 const h = Math.max(3, rowH * 0.42);
                 const c2 = colOf2(p.var2Abs, p);
@@ -3566,6 +3605,10 @@ export class Visual implements IVisual {
             a.rowType = kids[0].rowType;
             rowAgg.set(cat, a);
         }
+        // hidden rows: removed from display only — the Σ bases below keep them
+        const displayOrder = cfg.hideSet.size > 0
+            ? rowOrder.filter(c => !cfg.hideSet.has(c.trim().toLowerCase()))
+            : rowOrder;
 
         // ------- column tree: level-0 groups with optional level-1 children
         type CNode = { label: string; kids: string[] };
@@ -3635,18 +3678,18 @@ export class Visual implements IVisual {
         const headerH = Math.round(cf + 12) + (twoLv ? Math.round(cf * 0.9 + 6) : 0);
         const showTotalRow = cfg.showTotal
             && !rowOrder.some(cat => isSum(rowAgg.get(cat) as DataPoint) || isResult(rowAgg.get(cat) as DataPoint));
-        const n = rowOrder.length + (showTotalRow ? 1 : 0);
+        const n = displayOrder.length + (showTotalRow ? 1 : 0);
         const rowH = Math.max(cf + 6, (region.h - pad * 2 - headerH) / n);
         const top = region.y + pad + headerH;
         const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH + 1e-6);
         const bodyCap = Math.max(1, maxRows - (showTotalRow ? 1 : 0));
         const paneKey = `${points[0].group ?? ""}¦mx`;
-        const maxScroll = Math.max(0, rowOrder.length - bodyCap);
+        const maxScroll = Math.max(0, displayOrder.length - bodyCap);
         const canScroll = this.allowInteractions && maxScroll > 0;
         const scroll = canScroll
             ? Math.max(0, Math.min(this.tableScroll.get(paneKey) ?? 0, maxScroll)) : 0;
         if (canScroll) { this.tableScroll.set(paneKey, scroll); }
-        const bodyCats = rowOrder.slice(scroll, scroll + bodyCap);
+        const bodyCats = displayOrder.slice(scroll, scroll + bodyCap);
 
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
@@ -3835,7 +3878,7 @@ export class Visual implements IVisual {
                 x: trackX, y: top, width: 3, height: trackH, rx: 1.5,
                 fill: cfg.subtle, "fill-opacity": 0.18
             }, bg);
-            const thumbH = Math.max(Math.min(18, trackH), trackH * bodyCap / rowOrder.length);
+            const thumbH = Math.max(Math.min(18, trackH), trackH * bodyCap / displayOrder.length);
             const thumbY = top + (trackH - thumbH) * (scroll / maxScroll);
             const thumb = this.el("rect", {
                 x: trackX - 1, y: thumbY, width: 5, height: thumbH, rx: 2.5,
@@ -3864,7 +3907,7 @@ export class Visual implements IVisual {
                 e.stopPropagation();
                 const startY = e.clientY, startScroll = scroll;
                 const move = (ev: MouseEvent) => {
-                    setScroll(startScroll + (ev.clientY - startY) / trackH * rowOrder.length);
+                    setScroll(startScroll + (ev.clientY - startY) / trackH * displayOrder.length);
                 };
                 const up = () => {
                     window.removeEventListener("mousemove", move);
@@ -3873,9 +3916,9 @@ export class Visual implements IVisual {
                 window.addEventListener("mousemove", move);
                 window.addEventListener("mouseup", up);
             });
-        } else if (rowOrder.length > bodyCats.length) {
+        } else if (displayOrder.length > bodyCats.length) {
             txt(region.x + pad, rowsBottom + cf,
-                `… ${rowOrder.length - bodyCats.length} ${this.locStr("Hint_MoreRows", "more rows (increase the visual height)")}`,
+                `… ${displayOrder.length - bodyCats.length} ${this.locStr("Hint_MoreRows", "more rows (increase the visual height)")}`,
                 "start", Math.round(cf * 0.9), false, cfg.subtle, bg);
         }
     }
@@ -6487,7 +6530,7 @@ export class Visual implements IVisual {
     }
 
     /** adds/removes the row label in one of the persisted comma lists */
-    private toggleListEntry(prop: "invertList" | "resultList" | "skipList", cat: string, on: boolean): void {
+    private toggleListEntry(prop: ListProp, cat: string, on: boolean): void {
         // names containing a comma cannot round-trip a comma-separated list —
         // the structure menu disables its checkboxes for those rows
         if (cat.includes(",")) { return; }
@@ -6517,7 +6560,7 @@ export class Visual implements IVisual {
         if (window.getComputedStyle(this.root).position === "static") {
             this.root.style.position = "relative";
         }
-        const boxW = 240, boxH = 128;
+        const boxW = 240, boxH = 176;
         const left = Math.max(2, Math.min(e.clientX - rootRect.left, rootRect.width - boxW - 4));
         const top = Math.max(2, Math.min(e.clientY - rootRect.top, rootRect.height - boxH - 4));
 
@@ -6540,11 +6583,11 @@ export class Visual implements IVisual {
         title.textContent = `⚙ ${p.cat}`;
         box.appendChild(title);
 
-        const inList = (prop: "invertList" | "resultList" | "skipList") =>
+        const inList = (prop: ListProp) =>
             String(this.formattingSettings.chartCard[prop].value || "")
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)
                 .includes(p.cat.trim().toLowerCase());
-        const mkCheck = (label: string, prop: "invertList" | "resultList" | "skipList") => {
+        const mkCheck = (label: string, prop: ListProp) => {
             const row = document.createElement("label");
             row.style.cssText = "display:flex;align-items:center;gap:6px;margin:4px 0;cursor:pointer;";
             const cb = document.createElement("input");
@@ -6563,6 +6606,8 @@ export class Visual implements IVisual {
         mkCheck(this.locStr("Struct_Invert", "Invert (higher is bad)"), "invertList");
         mkCheck(this.locStr("Struct_Result", "Result row (bold anchor)"), "resultList");
         mkCheck(this.locStr("Struct_Skip", "Exclude from totals"), "skipList");
+        mkCheck(this.locStr("Struct_Hide", "Hide row (Σ keeps it)"), "hideList");
+        mkCheck(this.locStr("Struct_Chart", "Chart only listed rows"), "chartList");
         if (p.cat.includes(",")) {
             // comma names cannot round-trip the comma lists — disable the menu
             box.querySelectorAll("input").forEach(i => { (i as HTMLInputElement).disabled = true; });

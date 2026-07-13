@@ -162,6 +162,8 @@
                 "structureEdit": { "type": { "bool": true } },
                 "resultList": { "type": { "text": true } },
                 "skipList": { "type": { "text": true } },
+                "hideList": { "type": { "text": true } },
+                "chartList": { "type": { "text": true } },
                 "formulaRows": { "type": { "text": true } },
                 "cardStatusBasis": {
                     "type": {

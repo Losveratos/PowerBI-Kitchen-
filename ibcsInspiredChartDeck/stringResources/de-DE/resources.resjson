@@ -178,5 +178,9 @@
   "Enum_CardBasis_Bm": "Benchmark (BM)",
   "Cards_Bullet": "Bullet vs. Benchmark",
   "Cards_BulletZoom": "Bullet: Zoom auf Zielbereich",
-  "Role_ColGroup": "Spalten (Matrix)"
+  "Role_ColGroup": "Spalten (Matrix)",
+  "Table_HideList": "Zeilen ausblenden",
+  "Table_ChartList": "Grafik nur für diese Zeilen",
+  "Struct_Hide": "Ausblenden (Σ behält die Zeile)",
+  "Struct_Chart": "Grafik nur für gelistete Zeilen"
 }

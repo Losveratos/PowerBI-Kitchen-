@@ -81,6 +81,7 @@
 <div class="case"><h4>KPI-Karten · Benchmark-Ampel ohne Tönung (nur Streifen), ΔBM-Zeile führt, ΔPY zweite Zeile</h4><div class="stage" id="c71" style="width:1200px;height:400px"></div></div>
 <div class="case"><h4>Tabelle · Matrix-Spalten: Quartal→Monat (2 Ebenen), alles zugeklappt — Q-Blöcke mit AC+ΔPY, Σ-Block rechts</h4><div class="stage" id="c72" style="width:1340px;height:400px"></div></div>
 <div class="case"><h4>Tabelle · Matrix-Spalten: Q1 aufgeklappt (Preset) — Monats-Blöcke unter dem Q1-Span, Q2 bleibt zu</h4><div class="stage" id="c73" style="width:1340px;height:400px"></div></div>
+<div class="case"><h4>Tabelle · hideList („Ost“ unsichtbar, Σ 14.300 bleibt) + chartList (Grafiken nur Umsatz-Zeilen Nord/Süd)</h4><div class="stage" id="c74" style="width:1200px;height:400px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -622,6 +623,12 @@ function mxDataView(extraObjects) {
 run("c72", mxDataView(), 1340, 400);
 run("c73", mxDataView({ chart: { orientation: "table", showTotal: true,
   tableColExpanded: JSON.stringify(["col¦Q1"]) } }), 1340, 400);
+
+// hide list (display-only, sigma keeps the row) + chart list (graphics only on
+// listed rows, numbers everywhere, sigma row keeps its graphics)
+run("c74", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true, hideList: "Ost",
+    chartList: "Nord, Süd" } }), 1200, 400);
 
 // P&L table with margin rows: value as %, deltas as percentage points
 run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],

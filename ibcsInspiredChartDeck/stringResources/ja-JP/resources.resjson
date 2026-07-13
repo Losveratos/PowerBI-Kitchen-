@@ -178,5 +178,9 @@
   "Enum_CardBasis_Bm": "ベンチマーク（BM）",
   "Cards_Bullet": "ブレット（BM比較）",
   "Cards_BulletZoom": "ブレット：目標域にズーム",
-  "Role_ColGroup": "列（マトリックス）"
+  "Role_ColGroup": "列（マトリックス）",
+  "Table_HideList": "行を非表示",
+  "Table_ChartList": "指定行のみグラフ表示",
+  "Struct_Hide": "非表示（Σには含む）",
+  "Struct_Chart": "指定行のみグラフ"
 }
