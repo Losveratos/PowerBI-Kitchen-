@@ -1,5 +1,20 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.26.0.0 (2026-07-13)
+
+**KPI-Karten — Sortier-Ausbau + In-Chart-Chip:**
+- **Zwei neue Sortiermodi:** „Schlechteste zuerst" und „Beste zuerst" —
+  richtungsbewusst (invertierte KPIs wie Kosten werden korrekt als
+  schlecht behandelt), sodass Probleme bzw. Erfolge oben-links landen.
+  Zusammen mit „Größte Abweichung" (Betrag) und „Datenreihenfolge".
+- **In-Chart-Sortier-Chip** (oben rechts, nur interaktiv): ein Klick
+  schaltet Datenreihenfolge → |Δ| → Schlecht → Gut durch, ohne ins
+  Formatmenü zu müssen — wie die Sortier-Buttons in den Brücken. Der
+  Chip überschreibt die Pane-Auswahl, ist persistiert und bookmarkfähig.
+- Der Sortierschlüssel folgt weiterhin automatisch der Status-Basis
+  (Benchmark bzw. ΔPL/ΔPY, je nachdem was gebunden ist).
+Render-Fall c80; neue Keys in de/en/es/ja.
+
 ## 1.25.2.0 (2026-07-13)
 
 **KPI-Karten — Fokus-Sortierung:** Neue Option „Nach Abweichung

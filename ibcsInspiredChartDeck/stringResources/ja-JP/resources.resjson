@@ -199,5 +199,11 @@
   "Enum_CardHl_Good": "良のみ",
   "Cards_Sort": "偏差で並べ替え",
   "Enum_CardSort_None": "データ順",
-  "Enum_CardSort_Dev": "偏差の大きい順"
+  "Enum_CardSort_Dev": "偏差の大きい順",
+  "Enum_CardSort_Worst": "悪い順（上に）",
+  "Enum_CardSort_Best": "良い順（上に）",
+  "Chip_SortNone": "↕ 並べ替え",
+  "Chip_SortDev": "↕ |Δ|",
+  "Chip_SortWorst": "↓ 悪い",
+  "Chip_SortBest": "↑ 良い"
 }

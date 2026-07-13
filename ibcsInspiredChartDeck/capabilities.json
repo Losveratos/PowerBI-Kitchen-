@@ -198,10 +198,13 @@
                     "type": {
                         "enumeration": [
                             { "value": "none", "displayName": "Data order" },
-                            { "value": "deviation", "displayName": "Biggest deviation first" }
+                            { "value": "deviation", "displayName": "Biggest deviation first" },
+                            { "value": "worst", "displayName": "Worst first" },
+                            { "value": "best", "displayName": "Best first" }
                         ]
                     }
                 },
+                "cardSortSel": { "type": { "text": true } },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
                 "cardBullet": { "type": { "bool": true } },

@@ -304,6 +304,9 @@ export class Visual implements IVisual {
     /** table header sort, e.g. "dabs_desc" ("" = data order), persisted */
     private tableSort = "";
     private pendingTableSort: string | null = null;
+    /** in-chart card sort chip override ("" = use the pane dropdown), persisted */
+    private cardSortSel = "";
+    private pendingCardSort: string | null = null;
     /** structure-edit mode (one-click P&L): row clicks open the structure menu */
     private structureEdit = false;
     private structEditor: HTMLDivElement | null = null;
@@ -455,6 +458,13 @@ export class Visual implements IVisual {
             if (this.pendingTableSort == null || rawSortStr === this.pendingTableSort) {
                 this.pendingTableSort = null;
                 this.tableSort = rawSortStr;
+            }
+            // in-chart card sort chip override (bookmarkable), same echo-guard
+            const rawCs = dataView?.metadata?.objects?.["chart"]?.["cardSortSel"];
+            const rawCsStr = typeof rawCs === "string" ? rawCs : "";
+            if (this.pendingCardSort == null || rawCsStr === this.pendingCardSort) {
+                this.pendingCardSort = null;
+                this.cardSortSel = rawCsStr;
             }
             const points = this.parseData(dataView);
             // an open structure menu must not outlive its row (filter/data change)
@@ -1055,7 +1065,9 @@ export class Visual implements IVisual {
             cardBulletZoom: s.chartCard.cardBulletZoom.value,
             cardHl: String(s.chartCard.cardHighlight.value.value),
             cardBars: s.chartCard.cardBars.value,
-            cardSort: String(s.chartCard.cardSort.value.value),
+            // the in-chart chip override wins over the pane dropdown when set
+            cardSort: this.cardSortSel !== "" ? this.cardSortSel
+                : String(s.chartCard.cardSort.value.value),
             sumSafe: s.labelsCard.sumSafeRounding.value,
             ...(() => { const fp = this.formatterParams(maxAbs, allInt); return { fmtUnit: fp.unit, fmtPrec: fp.prec }; })(),
             fmt: this.makeFormatter(maxAbs, allInt),
@@ -4482,21 +4494,32 @@ export class Visual implements IVisual {
             }
             return { v: p.varAbs, rel: p.varRel };
         };
-        // focus sort: biggest color-relevant deviation first (top-left). Relative
-        // deviation ranks first (comparable across mixed KPIs), absolute breaks
-        // ties; cards without a status go last, data order otherwise preserved
-        if (cfg.cardSort === "deviation") {
-            const rank = (p: DataPoint) => {
-                const d = statusDev(p);
-                if (d.v == null) { return -1; }
-                return d.rel != null ? Math.abs(d.rel) : Math.abs(d.v);
+        // focus sort. magnitude = relative deviation (comparable across mixed KPIs),
+        // absolute breaks ties. "goodness" is signed by good/bad (invert-aware) so
+        // "worst first" surfaces problems regardless of whether the KPI counts up or
+        // down. Cards without a status always sink to the end; data order otherwise
+        const isGoodDir = (v: number, pp: DataPoint) => cfg.isGood(v, pp);
+        const mag = (d: { v: number | null; rel: number | null }) =>
+            d.v == null ? null : (d.rel != null ? Math.abs(d.rel) : Math.abs(d.v));
+        const goodness = (p: DataPoint): number | null => {
+            const d = statusDev(p);
+            const m = mag(d);
+            if (m == null) { return null; }
+            if (d.v === 0) { return 0; }
+            return (isGoodDir(d.v as number, p) ? 1 : -1) * m;
+        };
+        if (cfg.cardSort !== "none" && cfg.cardSort !== "") {
+            const key = (p: DataPoint): number | null => {
+                if (cfg.cardSort === "deviation") { return mag(statusDev(p)); }
+                return goodness(p);                       // worst | best
             };
+            const dir = cfg.cardSort === "worst" ? 1 : -1; // worst: ascending goodness
             pts.sort((a, b) => {
-                const ra = rank(a), rb = rank(b);
-                if (ra < 0 && rb < 0) { return 0; }
-                if (ra < 0) { return 1; }
-                if (rb < 0) { return -1; }
-                return rb - ra;
+                const ka = key(a), kb = key(b);
+                if (ka == null && kb == null) { return 0; }
+                if (ka == null) { return 1; }
+                if (kb == null) { return -1; }
+                return cfg.cardSort === "deviation" ? kb - ka : dir * (ka - kb);
             });
         }
         const gap = Math.round(8 * k);
@@ -4790,6 +4813,55 @@ export class Visual implements IVisual {
             this.catGroups.push({ g, sel: p.sel });
             this.animGroups.push([g]);
         });
+
+        // in-chart sort chip (top-right of the region): cycles none → deviation →
+        // worst → best; persists as an override of the pane dropdown, bookmarkable
+        if (this.allowInteractions && region.w >= 220 * k) {
+            const order = ["none", "deviation", "worst", "best"];
+            const labels: { [key: string]: string } = {
+                none: this.locStr("Chip_SortNone", "↕ Sort"),
+                deviation: this.locStr("Chip_SortDev", "↕ |Δ|"),
+                worst: this.locStr("Chip_SortWorst", "↓ Worst"),
+                best: this.locStr("Chip_SortBest", "↑ Best")
+            };
+            const cur = cfg.cardSort === "" ? "none" : cfg.cardSort;
+            const on = cur !== "none";
+            const label = labels[cur] ?? labels["none"];
+            const font = Math.round(11 * k), bh = Math.round(18 * k);
+            const segW = this.textWidth(label, font) + Math.round(16 * k);
+            const cx = region.x + region.w - segW - 2, cy = region.y + 2;
+            const chip = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+            chip.setAttribute("aria-label", this.locStr("Cards_Sort", "Sort by deviation"));
+            const tip = this.el("title", {}, chip);
+            tip.textContent = this.locStr("Cards_Sort", "Sort by deviation");
+            this.el("rect", {
+                x: cx, y: cy, width: segW, height: bh, rx: bh / 2,
+                fill: on ? cfg.colors.ac : cfg.paper,
+                stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
+            }, chip);
+            const t = this.el("text", {
+                x: cx + segW / 2, y: cy + bh / 2 + font * 0.36, "text-anchor": "middle",
+                "font-size": font, fill: on ? cfg.paper : cfg.ink, "font-family": FONT
+            }, chip);
+            t.textContent = label;
+            (chip as unknown as SVGGraphicsElement).style.cursor = "pointer";
+            const cycle = () => {
+                const next = order[(order.indexOf(cur) + 1) % order.length];
+                this.cardSortSel = next;
+                this.pendingCardSort = next;
+                this.host.persistProperties({
+                    merge: [{ objectName: "chart", selector: null, properties: { cardSortSel: next } }]
+                });
+                this.rerender();
+            };
+            chip.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); cycle(); });
+            chip.addEventListener("keydown", (e: KeyboardEvent) => {
+                if (e.key !== "Enter" && e.key !== " ") { return; }
+                e.preventDefault();
+                e.stopPropagation();
+                cycle();
+            });
+        }
     }
 
     /**

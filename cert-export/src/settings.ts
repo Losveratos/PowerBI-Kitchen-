@@ -82,7 +82,9 @@ const cardHighlightItems: LocEnumMember[] = [
 
 const cardSortItems: LocEnumMember[] = [
     { value: "none", displayName: "Data order", key: "Enum_CardSort_None" },
-    { value: "deviation", displayName: "Biggest deviation first", key: "Enum_CardSort_Dev" }
+    { value: "deviation", displayName: "Biggest deviation first", key: "Enum_CardSort_Dev" },
+    { value: "worst", displayName: "Worst first (bad on top)", key: "Enum_CardSort_Worst" },
+    { value: "best", displayName: "Best first (good on top)", key: "Enum_CardSort_Best" }
 ];
 
 /** resolve all enum-member labels once via the host's localization manager */

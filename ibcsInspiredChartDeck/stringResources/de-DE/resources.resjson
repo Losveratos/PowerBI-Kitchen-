@@ -199,5 +199,11 @@
   "Enum_CardHl_Good": "Nur gute",
   "Cards_Sort": "Nach Abweichung sortieren",
   "Enum_CardSort_None": "Datenreihenfolge",
-  "Enum_CardSort_Dev": "Größte Abweichung zuerst"
+  "Enum_CardSort_Dev": "Größte Abweichung zuerst",
+  "Enum_CardSort_Worst": "Schlechteste zuerst (oben)",
+  "Enum_CardSort_Best": "Beste zuerst (oben)",
+  "Chip_SortNone": "↕ Sortieren",
+  "Chip_SortDev": "↕ |Δ|",
+  "Chip_SortWorst": "↓ Schlecht",
+  "Chip_SortBest": "↑ Gut"
 }
