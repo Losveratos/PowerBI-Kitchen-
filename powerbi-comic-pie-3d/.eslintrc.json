@@ -1,0 +1,11 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "plugins": ["powerbi-visuals"],
+  "extends": ["plugin:powerbi-visuals/recommended"],
+  "rules": {}
+}

@@ -1,0 +1,95 @@
+{
+  "dataRoles": [
+    {
+      "displayName": "Kategorie",
+      "description": "Ein Segment pro Kategorie (z. B. Produkt, Hobby, Region).",
+      "name": "category",
+      "kind": "Grouping"
+    },
+    {
+      "displayName": "Wert",
+      "description": "Numerischer Wert, bestimmt die Größe des Tortenstücks.",
+      "name": "measure",
+      "kind": "Measure"
+    }
+  ],
+  "dataViewMappings": [
+    {
+      "conditions": [
+        {
+          "category": { "max": 1 },
+          "measure": { "max": 1 }
+        }
+      ],
+      "categorical": {
+        "categories": {
+          "for": { "in": "category" },
+          "dataReductionAlgorithm": { "top": { "count": 30 } }
+        },
+        "values": {
+          "select": [{ "bind": { "to": "measure" } }]
+        }
+      }
+    }
+  ],
+  "objects": {
+    "animation": {
+      "displayName": "Animation",
+      "properties": {
+        "explosion": {
+          "displayName": "Explosion",
+          "description": "Wie weit die Stücke auseinanderfliegen (0 = zusammen).",
+          "type": { "numeric": true }
+        },
+        "spinSpeed": {
+          "displayName": "Dreh-Tempo",
+          "description": "Rotationsgeschwindigkeit der Torte.",
+          "type": { "numeric": true }
+        },
+        "spinning": {
+          "displayName": "Dreht sich",
+          "type": { "bool": true }
+        },
+        "wobble": {
+          "displayName": "Wackeln & Schweben",
+          "type": { "bool": true }
+        }
+      }
+    },
+    "style": {
+      "displayName": "Comic-Style",
+      "properties": {
+        "showEyes": {
+          "displayName": "Kulleraugen",
+          "type": { "bool": true }
+        },
+        "showBursts": {
+          "displayName": "Comic-Bursts (POW! BOOM!)",
+          "type": { "bool": true }
+        },
+        "showLabels": {
+          "displayName": "Sprechblasen-Labels",
+          "type": { "bool": true }
+        },
+        "outline": {
+          "displayName": "Schwarze Comic-Kontur",
+          "type": { "bool": true }
+        }
+      }
+    },
+    "dataPoint": {
+      "displayName": "Farben",
+      "properties": {
+        "fill": {
+          "displayName": "Farbe",
+          "type": { "fill": { "solid": { "color": true } } }
+        }
+      }
+    }
+  },
+  "supportsHighlight": true,
+  "sorting": {
+    "default": {}
+  },
+  "privileges": []
+}

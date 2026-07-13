@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es2017",
+    "module": "es2015",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "outDir": "./.tmp/build/",
+    "lib": ["es2017", "dom"],
+    "types": ["powerbi-visuals-api"],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "files": [
+    "src/visual.ts"
+  ]
+}

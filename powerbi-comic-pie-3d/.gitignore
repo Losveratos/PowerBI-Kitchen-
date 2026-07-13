@@ -1,0 +1,7 @@
+node_modules/
+.tmp/
+dist/
+.vscode/
+*.log
+coverage/
+webpack.statistics.prod.html

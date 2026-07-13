@@ -1,0 +1,25 @@
+{
+  "visual": {
+    "name": "comicPie3D",
+    "displayName": "3D Comic Pie",
+    "guid": "comicPie3D0A1B2C3D4E5F60718293A4B5C6D7E8F",
+    "visualClassName": "Visual",
+    "version": "1.0.0.0",
+    "description": "Ein verrücktes 3D-Comic-Tortendiagramm: explodierende Segmente, Wackel-Tanz, Kulleraugen und Comic-Bursts. Daten kommen aus Kategorie + Wert, Klick auf ein Stück filtert den Report.",
+    "supportUrl": "https://github.com/losveratos/powerbi-kitchen-",
+    "gitHubUrl": "https://github.com/losveratos/powerbi-kitchen-"
+  },
+  "apiVersion": "5.11.0",
+  "author": {
+    "name": "Daten-WG Knowledge Kitchen",
+    "email": "michael.tenner84@gmail.com"
+  },
+  "assets": {
+    "icon": "assets/icon.png"
+  },
+  "externalJS": null,
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json",
+  "dependencies": null,
+  "stringResources": []
+}
