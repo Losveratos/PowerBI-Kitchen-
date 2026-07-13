@@ -141,6 +141,8 @@ interface ChartConfig {
     cardTintPct: number;
     /** KPI cards: mini bullet chart AC vs. benchmark on the card */
     cardBullet: boolean;
+    /** KPI cards: bullet zooms to the AC/BM range instead of anchoring at zero */
+    cardBulletZoom: boolean;
     /** sum-safe label rounding (largest remainder): labels add up to the Σ header */
     sumSafe: boolean;
     /** deck-wide absolute-variance domain (incl. fixedVarMax) for scale sync */
@@ -986,6 +988,7 @@ export class Visual implements IVisual {
             cardTint: s.chartCard.cardTint.value,
             cardTintPct: Math.max(4, Math.min(40, Number(s.chartCard.cardTintStrength.value ?? 12))),
             cardBullet: s.chartCard.cardBullet.value,
+            cardBulletZoom: s.chartCard.cardBulletZoom.value,
             sumSafe: s.labelsCard.sumSafeRounding.value,
             ...(() => { const fp = this.formatterParams(maxAbs, allInt); return { fmtUnit: fp.unit, fmtPrec: fp.prec }; })(),
             fmt: this.makeFormatter(maxAbs, allInt),
@@ -3725,23 +3728,47 @@ export class Visual implements IVisual {
             // the classic monitoring glyph; scale anchors at zero like all bars
             const drawBullet = (bx: number, byMid: number, bw2: number, bh2: number) => {
                 if (p.bm == null || p.value == null) { return; }
-                const lo = Math.min(0, p.value as number, p.bm);
-                const hi = Math.max(0, p.value as number, p.bm);
+                const av = p.value as number;
+                // zoom mode spreads the scale around AC and BM (target range) so
+                // near-target KPIs stay readable; otherwise classic zero anchor
+                const zoom = cfg.cardBulletZoom;
+                let lo: number, hi: number;
+                if (zoom) {
+                    const pad2 = 0.35 * Math.max(Math.abs(av - p.bm),
+                        0.04 * Math.max(Math.abs(av), Math.abs(p.bm), 1e-9));
+                    lo = Math.min(av, p.bm) - pad2;
+                    hi = Math.max(av, p.bm) + pad2;
+                } else {
+                    lo = Math.min(0, av, p.bm);
+                    hi = Math.max(0, av, p.bm);
+                }
                 const sc = linearScale(lo, hi, bx + 2, bx + bw2 - 2);
                 this.el("rect", {
                     x: bx, y: byMid - bh2 / 2, width: bw2, height: bh2, rx: 1.5,
                     fill: cfg.hc ? cfg.paper : "#EFEFEA",
                     stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 0.8 : 0
                 }, g);
-                const zero = sc(0), e = sc(p.value as number);
+                const from = zoom ? bx + 2 : sc(0);
+                const e = sc(av);
                 const barH = Math.max(3, Math.round(bh2 * 0.5));
                 this.el("rect", {
-                    x: Math.min(zero, e), y: byMid - barH / 2,
-                    width: Math.max(1, Math.abs(e - zero)), height: barH,
+                    x: Math.min(from, e), y: byMid - barH / 2,
+                    width: Math.max(1, Math.abs(e - from)), height: barH,
                     ...(p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : { fill: cfg.colors.ac })
                 }, g);
+                if (zoom) {
+                    // axis break at the left bar end: two paper slashes mark the cut scale
+                    for (const off of [0, 3.2]) {
+                        const bxk = bx + Math.round(7 * k) + off;
+                        this.el("line", {
+                            x1: bxk - 1.6, y1: byMid + barH / 2 + 1.5,
+                            x2: bxk + 1.6, y2: byMid - barH / 2 - 1.5,
+                            stroke: cfg.paper, "stroke-width": 1.6
+                        }, g);
+                    }
+                }
                 const tX = sc(p.bm);
                 this.el("rect", {
                     x: tX - 1.2, y: byMid - bh2 / 2 - 1.5, width: 2.4, height: bh2 + 3,

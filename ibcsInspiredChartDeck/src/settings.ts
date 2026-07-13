@@ -512,11 +512,20 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    cardBulletZoom = new formattingSettings.ToggleSwitch({
+        name: "cardBulletZoom",
+        displayName: "Bullet: zoom to target range",
+        displayNameKey: "Cards_BulletZoom",
+        description: "Spreizt das Bullet auf den Bereich um AC und Benchmark statt bei Null zu starten — KPIs nahe am Ziel (97 vs. 99) werden unterscheidbar. Der Achsenbruch am linken Balkenende kennzeichnet die gekappte Skala.",
+        value: false
+    });
+
     cardsGroup = new formattingSettings.Group({
         name: "chartCards",
         displayName: "KPI cards",
         displayNameKey: "Group_Cards",
-        slices: [this.cardStatusBasis, this.cardTint, this.cardTintStrength, this.cardBullet]
+        slices: [this.cardStatusBasis, this.cardTint, this.cardTintStrength, this.cardBullet,
+            this.cardBulletZoom]
     });
 
     name: string = "chart";

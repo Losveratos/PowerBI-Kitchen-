@@ -166,6 +166,7 @@
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
                 "cardBullet": { "type": { "bool": true } },
+                "cardBulletZoom": { "type": { "bool": true } },
                 "comparisonMode": {
                     "type": {
                         "enumeration": [

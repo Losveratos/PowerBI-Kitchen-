@@ -176,5 +176,6 @@
   "Cards_TintStrength": "Tint intensity %",
   "Enum_CardBasis_Basis": "Variance basis (ΔPL/ΔPY)",
   "Enum_CardBasis_Bm": "Benchmark (BM)",
-  "Cards_Bullet": "Bullet vs. benchmark"
+  "Cards_Bullet": "Bullet vs. benchmark",
+  "Cards_BulletZoom": "Bullet: zoom to target range"
 }

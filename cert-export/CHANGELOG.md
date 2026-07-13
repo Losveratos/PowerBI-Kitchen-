@@ -1,5 +1,13 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.22.1.0 (2026-07-12)
+
+**Bullet-Zoom:** Schalter „Bullet: Zoom auf Zielbereich“ — das Bullet
+spreizt die Skala auf den Bereich um AC und Benchmark statt bei Null zu
+starten; KPIs nahe am Ziel (97 vs. 99) werden unterscheidbar. Der
+Achsenbruch (Doppel-Schrägstrich) am linken Balkenende kennzeichnet die
+gekappte Skala. Key Cards_BulletZoom in de/en/es/ja.
+
 ## 1.22.0.0 (2026-07-12)
 
 **Bullet-Chart auf den KPI-Karten:** Neuer Schalter „Bullet vs.
