@@ -16,14 +16,36 @@ und filtert beim Klick auf ein Stück den restlichen Report (Cross-Highlighting)
 | Kategorie  | Grouping  | Ein Tortenstück pro Kategorie (max. 30)    |
 | Wert       | Measure   | Bestimmt die Größe des Stücks              |
 
+## Film-Vorlagen (Mottos)
+
+Jede Vorlage bringt eine eigene **Farbwelt** und eine eigene **Spruchwelt**
+(die kreisenden Comic-Bursts) mit:
+
+| Motto | Farbwelt | Sprüche |
+| ----- | -------- | ------- |
+| 🍭 Standard | Comic-Bunt | POW! BOOM! WOW! ZAP! YEAH! BÄM! |
+| ⚔️ Kill Bill | Gelb/Schwarz/Blutrot | REVENGE! SWORD! HATTORI! WIGGLE! |
+| 🚀 Star Wars | Saber-Gelb/Blau/Rot/Grün | PEW PEW! FORCE! VADER! JEDI! |
+| 🛡️ Avengers Endgame | Thanos-Lila/Iron-Rot/Gold | SNAP! ASSEMBLE! 3000! SMASH! |
+| 🎩 Der Pate | Sepia/Gold/Dunkelrot | OFFER! FAMILY! RESPECT! CAPISCE? |
+| 🍫 Forrest Gump | Pastell-Grün/Blau/Rosa | RUN FORREST! SHRIMP! CHOCOLATE! |
+| 🪩 Boogie Nights | 70s-Disco Pink/Gold/Lila | GROOVY! DISCO! BOOGIE! FUNK! |
+
+Der Enduser wechselt sie über **bonbonfarbene Buttons direkt im Chart**
+(unten). Die Auswahl wird persistiert (`persistProperties`), überlebt also
+Reload. Alternativ im Formatierungsbereich unter **Film-Motto → Vorlage**.
+
 ## Formatierungsbereich
 
+- **Film-Motto** – Vorlage (Standard / Kill Bill / Star Wars / …)
 - **Animation** – Explosion (0–2.6), Dreh-Tempo (0–1.4), Rotation an/aus, Wackeln & Schweben
 - **Comic-Style** – Kulleraugen, Comic-Bursts, Sprechblasen-Labels, schwarze Kontur
-- **Farben** – ein Farbwähler pro Kategorie (Standard: Report-Theme-Palette)
+- **Farben** – ein Farbwähler pro Kategorie (nur aktiv im Motto „Standard"; ein Film-Motto überschreibt die Farben)
 
 ## Interaktion
 
+- **Bonbon-Buttons** (unten) = Film-Motto umschalten (Farb- + Spruchwelt)
+- **💥 EXPLODE** (oben rechts) = dreht extrem schnell + reißt voll auf, sodass alles zu explodieren scheint (Toggle)
 - **Ziehen** = drehen
 - **Scrollen** = Zoom
 - **Klick auf ein Stück** = poppt heraus **und** filtert den Report

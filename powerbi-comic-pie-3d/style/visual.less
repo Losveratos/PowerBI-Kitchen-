@@ -9,6 +9,99 @@ canvas {
     outline: none;
 }
 
+/* ---------- On-Canvas UI: Bonbon-Buttons + EXPLODE ---------- */
+.comic-ui {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    z-index: 5;
+}
+
+.comic-themebar {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    pointer-events: none;
+}
+
+.comic-btn {
+    pointer-events: auto;
+    cursor: pointer;
+    border: 3px solid #141414;
+    border-radius: 999px;
+    padding: 6px 13px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    box-shadow: 3px 3px 0 rgba(20, 20, 20, 0.85);
+    transition: transform 0.06s, box-shadow 0.06s, filter 0.12s;
+    white-space: nowrap;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.comic-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 rgba(20, 20, 20, 0.85);
+    filter: saturate(1.15);
+}
+
+.comic-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 rgba(20, 20, 20, 0.85);
+}
+
+.comic-btn.on {
+    outline: 3px solid #fff;
+    outline-offset: -6px;
+    transform: scale(1.05);
+    box-shadow: 4px 4px 0 rgba(20, 20, 20, 0.9), 0 0 0 3px #141414;
+}
+
+.comic-explode {
+    pointer-events: auto;
+    cursor: pointer;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    border: 3px solid #141414;
+    border-radius: 14px;
+    padding: 9px 15px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #141414;
+    background: linear-gradient(135deg, #ffd23f, #ff7a00);
+    box-shadow: 4px 4px 0 rgba(20, 20, 20, 0.85);
+    transition: transform 0.06s, box-shadow 0.06s, filter 0.12s;
+}
+
+.comic-explode:hover {
+    transform: translate(-1px, -1px) rotate(-2deg);
+    filter: saturate(1.2);
+}
+
+.comic-explode:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 rgba(20, 20, 20, 0.85);
+}
+
+.comic-explode.on {
+    background: linear-gradient(135deg, #ff3b6b, #ff0040);
+    color: #fff;
+    animation: comic-shake 0.35s linear infinite;
+}
+
+@keyframes comic-shake {
+    0%, 100% { transform: translate(0, 0) rotate(-2deg); }
+    25% { transform: translate(-2px, 1px) rotate(2deg); }
+    50% { transform: translate(2px, -1px) rotate(-3deg); }
+    75% { transform: translate(-1px, 2px) rotate(1deg); }
+}
+
 .comic-placeholder {
     position: absolute;
     inset: 0;

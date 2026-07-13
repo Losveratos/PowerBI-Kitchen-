@@ -31,6 +31,94 @@ const SPRING_K = 150, SPRING_D = 16;   // federnd + Überschwinger = boing
 // Fallback-Comicpalette, falls das Report-Theme keine Farben liefert.
 const FALLBACK_COLORS = ["#FF3B3B", "#FFC12E", "#2E7DF7", "#27C86A", "#A855F7", "#FF5DA2", "#00C2C7", "#FF8A3D"];
 
+// Geometrie der 6 kreisenden Comic-Bursts (Position/Tempo/Puls) – unabhängig vom Wort.
+const BURST_GEO = [
+    { R: 5.4, y: 2.6, spd: 0.35, bobA: 0.5, bobF: 1.7, spin: 0.5, s: 1.9 },
+    { R: 6.6, y: -1.2, spd: -0.28, bobA: 0.7, bobF: 1.3, spin: -0.4, s: 2.1 },
+    { R: 7.4, y: 1.1, spd: 0.22, bobA: 0.4, bobF: 2.1, spin: 0.6, s: 1.7 },
+    { R: 5.9, y: 3.1, spd: -0.4, bobA: 0.5, bobF: 1.9, spin: -0.5, s: 1.6 },
+    { R: 7.0, y: -0.6, spd: 0.3, bobA: 0.6, bobF: 1.5, spin: 0.35, s: 1.8 },
+    { R: 6.2, y: 0.4, spd: -0.24, bobA: 0.5, bobF: 2.3, spin: -0.55, s: 1.7 }
+];
+
+interface BurstWord { w: string; f: string; t: string; }
+interface Theme {
+    key: string;
+    label: string;
+    btn: string;      // CSS-Hintergrund für den Bonbon-Button
+    fg: string;       // Textfarbe des Buttons
+    colors: string[] | null;  // Farbwelt der Tortenstücke (null = Report-/Palette-Farben)
+    bursts: BurstWord[];      // Spruchwelt
+}
+
+// ---- Film-Vorlagen: Farbwelt + Spruchwelt ----
+const THEMES: { [k: string]: Theme } = {
+    standard: {
+        key: "standard", label: "🍭 Standard", btn: "linear-gradient(135deg,#ff8ec7,#8ad0ff)", fg: "#141414",
+        colors: null,
+        bursts: [
+            { w: "POW!", f: "#FF3B3B", t: "#ffffff" }, { w: "BOOM!", f: "#FFC12E", t: "#141414" },
+            { w: "WOW!", f: "#2E7DF7", t: "#ffffff" }, { w: "ZAP!", f: "#27C86A", t: "#141414" },
+            { w: "YEAH!", f: "#FF5DA2", t: "#ffffff" }, { w: "BÄM!", f: "#A855F7", t: "#ffffff" }
+        ]
+    },
+    killbill: {
+        key: "killbill", label: "⚔️ Kill Bill", btn: "linear-gradient(135deg,#ffe500,#141414)", fg: "#141414",
+        colors: ["#FFE500", "#141414", "#E32213", "#FF7A00", "#B0000A", "#F4C20D"],
+        bursts: [
+            { w: "REVENGE!", f: "#FFE500", t: "#141414" }, { w: "SWORD!", f: "#E32213", t: "#ffffff" },
+            { w: "HATTORI!", f: "#141414", t: "#FFE500" }, { w: "BEEP!", f: "#FF7A00", t: "#141414" },
+            { w: "WIGGLE!", f: "#B0000A", t: "#ffffff" }, { w: "SNAP!", f: "#F4C20D", t: "#141414" }
+        ]
+    },
+    starwars: {
+        key: "starwars", label: "🚀 Star Wars", btn: "linear-gradient(135deg,#ffe81f,#2e7df7)", fg: "#141414",
+        colors: ["#FFE81F", "#2E7DF7", "#FF3B3B", "#27C86A", "#141414", "#C0C0C0"],
+        bursts: [
+            { w: "PEW PEW!", f: "#FFE81F", t: "#141414" }, { w: "FORCE!", f: "#2E7DF7", t: "#ffffff" },
+            { w: "VADER!", f: "#141414", t: "#FF3B3B" }, { w: "JEDI!", f: "#27C86A", t: "#141414" },
+            { w: "BOOM!", f: "#FF3B3B", t: "#ffffff" }, { w: "ZAP!", f: "#C0C0C0", t: "#141414" }
+        ]
+    },
+    endgame: {
+        key: "endgame", label: "🛡️ Endgame", btn: "linear-gradient(135deg,#7b2ff7,#ff3b3b)", fg: "#ffffff",
+        colors: ["#7B2FF7", "#FF3B3B", "#FFC12E", "#2E7DF7", "#27C86A", "#B0000A"],
+        bursts: [
+            { w: "SNAP!", f: "#7B2FF7", t: "#ffffff" }, { w: "ASSEMBLE!", f: "#FF3B3B", t: "#ffffff" },
+            { w: "3000!", f: "#FFC12E", t: "#141414" }, { w: "SMASH!", f: "#27C86A", t: "#141414" },
+            { w: "BOOM!", f: "#2E7DF7", t: "#ffffff" }, { w: "POW!", f: "#B0000A", t: "#ffffff" }
+        ]
+    },
+    pate: {
+        key: "pate", label: "🎩 Der Pate", btn: "linear-gradient(135deg,#c8a24b,#3b2a1a)", fg: "#fff4d8",
+        colors: ["#6B1414", "#C8A24B", "#2A1E12", "#8C6B3F", "#A8842C", "#3B2A1A"],
+        bursts: [
+            { w: "OFFER!", f: "#C8A24B", t: "#141414" }, { w: "FAMILY!", f: "#6B1414", t: "#ffffff" },
+            { w: "RESPECT!", f: "#2A1E12", t: "#C8A24B" }, { w: "BANG!", f: "#A8842C", t: "#141414" },
+            { w: "CAPISCE?", f: "#8C6B3F", t: "#ffffff" }, { w: "CANNOLI!", f: "#C8A24B", t: "#141414" }
+        ]
+    },
+    gump: {
+        key: "gump", label: "🍫 Forrest Gump", btn: "linear-gradient(135deg,#9be36f,#7fb8ff)", fg: "#141414",
+        colors: ["#6DBE72", "#7FB8FF", "#FFC97F", "#E8A0BF", "#C9E4A0", "#F5D76E"],
+        bursts: [
+            { w: "RUN!", f: "#6DBE72", t: "#141414" }, { w: "RUN FORREST!", f: "#7FB8FF", t: "#141414" },
+            { w: "SHRIMP!", f: "#E8A0BF", t: "#141414" }, { w: "CHOCOLATE!", f: "#FFC97F", t: "#141414" },
+            { w: "PING PONG!", f: "#C9E4A0", t: "#141414" }, { w: "STUPID IS...", f: "#F5D76E", t: "#141414" }
+        ]
+    },
+    boogie: {
+        key: "boogie", label: "🪩 Boogie Nights", btn: "linear-gradient(135deg,#ff5da2,#7b2ff7)", fg: "#ffffff",
+        colors: ["#FF5DA2", "#FFC12E", "#7B2FF7", "#FF7A00", "#2E7DF7", "#27C86A"],
+        bursts: [
+            { w: "GROOVY!", f: "#FF5DA2", t: "#ffffff" }, { w: "DISCO!", f: "#FFC12E", t: "#141414" },
+            { w: "BOOGIE!", f: "#7B2FF7", t: "#ffffff" }, { w: "FUNK!", f: "#FF7A00", t: "#141414" },
+            { w: "70s!", f: "#2E7DF7", t: "#ffffff" }, { w: "WOW!", f: "#27C86A", t: "#141414" }
+        ]
+    }
+};
+const THEME_ORDER = ["standard", "killbill", "starwars", "endgame", "pate", "gump", "boogie"];
+
 interface SliceDatum {
     label: string;
     value: number;
@@ -92,6 +180,15 @@ export class Visual implements IVisual {
     private spinning = true;
     private wobble = true;
 
+    // Theme + Explode-Modus
+    private currentTheme = "standard";
+    private activeThemeColors: string[] | null = null;
+    private builtBurstTheme = "";
+    private explodeMode = false;
+    private overlayEl: HTMLElement | null = null;
+    private themeButtons: { [k: string]: HTMLElement } = {};
+    private explodeBtn: HTMLElement | null = null;
+
     private width = 300;
     private height = 300;
 
@@ -104,8 +201,80 @@ export class Visual implements IVisual {
 
         this.initThree();
         this.buildStaticDecor();
+        this.buildOverlay();
         this.attachEvents();
         this.animate();
+    }
+
+    // ==================================================================
+    //  On-Canvas UI: Bonbon-Buttons (Film-Motto) + EXPLODE
+    // ==================================================================
+    private buildOverlay(): void {
+        const ui = document.createElement("div");
+        ui.className = "comic-ui";
+
+        // Motto-Buttons (bonbonfarben)
+        const bar = document.createElement("div");
+        bar.className = "comic-themebar";
+        THEME_ORDER.forEach(key => {
+            const th = THEMES[key];
+            const btn = document.createElement("button");
+            btn.className = "comic-btn";
+            btn.type = "button";
+            btn.textContent = th.label;
+            btn.style.background = th.btn;
+            btn.style.color = th.fg;
+            btn.title = th.label;
+            btn.addEventListener("click", (e) => { e.stopPropagation(); this.setTheme(key, true); });
+            this.themeButtons[key] = btn;
+            bar.appendChild(btn);
+        });
+        ui.appendChild(bar);
+
+        // EXPLODE-Button
+        const ex = document.createElement("button");
+        ex.className = "comic-explode";
+        ex.type = "button";
+        ex.textContent = "💥 EXPLODE";
+        ex.addEventListener("click", (e) => { e.stopPropagation(); this.toggleExplode(); });
+        this.explodeBtn = ex;
+        ui.appendChild(ex);
+
+        this.container.appendChild(ui);
+        this.overlayEl = ui;
+        this.updateThemeButtons();
+    }
+
+    private toggleExplode(): void {
+        this.explodeMode = !this.explodeMode;
+        if (this.explodeBtn) this.explodeBtn.classList.toggle("on", this.explodeMode);
+    }
+
+    /** Setzt Farb- und Spruchwelt und (optional) persistiert das Motto. */
+    private setTheme(key: string, persist: boolean): void {
+        if (!THEMES[key]) key = "standard";
+        this.currentTheme = key;
+        this.activeThemeColors = THEMES[key].colors;
+        if (this.builtBurstTheme !== key) this.rebuildBursts(THEMES[key].bursts, key);
+        this.buildSlices();
+        this.updateThemeButtons();
+
+        if (persist) {
+            this.host.persistProperties({
+                merge: [{
+                    objectName: "theme",
+                    selector: null,
+                    properties: { preset: key }
+                }]
+            });
+        }
+    }
+
+    private updateThemeButtons(): void {
+        THEME_ORDER.forEach(key => {
+            const btn = this.themeButtons[key];
+            if (btn) btn.classList.toggle("on", key === this.currentTheme);
+        });
     }
 
     // ==================================================================
@@ -117,6 +286,9 @@ export class Visual implements IVisual {
         this.renderer.setClearColor(0x000000, 0);
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        this.container.style.position = "relative";
+        this.container.style.overflow = "hidden";
 
         const el = this.renderer.domElement;
         el.style.display = "block";
@@ -187,25 +359,33 @@ export class Visual implements IVisual {
         this.eyeGroup.add(this.eyeL, this.eyeR, this.pupL, this.pupR);
         this.scene.add(this.eyeGroup);
 
-        // --- Comic-Bursts ---
+        // --- Comic-Bursts (Spruchwelt wird pro Theme neu gebaut) ---
         this.burstGroup = new THREE.Group();
-        const burstDefs = [
-            { w: "POW!", f: "#FF3B3B", t: "#ffffff", R: 5.4, y: 2.6, spd: 0.35, bobA: 0.5, bobF: 1.7, spin: 0.5, s: 1.9 },
-            { w: "BOOM!", f: "#FFC12E", t: "#141414", R: 6.6, y: -1.2, spd: -0.28, bobA: 0.7, bobF: 1.3, spin: -0.4, s: 2.1 },
-            { w: "WOW!", f: "#2E7DF7", t: "#ffffff", R: 7.4, y: 1.1, spd: 0.22, bobA: 0.4, bobF: 2.1, spin: 0.6, s: 1.7 },
-            { w: "ZAP!", f: "#27C86A", t: "#141414", R: 5.9, y: 3.1, spd: -0.4, bobA: 0.5, bobF: 1.9, spin: -0.5, s: 1.6 },
-            { w: "YEAH!", f: "#FF5DA2", t: "#ffffff", R: 7.0, y: -0.6, spd: 0.3, bobA: 0.6, bobF: 1.5, spin: 0.35, s: 1.8 },
-            { w: "BÄM!", f: "#A855F7", t: "#ffffff", R: 6.2, y: 0.4, spd: -0.24, bobA: 0.5, bobF: 2.3, spin: -0.55, s: 1.7 }
-        ];
-        burstDefs.forEach((d, i) => {
-            const b = this.makeBurst(d.w, d.f, d.t);
+        this.scene.add(this.burstGroup);
+        this.rebuildBursts(THEMES.standard.bursts, "standard");
+    }
+
+    /** Baut die kreisenden Comic-Bursts für die aktuelle Spruchwelt neu auf. */
+    private rebuildBursts(words: BurstWord[], themeKey: string): void {
+        // Alte Sprites entsorgen
+        this.bursts.forEach(b => {
+            this.burstGroup.remove(b.sprite);
+            if (b.mat.map) b.mat.map.dispose();
+            b.mat.dispose();
+        });
+        this.bursts = [];
+
+        const n = Math.min(BURST_GEO.length, words.length);
+        for (let i = 0; i < n; i++) {
+            const g = BURST_GEO[i], word = words[i];
+            const b = this.makeBurst(word.w, word.f, word.t);
             this.burstGroup.add(b.sprite);
             this.bursts.push({
-                sprite: b.sprite, mat: b.mat, angle: (i / burstDefs.length) * Math.PI * 2,
-                R: d.R, baseY: d.y, spd: d.spd, bobA: d.bobA, bobF: d.bobF, ph: i * 1.3, spin: d.spin, baseS: d.s
+                sprite: b.sprite, mat: b.mat, angle: (i / n) * Math.PI * 2,
+                R: g.R, baseY: g.y, spd: g.spd, bobA: g.bobA, bobF: g.bobF, ph: i * 1.3, spin: g.spin, baseS: g.s
             });
-        });
-        this.scene.add(this.burstGroup);
+        }
+        this.builtBurstTheme = themeKey;
     }
 
     private circleSprite(diam: number, fill: string, strokeW: number): THREE.Sprite {
@@ -312,7 +492,8 @@ export class Visual implements IVisual {
             });
             geo.computeVertexNormals();
 
-            const mat = new THREE.MeshToonMaterial({ color: new THREE.Color(d.color), gradientMap: this.grad });
+            const col = this.getSliceColor(i, d.color);
+            const mat = new THREE.MeshToonMaterial({ color: new THREE.Color(col), gradientMap: this.grad });
             const mesh = new THREE.Mesh(geo, mat);
             mesh.castShadow = true; mesh.receiveShadow = true;
             mesh.userData.sliceIndex = i;
@@ -330,7 +511,7 @@ export class Visual implements IVisual {
             holder.add(mesh);
 
             if (showLabels) {
-                const label = this.makeLabel(d.label, pct + "%", d.color);
+                const label = this.makeLabel(d.label, pct + "%", col);
                 label.position.set(Math.cos(mid) * RADIUS * 0.5, Math.sin(mid) * RADIUS * 0.5, DEPTH + 0.85);
                 holder.add(label);
             }
@@ -345,6 +526,14 @@ export class Visual implements IVisual {
         });
         this.currentExplode = 0;
         this.applyOpacity();
+    }
+
+    /** Farbe eines Stücks: Theme-Farbwelt gewinnt, sonst Report-/Palette-Farbe. */
+    private getSliceColor(index: number, dataColor: string): string {
+        if (this.activeThemeColors && this.activeThemeColors.length) {
+            return this.activeThemeColors[index % this.activeThemeColors.length];
+        }
+        return dataColor;
     }
 
     // ==================================================================
@@ -448,19 +637,22 @@ export class Visual implements IVisual {
         const dt = Math.min(this.clock.getDelta(), 0.05);
         const t = this.clock.getElapsedTime();
 
-        // Wackel-Tanz + Schweben
-        if (this.spinning && !this.dragging) this.spinYaw += this.spinSpeed * dt;
+        // Wackel-Tanz + Schweben (im EXPLODE-Modus rast alles)
+        const effSpeed = this.explodeMode ? 34 : this.spinSpeed;
+        if ((this.spinning || this.explodeMode) && !this.dragging) this.spinYaw += effSpeed * dt;
         this.spinGroup.rotation.y = this.spinYaw;
-        if (this.wobble) {
-            this.spinGroup.rotation.z = Math.sin(t * 1.15) * 0.07;
-            this.spinGroup.rotation.x = Math.sin(t * 0.9 + 1.0) * 0.05;
+        if (this.wobble || this.explodeMode) {
+            const amp = this.explodeMode ? 4 : 1;
+            this.spinGroup.rotation.z = Math.sin(t * 1.15) * 0.07 * amp;
+            this.spinGroup.rotation.x = Math.sin(t * 0.9 + 1.0) * 0.05 * amp;
             this.spinGroup.position.y = Math.sin(t * 1.7) * 0.16;
         } else {
             this.spinGroup.rotation.z = 0; this.spinGroup.rotation.x = 0; this.spinGroup.position.y = 0;
         }
 
-        // Explosion: Slider glätten, Stücke federn nach (boing)
-        this.currentExplode += (this.targetExplode - this.currentExplode) * Math.min(1, dt * 5);
+        // Explosion: Slider glätten, im EXPLODE-Modus voll aufreißen
+        const effExplode = this.explodeMode ? 3.4 : this.targetExplode;
+        this.currentExplode += (effExplode - this.currentExplode) * Math.min(1, dt * 5);
         for (const s of this.slices) {
             if (!s.dir) continue;
             const tgt = this.currentExplode + (s.selected ? POP_EXTRA : 0);
@@ -479,10 +671,11 @@ export class Visual implements IVisual {
 
         // Bursts kreisen, drehen, pulsieren
         if (this.burstGroup.visible) {
+            const burstBoost = this.explodeMode ? 6 : 1;
             for (const b of this.bursts) {
-                b.angle += b.spd * dt;
+                b.angle += b.spd * dt * burstBoost;
                 b.sprite.position.set(Math.cos(b.angle) * b.R, b.baseY + Math.sin(t * b.bobF + b.ph) * b.bobA, Math.sin(b.angle) * b.R);
-                b.mat.rotation += b.spin * dt;
+                b.mat.rotation += b.spin * dt * burstBoost;
                 const sc = b.baseS * (1 + 0.09 * Math.sin(t * 3.5 + b.ph)); b.sprite.scale.set(sc, sc, 1);
             }
         }
@@ -513,6 +706,20 @@ export class Visual implements IVisual {
         this.wobble = a.wobble.value;
         this.eyeGroup.visible = st.showEyes.value;
         this.burstGroup.visible = st.showBursts.value;
+
+        // Film-Motto (persistierter Wert / Format-Pane-Dropdown)
+        const rawPreset = this.settings.theme.preset.value as unknown;
+        let preset = "standard";
+        if (rawPreset && typeof rawPreset === "object" && (rawPreset as powerbi.IEnumMember).value) {
+            preset = String((rawPreset as powerbi.IEnumMember).value);
+        } else if (typeof rawPreset === "string") {
+            preset = rawPreset;
+        }
+        if (!THEMES[preset]) preset = "standard";
+        this.currentTheme = preset;
+        this.activeThemeColors = THEMES[preset].colors;
+        if (this.builtBurstTheme !== preset) this.rebuildBursts(THEMES[preset].bursts, preset);
+        this.updateThemeButtons();
 
         // Daten lesen + Torte bauen
         try {

@@ -33,6 +33,26 @@
     }
   ],
   "objects": {
+    "theme": {
+      "displayName": "Film-Motto",
+      "properties": {
+        "preset": {
+          "displayName": "Vorlage",
+          "description": "Farb- und Spruchwelt nach Filmvorlage.",
+          "type": {
+            "enumeration": [
+              { "value": "standard", "displayName": "🍭 Standard" },
+              { "value": "killbill", "displayName": "⚔️ Kill Bill" },
+              { "value": "starwars", "displayName": "🚀 Star Wars" },
+              { "value": "endgame", "displayName": "🛡️ Avengers Endgame" },
+              { "value": "pate", "displayName": "🎩 Der Pate" },
+              { "value": "gump", "displayName": "🍫 Forrest Gump" },
+              { "value": "boogie", "displayName": "🪩 Boogie Nights" }
+            ]
+          }
+        }
+      }
+    },
     "animation": {
       "displayName": "Animation",
       "properties": {

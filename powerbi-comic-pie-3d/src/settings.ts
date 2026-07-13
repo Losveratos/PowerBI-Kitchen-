@@ -7,6 +7,33 @@ import Card = formattingSettings.SimpleCard;
 import Model = formattingSettings.Model;
 
 /**
+ * Motto-Karte: wählt die Film-Farb-/Spruchwelt.
+ * Wird auch von den Bonbon-Buttons im Chart gesetzt (persistProperties).
+ */
+export const THEME_ITEMS: powerbi.IEnumMember[] = [
+    { value: "standard", displayName: "🍭 Standard" },
+    { value: "killbill", displayName: "⚔️ Kill Bill" },
+    { value: "starwars", displayName: "🚀 Star Wars" },
+    { value: "endgame", displayName: "🛡️ Avengers Endgame" },
+    { value: "pate", displayName: "🎩 Der Pate" },
+    { value: "gump", displayName: "🍫 Forrest Gump" },
+    { value: "boogie", displayName: "🪩 Boogie Nights" }
+];
+
+class ThemeCard extends Card {
+    preset = new formattingSettings.ItemDropdown({
+        name: "preset",
+        displayName: "Vorlage",
+        items: THEME_ITEMS,
+        value: THEME_ITEMS[0]
+    });
+
+    name: string = "theme";
+    displayName: string = "Film-Motto";
+    slices: formattingSettings.Slice[] = [this.preset];
+}
+
+/**
  * Animations-Karte: Explosion, Tempo, Rotation an/aus, Wackeln.
  */
 class AnimationCard extends Card {
@@ -93,9 +120,10 @@ export class DataColorsCard extends Card {
  * Wurzel-Modell für den Formatierungsbereich.
  */
 export class VisualSettings extends Model {
+    theme = new ThemeCard();
     animation = new AnimationCard();
     style = new StyleCard();
     dataColors = new DataColorsCard();
 
-    cards = [this.animation, this.style, this.dataColors];
+    cards = [this.theme, this.animation, this.style, this.dataColors];
 }
