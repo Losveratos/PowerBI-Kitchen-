@@ -175,5 +175,6 @@
   "Cards_Tint": "Hintergrund einfärben (Ampel)",
   "Cards_TintStrength": "Färbe-Intensität %",
   "Enum_CardBasis_Basis": "Abweichungsbasis (ΔPL/ΔPY)",
-  "Enum_CardBasis_Bm": "Benchmark (BM)"
+  "Enum_CardBasis_Bm": "Benchmark (BM)",
+  "Cards_Bullet": "Bullet vs. Benchmark"
 }

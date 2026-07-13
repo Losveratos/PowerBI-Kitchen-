@@ -139,6 +139,8 @@ interface ChartConfig {
     cardTint: boolean;
     /** KPI cards: tint opacity in percent (4–40) */
     cardTintPct: number;
+    /** KPI cards: mini bullet chart AC vs. benchmark on the card */
+    cardBullet: boolean;
     /** sum-safe label rounding (largest remainder): labels add up to the Σ header */
     sumSafe: boolean;
     /** deck-wide absolute-variance domain (incl. fixedVarMax) for scale sync */
@@ -983,6 +985,7 @@ export class Visual implements IVisual {
             cardBasis: String(s.chartCard.cardStatusBasis.value.value),
             cardTint: s.chartCard.cardTint.value,
             cardTintPct: Math.max(4, Math.min(40, Number(s.chartCard.cardTintStrength.value ?? 12))),
+            cardBullet: s.chartCard.cardBullet.value,
             sumSafe: s.labelsCard.sumSafeRounding.value,
             ...(() => { const fp = this.formatterParams(maxAbs, allInt); return { fmtUnit: fp.unit, fmtPrec: fp.prec }; })(),
             fmt: this.makeFormatter(maxAbs, allInt),
@@ -3718,6 +3721,34 @@ export class Visual implements IVisual {
                 txt(cxs[2], byBottom + legF + 2, cfg.hasFc && p.isFc ? "FC" : "AC", legF, false, cfg.subtle, "middle");
             };
 
+            // mini bullet AC vs. BM: AC bar on a light band, benchmark as ink tick —
+            // the classic monitoring glyph; scale anchors at zero like all bars
+            const drawBullet = (bx: number, byMid: number, bw2: number, bh2: number) => {
+                if (p.bm == null || p.value == null) { return; }
+                const lo = Math.min(0, p.value as number, p.bm);
+                const hi = Math.max(0, p.value as number, p.bm);
+                const sc = linearScale(lo, hi, bx + 2, bx + bw2 - 2);
+                this.el("rect", {
+                    x: bx, y: byMid - bh2 / 2, width: bw2, height: bh2, rx: 1.5,
+                    fill: cfg.hc ? cfg.paper : "#EFEFEA",
+                    stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 0.8 : 0
+                }, g);
+                const zero = sc(0), e = sc(p.value as number);
+                const barH = Math.max(3, Math.round(bh2 * 0.5));
+                this.el("rect", {
+                    x: Math.min(zero, e), y: byMid - barH / 2,
+                    width: Math.max(1, Math.abs(e - zero)), height: barH,
+                    ...(p.isFc
+                        ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                        : { fill: cfg.colors.ac })
+                }, g);
+                const tX = sc(p.bm);
+                this.el("rect", {
+                    x: tX - 1.2, y: byMid - bh2 / 2 - 1.5, width: 2.4, height: bh2 + 3,
+                    fill: cfg.ink
+                }, g);
+            };
+
             // Δ reference rows: variance basis, second basis, benchmark — in
             // benchmark-status mode the BM row leads (it carries the judgement)
             const refRows: [string, number, number | null][] = [];
@@ -3754,6 +3785,14 @@ export class Visual implements IVisual {
                     }
                     refX += refF * 2.6 + maxRefW + Math.round(24 * k);
                 }
+                // bullet next to the Δ rows when benchmark is bound
+                if (cfg.cardBullet && p.bm != null) {
+                    const bw3 = Math.min(110 * k, x + w - pad - refX);
+                    if (bw3 >= 60 * k) {
+                        drawBullet(refX, y + h / 2, bw3, Math.round(9 * k));
+                        refX += bw3 + Math.round(20 * k);
+                    }
+                }
                 // bridge on the right edge when there is still room for it
                 const bw2 = Math.min(170 * k, x + w - pad - refX);
                 const bh2 = Math.min(Math.round(34 * k), h - Math.round(12 * k) - legRoom);
@@ -3773,6 +3812,12 @@ export class Visual implements IVisual {
                     if (h < 118 * k || yCur > y + h - 4) { break; }
                     refRowAt(x + pad, yCur, rLbl, rVa, rVr);
                     yCur += refF + Math.round(5 * k);
+                }
+                // bullet under the value/Δ block when benchmark is bound
+                if (cfg.cardBullet && p.bm != null && yCur + Math.round(14 * k) <= y + h - 4) {
+                    const bw3 = Math.min(w - pad * 2, 190 * k);
+                    drawBullet(x + pad, yCur + Math.round(7 * k), bw3, Math.round(9 * k));
+                    yCur += Math.round(18 * k);
                 }
                 const bridgeH = Math.round(40 * k);
                 if (p.basis != null && h - (yCur - y) >= bridgeH + pad + legRoom && w >= 150 * k) {

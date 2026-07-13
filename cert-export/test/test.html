@@ -581,14 +581,14 @@ const monAc = [97.1, 4180, 118, 5230, 71.4, 88200];
 const monBm = [99.0, 4000, 120, 5600, 75.0, 90000];
 run("c70", dataView(monCats, [col("actual", monAc), col("benchmark", monBm)],
   { chart: { orientation: "cards", cardStatusBasis: "benchmark", cardTint: true,
-    cardTintStrength: 14, invertList: "Ausschuss, Energie kWh, Kosten",
+    cardTintStrength: 14, cardBullet: true, invertList: "Ausschuss, Energie kWh, Kosten",
     materialityPct: 3 } }), 1200, 400);
 
 // benchmark status without tint: stripe only, delta-BM row leads, delta-PY second
 run("c71", dataView(monCats.slice(0, 4),
   [col("actual", monAc.slice(0, 4)), col("previousYear", [98.0, 3900, 121, 5100]),
    col("benchmark", monBm.slice(0, 4))],
-  { chart: { orientation: "cards", cardStatusBasis: "benchmark" } }), 1200, 400);
+  { chart: { orientation: "cards", cardStatusBasis: "benchmark", cardBullet: true } }), 1200, 400);
 
 // P&L table with margin rows: value as %, deltas as percentage points
 run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],

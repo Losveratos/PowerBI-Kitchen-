@@ -504,11 +504,19 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         }
     });
 
+    cardBullet = new formattingSettings.ToggleSwitch({
+        name: "cardBullet",
+        displayName: "Bullet vs. benchmark",
+        displayNameKey: "Cards_Bullet",
+        description: "Kleines Bullet-Chart auf der Karte: AC-Balken auf hellem Band, Benchmark als Tick — unter der Zahl (Stapel-Layout) bzw. neben den Δ-Zeilen (flaches Layout). Braucht die Benchmark-Rolle.",
+        value: false
+    });
+
     cardsGroup = new formattingSettings.Group({
         name: "chartCards",
         displayName: "KPI cards",
         displayNameKey: "Group_Cards",
-        slices: [this.cardStatusBasis, this.cardTint, this.cardTintStrength]
+        slices: [this.cardStatusBasis, this.cardTint, this.cardTintStrength, this.cardBullet]
     });
 
     name: string = "chart";

@@ -1,5 +1,14 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.22.0.0 (2026-07-12)
+
+**Bullet-Chart auf den KPI-Karten:** Neuer Schalter „Bullet vs.
+Benchmark“ (KPI-Karten-Gruppe): kleines Bullet-Diagramm — AC-Balken auf
+hellem Band, Benchmark als Tick, Null-verankert, FC schraffiert. Sitzt
+im Stapel-Layout unter der Zahl bzw. den Δ-Zeilen, im flachen Layout
+rechts neben den Δ-Zeilen. Braucht die Benchmark-Rolle; Key Cards_Bullet
+in de/en/es/ja.
+
 ## 1.21.0.0 (2026-07-12)
 
 **KPI-Karten für Monitoring (Kundenwunsch):** Neue Formatgruppe
