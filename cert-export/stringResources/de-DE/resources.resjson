@@ -8,6 +8,7 @@
   "Role_PrevForecast": "FC Vormonat (Revision)",
   "Role_Series": "Stack-Serie (Gestapelt)",
   "Role_Comments": "Kommentare",
+  "Role_FilterInfo": "Filter-Info (Fußzeile)",
   "Role_Multiples": "Small Multiples",
   "Role_RowType": "Waterfall-Typ (sum/delta)",
   "Role_FcFlag": "Forecast-Flag (0=Ist · 1=FC · 2=vorläufig)",
@@ -35,6 +36,7 @@
   "Chart_Invert": "Invertieren (mehr ist schlecht)",
   "Chart_InvertList": "Invertieren je Kategorie",
   "Title_Footer": "Fußzeile (Datenstand · Quelle)",
+  "Title_FilterFooter": "Filter-Fußzeile anzeigen",
   "Colors_Actual": "Ist (AC)",
   "Colors_PreviousYear": "Vorjahr (PY)",
   "Colors_Plan": "Plan-Umriss (PL)",
@@ -166,5 +168,6 @@
   "Struct_Result": "Ergebniszeile (fett, Anker)",
   "Struct_Skip": "Aus Summen ausnehmen",
   "Btn_SortHeader": "Nach dieser Spalte sortieren (erneut: aufsteigend / aus)",
-  "Struct_CommaHint": "Name enthält ein Komma — bitte über die Waterfall-Typ-Rolle strukturieren"
+  "Struct_CommaHint": "Name enthält ein Komma — bitte über die Waterfall-Typ-Rolle strukturieren",
+  "Foot_Filter": "Filter"
 }

@@ -126,10 +126,18 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    filterFooter = new formattingSettings.ToggleSwitch({
+        name: "filterFooter",
+        displayName: "Show filter footer",
+        displayNameKey: "Title_FilterFooter",
+        description: "Zweite Fußzeile mit dem Filterkontext: zeigt die gebundene „Filter-Info“-Text-Measure (Report-Filter sind für Custom Visuals nicht per API sichtbar) plus den Anzeige-Zustand des Visuals selbst — YTD, Top-N, In-Chart-Sortierung, Σ-Ausschlüsse, Vergleich.",
+        value: false
+    });
+
     name: string = "ibcsTitle";
     displayName: string = "IBCS title";
     displayNameKey: string = "Card_IbcsTitle";
-    slices: Array<FormattingSettingsSlice> = [this.show, this.kpi, this.period, this.message, this.autoMessage, this.footer];
+    slices: Array<FormattingSettingsSlice> = [this.show, this.kpi, this.period, this.message, this.autoMessage, this.footer, this.filterFooter];
 }
 
 export class ChartCardSettings extends formattingSettings.CompositeCard {

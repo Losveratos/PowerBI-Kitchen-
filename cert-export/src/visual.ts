@@ -259,6 +259,8 @@ export class Visual implements IVisual {
     private pendingTableExpanded: string | null = null;
     /** table mode: vertical scroll offset in rows per tile (transient, wheel/drag) */
     private tableScroll = new Map<string, number>();
+    /** bound Filter-Info text measure (filter context for the filter footer) */
+    private filterInfo: string | null = null;
     /** table header sort, e.g. "dabs_desc" ("" = data order), persisted */
     private tableSort = "";
     private pendingTableSort: string | null = null;
@@ -497,6 +499,7 @@ export class Visual implements IVisual {
         const byRole: { [role: string]: (number | null)[] } = {};
         let comments: (string | null)[] | null = null;
         this.measureFormat = undefined;
+        this.filterInfo = null;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
             for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark", "lineMeasure", "prevForecast"]) {
@@ -517,6 +520,11 @@ export class Visual implements IVisual {
             if (roles["comments"]) {
                 comments = col.values.map(v =>
                     v != null && String(v).trim() !== "" ? String(v) : null);
+            }
+            if (roles["filterInfo"]) {
+                // scalar text measure — same value in every row, take the first set one
+                const v = col.values.find(x => x != null && String(x).trim() !== "");
+                this.filterInfo = v != null ? String(v) : null;
             }
         }
         this.paneHasPy = !!byRole["previousYear"];
@@ -1175,14 +1183,50 @@ export class Visual implements IVisual {
             ? this.drawTitleBlock(width, points, cfg, maxAbs, orientation)
             : 0;
         const footerText = (s.ibcsTitleCard.footer.value || "").trim();
-        const footerH = footerText ? Math.round(11 * this.fontK) + 6 : 0;
+        // optional second footer line: the applied-filter context. Report/page
+        // filters are not exposed to custom visuals, so the author binds a text
+        // measure (Filter-Info role); the visual appends its OWN view state
+        const filterParts: string[] = [];
+        if (s.ibcsTitleCard.filterFooter.value) {
+            if (this.filterInfo) { filterParts.push(this.filterInfo); }
+            if (cfg.cumulative) { filterParts.push("YTD"); }
+            const topNSet = Math.round(s.chartCard.topN.value ?? 0);
+            if (topNSet > 0 && orientationRaw === "bars" && !cfg.cumulative) {
+                filterParts.push(`Top ${topNSet}`);
+            }
+            if (this.tableSort && isTable && !cfg.cumulative) {
+                const [sk, sd] = this.tableSort.split("_");
+                const lbl = sk === "ac" ? "AC" : sk === "dabs" ? `Δ${cfg.basisLabel}`
+                    : sk === "drel" ? `Δ${cfg.basisLabel} %` : `Δ${cfg.basis2Label}`;
+                filterParts.push(`⇅ ${lbl} ${sd === "asc" ? "▲" : "▼"}`);
+            }
+            if (isTable && cfg.skipSet.size > 0) {
+                filterParts.push(`Σ − ${cfg.skipSet.size}`);
+            }
+            if (this.compareActive && this.compareCats.length === 2) {
+                filterParts.push(this.compareCats.join(" vs "));
+            }
+        }
+        const filterText = filterParts.join(" · ");
+        const lineF = Math.round(11 * this.fontK) + 2;
+        const footerH = (footerText || filterText ? Math.round(11 * this.fontK) + 6 : 0)
+            + (footerText && filterText ? lineF : 0);
         const availH = height - topOffset - footerH;
+        const ff = Math.round(9.5 * this.fontK);
+        let fy = height - 5;
         if (footerText) {
-            const ff = Math.round(9.5 * this.fontK);
             const ft = this.el("text", {
-                x: 6, y: height - 5, "font-size": ff, fill: cfg.subtle, "font-family": FONT
+                x: 6, y: fy, "font-size": ff, fill: cfg.subtle, "font-family": FONT
             }, this.svg);
             ft.textContent = this.truncate(footerText, width - 12, ff);
+            fy -= lineF;
+        }
+        if (filterText) {
+            const ft2 = this.el("text", {
+                x: 6, y: fy, "font-size": ff, fill: cfg.subtle, "font-family": FONT
+            }, this.svg);
+            ft2.textContent = this.truncate(
+                `${this.locStr("Foot_Filter", "Filter")}: ${filterText}`, width - 12, ff);
         }
 
         // comment panel: numbered footnote list to the right of the chart

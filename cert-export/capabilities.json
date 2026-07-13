@@ -71,6 +71,14 @@
             "description": "Feld gefüllt = Säulen/Balken stapeln sich nach dieser Serie (AC je Serie, mit Legende und Summen-Label)."
         },
         {
+            "displayName": "Filter-Info (Fußzeile)",
+            "displayNameKey": "Role_FilterInfo",
+            "name": "filterInfo",
+            "kind": "Measure",
+            "description": "Text-Measure mit dem aktuellen Filterkontext (z. B. via CONCATENATEX/SELECTEDVALUE) — wird als zweite Fußzeile angezeigt, wenn „Filter-Fußzeile“ aktiv ist",
+            "requiredTypes": [ { "text": true } ]
+        },
+        {
             "displayName": "Comments",
             "displayNameKey": "Role_Comments",
             "name": "comments",
@@ -107,7 +115,8 @@
                 "period": { "type": { "text": true } },
                 "message": { "type": { "text": true } },
                 "autoMessage": { "type": { "bool": true } },
-                "footer": { "type": { "text": true } }
+                "footer": { "type": { "text": true } },
+                "filterFooter": { "type": { "bool": true } }
             }
         },
         "chart": {
@@ -267,7 +276,8 @@
                     "forecast": { "max": 1 },
                     "prevForecast": { "max": 1 },
                     "benchmark": { "max": 1 },
-                    "comments": { "max": 1 }
+                    "comments": { "max": 1 },
+                    "filterInfo": { "max": 1 }
                 }
             ],
             "categorical": {
@@ -290,7 +300,8 @@
                         { "bind": { "to": "prevForecast" } },
                         { "bind": { "to": "benchmark" } },
                         { "bind": { "to": "lineMeasure" } },
-                        { "bind": { "to": "comments" } }
+                        { "bind": { "to": "comments" } },
+                        { "bind": { "to": "filterInfo" } }
                     ]
                 }
             }

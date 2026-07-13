@@ -8,6 +8,7 @@
   "Role_PrevForecast": "Prior-month FC (revision)",
   "Role_Series": "Stack series (Stacked)",
   "Role_Comments": "Comments",
+  "Role_FilterInfo": "Filter info (footer)",
   "Role_Multiples": "Small Multiples",
   "Role_RowType": "Waterfall type (sum/delta)",
   "Role_FcFlag": "Forecast flag (0=actual · 1=FC · 2=preliminary)",
@@ -35,6 +36,7 @@
   "Chart_Invert": "Invert (higher is bad)",
   "Chart_InvertList": "Invert per category",
   "Title_Footer": "Footer (data status · source)",
+  "Title_FilterFooter": "Show filter footer",
   "Colors_Actual": "Actual (AC)",
   "Colors_PreviousYear": "Previous Year (PY)",
   "Colors_Plan": "Plan outline (PL)",
@@ -166,5 +168,6 @@
   "Struct_Result": "Result row (bold anchor)",
   "Struct_Skip": "Exclude from totals",
   "Btn_SortHeader": "Sort by this column (click again: ascending / off)",
-  "Struct_CommaHint": "Name contains a comma — use the Waterfall Type role instead"
+  "Struct_CommaHint": "Name contains a comma — use the Waterfall Type role instead",
+  "Foot_Filter": "Filter"
 }

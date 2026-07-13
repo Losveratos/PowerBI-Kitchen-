@@ -8,6 +8,7 @@
   "Role_PrevForecast": "前月予測(改定)",
   "Role_Series": "積み上げ系列",
   "Role_Comments": "コメント",
+  "Role_FilterInfo": "フィルター情報（フッター）",
   "Role_Multiples": "スモールマルチプル",
   "Role_RowType": "ウォーターフォール種別 (sum/delta)",
   "Role_FcFlag": "予測フラグ (0=実績 · 1=FC · 2=暫定)",
@@ -35,6 +36,7 @@
   "Chart_Invert": "反転(値が高いほど悪い)",
   "Chart_InvertList": "カテゴリ別に反転",
   "Title_Footer": "フッター(データ基準日・出典)",
+  "Title_FilterFooter": "フィルター行を表示",
   "Colors_Actual": "実績 (AC)",
   "Colors_PreviousYear": "前年 (PY)",
   "Colors_Plan": "計画の枠線 (PL)",
@@ -166,5 +168,6 @@
   "Struct_Result": "結果行(太字・アンカー)",
   "Struct_Skip": "合計から除外",
   "Btn_SortHeader": "この列で並べ替え(再クリック: 昇順/解除)",
-  "Struct_CommaHint": "名前にカンマが含まれています — ウォーターフォール種別ロールをご利用ください"
+  "Struct_CommaHint": "名前にカンマが含まれています — ウォーターフォール種別ロールをご利用ください",
+  "Foot_Filter": "フィルター"
 }

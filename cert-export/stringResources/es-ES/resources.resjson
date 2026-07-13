@@ -8,6 +8,7 @@
   "Role_PrevForecast": "Previsión del mes anterior (revisión)",
   "Role_Series": "Serie apilada (Apilado)",
   "Role_Comments": "Comentarios",
+  "Role_FilterInfo": "Información de filtros (pie)",
   "Role_Multiples": "Small Multiples",
   "Role_RowType": "Tipo de cascada (sum/delta)",
   "Role_FcFlag": "Indicador de previsión (0=real · 1=FC · 2=provisional)",
@@ -35,6 +36,7 @@
   "Chart_Invert": "Invertir (más alto es peor)",
   "Chart_InvertList": "Invertir por categoría",
   "Title_Footer": "Pie de página (estado de datos · fuente)",
+  "Title_FilterFooter": "Mostrar pie de filtros",
   "Colors_Actual": "Real (AC)",
   "Colors_PreviousYear": "Año anterior (PY)",
   "Colors_Plan": "Contorno de plan (PL)",
@@ -166,5 +168,6 @@
   "Struct_Result": "Fila de resultado (ancla en negrita)",
   "Struct_Skip": "Excluir de los totales",
   "Btn_SortHeader": "Ordenar por esta columna (otro clic: ascendente / desactivar)",
-  "Struct_CommaHint": "El nombre contiene una coma: use el rol de tipo de cascada"
+  "Struct_CommaHint": "El nombre contiene una coma: use el rol de tipo de cascada",
+  "Foot_Filter": "Filtros"
 }

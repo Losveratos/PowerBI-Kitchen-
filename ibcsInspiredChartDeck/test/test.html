@@ -76,6 +76,7 @@
 <div class="case"><h4>Tabelle · 3-Ebenen-Hierarchie Region→Land→Produkt (Chevrons je Ebene, Einrückung ×Tiefe)</h4><div class="stage" id="c66" style="width:1200px;height:440px"></div></div>
 <div class="case"><h4>Tabelle · Scrolling: 30 Zeilen in 320px — Header + Σ fixiert, Scrollbar rechts</h4><div class="stage" id="c67" style="width:1200px;height:320px"></div></div>
 <div class="case"><h4>Tabelle · Formelzeilen: „Rohertrag = Umsatz + Materialaufwand“ (Summe) + „Marge = Rohertrag / Umsatz“ (%-Zeile)</h4><div class="stage" id="c68" style="width:1200px;height:420px"></div></div>
+<div class="case"><h4>Filter-Fußzeile: gebundene Filter-Info-Measure + Auto-Status (Sortierung, Σ-Ausschluss) über der Datenstand-Zeile</h4><div class="stage" id="c69" style="width:1200px;height:460px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -562,6 +563,14 @@ run("c68", dataView(["Umsatz", "Materialaufwand", "Personal", "Opex"],
    col("previousYear", [9100, -3900, -2300, -850], "#,0 T€")],
   { chart: { orientation: "table", showTotal: true,
     formulaRows: "Rohertrag = Umsatz + Materialaufwand; Marge = Rohertrag / Umsatz" } }), 1200, 420);
+
+// filter footer: bound Filter-Info text measure + the visual's own view state
+// (header sort, sigma exclusions) as a second footer line above the data-status one
+run("c69", dataView(okCats, [col("actual", okAc, "#,0 T€"), col("previousYear", okPy, "#,0 T€"),
+    col("filterInfo", okCats.map(() => "Region: DACH · Jahr: 2026 · Kanal: Direct"))],
+  { chart: { orientation: "table", showTotal: true, skipList: "nachrichtlich: Export",
+      tableSort: "dabs_desc" },
+    ibcsTitle: { footer: "Ist per Jun 2026 · Stand 05.07. · Quelle: SAP FI", filterFooter: true } }), 1200, 460);
 
 // P&L table with margin rows: value as %, deltas as percentage points
 run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],

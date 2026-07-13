@@ -1,5 +1,17 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.20.0.0 (2026-07-12)
+
+**Filter-Fußzeile:** Optionale zweite Fußzeile mit dem Filterkontext
+(IBCS-Titel → „Filter-Fußzeile anzeigen“). Sie kombiniert zwei Quellen:
+die neue Feld-Rolle **Filter-Info** — eine Text-Measure, die den
+Report-Filterkontext liefert (z. B. via CONCATENATEX/SELECTEDVALUE;
+Report-/Seitenfilter sind für Custom Visuals nicht per API sichtbar) —
+und den Anzeige-Zustand des Visuals selbst (YTD, Top-N, In-Chart-
+Sortierung, Σ-Ausschlüsse, aktiver Vergleich). Die Datenstand-Fußzeile
+bleibt unverändert die unterste Zeile. Neue Keys Role_FilterInfo /
+Title_FilterFooter / Foot_Filter in de/en/es/ja; Render-Fall c69.
+
 ## 1.19.2.0 (2026-07-12)
 
 **Zertifizierungs-Vorarbeiten:** apiVersion auf 5.11.0 angehoben (Paket
