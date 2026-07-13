@@ -64,6 +64,11 @@ const valueColumnsItems: LocEnumMember[] = [
     { value: "all", displayName: "AC · PY · PL", key: "Enum_ValueCols_All" }
 ];
 
+const matrixCompareItems: LocEnumMember[] = [
+    { value: "none", displayName: "Off (Δ vs. basis)", key: "Enum_MxCompare_None" },
+    { value: "prevcol", displayName: "Δ vs. previous column", key: "Enum_MxCompare_Prev" }
+];
+
 const cardBasisItems: LocEnumMember[] = [
     { value: "basis", displayName: "Variance basis (ΔPL/ΔPY)", key: "Enum_CardBasis_Basis" },
     { value: "benchmark", displayName: "Benchmark (BM)", key: "Enum_CardBasis_Bm" }
@@ -73,7 +78,7 @@ const cardBasisItems: LocEnumMember[] = [
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
         displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
-        cardBasisItems];
+        cardBasisItems, matrixCompareItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -476,6 +481,33 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    indentList = new formattingSettings.TextInput({
+        name: "indentList",
+        displayName: "Indent rows (davon)",
+        displayNameKey: "Table_IndentList",
+        description: "Kommagetrennte Zeilennamen, die als „davon:“-Positionen eingerückt und dezent dargestellt werden — ohne Hierarchie-Feld. Meist kombiniert mit „Aus Summen ausnehmen“.",
+        placeholder: "z. B. davon Export",
+        value: ""
+    });
+
+    rowFormats = new formattingSettings.TextInput({
+        name: "rowFormats",
+        displayName: "Row number formats",
+        displayNameKey: "Table_RowFormats",
+        description: "Zahlenformat pro Zeile, mit Semikolon getrennt: „Marge = 0.0 %; Menge = #,0“. Prozent multipliziert mit 100; Werte erscheinen unskaliert (keine T€-Teilung) — für gemischte €-, %- und Stück-Zeilen.",
+        placeholder: "z. B. Marge = 0.0 %",
+        value: ""
+    });
+
+    matrixCompare = new formattingSettings.ItemDropdown({
+        name: "matrixCompare",
+        displayName: "Matrix: column comparison",
+        displayNameKey: "Table_MatrixCompare",
+        description: "Vergleich innerhalb der Matrix-Spalten: „Δ vs. Vorspalte“ ersetzt das ΔBasis je Block durch die Veränderung zur vorherigen Spalte (Periodenvergleich Q2 vs. Q1, Mär vs. Feb …).",
+        items: matrixCompareItems,
+        value: matrixCompareItems[0]
+    });
+
     formulaRows = new formattingSettings.TextInput({
         name: "formulaRows",
         displayName: "Formula rows",
@@ -490,7 +522,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Table",
         displayNameKey: "Group_Table",
         slices: [this.valueColumns, this.structureEdit, this.resultList, this.skipList,
-            this.hideList, this.chartList, this.formulaRows]
+            this.hideList, this.chartList, this.indentList, this.rowFormats,
+            this.matrixCompare, this.formulaRows]
     });
 
     cardStatusBasis = new formattingSettings.ItemDropdown({

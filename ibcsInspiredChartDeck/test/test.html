@@ -82,6 +82,9 @@
 <div class="case"><h4>Tabelle · Matrix-Spalten: Quartal→Monat (2 Ebenen), alles zugeklappt — Q-Blöcke mit AC+ΔPY, Σ-Block rechts</h4><div class="stage" id="c72" style="width:1340px;height:400px"></div></div>
 <div class="case"><h4>Tabelle · Matrix-Spalten: Q1 aufgeklappt (Preset) — Monats-Blöcke unter dem Q1-Span, Q2 bleibt zu</h4><div class="stage" id="c73" style="width:1340px;height:400px"></div></div>
 <div class="case"><h4>Tabelle · hideList („Ost“ unsichtbar, Σ 14.300 bleibt) + chartList (Grafiken nur Umsatz-Zeilen Nord/Süd)</h4><div class="stage" id="c74" style="width:1200px;height:400px"></div></div>
+<div class="case"><h4>Matrix · Zeilen-Hierarchie (Region→Land) × Quartals-Spalten + Mini-Δ-Balken je Block</h4><div class="stage" id="c75" style="width:1340px;height:440px"></div></div>
+<div class="case"><h4>Matrix · Δ vs. Vorspalte (Periodenvergleich) + Header-Sortierung Σ absteigend</h4><div class="stage" id="c76" style="width:1340px;height:400px"></div></div>
+<div class="case"><h4>Tabelle · Davon-Zeilen (indentList) + Zeilenformate (Marge=0.0%, Menge=#,0)</h4><div class="stage" id="c77" style="width:1200px;height:420px"></div></div>
 <div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
@@ -629,6 +632,62 @@ run("c73", mxDataView({ chart: { orientation: "table", showTotal: true,
 run("c74", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€")],
   { chart: { orientation: "table", showTotal: true, hideList: "Ost",
     chartList: "Nord, Süd" } }), 1200, 400);
+
+// matrix full build: row hierarchy (Region -> Land) crossed with quarter columns,
+// mini delta bars per block
+const mxhL0region = [], mxhL0land = [], mxhQ = [], mxhAc = [], mxhPy = [];
+const mxhTree = { "DACH": ["Deutschland", "Österreich"], "West": ["Frankreich", "Benelux"] };
+Object.keys(mxhTree).forEach((reg, ri) => {
+  mxhTree[reg].forEach((land, li) => {
+    ["Q1", "Q2"].forEach((q, qi) => {
+      mxhL0region.push(reg); mxhL0land.push(land); mxhQ.push(q);
+      mxhAc.push(1000 + ri * 400 + li * 150 + qi * 120);
+      mxhPy.push(950 + ri * 390 + li * 145 + qi * 100);
+    });
+  });
+});
+run("c75", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true,
+    tableExpanded: JSON.stringify(["¦DACH", "¦West"]) } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: mxhL0region },
+      { source: { displayName: "Land", roles: { category: true } }, values: mxhL0land },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: mxhQ }
+    ],
+    values: [col("actual", mxhAc, "#,0 T€"), col("previousYear", mxhPy, "#,0 T€")]
+  }
+}, 1340, 440);
+
+// matrix: delta vs previous column (period-over-period) + sigma sort desc
+const mxpCats = [], mxpQ = [], mxpAc = [], mxpPy = [];
+["Nord", "Süd", "Ost"].forEach((r, ri) => {
+  ["Q1", "Q2", "Q3", "Q4"].forEach((q, qi) => {
+    mxpCats.push(r); mxpQ.push(q);
+    mxpAc.push(1000 + ri * 500 + qi * 130);
+    mxpPy.push(980 + ri * 490 + qi * 110);
+  });
+});
+run("c76", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true,
+    matrixCompare: "prevcol", tableSort: "ac_desc" } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: mxpCats },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: mxpQ }
+    ],
+    values: [col("actual", mxpAc, "#,0 T€"), col("previousYear", mxpPy, "#,0 T€")]
+  }
+}, 1340, 400);
+
+// davon-rows (indentList) + per-row number formats (percent + integer)
+run("c77", dataView(["Umsatz", "davon Export", "davon Inland", "Marge", "Menge"],
+  [col("actual", [9800, 3100, 6700, 0.571, 128400], "#,0 T€"),
+   col("previousYear", [9100, 2800, 6300, 0.567, 121000], "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true,
+    indentList: "davon Export, davon Inland",
+    skipList: "davon Export, davon Inland, Marge, Menge",
+    rowFormats: "Marge = 0.0 %; Menge = #,0" } }), 1200, 420);
 
 // P&L table with margin rows: value as %, deltas as percentage points
 run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],

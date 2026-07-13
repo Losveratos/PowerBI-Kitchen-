@@ -1,5 +1,30 @@
 # Changelog · IBCS Inspired Chart Deck
 
+## 1.25.0.0 (2026-07-13)
+
+**Großes Tabellen-/Matrix-Paket:**
+- **Matrix-Vollausbau:** Die Matrix beherrscht jetzt die **Zeilen-
+  Hierarchie** (▸/▾ pro Ast, Einrückung, Expand-All), die **Header-
+  Sortierung** auf dem Σ-Block (AC · ΔBasis · Δ %) und **Formelzeilen**
+  (werden pro Spaltenblock UND für den Σ-Block ausgewertet) — gleichwertig
+  zur flachen Tabelle.
+- **Mini-Δ-Balken je Block:** kleiner farbiger Abweichungsbalken pro
+  Spaltenblock (null-verankert), degradiert bei Platznot sauber weg.
+- **Δ vs. Vorspalte (matrixCompare):** ersetzt das ΔBasis je Block durch
+  die Veränderung zur vorherigen Spalte (Periodenvergleich Q2 vs. Q1 …).
+- **Davon-Zeilen (indentList):** rückt Zeilen als „davon:“-Positionen ein
+  und stellt sie dezent dar — ohne Hierarchie-Feld, auch per Klick im
+  Struktur-Modus.
+- **Zahlenformat pro Zeile (rowFormats):** „Marge = 0.0 %; Menge = #,0“ —
+  gemischte €-/%-/Stück-Zeilen in einer Tabelle. Formatierte Zeilen sind
+  eine eigene Einheit und zeichnen daher keine €-Balken auf der geteilten
+  Skala (Δ erscheint in derselben Einheit).
+- **Live-Suche (🔍):** Filter-Feld im Namens-Header (nur interaktiv);
+  klappt Treffer in zugeklappten Ästen automatisch auf, Σ bleibt voll,
+  „keine Treffer“-Hinweis statt leerer Tabelle.
+- **Spaltenbreite der Namensspalte per Drag** (persistiert).
+Render-Fälle c75–c77; neue Keys in de/en/es/ja.
+
 ## 1.24.0.0 (2026-07-12)
 
 **Zeilen ausblenden + Grafik pro Zeile (Tabelle):**

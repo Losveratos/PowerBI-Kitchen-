@@ -182,5 +182,14 @@
   "Table_HideList": "Zeilen ausblenden",
   "Table_ChartList": "Grafik nur für diese Zeilen",
   "Struct_Hide": "Ausblenden (Σ behält die Zeile)",
-  "Struct_Chart": "Grafik nur für gelistete Zeilen"
+  "Struct_Chart": "Grafik nur für gelistete Zeilen",
+  "Table_IndentList": "Zeilen einrücken (davon)",
+  "Table_RowFormats": "Zahlenformat pro Zeile",
+  "Table_MatrixCompare": "Matrix: Spaltenvergleich",
+  "Enum_MxCompare_None": "Aus (Δ zur Basis)",
+  "Enum_MxCompare_Prev": "Δ zur Vorspalte",
+  "Struct_Indent": "Einrücken (davon-Zeile)",
+  "Matrix_DPrev": "Δ Vorsp.",
+  "Table_Search": "Zeilen durchsuchen",
+  "Table_NoMatch": "Keine Zeile passt zur Suche"
 }

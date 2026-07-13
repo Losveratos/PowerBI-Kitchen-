@@ -39,7 +39,7 @@ type Orientation = "columns" | "bars";
 type Basis = "py" | "plan" | "fcrev";
 
 /** persisted comma lists editable via the one-click structure menu */
-type ListProp = "invertList" | "resultList" | "skipList" | "hideList" | "chartList";
+type ListProp = "invertList" | "resultList" | "skipList" | "hideList" | "chartList" | "indentList";
 
 interface DataPoint {
     cat: string;
@@ -140,6 +140,12 @@ interface ChartConfig {
     hideSet: Set<string>;
     /** when non-empty: bar/pin graphics only on the listed rows */
     chartSet: Set<string>;
+    /** "davon:"-style rows — indented + subtle, without a hierarchy field */
+    indentSet: Set<string>;
+    /** per-row number formats ("Label = 0.0 %; Menge = #,0"), overrides cfg.fmt */
+    rowFmt: Map<string, (v: number) => string>;
+    /** matrix: per-block comparison — "none" | "prevcol" (Δ vs. previous column) */
+    matrixCompare: string;
     /** table: formula-row definitions ("Label = A + B; Marge = X / Y"), raw text */
     formulaRows: string;
     /** KPI cards: what stripe + background judge against ("basis" | "benchmark") */
@@ -281,6 +287,12 @@ export class Visual implements IVisual {
     /** matrix mode: expanded column groups (persisted, chevron in the header) */
     private colExpanded = new Set<string>();
     private pendingTableColExpanded: string | null = null;
+    /** table: live row filter from the 🔍 header control (transient, interactive only) */
+    private tableSearch = "";
+    private searchEditor: HTMLInputElement | null = null;
+    /** table: manual name-column width (persisted via drag on the column edge) */
+    private tableNameW: number | null = null;
+    private pendingTableNameW: string | null = null;
     /** bound Filter-Info text measure (filter context for the filter footer) */
     private filterInfo: string | null = null;
     /** table header sort, e.g. "dabs_desc" ("" = data order), persisted */
@@ -412,6 +424,14 @@ export class Visual implements IVisual {
                     try { this.expandedRows = new Set(JSON.parse(rawExpStr) as string[]); }
                     catch { /* corrupt store: keep the session state */ }
                 }
+            }
+            // persisted manual name-column width, same echo-guard pattern
+            const rawNw = dataView?.metadata?.objects?.["chart"]?.["tableNameWidth"];
+            const rawNwStr = typeof rawNw === "string" ? rawNw : "";
+            if (this.pendingTableNameW == null || rawNwStr === this.pendingTableNameW) {
+                this.pendingTableNameW = null;
+                const nwv = parseFloat(rawNwStr);
+                this.tableNameW = isFinite(nwv) && nwv > 0 ? nwv : null;
             }
             // persisted matrix column drill state, same echo-guard pattern
             const rawColExp = dataView?.metadata?.objects?.["chart"]?.["tableColExpanded"];
@@ -1017,6 +1037,10 @@ export class Visual implements IVisual {
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
             chartSet: new Set(String(s.chartCard.chartList.value || "")
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
+            indentSet: new Set(String(s.chartCard.indentList.value || "")
+                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
+            rowFmt: this.parseRowFormats(String(s.chartCard.rowFormats.value || "")),
+            matrixCompare: String(s.chartCard.matrixCompare.value.value),
             formulaRows: String(s.chartCard.formulaRows.value || ""),
             cardBasis: String(s.chartCard.cardStatusBasis.value.value),
             cardTint: s.chartCard.cardTint.value,
@@ -2772,6 +2796,9 @@ export class Visual implements IVisual {
             : () => 0;
 
         let rows: TableRow[];
+        // an active 🔍 search auto-expands every branch so matches inside collapsed
+        // parents are reachable; the chevron state is restored when the term clears
+        const searchOn = this.allowInteractions && this.tableSearch.trim() !== "";
         // every branch node across ALL depths (also inside collapsed parents) —
         // drives the header expand-all chevron so deep levels open too
         const allParentKeys: string[] = [];
@@ -2852,7 +2879,7 @@ export class Visual implements IVisual {
                     for (const c of pts) { rows.push({ p: { ...c, cat: nd.label }, depth }); }
                     return;
                 }
-                const expanded = this.expandedRows.has(nd.key);
+                const expanded = this.expandedRows.has(nd.key) || searchOn;
                 rows.push({ p: aggFor(nd), depth, parentKey: nd.key, expanded });
                 if (expanded) {
                     for (const ch of sortSiblings(nd.order.map(l => nd.kids.get(l) as TNode))) {
@@ -3013,8 +3040,14 @@ export class Visual implements IVisual {
             }
             rows = out;
         }
+        // live 🔍 filter (interactive only): display-only like hiding — Σ stays full
+        const searchActive = searchOn;
+        if (searchActive) { rows = this.applySearch(rows, r => r.p.cat); }
+        // no match: drop the Σ row too and show a hint instead of a ballooning total
+        const noMatch = searchActive && rows.length === 0;
+        if (noMatch) { totalRow = null; }
         const rowPts = rows.map(r => r.p).concat(totalRow ? [totalRow.p] : []);
-        const n = rows.length + (totalRow ? 1 : 0);
+        const n = Math.max(1, rows.length + (totalRow ? 1 : 0));
 
         const hasVar = rowPts.some(p => p.varAbs != null);
         const hasVar2 = cfg.showDual && rowPts.some(p => p.var2Abs != null);
@@ -3022,8 +3055,10 @@ export class Visual implements IVisual {
 
         // ------- column layout: fixed text columns, graphic columns share the rest
         const chevW = hasLevels ? 14 * k : 0;
-        const nameW = Math.min(region.w * 0.26,
-            this.maxTextWidth(rowPts.map(p => p.cat), cf) + 18 + chevW);
+        const nameW = this.tableNameW != null
+            ? Math.max(40, Math.min(region.w * 0.5, this.tableNameW))
+            : Math.min(region.w * 0.26,
+                this.maxTextWidth(rowPts.map(p => p.cat), cf) + 18 + chevW);
         const valW = lf * 4.8;
         const dValW = hasVar ? lf * 4.6 : 0;
         const d2ValW = hasVar2 ? lf * 4.6 : 0;
@@ -3127,7 +3162,10 @@ export class Visual implements IVisual {
             ? allPts.concat(rows.filter(r => r.formula).map(r => r.p),
                 totalRow ? [totalRow.p] : [])
             : rowPts;
-        const numPts = scalePts.filter(p => !isPct(p) && !isSkip(p));
+        // rows with a per-row number format are a different unit/magnitude (Stück,
+        // %, ‰) — keep them out of the shared € scales as well
+        const hasRowFmt = (p: DataPoint) => cfg.rowFmt.has(p.cat.trim().toLowerCase());
+        const numPts = scalePts.filter(p => !isPct(p) && !isSkip(p) && !hasRowFmt(p));
         const barDomain = extent(numPts.flatMap(p => [p.value, p.py, p.pl]));
         // IBCS scale sync: share the deck-wide domains so multiple tables (and
         // small-multiples tiles) on a page use identical scales incl. fixedMax
@@ -3180,6 +3218,8 @@ export class Visual implements IVisual {
                 this.rerender();
             });
         }
+        // 🔍 live filter control next to the expand-all chevron
+        this.drawSearchControl(bg, colX["name"].x + (hasLevels ? Math.round(24 * k) : 0), hy, cfg);
         // sortable headers: ▲/▼ marker on the active column, click cycles
         // desc → asc → data order; persisted (bookmarkable), off while cumulating
         const marker = (key: string) => sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
@@ -3237,11 +3277,22 @@ export class Visual implements IVisual {
             stroke: cfg.ink, "stroke-width": 1.2
         }, bg);
 
+        // search with no hits: hint instead of an empty body (Σ was dropped above)
+        if (noMatch) {
+            txt(region.x + pad, top + cf + 4,
+                this.locStr("Table_NoMatch", "No rows match the search"),
+                "start", Math.round(cf * 0.95), false, cfg.subtle, bg);
+            return;
+        }
+
         // ------- shared axes for the graphic columns
         const barScale = colX["bars"]
             ? linearScale(Math.min(barDomain[0], 0), Math.max(barDomain[1], 1), colX["bars"].x + 2, colX["bars"].x + colX["bars"].w - 2)
             : null;
         const rowsBottom = top + shown.length * rowH;
+        // draggable name-column edge (persisted width)
+        this.drawNameResize(bg, colX["name"].x + colX["name"].w + gap / 2,
+            region.y + pad, rowsBottom, region, cfg);
         if (barScale && Math.min(barDomain[0], 0) < 0) {
             this.el("line", {
                 x1: barScale(0), y1: top, x2: barScale(0), y2: rowsBottom,
@@ -3263,9 +3314,10 @@ export class Visual implements IVisual {
 
         // sum-safe rounding: adjust the level-0 detail labels (largest remainder)
         // so they visibly add up to the synthetic Σ row
-        // hidden rows would break the largest-remainder identity (their share is
-        // in Σ but not on screen) — sum-safe only without hidden rows
-        const sumSafeVals = (cfg.sumSafe && !cfg.cumulative && totalRow && cfg.hideSet.size === 0)
+        // hidden/filtered rows would break the largest-remainder identity (their
+        // share is in Σ but not on screen) — sum-safe only with all rows visible
+        const sumSafeVals = (cfg.sumSafe && !cfg.cumulative && totalRow
+            && cfg.hideSet.size === 0 && !searchActive)
             ? (() => {
                 const base = rows.filter(r => r.depth === 0 && !r.formula && !isPct(r.p)
                     && !isSum(r.p) && !isResult(r.p) && !isSkip(r.p)).map(r => r.p);
@@ -3288,10 +3340,13 @@ export class Visual implements IVisual {
             const yMid = y + rowH / 2;
             const sum = isSum(p) || isParent || isResult(p);
             const skip = isSkip(p);
+            // per-row number format (mixed €/%/Stück tables) — value columns only
+            const rf = cfg.rowFmt.get(p.cat.trim().toLowerCase());
             // chart list: when filled, bar/pin graphics render only on listed rows
-            // (numbers always stay); the Σ row keeps its graphics
-            const rowChart = cfg.chartSet.size === 0 || row.isTotal
-                || cfg.chartSet.has(p.cat.trim().toLowerCase());
+            // (numbers always stay); the Σ row keeps its graphics. Rows with a
+            // custom format are a different unit — no shared-scale graphics
+            const rowChart = (cfg.chartSet.size === 0 || row.isTotal
+                || cfg.chartSet.has(p.cat.trim().toLowerCase())) && rf == null;
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
 
             // separators: subtle under every row, strong above subtotals
@@ -3314,14 +3369,16 @@ export class Visual implements IVisual {
             }
 
             const rowFont = Math.min(cf, rowH - 4);
-            const indentX = row.depth * Math.round(14 * k);
+            // "davon:"-style indent list: extra indent + subtle ink, no hierarchy field
+            const davon = cfg.indentSet.has(p.cat.trim().toLowerCase());
+            const indentX = (row.depth + (davon ? 1 : 0)) * Math.round(14 * k);
             const nameText = isParent
                 ? `${row.expanded ? "▾" : "▸"} ${p.cat}`
                 : p.cat;
-            const nameEl = txt(colX["name"].x + (sum && row.depth === 0 ? 0 : Math.round(6 * k)) + indentX,
+            const nameEl = txt(colX["name"].x + (sum && row.depth === 0 && !davon ? 0 : Math.round(6 * k)) + indentX,
                 yMid + rowFont * 0.35,
                 this.truncate(nameText, colX["name"].w - 8 - indentX, rowFont),
-                "start", rowFont, sum, skip ? cfg.subtle : cfg.ink, g);
+                "start", rowFont, sum && !davon, skip || davon ? cfg.subtle : cfg.ink, g);
             if (skip) { nameEl.setAttribute("font-style", "italic"); }
             const rowPct = isPct(p);
             const pctText = (v: number) => new Intl.NumberFormat(this.host.locale, {
@@ -3334,8 +3391,8 @@ export class Visual implements IVisual {
             if (p.value != null && cfg.showLabels) {
                 const shownVal = sumSafeVals?.has(p) ? sumSafeVals.get(p) as number : p.value;
                 txt(colX["val"].x + colX["val"].w, yMid + rowFont * 0.35,
-                    rowPct ? pctText(p.value) : cfg.fmt.format(shownVal), "end", rowFont, sum,
-                    rowPct || skip ? cfg.subtle : cfg.ink, g);
+                    rowPct ? pctText(p.value) : rf ? rf(shownVal) : cfg.fmt.format(shownVal),
+                    "end", rowFont, sum, rowPct || skip ? cfg.subtle : cfg.ink, g);
             }
             // numeric reference columns (PY/PL or the variance basis)
             if (cfg.showLabels) {
@@ -3343,7 +3400,8 @@ export class Visual implements IVisual {
                     const v = c.get(p);
                     if (v == null) { continue; }
                     txt(colX[c.key].x + colX[c.key].w, yMid + rowFont * 0.35,
-                        rowPct ? pctText(v) : cfg.fmt.format(v), "end", rowFont, sum, cfg.subtle, g);
+                        rowPct ? pctText(v) : rf ? rf(v) : cfg.fmt.format(v),
+                        "end", rowFont, sum, cfg.subtle, g);
                 }
             }
 
@@ -3391,10 +3449,14 @@ export class Visual implements IVisual {
                 }
             }
 
-            // ΔBasis: number + bar (margin rows show percentage points instead)
+            // ΔBasis: number + bar (margin rows show percentage points instead);
+            // formatted rows show the delta in their own unit (signed)
             if (p.varAbs != null && colX["dval"] && cfg.showLabels) {
+                const dTxt = rowPct ? ppText(p.varAbs)
+                    : rf ? (p.varAbs > 0 ? "+" : p.varAbs < 0 ? "−" : "") + rf(Math.abs(p.varAbs))
+                    : this.fmtSigned(cfg.fmtVar, p.varAbs);
                 txt(colX["dval"].x + colX["dval"].w, yMid + rowFont * 0.35,
-                    rowPct ? ppText(p.varAbs) : this.fmtSigned(cfg.fmtVar, p.varAbs), "end", rowFont, sum,
+                    dTxt, "end", rowFont, sum,
                     p.varAbs === 0 ? cfg.subtle : colOf(p.varAbs, p), g);
             }
             // numeric Δ% fallback column (pin column dropped on narrow tiles)
@@ -3575,11 +3637,13 @@ export class Visual implements IVisual {
     }
 
     /**
-     * matrix table: rows = categories, column blocks = values of the column-group
-     * role (up to 2 levels, Matrix-style collapsible headers). Each block shows the
-     * AC number plus a colored ΔBasis number; a bold Σ block on the right carries
-     * the row total with Δ and Δ%. Level-1 groups collapse to one aggregated block
-     * (persisted). Row hierarchy/sort/formulas are not applied in matrix mode.
+     * matrix table: rows = categories (full multi-level hierarchy with ▸/▾ per
+     * branch), column blocks = values of the column-group role (up to 2 levels,
+     * Matrix-style collapsible headers). Each block shows the AC number plus a
+     * colored Δ number (vs. the variance basis, or vs. the PREVIOUS column when
+     * "Δ vs. Vorspalte" is on) and, if room, a mini Δ bar; a bold Σ block on the
+     * right carries the row total with Δ and Δ % and sortable headers. Formula
+     * rows evaluate per block AND for the Σ block.
      */
     private renderTableMatrix(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
         const k = this.fontK;
@@ -3589,26 +3653,116 @@ export class Visual implements IVisual {
         const isPct = (p: DataPoint) => p.rowType != null && p.rowType.startsWith("pct");
         const isResult = (p: DataPoint) => cfg.resultSet.has(p.cat.trim().toLowerCase());
         const isSkip = (p: DataPoint) => cfg.skipSet.has(p.cat.trim().toLowerCase());
+        const isAnchor = (p: DataPoint) => isSum(p) || isResult(p);
         const twoLv = points.some(p => (p.colLevels?.length ?? 0) >= 2);
+        const hasLevels = points.some(p => (p.catLevels?.length ?? 0) >= 2);
 
-        // ------- row list (data order, one entry per category label)
-        const rowOrder: string[] = [];
-        const rowPtsBy = new Map<string, DataPoint[]>();
+        // ------- row tree (same model as the flat table: path keys group¦l0¦l1…)
+        type RNode = { label: string; key: string; order: string[]; kids: Map<string, RNode>; pts: DataPoint[] };
+        const root: RNode = { label: "", key: "", order: [], kids: new Map(), pts: [] };
         for (const p of points) {
-            const b = rowPtsBy.get(p.cat);
-            if (b) { b.push(p); } else { rowPtsBy.set(p.cat, [p]); rowOrder.push(p.cat); }
+            const path = p.catLevels && p.catLevels.length > 1 ? p.catLevels : [p.cat];
+            let node = root;
+            let key = p.group ?? "";
+            for (const lvl of path) {
+                key += `¦${lvl}`;
+                let ch = node.kids.get(lvl);
+                if (!ch) {
+                    ch = { label: lvl, key, order: [], kids: new Map(), pts: [] };
+                    node.kids.set(lvl, ch);
+                    node.order.push(lvl);
+                }
+                ch.pts.push(p);
+                node = ch;
+            }
         }
-        const rowAgg = new Map<string, DataPoint>();
-        for (const cat of rowOrder) {
-            const kids = rowPtsBy.get(cat) as DataPoint[];
-            const a = kids.length === 1 ? kids[0] : this.aggregateHierarchy(cat, kids);
-            a.rowType = kids[0].rowType;
-            rowAgg.set(cat, a);
-        }
-        // hidden rows: removed from display only — the Σ bases below keep them
-        const displayOrder = cfg.hideSet.size > 0
-            ? rowOrder.filter(c => !cfg.hideSet.has(c.trim().toLowerCase()))
-            : rowOrder;
+        const allParentKeys: string[] = [];
+        const collectKeys = (nd: RNode) => {
+            if (nd !== root && nd.kids.size > 0) { allParentKeys.push(nd.key); }
+            nd.kids.forEach(collectKeys);
+        };
+        collectKeys(root);
+        const aggOf = new Map<RNode, DataPoint>();
+        const aggFor = (nd: RNode): DataPoint => {
+            let a = aggOf.get(nd);
+            if (!a) {
+                if (nd.pts.length === 1) {
+                    a = { ...nd.pts[0], cat: nd.label };
+                } else {
+                    const base = nd.pts.filter(p => !isSum(p) && !isResult(p)
+                        && !isSkip(p) && !isPct(p));
+                    a = this.aggregateHierarchy(nd.label, base.length > 0 ? base : nd.pts);
+                    // per-branch cells of a single-column node keep the rowType
+                    if (nd.kids.size === 0) { a.rowType = nd.pts[0].rowType; }
+                }
+                aggOf.set(nd, a);
+            }
+            return a;
+        };
+
+        // header sort on the Σ block (persisted; segment-wise between anchors)
+        const sortSpec = !cfg.cumulative && this.tableSort ? this.tableSort : "";
+        const [sortKey, sortDir] = sortSpec ? sortSpec.split("_") : ["", ""];
+        const sortGet: { [key: string]: (p: DataPoint) => number | null } = {
+            ac: p => p.value, dabs: p => p.varAbs, drel: p => p.varRel
+        };
+        const getter = sortGet[sortKey];
+        const cmp = getter
+            ? (a: DataPoint, b: DataPoint) => {
+                const av = getter(a), bv = getter(b);
+                if (av == null && bv == null) { return 0; }
+                if (av == null) { return 1; }
+                if (bv == null) { return -1; }
+                return sortDir === "asc" ? av - bv : bv - av;
+            }
+            : () => 0;
+        const sortSiblings = (list: RNode[]): RNode[] => {
+            if (!getter) { return list; }
+            const out: RNode[] = [];
+            let run: RNode[] = [];
+            const flush = () => {
+                run.sort((a, b) => cmp(aggFor(a), aggFor(b)));
+                out.push(...run);
+                run = [];
+            };
+            for (const nd of list) {
+                const a = aggFor(nd);
+                if (isAnchor(a) || isPct(a)) { flush(); out.push(nd); }
+                else { run.push(nd); }
+            }
+            flush();
+            return out;
+        };
+
+        // visible rows (expanded branches only); 🔍 auto-expands to reach matches
+        const searchOn = this.allowInteractions && this.tableSearch.trim() !== "";
+        type MRow = { label: string; depth: number; pts: DataPoint[] | null; agg: DataPoint;
+            parentKey?: string; expanded?: boolean; formula?: boolean;
+            cellFn?: (bi: number) => DataPoint | null };
+        let rows: MRow[] = [];
+        const emit = (nd: RNode, depth: number) => {
+            const agg = aggFor(nd);
+            if (nd.kids.size === 0) {
+                rows.push({ label: nd.label, depth, pts: nd.pts, agg });
+                return;
+            }
+            const expanded = this.expandedRows.has(nd.key) || searchOn;
+            rows.push({ label: nd.label, depth, pts: nd.pts, agg, parentKey: nd.key, expanded });
+            if (expanded) {
+                for (const ch of sortSiblings(nd.order.map(l => nd.kids.get(l) as RNode))) {
+                    emit(ch, depth + 1);
+                }
+            }
+        };
+        for (const nd of sortSiblings(root.order.map(l => root.kids.get(l) as RNode))) { emit(nd, 0); }
+        // full label source independent of expansion (formulas, Σ bases)
+        const allRows: { label: string; pts: DataPoint[]; agg: DataPoint }[] = [];
+        const collectAll = (nd: RNode) => {
+            allRows.push({ label: nd.label, pts: nd.pts, agg: aggFor(nd) });
+            for (const l of nd.order) { collectAll(nd.kids.get(l) as RNode); }
+        };
+        for (const l of root.order) { collectAll(root.kids.get(l) as RNode); }
+        const topAggs = root.order.map(l => aggFor(root.kids.get(l) as RNode));
 
         // ------- column tree: level-0 groups with optional level-1 children
         type CNode = { label: string; kids: string[] };
@@ -3634,32 +3788,141 @@ export class Visual implements IVisual {
             }
         }
 
-        // cell aggregates per (row × block)
-        const cellOf = (cat: string, b: Block): DataPoint | null => {
-            const kids = (rowPtsBy.get(cat) as DataPoint[]).filter(p =>
+        // cell aggregates per (row pts × block)
+        const cellFor = (pts: DataPoint[] | null, label: string, b: Block): DataPoint | null => {
+            if (!pts) { return null; }
+            const kids = pts.filter(p =>
                 (p.colLevels?.[0] ?? "") === b.l0
                 && (b.l1 == null || (p.colLevels && p.colLevels[1] === b.l1)));
             if (kids.length === 0) { return null; }
-            const a = kids.length === 1 ? kids[0] : this.aggregateHierarchy(cat, kids);
-            return a;
+            if (kids.length === 1) { return kids[0]; }
+            const base = kids.filter(p => !isSum(p) && !isResult(p) && !isSkip(p) && !isPct(p));
+            return this.aggregateHierarchy(label, base.length > 0 ? base : kids);
         };
 
-        const hasVar = points.some(p => p.varAbs != null);
+        // ------- formula rows: evaluate per Σ (row aggregates) and per block cell
+        if (cfg.formulaRows.trim()) {
+            const byLabel = new Map<string, { pts: DataPoint[] | null; agg: DataPoint; cellFn?: (bi: number) => DataPoint | null }>();
+            for (const r of allRows) {
+                const kk = r.label.trim().toLowerCase();
+                if (!byLabel.has(kk)) { byLabel.set(kk, r); }
+            }
+            type Term = { sign: number; label: string };
+            const parseTerms = (expr: string): Term[] | null => {
+                const parts = (`+ ${expr.trim()}`).split(/\s*([+\-−])\s+/).filter(t => t.trim());
+                if (parts.length < 2 || parts.length % 2 !== 0) { return null; }
+                const terms: Term[] = [];
+                for (let ti = 0; ti < parts.length; ti += 2) {
+                    terms.push({ sign: parts[ti] === "+" ? 1 : -1, label: parts[ti + 1].trim().toLowerCase() });
+                }
+                return terms;
+            };
+            const evalTerms = (terms: Term[], getP: (label: string) => DataPoint | null):
+                { value: number | null; basis: number | null } | null => {
+                let value: number | null = null, basis: number | null = null;
+                let vDead = false, bDead = false;
+                for (const t of terms) {
+                    const src = getP(t.label);
+                    if (!src || isPct(src)) { return null; }
+                    if (src.value == null) { vDead = true; value = null; }
+                    else if (!vDead) { value = (value ?? 0) + t.sign * src.value; }
+                    if (src.basis == null) { bDead = true; basis = null; }
+                    else if (!bDead) { basis = (basis ?? 0) + t.sign * src.basis; }
+                }
+                return { value, basis };
+            };
+            const pctOf = (a: number | null, b: number | null) =>
+                (a != null && b != null && b !== 0) ? (a / b) * 100 : null;
+            const mkPoint = (label: string, v: { value: number | null; basis: number | null } | null,
+                ratio: boolean, den?: { value: number | null; basis: number | null } | null): DataPoint => {
+                const value = ratio ? pctOf(v?.value ?? null, den?.value ?? null) : (v?.value ?? null);
+                const basis = ratio ? pctOf(v?.basis ?? null, den?.basis ?? null) : (v?.basis ?? null);
+                const varAbs = (value != null && basis != null) ? value - basis : null;
+                return {
+                    cat: label, catLevels: null, ac: null, py: null, pl: null, fc: null,
+                    value, isFc: false, basis, varAbs,
+                    varRel: (!ratio && varAbs != null && basis != null && basis !== 0)
+                        ? (varAbs / Math.abs(basis)) * 100 : null,
+                    var2Abs: null, var2Rel: null, bm: null, fcPrev: null, lineVal: null,
+                    stackSeries: null, comment: null, commentNo: null,
+                    group: points[0].group, rowType: ratio ? "pct" : "sum", isRest: false, sel: null
+                };
+            };
+            for (const entry of cfg.formulaRows.split(/[;\n]/)) {
+                const eq = entry.indexOf("=");
+                if (eq < 1) { continue; }
+                const label = entry.slice(0, eq).trim();
+                const expr = entry.slice(eq + 1).trim();
+                if (!label || !expr) { continue; }
+                const ratio = expr.split(/\s\/\s/);
+                if (ratio.length > 2) { continue; }
+                const numT = parseTerms(ratio[0]);
+                const denT = ratio.length === 2 ? parseTerms(ratio[1]) : null;
+                if (!numT || (ratio.length === 2 && !denT)) { continue; }
+                const aggGet = (l2: string) => byLabel.get(l2)?.agg ?? null;
+                const aggNum = evalTerms(numT, aggGet);
+                const aggDen = denT ? evalTerms(denT, aggGet) : null;
+                if (!aggNum || (denT && !aggDen)) { continue; }
+                const fAgg = mkPoint(label, aggNum, denT != null, aggDen);
+                const cellFn = (bi: number): DataPoint | null => {
+                    const getP = (l2: string) => {
+                        const src = byLabel.get(l2);
+                        if (!src) { return null; }
+                        return src.cellFn ? src.cellFn(bi) : cellFor(src.pts, l2, blocks[bi]);
+                    };
+                    const n2 = evalTerms(numT, getP);
+                    const d2 = denT ? evalTerms(denT, getP) : null;
+                    if (!n2 || (denT && !d2)) { return null; }
+                    return mkPoint(label, n2, denT != null, d2);
+                };
+                rows.push({ label, depth: 0, pts: null, agg: fAgg, formula: true, cellFn });
+                const kk = label.trim().toLowerCase();
+                if (!byLabel.has(kk)) { byLabel.set(kk, { pts: null, agg: fAgg, cellFn }); }
+            }
+        }
 
-        // ------- widths: name column, per-block [AC (+Δ)], Σ block [AC, Δ, Δ%]
-        const nameW = Math.min(region.w * 0.24,
-            this.maxTextWidth(rowOrder, cf) + 18);
+        // ------- display filters: hidden rows (subtree) + live 🔍 (Σ keeps both)
+        if (cfg.hideSet.size > 0) {
+            const out: MRow[] = [];
+            let hideBelow = -1;
+            for (const r of rows) {
+                if (hideBelow >= 0 && r.depth > hideBelow) { continue; }
+                hideBelow = -1;
+                if (cfg.hideSet.has(r.label.trim().toLowerCase())) {
+                    hideBelow = r.depth;
+                    continue;
+                }
+                out.push(r);
+            }
+            rows = out;
+        }
+        const searchActive = searchOn;
+        if (searchActive) { rows = this.applySearch(rows, r => r.label); }
+        const noMatch = searchActive && rows.length === 0;
+
+        const hasVar = points.some(p => p.varAbs != null);
+        const prevCol = cfg.matrixCompare === "prevcol";
+        const showDelta = hasVar || prevCol;
+
+        // ------- widths: name column, per-block [AC (+Δ +bar)], Σ block [AC, Δ, Δ%]
+        const nameW = this.tableNameW != null
+            ? Math.max(40, Math.min(region.w * 0.5, this.tableNameW))
+            : Math.min(region.w * 0.24, this.maxTextWidth(rows.map(r => r.label), cf) + 18
+                + (hasLevels ? 14 * k : 0));
         let valW = lf * 4.6;
         let dW = lf * 4.4;
+        let barW = Math.round(34 * k);
         const gap = 8;
         // the Σ block keeps fixed widths — the spread below only widens the blocks
         const sValW = valW, sDW = dW;
         const sumW = sValW + (hasVar ? sDW + lf * 3.6 : 0) + gap;
         const availW = region.w - pad * 2 - nameW - sumW - gap * 2;
-        let showD = hasVar;
-        const blockW = () => valW + (showD ? dW : 0) + gap;
-        // overflow strategy: drop the per-block Δ first, then shrink the value
-        // column, then cut blocks from the right (header hints the cut count)
+        let showD = showDelta;
+        let showBar = showDelta;
+        const blockW = () => valW + (showD ? dW : 0) + (showBar ? barW : 0) + gap;
+        // overflow strategy: drop the mini bar, then the per-block Δ, then shrink
+        // the value column, then cut blocks from the right ("… +n" hint)
+        if (blocks.length * blockW() > availW && showBar) { showBar = false; }
         if (blocks.length * blockW() > availW && showD) { showD = false; }
         if (blocks.length * blockW() > availW) {
             valW = Math.max(lf * 3.4, availW / blocks.length - gap);
@@ -3672,24 +3935,38 @@ export class Visual implements IVisual {
         const cut = blocks.length - shownBlocks.length;
         // spread leftover width over the blocks (capped) so few blocks fill the tile
         const spread = Math.min(1.7, availW / Math.max(1, shownBlocks.length * blockW()));
-        if (spread > 1) { valW *= spread; dW *= spread; }
+        if (spread > 1) { valW *= spread; dW *= spread; barW = Math.round(barW * Math.min(1.3, spread)); }
+
+        // cell resolver for display rows (block index based)
+        const cellAt = (r: MRow, bi: number): DataPoint | null =>
+            r.formula ? (r.cellFn ? r.cellFn(bi) : null)
+                : cellFor(r.pts, r.label, shownBlocks[bi]);
+        // Δ per block: basis variance, or the change vs. the previous column
+        const deltaAt = (r: MRow, bi: number): { v: number | null; p: DataPoint | null } => {
+            const c = cellAt(r, bi);
+            if (!prevCol) { return { v: c?.varAbs ?? null, p: c }; }
+            if (bi === 0 || c?.value == null) { return { v: null, p: c }; }
+            const prev = cellAt(r, bi - 1);
+            return { v: prev?.value != null ? c.value - prev.value : null, p: c };
+        };
 
         // ------- vertical layout + scrolling (same pattern as the flat table)
         const headerH = Math.round(cf + 12) + (twoLv ? Math.round(cf * 0.9 + 6) : 0);
-        const showTotalRow = cfg.showTotal
-            && !rowOrder.some(cat => isSum(rowAgg.get(cat) as DataPoint) || isResult(rowAgg.get(cat) as DataPoint));
-        const n = displayOrder.length + (showTotalRow ? 1 : 0);
+        const showTotalRow = cfg.showTotal && !noMatch
+            && !topAggs.some(a => isSum(a) || isResult(a));
+        const totalBase = topAggs.filter(a => !isPct(a) && !isSkip(a) && !isResult(a) && !isSum(a));
+        const n = Math.max(1, rows.length + (showTotalRow ? 1 : 0));
         const rowH = Math.max(cf + 6, (region.h - pad * 2 - headerH) / n);
         const top = region.y + pad + headerH;
         const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH + 1e-6);
         const bodyCap = Math.max(1, maxRows - (showTotalRow ? 1 : 0));
         const paneKey = `${points[0].group ?? ""}¦mx`;
-        const maxScroll = Math.max(0, displayOrder.length - bodyCap);
+        const maxScroll = Math.max(0, rows.length - bodyCap);
         const canScroll = this.allowInteractions && maxScroll > 0;
         const scroll = canScroll
             ? Math.max(0, Math.min(this.tableScroll.get(paneKey) ?? 0, maxScroll)) : 0;
         if (canScroll) { this.tableScroll.set(paneKey, scroll); }
-        const bodyCats = displayOrder.slice(scroll, scroll + bodyCap);
+        const bodyRows = rows.slice(scroll, scroll + bodyCap);
 
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
@@ -3703,15 +3980,28 @@ export class Visual implements IVisual {
             return t;
         };
         const goodOf = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
-        const colOf = (v: number, pp: DataPoint) => (v === 0 || !cfg.isMaterial(pp))
-            ? cfg.subtle : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
+        const colOf = (v: number, pp: DataPoint | null, rel?: number | null) =>
+            (v === 0 || (pp != null && !cfg.isMaterial(pp, v, rel ?? null)))
+                ? cfg.subtle : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
+
+        // mini-bar Δ domain over the visible cells (stable while scrolling: all rows)
+        let dDom = 1;
+        if (showBar) {
+            for (const r of rows) {
+                for (let bi = 0; bi < shownBlocks.length; bi++) {
+                    const d = deltaAt(r, bi);
+                    if (d.v != null) { dDom = Math.max(dDom, Math.abs(d.v)); }
+                }
+            }
+        }
 
         // ------- column x positions
         const colX: { x: number; w: number }[] = [];
         let x = region.x + pad + nameW + gap;
+        const subW = valW + (showD ? dW : 0) + (showBar ? barW : 0);
         for (let bi = 0; bi < shownBlocks.length; bi++) {
-            colX.push({ x, w: valW + (showD ? dW : 0) });
-            x += valW + (showD ? dW : 0) + gap;
+            colX.push({ x, w: subW });
+            x += subW + gap;
         }
         const sumX = { x, w: sumW - gap };
 
@@ -3720,7 +4010,6 @@ export class Visual implements IVisual {
         const hy0 = region.y + pad + hFont + 2;               // level-0 line
         const hy = top - 6;                                    // block line
         if (twoLv) {
-            // level-0 spans with ▸/▾ chevrons (Matrix look)
             let bi = 0;
             while (bi < shownBlocks.length) {
                 const l0 = shownBlocks[bi].l0;
@@ -3753,6 +4042,9 @@ export class Visual implements IVisual {
                 bi = end + 1;
             }
         }
+        const dHead = prevCol
+            ? this.locStr("Matrix_DPrev", "Δ prev.")
+            : `Δ${cfg.basisLabel}`;
         for (let bi = 0; bi < shownBlocks.length; bi++) {
             const b = shownBlocks[bi];
             const label = twoLv && b.l1 == null && (b.parent as CNode).kids.length > 0
@@ -3760,115 +4052,235 @@ export class Visual implements IVisual {
             txt(colX[bi].x + valW, hy, this.truncate(twoLv ? label : b.label, valW + 4, hFont),
                 "end", hFont, true, cfg.subtle, bg);
             if (showD) {
-                txt(colX[bi].x + valW + dW, hy, `Δ${cfg.basisLabel}`, "end", hFont, true, cfg.subtle, bg);
+                txt(colX[bi].x + valW + dW, hy, dHead, "end", hFont, true, cfg.subtle, bg);
             }
         }
-        txt(sumX.x + sValW, hy, "Σ", "end", hFont, true, cfg.ink, bg);
+        // Σ block headers with the flat table's sort cycle (ac / dabs / drel)
+        const marker = (key: string) => sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
+        const sortHit = (key: string, hx: number, hw: number) => {
+            if (!this.allowInteractions || cfg.cumulative) { return; }
+            const r = this.el("rect", {
+                x: hx, y: top - 6 - hFont, width: hw, height: hFont + 8,
+                fill: cfg.paper, "fill-opacity": 0.01, role: "button", tabindex: "0"
+            }, bg) as SVGElement;
+            const tip = this.el("title", {}, r);
+            tip.textContent = this.locStr("Btn_SortHeader", "Sort by this column (click again: ascending / off)");
+            r.setAttribute("aria-label", tip.textContent);
+            (r as unknown as SVGGraphicsElement).style.cursor = "pointer";
+            const cycle = () => {
+                const next = this.tableSort === `${key}_desc` ? `${key}_asc`
+                    : this.tableSort === `${key}_asc` ? "" : `${key}_desc`;
+                this.tableSort = next;
+                this.pendingTableSort = next;
+                this.host.persistProperties({
+                    merge: [{ objectName: "chart", selector: null, properties: { tableSort: next } }]
+                });
+                this.rerender();
+            };
+            r.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); cycle(); });
+            r.addEventListener("keydown", (e: KeyboardEvent) => {
+                if (e.key !== "Enter" && e.key !== " ") { return; }
+                e.preventDefault();
+                e.stopPropagation();
+                cycle();
+            });
+        };
+        txt(sumX.x + sValW, hy, `Σ${marker("ac")}`, "end", hFont, true, cfg.ink, bg);
+        sortHit("ac", sumX.x, sValW + 4);
         if (hasVar) {
-            txt(sumX.x + sValW + sDW, hy, `Δ${cfg.basisLabel}`, "end", hFont, true, cfg.subtle, bg);
-            txt(sumX.x + sumX.w, hy, `Δ${cfg.basisLabel} %`, "end", hFont, true, cfg.subtle, bg);
+            txt(sumX.x + sValW + sDW, hy, `Δ${cfg.basisLabel}${marker("dabs")}`, "end", hFont, true, cfg.subtle, bg);
+            sortHit("dabs", sumX.x + sValW + 4, sDW);
+            txt(sumX.x + sumX.w, hy, `Δ${cfg.basisLabel} %${marker("drel")}`, "end", hFont, true, cfg.subtle, bg);
+            sortHit("drel", sumX.x + sValW + sDW + 4, sumX.w - sValW - sDW - 4);
         }
         if (cut > 0) {
             txt(region.x + region.w - pad, hy0 - hFont - 2, `… +${cut}`, "end",
                 Math.round(hFont * 0.9), false, cfg.subtle, bg);
         }
+        // expand-all chevron + 🔍 in the name header
+        if (hasLevels && allParentKeys.length > 0 && this.allowInteractions) {
+            const allOpen = allParentKeys.every(kk => this.expandedRows.has(kk));
+            const label = allOpen
+                ? this.locStr("Btn_CollapseAll", "Collapse all")
+                : this.locStr("Btn_ExpandAll", "Expand all");
+            const ch = txt(region.x + pad, hy, allOpen ? "▾▾" : "▸▸", "start", hFont, true, cfg.subtle, bg);
+            const tip = this.el("title", {}, ch);
+            tip.textContent = label;
+            ch.setAttribute("role", "button");
+            ch.setAttribute("aria-label", label);
+            (ch as unknown as SVGGraphicsElement).style.cursor = "pointer";
+            ch.addEventListener("click", (e: MouseEvent) => {
+                e.stopPropagation();
+                if (allOpen) { allParentKeys.forEach(kk => this.expandedRows.delete(kk)); }
+                else { allParentKeys.forEach(kk => this.expandedRows.add(kk)); }
+                this.persistTableExpanded();
+                this.rerender();
+            });
+        }
+        this.drawSearchControl(bg,
+            region.x + pad + (hasLevels ? Math.round(24 * k) : 0), hy, cfg);
         this.el("line", {
             x1: region.x + pad, y1: top - 2, x2: region.x + region.w - pad, y2: top - 2,
             stroke: cfg.ink, "stroke-width": 1.2
         }, bg);
 
+        if (noMatch) {
+            txt(region.x + pad, top + cf + 4,
+                this.locStr("Table_NoMatch", "No rows match the search"),
+                "start", Math.round(cf * 0.95), false, cfg.subtle, bg);
+            return;
+        }
+
         // ------- rows
         const pctText = (v: number) => new Intl.NumberFormat(this.host.locale, {
             minimumFractionDigits: 1, maximumFractionDigits: 1
         }).format(v) + " %";
-        const drawRow = (cat: string | null, i: number, isTotal: boolean) => {
+        const drawRow = (row: MRow | null, i: number) => {
+            const isTotal = row == null;
             const y = top + i * rowH;
             const yMid = y + rowH / 2;
             const rowFont = Math.min(cf, rowH - 4);
             const agg = isTotal
-                ? (() => {
-                    const base = rowOrder.filter(c => {
-                        const a = rowAgg.get(c) as DataPoint;
-                        return !isPct(a) && !isSkip(a) && !isResult(a);
-                    }).map(c => rowAgg.get(c) as DataPoint);
-                    return this.aggregateHierarchy(this.locStr("Label_Total", "Σ Total"), base);
-                })()
-                : rowAgg.get(cat as string) as DataPoint;
-            const sum = isTotal || isSum(agg) || isResult(agg);
+                ? this.aggregateHierarchy(this.locStr("Label_Total", "Σ Total"), totalBase)
+                : (row as MRow).agg;
+            const label = isTotal ? agg.cat : (row as MRow).label;
+            const isParent = !isTotal && (row as MRow).parentKey != null;
+            const sum = isTotal || isSum(agg) || isResult(agg) || isParent || !!(row && row.formula && !isPct(agg));
             const skip = !isTotal && isSkip(agg);
             const rowPct = !isTotal && isPct(agg);
+            const davon = !isTotal && cfg.indentSet.has(label.trim().toLowerCase());
+            const rf = cfg.rowFmt.get(label.trim().toLowerCase());
+            const fmtCell = (v: number) => rowPct ? pctText(v) : rf ? rf(v) : cfg.fmt.format(v);
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
             this.el("line", {
                 x1: region.x + pad, y1: y + rowH, x2: region.x + region.w - pad, y2: y + rowH,
                 stroke: cfg.subtle, "stroke-width": 0.6, "stroke-opacity": 0.4
             }, bg);
-            if (sum) {
+            if (isTotal || isAnchor(agg) || (row && row.formula && !rowPct)) {
                 this.el("line", {
                     x1: region.x + pad, y1: y, x2: region.x + region.w - pad, y2: y,
                     stroke: cfg.ink, "stroke-width": 1.2
                 }, bg);
             }
-            const nameEl = txt(region.x + pad + (sum ? 0 : Math.round(6 * k)),
+            const depth = isTotal ? 0 : (row as MRow).depth;
+            const indentX = (depth + (davon ? 1 : 0)) * Math.round(14 * k);
+            const nameText = isParent
+                ? `${(row as MRow).expanded ? "▾" : "▸"} ${label}`
+                : label;
+            const nameEl = txt(region.x + pad + (sum && depth === 0 && !davon ? 0 : Math.round(6 * k)) + indentX,
                 yMid + rowFont * 0.35,
-                this.truncate(isTotal ? agg.cat : cat as string, nameW - 8, rowFont),
-                "start", rowFont, sum, skip ? cfg.subtle : cfg.ink, g);
+                this.truncate(nameText, nameW - 8 - indentX, rowFont),
+                "start", rowFont, sum && !davon, skip || davon ? cfg.subtle : cfg.ink, g);
             if (skip) { nameEl.setAttribute("font-style", "italic"); }
-            const cellTxt = (cx: { x: number; w: number }, off: number, p2: DataPoint | null) => {
-                if (p2 == null || p2.value == null) { return; }
-                txt(cx.x + off, yMid + rowFont * 0.35,
-                    rowPct ? pctText(p2.value) : cfg.fmt.format(p2.value),
-                    "end", rowFont, sum, rowPct || skip ? cfg.subtle : cfg.ink, g);
-                if (showD && !rowPct && p2.varAbs != null) {
-                    txt(cx.x + off + dW, yMid + rowFont * 0.35,
-                        this.fmtSigned(cfg.fmtVar, p2.varAbs), "end", Math.round(rowFont * 0.95),
-                        sum, colOf(p2.varAbs, p2), g);
-                }
-            };
             for (let bi = 0; bi < shownBlocks.length; bi++) {
                 const p2 = isTotal
                     ? (() => {
-                        const base = rowOrder.filter(c => {
-                            const a = rowAgg.get(c) as DataPoint;
-                            return !isPct(a) && !isSkip(a) && !isResult(a);
-                        }).map(c => cellOf(c, shownBlocks[bi])).filter(Boolean) as DataPoint[];
+                        const base = totalBase
+                            .map((_, ti2) => cellFor(
+                                (root.kids.get(root.order.filter(l => {
+                                    const a2 = aggFor(root.kids.get(l) as RNode);
+                                    return !isPct(a2) && !isSkip(a2) && !isResult(a2) && !isSum(a2);
+                                })[ti2]) as RNode)?.pts ?? null, "Σ", shownBlocks[bi]))
+                            .filter(Boolean) as DataPoint[];
                         return base.length > 0 ? this.aggregateHierarchy("Σ", base) : null;
                     })()
-                    : cellOf(cat as string, shownBlocks[bi]);
-                cellTxt(colX[bi], valW, p2);
+                    : cellAt(row as MRow, bi);
+                if (p2 != null && p2.value != null) {
+                    txt(colX[bi].x + valW, yMid + rowFont * 0.35, fmtCell(p2.value),
+                        "end", rowFont, sum, rowPct || skip ? cfg.subtle : cfg.ink, g);
+                }
+                if (showD && !rowPct) {
+                    const d = isTotal
+                        ? { v: p2?.varAbs ?? null, p: p2 }
+                        : deltaAt(row as MRow, bi);
+                    // Σ row in prevcol mode: change vs. previous block total
+                    if (isTotal && prevCol) { d.v = null; }
+                    if (d.v != null) {
+                        txt(colX[bi].x + valW + dW, yMid + rowFont * 0.35,
+                            this.fmtSigned(cfg.fmtVar, d.v), "end", Math.round(rowFont * 0.95),
+                            sum, colOf(d.v, d.p), g);
+                    }
+                    if (showBar && d.v != null) {
+                        const axis = colX[bi].x + valW + dW + barW / 2 + 2;
+                        const len = Math.abs(d.v) / dDom * (barW / 2 - 3);
+                        const bh = Math.max(3, Math.min(rowH * 0.4, 9 * k));
+                        this.el("rect", {
+                            x: axis - 0.6, y: yMid - bh / 2 - 1, width: 1.2, height: bh + 2,
+                            fill: cfg.colors.py
+                        }, g);
+                        this.el("rect", {
+                            x: d.v >= 0 ? axis + 0.8 : axis - 0.8 - len, y: yMid - bh / 2,
+                            width: Math.max(len, 1), height: bh,
+                            fill: colOf(d.v, d.p)
+                        }, g);
+                    }
+                }
             }
             // Σ block: row total with Δ and Δ%
             if (agg.value != null) {
-                txt(sumX.x + sValW, yMid + rowFont * 0.35,
-                    rowPct ? pctText(agg.value) : cfg.fmt.format(agg.value),
+                txt(sumX.x + sValW, yMid + rowFont * 0.35, fmtCell(agg.value),
                     "end", rowFont, true, rowPct || skip ? cfg.subtle : cfg.ink, g);
             }
             if (hasVar && !rowPct && agg.varAbs != null) {
                 txt(sumX.x + sValW + sDW, yMid + rowFont * 0.35,
                     this.fmtSigned(cfg.fmtVar, agg.varAbs), "end", Math.round(rowFont * 0.95),
-                    sum, colOf(agg.varAbs, agg), g);
+                    sum, colOf(agg.varAbs, agg, agg.varRel), g);
                 if (agg.varRel != null) {
                     txt(sumX.x + sumX.w, yMid + rowFont * 0.35,
                         this.fmtPercent(agg.varRel), "end", Math.round(rowFont * 0.95),
-                        sum, colOf(agg.varRel, agg), g);
+                        sum, colOf(agg.varRel, agg, agg.varRel), g);
                 }
+            }
+            // pp deltas for %-rows (margin/formula ratio) in the Σ block
+            if (rowPct && agg.varAbs != null && hasVar) {
+                const pp = (agg.varAbs > 0 ? "+" : agg.varAbs < 0 ? "−" : "")
+                    + new Intl.NumberFormat(this.host.locale, {
+                        minimumFractionDigits: 1, maximumFractionDigits: 1
+                    }).format(Math.abs(agg.varAbs)) + "Pp";
+                txt(sumX.x + sValW + sDW, yMid + rowFont * 0.35, pp, "end",
+                    Math.round(rowFont * 0.95), sum, colOf(agg.varAbs, agg), g);
             }
             this.el("rect", {
                 x: region.x + pad, y, width: region.w - pad * 2, height: rowH,
                 fill: cfg.paper, "fill-opacity": 0.01
             }, g);
             this.attachInteraction(g, agg, cfg);
+            if (isParent) {
+                g.setAttribute("aria-expanded", String(!!(row as MRow).expanded));
+                const key = (row as MRow).parentKey as string;
+                const toggle = () => {
+                    if (this.expandedRows.has(key)) { this.expandedRows.delete(key); }
+                    else { this.expandedRows.add(key); }
+                    this.persistTableExpanded();
+                    this.rerender();
+                };
+                g.addEventListener("click", (e: MouseEvent) => {
+                    e.stopPropagation();
+                    if (this.commentEdit || this.structureEdit) { return; }
+                    toggle();
+                });
+                g.addEventListener("keydown", (e: KeyboardEvent) => {
+                    if (e.key !== "Enter" && e.key !== " ") { return; }
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (this.commentEdit || this.structureEdit) { return; }
+                    toggle();
+                });
+            }
             this.catGroups.push({ g, sel: agg.sel });
             this.animGroups.push([g]);
         };
-        bodyCats.forEach((cat, i) => drawRow(cat, i, false));
-        if (showTotalRow && rowOrder.length > 1) { drawRow(null, bodyCats.length, true); }
-        const rowsBottom = top + (bodyCats.length + (showTotalRow ? 1 : 0)) * rowH;
+        bodyRows.forEach((row, i) => drawRow(row, i));
+        if (showTotalRow && totalBase.length > 1) { drawRow(null, bodyRows.length); }
+        const rowsBottom = top + (bodyRows.length + (showTotalRow ? 1 : 0)) * rowH;
 
-        // Σ block separator
+        // Σ block separator + draggable name edge
         this.el("line", {
             x1: sumX.x - gap / 2, y1: region.y + pad, x2: sumX.x - gap / 2, y2: rowsBottom,
             stroke: cfg.subtle, "stroke-width": 0.8
         }, bg);
+        this.drawNameResize(bg, region.x + pad + nameW + gap / 2,
+            region.y + pad, rowsBottom, region, cfg);
 
         // ------- scrollbar (same interaction pattern as the flat table)
         if (canScroll) {
@@ -3878,7 +4290,7 @@ export class Visual implements IVisual {
                 x: trackX, y: top, width: 3, height: trackH, rx: 1.5,
                 fill: cfg.subtle, "fill-opacity": 0.18
             }, bg);
-            const thumbH = Math.max(Math.min(18, trackH), trackH * bodyCap / displayOrder.length);
+            const thumbH = Math.max(Math.min(18, trackH), trackH * bodyCap / rows.length);
             const thumbY = top + (trackH - thumbH) * (scroll / maxScroll);
             const thumb = this.el("rect", {
                 x: trackX - 1, y: thumbY, width: 5, height: thumbH, rx: 2.5,
@@ -3907,7 +4319,7 @@ export class Visual implements IVisual {
                 e.stopPropagation();
                 const startY = e.clientY, startScroll = scroll;
                 const move = (ev: MouseEvent) => {
-                    setScroll(startScroll + (ev.clientY - startY) / trackH * displayOrder.length);
+                    setScroll(startScroll + (ev.clientY - startY) / trackH * rows.length);
                 };
                 const up = () => {
                     window.removeEventListener("mousemove", move);
@@ -3916,11 +4328,39 @@ export class Visual implements IVisual {
                 window.addEventListener("mousemove", move);
                 window.addEventListener("mouseup", up);
             });
-        } else if (displayOrder.length > bodyCats.length) {
+        } else if (rows.length > bodyRows.length) {
             txt(region.x + pad, rowsBottom + cf,
-                `… ${displayOrder.length - bodyCats.length} ${this.locStr("Hint_MoreRows", "more rows (increase the visual height)")}`,
+                `… ${rows.length - bodyRows.length} ${this.locStr("Hint_MoreRows", "more rows (increase the visual height)")}`,
                 "start", Math.round(cf * 0.9), false, cfg.subtle, bg);
         }
+    }
+
+    /**
+     * per-row number formats: entries "Label = pattern" (";"/newline separated).
+     * Pattern rules follow Power BI conventions: a "%" multiplies by 100 and
+     * appends the sign, decimals come from the ".0…" run, "#"/"," enables
+     * grouping. Values are shown UNSCALED (no display-unit division) — that is
+     * the point: mixing € rows with Stück- or %-rows in one table
+     */
+    private parseRowFormats(raw: string): Map<string, (v: number) => string> {
+        const out = new Map<string, (v: number) => string>();
+        if (!raw.trim()) { return out; }
+        for (const entry of raw.split(/[;\n]/)) {
+            const eq = entry.indexOf("=");
+            if (eq < 1) { continue; }
+            const label = entry.slice(0, eq).trim().toLowerCase();
+            const pat = entry.slice(eq + 1).trim();
+            if (!label || !pat) { continue; }
+            const pct = pat.includes("%");
+            const m = pat.match(/[.,](0+)(?!.*[.,]0)/);
+            const decs = m ? m[1].length : 0;
+            const grouping = pat.includes("#") || /,(?!0)/.test(pat) || pat.includes(",0");
+            const nf = new Intl.NumberFormat(this.host.locale, {
+                minimumFractionDigits: decs, maximumFractionDigits: decs, useGrouping: grouping
+            });
+            out.set(label, (v: number) => pct ? `${nf.format(v * 100)} %` : nf.format(v));
+        }
+        return out;
     }
 
     /** merges points that repeat per matrix-column value back to one per category */
@@ -6488,6 +6928,142 @@ export class Visual implements IVisual {
         });
     }
 
+    /** filters visible table rows by the live 🔍 term, keeping ancestors of matches */
+    private applySearch<T extends { depth: number }>(rows: T[], labelOf: (r: T) => string): T[] {
+        const term = this.allowInteractions ? this.tableSearch.trim().toLowerCase() : "";
+        if (!term) { return rows; }
+        const keep = new Array(rows.length).fill(false);
+        const stack: number[] = [];
+        rows.forEach((r, i) => {
+            stack[r.depth] = i;
+            stack.length = r.depth + 1;
+            if (labelOf(r).toLowerCase().includes(term)) {
+                for (let d = 0; d <= r.depth; d++) {
+                    const si = stack[d];
+                    if (si != null) { keep[si] = true; }
+                }
+            }
+        });
+        return rows.filter((_, i) => keep[i]);
+    }
+
+    /** 🔍 header control: click opens a live-filter input; active term shows with ✕ */
+    private drawSearchControl(bg: SVGElement, xx: number, yy: number, cfg: ChartConfig): void {
+        if (!this.allowInteractions) { return; }
+        const f = Math.round(10 * this.fontK);
+        const active = this.tableSearch.trim() !== "";
+        const icon = this.el("text", {
+            x: xx, y: yy, "font-size": f, fill: active ? cfg.ink : cfg.subtle,
+            "font-family": FONT, role: "button", tabindex: "0", "font-weight": active ? 700 : 400
+        }, bg);
+        icon.textContent = active ? `🔍 ${this.truncate(this.tableSearch, 90, f)} ✕` : "🔍";
+        const tip = this.el("title", {}, icon);
+        tip.textContent = this.locStr("Table_Search", "Search rows");
+        icon.setAttribute("aria-label", tip.textContent);
+        (icon as unknown as SVGGraphicsElement).style.cursor = "pointer";
+        const act = (e: Event) => {
+            e.stopPropagation();
+            if (active) {
+                this.tableSearch = "";
+                this.closeSearchEditor();
+                this.rerender();
+                return;
+            }
+            this.openSearchEditor(e as MouseEvent);
+        };
+        icon.addEventListener("click", act);
+        icon.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(e); }
+        });
+    }
+
+    private openSearchEditor(e: MouseEvent): void {
+        this.closeSearchEditor();
+        const rootRect = this.root.getBoundingClientRect();
+        if (window.getComputedStyle(this.root).position === "static") {
+            this.root.style.position = "relative";
+        }
+        const left = Math.max(2, Math.min(e.clientX - rootRect.left, rootRect.width - 180));
+        const top = Math.max(2, Math.min(e.clientY - rootRect.top + 8, rootRect.height - 34));
+        const input = document.createElement("input");
+        this.searchEditor = input;
+        input.type = "text";
+        input.value = this.tableSearch;
+        input.placeholder = this.locStr("Table_Search", "Search rows");
+        input.style.cssText = `position:absolute;left:${left}px;top:${top}px;z-index:10;`
+            + "width:170px;box-sizing:border-box;background:#FFFFFF;color:#252423;"
+            + "border:1px solid #8A8A8A;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.2);"
+            + "padding:4px 6px;font-family:'Segoe UI',sans-serif;font-size:12px;";
+        input.addEventListener("mousedown", ev => ev.stopPropagation());
+        let deb: number | null = null;
+        input.addEventListener("input", () => {
+            if (deb != null) { window.clearTimeout(deb); }
+            deb = window.setTimeout(() => {
+                this.tableSearch = input.value;
+                this.rerender();
+            }, 180);
+        });
+        input.addEventListener("keydown", ev => {
+            ev.stopPropagation();
+            if (ev.key === "Escape") {
+                this.tableSearch = "";
+                this.closeSearchEditor();
+                this.rerender();
+            } else if (ev.key === "Enter") {
+                this.tableSearch = input.value;
+                this.closeSearchEditor();
+                this.rerender();
+            }
+        });
+        this.root.appendChild(input);
+        input.focus();
+    }
+
+    private closeSearchEditor(): void {
+        if (this.searchEditor) {
+            this.searchEditor.remove();
+            this.searchEditor = null;
+        }
+    }
+
+    /** invisible col-resize handle on the name-column edge; width persists on drop */
+    private drawNameResize(bg: SVGElement, edgeX: number, topY: number, botY: number,
+        region: Rect, cfg: ChartConfig): void {
+        if (!this.allowInteractions) { return; }
+        const h = this.el("rect", {
+            x: edgeX - 3, y: topY, width: 6, height: Math.max(10, botY - topY),
+            fill: cfg.paper, "fill-opacity": 0.01
+        }, bg) as SVGGraphicsElement;
+        h.style.cursor = "col-resize";
+        const tip = this.el("title", {}, h);
+        tip.textContent = "⇔";
+        h.addEventListener("mousedown", (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const startX = e.clientX;
+            const startW = this.tableNameW ?? (edgeX - region.x - 6);
+            let cur = startW;
+            const move = (ev: MouseEvent) => {
+                const next = Math.max(40, Math.min(region.w * 0.5, startW + (ev.clientX - startX)));
+                if (Math.abs(next - cur) < 2) { return; }
+                cur = next;
+                this.tableNameW = next;
+                this.rerender();
+            };
+            const up = () => {
+                window.removeEventListener("mousemove", move);
+                window.removeEventListener("mouseup", up);
+                const json = String(Math.round(this.tableNameW ?? startW));
+                this.pendingTableNameW = json;
+                this.host.persistProperties({
+                    merge: [{ objectName: "chart", selector: null, properties: { tableNameWidth: json } }]
+                });
+            };
+            window.addEventListener("mousemove", move);
+            window.addEventListener("mouseup", up);
+        });
+    }
+
     private persistTableColExpanded(): void {
         const json = JSON.stringify([...this.colExpanded]);
         this.pendingTableColExpanded = json;
@@ -6560,7 +7136,7 @@ export class Visual implements IVisual {
         if (window.getComputedStyle(this.root).position === "static") {
             this.root.style.position = "relative";
         }
-        const boxW = 240, boxH = 176;
+        const boxW = 240, boxH = 200;
         const left = Math.max(2, Math.min(e.clientX - rootRect.left, rootRect.width - boxW - 4));
         const top = Math.max(2, Math.min(e.clientY - rootRect.top, rootRect.height - boxH - 4));
 
@@ -6608,6 +7184,7 @@ export class Visual implements IVisual {
         mkCheck(this.locStr("Struct_Skip", "Exclude from totals"), "skipList");
         mkCheck(this.locStr("Struct_Hide", "Hide row (Σ keeps it)"), "hideList");
         mkCheck(this.locStr("Struct_Chart", "Chart only listed rows"), "chartList");
+        mkCheck(this.locStr("Struct_Indent", "Indent (thereof row)"), "indentList");
         if (p.cat.includes(",")) {
             // comma names cannot round-trip the comma lists — disable the menu
             box.querySelectorAll("input").forEach(i => { (i as HTMLInputElement).disabled = true; });

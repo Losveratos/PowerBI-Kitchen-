@@ -164,6 +164,17 @@
                 "skipList": { "type": { "text": true } },
                 "hideList": { "type": { "text": true } },
                 "chartList": { "type": { "text": true } },
+                "indentList": { "type": { "text": true } },
+                "rowFormats": { "type": { "text": true } },
+                "tableNameWidth": { "type": { "text": true } },
+                "matrixCompare": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "none", "displayName": "Off" },
+                            { "value": "prevcol", "displayName": "Δ vs. previous column" }
+                        ]
+                    }
+                },
                 "formulaRows": { "type": { "text": true } },
                 "cardStatusBasis": {
                     "type": {

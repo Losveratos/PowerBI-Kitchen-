@@ -182,5 +182,14 @@
   "Table_HideList": "Ocultar filas",
   "Table_ChartList": "Gráfico solo en estas filas",
   "Struct_Hide": "Ocultar fila (Σ la mantiene)",
-  "Struct_Chart": "Gráfico solo en filas listadas"
+  "Struct_Chart": "Gráfico solo en filas listadas",
+  "Table_IndentList": "Sangrar filas (de lo cual)",
+  "Table_RowFormats": "Formato numérico por fila",
+  "Table_MatrixCompare": "Matriz: comparación de columnas",
+  "Enum_MxCompare_None": "No (Δ vs. base)",
+  "Enum_MxCompare_Prev": "Δ vs. columna anterior",
+  "Struct_Indent": "Sangrar (fila «de lo cual»)",
+  "Matrix_DPrev": "Δ ant.",
+  "Table_Search": "Buscar filas",
+  "Table_NoMatch": "Ninguna fila coincide con la búsqueda"
 }

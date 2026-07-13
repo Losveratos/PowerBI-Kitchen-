@@ -182,5 +182,14 @@
   "Table_HideList": "Hide rows",
   "Table_ChartList": "Chart only these rows",
   "Struct_Hide": "Hide row (Σ keeps it)",
-  "Struct_Chart": "Chart only listed rows"
+  "Struct_Chart": "Chart only listed rows",
+  "Table_IndentList": "Indent rows (davon)",
+  "Table_RowFormats": "Row number formats",
+  "Table_MatrixCompare": "Matrix: column comparison",
+  "Enum_MxCompare_None": "Off (Δ vs. basis)",
+  "Enum_MxCompare_Prev": "Δ vs. previous column",
+  "Struct_Indent": "Indent (thereof row)",
+  "Matrix_DPrev": "Δ prev.",
+  "Table_Search": "Search rows",
+  "Table_NoMatch": "No rows match the search"
 }
