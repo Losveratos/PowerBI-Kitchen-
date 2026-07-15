@@ -1,5 +1,16 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.34.1.0 (2026-07-15)
+
+**Tabelle/Matrix: feste Zeilenhöhe wie die native Matrix.** Bei wenigen
+Zeilen in einem hohen Visual wuchsen Zeilen und Balken bisher mit, bis
+sie die Fläche füllten. Jetzt ist die Zeilenhöhe wie im GuV-Statement
+an die Schriftgröße gekoppelt (max. 2,4 × Kategorien-Schrift) — der
+Inhalt bleibt kompakt oben, der Rest der Fläche bleibt frei, exakt wie
+bei der Power-BI-Matrix. Dichte Tabellen (Scrolling, Σ-Freeze) sind
+unverändert; größer werden die Zeilen weiterhin über das
+Schrift-Preset bzw. den Skalierungs-Faktor.
+
 ## 1.34.0.0 (2026-07-15)
 
 **Ease-of-Use-Paket (Controlling/Finance):**

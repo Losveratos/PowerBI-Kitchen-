@@ -3752,9 +3752,11 @@ export class Visual implements IVisual {
         const d2barCol = graphic.find(g => g.key === "d2bar");
         if (d2barCol) { colX["d2bar"] = { x, w: d2barCol.w }; }
 
-        // ------- row layout + shared scales; the Σ row is pinned as last visible row
+        // ------- row layout + shared scales; the Σ row is pinned as last visible row.
+        // rowH is capped like the P&L statement (and the native matrix): rows keep
+        // a font-bound height instead of stretching bars across a tall visual
         const headerH = Math.round(cf + 12);
-        const rowH = Math.max(cf + 6, (region.h - pad * 2 - headerH) / n);
+        const rowH = Math.min(cf * 2.4, Math.max(cf + 6, (region.h - pad * 2 - headerH) / n));
         const top = region.y + pad + headerH;
         // epsilon guards the FP edge where avail/n rounds up in rowH and
         // avail/rowH lands at n−ε — all rows fit, no scrollbar wanted
@@ -4576,7 +4578,8 @@ export class Visual implements IVisual {
             && !topAggs.some(a => isSum(a) || isResult(a));
         const totalBase = topAggs.filter(a => !isPct(a) && !isSkip(a) && !isResult(a) && !isSum(a));
         const n = Math.max(1, rows.length + (showTotalRow ? 1 : 0));
-        const rowH = Math.max(cf + 6, (region.h - pad * 2 - headerH) / n);
+        // capped like the flat table: font-bound row height, no stretching
+        const rowH = Math.min(cf * 2.4, Math.max(cf + 6, (region.h - pad * 2 - headerH) / n));
         const top = region.y + pad + headerH;
         const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH + 1e-6);
         const bodyCap = Math.max(1, maxRows - (showTotalRow ? 1 : 0));
