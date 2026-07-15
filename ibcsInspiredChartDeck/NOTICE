@@ -1,0 +1,42 @@
+ChartKitchen byDatenWG
+Copyright 2026 Daten-WG and ChartKitchen contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+--------------------------------------------------------------------------------
+Trademarks
+--------------------------------------------------------------------------------
+
+"ChartKitchen", "byDatenWG" and "Daten-WG", together with the DWG logo, are
+trademarks of the Daten-WG team. The Apache-2.0 license covers the source code
+only; it does NOT grant any right to use these names or the logo. Forks and
+derivative works must use their own name and branding.
+
+"IBCS" is a registered trademark of the IBCS Association. This project is not
+affiliated with, endorsed by, or certified by the IBCS Association. References
+to IBCS in this project are descriptive only ("inspired by IBCS", "IBCS
+notation") and indicate compatibility with the notation concepts, not
+certification.
+
+"Microsoft" and "Power BI" are trademarks of the Microsoft group of companies.
+This project is an independent custom visual for Power BI and is not affiliated
+with or endorsed by Microsoft.
+
+--------------------------------------------------------------------------------
+Third-party components
+--------------------------------------------------------------------------------
+
+This visual is built with the following open-source components. They are used
+under their respective licenses; their copyright and license notices are
+retained here as required.
+
+- powerbi-visuals-api
+  Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+
+- powerbi-visuals-utils-formattingmodel
+- powerbi-visuals-utils-formattingutils
+  Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+
+Build-time tooling (powerbi-visuals-tools, TypeScript, ESLint, webpack and
+their dependencies) is used during development only and is not redistributed
+as part of the packaged visual.

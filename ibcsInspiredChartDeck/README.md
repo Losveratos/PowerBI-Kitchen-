@@ -240,6 +240,14 @@ auf die Seite ziehen. Zeigt der Formatbereich rohe Schlüssel wie
 
 ## Lizenz
 
-MIT — © 2026 Michael Tenner · PowerBI Kitchen (siehe [LICENSE](../LICENSE)).
+**Apache License 2.0** — © 2026 Daten-WG und ChartKitchen-Contributors
+(siehe [LICENSE](LICENSE) und [NOTICE](NOTICE)).
+
+Die Lizenz deckt den **Quellcode** ab. **Name und Logo** („ChartKitchen",
+„byDatenWG", DWG-Logo) sind Marken der Daten-WG und **nicht** mitlizenziert —
+Forks brauchen eigenes Branding. „IBCS" ist eine eingetragene Marke der IBCS
+Association; dieses Projekt ist nicht zertifiziert und nutzt den Begriff rein
+beschreibend. Beiträge bitte per [CONTRIBUTING.md](CONTRIBUTING.md) (DCO,
+`git commit -s`).
 Nutzung, Änderung und Weitergabe sind frei, auch kommerziell — der
 Autor-/Copyright-Hinweis muss dabei erhalten bleiben.

@@ -54,5 +54,11 @@ npm run test:render      # headless render suite (68 cases, needs Chromium/Playw
 
 ## License
 
-License to be finalized before publication (see NOTICE in the repository
-once decided).
+Licensed under the **Apache License, Version 2.0** — see [LICENSE](LICENSE) and
+[NOTICE](NOTICE). The license covers the source code only; the name and logo
+("ChartKitchen", "byDatenWG", the DWG logo) are trademarks of the Daten-WG team
+and are not licensed — forks must use their own branding. "IBCS" is a
+registered trademark of the IBCS Association; this project is not certified and
+uses the term descriptively. Contributions: see
+[CONTRIBUTING.md](CONTRIBUTING.md) (Developer Certificate of Origin,
+`git commit -s`).
