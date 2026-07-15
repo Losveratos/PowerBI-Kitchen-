@@ -1127,30 +1127,67 @@ export class Visual implements IVisual {
                 break;
             }
             case "catbridge": {
-                for (let i = 0; i < 4; i++) {
-                    r(0, 0.06 + i * 0.24, 0.30 - i * 0.05, 0.12, c.grey);
-                    r(0.34 + i * 0.14, 0.06 + i * 0.24, 0.12, 0.12, i === 1 ? c.red : c.teal);
+                // PY total row on top, per-category grey bar + walking cascade
+                // brick, AC total row at the bottom — like the real mode
+                r(0.00, 0.02, 0.60, 0.10, c.grey);
+                const bx = [0.38, 0.50, 0.62];
+                for (let i = 0; i < 3; i++) {
+                    const ry = 0.22 + i * 0.19;
+                    r(0.00, ry, 0.24 - i * 0.05, 0.09, c.grey);
+                    r(bx[i], ry, 0.12, 0.09, i === 1 ? c.red : c.teal);
+                    if (i < 2) {
+                        line(bx[i] + 0.12, ry + 0.09, bx[i] + 0.12, ry + 0.19, c.grey, 0.8);
+                    }
                 }
-                line(0.34, 0, 0.34, 1, c.grey, 1);
+                line(0, 0.80, 0.74, 0.80, c.ink, 1.1);
+                r(0.00, 0.84, 0.74, 0.12, c.ink);
                 break;
             }
             case "table": {
-                for (let i = 0; i < 4; i++) {
-                    const ry = 0.10 + i * 0.24;
-                    line(0, ry + 0.16, 1, ry + 0.16, c.grey, 0.7);
-                    r(0.02, ry, 0.16, 0.10, c.grey);
-                    r(0.26, ry, 0.20 - i * 0.03, 0.10, c.ink);
-                    r(0.62, ry, 0.10, 0.10, i === 2 ? c.red : c.teal);
+                // name | AC over PY bar | Δ bars at an axis | Δ% pin — plus a
+                // bold Σ row, matching the real table columns
+                line(0, 0.05, 1, 0.05, c.ink, 1.4);
+                const dAxis = 0.66, pinX = 0.87;
+                const dw = [0.08, -0.06, 0.05];
+                for (let i = 0; i < 3; i++) {
+                    const ry = 0.13 + i * 0.20;
+                    r(0.00, ry, 0.13, 0.08, c.grey);
+                    r(0.17, ry - 0.015, 0.20 - i * 0.03, 0.05, c.grey);
+                    r(0.17, ry + 0.020, 0.26 - i * 0.04, 0.07, c.ink);
+                    const d = dw[i];
+                    r(d >= 0 ? dAxis : dAxis + d, ry + 0.005, Math.abs(d), 0.08,
+                        d >= 0 ? c.teal : c.red);
+                    line(pinX, ry + 0.045, pinX + (d >= 0 ? 0.06 : -0.05), ry + 0.045,
+                        d >= 0 ? c.teal : c.red, 1.4);
+                    this.el("circle", {
+                        cx: x + (pinX + (d >= 0 ? 0.06 : -0.05)) * w, cy: y + (ry + 0.045) * h,
+                        r: 2, fill: c.ink
+                    }, g);
                 }
-                line(0, 0.06, 1, 0.06, c.ink, 1.4);
+                line(dAxis, 0.10, dAxis, 0.92, c.grey, 0.9);
+                line(0, 0.76, 1, 0.76, c.ink, 1.2);
+                r(0.00, 0.82, 0.13, 0.09, c.ink);
+                r(0.17, 0.82, 0.34, 0.09, c.ink);
+                r(dAxis, 0.82, 0.10, 0.09, c.teal);
                 break;
             }
             case "pnl": {
-                r(0.02, 0.02, 0.30, 0.14, c.ink);
-                r(0.36, 0.22, 0.16, 0.12, c.red); r(0.52, 0.42, 0.14, 0.12, c.red);
-                r(0.02, 0.60, 0.24, 0.14, c.ink);
-                r(0.30, 0.80, 0.14, 0.12, c.teal);
-                line(0, 0.58, 0.6, 0.58, c.ink, 1.2);
+                // statement rows: label stubs left, cascade bricks walking down
+                // to a bold subtotal — the P&L waterfall-column look
+                const rows2: [number, number, string, boolean][] = [
+                    [0.20, 0.58, c.ink, true],      // revenue (anchor)
+                    [0.60, 0.16, c.red, false],     // cost 1
+                    [0.46, 0.14, c.red, false],     // cost 2
+                    [0.20, 0.26, c.ink, true],      // subtotal (anchor)
+                    [0.46, 0.10, c.teal, false]     // other income
+                ];
+                rows2.forEach(([rx, rw, col, anchor], i) => {
+                    const ry = 0.04 + i * 0.19;
+                    r(0.00, ry, 0.12, 0.09, c.grey);
+                    if (anchor) { line(0.16, ry - 0.02, 0.92, ry - 0.02, c.ink, 1.1); }
+                    r(rx, ry, rw, 0.11, col);
+                });
+                line(0.16, 0.985, 0.92, 0.985, c.ink, 1.2);
                 break;
             }
             case "cards": {

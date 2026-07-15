@@ -1,5 +1,13 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.30.6.0 (2026-07-13)
+
+**Bessere Mini-Vorschauen:** Die Startseiten-Piktogramme für
+**Kategorie-Brücke** (Totalzeilen + wandernde Kaskade mit Konnektoren),
+**Tabelle (IBCS)** (AC/PY-Doppelbalken, Δ-Achse, Δ%-Pins, Σ-Zeile) und
+**GuV-Statement** (Label-Spalte, Anker-Linien, Kaskaden-Treppe) sind neu
+gezeichnet und dem echten Modus-Look deutlich näher.
+
 ## 1.30.5.0 (2026-07-13)
 
 **Startseite: gestufte Layouts statt Überlappungs-Chaos:** Die Galerie
