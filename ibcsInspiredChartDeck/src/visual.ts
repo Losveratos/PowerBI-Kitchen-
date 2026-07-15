@@ -845,61 +845,111 @@ export class Visual implements IVisual {
         }, this.svg);
         made.textContent = "made by Daten-WG";
 
-        // ------- gallery grid
-        const modes: { v: string; key: string; en: string }[] = [
-            { v: "columns", key: "Enum_Orientation_Columns", en: "Columns (Time)" },
-            { v: "bars", key: "Enum_Orientation_Bars", en: "Bars (Structure)" },
-            { v: "line", key: "Enum_Orientation_Line", en: "Line" },
-            { v: "waterfall", key: "Enum_Orientation_Waterfall", en: "Waterfall / Bridge" },
-            { v: "intwaterfall", key: "Enum_Orientation_IntWaterfall", en: "Integrated Bridge" },
-            { v: "catbridge", key: "Enum_Orientation_CatBridge", en: "Category Bridge" },
-            { v: "table", key: "Enum_Orientation_Table", en: "Table (IBCS)" },
-            { v: "pnl", key: "Enum_Orientation_Pnl", en: "P&L Statement" },
-            { v: "cards", key: "Enum_Orientation_Cards", en: "KPI Cards" },
-            { v: "pareto", key: "Enum_Orientation_Pareto", en: "Pareto" },
-            { v: "dumbbell", key: "Enum_Orientation_Dumbbell", en: "Dumbbell" },
-            { v: "slope", key: "Enum_Orientation_Slope", en: "Slope" }
+        // ------- mode list: small preview tile + name, use case and fields per mode
+        const modes: { v: string; key: string; en: string; use: string; fields: string }[] = [
+            { v: "columns", key: "Enum_Orientation_Columns", en: "Columns (Time)",
+                use: this.locStr("Demo_Use_Columns", "Monthly/quarterly series vs. plan & prior year"),
+                fields: this.locStr("Demo_F_Columns", "Category (time), AC, PY/PL/FC") },
+            { v: "bars", key: "Enum_Orientation_Bars", en: "Bars (Structure)",
+                use: this.locStr("Demo_Use_Bars", "Compare regions, products, accounts"),
+                fields: this.locStr("Demo_F_Bars", "Category, AC, PY/PL") },
+            { v: "line", key: "Enum_Orientation_Line", en: "Line",
+                use: this.locStr("Demo_Use_Line", "Long series (weeks/days), trend view"),
+                fields: this.locStr("Demo_F_Line", "Category (time), AC, PY") },
+            { v: "waterfall", key: "Enum_Orientation_Waterfall", en: "Waterfall / Bridge",
+                use: this.locStr("Demo_Use_Waterfall", "P&L waterfall or basis→AC bridge"),
+                fields: this.locStr("Demo_F_Waterfall", "Category, AC (+ type sum/delta)") },
+            { v: "intwaterfall", key: "Enum_Orientation_IntWaterfall", en: "Integrated Bridge",
+                use: this.locStr("Demo_Use_IntWf", "Year bridge: PY → AC/FC across the months"),
+                fields: this.locStr("Demo_F_IntWf", "Category (months), AC, PY/PL, FC") },
+            { v: "catbridge", key: "Enum_Orientation_CatBridge", en: "Category Bridge",
+                use: this.locStr("Demo_Use_CatBridge", "Driver bridge across categories + reconciliation"),
+                fields: this.locStr("Demo_F_CatBridge", "Category, AC, PY/PL") },
+            { v: "table", key: "Enum_Orientation_Table", en: "Table (IBCS)",
+                use: this.locStr("Demo_Use_Table", "KPI table: bars, hierarchy, Σ, matrix columns"),
+                fields: this.locStr("Demo_F_Table", "Category(ies), AC, PY/PL (+ columns)") },
+            { v: "pnl", key: "Enum_Orientation_Pnl", en: "P&L Statement",
+                use: this.locStr("Demo_Use_Pnl", "P&L rows with cascade columns and levels"),
+                fields: this.locStr("Demo_F_Pnl", "Category, AC, PY, type (sum/delta)") },
+            { v: "cards", key: "Enum_Orientation_Cards", en: "KPI Cards",
+                use: this.locStr("Demo_Use_Cards", "KPI tiles for monitoring: status, bullet"),
+                fields: this.locStr("Demo_F_Cards", "Category, AC, PY/PL/BM") },
+            { v: "pareto", key: "Enum_Orientation_Pareto", en: "Pareto",
+                use: this.locStr("Demo_Use_Pareto", "ABC analysis: top drivers + cumulative %"),
+                fields: this.locStr("Demo_F_Pareto", "Category, AC") },
+            { v: "dumbbell", key: "Enum_Orientation_Dumbbell", en: "Dumbbell",
+                use: this.locStr("Demo_Use_Dumbbell", "Before/after per category as dot pairs"),
+                fields: this.locStr("Demo_F_Dumbbell", "Category, AC, PY/PL") },
+            { v: "slope", key: "Enum_Orientation_Slope", en: "Slope",
+                use: this.locStr("Demo_Use_Slope", "Rank shifts between two points in time"),
+                fields: this.locStr("Demo_F_Slope", "Category, AC, PY/PL") }
         ];
+        const fieldsPre = this.locStr("Demo_Fields", "Fields");
         const active = String(this.formattingSettings.chartCard.orientation.value.value);
         const padX = 12, top = 50, footH = 22, gap = 8;
-        const cols = Math.max(2, Math.min(6, Math.floor((width - padX * 2 + gap) / 150)));
+        const cols = width >= 920 ? 3 : width >= 600 ? 2 : 1;
         const rows = Math.ceil(modes.length / cols);
-        const tileW = (width - padX * 2 - (cols - 1) * gap) / cols;
-        const tileH = Math.max(58, (height - top - footH - (rows - 1) * gap) / rows);
+        const entryW = (width - padX * 2 - (cols - 1) * gap) / cols;
+        const entryH = (height - top - footH - (rows - 1) * gap) / rows;
+        // list layout needs room for three text lines — otherwise compact tile grid
+        const asList = entryH >= 64 && entryW >= 250;
 
         modes.forEach((m, i) => {
-            const x = padX + (i % cols) * (tileW + gap);
-            const y = top + Math.floor(i / cols) * (tileH + gap);
-            if (y + tileH > height - footH + 2) { return; }
+            const x = padX + (i % cols) * (entryW + gap);
+            const y = top + Math.floor(i / cols) * (entryH + gap);
+            if (y + entryH > height - footH + 2) { return; }
             const on = m.v === active;
             const g = this.el("g", { role: "button", tabindex: "0" }, this.svg) as SVGGElement;
             const label = this.locStr(m.key, m.en);
             g.setAttribute("aria-label", label);
             g.setAttribute("aria-pressed", String(on));
             const tip = this.el("title", {}, g);
-            tip.textContent = label;
+            tip.textContent = `${label} — ${m.use}`;
+            // whole-row hover/click surface
             this.el("rect", {
-                x, y, width: tileW, height: tileH, rx: 6,
+                x, y, width: entryW, height: entryH, rx: 6,
                 fill: on ? "#EEF6F7" : "#FAFAF8",
-                stroke: on ? teal : "#DDDDD8", "stroke-width": on ? 2 : 1
+                stroke: on ? teal : "#E4E4DF", "stroke-width": on ? 1.6 : 1
             }, g);
-            if (on) {
-                this.el("circle", { cx: x + tileW - 11, cy: y + 11, r: 7, fill: teal }, g);
-                const chk = this.el("text", {
-                    x: x + tileW - 11, y: y + 14.2, "text-anchor": "middle",
-                    "font-size": 9, fill: paper, "font-family": FONT, "font-weight": 700
+            if (asList) {
+                // small preview tile left, text block right
+                const tw = Math.min(96, entryH * 1.35), th = entryH - 14;
+                const px = x + 8, py2 = y + 7;
+                this.el("rect", {
+                    x: px - 2, y: py2 - 2, width: tw + 4, height: th + 4, rx: 4,
+                    fill: paper, stroke: on ? teal : "#DDDDD8", "stroke-width": on ? 1.6 : 1
                 }, g);
-                chk.textContent = "✓";
+                this.drawModeMini(g, m.v, px + 4, py2 + 4, tw - 8, th - 8, { ink, grey, teal, red, paper });
+                const tx = px + tw + 12;
+                const tmax = x + entryW - 10 - tx;
+                const lineH = Math.max(14, Math.min(17, entryH / 4.4));
+                let ty = y + entryH / 2 - lineH + 4.5;
+                const t1 = this.el("text", {
+                    x: tx, y: ty, "font-size": 12.5, "font-weight": 700,
+                    fill: ink, "font-family": FONT
+                }, g);
+                t1.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, tmax, 12.5);
+                ty += lineH;
+                const t2 = this.el("text", {
+                    x: tx, y: ty, "font-size": 11, fill: "#5A5A5A", "font-family": FONT
+                }, g);
+                t2.textContent = this.truncate(m.use, tmax, 11);
+                ty += lineH;
+                const t3 = this.el("text", {
+                    x: tx, y: ty, "font-size": 10.5, fill: subtle, "font-family": FONT
+                }, g);
+                t3.textContent = this.truncate(`${fieldsPre}: ${m.fields}`, tmax, 10.5);
+            } else {
+                // compact fallback: preview + caption only
+                const px = x + 8, py2 = y + 6, pw = entryW - 16, ph = Math.max(20, entryH - 24);
+                this.drawModeMini(g, m.v, px, py2, pw, ph, { ink, grey, teal, red, paper });
+                const cap = this.el("text", {
+                    x: x + entryW / 2, y: y + entryH - 6, "text-anchor": "middle",
+                    "font-size": 10.5, fill: on ? ink : subtle, "font-family": FONT,
+                    "font-weight": on ? 700 : 400
+                }, g);
+                cap.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, entryW - 10, 10.5);
             }
-            // mini preview area + caption
-            const px = x + 8, py2 = y + 7, pw = tileW - 16, ph = tileH - 26;
-            this.drawModeMini(g, m.v, px, py2, pw, ph, { ink, grey, teal, red, paper });
-            const cap = this.el("text", {
-                x: x + tileW / 2, y: y + tileH - 7, "text-anchor": "middle",
-                "font-size": 9.5, fill: on ? ink : subtle, "font-family": FONT,
-                "font-weight": on ? 700 : 400
-            }, g);
-            cap.textContent = this.truncate(label, tileW - 10, 9.5);
             if (this.allowInteractions) {
                 g.style.cursor = "pointer";
                 const pick = () => {

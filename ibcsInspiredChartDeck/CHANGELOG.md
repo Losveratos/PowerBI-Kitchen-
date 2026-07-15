@@ -1,5 +1,14 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.30.1.0 (2026-07-13)
+
+**Startseiten-Galerie als Liste:** Statt großer Kacheln jetzt kompakte
+Einträge — kleine Vorschau links, daneben Modus-Name (größer, Full-HD-
+lesbar), ein Satz „wofür geeignet" und die Feld-Empfehlung („Felder:
+Kategorie, AC, PY/PL …"). Aktiver Modus mit ✓ und Teal-Rahmen; Tooltip
+zeigt den vollen Text. Bei schmalen/niedrigen Visuals kompakter Kachel-
+Fallback ohne Textblock. 25 neue Sprach-Keys in de/en/es/ja.
+
 ## 1.30.0.0 (2026-07-13)
 
 **Startseiten-Galerie:** Der leere Zustand (noch keine Felder gebunden)
