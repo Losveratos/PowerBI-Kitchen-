@@ -1,5 +1,14 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.30.2.0 (2026-07-13)
+
+**Startseite: stabile Skalierung:** Die Galerie-Einträge haben jetzt
+eine Maximalgröße (410 × 102 px) — zieht man das Visual auf die ganze
+Seite, blähen sich die Kacheln nicht mehr auf, sondern der Block behält
+seine Proportionen und zentriert sich; Titel und Untertitel wandern mit
+über den Block. Auf großen Flächen sind zudem alle Beschreibungs- und
+Feld-Texte voll ausgeschrieben (kein Abschneiden mehr).
+
 ## 1.30.1.0 (2026-07-13)
 
 **Startseiten-Galerie als Liste:** Statt großer Kacheln jetzt kompakte

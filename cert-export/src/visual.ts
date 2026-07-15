@@ -889,14 +889,26 @@ export class Visual implements IVisual {
         const padX = 12, top = 50, footH = 22, gap = 8;
         const cols = width >= 920 ? 3 : width >= 600 ? 2 : 1;
         const rows = Math.ceil(modes.length / cols);
-        const entryW = (width - padX * 2 - (cols - 1) * gap) / cols;
-        const entryH = (height - top - footH - (rows - 1) * gap) / rows;
+        // cap the entry size so a full-page visual does not stretch the gallery —
+        // beyond the cap the block keeps its proportions and centers instead
+        const entryW = Math.min(410, (width - padX * 2 - (cols - 1) * gap) / cols);
+        const entryH = Math.min(102, (height - top - footH - (rows - 1) * gap) / rows);
+        const blockW = cols * entryW + (cols - 1) * gap;
+        const blockH = rows * entryH + (rows - 1) * gap;
+        const x0 = Math.max(padX, (width - blockW) / 2);
+        const y0 = top + Math.max(0, (height - top - footH - blockH) / 2);
+        // align header with the (possibly centered) block — also vertically,
+        // so it sits right above the gallery instead of sticking to the top
+        title.setAttribute("x", String(x0));
+        sub.setAttribute("x", String(x0));
+        title.setAttribute("y", String(Math.max(24, y0 - 26)));
+        sub.setAttribute("y", String(Math.max(40, y0 - 10)));
         // list layout needs room for three text lines — otherwise compact tile grid
         const asList = entryH >= 64 && entryW >= 250;
 
         modes.forEach((m, i) => {
-            const x = padX + (i % cols) * (entryW + gap);
-            const y = top + Math.floor(i / cols) * (entryH + gap);
+            const x = x0 + (i % cols) * (entryW + gap);
+            const y = y0 + Math.floor(i / cols) * (entryH + gap);
             if (y + entryH > height - footH + 2) { return; }
             const on = m.v === active;
             const g = this.el("g", { role: "button", tabindex: "0" }, this.svg) as SVGGElement;
