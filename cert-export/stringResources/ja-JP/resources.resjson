@@ -233,5 +233,9 @@
   "Demo_F_Dumbbell": "カテゴリ、AC、PY/PL",
   "Demo_Use_Slope": "2時点間の順位変化",
   "Demo_F_Slope": "カテゴリ、AC、PY/PL",
-  "Labels_FontScale": "すべてのラベルを拡大縮小 %"
+  "Labels_FontScale": "すべてのラベルを拡大縮小 %",
+  "Chart_PinStyle": "Δ%ピンの形状",
+  "Enum_PinStyle_Auto": "自動（モードごと）",
+  "Enum_PinStyle_Round": "丸",
+  "Enum_PinStyle_Square": "四角"
 }

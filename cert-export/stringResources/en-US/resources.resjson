@@ -233,5 +233,9 @@
   "Demo_F_Dumbbell": "Category, AC, PY/PL",
   "Demo_Use_Slope": "Rank shifts between two points in time",
   "Demo_F_Slope": "Category, AC, PY/PL",
-  "Labels_FontScale": "Scale all labels %"
+  "Labels_FontScale": "Scale all labels %",
+  "Chart_PinStyle": "Δ%-pin shape",
+  "Enum_PinStyle_Auto": "Automatic (per mode)",
+  "Enum_PinStyle_Round": "Round",
+  "Enum_PinStyle_Square": "Square"
 }

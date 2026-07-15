@@ -186,6 +186,8 @@ interface ChartConfig {
     sharedScale: boolean;
     /** shared value domain over ALL groups (assigned once domains are computed) */
     mainDomain: [number, number];
+    /** Δ%-pin head shape: "auto" keeps each mode's default (round or square) */
+    pinStyle: string;
     /** small multiples: shared integrated-bridge maxima over all tiles (null = per-tile scale) */
     sharedIntWf: { maxTot: number; maxMon: number; maxPct: number } | null;
     /** small multiples: shared category-bridge maxima over all tiles (null = per-tile scale) */
@@ -1612,6 +1614,7 @@ export class Visual implements IVisual {
             sharedScale: groups.length > 1,
             mainDomain: [0, 0],
             varDomain: [0, 0],
+            pinStyle: String(s.chartCard.pinStyle.value.value),
             sharedIntWf: null,
             sharedCatBridge: null,
             isMaterial: (() => {
@@ -2164,7 +2167,7 @@ export class Visual implements IVisual {
                     ? cfg.colors.py : (good(v, tierPts[i]) ? cfg.colors.good : cfg.colors.bad);
                 const y = relScale(v);
                 this.el("line", { x1: c, y1: zero, x2: c, y2: y, stroke: col, "stroke-width": Math.max(1.6, 1.4 * k) }, tg);
-                this.el("circle", { cx: c, cy: y, r: Math.max(2.6, 2.2 * k), fill: col }, tg);
+                this.pinHead(tg, c, y, Math.max(2.6, 2.2 * k), "round", cfg.pinStyle, { fill: col });
                 if (showTierLabels) {
                     const headR = Math.max(2.6, 2.2 * k);
                     const flip = v > 0 && this.collidesPanelTitle(c, this.fmtPercent(v), cfg.labelFont,
@@ -2371,11 +2374,10 @@ export class Visual implements IVisual {
                 const yEnd = pct >= 0 ? axisY - h : axisY + h;
                 this.el("line", { x1: x, y1: axisY, x2: x, y2: yEnd, stroke: colOf(pct, pp), "stroke-width": 2.2 }, parent);
                 const r = Math.max(2.6, 3.4 * k);
-                this.el("rect", {
-                    x: x - r, y: yEnd - r, width: 2 * r, height: 2 * r,
+                this.pinHead(parent, x, yEnd, r, "square", cfg.pinStyle, {
                     fill: hollow ? `url(#${cfg.patId})` : cfg.ink,
                     stroke: cfg.ink, "stroke-width": hollow ? 1 : 0
-                }, parent);
+                });
                 const lt = this.el("text", {
                     x, y: pct >= 0 ? yEnd - r - 3 : yEnd + r + lf, "text-anchor": "middle",
                     "font-size": lf, fill: cfg.ink, "font-family": FONT,
@@ -2778,11 +2780,11 @@ export class Visual implements IVisual {
             const r = Math.max(2.6, 3.4 * k);
             if (pct >= 0) {
                 this.el("rect", { x: axisX + 2, y: yMid - 1.5, width: w, height: 3, fill: c }, parent);
-                this.el("rect", { x: axisX + 2 + w, y: yMid - r, width: 2 * r, height: 2 * r, fill: cfg.ink }, parent);
+                this.pinHead(parent, axisX + 2 + w + r, yMid, r, "square", cfg.pinStyle, { fill: cfg.ink });
                 valLabel(axisX + 2 + w + 2 * r + 4, yMid + lf * 0.35, this.fmtPercent(pct), bold, parent);
             } else {
                 this.el("rect", { x: axisX - 2 - w, y: yMid - 1.5, width: w, height: 3, fill: c }, parent);
-                this.el("rect", { x: axisX - 2 - w - 2 * r, y: yMid - r, width: 2 * r, height: 2 * r, fill: cfg.ink }, parent);
+                this.pinHead(parent, axisX - 2 - w - r, yMid, r, "square", cfg.pinStyle, { fill: cfg.ink });
                 valLabel(axisX - 2 - w - 2 * r - 4, yMid + lf * 0.35, this.fmtPercent(pct), bold, parent, "end");
             }
         };
@@ -4092,10 +4094,9 @@ export class Visual implements IVisual {
                 const dir = p.varRel >= 0 ? 1 : -1;
                 const endX = pctAxis + dir * Math.max(len, 2);
                 this.el("line", { x1: pctAxis, y1: yMid, x2: endX, y2: yMid, stroke: c, "stroke-width": 2 }, g);
-                this.el("rect", {
-                    x: endX - r, y: yMid - r, width: 2 * r, height: 2 * r,
+                this.pinHead(g, endX, yMid, r, "square", cfg.pinStyle, {
                     fill: p.isFc ? cfg.paper : cfg.ink, stroke: cfg.ink, "stroke-width": p.isFc ? 1 : 0
-                }, g);
+                });
                 if (cfg.showLabels) {
                     txt(endX + dir * (r + 4), yMid + rowFont * 0.35, this.fmtPercent(p.varRel),
                         dir > 0 ? "start" : "end", Math.round(rowFont * 0.92), sum, cfg.ink, g);
@@ -6292,10 +6293,12 @@ export class Visual implements IVisual {
                 const hollowPin = p.isFc || (cfg.hc && !good && p.varRel !== 0);
                 if (orientation === "columns") {
                     this.el("line", { x1: c, y1: zero, x2: c, y2: end, stroke: color, "stroke-width": 1.6 }, g);
-                    this.el("circle", { cx: c, cy: end, r, fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }, g);
+                    this.pinHead(g, c, end, r, "round", cfg.pinStyle,
+                        { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 });
                 } else {
                     this.el("line", { x1: zero, y1: c, x2: end, y2: c, stroke: color, "stroke-width": 1.6 }, g);
-                    this.el("circle", { cx: end, cy: c, r, fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }, g);
+                    this.pinHead(g, end, c, r, "round", cfg.pinStyle,
+                        { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 });
                 }
                 if (cfg.showLabels && showRelAt(i)) {
                     const flip = orientation === "columns" && p.varRel > 0 && panels.rel != null
@@ -6336,10 +6339,12 @@ export class Visual implements IVisual {
                 const hollowPin = p.isFc || (cfg.hc && !good && p.var2Rel !== 0);
                 if (orientation === "columns") {
                     this.el("line", { x1: cx, y1: zero, x2: cx, y2: end, stroke: color, "stroke-width": 1.6 }, g);
-                    this.el("circle", { cx, cy: end, r, fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }, g);
+                    this.pinHead(g, cx, end, r, "round", cfg.pinStyle,
+                        { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 });
                 } else {
                     this.el("line", { x1: zero, y1: cx, x2: end, y2: cx, stroke: color, "stroke-width": 1.6 }, g);
-                    this.el("circle", { cx: end, cy: cx, r, fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }, g);
+                    this.pinHead(g, end, cx, r, "round", cfg.pinStyle,
+                        { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 });
                 }
                 if (cfg.showLabels && showRel2At(i)) {
                     const flip = orientation === "columns" && p.var2Rel > 0 && panels.rel2 != null
@@ -7453,6 +7458,19 @@ export class Visual implements IVisual {
 
     private maxTextWidth(labels: string[], fontSize: number): number {
         return labels.reduce((a, l) => Math.max(a, this.textWidth(l, fontSize)), 0);
+    }
+
+    /** Δ%-pin head — draws a circle or a square around (x, y). The pane choice
+     *  overrides; "auto" keeps the mode's traditional default shape */
+    private pinHead(parent: SVGElement, x: number, y: number, r: number,
+        def: "round" | "square", style: string,
+        attrs: Record<string, string | number>): void {
+        const shape = style === "round" || style === "square" ? style : def;
+        if (shape === "round") {
+            this.el("circle", { cx: x, cy: y, r, ...attrs }, parent);
+        } else {
+            this.el("rect", { x: x - r, y: y - r, width: 2 * r, height: 2 * r, ...attrs }, parent);
+        }
     }
 
     // ---------------------------------------------------------- interaction

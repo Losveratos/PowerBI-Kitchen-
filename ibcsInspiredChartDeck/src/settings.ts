@@ -87,11 +87,18 @@ const cardSortItems: LocEnumMember[] = [
     { value: "best", displayName: "Best first (good on top)", key: "Enum_CardSort_Best" }
 ];
 
+const pinStyleItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Automatic (per mode)", key: "Enum_PinStyle_Auto" },
+    { value: "round", displayName: "Round", key: "Enum_PinStyle_Round" },
+    { value: "square", displayName: "Square", key: "Enum_PinStyle_Square" }
+];
+
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
         displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
-        cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems];
+        cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems,
+        pinStyleItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -390,13 +397,22 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         }
     });
 
+    pinStyle = new formattingSettings.ItemDropdown({
+        name: "pinStyle",
+        displayName: "Δ%-pin shape",
+        displayNameKey: "Chart_PinStyle",
+        description: "Form des Lollipop-Kopfes der Δ%-Pins. „Automatisch\" behält den bisherigen Stil je Modus (Säulen/Balken/Wasserfall rund, Brücken und Tabelle quadratisch); „Rund\" oder „Quadratisch\" vereinheitlichen alle Modi.",
+        items: pinStyleItems,
+        value: pinStyleItems[0]
+    });
+
     analysisGroup = new formattingSettings.Group({
         name: "chartAnalysis",
         displayName: "Analysis",
         displayNameKey: "Group_Analysis",
         slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.cumulativeButton, this.movingAverage, this.topN,
             this.highlight, this.invert, this.invertList, this.compareClick,
-            this.materialityAbs, this.materialityPct]
+            this.materialityAbs, this.materialityPct, this.pinStyle]
     });
 
     multiplesTotal = new formattingSettings.ToggleSwitch({

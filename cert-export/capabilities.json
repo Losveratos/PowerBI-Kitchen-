@@ -204,6 +204,15 @@
                         ]
                     }
                 },
+                "pinStyle": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Automatic (per mode)" },
+                            { "value": "round", "displayName": "Round" },
+                            { "value": "square", "displayName": "Square" }
+                        ]
+                    }
+                },
                 "cardSortSel": { "type": { "text": true } },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },

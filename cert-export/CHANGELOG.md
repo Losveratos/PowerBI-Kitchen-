@@ -1,5 +1,15 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.33.0.0 (2026-07-15)
+
+**Δ%-Pin-Form einstellbar:** Neues Setting **„Δ%-Pin-Form"** (Gruppe
+Analyse) mit drei Optionen: **Automatisch** (Standard — behält den
+bisherigen Stil je Modus: Säulen/Balken/Wasserfall rund, integrierte
+Brücke/Kategorie-Brücke/Tabellen-Zeilengrafik quadratisch), **Rund**
+und **Quadratisch** — letztere vereinheitlichen die Lollipop-Köpfe
+über alle Modi hinweg. Schraffur (FC), Hohl-Darstellung und
+Kontrastmodus bleiben in beiden Formen erhalten.
+
 ## 1.32.0.0 (2026-07-15)
 
 **Small Multiples: gemeinsame Skala auch für Brücken (opt-in):** Neues

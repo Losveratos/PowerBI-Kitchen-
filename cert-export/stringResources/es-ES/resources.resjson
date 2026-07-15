@@ -233,5 +233,9 @@
   "Demo_F_Dumbbell": "Categoría, AC, PY/PL",
   "Demo_Use_Slope": "Cambios de rango entre dos momentos",
   "Demo_F_Slope": "Categoría, AC, PY/PL",
-  "Labels_FontScale": "Escalar todas las etiquetas %"
+  "Labels_FontScale": "Escalar todas las etiquetas %",
+  "Chart_PinStyle": "Forma del pin Δ%",
+  "Enum_PinStyle_Auto": "Automático (según modo)",
+  "Enum_PinStyle_Round": "Redondo",
+  "Enum_PinStyle_Square": "Cuadrado"
 }
