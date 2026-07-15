@@ -234,9 +234,9 @@ auf die Seite ziehen. Zeigt der Formatbereich rohe Schlüssel wie
 
 ## Roadmap-Ideen
 
-- Report-Page-Tooltips mit eigener Tooltip-Seite
-- Skalenband-Indikator bei bewusst abweichenden Skalen
-- Weitere Sprachen für den Formatbereich (z. B. Französisch, Italienisch)
+Die vollständige, gepflegte Ideen-Sammlung liegt in **[BACKLOG.md](BACKLOG.md)**
+(Barrierefreiheit, Tabelle/Matrix, Karten, Charts, Lokalisierung, Technik).
+Neue Wünsche gern als GitHub-Issue.
 
 ## Lizenz
 
