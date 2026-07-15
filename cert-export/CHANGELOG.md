@@ -1,5 +1,13 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.30.3.0 (2026-07-13)
+
+**DATEN-WG-Wordmark auf der Startseite:** Das Comic-Wordmark erscheint
+dezent oben rechts über der Modus-Galerie — als Inline-Vektor nachgebaut
+(kein externes Asset, zertifizierungskonform). Nur im Leer-Zustand
+gerendert: null Kosten im echten Bericht; bei schmalen Visuals
+ausgeblendet.
+
 ## 1.30.2.0 (2026-07-13)
 
 **Startseite: stabile Skalierung:** Die Galerie-Einträge haben jetzt
