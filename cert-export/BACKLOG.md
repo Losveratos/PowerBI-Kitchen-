@@ -21,18 +21,117 @@ Neue Ideen bitte als GitHub-Issue anlegen oder hier ergänzen.
 
 ## Tabelle & Matrix
 
-- [ ] **Sparklines in der Zeile** (M) — Mini-Trendlinie pro Zeile (letzte N
-      Perioden aus Matrix-Spalten oder eigener Perioden-Rolle).
-- [ ] **Kommentar-Spalte** (S–M) — Kommentartext sichtbar als eigene Spalte
-      rechts (statt nur nummerierter Marker), mit Truncate/Umbruch.
+Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
+
+### Bedienung & Layout
+
+- [ ] **Alle Spaltenbreiten per Drag + Auto-Fit** (M) — bisher nur Namensspalte;
+      Wertspalten/Blöcke ebenfalls (persistierte Breiten-Map), Doppelklick =
+      auf Inhalt einpassen.
+- [ ] **Horizontales Scrollen statt „… +n"-Cut** (L) — breite Matrizen scrollen
+      mit fixierter Namensspalte und fixiertem Σ-Block, analog zum vertikalen
+      Scroll mit Header/Σ-Freeze.
+- [ ] **Aufklapp-Steuerung ±Alle / „bis Ebene N"** (S–M) — Header-Knopf alles
+      auf/zu und Ebenen-Regler, für Zeilen- UND Spaltenhierarchie.
+- [ ] **Zeilen-Layoutpaket** (S–M) — Zebra-Streifen, Zeilenhöhe
+      kompakt/normal/luftig, Gitterlinien-Stil (keine/horizontal/beide).
+- [ ] **Zeilenumbruch für lange Positionsnamen** (S) — zweizeilige Kategorie
+      statt Truncate („Sonstige betriebliche Aufwendungen").
+- [ ] **Hover-Highlight** (S) — Zeile (Matrix: + Spalte) unterm Cursor dezent
+      hinterlegen.
+- [ ] **Zeilen-Pinning** (S–M) — pinList: markierte Zeilen (EBIT, Cash) beim
+      Scrollen fixiert über der Σ-Zeile halten.
+- [ ] **Zwei-Zeilen-Kompaktmodus** (M) — Wert groß, Δ/Δ % klein darunter in
+      derselben Zelle; halbiert die Matrix-Breite.
+- [ ] **Teilbaum-Zoom mit Breadcrumb** (M) — ⤢ an Hierarchie-Zeile zeigt nur
+      diesen Teilbaum, Breadcrumb „Gesamt › DACH › DE" zurück (Mechanik wie
+      Small-Multiples-Zoom).
+- [ ] **Matrix transponieren** (M) — Schalter Zeilen ↔ Spalten ohne Feld-Umbau.
+- [ ] **Audit-/Abstimm-Modus** (S) — Preset: Zeilennummern, Vollgitter, keine
+      Balken/Pins, Werte unverkürzt (WP-Abstimmung, Excel-Abgleich, Druck).
+- [ ] **Σ-Zeile wahlweise oben oder unten** (S) — IBCS oben, deutsche
+      GuV-Lesart unten.
 - [ ] **Zeilen-Reihenfolge per Drag** (L) — manuelles Umsortieren, persistiert;
       Verzahnung mit Sort/Hierarchie klären.
 - [ ] **Export-Ansicht „alles aufgeklappt"** (S) — beim Druck/PDF automatisch
       alle Zeilen- und Spalten-Ebenen öffnen.
-- [ ] **Alle Spaltenbreiten per Drag** (M) — bisher nur Namensspalte;
-      Wertspalten/Blöcke ebenfalls (persistierte Breiten-Map).
+
+### Spalten & Skalierung
+
+- [ ] **Spalten-Baukasten** (M–L) — freie Auswahl + Reihenfolge der Spalten
+      (AC, PY, PL, FC, Δ, Δ %, Δ-Balken, Grafik) statt fester Presets.
+- [ ] **Szenario-Spalten je Matrix-Block** (L) — pro Periode wählbar: nur AC ·
+      AC+Δ · AC+PY+Δ · +Δ % (Baukasten-Gedanke für die Matrix).
+- [ ] **3. Spalten-Ebene + Gruppen-Zwischensummen** (L) — Jahr → Quartal →
+      Monat, Σ-Spalte je aufgeklappter Gruppe.
+- [ ] **Automatische YTD-/Σ-Spalte neben Monatsblöcken** (M) — kumulierte
+      Spalte („YTD Jun") bzw. Jahres-Σ rechts der Perioden.
+- [ ] **Spalten-Labels umbenennen** (S) — Zuordnungsliste AC→„Ist", PY→„VJ",
+      PL→„Budget" für Hausbegriffe.
+- [ ] **ΔBM-Spalten** (S–M) — Benchmark als echte Wertspalten (ΔBM, ΔBM %)
+      statt nur Strich-Marker im Balken.
+- [ ] **Sparklines in der Zeile** (M) — Mini-Trendlinie pro Zeile (letzte N
+      Perioden aus Matrix-Spalten oder eigener Perioden-Rolle).
+- [ ] **Saisonalitäts-/Range-Spalte** (M) — min–max-Strich über die Perioden
+      mit Punkt für den aktuellen Monat (Korridor-Check).
+- [ ] **Kommentar-Spalte** (S–M) — Kommentartext sichtbar als eigene Spalte
+      rechts (statt nur nummerierter Marker), mit Truncate/Umbruch.
+- [ ] **Status-Rolle aus dem Modell** (M) — optionale Feld-Rolle: Measure
+      liefert Text/Symbol je Zeile (eigene Ampel-Logik in DAX), Visual rendert
+      als Spalte.
+
+### Analytik
+
+- [ ] **Abweichungs-Filter „nur Auffälligkeiten"** (S–M) — nur Zeilen über der
+      Materialitätsschwelle zeigen, Rest als „Unauffällig (n)"-Sammelzeile;
+      optional In-Chart-Chip ⚠ (Exception-Reporting).
+- [ ] **Zielerreichungs-Spalte** (S–M) — AC/PL in % mit Mini-Balken und
+      100 %-Marke (Bullet-Logik der Karten wiederverwenden).
+- [ ] **Common-Size-/%-vom-Total-Spalte** (S) — Anteil je Zeile an Σ oder an
+      einer Referenzzeile („Umsatz = 100 %"), GuV-Strukturanalyse.
+- [ ] **Rang-Spalte mit Bewegung** (S) — #1–#n nach AC plus ↑2/↓1 vs. PY.
+- [ ] **Varianz-Brücke als Spalte** (M) — Δ-Spalte als kumulierte Kaskade von
+      oben nach unten; unten steht die Gesamtabweichung (Treiber-Sicht).
+- [ ] **Mix-Shift-Spalte** (M) — Anteil am Total in % + Anteils-Änderung vs.
+      PY in Prozentpunkten (Portfolio-Verschiebung).
+- [ ] **Ausreißer-Radar** (M) — z-Score je Zeile über die Perioden; Zellen
+      außerhalb ±2σ dezent umrahmt.
+- [ ] **Heatmap-/Ampel-Zellen** (M) — Zellhintergrund nach Wert oder Δ
+      (Zwei-Farb-Skala an Teal/Rot + Materialitätsschwellen gekoppelt).
+- [ ] **Vorjahresmonat-Vergleich in der Matrix** (M) — „vs. Jan PY" statt
+      „vs. Dez" (Vorspalte), sobald 13+ Perioden vorhanden.
+
+### Fachliche Korrektheit
+
+- [ ] **Σ-Aggregation Summe / Ø / letzter Wert** (M) — Bestandsgrößen
+      (Headcount, Cash) dürfen nicht summiert werden; Wahl pro Zeile analog
+      zur pct-Logik.
+- [ ] **Vorzeichen-Liste** (S) — signList: positiv gelieferte Kosten als
+      Abzug anzeigen (−4.200), korrekt in Σ und Formeln.
+- [ ] **Abschnitts-Überschriften & Leerzeilen** (S) — sectionList:
+      Zwischenüberschriften ohne Werte + Trennlinien (GuV-Gliederung).
+- [ ] **Plausibilitäts-Wächter** (S–M) — Formelzeile vs. gleichnamige
+      gelieferte Zeile vergleichen, Differenzen mit ⚠ markieren (fängt
+      kaputte Measures).
+- [ ] **FC-Zeilen-Liste** (S) — fcList: Zeilen als Forecast/vorläufig
+      markieren → Schraffur + kursiv wie die FC-Notation der Charts.
 - [ ] **Formelzeilen: Feedback bei Fehler** (S) — unauflösbare Formel als
       Zeile mit „?"-Werten zeigen statt lautlos weglassen.
+
+### Interaktion & Integration
+
+- [ ] **Zell-Crossfilter in der Matrix** (M–L) — Klick auf Zelle filtert die
+      Seite auf Kategorie × Periode (SelectionIds je Zelle); größter
+      „verhält sich wie Power BI"-Gewinn.
+- [ ] **Zellen-Kommentare in der Matrix** (M–L) — Kommentar-Modus auf
+      Zellebene (Zeile × Monat) mit Marker ¹ + Fußnote.
+- [ ] **Review-Häkchen** (M) — Zeilen im Meeting abhaken (✓/⚑), persistiert
+      wie Kommentare; offene Punkte bleiben sichtbar.
+
+### Technik
+
+- [ ] **fetchMoreData für große Matrizen** (L) — Segmente > 30k Zeilen
+      nachladen + Hinweis „n von m geladen" statt stillem Abschneiden.
 - [ ] **Vertikales Scrolling im Export** (—/Doku) — bewusst deaktiviert;
       dokumentieren statt bauen.
 
