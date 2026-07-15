@@ -307,6 +307,10 @@ export class Visual implements IVisual {
     /** in-chart card sort chip override ("" = use the pane dropdown), persisted */
     private cardSortSel = "";
     private pendingCardSort: string | null = null;
+    /** landing font-preset pill: value we persisted but the host has not echoed yet */
+    private pendingFontPreset: string | null = null;
+    /** landing mode pick: orientation we persisted but the host has not echoed yet */
+    private pendingOrientation: string | null = null;
     /** structure-edit mode (one-click P&L): row clicks open the structure menu */
     private structureEdit = false;
     private structEditor: HTMLDivElement | null = null;
@@ -401,6 +405,27 @@ export class Visual implements IVisual {
                 const slice = this.formattingSettings.chartCard[prop];
                 if (String(slice.value || "") === val) { this.pendingListProps.delete(prop); }
                 else { slice.value = val; }
+            }
+            // a just-clicked landing font-preset pill must survive a stale
+            // metadata update that arrives before the host echoes it back
+            const fpSlice = this.formattingSettings.labelsCard.fontPreset;
+            if (this.pendingFontPreset != null) {
+                if (String(fpSlice.value.value) === this.pendingFontPreset) {
+                    this.pendingFontPreset = null;
+                } else {
+                    const fpIt = fpSlice.items.find(x => String(x.value) === this.pendingFontPreset);
+                    if (fpIt) { fpSlice.value = fpIt; }
+                }
+            }
+            // landing mode pick, same echo-guard pattern
+            const orSlice = this.formattingSettings.chartCard.orientation;
+            if (this.pendingOrientation != null) {
+                if (String(orSlice.value.value) === this.pendingOrientation) {
+                    this.pendingOrientation = null;
+                } else {
+                    const orIt = orSlice.items.find(x => String(x.value) === this.pendingOrientation);
+                    if (orIt) { orSlice.value = orIt; }
+                }
             }
 
             const width = options.viewport.width;
@@ -836,6 +861,10 @@ export class Visual implements IVisual {
             * Math.max(0.5, Math.min(3, Number(sLc.fontScale.value ?? 100) / 100)));
         const titleF = Math.min(15 * kf, 40);
         const subF = Math.min(10.5 * kf, 24);
+        // all other landing text follows too, gently capped so the fixed-size
+        // tiles never overflow — enough to SEE the chosen preset everywhere
+        const tf = Math.min(1.4, Math.max(1, kf));
+        const f1 = 12.5 * tf, f2 = 11 * tf, f3 = 10.5 * tf;
         const title = this.el("text", {
             x: 12, y: 9 + titleF, "font-size": titleF, "font-weight": 700,
             fill: ink, "font-family": FONT
@@ -898,7 +927,8 @@ export class Visual implements IVisual {
         const active = String(this.formattingSettings.chartCard.orientation.value.value);
         const padX = 12, gap = 8;
         const top = 16 + titleF + subF + 12;
-        const footH = 22 + (showSel ? 30 : 0);
+        const selH = Math.round(21 * Math.min(1.25, tf));
+        const footH = 22 + (showSel ? selH + 9 : 0);
         const availW = width - padX * 2;
         const availH = height - top - footH;
 
@@ -916,9 +946,16 @@ export class Visual implements IVisual {
         const gridOk = gtileWn >= 100 && gtileHn >= 56;
 
         const pickMode = (v: string) => {
+            // optimistic: re-render the landing immediately so the click gives
+            // instant feedback; the host echo re-renders the same state later
+            this.pendingOrientation = v;
+            const oSlice = this.formattingSettings.chartCard.orientation;
+            const oIt = oSlice.items.find(x => String(x.value) === v);
+            if (oIt) { oSlice.value = oIt; }
             this.host.persistProperties({
                 merge: [{ objectName: "chart", selector: null, properties: { orientation: v } }]
             });
+            this.renderDemo(width, height);
         };
 
         if (listOk || gridOk) {
@@ -967,33 +1004,33 @@ export class Visual implements IVisual {
                     this.drawModeMini(g, m.v, px + 4, py2 + 4, tw - 8, th - 8, { ink, grey, teal, red, paper });
                     const tx = px + tw + 12;
                     const tmax = x + entryW - 10 - tx;
-                    const lineH = Math.max(14, Math.min(17, entryH / 4.4));
+                    const lineH = Math.max(14, Math.min(17 * tf, entryH / 3.2));
                     let ty = y + entryH / 2 - lineH + 4.5;
                     const t1 = this.el("text", {
-                        x: tx, y: ty, "font-size": 12.5, "font-weight": 700,
+                        x: tx, y: ty, "font-size": f1, "font-weight": 700,
                         fill: ink, "font-family": FONT
                     }, g);
-                    t1.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, tmax, 12.5);
+                    t1.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, tmax, f1);
                     ty += lineH;
                     const t2 = this.el("text", {
-                        x: tx, y: ty, "font-size": 11, fill: "#5A5A5A", "font-family": FONT
+                        x: tx, y: ty, "font-size": f2, fill: "#5A5A5A", "font-family": FONT
                     }, g);
-                    t2.textContent = this.truncate(m.use, tmax, 11);
+                    t2.textContent = this.truncate(m.use, tmax, f2);
                     ty += lineH;
                     const t3 = this.el("text", {
-                        x: tx, y: ty, "font-size": 10.5, fill: subtle, "font-family": FONT
+                        x: tx, y: ty, "font-size": f3, fill: subtle, "font-family": FONT
                     }, g);
-                    t3.textContent = this.truncate(`${fieldsPre}: ${m.fields}`, tmax, 10.5);
+                    t3.textContent = this.truncate(`${fieldsPre}: ${m.fields}`, tmax, f3);
                 } else {
                     // compact grid: preview with fixed inset + caption below
-                    const px = x + 8, py2 = y + 6, pw = entryW - 16, ph = entryH - 24;
+                    const px = x + 8, py2 = y + 6, pw = entryW - 16, ph = entryH - 14 - 9 * tf;
                     this.drawModeMini(g, m.v, px, py2, pw, ph, { ink, grey, teal, red, paper });
                     const cap = this.el("text", {
                         x: x + entryW / 2, y: y + entryH - 6, "text-anchor": "middle",
-                        "font-size": 10.5, fill: on ? ink : subtle, "font-family": FONT,
+                        "font-size": f3, fill: on ? ink : subtle, "font-family": FONT,
                         "font-weight": on ? 700 : 400
                     }, g);
-                    cap.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, entryW - 10, 10.5);
+                    cap.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, entryW - 10, f3);
                 }
                 if (this.allowInteractions) {
                     g.style.cursor = "pointer";
@@ -1014,7 +1051,7 @@ export class Visual implements IVisual {
             const m = modes[mi];
             const label = this.locStr(m.key, m.en);
             const canCycle = this.allowInteractions;
-            const textH = availH >= 175 ? 54 : availH >= 130 ? 22 : 0;
+            const textH = (availH >= 175 ? 54 : availH >= 130 ? 22 : 0) * tf;
             let hh = Math.max(60, Math.min(230, availH - textH - 6));
             let hw = Math.min(availW - (canCycle ? 60 : 8), hh * 1.6);
             hh = hw / 1.6;
@@ -1027,24 +1064,24 @@ export class Visual implements IVisual {
             }, g);
             this.drawModeMini(g, m.v, hx + hw * 0.08, hy2 + hh * 0.10,
                 hw * 0.84, hh * 0.78, { ink, grey, teal, red, paper });
-            if (textH >= 22) {
+            if (textH >= 22 * tf) {
                 const t1 = this.el("text", {
-                    x: hx + hw / 2, y: hy2 + hh + 18, "text-anchor": "middle",
-                    "font-size": 12.5, "font-weight": 700, fill: ink, "font-family": FONT
+                    x: hx + hw / 2, y: hy2 + hh + 18 * tf, "text-anchor": "middle",
+                    "font-size": f1, "font-weight": 700, fill: ink, "font-family": FONT
                 }, g);
-                t1.textContent = this.truncate(label, availW - 8, 12.5);
+                t1.textContent = this.truncate(label, availW - 8, f1);
             }
-            if (textH >= 54) {
+            if (textH >= 54 * tf) {
                 const t2 = this.el("text", {
-                    x: hx + hw / 2, y: hy2 + hh + 34, "text-anchor": "middle",
-                    "font-size": 11, fill: "#5A5A5A", "font-family": FONT
+                    x: hx + hw / 2, y: hy2 + hh + 34 * tf, "text-anchor": "middle",
+                    "font-size": f2, fill: "#5A5A5A", "font-family": FONT
                 }, g);
-                t2.textContent = this.truncate(m.use, availW - 8, 11);
+                t2.textContent = this.truncate(m.use, availW - 8, f2);
                 const t3 = this.el("text", {
-                    x: hx + hw / 2, y: hy2 + hh + 49, "text-anchor": "middle",
-                    "font-size": 10.5, fill: subtle, "font-family": FONT
+                    x: hx + hw / 2, y: hy2 + hh + 49 * tf, "text-anchor": "middle",
+                    "font-size": f3, fill: subtle, "font-family": FONT
                 }, g);
-                t3.textContent = this.truncate(`${fieldsPre}: ${m.fields}`, availW - 8, 10.5);
+                t3.textContent = this.truncate(`${fieldsPre}: ${m.fields}`, availW - 8, f3);
             }
             if (canCycle) {
                 const arrow = (ax: number, dir: number, glyph: string) => {
@@ -1090,14 +1127,14 @@ export class Visual implements IVisual {
             const selTip = this.locStr("Labels_FontPreset", "Size preset");
             // short labels: strip the "(dashboard tile)"-style suffix of the enum text
             const labels = presets.map(p => this.locStr(p.key, p.en).split(" (")[0].trim());
-            const segF = 10.5, segH = 21, segGap = 5, aaW = 26;
+            const segF = f3, segH = selH, segGap = 5, aaW = 26 * tf;
             const wds = labels.map(l => Math.ceil(this.maxTextWidth([l], segF)) + 20);
             const totW = aaW + segGap + wds.reduce((a, b) => a + b, 0) + segGap * (wds.length - 1);
             let sx = Math.max(padX, (width - totW) / 2);
             const sy = height - footH + 4;
             const aa = this.el("text", {
                 x: sx + aaW / 2, y: sy + segH / 2 + 4, "text-anchor": "middle",
-                "font-size": 12, "font-weight": 700, fill: subtle, "font-family": FONT
+                "font-size": 12 * tf, "font-weight": 700, fill: subtle, "font-family": FONT
             }, this.svg);
             aa.textContent = "Aa";
             const aaTip = this.el("title", {}, aa);
@@ -1116,16 +1153,22 @@ export class Visual implements IVisual {
                     stroke: on ? teal : "#DDDDD8", "stroke-width": 1
                 }, g);
                 const t = this.el("text", {
-                    x: sx + wds[i] / 2, y: sy + segH / 2 + 3.8, "text-anchor": "middle",
+                    x: sx + wds[i] / 2, y: sy + segH / 2 + 0.36 * segF, "text-anchor": "middle",
                     "font-size": segF, "font-weight": on ? 700 : 400,
                     fill: on ? "#FFFFFF" : ink, "font-family": FONT
                 }, g);
                 t.textContent = labels[i];
                 g.style.cursor = "pointer";
                 const apply = () => {
+                    // optimistic: apply + re-render right away so the heading and
+                    // the pill react instantly; the host echo confirms it later
+                    this.pendingFontPreset = p.v;
+                    const it = sLc.fontPreset.items.find(x => String(x.value) === p.v);
+                    if (it) { sLc.fontPreset.value = it; }
                     this.host.persistProperties({
                         merge: [{ objectName: "labels", selector: null, properties: { fontPreset: p.v } }]
                     });
+                    this.renderDemo(width, height);
                 };
                 g.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); apply(); });
                 g.addEventListener("keydown", (e: KeyboardEvent) => {

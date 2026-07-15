@@ -1,5 +1,19 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.31.1.0 (2026-07-15)
+
+**Startseite reagiert sofort:** Klicks auf den Schriften-Selector und
+auf die Modus-Vorschauen rendern die Startseite jetzt **sofort lokal**
+neu (optimistisch, mit Echo-Guard) statt auf den Persist-Roundtrip von
+Power BI zu warten — die gewählte Pill ist ohne Verzögerung teal, die
+Überschrift wechselt im selben Moment.
+
+**Ganze Seite als Vorschau:** Nicht mehr nur die Überschrift — auch
+Kachel-Titel, Beschreibungs- und Felder-Zeilen, Hero-Texte und die
+Selector-Pills skalieren mit dem gewählten Preset (sanft auf ×1,4
+gekappt, damit die Kacheln nicht überlaufen). Man sieht damit überall
+direkt, was man eingestellt hat.
+
 ## 1.31.0.0 (2026-07-15)
 
 **Freier Schrift-Faktor:** Neues Setting **„Alle Beschriftungen
