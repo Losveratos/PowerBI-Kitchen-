@@ -887,97 +887,182 @@ export class Visual implements IVisual {
         const fieldsPre = this.locStr("Demo_Fields", "Fields");
         const active = String(this.formattingSettings.chartCard.orientation.value.value);
         const padX = 12, top = 50, footH = 22, gap = 8;
-        const cols = width >= 920 ? 3 : width >= 600 ? 2 : 1;
-        const rows = Math.ceil(modes.length / cols);
-        // cap the entry size so a full-page visual does not stretch the gallery —
-        // beyond the cap the block keeps its proportions and centers instead
-        const entryW = Math.min(410, (width - padX * 2 - (cols - 1) * gap) / cols);
-        const entryH = Math.min(102, (height - top - footH - (rows - 1) * gap) / rows);
-        const blockW = cols * entryW + (cols - 1) * gap;
-        const blockH = rows * entryH + (rows - 1) * gap;
-        const x0 = Math.max(padX, (width - blockW) / 2);
-        const y0 = top + Math.max(0, (height - top - footH - blockH) / 2);
-        // align header with the (possibly centered) block — also vertically,
-        // so it sits right above the gallery instead of sticking to the top
-        title.setAttribute("x", String(x0));
-        sub.setAttribute("x", String(x0));
-        title.setAttribute("y", String(Math.max(24, y0 - 26)));
-        sub.setAttribute("y", String(Math.max(40, y0 - 10)));
-        // list layout needs room for three text lines — otherwise compact tile grid
-        const asList = entryH >= 64 && entryW >= 250;
+        const availW = width - padX * 2;
+        const availH = height - top - footH;
 
-        modes.forEach((m, i) => {
-            const x = x0 + (i % cols) * (entryW + gap);
-            const y = y0 + Math.floor(i / cols) * (entryH + gap);
-            if (y + entryH > height - footH + 2) { return; }
-            const on = m.v === active;
-            const g = this.el("g", { role: "button", tabindex: "0" }, this.svg) as SVGGElement;
-            const label = this.locStr(m.key, m.en);
-            g.setAttribute("aria-label", label);
-            g.setAttribute("aria-pressed", String(on));
-            const tip = this.el("title", {}, g);
-            tip.textContent = `${label} — ${m.use}`;
-            // whole-row hover/click surface
-            this.el("rect", {
-                x, y, width: entryW, height: entryH, rx: 6,
-                fill: on ? "#EEF6F7" : "#FAFAF8",
-                stroke: on ? teal : "#E4E4DF", "stroke-width": on ? 1.6 : 1
-            }, g);
-            if (asList) {
-                // small preview tile left, text block right
-                const tw = Math.min(96, entryH * 1.35), th = entryH - 14;
-                const px = x + 8, py2 = y + 7;
+        // ---- staged layouts: full list → compact grid → single hero preview.
+        // Every tier keeps fixed proportions; nothing overlaps at small sizes
+        const cols = width >= 920 ? 3 : width >= 600 ? 2 : 1;
+        const rowsL = Math.ceil(modes.length / cols);
+        const entryWn = (availW - (cols - 1) * gap) / cols;
+        const entryHn = (availH - (rowsL - 1) * gap) / rowsL;
+        const listOk = entryWn >= 250 && entryHn >= 64;
+        const gcols = Math.max(2, Math.min(6, Math.floor((availW + gap) / (118 + gap))));
+        const grows = Math.ceil(modes.length / gcols);
+        const gtileWn = (availW - (gcols - 1) * gap) / gcols;
+        const gtileHn = (availH - (grows - 1) * gap) / grows;
+        const gridOk = gtileWn >= 100 && gtileHn >= 56;
+
+        const pickMode = (v: string) => {
+            this.host.persistProperties({
+                merge: [{ objectName: "chart", selector: null, properties: { orientation: v } }]
+            });
+        };
+
+        if (listOk || gridOk) {
+            const uCols = listOk ? cols : gcols;
+            const uRows = listOk ? rowsL : grows;
+            // cap the entry size so a full-page visual does not stretch the gallery —
+            // beyond the cap the block keeps its proportions and centers instead
+            const entryW = listOk ? Math.min(410, entryWn) : Math.min(170, gtileWn);
+            const entryH = listOk ? Math.min(102, entryHn) : Math.min(120, gtileHn);
+            const blockW = uCols * entryW + (uCols - 1) * gap;
+            const blockH = uRows * entryH + (uRows - 1) * gap;
+            const x0 = Math.max(padX, (width - blockW) / 2);
+            const y0 = top + Math.max(0, (height - top - footH - blockH) / 2);
+            // align header with the (possibly centered) block — also vertically,
+            // so it sits right above the gallery instead of sticking to the top
+            title.setAttribute("x", String(x0));
+            sub.setAttribute("x", String(x0));
+            title.setAttribute("y", String(Math.max(24, y0 - 26)));
+            sub.setAttribute("y", String(Math.max(40, y0 - 10)));
+
+            modes.forEach((m, i) => {
+                const x = x0 + (i % uCols) * (entryW + gap);
+                const y = y0 + Math.floor(i / uCols) * (entryH + gap);
+                if (y + entryH > height - footH + 2) { return; }
+                const on = m.v === active;
+                const g = this.el("g", { role: "button", tabindex: "0" }, this.svg) as SVGGElement;
+                const label = this.locStr(m.key, m.en);
+                g.setAttribute("aria-label", label);
+                g.setAttribute("aria-pressed", String(on));
+                const tip = this.el("title", {}, g);
+                tip.textContent = `${label} — ${m.use}`;
                 this.el("rect", {
-                    x: px - 2, y: py2 - 2, width: tw + 4, height: th + 4, rx: 4,
-                    fill: paper, stroke: on ? teal : "#DDDDD8", "stroke-width": on ? 1.6 : 1
+                    x, y, width: entryW, height: entryH, rx: 6,
+                    fill: on ? "#EEF6F7" : "#FAFAF8",
+                    stroke: on ? teal : "#E4E4DF", "stroke-width": on ? 1.6 : 1
                 }, g);
-                this.drawModeMini(g, m.v, px + 4, py2 + 4, tw - 8, th - 8, { ink, grey, teal, red, paper });
-                const tx = px + tw + 12;
-                const tmax = x + entryW - 10 - tx;
-                const lineH = Math.max(14, Math.min(17, entryH / 4.4));
-                let ty = y + entryH / 2 - lineH + 4.5;
+                if (listOk) {
+                    // small preview tile left, text block right
+                    const tw = Math.min(96, entryH * 1.35), th = entryH - 14;
+                    const px = x + 8, py2 = y + 7;
+                    this.el("rect", {
+                        x: px - 2, y: py2 - 2, width: tw + 4, height: th + 4, rx: 4,
+                        fill: paper, stroke: on ? teal : "#DDDDD8", "stroke-width": on ? 1.6 : 1
+                    }, g);
+                    this.drawModeMini(g, m.v, px + 4, py2 + 4, tw - 8, th - 8, { ink, grey, teal, red, paper });
+                    const tx = px + tw + 12;
+                    const tmax = x + entryW - 10 - tx;
+                    const lineH = Math.max(14, Math.min(17, entryH / 4.4));
+                    let ty = y + entryH / 2 - lineH + 4.5;
+                    const t1 = this.el("text", {
+                        x: tx, y: ty, "font-size": 12.5, "font-weight": 700,
+                        fill: ink, "font-family": FONT
+                    }, g);
+                    t1.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, tmax, 12.5);
+                    ty += lineH;
+                    const t2 = this.el("text", {
+                        x: tx, y: ty, "font-size": 11, fill: "#5A5A5A", "font-family": FONT
+                    }, g);
+                    t2.textContent = this.truncate(m.use, tmax, 11);
+                    ty += lineH;
+                    const t3 = this.el("text", {
+                        x: tx, y: ty, "font-size": 10.5, fill: subtle, "font-family": FONT
+                    }, g);
+                    t3.textContent = this.truncate(`${fieldsPre}: ${m.fields}`, tmax, 10.5);
+                } else {
+                    // compact grid: preview with fixed inset + caption below
+                    const px = x + 8, py2 = y + 6, pw = entryW - 16, ph = entryH - 24;
+                    this.drawModeMini(g, m.v, px, py2, pw, ph, { ink, grey, teal, red, paper });
+                    const cap = this.el("text", {
+                        x: x + entryW / 2, y: y + entryH - 6, "text-anchor": "middle",
+                        "font-size": 10.5, fill: on ? ink : subtle, "font-family": FONT,
+                        "font-weight": on ? 700 : 400
+                    }, g);
+                    cap.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, entryW - 10, 10.5);
+                }
+                if (this.allowInteractions) {
+                    g.style.cursor = "pointer";
+                    g.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); pickMode(m.v); });
+                    g.addEventListener("keydown", (e: KeyboardEvent) => {
+                        if (e.key !== "Enter" && e.key !== " ") { return; }
+                        e.preventDefault();
+                        e.stopPropagation();
+                        pickMode(m.v);
+                    });
+                }
+            });
+        } else {
+            // ---- hero tier: ONE stable preview (fixed 1.6:1 aspect) of the active
+            // mode — always looks the same, just scales. Text lines join when the
+            // height allows; ‹ › cycle through the modes
+            const mi = Math.max(0, modes.findIndex(mm => mm.v === active));
+            const m = modes[mi];
+            const label = this.locStr(m.key, m.en);
+            const canCycle = this.allowInteractions;
+            const textH = availH >= 175 ? 54 : availH >= 130 ? 22 : 0;
+            let hh = Math.max(60, Math.min(230, availH - textH - 6));
+            let hw = Math.min(availW - (canCycle ? 60 : 8), hh * 1.6);
+            hh = hw / 1.6;
+            const hx = padX + (availW - hw) / 2;
+            const hy2 = top + Math.max(0, (availH - hh - textH) / 2);
+            const g = this.el("g", {}, this.svg) as SVGGElement;
+            this.el("rect", {
+                x: hx, y: hy2, width: hw, height: hh, rx: 6,
+                fill: paper, stroke: teal, "stroke-width": 1.4
+            }, g);
+            this.drawModeMini(g, m.v, hx + hw * 0.08, hy2 + hh * 0.10,
+                hw * 0.84, hh * 0.78, { ink, grey, teal, red, paper });
+            if (textH >= 22) {
                 const t1 = this.el("text", {
-                    x: tx, y: ty, "font-size": 12.5, "font-weight": 700,
-                    fill: ink, "font-family": FONT
+                    x: hx + hw / 2, y: hy2 + hh + 18, "text-anchor": "middle",
+                    "font-size": 12.5, "font-weight": 700, fill: ink, "font-family": FONT
                 }, g);
-                t1.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, tmax, 12.5);
-                ty += lineH;
-                const t2 = this.el("text", {
-                    x: tx, y: ty, "font-size": 11, fill: "#5A5A5A", "font-family": FONT
-                }, g);
-                t2.textContent = this.truncate(m.use, tmax, 11);
-                ty += lineH;
-                const t3 = this.el("text", {
-                    x: tx, y: ty, "font-size": 10.5, fill: subtle, "font-family": FONT
-                }, g);
-                t3.textContent = this.truncate(`${fieldsPre}: ${m.fields}`, tmax, 10.5);
-            } else {
-                // compact fallback: preview + caption only
-                const px = x + 8, py2 = y + 6, pw = entryW - 16, ph = Math.max(20, entryH - 24);
-                this.drawModeMini(g, m.v, px, py2, pw, ph, { ink, grey, teal, red, paper });
-                const cap = this.el("text", {
-                    x: x + entryW / 2, y: y + entryH - 6, "text-anchor": "middle",
-                    "font-size": 10.5, fill: on ? ink : subtle, "font-family": FONT,
-                    "font-weight": on ? 700 : 400
-                }, g);
-                cap.textContent = this.truncate(`${on ? "✓ " : ""}${label}`, entryW - 10, 10.5);
+                t1.textContent = this.truncate(label, availW - 8, 12.5);
             }
-            if (this.allowInteractions) {
-                g.style.cursor = "pointer";
-                const pick = () => {
-                    this.host.persistProperties({
-                        merge: [{ objectName: "chart", selector: null, properties: { orientation: m.v } }]
+            if (textH >= 54) {
+                const t2 = this.el("text", {
+                    x: hx + hw / 2, y: hy2 + hh + 34, "text-anchor": "middle",
+                    "font-size": 11, fill: "#5A5A5A", "font-family": FONT
+                }, g);
+                t2.textContent = this.truncate(m.use, availW - 8, 11);
+                const t3 = this.el("text", {
+                    x: hx + hw / 2, y: hy2 + hh + 49, "text-anchor": "middle",
+                    "font-size": 10.5, fill: subtle, "font-family": FONT
+                }, g);
+                t3.textContent = this.truncate(`${fieldsPre}: ${m.fields}`, availW - 8, 10.5);
+            }
+            if (canCycle) {
+                const arrow = (ax: number, dir: number, glyph: string) => {
+                    const a = this.el("g", { role: "button", tabindex: "0" }, this.svg) as SVGGElement;
+                    const next = modes[(mi + dir + modes.length) % modes.length];
+                    const nLabel = this.locStr(next.key, next.en);
+                    a.setAttribute("aria-label", nLabel);
+                    const tip = this.el("title", {}, a);
+                    tip.textContent = nLabel;
+                    this.el("circle", {
+                        cx: ax, cy: hy2 + hh / 2, r: 12,
+                        fill: "#FAFAF8", stroke: "#DDDDD8", "stroke-width": 1
+                    }, a);
+                    const t = this.el("text", {
+                        x: ax, y: hy2 + hh / 2 + 4.5, "text-anchor": "middle",
+                        "font-size": 13, "font-weight": 700, fill: ink, "font-family": FONT
+                    }, a);
+                    t.textContent = glyph;
+                    a.style.cursor = "pointer";
+                    a.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); pickMode(next.v); });
+                    a.addEventListener("keydown", (e: KeyboardEvent) => {
+                        if (e.key !== "Enter" && e.key !== " ") { return; }
+                        e.preventDefault();
+                        e.stopPropagation();
+                        pickMode(next.v);
                     });
                 };
-                g.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); pick(); });
-                g.addEventListener("keydown", (e: KeyboardEvent) => {
-                    if (e.key !== "Enter" && e.key !== " ") { return; }
-                    e.preventDefault();
-                    e.stopPropagation();
-                    pick();
-                });
+                arrow(hx - 22, -1, "‹");
+                arrow(hx + hw + 22, 1, "›");
             }
-        });
+        }
     }
 
     /** small schematic previews for the landing gallery — fixed brand colors */

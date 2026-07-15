@@ -1,5 +1,5 @@
 {
-		"version": "1.30.4.0",
+		"version": "1.30.5.0",
 		"author": {"name":"Daten-WG","email":"michael.tenner84@gmail.com"},
 		"resources": [
 			{
@@ -8,7 +8,7 @@
 				"file": "resources/chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D.pbiviz.json"
 			}
 		],
-		"visual": {"name":"chartKitchenByDatenWG","displayName":"ChartKitchen byDatenWG","guid":"chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D","visualClassName":"Visual","version":"1.30.4.0","description":"ChartKitchen byDatenWG — inspired by IBCS. Chart deck with scenario notation (AC solid, PY grey, PL outlined, FC hatched) plus absolute and relative variance panels, tables and KPI cards — columns for time, bars for structure.","supportUrl":"https://github.com/Losveratos/DevCustomVizPowerBI/issues","gitHubUrl":"https://github.com/Losveratos/DevCustomVizPowerBI"},
+		"visual": {"name":"chartKitchenByDatenWG","displayName":"ChartKitchen byDatenWG","guid":"chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D","visualClassName":"Visual","version":"1.30.5.0","description":"ChartKitchen byDatenWG — inspired by IBCS. Chart deck with scenario notation (AC solid, PY grey, PL outlined, FC hatched) plus absolute and relative variance panels, tables and KPI cards — columns for time, bars for structure.","supportUrl":"https://github.com/Losveratos/DevCustomVizPowerBI/issues","gitHubUrl":"https://github.com/Losveratos/DevCustomVizPowerBI"},
 		"metadata": {
 			"pbivizjson": {
 				"resourceId": "rId0"

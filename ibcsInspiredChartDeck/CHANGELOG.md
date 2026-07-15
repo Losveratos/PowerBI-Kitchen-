@@ -1,5 +1,16 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.30.5.0 (2026-07-13)
+
+**Startseite: gestufte Layouts statt Überlappungs-Chaos:** Die Galerie
+wählt jetzt je nach Platz eine von drei Stufen — (1) **Hero**: ein
+einzelnes Vorschau-Chart mit festem Seitenverhältnis (sieht bei jeder
+Größe gleich aus), ‹ ›-Pfeile blättern durch die Modi, Name/Einsatz/
+Felder erscheinen darunter, sobald die Höhe reicht; (2) **Kompakt-
+Raster** mit Kacheln + Beschriftung; (3) die volle **Listen-Galerie**
+mit Texten. Jede Stufe rendert nur, wenn ihre Mindestgrößen wirklich
+passen — das Überlappen kleiner Visuals ist damit behoben.
+
 ## 1.30.4.0 (2026-07-13)
 
 **Wordmark wieder entfernt:** Das mit 1.30.3.0 eingeführte DATEN-WG-
