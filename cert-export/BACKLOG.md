@@ -214,6 +214,42 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
       „Kosten-Monitoring") + Einstellungen als Code exportieren/importieren
       (wie im CO₂-Simulator), damit Teams ihre Hauskonfiguration teilen.
 
+## Builder-UX (Ideation Juli 2026 — für den Report-Ersteller)
+
+Ergänzend zahlen aus „Ease of Use" auch Smart-Start, Design-Presets und
+Persona-Vorlagen/Share-Code auf die Builder-UX ein.
+
+- [ ] **Diagnose-Leiste im Bearbeitungsmodus** (S–M) — Chip-Zeile nur im
+      Edit-Modus: gebundene Rollen (AC ✓ · PY ✓ · PL —), Modus, aktive
+      Sonderoptionen + Warnungen („Basis=PL, aber PL nicht gebunden");
+      im Lesemodus unsichtbar.
+- [ ] **Feldrollen-Tooltips** (S) — description je Datenrolle in den
+      capabilities („Plan/Budget → Rahmen-Notation, Basis für ΔPL"),
+      erscheint beim Hover im Feld-Bereich.
+- [ ] **Struktur-Editor als Übersicht** (M) — Overlay mit allen Zeilen als
+      Matrix (Σ/Formel/Skip/Hide/Grafik/Einrücken/Invertieren),
+      Mehrfachauswahl per Shift-Klick statt Zeile-für-Zeile-Menü.
+- [ ] **Formel-Editor mit Autocomplete** (M) — Zeilennamen-Vorschläge beim
+      Tippen + Live-Validierung („'Umsazt' nicht gefunden — meintest du
+      'Umsatz'?") statt freiem Textfeld.
+- [ ] **Demo-Daten im gewählten Modus** (S–M) — Landing-Klick rendert
+      Beispieldaten im Zielmodus (Wasserzeichen „Beispieldaten"), bis echte
+      Felder gebunden sind; Format konfigurierbar vor den Measures.
+- [ ] **Direktmanipulation der Panels** (M–L) — Panel-Titel-Klick toggelt
+      Δ/Δ%-Panels, Höhenverhältnis per Drag an der Trennlinie (persistiert).
+- [ ] **Aktive Gruppe nach oben** (S) — Formatpanel sortiert kontextabhängig
+      (Tabellen-Gruppe oben im Tabellen-Modus etc.), ergänzend zur
+      vorhandenen Sichtbarkeits-Logik.
+- [ ] **A/B-Konfigurations-Slots** (M) — zwei Einstellungs-Schnappschüsse
+      speichern und umschalten (Abstimmung mit dem Fachbereich), Mechanik
+      wie die Szenario-Slots im CO₂-Simulator.
+- [ ] **Hilfe-Anker je Modus** (S) — ?-Symbol nur im Edit-Modus, verlinkt
+      auf den Doku-Abschnitt des aktiven Modus inkl. Pflichtfeldern
+      (voraussetzt: Doku-Seite steht).
+- [ ] **„Alle Kennzahlen"-Schnellrolle** (L, experimentell) — Sammelrolle
+      mit Namens-Auto-Zuordnung (Plan/Budget→PL, VJ→PY, Forecast→FC),
+      Zuordnung im Panel korrigierbar; Opt-in wegen Fehlzuordnungs-Risiko.
+
 ## Doku & Launch (Tasks, keine Features)
 
 - [ ] **Vollständige Doku mit Settings-Referenz** — Musterseite → Skalierung;
