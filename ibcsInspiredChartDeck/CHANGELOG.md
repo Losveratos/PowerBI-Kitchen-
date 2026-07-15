@@ -1,5 +1,15 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.29.0.0 (2026-07-13)
+
+**Barrierefreie Standard-Farbe:** „Gute Abweichung" ist jetzt standardmäßig
+das DatenWG-Teal **#1E8F9E** statt klassischem Grün (#61A544). Durch den
+Blauanteil bleibt gut/schlecht auch bei Rot-Grün-Schwäche (Deuteranopie,
+häufigste Form) klar unterscheidbar — unter Simulation werden Grün und
+Rot fast identisch, Teal und Rot nicht. Gleichzeitig trägt der Default
+die Markenfarbe. Wie alle Farben über die IBCS-Farben-Karte
+übersteuerbar; „Theme-Farben verwenden" bleibt unverändert.
+
 ## 1.28.1.0 (2026-07-13)
 
 **AppSource-Vorbereitung:** Support- und GitHub-URL auf das offene Repo

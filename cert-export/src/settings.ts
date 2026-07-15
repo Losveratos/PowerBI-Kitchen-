@@ -658,7 +658,8 @@ export class ColorsCardSettings extends FormattingSettingsCard {
         name: "goodColor",
         displayName: "Good variance",
         displayNameKey: "Colors_Good",
-        value: { value: "#61A544" }
+        description: "Standard ist das DatenWG-Teal (#1E8F9E) statt klassischem Grün — durch den Blauanteil bleibt „gut“ auch bei Rot-Grün-Schwäche klar vom Rot unterscheidbar. Hier übersteuerbar.",
+        value: { value: "#1E8F9E" }
     });
 
     badColor = new formattingSettings.ColorPicker({
