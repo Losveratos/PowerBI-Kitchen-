@@ -903,10 +903,6 @@ export class Visual implements IVisual {
         sub.setAttribute("x", String(x0));
         title.setAttribute("y", String(Math.max(24, y0 - 26)));
         sub.setAttribute("y", String(Math.max(40, y0 - 10)));
-        // subtle brand wordmark, top-right of the gallery block
-        if (blockW >= 420) {
-            this.drawDwgMark(this.svg, x0 + blockW - 4, Math.max(10, y0 - 40), 22);
-        }
         // list layout needs room for three text lines — otherwise compact tile grid
         const asList = entryH >= 64 && entryW >= 250;
 
@@ -982,31 +978,6 @@ export class Visual implements IVisual {
                 });
             }
         });
-    }
-
-    /**
-     * DATEN-WG comic wordmark, recreated as inline vector (landing page only —
-     * no external asset, drawn once in the no-data state, zero report cost)
-     */
-    private drawDwgMark(parent: SVGElement, xRight: number, yTop: number, h: number): void {
-        const w = h * 4.9;
-        const g = this.el("g", {
-            transform: `translate(${xRight - w},${yTop}) rotate(-3)`, opacity: 0.9
-        }, parent);
-        this.el("rect", {
-            x: 0, y: 0, width: w, height: h, rx: h * 0.16,
-            fill: "#FFFFFF", stroke: "#111111", "stroke-width": 1.4,
-            transform: "skewX(-10)"
-        }, g);
-        const t = this.el("text", {
-            x: w * 0.52, y: h * 0.74, "text-anchor": "middle",
-            "font-family": FONT, "font-weight": 800, "font-style": "italic",
-            fill: "#111111", transform: "skewX(-4)"
-        }, g);
-        const big = this.el("tspan", { "font-size": h * 0.62 }, t);
-        big.textContent = "DATEN";
-        const small = this.el("tspan", { "font-size": h * 0.44, dy: -h * 0.10 }, t);
-        small.textContent = "-WG";
     }
 
     /** small schematic previews for the landing gallery — fixed brand colors */
