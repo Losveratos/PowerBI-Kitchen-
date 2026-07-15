@@ -7238,7 +7238,7 @@ export class Visual implements IVisual {
 
     /**
      * One-click P&L menu (structure-edit mode): three checkboxes that persist the
-     * row into invertList / resultList / skipList — Zebra-style Invert/Result/Skip
+     * row into invertList / resultList / skipList — one-click Invert/Result/Skip
      * without touching the data model. The menu survives the persist round-trip;
      * clicking another row or pressing Escape closes it.
      */

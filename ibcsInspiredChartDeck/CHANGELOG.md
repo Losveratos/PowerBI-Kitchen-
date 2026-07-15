@@ -1,4 +1,14 @@
-# Changelog · IBCS Inspired Chart Deck
+# Changelog · ChartKitchen byDatenWG
+
+## 1.27.0.0 (2026-07-13)
+
+**Rebranding:** Das Visual heißt jetzt **ChartKitchen byDatenWG** — „IBCS"
+ist nur noch beschreibender Zusatz („inspired by IBCS"), nicht mehr Teil
+des Markennamens (rechtlich sauberer, da IBCS® eine eingetragene Marke
+ist). Interne ID und GUID bleiben stabil — bestehende Berichte brechen
+nicht. Zusätzlich alle Verweise auf Wettbewerber-Marken aus Code-
+Kommentaren, README und Changelog entfernt (generische Begriffe).
+Keine funktionalen Änderungen.
 
 ## 1.26.0.0 (2026-07-13)
 
@@ -201,7 +211,7 @@ Spalten/Anker.
 
 ## 1.18.0.0 (2026-07-12)
 
-**Tabelle 2.0 — Welle 2 (die Zebra-Kern-Features):**
+**Tabelle 2.0 — Welle 2 (die Kern-Tabellenfeatures):**
 - **Numerische Wertspalten** (Chart → Tabelle → Werte-Spalten): PY- und
   PL-Zahlen (oder die gewählte Varianzbasis) beziffert neben AC — für
   druck- und boardtaugliche Tabellen ohne Balken-Interpretation.
@@ -233,7 +243,7 @@ Struktur-Menü schließt bei Außenklick und Datenwechsel.
 
 ## 1.17.0.0 (2026-07-12)
 
-**Tabelle 2.0 — Welle 1 (Richtung Zebra-BI-Tables-Klasse):**
+**Tabelle 2.0 — Welle 1 (Richtung IBCS-Tabellenklasse):**
 - **Σ-Gesamtzeile ohne Vorarbeit**: „Summen-Kopfzeile (Σ)" wirkt jetzt
   auch im Table-Modus — die Tabelle summiert selbst (fett, unten
   fixiert, inkl. Σ-Varianzen). Automatisch unterdrückt, wenn die Daten
@@ -720,7 +730,7 @@ nötig, leeres Feld = alles wie bisher):
 **Tabelle (IBCS)** (neuer Chart-Modus im Orientation-Dropdown):
 - Eine Zeile je Kategorie mit Wert, AC·PY·PL-Balkenzelle (gemeinsame Skala,
   Nulllinie bei negativen Werten), ΔBasis als Zahl + Balken und ΔBasis % als
-  Pin — Kennzahlen-Tabelle mit integrierten Chart-Spalten im Zebra-Stil.
+  Pin — Kennzahlen-Tabelle mit integrierten Chart-Spalten.
 - 'sum'-Zeilen (Waterfall-Type-Rolle) rendern fett mit starker Trennlinie —
   GuV-Zwischensummen wie Bruttoergebnis/EBIT.
 - Doppel-Varianz als zusätzliche ΔZweitbasis-Spalten, Highlight-Zeilen,
@@ -771,7 +781,7 @@ als Feinjustierung erhalten.
 ## 1.3.0.0 (2026-07-07)
 
 **Echte Anker-Balken in der Waterfall-Brücke** (Chart → Bridge), statt der bisherigen
-Referenzlinien — matcht die Zebra-BI-Referenzcharts genauer:
+Referenzlinien — matcht die IBCS-Referenzcharts genauer:
 - Die Brücke bekommt ihr eigenes Raster (Kategorien + 2 zusätzliche Slots): ein
   Anker-Balken am Anfang zeigt die Basis-Summe (PL als Outline, PY als graue Fläche —
   je nach Abweichungsbasis) mit Wertlabel, ein Anker-Balken am Ende zeigt die
@@ -809,7 +819,7 @@ Referenzlinien — matcht die Zebra-BI-Referenzcharts genauer:
   durchgezogene Linie in AC-Farbe die AC-Summe (Ende der Brücke). Ein
   eingekreistes Badge zeigt den Netto-Saldo der gesamten Brücke (grün/rot
   je nach Geschäftswirkung) — die Überleitung als expliziter Callout, wie
-  in den Zebra-BI-Referenzcharts.
+  in den IBCS-Referenzcharts.
 
 ## 1.1.0.0 (2026-07-06)
 

@@ -1,4 +1,6 @@
-# IBCS Inspired Chart Deck — Power BI Custom Visual
+# ChartKitchen byDatenWG — Power BI Custom Visual
+
+*inspired by IBCS*
 
 IBCS-inspired chart deck for Power BI: columns/bars with scenario notation
 (AC · PY · PL · FC), integrated variance bridges, category bridges, waterfall,

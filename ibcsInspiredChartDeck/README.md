@@ -1,4 +1,6 @@
-# IBCS Inspired Chart Deck — Custom Visual für Power BI
+# ChartKitchen byDatenWG — Custom Visual für Power BI
+
+*inspired by IBCS*
 
 Ein echtes Power BI Custom Visual (`.pbiviz`), das die wichtigsten IBCS-Bausteine
 in **einem** Visual löst:
@@ -66,7 +68,7 @@ in **einem** Visual löst:
   Oberkategorien aggregiert mit ▸/▾ (Klick klappt Unterzeilen auf/zu),
   ▸▸/▾▾ im Kopf klappt alle auf einmal, Drill-Zustand wird persistiert
   (bookmarkfähig, je Small-Multiples-Kachel getrennt); Skala-Karte wirkt
-  auch hier (deck-weiter Skalen-Sync). **Zebra-Kern**: numerische
+  auch hier (deck-weiter Skalen-Sync). **Kern-Tabelle**: numerische
   PY/PL-Wertspalten (Chart → Tabelle), Klick-Sortierung auf Spaltenköpfe
   (persistiert, segmentweise zwischen Zwischensummen) und die
   **Ein-Klick-GuV** — Struktur-Modus mit Invertieren/Ergebniszeile/

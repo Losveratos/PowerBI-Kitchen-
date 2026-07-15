@@ -1,11 +1,11 @@
 {
     "visual": {
         "name": "ibcsInspiredChartDeck",
-        "displayName": "IBCS Inspired Chart Deck",
+        "displayName": "ChartKitchen byDatenWG",
         "guid": "ibcsInspiredChartDeckE73997CF4C7D44978F8112A4E5FA0B4D",
         "visualClassName": "Visual",
-        "version": "1.26.0.0",
-        "description": "IBCS inspired chart deck: base chart with scenario notation (AC solid, PY grey, PL outlined, FC hatched) plus absolute and relative variance panels — columns for time, bars for structure.",
+        "version": "1.27.0.0",
+        "description": "ChartKitchen byDatenWG — inspired by IBCS. Chart deck with scenario notation (AC solid, PY grey, PL outlined, FC hatched) plus absolute and relative variance panels, tables and KPI cards — columns for time, bars for structure.",
         "supportUrl": "https://github.com/losveratos/powerbi-kitchen-/issues",
         "gitHubUrl": "https://github.com/losveratos/powerbi-kitchen-"
     },
@@ -22,5 +22,5 @@
     "capabilities": "capabilities.json",
     "dependencies": null,
     "stringResources": [],
-    "version": "1.26.0.0"
+    "version": "1.27.0.0"
 }
