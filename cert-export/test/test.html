@@ -82,6 +82,9 @@
 <div class="case"><h4>KPI-Karten · Nur-Schlechte-Highlight (gute bleiben neutral) + Balken aus (reine Zahlen-Karten)</h4><div class="stage" id="c78" style="width:1200px;height:300px"></div></div>
 <div class="case"><h4>KPI-Karten · Fokus-Sortierung: größte ΔPY%-Abweichung oben-links (Cash −9,1 % zuerst)</h4><div class="stage" id="c79" style="width:1200px;height:300px"></div></div>
 <div class="case"><h4>KPI-Karten · Schlechteste zuerst (richtungsbewusst, Kosten invertiert) + In-Chart-Sortier-Chip</h4><div class="stage" id="c80" style="width:1200px;height:300px"></div></div>
+<div class="case"><h4>Kategorie-Brücke · Small Multiples · Standard: jede Kachel skaliert für sich</h4><div class="stage" id="c81" style="width:1340px;height:560px"></div></div>
+<div class="case"><h4>Kategorie-Brücke · Small Multiples · multiplesSameScale: gemeinsame Skala (Süd-Balken kürzer)</h4><div class="stage" id="c82" style="width:1340px;height:560px"></div></div>
+<div class="case"><h4>Integrierte Brücke · Small Multiples · multiplesSameScale: gemeinsame Skala</h4><div class="stage" id="c83" style="width:1340px;height:640px"></div></div>
 <div class="case"><h4>Tabelle · Matrix-Spalten: Quartal→Monat (2 Ebenen), alles zugeklappt — Q-Blöcke mit AC+ΔPY, Σ-Block rechts</h4><div class="stage" id="c72" style="width:1340px;height:400px"></div></div>
 <div class="case"><h4>Tabelle · Matrix-Spalten: Q1 aufgeklappt (Preset) — Monats-Blöcke unter dem Q1-Span, Q2 bleibt zu</h4><div class="stage" id="c73" style="width:1340px;height:400px"></div></div>
 <div class="case"><h4>Tabelle · hideList („Ost“ unsichtbar, Σ 14.300 bleibt) + chartList (Grafiken nur Umsatz-Zeilen Nord/Süd)</h4><div class="stage" id="c74" style="width:1200px;height:400px"></div></div>
@@ -712,6 +715,27 @@ run("c80", dataView(["Umsatz", "Kosten", "Marge", "Cash", "Auftragseingang"],
    col("previousYear", [9100, 3900, 2300, 1650, 8200])],
   { chart: { orientation: "cards", cardSort: "worst", cardBars: false,
     invertList: "Kosten" } }), 1200, 300);
+
+// category bridge in small multiples: region Nord ~3x Süd. c81 default =
+// per-tile scale (both bridges fill their tile), c82 sameScale = one shared
+// maximum (Süd visibly shorter). c83 = same toggle on the integrated bridge.
+const cbRegions = ["Nord", "Süd"];
+const cbDrivers = ["Produkt A", "Produkt B", "Produkt C", "Service"];
+const cbCats2 = [], cbMult2 = [], cbAc2 = [], cbPy2 = [];
+cbRegions.forEach((r, ri) => {
+  const f = ri === 0 ? 3 : 1;
+  cbDrivers.forEach((d, di) => {
+    cbCats2.push(d); cbMult2.push(r);
+    cbAc2.push(f * [1450, 980, 620, 410][di]);
+    cbPy2.push(f * [1300, 1040, 590, 380][di]);
+  });
+});
+run("c81", dataView(cbCats2, [col("actual", cbAc2), col("previousYear", cbPy2)],
+  { chart: { orientation: "catbridge" } }, cbMult2), 1340, 560);
+run("c82", dataView(cbCats2, [col("actual", cbAc2), col("previousYear", cbPy2)],
+  { chart: { orientation: "catbridge", multiplesSameScale: true } }, cbMult2), 1340, 560);
+run("c83", dataView(cbCats2, [col("actual", cbAc2), col("previousYear", cbPy2)],
+  { chart: { orientation: "intwaterfall", multiplesSameScale: true } }, cbMult2), 1340, 640);
 
 // P&L table with margin rows: value as %, deltas as percentage points
 run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],

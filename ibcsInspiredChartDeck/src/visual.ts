@@ -186,6 +186,10 @@ interface ChartConfig {
     sharedScale: boolean;
     /** shared value domain over ALL groups (assigned once domains are computed) */
     mainDomain: [number, number];
+    /** small multiples: shared integrated-bridge maxima over all tiles (null = per-tile scale) */
+    sharedIntWf: { maxTot: number; maxMon: number; maxPct: number } | null;
+    /** small multiples: shared category-bridge maxima over all tiles (null = per-tile scale) */
+    sharedCatBridge: { maxV: number; maxPct: number } | null;
     /** materiality: false → variance is drawn grey instead of good/bad (thresholds in the
      *  pane). Callers pass the variance pair of the basis they draw; defaults to Δ1. */
     isMaterial: (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => boolean;
@@ -1608,6 +1612,8 @@ export class Visual implements IVisual {
             sharedScale: groups.length > 1,
             mainDomain: [0, 0],
             varDomain: [0, 0],
+            sharedIntWf: null,
+            sharedCatBridge: null,
             isMaterial: (() => {
                 const mAbs = s.chartCard.materialityAbs.value ?? 0;
                 const mPct = s.chartCard.materialityPct.value ?? 0;
@@ -1702,6 +1708,52 @@ export class Visual implements IVisual {
         if (cfg.refLine != null) {
             domains.main = [Math.min(domains.main[0], cfg.refLine), Math.max(domains.main[1], cfg.refLine)];
             if (this.sharedWfDomain) { this.sharedWfDomain = domains.main; }
+        }
+
+        // bridge modes scale each tile for itself by default — the pane toggle
+        // switches them to one shared maximum over all tiles (IBCS same scale).
+        // The maxima mirror exactly what the renderers compute per tile.
+        if (groups.length > 1 && s.chartCard.multiplesSameScale.value) {
+            if (isIntWf) {
+                let maxTot = 1, maxMon = 1, maxPct = 1;
+                for (const g of groups) {
+                    const basisSum = g.pts.reduce((a, p) => a + (p.basis ?? 0), 0);
+                    const vTot = g.pts.reduce((a, p) => a + (p.value ?? 0), 0);
+                    const pySum = g.pts.reduce((a, p) => a + (p.py ?? 0), 0);
+                    const plSum = g.pts.reduce((a, p) => a + (p.pl ?? 0), 0);
+                    const twoTotals = g.pts.some(p => p.py != null) && g.pts.some(p => p.pl != null);
+                    maxTot = Math.max(maxTot, basisSum, vTot, twoTotals ? Math.max(pySum, plSum) : 0);
+                    for (const p of g.pts) {
+                        maxMon = Math.max(maxMon, p.value ?? 0, p.basis ?? 0,
+                            cfg.pyTriangle ? (p.py ?? 0) : 0);
+                        maxPct = Math.max(maxPct, Math.abs(p.varRel ?? 0));
+                    }
+                    if (basisSum !== 0) {
+                        maxPct = Math.max(maxPct, Math.abs((vTot - basisSum) / Math.abs(basisSum)) * 100);
+                    }
+                }
+                cfg.sharedIntWf = { maxTot, maxMon, maxPct };
+            }
+            if (isCatBridge) {
+                let maxV = 1, maxPct = 1;
+                for (const g of groups) {
+                    const PYt = g.pts.reduce((a, p) => a + (p.py ?? 0), 0);
+                    const PLt = g.pts.reduce((a, p) => a + (p.pl ?? 0), 0);
+                    const ACt = g.pts.reduce((a, p) => a + (p.value ?? 0), 0);
+                    // all totals present in a tile are drawn as rows → all bound the scale
+                    maxV = Math.max(maxV, PYt, PLt, ACt);
+                    const refIsPl = cfg.basisMode === "plan" && g.pts.some(p => p.pl != null);
+                    const REF = refIsPl ? PLt : PYt;
+                    if (REF !== 0) { maxPct = Math.max(maxPct, Math.abs((ACt - REF) / REF) * 100); }
+                    for (const p of g.pts) {
+                        const rv = refIsPl ? p.pl : p.py;
+                        if (p.value != null && rv != null && rv !== 0) {
+                            maxPct = Math.max(maxPct, Math.abs((p.value - rv) / Math.abs(rv)) * 100);
+                        }
+                    }
+                }
+                cfg.sharedCatBridge = { maxV, maxPct };
+            }
         }
 
         // IBCS same-scale rule also for the self-scaling renderers (pareto/dumbbell/slope)
@@ -2281,9 +2333,10 @@ export class Visual implements IVisual {
         const cx = (i: number) => bandStart + i * step + step / 2;
         const cxTot = bandEnd + 10 + totW / 2;
 
-        const maxTot = Math.max(basisSum, vTot, twoTotals ? Math.max(pySum, plSum) : 0, 1);
+        const maxTot = cfg.sharedIntWf?.maxTot
+            ?? Math.max(basisSum, vTot, twoTotals ? Math.max(pySum, plSum) : 0, 1);
         const S = linearScale(0, maxTot, yBase, plotTop + lf + 8);
-        const maxMon = Math.max(...pts.map(p =>
+        const maxMon = cfg.sharedIntWf?.maxMon ?? Math.max(...pts.map(p =>
             Math.max(p.value ?? 0, p.basis ?? 0, cfg.pyTriangle ? (p.py ?? 0) : 0)), 1);
         const miniH = Math.min((yBase - plotTop) * 0.30, region.h * 0.16);
         const BS = linearScale(0, maxMon, 0, miniH);
@@ -2295,7 +2348,8 @@ export class Visual implements IVisual {
         // ------- ΔBasis% pin chart (top)
         if (showPins) {
             const axisY = region.y + pad + pinArea * 0.55;
-            const maxPct = Math.max(...pts.map(p => Math.abs(p.varRel ?? 0)), Math.abs(pctTot), 1);
+            const maxPct = cfg.sharedIntWf?.maxPct
+                ?? Math.max(...pts.map(p => Math.abs(p.varRel ?? 0)), Math.abs(pctTot), 1);
             const pinMax = pinArea * 0.42 - lf;
             const PS = (v: number) => Math.max(2, Math.abs(v) / maxPct * Math.max(pinMax, 8));
             const tPin = this.el("text", {
@@ -2615,7 +2669,8 @@ export class Visual implements IVisual {
         const pinW = showPins ? Math.max(110, region.w * 0.15) + lf * 3 : 0;
         const valLblW = lf * 4.2;
         const xValEnd = rightEdge - pinW - valLblW;
-        const maxV = Math.max(REF, ACt, hasOther ? otherTot : 0, 1);
+        const maxV = cfg.sharedCatBridge?.maxV
+            ?? Math.max(REF, ACt, hasOther ? otherTot : 0, 1);
         const X = linearScale(0, maxV, x0, xValEnd);
         const axisX = rightEdge - pinW * 0.52;
         const maxPinLen = Math.max(20, pinW * 0.52 - lf * 4.2 - 14);
@@ -2712,8 +2767,9 @@ export class Visual implements IVisual {
                 fill: cfg.colors.py
             }, bg);
         }
-        const maxPct = Math.max(...pts.map(p => Math.abs(dRelOf(p) ?? 0)),
-            REF !== 0 ? Math.abs(dTot / REF * 100) : 0, 1);
+        const maxPct = cfg.sharedCatBridge?.maxPct
+            ?? Math.max(...pts.map(p => Math.abs(dRelOf(p) ?? 0)),
+                REF !== 0 ? Math.abs(dTot / REF * 100) : 0, 1);
         const pinLen = (v: number) => Math.max(2, Math.abs(v) / maxPct * maxPinLen);
         const drawPin = (yy: number, pct: number, bold: boolean, parent: SVGElement, pp?: DataPoint) => {
             const w = pinLen(pct);

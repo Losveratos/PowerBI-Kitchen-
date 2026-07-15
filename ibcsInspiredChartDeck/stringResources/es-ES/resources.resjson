@@ -73,6 +73,7 @@
   "Chart_MultiplesTotal": "Mosaico de total (Σ)",
   "Chart_MultiplesTopN": "Top N mosaicos",
   "Chart_MultiplesHero": "Primer mosaico más grande",
+  "Chart_MultiplesSameScale": "Puentes: misma escala en todos los mosaicos",
   "Chart_CumButton": "Botón YTD en el gráfico",
   "Chart_MaterialityAbs": "Materialidad a partir de (absoluto)",
   "Chart_MaterialityPct": "Materialidad a partir de (%)",

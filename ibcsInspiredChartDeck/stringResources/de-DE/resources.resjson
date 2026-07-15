@@ -73,6 +73,7 @@
   "Chart_MultiplesTotal": "Gesamt-Kachel (Σ)",
   "Chart_MultiplesTopN": "Top N Kacheln",
   "Chart_MultiplesHero": "Erste Kachel groß",
+  "Chart_MultiplesSameScale": "Brücken: gleiche Skala für alle Kacheln",
   "Chart_CumButton": "YTD-Button im Chart",
   "Chart_MaterialityAbs": "Wesentlichkeit ab (absolut)",
   "Chart_MaterialityPct": "Wesentlichkeit ab (%)",

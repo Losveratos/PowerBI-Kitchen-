@@ -73,6 +73,7 @@
   "Chart_MultiplesTotal": "Total tile (Σ)",
   "Chart_MultiplesTopN": "Top N tiles",
   "Chart_MultiplesHero": "First tile large",
+  "Chart_MultiplesSameScale": "Bridges: same scale for all tiles",
   "Chart_CumButton": "YTD button in chart",
   "Chart_MaterialityAbs": "Materiality from (absolute)",
   "Chart_MaterialityPct": "Materiality from (%)",

@@ -427,11 +427,20 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    multiplesSameScale = new formattingSettings.ToggleSwitch({
+        name: "multiplesSameScale",
+        displayName: "Bridges: same scale for all tiles",
+        displayNameKey: "Chart_MultiplesSameScale",
+        description: "Skaliert auch die Brücken-Modi (Integrierte Brücke, Kategorie-Brücke) über alle Kacheln identisch (IBCS). Standard: aus — jede Brücken-Kachel skaliert für sich. Säulen, Balken und Wasserfall teilen sich die Skala immer.",
+        value: false
+    });
+
     multiplesGroup = new formattingSettings.Group({
         name: "chartMultiples",
         displayName: "Small Multiples",
         displayNameKey: "Group_Multiples",
-        slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero]
+        slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero,
+            this.multiplesSameScale]
     });
 
     bridgeGroup = new formattingSettings.Group({

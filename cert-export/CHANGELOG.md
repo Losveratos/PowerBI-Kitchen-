@@ -1,5 +1,16 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.32.0.0 (2026-07-15)
+
+**Small Multiples: gemeinsame Skala auch für Brücken (opt-in):** Neues
+Setting **„Brücken: gleiche Skala für alle Kacheln"** (Gruppe Small
+Multiples). Säulen, Balken und Wasserfall teilen sich in Small Multiples
+schon immer eine Skala (IBCS) — die **integrierte Brücke** und die
+**Kategorie-Brücke** skalierten dagegen jede Kachel für sich. Mit dem
+Toggle nutzen jetzt auch diese beiden Modi ein gemeinsames Maximum über
+alle Kacheln, einschließlich der Δ- und Δ%-Pin-Skalen. Standard bleibt
+aus (bisheriges Verhalten unverändert).
+
 ## 1.31.1.0 (2026-07-15)
 
 **Startseite reagiert sofort:** Klicks auf den Schriften-Selector und

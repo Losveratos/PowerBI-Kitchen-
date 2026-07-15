@@ -245,6 +245,7 @@
                 "multiplesTotal": { "type": { "bool": true } },
                 "multiplesTopN": { "type": { "numeric": true } },
                 "multiplesHero": { "type": { "bool": true } },
+                "multiplesSameScale": { "type": { "bool": true } },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
                 "chartButtons": { "type": { "bool": true } },

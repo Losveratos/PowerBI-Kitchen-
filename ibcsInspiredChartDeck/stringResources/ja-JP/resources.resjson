@@ -73,6 +73,7 @@
   "Chart_MultiplesTotal": "合計タイル (Σ)",
   "Chart_MultiplesTopN": "上位Nタイル",
   "Chart_MultiplesHero": "先頭タイルを拡大",
+  "Chart_MultiplesSameScale": "ブリッジ: 全タイルで同一スケール",
   "Chart_CumButton": "チャート内のYTDボタン",
   "Chart_MaterialityAbs": "重要性のしきい値(絶対値)",
   "Chart_MaterialityPct": "重要性のしきい値(%)",
