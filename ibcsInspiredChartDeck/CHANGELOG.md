@@ -1,5 +1,13 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.28.1.0 (2026-07-13)
+
+**AppSource-Vorbereitung:** Support- und GitHub-URL auf das offene Repo
+(DevCustomVizPowerBI) gesetzt, Publisher „Daten-WG". Submission-Kit unter
+`appsource/`: Listing-Copy (EN), Privacy-Statement, Einreichungs-
+Checkliste, 300×300-Listing-Icon und vier Listing-Screenshots. Keine
+funktionalen Änderungen am Visual.
+
 ## 1.28.0.0 (2026-07-13)
 
 **Neue Visual-Identität:** Interner Name und GUID auf
