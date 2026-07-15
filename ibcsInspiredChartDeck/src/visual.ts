@@ -788,48 +788,265 @@ export class Visual implements IVisual {
     // --------------------------------------------------------------- landing
 
     /** landing page renders a live sample chart instead of a text hint */
+    /**
+     * empty-state landing: a mode gallery — one mini preview tile per chart mode.
+     * Clicking a tile persists chart.orientation, so the visual starts in that
+     * mode once fields are bound. Replaces the old single pre-rendered sample.
+     */
     private renderDemo(width: number, height: number): void {
         // no live data: in-chart interactions must not re-render a stale dataset
         this.lastRender = null;
         this.compareCats = [];
         this.svg.style.display = "block";
-        const months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
-        const ac = [820, 771, 900, 955, 1020, 980, 1105, null, null, null, null, null];
-        const fc = [null, null, null, null, null, null, null, 1150, 1080, 1210, 1260, 1400];
-        const py = [760, 800, 850, 900, 940, 1010, 1000, 1040, 1010, 1120, 1180, 1300];
-        const pl = [800, 810, 870, 980, 1000, 1000, 1050, 1100, 1120, 1180, 1220, 1350];
-        this.measureName = "Demo-KPI";
-        this.measureFormat = undefined;
-        const pts: DataPoint[] = months.map((m, i) => {
-            const isFc = ac[i] == null;
-            const value = ac[i] != null ? ac[i] : fc[i];
-            const varAbs = (value as number) - (pl[i] as number);
-            return {
-                cat: m, ac: ac[i], py: py[i], pl: pl[i], fc: fc[i],
-                value, isFc, basis: pl[i],
-                varAbs, varRel: (varAbs / Math.abs(pl[i] as number)) * 100,
-                var2Abs: (value as number) - (py[i] as number),
-                var2Rel: (((value as number) - (py[i] as number)) / Math.abs(py[i] as number)) * 100,
-                bm: null, fcPrev: null,
-                comment: null, commentNo: null, group: null, rowType: null, isRest: false, sel: null, catLevels: null, lineVal: null, stackSeries: null
-            };
-        });
-        this.basisMode = "plan";
-        this.render(pts, width, height);
+        while (this.svg.firstChild) { this.svg.removeChild(this.svg.firstChild); }
+        const ink = "#404040", grey = "#B3B3B3", teal = "#1E8F9E", red = "#D64541";
+        const subtle = "#8A8A8A", paper = "#FFFFFF";
+        const hint = this.missingHint
+            || this.locStr("Demo_Hint", "Sample data — add Category and Actual (AC)");
 
-        // hint pill on top of the sample
-        const g = this.el("g", {}, this.svg);
-        const msg = this.missingHint || this.locStr("Demo_Hint", "Sample data — add Category and Actual (AC)");
-        const w = Math.min(width - 16, msg.length * 6.2 + 24);
-        this.el("rect", {
-            x: (width - w) / 2, y: height - 30, width: w, height: 22, rx: 11,
-            fill: "#404040", "fill-opacity": 0.85
-        }, g);
-        const t = this.el("text", {
-            x: width / 2, y: height - 15, "text-anchor": "middle",
-            "font-size": 10.5, fill: "#FFFFFF", "font-family": FONT
-        }, g);
-        t.textContent = msg;
+        // tiny visuals: no room for the gallery — title + hint only
+        if (width < 300 || height < 220) {
+            const t0 = this.el("text", {
+                x: width / 2, y: height / 2 - 8, "text-anchor": "middle",
+                "font-size": 13, "font-weight": 700, fill: ink, "font-family": FONT
+            }, this.svg);
+            t0.textContent = "ChartKitchen byDatenWG";
+            const t1 = this.el("text", {
+                x: width / 2, y: height / 2 + 10, "text-anchor": "middle",
+                "font-size": 10, fill: subtle, "font-family": FONT
+            }, this.svg);
+            t1.textContent = this.truncate(hint, width - 12, 10);
+            return;
+        }
+
+        // hatch pattern for the FC mini column
+        const defs = this.el("defs", {}, this.svg);
+        const pat = this.el("pattern", {
+            id: "icd-demo-hatch", width: 4, height: 4,
+            patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)"
+        }, defs);
+        this.el("rect", { x: 0, y: 0, width: 4, height: 4, fill: paper }, pat);
+        this.el("line", { x1: 0, y1: 0, x2: 0, y2: 4, stroke: ink, "stroke-width": 1.4 }, pat);
+
+        // ------- header + footer
+        const title = this.el("text", {
+            x: 12, y: 24, "font-size": 15, "font-weight": 700, fill: ink, "font-family": FONT
+        }, this.svg);
+        title.textContent = "ChartKitchen byDatenWG";
+        const sub = this.el("text", {
+            x: 12, y: 40, "font-size": 10.5, fill: subtle, "font-family": FONT
+        }, this.svg);
+        sub.textContent = this.truncate(
+            `${hint} · ${this.locStr("Demo_Pick", "Click a preview to pick the chart mode")}`,
+            width - 24, 10.5);
+        const made = this.el("text", {
+            x: width / 2, y: height - 8, "text-anchor": "middle",
+            "font-size": 10, fill: subtle, "font-family": FONT
+        }, this.svg);
+        made.textContent = "made by Daten-WG";
+
+        // ------- gallery grid
+        const modes: { v: string; key: string; en: string }[] = [
+            { v: "columns", key: "Enum_Orientation_Columns", en: "Columns (Time)" },
+            { v: "bars", key: "Enum_Orientation_Bars", en: "Bars (Structure)" },
+            { v: "line", key: "Enum_Orientation_Line", en: "Line" },
+            { v: "waterfall", key: "Enum_Orientation_Waterfall", en: "Waterfall / Bridge" },
+            { v: "intwaterfall", key: "Enum_Orientation_IntWaterfall", en: "Integrated Bridge" },
+            { v: "catbridge", key: "Enum_Orientation_CatBridge", en: "Category Bridge" },
+            { v: "table", key: "Enum_Orientation_Table", en: "Table (IBCS)" },
+            { v: "pnl", key: "Enum_Orientation_Pnl", en: "P&L Statement" },
+            { v: "cards", key: "Enum_Orientation_Cards", en: "KPI Cards" },
+            { v: "pareto", key: "Enum_Orientation_Pareto", en: "Pareto" },
+            { v: "dumbbell", key: "Enum_Orientation_Dumbbell", en: "Dumbbell" },
+            { v: "slope", key: "Enum_Orientation_Slope", en: "Slope" }
+        ];
+        const active = String(this.formattingSettings.chartCard.orientation.value.value);
+        const padX = 12, top = 50, footH = 22, gap = 8;
+        const cols = Math.max(2, Math.min(6, Math.floor((width - padX * 2 + gap) / 150)));
+        const rows = Math.ceil(modes.length / cols);
+        const tileW = (width - padX * 2 - (cols - 1) * gap) / cols;
+        const tileH = Math.max(58, (height - top - footH - (rows - 1) * gap) / rows);
+
+        modes.forEach((m, i) => {
+            const x = padX + (i % cols) * (tileW + gap);
+            const y = top + Math.floor(i / cols) * (tileH + gap);
+            if (y + tileH > height - footH + 2) { return; }
+            const on = m.v === active;
+            const g = this.el("g", { role: "button", tabindex: "0" }, this.svg) as SVGGElement;
+            const label = this.locStr(m.key, m.en);
+            g.setAttribute("aria-label", label);
+            g.setAttribute("aria-pressed", String(on));
+            const tip = this.el("title", {}, g);
+            tip.textContent = label;
+            this.el("rect", {
+                x, y, width: tileW, height: tileH, rx: 6,
+                fill: on ? "#EEF6F7" : "#FAFAF8",
+                stroke: on ? teal : "#DDDDD8", "stroke-width": on ? 2 : 1
+            }, g);
+            if (on) {
+                this.el("circle", { cx: x + tileW - 11, cy: y + 11, r: 7, fill: teal }, g);
+                const chk = this.el("text", {
+                    x: x + tileW - 11, y: y + 14.2, "text-anchor": "middle",
+                    "font-size": 9, fill: paper, "font-family": FONT, "font-weight": 700
+                }, g);
+                chk.textContent = "✓";
+            }
+            // mini preview area + caption
+            const px = x + 8, py2 = y + 7, pw = tileW - 16, ph = tileH - 26;
+            this.drawModeMini(g, m.v, px, py2, pw, ph, { ink, grey, teal, red, paper });
+            const cap = this.el("text", {
+                x: x + tileW / 2, y: y + tileH - 7, "text-anchor": "middle",
+                "font-size": 9.5, fill: on ? ink : subtle, "font-family": FONT,
+                "font-weight": on ? 700 : 400
+            }, g);
+            cap.textContent = this.truncate(label, tileW - 10, 9.5);
+            if (this.allowInteractions) {
+                g.style.cursor = "pointer";
+                const pick = () => {
+                    this.host.persistProperties({
+                        merge: [{ objectName: "chart", selector: null, properties: { orientation: m.v } }]
+                    });
+                };
+                g.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); pick(); });
+                g.addEventListener("keydown", (e: KeyboardEvent) => {
+                    if (e.key !== "Enter" && e.key !== " ") { return; }
+                    e.preventDefault();
+                    e.stopPropagation();
+                    pick();
+                });
+            }
+        });
+    }
+
+    /** small schematic previews for the landing gallery — fixed brand colors */
+    private drawModeMini(g: SVGElement, mode: string, x: number, y: number,
+        w: number, h: number, c: { ink: string; grey: string; teal: string; red: string; paper: string }): void {
+        const r = (rx: number, ry: number, rw: number, rh: number, fill: string,
+            extra: Record<string, string | number> = {}) =>
+            this.el("rect", { x: x + rx * w, y: y + ry * h, width: Math.max(1, rw * w), height: Math.max(1, rh * h), fill, ...extra }, g);
+        const line = (x1: number, y1: number, x2: number, y2: number, stroke: string, sw = 1.4) =>
+            this.el("line", { x1: x + x1 * w, y1: y + y1 * h, x2: x + x2 * w, y2: y + y2 * h, stroke, "stroke-width": sw }, g);
+        const outline = { fill: c.paper, stroke: c.ink, "stroke-width": 1 } as const;
+        switch (mode) {
+            case "columns": {
+                // variance mini panel + AC/PY/FC columns
+                r(0.05, 0.02, 0.10, 0.16, c.teal); r(0.20, 0.10, 0.10, 0.08, c.red);
+                r(0.35, 0.04, 0.10, 0.14, c.teal); r(0.50, 0.02, 0.10, 0.16, c.teal);
+                line(0, 0.22, 1, 0.22, c.grey, 1);
+                r(0.04, 0.55, 0.09, 0.45, c.grey); r(0.14, 0.45, 0.10, 0.55, c.ink);
+                r(0.30, 0.50, 0.09, 0.50, c.grey); r(0.40, 0.38, 0.10, 0.62, c.ink);
+                r(0.56, 0.44, 0.09, 0.56, c.grey);
+                this.el("rect", { x: x + 0.66 * w, y: y + 0.30 * h, width: Math.max(1, 0.10 * w), height: 0.70 * h, fill: `url(#icd-demo-hatch)`, stroke: c.ink, "stroke-width": 1 }, g);
+                line(0, 1, 1, 1, c.ink, 1.6);
+                break;
+            }
+            case "bars": {
+                r(0, 0.05, 0.55, 0.16, c.ink); r(0, 0.24, 0.40, 0.13, c.grey);
+                r(0, 0.45, 0.42, 0.16, c.ink); r(0, 0.64, 0.50, 0.13, c.grey);
+                line(0.72, 0, 0.72, 1, c.grey, 1);
+                r(0.72, 0.06, 0.16, 0.14, c.teal); r(0.60, 0.46, 0.12, 0.14, c.red);
+                line(0, 0, 0, 1, c.ink, 1.6);
+                break;
+            }
+            case "line": {
+                const pts = [[0, 0.75], [0.2, 0.55], [0.4, 0.62], [0.6, 0.35], [0.8, 0.42], [1, 0.2]];
+                const py2 = [[0, 0.85], [0.2, 0.72], [0.4, 0.78], [0.6, 0.55], [0.8, 0.6], [1, 0.45]];
+                const path = (arr: number[][], col: string, sw2: number) =>
+                    this.el("polyline", {
+                        points: arr.map(p => `${x + p[0] * w},${y + p[1] * h}`).join(" "),
+                        fill: "none", stroke: col, "stroke-width": sw2
+                    }, g);
+                path(py2, c.grey, 1.2); path(pts, c.ink, 2);
+                line(0, 1, 1, 1, c.ink, 1.6);
+                break;
+            }
+            case "waterfall": {
+                r(0.00, 0.30, 0.14, 0.70, c.ink);
+                r(0.18, 0.14, 0.14, 0.16, c.teal); r(0.36, 0.14, 0.14, 0.24, c.red);
+                r(0.54, 0.38, 0.14, 0.14, c.teal);
+                r(0.72, 0.24, 0.16, 0.76, c.ink);
+                line(0.14, 0.30, 0.18, 0.30, c.grey, 1); line(0.32, 0.14, 0.36, 0.14, c.grey, 1);
+                line(0, 1, 1, 1, c.ink, 1.6);
+                break;
+            }
+            case "intwaterfall": {
+                r(0.00, 0.25, 0.13, 0.75, c.grey);
+                r(0.18, 0.10, 0.10, 0.14, c.teal); r(0.30, 0.10, 0.10, 0.20, c.red);
+                r(0.42, 0.26, 0.10, 0.12, c.teal); r(0.54, 0.22, 0.10, 0.14, c.teal);
+                r(0.72, 0.16, 0.13, 0.84, c.ink);
+                r(0.18, 0.72, 0.06, 0.28, c.ink); r(0.30, 0.66, 0.06, 0.34, c.ink);
+                r(0.42, 0.76, 0.06, 0.24, c.ink); r(0.54, 0.70, 0.06, 0.30, c.ink);
+                line(0, 1, 1, 1, c.ink, 1.6);
+                break;
+            }
+            case "catbridge": {
+                for (let i = 0; i < 4; i++) {
+                    r(0, 0.06 + i * 0.24, 0.30 - i * 0.05, 0.12, c.grey);
+                    r(0.34 + i * 0.14, 0.06 + i * 0.24, 0.12, 0.12, i === 1 ? c.red : c.teal);
+                }
+                line(0.34, 0, 0.34, 1, c.grey, 1);
+                break;
+            }
+            case "table": {
+                for (let i = 0; i < 4; i++) {
+                    const ry = 0.10 + i * 0.24;
+                    line(0, ry + 0.16, 1, ry + 0.16, c.grey, 0.7);
+                    r(0.02, ry, 0.16, 0.10, c.grey);
+                    r(0.26, ry, 0.20 - i * 0.03, 0.10, c.ink);
+                    r(0.62, ry, 0.10, 0.10, i === 2 ? c.red : c.teal);
+                }
+                line(0, 0.06, 1, 0.06, c.ink, 1.4);
+                break;
+            }
+            case "pnl": {
+                r(0.02, 0.02, 0.30, 0.14, c.ink);
+                r(0.36, 0.22, 0.16, 0.12, c.red); r(0.52, 0.42, 0.14, 0.12, c.red);
+                r(0.02, 0.60, 0.24, 0.14, c.ink);
+                r(0.30, 0.80, 0.14, 0.12, c.teal);
+                line(0, 0.58, 0.6, 0.58, c.ink, 1.2);
+                break;
+            }
+            case "cards": {
+                for (let i = 0; i < 4; i++) {
+                    const cx2 = (i % 2) * 0.52, cy2 = Math.floor(i / 2) * 0.54;
+                    this.el("rect", {
+                        x: x + cx2 * w, y: y + cy2 * h, width: 0.46 * w, height: 0.44 * h,
+                        rx: 3, ...outline
+                    }, g);
+                    r(cx2 + 0.012, cy2 + 0.03, 0.018, 0.38, i === 1 ? c.red : c.teal);
+                    r(cx2 + 0.08, cy2 + 0.10, 0.20, 0.10, c.ink);
+                    r(cx2 + 0.08, cy2 + 0.26, 0.14, 0.06, c.grey);
+                }
+                break;
+            }
+            case "pareto": {
+                const hs = [1, 0.75, 0.55, 0.4, 0.28];
+                hs.forEach((hh, i) => r(0.02 + i * 0.19, 1 - hh, 0.14, hh, c.ink));
+                this.el("polyline", {
+                    points: [[0.09, 0.55], [0.28, 0.35], [0.47, 0.22], [0.66, 0.12], [0.85, 0.05]]
+                        .map(p => `${x + p[0] * w},${y + p[1] * h}`).join(" "),
+                    fill: "none", stroke: c.teal, "stroke-width": 1.8
+                }, g);
+                line(0, 1, 1, 1, c.ink, 1.6);
+                break;
+            }
+            case "dumbbell": {
+                for (let i = 0; i < 3; i++) {
+                    const ry = 0.18 + i * 0.32;
+                    line(0.15, ry, 0.75 - i * 0.15, ry, i === 1 ? c.red : c.teal, 2);
+                    this.el("circle", { cx: x + 0.15 * w, cy: y + ry * h, r: 3.2, fill: c.grey }, g);
+                    this.el("circle", { cx: x + (0.75 - i * 0.15) * w, cy: y + ry * h, r: 3.2, fill: c.ink }, g);
+                }
+                break;
+            }
+            case "slope": {
+                line(0.08, 0, 0.08, 1, c.grey, 1.2); line(0.92, 0, 0.92, 1, c.grey, 1.2);
+                line(0.08, 0.25, 0.92, 0.10, c.teal, 1.8);
+                line(0.08, 0.55, 0.92, 0.70, c.red, 1.8);
+                line(0.08, 0.80, 0.92, 0.60, c.ink, 1.8);
+                break;
+            }
+        }
     }
 
     // ---------------------------------------------------------------- render

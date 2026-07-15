@@ -1,5 +1,17 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.30.0.0 (2026-07-13)
+
+**Startseiten-Galerie:** Der leere Zustand (noch keine Felder gebunden)
+zeigt statt eines einzelnen Demo-Charts jetzt eine **Modus-Galerie** —
+zwölf Mini-Vorschauen (Säulen, Balken, Linie, Wasserfall, beide Brücken,
+Tabelle, GuV, KPI-Karten, Pareto, Dumbbell, Slope) in den Markenfarben.
+**Klick auf eine Kachel wählt den Chart-Modus** (persistiert) — der
+gewählte Modus ist mit Teal-Rahmen und ✓ markiert und startet direkt,
+sobald Felder gebunden werden. Unten: „made by Daten-WG“. Bei sehr
+kleinen Kacheln kompakter Fallback (Titel + Hinweis). Der Feld-Hinweis
+(z. B. „Actual fehlt“) bleibt als Untertitel sichtbar.
+
 ## 1.29.0.0 (2026-07-13)
 
 **Barrierefreie Standard-Farbe:** „Gute Abweichung" ist jetzt standardmäßig

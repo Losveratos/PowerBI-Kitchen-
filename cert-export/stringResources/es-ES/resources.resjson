@@ -205,5 +205,6 @@
   "Chip_SortNone": "↕ Ordenar",
   "Chip_SortDev": "↕ |Δ|",
   "Chip_SortWorst": "↓ Peor",
-  "Chip_SortBest": "↑ Mejor"
+  "Chip_SortBest": "↑ Mejor",
+  "Demo_Pick": "Haz clic en una vista previa para elegir el modo"
 }

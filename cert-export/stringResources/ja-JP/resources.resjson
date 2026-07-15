@@ -205,5 +205,6 @@
   "Chip_SortNone": "↕ 並べ替え",
   "Chip_SortDev": "↕ |Δ|",
   "Chip_SortWorst": "↓ 悪い",
-  "Chip_SortBest": "↑ 良い"
+  "Chip_SortBest": "↑ 良い",
+  "Demo_Pick": "プレビューをクリックしてモードを選択"
 }

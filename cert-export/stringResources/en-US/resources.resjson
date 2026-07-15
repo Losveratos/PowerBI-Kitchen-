@@ -205,5 +205,6 @@
   "Chip_SortNone": "↕ Sort",
   "Chip_SortDev": "↕ |Δ|",
   "Chip_SortWorst": "↓ Worst",
-  "Chip_SortBest": "↑ Best"
+  "Chip_SortBest": "↑ Best",
+  "Demo_Pick": "Click a preview to pick the chart mode"
 }
