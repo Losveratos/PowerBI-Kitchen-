@@ -237,5 +237,11 @@
   "Chart_PinStyle": "Δ%ピンの形状",
   "Enum_PinStyle_Auto": "自動（モードごと）",
   "Enum_PinStyle_Round": "丸",
-  "Enum_PinStyle_Square": "四角"
+  "Enum_PinStyle_Square": "四角",
+  "Labels_Density": "ラベル密度",
+  "Enum_LabelDensity_Auto": "自動（間引き）",
+  "Enum_LabelDensity_All": "すべて",
+  "Enum_LabelDensity_Ends": "先頭・末尾・極値",
+  "Labels_FinanceFormat": "会計形式（括弧表記）",
+  "Chart_DeltaIcons": "トレンドアイコン ▲▼●"
 }

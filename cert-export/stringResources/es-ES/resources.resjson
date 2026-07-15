@@ -237,5 +237,11 @@
   "Chart_PinStyle": "Forma del pin Δ%",
   "Enum_PinStyle_Auto": "Automático (según modo)",
   "Enum_PinStyle_Round": "Redondo",
-  "Enum_PinStyle_Square": "Cuadrado"
+  "Enum_PinStyle_Square": "Cuadrado",
+  "Labels_Density": "Densidad de etiquetas",
+  "Enum_LabelDensity_Auto": "Automático (reducir)",
+  "Enum_LabelDensity_All": "Todas",
+  "Enum_LabelDensity_Ends": "Primero · último · extremos",
+  "Labels_FinanceFormat": "Formato financiero (paréntesis)",
+  "Chart_DeltaIcons": "Iconos de tendencia ▲▼●"
 }

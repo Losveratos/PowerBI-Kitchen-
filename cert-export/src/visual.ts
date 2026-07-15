@@ -188,6 +188,8 @@ interface ChartConfig {
     mainDomain: [number, number];
     /** Δ%-pin head shape: "auto" keeps each mode's default (round or square) */
     pinStyle: string;
+    /** trend icons ▲▼● in front of Δ values (table + cards) */
+    deltaIcons: boolean;
     /** small multiples: shared integrated-bridge maxima over all tiles (null = per-tile scale) */
     sharedIntWf: { maxTot: number; maxMon: number; maxPct: number } | null;
     /** small multiples: shared category-bridge maxima over all tiles (null = per-tile scale) */
@@ -313,6 +315,8 @@ export class Visual implements IVisual {
     /** in-chart card sort chip override ("" = use the pane dropdown), persisted */
     private cardSortSel = "";
     private pendingCardSort: string | null = null;
+    /** finance number convention (negatives in parentheses, zero as "–") */
+    private financeFmt = false;
     /** landing font-preset pill: value we persisted but the host has not echoed yet */
     private pendingFontPreset: string | null = null;
     /** landing mode pick: orientation we persisted but the host has not echoed yet */
@@ -765,12 +769,20 @@ export class Visual implements IVisual {
 
     private makeFormatter(maxAbs: number, allIntegers: boolean, formatOverride?: string): IValueFormatter {
         const { unit, prec } = this.formatterParams(maxAbs, allIntegers);
-        return valueFormatter.create({
+        const f = valueFormatter.create({
             format: formatOverride ?? this.measureFormat,
             value: unit,
             precision: prec,
             cultureSelector: this.host.locale
         });
+        if (!this.financeFmt) { return f; }
+        // finance convention: negatives in parentheses, zero as "–". Wrapping the
+        // formatter covers every label site (values, Δ via fmtSigned, tables, cards)
+        return {
+            format: (v: unknown) => typeof v === "number"
+                ? (v === 0 ? "–" : v < 0 ? `(${f.format(-v)})` : f.format(v))
+                : f.format(v)
+        } as IValueFormatter;
     }
 
     /**
@@ -812,6 +824,7 @@ export class Visual implements IVisual {
         const nf = new Intl.NumberFormat(this.host.locale, {
             minimumFractionDigits: 1, maximumFractionDigits: 1
         });
+        if (this.financeFmt && v < 0) { return `(${nf.format(Math.abs(v))}%)`; }
         const sign = v > 0 ? "+" : v < 0 ? "−" : "";
         return sign + nf.format(Math.abs(v)) + "%";
     }
@@ -1363,6 +1376,8 @@ export class Visual implements IVisual {
         this.catGroups = [];
 
         const s = this.formattingSettings;
+        // finance number convention — read BEFORE any formatter is created
+        this.financeFmt = s.labelsCard.financeFormat.value === true;
         const orientationRaw = String(s.chartCard.orientation.value.value);
         const isWaterfall = orientationRaw === "waterfall";
         const lineMode = orientationRaw === "line";
@@ -1615,6 +1630,7 @@ export class Visual implements IVisual {
             mainDomain: [0, 0],
             varDomain: [0, 0],
             pinStyle: String(s.chartCard.pinStyle.value.value),
+            deltaIcons: s.chartCard.deltaIcons.value === true,
             sharedIntWf: null,
             sharedCatBridge: null,
             isMaterial: (() => {
@@ -3660,8 +3676,10 @@ export class Visual implements IVisual {
             : Math.min(region.w * 0.26,
                 this.maxTextWidth(rowPts.map(p => p.cat), cf) + 18 + chevW);
         const valW = lf * 4.8;
-        const dValW = hasVar ? lf * 4.6 : 0;
-        const d2ValW = hasVar2 ? lf * 4.6 : 0;
+        // icons and finance parentheses widen the Δ texts — give the columns room
+        const dExtra = (cfg.deltaIcons ? 1.2 : 0) + (this.financeFmt ? 0.5 : 0);
+        const dValW = hasVar ? lf * (4.6 + dExtra) : 0;
+        const d2ValW = hasVar2 ? lf * (4.6 + dExtra) : 0;
         // Δ2 % has no graphic pin — it is always a numeric column when dual is on
         const d2PctValW = hasVar2 && cfg.showRel ? lf * 4.2 : 0;
         // optional numeric reference columns (print/board-ready tables): the
@@ -4051,12 +4069,14 @@ export class Visual implements IVisual {
 
             // ΔBasis: number + bar (margin rows show percentage points instead);
             // formatted rows show the delta in their own unit (signed)
+            const dIcon = (v: number, material: boolean) => !cfg.deltaIcons ? ""
+                : (v === 0 || !material) ? "● " : v > 0 ? "▲ " : "▼ ";
             if (p.varAbs != null && colX["dval"] && cfg.showLabels) {
                 const dTxt = rowPct ? ppText(p.varAbs)
                     : rf ? (p.varAbs > 0 ? "+" : p.varAbs < 0 ? "−" : "") + rf(Math.abs(p.varAbs))
                     : this.fmtSigned(cfg.fmtVar, p.varAbs);
                 txt(colX["dval"].x + colX["dval"].w, yMid + rowFont * 0.35,
-                    dTxt, "end", rowFont, sum,
+                    dIcon(p.varAbs, cfg.isMaterial(p)) + dTxt, "end", rowFont, sum,
                     p.varAbs === 0 ? cfg.subtle : colOf(p.varAbs, p), g);
             }
             // numeric Δ% fallback column (pin column dropped on narrow tiles)
@@ -4106,7 +4126,8 @@ export class Visual implements IVisual {
             // ΔBasis2 (dual): number + Δ2 % number + bar (same notation as ΔBasis)
             if (hasVar2 && p.var2Abs != null && colX["d2val"] && cfg.showLabels) {
                 txt(colX["d2val"].x + colX["d2val"].w, yMid + rowFont * 0.35,
-                    rowPct ? ppText(p.var2Abs) : this.fmtSigned(cfg.fmtVar, p.var2Abs), "end", rowFont, sum,
+                    dIcon(p.var2Abs, cfg.isMaterial(p, p.var2Abs, p.var2Rel))
+                    + (rowPct ? ppText(p.var2Abs) : this.fmtSigned(cfg.fmtVar, p.var2Abs)), "end", rowFont, sum,
                     p.var2Abs === 0 ? cfg.subtle : colOf2(p.var2Abs, p), g);
             }
             if (hasVar2 && p.var2Rel != null && colX["d2pctval"] && !rowPct && cfg.showLabels) {
@@ -5194,8 +5215,11 @@ export class Visual implements IVisual {
                 if (vAbs == null) { return; }
                 const col = (vAbs === 0 || !cfg.isMaterial(p, vAbs, vRel) || !hlShow(vAbs, p))
                     ? cfg.subtle : (good(vAbs, p) ? cfg.colors.good : cfg.colors.bad);
+                const icon = !cfg.deltaIcons ? ""
+                    : (vAbs === 0 || !cfg.isMaterial(p, vAbs, vRel)) ? "● "
+                    : vAbs > 0 ? "▲ " : "▼ ";
                 txt(tx, ty, `Δ${label}`, refF, false, cfg.subtle);
-                txt(tx + refF * 2.6, ty, refText(vAbs, vRel), refF, true, col);
+                txt(tx + refF * 2.6, ty, icon + refText(vAbs, vRel), refF, true, col);
             };
             // mini bridge basis → Δ → AC in IBCS notation; byBottom is the axis line
             const drawBridge = (bx: number, byBottom: number, bw2: number, bridgeH: number) => {
@@ -7171,6 +7195,21 @@ export class Visual implements IVisual {
     private labelPredicate(points: DataPoint[], texts: string[], fontSize: number,
         step: number, orientation: Orientation): (i: number) => boolean {
         const n = points.length;
+        const extremes = (): ((i: number) => boolean) => {
+            let iMin = 0, iMax = 0;
+            for (let i = 0; i < n; i++) {
+                const v = points[i].value;
+                if (v == null) { continue; }
+                if (v < (points[iMin].value ?? Infinity)) { iMin = i; }
+                if (v > (points[iMax].value ?? -Infinity)) { iMax = i; }
+            }
+            return (i: number) => i === 0 || i === n - 1 || i === iMin || i === iMax;
+        };
+        // pane override: "all" labels every point, "ends" keeps only the anchor
+        // points readers scan for; "auto" thins out by available space (default)
+        const density = String(this.formattingSettings.labelsCard.labelDensity.value.value);
+        if (density === "all") { return () => true; }
+        if (density === "ends") { return extremes(); }
         let need: number;
         if (orientation === "columns") {
             const maxLen = texts.reduce((a, t) => Math.max(a, t.length), 0);
@@ -7181,14 +7220,7 @@ export class Visual implements IVisual {
         const k = Math.max(1, Math.ceil(need / Math.max(step, 1)));
         if (k <= 1) { return () => true; }
         if (k <= 4) { return (i: number) => (n - 1 - i) % k === 0; }
-        let iMin = 0, iMax = 0;
-        for (let i = 0; i < n; i++) {
-            const v = points[i].value;
-            if (v == null) { continue; }
-            if (v < (points[iMin].value ?? Infinity)) { iMin = i; }
-            if (v > (points[iMax].value ?? -Infinity)) { iMax = i; }
-        }
-        return (i: number) => i === 0 || i === n - 1 || i === iMin || i === iMax;
+        return extremes();
     }
 
     /** best-effort month number (1-12) from a category label, else null;

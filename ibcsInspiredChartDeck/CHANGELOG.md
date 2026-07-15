@@ -1,5 +1,26 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.34.0.0 (2026-07-15)
+
+**Ease-of-Use-Paket (Controlling/Finance):**
+
+- **Finance-Format** (Beschriftungen): negative Werte in Klammern statt
+  Minus — (1.234) —, Null als „–". Wirkt zentral auf alle Wert- und
+  Δ-Beschriftungen inklusive Δ % (Klammern statt Minuszeichen), in allen
+  Modi inkl. Tabelle, Karten und Brücken.
+- **Beschriftungs-Dichte** (Beschriftungen): „Automatisch" (bisheriges
+  Ausdünnen), „Alle" (jeder Punkt) oder „Anfang · Ende · Extrema" (nur
+  erster/letzter Wert plus Minimum und Maximum).
+- **Trend-Icons ▲▼●** (Analyse): Richtungspfeile vor den Δ-Werten in
+  Tabelle (ΔBasis und Δ2) und KPI-Karten; ● markiert unwesentliche
+  Abweichungen unter der Materialitätsschwelle. Lesbar im
+  Schwarzweiß-Druck und für Farbenblinde — Farbe bewertet weiter
+  gut/schlecht, die Δ-Spalten bekommen automatisch mehr Breite.
+
+Ideation-Backlog aktualisiert (Smart-Start, Drillthrough, Report-Page-
+Tooltips, Design-Presets/fx, Measure-Umschalter, Zeitintelligenz ohne
+DAX, Persona-Vorlagen → BACKLOG.md).
+
 ## 1.33.0.0 (2026-07-15)
 
 **Δ%-Pin-Form einstellbar:** Neues Setting **„Δ%-Pin-Form"** (Gruppe

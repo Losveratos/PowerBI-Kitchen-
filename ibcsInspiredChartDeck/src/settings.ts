@@ -93,12 +93,18 @@ const pinStyleItems: LocEnumMember[] = [
     { value: "square", displayName: "Square", key: "Enum_PinStyle_Square" }
 ];
 
+const labelDensityItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Automatic (thin out)", key: "Enum_LabelDensity_Auto" },
+    { value: "all", displayName: "All", key: "Enum_LabelDensity_All" },
+    { value: "ends", displayName: "First · last · extremes", key: "Enum_LabelDensity_Ends" }
+];
+
 /** resolve all enum-member labels once via the host's localization manager */
 export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
         displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
         cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems,
-        pinStyleItems];
+        pinStyleItems, labelDensityItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -406,13 +412,21 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: pinStyleItems[0]
     });
 
+    deltaIcons = new formattingSettings.ToggleSwitch({
+        name: "deltaIcons",
+        displayName: "Trend icons ▲▼●",
+        displayNameKey: "Chart_DeltaIcons",
+        description: "Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle). Lesbar auch in Schwarzweiß-Druck und für Farbenblinde — die Farbe bewertet weiterhin gut/schlecht.",
+        value: false
+    });
+
     analysisGroup = new formattingSettings.Group({
         name: "chartAnalysis",
         displayName: "Analysis",
         displayNameKey: "Group_Analysis",
         slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.cumulativeButton, this.movingAverage, this.topN,
             this.highlight, this.invert, this.invertList, this.compareClick,
-            this.materialityAbs, this.materialityPct, this.pinStyle]
+            this.materialityAbs, this.materialityPct, this.pinStyle, this.deltaIcons]
     });
 
     multiplesTotal = new formattingSettings.ToggleSwitch({
@@ -774,16 +788,35 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    labelDensity = new formattingSettings.ItemDropdown({
+        name: "labelDensity",
+        displayName: "Label density",
+        displayNameKey: "Labels_Density",
+        description: "Steuert die Ausdünnung der Wertbeschriftungen: „Automatisch\" blendet bei Platzmangel aus (bisheriges Verhalten), „Alle\" beschriftet jeden Punkt (kann überlappen), „Anfang · Ende · Extrema\" zeigt nur ersten/letzten Wert sowie Minimum und Maximum.",
+        items: labelDensityItems,
+        value: labelDensityItems[0]
+    });
+
+    financeFormat = new formattingSettings.ToggleSwitch({
+        name: "financeFormat",
+        displayName: "Finance format (parentheses)",
+        displayNameKey: "Labels_FinanceFormat",
+        description: "Finanzkonvention für Zahlen: negative Werte in Klammern statt Minuszeichen — (1.234) — und Null als „–\". Gilt für Wert- und Δ-Beschriftungen inkl. Δ %.",
+        value: false
+    });
+
     name: string = "labels";
     displayName: string = "Data labels";
     displayNameKey: string = "Card_Labels";
     slices: Array<FormattingSettingsSlice> = [
         this.show,
+        this.labelDensity,
         this.fontPreset,
         this.fontScale,
         this.fontSize,
         this.decimals,
         this.displayUnits,
+        this.financeFormat,
         this.sumSafeRounding
     ];
 }

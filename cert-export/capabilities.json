@@ -213,6 +213,7 @@
                         ]
                     }
                 },
+                "deltaIcons": { "type": { "bool": true } },
                 "cardSortSel": { "type": { "text": true } },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
@@ -278,6 +279,16 @@
             "properties": {
                 "show": { "type": { "bool": true } },
                 "sumSafeRounding": { "type": { "bool": true } },
+                "financeFormat": { "type": { "bool": true } },
+                "labelDensity": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Automatic (thin out)" },
+                            { "value": "all", "displayName": "All" },
+                            { "value": "ends", "displayName": "First / last / extremes" }
+                        ]
+                    }
+                },
                 "fontScale": { "type": { "numeric": true } },
                 "fontPreset": {
                     "type": {

@@ -11,7 +11,8 @@ Neue Ideen bitte als GitHub-Issue anlegen oder hier ergänzen.
       Kanal; hilft auch beim S/W-Druck). Stärkster nächster A11y-Schritt.
 - [ ] **Blau/Orange-Farbpreset** (S) — ColorBrewer-Standard #2C7BB6/#E66101
       als Dropdown-Preset neben den Pickern (Achromatopsie, S/W-Druck).
-- [ ] **▲/▼-Symbole auf KPI-Karten** (S) — Text-Redundanz vor den Δ-Werten.
+- [x] **▲/▼-Symbole auf KPI-Karten** (S) — erledigt in 1.34.0.0 („Trend-Icons
+      ▲▼●" in der Analyse-Gruppe, Tabelle + Karten).
 - [ ] **Fokusverlust nach In-Chart-Rerender** (M) — Zoom/Aufklappen/Sort per
       Enter wirft Tastaturnutzer aus dem Visual; Fokus wiederherstellen.
 - [ ] **ARIA-Semantik aufräumen** (M) — role=option ohne listbox, Chart-Label,
@@ -86,6 +87,33 @@ Neue Ideen bitte als GitHub-Issue anlegen oder hier ergänzen.
 - [ ] **Adversariale Prüf-Runde 1.25+** (M) — die letzten großen Pakete
       (Matrix-Vollausbau, Formel-pro-Zelle) sind nur selbst-verifiziert;
       volle Agenten-Runde nachholen, sobald Kapazität da ist.
+
+## Ease of Use (Ideation Juli 2026 — Auswahl 5/6/9 gebaut in 1.34.0.0)
+
+- [ ] **Smart-Start: Modus-Vorschlag nach Feldern** (S) — nach dem Binden
+      erkennt das Visual die Feld-Konstellation und schlägt per Klick den
+      passenden Modus vor („Datum + AC + PL → Säulen mit ΔPL?").
+- [ ] **Drillthrough & Rechtsklick-Kontextmenü** (M) — natives Power-BI-
+      Kontextmenü (selectionManager.showContextMenu) auf Balken, Brücken-
+      Segmenten und Tabellenzeilen; größtes „verhält sich nicht wie
+      Power BI"-Loch.
+- [ ] **Report-Page-Tooltips + reicher Standard-Tooltip** (M) — Hover zeigt
+      alle Szenarien (AC/PY/PL/FC + Δ + Δ%); Unterstützung für
+      Berichtsseiten-Tooltips (canvas tooltips).
+- [ ] **Design-Presets + fx-Farben** (M) — Stil-Dropdown (IBCS klassisch /
+      Corporate hell / Dark / Kompakt) setzt Farben+Schriften+Labels als
+      Paket; gut/schlecht-Farben per bedingter Formatierung (fx) aus dem
+      Modell steuerbar.
+- [ ] **Measure-Umschalter-Chip** (M) — mehrere Kennzahlen im AC-Feld, im
+      Chart per Chip durchschaltbar (Field Parameters light), persistiert
+      und bookmarkfähig.
+- [ ] **Zeitintelligenz ohne DAX** (L) — Datumsfeld + AC reicht: Visual
+      berechnet PY/Vormonat/YTD selbst („PY automatisch"). Größter
+      Ease-of-Use-Hebel, strategische Abgrenzung zu Zebra/Inforiver.
+- [ ] **Persona-Vorlagen mit Share-Code** (M) — Ein-Klick-Pakete
+      („Monats-Reporting", „Forecast-Review", „GuV-Analyse",
+      „Kosten-Monitoring") + Einstellungen als Code exportieren/importieren
+      (wie im CO₂-Simulator), damit Teams ihre Hauskonfiguration teilen.
 
 ## Doku & Launch (Tasks, keine Features)
 
