@@ -1,5 +1,13 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.28.0.0 (2026-07-13)
+
+**Neue Visual-Identität:** Interner Name und GUID auf
+`chartKitchenByDatenWG…` umgestellt, damit die `.pbiviz`-Datei den
+Markennamen trägt. **Achtung:** Für Power BI ist das ein neues Visual —
+Berichte mit der alten Version müssen das Visual einmal neu hinzufügen.
+Keine funktionalen Änderungen.
+
 ## 1.27.0.0 (2026-07-13)
 
 **Rebranding:** Das Visual heißt jetzt **ChartKitchen byDatenWG** — „IBCS"

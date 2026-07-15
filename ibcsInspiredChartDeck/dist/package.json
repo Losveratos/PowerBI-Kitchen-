@@ -1,14 +1,14 @@
 {
-		"version": "1.27.0.0",
+		"version": "1.28.0.0",
 		"author": {"name":"PowerBI Kitchen","email":"michael.tenner84@gmail.com"},
 		"resources": [
 			{
 				"resourceId": "rId0",
 				"sourceType": 5,
-				"file": "resources/ibcsInspiredChartDeckE73997CF4C7D44978F8112A4E5FA0B4D.pbiviz.json"
+				"file": "resources/chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D.pbiviz.json"
 			}
 		],
-		"visual": {"name":"ibcsInspiredChartDeck","displayName":"ChartKitchen byDatenWG","guid":"ibcsInspiredChartDeckE73997CF4C7D44978F8112A4E5FA0B4D","visualClassName":"Visual","version":"1.27.0.0","description":"ChartKitchen byDatenWG — inspired by IBCS. Chart deck with scenario notation (AC solid, PY grey, PL outlined, FC hatched) plus absolute and relative variance panels, tables and KPI cards — columns for time, bars for structure.","supportUrl":"https://github.com/losveratos/powerbi-kitchen-/issues","gitHubUrl":"https://github.com/losveratos/powerbi-kitchen-"},
+		"visual": {"name":"chartKitchenByDatenWG","displayName":"ChartKitchen byDatenWG","guid":"chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D","visualClassName":"Visual","version":"1.28.0.0","description":"ChartKitchen byDatenWG — inspired by IBCS. Chart deck with scenario notation (AC solid, PY grey, PL outlined, FC hatched) plus absolute and relative variance panels, tables and KPI cards — columns for time, bars for structure.","supportUrl":"https://github.com/losveratos/powerbi-kitchen-/issues","gitHubUrl":"https://github.com/losveratos/powerbi-kitchen-"},
 		"metadata": {
 			"pbivizjson": {
 				"resourceId": "rId0"
