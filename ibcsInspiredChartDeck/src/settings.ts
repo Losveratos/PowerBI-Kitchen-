@@ -699,6 +699,18 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         value: fontPresetItems[0]
     });
 
+    fontScale = new formattingSettings.NumUpDown({
+        name: "fontScale",
+        displayName: "Scale all labels %",
+        displayNameKey: "Labels_FontScale",
+        description: "Vergrößert bzw. verkleinert ALLE Beschriftungen zusätzlich zum Preset um einen freien Faktor (50–300 %). 100 = neutral. Preset × Faktor ergibt die effektive Schriftgröße.",
+        value: 100,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 50 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 300 }
+        }
+    });
+
     fontSize = new formattingSettings.NumUpDown({
         name: "fontSize",
         displayName: "Text size",
@@ -743,6 +755,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [
         this.show,
         this.fontPreset,
+        this.fontScale,
         this.fontSize,
         this.decimals,
         this.displayUnits,

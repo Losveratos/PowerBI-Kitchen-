@@ -231,5 +231,6 @@
   "Demo_Use_Dumbbell": "Before/after per category as dot pairs",
   "Demo_F_Dumbbell": "Category, AC, PY/PL",
   "Demo_Use_Slope": "Rank shifts between two points in time",
-  "Demo_F_Slope": "Category, AC, PY/PL"
+  "Demo_F_Slope": "Category, AC, PY/PL",
+  "Labels_FontScale": "Scale all labels %"
 }

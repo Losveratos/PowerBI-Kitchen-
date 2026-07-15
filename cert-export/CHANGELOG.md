@@ -1,5 +1,21 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.31.0.0 (2026-07-15)
+
+**Freier Schrift-Faktor:** Neues Setting **„Alle Beschriftungen
+skalieren %"** (Beschriftungen-Karte, 50–300 %, Standard 100) — wirkt
+zusätzlich zum Größen-Preset auf ALLE Schriften im Visual
+(effektiv = Preset × Faktor).
+
+**Schriften-Selector auf der Startseite:** Unter der Galerie sitzt jetzt
+ein Pill-Selector **Aa · Kompakt / Full HD / Präsentation** (ab
+380×260 px, nur interaktiv). Ein Klick persistiert das Größen-Preset —
+und die „ChartKitchen byDatenWG"-Überschrift der Startseite skaliert
+sofort mit (Titel bis 40 px, Untertitel bis 24 px gekappt), als
+Live-Vorschau der Wahl. Die Kopfzeile positioniert sich bei allen
+Galerie-Stufen jetzt anhand der tatsächlichen Schriftgrößen, sodass
+auch große Presets nicht mit der Galerie kollidieren.
+
 ## 1.30.6.0 (2026-07-13)
 
 **Bessere Mini-Vorschauen:** Die Startseiten-Piktogramme für

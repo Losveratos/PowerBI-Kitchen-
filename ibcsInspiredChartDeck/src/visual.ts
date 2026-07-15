@@ -828,22 +828,32 @@ export class Visual implements IVisual {
         this.el("rect", { x: 0, y: 0, width: 4, height: 4, fill: paper }, pat);
         this.el("line", { x1: 0, y1: 0, x2: 0, y2: 4, stroke: ink, "stroke-width": 1.4 }, pat);
 
-        // ------- header + footer
+        // ------- header + footer. The heading scales with the effective font
+        // factor (preset × free scale), so the selector below gives live feedback
+        const sLc = this.formattingSettings.labelsCard;
+        const kf = Math.min(3, ({ compact: 1, fullhd: 1.5, presentation: 2 }[
+            String(sLc.fontPreset.value.value)] ?? 1)
+            * Math.max(0.5, Math.min(3, Number(sLc.fontScale.value ?? 100) / 100)));
+        const titleF = Math.min(15 * kf, 40);
+        const subF = Math.min(10.5 * kf, 24);
         const title = this.el("text", {
-            x: 12, y: 24, "font-size": 15, "font-weight": 700, fill: ink, "font-family": FONT
+            x: 12, y: 9 + titleF, "font-size": titleF, "font-weight": 700,
+            fill: ink, "font-family": FONT
         }, this.svg);
         title.textContent = "ChartKitchen byDatenWG";
         const sub = this.el("text", {
-            x: 12, y: 40, "font-size": 10.5, fill: subtle, "font-family": FONT
+            x: 12, y: 9 + titleF + subF + 5, "font-size": subF, fill: subtle, "font-family": FONT
         }, this.svg);
         sub.textContent = this.truncate(
             `${hint} · ${this.locStr("Demo_Pick", "Click a preview to pick the chart mode")}`,
-            width - 24, 10.5);
+            width - 24, subF);
         const made = this.el("text", {
             x: width / 2, y: height - 8, "text-anchor": "middle",
             "font-size": 10, fill: subtle, "font-family": FONT
         }, this.svg);
         made.textContent = "made by Daten-WG";
+        // font-preset selector under the gallery (interactive only, needs room)
+        const showSel = this.allowInteractions && width >= 380 && height >= 260;
 
         // ------- mode list: small preview tile + name, use case and fields per mode
         const modes: { v: string; key: string; en: string; use: string; fields: string }[] = [
@@ -886,7 +896,9 @@ export class Visual implements IVisual {
         ];
         const fieldsPre = this.locStr("Demo_Fields", "Fields");
         const active = String(this.formattingSettings.chartCard.orientation.value.value);
-        const padX = 12, top = 50, footH = 22, gap = 8;
+        const padX = 12, gap = 8;
+        const top = 16 + titleF + subF + 12;
+        const footH = 22 + (showSel ? 30 : 0);
         const availW = width - padX * 2;
         const availH = height - top - footH;
 
@@ -924,8 +936,9 @@ export class Visual implements IVisual {
             // so it sits right above the gallery instead of sticking to the top
             title.setAttribute("x", String(x0));
             sub.setAttribute("x", String(x0));
-            title.setAttribute("y", String(Math.max(24, y0 - 26)));
-            sub.setAttribute("y", String(Math.max(40, y0 - 10)));
+            const subY = Math.max(9 + titleF + subF + 5, y0 - 10);
+            title.setAttribute("y", String(subY - subF - 5));
+            sub.setAttribute("y", String(subY));
 
             modes.forEach((m, i) => {
                 const x = x0 + (i % uCols) * (entryW + gap);
@@ -1062,6 +1075,67 @@ export class Visual implements IVisual {
                 arrow(hx - 22, -1, "‹");
                 arrow(hx + hw + 22, 1, "›");
             }
+        }
+
+        // ------- font-preset selector: three pills above the "made by" line.
+        // Persisting labels.fontPreset re-renders the landing, so the heading
+        // above resizes immediately — live preview of the preset
+        if (showSel) {
+            const presets = [
+                { v: "compact", key: "Enum_FontPreset_Compact", en: "Compact" },
+                { v: "fullhd", key: "Enum_FontPreset_FullHd", en: "Full HD" },
+                { v: "presentation", key: "Enum_FontPreset_Presentation", en: "Presentation" }
+            ];
+            const cur = String(sLc.fontPreset.value.value);
+            const selTip = this.locStr("Labels_FontPreset", "Size preset");
+            // short labels: strip the "(dashboard tile)"-style suffix of the enum text
+            const labels = presets.map(p => this.locStr(p.key, p.en).split(" (")[0].trim());
+            const segF = 10.5, segH = 21, segGap = 5, aaW = 26;
+            const wds = labels.map(l => Math.ceil(this.maxTextWidth([l], segF)) + 20);
+            const totW = aaW + segGap + wds.reduce((a, b) => a + b, 0) + segGap * (wds.length - 1);
+            let sx = Math.max(padX, (width - totW) / 2);
+            const sy = height - footH + 4;
+            const aa = this.el("text", {
+                x: sx + aaW / 2, y: sy + segH / 2 + 4, "text-anchor": "middle",
+                "font-size": 12, "font-weight": 700, fill: subtle, "font-family": FONT
+            }, this.svg);
+            aa.textContent = "Aa";
+            const aaTip = this.el("title", {}, aa);
+            aaTip.textContent = selTip;
+            sx += aaW + segGap;
+            presets.forEach((p, i) => {
+                const on = p.v === cur;
+                const g = this.el("g", { role: "button", tabindex: "0" }, this.svg) as SVGGElement;
+                g.setAttribute("aria-label", `${selTip}: ${labels[i]}`);
+                g.setAttribute("aria-pressed", String(on));
+                const tip = this.el("title", {}, g);
+                tip.textContent = `${selTip}: ${this.locStr(p.key, p.en)}`;
+                this.el("rect", {
+                    x: sx, y: sy, width: wds[i], height: segH, rx: segH / 2,
+                    fill: on ? teal : "#FAFAF8",
+                    stroke: on ? teal : "#DDDDD8", "stroke-width": 1
+                }, g);
+                const t = this.el("text", {
+                    x: sx + wds[i] / 2, y: sy + segH / 2 + 3.8, "text-anchor": "middle",
+                    "font-size": segF, "font-weight": on ? 700 : 400,
+                    fill: on ? "#FFFFFF" : ink, "font-family": FONT
+                }, g);
+                t.textContent = labels[i];
+                g.style.cursor = "pointer";
+                const apply = () => {
+                    this.host.persistProperties({
+                        merge: [{ objectName: "labels", selector: null, properties: { fontPreset: p.v } }]
+                    });
+                };
+                g.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); apply(); });
+                g.addEventListener("keydown", (e: KeyboardEvent) => {
+                    if (e.key !== "Enter" && e.key !== " ") { return; }
+                    e.preventDefault();
+                    e.stopPropagation();
+                    apply();
+                });
+                sx += wds[i] + segGap;
+            });
         }
     }
 
@@ -1295,8 +1369,11 @@ export class Visual implements IVisual {
             && !points.some(p => p.rowType != null) && !listPnl;
 
         // font preset: one switch scaling every text in the visual (Full HD = ×1.5)
-        this.fontK = { compact: 1, fullhd: 1.5, presentation: 2 }[
-            String(s.labelsCard.fontPreset.value.value)] ?? 1;
+        // preset factor × free scale factor (labels card, 50–300 %): the preset
+        // picks the ballpark, the factor fine-tunes every label at once
+        this.fontK = ({ compact: 1, fullhd: 1.5, presentation: 2 }[
+            String(s.labelsCard.fontPreset.value.value)] ?? 1)
+            * Math.max(0.5, Math.min(3, Number(s.labelsCard.fontScale.value ?? 100) / 100));
         this.animGroups = [];
 
         // compare-on-click: only meaningful where per-category value bars exist

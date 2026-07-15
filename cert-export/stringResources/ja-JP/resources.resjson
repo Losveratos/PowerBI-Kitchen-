@@ -231,5 +231,6 @@
   "Demo_Use_Dumbbell": "カテゴリ別の前後比較（ドットペア）",
   "Demo_F_Dumbbell": "カテゴリ、AC、PY/PL",
   "Demo_Use_Slope": "2時点間の順位変化",
-  "Demo_F_Slope": "カテゴリ、AC、PY/PL"
+  "Demo_F_Slope": "カテゴリ、AC、PY/PL",
+  "Labels_FontScale": "すべてのラベルを拡大縮小 %"
 }

@@ -231,5 +231,6 @@
   "Demo_Use_Dumbbell": "Antes/después por categoría como pares de puntos",
   "Demo_F_Dumbbell": "Categoría, AC, PY/PL",
   "Demo_Use_Slope": "Cambios de rango entre dos momentos",
-  "Demo_F_Slope": "Categoría, AC, PY/PL"
+  "Demo_F_Slope": "Categoría, AC, PY/PL",
+  "Labels_FontScale": "Escalar todas las etiquetas %"
 }
