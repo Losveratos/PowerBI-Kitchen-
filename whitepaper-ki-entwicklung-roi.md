@@ -2,7 +2,7 @@
 
 ## Ein Bewertungsmodell für KI-gestützte Software-Entwicklung in festen Frameworks — transparent durchgerechnet an einer realen Fallstudie
 
-**Ein empirisch gestütztes Thesenpapier der Daten-WG · Juli 2026 · v2.2**
+**Ein empirisch gestütztes Thesenpapier · Michael Tenner, Daten-WG · Juli 2026 · v2.2**
 
 ---
 
@@ -783,6 +783,9 @@ einer Einzelperson steuert? Und wo liegt er bei einem Product Owner ohne
 Entwicklungs-Vorerfahrung? Repository, Methodik und dieses Papier sind
 öffentlich — Widerspruch ist ausdrücklich erwünscht.
 
+**Kontakt für Replikationen, Kritik und Rückfragen:**
+Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
+
 ---
 
 ## Anhang A · Methodik und Belege
@@ -1057,4 +1060,5 @@ weitergerechnet.
 
 ---
 
-*v2.2 — Zahlen Stand 15.07.2026. Feedback und Replikationen willkommen.*
+*v2.2 — Zahlen Stand 15.07.2026. Feedback und Replikationen willkommen:
+Michael Tenner · michael.tenner84@gmail.com*
