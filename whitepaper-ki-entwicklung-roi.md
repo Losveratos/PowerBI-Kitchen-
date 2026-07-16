@@ -2,7 +2,7 @@
 
 ## Ein Bewertungsmodell für KI-gestützte Software-Entwicklung in festen Frameworks — transparent durchgerechnet an einer realen Fallstudie
 
-**Ein empirisch gestütztes Thesenpapier der Daten-WG · Juli 2026 · v2.1**
+**Ein empirisch gestütztes Thesenpapier der Daten-WG · Juli 2026 · v2.2**
 
 ---
 
@@ -15,6 +15,10 @@
 > Die Formel lautet nicht „KI schafft das", sondern **KI × Framework ×
 > Domänenexpertise × Versionskontrolle**. Dieses Papier belegt das an einem
 > vollständig dokumentierten Fall und liefert das Bewertungsmodell dazu.
+> Die eigentliche Innovation ist dabei nicht die KI selbst, sondern ihre
+> ökonomische Konsequenz: Sie verändert die Kostenstruktur der
+> Software-Entwicklung — und zwingt damit die Build-vs.-Buy-Logik zur
+> Neubewertung.
 
 *Evidenz-Kennzeichnung in diesem Papier: [M] gemessen · [A] Annahme ·
 [S] Schätzung/Modellrechnung · [H] Hypothese — Details unter „Begriffe &
@@ -247,6 +251,12 @@ Entwicklungsbudget, sondern die Person, die weiß, was gebaut werden soll.
 
 ## 3 · Was derselbe Stand klassisch gekostet hätte
 
+Bevor gerechnet wird, lohnt der Blick auf die Prozesse selbst — hier
+entsteht der Kostenunterschied, nicht bei den Stundensätzen:
+
+![Prozessvergleich klassisch vs. KI-gestützt](whitepaper-assets/fig-prozess.svg)
+*Abb. 5 — Warum die Kosten unterschiedlich entstehen: Der klassische Prozess durchläuft alle Stufen einmal in Serie; der KI-gestützte Loop durchläuft einen kurzen Zyklus dutzendfach — hier ~60-mal in zehn Tagen. [M]*
+
 Bottom-up geschätzt in Personenmonaten (PM) Entwicklung:
 
 | Block | PM |
@@ -282,7 +292,7 @@ Korrekturen (KI-Seite auf Vollumfang hochgerechnet bzw. klassische Seite um
 die fehlenden Anteile gekürzt).
 
 ![Kostenvergleich](whitepaper-assets/fig-kostenvergleich.svg)
-*Abb. 5 — Vier Wege zum selben Stand. Die KI-gestützten Balken sind auf dieser Skala kaum sichtbar — das ist die Aussage.*
+*Abb. 6 — Vier Wege zum selben Stand. Die KI-gestützten Balken sind auf dieser Skala kaum sichtbar — das ist die Aussage.*
 
 ---
 
@@ -375,7 +385,7 @@ Diskontiert über 5 Jahre (8 %, Annuitätenfaktor 3,99), gegen Eigenbau mit
 5,2 T€ Invest und angenommenen 3 T€/Jahr Pflege:
 
 ![DCF Build vs Buy](whitepaper-assets/fig-dcf.svg)
-*Abb. 6 — Ab ~150–200 Report-Nutzern ist der Eigenbau nach Barwert klar überlegen.*
+*Abb. 7 — Ab ~150–200 Report-Nutzern ist der Eigenbau nach Barwert klar überlegen.*
 
 | Unternehmensgröße | Lizenz-Barwert (5 J) | Eigenbau-Barwert | NPV-Vorteil |
 | --- | ---: | ---: | ---: |
@@ -489,7 +499,7 @@ flowchart LR
   B -.->|"Commit je Schritt"| G[("Git-Historie<br/>Checkpoints · Belege · Rücksprung")]
 ```
 
-*Abb. 7 — Der Loop: klein iterieren, selbst verifizieren, alles versionieren.*
+*Abb. 8 — Der Loop: klein iterieren, selbst verifizieren, alles versionieren.*
 
 Die Verallgemeinerung: Dieses Risikoprofil haben **alle**
 Framework-Ökosysteme mit Sandbox und Zertifizierung — Office-Add-ins,
@@ -524,7 +534,7 @@ gitGraph
   commit id: "1.30.5.0 gestufte Layouts"
 ```
 
-*Abb. 8 — Experimente werden billig, wenn Rückwege garantiert sind.*
+*Abb. 9 — Experimente werden billig, wenn Rückwege garantiert sind.*
 
 **2. Kleine Commits als Review-Fläche.** 124 Commits für 60 Releases heißt:
 Die durchschnittliche Änderung ist klein genug, um per Diff gelesen zu
@@ -541,8 +551,11 @@ integrierbar wie die eines neuen Entwicklers, inklusive Pull-Request-Gate.
 Commits pro Tag, Release-Frequenz, sogar die Abgrenzung „Visual vs.
 Vorarbeiten" — stammt aus `git log`. Versionskontrolle macht KI-Entwicklung
 **auditierbar**: Für Wirtschaftsprüfer, für IT-Compliance, für die eigene
-Kostenrechnung. Ohne Git wäre dieses Whitepaper Behauptung; mit Git ist es
-nachrechenbar.
+Kostenrechnung. Ohne Git wäre dieses Papier Behauptung; mit Git ist es
+nachrechenbar. Nach unserer Kenntnis gehört diese Historie zu den ersten
+vollständig öffentlichen Entwicklungsprotokollen eines KI-gebauten
+Produktionswerkzeugs — jeder der 124 Schritte ist einsehbar. Das ist kein
+Nebenprodukt der Fallstudie, sondern ihr zentrales Qualitätsmerkmal.
 
 **Git als Governance-System.** Für Organisationen ist Git damit mehr als
 ein Werkzeug — es ist die vorhandene Kontrollinfrastruktur für KI-Arbeit:
@@ -630,7 +643,18 @@ gehören in jede seriöse Übernahme-Entscheidung (Kapitel 11).
 > passiert. Wer ausschließlich belegte Aussagen sucht, kann dieses Kapitel
 > überspringen — Kapitel 1–9 stehen ohne es. [H]
 
-Einzeln waren beide Kräfte für Software-Vendoren beherrschbar: Open Source
+Die Wirkungskette der Hypothese, Glied für Glied: **KI senkt die
+Entwicklungskosten** im gezäunten Anwendungs-Layer (am Fall belegt,
+Kapitel 2–4) → **Funktions-Nachbau wird billig**, der Preisaufschlag für
+Standard-Features verliert seine Grundlage → **Open-Source-Alternativen
+werden dauerhaft pflegbar** und damit erstmals glaubwürdig → **der
+zahlungswürdige Rest verschiebt sich zu Support, Haftung und
+Integration** → **Anbieter passen Preise oder Geschäftsmodell an**. Nur
+das erste Glied ist belegt; jedes weitere ist einzeln plausibel, aber
+unbewiesen. [H]
+
+Zur Vorgeschichte: Einzeln waren beide Kräfte für Software-Vendoren
+beherrschbar: Open Source
 scheiterte im Anwendungs-Layer oft am Pflegeargument („wer wartet das?");
 KI-Entwicklung allein blieb ohne offene Referenz-Codebasen auf
 Prototypen-Niveau. **Unsere Beobachtung legt nahe, dass sie sich
@@ -672,7 +696,7 @@ Drei Zutaten erklären das Ergebnis; fehlt eine, bricht die Rechnung:
 2. **Domänenexpertise in der Steuerung** — Anforderungen in Fachsprache mit
    eingebautem Qualitätsmaßstab („Bestandsgrößen darf man nicht summieren").
    Der Unterschied zwischen zwei Iterationen und zwanzig.
-3. **Selbstverifikation + Versionskontrolle** (Kapitel 8) — der Loop aus Abb. 7.
+3. **Selbstverifikation + Versionskontrolle** (Kapitel 8) — der Loop aus Abb. 8.
 
 Wo das Muster trägt und wo nicht — nach den fünf Mechanismen aus
 Kapitel 7 beurteilt [S]:
@@ -723,6 +747,22 @@ tragfähige Modell ist das der Infrastruktur-Welt: Software frei, Erlöse aus
 Enablement, Support und Weiterentwicklung — das Abo als formalisierte
 Antwort auf die Pflege-Frage.
 
+**Die Handlungsempfehlung in einem Satz:** Unternehmen sollten ihre
+Build-vs.-Buy-Entscheidungen für Framework-Software unter den Bedingungen
+KI-gestützter Entwicklung neu bewerten — nicht, weil dieser Einzelfall es
+erzwingt, sondern weil die Rechenwege dafür jetzt offen vorliegen und ein
+Nachrechnen im eigenen Haus wenige Tage kostet, nicht Monate. [S]
+
+> **Dieses Papier behauptet nicht:** dass KI Entwickler ersetzt · dass
+> jede Software in zehn Tagen entsteht · dass jeder Fachbereich dieselben
+> Ergebnisse erreicht · dass ein Einzelfall einen Markttrend beweist.
+>
+> **Es zeigt:** einen vollständig dokumentierten Praxisfall [M] · eine
+> nachvollziehbare wirtschaftliche Bewertung nach anerkannten
+> Verfahren [S] · plausible Konsequenzen für die
+> Build-vs.-Buy-Entscheidung [S] · begründete Hypothesen für weitere
+> Untersuchung [H].
+
 ---
 
 ## Einladung: Replizieren, widerlegen, erweitern
@@ -750,8 +790,8 @@ Entwicklungs-Vorerfahrung? Repository, Methodik und dieses Papier sind
 - **Projektdaten:** Git-Historie des öffentlichen Repositories (erster
   Visual-Commit 06.07.2026; 124 Commits, ~60 Releases bis 15.07.2026);
   Code-Umfang per `wc -l`; Testfälle im Repo. Abb. 1, 2 und 4 sind
-  unbearbeitete Render-Ausgaben des Test-Harness; Abb. 3, 5 und 6 sind aus
-  den Rohdaten erstellte Schaubilder.
+  unbearbeitete Render-Ausgaben des Test-Harness; Abb. 3, 6 und 7 sind aus
+  den Rohdaten erstellte Schaubilder; Abb. 5 ist ein Prozess-Schema.
 - **Token-/Kostendaten:** Auswertung des Entwicklungs-Session-Protokolls
   (4.446 API-Aufrufe; Output 5,3 M, Cache-Write 70,5 M, Cache-Read 1.725 M
   Tokens); API-Listenpreise Stand Juni 2026; Abo-Kosten laut Rechnung.
@@ -1017,4 +1057,4 @@ weitergerechnet.
 
 ---
 
-*v2.1 — Zahlen Stand 15.07.2026. Feedback und Replikationen willkommen.*
+*v2.2 — Zahlen Stand 15.07.2026. Feedback und Replikationen willkommen.*
