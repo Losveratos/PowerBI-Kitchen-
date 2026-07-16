@@ -1,0 +1,1441 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zehn Tage bis zum marktfähigen Stand · Daten-WG</title>
+<meta name="description" content="Empirisch gestütztes Thesenpapier: Ein Bewertungsmodell für KI-gestützte Software-Entwicklung in festen Frameworks — durchgerechnet an einer realen Fallstudie.">
+<meta name="author" content="Michael Tenner · Daten-WG">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,750&amp;family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#FAFAF7; --bg-card:#FFFFFF; --ink:#0F1E2E; --soft:#475569;
+    --accent:#C25A2D; --teal:#1B9AA8; --line:#E4E2DA;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; scroll-padding-top:24px; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font-family:'Geist',system-ui,sans-serif; font-size:16.5px; line-height:1.65; }
+  .rule { height:10px; background:var(--accent); }
+  .rule2 { height:4px; background:var(--teal); }
+  .hero { max-width:860px; margin:0 auto; padding:64px 24px 40px; }
+  .kicker { font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:3px;
+            text-transform:uppercase; color:var(--teal); font-weight:600; margin-bottom:20px; }
+  h1.hero-t { font-family:'Fraunces',serif; font-weight:750; font-size:clamp(34px,6vw,54px);
+              line-height:1.08; margin:0 0 18px; letter-spacing:-0.5px; }
+  .hero-sub { font-size:clamp(17px,2.4vw,20px); color:var(--soft); max-width:640px; line-height:1.5; }
+  .hero-meta { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--soft);
+               margin-top:22px; }
+  .facts { max-width:860px; margin:0 auto; padding:0 24px 48px; display:grid;
+           grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:16px; }
+  .fact { background:var(--bg-card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; }
+  .fact .n { font-family:'Fraunces',serif; font-weight:650; font-size:26px; color:var(--accent); }
+  .fact .l { font-size:13px; color:var(--soft); margin-top:4px; line-height:1.4; }
+  .toc { max-width:860px; margin:0 auto 8px; padding:0 24px; }
+  .toc-box { background:var(--bg-card); border:1px solid var(--line); border-radius:10px;
+             padding:20px 22px; columns:2; column-gap:32px; }
+  .toc h2 { font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:2px;
+            text-transform:uppercase; color:var(--soft); margin:0 0 12px; border:none; padding:0; }
+  .tocrow { display:block; color:var(--ink); text-decoration:none; font-size:14.5px;
+            padding:3.5px 0; break-inside:avoid; }
+  .tocrow:hover { color:var(--accent); }
+  main { max-width:860px; margin:0 auto; padding:8px 24px 72px; }
+  h2 { font-family:'Fraunces',serif; font-weight:650; font-size:29px; line-height:1.2;
+       margin:56px 0 18px; padding-bottom:10px; border-bottom:2px solid var(--accent); }
+  h3 { font-family:'Fraunces',serif; font-weight:650; font-size:21px; margin:34px 0 10px; }
+  p { margin:0 0 14px; }
+  a { color:var(--teal); }
+  blockquote { margin:22px 0; padding:16px 20px; border-left:4px solid var(--teal);
+               background:var(--bg-card); border-radius:0 10px 10px 0; color:var(--soft); }
+  blockquote p:last-child { margin-bottom:0; }
+  table { border-collapse:collapse; width:100%; margin:18px 0; font-size:14.5px;
+          background:var(--bg-card); border-radius:10px; overflow:hidden;
+          border:1px solid var(--line); }
+  .tablewrap { overflow-x:auto; }
+  th { text-align:left; background:#F5F4EF; border-bottom:2px solid var(--ink);
+       padding:10px 12px; font-weight:600; }
+  td { border-bottom:1px solid var(--line); padding:9px 12px; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  code { font-family:'JetBrains Mono',monospace; font-size:13.5px; background:#F0EFE9;
+         padding:1.5px 5px; border-radius:4px; }
+  pre:not(.mermaid) { background:#F0EFE9; padding:14px 16px; border-radius:10px;
+        overflow-x:auto; font-size:13.5px; line-height:1.55; }
+  pre:not(.mermaid) code { background:none; padding:0; }
+  figure { margin:26px 0; }
+  figure img, figure svg { max-width:100%; height:auto; display:block; margin:0 auto;
+        border:1px solid var(--line); border-radius:10px; background:#fff; }
+  figcaption { font-size:13.5px; color:var(--soft); font-style:italic; margin-top:10px; }
+  .mermaid { display:flex; justify-content:center; background:#fff;
+             border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .mermaid svg { max-width:100%; height:auto; border:none; }
+  em { color:var(--soft); }
+  hr { border:none; border-top:1px solid var(--line); margin:40px 0; }
+  ul, ol { margin:0 0 14px; padding-left:24px; }
+  li { margin-bottom:6px; }
+  .ev { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+        font-weight:600; line-height:1.7; border-radius:4px; padding:0 5px;
+        vertical-align:2px; letter-spacing:0.5px; }
+  .ev-M { background:#DDEEF0; color:#0E6E7A; }
+  .ev-A { background:#EDECE6; color:#475569; }
+  .ev-S { background:#FAEDDC; color:#95601F; }
+  .ev-H { background:#F7E5DB; color:#B34E22; }
+  footer { border-top:1px solid var(--line); background:var(--bg-card); }
+  .foot-in { max-width:860px; margin:0 auto; padding:28px 24px; display:flex;
+             justify-content:space-between; flex-wrap:wrap; gap:10px;
+             font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--soft); }
+  .foot-in b { color:var(--ink); }
+  @media (max-width:640px) { .toc-box { columns:1; } }
+  @media print {
+    .rule,.rule2 { display:none; }
+    body { background:#fff; font-size:11pt; }
+    h2 { break-before:page; }
+    .toc-box { columns:2; }
+  }
+</style>
+</head>
+<body>
+<div class="rule"></div><div class="rule2"></div>
+<header class="hero">
+  <div class="kicker">Empirisch gestütztes Thesenpapier</div>
+  <h1 class="hero-t">Zehn Tage bis zum marktfähigen Stand</h1>
+  <p class="hero-sub">Ein Bewertungsmodell für KI-gestützte Software-Entwicklung in festen Frameworks — transparent durchgerechnet an einer realen Fallstudie</p>
+  <div class="hero-meta">Michael Tenner · Daten-WG · Juli 2026 · v2.2 · <a href="whitepaper-ki-entwicklung-roi.pdf">Als PDF laden</a></div>
+</header>
+<div class="facts">
+  <div class="fact"><div class="n">10 Tage</div><div class="l">statt geschätzt 6–12 Monaten klassisch</div></div>
+  <div class="fact"><div class="n">ab 2.200&nbsp;€</div><div class="l">dokumentierter Invest statt 150–350&nbsp;T€</div></div>
+  <div class="fact"><div class="n">13–93×</div><div class="l">Kostenhebel, symmetrisch gerechnet</div></div>
+  <div class="fact"><div class="n">124 Commits</div><div class="l">öffentlich belegt, jede Zahl nachrechenbar</div></div>
+</div>
+<nav class="toc"><div class="toc-box">
+  <h2>Inhalt</h2>
+  <a class="tocrow" href="#sec-0">Management Summary</a>
+<a class="tocrow" href="#sec-1">Begriffe &amp; Prämissen — was Sie zum Lesen brauchen</a>
+<a class="tocrow" href="#sec-2">1 · Der Fall: Was gebaut wurde</a>
+<a class="tocrow" href="#sec-3">2 · Zeit, Kosten und Arbeitsweise — die tatsächlichen</a>
+<a class="tocrow" href="#sec-4">3 · Was derselbe Stand klassisch gekostet hätte</a>
+<a class="tocrow" href="#sec-5">4 · Der Kostenhebel — bewusst kein „ROI"</a>
+<a class="tocrow" href="#sec-6">5 · Build vs. Buy im Barwertvergleich</a>
+<a class="tocrow" href="#sec-7">6 · Die spieltheoretische Dimension</a>
+<a class="tocrow" href="#sec-8">7 · Warum das feste Framework der halbe Erfolg ist</a>
+<a class="tocrow" href="#sec-9">8 · Git: das unterschätzte Fundament</a>
+<a class="tocrow" href="#sec-10">9 · Governance, Wartbarkeit, Bus-Faktor — die Risiko-Fragen</a>
+<a class="tocrow" href="#sec-11">10 · Die Marktthese: Open Source × KI wirkt multiplikativ</a>
+<a class="tocrow" href="#sec-12">11 · Übertragbarkeit — und Grenzen</a>
+<a class="tocrow" href="#sec-13">12 · Was das für Unternehmen bedeuten kann</a>
+<a class="tocrow" href="#sec-14">Einladung: Replizieren, widerlegen, erweitern</a>
+<a class="tocrow" href="#sec-15">Anhang A · Methodik und Belege</a>
+<a class="tocrow" href="#sec-16">Anhang B · Bewertung nach anerkannten Verfahren — die Rechenwege</a>
+<a class="tocrow" href="#sec-17">Quellen</a>
+</div></nav>
+<main>
+
+<h2 id="sec-0">Management Summary</h2>
+<blockquote>
+<p><strong>Die Hauptthese <span class="ev ev-M">M</span>:</strong> Unter fünf Randbedingungen — festes Framework,
+Domänenexpertise in der Steuerung, kleine Iterationen, schnelle lokale
+Verifikation, konsequente Versionskontrolle — steigt die Produktivität
+KI-gestützter Entwicklung nicht um Prozente, sondern um Größenordnungen.
+Die Formel lautet nicht „KI schafft das", sondern <strong>KI × Framework ×
+Domänenexpertise × Versionskontrolle</strong>. Dieses Papier belegt das an einem
+vollständig dokumentierten Fall und liefert das Bewertungsmodell dazu.
+Die eigentliche Innovation ist dabei nicht die KI selbst, sondern ihre
+ökonomische Konsequenz: Sie verändert die Kostenstruktur der
+Software-Entwicklung — und zwingt damit die Build-vs.-Buy-Logik zur
+Neubewertung.</p>
+</blockquote>
+<p><em>Evidenz-Kennzeichnung in diesem Papier: <span class="ev ev-M">M</span> gemessen · <span class="ev ev-A">A</span> Annahme ·
+<span class="ev ev-S">S</span> Schätzung/Modellrechnung · <span class="ev ev-H">H</span> Hypothese — Details unter „Begriffe &amp;
+Prämissen".</em></p>
+<p><strong>Worum es geht.</strong> Dieses Papier schlägt ein <strong>Bewertungsmodell für
+KI-gestützte Software-Entwicklung</strong> vor und rechnet es an einer vollständig
+dokumentierten Fallstudie durch: Ein einzelner Controlling-Experte — kein
+Entwicklerteam — hat in <strong>zehn Kalendertagen</strong> ein Berichts-Werkzeug für
+Microsoft Power BI bis zu einem marktfähigen Entwicklungsstand gebaut.
+Derselbe Stand wird — nach drei anerkannten Schätzverfahren — klassisch auf
+<strong>14–18 Personenmonate</strong> und <strong>150.000–350.000 €</strong> taxiert <span class="ev ev-S">S</span>. Fallstudie,
+Historie und Methodik sind vollständig öffentlich <span class="ev ev-M">M</span>.</p>
+<p><strong>Was es tatsächlich gekostet hat.</strong> Rund <strong>20 Stunden dokumentierte
+Steuerungszeit</strong> des Fachexperten (Sitzungsprotokolle; Denk- und
+Recherchezeit außerhalb der Sitzungen ist nicht erfasst — die
+Sensitivitätsrechnung in Kapitel 4 rechnet deshalb bis 120 Stunden durch)
+plus etwa 180 € Werkzeugkosten. Je nach Stundensatz (250 €/h extern,
+100 €/h intern) liegt der Invest bei <strong>~5.200 €</strong> bzw. <strong>~2.200 €</strong> — ein
+Kostenhebel von 29 bis 161 gegenüber dem Wiederbeschaffungswert. Wichtig
+zur Einordnung: Dieser Vergleich stellt den erreichten Ist-Stand einem
+klassischen Vollprozess gegenüber und ist insoweit asymmetrisch — eine
+symmetrische Gegenrechnung (Kapitel 4) drückt den Hebel auf <strong>13 bis 93</strong>,
+ändert die Größenordnung der Aussage aber nicht. Bewusst sprechen wir vom
+<strong>Kostenhebel (Cost Avoidance)</strong>, nicht von „ROI": Ein ROI setzt
+realisierte Erträge voraus; hier werden vermiedene Wiederbeschaffungskosten
+ins Verhältnis zum Invest gesetzt (Begriffe &amp; Prämissen).</p>
+<p><strong>Warum das mehr als eine Anekdote ist.</strong> Das Ergebnis beruht nicht auf
+Glück, sondern auf drei reproduzierbaren Bedingungen: einem festen
+Software-Framework mit klaren Regeln (Kapitel 7), einem Fachexperten, der
+präzise formulieren kann, was gebaut werden soll, und disziplinierter
+Versionskontrolle, die jeden Schritt prüfbar und rückgängig machbar hält
+(Kapitel 8). Wo diese Bedingungen vorliegen, ist das Muster übertragbar —
+und dann geraten etablierte Kalküle unter Druck: die
+Build-oder-Buy-Entscheidung, die Verhandlungsposition in Lizenzgesprächen
+und die Preissetzungsmacht von Software-Anbietern. Zugleich gilt: Die
+Evidenzbasis ist <strong>eine einzelne Fallstudie</strong>. Was am Fall gemessen ist und
+was daraus abgeleitete Hypothese über mögliche Marktwirkungen ist, wird im
+Papier durchgängig getrennt ausgewiesen.</p>
+<p><strong>Für wen das relevant ist.</strong> CFOs und Controlling-Leitungen (Lizenzkosten,
+Verhandlungsposition), IT- und BI-Verantwortliche (was intern machbar wird,
+Governance in Kapitel 9), Software-Anbieter (wo ihr Geschäftsmodell unter
+Druck geraten könnte) und Beratungen (wohin der Wert wandert). Kapitel 12
+fasst die Handlungsoptionen je Rolle zusammen.</p>
+<table>
+<thead>
+<tr>
+<th>Kernergebnis</th>
+<th>Wert</th>
+<th align="center">Evidenz</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Tatsächlicher Invest (externer Experte, 250 €/h)</td>
+<td><strong>~5.200 €</strong></td>
+<td align="center"><span class="ev ev-M">M</span> · <span class="ev ev-A">A</span></td>
+</tr>
+<tr>
+<td>Tatsächlicher Invest (interner Experte, 100 €/h)</td>
+<td><strong>~2.200 €</strong></td>
+<td align="center"><span class="ev ev-M">M</span> · <span class="ev ev-A">A</span></td>
+</tr>
+<tr>
+<td>Klassischer Wiederbeschaffungswert (3 Verfahren, Anhang B)</td>
+<td><strong>150.000–350.000 €</strong></td>
+<td align="center"><span class="ev ev-S">S</span></td>
+</tr>
+<tr>
+<td>Kostenhebel, Ist-Stand-Vergleich</td>
+<td><strong>29–67×</strong> (extern) · <strong>69–161×</strong> (intern)</td>
+<td align="center"><span class="ev ev-S">S</span></td>
+</tr>
+<tr>
+<td>Kostenhebel symmetrisch (gleicher Leistungsumfang, Kapitel 4)</td>
+<td><strong>13–39×</strong> (extern) · <strong>31–93×</strong> (intern)</td>
+<td align="center"><span class="ev ev-S">S</span></td>
+</tr>
+<tr>
+<td>Kalenderzeit: <strong>10 Tage</strong></td>
+<td>statt geschätzt 6–12 Monaten klassisch</td>
+<td align="center"><span class="ev ev-M">M</span> · <span class="ev ev-S">S</span></td>
+</tr>
+</tbody></table>
+<p><strong>Die fünf Kernthesen:</strong></p>
+<ol>
+<li><strong>KI × Framework × Domänenexpertise — nicht KI allein:</strong> Feste
+Frameworks mit definierten Schnittstellen, Sandbox und
+Zertifizierungsregeln reduzieren die Freiheitsgrade so weit, dass
+KI-Entwicklung kontrollierbar und reproduzierbar wird. Das ist die
+zentrale These dieses Papiers (Kapitel 7). <span class="ev ev-M">M</span></li>
+<li><strong>Git ist das unterschätzte Fundament:</strong> Ohne Versionskontrolle wird
+KI-Iterationsgeschwindigkeit zur Haftung. Mit ihr wird jeder Schritt
+rückrollbar, prüfbar — und die gesamte Analyse dieses Papiers erst
+möglich (Kapitel 8). <span class="ev ev-M">M</span></li>
+<li><strong>Die Build-oder-Buy-Rechnung verschiebt sich</strong> für Framework-Software:
+Nach Barwert schlägt der Eigenbau (oder die Adoption eines freien
+Community-Builds) das Lizenzmodell ab mittlerer Nutzerzahl deutlich —
+eine Rechnung unter offengelegten Annahmen (Kapitel 5). <span class="ev ev-S">S</span></li>
+<li><strong>Verhandlungsmacht-Hypothese:</strong> Ein glaubwürdiges freies Werkzeug
+könnte Lizenzverhandlungen zu Gunsten des Kunden verschieben, ohne dass
+gewechselt werden muss (Kapitel 6). <span class="ev ev-H">H</span></li>
+<li><strong>Markt-Hypothese:</strong> Open Source und KI könnten sich wechselseitig
+verstärken — KI macht Community-Software pflegbar, offener Code macht
+KI präzise — und den Entwicklungskosten-Vorsprung kommerzieller
+Anbieter verringern (Kapitel 10). <span class="ev ev-H">H</span></li>
+</ol>
+<p><em>Zum Evidenzstatus der Thesen:</em> These 1 und 2 sind am Fall direkt belegt.
+These 3 ist eine Rechnung unter offengelegten Annahmen. These 4 und 5
+extrapolieren vom Einzelfall auf Markt-Ebene — sie sind als <strong>begründete
+Hypothesen über mögliche Auswirkungen</strong> zu lesen, nicht als nachgewiesene
+Effekte (Einordnung in Kapitel 6, 10 und 11).</p>
+<hr>
+<h2 id="sec-1">Begriffe &amp; Prämissen — was Sie zum Lesen brauchen</h2>
+<p>Dieses Papier richtet sich ausdrücklich auch an Leserinnen und Leser ohne
+Entwicklungs-Hintergrund. Acht Begriffe genügen:</p>
+<table>
+<thead>
+<tr>
+<th>Begriff</th>
+<th>Bedeutung in diesem Papier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Power-BI-Custom-Visual</strong></td>
+<td>Ein Zusatzmodul für Microsofts Berichts-Plattform Power BI, das eigene Diagramm- und Tabellentypen nachrüstet — vergleichbar einer App auf einem Smartphone: läuft nur innerhalb der Plattform, nach deren Regeln.</td>
+</tr>
+<tr>
+<td><strong>IBCS</strong></td>
+<td>International Business Communication Standards — ein verbreiteter Notationsstandard für Geschäftsberichte (einheitliche Szenario-Muster, Varianzdarstellungen, „weniger Deko, mehr Aussage").</td>
+</tr>
+<tr>
+<td><strong>KI-gestützte Entwicklung („Vibe Coding")</strong></td>
+<td>Ein Mensch beschreibt in normaler Sprache, was die Software können soll; ein KI-Agent schreibt, testet und dokumentiert den Code. Der Mensch prüft Ergebnisse und steuert nach — er tippt keinen Code.</td>
+</tr>
+<tr>
+<td><strong>Product Owner (PO)</strong></td>
+<td>Die steuernde Fachperson: formuliert Anforderungen, beurteilt Ergebnisse, entscheidet Prioritäten. Hier: ein Controlling-/BI-Experte ohne Entwicklerteam.</td>
+</tr>
+<tr>
+<td><strong>Open Source (Apache 2.0)</strong></td>
+<td>Der Quellcode ist öffentlich und darf kostenlos genutzt, geprüft und verändert werden. Die Lizenz Apache 2.0 erlaubt auch kommerziellen Einsatz.</td>
+</tr>
+<tr>
+<td><strong>Git / Versionskontrolle</strong></td>
+<td>Ein Protokollsystem, das jeden Änderungsschritt („Commit") dauerhaft festhält und rückgängig machbar hält — das Logbuch und Sicherheitsnetz der Software-Entwicklung.</td>
+</tr>
+<tr>
+<td><strong>Kostenhebel (Cost Avoidance)</strong></td>
+<td>Verhältnis der vermiedenen Kosten (Wiederbeschaffungswert) zum tatsächlichen Invest. „29×" heißt: Der Wiederbeschaffungswert entspricht dem 29-Fachen des Invests. Bewusst nicht „ROI" genannt — ein ROI setzt realisierte Erträge voraus, hier werden vermiedene Ausgaben verglichen.</td>
+</tr>
+<tr>
+<td><strong>Barwert (DCF)</strong></td>
+<td>Zukünftige Zahlungen (z. B. fünf Jahre Lizenzgebühren), mit einem Zinssatz auf heute abgezinst — die betriebswirtschaftlich korrekte Basis für Build-vs-Buy-Vergleiche.</td>
+</tr>
+</tbody></table>
+<p><strong>Evidenz-Kennzeichnung:</strong> Größere Aussagen tragen in diesem Papier ein
+Kürzel: <strong><span class="ev ev-M">M</span></strong> = gemessen — aus Git-Historie, Sitzungsprotokollen oder
+Rechnungen. <strong><span class="ev ev-A">A</span></strong> = Annahme — gesetzt und begründet, z. B. Stundensätze.
+<strong><span class="ev ev-S">S</span></strong> = Schätzung oder Modellrechnung — aus <span class="ev ev-M">M</span> und <span class="ev ev-A">A</span> abgeleitet, z. B.
+Wiederbeschaffungswert, Kostenhebel, Barwerte. <strong><span class="ev ev-H">H</span></strong> = Hypothese —
+Extrapolation über den Einzelfall hinaus. Die Kürzel machen auf einen Blick
+sichtbar, worauf jede Aussage steht.</p>
+<p><strong>Die Prämissen der Rechnung — vorab in aller Klarheit:</strong></p>
+<ol>
+<li><strong>Die Fallstudie ist exemplarisch.</strong> Belegt wird jede Zahl an einem
+konkreten Projekt — einem Power-BI-Custom-Visual für Controlling-Berichte.
+Das Muster gilt aber für eine ganze Klasse von Software: alles, was
+innerhalb eines festen Frameworks mit definierten Schnittstellen lebt
+(Office-Add-ins, IDE-Extensions, Plattform-Plugins, interne
+Fachwerkzeuge). Wer „Visual" liest, darf „unser Werkzeug X" denken.</li>
+<li><strong>Die Projektzahlen sind Messwerte, keine Schätzungen:</strong> Kalendertage,
+Commits, Releases und Code-Umfang stammen aus der öffentlichen
+Git-Historie; Token- und Werkzeugkosten aus dem Session-Protokoll und
+Rechnungen (Anhang A).</li>
+<li><strong>Die Stundensätze sind Annahmen:</strong> 250 €/h für einen erfahrenen externen
+Berater (Marktsatz), 100 €/h interner Vollkostensatz. Beide Rechnungen
+werden durchgängig nebeneinander geführt.</li>
+<li><strong>Die klassischen Vergleichskosten sind eine Schätzung</strong> — bottom-up in
+Personenmonaten, bewusst als breite Spanne (150–350 T€), ohne eingeholte
+Angebote. Die Kernaussagen überleben auch das untere Ende der Spanne.</li>
+<li><strong>Der Lizenzvergleich nutzt öffentliche Preisindikationen</strong> kommerzieller
+IBCS-Visual-Suiten (7–12 €/Nutzer/Monat), über 5 Jahre mit 8 % abgezinst.</li>
+<li><strong>Der Evidenzstand ist eine Fallstudie (n = 1).</strong> Kapitel 1–5 beruhen
+auf Messwerten und offengelegten Rechnungen zu diesem einen Projekt.
+Kapitel 6, 10 und Teile von 12 leiten daraus Hypothesen über mögliche
+Markt- und Verhandlungseffekte ab — sie sind konditional formuliert und
+wären erst durch weitere, unabhängige Fälle zu erhärten.</li>
+<li><strong>Der Basisvergleich ist bewusst als Ist-Stand-Vergleich gerechnet</strong> —
+der klassische Prozess mit vollem Overhead (Doku, QA, Abnahme,
+Projektmanagement), der KI-Build im erreichten Stand ohne diese Anteile.
+Diese Asymmetrie wird nicht nur benannt, sondern in Kapitel 4
+symmetrisch gegengerechnet.</li>
+<li><strong>Interessenlage:</strong> Die Daten-WG ist Herausgeberin des beschriebenen
+Visuals und berät im Power-BI-Umfeld. Deshalb ist die Methodik offengelegt
+und jede Zahl nachrechenbar — das Papier argumentiert mit Belegen, nicht
+mit Autorität.</li>
+</ol>
+<p><strong>Leseführung:</strong> Kapitel 1–5 enthalten den belegten Fall und die Rechnungen
+(Kosten, Kostenhebel, Barwert). Kapitel 6–9 ordnen ein: Verhandlungsmacht,
+warum Framework und Git die Risiken zähmen, Governance und Wartbarkeit.
+Kapitel 10 formuliert die Markt-Hypothesen, Kapitel 11–12 klären
+Übertragbarkeit, Grenzen und Handlungsoptionen. Anhang A dokumentiert die
+Methodik; Anhang B rechnet die Bewertungen nach anerkannten Verfahren vor
+(COCOMO II, Function Points, DCF, Lizenzpreisanalogie) und ordnet den Fall
+in die Produktivitäts-Literatur ein; ein Quellenverzeichnis schließt das
+Papier.</p>
+<hr>
+<h2 id="sec-2">1 · Der Fall: Was gebaut wurde</h2>
+<p>ChartKitchen byDatenWG ist ein natives Power-BI-Custom-Visual
+(TypeScript/SVG, API 5.11.0, keine externen Laufzeit-Abhängigkeiten) für
+Controlling-Berichte in IBCS-inspirierter Notation — quelloffen (Apache 2.0)
+und kostenlos.</p>
+<table>
+<thead>
+<tr>
+<th>Umfang (Stand 15.07.2026, v1.34.1.0)</th>
+<th>Wert</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Chart-Modi</td>
+<td>12 (Säulen, Balken, Linie, Wasserfall, integrierte Brücke, Kategorie-Brücke, Tabelle/Matrix, GuV-Statement, KPI-Karten, Pareto, Dumbbell, Slope)</td>
+</tr>
+<tr>
+<td>Kern-Code</td>
+<td>~10.200 Zeilen</td>
+</tr>
+<tr>
+<td>Tabelle/Matrix</td>
+<td>N-Ebenen-Hierarchie, Scrolling mit fixiertem Header + Σ, Formelzeilen, klappbare Spaltenhierarchie, Suche, Sortierung</td>
+</tr>
+<tr>
+<td>Lokalisierung</td>
+<td>de, en, es, ja — je ~245 Oberflächen-Strings</td>
+</tr>
+<tr>
+<td>Qualitätssicherung</td>
+<td>80+ Headless-Render-Tests, Microsoft-Lint-Regeln, <code>npm audit</code> 0 Findings</td>
+</tr>
+<tr>
+<td>Distribution</td>
+<td>baubarer Quellcode-Export, AppSource-Einreichungspaket, Marken-/Rechtsprüfung</td>
+</tr>
+</tbody></table>
+<p><img src="whitepaper-assets/landing-galerie.png" alt="Startseite mit Modus-Galerie">
+<em>Abb. 1 — Die Modus-Galerie des Visuals: 12 klickbare Vorschauen, Schrift-Presets, mehrsprachig.</em></p>
+<p><img src="whitepaper-assets/tabelle-finance-format.png" alt="Controlling-Tabelle mit Finance-Format und Trend-Icons">
+<em>Abb. 2 — Controlling-Tabelle: integrierte Balken, Δ- und Δ%-Spalten, Finanzkonvention (negative Werte in Klammern), Trend-Icons ▲▼● an Materialitätsschwellen.</em></p>
+<hr>
+<h2 id="sec-3">2 · Zeit, Kosten und Arbeitsweise — die tatsächlichen</h2>
+<p>Die Git-Historie erlaubt eine ehrliche Abgrenzung: erster Commit des Visuals
+am <strong>6. Juli 2026</strong>, der beschriebene Stand am <strong>15. Juli 2026</strong>.</p>
+<p><img src="whitepaper-assets/fig-commits.svg" alt="Commits pro Tag">
+<em>Abb. 3 — 124 Commits, ~60 Releases in 10 Kalendertagen (8 aktive Tage).</em></p>
+<table>
+<thead>
+<tr>
+<th>Kennzahl</th>
+<th>Wert</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Dokumentierte Steuerungszeit des PO (Sitzungsprotokolle: Anforderungen, Tests, Feedback)</td>
+<td>~20 h</td>
+</tr>
+<tr>
+<td>Werkzeugkosten (KI-Abo ~100 $ + 80 € Zusatzbudget)</td>
+<td>~180 €</td>
+</tr>
+<tr>
+<td>Verarbeitete Tokens</td>
+<td>~1,8 Mrd. (96 % Cache-Lesevorgänge)</td>
+</tr>
+<tr>
+<td>API-Listenpreis-Äquivalent der Rechenleistung</td>
+<td>~2.900 $ (durch Pauschal-Abo abgedeckt)</td>
+</tr>
+<tr>
+<td>CO₂-Fußabdruck (Methodik: <a href="https://datenwgknowledgekitchen.com/ki-co2-simulator.html">Daten-WG-KI-CO₂-Simulator</a>, mittleres Szenario)</td>
+<td>~0,2–1,1 t CO₂e ≈ ein Inlandsflug</td>
+</tr>
+</tbody></table>
+<p>Zur Steuerungszeit eine wichtige Präzisierung: <strong>~20 h ist die
+dokumentierte Zeit</strong> aus den Sitzungsprotokollen. Nicht erfasst sind
+Nachdenken, Recherche und Ideensammlung außerhalb der Sitzungen — sie
+lassen sich ehrlicherweise nicht messen. Deshalb rechnet Kapitel 4 die
+Sensitivität bis zur sechsfachen Stundenzahl durch.</p>
+<p><strong>Anatomie einer typischen Iteration</strong> — vom Satz zum Release am selben Tag:
+Der Product Owner meldet morgens per Screenshot: <em>„Bei Small Multiples
+skalieren die Brücken jede Kachel für sich — das sollte optional eine
+gemeinsame Skala können."</em> Nachmittags ist die Option gebaut, getestet,
+lokalisiert und als Release verteilt:</p>
+<p><img src="whitepaper-assets/multiples-vorher.png" alt="Vorher: jede Kachel skaliert für sich">
+<em>Abb. 4a — Vorher: Region „Süd" (⅓ des Volumens von „Nord") füllt ihre Kachel genauso aus.</em></p>
+<p><img src="whitepaper-assets/multiples-nachher.png" alt="Nachher: gemeinsame Skala">
+<em>Abb. 4b — Nachher (gleicher Tag): optionale gemeinsame Skala — „Süd" ist sichtbar ein Drittel, inklusive der Δ%-Pin-Skalen.</em></p>
+<p><strong>Gesamtinvest, zwei Bewertungen:</strong></p>
+<ul>
+<li><strong>Externer Product Owner</strong> (erfahrener Berater, 250 €/h):
+20 h × 250 € + 180 € = <strong>~5.200 €</strong></li>
+<li><strong>Interner Product Owner</strong> (Controller/BI-Verantwortlicher, 100 €/h
+Vollkosten): 20 h × 100 € + 180 € = <strong>~2.200 €</strong></li>
+</ul>
+<p>Bemerkenswert an beiden Rechnungen: <strong>Werkzeugkosten sind 3–8 % des Invests —
+über 90 % ist Expertenzeit.</strong> Der Engpass ist nicht mehr das
+Entwicklungsbudget, sondern die Person, die weiß, was gebaut werden soll.</p>
+<hr>
+<h2 id="sec-4">3 · Was derselbe Stand klassisch gekostet hätte</h2>
+<p>Bevor gerechnet wird, lohnt der Blick auf die Prozesse selbst — hier
+entsteht der Kostenunterschied, nicht bei den Stundensätzen:</p>
+<p><img src="whitepaper-assets/fig-prozess.svg" alt="Prozessvergleich klassisch vs. KI-gestützt">
+<em>Abb. 5 — Warum die Kosten unterschiedlich entstehen: Der klassische Prozess durchläuft alle Stufen einmal in Serie; der KI-gestützte Loop durchläuft einen kurzen Zyklus dutzendfach — hier ~60-mal in zehn Tagen. <span class="ev ev-M">M</span></em></p>
+<p>Bottom-up geschätzt in Personenmonaten (PM) Entwicklung:</p>
+<table>
+<thead>
+<tr>
+<th>Block</th>
+<th>PM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Grundgerüst, Build-Pipeline, Settings-Modell</td>
+<td>0,5–1</td>
+</tr>
+<tr>
+<td>Säulen/Balken/Linie inkl. Varianz-Panels, Skalen-Sync, YTD</td>
+<td>2–3</td>
+</tr>
+<tr>
+<td>Wasserfall + zwei Brücken-Modi</td>
+<td>1–1,5</td>
+</tr>
+<tr>
+<td>Tabelle/Matrix (Hierarchie, Scroll-Freeze, Formeln, Matrix-Ausbau)</td>
+<td>2,5–4</td>
+</tr>
+<tr>
+<td>KPI-Karten inkl. Bullet/Benchmark</td>
+<td>0,75–1</td>
+</tr>
+<tr>
+<td>Small Multiples (Σ-Kachel, Top-N, Zoom, gemeinsame Skalen)</td>
+<td>0,75–1</td>
+</tr>
+<tr>
+<td>Landing, In-Chart-Interaktionen, Persistierung/Bookmarks</td>
+<td>0,5–1</td>
+</tr>
+<tr>
+<td>Lokalisierung, Barrierefreiheit, Kontrastmodus</td>
+<td>0,5</td>
+</tr>
+<tr>
+<td>Test-Harness + Testfälle</td>
+<td>0,75–1</td>
+</tr>
+<tr>
+<td>Zertifizierungsvorbereitung, Lizenz/Marken, AppSource-Kit</td>
+<td>0,5–1</td>
+</tr>
+<tr>
+<td><strong>Entwicklung</strong></td>
+<td><strong>10–14 PM</strong></td>
+</tr>
+<tr>
+<td>+ Projektrealität (Spezifikation, Reviews, Abstimmung, QA)</td>
+<td><strong>14–18 PM</strong></td>
+</tr>
+</tbody></table>
+<p>Bewertet zu Marktsätzen: <strong>intern ~130–160 T€</strong> (Senior-Vollkosten 9 T€/PM,
+sofern Entwickler mit Power-BI-Visual- <em>und</em> Controlling-Erfahrung verfügbar
+sind), <strong>extern ~250–400 T€</strong> (900–1.200 €/Tag). Wir rechnen konservativ mit
+der Spanne <strong>150–350 T€</strong>. <span class="ev ev-S">S</span> Eine unabhängige Gegenrechnung mit zwei
+anerkannten Schätzverfahren (COCOMO II, Function Points) bestätigt die
+Spanne — Rechenwege in Anhang B.</p>
+<p><strong>Offen benannt: Dieser Vergleich ist asymmetrisch.</strong> Die klassische Seite
+enthält den vollen Prozess-Overhead (Spezifikation, Reviews, QA,
+Abnahmetests, Endnutzer-Doku, Projektmanagement); der KI-Build enthält
+Endnutzer-Doku, formale Abnahmetests und eine vollständige externe
+Review-Runde <strong>noch nicht</strong> (Kapitel 11). Wer nur den Ist-Stand vergleicht,
+verschafft der KI-Seite also einen systematischen Vorteil. Deshalb wird der
+Kostenhebel in Kapitel 4 zusätzlich symmetrisch gerechnet — mit beiden möglichen
+Korrekturen (KI-Seite auf Vollumfang hochgerechnet bzw. klassische Seite um
+die fehlenden Anteile gekürzt).</p>
+<p><img src="whitepaper-assets/fig-kostenvergleich.svg" alt="Kostenvergleich">
+<em>Abb. 6 — Vier Wege zum selben Stand. Die KI-gestützten Balken sind auf dieser Skala kaum sichtbar — das ist die Aussage.</em></p>
+<hr>
+<h2 id="sec-5">4 · Der Kostenhebel — bewusst kein „ROI"</h2>
+<p>Vorab die Begriffsklärung, die ein kritischer Leser zu Recht einfordert:
+Die folgende Kennzahl ist <strong>kein ROI</strong>. Ein Return on Investment setzt
+realisierte Erträge voraus; hier wird der tatsächliche Invest ins
+Verhältnis zu <strong>vermiedenen Wiederbeschaffungskosten</strong> gesetzt (Cost
+Avoidance). Wir nennen die Kennzahl deshalb durchgängig <strong>Kostenhebel</strong>:
+„29×" heißt, der Wiederbeschaffungswert entspricht dem 29-Fachen des
+Invests — nicht, dass 29-fache Erträge geflossen sind. Realisiert wird der
+Wert erst über Nutzung, Reichweite und vermiedene Lizenzkosten (Kapitel 5).
+Wer eine klassische Bezeichnung braucht: ein Wert-/Investitionsfaktor auf
+Basis des geschätzten Wiederbeschaffungswerts. <span class="ev ev-S">S</span></p>
+<table>
+<thead>
+<tr>
+<th>Kostenhebel</th>
+<th align="right">Externer PO (5.200 €)</th>
+<th align="right">Interner PO (2.200 €)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>vs. 150 T€ (konservativ)</td>
+<td align="right"><strong>29×</strong></td>
+<td align="right"><strong>69×</strong></td>
+</tr>
+<tr>
+<td>vs. 250 T€ (mittel)</td>
+<td align="right"><strong>48×</strong></td>
+<td align="right"><strong>115×</strong></td>
+</tr>
+<tr>
+<td>vs. 350 T€ (extern)</td>
+<td align="right"><strong>67×</strong></td>
+<td align="right"><strong>161×</strong></td>
+</tr>
+</tbody></table>
+<p>Effektiver Stundenwert der 20 dokumentierten Steuerungsstunden:
+<strong>7.500–17.500 €</strong> — Hebel 30–70 auf den externen Beratersatz, 75–175 auf
+den internen. Pro Release: ~85 € (extern) bzw. ~37 € (intern). Pro Zeile
+Code: ~0,20–0,50 € — klassisch liegt eine produktive Zeile bei 15–35 €.</p>
+<p>Zwei Einordnungen: Der wichtigere Punkt als jede Kennzahl ist, dass ein
+Werkzeug <strong>überhaupt entsteht</strong>, das nie ein 250-T€-Budget bekommen hätte.
+Und: Der Hebel gehört zur Kombination „Fachexperte + Werkzeug". KI ersetzt
+hier das Entwicklerteam — <strong>nicht den Product Owner.</strong></p>
+<h3>Sensitivität: Was, wenn es mehr Stunden waren?</h3>
+<p>Die 20 h sind dokumentierte Sitzungszeit (Kapitel 2) — undokumentierte
+Denk- und Recherchezeit kommt realistisch hinzu. Die Rechnung bricht
+dadurch nicht:</p>
+<table>
+<thead>
+<tr>
+<th>Steuerungszeit</th>
+<th align="right">Invest extern</th>
+<th align="right">Hebel vs. 150–350 T€</th>
+<th align="right">Invest intern</th>
+<th align="right">Hebel vs. 150–350 T€</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>20 h (dokumentiert)</td>
+<td align="right">5,2 T€</td>
+<td align="right">29–67×</td>
+<td align="right">2,2 T€</td>
+<td align="right">69–161×</td>
+</tr>
+<tr>
+<td>40 h</td>
+<td align="right">10,2 T€</td>
+<td align="right">15–34×</td>
+<td align="right">4,2 T€</td>
+<td align="right">36–84×</td>
+</tr>
+<tr>
+<td>80 h</td>
+<td align="right">20,2 T€</td>
+<td align="right">7–17×</td>
+<td align="right">8,2 T€</td>
+<td align="right">18–43×</td>
+</tr>
+<tr>
+<td>120 h</td>
+<td align="right">30,2 T€</td>
+<td align="right">5–12×</td>
+<td align="right">12,2 T€</td>
+<td align="right">12–29×</td>
+</tr>
+</tbody></table>
+<p>Selbst bei <strong>Versechsfachung</strong> der Stunden bleibt ein Hebel von mindestens
+5 (extern) bzw. 12 (intern). Die Aussage hängt nicht an der Präzision der
+Stundenerfassung.</p>
+<h3>Symmetrie-Check: Kostenhebel mit vergleichbarem Leistungsumfang</h3>
+<p>Die Tabelle oben vergleicht Ist-Stand gegen Vollprozess (Prämisse 7). Zwei
+Korrekturen stellen Symmetrie her:</p>
+<p><strong>Weg A — KI-Seite auf Vollumfang hochrechnen.</strong> Endnutzer-Doku, formale
+Abnahmetests und eine externe Review-Runde sind mit derselben Methode
+schätzungsweise weitere 15–25 PO-Stunden plus ~100 € Werkzeugkosten
+(Erfahrungswert aus den bisherigen Doku- und Testpaketen des Projekts —
+eine Schätzung, keine Messung):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="right">Externer PO</th>
+<th align="right">Interner PO</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Invest bei Vollumfang</td>
+<td align="right">~9,0–11,5 T€</td>
+<td align="right">~3,8–4,8 T€</td>
+</tr>
+<tr>
+<td>Hebel vs. 150–350 T€</td>
+<td align="right"><strong>13–39×</strong></td>
+<td align="right"><strong>31–93×</strong></td>
+</tr>
+</tbody></table>
+<p><strong>Weg B — klassische Seite um die fehlenden Anteile kürzen</strong> (−10–20 %,
+Kapitel 3): Vergleichswert 120–315 T€ gegen den Ist-Stand-Invest:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="right">Externer PO (5,2 T€)</th>
+<th align="right">Interner PO (2,2 T€)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hebel vs. 120–315 T€</td>
+<td align="right"><strong>23–61×</strong></td>
+<td align="right"><strong>55–144×</strong></td>
+</tr>
+</tbody></table>
+<p><strong>Was sich dadurch ändert — und was nicht:</strong> Die Schlagzeilen-Werte 29–161×
+gelten nur für den Ist-Stand-Vergleich. Symmetrisch gerechnet liegt der
+Hebel je nach Weg und Besetzung bei <strong>13–144×</strong> — im ungünstigsten Szenario
+(externer Satz, Vollumfang, konservativer Vergleichswert) bleibt ein Faktor
+<strong>13</strong>. Die Kernaussage übersteht die Korrektur; die Einzelwerte sollten
+aber stets mit dieser Einordnung zitiert werden. Nicht hochrechenbar ist
+schließlich der Abstimmungsaufwand echter Multi-Stakeholder-Organisationen:
+Dieses Projekt wurde von einer Person entschieden — in einer Organisation
+mit Gremien und Freigaben kämen PO-Stunden hinzu, die den Faktor weiter
+drücken (Kapitel 11).</p>
+<hr>
+<h2 id="sec-6">5 · Build vs. Buy im Barwertvergleich</h2>
+<p>Kommerzielle Visual-Suiten kosten grob <strong>7–12 € pro Nutzer und Monat</strong>.
+Diskontiert über 5 Jahre (8 %, Annuitätenfaktor 3,99), gegen Eigenbau mit
+5,2 T€ Invest und angenommenen 3 T€/Jahr Pflege:</p>
+<p><img src="whitepaper-assets/fig-dcf.svg" alt="DCF Build vs Buy">
+<em>Abb. 7 — Ab ~150–200 Report-Nutzern ist der Eigenbau nach Barwert klar überlegen.</em></p>
+<table>
+<thead>
+<tr>
+<th>Unternehmensgröße</th>
+<th align="right">Lizenz-Barwert (5 J)</th>
+<th align="right">Eigenbau-Barwert</th>
+<th align="right">NPV-Vorteil</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>50 Nutzer × 8 €/M</td>
+<td align="right">19.200 €</td>
+<td align="right">17.200 €</td>
+<td align="right">~2.000 €</td>
+</tr>
+<tr>
+<td>200 Nutzer × 10 €/M</td>
+<td align="right">95.800 €</td>
+<td align="right">17.200 €</td>
+<td align="right"><strong>~78.600 €</strong></td>
+</tr>
+<tr>
+<td>1.000 Nutzer × 7 €/M</td>
+<td align="right">335.400 €</td>
+<td align="right">17.200 €</td>
+<td align="right"><strong>~318.000 €</strong></td>
+</tr>
+</tbody></table>
+<p>Payback: 2,6 Monate (200 Nutzer), ~3 Wochen (Konzern). Sensitivität: Selbst
+bei verdreifachter Pflege (10 T€/Jahr) bleibt der Mittelstandsfall ~50 T€ im
+Plus. Die vollständige Jahr-für-Jahr-Rechnung samt Zins- und
+Pflege-Sensitivitäten steht in Anhang B. <span class="ev ev-S">S</span></p>
+<p><strong>Die Adopter-Perspektive verschärft das Bild:</strong> Wer das freie
+Community-Visual einsetzt statt selbst zu bauen, trägt nur die Einführung
+(~2 Controller-Tage ≈ 1,5 T€) gegen 19–335 T€ Lizenz-Barwert. Für kleine
+Unternehmen — deren reale Alternative oft „keine IBCS-Visuals" ist — ist das
+keine Ersparnis, sondern <strong>Zugang zu einer Fähigkeit, die es in ihrer
+Preisklasse nicht gab</strong>.</p>
+<p>Fairness: Der Vergleich gilt, wo der Funktionsumfang genügt. Kommerzielle
+Anbieter verkaufen zusätzlich Reife, SLAs, Zertifizierung, Roadmap. Diese
+Lücke adressiert im Community-Modell ein Support-Abo (Kapitel 10).</p>
+<hr>
+<h2 id="sec-7">6 · Die spieltheoretische Dimension</h2>
+<p>Ein oft übersehener Wert eines glaubwürdigen freien Werkzeugs realisiert
+sich, <strong>ohne dass es eingesetzt wird</strong>: Es verändert die
+Verhandlungsposition (BATNA) gegenüber kommerziellen Anbietern. Vorab zur
+Einordnung: Das Folgende ist eine <strong>modellhafte Überlegung</strong> nach
+Verhandlungslogik — belegt durch keine beobachteten Abschlüsse; die
+genannten Beträge sind mögliche Effekte, keine zugesagten Nachlässe. <span class="ev ev-H">H</span></p>
+<ul>
+<li>Bisher lautete die Alternative in Lizenzverhandlungen: „zahlen oder
+verzichten". Mit einer glaubwürdigen freien Option genügt die
+<strong>Möglichkeit</strong> des Wechsels: Beim 1.000-Nutzer-Konzern entsprechen
+10–20 % Renewal-Nachlass <strong>33–67 T€ Barwert</strong> — allein durch die Existenz
+der Alternative im Beschaffungsvergleich.</li>
+<li><strong>Glaubwürdigkeit ist die Währung:</strong> offener, baubarer Quellcode ✓,
+sichtbare Pflege (60 Releases in 10 Tagen) ✓, Zertifizierung und Doku als
+nächste Schritte. Der billigste glaubwürdige Zug eines Konzerns: ein Pilot
+auf einer einzigen Berichtsseite.</li>
+<li><strong>Grenzen:</strong> Ohne Zertifizierung bleibt die Karte in vielen Häusern formal
+unspielbar; große Berichtsbestände (Wechselkosten) stumpfen sie ab. Am
+schärfsten ist sie bei Neueinführungen und auslaufenden Rahmenverträgen.</li>
+</ul>
+<hr>
+<h2 id="sec-8">7 · Warum das feste Framework der halbe Erfolg ist</h2>
+<p>Dieses Kapitel enthält die zentrale These des Papiers — sie ist
+wissenschaftlich interessanter als jeder Kostenfaktor: <strong>Feste Frameworks
+reduzieren die Freiheitsgrade der Entwicklung so stark, dass KI-Arbeit
+kontrollierbar und reproduzierbar wird.</strong> Die Wirkungskette lautet:
+Framework → Sandbox → kleine Iterationen → lokale Verifikation → Git →
+kontrollierbares Risiko. Absolute Produktivitätsfaktoren werden sich mit
+jeder Modellgeneration ändern; dieser Mechanismus nicht.</p>
+<p>Die verbreitete Sorge gegenüber KI-generiertem Code — „schnell, aber
+unsicher und fehlerhaft" — unterschätzt, wie stark ein festes Framework
+die Risikoflächen beschneidet. Fünf Mechanismen greifen ineinander, alle
+am Fall belegt <span class="ev ev-M">M</span>:</p>
+<p><strong>Mechanismus 1 — Suchraumreduktion.</strong> Ein Power-BI-Visual lebt in einem
+vordefinierten Vertrag: eine <code>update()</code>-Schnittstelle, deklarative
+Capabilities, ein Settings-Modell. Es gibt keine selbstgebaute Netzwerk-,
+Persistenz- oder Threading-Schicht, in der sich KI-Fehler verstecken
+könnten — die fehleranfälligsten Schichten klassischer Projekte
+<strong>existieren gar nicht erst</strong>. Für die KI heißt das: Der Lösungsraum je
+Anforderung ist klein, die Varianz zwischen zwei Anläufen gering — genau
+das macht Ergebnisse reproduzierbar statt zufällig.</p>
+<p><strong>Mechanismus 2 — Deterministische Schnittstellen.</strong> Jede Anforderung
+übersetzt sich mechanisch in „welche Option, welcher Renderer, welche
+Persistierung" — keine Architektur-Grundsatzfragen, deren Fehlentscheidung
+erst Monate später sichtbar wird. Entwicklung wird zur Folge kleiner,
+entscheidbarer Schritte; Konvergenz ist der Normalfall, nicht der
+Glücksfall.</p>
+<p><strong>Mechanismus 3 — Sandbox als Schadensdeckel.</strong> Das Visual läuft in einem
+isolierten iframe, ohne Netzwerkzugriff, ohne Dateisystem, ohne
+Speicher-APIs. Die Microsoft-Zertifizierungsregeln verbieten zusätzlich
+<code>eval</code>, <code>innerHTML</code>, externes Nachladen — Regeln, gegen die automatisiert
+geprüft wird (projektweit eingehalten, <code>npm audit</code>: 0 Findings). Der
+maximale Schadensradius eines KI-Fehlers ist strukturell gedeckelt: <strong>Er
+kann ein Chart falsch zeichnen, aber keine Daten exfiltrieren.</strong></p>
+<p><strong>Mechanismus 4 — Kleine Iterationen.</strong> 124 Commits für ~60 Releases: Die
+durchschnittliche Änderung ist klein genug, um per Diff gelesen, verstanden
+und notfalls verworfen zu werden. Experimente werden billig, weil Rückwege
+garantiert sind (Kapitel 8) — das senkt die Kosten jeder einzelnen
+Fehlentscheidung auf Minuten.</p>
+<p><strong>Mechanismus 5 — Lokale Verifikation in Minuten.</strong> Der Headless-Harness
+rendert jeden Stand als Bild; Fehler sind <em>sichtbar</em> statt latent, 80+
+Testfälle mit bekannten Erwartungswerten sichern die Fachlogik. Der
+Feedback-Loop schließt sich lokal in Minuten — ohne Deployment, ohne
+Testumgebung, ohne Wartezeit.</p>
+<p>Als Designregel formuliert: <strong>Wirkt KI-Entwicklung unkontrollierbar, ist
+der erste Hebel nicht das bessere Modell, sondern der engere Zaun.</strong></p>
+<figure><pre class="mermaid"><svg id="mermaid-1784222655148" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="flowchart" style="max-width: 1357.359375px;" viewBox="0 0 1357.359375 349.4264831542969" role="graphics-document document" aria-roledescription="flowchart-v2"><style>#mermaid-1784222655148{font-family:'Geist',system-ui,sans-serif;font-size:16px;fill:#000000;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#mermaid-1784222655148 .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#mermaid-1784222655148 .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#mermaid-1784222655148 .error-icon{fill:#552222;}#mermaid-1784222655148 .error-text{fill:#552222;stroke:#552222;}#mermaid-1784222655148 .edge-thickness-normal{stroke-width:1px;}#mermaid-1784222655148 .edge-thickness-thick{stroke-width:3.5px;}#mermaid-1784222655148 .edge-pattern-solid{stroke-dasharray:0;}#mermaid-1784222655148 .edge-thickness-invisible{stroke-width:0;fill:none;}#mermaid-1784222655148 .edge-pattern-dashed{stroke-dasharray:3;}#mermaid-1784222655148 .edge-pattern-dotted{stroke-dasharray:2;}#mermaid-1784222655148 .marker{fill:#666;stroke:#666;}#mermaid-1784222655148 .marker.cross{stroke:#666;}#mermaid-1784222655148 svg{font-family:'Geist',system-ui,sans-serif;font-size:16px;}#mermaid-1784222655148 p{margin:0;}#mermaid-1784222655148 .label{font-family:'Geist',system-ui,sans-serif;color:#000000;}#mermaid-1784222655148 .cluster-label text{fill:#333;}#mermaid-1784222655148 .cluster-label span{color:#333;}#mermaid-1784222655148 .cluster-label span p{background-color:transparent;}#mermaid-1784222655148 .label text,#mermaid-1784222655148 span{fill:#000000;color:#000000;}#mermaid-1784222655148 .node rect,#mermaid-1784222655148 .node circle,#mermaid-1784222655148 .node ellipse,#mermaid-1784222655148 .node polygon,#mermaid-1784222655148 .node path{fill:#eee;stroke:#999;stroke-width:1px;}#mermaid-1784222655148 .rough-node .label text,#mermaid-1784222655148 .node .label text,#mermaid-1784222655148 .image-shape .label,#mermaid-1784222655148 .icon-shape .label{text-anchor:middle;}#mermaid-1784222655148 .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#mermaid-1784222655148 .rough-node .label,#mermaid-1784222655148 .node .label,#mermaid-1784222655148 .image-shape .label,#mermaid-1784222655148 .icon-shape .label{text-align:center;}#mermaid-1784222655148 .node.clickable{cursor:pointer;}#mermaid-1784222655148 .root .anchor path{fill:#666!important;stroke-width:0;stroke:#666;}#mermaid-1784222655148 .arrowheadPath{fill:#333333;}#mermaid-1784222655148 .edgePath .path{stroke:#666;stroke-width:1px;}#mermaid-1784222655148 .flowchart-link{stroke:#666;fill:none;}#mermaid-1784222655148 .edgeLabel{background-color:white;text-align:center;}#mermaid-1784222655148 .edgeLabel p{background-color:white;}#mermaid-1784222655148 .edgeLabel rect{opacity:0.5;background-color:white;fill:white;}#mermaid-1784222655148 .labelBkg{background-color:rgba(255, 255, 255, 0.5);}#mermaid-1784222655148 .cluster rect{fill:hsl(0, 0%, 98.9215686275%);stroke:#707070;stroke-width:1px;}#mermaid-1784222655148 .cluster text{fill:#333;}#mermaid-1784222655148 .cluster span{color:#333;}#mermaid-1784222655148 div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:'Geist',system-ui,sans-serif;font-size:12px;background:hsl(-160, 0%, 93.3333333333%);border:1px solid #707070;border-radius:2px;pointer-events:none;z-index:100;}#mermaid-1784222655148 .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#mermaid-1784222655148 rect.text{fill:none;stroke-width:0;}#mermaid-1784222655148 .icon-shape,#mermaid-1784222655148 .image-shape{background-color:white;text-align:center;}#mermaid-1784222655148 .icon-shape p,#mermaid-1784222655148 .image-shape p{background-color:white;padding:2px;}#mermaid-1784222655148 .icon-shape .label rect,#mermaid-1784222655148 .image-shape .label rect{opacity:0.5;background-color:white;fill:white;}#mermaid-1784222655148 .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#mermaid-1784222655148 .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#mermaid-1784222655148 .node .neo-node{stroke:#999;}#mermaid-1784222655148 [data-look="neo"].node rect,#mermaid-1784222655148 [data-look="neo"].cluster rect,#mermaid-1784222655148 [data-look="neo"].node polygon{stroke:url(#mermaid-1784222655148-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784222655148 [data-look="neo"].swimlane.cluster rect{filter:none;}#mermaid-1784222655148 [data-look="neo"].node path{stroke:url(#mermaid-1784222655148-gradient);stroke-width:1px;}#mermaid-1784222655148 [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784222655148 [data-look="neo"].node .neo-line path{stroke:#999;filter:none;}#mermaid-1784222655148 [data-look="neo"].node circle{stroke:url(#mermaid-1784222655148-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784222655148 [data-look="neo"].node circle .state-start{fill:#000000;}#mermaid-1784222655148 [data-look="neo"].icon-shape .icon{fill:url(#mermaid-1784222655148-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784222655148 [data-look="neo"].icon-shape .icon-neo path{stroke:url(#mermaid-1784222655148-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784222655148 :root{--mermaid-font-family:'Geist',system-ui,sans-serif;}</style><g><marker id="mermaid-1784222655148_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="mermaid-1784222655148_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="mermaid-1784222655148_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></path></marker><marker id="mermaid-1784222655148_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></polygon></marker><marker id="mermaid-1784222655148_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="mermaid-1784222655148_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="mermaid-1784222655148_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="mermaid-1784222655148_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="mermaid-1784222655148_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="mermaid-1784222655148_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="mermaid-1784222655148_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"></path></marker><marker id="mermaid-1784222655148_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"></path></marker><g class="root"><g class="clusters"></g><g class="edgePaths"><path d="M210.219,193.32L224.016,181.284C237.813,169.249,265.406,145.178,282.703,133.142C300,121.107,307,121.107,310.5,121.107L314,121.107" id="mermaid-1784222655148-L_A_B_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_A_B_0" data-points="W3sieCI6MjEwLjIxOTI2MjIzNDE0NzcsInkiOjE5My4zMTk4NTA5MjE2MzA4Nn0seyJ4IjoyOTMsInkiOjEyMS4xMDY2MTY5NzM4NzY5NX0seyJ4IjozMTgsInkiOjEyMS4xMDY2MTY5NzM4NzY5NX1d" data-look="classic" marker-end="url(#mermaid-1784222655148_flowchart-v2-pointEnd)"></path><path d="M578,80.556L598.066,74.297C618.133,68.037,658.266,55.519,697.733,50.499C737.201,45.479,776.003,47.959,795.404,49.198L814.805,50.438" id="mermaid-1784222655148-L_B_C_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_B_C_0" data-points="W3sieCI6NTc4LCJ5Ijo4MC41NTU4MDQwMDU2MjkwOH0seyJ4Ijo2OTguMzk4NDM3NSwieSI6NDN9LHsieCI6ODE4Ljc5Njg3NSwieSI6NTAuNjkzMjM4OTAwNTAyMzJ9XQ==" data-look="classic" marker-end="url(#mermaid-1784222655148_flowchart-v2-pointEnd)"></path><path d="M818.797,91.244L798.73,96.221C778.664,101.198,738.531,111.152,699.065,116.13C659.599,121.107,620.799,121.107,601.4,121.107L582,121.107" id="mermaid-1784222655148-L_C_B_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_C_B_0" data-points="W3sieCI6ODE4Ljc5Njg3NSwieSI6OTEuMjQ0MDUxODY4NzUwMn0seyJ4Ijo2OTguMzk4NDM3NSwieSI6MTIxLjEwNjYxNjk3Mzg3Njk1fSx7IngiOjU3OCwieSI6MTIxLjEwNjYxNjk3Mzg3Njk1fV0=" data-look="classic" marker-end="url(#mermaid-1784222655148_flowchart-v2-pointEnd)"></path><path d="M1078.797,59L1082.964,59C1087.13,59,1095.464,59,1115.202,74.564C1134.941,90.129,1166.085,121.257,1181.657,136.821L1197.229,152.386" id="mermaid-1784222655148-L_C_D_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_C_D_0" data-points="W3sieCI6MTA3OC43OTY4NzUsInkiOjU5fSx7IngiOjExMDMuNzk2ODc1LCJ5Ijo1OX0seyJ4IjoxMjAwLjA1ODUwNjkwNTIzMSwieSI6MTU1LjIxMzIzMzk0Nzc1Mzl9XQ==" data-look="classic" marker-end="url(#mermaid-1784222655148_flowchart-v2-pointEnd)"></path><path d="M1200.059,233.213L1184.015,249.249C1167.971,265.284,1135.884,297.355,1094.007,313.391C1052.13,329.426,1000.464,329.426,932.897,329.426C865.331,329.426,781.865,329.426,698.398,329.426C614.932,329.426,531.466,329.426,463.9,329.426C396.333,329.426,344.667,329.426,315.27,327.746C285.873,326.065,278.745,322.703,275.181,321.022L271.618,319.341" id="mermaid-1784222655148-L_D_A_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_D_A_0" data-points="W3sieCI6MTIwMC4wNTg1MDY5MDUyMzEsInkiOjIzMy4yMTMyMzM5NDc3NTM5fSx7IngiOjExMDMuNzk2ODc1LCJ5IjozMjkuNDI2NDY3ODk1NTA3OH0seyJ4Ijo5NDguNzk2ODc1LCJ5IjozMjkuNDI2NDY3ODk1NTA3OH0seyJ4Ijo2OTguMzk4NDM3NSwieSI6MzI5LjQyNjQ2Nzg5NTUwNzh9LHsieCI6NDQ4LCJ5IjozMjkuNDI2NDY3ODk1NTA3OH0seyJ4IjoyOTMsInkiOjMyOS40MjY0Njc4OTU1MDc4fSx7IngiOjI2OCwieSI6MzE3LjYzNTA3ODA2MTAxMTU0fV0=" data-look="classic" marker-end="url(#mermaid-1784222655148_flowchart-v2-pointEnd)"></path><path d="M568.354,172.107L590.028,181.291C611.702,190.475,655.05,208.844,699.874,218.029C744.698,227.213,790.997,227.213,814.147,227.213L837.297,227.213" id="mermaid-1784222655148-L_B_G_0" class="edge-thickness-normal edge-pattern-dotted edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_B_G_0" data-points="W3sieCI6NTY4LjM1MzY2NTc0Mzk5NDIsInkiOjE3Mi4xMDY2MTY5NzM4NzY5NX0seyJ4Ijo2OTguMzk4NDM3NSwieSI6MjI3LjIxMzIzMzk0Nzc1Mzl9LHsieCI6ODQxLjI5Njg3NSwieSI6MjI3LjIxMzIzMzk0Nzc1Mzl9XQ==" data-look="classic" marker-end="url(#mermaid-1784222655148_flowchart-v2-pointEnd)"></path></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="L_A_B_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_B_C_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(698.3984375, 121.10661697387695)"><g class="label" data-id="L_C_B_0" transform="translate(-28.4453125, -12)"><foreignObject width="56.890625" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Befund</p></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_C_D_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(698.3984375, 329.4264678955078)"><g class="label" data-id="L_D_A_0" transform="translate(-95.3984375, -12)"><foreignObject width="190.796875" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Feedback, oft 1–2 Sätze</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(698.3984375, 227.2132339477539)"><g class="label" data-id="L_B_G_0" transform="translate(-69.9921875, -12)"><foreignObject width="139.984375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>Commit je Schritt</p></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default" id="mermaid-1784222655148-flowchart-A-0" data-look="classic" transform="translate(138, 256.31985092163086)"><rect class="basic label-container" style="" x="-130" y="-63" width="260" height="126"></rect><g class="label" style="" transform="translate(-100, -48)"><rect></rect><foreignObject width="200" height="96"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>Fachexperte / Product Owner<br>Anforderung in Fachsprache</p></span></div></foreignObject></g></g><g class="node default" id="mermaid-1784222655148-flowchart-B-1" data-look="classic" transform="translate(448, 121.10661697387695)"><rect class="basic label-container" style="" x="-130" y="-51" width="260" height="102"></rect><g class="label" style="" transform="translate(-100, -36)"><rect></rect><foreignObject width="200" height="72"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>KI-Agent<br>implementiert im Framework-Zaun</p></span></div></foreignObject></g></g><g class="node default" id="mermaid-1784222655148-flowchart-C-3" data-look="classic" transform="translate(948.796875, 59)"><rect class="basic label-container" style="" x="-130" y="-51" width="260" height="102"></rect><g class="label" style="" transform="translate(-100, -36)"><rect></rect><foreignObject width="200" height="72"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>Selbstverifikation<br>Lint · Render-Tests · Screenshots</p></span></div></foreignObject></g></g><g class="node default" id="mermaid-1784222655148-flowchart-D-7" data-look="classic" transform="translate(1239.078125, 194.2132339477539)"><rect class="basic label-container" style="" x="-110.28125" y="-39" width="220.5625" height="78"></rect><g class="label" style="" transform="translate(-80.28125, -24)"><rect></rect><foreignObject width="160.5625" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>Release + Bildbeleg<br>an den PO</p></span></div></foreignObject></g></g><g class="node default" id="mermaid-1784222655148-flowchart-G-11" data-look="classic" transform="translate(948.796875, 227.2132339477539)"><path d="M0,15.808823529411764 a107.5,15.808823529411764 0,0,0 215,0 a107.5,15.808823529411764 0,0,0 -215,0 l0,102.80882352941177 a107.5,15.808823529411764 0,0,0 215,0 l0,-102.80882352941177" class="basic label-container outer-path" style="" transform="translate(-107.5, -67.21323529411765)"></path><g class="label" style="" transform="translate(-100, -26)"><rect></rect><foreignObject width="200" height="72"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>Git-Historie<br>Checkpoints · Belege · Rücksprung</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="mermaid-1784222655148-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><defs><filter id="mermaid-1784222655148-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><linearGradient id="mermaid-1784222655148-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="hsl(0, 0%, 83.3333333333%)" stop-opacity="1"></stop><stop offset="100%" stop-color="hsl(0, 0%, 88.9215686275%)" stop-opacity="1"></stop></linearGradient></svg></pre><figcaption>Abb. 8 — Der Loop: klein iterieren, selbst verifizieren, alles versionieren.</figcaption></figure>
+<p>Die Verallgemeinerung: Dieses Risikoprofil haben <strong>alle</strong>
+Framework-Ökosysteme mit Sandbox und Zertifizierung — Office-Add-ins,
+Browser-Extensions, App-Store-Apps, dbt-Pakete. Dort ist „Vibe Coding"
+nicht trotz, sondern <strong>wegen</strong> der Einschränkungen produktionstauglich.
+Greenfield-Systeme ohne Zaun haben dieses Sicherheitsnetz nicht — dort
+gelten andere Maßstäbe (Kapitel 11).</p>
+<hr>
+<h2 id="sec-9">8 · Git: das unterschätzte Fundament</h2>
+<p>Die unbequeme Wahrheit zuerst: <strong>Ohne Versionskontrolle ist Vibe Coding
+Müll.</strong> Eine KI, die pro Tag dutzende Änderungen produziert, ist ohne
+Rücksprungpunkte kein Beschleuniger, sondern ein unkontrollierbares Risiko —
+jede fehlgeschlagene Iteration kontaminiert den Stand, niemand weiß mehr,
+was wann warum geändert wurde. Mit Git kehrt sich das um; vier Mechanismen
+haben diesen Build getragen:</p>
+<p><strong>1. Checkpoints &amp; Rollback.</strong> Jeder Arbeitsschritt endet in einem Commit
+(im Setup sogar erzwungen: ohne Commit + Push endet keine Arbeitssitzung).
+Reales Beispiel aus dem Projekt: Ein Design-Experiment — ein Wortmarken-Logo
+auf der Startseite — gefiel dem Product Owner nicht. Ein <code>git revert</code>,
+Release als 1.30.4.0, fünf Minuten, kein Schaden:</p>
+<figure><pre class="mermaid"><svg id="mermaid-1784222655290" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="max-width: 358.984375px;" viewBox="-100.984375 -21.5 358.984375 161.2073211669922" role="graphics-document document" aria-roledescription="gitGraph"><style>#mermaid-1784222655290{font-family:'Geist',system-ui,sans-serif;font-size:16px;fill:#000000;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#mermaid-1784222655290 .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#mermaid-1784222655290 .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#mermaid-1784222655290 .error-icon{fill:#552222;}#mermaid-1784222655290 .error-text{fill:#552222;stroke:#552222;}#mermaid-1784222655290 .edge-thickness-normal{stroke-width:1px;}#mermaid-1784222655290 .edge-thickness-thick{stroke-width:3.5px;}#mermaid-1784222655290 .edge-pattern-solid{stroke-dasharray:0;}#mermaid-1784222655290 .edge-thickness-invisible{stroke-width:0;fill:none;}#mermaid-1784222655290 .edge-pattern-dashed{stroke-dasharray:3;}#mermaid-1784222655290 .edge-pattern-dotted{stroke-dasharray:2;}#mermaid-1784222655290 .marker{fill:#666;stroke:#666;}#mermaid-1784222655290 .marker.cross{stroke:#666;}#mermaid-1784222655290 svg{font-family:'Geist',system-ui,sans-serif;font-size:16px;}#mermaid-1784222655290 p{margin:0;}#mermaid-1784222655290 .commit-id,#mermaid-1784222655290 .commit-msg,#mermaid-1784222655290 .branch-label{fill:lightgrey;color:lightgrey;font-family:'trebuchet ms',verdana,arial,sans-serif;font-family:var(--mermaid-font-family);}#mermaid-1784222655290 .branch-label0{fill:#333;}#mermaid-1784222655290 .commit0{stroke:hsl(0, 0%, 70.6862745098%);fill:hsl(0, 0%, 70.6862745098%);}#mermaid-1784222655290 .commit-highlight0{stroke:rgb(74.75, 74.75, 74.75);fill:rgb(74.75, 74.75, 74.75);}#mermaid-1784222655290 .label0{fill:hsl(0, 0%, 70.6862745098%);}#mermaid-1784222655290 .arrow0{stroke:hsl(0, 0%, 70.6862745098%);}#mermaid-1784222655290 .branch-label1{fill:white;}#mermaid-1784222655290 .commit1{stroke:#555;fill:#555;}#mermaid-1784222655290 .commit-highlight1{stroke:#aaaaaa;fill:#aaaaaa;}#mermaid-1784222655290 .label1{fill:#555;}#mermaid-1784222655290 .arrow1{stroke:#555;}#mermaid-1784222655290 .branch-label2{fill:#333;}#mermaid-1784222655290 .commit2{stroke:#BBB;fill:#BBB;}#mermaid-1784222655290 .commit-highlight2{stroke:#444444;fill:#444444;}#mermaid-1784222655290 .label2{fill:#BBB;}#mermaid-1784222655290 .arrow2{stroke:#BBB;}#mermaid-1784222655290 .branch-label3{fill:white;}#mermaid-1784222655290 .commit3{stroke:#777;fill:#777;}#mermaid-1784222655290 .commit-highlight3{stroke:#888888;fill:#888888;}#mermaid-1784222655290 .label3{fill:#777;}#mermaid-1784222655290 .arrow3{stroke:#777;}#mermaid-1784222655290 .branch-label4{fill:#333;}#mermaid-1784222655290 .commit4{stroke:#999;fill:#999;}#mermaid-1784222655290 .commit-highlight4{stroke:#666666;fill:#666666;}#mermaid-1784222655290 .label4{fill:#999;}#mermaid-1784222655290 .arrow4{stroke:#999;}#mermaid-1784222655290 .branch-label5{fill:#333;}#mermaid-1784222655290 .commit5{stroke:#DDD;fill:#DDD;}#mermaid-1784222655290 .commit-highlight5{stroke:#222222;fill:#222222;}#mermaid-1784222655290 .label5{fill:#DDD;}#mermaid-1784222655290 .arrow5{stroke:#DDD;}#mermaid-1784222655290 .branch-label6{fill:#333;}#mermaid-1784222655290 .commit6{stroke:#FFF;fill:#FFF;}#mermaid-1784222655290 .commit-highlight6{stroke:#000000;fill:#000000;}#mermaid-1784222655290 .label6{fill:#FFF;}#mermaid-1784222655290 .arrow6{stroke:#FFF;}#mermaid-1784222655290 .branch-label7{fill:#333;}#mermaid-1784222655290 .commit7{stroke:#DDD;fill:#DDD;}#mermaid-1784222655290 .commit-highlight7{stroke:#222222;fill:#222222;}#mermaid-1784222655290 .label7{fill:#DDD;}#mermaid-1784222655290 .arrow7{stroke:#DDD;}#mermaid-1784222655290 .branch-label8{fill:#333;}#mermaid-1784222655290 .commit8{stroke:hsl(0, 0%, 70.6862745098%);fill:hsl(0, 0%, 70.6862745098%);}#mermaid-1784222655290 .commit-highlight8{stroke:rgb(74.75, 74.75, 74.75);fill:rgb(74.75, 74.75, 74.75);}#mermaid-1784222655290 .label8{fill:hsl(0, 0%, 70.6862745098%);}#mermaid-1784222655290 .arrow8{stroke:hsl(0, 0%, 70.6862745098%);}#mermaid-1784222655290 .branch-label9{fill:white;}#mermaid-1784222655290 .commit9{stroke:#555;fill:#555;}#mermaid-1784222655290 .commit-highlight9{stroke:#aaaaaa;fill:#aaaaaa;}#mermaid-1784222655290 .label9{fill:#555;}#mermaid-1784222655290 .arrow9{stroke:#555;}#mermaid-1784222655290 .branch-label10{fill:#333;}#mermaid-1784222655290 .commit10{stroke:#BBB;fill:#BBB;}#mermaid-1784222655290 .commit-highlight10{stroke:#444444;fill:#444444;}#mermaid-1784222655290 .label10{fill:#BBB;}#mermaid-1784222655290 .arrow10{stroke:#BBB;}#mermaid-1784222655290 .branch-label11{fill:white;}#mermaid-1784222655290 .commit11{stroke:#777;fill:#777;}#mermaid-1784222655290 .commit-highlight11{stroke:#888888;fill:#888888;}#mermaid-1784222655290 .label11{fill:#777;}#mermaid-1784222655290 .arrow11{stroke:#777;}#mermaid-1784222655290 .branch{stroke-width:1;stroke:#666;stroke-dasharray:2;}#mermaid-1784222655290 .commit-label{font-size:10px;fill:rgb(2.7499999999, 2.7499999999, 2.7499999999);}#mermaid-1784222655290 .commit-label-bkg{font-size:10px;fill:hsl(0, 0%, 98.9215686275%);opacity:0.5;}#mermaid-1784222655290 .tag-label{font-size:10px;fill:#111111;}#mermaid-1784222655290 .tag-label-bkg{fill:#eee;stroke:hsl(0, 0%, 83.3333333333%);}#mermaid-1784222655290 .tag-hole{fill:#000000;}#mermaid-1784222655290 .commit-merge{stroke:#eee;fill:#eee;}#mermaid-1784222655290 .commit-reverse{stroke:#eee;fill:#eee;stroke-width:3;}#mermaid-1784222655290 .commit-highlight-inner{stroke:#eee;fill:#eee;}#mermaid-1784222655290 .arrow{stroke-width:8;stroke-linecap:round;fill:none;}#mermaid-1784222655290 .gitTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#mermaid-1784222655290 .node .neo-node{stroke:#999;}#mermaid-1784222655290 [data-look="neo"].node rect,#mermaid-1784222655290 [data-look="neo"].cluster rect,#mermaid-1784222655290 [data-look="neo"].node polygon{stroke:url(#mermaid-1784222655290-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784222655290 [data-look="neo"].swimlane.cluster rect{filter:none;}#mermaid-1784222655290 [data-look="neo"].node path{stroke:url(#mermaid-1784222655290-gradient);stroke-width:1px;}#mermaid-1784222655290 [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784222655290 [data-look="neo"].node .neo-line path{stroke:#999;filter:none;}#mermaid-1784222655290 [data-look="neo"].node circle{stroke:url(#mermaid-1784222655290-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784222655290 [data-look="neo"].node circle .state-start{fill:#000000;}#mermaid-1784222655290 [data-look="neo"].icon-shape .icon{fill:url(#mermaid-1784222655290-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784222655290 [data-look="neo"].icon-shape .icon-neo path{stroke:url(#mermaid-1784222655290-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784222655290 :root{--mermaid-font-family:'Geist',system-ui,sans-serif;}</style><g></g><defs><linearGradient id="mermaid-1784222655290-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="hsl(0, 0%, 83.3333333333%)" stop-opacity="1"></stop><stop offset="100%" stop-color="hsl(0, 0%, 88.9215686275%)" stop-opacity="1"></stop></linearGradient></defs><g class="commit-bullets"></g><g class="commit-labels"></g><g><line x1="0" y1="-2" x2="250" y2="-2" class="branch branch0"></line><rect class="branchLabelBkg label0" style="" rx="4" ry="4" x="-73.984375" y="0.5" width="57.984375" height="23" transform="translate(-19, -14)"></rect><g class="branchLabel"><g class="label branch-label0" transform="translate(-83.984375, -13.5)"><text><tspan xml:space="preserve" dy="1em" x="0" class="row">main</tspan></text></g></g></g><g class="commit-arrows"><path d="M 10 -2 L 60 -2" class="arrow arrow0"></path><path d="M 60 -2 L 110 -2" class="arrow arrow0"></path><path d="M 110 -2 L 160 -2" class="arrow arrow0"></path><path d="M 160 -2 L 210 -2" class="arrow arrow0"></path></g><g class="commit-bullets"><circle cx="10" cy="-2" r="10" class="commit 1.30.2.0 Galerie commit0"></circle><circle cx="60" cy="-2" r="10" class="commit 1.30.3.0 Wordmark-Experiment commit0"></circle><circle cx="110" cy="-2" r="10" class="commit Revert Wordmark commit0"></circle><path d="M 105,-7L115,3M105,3L115,-7" class="commit commit-reverse Revert Wordmark commit0"></path><circle cx="160" cy="-2" r="10" class="commit 1.30.4.0 sauberer Stand commit0"></circle><circle cx="210" cy="-2" r="10" class="commit 1.30.5.0 gestufte Layouts commit0"></circle></g><g class="commit-labels"><g transform="translate(-41.8484375, 37.3328125) rotate(-45, 0, -2)"><rect class="commit-label-bkg" x="-32.1953125" y="11.5" width="84.390625" height="15"></rect><text x="-30.1953125" y="23" class="commit-label">1.30.2.0 Galerie</text></g><g transform="translate(-71.1373828125, 63.5387109375) rotate(-45, 50, -2)"><rect class="commit-label-bkg" x="-20.7333984375" y="11.5" width="161.466796875" height="15"></rect><text x="-18.7333984375" y="23" class="commit-label">1.30.3.0 Wordmark-Experiment</text></g><g transform="translate(-44.59416015625, 39.789511718750006) rotate(-45, 100, -2)"><rect class="commit-label-bkg" x="64.19189453125" y="11.5" width="91.6162109375" height="15"></rect><text x="66.19189453125" y="23" class="commit-label">Revert Wordmark</text></g><g transform="translate(-57.3275, 51.1825) rotate(-45, 150, -2)"><rect class="commit-label-bkg" x="97.4375" y="11.5" width="125.125" height="15"></rect><text x="99.4375" y="23" class="commit-label">1.30.4.0 sauberer Stand</text></g><g transform="translate(-60.0528125, 53.6209375) rotate(-45, 200, -2)"><rect class="commit-label-bkg" x="143.8515625" y="11.5" width="132.296875" height="15"></rect><text x="145.8515625" y="23" class="commit-label">1.30.5.0 gestufte Layouts</text></g></g></svg></pre><figcaption>Abb. 9 — Experimente werden billig, wenn Rückwege garantiert sind.</figcaption></figure>
+<p><strong>2. Kleine Commits als Review-Fläche.</strong> 124 Commits für 60 Releases heißt:
+Die durchschnittliche Änderung ist klein genug, um per Diff gelesen zu
+werden. Das ist die realistische Antwort auf „wer reviewt den KI-Code?" —
+nicht Zeile für Zeile alles, sondern <strong>abgegrenzte Diffs mit beschreibenden
+Commit-Botschaften</strong>, stichprobenhaft tief geprüft.</p>
+<p><strong>3. Branch-Isolation.</strong> Die gesamte Entwicklung lief auf einem eigenen
+Branch — die KI kann nichts „kaputt machen", was nicht explizit
+zusammengeführt wird. Für Teams: KI-Arbeit ist damit organisatorisch genauso
+integrierbar wie die eines neuen Entwicklers, inklusive Pull-Request-Gate.</p>
+<p><strong>4. Historie als Beweismittel.</strong> Jede Zahl in diesem Papier — Kalendertage,
+Commits pro Tag, Release-Frequenz, sogar die Abgrenzung „Visual vs.
+Vorarbeiten" — stammt aus <code>git log</code>. Versionskontrolle macht KI-Entwicklung
+<strong>auditierbar</strong>: Für Wirtschaftsprüfer, für IT-Compliance, für die eigene
+Kostenrechnung. Ohne Git wäre dieses Papier Behauptung; mit Git ist es
+nachrechenbar. Nach unserer Kenntnis gehört diese Historie zu den ersten
+vollständig öffentlichen Entwicklungsprotokollen eines KI-gebauten
+Produktionswerkzeugs — jeder der 124 Schritte ist einsehbar. Das ist kein
+Nebenprodukt der Fallstudie, sondern ihr zentrales Qualitätsmerkmal.</p>
+<p><strong>Git als Governance-System.</strong> Für Organisationen ist Git damit mehr als
+ein Werkzeug — es ist die vorhandene Kontrollinfrastruktur für KI-Arbeit:
+<em>Auditierbarkeit</em> — jede Änderung ist Urheber, Zeitpunkt und Begründung
+zuordenbar, anschlussfähig an Wirtschaftsprüfung und IT-Compliance.
+<em>Nachvollziehbarkeit</em> — das „Warum" jeder Entscheidung steht in der
+Historie, nicht im Kopf einer Person. <em>Reviewbarkeit</em> — Pull-Request-Gates
+funktionieren für KI-Beiträge unverändert. <em>Compliance-Anschluss</em> —
+interne Kontrollsysteme docken an bestehende Git-Prozesse an; es braucht
+keine neue Infrastruktur, nur Disziplin in der bestehenden. <span class="ev ev-M">M</span></p>
+<p>Praktische Konsequenz für jedes KI-Entwicklungs-Setup: Commit-Pflicht pro
+Arbeitsschritt, aussagekräftige Botschaften, eigener Branch, Push als Teil
+der Definition-of-Done. Das kostet nichts und entscheidet über
+Produktionstauglichkeit.</p>
+<hr>
+<h2 id="sec-10">9 · Governance, Wartbarkeit, Bus-Faktor — die Risiko-Fragen</h2>
+<p>Wer über den Einsatz dieses Musters entscheidet, fragt nicht nach Code,
+sondern nach Risiko. Die vier Fragen, die dabei regelmäßig zuerst kommen —
+und was dieser Fall auf sie antwortet:</p>
+<p><strong>Wer prüft KI-generierten Code?</strong> Drei Schichten, keine davon optional:
+(1) <em>Automatisierte Gates</em> — Microsoft-Lint-Regeln, Zertifizierungs-Checks
+(kein <code>eval</code>, kein <code>innerHTML</code>, kein Nachladen), <code>npm audit</code>; alle liefen
+projektweit auf Null Findings. (2) <em>Abgegrenzte Diffs</em> — 124 Commits für
+60 Releases bedeuten kleine, lesbare Änderungen mit beschreibenden
+Botschaften; geprüft wird stichprobenhaft tief statt vollständig
+oberflächlich (Kapitel 8). (3) <em>Fachliche Abnahme am Ergebnis</em> — der
+Product Owner prüft jede Iteration am gerenderten Bild gegen fachliche
+Regeln („Bestandsgrößen darf man nicht summieren"). Für Organisationen
+heißt das: Der Review-Prozess für KI-Code existiert bereits — es ist der
+Pull-Request-Prozess für menschlichen Code, mit strengeren automatischen
+Gates.</p>
+<p><strong>Wie werden Halluzinationen abgefangen?</strong> Im Framework-Kontext äußert
+sich ein KI-Fehler nicht als plausible Falschbehauptung, sondern als
+falsch gezeichnetes Chart oder gebrochener Test — er ist <em>sichtbar</em>
+(Kapitel 7). Der Headless-Render-Harness erzeugt für jeden Stand
+Bildbelege; die fachliche Korrektheit prüft der Domänenexperte, nicht die
+KI selbst. Restrisiko bleibt bei subtilen Rechenfehlern, die optisch
+plausibel aussehen — dagegen stehen die 80+ Testfälle mit bekannten
+Erwartungswerten.</p>
+<p><strong>Wer wartet das in drei Jahren?</strong> Die ehrlichste Antwort: nicht zwingend
+dieselbe Person. Die Wartbarkeit hängt an drei Eigenschaften, die
+personenunabhängig sind: offener Quellcode (jeder Entwickler <em>und</em> jede
+künftige KI kann die Codebasis vollständig lesen), lückenlose Git-Historie
+mit beschreibenden Commits (das „Warum" jeder Entscheidung ist
+dokumentiert) und das Framework selbst (API-Updates von Microsoft sind der
+Haupt-Pflegetreiber und betreffen alle Visuals gleich). Die
+DCF-Rechnung (Kapitel 5) preist Pflege mit 3 T€/Jahr ein und bleibt bis
+10 T€/Jahr robust — das entspricht 12–40 PO-Stunden jährlich mit derselben
+Methode.</p>
+<p><strong>Was passiert, wenn der Product Owner geht?</strong> Der klassische Bus-Faktor-1
+ist hier in zwei Hälften geteilt: Das <em>technische</em> Wissen liegt
+vollständig im Repository (Code, Historie, Testfälle, maschinenlesbare
+Projekt-Doku) — es ist übertragbar, an Menschen wie an KI-Agenten. Das
+<em>Steuerungs</em>-Wissen — welche fachlichen Anforderungen als Nächstes
+zählen — bleibt personengebunden, wie bei jedem Fachverfahren. Empfehlung
+für den Organisationseinsatz: Anforderungen und Abnahme-Entscheidungen im
+Repository mitführen (hier geschehen: Backlog und Changelog sind
+öffentlich) und früh eine zweite Person in die Steuerung einbinden.</p>
+<p><strong>Grenzen der Qualitätsevidenz — offen benannt:</strong> Die vorliegenden
+Qualitätsbelege sind Prozess- und Prüfmetriken (Tests, Lint, Audit,
+Release-Historie). Es fehlen: formale Performance- und Speicher-Messungen,
+strukturiertes Nutzerfeedback in der Breite und die abgeschlossene
+Microsoft-Zertifizierung (eingereicht wird gerade; das Einreichungspaket
+ist Teil des Repos). Diese Lücken stehen im öffentlichen Backlog und
+gehören in jede seriöse Übernahme-Entscheidung (Kapitel 11).</p>
+<hr>
+<h2 id="sec-11">10 · Die Marktthese: Open Source × KI wirkt multiplikativ</h2>
+<blockquote>
+<p><strong>Einordnung — Reichweite dieses Kapitels:</strong> Ab hier verlässt das Papier
+den belegten Einzelfall. Die folgenden Aussagen sind <strong>Hypothesen über
+mögliche Marktwirkungen</strong>, abgeleitet aus einer Fallstudie (n = 1) und
+historischen Analogien. Sie beschreiben, was passieren <em>könnte</em>, wenn
+sich das Muster in weiteren Fällen bestätigt — nicht, was nachweislich
+passiert. Wer ausschließlich belegte Aussagen sucht, kann dieses Kapitel
+überspringen — Kapitel 1–9 stehen ohne es. <span class="ev ev-H">H</span></p>
+</blockquote>
+<p>Die Wirkungskette der Hypothese, Glied für Glied: <strong>KI senkt die
+Entwicklungskosten</strong> im gezäunten Anwendungs-Layer (am Fall belegt,
+Kapitel 2–4) → <strong>Funktions-Nachbau wird billig</strong>, der Preisaufschlag für
+Standard-Features verliert seine Grundlage → <strong>Open-Source-Alternativen
+werden dauerhaft pflegbar</strong> und damit erstmals glaubwürdig → <strong>der
+zahlungswürdige Rest verschiebt sich zu Support, Haftung und
+Integration</strong> → <strong>Anbieter passen Preise oder Geschäftsmodell an</strong>. Nur
+das erste Glied ist belegt; jedes weitere ist einzeln plausibel, aber
+unbewiesen. <span class="ev ev-H">H</span></p>
+<p>Zur Vorgeschichte: Einzeln waren beide Kräfte für Software-Vendoren
+beherrschbar: Open Source
+scheiterte im Anwendungs-Layer oft am Pflegeargument („wer wartet das?");
+KI-Entwicklung allein blieb ohne offene Referenz-Codebasen auf
+Prototypen-Niveau. <strong>Unsere Beobachtung legt nahe, dass sie sich
+gegenseitig verstärken:</strong></p>
+<ul>
+<li>KI macht Community-Software <strong>pflegbar</strong> — ein Ein-Personen-Projekt hat
+effektiv ein Entwicklerteam; „Bus-Faktor 1" bedeutet nicht mehr Stillstand.</li>
+<li>Offener Code macht KI <strong>präzise</strong> — jedes offene Projekt ist sofort
+erweiterbar, weil das Modell die Codebasis liest wie ein eingearbeiteter
+Entwickler.</li>
+</ul>
+<p>Träfe das breit zu, geriete der klassische Schutzwall funktionsorientierter
+Software-Anbieter („Entwicklung ist teuer, wir haben sie bezahlt, ihr
+mietet sie") unter Druck. Am stärksten exponiert wären:
+Single-Product-Anbieter mit Funktions-Differenzierung und
+Sitzplatz-Preisen. Wenig betroffen: Plattformen (Microsoft gewinnt durch
+jedes gute Visual), Daten-/Netzwerk-Lock-in, Haftung als Kaufgrund.</p>
+<p>Das historische Muster existiert: Open Source hat die
+Infrastruktur-Schicht konsolidiert (Linux, Postgres); überlebt hat das
+<strong>Red-Hat-Modell</strong> — Software frei, Erlöse aus Support und Verlässlichkeit.
+Unsere Erwartung: Dasselbe Modell erreicht jetzt den Anwendungs-Layer.</p>
+<p><strong>Gegenkräfte, ehrlich benannt:</strong> (1) Vendoren können ebenfalls KI-gestützt
+entwickeln — was fällt, ist ihr Preissetzungsspielraum gegen „gut genug und
+kostenlos", nicht ihr Produkt. (2) Die kommende Flut KI-gebauter
+Wegwerf-Software wertet Vertrauenssignale <strong>auf</strong>: Zertifizierung,
+Release-Historie, ein Gesicht dahinter. (3) Ein Marktsegment zahlt dauerhaft
+für SLAs und Haftung — es schrumpft, verschwindet nicht.</p>
+<hr>
+<h2 id="sec-12">11 · Übertragbarkeit — und Grenzen</h2>
+<p>Drei Zutaten erklären das Ergebnis; fehlt eine, bricht die Rechnung:</p>
+<ol>
+<li><strong>Festes Framework</strong> (Kapitel 7) — begrenzte Bug-/Security-Fläche, lokale
+Verifikation.</li>
+<li><strong>Domänenexpertise in der Steuerung</strong> — Anforderungen in Fachsprache mit
+eingebautem Qualitätsmaßstab („Bestandsgrößen darf man nicht summieren").
+Der Unterschied zwischen zwei Iterationen und zwanzig.</li>
+<li><strong>Selbstverifikation + Versionskontrolle</strong> (Kapitel 8) — der Loop aus Abb. 8.</li>
+</ol>
+<p>Wo das Muster trägt und wo nicht — nach den fünf Mechanismen aus
+Kapitel 7 beurteilt <span class="ev ev-S">S</span>:</p>
+<table>
+<thead>
+<tr>
+<th>Systemklasse</th>
+<th align="center">Eignung</th>
+<th>Begründung</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Power-BI-Visuals, Office-Add-ins</td>
+<td align="center">✓</td>
+<td>fester API-Vertrag, Sandbox, Zertifizierungsregeln, lokale Verifikation</td>
+</tr>
+<tr>
+<td>Browser- und IDE-Extensions</td>
+<td align="center">✓</td>
+<td>definierte Manifest-/API-Grenzen, schneller lokaler Test</td>
+</tr>
+<tr>
+<td>dbt-Pakete, Analytics-Artefakte</td>
+<td align="center">✓</td>
+<td>deklarativer Rahmen, deterministische Prüfung gegen Daten</td>
+</tr>
+<tr>
+<td>Interne Fachtools mit klarem Rahmen</td>
+<td align="center">✓</td>
+<td>abgegrenzte Fachlogik, Fachexperte als Product Owner verfügbar</td>
+</tr>
+<tr>
+<td>Greenfield-Plattformen</td>
+<td align="center">✗</td>
+<td>Architektur-Freiheitsgrade sind genau das, was der Zaun wegnimmt</td>
+</tr>
+<tr>
+<td>Verteilte Systeme</td>
+<td align="center">✗</td>
+<td>Fehlerbilder entstehen im Zusammenspiel, Verifikation ist nicht lokal</td>
+</tr>
+<tr>
+<td>Embedded / Safety-Critical</td>
+<td align="center">✗</td>
+<td>Normen und formale Nachweise verlangen andere Prozesse</td>
+</tr>
+<tr>
+<td>Legacy-Monolithen</td>
+<td align="center">✗</td>
+<td>riesiger Kontext, langsame Verifikation — der METR-Befund zeigt die Richtung (Anhang B.6)</td>
+</tr>
+</tbody></table>
+<p><strong>Offene Punkte dieses Projekts,</strong> die ein 250-T€-Projekt enthalten hätte:
+Endnutzer-Doku, formale Abnahmetests mit Anwendern, eine vollständige
+adversariale Prüfrunde der jüngsten Pakete. Sie stehen im öffentlichen
+Backlog — Transparenz gehört zur Glaubwürdigkeit.</p>
+<hr>
+<h2 id="sec-13">12 · Was das für Unternehmen bedeuten kann</h2>
+<p>Die folgenden Ableitungen stehen unter dem Vorbehalt aus Kapitel 10 und
+Prämisse 6: Belegt ist der Einzelfall; die Empfehlungen beschreiben
+<strong>mögliche Konsequenzen</strong>, deren Tragweite davon abhängt, ob sich das
+Muster in weiteren, unabhängigen Fällen bestätigt. Als risikoarme erste
+Schritte taugen sie trotzdem — keiner davon setzt voraus, dass die
+Marktthese eintrifft.</p>
+<p><strong>CFO / Controlling-Leitung:</strong> Visual- und Werkzeug-Lizenzen gegen die freie
+Alternative prüfen — als Wechseloption oder Verhandlungskarte. Ab ~150–200
+Nutzern ist der Barwertvorteil erheblich (Kapitel 5).</p>
+<p><strong>IT- / BI-Verantwortliche:</strong> Die Kombination „Framework-Zaun + interner
+Fachexperte + KI + Git-Disziplin" ist reproduzierbar — und mit dem internen
+100-€-Satz ist die Einstiegshürde vierstellig, nicht sechsstellig.
+Kandidaten: alles, was heute als Sitzplatz-Lizenz eingekauft wird, im Kern
+aber abgegrenzte Fachlogik ist.</p>
+<p><strong>Software-Anbieter:</strong> Feature-Paritäts-Verteidigung wird teurer als
+Differenzierung nach oben (Planung, Writeback, Enterprise-Integration) oder
+ein Service-Modell. Die Preissetzung der Basisschicht diszipliniert sich.</p>
+<p><strong>Beratungen:</strong> Der Wert wandert von der Lizenz zur Expertise. Das
+tragfähige Modell ist das der Infrastruktur-Welt: Software frei, Erlöse aus
+Enablement, Support und Weiterentwicklung — das Abo als formalisierte
+Antwort auf die Pflege-Frage.</p>
+<p><strong>Die Handlungsempfehlung in einem Satz:</strong> Unternehmen sollten ihre
+Build-vs.-Buy-Entscheidungen für Framework-Software unter den Bedingungen
+KI-gestützter Entwicklung neu bewerten — nicht, weil dieser Einzelfall es
+erzwingt, sondern weil die Rechenwege dafür jetzt offen vorliegen und ein
+Nachrechnen im eigenen Haus wenige Tage kostet, nicht Monate. <span class="ev ev-S">S</span></p>
+<blockquote>
+<p><strong>Dieses Papier behauptet nicht:</strong> dass KI Entwickler ersetzt · dass
+jede Software in zehn Tagen entsteht · dass jeder Fachbereich dieselben
+Ergebnisse erreicht · dass ein Einzelfall einen Markttrend beweist.</p>
+<p><strong>Es zeigt:</strong> einen vollständig dokumentierten Praxisfall <span class="ev ev-M">M</span> · eine
+nachvollziehbare wirtschaftliche Bewertung nach anerkannten
+Verfahren <span class="ev ev-S">S</span> · plausible Konsequenzen für die
+Build-vs.-Buy-Entscheidung <span class="ev ev-S">S</span> · begründete Hypothesen für weitere
+Untersuchung <span class="ev ev-H">H</span>.</p>
+</blockquote>
+<hr>
+<h2 id="sec-14">Einladung: Replizieren, widerlegen, erweitern</h2>
+<p>Eine Fallstudie beweist keine Regel — sie stellt eine präzise Frage. Die
+Antwort entsteht durch Wiederholung: <strong>Wenn Sie ein vergleichbares Vorhaben
+umsetzen — in einem anderen Framework, mit einem anderen Fachgebiet, im
+Team statt allein —, dokumentieren Sie es nach derselben Methode</strong> (Anhang
+A: Git-Historie, Stundenprotokoll, Werkzeugkosten, Bewertungsverfahren aus
+Anhang B) und stellen Sie die Ergebnisse neben diese. Bestätigende Fälle
+schärfen die Randbedingungen; widersprechende sind mindestens so wertvoll —
+sie zeigen, wo der Zaun endet.</p>
+<p>Drei Replikationsfragen halten wir für besonders lohnend: Hält der
+Kostenhebel in einem zweiten Framework-Ökosystem (Office-Add-in,
+dbt-Paket)? Wie stark fällt er, wenn ein Multi-Stakeholder-Team statt
+einer Einzelperson steuert? Und wo liegt er bei einem Product Owner ohne
+Entwicklungs-Vorerfahrung? Repository, Methodik und dieses Papier sind
+öffentlich — Widerspruch ist ausdrücklich erwünscht.</p>
+<p><strong>Kontakt für Replikationen, Kritik und Rückfragen:</strong>
+Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a></p>
+<hr>
+<h2 id="sec-15">Anhang A · Methodik und Belege</h2>
+<ul>
+<li><strong>Projektdaten:</strong> Git-Historie des öffentlichen Repositories (erster
+Visual-Commit 06.07.2026; 124 Commits, ~60 Releases bis 15.07.2026);
+Code-Umfang per <code>wc -l</code>; Testfälle im Repo. Abb. 1, 2 und 4 sind
+unbearbeitete Render-Ausgaben des Test-Harness; Abb. 3, 6 und 7 sind aus
+den Rohdaten erstellte Schaubilder; Abb. 5 ist ein Prozess-Schema.</li>
+<li><strong>Token-/Kostendaten:</strong> Auswertung des Entwicklungs-Session-Protokolls
+(4.446 API-Aufrufe; Output 5,3 M, Cache-Write 70,5 M, Cache-Read 1.725 M
+Tokens); API-Listenpreise Stand Juni 2026; Abo-Kosten laut Rechnung.</li>
+<li><strong>Stundensätze:</strong> 250 €/h externer Senior-Berater (Marktsatz), 100 €/h
+interner Vollkostensatz (Gehalt + Nebenkosten + Overhead eines erfahrenen
+Controllers/BI-Verantwortlichen).</li>
+<li><strong>CO₂-Schätzung:</strong> Methodik des Daten-WG-KI-CO₂-Simulators (Wh je 1.000
+Output-Tokens nach Modellklasse, PUE 1,15–1,56, US-Strommix 300–450 g/kWh);
+Cache-Reads mit Faktor 0,1 als preis-analoge Näherung.</li>
+<li><strong>Klassische Kostenschätzung:</strong> Bottom-up in PM (Kapitel 3), bewertet mit
+9 T€/PM intern bzw. 900–1.200 €/Tag extern; keine Anbieterangebote
+eingeholt, Spanne bewusst breit.</li>
+<li><strong>DCF-Annahmen:</strong> Lizenzpreise 7–12 €/Nutzer/Monat (öffentliche
+Preisindikationen kommerzieller IBCS-Visuals, volumenabhängig); 8 %
+Diskontsatz; 5 Jahre; Pflege Eigenbau 3 T€/Jahr (Sensitivität bis
+10 T€/Jahr geprüft).</li>
+<li><strong>Interessenlage:</strong> Die Daten-WG ist Herausgeberin des beschriebenen
+Visuals und erbringt Beratungsleistungen im Power-BI-Umfeld. Alle
+Schätzungen sind Größenordnungen, keine Angebote oder Zusicherungen.</li>
+</ul>
+<h2 id="sec-16">Anhang B · Bewertung nach anerkannten Verfahren — die Rechenwege</h2>
+<p>Bewertungsstandards für immaterielle Vermögenswerte (IDW S 5 [1],
+IVS 210 [2]; bilanziell IAS 38 [3]) kennen drei Verfahrensfamilien:
+<strong>kostenorientiert</strong> (Wiederbeschaffungskosten), <strong>kapitalwertorientiert</strong>
+(abgezinste künftige Zahlungen, inkl. Lizenzpreisanalogie) und
+<strong>marktpreisorientiert</strong> (Vergleichstransaktionen). Dieser Anhang rechnet
+die ersten beiden vollständig vor; der Marktpreisansatz scheidet mangels
+beobachtbarer Transaktionen einzelner Visuals aus — seine Rolle übernehmen
+die öffentlichen Lizenzpreise, die in B.2 und B.3 einfließen.</p>
+<h3>B.1 Kostenorientiert: Wiederbeschaffungskosten, drei Schätzverfahren</h3>
+<p><strong>Verfahren 1 — Bottom-up-Expertenschätzung</strong> (Kapitel 3): Zerlegung in
+zehn Arbeitsblöcke, je Block eine PM-Spanne. Ergebnis: <strong>14–18 PM</strong> inkl.
+Projektrealität.</p>
+<p><strong>Verfahren 2 — COCOMO II</strong> (parametrisches Modell, Boehm et al. [4]).
+Grundformel:</p>
+<pre><code>PM = A × Size^E × ∏EM        mit A = 2,94; Size in KSLOC;
+E  = B + 0,01 × ΣSF          mit B = 0,91; nominal E ≈ 1,10
+</code></pre>
+<p>Eingesetzt mit Size = 10,2 KSLOC (gemessener Kern-Code):</p>
+<table>
+<thead>
+<tr>
+<th>Szenario</th>
+<th>Effort-Multiplikatoren ∏EM</th>
+<th>Ergebnis</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Nominal (durchschnittliches Team, Standardbedingungen)</td>
+<td>1,0</td>
+<td><strong>~38 PM</strong></td>
+</tr>
+<tr>
+<td>Angepasst: hohe Team-/Analystenfähigkeit, eingespielte Werkzeugkette, geringe Neuartigkeit</td>
+<td>0,4–0,5</td>
+<td><strong>15–19 PM</strong></td>
+</tr>
+</tbody></table>
+<p>Ein PM entspricht in COCOMO II 152 Arbeitsstunden. Das angepasste Szenario
+entspricht einem erfahrenen Spezialistenteam — die realistische Besetzung
+für ein solches Projekt; das Nominal-Szenario markiert die Obergrenze.</p>
+<p><strong>Verfahren 3 — Function-Point-Analyse</strong> (ISO/IEC 20926 [5]). Da keine
+formale Zählung vorliegt, wird per Backfiring aus dem Code-Umfang
+geschätzt (Jones [6]: JavaScript-Familie ~40–60 LOC je FP):</p>
+<pre><code>10.200 LOC ÷ 50 LOC/FP ≈ 204 FP   (Bandbreite 170–255 FP)
+</code></pre>
+<p>Mit typischen Lieferraten für neue Business-Anwendungen von 8–15 Stunden
+je FP (ISBSG-Benchmarks [7]): 204 FP × 8–15 h = 1.630–3.060 h ≈
+<strong>11–20 PM</strong> (volle Bandbreite über beide Unsicherheiten: 9–25 PM).</p>
+<p><strong>Triangulation</strong> — Bewertung mit 9 T€/PM intern bzw. 900–1.200 €/Tag
+extern (1 PM ≈ 19 Personentage):</p>
+<table>
+<thead>
+<tr>
+<th>Verfahren</th>
+<th>Aufwand</th>
+<th align="right">Intern (9 T€/PM)</th>
+<th align="right">Extern (900–1.200 €/Tag)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Bottom-up (Kapitel 3)</td>
+<td>14–18 PM</td>
+<td align="right">126–162 T€</td>
+<td align="right">240–410 T€</td>
+</tr>
+<tr>
+<td>COCOMO II, angepasst</td>
+<td>15–19 PM</td>
+<td align="right">135–171 T€</td>
+<td align="right">255–435 T€</td>
+</tr>
+<tr>
+<td>Function Points</td>
+<td>11–20 PM</td>
+<td align="right">100–180 T€</td>
+<td align="right">190–455 T€</td>
+</tr>
+<tr>
+<td><em>COCOMO II, nominal (Obergrenze)</em></td>
+<td><em>~38 PM</em></td>
+<td align="right"><em>~340 T€</em></td>
+<td align="right"><em>~650–870 T€</em></td>
+</tr>
+</tbody></table>
+<p>Alle drei Hauptverfahren landen in derselben Größenordnung. Die im Papier
+verwendete Spanne <strong>150–350 T€</strong> liegt innerhalb der Triangulation und
+ist gegen deren Obergrenzen konservativ; der Abschlag für noch fehlende
+Endnutzer-Doku und Abnahmetests (−10–20 %, Kapitel 3) ist dabei bereits
+angesprochen.</p>
+<p><strong>Warum COCOMO II und Function Points — und nicht DORA oder SPACE?</strong> Für
+einen Wiederbeschaffungswert braucht es Verfahren, die den <em>Aufwand für
+einen definierten Funktionsumfang</em> schätzen — das leisten parametrische
+Modelle (COCOMO II) und funktionale Größenmessung (Function Points).
+Moderne Team-Performance-Frameworks wie DORA/Accelerate [14] oder
+SPACE [15] messen dagegen Lieferfähigkeit und Entwicklererleben laufender
+Organisationen — sie beantworten eine andere Frage und werden hier bewusst
+nicht als Kostenmaßstab verwendet. Wichtig außerdem: COCOMO II ist auf
+klassische Entwicklung kalibriert (Datenbasis bis ~2000). Es dient in
+diesem Papier ausschließlich der <strong>Plausibilisierung der klassischen
+Vergleichskosten</strong> — nie der Bewertung des KI-gestützten Wegs selbst.</p>
+<h3>B.2 Kapitalwertorientiert: DCF, Jahr für Jahr</h3>
+<p>Barwertformel und Annuitätenfaktor (Standard-Finanzmathematik, z. B.
+Brealey/Myers/Allen [8]):</p>
+<pre><code>PV = Σ CFt / (1+r)^t          AF(r; n) = (1 − (1+r)^−n) / r
+AF(8 %; 5 J) = (1 − 1,08^−5) / 0,08 = 3,9927
+</code></pre>
+<p><strong>Rechenbeispiel Mittelstand:</strong> 200 Report-Nutzer, Lizenz 10 €/Nutzer/Monat
+= 24.000 €/Jahr, nachschüssig; Eigenbau 5.200 € sofort + 3.000 €/Jahr
+Pflege:</p>
+<table>
+<thead>
+<tr>
+<th>Jahr</th>
+<th align="right">Lizenz-Zahlung</th>
+<th align="right">Abzinsfaktor (8 %)</th>
+<th align="right">Barwert Lizenz</th>
+<th align="right">Barwert Pflege</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td align="right">—</td>
+<td align="right">1,0000</td>
+<td align="right">—</td>
+<td align="right">5.200 € (Invest)</td>
+</tr>
+<tr>
+<td>1</td>
+<td align="right">24.000 €</td>
+<td align="right">0,9259</td>
+<td align="right">22.222 €</td>
+<td align="right">2.778 €</td>
+</tr>
+<tr>
+<td>2</td>
+<td align="right">24.000 €</td>
+<td align="right">0,8573</td>
+<td align="right">20.576 €</td>
+<td align="right">2.572 €</td>
+</tr>
+<tr>
+<td>3</td>
+<td align="right">24.000 €</td>
+<td align="right">0,7938</td>
+<td align="right">19.052 €</td>
+<td align="right">2.381 €</td>
+</tr>
+<tr>
+<td>4</td>
+<td align="right">24.000 €</td>
+<td align="right">0,7350</td>
+<td align="right">17.641 €</td>
+<td align="right">2.205 €</td>
+</tr>
+<tr>
+<td>5</td>
+<td align="right">24.000 €</td>
+<td align="right">0,6806</td>
+<td align="right">16.334 €</td>
+<td align="right">2.042 €</td>
+</tr>
+<tr>
+<td><strong>Σ</strong></td>
+<td align="right"><strong>120.000 €</strong></td>
+<td align="right"></td>
+<td align="right"><strong>95.825 €</strong></td>
+<td align="right"><strong>17.178 €</strong></td>
+</tr>
+</tbody></table>
+<p><strong>NPV-Vorteil Eigenbau: 95.825 − 17.178 = ~78.600 €.</strong> Payback:
+5.200 € ÷ 24.000 €/Jahr ≈ 2,6 Monate.</p>
+<p><strong>Sensitivität</strong> (NPV-Vorteil in T€, gleicher Fall, Diskontsatz ×
+Pflegekosten):</p>
+<table>
+<thead>
+<tr>
+<th>Pflege \ Diskontsatz</th>
+<th align="right">6 %</th>
+<th align="right">8 %</th>
+<th align="right">10 %</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3 T€/Jahr</td>
+<td align="right">+83,3</td>
+<td align="right">+78,6</td>
+<td align="right">+74,4</td>
+</tr>
+<tr>
+<td>6 T€/Jahr</td>
+<td align="right">+70,6</td>
+<td align="right">+66,7</td>
+<td align="right">+63,0</td>
+</tr>
+<tr>
+<td>10 T€/Jahr</td>
+<td align="right">+53,8</td>
+<td align="right">+50,7</td>
+<td align="right">+47,9</td>
+</tr>
+</tbody></table>
+<p>Der Vorteil bleibt in jeder Kombination sechsstellig positiv im
+Mittelstandsfall — die Entscheidung ist gegen beide Parameter robust.
+<strong>Break-even:</strong> Der Eigenbau-Barwert von 17,2 T€ entspricht — je nach
+Staffelpreis 8–12 €/Nutzer/Monat — dem Lizenz-Barwert von <strong>30–45
+Nutzern</strong>. Darüber gewinnt der Eigenbau.</p>
+<h3>B.3 Lizenzpreisanalogie (Relief from Royalty)</h3>
+<p>Die Lizenzpreisanalogie ist das in IDW S 5 [1] und IVS 210 [2] anerkannte
+kapitalwertorientierte Verfahren zur Bewertung des <strong>Vermögenswerts
+selbst</strong>: Der Wert des Werkzeugs entspricht den abgezinsten Lizenzzahlungen,
+die sein Eigentümer <em>nicht</em> leisten muss, abzüglich der Kosten, die er
+stattdessen trägt.</p>
+<pre><code>Wert ≈ PV(vermiedene Lizenzen) − PV(Pflege)
+200 Nutzer:   95.825 € − 11.978 € ≈  84 T€
+1.000 Nutzer: 335.400 € − 11.978 € ≈ 323 T€
+</code></pre>
+<p>Der Wert ist nutzungsabhängig — dasselbe Visual ist für einen
+1.000-Nutzer-Konzern rund viermal so viel „wert" wie für den Mittelstand.
+Das erklärt präzise, warum ein und dasselbe freie Werkzeug als
+Verhandlungskarte (Kapitel 6) beim Konzern am schärfsten wirkt.</p>
+<h3>B.4 Zeitschätzung klassischer Entwicklung — mit Quellen</h3>
+<p>Die COCOMO-II-Zeitformel [4] liefert die Kalenderzeit unabhängig von der
+Teamgröße:</p>
+<pre><code>TDEV = 3,67 × PM^0,318
+15 PM → ~9 Monate      19 PM → ~9,5 Monate      38 PM → ~12 Monate
+</code></pre>
+<p>Das deckt sich mit der einfachen Überschlagsrechnung (14–18 PM bei 2
+Entwicklern ≈ 7–9 Monate zzgl. Staffing, Reviews, Release-Zyklen) und
+begründet die im Papier verwendete Spanne <strong>6–12 Monate</strong>. Zwei
+empirische Befunde sprechen dafür, dass diese Schätzung eher zu
+optimistisch als zu pessimistisch ist: Große IT-Projekte überschreiten
+ihr Budget im Mittel um ~45 % (McKinsey/Oxford [9]), und nur rund ein
+Drittel der Software-Projekte wird in Zeit, Budget und Umfang
+abgeschlossen (Standish CHAOS [10]). Die 10 Kalendertage des KI-gestützten
+Builds stehen einer nach anerkannten Verfahren hergeleiteten klassischen
+Laufzeit von <strong>9–12 Monaten</strong> gegenüber — Faktor ~25–35 in der
+Kalenderzeit.</p>
+<h3>B.5 Einordnung der Verfahren</h3>
+<table>
+<thead>
+<tr>
+<th>Verfahren</th>
+<th>Familie (IDW S 5 / IVS 210)</th>
+<th>Ergebnis hier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Bottom-up, COCOMO II, Function Points</td>
+<td>kostenorientiert</td>
+<td>Wiederbeschaffung 150–350 T€ (konservativ)</td>
+</tr>
+<tr>
+<td>DCF Build vs. Buy</td>
+<td>kapitalwertorientiert</td>
+<td>NPV-Vorteil ~79 T€ (200 Nutzer) bis ~318 T€ (1.000 Nutzer)</td>
+</tr>
+<tr>
+<td>Lizenzpreisanalogie</td>
+<td>kapitalwertorientiert</td>
+<td>Asset-Wert ~84–323 T€ (nutzungsabhängig)</td>
+</tr>
+<tr>
+<td>Vergleichstransaktionen</td>
+<td>marktpreisorientiert</td>
+<td>nicht anwendbar (kein aktiver Markt für Einzel-Visuals)</td>
+</tr>
+</tbody></table>
+<p>Alle Verfahren erzählen dieselbe Geschichte aus verschiedenen Richtungen:
+Der geschaffene Wert liegt zwei Größenordnungen über dem Invest von
+2,2–5,2 T€ — unabhängig davon, welcher anerkannten Bewertungslogik man
+folgt.</p>
+<h3>B.6 Einordnung in die Produktivitäts-Literatur</h3>
+<p>Kontrollierte Studien zu KI-Werkzeugen in der Software-Entwicklung
+berichten deutlich kleinere, aber gleichgerichtete Effekte: <strong>+55,8 %</strong>
+Geschwindigkeit bei einer abgegrenzten Programmieraufgabe im
+Copilot-Experiment (Peng et al. [11]); <strong>20–50 %</strong> Zeitersparnis je nach
+Aufgabentyp in Praxisexperimenten (McKinsey [12]); und als wichtiges
+Gegen-Ergebnis: Erfahrene Open-Source-Entwickler waren mit KI-Werkzeugen
+auf ihren eigenen, großen Codebasen im Mittel <strong>~19 % langsamer</strong>
+(METR [13]).</p>
+<p>Der hier dokumentierte Fall liegt mit einem Kalenderzeit-Faktor von
+~25–35 weit über diesen Werten — er ist ein <strong>Ausreißer am oberen Ende</strong>
+und genau deshalb erklärungsbedürftig. Die Erklärung dieses Papiers: Die
+Literatur misst überwiegend KI als <em>Assistenz</em> in bestehenden Prozessen,
+mit Menschen im Schreib-Loop und gewachsenen Codebasen; hier arbeitete KI
+als <em>ausführendes Team</em> in einem eng gezäunten Framework, mit
+Ein-Personen-Entscheidungsstruktur und Greenfield-Start — exakt die
+Bedingungen aus Kapitel 7 und 11. Der METR-Befund stützt diese Lesart
+spiegelbildlich: Ohne Zaun und mit hohem Kontextaufwand kann der Effekt
+sogar negativ werden. Konsequenz: Der Faktor dieses Falls ist <strong>kein
+Erwartungswert für beliebige Projekte</strong>, sondern eine Demonstration des
+oberen Endes unter günstigen, explizit benannten Bedingungen.</p>
+<hr>
+<h2 id="sec-17">Quellen</h2>
+<ol>
+<li>IDW S 5: <em>Grundsätze zur Bewertung immaterieller Vermögenswerte.</em>
+Institut der Wirtschaftsprüfer in Deutschland e. V., Düsseldorf
+(Stand 2015).</li>
+<li>IVSC: <em>International Valuation Standards</em>, IVS 210 <em>Intangible Assets.</em>
+International Valuation Standards Council, London (aktuelle Fassung).</li>
+<li>IAS 38: <em>Immaterielle Vermögenswerte.</em> International Accounting
+Standards Board (IFRS-Standards).</li>
+<li>Boehm, B. W.; Abts, C.; Brown, A. W. et al.: <em>Software Cost Estimation
+with COCOMO II.</em> Prentice Hall, Upper Saddle River, 2000.</li>
+<li>ISO/IEC 20926:2009: <em>Software and systems engineering — IFPUG
+functional size measurement method.</em> ISO, Genf.</li>
+<li>Jones, C.: <em>Applied Software Measurement: Global Analysis of
+Productivity and Quality.</em> 3. Aufl., McGraw-Hill, New York, 2008
+(Backfiring-Tabellen LOC↔FP).</li>
+<li>ISBSG: <em>Development &amp; Enhancement Repository</em> — Branchenbenchmarks zu
+Project Delivery Rates (h/FP). International Software Benchmarking
+Standards Group, isbsg.org.</li>
+<li>Brealey, R. A.; Myers, S. C.; Allen, F.: <em>Principles of Corporate
+Finance.</em> McGraw-Hill (Barwert- und Annuitätenrechnung).</li>
+<li>Bloch, M.; Blumberg, S.; Laartz, J.: <em>Delivering large-scale IT
+projects on time, on budget, and on value.</em> McKinsey &amp; Company in
+Zusammenarbeit mit der University of Oxford, 2012.</li>
+<li>The Standish Group: <em>CHAOS Report</em> (fortlaufende Studienreihe zu
+Erfolgsquoten von Software-Projekten).</li>
+<li>Peng, S.; Kalliamvakou, E.; Cihon, P.; Demirer, M.: <em>The Impact of AI
+on Developer Productivity: Evidence from GitHub Copilot.</em>
+arXiv:2302.06590, 2023.</li>
+<li>McKinsey &amp; Company: <em>Unleashing developer productivity with
+generative AI.</em> 2023.</li>
+<li>METR: <em>Measuring the Impact of Early-2025 AI on Experienced
+Open-Source Developer Productivity.</em> 2025.</li>
+<li>Forsgren, N.; Humble, J.; Kim, G.: <em>Accelerate — The Science of Lean
+Software and DevOps.</em> IT Revolution Press, 2018 (DORA-Metriken).</li>
+<li>Forsgren, N.; Storey, M.-A.; Maddila, C. et al.: <em>The SPACE of
+Developer Productivity.</em> ACM Queue 19(1), 2021.</li>
+</ol>
+<p>Hinweis zur Verwendung: [4]–[7] sind Schätz-Benchmarks, keine Messungen
+an diesem Projekt; sie dienen der unabhängigen Plausibilisierung der
+projektspezifischen Bottom-up-Schätzung. Wo Literaturwerte als Bandbreite
+vorliegen, wird durchgängig die Bandbreite — nicht ein Punktwert —
+weitergerechnet.</p>
+<hr>
+<p><em>v2.2 — Zahlen Stand 15.07.2026. Feedback und Replikationen willkommen:
+Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a></em></p>
+
+</main>
+<footer><div class="foot-in">
+  <span><b>Michael Tenner</b> · Daten-WG · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a></span>
+  <span>Juli 2026 · v2.2</span>
+</div></footer>
+
+<div class="mermaidTooltip" style="opacity: 0; position: absolute; text-align: center; max-width: 200px; padding: 2px; font-size: 12px; background: rgb(255, 255, 222); border: 1px solid rgb(51, 51, 51); border-radius: 2px; pointer-events: none; z-index: 100;"></div>
+</body></html>
