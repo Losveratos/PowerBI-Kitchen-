@@ -2,11 +2,23 @@
 
 ## Ein Bewertungsmodell für KI-gestützte Software-Entwicklung in festen Frameworks — transparent durchgerechnet an einer realen Fallstudie
 
-**Ein Whitepaper der Daten-WG · Juli 2026 · v2.0**
+**Ein empirisch gestütztes Thesenpapier der Daten-WG · Juli 2026 · v2.1**
 
 ---
 
 ## Management Summary
+
+> **Die Hauptthese [M]:** Unter fünf Randbedingungen — festes Framework,
+> Domänenexpertise in der Steuerung, kleine Iterationen, schnelle lokale
+> Verifikation, konsequente Versionskontrolle — steigt die Produktivität
+> KI-gestützter Entwicklung nicht um Prozente, sondern um Größenordnungen.
+> Die Formel lautet nicht „KI schafft das", sondern **KI × Framework ×
+> Domänenexpertise × Versionskontrolle**. Dieses Papier belegt das an einem
+> vollständig dokumentierten Fall und liefert das Bewertungsmodell dazu.
+
+*Evidenz-Kennzeichnung in diesem Papier: [M] gemessen · [A] Annahme ·
+[S] Schätzung/Modellrechnung · [H] Hypothese — Details unter „Begriffe &
+Prämissen".*
 
 **Worum es geht.** Dieses Papier schlägt ein **Bewertungsmodell für
 KI-gestützte Software-Entwicklung** vor und rechnet es an einer vollständig
@@ -14,12 +26,8 @@ dokumentierten Fallstudie durch: Ein einzelner Controlling-Experte — kein
 Entwicklerteam — hat in **zehn Kalendertagen** ein Berichts-Werkzeug für
 Microsoft Power BI bis zu einem marktfähigen Entwicklungsstand gebaut.
 Derselbe Stand wird — nach drei anerkannten Schätzverfahren — klassisch auf
-**14–18 Personenmonate** und **150.000–350.000 €** taxiert. Die zentrale
-Erkenntnis ist dabei nicht der Kostenfaktor, sondern seine Erklärung:
-**Feste Frameworks reduzieren die Freiheitsgrade so weit, dass
-KI-Entwicklung kontrollierbar und reproduzierbar wird** — die Formel
-lautet nicht „KI schafft das", sondern **KI × Framework × Domänenexpertise
-× Versionskontrolle**.
+**14–18 Personenmonate** und **150.000–350.000 €** taxiert [S]. Fallstudie,
+Historie und Methodik sind vollständig öffentlich [M].
 
 **Was es tatsächlich gekostet hat.** Rund **20 Stunden dokumentierte
 Steuerungszeit** des Fachexperten (Sitzungsprotokolle; Denk- und
@@ -55,14 +63,14 @@ Governance in Kapitel 9), Software-Anbieter (wo ihr Geschäftsmodell unter
 Druck geraten könnte) und Beratungen (wohin der Wert wandert). Kapitel 12
 fasst die Handlungsoptionen je Rolle zusammen.
 
-| Kernergebnis | Wert |
-| --- | --- |
-| Tatsächlicher Invest (externer Experte, 250 €/h) | **~5.200 €** |
-| Tatsächlicher Invest (interner Experte, 100 €/h) | **~2.200 €** |
-| Klassischer Wiederbeschaffungswert (3 Verfahren, Anhang B) | **150.000–350.000 €** |
-| Kostenhebel, Ist-Stand-Vergleich | **29–67×** (extern) · **69–161×** (intern) |
-| Kostenhebel symmetrisch (gleicher Leistungsumfang, Kapitel 4) | **13–39×** (extern) · **31–93×** (intern) |
-| Kalenderzeit | **10 Tage** statt geschätzt 6–12 Monate |
+| Kernergebnis | Wert | Evidenz |
+| --- | --- | :-: |
+| Tatsächlicher Invest (externer Experte, 250 €/h) | **~5.200 €** | [M] · [A] |
+| Tatsächlicher Invest (interner Experte, 100 €/h) | **~2.200 €** | [M] · [A] |
+| Klassischer Wiederbeschaffungswert (3 Verfahren, Anhang B) | **150.000–350.000 €** | [S] |
+| Kostenhebel, Ist-Stand-Vergleich | **29–67×** (extern) · **69–161×** (intern) | [S] |
+| Kostenhebel symmetrisch (gleicher Leistungsumfang, Kapitel 4) | **13–39×** (extern) · **31–93×** (intern) | [S] |
+| Kalenderzeit: **10 Tage** | statt geschätzt 6–12 Monaten klassisch | [M] · [S] |
 
 **Die fünf Kernthesen:**
 
@@ -70,22 +78,22 @@ fasst die Handlungsoptionen je Rolle zusammen.
    Frameworks mit definierten Schnittstellen, Sandbox und
    Zertifizierungsregeln reduzieren die Freiheitsgrade so weit, dass
    KI-Entwicklung kontrollierbar und reproduzierbar wird. Das ist die
-   zentrale These dieses Papiers (Kapitel 7).
+   zentrale These dieses Papiers (Kapitel 7). [M]
 2. **Git ist das unterschätzte Fundament:** Ohne Versionskontrolle wird
    KI-Iterationsgeschwindigkeit zur Haftung. Mit ihr wird jeder Schritt
    rückrollbar, prüfbar — und die gesamte Analyse dieses Papiers erst
-   möglich (Kapitel 8).
+   möglich (Kapitel 8). [M]
 3. **Die Build-oder-Buy-Rechnung verschiebt sich** für Framework-Software:
    Nach Barwert schlägt der Eigenbau (oder die Adoption eines freien
    Community-Builds) das Lizenzmodell ab mittlerer Nutzerzahl deutlich —
-   eine Rechnung unter offengelegten Annahmen (Kapitel 5).
+   eine Rechnung unter offengelegten Annahmen (Kapitel 5). [S]
 4. **Verhandlungsmacht-Hypothese:** Ein glaubwürdiges freies Werkzeug
    könnte Lizenzverhandlungen zu Gunsten des Kunden verschieben, ohne dass
-   gewechselt werden muss (Kapitel 6).
+   gewechselt werden muss (Kapitel 6). [H]
 5. **Markt-Hypothese:** Open Source und KI könnten sich wechselseitig
    verstärken — KI macht Community-Software pflegbar, offener Code macht
    KI präzise — und den Entwicklungskosten-Vorsprung kommerzieller
-   Anbieter verringern (Kapitel 10).
+   Anbieter verringern (Kapitel 10). [H]
 
 *Zum Evidenzstatus der Thesen:* These 1 und 2 sind am Fall direkt belegt.
 These 3 ist eine Rechnung unter offengelegten Annahmen. These 4 und 5
@@ -110,6 +118,14 @@ Entwicklungs-Hintergrund. Acht Begriffe genügen:
 | **Git / Versionskontrolle** | Ein Protokollsystem, das jeden Änderungsschritt („Commit") dauerhaft festhält und rückgängig machbar hält — das Logbuch und Sicherheitsnetz der Software-Entwicklung. |
 | **Kostenhebel (Cost Avoidance)** | Verhältnis der vermiedenen Kosten (Wiederbeschaffungswert) zum tatsächlichen Invest. „29×" heißt: Der Wiederbeschaffungswert entspricht dem 29-Fachen des Invests. Bewusst nicht „ROI" genannt — ein ROI setzt realisierte Erträge voraus, hier werden vermiedene Ausgaben verglichen. |
 | **Barwert (DCF)** | Zukünftige Zahlungen (z. B. fünf Jahre Lizenzgebühren), mit einem Zinssatz auf heute abgezinst — die betriebswirtschaftlich korrekte Basis für Build-vs-Buy-Vergleiche. |
+
+**Evidenz-Kennzeichnung:** Größere Aussagen tragen in diesem Papier ein
+Kürzel: **[M]** = gemessen — aus Git-Historie, Sitzungsprotokollen oder
+Rechnungen. **[A]** = Annahme — gesetzt und begründet, z. B. Stundensätze.
+**[S]** = Schätzung oder Modellrechnung — aus [M] und [A] abgeleitet, z. B.
+Wiederbeschaffungswert, Kostenhebel, Barwerte. **[H]** = Hypothese —
+Extrapolation über den Einzelfall hinaus. Die Kürzel machen auf einen Blick
+sichtbar, worauf jede Aussage steht.
 
 **Die Prämissen der Rechnung — vorab in aller Klarheit:**
 
@@ -251,7 +267,7 @@ Bottom-up geschätzt in Personenmonaten (PM) Entwicklung:
 Bewertet zu Marktsätzen: **intern ~130–160 T€** (Senior-Vollkosten 9 T€/PM,
 sofern Entwickler mit Power-BI-Visual- *und* Controlling-Erfahrung verfügbar
 sind), **extern ~250–400 T€** (900–1.200 €/Tag). Wir rechnen konservativ mit
-der Spanne **150–350 T€**. Eine unabhängige Gegenrechnung mit zwei
+der Spanne **150–350 T€**. [S] Eine unabhängige Gegenrechnung mit zwei
 anerkannten Schätzverfahren (COCOMO II, Function Points) bestätigt die
 Spanne — Rechenwege in Anhang B.
 
@@ -280,6 +296,8 @@ Avoidance). Wir nennen die Kennzahl deshalb durchgängig **Kostenhebel**:
 „29×" heißt, der Wiederbeschaffungswert entspricht dem 29-Fachen des
 Invests — nicht, dass 29-fache Erträge geflossen sind. Realisiert wird der
 Wert erst über Nutzung, Reichweite und vermiedene Lizenzkosten (Kapitel 5).
+Wer eine klassische Bezeichnung braucht: ein Wert-/Investitionsfaktor auf
+Basis des geschätzten Wiederbeschaffungswerts. [S]
 
 | Kostenhebel | Externer PO (5.200 €) | Interner PO (2.200 €) |
 | --- | ---: | ---: |
@@ -368,7 +386,7 @@ Diskontiert über 5 Jahre (8 %, Annuitätenfaktor 3,99), gegen Eigenbau mit
 Payback: 2,6 Monate (200 Nutzer), ~3 Wochen (Konzern). Sensitivität: Selbst
 bei verdreifachter Pflege (10 T€/Jahr) bleibt der Mittelstandsfall ~50 T€ im
 Plus. Die vollständige Jahr-für-Jahr-Rechnung samt Zins- und
-Pflege-Sensitivitäten steht in Anhang B.
+Pflege-Sensitivitäten steht in Anhang B. [S]
 
 **Die Adopter-Perspektive verschärft das Bild:** Wer das freie
 Community-Visual einsetzt statt selbst zu bauen, trägt nur die Einführung
@@ -385,12 +403,12 @@ Lücke adressiert im Community-Modell ein Support-Abo (Kapitel 10).
 
 ## 6 · Die spieltheoretische Dimension
 
-Der unterschätzteste Wert eines glaubwürdigen freien Werkzeugs realisiert
+Ein oft übersehener Wert eines glaubwürdigen freien Werkzeugs realisiert
 sich, **ohne dass es eingesetzt wird**: Es verändert die
 Verhandlungsposition (BATNA) gegenüber kommerziellen Anbietern. Vorab zur
 Einordnung: Das Folgende ist eine **modellhafte Überlegung** nach
 Verhandlungslogik — belegt durch keine beobachteten Abschlüsse; die
-genannten Beträge sind mögliche Effekte, keine zugesagten Nachlässe.
+genannten Beträge sind mögliche Effekte, keine zugesagten Nachlässe. [H]
 
 - Bisher lautete die Alternative in Lizenzverhandlungen: „zahlen oder
   verzichten". Mit einer glaubwürdigen freien Option genügt die
@@ -419,30 +437,47 @@ jeder Modellgeneration ändern; dieser Mechanismus nicht.
 
 Die verbreitete Sorge gegenüber KI-generiertem Code — „schnell, aber
 unsicher und fehlerhaft" — unterschätzt, wie stark ein festes Framework
-beide Risikoflächen beschneidet. Ein Power-BI-Visual lebt in einem
-**vordefinierten Vertrag**:
+die Risikoflächen beschneidet. Fünf Mechanismen greifen ineinander, alle
+am Fall belegt [M]:
 
-**Begrenzte Bug-Fläche.** Die API gibt den Lebenszyklus vor (eine
-`update()`-Schnittstelle, deklarative Capabilities, ein Settings-Modell).
-Es gibt keine selbstgebaute Netzwerk-, Persistenz- oder Threading-Schicht,
-in der sich KI-Fehler verstecken könnten — die fehleranfälligsten Schichten
-klassischer Projekte **existieren gar nicht erst**. Was bleibt, ist
-Rendering- und Fachlogik, und die ist lokal testbar: Der Headless-Harness
-rendert jeden Stand als Bild, Fehler sind *sichtbar* statt latent.
+**Mechanismus 1 — Suchraumreduktion.** Ein Power-BI-Visual lebt in einem
+vordefinierten Vertrag: eine `update()`-Schnittstelle, deklarative
+Capabilities, ein Settings-Modell. Es gibt keine selbstgebaute Netzwerk-,
+Persistenz- oder Threading-Schicht, in der sich KI-Fehler verstecken
+könnten — die fehleranfälligsten Schichten klassischer Projekte
+**existieren gar nicht erst**. Für die KI heißt das: Der Lösungsraum je
+Anforderung ist klein, die Varianz zwischen zwei Anläufen gering — genau
+das macht Ergebnisse reproduzierbar statt zufällig.
 
-**Begrenzte Security-Fläche.** Das Visual läuft in einer Sandbox (isolierter
-iframe), ohne Netzwerkzugriff, ohne Dateisystem, ohne Speicher-APIs. Die
-Microsoft-Zertifizierungsregeln verbieten zusätzlich `eval`, `innerHTML`,
-externes Nachladen — Regeln, gegen die automatisiert geprüft wird
-(projektweit eingehalten, `npm audit`: 0 Findings). Der maximale
-Schadensradius eines KI-Fehlers ist damit strukturell gedeckelt: **Er kann
-ein Chart falsch zeichnen, aber keine Daten exfiltrieren.**
+**Mechanismus 2 — Deterministische Schnittstellen.** Jede Anforderung
+übersetzt sich mechanisch in „welche Option, welcher Renderer, welche
+Persistierung" — keine Architektur-Grundsatzfragen, deren Fehlentscheidung
+erst Monate später sichtbar wird. Entwicklung wird zur Folge kleiner,
+entscheidbarer Schritte; Konvergenz ist der Normalfall, nicht der
+Glücksfall.
 
-**Vordefinierte APIs = lokale Verifikation.** Jede Anforderung übersetzt
-sich in „welche Option, welcher Renderer, welche Persistierung" — keine
-Architektur-Grundsatzfragen, deren Fehlentscheidung erst Monate später
-sichtbar wird. Genau deshalb konvergiert KI-Entwicklung hier so schnell:
-Der Zaun macht jede Iteration klein, prüfbar und rückrollbar.
+**Mechanismus 3 — Sandbox als Schadensdeckel.** Das Visual läuft in einem
+isolierten iframe, ohne Netzwerkzugriff, ohne Dateisystem, ohne
+Speicher-APIs. Die Microsoft-Zertifizierungsregeln verbieten zusätzlich
+`eval`, `innerHTML`, externes Nachladen — Regeln, gegen die automatisiert
+geprüft wird (projektweit eingehalten, `npm audit`: 0 Findings). Der
+maximale Schadensradius eines KI-Fehlers ist strukturell gedeckelt: **Er
+kann ein Chart falsch zeichnen, aber keine Daten exfiltrieren.**
+
+**Mechanismus 4 — Kleine Iterationen.** 124 Commits für ~60 Releases: Die
+durchschnittliche Änderung ist klein genug, um per Diff gelesen, verstanden
+und notfalls verworfen zu werden. Experimente werden billig, weil Rückwege
+garantiert sind (Kapitel 8) — das senkt die Kosten jeder einzelnen
+Fehlentscheidung auf Minuten.
+
+**Mechanismus 5 — Lokale Verifikation in Minuten.** Der Headless-Harness
+rendert jeden Stand als Bild; Fehler sind *sichtbar* statt latent, 80+
+Testfälle mit bekannten Erwartungswerten sichern die Fachlogik. Der
+Feedback-Loop schließt sich lokal in Minuten — ohne Deployment, ohne
+Testumgebung, ohne Wartezeit.
+
+Als Designregel formuliert: **Wirkt KI-Entwicklung unkontrollierbar, ist
+der erste Hebel nicht das bessere Modell, sondern der engere Zaun.**
 
 ```mermaid
 flowchart LR
@@ -508,6 +543,16 @@ Vorarbeiten" — stammt aus `git log`. Versionskontrolle macht KI-Entwicklung
 **auditierbar**: Für Wirtschaftsprüfer, für IT-Compliance, für die eigene
 Kostenrechnung. Ohne Git wäre dieses Whitepaper Behauptung; mit Git ist es
 nachrechenbar.
+
+**Git als Governance-System.** Für Organisationen ist Git damit mehr als
+ein Werkzeug — es ist die vorhandene Kontrollinfrastruktur für KI-Arbeit:
+*Auditierbarkeit* — jede Änderung ist Urheber, Zeitpunkt und Begründung
+zuordenbar, anschlussfähig an Wirtschaftsprüfung und IT-Compliance.
+*Nachvollziehbarkeit* — das „Warum" jeder Entscheidung steht in der
+Historie, nicht im Kopf einer Person. *Reviewbarkeit* — Pull-Request-Gates
+funktionieren für KI-Beiträge unverändert. *Compliance-Anschluss* —
+interne Kontrollsysteme docken an bestehende Git-Prozesse an; es braucht
+keine neue Infrastruktur, nur Disziplin in der bestehenden. [M]
 
 Praktische Konsequenz für jedes KI-Entwicklungs-Setup: Commit-Pflicht pro
 Arbeitsschritt, aussagekräftige Botschaften, eigener Branch, Push als Teil
@@ -582,7 +627,8 @@ gehören in jede seriöse Übernahme-Entscheidung (Kapitel 11).
 > mögliche Marktwirkungen**, abgeleitet aus einer Fallstudie (n = 1) und
 > historischen Analogien. Sie beschreiben, was passieren *könnte*, wenn
 > sich das Muster in weiteren Fällen bestätigt — nicht, was nachweislich
-> passiert.
+> passiert. Wer ausschließlich belegte Aussagen sucht, kann dieses Kapitel
+> überspringen — Kapitel 1–9 stehen ohne es. [H]
 
 Einzeln waren beide Kräfte für Software-Vendoren beherrschbar: Open Source
 scheiterte im Anwendungs-Layer oft am Pflegeargument („wer wartet das?");
@@ -628,11 +674,19 @@ Drei Zutaten erklären das Ergebnis; fehlt eine, bricht die Rechnung:
    Der Unterschied zwischen zwei Iterationen und zwanzig.
 3. **Selbstverifikation + Versionskontrolle** (Kapitel 8) — der Loop aus Abb. 7.
 
-Überträgt sich auf: Office-Add-ins, IDE-Extensions, Plattform-Plugins,
-dbt-Pakete, interne Fachanwendungen mit klarem Rahmen. Überträgt sich
-**nicht** unmittelbar auf: Greenfield-Architekturen, verteilte Systeme,
-Legacy-Integration — dort fehlen Zaun und schnelle Verifikation, und die
-Maßstäbe für Review und Absicherung sind andere.
+Wo das Muster trägt und wo nicht — nach den fünf Mechanismen aus
+Kapitel 7 beurteilt [S]:
+
+| Systemklasse | Eignung | Begründung |
+| --- | :-: | --- |
+| Power-BI-Visuals, Office-Add-ins | ✓ | fester API-Vertrag, Sandbox, Zertifizierungsregeln, lokale Verifikation |
+| Browser- und IDE-Extensions | ✓ | definierte Manifest-/API-Grenzen, schneller lokaler Test |
+| dbt-Pakete, Analytics-Artefakte | ✓ | deklarativer Rahmen, deterministische Prüfung gegen Daten |
+| Interne Fachtools mit klarem Rahmen | ✓ | abgegrenzte Fachlogik, Fachexperte als Product Owner verfügbar |
+| Greenfield-Plattformen | ✗ | Architektur-Freiheitsgrade sind genau das, was der Zaun wegnimmt |
+| Verteilte Systeme | ✗ | Fehlerbilder entstehen im Zusammenspiel, Verifikation ist nicht lokal |
+| Embedded / Safety-Critical | ✗ | Normen und formale Nachweise verlangen andere Prozesse |
+| Legacy-Monolithen | ✗ | riesiger Kontext, langsame Verifikation — der METR-Befund zeigt die Richtung (Anhang B.6) |
 
 **Offene Punkte dieses Projekts,** die ein 250-T€-Projekt enthalten hätte:
 Endnutzer-Doku, formale Abnahmetests mit Anwendern, eine vollständige
@@ -668,6 +722,26 @@ ein Service-Modell. Die Preissetzung der Basisschicht diszipliniert sich.
 tragfähige Modell ist das der Infrastruktur-Welt: Software frei, Erlöse aus
 Enablement, Support und Weiterentwicklung — das Abo als formalisierte
 Antwort auf die Pflege-Frage.
+
+---
+
+## Einladung: Replizieren, widerlegen, erweitern
+
+Eine Fallstudie beweist keine Regel — sie stellt eine präzise Frage. Die
+Antwort entsteht durch Wiederholung: **Wenn Sie ein vergleichbares Vorhaben
+umsetzen — in einem anderen Framework, mit einem anderen Fachgebiet, im
+Team statt allein —, dokumentieren Sie es nach derselben Methode** (Anhang
+A: Git-Historie, Stundenprotokoll, Werkzeugkosten, Bewertungsverfahren aus
+Anhang B) und stellen Sie die Ergebnisse neben diese. Bestätigende Fälle
+schärfen die Randbedingungen; widersprechende sind mindestens so wertvoll —
+sie zeigen, wo der Zaun endet.
+
+Drei Replikationsfragen halten wir für besonders lohnend: Hält der
+Kostenhebel in einem zweiten Framework-Ökosystem (Office-Add-in,
+dbt-Paket)? Wie stark fällt er, wenn ein Multi-Stakeholder-Team statt
+einer Einzelperson steuert? Und wo liegt er bei einem Product Owner ohne
+Entwicklungs-Vorerfahrung? Repository, Methodik und dieses Papier sind
+öffentlich — Widerspruch ist ausdrücklich erwünscht.
 
 ---
 
@@ -943,4 +1017,4 @@ weitergerechnet.
 
 ---
 
-*v2.0 — Zahlen Stand 15.07.2026. Feedback willkommen.*
+*v2.1 — Zahlen Stand 15.07.2026. Feedback und Replikationen willkommen.*
