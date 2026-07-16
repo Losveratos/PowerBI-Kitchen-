@@ -1,30 +1,40 @@
-# Zehn Tage statt zehn Monate
+# Zehn Tage bis zum marktfähigen Stand
 
-## Wie KI-gestützte Entwicklung die Build-oder-Buy-Frage neu entscheidet — nachgerechnet an einem realen Projekt
+## Ein Bewertungsmodell für KI-gestützte Software-Entwicklung in festen Frameworks — transparent durchgerechnet an einer realen Fallstudie
 
-**Ein Whitepaper der Daten-WG · Juli 2026 · v1.2**
+**Ein Whitepaper der Daten-WG · Juli 2026 · v2.0**
 
 ---
 
 ## Management Summary
 
-**Worum es geht.** Dieses Papier dokumentiert ein Experiment mit
-betriebswirtschaftlicher Sprengkraft: Ein einzelner Controlling-Experte —
-kein Entwicklerteam — hat mithilfe KI-gestützter Software-Entwicklung in
-**zehn Kalendertagen** ein professionelles Berichts-Werkzeug für Microsoft
-Power BI gebaut. Funktionsumfang und Qualität entsprechen einem Produkt,
-dessen Entwicklung auf klassischem Weg **14–18 Personenmonate** gedauert und
-**150.000–350.000 €** gekostet hätte.
+**Worum es geht.** Dieses Papier schlägt ein **Bewertungsmodell für
+KI-gestützte Software-Entwicklung** vor und rechnet es an einer vollständig
+dokumentierten Fallstudie durch: Ein einzelner Controlling-Experte — kein
+Entwicklerteam — hat in **zehn Kalendertagen** ein Berichts-Werkzeug für
+Microsoft Power BI bis zu einem marktfähigen Entwicklungsstand gebaut.
+Derselbe Stand wird — nach drei anerkannten Schätzverfahren — klassisch auf
+**14–18 Personenmonate** und **150.000–350.000 €** taxiert. Die zentrale
+Erkenntnis ist dabei nicht der Kostenfaktor, sondern seine Erklärung:
+**Feste Frameworks reduzieren die Freiheitsgrade so weit, dass
+KI-Entwicklung kontrollierbar und reproduzierbar wird** — die Formel
+lautet nicht „KI schafft das", sondern **KI × Framework × Domänenexpertise
+× Versionskontrolle**.
 
-**Was es tatsächlich gekostet hat.** Rund 20 Stunden Steuerungszeit des
-Fachexperten plus etwa 180 € Werkzeugkosten. Je nachdem, ob man die Stunden
-mit einem externen Beratersatz (250 €/h) oder einem internen Vollkostensatz
-(100 €/h) bewertet, liegt der Gesamtinvest bei **~5.200 €** bzw. **~2.200 €**
-— ein Faktor 29 bis 161 unter dem Wiederbeschaffungswert. Wichtig zur
-Einordnung: Dieser Vergleich stellt den erreichten Ist-Stand einem
+**Was es tatsächlich gekostet hat.** Rund **20 Stunden dokumentierte
+Steuerungszeit** des Fachexperten (Sitzungsprotokolle; Denk- und
+Recherchezeit außerhalb der Sitzungen ist nicht erfasst — die
+Sensitivitätsrechnung in Kapitel 4 rechnet deshalb bis 120 Stunden durch)
+plus etwa 180 € Werkzeugkosten. Je nach Stundensatz (250 €/h extern,
+100 €/h intern) liegt der Invest bei **~5.200 €** bzw. **~2.200 €** — ein
+Kostenhebel von 29 bis 161 gegenüber dem Wiederbeschaffungswert. Wichtig
+zur Einordnung: Dieser Vergleich stellt den erreichten Ist-Stand einem
 klassischen Vollprozess gegenüber und ist insoweit asymmetrisch — eine
-symmetrische Gegenrechnung (Kapitel 4) drückt den Faktor auf **13 bis 93**,
-ändert die Größenordnung der Aussage aber nicht.
+symmetrische Gegenrechnung (Kapitel 4) drückt den Hebel auf **13 bis 93**,
+ändert die Größenordnung der Aussage aber nicht. Bewusst sprechen wir vom
+**Kostenhebel (Cost Avoidance)**, nicht von „ROI": Ein ROI setzt
+realisierte Erträge voraus; hier werden vermiedene Wiederbeschaffungskosten
+ins Verhältnis zum Invest gesetzt (Begriffe & Prämissen).
 
 **Warum das mehr als eine Anekdote ist.** Das Ergebnis beruht nicht auf
 Glück, sondern auf drei reproduzierbaren Bedingungen: einem festen
@@ -40,43 +50,48 @@ was daraus abgeleitete Hypothese über mögliche Marktwirkungen ist, wird im
 Papier durchgängig getrennt ausgewiesen.
 
 **Für wen das relevant ist.** CFOs und Controlling-Leitungen (Lizenzkosten,
-Verhandlungsmacht), IT- und BI-Verantwortliche (was intern plötzlich
-machbar ist), Software-Anbieter (wo ihr Geschäftsmodell unter Druck gerät)
-und Beratungen (wohin der Wert wandert). Kapitel 11 fasst die
-Handlungsempfehlungen je Rolle zusammen.
+Verhandlungsposition), IT- und BI-Verantwortliche (was intern machbar wird,
+Governance in Kapitel 9), Software-Anbieter (wo ihr Geschäftsmodell unter
+Druck geraten könnte) und Beratungen (wohin der Wert wandert). Kapitel 12
+fasst die Handlungsoptionen je Rolle zusammen.
 
 | Kernergebnis | Wert |
 | --- | --- |
 | Tatsächlicher Invest (externer Experte, 250 €/h) | **~5.200 €** |
 | Tatsächlicher Invest (interner Experte, 100 €/h) | **~2.200 €** |
-| Klassischer Wiederbeschaffungswert | **150.000–350.000 €** |
-| Kapitalrendite (ROI), Ist-Stand-Vergleich | **29–67×** (extern) · **69–161×** (intern) |
-| ROI symmetrisch (gleicher Leistungsumfang, Kapitel 4) | **13–39×** (extern) · **31–93×** (intern) |
-| Kalenderzeit | **10 Tage** statt 6–12 Monate |
+| Klassischer Wiederbeschaffungswert (3 Verfahren, Anhang B) | **150.000–350.000 €** |
+| Kostenhebel, Ist-Stand-Vergleich | **29–67×** (extern) · **69–161×** (intern) |
+| Kostenhebel symmetrisch (gleicher Leistungsumfang, Kapitel 4) | **13–39×** (extern) · **31–93×** (intern) |
+| Kalenderzeit | **10 Tage** statt geschätzt 6–12 Monate |
 
 **Die fünf Kernthesen:**
 
-1. **Build-vs-Buy kippt** für Framework-Software: Ab mittlerer
-   Unternehmensgröße schlägt der Eigenbau (oder die Adoption eines freien
-   Community-Builds) das Lizenzmodell nach Barwert deutlich.
-2. **Ein glaubwürdiges freies Werkzeug wirkt spieltheoretisch** — es
-   verschiebt Lizenzverhandlungen zu Gunsten des Kunden, ohne dass
-   gewechselt werden muss.
-3. **Open Source × KI wirkt multiplikativ:** KI macht Community-Software
-   pflegbar, offener Code macht KI präzise. Der Feature-Burggraben klassischer
-   Software-Vendoren wird trockengelegt.
-4. **Das Framework ist der halbe Erfolg:** Vordefinierte Schnittstellen,
-   Sandbox und Zertifizierungsregeln begrenzen Fehler- und Sicherheitsfläche
-   von KI-generiertem Code — sie machen Geschwindigkeit erst verantwortbar.
-5. **Git ist das unterschätzte Fundament:** Ohne Versionskontrolle wird
+1. **KI × Framework × Domänenexpertise — nicht KI allein:** Feste
+   Frameworks mit definierten Schnittstellen, Sandbox und
+   Zertifizierungsregeln reduzieren die Freiheitsgrade so weit, dass
+   KI-Entwicklung kontrollierbar und reproduzierbar wird. Das ist die
+   zentrale These dieses Papiers (Kapitel 7).
+2. **Git ist das unterschätzte Fundament:** Ohne Versionskontrolle wird
    KI-Iterationsgeschwindigkeit zur Haftung. Mit ihr wird jeder Schritt
-   rückrollbar, prüfbar — und die gesamte Analyse dieses Papiers erst möglich.
+   rückrollbar, prüfbar — und die gesamte Analyse dieses Papiers erst
+   möglich (Kapitel 8).
+3. **Die Build-oder-Buy-Rechnung verschiebt sich** für Framework-Software:
+   Nach Barwert schlägt der Eigenbau (oder die Adoption eines freien
+   Community-Builds) das Lizenzmodell ab mittlerer Nutzerzahl deutlich —
+   eine Rechnung unter offengelegten Annahmen (Kapitel 5).
+4. **Verhandlungsmacht-Hypothese:** Ein glaubwürdiges freies Werkzeug
+   könnte Lizenzverhandlungen zu Gunsten des Kunden verschieben, ohne dass
+   gewechselt werden muss (Kapitel 6).
+5. **Markt-Hypothese:** Open Source und KI könnten sich wechselseitig
+   verstärken — KI macht Community-Software pflegbar, offener Code macht
+   KI präzise — und den Entwicklungskosten-Vorsprung kommerzieller
+   Anbieter verringern (Kapitel 10).
 
-*Zum Evidenzstatus der Thesen:* These 4 und 5 sind am Fall direkt belegt.
-These 1 ist eine Rechnung unter offengelegten Annahmen. These 2 und 3
+*Zum Evidenzstatus der Thesen:* These 1 und 2 sind am Fall direkt belegt.
+These 3 ist eine Rechnung unter offengelegten Annahmen. These 4 und 5
 extrapolieren vom Einzelfall auf Markt-Ebene — sie sind als **begründete
 Hypothesen über mögliche Auswirkungen** zu lesen, nicht als nachgewiesene
-Effekte (Einordnung in Kapitel 6, 9 und 10).
+Effekte (Einordnung in Kapitel 6, 10 und 11).
 
 ---
 
@@ -93,7 +108,7 @@ Entwicklungs-Hintergrund. Acht Begriffe genügen:
 | **Product Owner (PO)** | Die steuernde Fachperson: formuliert Anforderungen, beurteilt Ergebnisse, entscheidet Prioritäten. Hier: ein Controlling-/BI-Experte ohne Entwicklerteam. |
 | **Open Source (Apache 2.0)** | Der Quellcode ist öffentlich und darf kostenlos genutzt, geprüft und verändert werden. Die Lizenz Apache 2.0 erlaubt auch kommerziellen Einsatz. |
 | **Git / Versionskontrolle** | Ein Protokollsystem, das jeden Änderungsschritt („Commit") dauerhaft festhält und rückgängig machbar hält — das Logbuch und Sicherheitsnetz der Software-Entwicklung. |
-| **ROI** | Return on Investment: Wie oft der Gegenwert den Einsatz übersteigt. „29×" heißt: Der geschaffene Wert entspricht dem 29-Fachen des Invests. |
+| **Kostenhebel (Cost Avoidance)** | Verhältnis der vermiedenen Kosten (Wiederbeschaffungswert) zum tatsächlichen Invest. „29×" heißt: Der Wiederbeschaffungswert entspricht dem 29-Fachen des Invests. Bewusst nicht „ROI" genannt — ein ROI setzt realisierte Erträge voraus, hier werden vermiedene Ausgaben verglichen. |
 | **Barwert (DCF)** | Zukünftige Zahlungen (z. B. fünf Jahre Lizenzgebühren), mit einem Zinssatz auf heute abgezinst — die betriebswirtschaftlich korrekte Basis für Build-vs-Buy-Vergleiche. |
 
 **Die Prämissen der Rechnung — vorab in aller Klarheit:**
@@ -118,7 +133,7 @@ Entwicklungs-Hintergrund. Acht Begriffe genügen:
    IBCS-Visual-Suiten (7–12 €/Nutzer/Monat), über 5 Jahre mit 8 % abgezinst.
 6. **Der Evidenzstand ist eine Fallstudie (n = 1).** Kapitel 1–5 beruhen
    auf Messwerten und offengelegten Rechnungen zu diesem einen Projekt.
-   Kapitel 6, 9 und Teile von 11 leiten daraus Hypothesen über mögliche
+   Kapitel 6, 10 und Teile von 12 leiten daraus Hypothesen über mögliche
    Markt- und Verhandlungseffekte ab — sie sind konditional formuliert und
    wären erst durch weitere, unabhängige Fälle zu erhärten.
 7. **Der Basisvergleich ist bewusst als Ist-Stand-Vergleich gerechnet** —
@@ -132,12 +147,14 @@ Entwicklungs-Hintergrund. Acht Begriffe genügen:
    mit Autorität.
 
 **Leseführung:** Kapitel 1–5 enthalten den belegten Fall und die Rechnungen
-(Kosten, ROI, Barwert). Kapitel 6–9 ordnen ein: Verhandlungsmacht, warum das
-Framework und Git die Risiken zähmen, was das für den Software-Markt heißt.
-Kapitel 10–11 klären Übertragbarkeit, Grenzen und Handlungsempfehlungen.
-Anhang A dokumentiert die Methodik; Anhang B rechnet die Bewertungen nach
-anerkannten Verfahren vor (COCOMO II, Function Points, DCF,
-Lizenzpreisanalogie); ein Quellenverzeichnis schließt das Papier.
+(Kosten, Kostenhebel, Barwert). Kapitel 6–9 ordnen ein: Verhandlungsmacht,
+warum Framework und Git die Risiken zähmen, Governance und Wartbarkeit.
+Kapitel 10 formuliert die Markt-Hypothesen, Kapitel 11–12 klären
+Übertragbarkeit, Grenzen und Handlungsoptionen. Anhang A dokumentiert die
+Methodik; Anhang B rechnet die Bewertungen nach anerkannten Verfahren vor
+(COCOMO II, Function Points, DCF, Lizenzpreisanalogie) und ordnet den Fall
+in die Produktivitäts-Literatur ein; ein Quellenverzeichnis schließt das
+Papier.
 
 ---
 
@@ -175,11 +192,17 @@ am **6. Juli 2026**, der beschriebene Stand am **15. Juli 2026**.
 
 | Kennzahl | Wert |
 | --- | --- |
-| Steuerungszeit des Product Owners (Anforderungen, Tests, Feedback) | ~20 h |
+| Dokumentierte Steuerungszeit des PO (Sitzungsprotokolle: Anforderungen, Tests, Feedback) | ~20 h |
 | Werkzeugkosten (KI-Abo ~100 $ + 80 € Zusatzbudget) | ~180 € |
 | Verarbeitete Tokens | ~1,8 Mrd. (96 % Cache-Lesevorgänge) |
 | API-Listenpreis-Äquivalent der Rechenleistung | ~2.900 $ (durch Pauschal-Abo abgedeckt) |
 | CO₂-Fußabdruck (Methodik: [Daten-WG-KI-CO₂-Simulator](https://datenwgknowledgekitchen.com/ki-co2-simulator.html), mittleres Szenario) | ~0,2–1,1 t CO₂e ≈ ein Inlandsflug |
+
+Zur Steuerungszeit eine wichtige Präzisierung: **~20 h ist die
+dokumentierte Zeit** aus den Sitzungsprotokollen. Nicht erfasst sind
+Nachdenken, Recherche und Ideensammlung außerhalb der Sitzungen — sie
+lassen sich ehrlicherweise nicht messen. Deshalb rechnet Kapitel 4 die
+Sensitivität bis zur sechsfachen Stundenzahl durch.
 
 **Anatomie einer typischen Iteration** — vom Satz zum Release am selben Tag:
 Der Product Owner meldet morgens per Screenshot: *„Bei Small Multiples
@@ -236,9 +259,9 @@ Spanne — Rechenwege in Anhang B.
 enthält den vollen Prozess-Overhead (Spezifikation, Reviews, QA,
 Abnahmetests, Endnutzer-Doku, Projektmanagement); der KI-Build enthält
 Endnutzer-Doku, formale Abnahmetests und eine vollständige externe
-Review-Runde **noch nicht** (Kapitel 10). Wer nur den Ist-Stand vergleicht,
+Review-Runde **noch nicht** (Kapitel 11). Wer nur den Ist-Stand vergleicht,
 verschafft der KI-Seite also einen systematischen Vorteil. Deshalb wird der
-ROI in Kapitel 4 zusätzlich symmetrisch gerechnet — mit beiden möglichen
+Kostenhebel in Kapitel 4 zusätzlich symmetrisch gerechnet — mit beiden möglichen
 Korrekturen (KI-Seite auf Vollumfang hochgerechnet bzw. klassische Seite um
 die fehlenden Anteile gekürzt).
 
@@ -247,27 +270,51 @@ die fehlenden Anteile gekürzt).
 
 ---
 
-## 4 · ROI — beide Besetzungen
+## 4 · Der Kostenhebel — bewusst kein „ROI"
 
-| | Externer PO (5.200 €) | Interner PO (2.200 €) |
+Vorab die Begriffsklärung, die ein kritischer Leser zu Recht einfordert:
+Die folgende Kennzahl ist **kein ROI**. Ein Return on Investment setzt
+realisierte Erträge voraus; hier wird der tatsächliche Invest ins
+Verhältnis zu **vermiedenen Wiederbeschaffungskosten** gesetzt (Cost
+Avoidance). Wir nennen die Kennzahl deshalb durchgängig **Kostenhebel**:
+„29×" heißt, der Wiederbeschaffungswert entspricht dem 29-Fachen des
+Invests — nicht, dass 29-fache Erträge geflossen sind. Realisiert wird der
+Wert erst über Nutzung, Reichweite und vermiedene Lizenzkosten (Kapitel 5).
+
+| Kostenhebel | Externer PO (5.200 €) | Interner PO (2.200 €) |
 | --- | ---: | ---: |
-| vs. 150 T€ (konservativ) | ROI ~2.800 % · **29×** | ROI ~6.800 % · **69×** |
-| vs. 250 T€ (mittel) | ROI ~4.700 % · **48×** | ROI ~11.400 % · **115×** |
-| vs. 350 T€ (extern) | ROI ~6.700 % · **67×** | ROI ~16.000 % · **161×** |
+| vs. 150 T€ (konservativ) | **29×** | **69×** |
+| vs. 250 T€ (mittel) | **48×** | **115×** |
+| vs. 350 T€ (extern) | **67×** | **161×** |
 
-Effektiver Stundenwert der 20 Steuerungsstunden: **7.500–17.500 €** — Hebel
-30–70 auf den externen Beratersatz, 75–175 auf den internen. Pro Release:
-~85 € (extern) bzw. ~37 € (intern). Pro Zeile Code: ~0,20–0,50 € — klassisch
-liegt eine produktive Zeile bei 15–35 €.
+Effektiver Stundenwert der 20 dokumentierten Steuerungsstunden:
+**7.500–17.500 €** — Hebel 30–70 auf den externen Beratersatz, 75–175 auf
+den internen. Pro Release: ~85 € (extern) bzw. ~37 € (intern). Pro Zeile
+Code: ~0,20–0,50 € — klassisch liegt eine produktive Zeile bei 15–35 €.
 
-Zwei Einordnungen: Der ROI ist gegen den *Wiederbeschaffungswert* gerechnet —
-realisiert wird er über Nutzung, Reichweite und Folgeeffekte; der wichtigere
-Punkt ist, dass ein Werkzeug **überhaupt entsteht**, das nie ein
-250-T€-Budget bekommen hätte. Und: Der ROI gehört zur Kombination
-„Fachexperte + Werkzeug". KI ersetzt hier das Entwicklerteam — **nicht den
-Product Owner.**
+Zwei Einordnungen: Der wichtigere Punkt als jede Kennzahl ist, dass ein
+Werkzeug **überhaupt entsteht**, das nie ein 250-T€-Budget bekommen hätte.
+Und: Der Hebel gehört zur Kombination „Fachexperte + Werkzeug". KI ersetzt
+hier das Entwicklerteam — **nicht den Product Owner.**
 
-### Symmetrie-Check: ROI mit vergleichbarem Leistungsumfang
+### Sensitivität: Was, wenn es mehr Stunden waren?
+
+Die 20 h sind dokumentierte Sitzungszeit (Kapitel 2) — undokumentierte
+Denk- und Recherchezeit kommt realistisch hinzu. Die Rechnung bricht
+dadurch nicht:
+
+| Steuerungszeit | Invest extern | Hebel vs. 150–350 T€ | Invest intern | Hebel vs. 150–350 T€ |
+| --- | ---: | ---: | ---: | ---: |
+| 20 h (dokumentiert) | 5,2 T€ | 29–67× | 2,2 T€ | 69–161× |
+| 40 h | 10,2 T€ | 15–34× | 4,2 T€ | 36–84× |
+| 80 h | 20,2 T€ | 7–17× | 8,2 T€ | 18–43× |
+| 120 h | 30,2 T€ | 5–12× | 12,2 T€ | 12–29× |
+
+Selbst bei **Versechsfachung** der Stunden bleibt ein Hebel von mindestens
+5 (extern) bzw. 12 (intern). Die Aussage hängt nicht an der Präzision der
+Stundenerfassung.
+
+### Symmetrie-Check: Kostenhebel mit vergleichbarem Leistungsumfang
 
 Die Tabelle oben vergleicht Ist-Stand gegen Vollprozess (Prämisse 7). Zwei
 Korrekturen stellen Symmetrie her:
@@ -281,25 +328,25 @@ eine Schätzung, keine Messung):
 | | Externer PO | Interner PO |
 | --- | ---: | ---: |
 | Invest bei Vollumfang | ~9,0–11,5 T€ | ~3,8–4,8 T€ |
-| ROI vs. 150–350 T€ | **13–39×** | **31–93×** |
+| Hebel vs. 150–350 T€ | **13–39×** | **31–93×** |
 
 **Weg B — klassische Seite um die fehlenden Anteile kürzen** (−10–20 %,
 Kapitel 3): Vergleichswert 120–315 T€ gegen den Ist-Stand-Invest:
 
 | | Externer PO (5,2 T€) | Interner PO (2,2 T€) |
 | --- | ---: | ---: |
-| ROI vs. 120–315 T€ | **23–61×** | **55–144×** |
+| Hebel vs. 120–315 T€ | **23–61×** | **55–144×** |
 
 **Was sich dadurch ändert — und was nicht:** Die Schlagzeilen-Werte 29–161×
 gelten nur für den Ist-Stand-Vergleich. Symmetrisch gerechnet liegt der
-ROI je nach Weg und Besetzung bei **13–144×** — im ungünstigsten Szenario
+Hebel je nach Weg und Besetzung bei **13–144×** — im ungünstigsten Szenario
 (externer Satz, Vollumfang, konservativer Vergleichswert) bleibt ein Faktor
 **13**. Die Kernaussage übersteht die Korrektur; die Einzelwerte sollten
 aber stets mit dieser Einordnung zitiert werden. Nicht hochrechenbar ist
 schließlich der Abstimmungsaufwand echter Multi-Stakeholder-Organisationen:
 Dieses Projekt wurde von einer Person entschieden — in einer Organisation
 mit Gremien und Freigaben kämen PO-Stunden hinzu, die den Faktor weiter
-drücken (Kapitel 10).
+drücken (Kapitel 11).
 
 ---
 
@@ -332,7 +379,7 @@ Preisklasse nicht gab**.
 
 Fairness: Der Vergleich gilt, wo der Funktionsumfang genügt. Kommerzielle
 Anbieter verkaufen zusätzlich Reife, SLAs, Zertifizierung, Roadmap. Diese
-Lücke adressiert im Community-Modell ein Support-Abo (Kapitel 9).
+Lücke adressiert im Community-Modell ein Support-Abo (Kapitel 10).
 
 ---
 
@@ -361,6 +408,14 @@ genannten Beträge sind mögliche Effekte, keine zugesagten Nachlässe.
 ---
 
 ## 7 · Warum das feste Framework der halbe Erfolg ist
+
+Dieses Kapitel enthält die zentrale These des Papiers — sie ist
+wissenschaftlich interessanter als jeder Kostenfaktor: **Feste Frameworks
+reduzieren die Freiheitsgrade der Entwicklung so stark, dass KI-Arbeit
+kontrollierbar und reproduzierbar wird.** Die Wirkungskette lautet:
+Framework → Sandbox → kleine Iterationen → lokale Verifikation → Git →
+kontrollierbares Risiko. Absolute Produktivitätsfaktoren werden sich mit
+jeder Modellgeneration ändern; dieser Mechanismus nicht.
 
 Die verbreitete Sorge gegenüber KI-generiertem Code — „schnell, aber
 unsicher und fehlerhaft" — unterschätzt, wie stark ein festes Framework
@@ -406,7 +461,7 @@ Framework-Ökosysteme mit Sandbox und Zertifizierung — Office-Add-ins,
 Browser-Extensions, App-Store-Apps, dbt-Pakete. Dort ist „Vibe Coding"
 nicht trotz, sondern **wegen** der Einschränkungen produktionstauglich.
 Greenfield-Systeme ohne Zaun haben dieses Sicherheitsnetz nicht — dort
-gelten andere Maßstäbe (Kapitel 10).
+gelten andere Maßstäbe (Kapitel 11).
 
 ---
 
@@ -461,7 +516,66 @@ Produktionstauglichkeit.
 
 ---
 
-## 9 · Die Marktthese: Open Source × KI wirkt multiplikativ
+## 9 · Governance, Wartbarkeit, Bus-Faktor — die Risiko-Fragen
+
+Wer über den Einsatz dieses Musters entscheidet, fragt nicht nach Code,
+sondern nach Risiko. Die vier Fragen, die dabei regelmäßig zuerst kommen —
+und was dieser Fall auf sie antwortet:
+
+**Wer prüft KI-generierten Code?** Drei Schichten, keine davon optional:
+(1) *Automatisierte Gates* — Microsoft-Lint-Regeln, Zertifizierungs-Checks
+(kein `eval`, kein `innerHTML`, kein Nachladen), `npm audit`; alle liefen
+projektweit auf Null Findings. (2) *Abgegrenzte Diffs* — 124 Commits für
+60 Releases bedeuten kleine, lesbare Änderungen mit beschreibenden
+Botschaften; geprüft wird stichprobenhaft tief statt vollständig
+oberflächlich (Kapitel 8). (3) *Fachliche Abnahme am Ergebnis* — der
+Product Owner prüft jede Iteration am gerenderten Bild gegen fachliche
+Regeln („Bestandsgrößen darf man nicht summieren"). Für Organisationen
+heißt das: Der Review-Prozess für KI-Code existiert bereits — es ist der
+Pull-Request-Prozess für menschlichen Code, mit strengeren automatischen
+Gates.
+
+**Wie werden Halluzinationen abgefangen?** Im Framework-Kontext äußert
+sich ein KI-Fehler nicht als plausible Falschbehauptung, sondern als
+falsch gezeichnetes Chart oder gebrochener Test — er ist *sichtbar*
+(Kapitel 7). Der Headless-Render-Harness erzeugt für jeden Stand
+Bildbelege; die fachliche Korrektheit prüft der Domänenexperte, nicht die
+KI selbst. Restrisiko bleibt bei subtilen Rechenfehlern, die optisch
+plausibel aussehen — dagegen stehen die 80+ Testfälle mit bekannten
+Erwartungswerten.
+
+**Wer wartet das in drei Jahren?** Die ehrlichste Antwort: nicht zwingend
+dieselbe Person. Die Wartbarkeit hängt an drei Eigenschaften, die
+personenunabhängig sind: offener Quellcode (jeder Entwickler *und* jede
+künftige KI kann die Codebasis vollständig lesen), lückenlose Git-Historie
+mit beschreibenden Commits (das „Warum" jeder Entscheidung ist
+dokumentiert) und das Framework selbst (API-Updates von Microsoft sind der
+Haupt-Pflegetreiber und betreffen alle Visuals gleich). Die
+DCF-Rechnung (Kapitel 5) preist Pflege mit 3 T€/Jahr ein und bleibt bis
+10 T€/Jahr robust — das entspricht 12–40 PO-Stunden jährlich mit derselben
+Methode.
+
+**Was passiert, wenn der Product Owner geht?** Der klassische Bus-Faktor-1
+ist hier in zwei Hälften geteilt: Das *technische* Wissen liegt
+vollständig im Repository (Code, Historie, Testfälle, maschinenlesbare
+Projekt-Doku) — es ist übertragbar, an Menschen wie an KI-Agenten. Das
+*Steuerungs*-Wissen — welche fachlichen Anforderungen als Nächstes
+zählen — bleibt personengebunden, wie bei jedem Fachverfahren. Empfehlung
+für den Organisationseinsatz: Anforderungen und Abnahme-Entscheidungen im
+Repository mitführen (hier geschehen: Backlog und Changelog sind
+öffentlich) und früh eine zweite Person in die Steuerung einbinden.
+
+**Grenzen der Qualitätsevidenz — offen benannt:** Die vorliegenden
+Qualitätsbelege sind Prozess- und Prüfmetriken (Tests, Lint, Audit,
+Release-Historie). Es fehlen: formale Performance- und Speicher-Messungen,
+strukturiertes Nutzerfeedback in der Breite und die abgeschlossene
+Microsoft-Zertifizierung (eingereicht wird gerade; das Einreichungspaket
+ist Teil des Repos). Diese Lücken stehen im öffentlichen Backlog und
+gehören in jede seriöse Übernahme-Entscheidung (Kapitel 11).
+
+---
+
+## 10 · Die Marktthese: Open Source × KI wirkt multiplikativ
 
 > **Einordnung — Reichweite dieses Kapitels:** Ab hier verlässt das Papier
 > den belegten Einzelfall. Die folgenden Aussagen sind **Hypothesen über
@@ -473,7 +587,8 @@ Produktionstauglichkeit.
 Einzeln waren beide Kräfte für Software-Vendoren beherrschbar: Open Source
 scheiterte im Anwendungs-Layer oft am Pflegeargument („wer wartet das?");
 KI-Entwicklung allein blieb ohne offene Referenz-Codebasen auf
-Prototypen-Niveau. **Zusammen hebeln sie sich:**
+Prototypen-Niveau. **Unsere Beobachtung legt nahe, dass sie sich
+gegenseitig verstärken:**
 
 - KI macht Community-Software **pflegbar** — ein Ein-Personen-Projekt hat
   effektiv ein Entwicklerteam; „Bus-Faktor 1" bedeutet nicht mehr Stillstand.
@@ -481,12 +596,12 @@ Prototypen-Niveau. **Zusammen hebeln sie sich:**
   erweiterbar, weil das Modell die Codebasis liest wie ein eingearbeiteter
   Entwickler.
 
-Träfe das breit zu, geriete der klassische Burggraben der Feature-Vendoren
-(„Entwicklung ist teuer, wir haben sie bezahlt, ihr mietet sie") unter
-Druck. Am stärksten exponiert wären: Single-Product-Anbieter mit
-Feature-Differenzierung und Sitzplatz-Preisen. Wenig bedroht: Plattformen
-(Microsoft gewinnt durch jedes gute Visual), Daten-/Netzwerk-Lock-in,
-Haftung als Kaufgrund.
+Träfe das breit zu, geriete der klassische Schutzwall funktionsorientierter
+Software-Anbieter („Entwicklung ist teuer, wir haben sie bezahlt, ihr
+mietet sie") unter Druck. Am stärksten exponiert wären:
+Single-Product-Anbieter mit Funktions-Differenzierung und
+Sitzplatz-Preisen. Wenig betroffen: Plattformen (Microsoft gewinnt durch
+jedes gute Visual), Daten-/Netzwerk-Lock-in, Haftung als Kaufgrund.
 
 Das historische Muster existiert: Open Source hat die
 Infrastruktur-Schicht konsolidiert (Linux, Postgres); überlebt hat das
@@ -502,7 +617,7 @@ für SLAs und Haftung — es schrumpft, verschwindet nicht.
 
 ---
 
-## 10 · Übertragbarkeit — und Grenzen
+## 11 · Übertragbarkeit — und Grenzen
 
 Drei Zutaten erklären das Ergebnis; fehlt eine, bricht die Rechnung:
 
@@ -526,9 +641,9 @@ Backlog — Transparenz gehört zur Glaubwürdigkeit.
 
 ---
 
-## 11 · Was das für Unternehmen bedeuten kann
+## 12 · Was das für Unternehmen bedeuten kann
 
-Die folgenden Ableitungen stehen unter dem Vorbehalt aus Kapitel 9 und
+Die folgenden Ableitungen stehen unter dem Vorbehalt aus Kapitel 10 und
 Prämisse 6: Belegt ist der Einzelfall; die Empfehlungen beschreiben
 **mögliche Konsequenzen**, deren Tragweite davon abhängt, ob sich das
 Muster in weiteren, unabhängigen Fällen bestätigt. Als risikoarme erste
@@ -647,6 +762,18 @@ ist gegen deren Obergrenzen konservativ; der Abschlag für noch fehlende
 Endnutzer-Doku und Abnahmetests (−10–20 %, Kapitel 3) ist dabei bereits
 angesprochen.
 
+**Warum COCOMO II und Function Points — und nicht DORA oder SPACE?** Für
+einen Wiederbeschaffungswert braucht es Verfahren, die den *Aufwand für
+einen definierten Funktionsumfang* schätzen — das leisten parametrische
+Modelle (COCOMO II) und funktionale Größenmessung (Function Points).
+Moderne Team-Performance-Frameworks wie DORA/Accelerate [14] oder
+SPACE [15] messen dagegen Lieferfähigkeit und Entwicklererleben laufender
+Organisationen — sie beantworten eine andere Frage und werden hier bewusst
+nicht als Kostenmaßstab verwendet. Wichtig außerdem: COCOMO II ist auf
+klassische Entwicklung kalibriert (Datenbasis bis ~2000). Es dient in
+diesem Papier ausschließlich der **Plausibilisierung der klassischen
+Vergleichskosten** — nie der Bewertung des KI-gestützten Wegs selbst.
+
 ### B.2 Kapitalwertorientiert: DCF, Jahr für Jahr
 
 Barwertformel und Annuitätenfaktor (Standard-Finanzmathematik, z. B.
@@ -744,6 +871,30 @@ Der geschaffene Wert liegt zwei Größenordnungen über dem Invest von
 2,2–5,2 T€ — unabhängig davon, welcher anerkannten Bewertungslogik man
 folgt.
 
+### B.6 Einordnung in die Produktivitäts-Literatur
+
+Kontrollierte Studien zu KI-Werkzeugen in der Software-Entwicklung
+berichten deutlich kleinere, aber gleichgerichtete Effekte: **+55,8 %**
+Geschwindigkeit bei einer abgegrenzten Programmieraufgabe im
+Copilot-Experiment (Peng et al. [11]); **20–50 %** Zeitersparnis je nach
+Aufgabentyp in Praxisexperimenten (McKinsey [12]); und als wichtiges
+Gegen-Ergebnis: Erfahrene Open-Source-Entwickler waren mit KI-Werkzeugen
+auf ihren eigenen, großen Codebasen im Mittel **~19 % langsamer**
+(METR [13]).
+
+Der hier dokumentierte Fall liegt mit einem Kalenderzeit-Faktor von
+~25–35 weit über diesen Werten — er ist ein **Ausreißer am oberen Ende**
+und genau deshalb erklärungsbedürftig. Die Erklärung dieses Papiers: Die
+Literatur misst überwiegend KI als *Assistenz* in bestehenden Prozessen,
+mit Menschen im Schreib-Loop und gewachsenen Codebasen; hier arbeitete KI
+als *ausführendes Team* in einem eng gezäunten Framework, mit
+Ein-Personen-Entscheidungsstruktur und Greenfield-Start — exakt die
+Bedingungen aus Kapitel 7 und 11. Der METR-Befund stützt diese Lesart
+spiegelbildlich: Ohne Zaun und mit hohem Kontextaufwand kann der Effekt
+sogar negativ werden. Konsequenz: Der Faktor dieses Falls ist **kein
+Erwartungswert für beliebige Projekte**, sondern eine Demonstration des
+oberen Endes unter günstigen, explizit benannten Bedingungen.
+
 ---
 
 ## Quellen
@@ -772,6 +923,17 @@ folgt.
    Zusammenarbeit mit der University of Oxford, 2012.
 10. The Standish Group: *CHAOS Report* (fortlaufende Studienreihe zu
     Erfolgsquoten von Software-Projekten).
+11. Peng, S.; Kalliamvakou, E.; Cihon, P.; Demirer, M.: *The Impact of AI
+    on Developer Productivity: Evidence from GitHub Copilot.*
+    arXiv:2302.06590, 2023.
+12. McKinsey & Company: *Unleashing developer productivity with
+    generative AI.* 2023.
+13. METR: *Measuring the Impact of Early-2025 AI on Experienced
+    Open-Source Developer Productivity.* 2025.
+14. Forsgren, N.; Humble, J.; Kim, G.: *Accelerate — The Science of Lean
+    Software and DevOps.* IT Revolution Press, 2018 (DORA-Metriken).
+15. Forsgren, N.; Storey, M.-A.; Maddila, C. et al.: *The SPACE of
+    Developer Productivity.* ACM Queue 19(1), 2021.
 
 Hinweis zur Verwendung: [4]–[7] sind Schätz-Benchmarks, keine Messungen
 an diesem Projekt; sie dienen der unabhängigen Plausibilisierung der
@@ -781,4 +943,4 @@ weitergerechnet.
 
 ---
 
-*v1.2 — Zahlen Stand 15.07.2026. Feedback willkommen.*
+*v2.0 — Zahlen Stand 15.07.2026. Feedback willkommen.*
