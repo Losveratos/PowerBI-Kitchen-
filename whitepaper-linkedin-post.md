@@ -1,8 +1,22 @@
 # LinkedIn-Post · Einstieg zum Thesenpapier
 
-> Entwurf v1 — Zeichen: ~1.900 (LinkedIn-Limit 3.000). Link-Platzhalter vor
-> dem Posten ersetzen. Tipp: Abb. 5 (Prozessvergleich) oder das Deckblatt
-> als Bild anhängen — Posts mit Bild erreichen deutlich mehr Sichtbarkeit.
+> **Finalfassung zum Kopieren** — geplant: 17.07.2026, 8:00 Uhr.
+>
+> **Publish-Checkliste (vorher, ~10 Minuten):**
+> 1. Branch `claude/inspired-ibcs-power-bi-visual-h04y05` in `main` mergen,
+>    damit die Links unten stabil sind (sonst Branch-Links verwenden).
+> 2. Optional: `whitepaper-ki-entwicklung-roi.html` auf
+>    datenwgknowledgekitchen.com legen und den PDF-Link im Post durch die
+>    Domain-URL ersetzen — eigene Domain wirkt seriöser als GitHub.
+> 3. Bild anhängen: `whitepaper-assets/social-cover.png` (Deckblatt) oder
+>    `social-prozess.png` (Prozessvergleich, Querformat — auf LinkedIn
+>    meist stärker).
+> 4. Nach dem Posten: den Kommentar-Baustein unten als ersten eigenen
+>    Kommentar setzen.
+>
+> Link-Varianten (falls kein Merge/Deploy vor 8 Uhr):
+> - PDF: `https://github.com/Losveratos/PowerBI-Kitchen-/blob/claude/inspired-ibcs-power-bi-visual-h04y05/whitepaper-ki-entwicklung-roi.pdf`
+> - Repo: `https://github.com/Losveratos/PowerBI-Kitchen-`
 
 ---
 
