@@ -261,7 +261,7 @@ Preisklasse nicht gab**.
 
 Fairness: Der Vergleich gilt, wo der Funktionsumfang genügt. Kommerzielle
 Anbieter verkaufen zusätzlich Reife, SLAs, Zertifizierung, Roadmap. Diese
-Lücke adressiert im Community-Modell ein Support-Abo (§9).
+Lücke adressiert im Community-Modell ein Support-Abo (Kapitel 9).
 
 ---
 
@@ -332,7 +332,7 @@ Framework-Ökosysteme mit Sandbox und Zertifizierung — Office-Add-ins,
 Browser-Extensions, App-Store-Apps, dbt-Pakete. Dort ist „Vibe Coding"
 nicht trotz, sondern **wegen** der Einschränkungen produktionstauglich.
 Greenfield-Systeme ohne Zaun haben dieses Sicherheitsnetz nicht — dort
-gelten andere Maßstäbe (§10).
+gelten andere Maßstäbe (Kapitel 10).
 
 ---
 
@@ -424,12 +424,12 @@ für SLAs und Haftung — es schrumpft, verschwindet nicht.
 
 Drei Zutaten erklären das Ergebnis; fehlt eine, bricht die Rechnung:
 
-1. **Festes Framework** (§7) — begrenzte Bug-/Security-Fläche, lokale
+1. **Festes Framework** (Kapitel 7) — begrenzte Bug-/Security-Fläche, lokale
    Verifikation.
 2. **Domänenexpertise in der Steuerung** — Anforderungen in Fachsprache mit
    eingebautem Qualitätsmaßstab („Bestandsgrößen darf man nicht summieren").
    Der Unterschied zwischen zwei Iterationen und zwanzig.
-3. **Selbstverifikation + Versionskontrolle** (§8) — der Loop aus Abb. 7.
+3. **Selbstverifikation + Versionskontrolle** (Kapitel 8) — der Loop aus Abb. 7.
 
 Überträgt sich auf: Office-Add-ins, IDE-Extensions, Plattform-Plugins,
 dbt-Pakete, interne Fachanwendungen mit klarem Rahmen. Überträgt sich
@@ -448,7 +448,7 @@ Backlog — Transparenz gehört zur Glaubwürdigkeit.
 
 **CFO / Controlling-Leitung:** Visual- und Werkzeug-Lizenzen gegen die freie
 Alternative prüfen — als Wechseloption oder Verhandlungskarte. Ab ~150–200
-Nutzern ist der Barwertvorteil erheblich (§5).
+Nutzern ist der Barwertvorteil erheblich (Kapitel 5).
 
 **IT- / BI-Verantwortliche:** Die Kombination „Framework-Zaun + interner
 Fachexperte + KI + Git-Disziplin" ist reproduzierbar — und mit dem internen
@@ -471,8 +471,9 @@ Antwort auf die Pflege-Frage.
 
 - **Projektdaten:** Git-Historie des öffentlichen Repositories (erster
   Visual-Commit 06.07.2026; 124 Commits, ~60 Releases bis 15.07.2026);
-  Code-Umfang per `wc -l`; Testfälle im Repo. Abb. 1–4 sind unbearbeitete
-  Render-Ausgaben des Test-Harness.
+  Code-Umfang per `wc -l`; Testfälle im Repo. Abb. 1, 2 und 4 sind
+  unbearbeitete Render-Ausgaben des Test-Harness; Abb. 3, 5 und 6 sind aus
+  den Rohdaten erstellte Schaubilder.
 - **Token-/Kostendaten:** Auswertung des Entwicklungs-Session-Protokolls
   (4.446 API-Aufrufe; Output 5,3 M, Cache-Write 70,5 M, Cache-Read 1.725 M
   Tokens); API-Listenpreise Stand Juni 2026; Abo-Kosten laut Rechnung.
@@ -482,7 +483,7 @@ Antwort auf die Pflege-Frage.
 - **CO₂-Schätzung:** Methodik des Daten-WG-KI-CO₂-Simulators (Wh je 1.000
   Output-Tokens nach Modellklasse, PUE 1,15–1,56, US-Strommix 300–450 g/kWh);
   Cache-Reads mit Faktor 0,1 als preis-analoge Näherung.
-- **Klassische Kostenschätzung:** Bottom-up in PM (§3), bewertet mit
+- **Klassische Kostenschätzung:** Bottom-up in PM (Kapitel 3), bewertet mit
   9 T€/PM intern bzw. 900–1.200 €/Tag extern; keine Anbieterangebote
   eingeholt, Spanne bewusst breit.
 - **DCF-Annahmen:** Lizenzpreise 7–12 €/Nutzer/Monat (öffentliche
