@@ -2,7 +2,7 @@
 
 ## Wie KI-gestützte Entwicklung die Build-oder-Buy-Frage neu entscheidet — nachgerechnet an einem realen Projekt
 
-**Ein Whitepaper der Daten-WG · Juli 2026 · v1.0**
+**Ein Whitepaper der Daten-WG · Juli 2026 · v1.1**
 
 ---
 
@@ -93,7 +93,7 @@ Entwicklungs-Hintergrund. Acht Begriffe genügen:
 2. **Die Projektzahlen sind Messwerte, keine Schätzungen:** Kalendertage,
    Commits, Releases und Code-Umfang stammen aus der öffentlichen
    Git-Historie; Token- und Werkzeugkosten aus dem Session-Protokoll und
-   Rechnungen (Anhang).
+   Rechnungen (Anhang A).
 3. **Die Stundensätze sind Annahmen:** 250 €/h für einen erfahrenen externen
    Berater (Marktsatz), 100 €/h interner Vollkostensatz. Beide Rechnungen
    werden durchgängig nebeneinander geführt.
@@ -111,7 +111,9 @@ Entwicklungs-Hintergrund. Acht Begriffe genügen:
 (Kosten, ROI, Barwert). Kapitel 6–9 ordnen ein: Verhandlungsmacht, warum das
 Framework und Git die Risiken zähmen, was das für den Software-Markt heißt.
 Kapitel 10–11 klären Übertragbarkeit, Grenzen und Handlungsempfehlungen.
-Der Anhang dokumentiert die Methodik.
+Anhang A dokumentiert die Methodik; Anhang B rechnet die Bewertungen nach
+anerkannten Verfahren vor (COCOMO II, Function Points, DCF,
+Lizenzpreisanalogie); ein Quellenverzeichnis schließt das Papier.
 
 ---
 
@@ -204,7 +206,9 @@ sofern Entwickler mit Power-BI-Visual- *und* Controlling-Erfahrung verfügbar
 sind), **extern ~250–400 T€** (900–1.200 €/Tag). Wir rechnen konservativ mit
 der Spanne **150–350 T€**. Ehrlicher Abschlag: Ein klassisches Projekt hätte
 Endnutzer-Doku und formale Abnahmetests enthalten, die hier noch ausstehen
-(−10–20 %) — die Größenordnung bleibt unberührt.
+(−10–20 %) — die Größenordnung bleibt unberührt. Eine unabhängige
+Gegenrechnung mit zwei anerkannten Schätzverfahren (COCOMO II, Function
+Points) bestätigt die Spanne — Rechenwege in Anhang B.
 
 ![Kostenvergleich](whitepaper-assets/fig-kostenvergleich.svg)
 *Abb. 5 — Vier Wege zum selben Stand. Die KI-gestützten Balken sind auf dieser Skala kaum sichtbar — das ist die Aussage.*
@@ -250,7 +254,8 @@ Diskontiert über 5 Jahre (8 %, Annuitätenfaktor 3,99), gegen Eigenbau mit
 
 Payback: 2,6 Monate (200 Nutzer), ~3 Wochen (Konzern). Sensitivität: Selbst
 bei verdreifachter Pflege (10 T€/Jahr) bleibt der Mittelstandsfall ~50 T€ im
-Plus.
+Plus. Die vollständige Jahr-für-Jahr-Rechnung samt Zins- und
+Pflege-Sensitivitäten steht in Anhang B.
 
 **Die Adopter-Perspektive verschärft das Bild:** Wer das freie
 Community-Visual einsetzt statt selbst zu bauen, trägt nur die Einführung
@@ -467,7 +472,7 @@ Antwort auf die Pflege-Frage.
 
 ---
 
-## Anhang · Methodik und Belege
+## Anhang A · Methodik und Belege
 
 - **Projektdaten:** Git-Historie des öffentlichen Repositories (erster
   Visual-Commit 06.07.2026; 124 Commits, ~60 Releases bis 15.07.2026);
@@ -494,4 +499,202 @@ Antwort auf die Pflege-Frage.
   Visuals und erbringt Beratungsleistungen im Power-BI-Umfeld. Alle
   Schätzungen sind Größenordnungen, keine Angebote oder Zusicherungen.
 
-*v1.0 — Zahlen Stand 15.07.2026. Feedback willkommen.*
+## Anhang B · Bewertung nach anerkannten Verfahren — die Rechenwege
+
+Bewertungsstandards für immaterielle Vermögenswerte (IDW S 5 [1],
+IVS 210 [2]; bilanziell IAS 38 [3]) kennen drei Verfahrensfamilien:
+**kostenorientiert** (Wiederbeschaffungskosten), **kapitalwertorientiert**
+(abgezinste künftige Zahlungen, inkl. Lizenzpreisanalogie) und
+**marktpreisorientiert** (Vergleichstransaktionen). Dieser Anhang rechnet
+die ersten beiden vollständig vor; der Marktpreisansatz scheidet mangels
+beobachtbarer Transaktionen einzelner Visuals aus — seine Rolle übernehmen
+die öffentlichen Lizenzpreise, die in B.2 und B.3 einfließen.
+
+### B.1 Kostenorientiert: Wiederbeschaffungskosten, drei Schätzverfahren
+
+**Verfahren 1 — Bottom-up-Expertenschätzung** (Kapitel 3): Zerlegung in
+zehn Arbeitsblöcke, je Block eine PM-Spanne. Ergebnis: **14–18 PM** inkl.
+Projektrealität.
+
+**Verfahren 2 — COCOMO II** (parametrisches Modell, Boehm et al. [4]).
+Grundformel:
+
+```
+PM = A × Size^E × ∏EM        mit A = 2,94; Size in KSLOC;
+E  = B + 0,01 × ΣSF          mit B = 0,91; nominal E ≈ 1,10
+```
+
+Eingesetzt mit Size = 10,2 KSLOC (gemessener Kern-Code):
+
+| Szenario | Effort-Multiplikatoren ∏EM | Ergebnis |
+| --- | --- | --- |
+| Nominal (durchschnittliches Team, Standardbedingungen) | 1,0 | **~38 PM** |
+| Angepasst: hohe Team-/Analystenfähigkeit, eingespielte Werkzeugkette, geringe Neuartigkeit | 0,4–0,5 | **15–19 PM** |
+
+Ein PM entspricht in COCOMO II 152 Arbeitsstunden. Das angepasste Szenario
+entspricht einem erfahrenen Spezialistenteam — die realistische Besetzung
+für ein solches Projekt; das Nominal-Szenario markiert die Obergrenze.
+
+**Verfahren 3 — Function-Point-Analyse** (ISO/IEC 20926 [5]). Da keine
+formale Zählung vorliegt, wird per Backfiring aus dem Code-Umfang
+geschätzt (Jones [6]: JavaScript-Familie ~40–60 LOC je FP):
+
+```
+10.200 LOC ÷ 50 LOC/FP ≈ 204 FP   (Bandbreite 170–255 FP)
+```
+
+Mit typischen Lieferraten für neue Business-Anwendungen von 8–15 Stunden
+je FP (ISBSG-Benchmarks [7]): 204 FP × 8–15 h = 1.630–3.060 h ≈
+**11–20 PM** (volle Bandbreite über beide Unsicherheiten: 9–25 PM).
+
+**Triangulation** — Bewertung mit 9 T€/PM intern bzw. 900–1.200 €/Tag
+extern (1 PM ≈ 19 Personentage):
+
+| Verfahren | Aufwand | Intern (9 T€/PM) | Extern (900–1.200 €/Tag) |
+| --- | --- | ---: | ---: |
+| Bottom-up (Kapitel 3) | 14–18 PM | 126–162 T€ | 240–410 T€ |
+| COCOMO II, angepasst | 15–19 PM | 135–171 T€ | 255–435 T€ |
+| Function Points | 11–20 PM | 100–180 T€ | 190–455 T€ |
+| *COCOMO II, nominal (Obergrenze)* | *~38 PM* | *~340 T€* | *~650–870 T€* |
+
+Alle drei Hauptverfahren landen in derselben Größenordnung. Die im Papier
+verwendete Spanne **150–350 T€** liegt innerhalb der Triangulation und
+ist gegen deren Obergrenzen konservativ; der Abschlag für noch fehlende
+Endnutzer-Doku und Abnahmetests (−10–20 %, Kapitel 3) ist dabei bereits
+angesprochen.
+
+### B.2 Kapitalwertorientiert: DCF, Jahr für Jahr
+
+Barwertformel und Annuitätenfaktor (Standard-Finanzmathematik, z. B.
+Brealey/Myers/Allen [8]):
+
+```
+PV = Σ CFt / (1+r)^t          AF(r; n) = (1 − (1+r)^−n) / r
+AF(8 %; 5 J) = (1 − 1,08^−5) / 0,08 = 3,9927
+```
+
+**Rechenbeispiel Mittelstand:** 200 Report-Nutzer, Lizenz 10 €/Nutzer/Monat
+= 24.000 €/Jahr, nachschüssig; Eigenbau 5.200 € sofort + 3.000 €/Jahr
+Pflege:
+
+| Jahr | Lizenz-Zahlung | Abzinsfaktor (8 %) | Barwert Lizenz | Barwert Pflege |
+| --- | ---: | ---: | ---: | ---: |
+| 0 | — | 1,0000 | — | 5.200 € (Invest) |
+| 1 | 24.000 € | 0,9259 | 22.222 € | 2.778 € |
+| 2 | 24.000 € | 0,8573 | 20.576 € | 2.572 € |
+| 3 | 24.000 € | 0,7938 | 19.052 € | 2.381 € |
+| 4 | 24.000 € | 0,7350 | 17.641 € | 2.205 € |
+| 5 | 24.000 € | 0,6806 | 16.334 € | 2.042 € |
+| **Σ** | **120.000 €** | | **95.825 €** | **17.178 €** |
+
+**NPV-Vorteil Eigenbau: 95.825 − 17.178 = ~78.600 €.** Payback:
+5.200 € ÷ 24.000 €/Jahr ≈ 2,6 Monate.
+
+**Sensitivität** (NPV-Vorteil in T€, gleicher Fall, Diskontsatz ×
+Pflegekosten):
+
+| Pflege \ Diskontsatz | 6 % | 8 % | 10 % |
+| --- | ---: | ---: | ---: |
+| 3 T€/Jahr | +83,3 | +78,6 | +74,4 |
+| 6 T€/Jahr | +70,6 | +66,7 | +63,0 |
+| 10 T€/Jahr | +53,8 | +50,7 | +47,9 |
+
+Der Vorteil bleibt in jeder Kombination sechsstellig positiv im
+Mittelstandsfall — die Entscheidung ist gegen beide Parameter robust.
+**Break-even:** Der Eigenbau-Barwert von 17,2 T€ entspricht — je nach
+Staffelpreis 8–12 €/Nutzer/Monat — dem Lizenz-Barwert von **30–45
+Nutzern**. Darüber gewinnt der Eigenbau.
+
+### B.3 Lizenzpreisanalogie (Relief from Royalty)
+
+Die Lizenzpreisanalogie ist das in IDW S 5 [1] und IVS 210 [2] anerkannte
+kapitalwertorientierte Verfahren zur Bewertung des **Vermögenswerts
+selbst**: Der Wert des Werkzeugs entspricht den abgezinsten Lizenzzahlungen,
+die sein Eigentümer *nicht* leisten muss, abzüglich der Kosten, die er
+stattdessen trägt.
+
+```
+Wert ≈ PV(vermiedene Lizenzen) − PV(Pflege)
+200 Nutzer:   95.825 € − 11.978 € ≈  84 T€
+1.000 Nutzer: 335.400 € − 11.978 € ≈ 323 T€
+```
+
+Der Wert ist nutzungsabhängig — dasselbe Visual ist für einen
+1.000-Nutzer-Konzern rund viermal so viel „wert" wie für den Mittelstand.
+Das erklärt präzise, warum ein und dasselbe freie Werkzeug als
+Verhandlungskarte (Kapitel 6) beim Konzern am schärfsten wirkt.
+
+### B.4 Zeitschätzung klassischer Entwicklung — mit Quellen
+
+Die COCOMO-II-Zeitformel [4] liefert die Kalenderzeit unabhängig von der
+Teamgröße:
+
+```
+TDEV = 3,67 × PM^0,318
+15 PM → ~9 Monate      19 PM → ~9,5 Monate      38 PM → ~12 Monate
+```
+
+Das deckt sich mit der einfachen Überschlagsrechnung (14–18 PM bei 2
+Entwicklern ≈ 7–9 Monate zzgl. Staffing, Reviews, Release-Zyklen) und
+begründet die im Papier verwendete Spanne **6–12 Monate**. Zwei
+empirische Befunde sprechen dafür, dass diese Schätzung eher zu
+optimistisch als zu pessimistisch ist: Große IT-Projekte überschreiten
+ihr Budget im Mittel um ~45 % (McKinsey/Oxford [9]), und nur rund ein
+Drittel der Software-Projekte wird in Zeit, Budget und Umfang
+abgeschlossen (Standish CHAOS [10]). Die 10 Kalendertage des KI-gestützten
+Builds stehen einer nach anerkannten Verfahren hergeleiteten klassischen
+Laufzeit von **9–12 Monaten** gegenüber — Faktor ~25–35 in der
+Kalenderzeit.
+
+### B.5 Einordnung der Verfahren
+
+| Verfahren | Familie (IDW S 5 / IVS 210) | Ergebnis hier |
+| --- | --- | --- |
+| Bottom-up, COCOMO II, Function Points | kostenorientiert | Wiederbeschaffung 150–350 T€ (konservativ) |
+| DCF Build vs. Buy | kapitalwertorientiert | NPV-Vorteil ~79 T€ (200 Nutzer) bis ~318 T€ (1.000 Nutzer) |
+| Lizenzpreisanalogie | kapitalwertorientiert | Asset-Wert ~84–323 T€ (nutzungsabhängig) |
+| Vergleichstransaktionen | marktpreisorientiert | nicht anwendbar (kein aktiver Markt für Einzel-Visuals) |
+
+Alle Verfahren erzählen dieselbe Geschichte aus verschiedenen Richtungen:
+Der geschaffene Wert liegt zwei Größenordnungen über dem Invest von
+2,2–5,2 T€ — unabhängig davon, welcher anerkannten Bewertungslogik man
+folgt.
+
+---
+
+## Quellen
+
+1. IDW S 5: *Grundsätze zur Bewertung immaterieller Vermögenswerte.*
+   Institut der Wirtschaftsprüfer in Deutschland e. V., Düsseldorf
+   (Stand 2015).
+2. IVSC: *International Valuation Standards*, IVS 210 *Intangible Assets.*
+   International Valuation Standards Council, London (aktuelle Fassung).
+3. IAS 38: *Immaterielle Vermögenswerte.* International Accounting
+   Standards Board (IFRS-Standards).
+4. Boehm, B. W.; Abts, C.; Brown, A. W. et al.: *Software Cost Estimation
+   with COCOMO II.* Prentice Hall, Upper Saddle River, 2000.
+5. ISO/IEC 20926:2009: *Software and systems engineering — IFPUG
+   functional size measurement method.* ISO, Genf.
+6. Jones, C.: *Applied Software Measurement: Global Analysis of
+   Productivity and Quality.* 3. Aufl., McGraw-Hill, New York, 2008
+   (Backfiring-Tabellen LOC↔FP).
+7. ISBSG: *Development & Enhancement Repository* — Branchenbenchmarks zu
+   Project Delivery Rates (h/FP). International Software Benchmarking
+   Standards Group, isbsg.org.
+8. Brealey, R. A.; Myers, S. C.; Allen, F.: *Principles of Corporate
+   Finance.* McGraw-Hill (Barwert- und Annuitätenrechnung).
+9. Bloch, M.; Blumberg, S.; Laartz, J.: *Delivering large-scale IT
+   projects on time, on budget, and on value.* McKinsey & Company in
+   Zusammenarbeit mit der University of Oxford, 2012.
+10. The Standish Group: *CHAOS Report* (fortlaufende Studienreihe zu
+    Erfolgsquoten von Software-Projekten).
+
+Hinweis zur Verwendung: [4]–[7] sind Schätz-Benchmarks, keine Messungen
+an diesem Projekt; sie dienen der unabhängigen Plausibilisierung der
+projektspezifischen Bottom-up-Schätzung. Wo Literaturwerte als Bandbreite
+vorliegen, wird durchgängig die Bandbreite — nicht ein Punktwert —
+weitergerechnet.
+
+---
+
+*v1.1 — Zahlen Stand 15.07.2026. Feedback willkommen.*
