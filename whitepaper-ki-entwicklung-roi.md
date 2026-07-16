@@ -1,51 +1,117 @@
-# Software bauen statt lizenzieren
+# Zehn Tage statt zehn Monate
 
-## Was KI-gestützte Entwicklung in festen Frameworks für Build-vs-Buy, Open Source und den Software-Markt bedeutet
+## Wie KI-gestützte Entwicklung die Build-oder-Buy-Frage neu entscheidet — nachgerechnet an einem realen Projekt
 
-**Ein Whitepaper der Daten-WG · Juli 2026 · Entwurf v0.9**
-
-> **Die Fallstudie ist exemplarisch.** Belegt wird jede Zahl an einem konkreten
-> Projekt — einem Power-BI-Custom-Visual für Controlling-Berichte. Das Muster
-> dahinter gilt aber für eine ganze Klasse von Software: alles, was innerhalb
-> eines festen Frameworks mit definierten APIs lebt (Office-Add-ins,
-> IDE-Extensions, Plattform-Plugins, interne Fachwerkzeuge). Wer „Visual"
-> liest, darf „unser Werkzeug X" denken.
+**Ein Whitepaper der Daten-WG · Juli 2026 · v1.0**
 
 ---
 
-## TL;DR
+## Management Summary
 
-Ein fachlich erfahrener Product Owner hat mit KI-gestützter Entwicklung
-(„Vibe Coding") in **10 Kalendertagen** ein produktionsreifes
-Power-BI-Custom-Visual gebaut: 12 Chart-Modi, eine Controlling-Tabelle mit
-Hierarchie und Formel-Engine, KPI-Karten, vier Sprachen, 80+ automatisierte
-Render-Tests, AppSource-Einreichungspaket. Einsatz: **~20 Stunden Steuerung
-plus 180 € Werkzeugkosten.**
+**Worum es geht.** Dieses Papier dokumentiert ein Experiment mit
+betriebswirtschaftlicher Sprengkraft: Ein einzelner Controlling-Experte —
+kein Entwicklerteam — hat mithilfe KI-gestützter Software-Entwicklung in
+**zehn Kalendertagen** ein professionelles Berichts-Werkzeug für Microsoft
+Power BI gebaut. Funktionsumfang und Qualität entsprechen einem Produkt,
+dessen Entwicklung auf klassischem Weg **14–18 Personenmonate** gedauert und
+**150.000–350.000 €** gekostet hätte.
+
+**Was es tatsächlich gekostet hat.** Rund 20 Stunden Steuerungszeit des
+Fachexperten plus etwa 180 € Werkzeugkosten. Je nachdem, ob man die Stunden
+mit einem externen Beratersatz (250 €/h) oder einem internen Vollkostensatz
+(100 €/h) bewertet, liegt der Gesamtinvest bei **~5.200 €** bzw. **~2.200 €**
+— ein Faktor 29 bis 161 unter dem Wiederbeschaffungswert.
+
+**Warum das mehr als eine Anekdote ist.** Das Ergebnis beruht nicht auf
+Glück, sondern auf drei reproduzierbaren Bedingungen: einem festen
+Software-Framework mit klaren Regeln (Kapitel 7), einem Fachexperten, der
+präzise formulieren kann, was gebaut werden soll, und disziplinierter
+Versionskontrolle, die jeden Schritt prüfbar und rückgängig machbar hält
+(Kapitel 8). Wo diese Bedingungen vorliegen, ist das Muster übertragbar —
+und dann kippen etablierte Kalküle: die Build-oder-Buy-Entscheidung, die
+Verhandlungsposition in Lizenzgesprächen und die Preissetzungsmacht von
+Software-Anbietern.
+
+**Für wen das relevant ist.** CFOs und Controlling-Leitungen (Lizenzkosten,
+Verhandlungsmacht), IT- und BI-Verantwortliche (was intern plötzlich
+machbar ist), Software-Anbieter (wo ihr Geschäftsmodell unter Druck gerät)
+und Beratungen (wohin der Wert wandert). Kapitel 11 fasst die
+Handlungsempfehlungen je Rolle zusammen.
 
 | Kernergebnis | Wert |
 | --- | --- |
-| Tatsächlicher Invest (externer PO, 250 €/h) | **~5.200 €** |
-| Tatsächlicher Invest (interner PO, 100 €/h) | **~2.200 €** |
+| Tatsächlicher Invest (externer Experte, 250 €/h) | **~5.200 €** |
+| Tatsächlicher Invest (interner Experte, 100 €/h) | **~2.200 €** |
 | Klassischer Wiederbeschaffungswert | **150.000–350.000 €** |
-| ROI | **29–67×** (extern) · **69–161×** (intern) |
+| Kapitalrendite (ROI) auf den Invest | **29–67×** (extern) · **69–161×** (intern) |
 | Kalenderzeit | **10 Tage** statt 6–12 Monate |
 
-Fünf Thesen folgen daraus:
+**Die fünf Kernthesen:**
 
 1. **Build-vs-Buy kippt** für Framework-Software: Ab mittlerer
    Unternehmensgröße schlägt der Eigenbau (oder die Adoption eines freien
    Community-Builds) das Lizenzmodell nach Barwert deutlich.
 2. **Ein glaubwürdiges freies Werkzeug wirkt spieltheoretisch** — es
-   verschiebt Lizenzverhandlungen, ohne dass gewechselt werden muss.
+   verschiebt Lizenzverhandlungen zu Gunsten des Kunden, ohne dass
+   gewechselt werden muss.
 3. **Open Source × KI wirkt multiplikativ:** KI macht Community-Software
    pflegbar, offener Code macht KI präzise. Der Feature-Burggraben klassischer
    Software-Vendoren wird trockengelegt.
-4. **Das Framework ist der halbe Erfolg:** Vordefinierte APIs, Sandbox und
-   Zertifizierungsregeln begrenzen Bug- und Sicherheitsfläche von
-   KI-generiertem Code — sie machen Geschwindigkeit erst verantwortbar.
+4. **Das Framework ist der halbe Erfolg:** Vordefinierte Schnittstellen,
+   Sandbox und Zertifizierungsregeln begrenzen Fehler- und Sicherheitsfläche
+   von KI-generiertem Code — sie machen Geschwindigkeit erst verantwortbar.
 5. **Git ist das unterschätzte Fundament:** Ohne Versionskontrolle wird
    KI-Iterationsgeschwindigkeit zur Haftung. Mit ihr wird jeder Schritt
    rückrollbar, prüfbar — und die gesamte Analyse dieses Papiers erst möglich.
+
+---
+
+## Begriffe & Prämissen — was Sie zum Lesen brauchen
+
+Dieses Papier richtet sich ausdrücklich auch an Leserinnen und Leser ohne
+Entwicklungs-Hintergrund. Acht Begriffe genügen:
+
+| Begriff | Bedeutung in diesem Papier |
+| --- | --- |
+| **Power-BI-Custom-Visual** | Ein Zusatzmodul für Microsofts Berichts-Plattform Power BI, das eigene Diagramm- und Tabellentypen nachrüstet — vergleichbar einer App auf einem Smartphone: läuft nur innerhalb der Plattform, nach deren Regeln. |
+| **IBCS** | International Business Communication Standards — ein verbreiteter Notationsstandard für Geschäftsberichte (einheitliche Szenario-Muster, Varianzdarstellungen, „weniger Deko, mehr Aussage"). |
+| **KI-gestützte Entwicklung („Vibe Coding")** | Ein Mensch beschreibt in normaler Sprache, was die Software können soll; ein KI-Agent schreibt, testet und dokumentiert den Code. Der Mensch prüft Ergebnisse und steuert nach — er tippt keinen Code. |
+| **Product Owner (PO)** | Die steuernde Fachperson: formuliert Anforderungen, beurteilt Ergebnisse, entscheidet Prioritäten. Hier: ein Controlling-/BI-Experte ohne Entwicklerteam. |
+| **Open Source (Apache 2.0)** | Der Quellcode ist öffentlich und darf kostenlos genutzt, geprüft und verändert werden. Die Lizenz Apache 2.0 erlaubt auch kommerziellen Einsatz. |
+| **Git / Versionskontrolle** | Ein Protokollsystem, das jeden Änderungsschritt („Commit") dauerhaft festhält und rückgängig machbar hält — das Logbuch und Sicherheitsnetz der Software-Entwicklung. |
+| **ROI** | Return on Investment: Wie oft der Gegenwert den Einsatz übersteigt. „29×" heißt: Der geschaffene Wert entspricht dem 29-Fachen des Invests. |
+| **Barwert (DCF)** | Zukünftige Zahlungen (z. B. fünf Jahre Lizenzgebühren), mit einem Zinssatz auf heute abgezinst — die betriebswirtschaftlich korrekte Basis für Build-vs-Buy-Vergleiche. |
+
+**Die Prämissen der Rechnung — vorab in aller Klarheit:**
+
+1. **Die Fallstudie ist exemplarisch.** Belegt wird jede Zahl an einem
+   konkreten Projekt — einem Power-BI-Custom-Visual für Controlling-Berichte.
+   Das Muster gilt aber für eine ganze Klasse von Software: alles, was
+   innerhalb eines festen Frameworks mit definierten Schnittstellen lebt
+   (Office-Add-ins, IDE-Extensions, Plattform-Plugins, interne
+   Fachwerkzeuge). Wer „Visual" liest, darf „unser Werkzeug X" denken.
+2. **Die Projektzahlen sind Messwerte, keine Schätzungen:** Kalendertage,
+   Commits, Releases und Code-Umfang stammen aus der öffentlichen
+   Git-Historie; Token- und Werkzeugkosten aus dem Session-Protokoll und
+   Rechnungen (Anhang).
+3. **Die Stundensätze sind Annahmen:** 250 €/h für einen erfahrenen externen
+   Berater (Marktsatz), 100 €/h interner Vollkostensatz. Beide Rechnungen
+   werden durchgängig nebeneinander geführt.
+4. **Die klassischen Vergleichskosten sind eine Schätzung** — bottom-up in
+   Personenmonaten, bewusst als breite Spanne (150–350 T€), ohne eingeholte
+   Angebote. Die Kernaussagen überleben auch das untere Ende der Spanne.
+5. **Der Lizenzvergleich nutzt öffentliche Preisindikationen** kommerzieller
+   IBCS-Visual-Suiten (7–12 €/Nutzer/Monat), über 5 Jahre mit 8 % abgezinst.
+6. **Interessenlage:** Die Daten-WG ist Herausgeberin des beschriebenen
+   Visuals und berät im Power-BI-Umfeld. Deshalb ist die Methodik offengelegt
+   und jede Zahl nachrechenbar — das Papier argumentiert mit Belegen, nicht
+   mit Autorität.
+
+**Leseführung:** Kapitel 1–5 enthalten den belegten Fall und die Rechnungen
+(Kosten, ROI, Barwert). Kapitel 6–9 ordnen ein: Verhandlungsmacht, warum das
+Framework und Git die Risiken zähmen, was das für den Software-Markt heißt.
+Kapitel 10–11 klären Übertragbarkeit, Grenzen und Handlungsempfehlungen.
+Der Anhang dokumentiert die Methodik.
 
 ---
 
@@ -427,4 +493,4 @@ Antwort auf die Pflege-Frage.
   Visuals und erbringt Beratungsleistungen im Power-BI-Umfeld. Alle
   Schätzungen sind Größenordnungen, keine Angebote oder Zusicherungen.
 
-*Entwurf v0.9 — Zahlen Stand 15.07.2026. Feedback willkommen.*
+*v1.0 — Zahlen Stand 15.07.2026. Feedback willkommen.*
