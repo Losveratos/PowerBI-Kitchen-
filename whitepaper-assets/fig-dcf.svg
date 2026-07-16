@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="360" viewBox="0 0 860 360" font-family="Geist, 'Segoe UI', system-ui, sans-serif">
+  <rect width="860" height="360" fill="#FFFFFF"/>
+  <text x="24" y="34" font-size="16" font-weight="700" fill="#404040">Build vs. Buy — Barwert über 5 Jahre (8 % Diskontsatz)</text>
+  <text x="24" y="54" font-size="12" fill="#8A8A8A">Lizenz: 7–12 €/Nutzer/Monat (volumenabhängig) · Eigenbau: 5,2 T€ Invest + 3 T€/Jahr Pflege</text>
+
+  <!-- legend -->
+  <g font-size="12" fill="#404040">
+    <rect x="600" y="24" width="12" height="12" rx="2" fill="#C25A2D"/>
+    <text x="618" y="34">Lizenz-Barwert</text>
+    <rect x="726" y="24" width="12" height="12" rx="2" fill="#1B9AA8"/>
+    <text x="744" y="34">Eigenbau-Barwert</text>
+  </g>
+
+  <!-- plot area: baseline y=300, scale 335.4 T€ = 220px -->
+  <line x1="60" y1="300" x2="820" y2="300" stroke="#404040" stroke-width="1.5"/>
+
+  <!-- group 1: 50 Nutzer — Lizenz 19.2 => 12.6px, Eigenbau 17.2 => 11.3px -->
+  <path d="M150,300 V291.4 Q150,287.4 154,287.4 H210 Q214,287.4 214,291.4 V300 Z" fill="#C25A2D"/>
+  <path d="M216,300 V292.7 Q216,288.7 220,288.7 H276 Q280,288.7 280,292.7 V300 Z" fill="#1B9AA8"/>
+  <text x="182" y="279" font-size="12" font-weight="700" fill="#404040" text-anchor="middle">19,2</text>
+  <text x="248" y="279" font-size="12" fill="#404040" text-anchor="middle">17,2</text>
+  <text x="215" y="320" font-size="12.5" fill="#404040" text-anchor="middle">50 Nutzer</text>
+  <text x="215" y="336" font-size="11" fill="#8A8A8A" text-anchor="middle">≈ ausgeglichen</text>
+
+  <!-- group 2: 200 Nutzer — Lizenz 95.8 => 62.8px, Eigenbau 11.3px -->
+  <path d="M400,300 V241.2 Q400,237.2 404,237.2 H460 Q464,237.2 464,241.2 V300 Z" fill="#C25A2D"/>
+  <path d="M466,300 V292.7 Q466,288.7 470,288.7 H526 Q530,288.7 530,292.7 V300 Z" fill="#1B9AA8"/>
+  <text x="432" y="229" font-size="12" font-weight="700" fill="#404040" text-anchor="middle">95,8</text>
+  <text x="498" y="279" font-size="12" fill="#404040" text-anchor="middle">17,2</text>
+  <text x="465" y="320" font-size="12.5" fill="#404040" text-anchor="middle">200 Nutzer</text>
+  <text x="465" y="336" font-size="11" fill="#8A8A8A" text-anchor="middle">NPV-Vorteil ≈ 79 T€ · Payback 2,6 Monate</text>
+
+  <!-- group 3: 1000 Nutzer — Lizenz 335.4 => 220px, Eigenbau 11.3px -->
+  <path d="M650,300 V84 Q650,80 654,80 H710 Q714,80 714,84 V300 Z" fill="#C25A2D"/>
+  <path d="M716,300 V292.7 Q716,288.7 720,288.7 H776 Q780,288.7 780,292.7 V300 Z" fill="#1B9AA8"/>
+  <text x="682" y="72" font-size="12" font-weight="700" fill="#404040" text-anchor="middle">335,4</text>
+  <text x="748" y="279" font-size="12" fill="#404040" text-anchor="middle">17,2</text>
+  <text x="715" y="320" font-size="12.5" fill="#404040" text-anchor="middle">1.000 Nutzer</text>
+  <text x="715" y="336" font-size="11" fill="#8A8A8A" text-anchor="middle">NPV-Vorteil ≈ 318 T€ · Payback 3 Wochen</text>
+
+  <!-- y unit -->
+  <text x="60" y="74" font-size="11" fill="#8A8A8A">T€ (Barwert)</text>
+  <text x="24" y="352" font-size="11" fill="#8A8A8A">Adopter des freien Community-Visuals: statt Eigenbau nur Einführung ≈ 1,5 T€ — Vorteil entsprechend größer.</text>
+</svg>
