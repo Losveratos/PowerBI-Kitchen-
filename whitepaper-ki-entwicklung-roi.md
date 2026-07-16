@@ -2,7 +2,7 @@
 
 ## Wie KI-gestützte Entwicklung die Build-oder-Buy-Frage neu entscheidet — nachgerechnet an einem realen Projekt
 
-**Ein Whitepaper der Daten-WG · Juli 2026 · v1.1**
+**Ein Whitepaper der Daten-WG · Juli 2026 · v1.2**
 
 ---
 
@@ -20,7 +20,11 @@ dessen Entwicklung auf klassischem Weg **14–18 Personenmonate** gedauert und
 Fachexperten plus etwa 180 € Werkzeugkosten. Je nachdem, ob man die Stunden
 mit einem externen Beratersatz (250 €/h) oder einem internen Vollkostensatz
 (100 €/h) bewertet, liegt der Gesamtinvest bei **~5.200 €** bzw. **~2.200 €**
-— ein Faktor 29 bis 161 unter dem Wiederbeschaffungswert.
+— ein Faktor 29 bis 161 unter dem Wiederbeschaffungswert. Wichtig zur
+Einordnung: Dieser Vergleich stellt den erreichten Ist-Stand einem
+klassischen Vollprozess gegenüber und ist insoweit asymmetrisch — eine
+symmetrische Gegenrechnung (Kapitel 4) drückt den Faktor auf **13 bis 93**,
+ändert die Größenordnung der Aussage aber nicht.
 
 **Warum das mehr als eine Anekdote ist.** Das Ergebnis beruht nicht auf
 Glück, sondern auf drei reproduzierbaren Bedingungen: einem festen
@@ -28,9 +32,12 @@ Software-Framework mit klaren Regeln (Kapitel 7), einem Fachexperten, der
 präzise formulieren kann, was gebaut werden soll, und disziplinierter
 Versionskontrolle, die jeden Schritt prüfbar und rückgängig machbar hält
 (Kapitel 8). Wo diese Bedingungen vorliegen, ist das Muster übertragbar —
-und dann kippen etablierte Kalküle: die Build-oder-Buy-Entscheidung, die
-Verhandlungsposition in Lizenzgesprächen und die Preissetzungsmacht von
-Software-Anbietern.
+und dann geraten etablierte Kalküle unter Druck: die
+Build-oder-Buy-Entscheidung, die Verhandlungsposition in Lizenzgesprächen
+und die Preissetzungsmacht von Software-Anbietern. Zugleich gilt: Die
+Evidenzbasis ist **eine einzelne Fallstudie**. Was am Fall gemessen ist und
+was daraus abgeleitete Hypothese über mögliche Marktwirkungen ist, wird im
+Papier durchgängig getrennt ausgewiesen.
 
 **Für wen das relevant ist.** CFOs und Controlling-Leitungen (Lizenzkosten,
 Verhandlungsmacht), IT- und BI-Verantwortliche (was intern plötzlich
@@ -43,7 +50,8 @@ Handlungsempfehlungen je Rolle zusammen.
 | Tatsächlicher Invest (externer Experte, 250 €/h) | **~5.200 €** |
 | Tatsächlicher Invest (interner Experte, 100 €/h) | **~2.200 €** |
 | Klassischer Wiederbeschaffungswert | **150.000–350.000 €** |
-| Kapitalrendite (ROI) auf den Invest | **29–67×** (extern) · **69–161×** (intern) |
+| Kapitalrendite (ROI), Ist-Stand-Vergleich | **29–67×** (extern) · **69–161×** (intern) |
+| ROI symmetrisch (gleicher Leistungsumfang, Kapitel 4) | **13–39×** (extern) · **31–93×** (intern) |
 | Kalenderzeit | **10 Tage** statt 6–12 Monate |
 
 **Die fünf Kernthesen:**
@@ -63,6 +71,12 @@ Handlungsempfehlungen je Rolle zusammen.
 5. **Git ist das unterschätzte Fundament:** Ohne Versionskontrolle wird
    KI-Iterationsgeschwindigkeit zur Haftung. Mit ihr wird jeder Schritt
    rückrollbar, prüfbar — und die gesamte Analyse dieses Papiers erst möglich.
+
+*Zum Evidenzstatus der Thesen:* These 4 und 5 sind am Fall direkt belegt.
+These 1 ist eine Rechnung unter offengelegten Annahmen. These 2 und 3
+extrapolieren vom Einzelfall auf Markt-Ebene — sie sind als **begründete
+Hypothesen über mögliche Auswirkungen** zu lesen, nicht als nachgewiesene
+Effekte (Einordnung in Kapitel 6, 9 und 10).
 
 ---
 
@@ -102,7 +116,17 @@ Entwicklungs-Hintergrund. Acht Begriffe genügen:
    Angebote. Die Kernaussagen überleben auch das untere Ende der Spanne.
 5. **Der Lizenzvergleich nutzt öffentliche Preisindikationen** kommerzieller
    IBCS-Visual-Suiten (7–12 €/Nutzer/Monat), über 5 Jahre mit 8 % abgezinst.
-6. **Interessenlage:** Die Daten-WG ist Herausgeberin des beschriebenen
+6. **Der Evidenzstand ist eine Fallstudie (n = 1).** Kapitel 1–5 beruhen
+   auf Messwerten und offengelegten Rechnungen zu diesem einen Projekt.
+   Kapitel 6, 9 und Teile von 11 leiten daraus Hypothesen über mögliche
+   Markt- und Verhandlungseffekte ab — sie sind konditional formuliert und
+   wären erst durch weitere, unabhängige Fälle zu erhärten.
+7. **Der Basisvergleich ist bewusst als Ist-Stand-Vergleich gerechnet** —
+   der klassische Prozess mit vollem Overhead (Doku, QA, Abnahme,
+   Projektmanagement), der KI-Build im erreichten Stand ohne diese Anteile.
+   Diese Asymmetrie wird nicht nur benannt, sondern in Kapitel 4
+   symmetrisch gegengerechnet.
+8. **Interessenlage:** Die Daten-WG ist Herausgeberin des beschriebenen
    Visuals und berät im Power-BI-Umfeld. Deshalb ist die Methodik offengelegt
    und jede Zahl nachrechenbar — das Papier argumentiert mit Belegen, nicht
    mit Autorität.
@@ -204,11 +228,19 @@ Bottom-up geschätzt in Personenmonaten (PM) Entwicklung:
 Bewertet zu Marktsätzen: **intern ~130–160 T€** (Senior-Vollkosten 9 T€/PM,
 sofern Entwickler mit Power-BI-Visual- *und* Controlling-Erfahrung verfügbar
 sind), **extern ~250–400 T€** (900–1.200 €/Tag). Wir rechnen konservativ mit
-der Spanne **150–350 T€**. Ehrlicher Abschlag: Ein klassisches Projekt hätte
-Endnutzer-Doku und formale Abnahmetests enthalten, die hier noch ausstehen
-(−10–20 %) — die Größenordnung bleibt unberührt. Eine unabhängige
-Gegenrechnung mit zwei anerkannten Schätzverfahren (COCOMO II, Function
-Points) bestätigt die Spanne — Rechenwege in Anhang B.
+der Spanne **150–350 T€**. Eine unabhängige Gegenrechnung mit zwei
+anerkannten Schätzverfahren (COCOMO II, Function Points) bestätigt die
+Spanne — Rechenwege in Anhang B.
+
+**Offen benannt: Dieser Vergleich ist asymmetrisch.** Die klassische Seite
+enthält den vollen Prozess-Overhead (Spezifikation, Reviews, QA,
+Abnahmetests, Endnutzer-Doku, Projektmanagement); der KI-Build enthält
+Endnutzer-Doku, formale Abnahmetests und eine vollständige externe
+Review-Runde **noch nicht** (Kapitel 10). Wer nur den Ist-Stand vergleicht,
+verschafft der KI-Seite also einen systematischen Vorteil. Deshalb wird der
+ROI in Kapitel 4 zusätzlich symmetrisch gerechnet — mit beiden möglichen
+Korrekturen (KI-Seite auf Vollumfang hochgerechnet bzw. klassische Seite um
+die fehlenden Anteile gekürzt).
 
 ![Kostenvergleich](whitepaper-assets/fig-kostenvergleich.svg)
 *Abb. 5 — Vier Wege zum selben Stand. Die KI-gestützten Balken sind auf dieser Skala kaum sichtbar — das ist die Aussage.*
@@ -234,6 +266,40 @@ Punkt ist, dass ein Werkzeug **überhaupt entsteht**, das nie ein
 250-T€-Budget bekommen hätte. Und: Der ROI gehört zur Kombination
 „Fachexperte + Werkzeug". KI ersetzt hier das Entwicklerteam — **nicht den
 Product Owner.**
+
+### Symmetrie-Check: ROI mit vergleichbarem Leistungsumfang
+
+Die Tabelle oben vergleicht Ist-Stand gegen Vollprozess (Prämisse 7). Zwei
+Korrekturen stellen Symmetrie her:
+
+**Weg A — KI-Seite auf Vollumfang hochrechnen.** Endnutzer-Doku, formale
+Abnahmetests und eine externe Review-Runde sind mit derselben Methode
+schätzungsweise weitere 15–25 PO-Stunden plus ~100 € Werkzeugkosten
+(Erfahrungswert aus den bisherigen Doku- und Testpaketen des Projekts —
+eine Schätzung, keine Messung):
+
+| | Externer PO | Interner PO |
+| --- | ---: | ---: |
+| Invest bei Vollumfang | ~9,0–11,5 T€ | ~3,8–4,8 T€ |
+| ROI vs. 150–350 T€ | **13–39×** | **31–93×** |
+
+**Weg B — klassische Seite um die fehlenden Anteile kürzen** (−10–20 %,
+Kapitel 3): Vergleichswert 120–315 T€ gegen den Ist-Stand-Invest:
+
+| | Externer PO (5,2 T€) | Interner PO (2,2 T€) |
+| --- | ---: | ---: |
+| ROI vs. 120–315 T€ | **23–61×** | **55–144×** |
+
+**Was sich dadurch ändert — und was nicht:** Die Schlagzeilen-Werte 29–161×
+gelten nur für den Ist-Stand-Vergleich. Symmetrisch gerechnet liegt der
+ROI je nach Weg und Besetzung bei **13–144×** — im ungünstigsten Szenario
+(externer Satz, Vollumfang, konservativer Vergleichswert) bleibt ein Faktor
+**13**. Die Kernaussage übersteht die Korrektur; die Einzelwerte sollten
+aber stets mit dieser Einordnung zitiert werden. Nicht hochrechenbar ist
+schließlich der Abstimmungsaufwand echter Multi-Stakeholder-Organisationen:
+Dieses Projekt wurde von einer Person entschieden — in einer Organisation
+mit Gremien und Freigaben kämen PO-Stunden hinzu, die den Faktor weiter
+drücken (Kapitel 10).
 
 ---
 
@@ -274,7 +340,10 @@ Lücke adressiert im Community-Modell ein Support-Abo (Kapitel 9).
 
 Der unterschätzteste Wert eines glaubwürdigen freien Werkzeugs realisiert
 sich, **ohne dass es eingesetzt wird**: Es verändert die
-Verhandlungsposition (BATNA) gegenüber kommerziellen Anbietern.
+Verhandlungsposition (BATNA) gegenüber kommerziellen Anbietern. Vorab zur
+Einordnung: Das Folgende ist eine **modellhafte Überlegung** nach
+Verhandlungslogik — belegt durch keine beobachteten Abschlüsse; die
+genannten Beträge sind mögliche Effekte, keine zugesagten Nachlässe.
 
 - Bisher lautete die Alternative in Lizenzverhandlungen: „zahlen oder
   verzichten". Mit einer glaubwürdigen freien Option genügt die
@@ -394,6 +463,13 @@ Produktionstauglichkeit.
 
 ## 9 · Die Marktthese: Open Source × KI wirkt multiplikativ
 
+> **Einordnung — Reichweite dieses Kapitels:** Ab hier verlässt das Papier
+> den belegten Einzelfall. Die folgenden Aussagen sind **Hypothesen über
+> mögliche Marktwirkungen**, abgeleitet aus einer Fallstudie (n = 1) und
+> historischen Analogien. Sie beschreiben, was passieren *könnte*, wenn
+> sich das Muster in weiteren Fällen bestätigt — nicht, was nachweislich
+> passiert.
+
 Einzeln waren beide Kräfte für Software-Vendoren beherrschbar: Open Source
 scheiterte im Anwendungs-Layer oft am Pflegeargument („wer wartet das?");
 KI-Entwicklung allein blieb ohne offene Referenz-Codebasen auf
@@ -405,11 +481,12 @@ Prototypen-Niveau. **Zusammen hebeln sie sich:**
   erweiterbar, weil das Modell die Codebasis liest wie ein eingearbeiteter
   Entwickler.
 
-Damit fällt der klassische Burggraben der Feature-Vendoren („Entwicklung ist
-teuer, wir haben sie bezahlt, ihr mietet sie"). Am stärksten exponiert:
-Single-Product-Anbieter mit Feature-Differenzierung und Sitzplatz-Preisen.
-Wenig bedroht: Plattformen (Microsoft gewinnt durch jedes gute Visual),
-Daten-/Netzwerk-Lock-in, Haftung als Kaufgrund.
+Träfe das breit zu, geriete der klassische Burggraben der Feature-Vendoren
+(„Entwicklung ist teuer, wir haben sie bezahlt, ihr mietet sie") unter
+Druck. Am stärksten exponiert wären: Single-Product-Anbieter mit
+Feature-Differenzierung und Sitzplatz-Preisen. Wenig bedroht: Plattformen
+(Microsoft gewinnt durch jedes gute Visual), Daten-/Netzwerk-Lock-in,
+Haftung als Kaufgrund.
 
 Das historische Muster existiert: Open Source hat die
 Infrastruktur-Schicht konsolidiert (Linux, Postgres); überlebt hat das
@@ -449,7 +526,14 @@ Backlog — Transparenz gehört zur Glaubwürdigkeit.
 
 ---
 
-## 11 · Was das für Unternehmen bedeutet
+## 11 · Was das für Unternehmen bedeuten kann
+
+Die folgenden Ableitungen stehen unter dem Vorbehalt aus Kapitel 9 und
+Prämisse 6: Belegt ist der Einzelfall; die Empfehlungen beschreiben
+**mögliche Konsequenzen**, deren Tragweite davon abhängt, ob sich das
+Muster in weiteren, unabhängigen Fällen bestätigt. Als risikoarme erste
+Schritte taugen sie trotzdem — keiner davon setzt voraus, dass die
+Marktthese eintrifft.
 
 **CFO / Controlling-Leitung:** Visual- und Werkzeug-Lizenzen gegen die freie
 Alternative prüfen — als Wechseloption oder Verhandlungskarte. Ab ~150–200
@@ -697,4 +781,4 @@ weitergerechnet.
 
 ---
 
-*v1.1 — Zahlen Stand 15.07.2026. Feedback willkommen.*
+*v1.2 — Zahlen Stand 15.07.2026. Feedback willkommen.*
