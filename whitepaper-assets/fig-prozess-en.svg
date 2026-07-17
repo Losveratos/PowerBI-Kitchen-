@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="352" viewBox="0 0 860 352" font-family="Geist, 'Segoe UI', system-ui, sans-serif">
+  <rect width="860" height="352" fill="#FFFFFF"/>
+  <defs>
+    <marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L6,3.5 L0,7 Z" fill="#8A8A8A"/>
+    </marker>
+    <marker id="art" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L6,3.5 L0,7 Z" fill="#1B9AA8"/>
+    </marker>
+  </defs>
+
+  <!-- left: classical -->
+  <text x="200" y="34" font-size="13" font-weight="700" fill="#404040" text-anchor="middle">Traditional — one pass, in sequence</text>
+  <text x="200" y="52" font-size="11" fill="#8A8A8A" text-anchor="middle">6–12 months, full team</text>
+  <g font-size="12" fill="#404040" text-anchor="middle">
+    <rect x="80" y="64" width="240" height="26" rx="4" fill="#F5F4EF" stroke="#D8D5CC"/><text x="200" y="81">Requirements &amp; specification</text>
+    <line x1="200" y1="90" x2="200" y2="100" stroke="#8A8A8A" marker-end="url(#ar)"/>
+    <rect x="80" y="103" width="240" height="26" rx="4" fill="#F5F4EF" stroke="#D8D5CC"/><text x="200" y="120">Architecture</text>
+    <line x1="200" y1="129" x2="200" y2="139" stroke="#8A8A8A" marker-end="url(#ar)"/>
+    <rect x="80" y="142" width="240" height="26" rx="4" fill="#F5F4EF" stroke="#D8D5CC"/><text x="200" y="159">Team implementation</text>
+    <line x1="200" y1="168" x2="200" y2="178" stroke="#8A8A8A" marker-end="url(#ar)"/>
+    <rect x="80" y="181" width="240" height="26" rx="4" fill="#F5F4EF" stroke="#D8D5CC"/><text x="200" y="198">Testing &amp; QA</text>
+    <line x1="200" y1="207" x2="200" y2="217" stroke="#8A8A8A" marker-end="url(#ar)"/>
+    <rect x="80" y="220" width="240" height="26" rx="4" fill="#F5F4EF" stroke="#D8D5CC"/><text x="200" y="237">Reviews &amp; alignment</text>
+    <line x1="200" y1="246" x2="200" y2="256" stroke="#8A8A8A" marker-end="url(#ar)"/>
+    <rect x="80" y="259" width="240" height="26" rx="4" fill="#F5F4EF" stroke="#D8D5CC"/><text x="200" y="276">Acceptance</text>
+    <line x1="200" y1="285" x2="200" y2="295" stroke="#8A8A8A" marker-end="url(#ar)"/>
+    <rect x="80" y="298" width="240" height="26" rx="4" fill="#0F1E2E"/><text x="200" y="315" fill="#FFFFFF">Release</text>
+  </g>
+
+  <!-- right: AI loop -->
+  <text x="640" y="34" font-size="13" font-weight="700" fill="#404040" text-anchor="middle">AI-assisted inside the framework — short cycle</text>
+  <text x="640" y="52" font-size="11" fill="#8A8A8A" text-anchor="middle">Hours to days per cycle — ~60 cycles in 10 days here</text>
+  <g font-size="12" fill="#404040" text-anchor="middle">
+    <rect x="510" y="72" width="260" height="30" rx="4" fill="#FFFFFF" stroke="#1B9AA8" stroke-width="1.4"/><text x="640" y="91">Requirement in business language</text>
+    <line x1="640" y1="102" x2="640" y2="120" stroke="#8A8A8A" marker-end="url(#ar)"/>
+    <rect x="510" y="123" width="260" height="30" rx="4" fill="#FFFFFF" stroke="#1B9AA8" stroke-width="1.4"/><text x="640" y="142">AI iteration inside the fence</text>
+    <line x1="640" y1="153" x2="640" y2="171" stroke="#8A8A8A" marker-end="url(#ar)"/>
+    <rect x="510" y="174" width="260" height="30" rx="4" fill="#FFFFFF" stroke="#1B9AA8" stroke-width="1.4"/><text x="640" y="193">Self-verification + Git commit</text>
+    <line x1="640" y1="204" x2="640" y2="222" stroke="#8A8A8A" marker-end="url(#ar)"/>
+    <rect x="510" y="225" width="260" height="30" rx="4" fill="#0F1E2E"/><text x="640" y="244" fill="#FFFFFF">Release + visual evidence to the PO</text>
+  </g>
+  <!-- loop back -->
+  <path d="M770,240 C826,240 826,87 776,87" fill="none" stroke="#1B9AA8" stroke-width="1.6" marker-end="url(#art)"/>
+  <text x="700" y="290" font-size="11" fill="#1B9AA8" text-anchor="middle">next requirement —</text>
+  <text x="700" y="305" font-size="11" fill="#1B9AA8" text-anchor="middle">often the same day</text>
+
+  <text x="24" y="342" font-size="11" fill="#8A8A8A">Both paths deliver the same result — but the left runs every stage once, expensively; the right runs a cheap cycle dozens of times.</text>
+</svg>

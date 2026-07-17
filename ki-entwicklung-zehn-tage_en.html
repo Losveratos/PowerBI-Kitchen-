@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zehn Tage bis zum marktfähigen Stand · KI-Thesenpapier · Daten-WG</title>
-<meta name="description" content="Ein Controlling-Experte baut in zehn Tagen KI-gestützt ein marktfähiges Power-BI-Visual. Das Thesenpapier rechnet nach: Kostenhebel, Build-vs.-Buy, und warum Framework + Git wichtiger sind als die KI selbst.">
+<title>Ten Days to a Market-Ready Build · AI Thesis Paper · Daten-WG</title>
+<meta name="description" content="A controlling expert builds a market-ready Power BI visual in ten days with AI. The thesis paper runs the numbers: cost leverage, build vs. buy, and why framework + Git matter more than the AI itself.">
 <style>
 :root {
   --bg:#FAFAF5; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
@@ -110,104 +110,104 @@ a { color:inherit; }
 <body>
 <div class="container">
 
-  <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
-  <a class="lang-switch" href="ki-entwicklung-zehn-tage_en.html">EN</a>
+  <a class="back-link" href="index.html">← Back to the Knowledge Kitchen</a>
+  <a class="lang-switch" href="ki-entwicklung-zehn-tage.html">DE</a>
 
   <header>
-    <div class="post-eyebrow">Talks &amp; Post · KI &amp; Wirtschaftlichkeit</div>
-    <h1 class="post-title">Zehn Tage bis zum <em>marktfähigen Stand</em></h1>
-    <p class="post-dek">Ich habe in zehn Tagen KI-gestützt ein Power-BI-Visual gebaut, das man ernsthaft benutzen kann — und dann nachgerechnet, was derselbe Stand klassisch gekostet hätte. Daraus ist ein <strong>empirisch gestütztes Thesenpapier</strong> geworden: jede Zahl aus der öffentlichen Git-Historie, Bewertung nach anerkannten Verfahren, jede Aussage mit Evidenz-Label. Hier die Essenz — das ganze Papier gibt es unten als PDF und Web-Version.</p>
+    <div class="post-eyebrow">Talks &amp; Post · AI &amp; Economics</div>
+    <h1 class="post-title">Ten days to a <em>market-ready build</em></h1>
+    <p class="post-dek">I built a Power BI visual you can seriously use — in ten days, AI-assisted — and then ran the numbers on what the same build would have cost the traditional way. The result is an <strong>evidence-based thesis paper</strong>: every figure traceable to the public Git history, valuations done with recognized methods, every claim carrying an evidence label. Here is the essence — the full paper is linked below as PDF and web version (in German).</p>
     <div class="post-meta">
-      <span>Von <strong>Michael Tenner</strong></span>
-      <span>Stand · <strong>Juli 2026</strong></span>
-      <span>Basis · <strong>1 Fallstudie, 124 Commits, öffentlich</strong></span>
-      <span>Papier · <strong>34 Seiten, v2.2</strong></span>
+      <span>By <strong>Michael Tenner</strong></span>
+      <span>As of · <strong>July 2026</strong></span>
+      <span>Basis · <strong>1 case study, 124 commits, public</strong></span>
+      <span>Paper · <strong>34 pages, v2.2, German</strong></span>
     </div>
   </header>
 
   <div class="prose">
 
-    <p>Der Fall in drei Sätzen: Zwölf Diagrammtypen, eine Controlling-Tabelle mit Hierarchie, vier Sprachen, 80+ automatisierte Render-Tests — gebaut in zehn Kalendertagen, gesteuert von einer Person, die keinen Code getippt hat. Hätte ich das klassisch beauftragt, wäre ich nach meiner Schätzung bei 14 bis 18 Personenmonaten gelandet, irgendwo zwischen 150.000 und 350.000&nbsp;Euro <span class="ev ev-S">S</span>. Tatsächlich gekostet hat es mich rund 20 dokumentierte Stunden Steuerung und 180&nbsp;Euro für Werkzeuge <span class="ev ev-M">M</span>.</p>
+    <p>The case in three sentences: Twelve chart types, a controlling table with hierarchy, four languages, 80+ automated render tests — built in ten calendar days, steered by one person who never typed a line of code. Commissioned traditionally, my estimate lands at 14 to 18 person-months, somewhere between €150,000 and €350,000 <span class="ev ev-S">S</span>. What it actually cost me: about 20 documented hours of steering and €180 in tooling <span class="ev ev-M">M</span>.</p>
 
     <div class="bigstat">
       <div class="bigstat-num">13–93×</div>
-      <div class="bigstat-text"><strong>Kostenhebel, ehrlich gerechnet</strong> — also mit gleichem Leistungsumfang auf beiden Seiten. Die Schlagzeilen-Rechnung ergäbe bis zu 161×; die Gegenrechnung gegen die eigene Schlagzeile steht mit im Papier. Selbst bei sechsfacher Steuerungszeit bleibt ein Faktor von mindestens 5.</div>
+      <div class="bigstat-text"><strong>Cost leverage, honestly calculated</strong> — that is, with the same scope on both sides of the comparison. The headline math would yield up to 161×; the counter-calculation against my own headline is part of the paper. Even at six times the steering hours, a factor of at least 5 remains.</div>
     </div>
 
-    <h2>Warum die Kosten so <em>unterschiedlich</em> entstehen</h2>
-    <p>Der Unterschied liegt nicht bei den Stundensätzen, sondern im Prozess: Der klassische Weg durchläuft jede Stufe einmal — teuer und in Serie. Der KI-gestützte Weg durchläuft einen kurzen, billigen Zyklus dutzendfach. In diesem Projekt: rund 60 Release-Zyklen in zehn Tagen, oft mehrere am selben Tag.</p>
+    <h2>Why the costs are so <em>different</em></h2>
+    <p>The difference is not in the hourly rates — it is in the process. The traditional path runs every stage once, expensively and in sequence. The AI-assisted path runs a short, cheap cycle dozens of times. In this project: about 60 release cycles in ten days, often several on the same day.</p>
 
     <figure class="figure">
-      <div class="figure-embed"><img src="whitepaper-assets/fig-prozess.svg" alt="Prozessvergleich: klassische Entwicklung in Serie vs. KI-gestützter Zyklus" loading="lazy"></div>
-      <div class="figure-cap"><strong>Zwei Produktionswege zum selben Stand.</strong> Links einmal in Serie, rechts ein kurzer Zyklus, dutzendfach durchlaufen.</div>
+      <div class="figure-embed"><img src="whitepaper-assets/fig-prozess-en.svg" alt="Process comparison: traditional development in sequence vs. AI-assisted cycle" loading="lazy"></div>
+      <div class="figure-cap"><strong>Two production paths to the same result.</strong> Left: one expensive pass. Right: a cheap cycle, run dozens of times.</div>
     </figure>
 
-    <h2>Die eigentliche Erkenntnis: <em>nicht die KI</em></h2>
-    <p>Es liegt nicht an der KI allein. Es funktioniert, weil vier Dinge zusammenkommen: <strong>KI × festes Framework × Fachwissen × Git</strong>. Fehlt eins davon, kippt das Ganze.</p>
+    <h2>The actual insight: <em>not the AI</em></h2>
+    <p>It is not the AI alone. It works because four things come together: <strong>AI × a fixed framework × domain expertise × Git</strong>. Remove one, and the whole thing tips over.</p>
     <ul>
-      <li><strong>Feste Frameworks</strong> wie Power-BI-Visuals, Office-Add-ins oder dbt-Pakete engen den Lösungsraum so ein, dass KI-Entwicklung kontrollierbar und wiederholbar wird. Die fehleranfälligsten Schichten klassischer Projekte existieren gar nicht erst — und die Sandbox deckelt den Schaden strukturell.</li>
-      <li><strong>Fachwissen in der Steuerung</strong> macht den Unterschied zwischen zwei Iterationen und zwanzig: Anforderungen in Fachsprache, mit eingebautem Qualitätsmaßstab.</li>
-      <li><strong>Git</strong> macht die Geschwindigkeit erst verantwortbar: Jeder Schritt ist prüfbar, rückholbar, auditierbar. Ohne Versionskontrolle wäre das alles nichts wert gewesen — mit ihr sind alle 124 Schritte öffentlich nachvollziehbar.</li>
+      <li><strong>Fixed frameworks</strong> like Power BI visuals, Office add-ins or dbt packages narrow the solution space until AI development becomes controllable and repeatable. The most error-prone layers of traditional projects simply do not exist — and the sandbox caps the damage structurally.</li>
+      <li><strong>Domain expertise in the steering seat</strong> is the difference between two iterations and twenty: requirements in business language, with a built-in quality yardstick.</li>
+      <li><strong>Git</strong> is what makes the speed defensible: every step is reviewable, reversible, auditable. Without version control none of this would be worth anything — with it, all 124 steps are publicly traceable.</li>
     </ul>
-    <p>Das ist auch der Grund, warum das Papier über den Einzelfall hinaus interessant ist: Die absoluten Produktivitätsfaktoren werden sich mit jeder Modellgeneration ändern. Der Mechanismus — enger Zaun, kleine Iterationen, schnelle lokale Verifikation — nicht.</p>
+    <p>This is also why the paper matters beyond the single case: absolute productivity factors will change with every model generation. The mechanism — a tight fence, small iterations, fast local verification — will not.</p>
 
-    <h2>Was das <em>wirtschaftlich</em> bedeutet</h2>
-    <p>Das Papier rechnet den Wiederbeschaffungswert mit drei anerkannten Verfahren gegen (Bottom-up, COCOMO&nbsp;II, Function Points) und stellt Build-vs.-Buy als Barwertvergleich auf: Ab etwa <strong>30 bis 45 Report-Nutzern</strong> lohnt sich der Eigenbau gegenüber der Lizenz <span class="ev ev-S">S</span>. Und ein glaubwürdiges freies Werkzeug wirkt schon in der Lizenzverhandlung — ohne dass gewechselt wird <span class="ev ev-H">H</span>.</p>
+    <h2>What it means <em>economically</em></h2>
+    <p>The paper cross-checks the replacement value with three recognized methods (bottom-up, COCOMO&nbsp;II, function points) and frames build vs. buy as a present-value comparison: from roughly <strong>30 to 45 report users</strong> onward, building beats licensing <span class="ev ev-S">S</span>. And a credible free tool already shifts license negotiations — without anyone switching <span class="ev ev-H">H</span>.</p>
 
     <figure class="figure">
-      <div class="figure-embed"><img src="whitepaper-assets/fig-kostenvergleich.svg" alt="Kostenvergleich: klassische Entwicklung vs. KI-gestützt" loading="lazy"></div>
-      <div class="figure-cap"><strong>Vier Wege zum selben Stand.</strong> Die KI-gestützten Balken sind auf dieser Skala kaum sichtbar — das ist die Aussage.</div>
+      <div class="figure-embed"><img src="whitepaper-assets/fig-kostenvergleich-en.svg" alt="Cost comparison: traditional development vs. AI-assisted" loading="lazy"></div>
+      <div class="figure-cap"><strong>Four paths to the same build.</strong> The AI-assisted bars are barely visible at this scale — that is the point.</div>
     </figure>
 
     <div class="src-box">
-      <h3>Was das Papier nicht behauptet</h3>
-      Dass KI Entwickler ersetzt · dass jede Software in zehn Tagen entsteht · dass jeder Fachbereich dieselben Ergebnisse erreicht · dass ein Einzelfall (n&nbsp;=&nbsp;1!) einen Markttrend beweist. Deshalb trägt jede Aussage ein Evidenz-Label: <span class="ev ev-M">M</span>&nbsp;gemessen · <span class="ev ev-A">A</span>&nbsp;Annahme · <span class="ev ev-S">S</span>&nbsp;Schätzung · <span class="ev ev-H">H</span>&nbsp;Hypothese. Es ist als Thesenpapier gebaut — zum Nachrechnen und zum Widersprechen. Beides ausdrücklich erwünscht.
+      <h3>What the paper does not claim</h3>
+      That AI replaces developers · that every piece of software takes ten days · that every domain gets the same results · that a single case (n&nbsp;=&nbsp;1!) proves a market trend. That is why every claim carries an evidence label: <span class="ev ev-M">M</span>&nbsp;measured · <span class="ev ev-A">A</span>&nbsp;assumption · <span class="ev ev-S">S</span>&nbsp;estimate · <span class="ev ev-H">H</span>&nbsp;hypothesis. It is built as a thesis paper — to be recalculated and to be contradicted. Both are explicitly welcome.
     </div>
 
     <div class="cta-card">
       <div class="cta-card-text">
-        <span class="k">Thesenpapier · 34 Seiten · v2.2</span>
-        <h3>Das ganze Papier lesen</h3>
-        <p>Mit allen Rechenwegen: Kostenhebel, DCF, Sensitivitäten, Governance-Kapitel, Quellen — und der Einladung zur Replikation.</p>
+        <span class="k">Thesis paper · 34 pages · v2.2 · German</span>
+        <h3>Read the full paper</h3>
+        <p>With every calculation shown: cost leverage, DCF, sensitivities, a governance chapter, sources — and an open invitation to replicate. Currently available in German.</p>
       </div>
       <div class="cta-actions">
-        <a class="cta-btn" href="whitepaper-ki-entwicklung-roi.pdf">PDF laden ↓</a>
-        <a class="cta-btn ghost" href="whitepaper-ki-entwicklung-roi.html">Web-Version →</a>
+        <a class="cta-btn" href="whitepaper-ki-entwicklung-roi.pdf">PDF (DE) ↓</a>
+        <a class="cta-btn ghost" href="whitepaper-ki-entwicklung-roi.html">Web version (DE) →</a>
       </div>
     </div>
 
-    <h2>Die LinkedIn-Fassung <em>zum Mitnehmen</em></h2>
-    <p>Wer die Essenz teilen will — hier die Kurzfassung zum Kopieren:</p>
+    <h2>The LinkedIn version <em>to take away</em></h2>
+    <p>If you want to share the essence — here is the short version to copy:</p>
 
     <div class="li-card">
       <div class="li-head">
-        <span class="li-title">LinkedIn-Fassung</span>
-        <button class="copy-btn" id="copyBtn" type="button">Text kopieren</button>
+        <span class="li-title">LinkedIn version</span>
+        <button class="copy-btn" id="copyBtn" type="button">Copy text</button>
       </div>
-      <pre class="li-body" id="liText">Wochenend-Lektüre, wer mag: Ich habe dokumentiert, wie weit man mit KI-gestützter Entwicklung bei Power BI wirklich kommt.
+      <pre class="li-body" id="liText">Weekend read, if you are into this sort of thing: I documented how far AI-assisted development really goes on Power BI.
 
-Ich habe in zehn Tagen ein Power-BI-Visual gebaut, das man ernsthaft benutzen kann. Zwölf Diagrammtypen, Controlling-Tabelle mit Hierarchie, vier Sprachen. Klassisch beauftragt wäre ich bei 14 bis 18 Personenmonaten gelandet, irgendwo zwischen 150.000 und 350.000 Euro. Tatsächlich gekostet hat es mich rund 20 dokumentierte Stunden Steuerung und 180 Euro für Werkzeuge.
+I built a Power BI visual you can seriously use — in ten days. Twelve chart types, a controlling table with hierarchy, four languages. Commissioned traditionally, my estimate lands at 14 to 18 person-months, somewhere between €150,000 and €350,000. What it actually cost me: about 20 documented hours of steering and €180 in tooling.
 
-Was ich dabei gelernt habe:
+What I learned along the way:
 
-Es liegt nicht an der KI allein. Es funktioniert, weil vier Dinge zusammenkommen: KI, ein festes Framework, Fachwissen und Git. Fehlt eins davon, kippt das Ganze.
+It is not the AI alone. It works because four things come together: AI, a fixed framework, domain expertise, and Git. Remove one, and it tips over.
 
-Feste Frameworks wie Power-BI-Visuals, Office-Add-ins oder dbt-Pakete engen den Lösungsraum so ein, dass KI-Entwicklung kontrollierbar und wiederholbar wird. Das halte ich für die eigentliche Erkenntnis — und sie bleibt gültig, wenn die nächste Modellgeneration kommt.
+Fixed frameworks like Power BI visuals, Office add-ins or dbt packages narrow the solution space until AI development becomes controllable and repeatable. That, I think, is the real insight — and it stays valid when the next model generation arrives.
 
-Ohne Versionskontrolle wäre das alles nichts wert gewesen. Erst Git macht die Arbeit prüfbar und rückholbar. Alle 124 Commits des Projekts sind öffentlich.
+Without version control, none of it would have been worth anything. Git is what makes the work reviewable and reversible. All 124 commits of the project are public.
 
-Ehrlich gerechnet, also mit gleichem Leistungsumfang auf beiden Seiten, bleibt ein Kostenhebel von 13 bis 93. Und ab etwa 30 bis 45 Report-Nutzern lohnt sich der Eigenbau gegenüber der Lizenz nach Barwert.
+Calculated honestly — same scope on both sides — a cost leverage of 13 to 93 remains. And from roughly 30 to 45 report users onward, building beats licensing on present value.
 
-Was das Papier nicht sagt: dass KI Entwickler ersetzt, dass jede Software in zehn Tagen entsteht, oder dass ein einzelner Fall einen Markttrend beweist. Jede Aussage ist markiert als gemessen, Annahme, Schätzung oder Hypothese.
+What the paper does not say: that AI replaces developers, that every piece of software takes ten days, or that a single case proves a market trend. Every claim is labeled as measured, assumption, estimate, or hypothesis.
 
-Wer nachrechnen oder widersprechen will: gern. Genau dafür ist es geschrieben.
+If you want to recalculate or push back: please do. That is exactly what it was written for.
 
-#PowerBI #Controlling #KI #BuildVsBuy</pre>
+#PowerBI #Controlling #AI #BuildVsBuy</pre>
     </div>
 
     <div class="post-foot">
-      Replikationen, Kritik und Rückfragen: <strong>Michael Tenner</strong> · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
-      Quellcode, Git-Historie und Thesenpapier sind öffentlich — jede Zahl ist nachrechenbar. Eine Fallstudie beweist keine Regel; sie stellt eine präzise Frage. Widersprechende Fälle sind mindestens so willkommen wie bestätigende.
+      Replications, criticism, questions: <strong>Michael Tenner</strong> · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
+      Source code, Git history and the thesis paper are public — every figure can be recalculated. A single case study proves no rule; it asks a precise question. Contradicting cases are at least as welcome as confirming ones.
     </div>
 
   </div>
@@ -218,8 +218,8 @@ document.getElementById('copyBtn').addEventListener('click', function () {
   var text = document.getElementById('liText').innerText;
   var btn = this;
   function done() {
-    btn.classList.add('copied'); btn.textContent = 'Kopiert ✓';
-    setTimeout(function () { btn.classList.remove('copied'); btn.textContent = 'Text kopieren'; }, 2200);
+    btn.classList.add('copied'); btn.textContent = 'Copied ✓';
+    setTimeout(function () { btn.classList.remove('copied'); btn.textContent = 'Copy text'; }, 2200);
   }
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(done);
