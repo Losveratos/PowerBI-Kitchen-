@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daten-WG · Knowledge Kitchen · Podcast & Tutorials</title>
 
+<!-- Favicon · Daten-WG Knowledge Kitchen -->
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+<meta name="theme-color" content="#117865">
+
 <style>
 :root {
   /* Flächen — Paper/Cream Editorial-Palette */
@@ -206,9 +214,78 @@ a { color: inherit; text-decoration: none; }
   display: block;
 }
 
+/* Burger-Button · nur mobile sichtbar */
+.nav-burger {
+  display: none;
+  margin-left: 12px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  transition: background .18s ease, border-color .18s ease;
+}
+.nav-burger:hover { border-color: var(--ink); }
+.nav-burger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform .22s ease, opacity .18s ease;
+}
+.topnav.nav-open .nav-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.topnav.nav-open .nav-burger span:nth-child(2) { opacity: 0; }
+.topnav.nav-open .nav-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
 @media (max-width: 1100px) {
-  .topnav { display: none; }
   .container { padding-top: 32px; }
+
+  .nav-burger { display: flex; }
+
+  .topnav-inner { row-gap: 0; }
+
+  /* Nav-Links standardmäßig einklappen */
+  .topnav-inner > .topnav-link,
+  .topnav-inner > .topnav-dd {
+    display: none;
+    flex-basis: 100%;
+    width: 100%;
+  }
+
+  /* Geöffnetes Menü · gestapelte Links */
+  .topnav.nav-open .topnav-inner > .topnav-link,
+  .topnav.nav-open .topnav-inner > .topnav-dd {
+    display: block;
+  }
+  .topnav.nav-open .topnav-inner > .topnav-link:first-of-type { margin-top: 12px; }
+  .topnav.nav-open .topnav-link {
+    font-size: 12px;
+    padding: 12px 12px;
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+  }
+  .topnav.nav-open .topnav-dd-toggle { justify-content: flex-start; }
+
+  /* Dropdown „Talks & Post" auf Touch inline ausklappen */
+  .topnav.nav-open .topnav-dd-menu {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+    border: none;
+    padding: 4px 0 8px 16px;
+    min-width: 0;
+    z-index: auto;
+  }
+  .topnav.nav-open .topnav-dd-toggle::after { display: none; }
 }
 
 /* ========== CONFERENCE STRIP (slim) ========== */
@@ -1389,6 +1466,19 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   border-radius: var(--radius-sm);
   display: block;
 }
+.embed-privacy-note {
+  margin: 8px 2px 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  color: var(--ink-mute);
+}
+.embed-privacy-note a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.embed-privacy-note a:hover { text-decoration: underline; }
 .chapters-title {
   font-family: var(--mono);
   font-size: 10px;
@@ -1818,6 +1908,9 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   transition: background .15s ease;
 }
 .eg-cta-card:hover .eg-cta-card-btn { background: var(--brand-soft); }
+.eg-cta-card--fabric { background: var(--brand-deep); margin-top: -16px; }
+.eg-cta-card--fabric .eg-cta-card-btn { background: rgba(255, 255, 255, 0.16); }
+.eg-cta-card--fabric:hover .eg-cta-card-btn { background: rgba(255, 255, 255, 0.28); }
 
 .eg-embed-note {
   margin-top: 24px;
@@ -1905,12 +1998,16 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
 <!-- ============================================================
      STICKY TOP NAV
 ============================================================ -->
-<nav class="topnav">
+<nav class="topnav" id="topnav">
   <div class="topnav-inner">
     <div class="topnav-brand">Daten-WG · <em>Knowledge Kitchen</em><span class="beta-badge" title="Beta-Phase · noch in Entwicklung">Beta</span></div>
+    <button class="nav-burger" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="topnav">
+      <span></span><span></span><span></span>
+    </button>
     <a class="topnav-link" href="#top-picks">Top-Picks</a>
     <a class="topnav-link" href="#posts-talks">Posts &amp; Talks</a>
     <a class="topnav-link" href="#buckets-overview">Buckets</a>
+    <a class="topnav-link" href="fabric_einsteiger_guide_v1.html" title="Microsoft Fabric End-to-End · Einsteiger-Guide">Fabric-Guide</a>
     <a class="topnav-link" href="power_bi_einsteiger_guide_v4.html#beispiele">Beispiele</a>
     <a class="topnav-link" href="business-chart-builder.html" title="IBCS-Charts bauen und als Vega-Spec für Deneb (Power BI) exportieren">Chart-Builder</a>
     <div class="topnav-dd">
@@ -1967,9 +2064,9 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <div>
     <div class="eyebrow">Daten-WG · Knowledge Kitchen</div>
     <h1 class="title">Power BI lernen,<br><em>strukturiert &amp; durchsuchbar.</em></h1>
-    <p class="subtitle">132 Folgen aus dem <strong>Daten-WG-Podcast</strong> — geclustert in 9 Themen-Buckets, mit Volltextsuche bis in die Auto-Transkripte und einem End-to-End-Einsteiger-Guide. Kein Chrono-Scroll, sondern Curriculum.</p>
+    <p class="subtitle">138 Folgen aus dem <strong>Daten-WG-Podcast</strong> — geclustert in 9 Themen-Buckets, mit Volltextsuche bis in die Auto-Transkripte und einem End-to-End-Einsteiger-Guide. Kein Chrono-Scroll, sondern Curriculum.</p>
     <div class="header-stats">
-      <span class="header-stat"><strong>132</strong>Folgen</span>
+      <span class="header-stat"><strong>138</strong>Folgen</span>
       <span class="header-stat"><strong>105</strong>Transkripte</span>
       <span class="header-stat"><strong>10</strong>Guide-Kapitel</span>
       <span class="header-stat"><strong>9</strong>Buckets</span>
@@ -2008,7 +2105,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <div>
     <h2 class="start-here-title">Wie nutzt du diese Seite?</h2>
     <div class="start-here-text">
-      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 132 Folgen sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
+      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 138 Folgen sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
       <p>Jede Folge ist eine Karte mit Gast, Dauer, kurzer Zusammenfassung und Tags. Ein Klick auf die Karte zeigt die <strong>Kapitel-Timestamps</strong> (bei 60 Folgen detailliert eingepflegt) — du kannst direkt zur Stelle springen, die dich interessiert.</p>
       <p>Empfohlener Einstieg, wenn du den Kanal noch nicht kennst: Quarterly-Updates für die Tools-Lage, dann das Bucket, das gerade zu deiner Arbeit passt.</p>
     </div>
@@ -2142,6 +2239,15 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <span class="guide-promo-cta">Zum Guide ↓</span>
 </a>
 
+<a class="guide-promo" href="fabric_einsteiger_guide_v1.html" style="border-left-color: var(--c-fabric); margin-top: -24px;">
+  <div>
+    <div class="guide-promo-eyebrow" style="color: var(--c-fabric);">Microsoft Fabric · Einsteiger-Guide</div>
+    <div class="guide-promo-title">Fabric <em>von OneLake bis Report</em></div>
+    <div class="guide-promo-text">OneLake, <strong>Lakehouse &amp; Warehouse</strong>, Pipelines, Notebooks, <strong>Direct Lake</strong> und Snowflake-Integration — End-to-End-Guide in 6 Etappen. Baut auf dem Power-BI-Guide auf.</div>
+  </div>
+  <span class="guide-promo-cta" style="background: var(--c-fabric);">Zum Fabric-Guide →</span>
+</a>
+
 <a class="guide-promo" href="ibcs-trainer.html" style="border-left-color: var(--c-viz); margin-top: -24px;">
   <div>
     <div class="guide-promo-eyebrow" style="color: var(--c-viz);">Interaktiv · IBCS-Trainer</div>
@@ -2172,7 +2278,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
       <div class="search-help-foot">Sucht in Titel, Gast, Beschreibung und (lazy geladen) Transkripten.</div>
     </div>
     <div class="filter-meta">
-      <span><strong id="result-count">132</strong> von 132 Folgen</span>
+      <span><strong id="result-count">138</strong> von 138 Folgen</span>
       <button class="filter-reset" id="reset-filters">Filter zurücksetzen</button>
       <button class="tags-peek" id="tags-peek" type="button" aria-expanded="true" aria-controls="tag-list" title="Tag-Filter ein-/ausblenden"><span id="tags-peek-label">Tags ausblenden</span><span class="tags-peek-badge" id="tags-peek-badge">0</span><span class="tags-peek-chevron" aria-hidden="true"></span></button>
     </div>
@@ -2202,13 +2308,13 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-num">02 · PLATTFORM</div>
     <div class="bucket-tile-name">Microsoft Fabric</div>
     <div class="bucket-tile-teaser">Lakehouse, OneLake, Direct Lake — die Fabric-Praxis.</div>
-    <div class="bucket-tile-count">22 Folgen</div>
+    <div class="bucket-tile-count">26 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-3" style="--bucket-color: var(--c-model);">
     <div class="bucket-tile-num">03 · GRUNDLAGE</div>
     <div class="bucket-tile-name">Datenmodellierung</div>
     <div class="bucket-tile-teaser">Stern-Schema, Data Vault, DAX-Patterns — Modelle, die halten.</div>
-    <div class="bucket-tile-count">27 Folgen</div>
+    <div class="bucket-tile-count">28 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-4" style="--bucket-color: var(--c-gov);">
     <div class="bucket-tile-num">04 · GOVERNANCE</div>
@@ -2244,7 +2350,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-num">09 · EVENT</div>
     <div class="bucket-tile-name">Daten-WG 2025</div>
     <div class="bucket-tile-teaser">Rückblicke und Vorschauen rund um die Daten-WG-Konferenz.</div>
-    <div class="bucket-tile-count">8 Folgen</div>
+    <div class="bucket-tile-count">9 Folgen</div>
   </a>
 </div>
 
@@ -2280,6 +2386,15 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
       <span class="eg-cta-card-sub">Die Übersicht hier zeigt nur die Lehrstruktur — Tiefe liegt im vollen Guide.</span>
     </div>
     <span class="eg-cta-card-btn">Zum vollen Guide →</span>
+  </a>
+
+  <a class="eg-cta-card eg-cta-card--fabric" href="fabric_einsteiger_guide_v1.html">
+    <div class="eg-cta-card-text">
+      <span class="eg-cta-card-eyebrow">Neu · Microsoft Fabric · End-to-End</span>
+      <span class="eg-cta-card-title">Microsoft Fabric von OneLake bis zum Direct-Lake-Bericht</span>
+      <span class="eg-cta-card-sub">Der nächste Schritt nach Power BI: OneLake, Lakehouse, Direct Lake und Snowflake-Integration — 40 klickbare Detail-Karten.</span>
+    </div>
+    <span class="eg-cta-card-btn">Zum Fabric-Guide →</span>
   </a>
 
   <div class="eg-progress" role="status" aria-live="polite">
@@ -2437,7 +2552,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   </a>
 
   <div class="eg-embed-note">
-    <strong>Tiefer einsteigen:</strong> Diese Übersicht ist die Lehrstruktur. Die detaillierten Klick-Karten pro Kapitel (Schritt-für-Schritt, Beispiele, Anfänger-Fallen) findest du im <a href="power_bi_einsteiger_guide_v4.html" style="color: var(--accent); text-decoration: underline;">vollen Einsteiger-Guide →</a>.
+    <strong>Tiefer einsteigen:</strong> Diese Übersicht ist die Lehrstruktur. Die detaillierten Klick-Karten pro Kapitel (Schritt-für-Schritt, Beispiele, Anfänger-Fallen) findest du im <a href="power_bi_einsteiger_guide_v4.html" style="color: var(--accent); text-decoration: underline;">vollen Einsteiger-Guide →</a>. Und wenn du wissen willst, was unter Power BI liegt: <a href="fabric_einsteiger_guide_v1.html" style="color: var(--accent); text-decoration: underline;">Microsoft-Fabric-Guide →</a>.
   </div>
 </section>
 
@@ -2452,6 +2567,8 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <a class="footer-link" href="https://www.daten-wg.com" target="_blank" rel="noopener">daten-wg.com</a>
     <a class="footer-link" href="https://www.daten-wg.com/daten-wg-2026" target="_blank" rel="noopener">Daten-WG 2026</a>
     <a class="footer-link" href="https://podcasters.spotify.com/pod/show/daten-wg" target="_blank" rel="noopener">Spotify</a>
+    <a class="footer-link" href="power_bi_einsteiger_guide_v4.html">Power-BI-Guide</a>
+    <a class="footer-link" href="fabric_einsteiger_guide_v1.html">Fabric-Guide</a>
     <a class="footer-link" href="impressum.html">Impressum</a>
     <a class="footer-link" href="datenschutz.html">Datenschutz</a>
   </div>
@@ -3007,6 +3124,103 @@ const EPISODES = [
   /* ========== BUCKET 2: FABRIC ========== */
   {
     bucket: 'bucket-2',
+    title: 'Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen',
+    guest: 'Solo',
+    solo: true,
+    date: 'Juli 2026',
+    duration: '7 min',
+    lang: 'DE',
+    desc: 'Marcus zeigt am praktischen Beispiel, wie Time Travel in Microsoft Fabric gelöschte Datenstände über einen Zeitstempel wieder abfragbar macht. Er erklärt die Rolle des Delta Logs, wie man eine Tabelle zu einem früheren Zeitpunkt liest, und warum die Historie nicht unbegrenzt erhalten bleibt.',
+    tags: ['Fabric', 'Delta Lake', 'Time Travel', 'DE'],
+    podcastUrl: null,
+    ytId: '_AxvdCW0ST4',
+    chapters: [
+      ['00:00', 'Intro'],
+      ['00:45', 'Ausgangssituation: Daten wurden gelöscht'],
+      ['02:10', 'Blick in das Delta Log'],
+      ['04:05', 'Was macht Time Travel?'],
+      ['05:40', 'Tabelle zu einem früheren Zeitpunkt abfragen']
+    ]
+  },
+  {
+    bucket: 'bucket-2',
+    title: 'Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)',
+    guest: 'Solo',
+    solo: true,
+    date: 'Juli 2026',
+    duration: '11 min',
+    lang: 'DE',
+    desc: 'Marcus lädt Excel-Dateien per Shortcut Transformation aus SharePoint ins Lakehouse und zeigt den typischen Stolperstein: Schon eine eingeblendete Totalzeile kann einen Schema-Mismatch auslösen und den Import scheitern lassen. Dazu, welche zusätzlichen Metadaten wie den Sheetname Fabric beim Import mitliefert.',
+    tags: ['Fabric', 'Shortcuts', 'Excel', 'DE'],
+    podcastUrl: null,
+    ytId: 'lp8xNX81R2w',
+    chapters: [
+      ['00:00', 'Intro'],
+      ['00:43', 'Einschränkungen von Excel-Dateien'],
+      ['02:02', 'Warum Totalzeilen Probleme verursachen'],
+      ['04:11', 'Excel-Dateien im SharePoint vorbereiten'],
+      ['05:08', 'Shortcut Transformation für Excel erstellen'],
+      ['07:08', 'Ergebnis im Lakehouse prüfen'],
+      ['08:24', 'Zusätzliche Metadaten (Sheetname)'],
+      ['09:23', 'Schema-Mismatch demonstrieren']
+    ]
+  },
+  {
+    bucket: 'bucket-2',
+    title: 'Microsoft Fabric Shortcut Transformation erklärt: Updates im Praxistest',
+    guest: 'Solo',
+    solo: true,
+    date: 'Juli 2026',
+    duration: '7 min',
+    lang: 'DE',
+    desc: 'Marcus testet, was passiert, wenn sich eine per SharePoint-Shortcut angebundene Datei nachträglich ändert. Er zeigt Schritt für Schritt, wie die Shortcut Transformation die Änderung erkennt, warum dabei die komplette Parquet-Partition neu geschrieben wird statt einzelner Zeilen, und wirft einen Ausblick auf Time Travel.',
+    tags: ['Fabric', 'Shortcuts', 'Lakehouse', 'DE'],
+    podcastUrl: null,
+    ytId: 'Z6RZjkn_6lY',
+    chapters: [
+      ['00:00', 'Intro'],
+      ['00:28', 'Ausgangssituation im Lakehouse'],
+      ['01:08', 'Wie Fabric die Daten speichert'],
+      ['02:02', 'Datensatz in SharePoint ändern'],
+      ['03:04', 'Auf die Transformation warten'],
+      ['04:09', 'Was wurde im Lakehouse geändert?'],
+      ['05:04', 'Warum wird die komplette Partition ersetzt?'],
+      ['06:04', 'Ausblick auf Time Travel'],
+      ['06:42', 'Fazit']
+    ]
+  },
+  {
+    bucket: 'bucket-2',
+    title: 'SharePoint direkt in Microsoft Fabric nutzen | Lakehouse, Direct Lake & Power BI',
+    guest: 'Solo',
+    solo: true,
+    date: 'Juli 2026',
+    duration: '18 min',
+    lang: 'DE',
+    desc: 'Marcus verbindet einen SharePoint-Ordner per Shortcut mit einem Fabric-Lakehouse und lässt CSV-Dateien automatisch als Tabellen einlaufen - ganz ohne eigenes ETL. Im Anschluss baut er darauf ein semantisches Modell mit Direct Lake und zeigt, wie ein Power-BI-Bericht bei neuen SharePoint-Dateien automatisch aktuell bleibt.',
+    tags: ['Fabric', 'SharePoint', 'Direct Lake', 'DE'],
+    podcastUrl: null,
+    ytId: 'c-LWoo-O5PQ',
+    chapters: [
+      ['00:00', 'Einführung'],
+      ['00:40', 'Das Ziel: SharePoint als Datenquelle für Microsoft Fabric'],
+      ['02:05', 'Aufbau der CSV-Dateien im SharePoint'],
+      ['03:20', 'SharePoint-Verbindung in Fabric erstellen'],
+      ['05:35', 'Lakehouse anlegen'],
+      ['06:40', 'SharePoint Shortcut zur Tabelle erstellen'],
+      ['09:20', 'Automatische Transformation ins Lakehouse'],
+      ['11:20', 'Daten im Lakehouse und per SQL analysieren'],
+      ['13:40', 'Semantisches Modell (Direct Lake) erstellen'],
+      ['16:10', 'Modell optimieren'],
+      ['17:45', 'Power BI-Bericht automatisch erstellen'],
+      ['19:30', 'Neue Datei im SharePoint hinzufügen'],
+      ['20:50', 'Automatische Aktualisierung in Fabric'],
+      ['22:10', 'Bericht aktualisieren – neue Daten sofort sichtbar'],
+      ['23:15', 'Fazit: SharePoint & Fabric ohne ETL']
+    ]
+  },
+  {
+    bucket: 'bucket-2',
     title: '27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite',
     guest: 'WG Offsite',
     solo: false,
@@ -3430,6 +3644,36 @@ const EPISODES = [
   },
 
   /* ========== BUCKET 3: DATENMODELLIERUNG ========== */
+  {
+    bucket: 'bucket-3',
+    title: 'Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense',
+    guest: 'Reinhard Mense',
+    solo: false,
+    date: 'Juli 2026',
+    duration: '49 min',
+    lang: 'DE',
+    desc: 'Reinhard Mense — Mitgründer von areto und Gründer von Yotilla — spricht mit Artur König über Data-Warehouse-Automatisierung. Es geht um den Rebuild-Cycle, der Warehouses alle paar Jahre neu entstehen lässt, um seine Vision, schon auf der konzeptionellen Geschäftsobjekt-Ebene anzusetzen, und um die ehrliche Frage, wo KI wirklich hilft und wo Determinismus gewinnt.',
+    tags: ['Data Warehouse', 'Podcast', 'Automation', 'DE'],
+    podcastUrl: null,
+    ytId: '3-hXnNLKnAw',
+    chapters: [
+      ['00:00', 'Intro: Ist das Data Warehouse ein Dinosaurier? Reinhards Werdegang'],
+      ['03:52', 'Der Data-Warehouse-Rebuild-Cycle: warum alle 5 Jahre neu gebaut wird'],
+      ['04:39', 'Neue Technologie als vermeintlicher Heilsbringer – und warum das nicht reicht'],
+      ['05:33', 'Wenn der Fachbereich nicht mehr wartet: die Excel-Chaos-Spirale'],
+      ['07:47', 'Automatisierung setzt zu spät an – der Vergleich mit der Telefonvermittlung'],
+      ['10:47', 'Einen Schritt früher: Automatisierung ab dem konzeptionellen Modell'],
+      ['13:45', 'Abstraktion eine Ebene höher – warum wir Datenbanken längst akzeptiert haben'],
+      ['17:53', 'Die Grenzen von Self-Service: das Supply-Chain-Beispiel'],
+      ['21:20', 'Was gehört zentral? Finance, Kennzahlen und gemeinsame Wahrheiten'],
+      ['24:00', 'Was sich nicht zentralisieren lässt: Prozente, Durchschnitte, lokale Mappings'],
+      ['28:48', 'Warum nicht alles mit KI? Determinismus schlägt GenAI'],
+      ['32:01', 'KI vorgelagert: das konzeptionelle Modell im Dialog mit dem Fachbereich'],
+      ['35:32', 'Der Rebuild-Cycle bei BI-Tools: Migration ist selten die Lösung'],
+      ['44:22', 'Daten-WG 2026 in Köln: Coworking, Theater und Speaker'],
+      ['48:13', 'Der Abschluss-Tipp: mit KI bauen, was früher Großprojekte brauchten']
+    ]
+  },
   {
     bucket: 'bucket-3',
     title: 'The Five Pillars of DAX | Daten-WG Podcast with Francesco Bergamaschi',
@@ -5215,6 +5459,20 @@ const EPISODES = [
       ['19:25', 'Interaktive Sessions bringen Lernen und Spaß zusammen'],
       ['30:02', 'Feedback und Ausblick auf zukünftige Veranstaltungen']
     ]
+  },
+  {
+    bucket: 'bucket-9',
+    title: 'Willkommen auf dem Daten-WG Kanal',
+    guest: 'Solo',
+    solo: true,
+    date: 'April 2025',
+    duration: '1 min',
+    lang: 'DE',
+    desc: 'Kurze Kanal-Vorstellung: Die Daten-WG-Community bleibt auch nach dem Event zusammen. Hier gibt es künftig Podcast-Folgen, Live-Streams und Tutorials rund um die Microsoft Data Platform.',
+    tags: ['Community', 'Daten-WG', 'DE'],
+    podcastUrl: null,
+    ytId: '5atgv1IOijA',
+    chapters: []
   }
 ];
 
@@ -5253,10 +5511,11 @@ function renderCard(ep, idx) {
 
   const embedHtml = hasYtEmbed ? `
     <div class="video-card-embed" data-ytid="${ep.ytId}">
-      <button class="video-embed-placeholder" type="button" aria-label="Video laden">
+      <button class="video-embed-placeholder" type="button" aria-label="Video laden — beim Laden werden Daten an YouTube (Google) übertragen">
         <span class="embed-play">▶</span>
         <span class="embed-label">Video laden</span>
       </button>
+      <p class="embed-privacy-note">Beim Laden wird eine Verbindung zu YouTube (Google) hergestellt und dabei werden Daten (z.&nbsp;B. deine IP-Adresse) übertragen. <a href="datenschutz.html">Datenschutz</a></p>
     </div>` : '';
 
   return `
@@ -5349,6 +5608,8 @@ function renderBuckets() {
       iframe.title = 'YouTube video';
       iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
       iframe.allowFullscreen = true;
+      const note = wrap.querySelector('.embed-privacy-note');
+      if (note) note.remove();
       wrap.replaceChild(iframe, ph);
     });
   });
@@ -5807,6 +6068,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+</script>
+
+<!-- Mobile-Navigation · Burger-Menü-Toggle -->
+<script>
+(function () {
+  var nav = document.getElementById('topnav');
+  if (!nav) return;
+  var burger = nav.querySelector('.nav-burger');
+  if (!burger) return;
+
+  function setOpen(open) {
+    nav.classList.toggle('nav-open', open);
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    burger.setAttribute('aria-label', open ? 'Menü schließen' : 'Menü öffnen');
+  }
+
+  burger.addEventListener('click', function () {
+    setOpen(!nav.classList.contains('nav-open'));
+  });
+
+  // Menü nach Klick auf einen echten Link (kein Dropdown-Toggle) schließen
+  nav.querySelectorAll('.topnav-link').forEach(function (link) {
+    link.addEventListener('click', function () {
+      if (link.classList.contains('topnav-dd-toggle')) return;
+      setOpen(false);
+    });
+  });
+
+  // ESC schließt das Menü
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && nav.classList.contains('nav-open')) setOpen(false);
+  });
+
+  // Beim Wechsel auf Desktop-Breite zurücksetzen
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 1100 && nav.classList.contains('nav-open')) setOpen(false);
+  });
+})();
 </script>
 </body>
 </html>
