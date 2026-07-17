@@ -64,31 +64,28 @@ Methodik, Annahmen und Grenzen stehen alle im Papier — Anhang B rechnet jede Z
 
 # Variante B — Dokument-Post (PDF hängt direkt am Post) · „Wochenend-Read"
 
-> Empfohlen für Freitag 8:00: Das Wochenend-Framing macht den Freitag zum
-> Feature. PDF über „Dokument hinzufügen" hochladen (nicht verlinken),
-> Dokumenttitel: „Zehn Tage bis zum marktfähigen Stand". Repo-Link in den
-> ersten Kommentar.
+> Empfohlen für Freitag 8:00. PDF über „Dokument hinzufügen" hochladen
+> (nicht verlinken), Dokumenttitel: „Zehn Tage bis zum marktfähigen Stand".
+> Repo-Link in den ersten Kommentar.
 
-Wochenend-Lektüre für alle, die mit Power BI, Controlling oder Build-vs.-Buy zu tun haben — das komplette Papier hängt hier als PDF dran. Und wem 34 Seiten zu viel sind: die Essenz in fünf Punkten. 👇
+Wochenend-Lektüre, wer mag: Ich habe dokumentiert, wie weit man mit KI-gestützter Entwicklung bei Power BI wirklich kommt. Das ganze Papier hängt als PDF an diesem Post. Wem 34 Seiten zu viel sind, hier die Kurzfassung.
 
-Der Fall: Ich habe in 10 Tagen KI-gestützt ein marktfähiges Power-BI-Visual gebaut — 12 Chart-Typen, Controlling-Tabelle mit Hierarchie, 4 Sprachen. Klassisch wäre derselbe Stand bei 14–18 Personenmonaten und 150.000–350.000 € gelandet. Mein tatsächlicher Einsatz: ~20 dokumentierte Steuerungsstunden plus 180 € Werkzeugkosten.
+Ich habe in zehn Tagen ein Power-BI-Visual gebaut, das man ernsthaft benutzen kann. Zwölf Diagrammtypen, Controlling-Tabelle mit Hierarchie, vier Sprachen. Hätte ich das klassisch beauftragt, wäre ich nach meiner Schätzung bei 14 bis 18 Personenmonaten gelandet, irgendwo zwischen 150.000 und 350.000 Euro. Tatsächlich gekostet hat es mich rund 20 dokumentierte Stunden Steuerung und 180 Euro für Werkzeuge.
 
-Die Essenz:
+Was ich dabei gelernt habe:
 
-1️⃣ Nicht „KI schafft das". Die Formel lautet KI × festes Framework × Domänenexpertise × Git. Nimm einen Faktor weg, und das Ergebnis kippt.
+Es liegt nicht an der KI allein. Es funktioniert, weil vier Dinge zusammenkommen: KI, ein festes Framework, Fachwissen und Git. Fehlt eins davon, kippt das Ganze.
 
-2️⃣ Feste Frameworks (Power-BI-Visuals, Office-Add-ins, dbt-Pakete …) reduzieren die Freiheitsgrade so stark, dass KI-Entwicklung kontrollierbar und reproduzierbar wird. Das ist die eigentliche These — und sie überlebt auch die nächste Modellgeneration.
+Feste Frameworks wie Power-BI-Visuals, Office-Add-ins oder dbt-Pakete engen den Lösungsraum so ein, dass KI-Entwicklung kontrollierbar und wiederholbar wird. Das halte ich für die eigentliche Erkenntnis aus den zehn Tagen. Und sie bleibt gültig, wenn die nächste Modellgeneration kommt.
 
-3️⃣ Ohne Versionskontrolle ist Vibe Coding Müll. Mit Git wird jeder Schritt prüfbar, rückrollbar, auditierbar — alle 124 Commits dieses Projekts sind öffentlich einsehbar.
+Ohne Versionskontrolle wäre das alles nichts wert gewesen. Erst Git macht die Arbeit prüfbar und rückholbar. Alle 124 Commits des Projekts sind öffentlich, jeder kann nachschauen, was wann warum passiert ist.
 
-4️⃣ Ehrlich gerechnet — beide Seiten mit gleichem Leistungsumfang — bleibt ein Kostenhebel von 13–93×. Die Gegenrechnung gegen meine eigene Schlagzeile steht mit im Papier.
+Zu den Zahlen: Ehrlich gerechnet, also mit gleichem Leistungsumfang auf beiden Seiten, bleibt ein Faktor von 13 bis 93 zwischen meinem Einsatz und dem klassischen Nachbau. Die Gegenrechnung gegen meine eigene Schlagzeile steht mit im Papier. Und ab etwa 30 bis 45 Report-Nutzern lohnt sich der Eigenbau gegenüber der Lizenz nach Barwert.
 
-5️⃣ Die Konsequenz ist ökonomisch: Ab ~30–45 Report-Nutzern kippt Build-vs.-Buy nach Barwert. Wer Visual- oder Tool-Lizenzen verhandelt, sollte vorher einmal nachrechnen — die Rechenwege liegen im Anhang offen.
+Was das Papier nicht sagt: dass KI Entwickler ersetzt, dass jede Software in zehn Tagen entsteht, oder dass ein einzelner Fall einen Markttrend beweist. Es ist ein Fall, sauber dokumentiert, mit offengelegten Annahmen. Jede Aussage ist markiert als gemessen, Annahme, Schätzung oder Hypothese.
 
-Was das Papier NICHT behauptet: dass KI Entwickler ersetzt, dass jede Software in 10 Tagen entsteht, oder dass ein Einzelfall (n = 1!) einen Markt beweist. Deshalb trägt jede Aussage ein Evidenz-Label: gemessen · Annahme · Schätzung · Hypothese.
+Wer nachrechnen oder widersprechen will: gern. Genau dafür ist es geschrieben.
 
-Es ist bewusst als Thesenpapier gebaut — zum Nachrechnen und zum Widersprechen. Beides ausdrücklich erwünscht: hier in den Kommentaren oder direkt an mich.
+Schönes Wochenende.
 
-Schönes Wochenende & gute Lektüre 📄
-
-#PowerBI #KI #Controlling #BuildVsBuy #OpenSource #BusinessIntelligence
+#PowerBI #Controlling #KI #BuildVsBuy
