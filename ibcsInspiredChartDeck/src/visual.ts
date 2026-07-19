@@ -1183,8 +1183,9 @@ export class Visual implements IVisual {
             ];
             const cur = String(sLc.fontPreset.value.value);
             const selTip = this.locStr("Labels_FontPreset", "Size preset");
-            // short labels: strip the "(dashboard tile)"-style suffix of the enum text
-            const labels = presets.map(p => this.locStr(p.key, p.en).split(" (")[0].trim());
+            // short labels: strip the "(dashboard tile)"-style suffix of the enum text;
+            // also cover ja-JP where no space precedes the (ASCII or fullwidth) bracket
+            const labels = presets.map(p => this.locStr(p.key, p.en).split(/\s*[(（]/)[0].trim());
             const segF = f3, segH = selH, segGap = 5, aaW = 26 * tf;
             const wds = labels.map(l => Math.ceil(this.maxTextWidth([l], segF)) + 20);
             const totW = aaW + segGap + wds.reduce((a, b) => a + b, 0) + segGap * (wds.length - 1);
@@ -1335,9 +1336,11 @@ export class Visual implements IVisual {
                         d >= 0 ? c.teal : c.red);
                     line(pinX, ry + 0.045, pinX + (d >= 0 ? 0.06 : -0.05), ry + 0.045,
                         d >= 0 ? c.teal : c.red, 1.4);
-                    this.el("circle", {
-                        cx: x + (pinX + (d >= 0 ? 0.06 : -0.05)) * w, cy: y + (ry + 0.045) * h,
-                        r: 2, fill: c.ink
+                    // square pin-head — matches the table mode's real default (pinHead "square")
+                    this.el("rect", {
+                        x: x + (pinX + (d >= 0 ? 0.06 : -0.05)) * w - 1.8,
+                        y: y + (ry + 0.045) * h - 1.8,
+                        width: 3.6, height: 3.6, fill: c.ink
                     }, g);
                 }
                 line(dAxis, 0.10, dAxis, 0.92, c.grey, 0.9);
@@ -4688,9 +4691,12 @@ export class Visual implements IVisual {
 
         // ------- vertical layout + scrolling (same pattern as the flat table)
         const headerH = Math.round(cf + 12) + (twoLv ? Math.round(cf * 0.9 + 6) : 0);
-        const showTotalRow = cfg.showTotal && !noMatch
-            && !topAggs.some(a => isSum(a) || isResult(a));
         const totalBase = topAggs.filter(a => !isPct(a) && !isSkip(a) && !isResult(a) && !isSum(a));
+        // only reserve/draw a Σ-row when it aggregates more than one top-level row —
+        // keeps slot reservation (n/bodyCap/rowsBottom) in sync with the drawing
+        const showTotalRow = cfg.showTotal && !noMatch
+            && !topAggs.some(a => isSum(a) || isResult(a))
+            && totalBase.length > 1;
         // Σ-row cell per block — shared by the Δ mini-bar domain and the row renderer
         const totalCellAt = (bi: number): DataPoint | null => {
             const base = totalBase
@@ -4746,7 +4752,7 @@ export class Visual implements IVisual {
             }
             // the Σ row draws mini-bars too — without its deltas in the domain its
             // (summed, therefore larger) bars would overrun the neighbouring column
-            if (showTotalRow && totalBase.length > 1 && !prevCol) {
+            if (showTotalRow && !prevCol) {
                 for (let bi = 0; bi < shownBlocks.length; bi++) {
                     const v = totalCellAt(bi)?.varAbs;
                     if (v != null) { dDom = Math.max(dDom, Math.abs(v)); }
@@ -5039,7 +5045,7 @@ export class Visual implements IVisual {
             this.animGroups.push([g]);
         };
         bodyRows.forEach((row, i) => drawRow(row, i));
-        if (showTotalRow && totalBase.length > 1) { drawRow(null, bodyRows.length); }
+        if (showTotalRow) { drawRow(null, bodyRows.length); }
         const rowsBottom = top + (bodyRows.length + (showTotalRow ? 1 : 0)) * rowH;
 
         // Σ block separator + draggable name edge
@@ -5095,6 +5101,14 @@ export class Visual implements IVisual {
                 };
                 window.addEventListener("mousemove", move);
                 window.addEventListener("mouseup", up);
+            });
+            thumb.addEventListener("keydown", (e: KeyboardEvent) => {
+                const step = e.key === "ArrowDown" ? 1 : e.key === "ArrowUp" ? -1
+                    : e.key === "PageDown" ? bodyCap : e.key === "PageUp" ? -bodyCap : 0;
+                if (step === 0) { return; }
+                e.preventDefault();
+                e.stopPropagation();
+                setScroll((this.tableScroll.get(paneKey) ?? 0) + step);
             });
         } else if (rows.length > bodyRows.length) {
             txt(region.x + pad, rowsBottom + cf,
@@ -5273,12 +5287,18 @@ export class Visual implements IVisual {
                 return goodness(p);                       // worst | best
             };
             const dir = cfg.cardSort === "worst" ? 1 : -1; // worst: ascending goodness
+            // ties on the primary key (equal |Δ%|) break by absolute deviation, larger first
+            const absMag = (p: DataPoint): number => {
+                const v = statusDev(p).v;
+                return v == null ? 0 : Math.abs(v);
+            };
             pts.sort((a, b) => {
                 const ka = key(a), kb = key(b);
                 if (ka == null && kb == null) { return 0; }
                 if (ka == null) { return 1; }
                 if (kb == null) { return -1; }
-                return cfg.cardSort === "deviation" ? kb - ka : dir * (ka - kb);
+                const prim = cfg.cardSort === "deviation" ? kb - ka : dir * (ka - kb);
+                return prim !== 0 ? prim : absMag(b) - absMag(a);
             });
         }
         const gap = Math.round(8 * k);
@@ -6874,8 +6894,10 @@ export class Visual implements IVisual {
         maxAbs: number, orientation: Orientation): number {
         const s = this.formattingSettings.ibcsTitleCard;
         const kpi = (s.kpi.value || this.measureName || "").trim();
-        // derive the unit suffix (e.g. "M€") from a formatted sample value
-        const unit = cfg.fmt.format(maxAbs).replace(/[0-9.,\s +\-−]/g, "");
+        // derive the unit suffix (e.g. "M€") from a formatted sample value. Sample a
+        // non-zero magnitude so the finance wrapper's zero-dash never stands in for the
+        // real suffix; strip all dash variants (hyphen, U+2212/2013/2014) as well.
+        const unit = cfg.fmt.format(maxAbs || 1).replace(/[0-9.,\s +\-−–—]/g, "");
         let period = (s.period.value || "").trim();
         if (!period && orientation === "columns" && points.length > 1) {
             period = `${points[0].cat} – ${points[points.length - 1].cat}`;

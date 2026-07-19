@@ -1,5 +1,31 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.35.4.0 (2026-07-19)
+
+**Politur-Paket: acht kleine Funde aus dem Juli-Audit.** Lauter
+Randfälle und Feinschliff, ohne Auswirkung auf die Rechnung:
+
+- **Matrix ohne leeren Σ-Slot.** Bei nur einer Top-Level-Zeile
+  reservierte die Matrix trotzdem eine Σ-Zeile (Separator/Scroll-Track
+  liefen eine Zeile zu weit). Slot-Reservierung und Zeichnung hängen nun
+  gleichermaßen an „mehr als eine Zeile".
+- **Matrix-Scrollbar per Tastatur.** Der Matrix-Thumb reagiert jetzt wie
+  die Flat-Table auf Pfeil- und Bild-auf/ab-Tasten.
+- **KPI-Karten: dokumentierter Tiebreaker greift.** Bei gleichem |Δ%|
+  entscheidet nun die absolute Abweichung (größere zuerst) — wie seit
+  1.25.2.0 versprochen.
+- **ja-JP-Größen-Pills laufen nicht mehr aus.** Das Kurzlabel-Stripping
+  schneidet auch Klammerzusätze ohne vorangestelltes Leerzeichen und
+  Fullwidth-Klammern ab.
+- **Tabellen-Modus-Icon zeigt eckigen Pin-Kopf.** Das Mini-Vorschau-Icon
+  entspricht wieder dem tatsächlichen Tabellen-Default (quadratisch).
+- **Finance-Format + Nullserie: Titel ohne „in –".** Die Einheit wird aus
+  einem Nicht-Null-Muster abgeleitet, sodass das echte Suffix (z. B.
+  „T€") erhalten bleibt.
+- **Test-Harness umbenannt.** Interner Bundle-Global von einem
+  Fremdmarken-Namen auf `ChartKitchen` umgestellt.
+- **Backlog neutral formuliert.** Wettbewerber-Nennung entfernt.
+
 ## 1.35.3.0 (2026-07-19)
 
 **Format-Pane-Tooltips jetzt in allen vier Sprachen.** Die

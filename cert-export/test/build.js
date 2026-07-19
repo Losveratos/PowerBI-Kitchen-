@@ -8,7 +8,7 @@ esbuild.build({
     entryPoints: [path.join(ROOT, "src/visual.ts")],
     bundle: true,
     format: "iife",
-    globalName: "ZebraIBCS",
+    globalName: "ChartKitchen",
     outfile: path.join(__dirname, "visual.bundle.js"),
     loader: { ".less": "empty" },
     alias: { "powerbi-visuals-api": path.join(__dirname, "pbi-shim.js") },

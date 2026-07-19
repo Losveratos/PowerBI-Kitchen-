@@ -208,7 +208,7 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
       und bookmarkfähig.
 - [ ] **Zeitintelligenz ohne DAX** (L) — Datumsfeld + AC reicht: Visual
       berechnet PY/Vormonat/YTD selbst („PY automatisch"). Größter
-      Ease-of-Use-Hebel, strategische Abgrenzung zu Zebra/Inforiver.
+      Ease-of-Use-Hebel, strategische Abgrenzung zu marktüblichen Matrix-Visuals.
 - [ ] **Persona-Vorlagen mit Share-Code** (M) — Ein-Klick-Pakete
       („Monats-Reporting", „Forecast-Review", „GuV-Analyse",
       „Kosten-Monitoring") + Einstellungen als Code exportieren/importieren
