@@ -1,5 +1,38 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.38.0.0 (2026-07-19)
+
+**Matrix-Breite-Paket: Zwei-Zeilen-Kompaktmodus und Spaltenbreiten per
+Drag.** Zwei Verbesserungen, die die Breite von Tabelle und Matrix in den
+Griff bekommen:
+
+- **Zwei-Zeilen-Kompaktmodus (Matrix).** Neues Setting „Zellen-Layout
+  (Matrix)": „Spalten" (Standard) zeigt Wert und ΔBasis nebeneinander,
+  „Zwei Zeilen" setzt den Wert groß nach oben und die kleinere Δ-Zahl
+  (in Δ-Farbe, mit Trend-Icon und Δ vs. Vorspalte wie gewohnt) direkt
+  darunter in dieselbe Zelle. Ein Spaltenblock ist damit nur noch so
+  breit wie seine Wertspalte — die Matrix wird etwa halb so breit und
+  passt oft ohne horizontales Scrollen. Der Δ-Minibalken entfällt im
+  Zwei-Zeilen-Modus (kein Platz); Referenzspalten (Werte-Spalten AC·PY·PL)
+  bleiben als eigene Spalten neben dem Wert. Die Zeilenhöhe wird
+  automatisch auf zwei Textzeilen angehoben (auch bei „Kompakt"), zu
+  volle Kacheln scrollen wie bisher vertikal. Der Σ-Block wird gleich
+  behandelt: Σ-Wert oben, ΔPY (mit Δ% in Klammern, wenn relative
+  Abweichung an ist) darunter. Wirkt nur in der Matrix — die flache
+  Tabelle hat keine Breitennot.
+- **Alle Spaltenbreiten per Drag + Auto-Fit.** Bisher war nur die
+  Namensspalte per Drag verstellbar. Jetzt tragen auch die numerischen
+  Spalten einen Ziehgriff an ihrer rechten Kante: in der flachen Tabelle
+  die AC-Wertspalte (samt Referenzspalten) und die Δ-Spalte, in der
+  Matrix ein Griff für die einheitliche Blockbreite aller Blöcke (IBCS)
+  plus ein Griff für den Σ-Block. Doppelklick auf einen Griff passt die
+  Spalte an den längsten sichtbaren Zellinhalt an (Auto-Fit). Die Breiten
+  werden in einer versteckten Eigenschaft `tableColWidths` (JSON) im
+  Bericht gespeichert — mit demselben Persist-/Echo-/Drag-Schutz wie die
+  Namensspalte, sodass eine Host-Aktualisierung mitten im Ziehen die
+  Breite nicht verwirft. Grafik-Spalten (Balken/Pins) teilen sich wie
+  bisher den Rest. Griffe nur im interaktiven Modus.
+
 ## 1.37.0.0 (2026-07-19)
 
 **Bedienkomfort-Paket für Tabelle und Matrix.** Fünf Verbesserungen rund

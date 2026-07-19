@@ -25,9 +25,10 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
 
 ### Bedienung & Layout
 
-- [ ] **Alle Spaltenbreiten per Drag + Auto-Fit** (M) — bisher nur Namensspalte;
-      Wertspalten/Blöcke ebenfalls (persistierte Breiten-Map), Doppelklick =
-      auf Inhalt einpassen.
+- [x] **Alle Spaltenbreiten per Drag + Auto-Fit** (M) — erledigt in 1.38.0.0
+      (Wertspalte + Δ-Spalte der flachen Tabelle, einheitliche Blockbreite +
+      Σ-Block der Matrix; persistierte Breiten-Map `tableColWidths`, Doppelklick
+      = Auto-Fit auf den Inhalt; Persist-/Echo-/Drag-Schutz wie Namensspalte).
 - [x] **Horizontales Scrollen statt „… +n"-Cut** (L) — erledigt in 1.36.0.0
       (Blockstreifen horizontal scrollbar mit fixierter Namensspalte und
       fixiertem Σ-Block; Shift-Wheel/Scrollbalken/Tastatur; Export behält den
@@ -43,8 +44,10 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
       Spalte/Block unterm Cursor; transient, hc-Modus als Rahmen).
 - [ ] **Zeilen-Pinning** (S–M) — pinList: markierte Zeilen (EBIT, Cash) beim
       Scrollen fixiert über der Σ-Zeile halten.
-- [ ] **Zwei-Zeilen-Kompaktmodus** (M) — Wert groß, Δ/Δ % klein darunter in
-      derselben Zelle; halbiert die Matrix-Breite.
+- [x] **Zwei-Zeilen-Kompaktmodus** (M) — erledigt in 1.38.0.0 (Setting
+      „Zellen-Layout (Matrix)": Wert groß, Δ/Δ % klein darunter in derselben
+      Zelle; halbiert die Matrix-Breite. Minibalken entfällt, Referenzspalten
+      bleiben eigene Spalten; Σ-Block gleich behandelt).
 - [ ] **Teilbaum-Zoom mit Breadcrumb** (M) — ⤢ an Hierarchie-Zeile zeigt nur
       diesen Teilbaum, Breadcrumb „Gesamt › DACH › DE" zurück (Mechanik wie
       Small-Multiples-Zoom).

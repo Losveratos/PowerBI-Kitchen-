@@ -86,6 +86,11 @@ const gridLinesItems: LocEnumMember[] = [
     { value: "both", displayName: "Horizontal + vertical", key: "Enum_GridLines_Both" }
 ];
 
+const cellLayoutItems: LocEnumMember[] = [
+    { value: "columns", displayName: "Columns (value · Δ side by side)", key: "Enum_CellLayout_Columns" },
+    { value: "stacked", displayName: "Two rows: value on top, Δ below", key: "Enum_CellLayout_Stacked" }
+];
+
 const cardBasisItems: LocEnumMember[] = [
     { value: "basis", displayName: "Variance basis (ΔPL/ΔPY)", key: "Enum_CardBasis_Basis" },
     { value: "benchmark", displayName: "Benchmark (BM)", key: "Enum_CardBasis_Bm" }
@@ -122,7 +127,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
         cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems,
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
-        gridLinesItems];
+        gridLinesItems, cellLayoutItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -667,6 +672,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: gridLinesItems[0]
     });
 
+    cellLayout = new formattingSettings.ItemDropdown({
+        name: "cellLayout",
+        displayName: "Matrix: cell layout",
+        displayNameKey: "Table_CellLayout",
+        description: "Nur Matrix: „Spalten“ (Standard) zeigt Wert und ΔBasis nebeneinander. „Zwei Zeilen“ setzt den Wert groß nach oben und die kleinere Δ-Zahl direkt darunter in dieselbe Zelle — die Matrix wird etwa halb so breit. Der Δ-Minibalken entfällt dabei; Referenzspalten (Werte-Spalten) bleiben als eigene Spalten neben dem Wert.",
+        descriptionKey: "Desc_Table_CellLayout",
+        items: cellLayoutItems,
+        value: cellLayoutItems[0]
+    });
+
     tableGroup = new formattingSettings.Group({
         name: "chartTable",
         displayName: "Table",
@@ -674,7 +689,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         slices: [this.valueColumns, this.structureEdit, this.resultList, this.skipList,
             this.hideList, this.chartList, this.indentList, this.rowFormats,
             this.matrixCompare, this.formulaRows, this.totalRowPosition,
-            this.zebraStripes, this.rowDensity, this.gridLines]
+            this.zebraStripes, this.rowDensity, this.gridLines, this.cellLayout]
     });
 
     cardStatusBasis = new formattingSettings.ItemDropdown({

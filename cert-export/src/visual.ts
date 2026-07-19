@@ -156,6 +156,8 @@ interface ChartConfig {
     rowDensity: number;
     /** table grid-line style — "horizontal" (default) | "none" | "both" */
     gridLines: string;
+    /** matrix cell layout — "columns" (default) | "stacked" (value on top, Δ below) */
+    cellLayout: string;
     /** table: formula-row definitions ("Label = A + B; Marge = X / Y"), raw text */
     formulaRows: string;
     /** KPI cards: what stripe + background judge against ("basis" | "benchmark") */
@@ -324,6 +326,12 @@ export class Visual implements IVisual {
     private pendingTableNameW: string | null = null;
     /** true while the name-column resize handle is being dragged */
     private tableNameWDragging = false;
+    /** table: manual numeric-column widths, keyed by column ("val"/"dval"/"mxBlock"/
+     *  "mxSum"), persisted as a JSON object via drag on a column edge */
+    private tableColWidths: Record<string, number> = {};
+    private pendingTableColWidths: string | null = null;
+    /** true while any numeric-column resize handle is being dragged */
+    private tableColWidthsDragging = false;
     /** bound Filter-Info text measure (filter context for the filter footer) */
     private filterInfo: string | null = null;
     /** table header sort, e.g. "dabs_desc" ("" = data order), persisted */
@@ -511,6 +519,29 @@ export class Visual implements IVisual {
                 this.pendingTableNameW = null;
                 const nwv = parseFloat(rawNwStr);
                 this.tableNameW = isFinite(nwv) && nwv > 0 ? nwv : null;
+            }
+            // persisted manual numeric-column widths (JSON object), same echo-guard +
+            // drag-flag pattern; absent property = defaults (empty map, see tableExpanded)
+            const rawCw = dataView?.metadata?.objects?.["chart"]?.["tableColWidths"];
+            const rawCwStr = typeof rawCw === "string" ? rawCw : "";
+            if (!this.tableColWidthsDragging
+                && (this.pendingTableColWidths == null || rawCwStr === this.pendingTableColWidths)) {
+                this.pendingTableColWidths = null;
+                if (rawCwStr !== "") {
+                    try {
+                        const obj = JSON.parse(rawCwStr) as Record<string, unknown>;
+                        const clean: Record<string, number> = {};
+                        if (obj && typeof obj === "object") {
+                            for (const kk of Object.keys(obj)) {
+                                const v = Number(obj[kk]);
+                                if (isFinite(v) && v > 0) { clean[kk] = v; }
+                            }
+                        }
+                        this.tableColWidths = clean;
+                    } catch { /* corrupt store: keep the session state */ }
+                } else {
+                    this.tableColWidths = {};
+                }
             }
             // persisted matrix column drill state, same echo-guard pattern
             const rawColExp = dataView?.metadata?.objects?.["chart"]?.["tableColExpanded"];
@@ -1678,6 +1709,7 @@ export class Visual implements IVisual {
             rowDensity: ({ compact: 1.6, normal: 2.4, airy: 3.2 } as Record<string, number>)[
                 String(s.chartCard.rowDensity.value.value)] ?? 2.4,
             gridLines: String(s.chartCard.gridLines.value.value),
+            cellLayout: String(s.chartCard.cellLayout.value.value),
             formulaRows: String(s.chartCard.formulaRows.value || ""),
             cardBasis: String(s.chartCard.cardStatusBasis.value.value),
             cardTint: s.chartCard.cardTint.value,
@@ -3788,11 +3820,15 @@ export class Visual implements IVisual {
             ? Math.max(40, Math.min(region.w * 0.5, this.tableNameW))
             : Math.min(region.w * 0.26,
                 this.maxTextWidth(rowPts.map(p => p.cat), cf) + 18 + chevW);
-        const valW = lf * 4.8;
+        // manual numeric-column widths (drag/auto-fit): "val" drives the AC value
+        // column (reference columns share this width), "dval" the Δ column(s)
+        const cw = this.tableColWidths;
+        const clampColW = (w: number) => Math.max(lf * 2.5, Math.min(region.w * 0.3, w));
+        const valW = cw.val != null ? clampColW(cw.val) : lf * 4.8;
         // icons and finance parentheses widen the Δ texts — give the columns room
         const dExtra = (cfg.deltaIcons ? 1.2 : 0) + (this.financeFmt ? 0.5 : 0);
-        const dValW = hasVar ? lf * (4.6 + dExtra) : 0;
-        const d2ValW = hasVar2 ? lf * (4.6 + dExtra) : 0;
+        const dValW = hasVar ? (cw.dval != null ? clampColW(cw.dval) : lf * (4.6 + dExtra)) : 0;
+        const d2ValW = hasVar2 ? (cw.dval != null ? clampColW(cw.dval) : lf * (4.6 + dExtra)) : 0;
         // Δ2 % has no graphic pin — it is always a numeric column when dual is on
         const d2PctValW = hasVar2 && cfg.showRel ? lf * 4.2 : 0;
         // optional numeric reference columns (print/board-ready tables): the
@@ -4033,6 +4069,27 @@ export class Visual implements IVisual {
         // draggable name-column edge (persisted width)
         this.drawNameResize(bg, colX["name"].x + colX["name"].w + gap / 2,
             region.y + pad, rowsBottom, region, cfg);
+        // draggable numeric columns: AC value (+ its reference columns, all "val") and
+        // the Δ column ("dval"); double-click fits to the longest visible cell. The
+        // graphic columns share the remaining width, so they carry no handle.
+        {
+            const valFit = () => this.maxTextWidth(
+                rowPts.filter(p => p.value != null).map(p => cfg.fmt.format(p.value as number)), cf) + 16;
+            this.drawColWidthResize(bg, colX["val"].x + colX["val"].w + gap / 2,
+                region.y + pad, rowsBottom, "val", valW, lf * 2.5, region.w * 0.3, valFit);
+            for (const c of extraCols) {
+                this.drawColWidthResize(bg, colX[c.key].x + colX[c.key].w + gap / 2,
+                    region.y + pad, rowsBottom, "val", valW, lf * 2.5, region.w * 0.3, valFit);
+            }
+            if (colX["dval"]) {
+                const dFit = () => this.maxTextWidth(
+                    rowPts.filter(p => p.varAbs != null)
+                        .map(p => this.fmtSigned(cfg.fmtVar, p.varAbs as number)), cf)
+                    + 16 + (cfg.deltaIcons ? lf * 1.2 : 0);
+                this.drawColWidthResize(bg, colX["dval"].x + colX["dval"].w + gap / 2,
+                    region.y + pad, rowsBottom, "dval", dValW, lf * 2.5, region.w * 0.3, dFit);
+            }
+        }
         if (barScale && Math.min(barDomain[0], 0) < 0) {
             this.el("line", {
                 x1: barScale(0), y1: top, x2: barScale(0), y2: rowsBottom,
@@ -4688,13 +4745,23 @@ export class Visual implements IVisual {
         const hasVar = points.some(p => p.varAbs != null);
         const prevCol = cfg.matrixCompare === "prevcol";
         const showDelta = hasVar || prevCol;
+        // two-line compact mode: value on top, Δ (smaller) directly below it in the
+        // same cell — no per-block Δ column and no mini Δ-bar, so a block is only as
+        // wide as its value column and the matrix roughly halves in width. The
+        // reference (value) columns stay as their own columns next to the value.
+        const stacked = cfg.cellLayout === "stacked";
+        // manual column widths (drag/auto-fit): "mxBlock" sets the per-block value
+        // width for ALL blocks (uniform IBCS blocks), "mxSum" the Σ-block value width
+        const cw = this.tableColWidths;
+        const clampMxW = (w: number) => Math.max(lf * 2.5, Math.min(region.w * 0.5, w));
+        const mxBlockSet = cw.mxBlock != null;
 
         // ------- widths: name column, per-block [AC (+Δ +bar)], Σ block [AC, Δ, Δ%]
         const nameW = this.tableNameW != null
             ? Math.max(40, Math.min(region.w * 0.5, this.tableNameW))
             : Math.min(region.w * 0.24, this.maxTextWidth(rows.map(r => r.label), cf) + 18
                 + (hasLevels ? 14 * k : 0));
-        let valW = lf * 4.6;
+        let valW = mxBlockSet ? clampMxW(cw.mxBlock as number) : lf * 4.6;
         let dW = lf * (4.4 + (cfg.deltaIcons ? 1.2 : 0) + (this.financeFmt ? 0.5 : 0));
         let barW = Math.round(34 * k);
         const gap = 8;
@@ -4709,13 +4776,20 @@ export class Visual implements IVisual {
             if (cfg.hasPl) { extraCols.push({ label: "PL", get: p => p.pl }); }
         }
         // the Σ block keeps fixed widths — the spread below only widens the blocks
-        const sValW = valW, sDW = dW;
+        const sValW = cw.mxSum != null ? clampMxW(cw.mxSum) : valW, sDW = dW;
         const showSumRel = hasVar && cfg.showRel;
-        const sumW = sValW + (hasVar ? sDW : 0) + (showSumRel ? lf * 3.6 : 0) + gap;
+        // stacked: Δ (and Δ% in parentheses) move onto the line under the Σ value —
+        // both right-aligned to the block edge; the block must fit the wider Δ line
+        const sumStackW = Math.max(sValW, (hasVar ? sDW : 0) + (showSumRel ? lf * 3.8 : 0));
+        const sumW = stacked
+            ? sumStackW + gap
+            : sValW + (hasVar ? sDW : 0) + (showSumRel ? lf * 3.6 : 0) + gap;
         const availW = region.w - pad * 2 - nameW - sumW - gap * 2;
-        let showD = showDelta;
+        // in stacked mode the per-block Δ column and mini-bar are gone (Δ sits below
+        // the value) — the block layout counts the value span only
+        let showD = stacked ? false : showDelta;
         // the mini Δ-bar is the graphic twin of the flat table's Δ bar — same toggle
-        let showBar = showDelta && cfg.showAbs;
+        let showBar = stacked ? false : (showDelta && cfg.showAbs);
         const vSpan = () => valW * (1 + extraCols.length);
         const blockW = () => vSpan() + (showD ? dW : 0) + (showBar ? barW : 0) + gap;
         // overflow strategy: drop the reference columns, then the mini bar, then
@@ -4723,7 +4797,10 @@ export class Visual implements IVisual {
         while (blocks.length * blockW() > availW && extraCols.length > 0) { extraCols.pop(); }
         if (blocks.length * blockW() > availW && showBar) { showBar = false; }
         if (blocks.length * blockW() > availW && showD) { showD = false; }
-        if (blocks.length * blockW() > availW) {
+        // a manually set block width is respected: skip the value-column shrink and
+        // let the block strip scroll instead (the degradation below still cuts for
+        // static export tiles)
+        if (blocks.length * blockW() > availW && !mxBlockSet) {
             valW = Math.max(lf * 3.4, availW / blocks.length - gap);
         }
         // last degradation step: interactive tiles scroll the block strip
@@ -4740,8 +4817,9 @@ export class Visual implements IVisual {
             }
         }
         const cut = blocks.length - shownBlocks.length;
-        // spread leftover width over the blocks (capped) so few blocks fill the tile
-        const spread = Math.min(1.7, availW / Math.max(1, shownBlocks.length * blockW()));
+        // spread leftover width over the blocks (capped) so few blocks fill the tile —
+        // skipped when the block width was set by hand (respect the user's choice)
+        const spread = mxBlockSet ? 1 : Math.min(1.7, availW / Math.max(1, shownBlocks.length * blockW()));
         if (spread > 1) { valW *= spread; dW *= spread; barW = Math.round(barW * Math.min(1.3, spread)); }
 
         // cell resolver for display rows (block index based)
@@ -4777,8 +4855,15 @@ export class Visual implements IVisual {
             return base.length > 0 ? this.aggregateHierarchy("Σ", base) : null;
         };
         const n = Math.max(1, rows.length + (showTotalRow ? 1 : 0));
-        // capped like the flat table: font-bound row height, no stretching
-        const rowH = Math.min(cf * cfg.rowDensity, Math.max(cf + 6, (region.h - pad * 2 - headerH) / n));
+        // capped like the flat table: font-bound row height, no stretching. In
+        // stacked mode a row must fit two text lines (value + Δ below), so both the
+        // floor and the density cap are raised to ≥ 2 line-steps + padding — rows
+        // that no longer fit trigger the existing vertical scroll (maxRows uses the
+        // same rowH). rowDensity still applies on top (compact keeps 2 lines).
+        const stackH = Math.round(cf * 1.95) + 8;
+        const rowFloor = stacked ? stackH : (cf + 6);
+        const rowCap = stacked ? Math.max(cf * cfg.rowDensity, stackH) : cf * cfg.rowDensity;
+        const rowH = Math.min(rowCap, Math.max(rowFloor, (region.h - pad * 2 - headerH) / n));
         const top = region.y + pad + headerH;
         const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH + 1e-6);
         const bodyCap = Math.max(1, maxRows - (showTotalRow ? 1 : 0));
@@ -4966,9 +5051,11 @@ export class Visual implements IVisual {
                 cycle();
             });
         };
-        txt(sumX.x + sValW, hy, `Σ${marker("ac")}`, "end", hFont, true, cfg.ink, bg);
-        sortHit("ac", sumX.x, sValW + 4);
-        if (hasVar) {
+        txt(sumX.x + (stacked ? sumX.w : sValW), hy, `Σ${marker("ac")}`, "end", hFont, true, cfg.ink, bg);
+        sortHit("ac", sumX.x, (stacked ? sumX.w : sValW) + 4);
+        // stacked: Δ (and Δ%) sit under the Σ value, so the Σ header stays a single
+        // "Σ" column here; per-Δ / Δ% header sorting is available in columns mode
+        if (hasVar && !stacked) {
             txt(sumX.x + sValW + sDW, hy, `Δ${cfg.basisLabel}${marker("dabs")}`, "end", hFont, true, cfg.subtle, bg);
             sortHit("dabs", sumX.x + sValW + 4, sDW);
             if (showSumRel) {
@@ -5058,6 +5145,12 @@ export class Visual implements IVisual {
             const y = top + i * rowH;
             const yMid = y + rowH / 2;
             const rowFont = Math.min(cf, rowH - 4);
+            // stacked cell: value on the upper line, smaller Δ on the lower line —
+            // in columns mode both collapse to the single centred baseline
+            const stStep = Math.round(rowFont * 0.95);
+            const stDFont = Math.max(8, Math.round(rowFont * 0.82));
+            const valBaseY = stacked ? yMid - stStep * 0.5 + rowFont * 0.35 : yMid + rowFont * 0.35;
+            const dBelowY = yMid + stStep * 0.5 + stDFont * 0.32;
             const agg = isTotal
                 ? this.aggregateHierarchy(this.locStr("Label_Total", "Σ Total"), totalBase)
                 : (row as MRow).agg;
@@ -5107,7 +5200,7 @@ export class Visual implements IVisual {
             for (let bi = 0; bi < shownBlocks.length; bi++) {
                 const p2 = isTotal ? totalCellAt(bi) : cellAt(row as MRow, bi);
                 if (p2 != null && p2.value != null) {
-                    txt(colX[bi].x + valW, yMid + rowFont * 0.35, fmtCell(p2.value),
+                    txt(colX[bi].x + valW, valBaseY, fmtCell(p2.value),
                         "end", rowFont, sum, rowPct || skip ? cfg.subtle : cfg.ink, bp);
                 }
                 // numeric reference columns (PY/PL or the variance basis)
@@ -5115,10 +5208,24 @@ export class Visual implements IVisual {
                     extraCols.forEach((c, ei) => {
                         const v = c.get(p2);
                         if (v != null) {
-                            txt(colX[bi].x + valW * (2 + ei), yMid + rowFont * 0.35,
+                            txt(colX[bi].x + valW * (2 + ei), valBaseY,
                                 fmtCell(v), "end", rowFont, sum, cfg.subtle, bp);
                         }
                     });
+                }
+                // stacked: the Δ number sits on the lower line of the value cell
+                // (no separate Δ column, no mini-bar); prevCol + deltaIcons apply
+                if (stacked && showDelta && !rowPct) {
+                    const d = isTotal
+                        ? { v: p2?.varAbs ?? null, p: p2 }
+                        : deltaAt(row as MRow, bi);
+                    if (isTotal && prevCol) { d.v = null; }
+                    if (d.v != null) {
+                        txt(colX[bi].x + valW, dBelowY,
+                            dIcon(d.v, d.p == null || cfg.isMaterial(d.p, d.v, null))
+                            + this.fmtSigned(cfg.fmtVar, d.v), "end", stDFont,
+                            false, colOf(d.v, d.p), bp);
+                    }
                 }
                 if (showD && !rowPct) {
                     const d = isTotal
@@ -5148,26 +5255,40 @@ export class Visual implements IVisual {
                     }
                 }
             }
-            // Σ block: row total with Δ and Δ%
+            // Σ block: row total with Δ and Δ% (right-aligned to the block edge
+            // when stacked, so both lines line up)
+            const sumValX = sumX.x + (stacked ? sumX.w : sValW);
             if (agg.value != null) {
-                txt(sumX.x + sValW, yMid + rowFont * 0.35, fmtCell(agg.value),
+                txt(sumValX, valBaseY, fmtCell(agg.value),
                     "end", rowFont, true, rowPct || skip ? cfg.subtle : cfg.ink, g);
             }
             if (hasVar && !rowPct && agg.varAbs != null) {
-                txt(sumX.x + sValW + sDW, yMid + rowFont * 0.35,
-                    dIcon(agg.varAbs, cfg.isMaterial(agg, agg.varAbs, agg.varRel))
-                    + this.fmtSigned(cfg.fmtVar, agg.varAbs), "end", Math.round(rowFont * 0.95),
-                    sum, colOf(agg.varAbs, agg, agg.varRel), g);
-                if (showSumRel && agg.varRel != null) {
-                    txt(sumX.x + sumX.w, yMid + rowFont * 0.35,
-                        this.fmtPercent(agg.varRel), "end", Math.round(rowFont * 0.95),
-                        sum, colOf(agg.varRel, agg, agg.varRel), g);
+                if (stacked) {
+                    // Σ value on top, ΔPY on the lower line; Δ% appended in parentheses
+                    // when relative variance is on (its own column has no room here)
+                    const rel = showSumRel && agg.varRel != null
+                        ? ` (${this.fmtPercent(agg.varRel)})` : "";
+                    txt(sumValX, dBelowY,
+                        dIcon(agg.varAbs, cfg.isMaterial(agg, agg.varAbs, agg.varRel))
+                        + this.fmtSigned(cfg.fmtVar, agg.varAbs) + rel, "end", stDFont,
+                        false, colOf(agg.varAbs, agg, agg.varRel), g);
+                } else {
+                    txt(sumX.x + sValW + sDW, yMid + rowFont * 0.35,
+                        dIcon(agg.varAbs, cfg.isMaterial(agg, agg.varAbs, agg.varRel))
+                        + this.fmtSigned(cfg.fmtVar, agg.varAbs), "end", Math.round(rowFont * 0.95),
+                        sum, colOf(agg.varAbs, agg, agg.varRel), g);
+                    if (showSumRel && agg.varRel != null) {
+                        txt(sumX.x + sumX.w, yMid + rowFont * 0.35,
+                            this.fmtPercent(agg.varRel), "end", Math.round(rowFont * 0.95),
+                            sum, colOf(agg.varRel, agg, agg.varRel), g);
+                    }
                 }
             }
             // pp deltas for %-rows (margin/formula ratio) in the Σ block
             if (rowPct && agg.varAbs != null && hasVar) {
-                txt(sumX.x + sValW + sDW, yMid + rowFont * 0.35, ppText(agg.varAbs), "end",
-                    Math.round(rowFont * 0.95), sum, colOf(agg.varAbs, agg), g);
+                txt(stacked ? sumValX : sumX.x + sValW + sDW,
+                    stacked ? dBelowY : yMid + rowFont * 0.35, ppText(agg.varAbs), "end",
+                    stacked ? stDFont : Math.round(rowFont * 0.95), sum, colOf(agg.varAbs, agg), g);
             }
             this.el("rect", {
                 x: region.x + pad, y, width: region.w - pad * 2, height: rowH,
@@ -5262,6 +5383,39 @@ export class Visual implements IVisual {
         }, bg);
         this.drawNameResize(bg, region.x + pad + nameW + gap / 2,
             region.y + pad, rowsBottom, region, cfg);
+
+        // uniform block-width handle on the first block's value edge (drives valW for
+        // ALL blocks) + a handle on the Σ-block value edge. The block handle rides the
+        // scroll strip so it stays on its edge; the Σ handle is fixed like the column.
+        if (shownBlocks.length > 0 && colX[0]) {
+            const blockFit = () => {
+                let w = lf * 2.5;
+                for (const r of rows) {
+                    for (let bi = 0; bi < shownBlocks.length; bi++) {
+                        const c = cellAt(r, bi);
+                        if (c?.value != null) { w = Math.max(w, this.textWidth(cfg.fmt.format(c.value), cf)); }
+                    }
+                }
+                return Math.round(w) + 14;
+            };
+            this.drawColWidthResize(hScroll ? bgScroll : bg, colX[0].x + valW,
+                region.y + pad, rowsBottom, "mxBlock", valW, lf * 2.5, region.w * 0.5, blockFit);
+        }
+        {
+            const sumFit = () => {
+                let w = lf * 2.5;
+                for (const r of rows) {
+                    if (r.agg?.value != null) { w = Math.max(w, this.textWidth(cfg.fmt.format(r.agg.value), cf)); }
+                }
+                if (showTotalRow) {
+                    const tot = this.aggregateHierarchy("Σ", totalBase);
+                    if (tot.value != null) { w = Math.max(w, this.textWidth(cfg.fmt.format(tot.value), cf)); }
+                }
+                return Math.round(w) + 14;
+            };
+            this.drawColWidthResize(bg, sumX.x + (stacked ? sumX.w : sValW),
+                region.y + pad, rowsBottom, "mxSum", sValW, lf * 2.5, region.w * 0.5, sumFit);
+        }
 
         // ------- vertical scrollbar (same interaction pattern as the flat table)
         if (canScroll) {
@@ -8378,6 +8532,65 @@ export class Visual implements IVisual {
         this.pendingTableColExpanded = json;
         this.host.persistProperties({
             merge: [{ objectName: "chart", selector: null, properties: { tableColExpanded: json } }]
+        });
+    }
+
+    private persistTableColWidths(): void {
+        const json = JSON.stringify(this.tableColWidths);
+        this.pendingTableColWidths = json;
+        this.host.persistProperties({
+            merge: [{ objectName: "chart", selector: null, properties: { tableColWidths: json } }]
+        });
+    }
+
+    /** col-resize handle on a numeric column's right edge: drag sets the width
+     *  (persisted into tableColWidths[key], same echo-guard + drag-flag pattern as
+     *  the name column), double-click auto-fits to the longest visible cell. */
+    private drawColWidthResize(parent: SVGElement, edgeX: number, topY: number, botY: number,
+        key: string, curW: number, minW: number, maxW: number,
+        autoFit: () => number): void {
+        if (!this.allowInteractions) { return; }
+        const clamp = (w: number) => Math.max(minW, Math.min(maxW, w));
+        const h = this.el("rect", {
+            x: edgeX - 3, y: topY, width: 6, height: Math.max(10, botY - topY),
+            fill: "#000", "fill-opacity": 0.01
+        }, parent) as SVGGraphicsElement;
+        h.style.cursor = "col-resize";
+        const tip = this.el("title", {}, h);
+        tip.textContent = this.locStr("Table_ColResize", "Drag to resize · double-click to fit");
+        h.addEventListener("mousedown", (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const startX = e.clientX;
+            const startW = this.tableColWidths[key] ?? curW;
+            this.tableColWidthsDragging = true;
+            let moved = false;
+            let cur = startW;
+            const move = (ev: MouseEvent) => {
+                const next = clamp(startW + (ev.clientX - startX));
+                if (Math.abs(next - cur) < 2) { return; }
+                cur = next;
+                moved = true;
+                this.tableColWidths[key] = next;
+                this.rerender();
+            };
+            const up = () => {
+                window.removeEventListener("mousemove", move);
+                window.removeEventListener("mouseup", up);
+                this.tableColWidthsDragging = false;
+                // a bare click (no drag) must not overwrite the store — only persist
+                // when the width actually changed (double-click auto-fit persists itself)
+                if (moved) { this.persistTableColWidths(); }
+            };
+            window.addEventListener("mousemove", move);
+            window.addEventListener("mouseup", up);
+        });
+        h.addEventListener("dblclick", (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.tableColWidths[key] = clamp(autoFit());
+            this.persistTableColWidths();
+            this.rerender();
         });
     }
 

@@ -203,6 +203,15 @@
                         ]
                     }
                 },
+                "cellLayout": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "columns", "displayName": "Columns (value · Δ side by side)" },
+                            { "value": "stacked", "displayName": "Two rows: value on top, Δ below" }
+                        ]
+                    }
+                },
+                "tableColWidths": { "type": { "text": true } },
                 "cardStatusBasis": {
                     "type": {
                         "enumeration": [

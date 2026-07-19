@@ -1072,5 +1072,75 @@ run("c114", dataView(lnCats, [col("actual", lnAc, "#,0 T€"), col("previousYear
 run("c115", dataView(many, [col("actual", mAc, "#,0 T€"), col("previousYear", mAc.map(v=>Math.round(v*0.95)), "#,0 T€")],
   { chart: { orientation: "table", rowDensity: "airy" } }), 900, 520);
 </script>
+
+<!-- 1.38 · Zwei-Zeilen-Kompaktmodus (Matrix) + Spaltenbreiten per Drag/Auto-Fit -->
+<div class="case"><h4>c116 · 1.38 · Matrix 6 Quartale, mittelbreite Kachel: columns würde scrollen, stacked (Wert oben, Δ klein darunter) passt</h4>
+  <div class="stage" id="c116a" style="width:760px;height:300px;display:inline-block"></div>
+  <div class="stage" id="c116b" style="width:760px;height:300px;display:inline-block"></div></div>
+<script>
+// same data, same width: columns layout overflows -> hScroll; stacked halves the
+// block width -> everything fits, value on top and the smaller Δ directly below
+const cl6Q = ["Q1","Q2","Q3","Q4","Q5","Q6"];
+const cl6R = ["Nord","West","Süd","Ost"];
+const cl6Cats=[], cl6Q2=[], cl6Ac=[], cl6Py=[];
+cl6R.forEach((r,ri)=>cl6Q.forEach((q,qi)=>{ cl6Cats.push(r); cl6Q2.push(q); cl6Ac.push(1200+ri*400+qi*90); cl6Py.push(1170+ri*380+qi*70); }));
+function cl6(id, layout){ return run(id, {
+  metadata:{ columns:[], objects:{ chart:{ orientation:"table", showTotal:true, cellLayout:layout } } },
+  categorical:{ categories:[
+    { source:{ displayName:"Region", roles:{ category:true } }, values:cl6Cats },
+    { source:{ displayName:"Quartal", roles:{ colgroup:true } }, values:cl6Q2 } ],
+    values:[col("actual", cl6Ac, "#,0 T€"), col("previousYear", cl6Py, "#,0 T€")] } }, 760, 300); }
+cl6("c116a","columns"); cl6("c116b","stacked");
+</script>
+
+<div class="case"><h4>c117 · 1.38 · Matrix stacked + hScroll (10 Quartale, schmal) — Blockstreifen scrollt, Wert/Δ gestapelt</h4><div class="stage" id="c117" style="width:520px;height:300px"></div></div>
+<script>
+const s10Q = Array.from({length:10},(_,i)=>"Q"+(i+1));
+const s10R = ["Nord","West","Süd"];
+const s10Cats=[], s10Qc=[], s10Ac=[], s10Py=[];
+s10R.forEach((r,ri)=>s10Q.forEach((q,qi)=>{ s10Cats.push(r); s10Qc.push(q); s10Ac.push(900+ri*300+qi*80); s10Py.push(880+ri*290+qi*70); }));
+run("c117", {
+  metadata:{ columns:[], objects:{ chart:{ orientation:"table", showTotal:true, cellLayout:"stacked" } } },
+  categorical:{ categories:[
+    { source:{ displayName:"Region", roles:{ category:true } }, values:s10Cats },
+    { source:{ displayName:"Quartal", roles:{ colgroup:true } }, values:s10Qc } ],
+    values:[col("actual", s10Ac, "#,0 T€"), col("previousYear", s10Py, "#,0 T€")] } }, 520, 300);
+</script>
+
+<div class="case"><h4>c118 · 1.38 · Matrix stacked + Σ oben + deltaIcons + Δ% — Σ-Block Wert oben, „▲ Δ (Δ%)“ darunter</h4><div class="stage" id="c118" style="width:900px;height:340px"></div></div>
+<script>
+const s5R = ["Nord","West","Süd","Ost","Mitte"];
+const s5Q = ["Q1","Q2","Q3","Q4"];
+const s5Cats=[], s5Qc=[], s5Ac=[], s5Py=[];
+s5R.forEach((r,ri)=>s5Q.forEach((q,qi)=>{ s5Cats.push(r); s5Qc.push(q); s5Ac.push(1000+ri*250+qi*60); s5Py.push(980+ri*230+qi*90); }));
+run("c118", {
+  metadata:{ columns:[], objects:{ chart:{ orientation:"table", showTotal:true, cellLayout:"stacked",
+    totalRowPosition:"top", deltaIcons:true, showRelativeVariance:true } } },
+  categorical:{ categories:[
+    { source:{ displayName:"Region", roles:{ category:true } }, values:s5Cats },
+    { source:{ displayName:"Quartal", roles:{ colgroup:true } }, values:s5Qc } ],
+    values:[col("actual", s5Ac, "#,0 T€"), col("previousYear", s5Py, "#,0 T€")] } }, 900, 340);
+</script>
+
+<div class="case"><h4>c119 · 1.38 · Flache Tabelle mit tableColWidths aus dem Store — schmale Wertspalte (val:64), Δ-Spalte (dval:60)</h4><div class="stage" id="c119" style="width:900px;height:420px"></div></div>
+<script>
+run("c119", dataView(many, [col("actual", mAc, "#,0 T€"), col("previousYear", mAc.map(v=>Math.round(v*0.9)), "#,0 T€")],
+  { chart: { orientation: "table", tableColWidths: JSON.stringify({ val: 64, dval: 60 }) } }), 900, 420);
+</script>
+
+<div class="case"><h4>c120 · 1.38 · Matrix mit mxBlock-Breite (150) + mxSum (120) aus dem Store — breite, einheitliche Blöcke</h4><div class="stage" id="c120" style="width:1100px;height:340px"></div></div>
+<script>
+const mbR = ["Nord","West","Süd"];
+const mbQ = ["Q1","Q2","Q3","Q4"];
+const mbCats=[], mbQc=[], mbAc=[], mbPy=[];
+mbR.forEach((r,ri)=>mbQ.forEach((q,qi)=>{ mbCats.push(r); mbQc.push(q); mbAc.push(800+ri*300+qi*70); mbPy.push(790+ri*280+qi*60); }));
+run("c120", {
+  metadata:{ columns:[], objects:{ chart:{ orientation:"table", showTotal:true,
+    tableColWidths: JSON.stringify({ mxBlock: 150, mxSum: 120 }) } } },
+  categorical:{ categories:[
+    { source:{ displayName:"Region", roles:{ category:true } }, values:mbCats },
+    { source:{ displayName:"Quartal", roles:{ colgroup:true } }, values:mbQc } ],
+    values:[col("actual", mbAc, "#,0 T€"), col("previousYear", mbPy, "#,0 T€")] } }, 1100, 340);
+</script>
 </body>
 </html>
