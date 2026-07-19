@@ -317,6 +317,7 @@
         "commentsPanel": {
             "properties": {
                 "showPanel": { "type": { "bool": true } },
+                "commentFontSize": { "type": { "numeric": true } },
                 "editComments": { "type": { "bool": true } },
                 "userComments": { "type": { "text": true } }
             }

@@ -54,6 +54,7 @@
   "Colors_UseTheme": "Theme-Farben des Berichts verwenden",
   "Card_Comments": "Kommentare",
   "Comments_ShowPanel": "Kommentarliste anzeigen",
+  "Comments_FontSize": "Kommentar-Schriftgröße",
   "Chart_Cumulative": "Kumuliert (YTD)",
   "Chart_CumKind": "Kumulierungs-Art",
   "Chart_FiscalStart": "Fiskaljahr beginnt im Monat",

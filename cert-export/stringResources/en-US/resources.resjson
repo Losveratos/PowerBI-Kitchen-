@@ -54,6 +54,7 @@
   "Colors_UseTheme": "Use report theme colors",
   "Card_Comments": "Comments",
   "Comments_ShowPanel": "Show comment list",
+  "Comments_FontSize": "Comment font size",
   "Chart_Cumulative": "Cumulative (YTD)",
   "Chart_CumKind": "Cumulation kind",
   "Chart_FiscalStart": "Fiscal year starts in month",

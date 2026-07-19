@@ -54,6 +54,7 @@
   "Colors_UseTheme": "Usar colores del tema del informe",
   "Card_Comments": "Comentarios",
   "Comments_ShowPanel": "Mostrar lista de comentarios",
+  "Comments_FontSize": "Tamaño de fuente de comentarios",
   "Chart_Cumulative": "Acumulado (YTD)",
   "Chart_CumKind": "Tipo de acumulación",
   "Chart_FiscalStart": "El año fiscal comienza en el mes",

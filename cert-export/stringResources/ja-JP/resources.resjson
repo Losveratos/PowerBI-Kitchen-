@@ -54,6 +54,7 @@
   "Colors_UseTheme": "レポートのテーマカラーを使用",
   "Card_Comments": "コメント",
   "Comments_ShowPanel": "コメント一覧を表示",
+  "Comments_FontSize": "コメントの文字サイズ",
   "Chart_Cumulative": "累計 (YTD)",
   "Chart_CumKind": "累計の種類",
   "Chart_FiscalStart": "会計年度の開始月",

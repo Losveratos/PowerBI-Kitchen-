@@ -1995,7 +1995,9 @@ export class Visual implements IVisual {
         let chartW = width;
         if (this.formattingSettings.commentsCard.showPanel.value
             && commentPts.length > 0 && groups.length <= 1 && width >= 480) {
-            const panelW = Math.min(260, Math.round(width * 0.28));
+            // panel width follows the comment font (26 × font ≙ the old 260px at 10pt)
+            const panelW = Math.min(Math.round(26 * this.commentFont()),
+                Math.round(width * 0.32));
             chartW = width - panelW;
             this.drawCommentPanel({ x: chartW, y: topOffset, w: panelW, h: availH }, commentPts, cfg);
         }
@@ -7071,7 +7073,8 @@ export class Visual implements IVisual {
 
     private drawCommentMarker(parent: SVGElement, bandCenter: number, p: DataPoint,
         scale: Scale, orientation: Orientation, cfg: ChartConfig): void {
-        const r = 7;
+        // the in-chart badge follows the font preset/scale like every other label
+        const r = Math.round(7 * this.fontK);
         const end = scale(p.value as number);
         const zero = scale(0);
         const len = Math.abs(end - zero);
@@ -7084,25 +7087,33 @@ export class Visual implements IVisual {
             cx, cy, r, fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2
         }, parent);
         const t = this.el("text", {
-            x: cx, y: cy + 3, "text-anchor": "middle",
-            "font-size": 9, fill: cfg.ink, "font-family": FONT, "font-weight": 600
+            x: cx, y: cy + Math.round(3 * this.fontK), "text-anchor": "middle",
+            "font-size": Math.round(9 * this.fontK), fill: cfg.ink,
+            "font-family": FONT, "font-weight": 600
         }, parent);
         t.textContent = String(p.commentNo);
     }
 
+    /** effective comment font: pane size (pt) × preset/scale factor */
+    private commentFont(): number {
+        const base = Math.max(8, Math.min(24,
+            Number(this.formattingSettings.commentsCard.commentFontSize.value ?? 10)));
+        return Math.round(base * this.fontK);
+    }
+
     /** numbered footnote list; stays visible in PDF/PPT exports where tooltips are lost */
     private drawCommentPanel(region: Rect, pts: DataPoint[], cfg: ChartConfig): void {
-        const font = 10;
+        const font = this.commentFont();
         const lineH = font + 4;
-        const textX = region.x + 26;
-        const maxChars = Math.max(8, Math.floor((region.w - 34) / (font * 0.52)));
+        const textX = region.x + Math.round(font * 2.6);
+        const maxChars = Math.max(8, Math.floor((region.w - font * 3.4) / (font * 0.52)));
         // subtle divider between chart and comments
         this.el("line", {
             x1: region.x + 4, y1: region.y + 6, x2: region.x + 4, y2: region.y + region.h - 6,
             stroke: cfg.hc ? cfg.ink : "#E0E0E0", "stroke-width": 1
         }, this.svg);
 
-        let y = region.y + 16;
+        let y = region.y + font + 6;
         for (const p of pts) {
             const lines = this.wrapText(`${p.cat} — ${p.comment}`, maxChars);
             const needed = lines.length * lineH + 8;
@@ -7114,7 +7125,7 @@ export class Visual implements IVisual {
                 break;
             }
             const no = this.el("text", {
-                x: region.x + 12, y: y + 1, "font-size": font + 2, fill: cfg.ink,
+                x: region.x + Math.round(font * 1.2), y: y + 1, "font-size": font + 2, fill: cfg.ink,
                 "font-family": FONT
             }, this.svg);
             no.textContent = this.circledNo(p.commentNo as number);

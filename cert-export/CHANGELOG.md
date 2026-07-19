@@ -1,5 +1,15 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.35.1.0 (2026-07-19)
+
+**Kommentar-Schriftgröße einstellbar.** Die Kommentar-Liste war fest
+auf 10 pt verdrahtet und blieb damit auch bei großen Presets klein.
+Neu in der Kommentare-Karte: **„Kommentar-Schriftgröße"** (8–24 pt,
+Standard 10). Die Größe multipliziert sich mit Schrift-Preset und
+Skalierungs-Faktor, die Panelbreite wächst mit, und auch die
+nummerierten Kommentar-Badges im Chart skalieren jetzt mit dem
+Preset statt fix bei 9 pt zu bleiben.
+
 ## 1.35.0.0 (2026-07-19)
 
 **Matrix respektiert die Tabellen-Anzeige-Einstellungen.** Bisher waren

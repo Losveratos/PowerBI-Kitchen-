@@ -838,10 +838,22 @@ export class CommentsCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    commentFontSize = new formattingSettings.NumUpDown({
+        name: "commentFontSize",
+        displayName: "Comment font size",
+        displayNameKey: "Comments_FontSize",
+        description: "Schriftgröße der Kommentar-Liste in pt (8–24). Wird zusätzlich mit dem Schrift-Preset und dem Skalierungs-Faktor multipliziert, skaliert also mit dem Rest des Visuals mit.",
+        value: 10,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 8 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 24 }
+        }
+    });
+
     name: string = "commentsPanel";
     displayName: string = "Comments";
     displayNameKey: string = "Card_Comments";
-    slices: Array<FormattingSettingsSlice> = [this.showPanel, this.editComments];
+    slices: Array<FormattingSettingsSlice> = [this.showPanel, this.commentFontSize, this.editComments];
 }
 
 export class ScaleCardSettings extends formattingSettings.CompositeCard {
