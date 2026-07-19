@@ -119,6 +119,7 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
         displayName: "Show IBCS title",
         displayNameKey: "Title_Show",
         description: "Standardisierter IBCS-Titel: KPI · Einheit · Zeitraum: Szenarien.",
+        descriptionKey: "Desc_Title_Show",
         value: true
     });
 
@@ -151,6 +152,7 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
         displayName: "Footer (data status)",
         displayNameKey: "Title_Footer",
         description: "Fußzeile unten links — z. B. Datenstand und Quelle: „Ist per Jun 2026 · Stand 05.07. · Quelle: SAP FI\".",
+        descriptionKey: "Desc_Title_Footer",
         placeholder: "z. B. Ist per Jun 2026 · Stand 05.07.",
         value: ""
     });
@@ -160,6 +162,7 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
         displayName: "Auto message",
         displayNameKey: "Title_AutoMessage",
         description: "Erzeugt die Botschafts-Zeile (Treiber-Text) automatisch aus Gesamtabweichung und größten Treibern, wenn keine eigene Botschaft eingegeben ist. Standard aus.",
+        descriptionKey: "Desc_Title_AutoMessage",
         value: false
     });
 
@@ -168,6 +171,7 @@ export class IbcsTitleCardSettings extends FormattingSettingsCard {
         displayName: "Show filter footer",
         displayNameKey: "Title_FilterFooter",
         description: "Zweite Fußzeile mit dem Filterkontext: zeigt die gebundene „Filter-Info“-Text-Measure (Report-Filter sind für Custom Visuals nicht per API sichtbar) plus den Anzeige-Zustand des Visuals selbst — YTD, Top-N, In-Chart-Sortierung, Σ-Ausschlüsse, Vergleich.",
+        descriptionKey: "Desc_Title_FilterFooter",
         value: false
     });
 
@@ -191,6 +195,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Variance basis",
         displayNameKey: "Chart_ComparisonMode",
         description: "Basis für die Abweichungs-Panels. Auto: PL wenn vorhanden, sonst PY.",
+        descriptionKey: "Desc_Chart_ComparisonMode",
         items: comparisonItems,
         value: comparisonItems[0]
     });
@@ -214,6 +219,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Invert (higher is bad)",
         displayNameKey: "Chart_Invert",
         description: "Für Kosten-KPIs: Mehrwert ist schlecht (rot), Minderwert ist gut (grün).",
+        descriptionKey: "Desc_Chart_Invert",
         value: false
     });
 
@@ -222,6 +228,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Invert per category",
         displayNameKey: "Chart_InvertList",
         description: "Kommagetrennte Kategorien, deren Wertung umgekehrt wird (z. B. Kosten-Zeilen neben Umsatz-Zeilen in KPI-Karten oder der GuV-Tabelle). Wirkt zusätzlich zum globalen Invert-Schalter.",
+        descriptionKey: "Desc_Chart_InvertList",
         placeholder: "z. B. Opex, Materialaufwand",
         value: ""
     });
@@ -231,6 +238,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Total (Σ) header",
         displayNameKey: "Chart_ShowTotal",
         description: "Zeigt Summe und Gesamtabweichung als Kopfzeile.",
+        descriptionKey: "Desc_Chart_ShowTotal",
         value: true
     });
 
@@ -239,6 +247,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Top N (Bars)",
         displayNameKey: "Chart_TopN",
         description: "Struktur-Modi (Bars, Kategorie-Brücke, Tabelle, Dumbbell, KPI-Karten): zeigt die N größten Kategorien, der Rest wird aggregiert. 0 = alle.",
+        descriptionKey: "Desc_Chart_TopN",
         value: 0,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
@@ -251,6 +260,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Moving average (periods)",
         displayNameKey: "Chart_MovingAverage",
         description: "Dünne Overlay-Linie mit gleitendem Durchschnitt über N Perioden (Columns/Line). 0 = aus.",
+        descriptionKey: "Desc_Chart_MovingAverage",
         value: 0,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
@@ -263,6 +273,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Dual variance (PL + PY)",
         displayNameKey: "Chart_DualVariance",
         description: "Zeigt zusätzlich die Abweichungs-Panels zur zweiten Basis — ΔPL und ΔPY gleichzeitig (benötigt PY und PL).",
+        descriptionKey: "Desc_Chart_DualVariance",
         value: false
     });
 
@@ -271,6 +282,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Cumulative (YTD)",
         displayNameKey: "Chart_Cumulative",
         description: "Schaltet alle Panels auf kumulierte Sicht: Säulen, ΔBasis und ΔBasis % zeigen Year-to-Date-Werte.",
+        descriptionKey: "Desc_Chart_Cumulative",
         value: false
     });
 
@@ -279,6 +291,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Cumulation kind",
         displayNameKey: "Chart_CumKind",
         description: "YTD setzt am Fiskaljahres-Beginn zurück, QTD an jedem Quartalsstart, R12 summiert rollierend die letzten 12 Perioden. Monats-Erkennung über die Kategorie-Labels (Jan…Dez, 01…12).",
+        descriptionKey: "Desc_Chart_CumKind",
         items: cumulativeKindItems,
         value: cumulativeKindItems[0]
     });
@@ -288,6 +301,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Fiscal year starts in month",
         displayNameKey: "Chart_FiscalStart",
         description: "1 = Januar … 12 = Dezember. Bestimmt, wo YTD/QTD zurücksetzen (z. B. 4 für ein Fiskaljahr ab April).",
+        descriptionKey: "Desc_Chart_FiscalStart",
         value: 1,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 1 },
@@ -300,6 +314,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Highlight categories",
         displayNameKey: "Chart_Highlight",
         description: "Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat.",
+        descriptionKey: "Desc_Chart_Highlight",
         placeholder: "z. B. Jul, Aug",
         value: ""
     });
@@ -309,6 +324,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Compare on click",
         displayNameKey: "Chart_CompareClick",
         description: "Nur Columns/Bars: zwei Säulen/Balken anklicken zeigt die Differenz (absolut + %) als Overlay — Klicks filtern dann nicht mehr quer. Klick ins Leere setzt zurück. Standard aus.",
+        descriptionKey: "Desc_Chart_CompareClick",
         value: false
     });
 
@@ -317,6 +333,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Group separator every N",
         displayNameKey: "Chart_GroupEvery",
         description: "Zeichnet eine dünne Trennlinie nach jeweils N Kategorien, quer durch alle Panels — für Struktur-Vergleiche mit natürlichen Untergruppen (z. B. Regionen). 0 = aus.",
+        descriptionKey: "Desc_Chart_GroupEvery",
         value: 0,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
@@ -329,6 +346,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Waterfall bridge",
         displayNameKey: "Chart_WaterfallStyle",
         description: "Nur Columns/Bars: zeigt die Kategorien als Wasserfall-Brücke von der Basis (PY/PL) zu AC mit Verbindungslinien, statt als einzelne Balken. Optional — Standard ist aus.",
+        descriptionKey: "Desc_Chart_WaterfallStyle",
         value: false
     });
 
@@ -337,6 +355,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Sort by impact",
         displayNameKey: "Chart_SortByImpact",
         description: "Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar.",
+        descriptionKey: "Desc_Chart_SortByImpact",
         value: false
     });
 
@@ -345,6 +364,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "In-chart buttons",
         displayNameKey: "Chart_Buttons",
         description: "Integrierte/Kategorie-Brücke: zeigt klickbare Buttons oben rechts im Chart — ΔPY/ΔPL-Referenz-Umschalter, ⇅ Sortierung und ▶ Aufbau-Animation. Der Enduser kann die Varianz-Basis direkt im Bericht wechseln; die Wahl wird persistiert.",
+        descriptionKey: "Desc_Chart_Buttons",
         value: true
     });
 
@@ -353,6 +373,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "PY as triangle (AC + PY + PL)",
         displayNameKey: "Chart_PyTriangle",
         description: "IBCS-Notation bei drei Szenarien: Sind AC, PY und PL gebunden, wird das Vorjahr als graues Dreieck (\u25b6) am Säulen-/Balkenrand auf PY-Höhe gezeigt statt als dritte Säule — weniger überladen. Aus = PY wieder als graue Säule.",
+        descriptionKey: "Desc_Chart_PyTriangle",
         value: true
     });
 
@@ -361,6 +382,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Driver note in chart",
         displayNameKey: "Chart_DriverNote",
         description: "Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar.",
+        descriptionKey: "Desc_Chart_DriverNote",
         value: true
     });
 
@@ -377,6 +399,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "YTD button in chart",
         displayNameKey: "Chart_CumButton",
         description: "Zeigt einen klickbaren „YTD\"-Button oben rechts im Chart (Columns/Line) — der Enduser schaltet die kumulierte Sicht direkt im Bericht um; die Wahl wird persistiert. Standard aus.",
+        descriptionKey: "Desc_Chart_CumButton",
         value: false
     });
 
@@ -385,6 +408,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Materiality from (absolute)",
         displayNameKey: "Chart_MaterialityAbs",
         description: "Wesentlichkeits-Schwelle: Abweichungen unter diesem absoluten Betrag werden grau statt rot/grün dargestellt (Panels, Wasserfall-Stufen, Tabelle). 0 = aus.",
+        descriptionKey: "Desc_Chart_MaterialityAbs",
         value: 0,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 0 }
@@ -396,6 +420,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Materiality from (%)",
         displayNameKey: "Chart_MaterialityPct",
         description: "Wesentlichkeits-Schwelle in Prozent: Abweichungen unter diesem Δ % werden grau dargestellt. Sind beide Schwellen gesetzt, muss eine Abweichung beide überschreiten, um farbig zu sein. 0 = aus.",
+        descriptionKey: "Desc_Chart_MaterialityPct",
         value: 0,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
@@ -408,6 +433,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Δ%-pin shape",
         displayNameKey: "Chart_PinStyle",
         description: "Form des Lollipop-Kopfes der Δ%-Pins. „Automatisch\" behält den bisherigen Stil je Modus (Säulen/Balken/Wasserfall rund, Brücken und Tabelle quadratisch); „Rund\" oder „Quadratisch\" vereinheitlichen alle Modi.",
+        descriptionKey: "Desc_Chart_PinStyle",
         items: pinStyleItems,
         value: pinStyleItems[0]
     });
@@ -417,6 +443,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Trend icons ▲▼●",
         displayNameKey: "Chart_DeltaIcons",
         description: "Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle). Lesbar auch in Schwarzweiß-Druck und für Farbenblinde — die Farbe bewertet weiterhin gut/schlecht.",
+        descriptionKey: "Desc_Chart_DeltaIcons",
         value: false
     });
 
@@ -434,6 +461,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Total tile (Σ)",
         displayNameKey: "Chart_MultiplesTotal",
         description: "Stellt eine „Σ Gesamt\"-Kachel voran — Summe über alle Gruppen, auf derselben Skala (IBCS).",
+        descriptionKey: "Desc_Chart_MultiplesTotal",
         value: false
     });
 
@@ -442,6 +470,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Top N tiles",
         displayNameKey: "Chart_MultiplesTopN",
         description: "Zeigt nur die N größten Gruppen (nach Summe AC) als Kacheln — die übrigen werden zu einer „Rest\"-Kachel aggregiert. 0 = alle.",
+        descriptionKey: "Desc_Chart_MultiplesTopN",
         value: 0,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
@@ -454,6 +483,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "First tile large",
         displayNameKey: "Chart_MultiplesHero",
         description: "Gibt der ersten Kachel (z. B. „Σ Gesamt\" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13).",
+        descriptionKey: "Desc_Chart_MultiplesHero",
         value: false
     });
 
@@ -462,6 +492,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Bridges: same scale for all tiles",
         displayNameKey: "Chart_MultiplesSameScale",
         description: "Skaliert auch die Brücken-Modi (Integrierte Brücke, Kategorie-Brücke) über alle Kacheln identisch (IBCS). Standard: aus — jede Brücken-Kachel skaliert für sich. Säulen, Balken und Wasserfall teilen sich die Skala immer.",
+        descriptionKey: "Desc_Chart_MultiplesSameScale",
         value: false
     });
 
@@ -485,6 +516,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Value columns",
         displayNameKey: "Table_ValueCols",
         description: "Zusätzliche Zahlenspalten neben AC: die Varianzbasis (PY oder PL, je nach Abweichungsbasis) oder beide Referenzszenarien — für druck- und boardtaugliche Tabellen ohne Balken-Interpretation.",
+        descriptionKey: "Desc_Table_ValueCols",
         items: valueColumnsItems,
         value: valueColumnsItems[0]
     });
@@ -494,6 +526,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Edit row structure (click)",
         displayNameKey: "Table_StructureEdit",
         description: "Bearbeitungsmodus: Klick auf eine Zeile öffnet ein kleines Menü mit „Invertieren“, „Ergebniszeile“ und „Aus Summen ausnehmen“ — die Ein-Klick-GuV ohne Datenmodell-Änderung. Die Wahl wird in den Listen unten persistiert; zum Berichten wieder ausschalten.",
+        descriptionKey: "Desc_Table_StructureEdit",
         value: false
     });
 
@@ -502,6 +535,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Result rows",
         displayNameKey: "Table_ResultList",
         description: "Kommagetrennte Zeilennamen, die als Ergebniszeilen formatiert werden (fett, Trennlinie, vom Σ ausgenommen; im Wasserfall als Anker) — Alternative zur Waterfall-Typ-Rolle.",
+        descriptionKey: "Desc_Table_ResultList",
         placeholder: "z. B. EBIT, Rohertrag",
         value: ""
     });
@@ -511,6 +545,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Skip rows (exclude from totals)",
         displayNameKey: "Table_SkipList",
         description: "Kommagetrennte Zeilennamen, die nicht in Σ-Zeile, Skalen und Wasserfall-Kaskade einfließen (z. B. nachrichtliche Positionen). Die Zeile bleibt sichtbar, wird aber dezent dargestellt.",
+        descriptionKey: "Desc_Table_SkipList",
         placeholder: "z. B. Davon-Positionen",
         value: ""
     });
@@ -520,6 +555,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Hide rows",
         displayNameKey: "Table_HideList",
         description: "Kommagetrennte Zeilennamen, die nur ausgeblendet werden — Σ-Zeile, Skalen und Formeln rechnen weiter mit ihnen (anders als „Aus Summen ausnehmen“). Auch per Klick im Struktur-Modus setzbar.",
+        descriptionKey: "Desc_Table_HideList",
         placeholder: "z. B. Sonstige, Intern",
         value: ""
     });
@@ -529,6 +565,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Chart only these rows",
         displayNameKey: "Table_ChartList",
         description: "Kommagetrennte Zeilennamen: Wenn befüllt, zeigen nur diese Zeilen die Balken-/Pin-Grafiken — alle anderen bleiben reine Zahlenzeilen. Leer = Grafiken überall. Die Σ-Zeile behält ihre Grafik immer.",
+        descriptionKey: "Desc_Table_ChartList",
         placeholder: "z. B. Umsatz, EBIT",
         value: ""
     });
@@ -538,6 +575,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Indent rows (davon)",
         displayNameKey: "Table_IndentList",
         description: "Kommagetrennte Zeilennamen, die als „davon:“-Positionen eingerückt und dezent dargestellt werden — ohne Hierarchie-Feld. Meist kombiniert mit „Aus Summen ausnehmen“.",
+        descriptionKey: "Desc_Table_IndentList",
         placeholder: "z. B. davon Export",
         value: ""
     });
@@ -547,6 +585,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Row number formats",
         displayNameKey: "Table_RowFormats",
         description: "Zahlenformat pro Zeile, mit Semikolon getrennt: „Marge = 0.0 %; Menge = #,0“. Prozent multipliziert mit 100; Werte erscheinen unskaliert (keine T€-Teilung) — für gemischte €-, %- und Stück-Zeilen.",
+        descriptionKey: "Desc_Table_RowFormats",
         placeholder: "z. B. Marge = 0.0 %",
         value: ""
     });
@@ -556,6 +595,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Matrix: column comparison",
         displayNameKey: "Table_MatrixCompare",
         description: "Vergleich innerhalb der Matrix-Spalten: „Δ vs. Vorspalte“ ersetzt das ΔBasis je Block durch die Veränderung zur vorherigen Spalte (Periodenvergleich Q2 vs. Q1, Mär vs. Feb …).",
+        descriptionKey: "Desc_Table_MatrixCompare",
         items: matrixCompareItems,
         value: matrixCompareItems[0]
     });
@@ -565,6 +605,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Formula rows",
         displayNameKey: "Table_FormulaRows",
         description: "Berechnete Zeilen, mit Semikolon getrennt: „EBIT = Umsatz - Kosten“ ergänzt eine Summenzeile, „Marge = EBIT / Umsatz“ eine %-Zeile. Operanden sind Zeilennamen; Operatoren bitte mit Leerzeichen umgeben. Formelzeilen fließen nicht in die Σ-Zeile ein.",
+        descriptionKey: "Desc_Table_FormulaRows",
         placeholder: "z. B. Marge = EBIT / Umsatz",
         value: ""
     });
@@ -583,6 +624,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Status basis (stripe & background)",
         displayNameKey: "Cards_StatusBasis",
         description: "Wogegen Streifen und Hintergrund-Ampel bewerten: gegen die Abweichungsbasis (ΔPL bzw. ΔPY) oder gegen die gebundene Benchmark-Measure — für Monitoring gegen Zielwerte/Schwellen.",
+        descriptionKey: "Desc_Cards_StatusBasis",
         items: cardBasisItems,
         value: cardBasisItems[0]
     });
@@ -592,6 +634,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Tint card background",
         displayNameKey: "Cards_Tint",
         description: "Färbt den Karten-Hintergrund dezent: leicht grün wenn besser, leicht rot wenn schlechter als die Status-Basis — neutral (unterhalb der Wesentlichkeit) bleibt ohne Farbe. Für Monitoring-Wände; im Hochkontrast-Modus aus.",
+        descriptionKey: "Desc_Cards_Tint",
         value: false
     });
 
@@ -600,6 +643,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Tint intensity %",
         displayNameKey: "Cards_TintStrength",
         description: "Deckkraft der Hintergrund-Färbung in Prozent (4–40). Standard 12 — kräftiger für Kontrollraum-Monitore, dezenter für Board-Reports.",
+        descriptionKey: "Desc_Cards_TintStrength",
         value: 12,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 4 },
@@ -612,6 +656,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Bullet vs. benchmark",
         displayNameKey: "Cards_Bullet",
         description: "Kleines Bullet-Chart auf der Karte: AC-Balken auf hellem Band, Benchmark als Tick — unter der Zahl (Stapel-Layout) bzw. neben den Δ-Zeilen (flaches Layout). Braucht die Benchmark-Rolle.",
+        descriptionKey: "Desc_Cards_Bullet",
         value: false
     });
 
@@ -620,6 +665,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Bullet: zoom to target range",
         displayNameKey: "Cards_BulletZoom",
         description: "Spreizt das Bullet auf den Bereich um AC und Benchmark statt bei Null zu starten — KPIs nahe am Ziel (97 vs. 99) werden unterscheidbar. Der Achsenbruch am linken Balkenende kennzeichnet die gekappte Skala.",
+        descriptionKey: "Desc_Cards_BulletZoom",
         value: false
     });
 
@@ -628,6 +674,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Highlight status",
         displayNameKey: "Cards_Highlight",
         description: "Welche Richtung farbig hervorgehoben wird: beide (Ampel), nur schlechte (Problem-Monitoring — Positives bleibt neutral) oder nur gute (Erfolgs-Board). Gilt für Streifen, Hintergrund, Δ-Zeilen und Bullet.",
+        descriptionKey: "Desc_Cards_Highlight",
         items: cardHighlightItems,
         value: cardHighlightItems[0]
     });
@@ -637,6 +684,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Show mini bridge (AC/PY bars)",
         displayNameKey: "Cards_Bars",
         description: "Zeigt die kleine Balken-Brücke Basis → Δ → AC unten auf der Karte. Aus: reine Zahlen-Karte (großer Wert + Δ-Zeilen), ruhiger für dichte KPI-Wände.",
+        descriptionKey: "Desc_Cards_Bars",
         value: true
     });
 
@@ -645,6 +693,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Sort by deviation",
         displayNameKey: "Cards_Sort",
         description: "Ordnet die Karten nach der farbrelevanten Abweichung (Benchmark bzw. ΔPL/ΔPY, je nach Status-Basis): größte Abweichung oben-links — für maximalen Fokus. „Datenreihenfolge“ lässt sie wie im Modell.",
+        descriptionKey: "Desc_Cards_Sort",
         items: cardSortItems,
         value: cardSortItems[0]
     });
@@ -669,6 +718,7 @@ export class ColorsCardSettings extends FormattingSettingsCard {
         displayName: "Use report theme colors",
         displayNameKey: "Colors_UseTheme",
         description: "Übernimmt Good/Bad und Neutralfarben aus dem Berichtsdesign (Theme) statt der Farbwähler unten.",
+        descriptionKey: "Desc_Colors_UseTheme",
         value: false
     });
 
@@ -698,6 +748,7 @@ export class ColorsCardSettings extends FormattingSettingsCard {
         displayName: "Good variance",
         displayNameKey: "Colors_Good",
         description: "Standard ist das DatenWG-Teal (#1E8F9E) statt klassischem Grün — durch den Blauanteil bleibt „gut“ auch bei Rot-Grün-Schwäche klar vom Rot unterscheidbar. Hier übersteuerbar.",
+        descriptionKey: "Desc_Colors_Good",
         value: { value: "#1E8F9E" }
     });
 
@@ -734,6 +785,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         displayName: "Size preset",
         displayNameKey: "Labels_FontPreset",
         description: "Skaliert alle Schriften im Visual auf einmal: Kompakt ×1 (Standard) · Full HD ×1,5 (empfohlen für 1080p-Berichte) · Präsentation ×2.",
+        descriptionKey: "Desc_Labels_FontPreset",
         items: fontPresetItems,
         value: fontPresetItems[0]
     });
@@ -743,6 +795,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         displayName: "Scale all labels %",
         displayNameKey: "Labels_FontScale",
         description: "Vergrößert bzw. verkleinert ALLE Beschriftungen zusätzlich zum Preset um einen freien Faktor (50–300 %). 100 = neutral. Preset × Faktor ergibt die effektive Schriftgröße.",
+        descriptionKey: "Desc_Labels_FontScale",
         value: 100,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 50 },
@@ -785,6 +838,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         displayName: "Sum-safe label rounding",
         displayNameKey: "Labels_SumSafe",
         description: "Rundet die Wertbeschriftungen nach dem Restwertverfahren so, dass sie exakt auf die Σ-Kopfzeile aufaddieren — keine Rundungsdifferenz-Nachfragen mehr. Aus = mathematisch exakte Einzelrundung, dafür erscheint bei Abweichung ein Rundungshinweis unter der Σ-Zeile.",
+        descriptionKey: "Desc_Labels_SumSafe",
         value: false
     });
 
@@ -793,6 +847,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         displayName: "Label density",
         displayNameKey: "Labels_Density",
         description: "Steuert die Ausdünnung der Wertbeschriftungen: „Automatisch\" blendet bei Platzmangel aus (bisheriges Verhalten), „Alle\" beschriftet jeden Punkt (kann überlappen), „Anfang · Ende · Extrema\" zeigt nur ersten/letzten Wert sowie Minimum und Maximum.",
+        descriptionKey: "Desc_Labels_Density",
         items: labelDensityItems,
         value: labelDensityItems[0]
     });
@@ -802,6 +857,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         displayName: "Finance format (parentheses)",
         displayNameKey: "Labels_FinanceFormat",
         description: "Finanzkonvention für Zahlen: negative Werte in Klammern statt Minuszeichen — (1.234) — und Null als „–\". Gilt für Wert- und Δ-Beschriftungen inkl. Δ %.",
+        descriptionKey: "Desc_Labels_FinanceFormat",
         value: false
     });
 
@@ -827,6 +883,7 @@ export class CommentsCardSettings extends FormattingSettingsCard {
         displayName: "Show comment list",
         displayNameKey: "Comments_ShowPanel",
         description: "Zeigt die Kommentare als nummerierte Liste rechts neben dem Chart — bleibt auch im PDF/PowerPoint-Export sichtbar.",
+        descriptionKey: "Desc_Comments_ShowPanel",
         value: true
     });
 
@@ -835,6 +892,7 @@ export class CommentsCardSettings extends FormattingSettingsCard {
         displayName: "Capture comments in chart",
         displayNameKey: "Comments_Edit",
         description: "Kommentar-Modus: Klick auf eine Kategorie öffnet ein Eingabefeld — der Kommentar wird im Bericht gespeichert (bookmark-fähig, wandert mit der PBIX). Solange der Modus an ist, filtern Klicks nicht quer. Standard aus.",
+        descriptionKey: "Desc_Comments_Edit",
         value: false
     });
 
@@ -843,6 +901,7 @@ export class CommentsCardSettings extends FormattingSettingsCard {
         displayName: "Comment font size",
         displayNameKey: "Comments_FontSize",
         description: "Schriftgröße der Kommentar-Liste in pt (8–24). Wird zusätzlich mit dem Schrift-Preset und dem Skalierungs-Faktor multipliziert, skaliert also mit dem Rest des Visuals mit.",
+        descriptionKey: "Desc_Comments_FontSize",
         value: 10,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 8 },
@@ -862,6 +921,7 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         displayName: "Scale minimum-maximum",
         displayNameKey: "Scale_FixedMax",
         description: "Skaliert das Basis-Chart mindestens bis zu diesem Wert — für identische Skalen über mehrere Visuals (IBCS). 0 = automatisch. Größere Datenwerte erweitern die Skala weiterhin.",
+        descriptionKey: "Desc_Scale_FixedMax",
         value: 0,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 0 }
@@ -873,6 +933,7 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         displayName: "Variance minimum-maximum",
         displayNameKey: "Scale_FixedVarMax",
         description: "Wie oben, für das absolute Abweichungs-Panel (symmetrisch ±). 0 = automatisch.",
+        descriptionKey: "Desc_Scale_FixedVarMax",
         value: 0,
         options: {
             minValue: { type: 0 /* ValidatorType.Min */, value: 0 }
@@ -884,6 +945,7 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         displayName: "Reference line value",
         displayNameKey: "Scale_RefLine",
         description: "Zeichnet eine Ziel-/Schwellenlinie bei diesem Wert quer durch das Basis-Chart. Leer = aus.",
+        descriptionKey: "Desc_Scale_RefLine",
         placeholder: "z. B. 1200000",
         value: ""
     });
@@ -901,6 +963,7 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         displayName: "Cap outliers at maximum",
         displayNameKey: "Scale_CapOverflow",
         description: "Macht das Skalen-Maximum hart: größere Werte werden gekappt und mit Doppelstrich markiert (Label zeigt den echten Wert).",
+        descriptionKey: "Desc_Scale_CapOverflow",
         value: false
     });
 

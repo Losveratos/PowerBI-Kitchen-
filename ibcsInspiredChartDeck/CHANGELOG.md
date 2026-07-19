@@ -1,5 +1,15 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.35.3.0 (2026-07-19)
+
+**Format-Pane-Tooltips jetzt in allen vier Sprachen.** Die
+Beschreibungstexte (Info-Tooltips) der Einstellungen waren fest deutsch
+codiert und erschienen dadurch auch bei en-US/es-ES/ja-JP auf Deutsch.
+Alle 63 Beschreibungen haben nun einen `descriptionKey` und werden über
+den Localization-Manager aufgelöst (analog zu `displayNameKey`); die
+Übersetzungen liegen in den vier `resources.resjson`. Der deutsche Text
+bleibt als Fallback im Code.
+
 ## 1.35.2.0 (2026-07-19)
 
 **Fünf Darstellungs-Fixes aus dem Juli-Audit.** Rechnerisch war alles
