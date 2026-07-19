@@ -34,6 +34,8 @@ import { VisualFormattingSettingsModel, localizeEnumItems } from "./settings";
 const SVG_NS = "http://www.w3.org/2000/svg";
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const INK = "#404040";
+/** small-multiples grid cap — shared-scale maxima must only span rendered tiles */
+const MULT_MAX_CELLS = 24;
 
 type Orientation = "columns" | "bars";
 type Basis = "py" | "plan" | "fcrev";
@@ -1790,7 +1792,12 @@ export class Visual implements IVisual {
         if (groups.length > 1 && s.chartCard.multiplesSameScale.value) {
             if (isIntWf) {
                 let maxTot = 1, maxMon = 1, maxPct = 1;
-                for (const g of groups) {
+                // only tiles the renderer will actually draw may bound the shared
+                // scale: refused tiles (negative values → hint, no basis → hint)
+                // and groups beyond the grid cap would silently squash the rest
+                for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+                    if (g.pts.some(p => (p.value ?? 0) < 0 || (p.basis ?? 0) < 0)) { continue; }
+                    if (!g.pts.some(p => p.varAbs != null)) { continue; }
                     const basisSum = g.pts.reduce((a, p) => a + (p.basis ?? 0), 0);
                     const vTot = g.pts.reduce((a, p) => a + (p.value ?? 0), 0);
                     const pySum = g.pts.reduce((a, p) => a + (p.py ?? 0), 0);
@@ -1810,14 +1817,22 @@ export class Visual implements IVisual {
             }
             if (isCatBridge) {
                 let maxV = 1, maxPct = 1;
-                for (const g of groups) {
+                // mirror the renderer's refusals (no PY/PL basis, all-negative
+                // totals) and the grid cap — hint tiles must not bound the scale
+                for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+                    const hasPy = g.pts.some(p => p.py != null);
+                    const hasPl = g.pts.some(p => p.pl != null);
+                    if (!hasPy && !hasPl) { continue; }
                     const PYt = g.pts.reduce((a, p) => a + (p.py ?? 0), 0);
                     const PLt = g.pts.reduce((a, p) => a + (p.pl ?? 0), 0);
                     const ACt = g.pts.reduce((a, p) => a + (p.value ?? 0), 0);
+                    const refIsPl = cfg.basisMode === "plan" && hasPl;
+                    const REF = refIsPl ? PLt : PYt;
+                    const hasOther = refIsPl ? hasPy : hasPl;
+                    const otherTot = refIsPl ? PYt : PLt;
+                    if (REF <= 0 && ACt <= 0 && (!hasOther || otherTot <= 0)) { continue; }
                     // all totals present in a tile are drawn as rows → all bound the scale
                     maxV = Math.max(maxV, PYt, PLt, ACt);
-                    const refIsPl = cfg.basisMode === "plan" && g.pts.some(p => p.pl != null);
-                    const REF = refIsPl ? PLt : PYt;
                     if (REF !== 0) { maxPct = Math.max(maxPct, Math.abs((ACt - REF) / REF) * 100); }
                     for (const p of g.pts) {
                         const rv = refIsPl ? p.pl : p.py;
@@ -2006,7 +2021,7 @@ export class Visual implements IVisual {
         }
 
         // grid layout for small multiples: keep cells at a usable width
-        const MAX_CELLS = 24;
+        const MAX_CELLS = MULT_MAX_CELLS;
         const shown = groups.slice(0, MAX_CELLS);
         const n = shown.length;
         const groupTitleH = Math.round(16 * this.fontK);

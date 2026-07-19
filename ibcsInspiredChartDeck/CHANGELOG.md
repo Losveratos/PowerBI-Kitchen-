@@ -1,5 +1,21 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.34.5.0 (2026-07-19)
+
+**Bugfix-Paket 4 aus dem Juli-Audit — gemeinsame Multiples-Skala:**
+
+- **Verweigerte Kacheln zählen nicht mehr:** Bei „gleiche Skala"
+  flossen auch Gruppen in die gemeinsamen Maxima ein, die der Renderer
+  gar nicht zeichnet — eine Kachel mit Negativ-Hinweis (integrierte
+  Brücke) oder fehlender PY/PL-Basis (Kategorie-Brücke) konnte damit
+  alle sichtbaren Kacheln auf Miniaturgröße stauchen bzw. die
+  ΔPY%-Pins aller Nachbarn aufs Minimum kollabieren. Die
+  Skalen-Berechnung spiegelt jetzt exakt die Verweigerungs-Guards der
+  Renderer.
+- **Grid-Grenze:** Gruppen jenseits der 24-Kachel-Grenze (die nur als
+  „+N weitere" im Titel erscheinen) bestimmen die gemeinsame Skala
+  ebenfalls nicht mehr.
+
 ## 1.34.4.0 (2026-07-19)
 
 **Bugfix-Paket 3 aus dem Juli-Audit — Zustands-Guards:**
