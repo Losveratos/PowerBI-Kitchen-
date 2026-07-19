@@ -4625,15 +4625,29 @@ export class Visual implements IVisual {
         let dW = lf * (4.4 + (cfg.deltaIcons ? 1.2 : 0) + (this.financeFmt ? 0.5 : 0));
         let barW = Math.round(34 * k);
         const gap = 8;
+        // optional numeric reference columns per block (print/board-ready
+        // matrices) — same "value columns" setting as the flat table
+        type MVCol = { label: string; get: (p: DataPoint) => number | null };
+        const extraCols: MVCol[] = [];
+        if (cfg.valueCols === "basis" && points.some(p => p.basis != null)) {
+            extraCols.push({ label: cfg.basisLabel, get: p => p.basis });
+        } else if (cfg.valueCols === "all") {
+            if (cfg.hasPy) { extraCols.push({ label: "PY", get: p => p.py }); }
+            if (cfg.hasPl) { extraCols.push({ label: "PL", get: p => p.pl }); }
+        }
         // the Σ block keeps fixed widths — the spread below only widens the blocks
         const sValW = valW, sDW = dW;
-        const sumW = sValW + (hasVar ? sDW + lf * 3.6 : 0) + gap;
+        const showSumRel = hasVar && cfg.showRel;
+        const sumW = sValW + (hasVar ? sDW : 0) + (showSumRel ? lf * 3.6 : 0) + gap;
         const availW = region.w - pad * 2 - nameW - sumW - gap * 2;
         let showD = showDelta;
-        let showBar = showDelta;
-        const blockW = () => valW + (showD ? dW : 0) + (showBar ? barW : 0) + gap;
-        // overflow strategy: drop the mini bar, then the per-block Δ, then shrink
-        // the value column, then cut blocks from the right ("… +n" hint)
+        // the mini Δ-bar is the graphic twin of the flat table's Δ bar — same toggle
+        let showBar = showDelta && cfg.showAbs;
+        const vSpan = () => valW * (1 + extraCols.length);
+        const blockW = () => vSpan() + (showD ? dW : 0) + (showBar ? barW : 0) + gap;
+        // overflow strategy: drop the reference columns, then the mini bar, then
+        // the per-block Δ, then shrink the value column, then cut blocks ("… +n")
+        while (blocks.length * blockW() > availW && extraCols.length > 0) { extraCols.pop(); }
         if (blocks.length * blockW() > availW && showBar) { showBar = false; }
         if (blocks.length * blockW() > availW && showD) { showD = false; }
         if (blocks.length * blockW() > availW) {
@@ -4733,7 +4747,7 @@ export class Visual implements IVisual {
         // ------- column x positions
         const colX: { x: number; w: number }[] = [];
         let x = region.x + pad + nameW + gap;
-        const subW = valW + (showD ? dW : 0) + (showBar ? barW : 0);
+        const subW = vSpan() + (showD ? dW : 0) + (showBar ? barW : 0);
         for (let bi = 0; bi < shownBlocks.length; bi++) {
             colX.push({ x, w: subW });
             x += subW + gap;
@@ -4786,8 +4800,12 @@ export class Visual implements IVisual {
                 ? "Σ" : b.label;
             txt(colX[bi].x + valW, hy, this.truncate(twoLv ? label : b.label, valW + 4, hFont),
                 "end", hFont, true, cfg.subtle, bg);
+            extraCols.forEach((c, ei) => {
+                txt(colX[bi].x + valW * (2 + ei), hy, this.truncate(c.label, valW, hFont),
+                    "end", hFont, true, cfg.subtle, bg);
+            });
             if (showD) {
-                txt(colX[bi].x + valW + dW, hy, dHead, "end", hFont, true, cfg.subtle, bg);
+                txt(colX[bi].x + vSpan() + dW, hy, dHead, "end", hFont, true, cfg.subtle, bg);
             }
         }
         // Σ block headers with the flat table's sort cycle (ac / dabs / drel)
@@ -4825,8 +4843,10 @@ export class Visual implements IVisual {
         if (hasVar) {
             txt(sumX.x + sValW + sDW, hy, `Δ${cfg.basisLabel}${marker("dabs")}`, "end", hFont, true, cfg.subtle, bg);
             sortHit("dabs", sumX.x + sValW + 4, sDW);
-            txt(sumX.x + sumX.w, hy, `Δ${cfg.basisLabel} %${marker("drel")}`, "end", hFont, true, cfg.subtle, bg);
-            sortHit("drel", sumX.x + sValW + sDW + 4, sumX.w - sValW - sDW - 4);
+            if (showSumRel) {
+                txt(sumX.x + sumX.w, hy, `Δ${cfg.basisLabel} %${marker("drel")}`, "end", hFont, true, cfg.subtle, bg);
+                sortHit("drel", sumX.x + sValW + sDW + 4, sumX.w - sValW - sDW - 4);
+            }
         }
         if (cut > 0) {
             txt(region.x + region.w - pad, hy0 - hFont - 2, `… +${cut}`, "end",
@@ -4867,9 +4887,15 @@ export class Visual implements IVisual {
         }
 
         // ------- rows
-        const pctText = (v: number) => new Intl.NumberFormat(this.host.locale, {
+        const pctNf = new Intl.NumberFormat(this.host.locale, {
             minimumFractionDigits: 1, maximumFractionDigits: 1
-        }).format(v) + " %";
+        });
+        // finance convention applies here too (same texts as the flat table)
+        const pctText = (v: number) => this.financeFmt && v < 0
+            ? `(${pctNf.format(Math.abs(v))} %)` : pctNf.format(v) + " %";
+        const ppText = (v: number) => this.financeFmt && v < 0
+            ? `(${pctNf.format(Math.abs(v))}Pp)`
+            : (v > 0 ? "+" : v < 0 ? "−" : "") + pctNf.format(Math.abs(v)) + "Pp";
         const drawRow = (row: MRow | null, i: number) => {
             const isTotal = row == null;
             const y = top + i * rowH;
@@ -4913,6 +4939,16 @@ export class Visual implements IVisual {
                     txt(colX[bi].x + valW, yMid + rowFont * 0.35, fmtCell(p2.value),
                         "end", rowFont, sum, rowPct || skip ? cfg.subtle : cfg.ink, g);
                 }
+                // numeric reference columns (PY/PL or the variance basis)
+                if (p2 != null) {
+                    extraCols.forEach((c, ei) => {
+                        const v = c.get(p2);
+                        if (v != null) {
+                            txt(colX[bi].x + valW * (2 + ei), yMid + rowFont * 0.35,
+                                fmtCell(v), "end", rowFont, sum, cfg.subtle, g);
+                        }
+                    });
+                }
                 if (showD && !rowPct) {
                     const d = isTotal
                         ? { v: p2?.varAbs ?? null, p: p2 }
@@ -4920,13 +4956,13 @@ export class Visual implements IVisual {
                     // Σ row in prevcol mode: change vs. previous block total
                     if (isTotal && prevCol) { d.v = null; }
                     if (d.v != null) {
-                        txt(colX[bi].x + valW + dW, yMid + rowFont * 0.35,
+                        txt(colX[bi].x + vSpan() + dW, yMid + rowFont * 0.35,
                             dIcon(d.v, d.p == null || cfg.isMaterial(d.p, d.v, null))
                             + this.fmtSigned(cfg.fmtVar, d.v), "end", Math.round(rowFont * 0.95),
                             sum, colOf(d.v, d.p), g);
                     }
                     if (showBar && d.v != null) {
-                        const axis = colX[bi].x + valW + dW + barW / 2 + 2;
+                        const axis = colX[bi].x + vSpan() + dW + barW / 2 + 2;
                         const len = Math.min(barW / 2 - 3, Math.abs(d.v) / dDom * (barW / 2 - 3));
                         const bh = Math.max(3, Math.min(rowH * 0.4, 9 * k));
                         this.el("rect", {
@@ -4951,7 +4987,7 @@ export class Visual implements IVisual {
                     dIcon(agg.varAbs, cfg.isMaterial(agg, agg.varAbs, agg.varRel))
                     + this.fmtSigned(cfg.fmtVar, agg.varAbs), "end", Math.round(rowFont * 0.95),
                     sum, colOf(agg.varAbs, agg, agg.varRel), g);
-                if (agg.varRel != null) {
+                if (showSumRel && agg.varRel != null) {
                     txt(sumX.x + sumX.w, yMid + rowFont * 0.35,
                         this.fmtPercent(agg.varRel), "end", Math.round(rowFont * 0.95),
                         sum, colOf(agg.varRel, agg, agg.varRel), g);
@@ -4959,11 +4995,7 @@ export class Visual implements IVisual {
             }
             // pp deltas for %-rows (margin/formula ratio) in the Σ block
             if (rowPct && agg.varAbs != null && hasVar) {
-                const pp = (agg.varAbs > 0 ? "+" : agg.varAbs < 0 ? "−" : "")
-                    + new Intl.NumberFormat(this.host.locale, {
-                        minimumFractionDigits: 1, maximumFractionDigits: 1
-                    }).format(Math.abs(agg.varAbs)) + "Pp";
-                txt(sumX.x + sValW + sDW, yMid + rowFont * 0.35, pp, "end",
+                txt(sumX.x + sValW + sDW, yMid + rowFont * 0.35, ppText(agg.varAbs), "end",
                     Math.round(rowFont * 0.95), sum, colOf(agg.varAbs, agg), g);
             }
             this.el("rect", {

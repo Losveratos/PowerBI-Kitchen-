@@ -1,5 +1,26 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.35.0.0 (2026-07-19)
+
+**Matrix respektiert die Tabellen-Anzeige-Einstellungen.** Bisher waren
+die Blöcke der Matrix (Tabelle mit Spaltengruppen) fest auf
+[AC | Δ | Minibalken] verdrahtet — die Einstellungen aus der
+Tabellen-Karte griffen nur in der flachen Tabelle. Jetzt:
+
+- **Werte-Spalten** wirkt auch je Spaltenblock: „AC + Varianzbasis"
+  ergänzt die Basis-Spalte (PY oder PL), „AC · PY · PL" beide
+  Referenzszenarien — druck- und boardtaugliche Matrizen ohne
+  Balken-Interpretation. Bei Platzmangel fallen die Referenzspalten
+  zuerst weg (vor Minibalken und Δ), danach greift die bekannte
+  Überlauf-Strategie.
+- **Absolute Abweichung** (aus) blendet die Δ-Minibalken der Blöcke
+  aus — die Δ-Zahlen bleiben, wie in der flachen Tabelle.
+- **Relative Abweichung** (aus) entfernt die Δ%-Spalte des Σ-Blocks;
+  der frei werdende Platz kommt den Blöcken zugute.
+- Nebenbei: Auch die Σ-Zeilen-Referenzwerte werden befüllt, und die
+  %-Zeilen der Matrix folgen jetzt ebenfalls der
+  Finance-Klammer-Notation (wie seit 1.34.3.0 in der flachen Tabelle).
+
 ## 1.34.5.0 (2026-07-19)
 
 **Bugfix-Paket 4 aus dem Juli-Audit — gemeinsame Multiples-Skala:**

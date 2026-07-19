@@ -893,5 +893,29 @@ const kb94Py = kb94Cats.map((_, i) => 420 + (i % 19) * 38 + Math.round(120 * Mat
 run("c101", dataView(kb94Cats, [col("actual", kb94Ac), col("previousYear", kb94Py)],
   { chart: { orientation: "columns" } }), 1200, 520);
 </script>
+<div class="case"><h4>Matrix · Werte-Spalten AC·PY·PL + Toggles — Referenzspalten je Block, Σ-Block ohne Δ% wenn abgeschaltet</h4><div class="stage" id="c102" style="width:1500px;height:400px"></div></div>
+<script>
+// Matrix honors the flat table's display settings: valueColumns adds PY/PL
+// reference columns per block, showAbsoluteVariance gates the mini bars,
+// showRelativeVariance gates the Σ-block Δ% column
+const vc2Cats = [], vc2Q = [], vc2Ac = [], vc2Py = [], vc2Pl = [];
+["Nord","West","Süd"].forEach((r, ri) => ["Q1","Q2","Q3"].forEach((q, qi) => {
+  vc2Cats.push(r); vc2Q.push(q);
+  vc2Ac.push(800 + ri * 300 + qi * 100);
+  vc2Py.push(780 + ri * 290 + qi * 80);
+  vc2Pl.push(820 + ri * 310 + qi * 90);
+}));
+run("c102", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true,
+    valueColumns: "all", showRelativeVariance: false } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: vc2Cats },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: vc2Q }
+    ],
+    values: [col("actual", vc2Ac, "#,0 T€"), col("previousYear", vc2Py, "#,0 T€"), col("plan", vc2Pl, "#,0 T€")]
+  }
+}, 1500, 400);
+</script>
 </body>
 </html>
