@@ -917,5 +917,47 @@ run("c102", {
   }
 }, 1500, 400);
 </script>
+
+<!-- 1.35.2.0 · Regressionsfaelle Juli-Audit (Darstellungs-Fixes) -->
+<div class="case"><h4>Fix1 · Columns schmal, 120 Kat., ends — Randlabel behaelt Vorzeichen (−23,2% links, −54,3% rechts)</h4><div class="stage" id="c103" style="width:700px;height:420px"></div></div>
+<script>
+(function () {
+  const n = 120, cats = [], ac = [], py = [];
+  for (let i = 0; i < n; i++) {
+    cats.push("N" + i);
+    ac.push(400 + Math.round(Math.sin(i) * 300));
+    py.push(i === 0 ? 521 : 400 + Math.round(Math.cos(i) * 250));
+  }
+  run("c103", dataView(cats, [col("actual", ac), col("previousYear", py)],
+    { chart: { orientation: "columns" }, labels: { labelDensity: "ends" } }), 700, 420);
+})();
+</script>
+
+<div class="case"><h4>Fix2 · KPI-Karte Basis fcrev — Wert uebermalt „ΔFC Vm“ nicht</h4><div class="stage" id="c104" style="width:320px;height:200px"></div></div>
+<script>
+run("c104", dataView(["Umsatz"], [col("actual", [545]), col("prevForecast", [500])],
+  { chart: { orientation: "cards", comparisonMode: "fcrev", deltaIcons: true } }), 320, 200);
+</script>
+
+<div class="case"><h4>Fix3 · GuV pinStyle „round“ — ΔPY%-Pinkoepfe rund</h4><div class="stage" id="c105" style="width:1000px;height:420px"></div></div>
+<script>
+run("c105", dataView(["Umsatz","Materialaufwand","Bruttoergebnis","Opex","EBIT"],
+  [col("actual", [9800,-4200,5600,-2900,2700], "#,0 T€"), col("previousYear", [9100,-3900,5200,-2700,2500], "#,0 T€")],
+  { chart: { orientation: "pnl", pinStyle: "round" } }, null, ["sum","delta","sum","delta","sum"]), 1000, 420);
+</script>
+
+<div class="case"><h4>Fix4 · Waterfall Ende auf 0 — letztes Δ-Label kollidiert nicht mit Kategorie-Achse</h4><div class="stage" id="c106" style="width:720px;height:420px"></div></div>
+<script>
+run("c106", dataView(["Umsatz","COGS","Opex","Sonstige","Steuern"],
+  [col("actual", [5000,-3200,-1500,900,-1200], "#,0 T€")],
+  { chart: { orientation: "waterfall" } }), 720, 420);
+</script>
+
+<div class="case"><h4>Fix5 · Columns n=5, ends, Duplikat-Max — alle Kategorienamen sichtbar</h4><div class="stage" id="c107" style="width:900px;height:420px"></div></div>
+<script>
+run("c107", dataView(["Alpha","Beta","Gamma","Delta","Epsilon"],
+  [col("actual", [500,900,600,900,700]), col("previousYear", [480,850,620,880,690])],
+  { chart: { orientation: "columns" }, labels: { labelDensity: "ends" } }), 900, 420);
+</script>
 </body>
 </html>

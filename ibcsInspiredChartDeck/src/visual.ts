@@ -276,6 +276,7 @@ export class Visual implements IVisual {
     private host: IVisualHost;
     private root: HTMLElement;
     private svg: SVGSVGElement;
+    private viewW = 0;
     private selectionManager: ISelectionManager;
     private tooltipService: ITooltipService;
     private formattingSettings: VisualFormattingSettingsModel;
@@ -454,6 +455,7 @@ export class Visual implements IVisual {
 
             const width = options.viewport.width;
             const height = options.viewport.height;
+            this.viewW = width;
             this.svg.setAttribute("width", String(width));
             this.svg.setAttribute("height", String(height));
 
@@ -2337,7 +2339,15 @@ export class Visual implements IVisual {
                 const text = sg.kind === "anchor"
                     ? cfg.fmt.format(sg.to)
                     : this.fmtSigned(cfg.fmtVar, sg.to - sg.from);
-                this.drawEndLabelAt(g, pos(i) + slotW / 2, sg.to, sg.to >= sg.from, scale,
+                // a downward delta bottoming out at the baseline would drop its label into
+                // the category-axis band (collides with the cat name) — flip it to the bar top
+                let anchor = sg.to;
+                let positive = sg.to >= sg.from;
+                if (!positive && scale(sg.to) + cfg.labelFont + 2 > rect.y + rect.h) {
+                    anchor = Math.max(sg.from, sg.to);
+                    positive = true;
+                }
+                this.drawEndLabelAt(g, pos(i) + slotW / 2, anchor, positive, scale,
                     "columns", text, cfg.labelFont, cfg.ink, 0, cfg.paper);
             }
             this.drawCategoryLabel(g, sg.label, pos(i) + slotW / 2, "columns", cfg.catFont,
@@ -2610,7 +2620,7 @@ export class Visual implements IVisual {
             }
 
             // category labels (month + FC/first-year hint)
-            const showCatAt = this.labelPredicate(pts, pts.map(q => q.cat), cf, step, "columns");
+            const showCatAt = this.labelPredicate(pts, pts.map(q => q.cat), cf, step, "columns", undefined, true);
             if (showCatAt(i)) {
                 const ct = this.el("text", {
                     x, y: yBase + cf + 4, "text-anchor": "middle", "font-size": cf,
@@ -3361,13 +3371,11 @@ export class Visual implements IVisual {
                     const x0 = dp >= 0 ? pAxis : pAxis - w;
                     this.el("rect", { x: x0, y: cy - 1.1, width: Math.max(2, w), height: 2.2, fill: c }, g);
                     const hr = Math.max(2.6, 3.2 * k);
-                    const hx = dp >= 0 ? pAxis + w - hr : pAxis - w - hr;
-                    this.el("rect", {
-                        x: hx, y: cy - hr, width: hr * 2, height: hr * 2,
-                        ...(style === "solid" ? { fill: cfg.ink }
+                    const hcx = dp >= 0 ? pAxis + w : pAxis - w;
+                    this.pinHead(g, hcx, cy, hr, "square", cfg.pinStyle,
+                        style === "solid" ? { fill: cfg.ink }
                             : style === "hatched" ? { fill: `url(#${cfg.patId})`, stroke: cfg.ink, "stroke-width": 1 }
-                                : { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 })
-                    }, g);
+                                : { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 });
                     const lxp = dp >= 0 ? pAxis + w + (outlier ? 16 : 6) : pAxis - w - (outlier ? 16 : 6);
                     if (outlier) {
                         txt(dp >= 0 ? pAxis + w + 3 : pAxis - w - 3, cy + lf * 0.3, "▸▸",
@@ -5362,6 +5370,9 @@ export class Visual implements IVisual {
             };
             const refText = (vAbs: number, vRel: number | null) =>
                 `${this.fmtSigned(fmtVarP, vAbs)}${vRel != null ? ` · ${this.fmtPercent(vRel)}` : ""}`;
+            // value column starts past the widest actual row label ("ΔFC Vm" is wider than
+            // the old fixed 2.6-char slot) so the value never overpaints the label
+            let refLabelW = refF * 2.6;
             const refRowAt = (tx: number, ty: number, label: string,
                 vAbs: number | null, vRel: number | null) => {
                 if (vAbs == null) { return; }
@@ -5371,7 +5382,7 @@ export class Visual implements IVisual {
                     : (vAbs === 0 || !cfg.isMaterial(p, vAbs, vRel)) ? "● "
                     : vAbs > 0 ? "▲ " : "▼ ";
                 txt(tx, ty, `Δ${label}`, refF, false, cfg.subtle);
-                txt(tx + refF * 2.6, ty, icon + refText(vAbs, vRel), refF, true, col);
+                txt(tx + refLabelW, ty, icon + refText(vAbs, vRel), refF, true, col);
             };
             // mini bridge basis → Δ → AC in IBCS notation; byBottom is the axis line
             const drawBridge = (bx: number, byBottom: number, bw2: number, bridgeH: number) => {
@@ -5496,6 +5507,8 @@ export class Visual implements IVisual {
                 if (cfg.cardBasis === "benchmark") { refRows.unshift(["BM", bmV, bmRel]); }
                 else { refRows.push(["BM", bmV, bmRel]); }
             }
+            refLabelW = Math.max(refLabelW,
+                this.maxTextWidth(refRows.map(([lbl]) => `Δ${lbl}`), refF) + refF * 0.6);
 
             // flat layout: wide + short tile → Δ rows and bridge move to the right
             const flat = h < 118 * k && w >= 250 * k;
@@ -5513,7 +5526,7 @@ export class Visual implements IVisual {
                     maxRefW = Math.max(maxRefW, this.maxTextWidth([refText(va, vr)], refF));
                 }
                 const rowsShown = refRows.slice(0, refRows.length >= 2 && h >= 52 * k ? 2 : 1);
-                if (rowsShown.length > 0 && refX + refF * 2.6 + maxRefW <= x + w - pad) {
+                if (rowsShown.length > 0 && refX + refLabelW + maxRefW <= x + w - pad) {
                     const yMid = y + h / 2;
                     if (rowsShown.length === 2) {
                         refRowAt(refX, yMid - Math.round(2 * k), rowsShown[0][0], rowsShown[0][1], rowsShown[0][2]);
@@ -5521,7 +5534,7 @@ export class Visual implements IVisual {
                     } else {
                         refRowAt(refX, yMid + refF * 0.35, rowsShown[0][0], rowsShown[0][1], rowsShown[0][2]);
                     }
-                    refX += refF * 2.6 + maxRefW + Math.round(24 * k);
+                    refX += refLabelW + maxRefW + Math.round(24 * k);
                 }
                 // bullet next to the Δ rows when benchmark is bound
                 if (cfg.cardBullet && p.bm != null) {
@@ -5677,7 +5690,7 @@ export class Visual implements IVisual {
         const marks = this.el("g", {}, this.svg);
         const valueTexts = pts.map(p => cfg.fmt.format(p.value as number));
         const showValueAt = this.labelPredicate(pts, valueTexts, lf, step, "columns");
-        const showCatAt = this.labelPredicate(pts, pts.map(p => p.cat), cf, step, "columns");
+        const showCatAt = this.labelPredicate(pts, pts.map(p => p.cat), cf, step, "columns", undefined, true);
 
         let cum = 0;
         let cross = -1;
@@ -5778,7 +5791,7 @@ export class Visual implements IVisual {
         const goodOf = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
         const colOf = (v: number, pp?: DataPoint) => (v === 0 || (pp != null && !cfg.isMaterial(pp)))
             ? cfg.colors.py : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
-        const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cf, step, "bars");
+        const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cf, step, "bars", undefined, true);
         const showValAt = this.labelPredicate(points,
             points.map(p => p.value != null ? cfg.fmt.format(p.value) : ""), lf, step, "bars");
 
@@ -6002,7 +6015,7 @@ export class Visual implements IVisual {
         const totalTexts = totals.map(t => cfg.fmt.format(t));
         const fakePts = cats.map((c, i) => ({ cat: c, value: totals[i] } as DataPoint));
         const showTotalAt = this.labelPredicate(fakePts, totalTexts, lf, step, orientation);
-        const showCatAt = this.labelPredicate(fakePts, cats, cf, step, orientation);
+        const showCatAt = this.labelPredicate(fakePts, cats, cf, step, orientation, undefined, true);
 
         cats.forEach((c, i) => {
             const gCat = this.el("g", {}, marks) as SVGGElement;
@@ -6129,7 +6142,7 @@ export class Visual implements IVisual {
         const showRelAt = this.labelPredicate(points, relTexts, cfg.labelFont, step, orientation, p => p.varRel);
         const showAbs2At = this.labelPredicate(points, abs2Texts, cfg.labelFont, step, orientation, p => p.var2Abs);
         const showRel2At = this.labelPredicate(points, rel2Texts, cfg.labelFont, step, orientation, p => p.var2Rel);
-        const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cfg.catFont, step, orientation);
+        const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cfg.catFont, step, orientation, undefined, true);
 
         // ------- scales
         const labelPad = cfg.showLabels ? cfg.labelFont + 6 : 6;
@@ -7362,7 +7375,8 @@ export class Visual implements IVisual {
      */
     private labelPredicate(points: DataPoint[], texts: string[], fontSize: number,
         step: number, orientation: Orientation,
-        valueOf: (p: DataPoint) => number | null = p => p.value): (i: number) => boolean {
+        valueOf: (p: DataPoint) => number | null = p => p.value,
+        isCategory = false): (i: number) => boolean {
         const n = points.length;
         const extremes = (): ((i: number) => boolean) => {
             // min/max over the series actually being labeled — variance panels pass
@@ -7381,7 +7395,10 @@ export class Visual implements IVisual {
         // points readers scan for; "auto" thins out by available space (default)
         const density = String(this.formattingSettings.labelsCard.labelDensity.value.value);
         if (density === "all") { return () => true; }
-        if (density === "ends") { return extremes(); }
+        // "ends" targets value labels only — category-axis names must never be thinned to
+        // the extrema (that drops a named column even when there is room); they fall through
+        // to the space heuristic below, exactly like "auto"
+        if (density === "ends" && !isCategory) { return extremes(); }
         let need: number;
         if (orientation === "columns") {
             const maxLen = texts.reduce((a, t) => Math.max(a, t.length), 0);
@@ -7590,9 +7607,17 @@ export class Visual implements IVisual {
         const end = scale(anchorValue);
         let attrs: Record<string, string | number>;
         if (orientation === "columns") {
+            // keep an edge label fully inside the viewport (shifted in, not clipped) so a
+            // leading "−" is never sliced off — otherwise "−23,2%" reads as "23,2%"
+            let x = bandCenter;
+            if (this.viewW > 0) {
+                const half = this.textWidth(text, fontSize) / 2 + 2;
+                if (x - half < 0) { x = half; }
+                else if (x + half > this.viewW) { x = this.viewW - half; }
+            }
             attrs = positive
-                ? { x: bandCenter, y: end - 4 - extraGap, "text-anchor": "middle" }
-                : { x: bandCenter, y: end + fontSize + 2 + extraGap, "text-anchor": "middle" };
+                ? { x, y: end - 4 - extraGap, "text-anchor": "middle" }
+                : { x, y: end + fontSize + 2 + extraGap, "text-anchor": "middle" };
         } else {
             attrs = positive
                 ? { x: end + 4 + extraGap, y: bandCenter + fontSize * 0.35, "text-anchor": "start" }

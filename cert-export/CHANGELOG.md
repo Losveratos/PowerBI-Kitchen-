@@ -1,5 +1,34 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.35.2.0 (2026-07-19)
+
+**Fünf Darstellungs-Fixes aus dem Juli-Audit.** Rechnerisch war alles
+korrekt — es ging um Beschriftungen, die am Rand oder auf der Nulllinie
+ins Rutschen kamen, und um zwei Einstellungen, die in Einzelmodi nicht
+griffen:
+
+- **Randlabel behält sein Vorzeichen.** Wert-, Δ- und Δ%-Labels am
+  linken oder rechten Viewport-Rand wurden bisher beschnitten — aus
+  „−23,2 %" wurde optisch „23,2 %", eine Verschlechterung sah aus wie
+  eine Verbesserung. Solche Labels werden jetzt komplett nach innen
+  geschoben statt abgeschnitten; das Minus geht nie mehr verloren.
+- **KPI-Karte (Basis fcrev): Wert übermalt das Zeilenlabel nicht mehr.**
+  Die Wertspalte startete fix nach 2,6 Zeichen, das Label „ΔFC Vm" ist
+  aber breiter — der Wert überschrieb das „m". Die Wertspalte richtet
+  sich jetzt an der tatsächlichen Labelbreite aus.
+- **GuV respektiert den Pin-Stil.** Die ΔRef%-Pinköpfe im GuV-Modus
+  waren fest quadratisch; die Einstellung „Rund" blieb wirkungslos.
+  Sie nutzen jetzt denselben Pin-Helfer wie alle anderen Modi.
+- **Waterfall auf 0: Δ-Label weicht aus.** Endet die Kaskade auf der
+  Nulllinie, kollidierte das Wertlabel des letzten Balkens mit dem
+  Kategorie-Achsennamen. Das Label weicht in diesem Fall auf die
+  Oberseite des Balkens aus.
+- **„Nur Extremwerte" dünnt Kategorienamen nicht mehr aus.** Die
+  Beschriftungsdichte „Enden" betrifft laut Einstellung nur die
+  Wertlabels — die Kategorie-Achsennamen liefen aber durch dasselbe
+  Extremwert-Filter und verschwanden trotz Platz. Sie folgen jetzt der
+  normalen Platz-Heuristik.
+
 ## 1.35.1.0 (2026-07-19)
 
 **Kommentar-Schriftgröße einstellbar.** Die Kommentar-Liste war fest
