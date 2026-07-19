@@ -1,5 +1,29 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.34.4.0 (2026-07-19)
+
+**Bugfix-Paket 3 aus dem Juli-Audit — Zustands-Guards:**
+
+- **Landing-Klicks ohne Deadlock:** Die Echo-Guards für Modus-Kacheln
+  und Schriftgrößen-Pills der Landing-Seite hatten kein
+  Verfallskriterium — ging das Host-Echo verloren, überschrieben sie
+  jede spätere Auswahl im Formatbereich dauerhaft. Beide Guards
+  verfallen jetzt nach spätestens fünf Updates; danach gilt wieder der
+  Wert aus dem Formatbereich.
+- **Bookmarks/Reset klappen wieder zu:** Ein Bookmark im
+  Standard-Zustand oder „Auf Standard zurücksetzen" hat aufgeklappte
+  Tabellen-Zeilen und Matrix-Spaltengruppen nie zurückgesetzt (der
+  leere Zustand wurde verschluckt). Abwesende Drill-Properties werden
+  jetzt als „alles zugeklappt" übernommen.
+- **Karten-Sortierung:** Nach dem ersten Klick auf den
+  In-Chart-Sortier-Chip war das Dropdown im Formatbereich dauerhaft
+  wirkungslos (der persistierte Chip-Wert gewann für immer). Eine
+  Änderung des Dropdowns löscht jetzt den Chip-Override.
+- **Spaltenbreiten-Drag:** Ein Host-Update mitten im Ziehen des
+  Namensspalten-Griffs setzte die Breite auf den alten Wert zurück und
+  der Drag ging verloren. Während des Ziehens wird der gespeicherte
+  Wert nicht mehr übernommen.
+
 ## 1.34.3.0 (2026-07-19)
 
 **Bugfix-Paket 2 aus dem Juli-Audit — sichtbare Darstellung:**

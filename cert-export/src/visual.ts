@@ -307,6 +307,8 @@ export class Visual implements IVisual {
     /** table: manual name-column width (persisted via drag on the column edge) */
     private tableNameW: number | null = null;
     private pendingTableNameW: string | null = null;
+    /** true while the name-column resize handle is being dragged */
+    private tableNameWDragging = false;
     /** bound Filter-Info text measure (filter context for the filter footer) */
     private filterInfo: string | null = null;
     /** table header sort, e.g. "dabs_desc" ("" = data order), persisted */
@@ -315,12 +317,16 @@ export class Visual implements IVisual {
     /** in-chart card sort chip override ("" = use the pane dropdown), persisted */
     private cardSortSel = "";
     private pendingCardSort: string | null = null;
+    /** last seen pane value of chart.cardSort — a change drops the chip override */
+    private lastPaneCardSort: string | null = null;
     /** finance number convention (negatives in parentheses, zero as "–") */
     private financeFmt = false;
     /** landing font-preset pill: value we persisted but the host has not echoed yet */
     private pendingFontPreset: string | null = null;
+    private pendingFontPresetTtl = 0;
     /** landing mode pick: orientation we persisted but the host has not echoed yet */
     private pendingOrientation: string | null = null;
+    private pendingOrientationTtl = 0;
     /** structure-edit mode (one-click P&L): row clicks open the structure menu */
     private structureEdit = false;
     private structEditor: HTMLDivElement | null = null;
@@ -418,9 +424,14 @@ export class Visual implements IVisual {
             }
             // a just-clicked landing font-preset pill must survive a stale
             // metadata update that arrives before the host echoes it back
+            // both guards expire after a few updates: if the host echo is lost
+            // (persist rejected, bookmark restore in between), the pane value must
+            // win again eventually — without the TTL the else-branch would force
+            // the clicked value over every future pane/bookmark choice forever
             const fpSlice = this.formattingSettings.labelsCard.fontPreset;
             if (this.pendingFontPreset != null) {
-                if (String(fpSlice.value.value) === this.pendingFontPreset) {
+                if (String(fpSlice.value.value) === this.pendingFontPreset
+                    || --this.pendingFontPresetTtl <= 0) {
                     this.pendingFontPreset = null;
                 } else {
                     const fpIt = fpSlice.items.find(x => String(x.value) === this.pendingFontPreset);
@@ -430,7 +441,8 @@ export class Visual implements IVisual {
             // landing mode pick, same echo-guard pattern
             const orSlice = this.formattingSettings.chartCard.orientation;
             if (this.pendingOrientation != null) {
-                if (String(orSlice.value.value) === this.pendingOrientation) {
+                if (String(orSlice.value.value) === this.pendingOrientation
+                    || --this.pendingOrientationTtl <= 0) {
                     this.pendingOrientation = null;
                 } else {
                     const orIt = orSlice.items.find(x => String(x.value) === this.pendingOrientation);
@@ -467,12 +479,19 @@ export class Visual implements IVisual {
                 if (rawExpStr !== "") {
                     try { this.expandedRows = new Set(JSON.parse(rawExpStr) as string[]); }
                     catch { /* corrupt store: keep the session state */ }
+                } else {
+                    // absent property = default state (bookmark on default, "reset
+                    // to default") — collapse; persist always writes at least "[]"
+                    this.expandedRows = new Set();
                 }
             }
             // persisted manual name-column width, same echo-guard pattern
             const rawNw = dataView?.metadata?.objects?.["chart"]?.["tableNameWidth"];
             const rawNwStr = typeof rawNw === "string" ? rawNw : "";
-            if (this.pendingTableNameW == null || rawNwStr === this.pendingTableNameW) {
+            // never adopt the store mid-drag: pending is only set on mouseup, so a
+            // host update between two mousemoves would reset the live drag width
+            if (!this.tableNameWDragging
+                && (this.pendingTableNameW == null || rawNwStr === this.pendingTableNameW)) {
                 this.pendingTableNameW = null;
                 const nwv = parseFloat(rawNwStr);
                 this.tableNameW = isFinite(nwv) && nwv > 0 ? nwv : null;
@@ -485,6 +504,9 @@ export class Visual implements IVisual {
                 if (rawColExpStr !== "") {
                     try { this.colExpanded = new Set(JSON.parse(rawColExpStr) as string[]); }
                     catch { /* corrupt store: keep the session state */ }
+                } else {
+                    // absent property = default state — collapse (see tableExpanded)
+                    this.colExpanded = new Set();
                 }
             }
             // persisted table header sort (bookmarkable), same echo-guard pattern
@@ -501,6 +523,18 @@ export class Visual implements IVisual {
                 this.pendingCardSort = null;
                 this.cardSortSel = rawCsStr;
             }
+            // the pane dropdown regains control: changing chart.cardSort clears the
+            // in-chart chip override, which would otherwise win forever (even "none")
+            const paneCs = String(this.formattingSettings.chartCard.cardSort.value.value);
+            if (this.lastPaneCardSort != null && paneCs !== this.lastPaneCardSort
+                && this.cardSortSel !== "") {
+                this.cardSortSel = "";
+                this.pendingCardSort = "";
+                this.host.persistProperties({
+                    merge: [{ objectName: "chart", selector: null, properties: { cardSortSel: "" } }]
+                });
+            }
+            this.lastPaneCardSort = paneCs;
             const points = this.parseData(dataView);
             // an open structure menu must not outlive its row (filter/data change)
             if (this.structEditor && this.structCat != null
@@ -968,6 +1002,7 @@ export class Visual implements IVisual {
             // optimistic: re-render the landing immediately so the click gives
             // instant feedback; the host echo re-renders the same state later
             this.pendingOrientation = v;
+            this.pendingOrientationTtl = 5;
             const oSlice = this.formattingSettings.chartCard.orientation;
             const oIt = oSlice.items.find(x => String(x.value) === v);
             if (oIt) { oSlice.value = oIt; }
@@ -1182,6 +1217,7 @@ export class Visual implements IVisual {
                     // optimistic: apply + re-render right away so the heading and
                     // the pill react instantly; the host echo confirms it later
                     this.pendingFontPreset = p.v;
+                    this.pendingFontPresetTtl = 5;
                     const it = sLc.fontPreset.items.find(x => String(x.value) === p.v);
                     if (it) { sLc.fontPreset.value = it; }
                     this.host.persistProperties({
@@ -7860,6 +7896,7 @@ export class Visual implements IVisual {
             e.stopPropagation();
             const startX = e.clientX;
             const startW = this.tableNameW ?? (edgeX - region.x - 6);
+            this.tableNameWDragging = true;
             let cur = startW;
             const move = (ev: MouseEvent) => {
                 const next = Math.max(40, Math.min(region.w * 0.5, startW + (ev.clientX - startX)));
@@ -7871,6 +7908,7 @@ export class Visual implements IVisual {
             const up = () => {
                 window.removeEventListener("mousemove", move);
                 window.removeEventListener("mouseup", up);
+                this.tableNameWDragging = false;
                 const json = String(Math.round(this.tableNameW ?? startW));
                 this.pendingTableNameW = json;
                 this.host.persistProperties({
