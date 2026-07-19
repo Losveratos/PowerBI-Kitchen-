@@ -50,3 +50,9 @@ deneb-test/
 
 # Temp: pbix-Extraktion
 _gtmp/
+
+# ChartKitchen beta gate — encrypted build + raw builds never get committed here.
+# The .enc is added manually only on activation; keep the .gitkeep tracked.
+downloads/*
+!downloads/.gitkeep
+*.pbiviz
