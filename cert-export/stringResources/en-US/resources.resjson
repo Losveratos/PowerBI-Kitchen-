@@ -114,6 +114,7 @@
   "Hint_IntWfBasis": "Integrated bridge requires PY or PL as comparison basis",
   "Hint_IntWfSpace": "Not enough space for the integrated bridge",
   "Hint_CatBridgeBasis": "Category bridge requires PY or PL as comparison basis",
+  "Hint_CatBridgeNeg": "Category bridge does not support all-negative totals — use waterfall or columns + bridge",
   "Hint_PnlRef": "P&L statement requires PY (or PL) as reference",
   "Hint_PnlSpace": "Not enough space for the P&L statement",
   "Hint_DumbbellBasis": "Dumbbell requires PY or PL as comparison basis",

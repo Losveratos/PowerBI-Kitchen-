@@ -4,7 +4,7 @@
         "displayName": "ChartKitchen byDatenWG",
         "guid": "chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D",
         "visualClassName": "Visual",
-        "version": "1.34.2.0",
+        "version": "1.34.3.0",
         "description": "ChartKitchen byDatenWG — inspired by IBCS. Chart deck with scenario notation (AC solid, PY grey, PL outlined, FC hatched) plus absolute and relative variance panels, tables and KPI cards — columns for time, bars for structure.",
         "supportUrl": "https://github.com/Losveratos/DevCustomVizPowerBI/issues",
         "gitHubUrl": "https://github.com/Losveratos/DevCustomVizPowerBI"
@@ -22,5 +22,5 @@
     "capabilities": "capabilities.json",
     "dependencies": null,
     "stringResources": [],
-    "version": "1.34.2.0"
+    "version": "1.34.3.0"
 }

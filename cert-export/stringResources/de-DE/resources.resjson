@@ -114,6 +114,7 @@
   "Hint_IntWfBasis": "Integrierte Brücke benötigt PY oder PL als Vergleichsbasis",
   "Hint_IntWfSpace": "Zu wenig Platz für die integrierte Brücke",
   "Hint_CatBridgeBasis": "Kategorie-Brücke benötigt PY oder PL als Vergleichsbasis",
+  "Hint_CatBridgeNeg": "Kategorie-Brücke unterstützt keine rein negativen Summen — bitte Waterfall oder Columns + Brücke nutzen",
   "Hint_PnlRef": "GuV-Statement benötigt PY (oder PL) als Referenz",
   "Hint_PnlSpace": "Zu wenig Platz für das GuV-Statement",
   "Hint_DumbbellBasis": "Dumbbell benötigt PY oder PL als Vergleichsbasis",

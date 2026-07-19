@@ -114,6 +114,7 @@
   "Hint_IntWfBasis": "El puente integrado requiere PY o PL como base de comparación",
   "Hint_IntWfSpace": "Espacio insuficiente para el puente integrado",
   "Hint_CatBridgeBasis": "El puente de categorías requiere PY o PL como base de comparación",
+  "Hint_CatBridgeNeg": "El puente de categorías no admite totales completamente negativos: use cascada o columnas + puente",
   "Hint_PnlRef": "La cuenta de resultados requiere PY (o PL) como referencia",
   "Hint_PnlSpace": "Espacio insuficiente para la cuenta de resultados",
   "Hint_DumbbellBasis": "Dumbbell requiere PY o PL como base de comparación",

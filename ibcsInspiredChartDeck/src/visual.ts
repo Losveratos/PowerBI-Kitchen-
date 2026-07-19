@@ -1498,7 +1498,11 @@ export class Visual implements IVisual {
         // never combined with cumulation: topN re-sorts by value, cumulate needs
         // the chronological order, the combination would sum a scrambled sequence
         const topN = Math.round(s.chartCard.topN.value ?? 0);
-        if (orientation === "bars" && topN > 0 && !cumulativeOn) {
+        // matrix tables keep one point per category × column group — topN would rank
+        // and prune single cells, scramble the column order and leave a nameless
+        // rest block; the row-oriented ranking only makes sense without column groups
+        const topNBlocked = isTable && points.some(p => p.colLevels && p.colLevels.length > 0);
+        if (orientation === "bars" && topN > 0 && !cumulativeOn && !topNBlocked) {
             for (const g of groups) {
                 if (g.pts.length > topN + 1) { g.pts = this.applyTopN(g.pts, topN); }
             }
@@ -1516,12 +1520,24 @@ export class Visual implements IVisual {
         }
         points = groups.reduce<DataPoint[]>((acc, g) => acc.concat(g.pts), []);
 
-        const maxAbs = Math.max(...points.map(p =>
+        // rows with their own rowFormat (other unit/magnitude, e.g. Stück) render via
+        // their own formatter — keep them out of the shared formatter's domain, or a
+        // large piece-count row flips the € columns to K€ while Δ stays at T€
+        const rowFmtCats = new Set(String(s.chartCard.rowFormats.value || "")
+            .split(/[;\n]/)
+            .filter(e => e.indexOf("=") > 0)
+            .map(e => e.slice(0, e.indexOf("=")).trim().toLowerCase())
+            .filter(x => x));
+        const fmtPtsAll = isTable && rowFmtCats.size > 0
+            ? points.filter(p => !rowFmtCats.has(p.cat.trim().toLowerCase()))
+            : points;
+        const fmtPts = fmtPtsAll.length > 0 ? fmtPtsAll : points;
+        const maxAbs = Math.max(...fmtPts.map(p =>
             Math.max(Math.abs(p.value ?? 0), Math.abs(p.py ?? 0), Math.abs(p.pl ?? 0))), 0);
-        const maxVarAbs = Math.max(...points.map(p => Math.abs(p.varAbs ?? 0)), 0);
-        const allInt = points.every(p =>
+        const maxVarAbs = Math.max(...fmtPts.map(p => Math.abs(p.varAbs ?? 0)), 0);
+        const allInt = fmtPts.every(p =>
             [p.value, p.py, p.pl, p.fc].every(v => v == null || Number.isInteger(v)));
-        const allVarInt = points.every(p => p.varAbs == null || Number.isInteger(p.varAbs));
+        const allVarInt = fmtPts.every(p => p.varAbs == null || Number.isInteger(p.varAbs));
 
         const basisMode: Basis = this.resolveBasisLabel();
         const hasVar = points.some(p => p.varAbs != null);
@@ -2404,7 +2420,7 @@ export class Visual implements IVisual {
                 }, parent);
                 lt.textContent = this.fmtPercent(pct);
             };
-            const showPinAt = this.labelPredicate(pts, pts.map(p => p.varRel != null ? this.fmtPercent(p.varRel) : ""), lf, step, "columns");
+            const showPinAt = this.labelPredicate(pts, pts.map(p => p.varRel != null ? this.fmtPercent(p.varRel) : ""), lf, step, "columns", p => p.varRel);
             pts.forEach((p, i) => {
                 if (p.varRel == null || !showPinAt(i)) { return; }
                 pin(cx(i), p.varRel, p.isFc, marks, p);
@@ -2457,7 +2473,7 @@ export class Visual implements IVisual {
         this.el("line", { x1: cx(n - 1) + segW / 2, y1: yV, x2: right - calloutW + 10, y2: yV, stroke: cfg.colors.py, "stroke-width": 1.4 }, bg);
 
         // ------- cascade + mini columns
-        const showValAt = this.labelPredicate(pts, pts.map(p => p.varAbs != null ? fmtD(p.varAbs) : ""), lf, step, "columns");
+        const showValAt = this.labelPredicate(pts, pts.map(p => p.varAbs != null ? fmtD(p.varAbs) : ""), lf, step, "columns", p => p.varAbs);
         let level = basisSum;
         pts.forEach((p, i) => {
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
@@ -2666,6 +2682,13 @@ export class Visual implements IVisual {
         const otherTot = refIsPl ? PYt : PLt;
         const otherLabel = refIsPl ? "PY" : "PL";
         const dTot = ACt - REF;
+        // purely negative totals collapse the anchor scale (maxV falls back to 1) —
+        // every bar degenerates to a sliver; fail loudly like the integrated bridge
+        if (REF <= 0 && ACt <= 0 && (!hasOther || otherTot <= 0)) {
+            this.drawModeHint(region, cfg, this.locStr("Hint_CatBridgeNeg",
+                "Category bridge does not support all-negative totals — use waterfall or columns + bridge"));
+            return;
+        }
         const goodOf = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
         // per-row deltas LOCALLY against the bridge's own PY/PL reference — p.varAbs
         // follows comparisonMode (e.g. fcrev) and would not reconcile with the anchors
@@ -3171,7 +3194,13 @@ export class Visual implements IVisual {
         };
         const fmtM = (v: number) => cfg.fmt.format(Math.abs(v));
         const fmtD = (v: number) => this.fmtSigned(cfg.fmtVar, v);
-        const pctFmt = new Intl.NumberFormat("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        const pctFmt = new Intl.NumberFormat(this.host.locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        // margin rows follow the finance convention like every other label site
+        const pctT = (v: number) => this.financeFmt && v < 0
+            ? `(${pctFmt.format(Math.abs(v))} %)` : `${pctFmt.format(v)} %`;
+        const ppT = (d: number) => this.financeFmt && d < 0
+            ? `(${pctFmt.format(Math.abs(d))}Pp)`
+            : `${d > 0 ? "+" : d < 0 ? "−" : "±"}${pctFmt.format(Math.abs(d))}Pp`;
 
         // ------- rows
         shown.forEach((r, i) => {
@@ -3213,11 +3242,11 @@ export class Visual implements IVisual {
             const rv = rVal(p);
             if (pct) {
                 // margin rows: percentages as text, Δ in percentage points
-                if (rv != null) { txt(bx(xRef, 0) + 4, cy + lf * 0.36, `${pctFmt.format(rv)} %`, "start", lf, false, cfg.subtle, g); }
-                if (mv != null) { txt(bx(xM, 0) + 4, cy + lf * 0.36, `${pctFmt.format(mv)} %`, "start", lf, false, cfg.ink, g); }
+                if (rv != null) { txt(bx(xRef, 0) + 4, cy + lf * 0.36, pctT(rv), "start", lf, false, cfg.subtle, g); }
+                if (mv != null) { txt(bx(xM, 0) + 4, cy + lf * 0.36, pctT(mv), "start", lf, false, cfg.ink, g); }
                 if (showD && mv != null && rv != null) {
                     const d = mv - rv;
-                    txt(dAxis + 6, cy + lf * 0.36, `${d > 0 ? "+" : d < 0 ? "−" : "±"}${pctFmt.format(Math.abs(d))}Pp`,
+                    txt(dAxis + 6, cy + lf * 0.36, ppT(d),
                         "start", lf, false, colOf(d, p, d), g);
                 }
             } else {
@@ -4004,13 +4033,15 @@ export class Visual implements IVisual {
                 "start", rowFont, sum && !davon, skip || davon ? cfg.subtle : cfg.ink, g);
             if (skip) { nameEl.setAttribute("font-style", "italic"); }
             const rowPct = isPct(p);
-            const pctText = (v: number) => new Intl.NumberFormat(this.host.locale, {
+            const pctNf = new Intl.NumberFormat(this.host.locale, {
                 minimumFractionDigits: 1, maximumFractionDigits: 1
-            }).format(v) + " %";
-            const ppText = (v: number) => (v > 0 ? "+" : v < 0 ? "−" : "")
-                + new Intl.NumberFormat(this.host.locale, {
-                    minimumFractionDigits: 1, maximumFractionDigits: 1
-                }).format(Math.abs(v)) + "Pp";
+            });
+            // finance convention applies here too: one negative notation per table
+            const pctText = (v: number) => this.financeFmt && v < 0
+                ? `(${pctNf.format(Math.abs(v))} %)` : pctNf.format(v) + " %";
+            const ppText = (v: number) => this.financeFmt && v < 0
+                ? `(${pctNf.format(Math.abs(v))}Pp)`
+                : (v > 0 ? "+" : v < 0 ? "−" : "") + pctNf.format(Math.abs(v)) + "Pp";
             if (p.value != null && cfg.showLabels) {
                 const shownVal = sumSafeVals?.has(p) ? sumSafeVals.get(p) as number : p.value;
                 txt(colX["val"].x + colX["val"].w, yMid + rowFont * 0.35,
@@ -4078,7 +4109,9 @@ export class Visual implements IVisual {
                 : (v === 0 || !material) ? "● " : v > 0 ? "▲ " : "▼ ";
             if (p.varAbs != null && colX["dval"] && cfg.showLabels) {
                 const dTxt = rowPct ? ppText(p.varAbs)
-                    : rf ? (p.varAbs > 0 ? "+" : p.varAbs < 0 ? "−" : "") + rf(Math.abs(p.varAbs))
+                    : rf ? (this.financeFmt && p.varAbs < 0
+                        ? `(${rf(Math.abs(p.varAbs))})`
+                        : (p.varAbs > 0 ? "+" : p.varAbs < 0 ? "−" : "") + rf(Math.abs(p.varAbs)))
                     : this.fmtSigned(cfg.fmtVar, p.varAbs);
                 txt(colX["dval"].x + colX["dval"].w, yMid + rowFont * 0.35,
                     dIcon(p.varAbs, cfg.isMaterial(p)) + dTxt, "end", rowFont, sum,
@@ -4113,7 +4146,10 @@ export class Visual implements IVisual {
                     "middle", Math.round(rowFont * 0.92), sum, colOf(p.varRel, p), g);
             }
             if (p.varRel != null && colX["pct"] && !rowPct && rowChart) {
-                const len = Math.abs(p.varRel) / maxPct * (colX["pct"].w / 2 - lf * 3);
+                // skip rows are excluded from maxPct but keep their pin — clamp so an
+                // outsized |Δ%| cannot push pin head and label out of the region
+                const halfPct = colX["pct"].w / 2 - lf * 3;
+                const len = Math.min(halfPct, Math.abs(p.varRel) / maxPct * halfPct);
                 const c = colOf(p.varRel, p);
                 const r = Math.max(2.4, 3 * k);
                 const dir = p.varRel >= 0 ? 1 : -1;
@@ -4535,7 +4571,7 @@ export class Visual implements IVisual {
             : Math.min(region.w * 0.24, this.maxTextWidth(rows.map(r => r.label), cf) + 18
                 + (hasLevels ? 14 * k : 0));
         let valW = lf * 4.6;
-        let dW = lf * 4.4;
+        let dW = lf * (4.4 + (cfg.deltaIcons ? 1.2 : 0) + (this.financeFmt ? 0.5 : 0));
         let barW = Math.round(34 * k);
         const gap = 8;
         // the Σ block keeps fixed widths — the spread below only widens the blocks
@@ -4620,6 +4656,9 @@ export class Visual implements IVisual {
         const colOf = (v: number, pp: DataPoint | null, rel?: number | null) =>
             (v === 0 || (pp != null && !cfg.isMaterial(pp, v, rel ?? null)))
                 ? cfg.subtle : (goodOf(v, pp) ? cfg.colors.good : cfg.colors.bad);
+        // same Δ direction icons as the flat table — matrix blocks and Σ column
+        const dIcon = (v: number, material: boolean) => !cfg.deltaIcons ? ""
+            : (v === 0 || !material) ? "● " : v > 0 ? "▲ " : "▼ ";
 
         // mini-bar Δ domain over the visible cells (stable while scrolling: all rows)
         let dDom = 1;
@@ -4831,7 +4870,8 @@ export class Visual implements IVisual {
                     if (isTotal && prevCol) { d.v = null; }
                     if (d.v != null) {
                         txt(colX[bi].x + valW + dW, yMid + rowFont * 0.35,
-                            this.fmtSigned(cfg.fmtVar, d.v), "end", Math.round(rowFont * 0.95),
+                            dIcon(d.v, d.p == null || cfg.isMaterial(d.p, d.v, null))
+                            + this.fmtSigned(cfg.fmtVar, d.v), "end", Math.round(rowFont * 0.95),
                             sum, colOf(d.v, d.p), g);
                     }
                     if (showBar && d.v != null) {
@@ -4857,7 +4897,8 @@ export class Visual implements IVisual {
             }
             if (hasVar && !rowPct && agg.varAbs != null) {
                 txt(sumX.x + sValW + sDW, yMid + rowFont * 0.35,
-                    this.fmtSigned(cfg.fmtVar, agg.varAbs), "end", Math.round(rowFont * 0.95),
+                    dIcon(agg.varAbs, cfg.isMaterial(agg, agg.varAbs, agg.varRel))
+                    + this.fmtSigned(cfg.fmtVar, agg.varAbs), "end", Math.round(rowFont * 0.95),
                     sum, colOf(agg.varAbs, agg, agg.varRel), g);
                 if (agg.varRel != null) {
                     txt(sumX.x + sumX.w, yMid + rowFont * 0.35,
@@ -4986,13 +5027,25 @@ export class Visual implements IVisual {
             const pat = entry.slice(eq + 1).trim();
             if (!label || !pat) { continue; }
             const pct = pat.includes("%");
-            const m = pat.match(/[.,](0+)(?!.*[.,]0)/);
-            const decs = m ? m[1].length : 0;
+            // decimals: zeros after the last "." (PBI convention); a "," only counts
+            // as decimal separator in bare German-style patterns ("0,0") — never in
+            // the grouping idiom "#,0", where it means thousands separation
+            const mDot = pat.match(/\.(0+)(?!.*\.0)/);
+            const mComma = !mDot && !pat.includes(".")
+                ? pat.match(/(?:^|[^#]),(0+)(?!.*,0)/) : null;
+            const decs = mDot ? mDot[1].length : mComma ? mComma[1].length : 0;
             const grouping = pat.includes("#") || /,(?!0)/.test(pat) || pat.includes(",0");
             const nf = new Intl.NumberFormat(this.host.locale, {
                 minimumFractionDigits: decs, maximumFractionDigits: decs, useGrouping: grouping
             });
-            out.set(label, (v: number) => pct ? `${nf.format(v * 100)} %` : nf.format(v));
+            // finance convention applies to per-row formats too (negatives in
+            // parentheses); delta sites pass Math.abs and add their own sign
+            out.set(label, (v: number) => {
+                if (this.financeFmt && v < 0) {
+                    return pct ? `(${nf.format(-v * 100)} %)` : `(${nf.format(-v)})`;
+                }
+                return pct ? `${nf.format(v * 100)} %` : nf.format(v);
+            });
         }
         return out;
     }
@@ -5238,17 +5291,24 @@ export class Visual implements IVisual {
             // mini bridge basis → Δ → AC in IBCS notation; byBottom is the axis line
             const drawBridge = (bx: number, byBottom: number, bw2: number, bridgeH: number) => {
                 if (p.basis == null) { return; }
-                const maxV = Math.max(Math.abs(p.basis), Math.abs(p.value as number), 1);
-                const hOf = (v: number) => Math.max(1.5, Math.abs(v) / maxV * bridgeH);
+                // signed scale: domain spans zero, negatives grow downward from the
+                // zero line instead of flipping upward via Math.abs
+                const lo0 = Math.min(0, p.basis, p.value as number);
+                const hi0 = Math.max(0, p.basis, p.value as number);
+                const sc = bridgeH / Math.max(hi0 - lo0, 1e-9);
+                const zeroY = byBottom + lo0 * sc;   // == byBottom when nothing is negative
+                const yOf = (v: number) => zeroY - v * sc;
+                const barY = (v: number) => Math.min(yOf(v), zeroY);
+                const barH = (v: number) => Math.max(1.5, Math.abs(v) * sc);
                 const colW = Math.min(44 * k, bw2 / 3.6);
                 const step2 = bw2 / 3;
                 const cxs = [bx + step2 / 2, bx + step2 * 1.5, bx + step2 * 2.5];
                 // baseline in the notation of the basis scenario
                 if (cfg.basisMode === "py") {
-                    this.el("line", { x1: bx, y1: byBottom, x2: bx + bw2, y2: byBottom, stroke: cfg.colors.py, "stroke-width": 3 }, g);
+                    this.el("line", { x1: bx, y1: zeroY, x2: bx + bw2, y2: zeroY, stroke: cfg.colors.py, "stroke-width": 3 }, g);
                 } else {
-                    this.el("line", { x1: bx, y1: byBottom - 1.2, x2: bx + bw2, y2: byBottom - 1.2, stroke: cfg.colors.pl, "stroke-width": 1 }, g);
-                    this.el("line", { x1: bx, y1: byBottom + 1.2, x2: bx + bw2, y2: byBottom + 1.2, stroke: cfg.colors.pl, "stroke-width": 1 }, g);
+                    this.el("line", { x1: bx, y1: zeroY - 1.2, x2: bx + bw2, y2: zeroY - 1.2, stroke: cfg.colors.pl, "stroke-width": 1 }, g);
+                    this.el("line", { x1: bx, y1: zeroY + 1.2, x2: bx + bw2, y2: zeroY + 1.2, stroke: cfg.colors.pl, "stroke-width": 1 }, g);
                 }
                 const basisStyle = cfg.basisMode === "plan"
                     ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.3 }
@@ -5257,10 +5317,10 @@ export class Visual implements IVisual {
                     : cfg.hc
                         ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
                         : { fill: cfg.colors.py };
-                this.el("rect", { x: cxs[0] - colW / 2, y: byBottom - hOf(p.basis), width: colW, height: hOf(p.basis), ...basisStyle }, g);
+                this.el("rect", { x: cxs[0] - colW / 2, y: barY(p.basis), width: colW, height: barH(p.basis), ...basisStyle }, g);
                 if (p.varAbs != null && p.varAbs !== 0) {
                     const lo = Math.min(p.basis, p.value as number), hi = Math.max(p.basis, p.value as number);
-                    const dTop = byBottom - hOf(hi), dH = Math.max(1.5, (hi - lo) / maxV * bridgeH);
+                    const dTop = yOf(hi), dH = Math.max(1.5, (hi - lo) * sc);
                     const dCol = (!cfg.isMaterial(p) || !hlShow(p.varAbs, p)) ? cfg.colors.py
                         : (good(p.varAbs, p) ? cfg.colors.good : cfg.colors.bad);
                     this.el("rect", {
@@ -5270,16 +5330,16 @@ export class Visual implements IVisual {
                             : { fill: dCol })
                     }, g);
                     this.el("line", {
-                        x1: cxs[0] + colW / 2, y1: byBottom - hOf(p.basis), x2: cxs[1] - colW / 2, y2: byBottom - hOf(p.basis),
+                        x1: cxs[0] + colW / 2, y1: yOf(p.basis), x2: cxs[1] - colW / 2, y2: yOf(p.basis),
                         stroke: cfg.subtle, "stroke-width": 1
                     }, g);
                     this.el("line", {
-                        x1: cxs[1] + colW / 2, y1: byBottom - hOf(p.value as number), x2: cxs[2] - colW / 2, y2: byBottom - hOf(p.value as number),
+                        x1: cxs[1] + colW / 2, y1: yOf(p.value as number), x2: cxs[2] - colW / 2, y2: yOf(p.value as number),
                         stroke: cfg.subtle, "stroke-width": 1
                     }, g);
                 }
                 this.el("rect", {
-                    x: cxs[2] - colW / 2, y: byBottom - hOf(p.value as number), width: colW, height: hOf(p.value as number),
+                    x: cxs[2] - colW / 2, y: barY(p.value as number), width: colW, height: barH(p.value as number),
                     ...(p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : { fill: cfg.colors.ac })
@@ -5980,10 +6040,10 @@ export class Visual implements IVisual {
         const abs2Texts = points.map(p => p.var2Abs != null ? this.fmtSigned(cfg.fmtVar, p.var2Abs) : "");
         const rel2Texts = points.map(p => p.var2Rel != null ? this.fmtPercent(p.var2Rel) : "");
         const showValueAt = this.labelPredicate(points, valueTexts, cfg.labelFont, step, orientation);
-        const showAbsAt = this.labelPredicate(points, absTexts, cfg.labelFont, step, orientation);
-        const showRelAt = this.labelPredicate(points, relTexts, cfg.labelFont, step, orientation);
-        const showAbs2At = this.labelPredicate(points, abs2Texts, cfg.labelFont, step, orientation);
-        const showRel2At = this.labelPredicate(points, rel2Texts, cfg.labelFont, step, orientation);
+        const showAbsAt = this.labelPredicate(points, absTexts, cfg.labelFont, step, orientation, p => p.varAbs);
+        const showRelAt = this.labelPredicate(points, relTexts, cfg.labelFont, step, orientation, p => p.varRel);
+        const showAbs2At = this.labelPredicate(points, abs2Texts, cfg.labelFont, step, orientation, p => p.var2Abs);
+        const showRel2At = this.labelPredicate(points, rel2Texts, cfg.labelFont, step, orientation, p => p.var2Rel);
         const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cfg.catFont, step, orientation);
 
         // ------- scales
@@ -7207,15 +7267,19 @@ export class Visual implements IVisual {
      * denser → only first, last, min and max.
      */
     private labelPredicate(points: DataPoint[], texts: string[], fontSize: number,
-        step: number, orientation: Orientation): (i: number) => boolean {
+        step: number, orientation: Orientation,
+        valueOf: (p: DataPoint) => number | null = p => p.value): (i: number) => boolean {
         const n = points.length;
         const extremes = (): ((i: number) => boolean) => {
-            let iMin = 0, iMax = 0;
+            // min/max over the series actually being labeled — variance panels pass
+            // their own valueOf so "ends" anchors at the largest deviation, not at
+            // the extrema of the underlying base values
+            let iMin = -1, iMax = -1, vMin = Infinity, vMax = -Infinity;
             for (let i = 0; i < n; i++) {
-                const v = points[i].value;
+                const v = valueOf(points[i]);
                 if (v == null) { continue; }
-                if (v < (points[iMin].value ?? Infinity)) { iMin = i; }
-                if (v > (points[iMax].value ?? -Infinity)) { iMax = i; }
+                if (v < vMin) { vMin = v; iMin = i; }
+                if (v > vMax) { vMax = v; iMax = i; }
             }
             return (i: number) => i === 0 || i === n - 1 || i === iMin || i === iMax;
         };

@@ -114,6 +114,7 @@
   "Hint_IntWfBasis": "統合ブリッジには比較基準としてPYまたはPLが必要です",
   "Hint_IntWfSpace": "統合ブリッジを表示するスペースが不足しています",
   "Hint_CatBridgeBasis": "カテゴリブリッジには比較基準としてPYまたはPLが必要です",
+  "Hint_CatBridgeNeg": "カテゴリブリッジは合計がすべて負の場合に対応していません — ウォーターフォールまたは縦棒+ブリッジをご利用ください",
   "Hint_PnlRef": "損益計算書にはPY(またはPL)の参照が必要です",
   "Hint_PnlSpace": "損益計算書を表示するスペースが不足しています",
   "Hint_DumbbellBasis": "ダンベルには比較基準としてPYまたはPLが必要です",

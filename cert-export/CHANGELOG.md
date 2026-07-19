@@ -1,5 +1,47 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.34.3.0 (2026-07-19)
+
+**Bugfix-Paket 2 aus dem Juli-Audit — sichtbare Darstellung:**
+
+- **KPI-Karten · Mini-Brücke:** Negative Werte wurden als positive
+  Säulen nach oben gezeichnet (ein EBIT von −80 wirkte wie +80), bei
+  Vorzeichenwechsel lief der Δ-Balken unter die Achse und übermalte
+  die Legende. Die Brücke hat jetzt eine vorzeichenfähige Skala mit
+  echter Nulllinie: Negative wachsen nach unten, der Δ-Balken bleibt
+  im Zeichenbereich.
+- **Kategorie-Brücke:** Bei rein negativen Summen kollabierten alle
+  Balken zu unsichtbaren Slivern. Jetzt erscheint — wie bei der
+  integrierten Brücke — ein klarer Hinweis (neuer String in DE/EN/ES/JA).
+- **Matrix + Top N:** Top N rankte in Tabellen mit Spaltengruppen
+  einzelne Zellen statt Zeilen — verwürfelte Spalten, namenloser
+  Rest-Block, irreführende Σ. In der Matrix ist Top N jetzt deaktiviert.
+- **Zeilenformate:** Das Power-BI-Muster „#,0" (Ganzzahl mit
+  Tausendertrennung) wurde als eine Dezimalstelle gelesen —
+  128.400 erschien als „128.400,0". Die Dezimal-Erkennung folgt jetzt
+  der PBI-Konvention (Punkt als Dezimaltrenner; „0,0" bleibt möglich).
+- **Einheiten-Mix:** Zeilen mit eigenem Zeilenformat (z. B. Stück)
+  zählten weiter für die Einheiten-Wahl der €-Spalten — die Tabelle
+  sprang auf K€, während Δ bei T€ blieb. Formatierte Zeilen sind jetzt
+  aus der gemeinsamen Formatter-Domäne ausgenommen.
+- **Δ%-Pin:** Skip-Zeilen mit sehr großem Δ% schossen mit Pin und
+  Label über den Spaltenrand hinaus — die Pin-Länge ist jetzt auf die
+  Spalten-Halbbreite begrenzt.
+- **Finance-Format vollständig:** Klammern-Notation gilt jetzt auch
+  für Margen-Prozente und Pp-Deltas in Tabelle und GuV sowie für
+  Wert- und Δ-Zellen mit eigenem Zeilenformat — eine einheitliche
+  Negativ-Notation pro Bericht statt drei.
+- **GuV · Gebietsschema:** Die Margen-Prozente der GuV waren auf
+  de-DE festgenagelt; sie folgen jetzt wie alle anderen Formatter der
+  Berichtssprache (host.locale).
+- **Beschriftungsdichte „Enden":** Die Varianz-Panels (ΔBasis und
+  ΔBasis %) markierten Min/Max der Basiswerte statt der eigenen
+  Abweichungen — die größte Abweichung blieb unbeschriftet. Jedes
+  Panel labelt jetzt seine eigenen Extrema.
+- **Matrix · Δ-Icons:** Die Option „Δ-Richtungs-Icons" wirkte nur in
+  der flachen Tabelle. Die Matrix zeigt die ▲/▼/●-Icons jetzt in allen
+  Δ-Blöcken, im Σ-Block und in der Σ-Gesamtzeile.
+
 ## 1.34.2.0 (2026-07-19)
 
 **Bugfix-Paket 1 aus dem Juli-Audit — Zahlen-Korrektheit:**
