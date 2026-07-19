@@ -744,5 +744,154 @@ run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "
   { chart: { orientation: "table" } }, null,
   ["sum", "delta", "sum", "pct", "delta", "sum", "pct"]), 1200, 420);
 </script>
+
+<!-- ==== Audit 2026-07: Edge-Case-Haertung (Suiten minimal-negativ & kombi-stress) ==== -->
+<div class="case"><h4>Kategorie-Brücke · ausschließlich negative Werte → heute unsichtbar, erwartet: Hinweis oder korrektes Rendering</h4><div class="stage" id="c90" style="width:1200px;height:600px"></div></div>
+<script>
+// Kategorie-Brücke · ausschließlich negative Werte → Balken kollabieren (fehlender maxV-Guard)
+// all-negative category bridge: maxV degenerates to 1 (visual.ts renderCategoryBridge),
+// bars collapse to invisible slivers — should show the same hint as the integrated bridge
+run("c90", dataView(["Nord","Süd","Ost","West"],
+  [col("actual", [-179, -89, -42, -67]), col("previousYear", [-135, -68, -35, -66])],
+  { chart: { orientation: "catbridge" } }), 1200, 600);
+</script>
+<div class="case"><h4>Waterfall · gemischte Vorzeichen, Σ = 0 — Nullsäule + Label-Kollision letzter Balken/Kategorielabel</h4><div class="stage" id="c91" style="width:960px;height:380px"></div></div>
+<script>
+// Waterfall · gemischte Vorzeichen mit Summe 0 → Σ=0 korrekt, Label-Kollision am Ende
+// cascade closing exactly at zero: Σ column has height 0 (label "0 T€" must stay),
+// last delta bar ends on the baseline — its value label currently overlaps the category label
+run("c91", dataView(["Umsatz","Material","Personal","Sondereffekt","Steuern"],
+  [col("actual", [5000, -3200, -1500, 900, -1200], "#,0 T€")],
+  { chart: { orientation: "waterfall" }, ibcsTitle: { kpi: "Ergebnis", period: "2026" } }), 960, 380);
+</script>
+<div class="case"><h4>Integrierte Brücke · Multiples · sameScale + eine negative Kachel → Negativ-Hinweis pro Kachel, Nachbar-Kachel intakt</h4><div class="stage" id="c92" style="width:1340px;height:640px"></div></div>
+<script>
+// Integrierte Brücke · Multiples sameScale mit einer komplett negativen Kachel
+// one all-negative tile inside a sameScale multiples grid: the negative tile must show
+// the explicit hint, the positive tile must keep rendering (no shared-scale poisoning)
+const ngCats = [], ngMult = [], ngAc = [], ngPy = [];
+["Nord", "Süd"].forEach((r, ri) => {
+  ["Q1","Q2","Q3","Q4"].forEach((q, qi) => {
+    ngCats.push(q); ngMult.push(r);
+    if (ri === 0) { ngAc.push([1450, 980, 620, 410][qi]); ngPy.push([1300, 1040, 590, 380][qi]); }
+    else { ngAc.push([-450, -300, -220, -180][qi]); ngPy.push([-400, -350, -200, -160][qi]); }
+  });
+});
+run("c92", dataView(ngCats, [col("actual", ngAc), col("previousYear", ngPy)],
+  { chart: { orientation: "intwaterfall", multiplesSameScale: true } }, ngMult), 1340, 640);
+</script>
+<div class="case"><h4>Waterfall · ausschließlich negative Deltas — absteigende Kaskade ab Nulllinie, Σ negativ</h4><div class="stage" id="c93" style="width:960px;height:380px"></div></div>
+<script>
+// Waterfall · ausschließlich negative Deltas (Kostenkaskade)
+// pure cost cascade: every delta negative, running total strictly below zero,
+// Σ column must extend downward from the baseline (no clamping, no flipped bars)
+run("c93", dataView(["Personal","Material","Energie","Miete","Abschreibung"],
+  [col("actual", [-2400, -1800, -600, -350, -280], "#,0 T€")],
+  { chart: { orientation: "waterfall" }, ibcsTitle: { kpi: "Kosten", period: "2026" } }), 960, 380);
+</script>
+<div class="case"><h4>Kategorie-Brücke · 1 Kategorie, nur AC — Basis-Hinweis statt leerem SVG</h4><div class="stage" id="c94" style="width:600px;height:300px"></div></div>
+<script>
+// Kategorie-Brücke · nur AC gebunden → Basis-Hinweis
+// minimal binding without any comparison series: both bridge modes must fall back
+// to their explicit basis hint instead of crashing or rendering empty
+run("c94", dataView(["Q1"], [col("actual", [4200], "#,0 T€")], { chart: { orientation: "catbridge" } }), 600, 300);
+</script>
+<div class="case"><h4>Columns · 120 Kategorien · labelDensity ends — Varianz-Panes muessen ihre eigenen Extrema labeln</h4><div class="stage" id="c95" style="width:1200px;height:520px"></div></div>
+<script>
+// Columns · 120 Kategorien · labelDensity ends — Varianz-Extrema
+const kb95Cats = Array.from({length: 120}, (_, i) =>
+  ("Produktkategorie-Langname-Nr" + String(i + 1).padStart(3, "0") + "-XXXXXXXXXX").slice(0, 40));
+const kb95Ac = kb95Cats.map((_, i) => 400 + (i % 23) * 40 + Math.round(150 * Math.sin(i / 7)));
+const kb95Py = kb95Cats.map((_, i) => 420 + (i % 19) * 38 + Math.round(120 * Math.sin(i / 6 + 1)));
+run("c95", dataView(kb95Cats, [col("actual", kb95Ac), col("previousYear", kb95Py)],
+  { chart: { orientation: "columns" }, labels: { labelDensity: "ends" } }), 1200, 520);
+</script>
+<div class="case"><h4>Columns · Duplikat-Maxima (900 bei Beta und Delta) · labelDensity ends — kein Achsenname darf fehlen</h4><div class="stage" id="c96" style="width:900px;height:400px"></div></div>
+<script>
+// Columns · Duplikat-Maxima + ends — fehlendes Achsenlabel
+run("c96", dataView(["Alpha", "Beta", "Gamma", "Delta", "Epsilon"],
+  [col("actual", [500, 900, 300, 900, 450], "#,0 T€"), col("previousYear", [520, 850, 340, 870, 430], "#,0 T€")],
+  { chart: { orientation: "columns" }, labels: { labelDensity: "ends" } }), 900, 400);
+</script>
+<div class="case"><h4>Tabelle 600×300 · financeFormat + deltaIcons + labelDensity ends · negative Deltas + negative %-Zeile</h4><div class="stage" id="c97" style="width:600px;height:300px"></div></div>
+<script>
+// Tabelle klein · financeFormat + deltaIcons + negative %-Zeile
+const kb90Cats = ["Umsatz","Materialaufwand","Rohertrag","Marge %","Opex","EBIT","EBIT-Marge %","Wachstum %"];
+const kb90Types = ["sum","delta","sum","pct","delta","sum","pct","pct"];
+const kb90Ac = [9800, -4600, 5200, 53.1, -3400, 1800, 18.4, -3.2];
+const kb90Py = [10100, -4300, 5800, 57.4, -3100, 2700, 26.7, 1.8];
+run("c97", dataView(kb90Cats, [col("actual", kb90Ac, "#,0 T€"), col("previousYear", kb90Py, "#,0 T€")],
+  { chart: { orientation: "table", deltaIcons: true },
+    labels: { financeFormat: true, labelDensity: "ends" } }, null, kb90Types), 600, 300);
+</script>
+<div class="case"><h4>Tabelle 1600×900 · identische Daten/Settings wie c90 — Zeilen wachsen nicht mit</h4><div class="stage" id="c98" style="width:1600px;height:900px"></div></div>
+<script>
+// Tabelle groß · Zeilenhoehen-Invarianz-Guard
+const kb91Cats = ["Umsatz","Materialaufwand","Rohertrag","Marge %","Opex","EBIT","EBIT-Marge %","Wachstum %"];
+const kb91Types = ["sum","delta","sum","pct","delta","sum","pct","pct"];
+const kb91Ac = [9800, -4600, 5200, 53.1, -3400, 1800, 18.4, -3.2];
+const kb91Py = [10100, -4300, 5800, 57.4, -3100, 2700, 26.7, 1.8];
+run("c98", dataView(kb91Cats, [col("actual", kb91Ac, "#,0 T€"), col("previousYear", kb91Py, "#,0 T€")],
+  { chart: { orientation: "table", deltaIcons: true },
+    labels: { financeFormat: true, labelDensity: "ends" } }, null, kb91Types), 1600, 900);
+</script>
+<div class="case"><h4>Matrix (Quartals-Spalten) 600×300 · financeFormat + deltaIcons · negative Deltas in jeder 2. Region</h4><div class="stage" id="c99" style="width:600px;height:300px"></div></div>
+<script>
+// Matrix klein · financeFormat + deltaIcons
+const kb92Cats = [], kb92Q = [], kb92Ac = [], kb92Py = [];
+["Nord", "Sued", "West", "Ost"].forEach((r, ri) => {
+  ["Q1", "Q2", "Q3", "Q4"].forEach((q, qi) => {
+    kb92Cats.push(r); kb92Q.push(q);
+    const b = 1000 + ri * 350 + qi * 120;
+    kb92Ac.push(ri % 2 === 0 ? b : b - 260);
+    kb92Py.push(b - 40);
+  });
+});
+run("c99", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true, deltaIcons: true },
+    labels: { financeFormat: true } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: kb92Cats },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: kb92Q }
+    ],
+    values: [col("actual", kb92Ac, "#,0 T€"), col("previousYear", kb92Py, "#,0 T€")]
+  }
+}, 600, 300);
+</script>
+<div class="case"><h4>Matrix (Quartals-Spalten) 1600×900 · wie c92 — Zeilenhoehe konstant, Σ-Zeile Δ-Balken vs. Text</h4><div class="stage" id="c100" style="width:1600px;height:900px"></div></div>
+<script>
+// Matrix groß · Balken/Text-Kollision Σ-Zeile + Zeilenhoehen-Guard
+const kb93Cats = [], kb93Q = [], kb93Ac = [], kb93Py = [];
+["Nord", "Sued", "West", "Ost"].forEach((r, ri) => {
+  ["Q1", "Q2", "Q3", "Q4"].forEach((q, qi) => {
+    kb93Cats.push(r); kb93Q.push(q);
+    const b = 1000 + ri * 350 + qi * 120;
+    kb93Ac.push(ri % 2 === 0 ? b : b - 260);
+    kb93Py.push(b - 40);
+  });
+});
+run("c100", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true, deltaIcons: true },
+    labels: { financeFormat: true } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: kb93Cats },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: kb93Q }
+    ],
+    values: [col("actual", kb93Ac, "#,0 T€"), col("previousYear", kb93Py, "#,0 T€")]
+  }
+}, 1600, 900);
+</script>
+<div class="case"><h4>Columns · 120 Kategorien mit 40-Zeichen-Namen · auto-Density (Achsenlabels, Rand-Clipping)</h4><div class="stage" id="c101" style="width:1200px;height:520px"></div></div>
+<script>
+// Columns · 120 Kategorien · 40-Zeichen-Namen · auto-Density
+const kb94Cats = Array.from({length: 120}, (_, i) =>
+  ("Produktkategorie-Langname-Nr" + String(i + 1).padStart(3, "0") + "-XXXXXXXXXX").slice(0, 40));
+const kb94Ac = kb94Cats.map((_, i) => 400 + (i % 23) * 40 + Math.round(150 * Math.sin(i / 7)));
+const kb94Py = kb94Cats.map((_, i) => 420 + (i % 19) * 38 + Math.round(120 * Math.sin(i / 6 + 1)));
+run("c101", dataView(kb94Cats, [col("actual", kb94Ac), col("previousYear", kb94Py)],
+  { chart: { orientation: "columns" } }), 1200, 520);
+</script>
 </body>
 </html>

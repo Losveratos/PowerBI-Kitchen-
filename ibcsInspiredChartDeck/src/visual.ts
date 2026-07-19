@@ -1430,7 +1430,10 @@ export class Visual implements IVisual {
                 || listSkip.has(p.cat.trim().toLowerCase()));
         const cumulativeOn = s.chartCard.cumulative.value && !isStacked
             && (orientationRaw === "columns" || orientationRaw === "line" || orientationRaw === "table")
-            && !points.some(p => p.rowType != null) && !listPnl;
+            && !points.some(p => p.rowType != null) && !listPnl
+            // matrix tables keep one point per category × column group — cumulating
+            // across that flat list would chain unrelated columns into one running sum
+            && !(isTable && points.some(p => p.colLevels && p.colLevels.length > 0));
 
         // font preset: one switch scaling every text in the visual (Full HD = ×1.5)
         // preset factor × free scale factor (labels card, 50–300 %): the preset
@@ -4577,6 +4580,17 @@ export class Visual implements IVisual {
         const showTotalRow = cfg.showTotal && !noMatch
             && !topAggs.some(a => isSum(a) || isResult(a));
         const totalBase = topAggs.filter(a => !isPct(a) && !isSkip(a) && !isResult(a) && !isSum(a));
+        // Σ-row cell per block — shared by the Δ mini-bar domain and the row renderer
+        const totalCellAt = (bi: number): DataPoint | null => {
+            const base = totalBase
+                .map((_, ti2) => cellFor(
+                    (root.kids.get(root.order.filter(l => {
+                        const a2 = aggFor(root.kids.get(l) as RNode);
+                        return !isPct(a2) && !isSkip(a2) && !isResult(a2) && !isSum(a2);
+                    })[ti2]) as RNode)?.pts ?? null, "Σ", shownBlocks[bi]))
+                .filter(Boolean) as DataPoint[];
+            return base.length > 0 ? this.aggregateHierarchy("Σ", base) : null;
+        };
         const n = Math.max(1, rows.length + (showTotalRow ? 1 : 0));
         // capped like the flat table: font-bound row height, no stretching
         const rowH = Math.min(cf * 2.4, Math.max(cf + 6, (region.h - pad * 2 - headerH) / n));
@@ -4614,6 +4628,14 @@ export class Visual implements IVisual {
                 for (let bi = 0; bi < shownBlocks.length; bi++) {
                     const d = deltaAt(r, bi);
                     if (d.v != null) { dDom = Math.max(dDom, Math.abs(d.v)); }
+                }
+            }
+            // the Σ row draws mini-bars too — without its deltas in the domain its
+            // (summed, therefore larger) bars would overrun the neighbouring column
+            if (showTotalRow && totalBase.length > 1 && !prevCol) {
+                for (let bi = 0; bi < shownBlocks.length; bi++) {
+                    const v = totalCellAt(bi)?.varAbs;
+                    if (v != null) { dDom = Math.max(dDom, Math.abs(v)); }
                 }
             }
         }
@@ -4796,18 +4818,7 @@ export class Visual implements IVisual {
                 "start", rowFont, sum && !davon, skip || davon ? cfg.subtle : cfg.ink, g);
             if (skip) { nameEl.setAttribute("font-style", "italic"); }
             for (let bi = 0; bi < shownBlocks.length; bi++) {
-                const p2 = isTotal
-                    ? (() => {
-                        const base = totalBase
-                            .map((_, ti2) => cellFor(
-                                (root.kids.get(root.order.filter(l => {
-                                    const a2 = aggFor(root.kids.get(l) as RNode);
-                                    return !isPct(a2) && !isSkip(a2) && !isResult(a2) && !isSum(a2);
-                                })[ti2]) as RNode)?.pts ?? null, "Σ", shownBlocks[bi]))
-                            .filter(Boolean) as DataPoint[];
-                        return base.length > 0 ? this.aggregateHierarchy("Σ", base) : null;
-                    })()
-                    : cellAt(row as MRow, bi);
+                const p2 = isTotal ? totalCellAt(bi) : cellAt(row as MRow, bi);
                 if (p2 != null && p2.value != null) {
                     txt(colX[bi].x + valW, yMid + rowFont * 0.35, fmtCell(p2.value),
                         "end", rowFont, sum, rowPct || skip ? cfg.subtle : cfg.ink, g);
@@ -4825,7 +4836,7 @@ export class Visual implements IVisual {
                     }
                     if (showBar && d.v != null) {
                         const axis = colX[bi].x + valW + dW + barW / 2 + 2;
-                        const len = Math.abs(d.v) / dDom * (barW / 2 - 3);
+                        const len = Math.min(barW / 2 - 3, Math.abs(d.v) / dDom * (barW / 2 - 3));
                         const bh = Math.max(3, Math.min(rowH * 0.4, 9 * k));
                         this.el("rect", {
                             x: axis - 0.6, y: yMid - bh / 2 - 1, width: 1.2, height: bh + 2,

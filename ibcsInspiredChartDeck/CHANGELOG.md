@@ -1,5 +1,22 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.34.2.0 (2026-07-19)
+
+**Bugfix-Paket 1 aus dem Juli-Audit — Zahlen-Korrektheit:**
+
+- **Matrix + Laufsumme:** Bei Tabellen mit Spaltengruppen (Matrix) war
+  die Laufsummen-Option aktiv und kumulierte über die flache Liste aus
+  Kategorie × Spaltengruppe — dadurch flossen fremde Spaltenwerte in
+  die Zellen ein. Die Laufsumme ist in der Matrix jetzt deaktiviert
+  (wie bereits bei GuV-Zeilentypen), die Zellen zeigen wieder die
+  echten Werte.
+- **Σ-Zeile · Mini-Δ-Balken:** Die Δ-Balken der Σ-Gesamtzeile wurden
+  mit der Skala der Einzelzeilen gezeichnet. Da die Summe fast immer
+  größer ist als jede Einzelzeile, liefen die Balken über ihre Spalte
+  hinaus in den Nachbarblock. Die Σ-Deltas gehen jetzt mit in die
+  Balken-Skala ein, zusätzlich ist die Balkenlänge hart auf die
+  Spaltenbreite begrenzt.
+
 ## 1.34.1.0 (2026-07-15)
 
 **Tabelle/Matrix: feste Zeilenhöhe wie die native Matrix.** Bei wenigen
