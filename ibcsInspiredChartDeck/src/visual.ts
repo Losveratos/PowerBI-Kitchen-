@@ -301,6 +301,10 @@ export class Visual implements IVisual {
     private pendingTableExpanded: string | null = null;
     /** table mode: vertical scroll offset in rows per tile (transient, wheel/drag) */
     private tableScroll = new Map<string, number>();
+    /** matrix mode: horizontal block-area scroll offset in px per tile (transient) */
+    private tableScrollX = new Map<string, number>();
+    /** per-render counter feeding unique clipPath ids for matrix block viewports */
+    private mxClipSeq = 0;
     /** matrix mode: expanded column groups (persisted, chevron in the header) */
     private colExpanded = new Set<string>();
     private pendingTableColExpanded: string | null = null;
@@ -4666,10 +4670,18 @@ export class Visual implements IVisual {
         if (blocks.length * blockW() > availW) {
             valW = Math.max(lf * 3.4, availW / blocks.length - gap);
         }
+        // last degradation step: interactive tiles scroll the block strip
+        // horizontally (all blocks kept); export/print tiles keep the "… +n" cut,
+        // since scrolled-away content would be unreachable in a static image
         let shownBlocks = blocks;
+        let hScroll = false;
         if (blocks.length * blockW() > availW) {
-            const fit = Math.max(1, Math.floor(availW / blockW()));
-            shownBlocks = blocks.slice(0, fit);
+            if (this.allowInteractions) {
+                hScroll = true;
+            } else {
+                const fit = Math.max(1, Math.floor(availW / blockW()));
+                shownBlocks = blocks.slice(0, fit);
+            }
         }
         const cut = blocks.length - shownBlocks.length;
         // spread leftover width over the blocks (capped) so few blocks fill the tile
@@ -4723,7 +4735,17 @@ export class Visual implements IVisual {
         const bodyRows = rows.slice(scroll, scroll + bodyCap);
 
         const bg = this.el("g", {}, this.svg);
+        // clipped/translated siblings for the horizontally scrollable block strip —
+        // kept between bg and marks so block headers stay under the row marks, and
+        // the block cells (marksScroll) stay above them. Two levels: an outer clip
+        // group (fixed) so the clip window stays put, and an inner group that
+        // carries the translate. Populated only in hScroll mode; empty and inert
+        // otherwise (fit case stays pixel-identical).
+        const bgScrollClip = this.el("g", {}, this.svg);
+        const bgScroll = this.el("g", {}, bgScrollClip);
         const marks = this.el("g", {}, this.svg);
+        const marksScrollClip = this.el("g", {}, this.svg);
+        const marksScroll = this.el("g", {}, marksScrollClip);
         const txt = (xx: number, yy: number, text: string, anchor: string, font: number,
             bold: boolean, color: string, parent: SVGElement) => {
             const t = this.el("text", {
@@ -4769,6 +4791,40 @@ export class Visual implements IVisual {
             x += subW + gap;
         }
         const sumX = { x, w: sumW - gap };
+        // scroll mode pins the Σ block to the right edge; the block strip overflows
+        // behind it (clipped) and translates under the fixed name / Σ columns
+        if (hScroll) { sumX.x = region.x + region.w - pad - (sumW - gap); }
+
+        // horizontal block viewport: name column stays left, Σ block stays right;
+        // only the blocks + their headers live inside the clip and translate
+        const viewX0 = region.x + pad + nameW + gap;
+        const clipX0 = region.x + pad + nameW + gap / 2;
+        const clipX1 = sumX.x - gap / 2;
+        const lastBlock = colX[colX.length - 1];
+        const contentRight = lastBlock ? lastBlock.x + lastBlock.w : viewX0;
+        const maxScrollX = hScroll ? Math.max(0, contentRight - clipX1) : 0;
+        const scrollX = hScroll
+            ? Math.max(0, Math.min(this.tableScrollX.get(paneKey) ?? 0, maxScrollX)) : 0;
+        if (hScroll) { this.tableScrollX.set(paneKey, scrollX); }
+        // wire up the clip + translate on the two scroll siblings
+        if (hScroll) {
+            const clipId = `icd-mxclip-${this.instanceId}-${this.mxClipSeq++}`;
+            const clip = this.el("clipPath", { id: clipId }, bg);
+            this.el("rect", {
+                x: clipX0, y: region.y, width: Math.max(0, clipX1 - clipX0), height: region.h
+            }, clip);
+            const tf = `translate(${-scrollX},0)`;
+            // clip on the fixed outer groups (stays put); translate on the inner ones
+            bgScrollClip.setAttribute("clip-path", `url(#${clipId})`);
+            marksScrollClip.setAttribute("clip-path", `url(#${clipId})`);
+            bgScroll.setAttribute("transform", tf);
+            marksScroll.setAttribute("transform", tf);
+            // cells never take pointer events — the full-width row rect below them
+            // (in marks) keeps hover/click/tooltip working across the block strip
+            marksScrollClip.style.pointerEvents = "none";
+        }
+        // block headers scroll with the strip; block cells too (per-row subgroups)
+        const headerParent: SVGElement = hScroll ? bgScroll : bg;
 
         // ------- headers
         const hFont = Math.round(10 * k);
@@ -4786,7 +4842,7 @@ export class Visual implements IVisual {
                 const hasKids = nd.kids.length > 0;
                 const lbl = `${hasKids ? (open ? "▾ " : "▸ ") : ""}${l0}`;
                 const ht = txt(spanX + spanW / 2, hy0, this.truncate(lbl, spanW, hFont),
-                    "middle", hFont, true, cfg.ink, bg);
+                    "middle", hFont, true, cfg.ink, headerParent);
                 if (hasKids && this.allowInteractions) {
                     ht.setAttribute("role", "button");
                     ht.setAttribute("aria-expanded", String(open));
@@ -4803,7 +4859,7 @@ export class Visual implements IVisual {
                 this.el("line", {
                     x1: spanX + 2, y1: hy0 + 4, x2: spanX + spanW - 2, y2: hy0 + 4,
                     stroke: cfg.subtle, "stroke-width": 0.8
-                }, bg);
+                }, headerParent);
                 bi = end + 1;
             }
         }
@@ -4815,13 +4871,13 @@ export class Visual implements IVisual {
             const label = twoLv && b.l1 == null && (b.parent as CNode).kids.length > 0
                 ? "Σ" : b.label;
             txt(colX[bi].x + valW, hy, this.truncate(twoLv ? label : b.label, valW + 4, hFont),
-                "end", hFont, true, cfg.subtle, bg);
+                "end", hFont, true, cfg.subtle, headerParent);
             extraCols.forEach((c, ei) => {
                 txt(colX[bi].x + valW * (2 + ei), hy, this.truncate(c.label, valW, hFont),
-                    "end", hFont, true, cfg.subtle, bg);
+                    "end", hFont, true, cfg.subtle, headerParent);
             });
             if (showD) {
-                txt(colX[bi].x + vSpan() + dW, hy, dHead, "end", hFont, true, cfg.subtle, bg);
+                txt(colX[bi].x + vSpan() + dW, hy, dHead, "end", hFont, true, cfg.subtle, headerParent);
             }
         }
         // Σ block headers with the flat table's sort cycle (ac / dabs / drel)
@@ -4949,11 +5005,15 @@ export class Visual implements IVisual {
                 this.truncate(nameText, nameW - 8 - indentX, rowFont),
                 "start", rowFont, sum && !davon, skip || davon ? cfg.subtle : cfg.ink, g);
             if (skip) { nameEl.setAttribute("font-style", "italic"); }
+            // block cells go into a per-row scroll subgroup in hScroll mode (kept in
+            // sync with the fixed row group for selection dimming + build animation),
+            // else straight into g (fit case stays byte-for-byte the same)
+            const bp = hScroll ? this.el("g", {}, marksScroll) as SVGGElement : g;
             for (let bi = 0; bi < shownBlocks.length; bi++) {
                 const p2 = isTotal ? totalCellAt(bi) : cellAt(row as MRow, bi);
                 if (p2 != null && p2.value != null) {
                     txt(colX[bi].x + valW, yMid + rowFont * 0.35, fmtCell(p2.value),
-                        "end", rowFont, sum, rowPct || skip ? cfg.subtle : cfg.ink, g);
+                        "end", rowFont, sum, rowPct || skip ? cfg.subtle : cfg.ink, bp);
                 }
                 // numeric reference columns (PY/PL or the variance basis)
                 if (p2 != null) {
@@ -4961,7 +5021,7 @@ export class Visual implements IVisual {
                         const v = c.get(p2);
                         if (v != null) {
                             txt(colX[bi].x + valW * (2 + ei), yMid + rowFont * 0.35,
-                                fmtCell(v), "end", rowFont, sum, cfg.subtle, g);
+                                fmtCell(v), "end", rowFont, sum, cfg.subtle, bp);
                         }
                     });
                 }
@@ -4975,7 +5035,7 @@ export class Visual implements IVisual {
                         txt(colX[bi].x + vSpan() + dW, yMid + rowFont * 0.35,
                             dIcon(d.v, d.p == null || cfg.isMaterial(d.p, d.v, null))
                             + this.fmtSigned(cfg.fmtVar, d.v), "end", Math.round(rowFont * 0.95),
-                            sum, colOf(d.v, d.p), g);
+                            sum, colOf(d.v, d.p), bp);
                     }
                     if (showBar && d.v != null) {
                         const axis = colX[bi].x + vSpan() + dW + barW / 2 + 2;
@@ -4984,12 +5044,12 @@ export class Visual implements IVisual {
                         this.el("rect", {
                             x: axis - 0.6, y: yMid - bh / 2 - 1, width: 1.2, height: bh + 2,
                             fill: cfg.colors.py
-                        }, g);
+                        }, bp);
                         this.el("rect", {
                             x: d.v >= 0 ? axis + 0.8 : axis - 0.8 - len, y: yMid - bh / 2,
                             width: Math.max(len, 1), height: bh,
                             fill: colOf(d.v, d.p)
-                        }, g);
+                        }, bp);
                     }
                 }
             }
@@ -5042,7 +5102,9 @@ export class Visual implements IVisual {
                 });
             }
             this.catGroups.push({ g, sel: agg.sel });
-            this.animGroups.push([g]);
+            // the scroll subgroup dims + animates together with the fixed row group
+            if (bp !== g) { this.catGroups.push({ g: bp, sel: agg.sel }); }
+            this.animGroups.push(bp !== g ? [g, bp] : [g]);
         };
         bodyRows.forEach((row, i) => drawRow(row, i));
         if (showTotalRow) { drawRow(null, bodyRows.length); }
@@ -5056,7 +5118,7 @@ export class Visual implements IVisual {
         this.drawNameResize(bg, region.x + pad + nameW + gap / 2,
             region.y + pad, rowsBottom, region, cfg);
 
-        // ------- scrollbar (same interaction pattern as the flat table)
+        // ------- vertical scrollbar (same interaction pattern as the flat table)
         if (canScroll) {
             const trackX = region.x + region.w - 4;
             const trackH = rowsBottom - top;
@@ -5080,14 +5142,6 @@ export class Visual implements IVisual {
                 this.tableScroll.set(paneKey, cl);
                 this.rerender();
             };
-            const onWheel = (e: WheelEvent) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const mag = Math.max(1, Math.min(bodyCap, Math.round(Math.abs(e.deltaY) / 50)));
-                setScroll((this.tableScroll.get(paneKey) ?? 0) + (e.deltaY > 0 ? mag : -mag));
-            };
-            bg.addEventListener("wheel", onWheel, { passive: false });
-            marks.addEventListener("wheel", onWheel, { passive: false });
             thumb.addEventListener("mousedown", (e: MouseEvent) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -5114,6 +5168,93 @@ export class Visual implements IVisual {
             txt(region.x + pad, rowsBottom + cf,
                 `… ${rows.length - bodyRows.length} ${this.locStr("Hint_MoreRows", "more rows (increase the visual height)")}`,
                 "start", Math.round(cf * 0.9), false, cfg.subtle, bg);
+        }
+
+        // ------- horizontal block-strip scrollbar (scroll mode only): a slim track
+        // under the blocks with a draggable thumb + keyboard (← → one block,
+        // PageUp/Down one viewport). The Σ column and name column stay put.
+        if (hScroll) {
+            const setScrollX = (next: number) => {
+                const cl = Math.max(0, Math.min(Math.round(next), Math.round(maxScrollX)));
+                if (cl === Math.round(this.tableScrollX.get(paneKey) ?? 0)) { return; }
+                this.tableScrollX.set(paneKey, cl);
+                this.rerender();
+            };
+            const blockStep = subW + gap;
+            const trackW = Math.max(0, clipX1 - viewX0);
+            const contentSpan = Math.max(1, contentRight - viewX0);
+            const trackY = Math.min(rowsBottom + 3, region.y + region.h - 5);
+            this.el("rect", {
+                x: viewX0, y: trackY, width: trackW, height: 3, rx: 1.5,
+                fill: cfg.subtle, "fill-opacity": 0.18
+            }, bg);
+            const thumbW = Math.max(Math.min(24, trackW), trackW * trackW / contentSpan);
+            const thumbX = viewX0 + (trackW - thumbW) * (maxScrollX > 0 ? scrollX / maxScrollX : 0);
+            const thumb = this.el("rect", {
+                x: thumbX, y: trackY - 1, width: thumbW, height: 5, rx: 2.5,
+                fill: cfg.subtle, "fill-opacity": 0.75, role: "scrollbar", tabindex: "0",
+                "aria-valuemin": 0, "aria-valuemax": Math.round(maxScrollX),
+                "aria-valuenow": Math.round(scrollX), "aria-orientation": "horizontal",
+                "aria-label": this.locStr("Matrix_ScrollX", "Scroll columns")
+            }, this.svg) as SVGGraphicsElement;
+            thumb.style.cursor = "grab";
+            thumb.addEventListener("mousedown", (e: MouseEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const startX = e.clientX, startScroll = scrollX;
+                const move = (ev: MouseEvent) => {
+                    setScrollX(startScroll + (ev.clientX - startX) / Math.max(1, trackW) * contentSpan);
+                };
+                const up = () => {
+                    window.removeEventListener("mousemove", move);
+                    window.removeEventListener("mouseup", up);
+                };
+                window.addEventListener("mousemove", move);
+                window.addEventListener("mouseup", up);
+            });
+            thumb.addEventListener("keydown", (e: KeyboardEvent) => {
+                const step = e.key === "ArrowRight" ? blockStep : e.key === "ArrowLeft" ? -blockStep
+                    : e.key === "PageDown" ? trackW : e.key === "PageUp" ? -trackW : 0;
+                if (step === 0) { return; }
+                e.preventDefault();
+                e.stopPropagation();
+                setScrollX((this.tableScrollX.get(paneKey) ?? 0) + step);
+            });
+        }
+
+        // ------- unified wheel handler: shift-wheel or horizontal delta scrolls the
+        // block strip (when it can); a plain vertical wheel scrolls the rows. Only
+        // preventDefault when a scroll actually happens, so the page still scrolls
+        // once a tile is at its edge.
+        if (canScroll || hScroll) {
+            const onWheel = (e: WheelEvent) => {
+                const wantH = hScroll && (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY));
+                if (wantH) {
+                    const raw = (e.shiftKey && e.deltaX === 0) ? e.deltaY : (e.deltaX || e.deltaY);
+                    const cur = this.tableScrollX.get(paneKey) ?? 0;
+                    const cl = Math.max(0, Math.min(Math.round(cur + raw), Math.round(maxScrollX)));
+                    if (cl !== Math.round(cur)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.tableScrollX.set(paneKey, cl);
+                        this.rerender();
+                    }
+                    return;
+                }
+                if (canScroll) {
+                    const mag = Math.max(1, Math.min(bodyCap, Math.round(Math.abs(e.deltaY) / 50)));
+                    const cur = this.tableScroll.get(paneKey) ?? 0;
+                    const cl = Math.max(0, Math.min(cur + (e.deltaY > 0 ? mag : -mag), maxScroll));
+                    if (cl !== cur) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.tableScroll.set(paneKey, cl);
+                        this.rerender();
+                    }
+                }
+            };
+            bg.addEventListener("wheel", onWheel, { passive: false });
+            marks.addEventListener("wheel", onWheel, { passive: false });
         }
     }
 

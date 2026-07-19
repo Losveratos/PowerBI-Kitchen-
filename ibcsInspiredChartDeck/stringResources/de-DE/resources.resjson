@@ -193,6 +193,7 @@
   "Enum_MxCompare_Prev": "Δ zur Vorspalte",
   "Struct_Indent": "Einrücken (davon-Zeile)",
   "Matrix_DPrev": "Δ Vorsp.",
+  "Matrix_ScrollX": "Spalten scrollen",
   "Table_Search": "Zeilen durchsuchen",
   "Table_NoMatch": "Keine Zeile passt zur Suche",
   "Cards_Highlight": "Highlight-Status",

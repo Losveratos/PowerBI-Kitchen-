@@ -959,5 +959,63 @@ run("c107", dataView(["Alpha","Beta","Gamma","Delta","Epsilon"],
   [col("actual", [500,900,600,900,700]), col("previousYear", [480,850,620,880,690])],
   { chart: { orientation: "columns" }, labels: { labelDensity: "ends" } }), 900, 420);
 </script>
+
+<!-- 1.36.0.0 · horizontales Scrollen breiter Matrizen statt "… +n"-Cut -->
+<div class="case"><h4>Matrix · 8 Quartale × 4 Regionen im schmalen Visual — Blockstreifen horizontal scrollbar (Name links + Σ rechts fix)</h4><div class="stage" id="c108" style="width:460px;height:300px"></div></div>
+<script>
+// 8 quarters x 4 regions, single-level columns; narrow tile -> all degradation
+// steps exhausted -> block strip becomes horizontally scrollable (all 8 kept)
+const mxsQ = ["Q1","Q2","Q3","Q4","Q5","Q6","Q7","Q8"];
+const mxsRegions = ["Nord","West","Süd","Ost"];
+const mxsCats = [], mxsQcol = [], mxsAc = [], mxsPy = [];
+mxsRegions.forEach((r, ri) => mxsQ.forEach((q, qi) => {
+  mxsCats.push(r); mxsQcol.push(q);
+  mxsAc.push(900 + ri * 300 + qi * 90);
+  mxsPy.push(880 + ri * 290 + qi * 80);
+}));
+function wideMx(id, noInteract) {
+  return run(id, {
+    metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true } } },
+    categorical: {
+      categories: [
+        { source: { displayName: "Region", roles: { category: true } }, values: mxsCats },
+        { source: { displayName: "Quartal", roles: { colgroup: true } }, values: mxsQcol }
+      ],
+      values: [col("actual", mxsAc, "#,0 T€"), col("previousYear", mxsPy, "#,0 T€")]
+    }
+  }, 460, 300, null, noInteract);
+}
+wideMx("c108", false);
+</script>
+<div class="case"><h4>Matrix · dieselbe breite Matrix im Export-Modus (allowInteractions=false) — altes „… +n“-Abschneiden statt Scrollen</h4><div class="stage" id="c109" style="width:460px;height:300px"></div></div>
+<script>
+wideMx("c109", true);
+</script>
+<div class="case"><h4>Matrix · zweistufige Spaltenhierarchie (4 Quartale → je 3 Monate, alle offen) schmal — Level-0-Spannzeilen scrollen mit</h4><div class="stage" id="c110" style="width:640px;height:320px"></div></div>
+<script>
+// two-level column hierarchy, all quarters expanded -> 12 month blocks, narrow
+// tile -> horizontal scroll; the Q1..Q4 level-0 spans translate with the strip
+const twoLvRegions = ["Nord","West","Süd"];
+const twoLvQ = ["Q1","Q2","Q3","Q4"];
+const twoLvM = { Q1:["Jan","Feb","Mär"], Q2:["Apr","Mai","Jun"], Q3:["Jul","Aug","Sep"], Q4:["Okt","Nov","Dez"] };
+const tCats = [], tL0 = [], tL1 = [], tAc = [], tPy = [];
+twoLvRegions.forEach((r, ri) => twoLvQ.forEach((q, qi) => twoLvM[q].forEach((m, mi) => {
+  tCats.push(r); tL0.push(q); tL1.push(m);
+  tAc.push(900 + ri * 300 + qi * 60 + mi * 20);
+  tPy.push(880 + ri * 290 + qi * 55 + mi * 18);
+})));
+run("c110", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true,
+    tableColExpanded: JSON.stringify(["col¦Q1","col¦Q2","col¦Q3","col¦Q4"]) } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: tCats },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: tL0 },
+      { source: { displayName: "Monat", roles: { colgroup: true } }, values: tL1 }
+    ],
+    values: [col("actual", tAc, "#,0 T€"), col("previousYear", tPy, "#,0 T€")]
+  }
+}, 640, 320);
+</script>
 </body>
 </html>

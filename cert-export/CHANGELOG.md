@@ -1,5 +1,30 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.36.0.0 (2026-07-19)
+
+**Breite Matrizen horizontal scrollen statt abschneiden.** Wenn eine
+Matrix mit Spaltengruppen zu breit für die Kachel wurde, fielen bisher
+als letzte Stufe die rechten Blöcke weg (Hinweis „… +n"). Jetzt bleiben
+alle Blöcke erhalten — der Blockstreifen wird stattdessen horizontal
+scrollbar:
+
+- **Alle Blöcke bleiben erreichbar.** Die bisherigen Sparstufen
+  (Referenzspalten → Minibalken → Δ → Wertspalte schmaler) laufen
+  unverändert; erst danach greift statt des Abschneidens das Scrollen.
+- **Namensspalte links und Σ-Block rechts bleiben fixiert.** Nur die
+  Blockflächen samt ihrer Kopfzeilen (auch die Level-0-Spannzeile bei
+  zwei Spaltenebenen) wandern — Einfrieren links und rechts wie bei den
+  Zeilen.
+- **Bedienung.** Shift + Mausrad bzw. horizontales Wheel-Delta über der
+  Matrix, ein Scrollbalken unten am Blockbereich (Ziehen), sowie
+  Tastatur auf dem Thumb (←/→ ein Block, Bild auf/ab eine Breite) mit
+  `role="scrollbar"` und `aria-orientation="horizontal"`.
+- **Export/Druck unverändert.** Ohne Interaktivität (Export, PDF, Druck)
+  bleibt das bisherige Verhalten mit „… +n"-Hinweis erhalten, da
+  gescrollte Inhalte in einem Standbild nicht erreichbar wären.
+- **Passt alles hinein, ändert sich nichts** — pixelgleich zum bisherigen
+  Verhalten, kein Scrollbalken.
+
 ## 1.35.4.0 (2026-07-19)
 
 **Politur-Paket: acht kleine Funde aus dem Juli-Audit.** Lauter

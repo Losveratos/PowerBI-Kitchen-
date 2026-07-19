@@ -193,6 +193,7 @@
   "Enum_MxCompare_Prev": "前列比Δ",
   "Struct_Indent": "インデント（内訳行）",
   "Matrix_DPrev": "前列Δ",
+  "Matrix_ScrollX": "列をスクロール",
   "Table_Search": "行を検索",
   "Table_NoMatch": "検索に一致する行がありません",
   "Cards_Highlight": "ハイライト対象",

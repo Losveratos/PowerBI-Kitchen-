@@ -193,6 +193,7 @@
   "Enum_MxCompare_Prev": "Δ vs. columna anterior",
   "Struct_Indent": "Sangrar (fila «de lo cual»)",
   "Matrix_DPrev": "Δ ant.",
+  "Matrix_ScrollX": "Desplazar columnas",
   "Table_Search": "Buscar filas",
   "Table_NoMatch": "Ninguna fila coincide con la búsqueda",
   "Cards_Highlight": "Estado a resaltar",

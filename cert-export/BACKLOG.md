@@ -28,9 +28,10 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
 - [ ] **Alle Spaltenbreiten per Drag + Auto-Fit** (M) — bisher nur Namensspalte;
       Wertspalten/Blöcke ebenfalls (persistierte Breiten-Map), Doppelklick =
       auf Inhalt einpassen.
-- [ ] **Horizontales Scrollen statt „… +n"-Cut** (L) — breite Matrizen scrollen
-      mit fixierter Namensspalte und fixiertem Σ-Block, analog zum vertikalen
-      Scroll mit Header/Σ-Freeze.
+- [x] **Horizontales Scrollen statt „… +n"-Cut** (L) — erledigt in 1.36.0.0
+      (Blockstreifen horizontal scrollbar mit fixierter Namensspalte und
+      fixiertem Σ-Block; Shift-Wheel/Scrollbalken/Tastatur; Export behält den
+      „… +n"-Cut).
 - [ ] **Aufklapp-Steuerung ±Alle / „bis Ebene N"** (S–M) — Header-Knopf alles
       auf/zu und Ebenen-Regler, für Zeilen- UND Spaltenhierarchie.
 - [ ] **Zeilen-Layoutpaket** (S–M) — Zebra-Streifen, Zeilenhöhe

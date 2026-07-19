@@ -193,6 +193,7 @@
   "Enum_MxCompare_Prev": "Δ vs. previous column",
   "Struct_Indent": "Indent (thereof row)",
   "Matrix_DPrev": "Δ prev.",
+  "Matrix_ScrollX": "Scroll columns",
   "Table_Search": "Search rows",
   "Table_NoMatch": "No rows match the search",
   "Cards_Highlight": "Highlight status",
