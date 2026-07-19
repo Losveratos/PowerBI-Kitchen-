@@ -69,6 +69,23 @@ const matrixCompareItems: LocEnumMember[] = [
     { value: "prevcol", displayName: "Δ vs. previous column", key: "Enum_MxCompare_Prev" }
 ];
 
+const totalRowPositionItems: LocEnumMember[] = [
+    { value: "bottom", displayName: "Bottom (below rows)", key: "Enum_TotalPos_Bottom" },
+    { value: "top", displayName: "Top (below header)", key: "Enum_TotalPos_Top" }
+];
+
+const rowDensityItems: LocEnumMember[] = [
+    { value: "compact", displayName: "Compact", key: "Enum_RowDensity_Compact" },
+    { value: "normal", displayName: "Normal", key: "Enum_RowDensity_Normal" },
+    { value: "airy", displayName: "Airy", key: "Enum_RowDensity_Airy" }
+];
+
+const gridLinesItems: LocEnumMember[] = [
+    { value: "horizontal", displayName: "Horizontal", key: "Enum_GridLines_Horizontal" },
+    { value: "none", displayName: "None", key: "Enum_GridLines_None" },
+    { value: "both", displayName: "Horizontal + vertical", key: "Enum_GridLines_Both" }
+];
+
 const cardBasisItems: LocEnumMember[] = [
     { value: "basis", displayName: "Variance basis (ΔPL/ΔPY)", key: "Enum_CardBasis_Basis" },
     { value: "benchmark", displayName: "Benchmark (BM)", key: "Enum_CardBasis_Bm" }
@@ -104,7 +121,8 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
         displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
         cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems,
-        pinStyleItems, labelDensityItems];
+        pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
+        gridLinesItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -610,13 +628,53 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    totalRowPosition = new formattingSettings.ItemDropdown({
+        name: "totalRowPosition",
+        displayName: "Total (Σ) row position",
+        displayNameKey: "Table_TotalRowPos",
+        description: "Wo die Σ-Gesamtzeile steht: „Unten“ (Standard, deutsche GuV-Lesart) unter allen Zeilen, „Oben“ direkt unter dem Kopf (IBCS). Bleibt beim Scrollen fixiert.",
+        descriptionKey: "Desc_Table_TotalRowPos",
+        items: totalRowPositionItems,
+        value: totalRowPositionItems[0]
+    });
+
+    zebraStripes = new formattingSettings.ToggleSwitch({
+        name: "zebraStripes",
+        displayName: "Zebra stripes",
+        displayNameKey: "Table_ZebraStripes",
+        description: "Legt jede zweite Datenzeile mit einem sehr dezenten Hintergrund an — leichtere Zeilenverfolgung in breiten Tabellen. Im Hochkontrast-Modus aus. Standard aus.",
+        descriptionKey: "Desc_Table_ZebraStripes",
+        value: false
+    });
+
+    rowDensity = new formattingSettings.ItemDropdown({
+        name: "rowDensity",
+        displayName: "Row density",
+        displayNameKey: "Table_RowDensity",
+        description: "Zeilenhöhe: „Kompakt“ für dichte Tabellen, „Normal“ (Standard) wie bisher, „Luftig“ für mehr Weißraum (Präsentation). Skaliert nur die Obergrenze; sehr hohe Visuals bleiben gedeckelt.",
+        descriptionKey: "Desc_Table_RowDensity",
+        items: rowDensityItems,
+        value: rowDensityItems[1]
+    });
+
+    gridLines = new formattingSettings.ItemDropdown({
+        name: "gridLines",
+        displayName: "Grid lines",
+        displayNameKey: "Table_GridLines",
+        description: "Trennlinien-Stil: „Horizontal“ (Standard) nur Zeilenlinien wie bisher, „Keine“ für ein ruhiges Bild, „Horizontal + vertikal“ ergänzt dezente Spalten-/Blocktrenner.",
+        descriptionKey: "Desc_Table_GridLines",
+        items: gridLinesItems,
+        value: gridLinesItems[0]
+    });
+
     tableGroup = new formattingSettings.Group({
         name: "chartTable",
         displayName: "Table",
         displayNameKey: "Group_Table",
         slices: [this.valueColumns, this.structureEdit, this.resultList, this.skipList,
             this.hideList, this.chartList, this.indentList, this.rowFormats,
-            this.matrixCompare, this.formulaRows]
+            this.matrixCompare, this.formulaRows, this.totalRowPosition,
+            this.zebraStripes, this.rowDensity, this.gridLines]
     });
 
     cardStatusBasis = new formattingSettings.ItemDropdown({

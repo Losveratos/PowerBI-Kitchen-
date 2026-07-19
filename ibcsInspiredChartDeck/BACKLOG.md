@@ -32,14 +32,15 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
       (Blockstreifen horizontal scrollbar mit fixierter Namensspalte und
       fixiertem Σ-Block; Shift-Wheel/Scrollbalken/Tastatur; Export behält den
       „… +n"-Cut).
-- [ ] **Aufklapp-Steuerung ±Alle / „bis Ebene N"** (S–M) — Header-Knopf alles
-      auf/zu und Ebenen-Regler, für Zeilen- UND Spaltenhierarchie.
-- [ ] **Zeilen-Layoutpaket** (S–M) — Zebra-Streifen, Zeilenhöhe
-      kompakt/normal/luftig, Gitterlinien-Stil (keine/horizontal/beide).
-- [ ] **Zeilenumbruch für lange Positionsnamen** (S) — zweizeilige Kategorie
-      statt Truncate („Sonstige betriebliche Aufwendungen").
-- [ ] **Hover-Highlight** (S) — Zeile (Matrix: + Spalte) unterm Cursor dezent
-      hinterlegen.
+- [x] **Aufklapp-Steuerung ±Alle / „bis Ebene N"** (S–M) — erledigt in 1.37.0.0
+      (Zeilen-Doppelchevron auf/zu bestand bereits; neu: ⊞/⊟-Knopf für alle
+      Matrix-Spaltengruppen. Ebenen-Regler bewusst ausgelassen).
+- [x] **Zeilen-Layoutpaket** (S–M) — erledigt in 1.37.0.0 (Zebra-Streifen,
+      Zeilenhöhe kompakt/normal/luftig, Gitterlinien horizontal/keine/beide).
+- [x] **Zeilenumbruch für lange Positionsnamen** (S) — erledigt in 1.37.0.0
+      (automatischer 2-Zeilen-Umbruch statt Truncate, Tabelle + Matrix).
+- [x] **Hover-Highlight** (S) — erledigt in 1.37.0.0 (Zeile, Matrix zusätzlich
+      Spalte/Block unterm Cursor; transient, hc-Modus als Rahmen).
 - [ ] **Zeilen-Pinning** (S–M) — pinList: markierte Zeilen (EBIT, Cash) beim
       Scrollen fixiert über der Σ-Zeile halten.
 - [ ] **Zwei-Zeilen-Kompaktmodus** (M) — Wert groß, Δ/Δ % klein darunter in
@@ -50,8 +51,8 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
 - [ ] **Matrix transponieren** (M) — Schalter Zeilen ↔ Spalten ohne Feld-Umbau.
 - [ ] **Audit-/Abstimm-Modus** (S) — Preset: Zeilennummern, Vollgitter, keine
       Balken/Pins, Werte unverkürzt (WP-Abstimmung, Excel-Abgleich, Druck).
-- [ ] **Σ-Zeile wahlweise oben oder unten** (S) — IBCS oben, deutsche
-      GuV-Lesart unten.
+- [x] **Σ-Zeile wahlweise oben oder unten** (S) — erledigt in 1.37.0.0
+      (Setting „Position der Σ-Zeile", oben/unten, beim Scrollen fixiert).
 - [ ] **Zeilen-Reihenfolge per Drag** (L) — manuelles Umsortieren, persistiert;
       Verzahnung mit Sort/Hierarchie klären.
 - [ ] **Export-Ansicht „alles aufgeklappt"** (S) — beim Druck/PDF automatisch

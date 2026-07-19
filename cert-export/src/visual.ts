@@ -148,6 +148,14 @@ interface ChartConfig {
     rowFmt: Map<string, (v: number) => string>;
     /** matrix: per-block comparison — "none" | "prevcol" (Δ vs. previous column) */
     matrixCompare: string;
+    /** table Σ-row placement — "bottom" (default) | "top" (frozen under the header) */
+    totalPos: string;
+    /** table: shade every second body row (zebra); off in high-contrast */
+    zebra: boolean;
+    /** table row-height cap factor (compact 1.6 · normal 2.4 · airy 3.2) */
+    rowDensity: number;
+    /** table grid-line style — "horizontal" (default) | "none" | "both" */
+    gridLines: string;
     /** table: formula-row definitions ("Label = A + B; Marge = X / Y"), raw text */
     formulaRows: string;
     /** KPI cards: what stripe + background judge against ("basis" | "benchmark") */
@@ -1665,6 +1673,11 @@ export class Visual implements IVisual {
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
             rowFmt: this.parseRowFormats(String(s.chartCard.rowFormats.value || "")),
             matrixCompare: String(s.chartCard.matrixCompare.value.value),
+            totalPos: String(s.chartCard.totalRowPosition.value.value),
+            zebra: s.chartCard.zebraStripes.value === true,
+            rowDensity: ({ compact: 1.6, normal: 2.4, airy: 3.2 } as Record<string, number>)[
+                String(s.chartCard.rowDensity.value.value)] ?? 2.4,
+            gridLines: String(s.chartCard.gridLines.value.value),
             formulaRows: String(s.chartCard.formulaRows.value || ""),
             cardBasis: String(s.chartCard.cardStatusBasis.value.value),
             cardTint: s.chartCard.cardTint.value,
@@ -3854,9 +3867,10 @@ export class Visual implements IVisual {
 
         // ------- row layout + shared scales; the Σ row is pinned as last visible row.
         // rowH is capped like the P&L statement (and the native matrix): rows keep
-        // a font-bound height instead of stretching bars across a tall visual
+        // a font-bound height instead of stretching bars across a tall visual.
+        // rowDensity scales the cap (compact 1.6 · normal 2.4 · airy 3.2)
         const headerH = Math.round(cf + 12);
-        const rowH = Math.min(cf * 2.4, Math.max(cf + 6, (region.h - pad * 2 - headerH) / n));
+        const rowH = Math.min(cf * cfg.rowDensity, Math.max(cf + 6, (region.h - pad * 2 - headerH) / n));
         const top = region.y + pad + headerH;
         // epsilon guards the FP edge where avail/n rounds up in rowH and
         // avail/rowH lands at n−ε — all rows fit, no scrollbar wanted
@@ -3873,7 +3887,10 @@ export class Visual implements IVisual {
             : 0;
         if (canScroll) { this.tableScroll.set(paneKey, scroll); }
         const bodyRows = rows.slice(scroll, scroll + bodyCap);
-        const shown = totalRow ? [...bodyRows, totalRow] : bodyRows;
+        // Σ-row placement: default below the body, "top" freezes it under the header
+        // (body rows shift down one slot). Both stay frozen while the body scrolls.
+        const sumTop = cfg.totalPos === "top";
+        const shown = totalRow ? (sumTop ? [totalRow, ...bodyRows] : [...bodyRows, totalRow]) : bodyRows;
 
         // margin rows (rowType "pct") carry percentages, skip rows are excluded
         // from totals — keep both out of the € scales. Scales use the FULL tree
@@ -4010,6 +4027,9 @@ export class Visual implements IVisual {
             ? linearScale(Math.min(barDomain[0], 0), Math.max(barDomain[1], 1), colX["bars"].x + 2, colX["bars"].x + colX["bars"].w - 2)
             : null;
         const rowsBottom = top + shown.length * rowH;
+        // hover highlight layer, populated after the row loop (declared here so the
+        // per-row mouseenter closures can reference it)
+        let hoverRowG: SVGGElement | null = null;
         // draggable name-column edge (persisted width)
         this.drawNameResize(bg, colX["name"].x + colX["name"].w + gap / 2,
             region.y + pad, rowsBottom, region, cfg);
@@ -4069,11 +4089,22 @@ export class Visual implements IVisual {
                 || cfg.chartSet.has(p.cat.trim().toLowerCase())) && rf == null;
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
 
-            // separators: subtle under every row, strong above subtotals
-            this.el("line", {
-                x1: region.x + pad, y1: y + rowH, x2: region.x + region.w - pad, y2: y + rowH,
-                stroke: cfg.subtle, "stroke-width": 0.6, "stroke-opacity": 0.4
-            }, bg);
+            // zebra: shade every second body row (never the Σ row); off in hc
+            const bodyAbs = row.isTotal ? -1 : (sumTop && totalRow ? scroll + i - 1 : scroll + i);
+            if (cfg.zebra && !cfg.hc && bodyAbs >= 0 && bodyAbs % 2 === 1) {
+                this.el("rect", {
+                    x: region.x + pad, y, width: region.w - pad * 2, height: rowH,
+                    fill: cfg.ink, "fill-opacity": 0.03
+                }, bg);
+            }
+            // separators: subtle under every row (gridLines "none" drops them),
+            // strong above subtotals stays regardless (structural, not a grid line)
+            if (cfg.gridLines !== "none") {
+                this.el("line", {
+                    x1: region.x + pad, y1: y + rowH, x2: region.x + region.w - pad, y2: y + rowH,
+                    stroke: cfg.subtle, "stroke-width": 0.6, "stroke-opacity": 0.4
+                }, bg);
+            }
             if (isAnchor(p)) {
                 this.el("line", {
                     x1: region.x + pad, y1: y, x2: region.x + region.w - pad, y2: y,
@@ -4095,10 +4126,10 @@ export class Visual implements IVisual {
             const nameText = isParent
                 ? `${row.expanded ? "▾" : "▸"} ${p.cat}`
                 : p.cat;
-            const nameEl = txt(colX["name"].x + (sum && row.depth === 0 && !davon ? 0 : Math.round(6 * k)) + indentX,
-                yMid + rowFont * 0.35,
-                this.truncate(nameText, colX["name"].w - 8 - indentX, rowFont),
-                "start", rowFont, sum && !davon, skip || davon ? cfg.subtle : cfg.ink, g);
+            const nameEl = this.drawCatName(g,
+                colX["name"].x + (sum && row.depth === 0 && !davon ? 0 : Math.round(6 * k)) + indentX,
+                yMid, nameText, colX["name"].w - 8 - indentX, rowFont, rowH,
+                sum && !davon, skip || davon ? cfg.subtle : cfg.ink);
             if (skip) { nameEl.setAttribute("font-style", "italic"); }
             const rowPct = isPct(p);
             const pctNf = new Intl.NumberFormat(this.host.locale, {
@@ -4272,6 +4303,16 @@ export class Visual implements IVisual {
                 fill: cfg.paper, "fill-opacity": 0.01
             }, g);
 
+            // hover highlight: transient, drawn into the background layer (hoverRowG)
+            // so text/bars stay readable; coexists with dimming (separate layer)
+            if (this.allowInteractions) {
+                g.addEventListener("mouseenter", () => {
+                    this.clearNode(hoverRowG);
+                    if (hoverRowG) { this.hoverBox(hoverRowG, region.x + pad, y + 0.5, region.w - pad * 2, rowH - 1, cfg); }
+                });
+                g.addEventListener("mouseleave", () => this.clearNode(hoverRowG));
+            }
+
             this.attachInteraction(g, p, cfg);
             if (isParent) {
                 // clicking a parent row toggles its children (crossfilter stays on the
@@ -4301,6 +4342,21 @@ export class Visual implements IVisual {
             this.catGroups.push({ g, sel: p.sel });
             this.animGroups.push([g]);
         });
+
+        // vertical grid lines (gridLines "both"): dezente Spaltentrenner over the
+        // zebra + horizontal separators, at each column's left boundary
+        if (cfg.gridLines === "both") {
+            for (const kk of Object.keys(colX)) {
+                if (kk === "name") { continue; }
+                const cx = colX[kk].x - gap / 2;
+                this.el("line", {
+                    x1: cx, y1: top, x2: cx, y2: rowsBottom,
+                    stroke: cfg.subtle, "stroke-width": 0.6, "stroke-opacity": 0.35
+                }, bg);
+            }
+        }
+        // hover layer sits on top of the background (still under the marks)
+        hoverRowG = this.el("g", { "pointer-events": "none" }, bg);
 
         const hiddenRows = rows.length - bodyRows.length;
         if (canScroll) {
@@ -4722,7 +4778,7 @@ export class Visual implements IVisual {
         };
         const n = Math.max(1, rows.length + (showTotalRow ? 1 : 0));
         // capped like the flat table: font-bound row height, no stretching
-        const rowH = Math.min(cf * 2.4, Math.max(cf + 6, (region.h - pad * 2 - headerH) / n));
+        const rowH = Math.min(cf * cfg.rowDensity, Math.max(cf + 6, (region.h - pad * 2 - headerH) / n));
         const top = region.y + pad + headerH;
         const maxRows = Math.floor((region.h - pad * 2 - headerH) / rowH + 1e-6);
         const bodyCap = Math.max(1, maxRows - (showTotalRow ? 1 : 0));
@@ -4944,6 +5000,30 @@ export class Visual implements IVisual {
                 this.rerender();
             });
         }
+        // column-group ±all: expand/collapse every collapsible level-0 block at once
+        // (mirrors the row expand-all chevron; sits on the level-0 header line)
+        if (twoLv && this.allowInteractions) {
+            const allColKeys = colOrder.filter(nd => nd.kids.length > 0).map(nd => `col¦${nd.label}`);
+            if (allColKeys.length > 0) {
+                const allColOpen = allColKeys.every(kk => this.colExpanded.has(kk));
+                const clabel = allColOpen
+                    ? this.locStr("Btn_CollapseAllCols", "Collapse all columns")
+                    : this.locStr("Btn_ExpandAllCols", "Expand all columns");
+                const cc = txt(region.x + pad, hy0, allColOpen ? "⊟" : "⊞", "start", hFont, true, cfg.subtle, bg);
+                const ctip = this.el("title", {}, cc);
+                ctip.textContent = clabel;
+                cc.setAttribute("role", "button");
+                cc.setAttribute("aria-label", clabel);
+                (cc as unknown as SVGGraphicsElement).style.cursor = "pointer";
+                cc.addEventListener("click", (e: MouseEvent) => {
+                    e.stopPropagation();
+                    if (allColOpen) { allColKeys.forEach(kk => this.colExpanded.delete(kk)); }
+                    else { allColKeys.forEach(kk => this.colExpanded.add(kk)); }
+                    this.persistTableColExpanded();
+                    this.rerender();
+                });
+            }
+        }
         this.drawSearchControl(bg,
             region.x + pad + (hasLevels ? Math.round(24 * k) : 0), hy, cfg);
         this.el("line", {
@@ -4968,6 +5048,11 @@ export class Visual implements IVisual {
         const ppText = (v: number) => this.financeFmt && v < 0
             ? `(${pctNf.format(Math.abs(v))}Pp)`
             : (v > 0 ? "+" : v < 0 ? "−" : "") + pctNf.format(Math.abs(v)) + "Pp";
+        // Σ-row placement + hover layers (assigned after the loop; the per-row
+        // mouseenter/move closures reference them once populated)
+        const sumTop = cfg.totalPos === "top";
+        let hoverRowG: SVGGElement | null = null;
+        let hoverColG: SVGGElement | null = null;
         const drawRow = (row: MRow | null, i: number) => {
             const isTotal = row == null;
             const y = top + i * rowH;
@@ -4985,10 +5070,20 @@ export class Visual implements IVisual {
             const rf = cfg.rowFmt.get(label.trim().toLowerCase());
             const fmtCell = (v: number) => rowPct ? pctText(v) : rf ? rf(v) : cfg.fmt.format(v);
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
-            this.el("line", {
-                x1: region.x + pad, y1: y + rowH, x2: region.x + region.w - pad, y2: y + rowH,
-                stroke: cfg.subtle, "stroke-width": 0.6, "stroke-opacity": 0.4
-            }, bg);
+            // zebra: shade every second body row (never the Σ row); off in hc
+            const bodyAbs = isTotal ? -1 : (sumTop && showTotalRow ? scroll + i - 1 : scroll + i);
+            if (cfg.zebra && !cfg.hc && bodyAbs >= 0 && bodyAbs % 2 === 1) {
+                this.el("rect", {
+                    x: region.x + pad, y, width: region.w - pad * 2, height: rowH,
+                    fill: cfg.ink, "fill-opacity": 0.03
+                }, bg);
+            }
+            if (cfg.gridLines !== "none") {
+                this.el("line", {
+                    x1: region.x + pad, y1: y + rowH, x2: region.x + region.w - pad, y2: y + rowH,
+                    stroke: cfg.subtle, "stroke-width": 0.6, "stroke-opacity": 0.4
+                }, bg);
+            }
             if (isTotal || isAnchor(agg) || (row && row.formula && !rowPct)) {
                 this.el("line", {
                     x1: region.x + pad, y1: y, x2: region.x + region.w - pad, y2: y,
@@ -5000,10 +5095,10 @@ export class Visual implements IVisual {
             const nameText = isParent
                 ? `${(row as MRow).expanded ? "▾" : "▸"} ${label}`
                 : label;
-            const nameEl = txt(region.x + pad + (sum && depth === 0 && !davon ? 0 : Math.round(6 * k)) + indentX,
-                yMid + rowFont * 0.35,
-                this.truncate(nameText, nameW - 8 - indentX, rowFont),
-                "start", rowFont, sum && !davon, skip || davon ? cfg.subtle : cfg.ink, g);
+            const nameEl = this.drawCatName(g,
+                region.x + pad + (sum && depth === 0 && !davon ? 0 : Math.round(6 * k)) + indentX,
+                yMid, nameText, nameW - 8 - indentX, rowFont, rowH,
+                sum && !davon, skip || davon ? cfg.subtle : cfg.ink);
             if (skip) { nameEl.setAttribute("font-style", "italic"); }
             // block cells go into a per-row scroll subgroup in hScroll mode (kept in
             // sync with the fixed row group for selection dimming + build animation),
@@ -5078,6 +5173,32 @@ export class Visual implements IVisual {
                 x: region.x + pad, y, width: region.w - pad * 2, height: rowH,
                 fill: cfg.paper, "fill-opacity": 0.01
             }, g);
+            // hover highlight: row band (fixed bg layer) + column block under the
+            // cursor (scroll layer in hScroll so it tracks + clips with the strip)
+            if (this.allowInteractions) {
+                const drawColHi = (e: MouseEvent) => {
+                    if (!hoverColG) { return; }
+                    this.clearNode(hoverColG);
+                    const localX = e.clientX - this.svg.getBoundingClientRect().left;
+                    const contentX = hScroll ? localX + scrollX : localX;
+                    for (let bi = 0; bi < shownBlocks.length; bi++) {
+                        if (contentX >= colX[bi].x && contentX < colX[bi].x + colX[bi].w) {
+                            this.hoverBox(hoverColG, colX[bi].x, top, colX[bi].w, rowsBottom - top, cfg);
+                            return;
+                        }
+                    }
+                    if (!hScroll && localX >= sumX.x && localX < sumX.x + sumX.w) {
+                        this.hoverBox(hoverColG, sumX.x, top, sumX.w, rowsBottom - top, cfg);
+                    }
+                };
+                g.addEventListener("mouseenter", (e: MouseEvent) => {
+                    this.clearNode(hoverRowG);
+                    if (hoverRowG) { this.hoverBox(hoverRowG, region.x + pad, y + 0.5, region.w - pad * 2, rowH - 1, cfg); }
+                    drawColHi(e);
+                });
+                g.addEventListener("mousemove", drawColHi);
+                g.addEventListener("mouseleave", () => { this.clearNode(hoverRowG); this.clearNode(hoverColG); });
+            }
             this.attachInteraction(g, agg, cfg);
             if (isParent) {
                 g.setAttribute("aria-expanded", String(!!(row as MRow).expanded));
@@ -5106,9 +5227,33 @@ export class Visual implements IVisual {
             if (bp !== g) { this.catGroups.push({ g: bp, sel: agg.sel }); }
             this.animGroups.push(bp !== g ? [g, bp] : [g]);
         };
-        bodyRows.forEach((row, i) => drawRow(row, i));
-        if (showTotalRow) { drawRow(null, bodyRows.length); }
+        // Σ-row placement: "top" freezes it under the header (body shifts down one
+        // slot), else it stays frozen below the body — both survive scrolling
+        if (sumTop && showTotalRow) {
+            drawRow(null, 0);
+            bodyRows.forEach((row, i) => drawRow(row, i + 1));
+        } else {
+            bodyRows.forEach((row, i) => drawRow(row, i));
+            if (showTotalRow) { drawRow(null, bodyRows.length); }
+        }
         const rowsBottom = top + (bodyRows.length + (showTotalRow ? 1 : 0)) * rowH;
+
+        // vertical grid lines (gridLines "both"): dezente Blocktrenner at each block's
+        // left edge — inter-block dividers ride the scroll layer in hScroll mode
+        if (cfg.gridLines === "both") {
+            for (let bi = 0; bi < shownBlocks.length; bi++) {
+                const cx = colX[bi].x - gap / 2;
+                const vg = (hScroll && bi > 0) ? bgScroll : bg;
+                this.el("line", {
+                    x1: cx, y1: top, x2: cx, y2: rowsBottom,
+                    stroke: cfg.subtle, "stroke-width": 0.6, "stroke-opacity": 0.35
+                }, vg);
+            }
+        }
+        // hover layers on top of the background (still under the row marks); the
+        // column layer rides the scroll strip so its highlight tracks + clips
+        hoverRowG = this.el("g", { "pointer-events": "none" }, bg);
+        hoverColG = this.el("g", { "pointer-events": "none" }, hScroll ? bgScroll : bg);
 
         // Σ block separator + draggable name edge
         this.el("line", {
@@ -7332,6 +7477,68 @@ export class Visual implements IVisual {
         }
         if (cur) { lines.push(cur); }
         return lines;
+    }
+
+    /** splits a label into two lines at the last word boundary that still fits;
+     *  falls back to a character break for a single over-long word */
+    private splitTwoLines(text: string, maxW: number, font: number): [string, string] {
+        const words = text.split(/\s+/);
+        if (words.length > 1) {
+            let l1 = words[0], i = 1;
+            for (; i < words.length; i++) {
+                if (this.textWidth(l1 + " " + words[i], font) > maxW) { break; }
+                l1 = l1 + " " + words[i];
+            }
+            if (i < words.length) { return [l1, words.slice(i).join(" ")]; }
+        }
+        let lo = 1, hi = text.length;
+        while (lo < hi) {
+            const mid = (lo + hi + 1) >> 1;
+            if (this.textWidth(text.slice(0, mid), font) <= maxW) { lo = mid; } else { hi = mid - 1; }
+        }
+        return [text.slice(0, lo), text.slice(lo)];
+    }
+
+    /** row/category name: truncates as before, but wraps to two lines when the row
+     *  is tall enough (rowH ≥ two line steps) instead of cutting a long name off */
+    private drawCatName(parent: SVGElement, x: number, yMid: number, text: string,
+        maxW: number, font: number, rowH: number, bold: boolean, color: string): SVGTextElement {
+        const fits = this.textWidth(text, font) <= maxW;
+        const lineStep = Math.round(font * 1.15);
+        const t = this.el("text", {
+            x, "text-anchor": "start", "font-size": font, fill: color,
+            "font-family": FONT, "font-weight": bold ? 700 : 400
+        }, parent) as SVGTextElement;
+        if (fits || rowH < 2 * lineStep) {
+            t.setAttribute("y", String(yMid + font * 0.35));
+            t.textContent = fits ? text : this.truncate(text, maxW, font);
+            return t;
+        }
+        const [l1, l2raw] = this.splitTwoLines(text, maxW, font);
+        const l2 = this.truncate(l2raw, maxW, font);
+        const y1 = yMid - lineStep / 2 + font * 0.35;
+        for (const [ln, yy] of [[l1, y1], [l2, y1 + lineStep]] as [string, number][]) {
+            const ts = document.createElementNS(SVG_NS, "tspan");
+            ts.setAttribute("x", String(x));
+            ts.setAttribute("y", String(yy));
+            ts.textContent = ln;
+            t.appendChild(ts);
+        }
+        return t;
+    }
+
+    /** transient hover highlight rect (light fill, or thin outline in high-contrast) */
+    private hoverBox(parent: SVGElement, x: number, y: number, w: number, h: number, cfg: ChartConfig): void {
+        this.el("rect", {
+            x, y, width: Math.max(1, w), height: Math.max(1, h),
+            ...(cfg.hc
+                ? { fill: "none", stroke: cfg.ink, "stroke-width": 1 }
+                : { fill: cfg.ink, "fill-opacity": 0.05 })
+        }, parent);
+    }
+
+    private clearNode(g: SVGElement | null): void {
+        if (g) { while (g.firstChild) { g.removeChild(g.firstChild); } }
     }
 
     /** circled digit for tooltips: ①…⑳, then (n) */

@@ -1017,5 +1017,60 @@ run("c110", {
   }
 }, 640, 320);
 </script>
+
+<div class="case"><h4>c111 · 1.37 · Tabelle Hierarchie Region→Land (zugeklappt) — ±Alle-Buttons (▸▸ aufklappen) im Kopf, Zeilen-Hover</h4><div class="stage" id="c111" style="width:1100px;height:360px"></div></div>
+<script>
+// row-hierarchy table collapsed by default -> the row expand-all chevron (▸▸) shows;
+// hover over a row highlights it (transient, background layer)
+run("c111", {
+  metadata: { columns: [], objects: { chart: { orientation: "table" } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: hReg },
+      { source: { displayName: "Land", roles: { category: true } }, values: hLand }
+    ],
+    values: [col("actual", hAc, "#,0 T€"), col("previousYear", hPy, "#,0 T€")]
+  }
+}, 1100, 360);
+</script>
+
+<div class="case"><h4>c112 · 1.37 · Matrix Σ oben (totalRowPosition top) · 24 Regionen, kurzes Visual → vertikaler Scroll, Σ unter dem Kopf fixiert</h4><div class="stage" id="c112" style="width:900px;height:300px"></div></div>
+<script>
+const mtRegions = Array.from({length:24}, (_,i)=>"Region "+(i+1));
+const mtQ = ["Q1","Q2","Q3","Q4"];
+const mtCats=[], mtQcol=[], mtAc=[], mtPy=[];
+mtRegions.forEach((r,ri)=>mtQ.forEach((q,qi)=>{ mtCats.push(r); mtQcol.push(q); mtAc.push(600+ri*40+qi*30); mtPy.push(590+ri*38+qi*25); }));
+run("c112", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true, totalRowPosition: "top" } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: mtCats },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: mtQcol }
+    ],
+    values: [col("actual", mtAc, "#,0 T€"), col("previousYear", mtPy, "#,0 T€")]
+  }
+}, 900, 300);
+</script>
+
+<div class="case"><h4>c113 · 1.37 · Tabelle zebraStripes + gridLines both + rowDensity compact — dezente Zebra + Spalten-/Zeilentrenner, dichte Zeilen</h4><div class="stage" id="c113" style="width:900px;height:420px"></div></div>
+<script>
+run("c113", dataView(many, [col("actual", mAc, "#,0 T€"), col("previousYear", mAc.map(v=>Math.round(v*0.95)), "#,0 T€")],
+  { chart: { orientation: "table", zebraStripes: true, gridLines: "both", rowDensity: "compact", valueColumns: "basis" } }), 900, 420);
+</script>
+
+<div class="case"><h4>c114 · 1.37 · Tabelle lange Positionsnamen (schmal) → Umbruch auf 2 Zeilen statt Truncate</h4><div class="stage" id="c114" style="width:520px;height:300px"></div></div>
+<script>
+const lnCats = ["Sonstige betriebliche Aufwendungen","Erlöse aus Lieferungen und Leistungen","Materialaufwand und bezogene Leistungen","Personalaufwand inkl. Sozialabgaben","Abschreibungen auf Sachanlagen"];
+const lnAc = [-1200, 9800, -4200, -2400, -800];
+const lnPy = [-1100, 9200, -4000, -2300, -780];
+run("c114", dataView(lnCats, [col("actual", lnAc, "#,0 T€"), col("previousYear", lnPy, "#,0 T€")],
+  { chart: { orientation: "table" } }), 520, 300);
+</script>
+
+<div class="case"><h4>c115 · 1.37 · Tabelle rowDensity airy — luftige Zeilen (mehr Weißraum)</h4><div class="stage" id="c115" style="width:900px;height:520px"></div></div>
+<script>
+run("c115", dataView(many, [col("actual", mAc, "#,0 T€"), col("previousYear", mAc.map(v=>Math.round(v*0.95)), "#,0 T€")],
+  { chart: { orientation: "table", rowDensity: "airy" } }), 900, 520);
+</script>
 </body>
 </html>

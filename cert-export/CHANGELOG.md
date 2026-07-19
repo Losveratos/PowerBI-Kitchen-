@@ -1,5 +1,32 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.37.0.0 (2026-07-19)
+
+**Bedienkomfort-Paket für Tabelle und Matrix.** Fünf Verbesserungen rund
+um Aufklappen, Lesbarkeit und Layout der IBCS-Tabelle und der Matrix:
+
+- **±Alle-Aufklappen im Kopf.** Neben dem bekannten „Alle Zeilen
+  auf-/zuklappen"-Doppelchevron gibt es in der Matrix jetzt auch einen
+  ⊞/⊟-Knopf, der alle Spaltengruppen auf einmal öffnet bzw. schließt
+  (nur interaktiv, mit Titel/aria-label). Ebenen-Regler wurde bewusst
+  ausgelassen — der Doppelchevron öffnet ohnehin alle Ebenen, und
+  Spaltengruppen haben max. zwei Ebenen.
+- **Hover-Hervorhebung.** Die Zeile unter dem Cursor wird dezent
+  hinterlegt (im Hochkontrast-Modus als dünner Rahmen); in der Matrix
+  zusätzlich die Spalte/Block unter dem Cursor — auch im horizontal
+  gescrollten Zustand. Rein transient, koexistiert mit Cross-Filter.
+- **Σ-Zeile oben oder unten.** Neues Setting „Position der Σ-Zeile":
+  „Unten" (Standard, deutsche GuV-Lesart) oder „Oben" direkt unter dem
+  Kopf (IBCS) — in beiden Fällen beim Scrollen fixiert.
+- **Zeilenumbruch für lange Positionsnamen.** Lange Kategorienamen
+  (z. B. „Sonstige betriebliche Aufwendungen") brechen automatisch auf
+  zwei Zeilen um, wenn die Zeile hoch genug ist, statt abgeschnitten zu
+  werden — gilt für flache Tabelle und Matrix.
+- **Zeilen-Layoutpaket.** Drei neue Settings: „Zebra-Streifen" (dezenter
+  Wechselhintergrund, im Hochkontrast aus), „Zeilenhöhe"
+  (kompakt/normal/luftig) und „Gitterlinien" (horizontal/keine/beide, mit
+  dezenten Spalten- bzw. Blocktrennern).
+
 ## 1.36.0.0 (2026-07-19)
 
 **Breite Matrizen horizontal scrollen statt abschneiden.** Wenn eine

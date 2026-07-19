@@ -176,6 +176,33 @@
                     }
                 },
                 "formulaRows": { "type": { "text": true } },
+                "totalRowPosition": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "bottom", "displayName": "Bottom (below rows)" },
+                            { "value": "top", "displayName": "Top (below header)" }
+                        ]
+                    }
+                },
+                "zebraStripes": { "type": { "bool": true } },
+                "rowDensity": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "compact", "displayName": "Compact" },
+                            { "value": "normal", "displayName": "Normal" },
+                            { "value": "airy", "displayName": "Airy" }
+                        ]
+                    }
+                },
+                "gridLines": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "horizontal", "displayName": "Horizontal" },
+                            { "value": "none", "displayName": "None" },
+                            { "value": "both", "displayName": "Horizontal + vertical" }
+                        ]
+                    }
+                },
                 "cardStatusBasis": {
                     "type": {
                         "enumeration": [
