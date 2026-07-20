@@ -2060,9 +2060,9 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <div>
     <div class="eyebrow">Daten-WG · Knowledge Kitchen</div>
     <h1 class="title">Power BI lernen,<br><em>strukturiert &amp; durchsuchbar.</em></h1>
-    <p class="subtitle">138 Folgen aus dem <strong>Daten-WG-Podcast</strong> — geclustert in 9 Themen-Buckets, mit Volltextsuche bis in die Auto-Transkripte und einem End-to-End-Einsteiger-Guide. Kein Chrono-Scroll, sondern Curriculum.</p>
+    <p class="subtitle">139 Folgen aus dem <strong>Daten-WG-Podcast</strong> — geclustert in 9 Themen-Buckets, mit Volltextsuche bis in die Auto-Transkripte und einem End-to-End-Einsteiger-Guide. Kein Chrono-Scroll, sondern Curriculum.</p>
     <div class="header-stats">
-      <span class="header-stat"><strong>138</strong>Folgen</span>
+      <span class="header-stat"><strong>139</strong>Folgen</span>
       <span class="header-stat"><strong>105</strong>Transkripte</span>
       <span class="header-stat"><strong>10</strong>Guide-Kapitel</span>
       <span class="header-stat"><strong>9</strong>Buckets</span>
@@ -2101,7 +2101,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   <div>
     <h2 class="start-here-title">Wie nutzt du diese Seite?</h2>
     <div class="start-here-text">
-      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 138 Folgen sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
+      <p>Der Daten-WG-Kanal ist seit knapp einem Jahr live, 139 Folgen sind raus. Statt chronologisch zu scrollen, findest du hier <strong>alles nach Thema</strong>: Tippst du oben in die Suche oder klickst einen Tag, blendet die Seite alles andere aus.</p>
       <p>Jede Folge ist eine Karte mit Gast, Dauer, kurzer Zusammenfassung und Tags. Ein Klick auf die Karte zeigt die <strong>Kapitel-Timestamps</strong> (bei 60 Folgen detailliert eingepflegt) — du kannst direkt zur Stelle springen, die dich interessiert.</p>
       <p>Empfohlener Einstieg, wenn du den Kanal noch nicht kennst: Quarterly-Updates für die Tools-Lage, dann das Bucket, das gerade zu deiner Arbeit passt.</p>
     </div>
@@ -2267,7 +2267,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
       <div class="search-help-foot">Sucht in Titel, Gast, Beschreibung und (lazy geladen) Transkripten.</div>
     </div>
     <div class="filter-meta">
-      <span><strong id="result-count">138</strong> von 138 Folgen</span>
+      <span><strong id="result-count">139</strong> von 139 Folgen</span>
       <button class="filter-reset" id="reset-filters">Filter zurücksetzen</button>
       <button class="tags-peek" id="tags-peek" type="button" aria-expanded="true" aria-controls="tag-list" title="Tag-Filter ein-/ausblenden"><span id="tags-peek-label">Tags ausblenden</span><span class="tags-peek-badge" id="tags-peek-badge">0</span><span class="tags-peek-chevron" aria-hidden="true"></span></button>
     </div>
@@ -2291,7 +2291,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="bucket-tile-num">01 · QUARTERLY</div>
     <div class="bucket-tile-name">Updates & News</div>
     <div class="bucket-tile-teaser">Quarterly Updates: was ist neu in Power BI &amp; Fabric.</div>
-    <div class="bucket-tile-count">19 Folgen</div>
+    <div class="bucket-tile-count">20 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-2" style="--bucket-color: var(--c-fabric);">
     <div class="bucket-tile-num">02 · PLATTFORM</div>
@@ -2662,6 +2662,36 @@ const BUCKETS = [
 const EPISODES = [
 
   /* ========== BUCKET 1: QUARTERLY ========== */
+  {
+    bucket: 'bucket-1',
+    title: 'Fabric & Power BI Quarterly · 2026-3',
+    guest: 'Gabi Münster',
+    solo: false,
+    date: '19.07.2026',
+    duration: '55 min',
+    lang: 'DE',
+    desc: 'So viele GA-Features wie lange nicht: zehn Power-BI-Updates in zwei Monaten, dazu Fabric Apps und Rayfin von der MS Build. Gabi Münster und Artur diskutieren, ob Fabric Apps den Report langfristig ablösen — und was die drei Preismodelle, das Session-Modell und GPU-beschleunigte Warehouses praktisch kosten.',
+    tags: ['Quarterly', 'Fabric', 'Power BI', 'Update', 'Fabric Apps', 'Pricing', 'OneLake', 'DE'],
+    podcastUrl: null,
+    ytId: 'PW6MP-SDmRk',
+    chapters: [
+      ['00:00', 'Intro: Data Saturday Rheinland und eine Ära, die endet'],
+      ['05:11', 'Power BI bekommt Liebe: zehn GA-Updates in zwei Monaten'],
+      ['06:11', 'Custom Totals und Visual Calculations sind GA'],
+      ['07:43', 'Kleinigkeiten mit Wirkung: Full HD und Set as Landing Page'],
+      ['09:46', 'MS Build: Fabric Apps und Rayfin'],
+      ['12:24', 'Rayfin ist kein Report-Ersatz, sondern ein Backend-Service'],
+      ['18:08', 'Regionen-Frage und Kurt Buhlers Vergleich: Lego vs. 3D-Drucker'],
+      ['20:13', 'Fabric Planning und PowerTable: Excel-Frontend auf SQL'],
+      ['21:05', 'Drei Preismodelle in Fabric und was das Session-Modell bedeutet'],
+      ['28:32', 'Warehouse mit GPU-Beschleunigung und was das kosten wird'],
+      ['34:02', 'Storage Tiers und Item Size Reporting'],
+      ['35:11', 'SharePoint Shortcuts GA und Shortcut Transformations'],
+      ['36:35', 'Delegated Shortcuts: Federation für OneLake Security'],
+      ['42:42', 'Real-Time Intelligence: Business Events und CDC-Mirroring'],
+      ['47:55', 'Feature-Wünsche: Lineage auf Tabellenebene und die Policy Engine']
+    ]
+  },
   {
     bucket: 'bucket-1',
     title: 'Power BI Update Juni 2026',
