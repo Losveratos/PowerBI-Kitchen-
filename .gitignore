@@ -50,3 +50,8 @@ deneb-test/
 
 # Temp: pbix-Extraktion
 _gtmp/
+
+# ChartKitchen beta gate — raw .pbiviz builds never get committed to the site
+# downloads folder; the encrypted .enc IS committed there on activation.
+# (Release builds under ibcsInspiredChartDeck/dist/ stay tracked as before.)
+downloads/*.pbiviz

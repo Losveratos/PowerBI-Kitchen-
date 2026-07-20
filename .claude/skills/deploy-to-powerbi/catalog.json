@@ -7,10 +7,34 @@
       "name": "Säulen-Varianz (Monate, AC/FC vs PL + ΔPL + ΔPL%)",
       "builderSteps": "Typ 'Säulen' (oder Preset 'months'), Referenz PL, Δ-absolut + Δ-relativ einschalten, FC-Monate markieren.",
       "fields": [
-        {"ph": "__0__", "name": "Kategorie", "type": "text",    "kind": "column",  "rolle": "Periode/Monat (X-Achse)"},
-        {"ph": "__1__", "name": "AC",        "type": "numeric", "kind": "measure", "rolle": "Ist/Forecast-Wert (durchgehend)"},
-        {"ph": "__2__", "name": "PL",        "type": "numeric", "kind": "measure", "rolle": "Plan"},
-        {"ph": "__3__", "name": "FC",        "type": "numeric", "kind": "column",  "rolle": "Forecast-Flag (1/0)"}
+        {
+          "ph": "__0__",
+          "name": "Kategorie",
+          "type": "text",
+          "kind": "column",
+          "rolle": "Periode/Monat (X-Achse)"
+        },
+        {
+          "ph": "__1__",
+          "name": "AC",
+          "type": "numeric",
+          "kind": "measure",
+          "rolle": "Ist/Forecast-Wert (durchgehend)"
+        },
+        {
+          "ph": "__2__",
+          "name": "PL",
+          "type": "numeric",
+          "kind": "measure",
+          "rolle": "Plan"
+        },
+        {
+          "ph": "__3__",
+          "name": "FC",
+          "type": "numeric",
+          "kind": "column",
+          "rolle": "Forecast-Flag (1/0)"
+        }
       ]
     },
     {
@@ -18,10 +42,34 @@
       "name": "Balken-Struktur (Kategorien, AC vs PL)",
       "builderSteps": "Typ 'Balken' (oder Preset 'countries'), Referenz PL.",
       "fields": [
-        {"ph": "__0__", "name": "Kategorie", "type": "text",    "kind": "column",  "rolle": "Kategorie (Y-Achse)"},
-        {"ph": "__1__", "name": "AC",        "type": "numeric", "kind": "measure", "rolle": "Ist"},
-        {"ph": "__2__", "name": "PL",        "type": "numeric", "kind": "measure", "rolle": "Plan"},
-        {"ph": "__3__", "name": "FC",        "type": "numeric", "kind": "column",  "rolle": "Forecast-Flag (1/0)"}
+        {
+          "ph": "__0__",
+          "name": "Kategorie",
+          "type": "text",
+          "kind": "column",
+          "rolle": "Kategorie (Y-Achse)"
+        },
+        {
+          "ph": "__1__",
+          "name": "AC",
+          "type": "numeric",
+          "kind": "measure",
+          "rolle": "Ist"
+        },
+        {
+          "ph": "__2__",
+          "name": "PL",
+          "type": "numeric",
+          "kind": "measure",
+          "rolle": "Plan"
+        },
+        {
+          "ph": "__3__",
+          "name": "FC",
+          "type": "numeric",
+          "kind": "column",
+          "rolle": "Forecast-Flag (1/0)"
+        }
       ]
     },
     {
@@ -29,11 +77,41 @@
       "name": "KPI-Karten (Status: großer Wert, eingefärbt, ▲▼ + Δ%/Δ)",
       "builderSteps": "Typ 'KPI · Status' (oder Preset 'kpiDemo' + Stil Status), Referenz PY, 2. Referenz PL.",
       "fields": [
-        {"ph": "__0__", "name": "Kategorie", "type": "text",    "kind": "column",  "rolle": "KPI-Name"},
-        {"ph": "__1__", "name": "AC",        "type": "numeric", "kind": "measure", "rolle": "Ist"},
-        {"ph": "__2__", "name": "PY",        "type": "numeric", "kind": "measure", "rolle": "Vorjahr"},
-        {"ph": "__3__", "name": "PL",        "type": "numeric", "kind": "measure", "rolle": "Plan"},
-        {"ph": "__4__", "name": "FC",        "type": "numeric", "kind": "column",  "rolle": "Forecast-Flag (1/0)"}
+        {
+          "ph": "__0__",
+          "name": "Kategorie",
+          "type": "text",
+          "kind": "column",
+          "rolle": "KPI-Name"
+        },
+        {
+          "ph": "__1__",
+          "name": "AC",
+          "type": "numeric",
+          "kind": "measure",
+          "rolle": "Ist"
+        },
+        {
+          "ph": "__2__",
+          "name": "PY",
+          "type": "numeric",
+          "kind": "measure",
+          "rolle": "Vorjahr"
+        },
+        {
+          "ph": "__3__",
+          "name": "PL",
+          "type": "numeric",
+          "kind": "measure",
+          "rolle": "Plan"
+        },
+        {
+          "ph": "__4__",
+          "name": "FC",
+          "type": "numeric",
+          "kind": "column",
+          "rolle": "Forecast-Flag (1/0)"
+        }
       ]
     },
     {
@@ -41,9 +119,27 @@
       "name": "Szenario-Brücke (PL → AC, je Kategorie)",
       "builderSteps": "Typ 'Brücke · Szenario', Primär AC, Referenz PL. Reihenfolge im Visual über die Achsen-Sortierung steuern.",
       "fields": [
-        {"ph": "__0__", "name": "Kategorie", "type": "text",    "kind": "column",  "rolle": "Kategorie"},
-        {"ph": "__1__", "name": "AC",        "type": "numeric", "kind": "measure", "rolle": "Ist (Zielszenario)"},
-        {"ph": "__2__", "name": "PL",        "type": "numeric", "kind": "measure", "rolle": "Plan (Startszenario)"}
+        {
+          "ph": "__0__",
+          "name": "Kategorie",
+          "type": "text",
+          "kind": "column",
+          "rolle": "Kategorie"
+        },
+        {
+          "ph": "__1__",
+          "name": "AC",
+          "type": "numeric",
+          "kind": "measure",
+          "rolle": "Ist (Zielszenario)"
+        },
+        {
+          "ph": "__2__",
+          "name": "PL",
+          "type": "numeric",
+          "kind": "measure",
+          "rolle": "Plan (Startszenario)"
+        }
       ]
     },
     {
@@ -51,10 +147,132 @@
       "name": "GuV-Wasserfall mit ΔPY (Varianz)",
       "builderSteps": "Typ 'Wasserfall-Varianz' (oder Preset 'pnlVA'). Typ-Spalte mit 'sum'/'delta' je Zeile nötig.",
       "fields": [
-        {"ph": "__0__", "name": "Kategorie", "type": "text",    "kind": "column",  "rolle": "GuV-Zeile"},
-        {"ph": "__1__", "name": "AC",        "type": "numeric", "kind": "measure", "rolle": "Ist"},
-        {"ph": "__2__", "name": "PY",        "type": "numeric", "kind": "measure", "rolle": "Vorjahr"},
-        {"ph": "__3__", "name": "Typ",       "type": "text",    "kind": "column",  "rolle": "'sum' (Zwischensumme) oder 'delta' (Bewegung)"}
+        {
+          "ph": "__0__",
+          "name": "Kategorie",
+          "type": "text",
+          "kind": "column",
+          "rolle": "GuV-Zeile"
+        },
+        {
+          "ph": "__1__",
+          "name": "AC",
+          "type": "numeric",
+          "kind": "measure",
+          "rolle": "Ist"
+        },
+        {
+          "ph": "__2__",
+          "name": "PY",
+          "type": "numeric",
+          "kind": "measure",
+          "rolle": "Vorjahr"
+        },
+        {
+          "ph": "__3__",
+          "name": "Typ",
+          "type": "text",
+          "kind": "column",
+          "rolle": "'sum' (Zwischensumme) oder 'delta' (Bewegung)"
+        }
+      ]
+    }
+  ],
+  "customVisuals": [
+    {
+      "id": "ibcs_chart_deck",
+      "name": "IBCS Inspired Chart Deck (natives Custom Visual)",
+      "pbiviz": "ibcsInspiredChartDeck/dist/chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D.1.38.0.0.pbiviz",
+      "readme": "ibcsInspiredChartDeck/README.md",
+      "hinweis": "Alternative zu den Deneb-Templates: ein .pbiviz mit vier Chart-Modi (Columns/Bars/Line/Waterfall), Doppel-Varianz, YTD, Small Multiples, Kommentaren und IBCS-Titelblock. Import: Visualisierungen -> Visual aus Datei importieren.",
+      "fields": [
+        {
+          "name": "Category",
+          "kind": "column",
+          "rolle": "Zeitachse oder Struktur",
+          "pflicht": true
+        },
+        {
+          "name": "Actual (AC)",
+          "kind": "measure",
+          "rolle": "Ist-Wert",
+          "pflicht": true
+        },
+        {
+          "name": "Previous Year",
+          "kind": "measure",
+          "rolle": "Vorjahr (PY)",
+          "pflicht": false
+        },
+        {
+          "name": "Plan / Budget",
+          "kind": "measure",
+          "rolle": "Plan (PL)",
+          "pflicht": false
+        },
+        {
+          "name": "Forecast (FC)",
+          "kind": "measure",
+          "rolle": "Forecast, schraffiert",
+          "pflicht": false
+        },
+        {
+          "name": "Forecast Flag",
+          "kind": "column",
+          "rolle": "1/0 statt FC-Measure (wie Deneb-Templates)",
+          "pflicht": false
+        },
+        {
+          "name": "Comments",
+          "kind": "measure",
+          "rolle": "Text -> Marker + Fussnoten",
+          "pflicht": false
+        },
+        {
+          "name": "Small Multiples",
+          "kind": "column",
+          "rolle": "Kachel-Grid, gleiche Skala",
+          "pflicht": false
+        },
+        {
+          "name": "Waterfall Type",
+          "kind": "column",
+          "rolle": "'sum'/'delta' fuer GuV-Wasserfall",
+          "pflicht": false
+        }
+      ]
+    },
+    {
+      "id": "ibcs_kpi_card",
+      "name": "IBCS KPI Card (natives Custom Visual)",
+      "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682.2.3.0.0.pbiviz",
+      "readme": "ibcsKpiCard/README.md",
+      "hinweis": "KPI-Karte mit Mini-Bruecke Basis->Delta->AC (IBCS-Notation), Variance basis Auto/PY/PL, Invert fuer Kosten, Auto-Einheiten k/M/B, Schrift-Presets (Full HD), Kachel-Raster mit Crossfilter. Import: Visualisierungen -> Visual aus Datei importieren.",
+      "fields": [
+        {
+          "name": "Category",
+          "kind": "column",
+          "rolle": "optional -> Kachel je Kategorie",
+          "pflicht": false
+        },
+        {
+          "name": "Actual (AC)",
+          "kind": "measure",
+          "rolle": "Ist-Wert",
+          "pflicht": true
+        },
+        {
+          "name": "Previous Year (PY)",
+          "kind": "measure",
+          "rolle": "Vorjahr",
+          "pflicht": false
+        },
+        {
+          "name": "Plan / Budget (PL)",
+          "kind": "measure",
+          "rolle": "Plan (Auto-Basis wenn gefuellt)",
+          "pflicht": false
+        }
       ]
     }
   ]

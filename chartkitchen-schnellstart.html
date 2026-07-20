@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChartKitchen byDatenWG · Schnellstart</title>
+<meta name="description" content="Schnellstart zum Power-BI-Visual ChartKitchen byDatenWG: in zwei Minuten verstehen, was das Visual ist, wie man loslegt und wo die ausführliche Doku steht. Ein Visual, 13 IBCS-inspirierte Modi.">
+<style>
+:root{
+  --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#0F1E2E; --ink-soft:#475569; --ink-mute:#6B7686;
+  --line:#E4E2DA; --accent:#C25A2D; --accent-deep:#A2481F; --teal:#1B9AA8;
+  --radius:10px; --radius-lg:16px;
+  --shadow-sm:0 1px 2px rgba(15,30,46,.04),0 1px 3px rgba(15,30,46,.06);
+  --shadow-md:0 6px 18px rgba(15,30,46,.08),0 2px 6px rgba(15,30,46,.05);
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans);font-size:16px;line-height:1.62;color:var(--ink);background:var(--bg);
+  background-image:radial-gradient(circle at 10% -5%,rgba(194,90,45,.05),transparent 34%),radial-gradient(circle at 96% 8%,rgba(27,154,168,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased;min-height:100vh;}
+a{color:inherit;}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 26px 120px;}
+
+/* top chrome */
+.topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:26px;}
+.back-link,.lang-pill,.pdf-btn,.doku-link{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;
+  padding:8px 14px;border:1px solid var(--line);border-radius:100px;color:var(--ink-mute);transition:all .15s ease;background:var(--bg-card);}
+.back-link:hover,.pdf-btn:hover,.doku-link:hover{color:var(--accent);border-color:var(--accent);}
+.lang-group{display:inline-flex;gap:6px;}
+.lang-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.lang-pill:hover{border-color:var(--accent);}
+.doku-link{color:var(--teal);border-color:#B9DEE2;}
+.doku-link:hover{background:var(--teal);color:#fff;border-color:var(--teal);}
+
+/* hero */
+header.hero{border-bottom:1px solid var(--line);padding-bottom:30px;margin-bottom:34px;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+.eyebrow::before{content:'';width:26px;height:1px;background:var(--accent);}
+h1.hero-title{font-family:var(--serif);font-weight:600;font-size:clamp(2.1rem,5.4vw,3.4rem);line-height:1.05;letter-spacing:-.02em;margin-bottom:16px;}
+h1.hero-title em{font-style:normal;color:var(--accent);}
+.dek{font-size:17px;color:var(--ink-soft);line-height:1.55;max-width:70ch;margin-bottom:20px;}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px;}
+.chip{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.04em;
+  padding:7px 14px;border-radius:100px;background:var(--bg-soft);border:1px solid var(--line);color:var(--ink);}
+.chip.teal{border-color:#B9DEE2;color:var(--teal);}
+figure.hero-fig{margin:0;}
+figure.hero-fig img{width:100%;display:block;border:1px solid #B9DEE2;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);background:#fff;}
+figure.hero-fig figcaption{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;color:var(--ink-mute);margin-top:12px;line-height:1.5;}
+.pbi-badge{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#fff;background:var(--teal);padding:2px 8px;border-radius:100px;margin-right:8px;vertical-align:1.5px;}
+
+/* section heading */
+.sec-h{font-family:var(--serif);font-weight:600;font-size:clamp(1.4rem,3.2vw,1.9rem);letter-spacing:-.01em;
+  margin:0 0 6px;display:flex;align-items:baseline;gap:12px;}
+.sec-h .snum{font-family:var(--mono);font-size:.95rem;color:var(--accent);font-weight:700;}
+.sec-sub{color:var(--ink-soft);max-width:70ch;margin:0 0 20px;}
+section.block{margin-bottom:52px;}
+
+/* download card */
+.dl-card{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;
+  background:var(--bg-card);border:1px solid var(--line);border-left:4px solid var(--accent);
+  border-radius:var(--radius-lg);padding:26px 28px;box-shadow:var(--shadow-sm);}
+@media(max-width:640px){.dl-card{grid-template-columns:1fr;gap:16px;}}
+.dl-icon{width:66px;height:66px;border-radius:16px;background:var(--bg-soft);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:32px;}
+.dl-title{font-family:var(--serif);font-weight:600;font-size:1.3rem;margin:0 0 4px;}
+.dl-ver{font-family:var(--mono);font-size:12px;letter-spacing:.03em;color:var(--ink-mute);margin-bottom:12px;}
+.dl-ver strong{color:var(--ink);}
+.dl-note{font-size:14px;color:var(--ink-soft);max-width:60ch;margin:0 0 16px;}
+.dl-note a{color:var(--accent);font-weight:600;}
+.btn-disabled{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;padding:12px 22px;border-radius:100px;
+  background:#EDEBE4;color:var(--ink-mute);border:1px solid var(--line);cursor:not-allowed;user-select:none;}
+.btn-disabled::before{content:'⏳';font-size:14px;}
+
+/* beta disclaimer */
+.dl-beta{margin-top:16px;font-size:13px;line-height:1.55;color:var(--ink-soft);
+  background:var(--bg-soft);border:1px solid var(--line);border-left:3px solid var(--teal);
+  border-radius:var(--radius);padding:12px 15px;max-width:62ch;}
+.dl-beta strong{color:var(--ink);}
+.dl-beta a{color:var(--accent);font-weight:600;}
+.dl-beta .beta-pw{display:block;margin-top:7px;color:var(--ink-mute);}
+
+/* password gate (hidden until beta is activated) */
+.dl-gate{margin-top:16px;max-width:62ch;}
+.dl-gate .gate-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+.dl-gate input[type=password]{font-family:var(--sans);font-size:14px;padding:11px 14px;
+  border:1px solid var(--line);border-radius:100px;background:var(--bg-card);color:var(--ink);
+  min-width:220px;flex:1;}
+.dl-gate input[type=password]:focus{outline:none;border-color:var(--accent);}
+.gate-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;
+  font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:12px 22px;border-radius:100px;
+  background:var(--accent);color:#fff;border:1px solid var(--accent);cursor:pointer;transition:background .15s ease;}
+.gate-btn:hover{background:var(--accent-deep);}
+.gate-btn:disabled{opacity:.6;cursor:progress;}
+.gate-status{margin-top:10px;font-size:13px;min-height:18px;}
+.gate-status.err{color:#B4322A;font-weight:600;}
+.gate-status.busy{color:var(--ink-mute);}
+.gate-status.ok{color:#1B7A3E;font-weight:600;}
+
+/* steps */
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:820px){.steps-grid{grid-template-columns:1fr;}}
+.step{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:22px 22px 24px;box-shadow:var(--shadow-sm);}
+.step-n{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;font-family:var(--mono);
+  font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.step h3{font-family:var(--serif);font-weight:600;font-size:1.1rem;margin:0 0 8px;color:var(--ink);}
+.step p{font-size:14.5px;color:var(--ink-soft);margin:0;}
+.step p code{font-family:var(--mono);font-size:.86em;background:var(--bg-soft);padding:1px 5px;border-radius:4px;color:var(--accent-deep);}
+.steps-more{margin-top:18px;font-size:14px;color:var(--ink-soft);}
+.steps-more a{color:var(--accent);font-weight:600;}
+
+/* link tiles */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:900px){.tiles{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.tiles{grid-template-columns:1fr;}}
+.tile{display:flex;flex-direction:column;background:var(--bg-card);border:1px solid var(--line);
+  border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm);text-decoration:none;color:inherit;
+  transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease;}
+.tile:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--accent);}
+.tile-thumb{aspect-ratio:16/9;background:var(--bg-soft);overflow:hidden;border-bottom:1px solid var(--line);}
+.tile-thumb img{width:100%;height:100%;object-fit:cover;object-position:top left;display:block;}
+.tile-body{padding:18px 20px 20px;display:flex;flex-direction:column;flex:1;}
+.tile-eyebrow{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.tile h3{font-family:var(--serif);font-weight:600;font-size:1.12rem;margin:0 0 7px;line-height:1.2;}
+.tile p{font-size:14px;color:var(--ink-soft);margin:0;flex:1;}
+.tile-go{margin-top:14px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--teal);}
+.tile.pdf .tile-eyebrow{color:var(--teal);}
+.tile.pdf{border-color:#B9DEE2;}
+
+/* footer */
+footer.foot{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-mute);line-height:1.65;}
+footer.foot a{color:var(--accent);}
+footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <a class="doku-link" href="chartkitchen-doku.html">Zur vollen Doku →</a>
+      <div class="lang-group">
+        <a class="lang-pill active" href="chartkitchen-schnellstart.html">DE</a>
+        <a class="lang-pill" href="chartkitchen-schnellstart_en.html">EN</a>
+      </div>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Power-BI-Visual · Schnellstart</div>
+    <h1 class="hero-title">ChartKitchen <em>byDatenWG</em> — Schnellstart</h1>
+    <p class="dek">Ein einzelnes Power-BI-Visual mit 13 IBCS-inspirierten Modi — von Säulen, Linien und Wasserfall über Tabelle und Matrix bis zum GuV-Statement. In zwei Minuten verstehen, was das Visual kann, wie du loslegst und wo die ausführliche Dokumentation steht.</p>
+    <div class="chips">
+      <span class="chip">13 Modi</span>
+      <span class="chip teal">DE · EN · ES · JA</span>
+      <span class="chip">Version 1.38.0.0</span>
+    </div>
+    <figure class="hero-fig">
+      <img src="doku-assets/pbi/pbi-demo-report.png" alt="Komplette Power-BI-Berichtsseite mit KPI-Karten und Brücken, aus ChartKitchen-Visuals gebaut">
+      <figcaption><span class="pbi-badge">Power BI</span>Eine komplette Berichtsseite: KPI-Karten, eine AC/FC-Monatsbrücke und eine YTD-Brücke nach Produkt — alle Kacheln stammen aus demselben ChartKitchen-Visual.</figcaption>
+    </figure>
+  </header>
+
+  <!-- DOWNLOAD-SLOT · Freischalten:
+   1) node tools/encrypt-build.mjs ibcsInspiredChartDeck/dist/<aktuelle>.pbiviz '<PASSWORT>'
+   2) downloads/chartkitchen-beta.enc committen
+   3) In dieser Karte: .btn-disabled-Button entfernen, div#dl-gate auf display:block
+   4) data-filename am Gate auf den aktuellen Dateinamen setzen
+   Passwort wird NIE committet. -->
+  <section class="block">
+    <div class="dl-card">
+      <div class="dl-icon">🍳</div>
+      <div>
+        <div class="dl-title">Visual herunterladen</div>
+        <div class="dl-ver">Version <strong>1.38.0.0</strong> · <strong>.pbiviz</strong></div>
+        <p class="dl-note">Der Download-Build wird in Kürze hier freigeschaltet. Bis dahin gibt es das Visual auf Anfrage — schreib kurz an <a href="mailto:michael.tenner84@gmail.com?subject=ChartKitchen%20byDatenWG%20—%20Visual%20anfragen">michael.tenner84@gmail.com</a>.</p>
+        <span class="btn-disabled" aria-disabled="true">Download folgt in Kürze</span>
+
+        <div class="dl-beta">
+          <strong>Beta-Hinweis:</strong> Solange ChartKitchen nicht im Microsoft AppSource gelistet ist, ist jeder Build eine Beta-Version — nicht von Microsoft zertifiziert. Bitte zuerst in einem Testbericht ausprobieren; Einsatz in Produktionsberichten auf eigene Verantwortung. Feedback gern an <a href="mailto:michael.tenner84@gmail.com?subject=ChartKitchen%20byDatenWG%20—%20Feedback">michael.tenner84@gmail.com</a>.
+          <span class="beta-pw">Der Beta-Download ist passwortgeschützt — das Passwort gibt es auf Anfrage per Nachricht.</span>
+        </div>
+
+        <!-- Passwort-Gate: bleibt versteckt, bis der Beta-Download freigeschaltet wird (display:block). -->
+        <div id="dl-gate" data-enc="downloads/chartkitchen-beta.enc" data-filename="chartKitchenByDatenWG.1.38.0.0.pbiviz" style="display:none;">
+          <div class="gate-row">
+            <input type="password" id="gate-pw" autocomplete="off" placeholder="Passwort eingeben" aria-label="Passwort">
+            <button type="button" class="gate-btn" id="gate-go">Entschlüsseln &amp; herunterladen</button>
+          </div>
+          <div class="gate-status" id="gate-status" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+  /* ChartKitchen beta download gate — client-side AES-GCM decryption.
+     Wires up only if #dl-gate exists; the gate stays inert while display:none. */
+  (function(){
+    var gate = document.getElementById('dl-gate');
+    if(!gate) return;
+    var pwInput = document.getElementById('gate-pw');
+    var btn = document.getElementById('gate-go');
+    var status = document.getElementById('gate-status');
+    var MAGIC = 'CKENC1', SALT_LEN = 16, IV_LEN = 12, ITER = 310000;
+
+    function setStatus(msg, cls){ status.textContent = msg; status.className = 'gate-status' + (cls ? ' ' + cls : ''); }
+
+    async function run(){
+      var pw = (pwInput.value || '').trim();
+      if(!pw){ setStatus('Bitte Passwort eingeben.', 'err'); return; }
+      btn.disabled = true;
+      setStatus('Wird entschlüsselt …', 'busy');
+      try {
+        var resp = await fetch(gate.getAttribute('data-enc'));
+        if(!resp.ok) throw new Error('fetch');
+        var buf = new Uint8Array(await resp.arrayBuffer());
+
+        // Parse: MAGIC(6) | salt(16) | iv(12) | ciphertext(rest)
+        var magic = new TextDecoder().decode(buf.slice(0, MAGIC.length));
+        if(magic !== MAGIC) throw new Error('format');
+        var off = MAGIC.length;
+        var salt = buf.slice(off, off + SALT_LEN); off += SALT_LEN;
+        var iv = buf.slice(off, off + IV_LEN); off += IV_LEN;
+        var ct = buf.slice(off);
+
+        var passKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+        var aesKey = await crypto.subtle.deriveKey(
+          { name:'PBKDF2', salt:salt, iterations:ITER, hash:'SHA-256' },
+          passKey, { name:'AES-GCM', length:256 }, false, ['decrypt']);
+
+        // Wrong password -> GCM auth failure -> throws here.
+        var plain = await crypto.subtle.decrypt({ name:'AES-GCM', iv:iv }, aesKey, ct);
+
+        var blob = new Blob([plain], { type:'application/octet-stream' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = gate.getAttribute('data-filename') || 'chartKitchen.pbiviz';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+        setStatus('Download gestartet.', 'ok');
+      } catch(e){
+        if(e && e.message === 'fetch') setStatus('Download-Datei nicht gefunden.', 'err');
+        else if(e && e.message === 'format') setStatus('Ungültige Download-Datei.', 'err');
+        else setStatus('Passwort falsch', 'err');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    btn.addEventListener('click', run);
+    pwInput.addEventListener('keydown', function(ev){ if(ev.key === 'Enter') run(); });
+  })();
+  </script>
+
+  <section class="block">
+    <h2 class="sec-h"><span class="snum">01</span>In drei Schritten loslegen</h2>
+    <p class="sec-sub">Von der Import-Datei zum fertigen IBCS-Chart — mit zwei, drei Feldern steht das erste Diagramm.</p>
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-n">1</div>
+        <h3>.pbiviz importieren</h3>
+        <p>In Power BI Desktop im Bereich <em>Visualisierungen</em> auf <code>…</code> → <em>Visual aus Datei importieren</em> klicken und die <code>.pbiviz</code>-Datei wählen. Das ChartKitchen-Icon erscheint und lässt sich auf die Seite ziehen.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">2</div>
+        <h3>Kategorie + AC befüllen</h3>
+        <p>Weise der Rolle <em>Kategorie</em> deine Achse zu und der Rolle <em>Ist (AC)</em> deine Kennzahl. Es erscheinen Landing-Kacheln — klick einen Modus an, und das Visual zeichnet ihn sofort.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">3</div>
+        <h3>PY / PL dazu</h3>
+        <p>Ergänze <em>Vorjahr (PY)</em> und <em>Plan (PL)</em>. Abweichungen kommen automatisch: absolute und relative Varianz-Panels stehen ohne weiteres Zutun neben oder über dem Basis-Chart.</p>
+      </div>
+    </div>
+    <p class="steps-more">Alle Schritte im Detail — Import, Minimal-Setup und Feldrollen — stehen im <a href="chartkitchen-doku.html#quickstart">Schnellstart-Kapitel der Doku →</a></p>
+  </section>
+
+  <section class="block">
+    <h2 class="sec-h"><span class="snum">02</span>Weiter in der Dokumentation</h2>
+    <p class="sec-sub">Jede Kachel springt direkt in die passende Sektion der ausführlichen Doku.</p>
+    <div class="tiles">
+
+      <a class="tile" href="chartkitchen-doku.html#quickstart">
+        <div class="tile-thumb"><img src="doku-assets/feature-landing.png" alt="Landing-Kacheln zur Modus-Auswahl"></div>
+        <div class="tile-body">
+          <div class="tile-eyebrow">Kapitel 02</div>
+          <h3>Schnellstart</h3>
+          <p>Import, Minimal-Setup und die Feldrollen Kategorie, AC, PY, PL — Schritt für Schritt.</p>
+          <span class="tile-go">Öffnen →</span>
+        </div>
+      </a>
+
+      <a class="tile" href="chartkitchen-doku.html#modes">
+        <div class="tile-thumb"><img src="doku-assets/mode-columns.png" alt="Säulen-Modus mit Varianz-Panels"></div>
+        <div class="tile-body">
+          <div class="tile-eyebrow">Kapitel 03</div>
+          <h3>Die 13 Modi</h3>
+          <p>Säulen, Balken, Linie, Wasserfall, Brücke, Tabelle, Matrix, KPI-Karten, GuV und mehr — jeder Modus erklärt.</p>
+          <span class="tile-go">Öffnen →</span>
+        </div>
+      </a>
+
+      <a class="tile" href="chartkitchen-doku.html#inaction">
+        <div class="tile-thumb"><img src="doku-assets/pbi/pbi-monitoring.png" alt="Monitoring-Karten in Power BI Desktop"></div>
+        <div class="tile-body">
+          <div class="tile-eyebrow">Kapitel 04</div>
+          <h3>Im Einsatz</h3>
+          <p>Echte Power-BI-Beispiele: komplette Berichtsseiten, Monitoring, Vergleiche und mehr.</p>
+          <span class="tile-go">Öffnen →</span>
+        </div>
+      </a>
+
+      <a class="tile" href="chartkitchen-doku.html#features">
+        <div class="tile-thumb"><img src="doku-assets/feature-scenarios.png" alt="Szenario-Notation AC PY PL FC"></div>
+        <div class="tile-body">
+          <div class="tile-eyebrow">Kapitel 05</div>
+          <h3>Funktionen im Detail</h3>
+          <p>Szenario-Notation, Small Multiples, Kommentare, Kumulierung, Top N und die weiteren Funktionen.</p>
+          <span class="tile-go">Öffnen →</span>
+        </div>
+      </a>
+
+      <a class="tile" href="chartkitchen-doku.html#settings">
+        <div class="tile-thumb"><img src="doku-assets/pane/pane-overview.png" alt="Schema des Power-BI-Formatbereichs"></div>
+        <div class="tile-body">
+          <div class="tile-eyebrow">Kapitel 06</div>
+          <h3>Einstellungs-Referenz</h3>
+          <p>Alle 84 Einstellungen in sieben Format-Karten — mit Schema-Skizzen des Formatbereichs.</p>
+          <span class="tile-go">Öffnen →</span>
+        </div>
+      </a>
+
+      <a class="tile" href="chartkitchen-doku.html#faq">
+        <div class="tile-body" style="padding-top:22px;">
+          <div class="tile-eyebrow">Kapitel 07</div>
+          <h3>FAQ &amp; Troubleshooting</h3>
+          <p>Häufige Fragen, typische Stolpersteine und schnelle Antworten rund um das Visual.</p>
+          <span class="tile-go">Öffnen →</span>
+        </div>
+      </a>
+
+      <a class="tile pdf" href="chartkitchen-doku.pdf">
+        <div class="tile-body" style="padding-top:22px;">
+          <div class="tile-eyebrow">Download</div>
+          <h3>Doku als PDF (DE)</h3>
+          <p>Die komplette deutsche Dokumentation als PDF zum Offline-Lesen und Weitergeben.</p>
+          <span class="tile-go" style="color:var(--accent);">PDF laden ↓</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <footer class="foot">
+    <strong>ChartKitchen byDatenWG</strong> · Version 1.38.0.0<br>
+    Kontakt: Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
+    Die vollständige Dokumentation gibt es als <a href="chartkitchen-doku.html">Web-Seite</a> und als <a href="chartkitchen-doku.pdf">PDF</a>.
+    <div class="ibcs">IBCS® ist eine eingetragene Marke der IBCS Association. Dieses Visual ist von den IBCS-Prinzipien inspiriert und steht in keiner Verbindung zur IBCS Association.</div>
+  </footer>
+
+</div>
+</body>
+</html>

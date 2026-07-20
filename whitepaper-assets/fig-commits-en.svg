@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="250" viewBox="0 0 860 250" font-family="Geist, 'Segoe UI', system-ui, sans-serif">
+  <rect width="860" height="250" fill="#FFFFFF"/>
+  <text x="24" y="34" font-size="16" font-weight="700" fill="#404040">The heartbeat of the build — commits per day</text>
+  <text x="24" y="54" font-size="12" fill="#8A8A8A">ChartKitchen byDatenWG · July 6–15, 2026 · 124 commits, ~60 releases, 8 active days</text>
+
+  <!-- baseline y=200, scale: 40 commits = 115px; slots w=52, x0=80, step=76 -->
+  <line x1="60" y1="200" x2="820" y2="200" stroke="#404040" stroke-width="1.5"/>
+  <g font-size="12" fill="#404040">
+    <!-- 06.: 40 → top 85 -->
+    <path d="M80,200 V89 Q80,85 84,85 H128 Q132,85 132,89 V200 Z" fill="#1B9AA8"/>
+    <text x="106" y="77" text-anchor="middle" font-weight="700">40</text>
+    <!-- 07.: 8 → 177 -->
+    <path d="M156,200 V181 Q156,177 160,177 H204 Q208,177 208,181 V200 Z" fill="#1B9AA8"/>
+    <text x="182" y="169" text-anchor="middle">8</text>
+    <!-- 08.: 11 → 168.4 -->
+    <path d="M232,200 V172.4 Q232,168.4 236,168.4 H280 Q284,168.4 284,172.4 V200 Z" fill="#1B9AA8"/>
+    <text x="258" y="160" text-anchor="middle">11</text>
+    <!-- 09.: 4 → 188.5 -->
+    <path d="M308,200 V192.5 Q308,188.5 312,188.5 H356 Q360,188.5 360,192.5 V200 Z" fill="#1B9AA8"/>
+    <text x="334" y="180" text-anchor="middle">4</text>
+    <!-- 10.: 18 → 148.25 -->
+    <path d="M384,200 V152.25 Q384,148.25 388,148.25 H432 Q436,148.25 436,152.25 V200 Z" fill="#1B9AA8"/>
+    <text x="410" y="140" text-anchor="middle">18</text>
+    <!-- 11.: 0 -->
+    <text x="486" y="192" text-anchor="middle" fill="#8A8A8A" font-size="11">break</text>
+    <!-- 12.: 11 -->
+    <path d="M536,200 V172.4 Q536,168.4 540,168.4 H584 Q588,168.4 588,172.4 V200 Z" fill="#1B9AA8"/>
+    <text x="562" y="160" text-anchor="middle">11</text>
+    <!-- 13.: 10 → 171.25 -->
+    <path d="M612,200 V175.25 Q612,171.25 616,171.25 H660 Q664,171.25 664,175.25 V200 Z" fill="#1B9AA8"/>
+    <text x="638" y="163" text-anchor="middle">10</text>
+    <!-- 14.: 0 -->
+    <text x="714" y="192" text-anchor="middle" fill="#8A8A8A" font-size="11">break</text>
+    <!-- 15.: 22 → 136.75 -->
+    <path d="M764,200 V140.75 Q764,136.75 768,136.75 H812 Q816,136.75 816,140.75 V200 Z" fill="#1B9AA8"/>
+    <text x="790" y="128" text-anchor="middle">22</text>
+  </g>
+  <g font-size="11.5" fill="#8A8A8A" text-anchor="middle">
+    <text x="106" y="220">Jul 06</text>
+    <text x="182" y="220">Jul 07</text>
+    <text x="258" y="220">Jul 08</text>
+    <text x="334" y="220">Jul 09</text>
+    <text x="410" y="220">Jul 10</text>
+    <text x="486" y="220">Jul 11</text>
+    <text x="562" y="220">Jul 12</text>
+    <text x="638" y="220">Jul 13</text>
+    <text x="714" y="220">Jul 14</text>
+    <text x="790" y="220">Jul 15</text>
+  </g>
+  <text x="24" y="242" font-size="11" fill="#8A8A8A">Every commit is a documented, reversible checkpoint — the basis of the entire cost analysis in this paper.</text>
+</svg>

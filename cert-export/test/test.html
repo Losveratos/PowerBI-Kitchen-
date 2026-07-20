@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background: #f2f2f2; margin: 20px; }
+  .case { background: #fff; border: 1px solid #ddd; margin-bottom: 24px; padding: 8px; }
+  .case h4 { margin: 0 0 6px 0; font-size: 12px; color: #666; }
+  .stage { position: relative; }
+  g.icd-cat:hover { opacity: 0.8; }
+</style>
+</head>
+<body>
+<div class="case"><h4>Columns · AC + PY + PL + FC · Format "#,0 €" · AC/FC-Trennlinie</h4><div class="stage" id="c1" style="width:960px;height:480px"></div></div>
+<div class="case"><h4>Kompakt-Kachel (960×160) · Varianz als farbige Labels</h4><div class="stage" id="c2" style="width:960px;height:160px"></div></div>
+<div class="case"><h4>Line-Modus · 36 Wochen · AC solid, PY dünn grau</h4><div class="stage" id="c3" style="width:960px;height:380px"></div></div>
+<div class="case"><h4>Bars · AC + PY invertiert</h4><div class="stage" id="c4" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Bars · Top 5 + Rest (aus 14 Ländern)</h4><div class="stage" id="c5" style="width:960px;height:360px"></div></div>
+<div class="case"><h4>Small Multiples · 4 Regionen × 12 Monate · gleiche Skala</h4><div class="stage" id="c7" style="width:960px;height:560px"></div></div>
+<div class="case"><h4>Waterfall · GuV mit sum/delta-Rolle</h4><div class="stage" id="c8" style="width:960px;height:380px"></div></div>
+<div class="case"><h4>Brücke · PL → AC (aus Länder-Daten)</h4><div class="stage" id="c9" style="width:960px;height:360px"></div></div>
+<div class="case"><h4>Doppel-Varianz · ΔPL und ΔPY parallel (560px hoch)</h4><div class="stage" id="c12" style="width:960px;height:560px"></div></div>
+<div class="case"><h4>YTD kumuliert · gleiche Daten wie oben</h4><div class="stage" id="c10" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Leeres Visual · Live-Demo-Landing + Auto-Message</h4><div class="stage" id="c11" style="width:960px;height:380px"></div></div>
+<div class="case"><h4>Stress · negative Werte (Ergebnis) + Doppel-Varianz</h4><div class="stage" id="c13" style="width:960px;height:480px"></div></div>
+<div class="case"><h4>Stress · 1 Kategorie / Null-Reihe / 500 Kategorien (Timing in Konsole)</h4><div class="stage" id="c14" style="width:300px;height:200px;display:inline-block"></div><div class="stage" id="c15" style="width:300px;height:200px;display:inline-block"></div><div class="stage" id="c16" style="width:340px;height:200px;display:inline-block"></div></div>
+<div class="case"><h4>Waterfall-Brücke · Bars (Struktur) · sortiert nach Wirkung</h4><div class="stage" id="c17" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Waterfall-Brücke · Columns (Zeit) · unsortiert</h4><div class="stage" id="c18" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Waterfall-Brücke · Bars + Top 5 + Rest, sortiert</h4><div class="stage" id="c19" style="width:960px;height:380px"></div></div>
+<div class="case"><h4>Waterfall-Brücke · Small Multiples (2 Regionen), sortiert</h4><div class="stage" id="c20" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Waterfall-Brücke · Bars · 15 Kategorien · Gruppentrennlinien alle 4</h4><div class="stage" id="c21" style="width:960px;height:640px"></div></div>
+<div class="case"><h4>Integrierte Brücke (Zeit) · PY-Total links, Kaskade, Monatssäulen, AC+FC-Total rechts</h4><div class="stage" id="c22" style="width:1120px;height:660px"></div></div>
+<div class="case"><h4>Kategorie-Brücke (Struktur) · PL/PY-Zeilen, Kaskade, ΔPY%-Pins, Doppel-Überleitung</h4><div class="stage" id="c23" style="width:1340px;height:790px"></div></div>
+<div class="case"><h4>Integrierte Brücke · Basis PL · zwei Totalsäulen (PY+PL), versetzte PL-Umriss-Minisäulen, PY-Dreiecke</h4><div class="stage" id="c50" style="width:1120px;height:660px"></div></div>
+<div class="case"><h4>GuV-Statement · Sicht AC (solid) vs. PY, Kaskaden-Spalten, ΔPY + ΔPY%-Pins, Ebenen-Buttons</h4><div class="stage" id="c51" style="width:1280px;height:480px"></div></div>
+<div class="case"><h4>GuV-Statement · Sicht AC&amp;FC (Split solid+schraffiert), Varianzen schraffiert</h4><div class="stage" id="c52" style="width:1280px;height:480px"></div></div>
+<div class="case"><h4>GuV-Statement · Sicht PL (Umriss), Varianzen umrandet</h4><div class="stage" id="c53" style="width:1280px;height:480px"></div></div>
+<div class="case"><h4>Kategorie-Brücke · Full-HD-Preset (Schrift ×1,5) · ΔPL-Referenz</h4><div class="stage" id="c24" style="width:1340px;height:820px"></div></div>
+<div class="case"><h4>Tabelle (IBCS) · GuV mit sum/delta · AC·PY-Balken + ΔPY + ΔPY%-Pins</h4><div class="stage" id="c25" style="width:1200px;height:420px"></div></div>
+<div class="case"><h4>Tabelle (IBCS) · Länder + Dual (ΔPL & ΔPY) · Full HD · Highlight</h4><div class="stage" id="c26" style="width:1340px;height:520px"></div></div>
+<div class="case"><h4>Tabelle (IBCS) · schmal (460px) — Grafikspalten fallen weg</h4><div class="stage" id="c27" style="width:460px;height:360px"></div></div>
+<div class="case"><h4>Small Multiples mit ⤢-Zoom-Icons (Klick-Test in Konsole)</h4><div class="stage" id="c28" style="width:960px;height:480px"></div></div>
+<div class="case"><h4>Vergleich per Klick · Bars (Overlay wird per Test-Klick erzeugt)</h4><div class="stage" id="c29" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Tabelle · Hierarchie Region→Land · Aufklappen per Klick auf die Kategorie</h4><div class="stage" id="c30" style="width:1200px;height:400px"></div></div>
+<div class="case"><h4>Pareto · absteigende AC-Säulen + kum. %-Linie + 80 %-Marke</h4><div class="stage" id="c31" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Dumbbell · PY ⟶ AC je Kategorie</h4><div class="stage" id="c32" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Slope · Vorher/Nachher (PY → AC)</h4><div class="stage" id="c33" style="width:760px;height:440px"></div></div>
+<div class="case"><h4>Kombi · Säulen + Marge-%-Linie (Feld „Line" gefüllt)</h4><div class="stage" id="c34" style="width:960px;height:440px"></div></div>
+<div class="case"><h4>Gestapelt · Feld „Stack Series" gefüllt → Säulen stapeln automatisch (mit Legende)</h4><div class="stage" id="c35" style="width:960px;height:440px"></div></div>
+<div class="case"><h4>Gestapelt · Bars</h4><div class="stage" id="c36" style="width:960px;height:400px"></div></div>
+<div class="case"><h4>Small Multiples · Top 3 + Rest + Σ Gesamt (6 Regionen)</h4><div class="stage" id="c37" style="width:960px;height:560px"></div></div>
+<div class="case"><h4>Small Multiples · Erste Kachel groß (CT 13) + Σ Gesamt</h4><div class="stage" id="c38" style="width:960px;height:560px"></div></div>
+<div class="case"><h4>GuV-Wasserfall + ΔPY-Varianz-Stufen (CT 12)</h4><div class="stage" id="c39" style="width:960px;height:520px"></div></div>
+<div class="case"><h4>Wesentlichkeit (|Δ|&lt;30k grau) + gespeicherter ✎-Kommentar + YTD-Button</h4><div class="stage" id="c40" style="width:960px;height:480px"></div></div>
+<div class="case"><h4>Kommentar-Modus an (Klick öffnet Editor)</h4><div class="stage" id="c41" style="width:960px;height:400px"></div></div>
+<div class="case"><h4>KPI-Karten (Kacheln) · AC+PY+PL, ein FC</h4><div class="stage" id="c42" style="width:960px;height:400px"></div></div>
+<div class="case"><h4>KPI-Karten · flacher Streifen (1420×130) — Δ-Zeilen + Brücke rutschen nach rechts</h4><div class="stage" id="c43" style="width:1420px;height:130px"></div></div>
+<div class="case"><h4>Pareto · Small Multiples + Σ Gesamt — gemeinsame Skala (Fix 1.12.3)</h4><div class="stage" id="c44" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Integrierte Brücke · negative Werte → Hinweis statt kaputtem SVG (Fix 1.12.4)</h4><div class="stage" id="c45" style="width:960px;height:280px"></div></div>
+<div class="case"><h4>FC-Revision · AC/FC vs. FC Vormonat (Basis „fcrev") + Datenstand-Fußzeile</h4><div class="stage" id="c46" style="width:960px;height:460px"></div></div>
+<div class="case"><h4>KPI-Karten · Per-KPI-Invert (Opex invertiert: Mehrkosten rot)</h4><div class="stage" id="c47" style="width:960px;height:260px"></div></div>
+<div class="case"><h4>QTD · Fiskaljahr ab April — Reset an jedem Quartalsstart</h4><div class="stage" id="c48" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>GuV-Tabelle · Margen-%-Zeilen (rowType "pct"): Wert in %, Δ in Pp, keine €-Grafiken</h4><div class="stage" id="c49" style="width:1200px;height:420px"></div></div>
+<div class="case"><h4>Perioden-Status: Jul „vorläufig" (fcFlag=2, dünne Schraffur), Aug–Dez FC (fcFlag=1)</h4><div class="stage" id="c54" style="width:960px;height:420px"></div></div>
+<div class="case"><h4>Σ-treue Rundung AN — Labels addieren exakt auf die Σ-Kopfzeile</h4><div class="stage" id="c55" style="width:960px;height:300px"></div></div>
+<div class="case"><h4>Σ-treue Rundung AUS — Rundungshinweis unter der Σ-Zeile</h4><div class="stage" id="c56" style="width:960px;height:300px"></div></div>
+<div class="case"><h4>Export-Modus (allowInteractions=false) · Kategorie-Brücke ohne In-Chart-Buttons</h4><div class="stage" id="c57" style="width:1340px;height:600px"></div></div>
+<div class="case"><h4>Tabelle · synthetische Σ-Zeile (showTotal, ohne rowType-Daten) + Skalen-Sync</h4><div class="stage" id="c58" style="width:1200px;height:420px"></div></div>
+<div class="case"><h4>Tabelle · schmal (620px): Pin-Spalte fällt weg → numerische Δ%-Spalte rückt nach</h4><div class="stage" id="c59" style="width:470px;height:380px"></div></div>
+<div class="case"><h4>Tabelle · Dual-Varianz: neue Δ2-%-Zahlenspalte + FC-Schraffur im Δ2-Balken</h4><div class="stage" id="c60" style="width:1340px;height:420px"></div></div>
+<div class="case"><h4>Tabelle · Σ-treue Rundung + Σ-Zeile (3×10.440 → 10,4+10,4+10,5 = 31,3) + Prelim-Zeile</h4><div class="stage" id="c61" style="width:1100px;height:300px"></div></div>
+<div class="case"><h4>Tabelle · Werte-Spalten „AC · PY · PL" — bezifferte Referenzwerte neben AC</h4><div class="stage" id="c62" style="width:1340px;height:420px"></div></div>
+<div class="case"><h4>Tabelle · Ein-Klick-GuV: resultList=Rohertrag (Anker) + skipList=nachrichtlich (kursiv, ohne Σ)</h4><div class="stage" id="c63" style="width:1200px;height:420px"></div></div>
+<div class="case"><h4>Tabelle · Header-Sortierung persistiert (tableSort=dabs_desc, ▼-Marker)</h4><div class="stage" id="c64" style="width:1200px;height:400px"></div></div>
+<div class="case"><h4>Tabelle · Struktur-Modus an (Klick öffnet Invert/Result/Skip-Menü, ⚙-Chip)</h4><div class="stage" id="c65" style="width:1100px;height:380px"></div></div>
+<div class="case"><h4>Tabelle · 3-Ebenen-Hierarchie Region→Land→Produkt (Chevrons je Ebene, Einrückung ×Tiefe)</h4><div class="stage" id="c66" style="width:1200px;height:440px"></div></div>
+<div class="case"><h4>Tabelle · Scrolling: 30 Zeilen in 320px — Header + Σ fixiert, Scrollbar rechts</h4><div class="stage" id="c67" style="width:1200px;height:320px"></div></div>
+<div class="case"><h4>Tabelle · Formelzeilen: „Rohertrag = Umsatz + Materialaufwand“ (Summe) + „Marge = Rohertrag / Umsatz“ (%-Zeile)</h4><div class="stage" id="c68" style="width:1200px;height:420px"></div></div>
+<div class="case"><h4>Filter-Fußzeile: gebundene Filter-Info-Measure + Auto-Status (Sortierung, Σ-Ausschluss) über der Datenstand-Zeile</h4><div class="stage" id="c69" style="width:1200px;height:460px"></div></div>
+<div class="case"><h4>KPI-Karten · Monitoring: Status + Hintergrund-Ampel gegen Benchmark (AC vs BM, Tönung 14 %)</h4><div class="stage" id="c70" style="width:1200px;height:400px"></div></div>
+<div class="case"><h4>KPI-Karten · Benchmark-Ampel ohne Tönung (nur Streifen), ΔBM-Zeile führt, ΔPY zweite Zeile</h4><div class="stage" id="c71" style="width:1200px;height:400px"></div></div>
+<div class="case"><h4>KPI-Karten · Nur-Schlechte-Highlight (gute bleiben neutral) + Balken aus (reine Zahlen-Karten)</h4><div class="stage" id="c78" style="width:1200px;height:300px"></div></div>
+<div class="case"><h4>KPI-Karten · Fokus-Sortierung: größte ΔPY%-Abweichung oben-links (Cash −9,1 % zuerst)</h4><div class="stage" id="c79" style="width:1200px;height:300px"></div></div>
+<div class="case"><h4>KPI-Karten · Schlechteste zuerst (richtungsbewusst, Kosten invertiert) + In-Chart-Sortier-Chip</h4><div class="stage" id="c80" style="width:1200px;height:300px"></div></div>
+<div class="case"><h4>Kategorie-Brücke · Small Multiples · Standard: jede Kachel skaliert für sich</h4><div class="stage" id="c81" style="width:1340px;height:560px"></div></div>
+<div class="case"><h4>Kategorie-Brücke · Small Multiples · multiplesSameScale: gemeinsame Skala (Süd-Balken kürzer)</h4><div class="stage" id="c82" style="width:1340px;height:560px"></div></div>
+<div class="case"><h4>Integrierte Brücke · Small Multiples · multiplesSameScale: gemeinsame Skala</h4><div class="stage" id="c83" style="width:1340px;height:640px"></div></div>
+<div class="case"><h4>Tabelle · Matrix-Spalten: Quartal→Monat (2 Ebenen), alles zugeklappt — Q-Blöcke mit AC+ΔPY, Σ-Block rechts</h4><div class="stage" id="c72" style="width:1340px;height:400px"></div></div>
+<div class="case"><h4>Tabelle · Matrix-Spalten: Q1 aufgeklappt (Preset) — Monats-Blöcke unter dem Q1-Span, Q2 bleibt zu</h4><div class="stage" id="c73" style="width:1340px;height:400px"></div></div>
+<div class="case"><h4>Tabelle · hideList („Ost“ unsichtbar, Σ 14.300 bleibt) + chartList (Grafiken nur Umsatz-Zeilen Nord/Süd)</h4><div class="stage" id="c74" style="width:1200px;height:400px"></div></div>
+<div class="case"><h4>Matrix · Zeilen-Hierarchie (Region→Land) × Quartals-Spalten + Mini-Δ-Balken je Block</h4><div class="stage" id="c75" style="width:1340px;height:440px"></div></div>
+<div class="case"><h4>Matrix · Δ vs. Vorspalte (Periodenvergleich) + Header-Sortierung Σ absteigend</h4><div class="stage" id="c76" style="width:1340px;height:400px"></div></div>
+<div class="case"><h4>Tabelle · Davon-Zeilen (indentList) + Zeilenformate (Marge=0.0%, Menge=#,0)</h4><div class="stage" id="c77" style="width:1200px;height:420px"></div></div>
+<div class="case"><h4>High Contrast (gelb auf schwarz)</h4><div class="stage" id="c6" style="width:960px;height:420px;background:#000"></div></div>
+<script src="visual.bundle.js"></script>
+<script>
+const Visual = ChartKitchen.Visual;
+
+function makeHost(hc, noInteract) {
+  return {
+    hostCapabilities: { allowInteractions: !noInteract },
+    colorPalette: hc ? { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" } }
+      : { isHighContrast: false, positive: { value: "#1B7F4D" }, negative: { value: "#B3282D" },
+          foregroundNeutralDark: { value: "#252423" }, foregroundNeutralTertiary: { value: "#C8C6C4" } },
+    eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o,e){ console.error("renderfail", e); } },
+    createSelectionManager: () => ({ select: (ids, multi) => { console.log("crossfilter-select", JSON.stringify({multi: !!multi})); return Promise.resolve([]); }, clear: () => Promise.resolve(), showContextMenu(){} }),
+    createSelectionIdBuilder: () => ({ withCategory(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
+    tooltipService: { show(){}, move(){}, hide(){} },
+    createLocalizationManager: () => ({ getDisplayName: () => "" }),
+    persistProperties: (changes) => console.log("persistProperties", JSON.stringify(changes)),
+    locale: "de-DE"
+  };
+}
+
+function col(role, values, format) {
+  return { source: { displayName: role === "actual" ? "Umsatz" : role, roles: { [role]: true }, isMeasure: true, format }, values };
+}
+
+function dataView(cats, cols, objects, multValues, rowTypes) {
+  const categories = [{ source: { displayName: "Category", roles: { category: true } }, values: cats }];
+  if (multValues) {
+    categories.push({ source: { displayName: "Region", roles: { multiples: true } }, values: multValues });
+  }
+  if (rowTypes) {
+    categories.push({ source: { displayName: "Typ", roles: { rowType: true } }, values: rowTypes });
+  }
+  if (objects && objects.__fcFlags) {
+    categories.push({ source: { displayName: "FC", roles: { fcFlag: true } }, values: objects.__fcFlags });
+  }
+  return {
+    metadata: { columns: [], objects: objects || {} },
+    categorical: { categories, values: cols }
+  };
+}
+
+function run(id, dv, w, h, hc, noInteract) {
+  const el = document.getElementById(id);
+  const v = new Visual({ element: el, host: makeHost(hc, noInteract) });
+  v.update({ viewport: { width: w, height: h }, dataViews: [dv] });
+}
+
+const months = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+const ac  = [820000, 771000, 900000, 955000, 1020000, 980000, 1105000, null, null, null, null, null];
+const fc  = [null,null,null,null,null,null,null, 1150000, 1080000, 1210000, 1260000, 1400000];
+const py  = [760000, 800000, 850000, 900000, 940000, 1010000, 1000000, 1040000, 1010000, 1120000, 1180000, 1300000];
+const pl  = [800000, 810000, 870000, 980000, 1000000, 1000000, 1050000, 1100000, 1120000, 1180000, 1220000, 1350000];
+
+const comments = [null,null,"Produktionsausfall Werk 2",null,null,null,"Preiserhöhung zum 1.7. wirksam",null,null,null,null,"Großauftrag Kunde X erwartet"];
+run("c1", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €"), col("comments", comments), col("benchmark", py.map(v => Math.round(v * 1.08)), "#,0 €")],
+  { ibcsTitle: { message: "Umsatz liegt YTD +171K€ über Plan — Preiserhöhung trägt ab Juli." }, chart: { highlight: "Jul" },
+    scale: { refLine: "1200000", refLineLabel: "Ziel 1,2M" } }), 960, 480);
+// compact tile now also exercises the fcFlag column (continuous AC measure + 1/0 flag)
+const acFull = ac.map((v, i) => v != null ? v : fc[i]);
+run("c2", dataView(months, [col("actual", acFull, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €")],
+  { __fcFlags: [0,0,0,0,0,0,0,1,1,1,1,1] }), 960, 160);
+
+const weeks = Array.from({length: 36}, (_, i) => "KW" + (i + 1));
+const wAc = weeks.map((_, i) => 400 + Math.round(200 * Math.sin(i / 4)) + i * 8);
+const wPy = weeks.map((_, i) => 420 + Math.round(150 * Math.sin(i / 4 + 1)) + i * 7);
+run("c3", dataView(weeks, [col("actual", wAc), col("previousYear", wPy)],
+  { colors: { useTheme: true }, chart: { orientation: "line", movingAverage: 6 } }), 960, 380);
+
+const countries = ["Deutschland","Österreich","Schweiz","Frankreich","Italien","Benelux","Nordics"];
+const costAc = [5400, 1900, 2400, 3100, 2800, 1500, 1750];
+const costPy = [5100, 2000, 2200, 3300, 2600, 1450, 1900];
+run("c4", dataView(countries, [col("actual", costAc), col("previousYear", costPy)],
+  { chart: { orientation: "bars", invert: true }, scale: { fixedMax: 3000, capOverflow: true } }), 960, 420);
+
+const many = ["Deutschland","Österreich","Schweiz","Frankreich","Italien","Belgien","Niederlande","Polen","Tschechien","Dänemark","Schweden","Norwegen","Spanien","Portugal"];
+const mAc = [5400, 1900, 2400, 3100, 2800, 700, 950, 1200, 640, 420, 810, 530, 1600, 380];
+const mPl = [5000, 2000, 2300, 3200, 2600, 750, 900, 1100, 700, 450, 800, 560, 1700, 400];
+run("c5", dataView(many, [col("actual", mAc), col("plan", mPl)],
+  { chart: { orientation: "bars", topN: 5 } }), 960, 360);
+
+// small multiples: 4 regions x 12 months, region 1 much bigger than region 4
+const regions = ["Nord", "Süd", "West", "Ost"];
+const smCats = [], smMult = [], smAc = [], smPl = [];
+regions.forEach((r, ri) => {
+  const base = [1200, 900, 600, 300][ri];
+  months.forEach((m, mi) => {
+    smCats.push(m); smMult.push(r);
+    smAc.push(Math.round(base * (1 + 0.04 * Math.sin(mi / 2) + mi * 0.01)));
+    smPl.push(Math.round(base * (1 + 0.03 * Math.cos(mi / 2) + mi * 0.012)));
+  });
+});
+run("c7", dataView(smCats, [col("actual", smAc), col("plan", smPl)], {}, smMult), 960, 560);
+
+// P&L waterfall with sum/delta rows
+const pnlCats = ["Umsatz","Materialaufwand","Personal","Bruttoergebnis","Vertrieb","Verwaltung","EBIT"];
+const pnlVals = [9800, -4200, -2400, 3200, -900, -600, 1700];
+const pnlTypes = ["sum","delta","delta","sum","delta","delta","sum"];
+run("c8", dataView(pnlCats, [col("actual", pnlVals, "#,0 T€")], {
+  chart: { orientation: "waterfall", showTotal: false },
+  ibcsTitle: { kpi: "GuV", period: "2026" }
+}, null, pnlTypes), 960, 380);
+
+// bridge PL -> AC from country data
+run("c9", dataView(countries, [col("actual", costAc), col("plan", [5000,2000,2300,3200,2600,1450,1800])], {
+  chart: { orientation: "waterfall", showTotal: false },
+  ibcsTitle: { kpi: "Umsatz", period: "2026" }
+}), 960, 360);
+
+run("c12", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")],
+  { chart: { dualVariance: true } }), 960, 560);
+
+run("c10", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")],
+  { chart: { cumulative: true } }), 960, 420);
+
+// empty field wells -> demo landing
+run("c11", { metadata: { columns: [], objects: {} }, categorical: { categories: [], values: [] } }, 960, 380);
+
+// stress: profit/loss series crossing zero, dual variance
+const resAc = [120, -80, 40, -150, 90, 200, -30, null, null, null, null, null];
+const resFc = [null,null,null,null,null,null,null, 60, -40, 110, 150, 220];
+const resPy = [100, -60, 70, -120, 60, 150, 20, 40, -70, 90, 120, 180];
+const resPl = [110, -40, 60, -100, 100, 170, 0, 50, -20, 120, 140, 200];
+run("c13", dataView(months, [col("actual", resAc), col("previousYear", resPy), col("plan", resPl), col("forecast", resFc)],
+  { chart: { dualVariance: true }, ibcsTitle: { kpi: "Ergebnis" } }), 960, 480);
+
+// stress: single category / all-null-except-one / 500 categories timing
+run("c14", dataView(["Q1"], [col("actual", [42]), col("plan", [40])]), 300, 200);
+run("c15", dataView(["A","B","C"], [col("actual", [null, 0, null]), col("plan", [null, null, null])]), 300, 200);
+const bigCats = Array.from({length: 500}, (_, i) => "T" + i);
+const bigAc = bigCats.map((_, i) => 100 + (i % 37) * 3);
+const bigPy = bigCats.map((_, i) => 95 + (i % 41) * 3);
+console.time("render-500");
+run("c16", dataView(bigCats, [col("actual", bigAc), col("previousYear", bigPy)]), 340, 200);
+console.timeEnd("render-500");
+
+run("c6", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")]), 960, 420, true);
+
+// waterfall-bridge: structure comparison (bars), sorted by impact — the requested feature,
+// modeled on the reference "US states vs PY" bridge chart
+const wfCountries = ["Deutschland","Österreich","Schweiz","Frankreich","Italien","Belgien","Niederlande","Illinois-Style-Outlier"];
+const wfAc = [5400, 1900, 2400, 3100, 2800, 700, 950, 200];
+const wfPy = [5100, 2000, 2200, 3300, 2600, 750, 900, 900];
+run("c17", dataView(wfCountries, [col("actual", wfAc), col("previousYear", wfPy)],
+  { chart: { orientation: "bars", waterfallStyle: true, sortByImpact: true } }), 960, 420);
+
+// waterfall-bridge: time series (columns), unsorted — bridge from PL to AC month by month
+run("c18", dataView(months, [col("actual", ac, "#,0 €"), col("plan", pl, "#,0 €"), col("forecast", fc, "#,0 €")],
+  { chart: { orientation: "columns", waterfallStyle: true } }), 960, 420);
+
+// waterfall-bridge combined with top-N + rest — rest row must stay pinned last even when sorted
+run("c19", dataView(many, [col("actual", mAc), col("plan", mPl)],
+  { chart: { orientation: "bars", topN: 5, waterfallStyle: true, sortByImpact: true } }), 960, 380);
+
+// waterfall-bridge + small multiples — shared cascade domain across regions, each sorted independently
+const wfSmCats = [], wfSmMult = [], wfSmAc = [], wfSmPy = [];
+["Nord", "Süd"].forEach((r, ri) => {
+  const base = [1200, 700][ri];
+  ["A","B","C","D","E"].forEach((c, ci) => {
+    wfSmCats.push(c); wfSmMult.push(r);
+    wfSmAc.push(Math.round(base * (0.8 + ci * 0.15)));
+    wfSmPy.push(Math.round(base * (0.85 + ci * 0.1)));
+  });
+});
+run("c20", dataView(wfSmCats, [col("actual", wfSmAc), col("previousYear", wfSmPy)], {
+  chart: { orientation: "bars", waterfallStyle: true, sortByImpact: true }
+}, wfSmMult), 960, 420);
+
+// waterfall-bridge + group separators — 15-category structure comparison modeled on the
+// reference "US states" bridge chart (4 regions of ~4 states each)
+const wfStates = ["Alaska","California","Connecticut","Hawaii","Illinois","Iowa","Michigan","Minnesota",
+  "Missouri","Nebraska","New York","Texas","Washington","Wisconsin","Others"];
+const wfStAc = [89, 257, 64, 20, 169, 179, 67, 55, 18, 42, 216, 134, 29, 157, 234];
+const wfStPy = [68, 305, 83, 33, 456, 135, 66, 58, 21, 35, 246, 149, 56, 180, 180];
+run("c21", dataView(wfStates, [col("actual", wfStAc), col("previousYear", wfStPy)],
+  { chart: { orientation: "bars", waterfallStyle: true, sortByImpact: false, groupEvery: 4 } }), 960, 640);
+
+// integrated bridge (time): PY total left, ΔPY cascade, monthly mini-columns, stacked
+// AC+FC total right + circled net callout — from the "IBCS Chart Standalone" reference
+const iwCats = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const iwAc = [15, 13, 17, 7, 5, 6, 11, 9, null, null, null, null];
+const iwFc = [null,null,null,null,null,null,null,null, 22, 8, 7, 12];
+const iwPy = [14, 16, 14, 9, 11, 9, 16, 14, 16, 17, 16, 22];
+run("c22", dataView(iwCats, [col("actual", iwAc), col("previousYear", iwPy), col("forecast", iwFc)],
+  { chart: { orientation: "intwaterfall" } }), 1120, 660);
+
+// same bridge with plan as basis and all four series bound — two total columns
+// left (PY grey + PL outlined), offset PL outline mini-columns, PY triangles
+const iwPl = [14, 12, 14, 10, 10, 10, 12, 14, 15, 15, 15, 19];
+run("c50", dataView(iwCats, [col("actual", iwAc), col("previousYear", iwPy), col("plan", iwPl), col("forecast", iwFc)],
+  { chart: { orientation: "intwaterfall", comparisonMode: "plan" } }), 1120, 660);
+
+// category bridge (structure): PL/PY total rows, per-category AC·PY bars + cascade +
+// ΔPY% pins, AC row, double reconciliation — from the "Waterfall Chart v2" reference
+const cbCats = ["Iowa","Alaska","Nebraska","Michigan","Minnesota","Missouri","Hawaii","Texas",
+  "Connecticut","Wisconsin","Washington","New York","California","Illinois","Others"];
+const cbAc = [179, 89, 42, 67, 55, 18, 20, 134, 64, 157, 29, 216, 257, 169, 234];
+const cbPy = [135, 68, 35, 66, 58, 21, 33, 149, 83, 180, 56, 246, 305, 456, 180];
+const cbPl = [107, 54, 28, 52, 46, 17, 26, 118, 66, 143, 45, 196, 243, 363, 143];
+run("c23", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)],
+  { chart: { orientation: "catbridge", groupEvery: 4 } }), 1340, 790);
+
+// same, Full HD font preset + ΔPL reference + sorted by impact
+run("c24", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)],
+  { chart: { orientation: "catbridge", comparisonMode: "plan", sortByImpact: true },
+    labels: { fontPreset: "fullhd" } }), 1340, 820);
+
+// table 2.0: synthetic Σ row (no rowType), scale-sync, Δ% fallback, Δ2 %, sum-safe
+const t2Cats = ["Nord", "West", "Süd", "Ost", "Zentral"];
+const t2Ac = [4200, 3100, 2800, 1900, 1200];
+const t2Py = [3900, 3300, 2600, 2000, 1050];
+const t2Pl = [4000, 3200, 2750, 2100, 1150];
+run("c58", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€"), col("plan", t2Pl, "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true } }), 1200, 420);
+run("c59", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€")],
+  { chart: { orientation: "table" } }), 470, 380);
+run("c60", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€"), col("plan", t2Pl, "#,0 T€")],
+  { chart: { orientation: "table", dualVariance: true }, __fcFlags: [0, 0, 0, 0, 1] }), 1340, 420);
+run("c61", dataView(["Nord", "Mitte", "Süd"], [col("actual", [10440, 10440, 10440], "#,0 €")],
+  { chart: { orientation: "table", showTotal: true }, labels: { sumSafeRounding: true },
+    __fcFlags: [0, 2, 0] }), 1100, 300);
+
+// table wave 2: numeric value columns, one-click P&L lists, persisted header sort
+run("c62", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€"), col("plan", t2Pl, "#,0 T€")],
+  { chart: { orientation: "table", valueColumns: "all", showTotal: true } }), 1340, 420);
+const okCats = ["Umsatz", "Materialaufwand", "Rohertrag", "Personal", "nachrichtlich: Export", "Opex"];
+const okAc = [9800, -4200, 5600, -1850, 3100, -1050];
+const okPy = [9100, -3900, 5200, -1740, 2800, -960];
+run("c63", dataView(okCats, [col("actual", okAc, "#,0 T€"), col("previousYear", okPy, "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true, resultList: "Rohertrag",
+    skipList: "nachrichtlich: Export" } }), 1200, 420);
+run("c64", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€")],
+  { chart: { orientation: "table", tableSort: "dabs_desc" } }), 1200, 400);
+run("c65", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€")],
+  { chart: { orientation: "table", structureEdit: true } }), 1100, 380);
+
+// IBCS table: P&L rows with sum/delta role, AC·PY bars + variance columns
+const tabRows = ["Umsatz","Materialaufwand","Personal","Bruttoergebnis","Vertrieb","Verwaltung","EBIT"];
+const tabTypes = ["delta","delta","delta","sum","delta","delta","sum"];
+const tabAc = [9800, -4200, -2400, 3200, -900, -600, 1700];
+const tabPy = [9200, -3900, -2300, 3000, -850, -640, 1510];
+run("c25", dataView(tabRows, [col("actual", tabAc, "#,0 T€"), col("previousYear", tabPy, "#,0 T€")],
+  { chart: { orientation: "table" } }, null, tabTypes), 1200, 420);
+
+// IBCS table: structure with dual variance, Full HD preset, one highlighted row
+run("c26", dataView(many, [col("actual", mAc), col("previousYear", mAc.map((v,i)=>Math.round(v*0.94)+((i%3)-1)*90)), col("plan", mPl), col("benchmark", mAc.map(v => Math.round(v * 1.06)))],
+  { chart: { orientation: "table", dualVariance: true, highlight: "Frankreich" },
+    labels: { fontPreset: "fullhd" } }), 1340, 520);
+
+// narrow table: graphic columns drop, plain value table stays readable
+run("c27", dataView(tabRows, [col("actual", tabAc, "#,0 T€"), col("previousYear", tabPy, "#,0 T€")],
+  { chart: { orientation: "table" } }, null, tabTypes), 460, 360);
+
+// small multiples with zoom icons — the shot script clicks one and screenshots
+run("c28", dataView(wfSmCats, [col("actual", wfSmAc), col("previousYear", wfSmPy)],
+  {}, wfSmMult), 960, 480);
+
+// compare-on-click: the shot script clicks two bars and screenshots the overlay
+run("c29", dataView(countries, [col("actual", costAc), col("previousYear", costPy)],
+  { chart: { orientation: "bars", compareClick: true } }), 960, 420);
+
+// hierarchical table: two category-role columns (expanded hierarchy Region -> Land);
+// parents render aggregated with a chevron, clicking the row expands the children
+const hReg = ["DACH","DACH","DACH","West","West","Nord","Nord","Nord"];
+const hLand = ["Deutschland","Österreich","Schweiz","Frankreich","Benelux","Dänemark","Schweden","Norwegen"];
+const hAc = [5400, 1900, 2400, 3100, 1500, 420, 810, 530];
+const hPy = [5100, 2000, 2200, 3300, 1450, 450, 760, 560];
+run("c30", {
+  metadata: { columns: [], objects: { chart: { orientation: "table" } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: hReg },
+      { source: { displayName: "Land", roles: { category: true } }, values: hLand }
+    ],
+    values: [col("actual", hAc), col("previousYear", hPy)]
+  }
+}, 1200, 400);
+
+// pareto: descending AC + cumulative-% line, 80% marker — Category + AC alone
+run("c31", dataView(many, [col("actual", mAc)],
+  { chart: { orientation: "pareto" } }), 960, 420);
+
+// dumbbell: basis -> AC dots with variance-colored connector
+run("c32", dataView(countries, [col("actual", costAc), col("previousYear", costPy)],
+  { chart: { orientation: "dumbbell" } }), 960, 420);
+
+// slope: before/after per category, PY left / AC right
+run("c33", dataView(countries, [col("actual", costAc), col("previousYear", costPy)],
+  { chart: { orientation: "slope" } }), 760, 440);
+
+// combo: columns + a margin-% line measure on its own scale (field-driven)
+const marge = [0.221, 0.204, 0.230, 0.212, 0.245, 0.231, 0.252, 0.240, 0.228, 0.256, 0.260, 0.272];
+run("c34", dataView(months, [col("actual", acFull, "#,0 €"), col("previousYear", py, "#,0 €"),
+    col("lineMeasure", marge, "0.0 %")],
+  { chart: { orientation: "columns" } }), 960, 440);
+
+// stacked: filling the Stack-Series role stacks the plain columns automatically
+const stCats = [], stSeries = [], stAc = [];
+months.slice(0, 6).forEach((m, mi) => {
+  ["Produkt A", "Produkt B", "Produkt C"].forEach((s, si) => {
+    stCats.push(m); stSeries.push(s);
+    stAc.push((80 + mi * 6) * (3 - si) * 1000);
+  });
+});
+run("c35", {
+  metadata: { columns: [], objects: {} },
+  categorical: {
+    categories: [
+      { source: { displayName: "Monat", roles: { category: true } }, values: stCats },
+      { source: { displayName: "Produkt", roles: { series: true } }, values: stSeries }
+    ],
+    values: [col("actual", stAc, "#,0 €")]
+  }
+}, 960, 440);
+
+run("c36", {
+  metadata: { columns: [], objects: { chart: { orientation: "bars" } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Monat", roles: { category: true } }, values: stCats },
+      { source: { displayName: "Produkt", roles: { series: true } }, values: stSeries }
+    ],
+    values: [col("actual", stAc, "#,0 €")]
+  }
+}, 960, 400);
+
+// multiples options: 6 regions -> Top 3 tiles + "Rest (3)" + leading "Σ Gesamt",
+// all on the shared scale set by the (much larger) total tile
+const m6 = ["Nord", "Süd", "West", "Ost", "Mitte", "Export"];
+const m6Cats = [], m6Mult = [], m6Ac = [], m6Pl = [];
+m6.forEach((r, ri) => {
+  const base = [1200, 900, 600, 300, 450, 220][ri];
+  months.slice(0, 6).forEach((m, mi) => {
+    m6Cats.push(m); m6Mult.push(r);
+    m6Ac.push(Math.round(base * (1 + 0.05 * Math.sin(mi + ri) + mi * 0.02)));
+    m6Pl.push(Math.round(base * (1 + 0.04 * Math.cos(mi + ri) + mi * 0.02)));
+  });
+});
+run("c37", dataView(m6Cats, [col("actual", m6Ac), col("plan", m6Pl)],
+  { chart: { multiplesTopN: 3, multiplesTotal: true } }, m6Mult), 960, 560);
+
+// hero layout (CT 13): the leading Σ tile gets a full-height cell, rest as grid
+run("c38", dataView(m6Cats, [col("actual", m6Ac), col("plan", m6Pl)],
+  { chart: { multiplesTotal: true, multiplesHero: true } }, m6Mult), 960, 560);
+
+// P&L waterfall + variance tiers (CT 12): AC waterfall with ΔPY bars + ΔPY % pins per row
+const pnlPy = [9100, -3900, -2300, 2900, -950, -560, 1390];
+run("c39", dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousYear", pnlPy, "#,0 T€")], {
+  chart: { orientation: "waterfall", showTotal: false },
+  ibcsTitle: { kpi: "GuV", period: "2026" }
+}, null, pnlTypes), 960, 520);
+
+// controller extras: materiality thresholds grey immaterial deltas, a stored
+// in-chart comment renders its ✎ marker, the YTD chip sits top-right
+run("c40", dataView(months, [col("actual", acFull, "#,0 €"), col("plan", pl, "#,0 €")], {
+  chart: { materialityAbs: 30000, materialityPct: 3, cumulativeButton: true },
+  commentsPanel: { userComments: JSON.stringify({ "¦Mär": "Preiserhöhung ab März wirksam" }) }
+}), 960, 480);
+
+// comment capture mode on: clicking a column opens the editor (interactive test)
+run("c41", dataView(months.slice(0, 6), [col("actual", ac.slice(0, 6), "#,0 €"), col("previousYear", py.slice(0, 6), "#,0 €")], {
+  commentsPanel: { editComments: true }
+}), 960, 400);
+
+// KPI cards mode: one tile per category, mini bridge basis->delta->AC, ref rows
+run("c42", dataView(["Umsatz", "Rohertrag", "Opex", "EBIT", "Cashflow", "Auftragseingang"],
+  [col("actual", [9800000, 4200000, 2950000, 1300000, null, 11200000], "#,0 €"),
+   col("previousYear", [9100000, 3900000, 2700000, 1200000, 910000, 10400000], "#,0 €"),
+   col("plan", [9500000, 4100000, 2800000, 1250000, 900000, 11800000], "#,0 €"),
+   col("forecast", [null, null, null, null, 860000, null], "#,0 €")],
+  { chart: { orientation: "cards" } }), 960, 400);
+
+// flat KPI strip (like a page header): variances + bridge move beside the value
+run("c43", dataView(["Revenue", "COGS", "Profit", "Units Sold"],
+  [col("actual", [44800000, 26700000, 18000000, 128000], "#,0 €"),
+   col("previousYear", [41200000, 25100000, 16100000, 121000], "#,0 €"),
+   col("plan", [43500000, 26900000, 16600000, 131000], "#,0 €")],
+  { chart: { orientation: "cards" }, ibcsTitle: { kpi: "AC YTD" } }), 1420, 130);
+
+// pareto in multiples with a total tile: all tiles must share one scale
+const pmCats = [], pmMult = [], pmAc = [];
+[["Nord", [520, 380, 260, 140, 90]], ["Süd", [300, 220, 150, 90, 60]]].forEach(([r, vals]) => {
+  vals.forEach((v, i) => { pmCats.push("P" + (i + 1)); pmMult.push(r); pmAc.push(v * 1000); });
+});
+run("c44", dataView(pmCats, [col("actual", pmAc, "#,0 €")],
+  { chart: { orientation: "pareto", multiplesTotal: true } }, pmMult), 960, 420);
+
+// negative series in the integrated bridge: explicit hint, no broken rects
+run("c45", dataView(months.slice(0, 6),
+  [col("actual", [-820, -771, -900, -955, -1020, -980]), col("previousYear", [-760, -800, -850, -900, -940, -1010])],
+  { chart: { orientation: "intwaterfall" } }), 960, 280);
+
+// forecast revision: current AC/FC vs the forecast of the previous cycle
+const fcNow  = [820, 771, 900, 955, 1020, 980, 1105, 1150, 1080, 1210, 1260, 1400].map(v => v * 1000);
+const fcPrev = [820, 771, 900, 940, 1000, 990, 1080, 1170, 1060, 1180, 1300, 1360].map(v => v * 1000);
+run("c46", {
+  metadata: { columns: [], objects: { chart: { comparisonMode: "fcrev" },
+    ibcsTitle: { footer: "Ist per Jul 2026 · FC-Zyklus 07/26 vs. 06/26 · Stand 10.07." } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Monat", roles: { category: true } }, values: months },
+      { source: { displayName: "FC", roles: { fcFlag: true } }, values: [0,0,0,0,0,0,0,1,1,1,1,1] }
+    ],
+    values: [col("actual", fcNow, "#,0 €"), col("prevForecast", fcPrev, "#,0 €")]
+  }
+}, 960, 460);
+
+// per-category invert: Opex is a cost KPI between revenue KPIs
+run("c47", dataView(["Umsatz", "Opex", "EBIT"],
+  [col("actual", [9800000, 3100000, 1300000], "#,0 €"),
+   col("plan", [9500000, 2800000, 1250000], "#,0 €")],
+  { chart: { orientation: "cards", invertList: "Opex" } }), 960, 260);
+
+// QTD with fiscal year starting in April: cumulation resets at Apr/Jul/Okt/Jan
+run("c48", dataView(months, [col("actual", acFull, "#,0 €"), col("plan", pl, "#,0 €")],
+  { chart: { cumulative: true, cumulativeKind: "qtd", fiscalStart: 4 } }), 960, 420);
+
+// GuV-Statement (IBCS P&L): sum/delta/pct row types drive anchors, collapse levels
+// and margin rows; FC carries the rest-of-year forecast for the AC&FC split view
+const guvCats = ["Umsatzerlöse","Materialaufwand","Bruttoergebnis","Brutto-Marge %","Personalaufwand","Sonstige Opex","EBITDA","EBITDA-Marge %","Abschreibungen","EBIT","EBIT-Marge %","Finanzergebnis","EBT"];
+const guvTypes = ["sum","delta","sum","pct","delta","delta","sum","pct","delta","sum","pct","delta","sum"];
+const guvAc = [9800,-4200,5600,57.1,-1850,-1050,2700,27.6,-380,2320,23.7,-95,2225];
+const guvPy = [9100,-3900,5200,57.1,-1740,-960,2500,27.5,-360,2140,23.5,-110,2030];
+const guvPl = [9600,-4050,5550,57.8,-1800,-1000,2750,28.6,-370,2380,24.8,-100,2280];
+const guvFc = [4400,-1900,2500,null,-830,-470,1200,null,-170,1030,null,-45,985];
+run("c51", dataView(guvCats, [col("actual", guvAc, "#,0 T€"), col("previousYear", guvPy, "#,0 T€"), col("plan", guvPl, "#,0 T€"), col("forecast", guvFc, "#,0 T€")],
+  { chart: { orientation: "pnl" } }, null, guvTypes), 1280, 480);
+run("c52", dataView(guvCats, [col("actual", guvAc, "#,0 T€"), col("previousYear", guvPy, "#,0 T€"), col("plan", guvPl, "#,0 T€"), col("forecast", guvFc, "#,0 T€")],
+  { chart: { orientation: "pnl", pnlView: "acfc" } }, null, guvTypes), 1280, 480);
+run("c53", dataView(guvCats, [col("actual", guvAc, "#,0 T€"), col("previousYear", guvPy, "#,0 T€"), col("plan", guvPl, "#,0 T€"), col("forecast", guvFc, "#,0 T€")],
+  { chart: { orientation: "pnl", pnlView: "pl" } }, null, guvTypes), 1280, 480);
+
+// period status: months up to Jun final, Jul preliminary (flag 2), Aug+ forecast (flag 1)
+const psCats = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+const psAc = [820, 771, 900, 955, 1020, 980, 1105, 1150, 1080, 1210, 1260, 1400].map(v => v * 1000);
+const psPy = [790, 800, 860, 930, 985, 1010, 1060, 1090, 1120, 1180, 1220, 1350].map(v => v * 1000);
+run("c54", dataView(psCats, [col("actual", psAc, "#,0 €"), col("previousYear", psPy, "#,0 €")],
+  { __fcFlags: [0,0,0,0,0,0,2,1,1,1,1,1], chart: {} }), 960, 420);
+
+// sum-safe rounding: 3×10.440 → labels 10,4k each, Σ 31,3k — largest remainder bumps one to 10,5
+const srCats = ["Nord", "Mitte", "Süd"];
+const srAc = [10440, 10440, 10440];
+run("c55", dataView(srCats, [col("actual", srAc, "#,0 €")],
+  { chart: { orientation: "bars", showTotal: true }, labels: { sumSafeRounding: true } }), 960, 300);
+run("c56", dataView(srCats, [col("actual", srAc, "#,0 €")],
+  { chart: { orientation: "bars", showTotal: true } }), 960, 300);
+
+// export context: allowInteractions=false suppresses all in-chart buttons/chrome
+run("c57", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)],
+  { chart: { orientation: "catbridge", groupEvery: 4 } }, null, null), 1340, 600, false, true);
+
+// wave 3 — real multi-level hierarchy: three category-role columns; every branch
+// node gets its own chevron, indentation grows with depth
+const h3L1 = ["DACH","DACH","DACH","DACH","West","West","West"];
+const h3L2 = ["Deutschland","Deutschland","Österreich","Schweiz","Frankreich","Frankreich","Benelux"];
+const h3L3 = ["Produkt A","Produkt B","Produkt A","Produkt A","Produkt A","Produkt B","Produkt A"];
+const h3Ac = [3400, 2000, 1900, 2400, 1800, 1300, 1500];
+const h3Py = [3200, 1900, 2000, 2200, 1950, 1350, 1450];
+run("c66", {
+  metadata: { columns: [], objects: { chart: { orientation: "table",
+    tableExpanded: JSON.stringify(["¦DACH", "¦DACH¦Deutschland", "¦West"]) } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: h3L1 },
+      { source: { displayName: "Land", roles: { category: true } }, values: h3L2 },
+      { source: { displayName: "Produkt", roles: { category: true } }, values: h3L3 }
+    ],
+    values: [col("actual", h3Ac), col("previousYear", h3Py)]
+  }
+}, 1200, 440);
+
+// wave 3 — vertical scrolling: 30 rows in a 320px tile, header + synthetic Σ frozen,
+// slim scrollbar at the right edge (wheel/drag/keys); export mode keeps truncation
+const scCats = Array.from({length: 30}, (_, i) => "Konto " + String(i + 1).padStart(2, "0"));
+const scAc = scCats.map((_, i) => 4200 - i * 90 + (i % 4) * 35);
+const scPy = scCats.map((_, i) => 4000 - i * 85 + (i % 3) * 40);
+run("c67", dataView(scCats, [col("actual", scAc, "#,0 T€"), col("previousYear", scPy, "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true } }), 1200, 320);
+
+// wave 3 — formula rows light: sum formula (subtotal styling) + ratio formula (%-row
+// with pp deltas); neither feeds the synthetic Σ row
+run("c68", dataView(["Umsatz", "Materialaufwand", "Personal", "Opex"],
+  [col("actual", [9800, -4200, -2400, -900], "#,0 T€"),
+   col("previousYear", [9100, -3900, -2300, -850], "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true,
+    formulaRows: "Rohertrag = Umsatz + Materialaufwand; Marge = Rohertrag / Umsatz" } }), 1200, 420);
+
+// filter footer: bound Filter-Info text measure + the visual's own view state
+// (header sort, sigma exclusions) as a second footer line above the data-status one
+run("c69", dataView(okCats, [col("actual", okAc, "#,0 T€"), col("previousYear", okPy, "#,0 T€"),
+    col("filterInfo", okCats.map(() => "Region: DACH · Jahr: 2026 · Kanal: Direct"))],
+  { chart: { orientation: "table", showTotal: true, skipList: "nachrichtlich: Export",
+      tableSort: "dabs_desc" },
+    ibcsTitle: { footer: "Ist per Jun 2026 · Stand 05.07. · Quelle: SAP FI", filterFooter: true } }), 1200, 460);
+
+// KPI cards vs benchmark: stripe + light background tint judge AC against BM
+// (monitoring mode); the middle card sits within materiality -> stays neutral
+const monCats = ["Verfügbarkeit %", "Durchsatz", "Ausschuss", "Energie kWh", "OEE %", "Kosten"];
+const monAc = [97.1, 4180, 118, 5230, 71.4, 88200];
+const monBm = [99.0, 4000, 120, 5600, 75.0, 90000];
+run("c70", dataView(monCats, [col("actual", monAc), col("benchmark", monBm)],
+  { chart: { orientation: "cards", cardStatusBasis: "benchmark", cardTint: true,
+    cardTintStrength: 14, cardBullet: true, cardBulletZoom: true, invertList: "Ausschuss, Energie kWh, Kosten",
+    materialityPct: 3 } }), 1200, 400);
+
+// benchmark status without tint: stripe only, delta-BM row leads, delta-PY second
+run("c71", dataView(monCats.slice(0, 4),
+  [col("actual", monAc.slice(0, 4)), col("previousYear", [98.0, 3900, 121, 5100]),
+   col("benchmark", monBm.slice(0, 4))],
+  { chart: { orientation: "cards", cardStatusBasis: "benchmark", cardBullet: true } }), 1200, 400);
+
+// matrix columns: category rows x (Quartal -> Monat) column hierarchy; every
+// (row, month) pair is one data row, blocks collapse to quarter aggregates
+const mxRegions = ["Nord", "West", "Süd", "Ost"];
+const mxQ = ["Q1", "Q2"], mxM = { Q1: ["Jan", "Feb", "Mär"], Q2: ["Apr", "Mai", "Jun"] };
+const mxCats = [], mxL0 = [], mxL1 = [], mxAc = [], mxPy = [];
+mxRegions.forEach((r, ri) => {
+  mxQ.forEach(q => {
+    mxM[q].forEach((m, mi) => {
+      mxCats.push(r); mxL0.push(q); mxL1.push(m);
+      mxAc.push(900 + ri * 300 + mi * 40 + (q === "Q2" ? 120 : 0));
+      mxPy.push(880 + ri * 290 + mi * 35 + (q === "Q2" ? 100 : 0));
+    });
+  });
+});
+function mxDataView(extraObjects) {
+  return {
+    metadata: { columns: [], objects: Object.assign({ chart: { orientation: "table", showTotal: true } }, extraObjects || {}) },
+    categorical: {
+      categories: [
+        { source: { displayName: "Region", roles: { category: true } }, values: mxCats },
+        { source: { displayName: "Quartal", roles: { colgroup: true } }, values: mxL0 },
+        { source: { displayName: "Monat", roles: { colgroup: true } }, values: mxL1 }
+      ],
+      values: [col("actual", mxAc, "#,0 T€"), col("previousYear", mxPy, "#,0 T€")]
+    }
+  };
+}
+run("c72", mxDataView(), 1340, 400);
+run("c73", mxDataView({ chart: { orientation: "table", showTotal: true,
+  tableColExpanded: JSON.stringify(["col¦Q1"]) } }), 1340, 400);
+
+// hide list (display-only, sigma keeps the row) + chart list (graphics only on
+// listed rows, numbers everywhere, sigma row keeps its graphics)
+run("c74", dataView(t2Cats, [col("actual", t2Ac, "#,0 T€"), col("previousYear", t2Py, "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true, hideList: "Ost",
+    chartList: "Nord, Süd" } }), 1200, 400);
+
+// matrix full build: row hierarchy (Region -> Land) crossed with quarter columns,
+// mini delta bars per block
+const mxhL0region = [], mxhL0land = [], mxhQ = [], mxhAc = [], mxhPy = [];
+const mxhTree = { "DACH": ["Deutschland", "Österreich"], "West": ["Frankreich", "Benelux"] };
+Object.keys(mxhTree).forEach((reg, ri) => {
+  mxhTree[reg].forEach((land, li) => {
+    ["Q1", "Q2"].forEach((q, qi) => {
+      mxhL0region.push(reg); mxhL0land.push(land); mxhQ.push(q);
+      mxhAc.push(1000 + ri * 400 + li * 150 + qi * 120);
+      mxhPy.push(950 + ri * 390 + li * 145 + qi * 100);
+    });
+  });
+});
+run("c75", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true,
+    tableExpanded: JSON.stringify(["¦DACH", "¦West"]) } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: mxhL0region },
+      { source: { displayName: "Land", roles: { category: true } }, values: mxhL0land },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: mxhQ }
+    ],
+    values: [col("actual", mxhAc, "#,0 T€"), col("previousYear", mxhPy, "#,0 T€")]
+  }
+}, 1340, 440);
+
+// matrix: delta vs previous column (period-over-period) + sigma sort desc
+const mxpCats = [], mxpQ = [], mxpAc = [], mxpPy = [];
+["Nord", "Süd", "Ost"].forEach((r, ri) => {
+  ["Q1", "Q2", "Q3", "Q4"].forEach((q, qi) => {
+    mxpCats.push(r); mxpQ.push(q);
+    mxpAc.push(1000 + ri * 500 + qi * 130);
+    mxpPy.push(980 + ri * 490 + qi * 110);
+  });
+});
+run("c76", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true,
+    matrixCompare: "prevcol", tableSort: "ac_desc" } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: mxpCats },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: mxpQ }
+    ],
+    values: [col("actual", mxpAc, "#,0 T€"), col("previousYear", mxpPy, "#,0 T€")]
+  }
+}, 1340, 400);
+
+// davon-rows (indentList) + per-row number formats (percent + integer)
+run("c77", dataView(["Umsatz", "davon Export", "davon Inland", "Marge", "Menge"],
+  [col("actual", [9800, 3100, 6700, 0.571, 128400], "#,0 T€"),
+   col("previousYear", [9100, 2800, 6300, 0.567, 121000], "#,0 T€")],
+  { chart: { orientation: "table", showTotal: true,
+    indentList: "davon Export, davon Inland",
+    skipList: "davon Export, davon Inland, Marge, Menge",
+    rowFormats: "Marge = 0.0 %; Menge = #,0" } }), 1200, 420);
+
+// cards: highlight only bad (good stay neutral grey), bars off -> pure number cards
+run("c78", dataView(["Umsatz", "Kosten", "Marge", "Cash", "Auftragseingang"],
+  [col("actual", [9800, 4200, 2100, 1500, 8800]),
+   col("previousYear", [9100, 3900, 2300, 1650, 8200])],
+  { chart: { orientation: "cards", cardHighlight: "bad", cardBars: false,
+    invertList: "Kosten" } }), 1200, 300);
+
+// cards focus sort: biggest color-relevant deviation first (top-left)
+run("c79", dataView(["Umsatz", "Kosten", "Marge", "Cash", "Auftragseingang"],
+  [col("actual", [9800, 4200, 2100, 1500, 8800]),
+   col("previousYear", [9100, 3900, 2300, 1650, 8200])],
+  { chart: { orientation: "cards", cardSort: "deviation", cardBars: false,
+    invertList: "Kosten" } }), 1200, 300);
+
+// cards: worst first (direction-aware — Kosten inverted, so +cost = bad = top)
+run("c80", dataView(["Umsatz", "Kosten", "Marge", "Cash", "Auftragseingang"],
+  [col("actual", [9800, 4200, 2100, 1500, 8800]),
+   col("previousYear", [9100, 3900, 2300, 1650, 8200])],
+  { chart: { orientation: "cards", cardSort: "worst", cardBars: false,
+    invertList: "Kosten" } }), 1200, 300);
+
+// category bridge in small multiples: region Nord ~3x Süd. c81 default =
+// per-tile scale (both bridges fill their tile), c82 sameScale = one shared
+// maximum (Süd visibly shorter). c83 = same toggle on the integrated bridge.
+const cbRegions = ["Nord", "Süd"];
+const cbDrivers = ["Produkt A", "Produkt B", "Produkt C", "Service"];
+const cbCats2 = [], cbMult2 = [], cbAc2 = [], cbPy2 = [];
+cbRegions.forEach((r, ri) => {
+  const f = ri === 0 ? 3 : 1;
+  cbDrivers.forEach((d, di) => {
+    cbCats2.push(d); cbMult2.push(r);
+    cbAc2.push(f * [1450, 980, 620, 410][di]);
+    cbPy2.push(f * [1300, 1040, 590, 380][di]);
+  });
+});
+run("c81", dataView(cbCats2, [col("actual", cbAc2), col("previousYear", cbPy2)],
+  { chart: { orientation: "catbridge" } }, cbMult2), 1340, 560);
+run("c82", dataView(cbCats2, [col("actual", cbAc2), col("previousYear", cbPy2)],
+  { chart: { orientation: "catbridge", multiplesSameScale: true } }, cbMult2), 1340, 560);
+run("c83", dataView(cbCats2, [col("actual", cbAc2), col("previousYear", cbPy2)],
+  { chart: { orientation: "intwaterfall", multiplesSameScale: true } }, cbMult2), 1340, 640);
+
+// P&L table with margin rows: value as %, deltas as percentage points
+run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],
+  [col("actual", [9800, -4200, 5600, 57.1, -2900, 2700, 27.6], "#,0 T€"),
+   col("previousYear", [9100, -3900, 5200, 57.1, -2700, 2500, 27.5], "#,0 T€")],
+  { chart: { orientation: "table" } }, null,
+  ["sum", "delta", "sum", "pct", "delta", "sum", "pct"]), 1200, 420);
+</script>
+
+<!-- ==== Audit 2026-07: Edge-Case-Haertung (Suiten minimal-negativ & kombi-stress) ==== -->
+<div class="case"><h4>Kategorie-Brücke · ausschließlich negative Werte → heute unsichtbar, erwartet: Hinweis oder korrektes Rendering</h4><div class="stage" id="c90" style="width:1200px;height:600px"></div></div>
+<script>
+// Kategorie-Brücke · ausschließlich negative Werte → Balken kollabieren (fehlender maxV-Guard)
+// all-negative category bridge: maxV degenerates to 1 (visual.ts renderCategoryBridge),
+// bars collapse to invisible slivers — should show the same hint as the integrated bridge
+run("c90", dataView(["Nord","Süd","Ost","West"],
+  [col("actual", [-179, -89, -42, -67]), col("previousYear", [-135, -68, -35, -66])],
+  { chart: { orientation: "catbridge" } }), 1200, 600);
+</script>
+<div class="case"><h4>Waterfall · gemischte Vorzeichen, Σ = 0 — Nullsäule + Label-Kollision letzter Balken/Kategorielabel</h4><div class="stage" id="c91" style="width:960px;height:380px"></div></div>
+<script>
+// Waterfall · gemischte Vorzeichen mit Summe 0 → Σ=0 korrekt, Label-Kollision am Ende
+// cascade closing exactly at zero: Σ column has height 0 (label "0 T€" must stay),
+// last delta bar ends on the baseline — its value label currently overlaps the category label
+run("c91", dataView(["Umsatz","Material","Personal","Sondereffekt","Steuern"],
+  [col("actual", [5000, -3200, -1500, 900, -1200], "#,0 T€")],
+  { chart: { orientation: "waterfall" }, ibcsTitle: { kpi: "Ergebnis", period: "2026" } }), 960, 380);
+</script>
+<div class="case"><h4>Integrierte Brücke · Multiples · sameScale + eine negative Kachel → Negativ-Hinweis pro Kachel, Nachbar-Kachel intakt</h4><div class="stage" id="c92" style="width:1340px;height:640px"></div></div>
+<script>
+// Integrierte Brücke · Multiples sameScale mit einer komplett negativen Kachel
+// one all-negative tile inside a sameScale multiples grid: the negative tile must show
+// the explicit hint, the positive tile must keep rendering (no shared-scale poisoning)
+const ngCats = [], ngMult = [], ngAc = [], ngPy = [];
+["Nord", "Süd"].forEach((r, ri) => {
+  ["Q1","Q2","Q3","Q4"].forEach((q, qi) => {
+    ngCats.push(q); ngMult.push(r);
+    if (ri === 0) { ngAc.push([1450, 980, 620, 410][qi]); ngPy.push([1300, 1040, 590, 380][qi]); }
+    else { ngAc.push([-450, -300, -220, -180][qi]); ngPy.push([-400, -350, -200, -160][qi]); }
+  });
+});
+run("c92", dataView(ngCats, [col("actual", ngAc), col("previousYear", ngPy)],
+  { chart: { orientation: "intwaterfall", multiplesSameScale: true } }, ngMult), 1340, 640);
+</script>
+<div class="case"><h4>Waterfall · ausschließlich negative Deltas — absteigende Kaskade ab Nulllinie, Σ negativ</h4><div class="stage" id="c93" style="width:960px;height:380px"></div></div>
+<script>
+// Waterfall · ausschließlich negative Deltas (Kostenkaskade)
+// pure cost cascade: every delta negative, running total strictly below zero,
+// Σ column must extend downward from the baseline (no clamping, no flipped bars)
+run("c93", dataView(["Personal","Material","Energie","Miete","Abschreibung"],
+  [col("actual", [-2400, -1800, -600, -350, -280], "#,0 T€")],
+  { chart: { orientation: "waterfall" }, ibcsTitle: { kpi: "Kosten", period: "2026" } }), 960, 380);
+</script>
+<div class="case"><h4>Kategorie-Brücke · 1 Kategorie, nur AC — Basis-Hinweis statt leerem SVG</h4><div class="stage" id="c94" style="width:600px;height:300px"></div></div>
+<script>
+// Kategorie-Brücke · nur AC gebunden → Basis-Hinweis
+// minimal binding without any comparison series: both bridge modes must fall back
+// to their explicit basis hint instead of crashing or rendering empty
+run("c94", dataView(["Q1"], [col("actual", [4200], "#,0 T€")], { chart: { orientation: "catbridge" } }), 600, 300);
+</script>
+<div class="case"><h4>Columns · 120 Kategorien · labelDensity ends — Varianz-Panes muessen ihre eigenen Extrema labeln</h4><div class="stage" id="c95" style="width:1200px;height:520px"></div></div>
+<script>
+// Columns · 120 Kategorien · labelDensity ends — Varianz-Extrema
+const kb95Cats = Array.from({length: 120}, (_, i) =>
+  ("Produktkategorie-Langname-Nr" + String(i + 1).padStart(3, "0") + "-XXXXXXXXXX").slice(0, 40));
+const kb95Ac = kb95Cats.map((_, i) => 400 + (i % 23) * 40 + Math.round(150 * Math.sin(i / 7)));
+const kb95Py = kb95Cats.map((_, i) => 420 + (i % 19) * 38 + Math.round(120 * Math.sin(i / 6 + 1)));
+run("c95", dataView(kb95Cats, [col("actual", kb95Ac), col("previousYear", kb95Py)],
+  { chart: { orientation: "columns" }, labels: { labelDensity: "ends" } }), 1200, 520);
+</script>
+<div class="case"><h4>Columns · Duplikat-Maxima (900 bei Beta und Delta) · labelDensity ends — kein Achsenname darf fehlen</h4><div class="stage" id="c96" style="width:900px;height:400px"></div></div>
+<script>
+// Columns · Duplikat-Maxima + ends — fehlendes Achsenlabel
+run("c96", dataView(["Alpha", "Beta", "Gamma", "Delta", "Epsilon"],
+  [col("actual", [500, 900, 300, 900, 450], "#,0 T€"), col("previousYear", [520, 850, 340, 870, 430], "#,0 T€")],
+  { chart: { orientation: "columns" }, labels: { labelDensity: "ends" } }), 900, 400);
+</script>
+<div class="case"><h4>Tabelle 600×300 · financeFormat + deltaIcons + labelDensity ends · negative Deltas + negative %-Zeile</h4><div class="stage" id="c97" style="width:600px;height:300px"></div></div>
+<script>
+// Tabelle klein · financeFormat + deltaIcons + negative %-Zeile
+const kb90Cats = ["Umsatz","Materialaufwand","Rohertrag","Marge %","Opex","EBIT","EBIT-Marge %","Wachstum %"];
+const kb90Types = ["sum","delta","sum","pct","delta","sum","pct","pct"];
+const kb90Ac = [9800, -4600, 5200, 53.1, -3400, 1800, 18.4, -3.2];
+const kb90Py = [10100, -4300, 5800, 57.4, -3100, 2700, 26.7, 1.8];
+run("c97", dataView(kb90Cats, [col("actual", kb90Ac, "#,0 T€"), col("previousYear", kb90Py, "#,0 T€")],
+  { chart: { orientation: "table", deltaIcons: true },
+    labels: { financeFormat: true, labelDensity: "ends" } }, null, kb90Types), 600, 300);
+</script>
+<div class="case"><h4>Tabelle 1600×900 · identische Daten/Settings wie c90 — Zeilen wachsen nicht mit</h4><div class="stage" id="c98" style="width:1600px;height:900px"></div></div>
+<script>
+// Tabelle groß · Zeilenhoehen-Invarianz-Guard
+const kb91Cats = ["Umsatz","Materialaufwand","Rohertrag","Marge %","Opex","EBIT","EBIT-Marge %","Wachstum %"];
+const kb91Types = ["sum","delta","sum","pct","delta","sum","pct","pct"];
+const kb91Ac = [9800, -4600, 5200, 53.1, -3400, 1800, 18.4, -3.2];
+const kb91Py = [10100, -4300, 5800, 57.4, -3100, 2700, 26.7, 1.8];
+run("c98", dataView(kb91Cats, [col("actual", kb91Ac, "#,0 T€"), col("previousYear", kb91Py, "#,0 T€")],
+  { chart: { orientation: "table", deltaIcons: true },
+    labels: { financeFormat: true, labelDensity: "ends" } }, null, kb91Types), 1600, 900);
+</script>
+<div class="case"><h4>Matrix (Quartals-Spalten) 600×300 · financeFormat + deltaIcons · negative Deltas in jeder 2. Region</h4><div class="stage" id="c99" style="width:600px;height:300px"></div></div>
+<script>
+// Matrix klein · financeFormat + deltaIcons
+const kb92Cats = [], kb92Q = [], kb92Ac = [], kb92Py = [];
+["Nord", "Sued", "West", "Ost"].forEach((r, ri) => {
+  ["Q1", "Q2", "Q3", "Q4"].forEach((q, qi) => {
+    kb92Cats.push(r); kb92Q.push(q);
+    const b = 1000 + ri * 350 + qi * 120;
+    kb92Ac.push(ri % 2 === 0 ? b : b - 260);
+    kb92Py.push(b - 40);
+  });
+});
+run("c99", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true, deltaIcons: true },
+    labels: { financeFormat: true } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: kb92Cats },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: kb92Q }
+    ],
+    values: [col("actual", kb92Ac, "#,0 T€"), col("previousYear", kb92Py, "#,0 T€")]
+  }
+}, 600, 300);
+</script>
+<div class="case"><h4>Matrix (Quartals-Spalten) 1600×900 · wie c92 — Zeilenhoehe konstant, Σ-Zeile Δ-Balken vs. Text</h4><div class="stage" id="c100" style="width:1600px;height:900px"></div></div>
+<script>
+// Matrix groß · Balken/Text-Kollision Σ-Zeile + Zeilenhoehen-Guard
+const kb93Cats = [], kb93Q = [], kb93Ac = [], kb93Py = [];
+["Nord", "Sued", "West", "Ost"].forEach((r, ri) => {
+  ["Q1", "Q2", "Q3", "Q4"].forEach((q, qi) => {
+    kb93Cats.push(r); kb93Q.push(q);
+    const b = 1000 + ri * 350 + qi * 120;
+    kb93Ac.push(ri % 2 === 0 ? b : b - 260);
+    kb93Py.push(b - 40);
+  });
+});
+run("c100", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true, deltaIcons: true },
+    labels: { financeFormat: true } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: kb93Cats },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: kb93Q }
+    ],
+    values: [col("actual", kb93Ac, "#,0 T€"), col("previousYear", kb93Py, "#,0 T€")]
+  }
+}, 1600, 900);
+</script>
+<div class="case"><h4>Columns · 120 Kategorien mit 40-Zeichen-Namen · auto-Density (Achsenlabels, Rand-Clipping)</h4><div class="stage" id="c101" style="width:1200px;height:520px"></div></div>
+<script>
+// Columns · 120 Kategorien · 40-Zeichen-Namen · auto-Density
+const kb94Cats = Array.from({length: 120}, (_, i) =>
+  ("Produktkategorie-Langname-Nr" + String(i + 1).padStart(3, "0") + "-XXXXXXXXXX").slice(0, 40));
+const kb94Ac = kb94Cats.map((_, i) => 400 + (i % 23) * 40 + Math.round(150 * Math.sin(i / 7)));
+const kb94Py = kb94Cats.map((_, i) => 420 + (i % 19) * 38 + Math.round(120 * Math.sin(i / 6 + 1)));
+run("c101", dataView(kb94Cats, [col("actual", kb94Ac), col("previousYear", kb94Py)],
+  { chart: { orientation: "columns" } }), 1200, 520);
+</script>
+<div class="case"><h4>Matrix · Werte-Spalten AC·PY·PL + Toggles — Referenzspalten je Block, Σ-Block ohne Δ% wenn abgeschaltet</h4><div class="stage" id="c102" style="width:1500px;height:400px"></div></div>
+<script>
+// Matrix honors the flat table's display settings: valueColumns adds PY/PL
+// reference columns per block, showAbsoluteVariance gates the mini bars,
+// showRelativeVariance gates the Σ-block Δ% column
+const vc2Cats = [], vc2Q = [], vc2Ac = [], vc2Py = [], vc2Pl = [];
+["Nord","West","Süd"].forEach((r, ri) => ["Q1","Q2","Q3"].forEach((q, qi) => {
+  vc2Cats.push(r); vc2Q.push(q);
+  vc2Ac.push(800 + ri * 300 + qi * 100);
+  vc2Py.push(780 + ri * 290 + qi * 80);
+  vc2Pl.push(820 + ri * 310 + qi * 90);
+}));
+run("c102", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true,
+    valueColumns: "all", showRelativeVariance: false } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: vc2Cats },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: vc2Q }
+    ],
+    values: [col("actual", vc2Ac, "#,0 T€"), col("previousYear", vc2Py, "#,0 T€"), col("plan", vc2Pl, "#,0 T€")]
+  }
+}, 1500, 400);
+</script>
+
+<!-- 1.35.2.0 · Regressionsfaelle Juli-Audit (Darstellungs-Fixes) -->
+<div class="case"><h4>Fix1 · Columns schmal, 120 Kat., ends — Randlabel behaelt Vorzeichen (−23,2% links, −54,3% rechts)</h4><div class="stage" id="c103" style="width:700px;height:420px"></div></div>
+<script>
+(function () {
+  const n = 120, cats = [], ac = [], py = [];
+  for (let i = 0; i < n; i++) {
+    cats.push("N" + i);
+    ac.push(400 + Math.round(Math.sin(i) * 300));
+    py.push(i === 0 ? 521 : 400 + Math.round(Math.cos(i) * 250));
+  }
+  run("c103", dataView(cats, [col("actual", ac), col("previousYear", py)],
+    { chart: { orientation: "columns" }, labels: { labelDensity: "ends" } }), 700, 420);
+})();
+</script>
+
+<div class="case"><h4>Fix2 · KPI-Karte Basis fcrev — Wert uebermalt „ΔFC Vm“ nicht</h4><div class="stage" id="c104" style="width:320px;height:200px"></div></div>
+<script>
+run("c104", dataView(["Umsatz"], [col("actual", [545]), col("prevForecast", [500])],
+  { chart: { orientation: "cards", comparisonMode: "fcrev", deltaIcons: true } }), 320, 200);
+</script>
+
+<div class="case"><h4>Fix3 · GuV pinStyle „round“ — ΔPY%-Pinkoepfe rund</h4><div class="stage" id="c105" style="width:1000px;height:420px"></div></div>
+<script>
+run("c105", dataView(["Umsatz","Materialaufwand","Bruttoergebnis","Opex","EBIT"],
+  [col("actual", [9800,-4200,5600,-2900,2700], "#,0 T€"), col("previousYear", [9100,-3900,5200,-2700,2500], "#,0 T€")],
+  { chart: { orientation: "pnl", pinStyle: "round" } }, null, ["sum","delta","sum","delta","sum"]), 1000, 420);
+</script>
+
+<div class="case"><h4>Fix4 · Waterfall Ende auf 0 — letztes Δ-Label kollidiert nicht mit Kategorie-Achse</h4><div class="stage" id="c106" style="width:720px;height:420px"></div></div>
+<script>
+run("c106", dataView(["Umsatz","COGS","Opex","Sonstige","Steuern"],
+  [col("actual", [5000,-3200,-1500,900,-1200], "#,0 T€")],
+  { chart: { orientation: "waterfall" } }), 720, 420);
+</script>
+
+<div class="case"><h4>Fix5 · Columns n=5, ends, Duplikat-Max — alle Kategorienamen sichtbar</h4><div class="stage" id="c107" style="width:900px;height:420px"></div></div>
+<script>
+run("c107", dataView(["Alpha","Beta","Gamma","Delta","Epsilon"],
+  [col("actual", [500,900,600,900,700]), col("previousYear", [480,850,620,880,690])],
+  { chart: { orientation: "columns" }, labels: { labelDensity: "ends" } }), 900, 420);
+</script>
+
+<!-- 1.36.0.0 · horizontales Scrollen breiter Matrizen statt "… +n"-Cut -->
+<div class="case"><h4>Matrix · 8 Quartale × 4 Regionen im schmalen Visual — Blockstreifen horizontal scrollbar (Name links + Σ rechts fix)</h4><div class="stage" id="c108" style="width:460px;height:300px"></div></div>
+<script>
+// 8 quarters x 4 regions, single-level columns; narrow tile -> all degradation
+// steps exhausted -> block strip becomes horizontally scrollable (all 8 kept)
+const mxsQ = ["Q1","Q2","Q3","Q4","Q5","Q6","Q7","Q8"];
+const mxsRegions = ["Nord","West","Süd","Ost"];
+const mxsCats = [], mxsQcol = [], mxsAc = [], mxsPy = [];
+mxsRegions.forEach((r, ri) => mxsQ.forEach((q, qi) => {
+  mxsCats.push(r); mxsQcol.push(q);
+  mxsAc.push(900 + ri * 300 + qi * 90);
+  mxsPy.push(880 + ri * 290 + qi * 80);
+}));
+function wideMx(id, noInteract) {
+  return run(id, {
+    metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true } } },
+    categorical: {
+      categories: [
+        { source: { displayName: "Region", roles: { category: true } }, values: mxsCats },
+        { source: { displayName: "Quartal", roles: { colgroup: true } }, values: mxsQcol }
+      ],
+      values: [col("actual", mxsAc, "#,0 T€"), col("previousYear", mxsPy, "#,0 T€")]
+    }
+  }, 460, 300, null, noInteract);
+}
+wideMx("c108", false);
+</script>
+<div class="case"><h4>Matrix · dieselbe breite Matrix im Export-Modus (allowInteractions=false) — altes „… +n“-Abschneiden statt Scrollen</h4><div class="stage" id="c109" style="width:460px;height:300px"></div></div>
+<script>
+wideMx("c109", true);
+</script>
+<div class="case"><h4>Matrix · zweistufige Spaltenhierarchie (4 Quartale → je 3 Monate, alle offen) schmal — Level-0-Spannzeilen scrollen mit</h4><div class="stage" id="c110" style="width:640px;height:320px"></div></div>
+<script>
+// two-level column hierarchy, all quarters expanded -> 12 month blocks, narrow
+// tile -> horizontal scroll; the Q1..Q4 level-0 spans translate with the strip
+const twoLvRegions = ["Nord","West","Süd"];
+const twoLvQ = ["Q1","Q2","Q3","Q4"];
+const twoLvM = { Q1:["Jan","Feb","Mär"], Q2:["Apr","Mai","Jun"], Q3:["Jul","Aug","Sep"], Q4:["Okt","Nov","Dez"] };
+const tCats = [], tL0 = [], tL1 = [], tAc = [], tPy = [];
+twoLvRegions.forEach((r, ri) => twoLvQ.forEach((q, qi) => twoLvM[q].forEach((m, mi) => {
+  tCats.push(r); tL0.push(q); tL1.push(m);
+  tAc.push(900 + ri * 300 + qi * 60 + mi * 20);
+  tPy.push(880 + ri * 290 + qi * 55 + mi * 18);
+})));
+run("c110", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true,
+    tableColExpanded: JSON.stringify(["col¦Q1","col¦Q2","col¦Q3","col¦Q4"]) } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: tCats },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: tL0 },
+      { source: { displayName: "Monat", roles: { colgroup: true } }, values: tL1 }
+    ],
+    values: [col("actual", tAc, "#,0 T€"), col("previousYear", tPy, "#,0 T€")]
+  }
+}, 640, 320);
+</script>
+
+<div class="case"><h4>c111 · 1.37 · Tabelle Hierarchie Region→Land (zugeklappt) — ±Alle-Buttons (▸▸ aufklappen) im Kopf, Zeilen-Hover</h4><div class="stage" id="c111" style="width:1100px;height:360px"></div></div>
+<script>
+// row-hierarchy table collapsed by default -> the row expand-all chevron (▸▸) shows;
+// hover over a row highlights it (transient, background layer)
+run("c111", {
+  metadata: { columns: [], objects: { chart: { orientation: "table" } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: hReg },
+      { source: { displayName: "Land", roles: { category: true } }, values: hLand }
+    ],
+    values: [col("actual", hAc, "#,0 T€"), col("previousYear", hPy, "#,0 T€")]
+  }
+}, 1100, 360);
+</script>
+
+<div class="case"><h4>c112 · 1.37 · Matrix Σ oben (totalRowPosition top) · 24 Regionen, kurzes Visual → vertikaler Scroll, Σ unter dem Kopf fixiert</h4><div class="stage" id="c112" style="width:900px;height:300px"></div></div>
+<script>
+const mtRegions = Array.from({length:24}, (_,i)=>"Region "+(i+1));
+const mtQ = ["Q1","Q2","Q3","Q4"];
+const mtCats=[], mtQcol=[], mtAc=[], mtPy=[];
+mtRegions.forEach((r,ri)=>mtQ.forEach((q,qi)=>{ mtCats.push(r); mtQcol.push(q); mtAc.push(600+ri*40+qi*30); mtPy.push(590+ri*38+qi*25); }));
+run("c112", {
+  metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true, totalRowPosition: "top" } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: mtCats },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: mtQcol }
+    ],
+    values: [col("actual", mtAc, "#,0 T€"), col("previousYear", mtPy, "#,0 T€")]
+  }
+}, 900, 300);
+</script>
+
+<div class="case"><h4>c113 · 1.37 · Tabelle zebraStripes + gridLines both + rowDensity compact — dezente Zebra + Spalten-/Zeilentrenner, dichte Zeilen</h4><div class="stage" id="c113" style="width:900px;height:420px"></div></div>
+<script>
+run("c113", dataView(many, [col("actual", mAc, "#,0 T€"), col("previousYear", mAc.map(v=>Math.round(v*0.95)), "#,0 T€")],
+  { chart: { orientation: "table", zebraStripes: true, gridLines: "both", rowDensity: "compact", valueColumns: "basis" } }), 900, 420);
+</script>
+
+<div class="case"><h4>c114 · 1.37 · Tabelle lange Positionsnamen (schmal) → Umbruch auf 2 Zeilen statt Truncate</h4><div class="stage" id="c114" style="width:520px;height:300px"></div></div>
+<script>
+const lnCats = ["Sonstige betriebliche Aufwendungen","Erlöse aus Lieferungen und Leistungen","Materialaufwand und bezogene Leistungen","Personalaufwand inkl. Sozialabgaben","Abschreibungen auf Sachanlagen"];
+const lnAc = [-1200, 9800, -4200, -2400, -800];
+const lnPy = [-1100, 9200, -4000, -2300, -780];
+run("c114", dataView(lnCats, [col("actual", lnAc, "#,0 T€"), col("previousYear", lnPy, "#,0 T€")],
+  { chart: { orientation: "table" } }), 520, 300);
+</script>
+
+<div class="case"><h4>c115 · 1.37 · Tabelle rowDensity airy — luftige Zeilen (mehr Weißraum)</h4><div class="stage" id="c115" style="width:900px;height:520px"></div></div>
+<script>
+run("c115", dataView(many, [col("actual", mAc, "#,0 T€"), col("previousYear", mAc.map(v=>Math.round(v*0.95)), "#,0 T€")],
+  { chart: { orientation: "table", rowDensity: "airy" } }), 900, 520);
+</script>
+
+<!-- 1.38 · Zwei-Zeilen-Kompaktmodus (Matrix) + Spaltenbreiten per Drag/Auto-Fit -->
+<div class="case"><h4>c116 · 1.38 · Matrix 6 Quartale, mittelbreite Kachel: columns würde scrollen, stacked (Wert oben, Δ klein darunter) passt</h4>
+  <div class="stage" id="c116a" style="width:760px;height:300px;display:inline-block"></div>
+  <div class="stage" id="c116b" style="width:760px;height:300px;display:inline-block"></div></div>
+<script>
+// same data, same width: columns layout overflows -> hScroll; stacked halves the
+// block width -> everything fits, value on top and the smaller Δ directly below
+const cl6Q = ["Q1","Q2","Q3","Q4","Q5","Q6"];
+const cl6R = ["Nord","West","Süd","Ost"];
+const cl6Cats=[], cl6Q2=[], cl6Ac=[], cl6Py=[];
+cl6R.forEach((r,ri)=>cl6Q.forEach((q,qi)=>{ cl6Cats.push(r); cl6Q2.push(q); cl6Ac.push(1200+ri*400+qi*90); cl6Py.push(1170+ri*380+qi*70); }));
+function cl6(id, layout){ return run(id, {
+  metadata:{ columns:[], objects:{ chart:{ orientation:"table", showTotal:true, cellLayout:layout } } },
+  categorical:{ categories:[
+    { source:{ displayName:"Region", roles:{ category:true } }, values:cl6Cats },
+    { source:{ displayName:"Quartal", roles:{ colgroup:true } }, values:cl6Q2 } ],
+    values:[col("actual", cl6Ac, "#,0 T€"), col("previousYear", cl6Py, "#,0 T€")] } }, 760, 300); }
+cl6("c116a","columns"); cl6("c116b","stacked");
+</script>
+
+<div class="case"><h4>c117 · 1.38 · Matrix stacked + hScroll (10 Quartale, schmal) — Blockstreifen scrollt, Wert/Δ gestapelt</h4><div class="stage" id="c117" style="width:520px;height:300px"></div></div>
+<script>
+const s10Q = Array.from({length:10},(_,i)=>"Q"+(i+1));
+const s10R = ["Nord","West","Süd"];
+const s10Cats=[], s10Qc=[], s10Ac=[], s10Py=[];
+s10R.forEach((r,ri)=>s10Q.forEach((q,qi)=>{ s10Cats.push(r); s10Qc.push(q); s10Ac.push(900+ri*300+qi*80); s10Py.push(880+ri*290+qi*70); }));
+run("c117", {
+  metadata:{ columns:[], objects:{ chart:{ orientation:"table", showTotal:true, cellLayout:"stacked" } } },
+  categorical:{ categories:[
+    { source:{ displayName:"Region", roles:{ category:true } }, values:s10Cats },
+    { source:{ displayName:"Quartal", roles:{ colgroup:true } }, values:s10Qc } ],
+    values:[col("actual", s10Ac, "#,0 T€"), col("previousYear", s10Py, "#,0 T€")] } }, 520, 300);
+</script>
+
+<div class="case"><h4>c118 · 1.38 · Matrix stacked + Σ oben + deltaIcons + Δ% — Σ-Block Wert oben, „▲ Δ (Δ%)“ darunter</h4><div class="stage" id="c118" style="width:900px;height:340px"></div></div>
+<script>
+const s5R = ["Nord","West","Süd","Ost","Mitte"];
+const s5Q = ["Q1","Q2","Q3","Q4"];
+const s5Cats=[], s5Qc=[], s5Ac=[], s5Py=[];
+s5R.forEach((r,ri)=>s5Q.forEach((q,qi)=>{ s5Cats.push(r); s5Qc.push(q); s5Ac.push(1000+ri*250+qi*60); s5Py.push(980+ri*230+qi*90); }));
+run("c118", {
+  metadata:{ columns:[], objects:{ chart:{ orientation:"table", showTotal:true, cellLayout:"stacked",
+    totalRowPosition:"top", deltaIcons:true, showRelativeVariance:true } } },
+  categorical:{ categories:[
+    { source:{ displayName:"Region", roles:{ category:true } }, values:s5Cats },
+    { source:{ displayName:"Quartal", roles:{ colgroup:true } }, values:s5Qc } ],
+    values:[col("actual", s5Ac, "#,0 T€"), col("previousYear", s5Py, "#,0 T€")] } }, 900, 340);
+</script>
+
+<div class="case"><h4>c119 · 1.38 · Flache Tabelle mit tableColWidths aus dem Store — schmale Wertspalte (val:64), Δ-Spalte (dval:60)</h4><div class="stage" id="c119" style="width:900px;height:420px"></div></div>
+<script>
+run("c119", dataView(many, [col("actual", mAc, "#,0 T€"), col("previousYear", mAc.map(v=>Math.round(v*0.9)), "#,0 T€")],
+  { chart: { orientation: "table", tableColWidths: JSON.stringify({ val: 64, dval: 60 }) } }), 900, 420);
+</script>
+
+<div class="case"><h4>c120 · 1.38 · Matrix mit mxBlock-Breite (150) + mxSum (120) aus dem Store — breite, einheitliche Blöcke</h4><div class="stage" id="c120" style="width:1100px;height:340px"></div></div>
+<script>
+const mbR = ["Nord","West","Süd"];
+const mbQ = ["Q1","Q2","Q3","Q4"];
+const mbCats=[], mbQc=[], mbAc=[], mbPy=[];
+mbR.forEach((r,ri)=>mbQ.forEach((q,qi)=>{ mbCats.push(r); mbQc.push(q); mbAc.push(800+ri*300+qi*70); mbPy.push(790+ri*280+qi*60); }));
+run("c120", {
+  metadata:{ columns:[], objects:{ chart:{ orientation:"table", showTotal:true,
+    tableColWidths: JSON.stringify({ mxBlock: 150, mxSum: 120 }) } } },
+  categorical:{ categories:[
+    { source:{ displayName:"Region", roles:{ category:true } }, values:mbCats },
+    { source:{ displayName:"Quartal", roles:{ colgroup:true } }, values:mbQc } ],
+    values:[col("actual", mbAc, "#,0 T€"), col("previousYear", mbPy, "#,0 T€")] } }, 1100, 340);
+</script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+# This folder holds the password-gated encrypted beta build (chartkitchen-beta.enc).
+# The .enc file is committed only when the beta download is activated.

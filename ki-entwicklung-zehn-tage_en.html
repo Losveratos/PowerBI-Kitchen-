@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ten Days to a Market-Ready Build · AI Thesis Paper · Daten-WG</title>
+<meta name="description" content="A controlling expert builds a market-ready Power BI visual in ten days with AI. The thesis paper runs the numbers: cost leverage, build vs. buy, and why framework + Git matter more than the AI itself.">
+<style>
+:root {
+  --bg:#FAFAF5; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#1A1A1A; --ink-soft:#4A4A4A; --ink-mute:#6B6B6B; --black:#0A0A0A;
+  --line:#E5E2D8; --line-strong:#1A1A1A;
+  --accent:#117865; --accent-deep:#0A5A4D;
+  --topic:#C25A2D; --low:#2A857A; --mid:#C9962E; --high:#8B2E2E;
+  --shadow-sm:0 1px 2px rgba(10,10,10,.04),0 1px 3px rgba(10,10,10,.06);
+  --shadow-md:0 4px 12px rgba(10,10,10,.08),0 2px 4px rgba(10,10,10,.06);
+  --radius-sm:6px; --radius:10px; --radius-lg:16px;
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Segoe UI Variable Small","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:var(--sans); font-size:16px; line-height:1.62; color:var(--ink); background:var(--bg);
+  background-image:radial-gradient(circle at 12% -5%,rgba(194,90,45,.05),transparent 35%),radial-gradient(circle at 95% 12%,rgba(17,120,101,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; min-height:100vh;
+}
+a { color:inherit; }
+.container { max-width:820px; margin:0 auto; padding:36px 28px 110px; }
+
+.back-link {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--ink-mute); text-decoration:none; padding:8px 14px; border:1px solid var(--line); border-radius:100px;
+  transition:all .15s ease; margin-bottom:40px;
+}
+.back-link:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+
+.post-eyebrow { display:inline-flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--topic); margin-bottom:20px; }
+.post-eyebrow::before { content:''; width:28px; height:1px; background:var(--topic); }
+.post-title { font-family:var(--serif); font-weight:300; font-size:clamp(2.1rem,5.5vw,3.6rem); line-height:1.05; letter-spacing:-0.025em; color:var(--black); margin-bottom:18px; }
+.post-title em { font-style:italic; font-weight:300; color:var(--topic); }
+.post-dek { font-size:18px; color:var(--ink-soft); line-height:1.5; max-width:64ch; margin-bottom:24px; }
+.post-meta { display:flex; flex-wrap:wrap; gap:18px; align-items:center; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-mute); padding:16px 0 28px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:40px; }
+.post-meta strong { color:var(--ink); font-weight:600; }
+
+.prose h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.5rem,3.2vw,2rem); letter-spacing:-0.015em; color:var(--black); margin:52px 0 16px; line-height:1.15; }
+.prose h2 em { font-style:italic; color:var(--topic); font-weight:500; }
+.prose p { margin-bottom:18px; color:var(--ink-soft); max-width:70ch; }
+.prose p strong { color:var(--ink); font-weight:600; }
+.prose ul { margin:0 0 20px; padding-left:0; list-style:none; max-width:70ch; }
+.prose ul li { position:relative; padding:8px 0 8px 26px; color:var(--ink-soft); border-bottom:1px solid var(--line); }
+.prose ul li:last-child { border-bottom:none; }
+.prose ul li::before { content:''; position:absolute; left:6px; top:16px; width:7px; height:7px; border-radius:50%; background:var(--topic); }
+.prose ul li strong { color:var(--ink); font-weight:600; }
+
+.bigstat { display:grid; grid-template-columns:auto 1fr; gap:24px; align-items:center; background:linear-gradient(135deg,var(--bg-card) 0%,rgba(194,90,45,.05) 100%); border:1px solid var(--line); border-left:4px solid var(--topic); border-radius:var(--radius-lg); padding:26px 30px; margin:36px 0; }
+.bigstat-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:clamp(2rem,6vw,3.4rem); line-height:1; letter-spacing:-0.03em; color:var(--topic); white-space:nowrap; }
+.bigstat-text { font-size:15px; color:var(--ink-soft); line-height:1.55; }
+.bigstat-text strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .bigstat { grid-template-columns:1fr; gap:12px; } }
+
+.figure { margin:32px 0 12px; }
+.figure-embed { border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-md); background:#fff; }
+.figure-embed img { width:100%; display:block; }
+.figure-cap { font-family:var(--mono); font-size:11px; letter-spacing:0.04em; color:var(--ink-mute); margin-top:12px; padding-left:2px; line-height:1.5; }
+.figure-cap strong { color:var(--ink-soft); }
+
+/* Evidenz-Chips */
+.ev { display:inline-block; font-family:var(--mono); font-size:10px; font-weight:700; line-height:1.7; border-radius:4px; padding:0 5px; vertical-align:2px; letter-spacing:0.5px; }
+.ev-M { background:#DDEEF0; color:#0E6E7A; }
+.ev-A { background:#EDECE6; color:#4A5568; }
+.ev-S { background:#FAEDDC; color:#95601F; }
+.ev-H { background:#F7E5DB; color:#B34E22; }
+
+/* „Behauptet nicht"-Box */
+.src-box { background:var(--bg-soft); border:1px solid var(--line); border-left:4px solid var(--ink-mute); border-radius:var(--radius); padding:20px 24px; margin:28px 0; font-size:13.5px; color:var(--ink-soft); line-height:1.6; }
+.src-box h3 { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--black); margin-bottom:8px; }
+.src-box a { color:var(--accent); }
+
+/* LinkedIn-Fassung */
+.li-card { border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-sm); margin:22px 0; background:var(--bg-card); }
+.li-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; background:var(--bg-soft); border-bottom:1px solid var(--line); }
+.li-title { font-family:var(--mono); font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-mute); display:inline-flex; align-items:center; gap:8px; }
+.li-title::before { content:'in'; font-family:var(--serif); font-weight:700; font-size:11px; color:#fff; background:#0A66C2; border-radius:3px; padding:1px 4px; letter-spacing:0; }
+.li-body { margin:0; padding:18px 20px; font-family:var(--sans); font-size:14.5px; line-height:1.6; color:var(--ink); white-space:pre-wrap; word-break:break-word; max-height:420px; overflow:auto; }
+.copy-btn { display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); background:var(--bg-card); border:1px solid var(--accent); border-radius:100px; padding:6px 14px; cursor:pointer; transition:all .15s ease; }
+.copy-btn:hover { background:var(--accent); color:#fff; }
+.copy-btn.copied { background:var(--low); color:#fff; border-color:var(--low); }
+
+/* CTA */
+.cta-card { display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; background:var(--black); color:#fff; border-radius:var(--radius-lg); padding:28px 32px; margin:52px 0 0; }
+.cta-card-text { max-width:46ch; }
+.cta-card-text .k { font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--mid); display:block; margin-bottom:8px; }
+.cta-card-text h3 { font-family:var(--serif); font-weight:500; font-size:1.35rem; color:#fff; margin:0 0 6px; }
+.cta-card-text p { color:rgba(255,255,255,.7); font-size:14px; margin:0; }
+.cta-actions { display:flex; flex-wrap:wrap; gap:12px; }
+.cta-btn { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--black); background:var(--mid); padding:13px 22px; border-radius:100px; text-decoration:none; white-space:nowrap; transition:filter .15s ease; }
+.cta-btn:hover { filter:brightness(1.08); }
+.cta-btn.ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.4); }
+.cta-btn.ghost:hover { border-color:#fff; filter:none; }
+
+.post-foot { margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--ink-mute); line-height:1.6; }
+.post-foot a { color:var(--accent); }
+.lang-switch { display:inline-flex; align-items:center; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-mute); text-decoration:none; margin-left:8px; padding:8px 14px; border:1px solid var(--line); border-radius:100px; transition:all .15s ease; }
+.lang-switch:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <a class="back-link" href="index.html">← Back to the Knowledge Kitchen</a>
+  <a class="lang-switch" href="ki-entwicklung-zehn-tage.html">DE</a>
+
+  <header>
+    <div class="post-eyebrow">Talks &amp; Post · AI &amp; Economics</div>
+    <h1 class="post-title">Ten days to a <em>market-ready build</em></h1>
+    <p class="post-dek">I built a Power BI visual you can seriously use — in ten days, AI-assisted — and then ran the numbers on what the same build would have cost the traditional way. The result is an <strong>evidence-based thesis paper</strong>: every figure traceable to the public Git history, valuations done with recognized methods, every claim carrying an evidence label. Here is the essence — the full paper is linked below as PDF and web version.</p>
+    <div class="post-meta">
+      <span>By <strong>Michael Tenner</strong></span>
+      <span>As of · <strong>July 2026</strong></span>
+      <span>Basis · <strong>1 case study, 124 commits, public</strong></span>
+      <span>Paper · <strong>34 pages, v2.2, EN &amp; DE</strong></span>
+    </div>
+  </header>
+
+  <div class="prose">
+
+    <p>The case in three sentences: Twelve chart types, a controlling table with hierarchy, four languages, 80+ automated render tests — built in ten calendar days, steered by one person who never typed a line of code. Commissioned traditionally, my estimate lands at 14 to 18 person-months, somewhere between €150,000 and €350,000 <span class="ev ev-S">S</span>. What it actually cost me: about 20 documented hours of steering and €180 in tooling <span class="ev ev-M">M</span>.</p>
+
+    <div class="bigstat">
+      <div class="bigstat-num">13–93×</div>
+      <div class="bigstat-text"><strong>Cost leverage, honestly calculated</strong> — that is, with the same scope on both sides of the comparison. The headline math would yield up to 161×; the counter-calculation against my own headline is part of the paper. Even at six times the steering hours, a factor of at least 5 remains.</div>
+    </div>
+
+    <h2>Why the costs are so <em>different</em></h2>
+    <p>The difference is not in the hourly rates — it is in the process. The traditional path runs every stage once, expensively and in sequence. The AI-assisted path runs a short, cheap cycle dozens of times. In this project: about 60 release cycles in ten days, often several on the same day.</p>
+
+    <figure class="figure">
+      <div class="figure-embed"><img src="whitepaper-assets/fig-prozess-en.svg" alt="Process comparison: traditional development in sequence vs. AI-assisted cycle" loading="lazy"></div>
+      <div class="figure-cap"><strong>Two production paths to the same result.</strong> Left: one expensive pass. Right: a cheap cycle, run dozens of times.</div>
+    </figure>
+
+    <h2>The actual insight: <em>not the AI</em></h2>
+    <p>It is not the AI alone. It works because four things come together: <strong>AI × a fixed framework × domain expertise × Git</strong>. Remove one, and the whole thing tips over.</p>
+    <ul>
+      <li><strong>Fixed frameworks</strong> like Power BI visuals, Office add-ins or dbt packages narrow the solution space until AI development becomes controllable and repeatable. The most error-prone layers of traditional projects simply do not exist — and the sandbox caps the damage structurally.</li>
+      <li><strong>Domain expertise in the steering seat</strong> is the difference between two iterations and twenty: requirements in business language, with a built-in quality yardstick.</li>
+      <li><strong>Git</strong> is what makes the speed defensible: every step is reviewable, reversible, auditable. Without version control none of this would be worth anything — with it, all 124 steps are publicly traceable.</li>
+    </ul>
+    <p>This is also why the paper matters beyond the single case: absolute productivity factors will change with every model generation. The mechanism — a tight fence, small iterations, fast local verification — will not.</p>
+
+    <h2>What it means <em>economically</em></h2>
+    <p>The paper cross-checks the replacement value with three recognized methods (bottom-up, COCOMO&nbsp;II, function points) and frames build vs. buy as a present-value comparison: from roughly <strong>30 to 45 report users</strong> onward, building beats licensing <span class="ev ev-S">S</span>. And a credible free tool already shifts license negotiations — without anyone switching <span class="ev ev-H">H</span>.</p>
+
+    <figure class="figure">
+      <div class="figure-embed"><img src="whitepaper-assets/fig-kostenvergleich-en.svg" alt="Cost comparison: traditional development vs. AI-assisted" loading="lazy"></div>
+      <div class="figure-cap"><strong>Four paths to the same build.</strong> The AI-assisted bars are barely visible at this scale — that is the point.</div>
+    </figure>
+
+    <div class="src-box">
+      <h3>What the paper does not claim</h3>
+      That AI replaces developers · that every piece of software takes ten days · that every domain gets the same results · that a single case (n&nbsp;=&nbsp;1!) proves a market trend. That is why every claim carries an evidence label: <span class="ev ev-M">M</span>&nbsp;measured · <span class="ev ev-A">A</span>&nbsp;assumption · <span class="ev ev-S">S</span>&nbsp;estimate · <span class="ev ev-H">H</span>&nbsp;hypothesis. It is built as a thesis paper — to be recalculated and to be contradicted. Both are explicitly welcome.
+    </div>
+
+    <div class="cta-card">
+      <div class="cta-card-text">
+        <span class="k">Thesis paper · 34 pages · v2.2</span>
+        <h3>Read the full paper</h3>
+        <p>With every calculation shown: cost leverage, DCF, sensitivities, a governance chapter, sources — and an open invitation to replicate. Available in English and German.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="cta-btn" href="whitepaper-ki-entwicklung-roi_en.pdf">PDF (EN) ↓</a>
+        <a class="cta-btn ghost" href="whitepaper-ki-entwicklung-roi_en.html">Web version →</a>
+      </div>
+    </div>
+
+    <h2>The LinkedIn version <em>to take away</em></h2>
+    <p>If you want to share the essence — here is the short version to copy:</p>
+
+    <div class="li-card">
+      <div class="li-head">
+        <span class="li-title">LinkedIn version</span>
+        <button class="copy-btn" id="copyBtn" type="button">Copy text</button>
+      </div>
+      <pre class="li-body" id="liText">Weekend read, if you are into this sort of thing: I documented how far AI-assisted development really goes on Power BI.
+
+I built a Power BI visual you can seriously use — in ten days. Twelve chart types, a controlling table with hierarchy, four languages. Commissioned traditionally, my estimate lands at 14 to 18 person-months, somewhere between €150,000 and €350,000. What it actually cost me: about 20 documented hours of steering and €180 in tooling.
+
+What I learned along the way:
+
+It is not the AI alone. It works because four things come together: AI, a fixed framework, domain expertise, and Git. Remove one, and it tips over.
+
+Fixed frameworks like Power BI visuals, Office add-ins or dbt packages narrow the solution space until AI development becomes controllable and repeatable. That, I think, is the real insight — and it stays valid when the next model generation arrives.
+
+Without version control, none of it would have been worth anything. Git is what makes the work reviewable and reversible. All 124 commits of the project are public.
+
+Calculated honestly — same scope on both sides — a cost leverage of 13 to 93 remains. And from roughly 30 to 45 report users onward, building beats licensing on present value.
+
+What the paper does not say: that AI replaces developers, that every piece of software takes ten days, or that a single case proves a market trend. Every claim is labeled as measured, assumption, estimate, or hypothesis.
+
+If you want to recalculate or push back: please do. That is exactly what it was written for.
+
+#PowerBI #Controlling #AI #BuildVsBuy</pre>
+    </div>
+
+    <div class="post-foot">
+      Replications, criticism, questions: <strong>Michael Tenner</strong> · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
+      Source code, Git history and the thesis paper are public — every figure can be recalculated. A single case study proves no rule; it asks a precise question. Contradicting cases are at least as welcome as confirming ones.
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.getElementById('copyBtn').addEventListener('click', function () {
+  var text = document.getElementById('liText').innerText;
+  var btn = this;
+  function done() {
+    btn.classList.add('copied'); btn.textContent = 'Copied ✓';
+    setTimeout(function () { btn.classList.remove('copied'); btn.textContent = 'Copy text'; }, 2200);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done);
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta); done();
+  }
+});
+</script>
+</body>
+</html>

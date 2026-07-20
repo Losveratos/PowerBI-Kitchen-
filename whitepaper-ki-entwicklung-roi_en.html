@@ -1,0 +1,1435 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ten Days to a Market-Ready Build · Daten-WG</title>
+<meta name="description" content="Evidence-based thesis paper: a valuation model for AI-assisted software development in fixed frameworks — calculated on a real case study.">
+<meta name="author" content="Michael Tenner · Daten-WG">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,750&amp;family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#FAFAF7; --bg-card:#FFFFFF; --ink:#0F1E2E; --soft:#475569;
+    --accent:#C25A2D; --teal:#1B9AA8; --line:#E4E2DA;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; scroll-padding-top:24px; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font-family:'Geist',system-ui,sans-serif; font-size:16.5px; line-height:1.65; }
+  .rule { height:10px; background:var(--accent); }
+  .rule2 { height:4px; background:var(--teal); }
+  .hero { max-width:860px; margin:0 auto; padding:64px 24px 40px; }
+  .kicker { font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:3px;
+            text-transform:uppercase; color:var(--teal); font-weight:600; margin-bottom:20px; }
+  h1.hero-t { font-family:'Fraunces',serif; font-weight:750; font-size:clamp(34px,6vw,54px);
+              line-height:1.08; margin:0 0 18px; letter-spacing:-0.5px; }
+  .hero-sub { font-size:clamp(17px,2.4vw,20px); color:var(--soft); max-width:640px; line-height:1.5; }
+  .hero-meta { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--soft);
+               margin-top:22px; }
+  .facts { max-width:860px; margin:0 auto; padding:0 24px 48px; display:grid;
+           grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:16px; }
+  .fact { background:var(--bg-card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; }
+  .fact .n { font-family:'Fraunces',serif; font-weight:650; font-size:26px; color:var(--accent); }
+  .fact .l { font-size:13px; color:var(--soft); margin-top:4px; line-height:1.4; }
+  .toc { max-width:860px; margin:0 auto 8px; padding:0 24px; }
+  .toc-box { background:var(--bg-card); border:1px solid var(--line); border-radius:10px;
+             padding:20px 22px; columns:2; column-gap:32px; }
+  .toc h2 { font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:2px;
+            text-transform:uppercase; color:var(--soft); margin:0 0 12px; border:none; padding:0; }
+  .tocrow { display:block; color:var(--ink); text-decoration:none; font-size:14.5px;
+            padding:3.5px 0; break-inside:avoid; }
+  .tocrow:hover { color:var(--accent); }
+  main { max-width:860px; margin:0 auto; padding:8px 24px 72px; }
+  h2 { font-family:'Fraunces',serif; font-weight:650; font-size:29px; line-height:1.2;
+       margin:56px 0 18px; padding-bottom:10px; border-bottom:2px solid var(--accent); }
+  h3 { font-family:'Fraunces',serif; font-weight:650; font-size:21px; margin:34px 0 10px; }
+  p { margin:0 0 14px; }
+  a { color:var(--teal); }
+  blockquote { margin:22px 0; padding:16px 20px; border-left:4px solid var(--teal);
+               background:var(--bg-card); border-radius:0 10px 10px 0; color:var(--soft); }
+  blockquote p:last-child { margin-bottom:0; }
+  table { border-collapse:collapse; width:100%; margin:18px 0; font-size:14.5px;
+          background:var(--bg-card); border-radius:10px; overflow:hidden;
+          border:1px solid var(--line); }
+  .tablewrap { overflow-x:auto; }
+  th { text-align:left; background:#F5F4EF; border-bottom:2px solid var(--ink);
+       padding:10px 12px; font-weight:600; }
+  td { border-bottom:1px solid var(--line); padding:9px 12px; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  code { font-family:'JetBrains Mono',monospace; font-size:13.5px; background:#F0EFE9;
+         padding:1.5px 5px; border-radius:4px; }
+  pre:not(.mermaid) { background:#F0EFE9; padding:14px 16px; border-radius:10px;
+        overflow-x:auto; font-size:13.5px; line-height:1.55; }
+  pre:not(.mermaid) code { background:none; padding:0; }
+  figure { margin:26px 0; }
+  figure img, figure svg { max-width:100%; height:auto; display:block; margin:0 auto;
+        border:1px solid var(--line); border-radius:10px; background:#fff; }
+  figcaption { font-size:13.5px; color:var(--soft); font-style:italic; margin-top:10px; }
+  .mermaid { display:flex; justify-content:center; background:#fff;
+             border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .mermaid svg { max-width:100%; height:auto; border:none; }
+  em { color:var(--soft); }
+  hr { border:none; border-top:1px solid var(--line); margin:40px 0; }
+  ul, ol { margin:0 0 14px; padding-left:24px; }
+  li { margin-bottom:6px; }
+  .ev { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+        font-weight:600; line-height:1.7; border-radius:4px; padding:0 5px;
+        vertical-align:2px; letter-spacing:0.5px; }
+  .ev-M { background:#DDEEF0; color:#0E6E7A; }
+  .ev-A { background:#EDECE6; color:#475569; }
+  .ev-S { background:#FAEDDC; color:#95601F; }
+  .ev-H { background:#F7E5DB; color:#B34E22; }
+  footer { border-top:1px solid var(--line); background:var(--bg-card); }
+  .foot-in { max-width:860px; margin:0 auto; padding:28px 24px; display:flex;
+             justify-content:space-between; flex-wrap:wrap; gap:10px;
+             font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--soft); }
+  .foot-in b { color:var(--ink); }
+  @media (max-width:640px) { .toc-box { columns:1; } }
+  @media print {
+    .rule,.rule2 { display:none; }
+    body { background:#fff; font-size:11pt; }
+    h2 { break-before:page; }
+    .toc-box { columns:2; }
+  }
+</style>
+</head>
+<body>
+<div class="rule"></div><div class="rule2"></div>
+<header class="hero">
+  <div class="kicker">Evidence-Based Thesis Paper</div>
+  <h1 class="hero-t">Ten Days to a Market-Ready Build</h1>
+  <p class="hero-sub">A valuation model for AI-assisted software development in fixed frameworks — calculated transparently on a real case study</p>
+  <div class="hero-meta">Michael Tenner · Daten-WG · July 2026 · v2.2 EN · <a href="whitepaper-ki-entwicklung-roi_en.pdf">Download PDF</a> · <a href="whitepaper-ki-entwicklung-roi.html">Deutsche Version</a></div>
+</header>
+<div class="facts">
+  <div class="fact"><div class="n">10 days</div><div class="l">vs. an estimated 6–12 months traditionally</div></div>
+  <div class="fact"><div class="n">from €2,200</div><div class="l">documented investment vs. €150–350k</div></div>
+  <div class="fact"><div class="n">13–93×</div><div class="l">cost leverage, calculated symmetrically</div></div>
+  <div class="fact"><div class="n">124 commits</div><div class="l">publicly documented, every figure verifiable</div></div>
+</div>
+<nav class="toc"><div class="toc-box">
+  <h2>Contents</h2>
+  <a class="tocrow" href="#sec-0">Management Summary</a>
+<a class="tocrow" href="#sec-1">Terms &amp; Premises — what you need to read this paper</a>
+<a class="tocrow" href="#sec-2">1 · The case: what was built</a>
+<a class="tocrow" href="#sec-3">2 · Time, costs and working method — the actuals</a>
+<a class="tocrow" href="#sec-4">3 · What the same build would have cost traditionally</a>
+<a class="tocrow" href="#sec-5">4 · The cost leverage — deliberately not an "ROI"</a>
+<a class="tocrow" href="#sec-6">5 · Build vs. buy as a present-value comparison</a>
+<a class="tocrow" href="#sec-7">6 · The game-theoretic dimension</a>
+<a class="tocrow" href="#sec-8">7 · Why the fixed framework is half the success</a>
+<a class="tocrow" href="#sec-9">8 · Git: the underrated foundation</a>
+<a class="tocrow" href="#sec-10">9 · Governance, maintainability, bus factor — the risk questions</a>
+<a class="tocrow" href="#sec-11">10 · The market thesis: open source × AI is multiplicative</a>
+<a class="tocrow" href="#sec-12">11 · Transferability — and limits</a>
+<a class="tocrow" href="#sec-13">12 · What this can mean for companies</a>
+<a class="tocrow" href="#sec-14">Invitation: replicate, refute, extend</a>
+<a class="tocrow" href="#sec-15">Appendix A · Methodology and evidence</a>
+<a class="tocrow" href="#sec-16">Appendix B · Valuation with recognized methods — the calculations</a>
+<a class="tocrow" href="#sec-17">Sources</a>
+</div></nav>
+<main>
+
+<h2 id="sec-0">Management Summary</h2>
+<blockquote>
+<p><strong>The central thesis <span class="ev ev-M">M</span>:</strong> Under five boundary conditions — a fixed
+framework, domain expertise in the steering seat, small iterations, fast
+local verification, consistent version control — the productivity of
+AI-assisted development does not rise by percentages, but by orders of
+magnitude. The formula is not "AI can do this" but <strong>AI × framework ×
+domain expertise × version control</strong>. This paper demonstrates it on a
+fully documented case and provides the valuation model to go with it.
+The real innovation is not the AI itself, but its economic consequence:
+it changes the cost structure of software development — and thereby
+forces a reassessment of build-vs.-buy logic.</p>
+</blockquote>
+<p><em>Evidence labels used in this paper: <span class="ev ev-M">M</span> measured · <span class="ev ev-A">A</span> assumption ·
+<span class="ev ev-S">S</span> estimate/model calculation · <span class="ev ev-H">H</span> hypothesis — details under "Terms &amp;
+Premises".</em></p>
+<p><strong>What this is about.</strong> This paper proposes a <strong>valuation model for
+AI-assisted software development</strong> and works it through on a fully
+documented case study: a single controlling expert — no development team —
+built a reporting tool for Microsoft Power BI to a market-ready state in
+<strong>ten calendar days</strong>. The same build is appraised — using three recognized
+estimation methods — at <strong>14–18 person-months</strong> and <strong>€150,000–350,000</strong>
+the traditional way <span class="ev ev-S">S</span>. Case study, history and methodology are fully
+public <span class="ev ev-M">M</span>.</p>
+<p><strong>What it actually cost.</strong> About <strong>20 hours of documented steering time</strong>
+by the domain expert (session logs; thinking and research time outside the
+sessions is not captured — which is why the sensitivity calculation in
+Chapter 4 runs the numbers up to 120 hours) plus roughly €180 in tooling.
+Depending on the hourly rate (€250/h external, €100/h internal), the
+investment comes to <strong>~€5,200</strong> or <strong>~€2,200</strong> — a cost leverage of 29 to
+161 against the replacement value. Important context: this comparison sets
+the achieved as-is state against a full traditional process and is
+asymmetric to that extent — a symmetric counter-calculation (Chapter 4)
+pushes the leverage down to <strong>13 to 93</strong>, but does not change the order of
+magnitude. We deliberately speak of <strong>cost leverage (cost avoidance)</strong>,
+not "ROI": an ROI presupposes realized returns; here, avoided replacement
+costs are set against the investment (Terms &amp; Premises).</p>
+<p><strong>Why this is more than an anecdote.</strong> The result rests not on luck but on
+three reproducible conditions: a fixed software framework with clear rules
+(Chapter 7), a domain expert who can state precisely what should be built,
+and disciplined version control that keeps every step reviewable and
+reversible (Chapter 8). Where these conditions hold, the pattern is
+transferable — and then established calculations come under pressure: the
+build-or-buy decision, the negotiating position in license talks, and the
+pricing power of software vendors. At the same time: the evidence base is
+<strong>a single case study</strong>. What is measured on the case and what is a
+derived hypothesis about possible market effects is kept strictly separate
+throughout the paper.</p>
+<p><strong>Who this is relevant for.</strong> CFOs and heads of controlling (license
+costs, negotiating position), IT and BI leads (what becomes feasible
+in-house; governance in Chapter 9), software vendors (where their business
+model could come under pressure) and consultancies (where the value
+migrates). Chapter 12 summarizes the options for action by role.</p>
+<table>
+<thead>
+<tr>
+<th>Key result</th>
+<th>Value</th>
+<th align="center">Evidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Actual investment (external expert, €250/h)</td>
+<td><strong>~€5,200</strong></td>
+<td align="center"><span class="ev ev-M">M</span> · <span class="ev ev-A">A</span></td>
+</tr>
+<tr>
+<td>Actual investment (internal expert, €100/h)</td>
+<td><strong>~€2,200</strong></td>
+<td align="center"><span class="ev ev-M">M</span> · <span class="ev ev-A">A</span></td>
+</tr>
+<tr>
+<td>Traditional replacement value (3 methods, Appendix B)</td>
+<td><strong>€150,000–350,000</strong></td>
+<td align="center"><span class="ev ev-S">S</span></td>
+</tr>
+<tr>
+<td>Cost leverage, as-is comparison</td>
+<td><strong>29–67×</strong> (external) · <strong>69–161×</strong> (internal)</td>
+<td align="center"><span class="ev ev-S">S</span></td>
+</tr>
+<tr>
+<td>Cost leverage, symmetric (same scope, Chapter 4)</td>
+<td><strong>13–39×</strong> (external) · <strong>31–93×</strong> (internal)</td>
+<td align="center"><span class="ev ev-S">S</span></td>
+</tr>
+<tr>
+<td>Calendar time: <strong>10 days</strong></td>
+<td>vs. an estimated 6–12 months traditionally</td>
+<td align="center"><span class="ev ev-M">M</span> · <span class="ev ev-S">S</span></td>
+</tr>
+</tbody></table>
+<p><strong>The five core theses:</strong></p>
+<ol>
+<li><strong>AI × framework × domain expertise — not AI alone:</strong> Fixed frameworks
+with defined interfaces, a sandbox and certification rules reduce the
+degrees of freedom until AI development becomes controllable and
+reproducible. This is the central thesis of this paper (Chapter 7). <span class="ev ev-M">M</span></li>
+<li><strong>Git is the underrated foundation:</strong> Without version control, AI
+iteration speed becomes a liability. With it, every step is reversible
+and reviewable — and the entire analysis in this paper becomes possible
+in the first place (Chapter 8). <span class="ev ev-M">M</span></li>
+<li><strong>The build-or-buy calculation shifts</strong> for framework software: on a
+present-value basis, building (or adopting a free community build)
+clearly beats the license model from a moderate user count onward — a
+calculation under disclosed assumptions (Chapter 5). <span class="ev ev-S">S</span></li>
+<li><strong>Negotiating-power hypothesis:</strong> A credible free tool could shift
+license negotiations in the customer's favor without anyone actually
+switching (Chapter 6). <span class="ev ev-H">H</span></li>
+<li><strong>Market hypothesis:</strong> Open source and AI could reinforce each other —
+AI makes community software maintainable, open code makes AI precise —
+and reduce the development-cost advantage of commercial vendors
+(Chapter 10). <span class="ev ev-H">H</span></li>
+</ol>
+<p><em>On the evidence status of the theses:</em> Theses 1 and 2 are demonstrated
+directly on the case. Thesis 3 is a calculation under disclosed
+assumptions. Theses 4 and 5 extrapolate from the single case to the market
+level — they are to be read as <strong>reasoned hypotheses about possible
+effects</strong>, not as proven outcomes (context in Chapters 6, 10 and 11).</p>
+<hr>
+<h2 id="sec-1">Terms &amp; Premises — what you need to read this paper</h2>
+<p>This paper is expressly written for readers without a development
+background as well. Eight terms suffice:</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning in this paper</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Power BI custom visual</strong></td>
+<td>An add-on module for Microsoft's reporting platform Power BI that adds new chart and table types — comparable to an app on a smartphone: it runs only inside the platform, by the platform's rules.</td>
+</tr>
+<tr>
+<td><strong>IBCS</strong></td>
+<td>International Business Communication Standards — a widely used notation standard for business reports (uniform scenario patterns, variance displays, "less decoration, more message").</td>
+</tr>
+<tr>
+<td><strong>AI-assisted development ("vibe coding")</strong></td>
+<td>A human describes in plain language what the software should do; an AI agent writes, tests and documents the code. The human reviews results and steers — they do not type code.</td>
+</tr>
+<tr>
+<td><strong>Product owner (PO)</strong></td>
+<td>The steering domain expert: formulates requirements, judges results, decides priorities. Here: a controlling/BI expert without a development team.</td>
+</tr>
+<tr>
+<td><strong>Open source (Apache 2.0)</strong></td>
+<td>The source code is public and may be used, inspected and modified free of charge. The Apache 2.0 license also permits commercial use.</td>
+</tr>
+<tr>
+<td><strong>Git / version control</strong></td>
+<td>A logging system that permanently records every change step ("commit") and keeps it reversible — the logbook and safety net of software development.</td>
+</tr>
+<tr>
+<td><strong>Cost leverage (cost avoidance)</strong></td>
+<td>The ratio of avoided costs (replacement value) to the actual investment. "29×" means: the replacement value equals 29 times the investment. Deliberately not called "ROI" — an ROI presupposes realized returns; here, avoided expenditure is compared.</td>
+</tr>
+<tr>
+<td><strong>Present value (DCF)</strong></td>
+<td>Future payments (e.g. five years of license fees) discounted to today at an interest rate — the economically correct basis for build-vs.-buy comparisons.</td>
+</tr>
+</tbody></table>
+<p><strong>Evidence labels:</strong> Major statements in this paper carry a tag:
+<strong><span class="ev ev-M">M</span></strong> = measured — from the Git history, session logs or invoices.
+<strong><span class="ev ev-A">A</span></strong> = assumption — set and justified, e.g. hourly rates.
+<strong><span class="ev ev-S">S</span></strong> = estimate or model calculation — derived from <span class="ev ev-M">M</span> and <span class="ev ev-A">A</span>, e.g.
+replacement value, cost leverage, present values. <strong><span class="ev ev-H">H</span></strong> = hypothesis —
+extrapolation beyond the single case. The tags make visible at a glance
+what each statement rests on.</p>
+<p><strong>The premises of the calculation — stated upfront in full clarity:</strong></p>
+<ol>
+<li><strong>The case study is exemplary.</strong> Every figure is evidenced on one
+concrete project — a Power BI custom visual for controlling reports.
+The pattern, however, applies to a whole class of software: everything
+that lives inside a fixed framework with defined interfaces (Office
+add-ins, IDE extensions, platform plug-ins, internal line-of-business
+tools). Wherever you read "visual", feel free to think "our tool X".</li>
+<li><strong>The project figures are measurements, not estimates:</strong> calendar days,
+commits, releases and code size come from the public Git history; token
+and tooling costs from the session log and invoices (Appendix A).</li>
+<li><strong>The hourly rates are assumptions:</strong> €250/h for an experienced
+external consultant (market rate), €100/h as an internal full-cost
+rate. Both calculations are carried side by side throughout.</li>
+<li><strong>The traditional comparison costs are an estimate</strong> — bottom-up in
+person-months, deliberately kept as a wide range (€150–350k), with no
+vendor quotes obtained. The core statements survive even the lower end
+of the range.</li>
+<li><strong>The license comparison uses public price indications</strong> for commercial
+IBCS visual suites (€7–12 per user per month), discounted over 5 years
+at 8%.</li>
+<li><strong>The evidence level is a single case study (n = 1).</strong> Chapters 1–5
+rest on measurements and disclosed calculations for this one project.
+Chapters 6, 10 and parts of 12 derive hypotheses about possible market
+and negotiation effects — they are phrased conditionally and would only
+be substantiated by further, independent cases.</li>
+<li><strong>The baseline comparison is deliberately an as-is comparison</strong> — the
+traditional process with full overhead (documentation, QA, acceptance,
+project management) versus the AI build in its achieved state without
+those components. This asymmetry is not merely named; it is
+counter-calculated symmetrically in Chapter 4.</li>
+<li><strong>Conflict of interest:</strong> Daten-WG publishes the visual described here
+and provides consulting in the Power BI space. That is precisely why
+the methodology is disclosed and every figure can be recalculated — the
+paper argues with evidence, not authority.</li>
+</ol>
+<p><strong>Reading guide:</strong> Chapters 1–5 contain the documented case and the
+calculations (costs, cost leverage, present value). Chapters 6–9 provide
+context: negotiating power, why framework and Git tame the risks,
+governance and maintainability. Chapter 10 states the market hypotheses;
+Chapters 11–12 address transferability, limits and options for action.
+Appendix A documents the methodology; Appendix B works through the
+valuations using recognized methods (COCOMO II, function points, DCF,
+relief from royalty) and places the case in the productivity literature; a
+list of sources closes the paper.</p>
+<hr>
+<h2 id="sec-2">1 · The case: what was built</h2>
+<p>ChartKitchen byDatenWG is a native Power BI custom visual
+(TypeScript/SVG, API 5.11.0, no external runtime dependencies) for
+controlling reports in IBCS-inspired notation — open source (Apache 2.0)
+and free of charge.</p>
+<table>
+<thead>
+<tr>
+<th>Scope (as of 2026-07-15, v1.34.1.0)</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Chart modes</td>
+<td>12 (columns, bars, line, waterfall, integrated bridge, category bridge, table/matrix, P&amp;L statement, KPI cards, Pareto, dumbbell, slope)</td>
+</tr>
+<tr>
+<td>Core code</td>
+<td>~10,200 lines</td>
+</tr>
+<tr>
+<td>Table/matrix</td>
+<td>n-level hierarchy, scrolling with frozen header + Σ, formula rows, collapsible column hierarchy, search, sorting</td>
+</tr>
+<tr>
+<td>Localization</td>
+<td>de, en, es, ja — ~245 UI strings each</td>
+</tr>
+<tr>
+<td>Quality assurance</td>
+<td>80+ headless render tests, Microsoft lint rules, <code>npm audit</code> 0 findings</td>
+</tr>
+<tr>
+<td>Distribution</td>
+<td>buildable source export, AppSource submission package, trademark/legal review</td>
+</tr>
+</tbody></table>
+<p><img src="whitepaper-assets/landing-galerie.png" alt="Landing page with mode gallery">
+<em>Fig. 1 — The visual's mode gallery: 12 clickable previews, font presets, multilingual.</em></p>
+<p><img src="whitepaper-assets/tabelle-finance-format.png" alt="Controlling table with finance format and trend icons">
+<em>Fig. 2 — Controlling table: integrated bars, Δ and Δ% columns, finance convention (negative values in brackets), trend icons ▲▼● at materiality thresholds. Demo data labeled in German.</em></p>
+<hr>
+<h2 id="sec-3">2 · Time, costs and working method — the actuals</h2>
+<p>The Git history allows an honest delineation: first commit of the visual
+on <strong>July 6, 2026</strong>; the state described here on <strong>July 15, 2026</strong>.</p>
+<p><img src="whitepaper-assets/fig-commits-en.svg" alt="Commits per day">
+<em>Fig. 3 — 124 commits, ~60 releases in 10 calendar days (8 active days).</em></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Documented PO steering time (session logs: requirements, tests, feedback)</td>
+<td>~20 h</td>
+</tr>
+<tr>
+<td>Tooling costs (AI subscription ~$100 + €80 additional budget)</td>
+<td>~€180</td>
+</tr>
+<tr>
+<td>Tokens processed</td>
+<td>~1.8 billion (96% cache reads)</td>
+</tr>
+<tr>
+<td>API list-price equivalent of the compute</td>
+<td>~$2,900 (covered by the flat-rate subscription)</td>
+</tr>
+<tr>
+<td>CO₂ footprint (methodology: <a href="https://datenwgknowledgekitchen.com/ki-co2-simulator.html">Daten-WG AI CO₂ simulator</a>, middle scenario)</td>
+<td>~0.2–1.1 t CO₂e ≈ one domestic flight</td>
+</tr>
+</tbody></table>
+<p>One important clarification on the steering time: <strong>~20 h is the
+documented time</strong> from the session logs. Not captured are thinking,
+research and idea collection outside the sessions — honestly, they cannot
+be measured. That is why Chapter 4 runs the sensitivity up to six times
+the hours.</p>
+<p><strong>Anatomy of a typical iteration</strong> — from a sentence to a release the same
+day. In the morning, the product owner reports via screenshot: <em>"In small
+multiples, the bridges scale each tile independently — that should
+optionally support a shared scale."</em> By the afternoon, the option is
+built, tested, localized and shipped as a release:</p>
+<p><img src="whitepaper-assets/multiples-vorher.png" alt="Before: each tile scales independently">
+<em>Fig. 4a — Before: region "Süd" (⅓ of the volume of "Nord") fills its tile just the same. Demo data labeled in German.</em></p>
+<p><img src="whitepaper-assets/multiples-nachher.png" alt="After: shared scale">
+<em>Fig. 4b — After (same day): optional shared scale — "Süd" is visibly one third, including the Δ% pin scales.</em></p>
+<p><strong>Total investment, two valuations:</strong></p>
+<ul>
+<li><strong>External product owner</strong> (experienced consultant, €250/h):
+20 h × €250 + €180 = <strong>~€5,200</strong></li>
+<li><strong>Internal product owner</strong> (controller/BI lead, €100/h full cost):
+20 h × €100 + €180 = <strong>~€2,200</strong></li>
+</ul>
+<p>Remarkable in both calculations: <strong>tooling is 3–8% of the investment —
+over 90% is expert time.</strong> The bottleneck is no longer the development
+budget but the person who knows what should be built.</p>
+<hr>
+<h2 id="sec-4">3 · What the same build would have cost traditionally</h2>
+<p>Before any numbers, look at the processes themselves — this is where the
+cost difference arises, not in the hourly rates:</p>
+<p><img src="whitepaper-assets/fig-prozess-en.svg" alt="Process comparison: traditional vs. AI-assisted">
+<em>Fig. 5 — Why the costs arise so differently: the traditional process runs all stages once, in sequence; the AI-assisted loop runs a short cycle dozens of times — here ~60 times in ten days. <span class="ev ev-M">M</span></em></p>
+<p>Estimated bottom-up in person-months (PM) of development:</p>
+<table>
+<thead>
+<tr>
+<th>Block</th>
+<th>PM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Skeleton, build pipeline, settings model</td>
+<td>0.5–1</td>
+</tr>
+<tr>
+<td>Columns/bars/line incl. variance panels, scale sync, YTD</td>
+<td>2–3</td>
+</tr>
+<tr>
+<td>Waterfall + two bridge modes</td>
+<td>1–1.5</td>
+</tr>
+<tr>
+<td>Table/matrix (hierarchy, scroll freeze, formulas, matrix build-out)</td>
+<td>2.5–4</td>
+</tr>
+<tr>
+<td>KPI cards incl. bullet/benchmark</td>
+<td>0.75–1</td>
+</tr>
+<tr>
+<td>Small multiples (Σ tile, top-n, zoom, shared scales)</td>
+<td>0.75–1</td>
+</tr>
+<tr>
+<td>Landing page, in-chart interactions, persistence/bookmarks</td>
+<td>0.5–1</td>
+</tr>
+<tr>
+<td>Localization, accessibility, high-contrast mode</td>
+<td>0.5</td>
+</tr>
+<tr>
+<td>Test harness + test cases</td>
+<td>0.75–1</td>
+</tr>
+<tr>
+<td>Certification prep, license/trademark, AppSource kit</td>
+<td>0.5–1</td>
+</tr>
+<tr>
+<td><strong>Development</strong></td>
+<td><strong>10–14 PM</strong></td>
+</tr>
+<tr>
+<td>+ project reality (specification, reviews, alignment, QA)</td>
+<td><strong>14–18 PM</strong></td>
+</tr>
+</tbody></table>
+<p>Valued at market rates: <strong>internal ~€130–160k</strong> (senior full cost of
+€9k/PM, provided developers with both Power BI visual <em>and</em> controlling
+experience are available), <strong>external ~€250–400k</strong> (€900–1,200/day). We
+conservatively use the range <strong>€150–350k</strong>. <span class="ev ev-S">S</span> An independent
+cross-check with two recognized estimation methods (COCOMO II, function
+points) confirms the range — calculations in Appendix B.</p>
+<p><strong>Stated openly: this comparison is asymmetric.</strong> The traditional side
+includes the full process overhead (specification, reviews, QA, acceptance
+tests, end-user documentation, project management); the AI build does
+<strong>not yet</strong> include end-user documentation, formal acceptance tests or a
+complete external review round (Chapter 11). Comparing only the as-is
+state therefore gives the AI side a systematic advantage. That is why the
+cost leverage in Chapter 4 is additionally calculated symmetrically — with
+both possible corrections (scaling the AI side up to full scope, or
+reducing the traditional side by the missing components).</p>
+<p><img src="whitepaper-assets/fig-kostenvergleich-en.svg" alt="Cost comparison">
+<em>Fig. 6 — Four paths to the same build. The AI-assisted bars are barely visible at this scale — that is the point.</em></p>
+<hr>
+<h2 id="sec-5">4 · The cost leverage — deliberately not an "ROI"</h2>
+<p>First, the clarification a critical reader is right to demand: the
+following metric is <strong>not an ROI</strong>. A return on investment presupposes
+realized returns; here, the actual investment is set against <strong>avoided
+replacement costs</strong> (cost avoidance). We therefore consistently call the
+metric <strong>cost leverage</strong>: "29×" means the replacement value equals 29
+times the investment — not that 29-fold returns have flowed. The value is
+realized only through usage, reach and avoided license costs (Chapter 5).
+If you need a traditional label: a value-to-investment factor based on the
+estimated replacement value. <span class="ev ev-S">S</span></p>
+<table>
+<thead>
+<tr>
+<th>Cost leverage</th>
+<th align="right">External PO (€5,200)</th>
+<th align="right">Internal PO (€2,200)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>vs. €150k (conservative)</td>
+<td align="right"><strong>29×</strong></td>
+<td align="right"><strong>69×</strong></td>
+</tr>
+<tr>
+<td>vs. €250k (middle)</td>
+<td align="right"><strong>48×</strong></td>
+<td align="right"><strong>115×</strong></td>
+</tr>
+<tr>
+<td>vs. €350k (external)</td>
+<td align="right"><strong>67×</strong></td>
+<td align="right"><strong>161×</strong></td>
+</tr>
+</tbody></table>
+<p>Effective hourly value of the 20 documented steering hours:
+<strong>€7,500–17,500</strong> — a 30–70× multiple of the external consulting rate,
+75–175× of the internal one. Per release: ~€85 (external) or ~€37
+(internal). Per line of code: ~€0.20–0.50 — traditionally, a productive
+line runs €15–35.</p>
+<p>Two observations: More important than any metric is that a tool <strong>comes
+into existence at all</strong> that would never have received a €250k budget.
+And: the leverage belongs to the combination "domain expert + tool". AI
+replaces the development team here — <strong>not the product owner.</strong></p>
+<h3>Sensitivity: what if it took more hours?</h3>
+<p>The 20 h are documented session time (Chapter 2) — undocumented thinking
+and research time realistically comes on top. The calculation does not
+break:</p>
+<table>
+<thead>
+<tr>
+<th>Steering time</th>
+<th align="right">Investment external</th>
+<th align="right">Leverage vs. €150–350k</th>
+<th align="right">Investment internal</th>
+<th align="right">Leverage vs. €150–350k</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>20 h (documented)</td>
+<td align="right">€5.2k</td>
+<td align="right">29–67×</td>
+<td align="right">€2.2k</td>
+<td align="right">69–161×</td>
+</tr>
+<tr>
+<td>40 h</td>
+<td align="right">€10.2k</td>
+<td align="right">15–34×</td>
+<td align="right">€4.2k</td>
+<td align="right">36–84×</td>
+</tr>
+<tr>
+<td>80 h</td>
+<td align="right">€20.2k</td>
+<td align="right">7–17×</td>
+<td align="right">€8.2k</td>
+<td align="right">18–43×</td>
+</tr>
+<tr>
+<td>120 h</td>
+<td align="right">€30.2k</td>
+<td align="right">5–12×</td>
+<td align="right">€12.2k</td>
+<td align="right">12–29×</td>
+</tr>
+</tbody></table>
+<p>Even at <strong>six times</strong> the hours, a leverage of at least 5 (external) or
+12 (internal) remains. The statement does not hinge on the precision of
+the time tracking.</p>
+<h3>Symmetry check: cost leverage at comparable scope</h3>
+<p>The table above compares as-is state against full process (Premise 7).
+Two corrections establish symmetry:</p>
+<p><strong>Path A — scale the AI side up to full scope.</strong> End-user documentation,
+formal acceptance tests and an external review round would take an
+estimated further 15–25 PO hours plus ~€100 in tooling using the same
+method (based on the project's documentation and test packages so far —
+an estimate, not a measurement):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="right">External PO</th>
+<th align="right">Internal PO</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Investment at full scope</td>
+<td align="right">~€9.0–11.5k</td>
+<td align="right">~€3.8–4.8k</td>
+</tr>
+<tr>
+<td>Leverage vs. €150–350k</td>
+<td align="right"><strong>13–39×</strong></td>
+<td align="right"><strong>31–93×</strong></td>
+</tr>
+</tbody></table>
+<p><strong>Path B — reduce the traditional side by the missing components</strong>
+(−10–20%, Chapter 3): comparison value €120–315k against the as-is
+investment:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="right">External PO (€5.2k)</th>
+<th align="right">Internal PO (€2.2k)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Leverage vs. €120–315k</td>
+<td align="right"><strong>23–61×</strong></td>
+<td align="right"><strong>55–144×</strong></td>
+</tr>
+</tbody></table>
+<p><strong>What this changes — and what it does not:</strong> The headline values of
+29–161× apply only to the as-is comparison. Calculated symmetrically, the
+leverage lands at <strong>13–144×</strong> depending on path and staffing — in the
+least favorable scenario (external rate, full scope, conservative
+comparison value) a factor of <strong>13</strong> remains. The core statement survives
+the correction; the individual values, however, should always be quoted
+with this context. Finally, one thing cannot be extrapolated: the
+alignment overhead of real multi-stakeholder organizations. This project
+was decided by one person — in an organization with committees and
+approvals, additional PO hours would push the factor further down
+(Chapter 11).</p>
+<hr>
+<h2 id="sec-6">5 · Build vs. buy as a present-value comparison</h2>
+<p>Commercial visual suites cost roughly <strong>€7–12 per user per month</strong>.
+Discounted over 5 years (8%, annuity factor 3.99), against building with a
+€5.2k investment and assumed €3k/year maintenance:</p>
+<p><img src="whitepaper-assets/fig-dcf-en.svg" alt="DCF build vs buy">
+<em>Fig. 7 — From ~150–200 report users onward, building clearly wins on present value.</em></p>
+<table>
+<thead>
+<tr>
+<th>Company size</th>
+<th align="right">License PV (5 y)</th>
+<th align="right">Build PV</th>
+<th align="right">NPV advantage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>50 users × €8/m</td>
+<td align="right">€19,200</td>
+<td align="right">€17,200</td>
+<td align="right">~€2,000</td>
+</tr>
+<tr>
+<td>200 users × €10/m</td>
+<td align="right">€95,800</td>
+<td align="right">€17,200</td>
+<td align="right"><strong>~€78,600</strong></td>
+</tr>
+<tr>
+<td>1,000 users × €7/m</td>
+<td align="right">€335,400</td>
+<td align="right">€17,200</td>
+<td align="right"><strong>~€318,000</strong></td>
+</tr>
+</tbody></table>
+<p>Payback: 2.6 months (200 users), ~3 weeks (enterprise). Sensitivity: even
+at triple the maintenance (€10k/year), the mid-market case stays ~€50k in
+the black. The full year-by-year calculation with interest and
+maintenance sensitivities is in Appendix B. <span class="ev ev-S">S</span></p>
+<p><strong>The adopter perspective sharpens the picture:</strong> Whoever deploys the free
+community visual instead of building it themselves bears only the
+introduction cost (~2 controller days ≈ €1.5k) against €19–335k of license
+present value. For small companies — whose real alternative is often "no
+IBCS visuals at all" — this is not a saving but <strong>access to a capability
+that did not exist in their price class</strong>.</p>
+<p>Fairness: the comparison holds where the feature scope suffices.
+Commercial vendors additionally sell maturity, SLAs, certification and a
+roadmap. In the community model, that gap is addressed by a support
+subscription (Chapter 10).</p>
+<hr>
+<h2 id="sec-7">6 · The game-theoretic dimension</h2>
+<p>An often overlooked value of a credible free tool is realized <strong>without it
+ever being deployed</strong>: it changes the negotiating position (BATNA) toward
+commercial vendors. Context first: what follows is a <strong>model-based
+consideration</strong> built on negotiation logic — backed by no observed deals;
+the amounts named are possible effects, not promised discounts. <span class="ev ev-H">H</span></p>
+<ul>
+<li>Until now, the alternative in license negotiations was "pay or do
+without". With a credible free option, the mere <strong>possibility</strong> of
+switching suffices: for the 1,000-user enterprise, a 10–20% renewal
+discount corresponds to <strong>€33–67k in present value</strong> — purely through
+the alternative's existence in the procurement comparison.</li>
+<li><strong>Credibility is the currency:</strong> open, buildable source code ✓, visible
+maintenance (60 releases in 10 days) ✓, certification and documentation
+as next steps. The cheapest credible move for an enterprise: a pilot on
+a single report page.</li>
+<li><strong>Limits:</strong> Without certification, the card remains formally unplayable
+in many organizations; large existing report estates (switching costs)
+blunt it. It is sharpest for new introductions and expiring framework
+agreements.</li>
+</ul>
+<hr>
+<h2 id="sec-8">7 · Why the fixed framework is half the success</h2>
+<p>This chapter contains the paper's central thesis — scientifically more
+interesting than any cost factor: <strong>Fixed frameworks reduce the degrees of
+freedom of development so strongly that AI work becomes controllable and
+reproducible.</strong> The causal chain: framework → sandbox → small iterations →
+local verification → Git → controllable risk. Absolute productivity
+factors will change with every model generation; this mechanism will not.</p>
+<p>The widespread concern about AI-generated code — "fast, but insecure and
+buggy" — underestimates how strongly a fixed framework trims the risk
+surfaces. Five mechanisms interlock, all demonstrated on the case <span class="ev ev-M">M</span>:</p>
+<p><strong>Mechanism 1 — search-space reduction.</strong> A Power BI visual lives in a
+predefined contract: one <code>update()</code> interface, declarative capabilities, a
+settings model. There is no home-grown network, persistence or threading
+layer for AI mistakes to hide in — the most error-prone layers of
+traditional projects <strong>simply never exist</strong>. For the AI this means: the
+solution space per requirement is small and the variance between two
+attempts is low — precisely what makes results reproducible rather than
+random.</p>
+<p><strong>Mechanism 2 — deterministic interfaces.</strong> Every requirement translates
+mechanically into "which option, which renderer, which persistence" — no
+fundamental architecture questions whose wrong answer only becomes visible
+months later. Development becomes a sequence of small, decidable steps;
+convergence is the norm, not a stroke of luck.</p>
+<p><strong>Mechanism 3 — the sandbox as a damage cap.</strong> The visual runs in an
+isolated iframe, with no network access, no file system, no storage APIs.
+Microsoft's certification rules additionally prohibit <code>eval</code>, <code>innerHTML</code>
+and external loading — rules that are checked automatically (met across
+the project; <code>npm audit</code>: 0 findings). The maximum damage radius of an AI
+mistake is structurally capped: <strong>it can draw a chart wrong, but it
+cannot exfiltrate data.</strong></p>
+<p><strong>Mechanism 4 — small iterations.</strong> 124 commits for ~60 releases: the
+average change is small enough to be read, understood and, if necessary,
+discarded as a diff. Experiments become cheap because the way back is
+guaranteed (Chapter 8) — which cuts the cost of every single wrong
+decision to minutes.</p>
+<p><strong>Mechanism 5 — local verification in minutes.</strong> The headless harness
+renders every state as an image; errors are <em>visible</em> rather than latent,
+and 80+ test cases with known expected values secure the domain logic.
+The feedback loop closes locally in minutes — no deployment, no test
+environment, no waiting.</p>
+<p>Stated as a design rule: <strong>If AI development feels uncontrollable, the
+first lever is not a better model — it is a tighter fence.</strong></p>
+<figure><pre class="mermaid"><svg id="mermaid-1784301213192" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="flowchart" style="max-width: 1406px;" viewBox="0 0 1406 361.4264831542969" role="graphics-document document" aria-roledescription="flowchart-v2"><style>#mermaid-1784301213192{font-family:'Geist',system-ui,sans-serif;font-size:16px;fill:#000000;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#mermaid-1784301213192 .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#mermaid-1784301213192 .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#mermaid-1784301213192 .error-icon{fill:#552222;}#mermaid-1784301213192 .error-text{fill:#552222;stroke:#552222;}#mermaid-1784301213192 .edge-thickness-normal{stroke-width:1px;}#mermaid-1784301213192 .edge-thickness-thick{stroke-width:3.5px;}#mermaid-1784301213192 .edge-pattern-solid{stroke-dasharray:0;}#mermaid-1784301213192 .edge-thickness-invisible{stroke-width:0;fill:none;}#mermaid-1784301213192 .edge-pattern-dashed{stroke-dasharray:3;}#mermaid-1784301213192 .edge-pattern-dotted{stroke-dasharray:2;}#mermaid-1784301213192 .marker{fill:#666;stroke:#666;}#mermaid-1784301213192 .marker.cross{stroke:#666;}#mermaid-1784301213192 svg{font-family:'Geist',system-ui,sans-serif;font-size:16px;}#mermaid-1784301213192 p{margin:0;}#mermaid-1784301213192 .label{font-family:'Geist',system-ui,sans-serif;color:#000000;}#mermaid-1784301213192 .cluster-label text{fill:#333;}#mermaid-1784301213192 .cluster-label span{color:#333;}#mermaid-1784301213192 .cluster-label span p{background-color:transparent;}#mermaid-1784301213192 .label text,#mermaid-1784301213192 span{fill:#000000;color:#000000;}#mermaid-1784301213192 .node rect,#mermaid-1784301213192 .node circle,#mermaid-1784301213192 .node ellipse,#mermaid-1784301213192 .node polygon,#mermaid-1784301213192 .node path{fill:#eee;stroke:#999;stroke-width:1px;}#mermaid-1784301213192 .rough-node .label text,#mermaid-1784301213192 .node .label text,#mermaid-1784301213192 .image-shape .label,#mermaid-1784301213192 .icon-shape .label{text-anchor:middle;}#mermaid-1784301213192 .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#mermaid-1784301213192 .rough-node .label,#mermaid-1784301213192 .node .label,#mermaid-1784301213192 .image-shape .label,#mermaid-1784301213192 .icon-shape .label{text-align:center;}#mermaid-1784301213192 .node.clickable{cursor:pointer;}#mermaid-1784301213192 .root .anchor path{fill:#666!important;stroke-width:0;stroke:#666;}#mermaid-1784301213192 .arrowheadPath{fill:#333333;}#mermaid-1784301213192 .edgePath .path{stroke:#666;stroke-width:1px;}#mermaid-1784301213192 .flowchart-link{stroke:#666;fill:none;}#mermaid-1784301213192 .edgeLabel{background-color:white;text-align:center;}#mermaid-1784301213192 .edgeLabel p{background-color:white;}#mermaid-1784301213192 .edgeLabel rect{opacity:0.5;background-color:white;fill:white;}#mermaid-1784301213192 .labelBkg{background-color:rgba(255, 255, 255, 0.5);}#mermaid-1784301213192 .cluster rect{fill:hsl(0, 0%, 98.9215686275%);stroke:#707070;stroke-width:1px;}#mermaid-1784301213192 .cluster text{fill:#333;}#mermaid-1784301213192 .cluster span{color:#333;}#mermaid-1784301213192 div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:'Geist',system-ui,sans-serif;font-size:12px;background:hsl(-160, 0%, 93.3333333333%);border:1px solid #707070;border-radius:2px;pointer-events:none;z-index:100;}#mermaid-1784301213192 .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#mermaid-1784301213192 rect.text{fill:none;stroke-width:0;}#mermaid-1784301213192 .icon-shape,#mermaid-1784301213192 .image-shape{background-color:white;text-align:center;}#mermaid-1784301213192 .icon-shape p,#mermaid-1784301213192 .image-shape p{background-color:white;padding:2px;}#mermaid-1784301213192 .icon-shape .label rect,#mermaid-1784301213192 .image-shape .label rect{opacity:0.5;background-color:white;fill:white;}#mermaid-1784301213192 .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#mermaid-1784301213192 .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#mermaid-1784301213192 .node .neo-node{stroke:#999;}#mermaid-1784301213192 [data-look="neo"].node rect,#mermaid-1784301213192 [data-look="neo"].cluster rect,#mermaid-1784301213192 [data-look="neo"].node polygon{stroke:url(#mermaid-1784301213192-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784301213192 [data-look="neo"].swimlane.cluster rect{filter:none;}#mermaid-1784301213192 [data-look="neo"].node path{stroke:url(#mermaid-1784301213192-gradient);stroke-width:1px;}#mermaid-1784301213192 [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784301213192 [data-look="neo"].node .neo-line path{stroke:#999;filter:none;}#mermaid-1784301213192 [data-look="neo"].node circle{stroke:url(#mermaid-1784301213192-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784301213192 [data-look="neo"].node circle .state-start{fill:#000000;}#mermaid-1784301213192 [data-look="neo"].icon-shape .icon{fill:url(#mermaid-1784301213192-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784301213192 [data-look="neo"].icon-shape .icon-neo path{stroke:url(#mermaid-1784301213192-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784301213192 :root{--mermaid-font-family:'Geist',system-ui,sans-serif;}</style><g><marker id="mermaid-1784301213192_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="mermaid-1784301213192_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="mermaid-1784301213192_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></path></marker><marker id="mermaid-1784301213192_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></polygon></marker><marker id="mermaid-1784301213192_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="mermaid-1784301213192_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="mermaid-1784301213192_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="mermaid-1784301213192_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="mermaid-1784301213192_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="mermaid-1784301213192_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="mermaid-1784301213192_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"></path></marker><marker id="mermaid-1784301213192_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"></path></marker><g class="root"><g class="clusters"></g><g class="edgePaths"><path d="M210.219,193.32L224.016,181.284C237.813,169.249,265.406,145.178,282.703,133.142C300,121.107,307,121.107,310.5,121.107L314,121.107" id="mermaid-1784301213192-L_A_B_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_A_B_0" data-points="W3sieCI6MjEwLjIxOTI2MjIzNDE0NzcsInkiOjE5My4zMTk4NTA5MjE2MzA4Nn0seyJ4IjoyOTMsInkiOjEyMS4xMDY2MTY5NzM4NzY5NX0seyJ4IjozMTgsInkiOjEyMS4xMDY2MTY5NzM4NzY5NX1d" data-look="classic" marker-end="url(#mermaid-1784301213192_flowchart-v2-pointEnd)"></path><path d="M578,81.288L598.833,74.906C619.667,68.525,661.333,55.763,702.335,50.647C743.336,45.531,783.672,48.062,803.84,49.327L824.008,50.593" id="mermaid-1784301213192-L_B_C_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_B_C_0" data-points="W3sieCI6NTc4LCJ5Ijo4MS4yODc1NTczNDAxMzU3Nn0seyJ4Ijo3MDMsInkiOjQzfSx7IngiOjgyOCwieSI6NTAuODQzMTM3MjU0OTAxOTZ9XQ==" data-look="classic" marker-end="url(#mermaid-1784301213192_flowchart-v2-pointEnd)"></path><path d="M828,90.662L807.167,95.736C786.333,100.81,744.667,110.958,703.667,116.033C662.667,121.107,622.333,121.107,602.167,121.107L582,121.107" id="mermaid-1784301213192-L_C_B_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_C_B_0" data-points="W3sieCI6ODI4LCJ5Ijo5MC42NjIxOTY4ODg2NDMxNX0seyJ4Ijo3MDMsInkiOjEyMS4xMDY2MTY5NzM4NzY5NX0seyJ4Ijo1NzgsInkiOjEyMS4xMDY2MTY5NzM4NzY5NX1d" data-look="classic" marker-end="url(#mermaid-1784301213192_flowchart-v2-pointEnd)"></path><path d="M1088,59L1092.167,59C1096.333,59,1104.667,59,1124.42,72.597C1144.174,86.195,1175.348,113.389,1190.935,126.986L1206.523,140.584" id="mermaid-1784301213192-L_C_D_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_C_D_0" data-points="W3sieCI6MTA4OCwieSI6NTl9LHsieCI6MTExMywieSI6NTl9LHsieCI6MTIwOS41MzY3ODc3MTUyMTM3LCJ5IjoxNDMuMjEzMjMzOTQ3NzUzOX1d" data-look="classic" marker-end="url(#mermaid-1784301213192_flowchart-v2-pointEnd)"></path><path d="M1209.537,245.213L1193.447,259.249C1177.358,273.284,1145.179,301.355,1103.256,315.391C1061.333,329.426,1009.667,329.426,941.333,329.426C873,329.426,788,329.426,703,329.426C618,329.426,533,329.426,464.667,329.426C396.333,329.426,344.667,329.426,315.27,327.746C285.873,326.065,278.745,322.703,275.181,321.022L271.618,319.341" id="mermaid-1784301213192-L_D_A_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_D_A_0" data-points="W3sieCI6MTIwOS41MzY3ODc3MTUyMTM3LCJ5IjoyNDUuMjEzMjMzOTQ3NzUzOX0seyJ4IjoxMTEzLCJ5IjozMjkuNDI2NDY3ODk1NTA3OH0seyJ4Ijo5NTgsInkiOjMyOS40MjY0Njc4OTU1MDc4fSx7IngiOjcwMywieSI6MzI5LjQyNjQ2Nzg5NTUwNzh9LHsieCI6NDQ4LCJ5IjozMjkuNDI2NDY3ODk1NTA3OH0seyJ4IjoyOTMsInkiOjMyOS40MjY0Njc4OTU1MDc4fSx7IngiOjI2OCwieSI6MzE3LjYzNTA3ODA2MTAxMTU0fV0=" data-look="classic" marker-end="url(#mermaid-1784301213192_flowchart-v2-pointEnd)"></path><path d="M570.565,172.107L592.638,181.291C614.71,190.475,658.855,208.844,704.844,218.029C750.833,227.213,798.667,227.213,822.583,227.213L846.5,227.213" id="mermaid-1784301213192-L_B_G_0" class="edge-thickness-normal edge-pattern-dotted edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_B_G_0" data-points="W3sieCI6NTcwLjU2NTQwMDQ1MTkwMzgsInkiOjE3Mi4xMDY2MTY5NzM4NzY5NX0seyJ4Ijo3MDMsInkiOjIyNy4yMTMyMzM5NDc3NTM5fSx7IngiOjg1MC41LCJ5IjoyMjcuMjEzMjMzOTQ3NzUzOX1d" data-look="classic" marker-end="url(#mermaid-1784301213192_flowchart-v2-pointEnd)"></path></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="L_A_B_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_B_C_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(703, 121.10661697387695)"><g class="label" data-id="L_C_B_0" transform="translate(-31.7265625, -12)"><foreignObject width="63.453125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>findings</p></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_C_D_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(703, 329.4264678955078)"><g class="label" data-id="L_D_A_0" transform="translate(-100, -24)"><foreignObject width="200" height="48"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="edgeLabel"><p>feedback, often 1–2 sentences</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(703, 227.2132339477539)"><g class="label" data-id="L_B_G_0" transform="translate(-65.921875, -12)"><foreignObject width="131.84375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>commit per step</p></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default" id="mermaid-1784301213192-flowchart-A-0" data-look="classic" transform="translate(138, 256.31985092163086)"><rect class="basic label-container" style="" x="-130" y="-63" width="260" height="126"></rect><g class="label" style="" transform="translate(-100, -48)"><rect></rect><foreignObject width="200" height="96"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>Domain expert / product owner<br>requirement in business language</p></span></div></foreignObject></g></g><g class="node default" id="mermaid-1784301213192-flowchart-B-1" data-look="classic" transform="translate(448, 121.10661697387695)"><rect class="basic label-container" style="" x="-130" y="-51" width="260" height="102"></rect><g class="label" style="" transform="translate(-100, -36)"><rect></rect><foreignObject width="200" height="72"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>AI agent<br>implements inside the framework fence</p></span></div></foreignObject></g></g><g class="node default" id="mermaid-1784301213192-flowchart-C-3" data-look="classic" transform="translate(958, 59)"><rect class="basic label-container" style="" x="-130" y="-51" width="260" height="102"></rect><g class="label" style="" transform="translate(-100, -36)"><rect></rect><foreignObject width="200" height="72"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>Self-verification<br>lint · render tests · screenshots</p></span></div></foreignObject></g></g><g class="node default" id="mermaid-1784301213192-flowchart-D-7" data-look="classic" transform="translate(1268, 194.2132339477539)"><rect class="basic label-container" style="" x="-130" y="-51" width="260" height="102"></rect><g class="label" style="" transform="translate(-100, -36)"><rect></rect><foreignObject width="200" height="72"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>Release + visual evidence<br>to the PO</p></span></div></foreignObject></g></g><g class="node default" id="mermaid-1784301213192-flowchart-G-11" data-look="classic" transform="translate(958, 227.2132339477539)"><path d="M0,15.808823529411764 a107.5,15.808823529411764 0,0,0 215,0 a107.5,15.808823529411764 0,0,0 -215,0 l0,102.80882352941177 a107.5,15.808823529411764 0,0,0 215,0 l0,-102.80882352941177" class="basic label-container outer-path" style="" transform="translate(-107.5, -67.21323529411765)"></path><g class="label" style="" transform="translate(-100, -26)"><rect></rect><foreignObject width="200" height="72"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>Git history<br>checkpoints · evidence · rollback</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="mermaid-1784301213192-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><defs><filter id="mermaid-1784301213192-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><linearGradient id="mermaid-1784301213192-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="hsl(0, 0%, 83.3333333333%)" stop-opacity="1"></stop><stop offset="100%" stop-color="hsl(0, 0%, 88.9215686275%)" stop-opacity="1"></stop></linearGradient></svg></pre><figcaption>Fig. 8 — The loop: iterate small, self-verify, version everything.</figcaption></figure>
+<p>The generalization: this risk profile is shared by <strong>all</strong> framework
+ecosystems with a sandbox and certification — Office add-ins, browser
+extensions, app-store apps, dbt packages. There, "vibe coding" is
+production-grade not despite but <strong>because of</strong> the constraints.
+Greenfield systems without a fence lack this safety net — different
+standards apply there (Chapter 11).</p>
+<hr>
+<h2 id="sec-9">8 · Git: the underrated foundation</h2>
+<p>The uncomfortable truth first: <strong>Without version control, vibe coding is
+garbage.</strong> An AI that produces dozens of changes per day is, without
+rollback points, not an accelerator but an uncontrollable risk — every
+failed iteration contaminates the state, and nobody knows anymore what was
+changed when and why. With Git, this inverts; four mechanisms carried this
+build:</p>
+<p><strong>1. Checkpoints &amp; rollback.</strong> Every unit of work ends in a commit (in
+this setup even enforced: no work session ends without commit + push). A
+real example from the project: a design experiment — a wordmark logo on
+the landing page — did not sit well with the product owner. One
+<code>git revert</code>, released as 1.30.4.0, five minutes, no damage:</p>
+<figure><pre class="mermaid"><svg id="mermaid-1784301213271" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="max-width: 358.984375px;" viewBox="-100.984375 -21.5 358.984375 159.8933563232422" role="graphics-document document" aria-roledescription="gitGraph"><style>#mermaid-1784301213271{font-family:'Geist',system-ui,sans-serif;font-size:16px;fill:#000000;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#mermaid-1784301213271 .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#mermaid-1784301213271 .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#mermaid-1784301213271 .error-icon{fill:#552222;}#mermaid-1784301213271 .error-text{fill:#552222;stroke:#552222;}#mermaid-1784301213271 .edge-thickness-normal{stroke-width:1px;}#mermaid-1784301213271 .edge-thickness-thick{stroke-width:3.5px;}#mermaid-1784301213271 .edge-pattern-solid{stroke-dasharray:0;}#mermaid-1784301213271 .edge-thickness-invisible{stroke-width:0;fill:none;}#mermaid-1784301213271 .edge-pattern-dashed{stroke-dasharray:3;}#mermaid-1784301213271 .edge-pattern-dotted{stroke-dasharray:2;}#mermaid-1784301213271 .marker{fill:#666;stroke:#666;}#mermaid-1784301213271 .marker.cross{stroke:#666;}#mermaid-1784301213271 svg{font-family:'Geist',system-ui,sans-serif;font-size:16px;}#mermaid-1784301213271 p{margin:0;}#mermaid-1784301213271 .commit-id,#mermaid-1784301213271 .commit-msg,#mermaid-1784301213271 .branch-label{fill:lightgrey;color:lightgrey;font-family:'trebuchet ms',verdana,arial,sans-serif;font-family:var(--mermaid-font-family);}#mermaid-1784301213271 .branch-label0{fill:#333;}#mermaid-1784301213271 .commit0{stroke:hsl(0, 0%, 70.6862745098%);fill:hsl(0, 0%, 70.6862745098%);}#mermaid-1784301213271 .commit-highlight0{stroke:rgb(74.75, 74.75, 74.75);fill:rgb(74.75, 74.75, 74.75);}#mermaid-1784301213271 .label0{fill:hsl(0, 0%, 70.6862745098%);}#mermaid-1784301213271 .arrow0{stroke:hsl(0, 0%, 70.6862745098%);}#mermaid-1784301213271 .branch-label1{fill:white;}#mermaid-1784301213271 .commit1{stroke:#555;fill:#555;}#mermaid-1784301213271 .commit-highlight1{stroke:#aaaaaa;fill:#aaaaaa;}#mermaid-1784301213271 .label1{fill:#555;}#mermaid-1784301213271 .arrow1{stroke:#555;}#mermaid-1784301213271 .branch-label2{fill:#333;}#mermaid-1784301213271 .commit2{stroke:#BBB;fill:#BBB;}#mermaid-1784301213271 .commit-highlight2{stroke:#444444;fill:#444444;}#mermaid-1784301213271 .label2{fill:#BBB;}#mermaid-1784301213271 .arrow2{stroke:#BBB;}#mermaid-1784301213271 .branch-label3{fill:white;}#mermaid-1784301213271 .commit3{stroke:#777;fill:#777;}#mermaid-1784301213271 .commit-highlight3{stroke:#888888;fill:#888888;}#mermaid-1784301213271 .label3{fill:#777;}#mermaid-1784301213271 .arrow3{stroke:#777;}#mermaid-1784301213271 .branch-label4{fill:#333;}#mermaid-1784301213271 .commit4{stroke:#999;fill:#999;}#mermaid-1784301213271 .commit-highlight4{stroke:#666666;fill:#666666;}#mermaid-1784301213271 .label4{fill:#999;}#mermaid-1784301213271 .arrow4{stroke:#999;}#mermaid-1784301213271 .branch-label5{fill:#333;}#mermaid-1784301213271 .commit5{stroke:#DDD;fill:#DDD;}#mermaid-1784301213271 .commit-highlight5{stroke:#222222;fill:#222222;}#mermaid-1784301213271 .label5{fill:#DDD;}#mermaid-1784301213271 .arrow5{stroke:#DDD;}#mermaid-1784301213271 .branch-label6{fill:#333;}#mermaid-1784301213271 .commit6{stroke:#FFF;fill:#FFF;}#mermaid-1784301213271 .commit-highlight6{stroke:#000000;fill:#000000;}#mermaid-1784301213271 .label6{fill:#FFF;}#mermaid-1784301213271 .arrow6{stroke:#FFF;}#mermaid-1784301213271 .branch-label7{fill:#333;}#mermaid-1784301213271 .commit7{stroke:#DDD;fill:#DDD;}#mermaid-1784301213271 .commit-highlight7{stroke:#222222;fill:#222222;}#mermaid-1784301213271 .label7{fill:#DDD;}#mermaid-1784301213271 .arrow7{stroke:#DDD;}#mermaid-1784301213271 .branch-label8{fill:#333;}#mermaid-1784301213271 .commit8{stroke:hsl(0, 0%, 70.6862745098%);fill:hsl(0, 0%, 70.6862745098%);}#mermaid-1784301213271 .commit-highlight8{stroke:rgb(74.75, 74.75, 74.75);fill:rgb(74.75, 74.75, 74.75);}#mermaid-1784301213271 .label8{fill:hsl(0, 0%, 70.6862745098%);}#mermaid-1784301213271 .arrow8{stroke:hsl(0, 0%, 70.6862745098%);}#mermaid-1784301213271 .branch-label9{fill:white;}#mermaid-1784301213271 .commit9{stroke:#555;fill:#555;}#mermaid-1784301213271 .commit-highlight9{stroke:#aaaaaa;fill:#aaaaaa;}#mermaid-1784301213271 .label9{fill:#555;}#mermaid-1784301213271 .arrow9{stroke:#555;}#mermaid-1784301213271 .branch-label10{fill:#333;}#mermaid-1784301213271 .commit10{stroke:#BBB;fill:#BBB;}#mermaid-1784301213271 .commit-highlight10{stroke:#444444;fill:#444444;}#mermaid-1784301213271 .label10{fill:#BBB;}#mermaid-1784301213271 .arrow10{stroke:#BBB;}#mermaid-1784301213271 .branch-label11{fill:white;}#mermaid-1784301213271 .commit11{stroke:#777;fill:#777;}#mermaid-1784301213271 .commit-highlight11{stroke:#888888;fill:#888888;}#mermaid-1784301213271 .label11{fill:#777;}#mermaid-1784301213271 .arrow11{stroke:#777;}#mermaid-1784301213271 .branch{stroke-width:1;stroke:#666;stroke-dasharray:2;}#mermaid-1784301213271 .commit-label{font-size:10px;fill:rgb(2.7499999999, 2.7499999999, 2.7499999999);}#mermaid-1784301213271 .commit-label-bkg{font-size:10px;fill:hsl(0, 0%, 98.9215686275%);opacity:0.5;}#mermaid-1784301213271 .tag-label{font-size:10px;fill:#111111;}#mermaid-1784301213271 .tag-label-bkg{fill:#eee;stroke:hsl(0, 0%, 83.3333333333%);}#mermaid-1784301213271 .tag-hole{fill:#000000;}#mermaid-1784301213271 .commit-merge{stroke:#eee;fill:#eee;}#mermaid-1784301213271 .commit-reverse{stroke:#eee;fill:#eee;stroke-width:3;}#mermaid-1784301213271 .commit-highlight-inner{stroke:#eee;fill:#eee;}#mermaid-1784301213271 .arrow{stroke-width:8;stroke-linecap:round;fill:none;}#mermaid-1784301213271 .gitTitleText{text-anchor:middle;font-size:18px;fill:#000000;}#mermaid-1784301213271 .node .neo-node{stroke:#999;}#mermaid-1784301213271 [data-look="neo"].node rect,#mermaid-1784301213271 [data-look="neo"].cluster rect,#mermaid-1784301213271 [data-look="neo"].node polygon{stroke:url(#mermaid-1784301213271-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784301213271 [data-look="neo"].swimlane.cluster rect{filter:none;}#mermaid-1784301213271 [data-look="neo"].node path{stroke:url(#mermaid-1784301213271-gradient);stroke-width:1px;}#mermaid-1784301213271 [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784301213271 [data-look="neo"].node .neo-line path{stroke:#999;filter:none;}#mermaid-1784301213271 [data-look="neo"].node circle{stroke:url(#mermaid-1784301213271-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784301213271 [data-look="neo"].node circle .state-start{fill:#000000;}#mermaid-1784301213271 [data-look="neo"].icon-shape .icon{fill:url(#mermaid-1784301213271-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784301213271 [data-look="neo"].icon-shape .icon-neo path{stroke:url(#mermaid-1784301213271-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mermaid-1784301213271 :root{--mermaid-font-family:'Geist',system-ui,sans-serif;}</style><g></g><defs><linearGradient id="mermaid-1784301213271-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="hsl(0, 0%, 83.3333333333%)" stop-opacity="1"></stop><stop offset="100%" stop-color="hsl(0, 0%, 88.9215686275%)" stop-opacity="1"></stop></linearGradient></defs><g class="commit-bullets"></g><g class="commit-labels"></g><g><line x1="0" y1="-2" x2="250" y2="-2" class="branch branch0"></line><rect class="branchLabelBkg label0" style="" rx="4" ry="4" x="-73.984375" y="0.5" width="57.984375" height="23" transform="translate(-19, -14)"></rect><g class="branchLabel"><g class="label branch-label0" transform="translate(-83.984375, -13.5)"><text><tspan xml:space="preserve" dy="1em" x="0" class="row">main</tspan></text></g></g></g><g class="commit-arrows"><path d="M 10 -2 L 60 -2" class="arrow arrow0"></path><path d="M 60 -2 L 110 -2" class="arrow arrow0"></path><path d="M 110 -2 L 160 -2" class="arrow arrow0"></path><path d="M 160 -2 L 210 -2" class="arrow arrow0"></path></g><g class="commit-bullets"><circle cx="10" cy="-2" r="10" class="commit 1.30.2.0 gallery commit0"></circle><circle cx="60" cy="-2" r="10" class="commit 1.30.3.0 wordmark experiment commit0"></circle><circle cx="110" cy="-2" r="10" class="commit Revert wordmark commit0"></circle><path d="M 105,-7L115,3M105,3L115,-7" class="commit commit-reverse Revert wordmark commit0"></path><circle cx="160" cy="-2" r="10" class="commit 1.30.4.0 clean state commit0"></circle><circle cx="210" cy="-2" r="10" class="commit 1.30.5.0 tiered layouts commit0"></circle></g><g class="commit-labels"><g transform="translate(-41.2524609375, 36.799570312499995) rotate(-45, 0, -2)"><rect class="commit-label-bkg" x="-31.4111328125" y="11.5" width="82.822265625" height="15"></rect><text x="-29.4111328125" y="23" class="commit-label">1.30.2.0 gallery</text></g><g transform="translate(-70.41746093750001, 62.8945703125) rotate(-45, 50, -2)"><rect class="commit-label-bkg" x="-19.7861328125" y="11.5" width="159.572265625" height="15"></rect><text x="-17.7861328125" y="23" class="commit-label">1.30.3.0 wordmark experiment</text></g><g transform="translate(-44.16740234375, 39.407675781250006) rotate(-45, 100, -2)"><rect class="commit-label-bkg" x="64.75341796875" y="11.5" width="90.4931640625" height="15"></rect><text x="66.75341796875" y="23" class="commit-label">Revert wordmark</text></g><g transform="translate(-49.27625, 43.97875) rotate(-45, 150, -2)"><rect class="commit-label-bkg" x="108.03125" y="11.5" width="103.9375" height="15"></rect><text x="110.03125" y="23" class="commit-label">1.30.4.0 clean state</text></g><g transform="translate(-54.3765625, 48.5421875) rotate(-45, 200, -2)"><rect class="commit-label-bkg" x="151.3203125" y="11.5" width="117.359375" height="15"></rect><text x="153.3203125" y="23" class="commit-label">1.30.5.0 tiered layouts</text></g></g></svg></pre><figcaption>Fig. 9 — Experiments become cheap when the way back is guaranteed.</figcaption></figure>
+<p><strong>2. Small commits as a review surface.</strong> 124 commits for 60 releases
+means: the average change is small enough to be read as a diff. That is
+the realistic answer to "who reviews the AI code?" — not everything line
+by line, but <strong>bounded diffs with descriptive commit messages</strong>, spot-
+checked in depth.</p>
+<p><strong>3. Branch isolation.</strong> The entire development ran on its own branch —
+the AI cannot "break" anything that is not explicitly merged. For teams:
+AI work thus integrates organizationally exactly like a new developer's,
+including the pull-request gate.</p>
+<p><strong>4. History as evidence.</strong> Every figure in this paper — calendar days,
+commits per day, release frequency, even the delineation "visual vs.
+preliminary work" — comes from <code>git log</code>. Version control makes AI
+development <strong>auditable</strong>: for auditors, for IT compliance, for one's own
+cost accounting. Without Git this paper would be assertion; with Git it
+can be recalculated. To our knowledge, this history is among the first
+fully public development records of an AI-built production tool — every
+one of the 124 steps can be inspected. That is not a by-product of the
+case study; it is its central quality feature.</p>
+<p><strong>Git as a governance system.</strong> For organizations, Git is thus more than
+a tool — it is the existing control infrastructure for AI work:
+<em>auditability</em> — every change is attributable to an author, a timestamp
+and a rationale, compatible with financial audit and IT compliance.
+<em>Traceability</em> — the "why" of every decision lives in the history, not in
+one person's head. <em>Reviewability</em> — pull-request gates work for AI
+contributions unchanged. <em>Compliance fit</em> — internal control systems dock
+onto existing Git processes; no new infrastructure is needed, only
+discipline within the existing one. <span class="ev ev-M">M</span></p>
+<p>The practical consequence for any AI development setup: a commit
+obligation per unit of work, meaningful messages, a dedicated branch, push
+as part of the definition of done. It costs nothing and decides
+production-worthiness.</p>
+<hr>
+<h2 id="sec-10">9 · Governance, maintainability, bus factor — the risk questions</h2>
+<p>Whoever decides on adopting this pattern asks not about code but about
+risk. The four questions that regularly come first — and what this case
+answers to them:</p>
+<p><strong>Who reviews AI-generated code?</strong> Three layers, none of them optional:
+(1) <em>Automated gates</em> — Microsoft lint rules, certification checks (no
+<code>eval</code>, no <code>innerHTML</code>, no external loading), <code>npm audit</code>; all ran at zero
+findings across the project. (2) <em>Bounded diffs</em> — 124 commits for 60
+releases mean small, readable changes with descriptive messages; review is
+spot-checked in depth rather than uniformly shallow (Chapter 8).
+(3) <em>Domain acceptance on the result</em> — the product owner checks every
+iteration on the rendered image against domain rules ("stock quantities
+must not be summed"). For organizations this means: the review process
+for AI code already exists — it is the pull-request process for human
+code, with stricter automated gates.</p>
+<p><strong>How are hallucinations caught?</strong> In a framework context, an AI mistake
+does not manifest as a plausible false claim but as a wrongly drawn chart
+or a broken test — it is <em>visible</em> (Chapter 7). The headless render
+harness produces image evidence for every state; domain correctness is
+checked by the domain expert, not by the AI itself. Residual risk remains
+with subtle calculation errors that look visually plausible — against
+those stand the 80+ test cases with known expected values.</p>
+<p><strong>Who maintains this in three years?</strong> The honest answer: not necessarily
+the same person. Maintainability rests on three properties that are
+person-independent: open source code (any developer <em>and</em> any future AI
+can read the entire code base), a complete Git history with descriptive
+commits (the "why" of every decision is documented) and the framework
+itself (Microsoft API updates are the main maintenance driver and affect
+all visuals equally). The DCF calculation (Chapter 5) prices maintenance
+at €3k/year and stays robust up to €10k/year — that corresponds to 12–40
+PO hours annually using the same method.</p>
+<p><strong>What happens if the product owner leaves?</strong> The classic bus factor of 1
+splits in two here: the <em>technical</em> knowledge sits entirely in the
+repository (code, history, test cases, machine-readable project
+documentation) — it is transferable, to humans as to AI agents. The
+<em>steering</em> knowledge — which domain requirements matter next — remains
+person-bound, as with any specialized process. Recommendation for
+organizational use: keep requirements and acceptance decisions in the
+repository (done here: backlog and changelog are public) and bring a
+second person into the steering early.</p>
+<p><strong>Limits of the quality evidence — stated openly:</strong> The available quality
+evidence consists of process and audit metrics (tests, lint, audit,
+release history). Missing are: formal performance and memory
+measurements, structured user feedback at scale, and completed Microsoft
+certification (submission is in progress; the submission package is part
+of the repo). These gaps are in the public backlog and belong in any
+serious adoption decision (Chapter 11).</p>
+<hr>
+<h2 id="sec-11">10 · The market thesis: open source × AI is multiplicative</h2>
+<blockquote>
+<p><strong>Context — the reach of this chapter:</strong> From here on, the paper leaves
+the documented single case. The following statements are <strong>hypotheses
+about possible market effects</strong>, derived from one case study (n = 1) and
+historical analogies. They describe what <em>could</em> happen if the pattern
+is confirmed in further cases — not what demonstrably happens. Readers
+looking exclusively for evidenced statements can skip this chapter —
+Chapters 1–9 stand without it. <span class="ev ev-H">H</span></p>
+</blockquote>
+<p>The hypothesis chain, link by link: <strong>AI lowers development costs</strong> in the
+fenced application layer (demonstrated on the case, Chapters 2–4) →
+<strong>feature replication becomes cheap</strong>, and the price premium for standard
+features loses its basis → <strong>open-source alternatives become durably
+maintainable</strong> and thus credible for the first time → <strong>the part worth
+paying for shifts to support, liability and integration</strong> → <strong>vendors
+adjust prices or business models</strong>. Only the first link is evidenced;
+every further one is individually plausible but unproven. <span class="ev ev-H">H</span></p>
+<p>Some history: individually, both forces were manageable for software
+vendors. Open source often failed in the application layer on the
+maintenance argument ("who will maintain this?"); AI development alone
+remained at prototype level without open reference code bases. <strong>Our
+observation suggests they reinforce each other:</strong></p>
+<ul>
+<li>AI makes community software <strong>maintainable</strong> — a one-person project
+effectively has a development team; a "bus factor of 1" no longer means
+standstill.</li>
+<li>Open code makes AI <strong>precise</strong> — every open project is immediately
+extensible because the model reads the code base like a well-onboarded
+developer.</li>
+</ul>
+<p>If this held broadly, the classic defensive wall of feature-oriented
+software vendors ("development is expensive, we paid for it, you rent
+it") would come under pressure. Most exposed: single-product vendors with
+feature differentiation and per-seat pricing. Little affected: platforms
+(Microsoft wins with every good visual), data/network lock-in, liability
+as a purchase reason.</p>
+<p>The historical pattern exists: open source consolidated the
+infrastructure layer (Linux, Postgres); what survived is the <strong>Red Hat
+model</strong> — software free, revenue from support and reliability. Our
+expectation: the same model is now reaching the application layer.</p>
+<p><strong>Counterforces, named honestly:</strong> (1) Vendors can develop AI-assisted
+too — what falls is their pricing latitude against "good enough and
+free", not their product. (2) The coming flood of AI-built throwaway
+software makes trust signals <strong>more</strong> valuable: certification, release
+history, a face behind the product. (3) One market segment will keep
+paying for SLAs and liability — it shrinks, it does not disappear.</p>
+<hr>
+<h2 id="sec-12">11 · Transferability — and limits</h2>
+<p>Three ingredients explain the result; remove one, and the calculation
+breaks:</p>
+<ol>
+<li><strong>A fixed framework</strong> (Chapter 7) — bounded bug/security surface,
+local verification.</li>
+<li><strong>Domain expertise in the steering seat</strong> — requirements in business
+language with a built-in quality yardstick ("stock quantities must not
+be summed"). The difference between two iterations and twenty.</li>
+<li><strong>Self-verification + version control</strong> (Chapter 8) — the loop from
+Fig. 8.</li>
+</ol>
+<p>Where the pattern holds and where it does not — judged against the five
+mechanisms from Chapter 7 <span class="ev ev-S">S</span>:</p>
+<table>
+<thead>
+<tr>
+<th>System class</th>
+<th align="center">Fit</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Power BI visuals, Office add-ins</td>
+<td align="center">✓</td>
+<td>fixed API contract, sandbox, certification rules, local verification</td>
+</tr>
+<tr>
+<td>Browser and IDE extensions</td>
+<td align="center">✓</td>
+<td>defined manifest/API boundaries, fast local testing</td>
+</tr>
+<tr>
+<td>dbt packages, analytics artifacts</td>
+<td align="center">✓</td>
+<td>declarative frame, deterministic checks against data</td>
+</tr>
+<tr>
+<td>Internal domain tools with a clear frame</td>
+<td align="center">✓</td>
+<td>bounded domain logic, domain expert available as product owner</td>
+</tr>
+<tr>
+<td>Greenfield platforms</td>
+<td align="center">✗</td>
+<td>architectural degrees of freedom are exactly what the fence removes</td>
+</tr>
+<tr>
+<td>Distributed systems</td>
+<td align="center">✗</td>
+<td>failure modes emerge from interplay; verification is not local</td>
+</tr>
+<tr>
+<td>Embedded / safety-critical</td>
+<td align="center">✗</td>
+<td>standards and formal proofs demand different processes</td>
+</tr>
+<tr>
+<td>Legacy monoliths</td>
+<td align="center">✗</td>
+<td>huge context, slow verification — the METR finding points the way (Appendix B.6)</td>
+</tr>
+</tbody></table>
+<p><strong>Open items of this project</strong> that a €250k project would have included:
+end-user documentation, formal acceptance tests with users, a complete
+adversarial review round of the most recent packages. They are in the
+public backlog — transparency is part of credibility.</p>
+<hr>
+<h2 id="sec-13">12 · What this can mean for companies</h2>
+<p>The following derivations stand under the caveat from Chapter 10 and
+Premise 6: what is evidenced is the single case; the recommendations
+describe <strong>possible consequences</strong> whose weight depends on whether the
+pattern is confirmed in further, independent cases. They still work as
+low-risk first steps — none of them requires the market thesis to come
+true.</p>
+<p><strong>CFO / head of controlling:</strong> Test visual and tool licenses against the
+free alternative — as a switching option or a negotiation card. From
+~150–200 users, the present-value advantage is substantial (Chapter 5).</p>
+<p><strong>IT / BI leads:</strong> The combination "framework fence + internal domain
+expert + AI + Git discipline" is reproducible — and at the internal €100
+rate, the entry barrier is four digits, not six. Candidates: everything
+currently bought as a per-seat license that is, at its core, bounded
+domain logic.</p>
+<p><strong>Software vendors:</strong> Defending feature parity becomes more expensive
+than differentiating upward (planning, writeback, enterprise integration)
+or moving to a service model. Pricing of the base layer becomes
+disciplined.</p>
+<p><strong>Consultancies:</strong> The value migrates from the license to the expertise.
+The viable model is the infrastructure world's: software free, revenue
+from enablement, support and further development — the subscription as
+the formalized answer to the maintenance question.</p>
+<p><strong>The recommendation in one sentence:</strong> Companies should re-evaluate
+their build-vs.-buy decisions for framework software under the conditions
+of AI-assisted development — not because this single case forces it, but
+because the calculations for doing so are now openly available, and
+recalculating in-house costs days, not months. <span class="ev ev-S">S</span></p>
+<blockquote>
+<p><strong>This paper does not claim:</strong> that AI replaces developers · that every
+piece of software takes ten days · that every domain achieves the same
+results · that a single case proves a market trend.</p>
+<p><strong>It shows:</strong> a fully documented practical case <span class="ev ev-M">M</span> · a traceable
+economic valuation using recognized methods <span class="ev ev-S">S</span> · plausible consequences
+for the build-vs.-buy decision <span class="ev ev-S">S</span> · reasoned hypotheses for further
+investigation <span class="ev ev-H">H</span>.</p>
+</blockquote>
+<hr>
+<h2 id="sec-14">Invitation: replicate, refute, extend</h2>
+<p>A case study proves no rule — it asks a precise question. The answer
+emerges through repetition: <strong>if you undertake a comparable project — in a
+different framework, in a different domain, as a team rather than solo —
+document it using the same method</strong> (Appendix A: Git history, time log,
+tooling costs, valuation methods from Appendix B) and place your results
+next to these. Confirming cases sharpen the boundary conditions;
+contradicting ones are at least as valuable — they show where the fence
+ends.</p>
+<p>Three replication questions strike us as particularly worthwhile: Does
+the cost leverage hold in a second framework ecosystem (Office add-in,
+dbt package)? How much does it drop when a multi-stakeholder team steers
+instead of a single person? And where does it land with a product owner
+who has no prior development experience? Repository, methodology and this
+paper are public — disagreement is expressly welcome.</p>
+<p><strong>Contact for replications, criticism and questions:</strong>
+Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a></p>
+<hr>
+<h2 id="sec-15">Appendix A · Methodology and evidence</h2>
+<ul>
+<li><strong>Project data:</strong> Git history of the public repository (first visual
+commit 2026-07-06; 124 commits, ~60 releases through 2026-07-15); code
+size via <code>wc -l</code>; test cases in the repo. Figs. 1, 2 and 4 are
+unedited render outputs of the test harness; Figs. 3, 6 and 7 are
+charts built from the raw data; Fig. 5 is a process schematic.</li>
+<li><strong>Token/cost data:</strong> analysis of the development session log (4,446 API
+calls; output 5.3M, cache write 70.5M, cache read 1,725M tokens); API
+list prices as of June 2026; subscription costs per invoice.</li>
+<li><strong>Hourly rates:</strong> €250/h external senior consultant (market rate),
+€100/h internal full-cost rate (salary + non-wage costs + overhead of an
+experienced controller/BI lead).</li>
+<li><strong>CO₂ estimate:</strong> methodology of the Daten-WG AI CO₂ simulator (Wh per
+1,000 output tokens by model class, PUE 1.15–1.56, US grid mix
+300–450 g/kWh); cache reads at a 0.1 factor as a price-analogous
+approximation.</li>
+<li><strong>Traditional cost estimate:</strong> bottom-up in PM (Chapter 3), valued at
+€9k/PM internal and €900–1,200/day external; no vendor quotes obtained,
+range deliberately wide.</li>
+<li><strong>DCF assumptions:</strong> license prices €7–12 per user per month (public
+price indications for commercial IBCS visuals, volume-dependent); 8%
+discount rate; 5 years; build maintenance €3k/year (sensitivity tested
+up to €10k/year).</li>
+<li><strong>Conflict of interest:</strong> Daten-WG publishes the visual described and
+provides consulting services in the Power BI space. All estimates are
+orders of magnitude, not offers or assurances.</li>
+</ul>
+<h2 id="sec-16">Appendix B · Valuation with recognized methods — the calculations</h2>
+<p>Valuation standards for intangible assets (IDW S 5 [1], IVS 210 [2]; for
+accounting, IAS 38 [3]) know three families of methods: <strong>cost-based</strong>
+(replacement cost), <strong>income-based</strong> (discounted future payments,
+including relief from royalty) and <strong>market-based</strong> (comparable
+transactions). This appendix works through the first two in full; the
+market approach is unavailable for lack of observable transactions in
+individual visuals — its role is taken by the public license prices that
+feed into B.2 and B.3.</p>
+<h3>B.1 Cost-based: replacement cost, three estimation methods</h3>
+<p><strong>Method 1 — bottom-up expert estimate</strong> (Chapter 3): decomposition into
+ten work blocks, each with a PM range. Result: <strong>14–18 PM</strong> including
+project reality.</p>
+<p><strong>Method 2 — COCOMO II</strong> (parametric model, Boehm et al. [4]). Base
+formula:</p>
+<pre><code>PM = A × Size^E × ∏EM        with A = 2.94; Size in KSLOC;
+E  = B + 0.01 × ΣSF          with B = 0.91; nominal E ≈ 1.10
+</code></pre>
+<p>Applied with Size = 10.2 KSLOC (measured core code):</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Effort multipliers ∏EM</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Nominal (average team, standard conditions)</td>
+<td>1.0</td>
+<td><strong>~38 PM</strong></td>
+</tr>
+<tr>
+<td>Adjusted: high team/analyst capability, well-worn toolchain, low novelty</td>
+<td>0.4–0.5</td>
+<td><strong>15–19 PM</strong></td>
+</tr>
+</tbody></table>
+<p>One PM in COCOMO II equals 152 working hours. The adjusted scenario
+corresponds to an experienced specialist team — the realistic staffing for
+such a project; the nominal scenario marks the upper bound.</p>
+<p><strong>Method 3 — function point analysis</strong> (ISO/IEC 20926 [5]). As no formal
+count exists, the estimate is backfired from the code size (Jones [6]:
+JavaScript family ~40–60 LOC per FP):</p>
+<pre><code>10,200 LOC ÷ 50 LOC/FP ≈ 204 FP   (range 170–255 FP)
+</code></pre>
+<p>With typical delivery rates for new business applications of 8–15 hours
+per FP (ISBSG benchmarks [7]): 204 FP × 8–15 h = 1,630–3,060 h ≈
+<strong>11–20 PM</strong> (full range across both uncertainties: 9–25 PM).</p>
+<p><strong>Triangulation</strong> — valued at €9k/PM internal and €900–1,200/day external
+(1 PM ≈ 19 person-days):</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Effort</th>
+<th align="right">Internal (€9k/PM)</th>
+<th align="right">External (€900–1,200/day)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Bottom-up (Chapter 3)</td>
+<td>14–18 PM</td>
+<td align="right">€126–162k</td>
+<td align="right">€240–410k</td>
+</tr>
+<tr>
+<td>COCOMO II, adjusted</td>
+<td>15–19 PM</td>
+<td align="right">€135–171k</td>
+<td align="right">€255–435k</td>
+</tr>
+<tr>
+<td>Function points</td>
+<td>11–20 PM</td>
+<td align="right">€100–180k</td>
+<td align="right">€190–455k</td>
+</tr>
+<tr>
+<td><em>COCOMO II, nominal (upper bound)</em></td>
+<td><em>~38 PM</em></td>
+<td align="right"><em>~€340k</em></td>
+<td align="right"><em>~€650–870k</em></td>
+</tr>
+</tbody></table>
+<p>All three main methods land in the same order of magnitude. The range
+used in this paper, <strong>€150–350k</strong>, lies inside the triangulation and is
+conservative against its upper bounds; the discount for still-missing
+end-user documentation and acceptance tests (−10–20%, Chapter 3) has
+already been addressed.</p>
+<p><strong>Why COCOMO II and function points — and not DORA or SPACE?</strong> A
+replacement value needs methods that estimate the <em>effort for a defined
+feature scope</em> — which parametric models (COCOMO II) and functional size
+measurement (function points) provide. Modern team-performance frameworks
+like DORA/Accelerate [14] or SPACE [15], by contrast, measure delivery
+capability and developer experience of running organizations — they answer
+a different question and are deliberately not used as a cost yardstick
+here. Also important: COCOMO II is calibrated on traditional development
+(data through ~2000). In this paper it serves exclusively to
+<strong>plausibility-check the traditional comparison costs</strong> — never to value
+the AI-assisted path itself.</p>
+<h3>B.2 Income-based: DCF, year by year</h3>
+<p>Present-value formula and annuity factor (standard financial mathematics,
+e.g. Brealey/Myers/Allen [8]):</p>
+<pre><code>PV = Σ CFt / (1+r)^t          AF(r; n) = (1 − (1+r)^−n) / r
+AF(8%; 5 y) = (1 − 1.08^−5) / 0.08 = 3.9927
+</code></pre>
+<p><strong>Worked example, mid-market:</strong> 200 report users, license €10 per user
+per month = €24,000/year, paid in arrears; building at €5,200 upfront +
+€3,000/year maintenance:</p>
+<table>
+<thead>
+<tr>
+<th>Year</th>
+<th align="right">License payment</th>
+<th align="right">Discount factor (8%)</th>
+<th align="right">PV license</th>
+<th align="right">PV maintenance</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td align="right">—</td>
+<td align="right">1.0000</td>
+<td align="right">—</td>
+<td align="right">€5,200 (investment)</td>
+</tr>
+<tr>
+<td>1</td>
+<td align="right">€24,000</td>
+<td align="right">0.9259</td>
+<td align="right">€22,222</td>
+<td align="right">€2,778</td>
+</tr>
+<tr>
+<td>2</td>
+<td align="right">€24,000</td>
+<td align="right">0.8573</td>
+<td align="right">€20,576</td>
+<td align="right">€2,572</td>
+</tr>
+<tr>
+<td>3</td>
+<td align="right">€24,000</td>
+<td align="right">0.7938</td>
+<td align="right">€19,052</td>
+<td align="right">€2,381</td>
+</tr>
+<tr>
+<td>4</td>
+<td align="right">€24,000</td>
+<td align="right">0.7350</td>
+<td align="right">€17,641</td>
+<td align="right">€2,205</td>
+</tr>
+<tr>
+<td>5</td>
+<td align="right">€24,000</td>
+<td align="right">0.6806</td>
+<td align="right">€16,334</td>
+<td align="right">€2,042</td>
+</tr>
+<tr>
+<td><strong>Σ</strong></td>
+<td align="right"><strong>€120,000</strong></td>
+<td align="right"></td>
+<td align="right"><strong>€95,825</strong></td>
+<td align="right"><strong>€17,178</strong></td>
+</tr>
+</tbody></table>
+<p><strong>NPV advantage of building: 95,825 − 17,178 = ~€78,600.</strong> Payback:
+€5,200 ÷ €24,000/year ≈ 2.6 months.</p>
+<p><strong>Sensitivity</strong> (NPV advantage in €k, same case, discount rate ×
+maintenance):</p>
+<table>
+<thead>
+<tr>
+<th>Maintenance \ discount rate</th>
+<th align="right">6%</th>
+<th align="right">8%</th>
+<th align="right">10%</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>€3k/year</td>
+<td align="right">+83.3</td>
+<td align="right">+78.6</td>
+<td align="right">+74.4</td>
+</tr>
+<tr>
+<td>€6k/year</td>
+<td align="right">+70.6</td>
+<td align="right">+66.7</td>
+<td align="right">+63.0</td>
+</tr>
+<tr>
+<td>€10k/year</td>
+<td align="right">+53.8</td>
+<td align="right">+50.7</td>
+<td align="right">+47.9</td>
+</tr>
+</tbody></table>
+<p>The advantage stays clearly positive in every combination for the
+mid-market case — the decision is robust against both parameters.
+<strong>Break-even:</strong> the build present value of €17.2k corresponds — depending
+on the €8–12 per-user tier — to the license present value of <strong>30–45
+users</strong>. Above that, building wins.</p>
+<h3>B.3 Relief from royalty</h3>
+<p>Relief from royalty is the income-based method recognized in IDW S 5 [1]
+and IVS 210 [2] for valuing the <strong>asset itself</strong>: the tool's value equals
+the discounted license payments its owner does <em>not</em> have to make, minus
+the costs borne instead.</p>
+<pre><code>Value ≈ PV(avoided licenses) − PV(maintenance)
+200 users:    €95,825 − €11,978 ≈  €84k
+1,000 users: €335,400 − €11,978 ≈ €323k
+</code></pre>
+<p>The value is usage-dependent — the same visual is roughly four times as
+"valuable" to a 1,000-user enterprise as to the mid-market. That explains
+precisely why one and the same free tool works sharpest as a negotiation
+card (Chapter 6) at the enterprise.</p>
+<h3>B.4 Estimating traditional timelines — with sources</h3>
+<p>The COCOMO II schedule formula [4] gives calendar time independent of
+team size:</p>
+<pre><code>TDEV = 3.67 × PM^0.318
+15 PM → ~9 months      19 PM → ~9.5 months      38 PM → ~12 months
+</code></pre>
+<p>This matches the simple back-of-the-envelope calculation (14–18 PM with 2
+developers ≈ 7–9 months plus staffing, reviews, release cycles) and
+justifies the range of <strong>6–12 months</strong> used in the paper. Two empirical
+findings suggest this estimate is more likely too optimistic than too
+pessimistic: large IT projects exceed their budgets by ~45% on average
+(McKinsey/Oxford [9]), and only about a third of software projects finish
+on time, on budget and in scope (Standish CHAOS [10]). The 10 calendar
+days of the AI-assisted build stand against a traditionally derived
+timeline of <strong>9–12 months</strong> — a factor of ~25–35 in calendar time.</p>
+<h3>B.5 Method overview</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Family (IDW S 5 / IVS 210)</th>
+<th>Result here</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Bottom-up, COCOMO II, function points</td>
+<td>cost-based</td>
+<td>replacement €150–350k (conservative)</td>
+</tr>
+<tr>
+<td>DCF build vs. buy</td>
+<td>income-based</td>
+<td>NPV advantage ~€79k (200 users) to ~€318k (1,000 users)</td>
+</tr>
+<tr>
+<td>Relief from royalty</td>
+<td>income-based</td>
+<td>asset value ~€84–323k (usage-dependent)</td>
+</tr>
+<tr>
+<td>Comparable transactions</td>
+<td>market-based</td>
+<td>not applicable (no active market for individual visuals)</td>
+</tr>
+</tbody></table>
+<p>All methods tell the same story from different directions: the value
+created sits two orders of magnitude above the €2.2–5.2k investment —
+regardless of which recognized valuation logic you follow.</p>
+<h3>B.6 Placing the case in the productivity literature</h3>
+<p>Controlled studies of AI tools in software development report markedly
+smaller but same-direction effects: <strong>+55.8%</strong> speed on a bounded
+programming task in the Copilot experiment (Peng et al. [11]); <strong>20–50%</strong>
+time savings depending on task type in practical experiments
+(McKinsey [12]); and, as an important counter-result, experienced
+open-source developers were on average <strong>~19% slower</strong> with AI tools on
+their own large code bases (METR [13]).</p>
+<p>The case documented here, with a calendar-time factor of ~25–35, sits far
+above these values — it is an <strong>outlier at the upper end</strong>, and precisely
+for that reason it demands explanation. This paper's explanation: the
+literature predominantly measures AI as an <em>assistant</em> within existing
+processes, with humans in the typing loop and grown code bases; here, AI
+worked as the <em>executing team</em> inside a tightly fenced framework, with a
+one-person decision structure and a greenfield start — exactly the
+conditions from Chapters 7 and 11. The METR finding supports this reading
+in mirror image: without a fence and with high context overhead, the
+effect can even turn negative. Consequence: this case's factor is <strong>not
+an expected value for arbitrary projects</strong>, but a demonstration of the
+upper end under favorable, explicitly named conditions.</p>
+<hr>
+<h2 id="sec-17">Sources</h2>
+<ol>
+<li>IDW S 5: <em>Grundsätze zur Bewertung immaterieller Vermögenswerte.</em>
+Institut der Wirtschaftsprüfer in Deutschland e. V., Düsseldorf
+(2015 edition). (German standard for the valuation of intangible
+assets.)</li>
+<li>IVSC: <em>International Valuation Standards</em>, IVS 210 <em>Intangible
+Assets.</em> International Valuation Standards Council, London (current
+edition).</li>
+<li>IAS 38: <em>Intangible Assets.</em> International Accounting Standards Board
+(IFRS Standards).</li>
+<li>Boehm, B. W.; Abts, C.; Brown, A. W. et al.: <em>Software Cost Estimation
+with COCOMO II.</em> Prentice Hall, Upper Saddle River, 2000.</li>
+<li>ISO/IEC 20926:2009: <em>Software and systems engineering — IFPUG
+functional size measurement method.</em> ISO, Geneva.</li>
+<li>Jones, C.: <em>Applied Software Measurement: Global Analysis of
+Productivity and Quality.</em> 3rd ed., McGraw-Hill, New York, 2008
+(backfiring tables LOC↔FP).</li>
+<li>ISBSG: <em>Development &amp; Enhancement Repository</em> — industry benchmarks
+for project delivery rates (h/FP). International Software Benchmarking
+Standards Group, isbsg.org.</li>
+<li>Brealey, R. A.; Myers, S. C.; Allen, F.: <em>Principles of Corporate
+Finance.</em> McGraw-Hill (present-value and annuity mathematics).</li>
+<li>Bloch, M.; Blumberg, S.; Laartz, J.: <em>Delivering large-scale IT
+projects on time, on budget, and on value.</em> McKinsey &amp; Company in
+collaboration with the University of Oxford, 2012.</li>
+<li>The Standish Group: <em>CHAOS Report</em> (ongoing study series on software
+project success rates).</li>
+<li>Peng, S.; Kalliamvakou, E.; Cihon, P.; Demirer, M.: <em>The Impact of AI
+on Developer Productivity: Evidence from GitHub Copilot.</em>
+arXiv:2302.06590, 2023.</li>
+<li>McKinsey &amp; Company: <em>Unleashing developer productivity with
+generative AI.</em> 2023.</li>
+<li>METR: <em>Measuring the Impact of Early-2025 AI on Experienced
+Open-Source Developer Productivity.</em> 2025.</li>
+<li>Forsgren, N.; Humble, J.; Kim, G.: <em>Accelerate — The Science of Lean
+Software and DevOps.</em> IT Revolution Press, 2018 (DORA metrics).</li>
+<li>Forsgren, N.; Storey, M.-A.; Maddila, C. et al.: <em>The SPACE of
+Developer Productivity.</em> ACM Queue 19(1), 2021.</li>
+</ol>
+<p>Note on usage: [4]–[7] are estimation benchmarks, not measurements taken
+on this project; they serve as independent plausibility checks of the
+project-specific bottom-up estimate. Where literature values come as
+ranges, the range — never a point value — is carried through the
+calculations.</p>
+<hr>
+<p><em>v2.2 (English edition) — figures as of 2026-07-15. Translated from the
+German original; in case of doubt, the German edition governs. Feedback
+and replications welcome: Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a></em></p>
+
+</main>
+<footer><div class="foot-in">
+  <span><b>Michael Tenner</b> · Daten-WG · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a></span>
+  <span>July 2026 · v2.2 EN</span>
+</div></footer>
+
+<div class="mermaidTooltip" style="opacity: 0; position: absolute; text-align: center; max-width: 200px; padding: 2px; font-size: 12px; background: rgb(255, 255, 222); border: 1px solid rgb(51, 51, 51); border-radius: 2px; pointer-events: none; z-index: 100;"></div>
+</body></html>

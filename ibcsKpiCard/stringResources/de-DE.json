@@ -1,0 +1,32 @@
+{
+    "locale": "de-DE",
+    "values": {
+        "Role_Category": "Kategorie (optional → Kachel-Raster)",
+        "Role_Actual": "Ist (AC)",
+        "Role_Py": "Vorjahr (PY)",
+        "Role_Pl": "Plan / Budget (PL)",
+        "Role_Fc": "Forecast (FC)",
+        "Role_Trend": "Trend (optional → Sparkline)",
+        "Card_Display": "KPI-Karte",
+        "Display_Title": "Titel (leer = automatisch)",
+        "Display_Period": "Zeitraum-Label",
+        "Display_ComparisonMode": "Abweichungsbasis",
+        "Display_ShowBridge": "Mini-Brücke",
+        "Display_BridgeOrientation": "Brücken-Ausrichtung",
+        "Display_TitleSize": "Titelgröße",
+        "Display_ShowSecondary": "Zweite Referenzzeile",
+        "Display_Invert": "Invertieren (mehr ist schlecht)",
+        "Display_ShowSparkline": "Sparkline (braucht Trend-Feld)",
+        "Display_SortTiles": "Kacheln sortieren",
+        "Display_Tolerance": "Neutralzone ± %",
+        "Display_ChartButtons": "In-Chart-Buttons",
+        "Display_MinTileWidth": "Mindest-Kachelbreite (px)",
+        "Card_Labels": "Zahlenformat",
+        "Labels_FontPreset": "Größen-Preset",
+        "Labels_Decimals": "Dezimalstellen",
+        "Labels_DisplayUnits": "Einheiten",
+        "Card_Colors": "Farben",
+        "Colors_Good": "Gute Abweichung",
+        "Colors_Bad": "Schlechte Abweichung"
+    }
+}

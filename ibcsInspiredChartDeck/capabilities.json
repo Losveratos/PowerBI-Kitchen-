@@ -1,0 +1,442 @@
+{
+    "dataRoles": [
+        {
+            "displayName": "Category",
+            "displayNameKey": "Role_Category",
+            "name": "category",
+            "kind": "Grouping",
+            "description": "Zeitachse (Monate) oder Struktur (z. B. Länder, Produkte)"
+        },
+        {
+            "displayName": "Actual (AC)",
+            "displayNameKey": "Role_Actual",
+            "name": "actual",
+            "kind": "Measure",
+            "description": "Ist-Wert",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Previous Year (PY)",
+            "displayNameKey": "Role_PreviousYear",
+            "name": "previousYear",
+            "kind": "Measure",
+            "description": "Vorjahreswert",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Plan / Budget (PL)",
+            "displayNameKey": "Role_Plan",
+            "name": "plan",
+            "kind": "Measure",
+            "description": "Plan- oder Budgetwert",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Forecast (FC)",
+            "displayNameKey": "Role_Forecast",
+            "name": "forecast",
+            "kind": "Measure",
+            "description": "Forecast-Wert (wird schraffiert dargestellt)",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Benchmark (BM)",
+            "displayNameKey": "Role_Benchmark",
+            "name": "benchmark",
+            "kind": "Measure",
+            "description": "Vergleichswert je Kategorie (z. B. Marktdurchschnitt, Ziel) — als Querstrich-Marker",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "FC Vormonat (Revision)",
+            "displayNameKey": "Role_PrevForecast",
+            "name": "prevForecast",
+            "kind": "Measure",
+            "description": "Forecast des vorherigen Zyklus — als Abweichungsbasis wählbar (FC-Revision: was hat sich seit dem letzten Forecast verschoben?)",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Line (Kombi)",
+            "displayNameKey": "Role_LineMeasure",
+            "name": "lineMeasure",
+            "kind": "Measure",
+            "description": "Zweite Kennzahl als Linie über den Säulen (z. B. Marge %) — eigene Skala rechts. Nur Columns.",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Stack Series (Gestapelt)",
+            "displayNameKey": "Role_Series",
+            "name": "series",
+            "kind": "Grouping",
+            "description": "Feld gefüllt = Säulen/Balken stapeln sich nach dieser Serie (AC je Serie, mit Legende und Summen-Label)."
+        },
+        {
+            "displayName": "Spalten (Matrix)",
+            "displayNameKey": "Role_ColGroup",
+            "name": "colgroup",
+            "kind": "Grouping",
+            "description": "Nur Tabelle: pivotiert die Werte in Spaltengruppen (z. B. Quartal → Monat, max. 2 Ebenen) — mit klappbarer Spalten-Hierarchie wie in der Power-BI-Matrix"
+        },
+        {
+            "displayName": "Filter-Info (Fußzeile)",
+            "displayNameKey": "Role_FilterInfo",
+            "name": "filterInfo",
+            "kind": "Measure",
+            "description": "Text-Measure mit dem aktuellen Filterkontext (z. B. via CONCATENATEX/SELECTEDVALUE) — wird als zweite Fußzeile angezeigt, wenn „Filter-Fußzeile“ aktiv ist",
+            "requiredTypes": [ { "text": true } ]
+        },
+        {
+            "displayName": "Comments",
+            "displayNameKey": "Role_Comments",
+            "name": "comments",
+            "kind": "Measure",
+            "description": "Text-Measure: Kategorien mit Kommentar bekommen einen nummerierten Marker, Text im Tooltip"
+        },
+        {
+            "displayName": "Small Multiples",
+            "displayNameKey": "Role_Multiples",
+            "name": "multiples",
+            "kind": "Grouping",
+            "description": "Teilt das Chart in kleine Kacheln pro Gruppe — mit identischer Skalierung (IBCS)"
+        },
+        {
+            "displayName": "Waterfall Type (sum/delta)",
+            "displayNameKey": "Role_RowType",
+            "name": "rowType",
+            "kind": "Grouping",
+            "description": "Nur Waterfall-Modus: 'sum' = absolute Zwischensumme, 'delta' = Bewegung (GuV-Wasserfall)"
+        },
+        {
+            "displayName": "Forecast Flag (1/0)",
+            "displayNameKey": "Role_FcFlag",
+            "name": "fcFlag",
+            "kind": "Grouping",
+            "description": "Alternative zur FC-Measure: 1/0-Spalte — Zeilen mit 1 werden als Forecast (schraffiert) dargestellt, AC-Measure läuft durch"
+        }
+    ],
+    "objects": {
+        "ibcsTitle": {
+            "properties": {
+                "show": { "type": { "bool": true } },
+                "kpi": { "type": { "text": true } },
+                "period": { "type": { "text": true } },
+                "message": { "type": { "text": true } },
+                "autoMessage": { "type": { "bool": true } },
+                "footer": { "type": { "text": true } },
+                "filterFooter": { "type": { "bool": true } }
+            }
+        },
+        "chart": {
+            "properties": {
+                "orientation": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "columns", "displayName": "Columns (Zeit)" },
+                            { "value": "bars", "displayName": "Bars (Struktur)" },
+                            { "value": "line", "displayName": "Line (Zeit, viele Punkte)" },
+                            { "value": "waterfall", "displayName": "Waterfall / Brücke" },
+                            { "value": "intwaterfall", "displayName": "Integrierte Brücke (Zeit)" },
+                            { "value": "catbridge", "displayName": "Kategorie-Brücke (Struktur)" },
+                            { "value": "table", "displayName": "Tabelle (IBCS)" },
+                            { "value": "pareto", "displayName": "Pareto (Struktur)" },
+                            { "value": "dumbbell", "displayName": "Dumbbell (Struktur)" },
+                            { "value": "slope", "displayName": "Slope · Vorher/Nachher" },
+                            { "value": "cards", "displayName": "KPI-Karten (Kacheln)" },
+                            { "value": "pnl", "displayName": "GuV-Statement (IBCS)" }
+                        ]
+                    }
+                },
+                "pnlView": { "type": { "text": true } },
+                "tableExpanded": { "type": { "text": true } },
+                "tableSort": { "type": { "text": true } },
+                "tableColExpanded": { "type": { "text": true } },
+                "valueColumns": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "ac", "displayName": "AC only" },
+                            { "value": "basis", "displayName": "AC + variance basis" },
+                            { "value": "all", "displayName": "AC · PY · PL" }
+                        ]
+                    }
+                },
+                "structureEdit": { "type": { "bool": true } },
+                "resultList": { "type": { "text": true } },
+                "skipList": { "type": { "text": true } },
+                "hideList": { "type": { "text": true } },
+                "chartList": { "type": { "text": true } },
+                "indentList": { "type": { "text": true } },
+                "rowFormats": { "type": { "text": true } },
+                "tableNameWidth": { "type": { "text": true } },
+                "matrixCompare": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "none", "displayName": "Off" },
+                            { "value": "prevcol", "displayName": "Δ vs. previous column" }
+                        ]
+                    }
+                },
+                "formulaRows": { "type": { "text": true } },
+                "totalRowPosition": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "bottom", "displayName": "Bottom (below rows)" },
+                            { "value": "top", "displayName": "Top (below header)" }
+                        ]
+                    }
+                },
+                "zebraStripes": { "type": { "bool": true } },
+                "rowDensity": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "compact", "displayName": "Compact" },
+                            { "value": "normal", "displayName": "Normal" },
+                            { "value": "airy", "displayName": "Airy" }
+                        ]
+                    }
+                },
+                "gridLines": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "horizontal", "displayName": "Horizontal" },
+                            { "value": "none", "displayName": "None" },
+                            { "value": "both", "displayName": "Horizontal + vertical" }
+                        ]
+                    }
+                },
+                "cellLayout": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "columns", "displayName": "Columns (value · Δ side by side)" },
+                            { "value": "stacked", "displayName": "Two rows: value on top, Δ below" }
+                        ]
+                    }
+                },
+                "tableColWidths": { "type": { "text": true } },
+                "cardStatusBasis": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "basis", "displayName": "Variance basis" },
+                            { "value": "benchmark", "displayName": "Benchmark (BM)" }
+                        ]
+                    }
+                },
+                "cardHighlight": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "both", "displayName": "Good & bad" },
+                            { "value": "bad", "displayName": "Only bad" },
+                            { "value": "good", "displayName": "Only good" }
+                        ]
+                    }
+                },
+                "cardBars": { "type": { "bool": true } },
+                "cardSort": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "none", "displayName": "Data order" },
+                            { "value": "deviation", "displayName": "Biggest deviation first" },
+                            { "value": "worst", "displayName": "Worst first" },
+                            { "value": "best", "displayName": "Best first" }
+                        ]
+                    }
+                },
+                "pinStyle": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Automatic (per mode)" },
+                            { "value": "round", "displayName": "Round" },
+                            { "value": "square", "displayName": "Square" }
+                        ]
+                    }
+                },
+                "deltaIcons": { "type": { "bool": true } },
+                "cardSortSel": { "type": { "text": true } },
+                "cardTint": { "type": { "bool": true } },
+                "cardTintStrength": { "type": { "numeric": true } },
+                "cardBullet": { "type": { "bool": true } },
+                "cardBulletZoom": { "type": { "bool": true } },
+                "comparisonMode": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Auto" },
+                            { "value": "py", "displayName": "Previous Year (PY)" },
+                            { "value": "plan", "displayName": "Plan (PL)" },
+                            { "value": "fcrev", "displayName": "FC Vormonat (Revision)" }
+                        ]
+                    }
+                },
+                "showAbsoluteVariance": { "type": { "bool": true } },
+                "showRelativeVariance": { "type": { "bool": true } },
+                "showTotal": { "type": { "bool": true } },
+                "topN": { "type": { "numeric": true } },
+                "movingAverage": { "type": { "numeric": true } },
+                "dualVariance": { "type": { "bool": true } },
+                "pyTriangle": { "type": { "bool": true } },
+                "cumulative": { "type": { "bool": true } },
+                "cumulativeKind": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "ytd", "displayName": "YTD" },
+                            { "value": "qtd", "displayName": "QTD" },
+                            { "value": "r12", "displayName": "R12" }
+                        ]
+                    }
+                },
+                "fiscalStart": { "type": { "numeric": true } },
+                "cumulativeButton": { "type": { "bool": true } },
+                "materialityAbs": { "type": { "numeric": true } },
+                "materialityPct": { "type": { "numeric": true } },
+                "highlight": { "type": { "text": true } },
+                "groupEvery": { "type": { "numeric": true } },
+                "multiplesTotal": { "type": { "bool": true } },
+                "multiplesTopN": { "type": { "numeric": true } },
+                "multiplesHero": { "type": { "bool": true } },
+                "multiplesSameScale": { "type": { "bool": true } },
+                "waterfallStyle": { "type": { "bool": true } },
+                "sortByImpact": { "type": { "bool": true } },
+                "chartButtons": { "type": { "bool": true } },
+                "driverNote": { "type": { "bool": true } },
+                "compareClick": { "type": { "bool": true } },
+                "invert": { "type": { "bool": true } },
+                "invertList": { "type": { "text": true } }
+            }
+        },
+        "colors": {
+            "properties": {
+                "useTheme": { "type": { "bool": true } },
+                "actualColor": { "type": { "fill": { "solid": { "color": true } } } },
+                "previousYearColor": { "type": { "fill": { "solid": { "color": true } } } },
+                "planColor": { "type": { "fill": { "solid": { "color": true } } } },
+                "goodColor": { "type": { "fill": { "solid": { "color": true } } } },
+                "badColor": { "type": { "fill": { "solid": { "color": true } } } }
+            }
+        },
+        "labels": {
+            "properties": {
+                "show": { "type": { "bool": true } },
+                "sumSafeRounding": { "type": { "bool": true } },
+                "financeFormat": { "type": { "bool": true } },
+                "labelDensity": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Automatic (thin out)" },
+                            { "value": "all", "displayName": "All" },
+                            { "value": "ends", "displayName": "First / last / extremes" }
+                        ]
+                    }
+                },
+                "fontScale": { "type": { "numeric": true } },
+                "fontPreset": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "compact", "displayName": "Kompakt (Dashboard-Kachel)" },
+                            { "value": "fullhd", "displayName": "Full HD (1080p)" },
+                            { "value": "presentation", "displayName": "Präsentation (4K / Beamer)" }
+                        ]
+                    }
+                },
+                "fontSize": { "type": { "formatting": { "fontSize": true } } },
+                "decimals": { "type": { "numeric": true } },
+                "displayUnits": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Auto" },
+                            { "value": "none", "displayName": "None" },
+                            { "value": "k", "displayName": "Thousands (k)" },
+                            { "value": "m", "displayName": "Millions (M)" },
+                            { "value": "b", "displayName": "Billions (B)" }
+                        ]
+                    }
+                }
+            }
+        },
+        "commentsPanel": {
+            "properties": {
+                "showPanel": { "type": { "bool": true } },
+                "commentFontSize": { "type": { "numeric": true } },
+                "editComments": { "type": { "bool": true } },
+                "userComments": { "type": { "text": true } }
+            }
+        },
+        "scale": {
+            "properties": {
+                "fixedMax": { "type": { "numeric": true } },
+                "fixedVarMax": { "type": { "numeric": true } },
+                "capOverflow": { "type": { "bool": true } },
+                "refLine": { "type": { "text": true } },
+                "refLineLabel": { "type": { "text": true } }
+            }
+        },
+        "categoryAxis": {
+            "properties": {
+                "fontSize": { "type": { "formatting": { "fontSize": true } } }
+            }
+        }
+    },
+    "dataViewMappings": [
+        {
+            "conditions": [
+                {
+                    "category": { "max": 1 },
+                    "multiples": { "max": 1 },
+                    "series": { "max": 1 },
+                    "lineMeasure": { "max": 1 },
+                    "rowType": { "max": 1 },
+                    "fcFlag": { "max": 1 },
+                    "actual": { "max": 1 },
+                    "previousYear": { "max": 1 },
+                    "plan": { "max": 1 },
+                    "forecast": { "max": 1 },
+                    "prevForecast": { "max": 1 },
+                    "benchmark": { "max": 1 },
+                    "comments": { "max": 1 },
+                    "filterInfo": { "max": 1 },
+                    "colgroup": { "max": 2 }
+                }
+            ],
+            "categorical": {
+                "categories": {
+                    "select": [
+                        { "for": { "in": "category" } },
+                        { "for": { "in": "multiples" } },
+                        { "for": { "in": "series" } },
+                        { "for": { "in": "rowType" } },
+                        { "for": { "in": "fcFlag" } },
+                        { "for": { "in": "colgroup" } }
+                    ],
+                    "dataReductionAlgorithm": { "top": { "count": 1000 } }
+                },
+                "values": {
+                    "select": [
+                        { "bind": { "to": "actual" } },
+                        { "bind": { "to": "previousYear" } },
+                        { "bind": { "to": "plan" } },
+                        { "bind": { "to": "forecast" } },
+                        { "bind": { "to": "prevForecast" } },
+                        { "bind": { "to": "benchmark" } },
+                        { "bind": { "to": "lineMeasure" } },
+                        { "bind": { "to": "comments" } },
+                        { "bind": { "to": "filterInfo" } }
+                    ]
+                }
+            }
+        }
+    ],
+    "sorting": {
+        "default": {}
+    },
+    "drilldown": {
+        "roles": [ "category" ]
+    },
+    "tooltips": {
+        "supportedTypes": {
+            "default": true,
+            "canvas": true
+        }
+    },
+    "supportsKeyboardFocus": true,
+    "supportsMultiVisualSelection": true,
+    "supportsLandingPage": true,
+    "supportsEmptyDataView": true,
+    "privileges": []
+}

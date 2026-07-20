@@ -1,0 +1,1092 @@
+"use strict";
+
+import powerbi from "powerbi-visuals-api";
+import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
+
+import FormattingSettingsCard = formattingSettings.SimpleCard;
+import FormattingSettingsSlice = formattingSettings.Slice;
+import FormattingSettingsModel = formattingSettings.Model;
+
+/**
+ * Enum-member labels with a resource key: the format pane serializes the items
+ * across the sandbox boundary, so a DisplayNameGetter function would be dropped.
+ * Instead, localizeEnumItems() resolves the keys once via the host's
+ * localizationManager (called from the visual constructor); the English literal
+ * stays as fallback for locales without a resources.resjson.
+ */
+type LocEnumMember = powerbi.IEnumMember & { key: string };
+
+const orientationItems: LocEnumMember[] = [
+    { value: "columns", displayName: "Columns (Time)", key: "Enum_Orientation_Columns" },
+    { value: "bars", displayName: "Bars (Structure)", key: "Enum_Orientation_Bars" },
+    { value: "line", displayName: "Line (Time, many points)", key: "Enum_Orientation_Line" },
+    { value: "waterfall", displayName: "Waterfall / Bridge", key: "Enum_Orientation_Waterfall" },
+    { value: "intwaterfall", displayName: "Integrated Bridge (Time)", key: "Enum_Orientation_IntWaterfall" },
+    { value: "catbridge", displayName: "Category Bridge (Structure)", key: "Enum_Orientation_CatBridge" },
+    { value: "table", displayName: "Table (IBCS)", key: "Enum_Orientation_Table" },
+    { value: "pareto", displayName: "Pareto (Structure)", key: "Enum_Orientation_Pareto" },
+    { value: "dumbbell", displayName: "Dumbbell (Structure)", key: "Enum_Orientation_Dumbbell" },
+    { value: "slope", displayName: "Slope · Before/After", key: "Enum_Orientation_Slope" },
+    { value: "cards", displayName: "KPI Cards (Tiles)", key: "Enum_Orientation_Cards" },
+    { value: "pnl", displayName: "P&L Statement (IBCS)", key: "Enum_Orientation_Pnl" }
+];
+
+const comparisonItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Auto", key: "Enum_Comparison_Auto" },
+    { value: "py", displayName: "Previous Year (PY)", key: "Enum_Comparison_Py" },
+    { value: "plan", displayName: "Plan (PL)", key: "Enum_Comparison_Plan" },
+    { value: "fcrev", displayName: "Prior-month FC (revision)", key: "Enum_Comparison_FcRev" }
+];
+
+const displayUnitsItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Auto", key: "Enum_Units_Auto" },
+    { value: "none", displayName: "None", key: "Enum_Units_None" },
+    { value: "k", displayName: "Thousands (k)", key: "Enum_Units_K" },
+    { value: "m", displayName: "Millions (M)", key: "Enum_Units_M" },
+    { value: "b", displayName: "Billions (B)", key: "Enum_Units_B" }
+];
+
+const cumulativeKindItems: LocEnumMember[] = [
+    { value: "ytd", displayName: "YTD (year to date)", key: "Enum_CumKind_Ytd" },
+    { value: "qtd", displayName: "QTD (quarter to date)", key: "Enum_CumKind_Qtd" },
+    { value: "r12", displayName: "R12 (rolling 12 periods)", key: "Enum_CumKind_R12" }
+];
+
+const fontPresetItems: LocEnumMember[] = [
+    { value: "compact", displayName: "Compact (dashboard tile)", key: "Enum_FontPreset_Compact" },
+    { value: "fullhd", displayName: "Full HD (1080p)", key: "Enum_FontPreset_FullHd" },
+    { value: "presentation", displayName: "Presentation (4K / projector)", key: "Enum_FontPreset_Presentation" }
+];
+
+const valueColumnsItems: LocEnumMember[] = [
+    { value: "ac", displayName: "AC only", key: "Enum_ValueCols_Ac" },
+    { value: "basis", displayName: "AC + variance basis", key: "Enum_ValueCols_Basis" },
+    { value: "all", displayName: "AC · PY · PL", key: "Enum_ValueCols_All" }
+];
+
+const matrixCompareItems: LocEnumMember[] = [
+    { value: "none", displayName: "Off (Δ vs. basis)", key: "Enum_MxCompare_None" },
+    { value: "prevcol", displayName: "Δ vs. previous column", key: "Enum_MxCompare_Prev" }
+];
+
+const totalRowPositionItems: LocEnumMember[] = [
+    { value: "bottom", displayName: "Bottom (below rows)", key: "Enum_TotalPos_Bottom" },
+    { value: "top", displayName: "Top (below header)", key: "Enum_TotalPos_Top" }
+];
+
+const rowDensityItems: LocEnumMember[] = [
+    { value: "compact", displayName: "Compact", key: "Enum_RowDensity_Compact" },
+    { value: "normal", displayName: "Normal", key: "Enum_RowDensity_Normal" },
+    { value: "airy", displayName: "Airy", key: "Enum_RowDensity_Airy" }
+];
+
+const gridLinesItems: LocEnumMember[] = [
+    { value: "horizontal", displayName: "Horizontal", key: "Enum_GridLines_Horizontal" },
+    { value: "none", displayName: "None", key: "Enum_GridLines_None" },
+    { value: "both", displayName: "Horizontal + vertical", key: "Enum_GridLines_Both" }
+];
+
+const cellLayoutItems: LocEnumMember[] = [
+    { value: "columns", displayName: "Columns (value · Δ side by side)", key: "Enum_CellLayout_Columns" },
+    { value: "stacked", displayName: "Two rows: value on top, Δ below", key: "Enum_CellLayout_Stacked" }
+];
+
+const cardBasisItems: LocEnumMember[] = [
+    { value: "basis", displayName: "Variance basis (ΔPL/ΔPY)", key: "Enum_CardBasis_Basis" },
+    { value: "benchmark", displayName: "Benchmark (BM)", key: "Enum_CardBasis_Bm" }
+];
+
+const cardHighlightItems: LocEnumMember[] = [
+    { value: "both", displayName: "Good & bad", key: "Enum_CardHl_Both" },
+    { value: "bad", displayName: "Only bad", key: "Enum_CardHl_Bad" },
+    { value: "good", displayName: "Only good", key: "Enum_CardHl_Good" }
+];
+
+const cardSortItems: LocEnumMember[] = [
+    { value: "none", displayName: "Data order", key: "Enum_CardSort_None" },
+    { value: "deviation", displayName: "Biggest deviation first", key: "Enum_CardSort_Dev" },
+    { value: "worst", displayName: "Worst first (bad on top)", key: "Enum_CardSort_Worst" },
+    { value: "best", displayName: "Best first (good on top)", key: "Enum_CardSort_Best" }
+];
+
+const pinStyleItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Automatic (per mode)", key: "Enum_PinStyle_Auto" },
+    { value: "round", displayName: "Round", key: "Enum_PinStyle_Round" },
+    { value: "square", displayName: "Square", key: "Enum_PinStyle_Square" }
+];
+
+const labelDensityItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Automatic (thin out)", key: "Enum_LabelDensity_Auto" },
+    { value: "all", displayName: "All", key: "Enum_LabelDensity_All" },
+    { value: "ends", displayName: "First · last · extremes", key: "Enum_LabelDensity_Ends" }
+];
+
+/** resolve all enum-member labels once via the host's localization manager */
+export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager): void {
+    const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
+        displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
+        cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems,
+        pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
+        gridLinesItems, cellLayoutItems];
+    for (const items of lists) {
+        for (const it of items) {
+            const loc = lm.getDisplayName(it.key);
+            if (loc && loc !== it.key) { it.displayName = loc; }
+        }
+    }
+}
+
+export class IbcsTitleCardSettings extends FormattingSettingsCard {
+    show = new formattingSettings.ToggleSwitch({
+        name: "show",
+        displayName: "Show IBCS title",
+        displayNameKey: "Title_Show",
+        description: "Standardisierter IBCS-Titel: KPI · Einheit · Zeitraum: Szenarien.",
+        descriptionKey: "Desc_Title_Show",
+        value: true
+    });
+
+    kpi = new formattingSettings.TextInput({
+        name: "kpi",
+        displayName: "KPI name (auto if empty)",
+        displayNameKey: "Title_Kpi",
+        placeholder: "z. B. Umsatz",
+        value: ""
+    });
+
+    period = new formattingSettings.TextInput({
+        name: "period",
+        displayName: "Period (auto if empty)",
+        displayNameKey: "Title_Period",
+        placeholder: "z. B. 2026",
+        value: ""
+    });
+
+    message = new formattingSettings.TextInput({
+        name: "message",
+        displayName: "Message line",
+        displayNameKey: "Title_Message",
+        placeholder: "Kernbotschaft der Grafik (IBCS: SAY)",
+        value: ""
+    });
+
+    footer = new formattingSettings.TextInput({
+        name: "footer",
+        displayName: "Footer (data status)",
+        displayNameKey: "Title_Footer",
+        description: "Fußzeile unten links — z. B. Datenstand und Quelle: „Ist per Jun 2026 · Stand 05.07. · Quelle: SAP FI\".",
+        descriptionKey: "Desc_Title_Footer",
+        placeholder: "z. B. Ist per Jun 2026 · Stand 05.07.",
+        value: ""
+    });
+
+    autoMessage = new formattingSettings.ToggleSwitch({
+        name: "autoMessage",
+        displayName: "Auto message",
+        displayNameKey: "Title_AutoMessage",
+        description: "Erzeugt die Botschafts-Zeile (Treiber-Text) automatisch aus Gesamtabweichung und größten Treibern, wenn keine eigene Botschaft eingegeben ist. Standard aus.",
+        descriptionKey: "Desc_Title_AutoMessage",
+        value: false
+    });
+
+    filterFooter = new formattingSettings.ToggleSwitch({
+        name: "filterFooter",
+        displayName: "Show filter footer",
+        displayNameKey: "Title_FilterFooter",
+        description: "Zweite Fußzeile mit dem Filterkontext: zeigt die gebundene „Filter-Info“-Text-Measure (Report-Filter sind für Custom Visuals nicht per API sichtbar) plus den Anzeige-Zustand des Visuals selbst — YTD, Top-N, In-Chart-Sortierung, Σ-Ausschlüsse, Vergleich.",
+        descriptionKey: "Desc_Title_FilterFooter",
+        value: false
+    });
+
+    name: string = "ibcsTitle";
+    displayName: string = "IBCS title";
+    displayNameKey: string = "Card_IbcsTitle";
+    slices: Array<FormattingSettingsSlice> = [this.show, this.kpi, this.period, this.message, this.autoMessage, this.footer, this.filterFooter];
+}
+
+export class ChartCardSettings extends formattingSettings.CompositeCard {
+    orientation = new formattingSettings.ItemDropdown({
+        name: "orientation",
+        displayName: "Orientation",
+        displayNameKey: "Chart_Orientation",
+        items: orientationItems,
+        value: orientationItems[0]
+    });
+
+    comparisonMode = new formattingSettings.ItemDropdown({
+        name: "comparisonMode",
+        displayName: "Variance basis",
+        displayNameKey: "Chart_ComparisonMode",
+        description: "Basis für die Abweichungs-Panels. Auto: PL wenn vorhanden, sonst PY.",
+        descriptionKey: "Desc_Chart_ComparisonMode",
+        items: comparisonItems,
+        value: comparisonItems[0]
+    });
+
+    showAbsoluteVariance = new formattingSettings.ToggleSwitch({
+        name: "showAbsoluteVariance",
+        displayName: "Absolute variance (ΔAC)",
+        displayNameKey: "Chart_ShowAbs",
+        value: true
+    });
+
+    showRelativeVariance = new formattingSettings.ToggleSwitch({
+        name: "showRelativeVariance",
+        displayName: "Relative variance (ΔAC %)",
+        displayNameKey: "Chart_ShowRel",
+        value: true
+    });
+
+    invert = new formattingSettings.ToggleSwitch({
+        name: "invert",
+        displayName: "Invert (higher is bad)",
+        displayNameKey: "Chart_Invert",
+        description: "Für Kosten-KPIs: Mehrwert ist schlecht (rot), Minderwert ist gut (grün).",
+        descriptionKey: "Desc_Chart_Invert",
+        value: false
+    });
+
+    invertList = new formattingSettings.TextInput({
+        name: "invertList",
+        displayName: "Invert per category",
+        displayNameKey: "Chart_InvertList",
+        description: "Kommagetrennte Kategorien, deren Wertung umgekehrt wird (z. B. Kosten-Zeilen neben Umsatz-Zeilen in KPI-Karten oder der GuV-Tabelle). Wirkt zusätzlich zum globalen Invert-Schalter.",
+        descriptionKey: "Desc_Chart_InvertList",
+        placeholder: "z. B. Opex, Materialaufwand",
+        value: ""
+    });
+
+    showTotal = new formattingSettings.ToggleSwitch({
+        name: "showTotal",
+        displayName: "Total (Σ) header",
+        displayNameKey: "Chart_ShowTotal",
+        description: "Zeigt Summe und Gesamtabweichung als Kopfzeile.",
+        descriptionKey: "Desc_Chart_ShowTotal",
+        value: true
+    });
+
+    topN = new formattingSettings.NumUpDown({
+        name: "topN",
+        displayName: "Top N (Bars)",
+        displayNameKey: "Chart_TopN",
+        description: "Struktur-Modi (Bars, Kategorie-Brücke, Tabelle, Dumbbell, KPI-Karten): zeigt die N größten Kategorien, der Rest wird aggregiert. 0 = alle.",
+        descriptionKey: "Desc_Chart_TopN",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 50 }
+        }
+    });
+
+    movingAverage = new formattingSettings.NumUpDown({
+        name: "movingAverage",
+        displayName: "Moving average (periods)",
+        displayNameKey: "Chart_MovingAverage",
+        description: "Dünne Overlay-Linie mit gleitendem Durchschnitt über N Perioden (Columns/Line). 0 = aus.",
+        descriptionKey: "Desc_Chart_MovingAverage",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 24 }
+        }
+    });
+
+    dualVariance = new formattingSettings.ToggleSwitch({
+        name: "dualVariance",
+        displayName: "Dual variance (PL + PY)",
+        displayNameKey: "Chart_DualVariance",
+        description: "Zeigt zusätzlich die Abweichungs-Panels zur zweiten Basis — ΔPL und ΔPY gleichzeitig (benötigt PY und PL).",
+        descriptionKey: "Desc_Chart_DualVariance",
+        value: false
+    });
+
+    cumulative = new formattingSettings.ToggleSwitch({
+        name: "cumulative",
+        displayName: "Cumulative (YTD)",
+        displayNameKey: "Chart_Cumulative",
+        description: "Schaltet alle Panels auf kumulierte Sicht: Säulen, ΔBasis und ΔBasis % zeigen Year-to-Date-Werte.",
+        descriptionKey: "Desc_Chart_Cumulative",
+        value: false
+    });
+
+    cumulativeKind = new formattingSettings.ItemDropdown({
+        name: "cumulativeKind",
+        displayName: "Cumulation kind",
+        displayNameKey: "Chart_CumKind",
+        description: "YTD setzt am Fiskaljahres-Beginn zurück, QTD an jedem Quartalsstart, R12 summiert rollierend die letzten 12 Perioden. Monats-Erkennung über die Kategorie-Labels (Jan…Dez, 01…12).",
+        descriptionKey: "Desc_Chart_CumKind",
+        items: cumulativeKindItems,
+        value: cumulativeKindItems[0]
+    });
+
+    fiscalStart = new formattingSettings.NumUpDown({
+        name: "fiscalStart",
+        displayName: "Fiscal year starts in month",
+        displayNameKey: "Chart_FiscalStart",
+        description: "1 = Januar … 12 = Dezember. Bestimmt, wo YTD/QTD zurücksetzen (z. B. 4 für ein Fiskaljahr ab April).",
+        descriptionKey: "Desc_Chart_FiscalStart",
+        value: 1,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 1 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 12 }
+        }
+    });
+
+    highlight = new formattingSettings.TextInput({
+        name: "highlight",
+        displayName: "Highlight categories",
+        displayNameKey: "Chart_Highlight",
+        description: "Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat.",
+        descriptionKey: "Desc_Chart_Highlight",
+        placeholder: "z. B. Jul, Aug",
+        value: ""
+    });
+
+    compareClick = new formattingSettings.ToggleSwitch({
+        name: "compareClick",
+        displayName: "Compare on click",
+        displayNameKey: "Chart_CompareClick",
+        description: "Nur Columns/Bars: zwei Säulen/Balken anklicken zeigt die Differenz (absolut + %) als Overlay — Klicks filtern dann nicht mehr quer. Klick ins Leere setzt zurück. Standard aus.",
+        descriptionKey: "Desc_Chart_CompareClick",
+        value: false
+    });
+
+    groupEvery = new formattingSettings.NumUpDown({
+        name: "groupEvery",
+        displayName: "Group separator every N",
+        displayNameKey: "Chart_GroupEvery",
+        description: "Zeichnet eine dünne Trennlinie nach jeweils N Kategorien, quer durch alle Panels — für Struktur-Vergleiche mit natürlichen Untergruppen (z. B. Regionen). 0 = aus.",
+        descriptionKey: "Desc_Chart_GroupEvery",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 50 }
+        }
+    });
+
+    waterfallStyle = new formattingSettings.ToggleSwitch({
+        name: "waterfallStyle",
+        displayName: "Waterfall bridge",
+        displayNameKey: "Chart_WaterfallStyle",
+        description: "Nur Columns/Bars: zeigt die Kategorien als Wasserfall-Brücke von der Basis (PY/PL) zu AC mit Verbindungslinien, statt als einzelne Balken. Optional — Standard ist aus.",
+        descriptionKey: "Desc_Chart_WaterfallStyle",
+        value: false
+    });
+
+    sortByImpact = new formattingSettings.ToggleSwitch({
+        name: "sortByImpact",
+        displayName: "Sort by impact",
+        displayNameKey: "Chart_SortByImpact",
+        description: "Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar.",
+        descriptionKey: "Desc_Chart_SortByImpact",
+        value: false
+    });
+
+    chartButtons = new formattingSettings.ToggleSwitch({
+        name: "chartButtons",
+        displayName: "In-chart buttons",
+        displayNameKey: "Chart_Buttons",
+        description: "Integrierte/Kategorie-Brücke: zeigt klickbare Buttons oben rechts im Chart — ΔPY/ΔPL-Referenz-Umschalter, ⇅ Sortierung und ▶ Aufbau-Animation. Der Enduser kann die Varianz-Basis direkt im Bericht wechseln; die Wahl wird persistiert.",
+        descriptionKey: "Desc_Chart_Buttons",
+        value: true
+    });
+
+    pyTriangle = new formattingSettings.ToggleSwitch({
+        name: "pyTriangle",
+        displayName: "PY as triangle (AC + PY + PL)",
+        displayNameKey: "Chart_PyTriangle",
+        description: "IBCS-Notation bei drei Szenarien: Sind AC, PY und PL gebunden, wird das Vorjahr als graues Dreieck (\u25b6) am Säulen-/Balkenrand auf PY-Höhe gezeigt statt als dritte Säule — weniger überladen. Aus = PY wieder als graue Säule.",
+        descriptionKey: "Desc_Chart_PyTriangle",
+        value: true
+    });
+
+    driverNote = new formattingSettings.ToggleSwitch({
+        name: "driverNote",
+        displayName: "Driver note in chart",
+        displayNameKey: "Chart_DriverNote",
+        description: "Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar.",
+        descriptionKey: "Desc_Chart_DriverNote",
+        value: true
+    });
+
+    layoutGroup = new formattingSettings.Group({
+        name: "chartLayout",
+        displayName: "Layout",
+        displayNameKey: "Group_Layout",
+        slices: [this.orientation, this.comparisonMode, this.showAbsoluteVariance,
+            this.showRelativeVariance, this.dualVariance, this.pyTriangle, this.showTotal, this.groupEvery]
+    });
+
+    cumulativeButton = new formattingSettings.ToggleSwitch({
+        name: "cumulativeButton",
+        displayName: "YTD button in chart",
+        displayNameKey: "Chart_CumButton",
+        description: "Zeigt einen klickbaren „YTD\"-Button oben rechts im Chart (Columns/Line) — der Enduser schaltet die kumulierte Sicht direkt im Bericht um; die Wahl wird persistiert. Standard aus.",
+        descriptionKey: "Desc_Chart_CumButton",
+        value: false
+    });
+
+    materialityAbs = new formattingSettings.NumUpDown({
+        name: "materialityAbs",
+        displayName: "Materiality from (absolute)",
+        displayNameKey: "Chart_MaterialityAbs",
+        description: "Wesentlichkeits-Schwelle: Abweichungen unter diesem absoluten Betrag werden grau statt rot/grün dargestellt (Panels, Wasserfall-Stufen, Tabelle). 0 = aus.",
+        descriptionKey: "Desc_Chart_MaterialityAbs",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 }
+        }
+    });
+
+    materialityPct = new formattingSettings.NumUpDown({
+        name: "materialityPct",
+        displayName: "Materiality from (%)",
+        displayNameKey: "Chart_MaterialityPct",
+        description: "Wesentlichkeits-Schwelle in Prozent: Abweichungen unter diesem Δ % werden grau dargestellt. Sind beide Schwellen gesetzt, muss eine Abweichung beide überschreiten, um farbig zu sein. 0 = aus.",
+        descriptionKey: "Desc_Chart_MaterialityPct",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 100 }
+        }
+    });
+
+    pinStyle = new formattingSettings.ItemDropdown({
+        name: "pinStyle",
+        displayName: "Δ%-pin shape",
+        displayNameKey: "Chart_PinStyle",
+        description: "Form des Lollipop-Kopfes der Δ%-Pins. „Automatisch\" behält den bisherigen Stil je Modus (Säulen/Balken/Wasserfall rund, Brücken und Tabelle quadratisch); „Rund\" oder „Quadratisch\" vereinheitlichen alle Modi.",
+        descriptionKey: "Desc_Chart_PinStyle",
+        items: pinStyleItems,
+        value: pinStyleItems[0]
+    });
+
+    deltaIcons = new formattingSettings.ToggleSwitch({
+        name: "deltaIcons",
+        displayName: "Trend icons ▲▼●",
+        displayNameKey: "Chart_DeltaIcons",
+        description: "Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle). Lesbar auch in Schwarzweiß-Druck und für Farbenblinde — die Farbe bewertet weiterhin gut/schlecht.",
+        descriptionKey: "Desc_Chart_DeltaIcons",
+        value: false
+    });
+
+    analysisGroup = new formattingSettings.Group({
+        name: "chartAnalysis",
+        displayName: "Analysis",
+        displayNameKey: "Group_Analysis",
+        slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.cumulativeButton, this.movingAverage, this.topN,
+            this.highlight, this.invert, this.invertList, this.compareClick,
+            this.materialityAbs, this.materialityPct, this.pinStyle, this.deltaIcons]
+    });
+
+    multiplesTotal = new formattingSettings.ToggleSwitch({
+        name: "multiplesTotal",
+        displayName: "Total tile (Σ)",
+        displayNameKey: "Chart_MultiplesTotal",
+        description: "Stellt eine „Σ Gesamt\"-Kachel voran — Summe über alle Gruppen, auf derselben Skala (IBCS).",
+        descriptionKey: "Desc_Chart_MultiplesTotal",
+        value: false
+    });
+
+    multiplesTopN = new formattingSettings.NumUpDown({
+        name: "multiplesTopN",
+        displayName: "Top N tiles",
+        displayNameKey: "Chart_MultiplesTopN",
+        description: "Zeigt nur die N größten Gruppen (nach Summe AC) als Kacheln — die übrigen werden zu einer „Rest\"-Kachel aggregiert. 0 = alle.",
+        descriptionKey: "Desc_Chart_MultiplesTopN",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 24 }
+        }
+    });
+
+    multiplesHero = new formattingSettings.ToggleSwitch({
+        name: "multiplesHero",
+        displayName: "First tile large",
+        displayNameKey: "Chart_MultiplesHero",
+        description: "Gibt der ersten Kachel (z. B. „Σ Gesamt\" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13).",
+        descriptionKey: "Desc_Chart_MultiplesHero",
+        value: false
+    });
+
+    multiplesSameScale = new formattingSettings.ToggleSwitch({
+        name: "multiplesSameScale",
+        displayName: "Bridges: same scale for all tiles",
+        displayNameKey: "Chart_MultiplesSameScale",
+        description: "Skaliert auch die Brücken-Modi (Integrierte Brücke, Kategorie-Brücke) über alle Kacheln identisch (IBCS). Standard: aus — jede Brücken-Kachel skaliert für sich. Säulen, Balken und Wasserfall teilen sich die Skala immer.",
+        descriptionKey: "Desc_Chart_MultiplesSameScale",
+        value: false
+    });
+
+    multiplesGroup = new formattingSettings.Group({
+        name: "chartMultiples",
+        displayName: "Small Multiples",
+        displayNameKey: "Group_Multiples",
+        slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero,
+            this.multiplesSameScale]
+    });
+
+    bridgeGroup = new formattingSettings.Group({
+        name: "chartBridge",
+        displayName: "Bridge",
+        displayNameKey: "Group_Bridge",
+        slices: [this.waterfallStyle, this.sortByImpact, this.chartButtons, this.driverNote]
+    });
+
+    valueColumns = new formattingSettings.ItemDropdown({
+        name: "valueColumns",
+        displayName: "Value columns",
+        displayNameKey: "Table_ValueCols",
+        description: "Zusätzliche Zahlenspalten neben AC: die Varianzbasis (PY oder PL, je nach Abweichungsbasis) oder beide Referenzszenarien — für druck- und boardtaugliche Tabellen ohne Balken-Interpretation.",
+        descriptionKey: "Desc_Table_ValueCols",
+        items: valueColumnsItems,
+        value: valueColumnsItems[0]
+    });
+
+    structureEdit = new formattingSettings.ToggleSwitch({
+        name: "structureEdit",
+        displayName: "Edit row structure (click)",
+        displayNameKey: "Table_StructureEdit",
+        description: "Bearbeitungsmodus: Klick auf eine Zeile öffnet ein kleines Menü mit „Invertieren“, „Ergebniszeile“ und „Aus Summen ausnehmen“ — die Ein-Klick-GuV ohne Datenmodell-Änderung. Die Wahl wird in den Listen unten persistiert; zum Berichten wieder ausschalten.",
+        descriptionKey: "Desc_Table_StructureEdit",
+        value: false
+    });
+
+    resultList = new formattingSettings.TextInput({
+        name: "resultList",
+        displayName: "Result rows",
+        displayNameKey: "Table_ResultList",
+        description: "Kommagetrennte Zeilennamen, die als Ergebniszeilen formatiert werden (fett, Trennlinie, vom Σ ausgenommen; im Wasserfall als Anker) — Alternative zur Waterfall-Typ-Rolle.",
+        descriptionKey: "Desc_Table_ResultList",
+        placeholder: "z. B. EBIT, Rohertrag",
+        value: ""
+    });
+
+    skipList = new formattingSettings.TextInput({
+        name: "skipList",
+        displayName: "Skip rows (exclude from totals)",
+        displayNameKey: "Table_SkipList",
+        description: "Kommagetrennte Zeilennamen, die nicht in Σ-Zeile, Skalen und Wasserfall-Kaskade einfließen (z. B. nachrichtliche Positionen). Die Zeile bleibt sichtbar, wird aber dezent dargestellt.",
+        descriptionKey: "Desc_Table_SkipList",
+        placeholder: "z. B. Davon-Positionen",
+        value: ""
+    });
+
+    hideList = new formattingSettings.TextInput({
+        name: "hideList",
+        displayName: "Hide rows",
+        displayNameKey: "Table_HideList",
+        description: "Kommagetrennte Zeilennamen, die nur ausgeblendet werden — Σ-Zeile, Skalen und Formeln rechnen weiter mit ihnen (anders als „Aus Summen ausnehmen“). Auch per Klick im Struktur-Modus setzbar.",
+        descriptionKey: "Desc_Table_HideList",
+        placeholder: "z. B. Sonstige, Intern",
+        value: ""
+    });
+
+    chartList = new formattingSettings.TextInput({
+        name: "chartList",
+        displayName: "Chart only these rows",
+        displayNameKey: "Table_ChartList",
+        description: "Kommagetrennte Zeilennamen: Wenn befüllt, zeigen nur diese Zeilen die Balken-/Pin-Grafiken — alle anderen bleiben reine Zahlenzeilen. Leer = Grafiken überall. Die Σ-Zeile behält ihre Grafik immer.",
+        descriptionKey: "Desc_Table_ChartList",
+        placeholder: "z. B. Umsatz, EBIT",
+        value: ""
+    });
+
+    indentList = new formattingSettings.TextInput({
+        name: "indentList",
+        displayName: "Indent rows (davon)",
+        displayNameKey: "Table_IndentList",
+        description: "Kommagetrennte Zeilennamen, die als „davon:“-Positionen eingerückt und dezent dargestellt werden — ohne Hierarchie-Feld. Meist kombiniert mit „Aus Summen ausnehmen“.",
+        descriptionKey: "Desc_Table_IndentList",
+        placeholder: "z. B. davon Export",
+        value: ""
+    });
+
+    rowFormats = new formattingSettings.TextInput({
+        name: "rowFormats",
+        displayName: "Row number formats",
+        displayNameKey: "Table_RowFormats",
+        description: "Zahlenformat pro Zeile, mit Semikolon getrennt: „Marge = 0.0 %; Menge = #,0“. Prozent multipliziert mit 100; Werte erscheinen unskaliert (keine T€-Teilung) — für gemischte €-, %- und Stück-Zeilen.",
+        descriptionKey: "Desc_Table_RowFormats",
+        placeholder: "z. B. Marge = 0.0 %",
+        value: ""
+    });
+
+    matrixCompare = new formattingSettings.ItemDropdown({
+        name: "matrixCompare",
+        displayName: "Matrix: column comparison",
+        displayNameKey: "Table_MatrixCompare",
+        description: "Vergleich innerhalb der Matrix-Spalten: „Δ vs. Vorspalte“ ersetzt das ΔBasis je Block durch die Veränderung zur vorherigen Spalte (Periodenvergleich Q2 vs. Q1, Mär vs. Feb …).",
+        descriptionKey: "Desc_Table_MatrixCompare",
+        items: matrixCompareItems,
+        value: matrixCompareItems[0]
+    });
+
+    formulaRows = new formattingSettings.TextInput({
+        name: "formulaRows",
+        displayName: "Formula rows",
+        displayNameKey: "Table_FormulaRows",
+        description: "Berechnete Zeilen, mit Semikolon getrennt: „EBIT = Umsatz - Kosten“ ergänzt eine Summenzeile, „Marge = EBIT / Umsatz“ eine %-Zeile. Operanden sind Zeilennamen; Operatoren bitte mit Leerzeichen umgeben. Formelzeilen fließen nicht in die Σ-Zeile ein.",
+        descriptionKey: "Desc_Table_FormulaRows",
+        placeholder: "z. B. Marge = EBIT / Umsatz",
+        value: ""
+    });
+
+    totalRowPosition = new formattingSettings.ItemDropdown({
+        name: "totalRowPosition",
+        displayName: "Total (Σ) row position",
+        displayNameKey: "Table_TotalRowPos",
+        description: "Wo die Σ-Gesamtzeile steht: „Unten“ (Standard, deutsche GuV-Lesart) unter allen Zeilen, „Oben“ direkt unter dem Kopf (IBCS). Bleibt beim Scrollen fixiert.",
+        descriptionKey: "Desc_Table_TotalRowPos",
+        items: totalRowPositionItems,
+        value: totalRowPositionItems[0]
+    });
+
+    zebraStripes = new formattingSettings.ToggleSwitch({
+        name: "zebraStripes",
+        displayName: "Zebra stripes",
+        displayNameKey: "Table_ZebraStripes",
+        description: "Legt jede zweite Datenzeile mit einem sehr dezenten Hintergrund an — leichtere Zeilenverfolgung in breiten Tabellen. Im Hochkontrast-Modus aus. Standard aus.",
+        descriptionKey: "Desc_Table_ZebraStripes",
+        value: false
+    });
+
+    rowDensity = new formattingSettings.ItemDropdown({
+        name: "rowDensity",
+        displayName: "Row density",
+        displayNameKey: "Table_RowDensity",
+        description: "Zeilenhöhe: „Kompakt“ für dichte Tabellen, „Normal“ (Standard) wie bisher, „Luftig“ für mehr Weißraum (Präsentation). Skaliert nur die Obergrenze; sehr hohe Visuals bleiben gedeckelt.",
+        descriptionKey: "Desc_Table_RowDensity",
+        items: rowDensityItems,
+        value: rowDensityItems[1]
+    });
+
+    gridLines = new formattingSettings.ItemDropdown({
+        name: "gridLines",
+        displayName: "Grid lines",
+        displayNameKey: "Table_GridLines",
+        description: "Trennlinien-Stil: „Horizontal“ (Standard) nur Zeilenlinien wie bisher, „Keine“ für ein ruhiges Bild, „Horizontal + vertikal“ ergänzt dezente Spalten-/Blocktrenner.",
+        descriptionKey: "Desc_Table_GridLines",
+        items: gridLinesItems,
+        value: gridLinesItems[0]
+    });
+
+    cellLayout = new formattingSettings.ItemDropdown({
+        name: "cellLayout",
+        displayName: "Matrix: cell layout",
+        displayNameKey: "Table_CellLayout",
+        description: "Nur Matrix: „Spalten“ (Standard) zeigt Wert und ΔBasis nebeneinander. „Zwei Zeilen“ setzt den Wert groß nach oben und die kleinere Δ-Zahl direkt darunter in dieselbe Zelle — die Matrix wird etwa halb so breit. Der Δ-Minibalken entfällt dabei; Referenzspalten (Werte-Spalten) bleiben als eigene Spalten neben dem Wert.",
+        descriptionKey: "Desc_Table_CellLayout",
+        items: cellLayoutItems,
+        value: cellLayoutItems[0]
+    });
+
+    tableGroup = new formattingSettings.Group({
+        name: "chartTable",
+        displayName: "Table",
+        displayNameKey: "Group_Table",
+        slices: [this.valueColumns, this.structureEdit, this.resultList, this.skipList,
+            this.hideList, this.chartList, this.indentList, this.rowFormats,
+            this.matrixCompare, this.formulaRows, this.totalRowPosition,
+            this.zebraStripes, this.rowDensity, this.gridLines, this.cellLayout]
+    });
+
+    cardStatusBasis = new formattingSettings.ItemDropdown({
+        name: "cardStatusBasis",
+        displayName: "Status basis (stripe & background)",
+        displayNameKey: "Cards_StatusBasis",
+        description: "Wogegen Streifen und Hintergrund-Ampel bewerten: gegen die Abweichungsbasis (ΔPL bzw. ΔPY) oder gegen die gebundene Benchmark-Measure — für Monitoring gegen Zielwerte/Schwellen.",
+        descriptionKey: "Desc_Cards_StatusBasis",
+        items: cardBasisItems,
+        value: cardBasisItems[0]
+    });
+
+    cardTint = new formattingSettings.ToggleSwitch({
+        name: "cardTint",
+        displayName: "Tint card background",
+        displayNameKey: "Cards_Tint",
+        description: "Färbt den Karten-Hintergrund dezent: leicht grün wenn besser, leicht rot wenn schlechter als die Status-Basis — neutral (unterhalb der Wesentlichkeit) bleibt ohne Farbe. Für Monitoring-Wände; im Hochkontrast-Modus aus.",
+        descriptionKey: "Desc_Cards_Tint",
+        value: false
+    });
+
+    cardTintStrength = new formattingSettings.NumUpDown({
+        name: "cardTintStrength",
+        displayName: "Tint intensity %",
+        displayNameKey: "Cards_TintStrength",
+        description: "Deckkraft der Hintergrund-Färbung in Prozent (4–40). Standard 12 — kräftiger für Kontrollraum-Monitore, dezenter für Board-Reports.",
+        descriptionKey: "Desc_Cards_TintStrength",
+        value: 12,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 4 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 40 }
+        }
+    });
+
+    cardBullet = new formattingSettings.ToggleSwitch({
+        name: "cardBullet",
+        displayName: "Bullet vs. benchmark",
+        displayNameKey: "Cards_Bullet",
+        description: "Kleines Bullet-Chart auf der Karte: AC-Balken auf hellem Band, Benchmark als Tick — unter der Zahl (Stapel-Layout) bzw. neben den Δ-Zeilen (flaches Layout). Braucht die Benchmark-Rolle.",
+        descriptionKey: "Desc_Cards_Bullet",
+        value: false
+    });
+
+    cardBulletZoom = new formattingSettings.ToggleSwitch({
+        name: "cardBulletZoom",
+        displayName: "Bullet: zoom to target range",
+        displayNameKey: "Cards_BulletZoom",
+        description: "Spreizt das Bullet auf den Bereich um AC und Benchmark statt bei Null zu starten — KPIs nahe am Ziel (97 vs. 99) werden unterscheidbar. Der Achsenbruch am linken Balkenende kennzeichnet die gekappte Skala.",
+        descriptionKey: "Desc_Cards_BulletZoom",
+        value: false
+    });
+
+    cardHighlight = new formattingSettings.ItemDropdown({
+        name: "cardHighlight",
+        displayName: "Highlight status",
+        displayNameKey: "Cards_Highlight",
+        description: "Welche Richtung farbig hervorgehoben wird: beide (Ampel), nur schlechte (Problem-Monitoring — Positives bleibt neutral) oder nur gute (Erfolgs-Board). Gilt für Streifen, Hintergrund, Δ-Zeilen und Bullet.",
+        descriptionKey: "Desc_Cards_Highlight",
+        items: cardHighlightItems,
+        value: cardHighlightItems[0]
+    });
+
+    cardBars = new formattingSettings.ToggleSwitch({
+        name: "cardBars",
+        displayName: "Show mini bridge (AC/PY bars)",
+        displayNameKey: "Cards_Bars",
+        description: "Zeigt die kleine Balken-Brücke Basis → Δ → AC unten auf der Karte. Aus: reine Zahlen-Karte (großer Wert + Δ-Zeilen), ruhiger für dichte KPI-Wände.",
+        descriptionKey: "Desc_Cards_Bars",
+        value: true
+    });
+
+    cardSort = new formattingSettings.ItemDropdown({
+        name: "cardSort",
+        displayName: "Sort by deviation",
+        displayNameKey: "Cards_Sort",
+        description: "Ordnet die Karten nach der farbrelevanten Abweichung (Benchmark bzw. ΔPL/ΔPY, je nach Status-Basis): größte Abweichung oben-links — für maximalen Fokus. „Datenreihenfolge“ lässt sie wie im Modell.",
+        descriptionKey: "Desc_Cards_Sort",
+        items: cardSortItems,
+        value: cardSortItems[0]
+    });
+
+    cardsGroup = new formattingSettings.Group({
+        name: "chartCards",
+        displayName: "KPI cards",
+        displayNameKey: "Group_Cards",
+        slices: [this.cardStatusBasis, this.cardHighlight, this.cardSort, this.cardBars,
+            this.cardTint, this.cardTintStrength, this.cardBullet, this.cardBulletZoom]
+    });
+
+    name: string = "chart";
+    displayName: string = "Chart";
+    displayNameKey: string = "Card_Chart";
+    groups = [this.layoutGroup, this.analysisGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup];
+}
+
+export class ColorsCardSettings extends FormattingSettingsCard {
+    useTheme = new formattingSettings.ToggleSwitch({
+        name: "useTheme",
+        displayName: "Use report theme colors",
+        displayNameKey: "Colors_UseTheme",
+        description: "Übernimmt Good/Bad und Neutralfarben aus dem Berichtsdesign (Theme) statt der Farbwähler unten.",
+        descriptionKey: "Desc_Colors_UseTheme",
+        value: false
+    });
+
+    actualColor = new formattingSettings.ColorPicker({
+        name: "actualColor",
+        displayName: "Actual (AC)",
+        displayNameKey: "Colors_Actual",
+        value: { value: "#404040" }
+    });
+
+    previousYearColor = new formattingSettings.ColorPicker({
+        name: "previousYearColor",
+        displayName: "Previous Year (PY)",
+        displayNameKey: "Colors_PreviousYear",
+        value: { value: "#B3B3B3" }
+    });
+
+    planColor = new formattingSettings.ColorPicker({
+        name: "planColor",
+        displayName: "Plan outline (PL)",
+        displayNameKey: "Colors_Plan",
+        value: { value: "#404040" }
+    });
+
+    goodColor = new formattingSettings.ColorPicker({
+        name: "goodColor",
+        displayName: "Good variance",
+        displayNameKey: "Colors_Good",
+        description: "Standard ist das DatenWG-Teal (#1E8F9E) statt klassischem Grün — durch den Blauanteil bleibt „gut“ auch bei Rot-Grün-Schwäche klar vom Rot unterscheidbar. Hier übersteuerbar.",
+        descriptionKey: "Desc_Colors_Good",
+        value: { value: "#1E8F9E" }
+    });
+
+    badColor = new formattingSettings.ColorPicker({
+        name: "badColor",
+        displayName: "Bad variance",
+        displayNameKey: "Colors_Bad",
+        value: { value: "#D64541" }
+    });
+
+    name: string = "colors";
+    displayName: string = "IBCS colors";
+    displayNameKey: string = "Card_Colors";
+    slices: Array<FormattingSettingsSlice> = [
+        this.useTheme,
+        this.actualColor,
+        this.previousYearColor,
+        this.planColor,
+        this.goodColor,
+        this.badColor
+    ];
+}
+
+export class LabelsCardSettings extends FormattingSettingsCard {
+    show = new formattingSettings.ToggleSwitch({
+        name: "show",
+        displayName: "Show labels",
+        displayNameKey: "Labels_Show",
+        value: true
+    });
+
+    fontPreset = new formattingSettings.ItemDropdown({
+        name: "fontPreset",
+        displayName: "Size preset",
+        displayNameKey: "Labels_FontPreset",
+        description: "Skaliert alle Schriften im Visual auf einmal: Kompakt ×1 (Standard) · Full HD ×1,5 (empfohlen für 1080p-Berichte) · Präsentation ×2.",
+        descriptionKey: "Desc_Labels_FontPreset",
+        items: fontPresetItems,
+        value: fontPresetItems[0]
+    });
+
+    fontScale = new formattingSettings.NumUpDown({
+        name: "fontScale",
+        displayName: "Scale all labels %",
+        displayNameKey: "Labels_FontScale",
+        description: "Vergrößert bzw. verkleinert ALLE Beschriftungen zusätzlich zum Preset um einen freien Faktor (50–300 %). 100 = neutral. Preset × Faktor ergibt die effektive Schriftgröße.",
+        descriptionKey: "Desc_Labels_FontScale",
+        value: 100,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 50 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 300 }
+        }
+    });
+
+    fontSize = new formattingSettings.NumUpDown({
+        name: "fontSize",
+        displayName: "Text size",
+        displayNameKey: "Labels_FontSize",
+        value: 10,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 6 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 24 }
+        }
+    });
+
+    decimals = new formattingSettings.NumUpDown({
+        name: "decimals",
+        displayName: "Decimals",
+        displayNameKey: "Labels_Decimals",
+        value: 1,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 3 }
+        }
+    });
+
+    displayUnits = new formattingSettings.ItemDropdown({
+        name: "displayUnits",
+        displayName: "Display units",
+        displayNameKey: "Labels_DisplayUnits",
+        items: displayUnitsItems,
+        value: displayUnitsItems[0]
+    });
+
+    sumSafeRounding = new formattingSettings.ToggleSwitch({
+        name: "sumSafeRounding",
+        displayName: "Sum-safe label rounding",
+        displayNameKey: "Labels_SumSafe",
+        description: "Rundet die Wertbeschriftungen nach dem Restwertverfahren so, dass sie exakt auf die Σ-Kopfzeile aufaddieren — keine Rundungsdifferenz-Nachfragen mehr. Aus = mathematisch exakte Einzelrundung, dafür erscheint bei Abweichung ein Rundungshinweis unter der Σ-Zeile.",
+        descriptionKey: "Desc_Labels_SumSafe",
+        value: false
+    });
+
+    labelDensity = new formattingSettings.ItemDropdown({
+        name: "labelDensity",
+        displayName: "Label density",
+        displayNameKey: "Labels_Density",
+        description: "Steuert die Ausdünnung der Wertbeschriftungen: „Automatisch\" blendet bei Platzmangel aus (bisheriges Verhalten), „Alle\" beschriftet jeden Punkt (kann überlappen), „Anfang · Ende · Extrema\" zeigt nur ersten/letzten Wert sowie Minimum und Maximum.",
+        descriptionKey: "Desc_Labels_Density",
+        items: labelDensityItems,
+        value: labelDensityItems[0]
+    });
+
+    financeFormat = new formattingSettings.ToggleSwitch({
+        name: "financeFormat",
+        displayName: "Finance format (parentheses)",
+        displayNameKey: "Labels_FinanceFormat",
+        description: "Finanzkonvention für Zahlen: negative Werte in Klammern statt Minuszeichen — (1.234) — und Null als „–\". Gilt für Wert- und Δ-Beschriftungen inkl. Δ %.",
+        descriptionKey: "Desc_Labels_FinanceFormat",
+        value: false
+    });
+
+    name: string = "labels";
+    displayName: string = "Data labels";
+    displayNameKey: string = "Card_Labels";
+    slices: Array<FormattingSettingsSlice> = [
+        this.show,
+        this.labelDensity,
+        this.fontPreset,
+        this.fontScale,
+        this.fontSize,
+        this.decimals,
+        this.displayUnits,
+        this.financeFormat,
+        this.sumSafeRounding
+    ];
+}
+
+export class CommentsCardSettings extends FormattingSettingsCard {
+    showPanel = new formattingSettings.ToggleSwitch({
+        name: "showPanel",
+        displayName: "Show comment list",
+        displayNameKey: "Comments_ShowPanel",
+        description: "Zeigt die Kommentare als nummerierte Liste rechts neben dem Chart — bleibt auch im PDF/PowerPoint-Export sichtbar.",
+        descriptionKey: "Desc_Comments_ShowPanel",
+        value: true
+    });
+
+    editComments = new formattingSettings.ToggleSwitch({
+        name: "editComments",
+        displayName: "Capture comments in chart",
+        displayNameKey: "Comments_Edit",
+        description: "Kommentar-Modus: Klick auf eine Kategorie öffnet ein Eingabefeld — der Kommentar wird im Bericht gespeichert (bookmark-fähig, wandert mit der PBIX). Solange der Modus an ist, filtern Klicks nicht quer. Standard aus.",
+        descriptionKey: "Desc_Comments_Edit",
+        value: false
+    });
+
+    commentFontSize = new formattingSettings.NumUpDown({
+        name: "commentFontSize",
+        displayName: "Comment font size",
+        displayNameKey: "Comments_FontSize",
+        description: "Schriftgröße der Kommentar-Liste in pt (8–24). Wird zusätzlich mit dem Schrift-Preset und dem Skalierungs-Faktor multipliziert, skaliert also mit dem Rest des Visuals mit.",
+        descriptionKey: "Desc_Comments_FontSize",
+        value: 10,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 8 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 24 }
+        }
+    });
+
+    name: string = "commentsPanel";
+    displayName: string = "Comments";
+    displayNameKey: string = "Card_Comments";
+    slices: Array<FormattingSettingsSlice> = [this.showPanel, this.commentFontSize, this.editComments];
+}
+
+export class ScaleCardSettings extends formattingSettings.CompositeCard {
+    fixedMax = new formattingSettings.NumUpDown({
+        name: "fixedMax",
+        displayName: "Scale minimum-maximum",
+        displayNameKey: "Scale_FixedMax",
+        description: "Skaliert das Basis-Chart mindestens bis zu diesem Wert — für identische Skalen über mehrere Visuals (IBCS). 0 = automatisch. Größere Datenwerte erweitern die Skala weiterhin.",
+        descriptionKey: "Desc_Scale_FixedMax",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 }
+        }
+    });
+
+    fixedVarMax = new formattingSettings.NumUpDown({
+        name: "fixedVarMax",
+        displayName: "Variance minimum-maximum",
+        displayNameKey: "Scale_FixedVarMax",
+        description: "Wie oben, für das absolute Abweichungs-Panel (symmetrisch ±). 0 = automatisch.",
+        descriptionKey: "Desc_Scale_FixedVarMax",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 }
+        }
+    });
+
+    refLine = new formattingSettings.TextInput({
+        name: "refLine",
+        displayName: "Reference line value",
+        displayNameKey: "Scale_RefLine",
+        description: "Zeichnet eine Ziel-/Schwellenlinie bei diesem Wert quer durch das Basis-Chart. Leer = aus.",
+        descriptionKey: "Desc_Scale_RefLine",
+        placeholder: "z. B. 1200000",
+        value: ""
+    });
+
+    refLineLabel = new formattingSettings.TextInput({
+        name: "refLineLabel",
+        displayName: "Reference line label",
+        displayNameKey: "Scale_RefLineLabel",
+        placeholder: "z. B. Ziel",
+        value: ""
+    });
+
+    capOverflow = new formattingSettings.ToggleSwitch({
+        name: "capOverflow",
+        displayName: "Cap outliers at maximum",
+        displayNameKey: "Scale_CapOverflow",
+        description: "Macht das Skalen-Maximum hart: größere Werte werden gekappt und mit Doppelstrich markiert (Label zeigt den echten Wert).",
+        descriptionKey: "Desc_Scale_CapOverflow",
+        value: false
+    });
+
+    syncGroup = new formattingSettings.Group({
+        name: "scaleSync",
+        displayName: "Scale sync",
+        displayNameKey: "Group_ScaleSync",
+        slices: [this.fixedMax, this.fixedVarMax, this.capOverflow]
+    });
+
+    refLineGroup = new formattingSettings.Group({
+        name: "scaleRefLine",
+        displayName: "Reference line",
+        displayNameKey: "Group_RefLine",
+        slices: [this.refLine, this.refLineLabel]
+    });
+
+    name: string = "scale";
+    displayName: string = "Scale";
+    displayNameKey: string = "Card_Scale";
+    groups = [this.syncGroup, this.refLineGroup];
+}
+
+export class CategoryAxisCardSettings extends FormattingSettingsCard {
+    fontSize = new formattingSettings.NumUpDown({
+        name: "fontSize",
+        displayName: "Text size",
+        displayNameKey: "CategoryAxis_FontSize",
+        value: 10,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 6 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 24 }
+        }
+    });
+
+    name: string = "categoryAxis";
+    displayName: string = "Category axis";
+    displayNameKey: string = "Card_CategoryAxis";
+    slices: Array<FormattingSettingsSlice> = [this.fontSize];
+}
+
+export class VisualFormattingSettingsModel extends FormattingSettingsModel {
+    ibcsTitleCard = new IbcsTitleCardSettings();
+    chartCard = new ChartCardSettings();
+    colorsCard = new ColorsCardSettings();
+    labelsCard = new LabelsCardSettings();
+    commentsCard = new CommentsCardSettings();
+    scaleCard = new ScaleCardSettings();
+    categoryAxisCard = new CategoryAxisCardSettings();
+
+    cards = [this.ibcsTitleCard, this.chartCard, this.colorsCard, this.labelsCard,
+        this.commentsCard, this.scaleCard, this.categoryAxisCard];
+}

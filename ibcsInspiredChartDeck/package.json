@@ -1,0 +1,35 @@
+{
+  "name": "ibcs-inspired-chart-deck",
+  "description": "IBCS inspired chart deck custom visual for Power BI",
+  "version": "1.0.0.0",
+  "repository": {
+    "type": "default_template_value",
+    "url": "default_template_value"
+  },
+  "license": "MIT",
+  "scripts": {
+    "pbiviz": "pbiviz",
+    "start": "pbiviz start",
+    "package": "pbiviz package",
+    "lint": "npx eslint .",
+    "test:render": "node test/build.js && node test/shot.js"
+  },
+  "dependencies": {
+    "powerbi-visuals-api": "~5.11.0",
+    "powerbi-visuals-utils-formattingmodel": "6.0.4",
+    "powerbi-visuals-utils-formattingutils": "^6.1.2"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "esbuild": "^0.28.1",
+    "eslint": "^9.11.1",
+    "eslint-plugin-powerbi-visuals": "^1.0.0",
+    "powerbi-visuals-tools": "^7.1.0",
+    "typescript": "5.5.4"
+  },
+  "overrides": {
+    "sockjs": {
+      "uuid": "^11.1.1"
+    }
+  }
+}

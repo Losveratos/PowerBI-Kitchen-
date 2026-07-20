@@ -1,0 +1,83 @@
+{
+  "note": "Schema-Darstellungen des Power-BI-Formatbereichs fuer das Visual ChartKitchen byDatenWG. Quelle: ibcsInspiredChartDeck/src/settings.ts (Reihenfolge & Defaults) + stringResources/de-DE/resources.resjson (deutsche Anzeigenamen). Keine echten Microsoft-/Power-BI-Markenzeichen; reine Schema-Skizzen im Stil eines Einstellungs-Panes.",
+  "files": [
+    {
+      "file": "pane-overview.png",
+      "settings": 7,
+      "captionDe": "Formatbereich: die sieben Karten des Visuals in Pane-Reihenfolge (zugeklappt) – IBCS-Titel, Chart, IBCS-Farben, Datenbeschriftungen, Kommentare, Skala & Referenzlinie, Kategorienachse.",
+      "captionEn": "Format pane: the visual's seven cards in pane order (collapsed) – IBCS title, Chart, IBCS colors, Data labels, Comments, Scale & reference line, Category axis. German format pane shown; the English pane has the identical structure."
+    },
+    {
+      "file": "pane-ibcs-titel.png",
+      "settings": 7,
+      "captionDe": "Formatbereich → IBCS-Titel: Titel-Anzeige, KPI-Name, Zeitraum, Botschafts-Zeile, automatische Botschaft, Fußzeile und Filter-Fußzeile.",
+      "captionEn": "Format pane → IBCS title: title toggle, KPI name, period, message line, auto message, footer and filter footer. German format pane shown; the English pane has the identical structure."
+    },
+    {
+      "file": "pane-chart-layout.png",
+      "settings": 8,
+      "captionDe": "Formatbereich → Chart → Layout: Ausrichtung, Abweichungsbasis und die Abweichungs-Optionen.",
+      "captionEn": "Format pane → Chart → Layout: orientation, variance basis and the deviation options. German format pane shown; the English pane has the identical structure."
+    },
+    {
+      "file": "pane-chart-analyse.png",
+      "settings": 14,
+      "captionDe": "Formatbereich → Chart → Analyse: Kumulierung (YTD), gleitender Durchschnitt, Top N, Hervorhebung, Invertierung, Wesentlichkeit und Pin-Form.",
+      "captionEn": "Format pane → Chart → Analysis: cumulation (YTD), moving average, Top N, highlighting, inversion, materiality and pin shape. German format pane shown; the English pane has the identical structure."
+    },
+    {
+      "file": "pane-chart-bruecke.png",
+      "settings": 4,
+      "captionDe": "Formatbereich → Chart → Brücke: Wasserfall-Brücke, Sortierung nach Wirkung, In-Chart-Buttons und Treiber-Notiz.",
+      "captionEn": "Format pane → Chart → Bridge: waterfall bridge, sort by impact, in-chart buttons and driver note. German format pane shown; the English pane has the identical structure."
+    },
+    {
+      "file": "pane-chart-tabelle.png",
+      "settings": 15,
+      "captionDe": "Formatbereich → Chart → Tabelle: Werte-Spalten, Struktur-Listen (Ergebnis-, Skip-, Ausblend-, Grafik-, Einrück-Zeilen), Formelzeilen sowie Zell-Layout, Σ-Position, Zebra, Zeilenhöhe und Gitterlinien.",
+      "captionEn": "Format pane → Chart → Table: value columns, structure lists (result, skip, hide, chart, indent rows), formula rows plus cell layout, Σ position, zebra, row density and grid lines. German format pane shown; the English pane has the identical structure."
+    },
+    {
+      "file": "pane-chart-karten.png",
+      "settings": 8,
+      "captionDe": "Formatbereich → Chart → KPI-Karten: Status-Basis, Highlight-Status, Sortierung, Mini-Brücke, Hintergrund-Ampel und Bullet-Optionen.",
+      "captionEn": "Format pane → Chart → KPI cards: status basis, highlight status, sorting, mini bridge, background tint and bullet options. German format pane shown; the English pane has the identical structure."
+    },
+    {
+      "file": "pane-chart-multiples.png",
+      "settings": 4,
+      "captionDe": "Formatbereich → Chart → Small Multiples: Gesamt-Kachel, Top N Kacheln, erste Kachel groß und gemeinsame Brücken-Skala.",
+      "captionEn": "Format pane → Chart → Small Multiples: total tile, Top N tiles, first tile large and shared bridge scale. German format pane shown; the English pane has the identical structure."
+    },
+    {
+      "file": "pane-ibcs-farben.png",
+      "settings": 6,
+      "captionDe": "Formatbereich → IBCS-Farben: Theme-Übernahme sowie die Szenario-Farben – Ist (AC) dunkelgrau, Vorjahr (PY) hellgrau, Plan (PL) als Umriss, gute Abweichung Teal, schlechte Abweichung Rot.",
+      "captionEn": "Format pane → IBCS colors: theme adoption plus the scenario colors – Actual (AC) dark grey, Previous year (PY) light grey, Plan (PL) as outline, good variance teal, bad variance red. German format pane shown; the English pane has the identical structure."
+    },
+    {
+      "file": "pane-beschriftungen.png",
+      "settings": 9,
+      "captionDe": "Formatbereich → Datenbeschriftungen: Anzeige, Dichte, Größen-Preset, Skalierung, Textgröße, Dezimalstellen, Einheiten, Finance-Format und Σ-treue Rundung.",
+      "captionEn": "Format pane → Data labels: display, density, size preset, scaling, text size, decimals, units, finance format and sum-safe rounding. German format pane shown; the English pane has the identical structure."
+    },
+    {
+      "file": "pane-kommentare.png",
+      "settings": 3,
+      "captionDe": "Formatbereich → Kommentare: Kommentarliste anzeigen, Kommentar-Schriftgröße und Kommentar-Erfassung im Chart.",
+      "captionEn": "Format pane → Comments: show comment list, comment font size and capturing comments in the chart. German format pane shown; the English pane has the identical structure."
+    },
+    {
+      "file": "pane-skala.png",
+      "settings": 5,
+      "captionDe": "Formatbereich → Skala & Referenzlinie: Untergruppe Skalen-Sync (Mindest-Maxima, Ausreißer kappen) und Untergruppe Referenzlinie (Wert & Beschriftung).",
+      "captionEn": "Format pane → Scale & reference line: Scale-sync subgroup (minimum maxima, cap outliers) and Reference-line subgroup (value & label). German format pane shown; the English pane has the identical structure."
+    },
+    {
+      "file": "pane-kategorienachse.png",
+      "settings": 1,
+      "captionDe": "Formatbereich → Kategorienachse: Textgröße der Achsenbeschriftung.",
+      "captionEn": "Format pane → Category axis: text size of the axis labels. German format pane shown; the English pane has the identical structure."
+    }
+  ]
+}
