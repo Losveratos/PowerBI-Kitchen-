@@ -527,6 +527,14 @@ a { color: inherit; text-decoration: none; }
   background: rgba(10,8,20,.9); border: 1.5px solid rgba(157,107,255,.4);
   box-shadow: 0 0 12px rgba(157,107,255,.25); }
 #btn-sound.off { opacity: .55; filter: grayscale(1); }
+#btn-music { position: fixed; top: calc(14px + env(safe-area-inset-top)); right: 64px; z-index: 85;
+  width: 42px; height: 42px; border-radius: 10px; font-size: 17px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10,8,20,.9); border: 1.5px solid rgba(255,61,138,.45);
+  box-shadow: 0 0 12px rgba(255,61,138,.25); }
+#btn-music.off { opacity: .55; filter: grayscale(1); }
+#btn-music.playing { animation: musicPulse 1.15s ease-in-out infinite; }
+@keyframes musicPulse { 50% { box-shadow: 0 0 22px rgba(255,61,138,.65); border-color: rgba(255,61,138,.9); } }
 </style>
 </head>
 <body>
@@ -615,7 +623,8 @@ a { color: inherit; text-decoration: none; }
 
 <!-- Flur-Navigation -->
 <div id="warp"></div>
-<button id="btn-sound" style="display:none" aria-label="Sound an/aus">🔊</button>
+<button id="btn-sound" style="display:none" aria-label="Sound-Effekte an/aus">🔊</button>
+<button id="btn-music" style="display:none" aria-label="Musik an/aus">🎵</button>
 <nav class="flur" id="flur" style="display:none">
   <button data-nav="hub" class="on">🏠 Wohnung</button>
   <button data-nav="album">🃏 Album <span class="badge" id="nav-album-badge">0</span></button>
@@ -759,6 +768,7 @@ function show(name) {
     b.classList.toggle('on', b.dataset.nav === (name === 'room' ? 'hub' : name)));
   $('#flur').style.display = name === 'title' ? 'none' : 'flex';
   $('#btn-sound').style.display = name === 'title' ? 'none' : 'flex';
+  $('#btn-music').style.display = name === 'title' ? 'none' : 'flex';
   window.scrollTo(0, 0);
 }
 
@@ -1014,6 +1024,7 @@ function renderPlan() {
 // ---------- Events ----------
 $('#btn-enter').addEventListener('click', () => {
   AudioFX.unlock(); AudioFX.start();
+  setTimeout(() => Music.autostart(), 700);
   if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
     DeviceOrientationEvent.requestPermission().catch(() => {});
   }
@@ -1108,6 +1119,125 @@ const sndBtn = $('#btn-sound');
 function syncSnd() { sndBtn.textContent = AudioFX.muted ? '🔇' : '🔊'; sndBtn.classList.toggle('off', AudioFX.muted); }
 sndBtn.addEventListener('click', () => { AudioFX.toggle(); syncSnd(); if (!AudioFX.muted) AudioFX.flip(); });
 syncSnd();
+
+// ---------- 80s-Synthwave-Loop (prozedural, keine Audiodateien) ----------
+const Music = (() => {
+  let ctx, master, timer, playing = false;
+  let enabled = localStorage.getItem('dwg-music') !== '0';
+  const BPM = 102, STEP = 60 / BPM / 4;          // 16tel-Raster
+  const n2f = n => 440 * Math.pow(2, (n - 69) / 12);
+  // 4 Takte: Am — F — C — G (Synthwave-Klassiker)
+  const ROOTS = [45, 41, 36, 43];                 // Bass (A1, F1, C1, G1)
+  const CHORDS = [[57,60,64], [53,57,60], [48,52,55], [55,59,62]];
+  const ARP = [[69,72,76,72], [65,69,72,69], [64,67,72,67], [67,71,74,71]];
+  let step = 0, nextT = 0;
+
+  function ensure() {
+    if (!ctx) {
+      try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) { return null; }
+      master = ctx.createGain(); master.gain.value = .16;
+      const comp = ctx.createDynamicsCompressor();
+      master.connect(comp).connect(ctx.destination);
+    }
+    return ctx;
+  }
+  function osc(type, f, t0, dur, vol, dest, detune = 0) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.value = f; o.detune.value = detune;
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + .01);
+    g.gain.exponentialRampToValueAtTime(.001, t0 + dur);
+    o.connect(g).connect(dest); o.start(t0); o.stop(t0 + dur + .05);
+  }
+  function kick(t0) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.frequency.setValueAtTime(150, t0);
+    o.frequency.exponentialRampToValueAtTime(42, t0 + .12);
+    g.gain.setValueAtTime(.9, t0); g.gain.exponentialRampToValueAtTime(.001, t0 + .22);
+    o.connect(g).connect(master); o.start(t0); o.stop(t0 + .25);
+  }
+  function hat(t0, open) {
+    const len = open ? .12 : .04, n = ctx.sampleRate * len;
+    const buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 7500;
+    const g = ctx.createGain(); g.gain.value = open ? .22 : .14;
+    src.connect(hp).connect(g).connect(master); src.start(t0);
+  }
+  function snare(t0) {
+    const n = ctx.sampleRate * .16, buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1900; bp.Q.value = .8;
+    const g = ctx.createGain(); g.gain.value = .5;
+    src.connect(bp).connect(g).connect(master); src.start(t0);
+  }
+  function scheduleStep(s, t0) {
+    const bar = Math.floor(s / 16) % 4, pos = s % 16;
+    // Drums: Kick auf 1+3, Snare auf 2+4, Hats auf 8teln
+    if (pos % 8 === 0) kick(t0);
+    if (pos % 16 === 8) snare(t0);
+    if (pos % 2 === 0) hat(t0, pos % 8 === 6);
+    // Bass: treibende 8tel (Oktav-Pump)
+    if (pos % 2 === 0) {
+      const up = (pos % 4 === 2) ? 12 : 0;
+      const f = n2f(ROOTS[bar] + up);
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 620;
+      const g2 = ctx.createGain(); g2.gain.value = 1; lp.connect(g2).connect(master);
+      osc('sawtooth', f, t0, STEP * 1.7, .5, lp);
+    }
+    // Pad: Akkord am Taktanfang, weich & breit
+    if (pos === 0) {
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1100;
+      lp.connect(master);
+      CHORDS[bar].forEach(nn => {
+        osc('sawtooth', n2f(nn), t0, STEP * 16, .07, lp, -7);
+        osc('sawtooth', n2f(nn), t0, STEP * 16, .07, lp, 7);
+      });
+    }
+    // Arpeggio: glitzernde 16tel in den geraden Takten
+    if (bar % 2 === 0 || pos % 2 === 0) {
+      const nn = ARP[bar][pos % 4] + 12;
+      osc('square', n2f(nn), t0, STEP * .9, .05, master);
+    }
+  }
+  function tick() {
+    if (!playing) return;
+    while (nextT < ctx.currentTime + .12) {
+      scheduleStep(step, Math.max(nextT, ctx.currentTime + .005));
+      nextT += STEP; step++;
+    }
+  }
+  function start() {
+    if (!ensure() || playing) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    playing = true; step = 0; nextT = ctx.currentTime + .06;
+    timer = setInterval(tick, 30);
+    syncMusicBtn();
+  }
+  function stop() {
+    playing = false; clearInterval(timer); syncMusicBtn();
+  }
+  return {
+    start, stop,
+    autostart() { if (enabled) start(); },
+    toggle() {
+      enabled = !enabled; localStorage.setItem('dwg-music', enabled ? '1' : '0');
+      enabled ? start() : stop(); return enabled;
+    },
+    get enabled() { return enabled; },
+    get playing() { return playing; }
+  };
+})();
+const musBtn = $('#btn-music');
+function syncMusicBtn() {
+  musBtn.textContent = Music.enabled ? '🎵' : '🎵';
+  musBtn.classList.toggle('off', !Music.enabled);
+  musBtn.classList.toggle('playing', Music.playing);
+}
+musBtn.addEventListener('click', () => { Music.toggle(); });
+syncMusicBtn();
 
 // ---------- Partikel-Burst ----------
 const NEON = ['#35F0D0', '#FF3D8A', '#FFC53D', '#9D6BFF', '#4DA3FF'];
