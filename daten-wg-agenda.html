@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daten-WG · Agenda & Speaker:innen</title>
+<meta name="description" content="Programm, Sessions und Speaker:innen der Daten-WG – live aus Sessionize.">
+
+<!-- Favicon · Daten-WG Knowledge Kitchen -->
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#117865">
+
+<style>
+:root {
+  /* Flächen — Paper/Cream Editorial-Palette */
+  --bg:        #FAFAF5;
+  --bg-card:   #FFFFFF;
+  --bg-soft:   #F4F1E8;
+  --bg-deep:   #0A0A0A;
+
+  /* Tinten */
+  --ink:       #1A1A1A;
+  --ink-soft:  #4A4A4A;
+  --ink-mute:  #6B6B6B;
+  --black:     #0A0A0A;
+
+  /* Linien */
+  --line:        #E5E2D8;
+  --line-strong: #1A1A1A;
+
+  /* Track-Farben — rotieren über Kategorien */
+  --t-1: #117865;
+  --t-2: #166088;
+  --t-3: #C25A2D;
+  --t-4: #5B3B7A;
+  --t-5: #B8336A;
+  --t-6: #B8860B;
+  --t-7: #2A857A;
+  --t-8: #8B2E2E;
+
+  /* Brand */
+  --accent:     #117865;
+  --brand-soft: #2A9582;
+  --brand-deep: #0A5A4D;
+
+  --shadow-sm: 0 1px 2px rgba(10,10,10,.04), 0 1px 3px rgba(10,10,10,.06);
+  --shadow-md: 0 4px 12px rgba(10,10,10,.08), 0 2px 4px rgba(10,10,10,.06);
+  --shadow-lg: 0 24px 60px rgba(10,10,10,.18), 0 8px 24px rgba(10,10,10,.10);
+
+  --radius-sm: 6px;
+  --radius:    10px;
+  --radius-lg: 16px;
+
+  --serif: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --sans:  "Segoe UI Variable Text",    "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --mono:  "Segoe UI Variable Small",   "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 12% -5%, rgba(91, 59, 122, 0.05), transparent 35%),
+    radial-gradient(circle at 95% 15%, rgba(42, 133, 122, 0.05), transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(184, 51, 106, 0.03), transparent 50%);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+button { font: inherit; color: inherit; cursor: pointer; border: none; background: none; }
+a { color: inherit; text-decoration: none; }
+
+.container { max-width: 1240px; margin: 0 auto; padding: 0 32px 96px; }
+
+/* ========== TOP NAV ========== */
+.topnav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(250, 250, 247, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 32px;
+}
+.topnav-inner {
+  max-width: 1240px; margin: 0 auto;
+  display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+}
+.topnav-brand {
+  font-family: var(--serif); font-weight: 500; font-size: 15px;
+  letter-spacing: -0.01em; margin-right: auto;
+}
+.topnav-brand em { font-style: italic; color: var(--accent); }
+.topnav-link {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink-soft);
+  padding: 6px 10px; border-radius: var(--radius-sm);
+  transition: all .18s ease; white-space: nowrap;
+}
+.topnav-link:hover { background: var(--ink); color: white; }
+
+/* ========== HERO ========== */
+.hero { padding: 64px 0 40px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+.hero-eyebrow {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
+  margin-bottom: 14px;
+}
+.hero h1 {
+  font-family: var(--serif); font-size: clamp(34px, 5.5vw, 58px);
+  font-weight: 600; letter-spacing: -0.025em; line-height: 1.05; color: var(--black);
+}
+.hero h1 em { font-style: italic; color: var(--accent); }
+.hero-sub { max-width: 640px; margin-top: 18px; font-size: 16px; color: var(--ink-soft); }
+.hero-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+.stat-pill {
+  display: inline-flex; align-items: baseline; gap: 7px;
+  background: var(--bg-soft); border: 1px solid var(--line);
+  border-radius: 100px; padding: 8px 16px;
+}
+.stat-pill strong { font-family: var(--serif); font-size: 19px; color: var(--black); }
+.stat-pill span {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-mute);
+}
+
+/* ========== STATE (Loading / Error) ========== */
+.state-box {
+  margin: 48px 0; padding: 40px; text-align: center;
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+}
+.state-box .spin {
+  width: 34px; height: 34px; margin: 0 auto 18px;
+  border: 3px solid var(--line); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.state-box h2 { font-family: var(--serif); font-size: 20px; color: var(--black); margin-bottom: 8px; }
+.state-box p { color: var(--ink-soft); font-size: 14px; max-width: 460px; margin: 0 auto; }
+.state-box .retry {
+  margin-top: 20px; display: inline-block; padding: 10px 22px;
+  background: var(--black); color: white; border-radius: 100px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  transition: background .18s ease;
+}
+.state-box .retry:hover { background: var(--accent); }
+
+/* ========== TABS ========== */
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+.tab {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 10px 20px; border-radius: 100px;
+  border: 1px solid var(--line); background: var(--bg-card);
+  color: var(--ink-soft); transition: all .18s ease;
+}
+.tab:hover { border-color: var(--ink); color: var(--ink); }
+.tab.active { background: var(--black); border-color: var(--black); color: white; }
+
+/* ========== FILTER BAR ========== */
+.filterbar {
+  display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+  padding: 16px; background: var(--bg-card);
+  border: 1px solid var(--line); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm); margin-bottom: 28px;
+}
+.search-wrap { position: relative; flex: 1 1 240px; min-width: 200px; }
+.search-wrap svg {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  width: 15px; height: 15px; stroke: var(--ink-mute); fill: none; stroke-width: 2;
+}
+.search-input {
+  width: 100%; padding: 10px 14px 10px 36px;
+  font: inherit; font-size: 14px; color: var(--ink);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 100px;
+  outline: none; transition: border-color .18s ease;
+}
+.search-input:focus { border-color: var(--accent); }
+.filter-select {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em;
+  padding: 10px 14px; border-radius: 100px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink-soft);
+  outline: none; cursor: pointer; max-width: 220px;
+}
+.filter-select:focus { border-color: var(--accent); }
+.result-count {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-mute); margin-left: auto; white-space: nowrap;
+}
+.result-count strong { color: var(--accent); }
+
+/* ========== SCHEDULE ========== */
+.day-header {
+  display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  margin: 44px 0 6px; padding-bottom: 12px; border-bottom: 2px solid var(--line-strong);
+}
+.day-header:first-child { margin-top: 0; }
+.day-header h2 { font-family: var(--serif); font-size: 26px; font-weight: 600; color: var(--black); letter-spacing: -0.02em; }
+.day-header .day-count {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-mute);
+}
+.slot { display: grid; grid-template-columns: 96px 1fr; gap: 20px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+.slot-time { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--accent); padding-top: 4px; white-space: nowrap; }
+.slot-time small { display: block; font-weight: 400; color: var(--ink-mute); font-size: 11px; margin-top: 2px; }
+.slot-sessions { display: grid; gap: 12px; }
+
+/* ========== SESSION CARD ========== */
+.session-card {
+  position: relative; background: var(--bg-card);
+  border: 1px solid var(--line); border-left: 4px solid var(--track-color, var(--accent));
+  border-radius: var(--radius); padding: 18px 20px;
+  box-shadow: var(--shadow-sm); cursor: pointer;
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+.session-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.session-card.service {
+  background: var(--bg-soft); border-left-color: var(--line-strong); cursor: default;
+}
+.session-card.service:hover { transform: none; box-shadow: var(--shadow-sm); }
+.session-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+.chip {
+  display: inline-block; font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 100px;
+  background: color-mix(in srgb, var(--track-color, var(--accent)) 12%, white);
+  color: var(--track-color, var(--accent));
+}
+.chip.room { background: var(--bg-soft); color: var(--ink-soft); }
+.chip.plenum { background: var(--black); color: white; }
+.session-title { font-family: var(--serif); font-size: 17.5px; font-weight: 600; color: var(--black); letter-spacing: -0.01em; line-height: 1.25; }
+.session-speakers { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.speaker-mini { display: inline-flex; align-items: center; gap: 7px; }
+.speaker-mini img, .avatar-fallback {
+  width: 26px; height: 26px; border-radius: 50%; object-fit: cover;
+  border: 1.5px solid var(--bg-card); box-shadow: 0 0 0 1px var(--line);
+}
+.avatar-fallback {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--bg-soft); color: var(--ink-soft);
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+}
+.speaker-mini span { font-size: 13px; color: var(--ink-soft); }
+
+/* ========== SESSIONS GRID ========== */
+.session-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+.session-grid .session-card { display: flex; flex-direction: column; }
+.session-grid .session-desc {
+  font-size: 13.5px; color: var(--ink-soft); margin-top: 10px;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.session-grid .session-when {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em;
+  color: var(--ink-mute); margin-top: auto; padding-top: 12px;
+}
+
+/* ========== SPEAKERS ========== */
+.speaker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+.speaker-card {
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-lg);
+  padding: 24px; text-align: center; box-shadow: var(--shadow-sm); cursor: pointer;
+  transition: box-shadow .18s ease, transform .18s ease;
+}
+.speaker-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.speaker-card img, .speaker-card .avatar-lg {
+  width: 96px; height: 96px; border-radius: 50%; object-fit: cover;
+  margin: 0 auto 14px; display: block;
+  box-shadow: 0 0 0 3px var(--bg-card), 0 0 0 4px var(--line);
+}
+.avatar-lg {
+  display: flex !important; align-items: center; justify-content: center;
+  background: var(--bg-soft); color: var(--ink-soft);
+  font-family: var(--serif); font-size: 30px; font-weight: 600;
+}
+.speaker-card.top::after {
+  content: '★ Top Speaker'; display: inline-block; margin-top: 10px;
+  font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--t-6);
+}
+.speaker-name { font-family: var(--serif); font-size: 18px; font-weight: 600; color: var(--black); }
+.speaker-tagline { font-size: 13px; color: var(--ink-soft); margin-top: 5px; line-height: 1.4; }
+.speaker-sessions-count {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-mute); margin-top: 10px;
+}
+
+/* ========== MODAL ========== */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(10, 10, 10, 0.55);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  display: none; align-items: flex-start; justify-content: center;
+  padding: 6vh 20px 40px; overflow-y: auto;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--bg); border-radius: var(--radius-lg);
+  max-width: 720px; width: 100%; padding: 36px;
+  box-shadow: var(--shadow-lg); position: relative;
+}
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--bg-soft); color: var(--ink);
+  font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center;
+  transition: background .18s ease;
+}
+.modal-close:hover { background: var(--black); color: white; }
+.modal .session-meta { margin-bottom: 12px; }
+.modal h2 { font-family: var(--serif); font-size: 27px; font-weight: 600; letter-spacing: -0.02em; color: var(--black); line-height: 1.15; margin-bottom: 8px; }
+.modal-when { font-family: var(--mono); font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 20px; }
+.modal-desc { color: var(--ink-soft); font-size: 15px; white-space: pre-line; margin-bottom: 24px; }
+.modal-speakers { display: grid; gap: 14px; border-top: 1px solid var(--line); padding-top: 20px; }
+.modal-speaker { display: flex; gap: 14px; align-items: flex-start; }
+.modal-speaker img, .modal-speaker .avatar-md {
+  width: 52px; height: 52px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+  box-shadow: 0 0 0 1px var(--line);
+}
+.avatar-md {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-soft); color: var(--ink-soft);
+  font-family: var(--serif); font-size: 18px; font-weight: 600;
+}
+.modal-speaker-name { font-family: var(--serif); font-size: 16px; font-weight: 600; color: var(--black); }
+.modal-speaker-tag { font-size: 13px; color: var(--ink-soft); }
+.modal-speaker-bio { font-size: 13px; color: var(--ink-soft); margin-top: 6px; white-space: pre-line; }
+.modal-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.modal-links a {
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 4px 11px; border-radius: 100px;
+  background: var(--bg-soft); color: var(--ink-soft); transition: all .18s ease;
+}
+.modal-links a:hover { background: var(--accent); color: white; }
+.modal-session-list { margin-top: 4px; display: grid; gap: 8px; }
+.modal-session-list .mini-session {
+  padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--line);
+  border-left: 3px solid var(--track-color, var(--accent)); border-radius: var(--radius-sm);
+  cursor: pointer; transition: box-shadow .15s ease;
+}
+.modal-session-list .mini-session:hover { box-shadow: var(--shadow-sm); }
+.modal-session-list .mini-title { font-family: var(--serif); font-size: 14.5px; font-weight: 600; color: var(--black); }
+.modal-session-list .mini-when { font-family: var(--mono); font-size: 10px; color: var(--ink-mute); margin-top: 2px; }
+
+/* ========== FOOTER ========== */
+.footer {
+  margin-top: 72px; padding-top: 28px; border-top: 1px solid var(--line);
+  display: flex; gap: 16px; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--ink-mute);
+}
+.footer a { color: var(--accent); }
+.footer a:hover { text-decoration: underline; }
+
+.hidden { display: none !important; }
+
+@media (max-width: 640px) {
+  .container { padding: 0 18px 64px; }
+  .topnav { padding: 12px 18px; }
+  .hero { padding: 40px 0 28px; }
+  .slot { grid-template-columns: 1fr; gap: 8px; }
+  .slot-time { padding-top: 0; }
+  .modal { padding: 26px 20px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a class="topnav-brand" href="index.html">Daten-<em>WG</em> · Knowledge Kitchen</a>
+    <a class="topnav-link" href="index.html">← Zur Kitchen</a>
+    <a class="topnav-link" href="https://www.youtube.com/@Daten-WG" target="_blank" rel="noopener">YouTube ↗</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <header class="hero">
+    <div class="hero-eyebrow">Live aus Sessionize · automatisch aktuell</div>
+    <h1>Daten-WG · <em>Agenda</em> &amp; Speaker:innen</h1>
+    <p class="hero-sub">Das komplette Programm unserer Wohngemeinschaft — alle Sessions, Zeiten,
+      Räume und Speaker:innen. Die Daten kommen live aus Sessionize, diese Seite ist also immer auf dem neuesten Stand.</p>
+    <div class="hero-stats" id="hero-stats" aria-live="polite"></div>
+  </header>
+
+  <!-- Loading -->
+  <div class="state-box" id="loading-box">
+    <div class="spin" role="status" aria-label="Lädt"></div>
+    <h2>Programm wird geladen …</h2>
+    <p>Einen Moment — die Sessions kommen frisch aus der Sessionize-Küche.</p>
+  </div>
+
+  <!-- Error -->
+  <div class="state-box hidden" id="error-box">
+    <h2>Ups — Daten konnten nicht geladen werden</h2>
+    <p id="error-msg">Die Sessionize-API ist gerade nicht erreichbar. Bitte kurz warten und nochmal probieren.</p>
+    <button class="retry" id="retry-btn">Nochmal versuchen</button>
+  </div>
+
+  <!-- Content -->
+  <main id="content" class="hidden">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-view="schedule" role="tab">🗓 Zeitplan</button>
+      <button class="tab" data-view="sessions" role="tab">🎤 Sessions</button>
+      <button class="tab" data-view="speakers" role="tab">👥 Speaker:innen</button>
+    </div>
+
+    <div class="filterbar" id="filterbar">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+        <input type="search" class="search-input" id="search" placeholder="Suchen — Titel, Speaker:in, Beschreibung …" autocomplete="off">
+      </div>
+      <select class="filter-select" id="filter-track"><option value="">Alle Tracks</option></select>
+      <select class="filter-select" id="filter-room"><option value="">Alle Räume</option></select>
+      <div class="result-count"><strong id="result-count">0</strong> <span id="result-label">Sessions</span></div>
+    </div>
+
+    <section id="view-schedule" role="tabpanel"></section>
+    <section id="view-sessions" role="tabpanel" class="hidden"><div class="session-grid" id="sessions-grid"></div></section>
+    <section id="view-speakers" role="tabpanel" class="hidden"><div class="speaker-grid" id="speakers-grid"></div></section>
+  </main>
+
+  <footer class="footer">
+    <span>Daten-WG · Knowledge Kitchen</span>
+    <span>Daten: <a href="https://sessionize.com" target="_blank" rel="noopener">Sessionize</a> ·
+      <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a></span>
+  </footer>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal-backdrop" aria-modal="true" role="dialog">
+  <div class="modal">
+    <button class="modal-close" id="modal-close" aria-label="Schließen">×</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+const API_URL = 'https://sessionize.com/api/v2/lhdydn43/view/All';
+const TRACK_COLORS = ['--t-1','--t-2','--t-3','--t-4','--t-5','--t-6','--t-7','--t-8'];
+
+// ---------- State ----------
+const state = {
+  raw: null,
+  sessions: [],          // normalisierte Sessions
+  speakers: [],          // normalisierte Speaker
+  speakerById: new Map(),
+  sessionById: new Map(),
+  roomById: new Map(),
+  catItemById: new Map(),// categoryItem-id -> {name, categoryTitle, color}
+  trackItems: [],        // Items der "Track"-artigen Kategorie (für Filter)
+  view: 'schedule',
+  q: '', track: '', room: ''
+};
+
+// ---------- Helpers ----------
+const $ = sel => document.querySelector(sel);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const fmtDay = iso => new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso));
+const fmtTime = iso => new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
+
+function initials(name) {
+  return String(name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+}
+function durationMin(s) {
+  if (!s.startsAt || !s.endsAt) return null;
+  return Math.round((new Date(s.endsAt) - new Date(s.startsAt)) / 60000);
+}
+function avatarImg(sp, cls, sizeCls) {
+  if (sp && sp.profilePicture) {
+    return `<img src="${esc(sp.profilePicture)}" alt="${esc(sp.fullName)}" loading="lazy"
+      onerror="this.outerHTML='<span class=&quot;${sizeCls}&quot;>${esc(initials(sp.fullName))}</span>'">`;
+  }
+  return `<span class="${sizeCls}">${esc(initials(sp ? sp.fullName : '?'))}</span>`;
+}
+
+// ---------- Normalisierung ----------
+// Sessionize liefert in sessions[].speakers je nach Endpoint-Variante
+// GUID-Strings ODER {id,name}-Objekte — beides abfangen.
+function normalize(data) {
+  state.raw = data;
+
+  (data.rooms || []).forEach(r => state.roomById.set(String(r.id), r.name));
+
+  (data.categories || []).forEach((cat, ci) => {
+    (cat.items || []).forEach((item, ii) => {
+      state.catItemById.set(String(item.id), {
+        name: item.name,
+        categoryTitle: cat.title,
+        color: TRACK_COLORS[(ci * 3 + ii) % TRACK_COLORS.length]
+      });
+    });
+  });
+
+  // "Track"-Kategorie fürs Filter-Dropdown: erste Kategorie mit >1 Item,
+  // bevorzugt eine, deren Titel nach Track/Thema klingt.
+  const cats = (data.categories || []).filter(c => (c.items || []).length > 0);
+  const trackCat = cats.find(c => /track|thema|topic|kategorie/i.test(c.title || '')) || cats[0];
+  state.trackItems = trackCat ? trackCat.items.map(i => ({ id: String(i.id), name: i.name })) : [];
+
+  state.speakers = (data.speakers || []).map(sp => ({
+    id: String(sp.id),
+    fullName: sp.fullName || [sp.firstName, sp.lastName].filter(Boolean).join(' '),
+    tagLine: sp.tagLine || '',
+    bio: sp.bio || '',
+    profilePicture: sp.profilePicture || '',
+    isTopSpeaker: !!sp.isTopSpeaker,
+    links: sp.links || [],
+    sessionIds: (sp.sessions || []).map(String)
+  }));
+  state.speakers.forEach(sp => state.speakerById.set(sp.id, sp));
+
+  state.sessions = (data.sessions || []).map(s => {
+    const speakerIds = (s.speakers || []).map(x => String(typeof x === 'object' ? x.id : x));
+    const catIds = (s.categoryItems || []).map(String);
+    const trackId = catIds.find(id => state.trackItems.some(t => t.id === id)) || null;
+    const trackInfo = trackId ? state.catItemById.get(trackId) : null;
+    return {
+      id: String(s.id),
+      title: s.title || 'Ohne Titel',
+      description: s.description || '',
+      startsAt: s.startsAt || null,
+      endsAt: s.endsAt || null,
+      isService: !!s.isServiceSession,
+      isPlenum: !!s.isPlenumSession,
+      room: s.roomId != null ? (state.roomById.get(String(s.roomId)) || s.room || '') : (s.room || ''),
+      speakerIds, catIds, trackId,
+      trackName: trackInfo ? trackInfo.name : '',
+      trackColor: trackInfo ? trackInfo.color : '--t-1'
+    };
+  });
+  state.sessions.forEach(s => state.sessionById.set(s.id, s));
+}
+
+// ---------- Filter ----------
+function filteredSessions() {
+  const q = state.q.trim().toLowerCase();
+  return state.sessions.filter(s => {
+    if (state.track && s.trackId !== state.track) return false;
+    if (state.room && s.room !== state.room) return false;
+    if (q) {
+      const speakers = s.speakerIds.map(id => (state.speakerById.get(id) || {}).fullName || '').join(' ');
+      const hay = `${s.title} ${s.description} ${speakers} ${s.trackName} ${s.room}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+function filteredSpeakers() {
+  const q = state.q.trim().toLowerCase();
+  return state.speakers.filter(sp => {
+    if (state.track || state.room) {
+      const ok = sp.sessionIds.some(id => {
+        const s = state.sessionById.get(id);
+        return s && (!state.track || s.trackId === state.track) && (!state.room || s.room === state.room);
+      });
+      if (!ok) return false;
+    }
+    if (q) {
+      const titles = sp.sessionIds.map(id => (state.sessionById.get(id) || {}).title || '').join(' ');
+      if (!`${sp.fullName} ${sp.tagLine} ${sp.bio} ${titles}`.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => (b.isTopSpeaker - a.isTopSpeaker) || a.fullName.localeCompare(b.fullName, 'de'));
+}
+
+// ---------- Render: Bausteine ----------
+function sessionMetaHtml(s) {
+  const chips = [];
+  if (s.trackName) chips.push(`<span class="chip">${esc(s.trackName)}</span>`);
+  s.catIds.filter(id => id !== s.trackId).slice(0, 2).forEach(id => {
+    const c = state.catItemById.get(id);
+    if (c) chips.push(`<span class="chip room">${esc(c.name)}</span>`);
+  });
+  if (s.room) chips.push(`<span class="chip room">📍 ${esc(s.room)}</span>`);
+  if (s.isPlenum) chips.push(`<span class="chip plenum">Plenum</span>`);
+  return chips.length ? `<div class="session-meta">${chips.join('')}</div>` : '';
+}
+function speakerMinisHtml(s) {
+  const sps = s.speakerIds.map(id => state.speakerById.get(id)).filter(Boolean);
+  if (!sps.length) return '';
+  return `<div class="session-speakers">${sps.map(sp =>
+    `<span class="speaker-mini">${avatarImg(sp, '', 'avatar-fallback')}<span>${esc(sp.fullName)}</span></span>`
+  ).join('')}</div>`;
+}
+function sessionCardHtml(s, { withDesc = false, withWhen = false } = {}) {
+  const dur = durationMin(s);
+  const when = s.startsAt
+    ? `${fmtDay(s.startsAt)} · ${fmtTime(s.startsAt)}–${s.endsAt ? fmtTime(s.endsAt) : ''} Uhr`
+    : 'Termin folgt';
+  return `<article class="session-card${s.isService ? ' service' : ''}" style="--track-color: var(${s.trackColor})"
+      data-session="${esc(s.id)}" tabindex="0" role="button" aria-label="${esc(s.title)}">
+    ${sessionMetaHtml(s)}
+    <h3 class="session-title">${esc(s.title)}</h3>
+    ${withDesc && s.description ? `<p class="session-desc">${esc(s.description)}</p>` : ''}
+    ${speakerMinisHtml(s)}
+    ${withWhen ? `<div class="session-when">🕐 ${esc(when)}${dur ? ` · ${dur} min` : ''}</div>` : ''}
+  </article>`;
+}
+
+// ---------- Render: Views ----------
+function renderSchedule(list) {
+  const el = $('#view-schedule');
+  const scheduled = list.filter(s => s.startsAt).sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+  const unscheduled = list.filter(s => !s.startsAt);
+
+  const byDay = new Map();
+  scheduled.forEach(s => {
+    const day = s.startsAt.slice(0, 10);
+    if (!byDay.has(day)) byDay.set(day, new Map());
+    const slots = byDay.get(day);
+    const key = s.startsAt.slice(11, 16);
+    if (!slots.has(key)) slots.set(key, []);
+    slots.get(key).push(s);
+  });
+
+  let html = '';
+  for (const [day, slots] of byDay) {
+    const count = [...slots.values()].reduce((n, arr) => n + arr.length, 0);
+    html += `<div class="day-header"><h2>${esc(fmtDay(day))}</h2><span class="day-count">${count} Session${count === 1 ? '' : 's'}</span></div>`;
+    for (const [, sessions] of slots) {
+      const first = sessions[0];
+      html += `<div class="slot">
+        <div class="slot-time">${fmtTime(first.startsAt)}<small>bis ${first.endsAt ? fmtTime(first.endsAt) : '–'} Uhr</small></div>
+        <div class="slot-sessions">${sessions.map(s => sessionCardHtml(s)).join('')}</div>
+      </div>`;
+    }
+  }
+  if (unscheduled.length) {
+    html += `<div class="day-header"><h2>Noch nicht eingeplant</h2><span class="day-count">${unscheduled.length} Session${unscheduled.length === 1 ? '' : 's'}</span></div>
+      <div class="slot"><div class="slot-time">–</div>
+      <div class="slot-sessions">${unscheduled.map(s => sessionCardHtml(s)).join('')}</div></div>`;
+  }
+  el.innerHTML = html || '<div class="state-box"><h2>Keine Treffer</h2><p>Filter oder Suche anpassen.</p></div>';
+}
+
+function renderSessions(list) {
+  $('#sessions-grid').innerHTML = list.length
+    ? list.map(s => sessionCardHtml(s, { withDesc: true, withWhen: true })).join('')
+    : '<div class="state-box" style="grid-column:1/-1"><h2>Keine Treffer</h2><p>Filter oder Suche anpassen.</p></div>';
+}
+
+function renderSpeakers(list) {
+  $('#speakers-grid').innerHTML = list.length
+    ? list.map(sp => `<article class="speaker-card${sp.isTopSpeaker ? ' top' : ''}" data-speaker="${esc(sp.id)}" tabindex="0" role="button" aria-label="${esc(sp.fullName)}">
+        ${avatarImg(sp, '', 'avatar-lg')}
+        <div class="speaker-name">${esc(sp.fullName)}</div>
+        ${sp.tagLine ? `<div class="speaker-tagline">${esc(sp.tagLine)}</div>` : ''}
+        <div class="speaker-sessions-count">${sp.sessionIds.length} Session${sp.sessionIds.length === 1 ? '' : 's'}</div>
+      </article>`).join('')
+    : '<div class="state-box" style="grid-column:1/-1"><h2>Keine Treffer</h2><p>Filter oder Suche anpassen.</p></div>';
+}
+
+function render() {
+  ['schedule', 'sessions', 'speakers'].forEach(v => $('#view-' + v).classList.toggle('hidden', state.view !== v));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === state.view));
+
+  if (state.view === 'speakers') {
+    const list = filteredSpeakers();
+    renderSpeakers(list);
+    $('#result-count').textContent = list.length;
+    $('#result-label').textContent = 'Speaker:innen';
+  } else {
+    const list = filteredSessions();
+    (state.view === 'schedule' ? renderSchedule : renderSessions)(list);
+    $('#result-count').textContent = list.length;
+    $('#result-label').textContent = 'Sessions';
+  }
+}
+
+// ---------- Modal ----------
+function openSessionModal(id) {
+  const s = state.sessionById.get(id);
+  if (!s) return;
+  const dur = durationMin(s);
+  const when = s.startsAt
+    ? `${fmtDay(s.startsAt)} · ${fmtTime(s.startsAt)}–${s.endsAt ? fmtTime(s.endsAt) : ''} Uhr${dur ? ` · ${dur} min` : ''}`
+    : 'Termin folgt';
+  const speakers = s.speakerIds.map(sid => state.speakerById.get(sid)).filter(Boolean);
+  $('#modal-body').innerHTML = `
+    <div style="--track-color: var(${s.trackColor})">
+      ${sessionMetaHtml(s)}
+      <h2>${esc(s.title)}</h2>
+      <div class="modal-when">🕐 ${esc(when)}</div>
+      ${s.description ? `<div class="modal-desc">${esc(s.description)}</div>` : ''}
+      ${speakers.length ? `<div class="modal-speakers">${speakers.map(sp => `
+        <div class="modal-speaker">
+          ${avatarImg(sp, '', 'avatar-md')}
+          <div>
+            <div class="modal-speaker-name">${esc(sp.fullName)}</div>
+            ${sp.tagLine ? `<div class="modal-speaker-tag">${esc(sp.tagLine)}</div>` : ''}
+            ${linksHtml(sp)}
+          </div>
+        </div>`).join('')}</div>` : ''}
+    </div>`;
+  $('#modal-backdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function openSpeakerModal(id) {
+  const sp = state.speakerById.get(id);
+  if (!sp) return;
+  const sessions = sp.sessionIds.map(sid => state.sessionById.get(sid)).filter(Boolean);
+  $('#modal-body').innerHTML = `
+    <div class="modal-speaker" style="margin-bottom:18px">
+      ${avatarImg(sp, '', 'avatar-md')}
+      <div>
+        <h2 style="margin-bottom:2px">${esc(sp.fullName)}</h2>
+        ${sp.tagLine ? `<div class="modal-speaker-tag">${esc(sp.tagLine)}</div>` : ''}
+        ${linksHtml(sp)}
+      </div>
+    </div>
+    ${sp.bio ? `<div class="modal-desc">${esc(sp.bio)}</div>` : ''}
+    ${sessions.length ? `<div class="modal-when" style="margin-bottom:8px">Session${sessions.length === 1 ? '' : 's'}</div>
+      <div class="modal-session-list">${sessions.map(s => `
+        <div class="mini-session" style="--track-color: var(${s.trackColor})" data-session="${esc(s.id)}" tabindex="0" role="button">
+          <div class="mini-title">${esc(s.title)}</div>
+          <div class="mini-when">${s.startsAt ? `${esc(fmtDay(s.startsAt))} · ${fmtTime(s.startsAt)} Uhr` : 'Termin folgt'}${s.room ? ` · ${esc(s.room)}` : ''}</div>
+        </div>`).join('')}</div>` : ''}`;
+  $('#modal-backdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function linksHtml(sp) {
+  if (!sp.links || !sp.links.length) return '';
+  return `<div class="modal-links">${sp.links.map(l =>
+    `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.title || l.linkType || 'Link')} ↗</a>`).join('')}</div>`;
+}
+
+function closeModal() {
+  $('#modal-backdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ---------- Hero-Stats & Filter-Optionen ----------
+function renderMeta() {
+  const days = new Set(state.sessions.filter(s => s.startsAt).map(s => s.startsAt.slice(0, 10)));
+  const realSessions = state.sessions.filter(s => !s.isService);
+  const stats = [
+    [realSessions.length, 'Sessions'],
+    [state.speakers.length, 'Speaker:innen'],
+    [days.size, days.size === 1 ? 'Tag' : 'Tage'],
+    [state.roomById.size, state.roomById.size === 1 ? 'Raum' : 'Räume']
+  ].filter(([n]) => n > 0);
+  $('#hero-stats').innerHTML = stats.map(([n, label]) => `<div class="stat-pill"><strong>${n}</strong><span>${label}</span></div>`).join('');
+
+  const trackSel = $('#filter-track');
+  state.trackItems.forEach(t => {
+    const o = document.createElement('option');
+    o.value = t.id; o.textContent = t.name;
+    trackSel.appendChild(o);
+  });
+  trackSel.parentElement && (trackSel.style.display = state.trackItems.length ? '' : 'none');
+
+  const roomSel = $('#filter-room');
+  [...new Set(state.sessions.map(s => s.room).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'de')).forEach(r => {
+    const o = document.createElement('option');
+    o.value = r; o.textContent = r;
+    roomSel.appendChild(o);
+  });
+  roomSel.style.display = state.roomById.size || state.sessions.some(s => s.room) ? '' : 'none';
+}
+
+// ---------- Events ----------
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => { state.view = t.dataset.view; render(); }));
+$('#search').addEventListener('input', e => { state.q = e.target.value; render(); });
+$('#filter-track').addEventListener('change', e => { state.track = e.target.value; render(); });
+$('#filter-room').addEventListener('change', e => { state.room = e.target.value; render(); });
+
+document.addEventListener('click', e => {
+  const card = e.target.closest('[data-session]');
+  if (card) { openSessionModal(card.dataset.session); return; }
+  const sp = e.target.closest('[data-speaker]');
+  if (sp) { openSpeakerModal(sp.dataset.speaker); return; }
+  if (e.target === $('#modal-backdrop')) closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Enter' && document.activeElement) {
+    const el = document.activeElement;
+    if (el.dataset && el.dataset.session) openSessionModal(el.dataset.session);
+    else if (el.dataset && el.dataset.speaker) openSpeakerModal(el.dataset.speaker);
+  }
+});
+$('#modal-close').addEventListener('click', closeModal);
+$('#retry-btn').addEventListener('click', () => load());
+
+// ---------- Load ----------
+async function load() {
+  $('#loading-box').classList.remove('hidden');
+  $('#error-box').classList.add('hidden');
+  $('#content').classList.add('hidden');
+  try {
+    const res = await fetch(API_URL, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    try { localStorage.setItem('dwg-sessionize-cache', JSON.stringify(data)); } catch (_) {}
+    boot(data);
+  } catch (err) {
+    // Offline-Fallback: letzter erfolgreicher Abruf aus dem localStorage
+    let cached = null;
+    try { cached = JSON.parse(localStorage.getItem('dwg-sessionize-cache')); } catch (_) {}
+    if (cached) {
+      boot(cached);
+      return;
+    }
+    $('#loading-box').classList.add('hidden');
+    $('#error-box').classList.remove('hidden');
+    $('#error-msg').textContent = `Die Sessionize-API ist gerade nicht erreichbar (${err.message}). Bitte kurz warten und nochmal probieren.`;
+  }
+}
+
+function boot(data) {
+  normalize(data);
+  renderMeta();
+  render();
+  $('#loading-box').classList.add('hidden');
+  $('#content').classList.remove('hidden');
+}
+
+load();
+</script>
+</body>
+</html>
