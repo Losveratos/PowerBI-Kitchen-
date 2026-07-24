@@ -142,7 +142,7 @@ a { color: inherit; text-decoration: none; }
 .title-note { margin-top: 18px; font-size: 11.5px; color: var(--ink-mute); }
 
 /* ---------- Kopfzeile + Score ---------- */
-.hud { display: flex; align-items: center; gap: 12px; padding: 20px 2px 14px; }
+.hud { display: flex; align-items: center; gap: 12px; padding: 20px 54px 14px 2px; }
 .hud-title { font-family: var(--disp); font-weight: 800; font-size: 20px; letter-spacing: -.01em; }
 .hud-title em { font-style: normal; color: var(--gold); text-shadow: 0 0 14px rgba(255,197,61,.5); }
 .hud-spacer { flex: 1; }
@@ -433,9 +433,105 @@ a { color: inherit; text-decoration: none; }
   .rooms { grid-template-columns: repeat(3, 1fr); }
   .album-grid { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* ================= WOW-Schicht: Tiefe, Uebergaenge, Juice ================= */
+
+/* App liegt ueber den Hintergrund-Ebenen */
+.app { position: relative; z-index: 2; }
+
+/* Parallax-Sterne (bewegen sich mit Maus/Gyro) */
+#stars { position: fixed; inset: -60px; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(2px 2px at 18% 22%, rgba(255,255,255,.5) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 74% 14%, rgba(53,240,208,.5) 50%, transparent 51%),
+    radial-gradient(2px 2px at 88% 42%, rgba(255,255,255,.35) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 40% 60%, rgba(157,107,255,.45) 50%, transparent 51%),
+    radial-gradient(2px 2px at 10% 76%, rgba(255,61,138,.4) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 60% 88%, rgba(255,255,255,.3) 50%, transparent 51%);
+  transform: translate(calc(var(--px, 0) * -1.2px), calc(var(--py, 0) * -1.2px));
+  transition: transform .25s ease-out;
+}
+
+/* Synthwave-Boden: perspektivisches Neon-Raster, das nach vorn laeuft */
+#floor { position: fixed; left: 0; right: 0; bottom: 0; height: 34dvh; z-index: 1;
+  pointer-events: none; perspective: 460px; overflow: hidden;
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,.9) 30%, transparent 95%);
+  mask-image: linear-gradient(to top, rgba(0,0,0,.9) 30%, transparent 95%);
+}
+#floor::before { content: ''; position: absolute; inset: 0 -160% -230%;
+  background:
+    repeating-linear-gradient(90deg, rgba(157,107,255,.42) 0 2px, transparent 2px 72px),
+    repeating-linear-gradient(0deg, rgba(53,240,208,.3) 0 2px, transparent 2px 54px);
+  transform: rotateX(57deg) translate(calc(var(--px, 0) * 2px), 0);
+  transform-origin: 50% 0%;
+  animation: floorMove 2.4s linear infinite;
+}
+#floor::after { content: ''; position: absolute; left: 0; right: 0; top: -1px; height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(157,107,255,.8), rgba(53,240,208,.8), transparent);
+  filter: blur(1px); box-shadow: 0 0 18px rgba(157,107,255,.6);
+}
+@keyframes floorMove { from { background-position: 0 0, 0 0; } to { background-position: 0 0, 0 54px; } }
+
+/* Screens kommen mit Tiefe rein statt flach */
+@keyframes fadein {
+  from { opacity: 0; transform: perspective(900px) translateY(26px) rotateX(5deg) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+.screen.on { animation-duration: .45s; animation-timing-function: cubic-bezier(.2,.8,.25,1); }
+
+/* Hub & Deck kippen minimal mit (Gyro/Maus) */
+.rooms, .deck-zone {
+  transform: perspective(900px) rotateX(calc(var(--py, 0) * 0.35deg)) rotateY(calc(var(--px, 0) * -0.35deg));
+  transition: transform .25s ease-out;
+}
+.title-door {
+  transform: perspective(700px) rotateY(calc(var(--px, 0) * 1.2deg)) rotateX(calc(var(--py, 0) * -0.8deg));
+  transition: transform .25s ease-out;
+}
+
+/* Neon-Titel: Einschalt-Effekt + gelegentliches Flackern */
+@keyframes powerOn {
+  0% { opacity: 0; filter: blur(8px); } 40% { opacity: .4; } 45% { opacity: .1; }
+  55% { opacity: .9; } 60% { opacity: .3; } 100% { opacity: 1; filter: blur(0); }
+}
+.title-h1 { animation: powerOn 1.3s ease-out; }
+@keyframes neonFlick {
+  0%, 89%, 100% { opacity: 1; } 90% { opacity: .5; } 91% { opacity: 1; }
+  94% { opacity: .65; } 95% { opacity: 1; }
+}
+.title-h1 em { animation: neonFlick 5s infinite; display: inline-block; }
+
+/* Warp-Uebergang (Kreis-Blende in Zimmerfarbe) */
+#warp { position: fixed; inset: 0; z-index: 200; pointer-events: none;
+  background: var(--brand); clip-path: circle(0px at 50% 50%); opacity: 0; }
+#warp.go  { transition: clip-path .34s ease-in; opacity: .92; }
+#warp.out { transition: clip-path .4s ease-out, opacity .4s ease-out; opacity: 0; }
+
+/* Partikel */
+.pt { position: fixed; width: 9px; height: 9px; border-radius: 2px; z-index: 150; pointer-events: none;
+  transition: transform .7s cubic-bezier(.15,.6,.3,1), opacity .7s ease-out;
+  box-shadow: 0 0 10px currentColor; }
+
+/* Bottom-Sheet federt hoch */
+@keyframes sheetUp { from { transform: translateY(70%); } 70% { transform: translateY(-1.5%); } to { transform: none; } }
+.overlay.on .sheet { animation: sheetUp .42s cubic-bezier(.2,.85,.3,1); }
+
+/* Score-Chip & Badges pulsieren bei Aenderung */
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.25) rotate(-2deg); } 100% { transform: scale(1); } }
+.bump { animation: bump .4s cubic-bezier(.3,1.6,.4,1); }
+
+/* Sound-Toggle */
+#btn-sound { position: fixed; top: calc(14px + env(safe-area-inset-top)); right: 14px; z-index: 85;
+  width: 42px; height: 42px; border-radius: 10px; font-size: 17px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10,8,20,.9); border: 1.5px solid rgba(157,107,255,.4);
+  box-shadow: 0 0 12px rgba(157,107,255,.25); }
+#btn-sound.off { opacity: .55; filter: grayscale(1); }
 </style>
 </head>
 <body>
+<div id="stars"></div>
+<div id="floor"></div>
 <div class="app">
 
   <!-- ===== Titel ===== -->
@@ -518,6 +614,8 @@ a { color: inherit; text-decoration: none; }
 <div id="toast"></div>
 
 <!-- Flur-Navigation -->
+<div id="warp"></div>
+<button id="btn-sound" style="display:none" aria-label="Sound an/aus">🔊</button>
 <nav class="flur" id="flur" style="display:none">
   <button data-nav="hub" class="on">🏠 Wohnung</button>
   <button data-nav="album">🃏 Album <span class="badge" id="nav-album-badge">0</span></button>
@@ -660,6 +758,7 @@ function show(name) {
   document.querySelectorAll('.flur button').forEach(b =>
     b.classList.toggle('on', b.dataset.nav === (name === 'room' ? 'hub' : name)));
   $('#flur').style.display = name === 'title' ? 'none' : 'flex';
+  $('#btn-sound').style.display = name === 'title' ? 'none' : 'flex';
   window.scrollTo(0, 0);
 }
 
@@ -671,6 +770,12 @@ function refreshHud() {
   $('#hud-bar').style.width = (total ? (got / total * 100) : 0) + '%';
   $('#nav-album-badge').textContent = got;
   $('#nav-plan-badge').textContent = state.liked.size;
+  if (typeof bumpIf === 'function') {
+    bumpIf($('#hud-progress'), got !== lastScore);
+    bumpIf($('#nav-album-badge'), got !== lastScore);
+    bumpIf($('#nav-plan-badge'), state.liked.size !== lastPlan);
+    lastScore = got; lastPlan = state.liked.size;
+  }
   $('#t-total').textContent = total;
 }
 
@@ -800,7 +905,13 @@ function flyOut(el, s, liked) {
   el.style.transition = 'transform .4s ease, opacity .4s ease';
   el.style.transform = `translate(${liked ? 480 : -480}px, -40px) rotate(${liked ? 24 : -24}deg)`;
   el.style.opacity = 0;
+  const r = el.getBoundingClientRect();
+  if (liked) { AudioFX.like(); burst(r.right - 40, r.top + r.height / 2); }
+  else AudioFX.nope();
   decide(s, liked);
+  if (state.deckIdx >= state.deck.length && state.deck.length) {
+    setTimeout(() => { AudioFX.clear(); burst(innerWidth / 2, innerHeight * .38, ['#FFC53D', '#35F0D0', '#FFF7E8'], 26); }, 350);
+  }
   setTimeout(renderDeck, 260);
 }
 
@@ -813,6 +924,7 @@ function decide(s, liked) {
     if (fresh.length) {
       const names = fresh.map(id => (state.speakerById.get(id) || {}).fullName).filter(Boolean);
       toast(`🃏 Neu im Album: ${names.join(' & ')}`);
+      AudioFX.collect();
     } else {
       toast('💚 In deinen Plan gezogen!');
     }
@@ -823,6 +935,7 @@ function decide(s, liked) {
 
 // ---------- Detail-Sheet ----------
 function openSheet(s) {
+  AudioFX.flip();
   const info = roomInfo(s.room);
   const t = ticketFor(s);
   const sps = s.speakerIds.map(id => state.speakerById.get(id)).filter(Boolean);
@@ -900,8 +1013,14 @@ function renderPlan() {
 
 // ---------- Events ----------
 $('#btn-enter').addEventListener('click', () => {
+  AudioFX.unlock(); AudioFX.start();
+  if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission().catch(() => {});
+  }
   $('#title-door').classList.add('open');
-  setTimeout(() => { show('hub'); renderHub(); }, 650);
+  const r = $('#title-door').getBoundingClientRect();
+  setTimeout(() => warpTo(() => { show('hub'); renderHub(); },
+    r.left + r.width / 2, r.top + r.height / 2, 'var(--gold)'), 520);
 });
 $('#title-door').addEventListener('click', () => $('#btn-enter').click());
 $('#btn-back').addEventListener('click', () => { show('hub'); renderHub(); });
@@ -916,7 +1035,12 @@ document.addEventListener('click', e => {
   const day = e.target.closest('[data-day]');
   if (day) { state.day = day.dataset.day; renderHub(); return; }
   const door = e.target.closest('[data-room]');
-  if (door) { enterRoom(door.dataset.room); return; }
+  if (door) {
+    AudioFX.flip();
+    const color = roomInfo(door.dataset.room).color;
+    warpTo(() => enterRoom(door.dataset.room), e.clientX, e.clientY, color);
+    return;
+  }
   const spk = e.target.closest('[data-speaker]');
   if (spk) { const sp = state.speakerById.get(spk.dataset.speaker); if (sp) openSpeakerSheet(sp); return; }
   const un = e.target.closest('[data-unlike]');
@@ -953,6 +1077,86 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft') $('#btn-nope').click();
   if (e.key === 'ArrowUp' || e.key === 'Enter') $('#btn-info').click();
 });
+
+// ---------- Arcade-Sounds (WebAudio, winzig & synthetisch) ----------
+const AudioFX = (() => {
+  let ctx, muted = localStorage.getItem('dwg-muted') === '1';
+  const ensure = () => { if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) {} } return ctx; };
+  function tone(f, t = .08, type = 'square', vol = .035, delay = 0, slide = 0) {
+    const c = ensure(); if (!c || muted) return;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, c.currentTime + delay);
+    if (slide) o.frequency.exponentialRampToValueAtTime(slide, c.currentTime + delay + t);
+    g.gain.setValueAtTime(vol, c.currentTime + delay);
+    g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + delay + t);
+    o.connect(g).connect(c.destination);
+    o.start(c.currentTime + delay); o.stop(c.currentTime + delay + t + .03);
+  }
+  return {
+    unlock() { ensure(); },
+    start()   { tone(150, .45, 'sawtooth', .03, 0, 620); tone(300, .4, 'square', .022, .18, 1240); },
+    like()    { tone(880, .07); tone(1320, .13, 'square', .04, .08); },
+    nope()    { tone(230, .13, 'sawtooth', .03, 0, 130); },
+    flip()    { tone(540, .045, 'triangle', .028); },
+    collect() { tone(1560, .09, 'triangle', .045); tone(2090, .13, 'triangle', .035, .08); },
+    clear()   { [660, 880, 1100, 1470].forEach((f, i) => tone(f, .13, 'square', .04, i * .11)); },
+    toggle()  { muted = !muted; localStorage.setItem('dwg-muted', muted ? '1' : '0'); return muted; },
+    get muted() { return muted; }
+  };
+})();
+const sndBtn = $('#btn-sound');
+function syncSnd() { sndBtn.textContent = AudioFX.muted ? '🔇' : '🔊'; sndBtn.classList.toggle('off', AudioFX.muted); }
+sndBtn.addEventListener('click', () => { AudioFX.toggle(); syncSnd(); if (!AudioFX.muted) AudioFX.flip(); });
+syncSnd();
+
+// ---------- Partikel-Burst ----------
+const NEON = ['#35F0D0', '#FF3D8A', '#FFC53D', '#9D6BFF', '#4DA3FF'];
+function burst(x, y, colors = NEON, n = 16) {
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement('i'); p.className = 'pt';
+    const c = colors[i % colors.length];
+    p.style.left = x + 'px'; p.style.top = y + 'px';
+    p.style.background = c; p.style.color = c;
+    document.body.appendChild(p);
+    const a = Math.random() * Math.PI * 2, d = 60 + Math.random() * 100;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      p.style.transform = `translate(${Math.cos(a) * d}px, ${Math.sin(a) * d - 36}px) scale(0) rotate(${(Math.random() - .5) * 240}deg)`;
+      p.style.opacity = '0';
+    }));
+    setTimeout(() => p.remove(), 750);
+  }
+}
+
+// ---------- Warp-Blende zwischen Screens ----------
+function warpTo(fn, x = innerWidth / 2, y = innerHeight / 2, color = '') {
+  const w = $('#warp');
+  if (color) w.style.background = color;
+  w.classList.remove('out'); w.classList.remove('go');
+  w.style.clipPath = `circle(0px at ${x}px ${y}px)`;
+  void w.offsetWidth;
+  w.classList.add('go');
+  w.style.clipPath = `circle(150% at ${x}px ${y}px)`;
+  setTimeout(() => {
+    fn();
+    w.classList.remove('go'); w.classList.add('out');
+    w.style.clipPath = `circle(0px at ${x}px ${y}px)`;
+  }, 360);
+}
+
+// ---------- Parallax (Maus + Gyro) ----------
+function applyTilt(nx, ny) {
+  document.documentElement.style.setProperty('--px', (nx * 14).toFixed(1));
+  document.documentElement.style.setProperty('--py', (ny * 10).toFixed(1));
+}
+window.addEventListener('mousemove', e => applyTilt(e.clientX / innerWidth * 2 - 1, e.clientY / innerHeight * 2 - 1));
+window.addEventListener('deviceorientation', e => {
+  if (e.gamma == null) return;
+  applyTilt(Math.max(-1, Math.min(1, e.gamma / 28)), Math.max(-1, Math.min(1, (e.beta - 42) / 42)));
+});
+
+// ---------- HUD-Bump bei Score-Aenderung ----------
+let lastScore = -1, lastPlan = -1;
+function bumpIf(el, changed) { if (!changed) return; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
 
 // ---------- Boot ----------
 function boot(data) {
