@@ -348,6 +348,23 @@ a { color: inherit; text-decoration: none; }
 .modal-session-list .mini-title { font-family: var(--serif); font-size: 14.5px; font-weight: 600; color: var(--black); }
 .modal-session-list .mini-when { font-family: var(--mono); font-size: 10px; color: var(--ink-mute); margin-top: 2px; }
 
+/* ========== TICKET-LINKS ========== */
+.ticket-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 12px; padding: 6px 14px;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, white);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, white);
+  border-radius: 100px; transition: all .18s ease; width: fit-content;
+}
+.ticket-link:hover { background: var(--accent); color: white; border-color: var(--accent); }
+.ticket-link.big {
+  font-size: 11.5px; padding: 11px 22px; margin: 0 0 24px;
+  background: var(--accent); color: white; border-color: var(--accent);
+}
+.ticket-link.big:hover { background: var(--brand-deep); border-color: var(--brand-deep); }
+
 /* ========== FOOTER ========== */
 .footer {
   margin-top: 72px; padding-top: 28px; border-top: 1px solid var(--line);
@@ -448,6 +465,31 @@ a { color: inherit; text-decoration: none; }
 
 const API_URL = 'https://sessionize.com/api/v2/lhdydn43/view/All';
 const TRACK_COLORS = ['--t-1','--t-2','--t-3','--t-4','--t-5','--t-6','--t-7','--t-8'];
+
+// ---------- Ticket-Links (Daten-WG.com) ----------
+// Zentrale Stelle für alle Ticket-URLs. `bySession` erlaubt einen eigenen
+// Link pro Pre-Con-Workshop (Key = Sessionize-Session-ID), sonst greift `url`.
+const TICKETS = {
+  precon:   { label: '🎟 Pre-Con-Ticket sichern', url: 'https://daten-wg.com/',
+              bySession: {
+                // '1139507': 'https://daten-wg.com/...', // Visual Standards (Tenner/Ackermann)
+                // '1214124': 'https://daten-wg.com/...', // Planung in Fabric
+                // '1172991': 'https://daten-wg.com/...', // Data Wrangling with Python
+                // '1188886': 'https://daten-wg.com/...', // Star Mode
+                // '1196464': 'https://daten-wg.com/...', // DAX Pillars
+                // '1137324': 'https://daten-wg.com/...', // Git & Fabric
+              } },
+  maincon:  { label: '🎟 Main-Con- / Full-Con-Ticket', url: 'https://daten-wg.com/' },
+  aftercon: { label: '🎟 After-Con-Ticket', url: 'https://daten-wg.com/' }
+};
+const PRECON_DAY = '2026-10-14', AFTERCON_DAY = '2026-10-16';
+
+function ticketFor(s) {
+  const day = s.startsAt ? s.startsAt.slice(0, 10) : '';
+  if (day === PRECON_DAY)   return { label: TICKETS.precon.label, url: TICKETS.precon.bySession[s.id] || TICKETS.precon.url };
+  if (day === AFTERCON_DAY) return TICKETS.aftercon;
+  return TICKETS.maincon;
+}
 
 // Eingebetteter Datenstand — die Seite rendert damit sofort und ohne Netz;
 // beim Laden wird zusätzlich versucht, den Live-Stand von Sessionize zu holen.
@@ -613,6 +655,7 @@ function sessionCardHtml(s, { withDesc = false, withWhen = false } = {}) {
   const when = s.startsAt
     ? `${fmtDay(s.startsAt)} · ${fmtTime(s.startsAt)}–${s.endsAt ? fmtTime(s.endsAt) : ''} Uhr`
     : 'Termin folgt';
+  const ticket = s.isService ? null : ticketFor(s);
   return `<article class="session-card${s.isService ? ' service' : ''}" style="--track-color: var(${s.trackColor})"
       data-session="${esc(s.id)}" tabindex="0" role="button" aria-label="${esc(s.title)}">
     ${sessionMetaHtml(s)}
@@ -620,6 +663,7 @@ function sessionCardHtml(s, { withDesc = false, withWhen = false } = {}) {
     ${withDesc && s.description ? `<p class="session-desc">${esc(s.description)}</p>` : ''}
     ${speakerMinisHtml(s)}
     ${withWhen ? `<div class="session-when">🕐 ${esc(when)}${dur ? ` · ${dur} min` : ''}</div>` : ''}
+    ${ticket ? `<a class="ticket-link" href="${esc(ticket.url)}" target="_blank" rel="noopener">${esc(ticket.label)} ↗</a>` : ''}
   </article>`;
 }
 
@@ -707,6 +751,7 @@ function openSessionModal(id) {
       ${sessionMetaHtml(s)}
       <h2>${esc(s.title)}</h2>
       <div class="modal-when">🕐 ${esc(when)}</div>
+      ${!s.isService ? (t => `<a class="ticket-link big" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.label)} · Daten-WG.com ↗</a>`)(ticketFor(s)) : ''}
       ${s.description ? `<div class="modal-desc">${esc(s.description)}</div>` : ''}
       ${speakers.length ? `<div class="modal-speakers">${speakers.map(sp => `
         <div class="modal-speaker">
@@ -807,6 +852,7 @@ $('#search').addEventListener('input', e => { state.q = e.target.value; render()
 $('#filter-room').addEventListener('change', e => { state.room = e.target.value; render(); });
 
 document.addEventListener('click', e => {
+  if (e.target.closest('a')) return; // Links (z. B. Tickets) nicht als Karten-Klick werten
   const card = e.target.closest('[data-session]');
   if (card) { openSessionModal(card.dataset.session); return; }
   const sp = e.target.closest('[data-speaker]');
