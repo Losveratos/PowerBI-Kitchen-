@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Das Daten-WG-Spiel · Zieh ein & entdecke das Programm</title>
+<meta name="description" content="Erkunde die Daten-WG in Köln: Zimmer besuchen, Sessions swipen, Speaker-Karten sammeln.">
+
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#171226">
+
+<style>
+:root {
+  /* Abend in der WG — dunkle Bühne, warme Neonlichter */
+  --night:      #171226;
+  --night-soft: #221B36;
+  --card:       #2A2342;
+  --card-hi:    #352C52;
+  --paper:      #FAFAF5;
+  --ink-inv:    #F4F1E8;
+  --ink-dim:    #B9B2CE;
+  --ink-mute:   #877FA3;
+
+  --brand:   #2FBFA4;   /* Petrol-Neon */
+  --warm:    #FF8A5C;   /* Lampenschein */
+  --pink:    #F06AA8;
+  --gold:    #F2C94C;
+  --blue:    #6AA8F0;
+  --violet:  #A98BF0;
+  --lime:    #B8E06A;
+  --red:     #F06A6A;
+
+  --radius: 14px;
+  --radius-lg: 22px;
+  --shadow: 0 18px 50px rgba(0,0,0,.45);
+  --sans: "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  --disp: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas, monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: var(--sans);
+  background: radial-gradient(circle at 20% -10%, #2E2450 0%, transparent 45%),
+              radial-gradient(circle at 90% 15%, rgba(47,191,164,.18) 0%, transparent 40%),
+              radial-gradient(circle at 60% 110%, rgba(240,106,168,.14) 0%, transparent 45%),
+              var(--night);
+  color: var(--ink-inv);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+}
+button { font: inherit; color: inherit; border: none; background: none; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+
+.app { max-width: 560px; margin: 0 auto; padding: 0 16px calc(84px + env(safe-area-inset-bottom)); min-height: 100dvh; }
+.screen { display: none; animation: fadein .35s ease; }
+.screen.on { display: block; }
+@keyframes fadein { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Titel-Screen ---------- */
+#screen-title { text-align: center; padding-top: 8dvh; }
+.doorbell {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--brand); margin-bottom: 18px;
+}
+.title-h1 {
+  font-family: var(--disp); font-weight: 700; font-size: clamp(34px, 9vw, 52px);
+  line-height: 1.04; letter-spacing: -.02em;
+}
+.title-h1 em { font-style: normal; color: var(--warm); }
+.title-sub { color: var(--ink-dim); margin: 18px auto 0; max-width: 400px; font-size: 15.5px; line-height: 1.55; }
+.title-door {
+  margin: 34px auto 8px; width: 132px; height: 196px; position: relative;
+  perspective: 700px; cursor: pointer;
+}
+.title-door .frame {
+  position: absolute; inset: -10px; border: 3px solid var(--card-hi); border-radius: 10px 10px 0 0;
+  background: var(--night-soft);
+}
+.title-door .leaf {
+  position: absolute; inset: 0; border-radius: 8px 8px 0 0;
+  background: linear-gradient(160deg, #6B4B3A, #4A3226);
+  transform-origin: left; transition: transform .8s cubic-bezier(.6,.05,.28,.99);
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.25);
+}
+.title-door .leaf::after {
+  content: ''; position: absolute; right: 12px; top: 50%; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--gold); box-shadow: 0 0 12px rgba(242,201,76,.8);
+}
+.title-door .glow {
+  position: absolute; inset: 0; border-radius: 8px 8px 0 0;
+  background: radial-gradient(circle at 50% 40%, rgba(255,214,140,.95), rgba(255,138,92,.55) 60%, transparent 75%);
+  opacity: 0; transition: opacity .8s ease .2s;
+}
+.title-door.open .leaf { transform: rotateY(-78deg); }
+.title-door.open .glow { opacity: 1; }
+.title-door .sign {
+  position: absolute; top: 26px; left: 50%; transform: translateX(-50%);
+  background: var(--paper); color: #1A1A1A; font-family: var(--mono); font-size: 9px;
+  font-weight: 700; letter-spacing: .08em; padding: 4px 8px; border-radius: 3px; white-space: nowrap;
+}
+.btn-big {
+  display: inline-block; margin-top: 26px; padding: 15px 34px; border-radius: 100px;
+  background: var(--brand); color: #08201B; font-weight: 700; font-size: 16px;
+  box-shadow: 0 10px 30px rgba(47,191,164,.35); transition: transform .15s ease;
+}
+.btn-big:active { transform: scale(.96); }
+.title-note { margin-top: 16px; font-size: 12px; color: var(--ink-mute); }
+
+/* ---------- Kopfzeile + Fortschritt ---------- */
+.hud { display: flex; align-items: center; gap: 12px; padding: 18px 2px 14px; }
+.hud-title { font-family: var(--disp); font-weight: 700; font-size: 19px; letter-spacing: -.01em; }
+.hud-title em { font-style: normal; color: var(--warm); }
+.hud-spacer { flex: 1; }
+.progress-chip {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; color: var(--night);
+  background: var(--gold); padding: 6px 12px; border-radius: 100px; font-weight: 700;
+  white-space: nowrap;
+}
+.progress-bar { height: 6px; border-radius: 100px; background: var(--card); overflow: hidden; margin: 0 2px 18px; }
+.progress-bar i { display: block; height: 100%; width: 0%; border-radius: 100px;
+  background: linear-gradient(90deg, var(--brand), var(--gold)); transition: width .5s ease; }
+
+/* ---------- Flur / Hub ---------- */
+.hub-intro { color: var(--ink-dim); font-size: 14px; margin: 0 2px 16px; line-height: 1.5; }
+.day-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.day-tab {
+  font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .05em;
+  padding: 9px 15px; border-radius: 100px; background: var(--card); color: var(--ink-dim);
+  border: 1px solid transparent;
+}
+.day-tab.on { background: var(--paper); color: var(--night); }
+.rooms { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.room-door {
+  position: relative; border-radius: var(--radius-lg); padding: 18px 16px 16px;
+  background: linear-gradient(165deg, var(--card-hi), var(--card));
+  border: 1px solid rgba(255,255,255,.06);
+  box-shadow: 0 10px 26px rgba(0,0,0,.3);
+  text-align: left; overflow: hidden; transition: transform .16s ease;
+  display: flex; flex-direction: column; gap: 6px; min-height: 148px;
+}
+.room-door:active { transform: scale(.97); }
+.room-door::before {
+  content: ''; position: absolute; inset: 0 0 auto; height: 5px;
+  background: var(--room-color, var(--brand));
+}
+.room-door .r-emoji { font-size: 30px; filter: drop-shadow(0 4px 10px rgba(0,0,0,.4)); }
+.room-door .r-name { font-family: var(--disp); font-weight: 700; font-size: 16px; line-height: 1.15; }
+.room-door .r-host { font-size: 11.5px; color: var(--ink-dim); line-height: 1.35; }
+.room-door .r-count {
+  margin-top: auto; font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
+  color: var(--room-color, var(--brand)); font-weight: 700; text-transform: uppercase;
+}
+.room-door .r-done {
+  position: absolute; top: 12px; right: 12px; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--brand); color: #08201B; display: none; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700;
+}
+.room-door.done .r-done { display: flex; }
+
+/* ---------- Zimmer / Swipe-Deck ---------- */
+.room-head { display: flex; gap: 12px; align-items: center; margin-bottom: 6px; }
+.room-head .back { font-size: 22px; padding: 6px 10px 6px 0; color: var(--ink-dim); }
+.room-head .rh-emoji { font-size: 34px; }
+.room-head .rh-name { font-family: var(--disp); font-weight: 700; font-size: 21px; }
+.room-head .rh-host { font-size: 12px; color: var(--ink-dim); }
+.room-story {
+  font-size: 13px; color: var(--ink-dim); line-height: 1.5; margin: 8px 2px 16px;
+  border-left: 3px solid var(--room-color, var(--brand)); padding-left: 12px; font-style: italic;
+}
+.deck-zone { position: relative; height: min(440px, 62dvh); margin-bottom: 14px; touch-action: pan-y; }
+.deck-hint {
+  position: absolute; inset: 0; display: flex; flex-direction: column; gap: 10px;
+  align-items: center; justify-content: center; text-align: center; color: var(--ink-mute);
+  font-size: 14px; padding: 24px;
+}
+.deck-hint .big { font-size: 40px; }
+.scard {
+  position: absolute; inset: 0; border-radius: var(--radius-lg);
+  background: linear-gradient(170deg, var(--card-hi), var(--card));
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: var(--shadow);
+  padding: 20px; display: flex; flex-direction: column; gap: 10px;
+  will-change: transform; overflow: hidden;
+}
+.scard::before {
+  content: ''; position: absolute; inset: 0 0 auto; height: 6px; background: var(--room-color, var(--brand));
+}
+.scard .sc-meta { display: flex; gap: 7px; flex-wrap: wrap; }
+.chip {
+  font-family: var(--mono); font-size: 9.5px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; padding: 4px 10px; border-radius: 100px;
+  background: rgba(255,255,255,.09); color: var(--ink-dim);
+}
+.chip.fmt { background: var(--room-color, var(--brand)); color: var(--night); }
+.scard .sc-title {
+  font-family: var(--disp); font-weight: 700; font-size: clamp(18px, 5vw, 23px);
+  line-height: 1.18; letter-spacing: -.01em;
+}
+.scard .sc-desc { font-size: 13.5px; color: var(--ink-dim); line-height: 1.5; overflow: hidden; flex: 1; }
+.scard .sc-when { font-family: var(--mono); font-size: 11px; color: var(--gold); }
+.scard .sc-speakers { display: flex; flex-direction: column; gap: 6px; }
+.sc-sp { display: flex; align-items: center; gap: 9px; }
+.sc-sp img, .sc-sp .ini {
+  width: 34px; height: 34px; border-radius: 50%; object-fit: cover;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.15);
+}
+.sc-sp .ini { display: inline-flex; align-items: center; justify-content: center;
+  background: var(--night-soft); font-family: var(--mono); font-size: 12px; font-weight: 700; }
+.sc-sp span { font-size: 13.5px; font-weight: 600; }
+.stamp {
+  position: absolute; top: 26px; font-family: var(--disp); font-weight: 800; font-size: 30px;
+  padding: 6px 16px; border: 4px solid; border-radius: 10px; opacity: 0; transform: rotate(-14deg);
+  pointer-events: none; letter-spacing: .02em;
+}
+.stamp.yes { left: 18px; color: var(--brand); border-color: var(--brand); }
+.stamp.no  { right: 18px; color: var(--red); border-color: var(--red); transform: rotate(14deg); }
+.deck-actions { display: flex; gap: 18px; justify-content: center; align-items: center; }
+.act {
+  width: 62px; height: 62px; border-radius: 50%; font-size: 26px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--card-hi); box-shadow: 0 8px 22px rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.08); transition: transform .12s ease;
+}
+.act:active { transform: scale(.9); }
+.act.like { background: var(--brand); color: #08201B; }
+.act.info { width: 48px; height: 48px; font-size: 19px; }
+.deck-count { text-align: center; font-family: var(--mono); font-size: 10.5px; color: var(--ink-mute); margin-top: 10px; letter-spacing: .05em; }
+
+/* ---------- Album ---------- */
+.album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.acard {
+  aspect-ratio: 3 / 4.1; border-radius: 12px; position: relative; overflow: hidden;
+  background: var(--card); border: 1px solid rgba(255,255,255,.07);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; padding: 8px; text-align: center; transition: transform .15s ease;
+}
+.acard:active { transform: scale(.95); }
+.acard.locked { color: var(--ink-mute); }
+.acard.locked .q { font-size: 30px; opacity: .5; }
+.acard.locked .nm { font-size: 9.5px; font-family: var(--mono); letter-spacing: .04em; }
+.acard.got { background: linear-gradient(170deg, var(--card-hi), var(--card)); }
+.acard.got img, .acard.got .ini {
+  width: 56px; height: 56px; border-radius: 50%; object-fit: cover;
+  box-shadow: 0 0 0 3px var(--night), 0 0 0 4.5px var(--gold);
+}
+.acard.got .ini { display: flex; align-items: center; justify-content: center;
+  background: var(--night-soft); font-family: var(--mono); font-weight: 700; }
+.acard.got .nm { font-size: 10.5px; font-weight: 700; line-height: 1.2; }
+.acard.got .tg { font-size: 8.5px; color: var(--ink-mute); line-height: 1.25;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.acard.keynote::after {
+  content: '★ KEYNOTE'; position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 7px; font-weight: 800; letter-spacing: .1em; color: var(--gold);
+}
+.acard.keynote { border-color: rgba(242,201,76,.45);
+  background: linear-gradient(160deg, rgba(242,201,76,.14), var(--card) 55%); }
+.album-note { color: var(--ink-dim); font-size: 13px; margin: 4px 2px 16px; }
+
+/* ---------- Mein Plan ---------- */
+.plan-day { font-family: var(--disp); font-weight: 700; font-size: 16px; margin: 20px 2px 10px; color: var(--warm); }
+.plan-item {
+  background: var(--card); border: 1px solid rgba(255,255,255,.07); border-radius: var(--radius);
+  padding: 13px 14px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start;
+  border-left: 4px solid var(--room-color, var(--brand));
+}
+.plan-item .pi-time { font-family: var(--mono); font-size: 11px; color: var(--gold); white-space: nowrap; padding-top: 2px; }
+.plan-item .pi-title { font-weight: 700; font-size: 14px; line-height: 1.3; }
+.plan-item .pi-sub { font-size: 11.5px; color: var(--ink-dim); margin-top: 3px; }
+.plan-item .pi-ticket {
+  display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase; color: var(--brand);
+  border: 1px solid rgba(47,191,164,.4); padding: 4px 11px; border-radius: 100px;
+}
+.plan-item .pi-x { margin-left: auto; color: var(--ink-mute); font-size: 17px; padding: 2px 4px; }
+.plan-empty { text-align: center; color: var(--ink-mute); padding: 60px 20px; font-size: 14px; line-height: 1.6; }
+.plan-empty .big { font-size: 42px; margin-bottom: 12px; }
+
+/* ---------- Detail-Overlay ---------- */
+.overlay {
+  position: fixed; inset: 0; z-index: 90; background: rgba(13,10,22,.78);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display: none; align-items: flex-end; justify-content: center;
+}
+.overlay.on { display: flex; }
+.sheet {
+  background: var(--night-soft); width: 100%; max-width: 560px; max-height: 86dvh;
+  border-radius: 22px 22px 0 0; padding: 22px 20px calc(24px + env(safe-area-inset-bottom));
+  overflow-y: auto; border-top: 1px solid rgba(255,255,255,.1);
+}
+.sheet h3 { font-family: var(--disp); font-size: 21px; line-height: 1.2; margin: 10px 0 6px; }
+.sheet .sh-when { font-family: var(--mono); font-size: 11.5px; color: var(--gold); margin-bottom: 14px; }
+.sheet .sh-desc { font-size: 14px; color: var(--ink-dim); line-height: 1.6; white-space: pre-line; margin-bottom: 16px; user-select: text; -webkit-user-select: text; }
+.sheet .grab { width: 44px; height: 5px; border-radius: 100px; background: rgba(255,255,255,.18); margin: 0 auto 6px; }
+.sheet .ticket-big {
+  display: block; text-align: center; background: var(--brand); color: #08201B; font-weight: 700;
+  padding: 13px; border-radius: 100px; margin-top: 6px;
+}
+.sheet .sh-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.sheet .sh-links a { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; padding: 6px 13px; border-radius: 100px; background: var(--card-hi); color: var(--ink-dim); }
+
+/* ---------- Toast ---------- */
+#toast {
+  position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px);
+  background: var(--paper); color: var(--night); font-weight: 700; font-size: 13px;
+  padding: 11px 20px; border-radius: 100px; box-shadow: var(--shadow);
+  opacity: 0; pointer-events: none; transition: all .3s ease; z-index: 95; white-space: nowrap; max-width: 92vw;
+  overflow: hidden; text-overflow: ellipsis;
+}
+#toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---------- Bottom-Nav (der Flur) ---------- */
+.flur {
+  position: fixed; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  display: flex; gap: 6px; background: rgba(34,27,54,.92); backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 100px; padding: 7px; z-index: 80; box-shadow: var(--shadow);
+}
+.flur button {
+  font-size: 12.5px; font-weight: 700; padding: 10px 17px; border-radius: 100px; color: var(--ink-dim);
+  display: flex; gap: 7px; align-items: center; white-space: nowrap;
+}
+.flur button.on { background: var(--paper); color: var(--night); }
+.flur .badge {
+  background: var(--pink); color: white; font-family: var(--mono); font-size: 9.5px; font-weight: 800;
+  min-width: 18px; height: 18px; border-radius: 100px; display: inline-flex; align-items: center; justify-content: center; padding: 0 5px;
+}
+
+@media (min-width: 620px) {
+  .rooms { grid-template-columns: repeat(3, 1fr); }
+  .album-grid { grid-template-columns: repeat(4, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== Titel ===== -->
+  <section class="screen on" id="screen-title">
+    <div class="doorbell">🔔 Es klingelt an der Daten-WG · Köln, Belgisches Viertel</div>
+    <h1 class="title-h1">Zieh ein ins<br><em>Daten-WG</em>-Spiel</h1>
+    <p class="title-sub">Hinter jeder Tür wohnt jemand — und ein Stück Konferenz-Programm.
+      Besuche die Zimmer, swipe dich durch die Sessions und sammle alle
+      <strong id="t-total">39</strong> Mitbewohner:innen in dein Album.</p>
+    <div class="title-door" id="title-door" role="button" aria-label="Tür öffnen">
+      <div class="frame"></div>
+      <div class="glow"></div>
+      <div class="leaf"></div>
+      <div class="sign">DATEN-WG · 14.–16.10.2026</div>
+    </div>
+    <button class="btn-big" id="btn-enter">🚪 Klingeln &amp; eintreten</button>
+    <div class="title-note">Dein Fortschritt und dein Plan bleiben auf diesem Gerät gespeichert.</div>
+  </section>
+
+  <!-- ===== Hub: die Wohnung ===== -->
+  <section class="screen" id="screen-hub">
+    <div class="hud">
+      <div class="hud-title">Die <em>Daten-WG</em></div>
+      <div class="hud-spacer"></div>
+      <div class="progress-chip" id="hud-progress">0 / 39</div>
+    </div>
+    <div class="progress-bar"><i id="hud-bar"></i></div>
+    <p class="hub-intro">Acht Zimmer, drei Tage, ein Programm. Tipp auf eine Tür und lern die Bewohner:innen kennen. 💡</p>
+    <div class="day-tabs" id="day-tabs"></div>
+    <div class="rooms" id="rooms"></div>
+  </section>
+
+  <!-- ===== Zimmer ===== -->
+  <section class="screen" id="screen-room">
+    <div class="room-head">
+      <button class="back" id="btn-back">←</button>
+      <div class="rh-emoji" id="rh-emoji">🛋</div>
+      <div>
+        <div class="rh-name" id="rh-name">Zimmer</div>
+        <div class="rh-host" id="rh-host"></div>
+      </div>
+    </div>
+    <div class="room-story" id="rh-story"></div>
+    <div class="deck-zone" id="deck-zone"></div>
+    <div class="deck-actions">
+      <button class="act nope" id="btn-nope" aria-label="Weiter">✖️</button>
+      <button class="act info" id="btn-info" aria-label="Details">ℹ️</button>
+      <button class="act like" id="btn-like" aria-label="In meinen Plan">💚</button>
+    </div>
+    <div class="deck-count" id="deck-count"></div>
+  </section>
+
+  <!-- ===== Album ===== -->
+  <section class="screen" id="screen-album">
+    <div class="hud">
+      <div class="hud-title">Das <em>Sammelalbum</em></div>
+      <div class="hud-spacer"></div>
+      <div class="progress-chip" id="album-progress">0 / 39</div>
+    </div>
+    <p class="album-note">Swipe Sessions nach rechts 💚, um ihre Speaker:innen kennenzulernen. Goldene Karten = Keynote! ⭐</p>
+    <div class="album-grid" id="album-grid"></div>
+  </section>
+
+  <!-- ===== Mein Plan ===== -->
+  <section class="screen" id="screen-plan">
+    <div class="hud">
+      <div class="hud-title">Mein <em>WG-Plan</em></div>
+      <div class="hud-spacer"></div>
+      <button class="progress-chip" id="btn-share">Teilen ↗</button>
+    </div>
+    <div id="plan-list"></div>
+  </section>
+
+</div>
+
+<!-- Detail-Sheet -->
+<div class="overlay" id="overlay">
+  <div class="sheet" id="sheet"></div>
+</div>
+<div id="toast"></div>
+
+<!-- Flur-Navigation -->
+<nav class="flur" id="flur" style="display:none">
+  <button data-nav="hub" class="on">🏠 Wohnung</button>
+  <button data-nav="album">🃏 Album <span class="badge" id="nav-album-badge">0</span></button>
+  <button data-nav="plan">📋 Plan <span class="badge" id="nav-plan-badge">0</span></button>
+</nav>
+
+<script>
+'use strict';
+
+const API_URL = 'https://sessionize.com/api/v2/lhdydn43/view/All';
+
+// Eingebetteter Datenstand — wird beim Laden live von Sessionize aktualisiert.
+const FALLBACK_DATA = {"sessions":[{"id":"1139507","title":"Visual Standards in Power BI für Controlling und Finance | Von Easy über Flexibel bis MacGyver","description":"Visual Standards in Power BI für Controlling und Finance\r\n\r\nVon Easy über Flexibel bis MacGyver\r\n\r\nIn Controlling und Finance stehen immer wieder dieselben Fragestellungen im Mittelpunkt: der Vergleich von Actuals mit Vorjahr, Plan, Budget oder Forecast sowie die Analyse von Abweichungen auf Monats-, Jahres- oder Gesamtjahressicht. Zusätzlich erhöhen Themen wie Währungsumrechnung die Komplexität von Analysen. Trotz klarer fachlicher Logiken sind Reports in der Praxis häufig uneinheitlich aufgebaut, schwer vergleichbar und unterschiedlich interpretierbar. Visuelle Standards fehlen oder werden oft auf ein reines Design-Thema reduziert.\r\n\r\nDiese Pre-Conference zeigt, warum visuelle Standards ein zentrales Steuerungsinstrument im Controlling und Finance sind – und wie sie in Power BI technisch, konzeptionell und organisatorisch sinnvoll umgesetzt werden können.\r\n\r\nEinführung: Visuelle Standards im Controlling- und Finance-Kontext\r\n\r\nZu Beginn wird ein gemeinsames Verständnis für die Rolle visueller Standards geschaffen. Anhand etablierter Konzepte wie IBCS und weiterer Best Practices wird eingeordnet, wie Visualisierung die Interpretation von Abweichungen unterstützt und Entscheidungsprozesse beschleunigt.\r\n\r\nSchwerpunkte:\r\n\r\nBedeutung visueller Standards für Vergleichbarkeit und Wiedererkennung\r\n\r\nAbgrenzung zwischen Design-Regeln und fachlicher Steuerungslogik\r\n\r\nRelevanz für Management-, Controlling- und Finance-Reporting\r\n\r\nTeil 1: Das Fundament – Das Datenmodell für Controlling und Finance\r\n\r\nVisuelle Standards lassen sich nur dann konsistent umsetzen, wenn das Datenmodell die fachlichen Anforderungen aus Controlling und Finance sauber abbildet. In diesem Teil wird gezeigt, welche Modellierungsentscheidungen in Power BI dafür entscheidend sind.\r\n\r\nBehandelte Themen:\r\n\r\nAbbildung klassischer Kennzahlenstrukturen:\r\n\r\nActual (AC), Prior Year (PY), Plan/Budget (PL/BUD), Forecast (FC), Outlook (OUT)\r\n\r\nZeitlogiken für MTD, YTD und FY\r\n\r\nUmgang mit Währungskursen im Datenmodell:\r\n\r\nEinsatz klar definierter Umrechnungskurse, z. B. Ist-Kurs oder Budget-/Plan-Kurs\r\n\r\nUmrechnung möglichst bereits in der Datenquelle, um konsistente Ergebnisse, bessere Performance und geringere Komplexität im Modell zu erreichen\r\n\r\nZentrale Hinterlegung der Umrechnungslogik im Datenmodell\r\n\r\nSicherstellung konsistenter Analysen über alle Reports hinweg\r\n\r\nDAX-Ansätze für flexible Analysen:\r\n\r\nDynamische Measures\r\n\r\nCalculation Groups\r\n\r\nField Parameter\r\n\r\nBewertung der Ansätze hinsichtlich Flexibilität, Wartbarkeit und Skalierbarkeit\r\n\r\nTeil 2: Darstellung & Informationsvermittlung (Hands-on)\r\n\r\nDer zweite Teil der Pre-Conference ist praxisorientiert und hands-on ausgelegt. Auf Basis eines durchgängigen Szenarios aus Controlling und Finance setzen die Teilnehmenden unterschiedliche Visualisierungs- und Interaktionskonzepte selbst um und vergleichen deren Wirkung.\r\n\r\nIm Mittelpunkt stehen:\r\n\r\nUmsetzung visueller Standards mit unterschiedlichen technischen Ansätzen:\r\n\r\n3rd-Party-Visuals (z. B. Zebra BI, Graphomate, Inforiver)\r\n\r\nEigene Visuals mit Deneb\r\n\r\nCore Visuals in Kombination mit SVG\r\n\r\nKonzepte der Informationsvermittlung im Controlling- und Finance-Reporting:\r\n\r\nAufbau von Übersichts-, Analyse- und Detailseiten\r\n\r\nDrill-Down-, Drill-Through- und Tooltip-Konzepte\r\n\r\nDynamische Auswahl von Zeiträumen (MTD, YTD, FY) über Slicer\r\n\r\nNavigationskonzepte in Power BI:\r\n\r\nKlassische Seiten-Navigation\r\n\r\nButton- und Menüstrukturen\r\n\r\nGeführte versus explorative Reports\r\n\r\nTeil 3: Organisation, Governance & KI im Controlling- und Finance-Umfeld (Hands-on & Diskussion)\r\n\r\nIm letzten Teil wird der Blick von der technischen Umsetzung auf die organisatorische und strategische Ebene gelenkt. Die Auswirkungen visueller Standards auf Prozesse, Rollen und Governance werden gemeinsam diskutiert und auf reale Unternehmenskontexte übertragen.\r\n\r\nThemenschwerpunkte:\r\n\r\nOrganisatorische Herausforderungen bei der Einführung visueller Standards\r\n\r\nGovernance-Fragen rund um Templates, Verantwortlichkeiten und Schulung\r\n\r\nAkzeptanz und nachhaltige Nutzung in Controlling- und Finance-Teams\r\n\r\nHerausforderungen von KI im Controlling- und Finance-Umfeld:\r\n\r\nNachvollziehbarkeit und Erklärbarkeit von Ergebnissen\r\n\r\nVertrauen in KI-gestützte Analysen\r\n\r\nBedeutung konsistenter Datenmodelle und visueller Standards als Grundlage für KI\r\n\r\nMehrwert der Pre-Conference\r\n\r\nDie Teilnehmenden erhalten ein klares Verständnis dafür, wie visuelle Standards in Power BI im Controlling und Finance wirkungsvoll eingesetzt werden können. Sie erleben unterschiedliche Ansätze hands-on, verstehen deren Auswirkungen auf Analyse und Entscheidungsfindung und können fundiert entscheiden, welcher Weg zur eigenen Organisation passt.","startsAt":"2026-10-14T10:00:00","endsAt":"2026-10-14T17:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["3c816d78-b5b6-44b7-baf5-1d5ad2907c2f","6d33fdea-4495-4288-8556-42dae1c1ab27"],"categoryItems":[423711,423717],"questionAnswers":[],"roomId":77715,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1214124","title":"Planung in Microsoft Fabric","description":"Mit den Plan-Objekt von Lumel ist native Planung und Zurückschreiben in Microsoft Fabric möglich: ganz ohne zusätzliche Tools und Extra-Lizenzen.\r\n\r\nWir starten mit einem Überblick über die drei Kernfunktionen Power Table, Planung und Intelligence Sheets (ca. 10% der Zeit) und gehen dann zur gemeinsamen Implementierung einer ganzheitlichen Lösung: von der Erfassung über das Zurückschreiben, Szenarien, Kommentare und mehrstufige Modelle hin zu Plan-Ist-Auswertungen.\r\n\r\nDer Anwendungsfall bringt den Tiefgang aus der echten Welt mit, inklusive Sicherheit mit Row-Level-Security, bei der Kostenstellenleiter und Controller verschiedene Rechte haben.","startsAt":"2026-10-14T10:00:00","endsAt":"2026-10-14T17:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["6e64fb2d-c801-41e6-839d-275e1a0fb2b4","45d22785-e55c-4031-aa10-b14b669207fd"],"categoryItems":[423711,423716],"questionAnswers":[],"roomId":77716,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1172991","title":"Data Wrangling with Python - the Fabric way","description":"A structured, hands-on workshop on working with data in Microsoft Fabric using Python. Covers Lakehouse architecture, Delta Tables, and Spark fundamentals before moving into guided exercises with Python and Spark notebooks. Includes data transformation patterns, DataFrame comparisons, Compute Unit behavior, Semantic Link integration with Power BI, and an outlook on VS Code-based development workflows.","startsAt":"2026-10-14T10:00:00","endsAt":"2026-10-14T17:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["e7344ece-4337-4085-a1fb-4592e3ec02dd","9b0b10c6-3abe-4dfd-a1e8-6720f0c27ddf"],"categoryItems":[423711,423716],"questionAnswers":[],"roomId":82799,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1188886","title":"⭐Finde deinen Star Mode: Der Happy Path zu richtig gutem Power BI","description":"Super Mario ist nicht unbesiegbar, weil er perfekt springt, sondern weil er im richtigen Moment den Stern nutzt. In der Datenwelt ist dieser Stern ein Datenmodell, das Abfragen beschleunigt und verlässliche Ergebnisse liefert.\r\n\r\nUnd oft ist genau der richtige Begleiter der Unterschied.\r\n\r\nIn dieser Pre-Conference jagen wir gemeinsam den bestmöglichen Happy Path von Power BI und holen uns Unterstützung durch moderne KI wie Copilot, um diesen Weg effizienter zu gestalten.\r\n\r\nStatt uns durch typische Projektprobleme zu kämpfen, schalten wir bewusst in den Star Mode und erleben, wie sich Power BI anfühlt, wenn Anforderungen, Datenmodell, Visualisierung und Metadaten sauber zusammenspielen.\r\nWir zeigen diesen idealen Ablauf ganz bewusst, um klar zu machen, welche Prinzipien wirklich funktionieren, wie man fundierte Entscheidungen im Projekt trifft und wie sich unnötige Komplexität, Rework und Missverständnisse von Anfang an vermeiden lassen.\r\n\r\nWir starten mit einer fiktiven Anforderungsaufnahme und übersetzen fachliche Ziele in KPIs und ein strukturiertes Report Canvas. Durch leichtgewichtiges Dashboard-Prototyping wird früh sichtbar, welche Informationen wirklich relevant sind und wie diese optimal aufbereitet werden.\r\n\r\nAuf dieser Basis entwickeln wir gemeinsam ein Best-Practice-Datenmodell in Power BI Desktop. Dabei geht es nicht nur um Tabellen und Beziehungen, sondern auch um die oft unterschätzte Ebene der Metadaten: Beschreibungen, Strukturen und Kontexte, die Self-Service und Wartbarkeit erst möglich machen.\r\n\r\nMit Unterstützung moderner KI zeigen wir, wie sich Modellierung, Dokumentation und insbesondere die Nutzung von Metadaten deutlich effizienter umsetzen lassen und wie Kontext aus dem Modell gezielt nutzbar wird.\r\n\r\nZum Abschluss setzen wir das Dashboard aus der Requirement-Phase um und werfen einen Blick über klassische Visualisierungen hinaus in Richtung Custom Visuals.\r\n\r\nDiese Pre-Con richtet sich an alle, die verstehen wollen, wie ein sauberer End-to-End-Workflow für Power BI aussieht und wie man mit den richtigen Prinzipien deutlich schneller zu besseren Ergebnissen kommt.\r\nDas Ergebnis: schnellere Insights, weniger Abstimmungsschleifen und ein Reporting, dem Fachbereiche wirklich vertrauen und das auch langfristig wartbar bleibt.","startsAt":"2026-10-14T10:00:00","endsAt":"2026-10-14T17:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["5e9af6e9-f680-4005-8f1a-7b99e8d20974","a6213d82-d8d4-4aff-905f-5ba37c661170"],"categoryItems":[423711,423715],"questionAnswers":[],"roomId":83945,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1196464","title":"Understanding DAX Pillars","description":"DAX is a simple language (but not easy at all). Its pillars, though, need to be clearly understood in order not to get confused when they interact between them in your measures, calculated columns or calculated tables. In this session the five DAX pillars (filter context, row context, context transition, iterations and expanded tables) will be explained, with  examples,  one by one first and then in interaction between them. Examples will be in increasing complexity order.","startsAt":"2026-10-14T10:00:00","endsAt":"2026-10-14T17:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["644b39bf-96a5-4b50-b18e-69401dbbb262"],"categoryItems":[423711,423714],"questionAnswers":[],"roomId":83946,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1137324","title":"Git & Microsoft Fabric: Von Git-Basics zur produktiven Integration","description":"Microsoft Fabric unterstützt Git für alle Artefakte – Notebooks, Pipelines, Lakehouses, SQL-Skripte, Reports, etc.. Damit ist Git kein „Nice-to-have“ mehr, sondern Grundlage für saubere Entwicklungsprozesse in Fabric-Projekten.\r\n\r\nIn dieser Precon lernen die Teilnehmenden zunächst die grundlegenden Konzepte von Git: die Git-Bereiche (Working Tree, Staging Area, Repository), typische Workflows, Branching-Strategien und Pull Requests.\r\n\r\nDarauf aufbauend wird gezeigt, wie Git konkret in Microsoft Fabric funktioniert:\r\nWie werden Workspaces mit Repositories verbunden?\r\nWie werden Änderungen committet?\r\nWo liegen die aktuellen Limitierungen – insbesondere bei Merge-Konflikten?\r\n\r\nEin besonderer Fokus liegt darauf, warum Git nicht nur über die Fabric-Oberfläche verstanden werden sollte, sondern warum grundlegende Kenntnisse essenziell sind, um Konflikte zu lösen, Änderungen nachzuvollziehen und produktiv im Team zu arbeiten.\r\n\r\nDie Teilnehmenden erhalten damit sowohl das notwendige Git-Fundament als auch ein klares Verständnis, wie Git und Fabric in realen Projekten zusammenspielen.\r\n\r\nInhalte (Agenda-Orientierung)\r\n\r\nTeil 1 – Git Grundlagen\r\n\r\nGit-Bereiche: Working Directory, Staging Area, Repository\r\n\r\nTypischer Git-Workflow (add, commit, push, pull)\r\n\r\nBranching-Strategien im Überblick (Main, Feature Branches, kurze vs. lange Lebensdauer)\r\n\r\nPull Requests und Code Reviews\r\n\r\nTeil 2 – Git in Microsoft Fabric\r\n\r\nGit-Integration in Fabric: wie funktioniert sie technisch?\r\n\r\nTypische Workflows mit Fabric & Git\r\n\r\nLimitierungen und bekannte Probleme (z. B. Merge-Konflikte)\r\n\r\nBest Practices für Teams","startsAt":"2026-10-14T10:00:00","endsAt":"2026-10-14T17:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["7c57b4c9-355a-48f2-aa38-b59cb23f6455","6478ff55-7003-40ce-b4c6-377d5bb4c298"],"categoryItems":[423711,423714],"questionAnswers":[],"roomId":83947,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1198049","title":"OneCommunity: Die Konstante in einer Welt voller Wandel","description":"Technologien kommen und gehen. Plattformen verändern sich, Trends entstehen und verschwinden oft schneller, als man sie greifen kann. Doch inmitten all dieses Wandels gibt es eine Konstante: die Community.\r\n\r\nAnhand persönlicher Erfahrungen, Geschichten aus der Datenplattform-Community und vieler Begegnungen wird deutlich, warum nicht nur Technologie Fortschritt ermöglicht, sondern vor allem die Menschen dahinter. Es sind Menschen, die Wissen teilen, Mut machen, Chancen eröffnen und einander durch Veränderungen begleiten.\r\n\r\nIm Fokus stehen Allyship, Mentorship und Sponsorship – und wie diese Formen der Unterstützung echte Verbindungen schaffen. Verbindungen, die Karrieren prägen, Türen öffnen und aus beruflichen Kontakten langfristige Beziehungen entstehen lassen.\r\n\r\nDer inhaltliche Fokus liegt bewusst nicht auf Technik, sondern auf dem, was in einer schnelllebigen Branche oft den größten Unterschied macht: Zusammenhalt, Unterstützung und das Gefühl, Teil von etwas Größerem zu sein.","startsAt":"2026-10-15T09:00:00","endsAt":"2026-10-15T09:30:00","isServiceSession":false,"isPlenumSession":false,"speakers":["009b3e9a-683f-4fe4-be05-8b8698e5ba7c"],"categoryItems":[423712,434965],"questionAnswers":[],"roomId":77714,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1208829","title":"The Newsflash from FabCon Barcelona","description":"I can offer to do a FabCon Newsflash as part of the Keynote. And you can choose if it should be in German or English.","startsAt":"2026-10-15T09:30:00","endsAt":"2026-10-15T10:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["fc154952-b5d5-4955-baf8-eb381a5c78a2"],"categoryItems":[423712,423714],"questionAnswers":[],"roomId":77714,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1189629","title":"Chat with your data - Warum LLM-basierte BI nicht in den Betrieb kommt","description":"LLM-basierte BI-Systeme versprechen einen einfachen Zugang zu Daten: Fragen in natürlicher Sprache ersetzen Reports und SQL-Abfragen. In Demos funktioniert dieser Ansatz oft überraschend gut.\r\n\r\nIn realen Datenplattformen zeigt sich jedoch ein anderes Bild. Mehrdeutige Kennzahlen, fragmentierte Datenmodelle und komplexe Berechtigungsstrukturen führen dazu, dass LLM-generierte Abfragen zwar technisch korrekt, aber fachlich nicht eindeutig sind.\r\n\r\nDiese Session zeigt, warum viele dieser Ansätze den Schritt in den produktiven Betrieb nicht schaffen und im Prototypenstadium bleiben; und warum dialogbasierte BI-Systeme weniger ein UI-Feature als ein Stresstest für die gesamte Datenplattform sind. Dazu gehört auch eine oft unterschätzte Realität: Daten werden außerhalb der Plattform in Excel „repariert“, angereichert oder korrigiert; mit dem Ergebnis, dass mehrere parallele Wahrheiten entstehen, die für automatisierte Abfragen unsichtbar bleiben.\r\n\r\nDarauf aufbauend werden konkrete Architekturbausteine und umsetzbare „Rezepte“ vorgestellt; von semantischen Schichten über konsistente Kennzahlenkataloge bis hin zu Validierungsmechanismen für generierte Abfragen und klar definierten Datenverantwortlichkeiten. Ergänzt durch typische Stolpersteine und praxisnahe Beispiele ergibt sich ein klarer Leitfaden, wie aus isolierten Prototypen belastbare, produktionsfähige Lösungen entstehen. Dabei geht es nicht nur um klassische BI-Architektur, sondern um das Zusammenspiel mehrerer Ebenen: semantische Modelle in Fabric, operative Nutzung in Power Apps und neue agentische Systeme, die direkt auf Daten zugreifen oder Entscheidungen vorbereiten.\r\n\r\nIch zeige konkret, wo diese Welten heute auseinanderlaufen; etwa wenn Kennzahlen im Report definiert sind, aber in Apps anders interpretiert werden, oder wenn Agenten auf Rohdaten zugreifen, ohne die fachliche Semantik zu berücksichtigen. Daraus leite ich umsetzbare Muster ab; wie zentrale Begriffe konsistent definiert, Datenzugriffe kontrolliert und Abfragen validiert werden können – unabhängig davon, ob sie aus einem Report, einer App oder einem AI-Agenten kommen.\r\n\r\nFür alle, die Datenplattformen nicht nur erweitern, sondern als gemeinsame Grundlage für BI, Apps und AI so aufstellen wollen, dass sie auch unter realen Bedingungen konsistent und zuverlässig funktionieren.","startsAt":"2026-10-15T09:30:00","endsAt":"2026-10-15T10:30:00","isServiceSession":false,"isPlenumSession":false,"speakers":["f6040a22-1580-4ca3-b201-5b59f013c242"],"categoryItems":[423710,423716],"questionAnswers":[],"roomId":77716,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1119726","title":"Adventures in Real-Time Data Analysis!","description":"In this session, Clemens will take you through a series of application scenarios where we ingest, process, and visualize real-time data from live data sources using Microsoft Fabric and Microsoft Azure. We will look at several public and open data feeds for traffic and environmental data and we will also explore replayed-as-live data from sports events like football (the sport played with the foot) or motorsports and look at the many ways how that data can provide insights. What you will learn: data acquisition, normalization, and preprocessing strategies, streaming ingestion options, and postprocessing data into a \"live\" multi-layer medallion architecture.","startsAt":"2026-10-15T10:00:00","endsAt":"2026-10-15T11:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["ea08aeb6-43f0-40d1-a571-4140e932dfb4"],"categoryItems":[423710,423715],"questionAnswers":[],"roomId":77715,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":false},{"id":"1195310","title":"When Interoperability Breaks Security: Governance‑Integration Fabric - Snowflake - Databricks","description":"Hybride Datenplattformen mit Snowflake, Databricks und Microsoft Fabric bieten neue Möglichkeiten – erzeugen aber auch Governance‑Lücken. Während Mirroring, Iceberg‑Virtualisierung und die native Snowflake‑Integration technische Interoperabilität schaffen, bleiben Zugriffsrechte und Rollenmodelle oft plattformspezifisch. Das führt zu inkonsistenten Berechtigungen und Sicherheitsrisiken.\r\nIn dieser Session zeigen wir, wie man diese Lücken schließt. Wir kombinieren die Datenebene (Mirroring, Iceberg, Architekturentscheidungen) mit Governance‑Automatisierung über Policy Weaver, einem Python‑Accelerator, der Rollen auflöst, effektive Berechtigungen ermittelt und Policies in Fabric abbildet. Praxisnahe Beispiele demonstrieren, wie Zugriffsmodelle aus Snowflake und Databricks konsistent in OneLake übertragen werden.\r\nNach der Session wissen Teilnehmende:\r\n\r\nWo typische Governance‑Gaps in hybriden Architekturen entstehen\r\nWie Interoperabilität & Security zusammenspielen\r\nWie Policy Weaver Berechtigungen automatisiert auf Fabric abbildet\r\nWie sich konsistente, sichere Multi‑Platform‑Architekturen umsetzen lassen","startsAt":"2026-10-15T10:00:00","endsAt":"2026-10-15T11:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["53ea0a79-6ff7-41f8-bb63-7ca67ccf3970","310bfc0d-2c00-44da-975a-a2f2962c24a6"],"categoryItems":[423710,423717],"questionAnswers":[],"roomId":82799,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1214117","title":"Dashboard Roast","description":"Was ist noch offensichtlicher als dass niemand Pie-Charts nutzen sollte?\r\nDass das Lernen durch Erfahrungen ist viel besser ist als reine Theorie!\r\n\r\nIn dieser Session werden wir das Thema Datenvisualisierung etwas anders aufziehen: im Mittelpunkt stehen fertige Dashboards und Reports, die vorab eingereicht werden.\r\n\r\nDiese werden von unserem Team aus Frontend-Experten live bewertet - ehrlich, fair und natürlich mit einer Portion Spaß.\r\nDas beste Dashboard wird einen Überraschungspreis gewinnen und wir alle sehr viel an Erfahrung!","startsAt":"2026-10-15T10:15:00","endsAt":"2026-10-15T11:15:00","isServiceSession":false,"isPlenumSession":false,"speakers":["2ef99b00-ea60-4954-a4d2-eb2da0f959fd","6d33fdea-4495-4288-8556-42dae1c1ab27","4b2e73a9-9f53-43d6-90e3-ce051ee08a8a","6060b1ff-a0c3-4091-8aad-295c5faee5f0","3c816d78-b5b6-44b7-baf5-1d5ad2907c2f","2c822c0b-b794-4134-85d0-a1d48b0cbad3"],"categoryItems":[423713,423715],"questionAnswers":[],"roomId":77714,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1196873","title":"Agentic Power BI Development: Zuverlässige Modelle statt zufälliger KI-Ergebnisse","description":"In dieser Session werfen wir einen Blick auf einen echten End-to-End-Workflow mit dem Power BI Modeling MCP Server in Microsoft Fabric. Du erfährst, wo agentische Modellierung in der Realität scheitert, und erhältst konkrete Vorgehensweisen an die Hand, um Kontexte sauber zu strukturieren, Constraints durchzusetzen und instabilen KI-Output in konsistente, produktionsreife Modelle zu verwandeln.","startsAt":"2026-10-15T11:00:00","endsAt":"2026-10-15T12:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["59354cdd-9f28-4e7c-84f1-2e4e3ef4518d"],"categoryItems":[423710,423716],"questionAnswers":[],"roomId":77716,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1149697","title":"From idea to reality - Managing successful data projects","description":"I worked in data product projects. I worked in data platform projects. Backend, frontend, cloud, on premise. All of these projects had a lot in common, but some of them needed a slightly different focus. \r\nIn this session I want to share all my knowledge about the different kind of data projects and also dig again into some essentials of successful projects (and maybe also the not so successful ones ;)). So feel free to remind yourself of the basics, but I am pretty sure that you will also learn something new. ","startsAt":"2026-10-15T11:30:00","endsAt":"2026-10-15T12:30:00","isServiceSession":false,"isPlenumSession":false,"speakers":["e7c97629-844a-453f-8107-559f7ac7d43a"],"categoryItems":[423710,423714],"questionAnswers":[],"roomId":77715,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1143770","title":"Mit Entwurfsmustern strukturiert von Anforderungen zu DAX-Implementierungen","description":"Du möchtest davon weg kommen, bei neuen Anforderungen immer wieder von vorne zu probieren und zu raten, wie sich das in Power BI umsetzen lässt?\r\nIn dieser Session schauen wir uns reale Anforderungen an, zerlegen sie, bilden sie auf allgemeingültige Strukturen ab und implementieren sie mit wiederverwendbaren, performanceoptimierten Entwurfsmustern.\r\nDarunter:\r\n● Model first: Was sich ohne Measure im Modell lösen lässt, erspart komplizierte Measures.\r\n● Kontext modifizierende Calculation Groups und berechnungsmodifizierende Calculation Groups: Wie ein strukturierter Ansatz Ordnung in Deine Calculation Groups bringt und viel Code in Measures erspart.\r\n● DAX User Defined Functions: Wann verwende ich eine UDF, wann eine Calculation Group, und wie bilden beide zusammen ein Dream Team?\r\nAchtung! Manche Ansätze könnten bestehende Glaubenssätze in Frage stellen, und wir werden mit echten Performance-Messungen überprüfen, ob Deine Bedenken berechtigt sind.\r\n\r\nDie Session kann auch auf Englisch angeboten werden.","startsAt":"2026-10-15T11:30:00","endsAt":"2026-10-15T13:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["45d22785-e55c-4031-aa10-b14b669207fd"],"categoryItems":[423713,423716],"questionAnswers":[],"roomId":82799,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":false},{"id":"1198048","title":"Such nicht nur Worte – Such Bedeutung: Semantic Search mit SQL","description":"Was passiert, wenn man YouTube, ein Notebook und SQL Server 2025 in einen Raum sperrt? Genau das finden wir in  15-Minuten heraus 😄\r\n\r\nWir schnappen uns per REST API eine Liste von YouTube-Videos samt Transkripten, laden alles ganz entspannt über ein Notebook in den SQL Server und machen daraus mehr als nur eine Datensammlung. Mit den neuen Vektor-Funktionen in SQL Server 2025 verwandeln wir die Inhalte in eine semantisch durchsuchbare Wissensbasis – suchen also nicht nur nach Wörtern, sondern nach Bedeutung.\r\n\r\nNebenbei zeige ich, wie viel Spaß Notebooks für schnelle Experimente machen, wie einfach sich REST APIs anzapfen lassen und warum Vektoren in SQL ein echtes Game-Changer-Feature sind 🚀\r\n\r\nKurz gesagt: Wenig Setup, viel Wow-Effekt – und am Ende suchst du in Videos, als wären sie Datenbanktabellen.","startsAt":"2026-10-15T11:45:00","endsAt":"2026-10-15T12:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["009b3e9a-683f-4fe4-be05-8b8698e5ba7c"],"categoryItems":[463452,423715],"questionAnswers":[],"roomId":77714,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1196479","title":"Multi-Agenten in der Praxis: Wenn Prozesse schlafen, Daten aber nicht","description":"In diesem Lightning Talk geht es darum, manuellen Aufwand zu reduzieren und das Potenzial von Automatisierung voll auszuschöpfen. Im Fokus stehen Agenten in Microsoft Fabric in Kombination mit Microsoft Foundry, die dabei helfen, Prozesse effizient zu steuern und rund um die Uhr – 24/7 – zuverlässig zu automatisieren.","startsAt":"2026-10-15T12:00:00","endsAt":"2026-10-15T12:15:00","isServiceSession":false,"isPlenumSession":false,"speakers":["fc14cc1f-edd8-49e0-b1f9-73c4e67c6dc5"],"categoryItems":[463452,423716],"questionAnswers":[],"roomId":77714,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1214120","title":"Expert Lab","description":"Demos und Impulse von Sponsoren und ausgewählten Experten. \r\nKurze Impulse laden zu Hands-On Demos ein und machen Zuschauer zu Beteiligten.","startsAt":"2026-10-15T12:15:00","endsAt":"2026-10-15T14:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":[],"categoryItems":[463452,423715],"questionAnswers":[],"roomId":77714,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1131653","title":"Building Data Literacy in the Microsoft Data Platform Era","description":"In today’s data-driven organizations, the ability to interpret, communicate, and make informed decisions with data has become as fundamental as technical infrastructure itself. \r\nYet, while many enterprises invest heavily in platforms like Microsoft Fabric and Power BI, the full potential of these technologies is only realized when users across all levels possess a strong foundation in data literacy. \r\nThis session explores how to cultivate, measure, and sustain data literacy within an organization that builds its analytical ecosystem on the Microsoft Data Platform.\r\nWe dive into the basics of Data Literacy, check Best Practises and give some tips how to measure with data support from tools like FUAM.","startsAt":"2026-10-15T12:30:00","endsAt":"2026-10-15T13:30:00","isServiceSession":false,"isPlenumSession":false,"speakers":["5d9c667c-e5b7-4c46-a9d5-da8a3878ee58","d43d6c9e-c84b-4298-9998-24bb5560c0f0"],"categoryItems":[423710,423715],"questionAnswers":[],"roomId":77716,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1185040","title":"Power BI Tenant Lens — X-Ray for Your Power BI Tenant","description":"Which semantic models still hit that Oracle server you're decommissioning? Who has access? Which dataflows feed which datasets? The admin portal won't tell you. Power BI Tenant Lens will. One PowerShell script, one Power BI template, 16 tables — from tenant settings to dataflow lineage chains six levels deep. This session covers architecture, Scanner API lessons, and turning raw metadata into answers for governance, security, or capacity planning. Open source, battle-tested at enterprise scale.","startsAt":"2026-10-15T13:00:00","endsAt":"2026-10-15T14:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["e7344ece-4337-4085-a1fb-4592e3ec02dd"],"categoryItems":[423710,423715],"questionAnswers":[],"roomId":77715,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1132447","title":"Beyond Excel, Before Code - When Your Data Talks Back","description":"Von BI zu AI - wie die Analyse von Daten datenschutzkonform und unter Wahrung des Steuergeheimnisses die Betriebsprüfung revolutioniert - ein Blick auf moderne Tools wie AUDIPY und warum Agentssysteme die Zukunft der Datenanalyse verändern werden.","startsAt":"2026-10-15T13:30:00","endsAt":"2026-10-15T14:30:00","isServiceSession":false,"isPlenumSession":false,"speakers":["c227ff90-9bfd-4991-8557-ee07e644da0d","977327ee-ca78-4c5b-835a-d751b94c7608"],"categoryItems":[423710,423714],"questionAnswers":[],"roomId":82799,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":false},{"id":"1194470","title":"ExplainableAI ist tot - aber wie geht es weiter?","description":"Können wir der AI Vertrauen? Warum entscheiden Algorithmen so wie sie entscheiden?\r\nDaten, Algorithmen und Regulatorik fordern Fairness, Erklärbarkeit, Plausibilität und vor allem Praktikabilität. Dieser Vortrag zeigt die Entwicklung der vorhandenen Konzepte. Vor allem aber: Wie können wir \r\n\r\nWichtige ethische, regulatorische und somit gesellschaftliche Fragestellungen sind noch unbeantwortet. Wir gehen in dieser Session tiefer in die Details auf der Suche nach Erklärbarkeit von AI. Von den vorhandenen Basics bis zu neuesten Erkenntnissen führen wir lose Enden zusammen und geben einen Ausblick, wo die Reise hingeht.","startsAt":"2026-10-15T14:00:00","endsAt":"2026-10-15T15:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["bc6e7a37-eb78-4ad7-ad5b-ed1cd8ababc1"],"categoryItems":[423710,423716],"questionAnswers":[],"roomId":77716,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1192030","title":"Der Analyst stirbt. Lang lebe der Analyst.","description":"Fabric baut deine Reports. Copilot beantwortet die Fragen deiner Stakeholder. Und du? Du klickst noch Pivot-Tabellen zusammen.\r\n\r\nDas ist keine Zukunftsprognose. Das passiert gerade. In den Unternehmen, die schon verstanden haben, wie man AI auf saubere Daten loslässt, schrumpft die Liste der Aufgaben, für die man einen Analysten braucht, jeden Monat ein bisschen mehr.\r\n\r\nFrederic Bauerfeind macht in dieser Keynote keine Hoffnung. Er stellt eine Frage: Was genau kannst du, was das Modell nicht kann? Und falls du gerade keine Antwort hast, ist das die Antwort.","startsAt":"2026-10-15T14:30:00","endsAt":"2026-10-15T15:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["df6c94eb-5ba5-4e90-aa39-aef96830dcfe"],"categoryItems":[423712,434965],"questionAnswers":[],"roomId":77714,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1210769","title":"Talking about mental health for you and for them","description":"Everyone experiences, or is adjacent to people who experience, challenges with mental health. In both the workplace and personal life, it can feel very difficult to talk with people about these challenges.\r\n\r\nIn this session, I will outline potential behaviours or changes in behaviour that may indicate mental health issues to help you to better identify them in yourself and in others.\r\n\r\nI will also provide you with a set of tools to help navigate these uncomfortable conversations, making them easier for everyone involved. As a qualified and experienced \"brain talker to\" I cannot pass on all of my knowledge but I can help you to be able to better help those around you.\r\n\r\nYou will leave this session with some tools to be able to help yourself identify and deal with these challenges and a better understanding and knowledge of how to be most supportive for your family, friends and colleagues who are facing them. \r\n\r\nYou will also know that you are unlikely to make it worse !\r\n\r\n\r\n","startsAt":"2026-10-15T14:30:00","endsAt":"2026-10-15T15:30:00","isServiceSession":false,"isPlenumSession":false,"speakers":["6ddc0b3c-565b-4983-ac32-380350ee6b09"],"categoryItems":[423710,423714],"questionAnswers":[],"roomId":77715,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1190866","title":"Data Vault 2.0 in Microsoft Fabric: Wann lohnt sich der Aufwand wirklich?","description":"Data Vault 2.0 gilt als der Goldstandard für skalierbare Datenarchitekturen. Aber ist er das auch in Microsoft Fabric? In dieser Session nehmen wir den Modellierungsansatz ehrlich unter die Lupe: Wo liefert Data Vault 2.0 mit Hubs, Links und Satellites echten Mehrwert, und wo wird er zum teuren Over-Engineering?\r\n\r\nWir schauen uns an, wie Raw Vault und Business Vault in Fabric konkret umgesetzt werden, welche strategischen Vorteile die Architektur bei heterogenen Quellsystemen, Schema-Volatilität und regulatorischer Historisierung bietet und wo die realen Kosten liegen: höherer Implementierungsaufwand, Query-Performance-Einbußen und der Bedarf an Spezialistenwissen.\r\n\r\nAnhand einer praxisnahen Entscheidungsmatrix zeige ich, unter welchen Bedingungen Data Vault 2.0 in Fabric die richtige Wahl ist und wann ein Star Schema oder ein einfacheres relationales Modell schneller ans Ziel führt.\r\nWas die Teilnehmer mitnehmen:\r\n\r\n- Verständnis der Data Vault 2.0 Kernarchitektur (Raw Vault, Business Vault, Information Mart) im Kontext von Microsoft Fabric\r\n- Konkrete Kriterien für die Entscheidung: Data Vault 2.0 vs. alternative Modellierungsansätze\r\n- Realistische Einschätzung von Aufwand, Trade-offs und typischen Fallstricken\r\n- Eine Entscheidungsmatrix, die direkt im eigenen Projekt anwendbar ist\r\n\r\nDiese Session richtet sich an Data Engineers, Data Architects und BI-Verantwortliche, die vor der Entscheidung stehen, wie sie ihre Datenplattform in Microsoft Fabric modellieren sollen. Keine Architektur-Dogmen, sondern eine ehrliche Bewertung.","startsAt":"2026-10-15T15:00:00","endsAt":"2026-10-15T16:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["9b92442f-799c-459b-a2f8-322202343cc7"],"categoryItems":[423710,423715],"questionAnswers":[],"roomId":82799,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1214113","title":"Die große Fabric Debatte","description":"Braucht das wirklich jemand? Wir haben genug von seichten Panels und glatten Formulierungen. Deshalb treffen hier echte Meinungen aufeinander - ungefiltert, ehrlich, aber dennoch sachlich und respektvoll.\r\n\r\nIm Kern geht es darum, ob Fabric wirklich das beste ist, was je erfunden wurde oder ein unreifes Produkt, was so niemand braucht. Vielleicht ist es auch etwas dazwischen? Das kann gut sein... aber ein weicher Konsens ist hier nicht das Ziel, sondern der offene Austausch!","startsAt":"2026-10-15T15:15:00","endsAt":"2026-10-15T16:15:00","isServiceSession":false,"isPlenumSession":false,"speakers":["4b2e73a9-9f53-43d6-90e3-ce051ee08a8a","c5bde602-86f4-4850-97b9-3dcb9b6c9c6b"],"categoryItems":[423710,423715],"questionAnswers":[],"roomId":77714,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1188118","title":"Keep Your Friends Close and Your Stakeholders Closer","description":"It starts with a simple request: “Just a few KPIs in Power BI.”\r\nBut then come the filters, extra tabs, and one more breakdown... \r\n\r\nYou deliver it all.\r\nAnd still… it barely gets used.\r\n\r\nFor many data professionals the focus lies on models, visuals, and performance. But the real challenge is NOT about technology, it is about communication. It is about understanding your stakeholders, managing expectations, and staying connected throughout the process. Even if you have built the perfect data model or report, stakeholders can be the reason that adoption stays low. \r\n\r\nIn this session, we explore practical ways to build stronger relationships with stakeholders without losing control of scope or timelines. You will walk away knowing how to: \r\n•\tUncover the real question behind a request\r\n•\tKeep your stakeholders engaged and informed \r\n•\tPrevent scope creep while staying helpful and collaborative\r\n\r\nBecause delivering a dashboard is only the beginning.\r\nReal value comes from adoption, understanding, and use. \r\n\r\nIf you want your dashboards to make an impact, you need to stay close to the people who use them.\r\n\r\nKeep your friends close.\r\nAnd your stakeholders even closer.","startsAt":"2026-10-15T15:30:00","endsAt":"2026-10-15T16:30:00","isServiceSession":false,"isPlenumSession":false,"speakers":["2fbbbeae-c136-4639-a818-d59abdbf3f36"],"categoryItems":[423710,423714],"questionAnswers":[],"roomId":77716,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1186777","title":"Ich habe mich überflüssig gemacht – und genau das war der nächste Schritt","description":"Was passiert, wenn man merkt, dass das eigene Geschäftsmodell langsam ausläuft?\r\nNach über 20 Jahren in der digitalen Welt stand ich genau an diesem Punkt: Daten, Tools, Dashboards, Klienten – alles da - bis heute. Und trotzdem fehlte etwas: der nächste Schritt. \r\nAlso habe ich angefangen, mein eigenes Wissen zu digitalisieren – und mich Stück für Stück selbst überflüssig zu machen.\r\nDieser Lightning Talk ist kein Methodenvortrag, sondern ein persönlicher Einblick: Wie sich Arbeit verändert, warum Loslassen der schwerste Schritt ist – und warum genau darin die größte Chance liegt.","startsAt":"2026-10-15T16:00:00","endsAt":"2026-10-15T17:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["5962233c-beb2-455c-a583-7098ace9f7d7"],"categoryItems":[423710,423717],"questionAnswers":[],"roomId":77715,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":false},{"id":"1147480","title":"Das Zeitalter der Konvergenz - Renaissance des Data Managements","description":"Das Problem herkömmlicher Ansätze liegt in der künstlichen Trennung von Daten und Bedeutung. Bloße Datensätze ohne den dazugehörigen Kontext – wie Dokumentationen, Expertenwissen und Metadaten – sind für eine KI wertlos. Die wahre ökonomische Hebelwirkung entsteht erst dort, wo Daten und Kontext als untrennbare Einheit begriffen werden. Hinzu kommt das KI nicht alleine die Produktivität steigern kann sonder erst das Zusammenspiel von Daten, Robotik, KI und Mensch Wachstum verspricht. Dazu braucht es die entsprechende kontextuelle Datendurchgängigkeit und ein entsprechendes Industrialisierungsframework (Data & AI Governance als Assitenzsystem)","startsAt":"2026-10-15T16:30:00","endsAt":"2026-10-15T17:30:00","isServiceSession":false,"isPlenumSession":false,"speakers":["3cfe9ad9-a0c7-4696-892c-4e9e5547d483"],"categoryItems":[423712,434965],"questionAnswers":[],"roomId":77714,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1197069","title":"Vom ERP zum intelligenten Lakehouse: Business Central, Open Mirroring & Agents in Microsoft Fabric","description":"Viele Unternehmen nutzen Microsoft Dynamics 365 Business Central als zentrales ERP – doch der Weg zu modernen Datenplattformen bleibt oft komplex, langsam und teuer.\r\n\r\nIn dieser Session zeigen wir anhand unseres BC2Fab-Ansatzes, wie Business Central Daten nahtlos in ein modernes Fabric Lakehouse überführt werden können – ohne klassische ETL-Strecken.\r\n\r\nIm Fokus stehen dabei drei zentrale Bausteine:\r\n\r\nOpen Mirroring: Replikation von Business Central Daten in nahezu Echtzeit nach Microsoft Fabric\r\nDelta Lake: Aufbau eines skalierbaren, versionierten Datenmodells im Lakehouse als Grundlage für Analytics und AI\r\n\r\nAgents: Nutzung von Fabric Data Agents zur automatisierten Analyse, Datenanreicherung und neuen Interaktionsformen mit ERP-Daten\r\n\r\nWir zeigen ein End-to-End Setup aus echten Projekten – von der Datenintegration über das Lakehouse-Design bis hin zu Power BI Reporting und AI-gestützten Use Cases.\r\n\r\nDabei gehen wir auch auf Herausforderungen ein:\r\n\r\nDatenmodellierung im ERP-Kontext\r\nMulti-Company-Szenarien\r\nGovernance und Performance\r\ntypische Fallstricke bei der Umsetzung","startsAt":"2026-10-15T16:30:00","endsAt":"2026-10-15T17:30:00","isServiceSession":false,"isPlenumSession":false,"speakers":["5853b261-ebef-4f8b-be8b-759db69c1f46"],"categoryItems":[423710,423715],"questionAnswers":[],"roomId":82799,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":false},{"id":"1199786","title":"...and data for all","description":"Nicht jedes Problem ist ein Datenproblem.\r\nAber Daten können bei fast jedem Problem helfen gute Entscheidungen zu treffen.\r\n\r\nIn der Data Bubble ist das bekannt und dennoch reden wir gefühlt seit Jahren über ähnliche Themen und wie wir andere davon überzeugen Daten ernst zu nehmen.\r\n\r\nIn dieser Keynote zeige ich an ein paar ausgewählten Beispielen wie wir das Thema Daten zugänglicher und greifbarer machen können. Die Schlüssel sind Relevanz und Bequemlichkeit.","startsAt":"2026-10-15T18:00:00","endsAt":"2026-10-15T18:45:00","isServiceSession":false,"isPlenumSession":false,"speakers":["4df9b97c-7cfc-4830-9e75-abd2f54f180c"],"categoryItems":[423712,434965],"questionAnswers":[],"roomId":82800,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1198134","title":"Ein Liebesbrief","description":"Ich liebe Daten. Und das wollte ich schon immer einmal sagen. ","startsAt":"2026-10-15T18:50:00","endsAt":"2026-10-15T19:05:00","isServiceSession":false,"isPlenumSession":false,"speakers":["e7c97629-844a-453f-8107-559f7ac7d43a"],"categoryItems":[463452,423718],"questionAnswers":[],"roomId":82800,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1198869","title":"Klarheit statt Unsicherheit: In wenigen Schritten aus einer Visualisierung eine Story machen","description":"Datenvisualisierungen sollen die relevanten Informationen klar und deutlich vermitteln. Doch manchmal führen sie eher zu Überforderung und noch mehr Fragen statt zum gewünschten Aha- Effekt.\r\n\r\nIch zeige anhand eines Beispiels, wie man mit den richtigen Techniken eine komplexe Datenvisualisierung in eine spannende Datengeschichte umwandelt.","startsAt":"2026-10-15T19:05:00","endsAt":"2026-10-15T19:20:00","isServiceSession":false,"isPlenumSession":false,"speakers":["2ef99b00-ea60-4954-a4d2-eb2da0f959fd"],"categoryItems":[463452,423714],"questionAnswers":[],"roomId":82800,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1214121","title":"Lightning Talks Evening","description":"the rest will follow","startsAt":"2026-10-15T19:20:00","endsAt":"2026-10-15T20:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":[],"categoryItems":[463452,423718],"questionAnswers":[],"roomId":82800,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1214118","title":"Dashboard Karaoke Daten-WG 2026 Edition","description":"Es gibt natürlich neue Daten und Dashboards auf der großen Bühne. Wer schafft es, am besten in 2 bis 4 Minuten spontan eine Geschichte oder nachvollziehbare Analyse zu einem zufällig ausgewählten Dashboard zu erzählen und die Zuschauer zu begeistern?\r\n\r\nEs wird pro Teilnehmer ein zufälliges Dashboard wird ausgewählt und es gibt bis zu 2 Minuten, um sich damit vertraut zu machen.\r\n\r\nDann folgt die Präsentation, die von den Zuschauern in den Kategorien Logik, Storytelling und Spaß bewertet wird.\r\nAm Ende gibt es Ruhm und Ehre für die Gewinner!","startsAt":"2026-10-15T20:00:00","endsAt":"2026-10-15T21:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":["5cbe652b-289d-4cb2-a6d5-f37326135504","6e64fb2d-c801-41e6-839d-275e1a0fb2b4"],"categoryItems":[423710,423718],"questionAnswers":[],"roomId":82800,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true},{"id":"1214125","title":"Special Music Act","description":"do not miss this one!","startsAt":"2026-10-15T21:00:00","endsAt":"2026-10-15T21:30:00","isServiceSession":false,"isPlenumSession":false,"speakers":["644b39bf-96a5-4b50-b18e-69401dbbb262"],"categoryItems":[423712,423718],"questionAnswers":[],"roomId":82800,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":false},{"id":"1214119","title":"After-Con Hackathon & Coworking","description":"Diese Tag gehört EUCH..!\r\n\r\nKennt ihr das Gefühl, nach einer Konferenz viel Input mitzunehmen, aber nach einigen Wochen immer noch NICHTS davon in die Praxis zu bringen, weil der Alltag schnell überhand genommen hat?\r\n\r\nGenau dagegen haben wir etwas:\r\nDie After-Con – am Freitag treffen wir uns nochmal in der Daten-WG.\r\nAber ohne Agenda, nur mit den Eindrücken, unserem Laptop und vielen Ideen, was wir jetzt machen könnten.\r\n\r\nDenn genau dafür ist der Tag da:\r\nSetzt neue Ideen und Tipps direkt in eurer Praxis um. Unsere Trainer werden da sein und für Fragen zur Verfügung stehen. Ein echtes Coworking mit vielen Beratern, die das Thema aus Leidenschaft machen.\r\n\r\nDamit nach dem Event nicht nur schöne Erinnerungen, sondern echter Mehrwert entsteht.","startsAt":"2026-10-16T09:00:00","endsAt":"2026-10-16T16:00:00","isServiceSession":false,"isPlenumSession":false,"speakers":[],"categoryItems":[423711,423715],"questionAnswers":[],"roomId":77714,"liveUrl":null,"recordingUrl":null,"status":"Accepted","isInformed":true,"isConfirmed":true}],"speakers":[{"id":"4b2e73a9-9f53-43d6-90e3-ce051ee08a8a","firstName":"Alexander","lastName":"Korn","bio":"Ich helfe Unternehmen dabei, bessere Entscheidungen zu treffen durch Actionable Reporting.\r\n\r\nSeit 2016 hatte ich das Glück, meine Power BI-Expertise aufzubauen: in der Beratung, direkt in der Industrie und aus der Herstellersicht.\r\nJetzt, dank meines aktuellen Arbeitgebers, helfe ich Unternehmen, das volle Potenzial von Fabric auszuschöpfen.\r\n\r\nEinige meiner Ideen und Beiträge stelle ich allen auf meinem Blog ActionableReporting.com zur Verfügung.\r\n","tagLine":"Solution Engineer Data Platform @Microsoft | IBCS Certified Consultant","profilePicture":"https://cdn.sessionize.com/image/993a-400o400o1-UrWCBP9txmzj6Vd1EmBUHr.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/alexanderkorn","linkType":"LinkedIn"}],"sessions":[1214117,1214113],"fullName":"Alexander Korn","categoryItems":[],"questionAnswers":[]},{"id":"310bfc0d-2c00-44da-975a-a2f2962c24a6","firstName":"Andreas","lastName":"Rederer","bio":"Andreas is a Data & AI Solution Architect with 11+ years of experience in Data Platforms, Data Science and Machine Learning Applications as well as Cloud Solution Architecture and Generative AI. In his role at Microsoft he is advising and supporting customers mainly in the area of Data Platforms and Artificial Intelligence to make their visions, programs or projects around Data & AI an impactful success.","tagLine":"Microsoft - Solution Engineer for Data Platforms","profilePicture":"https://cdn.sessionize.com/image/e94e-400o400o1-DLm9N53WUdF4B5z6zGwRs7.png","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/andreas-rederer-geb-essbaumer-35abb5a1/","linkType":"LinkedIn"}],"sessions":[1195310],"fullName":"Andreas Rederer","categoryItems":[],"questionAnswers":[]},{"id":"6e64fb2d-c801-41e6-839d-275e1a0fb2b4","firstName":"Artur","lastName":"König","bio":"Artur is a data engineer specializing in data analysis and founder and CEO of platformimpulse GmbH. He is responsible for the full-stack implementation of data products from the data source to the final dashboard within the Microsoft ecosystem. As a former lecturer, Artur also focuses on sustainable internal and external knowledge transfer related to Microsoft Power BI and Fabric. Previously, he spent over 12 years as a consultant in IT audit,  software projects, implementing reporting solutions in various  industries and company sizes, and as head of business intelligence at a mid-sized software company in Germany.\r\nArtur is active in the Power BI and data community as a  podcaster, YouTuber, meetup coordinator, member of the TDWI society think tank on Self-Service & Analytics, speaker at events, and book author.","tagLine":"Founder & CEO | BI Consultant | Empowering Agile BI and Analytics | Power BI Fanboy","profilePicture":"https://cdn.sessionize.com/image/b7a2-400o400o1-adZtZXgNbTcrDk19idFxoK.png","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/datakoenigartur/","linkType":"LinkedIn"}],"sessions":[1214124,1214118],"fullName":"Artur König","categoryItems":[],"questionAnswers":[]},{"id":"009b3e9a-683f-4fe4-be05-8b8698e5ba7c","firstName":"Ben","lastName":"Weissman (he/him)","bio":"Ben has been working with SQL Server since SQL Server 6.5, mainly in the BI/Datawarehousing field.\r\n\r\nHe is a Microsoft Data Platform MVP, an author of multiple books and video courses as well as a regular speaker at national and international events. \r\n\r\nBen is also a co-organizer of events like DataGrillen, New Stars of Data, SQL Konferenz, Data Left Unattended, Data Saturday Rheinland and Vienna, dataminutes, dativerse as well as a volunteer and mentor for many other Data Platform events. ","tagLine":"Works with Computers","profilePicture":"https://cdn.sessionize.com/image/da13-400o400o1-T9WzEPPKA66X9kW8afm7nk.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/weissmanben/","linkType":"LinkedIn"}],"sessions":[1198049,1198048],"fullName":"Ben Weissman (he/him)","categoryItems":[],"questionAnswers":[]},{"id":"5962233c-beb2-455c-a583-7098ace9f7d7","firstName":"Burkhardt","lastName":"Gasber","bio":"Burkhardt Gasber arbeitet seit über 20 Jahren an der Schnittstelle von Marketing, Daten und digitaler Transformation.\r\n\r\nEr hat begeistert die Entwicklung von Online-Marketing, Performance-Steuerung und datengetriebenem Arbeiten von Anfang an begleitet – und sich dabei immer wieder neu erfunden.\r\n\r\nHeute beschäftigt er sich u.a. mit der Frage, warum KI in vielen Teams noch nicht wirkt – und was es braucht, damit aus Erfahrung, Daten und Technologie echte Entscheidungen entstehen.","tagLine":"Digital Business Analyst & Manager| gasber dbc","profilePicture":"https://cdn.sessionize.com/image/a47d-400o400o1-DeiNQBWEKPByX8Tiq9TBXg.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/burkhardtgasber/","linkType":"LinkedIn"}],"sessions":[1186777],"fullName":"Burkhardt Gasber","categoryItems":[],"questionAnswers":[]},{"id":"4df9b97c-7cfc-4830-9e75-abd2f54f180c","firstName":"Christian","lastName":"Krug","bio":"Eigentlich hätte ich Metzger werden sollen und den elterlichen Betrieb übernehmen. Aber das Leben hatte andere Pläne und so kam ich über Biologie und irgendwas mit mRNA in Data.\r\nHeute bringe ich bei Frauscher Sensortechnik die Data & AI Themen voran und betreibe einen der erfolgreichsten deutschsprachigen Podcasts über Daten und KI.","tagLine":"UNF#CK YOUR DATA","profilePicture":"https://cdn.sessionize.com/image/bbb1-400o400o1-ExKJ3qciD88YDPb4MSwt1y.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/christian-krug/","linkType":"LinkedIn"}],"sessions":[1199786],"fullName":"Christian Krug","categoryItems":[],"questionAnswers":[]},{"id":"ea08aeb6-43f0-40d1-a571-4140e932dfb4","firstName":"Clemens","lastName":"Vasters","bio":"Clemens Vasters is Lead Architect in Microsoft’s Azure Messaging team that builds and operates a fleet of hyper-scale messaging services, including Event Grid, Service Bus, Event Hubs, Stream Analytics and Microsoft Fabric Eventstreams. Clemens represents Microsoft in messaging standardisation in OASIS (AMQP, MQTT) and CNCF (CloudEvents, xRegistry) and writes too much code for being an \"Architect\". He looks back at nearly 30 years in professional software development and has seen the same fashion come and go a few times.","tagLine":"Principal Architect, Messaging and Real-Time Intelligence, Microsoft","profilePicture":"https://cdn.sessionize.com/image/b812-400o400o1-wFJ7dvCsCQvdhjTeZFS8r4.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/clemensv/","linkType":"LinkedIn"}],"sessions":[1119726],"fullName":"Clemens Vasters","categoryItems":[],"questionAnswers":[]},{"id":"977327ee-ca78-4c5b-835a-d751b94c7608","firstName":"Daniel","lastName":"Eilenbrock","bio":"Seit mehreren Jahren engagiert sich Daniel Eilenbrock in der Aus- und Fortbildung innerhalb der Finanzverwaltung Nordrhein-Westfalen und setzt dabei besondere Schwerpunkte auf moderne, digitale Prüfungsmethoden sowie die Weiterentwicklung praxisnaher Schulungskonzepte.\r\n\r\nAls Fachprüfer für Prüftechnik unterstützt er Betriebsprüfer bei datenbasierten Analysen und entwickelt moderne Prüfungsansätze weiter. Zudem ist er Mitglied im Expertenteam Power BI NRW und spezialisiert auf die Analyse steuerlicher Daten.\r\n\r\nEr tritt regelmäßig als Dozent und Referent für digitale Prüftechniken auf. Gemeinsam mit seinem Bruder gründete er die Semitax GmbH und wirkte an der Entwicklung der Datenanalysesoftware AUDIPY mit, die 2025 mit dem Taxcellence Award ausgezeichnet wurde.","tagLine":"Fachprüfer für Prüftechnik FV NRW  (in nicht dienstlicher Eigenschaft) | AUDIPY ","profilePicture":"https://cdn.sessionize.com/image/260d-400o400o1-sbSk4sk3CaFJ6QY7LKQ9JJ.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/daniel-eilenbrock-2104ba1ba/","linkType":"LinkedIn"}],"sessions":[1132447],"fullName":"Daniel Eilenbrock","categoryItems":[],"questionAnswers":[]},{"id":"9b92442f-799c-459b-a2f8-322202343cc7","firstName":"David","lastName":"Sanadze","bio":"Ich bringe über 8 Jahre Erfahrung im Data-Bereich mit, insbesondere in der Konzeption und Implementierung von Datenplattformen und BI-Lösungen. Im Jahr 2024 habe ich mich selbständig gemacht und Sanalytics gegründet, eine spezialisierte Beratung im Bereich Data & AI mit Fokus auf Microsoft Fabric. Vor meiner Selbständigkeit war ich in der Beratung unterwegs, zuletzt bei Deloitte.\r\n\r\nEin Schwerpunkt meiner Arbeit ist der Aufbau von Datenplattformen im Microsoft- und Azure-Umfeld, von der Architektur über die Implementierung bis zum Betrieb. Dabei bringe ich End-to-End-Kompetenz mit: von SAP- und weiteren Quellsystemen über Datenextraktion und Modellierung bis hin zu Reporting und Self Service, da ich Projekte in allen Phasen durchgeführt habe.\r\n\r\nWährend meiner Selbständigkeit unterstütze ich mittelständische und große Unternehmen beim Aufbau moderner Datenplattformen sowie der Migration von Legacy-Systemen. Zudem berate ich zu Architektur und Microsoft Fabric.\r\nMein Technologie-Stack umfasst Microsoft Fabric, Power BI, Azure SQL, MS SQL Server, Databricks und Snowflake.","tagLine":"Data Solutions Architect | Founder of Sanalytics","profilePicture":"https://cdn.sessionize.com/image/53e9-400o400o1-BeC6xTBa46tQLb3zoJb3wm.png","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/david-sanadze/","linkType":"LinkedIn"}],"sessions":[1190866],"fullName":"David Sanadze","categoryItems":[],"questionAnswers":[]},{"id":"fc14cc1f-edd8-49e0-b1f9-73c4e67c6dc5","firstName":"Dennis","lastName":"Loh-Mandrella","bio":"Dennis Loh-Mandrella is a real all-rounder when it comes to data solutions in the cloud. He mainly deals with backend topics. Formerly using SSIS and the Azure Cloud (Synapse), today with Microsoft Fabric.\r\nAs an expert, he always has the right blueprint ready and keeps an eye on the business benefits. He supports his customers efficiently from the idea to the finished solution.","tagLine":"ORAYLIS - Consultant Business Intelligence @ORAYLIS GmbH | turn your data into value | Cloud-Enthusiast | Fabric | Music-Lover | Golf-Addict ⛳| ","profilePicture":"https://cdn.sessionize.com/image/9e62-400o400o1-LHDMhZUGHZNAkyzhLAgaN5.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/dennis-loh-mandrella/","linkType":"LinkedIn"}],"sessions":[1196479],"fullName":"Dennis Loh-Mandrella","categoryItems":[],"questionAnswers":[]},{"id":"6d33fdea-4495-4288-8556-42dae1c1ab27","firstName":"Diana","lastName":"Ackermann","bio":"I've spent the last 20 years analyzing data. I started in pharmaceutical research as a biostatistician, moved into data science working on sensitivity analysis and AI-powered forecasting systems, then managed a data science team delivering analytics across mobility, energy, e-commerce, and finance.\r\n\r\nNow as a freelance Power BI analyst, I specialize in dashboards that executives actually use. I'm a judge for the Power BI DataViz World Championships and speak about the gap between technically correct reports and ones people open twice. My talks focus on matching dashboard architecture to how different roles work with data - from C-level quick status checks to analyst deep dives.\r\n\r\nI speak both languages: numbers and business decisions. I live in Germany and work with clients across Europe and the US.","tagLine":"Statistician and freelance Power BI data analyst","profilePicture":"https://cdn.sessionize.com/image/9153-400o400o1-R1zfRLnK9MGjMJjGUBAV4F.png","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/diana-ackermann/","linkType":"LinkedIn"}],"sessions":[1139507,1214117],"fullName":"Diana Ackermann","categoryItems":[],"questionAnswers":[]},{"id":"644b39bf-96a5-4b50-b18e-69401dbbb262","firstName":"Francesco","lastName":"Bergamaschi","bio":"Consultant and corporate trainer in Business Intelligence (BI) and Business Analytics (BA), Adjunct Professor of BI and BA at Bologna University and Bologna Business School, co-founder of kubisco - a consultancy - he has been working for over twenty years in the field of data management. Today he deals with Power Pivot for Excel, Analysis Services Tabular and Power BI, dedicating himself to teaching and deepening the DAX language, being the first teacher in the world to teach it in a university. He implements BI in companies and integrates it with Statistics to create predictions through BA and has been promoting for years the dissemination and implementation of BI and BA throughout the territory of Northern Italy. He is a founding member of the Power BI User Group Italy and now manages kubisco, a blog on all MDP/DAX/Power BI/Power Apps/Analysis Services Tabular with articles, video, sample files.\r\n\r\nMEng, MEcon, MBA\r\n\r\nhttps://www.unibo.it/sitoweb/francesco.bergamaschi/en\r\nhttps://www.bbs.unibo.eu/faculty/bergamaschi-3/\r\nwww.kubisco.com","tagLine":"Consultant and Professor of BI & Analytics at Bologna University, co-founder of kubisco ","profilePicture":"https://cdn.sessionize.com/image/06ad-400o400o1-TZ48R9Cp5yVuYry81UHs2x.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/francescobergamaschi/","linkType":"LinkedIn"}],"sessions":[1196464,1214125],"fullName":"Francesco Bergamaschi","categoryItems":[],"questionAnswers":[]},{"id":"df6c94eb-5ba5-4e90-aa39-aef96830dcfe","firstName":"Frederic","lastName":"Bauerfeind","bio":"Frederic hat in den letzten 10 Jahren Unternehmen dabei geholfen, Data & AI praktisch und\r\nwirkungsvoll einzusetzen. Nach über 150 erfolgreich begleiteten und umgesetzten Projekten und dem\r\nAufbau einer der am schnellsten wachsenden Data & AI-Beratungen im deutschsprachigen Raum hat\r\ner vor einem Jahr WE BUILD AI gegründet. Heute begleitet er mit seinem zehnköpfigen Team\r\nUnternehmen dabei, AI so einzusetzen, dass sie wirkt.","tagLine":"AI Thought Leader & Consultant","profilePicture":"https://cdn.sessionize.com/image/440c-400o400o1-J7MHbcba72d156SfZGv1PR.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/fredericbauerfeind/","linkType":"LinkedIn"}],"sessions":[1192030],"fullName":"Frederic Bauerfeind","categoryItems":[],"questionAnswers":[]},{"id":"fc154952-b5d5-4955-baf8-eb381a5c78a2","firstName":"Gabi","lastName":"Münster","bio":"Gabi Münster (she / her) started working with SQL Server technologies in 2005 during her time as Web Application developer. After 11 years as BI consultant / Data architect and being awarded Data Platform MVP since 2018, she joined Microsoft in March 2022 as part of the Azure Data Customer Advisory Team and works as a Principal Program Manager covering Fabric.\r\nShe speaks at regional chapter meetings, national and international conferences. Since 2016 she also supports a regional chapter as co-lead.\r\nApart from BI topics she also supports Diversity topics.","tagLine":"Principal Program Manager / Fabric CAT","profilePicture":"https://cdn.sessionize.com/image/0bcd-400o400o1-N41xhgbYEeqaKix866zva5.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/gabimuenster/","linkType":"LinkedIn"}],"sessions":[1208829],"fullName":"Gabi Münster","categoryItems":[],"questionAnswers":[]},{"id":"5e9af6e9-f680-4005-8f1a-7b99e8d20974","firstName":"Jasmin","lastName":"Simader","bio":"I combine creative passion with analytical precision. After 15 years in the international plant engineering industry, where I established standards, led projects, and developed data-driven tools, I found my professional home in BI. Today, I work at the intersection of business and technology: I not only design BI solutions but also support management in shaping and implementing strategies that turn data into a driver of business success, while ensuring people are taken into account in the journey. My deep interest in Data Governance and Data Management enables me to design frameworks that make data reliable, accessible, and truly valuable. What drives me is creating BI solutions that deliver insights, support decision-making, and make data understandable and actionable across the organization.","tagLine":"Microsoft Data Platform MVP | BI Consultant with a passion for Data Health - helping organizations move from messy data to reliable decisions","profilePicture":"https://cdn.sessionize.com/image/1bb5-400o400o1-3LaLs4DZBPSpdpxhc6g3iz.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/jasmin-simader/","linkType":"LinkedIn"}],"sessions":[1188886],"fullName":"Jasmin Simader","categoryItems":[],"questionAnswers":[]},{"id":"5853b261-ebef-4f8b-be8b-759db69c1f46","firstName":"Julian","lastName":"Wissel","bio":"Julian has been working in the NAV-channel since 2003 in mainly technical roles. In 2013 he co-founded navida in Hamburg to fully focus his energy on Power BI and Dynamics NAV.","tagLine":"Founder of navida","profilePicture":"https://cdn.sessionize.com/image/7086-400o400o1-61-ebef-4f8b-be8b-759db69c1f46.06e16fd8-0d6e-406c-b912-0180406e6ef0.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/julian-wissel/","linkType":"LinkedIn"}],"sessions":[1197069],"fullName":"Julian Wissel","categoryItems":[],"questionAnswers":[]},{"id":"d43d6c9e-c84b-4298-9998-24bb5560c0f0","firstName":"Katharina","lastName":"Ricken","bio":"Katharina Ricken only recently changed her career into data engineering, bringing with her several years of experience from the 3D industry and a background in 3D Design.\r\nAs a Junior Data Engineer at oh22 for the past year, she now focuses on learning, growing and building a strong foundation with modern data platforms.","tagLine":"Junior Data Engineer at oh22","profilePicture":"https://cdn.sessionize.com/image/5826-400o400o1-3KHWFReYncSvr9BZ2W7HmL.png","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"http://linkedin.com/in/katharina-ricken-561604347","linkType":"LinkedIn"}],"sessions":[1131653],"fullName":"Katharina Ricken","categoryItems":[],"questionAnswers":[]},{"id":"2c822c0b-b794-4134-85d0-a1d48b0cbad3","firstName":"Katharina Covadonga","lastName":"Clören","bio":"Hallo zusammen, mein Name ist Katharina Covadonga Clören.\r\nMeine Leidenschaft für Datenanalyse und Reporting habe ich während meines Studiums entdeckt – ganz unerwartet in einem Werkstudentenjob. Für mich ist Datenvisualisierung wie die perfekte Mischung aus analytischer Detektivin und kreativer Künstlerin: Ich liebe es, Muster aufzuspüren, versteckte Insights zu finden und diese dann visuell so aufzubereiten, dass sie verständlich, ansprechend und wirkungsvoll sind.\r\n\r\nSeit knapp über zwei Jahren arbeite ich nun als Consultant mit Schwerpunkt auf Data Analytics und Data Storytelling. Mich begeistert besonders, wie viel Potenzial und Abwechslung in Visualisierungen steckt. Bevor ich als Consultant gestartet bin, war ich ein Jahr lang auf Weltreise unterwegs – mit viel Neugier, Abenteuerlust und offenem Blick für Menschen, Kulturen und Perspektiven. Genau diese Offenheit bringe ich auch in meine Arbeit mit: Denn Daten erzählen überall Geschichten – man muss nur genau hinhören (und hinschauen).\r\n\r\nWenn ich gerade keine Reports baue oder Daten analysiere, findet man mich beim Yoga, beim Bouldern, auf kulinarischer Entdeckungstour oder auf Reisen.","tagLine":"Data Analytics Consultant @ORAYLIS GmbH","profilePicture":"https://cdn.sessionize.com/image/87e6-400o400o1-7aTdF51B4gthcnmfhoRzuH.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/katharina-covadonga-cloeren-b5637016b/","linkType":"LinkedIn"}],"sessions":[1214117],"fullName":"Katharina Covadonga Clören","categoryItems":[],"questionAnswers":[]},{"id":"f6040a22-1580-4ca3-b201-5b59f013c242","firstName":"Luise","lastName":"Freese","bio":"Luise is an Azure & Power Platform Architect based in Germany. She is an awarded Microsoft Most Valuable Professional (MVP) working with organizations that want to move beyond digital theatre. Her focus is on AI-enabled solutions that are designed to last in real-world environments. She helps teams build accessible apps, robust data models, and automation that respects governance, compliance, and human effort. A recurring theme in her work is making the invisible visible: unmeasured work, emotional load, operational friction, and the real cost of “quick wins”. Her motto \"Changing the world one app at a time\" stems from her extensive work with non-profit organizations.\r\n\r\nAlongside client work, Luise writes and speaks about productivity myths, pseudo-agile practices, AI readiness, and why many digital initiatives fail long before technology becomes the problem. She is known for combining clear technical guidance with a sharp eye for organizational patterns; and for asking the uncomfortable questions others tend to avoid.\r\n\r\nWhen not working and traveling, she is a runner, a mother of (teenage) dragons, a LEGO-builder and a lover of the number 42. Her favorite color is #ff69b4. ","tagLine":"Changing the world one app at a time","profilePicture":"https://cdn.sessionize.com/image/8587-400o400o1-BxWXWCwHj1C8mh6uxQ7EdE.jpg","isTopSpeaker":false,"links":[],"sessions":[1189629],"fullName":"Luise Freese","categoryItems":[],"questionAnswers":[]},{"id":"3cfe9ad9-a0c7-4696-892c-4e9e5547d483","firstName":"Marco","lastName":"Geuer","bio":"Marco Geuer is “The Data Economist”, Winner of 3rd place in the international Data Excellence CDQ Award 2024 (University St. Gallen) and Associate Partner at Blueforte.\r\n\r\nBefore joining Blueforte, he was responsible for the Data-Driven Company Program at FIEGE for 3.5 years and served as Global Head of Data Strategy & AI Solutions, with a direct reporting line to the management board. Prior to that, he worked at Unitymedia/Vodafone, where he held the roles of Director Data Governance & Strategy as well as Lead Data Performance, driving strategic data initiatives.\r\n\r\nFurthermore, he is a speaker at conferences, a discussion partner in podcasts, a trainer at the Haufe Akademy, a lecturer in data management at the DHBW Stuttgart, chairman of the advisory board DATAGOVKON and a blogger. In total, he has more than 25 years of experience in the field of Data & AI Excellence.","tagLine":"The Data Economist","profilePicture":"https://cdn.sessionize.com/image/8ef1-400o400o1-3zz6HrX434ZGaF8gAJpzep.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/marco-geuer-the-data-economist","linkType":"LinkedIn"}],"sessions":[1147480],"fullName":"Marco Geuer","categoryItems":[],"questionAnswers":[]},{"id":"a6213d82-d8d4-4aff-905f-5ba37c661170","firstName":"Marcus","lastName":"Wegener","bio":"Marcus Wegener is a Data Platform MVP (Microsoft Most Valuable Professional) and loves to inspire others with his solutions. His mission is clear: \"Get the most out of data, with Power BI.\"","tagLine":"Business Intelligence Developer, Power BI Nerd, Power BI Ranger, Data Brother","profilePicture":"https://cdn.sessionize.com/image/6169-400o400o1-HxTZCU5ANGbECnwxmbKdnS.png","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/marcuswegener/","linkType":"LinkedIn"}],"sessions":[1188886],"fullName":"Marcus Wegener","categoryItems":[],"questionAnswers":[]},{"id":"e7c97629-844a-453f-8107-559f7ac7d43a","firstName":"Margarita","lastName":"Neumueller","bio":"After several years of experience in BI Consulting and working with different technologies within the Microsoft stack, she joined Aldi in 2021. Her current role focuses as a Manger on the Experience working on and with the Enterprise Data Lake Platform. For this it is important to understand the customer and developer needs with a structured approach and sensitivity in communication. \r\nShe also tries to contribute in different diversity initiatives internal as external to help people understand different perspectives. \r\n","tagLine":"ALDI Sued - Manager D&A","profilePicture":"https://cdn.sessionize.com/image/9f4e-400o400o1-3cE8jywMfR3ntfYLeV2aqd.jpg","isTopSpeaker":false,"links":[],"sessions":[1149697,1198134],"fullName":"Margarita Neumueller","categoryItems":[],"questionAnswers":[]},{"id":"7c57b4c9-355a-48f2-aa38-b59cb23f6455","firstName":"Marisol","lastName":"Steinau","bio":"I am a Data Solution Architect with a strong background in Microsoft technologies, specializing in data architecture, data engineering, and DevOps. Over the years, I have worked extensively with various Microsoft ERP systems, and in recent years, I have primarily focused on Dynamics 365 FSCM & CE. I am passionate about designing scalable and efficient data architectures, integrating enterprise data platforms, and optimizing data workflows. My experience spans across on-premises and cloud-based solutions, \r\nwith a deep focus on Microsoft Fabric, Azure, and modern data platforms. I love sharing my knowledge through speaking engagements and helping organizations unlock the full potential of their data.","tagLine":"Data Solution Architect ","profilePicture":"https://cdn.sessionize.com/image/6e63-400o400o1-MZNjY82CYuJy1LoebgQqce.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/marisol-steinau-bb1253253/","linkType":"LinkedIn"}],"sessions":[1137324],"fullName":"Marisol Steinau","categoryItems":[],"questionAnswers":[]},{"id":"45d22785-e55c-4031-aa10-b14b669207fd","firstName":"Martin","lastName":"Bubenheimer","bio":"Power BI architect for a global player in the pharmaceutical industry. Previously consultant for BI solutions in the Microsoft stack, consultant for requirements engineering, and product owner in a large Oracle data warehouse environment. Power BI influencer and Super User for both, the German and the global community.\r\nCertifications: IREB requirements engineering and requirements modeling, Scrum master, Scrum product owner, Microsoft Power BI DA-100, DP-600, MCSE Data Management and Analytics, MCSA BI Reporting","tagLine":"Power BI Architect - Ambassador for good data warehouse architecture, clean data models, high-performance scalable DAX code, and expert for financial modelling that workss","profilePicture":"https://cdn.sessionize.com/image/c2c3-400o400o1-DLutpeTCVVGtim8cZ7JHsT.png","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/martin-bubenheimer-9ba99271/","linkType":"LinkedIn"}],"sessions":[1214124,1143770],"fullName":"Martin Bubenheimer","categoryItems":[],"questionAnswers":[]},{"id":"59354cdd-9f28-4e7c-84f1-2e4e3ef4518d","firstName":"Martin","lastName":"Naumann","bio":"Martin Naumann advises clients on the strategic adoption and effective use of Power BI as an enteprise reporting platform. With deep expertise across both backend and frontend, he covers the full spectrum—from data ingestion and transformation to semantic modeling and visualization. He combines technical depth with a strong focus on business value, ensuring that data solutions are not only robust but also drive real decision-making impact.","tagLine":"ORAYLIS, Consultant","profilePicture":"https://cdn.sessionize.com/image/cdba-400o400o1-fZwaFq2nHLRSUW7WQ9Nzkx.jpg","isTopSpeaker":false,"links":[],"sessions":[1196873],"fullName":"Martin Naumann","categoryItems":[],"questionAnswers":[]},{"id":"c227ff90-9bfd-4991-8557-ee07e644da0d","firstName":"Matthias","lastName":"Eilenbrock","bio":"Matthias Eilenbrock ist Data Scientist und Entwickler von AUDIPY, einer modernen, KI-gestützten Audit-Software. Sein Schwerpunkt liegt auf datenbasierten Prüfwerkzeugen und der Integration fortschrittlicher Analyse- und Visualisierungstechnologien wie Microsoft Power BI. Auch international ist er als Experte für digitale Prüfprozesse gefragt– unter anderem als regelmäßiger Redner auf dem wichtigsten jährlichen Prüferkongress der Niederlande.","tagLine":"Data Scientist LBF NRW | Developer AUDIPY","profilePicture":"https://cdn.sessionize.com/image/69e2-400o400o1-QRJ3MZMvjkEPGn8jexqjmc.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://de.linkedin.com/in/matthias-eilenbrock-1a5642352","linkType":"LinkedIn"}],"sessions":[1132447],"fullName":"Matthias Eilenbrock","categoryItems":[],"questionAnswers":[]},{"id":"53ea0a79-6ff7-41f8-bb63-7ca67ccf3970","firstName":"Matthias","lastName":"Nohl","bio":"Matthias Nohl is a consultant focusing on cloud platform & data analytics in the Azure cloud environment, data warehouse architecture and performance optimization and advises customers from various industries on data analytics topics.","tagLine":"b.telligent Deutschland GmbH","profilePicture":"https://cdn.sessionize.com/image/9d56-400o400o1-91a3KZEsZ5diZSHgiWFtmr.png","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/matthiasnohl","linkType":"LinkedIn"}],"sessions":[1195310],"fullName":"Matthias Nohl","categoryItems":[],"questionAnswers":[]},{"id":"3c816d78-b5b6-44b7-baf5-1d5ad2907c2f","firstName":"Michael","lastName":"Tenner","bio":"Michael is a passionate data analyst with a keen interest in transforming complex data into appealing and easily understandable visualizations.\r\n\r\nWith his extensive consulting experience across various industries, Michael understands the diverse challenges that companies face. He finds technically innovative solutions to adapt to different situations and deliver real business value.\r\n\r\nHis enthusiasm for knowledge sharing is highly evident in the community, where he enjoys sharing expertise with others and addressing new technical topics in realistic and illustrative use cases.","tagLine":"Daten-WG by platformimpulse | Full Stack Power BI Engineer","profilePicture":"https://cdn.sessionize.com/image/fbea-400o400o1-B7WTjxP7w3Qkps7E7mVnvG.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/michael-tenner-5b885970/","linkType":"LinkedIn"}],"sessions":[1139507,1214117],"fullName":"Michael Tenner","categoryItems":[],"questionAnswers":[]},{"id":"2ef99b00-ea60-4954-a4d2-eb2da0f959fd","firstName":"Nadine","lastName":"Keil","bio":"Dank meiner Erfahrung als Mathematikerin und erfolgreiche Leiterin von Datenanalyse- und Data-Science-Teams in internationalen Unternehmen wie FlixBus und HelloFresh verstehe ich, wie wichtig gute Datenkommunikation ist. Insbesondere wenn es darum geht, Entscheidungen zu beeinflussen und zum Handeln zu bewegen.","tagLine":"Data Storytelling Coach","profilePicture":"https://cdn.sessionize.com/image/d1b0-400o400o1-HBtNyhAqpPJiqZPWRn3pih.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/nadine-keil/","linkType":"LinkedIn"}],"sessions":[1214117,1198869],"fullName":"Nadine Keil","categoryItems":[],"questionAnswers":[]},{"id":"5d9c667c-e5b7-4c46-a9d5-da8a3878ee58","firstName":"Oliver","lastName":"Engels","bio":"Oliver Engels is CEO of oh22data AG, a Microsoft Gold Partner in Germany specialized in CRM and BI. His interests are on Azure, Data Governance and Integration, Machine Learning and Visualization Tools like SSRS, Power BI and Tableau. Oliver has worked with SQL Server since version 6.5 and is a founding member and current president of German Microsoft Data Platform Community (PASS), a PASS Regional Mentor, and runs the Frankfurt PASS Chapter. Since 2012 he is a Microsoft Data Platform MVP and a also worked as a Microsoft pTSP. If he is not working with data, he loves working with his Golden Retrievers and supports a charity project training dogs for disabled children. OK, he is an enthusiastic Land Rover Defender driver as well 😊 ","tagLine":"oh22data AG, CEO","profilePicture":"https://cdn.sessionize.com/image/59be-400o400o1-sLUgXE4cZ6Pb946SCnZyg9.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/oengels/","linkType":"LinkedIn"}],"sessions":[1131653],"fullName":"Oliver Engels","categoryItems":[],"questionAnswers":[]},{"id":"6060b1ff-a0c3-4091-8aad-295c5faee5f0","firstName":"Oliver","lastName":"Ulbrich","bio":"Oliver Ulbrich ist Denkpartner für Unternehmerinnen, Unternehmer und Führungskräfte, die am statt im Unternehmen arbeiten wollen. Er verbindet Dashboard- und Methodik-Expertise mit einem systemischen Blick auf Organisationen — und mit der Praxis-Erfahrung aus über 20 Jahren in Vertrieb, Beratung und Training.\r\n\r\nSein Schwerpunkt liegt an der Schnittstelle von Reporting, Entscheidung und Organisation — überall dort, wo Daten und Wirklichkeit auseinanderlaufen.\r\n\r\nEr ist Entwickler des Dashboard Requirement Process (DRP), publiziert in TDWI, BI-Spektrum und CMR, wurde 2025 mit dem Pioneer Analytics Award Social Feed ausgezeichnet und ist ausgebildeter systemischer Business Coach (IHK).\r\n\r\nAls Dozent an der ManCon Akademie und in eigenen Sparring- und Trainingsformaten arbeitet er mit Menschen, die Klarheit suchen statt Bestätigung — und Komplexität nicht aushalten, sondern auflösen wollen.","tagLine":"Dein Klarheitspartner | Sparring für Daten, Strategie und Kommunikation","profilePicture":"https://cdn.sessionize.com/image/5dd5-400o400o1-huvCCM88vxzLWjZbsCyV9f.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/oliverulbrich/","linkType":"LinkedIn"}],"sessions":[1214117],"fullName":"Oliver Ulbrich","categoryItems":[],"questionAnswers":[]},{"id":"5cbe652b-289d-4cb2-a6d5-f37326135504","firstName":"Philipp","lastName":"Baron Freytag von Loringhoven","bio":"He is an expert in data-driven marketing and customer insights with over 20 years of experience using data to optimize marketing and sales strategies. His focus is on helping companies ask the right questions and turn data into real competitive advantages—moving beyond mere performance metrics to well-founded strategic decisions.  \r\n\r\nHe has built marketing teams in 42 countries, developed the CRM strategy for a leading automotive aftermarket player in the EU, and scaled digital business models for SMEs based on data. His approach combines marketing, data analytics, and strategy to enable data-informed decisions that drive both short-term efficiency and long-term effectiveness.  \r\n\r\nWith his own MATCH framework, he emphasizes a holistic approach to marketing analytics. Rather than relying on isolated metrics or platforms, he integrates multiple analytical methods to precisely understand the impact of marketing initiatives. Finding the right balance between attribution, marketing mix modeling, lift analyses, qualitative insights, and message analytics is, in his view, the key to making sound decisions.  \r\n\r\nAs a speaker and host of the dataengage.io podcast, he shares hands-on experience to make data-driven marketing strategies tangible. His goal is to help organizations generate real value from their data—without getting lost in isolated figures or short-term KPIs.","tagLine":"Data Baron | Beyond KPIs: Holistic Data Strategies for Effective Marketing and Better Customer Engagement","profilePicture":"https://cdn.sessionize.com/image/0887-400o400o1-DWFZzuneHGuvBjXrbLcRSv.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/philipploringhoven/","linkType":"LinkedIn"}],"sessions":[1214118],"fullName":"Philipp Baron Freytag von Loringhoven","categoryItems":[],"questionAnswers":[]},{"id":"2fbbbeae-c136-4639-a818-d59abdbf3f36","firstName":"Sara","lastName":"Woltjes","bio":"🎨 Creative & Strategic – My strength lies in getting to the core in a visual way.\r\n🚀 Challenge & Growth – I'm always looking for new opportunities to learn and challenge myself.\r\n🤝 Connection & Team – Building strong relationships that foster collaboration and growth.\r\n🔍 Curious & Analytical – Solving puzzles, whether it's human behavior or data analysis.\r\n😄 Enthusiastic Approach – Humor, optimism, and contagious enthusiasm in everything I do!\r\n\r\nBridging the gap between business and IT fascinates me—how do you create the best product, ask the right questions, and visualize results in a way that makes the core message clear?\r\nAs a BI manager, I’ve gained great experience in team building, leadership, and understanding human behavior, ensuring collaboration between business and IT leads to meaningful results.\r\nLet’s turn data into action! ","tagLine":"Manager BI  & Board member of the Dutch Power BI user group (PBIG)","profilePicture":"https://cdn.sessionize.com/image/73db-400o400o1-pzc7WwWJ2x2oaVqBTmxzHv.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/sarawoltjes/?locale=en_US","linkType":"LinkedIn"}],"sessions":[1188118],"fullName":"Sara Woltjes","categoryItems":[],"questionAnswers":[]},{"id":"6478ff55-7003-40ce-b4c6-377d5bb4c298","firstName":"Sebastian","lastName":"Steinau","bio":"Dr. Sebastian Steinau is a software developer and architect specializing in APIs, distributed systems, and cloud-native solutions. He holds a PhD in Computer Science, where his research focused on developing distributed process management systems. With deep expertise in Microsoft Azure, DevOps practices, and Infrastructure as Code, he designs and implements scalable, resilient software architectures.\r\n\r\nIn recent years, he has expanded his focus into the data engineering space, particularly around Microsoft Fabric. He applies his DevOps and IaC expertise to data platforms, enabling version-controlled, automated, and reproducible data infrastructure deployments.\r\n\r\nHe is co-founder of SteinauTech Data & Software Solutions GmbH, a consultancy offering specialized services in data and software engineering. The company focuses on data projects for Microsoft Dynamics 365, combining technical excellence with practical business solutions.","tagLine":"Software Architect @ self-employed","profilePicture":"https://cdn.sessionize.com/image/bb39-400o400o1-a2fv35yFsvzmG6rQGEWb33.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/sebastian-steinau-312888200/","linkType":"LinkedIn"}],"sessions":[1137324],"fullName":"Sebastian Steinau","categoryItems":[],"questionAnswers":[]},{"id":"bc6e7a37-eb78-4ad7-ad5b-ed1cd8ababc1","firstName":"Stephan","lastName":"Hausberg","bio":"Stephan Hausberg studierte an der Technischen Universität Dortmund Mathematik und Betriebswirtschaftslehre und promovierte über partielle Differentialgleichungen in Mathematik.\r\n \r\nIm Telekommunikationssektor sammelte er Erfahrung sowohl in Fach- als auch in Führungspositionen, zuletzt als Head of Data Science & Business Analytics. Zudem ist er Dozent für Business Analytics an der FOM Essen und selbstständiger Berater, Speaker und Entrepreneur. Als Datenenthusiast interessiert er sich für Algorithmen, Datenmanagement und die Umsetzung in Organisationen.","tagLine":"Freelancing Consultant, Lecturer, Entrepreneur","profilePicture":"https://cdn.sessionize.com/image/7e80-400o400o1-wcWDsdt4RgjLh8FPKsagEv.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/dr-stephan-hausberg-679750118/","linkType":"LinkedIn"}],"sessions":[1194470],"fullName":"Stephan Hausberg","categoryItems":[],"questionAnswers":[]},{"id":"c5bde602-86f4-4850-97b9-3dcb9b6c9c6b","firstName":"Thomas","lastName":"Sigmund","bio":"Thomas Sigmund is a Partner Solution Sales Manager for Cloud + AI Platform at Microsoft, with a strong background in data and analytics from RTL Group. At Microsoft, Thomas drives adoption of advanced analytics and AI workloads, including Microsoft Fabric, helping partners and SMB customers unlock business value from their data. Thomas is a frequent speaker at Data & AI events and is known for translating complex technology into clear business impact.","tagLine":"Everything with data at Microsoft is Fabric","profilePicture":"https://cdn.sessionize.com/image/8a1f-400o400o1-YamdxnvqUpvK5YFCZ7A6zt.png","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/thomas-sigmund-bb2a18135/","linkType":"LinkedIn"}],"sessions":[1214113],"fullName":"Thomas Sigmund","categoryItems":[],"questionAnswers":[]},{"id":"9b0b10c6-3abe-4dfd-a1e8-6720f0c27ddf","firstName":"Tillmann","lastName":"Eitelberg","bio":"Tillmann Eitelberg is CEO and co-founder of oh22information services GmbH, which specializes in data management and data governance and offers its own cloud born data quality solution, HEDDA.IO. \r\nTillmann is a regular speaker at international conferences and an active blogger and podcaster at DECOMPOSE.IO. He has open sourced several SSIS components and is Co-Author of Power BI for Dummies (German Edition). Since 2013 is Tillmann is awarded as Microsoft Data Platform MVP. He is a user group leader for the PASS Germany RG Rheinland (Cologne) and a member of the Microsoft Azure Data Community Advisory Board.","tagLine":"oh22information services GmbH","profilePicture":"https://cdn.sessionize.com/image/f5a0-400o400o1-c6-3abe-4dfd-a1e8-6720f0c27ddf.a822dd04-c84e-40bc-b263-4a855d85a6e0.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://de.linkedin.com/in/tillmanneitelberg","linkType":"LinkedIn"}],"sessions":[1172991],"fullName":"Tillmann Eitelberg","categoryItems":[],"questionAnswers":[]},{"id":"e7344ece-4337-4085-a1fb-4592e3ec02dd","firstName":"Tom","lastName":"Martens","bio":"Thomas \"Tom\" Martens is a Microsoft Data Platform MVP and Solution Architect at Munich Re. With over 25 years of experience delivering Business Intelligence, Data Warehousing, and Analytics solutions, Tom specializes in helping organizations tackle analytical challenges using Microsoft Fabric and Power BI. Alongside his full-time role, he offers freelance consulting for data platform and analytics projects. Tom is a regular speaker at international conferences and user group meetings, and co-author of the book Pro DAX with Power BI.","tagLine":"Solution Architect @ Munich Re","profilePicture":"https://cdn.sessionize.com/image/31d6-400o400o1-hFMhvgLYq1sqEAoFJB1GUr.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://www.linkedin.com/in/tommartens68/","linkType":"LinkedIn"}],"sessions":[1172991,1185040],"fullName":"Tom Martens","categoryItems":[],"questionAnswers":[]},{"id":"6ddc0b3c-565b-4983-ac32-380350ee6b09","firstName":"Traci","lastName":"Sewell","bio":"Traci joined the community to take the tech down a notch! She lives in Somerset with some (very cute) cats, some horses, some sheep, and her husband, Rob. When not looking after all of those, she also works to sooth people's minds as a psychotherapist. Being tech-adjacent she has been drawn into the tech event organising world and the wider community, where she brings her life long knowledge, expertise and fearsome determination to empower and protect those who are outside of the generic majority box. Over the past few years she has also found a voice as a speaker, sharing information and insights into all things mental health and wellbeing - which has lead to providing Team Dynamics training and Project Management.","tagLine":"Tech-adjacent mind fixer","profilePicture":"https://cdn.sessionize.com/image/9efb-400o400o1-Nf4uNf214MuBmTxTL8KNEi.jpg","isTopSpeaker":false,"links":[{"title":"LinkedIn","url":"https://uk.linkedin.com/in/traci-sewell-5450452bb","linkType":"LinkedIn"}],"sessions":[1210769],"fullName":"Traci Sewell","categoryItems":[],"questionAnswers":[]}],"questions":[],"categories":[{"id":117578,"title":"Session format","items":[{"id":423710,"name":"Session","sort":1},{"id":423711,"name":"Full Day Workshop","sort":2},{"id":423712,"name":"Keynote","sort":3},{"id":423713,"name":"Deep-Dive","sort":4},{"id":463452,"name":"Lighning Talks","sort":5}],"sort":1000,"type":"session"},{"id":117579,"title":"Level","items":[{"id":423714,"name":"Introductory and overview","sort":1},{"id":423716,"name":"Advanced","sort":2},{"id":423715,"name":"Intermediate","sort":3},{"id":423717,"name":"Expert","sort":4},{"id":423718,"name":"Enterainment","sort":5},{"id":434965,"name":"Keynote","sort":6}],"sort":1002,"type":"session"}],"rooms":[{"id":77714,"name":"Ultra Loft","sort":0},{"id":77715,"name":"Die Simultanten","sort":1},{"id":77716,"name":"Das Plenum","sort":2},{"id":82799,"name":"Die Audiothek","sort":3},{"id":82800,"name":"Theater","sort":4},{"id":83945,"name":"The Pattern Beuys","sort":5},{"id":83946,"name":"The Grid","sort":6},{"id":83947,"name":"Petit Polygon","sort":7}]}; // Stand: 2026-07-24, wird beim Laden live aktualisiert
+
+// ---------- Ticket-Links (gleiche Logik wie Agenda-Seite) ----------
+const TICKETS = {
+  precon:   { label: '🎟 Pre-Con-Ticket sichern', url: 'https://www.daten-wg.com/',
+              bySession: {
+                '1139507': 'https://www.daten-wg.com/details-registrierung/all-in-visual-standards',
+              } },
+  maincon:  { label: '🎟 Main-Con- / Full-Con-Ticket', url: 'https://www.daten-wg.com/' },
+  aftercon: { label: '🎟 After-Con-Ticket', url: 'https://www.daten-wg.com/' }
+};
+const PRECON_DAY = '2026-10-14', AFTERCON_DAY = '2026-10-16';
+function ticketFor(s) {
+  const day = s.startsAt ? s.startsAt.slice(0, 10) : '';
+  if (day === PRECON_DAY)   return { label: TICKETS.precon.label, url: TICKETS.precon.bySession[s.id] || TICKETS.precon.url };
+  if (day === AFTERCON_DAY) return TICKETS.aftercon;
+  return TICKETS.maincon;
+}
+
+// ---------- Die Zimmer & ihre (fiktiven) Bewohner:innen ----------
+// Basierend auf den echten Mitbewohner-Geschichten der Wohngemeinschaft Köln.
+const ROOMS = {
+  'Ultra Loft':       { emoji: '🎈', color: 'var(--warm)',
+    host: 'Bei Y. · Lebenskünstler:in in Residence',
+    story: 'Nach einer langen Bildungsreise durch die Residenzen reicher Damen Frankreichs ist Y. frisch ins Loft des Hyperspace gezogen. Heute lädt Y. zur Einweihungsparty — und du bist eingeladen.' },
+  'Die Simultanten':  { emoji: '🎭', color: 'var(--pink)',
+    host: 'Bei Helena & Martha · Theater-Karaoke',
+    story: 'Helena und Martha haben dem klassischen Theater den Rücken gekehrt und das Theater-Karaoke erfunden. In ihrem Zimmer bekommt jede Session eine Bühne.' },
+  'Das Plenum':       { emoji: '🛋', color: 'var(--brand)',
+    host: 'Das Wohnzimmer der WG',
+    story: 'Hier wird alles Wichtige beschlossen: Putzplan, Partys, Plattformstrategien. Wenn die ganze WG zusammenkommt, dann im Plenum.' },
+  'Die Audiothek':    { emoji: '📼', color: 'var(--violet)',
+    host: 'Bei Laif · Sammler der Töne',
+    story: 'Flüchtiges war schon immer Laifs größter Feind. Seit ihm jemand ein Diktiergerät schenkte, steht sein Leben auf „Record" — sein Zimmer quillt über vor Kassetten mit allen erdenklichen Klängen.' },
+  'Theater':          { emoji: '🎪', color: 'var(--gold)',
+    host: 'Die Bühne der WG',
+    story: 'Konzert- und Literaturbühne mit internationalem Programm — und abends gehört sie der Daten-WG: Keynotes, Lightning Talks und Dashboard-Karaoke im Rampenlicht.' },
+  'The Pattern Beuys': { emoji: '🎨', color: 'var(--lime)',
+    host: 'Bei Jette & Janna · das Atelier',
+    story: 'Direkt neben dem Ultra Loft haben Jette und Janna ihr Atelier aufgeschlagen. Zwischen Leinwänden und Mustern entstehen hier die schönsten Daten-Kunstwerke.' },
+  'The Grid':         { emoji: '💡', color: 'var(--blue)',
+    host: 'Bei Roshan · Illuminaten Calvin 3000',
+    story: 'Roshan hat hier sein Lichtstudio eingerichtet: Mondrians Primärfarben, aufgelöst in eine LED-Palette. Wer das Zimmer betritt, wird selbst zur leuchtenden Idee im Grid.' },
+  'Petit Polygon':    { emoji: '📐', color: 'var(--red)',
+    host: 'Das kleinste Zimmer mit den meisten Ecken',
+    story: 'Klein, aber vieleckig: Im Petit Polygon findet jede Kante ihren Platz — perfekt für Sessions, die um die Ecke denken.' }
+};
+const ROOM_FALLBACK = { emoji: '🚪', color: 'var(--brand)', host: 'Ein Zimmer der WG', story: '' };
+const roomInfo = name => ROOMS[name] || ROOM_FALLBACK;
+
+// ---------- State ----------
+const state = {
+  sessions: [], speakers: [], speakerById: new Map(), sessionById: new Map(),
+  roomById: new Map(), catItemById: new Map(),
+  days: [], day: 'all', roomNames: [],
+  currentRoom: null, deck: [], deckIdx: 0,
+  liked: new Set(JSON.parse(localStorage.getItem('dwg-game-plan') || '[]')),
+  collected: new Set(JSON.parse(localStorage.getItem('dwg-game-collected') || '[]')),
+  seen: new Set(JSON.parse(localStorage.getItem('dwg-game-seen') || '[]')),
+  keynoteSpeakers: new Set()
+};
+const save = () => {
+  localStorage.setItem('dwg-game-plan', JSON.stringify([...state.liked]));
+  localStorage.setItem('dwg-game-collected', JSON.stringify([...state.collected]));
+  localStorage.setItem('dwg-game-seen', JSON.stringify([...state.seen]));
+};
+
+// ---------- Helpers ----------
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDay = iso => new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(iso));
+const fmtDayShort = iso => new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: 'numeric', month: 'numeric' }).format(new Date(iso));
+const fmtTime = iso => new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
+const initials = n => String(n || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+function avatar(sp, cls) {
+  if (sp && sp.profilePicture) return `<img src="${esc(sp.profilePicture)}" alt="" loading="lazy"
+    onerror="this.outerHTML='<span class=&quot;ini&quot;>${esc(initials(sp.fullName))}</span>'">`;
+  return `<span class="ini">${esc(initials(sp ? sp.fullName : '?'))}</span>`;
+}
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 2200);
+}
+
+// ---------- Daten ----------
+function normalize(data) {
+  state.roomById.clear(); state.catItemById.clear(); state.speakerById.clear(); state.sessionById.clear();
+  (data.rooms || []).forEach(r => state.roomById.set(String(r.id), r.name));
+  (data.categories || []).forEach(cat => (cat.items || []).forEach(i =>
+    state.catItemById.set(String(i.id), { name: i.name, cat: cat.title })));
+
+  state.speakers = (data.speakers || []).map(sp => ({
+    id: String(sp.id),
+    fullName: sp.fullName || [sp.firstName, sp.lastName].filter(Boolean).join(' '),
+    tagLine: sp.tagLine || '', bio: sp.bio || '', profilePicture: sp.profilePicture || '',
+    links: sp.links || [], sessionIds: (sp.sessions || []).map(String)
+  }));
+  state.speakers.forEach(sp => state.speakerById.set(sp.id, sp));
+
+  state.sessions = (data.sessions || [])
+    .filter(s => !s.isServiceSession)
+    .map(s => {
+      const catIds = (s.categoryItems || []).map(String);
+      const fmt = catIds.map(id => state.catItemById.get(id)).find(c => c && /format/i.test(c.cat));
+      const lvl = catIds.map(id => state.catItemById.get(id)).find(c => c && /level/i.test(c.cat));
+      return {
+        id: String(s.id), title: s.title || 'Ohne Titel', description: s.description || '',
+        startsAt: s.startsAt || null, endsAt: s.endsAt || null,
+        room: s.roomId != null ? (state.roomById.get(String(s.roomId)) || '') : '',
+        speakerIds: (s.speakers || []).map(x => String(typeof x === 'object' ? x.id : x)),
+        format: fmt ? fmt.name : '', level: lvl ? lvl.name : ''
+      };
+    })
+    .sort((a, b) => String(a.startsAt).localeCompare(String(b.startsAt)));
+  state.sessions.forEach(s => state.sessionById.set(s.id, s));
+
+  state.keynoteSpeakers = new Set(state.sessions
+    .filter(s => /keynote/i.test(s.format)).flatMap(s => s.speakerIds));
+  state.days = [...new Set(state.sessions.filter(s => s.startsAt).map(s => s.startsAt.slice(0, 10)))].sort();
+  state.roomNames = [...state.roomById.values()];
+}
+
+// ---------- Screens ----------
+function show(name) {
+  document.querySelectorAll('.screen').forEach(sc => sc.classList.remove('on'));
+  $('#screen-' + name).classList.add('on');
+  document.querySelectorAll('.flur button').forEach(b =>
+    b.classList.toggle('on', b.dataset.nav === (name === 'room' ? 'hub' : name)));
+  $('#flur').style.display = name === 'title' ? 'none' : 'flex';
+  window.scrollTo(0, 0);
+}
+
+function refreshHud() {
+  const total = state.speakers.length || 39;
+  const got = state.collected.size;
+  $('#hud-progress').textContent = `${got} / ${total}`;
+  $('#album-progress').textContent = `${got} / ${total}`;
+  $('#hud-bar').style.width = (total ? (got / total * 100) : 0) + '%';
+  $('#nav-album-badge').textContent = got;
+  $('#nav-plan-badge').textContent = state.liked.size;
+  $('#t-total').textContent = total;
+}
+
+// ---------- Hub ----------
+function roomSessions(roomName, day = state.day) {
+  return state.sessions.filter(s => s.room === roomName && (day === 'all' || (s.startsAt || '').startsWith(day)));
+}
+function renderHub() {
+  const tabs = [['all', 'Alle Tage'], ...state.days.map(d => [d, fmtDayShort(d)])];
+  $('#day-tabs').innerHTML = tabs.map(([v, l]) =>
+    `<button class="day-tab${state.day === v ? ' on' : ''}" data-day="${v}">${esc(l)}</button>`).join('');
+  $('#rooms').innerHTML = state.roomNames.map(name => {
+    const info = roomInfo(name);
+    const list = roomSessions(name);
+    if (!list.length && state.day !== 'all') return '';
+    const explored = list.length > 0 && list.every(s => state.seen.has(s.id));
+    return `<button class="room-door${explored ? ' done' : ''}" data-room="${esc(name)}" style="--room-color:${info.color}">
+      <span class="r-done">✓</span>
+      <span class="r-emoji">${info.emoji}</span>
+      <span class="r-name">${esc(name)}</span>
+      <span class="r-host">${esc(info.host)}</span>
+      <span class="r-count">${list.length} Session${list.length === 1 ? '' : 's'}</span>
+    </button>`;
+  }).join('');
+  refreshHud();
+}
+
+// ---------- Zimmer + Deck ----------
+function enterRoom(name) {
+  state.currentRoom = name;
+  const info = roomInfo(name);
+  $('#rh-emoji').textContent = info.emoji;
+  $('#rh-name').textContent = name;
+  $('#rh-host').textContent = info.host;
+  $('#rh-story').textContent = info.story;
+  $('#rh-story').style.setProperty('--room-color', info.color);
+  state.deck = roomSessions(name);
+  state.deckIdx = state.deck.findIndex(s => !state.seen.has(s.id));
+  if (state.deckIdx < 0) state.deckIdx = state.deck.length;
+  renderDeck();
+  show('room');
+}
+
+function deckCardHtml(s, info) {
+  const sps = s.speakerIds.map(id => state.speakerById.get(id)).filter(Boolean);
+  const when = s.startsAt ? `${fmtDayShort(s.startsAt)} · ${fmtTime(s.startsAt)}–${s.endsAt ? fmtTime(s.endsAt) : ''} Uhr` : 'Termin folgt';
+  return `
+    <div class="sc-meta">
+      ${s.format ? `<span class="chip fmt">${esc(s.format)}</span>` : ''}
+      ${s.level ? `<span class="chip">${esc(s.level)}</span>` : ''}
+    </div>
+    <div class="sc-title">${esc(s.title)}</div>
+    <div class="sc-when">🕐 ${esc(when)}</div>
+    <div class="sc-desc">${esc(s.description).slice(0, 380)}</div>
+    <div class="sc-speakers">${sps.slice(0, 3).map(sp =>
+      `<div class="sc-sp">${avatar(sp)}<span>${esc(sp.fullName)}</span></div>`).join('')}
+      ${sps.length > 3 ? `<div class="sc-sp"><span class="ini">+${sps.length - 3}</span><span>weitere Mitbewohner:innen</span></div>` : ''}
+    </div>
+    <div class="stamp yes">EINZIEHEN!</div>
+    <div class="stamp no">WEITER</div>`;
+}
+
+function renderDeck() {
+  const zone = $('#deck-zone');
+  const info = roomInfo(state.currentRoom);
+  zone.innerHTML = '';
+  const remaining = state.deck.slice(state.deckIdx, state.deckIdx + 3);
+  if (!remaining.length) {
+    zone.innerHTML = `<div class="deck-hint">
+      <div class="big">${info.emoji}✨</div>
+      <div><strong>Zimmer erkundet!</strong><br>Du kennst jetzt alle Sessions ${state.deck.length ? 'hier' : 'für diesen Tag'}.</div>
+      <button class="btn-big" style="margin-top:8px;font-size:14px;padding:11px 24px" id="btn-restart">Nochmal durchgehen</button>
+    </div>`;
+    const b = $('#btn-restart');
+    if (b) b.addEventListener('click', () => { state.deckIdx = 0; renderDeck(); });
+    $('#deck-count').textContent = state.deck.length ? `${state.deck.length} / ${state.deck.length} gesehen` : '';
+    renderHub();
+    return;
+  }
+  remaining.slice().reverse().forEach((s, i) => {
+    const depth = remaining.length - 1 - i; // 0 = oberste
+    const el = document.createElement('article');
+    el.className = 'scard';
+    el.style.setProperty('--room-color', info.color);
+    el.style.transform = `translateY(${depth * 10}px) scale(${1 - depth * 0.04})`;
+    el.style.zIndex = 10 - depth;
+    el.dataset.session = s.id;
+    el.innerHTML = deckCardHtml(s, info);
+    zone.appendChild(el);
+    if (depth === 0) attachSwipe(el, s);
+  });
+  $('#deck-count').textContent = `Karte ${state.deckIdx + 1} von ${state.deck.length} · swipe oder tipp die Buttons`;
+}
+
+function attachSwipe(el, s) {
+  let startX = 0, startY = 0, dx = 0, dy = 0, dragging = false, moved = false;
+  const yes = el.querySelector('.stamp.yes'), no = el.querySelector('.stamp.no');
+  el.style.touchAction = 'pan-y';
+  el.addEventListener('pointerdown', e => {
+    dragging = true; moved = false; startX = e.clientX; startY = e.clientY;
+    el.setPointerCapture(e.pointerId); el.style.transition = 'none';
+  });
+  el.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    dx = e.clientX - startX; dy = e.clientY - startY;
+    if (Math.abs(dx) > 6) moved = true;
+    el.style.transform = `translate(${dx}px, ${dy * 0.3}px) rotate(${dx / 18}deg)`;
+    yes.style.opacity = Math.min(1, Math.max(0, dx / 90));
+    no.style.opacity = Math.min(1, Math.max(0, -dx / 90));
+  });
+  const end = () => {
+    if (!dragging) return;
+    dragging = false;
+    if (dx > 90) return flyOut(el, s, true);
+    if (dx < -90) return flyOut(el, s, false);
+    el.style.transition = 'transform .25s ease';
+    el.style.transform = '';
+    yes.style.opacity = 0; no.style.opacity = 0;
+    if (!moved) openSheet(s); // Tipp = Details
+    dx = 0;
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+}
+
+function flyOut(el, s, liked) {
+  el.style.transition = 'transform .4s ease, opacity .4s ease';
+  el.style.transform = `translate(${liked ? 480 : -480}px, -40px) rotate(${liked ? 24 : -24}deg)`;
+  el.style.opacity = 0;
+  decide(s, liked);
+  setTimeout(renderDeck, 260);
+}
+
+function decide(s, liked) {
+  state.seen.add(s.id);
+  if (liked) {
+    state.liked.add(s.id);
+    const fresh = s.speakerIds.filter(id => !state.collected.has(id));
+    fresh.forEach(id => state.collected.add(id));
+    if (fresh.length) {
+      const names = fresh.map(id => (state.speakerById.get(id) || {}).fullName).filter(Boolean);
+      toast(`🃏 Neu im Album: ${names.join(' & ')}`);
+    } else {
+      toast('💚 In deinen Plan gezogen!');
+    }
+  }
+  state.deckIdx++;
+  save(); refreshHud();
+}
+
+// ---------- Detail-Sheet ----------
+function openSheet(s) {
+  const info = roomInfo(s.room);
+  const t = ticketFor(s);
+  const sps = s.speakerIds.map(id => state.speakerById.get(id)).filter(Boolean);
+  const when = s.startsAt ? `${fmtDay(s.startsAt)} · ${fmtTime(s.startsAt)}–${s.endsAt ? fmtTime(s.endsAt) : ''} Uhr · ${esc(s.room)}` : 'Termin folgt';
+  $('#sheet').innerHTML = `
+    <div class="grab"></div>
+    <div class="sc-meta">${s.format ? `<span class="chip fmt" style="--room-color:${info.color}">${esc(s.format)}</span>` : ''}
+      ${s.level ? `<span class="chip">${esc(s.level)}</span>` : ''}</div>
+    <h3>${esc(s.title)}</h3>
+    <div class="sh-when">🕐 ${when}</div>
+    <div class="sh-desc">${esc(s.description)}</div>
+    ${sps.map(sp => `<div class="sc-sp" style="margin-bottom:8px">${avatar(sp)}<span>${esc(sp.fullName)}</span></div>`).join('')}
+    <a class="ticket-big" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.label)} · Daten-WG.com ↗</a>`;
+  $('#overlay').classList.add('on');
+}
+function openSpeakerSheet(sp) {
+  const sessions = sp.sessionIds.map(id => state.sessionById.get(id)).filter(Boolean);
+  $('#sheet').innerHTML = `
+    <div class="grab"></div>
+    <div class="sc-sp" style="margin:6px 0 4px">${avatar(sp)}<span style="font-size:17px">${esc(sp.fullName)}</span></div>
+    <div class="sh-when">${esc(sp.tagLine)}</div>
+    ${sp.bio ? `<div class="sh-desc">${esc(sp.bio)}</div>` : ''}
+    ${sessions.length ? `<div style="font-weight:700;margin-bottom:8px">Session${sessions.length === 1 ? '' : 's'}:</div>` +
+      sessions.map(s => `<div class="plan-item" style="--room-color:${roomInfo(s.room).color}">
+        <div class="pi-time">${s.startsAt ? fmtDayShort(s.startsAt) + '<br>' + fmtTime(s.startsAt) : '–'}</div>
+        <div><div class="pi-title">${esc(s.title)}</div><div class="pi-sub">${esc(s.room)}</div></div>
+      </div>`).join('') : ''}
+    ${sp.links.length ? `<div class="sh-links">${sp.links.map(l =>
+      `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.title || 'Link')} ↗</a>`).join('')}</div>` : ''}`;
+  $('#overlay').classList.add('on');
+}
+
+// ---------- Album ----------
+function renderAlbum() {
+  $('#album-grid').innerHTML = state.speakers
+    .slice().sort((a, b) => a.fullName.localeCompare(b.fullName, 'de'))
+    .map(sp => {
+      const got = state.collected.has(sp.id);
+      const key = state.keynoteSpeakers.has(sp.id);
+      if (!got) return `<div class="acard locked"><div class="q">❓</div><div class="nm">Noch nicht<br>kennengelernt</div></div>`;
+      return `<button class="acard got${key ? ' keynote' : ''}" data-speaker="${esc(sp.id)}">
+        ${avatar(sp)}<div class="nm">${esc(sp.fullName)}</div><div class="tg">${esc(sp.tagLine)}</div>
+      </button>`;
+    }).join('');
+  refreshHud();
+}
+
+// ---------- Plan ----------
+function renderPlan() {
+  const list = [...state.liked].map(id => state.sessionById.get(id)).filter(Boolean)
+    .sort((a, b) => String(a.startsAt).localeCompare(String(b.startsAt)));
+  if (!list.length) {
+    $('#plan-list').innerHTML = `<div class="plan-empty"><div class="big">🛏️</div>
+      Noch ist dein Plan so leer wie der WG-Kühlschrank am Sonntag.<br>
+      Geh in die Zimmer und swipe Sessions nach rechts 💚.</div>`;
+    return;
+  }
+  let html = '', lastDay = '';
+  list.forEach(s => {
+    const day = s.startsAt ? s.startsAt.slice(0, 10) : '';
+    if (day !== lastDay) { html += `<div class="plan-day">${day ? esc(fmtDay(day)) : 'Termin folgt'}</div>`; lastDay = day; }
+    const t = ticketFor(s);
+    html += `<div class="plan-item" style="--room-color:${roomInfo(s.room).color}">
+      <div class="pi-time">${s.startsAt ? fmtTime(s.startsAt) : '–'}</div>
+      <div>
+        <div class="pi-title">${esc(s.title)}</div>
+        <div class="pi-sub">${esc(s.room)}${s.speakerIds.length ? ' · ' + s.speakerIds.map(id => (state.speakerById.get(id) || {}).fullName).filter(Boolean).join(', ') : ''}</div>
+        <a class="pi-ticket" href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.label)}</a>
+      </div>
+      <button class="pi-x" data-unlike="${esc(s.id)}" aria-label="Entfernen">✕</button>
+    </div>`;
+  });
+  $('#plan-list').innerHTML = html;
+}
+
+// ---------- Events ----------
+$('#btn-enter').addEventListener('click', () => {
+  $('#title-door').classList.add('open');
+  setTimeout(() => { show('hub'); renderHub(); }, 650);
+});
+$('#title-door').addEventListener('click', () => $('#btn-enter').click());
+$('#btn-back').addEventListener('click', () => { show('hub'); renderHub(); });
+document.querySelectorAll('.flur button').forEach(b => b.addEventListener('click', () => {
+  const nav = b.dataset.nav;
+  show(nav);
+  if (nav === 'hub') renderHub();
+  if (nav === 'album') renderAlbum();
+  if (nav === 'plan') renderPlan();
+}));
+document.addEventListener('click', e => {
+  const day = e.target.closest('[data-day]');
+  if (day) { state.day = day.dataset.day; renderHub(); return; }
+  const door = e.target.closest('[data-room]');
+  if (door) { enterRoom(door.dataset.room); return; }
+  const spk = e.target.closest('[data-speaker]');
+  if (spk) { const sp = state.speakerById.get(spk.dataset.speaker); if (sp) openSpeakerSheet(sp); return; }
+  const un = e.target.closest('[data-unlike]');
+  if (un) { state.liked.delete(un.dataset.unlike); save(); renderPlan(); refreshHud(); return; }
+  if (e.target === $('#overlay')) $('#overlay').classList.remove('on');
+});
+$('#btn-nope').addEventListener('click', () => {
+  const s = state.deck[state.deckIdx]; if (!s) return;
+  const top = $('#deck-zone .scard:last-child'); // oberste Karte (höchster z-index, zuletzt angehängt)
+  const el = [...document.querySelectorAll('#deck-zone .scard')].find(c => c.dataset.session === s.id);
+  if (el) flyOut(el, s, false); else { decide(s, false); renderDeck(); }
+});
+$('#btn-like').addEventListener('click', () => {
+  const s = state.deck[state.deckIdx]; if (!s) return;
+  const el = [...document.querySelectorAll('#deck-zone .scard')].find(c => c.dataset.session === s.id);
+  if (el) flyOut(el, s, true); else { decide(s, true); renderDeck(); }
+});
+$('#btn-info').addEventListener('click', () => {
+  const s = state.deck[state.deckIdx]; if (s) openSheet(s);
+});
+$('#btn-share').addEventListener('click', async () => {
+  const list = [...state.liked].map(id => state.sessionById.get(id)).filter(Boolean)
+    .sort((a, b) => String(a.startsAt).localeCompare(String(b.startsAt)));
+  const text = '🏠 Mein Daten-WG-Plan:\n' + (list.map(s =>
+    `• ${s.startsAt ? fmtDayShort(s.startsAt) + ' ' + fmtTime(s.startsAt) + ' · ' : ''}${s.title} (${s.room})`).join('\n') || '— noch leer —') +
+    '\n\n🎟 Tickets: https://www.daten-wg.com/';
+  if (navigator.share) { try { await navigator.share({ text }); } catch (_) {} }
+  else { try { await navigator.clipboard.writeText(text); toast('📋 Plan in die Zwischenablage kopiert!'); } catch (_) {} }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') $('#overlay').classList.remove('on');
+  if (!$('#screen-room').classList.contains('on') || $('#overlay').classList.contains('on')) return;
+  if (e.key === 'ArrowRight') $('#btn-like').click();
+  if (e.key === 'ArrowLeft') $('#btn-nope').click();
+  if (e.key === 'ArrowUp' || e.key === 'Enter') $('#btn-info').click();
+});
+
+// ---------- Boot ----------
+function boot(data) {
+  normalize(data);
+  refreshHud();
+  if ($('#screen-hub').classList.contains('on')) renderHub();
+}
+async function load() {
+  if (FALLBACK_DATA && Array.isArray(FALLBACK_DATA.sessions)) boot(FALLBACK_DATA);
+  try {
+    const res = await fetch(API_URL, { headers: { Accept: 'application/json' } });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.sessions) && data.sessions.length) boot(data);
+    }
+  } catch (_) { /* eingebetteter Stand bleibt */ }
+}
+load();
+</script>
+</body>
+</html>
