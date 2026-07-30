@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>175 Jahre Klimageschichte zum Anfassen — Wärmestreifen 3D für Power BI · Daten-WG Knowledge Kitchen</title>
+<meta name="description" content="Die Warming Stripes von Ed Hawkins in der dritten Dimension: 758 Wetterstationen, 1850 bis heute — als interaktives Custom Visual für Microsoft Power BI.">
+
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#0F131C">
+
+<meta property="og:title" content="175 Jahre Klimageschichte zum Anfassen — Wärmestreifen 3D für Power BI">
+<meta property="og:description" content="758 Wetterstationen, 1850 bis heute: die Warming Stripes als begehbarer 3D-Datenraum in Power BI.">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/assets/waermestreifen/02_saeulenfeld_ghcn_dunkel.png">
+<meta property="og:type" content="article">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  /* Edler Dark Mode — abgestimmt auf den Hintergrund des Visuals (#141821) */
+  --bg:        #0F131C;
+  --bg-deep:   #0A0D14;
+  --bg-card:   #161B26;
+  --bg-soft:   #1C2230;
+  --ink:       #EAECF2;
+  --ink-soft:  #A8B0C0;
+  --ink-mute:  #6E7789;
+  --line:      #262D3D;
+
+  /* Die Farbrampe der Wärmestreifen (RdBu, wie im Visual) */
+  --cold-deep: #08306B;
+  --cold:      #4393C3;
+  --warm:      #D6604D;
+  --warm-deep: #67000D;
+  --stripes: linear-gradient(90deg,
+    #08306B 0%, #2166AC 12%, #4393C3 24%, #92C5DE 36%, #D1E5F0 46%,
+    #FDDBC7 54%, #F4A582 64%, #D6604D 76%, #B2182B 88%, #67000D 100%);
+
+  --accent: #D6604D;
+
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans:  "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --mono:  "JetBrains Mono", ui-monospace, Consolas, monospace;
+
+  --radius: 12px;
+  --radius-lg: 18px;
+  --shadow: 0 24px 70px rgba(0,0,0,.55);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  font-size: 16.5px;
+  line-height: 1.7;
+  color: var(--ink);
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 85% -5%, rgba(103,0,13,.12), transparent 42%),
+    radial-gradient(circle at 8% 12%, rgba(8,48,107,.18), transparent 45%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a { color: inherit; text-decoration: none; }
+img, video { max-width: 100%; display: block; }
+
+/* ---------- Nav ---------- */
+.topnav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(10,13,20,.88);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 32px;
+}
+.topnav-inner { max-width: 1080px; margin: 0 auto; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.topnav-brand { font-family: var(--serif); font-weight: 500; font-size: 15px; margin-right: auto; }
+.topnav-brand em { font-style: italic; color: var(--cold); }
+.topnav-link {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-soft); padding: 6px 10px; border-radius: 6px; transition: all .18s ease; white-space: nowrap;
+}
+.topnav-link:hover { background: var(--ink); color: var(--bg-deep); }
+
+/* ---------- Stripes-Akzentlinie ---------- */
+.stripes-bar { height: 6px; background: var(--stripes); }
+
+/* ---------- Layout ---------- */
+.container { max-width: 780px; margin: 0 auto; padding: 0 24px; }
+.container-wide { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* ---------- Hero ---------- */
+.hero { padding: 72px 0 40px; }
+.hero-eyebrow {
+  font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--warm); margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: var(--serif); font-size: clamp(34px, 6vw, 56px); font-weight: 600;
+  letter-spacing: -.02em; line-height: 1.08;
+}
+.hero h1 em { font-style: italic; color: var(--cold); }
+.hero-teaser { font-size: 19px; color: var(--ink-soft); margin-top: 24px; line-height: 1.65; }
+.hero-meta {
+  display: flex; gap: 18px; flex-wrap: wrap; margin-top: 26px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-mute);
+}
+.hero-meta span::before { content: '·'; margin-right: 18px; color: var(--line); }
+.hero-meta span:first-child::before { content: ''; margin: 0; }
+
+/* ---------- Bilder ---------- */
+figure { margin: 44px 0; }
+figure.wide { margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); padding: 0 24px; }
+figure.wide > * { max-width: 1080px; margin: 0 auto; }
+figure img, figure video {
+  border-radius: var(--radius-lg); border: 1px solid var(--line);
+  box-shadow: var(--shadow); width: 100%;
+}
+figcaption {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--ink-mute);
+  margin-top: 12px; text-align: center; line-height: 1.6; max-width: 720px !important;
+}
+
+/* ---------- Typografie ---------- */
+article h2 {
+  font-family: var(--serif); font-size: clamp(24px, 3.6vw, 32px); font-weight: 600;
+  letter-spacing: -.015em; line-height: 1.2; margin: 64px 0 18px;
+}
+article h2::before {
+  content: ''; display: block; width: 64px; height: 4px;
+  background: var(--stripes); border-radius: 100px; margin-bottom: 18px;
+}
+article p { margin: 18px 0; color: var(--ink-soft); }
+article p strong { color: var(--ink); }
+article .lede { font-size: 19px; color: var(--ink); }
+article ul, article ol { margin: 18px 0 18px 22px; color: var(--ink-soft); }
+article li { margin: 9px 0; }
+article li strong, article li em { color: var(--ink); }
+
+/* ---------- Feature-Grid (4 Darstellungsformen) ---------- */
+.forms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 32px 0; }
+.form-card {
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-lg);
+  overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+.form-card img { border: none; border-radius: 0; box-shadow: none; aspect-ratio: 16/10; object-fit: cover; }
+.form-card .fc-body { padding: 16px 18px 18px; }
+.form-card .fc-name { font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--ink); }
+.form-card .fc-desc { font-size: 13.5px; color: var(--ink-soft); margin-top: 6px; line-height: 1.55; }
+
+/* ---------- Highlight-Box (Kippschalter) ---------- */
+.flipbox {
+  margin: 36px 0; padding: 26px 28px; border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(8,48,107,.35), rgba(103,0,13,.35)), var(--bg-card);
+  border: 1px solid var(--line); position: relative; overflow: hidden;
+}
+.flipbox::before { content: ''; position: absolute; inset: 0 0 auto; height: 4px; background: var(--stripes); }
+.flipbox h3 { font-family: var(--serif); font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+.flipbox p { margin: 0; color: var(--ink-soft); }
+
+/* ---------- Faktenkasten ---------- */
+.facts {
+  margin: 36px 0; border-radius: var(--radius-lg); overflow: hidden;
+  border: 1px solid var(--line); background: var(--bg-card);
+}
+.facts table { width: 100%; border-collapse: collapse; }
+.facts th, .facts td { padding: 13px 20px; text-align: left; font-size: 14.5px; }
+.facts th {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink-mute); width: 42%;
+}
+.facts tr + tr { border-top: 1px solid var(--line); }
+.facts td { color: var(--ink); }
+
+.bignumber {
+  margin: 36px 0; padding: 30px; text-align: center;
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius-lg);
+}
+.bignumber .bn-row { display: flex; gap: 26px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.bignumber .bn-val { font-family: var(--serif); font-size: clamp(34px, 6vw, 52px); font-weight: 600; letter-spacing: -.02em; }
+.bignumber .bn-val.cold { color: var(--cold); }
+.bignumber .bn-val.warm { color: var(--warm); }
+.bignumber .bn-arrow { font-size: 30px; color: var(--ink-mute); }
+.bignumber .bn-label { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-mute); margin-top: 6px; }
+.bignumber .bn-note { font-size: 13.5px; color: var(--ink-soft); margin-top: 18px; max-width: 560px; margin-left: auto; margin-right: auto; }
+
+/* ---------- Transparenz ---------- */
+.note {
+  margin: 36px 0; padding: 22px 26px; border-radius: var(--radius);
+  background: var(--bg-soft); border-left: 4px solid var(--cold);
+  font-size: 14.5px; color: var(--ink-soft);
+}
+.note strong { color: var(--ink); }
+
+/* ---------- Making-of ---------- */
+.makingof { counter-reset: step; margin: 28px 0; }
+.mo-step { display: flex; gap: 18px; margin: 22px 0; }
+.mo-step::before {
+  counter-increment: step; content: counter(step);
+  flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--bg-card); border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--warm);
+}
+.mo-step p { margin: 4px 0 0; font-size: 15px; }
+
+/* ---------- Links ---------- */
+.linklist { display: grid; gap: 10px; margin: 28px 0; }
+.linkcard {
+  display: flex; gap: 14px; align-items: baseline; padding: 14px 18px;
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: var(--radius);
+  transition: border-color .18s ease, transform .18s ease;
+}
+.linkcard:hover { border-color: var(--warm); transform: translateX(4px); }
+.linkcard .lc-name { font-weight: 600; color: var(--ink); font-size: 15px; }
+.linkcard .lc-meta { font-family: var(--mono); font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-mute); margin-left: auto; white-space: nowrap; }
+
+/* ---------- Quellen / Attribution ---------- */
+.sources {
+  margin: 64px 0 0; padding: 28px; border-radius: var(--radius-lg);
+  background: var(--bg-deep); border: 1px solid var(--line);
+  font-size: 13px; color: var(--ink-mute); line-height: 1.7;
+}
+.sources h3 {
+  font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-soft); margin-bottom: 14px;
+}
+.sources p { margin: 10px 0; }
+.sources a { color: var(--cold); }
+.sources a:hover { text-decoration: underline; }
+
+/* ---------- Footer ---------- */
+.footer {
+  margin-top: 72px; border-top: 1px solid var(--line); padding: 28px 24px 48px;
+}
+.footer-inner {
+  max-width: 1080px; margin: 0 auto; display: flex; gap: 16px; flex-wrap: wrap;
+  align-items: center; justify-content: space-between;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-mute);
+}
+.footer a { color: var(--cold); }
+.footer a:hover { text-decoration: underline; }
+
+@media (max-width: 640px) {
+  .topnav { padding: 12px 18px; }
+  .hero { padding: 48px 0 28px; }
+  .forms-grid { grid-template-columns: 1fr; }
+  .linkcard .lc-meta { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a class="topnav-brand" href="index.html">Daten-<em>WG</em> · Knowledge Kitchen</a>
+    <a class="topnav-link" href="index.html">← Zur Kitchen</a>
+    <a class="topnav-link" href="https://github.com/losveratos/dev_custom_viz_lab" target="_blank" rel="noopener">GitHub ↗</a>
+  </div>
+</nav>
+<div class="stripes-bar"></div>
+
+<article>
+  <header class="hero container">
+    <div class="hero-eyebrow">Post · Power-BI-Custom-Visual · Open Data</div>
+    <h1>175 Jahre Klimageschichte <em>zum Anfassen</em></h1>
+    <p class="hero-teaser">Die berühmten Warming Stripes von Ed Hawkins zeigen die Erderwärmung
+      als Farbcode — dieses Power-BI-Visual stellt sie in den Raum: Zeit auf der einen Achse,
+      758 Wetterstationen auf der anderen, die Abweichung als Höhe. Man kann hineinfliegen,
+      filtern, vergleichen — und zusehen, wie das Feld ab den 1980ern ins Rote kippt.</p>
+    <div class="hero-meta">
+      <span>30. Juli 2026</span><span>Visual 1.5.0.0</span><span>Daten: NOAA GHCN-Daily</span><span>WebGL · three.js</span>
+    </div>
+  </header>
+
+  <figure class="wide">
+    <img src="assets/waermestreifen/02_saeulenfeld_ghcn_dunkel.png"
+         alt="3D-Säulenfeld: 175 Jahre Temperaturabweichungen von GHCN-Wetterstationen, blau nach rot" loading="eager">
+    <figcaption>Das Säulenfeld mit echten GHCN-Stationen: links beginnt 1850, rechts endet 2024 —
+      nach hinten reihen sich die Wetterstationen. Blau = kälter, Rot = wärmer als 1961–1990.</figcaption>
+  </figure>
+
+  <div class="container">
+    <p class="lede">Jede Säule ist ein Jahr an einem Ort. Links beginnt 1850, rechts endet 2024;
+      nach hinten reihen sich Wetterstationen von Spitzbergen bis Melbourne. Blau heißt kälter,
+      Rot heißt wärmer als das Mittel von 1961–1990. Ein Jahrhundert lang wogt das Feld
+      richtungslos um die Nulllinie — dann hebt es sich als Ganzes. Kein einzelner Ort erzählt
+      diese Geschichte; erst die 758 Stationen gemeinsam machen sie unübersehbar.</p>
+    <p>Das Ganze ist kein Video und keine Grafik, sondern ein <strong>Custom Visual für
+      Microsoft Power BI</strong>: Die Daten kommen aus dem normalen Datenmodell, jeder Slicer
+      wirkt sofort, jeder Klick ins 3D-Feld filtert die anderen Diagramme der Berichtsseite mit.</p>
+
+    <h2 id="beispiel">Das Beispiel in 30 Sekunden</h2>
+    <p>Aufbau Jahr für Jahr, Wechsel ins Relief, Rotation, Aufsicht — so fühlt sich das
+      Visual im Report an:</p>
+  </div>
+
+  <figure class="wide">
+    <video controls preload="metadata" playsinline
+           poster="assets/waermestreifen/06_kamerafahrt_im_feld.png"
+           src="assets/waermestreifen/waermestreifen_3d_demo.mp4"></video>
+    <figcaption>30-Sekunden-Demo: Aufbau-Animation → Relief → Rotation → Aufsicht.
+      Mit dem Mausrad fliegt man im Report bis zwischen die Säulen.</figcaption>
+  </figure>
+
+  <div class="container">
+    <h2>Vier Blicke auf denselben Datenraum</h2>
+    <p>Das Visual rendert die identischen Daten in vier Darstellungsformen — vom klassischen
+      Streifenbild bis zur Geländelandschaft:</p>
+
+    <div class="forms-grid">
+      <div class="form-card">
+        <img src="assets/waermestreifen/02_saeulenfeld_ghcn_dunkel.png" alt="Säulenfeld" loading="lazy">
+        <div class="fc-body">
+          <div class="fc-name">Säulenfeld</div>
+          <div class="fc-desc">Eine Säule pro Ort und Jahr — bis zu ~71.500 auf einmal.</div>
+        </div>
+      </div>
+      <div class="form-card">
+        <img src="assets/waermestreifen/03_relief_streiflicht.png" alt="Relief" loading="lazy">
+        <div class="fc-body">
+          <div class="fc-name">Relief</div>
+          <div class="fc-desc">Durchgehende Landschaft: die Erwärmung wird zur Geländestufe.</div>
+        </div>
+      </div>
+      <div class="form-card">
+        <img src="assets/waermestreifen/05_baender_ortsprofil.png" alt="Bänder" loading="lazy">
+        <div class="fc-body">
+          <div class="fc-name">Bänder</div>
+          <div class="fc-desc">Pro Ort eine Wand von der Nulllinie zur Abweichung.</div>
+        </div>
+      </div>
+      <div class="form-card">
+        <img src="assets/waermestreifen/04_streifen_aufsicht.png" alt="Streifen-Tafeln" loading="lazy">
+        <div class="fc-body">
+          <div class="fc-name">Streifen-Tafeln</div>
+          <div class="fc-desc">Die klassischen Warming Stripes, aufgestellt im Raum — Datenlücken bleiben sichtbar.</div>
+        </div>
+      </div>
+    </div>
+
+    <h2>Interaktion: ein Visual, kein Film</h2>
+    <ul>
+      <li><strong>Fünf kuratierte Kameraperspektiven</strong> mit animierten Kamerafahrten, dazu freie
+        Orbit-Steuerung und echtes Hineinfliegen bis zwischen die Säulen — das Mausrad zieht zum
+        Punkt unter dem Zeiger.</li>
+      <li><strong>Aufbau-Animation:</strong> das Feld wächst Jahr für Jahr von 1850 bis heute.</li>
+      <li><strong>Auslesefeld beim Überfahren:</strong> Stationsname, die klassischen Warming Stripes
+        dieser Station, Wert und Rang des Jahres („2018 · +1,87 °C · Rang 3 von 149“).</li>
+      <li><strong>Power-BI-nativ:</strong> Klick = Cross-Filter auf alle anderen Visuals der Seite,
+        Rechtsklick = Kontextmenü, Hover = Tooltip. Jeder Slicer wirkt sofort.</li>
+      <li><strong>Kiosk-Modus</strong> für Wandmonitore: nach einstellbarer Inaktivität kreist die
+        Kamera langsam, jede Berührung pausiert.</li>
+      <li><strong>Analyse:</strong> Glättung (5/11/21-Jahres-Mittel), Sortierung der Ortsachse
+        (u.&nbsp;a. nach Erwärmung), frei wählbare Referenzperiode, 4K-Skalierung, Hell/Dunkel.</li>
+    </ul>
+
+    <div class="flipbox">
+      <h3>⇄ Der Referenz-Kippschalter</h3>
+      <p>Ein Klick wechselt die Nulllinie von 1961–1990 (WMO-Standard) auf 1850–1900
+        (vorindustriell) — und das gesamte Feld kippt sichtbar ins Rote. Es ist derselbe
+        Datensatz, nur die Frage ist eine andere: „wärmer als früher?“ statt „wärmer als
+        zuletzt?“. Der stärkste Moment des Visuals.</p>
+    </div>
+
+    <h2>Die Daten</h2>
+    <div class="facts">
+      <table>
+        <tr><th>Wetterstationen</th><td>758 aus 70 Ländern</td></tr>
+        <tr><th>Zeitraum</th><td>1850–2024 (175 Jahre)</td></tr>
+        <tr><th>Datenpunkte im Visual</th><td>bis zu ~71.500 Jahreswerte</td></tr>
+        <tr><th>Quelle</th><td>NOAA GHCN-Daily (public domain), tagesgenaue Rohmessungen</td></tr>
+        <tr><th>Aufbereitung</th><td>Tag → Monat → Jahr, mit Qualitäts- und Vollständigkeitsregeln</td></tr>
+        <tr><th>Referenz</th><td>Anomalie gegen das stationseigene Mittel 1961–1990</td></tr>
+      </table>
+    </div>
+
+    <div class="bignumber">
+      <div class="bn-row">
+        <div>
+          <div class="bn-val cold">−0,42&nbsp;°C</div>
+          <div class="bn-label">1900er Jahre</div>
+        </div>
+        <div class="bn-arrow">→</div>
+        <div>
+          <div class="bn-val warm">+1,60&nbsp;°C</div>
+          <div class="bn-label">2020–2024</div>
+        </div>
+      </div>
+      <p class="bn-note">Mittel über die 153 Stationen mit durchgehender Reihe seit 1900,
+        jeweils gegen die Referenz 1961–1990. Dazwischen liegt keine gerade Linie, sondern
+        die bekannte Kurve mit der Abkühlungsdelle der 1960er — das Feld reproduziert sie sichtbar.</p>
+    </div>
+
+    <div class="note">
+      <strong>Transparenz:</strong> Die Reihen sind unbereinigte Stationsmessungen — ohne
+      Homogenisierung und ohne Wärmeinsel-Korrektur; ein ungewichtetes Mittel über alle Stationen
+      ist kein Globalmittel, und Ozeane fehlen ganz. Wer belastbare Globalwerte braucht, nimmt
+      HadCRUT5 oder Berkeley Earth. Für das, was dieses Visual zeigt — die <em>Richtung und
+      Gleichzeitigkeit</em> der Veränderung über hunderte Orte — sind die Rohreihen genau richtig.
+    </div>
+
+    <h2>Making-of</h2>
+    <div class="makingof">
+      <div class="mo-step"><p>Ausgangspunkt war ein interaktives Standalone-Artifact
+        (WebGL/three.js) mit kuratierten 60 Städten.</p></div>
+      <div class="mo-step"><p>Portierung als Power-BI-Custom-Visual: Die Daten kommen seitdem aus
+        dem Datenmodell — Slicer, Cross-Filtering, Tooltips und Formatbereich inklusive. three.js
+        wird gebündelt, das Visual lädt zur Laufzeit nichts nach.</p></div>
+      <div class="mo-step"><p>Die Demo-Daten wurden durch echte Messreihen ersetzt: eine
+        reproduzierbare Pipeline lädt NOAA GHCN-Daily (tägliche Rohwerte), aggregiert zu
+        Jahresanomalien und filtert Stationsfehler heraus.</p></div>
+      <div class="mo-step"><p>Die echten Daten — viermal mehr Orte, 33&nbsp;% Lücken — deckten
+        Grenzfälle im Renderer auf, die mit kuratierten Daten nie auftraten: Nebel und
+        Kameraeinpassung mussten mit der Feldgröße skalieren, und Datenlücken bleiben als Lücken
+        sichtbar statt als Nullwerte.</p></div>
+    </div>
+    <p>Entwickelt wurde das Projekt im Pair mit <strong>Claude (Anthropic)</strong> — von der
+      Analyse des Original-Artifacts über die Portierung bis zur Datenpipeline.</p>
+
+    <h2>Selbst ausprobieren</h2>
+    <div class="linklist">
+      <a class="linkcard" href="https://github.com/losveratos/dev_custom_viz_lab" target="_blank" rel="noopener">
+        <span class="lc-name">Repository mit Visual, Pipeline &amp; Doku</span><span class="lc-meta">GitHub</span>
+      </a>
+      <a class="linkcard" href="https://github.com/losveratos/dev_custom_viz_lab/tree/claude/power-bi-custom-visual-r1r03e/warmingStripes3D/dist" target="_blank" rel="noopener">
+        <span class="lc-name">Fertiges Visual (.pbiviz) zum Import</span><span class="lc-meta">dist/</span>
+      </a>
+      <a class="linkcard" href="https://github.com/losveratos/dev_custom_viz_lab/blob/claude/power-bi-custom-visual-r1r03e/warmingStripes3D/demo/waermestreifen_ghcn.csv" target="_blank" rel="noopener">
+        <span class="lc-name">Datensatz: 758 Stationen als CSV</span><span class="lc-meta">demo/</span>
+      </a>
+      <a class="linkcard" href="https://github.com/losveratos/dev_custom_viz_lab/blob/claude/power-bi-custom-visual-r1r03e/warmingStripes3D/demo/ANLEITUNG.md" target="_blank" rel="noopener">
+        <span class="lc-name">Report-Anleitung Schritt für Schritt</span><span class="lc-meta">Anleitung</span>
+      </a>
+      <a class="linkcard" href="https://github.com/losveratos/dev_custom_viz_lab/blob/claude/power-bi-custom-visual-r1r03e/warmingStripes3D/QUELLEN.md" target="_blank" rel="noopener">
+        <span class="lc-name">Quellen &amp; Methodik im Detail</span><span class="lc-meta">QUELLEN.md</span>
+      </a>
+      <a class="linkcard" href="https://showyourstripes.info" target="_blank" rel="noopener">
+        <span class="lc-name">Das Original: Show Your Stripes (Ed Hawkins)</span><span class="lc-meta">Extern</span>
+      </a>
+      <a class="linkcard" href="https://registry.opendata.aws/noaa-ghcn/" target="_blank" rel="noopener">
+        <span class="lc-name">Datenquelle: NOAA GHCN-Daily</span><span class="lc-meta">Open Data</span>
+      </a>
+    </div>
+
+    <div class="sources">
+      <h3>Quellen &amp; Attribution</h3>
+      <p>Darstellung inspiriert von den „Warming Stripes“ von Prof. Ed Hawkins, University of
+        Reading — <a href="https://showyourstripes.info" target="_blank" rel="noopener">showyourstripes.info</a>.</p>
+      <p>Datengrundlage: NOAA Global Historical Climatology Network – Daily (Menne et al. 2012,
+        <a href="https://doi.org/10.7289/V5D21VHZ" target="_blank" rel="noopener">doi:10.7289/V5D21VHZ</a>),
+        aufbereitet zu Jahresanomalien gegen 1961–1990; Aufbereitung siehe
+        <a href="https://github.com/losveratos/dev_custom_viz_lab" target="_blank" rel="noopener">Projekt-Repository</a>.</p>
+      <p>Die Screenshots dieses Beitrags stammen aus den GHCN-Daten. Einzelne Sequenzen des
+        Demo-Videos nutzen den kuratierten 60-Städte-Demo-Datensatz, dessen Einzelstadtwerte
+        rekonstruiert sind (Details: QUELLEN.md, Abschnitt 2). Das Visual zeigt 758 einzelne
+        Messreihen gleichzeitig — kein flächengewichtetes Globalmittel.</p>
+      <p>Software: three.js und Power-BI-SDK (MIT-Lizenz); GHCN-Daten gemeinfrei.</p>
+    </div>
+  </div>
+</article>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <span>Daten-WG · Knowledge Kitchen</span>
+    <span><a href="index.html">Kitchen</a> · <a href="power_bi_einsteiger_guide_v4.html">Power-BI-Guide</a> ·
+      <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
