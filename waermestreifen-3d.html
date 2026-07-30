@@ -119,6 +119,12 @@ figure img, figure video {
   border-radius: var(--radius-lg); border: 1px solid var(--line);
   box-shadow: var(--shadow); width: 100%;
 }
+.report-frame {
+  position: relative; width: 100%; aspect-ratio: 16 / 9; min-height: 380px;
+  border-radius: var(--radius-lg); border: 1px solid var(--line);
+  box-shadow: var(--shadow); overflow: hidden; background: var(--bg-deep);
+}
+.report-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 figcaption {
   font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--ink-mute);
   margin-top: 12px; text-align: center; line-height: 1.6; max-width: 720px !important;
@@ -293,17 +299,33 @@ article li strong, article li em { color: var(--ink); }
       Microsoft Power BI</strong>: Die Daten kommen aus dem normalen Datenmodell, jeder Slicer
       wirkt sofort, jeder Klick ins 3D-Feld filtert die anderen Diagramme der Berichtsseite mit.</p>
 
-    <h2 id="beispiel">Das Beispiel in 30 Sekunden</h2>
-    <p>Aufbau Jahr für Jahr, Wechsel ins Relief, Rotation, Aufsicht — so fühlt sich das
-      Visual im Report an:</p>
+    <h2 id="beispiel">Das Beispiel — live, direkt hier</h2>
+    <p>Kein Screenshot, kein Video: Das hier ist der <strong>echte Power-BI-Report</strong>.
+      Zieh mit der Maus durch den Raum, zoom mit dem Mausrad bis zwischen die Säulen,
+      klick eine Station an — und probier den Referenz-Kippschalter:</p>
+  </div>
+
+  <figure class="wide">
+    <div class="report-frame">
+      <iframe title="Wärmestreifen 3D · Live-Demo-Report (Power BI)"
+        src="https://app.powerbi.com/view?r=eyJrIjoiNDBjNTYyNjktNDdiZC00ZTQ3LTllNjItYjRmMjk4OGNmMTIwIiwidCI6IjI0ZWIxMGYwLTBmY2QtNGU5Ny1hMGQ0LTg0NjhhODRhOWU5MCIsImMiOjh9"
+        loading="lazy" allowfullscreen></iframe>
+    </div>
+    <figcaption>Live-Demo als „Publish to web“-Report — läuft direkt im Beitrag.
+      Am Handy am besten über das Vollbild-Symbol unten rechts öffnen.</figcaption>
+  </figure>
+
+  <div class="container">
+    <p>Für unterwegs oder zum Teilen gibt es die Tour auch als 30-Sekunden-Video
+      (Aufbau-Animation → Relief → Rotation → Aufsicht):</p>
   </div>
 
   <figure class="wide">
     <video controls preload="metadata" playsinline
            poster="assets/waermestreifen/06_kamerafahrt_im_feld.png"
            src="assets/waermestreifen/waermestreifen_3d_demo.mp4"></video>
-    <figcaption>30-Sekunden-Demo: Aufbau-Animation → Relief → Rotation → Aufsicht.
-      Mit dem Mausrad fliegt man im Report bis zwischen die Säulen.</figcaption>
+    <figcaption>30-Sekunden-Demo als Video. Einzelne Sequenzen nutzen den kuratierten
+      Demo-Datensatz (siehe Quellenblock).</figcaption>
   </figure>
 
   <div class="container">
