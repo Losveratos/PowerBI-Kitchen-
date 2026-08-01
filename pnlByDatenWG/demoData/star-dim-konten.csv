@@ -1,0 +1,18 @@
+AccountID;L1;L2;L3;SortOrder;RowType;FormulaDef;SignConvention;DisplayInvert;VarianceInvert
+r_prod;Umsatzerlöse;Produkterlöse;;11;Account;;1;false;false
+r_svc;Umsatzerlöse;Serviceerlöse;;12;Account;;1;false;false
+oi;Sonst. betr. Erträge;Sonst. betr. Erträge;;20;Account;;1;false;false
+mat;Betriebsaufwand;Materialaufwand;;31;Account;;-1;true;false
+pers_w;Betriebsaufwand;Personalaufwand;Löhne & Gehälter;33;Account;;-1;true;false
+pers_s;Betriebsaufwand;Personalaufwand;Sozialabgaben;34;Account;;-1;true;false
+mkt;Betriebsaufwand;Marketing;;35;Account;;-1;true;false
+it;Betriebsaufwand;IT & Infrastruktur;;36;Account;;-1;true;false
+da;Abschreibungen;Abschreibungen;;50;Account;;-1;true;false
+fin;Finanzergebnis;Finanzergebnis;;60;Account;;1;false;false
+tax;Steuern;Steuern;;70;Account;;-1;true;true
+ebitda;EBITDA;;;40;Formula;[Umsatzerlöse]+[Sonst. betr. Erträge]+[Betriebsaufwand];1;false;false
+m_ebitda;EBITDA-Marge;;;41;KPI;[EBITDA]/[Umsatzerlöse];1;false;false
+ebit;EBIT;;;51;Formula;[EBITDA]+[Abschreibungen];1;false;false
+ebt;EBT;;;61;Formula;[EBIT]+[Finanzergebnis];1;false;false
+ni;Jahresüberschuss;;;80;Formula;[EBT]+[Steuern];1;false;false
+m_ni;Umsatzrendite;;;81;KPI;[Jahresüberschuss]/[Umsatzerlöse];1;false;false

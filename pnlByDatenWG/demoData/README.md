@@ -6,8 +6,31 @@ Semikolon-getrennt, UTF-8 — direkt in Power BI Desktop importierbar
 
 | Datei | Modus |
 |---|---|
-| `guv-demo.csv` | **Parent-Child** (AccountID + ParentAccountID) |
-| `guv-demo-levels.csv` | **Sternschema / Level-Spalten** (L1–L3 → Field Well „Ebenen-Spalten", in Reihenfolge L1, L2, L3 ziehen) |
+| `guv-demo.csv` | **Parent-Child** (AccountID + ParentAccountID), flach — eine Datei |
+| `guv-demo-levels.csv` | **Level-Spalten** (L1–L3), flach — eine Datei |
+| `star-dim-konten.csv` + `star-fact-guv.csv` | **Echtes Sternschema**: Dimension + Faktentabelle (Monatsebene), Beziehung über `AccountID` |
+
+## Sternschema-Setup (star-dim + star-fact)
+
+1. Beide CSVs importieren (Text/CSV, Semikolon).
+2. **Beziehung**: `star-dim-konten[AccountID]` 1:* `star-fact-guv[AccountID]`.
+3. Measures anlegen (im Modell, nicht im Visual):
+   `AC = SUM('star-fact-guv'[AC])` — analog PY, PL, FC.
+4. Ins Visual ziehen: aus der **Dimension** `L1`, `L2`, `L3` (in dieser
+   Reihenfolge) ins Well „Ebenen-Spalten", dazu `AccountID`, `RowType`,
+   `FormulaDef`, `SignConvention`, `DisplayInvert`, `VarianceInvert`;
+   aus den **Measures** AC/PY/PL/FC.
+5. Monats-Slicer auf `star-fact-guv[Monat]` — die GuV aggregiert live über
+   die gefilterten Monate; die Formelzeilen (EBITDA …) rechnen immer auf dem
+   gefilterten Stand (RLS-/Filter-Transparenz).
+
+Hinweise:
+
+- Die Faktentabelle enthält je Formel-/KPI-Konto eine **Leer-Faktzeile**,
+  damit diese Zeilen den Dimension-Fakt-Join überleben. Alternative ohne
+  Leerzeilen: im Visual-Feld `L1` „**Elemente ohne Daten anzeigen**" aktivieren.
+- Alle 6 Monate zusammen ergeben exakt die Jahreswerte der flachen Demos
+  (Reconciliation: EBITDA AC = 3.400, Jahresüberschuss = 2.615).
 
 Beide enthalten: unbalancierte Hierarchie, Formelzeilen
 (EBITDA/EBIT/EBT/Jahresüberschuss), %-KPI-Zeilen (EBITDA-Marge, Umsatzrendite),
