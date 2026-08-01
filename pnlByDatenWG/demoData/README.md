@@ -1,13 +1,28 @@
 # Demo-Daten — P&L Statement byDatenWG
 
-`guv-demo.csv` ist eine vollständige Beispiel-GuV (Contoso GmbH, Werte in kEUR)
-mit allen Feldern des Datenvertrags: unbalancierte Hierarchie (2–3 Ebenen),
-Subtotals, Formelzeilen (EBITDA/EBIT/EBT/Jahresüberschuss), %-KPI-Zeilen
-(EBITDA-Marge, Umsatzrendite), Kosten mit Vorzeichenlogik und ein
-VarianceInvert-Fall (Steuern).
-
+Beide Eingabemodi des Visuals als Beispiel-GuV (Contoso GmbH, Werte in kEUR),
 Semikolon-getrennt, UTF-8 — direkt in Power BI Desktop importierbar
-(**Daten abrufen → Text/CSV**).
+(**Daten abrufen → Text/CSV**):
+
+| Datei | Modus |
+|---|---|
+| `guv-demo.csv` | **Parent-Child** (AccountID + ParentAccountID) |
+| `guv-demo-levels.csv` | **Sternschema / Level-Spalten** (L1–L3 → Field Well „Ebenen-Spalten", in Reihenfolge L1, L2, L3 ziehen) |
+
+Beide enthalten: unbalancierte Hierarchie, Formelzeilen
+(EBITDA/EBIT/EBT/Jahresüberschuss), %-KPI-Zeilen (EBITDA-Marge, Umsatzrendite),
+Kosten mit Vorzeichenlogik und einen VarianceInvert-Fall (Steuern).
+
+Ragged-Regeln im Level-Modus (beide in `guv-demo-levels.csv` enthalten):
+
+- **Leere tiefere Level** → die letzte gefüllte Ebene ist das Blatt
+  (z. B. `Betriebsaufwand;Marketing;;`)
+- **Wiederholter Inhalt** → Hierarchie endet dort
+  (z. B. `Sonst. betr. Erträge` in L1=L2=L3 → Ebene 1)
+- Formelzeilen referenzieren per **Zeilennamen** (`[Umsatzerlöse]`), da es im
+  Sternschema keine Konten-IDs gibt — Namen müssen dafür eindeutig sein.
+- Synthetische Zwischensummen erben `DisplayInvert`/`VarianceInvert`, wenn
+  alle Kinder sie einheitlich gesetzt haben (Kostenblock bleibt positiv).
 
 ## Feld-Zuweisung im Visual
 

@@ -1,5 +1,26 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.2.0.0 (2026-08-01) — Sternschema-Modus (Level-Spalten L1..Ln)
+
+Zweiter Eingabemodus für die Hierarchie, wie er im Sternschema üblich ist:
+
+- Neues Field Well **„Ebenen-Spalten (L1..Ln)"** (bis 8 Spalten, Reihenfolge =
+  Ziehreihenfolge) als Alternative zu AccountID/ParentID — Parent-Child bleibt
+  voll unterstützt und gewinnt, wenn Parent-ID gebunden ist
+- Ragged-Regeln (beide): leere tiefere Level → letzte gefüllte Ebene ist das
+  Blatt; wiederholter Inhalt (L2 = L1) → Hierarchie endet dort
+- Zeilen mit gleichem Pfad werden aggregiert (feineres Fact-Grain); eine
+  Aggregat-Zeile (z. B. PY nur auf L1) wirkt als per-Szenario-Fallback
+- Formelzeilen referenzieren per eindeutigem **Zeilennamen**
+  (`[Umsatzerlöse]+[Betriebsaufwand]`) — funktioniert auch im
+  Parent-Child-Modus zusätzlich zur ID
+- Synthetische Zwischensummen erben `DisplayInvert`/`VarianceInvert`, wenn
+  alle Kinder einheitlich sind (Kostenblock bleibt positiv angezeigt)
+- IBCS-Notation unverändert in beiden Modi
+- Neue Demo `demoData/guv-demo-levels.csv`, 4 neue Engine-Testblöcke
+  (17 gesamt), Render-Testfall p10
+
+
 ## 0.1.1.0 (2026-08-01) — Review-Fixes
 
 Befunde aus einem unabhängigen Code-Review umgesetzt:

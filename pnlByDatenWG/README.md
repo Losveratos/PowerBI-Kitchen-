@@ -23,6 +23,21 @@ eine identische Skala je Δ-Spalte über alle Zeilen; %-Zeilen (Margen) ohne
 
 ## Datenvertrag
 
+Zwei Eingabemodi für die Hierarchie — beide voll unterstützt:
+
+**A · Parent-Child** (klassische Kontendimension): `AccountID` + `ParentAccountID`.
+
+**B · Sternschema / Level-Spalten** (`L1..Ln` ins Field Well „Ebenen-Spalten",
+Reihenfolge = Ziehreihenfolge, max. 8): Das Visual baut den Baum selbst.
+Ragged-Hierarchien nach beiden üblichen Konventionen:
+leere tiefere Level → letzte gefüllte Ebene ist das Blatt; wiederholt ein Level
+den Inhalt des vorherigen (L2 = L1) → die Hierarchie endet dort.
+Zeilen mit gleichem Pfad werden aggregiert; Aggregat-Zeilen (z. B. PY nur auf
+L1) wirken als Szenario-Fallback. Formelzeilen referenzieren per eindeutigem
+Zeilennamen (`[Umsatzerlöse]`); synthetische Zwischensummen erben
+`DisplayInvert`/`VarianceInvert`, wenn alle Kinder einheitlich sind.
+Ist zusätzlich Parent-ID gebunden, gewinnt Parent-Child.
+
 Kontendimension (eine Zeile pro Konto/Zeile der GuV):
 
 | Feld | Rolle | Inhalt |

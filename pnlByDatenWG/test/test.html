@@ -19,6 +19,7 @@
 <div class="case"><h4>p7 · de-DE · Skalierung k explizit · 0 Dezimalen · Titelblock 3 Zeilen</h4><div class="stage" id="p7" style="width:760px;height:560px"></div></div>
 <div class="case"><h4>p8 · unbalancierter Baum (1–4 Ebenen) · Ebenen-Buttons · Ebene 1</h4><div class="stage" id="p8" style="width:700px;height:300px"></div></div>
 <div class="case"><h4>p9 · EUR-Rohwerte (Millionen) · Skalierung none · de-DE — breite Labels dürfen nicht clippen</h4><div class="stage" id="p9" style="width:1100px;height:560px"></div></div>
+<div class="case"><h4>p10 · Sternschema-Modus: L1–L3-Spalten · ragged (leere Level + wiederholte Werte) · Formel per Namensreferenz</h4><div class="stage" id="p10" style="width:760px;height:480px"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
 const Visual = PnlByDatenWG.Visual;
@@ -41,6 +42,20 @@ function dv(rows, opts) {
   opts = opts || {};
   const scen = opts.scenarios || ["ac", "py", "pl"];
   const col = (role, name, vals) => ({ source: { roles: { [role]: true }, displayName: name, index: 0 }, values: vals });
+  // level mode: rows = [L1, L2, ..., Lk, type, formula, sign, dispInv, varInv, ac, py, pl, fc]
+  if (opts.levelCount) {
+    const k = opts.levelCount;
+    const categories = [];
+    for (let l = 0; l < k; l++) { categories.push(col("levels", "L" + (l + 1), rows.map(r => r[l]))); }
+    categories.push(col("rowType", "RowType", rows.map(r => r[k])));
+    categories.push(col("formulaDef", "Formula", rows.map(r => r[k + 1])));
+    categories.push(col("signConvention", "Sign", rows.map(r => r[k + 2])));
+    categories.push(col("displayInvert", "DispInv", rows.map(r => r[k + 3])));
+    categories.push(col("varianceInvert", "VarInv", rows.map(r => r[k + 4])));
+    const scenIdxL = { ac: k + 5, py: k + 6, pl: k + 7, fc: k + 8 };
+    const values = scen.map(s => col(s, s.toUpperCase(), rows.map(r => r[scenIdxL[s]] ?? null)));
+    return { categorical: { categories, values }, metadata: { objects: opts.objects || {} } };
+  }
   const categories = [
     col("account", "AccountID", rows.map(r => r[0])),
     col("parent", "ParentID", rows.map(r => r[1])),
@@ -149,6 +164,19 @@ run("p9", GUV_EUR, { objects: {
   hierarchy: { defaultLevel: 0 },
   numbers: { scaling: "none", decimals: 0 },
 } }, null, "de-DE");
+
+// p10 — star-schema level columns: [L1, L2, L3, type, formula, sign, dispInv, varInv, ac, py, pl]
+run("p10", [
+  ["Umsatzerlöse", "Produkterlöse", null,        "Account", null, 1, false, false, 8200, 7600, 8500],
+  ["Umsatzerlöse", "Serviceerlöse", null,        "Account", null, 1, false, false, 3100, 2800, 2900],
+  ["Sonst. Erträge", "Sonst. Erträge", "Sonst. Erträge", "Account", null, 1, false, false, 240, 210, 200],
+  ["Betriebsaufwand", "Materialaufwand", null,   "Account", null, -1, true, false, 3900, 3600, 3700],
+  ["Betriebsaufwand", "Personalaufwand", "Löhne & Gehälter", "Account", null, -1, true, false, 2600, 2450, 2500],
+  ["Betriebsaufwand", "Personalaufwand", "Sozialabgaben",    "Account", null, -1, true, false, 520, 480, 500],
+  ["Betriebsaufwand", "Marketing", null,         "Account", null, -1, true, false, 640, 590, 700],
+  ["EBITDA", null, null, "Formula", "[Umsatzerlöse]+[Sonst. Erträge]+[Betriebsaufwand]", 1, false, false, null, null, null],
+  ["EBITDA-Marge", null, null, "KPI", "[EBITDA]/[Umsatzerlöse]", 1, false, false, null, null, null],
+], { levelCount: 3, objects: { hierarchy: { defaultLevel: 0 }, titleBlock: { measureLine: "GuV in kEUR (Sternschema L1–L3)" } } }, null, "de-DE");
 
 // p8 — unbalanced tree with level buttons, collapsed to level 1
 run("p8", [

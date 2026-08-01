@@ -223,6 +223,82 @@ test("formula error propagates to consumers", () => {
     assert.equal(m.byId.get("user").computed.ac, null);
 });
 
+// star-schema mode — flattened L1..Ln level columns
+const lrow = (levels, over = {}) => ({
+    levels,
+    account: over.account ?? null, name: over.name ?? null, sort: over.sort ?? null,
+    rowType: over.rowType ?? "account", formulaDef: over.formulaDef ?? null,
+    sign: over.sign ?? 1, displayInvert: over.displayInvert ?? false,
+    varianceInvert: over.varianceInvert ?? false, values: over.values ?? {}, index: over.index ?? 0,
+});
+
+test("levels: ragged via trailing nulls AND repeated values", () => {
+    const rows = E.rowsFromLevels([
+        lrow(["Umsatz", "Produkte", null], { values: { ac: 100 }, index: 0 }),
+        lrow(["Umsatz", "Service", null], { values: { ac: 50 }, index: 1 }),
+        lrow(["Sonstiges", "Sonstiges", "Sonstiges"], { values: { ac: 7 }, index: 2 }), // repeat -> depth 1
+        lrow(["Opex", "Personal", "Löhne"], { sign: -1, values: { ac: 30 }, index: 3 }),
+        lrow(["Opex", "Personal", "Sozial"], { sign: -1, values: { ac: 10 }, index: 4 }),
+    ]);
+    const m = E.buildModel(rows, "U");
+    assert.equal(m.roots.length, 3);                       // Umsatz, Sonstiges, Opex
+    const umsatz = m.roots.find(r => r.row.name === "Umsatz");
+    assert.equal(umsatz.computed.ac, 150);
+    assert.equal(umsatz.children.length, 2);
+    const sonst = m.roots.find(r => r.row.name === "Sonstiges");
+    assert.equal(sonst.hasChildren, false);                // repeat ended the branch
+    assert.equal(sonst.computed.ac, 7);
+    const opex = m.roots.find(r => r.row.name === "Opex");
+    assert.equal(opex.computed.ac, -40);                   // sign -1 leaves
+    assert.equal(m.maxDepth, 3);
+});
+
+test("levels: same-path aggregation + aggregate row becomes subtotal fallback", () => {
+    const rows = E.rowsFromLevels([
+        lrow(["Umsatz", "Produkte"], { values: { ac: 60 }, index: 0 }),
+        lrow(["Umsatz", "Produkte"], { values: { ac: 40 }, index: 1 }),   // finer fact grain
+        lrow(["Umsatz"], { values: { py: 90 }, index: 2 }),               // PY aggregate-only row
+    ]);
+    const m = E.buildModel(rows, "U");
+    const umsatz = m.roots.find(r => r.row.name === "Umsatz");
+    assert.equal(umsatz.children.length, 1);
+    assert.equal(umsatz.children[0].computed.ac, 100);     // 60+40 aggregated
+    assert.equal(umsatz.computed.ac, 100);                 // children win for AC
+    assert.equal(umsatz.computed.py, 90);                  // own-value fallback for PY
+});
+
+test("levels: synthetic parents inherit uniform display/variance invert", () => {
+    const rows = E.rowsFromLevels([
+        lrow(["Opex", "Personal", "Löhne"], { sign: -1, displayInvert: true, values: { ac: 30 }, index: 0 }),
+        lrow(["Opex", "Personal", "Sozial"], { sign: -1, displayInvert: true, values: { ac: 10 }, index: 1 }),
+        lrow(["Opex", "Material"], { sign: -1, displayInvert: true, values: { ac: 5 }, index: 2 }),
+        lrow(["Mixed", "A"], { displayInvert: true, values: { ac: 1 }, index: 3 }),
+        lrow(["Mixed", "B"], { displayInvert: false, values: { ac: 2 }, index: 4 }),
+    ]);
+    const m = E.buildModel(rows, "U");
+    const opex = m.roots.find(r => r.row.name === "Opex");
+    assert.equal(opex.computed.ac, -45);
+    assert.equal(opex.row.displayInvert, true);            // inherited transitively
+    assert.equal(E.displayValue(opex, "ac"), 45);
+    const pers = opex.children.find(c => c.row.name === "Personal");
+    assert.equal(pers.row.displayInvert, true);
+    const mixed = m.roots.find(r => r.row.name === "Mixed");
+    assert.equal(mixed.row.displayInvert, false);          // children disagree -> no inherit
+});
+
+test("levels: formula rows reference by unique name", () => {
+    const rows = E.rowsFromLevels([
+        lrow(["Umsatzerlöse", "Produkte"], { values: { ac: 100 }, index: 0 }),
+        lrow(["Betriebsaufwand", "Material"], { sign: -1, values: { ac: 40 }, index: 1 }),
+        lrow(["EBITDA"], { rowType: "formula", formulaDef: "[Umsatzerlöse]+[Betriebsaufwand]", index: 2 }),
+        lrow(["Marge"], { rowType: "kpi", formulaDef: "[EBITDA]/[Umsatzerlöse]", index: 3 }),
+    ]);
+    const m = E.buildModel(rows, "U");
+    const byName = n => [...m.byId.values()].find(x => x.row.name === n);
+    assert.equal(byName("EBITDA").computed.ac, 60);
+    assert.equal(byName("Marge").computed.ac, 0.6);
+});
+
 // parser hygiene
 test("formula parser rejects garbage cleanly", () => {
     const mk = def => E.buildModel([

@@ -57,6 +57,114 @@ export interface Variance {
 }
 
 const ORPHAN_ID = "__unassigned__";
+const LEVEL_PREFIX = "L:";
+const LEVEL_SEP = "¦"; // ¦ — unlikely in account names
+
+/** Input row for the star-schema variant: flattened level columns L1..Ln. */
+export interface LevelInputRow {
+    levels: (string | null)[];
+    account: string | null;
+    name: string | null;
+    sort: number | null;
+    rowType: RowType;
+    formulaDef: string | null;
+    sign: number;
+    displayInvert: boolean;
+    varianceInvert: boolean;
+    values: Partial<Record<Scenario, number | null>>;
+    index: number;
+}
+
+/**
+ * Star-schema mode: build parent-child InputRows from flattened level
+ * columns. Ragged rules (both supported):
+ *  - trailing empty levels → the last filled level is the leaf
+ *  - a level repeating the previous level's value → hierarchy ends there
+ * Rows sharing the same effective path are aggregated (fact grain finer
+ * than the hierarchy). A leaf that turns out to have children becomes a
+ * subtotal, so its own value acts as the per-scenario fallback instead of
+ * double counting.
+ */
+export function rowsFromLevels(rows: LevelInputRow[]): InputRow[] {
+    const out = new Map<string, InputRow>();
+    const pathId = (path: string[]): string => LEVEL_PREFIX + path.join(LEVEL_SEP);
+
+    for (const r of rows) {
+        const path: string[] = [];
+        for (const raw of r.levels) {
+            const v = raw == null ? "" : String(raw).trim();
+            if (v === "") { break; }
+            if (path.length > 0 && v === path[path.length - 1]) { break; }
+            path.push(v);
+        }
+        if (path.length === 0) { continue; }
+
+        for (let d = 1; d < path.length; d++) {
+            const id = pathId(path.slice(0, d));
+            if (!out.has(id)) {
+                out.set(id, {
+                    id, parent: d > 1 ? pathId(path.slice(0, d - 1)) : null,
+                    name: path[d - 1], sort: r.index, rowType: "subtotal",
+                    formulaDef: null, sign: 1, displayInvert: false,
+                    varianceInvert: false, values: {}, index: -1,
+                });
+            }
+        }
+
+        const leafId = (r.account ?? "").trim() || pathId(path);
+        const existing = out.get(leafId);
+        if (existing && existing.index >= 0) {
+            for (const s of SCENARIOS) {
+                const add = r.values[s];
+                if (add == null) { continue; }
+                existing.values[s] = (existing.values[s] ?? 0) + add;
+            }
+            continue;
+        }
+        out.set(leafId, {
+            id: leafId,
+            parent: path.length > 1 ? pathId(path.slice(0, -1)) : null,
+            name: r.name ?? path[path.length - 1],
+            sort: r.sort ?? r.index,
+            rowType: r.rowType, formulaDef: r.formulaDef, sign: r.sign,
+            displayInvert: r.displayInvert, varianceInvert: r.varianceInvert,
+            values: { ...r.values }, index: r.index,
+        });
+    }
+
+    // an account leaf that other rows use as parent must aggregate like a
+    // subtotal (own value = per-scenario fallback, no double counting)
+    const parentIds = new Set<string>();
+    for (const r of out.values()) { if (r.parent) { parentIds.add(r.parent); } }
+    for (const r of out.values()) {
+        if (r.rowType === "account" && parentIds.has(r.id)) { r.rowType = "subtotal"; }
+    }
+
+    // synthetic parents inherit display/variance invert when all their
+    // contributing children agree — a cost block shown positive on the
+    // leaves must not flip to negative on its (generated) subtotal
+    const childrenOf = new Map<string, InputRow[]>();
+    for (const r of out.values()) {
+        if (r.parent == null) { continue; }
+        const list = childrenOf.get(r.parent);
+        if (list) { list.push(r); } else { childrenOf.set(r.parent, [r]); }
+    }
+    for (let pass = 0; pass < 8; pass++) {
+        let changed = false;
+        for (const r of out.values()) {
+            if (r.index !== -1) { continue; } // only generated rows
+            const kids = (childrenOf.get(r.id) ?? [])
+                .filter(c => c.rowType === "account" || c.rowType === "subtotal");
+            if (kids.length === 0) { continue; }
+            const allDisp = kids.every(c => c.displayInvert);
+            const allVar = kids.every(c => c.varianceInvert);
+            if (allDisp && !r.displayInvert) { r.displayInvert = true; changed = true; }
+            if (allVar && !r.varianceInvert) { r.varianceInvert = true; changed = true; }
+        }
+        if (!changed) { break; }
+    }
+    return [...out.values()];
+}
 
 export function parseRowType(raw: unknown): RowType {
     const s = String(raw ?? "").trim().toLowerCase();
@@ -213,7 +321,18 @@ function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: s
     };
     for (const r of roots) { sumNode(r); }
 
-    // pass 2: formula / kpi rows with memoized evaluation + cycle detection
+    // pass 2: formula / kpi rows with memoized evaluation + cycle detection.
+    // [Refs] resolve by id first, then by unique row name — level mode has
+    // synthetic path ids, so "[Umsatzerlöse]" must work by name there.
+    const byName = new Map<string, PnlNode | null>(); // null = ambiguous
+    for (const node of byId.values()) {
+        const n = node.row.name;
+        if (!byName.has(n)) { byName.set(n, node); }
+        else if (byName.get(n) !== node) { byName.set(n, null); }
+    }
+    const resolve = (id: string): PnlNode | undefined =>
+        byId.get(id) ?? (byName.get(id) || undefined);
+
     const visiting = new Set<string>();
     const done = new Set<string>();
 
@@ -233,7 +352,7 @@ function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: s
             try {
                 const ast = parseFormula(def);
                 for (const s of SCENARIOS) {
-                    node.computed[s] = evalAst(ast, s, byId, evalNode, node);
+                    node.computed[s] = evalAst(ast, s, resolve, evalNode, node);
                     if (node.error) { break; }
                 }
             } catch (e) {
@@ -318,17 +437,17 @@ function parseFormula(src: string): Ast {
 }
 
 function evalAst(
-    ast: Ast, s: Scenario, byId: Map<string, PnlNode>,
+    ast: Ast, s: Scenario, resolve: (id: string) => PnlNode | undefined,
     evalNode: (n: PnlNode) => void, owner: PnlNode
 ): number | null {
     switch (ast.kind) {
         case "num": return ast.value;
         case "neg": {
-            const v = evalAst(ast.arg, s, byId, evalNode, owner);
+            const v = evalAst(ast.arg, s, resolve, evalNode, owner);
             return v == null ? null : -v;
         }
         case "ref": {
-            const target = byId.get(ast.id);
+            const target = resolve(ast.id);
             if (!target) { owner.error = `unknown reference [${ast.id}]`; return null; }
             evalNode(target);
             if (target.error) {
@@ -340,8 +459,8 @@ function evalAst(
             return target.computed[s];
         }
         case "bin": {
-            const l = evalAst(ast.left, s, byId, evalNode, owner);
-            const r = evalAst(ast.right, s, byId, evalNode, owner);
+            const l = evalAst(ast.left, s, resolve, evalNode, owner);
+            const r = evalAst(ast.right, s, resolve, evalNode, owner);
             if (l == null || r == null) { return null; }
             switch (ast.op) {
                 case "+": return l + r;

@@ -3,6 +3,7 @@
     "values": {
         "Role_Account": "Konto-ID (Key)",
         "Role_AccountName": "Kontoname",
+        "Role_Levels": "Ebenen-Spalten (L1..Ln)",
         "Role_Parent": "Parent-Konto-ID",
         "Role_SortOrder": "Sortierung",
         "Role_RowType": "Zeilentyp",

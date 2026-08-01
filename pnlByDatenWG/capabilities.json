@@ -15,6 +15,13 @@
             "kind": "Grouping"
         },
         {
+            "name": "levels",
+            "displayName": "Level columns (L1..Ln)",
+            "displayNameKey": "Role_Levels",
+            "kind": "Grouping",
+            "description": "Star-schema alternative to Parent ID: flattened hierarchy levels in drag order. Ragged branches end at an empty level or when a level repeats the previous one."
+        },
+        {
             "name": "parent",
             "displayName": "Parent account ID",
             "displayNameKey": "Role_Parent",
@@ -93,6 +100,7 @@
                 {
                     "account": { "max": 1 },
                     "accountName": { "max": 1 },
+                    "levels": { "max": 8 },
                     "parent": { "max": 1 },
                     "sortOrder": { "max": 1 },
                     "rowType": { "max": 1 },
@@ -111,6 +119,7 @@
                     "select": [
                         { "for": { "in": "account" } },
                         { "for": { "in": "accountName" } },
+                        { "for": { "in": "levels" } },
                         { "for": { "in": "parent" } },
                         { "for": { "in": "sortOrder" } },
                         { "for": { "in": "rowType" } },

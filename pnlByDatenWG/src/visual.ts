@@ -29,8 +29,8 @@ import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 import { VisualFormattingSettingsModel } from "./settings";
 import {
     buildModel, flattenVisible, collapseToLevel, variance, displayValue,
-    parseRowType, parseBool, parseSign,
-    InputRow, PnlModel, PnlNode, Scenario,
+    parseRowType, parseBool, parseSign, rowsFromLevels,
+    InputRow, LevelInputRow, PnlModel, PnlNode, Scenario,
 } from "./engine";
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
@@ -147,8 +147,9 @@ export class Visual implements IVisual {
             (cat.values || []).find(v => v.source.roles && v.source.roles[role]) as DataViewValueColumn | undefined;
 
         const idCol = byRole("account");
+        const levelCols = cat.categories.filter(c => c.source.roles && c.source.roles["levels"]);
         const acCol = measure("ac");
-        if (!idCol || !acCol) { return null; }
+        if (!acCol || (!idCol && levelCols.length === 0)) { return null; }
 
         const nameCol = byRole("accountName");
         const parentCol = byRole("parent");
@@ -182,8 +183,34 @@ export class Visual implements IVisual {
             return trimmed === "" ? null : trimmed;
         };
 
+        const n = (idCol ?? levelCols[0]).values.length;
+        const hasScenario = { ac: !!acCol, py: !!pyCol, pl: !!plCol, fc: !!fcCol };
+
+        // star-schema mode: flattened L1..Ln columns build the tree; an
+        // explicitly bound Parent ID keeps the parent-child contract in charge
+        if (levelCols.length > 0 && !parentCol) {
+            const lrows: LevelInputRow[] = [];
+            for (let i = 0; i < n; i++) {
+                const sortRaw = Number(txt(sortCol, i) ?? NaN);
+                lrows.push({
+                    levels: levelCols.map(c => txt(c, i)),
+                    account: idCol ? key(idCol, i) : null,
+                    name: nameCol ? txt(nameCol, i) : null,
+                    sort: isFinite(sortRaw) ? sortRaw : null,
+                    rowType: parseRowType(txt(typeCol, i)),
+                    formulaDef: txt(formulaCol, i),
+                    sign: signCol ? parseSign(txt(signCol, i)) : 1,
+                    displayInvert: dispInvCol ? parseBool(txt(dispInvCol, i)) : false,
+                    varianceInvert: varInvCol ? parseBool(txt(varInvCol, i)) : false,
+                    values: { ac: num(acCol, i), py: num(pyCol, i), pl: num(plCol, i), fc: num(fcCol, i) },
+                    index: i,
+                });
+            }
+            return { rows: rowsFromLevels(lrows), hasScenario, truncated: n >= 30000 };
+        }
+        if (!idCol) { return null; }
+
         const rows: InputRow[] = [];
-        const n = idCol.values.length;
         for (let i = 0; i < n; i++) {
             const id = key(idCol, i);
             if (id == null) { continue; }
@@ -202,11 +229,7 @@ export class Visual implements IVisual {
                 index: i,
             });
         }
-        return {
-            rows,
-            hasScenario: { ac: !!acCol, py: !!pyCol, pl: !!plCol, fc: !!fcCol },
-            truncated: n >= 30000,
-        };
+        return { rows, hasScenario, truncated: n >= 30000 };
     }
 
     private renderEmptySelection(): void {
@@ -321,10 +344,12 @@ export class Visual implements IVisual {
         const p = document.createElement("div");
         p.style.cssText = `font-size:12px;color:${C_SOFT};line-height:1.55;`;
         p.textContent = this.str(
-            "Add the account dimension (Account ID, Parent ID, Name, Sort, Row type, Formula, Sign) and the AC measure. " +
-            "Optional: PY / PL / FC for variance columns with IBCS Δ bars and Δ% pins.",
-            "Kontendimension zuweisen (Konto-ID, Parent-ID, Name, Sortierung, Zeilentyp, Formel, Vorzeichen) " +
-            "plus AC-Measure. Optional: PY / PL / FC für Abweichungsspalten mit IBCS-Δ-Balken und Δ%-Pins.");
+            "Add the AC measure plus either level columns (L1..Ln, star schema) or Account ID + Parent ID " +
+            "(parent-child). Optional: Name, Sort, Row type, Formula, Sign and PY / PL / FC for variance " +
+            "columns with IBCS Δ bars and Δ% pins.",
+            "AC-Measure zuweisen plus entweder Ebenen-Spalten (L1..Ln, Sternschema) oder Konto-ID + Parent-ID " +
+            "(Parent-Child). Optional: Name, Sortierung, Zeilentyp, Formel, Vorzeichen sowie PY / PL / FC für " +
+            "Abweichungsspalten mit IBCS-Δ-Balken und Δ%-Pins.");
         box.appendChild(h);
         box.appendChild(p);
         this.root.replaceChildren(box);
