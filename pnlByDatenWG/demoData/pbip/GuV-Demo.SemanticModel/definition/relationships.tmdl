@@ -1,0 +1,3 @@
+relationship 2cb24fc7-f605-480a-a61b-0a2b3c2d4c36
+	fromColumn: FactGuV.AccountID
+	toColumn: DimKonten.AccountID
