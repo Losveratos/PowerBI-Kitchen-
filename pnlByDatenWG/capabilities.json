@@ -1,0 +1,200 @@
+{
+    "privileges": [],
+    "dataRoles": [
+        {
+            "name": "account",
+            "displayName": "Account ID (key)",
+            "displayNameKey": "Role_Account",
+            "kind": "Grouping",
+            "description": "Unique, stable account key from the account dimension"
+        },
+        {
+            "name": "accountName",
+            "displayName": "Account name",
+            "displayNameKey": "Role_AccountName",
+            "kind": "Grouping"
+        },
+        {
+            "name": "parent",
+            "displayName": "Parent account ID",
+            "displayNameKey": "Role_Parent",
+            "kind": "Grouping",
+            "description": "Parent-child link; unbalanced hierarchies are allowed"
+        },
+        {
+            "name": "sortOrder",
+            "displayName": "Sort order",
+            "displayNameKey": "Role_SortOrder",
+            "kind": "Grouping"
+        },
+        {
+            "name": "rowType",
+            "displayName": "Row type",
+            "displayNameKey": "Role_RowType",
+            "kind": "Grouping",
+            "description": "Account | Subtotal | Formula | KPI | Separator"
+        },
+        {
+            "name": "formulaDef",
+            "displayName": "Formula definition",
+            "displayNameKey": "Role_FormulaDef",
+            "kind": "Grouping",
+            "description": "For Formula/KPI rows, e.g. [EBITDA]/[Revenue]"
+        },
+        {
+            "name": "signConvention",
+            "displayName": "Sign convention (±1)",
+            "displayNameKey": "Role_Sign",
+            "kind": "Grouping",
+            "description": "Calculation sign: revenue +1, costs -1"
+        },
+        {
+            "name": "displayInvert",
+            "displayName": "Display invert",
+            "displayNameKey": "Role_DisplayInvert",
+            "kind": "Grouping",
+            "description": "Show positive although the calculated value is negative"
+        },
+        {
+            "name": "varianceInvert",
+            "displayName": "Variance invert",
+            "displayNameKey": "Role_VarianceInvert",
+            "kind": "Grouping",
+            "description": "Flip variance color (costs below plan = green)"
+        },
+        {
+            "name": "ac",
+            "displayName": "AC (Actual)",
+            "displayNameKey": "Role_AC",
+            "kind": "Measure"
+        },
+        {
+            "name": "py",
+            "displayName": "PY (Previous Year)",
+            "displayNameKey": "Role_PY",
+            "kind": "Measure"
+        },
+        {
+            "name": "pl",
+            "displayName": "PL (Plan / Budget)",
+            "displayNameKey": "Role_PL",
+            "kind": "Measure"
+        },
+        {
+            "name": "fc",
+            "displayName": "FC (Forecast)",
+            "displayNameKey": "Role_FC",
+            "kind": "Measure"
+        }
+    ],
+    "dataViewMappings": [
+        {
+            "conditions": [
+                {
+                    "account": { "max": 1 },
+                    "accountName": { "max": 1 },
+                    "parent": { "max": 1 },
+                    "sortOrder": { "max": 1 },
+                    "rowType": { "max": 1 },
+                    "formulaDef": { "max": 1 },
+                    "signConvention": { "max": 1 },
+                    "displayInvert": { "max": 1 },
+                    "varianceInvert": { "max": 1 },
+                    "ac": { "max": 1 },
+                    "py": { "max": 1 },
+                    "pl": { "max": 1 },
+                    "fc": { "max": 1 }
+                }
+            ],
+            "categorical": {
+                "categories": {
+                    "select": [
+                        { "for": { "in": "account" } },
+                        { "for": { "in": "accountName" } },
+                        { "for": { "in": "parent" } },
+                        { "for": { "in": "sortOrder" } },
+                        { "for": { "in": "rowType" } },
+                        { "for": { "in": "formulaDef" } },
+                        { "for": { "in": "signConvention" } },
+                        { "for": { "in": "displayInvert" } },
+                        { "for": { "in": "varianceInvert" } }
+                    ],
+                    "dataReductionAlgorithm": { "top": { "count": 30000 } }
+                },
+                "values": {
+                    "select": [
+                        { "bind": { "to": "ac" } },
+                        { "bind": { "to": "py" } },
+                        { "bind": { "to": "pl" } },
+                        { "bind": { "to": "fc" } }
+                    ]
+                }
+            }
+        }
+    ],
+    "objects": {
+        "columns": {
+            "properties": {
+                "reference": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Auto (PL, else PY)" },
+                            { "value": "py", "displayName": "PY" },
+                            { "value": "pl", "displayName": "PL" },
+                            { "value": "fc", "displayName": "FC" }
+                        ]
+                    }
+                },
+                "showReferenceCol": { "type": { "bool": true } },
+                "showDeltaBar": { "type": { "bool": true } },
+                "showDeltaPct": { "type": { "bool": true } },
+                "showSecondDelta": { "type": { "bool": true } }
+            }
+        },
+        "numbers": {
+            "properties": {
+                "scaling": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Auto" },
+                            { "value": "none", "displayName": "None" },
+                            { "value": "k", "displayName": "Thousands (k)" },
+                            { "value": "m", "displayName": "Millions (m)" }
+                        ]
+                    }
+                },
+                "decimals": { "type": { "numeric": true } },
+                "pctDecimals": { "type": { "numeric": true } }
+            }
+        },
+        "titleBlock": {
+            "properties": {
+                "show": { "type": { "bool": true } },
+                "unitLine": { "type": { "text": true } },
+                "measureLine": { "type": { "text": true } },
+                "periodLine": { "type": { "text": true } },
+                "message": { "type": { "text": true } }
+            }
+        },
+        "hierarchy": {
+            "properties": {
+                "defaultLevel": { "type": { "numeric": true } },
+                "indent": { "type": { "numeric": true } },
+                "showLevelButtons": { "type": { "bool": true } }
+            }
+        },
+        "state": {
+            "properties": {
+                "expandState": { "type": { "text": true } }
+            }
+        }
+    },
+    "supportsHighlight": false,
+    "supportsLandingPage": true,
+    "supportsEmptyDataView": true,
+    "sorting": {
+        "implicit": {
+            "clauses": []
+        }
+    }
+}

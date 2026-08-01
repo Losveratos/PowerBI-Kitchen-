@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background: #f2f2f2; margin: 20px; }
+  .case { background: #fff; border: 1px solid #ddd; margin-bottom: 24px; padding: 8px; }
+  .case h4 { margin: 0 0 6px 0; font-size: 12px; color: #666; }
+  .stage { position: relative; }
+</style>
+</head>
+<body>
+<div class="case"><h4>p1 · Voll-GuV · AC+PY+PL · Referenz Auto(PL) · Ebene 2 · alle Spalten</h4><div class="stage" id="p1" style="width:760px;height:560px"></div></div>
+<div class="case"><h4>p2 · komplett aufgeklappt · zweites Δ% (ΔPY%) · Message-Zeile</h4><div class="stage" id="p2" style="width:860px;height:760px"></div></div>
+<div class="case"><h4>p3 · Referenz PY explizit · ohne Referenzwert-Spalte · Skalierung none</h4><div class="stage" id="p3" style="width:700px;height:560px"></div></div>
+<div class="case"><h4>p4 · Datenqualität: Waisen-Bucket + Zirkelbezug + unbekannte Referenz</h4><div class="stage" id="p4" style="width:700px;height:300px"></div></div>
+<div class="case"><h4>p5 · nur AC (keine Referenz) · keine Δ-Spalten</h4><div class="stage" id="p5" style="width:520px;height:480px"></div></div>
+<div class="case"><h4>p6 · Landing Page (leere Field Wells)</h4><div class="stage" id="p6" style="width:640px;height:200px"></div></div>
+<div class="case"><h4>p7 · de-DE · Skalierung k explizit · 0 Dezimalen · Titelblock 3 Zeilen</h4><div class="stage" id="p7" style="width:760px;height:560px"></div></div>
+<div class="case"><h4>p8 · unbalancierter Baum (1–4 Ebenen) · Ebenen-Buttons · Ebene 1</h4><div class="stage" id="p8" style="width:700px;height:300px"></div></div>
+<script src="visual.bundle.js"></script>
+<script>
+const Visual = PnlByDatenWG.Visual;
+
+function makeHost(locale) {
+  return {
+    locale: locale || "en-US",
+    colorPalette: { isHighContrast: false },
+    eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o,e){ console.error("renderfail", e); } },
+    createSelectionManager: () => ({ select: () => Promise.resolve([]), clear: () => Promise.resolve(), showContextMenu(){}, registerOnSelectCallback(){}, getSelectionIds: () => [] }),
+    createSelectionIdBuilder: () => ({ withCategory(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
+    tooltipService: { enabled: () => false, show(){}, move(){}, hide(){} },
+    createLocalizationManager: () => ({ getDisplayName: () => "" }),
+    persistProperties: () => {},
+  };
+}
+
+// rows: [id, parent, name, sort, type, formula, sign, dispInv, varInv, ac, py, pl, fc]
+function dv(rows, opts) {
+  opts = opts || {};
+  const scen = opts.scenarios || ["ac", "py", "pl"];
+  const col = (role, name, vals) => ({ source: { roles: { [role]: true }, displayName: name, index: 0 }, values: vals });
+  const categories = [
+    col("account", "AccountID", rows.map(r => r[0])),
+    col("parent", "ParentID", rows.map(r => r[1])),
+    col("accountName", "Name", rows.map(r => r[2])),
+    col("sortOrder", "Sort", rows.map(r => r[3])),
+    col("rowType", "RowType", rows.map(r => r[4])),
+    col("formulaDef", "Formula", rows.map(r => r[5])),
+    col("signConvention", "Sign", rows.map(r => r[6])),
+    col("displayInvert", "DispInv", rows.map(r => r[7])),
+    col("varianceInvert", "VarInv", rows.map(r => r[8])),
+  ];
+  const scenIdx = { ac: 9, py: 10, pl: 11, fc: 12 };
+  const values = scen.map(s => col(s, s.toUpperCase(), rows.map(r => r[scenIdx[s]] ?? null)));
+  return {
+    categorical: { categories, values },
+    metadata: { objects: opts.objects || {} },
+  };
+}
+
+// realistic GuV demo set (values in kEUR)
+const GUV = [
+  ["s_rev",  null,     "Umsatzerlöse",          10, "Subtotal", null, 1, false, false, null, null, null],
+  ["r_prod", "s_rev",  "Produkterlöse",         11, "Account",  null, 1, false, false, 8200, 7600, 8500],
+  ["r_svc",  "s_rev",  "Serviceerlöse",         12, "Account",  null, 1, false, false, 3100, 2800, 2900],
+  ["oi",     null,     "Sonst. betr. Erträge",  20, "Account",  null, 1, false, false, 240, 210, 200],
+  ["s_opex", null,     "Betriebsaufwand",       30, "Subtotal", null, 1, true,  false, null, null, null],
+  ["mat",    "s_opex", "Materialaufwand",       31, "Account",  null, -1, true, false, 3900, 3600, 3700],
+  ["s_pers", "s_opex", "Personalaufwand",       32, "Subtotal", null, 1, true,  false, null, null, null],
+  ["pers_w", "s_pers", "Löhne & Gehälter",      33, "Account",  null, -1, true, false, 2600, 2450, 2500],
+  ["pers_s", "s_pers", "Sozialabgaben",         34, "Account",  null, -1, true, false, 520, 480, 500],
+  ["mkt",    "s_opex", "Marketing",             35, "Account",  null, -1, true, false, 640, 590, 700],
+  ["it",     "s_opex", "IT & Infrastruktur",    36, "Account",  null, -1, true, false, 480, 410, 450],
+  ["ebitda", null,     "EBITDA",                40, "Formula", "[s_rev]+[oi]+[s_opex]", 1, false, false, null, null, null],
+  ["m_ebitda", null,   "EBITDA-Marge",          41, "KPI",     "[ebitda]/[s_rev]", 1, false, false, null, null, null],
+  ["da",     null,     "Abschreibungen",        50, "Account",  null, -1, true, false, 380, 360, 380],
+  ["ebit",   null,     "EBIT",                  51, "Formula", "[ebitda]+[da]", 1, false, false, null, null, null],
+  ["fin",    null,     "Finanzergebnis",        60, "Account",  null, 1, false, false, -95, -80, -90],
+  ["ebt",    null,     "EBT",                   61, "Formula", "[ebit]+[fin]", 1, false, false, null, null, null],
+  ["tax",    null,     "Steuern",               70, "Account",  null, -1, true, true, 310, 290, 320],
+  ["ni",     null,     "Jahresüberschuss",      80, "Formula", "[ebt]+[tax]", 1, false, false, null, null, null],
+  ["m_ni",   null,     "Umsatzrendite",         81, "KPI",     "[ni]/[s_rev]", 1, false, false, null, null, null],
+];
+
+function run(id, rows, opts, viewport, locale) {
+  const el = document.getElementById(id);
+  const v = new Visual({ element: el, host: makeHost(locale) });
+  v.update({
+    dataViews: rows ? [dv(rows, opts)] : [],
+    viewport: viewport || { width: el.clientWidth, height: el.clientHeight },
+    type: 2,
+  });
+}
+
+// p1 — full GuV, auto reference (PL), default level 2
+run("p1", GUV, { objects: { hierarchy: { defaultLevel: 2 } } });
+
+// p2 — fully expanded, second delta, message line
+run("p2", GUV, { objects: {
+  hierarchy: { defaultLevel: 0 },
+  columns: { showSecondDelta: true },
+  titleBlock: {
+    unitLine: "Contoso GmbH",
+    measureLine: "GuV in kEUR",
+    periodLine: "Jan..Jun 2026 · AC, PL, ΔPL, ΔPY%",
+    message: "EBITDA 6 % unter Plan — Personalaufwand und IT über Budget",
+  },
+} });
+
+// p3 — reference PY, hide reference column, no scaling
+run("p3", GUV, { objects: {
+  hierarchy: { defaultLevel: 2 },
+  columns: { reference: "py", showReferenceCol: false },
+  numbers: { scaling: "none", decimals: 0 },
+} });
+
+// p4 — data quality: orphans + cycle + unknown ref
+run("p4", [
+  ["rev",  null,   "Umsatz",        1, "Account", null, 1, false, false, 500, 480, 490],
+  ["lost1", "ghost", "Verlorenes Konto A", 2, "Account", null, 1, false, false, 30, 28, 29],
+  ["lost2", "ghost", "Verlorenes Konto B", 3, "Account", null, -1, true, false, 12, 11, 10],
+  ["c1", null, "Zirkel A", 4, "Formula", "[c2]*2", 1, false, false, null, null, null],
+  ["c2", null, "Zirkel B", 5, "Formula", "[c1]+1", 1, false, false, null, null, null],
+  ["bad", null, "Kaputte Formel", 6, "Formula", "[nichtda]-5", 1, false, false, null, null, null],
+], { objects: { hierarchy: { defaultLevel: 0 } } });
+
+// p5 — AC only
+run("p5", GUV, { scenarios: ["ac"], objects: { hierarchy: { defaultLevel: 2 } } });
+
+// p6 — landing page
+run("p6", null, null);
+
+// p7 — de-DE, explicit k scaling, 3-line title
+run("p7", GUV, { objects: {
+  hierarchy: { defaultLevel: 2 },
+  numbers: { scaling: "k", decimals: 0 },
+  titleBlock: { unitLine: "Contoso GmbH", measureLine: "GuV in kEUR", periodLine: "Jan..Jun 2026 · AC, PL, ΔPL" },
+} }, null, "de-DE");
+
+// p8 — unbalanced tree with level buttons, collapsed to level 1
+run("p8", [
+  ["a", null, "Flacher Ast", 1, "Account", null, 1, false, false, 100, 90, 95],
+  ["b", null, "Tiefer Ast", 2, "Subtotal", null, 1, false, false, null, null, null],
+  ["b1", "b", "Ebene 2", 3, "Subtotal", null, 1, false, false, null, null, null],
+  ["b11", "b1", "Ebene 3a", 4, "Account", null, 1, false, false, 40, 38, 39],
+  ["b12", "b1", "Ebene 3b", 5, "Subtotal", null, 1, false, false, null, null, null],
+  ["b121", "b12", "Ebene 4", 6, "Account", null, 1, false, false, 20, 22, 21],
+  ["c", null, "Mittlerer Ast", 7, "Subtotal", null, 1, false, false, null, null, false],
+  ["c1", "c", "Kind", 8, "Account", null, 1, false, false, 60, 55, 58],
+], { objects: { hierarchy: { defaultLevel: 1 } } });
+</script>
+</body>
+</html>

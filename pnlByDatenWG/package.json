@@ -1,0 +1,32 @@
+{
+  "name": "pnl-by-datenwg",
+  "description": "IBCS-inspired P&L statement custom visual for Power BI",
+  "version": "0.1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "pbiviz": "pbiviz",
+    "start": "pbiviz start",
+    "package": "pbiviz package",
+    "lint": "npx eslint .",
+    "test:engine": "node test/engine-test.js",
+    "test:render": "node test/build.js && node test/shot.js",
+    "test": "npm run test:engine && npm run test:render"
+  },
+  "dependencies": {
+    "powerbi-visuals-api": "~5.11.0",
+    "powerbi-visuals-utils-formattingmodel": "6.0.4"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "esbuild": "^0.28.1",
+    "eslint": "^9.11.1",
+    "eslint-plugin-powerbi-visuals": "^1.0.0",
+    "powerbi-visuals-tools": "^7.1.0",
+    "typescript": "5.5.4"
+  },
+  "overrides": {
+    "sockjs": {
+      "uuid": "^11.1.1"
+    }
+  }
+}
