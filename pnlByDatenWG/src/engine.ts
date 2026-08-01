@@ -60,10 +60,10 @@ const ORPHAN_ID = "__unassigned__";
 
 export function parseRowType(raw: unknown): RowType {
     const s = String(raw ?? "").trim().toLowerCase();
-    if (s.startsWith("sub") || s === "sum" || s === "summe") { return "subtotal"; }
+    if (s.startsWith("sub") || s.startsWith("zwischen") || s === "sum" || s === "summe") { return "subtotal"; }
     if (s.startsWith("form")) { return "formula"; }
-    if (s === "kpi" || s === "ratio" || s === "margin") { return "kpi"; }
-    if (s.startsWith("sep")) { return "separator"; }
+    if (s === "kpi" || s === "ratio" || s === "margin" || s === "kennzahl" || s === "marge" || s === "quote") { return "kpi"; }
+    if (s.startsWith("sep") || s.startsWith("trenn") || s.startsWith("leer")) { return "separator"; }
     return "account";
 }
 
@@ -71,12 +71,16 @@ export function parseBool(raw: unknown): boolean {
     if (typeof raw === "boolean") { return raw; }
     if (typeof raw === "number") { return raw !== 0; }
     const s = String(raw ?? "").trim().toLowerCase();
-    return s === "true" || s === "1" || s === "yes" || s === "ja" || s === "x";
+    return s === "true" || s === "1" || s === "yes" || s === "ja" || s === "j" || s === "x" || s === "wahr";
 }
 
 export function parseSign(raw: unknown): number {
-    const n = Number(raw);
-    return n < 0 ? -1 : 1;
+    if (typeof raw === "number") { return raw < 0 ? -1 : 1; }
+    const s = String(raw ?? "").trim();
+    const n = Number(s);
+    if (isFinite(n)) { return n < 0 ? -1 : 1; }
+    // text columns like "-" or "negativ": a leading/contained minus flips the sign
+    return s.includes("-") || s.toLowerCase().startsWith("neg") ? -1 : 1;
 }
 
 export function buildModel(rows: InputRow[], orphanLabel: string): PnlModel {
@@ -107,6 +111,27 @@ export function buildModel(rows: InputRow[], orphanLabel: string): PnlModel {
             else { orphans.push(node); }
         }
     }
+
+    // rows caught in a parent-child cycle (x→y→x) are reachable from no root —
+    // they must surface in the orphan bucket, never vanish silently (F1)
+    const reachable = new Set<PnlNode>();
+    const markReachable = (nodes: PnlNode[]): void => {
+        for (const n of nodes) {
+            if (reachable.has(n)) { continue; }
+            reachable.add(n);
+            markReachable(n.children);
+        }
+    };
+    markReachable(roots);
+    markReachable(orphans); // known orphans (and their subtrees) already go to the bucket
+    let cycleCount = 0;
+    for (const node of byId.values()) {
+        if (reachable.has(node)) { continue; }
+        node.children = node.children.filter(c => reachable.has(c));
+        orphans.push(node);
+        cycleCount++;
+    }
+    if (cycleCount > 0) { warnings.push(`${cycleCount} row(s) in a parent-child cycle`); }
 
     if (orphans.length > 0) {
         const bucketRow: InputRow = {
@@ -154,21 +179,36 @@ function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: s
     const sumNode = (node: PnlNode): void => {
         for (const c of node.children) { sumNode(c); }
         const t = node.row.rowType;
+
+        // children below a separator/formula/kpi row can never roll up — warn
+        // instead of silently dropping the subtree (rule 4.4)
+        if (!contributes(node) && node.children.some(c => contributes(c))) {
+            warnings.push(`subtree under ${node.row.id} (${t}) is excluded from parent sums`);
+        }
+
+        if (t !== "account" && t !== "subtotal") { return; } // formula/kpi in pass 2
+
         for (const s of SCENARIOS) {
             const own = node.row.values[s];
-            let acc: number | null = null;
-            // own value counts for account rows; a subtotal's own value would
-            // double count its children and is ignored; formula/kpi/separator
-            // rows never carry additive values (pass 2 computes formula/kpi)
-            const ownCounts = t === "account" || (t === "subtotal" && !node.hasChildren);
-            if (own != null && ownCounts) { acc = own * node.row.sign; }
+            let childAcc: number | null = null;
             for (const c of node.children) {
                 if (!contributes(c)) { continue; }
                 const cv = c.computed[s];
                 if (cv == null) { continue; }
-                acc = (acc ?? 0) + cv;
+                childAcc = (childAcc ?? 0) + cv;
             }
-            node.computed[s] = acc;
+            if (t === "subtotal") {
+                // children win; the own value is the per-scenario fallback for
+                // aggregate-only data (e.g. PY delivered without account detail);
+                // the subtotal's own sign applies to its aggregate
+                const base = childAcc != null ? childAcc : own;
+                node.computed[s] = base == null ? null : base * node.row.sign;
+            } else {
+                // postable parent account: own value + children
+                let acc: number | null = own != null ? own * node.row.sign : null;
+                if (childAcc != null) { acc = (acc ?? 0) + childAcc; }
+                node.computed[s] = acc;
+            }
         }
     };
     for (const r of roots) { sumNode(r); }
@@ -291,7 +331,12 @@ function evalAst(
             const target = byId.get(ast.id);
             if (!target) { owner.error = `unknown reference [${ast.id}]`; return null; }
             evalNode(target);
-            if (target.error === "cycle") { owner.error = "cycle"; return null; }
+            if (target.error) {
+                // any error in a referenced row poisons the consumer visibly —
+                // a silent null would look like "no data" in a finance report
+                owner.error = owner.error ?? `ref [${ast.id}]: ${target.error}`;
+                return null;
+            }
             return target.computed[s];
         }
         case "bin": {

@@ -1,5 +1,37 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.1.1.0 (2026-08-01) — Review-Fixes
+
+Befunde aus einem unabhängigen Code-Review umgesetzt:
+
+- **Rechenkern**
+  - Zeilen in Parent-Child-Zyklen (x→y→x) landen jetzt sichtbar im
+    Waisen-Bucket statt still zu verschwinden (+ Warnung)
+  - Summenzeilen: Eigenwert als **per-Szenario-Fallback**, wenn Kinder für
+    ein Szenario keine Daten liefern (z. B. PY nur auf Aggregatsebene)
+  - `SignConvention` wirkt jetzt auch auf Subtotals mit Kindern
+  - Teilbäume unter Separator-/Formel-Zeilen erzeugen eine Warnung statt
+    still aus Summen zu fallen
+  - Formel-Fehler propagieren sichtbar zu konsumierenden Formeln
+    (`ref [id]: …` statt stilles Leer)
+  - Deutsche Zeilentyp-Synonyme (Zwischensumme, Kennzahl, Marge, Trennzeile),
+    tolerantere Sign-/Bool-Erkennung („-", „negativ", „wahr", „j")
+- **Rendering**
+  - Δ-/Δ%-Spaltenbreiten passen sich der breitesten Beschriftung an —
+    keine abgeschnittenen Zahlen mehr (Geometrie-Check im Render-Test)
+  - k/m-Skalierung und Δ-Balken-Skala über **alle** Zeilen statt nur
+    sichtbare — stabil beim Auf-/Zuklappen
+  - „Keine Daten für die aktuelle Auswahl" statt Landing Page, wenn Filter
+    alles entfernen; Warnungen aggregiert mit Tooltip
+- **State**: per Bookmark hereingereichter Expand-Zustand wird übernommen;
+  Format-Pane-Änderung der Standard-Ebene greift wieder; Persist-Mechanik
+  verklemmt nicht mehr in Read-only-Hosts; State wird gegen das Modell bereinigt
+- **Parsing**: String-Measures (DirectQuery), `trim()` auf Schlüsseln,
+  NaN-sichere Sortierung, Hinweis bei 30k-Zeilenlimit
+- Tests: 6 neue Engine-Testblöcke, Worst-Case-Rendertest (EUR-Rohwerte,
+  Skalierung none), SVG-Clipping-Assertion im Screenshot-Harness
+
+
 ## 0.1.0.0 (2026-08-01) — MVP / Phase 1
 
 Erste Version nach Anforderungsdokument „Best-in-Class P&L Standalone Visual",

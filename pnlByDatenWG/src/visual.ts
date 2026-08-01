@@ -52,6 +52,8 @@ interface ColumnLayout {
     valW: number;
     barW: number;
     pctW: number;
+    barHalf: number;
+    pinHalf: number;
     showRef: boolean;
     showBar: boolean;
     showPct: boolean;
@@ -72,6 +74,8 @@ export class Visual implements IVisual {
     private collapsed = new Set<string>();
     private stateLoaded = false;
     private pendingPersist: string | null = null;
+    private lastAppliedState: string | null = null;
+    private prevDefaultLevel: number | null = null;
     private locale = "en-US";
 
     constructor(options: VisualConstructorOptions) {
@@ -97,14 +101,27 @@ export class Visual implements IVisual {
                 VisualFormattingSettingsModel, dataView);
 
             const rows = dataView ? this.parseRows(dataView) : null;
-            if (!rows || rows.rows.length === 0) {
+            if (!rows) {
+                // fields not bound yet → onboarding landing page
                 this.model = null;
                 this.renderLanding();
                 this.events.renderingFinished(options);
                 return;
             }
+            if (rows.rows.length === 0) {
+                // fields bound, but the current filter selection yields no rows
+                this.model = null;
+                this.renderEmptySelection();
+                this.events.renderingFinished(options);
+                return;
+            }
 
             this.model = buildModel(rows.rows, this.str("Unassigned (orphans)", "Nicht zugeordnet (Waisen)"));
+            if (rows.truncated) {
+                this.model.warnings.push(this.str(
+                    "row limit (30k) reached — hierarchy may be incomplete",
+                    "Zeilenlimit (30k) erreicht — Hierarchie evtl. unvollständig"));
+            }
             this.lastHasScenario = rows.hasScenario;
             this.syncExpandState(dataView);
             this.render(rows.hasScenario);
@@ -120,7 +137,7 @@ export class Visual implements IVisual {
 
     // ---------------- data ----------------
 
-    private parseRows(dataView: DataView): { rows: InputRow[]; hasScenario: Record<Scenario, boolean> } | null {
+    private parseRows(dataView: DataView): { rows: InputRow[]; hasScenario: Record<Scenario, boolean>; truncated: boolean } | null {
         const cat = dataView.categorical;
         if (!cat || !cat.categories || cat.categories.length === 0) { return null; }
 
@@ -148,24 +165,34 @@ export class Visual implements IVisual {
         const num = (col: DataViewValueColumn | undefined, i: number): number | null => {
             if (!col) { return null; }
             const v = col.values[i];
-            return v == null || typeof v !== "number" || !isFinite(v) ? null : v;
+            if (v == null) { return null; }
+            // DirectQuery / high-precision decimals can arrive as strings
+            const n = typeof v === "number" ? v : Number(v);
+            return isFinite(n) ? n : null;
         };
         const txt = (col: DataViewCategoryColumn | undefined, i: number): string | null => {
             if (!col) { return null; }
             const v = col.values[i];
             return v == null ? null : String(v);
         };
+        const key = (col: DataViewCategoryColumn | undefined, i: number): string | null => {
+            const s = txt(col, i);
+            if (s == null) { return null; }
+            const trimmed = s.trim(); // "A100 " must match "A100"
+            return trimmed === "" ? null : trimmed;
+        };
 
         const rows: InputRow[] = [];
         const n = idCol.values.length;
         for (let i = 0; i < n; i++) {
-            const id = txt(idCol, i);
-            if (id == null || id === "") { continue; }
+            const id = key(idCol, i);
+            if (id == null) { continue; }
+            const sortRaw = Number(txt(sortCol, i) ?? i);
             rows.push({
                 id,
-                parent: txt(parentCol, i),
+                parent: key(parentCol, i),
                 name: txt(nameCol, i) ?? id,
-                sort: Number(txt(sortCol, i) ?? i),
+                sort: isFinite(sortRaw) ? sortRaw : Number.MAX_SAFE_INTEGER,
                 rowType: parseRowType(txt(typeCol, i)),
                 formulaDef: txt(formulaCol, i),
                 sign: signCol ? parseSign(txt(signCol, i)) : 1,
@@ -178,39 +205,66 @@ export class Visual implements IVisual {
         return {
             rows,
             hasScenario: { ac: !!acCol, py: !!pyCol, pl: !!plCol, fc: !!fcCol },
+            truncated: n >= 30000,
         };
     }
 
-    /** load persisted expand state once; afterwards keep in-memory state across cross-filter updates (F7) */
+    private renderEmptySelection(): void {
+        const box = document.createElement("div");
+        box.style.cssText = `padding:18px 22px;font-size:12px;color:${C_SOFT};`;
+        box.textContent = this.str(
+            "No data for the current selection.",
+            "Keine Daten für die aktuelle Auswahl.");
+        this.root.replaceChildren(box);
+    }
+
+    /**
+     * Expand/collapse state (F7): in-memory across cross-filter updates,
+     * persisted for bookmarks. An incoming expandState that differs from what
+     * we last applied is an external change (bookmark switch) and is adopted;
+     * a changed default level in the format pane re-applies the level.
+     */
     private syncExpandState(dataView: DataView | undefined): void {
         const persisted = dataView?.metadata?.objects?.["state"]?.["expandState"];
         const persistedStr = persisted == null ? null : String(persisted);
+        const lvl = this.settings.hierarchyCard.defaultLevel.value;
 
         if (this.pendingPersist != null) {
-            // our own persistProperties round-trip — ignore, keep in-memory state
-            if (persistedStr === this.pendingPersist) { this.pendingPersist = null; }
-            this.stateLoaded = true;
-            return;
+            // one round-trip grace, then clear — a host that drops the write
+            // (reading view, embed) must not wedge the ignore branch forever
+            if (persistedStr === this.pendingPersist) { this.lastAppliedState = persistedStr; }
+            this.pendingPersist = null;
         }
-        if (this.stateLoaded) { return; }
-        this.stateLoaded = true;
 
-        if (persistedStr) {
+        if (persistedStr != null && persistedStr !== this.lastAppliedState) {
+            // external change: bookmark switch or report reopen
             try {
-                const ids: string[] = JSON.parse(persistedStr);
-                this.collapsed = new Set(ids);
-                return;
-            } catch { /* fall through to default level */ }
+                this.collapsed = new Set(JSON.parse(persistedStr) as string[]);
+                this.lastAppliedState = persistedStr;
+                this.stateLoaded = true;
+            } catch { /* malformed → keep current state */ }
         }
-        const lvl = this.settings.hierarchyCard.defaultLevel.value;
-        this.collapsed = lvl > 0 && this.model
-            ? collapseToLevel(this.model.roots, lvl)
-            : new Set<string>();
+
+        if (!this.stateLoaded) {
+            this.stateLoaded = true;
+            this.collapsed = lvl > 0 && this.model
+                ? collapseToLevel(this.model.roots, lvl)
+                : new Set<string>();
+        } else if (this.prevDefaultLevel != null && lvl !== this.prevDefaultLevel && this.model) {
+            // format-pane change of the default level wins over the persisted state
+            this.collapsed = lvl > 0 ? collapseToLevel(this.model.roots, lvl) : new Set<string>();
+            this.persistExpandState();
+        }
+        this.prevDefaultLevel = lvl;
     }
 
     private persistExpandState(): void {
-        const json = JSON.stringify([...this.collapsed]);
+        // prune ids that no longer exist in the model — keeps the persisted
+        // property bounded and avoids surprise-collapsed rows after refilters
+        const ids = [...this.collapsed].filter(id => this.model == null || this.model.byId.has(id));
+        const json = JSON.stringify(ids);
         this.pendingPersist = json;
+        this.lastAppliedState = json;
         this.host.persistProperties({
             merge: [{ objectName: "state", selector: null, properties: { expandState: json } }],
         });
@@ -284,11 +338,12 @@ export class Visual implements IVisual {
         const ref = this.resolveReference(hasScenario);
         const visible = flattenVisible(model.roots, this.collapsed);
 
-        // one common scale per Δ column across all visible rows (spec 6, never per-row scales);
+        // one common scale per Δ column over ALL rows — not just the visible
+        // ones, so unit and bar lengths stay stable across expand/collapse;
         // ratio rows (KPI) are excluded so a margin row cannot break the EUR scale
         let maxAbsVal = 0;
         let maxAbsDelta = 0;
-        for (const node of visible) {
+        for (const node of model.byId.values()) {
             if (node.row.rowType === "kpi") { continue; }
             for (const s of ["ac", "py", "pl", "fc"] as Scenario[]) {
                 const v = node.computed[s];
@@ -300,15 +355,42 @@ export class Visual implements IVisual {
             }
         }
         const scale = this.scaleInfo(maxAbsVal);
+        const secondRef = this.secondReference(ref, hasScenario);
+
+        // Δ columns get their width from the widest label so SVG text can never
+        // be clipped (numbers silently truncated in a finance report are poison)
+        let dLabelLen = 1;
+        let pLabelLen = 2;
+        if (ref) {
+            for (const node of model.byId.values()) {
+                if (node.row.rowType === "kpi") { continue; }
+                const refs: Scenario[] = secondRef ? [ref, secondRef] : [ref];
+                for (const r of refs) {
+                    const v = variance(node, r);
+                    if (v.delta != null) {
+                        dLabelLen = Math.max(dLabelLen, this.fmtValue(v.delta, scale.div, false, true).length);
+                    }
+                    if (v.deltaPct != null) {
+                        pLabelLen = Math.max(pLabelLen, this.fmtPctLabel(v.deltaPct).length);
+                    }
+                }
+            }
+        }
+        const BAR_HALF = 36;
+        const PIN_HALF = 26;
+        const dLabelW = Math.ceil(dLabelLen * 5.6) + 4;
+        const pLabelW = Math.ceil(pLabelLen * 5.6) + 4;
 
         const cols: ColumnLayout = {
-            nameW: 0, valW: 86, barW: 128, pctW: 104,
+            nameW: 0, valW: 86,
+            barW: 2 * (BAR_HALF + dLabelW + 4) + 8,
+            pctW: 2 * (PIN_HALF + pLabelW + 4) + 8,
+            barHalf: BAR_HALF, pinHalf: PIN_HALF,
             showRef: ref != null && this.settings.columnsCard.showReferenceCol.value,
             showBar: ref != null && this.settings.columnsCard.showDeltaBar.value,
             showPct: ref != null && this.settings.columnsCard.showDeltaPct.value,
             showPct2: false,
         };
-        const secondRef = this.secondReference(ref, hasScenario);
         cols.showPct2 = secondRef != null && this.settings.columnsCard.showSecondDelta.value;
 
         if (this.settings.titleCard.show.value) {
@@ -329,7 +411,10 @@ export class Visual implements IVisual {
         if (model.warnings.length > 0) {
             const warn = document.createElement("div");
             warn.style.cssText = `margin:0 12px 10px 12px;font-size:10px;color:${C_SOFT};`;
-            warn.textContent = "⚠ " + model.warnings.slice(0, 3).join(" · ");
+            const extra = model.warnings.length - 2;
+            warn.textContent = "⚠ " + model.warnings.slice(0, 2).join(" · ")
+                + (extra > 0 ? this.str(` · (+${extra} more)`, ` · (+${extra} weitere)`) : "");
+            warn.title = model.warnings.join("\n");
             this.root.appendChild(warn);
         }
     }
@@ -573,9 +658,8 @@ export class Visual implements IVisual {
         const w = cols.barW - 8;
         const h = 15;
         const mid = w / 2;
-        const half = w / 2 - 26; // label room
         const frac = maxAbsDelta > 0 ? Math.min(Math.abs(v.delta) / maxAbsDelta, 1) : 0;
-        const barLen = Math.max(frac * half, v.delta === 0 ? 0 : 1.5);
+        const barLen = Math.max(frac * cols.barHalf, v.delta === 0 ? 0 : 1.5);
         const barX = v.delta >= 0 ? mid : mid - barLen;
         const color = v.good ? C_GOOD : C_BAD;
 
@@ -624,10 +708,9 @@ export class Visual implements IVisual {
         const w = cols.pctW - 8;
         const h = 15;
         const mid = w / 2;
-        const half = w / 2 - 24;
         const cap = 0.4; // ±40 % occupies the full pin range; beyond → overflow arrow
         const clamped = Math.max(-cap, Math.min(cap, v.deltaPct));
-        const px = mid + (clamped / cap) * half;
+        const px = mid + (clamped / cap) * cols.pinHalf;
         const overflow = Math.abs(v.deltaPct) > cap;
         const color = v.good ? C_GOOD : C_BAD;
 
@@ -656,10 +739,7 @@ export class Visual implements IVisual {
         svg.appendChild(dot);
 
         const txt = document.createElementNS(svgNS, "text");
-        const sign = v.deltaPct > 0 ? "+" : "";
-        const dec = this.settings.numbersCard.pctDecimals.value;
-        const label = sign + (v.deltaPct * 100).toLocaleString(this.locale,
-            { minimumFractionDigits: dec, maximumFractionDigits: dec }) + (overflow ? "▸" : "");
+        const label = this.fmtPctLabel(v.deltaPct);
         const anchor = v.deltaPct >= 0 ? "start" : "end";
         const tx = v.deltaPct >= 0 ? Math.max(px + 4, mid + 4) : Math.min(px - 4, mid - 4);
         txt.setAttribute("x", String(tx)); txt.setAttribute("y", String(h / 2 + 3.5));
@@ -673,6 +753,13 @@ export class Visual implements IVisual {
         return c;
     }
 
+    private fmtPctLabel(deltaPct: number): string {
+        const dec = this.settings.numbersCard.pctDecimals.value;
+        const overflow = Math.abs(deltaPct) > 0.4;
+        return (deltaPct > 0 ? "+" : "") + (deltaPct * 100).toLocaleString(this.locale,
+            { minimumFractionDigits: dec, maximumFractionDigits: dec }) + (overflow ? "▸" : "");
+    }
+
     private fmtPp(delta: number): string {
         const dec = this.settings.numbersCard.pctDecimals.value;
         const s = (delta * 100).toLocaleString(this.locale,
@@ -684,27 +771,31 @@ export class Visual implements IVisual {
         const tooltipService = this.host.tooltipService;
         if (!tooltipService || !tooltipService.enabled || !tooltipService.enabled()) { return; }
         const isRatio = node.row.rowType === "kpi";
-        const items = (): VisualTooltipDataItem[] => {
-            const out: VisualTooltipDataItem[] = [];
-            for (const s of ["ac", "py", "pl", "fc"] as Scenario[]) {
-                const v = displayValue(node, s);
-                if (v == null) { continue; }
-                out.push({
-                    displayName: s.toUpperCase(),
-                    value: this.fmtValue(v, isRatio ? 1 : scale.div, isRatio) + (isRatio || !scale.suffix ? "" : " " + scale.suffix),
-                    header: node.row.name,
-                });
-            }
-            return out;
-        };
+        // build once per row — not on every mousemove
+        const dataItems: VisualTooltipDataItem[] = [];
+        for (const s of ["ac", "py", "pl", "fc"] as Scenario[]) {
+            const v = displayValue(node, s);
+            if (v == null) { continue; }
+            dataItems.push({
+                displayName: s.toUpperCase(),
+                value: this.fmtValue(v, isRatio ? 1 : scale.div, isRatio) + (isRatio || !scale.suffix ? "" : " " + scale.suffix),
+                header: node.row.name,
+            });
+        }
         row.onmousemove = (e) => {
             tooltipService.show({
                 coordinates: [e.clientX, e.clientY],
                 isTouchEvent: false,
-                dataItems: items(),
+                dataItems,
                 identities: [],
             });
         };
-        row.onmouseout = () => { tooltipService.hide({ immediately: false, isTouchEvent: false }); };
+        // merge with the hover-background handler; mouseleave (not mouseout)
+        // so moving across child elements does not flicker the tooltip
+        const prevLeave = row.onmouseleave;
+        row.onmouseleave = (e) => {
+            if (prevLeave) { prevLeave.call(row, e); }
+            tooltipService.hide({ immediately: false, isTouchEvent: false });
+        };
     }
 }

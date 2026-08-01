@@ -73,8 +73,8 @@ test("formula engine", () => {
     assert.equal(m.byId.get("ebitda").computed.pl, 90);
     assert.equal(m.byId.get("margin").computed.ac, 0.6);   // formula referencing formula
     assert.equal(m.byId.get("half").computed.ac, 90);
-    assert.equal(m.byId.get("c1").error, "cycle");
-    assert.equal(m.byId.get("c2").error, "cycle");
+    assert.ok(m.byId.get("c1").error.includes("cycle"));
+    assert.ok(m.byId.get("c2").error.includes("cycle"));
     assert.ok(m.byId.get("bad").error.includes("missing"));
     assert.equal(m.byId.get("div0").computed.ac, null);    // div by zero -> null, no crash
     // formula rows never leak into parent sums
@@ -139,6 +139,88 @@ test("flatten / collapse to level", () => {
     assert.deepEqual(E.flattenVisible(m.roots, c1).map(x => x.row.id), ["r"]);
     const c2 = E.collapseToLevel(m.roots, 2);
     assert.deepEqual(E.flattenVisible(m.roots, c2).map(x => x.row.id), ["r", "r1", "r2"]);
+});
+
+// review fix — parent-child cycle rows surface in the orphan bucket, never vanish
+test("parent-child cycle -> orphan bucket + warning", () => {
+    const m = E.buildModel([
+        row("root", null, { values: { ac: 1 } }),
+        row("x", "y", { values: { ac: 10 } }),
+        row("y", "x", { values: { ac: 20 } }),
+    ], "U");
+    const bucket = m.roots.find(r => r.isOrphanBucket);
+    assert.ok(bucket, "bucket exists");
+    assert.deepEqual(bucket.children.map(c => c.row.id).sort(), ["x", "y"]);
+    assert.equal(bucket.computed.ac, 30);              // values kept, not lost
+    assert.ok(m.warnings.some(w => w.includes("cycle")));
+    // flatten must terminate (cycle links were cut)
+    assert.equal(E.flattenVisible(m.roots, new Set()).length, 4);
+});
+
+// review fix — subtotal own value is a per-scenario fallback (PY aggregate-only data)
+test("subtotal per-scenario own-value fallback", () => {
+    const m = E.buildModel([
+        row("s", null, { rowType: "subtotal", values: { ac: 999, py: 95 } }),
+        row("s1", "s", { values: { ac: 60 } }),
+        row("s2", "s", { values: { ac: 40 } }),
+    ], "U");
+    const s = m.byId.get("s");
+    assert.equal(s.computed.ac, 100);  // children win over own 999
+    assert.equal(s.computed.py, 95);   // no child data for PY -> own value
+});
+
+// review fix — SignConvention on a subtotal applies to its aggregate
+test("subtotal sign flips child aggregate", () => {
+    const m = E.buildModel([
+        row("gp", null, { rowType: "subtotal" }),
+        row("rev", "gp", { values: { ac: 100 } }),
+        row("costs", "gp", { rowType: "subtotal", sign: -1 }),
+        row("k1", "costs", { values: { ac: 40 } }),
+        row("k2", "costs", { values: { ac: 10 } }),
+    ], "U");
+    assert.equal(m.byId.get("costs").computed.ac, -50);
+    assert.equal(m.byId.get("gp").computed.ac, 50);
+});
+
+// review fix — subtree under a non-contributing row warns instead of silent loss
+test("separator with children warns", () => {
+    const m = E.buildModel([
+        row("total", null, { rowType: "subtotal" }),
+        row("sec", "total", { rowType: "separator" }),
+        row("a", "sec", { values: { ac: 100 } }),
+        row("b", "total", { values: { ac: 5 } }),
+    ], "U");
+    assert.equal(m.byId.get("total").computed.ac, 5);  // documented limitation...
+    assert.ok(m.warnings.some(w => w.includes("sec"))); // ...but never silent
+});
+
+// review fix — German row types + tolerant sign/bool parsing
+test("German row types, sign and bool parsing", () => {
+    assert.equal(E.parseRowType("Zwischensumme"), "subtotal");
+    assert.equal(E.parseRowType("Kennzahl"), "kpi");
+    assert.equal(E.parseRowType("Marge"), "kpi");
+    assert.equal(E.parseRowType("Trennzeile"), "separator");
+    assert.equal(E.parseRowType("Konto"), "account");
+    assert.equal(E.parseSign("-1"), -1);
+    assert.equal(E.parseSign(-1), -1);
+    assert.equal(E.parseSign("-"), -1);
+    assert.equal(E.parseSign("negativ"), -1);
+    assert.equal(E.parseSign("1"), 1);
+    assert.equal(E.parseSign("Erlös"), 1);
+    assert.equal(E.parseBool("wahr"), true);
+    assert.equal(E.parseBool("j"), true);
+    assert.equal(E.parseBool("falsch"), false);
+});
+
+// review fix — formula errors poison consumers visibly instead of silent null
+test("formula error propagates to consumers", () => {
+    const m = E.buildModel([
+        row("a", null, { values: { ac: 1 } }),
+        row("bad", null, { rowType: "formula", formulaDef: "[missing]" }),
+        row("user", null, { rowType: "formula", formulaDef: "[bad]+[a]" }),
+    ], "U");
+    assert.ok(m.byId.get("user").error.includes("ref [bad]"));
+    assert.equal(m.byId.get("user").computed.ac, null);
 });
 
 // parser hygiene

@@ -18,6 +18,7 @@
 <div class="case"><h4>p6 · Landing Page (leere Field Wells)</h4><div class="stage" id="p6" style="width:640px;height:200px"></div></div>
 <div class="case"><h4>p7 · de-DE · Skalierung k explizit · 0 Dezimalen · Titelblock 3 Zeilen</h4><div class="stage" id="p7" style="width:760px;height:560px"></div></div>
 <div class="case"><h4>p8 · unbalancierter Baum (1–4 Ebenen) · Ebenen-Buttons · Ebene 1</h4><div class="stage" id="p8" style="width:700px;height:300px"></div></div>
+<div class="case"><h4>p9 · EUR-Rohwerte (Millionen) · Skalierung none · de-DE — breite Labels dürfen nicht clippen</h4><div class="stage" id="p9" style="width:1100px;height:560px"></div></div>
 <script src="visual.bundle.js"></script>
 <script>
 const Visual = PnlByDatenWG.Visual;
@@ -136,6 +137,17 @@ run("p7", GUV, { objects: {
   hierarchy: { defaultLevel: 2 },
   numbers: { scaling: "k", decimals: 0 },
   titleBlock: { unitLine: "Contoso GmbH", measureLine: "GuV in kEUR", periodLine: "Jan..Jun 2026 · AC, PL, ΔPL" },
+} }, null, "de-DE");
+
+// p9 — raw EUR magnitudes without scaling: the review's clipping worst case
+const GUV_EUR = GUV.map(r => {
+  const c = r.slice();
+  for (const i of [9, 10, 11]) { if (typeof c[i] === "number") { c[i] = c[i] * 1000; } }
+  return c;
+});
+run("p9", GUV_EUR, { objects: {
+  hierarchy: { defaultLevel: 0 },
+  numbers: { scaling: "none", decimals: 0 },
 } }, null, "de-DE");
 
 // p8 — unbalanced tree with level buttons, collapsed to level 1
