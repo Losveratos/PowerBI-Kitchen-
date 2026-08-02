@@ -32,7 +32,6 @@ import {
     isZeroRow, revenueBase,
     InputRow, LevelInputRow, PnlModel, PnlNode, Scenario,
 } from "./engine";
-import { renderWaterfall } from "./waterfall";
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const NBSP_GROUP = " "; // narrow space, IBCS number grouping
@@ -45,7 +44,7 @@ const C = {
     comment: "#0064FF",
 };
 
-type ViewMode = "table" | "waterfall";
+type ViewMode = "table" | "bars";
 type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct";
 type Unit = "auto" | "none" | "k" | "m";
 type Density = "normal" | "compact";
@@ -63,7 +62,7 @@ interface UiState {
 }
 
 interface ColSpec {
-    kind: "val" | "pct" | "bar" | "pin" | "gap";
+    kind: "val" | "pct" | "bar" | "pin" | "gap" | "vbar";
     scen?: Scenario;      // for val
     ref?: Scenario;       // for bar/pin
     minuend?: Scenario;   // for bar/pin ("ac" | "fcfy")
@@ -269,6 +268,7 @@ export class Visual implements IVisual {
         if (str != null && str !== this.lastApplied) {
             try {
                 this.ui = { ...this.defaultUi(), ...JSON.parse(str) as Partial<UiState> };
+                if ((this.ui.view as string) === "waterfall") { this.ui.view = "bars"; }
                 this.lastApplied = str;
                 this.stateLoaded = true;
             } catch { /* keep current */ }
@@ -391,11 +391,7 @@ export class Visual implements IVisual {
         if (this.settings.toolbarCard.show.value) { this.root.appendChild(this.buildToolbar()); }
         if (this.settings.toolbarCard.showLegend.value) { this.root.appendChild(this.buildLegend()); }
 
-        if (ui.view === "waterfall") {
-            this.root.appendChild(this.buildWaterfall(fmt));
-        } else {
-            this.root.appendChild(this.buildTable(fmt, maxAbsDelta));
-        }
+        this.root.appendChild(this.buildTable(fmt, maxAbsDelta));
         this.buildFootnotes(fmt);
         this.root.appendChild(this.buildFooter());
     }
@@ -404,6 +400,11 @@ export class Visual implements IVisual {
     private deltaCombos(): { ref: Scenario; minuend: Scenario }[] {
         const ui = this.ui!;
         const out: { ref: Scenario; minuend: Scenario }[] = [];
+        if (ui.view === "bars") {
+            if (this.has[ui.ref]) { out.push({ ref: ui.ref, minuend: "ac" }); }
+            if (this.has.fcfy && this.has.plfy) { out.push({ ref: "plfy", minuend: "fcfy" }); }
+            return out;
+        }
         if (ui.preset === "full") {
             if (this.has.py) { out.push({ ref: "py", minuend: "ac" }); }
             if (this.has.pl) { out.push({ ref: "pl", minuend: "ac" }); }
@@ -484,7 +485,8 @@ export class Visual implements IVisual {
 
         bar.appendChild(this.tbGroup(this.str("View", "Ansicht"), [
             this.tbBtn("Table", ui.view === "table", () => { ui.view = "table"; }),
-            this.tbBtn("Waterfall", ui.view === "waterfall", () => { ui.view = "waterfall"; }),
+            this.tbBtn("Bars", ui.view === "bars", () => { ui.view = "bars"; },
+                this.str("Structure bars: AC vs reference per row", "Struktur-Balken: AC vs. Referenz je Zeile")),
         ]));
 
         const presets: [Preset, string][] = [
@@ -588,6 +590,22 @@ export class Visual implements IVisual {
 
     private colSpecs(): { ytd: ColSpec[]; fy: ColSpec[] } {
         const ui = this.ui!;
+        if (ui.view === "bars") {
+            // CFO structure view: horizontal AC bar with the reference behind it,
+            // then delta bar and delta-percent pin — same rows, same hierarchy
+            const r = this.has[ui.ref] ? ui.ref : (this.has.pl ? "pl" : "py");
+            const ytdB: ColSpec[] = [
+                { kind: "vbar", scen: "ac", ref: r, label: `AC · ${r.toUpperCase()}` },
+                { kind: "bar", ref: r, minuend: "ac", label: `Δ${r.toUpperCase()}` },
+                { kind: "pin", ref: r, minuend: "ac", label: `Δ${r.toUpperCase()}%` },
+            ];
+            const fyB: ColSpec[] = this.has.fcfy && this.has.plfy ? [
+                { kind: "vbar", scen: "fcfy", ref: "plfy", label: "FC · PL" },
+                { kind: "bar", ref: "plfy", minuend: "fcfy", label: "ΔPL" },
+                { kind: "pin", ref: "plfy", minuend: "fcfy", label: "ΔPL%" },
+            ] : [];
+            return { ytd: ytdB, fy: fyB };
+        }
         const ytd: ColSpec[] = [{ kind: "val", scen: "ac", label: "AC" }];
         if (ui.pctRev) { ytd.push({ kind: "pct", label: "% Rev" }); }
         const fy: ColSpec[] = [];
@@ -660,7 +678,29 @@ export class Visual implements IVisual {
         const pinW = 2 * (PIN_HALF + pLabelW + 4) + 8;
         const valW = compact ? 66 : 76;
 
-        const geo = { rowH, fs, BAR_HALF, PIN_HALF, barW, pinW, valW, maxAbsDelta };
+        // structure-bars view: shared display-space scale for the value bars
+        let vAxisX = 0; let vPpu = 0; let vLabelW = 0; let vbarW = 0;
+        if (cols.some(c => c.kind === "vbar")) {
+            const scens = new Set<Scenario>();
+            for (const c of cols) { if (c.kind === "vbar") { scens.add(c.scen!); scens.add(c.ref!); } }
+            let maxPosD = 0; let maxNegD = 0; let vLabelLen = 2;
+            for (const node of model.byId.values()) {
+                if (node.row.rowType === "kpi" || node.row.rowType === "separator") { continue; }
+                for (const sc of scens) {
+                    const v = displayValue(node, sc);
+                    if (v == null) { continue; }
+                    if (v >= 0) { maxPosD = Math.max(maxPosD, v); } else { maxNegD = Math.max(maxNegD, -v); }
+                    vLabelLen = Math.max(vLabelLen, fmt.val(v).length);
+                }
+            }
+            vLabelW = Math.ceil(vLabelLen * (fs * 0.52)) + 4;
+            const span = compact ? 150 : 190;
+            vPpu = span / ((maxPosD + maxNegD) || 1);
+            vAxisX = 4 + vLabelW + maxNegD * vPpu;
+            vbarW = span + 2 * (vLabelW + 4) + 8;
+        }
+
+        const geo = { rowH, fs, BAR_HALF, PIN_HALF, barW, pinW, valW, maxAbsDelta, vbarW, vAxisX, vPpu, vLabelW };
 
         const wrap = document.createElement("div");
         wrap.style.cssText = "padding:2px 14px 8px 14px;";
@@ -693,7 +733,7 @@ export class Visual implements IVisual {
         return c;
     }
 
-    private blockHeaderRow(ytd: ColSpec[], fy: ColSpec[], geo: { valW: number; barW: number; pinW: number; fs: number }): HTMLElement {
+    private blockHeaderRow(ytd: ColSpec[], fy: ColSpec[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number }): HTMLElement {
         const months = this.model!.months;
         const row = document.createElement("div");
         row.style.cssText = "display:table-row;";
@@ -725,13 +765,14 @@ export class Visual implements IVisual {
         return row;
     }
 
-    private headerRow(cols: ColSpec[], geo: { valW: number; barW: number; pinW: number; fs: number }): HTMLElement {
+    private headerRow(cols: ColSpec[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number }): HTMLElement {
         const row = document.createElement("div");
         row.style.cssText = "display:table-row;";
         row.appendChild(this.cell(0, "left", geo.fs));
         for (const c of cols) {
             if (c.kind === "gap") { row.appendChild(this.cell(18, "center", 9)); continue; }
-            const w = c.kind === "val" || c.kind === "pct" ? geo.valW : c.kind === "bar" ? geo.barW : geo.pinW;
+            const w = c.kind === "val" || c.kind === "pct" ? geo.valW
+                : c.kind === "vbar" ? geo.vbarW : c.kind === "bar" ? geo.barW : geo.pinW;
             const cell = this.cell(w, c.kind === "val" || c.kind === "pct" ? "right" : "center", 9.5);
             cell.style.color = C.soft;
             if (c.kind === "val" && c.scen) {
@@ -747,7 +788,7 @@ export class Visual implements IVisual {
     private capPct(p: number): number { return Math.max(-0.4, Math.min(0.4, p)); }
 
     private bodyRow(node: PnlNode, cols: ColSpec[], fmt: Fmt,
-        geo: { rowH: number; fs: number; BAR_HALF: number; PIN_HALF: number; barW: number; pinW: number; valW: number; maxAbsDelta: number },
+        geo: { rowH: number; fs: number; BAR_HALF: number; PIN_HALF: number; barW: number; pinW: number; valW: number; maxAbsDelta: number; vbarW: number; vAxisX: number; vPpu: number; vLabelW: number },
         revBase: PnlNode | null): HTMLElement {
         const ui = this.ui!;
         const t = node.row.rowType;
@@ -845,6 +886,9 @@ export class Visual implements IVisual {
                 cell.textContent = isRatio
                     ? fmt.pct(displayValue(node, c.scen!))
                     : fmt.val(displayValue(node, c.scen!));
+            } else if (c.kind === "vbar") {
+                cell = this.valueBarCell(node, c, geo, fmt, isSum, isRatio);
+                if (lineTop) { cell.style.borderTop = `1px solid ${C.line}`; }
             } else if (c.kind === "pct") {
                 cell = this.cell(geo.valW, "right", geo.fs - 1);
                 cell.style.cssText += `color:${C.soft};font-variant-numeric:tabular-nums;`;
@@ -979,6 +1023,77 @@ export class Visual implements IVisual {
         return cell;
     }
 
+    /** structure view: horizontal AC (or FC) bar with the reference scenario behind it */
+    private valueBarCell(node: PnlNode, c: ColSpec,
+        geo: { rowH: number; fs: number; vbarW: number; vAxisX: number; vPpu: number },
+        fmt: Fmt, isSum: boolean, isRatio: boolean): HTMLElement {
+        const cell = this.cell(geo.vbarW, "left", geo.fs);
+        const h = geo.rowH - 3;
+        if (isRatio) {
+            cell.style.cssText += `font-style:italic;color:${C.soft};text-align:center;`;
+            cell.textContent = fmt.pct(displayValue(node, c.scen!));
+            return cell;
+        }
+        const v = displayValue(node, c.scen!);
+        const r = displayValue(node, c.ref!);
+        if (v == null && r == null) { return cell; }
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
+        const w = geo.vbarW - 8;
+        svg.setAttribute("width", String(w)); svg.setAttribute("height", String(h));
+        svg.style.cssText = "display:block;";
+        const hatch = c.scen === "fcfy";
+        const pid = `pnlvb${node.row.index}${c.scen}`;
+        if (hatch) { this.hatchPattern(svg, ns, pid, C.ac); }
+        const bar = (val: number, y: number, bh: number, fill: string, stroke: string | null): void => {
+            const len = Math.abs(val) * geo.vPpu;
+            if (len < 0.4) { return; }
+            const rect = document.createElementNS(ns, "rect");
+            rect.setAttribute("x", String(val >= 0 ? geo.vAxisX : geo.vAxisX - len));
+            rect.setAttribute("y", String(y));
+            rect.setAttribute("width", String(Math.max(len, 1)));
+            rect.setAttribute("height", String(bh));
+            rect.setAttribute("fill", fill);
+            if (stroke) { rect.setAttribute("stroke", stroke); rect.setAttribute("stroke-width", "1"); }
+            svg.appendChild(rect);
+        };
+        // reference behind (IBCS comparison: subtrahend behind the minuend)
+        if (r != null) {
+            const refIsPlan = c.ref === "pl" || c.ref === "plfy";
+            bar(r, 1.5, h - 3, refIsPlan ? "#FFF" : C.py, refIsPlan ? C.ac : null);
+        }
+        // minuend on top, narrower (AC solid / FC hatched)
+        if (v != null) {
+            const bh = (h - 3) * 0.58;
+            const y = (h - bh) / 2;
+            bar(v, y, bh, hatch ? `url(#${pid})` : C.ac, hatch ? C.ac : null);
+        }
+        // structure baseline
+        const axis = document.createElementNS(ns, "line");
+        axis.setAttribute("x1", String(geo.vAxisX)); axis.setAttribute("x2", String(geo.vAxisX));
+        axis.setAttribute("y1", "0"); axis.setAttribute("y2", String(h));
+        axis.setAttribute("stroke", C.ac); axis.setAttribute("stroke-width", "1");
+        svg.appendChild(axis);
+        // AC label outside the longer of both bars, in growth direction
+        const lv = v ?? r;
+        if (lv != null) {
+            const extent = Math.max(Math.abs(v ?? 0), Math.abs(r ?? 0)) * geo.vPpu;
+            const txt = document.createElementNS(ns, "text");
+            const tx = lv >= 0 ? geo.vAxisX + extent + 3 : geo.vAxisX - extent - 3;
+            txt.setAttribute("x", String(tx));
+            txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
+            txt.setAttribute("text-anchor", lv >= 0 ? "start" : "end");
+            txt.setAttribute("font-size", String(geo.fs - 1));
+            txt.setAttribute("font-family", FONT);
+            txt.setAttribute("fill", C.text);
+            if (isSum) { txt.setAttribute("font-weight", "600"); }
+            txt.textContent = fmt.val(v);
+            svg.appendChild(txt);
+        }
+        cell.appendChild(svg);
+        return cell;
+    }
+
     private sparkRow(node: PnlNode, colCount: number, geo: { fs: number }): HTMLElement {
         const row = document.createElement("div");
         row.style.cssText = "display:table-row;";
@@ -1030,24 +1145,7 @@ export class Visual implements IVisual {
         return row;
     }
 
-    // ---------------- waterfall / footnotes / footer ----------------
-
-    private buildWaterfall(fmt: Fmt): HTMLElement {
-        const wrap = document.createElement("div");
-        wrap.style.cssText = "padding:6px 14px;";
-        const rows = this.model!.roots.filter(r =>
-            !r.isOrphanBucket && r.row.rowType !== "kpi" && r.row.rowType !== "separator");
-        const width = Math.max(this.root.clientWidth - 40, 640);
-        const svg = renderWaterfall(rows, {
-            width, height: 380, scenario: "ac",
-            fmt: (v) => fmt.val(v),
-            fontFamily: FONT,
-            colors: { ac: C.ac, text: C.text, soft: C.soft, line: C.gridSoft },
-            hatchPatternId: "pnlWfHatch",
-        });
-        wrap.appendChild(svg);
-        return wrap;
-    }
+    // ---------------- footnotes / footer ----------------
 
     private buildFootnotes(fmt: Fmt): void {
         void fmt;

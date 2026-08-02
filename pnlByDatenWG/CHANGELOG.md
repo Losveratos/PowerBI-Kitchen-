@@ -1,5 +1,19 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.3.1.0 (2026-08-02) — Struktur-Balken statt Waterfall (CFO-Feedback)
+
+- Die Waterfall-Ansicht ist durch eine **Struktur-Balken-Ansicht** ersetzt
+  (IBCS UN 3.4: Struktur auf der vertikalen Achse): je Zeile ein horizontaler
+  AC-Balken mit der Referenz (PL outlined / PY grau) dahinter, daneben
+  Δ-Balken und Δ%-Pin gegen die Toolbar-Referenz; FY-Block mit schraffierten
+  FC-Balken vs. PL. Nutzt dieselbe Hierarchie inkl. Aufklappen/Ebenen-Buttons,
+  eine gemeinsame Balken-Skala über alle Zeilen (IBCS: gleiche Einheit =
+  gleiche Skala), Werte-Labels außen.
+- Persistierter Zustand `view: "waterfall"` migriert automatisch zu `"bars"`.
+- Das Waterfall-Modul bleibt im Quellbaum (src/waterfall.ts, ungenutzt) für
+  eine mögliche spätere Verdichtungs-Ansicht.
+
+
 ## 0.3.0.0 (2026-08-02) — Sample-Parität: Toolbar, FY-Block, Waterfall, Sparklines
 
 Kompletter Rendering-Neubau nach dem Konzept-Demo (HTML-Sample), Rechenkern
