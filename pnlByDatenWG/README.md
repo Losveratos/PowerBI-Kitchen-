@@ -3,7 +3,13 @@
 IBCS-inspiriertes GuV-/P&L-Custom-Visual für Power BI — eigenständiges
 Schwester-Visual von [ChartKitchen byDatenWG](../ibcsInspiredChartDeck/) und der
 [IBCS KPI Card](../ibcsKpiCard/). Umsetzung des Anforderungsdokuments
-„Best-in-Class P&L Standalone Visual" (MVP / Phase 1).
+„Best-in-Class P&L Standalone Visual" — Stand v0.3: volle Parität zum
+Konzept-Demo (In-Visual-Toolbar, YTD- + FY-Outlook-Block, Waterfall-Ansicht,
+Monats-Sparklines, Kommentar-Fußnoten, %-vom-Umsatz, Teal-Deviation).
+**Sternschema (L1..Ln) ist der primäre Hierarchie-Modus** — Parent-Child
+bleibt als Alternative voll unterstützt. Die Toolbar macht das Visual für
+Report-Ersteller wie -Leser ohne Format-Pane bedienbar; alle
+Toolbar-Zustände sind bookmark-fähig persistiert.
 
 ## Was es kann (MVP)
 

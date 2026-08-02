@@ -229,18 +229,22 @@ const lrow = (levels, over = {}) => ({
     account: over.account ?? null, name: over.name ?? null, sort: over.sort ?? null,
     rowType: over.rowType ?? "account", formulaDef: over.formulaDef ?? null,
     sign: over.sign ?? 1, displayInvert: over.displayInvert ?? false,
-    varianceInvert: over.varianceInvert ?? false, values: over.values ?? {}, index: over.index ?? 0,
+    varianceInvert: over.varianceInvert ?? false, values: over.values ?? {},
+    month: over.month ?? null, comment: over.comment ?? null, index: over.index ?? 0,
 });
+const buildLevels = (levelRows, label = "U") => {
+    const lr = E.rowsFromLevels(levelRows);
+    return E.buildModel(lr.rows, label, lr.months);
+};
 
 test("levels: ragged via trailing nulls AND repeated values", () => {
-    const rows = E.rowsFromLevels([
+    const m = buildLevels([
         lrow(["Umsatz", "Produkte", null], { values: { ac: 100 }, index: 0 }),
         lrow(["Umsatz", "Service", null], { values: { ac: 50 }, index: 1 }),
         lrow(["Sonstiges", "Sonstiges", "Sonstiges"], { values: { ac: 7 }, index: 2 }), // repeat -> depth 1
         lrow(["Opex", "Personal", "Löhne"], { sign: -1, values: { ac: 30 }, index: 3 }),
         lrow(["Opex", "Personal", "Sozial"], { sign: -1, values: { ac: 10 }, index: 4 }),
     ]);
-    const m = E.buildModel(rows, "U");
     assert.equal(m.roots.length, 3);                       // Umsatz, Sonstiges, Opex
     const umsatz = m.roots.find(r => r.row.name === "Umsatz");
     assert.equal(umsatz.computed.ac, 150);
@@ -254,12 +258,11 @@ test("levels: ragged via trailing nulls AND repeated values", () => {
 });
 
 test("levels: same-path aggregation + aggregate row becomes subtotal fallback", () => {
-    const rows = E.rowsFromLevels([
+    const m = buildLevels([
         lrow(["Umsatz", "Produkte"], { values: { ac: 60 }, index: 0 }),
         lrow(["Umsatz", "Produkte"], { values: { ac: 40 }, index: 1 }),   // finer fact grain
         lrow(["Umsatz"], { values: { py: 90 }, index: 2 }),               // PY aggregate-only row
     ]);
-    const m = E.buildModel(rows, "U");
     const umsatz = m.roots.find(r => r.row.name === "Umsatz");
     assert.equal(umsatz.children.length, 1);
     assert.equal(umsatz.children[0].computed.ac, 100);     // 60+40 aggregated
@@ -268,14 +271,13 @@ test("levels: same-path aggregation + aggregate row becomes subtotal fallback", 
 });
 
 test("levels: synthetic parents inherit uniform display/variance invert", () => {
-    const rows = E.rowsFromLevels([
+    const m = buildLevels([
         lrow(["Opex", "Personal", "Löhne"], { sign: -1, displayInvert: true, values: { ac: 30 }, index: 0 }),
         lrow(["Opex", "Personal", "Sozial"], { sign: -1, displayInvert: true, values: { ac: 10 }, index: 1 }),
         lrow(["Opex", "Material"], { sign: -1, displayInvert: true, values: { ac: 5 }, index: 2 }),
         lrow(["Mixed", "A"], { displayInvert: true, values: { ac: 1 }, index: 3 }),
         lrow(["Mixed", "B"], { displayInvert: false, values: { ac: 2 }, index: 4 }),
     ]);
-    const m = E.buildModel(rows, "U");
     const opex = m.roots.find(r => r.row.name === "Opex");
     assert.equal(opex.computed.ac, -45);
     assert.equal(opex.row.displayInvert, true);            // inherited transitively
@@ -287,16 +289,63 @@ test("levels: synthetic parents inherit uniform display/variance invert", () => 
 });
 
 test("levels: formula rows reference by unique name", () => {
-    const rows = E.rowsFromLevels([
+    const m = buildLevels([
         lrow(["Umsatzerlöse", "Produkte"], { values: { ac: 100 }, index: 0 }),
         lrow(["Betriebsaufwand", "Material"], { sign: -1, values: { ac: 40 }, index: 1 }),
         lrow(["EBITDA"], { rowType: "formula", formulaDef: "[Umsatzerlöse]+[Betriebsaufwand]", index: 2 }),
         lrow(["Marge"], { rowType: "kpi", formulaDef: "[EBITDA]/[Umsatzerlöse]", index: 3 }),
     ]);
-    const m = E.buildModel(rows, "U");
     const byName = n => [...m.byId.values()].find(x => x.row.name === n);
     assert.equal(byName("EBITDA").computed.ac, 60);
     assert.equal(byName("Marge").computed.ac, 0.6);
+});
+
+// v0.3 — month grain: series, YTD sums, FY first-wins, formula series, minuend
+test("monthly aggregation: series + FY scalars + subtotal rollup", () => {
+    const m = buildLevels([
+        lrow(["Umsatz", "Produkte"], { month: "2026-01", values: { ac: 10, py: 9, fcfy: 250, plfy: 240 }, index: 0 }),
+        lrow(["Umsatz", "Produkte"], { month: "2026-02", values: { ac: 12, py: 10, fcfy: 250, plfy: 240 }, index: 1 }),
+        lrow(["Umsatz", "Service"], { month: "2026-01", values: { ac: 5 }, index: 2 }),
+        lrow(["Umsatz", "Service"], { month: "2026-02", values: { ac: 6 }, index: 3 }),
+        lrow(["Opex", "Material"], { sign: -1, month: "2026-01", values: { ac: 4 }, index: 4 }),
+        lrow(["Opex", "Material"], { sign: -1, month: "2026-02", values: { ac: 5 }, index: 5 }),
+        lrow(["EBITDA"], { rowType: "formula", formulaDef: "[Umsatz]+[Opex]", index: 6 }),
+    ]);
+    assert.deepEqual(m.months, ["2026-01", "2026-02"]);
+    const prod = [...m.byId.values()].find(x => x.row.name === "Produkte");
+    assert.equal(prod.computed.ac, 22);                  // YTD sum
+    assert.equal(prod.computed.fcfy, 250);               // first-wins, NOT 500
+    assert.equal(prod.computed.plfy, 240);
+    assert.deepEqual(prod.series.ac, [10, 12]);
+    const umsatz = m.roots.find(r => r.row.name === "Umsatz");
+    assert.deepEqual(umsatz.series.ac, [15, 18]);        // children summed per month
+    const opex = m.roots.find(r => r.row.name === "Opex");
+    assert.deepEqual(opex.series.ac, [-4, -5]);          // sign applied
+    const ebitda = [...m.byId.values()].find(x => x.row.name === "EBITDA");
+    assert.equal(ebitda.computed.ac, 33 - 9);            // 33 rev - 9 opex
+    assert.deepEqual(ebitda.series.ac, [11, 13]);        // formula evaluated per month
+});
+
+test("variance minuend FC vs PL (FY outlook block)", () => {
+    const m = E.buildModel([
+        row("rev", null, { values: { ac: 100, fcfy: 250, plfy: 240 } }),
+    ], "U");
+    const v = E.variance(m.byId.get("rev"), "plfy", "fcfy");
+    assert.equal(v.delta, 10);
+    assert.equal(v.good, true);
+    assert.ok(Math.abs(v.deltaPct - 10 / 240) < 1e-9);
+});
+
+test("isZeroRow + revenueBase", () => {
+    const m = E.buildModel([
+        row("zero", null, { values: { ac: 0, py: 0 }, sort: 1 }),
+        row("rev", null, { values: { ac: 100 }, sort: 2 }),
+        row("kpiRow", null, { rowType: "kpi", formulaDef: "[rev]/[rev]", sort: 3 }),
+    ], "U");
+    assert.equal(E.isZeroRow(m.byId.get("zero")), true);
+    assert.equal(E.isZeroRow(m.byId.get("rev")), false);
+    assert.equal(E.revenueBase(m).row.id, "zero");       // first contributing root
+    assert.equal(E.revenueBase(m, "rev").row.id, "rev"); // explicit override wins
 });
 
 // parser hygiene

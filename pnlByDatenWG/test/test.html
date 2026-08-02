@@ -10,17 +10,14 @@
 </style>
 </head>
 <body>
-<div class="case"><h4>p1 · Voll-GuV · AC+PY+PL · Referenz Auto(PL) · Ebene 2 · alle Spalten</h4><div class="stage" id="p1" style="width:760px;height:560px"></div></div>
-<div class="case"><h4>p2 · komplett aufgeklappt · zweites Δ% (ΔPY%) · Message-Zeile</h4><div class="stage" id="p2" style="width:860px;height:760px"></div></div>
-<div class="case"><h4>p3 · Referenz PY explizit · ohne Referenzwert-Spalte · Skalierung none</h4><div class="stage" id="p3" style="width:700px;height:560px"></div></div>
-<div class="case"><h4>p4 · Datenqualität: Waisen-Bucket + Zirkelbezug + unbekannte Referenz</h4><div class="stage" id="p4" style="width:700px;height:300px"></div></div>
-<div class="case"><h4>p5 · nur AC (keine Referenz) · keine Δ-Spalten</h4><div class="stage" id="p5" style="width:520px;height:480px"></div></div>
-<div class="case"><h4>p6 · Landing Page (leere Field Wells)</h4><div class="stage" id="p6" style="width:640px;height:200px"></div></div>
-<div class="case"><h4>p7 · de-DE · Skalierung k explizit · 0 Dezimalen · Titelblock 3 Zeilen</h4><div class="stage" id="p7" style="width:760px;height:560px"></div></div>
-<div class="case"><h4>p8 · unbalancierter Baum (1–4 Ebenen) · Ebenen-Buttons · Ebene 1</h4><div class="stage" id="p8" style="width:700px;height:300px"></div></div>
-<div class="case"><h4>p9 · EUR-Rohwerte (Millionen) · Skalierung none · de-DE — breite Labels dürfen nicht clippen</h4><div class="stage" id="p9" style="width:1100px;height:560px"></div></div>
-<div class="case"><h4>p10 · Sternschema-Modus: L1–L3-Spalten · ragged (leere Level + wiederholte Werte) · Formel per Namensreferenz</h4><div class="stage" id="p10" style="width:760px;height:480px"></div></div>
+<div class="case"><h4>p1 · Voll-Layout: Toolbar · YTD- + FY-Block · %Rev · Kommentare · Konten-IDs · Ebene 2</h4><div class="stage" id="p1" style="width:1560px;height:900px"></div></div>
+<div class="case"><h4>p2 · Waterfall-Ansicht (uiState view=waterfall)</h4><div class="stage" id="p2" style="width:1100px;height:620px"></div></div>
+<div class="case"><h4>p3 · Compact · Preset AC·PL·ΔPL · ohne %Rev · Nullzeilen aus · alles auf</h4><div class="stage" id="p3" style="width:1100px;height:800px"></div></div>
+<div class="case"><h4>p4 · Preset ΔPY%·ΔPL% · IBCS-Grün klassisch · de-DE</h4><div class="stage" id="p4" style="width:900px;height:760px"></div></div>
+<div class="case"><h4>p5 · Landing Page</h4><div class="stage" id="p5" style="width:700px;height:200px"></div></div>
+<div class="case"><h4>p6 · Sparkline offen (12M) · Toolbar aus</h4><div class="stage" id="p6" style="width:1200px;height:820px"></div></div>
 <script src="visual.bundle.js"></script>
+<script src="demo-data.js"></script>
 <script>
 const Visual = PnlByDatenWG.Visual;
 
@@ -37,158 +34,82 @@ function makeHost(locale) {
   };
 }
 
-// rows: [id, parent, name, sort, type, formula, sign, dispInv, varInv, ac, py, pl, fc]
-function dv(rows, opts) {
-  opts = opts || {};
-  const scen = opts.scenarios || ["ac", "py", "pl"];
+// dataview from PNL_DEMO.levelRows (engine LevelInputRow shape)
+function dv(objects) {
+  const rows = PNL_DEMO.levelRows;
   const col = (role, name, vals) => ({ source: { roles: { [role]: true }, displayName: name, index: 0 }, values: vals });
-  // level mode: rows = [L1, L2, ..., Lk, type, formula, sign, dispInv, varInv, ac, py, pl, fc]
-  if (opts.levelCount) {
-    const k = opts.levelCount;
-    const categories = [];
-    for (let l = 0; l < k; l++) { categories.push(col("levels", "L" + (l + 1), rows.map(r => r[l]))); }
-    categories.push(col("rowType", "RowType", rows.map(r => r[k])));
-    categories.push(col("formulaDef", "Formula", rows.map(r => r[k + 1])));
-    categories.push(col("signConvention", "Sign", rows.map(r => r[k + 2])));
-    categories.push(col("displayInvert", "DispInv", rows.map(r => r[k + 3])));
-    categories.push(col("varianceInvert", "VarInv", rows.map(r => r[k + 4])));
-    const scenIdxL = { ac: k + 5, py: k + 6, pl: k + 7, fc: k + 8 };
-    const values = scen.map(s => col(s, s.toUpperCase(), rows.map(r => r[scenIdxL[s]] ?? null)));
-    return { categorical: { categories, values }, metadata: { objects: opts.objects || {} } };
-  }
+  const L = (i) => rows.map(r => r.levels[i] ?? null);
   const categories = [
-    col("account", "AccountID", rows.map(r => r[0])),
-    col("parent", "ParentID", rows.map(r => r[1])),
-    col("accountName", "Name", rows.map(r => r[2])),
-    col("sortOrder", "Sort", rows.map(r => r[3])),
-    col("rowType", "RowType", rows.map(r => r[4])),
-    col("formulaDef", "Formula", rows.map(r => r[5])),
-    col("signConvention", "Sign", rows.map(r => r[6])),
-    col("displayInvert", "DispInv", rows.map(r => r[7])),
-    col("varianceInvert", "VarInv", rows.map(r => r[8])),
+    col("levels", "L1", L(0)), col("levels", "L2", L(1)), col("levels", "L3", L(2)),
+    col("account", "AccountID", rows.map(r => r.account)),
+    col("sortOrder", "Sort", rows.map(r => r.sort)),
+    col("rowType", "RowType", rows.map(r => r.rowType)),
+    col("formulaDef", "Formula", rows.map(r => r.formulaDef)),
+    col("signConvention", "Sign", rows.map(r => r.sign)),
+    col("displayInvert", "DispInv", rows.map(r => r.displayInvert)),
+    col("varianceInvert", "VarInv", rows.map(r => r.varianceInvert)),
+    col("period", "Monat", rows.map(r => r.month)),
+    col("comment", "Kommentar", rows.map(r => r.comment)),
   ];
-  const scenIdx = { ac: 9, py: 10, pl: 11, fc: 12 };
-  const values = scen.map(s => col(s, s.toUpperCase(), rows.map(r => r[scenIdx[s]] ?? null)));
-  return {
-    categorical: { categories, values },
-    metadata: { objects: opts.objects || {} },
-  };
+  const values = [
+    col("ac", "AC", rows.map(r => r.values.ac ?? null)),
+    col("py", "PY", rows.map(r => r.values.py ?? null)),
+    col("pl", "PL", rows.map(r => r.values.pl ?? null)),
+    col("fcFy", "FC FY", rows.map(r => r.values.fcfy ?? null)),
+    col("plFy", "PL FY", rows.map(r => r.values.plfy ?? null)),
+  ];
+  return { categorical: { categories, values }, metadata: { objects: objects || {} } };
 }
 
-// realistic GuV demo set (values in kEUR)
-const GUV = [
-  ["s_rev",  null,     "Umsatzerlöse",          10, "Subtotal", null, 1, false, false, null, null, null],
-  ["r_prod", "s_rev",  "Produkterlöse",         11, "Account",  null, 1, false, false, 8200, 7600, 8500],
-  ["r_svc",  "s_rev",  "Serviceerlöse",         12, "Account",  null, 1, false, false, 3100, 2800, 2900],
-  ["oi",     null,     "Sonst. betr. Erträge",  20, "Account",  null, 1, false, false, 240, 210, 200],
-  ["s_opex", null,     "Betriebsaufwand",       30, "Subtotal", null, 1, true,  false, null, null, null],
-  ["mat",    "s_opex", "Materialaufwand",       31, "Account",  null, -1, true, false, 3900, 3600, 3700],
-  ["s_pers", "s_opex", "Personalaufwand",       32, "Subtotal", null, 1, true,  false, null, null, null],
-  ["pers_w", "s_pers", "Löhne & Gehälter",      33, "Account",  null, -1, true, false, 2600, 2450, 2500],
-  ["pers_s", "s_pers", "Sozialabgaben",         34, "Account",  null, -1, true, false, 520, 480, 500],
-  ["mkt",    "s_opex", "Marketing",             35, "Account",  null, -1, true, false, 640, 590, 700],
-  ["it",     "s_opex", "IT & Infrastruktur",    36, "Account",  null, -1, true, false, 480, 410, 450],
-  ["ebitda", null,     "EBITDA",                40, "Formula", "[s_rev]+[oi]+[s_opex]", 1, false, false, null, null, null],
-  ["m_ebitda", null,   "EBITDA-Marge",          41, "KPI",     "[ebitda]/[s_rev]", 1, false, false, null, null, null],
-  ["da",     null,     "Abschreibungen",        50, "Account",  null, -1, true, false, 380, 360, 380],
-  ["ebit",   null,     "EBIT",                  51, "Formula", "[ebitda]+[da]", 1, false, false, null, null, null],
-  ["fin",    null,     "Finanzergebnis",        60, "Account",  null, 1, false, false, -95, -80, -90],
-  ["ebt",    null,     "EBT",                   61, "Formula", "[ebit]+[fin]", 1, false, false, null, null, null],
-  ["tax",    null,     "Steuern",               70, "Account",  null, -1, true, true, 310, 290, 320],
-  ["ni",     null,     "Jahresüberschuss",      80, "Formula", "[ebt]+[tax]", 1, false, false, null, null, null],
-  ["m_ni",   null,     "Umsatzrendite",         81, "KPI",     "[ni]/[s_rev]", 1, false, false, null, null, null],
-];
-
-function run(id, rows, opts, viewport, locale) {
+function run(id, objects, locale, empty) {
   const el = document.getElementById(id);
   const v = new Visual({ element: el, host: makeHost(locale) });
   v.update({
-    dataViews: rows ? [dv(rows, opts)] : [],
-    viewport: viewport || { width: el.clientWidth, height: el.clientHeight },
+    dataViews: empty ? [] : [dv(objects)],
+    viewport: { width: el.clientWidth, height: el.clientHeight },
     type: 2,
   });
 }
 
-// p1 — full GuV, auto reference (PL), default level 2
-run("p1", GUV, { objects: { hierarchy: { defaultLevel: 2 } } });
+const TITLE = {
+  unitLine: "Daten-WG Knowledgekitchen Group · Consolidated",
+  measureLine: "Income statement (P&L) in mEUR",
+  message: "EBITDA _Jun +7.4% vs PL, o/w +45.0 unplanned April milestone; FY outlook -7.8% vs PL — milestone income absorbs API inflation.",
+};
 
-// p2 — fully expanded, second delta, message line
-run("p2", GUV, { objects: {
-  hierarchy: { defaultLevel: 0 },
-  columns: { showSecondDelta: true },
-  titleBlock: {
-    unitLine: "Contoso GmbH",
-    measureLine: "GuV in kEUR",
-    periodLine: "Jan..Jun 2026 · AC, PL, ΔPL, ΔPY%",
-    message: "EBITDA 6 % unter Plan — Personalaufwand und IT über Budget",
-  },
-} });
+// p1 — full sample layout
+run("p1", { titleBlock: TITLE, hierarchy: { defaultLevel: 2 } });
 
-// p3 — reference PY, hide reference column, no scaling
-run("p3", GUV, { objects: {
-  hierarchy: { defaultLevel: 2 },
-  columns: { reference: "py", showReferenceCol: false },
-  numbers: { scaling: "none", decimals: 0 },
-} });
-
-// p4 — data quality: orphans + cycle + unknown ref
-run("p4", [
-  ["rev",  null,   "Umsatz",        1, "Account", null, 1, false, false, 500, 480, 490],
-  ["lost1", "ghost", "Verlorenes Konto A", 2, "Account", null, 1, false, false, 30, 28, 29],
-  ["lost2", "ghost", "Verlorenes Konto B", 3, "Account", null, -1, true, false, 12, 11, 10],
-  ["c1", null, "Zirkel A", 4, "Formula", "[c2]*2", 1, false, false, null, null, null],
-  ["c2", null, "Zirkel B", 5, "Formula", "[c1]+1", 1, false, false, null, null, null],
-  ["bad", null, "Kaputte Formel", 6, "Formula", "[nichtda]-5", 1, false, false, null, null, null],
-], { objects: { hierarchy: { defaultLevel: 0 } } });
-
-// p5 — AC only
-run("p5", GUV, { scenarios: ["ac"], objects: { hierarchy: { defaultLevel: 2 } } });
-
-// p6 — landing page
-run("p6", null, null);
-
-// p7 — de-DE, explicit k scaling, 3-line title
-run("p7", GUV, { objects: {
-  hierarchy: { defaultLevel: 2 },
-  numbers: { scaling: "k", decimals: 0 },
-  titleBlock: { unitLine: "Contoso GmbH", measureLine: "GuV in kEUR", periodLine: "Jan..Jun 2026 · AC, PL, ΔPL" },
-} }, null, "de-DE");
-
-// p9 — raw EUR magnitudes without scaling: the review's clipping worst case
-const GUV_EUR = GUV.map(r => {
-  const c = r.slice();
-  for (const i of [9, 10, 11]) { if (typeof c[i] === "number") { c[i] = c[i] * 1000; } }
-  return c;
+// p2 — waterfall view via persisted ui state
+run("p2", {
+  titleBlock: { measureLine: "Income statement (P&L) in mEUR" },
+  state: { uiState: JSON.stringify({ view: "waterfall" }) },
 });
-run("p9", GUV_EUR, { objects: {
+
+// p3 — compact, AC·PL·ΔPL, no %Rev, hide zero rows, expand all
+run("p3", {
+  style: { density: "compact" },
+  columns: { preset: "acpldpl", pctRevenue: false, hideZeroRows: true },
   hierarchy: { defaultLevel: 0 },
-  numbers: { scaling: "none", decimals: 0 },
-} }, null, "de-DE");
+  toolbar: { showLegend: false },
+});
 
-// p10 — star-schema level columns: [L1, L2, L3, type, formula, sign, dispInv, varInv, ac, py, pl]
-run("p10", [
-  ["Umsatzerlöse", "Produkterlöse", null,        "Account", null, 1, false, false, 8200, 7600, 8500],
-  ["Umsatzerlöse", "Serviceerlöse", null,        "Account", null, 1, false, false, 3100, 2800, 2900],
-  ["Sonst. Erträge", "Sonst. Erträge", "Sonst. Erträge", "Account", null, 1, false, false, 240, 210, 200],
-  ["Betriebsaufwand", "Materialaufwand", null,   "Account", null, -1, true, false, 3900, 3600, 3700],
-  ["Betriebsaufwand", "Personalaufwand", "Löhne & Gehälter", "Account", null, -1, true, false, 2600, 2450, 2500],
-  ["Betriebsaufwand", "Personalaufwand", "Sozialabgaben",    "Account", null, -1, true, false, 520, 480, 500],
-  ["Betriebsaufwand", "Marketing", null,         "Account", null, -1, true, false, 640, 590, 700],
-  ["EBITDA", null, null, "Formula", "[Umsatzerlöse]+[Sonst. Erträge]+[Betriebsaufwand]", 1, false, false, null, null, null],
-  ["EBITDA-Marge", null, null, "KPI", "[EBITDA]/[Umsatzerlöse]", 1, false, false, null, null, null],
-], { levelCount: 3, objects: { hierarchy: { defaultLevel: 0 }, titleBlock: { measureLine: "GuV in kEUR (Sternschema L1–L3)" } } }, null, "de-DE");
+// p4 — Δ% preset, classic IBCS green, German locale
+run("p4", {
+  columns: { preset: "dpct" },
+  style: { colorMode: "ibcs" },
+  hierarchy: { defaultLevel: 2 },
+}, "de-DE");
 
-// p8 — unbalanced tree with level buttons, collapsed to level 1
-run("p8", [
-  ["a", null, "Flacher Ast", 1, "Account", null, 1, false, false, 100, 90, 95],
-  ["b", null, "Tiefer Ast", 2, "Subtotal", null, 1, false, false, null, null, null],
-  ["b1", "b", "Ebene 2", 3, "Subtotal", null, 1, false, false, null, null, null],
-  ["b11", "b1", "Ebene 3a", 4, "Account", null, 1, false, false, 40, 38, 39],
-  ["b12", "b1", "Ebene 3b", 5, "Subtotal", null, 1, false, false, null, null, null],
-  ["b121", "b12", "Ebene 4", 6, "Account", null, 1, false, false, 20, 22, 21],
-  ["c", null, "Mittlerer Ast", 7, "Subtotal", null, 1, false, false, null, null, false],
-  ["c1", "c", "Kind", 8, "Account", null, 1, false, false, 60, 55, 58],
-], { objects: { hierarchy: { defaultLevel: 1 } } });
+// p5 — landing page
+run("p5", null, null, true);
+
+// p6 — sparkline open on first account, toolbar hidden
+run("p6", {
+  toolbar: { show: false },
+  hierarchy: { defaultLevel: 2 },
+  state: { uiState: JSON.stringify({ spark: [PNL_DEMO.levelRows.find(r => r.rowType === "account").account] }) },
+});
 </script>
 </body>
 </html>

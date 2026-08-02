@@ -1,5 +1,38 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.3.0.0 (2026-08-02) — Sample-Parität: Toolbar, FY-Block, Waterfall, Sparklines
+
+Kompletter Rendering-Neubau nach dem Konzept-Demo (HTML-Sample), Rechenkern
+erweitert. Sternschema (L1..Ln) ist der primäre Modus.
+
+- **In-Visual-Toolbar für Report-Leser** (per Format-Pane abschaltbar, Zustand
+  bookmark-fähig persistiert): Ansicht Table/Waterfall · Spalten-Presets
+  (AC·PY·PL·FC, AC vs Ref, AC·PY·ΔPY, AC·PL·ΔPL, ΔPY%·ΔPL%) · Δ-Referenz ·
+  Einheit k/m · Dichte Normal/Compact · Ebenen-Buttons · % vom Umsatz ·
+  Nullzeilen ausblenden
+- **Zwei Periodenblöcke**: YTD (AC·PY·PL) + FY-Outlook (FC vs PL) mit neuen
+  Measure-Slots `FC Gesamtjahr`/`PL Gesamtjahr` (Skalare, first-wins);
+  FY-Δ-Balken schraffiert (Minuend FC), Pin-Köpfe outlined — IBCS-Notation
+- **Monats-Grain**: neue Rolle „Periode (Monat)" — Werte werden zu YTD
+  aggregiert, je Zeile 12M-Sparkline (AC solide, PY dünn grau, FC gestrichelt)
+  inkl. Subtotal-Rollup und Formel-Auswertung pro Monat
+- **Δ-Achsen kodieren die Referenz** (IBCS): grau = PY, Doppellinie = PL,
+  gestrichelt = FC; einheitliche Δ-Skala über alle Zeilen mit Skalen-Hinweis
+- **Teal-Abweichung als Default** (#0E8585/#E02B1D, Rot-Grün-sicher) mit
+  dokumentiertem Deviation-Hinweis in Legende und Footer; klassisches
+  IBCS-Grün per Format-Pane
+- **Kommentare**: neue Rolle „Kommentar" → nummerierte Marker ①② an der Zeile
+  + Fußnoten-Sektion; Datenqualitäts-Signale (Waisen, Zyklen, Formelfehler)
+  erscheinen dort ebenfalls
+- **%-vom-Umsatz-Spalte** (Basiszeile automatisch = erste Wurzelzeile,
+  per Format-Pane überschreibbar), Konten-IDs klein vor dem Namen,
+  Margen-/KPI-Zeilen kursiv mit pp-Deltas
+- **Waterfall-Ansicht** derselben Daten (Umsatz → Jahresüberschuss,
+  Formelzeilen als Anker, Assisting Lines, IBCS-Szenario-Fills)
+- 3 neue Engine-Testblöcke (20 gesamt), Waterfall-Modultest mit
+  Geometrie-Checks, neue Render-Testfälle mit Pharma-Demodatensatz
+
+
 ## 0.2.0.0 (2026-08-01) — Sternschema-Modus (Level-Spalten L1..Ln)
 
 Zweiter Eingabemodus für die Hierarchie, wie er im Sternschema üblich ist:

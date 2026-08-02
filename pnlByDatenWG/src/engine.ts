@@ -14,8 +14,12 @@
  * respected by construction (rule 4.4: never invent values).
  */
 
-export type Scenario = "ac" | "py" | "pl" | "fc";
-export const SCENARIOS: Scenario[] = ["ac", "py", "pl", "fc"];
+export type Scenario = "ac" | "py" | "pl" | "fc" | "fcfy" | "plfy";
+export const SCENARIOS: Scenario[] = ["ac", "py", "pl", "fc", "fcfy", "plfy"];
+/** Full-year scalars: repeated per month in month-grain data — first value wins, never summed. */
+export const FY_SCENARIOS: Scenario[] = ["fcfy", "plfy"];
+/** Scenarios that carry a monthly series for sparklines. */
+export const SERIES_SCENARIOS: Scenario[] = ["ac", "py", "fc"];
 
 export type RowType = "account" | "subtotal" | "formula" | "kpi" | "separator";
 
@@ -30,6 +34,9 @@ export interface InputRow {
     displayInvert: boolean;
     varianceInvert: boolean;
     values: Partial<Record<Scenario, number | null>>;
+    /** Monthly series (aligned to PnlModel.months) for sparklines; signed like values. */
+    series?: Partial<Record<Scenario, (number | null)[]>>;
+    comment: string | null;
     index: number;
 }
 
@@ -38,6 +45,8 @@ export interface PnlNode {
     children: PnlNode[];
     level: number;
     computed: Record<Scenario, number | null>;
+    /** Rolled-up monthly series (subtotals: child sums; formulas: per-month eval). */
+    series: Partial<Record<Scenario, (number | null)[]>>;
     error: string | null;
     hasChildren: boolean;
     isOrphanBucket: boolean;
@@ -47,6 +56,7 @@ export interface PnlModel {
     roots: PnlNode[];
     byId: Map<string, PnlNode>;
     maxDepth: number;
+    months: string[];
     warnings: string[];
 }
 
@@ -72,7 +82,47 @@ export interface LevelInputRow {
     displayInvert: boolean;
     varianceInvert: boolean;
     values: Partial<Record<Scenario, number | null>>;
+    month: string | null;
+    comment: string | null;
     index: number;
+}
+
+/**
+ * Month-grain aggregation: merge rows sharing an id into one InputRow —
+ * regular scenarios sum up and fill the monthly series, FY scalars
+ * (fcfy/plfy, repeated on every month row) take the first value.
+ */
+export function aggregateMonthly(
+    rows: (InputRow & { month: string | null })[]
+): { rows: InputRow[]; months: string[] } {
+    const months = [...new Set(rows.map(r => r.month).filter((m): m is string => m != null))].sort();
+    const byId = new Map<string, InputRow>();
+    for (const r of rows) {
+        let t = byId.get(r.id);
+        if (!t) {
+            t = { ...r, values: {}, series: {} };
+            delete (t as { month?: string | null }).month;
+            byId.set(r.id, t);
+        }
+        if (t.comment == null && r.comment != null) { t.comment = r.comment; }
+        const mi = r.month != null ? months.indexOf(r.month) : -1;
+        for (const s of SCENARIOS) {
+            const v = r.values[s];
+            if (v == null) { continue; }
+            if (FY_SCENARIOS.includes(s)) {
+                if (t.values[s] == null) { t.values[s] = v; }
+                continue;
+            }
+            t.values[s] = (t.values[s] ?? 0) + v;
+            if (mi >= 0 && SERIES_SCENARIOS.includes(s)) {
+                const store = t.series as Partial<Record<Scenario, (number | null)[]>>;
+                let arr = store[s];
+                if (!arr) { arr = new Array(months.length).fill(null); store[s] = arr; }
+                arr[mi] = (arr[mi] ?? 0) + v;
+            }
+        }
+    }
+    return { rows: [...byId.values()], months };
 }
 
 /**
@@ -85,8 +135,9 @@ export interface LevelInputRow {
  * subtotal, so its own value acts as the per-scenario fallback instead of
  * double counting.
  */
-export function rowsFromLevels(rows: LevelInputRow[]): InputRow[] {
-    const out = new Map<string, InputRow>();
+export function rowsFromLevels(rows: LevelInputRow[]): { rows: InputRow[]; months: string[] } {
+    const synth = new Map<string, InputRow>();
+    const leaves: (InputRow & { month: string | null })[] = [];
     const pathId = (path: string[]): string => LEVEL_PREFIX + path.join(LEVEL_SEP);
 
     for (const r of rows) {
@@ -101,42 +152,41 @@ export function rowsFromLevels(rows: LevelInputRow[]): InputRow[] {
 
         for (let d = 1; d < path.length; d++) {
             const id = pathId(path.slice(0, d));
-            if (!out.has(id)) {
-                out.set(id, {
+            if (!synth.has(id)) {
+                synth.set(id, {
                     id, parent: d > 1 ? pathId(path.slice(0, d - 1)) : null,
                     name: path[d - 1], sort: r.index, rowType: "subtotal",
                     formulaDef: null, sign: 1, displayInvert: false,
-                    varianceInvert: false, values: {}, index: -1,
+                    varianceInvert: false, values: {}, comment: null, index: -1,
                 });
             }
         }
 
         const leafId = (r.account ?? "").trim() || pathId(path);
-        const existing = out.get(leafId);
-        if (existing && existing.index >= 0) {
-            for (const s of SCENARIOS) {
-                const add = r.values[s];
-                if (add == null) { continue; }
-                existing.values[s] = (existing.values[s] ?? 0) + add;
-            }
-            continue;
-        }
-        out.set(leafId, {
+        leaves.push({
             id: leafId,
             parent: path.length > 1 ? pathId(path.slice(0, -1)) : null,
             name: r.name ?? path[path.length - 1],
             sort: r.sort ?? r.index,
             rowType: r.rowType, formulaDef: r.formulaDef, sign: r.sign,
             displayInvert: r.displayInvert, varianceInvert: r.varianceInvert,
-            values: { ...r.values }, index: r.index,
+            values: { ...r.values }, comment: r.comment,
+            month: r.month, index: r.index,
         });
     }
+
+    // month-grain rows sharing a path merge into one leaf (values summed,
+    // FY scalars first-wins, monthly series filled)
+    const agg = aggregateMonthly(leaves);
+    // a real data row at a synthetic parent's path replaces the synthetic
+    for (const leaf of agg.rows) { synth.delete(leaf.id); }
+    const out = [...synth.values(), ...agg.rows];
 
     // an account leaf that other rows use as parent must aggregate like a
     // subtotal (own value = per-scenario fallback, no double counting)
     const parentIds = new Set<string>();
-    for (const r of out.values()) { if (r.parent) { parentIds.add(r.parent); } }
-    for (const r of out.values()) {
+    for (const r of out) { if (r.parent) { parentIds.add(r.parent); } }
+    for (const r of out) {
         if (r.rowType === "account" && parentIds.has(r.id)) { r.rowType = "subtotal"; }
     }
 
@@ -144,14 +194,14 @@ export function rowsFromLevels(rows: LevelInputRow[]): InputRow[] {
     // contributing children agree — a cost block shown positive on the
     // leaves must not flip to negative on its (generated) subtotal
     const childrenOf = new Map<string, InputRow[]>();
-    for (const r of out.values()) {
+    for (const r of out) {
         if (r.parent == null) { continue; }
         const list = childrenOf.get(r.parent);
         if (list) { list.push(r); } else { childrenOf.set(r.parent, [r]); }
     }
     for (let pass = 0; pass < 8; pass++) {
         let changed = false;
-        for (const r of out.values()) {
+        for (const r of out) {
             if (r.index !== -1) { continue; } // only generated rows
             const kids = (childrenOf.get(r.id) ?? [])
                 .filter(c => c.rowType === "account" || c.rowType === "subtotal");
@@ -163,7 +213,7 @@ export function rowsFromLevels(rows: LevelInputRow[]): InputRow[] {
         }
         if (!changed) { break; }
     }
-    return [...out.values()];
+    return { rows: out, months: agg.months };
 }
 
 export function parseRowType(raw: unknown): RowType {
@@ -191,7 +241,7 @@ export function parseSign(raw: unknown): number {
     return s.includes("-") || s.toLowerCase().startsWith("neg") ? -1 : 1;
 }
 
-export function buildModel(rows: InputRow[], orphanLabel: string): PnlModel {
+export function buildModel(rows: InputRow[], orphanLabel: string, months: string[] = []): PnlModel {
     const warnings: string[] = [];
     const byId = new Map<string, PnlNode>();
 
@@ -202,7 +252,8 @@ export function buildModel(rows: InputRow[], orphanLabel: string): PnlModel {
         }
         byId.set(row.id, {
             row, children: [], level: 0,
-            computed: { ac: null, py: null, pl: null, fc: null },
+            computed: { ac: null, py: null, pl: null, fc: null, fcfy: null, plfy: null },
+            series: {},
             error: null, hasChildren: false, isOrphanBucket: false,
         });
     }
@@ -245,11 +296,12 @@ export function buildModel(rows: InputRow[], orphanLabel: string): PnlModel {
         const bucketRow: InputRow = {
             id: ORPHAN_ID, parent: null, name: orphanLabel, sort: Number.MAX_SAFE_INTEGER,
             rowType: "subtotal", formulaDef: null, sign: 1,
-            displayInvert: false, varianceInvert: false, values: {}, index: -1,
+            displayInvert: false, varianceInvert: false, values: {}, comment: null, index: -1,
         };
         const bucket: PnlNode = {
             row: bucketRow, children: orphans, level: 0,
-            computed: { ac: null, py: null, pl: null, fc: null },
+            computed: { ac: null, py: null, pl: null, fc: null, fcfy: null, plfy: null },
+            series: {},
             error: null, hasChildren: true, isOrphanBucket: true,
         };
         byId.set(ORPHAN_ID, bucket);
@@ -272,8 +324,8 @@ export function buildModel(rows: InputRow[], orphanLabel: string): PnlModel {
     let maxDepth = 0;
     for (const n of byId.values()) { maxDepth = Math.max(maxDepth, n.level + 1); }
 
-    computeValues(roots, byId, warnings);
-    return { roots, byId, maxDepth, warnings };
+    computeValues(roots, byId, warnings, months);
+    return { roots, byId, maxDepth, months, warnings };
 }
 
 /** Sum contribution of a node into its parent: accounts and subtotals count, ratio/separator rows never do. */
@@ -282,7 +334,7 @@ function contributes(node: PnlNode): boolean {
     return t === "account" || t === "subtotal";
 }
 
-function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: string[]): void {
+function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: string[], months: string[]): void {
     // pass 1: additive values bottom-up (accounts + subtotals)
     const sumNode = (node: PnlNode): void => {
         for (const c of node.children) { sumNode(c); }
@@ -316,6 +368,37 @@ function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: s
                 let acc: number | null = own != null ? own * node.row.sign : null;
                 if (childAcc != null) { acc = (acc ?? 0) + childAcc; }
                 node.computed[s] = acc;
+            }
+        }
+
+        // monthly series roll up with the same semantics (sparklines)
+        for (const s of SERIES_SCENARIOS) {
+            const ownRaw = node.row.series?.[s];
+            const own = ownRaw ? ownRaw.map(v => (v == null ? null : v * node.row.sign)) : null;
+            let childAcc: (number | null)[] | null = null;
+            for (const c of node.children) {
+                if (!contributes(c)) { continue; }
+                const cs = c.series[s];
+                if (!cs) { continue; }
+                if (!childAcc) { childAcc = new Array(cs.length).fill(null); }
+                for (let i = 0; i < cs.length; i++) {
+                    const v = cs[i];
+                    if (v == null) { continue; }
+                    childAcc[i] = (childAcc[i] ?? 0) + v;
+                }
+            }
+            if (t === "subtotal") {
+                const base = childAcc
+                    ? (node.row.sign === -1 ? childAcc.map(v => (v == null ? null : -v)) : childAcc)
+                    : own;
+                if (base) { node.series[s] = base; }
+            } else if (own || childAcc) {
+                if (own && childAcc) {
+                    node.series[s] = own.map((v, i) =>
+                        v == null && childAcc![i] == null ? null : (v ?? 0) + (childAcc![i] ?? 0));
+                } else {
+                    node.series[s] = (own ?? childAcc)!;
+                }
             }
         }
     };
@@ -352,8 +435,16 @@ function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: s
             try {
                 const ast = parseFormula(def);
                 for (const s of SCENARIOS) {
-                    node.computed[s] = evalAst(ast, s, resolve, evalNode, node);
+                    node.computed[s] = evalAst(ast, resolve, evalNode, node, n => n.computed[s]);
                     if (node.error) { break; }
+                }
+                if (!node.error && months.length > 0) {
+                    for (const s of SERIES_SCENARIOS) {
+                        const arr = months.map((_, mi) =>
+                            evalAst(ast, resolve, evalNode, node, n => n.series[s]?.[mi] ?? null));
+                        if (node.error) { break; }
+                        if (arr.some(v => v != null)) { node.series[s] = arr; }
+                    }
                 }
             } catch (e) {
                 node.error = e instanceof Error ? e.message : "parse error";
@@ -437,13 +528,14 @@ function parseFormula(src: string): Ast {
 }
 
 function evalAst(
-    ast: Ast, s: Scenario, resolve: (id: string) => PnlNode | undefined,
-    evalNode: (n: PnlNode) => void, owner: PnlNode
+    ast: Ast, resolve: (id: string) => PnlNode | undefined,
+    evalNode: (n: PnlNode) => void, owner: PnlNode,
+    read: (n: PnlNode) => number | null
 ): number | null {
     switch (ast.kind) {
         case "num": return ast.value;
         case "neg": {
-            const v = evalAst(ast.arg, s, resolve, evalNode, owner);
+            const v = evalAst(ast.arg, resolve, evalNode, owner, read);
             return v == null ? null : -v;
         }
         case "ref": {
@@ -456,11 +548,11 @@ function evalAst(
                 owner.error = owner.error ?? `ref [${ast.id}]: ${target.error}`;
                 return null;
             }
-            return target.computed[s];
+            return read(target);
         }
         case "bin": {
-            const l = evalAst(ast.left, s, resolve, evalNode, owner);
-            const r = evalAst(ast.right, s, resolve, evalNode, owner);
+            const l = evalAst(ast.left, resolve, evalNode, owner, read);
+            const r = evalAst(ast.right, resolve, evalNode, owner, read);
             if (l == null || r == null) { return null; }
             switch (ast.op) {
                 case "+": return l + r;
@@ -474,8 +566,8 @@ function evalAst(
 
 // ---- variances
 
-export function variance(node: PnlNode, ref: Scenario): Variance {
-    const ac = node.computed.ac;
+export function variance(node: PnlNode, ref: Scenario, minuend: Scenario = "ac"): Variance {
+    const ac = node.computed[minuend];
     const rv = node.computed[ref];
     if (ac == null || rv == null) { return { delta: null, deltaPct: null, good: true }; }
     const delta = ac - rv;
@@ -490,6 +582,37 @@ export function displayValue(node: PnlNode, s: Scenario): number | null {
     const v = node.computed[s];
     if (v == null) { return null; }
     return node.row.displayInvert ? -v : v;
+}
+
+/** True when the row carries no value in any scenario (candidate for zero-row hiding). */
+export function isZeroRow(node: PnlNode): boolean {
+    return SCENARIOS.every(s => {
+        const v = node.computed[s];
+        return v == null || v === 0;
+    });
+}
+
+/**
+ * Base row for the "% of revenue" column: explicit override (id or unique
+ * name) if given, otherwise the first contributing root row.
+ */
+export function revenueBase(model: PnlModel, override?: string): PnlNode | null {
+    const o = (override ?? "").trim();
+    if (o !== "") {
+        const direct = model.byId.get(o);
+        if (direct) { return direct; }
+        let match: PnlNode | null = null;
+        for (const n of model.byId.values()) {
+            if (n.row.name === o) { match = match == null ? n : null; if (match == null) { break; } }
+        }
+        if (match) { return match; }
+    }
+    for (const r of model.roots) {
+        if (r.isOrphanBucket) { continue; }
+        const t = r.row.rowType;
+        if ((t === "account" || t === "subtotal") && r.computed.ac != null) { return r; }
+    }
+    return null;
 }
 
 // ---- visible rows (expand/collapse)

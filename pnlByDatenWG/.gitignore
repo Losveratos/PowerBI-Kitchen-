@@ -7,3 +7,4 @@ webpack.statistics.*.html
 test/visual.bundle.js
 test/*.png
 test/.tmp-engine.cjs
+test/.tmp-waterfall.js

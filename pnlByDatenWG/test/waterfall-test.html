@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background: #f2f2f2; margin: 20px; }
+  .case { background: #fff; border: 1px solid #ddd; margin-bottom: 20px; padding: 8px; }
+  .case h4 { margin: 0 0 6px 0; font-size: 12px; color: #666; }
+  .stage { background: #fff; }
+</style>
+</head>
+<body>
+<div class="case"><h4>w1 · GuV-Bridge · AC · 760×340</h4><div class="stage" id="w1"></div></div>
+<div class="case"><h4>w2 · gleiche Daten · FCFY (schraffiert) · 620×300</h4><div class="stage" id="w2"></div></div>
+<div class="case"><h4>w3 · schmal (300×220) — Kategorie-Labels müssen kürzen</h4><div class="stage" id="w3"></div></div>
+<div class="case"><h4>w4 · Verlustfall: negativer Jahresüberschuss + negatives Finanzergebnis · 700×320</h4><div class="stage" id="w4"></div></div>
+<div class="case"><h4>w5 · nur KPI/Separator-Zeilen → Hinweistext · 400×140</h4><div class="stage" id="w5"></div></div>
+<div class="case"><h4>w6 · extrem klein (140×90)</h4><div class="stage" id="w6"></div></div>
+<script src=".tmp-waterfall.js"></script>
+<script>
+const { renderWaterfall } = WF;
+
+// PnlNode literal (row / computed / children / level / rowType) — buildModel not needed
+function node(name, rowType, vals, opts) {
+  const o = opts || {};
+  return {
+    row: {
+      id: o.id || name, parent: null, name: name, sort: o.sort || 0, rowType: rowType,
+      formulaDef: o.formulaDef || null, sign: o.sign || 1,
+      displayInvert: !!o.displayInvert, varianceInvert: !!o.varianceInvert,
+      values: {}, comment: null, index: 0,
+    },
+    children: [], level: 0,
+    computed: Object.assign({ ac: null, py: null, pl: null, fc: null, fcfy: null, plfy: null }, vals),
+    series: {}, error: null, hasChildren: false, isOrphanBucket: false,
+  };
+}
+
+// Revenue 4800 - Materialaufwand 1850 - Personalaufwand 1620 + sonstige 90
+//   - sonstiger betrieblicher Aufwand 640  => EBITDA 780
+//   - Abschreibungen 210                   => EBIT 570
+//   - Finanzergebnis 95                    => EBT 475
+//   - Steuern 143                          => Jahresüberschuss 332
+const PROFIT = [
+  node("Umsatzerlöse", "subtotal", { ac: 4800, fcfy: 5120 }),
+  node("Materialaufwand", "subtotal", { ac: -1850, fcfy: -1990 }, { sign: -1, displayInvert: true }),
+  node("Personalaufwand", "subtotal", { ac: -1620, fcfy: -1700 }, { sign: -1, displayInvert: true }),
+  node("Sonstige betriebliche Erträge", "account", { ac: 90, fcfy: 80 }),
+  node("Sonstiger betrieblicher Aufwand", "subtotal", { ac: -640, fcfy: -660 }, { sign: -1, displayInvert: true }),
+  node("EBITDA-Marge", "kpi", { ac: 0.1625, fcfy: 0.1465 }),
+  node("EBITDA", "formula", { ac: 780, fcfy: 850 }, { formulaDef: "[Umsatzerlöse]+[Materialaufwand]" }),
+  node("Abschreibungen", "subtotal", { ac: -210, fcfy: -220 }, { sign: -1, displayInvert: true }),
+  node("EBIT", "formula", { ac: 570, fcfy: 630 }, { formulaDef: "[EBITDA]+[Abschreibungen]" }),
+  node("", "separator", {}),
+  node("Finanzergebnis", "account", { ac: -95, fcfy: -100 }),
+  node("EBT", "formula", { ac: 475, fcfy: 530 }, { formulaDef: "[EBIT]+[Finanzergebnis]" }),
+  node("Steuern vom Einkommen und Ertrag", "account", { ac: -143, fcfy: -159 }, { sign: -1, displayInvert: true }),
+  node("Jahresüberschuss", "formula", { ac: 332, fcfy: 371 }, { formulaDef: "[EBT]+[Steuern]" }),
+];
+
+// loss case: everything below EBITDA negative → anchors under the zero line
+const LOSS = [
+  node("Umsatzerlöse", "subtotal", { ac: 2100 }),
+  node("Materialaufwand", "subtotal", { ac: -1400 }),
+  node("Personalaufwand", "subtotal", { ac: -1250 }),
+  node("EBITDA", "formula", { ac: -550 }),
+  node("Abschreibungen", "subtotal", { ac: -180 }),
+  node("EBIT", "formula", { ac: -730 }),
+  node("Finanzergebnis", "account", { ac: -70 }),
+  node("EBT", "formula", { ac: -800 }),
+  node("Steuern", "account", { ac: 40 }),
+  node("Jahresfehlbetrag", "formula", { ac: -760 }),
+];
+
+const ONLY_SKIPPED = [
+  node("EBITDA-Marge", "kpi", { ac: 0.16 }),
+  node("", "separator", {}),
+  node("Umsatzrendite", "kpi", { ac: 0.07 }),
+  node("Ohne Wert", "account", { ac: null }),
+];
+
+const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
+const COLORS = { ac: "#404040", text: "#252423", soft: "#8A8886", line: "#404040" };
+const fmt = v => (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("de-DE", { maximumFractionDigits: 0 });
+
+function draw(id, rows, scenario, width, height, hatchId) {
+  const host = document.getElementById(id);
+  host.style.width = width + "px";
+  host.style.height = height + "px";
+  host.appendChild(renderWaterfall(rows, {
+    width: width, height: height, scenario: scenario, fmt: fmt,
+    fontFamily: FONT, colors: COLORS, hatchPatternId: hatchId,
+  }));
+}
+
+draw("w1", PROFIT, "ac", 760, 340, "wf-hatch-1");
+draw("w2", PROFIT, "fcfy", 620, 300, "wf-hatch-2");
+draw("w3", PROFIT, "ac", 300, 220, "wf-hatch-3");
+draw("w4", LOSS, "ac", 700, 320, "wf-hatch-4");
+draw("w5", ONLY_SKIPPED, "ac", 400, 140, "wf-hatch-5");
+draw("w6", PROFIT, "ac", 140, 90, "wf-hatch-6");
+
+// expose expectations for the node-side assertions
+window.__wfCases = [
+  { id: "w1", bars: 12 },   // 14 rows - 1 kpi - 1 separator
+  { id: "w2", bars: 12 },
+  { id: "w3", bars: 12 },
+  { id: "w4", bars: 10 },
+  { id: "w5", bars: 0 },
+  { id: "w6", bars: 12 },
+];
+</script>
+</body>
+</html>

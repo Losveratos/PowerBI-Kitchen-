@@ -70,6 +70,20 @@
             "description": "Flip variance color (costs below plan = green)"
         },
         {
+            "name": "period",
+            "displayName": "Period (month)",
+            "displayNameKey": "Role_Period",
+            "kind": "Grouping",
+            "description": "Month column for sparklines and YTD aggregation; values are summed across the shown periods"
+        },
+        {
+            "name": "comment",
+            "displayName": "Comment",
+            "displayNameKey": "Role_Comment",
+            "kind": "Grouping",
+            "description": "Comment text per row — shown as numbered marker with a footnote section"
+        },
+        {
             "name": "ac",
             "displayName": "AC (Actual)",
             "displayNameKey": "Role_AC",
@@ -92,72 +106,269 @@
             "displayName": "FC (Forecast)",
             "displayNameKey": "Role_FC",
             "kind": "Measure"
+        },
+        {
+            "name": "fcFy",
+            "displayName": "FC Full Year (outlook)",
+            "displayNameKey": "Role_FCFY",
+            "kind": "Measure",
+            "description": "Full-year forecast scalar (repeated per month row; first value wins, never summed)"
+        },
+        {
+            "name": "plFy",
+            "displayName": "PL Full Year",
+            "displayNameKey": "Role_PLFY",
+            "kind": "Measure",
+            "description": "Full-year plan scalar for the outlook block"
         }
     ],
     "dataViewMappings": [
         {
             "conditions": [
                 {
-                    "account": { "max": 1 },
-                    "accountName": { "max": 1 },
-                    "levels": { "max": 8 },
-                    "parent": { "max": 1 },
-                    "sortOrder": { "max": 1 },
-                    "rowType": { "max": 1 },
-                    "formulaDef": { "max": 1 },
-                    "signConvention": { "max": 1 },
-                    "displayInvert": { "max": 1 },
-                    "varianceInvert": { "max": 1 },
-                    "ac": { "max": 1 },
-                    "py": { "max": 1 },
-                    "pl": { "max": 1 },
-                    "fc": { "max": 1 }
+                    "account": {
+                        "max": 1
+                    },
+                    "accountName": {
+                        "max": 1
+                    },
+                    "levels": {
+                        "max": 8
+                    },
+                    "parent": {
+                        "max": 1
+                    },
+                    "sortOrder": {
+                        "max": 1
+                    },
+                    "rowType": {
+                        "max": 1
+                    },
+                    "formulaDef": {
+                        "max": 1
+                    },
+                    "signConvention": {
+                        "max": 1
+                    },
+                    "displayInvert": {
+                        "max": 1
+                    },
+                    "varianceInvert": {
+                        "max": 1
+                    },
+                    "ac": {
+                        "max": 1
+                    },
+                    "py": {
+                        "max": 1
+                    },
+                    "pl": {
+                        "max": 1
+                    },
+                    "fc": {
+                        "max": 1
+                    },
+                    "period": {
+                        "max": 1
+                    },
+                    "comment": {
+                        "max": 1
+                    },
+                    "fcFy": {
+                        "max": 1
+                    },
+                    "plFy": {
+                        "max": 1
+                    }
                 }
             ],
             "categorical": {
                 "categories": {
                     "select": [
-                        { "for": { "in": "account" } },
-                        { "for": { "in": "accountName" } },
-                        { "for": { "in": "levels" } },
-                        { "for": { "in": "parent" } },
-                        { "for": { "in": "sortOrder" } },
-                        { "for": { "in": "rowType" } },
-                        { "for": { "in": "formulaDef" } },
-                        { "for": { "in": "signConvention" } },
-                        { "for": { "in": "displayInvert" } },
-                        { "for": { "in": "varianceInvert" } }
+                        {
+                            "for": {
+                                "in": "account"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "accountName"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "levels"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "parent"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "sortOrder"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "rowType"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "formulaDef"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "signConvention"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "displayInvert"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "varianceInvert"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "period"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "comment"
+                            }
+                        }
                     ],
-                    "dataReductionAlgorithm": { "top": { "count": 30000 } }
+                    "dataReductionAlgorithm": {
+                        "top": {
+                            "count": 30000
+                        }
+                    }
                 },
                 "values": {
                     "select": [
-                        { "bind": { "to": "ac" } },
-                        { "bind": { "to": "py" } },
-                        { "bind": { "to": "pl" } },
-                        { "bind": { "to": "fc" } }
+                        {
+                            "bind": {
+                                "to": "ac"
+                            }
+                        },
+                        {
+                            "bind": {
+                                "to": "py"
+                            }
+                        },
+                        {
+                            "bind": {
+                                "to": "pl"
+                            }
+                        },
+                        {
+                            "bind": {
+                                "to": "fc"
+                            }
+                        },
+                        {
+                            "bind": {
+                                "to": "fcFy"
+                            }
+                        },
+                        {
+                            "bind": {
+                                "to": "plFy"
+                            }
+                        }
                     ]
                 }
             }
         }
     ],
     "objects": {
+        "toolbar": {
+            "properties": {
+                "show": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showLegend": {
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
+        },
         "columns": {
             "properties": {
-                "reference": {
+                "preset": {
                     "type": {
                         "enumeration": [
-                            { "value": "auto", "displayName": "Auto (PL, else PY)" },
-                            { "value": "py", "displayName": "PY" },
-                            { "value": "pl", "displayName": "PL" },
-                            { "value": "fc", "displayName": "FC" }
+                            {
+                                "value": "full",
+                                "displayName": "AC·PY·PL·FC (full)"
+                            },
+                            {
+                                "value": "acref",
+                                "displayName": "AC vs reference"
+                            },
+                            {
+                                "value": "acpydpy",
+                                "displayName": "AC·PY·ΔPY"
+                            },
+                            {
+                                "value": "acpldpl",
+                                "displayName": "AC·PL·ΔPL"
+                            },
+                            {
+                                "value": "dpct",
+                                "displayName": "ΔPY% · ΔPL%"
+                            }
                         ]
                     }
                 },
-                "showReferenceCol": { "type": { "bool": true } },
-                "showDeltaBar": { "type": { "bool": true } },
-                "showDeltaPct": { "type": { "bool": true } },
-                "showSecondDelta": { "type": { "bool": true } }
+                "reference": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "auto",
+                                "displayName": "Auto"
+                            },
+                            {
+                                "value": "py",
+                                "displayName": "PY"
+                            },
+                            {
+                                "value": "pl",
+                                "displayName": "PL"
+                            },
+                            {
+                                "value": "fc",
+                                "displayName": "FC"
+                            }
+                        ]
+                    }
+                },
+                "pctRevenue": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "revenueBase": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "hideZeroRows": {
+                    "type": {
+                        "bool": true
+                    }
+                }
             }
         },
         "numbers": {
@@ -165,36 +376,124 @@
                 "scaling": {
                     "type": {
                         "enumeration": [
-                            { "value": "auto", "displayName": "Auto" },
-                            { "value": "none", "displayName": "None" },
-                            { "value": "k", "displayName": "Thousands (k)" },
-                            { "value": "m", "displayName": "Millions (m)" }
+                            {
+                                "value": "auto",
+                                "displayName": "Auto"
+                            },
+                            {
+                                "value": "none",
+                                "displayName": "None"
+                            },
+                            {
+                                "value": "k",
+                                "displayName": "Thousands (k)"
+                            },
+                            {
+                                "value": "m",
+                                "displayName": "Millions (m)"
+                            }
                         ]
                     }
                 },
-                "decimals": { "type": { "numeric": true } },
-                "pctDecimals": { "type": { "numeric": true } }
+                "unitText": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "decimals": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "pctDecimals": {
+                    "type": {
+                        "numeric": true
+                    }
+                }
+            }
+        },
+        "style": {
+            "properties": {
+                "colorMode": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "teal",
+                                "displayName": "Teal deviation (color-vision safe)"
+                            },
+                            {
+                                "value": "ibcs",
+                                "displayName": "IBCS classic green"
+                            }
+                        ]
+                    }
+                },
+                "density": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "normal",
+                                "displayName": "Normal"
+                            },
+                            {
+                                "value": "compact",
+                                "displayName": "Compact"
+                            }
+                        ]
+                    }
+                }
             }
         },
         "titleBlock": {
             "properties": {
-                "show": { "type": { "bool": true } },
-                "unitLine": { "type": { "text": true } },
-                "measureLine": { "type": { "text": true } },
-                "periodLine": { "type": { "text": true } },
-                "message": { "type": { "text": true } }
+                "show": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "unitLine": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "measureLine": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "periodLine": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "message": {
+                    "type": {
+                        "text": true
+                    }
+                }
             }
         },
         "hierarchy": {
             "properties": {
-                "defaultLevel": { "type": { "numeric": true } },
-                "indent": { "type": { "numeric": true } },
-                "showLevelButtons": { "type": { "bool": true } }
+                "defaultLevel": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "indent": {
+                    "type": {
+                        "numeric": true
+                    }
+                }
             }
         },
         "state": {
             "properties": {
-                "expandState": { "type": { "text": true } }
+                "uiState": {
+                    "type": {
+                        "text": true
+                    }
+                }
             }
         }
     },
