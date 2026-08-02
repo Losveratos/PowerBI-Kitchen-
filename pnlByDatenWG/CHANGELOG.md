@@ -1,5 +1,52 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.5.0.0 (2026-08-02) — Performance-Paket: Segment-Laden, Fenster-Rendering, Memoisierung
+
+- **Segmentiertes Laden statt harter 30k-Kappung**: die Kategorien nutzen jetzt
+  `dataReductionAlgorithm: window` (30.000 Zeilen je Segment) und
+  `host.fetchMoreData(true)`. Jedes Segment wird **sofort gerendert**, das
+  nächste direkt angefordert — die ersten Ebenen stehen nach dem ersten
+  Segment, statt auf den vollständigen Kontenplan zu warten.
+- **Ehrliche Lade-Anzeige** (Governance-Kernprinzip: nie stillschweigend
+  falsche Zwischensummen): solange Segmente ausstehen, zeigt eine Statuszeile
+  „⏳ n Zeilen geladen … Zwischensummen noch unvollständig", jede Summen-,
+  Formel- und KPI-Zeile trägt ein „≈" mit Tooltip, und die Fußnoten-Sektion
+  führt den Hinweis mit. Sind alle Segmente da, verschwindet der Marker
+  rückstandsfrei. Der Zeilenlimit-Warnhinweis erscheint nur noch, wenn der
+  Host die Gesamtmenge tatsächlich kappt (`fetchMoreData` abgelehnt).
+- **Fenster-Rendering der Tabelle**: ab 300 sichtbaren Zeilen landen nur die
+  Zeilen im Scroll-Viewport (+30 Puffer) im DOM, oben und unten tragen zwei
+  Platzhalter-Zeilen die Resthöhe; der Scroll-Handler ist per
+  `requestAnimationFrame` gedrosselt. Auf-/Zuklappen, Toolbar, Sparklines und
+  die Scroll-Position bleiben erhalten; **Kommentar-Fußnoten werden weiterhin
+  über alle sichtbaren Zeilen nummeriert**, nicht nur über die gerenderten.
+- **Memoisierung**: `parseRows` + `buildModel` laufen nur noch, wenn sich die
+  Daten wirklich geändert haben (Fingerprint aus Spalten-Identität, Zeilenzahl,
+  erstem/letztem Kategorienwert und Measure-Prüfsummen). Die teuren
+  O(Zeilen)-Scans in `render()` (Δ-Maxima, Label-Breiten, Kaskaden-Segmente,
+  Balken-Extrema) liegen in zwei Caches, die bei neuem Modell bzw. bei
+  Wechsel von Ansicht/Preset/Referenz/Perioden/Einheit/Format invalidieren.
+  Toolbar-Klicks parsen weiterhin nie neu.
+- **Neuer Perf-Testfall** `npm run test:perf` (`test/perf.js`): 5.000 Konten ×
+  12 Monate (Level-Modus, 4 Ebenen, deterministische Werte), misst per
+  Playwright Erst-Render und Expand-Rerender und schlägt oberhalb von
+  1500 ms / 300 ms fehl; prüft zusätzlich, dass das Fenster-Rendering aktiv
+  ist und das Scrollen bis zur letzten Zeile trägt.
+
+Messwerte (5.000 Konten × 12 Monate = 60.000 Zeilen, alle Ebenen aufgeklappt,
+`test/perf.js`, Median aus 3 Läufen auf der Build-Maschine):
+
+| Messung                          | 0.4.1.0 | 0.5.0.0 | Faktor |
+| -------------------------------- | ------- | ------- | ------ |
+| Erst-Render (bis erster Paint)   | 2723 ms |  385 ms |  ~7×   |
+| Expand-Rerender                  | 2298 ms |   82 ms |  ~28×  |
+| Update mit unveränderten Daten   | 3382 ms |   64 ms |  ~53×  |
+| Zeilen im DOM                    |    5032 |      64 |        |
+
+Der allererste (kalte) Lauf vor der Änderung lag bei 5675 ms Erst-Render und
+5579 ms Expand — genau das Verhalten aus dem Nutzer-Report.
+
+
 ## 0.4.1.0 (2026-08-02) — Konsistente Blöcke, Toolbar-Kuration, Schrift-Presets, Farben
 
 - **MTD-Block jetzt auch in der Tabelle** (AC · REF · Δ · Δ% aus dem letzten

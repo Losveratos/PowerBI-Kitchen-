@@ -41,8 +41,24 @@ const C = {
     text: "#1A1A1A", soft: "#8A8886", line: "#404040", gridSoft: "#EDEBE9",
     tealGood: "#0E8585", tealBad: "#E02B1D",
     ibcsGood: "#8CB400", ibcsBad: "#FF2600",
-    comment: "#0064FF",
+    comment: "#0064FF", loading: "#B35C00",
 };
+
+/**
+ * powerbi.VisualDataChangeOperationKind.Append — mirrored as a plain number
+ * because the API declares the enum as a `const enum` in an ambient d.ts
+ * (Create = 0, Append = 1, Segment = 2; no runtime object exists).
+ */
+const OP_APPEND = 1;
+
+/** Windowed table rendering kicks in above this many visible rows. */
+const VIRT_MIN_ROWS = 300;
+/** Rows rendered above/below the scroll viewport. */
+const VIRT_BUFFER = 30;
+/** Height estimate for an opened sparkline row (svg 34 + padding). */
+const SPARK_ROW_H = 40;
+/** Extra height a separator row takes through its top padding. */
+const SEP_EXTRA_H = 9;
 
 type ViewMode = "table" | "bars" | "waterfall";
 type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct";
@@ -73,6 +89,35 @@ interface ColSpec {
 
 interface Block { key: "mtd" | "ytd" | "fy"; label: string; specs: ColSpec[]; }
 
+/** Windowed table rendering state (only rows near the scroll viewport are in the DOM). */
+interface VirtualState {
+    table: HTMLElement;
+    top: HTMLElement;
+    bottom: HTMLElement;
+    rows: HTMLElement[];
+    visible: PnlNode[];
+    /** offsets[i] = pixel start of row i inside the table body; length n+1 */
+    offsets: number[];
+    make: (node: PnlNode) => HTMLElement[];
+    bodyTop: number;
+    from: number;
+    to: number;
+}
+
+/** Cached O(rows) scans that only depend on the model + the Δ combinations shown. */
+interface ScanCache { key: string; maxAbsVal: number; maxAbsDelta: number; }
+
+/** Cached O(rows) scans that additionally depend on the column set and the number format. */
+interface GeoCache {
+    key: string;
+    dLabelLen: number;
+    pLabelLen: number;
+    vLabelLen: number;
+    maxPosD: number;
+    maxNegD: number;
+    wf: Map<string, Map<string, { s: number; e: number }>>;
+}
+
 interface Fmt {
     div: number;
     suffix: string;
@@ -98,6 +143,27 @@ export class Visual implements IVisual {
     private pendingPersist: string | null = null;
     private lastApplied: string | null = null;
 
+    // --- segmented loading (fetchMoreData) ---
+    /** rows delivered by the host so far (accumulated data view) */
+    private loadedRows = 0;
+    /** a further segment was requested and is still on its way */
+    private awaitingSegment = false;
+    /** the host stopped delivering although more data exists (100 MB / row cap) */
+    private hostCapped = false;
+    /** status lines that belong to the load state, not to the (cached) model */
+    private statusWarnings: string[] = [];
+
+    // --- memoization ---
+    private lastFingerprint: string | null = null;
+    private modelVer = 0;
+    private scanCache: ScanCache | null = null;
+    private geoCache: GeoCache | null = null;
+
+    // --- windowed rendering ---
+    private vs: VirtualState | null = null;
+    private scrollRaf = 0;
+    private commentNo = new Map<string, number>();
+
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
         this.events = options.host.eventService;
@@ -108,6 +174,7 @@ export class Visual implements IVisual {
         this.root.style.cssText =
             `width:100%;height:100%;overflow:auto;background:#FFF;font-family:${FONT};` +
             `color:${C.text};box-sizing:border-box;`;
+        this.root.addEventListener("scroll", () => this.onScroll());
         options.element.appendChild(this.root);
     }
 
@@ -117,21 +184,118 @@ export class Visual implements IVisual {
             const dataView = options.dataViews && options.dataViews[0];
             this.settings = this.formattingSettingsService.populateFormattingSettingsModel(
                 VisualFormattingSettingsModel, dataView);
-            const parsed = dataView ? this.parseRows(dataView) : null;
-            if (!parsed) { this.model = null; this.renderLanding(); this.events.renderingFinished(options); return; }
-            if (parsed.rows.length === 0) { this.model = null; this.renderEmpty(); this.events.renderingFinished(options); return; }
-
-            this.model = buildModel(parsed.rows, this.str("Not assigned", "Nicht zugeordnet"), parsed.months);
-            if (parsed.truncated) {
-                this.model.warnings.push(this.str("row limit (30k) reached", "Zeilenlimit (30k) erreicht"));
+            if (!dataView) {
+                this.model = null; this.vs = null; this.lastFingerprint = null;
+                this.resetSegments();
+                this.renderLanding(); this.events.renderingFinished(options); return;
             }
-            this.has = parsed.has;
+            this.trackSegments(dataView, options.operationKind);
+
+            // parse + build only when the data actually changed — toolbar clicks
+            // and resizes reuse the model (rerender() never enters this path)
+            const fp = this.fingerprint(dataView);
+            if (this.model == null || fp !== this.lastFingerprint) {
+                const parsed = this.parseRows(dataView);
+                if (!parsed) {
+                    this.model = null; this.vs = null; this.lastFingerprint = null;
+                    this.renderLanding(); this.events.renderingFinished(options); return;
+                }
+                if (parsed.rows.length === 0) {
+                    this.model = null; this.vs = null; this.lastFingerprint = null;
+                    this.renderEmpty(); this.events.renderingFinished(options); return;
+                }
+                this.model = buildModel(parsed.rows, this.str("Not assigned", "Nicht zugeordnet"), parsed.months);
+                this.has = parsed.has;
+                this.loadedRows = parsed.rowCount;
+                this.lastFingerprint = fp;
+                this.modelVer++;
+                this.scanCache = null;
+                this.geoCache = null;
+            }
+            this.buildStatusWarnings();
             this.syncUiState(dataView);
             this.render();
             this.events.renderingFinished(options);
         } catch (e) {
             this.events.renderingFailed(options, e instanceof Error ? e.message : String(e));
         }
+    }
+
+    // ---------------- segmented loading ----------------
+
+    private resetSegments(): void {
+        this.loadedRows = 0;
+        this.awaitingSegment = false;
+        this.hostCapped = false;
+        this.statusWarnings = [];
+    }
+
+    /**
+     * `window` data reduction + fetchMoreData(true): every Append update carries
+     * the accumulated data view, so each segment is parsed as the full current
+     * state and rendered immediately; the next segment is requested right after.
+     * While segments are outstanding the status line and the subtotal rows say so —
+     * a governance visual must never show a silently incomplete total.
+     */
+    private trackSegments(dataView: DataView, opKind: number | undefined): void {
+        if (opKind !== OP_APPEND) {
+            // Create (or a host that does not report the kind) starts a new load
+            this.resetSegments();
+        }
+        const moreExpected = dataView.metadata != null && dataView.metadata.segment != null;
+        if (!moreExpected) { this.awaitingSegment = false; this.hostCapped = false; return; }
+        const accepted = typeof this.host.fetchMoreData === "function"
+            ? this.host.fetchMoreData(true) : false;
+        this.awaitingSegment = accepted;
+        // request refused → the host caps the total (100 MB / row limit)
+        this.hostCapped = !accepted;
+    }
+
+    private buildStatusWarnings(): void {
+        this.statusWarnings = [];
+        if (this.hostCapped) {
+            this.statusWarnings.push(this.str(
+                "row limit reached — the host stopped delivering segments, totals are incomplete",
+                "Zeilenlimit erreicht — der Host liefert keine weiteren Segmente, Summen unvollständig"));
+        }
+        if (this.awaitingSegment) {
+            this.statusWarnings.push(this.loadingText());
+        }
+    }
+
+    private loadingText(): string {
+        const n = new Intl.NumberFormat(this.locale).format(this.loadedRows)
+            .replace(/[ ,. ]/g, NBSP_GROUP);
+        return "⏳ " + this.str(
+            `${n} rows loaded … subtotals still incomplete`,
+            `${n} Zeilen geladen … Zwischensummen noch unvollständig`);
+    }
+
+    /**
+     * Cheap content fingerprint of the data view: column identity + row count +
+     * first/last category value + measure checksums. Equal fingerprint ⇒ reuse
+     * the parsed model (resize, format-pane edits, repeated updates).
+     */
+    private fingerprint(dataView: DataView): string {
+        const cat = dataView.categorical;
+        if (!cat) { return "none"; }
+        const parts: string[] = [];
+        for (const c of cat.categories ?? []) {
+            const v = c.values;
+            parts.push((c.source.queryName ?? c.source.displayName ?? "") + "#" + v.length
+                + "#" + String(v[0] ?? "") + "#" + String(v[v.length - 1] ?? ""));
+        }
+        for (const m of cat.values ?? []) {
+            const v = m.values;
+            let sum = 0; let cnt = 0;
+            for (let i = 0; i < v.length; i++) {
+                const x = v[i];
+                if (typeof x === "number") { sum += x; cnt++; }
+            }
+            parts.push((m.source.queryName ?? m.source.displayName ?? "") + "#" + v.length
+                + "#" + sum.toString() + "#" + cnt);
+        }
+        return parts.join("|");
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
@@ -141,7 +305,7 @@ export class Visual implements IVisual {
     // ---------------- data ----------------
 
     private parseRows(dataView: DataView): {
-        rows: InputRow[]; months: string[]; truncated: boolean; has: Record<Scenario, boolean>;
+        rows: InputRow[]; months: string[]; rowCount: number; has: Record<Scenario, boolean>;
     } | null {
         const cat = dataView.categorical;
         if (!cat || !cat.categories || cat.categories.length === 0) { return null; }
@@ -215,7 +379,7 @@ export class Visual implements IVisual {
                 });
             }
             const lr = rowsFromLevels(lrows);
-            return { rows: lr.rows, months: lr.months, truncated: n >= 30000, has };
+            return { rows: lr.rows, months: lr.months, rowCount: n, has };
         }
         if (!idCol) { return null; }
 
@@ -235,7 +399,7 @@ export class Visual implements IVisual {
             });
         }
         const agg = aggregateMonthly(raw);
-        return { rows: agg.rows, months: agg.months, truncated: n >= 30000, has };
+        return { rows: agg.rows, months: agg.months, rowCount: n, has };
     }
 
     // ---------------- ui state ----------------
@@ -358,6 +522,7 @@ export class Visual implements IVisual {
     // ---------------- render entry ----------------
 
     private renderLanding(): void {
+        this.vs = null;
         const box = document.createElement("div");
         box.style.cssText = "padding:22px 26px;max-width:600px;";
         const h = document.createElement("div");
@@ -377,6 +542,7 @@ export class Visual implements IVisual {
     }
 
     private renderEmpty(): void {
+        this.vs = null;
         const box = document.createElement("div");
         box.style.cssText = `padding:18px 22px;font-size:12px;color:${C.soft};`;
         box.textContent = this.str("No data for the current selection.", "Keine Daten für die aktuelle Auswahl.");
@@ -385,13 +551,22 @@ export class Visual implements IVisual {
 
     private rerender(): void { this.render(); }
 
-    private render(): void {
-        const model = this.model; const ui = this.ui;
-        if (!model || !ui) { return; }
-        this.root.replaceChildren();
-        this.comments = [];
+    /** cache key for the scans that depend on model + shown Δ combinations only */
+    private scanKey(): string {
+        const ui = this.ui!;
+        return [this.modelVer, ui.view, ui.preset, ui.ref,
+            ui.blocks.mtd, ui.blocks.ytd, ui.blocks.fy].join("~");
+    }
 
-        // uniform scale basis over ALL rows (stable across expand/collapse)
+    /**
+     * Uniform scale basis over ALL rows (stable across expand/collapse).
+     * Memoized per model + Δ-combination — toolbar clicks that do not change
+     * either reuse the previous scan instead of walking byId again.
+     */
+    private scans(): ScanCache {
+        const key = this.scanKey();
+        if (this.scanCache && this.scanCache.key === key) { return this.scanCache; }
+        const model = this.model!;
         let maxAbsVal = 0; let maxAbsDelta = 0;
         const deltaCombos = this.deltaCombos();
         for (const node of model.byId.values()) {
@@ -405,15 +580,115 @@ export class Visual implements IVisual {
                 if (d != null) { maxAbsDelta = Math.max(maxAbsDelta, Math.abs(d)); }
             }
         }
-        const fmt = this.makeFmt(maxAbsVal);
+        this.scanCache = { key, maxAbsVal, maxAbsDelta };
+        return this.scanCache;
+    }
+
+    private render(): void {
+        const model = this.model; const ui = this.ui;
+        if (!model || !ui) { return; }
+        const keepScroll = this.root.scrollTop;
+        this.root.replaceChildren();
+        this.comments = [];
+        this.vs = null;
+
+        const scan = this.scans();
+        const fmt = this.makeFmt(scan.maxAbsVal);
 
         if (this.settings.titleCard.show.value) { this.root.appendChild(this.buildTitle(fmt)); }
         if (this.settings.toolbarCard.show.value) { this.root.appendChild(this.buildToolbar()); }
+        if (this.awaitingSegment) { this.root.appendChild(this.buildLoadingBar()); }
         if (this.settings.toolbarCard.showLegend.value) { this.root.appendChild(this.buildLegend()); }
 
-        this.root.appendChild(this.buildTable(fmt, maxAbsDelta));
+        this.root.appendChild(this.buildTable(fmt, scan.maxAbsDelta));
         this.buildFootnotes(fmt);
         this.root.appendChild(this.buildFooter());
+        this.root.scrollTop = keepScroll;
+        this.measureWindow();
+    }
+
+    /** visible status line while further data segments are still on their way */
+    private buildLoadingBar(): HTMLElement {
+        const bar = document.createElement("div");
+        bar.style.cssText = `margin:2px 14px 0 14px;padding:4px 8px;font-size:10px;` +
+            `color:${C.loading};border:1px solid ${C.loading};border-radius:2px;` +
+            `display:inline-block;`;
+        bar.textContent = this.loadingText();
+        const box = document.createElement("div");
+        box.style.cssText = "padding:0;";
+        box.appendChild(bar);
+        return box;
+    }
+
+    // ---------------- windowed rendering ----------------
+
+    private onScroll(): void {
+        if (!this.vs || this.scrollRaf !== 0) { return; }
+        const raf = typeof requestAnimationFrame === "function"
+            ? requestAnimationFrame : (cb: FrameRequestCallback): number => setTimeout(() => cb(0), 16) as unknown as number;
+        this.scrollRaf = raf(() => { this.scrollRaf = 0; this.syncWindow(); });
+    }
+
+    private spacerRow(): HTMLElement {
+        const r = document.createElement("div");
+        r.style.cssText = "display:table-row;height:0px;";
+        const c = document.createElement("div");
+        c.style.cssText = "display:table-cell;padding:0;height:0px;";
+        r.appendChild(c);
+        return r;
+    }
+
+    private setSpacer(r: HTMLElement, h: number): void {
+        const px = Math.max(0, Math.round(h)) + "px";
+        r.style.height = px;
+        (r.firstElementChild as HTMLElement).style.height = px;
+    }
+
+    /** first index whose row end is beyond `y` (binary search on the offsets) */
+    private indexAt(offsets: number[], y: number): number {
+        let lo = 0; let hi = offsets.length - 1;
+        while (lo < hi) {
+            const mid = (lo + hi) >> 1;
+            if (offsets[mid + 1] <= y) { lo = mid + 1; } else { hi = mid; }
+        }
+        return lo;
+    }
+
+    private renderWindow(from: number, to: number): void {
+        const vs = this.vs;
+        if (!vs) { return; }
+        for (const el of vs.rows) { el.remove(); }
+        vs.rows = [];
+        const frag = document.createDocumentFragment();
+        for (let i = from; i < to; i++) {
+            for (const el of vs.make(vs.visible[i])) { frag.appendChild(el); vs.rows.push(el); }
+        }
+        vs.table.insertBefore(frag, vs.bottom);
+        this.setSpacer(vs.top, vs.offsets[from]);
+        this.setSpacer(vs.bottom, vs.offsets[vs.visible.length] - vs.offsets[to]);
+        vs.from = from; vs.to = to;
+    }
+
+    /** anchor the body inside the scroll container, then align the window */
+    private measureWindow(): void {
+        const vs = this.vs;
+        if (!vs) { return; }
+        const rootBox = this.root.getBoundingClientRect();
+        const topBox = vs.top.getBoundingClientRect();
+        vs.bodyTop = topBox.top - rootBox.top + this.root.scrollTop;
+        this.syncWindow();
+    }
+
+    private syncWindow(): void {
+        const vs = this.vs;
+        if (!vs) { return; }
+        const viewH = this.root.clientHeight || 800;
+        const start = this.root.scrollTop - vs.bodyTop;
+        const from = Math.max(0, this.indexAt(vs.offsets, start) - VIRT_BUFFER);
+        const to = Math.min(vs.visible.length,
+            this.indexAt(vs.offsets, start + viewH) + VIRT_BUFFER + 1);
+        if (from === vs.from && to === vs.to) { return; }
+        this.renderWindow(from, to);
     }
 
     /** variance for a period block: MTD reads the last month of the series */
@@ -751,20 +1026,10 @@ export class Visual implements IVisual {
             cols.push(...b.specs);
         });
 
-        // label maxima → column widths (no clipped numbers, uniform per column kind)
-        let dLabelLen = 2; let pLabelLen = 3;
-        for (const node of model.byId.values()) {
-            if (node.row.rowType === "kpi") { continue; }
-            for (const c of cols) {
-                if (c.kind === "bar") {
-                    const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
-                    if (v.delta != null) { dLabelLen = Math.max(dLabelLen, fmt.val(v.delta, true).length); }
-                } else if (c.kind === "pin") {
-                    const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
-                    if (v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(this.capPct(v.deltaPct), true) + "▸").length); }
-                }
-            }
-        }
+        // label maxima, cascade segments and bar extrema are O(rows) scans —
+        // memoized per model + column set + number format (see geoScans)
+        const gc = this.geoScans(cols, fmt);
+        const dLabelLen = gc.dLabelLen; const pLabelLen = gc.pLabelLen;
         const compact = ui.density === "compact";
         const fscale = this.fontScale();
         const rowH = Math.round((compact ? 18 : 23) * fscale);
@@ -777,62 +1042,31 @@ export class Visual implements IVisual {
         const valW = compact ? 66 : 76;
 
         // waterfall view: cascade segments per scenario (tree order, expand-independent)
-        this.wfSegs.clear();
-        if (cols.some(c => c.kind === "wbar")) {
-            const li = model.months.length - 1;
-            for (const c of cols) {
-                if (c.kind !== "wbar") { continue; }
-                const key = `${c.block}:${c.scen}`;
-                if (this.wfSegs.has(key)) { continue; }
-                const read = c.block === "mtd"
-                    ? (n: PnlNode): number | null => n.series[c.scen!]?.[li] ?? null
-                    : (n: PnlNode): number | null => n.computed[c.scen!];
-                this.wfSegs.set(key, this.cascadeSegments(read));
-            }
-        }
+        this.wfSegs = gc.wf;
 
-        // structure-bars view: shared display-space scale for the value bars
+        // shared display-space scale for the value / cascade bars
         let vAxisX = 0; let vPpu = 0; let vLabelW = 0; let vbarW = 0;
-        if (cols.some(c => c.kind === "vbar")) {
-            const scens = new Set<Scenario>();
-            for (const c of cols) { if (c.kind === "vbar") { scens.add(c.scen!); scens.add(c.ref!); } }
-            let maxPosD = 0; let maxNegD = 0; let vLabelLen = 2;
-            for (const node of model.byId.values()) {
-                if (node.row.rowType === "kpi" || node.row.rowType === "separator") { continue; }
-                for (const sc of scens) {
-                    const v = displayValue(node, sc);
-                    if (v == null) { continue; }
-                    if (v >= 0) { maxPosD = Math.max(maxPosD, v); } else { maxNegD = Math.max(maxNegD, -v); }
-                    vLabelLen = Math.max(vLabelLen, fmt.val(v).length);
-                }
-            }
-            vLabelW = Math.ceil(vLabelLen * (fs * 0.52)) + 4;
-            const span = compact ? 150 : 190;
-            vPpu = span / ((maxPosD + maxNegD) || 1);
-            vAxisX = 4 + vLabelW + maxNegD * vPpu;
-            vbarW = span + 2 * (vLabelW + 4) + 8;
-        }
-        if (this.wfSegs.size > 0) {
-            let maxPosD = 0; let maxNegD = 0; let vLabelLen = 2;
-            for (const [key, segs] of this.wfSegs) {
-                const scen = key.split(":")[1] as Scenario;
-                for (const node of model.byId.values()) {
-                    const seg = segs.get(node.row.id);
-                    if (!seg) { continue; }
-                    maxPosD = Math.max(maxPosD, seg.s, seg.e);
-                    maxNegD = Math.max(maxNegD, -seg.s, -seg.e);
-                    const v = displayValue(node, scen);
-                    if (v != null) { vLabelLen = Math.max(vLabelLen, fmt.val(v).length); }
-                }
-            }
-            vLabelW = Math.ceil(vLabelLen * (fs * 0.52)) + 4;
-            const span = compact ? 190 : 240;
-            vPpu = span / ((maxPosD + maxNegD) || 1);
-            vAxisX = 4 + vLabelW + maxNegD * vPpu;
+        const hasVbar = cols.some(c => c.kind === "vbar");
+        if (hasVbar || this.wfSegs.size > 0) {
+            vLabelW = Math.ceil(gc.vLabelLen * (fs * 0.52)) + 4;
+            const span = this.wfSegs.size > 0 ? (compact ? 190 : 240) : (compact ? 150 : 190);
+            vPpu = span / ((gc.maxPosD + gc.maxNegD) || 1);
+            vAxisX = 4 + vLabelW + gc.maxNegD * vPpu;
             vbarW = span + 2 * (vLabelW + 4) + 8;
         }
 
         const geo = { rowH, fs, BAR_HALF, PIN_HALF, barW, pinW, valW, maxAbsDelta, vbarW, vAxisX, vPpu, vLabelW };
+
+        // comment footnotes are numbered over ALL visible rows, not just the
+        // rows currently in the DOM (windowed rendering)
+        this.comments = [];
+        this.commentNo.clear();
+        for (const node of visible) {
+            if (node.row.rowType === "separator" || !node.row.comment) { continue; }
+            const n = this.comments.length + 1;
+            this.comments.push({ n, node, text: node.row.comment });
+            this.commentNo.set(node.row.id, n);
+        }
 
         const wrap = document.createElement("div");
         wrap.style.cssText = "padding:2px 14px 8px 14px;";
@@ -848,14 +1082,114 @@ export class Visual implements IVisual {
         table.style.cssText = "display:table;border-collapse:collapse;";
         table.appendChild(this.blockHeaderRow(blocks, geo));
         table.appendChild(this.headerRow(cols, geo));
-        for (const node of visible) {
-            table.appendChild(this.bodyRow(node, cols, fmt, geo, revBase));
-            if (ui.spark.includes(node.row.id) && node.series.ac && model.months.length > 1) {
-                table.appendChild(this.sparkRow(node, cols.length, geo));
+
+        const sparkOn = (node: PnlNode): boolean =>
+            ui.spark.includes(node.row.id) && node.series.ac != null && model.months.length > 1;
+        const make = (node: PnlNode): HTMLElement[] => {
+            const out = [this.bodyRow(node, cols, fmt, geo, revBase)];
+            if (sparkOn(node)) { out.push(this.sparkRow(node, cols.length, geo)); }
+            return out;
+        };
+
+        if (visible.length > VIRT_MIN_ROWS) {
+            // windowed rendering: only the rows around the scroll viewport go
+            // into the DOM, spacer rows carry the remaining height
+            const offsets = new Array<number>(visible.length + 1);
+            let acc = 0;
+            for (let i = 0; i < visible.length; i++) {
+                offsets[i] = acc;
+                acc += rowH
+                    + (visible[i].row.rowType === "separator" ? SEP_EXTRA_H : 0)
+                    + (sparkOn(visible[i]) ? SPARK_ROW_H : 0);
+            }
+            offsets[visible.length] = acc;
+            const top = this.spacerRow();
+            const bottom = this.spacerRow();
+            table.appendChild(top);
+            table.appendChild(bottom);
+            this.vs = {
+                table, top, bottom, rows: [], visible, offsets, make,
+                bodyTop: 0, from: -1, to: -1,
+            };
+            const guess = Math.ceil((this.root.clientHeight || 800) / Math.max(rowH, 1)) + 2 * VIRT_BUFFER;
+            this.renderWindow(0, Math.min(visible.length, guess));
+        } else {
+            for (const node of visible) {
+                for (const el of make(node)) { table.appendChild(el); }
             }
         }
         wrap.appendChild(table);
         return wrap;
+    }
+
+    /**
+     * O(rows) scans that depend on the model, the column set and the number
+     * format: Δ / Δ% label lengths (→ column widths), cascade segments and the
+     * bar extrema. Cached so toolbar clicks that change none of them are free.
+     */
+    private geoScans(cols: ColSpec[], fmt: Fmt): GeoCache {
+        const model = this.model!;
+        const sig = cols.map(c => `${c.kind}${c.scen ?? ""}${c.ref ?? ""}${c.minuend ?? ""}${c.block ?? ""}`).join(",");
+        const num = this.settings.numbersCard;
+        const key = [this.scanKey(), sig, fmt.div, fmt.suffix,
+            num.decimals.value, num.pctDecimals.value, this.locale].join("~");
+        if (this.geoCache && this.geoCache.key === key) { return this.geoCache; }
+
+        let dLabelLen = 2; let pLabelLen = 3;
+        for (const node of model.byId.values()) {
+            if (node.row.rowType === "kpi") { continue; }
+            for (const c of cols) {
+                if (c.kind === "bar") {
+                    const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
+                    if (v.delta != null) { dLabelLen = Math.max(dLabelLen, fmt.val(v.delta, true).length); }
+                } else if (c.kind === "pin") {
+                    const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
+                    if (v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(this.capPct(v.deltaPct), true) + "▸").length); }
+                }
+            }
+        }
+
+        const wf = new Map<string, Map<string, { s: number; e: number }>>();
+        const li = model.months.length - 1;
+        for (const c of cols) {
+            if (c.kind !== "wbar") { continue; }
+            const wkey = `${c.block}:${c.scen}`;
+            if (wf.has(wkey)) { continue; }
+            const read = c.block === "mtd"
+                ? (n: PnlNode): number | null => n.series[c.scen!]?.[li] ?? null
+                : (n: PnlNode): number | null => n.computed[c.scen!];
+            wf.set(wkey, this.cascadeSegments(read));
+        }
+
+        let maxPosD = 0; let maxNegD = 0; let vLabelLen = 2;
+        if (wf.size > 0) {
+            for (const [wkey, segs] of wf) {
+                const scen = wkey.split(":")[1] as Scenario;
+                for (const node of model.byId.values()) {
+                    const seg = segs.get(node.row.id);
+                    if (!seg) { continue; }
+                    maxPosD = Math.max(maxPosD, seg.s, seg.e);
+                    maxNegD = Math.max(maxNegD, -seg.s, -seg.e);
+                    const v = displayValue(node, scen);
+                    if (v != null) { vLabelLen = Math.max(vLabelLen, fmt.val(v).length); }
+                }
+            }
+        } else if (cols.some(c => c.kind === "vbar")) {
+            const scens = new Set<Scenario>();
+            for (const c of cols) { if (c.kind === "vbar") { scens.add(c.scen!); scens.add(c.ref!); } }
+            for (const node of model.byId.values()) {
+                if (node.row.rowType === "kpi" || node.row.rowType === "separator") { continue; }
+                for (const sc of scens) {
+                    const v = displayValue(node, sc);
+                    if (v == null) { continue; }
+                    if (v >= 0) { maxPosD = Math.max(maxPosD, v); } else { maxNegD = Math.max(maxNegD, -v); }
+                    vLabelLen = Math.max(vLabelLen, fmt.val(v).length);
+                }
+            }
+        }
+
+        this.geoCache = { key, dLabelLen, pLabelLen, vLabelLen, maxPosD, maxNegD, wf };
+        return this.geoCache;
     }
 
     private cell(w: number, align: string, fs: number): HTMLElement {
@@ -967,13 +1301,24 @@ export class Visual implements IVisual {
             name.appendChild(err);
         }
         if (node.row.comment) {
-            const n = this.comments.length + 1;
-            this.comments.push({ n, node, text: node.row.comment });
-            const mark = document.createElement("span");
-            mark.style.cssText = `color:${C.comment};font-size:9.5px;margin-left:5px;cursor:default;`;
-            mark.textContent = String.fromCharCode(0x2460 + this.comments.length - 1);
-            mark.title = node.row.comment;
-            name.appendChild(mark);
+            const n = this.commentNo.get(node.row.id);
+            if (n != null) {
+                const mark = document.createElement("span");
+                mark.style.cssText = `color:${C.comment};font-size:9.5px;margin-left:5px;cursor:default;`;
+                mark.textContent = String.fromCharCode(0x2460 + n - 1);
+                mark.title = node.row.comment;
+                name.appendChild(mark);
+            }
+        }
+        // while segments are still loading, every aggregate says so — an
+        // incomplete subtotal must never look like a final figure
+        if (this.awaitingSegment && (isSum || isRatio)) {
+            const inc = document.createElement("span");
+            inc.style.cssText = `color:${C.loading};font-size:9.5px;margin-left:5px;cursor:default;`;
+            inc.textContent = "≈";
+            inc.title = this.str("value still incomplete — data is loading",
+                "Wert noch unvollständig — Daten werden geladen");
+            name.appendChild(inc);
         }
         // 12M sparkline chip
         if (node.series.ac && this.model!.months.length > 1) {
@@ -1392,7 +1737,8 @@ export class Visual implements IVisual {
     private buildFootnotes(fmt: Fmt): void {
         void fmt;
         const model = this.model!;
-        if (this.comments.length === 0 && model.warnings.length === 0) { return; }
+        const warnings = [...this.statusWarnings, ...model.warnings];
+        if (this.comments.length === 0 && warnings.length === 0) { return; }
         const box = document.createElement("div");
         box.style.cssText = "padding:8px 14px 4px 14px;max-width:960px;";
         const h = document.createElement("div");
@@ -1409,10 +1755,12 @@ export class Visual implements IVisual {
             li.appendChild(document.createTextNode(cm.text));
             box.appendChild(li);
         }
-        for (const w of model.warnings) {
+        for (const w of warnings) {
             const li = document.createElement("div");
-            li.style.cssText = `font-size:10px;line-height:1.5;margin-bottom:3px;color:${C.soft};`;
-            li.textContent = "⚠ " + w;
+            const loading = w.charAt(0) === "⏳";
+            li.style.cssText = `font-size:10px;line-height:1.5;margin-bottom:3px;` +
+                `color:${loading ? C.loading : C.soft};`;
+            li.textContent = loading ? w : "⚠ " + w;
             box.appendChild(li);
         }
         this.root.appendChild(box);
