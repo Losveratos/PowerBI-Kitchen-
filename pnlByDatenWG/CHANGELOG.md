@@ -1,5 +1,20 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.4.1.0 (2026-08-02) — Konsistente Blöcke, Toolbar-Kuration, Schrift-Presets, Farben
+
+- **MTD-Block jetzt auch in der Tabelle** (AC · REF · Δ · Δ% aus dem letzten
+  Monat der Auswahl) — Perioden-Toggles wirken konsistent über Table,
+  Waterfall und Bars (Bars: YTD/FY)
+- **Toolbar-Kuration im Format-Pane**: jede Gruppe (Ansicht, Presets,
+  Δ-Referenz, Perioden, Einheit, Dichte, Ebenen, Optionen) einzeln
+  ein-/ausblendbar — Autoren bestimmen, was Leser umschalten dürfen
+- **Schriftgrößen-Presets** HD (kompakt) / Full HD / UHD-Präsentation
+  (skaliert Zeilenhöhen, Schrift und Balkengeometrie)
+- **Farb-Overrides** für günstige/ungünstige Δ (Color Picker) zusätzlich zu
+  den beiden Modi Teal/IBCS-Grün — Corporate-Farben mit dokumentierter
+  Abweichung möglich
+
+
 ## 0.4.0.0 (2026-08-02) — Perioden-Blöcke MTD | YTD | FY mit AC&FC-Outlook
 
 - Neue Toolbar-Gruppe **„Perioden"**: MTD, YTD und FY als zu-/abschaltbare

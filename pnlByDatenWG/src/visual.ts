@@ -327,10 +327,25 @@ export class Visual implements IVisual {
     }
 
     private goodColor(): string {
+        const o = this.settings.styleCard.goodColor.value?.value;
+        if (o) { return o; }
         return String(this.settings.styleCard.colorMode.value.value) === "ibcs" ? C.ibcsGood : C.tealGood;
     }
     private badColor(): string {
+        const o = this.settings.styleCard.badColor.value?.value;
+        if (o) { return o; }
         return String(this.settings.styleCard.colorMode.value.value) === "ibcs" ? C.ibcsBad : C.tealBad;
+    }
+    private fontScale(): number {
+        const fp = String(this.settings.styleCard.fontPreset.value.value);
+        return fp === "fullhd" ? 1.25 : fp === "uhd" ? 1.6 : 1;
+    }
+    /** block-aware displayed value: MTD reads the last month of the series */
+    private blockDisplay(node: PnlNode, block: "mtd" | "ytd" | "fy", scen: Scenario): number | null {
+        if (block !== "mtd") { return displayValue(node, scen); }
+        const li = this.model!.months.length - 1;
+        const v = li >= 0 ? (node.series[scen]?.[li] ?? null) : null;
+        return v == null ? null : (node.row.displayInvert ? -v : v);
     }
 
     private monthLabel(m: string): string {
@@ -428,6 +443,9 @@ export class Visual implements IVisual {
             if (fyOn) { out.push({ ref: "plfy", minuend: "fcfy", block: "fy" }); }
             return out;
         }
+        if (ui.blocks.mtd && this.model!.months.length > 1 && this.has[ui.ref]) {
+            out.push({ ref: ui.ref, minuend: "ac", block: "mtd" });
+        }
         if (ui.preset === "full") {
             if (this.has.py) { out.push({ ref: "py", minuend: "ac", block: "ytd" }); }
             if (this.has.pl) { out.push({ ref: "pl", minuend: "ac", block: "ytd" }); }
@@ -506,47 +524,50 @@ export class Visual implements IVisual {
         const bar = document.createElement("div");
         bar.style.cssText = "display:flex;gap:18px;flex-wrap:wrap;padding:8px 14px 6px 14px;align-items:flex-end;";
 
-        bar.appendChild(this.tbGroup(this.str("View", "Ansicht"), [
+        const tset = this.settings.toolbarCard;
+        if (tset.showView.value) { bar.appendChild(this.tbGroup(this.str("View", "Ansicht"), [
             this.tbBtn("Table", ui.view === "table", () => { ui.view = "table"; }),
             this.tbBtn("Bars", ui.view === "bars", () => { ui.view = "bars"; },
                 this.str("Structure bars: AC vs reference per row", "Struktur-Balken: AC vs. Referenz je Zeile")),
             this.tbBtn("Waterfall", ui.view === "waterfall", () => { ui.view = "waterfall"; },
                 this.str("Row waterfall: contributions cascade, subtotals anchor", "Zeilen-Waterfall: Beiträge kaskadieren, Summen ankern")),
-        ]));
+        ])); }
 
         const presets: [Preset, string][] = [
             ["full", "AC·PY·PL·FC"], ["acref", "AC vs Ref"], ["acpydpy", "AC·PY·ΔPY"],
             ["acpldpl", "AC·PL·ΔPL"], ["dpct", "ΔPY% · ΔPL%"],
         ];
-        bar.appendChild(this.tbGroup(this.str("Column preset", "Spalten-Preset"),
-            presets.map(([p, label]) => this.tbBtn(label, ui.preset === p, () => { ui.preset = p; }))));
+        if (tset.showPresets.value) {
+            bar.appendChild(this.tbGroup(this.str("Column preset", "Spalten-Preset"),
+                presets.map(([p, label]) => this.tbBtn(label, ui.preset === p, () => { ui.preset = p; }))));
+        }
 
         const refs: Scenario[] = (["py", "pl", "fc"] as Scenario[]).filter(s => this.has[s]);
-        if (refs.length > 0) {
+        if (refs.length > 0 && tset.showReference.value) {
             bar.appendChild(this.tbGroup("Δ " + this.str("reference", "Referenz"),
                 refs.map(r => this.tbBtn(r.toUpperCase(), ui.ref === r, () => { ui.ref = r; }))));
         }
 
         const pb: HTMLElement[] = [];
-        if (ui.view === "waterfall" && this.model!.months.length > 1) {
+        if (ui.view !== "bars" && this.model!.months.length > 1) {
             pb.push(this.tbBtn("MTD", ui.blocks.mtd, () => { ui.blocks.mtd = !ui.blocks.mtd; }));
         }
         pb.push(this.tbBtn("YTD", ui.blocks.ytd, () => { ui.blocks.ytd = !ui.blocks.ytd; }));
         if (this.has.fcfy && this.has.plfy) {
             pb.push(this.tbBtn("FY", ui.blocks.fy, () => { ui.blocks.fy = !ui.blocks.fy; }));
         }
-        if (pb.length > 1) { bar.appendChild(this.tbGroup(this.str("Periods", "Perioden"), pb)); }
+        if (pb.length > 1 && tset.showPeriods.value) { bar.appendChild(this.tbGroup(this.str("Periods", "Perioden"), pb)); }
 
         const unitText = this.settings.numbersCard.unitText.value || "EUR";
-        bar.appendChild(this.tbGroup(this.str("Unit", "Einheit"), [
+        if (tset.showUnit.value) { bar.appendChild(this.tbGroup(this.str("Unit", "Einheit"), [
             this.tbBtn("k" + unitText, ui.unit === "k", () => { ui.unit = "k"; }),
             this.tbBtn("m" + unitText, ui.unit === "m", () => { ui.unit = "m"; }),
-        ]));
+        ])); }
 
-        bar.appendChild(this.tbGroup(this.str("Density", "Dichte"), [
+        if (tset.showDensity.value) { bar.appendChild(this.tbGroup(this.str("Density", "Dichte"), [
             this.tbBtn("Normal", ui.density === "normal", () => { ui.density = "normal"; }),
             this.tbBtn("Compact", ui.density === "compact", () => { ui.density = "compact"; }),
-        ]));
+        ])); }
 
         const maxL = Math.min(this.model!.maxDepth, 8);
         const lvlBtns: HTMLElement[] = [];
@@ -554,12 +575,12 @@ export class Visual implements IVisual {
             lvlBtns.push(this.tbBtn(String(l), false, () => { ui.collapsed = [...collapseToLevel(this.model!.roots, l)]; }));
         }
         lvlBtns.push(this.tbBtn(this.str("All", "Alle"), false, () => { ui.collapsed = []; }));
-        bar.appendChild(this.tbGroup(this.str("Expand to level", "Bis Ebene"), lvlBtns));
+        if (tset.showLevels.value) { bar.appendChild(this.tbGroup(this.str("Expand to level", "Bis Ebene"), lvlBtns)); }
 
-        bar.appendChild(this.tbGroup(this.str("Options", "Optionen"), [
+        if (tset.showOptions.value) { bar.appendChild(this.tbGroup(this.str("Options", "Optionen"), [
             this.tbBtn(this.str("% of revenue", "% vom Umsatz"), ui.pctRev, () => { ui.pctRev = !ui.pctRev; }),
             this.tbBtn(this.str("Hide zero rows", "Nullzeilen aus"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
-        ]));
+        ])); }
         return bar;
     }
 
@@ -666,6 +687,16 @@ export class Visual implements IVisual {
             return blocks;
         }
 
+        const rM = this.has[ui.ref] ? ui.ref : (this.has.pl ? "pl" : "py");
+        if (ui.blocks.mtd && months.length > 1) {
+            const mtd: ColSpec[] = [{ kind: "val", scen: "ac", block: "mtd", label: "AC" }];
+            if (this.has[rM]) {
+                mtd.push({ kind: "val", scen: rM, block: "mtd", label: rM.toUpperCase() });
+                mtd.push({ kind: "bar", ref: rM, minuend: "ac", block: "mtd", label: `Δ${rM.toUpperCase()}` });
+                mtd.push({ kind: "pin", ref: rM, minuend: "ac", block: "mtd", label: `Δ${rM.toUpperCase()}%` });
+            }
+            blocks.push({ key: "mtd", label: mtdLabel, specs: mtd });
+        }
         const ytd: ColSpec[] = [{ kind: "val", scen: "ac", block: "ytd", label: "AC" }];
         if (ui.pctRev) { ytd.push({ kind: "pct", block: "ytd", label: "% Rev" }); }
         const fy: ColSpec[] = [];
@@ -735,8 +766,9 @@ export class Visual implements IVisual {
             }
         }
         const compact = ui.density === "compact";
-        const rowH = compact ? 18 : 23;
-        const fs = compact ? 10 : 11;
+        const fscale = this.fontScale();
+        const rowH = Math.round((compact ? 18 : 23) * fscale);
+        const fs = Math.round((compact ? 10 : 11) * fscale);
         const BAR_HALF = 34; const PIN_HALF = 24;
         const dLabelW = Math.ceil(dLabelLen * (fs * 0.52)) + 4;
         const pLabelW = Math.ceil(pLabelLen * (fs * 0.52)) + 4;
@@ -969,9 +1001,8 @@ export class Visual implements IVisual {
                 cell = this.cell(geo.valW, "right", geo.fs);
                 cell.style.cssText += "font-variant-numeric:tabular-nums;";
                 if (isSum) { cell.style.fontWeight = "600"; }
-                cell.textContent = isRatio
-                    ? fmt.pct(displayValue(node, c.scen!))
-                    : fmt.val(displayValue(node, c.scen!));
+                const bv = this.blockDisplay(node, c.block ?? "ytd", c.scen!);
+                cell.textContent = isRatio ? fmt.pct(bv) : fmt.val(bv);
             } else if (c.kind === "vbar") {
                 cell = this.valueBarCell(node, c, geo, fmt, isSum, isRatio);
                 if (lineTop) { cell.style.borderTop = `1px solid ${C.line}`; }

@@ -301,6 +301,46 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "showView": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showPresets": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showReference": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showPeriods": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showUnit": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showDensity": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showLevels": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "showOptions": {
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },
@@ -440,6 +480,42 @@
                                 "displayName": "Compact"
                             }
                         ]
+                    }
+                },
+                "fontPreset": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "hd",
+                                "displayName": "HD (kompakt)"
+                            },
+                            {
+                                "value": "fullhd",
+                                "displayName": "Full HD"
+                            },
+                            {
+                                "value": "uhd",
+                                "displayName": "UHD / Präsentation"
+                            }
+                        ]
+                    }
+                },
+                "goodColor": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "badColor": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
                     }
                 }
             }

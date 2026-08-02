@@ -38,6 +38,12 @@ const densityItems: powerbi.IEnumMember[] = [
     { value: "compact", displayName: "Compact" }
 ];
 
+const fontPresetItems: powerbi.IEnumMember[] = [
+    { value: "hd", displayName: "HD (kompakt)" },
+    { value: "fullhd", displayName: "Full HD" },
+    { value: "uhd", displayName: "UHD / Präsentation" }
+];
+
 export class ToolbarCardSettings extends FormattingSettingsCard {
     show = new formattingSettings.ToggleSwitch({
         name: "show",
@@ -53,10 +59,20 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
         value: true
     });
 
+    showView = new formattingSettings.ToggleSwitch({ name: "showView", displayName: "Group: view", value: true });
+    showPresets = new formattingSettings.ToggleSwitch({ name: "showPresets", displayName: "Group: column presets", value: true });
+    showReference = new formattingSettings.ToggleSwitch({ name: "showReference", displayName: "Group: Δ reference", value: true });
+    showPeriods = new formattingSettings.ToggleSwitch({ name: "showPeriods", displayName: "Group: periods (MTD/YTD/FY)", value: true });
+    showUnit = new formattingSettings.ToggleSwitch({ name: "showUnit", displayName: "Group: unit", value: true });
+    showDensity = new formattingSettings.ToggleSwitch({ name: "showDensity", displayName: "Group: density", value: true });
+    showLevels = new formattingSettings.ToggleSwitch({ name: "showLevels", displayName: "Group: expand level", value: true });
+    showOptions = new formattingSettings.ToggleSwitch({ name: "showOptions", displayName: "Group: options", value: true });
+
     name: string = "toolbar";
     displayName: string = "Toolbar";
     displayNameKey: string = "Card_Toolbar";
-    slices = [this.show, this.showLegend];
+    slices = [this.show, this.showLegend, this.showView, this.showPresets, this.showReference,
+        this.showPeriods, this.showUnit, this.showDensity, this.showLevels, this.showOptions];
 }
 
 export class ColumnsCardSettings extends FormattingSettingsCard {
@@ -168,10 +184,32 @@ export class StyleCardSettings extends FormattingSettingsCard {
         value: densityItems[0]
     });
 
+    fontPreset = new formattingSettings.ItemDropdown({
+        name: "fontPreset",
+        displayName: "Font size preset",
+        displayNameKey: "Style_FontPreset",
+        items: fontPresetItems,
+        value: fontPresetItems[0]
+    });
+
+    goodColor = new formattingSettings.ColorPicker({
+        name: "goodColor",
+        displayName: "Favorable Δ color (override)",
+        displayNameKey: "Style_GoodColor",
+        value: { value: "" }
+    });
+
+    badColor = new formattingSettings.ColorPicker({
+        name: "badColor",
+        displayName: "Unfavorable Δ color (override)",
+        displayNameKey: "Style_BadColor",
+        value: { value: "" }
+    });
+
     name: string = "style";
     displayName: string = "Style";
     displayNameKey: string = "Card_Style";
-    slices = [this.colorMode, this.density];
+    slices = [this.colorMode, this.fontPreset, this.goodColor, this.badColor, this.density];
 }
 
 export class TitleBlockCardSettings extends FormattingSettingsCard {
