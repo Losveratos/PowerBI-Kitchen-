@@ -29,7 +29,7 @@ import { VisualFormattingSettingsModel } from "./settings";
 import {
     buildModel, flattenVisible, collapseToLevel, variance, displayValue,
     parseRowType, parseBool, parseSign, rowsFromLevels, aggregateMonthly,
-    isZeroRow, revenueBase,
+    isZeroRow, revenueBase, Variance,
     InputRow, LevelInputRow, PnlModel, PnlNode, Scenario,
 } from "./engine";
 
@@ -59,6 +59,7 @@ interface UiState {
     hideZero: boolean;
     collapsed: string[];
     spark: string[];      // row ids with open sparkline
+    blocks: { mtd: boolean; ytd: boolean; fy: boolean };
 }
 
 interface ColSpec {
@@ -66,8 +67,11 @@ interface ColSpec {
     scen?: Scenario;      // for val
     ref?: Scenario;       // for bar/pin
     minuend?: Scenario;   // for bar/pin ("ac" | "fcfy")
+    block?: "mtd" | "ytd" | "fy";
     label: string;
 }
+
+interface Block { key: "mtd" | "ytd" | "fy"; label: string; specs: ColSpec[]; }
 
 interface Fmt {
     div: number;
@@ -89,7 +93,7 @@ export class Visual implements IVisual {
     private locale = "en-US";
 
     private ui: UiState | null = null;
-    private wfSegs = new Map<Scenario, Map<string, { s: number; e: number }>>();
+    private wfSegs = new Map<string, Map<string, { s: number; e: number }>>();
     private stateLoaded = false;
     private pendingPersist: string | null = null;
     private lastApplied: string | null = null;
@@ -249,6 +253,7 @@ export class Visual implements IVisual {
             hideZero: s.columnsCard.hideZeroRows.value,
             collapsed: this.model && lvl > 0 ? [...collapseToLevel(this.model.roots, lvl)] : [],
             spark: [],
+            blocks: { mtd: false, ytd: true, fy: this.has.fcfy && this.has.plfy },
         };
     }
 
@@ -381,7 +386,7 @@ export class Visual implements IVisual {
                 if (v != null) { maxAbsVal = Math.max(maxAbsVal, Math.abs(v)); }
             }
             for (const dc of deltaCombos) {
-                const d = variance(node, dc.ref, dc.minuend).delta;
+                const d = this.blockVariance(node, dc.block, dc.ref, dc.minuend).delta;
                 if (d != null) { maxAbsDelta = Math.max(maxAbsDelta, Math.abs(d)); }
             }
         }
@@ -396,25 +401,43 @@ export class Visual implements IVisual {
         this.root.appendChild(this.buildFooter());
     }
 
-    /** which Δ combinations the current preset shows (drives the uniform scale) */
-    private deltaCombos(): { ref: Scenario; minuend: Scenario }[] {
+    /** variance for a period block: MTD reads the last month of the series */
+    private blockVariance(node: PnlNode, block: "mtd" | "ytd" | "fy", ref: Scenario, minuend: Scenario): Variance {
+        if (block !== "mtd") { return variance(node, ref, minuend); }
+        const li = this.model!.months.length - 1;
+        if (li < 0) { return { delta: null, deltaPct: null, good: true }; }
+        const a = node.series[minuend]?.[li] ?? null;
+        const r = node.series[ref]?.[li] ?? null;
+        if (a == null || r == null) { return { delta: null, deltaPct: null, good: true }; }
+        const delta = a - r;
+        let good = delta >= 0;
+        if (node.row.varianceInvert) { good = !good; }
+        return { delta, deltaPct: r !== 0 ? delta / Math.abs(r) : null, good };
+    }
+
+    /** which Δ combinations the current view shows (drives the uniform scale) */
+    private deltaCombos(): { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy" }[] {
         const ui = this.ui!;
-        const out: { ref: Scenario; minuend: Scenario }[] = [];
+        const out: { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy" }[] = [];
         if (ui.view === "bars" || ui.view === "waterfall") {
-            if (this.has[ui.ref]) { out.push({ ref: ui.ref, minuend: "ac" }); }
-            if (ui.view === "bars" && this.has.fcfy && this.has.plfy) { out.push({ ref: "plfy", minuend: "fcfy" }); }
+            const fyOn = this.has.fcfy && this.has.plfy && ui.blocks.fy;
+            if (ui.view === "waterfall" && ui.blocks.mtd && this.model!.months.length > 1 && this.has[ui.ref]) {
+                out.push({ ref: ui.ref, minuend: "ac", block: "mtd" });
+            }
+            if (ui.blocks.ytd !== false && this.has[ui.ref]) { out.push({ ref: ui.ref, minuend: "ac", block: "ytd" }); }
+            if (fyOn) { out.push({ ref: "plfy", minuend: "fcfy", block: "fy" }); }
             return out;
         }
         if (ui.preset === "full") {
-            if (this.has.py) { out.push({ ref: "py", minuend: "ac" }); }
-            if (this.has.pl) { out.push({ ref: "pl", minuend: "ac" }); }
-            if (this.has.fcfy && this.has.plfy) { out.push({ ref: "plfy", minuend: "fcfy" }); }
-        } else if (ui.preset === "acpydpy") { if (this.has.py) { out.push({ ref: "py", minuend: "ac" }); } }
-        else if (ui.preset === "acpldpl") { if (this.has.pl) { out.push({ ref: "pl", minuend: "ac" }); } }
+            if (this.has.py) { out.push({ ref: "py", minuend: "ac", block: "ytd" }); }
+            if (this.has.pl) { out.push({ ref: "pl", minuend: "ac", block: "ytd" }); }
+            if (this.has.fcfy && this.has.plfy && ui.blocks.fy) { out.push({ ref: "plfy", minuend: "fcfy", block: "fy" }); }
+        } else if (ui.preset === "acpydpy") { if (this.has.py) { out.push({ ref: "py", minuend: "ac", block: "ytd" }); } }
+        else if (ui.preset === "acpldpl") { if (this.has.pl) { out.push({ ref: "pl", minuend: "ac", block: "ytd" }); } }
         else if (ui.preset === "dpct") {
-            if (this.has.py) { out.push({ ref: "py", minuend: "ac" }); }
-            if (this.has.pl) { out.push({ ref: "pl", minuend: "ac" }); }
-        } else { out.push({ ref: this.ui!.ref, minuend: "ac" }); }
+            if (this.has.py) { out.push({ ref: "py", minuend: "ac", block: "ytd" }); }
+            if (this.has.pl) { out.push({ ref: "pl", minuend: "ac", block: "ytd" }); }
+        } else { out.push({ ref: this.ui!.ref, minuend: "ac", block: "ytd" }); }
         return out.filter(dc => this.has[dc.ref]);
     }
 
@@ -504,6 +527,16 @@ export class Visual implements IVisual {
                 refs.map(r => this.tbBtn(r.toUpperCase(), ui.ref === r, () => { ui.ref = r; }))));
         }
 
+        const pb: HTMLElement[] = [];
+        if (ui.view === "waterfall" && this.model!.months.length > 1) {
+            pb.push(this.tbBtn("MTD", ui.blocks.mtd, () => { ui.blocks.mtd = !ui.blocks.mtd; }));
+        }
+        pb.push(this.tbBtn("YTD", ui.blocks.ytd, () => { ui.blocks.ytd = !ui.blocks.ytd; }));
+        if (this.has.fcfy && this.has.plfy) {
+            pb.push(this.tbBtn("FY", ui.blocks.fy, () => { ui.blocks.fy = !ui.blocks.fy; }));
+        }
+        if (pb.length > 1) { bar.appendChild(this.tbGroup(this.str("Periods", "Perioden"), pb)); }
+
         const unitText = this.settings.numbersCard.unitText.value || "EUR";
         bar.appendChild(this.tbGroup(this.str("Unit", "Einheit"), [
             this.tbBtn("k" + unitText, ui.unit === "k", () => { ui.unit = "k"; }),
@@ -590,73 +623,87 @@ export class Visual implements IVisual {
 
     // ---------------- table ----------------
 
-    private colSpecs(): { ytd: ColSpec[]; fy: ColSpec[] } {
+    private colSpecs(): Block[] {
         const ui = this.ui!;
-        if (ui.view === "waterfall") {
-            // classic IBCS P&L cascade: reference column and AC column as row
-            // waterfalls (contributions float, subtotals/formulas anchor), then Δ columns
+        const months = this.model!.months;
+        const last = months.length > 0 ? this.monthLabel(months[months.length - 1]) : "";
+        const year = months.length > 0 ? months[0].slice(0, 4) : "";
+        const ytdLabel = months.length > 0
+            ? `${year} ${this.monthLabel(months[0])}..${last} (_${last}) · ${this.str("year to date", "Jahresverlauf")}`
+            : this.str("current period", "aktueller Zeitraum");
+        const mtdLabel = `MTD ${last} · ${this.str("month", "Monat")}`;
+        const fyLabel = `FY ${year} · ${this.str("outlook", "Ausblick")} AC&FC ${this.str("vs", "vs.")} PL`;
+        const fyOn = this.has.fcfy && this.has.plfy && ui.blocks.fy;
+        const blocks: Block[] = [];
+
+        if (ui.view === "waterfall" || ui.view === "bars") {
             const r = this.has[ui.ref] ? ui.ref : (this.has.pl ? "pl" : "py");
-            const ytdW: ColSpec[] = [];
-            if (this.has[r]) { ytdW.push({ kind: "wbar", scen: r, label: r.toUpperCase() }); }
-            ytdW.push({ kind: "wbar", scen: "ac", label: "AC" });
-            if (this.has[r]) {
-                ytdW.push({ kind: "bar", ref: r, minuend: "ac", label: `Δ${r.toUpperCase()}` });
-                ytdW.push({ kind: "pin", ref: r, minuend: "ac", label: `Δ${r.toUpperCase()}%` });
+            const kind = ui.view === "waterfall" ? "wbar" : "vbar";
+            const mk = (block: "mtd" | "ytd" | "fy"): ColSpec[] => {
+                const specs: ColSpec[] = [];
+                const ref: Scenario = block === "fy" ? "plfy" : r;
+                const minuend: Scenario = block === "fy" ? "fcfy" : "ac";
+                if (ui.view === "waterfall") {
+                    if (this.has[ref]) { specs.push({ kind: "wbar", scen: ref, block, label: block === "fy" ? "PL" : ref.toUpperCase() }); }
+                    specs.push({ kind: "wbar", scen: minuend, block, label: block === "fy" ? "AC&FC" : "AC" });
+                } else {
+                    specs.push({ kind: "vbar", scen: minuend, ref, block, label: block === "fy" ? "AC&FC · PL" : `AC · ${ref.toUpperCase()}` });
+                }
+                if (this.has[ref]) {
+                    specs.push({ kind: "bar", ref, minuend, block, label: `Δ${block === "fy" ? "PL" : ref.toUpperCase()}` });
+                    specs.push({ kind: "pin", ref, minuend, block, label: `Δ${block === "fy" ? "PL" : ref.toUpperCase()}%` });
+                }
+                return specs;
+            };
+            if (ui.view === "waterfall" && ui.blocks.mtd && months.length > 1) {
+                blocks.push({ key: "mtd", label: mtdLabel, specs: mk("mtd") });
             }
-            return { ytd: ytdW, fy: [] };
+            if (ui.blocks.ytd || blocks.length === 0 && !fyOn) {
+                blocks.push({ key: "ytd", label: ytdLabel, specs: mk("ytd") });
+            }
+            if (fyOn) { blocks.push({ key: "fy", label: fyLabel, specs: mk("fy") }); }
+            void kind;
+            return blocks;
         }
-        if (ui.view === "bars") {
-            // CFO structure view: horizontal AC bar with the reference behind it,
-            // then delta bar and delta-percent pin — same rows, same hierarchy
-            const r = this.has[ui.ref] ? ui.ref : (this.has.pl ? "pl" : "py");
-            const ytdB: ColSpec[] = [
-                { kind: "vbar", scen: "ac", ref: r, label: `AC · ${r.toUpperCase()}` },
-                { kind: "bar", ref: r, minuend: "ac", label: `Δ${r.toUpperCase()}` },
-                { kind: "pin", ref: r, minuend: "ac", label: `Δ${r.toUpperCase()}%` },
-            ];
-            const fyB: ColSpec[] = this.has.fcfy && this.has.plfy ? [
-                { kind: "vbar", scen: "fcfy", ref: "plfy", label: "FC · PL" },
-                { kind: "bar", ref: "plfy", minuend: "fcfy", label: "ΔPL" },
-                { kind: "pin", ref: "plfy", minuend: "fcfy", label: "ΔPL%" },
-            ] : [];
-            return { ytd: ytdB, fy: fyB };
-        }
-        const ytd: ColSpec[] = [{ kind: "val", scen: "ac", label: "AC" }];
-        if (ui.pctRev) { ytd.push({ kind: "pct", label: "% Rev" }); }
+
+        const ytd: ColSpec[] = [{ kind: "val", scen: "ac", block: "ytd", label: "AC" }];
+        if (ui.pctRev) { ytd.push({ kind: "pct", block: "ytd", label: "% Rev" }); }
         const fy: ColSpec[] = [];
         const push = (arr: ColSpec[], ref: Scenario, minuend: Scenario, withVal: boolean, valScen?: Scenario): void => {
-            if (withVal && valScen) { arr.push({ kind: "val", scen: valScen, label: valScen === "plfy" ? "PL" : valScen.toUpperCase() }); }
-            arr.push({ kind: "bar", ref, minuend, label: `Δ${ref === "plfy" ? "PL" : ref.toUpperCase()}` });
-            arr.push({ kind: "pin", ref, minuend, label: `Δ${ref === "plfy" ? "PL" : ref.toUpperCase()}%` });
+            if (withVal && valScen) { arr.push({ kind: "val", scen: valScen, block: "ytd", label: valScen === "plfy" ? "PL" : valScen.toUpperCase() }); }
+            arr.push({ kind: "bar", ref, minuend, block: "ytd", label: `Δ${ref === "plfy" ? "PL" : ref.toUpperCase()}` });
+            arr.push({ kind: "pin", ref, minuend, block: "ytd", label: `Δ${ref === "plfy" ? "PL" : ref.toUpperCase()}%` });
         };
         if (ui.preset === "full") {
             if (this.has.py) {
-                ytd.push({ kind: "val", scen: "py", label: "PY" });
-                ytd.push({ kind: "bar", ref: "py", minuend: "ac", label: "ΔPY" });
+                ytd.push({ kind: "val", scen: "py", block: "ytd", label: "PY" });
+                ytd.push({ kind: "bar", ref: "py", minuend: "ac", block: "ytd", label: "ΔPY" });
             }
             if (this.has.pl) {
-                ytd.push({ kind: "val", scen: "pl", label: "PL" });
-                ytd.push({ kind: "bar", ref: "pl", minuend: "ac", label: "ΔPL" });
-                ytd.push({ kind: "pin", ref: "pl", minuend: "ac", label: "ΔPL%" });
+                ytd.push({ kind: "val", scen: "pl", block: "ytd", label: "PL" });
+                ytd.push({ kind: "bar", ref: "pl", minuend: "ac", block: "ytd", label: "ΔPL" });
+                ytd.push({ kind: "pin", ref: "pl", minuend: "ac", block: "ytd", label: "ΔPL%" });
             }
-            if (this.has.fcfy && this.has.plfy) {
-                fy.push({ kind: "val", scen: "fcfy", label: "FC" });
-                fy.push({ kind: "val", scen: "plfy", label: "PL" });
-                fy.push({ kind: "bar", ref: "plfy", minuend: "fcfy", label: "ΔPL" });
-                fy.push({ kind: "pin", ref: "plfy", minuend: "fcfy", label: "ΔPL%" });
+            if (fyOn) {
+                fy.push({ kind: "val", scen: "fcfy", block: "fy", label: "FC" });
+                fy.push({ kind: "val", scen: "plfy", block: "fy", label: "PL" });
+                fy.push({ kind: "bar", ref: "plfy", minuend: "fcfy", block: "fy", label: "ΔPL" });
+                fy.push({ kind: "pin", ref: "plfy", minuend: "fcfy", block: "fy", label: "ΔPL%" });
             }
         } else if (ui.preset === "acref") {
-            const r = this.ui!.ref;
-            if (this.has[r]) { ytd.push({ kind: "val", scen: r, label: r.toUpperCase() }); push(ytd, r, "ac", false); }
+            const r2 = this.ui!.ref;
+            if (this.has[r2]) { ytd.push({ kind: "val", scen: r2, block: "ytd", label: r2.toUpperCase() }); push(ytd, r2, "ac", false); }
         } else if (ui.preset === "acpydpy" && this.has.py) {
-            ytd.push({ kind: "val", scen: "py", label: "PY" }); push(ytd, "py", "ac", false);
+            ytd.push({ kind: "val", scen: "py", block: "ytd", label: "PY" }); push(ytd, "py", "ac", false);
         } else if (ui.preset === "acpldpl" && this.has.pl) {
-            ytd.push({ kind: "val", scen: "pl", label: "PL" }); push(ytd, "pl", "ac", false);
+            ytd.push({ kind: "val", scen: "pl", block: "ytd", label: "PL" }); push(ytd, "pl", "ac", false);
         } else if (ui.preset === "dpct") {
-            if (this.has.py) { ytd.push({ kind: "pin", ref: "py", minuend: "ac", label: "ΔPY%" }); }
-            if (this.has.pl) { ytd.push({ kind: "pin", ref: "pl", minuend: "ac", label: "ΔPL%" }); }
+            if (this.has.py) { ytd.push({ kind: "pin", ref: "py", minuend: "ac", block: "ytd", label: "ΔPY%" }); }
+            if (this.has.pl) { ytd.push({ kind: "pin", ref: "pl", minuend: "ac", block: "ytd", label: "ΔPL%" }); }
         }
-        return { ytd, fy };
+        blocks.push({ key: "ytd", label: ytdLabel, specs: ytd });
+        if (fy.length > 0) { blocks.push({ key: "fy", label: `FY ${year} · ${this.str("outlook (FC)", "Ausblick (FC)")}`, specs: fy }); }
+        return blocks;
     }
 
     private buildTable(fmt: Fmt, maxAbsDelta: number): HTMLElement {
@@ -666,8 +713,12 @@ export class Visual implements IVisual {
         if (ui.hideZero) { visible = visible.filter(n => n.row.rowType === "separator" || !isZeroRow(n)); }
 
         const revBase = revenueBase(model, this.settings.columnsCard.revenueBase.value);
-        const { ytd, fy } = this.colSpecs();
-        const cols = [...ytd, ...(fy.length ? [{ kind: "gap", label: "" } as ColSpec] : []), ...fy];
+        const blocks = this.colSpecs();
+        const cols: ColSpec[] = [];
+        blocks.forEach((b, i) => {
+            if (i > 0) { cols.push({ kind: "gap", label: "" }); }
+            cols.push(...b.specs);
+        });
 
         // label maxima → column widths (no clipped numbers, uniform per column kind)
         let dLabelLen = 2; let pLabelLen = 3;
@@ -675,10 +726,10 @@ export class Visual implements IVisual {
             if (node.row.rowType === "kpi") { continue; }
             for (const c of cols) {
                 if (c.kind === "bar") {
-                    const v = variance(node, c.ref!, c.minuend!);
+                    const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
                     if (v.delta != null) { dLabelLen = Math.max(dLabelLen, fmt.val(v.delta, true).length); }
                 } else if (c.kind === "pin") {
-                    const v = variance(node, c.ref!, c.minuend!);
+                    const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
                     if (v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(this.capPct(v.deltaPct), true) + "▸").length); }
                 }
             }
@@ -696,10 +747,15 @@ export class Visual implements IVisual {
         // waterfall view: cascade segments per scenario (tree order, expand-independent)
         this.wfSegs.clear();
         if (cols.some(c => c.kind === "wbar")) {
+            const li = model.months.length - 1;
             for (const c of cols) {
-                if (c.kind === "wbar" && !this.wfSegs.has(c.scen!)) {
-                    this.wfSegs.set(c.scen!, this.cascadeSegments(c.scen!));
-                }
+                if (c.kind !== "wbar") { continue; }
+                const key = `${c.block}:${c.scen}`;
+                if (this.wfSegs.has(key)) { continue; }
+                const read = c.block === "mtd"
+                    ? (n: PnlNode): number | null => n.series[c.scen!]?.[li] ?? null
+                    : (n: PnlNode): number | null => n.computed[c.scen!];
+                this.wfSegs.set(key, this.cascadeSegments(read));
             }
         }
 
@@ -726,7 +782,8 @@ export class Visual implements IVisual {
         }
         if (this.wfSegs.size > 0) {
             let maxPosD = 0; let maxNegD = 0; let vLabelLen = 2;
-            for (const [scen, segs] of this.wfSegs) {
+            for (const [key, segs] of this.wfSegs) {
+                const scen = key.split(":")[1] as Scenario;
                 for (const node of model.byId.values()) {
                     const seg = segs.get(node.row.id);
                     if (!seg) { continue; }
@@ -757,7 +814,7 @@ export class Visual implements IVisual {
 
         const table = document.createElement("div");
         table.style.cssText = "display:table;border-collapse:collapse;";
-        table.appendChild(this.blockHeaderRow(ytd, fy, geo));
+        table.appendChild(this.blockHeaderRow(blocks, geo));
         table.appendChild(this.headerRow(cols, geo));
         for (const node of visible) {
             table.appendChild(this.bodyRow(node, cols, fmt, geo, revBase));
@@ -776,35 +833,20 @@ export class Visual implements IVisual {
         return c;
     }
 
-    private blockHeaderRow(ytd: ColSpec[], fy: ColSpec[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number }): HTMLElement {
-        const months = this.model!.months;
+    private blockHeaderRow(blocks: Block[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number }): HTMLElement {
         const row = document.createElement("div");
         row.style.cssText = "display:table-row;";
         row.appendChild(this.cell(0, "left", geo.fs));
-        const span = (specs: ColSpec[], label: string): void => {
-            if (specs.length === 0) { return; }
-            const c = this.cell(0, "center", 9);
-            c.style.cssText += `color:${C.soft};border-bottom:1px solid ${C.gridSoft};`;
-            let colCount = 0;
-            for (const s of specs) { colCount++; void s; }
-            // emulate colspan with a positioned wrapper: use table-cell per col but label only once
-            c.textContent = label;
-            row.appendChild(c);
-            for (let i = 1; i < colCount; i++) {
-                const f = this.cell(0, "center", 9);
-                f.style.cssText += `border-bottom:1px solid ${C.gridSoft};`;
-                row.appendChild(f);
-            }
-        };
-        const last = months.length > 0 ? this.monthLabel(months[months.length - 1]) : "";
-        const year = months.length > 0 ? months[0].slice(0, 4) : "";
-        span(ytd, months.length > 0
-            ? `${year} ${this.monthLabel(months[0])}..${last} (_${last}) · ${this.str("year to date", "Jahresverlauf")}`
-            : this.str("current period", "aktueller Zeitraum"));
-        if (fy.length > 0) {
-            const gap = this.cell(18, "center", 9); row.appendChild(gap);
-            span(fy, `FY ${year || ""} · ${this.str("outlook (FC)", "Ausblick (FC)")}`);
-        }
+        blocks.forEach((b, bi) => {
+            if (bi > 0) { row.appendChild(this.cell(18, "center", 9)); }
+            b.specs.forEach((spec, si) => {
+                const c = this.cell(0, "center", 9);
+                c.style.cssText += `color:${C.soft};border-bottom:1px solid ${C.gridSoft};`;
+                if (si === 0) { c.textContent = b.label; c.style.whiteSpace = "nowrap"; }
+                void spec;
+                row.appendChild(c);
+            });
+        });
         return row;
     }
 
@@ -944,7 +986,7 @@ export class Visual implements IVisual {
                 cell.textContent = !isRatio && base != null && base !== 0 && v != null
                     ? fmt.pct(Math.abs(v / base)) : "";
             } else {
-                const v = variance(node, c.ref!, c.minuend!);
+                const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
                 if (isRatio) {
                     cell = this.cell(c.kind === "bar" ? geo.barW : geo.pinW, "center", geo.fs - 1);
                     if (c.kind === "bar" && v.delta != null) {
@@ -1075,14 +1117,14 @@ export class Visual implements IVisual {
      * float on a running total, formula rows anchor at the axis and reset it.
      * Children cascade inside their parent's segment. Expand-state independent.
      */
-    private cascadeSegments(scen: Scenario): Map<string, { s: number; e: number }> {
+    private cascadeSegments(read: (n: PnlNode) => number | null): Map<string, { s: number; e: number }> {
         const segs = new Map<string, { s: number; e: number }>();
         const walkChildren = (node: PnlNode, start: number): void => {
             let cum = start;
             for (const c of node.children) {
                 const t = c.row.rowType;
                 if (t === "kpi" || t === "separator") { continue; }
-                const v = c.computed[scen];
+                const v = read(c);
                 if (t === "formula") { continue; } // nested formulas: no cascade segment
                 if (v == null) { continue; }
                 segs.set(c.row.id, { s: cum, e: cum + v });
@@ -1094,7 +1136,7 @@ export class Visual implements IVisual {
         for (const r of this.model!.roots) {
             const t = r.row.rowType;
             if (t === "kpi" || t === "separator") { continue; }
-            const v = r.computed[scen];
+            const v = read(r);
             if (v == null) { continue; }
             if (t === "formula") {
                 segs.set(r.row.id, { s: 0, e: v });
@@ -1121,7 +1163,8 @@ export class Visual implements IVisual {
             cell.textContent = fmt.pct(displayValue(node, scen));
             return cell;
         }
-        const seg = this.wfSegs.get(scen)?.get(node.row.id);
+        const block = c.block ?? "ytd";
+        const seg = this.wfSegs.get(`${block}:${scen}`)?.get(node.row.id);
         if (!seg) { return cell; }
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
@@ -1148,6 +1191,22 @@ export class Visual implements IVisual {
         rect.setAttribute("fill", fill);
         if (isPlan || hatch) { rect.setAttribute("stroke", C.ac); rect.setAttribute("stroke-width", "1"); }
         svg.appendChild(rect);
+        // FY outlook AC&FC composite: realized AC share solid, FC remainder stays hatched
+        if (block === "fy" && scen === "fcfy") {
+            const acv = node.computed.ac;
+            const tot = node.computed.fcfy;
+            if (acv != null && tot != null && tot !== 0 && acv / tot > 0 && Math.abs(acv) <= Math.abs(tot)) {
+                const share = Math.abs(acv / tot);
+                const solid = document.createElementNS(ns, "rect");
+                const segW = Math.max(x1 - x0, 1) * share;
+                solid.setAttribute("x", String((node.computed.fcfy ?? 0) >= 0 ? x0 : x1 - segW));
+                solid.setAttribute("y", "2");
+                solid.setAttribute("width", String(segW));
+                solid.setAttribute("height", String(h - 4));
+                solid.setAttribute("fill", C.ac);
+                svg.appendChild(solid);
+            }
+        }
         // axis for anchors (full bars start at the axis)
         const axis = document.createElementNS(ns, "line");
         axis.setAttribute("x1", String(geo.vAxisX)); axis.setAttribute("x2", String(geo.vAxisX));
@@ -1155,9 +1214,11 @@ export class Visual implements IVisual {
         axis.setAttribute("stroke", C.ac); axis.setAttribute("stroke-width", "1");
         svg.appendChild(axis);
         // label: display value, outside — right of segment for growth, left for decrease
-        const dv = displayValue(node, scen);
+        const li = this.model!.months.length - 1;
+        const rawV = block === "mtd" ? (node.series[scen]?.[li] ?? null) : node.computed[scen];
+        const dv = rawV == null ? null : (node.row.displayInvert ? -rawV : rawV);
         if (dv != null) {
-            const grow = (node.computed[scen] ?? 0) >= 0;
+            const grow = (rawV ?? 0) >= 0;
             const txt = document.createElementNS(ns, "text");
             txt.setAttribute("x", String(grow ? x1 + 3 : x0 - 3));
             txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));

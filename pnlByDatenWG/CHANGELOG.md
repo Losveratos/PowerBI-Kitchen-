@@ -1,5 +1,21 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.4.0.0 (2026-08-02) — Perioden-Blöcke MTD | YTD | FY mit AC&FC-Outlook
+
+- Neue Toolbar-Gruppe **„Perioden"**: MTD, YTD und FY als zu-/abschaltbare
+  Blöcke — im Waterfall bis zu **drei Kaskaden-Paare nebeneinander**
+  (MTD aus dem letzten Monat der Auswahl, YTD, FY-Ausblick), jeweils mit
+  eigenen Δ-Balken und Δ%-Pins
+- **FY-Ausblick als AC&FC-Composite** (IBCS: „outlined füllt sich beim
+  Materialisieren"): realisierter AC-Anteil solide, FC-Rest schraffiert,
+  verglichen gegen PL Gesamtjahr
+- MTD-Varianzen rechnen aus der Monatsserie (letzter Monat des Filters);
+  PL hat jetzt ebenfalls eine Monatsserie
+- Eine gemeinsame Skala über alle Kaskaden-Blöcke (IBCS UN 5.2: gleiche
+  Einheit = gleiche Skala) und eine gemeinsame Δ-Skala über alle Blöcke
+- FY-Block in Tabelle und Bars respektiert den Perioden-Toggle
+
+
 ## 0.3.2.0 (2026-08-02) — Zeilen-Waterfall als dritte Ansicht
 
 - Neue Ansicht **Waterfall** (klassische IBCS-GuV-Kaskade, zusätzlich zu

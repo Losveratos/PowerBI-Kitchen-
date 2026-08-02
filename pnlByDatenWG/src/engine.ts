@@ -19,7 +19,7 @@ export const SCENARIOS: Scenario[] = ["ac", "py", "pl", "fc", "fcfy", "plfy"];
 /** Full-year scalars: repeated per month in month-grain data — first value wins, never summed. */
 export const FY_SCENARIOS: Scenario[] = ["fcfy", "plfy"];
 /** Scenarios that carry a monthly series for sparklines. */
-export const SERIES_SCENARIOS: Scenario[] = ["ac", "py", "fc"];
+export const SERIES_SCENARIOS: Scenario[] = ["ac", "py", "pl", "fc"];
 
 export type RowType = "account" | "subtotal" | "formula" | "kpi" | "separator";
 

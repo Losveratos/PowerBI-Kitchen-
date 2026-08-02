@@ -11,7 +11,7 @@
 </head>
 <body>
 <div class="case"><h4>p1 · Voll-Layout: Toolbar · YTD- + FY-Block · %Rev · Kommentare · Konten-IDs · Ebene 2</h4><div class="stage" id="p1" style="width:1560px;height:900px"></div></div>
-<div class="case"><h4>p2 · Zeilen-Waterfall (uiState view=waterfall) · PL-Kaskade | AC-Kaskade | ΔPL | ΔPL%</h4><div class="stage" id="p2" style="width:1250px;height:760px"></div></div>
+<div class="case"><h4>p2 · Zeilen-Waterfall · 3 Perioden-Blöcke MTD | YTD | FY (AC&amp;FC vs PL)</h4><div class="stage" id="p2" style="width:2100px;height:780px"></div></div>
 <div class="case"><h4>p7 · Struktur-Balken-Ansicht (view=bars) · AC vs PL + FY-Block</h4><div class="stage" id="p7" style="width:1250px;height:640px"></div></div>
 <div class="case"><h4>p3 · Compact · Preset AC·PL·ΔPL · ohne %Rev · Nullzeilen aus · alles auf</h4><div class="stage" id="p3" style="width:1100px;height:800px"></div></div>
 <div class="case"><h4>p4 · Preset ΔPY%·ΔPL% · IBCS-Grün klassisch · de-DE</h4><div class="stage" id="p4" style="width:900px;height:760px"></div></div>
@@ -81,11 +81,11 @@ const TITLE = {
 // p1 — full sample layout
 run("p1", { titleBlock: TITLE, hierarchy: { defaultLevel: 2 } });
 
-// p2 — row waterfall
+// p2 — row waterfall with all three period blocks (MTD | YTD | FY AC&FC)
 run("p2", {
   titleBlock: { measureLine: "Income statement (P&L) in mEUR" },
   hierarchy: { defaultLevel: 1 },
-  state: { uiState: JSON.stringify({ view: "waterfall" }) },
+  state: { uiState: JSON.stringify({ view: "waterfall", blocks: { mtd: true, ytd: true, fy: true } }) },
 });
 
 // p7 — structure bars
