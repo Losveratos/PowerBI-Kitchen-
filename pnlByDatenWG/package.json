@@ -1,7 +1,7 @@
 {
   "name": "pnl-by-datenwg",
   "description": "IBCS-inspired P&L statement custom visual for Power BI",
-  "version": "0.3.1.0",
+  "version": "0.3.2.0",
   "license": "MIT",
   "scripts": {
     "pbiviz": "pbiviz",

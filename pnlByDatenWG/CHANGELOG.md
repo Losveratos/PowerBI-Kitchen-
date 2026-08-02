@@ -1,5 +1,20 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.3.2.0 (2026-08-02) — Zeilen-Waterfall als dritte Ansicht
+
+- Neue Ansicht **Waterfall** (klassische IBCS-GuV-Kaskade, zusätzlich zu
+  Table und Bars): Referenz-Spalte und AC-Spalte als horizontale
+  Zeilen-Wasserfälle — Beiträge floaten auf der laufenden Summe,
+  Formelzeilen (Gross profit, EBITDA, …) ankern als volle Balken an der
+  Achse und setzen die Kaskade zurück; Kinder kaskadieren innerhalb des
+  Eltern-Segments (Aufklappen funktioniert). Daneben Δ-Balken und Δ%-Pins
+  gegen die Toolbar-Referenz.
+- Szenario-Notation in der Kaskade: AC solide, PY grau, PL outlined,
+  FC schraffiert; Assisting Line an der Laufkante; Labels außen
+  (Zuwachs rechts, Abnahme links), Summen fett; eine gemeinsame Skala
+  für beide Kaskaden-Spalten.
+
+
 ## 0.3.1.0 (2026-08-02) — Struktur-Balken statt Waterfall (CFO-Feedback)
 
 - Die Waterfall-Ansicht ist durch eine **Struktur-Balken-Ansicht** ersetzt

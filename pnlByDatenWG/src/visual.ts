@@ -44,7 +44,7 @@ const C = {
     comment: "#0064FF",
 };
 
-type ViewMode = "table" | "bars";
+type ViewMode = "table" | "bars" | "waterfall";
 type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct";
 type Unit = "auto" | "none" | "k" | "m";
 type Density = "normal" | "compact";
@@ -62,7 +62,7 @@ interface UiState {
 }
 
 interface ColSpec {
-    kind: "val" | "pct" | "bar" | "pin" | "gap" | "vbar";
+    kind: "val" | "pct" | "bar" | "pin" | "gap" | "vbar" | "wbar";
     scen?: Scenario;      // for val
     ref?: Scenario;       // for bar/pin
     minuend?: Scenario;   // for bar/pin ("ac" | "fcfy")
@@ -89,6 +89,7 @@ export class Visual implements IVisual {
     private locale = "en-US";
 
     private ui: UiState | null = null;
+    private wfSegs = new Map<Scenario, Map<string, { s: number; e: number }>>();
     private stateLoaded = false;
     private pendingPersist: string | null = null;
     private lastApplied: string | null = null;
@@ -268,7 +269,6 @@ export class Visual implements IVisual {
         if (str != null && str !== this.lastApplied) {
             try {
                 this.ui = { ...this.defaultUi(), ...JSON.parse(str) as Partial<UiState> };
-                if ((this.ui.view as string) === "waterfall") { this.ui.view = "bars"; }
                 this.lastApplied = str;
                 this.stateLoaded = true;
             } catch { /* keep current */ }
@@ -400,9 +400,9 @@ export class Visual implements IVisual {
     private deltaCombos(): { ref: Scenario; minuend: Scenario }[] {
         const ui = this.ui!;
         const out: { ref: Scenario; minuend: Scenario }[] = [];
-        if (ui.view === "bars") {
+        if (ui.view === "bars" || ui.view === "waterfall") {
             if (this.has[ui.ref]) { out.push({ ref: ui.ref, minuend: "ac" }); }
-            if (this.has.fcfy && this.has.plfy) { out.push({ ref: "plfy", minuend: "fcfy" }); }
+            if (ui.view === "bars" && this.has.fcfy && this.has.plfy) { out.push({ ref: "plfy", minuend: "fcfy" }); }
             return out;
         }
         if (ui.preset === "full") {
@@ -487,6 +487,8 @@ export class Visual implements IVisual {
             this.tbBtn("Table", ui.view === "table", () => { ui.view = "table"; }),
             this.tbBtn("Bars", ui.view === "bars", () => { ui.view = "bars"; },
                 this.str("Structure bars: AC vs reference per row", "Struktur-Balken: AC vs. Referenz je Zeile")),
+            this.tbBtn("Waterfall", ui.view === "waterfall", () => { ui.view = "waterfall"; },
+                this.str("Row waterfall: contributions cascade, subtotals anchor", "Zeilen-Waterfall: Beiträge kaskadieren, Summen ankern")),
         ]));
 
         const presets: [Preset, string][] = [
@@ -590,6 +592,19 @@ export class Visual implements IVisual {
 
     private colSpecs(): { ytd: ColSpec[]; fy: ColSpec[] } {
         const ui = this.ui!;
+        if (ui.view === "waterfall") {
+            // classic IBCS P&L cascade: reference column and AC column as row
+            // waterfalls (contributions float, subtotals/formulas anchor), then Δ columns
+            const r = this.has[ui.ref] ? ui.ref : (this.has.pl ? "pl" : "py");
+            const ytdW: ColSpec[] = [];
+            if (this.has[r]) { ytdW.push({ kind: "wbar", scen: r, label: r.toUpperCase() }); }
+            ytdW.push({ kind: "wbar", scen: "ac", label: "AC" });
+            if (this.has[r]) {
+                ytdW.push({ kind: "bar", ref: r, minuend: "ac", label: `Δ${r.toUpperCase()}` });
+                ytdW.push({ kind: "pin", ref: r, minuend: "ac", label: `Δ${r.toUpperCase()}%` });
+            }
+            return { ytd: ytdW, fy: [] };
+        }
         if (ui.view === "bars") {
             // CFO structure view: horizontal AC bar with the reference behind it,
             // then delta bar and delta-percent pin — same rows, same hierarchy
@@ -678,6 +693,16 @@ export class Visual implements IVisual {
         const pinW = 2 * (PIN_HALF + pLabelW + 4) + 8;
         const valW = compact ? 66 : 76;
 
+        // waterfall view: cascade segments per scenario (tree order, expand-independent)
+        this.wfSegs.clear();
+        if (cols.some(c => c.kind === "wbar")) {
+            for (const c of cols) {
+                if (c.kind === "wbar" && !this.wfSegs.has(c.scen!)) {
+                    this.wfSegs.set(c.scen!, this.cascadeSegments(c.scen!));
+                }
+            }
+        }
+
         // structure-bars view: shared display-space scale for the value bars
         let vAxisX = 0; let vPpu = 0; let vLabelW = 0; let vbarW = 0;
         if (cols.some(c => c.kind === "vbar")) {
@@ -695,6 +720,24 @@ export class Visual implements IVisual {
             }
             vLabelW = Math.ceil(vLabelLen * (fs * 0.52)) + 4;
             const span = compact ? 150 : 190;
+            vPpu = span / ((maxPosD + maxNegD) || 1);
+            vAxisX = 4 + vLabelW + maxNegD * vPpu;
+            vbarW = span + 2 * (vLabelW + 4) + 8;
+        }
+        if (this.wfSegs.size > 0) {
+            let maxPosD = 0; let maxNegD = 0; let vLabelLen = 2;
+            for (const [scen, segs] of this.wfSegs) {
+                for (const node of model.byId.values()) {
+                    const seg = segs.get(node.row.id);
+                    if (!seg) { continue; }
+                    maxPosD = Math.max(maxPosD, seg.s, seg.e);
+                    maxNegD = Math.max(maxNegD, -seg.s, -seg.e);
+                    const v = displayValue(node, scen);
+                    if (v != null) { vLabelLen = Math.max(vLabelLen, fmt.val(v).length); }
+                }
+            }
+            vLabelW = Math.ceil(vLabelLen * (fs * 0.52)) + 4;
+            const span = compact ? 190 : 240;
             vPpu = span / ((maxPosD + maxNegD) || 1);
             vAxisX = 4 + vLabelW + maxNegD * vPpu;
             vbarW = span + 2 * (vLabelW + 4) + 8;
@@ -772,7 +815,8 @@ export class Visual implements IVisual {
         for (const c of cols) {
             if (c.kind === "gap") { row.appendChild(this.cell(18, "center", 9)); continue; }
             const w = c.kind === "val" || c.kind === "pct" ? geo.valW
-                : c.kind === "vbar" ? geo.vbarW : c.kind === "bar" ? geo.barW : geo.pinW;
+                : (c.kind === "vbar" || c.kind === "wbar") ? geo.vbarW
+                : c.kind === "bar" ? geo.barW : geo.pinW;
             const cell = this.cell(w, c.kind === "val" || c.kind === "pct" ? "right" : "center", 9.5);
             cell.style.color = C.soft;
             if (c.kind === "val" && c.scen) {
@@ -888,6 +932,9 @@ export class Visual implements IVisual {
                     : fmt.val(displayValue(node, c.scen!));
             } else if (c.kind === "vbar") {
                 cell = this.valueBarCell(node, c, geo, fmt, isSum, isRatio);
+                if (lineTop) { cell.style.borderTop = `1px solid ${C.line}`; }
+            } else if (c.kind === "wbar") {
+                cell = this.cascadeBarCell(node, c, geo, fmt, isSum, isRatio);
                 if (lineTop) { cell.style.borderTop = `1px solid ${C.line}`; }
             } else if (c.kind === "pct") {
                 cell = this.cell(geo.valW, "right", geo.fs - 1);
@@ -1019,6 +1066,109 @@ export class Visual implements IVisual {
         txt.setAttribute("fill", color);
         txt.textContent = fmt.pct(v.deltaPct, true) + (overflow ? "▸" : "");
         svg.appendChild(txt);
+        cell.appendChild(svg);
+        return cell;
+    }
+
+    /**
+     * Cascade segments for the row waterfall (IBCS P&L): contributing rows
+     * float on a running total, formula rows anchor at the axis and reset it.
+     * Children cascade inside their parent's segment. Expand-state independent.
+     */
+    private cascadeSegments(scen: Scenario): Map<string, { s: number; e: number }> {
+        const segs = new Map<string, { s: number; e: number }>();
+        const walkChildren = (node: PnlNode, start: number): void => {
+            let cum = start;
+            for (const c of node.children) {
+                const t = c.row.rowType;
+                if (t === "kpi" || t === "separator") { continue; }
+                const v = c.computed[scen];
+                if (t === "formula") { continue; } // nested formulas: no cascade segment
+                if (v == null) { continue; }
+                segs.set(c.row.id, { s: cum, e: cum + v });
+                walkChildren(c, cum);
+                cum += v;
+            }
+        };
+        let rootCum = 0;
+        for (const r of this.model!.roots) {
+            const t = r.row.rowType;
+            if (t === "kpi" || t === "separator") { continue; }
+            const v = r.computed[scen];
+            if (v == null) { continue; }
+            if (t === "formula") {
+                segs.set(r.row.id, { s: 0, e: v });
+                walkChildren(r, 0);
+                rootCum = v;
+            } else {
+                segs.set(r.row.id, { s: rootCum, e: rootCum + v });
+                walkChildren(r, rootCum);
+                rootCum += v;
+            }
+        }
+        return segs;
+    }
+
+    /** row-waterfall cell: floating segment or anchor bar in scenario notation */
+    private cascadeBarCell(node: PnlNode, c: ColSpec,
+        geo: { rowH: number; fs: number; vbarW: number; vAxisX: number; vPpu: number },
+        fmt: Fmt, isSum: boolean, isRatio: boolean): HTMLElement {
+        const cell = this.cell(geo.vbarW, "left", geo.fs);
+        const h = geo.rowH - 3;
+        const scen = c.scen!;
+        if (isRatio) {
+            cell.style.cssText += `font-style:italic;color:${C.soft};text-align:center;`;
+            cell.textContent = fmt.pct(displayValue(node, scen));
+            return cell;
+        }
+        const seg = this.wfSegs.get(scen)?.get(node.row.id);
+        if (!seg) { return cell; }
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
+        const w = geo.vbarW - 8;
+        svg.setAttribute("width", String(w)); svg.setAttribute("height", String(h));
+        svg.style.cssText = "display:block;";
+        const x0 = geo.vAxisX + Math.min(seg.s, seg.e) * geo.vPpu;
+        const x1 = geo.vAxisX + Math.max(seg.s, seg.e) * geo.vPpu;
+        const isPlan = scen === "pl" || scen === "plfy";
+        const hatch = scen === "fc" || scen === "fcfy";
+        const pid = `pnlwf${node.row.index}${scen}`;
+        if (hatch) { this.hatchPattern(svg, ns, pid, C.ac); }
+        // assisting line at the segment's running edge (connects the cascade)
+        const assist = document.createElementNS(ns, "line");
+        assist.setAttribute("x1", String(x1)); assist.setAttribute("x2", String(x1));
+        assist.setAttribute("y1", "0"); assist.setAttribute("y2", String(h));
+        assist.setAttribute("stroke", C.gridSoft); assist.setAttribute("stroke-width", "1");
+        svg.appendChild(assist);
+        const rect = document.createElementNS(ns, "rect");
+        rect.setAttribute("x", String(x0)); rect.setAttribute("y", "2");
+        rect.setAttribute("width", String(Math.max(x1 - x0, 1)));
+        rect.setAttribute("height", String(h - 4));
+        const fill = scen === "ac" ? C.ac : scen === "py" ? C.py : isPlan ? "#FFF" : `url(#${pid})`;
+        rect.setAttribute("fill", fill);
+        if (isPlan || hatch) { rect.setAttribute("stroke", C.ac); rect.setAttribute("stroke-width", "1"); }
+        svg.appendChild(rect);
+        // axis for anchors (full bars start at the axis)
+        const axis = document.createElementNS(ns, "line");
+        axis.setAttribute("x1", String(geo.vAxisX)); axis.setAttribute("x2", String(geo.vAxisX));
+        axis.setAttribute("y1", "0"); axis.setAttribute("y2", String(h));
+        axis.setAttribute("stroke", C.ac); axis.setAttribute("stroke-width", "1");
+        svg.appendChild(axis);
+        // label: display value, outside — right of segment for growth, left for decrease
+        const dv = displayValue(node, scen);
+        if (dv != null) {
+            const grow = (node.computed[scen] ?? 0) >= 0;
+            const txt = document.createElementNS(ns, "text");
+            txt.setAttribute("x", String(grow ? x1 + 3 : x0 - 3));
+            txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
+            txt.setAttribute("text-anchor", grow ? "start" : "end");
+            txt.setAttribute("font-size", String(geo.fs - 1));
+            txt.setAttribute("font-family", FONT);
+            txt.setAttribute("fill", C.text);
+            if (isSum) { txt.setAttribute("font-weight", "600"); }
+            txt.textContent = fmt.val(dv);
+            svg.appendChild(txt);
+        }
         cell.appendChild(svg);
         return cell;
     }
