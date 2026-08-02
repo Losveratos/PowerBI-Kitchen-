@@ -182,6 +182,23 @@ export function rowsFromLevels(rows: LevelInputRow[]): { rows: InputRow[]; month
     for (const leaf of agg.rows) { synth.delete(leaf.id); }
     const out = [...synth.values(), ...agg.rows];
 
+    // synthetic parents inherit the smallest child sort — otherwise their
+    // first-seen data index would shuffle the P&L order at the root level
+    const minSort = new Map<string, number>();
+    for (let pass = 0; pass < 8; pass++) {
+        let changed = false;
+        for (const r of out) {
+            if (r.parent == null) { continue; }
+            const cur = minSort.get(r.parent);
+            const candidate = Math.min(r.sort, minSort.get(r.id) ?? r.sort);
+            if (cur == null || candidate < cur) { minSort.set(r.parent, candidate); changed = true; }
+        }
+        if (!changed) { break; }
+    }
+    for (const r of out) {
+        if (r.index === -1 && minSort.has(r.id)) { r.sort = minSort.get(r.id)!; }
+    }
+
     // an account leaf that other rows use as parent must aggregate like a
     // subtotal (own value = per-scenario fallback, no double counting)
     const parentIds = new Set<string>();
