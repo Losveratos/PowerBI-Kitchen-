@@ -4,6 +4,34 @@ Ideen-Sammlung: bewusst **nicht** sofort gebaut, aber nicht vergessen.
 Aufwand: S (< ½ Tag) · M (½–1 Tag) · L (mehrere Tage) · XL (Architektur).
 Neue Ideen bitte als GitHub-Issue anlegen oder hier ergänzen.
 
+## Beta-Feedback Alexander Korn (Juli 2026) — Kandidaten für die nächste Version
+
+Erster externer End-to-End-Test: 4 Instanzen (Columns · Bars · Tabelle ·
+KPI-Karten) auf einer Seite, Destatis-Hochschuldaten (~17,4 M Studierende,
+2019–2024), Desktop **und** Service (PBIR + gebündeltes Visual via Fabric
+REST API). Befund: rendert identisch, keine Konsolenfehler. Fünf Punkte:
+
+- [ ] **Bug: Rundungshinweis überlagert ΔPY-%-Spaltenkopf** (S) — im
+      Bars-Modus mit vielen Kategorien (17) kollidiert „Summe weicht
+      rundungsbedingt ab" mit der Panel-Überschrift; Hinweis versetzen
+      oder bei Platzmangel unter den Σ-Header ziehen (Screenshot ①).
+- [ ] **Schalter „Leerkategorie ausblenden"** (S) — `(blank)`-Kategorien
+      erscheinen als eigene Zeile/Balken/KPI-Karte; Opt-out-Toggle
+      (Standard: anzeigen, damit nichts still verschwindet) für alle Modi
+      inkl. Karten (Screenshot ②).
+- [ ] **Tabelle: gemeinsame Nullachse für ΔPY-Balken und ΔPY-%-Pins** (S–M) —
+      die beiden Varianz-Grafikspalten nutzen unterschiedliche
+      Nullachsen-Positionen, wirkt unruhig; Nulllinien vertikal alignen
+      oder zumindest optisch koppeln (Screenshot ③).
+- [ ] **KPI-Karten: Sortieren-Button vom Panel-Rand lösen** (S) — Chip
+      klebt an der Kachelkante; Innenabstand analog zu den
+      Brücken-Buttons.
+- [ ] **Erstlade-Performance bei mehreren Instanzen im Service messen** (M) —
+      4 Instanzen/Seite verlängern die Erstladung spürbar. Analyse:
+      Data-Reduction-Fenster (top 1000) vs. Render-Zeit profilen
+      (Performance Analyzer + `renderingFinished`-Telemetrie), dann
+      entscheiden: Lazy-Render, kleinere Erst-Fetches oder Doku-Hinweis.
+
 ## Barrierefreiheit
 
 - [ ] **Schraffur-Redundanz für „schlecht"** (M) — optionaler Schalter:
