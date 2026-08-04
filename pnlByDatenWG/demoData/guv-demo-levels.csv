@@ -1,0 +1,18 @@
+L1;L2;L3;RowType;FormulaDef;SignConvention;DisplayInvert;VarianceInvert;AC;PY;PL;FC
+Umsatzerlöse;Produkterlöse;;Account;;1;false;false;8200;7600;8500;8350
+Umsatzerlöse;Serviceerlöse;;Account;;1;false;false;3100;2800;2900;3150
+Sonst. betr. Erträge;Sonst. betr. Erträge;Sonst. betr. Erträge;Account;;1;false;false;240;210;200;250
+Betriebsaufwand;Materialaufwand;;Account;;-1;true;false;3900;3600;3700;3950
+Betriebsaufwand;Personalaufwand;Löhne & Gehälter;Account;;-1;true;false;2600;2450;2500;2650
+Betriebsaufwand;Personalaufwand;Sozialabgaben;Account;;-1;true;false;520;480;500;530
+Betriebsaufwand;Marketing;;Account;;-1;true;false;640;590;700;660
+Betriebsaufwand;IT & Infrastruktur;;Account;;-1;true;false;480;410;450;470
+EBITDA;;;Formula;[Umsatzerlöse]+[Sonst. betr. Erträge]+[Betriebsaufwand];1;false;false;;;;
+EBITDA-Marge;;;KPI;[EBITDA]/[Umsatzerlöse];1;false;false;;;;
+Abschreibungen;;;Account;;-1;true;false;380;360;380;380
+EBIT;;;Formula;[EBITDA]+[Abschreibungen];1;false;false;;;;
+Finanzergebnis;;;Account;;1;false;false;-95;-80;-90;-100
+EBT;;;Formula;[EBIT]+[Finanzergebnis];1;false;false;;;;
+Steuern;;;Account;;-1;true;true;310;290;320;330
+Jahresüberschuss;;;Formula;[EBT]+[Steuern];1;false;false;;;;
+Umsatzrendite;;;KPI;[Jahresüberschuss]/[Umsatzerlöse];1;false;false;;;;

@@ -1,0 +1,21 @@
+AccountID;ParentAccountID;AccountName;SortOrder;RowType;FormulaDef;SignConvention;DisplayInvert;VarianceInvert;AC;PY;PL;FC
+s_rev;;Umsatzerlöse;10;Subtotal;;1;false;false;;;;
+r_prod;s_rev;Produkterlöse;11;Account;;1;false;false;8200;7600;8500;8350
+r_svc;s_rev;Serviceerlöse;12;Account;;1;false;false;3100;2800;2900;3150
+oi;;Sonst. betr. Erträge;20;Account;;1;false;false;240;210;200;250
+s_opex;;Betriebsaufwand;30;Subtotal;;1;true;false;;;;
+mat;s_opex;Materialaufwand;31;Account;;-1;true;false;3900;3600;3700;3950
+s_pers;s_opex;Personalaufwand;32;Subtotal;;1;true;false;;;;
+pers_w;s_pers;Löhne & Gehälter;33;Account;;-1;true;false;2600;2450;2500;2650
+pers_s;s_pers;Sozialabgaben;34;Account;;-1;true;false;520;480;500;530
+mkt;s_opex;Marketing;35;Account;;-1;true;false;640;590;700;660
+it;s_opex;IT & Infrastruktur;36;Account;;-1;true;false;480;410;450;470
+ebitda;;EBITDA;40;Formula;[s_rev]+[oi]+[s_opex];1;false;false;;;;
+m_ebitda;;EBITDA-Marge;41;KPI;[ebitda]/[s_rev];1;false;false;;;;
+da;;Abschreibungen;50;Account;;-1;true;false;380;360;380;380
+ebit;;EBIT;51;Formula;[ebitda]+[da];1;false;false;;;;
+fin;;Finanzergebnis;60;Account;;1;false;false;-95;-80;-90;-100
+ebt;;EBT;61;Formula;[ebit]+[fin];1;false;false;;;;
+tax;;Steuern;70;Account;;-1;true;true;310;290;320;330
+ni;;Jahresüberschuss;80;Formula;[ebt]+[tax];1;false;false;;;;
+m_ni;;Umsatzrendite;81;KPI;[ni]/[s_rev];1;false;false;;;;

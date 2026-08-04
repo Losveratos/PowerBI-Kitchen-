@@ -1,0 +1,80 @@
+table DimKonten
+
+	column AccountID
+		dataType: string
+		summarizeBy: none
+		sourceColumn: AccountID
+
+	column L1
+		dataType: string
+		summarizeBy: none
+		sourceColumn: L1
+
+	column L2
+		dataType: string
+		summarizeBy: none
+		sourceColumn: L2
+
+	column L3
+		dataType: string
+		summarizeBy: none
+		sourceColumn: L3
+
+	column SortOrder
+		dataType: double
+		summarizeBy: none
+		sourceColumn: SortOrder
+
+	column RowType
+		dataType: string
+		summarizeBy: none
+		sourceColumn: RowType
+
+	column FormulaDef
+		dataType: string
+		summarizeBy: none
+		sourceColumn: FormulaDef
+
+	column SignConvention
+		dataType: double
+		summarizeBy: none
+		sourceColumn: SignConvention
+
+	column DisplayInvert
+		dataType: string
+		summarizeBy: none
+		sourceColumn: DisplayInvert
+
+	column VarianceInvert
+		dataType: string
+		summarizeBy: none
+		sourceColumn: VarianceInvert
+
+	partition DimKonten = m
+		mode: import
+		source =
+				let
+					Source = #table(
+						type table [AccountID = text, L1 = text, L2 = text, L3 = text, SortOrder = number, RowType = text, FormulaDef = text, SignConvention = number, DisplayInvert = text, VarianceInvert = text],
+						{
+							{"r_prod", "Umsatzerlöse", "Produkterlöse", null, 11.0, "Account", null, 1.0, "false", "false"},
+							{"r_svc", "Umsatzerlöse", "Serviceerlöse", null, 12.0, "Account", null, 1.0, "false", "false"},
+							{"oi", "Sonst. betr. Erträge", "Sonst. betr. Erträge", null, 20.0, "Account", null, 1.0, "false", "false"},
+							{"mat", "Betriebsaufwand", "Materialaufwand", null, 31.0, "Account", null, -1.0, "true", "false"},
+							{"pers_w", "Betriebsaufwand", "Personalaufwand", "Löhne & Gehälter", 33.0, "Account", null, -1.0, "true", "false"},
+							{"pers_s", "Betriebsaufwand", "Personalaufwand", "Sozialabgaben", 34.0, "Account", null, -1.0, "true", "false"},
+							{"mkt", "Betriebsaufwand", "Marketing", null, 35.0, "Account", null, -1.0, "true", "false"},
+							{"it", "Betriebsaufwand", "IT & Infrastruktur", null, 36.0, "Account", null, -1.0, "true", "false"},
+							{"da", "Abschreibungen", "Abschreibungen", null, 50.0, "Account", null, -1.0, "true", "false"},
+							{"fin", "Finanzergebnis", "Finanzergebnis", null, 60.0, "Account", null, 1.0, "false", "false"},
+							{"tax", "Steuern", "Steuern", null, 70.0, "Account", null, -1.0, "true", "true"},
+							{"ebitda", "EBITDA", null, null, 40.0, "Formula", "[Umsatzerlöse]+[Sonst. betr. Erträge]+[Betriebsaufwand]", 1.0, "false", "false"},
+							{"m_ebitda", "EBITDA-Marge", null, null, 41.0, "KPI", "[EBITDA]/[Umsatzerlöse]", 1.0, "false", "false"},
+							{"ebit", "EBIT", null, null, 51.0, "Formula", "[EBITDA]+[Abschreibungen]", 1.0, "false", "false"},
+							{"ebt", "EBT", null, null, 61.0, "Formula", "[EBIT]+[Finanzergebnis]", 1.0, "false", "false"},
+							{"ni", "Jahresüberschuss", null, null, 80.0, "Formula", "[EBT]+[Steuern]", 1.0, "false", "false"},
+							{"m_ni", "Umsatzrendite", null, null, 81.0, "KPI", "[Jahresüberschuss]/[Umsatzerlöse]", 1.0, "false", "false"}
+						}
+					)
+				in
+					Source

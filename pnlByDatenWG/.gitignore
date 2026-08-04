@@ -1,0 +1,10 @@
+node_modules/
+.tmp/
+webpack.statistics.*.html
+.eslintcache
+
+# render harness output
+test/visual.bundle.js
+test/*.png
+test/.tmp-engine.cjs
+test/.tmp-waterfall.js

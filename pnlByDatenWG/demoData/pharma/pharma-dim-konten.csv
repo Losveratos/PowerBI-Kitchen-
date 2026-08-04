@@ -1,0 +1,28 @@
+AccountID;L1;L2;L3;SortOrder;RowType;FormulaDef;SignConvention;DisplayInvert;VarianceInvert;Kommentar
+401010;Net revenue;Pharmaceuticals (Rx);;11;Account;;1;false;false;
+402000;Net revenue;Consumer Health;;12;Account;;1;false;false;
+402010;Net revenue;Contract manufacturing;;13;Account;;1;false;false;
+550010;Cost of goods sold;Materials;;21;Account;;-1;true;false;
+550020;Cost of goods sold;Production;;22;Account;;-1;true;false;
+550030;Cost of goods sold;Other cost of sales;;23;Account;;-1;true;false;
+F_GROSSPROFIT;Gross profit;;;25;Formula;[Net revenue]+[Cost of goods sold];1;false;false;
+K_GROSSMARGIN;Gross margin;;;26;KPI;[Gross profit]/[Net revenue];1;false;false;
+650010;Operating expenses;Research & development;;31;Account;;-1;true;false;
+650020;Operating expenses;Selling & marketing;;32;Account;;-1;true;false;
+650030;Operating expenses;General & administration;;33;Account;;-1;true;false;
+750110;Other operating result;License & milestone income;;36;Account;;1;false;false;"License & milestone income: 45.0 mEUR BioNova out-licensing milestone achieved and recognized in April; plan assumed 20.0 mEUR in September. Not yet reflected in the FC03 reference."
+750120;Other operating result;FX result;;37;Account;;1;false;false;"API & raw materials: supplier price index +9% YoY, partially offset by volume mix; hedging review ongoing."
+750130;Other operating result;Other operating expenses;;38;Account;;-1;true;false;
+F_EBITDA;EBITDA;;;40;Formula;[Gross profit]+[Operating expenses]+[Other operating result];1;false;false;
+K_EBITDAMARGIN;EBITDA margin;;;41;KPI;[EBITDA]/[Net revenue];1;false;false;
+800110;Depreciation & amortization;Depreciation sites & equipment;;51;Account;;-1;true;false;
+800120;Depreciation & amortization;Amortization intangibles;;52;Account;;-1;true;false;
+F_EBIT;EBIT;;;55;Formula;[EBITDA]+[Depreciation & amortization];1;false;false;
+K_EBITMARGIN;EBIT margin;;;56;KPI;[EBIT]/[Net revenue];1;false;false;
+850110;Financial result;Interest expense;;61;Account;;-1;true;false;
+850120;Financial result;Interest & investment income;;62;Account;;1;false;false;
+F_EBT;EBT;;;65;Formula;[EBIT]+[Financial result];1;false;false;
+900110;Income taxes;;;70;Account;;-1;true;true;
+F_NETINCOME;Net income;;;80;Formula;[EBT]+[Income taxes];1;false;false;
+K_NETMARGIN;Net margin;;;81;KPI;[Net income]/[Net revenue];1;false;false;
+999900;FX revaluation clearing;;;90;Account;;1;false;false;Data-quality demo: in the source system this account carries ParentAccountID 'TREAS.FX', which does not exist in the account dimension - in the Parent-Child demo dataset (guv-demo.csv) that produces a real orphan-bucket row. The Level-columns star schema used here has no parent-child field, so this line is modeled as its own root instead of being silently dropped (see README).

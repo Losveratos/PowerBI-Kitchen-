@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background: #f2f2f2; margin: 20px; }
+  .case { background: #fff; border: 1px solid #ddd; margin-bottom: 24px; padding: 8px; }
+  .case h4 { margin: 0 0 6px 0; font-size: 12px; color: #666; }
+  .stage { position: relative; }
+</style>
+</head>
+<body>
+<div class="case"><h4>p1 · Voll-Layout: Toolbar · YTD- + FY-Block · %Rev · Kommentare · Konten-IDs · Ebene 2</h4><div class="stage" id="p1" style="width:1560px;height:900px"></div></div>
+<div class="case"><h4>p2 · Zeilen-Waterfall · 3 Perioden-Blöcke MTD | YTD | FY (AC&amp;FC vs PL)</h4><div class="stage" id="p2" style="width:2100px;height:780px"></div></div>
+<div class="case"><h4>p7 · Struktur-Balken-Ansicht (view=bars) · AC vs PL + FY-Block</h4><div class="stage" id="p7" style="width:1250px;height:640px"></div></div>
+<div class="case"><h4>p3 · Compact · Preset AC·PL·ΔPL · ohne %Rev · Nullzeilen aus · alles auf</h4><div class="stage" id="p3" style="width:1100px;height:800px"></div></div>
+<div class="case"><h4>p4 · Preset ΔPY%·ΔPL% · IBCS-Grün klassisch · de-DE</h4><div class="stage" id="p4" style="width:900px;height:760px"></div></div>
+<div class="case"><h4>p5 · Landing Page</h4><div class="stage" id="p5" style="width:700px;height:200px"></div></div>
+<div class="case"><h4>p6 · Sparkline offen (12M) · Toolbar aus</h4><div class="stage" id="p6" style="width:1200px;height:820px"></div></div>
+<script src="visual.bundle.js"></script>
+<script src="demo-data.js"></script>
+<script>
+const Visual = PnlByDatenWG.Visual;
+
+function makeHost(locale) {
+  return {
+    locale: locale || "en-US",
+    colorPalette: { isHighContrast: false },
+    eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o,e){ console.error("renderfail", e); } },
+    createSelectionManager: () => ({ select: () => Promise.resolve([]), clear: () => Promise.resolve(), showContextMenu(){}, registerOnSelectCallback(){}, getSelectionIds: () => [] }),
+    createSelectionIdBuilder: () => ({ withCategory(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
+    tooltipService: { enabled: () => false, show(){}, move(){}, hide(){} },
+    createLocalizationManager: () => ({ getDisplayName: () => "" }),
+    persistProperties: () => {},
+  };
+}
+
+// dataview from PNL_DEMO.levelRows (engine LevelInputRow shape)
+function dv(objects) {
+  const rows = PNL_DEMO.levelRows;
+  const col = (role, name, vals) => ({ source: { roles: { [role]: true }, displayName: name, index: 0 }, values: vals });
+  const L = (i) => rows.map(r => r.levels[i] ?? null);
+  const categories = [
+    col("levels", "L1", L(0)), col("levels", "L2", L(1)), col("levels", "L3", L(2)),
+    col("account", "AccountID", rows.map(r => r.account)),
+    col("sortOrder", "Sort", rows.map(r => r.sort)),
+    col("rowType", "RowType", rows.map(r => r.rowType)),
+    col("formulaDef", "Formula", rows.map(r => r.formulaDef)),
+    col("signConvention", "Sign", rows.map(r => r.sign)),
+    col("displayInvert", "DispInv", rows.map(r => r.displayInvert)),
+    col("varianceInvert", "VarInv", rows.map(r => r.varianceInvert)),
+    col("period", "Monat", rows.map(r => r.month)),
+    col("comment", "Kommentar", rows.map(r => r.comment)),
+  ];
+  const values = [
+    col("ac", "AC", rows.map(r => r.values.ac ?? null)),
+    col("py", "PY", rows.map(r => r.values.py ?? null)),
+    col("pl", "PL", rows.map(r => r.values.pl ?? null)),
+    col("fcFy", "FC FY", rows.map(r => r.values.fcfy ?? null)),
+    col("plFy", "PL FY", rows.map(r => r.values.plfy ?? null)),
+  ];
+  return { categorical: { categories, values }, metadata: { objects: objects || {} } };
+}
+
+function run(id, objects, locale, empty) {
+  const el = document.getElementById(id);
+  const v = new Visual({ element: el, host: makeHost(locale) });
+  v.update({
+    dataViews: empty ? [] : [dv(objects)],
+    viewport: { width: el.clientWidth, height: el.clientHeight },
+    type: 2,
+  });
+}
+
+const TITLE = {
+  unitLine: "Daten-WG Knowledgekitchen Group · Consolidated",
+  measureLine: "Income statement (P&L) in mEUR",
+  message: "EBITDA _Jun +7.4% vs PL, o/w +45.0 unplanned April milestone; FY outlook -7.8% vs PL — milestone income absorbs API inflation.",
+};
+
+// p1 — full sample layout
+run("p1", { titleBlock: TITLE, hierarchy: { defaultLevel: 2 } });
+
+// p2 — row waterfall with all three period blocks (MTD | YTD | FY AC&FC)
+run("p2", {
+  titleBlock: { measureLine: "Income statement (P&L) in mEUR" },
+  hierarchy: { defaultLevel: 1 },
+  state: { uiState: JSON.stringify({ view: "waterfall", blocks: { mtd: true, ytd: true, fy: true } }) },
+});
+
+// p7 — structure bars
+run("p7", {
+  titleBlock: { measureLine: "Income statement (P&L) in mEUR" },
+  state: { uiState: JSON.stringify({ view: "bars" }) },
+});
+
+// p3 — compact, AC·PL·ΔPL, no %Rev, hide zero rows, expand all
+run("p3", {
+  style: { density: "compact" },
+  columns: { preset: "acpldpl", pctRevenue: false, hideZeroRows: true },
+  hierarchy: { defaultLevel: 0 },
+  toolbar: { showLegend: false },
+});
+
+// p4 — Δ% preset, classic IBCS green, German locale
+run("p4", {
+  columns: { preset: "dpct" },
+  style: { colorMode: "ibcs" },
+  hierarchy: { defaultLevel: 2 },
+}, "de-DE");
+
+// p5 — landing page
+run("p5", null, null, true);
+
+// p6 — sparkline open on first account, toolbar hidden
+run("p6", {
+  toolbar: { show: false },
+  hierarchy: { defaultLevel: 2 },
+  state: { uiState: JSON.stringify({ spark: [PNL_DEMO.levelRows.find(r => r.rowType === "account").account] }) },
+});
+</script>
+</body>
+</html>

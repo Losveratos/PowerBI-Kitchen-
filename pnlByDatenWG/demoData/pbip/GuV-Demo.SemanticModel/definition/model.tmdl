@@ -1,0 +1,7 @@
+model Model
+	culture: de-DE
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: de-DE
+
+ref table DimKonten
+ref table FactGuV
