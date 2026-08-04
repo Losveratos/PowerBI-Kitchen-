@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power BI Praxis-Pfad · Verkaufszahlen 2025 · Knowledge Kitchen</title>
+<meta name="description" content="Von null zum ersten fertigen Power-BI-Dashboard in gut zwei Stunden. Kostenlos, ohne Konto, ohne Vorkenntnisse.">
+<style>
+:root {
+  --bg:        #FAFAF5;
+  --bg-card:   #FFFFFF;
+  --bg-soft:   #F4F1E8;
+  --ink:       #1A1A1A;
+  --ink-soft:  #4A4A4A;
+  --ink-mute:  #6B6B6B;
+  --line:      #E5E2D8;
+  --line-strong: #1A1A1A;
+  --akzent:    #C0392B;
+  --akzent-soft: #FDF0EE;
+  --gruen:     #2A857A;
+  --gruen-soft:#EDF6F4;
+  --blau:      #1E3A5F;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 17px; line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+.pp-wrap { max-width: 780px; margin: 0 auto; padding: 0 20px 100px; }
+
+/* Kopf */
+.pp-hero { padding: 72px 0 40px; border-bottom: 2px solid var(--line-strong); }
+.pp-eyebrow {
+  font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-mute); font-weight: 600; margin-bottom: 18px;
+}
+.pp-hero h1 { font-size: clamp(34px, 6vw, 52px); line-height: 1.1; margin: 0 0 20px; font-weight: 700; }
+.pp-hero h1 em { font-style: italic; color: var(--akzent); }
+.pp-lead { font-size: 20px; color: var(--ink-soft); margin: 0 0 28px; }
+.pp-meta { display: flex; flex-wrap: wrap; gap: 10px; }
+.pp-badge {
+  background: var(--bg-soft); border: 1px solid var(--line); border-radius: 100px;
+  padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--ink-soft);
+}
+
+/* Warnkasten */
+.pp-hinweis {
+  background: var(--akzent-soft); border: 1px solid #F3C9C3;
+  border-left: 4px solid var(--akzent);
+  border-radius: 8px; padding: 18px 22px; margin: 32px 0;
+}
+.pp-hinweis strong { color: var(--akzent); }
+
+/* Navigation */
+.pp-nav { margin: 40px 0 0; }
+.pp-nav-titel { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-mute); font-weight: 600; margin-bottom: 14px; }
+.pp-nav-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.pp-nav-item {
+  display: flex; align-items: center; gap: 12px; text-decoration: none;
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: 8px;
+  padding: 12px 14px; color: var(--ink); transition: border-color .15s, transform .15s;
+}
+.pp-nav-item:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+.pp-nav-num {
+  flex: 0 0 28px; height: 28px; border-radius: 50%; background: var(--bg-soft);
+  display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--ink-soft);
+}
+.pp-nav-name { font-size: 15px; font-weight: 600; }
+
+/* Module */
+.pp-modul { padding: 56px 0 8px; border-bottom: 1px solid var(--line); scroll-margin-top: 20px; }
+.pp-modul-titel { font-size: clamp(26px, 4vw, 34px); line-height: 1.2; margin: 0 0 6px; font-weight: 700; }
+.pp-modul h2 { font-size: 22px; margin: 36px 0 10px; font-weight: 700; }
+.pp-modul h3 { font-size: 18px; margin: 28px 0 8px; font-weight: 700; color: var(--ink-soft); }
+.pp-modul p { margin: 0 0 16px; }
+.pp-modul em { color: var(--ink-mute); }
+.pp-modul ol, .pp-modul ul { margin: 0 0 18px; padding-left: 24px; }
+.pp-modul li { margin-bottom: 10px; }
+.pp-modul strong { font-weight: 700; }
+.pp-modul a { color: var(--blau); text-decoration: underline; text-underline-offset: 2px; }
+.pp-modul code {
+  background: var(--bg-soft); border: 1px solid var(--line); border-radius: 4px;
+  padding: 1px 6px; font-size: .88em; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* Die CSV-Adresse ist laenger als ein Handy-Display breit ist. Ohne den
+     Umbruch schiebt sie die ganze Seite seitlich raus. */
+  overflow-wrap: anywhere;
+}
+.pp-modul pre {
+  background: #1A1A1A; color: #F4F1E8; border-radius: 8px; padding: 16px 18px;
+  overflow-x: auto; font-size: 13px; line-height: 1.5;
+}
+.pp-modul pre code { background: none; border: none; padding: 0; color: inherit; }
+.pp-modul table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 15px; }
+.pp-modul th, .pp-modul td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.pp-modul th { background: var(--bg-soft); font-weight: 700; }
+
+/* Zitatblöcke nach Zweck */
+blockquote { margin: 22px 0; padding: 16px 20px; border-radius: 8px; border-left: 4px solid var(--line-strong); background: var(--bg-card); border: 1px solid var(--line); }
+blockquote p { margin: 0 0 10px; }
+blockquote p:last-child { margin-bottom: 0; }
+blockquote.pp-check { background: var(--gruen-soft); border-color: #BEE0DA; border-left: 4px solid var(--gruen); }
+blockquote.pp-warn { background: var(--akzent-soft); border-color: #F3C9C3; border-left: 4px solid var(--akzent); }
+blockquote.pp-note { background: var(--bg-soft); border-left: 4px solid var(--ink-mute); }
+blockquote.pp-tip { background: #F5F8FB; border-color: #D6E2EE; border-left: 4px solid var(--blau); }
+
+/* Kontrollpunkt: Überschrift und Kasten gehören zusammen */
+.pp-check-titel {
+  font-size: 17px !important; color: var(--gruen); margin: 32px 0 0 !important;
+  letter-spacing: .01em;
+}
+.pp-check-titel + blockquote { margin-top: 8px; }
+
+/* Neues Wort */
+.pp-wort {
+  background: var(--bg-soft); border: 1px solid var(--line);
+  border-radius: 10px; padding: 18px 22px; margin: 28px 0;
+}
+.pp-wort-label {
+  font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-mute); font-weight: 700; margin-bottom: 8px;
+}
+.pp-wort p { margin: 0 !important; }
+
+/* Screenshots */
+.pp-shot { margin: 26px 0; }
+.pp-shot img {
+  width: 100%; height: auto; display: block;
+  border: 1px solid var(--line); border-radius: 8px; background: #fff;
+}
+.pp-shot figcaption { font-size: 14px; color: var(--ink-mute); margin-top: 8px; }
+
+/* Fuss */
+.pp-foot { margin-top: 56px; padding-top: 28px; border-top: 2px solid var(--line-strong); font-size: 15px; color: var(--ink-mute); }
+.pp-foot a { color: var(--blau); }
+
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .pp-hero { padding: 44px 0 28px; }
+  .pp-modul { padding: 40px 0 8px; }
+}
+</style>
+</head>
+<body>
+<div class="pp-wrap">
+
+  <header class="pp-hero">
+    <div class="pp-eyebrow">Praxis-Pfad · Power BI · Für absolute Anfänger</div>
+    <h1>Dein erstes <em>Dashboard</em></h1>
+    <p class="pp-lead">Von der Installation bis zur fertigen Auswertung — in gut zwei
+    Stunden. Kostenlos, ohne Konto, ohne Vorkenntnisse. Du kannst jederzeit pausieren.</p>
+    <div class="pp-meta">
+      <span class="pp-badge">7 Module</span>
+      <span class="pp-badge">≈ 2 Stunden</span>
+      <span class="pp-badge">Kein Konto nötig</span>
+      <span class="pp-badge">Rettungsdatei je Kapitel</span>
+    </div>
+
+    <div class="pp-hinweis">
+      <strong>⚠️ Du brauchst einen Windows-Rechner.</strong> Power BI Desktop gibt es
+      nicht für Mac, nicht fürs iPad und nicht fürs Handy. Das ist eine Entscheidung
+      von Microsoft. Wenn du am Mac sitzt: Lies gern mit — mitmachen kannst du leider nicht.
+    </div>
+
+    <nav class="pp-nav">
+      <div class="pp-nav-titel">Die sieben Module</div>
+      <div class="pp-nav-grid">
+      <a class="pp-nav-item" href="#modul-0"><span class="pp-nav-num">0</span><span class="pp-nav-name">Installieren</span></a>
+      <a class="pp-nav-item" href="#modul-1"><span class="pp-nav-num">1</span><span class="pp-nav-name">Daten anbinden</span></a>
+      <a class="pp-nav-item" href="#modul-2"><span class="pp-nav-num">2</span><span class="pp-nav-name">Aufräumen</span></a>
+      <a class="pp-nav-item" href="#modul-3"><span class="pp-nav-num">3</span><span class="pp-nav-name">Erste Antworten</span></a>
+      <a class="pp-nav-item" href="#modul-4"><span class="pp-nav-num">4</span><span class="pp-nav-name">Filtern</span></a>
+      <a class="pp-nav-item" href="#modul-5"><span class="pp-nav-num">5</span><span class="pp-nav-name">Aggregation</span></a>
+      <a class="pp-nav-item" href="#modul-6"><span class="pp-nav-num">6</span><span class="pp-nav-name">Fertig machen</span></a>
+      <a class="pp-nav-item" href="#exkurs"><span class="pp-nav-num">Ex</span><span class="pp-nav-name">Exkurs</span></a>
+      </div>
+    </nav>
+  </header>
+
+<section class="pp-modul" id="modul-0">
+<h2 class="pp-modul-titel">Modul 0 · Power BI installieren</h2>
+<p><em>Etwa 15 Minuten · Du brauchst dafür kein Konto und musst nichts bezahlen.</em></p>
+<blockquote class="pp-warn">
+<p>⚠️ <strong>Nur für Windows.</strong> Power BI Desktop gibt es nicht für Mac und nicht fürs
+Tablet. Wenn du an einem Mac sitzt, kommst du hier leider nicht weiter.</p>
+</blockquote>
+<h2>Deine Aufgabe</h2>
+<p>Deine Chefin bittet dich, die Verkaufszahlen des letzten Jahres anzuschauen. Du bekommst dafür eine Datei aus dem System. Am Ende kannst du sagen: wie viel, wer, wann — und was auffällt.</p>
+<h2>Ziel dieses Moduls</h2>
+<p>Power BI Desktop ist installiert und startet.</p>
+<h2>So geht's</h2>
+<ol>
+<li>Öffne den <strong>Microsoft Store</strong> (Windows-Taste drücken, <code>Store</code> tippen, Enter).</li>
+<li>Suche im Store nach <strong>Power BI Desktop</strong> und klicke auf <strong>Installieren</strong>.
+   Das dauert ein paar Minuten — der Download ist groß.</li>
+<li>Klappt der Store nicht (zum Beispiel auf einem Firmenrechner), lade das
+   Programm stattdessen direkt bei Microsoft herunter:
+   <a href="https://powerbi.microsoft.com/de-de/desktop/">powerbi.microsoft.com/desktop</a>
+   → <strong>Kostenloser Download</strong>. Für diesen Weg brauchst du Administratorrechte.
+   Hast du die nicht, frag kurz deine IT — der Store-Weg braucht sie meist nicht.</li>
+<li>Starte <strong>Power BI Desktop</strong>. Der erste Start dauert etwas länger als die
+   späteren.</li>
+<li>Es öffnet sich ein Fenster, das dich zum Anmelden auffordert.
+   <strong>Schließe es</strong> — klick auf das X oben rechts im Fenster.</li>
+</ol>
+<blockquote class="pp-tip">
+<p>💡 <strong>Du brauchst kein Konto.</strong> Für alles in diesem Pfad reicht das Programm auf
+deinem Rechner. Ein Konto bräuchtest du erst, wenn du deine Auswertung im
+Internet mit anderen teilen willst. Das machen wir hier nicht.</p>
+</blockquote>
+<ol start="6">
+<li>Falls dich das Programm nach einer Datei fragt oder ein Startbildschirm
+   erscheint: Schließ auch den. Du solltest jetzt eine große leere weiße Fläche
+   sehen, oben ein Menüband mit <strong>Datei · Start · Einfügen · Modellierung ·
+   Ansicht · Hilfe</strong>.</li>
+</ol>
+<h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
+<blockquote class="pp-check">
+<p>Power BI Desktop ist offen und zeigt eine leere weiße Fläche.
+Oben links steht <strong>Datei</strong>, daneben <strong>Start</strong>.</p>
+<p>Siehst du das nicht? → Häufigste Ursache: Das Anmeldefenster liegt noch
+darüber oder hinter dem Hauptfenster — klick es weg.</p>
+</blockquote>
+<h2>Weiter</h2>
+<p>→ <a href="#modul-1">Modul 1 · Daten anbinden</a></p>
+</section>
+
+<section class="pp-modul" id="modul-1">
+<h2 class="pp-modul-titel">Modul 1 · Daten anbinden</h2>
+<p><em>Etwa 15 Minuten</em></p>
+<h2>Ziel dieses Moduls</h2>
+<p>Die Datei <code>verkaeufe_2025.csv</code> liegt in Power BI und du hast einmal draufgeschaut.</p>
+<h2>So geht's</h2>
+<figure class="pp-shot"><img src="assets/praxis-pfad/modul-01-daten-abrufen.png" alt="Menüband „Start&quot; — der rote Rahmen zeigt „Daten abrufen&quot;." loading="lazy"><figcaption>Menüband „Start&quot; — der rote Rahmen zeigt „Daten abrufen&quot;.</figcaption></figure>
+
+<ol>
+<li>Klicke im Menüband auf <strong>Start → Daten abrufen</strong>. Es klappt eine Liste auf.</li>
+<li>Wähle darin <strong>Web</strong>. (Steht es nicht in der Liste: <strong>Mehr…</strong> ganz unten,
+   dann links <strong>Andere</strong>, dann <strong>Web</strong>.)</li>
+<li>Ein Fenster <strong>Aus dem Web</strong> geht auf. Kopiere diese Adresse in das Feld <strong>URL</strong>:</li>
+</ol>
+<p><code>https://raw.githubusercontent.com/Losveratos/powerbi-einstieg/main/data/business/verkaeufe_2025.csv</code></p>
+<p>Klick dann auf <strong>OK</strong>.
+4. Jetzt fragt Power BI, wie es sich anmelden soll. Wähle links <strong>Anonym</strong> und
+   klick auf <strong>Verbinden</strong>. Anonym heißt: Die Datei ist öffentlich, es braucht
+   kein Passwort.
+5. Du siehst eine Vorschau der Daten. Sie sieht unordentlich aus — die Spalten
+   heißen <code>Column1</code>, <code>Column2</code> und so weiter, und in der ersten Zeile steht
+   Kauderwelsch. <strong>Das ist so gewollt.</strong> Genau das räumen wir im nächsten Modul auf.
+6. Klick unten rechts auf <strong>Laden</strong>. Nicht auf „Daten transformieren" — das
+   kommt gleich.
+7. Rechts erscheint der Bereich <strong>Daten</strong>, darin die Tabelle <strong>verkaeufe_2025</strong>.
+   Klick darauf, dann klappen die Spalten auf.
+8. Schau dir die Tabelle einmal ganz an: Klick links am Bildschirmrand auf das
+   mittlere der drei Symbole — die <strong>Tabellenansicht</strong> (ein Gittersymbol).
+   Jetzt siehst du die Daten wie in einer Tabelle.</p>
+<div class="pp-wort"><div class="pp-wort-label">📖 Neues Wort</div><p><strong>Zeile und Spalte.</strong> Eine <strong>Zeile</strong> ist ein einzelner Vorgang — hier: ein
+Auftrag. Eine <strong>Spalte</strong> ist eine Eigenschaft, die jeder Vorgang hat — hier zum
+Beispiel das Datum oder die Region. Alles, was du gleich baust, beruht auf
+dieser einen Idee.</p></div>
+<h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
+<blockquote class="pp-check">
+<p>Ganz unten am Bildschirmrand steht: <strong>verkaeufe_2025 (2.405 Zeilen)</strong>.</p>
+<p>Steht da was anderes? → Häufigste Ursache: Bei der Anmeldung war nicht
+<strong>Anonym</strong> ausgewählt, oder die Adresse wurde beim Kopieren abgeschnitten.
+Lösch die Abfrage rechts (Rechtsklick auf <strong>verkaeufe_2025</strong> → <strong>Aus Bericht
+löschen</strong>) und fang bei Schritt 1 neu an.</p>
+<p>Geht es gar nicht? Lade die Datei stattdessen herunter
+(<a href="https://github.com/Losveratos/powerbi-einstieg/releases/latest/download/verkaeufe_2025.csv">verkaeufe_2025.csv</a>) und binde sie über
+<strong>Start → Daten abrufen → Text/CSV</strong> ein. Der Rest der Anleitung bleibt gleich.</p>
+</blockquote>
+<h2>Weiter</h2>
+<p>→ <a href="#modul-2">Modul 2 · Aufräumen</a></p>
+</section>
+
+<section class="pp-modul" id="modul-2">
+<h2 class="pp-modul-titel">Modul 2 · Aufräumen</h2>
+<p><em>Etwa 25 Minuten · Das ist das längste Modul. Danach wird es leichter.</em></p>
+<h2>Ziel dieses Moduls</h2>
+<p>Aus der unordentlichen Datei wird eine saubere Tabelle mit richtigen
+Spaltennamen und richtigen Datentypen.</p>
+<h2>Vorher: warum überhaupt?</h2>
+<p>Rohdaten aus einem System sind nie sauber. In dieser Datei stecken fünf typische
+Probleme: eine Müllzeile ganz oben, fehlende Spaltenüberschriften, leere Zeilen
+mittendrin, Leerzeichen hinter manchen Werten und Zahlen, die Power BI für Text
+hält. Alle fünf reparieren wir jetzt — mit <strong>8 Handgriffen</strong>.</p>
+<h2>So geht's</h2>
+<figure class="pp-shot"><img src="assets/praxis-pfad/modul-02-transformieren.png" alt="Derselbe Menüband-Bereich — jetzt ist „Daten transformieren&quot; markiert." loading="lazy"><figcaption>Derselbe Menüband-Bereich — jetzt ist „Daten transformieren&quot; markiert.</figcaption></figure>
+
+<p>Klick zuerst im Menüband auf <strong>Start → Daten transformieren</strong>. Es öffnet sich
+ein neues Fenster: der <strong>Power Query-Editor</strong>. Hier arbeitest du das ganze Modul.</p>
+<p>Rechts siehst du eine Liste <strong>Angewendete Schritte</strong>. Dort erscheint jeder
+Handgriff als Eintrag. Merk dir die Liste — dazu unten mehr.</p>
+<p><strong>Handgriff 1 — Müllzeile weg</strong>
+Klick auf <strong>Start → Zeilen entfernen → Obere Zeilen entfernen</strong>. Tippe <strong>1</strong> ein
+und klick <strong>OK</strong>. Die Zeile mit dem Kauderwelsch ist weg.</p>
+<p><strong>Handgriff 2 — Überschriften setzen</strong>
+Klick auf <strong>Start → Erste Zeile als Überschrift verwenden</strong>. Aus <code>Column1</code> wird
+<code>Auftragsdatum</code>, aus <code>Column2</code> wird <code>Region</code> und so weiter.</p>
+<p><strong>Handgriff 3 — leere Zeilen weg</strong>
+Klick auf <strong>Start → Zeilen entfernen → Leere Zeilen entfernen</strong>.</p>
+<p><strong>Handgriff 4 — Leerzeichen abschneiden</strong>
+Klick oben auf die Spaltenüberschrift <strong>Region</strong>, sodass die Spalte markiert ist.
+Dann: <strong>Transformieren → Format → Kürzen</strong>. Damit verschwinden die unsichtbaren
+Leerzeichen hinter manchen Werten. Ohne diesen Schritt wären <code>Nord</code> und <code>Nord</code>
+später zwei verschiedene Regionen.</p>
+<p><strong>Handgriff 5 — Schreibweise vereinheitlichen</strong>
+Klick auf die Spaltenüberschrift <strong>Produktgruppe</strong>. Dann:
+<strong>Transformieren → Format → Jedes Wort großschreiben</strong>. Aus <code>bürobedarf</code> wird
+<code>Bürobedarf</code>. Auch hier gilt: Für Power BI sind Groß- und Kleinschreibung
+zwei verschiedene Dinge.</p>
+<p><strong>Handgriff 6 — Datum ist ein Datum</strong>
+Klick auf die Spaltenüberschrift <strong>Auftragsdatum</strong>. Links neben dem Namen steht
+ein kleines Symbol: <strong>ABC</strong> — das heißt „Power BI hält das für Text". Klick auf
+das Symbol und wähle <strong>Datum</strong>. Das Symbol wird zu einem Kalender.</p>
+<p><strong>Handgriff 7 — Umsatz ist eine Zahl</strong>
+Klick auf die Spaltenüberschrift <strong>Umsatz</strong>. Klick jetzt <strong>nicht</strong> auf das
+ABC-Symbol, sondern mach einen <strong>Rechtsklick</strong> auf die Überschrift und wähle
+<strong>Typ ändern → Gebietsschema verwenden…</strong>.
+Im Fenster stellst du ein:
+- Datentyp: <strong>Dezimalzahl</strong>
+- Gebietsschema: <strong>Englisch (USA)</strong></p>
+<p>Klick <strong>OK</strong>.</p>
+<blockquote class="pp-note">
+<p>Warum der Umweg? In der Datei stehen die Zahlen mit einem <strong>Punkt</strong> als
+Komma: <code>1796.80</code>. Dein Windows ist auf Deutsch eingestellt und liest den
+Punkt als Tausendertrennzeichen — aus 1796.80 € würden 179.680 €.
+Mit „Gebietsschema: Englisch (USA)" sagst du Power BI: <em>Diese Datei kommt
+aus einem englischsprachigen System, lies den Punkt als Komma.</em></p>
+</blockquote>
+<p><strong>Handgriff 8 — Marge ist eine Zahl</strong>
+Dasselbe noch einmal für die Spalte <strong>Marge</strong>: Rechtsklick auf die Überschrift →
+<strong>Typ ändern → Gebietsschema verwenden…</strong> → Datentyp <strong>Dezimalzahl</strong>,
+Gebietsschema <strong>Englisch (USA)</strong> → <strong>OK</strong>.</p>
+<p><strong>Fertig — jetzt zurück</strong>
+Klick oben links auf <strong>Start → Schließen &amp; übernehmen</strong>. Das Fenster schließt
+sich und Power BI lädt die saubere Tabelle.</p>
+<h2>Die Schrittliste ist dein Rezept</h2>
+<p>Rechts im Power Query-Editor stand die Liste <strong>Angewendete Schritte</strong>. Das ist
+kein Protokoll, sondern ein Rezept: Power BI arbeitet diese Liste jedes Mal neu
+ab, wenn die Daten aktualisiert werden. Du kannst jeden Schritt anklicken und
+sehen, wie die Tabelle an dieser Stelle aussah, und du kannst jeden Schritt mit
+dem <strong>X</strong> davor wieder löschen. Nichts, was du hier tust, ist endgültig — und
+die Ursprungsdatei wird nie verändert.</p>
+<div class="pp-wort"><div class="pp-wort-label">📖 Neues Wort</div><p><strong>Transformation.</strong> Eine Transformation ist ein Handgriff, der die Form der
+Daten ändert, ohne die Ursprungsdatei anzufassen — zum Beispiel eine Spalte
+umbenennen, Leerzeichen abschneiden oder aus Text ein Datum machen.</p></div>
+<h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
+<blockquote class="pp-check">
+<p>Klick links am Bildschirmrand auf die <strong>Tabellenansicht</strong> (Gittersymbol).
+Ganz unten steht: <strong>verkaeufe_2025 (2.400 Zeilen)</strong>.
+Die Tabelle hat <strong>6 Spalten</strong> mit richtigen Namen, und in der Spalte
+<strong>Auftragsdatum</strong> stehen Datumsangaben, keine Textzeilen.</p>
+<p>Steht da eine andere Zahl? → Häufigste Ursache: Handgriff 1 und 2 wurden
+vertauscht — die Überschriften müssen gesetzt werden, <em>nachdem</em> die Müllzeile
+weg ist. Öffne <strong>Start → Daten transformieren</strong>, lösch rechts in
+<strong>Angewendete Schritte</strong> alles außer <strong>Quelle</strong> und <strong>Geänderter Typ</strong> und
+mach ab Handgriff 1 weiter.</p>
+<p>Oder: <a href="https://github.com/Losveratos/powerbi-einstieg/releases/latest/download/business_checkpoint_geputzt.pbix">Checkpoint-Datei laden</a> und mit Modul 3
+weitermachen. Öffne die Datei einfach per Doppelklick — sie ist genau auf
+diesem Stand.</p>
+</blockquote>
+<h2>Weiter</h2>
+<p>→ <a href="#modul-3">Modul 3 · Erste Antworten</a></p>
+</section>
+
+<section class="pp-modul" id="modul-3">
+<h2 class="pp-modul-titel">Modul 3 · Erste Antworten</h2>
+<p><em>Etwa 25 Minuten</em></p>
+<h2>Ziel dieses Moduls</h2>
+<p>Drei Bilder auf der Seite, die drei Fragen beantworten: wie viel insgesamt, wer,
+und wann.</p>
+<h2>So geht's</h2>
+<p>Klick links am Bildschirmrand auf das oberste der drei Symbole: die
+<strong>Berichtsansicht</strong>. Du siehst eine leere weiße Seite. Rechts stehen zwei
+Bereiche: <strong>Visualisierungen</strong> (die Symbolsammlung) und <strong>Daten</strong> (deine
+Tabelle).</p>
+<h3>Bild 1 — die große Zahl: Wie viel insgesamt?</h3>
+<ol>
+<li>Klick auf eine leere Stelle der weißen Seite.</li>
+<li>Klick im Bereich <strong>Visualisierungen</strong> auf das Symbol <strong>Karte</strong> — es sieht aus
+   wie ein Kästchen mit den Ziffern <strong>123</strong> darin.</li>
+</ol>
+<figure class="pp-shot"><img src="assets/praxis-pfad/modul-03-karte.png" alt="Der Bereich „Visualisierungen“ — markiert ist das Symbol „Karte“." loading="lazy"><figcaption>Der Bereich „Visualisierungen“ — markiert ist das Symbol „Karte“.</figcaption></figure>
+
+<p>(Achtung: Es gibt auch ein Symbol mit einer Weltkugel, das ebenfalls „Karte"
+   heißt. Das ist eine Landkarte — nimm das mit den Ziffern.)
+3. Auf der Seite erscheint ein leeres graues Kästchen.
+4. Klapp im Bereich <strong>Daten</strong> die Tabelle <strong>verkaeufe_2025</strong> auf und setz das
+   Häkchen bei <strong>Umsatz</strong>. In dem Kästchen erscheint eine Zahl.
+5. Die Zahl steht dort abgekürzt: <strong>2,10 Mio.</strong> Power BI kürzt große
+   Zahlen von sich aus — „Mio." heißt Millionen. Das ist so in Ordnung und
+   bleibt auch so; für die Frage „wie viel insgesamt?" reicht diese Genauigkeit
+   völlig.
+6. Schieb das Kästchen nach links oben und zieh es an einer Ecke etwas größer,
+   damit die Zahl gut lesbar ist.</p>
+<h3>Bild 2 — die Balken: Wer?</h3>
+<ol start="7">
+<li>Klick auf eine leere Stelle der Seite.</li>
+<li>Klick im Bereich <strong>Visualisierungen</strong> auf <strong>Gestapeltes Balkendiagramm</strong>
+   (waagerechte Balken).</li>
+<li>Setz im Bereich <strong>Daten</strong> die Häkchen bei <strong>Region</strong> und bei <strong>Umsatz</strong>.
+   Power BI legt Region auf die Y-Achse und Umsatz auf die X-Achse.</li>
+<li>Power BI sortiert die Balken von sich aus nach Größe — der längste steht
+    oben. Sollte das bei dir anders sein: Fahr mit der Maus über das Diagramm,
+    klick oben rechts auf die <strong>drei Punkte (…)</strong> → <strong>Achse sortieren</strong> →
+    <strong>Umsatz</strong>, und noch einmal <strong>… → Achse sortieren → Absteigend sortieren</strong>.</li>
+</ol>
+<h3>Bild 3 — die Linie: Wann?</h3>
+<ol start="11">
+<li>Klick auf eine leere Stelle der Seite.</li>
+<li>Klick auf <strong>Liniendiagramm</strong>.</li>
+<li>Setz die Häkchen bei <strong>Auftragsdatum</strong> und <strong>Umsatz</strong>.</li>
+<li>Power BI zeigt jetzt nur einen einzigen Punkt — es fasst alles zum Jahr
+    zusammen. Schau rechts unter <strong>Visualisierungen</strong> in das Feld <strong>X-Achse</strong>:
+    Dort steht <code>Auftragsdatum</code> mit vier Einträgen darunter — <strong>Jahr, Quartal,
+    Monat, Tag</strong>. Klick bei <strong>Jahr</strong>, <strong>Quartal</strong> und <strong>Tag</strong> jeweils auf das
+    <strong>X</strong>. Übrig bleibt <strong>Monat</strong> — und die Linie zeigt zwölf Punkte, Januar bis
+    Dezember.</li>
+<li>Schieb die drei Bilder so, dass sie sich nicht überlappen. Ordentlich ist:
+    die Karte oben links, das Balkendiagramm rechts daneben, die Linie darunter
+    über die ganze Breite.</li>
+</ol>
+<div class="pp-wort"><div class="pp-wort-label">📖 Neues Wort</div><p><strong>Dimension und Kennzahl.</strong> Eine <strong>Kennzahl</strong> ist das, was du misst — hier der
+Umsatz. Eine <strong>Dimension</strong> ist das, wonach du sie aufteilst — hier die Region
+oder der Monat. Jedes Diagramm, das du je bauen wirst, ist eine Kennzahl,
+aufgeteilt nach einer Dimension.</p></div>
+<h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
+<blockquote class="pp-check">
+<p>Die Karte zeigt: <strong>2,10 Mio.</strong>
+Im Balkendiagramm steht <strong>Süd</strong> ganz oben.</p>
+<p>Steht dort stattdessen <strong>210,01 Mio.</strong> → Dann wurde in Modul 2 der Umsatz ohne
+<strong>Gebietsschema Englisch (USA)</strong> umgewandelt. Power BI hat den Punkt als
+Tausendertrennzeichen gelesen, dadurch sind alle Beträge hundertmal zu groß.
+Geh zurück zu Modul 2, Handgriff 7.</p>
+<p>Steht dort eine viel kleinere Zahl oder „(Leer)"? → Dann ist statt der Summe
+die Anzahl eingestellt. Klick rechts im Feld <strong>Wert</strong> auf den kleinen Pfeil
+neben <strong>Umsatz</strong> und wähle <strong>Summe</strong>.</p>
+<p>Willst du es ganz genau wissen: Die Summe auf den Euro beträgt
+<strong>2.100.088</strong>. Sehen kannst du sie, indem du in der Tabellenansicht
+die Spalte <strong>Umsatz</strong> anklickst und unter <strong>Spaltentools</strong> die
+<strong>Dezimalstellen</strong> auf <code>0</code> stellst — nötig ist das aber nicht.</p>
+<p>Oder: <a href="https://github.com/Losveratos/powerbi-einstieg/releases/latest/download/business_checkpoint_geputzt.pbix">Checkpoint-Datei laden</a> und ab Schritt 1 dieses
+Moduls neu anfangen.</p>
+</blockquote>
+<h2>Weiter</h2>
+<p>→ <a href="#modul-4">Modul 4 · Filtern</a></p>
+</section>
+
+<section class="pp-modul" id="modul-4">
+<h2 class="pp-modul-titel">Modul 4 · Filtern</h2>
+<p><em>Etwa 15 Minuten · Das kürzeste Modul — und das mit dem größten Aha.</em></p>
+<h2>Ziel dieses Moduls</h2>
+<p>Du kannst mit einem Klick alle drei Bilder gleichzeitig auf einen Ausschnitt der
+Daten einschränken.</p>
+<h2>So geht's</h2>
+<ol>
+<li>Klick auf eine leere Stelle der Seite.</li>
+<li>Klick im Bereich <strong>Visualisierungen</strong> auf <strong>Datenschnitt</strong> — das Symbol sieht
+   aus wie ein Trichter mit einem Regler.</li>
+<li>Setz im Bereich <strong>Daten</strong> das Häkchen bei <strong>Produktgruppe</strong>. Im Datenschnitt
+   erscheint eine Liste mit fünf Einträgen und je einem Kästchen davor.</li>
+<li>Schieb den Datenschnitt an eine freie Stelle, zum Beispiel unten links.</li>
+<li>Klick jetzt im Datenschnitt auf <strong>Technik</strong>.</li>
+</ol>
+<p><strong>Schau auf die ganze Seite, nicht nur auf den Datenschnitt.</strong> Die große Zahl
+   ist kleiner geworden, die Balken sind kürzer, die Linie hat sich verändert.
+   Alle drei Bilder haben gleichzeitig reagiert — du musstest sie nicht einzeln
+   umstellen.</p>
+<figure class="pp-shot"><img src="assets/praxis-pfad/modul-04-datenschnitt.png" alt="Ein Klick im Datenschnitt (rot markiert) verändert alle Bilder der Seite gleichzeitig." loading="lazy"><figcaption>Ein Klick im Datenschnitt (rot markiert) verändert alle Bilder der Seite gleichzeitig.</figcaption></figure>
+
+<ol start="6">
+<li>Klick noch einmal auf <strong>Technik</strong>, um die Auswahl aufzuheben. Alles ist
+   wieder wie vorher.</li>
+</ol>
+<h3>Das geht auch ohne Datenschnitt</h3>
+<ol start="7">
+<li>Klick im <strong>Balkendiagramm</strong> direkt auf den Balken <strong>Nord</strong>.
+   Wieder reagiert die ganze Seite: Die Karte zeigt jetzt nur noch den Umsatz
+   von Nord, die Linie zeigt nur noch Nords Verlauf.
+   Jedes Diagramm ist also gleichzeitig ein Filter.</li>
+<li>Lass diesen Klick einen Moment stehen — die Zahl brauchst du gleich für den
+   Kontrollpunkt.</li>
+</ol>
+<div class="pp-wort"><div class="pp-wort-label">📖 Neues Wort</div><p><strong>Filter.</strong> Ein Filter schränkt ein, welche Zeilen gerade gezählt werden. Das
+Entscheidende: Er wirkt auf alle Bilder der Seite zusammen. Deshalb ist ein
+Bericht kein Bild, sondern ein Werkzeug — dieselbe Seite beantwortet je nach
+Filter Dutzende Fragen.</p></div>
+<h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
+<blockquote class="pp-check">
+<p>Bei angeklicktem Balken <strong>Nord</strong> zeigt die Karte:
+<strong>480,98 Tsd.</strong> („Tsd." heißt Tausend — die genaue Summe wäre
+480.981).</p>
+<p>Steht da etwas anderes? → Häufigste Ursache: Es ist noch zusätzlich eine
+Produktgruppe im Datenschnitt ausgewählt. Klick sie ab, sodass kein Kästchen
+mehr markiert ist, und klick dann erneut auf den Balken.</p>
+<p>Oder: <a href="https://github.com/Losveratos/powerbi-einstieg/releases/latest/download/business_checkpoint_visuals.pbix">Checkpoint-Datei laden</a> und mit Modul 5
+weitermachen.</p>
+</blockquote>
+<p><strong>Wichtig für das nächste Modul:</strong> Klick zum Schluss auf eine leere Stelle der
+Seite, damit kein Filter mehr aktiv ist.</p>
+<h2>Weiter</h2>
+<p>→ <a href="#modul-5">Modul 5 · Nicht jede Zahl darf man addieren</a></p>
+</section>
+
+<section class="pp-modul" id="modul-5">
+<h2 class="pp-modul-titel">Modul 5 · Nicht jede Zahl darf man addieren</h2>
+<p><em>Etwa 20 Minuten · Hier kommt die Antwort auf die Eingangsfrage.</em></p>
+<h2>Ziel dieses Moduls</h2>
+<p>Du siehst, was passiert, wenn Power BI automatisch summiert — und findest damit
+die Auffälligkeit in den Daten.</p>
+<h2>So geht's</h2>
+<h3>Erst der Fehler</h3>
+<ol>
+<li>Klick auf eine leere Stelle der Seite.</li>
+<li>Klick auf das Symbol <strong>Karte</strong> (das mit den Ziffern 123) — wie in Modul 3.</li>
+<li>Setz im Bereich <strong>Daten</strong> das Häkchen bei <strong>Marge</strong>.</li>
+<li>Schau dir die Zahl an.</li>
+</ol>
+<p>Bei dir sollte jetzt etwas Absurdes stehen — rund <strong>763,64</strong>.
+   Wenn ja: perfekt, genau das soll passieren.</p>
+<p>Eine Marge von 763,64 gibt es nicht. Was Power BI hier gemacht hat:
+   Es hat alle 2.400 Margen <strong>addiert</strong>. Das tut es bei jeder Zahlenspalte
+   automatisch, weil das bei Umsätzen ja auch richtig ist. Bei einer Marge ist
+   es Unsinn — 30 % plus 30 % sind nicht 60 %.</p>
+<h3>Dann die Reparatur</h3>
+<ol start="5">
+<li>Schau rechts unter <strong>Visualisierungen</strong> in das Feld <strong>Wert</strong>. Dort steht
+   <code>Summe von Marge</code>. Klick auf den kleinen <strong>Pfeil nach unten</strong> direkt daneben.</li>
+<li>Es klappt eine Liste auf: <strong>Summe · Mittelwert · Minimum · Maximum ·
+   Anzahl (eindeutig) · Anzahl</strong> und weitere. Wähle <strong>Mittelwert</strong>.</li>
+</ol>
+<figure class="pp-shot"><img src="assets/praxis-pfad/modul-05-aggregation.png" alt="Das aufgeklappte Menü — „Mittelwert“ ist der Eintrag, den du brauchst." loading="lazy"><figcaption>Das aufgeklappte Menü — „Mittelwert“ ist der Eintrag, den du brauchst.</figcaption></figure>
+
+<blockquote class="pp-tip">
+<p>In der Karte steht danach <code>Durchschnitt von Marge</code>. Power BI benutzt für
+dieselbe Sache mal „Mittelwert", mal „Durchschnitt" — gemeint ist beides
+Mal: alle Werte zusammenzählen und durch ihre Anzahl teilen.</p>
+</blockquote>
+<ol start="7">
+<li>Die Zahl ist jetzt klein, etwa <code>0,32</code>. Das stimmt zwar, liest sich aber
+   schlecht. Also formatieren wir die Spalte einmal richtig:
+   - Klick links am Bildschirmrand auf die <strong>Tabellenansicht</strong> (Gittersymbol).
+   - Klick oben auf die Spaltenüberschrift <strong>Marge</strong>.
+   - Im Menüband erscheint der Reiter <strong>Spaltentools</strong>. Klick dort auf das
+     <strong>%-Zeichen</strong> (in der Gruppe <em>Formatierung</em>).
+   - Stell rechts daneben die <strong>Dezimalstellen</strong> von <code>Auto</code> auf <strong>1</strong>.
+   - Zurück zur <strong>Berichtsansicht</strong> (oberstes Symbol links).</li>
+</ol>
+<h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
+<blockquote class="pp-check">
+<p>Die zweite Karte zeigt jetzt: <strong>31,8 %</strong>.</p>
+<p>Steht da etwas anderes? → Häufigste Ursache: Im Feld <strong>Wert</strong> steht noch
+<code>Summe von Marge</code> statt <code>Durchschnitt von Marge</code>. Prüf Schritt 5 und 6.</p>
+<p>Oder: <a href="https://github.com/Losveratos/powerbi-einstieg/releases/latest/download/business_checkpoint_visuals.pbix">Checkpoint-Datei laden</a> und ab Schritt 8
+weitermachen.</p>
+</blockquote>
+<h3>Und jetzt die eigentliche Frage: Was fällt auf?</h3>
+<ol start="8">
+<li>Klick auf eine leere Stelle der Seite.</li>
+<li>Klick auf <strong>Liniendiagramm</strong>.</li>
+<li>Setz die Häkchen bei <strong>Auftragsdatum</strong> und <strong>Marge</strong>.</li>
+<li>Reduziere die X-Achse wieder auf den Monat: Klick im Feld <strong>X-Achse</strong> bei
+    <strong>Jahr</strong>, <strong>Quartal</strong> und <strong>Tag</strong> jeweils auf das <strong>X</strong>.</li>
+<li>Stell auch hier die Aggregation um: Klick im Feld <strong>Y-Achse</strong> auf den Pfeil
+    neben <code>Summe von Marge</code> → <strong>Mittelwert</strong>.</li>
+<li>Jetzt der entscheidende Handgriff: Zieh im Bereich <strong>Daten</strong> das Feld
+    <strong>Region</strong> mit gedrückter Maustaste in das Feld <strong>Legende</strong> (rechts unter
+    <em>Visualisierungen</em>). Aus einer Linie werden vier — eine je Region.</li>
+<li>Schau dir das Bild an. Bis April laufen alle vier Linien eng
+    beieinander bei rund 34 %. Ab April bricht eine
+    Linie nach unten weg und bleibt unten: <strong>Nord</strong>, bei rund
+    23 %. Die anderen drei bleiben bei rund 34 %.</li>
+</ol>
+<p><strong>Das ist die Antwort auf die Eingangsfrage.</strong> Der Umsatz in Nord
+ist unauffällig — deshalb wäre es in Modul 3 niemandem aufgefallen. Aber von
+jedem Euro Umsatz bleibt in Nord seit April
+deutlich weniger übrig.</p>
+<blockquote class="pp-note">
+<p><strong>Für Genaue:</strong> Ein einfacher Durchschnitt über alle Aufträge gewichtet jeden
+Auftrag gleich — ein 50-€-Auftrag zählt so viel wie ein 5.000-€-Auftrag.
+Sauber wäre eine nach Umsatz gewichtete Marge. Für „fällt hier etwas auf?"
+reicht der Durchschnitt völlig; die gewichtete Rechnung kommt im Aufbaupfad.</p>
+</blockquote>
+<div class="pp-wort"><div class="pp-wort-label">📖 Neues Wort</div><p><strong>Aggregation.</strong> Aggregation ist die Entscheidung, wie viele Zeilen zu einer
+Zahl zusammengefasst werden: addieren, mitteln, zählen, größten Wert nehmen.
+Power BI wählt automatisch „addieren" — das ist eine Annahme, keine Wahrheit.
+Bei jeder Kennzahl, die ein Anteil, ein Preis, eine Note oder ein Stand ist,
+musst du die Entscheidung selbst treffen.</p></div>
+<h2>Weiter</h2>
+<p>→ <a href="#modul-6">Modul 6 · Fertig machen</a></p>
+</section>
+
+<section class="pp-modul" id="modul-6">
+<h2 class="pp-modul-titel">Modul 6 · Fertig machen</h2>
+<p><em>Etwa 15 Minuten</em></p>
+<h2>Ziel dieses Moduls</h2>
+<p>Dein Bericht hat einen Titel, sieht aufgeräumt aus und liegt als PDF auf deinem
+Rechner.</p>
+<h2>So geht's</h2>
+<ol>
+<li><strong>Titel einfügen.</strong> Klick im Menüband auf <strong>Einfügen → Textfeld</strong>. Es
+   erscheint ein Kästchen. Tipp hinein:
+   <code>Verkaufszahlen 2025</code>
+   Markier den Text und stell in der kleinen Leiste darunter die Schriftgröße
+   auf <strong>28</strong> ein. Schieb das Textfeld an den oberen Rand der Seite.</li>
+<li><strong>Aufräumen.</strong> Ordne die fünf Bilder so an, dass nichts überlappt und nichts
+   über den Seitenrand ragt. Ein einfaches Raster, das immer funktioniert:
+   - oben: der Titel über die ganze Breite
+   - darunter links: die zwei Karten nebeneinander
+   - rechts daneben: das Balkendiagramm
+   - unten über die ganze Breite: die beiden Liniendiagramme nebeneinander
+   - der Datenschnitt in eine freie Ecke</li>
+<li><strong>Seite benennen.</strong> Ganz unten steht ein Reiter <strong>Seite 1</strong>. Doppelklick
+   darauf und tipp <code>Überblick</code>.</li>
+<li><strong>Speichern.</strong> <strong>Datei → Speichern unter</strong>, Dateiname zum Beispiel
+   <code>business_fertig</code>, Endung <code>.pbix</code>. Speicher die Datei irgendwo, wo du sie
+   wiederfindest.</li>
+<li><strong>Als PDF exportieren.</strong> <strong>Datei → Exportieren → In PDF exportieren</strong>.
+   Power BI erzeugt eine PDF-Datei mit deiner Seite und öffnet sie.</li>
+</ol>
+<figure class="pp-shot"><img src="assets/praxis-pfad/modul-06-export.png" alt="Datei → Exportieren — markiert ist „In PDF exportieren“." loading="lazy"><figcaption>Datei → Exportieren — markiert ist „In PDF exportieren“.</figcaption></figure>
+
+<blockquote class="pp-tip">
+<p><strong>Und wenn ich das teilen will?</strong> Im Menüband gibt es einen Knopf
+<strong>Veröffentlichen</strong>. Der lädt den Bericht ins Internet, damit andere ihn
+anschauen können — dafür brauchst du allerdings ein Geschäfts- oder
+Schulkonto. Mit einer privaten Adresse geht das nicht. Für diesen Pfad ist
+das PDF der Abschluss.</p>
+</blockquote>
+<div class="pp-wort"><div class="pp-wort-label">📖 Neues Wort</div><p><strong>Visual.</strong> Jedes einzelne Bild auf der Seite — Karte, Balken, Linie,
+Datenschnitt — heißt in Power BI ein <strong>Visual</strong>. Eine Seite voller Visuals, die
+sich gegenseitig filtern, ist ein <strong>Bericht</strong>.</p></div>
+<h2 class="pp-check-titel">✅ Kontrollpunkt</h2>
+<blockquote class="pp-check">
+<p>Auf deinem Rechner liegt eine PDF-Datei mit deiner Seite darauf. Sie zeigt
+den Titel, fünf Bilder und den Datenschnitt.</p>
+<p>Fehlt im PDF etwas? → Häufigste Ursache: Ein Visual ragte über den Seitenrand
+hinaus. Zurück in Power BI, das Visual ganz auf die Seite schieben, neu
+exportieren.</p>
+<p>Oder: <a href="https://github.com/Losveratos/powerbi-einstieg/releases/latest/download/business_fertig.pbix">fertigen Bericht ansehen</a> — so hätte es
+aussehen können.</p>
+</blockquote>
+<hr />
+<h2>🎉 Geschafft</h2>
+<p>Du hast eine unordentliche Datei aus einem System genommen, sie sauber gemacht,
+drei Fragen daran beantwortet, sie filterbar gemacht und dabei etwas gefunden,
+das auf den ersten Blick nicht zu sehen war. Das ist der komplette Ablauf — bei
+jedem echten Projekt ist es genau dieser, nur mit mehr Daten.</p>
+<h2>Dein Glossar</h2>
+<p>Sieben Wörter, die du jetzt kennst:</p>
+<table>
+<thead>
+<tr>
+<th>Wort</th>
+<th>Bedeutung in einem Satz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Zeile und Spalte</strong></td>
+<td>Eine Zeile ist ein Vorgang, eine Spalte eine Eigenschaft, die jeder Vorgang hat.</td>
+</tr>
+<tr>
+<td><strong>Transformation</strong></td>
+<td>Ein Handgriff, der die Form der Daten ändert, ohne die Ursprungsdatei anzufassen.</td>
+</tr>
+<tr>
+<td><strong>Visual</strong></td>
+<td>Ein einzelnes Bild auf der Seite — Karte, Balken, Linie, Datenschnitt.</td>
+</tr>
+<tr>
+<td><strong>Dimension</strong></td>
+<td>Das, wonach du aufteilst: Region, Monat, Produktgruppe.</td>
+</tr>
+<tr>
+<td><strong>Kennzahl</strong></td>
+<td>Das, was du misst: Umsatz, Marge, Anzahl.</td>
+</tr>
+<tr>
+<td><strong>Filter</strong></td>
+<td>Eine Einschränkung, welche Zeilen gerade zählen — sie wirkt auf alle Visuals gleichzeitig.</td>
+</tr>
+<tr>
+<td><strong>Aggregation</strong></td>
+<td>Die Entscheidung, wie viele Zeilen zu einer Zahl werden: addieren, mitteln, zählen.</td>
+</tr>
+</tbody>
+</table>
+<h2>Und weiter?</h2>
+<ul>
+<li><strong>Optional, 10 Minuten:</strong> <a href="#exkurs">Exkurs · Warum deine Excel-Tabelle nicht passt</a></li>
+<li>Nimm eine eigene Datei und mach genau dasselbe damit. Das ist die beste Übung.</li>
+</ul>
+</section>
+
+<section class="pp-modul" id="exkurs">
+<h2 class="pp-modul-titel">Exkurs · Warum deine Excel-Tabelle nicht passt</h2>
+<p><em>Etwa 10 Minuten · Optional. Gehört nicht zum Pfad — du kannst ihn überspringen.</em></p>
+<p>Wenn du nach diesem Pfad eine eigene Excel-Datei in Power BI lädst, passiert oft
+etwas Verwirrendes: Es geht nicht. Dieser Exkurs erklärt in einem Satz, warum.</p>
+<h2>Der Kernsatz</h2>
+<p><strong>Menschen lesen Kreuztabellen, Maschinen lesen lange Tabellen.</strong></p>
+<p>Eine Kreuztabelle sieht so aus — und für ein Auge ist sie großartig:</p>
+<table>
+<thead>
+<tr>
+<th>Region</th>
+<th>Januar</th>
+<th>Februar</th>
+<th>März</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nord</td>
+<td>12.400</td>
+<td>11.900</td>
+<td>13.100</td>
+</tr>
+<tr>
+<td>Süd</td>
+<td>14.200</td>
+<td>15.000</td>
+<td>14.800</td>
+</tr>
+</tbody>
+</table>
+<p>Das Problem: Der Monat steht hier nicht <em>in</em> der Tabelle, sondern <em>über</em> ihr —
+als Spaltenüberschrift. Power BI kann aber nur mit dem arbeiten, was in Zeilen
+und Spalten steht. Es sieht drei Kennzahlen namens „Januar", „Februar", „März"
+und keine Dimension „Monat". Ein Liniendiagramm über die Zeit ist damit
+unmöglich.</p>
+<p>Dieselben Daten als lange Tabelle:</p>
+<table>
+<thead>
+<tr>
+<th>Region</th>
+<th>Monat</th>
+<th>Umsatz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nord</td>
+<td>Januar</td>
+<td>12.400</td>
+</tr>
+<tr>
+<td>Nord</td>
+<td>Februar</td>
+<td>11.900</td>
+</tr>
+<tr>
+<td>Nord</td>
+<td>März</td>
+<td>13.100</td>
+</tr>
+<tr>
+<td>Süd</td>
+<td>Januar</td>
+<td>14.200</td>
+</tr>
+<tr>
+<td>Süd</td>
+<td>Februar</td>
+<td>15.000</td>
+</tr>
+<tr>
+<td>Süd</td>
+<td>März</td>
+<td>14.800</td>
+</tr>
+</tbody>
+</table>
+<p>Unhandlich zu lesen, aber jetzt gibt es eine Spalte <strong>Monat</strong> — eine Dimension,
+wie du sie in Modul 3 benutzt hast. Genau so wollen es alle Auswertungswerkzeuge.</p>
+<h2>Der Handgriff dazu heißt Entpivotieren</h2>
+<p>Du brauchst das nicht auswendig zu lernen, nur wiedererkennen:</p>
+<ol>
+<li>Datei in Power BI laden, <strong>Start → Daten transformieren</strong>.</li>
+<li>Die Spalte anklicken, die <em>bleiben</em> soll — hier <strong>Region</strong>.</li>
+<li><strong>Transformieren → Spalten entpivotieren → Andere Spalten entpivotieren</strong>.</li>
+</ol>
+<p>Power BI macht aus den Monatsspalten zwei neue Spalten: <strong>Attribut</strong> (der
+Monatsname) und <strong>Wert</strong> (die Zahl). Die kannst du dann umbenennen, und die
+Tabelle ist lang statt breit.</p>
+<h2>Wenn du weitermachen willst</h2>
+<p>Dieser Pfad hatte genau <strong>eine</strong> Tabelle. Echte Auswertungen haben mehrere —
+Aufträge, Kunden, Produkte, Kalender — die über gemeinsame Schlüssel verbunden
+werden. Diese Verbindungen heißen <strong>Beziehungen</strong>, und die übliche Anordnung
+dafür heißt <strong>Sternschema</strong>. Das ist der nächste Schritt, wenn dir eine Tabelle
+nicht mehr reicht.</p>
+<h2>Zurück</h2>
+<p>→ <a href="#modul-6">Modul 6 · Fertig machen</a></p>
+</section>
+
+  <footer class="pp-foot">
+    <p>Alle Kontrollzahlen in diesem Pfad sind aus den echten Daten berechnet und in
+    Power BI Desktop nachgeprüft. Die Datenquelle ist simuliert:
+    <a href="https://raw.githubusercontent.com/Losveratos/powerbi-einstieg/main/data/business/verkaeufe_2025.csv">verkaeufe_2025.csv</a>.</p>
+    <p>Steckst du fest? An jedem Kontrollpunkt liegt eine fertige Datei zum
+    Weitermachen. <a href="https://github.com/Losveratos/powerbi-einstieg/releases/latest/download/business_fertig.pbix">Den Endstand ansehen</a>.</p>
+  </footer>
+
+</div>
+</body>
+</html>
