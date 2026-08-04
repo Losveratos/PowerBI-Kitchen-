@@ -4,6 +4,34 @@ Ideen-Sammlung: bewusst **nicht** sofort gebaut, aber nicht vergessen.
 Aufwand: S (< ½ Tag) · M (½–1 Tag) · L (mehrere Tage) · XL (Architektur).
 Neue Ideen bitte als GitHub-Issue anlegen oder hier ergänzen.
 
+## Abgrenzung: ChartKitchen ↔ P&L Statement byDatenWG
+
+Mit **P&L Statement byDatenWG** (`../pnlByDatenWG/`, aktueller Stand auf Branch
+`claude/visual-chartkitchen-git-link-rvi81z`) gibt es ein eigenständiges
+Schwester-Visual für GuV-/P&L-Statements. Die Arbeitsteilung ist bewusst — es
+ist keine Doppelung, sondern eine andere Problemklasse:
+
+- **ChartKitchen = Breite.** Viele Diagrammtypen über beliebige Kategorien aus
+  einer flachen Faktentabelle; die GuV-Modi (Waterfall, GuV-Statement, Tabelle)
+  decken den schnellen Fall ab.
+- **P&L Statement = Tiefe für genau ein Artefakt.** Kontenhierarchie aus einer
+  Dimensionstabelle (Sternschema `L1..Ln` primär, Parent-Child alternativ),
+  `RowType`/`FormulaDef` mit Formel-auf-Formel und Zirkelbezug-Erkennung,
+  dreiteilige Vorzeichenlogik (`SignConvention` · `DisplayInvert` ·
+  `VarianceInvert`), Rechenkern ohne Power-BI-Abhängigkeit isoliert getestet.
+  Dort sind Reconciliation-Fehler Vertrauens-Killer, nicht Schönheitsfehler.
+
+Der strukturelle Unterschied: ChartKitchen konfiguriert solche Sonderfälle über
+**Listen im Formatbereich**, das P&L liest sie **datengetrieben aus der
+Kontendimension**. Für Ad-hoc-Tabellen ist Ersteres richtig, für einen echten
+Kontenrahmen Letzteres.
+
+**Konsequenz für dieses Backlog:** Mehrere Punkte im Block „Fachliche
+Korrektheit" sind im P&L bereits gelöst (unten markiert). Vor dem Bau hier bitte
+prüfen: Braucht ChartKitchen wirklich eine Light-Version für Ad-hoc-Fälle — oder
+gehört der Punkt ins P&L und kann hier entfallen? Sonst droht Parallelentwicklung
+derselben Anforderung auf zwei Architektur-Ebenen.
+
 ## Beta-Feedback Alexander Korn (Juli 2026) — Kandidaten für die nächste Version
 
 Erster externer End-to-End-Test: 4 Instanzen (Columns · Bars · Tabelle ·
@@ -136,20 +164,33 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
 
 ### Fachliche Korrektheit
 
+Abgleich mit dem P&L-Visual siehe Abschnitt „Abgrenzung" oben — `↔ P&L`
+markiert Punkte, die dort bereits (oder besser) gelöst sind.
+
 - [ ] **Σ-Aggregation Summe / Ø / letzter Wert** (M) — Bestandsgrößen
       (Headcount, Cash) dürfen nicht summiert werden; Wahl pro Zeile analog
-      zur pct-Logik.
+      zur pct-Logik. *(in beiden Visuals offen — gemeinsame Lösung überlegen)*
 - [ ] **Vorzeichen-Liste** (S) — signList: positiv gelieferte Kosten als
       Abzug anzeigen (−4.200), korrekt in Σ und Formeln.
+      **↔ P&L:** dort als `SignConvention` + `DisplayInvert` + `VarianceInvert`
+      aus der Kontendimension gelöst. Hier nur bauen, wenn Ad-hoc-Tabellen ohne
+      Dimensionstabelle das wirklich brauchen.
 - [ ] **Abschnitts-Überschriften & Leerzeilen** (S) — sectionList:
       Zwischenüberschriften ohne Werte + Trennlinien (GuV-Gliederung).
+      **↔ P&L:** dort `RowType = Separator` — datengetrieben statt Liste.
 - [ ] **Plausibilitäts-Wächter** (S–M) — Formelzeile vs. gleichnamige
       gelieferte Zeile vergleichen, Differenzen mit ⚠ markieren (fängt
-      kaputte Measures).
+      kaputte Measures). **↔ P&L:** teilweise — dort Zirkelbezug-Erkennung und
+      Fehleranzeige an der Zeile; der Abgleich Formel vs. geliefert fehlt noch
+      in beiden.
 - [ ] **FC-Zeilen-Liste** (S) — fcList: Zeilen als Forecast/vorläufig
       markieren → Schraffur + kursiv wie die FC-Notation der Charts.
+      *(im P&L ist FC ein Szenario-Slot, keine Zeilen-Markierung — anderer
+      Anwendungsfall, hier eigenständig sinnvoll)*
 - [ ] **Formelzeilen: Feedback bei Fehler** (S) — unauflösbare Formel als
       Zeile mit „?"-Werten zeigen statt lautlos weglassen.
+      **↔ P&L:** dort bereits gelöst (Fehleranzeige an der Zeile) — Muster von
+      dort übernehmen statt neu erfinden.
 
 ### Interaktion & Integration
 
