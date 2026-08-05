@@ -38,6 +38,12 @@ const comparisonItems: LocEnumMember[] = [
     { value: "fcrev", displayName: "Prior-month FC (revision)", key: "Enum_Comparison_FcRev" }
 ];
 
+const acFcSplitItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off (FC only where AC is missing)", key: "Enum_AcFcSplit_Off" },
+    { value: "full", displayName: "FC = full-month outlook (top-up)", key: "Enum_AcFcSplit_Full" },
+    { value: "rest", displayName: "FC = rest of month (additive)", key: "Enum_AcFcSplit_Rest" }
+];
+
 const displayUnitsItems: LocEnumMember[] = [
     { value: "auto", displayName: "Auto", key: "Enum_Units_Auto" },
     { value: "none", displayName: "None", key: "Enum_Units_None" },
@@ -256,6 +262,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    acFcSplit = new formattingSettings.ItemDropdown({
+        name: "acFcSplit",
+        displayName: "AC + FC in the same period",
+        displayNameKey: "Chart_AcFcSplit",
+        description: "Ein teilweise abgeschlossener Monat liefert AC UND FC: „Vollmonatsprognose\" zeigt den AC-Sockel solide und stockt schraffiert bis zum FC-Wert auf (Säule = max(AC, FC)); „Restmonat\" addiert den FC-Wert oben auf AC (Säule = AC + FC). Wichtig: Die falsche Wahl zählt den Monat doppelt — sie muss zur Definition der FC-Measure passen. Label und Σ zeigen den Gesamtwert, der Tooltip beide Anteile. Aus = bisheriges Verhalten (FC nur, wenn AC fehlt).",
+        descriptionKey: "Desc_Chart_AcFcSplit",
+        items: acFcSplitItems,
+        value: acFcSplitItems[0]
+    });
+
     hideBlankCat = new formattingSettings.ToggleSwitch({
         name: "hideBlankCat",
         displayName: "Hide (blank) category",
@@ -424,7 +440,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Group_Layout",
         slices: [this.orientation, this.comparisonMode, this.showAbsoluteVariance,
             this.showRelativeVariance, this.dualVariance, this.pyTriangle, this.showTotal,
-            this.hideBlankCat, this.groupEvery]
+            this.acFcSplit, this.hideBlankCat, this.groupEvery]
     });
 
     cumulativeButton = new formattingSettings.ToggleSwitch({

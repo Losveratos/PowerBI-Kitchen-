@@ -1142,5 +1142,16 @@ run("c120", {
     { source:{ displayName:"Quartal", roles:{ colgroup:true } }, values:mbQc } ],
     values:[col("actual", mbAc, "#,0 T€"), col("previousYear", mbPy, "#,0 T€")] } }, 1100, 340);
 </script>
+
+<div class="case"><h4>c121 · 1.40 · AC+FC-Splitsäule: Juli halb geschlossen (AC-Sockel solide, FC-Aufsatz schraffiert, Modus Vollmonatsprognose)</h4><div class="stage" id="c121" style="width:960px;height:420px"></div></div>
+<script>
+// Jul liefert AC (Monat läuft, 610) UND FC (Vollmonatsprognose 1.080) —
+// erwartet: solide Säule bis 610, schraffierter Aufsatz bis 1.080, Σ und
+// Labels rechnen mit dem Gesamtwert; Aug–Dez bleiben reine FC-Säulen
+const spAc = [820, 771, 900, 955, 1020, 980, 610, null, null, null, null, null].map(v => v == null ? null : v * 1000);
+const spFc = [null, null, null, null, null, null, 1080, 1150, 1080, 1210, 1260, 1400].map(v => v == null ? null : v * 1000);
+run("c121", dataView(months, [col("actual", spAc, "#,0 €"), col("forecast", spFc, "#,0 €"), col("plan", pl, "#,0 €")],
+  { chart: { acFcSplit: "full" } }), 960, 420);
+</script>
 </body>
 </html>

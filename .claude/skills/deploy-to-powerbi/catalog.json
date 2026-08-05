@@ -1,11 +1,11 @@
 {
-  "_comment": "Katalog der gÃ¤ngigen Chart-Builder-Templates und ihrer Pflichtfelder. Das eigentliche Template-JSON wird im Builder per 1-Klick exportiert (Export-Dialog -> 'Power BI Â· Deneb-Template'). Feldtypen: text/numeric/bool Â· column = Gruppierung, measure = Kennzahl. FC ist eine ZAHL (1 = Forecast, 0/leer = Ist).",
+  "_comment": "Katalog der gÃƒÂ¤ngigen Chart-Builder-Templates und ihrer Pflichtfelder. Das eigentliche Template-JSON wird im Builder per 1-Klick exportiert (Export-Dialog -> 'Power BI Ã‚Â· Deneb-Template'). Feldtypen: text/numeric/bool Ã‚Â· column = Gruppierung, measure = Kennzahl. FC ist eine ZAHL (1 = Forecast, 0/leer = Ist).",
   "builderUrl": "https://datenwgknowledgekitchen.com/business-chart-builder.html",
   "templates": [
     {
       "id": "columns_variance",
-      "name": "SÃ¤ulen-Varianz (Monate, AC/FC vs PL + Î”PL + Î”PL%)",
-      "builderSteps": "Typ 'SÃ¤ulen' (oder Preset 'months'), Referenz PL, Î”-absolut + Î”-relativ einschalten, FC-Monate markieren.",
+      "name": "SÃƒÂ¤ulen-Varianz (Monate, AC/FC vs PL + ÃŽâ€PL + ÃŽâ€PL%)",
+      "builderSteps": "Typ 'SÃƒÂ¤ulen' (oder Preset 'months'), Referenz PL, ÃŽâ€-absolut + ÃŽâ€-relativ einschalten, FC-Monate markieren.",
       "fields": [
         {
           "ph": "__0__",
@@ -74,8 +74,8 @@
     },
     {
       "id": "kpi_status",
-      "name": "KPI-Karten (Status: groÃŸer Wert, eingefÃ¤rbt, â–²â–¼ + Î”%/Î”)",
-      "builderSteps": "Typ 'KPI Â· Status' (oder Preset 'kpiDemo' + Stil Status), Referenz PY, 2. Referenz PL.",
+      "name": "KPI-Karten (Status: groÃƒÅ¸er Wert, eingefÃƒÂ¤rbt, Ã¢â€“Â²Ã¢â€“Â¼ + ÃŽâ€%/ÃŽâ€)",
+      "builderSteps": "Typ 'KPI Ã‚Â· Status' (oder Preset 'kpiDemo' + Stil Status), Referenz PY, 2. Referenz PL.",
       "fields": [
         {
           "ph": "__0__",
@@ -116,8 +116,8 @@
     },
     {
       "id": "scenario_bridge",
-      "name": "Szenario-BrÃ¼cke (PL â†’ AC, je Kategorie)",
-      "builderSteps": "Typ 'BrÃ¼cke Â· Szenario', PrimÃ¤r AC, Referenz PL. Reihenfolge im Visual Ã¼ber die Achsen-Sortierung steuern.",
+      "name": "Szenario-BrÃƒÂ¼cke (PL Ã¢â€ â€™ AC, je Kategorie)",
+      "builderSteps": "Typ 'BrÃƒÂ¼cke Ã‚Â· Szenario', PrimÃƒÂ¤r AC, Referenz PL. Reihenfolge im Visual ÃƒÂ¼ber die Achsen-Sortierung steuern.",
       "fields": [
         {
           "ph": "__0__",
@@ -144,8 +144,8 @@
     },
     {
       "id": "waterfall_variance",
-      "name": "GuV-Wasserfall mit Î”PY (Varianz)",
-      "builderSteps": "Typ 'Wasserfall-Varianz' (oder Preset 'pnlVA'). Typ-Spalte mit 'sum'/'delta' je Zeile nÃ¶tig.",
+      "name": "GuV-Wasserfall mit ÃŽâ€PY (Varianz)",
+      "builderSteps": "Typ 'Wasserfall-Varianz' (oder Preset 'pnlVA'). Typ-Spalte mit 'sum'/'delta' je Zeile nÃƒÂ¶tig.",
       "fields": [
         {
           "ph": "__0__",
@@ -182,7 +182,7 @@
     {
       "id": "ibcs_chart_deck",
       "name": "IBCS Inspired Chart Deck (natives Custom Visual)",
-      "pbiviz": "ibcsInspiredChartDeck/dist/chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D.1.39.0.0.pbiviz",
+      "pbiviz": "ibcsInspiredChartDeck/dist/chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D.1.40.0.0.pbiviz",
       "readme": "ibcsInspiredChartDeck/README.md",
       "hinweis": "Alternative zu den Deneb-Templates: ein .pbiviz mit vier Chart-Modi (Columns/Bars/Line/Waterfall), Doppel-Varianz, YTD, Small Multiples, Kommentaren und IBCS-Titelblock. Import: Visualisierungen -> Visual aus Datei importieren.",
       "fields": [

@@ -67,7 +67,7 @@ REST API). Befund: rendert identisch, keine Konsolenfehler. Fünf Punkte:
 Gesamturteil „the tool is amazing", ein inhaltlicher Wunsch — und zwar ein
 klassischer, den jedes Monatsreporting hat:
 
-- [ ] **AC und FC im selben Monat als Split-Säule** (M) — Zitat: *„if on the
+- [x] **AC und FC im selben Monat als Split-Säule** (M) — erledigt in 1.40.0.0 (Setting „AC + FC in the same period", Modi Vollmonatsprognose/Restmonat, Columns + Bars, Composite in Σ/Δ/Labels, Tooltip zeigt beide Anteile; Testfall c121). — Zitat: *„if on the
       category axis I've month, is there a way to manage data that can be
       either FC and AC in a certain month? It would be great if in the month
       that contains both FC and AC data, the chosen graph could represent

@@ -1,5 +1,29 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.40.0.0 (2026-08-05)
+
+**AC + FC im selben Monat: die Splitsäule.** Der laufende Monat ist im
+Reporting fast immer halb geschlossen — AC bis zum Stichtag, FC für den
+Rest. Bisher zeigte das Visual entweder/oder (FC nur, wenn AC fehlt).
+Neu (Beta-Wunsch aus dem zweiten externen Test):
+
+- **Setting „AC + FC in the same period"** (Chart → Layout, Standard aus):
+  Liefert ein Monat beide Werte, rendert Columns/Bars einen **soliden
+  AC-Sockel mit schraffiertem FC-Aufsatz** in derselben Säule
+  (IBCS-Notation).
+- **Zwei Interpretationen, explizit wählbar** — die falsche Wahl würde den
+  Monat doppelt zählen, deshalb kein Raten: **„Vollmonatsprognose"**
+  (Säule = AC + max(0, FC − AC), der FC ist die Prognose für den ganzen
+  Monat) oder **„Restmonat"** (Säule = AC + FC, der FC deckt nur die
+  verbleibenden Tage).
+- **Konsistent gerechnet:** Wert-Label, Σ-Header, Skalen und Δ-Panels
+  nutzen den Gesamtwert der Splitsäule; der Tooltip zeigt AC, FC und den
+  Composite („AC+FC … (FC-Anteil …)") getrennt aus. Die Umbenennungs-
+  Felder (1.39) wirken auch hier.
+- Reine FC-Monate und das FC-Flag verhalten sich unverändert; der Split
+  greift nur, wenn beide Werte in derselben Periode ankommen.
+  Testfall c121 im Harness.
+
 ## 1.39.0.0 (2026-08-05)
 
 **Politur-Paket aus dem Beta-Feedback (A. Korn) plus Backlog-Quick-Wins.**

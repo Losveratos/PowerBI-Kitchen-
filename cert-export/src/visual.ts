@@ -56,6 +56,9 @@ interface DataPoint {
     /** value shown in the base chart: AC, or FC where AC is missing */
     value: number | null;
     isFc: boolean;
+    /** AC+FC split month: FC-Anteil OBEN auf dem AC-Sockel (value = AC + fcPart);
+     *  null = kein Split (Standard-Verhalten) */
+    fcPart?: number | null;
     /** preliminary actual (fcFlag = 2 / "vorläufig"): solid with thin overlay hatch */
     isPrelim?: boolean;
     basis: number | null;
@@ -749,6 +752,7 @@ export class Visual implements IVisual {
         // dropped before anything renders — off by default so no data vanishes
         // silently (beta feedback A. Korn)
         const hideBlank = this.formattingSettings.chartCard.hideBlankCat.value === true;
+        const acFcSplit = String(this.formattingSettings.chartCard.acFcSplit.value.value);
         for (let i = 0; i < cat.values.length; i++) {
             if (hideBlank && catLevels.length > 0 && catLevels.every(l => {
                 const v = l.values[i];
@@ -771,7 +775,17 @@ export class Visual implements IVisual {
                 ac = null;
             }
             const isFc = ac == null && fc != null;
-            const value = ac != null ? ac : fc;
+            // AC+FC im selben Monat (Beta-Wunsch): der laufende Monat ist halb
+            // geschlossen — AC-Sockel solide, FC-Anteil schraffiert obendrauf.
+            // "full": FC ist die Vollmonatsprognose → Aufstockung max(0, FC−AC);
+            // "rest": FC ist der Restmonat → additiv. value wird der Gesamtwert,
+            // damit Σ, Skalen und Δ konsistent mit dem Gezeigten rechnen.
+            let value = ac != null ? ac : fc;
+            let fcPart: number | null = null;
+            if (acFcSplit !== "off" && ac != null && fc != null) {
+                const part = acFcSplit === "full" ? Math.max(0, fc - ac) : Math.max(0, fc);
+                if (part > 0) { fcPart = part; value = ac + part; }
+            }
             const fcPrev = byRole["prevForecast"] ? byRole["prevForecast"][i] : null;
             const basis = basisMode === "plan" ? pl : basisMode === "fcrev" ? fcPrev : py;
             const varAbs = (value != null && basis != null) ? value - basis : null;
@@ -791,7 +805,7 @@ export class Visual implements IVisual {
                 catLevels: levelLabels.length > 1 ? levelLabels : null,
                 colLevels: colCols.length > 0
                     ? colCols.map(c => this.categoryLabel(c.values[i])) : null,
-                ac, py, pl, fc, value, isFc, isPrelim: isPrelim && value != null,
+                ac, py, pl, fc, value, isFc, fcPart, isPrelim: isPrelim && value != null,
                 basis, varAbs, varRel, var2Abs, var2Rel,
                 bm: byRole["benchmark"] ? byRole["benchmark"][i] : null,
                 fcPrev,
@@ -6941,6 +6955,17 @@ export class Visual implements IVisual {
                         fill: p.isFc ? cfg.paper : cfg.colors.ac,
                         stroke: cfg.colors.ac, "stroke-width": 1.4
                     }, g);
+                } else if (p.fcPart != null && p.fcPart > 0) {
+                    // AC+FC-Splitsäule: solider AC-Sockel, schraffierter FC-Aufsatz
+                    // (IBCS-Notation) — Trennkante zwischen beiden Segmenten
+                    const acEnd = capV(p.value - p.fcPart);
+                    this.drawBar(g, pos + acShift, barW, 0, acEnd, mainScale, orientation,
+                        { fill: cfg.colors.ac });
+                    this.drawBar(g, pos + acShift, barW, acEnd, capV(p.value), mainScale, orientation,
+                        { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 });
+                    if (cfg.capMax != null && p.value > cfg.capMax) {
+                        this.drawCapMarker(g, pos + acShift, barW, mainScale, orientation, cfg);
+                    }
                 } else {
                     this.drawBar(g, pos + acShift, barW, 0, capV(p.value), mainScale, orientation,
                         p.isFc
@@ -8392,6 +8417,13 @@ export class Visual implements IVisual {
                 out.push({ displayName: "Status", value: this.locStr("Tooltip_Prelim", "preliminary") });
             }
             add(this.locStr("Role_Forecast", "Forecast (FC)"), p.fc);
+            // Splitsäule: Gesamtwert (AC-Sockel + FC-Aufsatz) als eigene Zeile
+            if (p.fcPart != null && p.fcPart > 0 && p.value != null) {
+                out.push({
+                    displayName: `${cfg.scenL.ac}+${cfg.scenL.fc}`,
+                    value: `${cfg.fmt.format(p.value)} (${cfg.scenL.fc}-Anteil ${cfg.fmt.format(p.fcPart)})`
+                });
+            }
             add(this.locStr("Role_PreviousYear", "Previous Year (PY)"), p.py);
             add(this.locStr("Role_Plan", "Plan (PL)"), p.pl);
             add(this.locStr("Role_PrevForecast", "Prior-month FC"), p.fcPrev);

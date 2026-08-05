@@ -185,6 +185,15 @@
                     }
                 },
                 "zebraStripes": { "type": { "bool": true } },
+                "acFcSplit": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off (FC only where AC is missing)" },
+                            { "value": "full", "displayName": "FC = full-month outlook (top-up)" },
+                            { "value": "rest", "displayName": "FC = rest of month (additive)" }
+                        ]
+                    }
+                },
                 "hideBlankCat": { "type": { "bool": true } },
                 "exportExpandAll": { "type": { "bool": true } },
                 "rowDensity": {
