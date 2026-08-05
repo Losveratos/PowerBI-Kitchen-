@@ -32,7 +32,9 @@ prüfen: Braucht ChartKitchen wirklich eine Light-Version für Ad-hoc-Fälle —
 gehört der Punkt ins P&L und kann hier entfallen? Sonst droht Parallelentwicklung
 derselben Anforderung auf zwei Architektur-Ebenen.
 
-## Beta-Feedback Alexander Korn (Juli 2026) — Kandidaten für die nächste Version
+## Beta-Feedback (extern) — Kandidaten für die nächste Version
+
+### Alexander Korn (Juli 2026)
 
 Erster externer End-to-End-Test: 4 Instanzen (Columns · Bars · Tabelle ·
 KPI-Karten) auf einer Seite, Destatis-Hochschuldaten (~17,4 M Studierende,
@@ -59,6 +61,35 @@ REST API). Befund: rendert identisch, keine Konsolenfehler. Fünf Punkte:
       Data-Reduction-Fenster (top 1000) vs. Render-Zeit profilen
       (Performance Analyzer + `renderingFinished`-Telemetrie), dann
       entscheiden: Lazy-Render, kleinere Erst-Fetches oder Doku-Hinweis.
+
+### Beta-Tester (Juli 2026, EN — Name nachtragen)
+
+Gesamturteil „the tool is amazing", ein inhaltlicher Wunsch — und zwar ein
+klassischer, den jedes Monatsreporting hat:
+
+- [ ] **AC und FC im selben Monat als Split-Säule** (M) — Zitat: *„if on the
+      category axis I've month, is there a way to manage data that can be
+      either FC and AC in a certain month? It would be great if in the month
+      that contains both FC and AC data, the chosen graph could represent
+      both of them."* Der laufende Monat ist typischerweise halb geschlossen:
+      AC bis Stichtag, FC für den Rest. **Heute:** entweder/oder — FC wird nur
+      gezeigt, wenn AC fehlt.
+      **Gewünscht:** eine Säule mit solidem AC-Sockel + schraffiertem
+      FC-Aufsatz (IBCS-konform).
+      *Teile davon existieren schon* — nicht neu erfinden, sondern
+      übernehmen: die Integrierte Brücke hat die gestapelte AC+FC-Totalsäule,
+      das GuV-Statement die Szenario-Sicht „AC&FC (Split schraffiert)", und
+      das FC-Flag `2` („vorläufig") kann eine Säule solide + überlagert
+      schraffiert zeichnen. Was fehlt, ist der **echte Split je Kategorie im
+      Standard-Columns/Bars-Modus**.
+      **Vor dem Bau zu klären** (der eigentliche Knackpunkt): Wenn AC und FC
+      für denselben Monat geliefert werden — ist FC die *Vollmonatsprognose*
+      (dann Säule = AC + max(0, FC − AC)) oder nur der *Restmonat* (dann
+      Säule = AC + FC)? Braucht eine Konvention oder ein Setting; falsch
+      geraten ergibt doppelt gezählte Monate. Mitzudenken: Δ rechnet gegen
+      das Composite, das Label zeigt die Summe (Einzelteile im Tooltip), die
+      AC|FC-Trennlinie liegt dann *innerhalb* einer Säule statt zwischen
+      zweien, und YTD/kumuliert muss entscheiden, ob der FC-Anteil mitzählt.
 
 ## Barrierefreiheit
 
