@@ -7,7 +7,7 @@ Ein Power-BI-Custom-Visual „ChartKitchen byDatenWG" — ein Visual mit 13 Diag
 (inspiriert von den IBCS-Prinzipien). Geschäftsmodell: **kostenlos, Open Source (MIT),
 für immer frei; Umsatz über Beratung.** Aktuell **offene Beta**, noch nicht im AppSource.
 
-- **Version:** 1.38.0.0 · API 5.11.0 · GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D`
+- **Version:** 1.39.0.0 (Politur-Paket aus Beta-Feedback A. Korn + Backlog-Quick-Wins, 05.08.) · API 5.11.0 · GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D`
 - **Repo/Branch:** Arbeitsbranch `claude/inspired-ibcs-power-bi-visual-h04y05`, deckungsgleich mit `main`
 - **Website:** datenwgknowledgekitchen.com (GitHub Pages von `main`, Build ~3 min)
 - **Kontakt:** Michael Tenner · michael.tenner84@gmail.com
