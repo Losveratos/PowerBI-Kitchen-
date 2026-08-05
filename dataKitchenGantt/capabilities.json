@@ -1,0 +1,236 @@
+{
+    "supportsMultiVisualSelection": true,
+    "sorting": { "default": {} },
+    "dataRoles": [
+        {
+            "displayName": "Task",
+            "name": "task",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Start (Datum)",
+            "name": "start",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Ende (Datum, leer = Meilenstein)",
+            "name": "end",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Phase (Gruppe)",
+            "name": "phase",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Projekt (oberste Ebene, Portfolio)",
+            "name": "projekt",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Fortschritt (0–1 oder 0–100)",
+            "name": "progress",
+            "kind": "Measure"
+        },
+        {
+            "displayName": "Status",
+            "name": "status",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Wer (Owner)",
+            "name": "owner",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Abhängigkeiten (Task-Namen, kommagetrennt)",
+            "name": "deps",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Plan-Start (Basisplan)",
+            "name": "planStart",
+            "kind": "GroupingOrMeasure"
+        },
+        {
+            "displayName": "Plan-Ende (Basisplan)",
+            "name": "planEnd",
+            "kind": "GroupingOrMeasure"
+        },
+        {
+            "displayName": "Sortierung (optional)",
+            "name": "sort",
+            "kind": "GroupingOrMeasure"
+        },
+        {
+            "displayName": "Statusdatum (rote Linie)",
+            "name": "statusDate",
+            "kind": "GroupingOrMeasure"
+        }
+    ],
+    "objects": {
+        "darstellung": {
+            "displayName": "Darstellung",
+            "properties": {
+                "theme": {
+                    "displayName": "Theme",
+                    "type": {
+                        "enumeration": [
+                            { "value": "hell", "displayName": "Hell" },
+                            { "value": "dunkel", "displayName": "Dunkel" }
+                        ]
+                    }
+                },
+                "wochenenden": {
+                    "displayName": "Wochenenden schattieren",
+                    "type": { "bool": true }
+                },
+                "abhaengigkeiten": {
+                    "displayName": "Abhängigkeitspfeile",
+                    "type": { "bool": true }
+                },
+                "heuteLinie": {
+                    "displayName": "Status-/Heute-Linie",
+                    "type": { "bool": true }
+                },
+                "zeiteinheit": {
+                    "displayName": "Standard-Zeiteinheit",
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Automatisch (einpassen)" },
+                            { "value": "Tage", "displayName": "Tage" },
+                            { "value": "Wochen", "displayName": "Wochen" },
+                            { "value": "Monate", "displayName": "Monate" },
+                            { "value": "Quartale", "displayName": "Quartale" },
+                            { "value": "Jahre", "displayName": "Jahre" }
+                        ]
+                    }
+                },
+                "tageEinheit": {
+                    "displayName": "Einheit für Tage",
+                    "type": {
+                        "enumeration": [
+                            { "value": "t", "displayName": "t" },
+                            { "value": "d", "displayName": "d" },
+                            { "value": "ohne", "displayName": "Ohne Einheit" }
+                        ]
+                    }
+                },
+                "tabellenBreite": {
+                    "displayName": "Tabellenbreite (px, 0 = ausblenden)",
+                    "type": { "numeric": true }
+                },
+                "ibcs": {
+                    "displayName": "IBCS-inspiriertes Styling",
+                    "type": { "bool": true }
+                }
+            }
+        },
+        "meilensteine": {
+            "displayName": "Meilensteine",
+            "properties": {
+                "aufPhasenzeile": {
+                    "displayName": "Auf zugeklappten Phasen anzeigen",
+                    "type": { "bool": true }
+                },
+                "datumAnzeigen": {
+                    "displayName": "Datum am Meilenstein",
+                    "type": { "bool": true }
+                },
+                "endeGleichStart": {
+                    "displayName": "Ende = Start als Meilenstein",
+                    "type": { "bool": true }
+                }
+            }
+        },
+        "basisplan": {
+            "displayName": "Basisplan (Plan vs. Ist)",
+            "properties": {
+                "anzeigen": {
+                    "displayName": "Plan-Balken anzeigen",
+                    "type": { "bool": true }
+                },
+                "deltaSpalte": {
+                    "displayName": "Δ-Spalte in der Tabelle",
+                    "type": { "bool": true }
+                },
+                "verzugZeilen": {
+                    "displayName": "Verzug-Zeilen rot hinterlegen",
+                    "type": { "bool": true }
+                }
+            }
+        },
+        "schrift": {
+            "displayName": "Schrift",
+            "properties": {
+                "fontFamily": {
+                    "displayName": "Schriftart",
+                    "type": { "formatting": { "fontFamily": true } }
+                },
+                "fontSize": {
+                    "displayName": "Schriftgröße",
+                    "type": { "formatting": { "fontSize": true } }
+                }
+            }
+        },
+        "dataPoint": {
+            "displayName": "Task-Farben",
+            "properties": {
+                "fill": {
+                    "displayName": "Farbe",
+                    "type": { "fill": { "solid": { "color": true } } }
+                }
+            }
+        }
+    },
+    "dataViewMappings": [
+        {
+            "conditions": [
+                {
+                    "task": { "max": 1 },
+                    "start": { "max": 1 },
+                    "end": { "max": 1 },
+                    "phase": { "max": 1 },
+                    "projekt": { "max": 1 },
+                    "progress": { "max": 1 },
+                    "status": { "max": 1 },
+                    "owner": { "max": 1 },
+                    "deps": { "max": 1 },
+                    "planStart": { "max": 1 },
+                    "planEnd": { "max": 1 },
+                    "sort": { "max": 1 },
+                    "statusDate": { "max": 1 }
+                }
+            ],
+            "categorical": {
+                "categories": {
+                    "select": [
+                        { "for": { "in": "task" } },
+                        { "for": { "in": "start" } },
+                        { "for": { "in": "end" } },
+                        { "for": { "in": "phase" } },
+                        { "for": { "in": "projekt" } },
+                        { "for": { "in": "status" } },
+                        { "for": { "in": "owner" } },
+                        { "for": { "in": "deps" } },
+                        { "for": { "in": "planStart" } },
+                        { "for": { "in": "planEnd" } },
+                        { "for": { "in": "sort" } },
+                        { "for": { "in": "statusDate" } }
+                    ],
+                    "dataReductionAlgorithm": { "top": { "count": 30000 } }
+                },
+                "values": {
+                    "select": [
+                        { "bind": { "to": "progress" } },
+                        { "for": { "in": "planStart" } },
+                        { "for": { "in": "planEnd" } },
+                        { "for": { "in": "sort" } },
+                        { "for": { "in": "statusDate" } }
+                    ]
+                }
+            }
+        }
+    ],
+    "privileges": []
+}

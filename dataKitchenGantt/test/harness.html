@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DataKitchen Gantt — Testharness</title>
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; }
+    #stage { width: 100vw; height: 100vh; }
+    #log { position: fixed; bottom: 4px; left: 8px; font: 11px/1.4 ui-monospace, monospace; color: #888; pointer-events: none; z-index: 50; }
+  </style>
+</head>
+<body>
+  <div id="stage"></div>
+  <div id="log"></div>
+  <script type="module">
+    import { GanttRenderer } from './gantt.js';
+
+    const u = (y, m, d) => Date.UTC(y, m - 1, d);
+    // Demo-Daten = Referenz-Sample "BI-Rollout 2026"
+    // ps/pe = Basisplan (Plan vs. Ist): Verzug bei Datenmodell/Deneb/Datenanbindung/
+    // Go-Live, früher fertig bei Lastenheft, plan-treu bei Anforderungen/Test & QA
+    const TASKS = [
+      { key: 'Anforderungen', name: 'Anforderungen', phase: 'Konzept', s: u(2026, 1, 5), e: u(2026, 1, 16), pct: 100, st: 'Fertig', ow: 'Lena', deps: [], ps: u(2026, 1, 5), pe: u(2026, 1, 16) },
+      { key: 'Lastenheft', name: 'Lastenheft', phase: 'Konzept', s: u(2026, 1, 19), e: u(2026, 1, 30), pct: 100, st: 'Fertig', ow: 'Lena', deps: ['Anforderungen'], ps: u(2026, 1, 19), pe: u(2026, 2, 2) },
+      { key: 'Freigabe Konzept', name: 'Freigabe Konzept', phase: 'Konzept', s: u(2026, 2, 2), e: null, pct: null, st: null, ow: 'Lena', deps: ['Lastenheft'], ps: u(2026, 2, 2), pe: null },
+      { key: 'Datenmodell', name: 'Datenmodell', phase: 'Umsetzung', s: u(2026, 2, 3), e: u(2026, 2, 20), pct: 80, st: 'In Arbeit', ow: 'Mika', deps: ['Freigabe Konzept'], ps: u(2026, 2, 3), pe: u(2026, 2, 16) },
+      { key: 'Deneb-Visuals', name: 'Deneb-Visuals', phase: 'Umsetzung', s: u(2026, 2, 16), e: u(2026, 3, 13), pct: 45, st: 'In Arbeit', ow: 'Mika', deps: ['Datenmodell'], ps: u(2026, 2, 12), pe: u(2026, 3, 6) },
+      { key: 'Datenanbindung', name: 'Datenanbindung', phase: 'Umsetzung', s: u(2026, 2, 23), e: u(2026, 3, 20), pct: 30, st: 'Blockiert', ow: 'Sara', deps: ['Datenmodell'], ps: u(2026, 2, 16), pe: u(2026, 3, 13) },
+      { key: 'Test & QA', name: 'Test & QA', phase: 'Rollout', s: u(2026, 3, 23), e: u(2026, 4, 10), pct: 0, st: 'Offen', ow: 'Sara', deps: ['Deneb-Visuals', 'Datenanbindung'], ps: u(2026, 3, 23), pe: u(2026, 4, 10) },
+      { key: 'Schulung', name: 'Schulung', phase: 'Rollout', s: u(2026, 4, 13), e: u(2026, 4, 24), pct: 0, st: 'Offen', ow: 'Lena', deps: ['Test & QA'] },
+      { key: 'Go-Live', name: 'Go-Live', phase: 'Rollout', s: u(2026, 4, 27), e: null, pct: null, st: null, ow: 'Team', deps: ['Schulung'], ps: u(2026, 4, 20), pe: null }
+    ];
+
+    const log = document.getElementById('log');
+    const selected = new Set();
+    const r = new GanttRenderer(document.getElementById('stage'));
+
+    const params = new URLSearchParams(location.search);
+    const opts = () => ({
+      dark: params.get('dark') === '1',
+      ibcs: params.get('ibcs') === '1',
+      wochenenden: params.get('wochenenden') !== '0',
+      abhaengigkeiten: params.get('deps') !== '0',
+      heuteLinie: params.get('heute') !== '0',
+      tabellenBreite: params.has('tw') ? Number(params.get('tw')) : 620,
+      basisplan: params.get('plan') !== '0',
+      deltaSpalte: params.get('delta') !== '0',
+      verzugZeilen: params.get('verzug') !== '0',
+      statusDatum: params.has('status') ? Date.parse(params.get('status')) : null,
+      zeiteinheit: params.get('ze') || 'auto',
+      tageEinheit: params.get('u') || 't',
+      msAufPhase: params.get('mskompakt') !== '0',
+      msDatum: params.get('msdatum') !== '0',
+      msEndeGleichStart: params.get('msgleich') === '1',
+      selectedKeys: selected.size ? new Set(selected) : null,
+      interactionsAllowed: true,
+      onSelect: (task, ev) => {
+        const multi = ev.ctrlKey || ev.metaKey;
+        if (!multi) selected.clear();
+        if (selected.has(task.key) && multi) selected.delete(task.key);
+        else selected.add(task.key);
+        log.textContent = 'select: ' + [...selected].join(', ');
+        r.setOptions(opts());
+      },
+      onContextMenu: (task) => { log.textContent = 'contextmenu: ' + task.key; },
+      onClear: () => { selected.clear(); log.textContent = 'clear'; r.setOptions(opts()); }
+    });
+
+    // ?proj=1 → Portfolio-Modus: Sample als zwei Projekte (zweites um 120 Tage versetzt)
+    let DATA = TASKS;
+    if (params.get('proj') === '1') {
+      const shift = 120 * 86400000;
+      const clone = (t, pfx, projekt, ds) => ({
+        ...t, projekt, key: pfx + t.key, deps: t.deps.map(d => pfx + d),
+        s: t.s + ds, e: t.e === null ? null : t.e + ds,
+        ps: t.ps === undefined || t.ps === null ? t.ps : t.ps + ds,
+        pe: t.pe === undefined || t.pe === null ? t.pe : t.pe + ds
+      });
+      DATA = [
+        ...TASKS.map(t => clone(t, 'A:', 'PV-Anlage Bottrop', 0)),
+        ...TASKS.map(t => clone(t, 'B:', 'Speicher Gladbeck', shift))
+      ];
+    }
+    r.setData(DATA);
+    r.setOptions(opts());
+    window.__gantt = r; // für Debug-Zugriff
+  </script>
+</body>
+</html>
