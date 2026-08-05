@@ -4,20 +4,106 @@ Ideen-Sammlung: bewusst **nicht** sofort gebaut, aber nicht vergessen.
 Aufwand: S (< ½ Tag) · M (½–1 Tag) · L (mehrere Tage) · XL (Architektur).
 Neue Ideen bitte als GitHub-Issue anlegen oder hier ergänzen.
 
+## Abgrenzung: ChartKitchen ↔ P&L Statement byDatenWG
+
+Mit **P&L Statement byDatenWG** (`../pnlByDatenWG/`, aktueller Stand auf Branch
+`claude/visual-chartkitchen-git-link-rvi81z`) gibt es ein eigenständiges
+Schwester-Visual für GuV-/P&L-Statements. Die Arbeitsteilung ist bewusst — es
+ist keine Doppelung, sondern eine andere Problemklasse:
+
+- **ChartKitchen = Breite.** Viele Diagrammtypen über beliebige Kategorien aus
+  einer flachen Faktentabelle; die GuV-Modi (Waterfall, GuV-Statement, Tabelle)
+  decken den schnellen Fall ab.
+- **P&L Statement = Tiefe für genau ein Artefakt.** Kontenhierarchie aus einer
+  Dimensionstabelle (Sternschema `L1..Ln` primär, Parent-Child alternativ),
+  `RowType`/`FormulaDef` mit Formel-auf-Formel und Zirkelbezug-Erkennung,
+  dreiteilige Vorzeichenlogik (`SignConvention` · `DisplayInvert` ·
+  `VarianceInvert`), Rechenkern ohne Power-BI-Abhängigkeit isoliert getestet.
+  Dort sind Reconciliation-Fehler Vertrauens-Killer, nicht Schönheitsfehler.
+
+Der strukturelle Unterschied: ChartKitchen konfiguriert solche Sonderfälle über
+**Listen im Formatbereich**, das P&L liest sie **datengetrieben aus der
+Kontendimension**. Für Ad-hoc-Tabellen ist Ersteres richtig, für einen echten
+Kontenrahmen Letzteres.
+
+**Konsequenz für dieses Backlog:** Mehrere Punkte im Block „Fachliche
+Korrektheit" sind im P&L bereits gelöst (unten markiert). Vor dem Bau hier bitte
+prüfen: Braucht ChartKitchen wirklich eine Light-Version für Ad-hoc-Fälle — oder
+gehört der Punkt ins P&L und kann hier entfallen? Sonst droht Parallelentwicklung
+derselben Anforderung auf zwei Architektur-Ebenen.
+
+## Beta-Feedback (extern) — Kandidaten für die nächste Version
+
+### Alexander Korn (Juli 2026)
+
+Erster externer End-to-End-Test: 4 Instanzen (Columns · Bars · Tabelle ·
+KPI-Karten) auf einer Seite, Destatis-Hochschuldaten (~17,4 M Studierende,
+2019–2024), Desktop **und** Service (PBIR + gebündeltes Visual via Fabric
+REST API). Befund: rendert identisch, keine Konsolenfehler. Fünf Punkte:
+
+- [x] **Bug: Rundungshinweis überlagert ΔPY-%-Spaltenkopf** (S) — erledigt in 1.39.0.0. — im
+      Bars-Modus mit vielen Kategorien (17) kollidiert „Summe weicht
+      rundungsbedingt ab" mit der Panel-Überschrift; Hinweis versetzen
+      oder bei Platzmangel unter den Σ-Header ziehen (Screenshot ①).
+- [x] **Schalter „Leerkategorie ausblenden"** (S) — erledigt in 1.39.0.0 (Chart → Layout, Standard aus). — `(blank)`-Kategorien
+      erscheinen als eigene Zeile/Balken/KPI-Karte; Opt-out-Toggle
+      (Standard: anzeigen, damit nichts still verschwindet) für alle Modi
+      inkl. Karten (Screenshot ②).
+- [x] **Tabelle: gemeinsame Nullachse für ΔPY-Balken und ΔPY-%-Pins** (S–M) — erledigt in 1.39.0.0 (geteilte Nullachsen-Position nach Neg-/Pos-Anteilen, inkl. Δ2). —
+      die beiden Varianz-Grafikspalten nutzen unterschiedliche
+      Nullachsen-Positionen, wirkt unruhig; Nulllinien vertikal alignen
+      oder zumindest optisch koppeln (Screenshot ③).
+- [x] **KPI-Karten: Sortieren-Button vom Panel-Rand lösen** (S) — erledigt in 1.39.0.0. — Chip
+      klebt an der Kachelkante; Innenabstand analog zu den
+      Brücken-Buttons.
+- [ ] **Erstlade-Performance bei mehreren Instanzen im Service messen** (M) —
+      4 Instanzen/Seite verlängern die Erstladung spürbar. Analyse:
+      Data-Reduction-Fenster (top 1000) vs. Render-Zeit profilen
+      (Performance Analyzer + `renderingFinished`-Telemetrie), dann
+      entscheiden: Lazy-Render, kleinere Erst-Fetches oder Doku-Hinweis.
+
+### Beta-Tester (Juli 2026, EN — Name nachtragen)
+
+Gesamturteil „the tool is amazing", ein inhaltlicher Wunsch — und zwar ein
+klassischer, den jedes Monatsreporting hat:
+
+- [ ] **AC und FC im selben Monat als Split-Säule** (M) — Zitat: *„if on the
+      category axis I've month, is there a way to manage data that can be
+      either FC and AC in a certain month? It would be great if in the month
+      that contains both FC and AC data, the chosen graph could represent
+      both of them."* Der laufende Monat ist typischerweise halb geschlossen:
+      AC bis Stichtag, FC für den Rest. **Heute:** entweder/oder — FC wird nur
+      gezeigt, wenn AC fehlt.
+      **Gewünscht:** eine Säule mit solidem AC-Sockel + schraffiertem
+      FC-Aufsatz (IBCS-konform).
+      *Teile davon existieren schon* — nicht neu erfinden, sondern
+      übernehmen: die Integrierte Brücke hat die gestapelte AC+FC-Totalsäule,
+      das GuV-Statement die Szenario-Sicht „AC&FC (Split schraffiert)", und
+      das FC-Flag `2` („vorläufig") kann eine Säule solide + überlagert
+      schraffiert zeichnen. Was fehlt, ist der **echte Split je Kategorie im
+      Standard-Columns/Bars-Modus**.
+      **Vor dem Bau zu klären** (der eigentliche Knackpunkt): Wenn AC und FC
+      für denselben Monat geliefert werden — ist FC die *Vollmonatsprognose*
+      (dann Säule = AC + max(0, FC − AC)) oder nur der *Restmonat* (dann
+      Säule = AC + FC)? Braucht eine Konvention oder ein Setting; falsch
+      geraten ergibt doppelt gezählte Monate. Mitzudenken: Δ rechnet gegen
+      das Composite, das Label zeigt die Summe (Einzelteile im Tooltip), die
+      AC|FC-Trennlinie liegt dann *innerhalb* einer Säule statt zwischen
+      zweien, und YTD/kumuliert muss entscheiden, ob der FC-Anteil mitzählt.
+
 ## Barrierefreiheit
 
 - [ ] **Schraffur-Redundanz für „schlecht"** (M) — optionaler Schalter:
       schlechte Varianzen zusätzlich schraffiert (Muster + Farbe = doppelter
       Kanal; hilft auch beim S/W-Druck). Stärkster nächster A11y-Schritt.
-- [ ] **Blau/Orange-Farbpreset** (S) — ColorBrewer-Standard #2C7BB6/#E66101
-      als Dropdown-Preset neben den Pickern (Achromatopsie, S/W-Druck).
+- [x] **Blau/Orange-Farbpreset** (S) — erledigt in 1.39.0.0 (Dropdown in IBCS colors).
 - [x] **▲/▼-Symbole auf KPI-Karten** (S) — erledigt in 1.34.0.0 („Trend-Icons
       ▲▼●" in der Analyse-Gruppe, Tabelle + Karten).
 - [ ] **Fokusverlust nach In-Chart-Rerender** (M) — Zoom/Aufklappen/Sort per
       Enter wirft Tastaturnutzer aus dem Visual; Fokus wiederherstellen.
 - [ ] **ARIA-Semantik aufräumen** (M) — role=option ohne listbox, Chart-Label,
       Tab-Stop-Flut bei vielen Kategorien (Fund aus Ideation-Review).
-- [ ] **Grautöne auf WCAG-Kontrast anheben** (S) — subtle #8A8A8A → ~#6E6E6E.
+- [x] **Grautöne auf WCAG-Kontrast anheben** (S) — erledigt in 1.39.0.0 (Textfarben; UI-Rahmen bewusst belassen, 3:1 genügt).
 
 ## Tabelle & Matrix
 
@@ -58,8 +144,7 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
       (Setting „Position der Σ-Zeile", oben/unten, beim Scrollen fixiert).
 - [ ] **Zeilen-Reihenfolge per Drag** (L) — manuelles Umsortieren, persistiert;
       Verzahnung mit Sort/Hierarchie klären.
-- [ ] **Export-Ansicht „alles aufgeklappt"** (S) — beim Druck/PDF automatisch
-      alle Zeilen- und Spalten-Ebenen öffnen.
+- [x] **Export-Ansicht „alles aufgeklappt"** (S) — erledigt in 1.39.0.0 (Chart → Table, Standard an; auch GuV-Statement).
 
 ### Spalten & Skalierung
 
@@ -71,8 +156,7 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
       Monat, Σ-Spalte je aufgeklappter Gruppe.
 - [ ] **Automatische YTD-/Σ-Spalte neben Monatsblöcken** (M) — kumulierte
       Spalte („YTD Jun") bzw. Jahres-Σ rechts der Perioden.
-- [ ] **Spalten-Labels umbenennen** (S) — Zuordnungsliste AC→„Ist", PY→„VJ",
-      PL→„Budget" für Hausbegriffe.
+- [x] **Spalten-Labels umbenennen** (S) — erledigt in 1.39.0.0 (4 Textfelder in Data labels, wirkt auf Titel/Köpfe/Legenden/Tooltips).
 - [ ] **ΔBM-Spalten** (S–M) — Benchmark als echte Wertspalten (ΔBM, ΔBM %)
       statt nur Strich-Marker im Balken.
 - [ ] **Sparklines in der Zeile** (M) — Mini-Trendlinie pro Zeile (letzte N
@@ -108,20 +192,32 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
 
 ### Fachliche Korrektheit
 
+Abgleich mit dem P&L-Visual siehe Abschnitt „Abgrenzung" oben — `↔ P&L`
+markiert Punkte, die dort bereits (oder besser) gelöst sind.
+
 - [ ] **Σ-Aggregation Summe / Ø / letzter Wert** (M) — Bestandsgrößen
       (Headcount, Cash) dürfen nicht summiert werden; Wahl pro Zeile analog
-      zur pct-Logik.
+      zur pct-Logik. *(in beiden Visuals offen — gemeinsame Lösung überlegen)*
 - [ ] **Vorzeichen-Liste** (S) — signList: positiv gelieferte Kosten als
       Abzug anzeigen (−4.200), korrekt in Σ und Formeln.
+      **↔ P&L:** dort als `SignConvention` + `DisplayInvert` + `VarianceInvert`
+      aus der Kontendimension gelöst. Hier nur bauen, wenn Ad-hoc-Tabellen ohne
+      Dimensionstabelle das wirklich brauchen.
 - [ ] **Abschnitts-Überschriften & Leerzeilen** (S) — sectionList:
       Zwischenüberschriften ohne Werte + Trennlinien (GuV-Gliederung).
+      **↔ P&L:** dort `RowType = Separator` — datengetrieben statt Liste.
 - [ ] **Plausibilitäts-Wächter** (S–M) — Formelzeile vs. gleichnamige
       gelieferte Zeile vergleichen, Differenzen mit ⚠ markieren (fängt
-      kaputte Measures).
+      kaputte Measures). **↔ P&L:** teilweise — dort Zirkelbezug-Erkennung und
+      Fehleranzeige an der Zeile; der Abgleich Formel vs. geliefert fehlt noch
+      in beiden.
 - [ ] **FC-Zeilen-Liste** (S) — fcList: Zeilen als Forecast/vorläufig
       markieren → Schraffur + kursiv wie die FC-Notation der Charts.
-- [ ] **Formelzeilen: Feedback bei Fehler** (S) — unauflösbare Formel als
-      Zeile mit „?"-Werten zeigen statt lautlos weglassen.
+      *(im P&L ist FC ein Szenario-Slot, keine Zeilen-Markierung — anderer
+      Anwendungsfall, hier eigenständig sinnvoll)*
+- [x] **Formelzeilen: Feedback bei Fehler** (S) — erledigt in 1.39.0.0 („Label = ?"-Zeile in Tabelle und Matrix).
+      **↔ P&L:** dort bereits gelöst (Fehleranzeige an der Zeile) — Muster von
+      dort übernehmen statt neu erfinden.
 
 ### Interaktion & Integration
 

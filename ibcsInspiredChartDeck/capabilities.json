@@ -185,6 +185,8 @@
                     }
                 },
                 "zebraStripes": { "type": { "bool": true } },
+                "hideBlankCat": { "type": { "bool": true } },
+                "exportExpandAll": { "type": { "bool": true } },
                 "rowDensity": {
                     "type": {
                         "enumeration": [
@@ -303,6 +305,14 @@
         },
         "colors": {
             "properties": {
+                "variancePreset": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "custom", "displayName": "Farbwähler unten (Teal/Rot)" },
+                            { "value": "blueOrange", "displayName": "Blau/Orange (ColorBrewer)" }
+                        ]
+                    }
+                },
                 "useTheme": { "type": { "bool": true } },
                 "actualColor": { "type": { "fill": { "solid": { "color": true } } } },
                 "previousYearColor": { "type": { "fill": { "solid": { "color": true } } } },
@@ -316,6 +326,10 @@
                 "show": { "type": { "bool": true } },
                 "sumSafeRounding": { "type": { "bool": true } },
                 "financeFormat": { "type": { "bool": true } },
+                "labelAc": { "type": { "text": true } },
+                "labelPy": { "type": { "text": true } },
+                "labelPl": { "type": { "text": true } },
+                "labelFc": { "type": { "text": true } },
                 "labelDensity": {
                     "type": {
                         "enumeration": [

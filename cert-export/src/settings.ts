@@ -256,6 +256,15 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    hideBlankCat = new formattingSettings.ToggleSwitch({
+        name: "hideBlankCat",
+        displayName: "Hide (blank) category",
+        displayNameKey: "Chart_HideBlankCat",
+        description: "Blendet Zeilen ohne Kategoriewert aus — sie erscheinen sonst als „(blank)\"-Balken, -Zeile oder -KPI-Karte. Standard aus, damit keine Daten unbemerkt verschwinden (Beta-Feedback).",
+        descriptionKey: "Desc_Chart_HideBlankCat",
+        value: false
+    });
+
     showTotal = new formattingSettings.ToggleSwitch({
         name: "showTotal",
         displayName: "Total (Σ) header",
@@ -414,7 +423,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Layout",
         displayNameKey: "Group_Layout",
         slices: [this.orientation, this.comparisonMode, this.showAbsoluteVariance,
-            this.showRelativeVariance, this.dualVariance, this.pyTriangle, this.showTotal, this.groupEvery]
+            this.showRelativeVariance, this.dualVariance, this.pyTriangle, this.showTotal,
+            this.hideBlankCat, this.groupEvery]
     });
 
     cumulativeButton = new formattingSettings.ToggleSwitch({
@@ -682,6 +692,15 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: cellLayoutItems[0]
     });
 
+    exportExpandAll = new formattingSettings.ToggleSwitch({
+        name: "exportExpandAll",
+        displayName: "Export: expand all levels",
+        displayNameKey: "Chart_ExportExpandAll",
+        description: "PDF-/PowerPoint-Export und Abo-Mails rendern Tabelle, Matrix und GuV-Statement mit allen Zeilen- und Spalten-Ebenen aufgeklappt — der Ausdruck zeigt alles, unabhängig vom Klapp-Zustand am Bildschirm. Aus = Export zeigt den aktuellen Zustand.",
+        descriptionKey: "Desc_Chart_ExportExpandAll",
+        value: true
+    });
+
     tableGroup = new formattingSettings.Group({
         name: "chartTable",
         displayName: "Table",
@@ -689,7 +708,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         slices: [this.valueColumns, this.structureEdit, this.resultList, this.skipList,
             this.hideList, this.chartList, this.indentList, this.rowFormats,
             this.matrixCompare, this.formulaRows, this.totalRowPosition,
-            this.zebraStripes, this.rowDensity, this.gridLines, this.cellLayout]
+            this.zebraStripes, this.rowDensity, this.gridLines, this.cellLayout,
+            this.exportExpandAll]
     });
 
     cardStatusBasis = new formattingSettings.ItemDropdown({
@@ -785,7 +805,22 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
     groups = [this.layoutGroup, this.analysisGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup];
 }
 
+const variancePresetItems: powerbi.IEnumMember[] = [
+    { value: "custom", displayName: "Farbwähler unten (Teal/Rot)" },
+    { value: "blueOrange", displayName: "Blau/Orange (ColorBrewer)" }
+];
+
 export class ColorsCardSettings extends FormattingSettingsCard {
+    variancePreset = new formattingSettings.ItemDropdown({
+        name: "variancePreset",
+        displayName: "Variance color preset",
+        displayNameKey: "Colors_VariancePreset",
+        description: "„Blau/Orange\" setzt Good/Bad auf das ColorBrewer-Paar #2C7BB6/#E66101 — auch bei vollständiger Farbenblindheit (Achromatopsie) und im Schwarzweiß-Druck über die Helligkeit unterscheidbar. Übersteuert die beiden Farbwähler unten; Theme-Farben haben weiter Vorrang.",
+        descriptionKey: "Desc_Colors_VariancePreset",
+        items: variancePresetItems,
+        value: variancePresetItems[0]
+    });
+
     useTheme = new formattingSettings.ToggleSwitch({
         name: "useTheme",
         displayName: "Use report theme colors",
@@ -836,6 +871,7 @@ export class ColorsCardSettings extends FormattingSettingsCard {
     displayName: string = "IBCS colors";
     displayNameKey: string = "Card_Colors";
     slices: Array<FormattingSettingsSlice> = [
+        this.variancePreset,
         this.useTheme,
         this.actualColor,
         this.previousYearColor,
@@ -934,6 +970,48 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    // Hausbegriffe: die IBCS-Szenariokürzel in Titeln, Spaltenköpfen und
+    // Δ-Beschriftungen umbenennen (leer = Standardkürzel) — Backlog-Wunsch
+    labelAc = new formattingSettings.TextInput({
+        name: "labelAc",
+        displayName: "Rename AC",
+        displayNameKey: "Labels_RenameAc",
+        description: "Eigener Begriff für AC in Titeln, Spaltenköpfen und Legenden (z. B. „Ist\"). Leer = AC.",
+        descriptionKey: "Desc_Labels_RenameAc",
+        placeholder: "AC",
+        value: ""
+    });
+
+    labelPy = new formattingSettings.TextInput({
+        name: "labelPy",
+        displayName: "Rename PY",
+        displayNameKey: "Labels_RenamePy",
+        description: "Eigener Begriff für PY, auch in ΔPY-Überschriften (z. B. „VJ\"). Leer = PY.",
+        descriptionKey: "Desc_Labels_RenamePy",
+        placeholder: "PY",
+        value: ""
+    });
+
+    labelPl = new formattingSettings.TextInput({
+        name: "labelPl",
+        displayName: "Rename PL",
+        displayNameKey: "Labels_RenamePl",
+        description: "Eigener Begriff für PL, auch in ΔPL-Überschriften (z. B. „Budget\"). Leer = PL.",
+        descriptionKey: "Desc_Labels_RenamePl",
+        placeholder: "PL",
+        value: ""
+    });
+
+    labelFc = new formattingSettings.TextInput({
+        name: "labelFc",
+        displayName: "Rename FC",
+        displayNameKey: "Labels_RenameFc",
+        description: "Eigener Begriff für FC (z. B. „Prognose\"). Leer = FC.",
+        descriptionKey: "Desc_Labels_RenameFc",
+        placeholder: "FC",
+        value: ""
+    });
+
     name: string = "labels";
     displayName: string = "Data labels";
     displayNameKey: string = "Card_Labels";
@@ -946,7 +1024,11 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         this.decimals,
         this.displayUnits,
         this.financeFormat,
-        this.sumSafeRounding
+        this.sumSafeRounding,
+        this.labelAc,
+        this.labelPy,
+        this.labelPl,
+        this.labelFc
     ];
 }
 

@@ -41,19 +41,19 @@ KPI-Karten) auf einer Seite, Destatis-Hochschuldaten (~17,4 M Studierende,
 2019–2024), Desktop **und** Service (PBIR + gebündeltes Visual via Fabric
 REST API). Befund: rendert identisch, keine Konsolenfehler. Fünf Punkte:
 
-- [ ] **Bug: Rundungshinweis überlagert ΔPY-%-Spaltenkopf** (S) — im
+- [x] **Bug: Rundungshinweis überlagert ΔPY-%-Spaltenkopf** (S) — erledigt in 1.39.0.0. — im
       Bars-Modus mit vielen Kategorien (17) kollidiert „Summe weicht
       rundungsbedingt ab" mit der Panel-Überschrift; Hinweis versetzen
       oder bei Platzmangel unter den Σ-Header ziehen (Screenshot ①).
-- [ ] **Schalter „Leerkategorie ausblenden"** (S) — `(blank)`-Kategorien
+- [x] **Schalter „Leerkategorie ausblenden"** (S) — erledigt in 1.39.0.0 (Chart → Layout, Standard aus). — `(blank)`-Kategorien
       erscheinen als eigene Zeile/Balken/KPI-Karte; Opt-out-Toggle
       (Standard: anzeigen, damit nichts still verschwindet) für alle Modi
       inkl. Karten (Screenshot ②).
-- [ ] **Tabelle: gemeinsame Nullachse für ΔPY-Balken und ΔPY-%-Pins** (S–M) —
+- [x] **Tabelle: gemeinsame Nullachse für ΔPY-Balken und ΔPY-%-Pins** (S–M) — erledigt in 1.39.0.0 (geteilte Nullachsen-Position nach Neg-/Pos-Anteilen, inkl. Δ2). —
       die beiden Varianz-Grafikspalten nutzen unterschiedliche
       Nullachsen-Positionen, wirkt unruhig; Nulllinien vertikal alignen
       oder zumindest optisch koppeln (Screenshot ③).
-- [ ] **KPI-Karten: Sortieren-Button vom Panel-Rand lösen** (S) — Chip
+- [x] **KPI-Karten: Sortieren-Button vom Panel-Rand lösen** (S) — erledigt in 1.39.0.0. — Chip
       klebt an der Kachelkante; Innenabstand analog zu den
       Brücken-Buttons.
 - [ ] **Erstlade-Performance bei mehreren Instanzen im Service messen** (M) —
@@ -96,15 +96,14 @@ klassischer, den jedes Monatsreporting hat:
 - [ ] **Schraffur-Redundanz für „schlecht"** (M) — optionaler Schalter:
       schlechte Varianzen zusätzlich schraffiert (Muster + Farbe = doppelter
       Kanal; hilft auch beim S/W-Druck). Stärkster nächster A11y-Schritt.
-- [ ] **Blau/Orange-Farbpreset** (S) — ColorBrewer-Standard #2C7BB6/#E66101
-      als Dropdown-Preset neben den Pickern (Achromatopsie, S/W-Druck).
+- [x] **Blau/Orange-Farbpreset** (S) — erledigt in 1.39.0.0 (Dropdown in IBCS colors).
 - [x] **▲/▼-Symbole auf KPI-Karten** (S) — erledigt in 1.34.0.0 („Trend-Icons
       ▲▼●" in der Analyse-Gruppe, Tabelle + Karten).
 - [ ] **Fokusverlust nach In-Chart-Rerender** (M) — Zoom/Aufklappen/Sort per
       Enter wirft Tastaturnutzer aus dem Visual; Fokus wiederherstellen.
 - [ ] **ARIA-Semantik aufräumen** (M) — role=option ohne listbox, Chart-Label,
       Tab-Stop-Flut bei vielen Kategorien (Fund aus Ideation-Review).
-- [ ] **Grautöne auf WCAG-Kontrast anheben** (S) — subtle #8A8A8A → ~#6E6E6E.
+- [x] **Grautöne auf WCAG-Kontrast anheben** (S) — erledigt in 1.39.0.0 (Textfarben; UI-Rahmen bewusst belassen, 3:1 genügt).
 
 ## Tabelle & Matrix
 
@@ -145,8 +144,7 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
       (Setting „Position der Σ-Zeile", oben/unten, beim Scrollen fixiert).
 - [ ] **Zeilen-Reihenfolge per Drag** (L) — manuelles Umsortieren, persistiert;
       Verzahnung mit Sort/Hierarchie klären.
-- [ ] **Export-Ansicht „alles aufgeklappt"** (S) — beim Druck/PDF automatisch
-      alle Zeilen- und Spalten-Ebenen öffnen.
+- [x] **Export-Ansicht „alles aufgeklappt"** (S) — erledigt in 1.39.0.0 (Chart → Table, Standard an; auch GuV-Statement).
 
 ### Spalten & Skalierung
 
@@ -158,8 +156,7 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
       Monat, Σ-Spalte je aufgeklappter Gruppe.
 - [ ] **Automatische YTD-/Σ-Spalte neben Monatsblöcken** (M) — kumulierte
       Spalte („YTD Jun") bzw. Jahres-Σ rechts der Perioden.
-- [ ] **Spalten-Labels umbenennen** (S) — Zuordnungsliste AC→„Ist", PY→„VJ",
-      PL→„Budget" für Hausbegriffe.
+- [x] **Spalten-Labels umbenennen** (S) — erledigt in 1.39.0.0 (4 Textfelder in Data labels, wirkt auf Titel/Köpfe/Legenden/Tooltips).
 - [ ] **ΔBM-Spalten** (S–M) — Benchmark als echte Wertspalten (ΔBM, ΔBM %)
       statt nur Strich-Marker im Balken.
 - [ ] **Sparklines in der Zeile** (M) — Mini-Trendlinie pro Zeile (letzte N
@@ -218,8 +215,7 @@ markiert Punkte, die dort bereits (oder besser) gelöst sind.
       markieren → Schraffur + kursiv wie die FC-Notation der Charts.
       *(im P&L ist FC ein Szenario-Slot, keine Zeilen-Markierung — anderer
       Anwendungsfall, hier eigenständig sinnvoll)*
-- [ ] **Formelzeilen: Feedback bei Fehler** (S) — unauflösbare Formel als
-      Zeile mit „?"-Werten zeigen statt lautlos weglassen.
+- [x] **Formelzeilen: Feedback bei Fehler** (S) — erledigt in 1.39.0.0 („Label = ?"-Zeile in Tabelle und Matrix).
       **↔ P&L:** dort bereits gelöst (Fehleranzeige an der Zeile) — Muster von
       dort übernehmen statt neu erfinden.
 

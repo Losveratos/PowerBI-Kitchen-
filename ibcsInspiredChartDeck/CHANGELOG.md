@@ -1,5 +1,40 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.39.0.0 (2026-08-05)
+
+**Politur-Paket aus dem Beta-Feedback (A. Korn) plus Backlog-Quick-Wins.**
+Neun kleine Verbesserungen, vier davon direkt aus dem ersten externen
+End-to-End-Test:
+
+- **Rundungshinweis kollidiert nicht mehr (Bars).** „Summe weicht
+  rundungsbedingt ab" überlagerte im Bars-Modus die ΔPY-%-Panel-Überschrift;
+  der Hinweis sitzt dort jetzt unten rechts (mit Papier-Halo), in Columns
+  unverändert unter dem Σ-Header.
+- **„Leerkategorie ausblenden"** (Chart → Layout): `(blank)`-Zeilen, -Balken
+  und -KPI-Karten lassen sich ausblenden. Bewusst standardmäßig AUS, damit
+  keine Daten unbemerkt verschwinden.
+- **Gemeinsame Nullachse in der Tabelle.** Δ-Balken- und Δ%-Pin-Spalte
+  ankern ihre Nulllinie jetzt auf derselben relativen Spaltenposition,
+  bemessen an den echten Negativ-/Positiv-Anteilen — einseitige Daten
+  verschenken nicht mehr die halbe Spalte, und die Achsen springen nicht
+  mehr gegeneinander. Gilt auch für die Δ2-Spalte (Doppel-Varianz).
+- **KPI-Karten: Sortieren-Chip mit Luft zum Rand** statt 2-px-Klebeabstand.
+- **WCAG-Kontrast:** Sekundärtexte (Panel-Titel, Datumsangaben, Hinweise)
+  von `#8A8A8A` auf `#6E6E6E` angehoben — erfüllt AA (≥ 4,5:1) auf Weiß.
+- **Farbpreset „Blau/Orange"** (IBCS colors): ColorBrewer-Paar
+  `#2C7BB6`/`#E66101` als Dropdown neben den Good/Bad-Pickern — auch bei
+  Achromatopsie und im S/W-Druck über die Helligkeit unterscheidbar.
+- **Szenariokürzel umbenennen** (Data labels): AC→„Ist", PY→„VJ",
+  PL→„Budget", FC→„Prognose" — wirkt auf Titelblock, Panel-Titel, Tabellen-/
+  Matrix-Spaltenköpfe, Brücken-Beschriftungen, GuV-Sichten-Buttons, Legenden
+  und Tooltips. Leer = IBCS-Standard.
+- **Export: alles aufklappen** (Chart → Table, Standard AN): PDF-/PPT-Export
+  und Abo-Mails rendern Tabelle, Matrix und GuV-Statement mit allen Zeilen-
+  und Spalten-Ebenen offen — der Bildschirm-Zustand bleibt unberührt.
+- **Formelzeilen melden Fehler:** Eine unauflösbare Formel (Tippfehler im
+  Zeilennamen, kaputte Syntax) erscheint als „Label = ?"-Zeile statt lautlos
+  wegzufallen — in Tabelle und Matrix.
+
 ## 1.38.0.0 (2026-07-19)
 
 **Matrix-Breite-Paket: Zwei-Zeilen-Kompaktmodus und Spaltenbreiten per
