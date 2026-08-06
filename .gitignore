@@ -55,3 +55,6 @@ _gtmp/
 # downloads folder; the encrypted .enc IS committed there on activation.
 # (Release builds under ibcsInspiredChartDeck/dist/ stay tracked as before.)
 downloads/*.pbiviz
+# Ausnahme: die eine versionslose Release-Datei WIRD committet — sie ist der
+# stabile Direkt-Download-Link der Schnellstart-Seiten (Gate abgeschafft)
+!downloads/chartkitchen-byDatenWG-latest.pbiviz

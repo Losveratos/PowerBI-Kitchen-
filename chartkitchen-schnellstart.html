@@ -160,7 +160,7 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
     <div class="chips">
       <span class="chip">13 Modi</span>
       <span class="chip teal">DE · EN · ES · JA</span>
-      <span class="chip">Version 1.38.0.0</span>
+      <span class="chip" id="ck-version">Version 1.40.0.0</span>
     </div>
     <figure class="hero-fig">
       <img src="doku-assets/pbi/pbi-demo-report.png" alt="Komplette Power-BI-Berichtsseite mit KPI-Karten und Brücken, aus ChartKitchen-Visuals gebaut">
@@ -168,100 +168,43 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
     </figure>
   </header>
 
-  <!-- DOWNLOAD-SLOT · Freischalten:
-   1) node tools/encrypt-build.mjs ibcsInspiredChartDeck/dist/<aktuelle>.pbiviz '<PASSWORT>'
-   2) downloads/chartkitchen-beta.enc committen
-   3) In dieser Karte: .btn-disabled-Button entfernen, div#dl-gate auf display:block
-   4) data-filename am Gate auf den aktuellen Dateinamen setzen
-   Passwort wird NIE committet. -->
+  <!-- RELEASE-SLOT · Neue Version live stellen (Ship-Konvention):
+   1) Aktuellen Build kopieren nach downloads/chartkitchen-byDatenWG-latest.pbiviz
+      (stabiler Dateiname — der Download-Link bleibt für immer gleich)
+   2) downloads/latest.json aktualisieren: {"version":"…","date":"TT.MM.JJJJ"}
+      (die Seite liest Version + Datum daraus, nichts hier im Markup anfassen)
+   3) Beides committen + pushen — GitHub Pages liefert nach 1–2 Minuten aus. -->
   <section class="block">
     <div class="dl-card">
       <div class="dl-icon">🍳</div>
       <div>
         <div class="dl-title">Visual herunterladen</div>
-        <div class="dl-ver">Version <strong>1.38.0.0</strong> · <strong>.pbiviz</strong></div>
-        <p class="dl-note">Der Download-Build wird in Kürze hier freigeschaltet. Bis dahin gibt es das Visual auf Anfrage — schreib kurz an <a href="mailto:michael.tenner84@gmail.com?subject=ChartKitchen%20byDatenWG%20—%20Visual%20anfragen">michael.tenner84@gmail.com</a>.</p>
-        <span class="btn-disabled" aria-disabled="true">Download folgt in Kürze</span>
+        <div class="dl-ver">Version <strong id="dl-version">1.40.0.0</strong> · <strong>.pbiviz</strong> · <span id="dl-date">05.08.2026</span></div>
+        <p class="dl-note">Direkt-Download, keine Registrierung — der Link liefert immer die aktuelle Version. Import in Power BI Desktop: <em>Visualisierungen → „…" → Visual aus einer Datei importieren</em>. Alternativ gibt es alle Builds auch auf <a href="https://github.com/Losveratos/Power-BI-Custom-Visuals-byDatenWG" target="_blank" rel="noopener">GitHub</a>.</p>
+        <a class="gate-btn" id="dl-btn" href="downloads/chartkitchen-byDatenWG-latest.pbiviz" download="chartKitchenByDatenWG.pbiviz" style="text-decoration:none;">⬇&nbsp;ChartKitchen herunterladen</a>
 
         <div class="dl-beta">
           <strong>Beta-Hinweis:</strong> Solange ChartKitchen nicht im Microsoft AppSource gelistet ist, ist jeder Build eine Beta-Version — nicht von Microsoft zertifiziert. Bitte zuerst in einem Testbericht ausprobieren; Einsatz in Produktionsberichten auf eigene Verantwortung. Feedback gern an <a href="mailto:michael.tenner84@gmail.com?subject=ChartKitchen%20byDatenWG%20—%20Feedback">michael.tenner84@gmail.com</a>.
-          <span class="beta-pw">Der Beta-Download ist passwortgeschützt — das Passwort gibt es auf Anfrage per Nachricht.</span>
-        </div>
-
-        <!-- Passwort-Gate: bleibt versteckt, bis der Beta-Download freigeschaltet wird (display:block). -->
-        <div id="dl-gate" data-enc="downloads/chartkitchen-beta.enc" data-filename="chartKitchenByDatenWG.1.38.0.0.pbiviz" style="display:none;">
-          <div class="gate-row">
-            <input type="password" id="gate-pw" autocomplete="off" placeholder="Passwort eingeben" aria-label="Passwort">
-            <button type="button" class="gate-btn" id="gate-go">Entschlüsseln &amp; herunterladen</button>
-          </div>
-          <div class="gate-status" id="gate-status" role="status" aria-live="polite"></div>
         </div>
       </div>
     </div>
   </section>
 
   <script>
-  /* ChartKitchen beta download gate — client-side AES-GCM decryption.
-     Wires up only if #dl-gate exists; the gate stays inert while display:none. */
+  /* Versions-Chip + Download-Dateiname aus downloads/latest.json — die Seite
+     zeigt immer die freigegebene Version, ohne dass das Markup angefasst wird. */
   (function(){
-    var gate = document.getElementById('dl-gate');
-    if(!gate) return;
-    var pwInput = document.getElementById('gate-pw');
-    var btn = document.getElementById('gate-go');
-    var status = document.getElementById('gate-status');
-    var MAGIC = 'CKENC1', SALT_LEN = 16, IV_LEN = 12, ITER = 310000;
-
-    function setStatus(msg, cls){ status.textContent = msg; status.className = 'gate-status' + (cls ? ' ' + cls : ''); }
-
-    async function run(){
-      var pw = (pwInput.value || '').trim();
-      if(!pw){ setStatus('Bitte Passwort eingeben.', 'err'); return; }
-      btn.disabled = true;
-      setStatus('Wird entschlüsselt …', 'busy');
-      try {
-        var resp = await fetch(gate.getAttribute('data-enc'));
-        if(!resp.ok) throw new Error('fetch');
-        var buf = new Uint8Array(await resp.arrayBuffer());
-
-        // Parse: MAGIC(6) | salt(16) | iv(12) | ciphertext(rest)
-        var magic = new TextDecoder().decode(buf.slice(0, MAGIC.length));
-        if(magic !== MAGIC) throw new Error('format');
-        var off = MAGIC.length;
-        var salt = buf.slice(off, off + SALT_LEN); off += SALT_LEN;
-        var iv = buf.slice(off, off + IV_LEN); off += IV_LEN;
-        var ct = buf.slice(off);
-
-        var passKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
-        var aesKey = await crypto.subtle.deriveKey(
-          { name:'PBKDF2', salt:salt, iterations:ITER, hash:'SHA-256' },
-          passKey, { name:'AES-GCM', length:256 }, false, ['decrypt']);
-
-        // Wrong password -> GCM auth failure -> throws here.
-        var plain = await crypto.subtle.decrypt({ name:'AES-GCM', iv:iv }, aesKey, ct);
-
-        var blob = new Blob([plain], { type:'application/octet-stream' });
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = gate.getAttribute('data-filename') || 'chartKitchen.pbiviz';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
-        setStatus('Download gestartet.', 'ok');
-      } catch(e){
-        if(e && e.message === 'fetch') setStatus('Download-Datei nicht gefunden.', 'err');
-        else if(e && e.message === 'format') setStatus('Ungültige Download-Datei.', 'err');
-        else setStatus('Passwort falsch', 'err');
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    btn.addEventListener('click', run);
-    pwInput.addEventListener('keydown', function(ev){ if(ev.key === 'Enter') run(); });
+    fetch('downloads/latest.json', { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if(!j || !j.version) return;
+      var v = document.getElementById('dl-version'); if(v) v.textContent = j.version;
+      var c = document.getElementById('ck-version'); if(c) c.textContent = 'Version ' + j.version;
+      var d = document.getElementById('dl-date'); if(d && j.date) d.textContent = j.date;
+      var b = document.getElementById('dl-btn'); if(b) b.setAttribute('download', 'chartKitchenByDatenWG.' + j.version + '.pbiviz');
+      var fv = document.getElementById('ck-footer-version'); if(fv) fv.textContent = 'Version ' + j.version;
+    }).catch(function(){});
   })();
   </script>
+
 
   <section class="block">
     <h2 class="sec-h"><span class="snum">01</span>In drei Schritten loslegen</h2>
@@ -363,7 +306,7 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
   </section>
 
   <footer class="foot">
-    <strong>ChartKitchen byDatenWG</strong> · Version 1.38.0.0<br>
+    <strong>ChartKitchen byDatenWG</strong> · <span id="ck-footer-version">Version 1.40.0.0</span><br>
     Kontakt: Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
     Die vollständige Dokumentation gibt es als <a href="chartkitchen-doku.html">Web-Seite</a> und als <a href="chartkitchen-doku.pdf">PDF</a>.
     <div class="ibcs">IBCS® ist eine eingetragene Marke der IBCS Association. Dieses Visual ist von den IBCS-Prinzipien inspiriert und steht in keiner Verbindung zur IBCS Association.</div>

@@ -35,12 +35,14 @@ für immer frei; Umsatz über Beratung.** Aktuell **offene Beta**, noch nicht im
   PBIR-Einsetzung über den „Referenz-Instanz"-Trick. **prepare+plan** (schreibt nicht ungefragt).
 
 ## Offene Punkte (nach Priorität)
-1. **Beta-Download-Gate scharfschalten** — vorbereitet, aber INAKTIV. Ablauf steht als
-   `DOWNLOAD-SLOT`-Kommentar in beiden Schnellstart-Seiten:
-   `node tools/encrypt-build.mjs <dist/….pbiviz> '<PASSWORT>'` → `downloads/chartkitchen-beta.enc`
-   committen → Button-Disabled entfernen + `#dl-gate` sichtbar → `data-filename` setzen.
-   **Wartet auf: Passwort von Michael.** (Client-seitige AES-256-GCM-Entschlüsselung, Passwort
-   nie im Repo; Gate-Mechanik ist end-to-end getestet.)
+1. ~~Beta-Download-Gate scharfschalten~~ — **ERLEDIGT anders (05.08.2026):**
+   Michael hat sich gegen das Passwort-Gate entschieden (Build ist ohnehin öffentlich
+   auf GitHub). Stattdessen **Direkt-Download live** auf beiden Schnellstart-Seiten:
+   stabiler Link `downloads/chartkitchen-byDatenWG-latest.pbiviz` + `downloads/latest.json`
+   (Seiten lesen Version/Datum daraus). Gate-Markup/-Skript entfernt; `tools/encrypt-build.mjs`
+   bleibt im Repo, falls je ein nicht-öffentlicher Build nötig wird.
+   Ablauf je Release: siehe `RELEASE-SLOT`-Kommentar in den Schnellstart-Seiten
+   bzw. Ship-Konvention unten.
 2. **AppSource-Listing** — der eigentliche Reichweiten-Blocker (viele Tenants erlauben nur
    AppSource-Visuals). Wartet auf ein **Partner-Center-Konto** (Partner). Kit unter
    `cert-export/appsource/`.
@@ -66,8 +68,13 @@ Der Wettbewerbs-Teardown (`competitive-teardown.md`) ist ebenfalls nur lokal bei
 Version an beiden Stellen in `pbiviz.json` bumpen → `npx pbiviz package` → alte `dist/*.pbiviz`
 löschen → `.claude/skills/deploy-to-powerbi/catalog.json` Pfad aktualisieren → CHANGELOG-Eintrag
 oben → `cert-export/` mit expliziter Dateiliste synchronisieren (NIE die englische cert-export
-README überschreiben) → Commit → Branch pushen → `main` mergen + pushen. Details/Historie: CHANGELOG.md.
+README überschreiben) → **Website-Download aktualisieren**: Build nach
+`downloads/chartkitchen-byDatenWG-latest.pbiviz` kopieren + `downloads/latest.json`
+(version/date) schreiben → Commit → `main` pushen (Pages deployt den Download mit) →
+**Share-Repo** `Losveratos/Power-BI-Custom-Visuals-byDatenWG`: neue .pbiviz nach
+`chartkitchen/`, alte ersetzen, README-Versionstabelle nachziehen. Details/Historie: CHANGELOG.md.
 
 ## Nächste Session — so anknüpfen
-Repo + diese `STATUS.md` lesen, offene Punkte oben. Für das Download-Gate braucht es nur Michaels
-Passwort. Für den Skill-Test eine kleine Beispiel-PBIP mit geladenem Visual.
+Repo + diese `STATUS.md` lesen, offene Punkte oben. Der Download ist live und versorgt sich
+über `downloads/latest.json` selbst. Für den Skill-Test eine kleine Beispiel-PBIP mit
+geladenem Visual.
