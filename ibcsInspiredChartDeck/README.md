@@ -7,6 +7,10 @@ in **einem** Visual löst:
 
 ![Screenshot](assets/screenshot.png)
 
+> **Für KI-Agenten:** [AGENT-GUIDE.md](AGENT-GUIDE.md) — Datenvertrag mit
+> DAX-Fallen, komplette Property-Referenz fürs PBIR-Authoring (inkl.
+> persistierter Zustände), Modus-Matrix und bekannte Stolperfallen.
+
 ## Features
 
 - **Szenario-Notation nach IBCS**
