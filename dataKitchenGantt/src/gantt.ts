@@ -37,6 +37,33 @@ export interface GanttTask {
     pe?: number | null;    // Basisplan-Ende (ms)
 }
 
+// Eigene Farbpalette (Karte „Farben"). Greift nur bei eigene=true; alles, was
+// hier nicht steht (Wochenend-Schattierung, Hover, Tooltip, Status-Pills), wird
+// aus der Helligkeit des Hintergrunds abgeleitet — damit bleibt ein dunkler
+// Wunsch-Hintergrund auch ohne Dunkel-Theme lesbar.
+export interface GanttFarben {
+    eigene: boolean;
+    hintergrund: string;    // Fläche von Tabelle und Chart
+    schrift: string;        // Task-Namen, Überschriften, Balken-Beschriftung
+    schriftSekundaer: string;  // Datumsangaben, Achsen, Meta-Texte
+    linien: string;         // Rahmen, Zeilentrenner, Raster
+    statusLinie: string;    // Status-/Heute-Linie
+}
+
+// Größen-Overrides (Karte „Größen"). 0 bedeutet überall „automatisch", also der
+// bisherige, aus der Basis-Schriftgröße abgeleitete Wert.
+export interface GanttGroessen {
+    zeilenhoehe: number;
+    balkenhoehe: number;
+    phasenbalken: number;
+    meilenstein: number;
+    achsenhoehe: number;
+    kopfzeile: number;
+    schriftTabelle: number;   // Referenzgröße der Tabellentexte (Default 12)
+    schriftAchse: number;     // Referenzgröße der Zeitachse (Default 12)
+    schriftLabels: number;    // Referenzgröße der Beschriftungen am Balken (Default 11)
+}
+
 export interface GanttOptions {
     dark: boolean;
     ibcs: boolean;                      // IBCS-inspiriertes Styling (monochrom, Weiß-BG)
@@ -55,6 +82,8 @@ export interface GanttOptions {
     msAufPhase?: boolean;               // Meilensteine auf zugeklappten Phasenzeilen zeigen (default true)
     msDatum?: boolean;                  // Datum am Meilenstein anzeigen (default true)
     msEndeGleichStart?: boolean;        // Ende = Start ebenfalls als Meilenstein werten (default false)
+    farben?: GanttFarben;               // eigene Farben statt Theme-Palette
+    groessen?: GanttGroessen;           // Größen-Overrides (jeweils 0 = automatisch)
     fontFamily: string;
     fontSize: number;                   // Basisgröße in px (Referenz-Design: 13)
     selectedKeys: ReadonlySet<string> | null;   // aktive Selektion (Dimmen)
@@ -115,6 +144,17 @@ function hexA(hex: string, alpha: number): string {
     return hex + Math.round(alpha * 255).toString(16).padStart(2, '0').toUpperCase();
 }
 
+// Ist ein #RRGGBB-Wert dunkel? Entscheidet bei eigenen Farben über alles, was
+// als heller/dunkler Schleier auf dem Hintergrund liegt (Wochenenden, Hover,
+// Status-Pills, Tooltip-Inversion). Unparsbare Werte gelten als hell.
+export function isDarkHex(hex: string): boolean {
+    const m = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i.exec(hex || '');
+    if (!m) return false;
+    const h = m[1].length === 3 ? m[1].replace(/./g, c => c + c) : m[1];
+    const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.5;
+}
+
 function fmtDate(ms: number): string {
     const d = new Date(ms);
     return ('0' + d.getUTCDate()).slice(-2) + '.' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '.' + String(d.getUTCFullYear()).slice(2);
@@ -168,7 +208,8 @@ interface RenderItem {
     msKids: GanttTask[];    // Meilensteine einer ZUGEKLAPPTEN Phase (Kompakt-Anzeige)
 }
 
-// Skalierte Layout-Metriken (alles relativ zur Basis-Schriftgröße 13px)
+// Skalierte Layout-Metriken (alles relativ zur Basis-Schriftgröße 13px);
+// gesetzte Größen-Overrides ersetzen den abgeleiteten Wert 1:1
 interface Metrics {
     s: number;          // Skalierungsfaktor fontSize/13
     rowH: number;
@@ -177,7 +218,14 @@ interface Metrics {
     barH: number;       // Task-Balken
     phBarH: number;     // Phasen-Summenbalken
     dia: number;        // Meilenstein-Kantenlänge
+    fTab: number;       // Schrift-Faktor Tabelle (Referenz 12px)
+    fAxis: number;      // Schrift-Faktor Zeitachse (Referenz 12px)
+    fLbl: number;       // Schrift-Faktor Balken-Beschriftung (Referenz 11px)
 }
+
+// Referenzgrößen der drei Schrift-Gruppen: ein Override setzt diese Größe und
+// alle anderen Texte der Gruppe skalieren proportional mit
+const REF_TAB = 12, REF_AXIS = 12, REF_LBL = 11;
 
 interface ColDef { key: string; label: string; w: number; }
 
@@ -216,7 +264,8 @@ export class GanttRenderer {
     private raf = 0;
     private timer = 0;
     private pending = false;
-    private m: Metrics = { s: 1, rowH: ROW_H, axisH: AXIS_H, headerH: HEADER_H, barH: 20, phBarH: 9, dia: 14 };
+    private m: Metrics = { s: 1, rowH: ROW_H, axisH: AXIS_H, headerH: HEADER_H, barH: 20, phBarH: 9, dia: 14, fTab: 1, fAxis: 1, fLbl: 1 };
+    private darkUi = false;                 // Oberfläche wirkt dunkel (Theme oder eigener Hintergrund)
     private phaseKeys: string[] = [];
     private projKeys: string[] = [];        // Collapse-Schlüssel der Projekt-Ebene ("P:<Name>")
     private hasProj = false;                // Projekt-Rolle gebunden → 3-Ebenen-Hierarchie
@@ -764,7 +813,9 @@ export class GanttRenderer {
     }
 
     private visibleCols(tableW: number): ColDef[] {
-        const s = this.m.s;
+        // Spaltenbreiten folgen der Tabellenschrift (ohne Override = Basisskalierung),
+        // damit größere Tabellentexte auch mehr Platz bekommen
+        const s = this.m.fTab;
         const hasStatus = this.tasks.some(t => t.st !== null && t.st !== '');
         const hasPct = this.tasks.some(t => t.pct !== null);
         const hasOw = this.tasks.some(t => t.ow !== '');
@@ -789,6 +840,13 @@ export class GanttRenderer {
         return (Math.round(n * this.m.s * 10) / 10) + 'px';
     }
 
+    // Schriftgrößen der drei einzeln einstellbaren Gruppen: Tabelle, Zeitachse,
+    // Beschriftungen am Balken. Ohne Override entspricht der Faktor der
+    // Basisskalierung, es ändert sich also nichts gegenüber fs().
+    private fsT(n: number): string { return (Math.round(n * this.m.fTab * 10) / 10) + 'px'; }
+    private fsA(n: number): string { return (Math.round(n * this.m.fAxis * 10) / 10) + 'px'; }
+    private fsL(n: number): string { return (Math.round(n * this.m.fLbl * 10) / 10) + 'px'; }
+
     // ---------- Haupt-Render ----------
 
     private render(): void {
@@ -806,16 +864,47 @@ export class GanttRenderer {
             };
         }
 
-        // Metriken aus der Schriftgröße ableiten (Referenz: 13px)
+        // Eigene Farben (Karte „Farben") überschreiben Theme und IBCS-Palette.
+        // Nicht einstellbare Werte werden aus der Helligkeit des Hintergrunds
+        // abgeleitet, damit auch ein dunkler Wunschton stimmig bleibt.
+        const fb = o.farben;
+        this.darkUi = dark;
+        if (fb && fb.eigene) {
+            const bgDark = isDarkHex(fb.hintergrund);
+            this.darkUi = bgDark;
+            const veil = (a: number): string => bgDark
+                ? 'rgba(255,255,255,' + a + ')'
+                : 'rgba(0,0,0,' + a + ')';
+            const inv = this.theme(!bgDark);   // Tooltip kontrastiert zur Fläche
+            t = {
+                bg: fb.hintergrund, panel: fb.hintergrund,
+                border: fb.linien, grid: fb.linien,
+                text: fb.schrift, sub: fb.schriftSekundaer,
+                weekend: veil(0.05), hoverBg: veil(0.07),
+                today: fb.statusLinie, dep: hexA(fb.schriftSekundaer, 0.6),
+                tipBg: inv.panel, tipFg: inv.text, tipSub: inv.sub
+            };
+        }
+
+        // Metriken aus der Schriftgröße ableiten (Referenz: 13px); jede Größe
+        // aus der Karte „Größen" ersetzt den abgeleiteten Wert (0 = automatisch)
         const s = Math.max(0.65, Math.min(1.8, (o.fontSize || BASE_FONT) / BASE_FONT));
+        const g = o.groessen;
+        const pick = (v: number | undefined, auto: number): number => v && v > 0 ? Math.round(v) : auto;
+        const rowH = Math.max(12, pick(g && g.zeilenhoehe, Math.round(ROW_H * s)));
         this.m = {
             s,
-            rowH: Math.round(ROW_H * s),
-            axisH: Math.round(AXIS_H * s),
-            headerH: Math.round(HEADER_H * s),
-            barH: Math.round(20 * s),
-            phBarH: Math.max(5, Math.round(9 * s)),
-            dia: Math.round(14 * s)
+            rowH,
+            axisH: Math.max(20, pick(g && g.achsenhoehe, Math.round(AXIS_H * s))),
+            headerH: Math.max(20, pick(g && g.kopfzeile, Math.round(HEADER_H * s))),
+            // Balken und Rauten dürfen die Zeile nie sprengen — sonst überlappen
+            // benachbarte Zeilen, sobald jemand eine kleine Zeilenhöhe wählt
+            barH: Math.min(Math.max(4, pick(g && g.balkenhoehe, Math.round(20 * s))), rowH - 4),
+            phBarH: Math.min(Math.max(3, pick(g && g.phasenbalken, Math.max(5, Math.round(9 * s)))), rowH - 4),
+            dia: Math.min(Math.max(6, pick(g && g.meilenstein, Math.round(14 * s))), rowH - 4),
+            fTab: g && g.schriftTabelle > 0 ? g.schriftTabelle / REF_TAB : s,
+            fAxis: g && g.schriftAchse > 0 ? g.schriftAchse / REF_AXIS : s,
+            fLbl: g && g.schriftLabels > 0 ? g.schriftLabels / REF_LBL : s
         };
         this.root.style.background = t.bg;
         this.root.style.color = t.text;
@@ -868,7 +957,9 @@ export class GanttRenderer {
             this.computeFit();
         }
 
-        const items = this.buildItems(dark, o.ibcs);
+        // Phasen-Palette folgt der tatsächlichen Flächenhelligkeit: ein dunkler
+        // Wunsch-Hintergrund bekommt die hellen Balkenfarben, auch ohne Dunkel-Theme
+        const items = this.buildItems(this.darkUi, o.ibcs);
         this.lastItems = items;
         const topOf: Record<string, number> = {};
         items.forEach((it, i) => topOf[it.id] = i * this.m.rowH);
@@ -963,7 +1054,7 @@ export class GanttRenderer {
         this.tableHead.style.gridTemplateColumns = gridTemplate;
         this.tableHead.style.color = t.sub;
         this.tableHead.style.borderBottom = '1px solid ' + t.border;
-        this.tableHead.style.fontSize = this.fs(10.5);
+        this.tableHead.style.fontSize = this.fsT(10.5);
         this.tableHead.replaceChildren();
         this.tableHead.appendChild(el('div', '', 'Task'));
         cols.forEach(c => this.tableHead.appendChild(
@@ -974,7 +1065,7 @@ export class GanttRenderer {
 
         const o = this.opts;
         const verzugOn = (!o || o.basisplan !== false) && (!o || o.verzugZeilen !== false);
-        const dark = t.panel === '#1E2023';
+        const dark = this.darkUi;
         const lateTint = hexA(IBCS_RED, dark ? 0.13 : 0.07);
         const u = unitSuffix(o ? o.tageEinheit : undefined);
 
@@ -995,10 +1086,12 @@ export class GanttRenderer {
             // Task-Zelle: Caret (Gruppe), Farb-Punkt, Name — Einrückung je Ebene
             // (Projekt 0 · Phase 1 · Vorgang 2; ohne Projekt-Rolle wie bisher)
             const indent = isProj ? 0 : (it.kind === 'phase' ? (this.hasProj ? 16 : 0) : (this.hasProj ? 32 : 14));
-            const dot = Math.max(6, Math.round(9 * m.s));
-            const nameCell = el('div', 'display:flex;align-items:center;gap:8px;padding-left:' + indent + 'px;font-weight:' + (isP ? 700 : (isM ? 600 : 400)) + ';min-width:0');
+            const dot = Math.max(6, Math.round(9 * m.fTab));
+            // Task-Name folgt der Tabellenschrift (ohne Override identisch zur Basisgröße)
+            const nameCell = el('div', 'display:flex;align-items:center;gap:8px;padding-left:' + indent + 'px;font-size:' + this.fsT(BASE_FONT) +
+                ';font-weight:' + (isP ? 700 : (isM ? 600 : 400)) + ';min-width:0');
             nameCell.appendChild(el('div',
-                'width:11px;flex-shrink:0;color:' + t.sub + ';font-size:' + this.fs(9) + ';text-align:center;' +
+                'width:11px;flex-shrink:0;color:' + t.sub + ';font-size:' + this.fsT(9) + ';text-align:center;' +
                 'transform:rotate(' + (isP && !this.collapsed[it.phaseKey as string] ? 90 : 0) + 'deg)',
                 isP ? '▶' : ''));
             nameCell.appendChild(el('div',
@@ -1010,7 +1103,7 @@ export class GanttRenderer {
 
             const dateFg = isP ? t.text : t.sub;
             const days = Math.round((it.e - it.s) / DAY) + 1;
-            const numCss = 'font-variant-numeric:tabular-nums;font-size:' + this.fs(12) + ';color:' + dateFg;
+            const numCss = 'font-variant-numeric:tabular-nums;font-size:' + this.fsT(12) + ';color:' + dateFg;
             cols.forEach(c => {
                 if (c.key === 'start') row.appendChild(el('div', numCss, fmtDate(it.s)));
                 else if (c.key === 'end') row.appendChild(el('div', numCss, isM ? '–' : fmtDate(it.e)));
@@ -1020,7 +1113,7 @@ export class GanttRenderer {
                     const dl = it.delta;
                     const fg = dl === null ? t.sub : (dl > 0 ? IBCS_RED : (dl < 0 ? (ibcs ? t.text : IBCS_GREEN) : t.sub));
                     row.appendChild(el('div',
-                        'text-align:right;padding-right:12px;font-variant-numeric:tabular-nums;font-size:' + this.fs(12) +
+                        'text-align:right;padding-right:12px;font-variant-numeric:tabular-nums;font-size:' + this.fsT(12) +
                         ';font-weight:' + (dl !== null && dl > 0 ? 700 : 400) + ';color:' + fg,
                         dl === null ? '–' : fmtDelta(dl, u)));
                 }
@@ -1031,11 +1124,11 @@ export class GanttRenderer {
                         if (ibcs) {
                             // IBCS: keine dekorativen Pills — Text; Rot nur für Negatives
                             cell.appendChild(el('span',
-                                'font-size:' + this.fs(11) + ';font-weight:600;color:' + (k === 'blocked' ? IBCS_RED : t.sub), it.st));
+                                'font-size:' + this.fsT(11) + ';font-weight:600;color:' + (k === 'blocked' ? IBCS_RED : t.sub), it.st));
                         } else {
                             const stC = this.statusColors(t, k);
                             cell.appendChild(el('span',
-                                'font-size:' + this.fs(11) + ';font-weight:600;padding:3px 9px;border-radius:20px;background:' + stC.bg + ';color:' + stC.fg, it.st));
+                                'font-size:' + this.fsT(11) + ';font-weight:600;padding:3px 9px;border-radius:20px;background:' + stC.bg + ';color:' + stC.fg, it.st));
                         }
                     }
                     row.appendChild(cell);
@@ -1043,14 +1136,14 @@ export class GanttRenderer {
                 else if (c.key === 'pct') {
                     const cell = el('div', 'display:flex;align-items:center;gap:7px');
                     if (!isM && it.pct !== null) {
-                        const track = el('div', 'width:' + Math.round(44 * m.s) + 'px;height:5px;border-radius:' + (ibcs ? 0 : 3) + 'px;background:' + t.grid + ';overflow:hidden;flex-shrink:0');
+                        const track = el('div', 'width:' + Math.round(44 * m.fTab) + 'px;height:5px;border-radius:' + (ibcs ? 0 : 3) + 'px;background:' + t.grid + ';overflow:hidden;flex-shrink:0');
                         track.appendChild(el('div', 'height:100%;width:' + it.pct + '%;background:' + it.color + ';border-radius:' + (ibcs ? 0 : 3) + 'px'));
                         cell.appendChild(track);
-                        cell.appendChild(el('span', 'font-size:' + this.fs(11) + ';color:' + t.sub + ';font-variant-numeric:tabular-nums', it.pct + '%'));
+                        cell.appendChild(el('span', 'font-size:' + this.fsT(11) + ';color:' + t.sub + ';font-variant-numeric:tabular-nums', it.pct + '%'));
                     }
                     row.appendChild(cell);
                 }
-                else if (c.key === 'ow') row.appendChild(el('div', 'font-size:' + this.fs(12) + ';color:' + t.sub + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap', it.ow));
+                else if (c.key === 'ow') row.appendChild(el('div', 'font-size:' + this.fsT(12) + ';color:' + t.sub + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap', it.ow));
             });
 
             // Klick/Kontextmenü laufen zentral über den rowsViewport-Listener
@@ -1061,7 +1154,7 @@ export class GanttRenderer {
     }
 
     private statusColors(t: Theme, k: StatusKind): { bg: string; fg: string } {
-        const dark = t.panel === '#1E2023';
+        const dark = this.darkUi;
         if (k === 'done') return { bg: okl(0.6, 0.11, 150, 0.16), fg: dark ? okl(0.78, 0.1, 150) : okl(0.45, 0.1, 150) };
         if (k === 'progress') return { bg: okl(0.6, 0.11, 250, 0.16), fg: dark ? okl(0.78, 0.1, 250) : okl(0.45, 0.1, 250) };
         if (k === 'blocked') return { bg: okl(0.6, 0.13, 25, 0.16), fg: dark ? okl(0.76, 0.12, 25) : okl(0.48, 0.13, 25) };
@@ -1088,7 +1181,10 @@ export class GanttRenderer {
         const dv = new Date(this.view);
         let cur = Date.UTC(dv.getUTCFullYear(), Math.floor(dv.getUTCMonth() / stepM) * stepM, 1);
         const gridXs: { x: number; c: string }[] = [];
-        const subTop = Math.round(26 * m.s);
+        // Label-Positionen relativ zur Achsenhöhe (Referenz 44 px), damit eine
+        // eigene Achsenhöhe die Beschriftung mitnimmt statt sie stehen zu lassen
+        const topM = Math.round(m.axisH * 7 / AXIS_H);
+        const subTop = Math.round(m.axisH * 26 / AXIS_H);
         while (cur < endMs + 32 * stepM * DAY) {
             const dt = new Date(cur);
             const mo = dt.getUTCMonth();
@@ -1098,7 +1194,7 @@ export class GanttRenderer {
                 : String(dt.getUTCFullYear());
             const mx = x(cur);
             const tick = el('div', 'position:absolute;left:' + mx + 'px;top:0;bottom:0;border-left:1px solid ' + t.border);
-            const lbl = el('div', 'position:absolute;left:' + mx + 'px;top:' + Math.round(7 * m.s) + 'px;padding-left:7px;font-size:' + this.fs(12) + ';font-weight:700;color:' + t.text + ';white-space:nowrap',
+            const lbl = el('div', 'position:absolute;left:' + mx + 'px;top:' + topM + 'px;padding-left:7px;font-size:' + this.fsA(12) + ';font-weight:700;color:' + t.text + ';white-space:nowrap',
                 label);
             this.axisHost.appendChild(tick);
             this.axisHost.appendChild(lbl);
@@ -1112,7 +1208,7 @@ export class GanttRenderer {
                 const dt = new Date(mm);
                 if (dt.getUTCMonth() % 3 !== 0) {
                     this.axisHost.appendChild(el('div',
-                        'position:absolute;left:' + x(mm) + 'px;top:' + subTop + 'px;padding-left:4px;font-size:' + this.fs(10) + ';color:' + t.sub + ';white-space:nowrap',
+                        'position:absolute;left:' + x(mm) + 'px;top:' + subTop + 'px;padding-left:4px;font-size:' + this.fsA(10) + ';color:' + t.sub + ';white-space:nowrap',
                         MN[dt.getUTCMonth()]));
                     gridXs.push({ x: x(mm), c: t.grid });
                 }
@@ -1124,7 +1220,7 @@ export class GanttRenderer {
             for (; dd < endMs; dd += DAY) {
                 const dt = new Date(dd);
                 this.axisHost.appendChild(el('div',
-                    'position:absolute;left:' + (x(dd) + this.pxd / 2) + 'px;top:' + subTop + 'px;font-size:' + this.fs(10) + ';color:' + t.sub + ';white-space:nowrap;transform:translateX(-50%)',
+                    'position:absolute;left:' + (x(dd) + this.pxd / 2) + 'px;top:' + subTop + 'px;font-size:' + this.fsA(10) + ';color:' + t.sub + ';white-space:nowrap;transform:translateX(-50%)',
                     String(dt.getUTCDate())));
                 gridXs.push({ x: x(dd), c: t.grid });
             }
@@ -1134,7 +1230,7 @@ export class GanttRenderer {
             for (; dd < endMs; dd += 7 * DAY) {
                 const dt = new Date(dd);
                 this.axisHost.appendChild(el('div',
-                    'position:absolute;left:' + x(dd) + 'px;top:' + subTop + 'px;font-size:' + this.fs(10) + ';color:' + t.sub + ';white-space:nowrap;transform:translateX(4px)',
+                    'position:absolute;left:' + x(dd) + 'px;top:' + subTop + 'px;font-size:' + this.fsA(10) + ';color:' + t.sub + ';white-space:nowrap;transform:translateX(4px)',
                     dt.getUTCDate() + '.' + (dt.getUTCMonth() + 1) + '.'));
                 gridXs.push({ x: x(dd), c: t.grid });
             }
@@ -1159,7 +1255,7 @@ export class GanttRenderer {
 
         const planOn = o.basisplan !== false && this.hasPlan;
         const verzugOn = o.basisplan !== false && o.verzugZeilen !== false;
-        const lateTint = hexA(IBCS_RED, t.panel === '#1E2023' ? 0.13 : 0.07);
+        const lateTint = hexA(IBCS_RED, this.darkUi ? 0.13 : 0.07);
         items.forEach(it => {
             const hov = this.hover === it.id;
             const late = verzugOn && it.delta !== null && it.delta > 0;
@@ -1260,7 +1356,7 @@ export class GanttRenderer {
                         this.scrollLayer.appendChild(dEl);
                         if (msDatum) this.scrollLayer.appendChild(el('div',
                             'position:absolute;left:' + (x(ms.s) + this.pxd / 2) + 'px;top:' + (top + diaTop2 + dia2 + 1) + 'px;transform:translateX(-50%);' +
-                            'font-size:' + this.fs(8.5) + ';color:' + t.sub + ';font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none;opacity:' + (msDim ? 0.3 : 1),
+                            'font-size:' + this.fsL(8.5) + ';color:' + t.sub + ';font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none;opacity:' + (msDim ? 0.3 : 1),
                             fmtDate(ms.s)));
                     });
                 }
@@ -1284,7 +1380,7 @@ export class GanttRenderer {
                 this.scrollLayer.appendChild(dia);
                 const msLbl = el('div',
                     'position:absolute;left:' + (x(it.s) + this.pxd / 2 + 14) + 'px;top:' + (top + diaTop) + 'px;height:' + m.dia + 'px;' +
-                    'display:flex;align-items:center;font-size:' + this.fs(11) + ';font-weight:600;color:' + t.text + ';white-space:nowrap;pointer-events:none;opacity:' + (dim ? 0.3 : 1),
+                    'display:flex;align-items:center;font-size:' + this.fsL(11) + ';font-weight:600;color:' + t.text + ';white-space:nowrap;pointer-events:none;opacity:' + (dim ? 0.3 : 1),
                     it.name + (msDatum ? ' · ' + fmtDate(it.s) : ''));
                 if (planOn && it.delta !== null && it.delta !== 0) {
                     msLbl.appendChild(el('span',
@@ -1319,7 +1415,7 @@ export class GanttRenderer {
                 if (it.ow) labelParts.push(it.ow);
                 const lbl = el('div',
                     'position:absolute;left:' + (bx + bw + 10) + 'px;top:' + (top + bt) + 'px;height:' + bh + 'px;' +
-                    'display:flex;align-items:center;font-size:' + this.fs(11) + ';color:' + t.sub + ';white-space:nowrap;pointer-events:none;opacity:' + (dim ? 0.3 : 1),
+                    'display:flex;align-items:center;font-size:' + this.fsL(11) + ';color:' + t.sub + ';white-space:nowrap;pointer-events:none;opacity:' + (dim ? 0.3 : 1),
                     labelParts.join(' · '));
                 if (planOn && it.delta !== null && it.delta !== 0) {
                     lbl.appendChild(el('span',
@@ -1343,7 +1439,7 @@ export class GanttRenderer {
                     'position:absolute;left:' + todayX + 'px;top:' + m.axisH + 'px;bottom:0;width:0;border-left:2px solid ' + t.today + ';opacity:0.75'));
                 this.todayHost.appendChild(el('div',
                     'position:absolute;left:' + todayX + 'px;top:' + Math.round(22 * m.s) + 'px;transform:translateX(-50%);background:' + t.today + ';color:#fff;' +
-                    'font-size:' + this.fs(10) + ';font-weight:700;padding:2px 8px;border-radius:' + rad(10) + ';white-space:nowrap', lineLabel));
+                    'font-size:' + this.fsA(10) + ';font-weight:700;padding:2px 8px;border-radius:' + rad(10) + ';white-space:nowrap', lineLabel));
             }
         }
     }

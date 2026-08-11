@@ -88,6 +88,153 @@ class DarstellungCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [this.theme, this.zeiteinheit, this.tageEinheit, this.wochenenden, this.abhaengigkeiten, this.heuteLinie, this.tabellenBreite, this.ibcs];
 }
 
+// Eigene Farbpalette. Der Master-Schalter steht bewusst auf false: solange er
+// aus ist, gilt exakt die bisherige Theme-Palette und die Picker sind nur Vorrat.
+class FarbenCardSettings extends FormattingSettingsCard {
+    eigene = new formattingSettings.ToggleSwitch({
+        name: "eigene",
+        displayName: "Eigene Farben verwenden",
+        value: false
+    });
+
+    hintergrund = new formattingSettings.ColorPicker({
+        name: "hintergrund",
+        displayName: "Hintergrund",
+        value: { value: "#FFFFFF" }
+    });
+
+    schrift = new formattingSettings.ColorPicker({
+        name: "schrift",
+        displayName: "Schriftfarbe",
+        value: { value: "#2A2925" }
+    });
+
+    schriftSekundaer = new formattingSettings.ColorPicker({
+        name: "schriftSekundaer",
+        displayName: "Schriftfarbe sekundär (Daten, Achse)",
+        value: { value: "#8B887E" }
+    });
+
+    linien = new formattingSettings.ColorPicker({
+        name: "linien",
+        displayName: "Linien und Raster",
+        value: { value: "#E4E2DC" }
+    });
+
+    statusLinie = new formattingSettings.ColorPicker({
+        name: "statusLinie",
+        displayName: "Status-/Heute-Linie",
+        value: { value: "#C25A2D" }
+    });
+
+    name: string = "farben";
+    displayName: string = "Farben";
+    description: string = "Wochenenden, Hover, Status-Pills und Tooltip leiten sich automatisch aus der Helligkeit des Hintergrunds ab. Balkenfarben stehen unter „Task-Farben“.";
+    slices: Array<FormattingSettingsSlice> = [this.eigene, this.hintergrund, this.schrift, this.schriftSekundaer, this.linien, this.statusLinie];
+}
+
+// Alle Layout- und Schriftgrößen in px; 0 = automatisch (aus der Basis-Schriftgröße)
+class GroessenCardSettings extends FormattingSettingsCard {
+    zeilenhoehe = new formattingSettings.NumUpDown({
+        name: "zeilenhoehe",
+        displayName: "Zeilenhöhe (0 = auto)",
+        value: 0,
+        options: {
+            minValue: { type: powerbi.visuals.ValidatorType.Min, value: 0 },
+            maxValue: { type: powerbi.visuals.ValidatorType.Max, value: 120 }
+        }
+    });
+
+    balkenhoehe = new formattingSettings.NumUpDown({
+        name: "balkenhoehe",
+        displayName: "Balkenhöhe (0 = auto)",
+        value: 0,
+        options: {
+            minValue: { type: powerbi.visuals.ValidatorType.Min, value: 0 },
+            maxValue: { type: powerbi.visuals.ValidatorType.Max, value: 100 }
+        }
+    });
+
+    phasenbalken = new formattingSettings.NumUpDown({
+        name: "phasenbalken",
+        displayName: "Phasenbalken-Höhe (0 = auto)",
+        value: 0,
+        options: {
+            minValue: { type: powerbi.visuals.ValidatorType.Min, value: 0 },
+            maxValue: { type: powerbi.visuals.ValidatorType.Max, value: 100 }
+        }
+    });
+
+    meilenstein = new formattingSettings.NumUpDown({
+        name: "meilenstein",
+        displayName: "Meilenstein-Größe (0 = auto)",
+        value: 0,
+        options: {
+            minValue: { type: powerbi.visuals.ValidatorType.Min, value: 0 },
+            maxValue: { type: powerbi.visuals.ValidatorType.Max, value: 100 }
+        }
+    });
+
+    achsenhoehe = new formattingSettings.NumUpDown({
+        name: "achsenhoehe",
+        displayName: "Höhe Zeitachse (0 = auto)",
+        value: 0,
+        options: {
+            minValue: { type: powerbi.visuals.ValidatorType.Min, value: 0 },
+            maxValue: { type: powerbi.visuals.ValidatorType.Max, value: 160 }
+        }
+    });
+
+    kopfzeile = new formattingSettings.NumUpDown({
+        name: "kopfzeile",
+        displayName: "Höhe Tabellenkopf (0 = auto)",
+        value: 0,
+        options: {
+            minValue: { type: powerbi.visuals.ValidatorType.Min, value: 0 },
+            maxValue: { type: powerbi.visuals.ValidatorType.Max, value: 160 }
+        }
+    });
+
+    schriftTabelle = new formattingSettings.NumUpDown({
+        name: "schriftTabelle",
+        displayName: "Schriftgröße Tabelle (0 = auto)",
+        value: 0,
+        options: {
+            minValue: { type: powerbi.visuals.ValidatorType.Min, value: 0 },
+            maxValue: { type: powerbi.visuals.ValidatorType.Max, value: 40 }
+        }
+    });
+
+    schriftAchse = new formattingSettings.NumUpDown({
+        name: "schriftAchse",
+        displayName: "Schriftgröße Zeitachse (0 = auto)",
+        value: 0,
+        options: {
+            minValue: { type: powerbi.visuals.ValidatorType.Min, value: 0 },
+            maxValue: { type: powerbi.visuals.ValidatorType.Max, value: 40 }
+        }
+    });
+
+    schriftLabels = new formattingSettings.NumUpDown({
+        name: "schriftLabels",
+        displayName: "Schriftgröße Beschriftungen (0 = auto)",
+        value: 0,
+        options: {
+            minValue: { type: powerbi.visuals.ValidatorType.Min, value: 0 },
+            maxValue: { type: powerbi.visuals.ValidatorType.Max, value: 40 }
+        }
+    });
+
+    name: string = "groessen";
+    displayName: string = "Größen";
+    description: string = "Alle Werte in px. 0 = automatisch, also aus der Basis-Schriftgröße abgeleitet.";
+    slices: Array<FormattingSettingsSlice> = [
+        this.zeilenhoehe, this.balkenhoehe, this.phasenbalken, this.meilenstein,
+        this.achsenhoehe, this.kopfzeile,
+        this.schriftTabelle, this.schriftAchse, this.schriftLabels
+    ];
+}
+
 // Task-Tabelle: jede Spalte einzeln schaltbar. Die Δ-Plan-Spalte bleibt bewusst
 // in der Basisplan-Karte, damit es für sie nur einen Schalter gibt.
 class SpaltenCardSettings extends FormattingSettingsCard {
@@ -206,10 +353,12 @@ class SchriftCardSettings extends FormattingSettingsCard {
 
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     darstellungCard = new DarstellungCardSettings();
+    farbenCard = new FarbenCardSettings();
+    groessenCard = new GroessenCardSettings();
     spaltenCard = new SpaltenCardSettings();
     basisplanCard = new BasisplanCardSettings();
     meilensteineCard = new MeilensteineCardSettings();
     schriftCard = new SchriftCardSettings();
 
-    cards = [this.darstellungCard, this.spaltenCard, this.basisplanCard, this.meilensteineCard, this.schriftCard];
+    cards = [this.darstellungCard, this.farbenCard, this.groessenCard, this.spaltenCard, this.basisplanCard, this.meilensteineCard, this.schriftCard];
 }

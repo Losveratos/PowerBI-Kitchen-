@@ -41,6 +41,22 @@
     const OFF = new Set((params.get('off') || '').split(',').map(s => s.trim()).filter(Boolean));
     const spalten = Object.fromEntries(
       ['start', 'end', 'days', 'delta', 'status', 'pct', 'ow'].map(k => [k, !OFF.has(k)]));
+    // ?bg=%23102030&fg=%23FFFFFF&fg2=…&lines=…&statusfarbe=… → eigene Farben
+    const farben = {
+      eigene: params.has('bg') || params.has('fg'),
+      hintergrund: params.get('bg') || '#FFFFFF',
+      schrift: params.get('fg') || '#2A2925',
+      schriftSekundaer: params.get('fg2') || '#8B887E',
+      linien: params.get('lines') || '#E4E2DC',
+      statusLinie: params.get('statusfarbe') || '#C25A2D'
+    };
+    // ?rowh=48&barh=26&… → Größen in px, fehlend = 0 = automatisch
+    const num = k => Number(params.get(k)) || 0;
+    const groessen = {
+      zeilenhoehe: num('rowh'), balkenhoehe: num('barh'), phasenbalken: num('phaseh'),
+      meilenstein: num('msh'), achsenhoehe: num('axish'), kopfzeile: num('headh'),
+      schriftTabelle: num('fstab'), schriftAchse: num('fsaxis'), schriftLabels: num('fslbl')
+    };
     const opts = () => ({
       dark: params.get('dark') === '1',
       ibcs: params.get('ibcs') === '1',
@@ -49,6 +65,8 @@
       heuteLinie: params.get('heute') !== '0',
       tabellenBreite: params.has('tw') ? Number(params.get('tw')) : 620,
       spalten,
+      farben,
+      groessen,
       basisplan: params.get('plan') !== '0',
       deltaSpalte: params.get('delta') !== '0',
       verzugZeilen: params.get('verzug') !== '0',

@@ -126,6 +126,78 @@
                 }
             }
         },
+        "farben": {
+            "displayName": "Farben",
+            "description": "Eigene Hintergrund-, Schrift- und Linienfarben statt der Theme-Palette. Wochenend-Schattierung, Hover, Status-Pills und Tooltip leiten sich automatisch aus der Helligkeit des Hintergrunds ab. Die Balkenfarben stehen weiterhin unter „Task-Farben\".",
+            "properties": {
+                "eigene": {
+                    "displayName": "Eigene Farben verwenden",
+                    "type": { "bool": true }
+                },
+                "hintergrund": {
+                    "displayName": "Hintergrund",
+                    "type": { "fill": { "solid": { "color": true } } }
+                },
+                "schrift": {
+                    "displayName": "Schriftfarbe",
+                    "type": { "fill": { "solid": { "color": true } } }
+                },
+                "schriftSekundaer": {
+                    "displayName": "Schriftfarbe sekundär (Daten, Achse)",
+                    "type": { "fill": { "solid": { "color": true } } }
+                },
+                "linien": {
+                    "displayName": "Linien und Raster",
+                    "type": { "fill": { "solid": { "color": true } } }
+                },
+                "statusLinie": {
+                    "displayName": "Status-/Heute-Linie",
+                    "type": { "fill": { "solid": { "color": true } } }
+                }
+            }
+        },
+        "groessen": {
+            "displayName": "Größen",
+            "description": "Feineinstellung aller Layout- und Schriftgrößen in px. 0 = automatisch, also wie bisher aus der Basis-Schriftgröße abgeleitet.",
+            "properties": {
+                "zeilenhoehe": {
+                    "displayName": "Zeilenhöhe (0 = auto)",
+                    "type": { "numeric": true }
+                },
+                "balkenhoehe": {
+                    "displayName": "Balkenhöhe (0 = auto)",
+                    "type": { "numeric": true }
+                },
+                "phasenbalken": {
+                    "displayName": "Phasenbalken-Höhe (0 = auto)",
+                    "type": { "numeric": true }
+                },
+                "meilenstein": {
+                    "displayName": "Meilenstein-Größe (0 = auto)",
+                    "type": { "numeric": true }
+                },
+                "achsenhoehe": {
+                    "displayName": "Höhe Zeitachse (0 = auto)",
+                    "type": { "numeric": true }
+                },
+                "kopfzeile": {
+                    "displayName": "Höhe Tabellenkopf (0 = auto)",
+                    "type": { "numeric": true }
+                },
+                "schriftTabelle": {
+                    "displayName": "Schriftgröße Tabelle (0 = auto)",
+                    "type": { "numeric": true }
+                },
+                "schriftAchse": {
+                    "displayName": "Schriftgröße Zeitachse (0 = auto)",
+                    "type": { "numeric": true }
+                },
+                "schriftLabels": {
+                    "displayName": "Schriftgröße Beschriftungen (0 = auto)",
+                    "type": { "numeric": true }
+                }
+            }
+        },
         "spalten": {
             "displayName": "Tabellenspalten",
             "description": "Spalten der Task-Tabelle einzeln ein-/ausblenden. Spalten ohne gebundene Daten bleiben ohnehin leer; bei zu schmaler Tabelle weichen sie zusätzlich automatisch. Die Δ-Plan-Spalte wird in der Karte „Basisplan\" geschaltet.",

@@ -42,6 +42,22 @@ Muster wie `ibcsCategoryWaterfall`. Rendering-Kern liegt host-unabhängig in
 Theme Hell/Dunkel · Wochenenden schattieren · Abhängigkeitspfeile · Heute-Linie ·
 Tabellenbreite in px (0 = Tabelle ausblenden; Spalten weichen automatisch bei Platzmangel)
 
+**Farben** — eigene Karte. Solange „Eigene Farben verwenden" aus ist, gilt die Theme-Palette
+wie bisher. An geschaltet ersetzen die Picker Hintergrund, Schriftfarbe, sekundäre Schriftfarbe
+(Datumsangaben, Achse, Meta), Linien/Raster und die Status-/Heute-Linie. Alles Übrige leitet
+sich aus der **Helligkeit des Hintergrunds** ab: Wochenend-Schattierung und Hover als heller
+bzw. dunkler Schleier, Status-Pills, Verzugs-Tint, invertierter Tooltip und die Phasen-Palette
+(dunkler Wunsch-Hintergrund ⇒ helle Balkenfarben, auch ohne Dunkel-Theme). Balkenfarben je
+Task bleiben in „Task-Farben".
+
+**Größen** — eigene Karte, alle Werte in px, **0 = automatisch** (also wie bisher aus der
+Basis-Schriftgröße abgeleitet): Zeilenhöhe · Balkenhöhe · Phasenbalken-Höhe · Meilenstein-Größe ·
+Höhe der Zeitachse · Höhe des Tabellenkopfs · Schriftgröße Tabelle · Schriftgröße Zeitachse ·
+Schriftgröße Beschriftungen. Die drei Schriftwerte sind Referenzgrößen: alle Texte der Gruppe
+skalieren proportional mit (Tabelle 12 · Achse 12 · Beschriftung 11), und die Spaltenbreiten
+folgen der Tabellenschrift. Balken, Phasenbalken und Rauten werden auf `Zeilenhöhe − 4 px`
+gedeckelt, damit eine kleine Zeilenhöhe nie zu Überlappungen führt.
+
 **Tabellenspalten** — eigene Karte, jede Spalte der Task-Tabelle einzeln schaltbar:
 Start · Ende · Dauer (Tage) · Status · Fortschritt · Wer. Alle stehen per Default auf „an".
 Abgewählte Spalten verschwinden sofort, der freiwerdende Platz geht an die Task-Spalte.
@@ -67,6 +83,8 @@ npm run harness        # kompiliert src/gantt.ts nach test/ für den Browser-Tes
 Browser-Testharness: `test/harness.html` (Demo-Daten = Sample „BI-Rollout 2026" inkl.
 Basisplan mit Verzügen; URL-Parameter: `?dark=1`, `?ibcs=1`, `?tw=430`, `?deps=0`,
 `?wochenenden=0`, `?heute=0`, `?plan=0`, `?delta=0`, `?verzug=0`,
-`?off=status,ow` = Tabellenspalten abwählen, Keys `start,end,days,delta,status,pct,ow`).
+`?off=status,ow` = Tabellenspalten abwählen, Keys `start,end,days,delta,status,pct,ow`;
+`?bg=%23102030&fg=%23FFFFFF&fg2=…&lines=…&statusfarbe=…` = eigene Farben;
+`?rowh=48&barh=26&phaseh=&msh=&axish=&headh=&fstab=&fsaxis=&fslbl=` = Größen in px).
 Zum Testen in Power BI Desktop: `dist/dataKitchenGantt….pbiviz` importieren,
 z. B. im `PBI-IBCS-Testbed`.

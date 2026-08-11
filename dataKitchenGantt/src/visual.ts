@@ -15,7 +15,7 @@ import DataView = powerbi.DataView;
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
 
 import { VisualFormattingSettingsModel } from "./settings";
-import { GanttRenderer, GanttTask, computeTaskColors } from "./gantt";
+import { GanttRenderer, GanttTask, computeTaskColors, isDarkHex } from "./gantt";
 
 // ============================================================
 // DataKitchen Gantt — Power-BI-Anbindung.
@@ -216,6 +216,8 @@ export class Visual implements IVisual {
     private pushOptions(): void {
         const d = this.formattingSettings.darstellungCard;
         const sp = this.formattingSettings.spaltenCard;
+        const fb = this.formattingSettings.farbenCard;
+        const gr = this.formattingSettings.groessenCard;
         const b = this.formattingSettings.basisplanCard;
         const ms = this.formattingSettings.meilensteineCard;
         const f = this.formattingSettings.schriftCard.font;
@@ -245,6 +247,25 @@ export class Visual implements IVisual {
             msAufPhase: ms.aufPhasenzeile.value,
             msDatum: ms.datumAnzeigen.value,
             msEndeGleichStart: ms.endeGleichStart.value,
+            farben: {
+                eigene: fb.eigene.value,
+                hintergrund: fb.hintergrund.value.value,
+                schrift: fb.schrift.value.value,
+                schriftSekundaer: fb.schriftSekundaer.value.value,
+                linien: fb.linien.value.value,
+                statusLinie: fb.statusLinie.value.value
+            },
+            groessen: {
+                zeilenhoehe: gr.zeilenhoehe.value,
+                balkenhoehe: gr.balkenhoehe.value,
+                phasenbalken: gr.phasenbalken.value,
+                meilenstein: gr.meilenstein.value,
+                achsenhoehe: gr.achsenhoehe.value,
+                kopfzeile: gr.kopfzeile.value,
+                schriftTabelle: gr.schriftTabelle.value,
+                schriftAchse: gr.schriftAchse.value,
+                schriftLabels: gr.schriftLabels.value
+            },
             fontFamily: f.fontFamily.value,
             fontSize: f.fontSize.value,
             selectedKeys: this.selectedKeys(),
@@ -306,7 +327,12 @@ export class Visual implements IVisual {
         // möglich). Vorbelegung mit der Phasen-Palette, damit die Swatches im
         // Formatbereich schon vor einer manuellen Auswahl zur Grafik passen.
         if (this.data.length) {
-            const dark = String(this.formattingSettings.darstellungCard.theme.value.value) === 'dunkel';
+            // Swatches müssen zur gerenderten Palette passen: bei eigenen Farben
+            // entscheidet die Helligkeit des Hintergrunds, sonst das Theme
+            const fb = this.formattingSettings.farbenCard;
+            const dark = fb.eigene.value
+                ? isDarkHex(fb.hintergrund.value.value)
+                : String(this.formattingSettings.darstellungCard.theme.value.value) === 'dunkel';
             const defaults = computeTaskColors(this.data, dark);
             model.cards.push({
                 uid: 'dataPoint_card',
