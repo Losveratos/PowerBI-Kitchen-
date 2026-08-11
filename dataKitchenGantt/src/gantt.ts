@@ -44,6 +44,8 @@ export interface GanttOptions {
     abhaengigkeiten: boolean;
     heuteLinie: boolean;
     tabellenBreite: number;             // 0 = Tabelle ausblenden
+    spalten?: { [key: string]: boolean };  // Tabellenspalten an/aus, Schlüssel wie ALL_COLS
+                                        // (start|end|days|delta|status|pct|ow); fehlend = an
     basisplan?: boolean;                // Plan-Balken zeichnen (default true)
     deltaSpalte?: boolean;              // Δ-Spalte in der Tabelle (default true)
     verzugZeilen?: boolean;             // Zeilen mit Verzug rot hinterlegen (default true)
@@ -768,8 +770,11 @@ export class GanttRenderer {
         const hasOw = this.tasks.some(t => t.ow !== '');
         const o = this.opts;
         const showDelta = this.hasPlan && (!o || o.basisplan !== false) && (!o || o.deltaSpalte !== false);
+        // Manuell abgewählte Spalten (Formatbereich „Tabellenspalten") fallen vor
+        // der Datenprüfung raus; nicht gesetzte Schlüssel bleiben wie bisher an
+        const on = (key: string): boolean => !o || !o.spalten || o.spalten[key] !== false;
         let cols = ALL_COLS
-            .filter(c => (c.key !== 'status' || hasStatus) && (c.key !== 'pct' || hasPct) && (c.key !== 'ow' || hasOw) && (c.key !== 'delta' || showDelta))
+            .filter(c => on(c.key) && (c.key !== 'status' || hasStatus) && (c.key !== 'pct' || hasPct) && (c.key !== 'ow' || hasOw) && (c.key !== 'delta' || showDelta))
             .map(c => ({ ...c, w: Math.round(c.w * s) }));
         for (const dropKey of DROP_ORDER) {
             const total = Math.round(MIN_TASK_COL * s) + cols.reduce((a, c) => a + c.w, 0);

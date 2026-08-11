@@ -4,7 +4,7 @@
     "displayName": "DataKitchen Gantt (Projektplan)",
     "guid": "dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44",
     "visualClassName": "Visual",
-    "version": "1.9.0.0",
+    "version": "1.10.0.0",
     "description": "Interaktives Gantt-Diagramm mit Phasen, Meilensteinen, Abhängigkeitspfeilen, Fortschrittsbalken, Status-Pills und Zeitachsen-Zoom (Tage/Wochen/Monate) — portiert aus 'Gantt Chart - DataKitchen.html'. Pannen per Drag/Scrollen, Zoomen per Strg+Scrollen, Phasen auf-/zuklappbar, Crossfilter-Selektion je Task. Balken-Drag zum Verschieben entfällt bewusst: Power BI bindet die Termine aus dem Datenmodell.",
     "supportUrl": "https://github.com/",
     "gitHubUrl": ""
@@ -22,5 +22,5 @@
   "capabilities": "capabilities.json",
   "dependencies": null,
   "stringResources": [],
-  "version": "1.9.0.0"
+  "version": "1.10.0.0"
 }

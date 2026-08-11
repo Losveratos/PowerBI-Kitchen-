@@ -215,6 +215,7 @@ export class Visual implements IVisual {
 
     private pushOptions(): void {
         const d = this.formattingSettings.darstellungCard;
+        const sp = this.formattingSettings.spaltenCard;
         const b = this.formattingSettings.basisplanCard;
         const ms = this.formattingSettings.meilensteineCard;
         const f = this.formattingSettings.schriftCard.font;
@@ -226,6 +227,15 @@ export class Visual implements IVisual {
             abhaengigkeiten: d.abhaengigkeiten.value,
             heuteLinie: d.heuteLinie.value,
             tabellenBreite: d.tabellenBreite.value,
+            // Schlüssel = Spalten-Keys aus gantt.ts (ALL_COLS)
+            spalten: {
+                start: sp.start.value,
+                end: sp.ende.value,
+                days: sp.tage.value,
+                status: sp.status.value,
+                pct: sp.fortschritt.value,
+                ow: sp.wer.value
+            },
             basisplan: b.anzeigen.value,
             deltaSpalte: b.deltaSpalte.value,
             verzugZeilen: b.verzugZeilen.value,

@@ -37,6 +37,10 @@
     const r = new GanttRenderer(document.getElementById('stage'));
 
     const params = new URLSearchParams(location.search);
+    // ?off=status,ow → diese Tabellenspalten abwählen (Keys: start,end,days,delta,status,pct,ow)
+    const OFF = new Set((params.get('off') || '').split(',').map(s => s.trim()).filter(Boolean));
+    const spalten = Object.fromEntries(
+      ['start', 'end', 'days', 'delta', 'status', 'pct', 'ow'].map(k => [k, !OFF.has(k)]));
     const opts = () => ({
       dark: params.get('dark') === '1',
       ibcs: params.get('ibcs') === '1',
@@ -44,6 +48,7 @@
       abhaengigkeiten: params.get('deps') !== '0',
       heuteLinie: params.get('heute') !== '0',
       tabellenBreite: params.has('tw') ? Number(params.get('tw')) : 620,
+      spalten,
       basisplan: params.get('plan') !== '0',
       deltaSpalte: params.get('delta') !== '0',
       verzugZeilen: params.get('verzug') !== '0',

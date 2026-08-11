@@ -88,6 +88,51 @@ class DarstellungCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [this.theme, this.zeiteinheit, this.tageEinheit, this.wochenenden, this.abhaengigkeiten, this.heuteLinie, this.tabellenBreite, this.ibcs];
 }
 
+// Task-Tabelle: jede Spalte einzeln schaltbar. Die Δ-Plan-Spalte bleibt bewusst
+// in der Basisplan-Karte, damit es für sie nur einen Schalter gibt.
+class SpaltenCardSettings extends FormattingSettingsCard {
+    start = new formattingSettings.ToggleSwitch({
+        name: "start",
+        displayName: "Start",
+        value: true
+    });
+
+    ende = new formattingSettings.ToggleSwitch({
+        name: "ende",
+        displayName: "Ende",
+        value: true
+    });
+
+    tage = new formattingSettings.ToggleSwitch({
+        name: "tage",
+        displayName: "Dauer (Tage)",
+        value: true
+    });
+
+    status = new formattingSettings.ToggleSwitch({
+        name: "status",
+        displayName: "Status",
+        value: true
+    });
+
+    fortschritt = new formattingSettings.ToggleSwitch({
+        name: "fortschritt",
+        displayName: "Fortschritt",
+        value: true
+    });
+
+    wer = new formattingSettings.ToggleSwitch({
+        name: "wer",
+        displayName: "Wer (Owner)",
+        value: true
+    });
+
+    name: string = "spalten";
+    displayName: string = "Tabellenspalten";
+    description: string = "Spalten der Task-Tabelle einzeln ein-/ausblenden. Die Δ-Plan-Spalte wird in der Karte „Basisplan“ geschaltet.";
+    slices: Array<FormattingSettingsSlice> = [this.start, this.ende, this.tage, this.status, this.fortschritt, this.wer];
+}
+
 class MeilensteineCardSettings extends FormattingSettingsCard {
     aufPhasenzeile = new formattingSettings.ToggleSwitch({
         name: "aufPhasenzeile",
@@ -161,9 +206,10 @@ class SchriftCardSettings extends FormattingSettingsCard {
 
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     darstellungCard = new DarstellungCardSettings();
+    spaltenCard = new SpaltenCardSettings();
     basisplanCard = new BasisplanCardSettings();
     meilensteineCard = new MeilensteineCardSettings();
     schriftCard = new SchriftCardSettings();
 
-    cards = [this.darstellungCard, this.basisplanCard, this.meilensteineCard, this.schriftCard];
+    cards = [this.darstellungCard, this.spaltenCard, this.basisplanCard, this.meilensteineCard, this.schriftCard];
 }

@@ -42,6 +42,14 @@ Muster wie `ibcsCategoryWaterfall`. Rendering-Kern liegt host-unabhängig in
 Theme Hell/Dunkel · Wochenenden schattieren · Abhängigkeitspfeile · Heute-Linie ·
 Tabellenbreite in px (0 = Tabelle ausblenden; Spalten weichen automatisch bei Platzmangel)
 
+**Tabellenspalten** — eigene Karte, jede Spalte der Task-Tabelle einzeln schaltbar:
+Start · Ende · Dauer (Tage) · Status · Fortschritt · Wer. Alle stehen per Default auf „an".
+Abgewählte Spalten verschwinden sofort, der freiwerdende Platz geht an die Task-Spalte.
+Unabhängig davon gilt weiterhin: Spalten ohne gebundene Daten (kein Status/Fortschritt/Owner
+im Feldbereich) erscheinen gar nicht erst, und bei zu schmaler Tabelle weichen die
+verbleibenden automatisch in der Reihenfolge Wer → Tage → Status → Fortschritt → Δ → Ende → Start.
+Die Δ-Plan-Spalte wird in der Karte „Basisplan" geschaltet (ein Schalter, eine Stelle).
+
 **Basisplan (Plan vs. Ist)** — eigene Karte, alle drei einzeln schaltbar:
 Plan-Balken anzeigen (Ist gefüllt, Plan als Outline darunter — IBCS-Szenario-Notation;
 Plan-Meilensteine als Outline-Raute) · Δ-Spalte in der Tabelle („+3 d" rot = Verzug,
@@ -58,6 +66,7 @@ npm run harness        # kompiliert src/gantt.ts nach test/ für den Browser-Tes
 
 Browser-Testharness: `test/harness.html` (Demo-Daten = Sample „BI-Rollout 2026" inkl.
 Basisplan mit Verzügen; URL-Parameter: `?dark=1`, `?ibcs=1`, `?tw=430`, `?deps=0`,
-`?wochenenden=0`, `?heute=0`, `?plan=0`, `?delta=0`, `?verzug=0`).
+`?wochenenden=0`, `?heute=0`, `?plan=0`, `?delta=0`, `?verzug=0`,
+`?off=status,ow` = Tabellenspalten abwählen, Keys `start,end,days,delta,status,pct,ow`).
 Zum Testen in Power BI Desktop: `dist/dataKitchenGantt….pbiviz` importieren,
 z. B. im `PBI-IBCS-Testbed`.

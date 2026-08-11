@@ -126,6 +126,36 @@
                 }
             }
         },
+        "spalten": {
+            "displayName": "Tabellenspalten",
+            "description": "Spalten der Task-Tabelle einzeln ein-/ausblenden. Spalten ohne gebundene Daten bleiben ohnehin leer; bei zu schmaler Tabelle weichen sie zusätzlich automatisch. Die Δ-Plan-Spalte wird in der Karte „Basisplan\" geschaltet.",
+            "properties": {
+                "start": {
+                    "displayName": "Start",
+                    "type": { "bool": true }
+                },
+                "ende": {
+                    "displayName": "Ende",
+                    "type": { "bool": true }
+                },
+                "tage": {
+                    "displayName": "Dauer (Tage)",
+                    "type": { "bool": true }
+                },
+                "status": {
+                    "displayName": "Status",
+                    "type": { "bool": true }
+                },
+                "fortschritt": {
+                    "displayName": "Fortschritt",
+                    "type": { "bool": true }
+                },
+                "wer": {
+                    "displayName": "Wer (Owner)",
+                    "type": { "bool": true }
+                }
+            }
+        },
         "meilensteine": {
             "displayName": "Meilensteine",
             "properties": {
