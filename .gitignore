@@ -58,3 +58,8 @@ downloads/*.pbiviz
 # Ausnahme: die eine versionslose Release-Datei WIRD committet — sie ist der
 # stabile Direkt-Download-Link der Schnellstart-Seiten (Gate abgeschafft)
 !downloads/chartkitchen-byDatenWG-latest.pbiviz
+
+# kitchen-update Helper (lokal, regenerierbar — siehe .claude/skills/kitchen-update)
+_*.json
+_*.txt
+scripts/_*
