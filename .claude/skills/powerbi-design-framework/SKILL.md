@@ -8,8 +8,8 @@ description: >
   theme.json + Design-Spec + Agent-Brief ablegen — inkl. Accessibility-Checks
   (WCAG-Kontrast, Schriftgrößen). Dazu: IBCS-Modus (Strukturelemente als
   benannte Slots), Atomic-Design-Komponentenseite zum Kopieren, Bulk-Restyle
-  über die PBIP/PBIR-Dateien (z. B. „überall Schatten aus, runde Ecken an")
-  und ein Design-Linter. Optional mit ChartKitchen-Visuals. Auslösen, wenn
+  über die PBIP/PBIR-Dateien und ein Design-Linter. Optional mit
+  ChartKitchen-Visuals. Auslösen, wenn
   der Nutzer sinngemäß sagt „bau mir ein Report-Layout / Seitengerüst",
   „mach mir ein Power-BI-Design aus unserer Website/Präsi", „Corporate Design
   für meinen Report", „Theme/Farben für Power BI", „Filterpanel + Navigation
