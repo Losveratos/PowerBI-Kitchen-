@@ -69,9 +69,14 @@ unberührt) und damit der risikoärmste PBIR-Schreibzugriff — trotzdem gelten
 die Regeln aus `pbir-integration.md`: Backup/Commit vorher, Desktop
 geschlossen, danach in Desktop öffnen und verifizieren. Textboxen, Shapes
 und Buttons sind Standard-Visuals; ihre `visual.json`-Struktur aus einem
-vorhandenen Exemplar im Report replizieren, nicht raten. Die Seite in
-`page.json` als ausgeblendet markieren (Sichtbarkeits-Feld wie von Desktop
-geschrieben übernehmen).
+vorhandenen Exemplar im Report replizieren, nicht raten. Enthält der
+Ziel-Report noch kein Exemplar, liegen unter
+[`../assets/pbir-snippets/`](../assets/pbir-snippets/) echte, bereinigte
+Beispiele (Textbox, Action-Button, Shape, Image — Herkunft und Warnungen
+im dortigen README; `$schema`-Version gegen den Ziel-Report abgleichen!).
+Die Seite in `page.json` als ausgeblendet markieren (Sichtbarkeits-Feld
+wie von Desktop geschrieben übernehmen). Ergebnis mit
+`scripts/render_wireframe.py` ansehen, bevor Desktop geöffnet wird.
 
 ## Nutzung & Wartung
 

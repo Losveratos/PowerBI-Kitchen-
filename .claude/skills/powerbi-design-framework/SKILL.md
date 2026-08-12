@@ -174,6 +174,12 @@ ChartKitchen-Instanzen reserviert sind.
 - Wenn ein PBIP existiert: Design-Linter laufen lassen
   (`python scripts/bulk_restyle.py <Report> --check --zones
   design-out/zones.json`) und das Ergebnis berichten.
+- **Layout ansehen statt raten:** `python scripts/render_wireframe.py
+  <Report> --zones design-out/zones.json --html` rendert je Seite ein
+  SVG-Wireframe (Zonen-Overlay, tabOrder-Badges, Zonen-Verletzungen rot)
+  nach `design-out/wireframes/` — der visuelle Feedback-Loop ohne Desktop.
+  Nach jedem agentischen Seitenbau rendern und das Ergebnis prüfen/zeigen;
+  Linter prüft Zahlen, das Wireframe zeigt Proportionen und Lücken.
 - Zusammenfassen: was liegt wo, welche Entscheidungen sind offen, was macht
   der Mensch als Nächstes in Desktop.
 
