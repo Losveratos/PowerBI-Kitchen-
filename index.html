@@ -1984,6 +1984,18 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
   .footer { grid-template-columns: 1fr; text-align: left; }
 }
 
+/* ========== POSTS & TALKS · FILTER + SORT ========== */
+.pt-toolbar { display:flex; flex-wrap:wrap; gap:12px 16px; align-items:center; justify-content:space-between; margin:0 0 18px; }
+.pt-chips { display:flex; flex-wrap:wrap; gap:8px; }
+.pt-chip { font-family:var(--mono, monospace); font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-mute); background:var(--bg-card); border:1px solid var(--line); border-radius:100px; padding:7px 14px; cursor:pointer; transition:all .15s ease; }
+.pt-chip:hover { color:var(--brand); border-color:var(--brand); }
+.pt-chip.active { color:#fff; background:var(--brand); border-color:var(--brand); }
+.pt-sortwrap { display:flex; align-items:center; gap:10px; font-family:var(--mono, monospace); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-mute); }
+.pt-sortwrap select { font-family:inherit; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink); background:var(--bg-card); border:1px solid var(--line); border-radius:100px; padding:6px 12px; cursor:pointer; }
+.pt-sortwrap select:hover { border-color:var(--brand); }
+#pt-count { color:var(--ink-mute); }
+@media (max-width:700px){ .pt-toolbar { flex-direction:column; align-items:flex-start; } }
+
 /* ========== ANIMATIONS ========== */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
@@ -2029,59 +2041,7 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
       </div>
     </div>
     <a class="topnav-link" href="business-chart-builder.html" title="IBCS-Charts bauen und als Vega-Spec für Deneb (Power BI) exportieren">Chart-Builder</a>
-    <div class="topnav-dd">
-      <a class="topnav-link topnav-dd-toggle" href="pdoom-ki-risiko.html">Talks &amp; Post</a>
-      <div class="topnav-dd-menu">
-        <a class="topnav-dd-item" href="waermestreifen-3d.html">
-          <span class="topnav-dd-item-name">175 Jahre Klimageschichte zum Anfassen</span>
-          <span class="topnav-dd-item-meta">Post · Wärmestreifen 3D — Custom Visual für Power BI</span>
-        </a>
-        <a class="topnav-dd-item" href="daten-wg-game.html">
-          <span class="topnav-dd-item-name">🕹 Daten-WG ARCADE</span>
-          <span class="topnav-dd-item-meta">Game · Daten-WG meets 80s-Arcade — Sessions erspielen</span>
-        </a>
-        <a class="topnav-dd-item" href="daten-wg-agenda.html">
-          <span class="topnav-dd-item-name">Daten-WG · Agenda &amp; Speaker:innen</span>
-          <span class="topnav-dd-item-meta">Event · Programm live aus Sessionize</span>
-        </a>
-        <a class="topnav-dd-item" href="ibcs-trainer.html">
-          <span class="topnav-dd-item-name">IBCS-Trainer</span>
-          <span class="topnav-dd-item-meta">Tool · Quiz &amp; „Finde den Verstoß"</span>
-        </a>
-        <a class="topnav-dd-item" href="prototyping-pnl-treiberbaum.html">
-          <span class="topnav-dd-item-name">Ist KI das neue Papier?</span>
-          <span class="topnav-dd-item-meta">Post · Prototyping mit Claude (DE/EN + Live-Demo)</span>
-        </a>
-        <a class="topnav-dd-item" href="ki-entwicklung-zehn-tage.html">
-          <span class="topnav-dd-item-name">Zehn Tage bis zum marktfähigen Stand</span>
-          <span class="topnav-dd-item-meta">Post · KI-Thesenpapier &amp; Build-vs.-Buy</span>
-        </a>
-        <a class="topnav-dd-item" href="chartkitchen-doku.html">
-          <span class="topnav-dd-item-name">ChartKitchen byDatenWG — Doku</span>
-          <span class="topnav-dd-item-meta">Doku · Power-BI-Visual (DE/EN + PDF)</span>
-        </a>
-        <a class="topnav-dd-item" href="chartkitchen-schnellstart.html">
-          <span class="topnav-dd-item-name">ChartKitchen byDatenWG — Schnellstart</span>
-          <span class="topnav-dd-item-meta">Einstieg · Power-BI-Visual in 2 Minuten (DE/EN)</span>
-        </a>
-        <a class="topnav-dd-item" href="pdoom-ki-risiko.html">
-          <span class="topnav-dd-item-name">Wie wahrscheinlich ist die KI-Apokalypse?</span>
-          <span class="topnav-dd-item-meta">Post · p(doom) / KI-Risiko</span>
-        </a>
-        <a class="topnav-dd-item" href="zugfahrten-infografik.html">
-          <span class="topnav-dd-item-name">Die Schweiz fährt Europa davon</span>
-          <span class="topnav-dd-item-meta">Post · Infografik-Experiment</span>
-        </a>
-        <a class="topnav-dd-item" href="morally_aligned_ai.html">
-          <span class="topnav-dd-item-name">Morally Aligned AI</span>
-          <span class="topnav-dd-item-meta">Talk · Daten Grillen '26</span>
-        </a>
-        <a class="topnav-dd-item" href="ki-co2-simulator.html">
-          <span class="topnav-dd-item-name">Wie viel CO₂ steckt in einem Token?</span>
-          <span class="topnav-dd-item-meta">Tool · CO₂- &amp; Energie-Simulator für KI-Nutzung</span>
-        </a>
-      </div>
-    </div>
+    
     <a class="topnav-link" href="#einsteiger-guide" style="color: var(--accent); border: 1px solid var(--accent); font-weight: 600;">Einsteiger-Guide</a>
   </div>
 </nav>
@@ -2210,90 +2170,132 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <h2 class="top-picks-title">Posts &amp; Talks · <em>Eigene Beiträge</em></h2>
     <span class="top-picks-sub">Artikel &amp; Tools aus der Daten-WG</span>
   </header>
+  <div class="pt-toolbar">
+    <div class="pt-chips" role="group" aria-label="Nach Thema filtern">
+      <button class="pt-chip active" type="button" data-tag="alle">Alle</button>
+      <button class="pt-chip" type="button" data-tag="post">Post</button>
+      <button class="pt-chip" type="button" data-tag="tool">Tool</button>
+      <button class="pt-chip" type="button" data-tag="doku">Doku</button>
+      <button class="pt-chip" type="button" data-tag="talkevent">Talk &amp; Event</button>
+      <button class="pt-chip" type="button" data-tag="ki">KI</button>
+      <button class="pt-chip" type="button" data-tag="ibcs">IBCS</button>
+      <button class="pt-chip" type="button" data-tag="pbi">Power BI</button>
+    </div>
+    <div class="pt-sortwrap">
+      <span id="pt-count"></span>
+      <label for="pt-sort">Sortieren</label>
+      <select id="pt-sort">
+        <option value="std" selected>Kuratiert</option>
+        <option value="az">Titel A–Z</option>
+        <option value="typ">Nach Typ</option>
+      </select>
+    </div>
+  </div>
   <div class="top-picks-grid">
-    <a class="top-pick" href="powerbi-design-skill.html">
+    <a class="top-pick" href="powerbi-design-skill.html" data-tags="post ki pbi">
       <span class="top-pick-rank">🎨</span>
       <span class="top-pick-eyebrow">Post · Claude-Skill · Open Source</span>
       <span class="top-pick-title">Report-Design als Framework — der Power BI Design Skill</span>
       <span class="top-pick-why"><strong>Worum geht's?</strong> Ein Claude-Code-Skill macht Power-BI-Seiten konsistent: Interview → Branding aus der eigenen Webseite → theme.json + Agent-Brief. Dazu Bulk-Restyle („überall Schatten raus"), Design-Linter und SVG-Wireframes — für menschliche und KI-Entwickler. Mit Praxistest an dieser Seite.</span>
       <span class="top-pick-meta"><span>📖 Post + GitHub-Repo</span><span>🆓 MIT · Open Source</span></span>
     </a>
-    <a class="top-pick" href="business-chart-builder-anleitung.html">
+    <a class="top-pick" href="business-chart-builder-anleitung.html" data-tags="doku ibcs pbi">
       <span class="top-pick-rank">📝</span>
       <span class="top-pick-eyebrow">Anleitung · IBCS &amp; Deneb</span>
       <span class="top-pick-title">Business Chart Builder — How-to &amp; Live-Beispiele</span>
       <span class="top-pick-why"><strong>Worum geht's?</strong> IBCS-orientierte Charts im Browser bauen und als Deneb-Template nach Power BI bringen — Schritt für Schritt, mit Beispielen zum Live-Öffnen.</span>
       <span class="top-pick-meta"><span>📖 Anleitung</span><span>⏱ ~5 min Lesezeit</span></span>
     </a>
-    <a class="top-pick" href="business-chart-builder.html">
+    <a class="top-pick" href="business-chart-builder.html" data-tags="tool ibcs pbi">
       <span class="top-pick-rank">🛠</span>
       <span class="top-pick-eyebrow">Tool · kostenlos</span>
       <span class="top-pick-title">Business Chart Builder öffnen</span>
       <span class="top-pick-why"><strong>Selbst ausprobieren:</strong> 30+ IBCS-Diagrammtypen, Varianz-Analysen und KPI-Karten — direkt im Browser, Export als Deneb / PNG / SVG / HTML.</span>
       <span class="top-pick-meta"><span>⚡ Web-App</span><span>🆓 keine Installation</span></span>
     </a>
-    <a class="top-pick" href="ibcs-trainer.html">
+    <a class="top-pick" href="ibcs-trainer.html" data-tags="tool ibcs">
       <span class="top-pick-rank">🎯</span>
       <span class="top-pick-eyebrow">Tool · Interaktiv</span>
       <span class="top-pick-title">IBCS-Trainer öffnen</span>
       <span class="top-pick-why"><strong>Spielerisch lernen:</strong> Quiz (25 Fragen quer durch die IBCS-Regeln) oder „Finde den Verstoß" (fehlerhafte Charts erkennen) — mit Punkten &amp; Highscore oder ganz ohne Timer.</span>
       <span class="top-pick-meta"><span>⚡ Web-App</span><span>🆓 keine Installation</span></span>
     </a>
-    <a class="top-pick" href="prototyping-pnl-treiberbaum.html">
+    <a class="top-pick" href="prototyping-pnl-treiberbaum.html" data-tags="post ki">
       <span class="top-pick-rank">&#9999;&#65039;</span>
       <span class="top-pick-eyebrow">Post · Prototyping &amp; KI</span>
       <span class="top-pick-title">Ist KI das neue Papier — und Markdown der neue Stift?</span>
       <span class="top-pick-why"><strong>Worum geht's?</strong> Vom Markdown-Spec zum klickbaren P&amp;L-Prototyp für den Pitch: 7 Sprachen inkl. Arabisch (RTL), regionale Farblogik für China, Treiber-Simulation mit Solver — plus 47-Sekunden-Demo-Video und interaktive Live-Demo in 16:9.</span>
       <span class="top-pick-meta"><span>&#127916; Post + Video</span><span>&#128377; Live-Demo · DE/EN</span></span>
     </a>
-    <a class="top-pick" href="ki-entwicklung-zehn-tage.html">
+    <a class="top-pick" href="ki-entwicklung-zehn-tage.html" data-tags="post ki pbi">
       <span class="top-pick-rank">📄</span>
       <span class="top-pick-eyebrow">Post · KI &amp; Wirtschaftlichkeit</span>
       <span class="top-pick-title">Zehn Tage bis zum marktfähigen Stand</span>
       <span class="top-pick-why"><strong>Worum geht's?</strong> Ein Power-BI-Visual in zehn Tagen KI-gestützt gebaut — und nachgerechnet, was es klassisch gekostet hätte. Thesenpapier mit Kostenhebel, Build-vs.-Buy-Rechnung und offener Git-Historie.</span>
       <span class="top-pick-meta"><span>📖 Post + 34-Seiten-Papier</span><span>🧮 nachrechenbar</span></span>
     </a>
-    <a class="top-pick" href="chartkitchen-doku.html">
+    <a class="top-pick" href="chartkitchen-doku.html" data-tags="doku ibcs pbi">
       <span class="top-pick-rank">📘</span>
       <span class="top-pick-eyebrow">Doku · Power-BI-Visual</span>
       <span class="top-pick-title">ChartKitchen byDatenWG — Dokumentation</span>
       <span class="top-pick-why"><strong>Worum geht's?</strong> Enddokumentation zum IBCS-inspirierten Chart-Deck: 13 Diagramm-Modi in einem Visual, Schnellstart, Funktionen und vollständige Einstellungs-Referenz. Zweisprachig (DE/EN) mit PDF.</span>
       <span class="top-pick-meta"><span>📖 Doku + PDF</span><span>🇩🇪 / 🇬🇧 DE / EN</span></span>
     </a>
-    <a class="top-pick" href="chartkitchen-schnellstart.html">
+    <a class="top-pick" href="chartkitchen-schnellstart.html" data-tags="doku ibcs pbi">
       <span class="top-pick-rank">🍳</span>
       <span class="top-pick-eyebrow">Einstieg · Power-BI-Visual</span>
       <span class="top-pick-title">ChartKitchen byDatenWG — Schnellstart</span>
       <span class="top-pick-why"><strong>Worum geht's?</strong> Die kompakte Einstiegsseite zum IBCS-inspirierten Chart-Deck: in 2 Minuten verstehen, was das Visual kann, in drei Schritten loslegen und direkt in die passende Doku-Sektion springen. Zweisprachig (DE/EN).</span>
       <span class="top-pick-meta"><span>⚡ 2-Minuten-Einstieg</span><span>🇩🇪 / 🇬🇧 DE / EN</span></span>
     </a>
-    <a class="top-pick" href="pdoom-ki-risiko.html">
+    <a class="top-pick" href="pdoom-ki-risiko.html" data-tags="post ki">
       <span class="top-pick-rank">📉</span>
       <span class="top-pick-eyebrow">Post · p(doom) / KI-Risiko</span>
       <span class="top-pick-title">Wie wahrscheinlich ist die KI-Apokalypse?</span>
       <span class="top-pick-why"><strong>Worum geht's?</strong> p(doom) ist die geschätzte Wahrscheinlichkeit, dass KI katastrophal endet — Schätzungen reichen von unter 0,01&nbsp;% bis über 99&nbsp;%.</span>
       <span class="top-pick-meta"><span>📖 Post</span><span>🤖 KI-Risiko</span></span>
     </a>
-    <a class="top-pick" href="zugfahrten-infografik.html">
+    <a class="top-pick" href="zugfahrten-infografik.html" data-tags="post">
       <span class="top-pick-rank">🚄</span>
       <span class="top-pick-eyebrow">Post · Infografik-Experiment</span>
       <span class="top-pick-title">Die Schweiz fährt Europa davon</span>
       <span class="top-pick-why"><strong>Making-of:</strong> Aus einem schnellen ChatGPT-Draft wird eine ehrlich skalierte Metro-Karte der Bahnnutzung in Europa (Eurostat 2024).</span>
       <span class="top-pick-meta"><span>📖 Post</span><span>🗺 Infografik</span></span>
     </a>
-    <a class="top-pick" href="morally_aligned_ai.html">
+    <a class="top-pick" href="morally_aligned_ai.html" data-tags="talkevent ki">
       <span class="top-pick-rank">🎤</span>
       <span class="top-pick-eyebrow">Talk · Daten Grillen '26</span>
       <span class="top-pick-title">Morally Aligned AI</span>
       <span class="top-pick-why">Was bedeutet es, eine KI moralisch auszurichten — und worüber sollten wir reden, bevor wir es tun? Begleitseite zum Vortrag mit spielbaren Modulen und Thesen.</span>
       <span class="top-pick-meta"><span>🎤 Talk</span><span>🕹 Interaktive Module</span></span>
     </a>
-    <a class="top-pick" href="ki-co2-simulator.html">
+    <a class="top-pick" href="ki-co2-simulator.html" data-tags="tool ki">
       <span class="top-pick-rank">🌱</span>
       <span class="top-pick-eyebrow">Tool · ESG / Nachhaltigkeit</span>
       <span class="top-pick-title">Wie viel CO₂ steckt in einem Token?</span>
       <span class="top-pick-why"><strong>Selbst durchspielen:</strong> Energie- und CO₂-Fußabdruck der KI-Nutzung im Unternehmen — pro Token bis pro Jahr, alle Annahmen als Min–Max-Band mit Quellen.</span>
       <span class="top-pick-meta"><span>⚡ Web-App</span><span>🆓 keine Installation</span></span>
+    </a>
+    <a class="top-pick" href="waermestreifen-3d.html" data-tags="post pbi">
+      <span class="top-pick-rank">🌡</span>
+      <span class="top-pick-eyebrow">Post · Custom Visual</span>
+      <span class="top-pick-title">175 Jahre Klimageschichte zum Anfassen</span>
+      <span class="top-pick-why"><strong>Worum geht's?</strong> Wärmestreifen 3D — ein Custom Visual für Power BI macht die Klimageschichte seit 1850 räumlich erlebbar.</span>
+      <span class="top-pick-meta"><span>📖 Post</span><span>📊 Power-BI-Visual</span></span>
+    </a>
+    <a class="top-pick" href="daten-wg-game.html" data-tags="tool talkevent">
+      <span class="top-pick-rank">🕹</span>
+      <span class="top-pick-eyebrow">Game · Daten-WG</span>
+      <span class="top-pick-title">Daten-WG ARCADE</span>
+      <span class="top-pick-why"><strong>Zum Spielen:</strong> Daten-WG meets 80s-Arcade — Sessions erspielen, Highscore jagen, ganz ohne Installation.</span>
+      <span class="top-pick-meta"><span>🕹 Web-Game</span><span>🆓 keine Installation</span></span>
+    </a>
+    <a class="top-pick" href="daten-wg-agenda.html" data-tags="talkevent">
+      <span class="top-pick-rank">🗓</span>
+      <span class="top-pick-eyebrow">Event · Konferenz</span>
+      <span class="top-pick-title">Daten-WG · Agenda &amp; Speaker:innen</span>
+      <span class="top-pick-why"><strong>Worum geht's?</strong> Das Programm der Daten-WG — live aus Sessionize, mit allen Sessions und Speaker:innen.</span>
+      <span class="top-pick-meta"><span>🗓 Event</span><span>🔄 live aus Sessionize</span></span>
     </a>
   </div>
 </section>
@@ -6303,6 +6305,50 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', function () {
     if (window.innerWidth > 1100 && nav.classList.contains('nav-open')) setOpen(false);
   });
+})();
+</script>
+<script>
+(function () {
+  var grid = document.querySelector('#posts-talks .top-picks-grid');
+  if (!grid) return;
+  var cards = [].slice.call(grid.querySelectorAll('.top-pick'));
+  cards.forEach(function (c, i) { c.dataset.idx = i; });
+  var chips = [].slice.call(document.querySelectorAll('.pt-chip'));
+  var sortSel = document.getElementById('pt-sort');
+  var countEl = document.getElementById('pt-count');
+  function titleOf(c) { var t = c.querySelector('.top-pick-title'); return t ? t.textContent.trim() : ''; }
+  function typRank(c) {
+    var t = (c.dataset.tags || '').split(' ');
+    var order = ['post', 'tool', 'doku', 'talkevent'];
+    for (var k = 0; k < order.length; k++) if (t.indexOf(order[k]) > -1) return k;
+    return 9;
+  }
+  function apply() {
+    var activeChip = document.querySelector('.pt-chip.active');
+    var tag = activeChip ? activeChip.dataset.tag : 'alle';
+    var mode = sortSel ? sortSel.value : 'std';
+    var order = cards.slice();
+    if (mode === 'az') order.sort(function (a, b) { return titleOf(a).localeCompare(titleOf(b), 'de'); });
+    else if (mode === 'typ') order.sort(function (a, b) { return typRank(a) - typRank(b) || (+a.dataset.idx) - (+b.dataset.idx); });
+    else order.sort(function (a, b) { return (+a.dataset.idx) - (+b.dataset.idx); });
+    var visible = 0;
+    order.forEach(function (c) {
+      grid.appendChild(c);
+      var show = tag === 'alle' || (c.dataset.tags || '').split(' ').indexOf(tag) > -1;
+      c.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    if (countEl) countEl.textContent = visible + ' von ' + cards.length + ' ·';
+  }
+  chips.forEach(function (ch) {
+    ch.addEventListener('click', function () {
+      chips.forEach(function (o) { o.classList.remove('active'); });
+      ch.classList.add('active');
+      apply();
+    });
+  });
+  if (sortSel) sortSel.addEventListener('change', apply);
+  apply();
 })();
 </script>
 </body>
