@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+ <link rel="self" href="http://www.youtube.com/feeds/videos.xml?channel_id=UC2zFYomv_AvOfn6huwHwSPg"/>
+ <id>yt:channel:2zFYomv_AvOfn6huwHwSPg</id>
+ <yt:channelId>2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+ <title>Daten-WG</title>
+ <link rel="alternate" href="https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg"/>
+ <author>
+  <name>Daten-WG</name>
+  <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+ </author>
+ <published>2025-04-08T15:29:03+00:00</published>
+ <entry>
+  <id>yt:video:hkUHetX61jA</id>
+  <yt:videoId>hkUHetX61jA</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>🧠 1 Minute Power BI #006 - Power BI &amp; Excel: Tabelle oder Tabellenblatt? 🤔</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/hkUHetX61jA"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-08-10T05:30:02+00:00</published>
+  <updated>2026-08-10T05:30:25+00:00</updated>
+  <media:group>
+   <media:title>🧠 1 Minute Power BI #006 - Power BI &amp; Excel: Tabelle oder Tabellenblatt? 🤔</media:title>
+   <media:content url="https://www.youtube.com/v/hkUHetX61jA?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/hkUHetX61jA/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Importierst du Excel-Dateien nach Power BI? Dann solltest du wissen, wann du Excel-Tabellen und wann du lieber Tabellenblätter verwenden solltest.
+
+💡 Einzelne Excel-Datei?
+➡️ Nutze eine Excel-Tabelle (STRG + T). Dadurch werden Datentypen sauber übernommen und du sparst Arbeit im Power Query.
+
+💡 Viele Dateien aus einem Ordner?
+➡️ Greife lieber auf das Tabellenblatt zu. Denn Excel-Tabellen werden bei manuellen Änderungen schnell vergessen und genau das kann deinen Import später scheitern lassen.
+
+Kleine Entscheidung, große Wirkung.
+
+👉 Welche Methode nutzt du bisher?
+
+#PowerBI #Excel #PowerQuery #MicrosoftFabric #BusinessIntelligence #DataAnalytics #PowerBIDeutsch #ExcelTipps #BI #Data</media:description>
+   <media:community>
+    <media:starRating count="0" average="0.00" min="1" max="5"/>
+    <media:statistics views="336"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:KCCs6e0MeWI</id>
+  <yt:videoId>KCCs6e0MeWI</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>🧠 1 Minute Power BI #005 -  Bedingte Formatierung? Ich nutze fast immer Measures! 🎨</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/KCCs6e0MeWI"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-08-03T05:30:04+00:00</published>
+  <updated>2026-08-06T03:44:26+00:00</updated>
+  <media:group>
+   <media:title>🧠 1 Minute Power BI #005 -  Bedingte Formatierung? Ich nutze fast immer Measures! 🎨</media:title>
+   <media:content url="https://www.youtube.com/v/KCCs6e0MeWI?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/KCCs6e0MeWI/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Bedingte Formatierungen lassen sich in Power BI auf viele Arten umsetzen, aber mein Favorit sind ganz klar Measures.
+
+Warum?
+
+✅ Maximale Flexibilität
+✅ Farben anhand beliebiger Logik steuern
+✅ Symbole und Icons dynamisch anzeigen
+✅ Farben direkt aus dem Report-Theme übernehmen
+
+Der große Vorteil: Ändert sich das Theme, passen sich auch deine bedingten Formatierungen automatisch an. So bleiben Reports flexibel und gleichzeitig konsistent im Corporate Design.
+
+💬 Wie setzt du bedingte Formatierungen in Power BI um?
+
+#PowerBI #MicrosoftFabric #DAX #BusinessIntelligence #DataAnalytics #PowerBITipps #PowerBIDeutsch #ConditionalFormatting #Reporting #DataVisualization</media:description>
+   <media:community>
+    <media:starRating count="2" average="5.00" min="1" max="5"/>
+    <media:statistics views="459"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:oh-3_65IQ2Q</id>
+  <yt:videoId>oh-3_65IQ2Q</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=oh-3_65IQ2Q"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-08-02T22:15:32+00:00</published>
+  <updated>2026-08-02T22:15:33+00:00</updated>
+  <media:group>
+   <media:title>KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber</media:title>
+   <media:content url="https://www.youtube.com/v/oh-3_65IQ2Q?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/oh-3_65IQ2Q/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Kann man sich selbst durch KI ersetzen – und das auch noch gut finden? Burkhardt Gasber hat genau das getan. Zum dritten Mal zu Gast im Daten-WG-Podcast erzählt er, wie er im vergangenen November abends angefangen hat, mit Lovable seine eigene Arbeitsweise zu digitalisieren: die Heatmap-Analysen für Marketing-Teams, die er jahrelang mühsam von Hand aufbereitet hat.
+
+Herausgekommen ist ein Tool für kollaborative Datenanalyse – mit Notizen per Sprache, KI-Summaries und einer Einstiegshürde, die so niedrig ist, dass niemand mehr ein Excel-Training braucht. Wir reden über Slop im Code und warum der egal sein kann, über den fertigen MVP als bestes Briefing, über Datenschutz und deutsche Server, über die Frage, ob Beratung sich damit selbst abschafft – und darüber, was passiert, wenn Wissen plötzlich exponentiell schneller fließt.
+
+Burkhardt Gasber https://www.linkedin.com/in/burkhardtgasber/
+Artur König https://www.linkedin.com/in/datakoenigartur/
+
+LIVE hier:
+Daten-WG 2026 Konferenz am 14.-16. Oktober: https://www.daten-wg.com/daten-wg-2026
+
+
+00:00 – Intro: „Ich habe begonnen, mich selbst zu ersetzen&quot;
+04:01 – Warum die Heatmap seine Lieblingsvisualisierung ist
+04:39 – Der Abend mit Lovable: aus fünf Zeilen Prompt wird ein Tool
+07:00 – Top-1-Prozent-Coder: was die Analyse der eigenen Prompts zeigte
+09:14 – „Echter Slop&quot;: warum die KI die Interpretation nicht übernimmt
+10:39 – Gemeinsam auf die Daten schauen: rote Tage, Muster, Evidenzen
+14:06 – Datenschutz, deutsche Server und raus aus der Lovable-Cloud
+17:13 – Welche Daten? Wenige KPIs statt ETL-Monster
+19:42 – Notizen per Sprache, Notes Board und KI-Summaries
+22:41 – Ohne Datenkompetenztraining: die Einstiegshürde radikal senken
+25:25 – Was so ein Tool kostet – und warum man in Credits investieren sollte
+28:31 – Make or Buy: „Dann spare ich mir den Burkhardt&quot;?
+33:54 – Der MVP als bestes Briefing – Slop im Code ist erstmal egal
+40:54 – Nicht Ersetzen, sondern Transformation: exponentiell statt linear
+46:02 – Die Guten mitnehmen, Mittelstand aufholen – und der Abschlusstipp
+
+
+Shownotes:
+
+gasber digital business consulting (Website): https://www.gasber.online/
+Burkhardt Gasber auf freelancermap: https://www.freelancermap.com/profile/burkhardt-gasber
+Früherer Podcast-Auftritt: „Daten als Kommunikationsgrundlage im Marketing nutzen&quot; – Analytics Sprechstunde: https://analyticssprechstunde.podigee.io/206-daten-als-kommunikationsgrundlage-im-marketing-nutzen-mit-burkhardt-gasber
+Lovable – Vibe-Coding-Plattform, mit der das Tool entstanden ist: https://lovable.dev/
+Heatmap als Visualisierungsform (Burkhardts Lieblingsvisualisierung, Ursprung u.a. in der Biologie/Genetik): https://de.wikipedia.org/wiki/Heatmap
+Vibe Coding – Begriff, den Artur im April 2025 zum ersten Mal gehört hat: https://en.wikipedia.org/wiki/Vibe_coding</media:description>
+   <media:community>
+    <media:starRating count="1" average="5.00" min="1" max="5"/>
+    <media:statistics views="56"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:tXBcz_b1PQc</id>
+  <yt:videoId>tXBcz_b1PQc</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>BI Thinkers Talk nr.80</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=tXBcz_b1PQc"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-07-30T03:06:10+00:00</published>
+  <updated>2026-08-03T23:11:37+00:00</updated>
+  <media:group>
+   <media:title>BI Thinkers Talk nr.80</media:title>
+   <media:content url="https://www.youtube.com/v/tXBcz_b1PQc?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/tXBcz_b1PQc/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Michael hat zu Geburtstagen des BI Thinkers Talks immer wieder tolle Geschenke dabei gehabt: wir erinnern uns noch an das Visual Ranking, was danach auf Events für Furore gesorgt hat.
+
+Diesmal hat er das ultimative Custom Visual gebaut und wird es feierlich übergeben. Und sich den kritischen Fragen stellen.
+Das Visual beinhaltet veschiedene Darstellungsformen, kann Small Multiples für alles und ist von IBCS inspiriert.
+
+Sind selbstentwickelte  Custom Visuals die Zukunft?
+Die ganze Daten-WG Crew ist am Start, um das zu besprechen.</media:description>
+   <media:community>
+    <media:starRating count="1" average="5.00" min="1" max="5"/>
+    <media:statistics views="48"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:WLiGuGjE5m8</id>
+  <yt:videoId>WLiGuGjE5m8</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>🧠 1 Minute Power BI #004 - Bidirektionale Filterung in Power BI? Meistens ein Fehler!</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/WLiGuGjE5m8"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-07-27T06:33:05+00:00</published>
+  <updated>2026-08-03T05:40:34+00:00</updated>
+  <media:group>
+   <media:title>🧠 1 Minute Power BI #004 - Bidirektionale Filterung in Power BI? Meistens ein Fehler!</media:title>
+   <media:content url="https://www.youtube.com/v/WLiGuGjE5m8?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/WLiGuGjE5m8/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Eine bidirektionale Beziehung klingt praktisch, sorgt aber häufig für unerwartete Filtereffekte.
+
+In diesem Short zeige ich dir anhand eines einfachen Beispiels, warum plötzlich Umsätze verschwinden können, obwohl du eigentlich nur nach Planwerten gefiltert hast.
+
+Wenn dein Bericht für Nutzer nachvollziehbar bleiben soll, solltest du bidirektionale Filter nur in Ausnahmefällen einsetzen.
+
+👉 Weitere Tipps findest du in unserer Playlist 🧠 1 Minute Power BI.
+
+#PowerBI #MicrosoftFabric #BusinessIntelligence #DAX #PowerBITipps</media:description>
+   <media:community>
+    <media:starRating count="2" average="5.00" min="1" max="5"/>
+    <media:statistics views="213"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:7xYgX6lWhuQ</id>
+  <yt:videoId>7xYgX6lWhuQ</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>Power BI Update Juli 2026</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=7xYgX6lWhuQ"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-07-24T04:00:00+00:00</published>
+  <updated>2026-07-30T07:13:41+00:00</updated>
+  <media:group>
+   <media:title>Power BI Update Juli 2026</media:title>
+   <media:content url="https://www.youtube.com/v/7xYgX6lWhuQ?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/7xYgX6lWhuQ/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Das Juli-Update 2026 ist ein kompaktes Sommer-Update. Der Web-Editor wird endlich vollwertig. Im Frontend gibt es die neue Option, das Berichtsdesign direkt im Bericht anzupassen. Außerdem ist das Verschieben von Seiten (nach vorne, hinten, links, rechts) jetzt generally available.
+
+Daten-WG 2026 Konferenz am 14-16. Oktober:
+https://www.daten-wg.com/daten-wg-2026
+
+00:10 – Berichtsdesign direkt im Bericht anpassen: Designvorlagen und Themes
+01:06 – Seiten verschieben jetzt GA
+01:38 – TMDL-View für semantische Modelle im Web
+02:14 – Org-Apps mit Zielgruppen sind generally available
+02:42 – Modell-Optionen im Web-Editor
+
+Power BI July 2026 Feature Summary (offizieller Blog, Microsoft Fabric Community): https://community.fabric.microsoft.com/t5/Power-BI-Updates-Blog/Power-BI-July-2026-Feature-Summary/ba-p/5303533
+
+Was wir sonst so machen: https://www.daten-wg.com/
+Artur König: https://www.linkedin.com/in/datakoenigartur/</media:description>
+   <media:community>
+    <media:starRating count="4" average="5.00" min="1" max="5"/>
+    <media:statistics views="41"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:z51gWRc0zVc</id>
+  <yt:videoId>z51gWRc0zVc</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>Microsoft Fabric Dataflow Gen2 Kosten verstehen - CU-Verbrauch einfach erklärt</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=z51gWRc0zVc"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-07-23T11:23:57+00:00</published>
+  <updated>2026-07-23T12:10:38+00:00</updated>
+  <media:group>
+   <media:title>Microsoft Fabric Dataflow Gen2 Kosten verstehen - CU-Verbrauch einfach erklärt</media:title>
+   <media:content url="https://www.youtube.com/v/z51gWRc0zVc?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i3.ytimg.com/vi/z51gWRc0zVc/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Wie viel kostet eigentlich ein Dataflow Gen2 in Microsoft Fabric?
+
+Diese Frage bekomme ich regelmäßig in Kundenprojekten. Leider ist die Antwort nicht ganz so einfach, denn ein Dataflow besteht aus mehreren Komponenten und der tatsächliche CU-Verbrauch unterscheidet sich oft von der reinen Laufzeit.
+
+In diesem Video zeige ich:
+
+- Wie Dataflows Gen2 Compute Units (CUs) verbrauchen
+- Warum einzelne Abfragen wichtiger sind als die Gesamtlaufzeit
+- Wie Microsoft die Kosten näherungsweise berechnet
+- Was Bursting und Smoothing bedeuten
+- Warum eine F4-Kapazität trotzdem kurzfristig deutlich mehr Compute nutzen kann
+
+Am Ende erhältst du ein besseres Verständnis dafür, wie sich Dataflow-Kosten abschätzen lassen und welche Werkzeuge Microsoft dafür bereitstellt.
+
+🔗 Verwendete Links
+
+Microsoft Fabric Pricing
+https://azure.microsoft.com/de-de/pricing/details/microsoft-fabric/
+
+Pricing für Dataflow Gen2
+https://learn.microsoft.com/de-de/fabric/data-factory/pricing-dataflows-gen2
+
+GitHub von Benni De Jagere
+https://github.com/BenniDeJagere
+
+Präsentation zu Fabric Capacities
+https://github.com/BenniDeJagere/Presentations/blob/master/2026/20260612%20-%20Data%20Ceili/Fabric%20Capacities%20-%20Beyond%20the%20obvious.pdf
+
+Kapitel:
+
+(00:00) Warum Dataflow Gen2 Kosten schwer zu verstehen sind
+(00:24) Microsoft Fabric Pricing &amp; Compute Units (CU)
+(01:42) Wie ein Dataflow Compute Units verbraucht
+(02:28) Aufbau eines Dataflow Gen2
+(03:42) Dataflow Gen2 Kosten berechnen
+(04:43) Praxisbeispiel: Dataflow analysieren
+(06:20) CU-Berechnung in Excel
+(08:11) Capacity Metrics App nutzen
+(09:20) Warum eine F4 über 900 CU verbrauchen kann
+(10:00) Bursting &amp; Smoothing einfach erklärt
+(11:31) Pay-as-you-go: Versteckte Kosten?
+(12:21) CU-Smoothing im Monitoring
+(12:57) Fazit &amp; Ausblick
+
+Wenn dir das Video gefallen hat, freue ich mich über ein Like und ein Abo.
+
+Marcus Wegener auf LinkedIn | https://www.linkedin.com/in/marcuswegener/</media:description>
+   <media:community>
+    <media:starRating count="2" average="5.00" min="1" max="5"/>
+    <media:statistics views="36"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:Me3a2QOx21I</id>
+  <yt:videoId>Me3a2QOx21I</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=Me3a2QOx21I"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-07-22T05:30:34+00:00</published>
+  <updated>2026-07-28T02:08:15+00:00</updated>
+  <media:group>
+   <media:title>Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug</media:title>
+   <media:content url="https://www.youtube.com/v/Me3a2QOx21I?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i2.ytimg.com/vi/Me3a2QOx21I/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Auf der TDWI 2026 wurde Artur von Christian Krug von @unfckyourdata und Stefanie Welle von All for One interviewt.
+
+Es ging erwartbar um BI, Self-Service, Communities und Data Culture. In gut acht Minuten geht es einmal quer durch: von der Frage, was den größten Unterschied für datengetriebene Unternehmen macht, bis dahin, wo Daten im Alltag richtig unbequem werden.
+
+Es geht darum, was Fachbereiche längst selbst können und wie GenAI das noch sichtbarer macht, warum interne Communities mehr bringen als die nächste Drei-Tage-Schulung – und wie man das dem Vorstand verkauft. Und zum Schluss: Woran man eine gute Data Culture wirklich erkennt, wenn man sie ehrlich Entscheidungskultur nennt.
+
+Dr. Christian Krug
+https://www.linkedin.com/in/christian-krug/
+Stefanie Welle
+https://www.linkedin.com/in/stefanie-welle/
+Artur König
+https://www.linkedin.com/in/datakoenigartur/
+
+
+Daten-WG 2026 Konferenz am 14-16. Oktober: https://www.daten-wg.com/daten-wg-2026
+
+
+00:00 – Intro: Was wir bei den Fachbereichen am meisten unterschätzen
+00:48 – Datenkompetenz: Was die Fachbereiche längst können
+01:17 – GenAI im Fachbereich: „Ich hab mir das mal hingecodet&quot;
+01:44 – Muss man selbstgebaute Lösungen überhaupt wieder einfangen?
+02:17 – Wenn gut für den Einkauf schlecht fürs Lager ist
+02:38 – Die innovative Methode: zwei Data Owner reden miteinander
+03:02 – Warum Communities und Power-User-Netzwerke wirken
+04:11 – Der Verkaufstrick: Communities dem Vorstand schmackhaft machen
+04:41 – Kontinuität statt Vanity Metrics – und am Ende günstiger
+05:48 – Schulung abhaken ist bequem, Kontinuität ist unbequem
+06:23 – Betreuung über sechs Monate – und wer nicht auftaucht
+07:00 – Data Culture heißt eigentlich Entscheidungskultur
+07:30 – Confirmation Bias und der Mut, ganz oben zu widersprechen
+07:49 – Dahin gehen, wo es wehtut – statt Quick Wins ohne Schmerz</media:description>
+   <media:community>
+    <media:starRating count="3" average="5.00" min="1" max="5"/>
+    <media:statistics views="35"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:YxS238qvD3s</id>
+  <yt:videoId>YxS238qvD3s</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>🧠 1 Minute Power BI #003 - 🚫Das größte DAX-No-Go? FORMAT() im Measure!</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/YxS238qvD3s"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-07-20T05:31:27+00:00</published>
+  <updated>2026-07-22T23:59:20+00:00</updated>
+  <media:group>
+   <media:title>🧠 1 Minute Power BI #003 - 🚫Das größte DAX-No-Go? FORMAT() im Measure!</media:title>
+   <media:content url="https://www.youtube.com/v/YxS238qvD3s?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i2.ytimg.com/vi/YxS238qvD3s/hqdefault.jpg" width="480" height="360"/>
+   <media:description>FORMAT() wirkt praktisch, bis dein Measure plötzlich kein Zahlenwert mehr ist.
+
+In diesem Short zeigen wir, warum FORMAT() in DAX häufig mehr Probleme verursacht als löst und weshalb du Formatierungen besser über das Zahlenformat des Measures definierst.
+
+✅ Zahlen bleiben berechenbar
+✅ Keine unerwarteten Datentypen
+✅ Sauberere und wiederverwendbare Measures
+
+💬 Wie sieht dein persönliches DAX-No-Go aus? Schreib es in die Kommentare!
+
+📺 Mehr Power BI in nur einer Minute:
+https://www.youtube.com/playlist?list=DEINE_PLAYLIST_ID
+
+#PowerBI #DAX #BusinessIntelligence #MicrosoftFabric #PowerBITipps</media:description>
+   <media:community>
+    <media:starRating count="3" average="5.00" min="1" max="5"/>
+    <media:statistics views="141"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:PW6MP-SDmRk</id>
+  <yt:videoId>PW6MP-SDmRk</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>Fabric &amp; Power BI Quarterly | 2026-3</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=PW6MP-SDmRk"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-07-19T22:15:10+00:00</published>
+  <updated>2026-07-19T22:15:10+00:00</updated>
+  <media:group>
+   <media:title>Fabric &amp; Power BI Quarterly | 2026-3</media:title>
+   <media:content url="https://www.youtube.com/v/PW6MP-SDmRk?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/PW6MP-SDmRk/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Gabi und Artur schauen auf die letzten Monate in Fabric.
+Und Fragen sich, ob wir, trotz so vielen GA Features wie schon lange nicht mehr, in Zukunft noch Power BI brauchen oder ob Fabric Apps alles übernehmen.
+
+Gabi Münster: https://www.linkedin.com/in/gabimuenster/
+Artur König: https://www.linkedin.com/in/datakoenigartur/
+
+Daten-WG 2026 Konferenz am 14.-16. Oktober: 
+https://www.daten-wg.com/daten-wg-2026
+
+
+00:00 – Intro: Data Saturday Rheinland und eine Ära, die endet
+05:11 – Power BI bekommt Liebe: zehn GA-Updates in zwei Monaten
+06:11 – Custom Totals und Visual Calculations sind GA
+07:43 – Kleinigkeiten mit Wirkung: Full HD und Set as Landing Page
+09:46 – MS Build: Fabric Apps und Rayfin
+12:24 – Rayfin ist kein Report-Ersatz, sondern ein Backend-Service
+18:08 – Regionen-Frage und Kurt Buhlers Vergleich: Lego vs. 3D-Drucker
+20:13 – Fabric Planning und PowerTable: Excel-Frontend auf SQL
+21:05 – Drei Preismodelle in Fabric und was das Session-Modell bedeutet
+28:32 – Warehouse mit GPU-Beschleunigung und was das kosten wird
+34:02 – Storage Tiers und Item Size Reporting
+35:11 – SharePoint Shortcuts GA und Shortcut Transformations
+36:35 – Delegated Shortcuts: Federation für OneLake Security
+42:42 – Real-Time Intelligence: Business Events und CDC-Mirroring
+47:55 – Feature-Wünsche: Lineage auf Tabellenebene und die Policy Engine
+
+
+Shownotes/Quellen:
+
+Kurt Buhler: https://www.linkedin.com/posts/kurtbuhler_microsoftfabric-fabricapps-dataviz-share-7468300931789463553-1u0i/
+
+Data Saturday Rheinland: https://datasaturdays.com/Event/20260711-datasaturday0084
+
+Microsoft Build 2026 Book of News / Ankündigungen: https://azure.microsoft.com/en-us/blog/microsoft-build-2026-building-agentic-apps-with-microsoft-fabric-and-microsoft-databases/
+
+Fabric Apps und Rayfin:
+https://community.fabric.microsoft.com/t5/Fabric-Updates-Blog/Introducing-Rayfin-A-new-AI-first-way-to-build-deploy-and-govern/ba-p/5191676
+
+Capacity &amp; Cost Calculator (Fabric Planning): https://fabricplanning.io/calculator/
+
+GPU-Beschleunigung im Fabric Data Warehouse
+https://www.linkedin.com/posts/bogdanc_i-put-a-gpu-behind-fabric-data-warehouse-share-7480295686303928320-epRV/
+
+Delegated shortcuts
+https://www.linkedin.com/posts/aajmerrill_data-analytics-onelake-share-7478576952379867137-88V3/
+
+Workspace Access Management
+https://www.linkedin.com/posts/aajmerrill_onelake-data-analytics-share-7470542489314324481-zUFA/</media:description>
+   <media:community>
+    <media:starRating count="3" average="5.00" min="1" max="5"/>
+    <media:statistics views="54"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:3mwlFE7TWuY</id>
+  <yt:videoId>3mwlFE7TWuY</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>🧠 1 Minute Power BI #002 - Alle Farben im Power BI Bericht auf einmal ändern</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/3mwlFE7TWuY"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-07-13T06:14:25+00:00</published>
+  <updated>2026-07-15T23:32:52+00:00</updated>
+  <media:group>
+   <media:title>🧠 1 Minute Power BI #002 - Alle Farben im Power BI Bericht auf einmal ändern</media:title>
+   <media:content url="https://www.youtube.com/v/3mwlFE7TWuY?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/3mwlFE7TWuY/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Musst du wirklich jedes Visual einzeln einfärben? Nein!
+
+In diesem 1-Minute-Power-BI-Tipp zeigen wir dir, wie du mit Power BI Themes (Designs) die Farben deines gesamten Berichts mit wenigen Klicks ändern kannst und warum einzelne Visual-Einstellungen trotzdem Vorrang haben.
+
+💡 In diesem Short lernst du:
+
+Power BI Themes anwenden
+Farben eines gesamten Berichts ändern
+Eigenes Design anpassen
+Warum manche Visuals ihre Farbe trotzdem behalten
+
+📌 Weitere Power BI Lernvideos findest du in unserer Playlist:
+🧠 1 Minute Power BI
+
+👍 Wenn dir der Tipp geholfen hat, freuen wir uns über ein Abo und einen Like!
+
+#PowerBI #MicrosoftFabric #BusinessIntelligence #DataAnalytics #PowerBITipps</media:description>
+   <media:community>
+    <media:starRating count="3" average="5.00" min="1" max="5"/>
+    <media:statistics views="100"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:hlY7iqHsdzA</id>
+  <yt:videoId>hlY7iqHsdzA</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>BI Thinkers Talk nr.79</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=hlY7iqHsdzA"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-07-09T03:01:55+00:00</published>
+  <updated>2026-08-04T05:45:38+00:00</updated>
+  <media:group>
+   <media:title>BI Thinkers Talk nr.79</media:title>
+   <media:content url="https://www.youtube.com/v/hlY7iqHsdzA?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/hlY7iqHsdzA/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Ontologien sind der neue Trend - aber wo sind sie wirklich relevant und wie wirkt sich das auf BI-Architekturen aus?
+
+Georg schaut in dieser Folge live vorbei, um mit Marcus und Artur über Ontologien, OSI und die immerwährende Suche nach zentralen Metriken zu sprechen und auch live seine Lösungen zu teilen.
+
+schaut vorbei, wenn ihr auch Input zu diesem Thema und einen Realitäts-Check für die Praxis braucht.</media:description>
+   <media:community>
+    <media:starRating count="0" average="0.00" min="1" max="5"/>
+    <media:statistics views="25"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:_AxvdCW0ST4</id>
+  <yt:videoId>_AxvdCW0ST4</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=_AxvdCW0ST4"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-07-08T10:19:04+00:00</published>
+  <updated>2026-07-23T11:40:03+00:00</updated>
+  <media:group>
+   <media:title>Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen</media:title>
+   <media:content url="https://www.youtube.com/v/_AxvdCW0ST4?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i4.ytimg.com/vi/_AxvdCW0ST4/hqdefault.jpg" width="480" height="360"/>
+   <media:description>In diesem Tutorial zeige ich dir, wie das Time Travel Feature in Microsoft Fabric funktioniert und warum Delta Lake frühere Datenstände weiterhin verfügbar machen kann.
+
+Anhand eines praktischen Beispiels sehen wir uns an, wie gelöschte Daten über einen Zeitstempel wieder abgefragt werden können, welche Rolle das Delta Log dabei spielt und warum Time Travel keine unbegrenzte Historie garantiert.
+
+Außerdem werfen wir einen Blick auf die Describe- und Describe History-Befehle sowie auf die Wartungsprozesse, die ältere Daten irgendwann endgültig entfernen.
+
+(00:00) Intro
+(00:35) Ausgangssituation: Daten wurden gelöscht
+(01:30) Blick in das Delta Log
+(02:41) Time Travel per SQL nutzen
+(03:56) Describe und Describe History
+(05:06) Grenzen von Time Travel
+(06:35) Fazit
+
+🔗 Verwendete Dokumentation
+
+Delta Lake Time Travel
+https://delta.io/blog/2023-02-01-delta-lake-time-travel/
+
+Microsoft Fabric Time Travel
+https://learn.microsoft.com/de-de/fabric/data-warehouse/time-travel
+
+Time Travel Abfragen
+https://learn.microsoft.com/de-de/fabric/data-warehouse/how-to-query-using-time-travel
+
+Marcus Wegener auf LinkedIn | https://www.linkedin.com/in/marcuswegener/</media:description>
+   <media:community>
+    <media:starRating count="2" average="5.00" min="1" max="5"/>
+    <media:statistics views="35"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:lp8xNX81R2w</id>
+  <yt:videoId>lp8xNX81R2w</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=lp8xNX81R2w"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-07-07T09:34:44+00:00</published>
+  <updated>2026-07-23T12:16:46+00:00</updated>
+  <media:group>
+   <media:title>Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)</media:title>
+   <media:content url="https://www.youtube.com/v/lp8xNX81R2w?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/lp8xNX81R2w/hqdefault.jpg" width="480" height="360"/>
+   <media:description>In diesem Video schauen wir uns an, wie sich Excel-Dateien über eine Microsoft Fabric Shortcut Transformation aus SharePoint laden lassen und welche Besonderheiten dabei zu beachten sind.
+
+Nachdem wir in den letzten Videos bereits SharePoint Shortcuts und Shortcut Transformations eingerichtet haben, geht es diesmal um einen Stolperstein, der in der Praxis schnell übersehen wird: Excel-Dateien müssen eine sehr stabile Tabellenstruktur besitzen. Schon eine eingeblendete Totalzeile kann zu einem Schema-Mismatch führen und den Import scheitern lassen.
+
+Im Video zeige ich:
+
+- welche Einschränkungen für Excel-Dateien gelten
+- warum Totalzeilen und unterschiedliche Datentypen Probleme verursachen
+- wie der Import korrekt eingerichtet wird
+- welche zusätzlichen Informationen Fabric beim Import bereitstellt
+- welche Besonderheiten aktuell beim Wiederholen fehlgeschlagener Jobs bestehen
+
+📚 Verwandte Tutorials
+
+➡️ SharePoint direkt in Microsoft Fabric nutzen | Lakehouse, Direct Lake &amp; Power BI - https://youtu.be/c-LWoo-O5PQ
+➡️ Microsoft Fabric Shortcut Transformation erklärt: Updates im Praxistest - https://youtu.be/Z6RZjkn_6lY
+
+Kapitelmarken:
+(00:00) Intro
+(00:33) Excel-Einschränkungen bei Shortcut Transformations
+(01:30) Warum Tabellenstruktur so wichtig ist
+(02:40) Die Excel-Datei vorbereiten
+(04:25) Die Totalzeile als Fehlerquelle
+(05:34) Shortcut Transformation für Excel erstellen
+(07:17) Import im Lakehouse prüfen
+(08:06) Neue Metadaten: Sheetname &amp; Currency
+(09:18) Schema-Mismatch im Praxistest
+(10:22) Fehlermeldung analysieren
+(11:15) Warum &quot;Wiederholen&quot; aktuell nicht funktioniert
+(12:10) Fazit
+
+Marcus Wegener auf LinkedIn | https://www.linkedin.com/in/marcuswegener/</media:description>
+   <media:community>
+    <media:starRating count="2" average="5.00" min="1" max="5"/>
+    <media:statistics views="33"/>
+   </media:community>
+  </media:group>
+ </entry>
+ <entry>
+  <id>yt:video:4hap_ZZskzo</id>
+  <yt:videoId>4hap_ZZskzo</yt:videoId>
+  <yt:channelId>UC2zFYomv_AvOfn6huwHwSPg</yt:channelId>
+  <title>🧠 1 Minute Power BI #001 - Power BI Desktop oder Web? Meine klare Antwort!</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/4hap_ZZskzo"/>
+  <author>
+   <name>Daten-WG</name>
+   <uri>https://www.youtube.com/channel/UC2zFYomv_AvOfn6huwHwSPg</uri>
+  </author>
+  <published>2026-07-06T12:02:38+00:00</published>
+  <updated>2026-07-10T00:25:23+00:00</updated>
+  <media:group>
+   <media:title>🧠 1 Minute Power BI #001 - Power BI Desktop oder Web? Meine klare Antwort!</media:title>
+   <media:content url="https://www.youtube.com/v/4hap_ZZskzo?version=3" type="application/x-shockwave-flash" width="640" height="390"/>
+   <media:thumbnail url="https://i1.ytimg.com/vi/4hap_ZZskzo/hqdefault.jpg" width="480" height="360"/>
+   <media:description>Power BI Desktop oder die Modellierung direkt im Browser – was ist die bessere Wahl?
+
+In diesem Short erklären wir, warum wir trotz der neuen Webfunktionen weiterhin hauptsächlich den Power BI Desktop nutzen. Der größte Vorteil: Datenmodell, Visuals und Power Query befinden sich an einem Ort und wir müssen nicht ständig zwischen verschiedenen Tools wechseln.
+
+Wie arbeitest du aktuell? Nutzt du überwiegend den Desktop oder modellierst du bereits im Browser? Schreib es uns in die Kommentare!
+
+#PowerBI #MicrosoftFabric #BusinessIntelligence #DataAnalytics #PowerBITipps</media:description>
+   <media:community>
+    <media:starRating count="3" average="5.00" min="1" max="5"/>
+    <media:statistics views="817"/>
+   </media:community>
+  </media:group>
+ </entry>
+</feed>
