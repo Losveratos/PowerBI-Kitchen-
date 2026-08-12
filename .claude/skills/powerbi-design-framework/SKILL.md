@@ -198,3 +198,15 @@ ChartKitchen-Instanzen reserviert sind.
 - Datenfarben-Empfehlungen farbfehlsicht-tauglich halten (keine
   Rot/Grün-einzige Kodierung; Ampeln immer mit zweitem Kanal wie Symbol
   oder Position).
+
+## Dauerhaft absichern & Ausbaustufen
+- **CI-Gate:** Linter + Kontrast-Check als GitHub-Action/Pre-Commit-Hook im
+  Report-Repo verankern — Vorlagen in `assets/ci/`, Anleitung in
+  [`references/ci-gate.md`](references/ci-gate.md).
+- **Trigger-Evals:** `evals/trigger-evals.json` liegt bereit für den
+  skill-creator-Optimierungs-Loop (bewusst noch nicht gelaufen — erst
+  Queries vom Menschen freigeben lassen).
+- **Service-Ebene (nicht in v1):** Deployment ohne Desktop über Fabric REST
+  / semantic-link-labs / Git-Integration — dokumentiert mit verifizierten
+  Fakten und offenen Punkten in
+  [`references/service-deployment.md`](references/service-deployment.md).
