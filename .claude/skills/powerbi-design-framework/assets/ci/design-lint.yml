@@ -1,0 +1,60 @@
+# KOPIERVORLAGE — nach .github/workflows/ des Report-Repos kopieren, Pfade anpassen.
+#
+# Voraussetzung: bulk_restyle.py und check_contrast.py liegen im selben Repo
+# (z. B. unter tools/design/ — siehe TOOLS_DIR unten). Kopiere sie zusammen
+# mit dieser Datei aus dem Skill: .claude/skills/powerbi-design-framework/scripts/
+#
+# Erwartet außerdem design-out/zones.json und design-out/palette.json aus dem
+# Skill-Lauf (Schritt "Artefakte ablegen"). Fehlt eine der beiden Dateien,
+# überspringt der jeweilige Schritt sauber statt rot zu werden — so bleibt
+# das Gate auch nutzbar, bevor beide Artefakte existieren.
+#
+# Keine pip-Dependencies nötig: beide Skripte sind stdlib-only (json, re,
+# argparse, …). setup-python mit 3.11 reicht.
+
+name: Design-Lint
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main   # ggf. auf den tatsächlichen Default-Branch anpassen
+
+env:
+  # Pfad zu den kopierten Skripten innerhalb dieses Repos.
+  TOOLS_DIR: tools/design
+  # Pfad zum PBIP-Report-Ordner (der *.Report-Ordner oder sein Elternordner).
+  REPORT_PATH: .
+  # Erlaubte Schriftfamilien fürs Design-System (Komma-getrennt).
+  ALLOWED_FONTS: "Segoe UI,Segoe UI Semibold"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Design-Linter (Geometrie, Fonts, Schatten)
+        run: |
+          if [ -f "design-out/zones.json" ]; then
+            python "${TOOLS_DIR}/bulk_restyle.py" "${REPORT_PATH}" \
+              --check \
+              --zones design-out/zones.json \
+              --fonts "${ALLOWED_FONTS}"
+          else
+            echo "::notice::design-out/zones.json fehlt — Design-Linter übersprungen. Mit dem powerbi-design-framework-Skill erzeugen."
+          fi
+
+      - name: Kontrast-Check (WCAG AA)
+        run: |
+          if [ -f "design-out/palette.json" ]; then
+            python "${TOOLS_DIR}/check_contrast.py" --palette design-out/palette.json
+          else
+            echo "::notice::design-out/palette.json fehlt — Kontrast-Check übersprungen. Mit dem powerbi-design-framework-Skill erzeugen."
+          fi
