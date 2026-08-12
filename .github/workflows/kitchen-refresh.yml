@@ -63,6 +63,18 @@ jobs:
             echo "Keine neuen Videos — refresh/ enthaelt nur die Channel-Liste."
           fi
 
+      - name: RSS-Feed holen (Fallback für Beschreibungen/Datum)
+        # Einzelne watch-Seiten scheitern auf Runner-IPs oft am YouTube-
+        # Bot-Check; der RSS-Feed (letzte ~15 Videos inkl. Beschreibung
+        # und Veröffentlichungsdatum) ist ohne Cookies erreichbar.
+        run: |
+          CH=$(node -e 'const d=require("./_channel_fresh.json"); console.log(d.channel_id || d.uploader_id || "")')
+          echo "channel_id: $CH"
+          if [ -n "$CH" ]; then
+            curl -sf "https://www.youtube.com/feeds/videos.xml?channel_id=$CH" -o refresh/feed.xml \
+              || echo "WARN: RSS-Feed nicht erreichbar"
+          fi
+
       - name: Daten-Branch veröffentlichen
         run: |
           git config user.name "github-actions[bot]"
