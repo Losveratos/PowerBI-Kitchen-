@@ -1,0 +1,80 @@
+name: Kitchen — Video-Refresh (Fetch)
+
+# Holt die Daten für den kitchen-update-Skill auf einem GitHub-Runner
+# (die Claude-Sandbox erreicht YouTube nicht durch den Egress-Proxy).
+# Ergebnis landet auf dem Daten-Branch `kitchen-refresh-data` (refresh/)
+# und zusätzlich als Artifact. Die Klassifizierung + das Einpflegen in
+# die HTML-Dateien macht danach der Skill — nicht dieser Workflow.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install yt-dlp
+        run: pip install -U yt-dlp
+
+      - name: Bestehende Episoden extrahieren
+        run: node scripts/extract_existing.js
+
+      - name: Channel-Liste holen
+        run: |
+          yt-dlp --flat-playlist --dump-single-json --skip-download \
+            "https://www.youtube.com/@Daten-WG/videos" > _channel_fresh.json
+
+      - name: Neue Videos ermitteln
+        run: |
+          node -e '
+          const fs = require("fs");
+          const fresh = JSON.parse(fs.readFileSync("_channel_fresh.json", "utf8"));
+          const eps = JSON.parse(fs.readFileSync("existing_episodes.json", "utf8"));
+          const existing = new Set(eps.map(e => e.ytId).filter(Boolean));
+          const news = (fresh.entries || []).filter(e => e && e.id && !existing.has(e.id));
+          console.log("Existing:", existing.size, "| Channel:", (fresh.entries || []).length, "| New:", news.length);
+          fs.writeFileSync("_new_ids.txt", news.map(v => v.id).join("\n") + (news.length ? "\n" : ""));
+          for (const v of news) console.log(v.id, "|", Math.round((v.duration || 0) / 60) + "min", "|", v.title);
+          '
+
+      - name: Vollinfo für neue Videos holen
+        run: |
+          mkdir -p refresh/videos
+          cp _channel_fresh.json refresh/channel_fresh.json
+          cp _new_ids.txt refresh/new_ids.txt
+          if [ -s _new_ids.txt ]; then
+            while read -r id; do
+              [ -n "$id" ] || continue
+              yt-dlp --skip-download --write-info-json --no-write-thumbnail \
+                --sleep-requests 1 -o "refresh/videos/%(id)s.%(ext)s" \
+                "https://www.youtube.com/watch?v=$id" \
+                || echo "WARN: Vollinfo fuer $id fehlgeschlagen"
+            done < _new_ids.txt
+          else
+            echo "Keine neuen Videos — refresh/ enthaelt nur die Channel-Liste."
+          fi
+
+      - name: Daten-Branch veröffentlichen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan kitchen-refresh-data
+          git rm -rf --cached . > /dev/null
+          find . -mindepth 1 -maxdepth 1 ! -name refresh ! -name .git -exec rm -rf {} +
+          git add -f refresh
+          git commit -m "Kitchen-Refresh-Daten $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -f origin kitchen-refresh-data
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kitchen-refresh
+          path: refresh/
