@@ -32,6 +32,16 @@ Layouts reproduzierbar — gerade für Agenten, die Koordinaten setzen.
   Rahmen und Schatten sparsam: entweder zarte Kontur **oder** zarter
   Schatten, nie beides.
 
+## 2b · Standard-Look „modern-soft"
+
+Der Default-Look des Frameworks hat einen Namen, damit Spec, Theme und
+`bulk_restyle.py`-Preset dasselbe meinen: **keine Schatten**, Struktur über
+**Tonwert** (weiße Kacheln auf leicht getöntem Grund), **zarte Kontur**
+(Grau-200) und **leicht gerundete Ecken (Radius 8)**. Schatten sind in
+BI-Reports fast immer Rauschen — Tonwert-Trennung leistet dasselbe ruhiger.
+Im IBCS-Modus wird der Look strenger (Radius 0, keine Kontur) — siehe
+[`ibcs-mode.md`](ibcs-mode.md).
+
 ## 3 · Visuelle Hierarchie (Lese-Reihenfolge)
 
 Westliche Leser scannen im Z-/F-Muster: links oben → rechts oben → diagonal
@@ -66,7 +76,7 @@ festschreiben. Skala (für 1280×720; bei 1920×1080 ×1,25–1,5):
 | -------------------- | ---------- | ------------------ |
 | Seitentitel          | 16–20      | Semibold           |
 | Visual-Titel         | 11–12      | Semibold           |
-| KPI-Wert (Callout)   | 24–32      | Regular/Semibold   |
+| KPI-Wert (Callout)   | 24–28      | Regular/Semibold   |
 | Achsen/Labels/Body   | 9–10       | Regular            |
 | Fußleiste/Metadaten  | 8–9        | Regular, grau      |
 

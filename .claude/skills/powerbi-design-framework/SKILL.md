@@ -6,11 +6,15 @@ description: >
   ableiten, Navigation, Kopfband, Logo, Fußleiste und Filter-Panel festlegen,
   Kachel-Raster nach modernen Gestaltungsregeln aufbauen und alles als
   theme.json + Design-Spec + Agent-Brief ablegen — inkl. Accessibility-Checks
-  (WCAG-Kontrast, Schriftgrößen). Optional mit ChartKitchen-Visuals. Auslösen,
-  wenn der Nutzer sinngemäß sagt „bau mir ein Report-Layout / Seitengerüst",
+  (WCAG-Kontrast, Schriftgrößen). Dazu: IBCS-Modus (Strukturelemente als
+  benannte Slots), Atomic-Design-Komponentenseite zum Kopieren, Bulk-Restyle
+  über die PBIP/PBIR-Dateien (z. B. „überall Schatten aus, runde Ecken an")
+  und ein Design-Linter. Optional mit ChartKitchen-Visuals. Auslösen, wenn
+  der Nutzer sinngemäß sagt „bau mir ein Report-Layout / Seitengerüst",
   „mach mir ein Power-BI-Design aus unserer Website/Präsi", „Corporate Design
   für meinen Report", „Theme/Farben für Power BI", „Filterpanel + Navigation
-  anlegen", „Report-Seite konsistent gestalten" — auch wenn er nicht explizit
+  anlegen", „Report-Seite konsistent gestalten", „ändere das Design überall
+  auf einmal", „prüf mein Report-Design" — auch wenn er nicht explizit
   „Design-Framework" sagt.
 ---
 
@@ -68,8 +72,18 @@ Branding-Quelle schon beantwortet hat, weglassen.
 9. **Accessibility-Level:** WCAG AA (Kontrast ≥ 4,5:1, Text ≥ 9 pt) reicht
    meist; AAA nur wenn gefordert. Farbfehlsicht-sichere Datenfarben?
    *(Default: AA + farbfehlsicht-geprüfte Palette)*
-10. **ChartKitchen:** Sollen die ChartKitchen-/IBCS-Visuals des Projekts
+10. **IBCS-Modus?** Bei Management-Reporting, Plan/Ist/Forecast oder
+    ChartKitchen-Einsatz anbieten: Notation regiert die Farben,
+    Strukturelemente (Titelblock, Notationsband, Kommentarspalte …) werden
+    benannte Slots — siehe
+    [`references/ibcs-mode.md`](references/ibcs-mode.md).
+11. **ChartKitchen:** Sollen die ChartKitchen-/IBCS-Visuals des Projekts
     eingesetzt werden? *(optional — wenn ja, siehe Schritt 5)*
+12. **Komponenten-Seite:** Soll eine versteckte `_Design-System`-Seite mit
+    fertigen Bausteinen (Buttons, KPI-Kacheln, Kopfband mit Logo …) zum
+    Kopieren entstehen? *(Default: ja — sie ist der größte
+    Konsistenz-Hebel, siehe
+    [`references/components-page.md`](references/components-page.md))*
 
 ### Schritt 2 · Branding extrahieren + prüfen
 Wenn eine Quelle existiert, Farben/Schrift daraus ableiten — Vorgehen je
@@ -90,8 +104,10 @@ Mit den Antworten das Layout festlegen:
   aus [`references/chrome-layouts.md`](references/chrome-layouts.md) — dort
   stehen fertige, durchgerechnete Varianten für beide Canvas-Größen.
 - Gestaltungsregeln (8-px-Raster, Ausrichtung, Weißraum, visuelle Hierarchie,
-  Kachel-Regeln, Typo-Skala, Accessibility) aus
+  Kachel-Regeln, Typo-Skala, Standard-Look „modern-soft", Accessibility) aus
   [`references/design-rules.md`](references/design-rules.md).
+- Im IBCS-Modus zusätzlich die Slot- und Override-Regeln aus
+  [`references/ibcs-mode.md`](references/ibcs-mode.md).
 Zeige dem Nutzer ein kurzes ASCII-Wireframe der gewählten Variante zur
 Bestätigung, bevor du die Artefakte schreibst — das ist billiger als ein
 Redesign hinterher.
@@ -108,13 +124,40 @@ Lege im Projekt (oder aktuellen Ordner) `design-out/` an mit:
 - **`AGENT-BRIEF.md`** — kompakter Regelsatz für agentische Entwickler:
   Canvas-Größe, Zonen als `x,y,w,h`, Raster/Gutter, Kachel-Slots mit
   Koordinaten, Pflicht-Properties je Visual (Titelgröße, Hintergrund,
-  Rahmen), verbotene Abweichungen. Ziel: Ein Agent, der nur diese Datei
-  liest, platziert Visuals konsistent zum Rest.
+  Rahmen), verbotene Abweichungen, im IBCS-Modus die benannten Slots.
+  Ziel: Ein Agent, der nur diese Datei liest, platziert Visuals konsistent
+  zum Rest.
+- **`zones.json`** — die Zonen aus dem AGENT-BRIEF maschinenlesbar
+  (`{"content": [x,y,w,h], "ignorePages": ["_Design-System"]}`) — direkt
+  verwendbar als Eingabe für den Design-Linter (Schritt 6).
 - **`STEPS.md`** — exakte Desktop-Schritte: Theme importieren (Ansicht →
   Designs → Nach Designs suchen), Canvas-Größe setzen, Chrome-Elemente
   (Shapes/Buttons/Textfelder) mit den Spec-Maßen anlegen, Filter-Panel bauen
-  (inkl. Bookmark-Technik, falls ausklappbar), Tab-Reihenfolge + Alt-Texte
-  setzen.
+  (inkl. Bookmark-Technik, falls ausklappbar), Komponenten-Seite
+  `_Design-System` aufbauen
+  ([`references/components-page.md`](references/components-page.md)),
+  Tab-Reihenfolge + Alt-Texte setzen.
+- Im IBCS-Modus zusätzlich **`theme-ibcs.json`** (Overrides laut
+  [`references/ibcs-mode.md`](references/ibcs-mode.md)), damit Standard-
+  und IBCS-Look nicht vermischt werden.
+
+### Schritt 4b · Gegen die PBIP-Datei arbeiten (auf Wunsch)
+Wenn ein PBIP-Projekt existiert, kann der Skill über `design-out/` hinaus
+direkt mit den Report-Dateien arbeiten — Regeln, Risiko-Leiter und die
+verifizierten PBIR-Fakten (Container-Objekte, Literal-Kodierung) stehen in
+[`references/pbir-integration.md`](references/pbir-integration.md).
+Eine „API von Power BI Desktop" für Report-Layout existiert nicht — der
+Datei-Weg **ist** die Schnittstelle. Kernwerkzeug ist
+`scripts/bulk_restyle.py`:
+- **Bulk-Änderungen** („überall Schatten aus, leichte Hintergründe, runde
+  Ecken"): `--preset modern-soft` bzw. `--preset ibcs` oder eigene
+  `--rules`-Datei. Dry-Run ist Default, `--apply` schreibt mit Backup.
+- **Overrides entfernen** (`--strip background,border,dropShadow`), damit
+  wieder das Theme regiert — nachhaltiger als Werte hart zu setzen.
+- **Design-Linter** (`--check --zones design-out/zones.json`): prüft
+  Raster, Schatten-Verbot, Schriftgrößen/-familien, Content-Zone und
+  `tabOrder` — als Qualitäts-Gate vor jedem Publish. Nach jedem
+  agentischen Seitenbau einmal laufen lassen und Verstöße beheben.
 
 ### Schritt 5 · Optional: ChartKitchen einbinden
 Wenn der Nutzer ChartKitchen-Visuals will, **nicht duplizieren**, sondern den
@@ -128,12 +171,18 @@ ChartKitchen-Instanzen reserviert sind.
 - Kontrast-Check-Ausgabe in die DESIGN-SPEC übernehmen (Belege, nicht nur
   Behauptungen).
 - `theme.json` gegen JSON-Syntax prüfen (`python -m json.tool`).
+- Wenn ein PBIP existiert: Design-Linter laufen lassen
+  (`python scripts/bulk_restyle.py <Report> --check --zones
+  design-out/zones.json`) und das Ergebnis berichten.
 - Zusammenfassen: was liegt wo, welche Entscheidungen sind offen, was macht
   der Mensch als Nächstes in Desktop.
 
 ## Leitplanken
 - Nie ungefragt in `*.Report/`-Dateien schreiben; `design-out/` ist der
-  Übergabepunkt. Direktschreiben nur auf Wunsch + Backup.
+  Übergabepunkt. Direktschreiben nur auf Wunsch + Backup, entlang der
+  Risiko-Leiter in `references/pbir-integration.md` (additiv vor mutierend;
+  `bulk_restyle.py` immer erst als Dry-Run zeigen). `--check` ist immer
+  erlaubt — es schreibt nie.
 - Bei mehrdeutigem Branding (z. B. drei Kandidaten für die Primärfarbe):
   als **offene Entscheidung** mit Vorschau-Hexwerten vorlegen, nicht raten.
 - Kontrast- und Schriftgrößen-Regeln sind nicht verhandelbar nach unten;
