@@ -108,3 +108,44 @@ Nicht alles kann ein Theme: Canvas-Größe, Shapes/Buttons des Chromes,
 Filter-Panel, Bookmarks, Tab-Reihenfolge, Alt-Texte sind Handarbeit in
 Desktop und gehören in die STEPS.md. Das Theme liefert Farben + Typo +
 Visual-Defaults; das Chrome liefert die Spec.
+
+## Dark-Mode-Variante
+
+Basis: [`../assets/theme-template-dark.json`](../assets/theme-template-dark.json)
+— gleiche Struktur/Rollen-Logik wie `theme-template.json`, nur die Werte
+gedreht. Referenz-Ableitung (AA-geprüft):
+
+| Rolle              | Hell      | Dunkel    |
+| ------------------ | --------- | --------- |
+| `ink` (foreground)  | `#1F2937` | `#E7EAF0` |
+| `accent`/`tableAccent` | `#2563EB` | `#5B8DEF` |
+| `grau` (label/sekundär) | `#3F4A5A` | `#A9B4C3` |
+| `bg` (Seite/outspace)   | `#FAFAFB` | `#10151D` |
+| `bg-card` (Kachel/`background`) | `#FFFFFF` | `#1B222D` |
+| `border` (Kontur, dezent) | — | `#2A3341` |
+| `dataColors[0..5]` | `#2563EB #0D9488 #D97706 #7C3AED #DB2777 #64748B` | `#5B8DEF #2DD4BF #FBBF24 #A78BFA #F472B6 #94A3B8` |
+
+**Ableitungsregeln:**
+
+1. **Kein reines Schwarz/Weiß.** Seiten-BG dunkel, aber Richtung Ink getönt
+   (Blaugrau statt `#000`), Textfarbe hell, aber nicht `#FFFFFF` — beides
+   vermeidet Blendung/Halation bei langem Lesen auf dunklem Grund.
+2. **Kachel heller statt dunkler.** Im Hellmodus ist die Kachel weiß auf
+   getöntem Seiten-BG; im Dunkelmodus dreht sich das Verhältnis nicht um —
+   die Kachel bleibt die *hellere* Fläche, nur beide Werte sind jetzt dunkel
+   (`bg-card` eine Stufe heller als `bg`), sonst verschwindet die Struktur.
+3. **Grauleiter invertiert**, nicht neu erfunden: gleiche Ink-Familie, nur
+   Richtung Weiß statt Richtung `bg` gestuft.
+4. **dataColors aufhellen/entsättigen**, gleiche Reihenfolge/Farbfamilie
+   beibehalten (z. B. Blau bleibt Serie 1), damit Legenden/Screenshots aus
+   beiden Modi vergleichbar bleiben.
+5. **Kontrast-Pflicht unverändert:** `check_contrast.py --palette` für die
+   Rollen (Ziel AA ≥ 4,5:1) und jede `dataColors`-Farbe einzeln gegen
+   `bg-card` (Ziel ≥ 3:1, UI/Grafik-Kontrast) — genau wie im Hellmodus.
+
+**Kein automatisches Umschalten:** Power BI Desktop/Service haben kein
+System-Dark-Mode-Switching für Reports — ein `theme.json` gilt fix für den
+ganzen Report. Zwei Optionen: (a) bewusst nur *einen* Modus für den Report
+wählen, oder (b) zwei Report-Kopien pflegen (identisches Layout, je ein
+Theme). In jedem Fall beide `theme.json`-Dateien (hell + dunkel) nach
+`design-out/` liefern, damit der Mensch die Wahl hat.
