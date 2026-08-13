@@ -1,5 +1,39 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.42.0.0 (2026-08-13)
+
+**Quick-Win-Paket: schneller starten, schneller Auffälligkeiten sehen.**
+Vier Backlog-Punkte aus Ease-of-Use, Builder-UX und Analytik:
+
+- **Feldrollen-Tooltips:** Alle 15 Datenrollen erklären sich jetzt beim
+  Hover im Feld-Bereich selbst — was reinkommt, was es bewirkt, inkl. des
+  wichtigsten Fallstricks (z. B. FC-Flag-Werte, colgroup → Matrix). Sauber
+  lokalisiert über `descriptionKey` in allen vier Sprachen; die bisherigen
+  teils deutschen Hardcode-Texte sind ersetzt.
+- **Hervorhebung (EMPHASIZE) in allen Modi:** Das Highlight-Setting griff
+  bisher nur in Columns/Bars/Line, Tabelle und Karten. Jetzt auch in
+  **Pareto, GuV-Wasserfall, Integrierter Brücke, Kategorie-Brücke und
+  gestapelten Säulen/Balken** — einheitlich als schattiertes Band hinter
+  dem Slot plus fettes Label, im Hochkontrast-Modus als Rahmen. Der
+  Band-Code ist dabei in eine gemeinsame Hilfsfunktion gewandert
+  (Columns/Bars/Tabelle nutzen sie jetzt mit). Testfälle c125–c127.
+- **Abweichungs-Filter „nur Auffälligkeiten"** (Chart → Analyse,
+  `exceptionOnly`): Exception-Reporting auf einen Klick — nur Kategorien
+  über der Wesentlichkeitsschwelle bleiben einzeln stehen, der Rest wird
+  zu einer neutralen Sammelzeile „Unauffällig (n)" verdichtet (Σ bleibt
+  exakt erhalten). Dazu ein ⚠-Chip im Chart zum Umschalten (persistiert,
+  bookmarkfähig) und ein Fußzeilen-Hinweis „⚠ n zusammengefasst" für
+  Transparenz. Greift bewusst nur in Struktur-Modi (Bars, Karten, flache
+  Tabelle) — Zeitachsen und Kaskaden bekommen keine Lücken. Sichtbar nur,
+  wenn Materialitätsschwellen gesetzt sind. Testfälle c128–c129.
+- **Smart-Start:** Nach dem Binden der Felder erkennt das Visual die
+  Konstellation und schlägt im Bearbeitungsmodus per Klick den passenden
+  Modus vor (Struktur-Kategorien → Balken, sum/delta-Typen → Wasserfall,
+  Spaltengruppen → Matrix, lange Zeitreihe → Linie). Ein Klick wendet den
+  Modus an, ✕ verwirft den Vorschlag dauerhaft für diese Konstellation;
+  im Lesemodus erscheint nichts. Abschaltbar (Chart → Layout). Testfall
+  c130.
+
 ## 1.41.0.0 (2026-08-13)
 
 **Cross-Highlighting und zwei Karten-Wünsche aus dem Beta-Feedback.**

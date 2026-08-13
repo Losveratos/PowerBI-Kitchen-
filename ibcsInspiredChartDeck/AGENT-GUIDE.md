@@ -8,7 +8,7 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.41.0.0** (13.08.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.42.0.0** (13.08.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -63,7 +63,7 @@ Geisterzeilen/Kreuzprodukte. Wächter-Muster:
 | KPI-Kacheln | `cards` | category + actual |
 | Pareto / Dumbbell / Slope | `pareto` / `dumbbell` / `slope` | category + actual (+ Basis) |
 
-## Settings-Referenz (aus capabilities.json generiert, 1.41.0.0)
+## Settings-Referenz (aus capabilities.json generiert, 1.42.0.0)
 
 PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String.
 
@@ -128,7 +128,10 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 | `cumulative` / `cumulativeKind` / `fiscalStart` | bool / enum / numeric | YTD·QTD·R12, Fiskaljahr-Startmonat |
 | `cumulativeButton` | bool | YTD-Chip im Chart |
 | `materialityAbs` / `materialityPct` | numeric | Wesentlichkeit: darunter grau |
-| `highlight` | text | Kategorien hervorheben (EMPHASIZE) |
+| `exceptionOnly` | bool | Exception-Reporting: nur Kategorien über der Wesentlichkeit, Rest als Sammelzeile „Unauffällig (n)" (Σ-treu; nur bars/cards/flache Tabelle; ⚠-Chip im Chart) |
+| `smartStart` | bool | Smart-Start-Vorschlags-Chip im Edit-Modus (Default an) |
+| `smartStartDismissed` | text (persistiert) | Signatur der verworfenen Vorschlags-Konstellation |
+| `highlight` | text | Kategorien hervorheben (EMPHASIZE) — ab 1.42 in ALLEN Modi inkl. Pareto/Waterfall/Brücken/Stacked |
 | `groupEvery` | numeric | Trennlinie alle N Kategorien |
 | `multiplesTotal` / `multiplesTopN` / `multiplesHero` / `multiplesSameScale` | — | Small-Multiples-Paket |
 | `waterfallStyle` | bool | Bridge-Panel bei Columns/Bars |

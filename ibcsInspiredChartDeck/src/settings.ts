@@ -226,6 +226,15 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: orientationItems[0]
     });
 
+    smartStart = new formattingSettings.ToggleSwitch({
+        name: "smartStart",
+        displayName: "Smart-Start suggestions",
+        displayNameKey: "Chart_SmartStart",
+        description: "Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL). Nur im Bearbeitungsmodus des Reports sichtbar, nie in der Leseansicht oder in Exporten.",
+        descriptionKey: "Desc_Chart_SmartStart",
+        value: true
+    });
+
     comparisonMode = new formattingSettings.ItemDropdown({
         name: "comparisonMode",
         displayName: "Variance basis",
@@ -445,7 +454,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartLayout",
         displayName: "Layout",
         displayNameKey: "Group_Layout",
-        slices: [this.orientation, this.comparisonMode, this.showAbsoluteVariance,
+        slices: [this.orientation, this.smartStart, this.comparisonMode, this.showAbsoluteVariance,
             this.showRelativeVariance, this.dualVariance, this.pyTriangle, this.showTotal,
             this.acFcSplit, this.hideBlankCat, this.groupEvery]
     });
@@ -484,6 +493,15 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         }
     });
 
+    exceptionOnly = new formattingSettings.ToggleSwitch({
+        name: "exceptionOnly",
+        displayName: "Exceptions only",
+        displayNameKey: "Chart_ExceptionOnly",
+        description: "Exception-Reporting: Zeigt nur Kategorien, deren Abweichung die Wesentlichkeits-Schwelle überschreitet; alle übrigen werden zu EINER Sammelzeile „Unauffällig (n)\" verdichtet — deren Werte werden aufsummiert, die Σ-Kopfzeile bleibt also unverändert. Setzt eine Schwelle voraus (absolut oder %). Wirkt in Balken, KPI-Karten und der flachen Tabelle (nicht in Matrix- oder Hierarchie-Tabellen); Zeitachsen (Säulen/Linie) und Kaskaden (Wasserfall, Brücken, GuV) bleiben lückenlos. Standard aus.",
+        descriptionKey: "Desc_Chart_ExceptionOnly",
+        value: false
+    });
+
     pinStyle = new formattingSettings.ItemDropdown({
         name: "pinStyle",
         displayName: "Δ%-pin shape",
@@ -509,7 +527,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Group_Analysis",
         slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.cumulativeButton, this.movingAverage, this.topN,
             this.highlight, this.invert, this.invertList, this.compareClick,
-            this.materialityAbs, this.materialityPct, this.pinStyle, this.deltaIcons]
+            this.materialityAbs, this.materialityPct, this.exceptionOnly, this.pinStyle, this.deltaIcons]
     });
 
     multiplesTotal = new formattingSettings.ToggleSwitch({
