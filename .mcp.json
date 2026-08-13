@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "powerbi-modeling": {
+      "command": "npx",
+      "args": ["-y", "@microsoft/powerbi-modeling-mcp@latest", "--start"]
+    }
+  }
+}
