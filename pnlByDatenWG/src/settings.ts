@@ -115,10 +115,19 @@ export class ColumnsCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    treeRoot = new formattingSettings.TextInput({
+        name: "treeRoot",
+        displayName: "Driver tree root row (id or name)",
+        displayNameKey: "Columns_TreeRoot",
+        description: "Empty = last formula/KPI row with operands",
+        placeholder: "e.g. Net margin",
+        value: ""
+    });
+
     name: string = "columns";
     displayName: string = "Columns";
     displayNameKey: string = "Card_Columns";
-    slices = [this.preset, this.reference, this.pctRevenue, this.revenueBase, this.hideZeroRows];
+    slices = [this.preset, this.reference, this.pctRevenue, this.revenueBase, this.hideZeroRows, this.treeRoot];
 }
 
 export class NumbersCardSettings extends FormattingSettingsCard {

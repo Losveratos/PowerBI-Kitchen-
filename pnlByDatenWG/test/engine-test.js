@@ -361,4 +361,64 @@ test("formula parser rejects garbage cleanly", () => {
     assert.equal(mk("-[a]+2,5").computed.ac, 1.5); // unary minus + decimal comma
 });
 
+// v0.6 — formula operands for the value driver tree (DuPont)
+test("formulaOperands: DuPont chain, mixed ops, unknown refs", () => {
+    const m = E.buildModel([
+        row("Sales", null, { name: "Sales", values: { ac: 1000 } }),
+        row("Ret", null, { name: "Ret", values: { ac: 100 } }),
+        row("Cap", null, { name: "Cap", values: { ac: 500 } }),
+        row("ROS", null, { name: "ROS", rowType: "kpi", formulaDef: "[Ret]/[Sales]" }),
+        row("CT", null, { name: "CT", rowType: "kpi", formulaDef: "[Sales]/[Cap]" }),
+        row("ROI", null, { name: "ROI", rowType: "kpi", formulaDef: "[ROS]*[CT]" }),
+        row("mix", null, { rowType: "formula", formulaDef: "[Ret]*[CT]+[Cap]" }),
+        row("minus", null, { rowType: "formula", formulaDef: "[Sales]-[Ret]" }),
+        row("nested", null, { rowType: "formula", formulaDef: "[Sales]-([Ret]-[Cap])" }),
+        row("scaled", null, { rowType: "formula", formulaDef: "[Ret]*2" }),
+        row("ghost", null, { rowType: "formula", formulaDef: "[nope]+[alsoNope]" }),
+        row("halfGhost", null, { rowType: "formula", formulaDef: "[Sales]+[nope]" }),
+        row("broken", null, { rowType: "formula", formulaDef: "[Sales]+" }),
+        row("plain", null, { values: { ac: 1 } }),
+    ], "U");
+    const resolve = E.nodeResolver(m);
+    const ops = id => E.formulaOperands(m.byId.get(id), resolve)
+        .map(o => o.op + o.child.row.name);
+
+    // multiplication and division: one branch operator for the whole group
+    assert.deepEqual(ops("ROI"), ["×ROS", "×CT"]);
+    assert.deepEqual(ops("ROS"), ["÷Ret", "÷Sales"]);
+    assert.deepEqual(ops("CT"), ["÷Sales", "÷Cap"]);
+    // the operands are real nodes with computed values (ROI = 0.1 * 2 = 0.2)
+    const roi = E.formulaOperands(m.byId.get("ROI"), resolve);
+    assert.equal(roi.length, 2);
+    assert.equal(roi[0].child.computed.ac, 0.1);
+    assert.equal(roi[1].child.computed.ac, 2);
+    // mixed / additive formulas keep the operator per edge
+    assert.deepEqual(ops("mix"), ["×Ret", "×CT", "+Cap"]);
+    assert.deepEqual(ops("minus"), ["+Sales", "−Ret"]);
+    assert.deepEqual(ops("nested"), ["+Sales", "−Ret", "+Cap"]);   // -(-Cap) adds again
+    assert.deepEqual(ops("scaled"), ["+Ret"]);                     // literals are no operands
+    // unresolvable references drop out, a parse error yields nothing
+    assert.deepEqual(ops("ghost"), []);
+    assert.deepEqual(ops("halfGhost"), ["+Sales"]);
+    assert.deepEqual(ops("broken"), []);
+    assert.deepEqual(ops("plain"), []);                            // no formula at all
+});
+
+test("formulaOperands: name resolution in level mode", () => {
+    const m = buildLevels([
+        lrow(["Umsatzerlöse", "Produkte"], { values: { ac: 100 }, index: 0 }),
+        lrow(["Betriebsaufwand", "Material"], { sign: -1, values: { ac: 40 }, index: 1 }),
+        lrow(["EBITDA"], { rowType: "formula", formulaDef: "[Umsatzerlöse]+[Betriebsaufwand]", index: 2 }),
+        lrow(["Marge"], { rowType: "kpi", formulaDef: "[EBITDA]/[Umsatzerlöse]", index: 3 }),
+    ]);
+    const resolve = E.nodeResolver(m);
+    const byName = nm => [...m.byId.values()].find(x => x.row.name === nm);
+    const marge = E.formulaOperands(byName("Marge"), resolve);
+    assert.deepEqual(marge.map(o => o.op), ["÷", "÷"]);
+    assert.deepEqual(marge.map(o => o.child.row.name), ["EBITDA", "Umsatzerlöse"]);
+    assert.equal(marge[0].child.computed.ac, 60);                  // synthetic path id resolved by name
+    const ebitda = E.formulaOperands(byName("EBITDA"), resolve);
+    assert.deepEqual(ebitda.map(o => o.op + o.child.row.name), ["+Umsatzerlöse", "+Betriebsaufwand"]);
+});
+
 console.log(`\n${n} engine test blocks passed`);

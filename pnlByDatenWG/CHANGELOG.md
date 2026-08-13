@@ -1,5 +1,53 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.6.0.0 (2026-08-13) — Treiberbaum-Ansicht (DuPont)
+
+- **Vierte Ansicht „Tree" — IBCS-Werttreiberbaum**: neben Table, Bars und
+  Waterfall zeichnet das Visual jetzt den **Formel-Graphen** als DuPont-Baum.
+  Die Wurzel ist eine Formel-/KPI-Zeile, ihre `FormulaDef`-Operanden verzweigen
+  nach rechts, und der **Operator sitzt als Kreis am Verzweigungspunkt**
+  (× ÷ + −). Der Baum wird nicht modelliert, sondern **aus den vorhandenen
+  Formeln abgeleitet** — wer `[Net income]/[Net revenue]` schon für die
+  Netto-Marge geschrieben hat, bekommt den Treiberbaum ohne ein einziges
+  zusätzliches Feld.
+- **Neuer Engine-Baustein** `formulaOperands(node, resolve)`: parst
+  `FormulaDef` mit dem bestehenden Parser und liefert die referenzierten Zeilen
+  in Lesereihenfolge samt verbindendem Operator — rein multiplikativ ⇒ `×`,
+  Division ⇒ `÷`, Summen ⇒ `+`, Subtrahend ⇒ `−`, gemischte Formeln je Kante
+  (`[a]*[b]+[c]` ⇒ `×`,`×`,`+`). Referenzen lösen wie im Rechenkern per Id und
+  danach per **eindeutigem Zeilennamen** auf (`nodeResolver`), unauflösbare
+  Referenzen fallen still heraus statt den Baum zu sprengen.
+- **Karten wie im IBCS-Vorbild**: weiße Karte (1 px `#D8D6D1`, 4 px Radius),
+  Titel fett links, Einheit grau rechts, darin ein **Mini-Säulenchart der
+  Monatsreihe** — AC solide `#404040`, PL als breitere **outlined**-Säule
+  dahinter (IBCS-Vergleichsnotation), durchgezogene Nulllinie, Werte-Labels
+  außerhalb der Säule (bei negativen Werten **unter** der Nulllinie), erste und
+  letzte Periode beschriftet (`Jan AC` … `Jun AC·PL`), keine Gridlines.
+  Zahlen im Chart mit maximal **drei Stellen** (IBCS UN 1). Liegen keine
+  Monatsdaten an, zeigt die Karte stattdessen **AC · PL · PY** als zwei bis drei
+  Säulen aus den berechneten Werten (PY grau `#9A9A9A`). KPI-Zeilen erscheinen
+  in %, Formelfehler stehen rot in der Karte.
+- **Navigation im Baum**: Klick auf eine Formel-Karte macht sie zur neuen
+  Wurzel (Zustand `treeRoot` wird wie alle Toolbar-Zustände persistiert und ist
+  bookmark-fähig); ein kleines **„↩"** in der Wurzelkarte führt zum
+  Standard-Root zurück. Es werden vier Ebenen gleichzeitig gezeigt — tiefer
+  geht es per Re-Root. Verbindungen sind Ellbogen-Linien in `#B4B4B4`.
+- **Standard-Wurzel**: die letzte Formel-/KPI-Zeile in P&L-Reihenfolge, die
+  überhaupt Operanden hat — in der Pharma-Demo also `Net margin`
+  (= `Net income` ÷ `Net revenue`). Autoren können im Format-Pane unter
+  *Spalten* eine **Wurzelzeile** (Id oder eindeutiger Name) fest vorgeben.
+- **Toolbar folgt der Ansicht**: im Tree blendet die Toolbar die für ihn
+  bedeutungslosen Gruppen (Spalten-Presets, Δ-Referenz, Perioden, Ebenen,
+  Optionen) aus; Ansicht, Einheit und Dichte bleiben. Titelblock, Legende,
+  Kommentar-Fußnoten und der IBCS-Footer bleiben unverändert — Kommentare der
+  im Baum gezeigten Zeilen werden weiterhin durchnummeriert (①).
+- **Tests**: neuer Engine-Testblock für `formulaOperands` (DuPont-Kette
+  `ROI = ROS × CT`, `ROS = Ret ÷ Sales`, gemischte und kaputte Formeln,
+  Namensauflösung im Sternschema) und neuer Render-Fall **p8** (Tree-Ansicht
+  auf den Pharma-Demodaten) in `test/test.html`; der Clipping-Check von
+  `test/shot.js` deckt damit auch die Kartenbeschriftungen ab. Die bestehenden
+  Fälle rendern unverändert — bis auf den zusätzlichen Toolbar-Knopf „Tree".
+
 ## 0.5.0.0 (2026-08-02) — Performance-Paket: Segment-Laden, Fenster-Rendering, Memoisierung
 
 - **Segmentiertes Laden statt harter 30k-Kappung**: die Kategorien nutzen jetzt

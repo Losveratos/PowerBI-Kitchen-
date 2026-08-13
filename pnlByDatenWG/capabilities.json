@@ -408,6 +408,11 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "treeRoot": {
+                    "type": {
+                        "text": true
+                    }
                 }
             }
         },

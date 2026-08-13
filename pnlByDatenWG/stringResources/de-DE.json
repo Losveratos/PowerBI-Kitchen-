@@ -28,6 +28,7 @@
         "Columns_PctRev": "%-vom-Umsatz-Spalte",
         "Columns_RevBase": "Umsatz-Basiszeile (ID oder Name)",
         "Columns_HideZero": "Nullzeilen ausblenden (Standard)",
+        "Columns_TreeRoot": "Wurzelzeile Treiberbaum (ID oder Name)",
         "Card_Numbers": "Zahlen",
         "Numbers_Scaling": "Skalierung",
         "Numbers_Unit": "Einheit (z. B. EUR)",

@@ -581,6 +581,89 @@ function evalAst(
     }
 }
 
+// ---- formula operands (value-driver tree)
+
+/** Operator shown at the branch point of a driver tree. */
+export type FormulaOp = "×" | "÷" | "+" | "−";
+
+export interface FormulaOperand {
+    child: PnlNode;
+    /** operator that binds this operand to the one before it (see formulaOperands) */
+    op: FormulaOp;
+}
+
+/**
+ * Reference resolver with the same semantics the formula evaluator uses:
+ * by row id first, then by *unique* row name — level mode has synthetic path
+ * ids, so "[Net revenue]" must resolve by name there.
+ */
+export function nodeResolver(model: PnlModel): (id: string) => PnlNode | undefined {
+    const byName = new Map<string, PnlNode | null>(); // null = ambiguous
+    for (const node of model.byId.values()) {
+        const n = node.row.name;
+        if (!byName.has(n)) { byName.set(n, node); }
+        else if (byName.get(n) !== node) { byName.set(n, null); }
+    }
+    return (id: string): PnlNode | undefined => model.byId.get(id) ?? (byName.get(id) || undefined);
+}
+
+/** operator that binds the right-hand side of `op` inside an inherited context */
+function combineOp(inherited: FormulaOp, op: "+" | "-" | "*" | "/"): FormulaOp {
+    const mapped: FormulaOp = op === "+" ? "+" : op === "-" ? "−" : op === "*" ? "×" : "÷";
+    // an inverted context flips its right side: a-(b-c) adds c, a/(b/c) multiplies c
+    if (inherited === "−") { return mapped === "+" ? "−" : mapped === "−" ? "+" : mapped; }
+    if (inherited === "÷") { return mapped === "×" ? "÷" : mapped === "÷" ? "×" : mapped; }
+    return mapped;
+}
+
+/**
+ * Operands of a formula/KPI row in reading order, each with the operator that
+ * connects it to the operand before it — the input for a DuPont-style value
+ * driver tree, where the operator sits at the branch point between two cards.
+ *
+ * Conventions:
+ *  - `[a]*[b]` → both `×`, `[a]/[b]` → both `÷` (the first operand adopts a
+ *    multiplicative branch operator so a two-operand ratio reads as one group)
+ *  - `[a]+[b]` → `+`,`+`; `[a]-[b]` → `+`,`−` (the minus belongs to b)
+ *  - mixed formulas keep the operator per edge: `[a]*[b]+[c]` → `×`,`×`,`+`
+ *  - references that resolve to nothing are skipped, a parse error yields [];
+ *    a lone operand (`[a]*2`) keeps `+` — there is no branch point to label
+ *
+ * The list is flat: parentheses around additive groups (`[a]/([b]+[c])`) cannot
+ * be expressed by a single chain of operators and are not reconstructed.
+ */
+export function formulaOperands(
+    node: PnlNode, resolve: (id: string) => PnlNode | undefined
+): FormulaOperand[] {
+    const def = (node.row.formulaDef ?? "").trim();
+    if (def === "") { return []; }
+    let ast: Ast;
+    try { ast = parseFormula(def); } catch { return []; }
+
+    const out: FormulaOperand[] = [];
+    const walk = (a: Ast, inherited: FormulaOp): void => {
+        switch (a.kind) {
+            case "num": return;
+            case "ref": {
+                const child = resolve(a.id);
+                if (child) { out.push({ child, op: inherited }); }
+                return;
+            }
+            case "neg":
+                walk(a.arg, inherited === "+" ? "−" : inherited === "−" ? "+" : inherited);
+                return;
+            case "bin":
+                walk(a.left, inherited);
+                walk(a.right, combineOp(inherited, a.op));
+                return;
+        }
+    };
+    walk(ast, "+");
+
+    if (out.length > 1 && (out[1].op === "×" || out[1].op === "÷")) { out[0].op = out[1].op; }
+    return out;
+}
+
 // ---- variances
 
 export function variance(node: PnlNode, ref: Scenario, minuend: Scenario = "ac"): Variance {

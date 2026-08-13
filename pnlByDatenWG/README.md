@@ -5,7 +5,8 @@ Schwester-Visual von [ChartKitchen byDatenWG](../ibcsInspiredChartDeck/) und der
 [IBCS KPI Card](../ibcsKpiCard/). Umsetzung des Anforderungsdokuments
 „Best-in-Class P&L Standalone Visual" — Stand v0.3: volle Parität zum
 Konzept-Demo (In-Visual-Toolbar, YTD- + FY-Outlook-Block, Waterfall-Ansicht,
-Monats-Sparklines, Kommentar-Fußnoten, %-vom-Umsatz, Teal-Deviation).
+Monats-Sparklines, Kommentar-Fußnoten, %-vom-Umsatz, Teal-Deviation);
+seit v0.6 zusätzlich der **Werttreiberbaum (DuPont)** aus dem Formel-Graphen.
 **Sternschema (L1..Ln) ist der primäre Hierarchie-Modus** — Parent-Child
 bleibt als Alternative voll unterstützt. Die Toolbar macht das Visual für
 Report-Ersteller wie -Leser ohne Format-Pane bedienbar; alle
