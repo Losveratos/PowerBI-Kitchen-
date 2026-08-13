@@ -84,6 +84,9 @@ interface DataPoint {
     rowType: string | null;
     /** true for the synthetic "Rest (n)" row produced by top-N aggregation */
     isRest: boolean;
+    /** cross-highlight from another visual is active and this row is NOT part of
+     *  it — rendered faded. False whenever no highlight is active at all */
+    dim: boolean;
     sel: ISelectionId | null;
 }
 
@@ -179,6 +182,8 @@ interface ChartConfig {
     cardBars: boolean;
     /** KPI cards: order ("none" | "deviation" — biggest color deviation first) */
     cardSort: string;
+    /** KPI cards: reference values as own rows ("off" | "basis" | "all") */
+    cardRefVals: string;
     /** sum-safe label rounding (largest remainder): labels add up to the Σ header */
     sumSafe: boolean;
     /** deck-wide absolute-variance domain (incl. fixedVarMax) for scale sync */
@@ -296,7 +301,7 @@ export class Visual implements IVisual {
     private tooltipService: ITooltipService;
     private formattingSettings: VisualFormattingSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
-    private catGroups: { g: SVGGElement; sel: ISelectionId | null }[] = [];
+    private catGroups: { g: SVGGElement; sel: ISelectionId | null; dim?: boolean }[] = [];
     private measureFormat: string | undefined;
     private measureName: string | undefined;
     private lineFormat: string | undefined;
@@ -608,6 +613,7 @@ export class Visual implements IVisual {
             this.svg.style.display = "block";
             this.lastRender = { points, width, height };
             this.render(points, width, height);
+            this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
             this.events.renderingFinished(options);
         } catch (error) {
             this.events.renderingFailed(options, String(error));
@@ -619,6 +625,7 @@ export class Visual implements IVisual {
         if (!this.lastRender) { return; }
         // render() mutates order in place via groups — pass a copy of the point list
         this.render([...this.lastRender.points], this.lastRender.width, this.lastRender.height);
+        this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
@@ -694,12 +701,23 @@ export class Visual implements IVisual {
         const fcFlagCol = catCols?.find(c => c.source.roles?.["fcFlag"]);
         const colCols = catCols?.filter(c => c.source.roles?.["colgroup"]) ?? [];
         const valueCols = dataView?.categorical?.values;
-        if (!cat || !valueCols || valueCols.length === 0) { return null; }
+        // no category is legitimate: measures alone make a single KPI tile (the
+        // "one big number" case). Only the value columns are mandatory.
+        if (!valueCols || valueCols.length === 0) { return null; }
 
         this.missingHint = null;
         const byRole: { [role: string]: (number | null)[] } = {};
+        // cross-highlight (supportsHighlight): Power BI keeps every row in values
+        // and marks the un-highlighted ones as null in a parallel highlights array.
+        // A row counts as highlighted when ANY bound measure has a non-null entry —
+        // partial highlights (highlight < value) count as highlighted too.
+        let anyHighlights = false;
+        const hlRows: boolean[] = [];
         let comments: (string | null)[] | null = null;
         this.measureFormat = undefined;
+        // reset with the format: it names the title block and (measure-only binding)
+        // the card itself, so a swapped measure must not leave the old name standing
+        this.measureName = undefined;
         this.filterInfo = null;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
@@ -715,6 +733,12 @@ export class Visual implements IVisual {
                     if (role === "lineMeasure") {
                         this.lineFormat = col.source.format;
                         this.lineName = col.source.displayName;
+                    }
+                    if (col.highlights) {
+                        anyHighlights = true;
+                        for (let i = 0; i < col.highlights.length; i++) {
+                            if (col.highlights[i] != null) { hlRows[i] = true; }
+                        }
                     }
                 }
             }
@@ -753,7 +777,9 @@ export class Visual implements IVisual {
         // silently (beta feedback A. Korn)
         const hideBlank = this.formattingSettings.chartCard.hideBlankCat.value === true;
         const acFcSplit = String(this.formattingSettings.chartCard.acFcSplit.value.value);
-        for (let i = 0; i < cat.values.length; i++) {
+        // without a category the measures deliver a single scalar row each
+        const rowCount = cat ? cat.values.length : (valueCols[0]?.values?.length ?? 1);
+        for (let i = 0; i < rowCount; i++) {
             if (hideBlank && catLevels.length > 0 && catLevels.every(l => {
                 const v = l.values[i];
                 return v == null || String(v).trim() === "";
@@ -800,6 +826,11 @@ export class Visual implements IVisual {
             for (const level of catLevels) { selBuilder = selBuilder.withCategory(level, i); }
             if (mult) { selBuilder = selBuilder.withCategory(mult, i); }
             const levelLabels = catLevels.map(level => this.categoryLabel(level.values[i]));
+            // measure-only binding: the KPI carries the measure's own name instead
+            // of a category label, so a single card reads "Umsatz · 12,4 Mio"
+            if (levelLabels.length === 0) {
+                levelLabels.push(this.measureName ?? this.locStr("Role_Actual", "Actual (AC)"));
+            }
             points.push({
                 cat: levelLabels.join(" · "),
                 catLevels: levelLabels.length > 1 ? levelLabels : null,
@@ -818,7 +849,8 @@ export class Visual implements IVisual {
                 rowType: rowTypeCol && rowTypeCol.values[i] != null
                     ? String(rowTypeCol.values[i]).toLowerCase() : null,
                 isRest: false,
-                sel: selBuilder.createSelectionId()
+                dim: anyHighlights && !hlRows[i],
+                sel: catLevels.length > 0 || mult ? selBuilder.createSelectionId() : null
             });
         }
         // merge user-entered comments (persisted via the in-chart editor) and renumber;
@@ -1775,6 +1807,7 @@ export class Visual implements IVisual {
             cardBullet: s.chartCard.cardBullet.value,
             cardBulletZoom: s.chartCard.cardBulletZoom.value,
             cardHl: String(s.chartCard.cardHighlight.value.value),
+            cardRefVals: String(s.chartCard.cardRefValues.value.value),
             cardBars: s.chartCard.cardBars.value,
             // the in-chart chip override wins over the pane dropdown when set
             cardSort: this.cardSortSel !== "" ? this.cardSortSel
@@ -2465,7 +2498,7 @@ export class Visual implements IVisual {
 
             if (sg.p) {
                 this.attachInteraction(g, sg.p, cfg);
-                this.catGroups.push({ g, sel: sg.p.sel });
+                this.catGroups.push({ g, sel: sg.p.sel, dim: sg.p.dim });
             }
         }
     }
@@ -2747,7 +2780,7 @@ export class Visual implements IVisual {
             }
 
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
 
@@ -3107,7 +3140,7 @@ export class Visual implements IVisual {
             }
 
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
 
@@ -3497,7 +3530,7 @@ export class Visual implements IVisual {
             }
 
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
     }
@@ -3779,7 +3812,7 @@ export class Visual implements IVisual {
             const blank = {
                 catLevels: null, isFc: false, bm: null, fcPrev: null, lineVal: null,
                 stackSeries: null, comment: null, commentNo: null,
-                group: points[0].group, isRest: false, sel: null
+                group: points[0].group, isRest: false, dim: false, sel: null
             };
             // unauflösbare Formel (Tippfehler im Zeilennamen, kaputte Syntax):
             // sichtbare "= ?"-Zeile statt lautlosem Weglassen (Backlog-Punkt)
@@ -4486,7 +4519,7 @@ export class Visual implements IVisual {
                     toggle();
                 });
             }
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
 
@@ -4773,7 +4806,7 @@ export class Visual implements IVisual {
                 const varAbs = (value != null && basis != null) ? value - basis : null;
                 return {
                     cat: label, catLevels: null, ac: null, py: null, pl: null, fc: null,
-                    value, isFc: false, basis, varAbs,
+                    value, isFc: false, basis, varAbs, dim: false,
                     varRel: (!ratio && varAbs != null && basis != null && basis !== 0)
                         ? (varAbs / Math.abs(basis)) * 100 : null,
                     var2Abs: null, var2Rel: null, bm: null, fcPrev: null, lineVal: null,
@@ -5440,9 +5473,9 @@ export class Visual implements IVisual {
                     toggle();
                 });
             }
-            this.catGroups.push({ g, sel: agg.sel });
+            this.catGroups.push({ g, sel: agg.sel, dim: agg.dim });
             // the scroll subgroup dims + animates together with the fixed row group
-            if (bp !== g) { this.catGroups.push({ g: bp, sel: agg.sel }); }
+            if (bp !== g) { this.catGroups.push({ g: bp, sel: agg.sel, dim: agg.dim }); }
             this.animGroups.push(bp !== g ? [g, bp] : [g]);
         };
         // Σ-row placement: "top" freezes it under the header (body shifts down one
@@ -5747,6 +5780,7 @@ export class Visual implements IVisual {
         return {
             cat: key, catLevels: null,
             ac, py, pl, fc, value, isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
+            dim: kids.length > 0 && kids.every(c => c.dim),
             bm: null, fcPrev: sum(p => p.fcPrev), lineVal: null, stackSeries: null, comment: null, commentNo: null,
             group: kids[0].group, rowType: null, isRest: false, sel: null
         };
@@ -5930,9 +5964,17 @@ export class Visual implements IVisual {
             // value column starts past the widest actual row label ("ΔFC Vm" is wider than
             // the old fixed 2.6-char slot) so the value never overpaints the label
             let refLabelW = refF * 2.6;
+            // plain = a reference VALUE row ("PY  45.200") instead of a variance row
+            // ("ΔPY  −1.200 · −2,6 %"): no Δ prefix, no status color, not bold — the
+            // variance keeps the visual weight
             const refRowAt = (tx: number, ty: number, label: string,
-                vAbs: number | null, vRel: number | null) => {
+                vAbs: number | null, vRel: number | null, plain = false) => {
                 if (vAbs == null) { return; }
+                if (plain) {
+                    txt(tx, ty, label, refF, false, cfg.subtle);
+                    txt(tx + refLabelW, ty, fmtP.format(vAbs), refF, false, cfg.ink);
+                    return;
+                }
                 const col = (vAbs === 0 || !cfg.isMaterial(p, vAbs, vRel) || !hlShow(vAbs, p))
                     ? cfg.subtle : (good(vAbs, p) ? cfg.colors.good : cfg.colors.bad);
                 const icon = !cfg.deltaIcons ? ""
@@ -6057,15 +6099,38 @@ export class Visual implements IVisual {
 
             // Δ reference rows: variance basis, second basis, benchmark — in
             // benchmark-status mode the BM row leads (it carries the judgement)
-            const refRows: [string, number, number | null][] = [];
-            if (p.varAbs != null) { refRows.push([cfg.basisLabel, p.varAbs, p.varRel]); }
-            if (p.var2Abs != null) { refRows.push([cfg.basis2Label, p.var2Abs, p.var2Rel]); }
+            const deltaRows: [string, number, number | null, boolean][] = [];
+            if (p.varAbs != null) { deltaRows.push([cfg.basisLabel, p.varAbs, p.varRel, false]); }
+            if (p.var2Abs != null) { deltaRows.push([cfg.basis2Label, p.var2Abs, p.var2Rel, false]); }
             if (bmV != null) {
-                if (cfg.cardBasis === "benchmark") { refRows.unshift(["BM", bmV, bmRel]); }
-                else { refRows.push(["BM", bmV, bmRel]); }
+                if (cfg.cardBasis === "benchmark") { deltaRows.unshift(["BM", bmV, bmRel, false]); }
+                else { deltaRows.push(["BM", bmV, bmRel, false]); }
             }
+            // reference VALUES ahead of the variances (beta wish): a card that only
+            // ever showed "ΔPY −1.200" now also states what PY actually was. "basis"
+            // adds the comparison basis alone, "all" every other bound scenario.
+            const valRows: [string, number, number | null, boolean][] = [];
+            if (cfg.cardRefVals !== "off") {
+                const seen = new Set<string>();
+                const addVal = (lbl: string, v: number | null) => {
+                    if (v == null || seen.has(lbl)) { return; }
+                    seen.add(lbl);
+                    valRows.push([lbl, v, null, true]);
+                };
+                if (cfg.cardRefVals === "basis") {
+                    addVal(cfg.basisLabel, p.basis);
+                } else {
+                    addVal(cfg.scenL.py, p.py);
+                    addVal(cfg.scenL.pl, p.pl);
+                    // a pure FC period already shows the FC as the big number
+                    if (!p.isFc) { addVal(cfg.scenL.fc, p.fc); }
+                    addVal("BM", p.bm);
+                }
+            }
+            const refRows: [string, number, number | null, boolean][] = [...valRows, ...deltaRows];
             refLabelW = Math.max(refLabelW,
-                this.maxTextWidth(refRows.map(([lbl]) => `Δ${lbl}`), refF) + refF * 0.6);
+                this.maxTextWidth(refRows.map(([lbl, , , plain]) => plain ? lbl : `Δ${lbl}`), refF)
+                + refF * 0.6);
 
             // flat layout: wide + short tile → Δ rows and bridge move to the right
             const flat = h < 118 * k && w >= 250 * k;
@@ -6079,17 +6144,18 @@ export class Visual implements IVisual {
 
                 let refX = x + pad + leftW + Math.round(20 * k);
                 let maxRefW = 0;
-                for (const [, va, vr] of refRows) {
-                    maxRefW = Math.max(maxRefW, this.maxTextWidth([refText(va, vr)], refF));
+                for (const [, va, vr, plain] of refRows) {
+                    maxRefW = Math.max(maxRefW,
+                        this.maxTextWidth([plain ? fmtP.format(va) : refText(va, vr)], refF));
                 }
                 const rowsShown = refRows.slice(0, refRows.length >= 2 && h >= 52 * k ? 2 : 1);
                 if (rowsShown.length > 0 && refX + refLabelW + maxRefW <= x + w - pad) {
                     const yMid = y + h / 2;
                     if (rowsShown.length === 2) {
-                        refRowAt(refX, yMid - Math.round(2 * k), rowsShown[0][0], rowsShown[0][1], rowsShown[0][2]);
-                        refRowAt(refX, yMid + refF + Math.round(4 * k), rowsShown[1][0], rowsShown[1][1], rowsShown[1][2]);
+                        refRowAt(refX, yMid - Math.round(2 * k), rowsShown[0][0], rowsShown[0][1], rowsShown[0][2], rowsShown[0][3]);
+                        refRowAt(refX, yMid + refF + Math.round(4 * k), rowsShown[1][0], rowsShown[1][1], rowsShown[1][2], rowsShown[1][3]);
                     } else {
-                        refRowAt(refX, yMid + refF * 0.35, rowsShown[0][0], rowsShown[0][1], rowsShown[0][2]);
+                        refRowAt(refX, yMid + refF * 0.35, rowsShown[0][0], rowsShown[0][1], rowsShown[0][2], rowsShown[0][3]);
                     }
                     refX += refLabelW + maxRefW + Math.round(24 * k);
                 }
@@ -6113,12 +6179,12 @@ export class Visual implements IVisual {
                 titleValue(yCur, yCur + valueF + Math.round(4 * k), w - pad * 2);
                 yCur += valueF + Math.round(4 * k) + refF + Math.round(9 * k);
                 if (refRows.length > 0 && yCur <= y + h - 4) {
-                    refRowAt(x + pad, yCur, refRows[0][0], refRows[0][1], refRows[0][2]);
+                    refRowAt(x + pad, yCur, refRows[0][0], refRows[0][1], refRows[0][2], refRows[0][3]);
                     yCur += refF + Math.round(5 * k);
                 }
-                for (const [rLbl, rVa, rVr] of refRows.slice(1)) {
+                for (const [rLbl, rVa, rVr, rPlain] of refRows.slice(1)) {
                     if (h < 118 * k || yCur > y + h - 4) { break; }
-                    refRowAt(x + pad, yCur, rLbl, rVa, rVr);
+                    refRowAt(x + pad, yCur, rLbl, rVa, rVr, rPlain);
                     yCur += refF + Math.round(5 * k);
                 }
                 // bullet under the value/Δ block when benchmark is bound
@@ -6141,7 +6207,7 @@ export class Visual implements IVisual {
             }
 
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
 
@@ -6274,7 +6340,7 @@ export class Visual implements IVisual {
                 this.drawCommentMarker(g, cx(i), p, scale, "columns", cfg);
             }
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
 
@@ -6400,7 +6466,7 @@ export class Visual implements IVisual {
                 this.drawCommentMarker(g, y, p, scale, "bars", cfg);
             }
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
     }
@@ -6483,7 +6549,7 @@ export class Visual implements IVisual {
             }, g);
             rt.textContent = this.truncate(`${cfg.fmt.format(p.value as number)}  ${p.cat}`, region.x + region.w - x1 - 12, cf);
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
     }
@@ -6600,7 +6666,7 @@ export class Visual implements IVisual {
                     st.textContent = cfg.fmt.format(v);
                 }
                 this.attachInteraction(g, p, cfg);
-                this.catGroups.push({ g, sel: p.sel });
+                this.catGroups.push({ g, sel: p.sel, dim: p.dim });
                 cum += v;
             });
             // total label at the stack end
@@ -7135,7 +7201,7 @@ export class Visual implements IVisual {
             }
 
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
         }
 
         // ------- waterfall-bridge connectors: link the basis anchor to the first brick,
@@ -7642,6 +7708,7 @@ export class Visual implements IVisual {
         const rest: DataPoint = {
             cat: `${this.locStr("Label_Rest", "Other")} (${tail.length})`,
             catLevels: null,
+            dim: tail.length > 0 && tail.every(p => p.dim),
             ac, py, pl, fc, value,
             isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
             bm: sum(tail.map(p => p.bm)),
@@ -8474,11 +8541,18 @@ export class Visual implements IVisual {
         });
     }
 
+    /**
+     * Fades everything that is not in focus. Two independent sources: the visual's
+     * OWN selection (click on a bar) and a cross-highlight coming from another
+     * visual on the page (supportsHighlight). An own selection wins while it is
+     * active — it is the more recent, more local intent.
+     */
     private applySelectionOpacity(selected: ISelectionId[]): void {
         const hasSelection = selected && selected.length > 0;
         for (const cg of this.catGroups) {
             const isSel = hasSelection && cg.sel != null && selected.some(s => s.equals(cg.sel));
-            cg.g.setAttribute("opacity", !hasSelection || isSel ? "1" : "0.35");
+            const faded = hasSelection ? !isSel : cg.dim === true;
+            cg.g.setAttribute("opacity", faded ? "0.35" : "1");
         }
     }
 

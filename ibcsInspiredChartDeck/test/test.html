@@ -103,7 +103,7 @@ function makeHost(hc, noInteract) {
       : { isHighContrast: false, positive: { value: "#1B7F4D" }, negative: { value: "#B3282D" },
           foregroundNeutralDark: { value: "#252423" }, foregroundNeutralTertiary: { value: "#C8C6C4" } },
     eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o,e){ console.error("renderfail", e); } },
-    createSelectionManager: () => ({ select: (ids, multi) => { console.log("crossfilter-select", JSON.stringify({multi: !!multi})); return Promise.resolve([]); }, clear: () => Promise.resolve(), showContextMenu(){} }),
+    createSelectionManager: () => ({ select: (ids, multi) => { console.log("crossfilter-select", JSON.stringify({multi: !!multi})); return Promise.resolve([]); }, clear: () => Promise.resolve(), getSelectionIds: () => [], showContextMenu(){} }),
     createSelectionIdBuilder: () => ({ withCategory(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
     tooltipService: { show(){}, move(){}, hide(){} },
     createLocalizationManager: () => ({ getDisplayName: () => "" }),
@@ -112,12 +112,16 @@ function makeHost(hc, noInteract) {
   };
 }
 
-function col(role, values, format) {
-  return { source: { displayName: role === "actual" ? "Umsatz" : role, roles: { [role]: true }, isMeasure: true, format }, values };
+// highlights: parallel array as Power BI delivers it with supportsHighlight —
+// null marks a row outside the cross-highlight coming from another visual
+function col(role, values, format, highlights) {
+  return { source: { displayName: role === "actual" ? "Umsatz" : role, roles: { [role]: true }, isMeasure: true, format }, values, highlights };
 }
 
+// cats === null renders the measure-only case (KPI card without a category)
 function dataView(cats, cols, objects, multValues, rowTypes) {
-  const categories = [{ source: { displayName: "Category", roles: { category: true } }, values: cats }];
+  const categories = cats == null ? []
+    : [{ source: { displayName: "Category", roles: { category: true } }, values: cats }];
   if (multValues) {
     categories.push({ source: { displayName: "Region", roles: { multiples: true } }, values: multValues });
   }
@@ -1152,6 +1156,42 @@ const spAc = [820, 771, 900, 955, 1020, 980, 610, null, null, null, null, null].
 const spFc = [null, null, null, null, null, null, 1080, 1150, 1080, 1210, 1260, 1400].map(v => v == null ? null : v * 1000);
 run("c121", dataView(months, [col("actual", spAc, "#,0 €"), col("forecast", spFc, "#,0 €"), col("plan", pl, "#,0 €")],
   { chart: { acFcSplit: "full" } }), 960, 420);
+</script>
+
+<div class="case"><h4>c122 · 1.41 · KPI-Karte ohne Kategorie: nur AC + PY + PL gebunden — eine Kachel, Titel = Measure-Name</h4><div class="stage" id="c122" style="width:420px;height:220px"></div></div>
+<script>
+// Beta-Wunsch: Karten sollen auch ohne Kategoriefeld funktionieren. Ohne
+// Kategorie liefert Power BI je Measure genau einen Skalar — erwartet: EINE
+// Karte, überschrieben mit dem Namen der AC-Measure ("Umsatz")
+run("c122", dataView(null,
+  [col("actual", [9800000], "#,0 €"),
+   col("previousYear", [9100000], "#,0 €"),
+   col("plan", [10200000], "#,0 €")],
+  { chart: { orientation: "cards" } }), 420, 220);
+</script>
+
+<div class="case"><h4>c123 · 1.41 · KPI-Karten mit Referenzwerten („Alle gebundenen Szenarien") — VJ/Plan/BM als eigene Zeilen über den Δ-Zeilen</h4><div class="stage" id="c123" style="width:960px;height:460px"></div></div>
+<script>
+// erwartet: je Karte erst die Werte (PY, PL, BM) in Tinte, darunter die
+// farbigen Δ-Zeilen; bei knapper Höhe fallen die unteren Zeilen weg
+run("c123", dataView(["Umsatz", "Rohertrag", "Opex", "EBIT"],
+  [col("actual", [9800000, 4200000, 2950000, 1300000], "#,0 €"),
+   col("previousYear", [9100000, 3900000, 2700000, 1200000], "#,0 €"),
+   col("plan", [9500000, 4100000, 2800000, 1250000], "#,0 €"),
+   col("benchmark", [9900000, 4000000, 2900000, 1280000], "#,0 €")],
+  { chart: { orientation: "cards", cardRefValues: "all", cardBars: false } }), 960, 460);
+</script>
+
+<div class="case"><h4>c124 · 1.41 · Cross-Highlight: nur Mär–Mai sind Teil der Hervorhebung — der Rest rendert gedimmt (opacity 0.35)</h4><div class="stage" id="c124" style="width:960px;height:420px"></div></div>
+<script>
+// supportsHighlight: Power BI liefert ALLE Zeilen plus ein highlights-Array,
+// in dem alles außerhalb der Hervorhebung null ist. Erwartet: Mär/Apr/Mai voll
+// deckend, alle anderen Säulengruppen auf 0.35
+const hlAc = ac.map((v, i) => (i >= 2 && i <= 4) ? v : null);
+run("c124", dataView(months,
+  [col("actual", ac, "#,0 €", hlAc),
+   col("previousYear", py, "#,0 €", py.map((v, i) => (i >= 2 && i <= 4) ? v : null)),
+   col("plan", pl, "#,0 €")]), 960, 420);
 </script>
 </body>
 </html>

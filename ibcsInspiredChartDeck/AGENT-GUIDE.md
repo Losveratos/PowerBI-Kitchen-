@@ -8,7 +8,7 @@ Fallen. Menschen lesen besser die [Doku](../chartkitchen-doku.html); die
 maschinenlesbare Quelle der Wahrheit ist [capabilities.json](capabilities.json),
 Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 
-Stand: **1.40.0.0** (05.08.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.41.0.0** (13.08.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -26,7 +26,7 @@ Interne Rollennamen für PBIR (`projections`) — Reihenfolge egal, Semantik nic
 
 | Rolle (intern) | Kind | Semantik + Fallstricke |
 | --- | --- | --- |
-| `category` | Grouping | Achse/Struktur. Hierarchie erlaubt (mehrere Spalten → Drill + Tabellen-Baum). Bei Datum: „Mär 26"-Format automatisch |
+| `category` | Grouping | Achse/Struktur. Hierarchie erlaubt (mehrere Spalten → Drill + Tabellen-Baum). Bei Datum: „Mär 26"-Format automatisch. **Optional ab 1.41**: ohne Kategorie rendert das Visual eine einzelne Kachel/Säule, überschrieben mit dem Namen der AC-Measure (KPI-Karte „eine große Zahl") |
 | `actual` | Measure | AC. Pflicht (oder `forecast`) |
 | `previousYear` | Measure | PY |
 | `plan` | Measure | PL |
@@ -63,7 +63,7 @@ Geisterzeilen/Kreuzprodukte. Wächter-Muster:
 | KPI-Kacheln | `cards` | category + actual |
 | Pareto / Dumbbell / Slope | `pareto` / `dumbbell` / `slope` | category + actual (+ Basis) |
 
-## Settings-Referenz (aus capabilities.json generiert, 1.40.0.0)
+## Settings-Referenz (aus capabilities.json generiert, 1.41.0.0)
 
 PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String.
 
@@ -115,6 +115,7 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 | `pinStyle` | enum | `auto` · `round` · `square` |
 | `deltaIcons` | bool | ▲▼● vor Δ-Werten |
 | `cardSortSel` | text (persistiert) | Chip-Override von cardSort |
+| `cardRefValues` | enum | `off` · `basis` (Vergleichsbasis als Wertzeile) · `all` (zusätzlich PY/PL/FC/BM) — Referenzwerte über den Δ-Zeilen |
 | `cardTint` / `cardTintStrength` | bool / numeric | Ampel-Hintergrund, 4–40 % |
 | `cardBullet` / `cardBulletZoom` | bool | Bullet AC vs. BM |
 | `comparisonMode` | enum | `auto` · `py` · `plan` · `fcrev` — Basis aller Δ |
@@ -228,8 +229,15 @@ statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 6. **Export/Abo** rendert ohne In-Chart-Buttons und (Default) alles
    aufgeklappt — Bildschirm-Screenshots und PDF können sich absichtlich
    unterscheiden.
-7. **Kein `fetchMoreData`**, kein Highlight-API-Support (Backlog) —
-   Crossfilter funktioniert über Selektion, nicht über partielle Highlights.
+7. **Kein `fetchMoreData`** (Backlog) — Segmente über dem Reduction-Fenster
+   werden nicht nachgeladen.
+8. **Cross-Highlight ab 1.41** (`supportsHighlight: true`): Eine Auswahl in
+   einem anderen Visual **filtert die Daten hier nicht mehr weg** — das
+   DataView enthält weiter alle Zeilen, die nicht hervorgehobenen rendern
+   gedimmt (opacity 0.35). Σ-Kopf und Skalen beziehen sich weiterhin auf den
+   vollen Datenbestand, nicht auf die Hervorhebung. Wer echtes Filtern
+   braucht, filtert über Slicer/Filterbereich statt über Visual-Interaktion
+   (oder stellt die Wechselwirkung im Bericht auf „Filtern").
 
 ## Verwandte Dateien
 

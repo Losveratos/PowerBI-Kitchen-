@@ -108,6 +108,12 @@ const cardHighlightItems: LocEnumMember[] = [
     { value: "good", displayName: "Only good", key: "Enum_CardHl_Good" }
 ];
 
+const cardRefValueItems: LocEnumMember[] = [
+    { value: "off", displayName: "Only variances (Δ)", key: "Enum_CardRefVals_Off" },
+    { value: "basis", displayName: "Basis value (PY or PL)", key: "Enum_CardRefVals_Basis" },
+    { value: "all", displayName: "All bound scenarios", key: "Enum_CardRefVals_All" }
+];
+
 const cardSortItems: LocEnumMember[] = [
     { value: "none", displayName: "Data order", key: "Enum_CardSort_None" },
     { value: "deviation", displayName: "Biggest deviation first", key: "Enum_CardSort_Dev" },
@@ -132,6 +138,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
         displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
         cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems,
+        cardRefValueItems,
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
         gridLinesItems, cellLayoutItems];
     for (const items of lists) {
@@ -797,6 +804,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    cardRefValues = new formattingSettings.ItemDropdown({
+        name: "cardRefValues",
+        displayName: "Show reference values",
+        displayNameKey: "Cards_RefValues",
+        description: "Zeigt neben der Abweichung auch den Referenzwert selbst auf der Karte: „Basiswert“ blendet die Vergleichsbasis ein (VJ bzw. Plan), „Alle gebundenen Szenarien“ zusätzlich die übrigen gebundenen Measures (VJ, Plan, Prognose, Benchmark). Bei knapper Kachelhöhe entfallen die unteren Zeilen.",
+        descriptionKey: "Desc_Cards_RefValues",
+        items: cardRefValueItems,
+        value: cardRefValueItems[0]
+    });
+
     cardSort = new formattingSettings.ItemDropdown({
         name: "cardSort",
         displayName: "Sort by deviation",
@@ -811,8 +828,9 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartCards",
         displayName: "KPI cards",
         displayNameKey: "Group_Cards",
-        slices: [this.cardStatusBasis, this.cardHighlight, this.cardSort, this.cardBars,
-            this.cardTint, this.cardTintStrength, this.cardBullet, this.cardBulletZoom]
+        slices: [this.cardStatusBasis, this.cardHighlight, this.cardRefValues, this.cardSort,
+            this.cardBars, this.cardTint, this.cardTintStrength, this.cardBullet,
+            this.cardBulletZoom]
     });
 
     name: string = "chart";

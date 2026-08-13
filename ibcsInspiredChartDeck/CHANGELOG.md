@@ -1,5 +1,42 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.41.0.0 (2026-08-13)
+
+**Cross-Highlighting und zwei Karten-Wünsche aus dem Beta-Feedback.**
+
+- **Cross-Highlight statt stiller Filterung** (`supportsHighlight`): Klickt
+  jemand in einem anderen Visual auf einen Balken, bekam ChartKitchen bisher
+  nur noch die gefilterten Zeilen — der Vergleichskontext verschwand. Jetzt
+  liefert Power BI alle Zeilen plus die Information, welche zur Auswahl
+  gehören: **die hervorgehobenen Kategorien bleiben voll deckend, alle
+  übrigen rendern gedimmt**. Der Rest des Charts bleibt als Kontext stehen,
+  Skalen und Σ-Kopf springen beim Klicken nicht mehr. Gilt für alle Modi
+  (Säulen, Balken, Brücken, Tabelle, Matrix, Karten), weil die Dimmung an
+  derselben Gruppen-Mechanik hängt wie die eigene Selektion. Eine eigene
+  Selektion im Visual hat weiterhin Vorrang, solange sie aktiv ist.
+  Teil-Hervorhebungen (die Kategorie ist nur anteilig ausgewählt) zählen als
+  hervorgehoben. Testfall c124.
+  *Hinweis:* Das ist eine bewusste Verhaltensänderung — wer bisher erwartet
+  hat, dass Cross-Filtering die Zahlen im Visual filtert, sieht jetzt den
+  vollen Datenkontext mit optischer Hervorhebung (so verhalten sich auch die
+  nativen Power-BI-Diagramme).
+- **KPI-Karten ohne Kategoriefeld** (Beta-Wunsch): Bisher war ein
+  Kategoriefeld Pflicht — wer einfach „Umsatz, Vorjahr, Plan" auf eine
+  Karte legen wollte, landete auf der Landing Page. Jetzt reichen die
+  Measures: das Visual rendert **eine Kachel, überschrieben mit dem Namen
+  der AC-Measure**, inklusive Δ-Zeilen und Mini-Brücke wie gewohnt. Gilt
+  technisch für alle Modi (eine Kategorie ohne Namen), gedacht ist es für
+  die „eine große Zahl"-Karte. Testfall c122.
+- **Referenzwerte auf der Karte** (Beta-Wunsch): Die Karte zeigte bisher nur
+  die Abweichung („ΔVJ +700 T€"), nicht den Vergleichswert selbst. Neues
+  Setting **„Referenzwerte anzeigen"** (Chart → KPI cards): *Nur
+  Abweichungen* (Standard, unverändert), *Basiswert* blendet die
+  Vergleichsbasis als eigene Zeile ein, *Alle gebundenen Szenarien*
+  zusätzlich VJ, Plan, Prognose und Benchmark. Die Wertzeilen stehen in
+  Tinte über den farbigen Δ-Zeilen — die Abweichung behält das optische
+  Gewicht. Bei knapper Kachelhöhe entfallen die unteren Zeilen wie bisher.
+  Testfall c123.
+
 ## 1.40.0.0 (2026-08-05)
 
 **AC + FC im selben Monat: die Splitsäule.** Der laufende Monat ist im

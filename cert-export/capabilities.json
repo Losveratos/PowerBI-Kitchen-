@@ -241,6 +241,15 @@
                     }
                 },
                 "cardBars": { "type": { "bool": true } },
+                "cardRefValues": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Only variances" },
+                            { "value": "basis", "displayName": "Basis value" },
+                            { "value": "all", "displayName": "All bound scenarios" }
+                        ]
+                    }
+                },
                 "cardSort": {
                     "type": {
                         "enumeration": [
@@ -457,6 +466,7 @@
             "canvas": true
         }
     },
+    "supportsHighlight": true,
     "supportsKeyboardFocus": true,
     "supportsMultiVisualSelection": true,
     "supportsLandingPage": true,

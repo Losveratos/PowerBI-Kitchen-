@@ -91,6 +91,20 @@ klassischer, den jedes Monatsreporting hat:
       AC|FC-Trennlinie liegt dann *innerhalb* einer Säule statt zwischen
       zweien, und YTD/kumuliert muss entscheiden, ob der FC-Anteil mitzählt.
 
+### Beta-Feedback KPI-Karten (August 2026)
+
+Zwei Punkte aus der Praxis, beide in 1.41.0.0 gebaut:
+
+- [x] **Karten ohne Kategoriefeld** (S–M) — erledigt in 1.41.0.0. — „nur AC
+      und PY oder FC füllen, ohne Kategorie" war nicht möglich: ohne
+      Kategorie-Rolle lief das Visual in die Landing Page. Jetzt genügen die
+      Measures, der Kartentitel kommt aus dem Namen der AC-Measure
+      (Testfall c122).
+- [x] **Referenzwert statt nur Abweichung auf der Karte** (S–M) — erledigt in
+      1.41.0.0 (Setting „Referenzwerte anzeigen": Basiswert bzw. alle
+      gebundenen Szenarien als eigene Wertzeilen über den Δ-Zeilen;
+      Testfall c123).
+
 ## Barrierefreiheit
 
 - [ ] **Schraffur-Redundanz für „schlecht"** (M) — optionaler Schalter:
@@ -282,8 +296,11 @@ markiert Punkte, die dort bereits (oder besser) gelöst sind.
       an-/abschaltbar für Report-Autoren.
 - [ ] **Viewer-Layout-Umschalter** (M) — Chart-Slider-Äquivalent: Betrachter
       wechselt zwischen Modi ohne Formatbereich.
-- [ ] **Highlight-Data-API unterstützen** (M) — von pbiviz empfohlen; Voraus-
-      setzung für sauberes Crossfilter-Highlighting (auch fürs Listing schön).
+- [x] **Highlight-Data-API unterstützen** (M) — erledigt in 1.41.0.0
+      (`supportsHighlight`, nicht hervorgehobene Kategorien rendern gedimmt über
+      dieselbe Gruppen-Mechanik wie die eigene Selektion; Testfall c124). Offene
+      Ausbaustufe: echte Teilfüllung der Säule bei anteiliger Hervorhebung statt
+      Dimmen der ganzen Kategorie.
 - [ ] **Adversariale Prüf-Runde 1.25+** (M) — die letzten großen Pakete
       (Matrix-Vollausbau, Formel-pro-Zelle) sind nur selbst-verifiziert;
       volle Agenten-Runde nachholen, sobald Kapazität da ist.
