@@ -1929,44 +1929,50 @@
   "bias_check": [
    {
     "technologie": "Photovoltaik",
-    "richtung": "Kosten ueberschaetzt",
+    "richtung": "Kosten überschätzt",
     "ausmass": "+50 bis +150 %",
     "effekt": "verteuert die EE-Szenarien",
+    "bewertung": "contra",
     "quelle": "docs/01_grundlage_ges_faktencheck.md 5.5"
    },
    {
     "technologie": "Wind on-/offshore (CAPEX)",
     "richtung": "keine systematische Verzerrung",
-    "ausmass": "-",
+    "ausmass": "–",
     "effekt": "neutral",
+    "bewertung": "neutral",
     "quelle": "docs/01_grundlage_ges_faktencheck.md 5.5"
    },
    {
     "technologie": "Wind onshore (Volllaststunden)",
-    "richtung": "Ertrag unterschaetzt",
+    "richtung": "Ertrag unterschätzt",
     "ausmass": "1.700 statt 2.400 h/a",
     "effekt": "verteuert Windstrom um rund 30 %",
+    "bewertung": "contra",
     "quelle": "kosten_ee_speicher.md 1 (Befund 2) / 4"
    },
    {
     "technologie": "Kernkraft (CAPEX)",
-    "richtung": "Kosten unterschaetzt",
-    "ausmass": "-50 bis -75 %",
+    "richtung": "Kosten unterschätzt",
+    "ausmass": "−50 bis −75 %",
     "effekt": "verbilligt das Kostenminimum-Szenario",
+    "bewertung": "contra",
     "quelle": "docs/01_grundlage_ges_faktencheck.md 5.5"
    },
    {
     "technologie": "Kernkraft (Betriebskosten)",
-    "richtung": "Kosten UEBERschaetzt",
-    "ausmass": "7 % CAPEX/a statt rund 165 EUR/kW/a",
-    "effekt": "verteuert Kernkraft - wirkt der CAPEX-Verzerrung entgegen",
+    "richtung": "Kosten ÜBERschätzt",
+    "ausmass": "7 % CAPEX/a statt rund 165 €/kW/a",
+    "effekt": "verteuert Kernkraft – wirkt der CAPEX-Verzerrung entgegen",
+    "bewertung": "pro",
     "quelle": "kosten_kernkraft.md 4.2 / 8 (Satz 5)"
    },
    {
-    "technologie": "H2-Round-Trip",
+    "technologie": "H₂-Round-Trip",
     "richtung": "realistisch konservativ angesetzt",
-    "ausmass": "30-40 % statt der oft unterstellten 50 %+",
-    "effekt": "spricht fuer die Studie",
+    "ausmass": "30–40 % statt der oft unterstellten 50 %+",
+    "effekt": "spricht für die Studie",
+    "bewertung": "pro",
     "quelle": "kosten_ee_speicher.md 1 (Befund 5) / 7.3"
    }
   ],
@@ -2341,6 +2347,18 @@
    "nr": 21
   },
   {
+   "id": "ritchie-construction-time",
+   "title": "How long does it take to build a nuclear reactor?",
+   "publisher": "Hannah Ritchie (Sustainability by Numbers), auf Basis IAEA PRIS",
+   "date": "2023",
+   "url": "https://hannahritchie.substack.com/p/nuclear-construction-time",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 22
+  },
+  {
    "id": "iea-pv-supply-chains",
    "title": "Special Report on Solar PV Global Supply Chains",
    "publisher": "IEA",
@@ -2349,7 +2367,7 @@
    "accessed": "2026-08-15",
    "confidence": "A",
    "dossier": "risiken_co2.md 5.1",
-   "nr": 22
+   "nr": 23
   },
   {
    "id": "iea-critical-minerals-2025",
@@ -2360,7 +2378,19 @@
    "accessed": "2026-08-15",
    "confidence": "A",
    "dossier": "risiken_co2.md 5.4",
-   "nr": 23
+   "nr": 24
+  },
+  {
+   "id": "iea-nea-2020",
+   "title": "Projected Costs of Generating Electricity - 2020 Edition",
+   "publisher": "IEA / OECD NEA",
+   "date": "2020-12",
+   "url": "https://www.iea.org/reports/projected-costs-of-generating-electricity-2020",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": "Domain in dieser Session blockiert; LCOE-Calculator unter https://www.oecd-nea.org/lcoe/",
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 25
   },
   {
    "id": "imk-netzkosten",
@@ -2371,7 +2401,7 @@
    "accessed": "2026-08-15",
    "confidence": "B",
    "dossier": "ist_zustand_de.md 5.1",
-   "nr": 24
+   "nr": 26
   },
   {
    "id": "ipcc-ar6-syr",
@@ -2382,7 +2412,7 @@
    "accessed": "2026-08-15",
    "confidence": "A",
    "dossier": "risiken_co2.md 1.1 (K1, K4)",
-   "nr": 25
+   "nr": 27
   },
   {
    "id": "ipcc-ar6-wg1",
@@ -2393,7 +2423,7 @@
    "accessed": "2026-08-15",
    "confidence": "A",
    "dossier": "risiken_co2.md 1.1 (K2, K3)",
-   "nr": 26
+   "nr": 28
   },
   {
    "id": "irena-2024",
@@ -2405,7 +2435,7 @@
    "confidence": "B",
    "note": null,
    "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
-   "nr": 27
+   "nr": 29
   },
   {
    "id": "iwr-hinkley-2026",
@@ -2417,7 +2447,7 @@
    "confidence": "B",
    "note": null,
    "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
-   "nr": 28
+   "nr": 30
   },
   {
    "id": "kenfo",
@@ -2428,7 +2458,7 @@
    "accessed": "2026-08-15",
    "confidence": "A",
    "dossier": "risiken_co2.md 6.2",
-   "nr": 29
+   "nr": 31
   },
   {
    "id": "lbbw-dunkelflaute-2025",
@@ -2439,7 +2469,7 @@
    "accessed": "2026-08-15",
    "confidence": "B",
    "dossier": "risiken_co2.md 3.2",
-   "nr": 30
+   "nr": 32
   },
   {
    "id": "lazard-2026",
@@ -2451,7 +2481,7 @@
    "confidence": "B",
    "note": null,
    "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
-   "nr": 31
+   "nr": 33
   },
   {
    "id": "newcivilengineer-hpc",
@@ -2463,7 +2493,7 @@
    "confidence": "B",
    "note": null,
    "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
-   "nr": 32
+   "nr": 34
   },
   {
    "id": "smard-mirror-2024",
@@ -2475,7 +2505,7 @@
    "confidence": "C",
    "dossier": "daten_stundenprofile.md",
    "note": "Primaerquellen (energy-charts, smard.de, OPSD) waren aus der Arbeitsumgebung per Egress-Policy nicht erreichbar.",
-   "nr": 33
+   "nr": 35
   },
   {
    "id": "offshore-stiftung-2025",
@@ -2487,7 +2517,7 @@
    "confidence": "B",
    "note": null,
    "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
-   "nr": 34
+   "nr": 36
   },
   {
    "id": "unece-2022",
@@ -2498,7 +2528,7 @@
    "accessed": "2026-08-15",
    "confidence": "A",
    "dossier": "risiken_co2.md 1.2",
-   "nr": 35
+   "nr": 37
   },
   {
    "id": "uba-methodenkonvention",
@@ -2509,7 +2539,7 @@
    "accessed": "2026-08-15",
    "confidence": "B",
    "dossier": "risiken_co2.md 2.4",
-   "nr": 36
+   "nr": 38
   },
   {
    "id": "uniper-dunkelflaute-2026",
@@ -2521,7 +2551,7 @@
    "confidence": "A",
    "dossier": "risiken_co2.md 3.1/3.2",
    "note": "Interessenlage: Uniper betreibt konventionelle Kraftwerke. 10-h-Schwelle statt DWD-48-h.",
-   "nr": 37
+   "nr": 39
   }
  ]
 }

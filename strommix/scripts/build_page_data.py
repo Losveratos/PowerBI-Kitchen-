@@ -62,6 +62,9 @@ STRUCTURED_SOURCE_IDS = [
     "windguard-2025", "bnetza-wind-2026-05", "bnetza-pv-2026-03", "bnetza-hoechstwert-2026",
     "ewi-h2-speicher", "foes-2025", "offshore-stiftung-2025",
     "iwr-hinkley-2026", "newcivilengineer-hpc", "ecb-fx",
+    # Wird im Text zitiert (WACC-Gegenbefund, Bauzeitverteilung) und muss
+    # deshalb im Quellenverzeichnis stehen.
+    "iea-nea-2020", "ritchie-construction-time",
 ]
 
 # Quellen, die in den Dossiers nur im Fliesstext stehen. Abschnittsverweis
@@ -284,29 +287,40 @@ def main() -> None:
         "ges": {
             "reference": params["ges_reference"],
             "reconstruction": params["ges_scenario_reconstruction"],
+            # `bewertung` ist die maschinenlesbare Richtung des Befunds aus Sicht
+            # der GES-Studie: "contra" = Befund spricht gegen die Studie,
+            # "pro" = spricht fuer sie, "neutral" = keine Wirkung. Die HTML-Seite
+            # faerbt danach - vorher wurde die Richtung aus dem Fliesstext geraten,
+            # was den einzigen eindeutigen Pro-Befund falsch einsortiert hat.
             "bias_check": [
-                {"technologie": "Photovoltaik", "richtung": "Kosten ueberschaetzt",
+                {"technologie": "Photovoltaik", "richtung": "Kosten überschätzt",
                  "ausmass": "+50 bis +150 %",
                  "effekt": "verteuert die EE-Szenarien",
+                 "bewertung": "contra",
                  "quelle": "docs/01_grundlage_ges_faktencheck.md 5.5"},
                 {"technologie": "Wind on-/offshore (CAPEX)", "richtung": "keine systematische Verzerrung",
-                 "ausmass": "-", "effekt": "neutral",
+                 "ausmass": "–", "effekt": "neutral",
+                 "bewertung": "neutral",
                  "quelle": "docs/01_grundlage_ges_faktencheck.md 5.5"},
-                {"technologie": "Wind onshore (Volllaststunden)", "richtung": "Ertrag unterschaetzt",
+                {"technologie": "Wind onshore (Volllaststunden)", "richtung": "Ertrag unterschätzt",
                  "ausmass": "1.700 statt 2.400 h/a",
                  "effekt": "verteuert Windstrom um rund 30 %",
+                 "bewertung": "contra",
                  "quelle": "kosten_ee_speicher.md 1 (Befund 2) / 4"},
-                {"technologie": "Kernkraft (CAPEX)", "richtung": "Kosten unterschaetzt",
-                 "ausmass": "-50 bis -75 %",
+                {"technologie": "Kernkraft (CAPEX)", "richtung": "Kosten unterschätzt",
+                 "ausmass": "−50 bis −75 %",
                  "effekt": "verbilligt das Kostenminimum-Szenario",
+                 "bewertung": "contra",
                  "quelle": "docs/01_grundlage_ges_faktencheck.md 5.5"},
-                {"technologie": "Kernkraft (Betriebskosten)", "richtung": "Kosten UEBERschaetzt",
-                 "ausmass": "7 % CAPEX/a statt rund 165 EUR/kW/a",
-                 "effekt": "verteuert Kernkraft - wirkt der CAPEX-Verzerrung entgegen",
+                {"technologie": "Kernkraft (Betriebskosten)", "richtung": "Kosten ÜBERschätzt",
+                 "ausmass": "7 % CAPEX/a statt rund 165 €/kW/a",
+                 "effekt": "verteuert Kernkraft – wirkt der CAPEX-Verzerrung entgegen",
+                 "bewertung": "pro",
                  "quelle": "kosten_kernkraft.md 4.2 / 8 (Satz 5)"},
-                {"technologie": "H2-Round-Trip", "richtung": "realistisch konservativ angesetzt",
-                 "ausmass": "30-40 % statt der oft unterstellten 50 %+",
-                 "effekt": "spricht fuer die Studie",
+                {"technologie": "H₂-Round-Trip", "richtung": "realistisch konservativ angesetzt",
+                 "ausmass": "30–40 % statt der oft unterstellten 50 %+",
+                 "effekt": "spricht für die Studie",
+                 "bewertung": "pro",
                  "quelle": "kosten_ee_speicher.md 1 (Befund 5) / 7.3"},
             ],
             "system_level_estimate": params["ges_reference"]["system_level_estimate"],

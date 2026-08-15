@@ -306,12 +306,16 @@ Investition in eine jährliche Annuität umrechnet.</p>
 <div class="note warn">
   <strong>Der WACC ist der stärkste Einzelhebel — stärker als jede plausible CAPEX-Variation.</strong>
   Bei 60&nbsp;Jahren Lebensdauer steigt der Kapitalwiedergewinnungsfaktor von 3,613&nbsp;% (WACC 3&nbsp;%)
-  auf 10,033&nbsp;% (WACC 10&nbsp;%) — <strong>Faktor 2,78</strong>.<sup class="cite" data-src="iwr-hinkley-2026"></sup>
+  auf 10,033&nbsp;% (WACC 10&nbsp;%) — <strong>Faktor 2,78</strong>. Das ist keine Quellenangabe, sondern
+  reine Arithmetik der oben stehenden Annuitätenformel; nachrechenbar in
+  <code>strommix/scripts/model.py</code> (<code>crf</code>) und im Dossier
+  <code>kosten_kernkraft.md</code> 5.3/8.
   Zum Vergleich: Die Lebensdauer von 60 auf 80 Jahre zu strecken, ändert die Kosten um rund 3&nbsp;%.
   Das erklärt, warum jedes europäische Kernkraft-Neubauprojekt ein staatliches Finanzierungsinstrument
   braucht — und warum kapitalintensive Technologien (Kernkraft, Offshore) auf den WACC-Slider unten
   ungleich stärker reagieren als PV.
   <span id="wacc-lever-note"></span>
+  <span id="wacc-counterpoint"></span>
 </div>
 
 <div class="card">

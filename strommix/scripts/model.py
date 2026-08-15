@@ -738,9 +738,13 @@ def mix_system(
             k: v / (served_twh_a * MWH_PER_TWH) for k, v in sorted(cost.items())
         } if served_twh_a else {},
         "capacities_gw": {k: v for k, v in capacities_gw.items() if not isinstance(v, type(None))},
+        # Nur echte GW-Groessen: `_gwh` sind Energien, `h2_initial_fill_share`
+        # ist ein dimensionsloser Anteil, und `gas_backup` wird separat addiert
+        # (sonst doppelt, wenn eine feste Backup-Leistung vorgegeben wird).
         "installed_gw_total": sum(
             v for k, v in capacities_gw.items()
             if isinstance(v, (int, float)) and not k.endswith("_gwh")
+            and k not in ("h2_initial_fill_share", "gas_backup")
         ) + (gas_gw or 0.0),
         "served_twh_a": served_twh_a,
         "dispatch": disp,

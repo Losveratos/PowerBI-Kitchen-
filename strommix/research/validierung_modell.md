@@ -105,8 +105,8 @@ Hauptlauf ohne CO2-Preis (GES rechnet ein klimaneutrales Zielsystem); die Spalte
 |---|---:|---:|---:|---:|---:|---:|---:|
 | kostenminimum | 125 | 116.0 | -7 % | 118.1 | 15 % | 215 / 241 GW | 0.0 % |
 | ee80_gas | 197 | 128.6 | -35 % | 139.8 | 75 % | 542 / 575 GW | 0.0 % |
-| ee80_h2 | 212 | 202.8 | -4 % | 202.8 | 75 % | 618 / 619 GW | 0.0 % |
-| ee100 | 321 | 301.9 | -6 % | 301.9 | 135 % | 1162 / 1163 GW | 0.0 % |
+| ee80_h2 | 212 | 202.8 | -4 % | 202.8 | 75 % | 618 / 618 GW | 0.0 % |
+| ee100 | 321 | 301.9 | -6 % | 301.9 | 135 % | 1162 / 1162 GW | 0.0 % |
 
 > Achtung bei der Lesart: Das LSCOE bezieht sich auf die **tatsaechlich gedeckte** Last. Ein Szenario mit ungedeckter Last ist damit nicht guenstiger, sondern unvollstaendig - die Deckungsluecke muesste durch zusaetzliche Kapazitaet (oder Importe/Lastmanagement, beides nicht modelliert) geschlossen werden.
 

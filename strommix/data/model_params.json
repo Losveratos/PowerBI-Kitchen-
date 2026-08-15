@@ -1245,11 +1245,21 @@
           "value": 105.0,
           "min": 19.8,
           "mid": 105.0,
-          "max": 52.5,
+          "max": 105.0,
           "unit": "EUR/MWh_H2 (eingespeicherte Energie)",
           "source": "kosten_ee_speicher.md 12 technologies.h2_cavern_storage.storage_cost_low_cycling_eur_per_kg",
           "confidence": "A",
-          "note": "Saisonale Speicherung = niedrige Zyklenzahl = teures Ende der EWI-Spanne (3,50 EUR/kg). Untere Grenze nur bei hoher Zyklenzahl erreichbar."
+          "note": "Saisonale Speicherung = niedrige Zyklenzahl = teures Ende der EWI-Spanne (3,50 EUR/kg). Untere Grenze nur bei hoher Zyklenzahl erreichbar. Kein Beleg fuer einen Wert oberhalb des Saisonfalls, deshalb max = mid."
+        },
+        "range_high_cycling_eur_mwh_h2": {
+          "value": 36.0,
+          "min": 19.8,
+          "mid": 36.0,
+          "max": 52.5,
+          "unit": "EUR/MWh_H2 (eingespeicherte Energie)",
+          "source": "kosten_ee_speicher.md 12 technologies.h2_cavern_storage.storage_cost_ct_per_kwh_h2",
+          "confidence": "A",
+          "note": "EWI-Spanne bei HOHER Zyklenzahl. Nur informativ - im Modell wird der saisonale Fall (storage_cost_eur_mwh_h2) verwendet."
         },
         "kwh_per_kg_h2": {
           "value": 33.33,

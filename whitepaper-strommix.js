@@ -84,7 +84,13 @@ const DE_ASCII = [
   ['ueberwiegend', 'überwiegend'], ['waere', 'wäre'], ['fuer', 'für'], ['ueber', 'über'],
   ['UEBERGANGSLOESUNG', 'ÜBERGANGSLÖSUNG'], ['enthaelt', 'enthält'], ['Glaettung', 'Glättung'],
   ['hoehere', 'höhere'], ['unterschaetzt', 'unterschätzt'], ['Groessenordnung', 'Größenordnung'],
-  ['naeherungsweise', 'näherungsweise'], ['Ueberschreitungen', 'Überschreitungen']
+  ['naeherungsweise', 'näherungsweise'], ['Ueberschreitungen', 'Überschreitungen'],
+  ['Laendern', 'Ländern'], ['Laender', 'Länder'], ['guenstigste', 'günstigste'],
+  ['Fuer', 'Für'], ['Gruende', 'Gründe'], ['oefter', 'öfter'], ['grosser', 'großer'],
+  ['ueberzeichnet', 'überzeichnet'], ['UEBERschaetzt', 'ÜBERschätzt'],
+  ['ueberschaetzt', 'überschätzt'], ['unterschaetzt', 'unterschätzt'],
+  ['veroeffentlicht', 'veröffentlicht'], ['Uebergangsloesung', 'Übergangslösung'],
+  ['Ueberschreitung', 'Überschreitung'], ['Groesse', 'Größe']
 ];
 function deAscii(t) {
   if (!t) return t;
@@ -613,10 +619,15 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
   });
   const capsOut = {};
   for (const k in caps) if (caps[k] !== null && caps[k] !== undefined) capsOut[k] = caps[k];
+  /* Summe der installierten Leistung: nur echte GW-Groessen. `_gwh` sind
+     Energie-, `h2_initial_fill_share` ist eine dimensionslose Anteilsangabe,
+     und `gas_backup` wird separat addiert (sonst doppelt, wenn der Nutzer
+     eine feste Backup-Leistung vorgibt statt sie messen zu lassen). */
+  const NON_CAPACITY_KEYS = { h2_initial_fill_share: 1, gas_backup: 1 };
   let installedTotal = 0;
   for (const k in caps) {
     const v = caps[k];
-    if (typeof v === 'number' && !k.endsWith('_gwh')) installedTotal += v;
+    if (typeof v === 'number' && !k.endsWith('_gwh') && !NON_CAPACITY_KEYS[k]) installedTotal += v;
   }
   installedTotal += (gasGw || 0.0);
 
@@ -936,8 +947,9 @@ function renderVerification(test) {
   box.innerHTML = ok
     ? '<span class="badge-ok">✓ Modell verifiziert — ' + test.checked + ' Testvektoren, Toleranz ' +
       fmt(test.tol * 100, 1) + ' %</span>'
-    : '<span class="badge-ok badge-bad">✗ Modell NICHT verifiziert — ' + test.fails.length +
-      ' von ' + test.checked + ' Prüfungen außerhalb der Toleranz (Details in der Browser-Konsole)</span>';
+    : '<span class="badge-ok badge-bad">✗ Modell NICHT verifiziert — ' + test.checked +
+      ' Testvektoren, davon ' + test.fails.length + ' Einzelwerte außerhalb der Toleranz ' +
+      '(Details in der Browser-Konsole)</span>';
   if (ok) {
     console.log('%c[strommix] Selbsttest bestanden', 'color:#0E6E7A;font-weight:600',
       test.checked + ' Testvektoren gegen strommix/data/test_vectors.json, Toleranz ' + (test.tol * 100) + ' %');
@@ -1061,7 +1073,9 @@ function renderPartA() {
   renderHBars('#chart-mix', rows, { axisLabel: 'TWh', padL: 200, padR: 120, rowH: 26 });
   $('#mix-sub').innerHTML = 'Gesamt ' + fmt(total, 1) + ' TWh inkl. Pumpspeichererzeugung · ' +
     'erneuerbar ' + fmt(mix.erneuerbare_gesamt, 1) + ' TWh (' + fmt(mix.erneuerbare_gesamt / total * 100, 1) +
-    ' %) · fossil ' + fmt(mix.fossil_gesamt, 1) + ' TWh · Kernenergie 0,0 TWh ' +
+    ' % <strong>der Bruttostromerzeugung</strong> — das ist die fünfte der oben genannten ' +
+    'Abgrenzungen, nicht der Anteil am Verbrauch) · fossil ' + fmt(mix.fossil_gesamt, 1) + ' TWh · ' +
+    'Kernenergie ' + fmt(mix.traeger_twh.kernenergie.wert, 1) + ' TWh ' +
     confBadge(mix.confidence) + cite('ageb-strerz-2025');
   legend('#legend-mix', [
     { c: PAL.teal, l: 'Wind offshore, Steinkohle und Wasserkraft sind aus der EE-Summe zurückgerechnet, nicht direkt abgelesen — im Tooltip gekennzeichnet.' }
@@ -1081,21 +1095,30 @@ function renderPartA() {
   const h1 = P.ist_mix['2026_h1'];
   const bat = P.installierte_leistung_gw.batteriespeicher;
   const preise = P.preise;
+  /* Zwei Dossiers nennen unterschiedliche Werte fuer 2025 (573 vs. 575 h).
+     Beide werden ausgewiesen statt einer als Fakt gesetzt. */
+  const negStd2025 = P.netz_und_systemkosten.negative_strompreise_stunden
+    .find(x => x.jahr === 2025) || { stunden: null };
   const tiles = [
     { n: fmt(mix.oeffentliche_nettoerzeugung_ise.photovoltaik_gesamt, 0) + ' TWh',
       l: 'Photovoltaik 2025 (+' + fmt(mix.oeffentliche_nettoerzeugung_ise.pv_wachstum_prozent, 0) +
-         ' % ggü. 2024) — erstmals vor der Braunkohle ' + confBadge('A') + cite('ise-stromerzeugung-2025') },
+         ' % ggü. 2024) — erstmals vor der Braunkohle, gemessen an der öffentlichen ' +
+         'Nettostromerzeugung ' + confBadge(mix.oeffentliche_nettoerzeugung_ise.confidence) +
+         cite('ise-stromerzeugung-2025') },
     { n: fmt(inst.erneuerbare_gesamt.wert, 0) + ' GW',
       l: 'installierte EE-Leistung Ende 2025, Zubau ' + fmt(inst.erneuerbare_gesamt.zubau_2025, 0) +
          ' GW im Jahr ' + confBadge(inst.erneuerbare_gesamt.confidence) },
     { n: fmt(h1.ee_anteil_bruttostromverbrauch_prozent, 0) + ' %',
       l: 'EE-Anteil am Bruttostromverbrauch im 1. Halbjahr 2026 ' + confBadge(h1.confidence) },
     { n: fmt(bat.leistung_gw.low, 1) + '–' + fmt(bat.leistung_gw.high, 1) + ' GW',
-      l: 'Batteriespeicher (' + fmt(bat.kapazitaet_gwh.low, 0) + '–' + fmt(bat.kapazitaet_gwh.high, 0) +
+      l: 'Batteriespeicher (' + fmt(bat.kapazitaet_gwh.low, 1) + '–' + fmt(bat.kapazitaet_gwh.high, 1) +
          ' GWh), Stand ' + bat.stand + ' ' + confBadge(bat.leistung_gw.confidence) },
     { n: fmt(preise.negative_preisstunden['2025_gesamt'], 0) + ' h',
       l: 'Stunden mit negativem Börsenstrompreis 2025 (Rekord); H1 2026: ' +
-         fmt(preise.negative_preisstunden['2026_h1'], 0) + ' h, aber tiefer ' + confBadge('A') },
+         fmt(preise.negative_preisstunden['2026_h1'], 0) + ' h, aber tiefer ' + confBadge('B') +
+         ' — die Dossiers nennen ' +
+         fmt(negStd2025.stunden, 0) + ' und ' + fmt(preise.negative_preisstunden['2025_gesamt'], 0) +
+         ' h; die Differenz ist nicht aufgelöst' },
     { n: fmt(preise.boersenstrompreis_jahresmittel_eur_mwh['2025'].wert, 1) + ' €/MWh',
       l: 'Börsenstrompreis 2025 im Jahresmittel; H1 2026: ' +
          fmt(preise.boersenstrompreis_jahresmittel_eur_mwh['2026_h1'].wert, 0) + ' €/MWh ' +
@@ -1107,10 +1130,13 @@ function renderPartA() {
 
   /* --- Zielerreichung -------------------------------------------------- */
   const z = P.zielpfade.zielerreichung_anfang_2026;
+  /* Restjahre nicht hartcodieren, sondern aus den Daten ableiten:
+     Restleistung / erforderlicher Jahreszubau. */
+  const restJahre = z.photovoltaik.rest_gw / z.photovoltaik.erforderlich_gw_pro_jahr;
   renderProgress('#chart-ziele', [
     { label: 'Photovoltaik', ist: z.photovoltaik.ist_gw, ziel: z.photovoltaik.ziel_gw,
       pct: z.photovoltaik.erreichung_prozent, color: PAL.pv, badge: confBadge('A') + cite('eeg-2023'),
-      note: 'Noch ' + fmt(z.photovoltaik.rest_gw, 0) + ' GW in vier Jahren → <strong>' +
+      note: 'Noch ' + fmt(z.photovoltaik.rest_gw, 0) + ' GW in ' + fmt(restJahre, 0) + ' Jahren → <strong>' +
         fmt(z.photovoltaik.erforderlich_gw_pro_jahr, 1) + ' GW/a</strong> nötig, Ist-Zubau 2025 ' +
         fmt(z.photovoltaik.ist_zubau_2025, 1) + ' GW — Faktor ' + fmt(z.photovoltaik.luecke_faktor, 1) + '×.' },
     { label: 'Wind onshore', ist: z.wind_onshore.ist_gw, ziel: z.wind_onshore.ziel_gw,
@@ -1124,8 +1150,9 @@ function renderPartA() {
       badge: confBadge('A') + cite('offshore-stiftung-2025'),
       note: 'Noch ' + fmt(z.wind_offshore.rest_gw, 1) + ' GW → <strong>' +
         fmt(z.wind_offshore.erforderlich_gw_pro_jahr, 1) + ' GW/a</strong>, Zubau 2025 ' +
-        fmt(z.wind_offshore.ist_zubau_2025, 0) + ' GW — Faktor über ' +
-        fmt(z.wind_offshore.luecke_faktor, 0) + '×.' }
+        fmt(z.wind_offshore.ist_zubau_2025, 0) + ' GW. Ein Lückenfaktor lässt sich hier ' +
+        '<em>nicht</em> bilden — der Zubau war null; der Sprung geht von 0 auf ' +
+        fmt(z.wind_offshore.erforderlich_gw_pro_jahr, 1) + ' GW/a.' }
   ]);
   const pipe = P.zielpfade.offshore_pipeline_gw;
   $('#ziele-note').innerHTML = '<strong>Die Bewertung stammt aus den Quellen, nicht von uns.</strong> ' +
@@ -1214,7 +1241,10 @@ function lcoeRefs(key) {
   } else if (key === 'wind_offshore') {
     push(B.wind_offshore.reference.min, PAL.soft, 'Fraunhofer ISE 2024, untere Grenze', '3 3');
     push(B.wind_offshore.reference.max, PAL.soft, 'Fraunhofer ISE 2024, obere Grenze', '3 3');
+    /* beide Lazard-Grenzen, sonst wirkt Offshore einseitig teuer */
+    push(B.wind_offshore.lazard_2026.min, PAL.teal, 'Lazard LCOE+ 2026, untere Grenze: ' + B.wind_offshore.lazard_2026.min + ' €/MWh');
     push(B.wind_offshore.lazard_2026.max, PAL.teal, 'Lazard LCOE+ 2026, obere Grenze: ' + B.wind_offshore.lazard_2026.max + ' €/MWh');
+    push(B.wind_offshore.irena_europe.value, PAL.soft, 'IRENA Europa: ' + B.wind_offshore.irena_europe.value + ' €/MWh', '3 3');
     push(G.wind_offshore.lcoe, PAL.accent, 'Annahme der GES-Studie: ' + G.wind_offshore.lcoe + ' €/MWh');
   } else if (key === 'nuclear') {
     const tp = B.nuclear.third_party;
@@ -1312,18 +1342,32 @@ function updateLcoe() {
 
   const nuc = rows.find(r => r.key === 'nuclear');
   const pv = rows.find(r => r.key === 'pv_freiflaeche');
+  const hpc = S.page.lcoe_benchmarks.nuclear.third_party.find(x => x.source_id === 'iwr-hinkley-2026');
+  const auc = S.page.lcoe_benchmarks.pv_freiflaeche.auction;
   $('#lcoe-note').innerHTML = '<strong>Was der Regler gerade zeigt.</strong> Bei WACC ' +
     fmt(LC.wacc * 100, 1) + ' % und ' + fmt(LC.co2, 0) + ' €/t CO₂ liegt der Zentralwert für Kernkraft bei <strong>' +
     fmt(nuc.value, 0) + ' €/MWh</strong>, für PV Freifläche bei <strong>' + fmt(pv.value, 0) + ' €/MWh</strong>. ' +
-    'Der einzige real vertraglich fixierte Kernkraft-Wert weltweit ist der Hinkley-Point-C-CfD mit <strong>' +
-    S.page.lcoe_benchmarks.nuclear.third_party.find(x => x.source_id === 'iwr-hinkley-2026').lcoe_eur_mwh +
-    ' €/MWh</strong> (indexiert Januar 2026) ' + confBadge('A') + cite('iwr-hinkley-2026') +
-    '. Die BNetzA-Freiflächenausschreibung vom März 2026 ergab mengengewichtet <strong>' +
-    fmt(S.page.lcoe_benchmarks.pv_freiflaeche.auction.mid, 1) + ' €/MWh</strong> Zuschlagswert ' +
-    confBadge('A') + cite('bnetza-pv-2026-03') + ' — das ist ein Marktpreis, kein Modellwert, und ' +
-    'eher eine Obergrenze der Betreiber-Vollkosten über 20 Jahre.';
+    'Der einzige <em>öffentlich dokumentierte</em> vertraglich zugesicherte Strompreis für ' +
+    'Neubau-Kernkraft ist der Hinkley-Point-C-CfD mit <strong>' + hpc.lcoe_eur_mwh +
+    ' €/MWh</strong> (indexiert Januar 2026) ' + confBadge(srcConf('iwr-hinkley-2026')) + cite('iwr-hinkley-2026') +
+    '. Polen und Tschechien haben ebenfalls staatliche Preis- bzw. Finanzierungsinstrumente, ' +
+    'deren Konditionen aber nicht veröffentlicht sind. ' +
+    'Die BNetzA-Freiflächenausschreibung vom März 2026 ergab mengengewichtet <strong>' +
+    fmt(auc.mid, 1) + ' €/MWh</strong> Zuschlagswert ' +
+    confBadge(auc.confidence) + cite('bnetza-pv-2026-03') + ' — das ist ein Marktpreis, kein Modellwert, und ' +
+    'eher eine Obergrenze der Betreiber-Vollkosten über 20 Jahre.' +
+    '<br><br><strong>Wichtig für den Vergleich mit den Gaslinien:</strong> Für Erdgas fehlt in allen ' +
+    'Dossiers ein Brennstoffpreis (<code>gaps.gaspreis_erdgas</code>). Die Modellwerte für Gas GuD und ' +
+    'Gas OCGT enthalten deshalb <strong>nur Kapital-, Fixbetriebs- und CO₂-Kosten</strong> und sind ' +
+    'ausgewiesene <strong>Untergrenzen</strong>. Die FÖS-Vergleichslinien (' +
+    fmt(S.page.lcoe_benchmarks.gas_ccgt.de_new.min, 0) + '–' +
+    fmt(S.page.lcoe_benchmarks.gas_ccgt.de_new.max, 0) + ' €/MWh) enthalten den Brennstoff — ' +
+    'der Abstand ist kein Modellbefund, sondern diese Lücke.' + cite('foes-2025');
   buildCitations();
 }
+
+/* Konfidenzstufe einer Quelle aus dem Quellenregister (statt hartcodiert). */
+function srcConf(id) { return (S.srcIndex[id] || {}).confidence || 'C'; }
 
 function setLcoeTech(key) {
   LC.tech = key;
@@ -1460,8 +1504,13 @@ function renderPartB() {
   });
 
   const uba350 = S.params.global.co2_price_support_points.find(p => p.typ === 'schattenpreis');
-  $('#lc-co2-hint').innerHTML = 'Der CO₂-Preis wirkt im Modell <strong>nur über den direkten ' +
-    'Emissionsfaktor fossiler Erzeugung</strong>. Lebenszyklus-Emissionen (PV, Wind, Kernkraft) werden ' +
+  const efGas = S.params.technologies.gas_ccgt.params.emission_factor_t_mwh;
+  $('#lc-co2-hint').innerHTML = 'Der CO₂-Preis wirkt im Modell <strong>nur über den ' +
+    'Emissionsfaktor fossiler Erzeugung</strong> (' + fmt(Number(efGas.value) * 1000, 0) + ' g/kWh ' +
+    confBadge(efGas.confidence) + '). <strong>Kennzeichnung:</strong> Ein <em>direkter</em> ' +
+    'Verbrennungsfaktor fehlt in den Dossiers; angesetzt ist ersatzweise die UNECE-Lebenszyklus-' +
+    'Untergrenze für GuD (Lücke <code>emissionsfaktor_direkt</code>). ' +
+    'Lebenszyklus-Emissionen der übrigen Technologien (PV, Wind, Kernkraft) werden ' +
     'separat ausgewiesen, aber nicht eingepreist — sonst käme es zu Doppelzählungen mit dem ETS. ' +
     'Der Marktpreis lag im Mai 2026 bei rund 75 €/t ' + confBadge('C') + '; das Allzeithoch von 100,34 €/t ' +
     'stammt aus Februar 2023 ' + confBadge('A') + '. Die UBA-Schattenpreise (' + fmt(uba350.wert, 0) +
@@ -1469,10 +1518,25 @@ function renderPartB() {
     'sie zeigen, was eine Tonne gesellschaftlich kostet, nicht was sie am Markt kostet.' +
     cite('uba-methodenkonvention');
 
+  const we = S.page.wacc_sensitivity.worked_example;
   $('#wacc-lever-note').innerHTML = ' Der Kernkraft-Rechenfall des Dossiers zeigt es in Zahlen: ' +
-    'bei 12.000 €/kW und 7.500 Volllaststunden steigt der LCOE von ' +
-    fmt(S.page.wacc_sensitivity.worked_example.lcoe_eur_mwh['0.03'], 0) + ' €/MWh (WACC 3 %) auf ' +
-    fmt(S.page.wacc_sensitivity.worked_example.lcoe_eur_mwh['0.09'], 0) + ' €/MWh (WACC 9 %).';
+    'bei ' + fmt(we.assumptions.capex_eur_kw, 0) + ' €/kW und ' +
+    fmt(we.assumptions.full_load_hours, 0) + ' Volllaststunden steigt der LCOE von ' +
+    fmt(we.lcoe_eur_mwh['0.03'], 0) + ' €/MWh (WACC 3 %) auf ' +
+    fmt(we.lcoe_eur_mwh['0.09'], 0) + ' €/MWh (WACC 9 %).';
+
+  /* Gegenbefund aus denselben Daten - gehoert fairerweise dazu. */
+  const ien = S.page.wacc_sensitivity.iea_nea_2020;
+  const ct = S.page.construction_time.global_iaea_pris;
+  $('#wacc-counterpoint').innerHTML = '<br><br><strong>Der Hebel wirkt in beide Richtungen — das gehört dazu.</strong> ' +
+    'Genau deshalb kommt die IEA/NEA-Vergleichsstudie zu dem Schluss: ' +
+    '„' + deAscii(ien.note) + '“ ' + confBadge(ien.confidence) + cite('iea-nea-2020') +
+    ' Und die globale Bauzeitverteilung ist deutlich günstiger als die westliche Erfahrung: ' +
+    'Median ' + fmt(ct.median_years, 1) + ' Jahre, ' + fmt(ct.share_under_8y_pct, 0) +
+    ' % der Reaktoren weltweit unter 8 Jahren ' + confBadge(ct.confidence) +
+    cite('ritchie-construction-time') + '. Das Dossier hält ' +
+    'zugleich fest, warum der Median für eine Deutschland-Prognose die falsche Kennzahl ist: „' +
+    deAscii(S.page.construction_time.finding) + '“ Beide Sätze stehen nebeneinander, weil beide belegt sind.';
 
   setLcoeTech(LC.tech);
   updateLcoe();
@@ -1744,7 +1808,18 @@ function renderSoc(res, start, end) {
 function renderMixTiles(res) {
   const d = res.dispatch, ann = 1 / (d.seasonal_share_load || 1);
   const box = $('#tiles-mix'); clear(box);
-  const potTotal = Object.values(d.vre_potential_twh).reduce((a, b) => a + b, 0) * ann;
+  /* Jahres-Erzeugungspotenzial analytisch aus Kapazitaet x Volllaststunden.
+     NICHT ueber den Teilzeitraum hochrechnen: die fEE-Reihen tragen eigene
+     Saisonanteile (PV 0,45 / Wind 0,48), die Hochrechnung erfolgt aber ueber
+     den Lastanteil (0,50) - das ergaebe ein um 3-10 % zu kleines Potenzial
+     und widerspraeche der Anteilssumme der Regler. */
+  let potTotal = 0;
+  for (const capKey in VRE_TECHS) {
+    const capGw = Number(res.capacities_gw[capKey] || 0);
+    if (capGw <= 0) continue;
+    const flh = Number(resolveTech(S.params, VRE_TECHS[capKey], MX.scen).full_load_hours);
+    potTotal += capGw * MW_PER_GW * flh / MWH_PER_TWH;
+  }
   const tiles = [
     { n: fmt(res.lscoe_eur_mwh, 0) + ' €/MWh', l: 'System-LSCOE (alle Kosten je gedeckter MWh)' },
     { n: fmt(res.total_cost_bn_eur_a, 0) + ' Mrd. €/a', l: 'Gesamtkosten des Systems pro Jahr' },
@@ -1752,17 +1827,22 @@ function renderMixTiles(res) {
     { n: pct(d.coverage_ratio, 2), l: 'Deckungsgrad — Anteil der Last, der gedeckt wird' +
         (d.unserved_share > 0 ? '<br><strong style="color:' + PAL.unserved + '">ungedeckt: ' +
         fmt(d.energy_twh.unserved * ann, 1) + ' TWh/a, Spitze ' + fmt(d.unserved_peak_gw, 1) + ' GW</strong>' : '') },
-    { n: fmt(d.energy_twh.curtailed * ann, 0) + ' TWh/a', l: 'Abregelung — ' + pct(d.curtailment_share_of_vre, 1) +
-        ' der fEE-Erzeugung, ' + pct(d.curtailment_share_of_generation, 1) + ' der Gesamterzeugung' },
+    { n: fmt(d.energy_twh.curtailed * ann, 0) + ' TWh/a', l: 'Abregelung — im abgedeckten Zeitraum ' +
+        pct(d.curtailment_share_of_vre, 1) + ' der fEE-Erzeugung, ' +
+        pct(d.curtailment_share_of_generation, 1) + ' der Gesamterzeugung' },
     { n: fmt(d.gas_full_load_hours * ann, 0) + ' h/a', l: 'Backup-Volllaststunden bei ' +
         fmt(res.gas_gw, 1) + ' GW Spitzenleistung — je weniger, desto teurer wird jede Backup-MWh' },
-    { n: fmt(co2OfMix(res), 0) + ' Mt/a', l: 'CO₂-Emissionen des Mixes (nur Direktemissionen fossiler Erzeugung)' },
+    { n: fmt(co2OfMix(res), 0) + ' Mt/a', l: 'CO₂-Emissionen des Mixes (fossiles Backup). ' +
+        '<strong>Achtung:</strong> mangels direktem Verbrennungsfaktor rechnet das Modell mit der ' +
+        'UNECE-Lebenszyklus-<em>Untergrenze</em> für GuD als Proxy (<code>gaps.emissionsfaktor_direkt</code>)' },
     { n: fmt(d.h2_storage_required_gwh / 1000, 1) + ' TWh', l: 'benötigter H₂-Saisonspeicher (Füllstandshub im Zeitraum)' },
-    { n: fmt(potTotal, 0) + ' TWh/a', l: 'fEE-Erzeugungspotenzial vor Abregelung, bei ' + fmt(MX.demand, 0) + ' TWh Bedarf' }
+    { n: fmt(potTotal, 0) + ' TWh/a', noSim: true,
+      l: 'fEE-Erzeugungspotenzial vor Abregelung, bei ' + fmt(MX.demand, 0) + ' TWh Bedarf — ' +
+         'analytisch aus Kapazität × Volllaststunden, deshalb ohne Hochrechnungs-Marker' }
   ];
   tiles.forEach(t => box.appendChild(el('div', { cls: 'tile',
     html: '<div class="n sm">' + t.n + '</div><div class="l">' + t.l +
-      ' <span class="simlabel simdata short"></span></div>' })));
+      (t.noSim ? '' : ' <span class="simlabel simdata short"></span>') + '</div>' })));
   applySimLabels();
 }
 
@@ -2071,9 +2151,13 @@ function renderPartD() {
       '<p style="font-size:14.5px;margin-bottom:0">Der eigentliche Engpass ist die <strong>Anreicherung</strong>: ' +
       'Die EU-Abhängigkeit von russischer Anreicherung fiel von ' + lk.uran.eu_anreicherung_russland_2023_prozent +
       ' % (2023) auf ' + lk.uran.eu_anreicherung_russland_2024_prozent + ' % (2024) — das Argument ' +
-      '„Kernkraft macht abhängig von Russland“ verliert an Kraft. Umgekehrt kontrollieren Rosatom und CNNC ' +
-      'zusammen über ' + lk.uran.rosatom_plus_cnnc_globale_swu_2024_prozent + ' % der globalen ' +
-      'Anreicherungskapazität.</p>' },
+      '„Kernkraft macht abhängig von Russland“ verliert an Kraft, <em>sofern die Diversifizierung ' +
+      'tatsächlich gelingt</em> (Urenco und Orano bauen aus). Das Dossier hält drei Gegenpunkte dagegen: ' +
+      'Rosatom und CNNC kontrollieren zusammen über ' + lk.uran.rosatom_plus_cnnc_globale_swu_2024_prozent +
+      ' % der globalen Anreicherungskapazität; Kasachstan (' + lk.uran.eu_natururan_2024_prozent.kasachstan +
+      ' % des EU-Natururans) liegt logistisch teilweise in russischem Transitgebiet; und Deutschland ' +
+      'betreibt keine Kernkraftwerke mehr — für ein Wiedereinstiegsszenario wäre die Abhängigkeit ' +
+      'erst neu aufzubauen.</p>' },
     { t: 'Erdgas', body:
       '<p style="font-size:14.5px">Importe 2025: <strong>' + fmt(lk.gas.importe_2025_twh, 0) + ' TWh</strong> ' +
       '(+' + lk.gas.veraenderung_prozent + ' % ggü. 2024), aus Norwegen ' + lk.gas.anteile_2025_prozent.norwegen +
@@ -2156,13 +2240,23 @@ function renderLimitations() {
     '<strong>Kernkraft läuft als Band.</strong> Ein lastfolgender Betrieb würde die Abregelung senken, ' +
       'aber auch die Volllaststunden — und damit die LCOE-Basis. Wer 8.000 h <em>und</em> hohen EE-Anteil ' +
       'unterstellt, rechnet inkonsistent.',
-    '<strong>Lebenszyklus-Emissionen werden nicht bepreist.</strong> Der CO₂-Preis wirkt nur auf ' +
-      'Direktemissionen. Die LCA-Werte (PV Deutschland ' +
-      fmt(P.co2_intensitaet_g_pro_kwh.technologien.pv_deutschland.default, 0) + ' g/kWh, Wind onshore ' +
-      fmt(P.co2_intensitaet_g_pro_kwh.technologien.wind_onshore.default, 0) + ', Kernkraft ' +
-      fmt(P.co2_intensitaet_g_pro_kwh.technologien.kernkraft.default, 1) + ', GuD ' +
-      fmt(P.co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.default, 0) + ') stehen informativ in ' +
-      'den Daten. ' + confBadge('A') + cite('unece-2022'),
+    '<strong>Der „direkte“ CO₂-Faktor ist selbst nur ein Proxy.</strong> Eingepreist wird ausschließlich ' +
+      'die Verbrennung fossiler Erzeugung — aber ein direkter Verbrennungs-Emissionsfaktor fehlt in ' +
+      'allen Dossiers. Das Modell setzt ersatzweise die UNECE-Lebenszyklus-<em>Untergrenze</em> für GuD ' +
+      'an (' + fmt(Number(S.params.technologies.gas_ccgt.params.emission_factor_t_mwh.value) * 1000, 0) +
+      ' g/kWh) ' + confBadge(S.params.technologies.gas_ccgt.params.emission_factor_t_mwh.confidence) +
+      '; das ist als Lücke <code>emissionsfaktor_direkt</code> ausgewiesen und vor einer Verwendung ' +
+      'zu ersetzen. Die vollen LCA-Werte (Wind onshore ' +
+      fmt(P.co2_intensitaet_g_pro_kwh.technologien.wind_onshore.default, 0) + ' g/kWh ' +
+      confBadge(P.co2_intensitaet_g_pro_kwh.technologien.wind_onshore.stufe) + ', Kernkraft ' +
+      fmt(P.co2_intensitaet_g_pro_kwh.technologien.kernkraft.default, 1) + ' ' +
+      confBadge(P.co2_intensitaet_g_pro_kwh.technologien.kernkraft.stufe) + ', GuD ' +
+      fmt(P.co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.default, 0) + ' ' +
+      confBadge(P.co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.stufe) + ') ' + cite('unece-2022') +
+      ' stehen informativ in den Daten; der deutsche PV-Wert (' +
+      fmt(P.co2_intensitaet_g_pro_kwh.technologien.pv_deutschland.default, 0) + ' g/kWh) stammt <em>nicht</em> ' +
+      'von der UNECE, sondern aus Fraunhofer-ISE-Sekundärberichterstattung und trägt nur ' +
+      confBadge(P.co2_intensitaet_g_pro_kwh.technologien.pv_deutschland.stufe) + '.',
     '<strong>Kostenüberschreitungsfaktoren sind abgeschaltet.</strong> Der Basisfall rechnet mit 1,00, ' +
       'damit Modellkern und Risikoannahme nicht vermischt werden.'
   ].map(x => '<li>' + x + '</li>').join('');
@@ -2173,6 +2267,17 @@ function renderLimitations() {
 
   const cov = S.profiles.series.load_mw.coverage || {};
   const pm = P.profiles_meta;
+  /* Bei einem Volljahresprofil ist dieser ganze Abschnitt gegenstandslos —
+     er darf dann nicht stehen bleiben (sonst stuende dort „ist als FULL
+     markiert: 8784 von 8784 Stunden, und drei Reihen fehlen ganz"). */
+  if (S.profilesRaw.meta.data_completeness === 'FULL' && pm.data_completeness === 'FULL') {
+    $('#lim-partial').innerHTML =
+      '<p>Die Simulation läuft auf einem <strong>vollständigen Jahresprofil</strong> ' +
+      '(' + S.profiles.hours + ' Stunden). Die frühere Halbjahres-Einschränkung ist damit ' +
+      'gegenstandslos; die Hochrechnungs-Labels der Kennzahlen sind automatisch entfallen.</p>' +
+      '<p>' + deAscii(pm.architecture_note) + '</p>';
+    return;
+  }
   $('#lim-partial').innerHTML =
     '<div class="note crit"><strong>Die stärkste Einschränkung dieses Papiers.</strong> ' +
     '<code>profiles_2024.json</code> ist als <code>' + pm.data_completeness + '</code> markiert: ' +
@@ -2200,14 +2305,18 @@ function renderLimitations() {
 
 function renderGes() {
   const G = S.page.ges;
+  /* Richtung kommt aus den Daten (`bewertung`), nicht aus einer Textheuristik. */
+  const BIAS_COL = { pro: PAL.teal, contra: PAL.accent, neutral: PAL.soft };
+  const BIAS_LBL = { pro: 'spricht für die Studie', contra: 'spricht gegen die Studie', neutral: 'ohne Richtung' };
   mount('#table-bias', table(
     [{ l: 'Technologie / Parameter' }, { l: 'Richtung' }, { l: 'Ausmaß' }, { l: 'Effekt auf das Studienergebnis' }],
     G.bias_check.map(b => {
-      const pro = b.richtung.indexOf('ÜBER') >= 0 || b.richtung.indexOf('UEBER') >= 0 ||
-                  b.effekt.indexOf('spricht für') >= 0 || b.effekt.indexOf('entgegen') >= 0;
-      const col = b.richtung.indexOf('keine') >= 0 ? PAL.soft : (pro ? PAL.teal : PAL.accent);
-      return [b.technologie, '<span style="color:' + col + ';font-weight:600">' + b.richtung + '</span>',
-        b.ausmass, b.effekt];
+      const bw = b.bewertung || 'neutral';
+      const col = BIAS_COL[bw] || PAL.soft;
+      return [deAscii(b.technologie),
+        '<span style="color:' + col + ';font-weight:600" title="' + BIAS_LBL[bw] + '">' +
+          deAscii(b.richtung) + '</span>',
+        deAscii(b.ausmass), deAscii(b.effekt)];
     })));
 
   const sys = G.system_level_estimate.kostenminimum_scenario;
@@ -2234,25 +2343,45 @@ function renderGes() {
 function renderConclusion() {
   const P = S.page;
   const nucRange = P.lcoe_benchmarks.nuclear.resulting_range;
+  /* Extremwerte und Flamanville aus den Referenzprojekten holen, nicht hartcodieren.
+     Paks II ist laut Dossier ausdruecklich NICHT als Kostenreferenz zu verwenden. */
+  const nucProj = P.nuclear_reference_projects
+    .filter(p => p.capex_eur_kw && p.id !== 'paks-ii')
+    .sort((a, b) => a.capex_eur_kw - b.capex_eur_kw);
+  const nucLow = nucProj[0], nucHigh = nucProj[nucProj.length - 1];
+  const nucFla = P.nuclear_reference_projects.find(p => p.id === 'flamanville-3');
+  const ws = P.wacc_sensitivity.wacc_effect_at_60y;
   const items = [
     { t: 'Der Kapitalkostensatz entscheidet mehr als die Technologiewahl.',
-      b: 'Zwischen WACC 3 % und 10 % liegt beim Kapitalwiedergewinnungsfaktor der Faktor <strong>2,78</strong> ' +
-         '— mehr als jede plausible CAPEX-Variation und ein Vielfaches des Lebensdauer-Effekts (60 vs. 80 Jahre: ' +
-         'rund 3 %). ' + confBadge('A') + cite('iwr-hinkley-2026') + ' Das gilt für Kernkraft und Offshore-Wind ' +
+      b: 'Zwischen WACC 3 % und 10 % liegt beim Kapitalwiedergewinnungsfaktor der Faktor <strong>' +
+         fmt(ws.factor_3pct_to_10pct, 2) + '</strong> — mehr als jede plausible CAPEX-Variation und ein ' +
+         'Vielfaches des Lebensdauer-Effekts (60 vs. 80 Jahre: rund 3 %). Das ist keine Quellenangabe, ' +
+         'sondern Arithmetik der Annuitätenformel (Dossier <code>kosten_kernkraft.md</code> 5.3/8, ' +
+         'nachgerechnet in <code>scripts/model.py</code>). Das gilt für Kernkraft und Offshore-Wind ' +
          'am stärksten, für PV am schwächsten. <em>Unsicherheit:</em> gering — der Effekt ist reine Arithmetik ' +
-         'der Annuitätenmethode und in diesem Papier gegen die Python-Referenz geprüft.' },
+         'der Annuitätenmethode und in diesem Papier gegen die Python-Referenz geprüft. ' +
+         '<em>Gegenrichtung, gleicher Befund:</em> Bei 3 % ist Kernkraft laut IEA/NEA in allen ' +
+         'untersuchten Ländern die günstigste Option, bei 10 % in praktisch keinem. ' +
+         confBadge(P.wacc_sensitivity.iea_nea_2020.confidence) + cite('iea-nea-2020') },
     { t: 'Ein einzelner Punktwert für Kernkraftkosten ist immer irreführend — in beide Richtungen.',
-      b: 'Reale Neubaukosten reichen von rund 1.900 €/kW (Korea, Inland) bis rund 17.300 €/kW ' +
-         '(Hinkley Point C) — mehr als das Neunfache. ' + confBadge('A') + ' Die für Deutschland ' +
-         'relevanten EU-Referenzen (Polen, Tschechien, Frankreich, UK) liegen mit rund 7.900–13.500 €/kW ' +
-         'systematisch dazwischen. Das Dossier-Band für ein realistisches EU-Neubauszenario reicht von ' +
+      b: 'Reale Neubaukosten reichen von rund ' + fmt(nucLow.capex_eur_kw, 0) + ' €/kW (' +
+         nucLow.country + ', ' + deAscii(String(nucLow.label).replace(/\s*\(.*\)$/, '')) +
+         ') bis rund ' + fmt(nucHigh.capex_eur_kw, 0) + ' €/kW (' + nucHigh.country + ', ' +
+         deAscii(nucHigh.label) + ') — mehr als das ' +
+         fmt(nucHigh.capex_eur_kw / nucLow.capex_eur_kw, 0) + '-Fache. ' + confBadge('A') +
+         ' Die aktuellen <em>EU-Neubauprogramme</em> — Dukovany II (CZ), EPR2 (FR), Lubiatowo-Kopalino (PL), ' +
+         'Sizewell C (UK) — liegen mit rund 7.900–13.500 €/kW systematisch dazwischen; die westlichen ' +
+         '<em>Erstbauten</em> Flamanville 3 (' + fmt(nucFla.capex_eur_kw, 0) + ' €/kW) und Hinkley Point C ' +
+         'liegen darüber, nicht in diesem Band. ' +
+         'Das Dossier-Band für ein realistisches EU-Neubauszenario reicht von ' +
          '<strong>' + fmt(nucRange.realistisch_eu.lcoe, 0) + ' €/MWh</strong> (' +
          fmt(nucRange.realistisch_eu.capex, 0) + ' €/kW, WACC ' + pct(nucRange.realistisch_eu.wacc, 0) +
          ') bis <strong>' + fmt(nucRange.pessimistisch.lcoe, 0) + ' €/MWh</strong> (' +
          fmt(nucRange.pessimistisch.capex, 0) + ' €/kW, WACC ' + pct(nucRange.pessimistisch.wacc, 0) +
-         '); der einzige vertraglich fixierte Wert weltweit (Hinkley-CfD, ' +
-         fmt(S.page.lcoe_benchmarks.nuclear.third_party.find(x => x.source_id === 'iwr-hinkley-2026').lcoe_eur_mwh, 0) +
-         ' €/MWh) liegt im unteren Drittel davon. <em>Unsicherheit:</em> hoch bei den Absolutwerten, ' +
+         '); der einzige öffentlich dokumentierte vertraglich fixierte Wert (Hinkley-CfD, ' +
+         fmt(P.lcoe_benchmarks.nuclear.third_party.find(x => x.source_id === 'iwr-hinkley-2026').lcoe_eur_mwh, 0) +
+         ' €/MWh ' + confBadge(srcConf('iwr-hinkley-2026')) + cite('iwr-hinkley-2026') +
+         ') liegt im unteren Drittel davon. <em>Unsicherheit:</em> hoch bei den Absolutwerten, ' +
          'gering bei der Spannweite.' },
     { t: 'Die Volllaststunden-Annahme bei Wind ist ein größerer Hebel als der CAPEX — und wird selten diskutiert.',
       b: 'Die deutsche Bestandsflotte erreichte 2025 rund ' +

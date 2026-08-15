@@ -674,11 +674,30 @@ def build() -> dict:
                 "EUR/MWh_H2 (eingespeicherte Energie)",
                 f"{SRC_LABEL['ee']} 12 technologies.h2_cavern_storage.storage_cost_low_cycling_eur_per_kg",
                 "A",
+                # min/mid/max muessen monoton sein. Die EWI-Zyklenspanne
+                # (1,98-5,25 ct/kWh) gilt fuer HOHE Zyklenzahl; der saisonale
+                # Fall (3,50 EUR/kg = 105 EUR/MWh) liegt darueber. Frueher stand
+                # deshalb max (52,5) UNTER mid (105) - eine unbrauchbare Spanne.
+                # Jetzt: min = untere Zyklen-Grenze, mid/max = Saisonfall (kein
+                # hoeherer Beleg vorhanden); die Zyklenspanne steht vollstaendig
+                # im Feld range_high_cycling_eur_mwh_h2 daneben.
                 mn=round(cav["storage_cost_ct_per_kwh_h2"]["min"] * 10, 1),
                 mid=round(cav["storage_cost_low_cycling_eur_per_kg"]["value"] / kwh_per_kg * 1000, 1),
-                mx=round(cav["storage_cost_ct_per_kwh_h2"]["max"] * 10, 1),
+                mx=round(cav["storage_cost_low_cycling_eur_per_kg"]["value"] / kwh_per_kg * 1000, 1),
                 note="Saisonale Speicherung = niedrige Zyklenzahl = teures Ende der EWI-Spanne "
-                     "(3,50 EUR/kg). Untere Grenze nur bei hoher Zyklenzahl erreichbar.",
+                     "(3,50 EUR/kg). Untere Grenze nur bei hoher Zyklenzahl erreichbar. "
+                     "Kein Beleg fuer einen Wert oberhalb des Saisonfalls, deshalb max = mid.",
+            ),
+            "range_high_cycling_eur_mwh_h2": param(
+                round(cav["storage_cost_ct_per_kwh_h2"]["mid"] * 10, 1),
+                "EUR/MWh_H2 (eingespeicherte Energie)",
+                f"{SRC_LABEL['ee']} 12 technologies.h2_cavern_storage.storage_cost_ct_per_kwh_h2",
+                "A",
+                mn=round(cav["storage_cost_ct_per_kwh_h2"]["min"] * 10, 1),
+                mid=round(cav["storage_cost_ct_per_kwh_h2"]["mid"] * 10, 1),
+                mx=round(cav["storage_cost_ct_per_kwh_h2"]["max"] * 10, 1),
+                note="EWI-Spanne bei HOHER Zyklenzahl. Nur informativ - im Modell wird der "
+                     "saisonale Fall (storage_cost_eur_mwh_h2) verwendet.",
             ),
             "kwh_per_kg_h2": param(
                 kwh_per_kg,
