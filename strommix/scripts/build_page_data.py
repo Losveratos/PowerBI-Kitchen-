@@ -310,6 +310,21 @@ def main() -> None:
                  "quelle": "kosten_ee_speicher.md 1 (Befund 5) / 7.3"},
             ],
             "system_level_estimate": params["ges_reference"]["system_level_estimate"],
+            # Ergebnisse des eigenen Modells mit GES-Kostenannahmen.
+            # Quelle: research/validierung_modell.md, Abschnitt (c), Hauptlauf ohne CO2-Preis.
+            "model_reproduction": {
+                "_source": "research/validierung_modell.md (c) - erzeugt von scripts/validate_model.py",
+                "_note": ("Gerechnet mit den GES-Kostenannahmen fuer die Erzeuger, WACC 5 %, ohne IDC, "
+                          "Bedarf 950 TWh. Backup, Speicher und Netz stammen aus dem eigenen "
+                          "Parametersatz, weil die GES-Studie ihre Kostenaufschluesselung nur als "
+                          "Grafik veroeffentlicht."),
+                "_confidence": "C",
+                "Kostenminimum (inkl. Kernkraft)": 116.0,
+                "80% EE + Gas-Peaker": 128.6,
+                "80% EE + mehr H2": 202.8,
+                "100% Erneuerbare": 301.9,
+            },
+            "lcoe_reproduction_max_deviation_pct": 0.04,
         },
 
         # ---------------- Limitationen ------------------------------------

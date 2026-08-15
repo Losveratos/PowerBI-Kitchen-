@@ -71,6 +71,28 @@ function svg(tag, attrs) {
 }
 function clear(node) { while (node && node.firstChild) node.removeChild(node.firstChild); }
 
+/* Die Dossiers und die Parameterdatei sind bewusst ASCII-transliteriert
+   (ae/oe/ue/ss), damit sie in jeder Werkzeugkette verlustfrei durchlaufen.
+   Fuer die Anzeige werden genau die dort tatsaechlich vorkommenden Woerter
+   zurueckuebersetzt - eine geschlossene Liste, keine Heuristik. */
+const DE_ASCII = [
+  ['Codeaenderung', 'Codeänderung'], ['Modularitaetsargument', 'Modularitätsargument'],
+  ['Sensitivitaets', 'Sensitivitäts'], ['Uebergangsloesung', 'Übergangslösung'],
+  ['Veroeffentlichung', 'Veröffentlichung'], ['veroeffentlicht', 'veröffentlicht'],
+  ['abschliessende', 'abschließende'], ['draussen', 'draußen'], ['fuehrbar', 'führbar'],
+  ['grosse', 'große'], ['laeuft', 'läuft'], ['rueckgerechnete', 'rückgerechnete'],
+  ['ueberwiegend', 'überwiegend'], ['waere', 'wäre'], ['fuer', 'für'], ['ueber', 'über'],
+  ['UEBERGANGSLOESUNG', 'ÜBERGANGSLÖSUNG'], ['enthaelt', 'enthält'], ['Glaettung', 'Glättung'],
+  ['hoehere', 'höhere'], ['unterschaetzt', 'unterschätzt'], ['Groessenordnung', 'Größenordnung'],
+  ['naeherungsweise', 'näherungsweise'], ['Ueberschreitungen', 'Überschreitungen']
+];
+function deAscii(t) {
+  if (!t) return t;
+  let out = String(t);
+  DE_ASCII.forEach(([a, b]) => { out = out.replace(new RegExp('\\b' + a, 'g'), b); });
+  return out;
+}
+
 /* Konfidenz-Badge als HTML-Schnipsel. 'high'/'medium'/'low' werden gemappt. */
 function confBadge(c) {
   const map = { high: 'A', medium: 'B', low: 'C' };
@@ -701,7 +723,8 @@ function niceMax(v) {
   if (v <= 0) return 1;
   const mag = Math.pow(10, Math.floor(Math.log10(v)));
   const s = v / mag;
-  const step = s <= 1 ? 1 : s <= 1.5 ? 1.5 : s <= 2 ? 2 : s <= 3 ? 3 : s <= 5 ? 5 : 10;
+  const steps = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+  const step = steps.find(x => s <= x + 1e-9) || 10;
   return step * mag;
 }
 
@@ -734,7 +757,7 @@ function renderHBars(target, rows, cfg) {
     s.appendChild(svg('line', { x1: x(t), x2: x(t), y1: padT - 6, y2: H - padB + 2, stroke: PAL.grid, 'stroke-width': 1 }));
     s.appendChild(svg('text', {
       x: x(t), y: H - padB + 18, 'text-anchor': 'middle', fill: PAL.soft,
-      'font-size': 11, 'font-family': 'JetBrains Mono, monospace', text: fmt(t, t < 10 ? 1 : 0)
+      'font-size': 11, 'font-family': 'JetBrains Mono, monospace', text: fmt(t, max < 10 ? 1 : 0)
     }));
   });
   if (cfg.axisLabel) {
@@ -784,7 +807,7 @@ function renderStackedBar(target, segs, cfg) {
   clear(s);
   const W = cfg.width || 860, H = 132;
   s.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-  const padL = 8, padR = 8, barY = 22, barH = 44;
+  const padL = 8, padR = 26, barY = 22, barH = 44;
   const total = segs.reduce((a, b) => a + b.v, 0);
   const max = niceMax(Math.max(total, cfg.minAxis || 0) * 1.02);
   const plotW = W - padL - padR;
@@ -896,7 +919,6 @@ async function boot() {
   renderVerification(test);
 
   banner.innerHTML = '';
-  buildCitations();
   renderTransparency();
   renderPartA();
   renderPartB();
@@ -905,6 +927,7 @@ async function boot() {
   renderConclusion();
   renderSources();
   applySimLabels();
+  buildCitations();
 }
 
 function renderVerification(test) {
@@ -931,6 +954,8 @@ function renderVerification(test) {
 function buildCitations() {
   const pop = $('#pop');
   $$('sup.cite').forEach(node => {
+    if (node.dataset.done) return;
+    node.dataset.done = '1';
     const src = S.srcIndex[node.dataset.src];
     if (!src) { node.remove(); return; }
     node.textContent = '[' + src.nr + ']';
@@ -960,27 +985,31 @@ function buildCitations() {
 }
 
 /* Label "Datenbasis Jul–Dez 2024" — Text kommt aus meta.data_completeness */
-function simLabelText() {
+function simLabelText(short) {
   if (S.profilesRaw.meta.data_completeness === 'FULL') return null;
   const cov = S.profiles.series.load_mw.coverage || {};
   const from = (cov.period_start || '').slice(0, 10), to = (cov.period_end || '').slice(0, 10);
   const mon = (d) => { const m = d.slice(5, 7); return ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][+m - 1]; };
-  return 'Datenbasis ' + mon(from) + '–' + mon(to) + ' ' + from.slice(0, 4) + ' (hochgerechnet)';
+  const span = mon(from) + '–' + mon(to) + ' ' + from.slice(0, 4);
+  return short ? '◐ ' + span : 'Datenbasis ' + span + ' (hochgerechnet)';
 }
 
 function applySimLabels() {
-  const txt = simLabelText();
+  const txt = simLabelText(), shortTxt = simLabelText(true);
   $$('.simlabel.simdata').forEach(n => {
     if (!txt) { n.remove(); return; }
-    n.textContent = txt;
+    n.textContent = n.classList.contains('short') ? shortTxt : txt;
     n.title = 'Nur ' + S.profiles.hours + ' von ' + (S.profiles.series.load_mw.coverage.hours_expected || 8784) +
       ' Jahresstunden liegen vor; die Mengen werden über den Lastanteil des Zeitraums hochgerechnet.';
   });
 }
 
 function renderTransparency() {
-  $('#limit-fulltext').innerHTML = ' <strong>Erstens:</strong> ' + S.params.meta.limitation +
-    ' Die Konfidenzstufen bilden das bereits ab.';
+  $('#limit-fulltext').innerHTML = ' <strong>Erstens:</strong> Der Volltext-Abruf war für praktisch ' +
+    'alle Primärquellen-Domains durch die Netzwerk-Egress-Policy der Arbeitsumgebung blockiert. Die ' +
+    'Werte stammen daher aus Suchindex-Zusammenfassungen der genannten Quellen, nicht aus selbst ' +
+    'gelesenem PDF-Volltext. Die Konfidenzstufen bilden das bereits ab; vor einer Verwendung in ' +
+    'Entscheidungen sind die Werte am Original zu prüfen.';
   const txt = simLabelText();
   $('#limit-partial').innerHTML = txt
     ? ' <strong>Zweitens:</strong> Die stündliche Simulation in Teil&nbsp;C läuft auf einem ' +
@@ -1100,7 +1129,9 @@ function renderPartA() {
   ]);
   const pipe = P.zielpfade.offshore_pipeline_gw;
   $('#ziele-note').innerHTML = '<strong>Die Bewertung stammt aus den Quellen, nicht von uns.</strong> ' +
-    'Die Stiftung OFFSHORE-WINDENERGIE stellt fest: ' + pipe.bewertung_quelle + '.' +
+    'Die Stiftung OFFSHORE-WINDENERGIE stellt fest: Das Ziel 2030 ist zeitlich nicht mehr zu ' +
+    'erreichen; das Ziel 2035 (40 GW) wäre bei plangemäßer Umsetzung aller Projekte erreichbar; ' +
+    'für 2045 (70 GW) sind weitere Festlegungen erforderlich.' +
     cite('offshore-stiftung-2025') + ' Die Pipeline (Stand ' + pipe.stand + '): ' +
     fmt(pipe.in_betrieb, 1) + ' GW in Betrieb, ' + fmt(pipe.im_bau, 1) + ' GW im Bau, ' +
     fmt(pipe.finale_investitionsentscheidung, 1) + ' GW mit finaler Investitionsentscheidung, ' +
@@ -1291,6 +1322,7 @@ function updateLcoe() {
     fmt(S.page.lcoe_benchmarks.pv_freiflaeche.auction.mid, 1) + ' €/MWh</strong> Zuschlagswert ' +
     confBadge('A') + cite('bnetza-pv-2026-03') + ' — das ist ein Marktpreis, kein Modellwert, und ' +
     'eher eine Obergrenze der Betreiber-Vollkosten über 20 Jahre.';
+  buildCitations();
 }
 
 function setLcoeTech(key) {
@@ -1339,7 +1371,7 @@ function setLcoeTech(key) {
           text: prj.country + ' · ' + prj.label + ' · ' + fmt(prj.capex_eur_kw, 0) });
         c.title = prj.label + ' (' + prj.country + '), ' + fmt(prj.capacity_mw, 0) + ' MW, Abgrenzung: ' +
           prj.cost_scope + (prj.delay_years ? ', Verzug ' + prj.delay_years + ' a' : '') +
-          ', Konfidenz ' + prj.confidence + (prj.note ? ' — ' + prj.note : '');
+          ', Konfidenz ' + prj.confidence + (prj.note ? ' — ' + deAscii(prj.note) : '');
         c.onclick = () => {
           LC.capex = Math.min(Number($('#lc-capex').max), prj.capex_eur_kw);
           $('#lc-capex').value = LC.capex; syncLcoeUI(); updateLcoe();
@@ -1563,7 +1595,7 @@ function renderDispatch(res) {
   const start = MX.week * 168, end = Math.min(start + 168, res.dispatch.hours);
   const n = end - start;
   const s = $('#chart-disp'); clear(s);
-  const W = 880, H = 300, padL = 52, padR = 12, padT = 14, padB = 30;
+  const W = 880, H = 300, padL = 52, padR = 12, padT = 20, padB = 30;
   s.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
   const plotW = W - padL - padR, plotH = H - padT - padB;
 
@@ -1582,7 +1614,7 @@ function renderDispatch(res) {
     s.appendChild(svg('text', { x: padL - 8, y: y(t) + 4, 'text-anchor': 'end', fill: PAL.soft,
       'font-size': 11, 'font-family': 'JetBrains Mono, monospace', text: fmt(t, 0) }));
   });
-  s.appendChild(svg('text', { x: 4, y: padT + 2, fill: PAL.soft, 'font-size': 11,
+  s.appendChild(svg('text', { x: 4, y: padT - 4, fill: PAL.soft, 'font-size': 11,
     'font-family': 'JetBrains Mono, monospace', text: 'GW' }));
 
   /* Tagesraster + Datumsbeschriftung */
@@ -1676,7 +1708,7 @@ function renderSoc(res, start, end) {
   const h = res.dispatch.hourly, ts = res.dispatch.timestamps || [];
   const n = end - start;
   const s = $('#chart-soc'); clear(s);
-  const W = 880, H = 150, padL = 52, padR = 12, padT = 14, padB = 24;
+  const W = 880, H = 156, padL = 52, padR = 12, padT = 20, padB = 24;
   s.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
   const plotW = W - padL - padR, plotH = H - padT - padB;
 
@@ -1691,7 +1723,7 @@ function renderSoc(res, start, end) {
     s.appendChild(svg('text', { x: padL - 8, y: y(t) + 4, 'text-anchor': 'end', fill: PAL.soft, 'font-size': 11,
       'font-family': 'JetBrains Mono, monospace', text: fmt(t, max < 20 ? 1 : 0) }));
   });
-  s.appendChild(svg('text', { x: 4, y: padT + 2, fill: PAL.soft, 'font-size': 11,
+  s.appendChild(svg('text', { x: 4, y: padT - 4, fill: PAL.soft, 'font-size': 11,
     'font-family': 'JetBrains Mono, monospace', text: 'GWh' }));
 
   [['soc_bat', PAL.bat], ['soc_h2', PAL.h2]].forEach(([k, c]) => {
@@ -1729,7 +1761,8 @@ function renderMixTiles(res) {
     { n: fmt(potTotal, 0) + ' TWh/a', l: 'fEE-Erzeugungspotenzial vor Abregelung, bei ' + fmt(MX.demand, 0) + ' TWh Bedarf' }
   ];
   tiles.forEach(t => box.appendChild(el('div', { cls: 'tile',
-    html: '<div class="n sm">' + t.n + '</div><div class="l">' + t.l + ' <span class="simlabel simdata"></span></div>' })));
+    html: '<div class="n sm">' + t.n + '</div><div class="l">' + t.l +
+      ' <span class="simlabel simdata short"></span></div>' })));
   applySimLabels();
 }
 
@@ -1767,7 +1800,7 @@ function renderMixWarnings(res) {
   const seen = new Set();
   res.warnings.forEach(w => {
     if (seen.has(w)) return; seen.add(w);
-    box.appendChild(el('div', { cls: 'note warn', html: '<strong>Modellhinweis.</strong> ' + w }));
+    box.appendChild(el('div', { cls: 'note warn', html: '<strong>Modellhinweis.</strong> ' + deAscii(w) }));
   });
 }
 
@@ -1791,6 +1824,7 @@ function updateMix() {
     'Verfügbarer Zeitraum: ' + (cov.period_start || '').slice(0, 10) + ' bis ' +
     (cov.period_end || '').slice(0, 10) + ' · <span class="simlabel simdata"></span>';
   applySimLabels();
+  buildCitations();
 }
 
 function syncMixUI() {
@@ -1815,7 +1849,7 @@ function syncMixUI() {
   const b = (ts[bIdx] || '').slice(0, 10).split('-').reverse().join('.');
   $('#dp-week-v').textContent = a + ' – ' + b;
   $('#mx-scen-hint').innerHTML = 'WACC ' + pct(scenarioWacc(S.params, MX.scen), 0) + '. ' +
-    S.params.scenario_sets[MX.scen].rationale;
+    deAscii(S.params.scenario_sets[MX.scen].rationale);
   const dem = S.params.global.demand_twh;
   $('#mx-demand-hint').innerHTML = 'Vorgabewert ' + fmt(dem.value, 0) + ' TWh = GES-Zieljahresbedarf 2045; ' +
     'NEP-Spanne 2045: ' + fmt(dem.min, 0) + '–' + fmt(dem.max, 0) + ' TWh ' + confBadge(dem.confidence) + '.';
@@ -1911,5 +1945,374 @@ function renderPartC() {
   updateMix();
 }
 
-/* == PART4 == */
+/* ---------------------------------------------------------------------
+   9 - Teil D: Risiken, Limitationen, GES-Fallstudie, Fazit, Quellen
+   --------------------------------------------------------------------- */
+function table(head, rows, cls) {
+  const t = el('table');
+  t.innerHTML = '<thead><tr>' + head.map(h =>
+    '<th' + (h.num ? ' class="num"' : '') + '>' + h.l + '</th>').join('') + '</tr></thead>';
+  const tb = el('tbody');
+  rows.forEach(r => {
+    const tr = el('tr');
+    tr.innerHTML = r.map((c, i) => '<td' + (head[i] && head[i].num ? ' class="num"' : '') + '>' + c + '</td>').join('');
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+  if (cls) t.className = cls;
+  return t;
+}
+function mount(sel, node) { const b = $(sel); clear(b); b.appendChild(node); }
+
+function renderPartD() {
+  const P = S.page, df = P.dunkelflaute;
+
+  /* --- Dunkelflaute-Definitionen --------------------------------------- */
+  mount('#table-df-def', table(
+    [{ l: 'Definition' }, { l: 'Schwelle' }, { l: 'Mindestdauer', num: true }, { l: 'Verwendet von' }, { l: 'Konfidenz' }],
+    df.definitionen.map(d => [
+      d.id === 'dwd' ? 'Deutscher Wetterdienst' : 'Uniper-Kurzstudie 2026',
+      '&lt; ' + (d.schwelle_prozent_nennleistung || d.schwelle_prozent_installierte_leistung) + ' % der ' +
+        (d.schwelle_prozent_nennleistung ? 'Nennleistung' : 'installierten Leistung (Wind + PV zusammen' +
+        (d.glaettung ? ', ' + d.glaettung : '') + ')'),
+      d.min_dauer_h + ' h', d.quelle, confBadge(d.stufe)
+    ])));
+
+  /* --- Haeufigkeit ------------------------------------------------------ */
+  mount('#table-df-freq', table(
+    [{ l: 'Ereignisdauer', num: true }, { l: 'Häufigkeit' }, { l: 'Quelle' }, { l: 'Konfidenz' }],
+    df.haeufigkeit.map(f => {
+      let h;
+      if (f.anzahl_10_jahre) h = '<strong>' + fmt(f.anzahl_10_jahre, 0) + ' Ereignisse</strong> in 10 Jahren — ' +
+        f.haeufigkeit_text + ', mittlere Dauer ' + fmt(f.mittlere_dauer_h, 1) + ' h';
+      else if (f.haeufigkeit_pro_jahr_min) h = 'etwa ' + f.haeufigkeit_pro_jahr_min +
+        (f.haeufigkeit_pro_jahr_max !== f.haeufigkeit_pro_jahr_min ? '–' + f.haeufigkeit_pro_jahr_max : '') +
+        '× pro Jahr' + (f.haeufigkeit_text ? ' (' + f.haeufigkeit_text + ')' : '');
+      else if (f.wiederkehrperiode_jahre) h = 'etwa alle ' + fmt(f.wiederkehrperiode_jahre, 1) + ' Jahre';
+      else h = '–';
+      return ['&gt; ' + f.dauer_h + ' h', h, f.quelle, confBadge(f.stufe)];
+    })));
+
+  const bg = df.batteriespeicher_grenze, ext = df.extremwerte, ref = df.referenzereignis_dez_2024;
+  const need48 = S.params.system.security_of_supply.energy_need_48h_winter_twh;
+  $('#df-dec2024').innerHTML =
+    '<strong>Der Dezember 2024 als Referenzfall — und was er wirklich zeigt.</strong> ' +
+    'Am ' + ref.datum + ' stiegen die Day-Ahead-Preise auf über ' + fmt(ref.day_ahead_spitze_eur_mwh_max, 0) +
+    ' €/MWh, im Intraday-Markt lag der Mittelwert zeitweise bei rund ' + fmt(ref.intraday_mittel_eur_mwh, 0) +
+    ' €/MWh. Bundesnetzagentur und Bundeskartellamt stellten fest: <strong>kein Marktmissbrauch</strong>, ' +
+    'aber ein <strong>strukturelles Problem</strong>; in den teuersten Stunden waren noch ' +
+    fmt(ref.marktverfuegbare_kapazitaet_gw.min, 1) + '–' + fmt(ref.marktverfuegbare_kapazitaet_gw.max, 1) +
+    ' GW marktverfügbare Kapazität und ' + fmt(ref.reserven_gw.min, 0) + '–' + fmt(ref.reserven_gw.max, 0) +
+    ' GW Reserven vorhanden. ' + confBadge(ref.stufe) + cite('bnetza-preisspitzen-2025') +
+    '<br><br>Das System hat die Dunkelflaute <em>technisch bewältigt</em>, aber zu sehr hohen Preisen. ' +
+    'Beide Lager verkürzen das gern — „das System war am Rand des Kollaps“ ebenso wie „alles lief ' +
+    'problemlos“. Von der Behördenanalyse ist keine der beiden Verkürzungen gedeckt.' +
+    '<br><br><strong>Warum die Definitionsfrage praktisch wird:</strong> Batteriespeicher überbrücken ' +
+    'zuverlässig bis etwa <strong>' + bg.zuverlaessig_ueberbrueckbar_bis_h + ' Stunden</strong> ' +
+    confBadge(bg.stufe) + '. Genau oberhalb dieser Schwelle beginnt die DWD-Definition (48 h). Das längste ' +
+    'Ereignis der Jahre 2016–2025 dauerte ' + fmt(ext.laengstes_ereignis_tage_10j, 1) + ' Tage ' +
+    confBadge(ext.stufe) + cite('lbbw-dunkelflaute-2025') + '. Der Energiebedarf einer 48-Stunden-' +
+    'Winterdunkelflaute wird mit ' + fmt(need48.min, 1) + '–' + fmt(need48.max, 1) + ' TWh beziffert ' +
+    confBadge(need48.confidence) + cite('uniper-dunkelflaute-2026') + '.';
+
+  /* --- Kostenueberschreitung ------------------------------------------- */
+  const ko = P.kostenueberschreitung_faktoren;
+  const koLabels = {
+    solar: 'Solar', wind: 'Wind', netz_uebertragung: 'Stromübertragungsnetz',
+    fossil_thermisch: 'Fossil-thermisch', geothermie: 'Geothermie', wasserkraft: 'Wasserkraft',
+    kernkraft: 'Kernkraft', nukleare_endlagerung: 'Nukleare Endlagerung'
+  };
+  const koColors = {
+    solar: PAL.pv, wind: PAL.windon, netz_uebertragung: PAL.net, fossil_thermisch: PAL.gas,
+    geothermie: '#8a6a3c', wasserkraft: PAL.teal, kernkraft: PAL.band, nukleare_endlagerung: '#a35a7a'
+  };
+  const koRows = Object.entries(ko.technologien).map(([k, v]) => ({
+    label: koLabels[k] || k, color: koColors[k] || PAL.soft,
+    min: (v.spanne[0] - 1) * 100, max: (v.spanne[1] - 1) * 100,
+    value: ((v.flyvbjerg || v.sovacool) - 1) * 100,
+    note: '+' + fmt(((v.flyvbjerg || v.sovacool) - 1) * 100, 0) + ' %',
+    tip: '<b>' + (koLabels[k] || k) + '</b>' +
+      (v.flyvbjerg ? 'Flyvbjerg: +' + fmt((v.flyvbjerg - 1) * 100, 0) + ' %<br>' : '') +
+      (v.sovacool ? 'Sovacool &amp; Ryu 2025: +' + fmt((v.sovacool - 1) * 100, 1) + ' %<br>' : '') +
+      'Modellspanne +' + fmt((v.spanne[0] - 1) * 100, 0) + ' bis +' + fmt((v.spanne[1] - 1) * 100, 0) + ' %' +
+      (v.hinweis ? '<br><em>' + v.hinweis + '</em>' : '')
+  })).sort((a, b) => a.value - b.value);
+  renderHBars('#chart-overrun', koRows, { axisLabel: '% über der ursprünglichen Schätzung', padL: 200, padR: 90, rowH: 28 });
+  legend('#legend-overrun', [{ c: PAL.teal, l: 'Spanne beider Datensätze, Punkt = Zentralwert (Flyvbjerg bzw. Sovacool)' }]);
+  $('#overrun-sub').innerHTML = 'Datenbasis Flyvbjerg: rund ' + fmt(ko.datenbasis.flyvbjerg.projekte, 0) +
+    ' Projekte in ' + ko.datenbasis.flyvbjerg.laender + ' Ländern' + cite('flyvbjerg-2023') +
+    ' · Sovacool &amp; Ryu 2025: ' + fmt(ko.datenbasis.sovacool.projekte, 0) + ' Energieprojekte in ' +
+    ko.datenbasis.sovacool.laender + ' Ländern, Baujahre ' + ko.datenbasis.sovacool.zeitraum +
+    cite('sovacool-ryu-2025') + ' · <span class="simlabel" style="background:#EDECE6;color:#475569">' +
+    'im Basisfall des Modells auf 1,00 gesetzt</span>';
+  $('#overrun-note').innerHTML = '<strong>Das faire Gegenargument.</strong> ' + deAscii(ko.gegenargument) +
+    ' Zusätzlich zeigt Sovacool &amp; Ryu Strukturbrüche bei ' + ko.skaleneffekt_bruchpunkte_mw.join(' und ') +
+    ' MW Blockgröße — oberhalb davon steigen die Überschreitungen überproportional ' +
+    '(„Diseconomies of Scale“). <strong>Wichtig für dieses Modell:</strong> Diese Faktoren sind ' +
+    'im Basisfall <em>abgeschaltet</em> (1,00). Der Modellkern soll nicht mit Risikoannahmen vermischt ' +
+    'werden — wer sie einrechnen will, multipliziert den CAPEX-Regler in Teil B entsprechend hoch.';
+
+  /* --- Lieferketten ----------------------------------------------------- */
+  const lk = P.lieferketten_konzentration;
+  const sup = $('#tiles-supply'); clear(sup);
+  const cards = [
+    { t: 'Photovoltaik', body:
+      '<p style="font-size:14.5px">China hält über <strong>' + lk.pv.china_anteil_alle_fertigungsstufen_prozent +
+      ' %</strong> über alle Fertigungsstufen, bei Polysilizium und Wafern im Ausblick über <strong>' +
+      lk.pv.china_anteil_polysilizium_wafer_ausblick_prozent + ' %</strong>. ' + confBadge(lk.pv.stufe) +
+      cite('iea-pv-supply-chains') + '</p><p style="font-size:14.5px;margin-bottom:0"><strong>Die ' +
+      'Relativierung gehört dazu:</strong> ' + lk.pv.relativierung + '. Bei Gas oder Uran trifft ein ' +
+      'Lieferstopp dagegen den laufenden Betrieb.</p>' },
+    { t: 'Uran und Anreicherung', body:
+      '<p style="font-size:14.5px">Natururan-Bestellungen der EU 2024: Kanada ' + lk.uran.eu_natururan_2024_prozent.kanada +
+      ' %, Kasachstan ' + lk.uran.eu_natururan_2024_prozent.kasachstan + ' %, Russland ' +
+      lk.uran.eu_natururan_2024_prozent.russland + ' %, Australien ' + lk.uran.eu_natururan_2024_prozent.australien +
+      ' %. ' + confBadge(lk.uran.stufe) + cite('euratom-esa-2024') + '</p>' +
+      '<p style="font-size:14.5px;margin-bottom:0">Der eigentliche Engpass ist die <strong>Anreicherung</strong>: ' +
+      'Die EU-Abhängigkeit von russischer Anreicherung fiel von ' + lk.uran.eu_anreicherung_russland_2023_prozent +
+      ' % (2023) auf ' + lk.uran.eu_anreicherung_russland_2024_prozent + ' % (2024) — das Argument ' +
+      '„Kernkraft macht abhängig von Russland“ verliert an Kraft. Umgekehrt kontrollieren Rosatom und CNNC ' +
+      'zusammen über ' + lk.uran.rosatom_plus_cnnc_globale_swu_2024_prozent + ' % der globalen ' +
+      'Anreicherungskapazität.</p>' },
+    { t: 'Erdgas', body:
+      '<p style="font-size:14.5px">Importe 2025: <strong>' + fmt(lk.gas.importe_2025_twh, 0) + ' TWh</strong> ' +
+      '(+' + lk.gas.veraenderung_prozent + ' % ggü. 2024), aus Norwegen ' + lk.gas.anteile_2025_prozent.norwegen +
+      ' %, den Niederlanden ' + lk.gas.anteile_2025_prozent.niederlande + ' %, Belgien ' +
+      lk.gas.anteile_2025_prozent.belgien + ' %. Russische Pipeline-Lieferungen: ' + lk.gas.russland_pipeline +
+      '. ' + confBadge(lk.gas.stufe) + '</p><p style="font-size:14.5px;margin-bottom:0"><strong>Einschränkung:</strong> ' +
+      lk.gas.einschraenkung + '.</p>' },
+    { t: 'Kritische Rohstoffe', body:
+      '<p style="font-size:14.5px">Der Anteil der drei größten Länder an der Raffination stieg von ' +
+      lk.kritische_rohstoffe.top3_raffination_anteil_2020_prozent + ' % (2020) auf ' +
+      lk.kritische_rohstoffe.top3_raffination_anteil_2024_prozent + ' % (2024) — Tendenz ' +
+      lk.kritische_rohstoffe.trend + '. ' + confBadge(lk.kritische_rohstoffe.stufe) +
+      cite('iea-critical-minerals-2025') + '</p><p style="font-size:14.5px;margin-bottom:0">China raffiniert ' +
+      lk.kritische_rohstoffe.china_graphit_raffination_prozent + ' % des Graphits und der Seltenen Erden, ' +
+      lk.kritische_rohstoffe.china_lithium_verarbeitung_prozent + ' % des Lithiums und Kobalts. Das betrifft ' +
+      'Batterien und Windkraft gleichermaßen.</p>' }
+  ];
+  cards.forEach(c => sup.appendChild(el('div', { cls: 'card',
+    html: '<p class="card-t">' + c.t + '</p>' + c.body })));
+
+  /* --- Kernkraft-Restrisiken -------------------------------------------- */
+  const kr = P.kernkraft_restrisiken, kenfo = kr.kenfo, haft = kr.haftung;
+  $('#nuc-pro').innerHTML = [
+    'Der Entsorgungsfonds <strong>KENFO</strong> wurde 2017 mit ' + fmt(kenfo.einzahlung_2017_mrd_eur, 1) +
+      ' Mrd. € kapitalisiert und liegt inzwischen bei rund ' + fmt(kenfo.anlagevermoegen_mrd_eur, 0) +
+      ' Mrd. € Anlagevermögen. ' + confBadge('B') + cite('kenfo'),
+    'Die Rendite lag 2025 bei ' + fmt(kenfo.rendite_2025_prozent, 1) + ' % und damit ' +
+      fmt(kenfo.rendite_2025_prozent - kenfo.zielrendite_2025_prozent, 1) + ' Prozentpunkte über der ' +
+      'Zielrendite; seit Auflage ' + fmt(kenfo.rendite_seit_auflage_prozent_pa, 1) + ' % p. a. ' + confBadge('A'),
+    'Seit 2017 wurden bereits ' + fmt(kenfo.erstattungen_seit_2017_mrd_eur, 1) + ' Mrd. € an den Bund erstattet.',
+    'Finnland könnte mit <strong>Onkalo</strong> Ende 2026 das weltweit erste geologische Tiefenlager in ' +
+      'Betrieb nehmen — der Probebetrieb läuft seit September 2024. ' + confBadge('A') + cite('base-endlager')
+  ].map(x => '<li>' + x + '</li>').join('');
+  $('#nuc-con').innerHTML = [
+    'Die Betreiber sind mit der Einzahlung <strong>enthaftet</strong>; die Auffanghaftung liegt beim ' +
+      'Bundeshaushalt. Eine <em>quantifizierte</em> Deckungslücke gibt es nicht — sie ist ' +
+      (kenfo.deckungsluecke_quantifiziert ? 'beziffert' : '<strong>nicht beziffert</strong>') +
+      ', was die Debatte unentscheidbar macht. ' + confBadge('B'),
+    'Die Haftpflichtversicherung je Anlage beträgt ' + fmt(haft.haftpflichtversicherung_mio_eur, 0) +
+      ' Mio. €, darüber greift bis ' + fmt(haft.solidarvereinbarung_mrd_eur, 1) + ' Mrd. € eine ' +
+      'Solidarvereinbarung, darüber der Staat (§ 34 AtG). Die Betreiberhaftung ist dem Grunde nach ' +
+      'unbegrenzt, faktisch aber durch die Insolvenzfähigkeit begrenzt. ' + confBadge(haft.stufe) +
+      cite('bundestag-wd-haftung'),
+    'Ein Schattenpreis je MWh für dieses Restrisiko ist <strong>nicht seriös quantifizierbar</strong> — ' +
+      'das Dossier empfiehlt deshalb ausdrücklich, ihn <em>nicht</em> als Fixwert zu modellieren. ' +
+      'Dieses Modell setzt ihn folglich nicht an; das LSCOE ist insoweit eine Untergrenze.',
+    'Nukleare Endlagerprojekte sind die Projektklasse mit der höchsten empirischen Kostenüberschreitung ' +
+      'überhaupt (+' + fmt((ko.technologien.nukleare_endlagerung.flyvbjerg - 1) * 100, 0) + ' %). ' +
+      confBadge('A') + cite('flyvbjerg-2023'),
+    'In Deutschland wird die Standortentscheidung nach aktuellen Schätzungen zwischen <strong>2046 und ' +
+      '2074</strong> erwartet. ' + confBadge('B') + cite('base-endlager')
+  ].map(x => '<li>' + x + '</li>').join('');
+
+  mount('#table-endlager', table(
+    [{ l: 'Land' }, { l: 'Projekt' }, { l: 'Status 2026' }, { l: 'erste Einlagerung', num: true }, { l: 'Konfidenz' }],
+    kr.endlager_status.map(e => [e.land, e.projekt || '—', deAscii(e.status),
+      e.erste_einlagerung_jahr ? e.erste_einlagerung_jahr : 'offen', confBadge(e.stufe)])));
+
+  renderLimitations();
+  renderGes();
+}
+
+function renderLimitations() {
+  const P = S.page;
+  $('#lim-simplifications').innerHTML = [
+    '<strong>Ein Wetterjahr, kein Ensemble.</strong> Das Modell rechnet mit den Profilen eines einzigen ' +
+      'Zeitraums. Ein Extremwetterjahr würde Backup- und Speicherbedarf anders ausfallen lassen.',
+    '<strong>Kein Import/Export, kein Lastmanagement.</strong> Beides existiert real und würde das System ' +
+      'entlasten. Die Vereinfachung ist damit <em>konservativ</em> — sie macht jedes Szenario eher teurer, ' +
+      'und zwar alle gleichermaßen.',
+    '<strong>Keine räumliche Netzsimulation.</strong> Der Netzausbau geht nur als top-down-Kostenzuschlag ' +
+      'ein, linear mit dem fEE-Anteil skaliert — dieselbe Vereinfachung wie in der GES-Studie, inklusive ' +
+      'derselben Limitation. Zugrunde liegen ' + fmt(S.params.system.grid.investment_bn_eur_until_2045.value, 0) +
+      ' Mrd. € Investitionsvolumen bis 2045 ' + confBadge(S.params.system.grid.investment_bn_eur_until_2045.confidence) +
+      cite('imk-netzkosten') + ', abgeschrieben über ' + fmt(S.params.system.grid.lifetime_years.value, 0) +
+      ' Jahre — die Abschreibungsdauer ist eine <strong>Modellannahme ohne Quellenbeleg</strong> ' +
+      confBadge('M') + '.',
+    '<strong>Speicher-Dispatch ist greedy, nicht optimiert.</strong> Das Modell unterstellt <em>keine</em> ' +
+      'perfekte Voraussicht. Das überschätzt den Speicherbedarf tendenziell leicht.',
+    '<strong>Kernkraft läuft als Band.</strong> Ein lastfolgender Betrieb würde die Abregelung senken, ' +
+      'aber auch die Volllaststunden — und damit die LCOE-Basis. Wer 8.000 h <em>und</em> hohen EE-Anteil ' +
+      'unterstellt, rechnet inkonsistent.',
+    '<strong>Lebenszyklus-Emissionen werden nicht bepreist.</strong> Der CO₂-Preis wirkt nur auf ' +
+      'Direktemissionen. Die LCA-Werte (PV Deutschland ' +
+      fmt(P.co2_intensitaet_g_pro_kwh.technologien.pv_deutschland.default, 0) + ' g/kWh, Wind onshore ' +
+      fmt(P.co2_intensitaet_g_pro_kwh.technologien.wind_onshore.default, 0) + ', Kernkraft ' +
+      fmt(P.co2_intensitaet_g_pro_kwh.technologien.kernkraft.default, 1) + ', GuD ' +
+      fmt(P.co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.default, 0) + ') stehen informativ in ' +
+      'den Daten. ' + confBadge('A') + cite('unece-2022'),
+    '<strong>Kostenüberschreitungsfaktoren sind abgeschaltet.</strong> Der Basisfall rechnet mit 1,00, ' +
+      'damit Modellkern und Risikoannahme nicht vermischt werden.'
+  ].map(x => '<li>' + x + '</li>').join('');
+
+  mount('#table-gaps', table(
+    [{ l: 'ID' }, { l: 'Parameter' }, { l: 'Warum das eine Lücke ist' }],
+    P.gaps.map(g => ['<code>' + g.id + '</code>', '<code>' + g.parameter + '</code>', deAscii(g.reason)])));
+
+  const cov = S.profiles.series.load_mw.coverage || {};
+  const pm = P.profiles_meta;
+  $('#lim-partial').innerHTML =
+    '<div class="note crit"><strong>Die stärkste Einschränkung dieses Papiers.</strong> ' +
+    '<code>profiles_2024.json</code> ist als <code>' + pm.data_completeness + '</code> markiert: ' +
+    S.profiles.hours + ' von ' + (cov.hours_expected || 8784) + ' Stunden, und drei Reihen fehlen ganz.' +
+    '<ul style="margin:10px 0 0">' +
+    Object.entries(pm.gaps).map(([k, v]) => '<li><code>' + k + '</code>: ' + deAscii(v) + '</li>').join('') +
+    '</ul></div>' +
+    '<p>Der Grund ist dokumentiert und unbequem: Die drei vorgesehenen Primärquellen ' +
+    '(Energy-Charts-API des Fraunhofer ISE, SMARD-API der Bundesnetzagentur, Open Power System Data) ' +
+    'waren aus der Arbeitsumgebung heraus per Netzwerk-Egress-Policy nicht erreichbar. Verwendet wurde ' +
+    'ersatzweise ein öffentlicher GitHub-Mirror echter SMARD-Exportdaten.' + cite('smard-mirror-2024') +
+    ' <strong>Es wurde kein einziger Platzhalter- oder Schätzwert eingesetzt</strong> — lieber eine ' +
+    'ausgewiesene Lücke als eine unsichtbare Erfindung.</p>' +
+    '<p>Praktisch heißt das: Der abgedeckte Zeitraum Juli–Dezember ist winterlastig. Residuallastspitzen ' +
+    'und Backup-Mengen sind überrepräsentiert, PV-Erträge unterrepräsentiert. Die Hochrechnung erfolgt ' +
+    'über den <em>Lastanteil</em> des Zeitraums (' + pct(pm.seasonal_share_covered.load_mw.value, 1) +
+    ') statt naiv über den Stundenanteil — bei PV wäre die naive Annahme um rund 18 % falsch. ' +
+    'Für Wasserstoff-Saisonspeicher ist ein Halbjahresprofil aber grundsätzlich zu kurz: Der Speicher ' +
+    'startet gefüllt, weil die Einspeicherphase vor dem 1. Juli liegt. Beide Varianten — mit und ohne ' +
+    'Startfüllstand — sind falsch; die Wahrheit liegt dazwischen und ist mit diesen Daten nicht ' +
+    'ermittelbar. <strong>Das ist der stärkste Grund, das Profil auf ein Volljahr nachzuziehen.</strong></p>' +
+    '<p>' + deAscii(pm.architecture_note) + ' Sobald <code>meta.data_completeness</code> auf <code>FULL</code> steht, ' +
+    'verschwinden die Hochrechnungs-Labels auf dieser Seite automatisch.</p>';
+}
+
+function renderGes() {
+  const G = S.page.ges;
+  mount('#table-bias', table(
+    [{ l: 'Technologie / Parameter' }, { l: 'Richtung' }, { l: 'Ausmaß' }, { l: 'Effekt auf das Studienergebnis' }],
+    G.bias_check.map(b => {
+      const pro = b.richtung.indexOf('ÜBER') >= 0 || b.richtung.indexOf('UEBER') >= 0 ||
+                  b.effekt.indexOf('spricht für') >= 0 || b.effekt.indexOf('entgegen') >= 0;
+      const col = b.richtung.indexOf('keine') >= 0 ? PAL.soft : (pro ? PAL.teal : PAL.accent);
+      return [b.technologie, '<span style="color:' + col + ';font-weight:600">' + b.richtung + '</span>',
+        b.ausmass, b.effekt];
+    })));
+
+  const sys = G.system_level_estimate.kostenminimum_scenario;
+  mount('#table-ges-sens', table(
+    [{ l: 'Kernkraft-CAPEX' }, { l: 'geschätztes LSCOE „Kostenminimum“', num: true }],
+    sys.map(s => [s.nuclear_capex_assumption,
+      s.lscoe_estimate ? fmt(s.lscoe_estimate, 0) + ' €/MWh'
+        : fmt(s.lscoe_estimate_range[0], 0) + '–' + fmt(s.lscoe_estimate_range[1], 0) + ' €/MWh'])));
+
+  /* Reproduktion mit GES-Kostenannahmen (Werte aus der Validierung) */
+  const dev = $('#ges-repro-dev');
+  if (dev) dev.textContent = '±' + fmt(G.lcoe_reproduction_max_deviation_pct, 2) + ' %';
+  const pub = G.reference.scenarios;
+  const modelled = G.model_reproduction;
+  mount('#table-ges-repro', table(
+    [{ l: 'Szenario' }, { l: 'GES', num: true }, { l: 'Modell', num: true }, { l: 'Abw.', num: true }],
+    pub.map(s => {
+      const m = modelled[s.name];
+      return [s.name, fmt(s.lscoe, 0), fmt(m, 0), fmt((m - s.lscoe) / s.lscoe * 100, 0) + ' %'];
+    })));
+}
+
+/* --- Fazit ------------------------------------------------------------- */
+function renderConclusion() {
+  const P = S.page;
+  const nucRange = P.lcoe_benchmarks.nuclear.resulting_range;
+  const items = [
+    { t: 'Der Kapitalkostensatz entscheidet mehr als die Technologiewahl.',
+      b: 'Zwischen WACC 3 % und 10 % liegt beim Kapitalwiedergewinnungsfaktor der Faktor <strong>2,78</strong> ' +
+         '— mehr als jede plausible CAPEX-Variation und ein Vielfaches des Lebensdauer-Effekts (60 vs. 80 Jahre: ' +
+         'rund 3 %). ' + confBadge('A') + cite('iwr-hinkley-2026') + ' Das gilt für Kernkraft und Offshore-Wind ' +
+         'am stärksten, für PV am schwächsten. <em>Unsicherheit:</em> gering — der Effekt ist reine Arithmetik ' +
+         'der Annuitätenmethode und in diesem Papier gegen die Python-Referenz geprüft.' },
+    { t: 'Ein einzelner Punktwert für Kernkraftkosten ist immer irreführend — in beide Richtungen.',
+      b: 'Reale Neubaukosten reichen von rund 1.900 €/kW (Korea, Inland) bis rund 17.300 €/kW ' +
+         '(Hinkley Point C) — mehr als das Neunfache. ' + confBadge('A') + ' Die für Deutschland ' +
+         'relevanten EU-Referenzen (Polen, Tschechien, Frankreich, UK) liegen mit rund 7.900–13.500 €/kW ' +
+         'systematisch dazwischen. Das Dossier-Band für ein realistisches EU-Neubauszenario reicht von ' +
+         '<strong>' + fmt(nucRange.realistisch_eu.lcoe, 0) + ' €/MWh</strong> (' +
+         fmt(nucRange.realistisch_eu.capex, 0) + ' €/kW, WACC ' + pct(nucRange.realistisch_eu.wacc, 0) +
+         ') bis <strong>' + fmt(nucRange.pessimistisch.lcoe, 0) + ' €/MWh</strong> (' +
+         fmt(nucRange.pessimistisch.capex, 0) + ' €/kW, WACC ' + pct(nucRange.pessimistisch.wacc, 0) +
+         '); der einzige vertraglich fixierte Wert weltweit (Hinkley-CfD, ' +
+         fmt(S.page.lcoe_benchmarks.nuclear.third_party.find(x => x.source_id === 'iwr-hinkley-2026').lcoe_eur_mwh, 0) +
+         ' €/MWh) liegt im unteren Drittel davon. <em>Unsicherheit:</em> hoch bei den Absolutwerten, ' +
+         'gering bei der Spannweite.' },
+    { t: 'Die Volllaststunden-Annahme bei Wind ist ein größerer Hebel als der CAPEX — und wird selten diskutiert.',
+      b: 'Die deutsche Bestandsflotte erreichte 2025 rund ' +
+         fmt(P.lcoe_benchmarks.wind_onshore.full_load_hours_fleet.value_2025, 0) + ' Volllaststunden, ' +
+         'Neuanlagen im Mittel über 2.400. ' + confBadge('A') + ' Wer mit Bestandswerten rechnet, verteuert ' +
+         'Windstrom um rund 30 % — bei identischen Baukosten. Der Realitätscheck stützt die niedrigeren ' +
+         'Kosten: Die BNetzA-Ausschreibung im Mai 2026 ergab mengengewichtet ' +
+         fmt(P.lcoe_benchmarks.wind_onshore.auction[P.lcoe_benchmarks.wind_onshore.auction.length - 1].weighted_avg, 1) +
+         ' €/MWh. ' + confBadge('A') + cite('bnetza-wind-2026-05') + ' <em>Unsicherheit:</em> gering.' },
+    { t: 'Die Systemkosten entscheiden sich nicht an den Erzeugungskosten, sondern an der Speicherfrage.',
+      b: 'In der Simulation macht der Erzeugungsblock in EE-lastigen Szenarien nur einen Teil des LSCOE aus; ' +
+         'Wasserstoffspeicher, Rückverstromung und Netz dominieren die Differenz zwischen den Szenarien. ' +
+         'Die H₂-Kette ist dabei der teuerste und unsicherste Block: Der realistische Round-Trip-Wirkungsgrad ' +
+         'Strom→H₂→Strom liegt bei <strong>30–40 %</strong>, nicht bei 50 %+. ' + confBadge('B') +
+         ' <em>Unsicherheit:</em> hoch — hier wirkt die Halbjahres-Datenbasis am stärksten.' },
+    { t: 'Der modellierte Speicherbedarf stößt an eine physische Grenze, die in keiner Kostenrechnung auftaucht.',
+      b: 'Das deutsche Umwidmungspotenzial für Wasserstoff-Salzkavernen liegt bei rund ' +
+         fmt(S.params.technologies.h2_storage.params.de_repurposing_potential_twh.value, 0) + ' TWh ' +
+         confBadge('B') + ', die Fraunhofer-ISE-Referenz für den Bedarf 2045 bei ' +
+         fmt(S.params.system.security_of_supply.h2_storage_need_2045_twh.value, 0) + ' TWh ' + confBadge('C') +
+         '. Weil das Modell H₂-Speicherung über den <em>Durchsatz</em> bepreist, ist das eine Mengen-, keine ' +
+         'Kostenrestriktion — sie verschwindet aus jeder €/MWh-Betrachtung und muss separat benannt werden. ' +
+         '<em>Unsicherheit:</em> die Bedarfsschätzungen streuen um Faktor 3.' },
+    { t: 'Dunkelflaute ist ein Preis-, kein Blackout-Problem — solange gesicherte Leistung vorgehalten wird.',
+      b: 'Im Referenzfall Dezember 2024 stellten Bundesnetzagentur und Bundeskartellamt kein Marktversagen, ' +
+         'aber ein strukturelles Problem fest; Reserven waren vorhanden, die Preise erreichten über ' +
+         '1.000 €/MWh. ' + confBadge('A') + cite('bnetza-preisspitzen-2025') + ' Der amtlich ermittelte ' +
+         'Zusatzbedarf an gesicherter Leistung für 2030 liegt bei ' +
+         fmt(S.params.system.security_of_supply.firm_capacity_gap_2030_gw.min, 0) + '–' +
+         fmt(S.params.system.security_of_supply.firm_capacity_gap_2030_gw.max, 0) + ' GW ' +
+         confBadge(S.params.system.security_of_supply.firm_capacity_gap_2030_gw.confidence) +
+         '. <em>Unsicherheit:</em> mittel — die Spanne hängt am Erfolg der Nachfrageflexibilisierung.' }
+  ];
+  const box = $('#fazit-list'); clear(box);
+  items.forEach((it, i) => box.appendChild(el('div', { cls: 'card',
+    html: '<p class="card-t">Kernaussage ' + (i + 1) + '</p>' +
+      '<p style="font-family:Fraunces,serif;font-size:19px;font-weight:650;line-height:1.3;margin:0 0 8px">' +
+      it.t + '</p><p style="font-size:15px;margin-bottom:0">' + it.b + '</p>' })));
+  box.appendChild(el('div', { cls: 'note',
+    html: '<strong>Was hier bewusst nicht steht.</strong> Eine Empfehlung, welchen Mix Deutschland bauen ' +
+      'sollte. Diese Frage enthält Abwägungen — Risikobereitschaft, Zeitpräferenz, Souveränitätsziele —, ' +
+      'die kein Kostenmodell entscheiden kann. Was ein Modell leisten kann, ist, die Kosten jeder ' +
+      'Entscheidung sichtbar und nachrechenbar zu machen. Genau dafür sind die Regler oben da.' }));
+}
+
+/* --- Quellenverzeichnis ------------------------------------------------ */
+function renderSources() {
+  const list = $('#sources-list'); clear(list);
+  S.page.sources.forEach(s => {
+    list.appendChild(el('li', { html:
+      '<strong>' + s.title + '</strong>' + (s.publisher ? '. ' + s.publisher : '') +
+      (s.date ? ', ' + s.date : '') + '. ' + confBadge(s.confidence) +
+      (s.note ? '<br><em>' + s.note + '</em>' : '') +
+      '<br><a href="' + s.url + '" target="_blank" rel="noopener">' + s.url + '</a>' +
+      '<br><span style="font-size:12.5px;color:var(--soft)">Zugriff ' + (s.accessed || '–') +
+      (s.dossier ? ' · übernommen aus <code>' + s.dossier + '</code>' : '') + '</span>' }));
+  });
+}
+
+/* --------------------------------------------------------------------- */
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
 

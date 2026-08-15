@@ -5,6 +5,10 @@
 <title>Was braucht ein gesunder Strommix — und was kostet er? · Daten-WG</title>
 <meta name="description" content="Interaktives White Paper: Ist-Zustand, Kostenmodell (LCOE), stündliche Dispatch-Simulation und Risiken eines klimaneutralen deutschen Stromsystems. Jede Zahl mit Quelle und Konfidenzstufe.">
 <meta name="author" content="Michael Tenner · Daten-WG">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,750&amp;family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
@@ -458,6 +462,10 @@ schöngerechnet.</p>
 </div>
 
 <h3>Jahresbilanz</h3>
+<p style="font-size:14.5px;color:var(--soft)">Alle folgenden Werte stammen aus der stündlichen Simulation
+und sind auf ein Jahr hochgerechnet — erkennbar am Marker <span class="simlabel simdata short"></span>,
+der aus <code>meta.data_completeness</code> gelesen wird und bei vollständiger Jahresdatenbasis automatisch
+verschwindet.</p>
 <div class="grid3" id="tiles-mix"></div>
 
 <div class="chartbox">
@@ -556,7 +564,7 @@ die es prüft.</p>
   einen Annahmen-Check erst möglich. <strong>Das ist ausdrücklich positiv zu werten.</strong></p>
   <p style="font-size:15px;margin-bottom:0">Der Punkt ist nicht, ob die Studie „recht hat“, sondern
   wie stark ein Systemvergleich an seinen Inputs hängt. Das Modell dieses Papiers reproduziert die
-  vier LCOE-Werte der Studie mit deren eigenen Annahmen auf ±0,04&nbsp;% genau — jede spätere
+  vier LCOE-Werte der Studie mit deren eigenen Annahmen auf <span id="ges-repro-dev">±0,04&nbsp;%</span> genau — jede spätere
   Abweichung ist damit eine Frage der <em>Eingangsdaten</em>, nicht der Rechenmethode.</p>
 </div>
 
