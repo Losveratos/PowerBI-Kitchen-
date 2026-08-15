@@ -54,6 +54,7 @@ Skript aus dokumentierten Quellen erzeugt wurde.
 |---|---|---|
 | 2026-08-15 | 0 · Setup | Ordnerstruktur, Prämissen, Grundlagen-MD (LinkedIn-Faktencheck GES-Studie) eingecheckt |
 | 2026-08-15 | 1 · Recherche | Parallele Recherche gestartet: Kosten EE+Speicher, Kernkraft-Referenzen, Ist-Zustand DE, stündliche SMARD-Daten, Risiken & CO₂-Preis |
+| 2026-08-15 | 1 · Recherche (stündliche Daten) | `fetch_hourly_2024.py` / `build_profiles.py` gebaut. Alle 3 Primärquellen (Energy-Charts, SMARD, OPSD) aus dieser Sandbox per Egress-Policy blockiert (403, siehe `research/daten_stundenprofile.md`). Notlösung: realer GitHub-Mirror von SMARD-Exporten liefert Netzlast/PV/Wind-Onshore für Jul–Dez 2024 (50% des Jahres). Wind Offshore, Wasserkraft, Biomasse sowie Jan–Jun 2024 fehlen — `data/profiles_2024.json` ist als `PARTIAL` markiert, kein Platzhalter/Fake-Wert enthalten. Folgeaktion nötig: Netzwerk-Freigabe oder manueller CSV-Import. |
 
 ## Offene Punkte
 

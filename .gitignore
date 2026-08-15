@@ -12,7 +12,7 @@ videos_raw.json
 existing_episodes.json
 
 # yt-dlp data dir
-data/
+/data/
 
 # Andere Themen / nicht zu diesem Repo
 wordpress.md
