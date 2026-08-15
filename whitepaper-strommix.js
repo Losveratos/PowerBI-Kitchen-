@@ -7,10 +7,12 @@
      2  Modell-Portierung aus strommix/scripts/model.py  (1:1)
      3  Selbsttest gegen strommix/data/test_vectors.json
      4  SVG-Render-Helfer
-     5  Teil A - Ist-Zustand
-     6  Teil B - LCOE-Rechner
-     7  Teil C - Mix-Simulator
-     8  Teil D - Risiken, Limitationen, GES-Fallstudie, Fazit, Quellen
+     5  Bootstrap, Methodik (Kap. 3), Transparenz
+     6  Kapitel 2 - Ist-Zustand
+     7  Kapitel 4 - LCOE-Rechner
+     8  Kapitel 5 - Mix-Simulator
+     9  Kapitel 7-9 + Anhang, Executive Summary, Kapitel-Navigation
+    10  Kapitel 6 - Monte Carlo (Port von strommix/scripts/monte_carlo.py)
 
    Keine externen Bibliotheken. Alle Zahlen stammen aus strommix/data/*.json.
    ===================================================================== */
@@ -97,6 +99,33 @@ function deAscii(t) {
   let out = String(t);
   DE_ASCII.forEach(([a, b]) => { out = out.replace(new RegExp('\\b' + a, 'g'), b); });
   return out;
+}
+
+/* ISO-Datumsangaben aus den Daten in lesbares Deutsch. Akzeptiert
+   "2024-11-06", "2024-12-11 bis 2024-12-12" und "2026-Jahresmitte". */
+const DE_MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli',
+  'August', 'September', 'Oktober', 'November', 'Dezember'];
+function deDatum(s) {
+  if (!s) return '–';
+  const t = String(s).trim();
+  const range = t.match(/^(\d{4})-(\d{2})-(\d{2})\s*(?:bis|–|-)\s*(\d{4})-(\d{2})-(\d{2})$/);
+  if (range) {
+    const [, y1, m1, d1, y2, m2, d2] = range;
+    if (y1 === y2 && m1 === m2) return (+d1) + './' + (+d2) + '. ' + DE_MONTHS[+m1 - 1] + ' ' + y1;
+    return (+d1) + '. ' + DE_MONTHS[+m1 - 1] + ' ' + y1 + ' bis ' + (+d2) + '. ' + DE_MONTHS[+m2 - 1] + ' ' + y2;
+  }
+  const one = t.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (one) return (+one[3]) + '. ' + DE_MONTHS[+one[2] - 1] + ' ' + one[1];
+  const ym = t.match(/^(\d{4})-(.+)$/);
+  if (ym && !/^\d/.test(ym[2])) return ym[2].replace(/_/g, ' ') + ' ' + ym[1];
+  if (ym && /^\d{2}$/.test(ym[2])) return DE_MONTHS[+ym[2] - 1] + ' ' + ym[1];
+  return t;
+}
+
+/* Zahl mit so vielen Nachkommastellen, wie sie wirklich braucht. */
+function fmtAuto(v, maxDec) {
+  if (v === null || v === undefined || !isFinite(v)) return '–';
+  return fmt(v, Number.isInteger(v) ? 0 : (maxDec === undefined ? 1 : maxDec));
 }
 
 /* Konfidenz-Badge als HTML-Schnipsel. 'high'/'medium'/'low' werden gemappt. */
@@ -882,13 +911,15 @@ function renderProgress(container, rows) {
 /* ---------------------------------------------------------------------
    5 - Globaler Zustand und Bootstrap
    --------------------------------------------------------------------- */
-const S = { params: null, profilesRaw: null, profiles: null, page: null, vectors: null, srcIndex: {} };
+const S = { params: null, profilesRaw: null, profiles: null, page: null, vectors: null,
+  mcRef: null, srcIndex: {}, test: null };
 
 const DATA_FILES = {
   params: 'strommix/data/model_params.json',
   profilesRaw: 'strommix/data/profiles_2024.json',
   page: 'strommix/data/page_data.json',
-  vectors: 'strommix/data/test_vectors.json'
+  vectors: 'strommix/data/test_vectors.json',
+  mcRef: 'strommix/data/monte_carlo_reference.json'
 };
 
 async function boot() {
@@ -927,32 +958,56 @@ async function boot() {
   } catch (e) {
     test = { checked: 0, fails: [{ path: 'exception', expected: 0, actual: String(e) }], tol: 0.005 };
   }
+  S.test = test;
   renderVerification(test);
 
   banner.innerHTML = '';
   renderTransparency();
+  renderMethodik();
   renderPartA();
   renderPartB();
   renderPartC();
   renderPartD();
   renderConclusion();
+  renderExecSummary();
   renderSources();
+  setupChapterNav();
   applySimLabels();
   buildCitations();
+
+  /* Monte Carlo laeuft nach dem ersten Rendern, damit die Seite sofort steht.
+     Danach: Kapitel 6 fuellen, Paritaet ins Verifikations-Badge nachtragen. */
+  setTimeout(() => {
+    mcRunAll().then(res => {
+      MC.res = res;
+      MC.done = true;
+      const mc = mcParityTest(res);
+      S.test = { checked: test.checked, fails: test.fails.concat(mc.fails), tol: test.tol,
+        mcChecked: mc.checked };
+      renderVerification(S.test);
+      $('#mc-progress').innerHTML = '<span class="badge-ok">✓ ' +
+        fmt(MC_N_DRAWS * MC_CONFIGS.length * (MC.order || []).length, 0) + ' Ziehungen in ' +
+        fmt(MC.ms, 0) + ' ms</span>';
+      renderMcChapter();
+      renderExecSummary();
+      window.__strommixMcDone = true;
+    });
+  }, 0);
 }
 
 function renderVerification(test) {
   const ok = test.fails.length === 0;
   const box = $('#verify-badge');
+  const mcPart = test.mcChecked ? ' + ' + test.mcChecked + ' Monte-Carlo-Perzentile' : '';
   box.innerHTML = ok
-    ? '<span class="badge-ok">✓ Modell verifiziert — ' + test.checked + ' Testvektoren, Toleranz ' +
-      fmt(test.tol * 100, 1) + ' %</span>'
+    ? '<span class="badge-ok">✓ Modell verifiziert — ' + test.checked + ' Testvektoren' + mcPart +
+      ', Toleranz ' + fmt(test.tol * 100, 1) + ' %</span>'
     : '<span class="badge-ok badge-bad">✗ Modell NICHT verifiziert — ' + test.checked +
-      ' Testvektoren, davon ' + test.fails.length + ' Einzelwerte außerhalb der Toleranz ' +
+      ' Testvektoren' + mcPart + ', davon ' + test.fails.length + ' Einzelwerte außerhalb der Toleranz ' +
       '(Details in der Browser-Konsole)</span>';
   if (ok) {
     console.log('%c[strommix] Selbsttest bestanden', 'color:#0E6E7A;font-weight:600',
-      test.checked + ' Testvektoren gegen strommix/data/test_vectors.json, Toleranz ' + (test.tol * 100) + ' %');
+      test.checked + ' Testvektoren' + mcPart + ', Toleranz ' + (test.tol * 100) + ' %');
   } else {
     console.error('[strommix] Selbsttest FEHLGESCHLAGEN — Abweichungen:');
     console.table(test.fails.map(f => ({
@@ -1016,8 +1071,59 @@ function applySimLabels() {
   });
 }
 
+/* Kapitel 3 - Methodik. Alle Zahlen aus den Daten, keine im Markup. */
+function renderMethodik() {
+  const G = S.page.ges;
+  const vecCount = ['crf', 'idc', 'lcoe', 'mix'].reduce((a, k) => a + (S.vectors[k] || []).length, 0);
+  const pm = S.page.profiles_meta;
+  const val = S.params.system.grid;
+
+  $('#meth-validation').innerHTML = [
+    '<strong>Gegen die geprüfte Studie.</strong> Mit den Annahmen der GES-Studie reproduziert das ' +
+      'Modell deren vier LCOE-Werte auf <strong><span class="ges-repro-dev">±' +
+      fmt(G.lcoe_reproduction_max_deviation_pct, 2) + ' %</span></strong> genau. Abweichungen bei den ' +
+      'Systemkosten sind damit eine Frage der Eingangsdaten, nicht der Rechenmethode.',
+    '<strong>Gegen das Ist-Jahr.</strong> Mit den realen Kapazitäten 2024 trifft die stündliche ' +
+      'Simulation die realen Jahressummen der Profile auf ±0,06&nbsp;% ' +
+      '(<code>research/validierung_modell.md</code>).',
+    '<strong>Gegen die eigene Referenzimplementierung.</strong> Diese Seite rechnet beim Laden ' +
+      '<strong>' + vecCount + ' Testvektoren</strong> aus <code>data/test_vectors.json</code> nach ' +
+      '(Toleranz ' + fmt((S.vectors.meta && S.vectors.meta.tolerance_relative || 0.005) * 100, 1) +
+      '&nbsp;%) und zusätzlich die Monte-Carlo-Mediane aus Kapitel 6. Das Ergebnis steht im Badge ' +
+      'ganz unten — schlägt eine Prüfung fehl, sagt die Seite das, statt es zu verstecken.',
+    '<strong>Gegen publizierte LCOE Dritter.</strong> Die Vergleichslinien in Kapitel 4 ' +
+      '(Fraunhofer&nbsp;ISE, Lazard, IRENA, BNetzA-Zuschlagswerte, Hinkley-CfD) sind keine Dekoration, ' +
+      'sondern der Plausibilitätstest für jeden Modellbalken.'
+  ].map(x => '<li>' + x + '</li>').join('');
+
+  $('#meth-mc').innerHTML = 'Die Monte-Carlo-Rechnung in Kapitel 6 zieht ' +
+    mcDrawPlan(S.params).length + ' Parameter gleichzeitig als Dreiecksverteilung, ' +
+    fmt(MC_N_DRAWS, 0) + '-mal je Szenario, mit festem Startwert und einem eigenen ' +
+    'Zufallszahlengenerator — damit Python-Referenz und Browser bitgleich dieselbe Ziehungsfolge ' +
+    'erzeugen. Die zentrale Vereinfachung dabei: Der stündliche Dispatch wird je Szenario einmal ' +
+    'gerechnet und wiederverwendet, die Ziehungen wirken nur auf die Kostenseite. Was das genau ' +
+    'bedeutet und was <em>nicht</em> variiert wird, steht in Kapitel 6 und in den Limitationen.';
+
+  $('#meth-repro').innerHTML = 'Diese Seite rechnet nichts, was nicht auch offline nachrechenbar wäre: ' +
+    'Modell (<code>scripts/model.py</code>), Parametersatz (<code>data/model_params.json</code>, jeder ' +
+    'Wert mit Spanne, Einheit, Quelle und Konfidenzstufe), Profile (<code>data/profiles_2024.json</code>, ' +
+    'aktuell <code>' + pm.data_completeness + '</code> mit ' + S.profiles.hours + ' Stunden) und die ' +
+    'Referenzläufe liegen im Repository — Details und Links im <a href="#anhang">Anhang</a>. ' +
+    'Netzkosten gehen top-down mit ' + fmt(val.investment_bn_eur_until_2045.value, 0) + '&nbsp;Mrd.&nbsp;€ ' +
+    'Investitionsvolumen ein ' + confBadge(val.investment_bn_eur_until_2045.confidence) +
+    ', linear mit dem fEE-Anteil skaliert — dieselbe Vereinfachung wie in der GES-Studie, inklusive ' +
+    'derselben Limitation.';
+
+  /* Der CRF-Hebel in Kapitel 4: Zahlen aus den Daten statt im Markup. */
+  const ws = S.page.wacc_sensitivity.wacc_effect_at_60y;
+  $('#wacc-crf-note').innerHTML = 'Bei 60&nbsp;Jahren Lebensdauer steigt der ' +
+    'Kapitalwiedergewinnungsfaktor von ' + fmt(ws['0.03'] * 100, 3) + '&nbsp;% (WACC 3&nbsp;%) auf ' +
+    fmt(ws['0.10'] * 100, 3) + '&nbsp;% (WACC 10&nbsp;%) — <strong>Faktor ' +
+    fmt(ws.factor_3pct_to_10pct, 2) + '</strong>.';
+}
+
 function renderTransparency() {
-  $('#limit-fulltext').innerHTML = ' <strong>Erstens:</strong> Der Volltext-Abruf war für praktisch ' +
+  $('#limit-fulltext').innerHTML = '<strong>Erstens:</strong> Der Volltext-Abruf war für praktisch ' +
     'alle Primärquellen-Domains durch die Netzwerk-Egress-Policy der Arbeitsumgebung blockiert. Die ' +
     'Werte stammen daher aus Suchindex-Zusammenfassungen der genannten Quellen, nicht aus selbst ' +
     'gelesenem PDF-Volltext. Die Konfidenzstufen bilden das bereits ab; vor einer Verwendung in ' +
@@ -1034,7 +1140,7 @@ function renderTransparency() {
 }
 
 /* ---------------------------------------------------------------------
-   6 - Teil A: Ist-Zustand
+   6 - Kapitel 2: Ist-Zustand
    --------------------------------------------------------------------- */
 const MIX_COLORS = {
   wind_onshore: PAL.windon, photovoltaik: PAL.pv, erdgas: PAL.gas, braunkohle: '#6b5344',
@@ -1133,18 +1239,23 @@ function renderPartA() {
   /* Restjahre nicht hartcodieren, sondern aus den Daten ableiten:
      Restleistung / erforderlicher Jahreszubau. */
   const restJahre = z.photovoltaik.rest_gw / z.photovoltaik.erforderlich_gw_pro_jahr;
+  /* Die Reihen haben unterschiedliche Stichtage - das gehoert an den Balken,
+     nicht nur in die Chart-Ueberschrift. */
+  const standLand = 'Stand Jahresende 2025';
+  const standOff = 'Stand ' + deDatum(P.zielpfade.offshore_pipeline_gw.stand);
   renderProgress('#chart-ziele', [
     { label: 'Photovoltaik', ist: z.photovoltaik.ist_gw, ziel: z.photovoltaik.ziel_gw,
       pct: z.photovoltaik.erreichung_prozent, color: PAL.pv, badge: confBadge('A') + cite('eeg-2023'),
       note: 'Noch ' + fmt(z.photovoltaik.rest_gw, 0) + ' GW in ' + fmt(restJahre, 0) + ' Jahren → <strong>' +
         fmt(z.photovoltaik.erforderlich_gw_pro_jahr, 1) + ' GW/a</strong> nötig, Ist-Zubau 2025 ' +
-        fmt(z.photovoltaik.ist_zubau_2025, 1) + ' GW — Faktor ' + fmt(z.photovoltaik.luecke_faktor, 1) + '×.' },
+        fmt(z.photovoltaik.ist_zubau_2025, 1) + ' GW — Faktor ' + fmt(z.photovoltaik.luecke_faktor, 1) + '×. ' +
+        '<em>' + standLand + '.</em>' },
     { label: 'Wind onshore', ist: z.wind_onshore.ist_gw, ziel: z.wind_onshore.ziel_gw,
       pct: z.wind_onshore.erreichung_prozent, color: PAL.windon, badge: confBadge('A'),
       note: 'Noch ' + fmt(z.wind_onshore.rest_gw, 0) + ' GW → <strong>' +
         fmt(z.wind_onshore.erforderlich_gw_pro_jahr, 1) + ' GW/a</strong>, Ist-Zubau 2025 ' +
         fmt(z.wind_onshore.ist_zubau_2025, 1) + ' GW — Faktor ' + fmt(z.wind_onshore.luecke_faktor, 1) +
-        '×. Genehmigungen laufen dem realisierten Zubau 2–3 Jahre voraus.' },
+        '×. Genehmigungen laufen dem realisierten Zubau 2–3 Jahre voraus. <em>' + standLand + '.</em>' },
     { label: 'Wind offshore', ist: z.wind_offshore.ist_gw, ziel: z.wind_offshore.ziel_gw,
       pct: z.wind_offshore.erreichung_prozent, color: PAL.windoff,
       badge: confBadge('A') + cite('offshore-stiftung-2025'),
@@ -1152,7 +1263,7 @@ function renderPartA() {
         fmt(z.wind_offshore.erforderlich_gw_pro_jahr, 1) + ' GW/a</strong>, Zubau 2025 ' +
         fmt(z.wind_offshore.ist_zubau_2025, 0) + ' GW. Ein Lückenfaktor lässt sich hier ' +
         '<em>nicht</em> bilden — der Zubau war null; der Sprung geht von 0 auf ' +
-        fmt(z.wind_offshore.erforderlich_gw_pro_jahr, 1) + ' GW/a.' }
+        fmt(z.wind_offshore.erforderlich_gw_pro_jahr, 1) + ' GW/a. <em>' + standOff + '.</em>' }
   ]);
   const pipe = P.zielpfade.offshore_pipeline_gw;
   $('#ziele-note').innerHTML = '<strong>Die Bewertung stammt aus den Quellen, nicht von uns.</strong> ' +
@@ -1194,7 +1305,7 @@ function renderPartA() {
       max: b['2045'].nep_2037_2045_v2025.high,
       value: (b['2045'].nep_2037_2045_v2025.low + b['2045'].nep_2037_2045_v2025.high) / 2,
       color: PAL.windoff, note: fmt(b['2045'].nep_2037_2045_v2025.low, 0) + '–' + fmt(b['2045'].nep_2037_2045_v2025.high, 0),
-      tip: '<b>NEP 2037/2045 V2025, Szenarien A/B/C</b>Die Simulation in Teil C nutzt 950 TWh als Vorgabewert (unteres Ende).' }
+      tip: '<b>NEP 2037/2045 V2025, Szenarien A/B/C</b>Die Simulation in Kapitel 5 nutzt 950 TWh als Vorgabewert (unteres Ende).' }
   ];
   renderHBars('#chart-bedarf', bedRows, { axisLabel: 'TWh/a', padL: 250, padR: 110, rowH: 28 });
   $('#bedarf-note').innerHTML = '<strong>Warum das für die Kosten zählt.</strong> ' + b.revision_hinweis +
@@ -1208,7 +1319,7 @@ function renderPartA() {
 }
 
 /* ---------------------------------------------------------------------
-   7 - Teil B: LCOE-Rechner
+   7 - Kapitel 4: LCOE-Rechner
    --------------------------------------------------------------------- */
 const LCOE_TECHS = [
   { key: 'pv_freiflaeche', label: 'PV Freifläche', color: PAL.pv },
@@ -1543,7 +1654,7 @@ function renderPartB() {
 }
 
 /* ---------------------------------------------------------------------
-   8 - Teil C: Mix-Simulator
+   8 - Kapitel 5: Mix-Simulator
    --------------------------------------------------------------------- */
 const MX = {
   demand: 950, pv: 0.30, won: 0.35, woff: 0.15, nuc: 0.0,
@@ -1576,8 +1687,8 @@ function mixPresets() {
         MX.elyGw = 0; MX.h2tGw = 0; MX.h2sTwh = 0; MX.fill = 0;
         MX.gasAuto = true; MX.scen = 'mittel';
       },
-      hint: 'Energieanteile aus der Bruttostromerzeugung 2025, Bedarf ' + fmt(demand25, 0) +
-        ' TWh. <strong>Achtung:</strong> Das Modell leitet die Kapazitäten aus <em>Neuanlagen-</em>' +
+      hint: 'Energieanteile aus der Bruttostromerzeugung 2025, Bedarf ' + fmt(Math.round(demand25 / 10) * 10, 0) +
+        ' TWh (Regler gerundet). <strong>Achtung:</strong> Das Modell leitet die Kapazitäten aus <em>Neuanlagen-</em>' +
         'Volllaststunden ab und rechnet den Rest fossil als Backup — es bildet damit nicht die reale ' +
         'Bestandsflotte 2025 ab, sondern ein hypothetisches System mit derselben Energiestruktur.' },
     { id: 'kostenminimum', label: 'GES · Kostenminimum', apply: () => {
@@ -1989,8 +2100,9 @@ function renderPartC() {
   const ref = S.page.dunkelflaute.referenzereignis_dez_2024;
   const wpres = [
     { l: 'Dunkelflaute Dezember 2024', w: idxOf(ref.datum.slice(0, 10)),
-      t: 'Referenzereignis ' + ref.datum + ': Day-Ahead-Spitzen über ' + ref.day_ahead_spitze_eur_mwh_max + ' €/MWh' },
-    { l: 'zweites Ereignis November 2024', w: idxOf(ref.zweites_ereignis), t: 'Ereignis ' + ref.zweites_ereignis },
+      t: 'Referenzereignis ' + deDatum(ref.datum) + ': Day-Ahead-Spitzen über ' + ref.day_ahead_spitze_eur_mwh_max + ' €/MWh' },
+    { l: 'zweites Ereignis ' + deDatum(ref.zweites_ereignis).replace(/^\d+\.\s*/, ''),
+      w: idxOf(ref.zweites_ereignis), t: 'Ereignis ' + deDatum(ref.zweites_ereignis) },
     { l: 'Sommerwoche Juli', w: 2, t: 'PV-starke Woche mit hohen Überschüssen' },
     { l: 'Übergangszeit Oktober', w: 15, t: 'typische Herbstwoche' }
   ];
@@ -2026,7 +2138,8 @@ function renderPartC() {
 }
 
 /* ---------------------------------------------------------------------
-   9 - Teil D: Risiken, Limitationen, GES-Fallstudie, Fazit, Quellen
+   9 - Kapitel 7-9 + Anhang: Risiken, Diskussion, Fazit, Limitationen,
+       Quellen, Executive Summary, Kapitel-Navigation
    --------------------------------------------------------------------- */
 function table(head, rows, cls) {
   const t = el('table');
@@ -2068,7 +2181,7 @@ function renderPartD() {
       else if (f.haeufigkeit_pro_jahr_min) h = 'etwa ' + f.haeufigkeit_pro_jahr_min +
         (f.haeufigkeit_pro_jahr_max !== f.haeufigkeit_pro_jahr_min ? '–' + f.haeufigkeit_pro_jahr_max : '') +
         '× pro Jahr' + (f.haeufigkeit_text ? ' (' + f.haeufigkeit_text + ')' : '');
-      else if (f.wiederkehrperiode_jahre) h = 'etwa alle ' + fmt(f.wiederkehrperiode_jahre, 1) + ' Jahre';
+      else if (f.wiederkehrperiode_jahre) h = 'etwa alle ' + fmtAuto(f.wiederkehrperiode_jahre) + ' Jahre';
       else h = '–';
       return ['&gt; ' + f.dauer_h + ' h', h, f.quelle, confBadge(f.stufe)];
     })));
@@ -2077,7 +2190,7 @@ function renderPartD() {
   const need48 = S.params.system.security_of_supply.energy_need_48h_winter_twh;
   $('#df-dec2024').innerHTML =
     '<strong>Der Dezember 2024 als Referenzfall — und was er wirklich zeigt.</strong> ' +
-    'Am ' + ref.datum + ' stiegen die Day-Ahead-Preise auf über ' + fmt(ref.day_ahead_spitze_eur_mwh_max, 0) +
+    'Am ' + deDatum(ref.datum) + ' stiegen die Day-Ahead-Preise auf über ' + fmt(ref.day_ahead_spitze_eur_mwh_max, 0) +
     ' €/MWh, im Intraday-Markt lag der Mittelwert zeitweise bei rund ' + fmt(ref.intraday_mittel_eur_mwh, 0) +
     ' €/MWh. Bundesnetzagentur und Bundeskartellamt stellten fest: <strong>kein Marktmissbrauch</strong>, ' +
     'aber ein <strong>strukturelles Problem</strong>; in den teuersten Stunden waren noch ' +
@@ -2126,11 +2239,12 @@ function renderPartD() {
     cite('sovacool-ryu-2025') + ' · <span class="simlabel" style="background:#EDECE6;color:#475569">' +
     'im Basisfall des Modells auf 1,00 gesetzt</span>';
   $('#overrun-note').innerHTML = '<strong>Das faire Gegenargument.</strong> ' + deAscii(ko.gegenargument) +
-    ' Zusätzlich zeigt Sovacool &amp; Ryu Strukturbrüche bei ' + ko.skaleneffekt_bruchpunkte_mw.join(' und ') +
+    ' Zusätzlich zeigt Sovacool &amp; Ryu Strukturbrüche bei ' + ko.skaleneffekt_bruchpunkte_mw.map(v => fmt(v, 0)).join(' und ') +
     ' MW Blockgröße — oberhalb davon steigen die Überschreitungen überproportional ' +
     '(„Diseconomies of Scale“). <strong>Wichtig für dieses Modell:</strong> Diese Faktoren sind ' +
     'im Basisfall <em>abgeschaltet</em> (1,00). Der Modellkern soll nicht mit Risikoannahmen vermischt ' +
-    'werden — wer sie einrechnen will, multipliziert den CAPEX-Regler in Teil B entsprechend hoch.';
+    'werden. Wer sie einrechnen will, hat dafür den Schalter in <a href="#kap-6">Kapitel 6</a> ' +
+    '(Monte Carlo) oder multipliziert den CAPEX-Regler in Kapitel 4 entsprechend hoch.';
 
   /* --- Lieferketten ----------------------------------------------------- */
   const lk = P.lieferketten_konzentration;
@@ -2188,8 +2302,12 @@ function renderPartD() {
       fmt(kenfo.rendite_2025_prozent - kenfo.zielrendite_2025_prozent, 1) + ' Prozentpunkte über der ' +
       'Zielrendite; seit Auflage ' + fmt(kenfo.rendite_seit_auflage_prozent_pa, 1) + ' % p. a. ' + confBadge('A'),
     'Seit 2017 wurden bereits ' + fmt(kenfo.erstattungen_seit_2017_mrd_eur, 1) + ' Mrd. € an den Bund erstattet.',
-    'Finnland könnte mit <strong>Onkalo</strong> Ende 2026 das weltweit erste geologische Tiefenlager in ' +
-      'Betrieb nehmen — der Probebetrieb läuft seit September 2024. ' + confBadge('A') + cite('base-endlager')
+    'Finnland könnte mit <strong>Onkalo</strong> das weltweit erste geologische Tiefenlager in Betrieb ' +
+      'nehmen; die Daten nennen als Jahr ' +
+      String((kr.endlager_status.find(e => e.projekt === 'Onkalo') || {}).erste_einlagerung_jahr) +
+      ' (Quartal nicht belegt). Status laut Dossier: ' +
+      deAscii((kr.endlager_status.find(e => e.projekt === 'Onkalo') || {}).status) + '. ' +
+      confBadge('A') + cite('base-endlager')
   ].map(x => '<li>' + x + '</li>').join('');
   $('#nuc-con').innerHTML = [
     'Die Betreiber sind mit der Einzahlung <strong>enthaftet</strong>; die Auffanghaftung liegt beim ' +
@@ -2258,7 +2376,23 @@ function renderLimitations() {
       'von der UNECE, sondern aus Fraunhofer-ISE-Sekundärberichterstattung und trägt nur ' +
       confBadge(P.co2_intensitaet_g_pro_kwh.technologien.pv_deutschland.stufe) + '.',
     '<strong>Kostenüberschreitungsfaktoren sind abgeschaltet.</strong> Der Basisfall rechnet mit 1,00, ' +
-      'damit Modellkern und Risikoannahme nicht vermischt werden.'
+      'damit Modellkern und Risikoannahme nicht vermischt werden. Wer sie einrechnen will, hat dafür ' +
+      'den Schalter in <a href="#kap-6">Kapitel 6</a>.',
+    '<strong>Die Monte-Carlo-Rechnung variiert die Kosten, nicht die Physik.</strong> Der stündliche ' +
+      'Dispatch wird je Szenario <em>einmal</em> mit mittleren Parametern gerechnet und für alle ' +
+      fmt(MC_N_DRAWS, 0) + ' Ziehungen wiederverwendet. Für CAPEX, Fixbetrieb und WACC ist das exakt ' +
+      'richtig; für die Volllaststunden ist es eine Näherung, weil sie im Modell eigentlich auch die ' +
+      'installierte Leistung und damit Erzeugung, Abregelung und Backup-Bedarf verändern. ' +
+      'Die Verteilungen in Kapitel 6 bilden deshalb die <em>Kostenunsicherheit</em> ab, nicht die ' +
+      'Unsicherheit der Mengen.',
+    '<strong>Die Dreiecksverteilung und die Unabhängigkeit der Ziehungen sind Annahmen.</strong> ' +
+      confBadge('M') + ' Aus min/mid/max lässt sich keine Verteilungsform ableiten; die Dreiecksform ' +
+      'ist die übliche Wahl, wenn nur drei Punkte bekannt sind. Reale Korrelationen zwischen ' +
+      'Parametern (gemeinsame Rohstoff- und Zinsentwicklung; hoher CAPEX an guten Standorten — genau ' +
+      'die Warnung aus <code>scenario_sets._warning</code>) sind nicht abgebildet. Das macht die ' +
+      'Ränder der Verteilung eher zu schmal als zu breit. Nicht gezogen werden außerdem Wetterjahr, ' +
+      'Lastprofil, Lebensdauern, Wirkungsgrade, Brennstoff- und Entsorgungskosten, CO₂-Preis, ' +
+      'Netzinvestitionsvolumen und die H₂-Speicherkosten.'
   ].map(x => '<li>' + x + '</li>').join('');
 
   mount('#table-gaps', table(
@@ -2427,6 +2561,129 @@ function renderConclusion() {
       'Entscheidung sichtbar und nachrechenbar zu machen. Genau dafür sind die Regler oben da.' }));
 }
 
+/* --- Executive Summary -------------------------------------------------
+   Destillat des Fazits (Kapitel 8) auf sieben Zeilen. Jede Zeile traegt
+   Quelle bzw. Konfidenzstufe und eine Unsicherheitsangabe. Die siebte Zeile
+   wird nachgetragen, sobald die Monte-Carlo-Rechnung durch ist.
+   --------------------------------------------------------------------- */
+function renderExecSummary() {
+  const P = S.page;
+  const ws = P.wacc_sensitivity.wacc_effect_at_60y;
+  const nucProj = P.nuclear_reference_projects
+    .filter(p => p.capex_eur_kw && p.id !== 'paks-ii')
+    .sort((a, b) => a.capex_eur_kw - b.capex_eur_kw);
+  const nucLow = nucProj[0], nucHigh = nucProj[nucProj.length - 1];
+  const auc = P.lcoe_benchmarks.wind_onshore.auction[P.lcoe_benchmarks.wind_onshore.auction.length - 1];
+  const h2pot = S.params.technologies.h2_storage.params.de_repurposing_potential_twh;
+  const h2need = S.params.system.security_of_supply.h2_storage_need_2045_twh;
+  const gap = S.params.system.security_of_supply.firm_capacity_gap_2030_gw;
+  const zp = P.zielpfade.zielerreichung_anfang_2026;
+
+  const items = [
+    ['Der Kapitalkostensatz entscheidet mehr als die Technologiewahl.',
+      'Zwischen WACC 3 % und 10 % liegt beim Kapitalwiedergewinnungsfaktor der Faktor ' +
+      fmt(ws.factor_3pct_to_10pct, 2) + ' — mehr als jede plausible CAPEX-Variation. Reine Arithmetik ' +
+      'der Annuitätenformel, keine Quellenangabe. Gegenrichtung: Bei 3 % ist Kernkraft laut IEA/NEA in ' +
+      'allen untersuchten Ländern die günstigste Option, bei 10 % in praktisch keinem. ' +
+      confBadge(P.wacc_sensitivity.iea_nea_2020.confidence) + cite('iea-nea-2020'),
+      'gering — nachgerechnet gegen die Python-Referenz'],
+    ['Ein Punktwert für Kernkraftkosten ist immer irreführend.',
+      'Reale Neubaukosten reichen von ' + fmt(nucLow.capex_eur_kw, 0) + ' bis ' +
+      fmt(nucHigh.capex_eur_kw, 0) + ' €/kW (' + nucLow.country + ' bis ' + nucHigh.country + '), ' +
+      'mehr als das ' + fmt(nucHigh.capex_eur_kw / nucLow.capex_eur_kw, 0) + '-Fache. ' + confBadge('A'),
+      'hoch bei den Absolutwerten, gering bei der Spannweite'],
+    ['Die Volllaststunden-Annahme bei Wind ist ein größerer Hebel als der CAPEX.',
+      'Bestandsflotte 2025 rund ' + fmt(P.lcoe_benchmarks.wind_onshore.full_load_hours_fleet.value_2025, 0) +
+      ' h gegenüber über 2.400 h bei Neuanlagen — rund 30 % Kostenunterschied bei identischen Baukosten. ' +
+      'Die BNetzA-Ausschreibung Mai 2026 ergab mengengewichtet ' + fmt(auc.weighted_avg, 1) + ' €/MWh. ' +
+      confBadge('A') + cite('bnetza-wind-2026-05'),
+      'gering'],
+    ['Die Systemkosten entscheiden sich an der Speicherfrage, nicht an den Erzeugungskosten.',
+      'In der Simulation dominieren Wasserstoffkette und Netz die Differenz zwischen den Szenarien. ' +
+      'Der realistische Round-Trip-Wirkungsgrad Strom→H₂→Strom liegt bei 30–40 %, nicht bei 50 %+. ' +
+      confBadge('B'),
+      'hoch — hier wirkt die Halbjahres-Datenbasis am stärksten'],
+    ['Der Speicherbedarf stößt an eine physische Grenze, die in keiner Kostenrechnung auftaucht.',
+      'Deutsches Kavernen-Umwidmungspotenzial rund ' + fmt(h2pot.value, 0) + ' TWh ' +
+      confBadge(h2pot.confidence) + ', Bedarfsschätzung 2045 rund ' + fmt(h2need.value, 0) + ' TWh ' +
+      confBadge(h2need.confidence) + '. Das Modell bepreist Durchsatz, nicht Kavernenvolumen — die ' +
+      'Restriktion verschwindet aus jeder €/MWh-Betrachtung.',
+      'die Bedarfsschätzungen streuen um Faktor 3'],
+    ['Dunkelflaute ist ein Preis-, kein Blackout-Problem — solange gesicherte Leistung vorgehalten wird.',
+      'Im Referenzfall Dezember 2024 stellten Bundesnetzagentur und Bundeskartellamt kein Marktversagen, ' +
+      'aber ein strukturelles Problem fest. ' + confBadge('A') + cite('bnetza-preisspitzen-2025') +
+      ' Der amtlich ermittelte Zusatzbedarf an gesicherter Leistung für 2030 liegt bei ' +
+      fmt(gap.min, 0) + '–' + fmt(gap.max, 0) + ' GW ' + confBadge(gap.confidence) + '. ' +
+      'Zugleich verfehlt der Ausbau die eigenen Gesetzesziele: PV ' + fmt(zp.photovoltaik.erreichung_prozent, 0) +
+      ' %, Wind onshore ' + fmt(zp.wind_onshore.erreichung_prozent, 0) + ' % des 2030er Ziels. ' + confBadge('A'),
+      'mittel — die Spanne hängt am Erfolg der Nachfrageflexibilisierung']
+  ];
+
+  /* Siebte Kernaussage: das Monte-Carlo-Ergebnis, sobald es vorliegt. */
+  if (MC.res) {
+    const key = mcCfgKey();
+    const order = MC.order || S.mcRef.preset_order;
+    const st = order.map(pid => ({ label: MC.res[pid].label, s: MC.res[pid].configs[key] }))
+      .sort((a, b) => a.s.p50 - b.s.p50);
+    let ov = 0;
+    for (let i = 0; i < st.length - 1; i++) if (st[i].s.p95 > st[i + 1].s.p5) ov++;
+    items.push(['Die Rangfolge der Szenarien ist unsicherer, als die Punktwerte suggerieren.',
+      'Werden alle dokumentierten Parameterspannen als Verteilung gezogen (' + fmt(MC_N_DRAWS, 0) +
+      ' Ziehungen je Szenario), reicht das System-LSCOE von ' +
+      st.map(x => x.label.replace('GES · ', '') + ' ' + fmt(x.s.p50, 0) + ' [' + fmt(x.s.p5, 0) + '–' +
+        fmt(x.s.p95, 0) + ']').join(', ') + ' €/MWh. ' +
+      (ov ? '<strong>' + ov + ' benachbarte Szenario-Paare überlappen sich</strong> im Bereich P5–P95 — ' +
+        'für sie ist die Reihenfolge nicht entschieden.'
+          : 'Kein benachbartes Paar überlappt sich im Bereich P5–P95.'),
+      'die Verteilungsform (Dreieck) und die Unabhängigkeit der Ziehungen sind Annahmen, keine Befunde']);
+  } else {
+    items.push(['Die Rangfolge der Szenarien ist unsicherer, als die Punktwerte suggerieren.',
+      'Die Monte-Carlo-Rechnung läuft gerade — das Ergebnis erscheint hier automatisch ' +
+      '(Details in Kapitel 6).', 'wird nachgetragen']);
+  }
+
+  const box = $('#exec-list'); clear(box);
+  const ol = el('ol', { cls: 'exec' });
+  items.forEach(([t, b, u]) => ol.appendChild(el('li', {
+    html: '<strong>' + t + '</strong> ' + b +
+      '<span class="exec-u">Unsicherheit: ' + u + '</span>'
+  })));
+  box.appendChild(ol);
+  buildCitations();
+}
+
+/* --- Sticky Kapitel-Navigation ----------------------------------------- */
+function setupChapterNav() {
+  const links = $$('#chapnav a');
+  const targets = links.map(a => $(a.getAttribute('href')));
+  const nav = $('#chapnav');
+  const toggle = $('#chapnav-toggle');
+  if (toggle) {
+    toggle.onclick = () => {
+      const open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    $$('#chapnav a').forEach(a => a.addEventListener('click', () => {
+      nav.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }));
+  }
+  const mark = () => {
+    const y = window.scrollY + (nav ? nav.offsetHeight : 0) + 90;
+    let active = 0;
+    targets.forEach((t, i) => { if (t && t.offsetTop <= y) active = i; });
+    links.forEach((a, i) => a.classList.toggle('on', i === active));
+  };
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(() => { mark(); ticking = false; });
+  }, { passive: true });
+  window.addEventListener('resize', mark, { passive: true });
+  mark();
+}
+
 /* --- Quellenverzeichnis ------------------------------------------------ */
 function renderSources() {
   const list = $('#sources-list'); clear(list);
@@ -2439,6 +2696,548 @@ function renderSources() {
       '<br><span style="font-size:12.5px;color:var(--soft)">Zugriff ' + (s.accessed || '–') +
       (s.dossier ? ' · übernommen aus <code>' + s.dossier + '</code>' : '') + '</span>' }));
   });
+}
+
+/* ---------------------------------------------------------------------
+   10 - Kapitel 6: Monte-Carlo-Simulation
+
+   Portierung von strommix/scripts/monte_carlo.py. PRNG, Ziehungsreihenfolge,
+   Kostenfunktion und Perzentilmethode sind identisch; der Paritaetstest am
+   Ende dieses Abschnitts prueft die P50-Werte gegen
+   strommix/data/monte_carlo_reference.json nach (Toleranz 0,5 %).
+
+   Vereinfachung (im Kapitel und in den Limitationen ausgewiesen): Der
+   Dispatch wird je Preset EINMAL mit mittleren Parametern gerechnet; die
+   Ziehungen wirken nur auf die Kostenseite.
+   --------------------------------------------------------------------- */
+const MC_N_DRAWS = 1000;
+const MC_BASE_SEED = 20260815;
+
+const MC_DRAW_TECHS = ['pv_freiflaeche', 'wind_onshore', 'wind_offshore', 'nuclear',
+  'gas_ccgt', 'battery', 'electrolyser', 'h2_turbine', 'h2_storage'];
+const MC_DRAW_FIELDS = ['capex_eur_kw', 'capex_eur_kwh', 'opex_pct', 'opex_eur_kw_a', 'full_load_hours'];
+const MC_OVERRUN_CLASS = {
+  pv_freiflaeche: 'solar', wind_onshore: 'wind', wind_offshore: 'wind',
+  nuclear: 'kernkraft', gas_ccgt: 'fossil_thermisch', netz: 'netz_uebertragung'
+};
+const MC_CONFIGS = [
+  { id: 'base', wacc: false, overrun: false },
+  { id: 'wacc', wacc: true, overrun: false },
+  { id: 'overrun', wacc: false, overrun: true },
+  { id: 'wacc_overrun', wacc: true, overrun: true }
+];
+
+/* mulberry32 - bitgleich zur Python-Referenz (32-Bit-Arithmetik). */
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), 1 | t);
+    t = ((t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t) >>> 0;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* Inverse Verteilungsfunktion der Dreiecksverteilung. */
+function triangular(u, lo, mode, hi) {
+  if (hi <= lo) return lo;
+  if (mode < lo) mode = lo;
+  if (mode > hi) mode = hi;
+  const c = (mode - lo) / (hi - lo);
+  if (u < c) return lo + Math.sqrt(u * (hi - lo) * (mode - lo));
+  return hi - Math.sqrt((1 - u) * (hi - lo) * (hi - mode));
+}
+
+function percentileOf(sorted, p) {
+  if (!sorted.length) return NaN;
+  const idx = (sorted.length - 1) * p;
+  const lo = Math.floor(idx), hi = Math.ceil(idx);
+  if (lo === hi) return sorted[lo];
+  return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+}
+
+function mcDrawable(entry) {
+  if (!entry || typeof entry !== 'object') return false;
+  const lo = entry.min, mid = entry.mid, hi = entry.max;
+  if (lo === null || lo === undefined || hi === null || hi === undefined) return false;
+  if (mid === null || mid === undefined) return false;
+  return hi > lo;
+}
+
+function mcDrawPlan(params) {
+  const plan = [];
+  MC_DRAW_TECHS.forEach(techKey => {
+    const tech = params.technologies[techKey];
+    if (!tech) return;
+    MC_DRAW_FIELDS.forEach(field => {
+      const e = tech.params[field];
+      if (mcDrawable(e)) plan.push({ tech: techKey, field: field, min: e.min, mid: e.mid, max: e.max });
+    });
+  });
+  return plan;
+}
+
+function mcOverrunPlan(page) {
+  const tab = page.kostenueberschreitung_faktoren.technologien;
+  const plan = [];
+  MC_DRAW_TECHS.concat(['netz']).forEach(key => {
+    const cls = MC_OVERRUN_CLASS[key];
+    if (!cls || !tab[cls]) return;
+    const rec = tab[cls];
+    const mode = (rec.flyvbjerg !== null && rec.flyvbjerg !== undefined) ? rec.flyvbjerg : rec.sovacool;
+    plan.push({ target: key, cls: cls, min: rec.spanne[0], mid: mode, max: rec.spanne[1] });
+  });
+  return plan;
+}
+
+/* Die fuenf Presets des Mix-Simulators, unabhaengig von den Reglerstellungen.
+   Muss mit build_presets() in monte_carlo.py uebereinstimmen. */
+function mcPresets() {
+  const P = S.page, rec = P.ges.reconstruction, split = rec.fee_split_assumption;
+  const mix25 = P.ist_mix['2025'].traeger_twh;
+  const bsv = P.ist_mix['2025'].bruttostromverbrauch;
+  const demand25 = (bsv.low + bsv.high) / 2;
+  const bat25 = P.installierte_leistung_gw.batteriespeicher.leistung_gw.high;
+  const dur = Number(resolveTech(S.params, 'battery', 'mittel').duration_hours || 4);
+  const store = (batGw, elyGw, h2tGw, h2sTwh, fill, gasAuto) => ({
+    battery_power_gw: batGw, battery_energy_gwh: batGw * dur, electrolyser_gw: elyGw,
+    h2_storage_gwh: h2sTwh * 1000, h2_turbine_gw: h2tGw, h2_initial_fill_share: fill,
+    gas_backup_gw: gasAuto ? null : 20
+  });
+  const feeShares = (feeGw, demand) => {
+    const out = {};
+    [['pv', 'pv_freiflaeche'], ['wind_onshore', 'wind_onshore'], ['wind_offshore', 'wind_offshore']]
+      .forEach(([k, techKey]) => {
+        const flh = Number(resolveTech(S.params, techKey, 'mittel').full_load_hours);
+        out[k] = feeGw * split[k] * MW_PER_GW * flh / MWH_PER_TWH / demand;
+      });
+    return out;
+  };
+
+  const d25 = Math.round(demand25 / 10) * 10;
+  const presets = [{
+    id: 'ist2025', label: 'Ist 2025', demand: d25,
+    shares: { pv: mix25.photovoltaik.wert / d25, wind_onshore: mix25.wind_onshore.wert / d25,
+      wind_offshore: mix25.wind_offshore.wert / d25 },
+    storage: store(Math.round(bat25 / 5) * 5, 0, 0, 0, 0, true)
+  }];
+  [['kostenminimum', 'GES · Kostenminimum', 0, 0, 0, 0, 0, true],
+   ['ee80_gas', 'GES · 80 % EE + Gas', 40, 0, 0, 0, 0, true],
+   ['ee80_h2', 'GES · 80 % EE + H₂', 40, 100, 80, 300, 1.0, false],
+   ['ee100', 'GES · 100 % Erneuerbare', 60, 160, 90, 120, 1.0, false]
+  ].forEach(([id, label, bat, ely, h2t, h2s, fill, gasAuto]) => {
+    const demand = Number(rec.demand_twh);
+    const s = feeShares(rec.scenarios[id].fee_gw, demand);
+    const shares = { pv: s.pv, wind_onshore: s.wind_onshore, wind_offshore: s.wind_offshore };
+    if (id === 'kostenminimum') {
+      const nuc = Math.max(0, 1 - (s.pv + s.wind_onshore + s.wind_offshore));
+      if (nuc > 0) shares.nuclear = nuc;
+    }
+    presets.push({ id: id, label: label, demand: demand, shares: shares,
+      storage: store(bat, ely, h2t, h2s, fill, gasAuto) });
+  });
+  return presets;
+}
+
+/* Schritt 3 aus mixSystem() ueber einem bereits gerechneten Dispatch. */
+function systemCostFromDispatch(shares, demandTwh, params, techs, disp, wacc, co2Price, storage, overrun) {
+  overrun = overrun || {};
+  const annualize = 1.0 / (disp.seasonal_share_load || 1.0);
+  const cost = {};
+  const techForShare = { pv: 'pv_freiflaeche', wind_onshore: 'wind_onshore',
+    wind_offshore: 'wind_offshore', nuclear: 'nuclear' };
+  const fixedCost = (techKey) => {
+    const flat = Object.assign({}, techs[techKey], { cost_overrun_factor: overrun[techKey] || 1.0 });
+    return annualFixedCostEurKw(flat, wacc);
+  };
+
+  for (const shareKey in shares) {
+    const techKey = techForShare[shareKey] || shareKey;
+    const flh = Number(techs[techKey].full_load_hours);
+    const capGw = shares[shareKey] * demandTwh * MWH_PER_TWH / flh / MW_PER_GW;
+    if (capGw > 0) cost[shareKey] = (cost[shareKey] || 0) + fixedCost(techKey) * capGw * KW_PER_GW;
+    const flat = techs[techKey];
+    const varC = Number(flat.fuel_eur_mwh || 0) + Number(flat.waste_eur_mwh || 0)
+      + co2Price * Number(flat.emission_factor_t_mwh || 0);
+    if (varC) {
+      let genTwh = disp.vre_potential_twh[shareKey];
+      if (genTwh === undefined || genTwh === null) genTwh = (shareKey === 'nuclear') ? disp.energy_twh.band : 0;
+      cost[shareKey] = (cost[shareKey] || 0) + varC * genTwh * annualize * MWH_PER_TWH;
+    }
+  }
+
+  let gasGw = storage.gas_backup_gw;
+  if (gasGw === null || gasGw === undefined) gasGw = disp.gas_peak_gw;
+  if (gasGw > 0) {
+    cost.gas_backup = (cost.gas_backup || 0) + fixedCost('gas_ccgt') * gasGw * KW_PER_GW;
+    const flat = techs.gas_ccgt;
+    const fuel = Number(flat.fuel_eur_mwh || 0);
+    const ef = Number(flat.emission_factor_t_mwh || 0);
+    cost.gas_backup += (fuel + co2Price * ef) * disp.energy_twh.gas_backup * annualize * MWH_PER_TWH;
+  }
+
+  const batGwh = storage.battery_energy_gwh || 0;
+  if (batGwh) {
+    const bat = techs.battery;
+    const ann = Number(bat.capex_eur_kwh) * (overrun.battery || 1.0)
+      * (crf(wacc, Number(bat.lifetime_years)) + Number(bat.opex_pct));
+    cost.battery = ann * batGwh * 1e6;
+  }
+  if (storage.electrolyser_gw) cost.electrolyser = fixedCost('electrolyser') * storage.electrolyser_gw * KW_PER_GW;
+  if (storage.h2_storage_gwh) {
+    const h2Cost = Number(techs.h2_storage.storage_cost_eur_mwh_h2) * (overrun.h2_storage || 1.0);
+    const throughputTwh = Math.max(disp.energy_twh.h2_produced, disp.h2_withdrawn_twh) * annualize;
+    cost.h2_storage = h2Cost * throughputTwh * MWH_PER_TWH;
+  }
+  if (storage.h2_turbine_gw) cost.h2_turbine = fixedCost('h2_turbine') * storage.h2_turbine_gw * KW_PER_GW;
+
+  let feeShare = 0;
+  for (const k in shares) if (k in VRE_TECHS) feeShare += shares[k];
+  const grid = params.system.grid;
+  const investBn = pickVal(grid.investment_bn_eur_until_2045, 'mid');
+  cost.netz = investBn * 1e9 * (overrun.netz || 1.0)
+    * crf(wacc, grid.lifetime_years.value) * (feeShare / grid.reference_fee_share.value);
+
+  const servedTwhA = disp.energy_twh.served * annualize;
+  let total = 0; for (const k in cost) total += cost[k];
+  return servedTwhA ? total / (servedTwhA * MWH_PER_TWH) : NaN;
+}
+
+function mcMidTechs(params) {
+  const out = {};
+  for (const k in params.technologies) out[k] = resolveTech(params, k, 'mittel', null, true);
+  return out;
+}
+
+function mcRunConfig(preset, disp, plan, ovPlan, config, seed, co2Price) {
+  const rnd = mulberry32(seed);
+  const base = mcMidTechs(S.params);
+  const waccSpec = S.params.global.wacc;
+  const midWacc = scenarioWacc(S.params, 'mittel');
+  const values = new Array(MC_N_DRAWS);
+  for (let i = 0; i < MC_N_DRAWS; i++) {
+    const techs = {};
+    for (const k in base) techs[k] = Object.assign({}, base[k]);
+    plan.forEach(d => { techs[d.tech][d.field] = triangular(rnd(), d.min, d.mid, d.max); });
+    let wacc = midWacc;
+    if (config.wacc) wacc = triangular(rnd(), waccSpec.min, waccSpec.mid, waccSpec.max);
+    const overrun = {};
+    if (config.overrun) ovPlan.forEach(o => { overrun[o.target] = triangular(rnd(), o.min, o.mid, o.max); });
+    values[i] = systemCostFromDispatch(preset.shares, preset.demand, S.params, techs, disp,
+      wacc, co2Price, preset.storage, overrun);
+  }
+  values.sort((a, b) => a - b);
+  const lo = values[0], hi = values[values.length - 1], span = hi - lo;
+  const bins = S.mcRef ? S.mcRef.presets[preset.id].configs[config.id].hist.bins : 28;
+  const counts = new Array(bins).fill(0);
+  values.forEach(v => {
+    let idx = span <= 0 ? bins - 1 : Math.floor((v - lo) / span * bins);
+    if (idx >= bins) idx = bins - 1;
+    counts[idx]++;
+  });
+  let sum = 0; values.forEach(v => { sum += v; });
+  return {
+    p5: percentileOf(values, 0.05), p25: percentileOf(values, 0.25), p50: percentileOf(values, 0.50),
+    p75: percentileOf(values, 0.75), p95: percentileOf(values, 0.95),
+    mean: sum / values.length, min: lo, max: hi,
+    hist: { lo: lo, hi: hi, bins: bins, counts: counts }
+  };
+}
+
+const MC = { wacc: false, overrun: false, res: null, ms: 0, running: false, done: false };
+
+/* Laeuft in Haeppchen, damit die Fortschrittsanzeige sichtbar wird. */
+function mcRunAll(onProgress) {
+  return new Promise(resolve => {
+    const presets = mcPresets();
+    const plan = mcDrawPlan(S.params), ovPlan = mcOverrunPlan(S.page);
+    const co2 = Number(S.params.global.co2_price_eur_t.value);
+    const jobs = [];
+    presets.forEach((p, pi) => MC_CONFIGS.forEach((c, ci) => jobs.push({ p: p, pi: pi, c: c, ci: ci })));
+    const out = {}, disps = {};
+    const t0 = performance.now();
+    let k = 0;
+    const step = () => {
+      const job = jobs[k];
+      if (!disps[job.p.id]) {
+        const det = mixSystem(job.p.shares, job.p.demand, S.params, S.profiles, {
+          scenario: 'mittel', storage: job.p.storage, co2_price: co2, grid_variant: 'mid', apply_idc: true
+        });
+        disps[job.p.id] = det.dispatch;
+        out[job.p.id] = { label: job.p.label, det: det.lscoe_eur_mwh, configs: {} };
+      }
+      out[job.p.id].configs[job.c.id] = mcRunConfig(job.p, disps[job.p.id], plan, ovPlan, job.c,
+        MC_BASE_SEED + job.pi * 1000 + job.ci, co2);
+      k++;
+      if (onProgress) onProgress(k / jobs.length);
+      if (k < jobs.length) setTimeout(step, 0);
+      else { MC.ms = performance.now() - t0; MC.order = presets.map(p => p.id); resolve(out); }
+    };
+    step();
+  });
+}
+
+/* Paritaet gegen die Python-Referenz: P50 je Preset und Konfiguration
+   sowie der deterministische Punktwert. */
+function mcParityTest(res) {
+  const ref = S.mcRef;
+  const tol = (ref.meta && ref.meta.parity_tolerance_relative) || 0.005;
+  const fails = [];
+  let checked = 0;
+  ref.preset_order.forEach(pid => {
+    const r = ref.presets[pid], got = res[pid];
+    if (!got) { fails.push({ path: 'mc/' + pid, expected: 1, actual: 0, dev: NaN }); return; }
+    checked++;
+    if (!closeEnough(got.det, r.deterministic_lscoe_eur_mwh, tol)) {
+      fails.push({ path: 'mc/' + pid + '/deterministisch', expected: r.deterministic_lscoe_eur_mwh,
+        actual: got.det, dev: (got.det - r.deterministic_lscoe_eur_mwh) / r.deterministic_lscoe_eur_mwh });
+    }
+    MC_CONFIGS.forEach(c => {
+      checked++;
+      const exp = r.configs[c.id].p50, act = got.configs[c.id].p50;
+      if (!closeEnough(act, exp, tol)) {
+        fails.push({ path: 'mc/' + pid + '/' + c.id + '/p50', expected: exp, actual: act,
+          dev: (act - exp) / exp });
+      }
+    });
+  });
+  return { checked: checked, fails: fails, tol: tol };
+}
+
+function mcCfgKey() {
+  if (MC.wacc && MC.overrun) return 'wacc_overrun';
+  if (MC.wacc) return 'wacc';
+  if (MC.overrun) return 'overrun';
+  return 'base';
+}
+
+/* --- Verteilungs-Chart (Violin je Szenario, gemeinsame x-Achse) -------- */
+function renderMcChart() {
+  const key = mcCfgKey();
+  const order = MC.order || S.mcRef.preset_order;
+  const rows = order.map(pid => ({ id: pid, label: MC.res[pid].label,
+    det: MC.res[pid].det, st: MC.res[pid].configs[key] }));
+
+  const s = $('#chart-mc'); clear(s);
+  const W = 880, padL = 196, padR = 74, padT = 26, padB = 34, rowH = 62;
+  const H = padT + rows.length * rowH + padB;
+  s.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  s.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+  const max = niceMax(Math.max(...rows.map(r => r.st.max)) * 1.04);
+  const plotW = W - padL - padR;
+  const x = v => padL + (v / max) * plotW;
+
+  axisTicks(max, 5).forEach(t => {
+    s.appendChild(svg('line', { x1: x(t), x2: x(t), y1: padT - 8, y2: H - padB + 2,
+      stroke: PAL.grid, 'stroke-width': 1 }));
+    s.appendChild(svg('text', { x: x(t), y: H - padB + 18, 'text-anchor': 'middle', fill: PAL.soft,
+      'font-size': 11, 'font-family': 'JetBrains Mono, monospace', text: fmt(t, 0) }));
+  });
+  s.appendChild(svg('text', { x: W - padR, y: 13, 'text-anchor': 'end', fill: PAL.soft, 'font-size': 11,
+    'font-family': 'JetBrains Mono, monospace', text: '€/MWh (System-LSCOE)' }));
+
+  const COLORS = [PAL.teal, PAL.band, PAL.windon, PAL.h2, PAL.accent];
+  rows.forEach((r, i) => {
+    const yMid = padT + i * rowH + rowH / 2 - 4;
+    const c = COLORS[i % COLORS.length];
+    const st = r.st, hist = st.hist;
+    const maxCount = Math.max(...hist.counts, 1);
+    const binW = (hist.hi - hist.lo) / hist.bins;
+    const amp = rowH * 0.31;
+
+    s.appendChild(svg('text', { x: padL - 12, y: yMid + 4, 'text-anchor': 'end', fill: PAL.ink,
+      'font-size': 12.5, text: r.label }));
+
+    /* Dichtekoerper: gespiegelte Treppe ueber den Histogramm-Bins */
+    let up = '', down = '';
+    for (let b = 0; b < hist.bins; b++) {
+      const x0 = x(hist.lo + b * binW), x1 = x(hist.lo + (b + 1) * binW);
+      const h = hist.counts[b] / maxCount * amp;
+      up += (b ? ' L' : 'M') + x0.toFixed(1) + ' ' + (yMid - h).toFixed(1) +
+            ' L' + x1.toFixed(1) + ' ' + (yMid - h).toFixed(1);
+    }
+    for (let b = hist.bins - 1; b >= 0; b--) {
+      const x0 = x(hist.lo + b * binW), x1 = x(hist.lo + (b + 1) * binW);
+      const h = hist.counts[b] / maxCount * amp;
+      down += ' L' + x1.toFixed(1) + ' ' + (yMid + h).toFixed(1) +
+              ' L' + x0.toFixed(1) + ' ' + (yMid + h).toFixed(1);
+    }
+    const body = svg('path', { d: up + down + ' Z', fill: c, 'fill-opacity': 0.22, stroke: c,
+      'stroke-width': 1 });
+    s.appendChild(body);
+
+    /* P5-P95-Linie, P25-P75-Balken, P50-Punkt */
+    s.appendChild(svg('line', { x1: x(st.p5), x2: x(st.p95), y1: yMid, y2: yMid, stroke: c, 'stroke-width': 1.6 }));
+    [st.p5, st.p95].forEach(v => s.appendChild(svg('line', { x1: x(v), x2: x(v), y1: yMid - 7, y2: yMid + 7,
+      stroke: c, 'stroke-width': 1.6 })));
+    s.appendChild(svg('rect', { x: x(st.p25), y: yMid - 6, width: Math.max(1, x(st.p75) - x(st.p25)),
+      height: 12, rx: 3, fill: c, 'fill-opacity': 0.55 }));
+    s.appendChild(svg('circle', { cx: x(st.p50), cy: yMid, r: 5, fill: c, stroke: '#fff', 'stroke-width': 2 }));
+    /* Punktwert des deterministischen Laufs als Raute */
+    s.appendChild(svg('path', { d: 'M' + x(r.det) + ' ' + (yMid - 15) + ' l5 5 l-5 5 l-5 -5 Z',
+      fill: PAL.ink }));
+
+    s.appendChild(svg('text', { x: W - padR + 6, y: yMid + 4, fill: PAL.soft, 'font-size': 11.5,
+      'font-family': 'JetBrains Mono, monospace', text: fmt(st.p50, 0) }));
+
+    const g = svg('rect', { x: padL, y: padT + i * rowH, width: plotW, height: rowH - 6, fill: 'transparent' });
+    attachTip(g, () => '<b>' + r.label + '</b>' +
+      'Punktwert (mittlere Parameter): ' + fmt(r.det, 1) + ' €/MWh<br>' +
+      'P50 (Median): ' + fmt(st.p50, 1) + '<br>P5–P95: ' + fmt(st.p5, 1) + ' – ' + fmt(st.p95, 1) +
+      '<br>P25–P75: ' + fmt(st.p25, 1) + ' – ' + fmt(st.p75, 1) +
+      '<br>Spannweite P95−P5: ' + fmt(st.p95 - st.p5, 1) + ' €/MWh (' +
+      pct((st.p95 - st.p5) / st.p50, 0) + ' des Medians)');
+    s.appendChild(g);
+  });
+
+  legend('#legend-mc', [
+    { c: PAL.soft, l: 'Dichte der 1.000 Ziehungen (Breite = Häufigkeit)' },
+    { c: PAL.soft, l: 'Balken = P25–P75, Linie = P5–P95, Punkt = Median (P50)' },
+    { c: PAL.ink, l: 'Raute = Punktwert des deterministischen Laufs (alle Parameter auf mid)' }
+  ]);
+}
+
+function renderMcTable() {
+  const key = mcCfgKey();
+  const order = MC.order || S.mcRef.preset_order;
+  const rows = order.map(pid => {
+    const r = MC.res[pid], st = r.configs[key];
+    return [r.label, fmt(r.det, 0), '<strong>' + fmt(st.p50, 0) + '</strong>',
+      fmt(st.p5, 0) + ' – ' + fmt(st.p95, 0), fmt(st.p95 - st.p5, 0),
+      pct((st.p95 - st.p5) / st.p50, 0)];
+  });
+  mount('#table-mc', table([{ l: 'Szenario' }, { l: 'Punktwert', num: true }, { l: 'Median P50', num: true },
+    { l: 'P5 – P95', num: true }, { l: 'Spannweite', num: true }, { l: 'relativ zum Median', num: true }], rows));
+}
+
+/* Der eigentliche Befund: ueberlappen sich die Verteilungen? */
+function renderMcFinding() {
+  const key = mcCfgKey();
+  const order = MC.order || S.mcRef.preset_order;
+  const items = order.map(pid => ({ id: pid, label: MC.res[pid].label, det: MC.res[pid].det,
+    st: MC.res[pid].configs[key] }));
+  const byMedian = items.slice().sort((a, b) => a.st.p50 - b.st.p50);
+  const overlaps = [];
+  for (let i = 0; i < byMedian.length - 1; i++) {
+    const a = byMedian[i], b = byMedian[i + 1];
+    if (a.st.p95 > b.st.p5) {
+      overlaps.push({ a: a, b: b, from: b.st.p5, to: a.st.p95 });
+    }
+  }
+  const detOrder = items.slice().sort((x, y) => x.det - y.det).map(x => x.id).join('>');
+  const medOrder = byMedian.map(x => x.id).join('>');
+
+  let html = '<strong>Was die Verteilungen über die Rangfolge sagen.</strong> ';
+  if (overlaps.length) {
+    html += 'Bei dieser Einstellung überlappen sich <strong>' + overlaps.length + ' von ' +
+      (byMedian.length - 1) + '</strong> benachbarten Szenario-Paaren im Bereich P5–P95: ' +
+      overlaps.map(o => '<em>' + o.a.label + '</em> und <em>' + o.b.label + '</em> (gemeinsamer Bereich ' +
+        fmt(o.from, 0) + '–' + fmt(o.to, 0) + ' €/MWh)').join('; ') + '. ' +
+      'Für diese Paare ist die Reihenfolge <strong>nicht entschieden</strong>: Es gibt Parametersätze ' +
+      'innerhalb der dokumentierten Spannen, bei denen das jeweils teurere Szenario günstiger ausfällt. ' +
+      'Wer die Punktwerte als Ranking liest, liest mehr hinein, als die Datenlage hergibt.';
+  } else {
+    html += 'Bei dieser Einstellung überlappt kein benachbartes Szenario-Paar im Bereich P5–P95. ' +
+      'Die Rangfolge ist innerhalb der dokumentierten Parameterspannen stabil — was ausdrücklich ' +
+      '<em>nicht</em> heißt, dass sie gegenüber den nicht variierten Größen (Wetterjahr, Physik, ' +
+      'Datenlücken) stabil wäre.';
+  }
+  html += ' Die Rangfolge nach Median ist ' + (detOrder === medOrder
+    ? 'dieselbe wie nach den Punktwerten'
+    : '<strong>eine andere als nach den Punktwerten</strong>') + '.';
+
+  const widest = items.slice().sort((a, b) => (b.st.p95 - b.st.p5) - (a.st.p95 - a.st.p5))[0];
+  html += ' Die breiteste Verteilung hat <em>' + widest.label + '</em> mit ' +
+    fmt(widest.st.p95 - widest.st.p5, 0) + ' €/MWh zwischen P5 und P95 (' +
+    pct((widest.st.p95 - widest.st.p5) / widest.st.p50, 0) + ' des Medians).';
+  $('#mc-finding').innerHTML = html;
+}
+
+function renderMcAll() {
+  if (!MC.res) return;
+  renderMcChart();
+  renderMcTable();
+  renderMcFinding();
+  const key = mcCfgKey();
+  $('#mc-chart-sub').innerHTML = 'Einstellung: WACC ' +
+    (MC.wacc ? '<strong>unsicher</strong> (Dreieck 3 / 5 / 9 %)' : '<strong>fest</strong> (5 %)') +
+    ' · empirische Kostenüberschreitung ' + (MC.overrun ? '<strong>an</strong>' : '<strong>aus</strong>') +
+    ' · ' + fmt(MC_N_DRAWS, 0) + ' Ziehungen je Szenario · Konfiguration <code>' + key + '</code> · ' +
+    'Rechenzeit im Browser ' + fmt(MC.ms, 0) + ' ms für alle ' +
+    (MC_CONFIGS.length * (MC.order || S.mcRef.preset_order).length) + ' Kombinationen. ' +
+    '<span class="simlabel simdata"></span>';
+  applySimLabels();
+}
+
+function renderMcChapter() {
+  const ref = S.mcRef;
+  $('#mc-run').onclick = () => {
+    if (MC.running) return;
+    MC.running = true;
+    const btn = $('#mc-run');
+    btn.disabled = true;
+    const st = $('#mc-progress');
+    st.textContent = 'rechnet …';
+    mcRunAll(p => { st.textContent = 'rechnet … ' + fmt(p * 100, 0) + ' %'; }).then(res => {
+      MC.res = res; MC.running = false; btn.disabled = false;
+      st.innerHTML = '<span class="badge-ok">✓ ' + fmt(MC_N_DRAWS * MC_CONFIGS.length *
+        (MC.order || ref.preset_order).length, 0) + ' Ziehungen in ' + fmt(MC.ms, 0) + ' ms</span>';
+      renderMcAll();
+      renderExecSummary();
+    });
+  };
+  $('#mc-wacc').onchange = e => { MC.wacc = e.target.checked; renderMcAll(); };
+  $('#mc-overrun').onchange = e => { MC.overrun = e.target.checked; renderMcAll(); };
+
+  const ovPlan = mcOverrunPlan(S.page);
+  const ko = S.page.kostenueberschreitung_faktoren;
+  $('#mc-overrun-hint').innerHTML = 'Multipliziert den CAPEX je Technologie mit einem empirischen ' +
+    'Überschreitungsfaktor, ebenfalls als Dreieck: ' +
+    ovPlan.map(o => o.cls + ' ' + fmt((o.mid - 1) * 100, 0) + ' % [' +
+      fmt((o.min - 1) * 100, 0) + '–' + fmt((o.max - 1) * 100, 0) + ' %]').join(' · ') +
+    '. Modus = Flyvbjerg-Wert (sonst Sovacool), Grenzen = dokumentierte Modellspanne ' +
+    confBadge(ko.technologien.kernkraft.stufe) + cite('flyvbjerg-2023') + cite('sovacool-ryu-2025') +
+    '. Batterie, Elektrolyse und H₂ haben in beiden Datensätzen keine Projektklasse und bleiben ' +
+    'deshalb bei 1,00 — statt eine Zahl zu erfinden.';
+
+  const plan = mcDrawPlan(S.params);
+  $('#mc-method').innerHTML = '<strong>Was hier gerechnet wird — und was nicht.</strong> ' +
+    'Gezogen werden <strong>' + plan.length + ' Parameter</strong> (CAPEX, Fixbetrieb und ' +
+    'Volllaststunden von ' + new Set(plan.map(p => p.tech)).size + ' Technologien) als ' +
+    '<strong>Dreiecksverteilung</strong> zwischen <code>min</code> und <code>max</code> mit dem ' +
+    'Modus auf <code>mid</code> — genau die Spannen, die in ' +
+    '<code>strommix/data/model_params.json</code> stehen. Die Dreiecksform ist eine ' +
+    '<em>Annahme</em>: Sie unterstellt, dass Werte nahe dem Zentralwert wahrscheinlicher sind und ' +
+    'dass min/max harte Grenzen sind. Beides ist nicht belegt, sondern die übliche Wahl, wenn nur ' +
+    'drei Punkte einer Verteilung bekannt sind. ' + confBadge('M') +
+    '<br><br><strong>Nicht variiert werden:</strong> das Wetterjahr und die Lastprofile, die Physik ' +
+    'des Dispatch (siehe unten), Lebensdauern, Wirkungsgrade, Brennstoff- und Entsorgungskosten, ' +
+    'der CO₂-Preis (fest ' + fmt(Number(S.params.global.co2_price_eur_t.value), 0) + ' €/t), das ' +
+    'Netzinvestitionsvolumen und die H₂-Speicherkosten (deren dokumentierte Spanne öffnet nur nach ' +
+    'unten und ist laut Parameternotiz nur bei hoher Zyklenzahl erreichbar — der simulierte ' +
+    'Saisonspeicher hat aber genau einen Zyklus im Jahr).' +
+    '<br><br><strong>Alle Ziehungen sind unabhängig.</strong> Reale Korrelationen — gemeinsame ' +
+    'Rohstoff- und Zinsentwicklung, hoher CAPEX an guten Standorten (genau die Warnung, die in ' +
+    '<code>scenario_sets._warning</code> steht) — sind nicht abgebildet. Das macht die Ränder der ' +
+    'Verteilung eher zu schmal als zu breit.' +
+    '<br><br><strong>Die zentrale Vereinfachung:</strong> Der stündliche Dispatch wird je Szenario ' +
+    '<strong>einmal</strong> mit mittleren Parametern gerechnet und wiederverwendet; die 1.000 ' +
+    'Ziehungen wirken nur auf die Kostenseite. Für CAPEX, Fixbetrieb und WACC ist das exakt richtig ' +
+    '— sie beeinflussen die Physik nicht. Für die Volllaststunden ist es eine Näherung: Sie ändern ' +
+    'im Modell eigentlich auch die installierte Leistung und damit Erzeugung, Abregelung und ' +
+    'Backup-Bedarf. Hier wirken sie nur auf die abgeleiteten Kapazitäten und deren Kosten. ' +
+    'Diese Näherung ist der Preis dafür, dass die Rechnung im Browser in Sekunden statt Minuten läuft.' +
+    '<br><br>Referenzlauf und Perzentile: <code>strommix/scripts/monte_carlo.py</code> → ' +
+    '<code>strommix/data/monte_carlo_reference.json</code> (Seed ' + fmt(MC_BASE_SEED, 0) +
+    ', PRNG mulberry32). Diese Seite rechnet dieselben Ziehungen live nach und vergleicht die ' +
+    'Mediane mit der Python-Referenz — das Ergebnis steckt im Verifikations-Badge im Fußbereich.';
+
+  $('#mc-wacc').checked = MC.wacc;
+  $('#mc-overrun').checked = MC.overrun;
+  $('#mc-run').disabled = false;
+  renderMcAll();
+  buildCitations();
 }
 
 /* --------------------------------------------------------------------- */
