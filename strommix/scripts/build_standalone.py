@@ -10,21 +10,17 @@ import pathlib
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-DATA_FILES = {
-    "strommix/data/model_params.json": "params",
-    "strommix/data/profiles_2024.json": "profiles",
-    "strommix/data/page_data.json": "page",
-    "strommix/data/test_vectors.json": "vectors",
-}
 
 
 def main() -> None:
     html = (ROOT / "whitepaper-strommix.html").read_text(encoding="utf-8")
     js = (ROOT / "whitepaper-strommix.js").read_text(encoding="utf-8")
 
+    # Alle Top-Level-Daten-JSONs einbetten (keine raw/-Unterordner) — so kann
+    # kein neu hinzugekommener fetch-Pfad vergessen werden.
     embedded = {
-        rel: json.loads((ROOT / rel).read_text(encoding="utf-8"))
-        for rel in DATA_FILES
+        f"strommix/data/{f.name}": json.loads(f.read_text(encoding="utf-8"))
+        for f in sorted((ROOT / "strommix" / "data").glob("*.json"))
     }
     # Fetch-Shim: beantwortet die bekannten Daten-URLs aus dem eingebetteten
     # Block, alles andere geht an das echte fetch durch.
