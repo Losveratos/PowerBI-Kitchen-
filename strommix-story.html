@@ -84,6 +84,9 @@ img,svg{max-width:100%}
 .kicker.gegen{color:var(--red-soft)}
 b.v,span.v{font-family:var(--mono);font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;
            white-space:nowrap}
+/* Haushalts-Anker: dieselbe Zahl in der Einheit, in der Menschen Strom denken. */
+.anker{color:var(--muted);font-size:.92em}
+p.anker{font-size:14px;margin-top:10px}
 .prose b.v{font-size:.95em}
 
 /* ---------- Scrolly ---------- */
@@ -314,6 +317,30 @@ footer a{color:var(--ink-2)}
   .hero .home-pill{top:14px;left:12px;font-size:11px;padding:6px 12px}
   .hero-inner{padding-top:76px}
   .limits{grid-template-columns:1fr}
+}
+
+/* ---------- Kennzahl-Leiste unter dem Chart (mobil) ---------- */
+.kpi{display:none}
+
+/* ---------- Mobil-Layout gedreht (Viz-Idee B4) ---------------------------
+   Bis v0.2 lag die Step-Karte ueber dem Chart und verdeckte in den
+   entscheidenden Schritten genau die Zeilen, ueber die der Text sprach
+   (gemessen: bis 100 % Ueberdeckung). Jetzt klebt das Chart oben, die Karten
+   scrollen darunter durch; eine einzeilige Kennzahl-Leiste am unteren
+   Chart-Rand haelt die eine Zahl des Schritts sichtbar, auch wenn die Karte
+   schon weitergescrollt ist. Nur im Hochformat - im Querformat bliebe fuer
+   beides kein Platz, dort bleibt das alte Verhalten. */
+@media (max-width:1019px) and (orientation:portrait){
+  .graphic{position:sticky;top:0;height:auto;max-height:64svh;align-items:flex-start;
+           padding:6px 0 0;background:var(--bg);z-index:6;border-bottom:1px solid var(--ring)}
+  .fig{width:100vw;padding:0 6px}
+  .fig .fig-title{padding:6px 6px 6px}
+  .steps{position:relative;z-index:1;padding-top:16px;padding-bottom:6vh}
+  .step{min-height:74svh;align-items:flex-start;padding-bottom:0}
+  .step-card{width:min(440px,94vw)}
+  .kpi{display:block;font-family:var(--mono);font-size:12px;line-height:1.35;
+       color:var(--ink-2);padding:6px 8px 7px;border-top:1px solid var(--ring);
+       background:var(--surface);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
@@ -684,7 +711,7 @@ footer a{color:var(--ink-2)}
     </div>
   </div>
   <div class="steps">
-    <div class="step" data-idx="0" data-kpi="4 Zukünfte · 1 Referenzsystem"><div class="step-card">
+    <div class="step" data-idx="0" data-kpi=""><div class="step-card">
       <span class="n">Akt 4 / Schritt 1</span>
       <h3>Punktwerte sehen präzise aus</h3>
       <p>Wir haben die vier Szenarien mit eigenen, dokumentierten Parametern nachgerechnet —
@@ -700,7 +727,7 @@ footer a{color:var(--ink-2)}
         Zukünfte. Sie liegt höher, weil die Spannen nach oben weiter reichen als nach unten.
         <span class="simlabel"></span></p>
     </div></div>
-    <div class="step" data-idx="1" data-kpi="1.000 Zukünfte · 29 gezogene Größen"><div class="step-card">
+    <div class="step" data-idx="1" data-kpi=""><div class="step-card">
       <span class="n">Akt 4 / Schritt 2</span>
       <h3>Dieselbe Zufallswelt für alle Szenarien</h3>
       <p>Wir haben <span class="big" data-v="shared.monte_carlo.meta.n_draws" data-d="0"></span>
@@ -716,7 +743,7 @@ footer a{color:var(--ink-2)}
         Gas-Technologien geteilt wird: Derselbe Rohstoff darf nicht zweimal gewürfelt werden.
         Zinssatz und CO₂-Preis laufen in eigenen Konfigurationen mit.</p>
     </div></div>
-    <div class="step" data-idx="2" data-kpi="257 von 1.000 Zukünften für die Kernkraft"><div class="step-card">
+    <div class="step" data-idx="2" data-kpi=""><div class="step-card">
       <span class="n">Akt 4 / Schritt 3</span>
       <h3>Der Beinahe-Gleichstand</h3>
       <p>Im Punktwert kostet der gasgestützte 80-Prozent-Pfad
@@ -743,7 +770,7 @@ footer a{color:var(--ink-2)}
         <span class="big" data-v="co2_sensitivity.crossover_mc_median_eur_t" data-d="0" data-unit=" €"></span>,
         und sie wandert mit dem Gaspreis und mit der Netzregel. <span class="simlabel"></span></p>
     </div></div>
-    <div class="step" data-idx="3" data-kpi="Bei gleicher Emissionsmenge: 943 von 1.000"><div class="step-card">
+    <div class="step" data-idx="3" data-kpi=""><div class="step-card">
       <span class="n">Akt 4 / Schritt 4</span>
       <h3>Mit Abscheidung auf beiden Seiten</h3>
       <p>Der Gleichstand hat einen Haken: Der Gas-Pfad ist auch deshalb billig, weil er fast viermal
@@ -772,7 +799,7 @@ footer a{color:var(--ink-2)}
         Sonne gebaut werden müsste. Und Deutschland hat <b>keine CO₂-Speicherstätte in Betrieb</b> —
         mehr dazu gleich. <span class="simlabel"></span></p>
     </div></div>
-    <div class="step" data-idx="4" data-kpi="Teurer: 32 von 1.000 · billiger: 1.000 von 1.000"><div class="step-card">
+    <div class="step" data-idx="4" data-kpi=""><div class="step-card">
       <span class="n">Akt 4 / Schritt 5</span>
       <h3>Beide Richtungen: teurer und billiger</h3>
       <p>Was, wenn die Baukosten anders liegen als angenommen? Das Bild zeigt jetzt beide
@@ -822,10 +849,12 @@ footer a{color:var(--ink-2)}
   <p class="lede" id="mc-honest"></p>
   <p>Der Satz „das Studienergebnis kehrt sich um“ stand in unserem <em>eigenen</em> ersten
     Entwurf. Wir haben ihn geprüft und verworfen. Was bleibt, ist kein Rangwechsel — die beiden
-    vorderen Pfade liegen so eng beieinander, dass die Rangfolge zwischen ihnen
-    <b>statistisch unentschieden</b> ist. Das ist weniger schlagzeilentauglich und deutlich näher
-    an dem, was die Daten hergeben. Und es ist nur die halbe Wahrheit, solange die
-    Emissionsnebenbedingung nicht dabeisteht.</p>
+    vorderen Pfade liegen so eng beieinander, dass die Rangfolge zwischen ihnen nach unserem
+    eigenen Maßstab <b>offen</b> bleibt: entschieden ist ein Vergleich erst, wenn mindestens
+    950 von 1.000 Zukünften in dieselbe Richtung zeigen. Das gilt für den Gleichstand ohne
+    Abscheidung ebenso wie für die beiden Vergleiche mit gleicher Emissionsmenge — dort ist die
+    Richtung aber eindeutig, und sie zeigt zur anderen Seite.</p>
+  <aside class="kasten gegen" id="cp-ccs"></aside>
   <aside class="kasten gegen" id="cp-co2"></aside>
   <aside class="kasten" id="cp-marktdesign"></aside>
   <aside class="kasten gegen" data-cp="cp_ges_opex"></aside>
@@ -916,7 +945,8 @@ footer a{color:var(--ink-2)}
         Unsere eigene Dispatch-Rechnung landet bei
         <span class="big neg" data-v="thirty_year_plan.lscoe_2056.our_model.mittel" data-d="1" data-unit=" €/MWh"></span>
         <span class="v" data-v="thirty_year_plan.lscoe_2056.recommended_value.range" data-fmt="range" data-d="0" data-unit=" €/MWh"></span>
-        — und ist selbst noch eine Untergrenze. <span class="simlabel"></span></p>
+        — und ist selbst noch eine Untergrenze. <span class="anker" id="hh-akt5"></span>
+        <span class="simlabel"></span></p>
     </div></div>
     <div class="step" data-idx="3"><div class="step-card">
       <span class="n">Akt 5 / Schritt 4</span>
@@ -983,7 +1013,7 @@ footer a{color:var(--ink-2)}
     Größe, sondern eine politische.</p>
   <p>Ein Rechenbeispiel aus unserem Datensatz — derselbe Reaktor,
     <b class="v" data-v="shared.nuclear_lcoe_example_assumptions.capex_eur_kw" data-d="0" data-unit=" €/kW"></b>,
-    <b class="v" data-v="shared.nuclear_lcoe_example_assumptions.full_load_hours" data-d="0" data-unit=" Volllaststunden"></b>,
+    <b class="v" data-v="shared.nuclear_lcoe_example_assumptions.full_load_hours" data-d="0" data-unit=" Volllaststunden"></b><span class="conf conf-M" title="Setzung">M</span>,
     <b class="v" data-v="shared.nuclear_lcoe_example_assumptions.lifetime_years" data-d="0" data-unit=" Jahre"></b>:
     Bei 3 Prozent Kapitalkostensatz kostet sein Strom
     <b class="v" data-v="shared.nuclear_lcoe_by_wacc_pct.3" data-d="1" data-unit=" €/MWh"></b>,
@@ -992,13 +1022,20 @@ footer a{color:var(--ink-2)}
     <b class="v" data-v="shared.wacc_sensitivity.wacc_effect_at_60y.factor_3pct_to_10pct" data-d="2"></b>,
     die Stromkosten fast auf das Doppelte — gebaut wird in beiden Fällen dasselbe
     Kraftwerk<sup class="cite" data-src="iea-nea-2020"></sup>.</p>
-  <p>Der zweite politische Hebel ist der <b>CO₂-Preis</b> — und hier haben wir uns in der ersten
-    Fassung selbst korrigieren müssen. Dort stand, er werde in der Debatte regelmäßig überschätzt.
-    Nach den Modellkorrekturen stimmt das nicht: Ab rund
-    <b class="v" data-v="co2_sensitivity.crossover_kernkraft_vs_gas_eur_t" data-d="0" data-unit=" € je Tonne"></b>
-    dreht er die Rangfolge der beiden vorderen Pfade, und unser Modellwert von
+  <p>Der zweite politische Hebel ist der <b>CO₂-Preis</b> — und hier haben wir uns zweimal selbst
+    korrigieren müssen. In der ersten Fassung stand, er werde in der Debatte überschätzt; das war
+    falsch. In der zweiten stand, die Kippmarke liege bei knapp 48 € je Tonne und der reale
+    Emissionshandel damit schon darüber. Auch das gilt nicht mehr, seit das Übertragungsnetz einen
+    mixunabhängigen Sockel bekommen hat: Die Rangfolge der beiden vorderen Pfade dreht im Punktwert
+    erst ab rund
+    <b class="v" data-v="co2_sensitivity.crossover_kernkraft_vs_gas_eur_t" data-d="0" data-unit=" € je Tonne"></b>,
+    über alle 1.000 Zukünfte sogar erst bei rund
+    <b class="v" data-v="co2_sensitivity.crossover_mc_median_eur_t" data-d="0" data-unit=" €"></b>.
+    Unser Modellwert von
     <b class="v" data-v="shared.monte_carlo.meta.co2_price_eur_t" data-d="0" data-unit=" € je Tonne"></b>
-    liegt bereits darüber. Er ist nach dem Zinssatz der zweitstärkste Hebel dieser Rechnung.</p>
+    liegt darunter — beim heutigen CO₂-Preis führt in dieser Rechnung der Gas-Pfad. Der Hebel bleibt
+    nach dem Zinssatz der zweitstärkste; er zeigt nur in die andere Richtung, als wir zwischenzeitlich
+    geschrieben haben.</p>
   <p>Richtig bleibt die Einordnung der Zahlen: Der oft zitierte Preis von über 200 € je Tonne stammt
     aus dem ETS 2 für Gebäude und Verkehr<sup class="cite" data-src="ews-ets2"></sup> — für die
     Stromerzeugung gilt der ETS 1, dessen Marktpreis im Mai 2026 bei
@@ -1009,8 +1046,9 @@ footer a{color:var(--ink-2)}
     bei einer Zeitpräferenzrate von einem Prozent und
     <b class="v" data-v="co2_sensitivity.uba_mk40_central_eur_t" data-d="0" data-unit=" € je Tonne"></b>
     als Zentralwert der aktuellen Methodenkonvention<sup class="cite" data-src="uba-methodenkonvention"></sup>.
-    Der Abstand dazwischen ist keine Rechenfrage, sondern eine ethische Setzung — sie hängt daran,
-    ob künftige Generationen abgezinst werden oder nicht.</p>
+    Der Abstand dazwischen ist keine Rechenfrage, sondern eine Wertentscheidung: Zählt ein Schaden,
+    der erst in achtzig Jahren eintritt, heute genauso viel wie einer von morgen? Wer Nein sagt,
+    landet bei den 350 Euro, wer alle Generationen gleich gewichtet, bei den 990.</p>
   <p>Und die alte Nebenrechnung bleibt gültig, nur eben als Nebenrechnung: Dass auf die
     Restemissionen von Gas mit Abscheidung kein CO₂-Preis gelegt wird, ist eine echte, aber kleine
     Lücke — systemweit
@@ -2012,6 +2050,7 @@ function buildAct4(){
     return inv ? {p: inv.p_b_cheaper, med: -inv.median_diff_a_minus_b} : null;
   }
   const pct = v => nf(v*100, 0) + " %";
+  const freq = v => nf(Math.round(v*1000), 0);
   // Die Konfigurationslabels kommen aus dem Modelllauf und sind dort in ASCII
   // notiert; fuer die Seite werden Formelzeichen und Einheiten gesetzt.
   const cfgLabel = id => String(MC.configs[id] || id)
@@ -2037,7 +2076,7 @@ function buildAct4(){
   /* Box-Whisker-Glyphe. Ein Perzentil ausserhalb des Achsenausschnitts
      bekommt eine Pfeilspitze statt einer Endkappe (sonst liest man einen
      echten Endpunkt, wo geklemmt wurde). */
-  function band(parent, cfg, yy, col, label, dash){
+  function band(parent, cfg, yy, col, label, dash, tag, tagBelow){
     const lo = Math.max(xmin, cfg.p5), hi = Math.min(xmax, cfg.p95);
     el("line", {x1:x(lo), x2:x(hi), y1:yy, y2:yy, stroke:col, "stroke-width":2, opacity:.7}, parent);
     const cap = (v, raw, dir) => {
@@ -2059,6 +2098,12 @@ function buildAct4(){
     el("line", {x1:x(cfg.p50), x2:x(cfg.p50), y1:yy-halfBox*1.15, y2:yy+halfBox*1.15,
       stroke:"var(--ink)", "stroke-width":2.2}, parent);
     clampTxt(txt(parent, x(Math.min(xmax, cfg.p95))+12, yy+TC, nf(cfg.p50,0), {class:"lab-strong"}));
+    // Kontrastlaeufe tragen ihren Namen am Band (Viz R2-M3): ohne ihn haengt die
+    // Identitaet allein an der Kopfzeile, und wer die ueberliest, liest zwei
+    // zusaetzliche Szenarien.
+    if (tag) clampTxt(txt(parent, x(Math.max(xmin, cfg.p5)),
+      yy + (tagBelow ? halfBox + LH*0.85 : -halfBox - LH*0.3), tag,
+      {class:"sm", fill:col}));
     hover(r, "<b>" + label + "</b><br>Median " + nf(cfg.p50,0) + " €/MWh<br>" +
       "<span class='l'>P5–P95 " + nf(cfg.p5,0) + "–" + nf(cfg.p95,0) +
       " · P25–P75 " + nf(cfg.p25,0) + "–" + nf(cfg.p75,0) + "</span>");
@@ -2076,8 +2121,13 @@ function buildAct4(){
     // CCS-Zeilen sind Varianten ihres Basis-Presets, keine eigenen Zukuenfte
     const rowG = el("g", isCcs ? {class:"ccs-row"} : {}, g);
     const twoLine = gap > 2.3*LH;
-    clampTxt(txt(rowG, LC, yy - (twoLine ? LH*0.42 : 0) + TC, SHORT[id],
+    const lab = clampTxt(txt(rowG, LC, yy - (twoLine ? LH*0.42 : 0) + TC, SHORT[id],
       {"text-anchor":"end", class:"sm", fill:soft}));
+    // Piktogramm links vor dem Label (Textbreite gemessen, damit es buendig sitzt)
+    let labW = 0;
+    try { labW = lab.getComputedTextLength(); } catch (e) {}
+    const labX = parseFloat(lab.getAttribute("x"));
+    icon(rowG, id, labX - labW - FSS*1.15, yy - (twoLine ? LH*0.42 : 0), soft);
     // Emissionsausweis je Szenario (Panel-Befund: Kostenvergleich ohne
     // Emissionsniveau ist keine Aussage ueber Technologien)
     const mt = nf(p.emissions_mt_co2_a, p.emissions_mt_co2_a < 10 ? 1 : 0) + " Mt CO₂/a" +
@@ -2098,60 +2148,85 @@ function buildAct4(){
       (p.comparable_to_target_scenarios ? "" : " · nicht ranking-fähig") + "</span>");
 
     band(isCcs ? lCcs : lBase, p.configs.base, yy, col, p.label + " · " + cfgLabel("base"), isCcs);
-    if (!isCcs) band(lOver, p.configs.overrun, yy, col, p.label + " · " + cfgLabel("overrun"), false);
+    if (!isCcs) band(lOver, p.configs.overrun, yy, col, p.label + " · " + cfgLabel("overrun"),
+                     false, id === "kostenminimum" ? (NARROW ? "teurer" : "mit Überschreitung") : null);
   });
 
   /* Schritt 3: die Rangfolge — als Differenzverteilung, nicht als Ueberlappung */
   const rBase = rank("base", "kostenminimum", "ee80_gas");
   const rCo2  = rank("co2",  "kostenminimum", "ee80_gas");
   const rOver = rank("overrun", "kostenminimum", "ee80_gas");
+  const rEq   = rank("base", "kostenminimum", "ee80_gas_ccs");
+  const rAsia = rank("asia", "kostenminimum", "ee80_gas");
   if (rBase){
     const yA = yOf.kostenminimum, yB = yOf.ee80_gas;
     const bx = x(Math.max(MC.presets.kostenminimum.configs.base.p95,
                           MC.presets.ee80_gas.configs.base.p95)) + 60;
     el("path", {d:"M" + bx + " " + yA + "H" + (bx+10) + "V" + yB + "H" + bx,
       fill:"none", stroke:"var(--ink)", "stroke-width":1.2, opacity:.75}, lRank);
+    // Natuerliche Haeufigkeit statt Formelnotation (Viz-Idee B2, Journalist):
+    // "von 1.000 Zukuenften gehen 257 an die Kernkraft" versteht man ohne
+    // Wahrscheinlichkeitsrechnung, "P(A<B) = 25,7 %" nicht.
     if (NARROW){
       clampTxt(txt(lRank, 8, T4 - LH*1.35,
-        "P(Kernkraft < Gas) = " + pct(rBase.p), {class:"lab-strong"}));
+        freq(rBase.p) + " von 1.000 Zukünften: Kernkraft", {class:"lab-strong"}));
       clampTxt(txt(lRank, 8, T4 - LH*0.35,
         "Median-Abstand " + nf(Math.abs(rBase.med),1) + " €/MWh",
         {class:"sm", fill:"var(--muted)"}));
     } else {
       clampTxt(txt(lRank, 8, T4 - LH*0.35,
-        "P(Kernkraft günstiger als Gas-Pfad) = " + pct(rBase.p) +
-        " · Median-Abstand " + nf(Math.abs(rBase.med),1) + " €/MWh",
+        "Von 1.000 Zukünften gehen " + freq(rBase.p) + " an die Kernkraft, " +
+        freq(1 - rBase.p) + " an den Gas-Pfad · Abstand im Median " +
+        nf(Math.abs(rBase.med),1) + " €/MWh",
         {class:"lab-strong"}));
     }
   }
 
   /* Schritt 6: Kontrastverteilung Asien/Golf — nur fuer die Kernkraft-Zeilen */
-  ["kostenminimum","kostenminimum_ccs"].forEach(id => {
+  // Kontrastverteilung Asien/Golf. Bis v0.2 wurde sie gestrichelt gezeichnet -
+  // und widersprach damit der eigenen Legende ("gestrichelt = CCS-Variante",
+  // Viz R2-M3). Jetzt: heller Ton, durchgezogen, mit Namen am Band.
+  // Nur die Basiszeile bekommt das Kontrastband: Die CCS-Variante ist in diesem
+  // Schritt ausgeblendet, ihr Kontrastband haette keine sichtbare Zeile mehr.
+  ["kostenminimum"].forEach(id => {
     const p = MC.presets[id];
     if (!p.configs.asia) return;
-    band(lAsia, p.configs.asia, yOf[id] + gap*0.30, "var(--blue-soft)",
-      p.label + " · " + cfgLabel("asia"), true);
+    band(lAsia, p.configs.asia, yOf[id] + gap*0.34, "var(--blue-soft)",
+      p.label + " · " + cfgLabel("asia"), false,
+      NARROW ? "Asien/Golf" : "mit Cluster Asien/Golf", true);
   });
   const dAsia = MC.presets.kostenminimum.configs.base.p50 - MC.presets.kostenminimum.configs.asia.p50;
+  const dOver = MC.presets.kostenminimum.configs.overrun.p50 - MC.presets.kostenminimum.configs.base.p50;
+  // Beide Gegenproben stehen im Schlussbild nebeneinander, damit der Akt nicht
+  // auf dem guenstigsten Kernkraft-Lauf endet (Viz M-R2-3).
   if (NARROW){
     clampTxt(txt(lAsia, 8, T4 - LH*1.35,
-      "Kontrast Asien/Golf: −" + nf(Math.round(dAsia/5)*5, 0) + " €/MWh",
-      {class:"lab-blue", "font-weight":600}));
+      "teurer +" + nf(Math.round(dOver/5)*5, 0) + " · billiger −" +
+      nf(Math.round(dAsia/5)*5, 0) + " €/MWh",
+      {class:"lab-strong"}));
     clampTxt(txt(lAsia, 8, T4 - LH*0.35,
-      "anderer Institutionenrahmen", {class:"sm", fill:"var(--muted)"}));
+      "Kernkraft-Zeile, zwei Kontrastläufe", {class:"sm", fill:"var(--muted)"}));
   } else {
     clampTxt(txt(lAsia, 8, T4 - LH*0.35,
-      "Kontrast Asien/Golf: derselbe Rechenweg, anderer Institutionenrahmen — " +
+      "Dieselbe Kernkraft-Zeile, zwei Gegenproben: Überschreitung +" +
+      nf(Math.round(dOver/5)*5, 0) + " €/MWh · Asien/Golf −" +
       nf(Math.round(dAsia/5)*5, 0) + " €/MWh",
-      {class:"lab-blue", "font-weight":600}));
+      {class:"lab-strong"}));
   }
 
   /* Glyphen-Legende (Viz-Befund M4) */
   const lgY = yBase + 3*LH;          // eigene Zeile unter der Achsennotiz
   const lgX = W - M.r - 12;
-  const lgTxt = "◆ deterministisch   ▭ P25–P75   │ Median   ├─┤ P5–P95   ⌐ ¬ gestrichelt = CCS-Variante";
-  clampTxt(txt(lLeg, lgX, lgY, NARROW ? "◆ determ. · ▭ P25–P75 · │ Median · ├┤ P5–P95" : lgTxt,
-    {"text-anchor":"end", class:"sm", fill:"var(--muted-chart)"}));
+  /* Zwei Zeilen statt einer: Die Legende erklaert jetzt in Klartext, was die
+     Glyphen bedeuten (Journalist: fuenf Notationen, keine davon im Sichtfeld
+     erklaert) - das passt nicht mehr in eine Zeile. */
+  const lgLines = NARROW
+    ? ["◆ Punktwert · ▭ mittlere Hälfte · │ Mitte",
+       "├┤ 900 von 1.000 · gestrichelt = CCS"]
+    : ["◆ unser Punktwert · ▭ die mittlere Hälfte aller 1.000 Zukünfte · │ die mittlere Zukunft",
+       "├─┤ 900 von 1.000 Zukünften liegen in diesem Bereich · gestrichelt = mit CO₂-Abscheidung"];
+  lgLines.forEach((L, i) => clampTxt(txt(lLeg, lgX, lgY + i*LH, L,
+    {"text-anchor":"end", class:"sm", fill:"var(--muted-chart)"})));
 
   /* Tabellen-Zwilling: jetzt mit Emissionen und Rangwahrscheinlichkeit */
   let html = "<tr><th>Szenario</th><th class='num'>determ.</th><th class='num'>P5</th>" +
@@ -2173,26 +2248,42 @@ function buildAct4(){
     const r = rank(cfg, "kostenminimum", "ee80_gas");
     const rc = rank(cfg, "kostenminimum_ccs", "ee80_gas_ccs");
     if (!r) return;
-    html += "<tr><td>P(Kernkraft &lt; Gas) · " + cfg + "</td><td class='num' colspan='4'>" +
-      pct(r.p) + "</td><td class='num' colspan='4'>mit CCS auf beiden Seiten: " +
-      (rc ? pct(rc.p) : "–") + "</td></tr>";
+    html += "<tr><td>Kernkraft günstiger als Gas-Pfad · " + cfg +
+      "</td><td class='num' colspan='4'>" + freq(r.p) + " von 1.000 Zukünften (" + pct(r.p) +
+      ")</td><td class='num' colspan='4'>mit CCS auf beiden Seiten: " +
+      (rc ? freq(rc.p) + " von 1.000" : "–") + "</td></tr>";
   });
   $("#tbl4").innerHTML = html;
 
-  const titles = ["Akt 4 · Vier saubere Punktwerte",
+  const em = id => nf(MC.presets[id].emissions_mt_co2_a, 0);
+  const titles = ["Akt 4 · Vier Zukünfte und ein Referenzsystem",
                   "Akt 4 · " + nf(MC.meta.n_draws,0) + " gepaarte Ziehungen",
                   "Akt 4 · Der Beinahe-Gleichstand",
-                  "Akt 4 · Mit empirischer Kostenüberschreitung",
-                  "Akt 4 · Auf gleichem Emissionsniveau",
-                  "Akt 4 · Zwei Welten für dieselbe Technologie"];
+                  "Akt 4 · Mit Abscheidung auf beiden Seiten",
+                  "Akt 4 · Beide Richtungen: teurer und billiger"];
   const subs = ["deterministische Rechnung · " + MC.meta.profiles.label,
-                cfgLabel("base") + " · gemeinsame Zufallszahlen über alle Szenarien",
-                "P(Kernkraft günstiger als Gas-Pfad) = " + (rBase ? pct(rBase.p) : "–") +
-                  " · mit CO₂-Unsicherheit " + (rCo2 ? pct(rCo2.p) : "–") +
-                  " · mit Überschreitungs-Empirie " + (rOver ? pct(rOver.p) : "–"),
-                cfgLabel("overrun") + " · asymmetrisch: für Batterie und H₂-Kette gibt es keine Faktoren",
-                "beide Pfade mit CO₂-Abscheidung · 8 gegen 32 Mt CO₂/a statt 28 gegen 107",
-                cfgLabel("asia") + " · Kontrast, kein Deutschland-Szenario"];
+                "Basislauf · dieselbe Zufallswelt für alle Szenarien",
+                "Von 1.000 Zukünften für die Kernkraft: " + (rBase ? freq(rBase.p) : "–") +
+                  " · mit unsicherem CO₂-Preis " + (rCo2 ? freq(rCo2.p) : "–") +
+                  " · mit Überschreitungs-Empirie " + (rOver ? freq(rOver.p) : "–"),
+                "beide Pfade mit CO₂-Abscheidung · " + em("kostenminimum_ccs") + " gegen " +
+                  em("ee80_gas_ccs") + " Mt CO₂/a statt " + em("kostenminimum") + " gegen " +
+                  em("ee80_gas"),
+                "zwei Kontrastläufe statt der Basisbänder · Überschreitungs-Empirie für alle Zeilen, " +
+                  "Asien/Golf für die Kernkraft-Zeilen"];
+  /* Kennzahl-Leiste (mobil): je Schritt die eine Zahl, um die es geht — aus den
+     Daten, nicht aus dem Markup. */
+  const kpis = [
+    "4 Zukünfte + 1 Referenzsystem · " + nf(MC.presets.ee80_gas.deterministic,0) + " bis " +
+      nf(MC.presets.ee100.deterministic,0) + " €/MWh",
+    nf(MC.meta.n_draws,0) + " Zukünfte · " + nf(MC.meta.drawn_parameters,0) + " gezogene Größen",
+    (rBase ? freq(rBase.p) : "–") + " von 1.000 Zukünften für die Kernkraft",
+    "Gleiche Emissionsmenge: " + (rEq ? freq(rEq.p) : "–") + " von 1.000",
+    "teurer: " + (rOver ? freq(rOver.p) : "–") + " · billiger: " + (rAsia ? freq(rAsia.p) : "–") +
+      " von 1.000"
+  ];
+  $$('.scrolly[data-act="4"] .step').forEach((st, i) => { st.dataset.kpi = kpis[i] || ""; });
+
   return { step(i){
     $("#act4").dataset.step = i;
     if (i >= 0){ $("#t4").textContent = titles[i]; $("#s4").textContent = subs[i]; }
@@ -2227,7 +2318,13 @@ function buildAct5(){
      der Zeilenbreite - ein Muster, das nicht in den Daten steckt. Kodiert wird
      jetzt die Groesse, um die es geht: die prozentuale Abweichung. */
   const devOf = r => (r.real / r.md - 1) * 100;
-  const lim = Math.max(40, Math.ceil(Math.max.apply(null, rows.map(r => Math.abs(devOf(r)))) / 20) * 20 + 20);
+  /* Viz-Befund R2-M1: Das Tick-Raster lief frueher von -lim in Schritten von 50
+     und traf die Null nie - die hervorgehobene Nulllinie eines divergierenden
+     Balkendiagramms wurde deshalb nie gezeichnet. Jetzt wird lim auf ein
+     Vielfaches der Schrittweite gerundet und das Raster von 0 aus gespiegelt. */
+  const devMax = Math.max.apply(null, rows.map(r => Math.abs(devOf(r))));
+  const tickStep0 = devMax > 100 ? 50 : 20;
+  const lim = Math.max(2*tickStep0, Math.ceil((devMax + tickStep0*0.4) / tickStep0) * tickStep0);
   const LBL = Math.max(230, Math.min(520, Math.round(22*0.62*FSS)));
   const x0L = LBL + 16, x0R = W - M.r - 10;
   const xd = lin(-lim, lim, x0L, x0R);
@@ -2238,13 +2335,15 @@ function buildAct5(){
     NARROW ? "Abweichung vom Planwert 2026, in %"
            : "Abweichung des belegten Ist-Werts vom Planwert 2026, in Prozent",
     {class:"sm", fill:"var(--muted)"}));
-  // Skala mit gemeinsamer Nullachse
-  const tickStep = lim > 100 ? 50 : 20;
-  for (let v=-lim; v<=lim; v+=tickStep){
+  // Skala mit gemeinsamer, sichtbarer Nullachse
+  const tickStep = tickStep0;
+  const ticks0 = [];
+  for (let v=0; v<=lim; v+=tickStep){ ticks0.push(v); if (v) ticks0.unshift(-v); }
+  ticks0.forEach(v => {
     el("line", {x1:xd(v), x2:xd(v), y1:top0 - LH*0.5, y2:H-M.b-LH,
       stroke: v === 0 ? "var(--axis)" : "var(--grid)", "stroke-width": v === 0 ? 1.5 : 1}, g0);
     txt(g0, xd(v), H-M.b, (v > 0 ? "+" : "") + nf(v,0), {"text-anchor":"middle", class:"sm"});
-  }
+  });
   rows.forEach((r,i) => {
     const yy = top0 + gap0*(i+0.5);
     const dev = devOf(r);
@@ -2451,16 +2550,26 @@ function renderLimits(){
      p:"Der Abruf der Primärquellen war in dieser Arbeitsumgebung blockiert — einschließlich der " +
        "Studien-PDF. Die Verifikation lief über Suchindex-Auszüge mit wörtlichen Zitaten. " +
        "Jede Zahl trägt deshalb eine Konfidenzstufe; B und C sind nicht gegengeprüft."},
-    {h:"Ziehungen: gepaart, aber unkorreliert",
+    {h:"Ziehungen: gepaart, mit zwei Ausnahmen unkorreliert",
      p:"Die Monte-Carlo-Rechnung zieht " + nf(mc.drawn_parameters,0) + " Parameter. Innerhalb einer " +
        "Ziehung sind sie über alle Szenarien identisch — nur deshalb sind Rangaussagen zulässig. " +
-       "Zwischen den Parametern wird dagegen unabhängig gezogen, obwohl Zinsen, Rohstoffpreise und " +
-       "Lieferketten real zusammenhängen. Die echte Streuung ist an den Rändern vermutlich breiter."},
-    {h:"Gaspreis: Lücke geschlossen in v0.2",
-     p:"Der Erdgas-Brennstoffpreis war in v0.1 mit null angesetzt — das ist behoben. Er läuft jetzt " +
-       "mit " + nf(gp.min,0) + "/" + nf(gp.mid,0) + "/" + nf(gp.max,0) + " € je MWh thermisch " +
-       "durch den Wirkungsgrad (Konfidenz " + gp.confidence + " für die Marktspanne, C für die " +
-       "Übertragbarkeit auf 2045). Die Asymmetrie war groß: Der Gas-Pfad verbrennt " +
+       "Zwischen den Parametern wird unabhängig gezogen, mit zwei ausdrücklichen Ausnahmen: Der " +
+       "Erdgaspreis gilt für beide Gas-Technologien gemeinsam, und der CAPEX der Abscheidungsanlage " +
+       "ist ein gezogener Faktor auf den in derselben Ziehung gezogenen Gaskraftwerkspreis. Alles " +
+       "Übrige läuft unabhängig, obwohl Zinsen, Rohstoffpreise und Lieferketten real zusammenhängen — " +
+       "die echte Streuung ist an den Rändern vermutlich breiter."},
+    fromData("grid_transmission_socket_assumption",
+             "Netz: die Sockelquote ist die folgenreichste Setzung"),
+    fromData("scenarios_not_emission_equivalent", "Die Szenarien sind nicht emissionsgleich"),
+    fromData("overrun_estimate_base_assumption", "Die Überschreitungsregel ist eine Modellstruktur"),
+    (D.modell_offene_punkte && D.modell_offene_punkte.wacc_anker_monotonie
+      ? {h:"Die Baukosten-Anker hängen selbst am Zinssatz",
+         p:D.modell_offene_punkte.wacc_anker_monotonie.text} : null),
+    {h:"Der Gaspreis von 2026 gilt für 2045",
+     p:"Der Erdgas-Brennstoffpreis läuft mit " + nf(gp.min,0) + "/" + nf(gp.mid,0) + "/" +
+       nf(gp.max,0) + " € je MWh thermisch durch den Wirkungsgrad — eine Marktspanne von heute " +
+       "(Konfidenz " + gp.confidence + "), deren Übertragbarkeit auf 2045 nicht belegt ist " +
+       "(Konfidenz C). Der Hebel ist groß und einseitig: Der Gas-Pfad verbrennt " +
        nf(P.ee80_gas.gas_backup_twh_a,0) + " TWh im Jahr, das Kernkraft-Szenario " +
        nf(P.kostenminimum.gas_backup_twh_a,0) + " TWh."},
     {h:"Import und Flexibilität fehlen — nicht symmetrisch",
@@ -2469,6 +2578,7 @@ function renderLimits(){
     fromData("ccs_storage_availability", "Keine CO₂-Speicherstätte in Deutschland"),
     fromData("ccs_cost_band_optimistic", "Das CCS-Kostenband ist optimistisch"),
     fromData("ccs_on_full_backup_fleet", "CCS auf dem gesamten Backup-Park"),
+    fromData("ccs_residual_is_lifecycle", "Die Restemission ist ein Lebenszyklus-Wert"),
     fromData("grid_allocation_assumption", "Netz: die Treiberzuordnung ist eine Setzung"),
     fromData("grid_opex_missing", "Netzbetrieb und Redispatch fehlen"),
     {h:"Der Ist-Anker ist nicht ranking-fähig",
@@ -2561,7 +2671,28 @@ function pAB(cfg, a, b){
   const inv = rows.find(r => r.a === b && r.b === a);
   return inv ? inv.p_b_cheaper : null;
 }
+/* Median-Differenz A minus B aus denselben gepaarten Ziehungen. */
+function medAB(cfg, a, b){
+  const rows = (D.shared.monte_carlo.rank_probabilities || {})[cfg] || [];
+  const hit = rows.find(r => r.a === a && r.b === b);
+  if (hit) return hit.median_diff_a_minus_b;
+  const inv = rows.find(r => r.a === b && r.b === a);
+  return inv ? -inv.median_diff_a_minus_b : null;
+}
 const pctTxt = v => (v === null || v === undefined) ? "–" : nf(v*100, 0) + " %";
+/* Natuerliche Haeufigkeit statt Prozent (Viz-Idee B2): "257 von 1.000" wird
+   nachweislich besser verstanden als "P = 25,7 %". Die Rundung bleibt ehrlich
+   auf 1.000 Ziehungen bezogen - das ist die tatsaechliche Stichprobe. */
+const freqTxt = v => (v === null || v === undefined) ? "–" : nf(Math.round(v*1000), 0);
+
+/* --- Haushalts-Anker (Viz-Idee B1) -----------------------------------------
+   1 EUR/MWh = 0,1 ct/kWh; bei 3.500 kWh Jahresverbrauch sind das 3,50 EUR im
+   Jahr. Der Anker uebersetzt eine leere Einheit in zwei, in denen Menschen
+   Strom denken - mit dem Pflicht-Hinweis, dass Systemkosten kein Strompreis
+   sind. Referenzverbrauch und Guardrail stehen im Datensatz (haushalt_anker). */
+function hhKwh(){ const h = D.haushalt_anker; return h ? h.verbrauch_kwh_a : 3500; }
+function hhCt(eurMwh){ return nf(eurMwh/10, 1) + " ct je kWh"; }
+function hhYear(eurMwh, dec){ return nf(eurMwh*hhKwh()/1000, dec === undefined ? 0 : dec) + " €"; }
 
 function renderProseBits(){
   $("#lovering-disc").textContent = D.nuclear_history_timeseries.must_show_disclaimer;
@@ -2570,15 +2701,52 @@ function renderProseBits(){
 
   /* --- Rangwahrscheinlichkeiten im Fliesstext von Akt 4 --- */
   const set = (id, v) => { const n = $(id); if (n) n.textContent = v; };
-  set("#p-base", pctTxt(pAB("base", "kostenminimum", "ee80_gas")));
-  set("#p-co2",  pctTxt(pAB("co2",  "kostenminimum", "ee80_gas")));
-  set("#p-over", pctTxt(pAB("overrun", "kostenminimum", "ee80_gas")));
-  set("#p-ccs",  pctTxt(pAB("base", "kostenminimum_ccs", "ee80_gas_ccs")));
-  set("#p-asia", pctTxt(pAB("asia", "kostenminimum", "ee80_gas")));
-  set("#p-h2", pctTxt(pAB("base", "kostenminimum", "ee80_h2")));
-  set("#p-h2-over", pctTxt(pAB("overrun", "kostenminimum", "ee80_h2")));
-  const kp = D.shared.monte_carlo.presets.kostenminimum.configs;
-  set("#d-asia", nf(Math.round((kp.base.p50 - kp.asia.p50)/5)*5, 0) + " €/MWh");
+  const P = D.shared.monte_carlo.presets;
+  const kp = P.kostenminimum.configs;
+  const pBase = pAB("base", "kostenminimum", "ee80_gas");
+  set("#f-base", freqTxt(pBase));
+  set("#f-base-gas", freqTxt(1 - pBase));
+  set("#f-co2",  freqTxt(pAB("co2",  "kostenminimum", "ee80_gas")));
+  set("#f-over", freqTxt(pAB("overrun", "kostenminimum", "ee80_gas")));
+  set("#f-over-2", freqTxt(pAB("overrun", "kostenminimum", "ee80_gas")));
+  set("#f-ccs",  freqTxt(pAB("base", "kostenminimum_ccs", "ee80_gas_ccs")) + " von 1.000");
+  set("#f-ccs-over", freqTxt(pAB("overrun", "kostenminimum_ccs", "ee80_gas_ccs")) + " von 1.000");
+  set("#f-eqem", freqTxt(pAB("base", "kostenminimum", "ee80_gas_ccs")));
+  set("#f-asia", freqTxt(pAB("asia", "kostenminimum", "ee80_gas")));
+  set("#f-h2-over", freqTxt(pAB("overrun", "kostenminimum", "ee80_h2")));
+
+  /* Median-Abstaende der beiden Emissions-Vergleiche, aus denselben gepaarten
+     Ziehungen wie die Haeufigkeiten. */
+  const dEq  = Math.abs(medAB("base", "kostenminimum", "ee80_gas_ccs") || 0);
+  const dCcs = Math.abs(medAB("base", "kostenminimum_ccs", "ee80_gas_ccs") || 0);
+  set("#d-eqem", nf(dEq, 1) + " €/MWh");
+  set("#d-ccs", nf(dCcs, 1) + " €/MWh");
+  const dAsia = Math.round((kp.base.p50 - kp.asia.p50)/5)*5;
+  set("#d-asia", nf(dAsia, 0) + " €");
+
+  /* --- Haushalts-Anker im Fliesstext --- */
+  const hh = D.haushalt_anker;
+  if (hh){
+    set("#hh-guard", hh.guardrail);
+    const ges = D.shared.ges_reference.scenarios;
+    set("#hh-akt1", "Die " + nf(ges.kostenminimum.lscoe,0) + " € je Megawattstunde sind " +
+      hhCt(ges.kostenminimum.lscoe) + ", für einen Haushalt mit " + nf(hh.verbrauch_kwh_a,0) +
+      " kWh im Jahr also rund " + hhYear(ges.kostenminimum.lscoe) + " Systemkosten jährlich; die " +
+      nf(ges.ee100.lscoe,0) + " € sind " + hhCt(ges.ee100.lscoe) + " oder rund " +
+      hhYear(ges.ee100.lscoe) + " im Jahr.");
+    const dDet = P.kostenminimum.deterministic - P.ee80_gas.deterministic;
+    const dMed = kp.base.p50 - P.ee80_gas.configs.base.p50;
+    set("#hh-a4-gleich", "Für unseren " + nf(hh.verbrauch_kwh_a,0) +
+      "-kWh-Haushalt sind das rund " + hhYear(P.ee80_gas.deterministic) + " gegen " +
+      hhYear(P.kostenminimum.deterministic) + " im Jahr — " + hhYear(Math.abs(dDet)) +
+      " Unterschied im Punktwert, " + hhYear(Math.abs(dMed)) + " im Median.");
+    set("#hh-a4-eqem", "Das sind rund " + hhYear(dEq) + " im Jahr.");
+    set("#hh-a4-asia", "(rund " + hhYear(dAsia) + " im Jahr)");
+    const dEe100 = P.ee100.configs.base.p50 - P.ee80_gas.configs.base.p50;
+    set("#hh-akt5", "Zwischen dem günstigsten und dem teuersten Zielsystem liegen im Median " +
+      nf(Math.abs(dEe100),0) + " € je Megawattstunde — rund " + hhYear(Math.abs(dEe100)) +
+      " im Jahr für denselben Haushalt.");
+  }
 
   /* --- Prolog: Klimaprämisse (IPCC AR6) --- */
   const kl = D.klimapraemisse;
@@ -2603,6 +2771,34 @@ function renderProseBits(){
     "<p>" + gr.text + '<sup class="cite" data-src="escobar-rangel-leveque-2015"></sup>' +
     '<sup class="cite" data-src="berthelemy-2015"></sup></p>' +
     "<p class='kasten-quelle'>" + gr.confidence_note + "</p>", gr.confidence);
+
+  /* --- Nach Akt 4: die CCS-Karte (Speicherstaette, Vermeidungskosten) ---
+     Der Vorbehalt stand bisher fuenfzehn Bildschirme hinter dem Ergebnis, das er
+     relativiert (Klimaaktivist-Befund N3); hier steht er einen Bildschirm dahinter. */
+  const cn = D.ccs_narrative;
+  const mcp = D.shared.monte_carlo.presets;
+  if (cn) infoBox("#cp-ccs", "Beipackzettel", "Was die Abscheidung voraussetzt — und was sie kostet",
+    "<p>Deutschland hat <b>keine in Betrieb befindliche CO₂-Speicherstätte</b>. Der Gas-Pfad " +
+    "müsste jedes Jahr <b class='v'>" + nf(cn.stored_mt_co2_a.ee80_gas,1) + " Millionen Tonnen</b> " +
+    "einlagern, das Kernkraft-Szenario <b class='v'>" + nf(cn.stored_mt_co2_a.kostenminimum,1) +
+    "</b>. Beides unterstellt Export in norwegische oder niederländische Offshore-Speicher samt " +
+    "Logistik, Genehmigungen und Akzeptanz — modelliert ist davon nur der Kostensatz je Tonne, " +
+    "keine Kapazitätsgrenze und keine Hochlaufkurve.</p>" +
+    "<p>Je vermiedener Tonne kostet die Abscheidung im Gas-Pfad rund <b class='v'>" +
+    nf(cn.implied_abatement_cost_eur_t.ee80_gas,0) + " €</b>, im Kernkraft-Szenario rund <b class='v'>" +
+    nf(cn.implied_abatement_cost_eur_t.kostenminimum,0) + " €</b>. Dass ausgerechnet das " +
+    "Kernkraft-Szenario teurer dasteht, obwohl sein Aufschlag der kleinere ist (<b class='v'>" +
+    nf(cn.delta_eur_mwh.kostenminimum,1) + "</b> gegen <b class='v'>" +
+    nf(cn.delta_eur_mwh.ee80_gas,1) + " €/MWh</b>), hat einen einfachen Grund: Es hat viel weniger " +
+    "Emissionen zu vermeiden, der Aufschlag verteilt sich also auf weniger Tonnen.</p>" +
+    "<p>Beide Zahlen liegen über dem, was eine Tonne heute im Emissionshandel kostet — und sie " +
+    "sind bewusst pessimistisch gerechnet: Wir rüsten den <b>kompletten</b> Reservepark mit " +
+    "Abscheidung aus, auch Kraftwerke, die nur " + nf(cn.backup_full_load_hours.kostenminimum,0) +
+    " bis " + nf(cn.backup_full_load_hours.ee80_gas,0) + " Stunden im Jahr laufen. Wer real baut, " +
+    "würde nur die Dauerläufer ausrüsten und die Spitzenlast unabgeschieden fahren — dann fällt " +
+    "nicht nur die Vermeidungszahl kleiner aus, sondern auch der Aufschlag selbst, dafür bleibt " +
+    "mehr Restemission. Die Zahlen markieren die teure Grenze des Möglichen, nicht den zu " +
+    "erwartenden Preis.</p>", cn.confidence);
 
   /* --- Nach Akt 4: CO₂-Preis-Sensitivität und Marktdesign --- */
   const cs = D.co2_sensitivity;
@@ -2636,7 +2832,7 @@ function renderProseBits(){
       "Kernkraft-Szenario <b class='v'>" +
       nf(D.shared.monte_carlo.presets.kostenminimum.gas_peak_gw,0) + " GW</b>. Unser Modell setzt " +
       "diese Leistung als Ergebnis des Dispatch — es kennt keinen Markt, der sie beschafft.</p>" +
-      "<p>Real läuft das über das Kraftwerkssicherungsgesetz (StromVKG): Grundsatzeinigung mit der EU-Kommission " +
+      "<p>Real läuft das über das " + md.gesetz + ": Grundsatzeinigung mit der EU-Kommission " +
       "im Januar 2026, Kabinettsbeschluss im Mai 2026, erste Ausschreibung über <b class='v'>" +
       nf(md.ausschreibung_1.volumen_gw,1) + " GW</b> am " + md.ausschreibung_1.datum +
       ", die zweite über weitere <b class='v'>" + nf(md.ausschreibung_2.volumen_gw,1) +
@@ -2660,6 +2856,24 @@ function renderProseBits(){
    8 · Scroll-Steuerung
 ================================================================ */
 function wireScroll(ACTS){
+  /* Kennzahl-Leiste je Akt (nur mobil sichtbar, siehe CSS). Sie wird hier
+     angelegt, damit das Markup der fuenf Akte unveraendert bleibt. */
+  $$(".fig").forEach(fig => {
+    if (fig.querySelector(".kpi")) return;
+    const k = document.createElement("div");
+    k.className = "kpi";
+    fig.appendChild(k);
+  });
+  function setKpi(act, step){
+    const fig = document.getElementById("act" + act);
+    const k = fig && fig.querySelector(".kpi");
+    if (!k) return;
+    const sub = fig.querySelector(".fig-title .s");
+    k.textContent = (step && step.dataset.kpi) || (sub ? sub.textContent : "");
+  }
+  /* Mobil liegt die Karte unter dem Chart: Der aktive Schritt wird deshalb im
+     unteren Bildschirmdrittel bestimmt, nicht in der Mitte. */
+  const narrow = window.matchMedia("(max-width:1019px) and (orientation:portrait)").matches;
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
@@ -2670,8 +2884,9 @@ function wireScroll(ACTS){
       const idx = +step.dataset.idx;
       step.parentElement.querySelectorAll(".step").forEach(s => s.classList.toggle("is-active", s === step));
       if (ACTS[act]) ACTS[act].step(idx);
+      setKpi(act, step);
     });
-  }, {rootMargin:"-42% 0px -42% 0px"});
+  }, {rootMargin: narrow ? "-62% 0px -22% 0px" : "-42% 0px -42% 0px"});
   $$(".step").forEach(s => io.observe(s));
 
   /* Erste Szene sichtbar machen, falls direkt in einen Akt gesprungen wird */
@@ -2681,7 +2896,10 @@ function wireScroll(ACTS){
         if (e.isIntersecting){
           const act = sec.dataset.act;
           const fig = document.getElementById("act" + act);
-          if (fig && fig.dataset.step === "-1" && ACTS[act]) ACTS[act].step(0);
+          if (fig && fig.dataset.step === "-1" && ACTS[act]){
+            ACTS[act].step(0);
+            setKpi(act, sec.querySelector('.step[data-idx="0"]'));
+          }
           obs.disconnect();
         }
       });
