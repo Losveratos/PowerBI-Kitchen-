@@ -55,6 +55,37 @@ JSON_FENCE = re.compile(r"```json\n(.*?)\n```", re.S)
 
 GAPS: list[dict[str, Any]] = []
 
+# --------------------------------------------------------------------------
+# Modell v0.2, Fix M2 - Erdgas-Brennstoffpreis
+# --------------------------------------------------------------------------
+# Die Recherche-Dossiers fuehren keinen Gaspreis (gaps.gaspreis_erdgas). Die
+# Nullsetzung war aber keine Datenluecke der Welt, sondern der Recherche: Der
+# TTF-Frontmonat ist taeglich notiert. Belegte Stuetzpunkte (Recherche
+# 2026-08-19, Marktdaten, KEINE institutionelle Primaerquelle -> Stufe C fuer
+# die Uebertragbarkeit auf 2045):
+#   * TTF-Frontmonat Juli 2026: Mittel 53,5 EUR/MWh_th (Min 43,0 / Max 63,1)
+#   * TTF-Frontmonat 19.08.2026: rund 62-64 EUR/MWh_th
+#   * 2024/25 ueberwiegend 30-45 EUR/MWh_th, Vorkrisenniveau (bis 2020) 10-25
+#   * Krisenspitze 2022 > 200 EUR/MWh_th (nicht in der Modellspanne)
+# Gegenprobe im eigenen Datensatz: gas_ccgt.gas_fuel_implied rechnet aus der
+# FOeS-Gesamt-LCOE einen variablen Block von rund 100-200 EUR/MWh_el zurueck;
+# bei eta = 0,60 entspricht die Modellspanne 33-100 EUR/MWh_el Brennstoff plus
+# CO2 - dieselbe Groessenordnung.
+GAS_FUEL_TH = {
+    "min": 20.0,
+    "mid": 35.0,
+    "max": 60.0,
+    "confidence": "B",
+    "source": "TTF-Frontmonat (Marktnotierung, Recherche 2026-08-19: Juli 2026 Ø 53,5, "
+              "Spanne 43,0-63,1; Stand 19.08.2026 rund 62-64 EUR/MWh_th; 2024/25 30-45) "
+              "gegengeprueft mit kosten_ee_speicher.md 8 gas_fuel_implied (FOeS-Rueckrechnung)",
+    "note": "MODELL-STUETZPUNKTE (Konfidenz B fuer die Marktspanne, C fuer die Uebertragbarkeit auf "
+            "ein Zieljahr 2045): min 20 = Vorkrisen-/Ueberangebotsniveau, mid 35 = Langfristannahme "
+            "unterhalb des aktuellen Spots (2045 sinkende Gasnachfrage), max 60 = aktuelles "
+            "Marktniveau August 2026. Die Krisenspitze 2022 (>200 EUR/MWh_th) ist bewusst NICHT "
+            "in der Basisspanne. Umrechnung in EUR/MWh_el ueber den Wirkungsgrad der Technologie.",
+}
+
 
 # --------------------------------------------------------------------------
 # Einlesen
@@ -120,6 +151,52 @@ def param(
         entry["status"] = status
     if value is None and gap_id:
         GAPS.append({"id": gap_id, "parameter": source, "reason": note or "Wert im Dossier nicht belegt"})
+    return entry
+
+
+def scope_param(
+    scopes: tuple[str, str, str],
+    idc_shares: tuple[float, float, float],
+    overrun_shares: tuple[float, float, float],
+    source: str,
+    confidence: Any = None,
+    note: str | None = None,
+) -> dict:
+    """Kostenabgrenzung eines CAPEX-Ankers je Stuetzstelle (min/mid/max).
+
+    Modell-v0.2 (M1/M7): Der Bauzins-Aufschlag (IDC) darf nur auf Anker
+    gelegt werden, die die Finanzierung noch NICHT enthalten (overnight/EPC).
+    Der empirische Ueberschreitungsfaktor darf nur auf Anker gelegt werden,
+    die eine *Schaetzung* sind - nicht auf bereits realisierte Ist-Kosten.
+    """
+    return {
+        "value": scopes[1],
+        "min": scopes[0],
+        "mid": scopes[1],
+        "max": scopes[2],
+        "idc_share": {"min": idc_shares[0], "mid": idc_shares[1], "max": idc_shares[2]},
+        "overrun_share": {"min": overrun_shares[0], "mid": overrun_shares[1], "max": overrun_shares[2]},
+        "unit": "Kostenabgrenzung des CAPEX-Ankers",
+        "source": source,
+        "confidence": norm_conf(confidence),
+        "note": note,
+    }
+
+
+def share_param(values: tuple[float, float, float], unit: str, source: str,
+                confidence: Any = None, note: str | None = None) -> dict:
+    """Anwendungsanteil (0-1) je CAPEX-Stuetzstelle, folgt dem capex-Szenario."""
+    entry = {
+        "value": values[1],
+        "min": values[0],
+        "mid": values[1],
+        "max": values[2],
+        "unit": unit,
+        "source": source,
+        "confidence": norm_conf(confidence),
+    }
+    if note:
+        entry["note"] = note
     return entry
 
 
@@ -259,6 +336,24 @@ def build() -> dict:
             "params": {
                 "capex_eur_kw": from_range(
                     t["capex_eur_kw"], "EUR/kW", f"{SRC_LABEL['ee']} 12 technologies.{src_key}.capex_eur_kw"
+                ),
+                "capex_scope": scope_param(
+                    ("overnight", "overnight", "overnight"), (1.0, 1.0, 1.0), (1.0, 1.0, 1.0),
+                    f"{SRC_LABEL['ee']} 12 technologies.{src_key}.capex_eur_kw (schluesselfertige "
+                    "Investitionskosten ohne Bauzinsen)",
+                    "B",
+                    note="EE-CAPEX-Anker sind Investitions-/Turnkey-Kosten ohne Finanzierung. Der "
+                         "IDC-Aufschlag ist deshalb sachgerecht (und wegen der kurzen Bauzeit klein: "
+                         "PV 1 a = +2,5 %). Der Ueberschreitungsfaktor greift ebenfalls, weil die "
+                         "Anker Kostenschaetzungen fuer Neuanlagen sind.",
+                ),
+                "idc_applicable_share": share_param(
+                    (1.0, 1.0, 1.0), "1 (Anteil des IDC-Aufschlags)",
+                    f"{SRC_LABEL['ee']} 12 technologies.{src_key}.capex_eur_kw (overnight)", "B",
+                ),
+                "overrun_applicable_share": share_param(
+                    (1.0, 1.0, 1.0), "1 (Anteil des Ueberschreitungsfaktors)",
+                    f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren.definition", "B",
                 ),
                 "opex_pct": from_range(
                     t["opex_pct"], "1/a (Anteil CAPEX)", f"{SRC_LABEL['ee']} 12 technologies.{src_key}.opex_pct"
@@ -404,6 +499,49 @@ def build() -> dict:
                 mx=kkp["capex_eur_kw"]["high"],
                 note=kkp["capex_eur_kw"]["rationale_high"],
             ),
+            # ---- Modell v0.2, M1 + M7 --------------------------------------
+            # Die drei Stuetzstellen ruhen auf UNTERSCHIEDLICHEN Kostenabgrenzungen
+            # (kosten_kernkraft.md 7.1 anchors + reference_projects[].cost_scope):
+            #   low  7.500 <- EPR2 OCC 7.583 (overnight_only) + Dukovany 7.906 (epc_only)
+            #   mid 12.000 <- Lubiatowo 11.968 (total_project), Sizewell C 13.472
+            #                 (total_project), EPR2 10.417 (total_incl_idc)
+            #   high 17.500 <- Hinkley Point C 17.264 (total_project_nominal)
+            # kosten_kernkraft.md 7.3 sagt woertlich: "ohne IDC-Aufschlag, da im
+            # CAPEX-Anker teilweise enthalten". Der IDC gilt deshalb nur auf der
+            # Overnight-Basis (low). Der empirische Ueberschreitungsfaktor
+            # (Flyvbjerg: Entscheidungsschaetzung -> Ist) gilt nur fuer Anker, die
+            # noch Schaetzungen sind (low: EPR2-Programm/Dukovany-EPC vor Baubeginn;
+            # mid: Lubiatowo/Sizewell C vor bzw. bei FID) - nicht fuer den
+            # High-Anker HPC, dessen 48,7 Mrd. GBP bereits das eskalierte Ist sind.
+            "capex_scope": scope_param(
+                ("overnight", "total_project", "total_project_nominal"),
+                (1.0, 0.0, 0.0),
+                (1.0, 1.0, 0.0),
+                f"{SRC_LABEL['kk']} 7.1 capex_eur_kw.anchors + reference_projects[].cost_scope, "
+                f"Regel aus {SRC_LABEL['kk']} 7.3",
+                "A",
+                note="M1: kein zusaetzlicher Bauzins auf Gesamtprojekt-Anker (Doppelzaehlung). "
+                     "M7: kein Ueberschreitungsfaktor auf bereits realisierte Ist-Kosten (HPC).",
+            ),
+            "idc_applicable_share": share_param(
+                (1.0, 0.0, 0.0), "1 (Anteil des IDC-Aufschlags)",
+                f"{SRC_LABEL['kk']} 7.3 ('ohne IDC-Aufschlag, da im CAPEX-Anker teilweise enthalten')",
+                "A",
+                note="Zwischen den Stuetzstellen linear interpoliert (model.scope_share_for_capex), "
+                     "damit die Monte-Carlo-Ziehung keinen Sprung bekommt. Empirischer Beleg fuer die "
+                     "Identitaet: EPR2 7.583 EUR/kW overnight x 1,37 = 10.389 ~ 10.417 EUR/kW "
+                     "inkl. Finanzierung.",
+            ),
+            "overrun_applicable_share": share_param(
+                (1.0, 1.0, 0.0), "1 (Anteil des Ueberschreitungsfaktors)",
+                f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren.definition "
+                "('Faktor auf die urspruengliche Kostenschaetzung (decision-to-build)')",
+                "A",
+                note="Der High-Anker (Hinkley Point C, 17.264 EUR/kW, laufende Preise) ist das "
+                     "Ergebnis einer bereits eingetretenen Ueberschreitung (Erstschaetzung 18 Mrd. GBP "
+                     "-> 48,7 Mrd. GBP). Ein weiterer Faktor 2,2 darauf waere eine zweite "
+                     "Doppelzaehlung (Persona-Review 06, K2).",
+            ),
             "opex_pct": param(
                 None,
                 "1/a (Anteil CAPEX)",
@@ -504,6 +642,20 @@ def build() -> dict:
                 "capex_eur_kw": from_range(
                     t["capex_eur_kw"], "EUR/kW", f"{SRC_LABEL['ee']} 12 technologies.{key}.capex_eur_kw"
                 ),
+                "capex_scope": scope_param(
+                    ("overnight", "overnight", "overnight"), (1.0, 1.0, 1.0), (1.0, 1.0, 1.0),
+                    f"{SRC_LABEL['ee']} 12 technologies.{key}.capex_eur_kw (Investitionskosten)",
+                    "B",
+                    note="Turnkey-Investitionskosten ohne Finanzierung; IDC-Aufschlag sachgerecht.",
+                ),
+                "idc_applicable_share": share_param(
+                    (1.0, 1.0, 1.0), "1 (Anteil des IDC-Aufschlags)",
+                    f"{SRC_LABEL['ee']} 12 technologies.{key}.capex_eur_kw (overnight)", "B",
+                ),
+                "overrun_applicable_share": share_param(
+                    (1.0, 1.0, 1.0), "1 (Anteil des Ueberschreitungsfaktors)",
+                    f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren.definition", "B",
+                ),
                 "opex_pct": from_range(
                     t["opex_pct"], "1/a (Anteil CAPEX)", f"{SRC_LABEL['ee']} 12 technologies.{key}.opex_pct"
                 ),
@@ -529,14 +681,28 @@ def build() -> dict:
                     status=modellannahme,
                     gap_id=gap_id,
                 ),
+                # Modell v0.2, M2: Der Brennstoffpreis wird thermisch gefuehrt und
+                # ueber den (gezogenen) Wirkungsgrad in EUR/MWh_el umgerechnet.
+                # Der elektrische Wert bleibt bewusst null - er ist abgeleitet,
+                # nicht gesetzt (model.lcoe rechnet fuel_th / efficiency).
+                "fuel_eur_mwh_th": param(
+                    GAS_FUEL_TH["mid"],
+                    "EUR/MWh_th",
+                    GAS_FUEL_TH["source"],
+                    GAS_FUEL_TH["confidence"],
+                    mn=GAS_FUEL_TH["min"],
+                    mid=GAS_FUEL_TH["mid"],
+                    mx=GAS_FUEL_TH["max"],
+                    note=GAS_FUEL_TH["note"],
+                ),
                 "fuel_eur_mwh": param(
                     None,
                     "EUR/MWh_el",
-                    f"{SRC_LABEL['ee']} 8 (kein Gaspreis im Dossier)",
+                    f"{SRC_LABEL['ee']} 8 (kein Gaspreis im Dossier) -> abgeleitet aus fuel_eur_mwh_th",
                     None,
-                    note="HARTE LUECKE: kein Erdgas-Brennstoffpreis in den Dossiers. Siehe gas_fuel_implied "
-                         "fuer eine rueckgerechnete Groessenordnung; das Modell rechnet ohne expliziten Wert "
-                         "mit 0 und weist das als Untergrenze aus.",
+                    note="ABGELEITET, nicht gesetzt: das Modell rechnet fuel_eur_mwh_th / efficiency. "
+                         "Bei 35 EUR/MWh_th und eta = 0,60 sind das 58,3 EUR/MWh_el. "
+                         "Gegenprobe: gas_fuel_implied (Rueckrechnung aus der FOeS-LCOE).",
                 ),
                 "waste_eur_mwh": param(0.0, "EUR/MWh", "nicht anwendbar", "A"),
                 "emission_factor_t_mwh": param(
@@ -782,6 +948,30 @@ def build() -> dict:
             mx=src.get("max"),
             note="INFORMATIV - wird laut Modellkonzept nicht eingepreist.",
         )
+
+    # ---- Modell v0.2: Kostenabgrenzung fuer alle uebrigen Technologien -----
+    # Speicher-/Elektrolyse-CAPEX sind schluesselfertige Investitionskosten
+    # (overnight). Wo das Feld noch fehlt, wird es hier ergaenzt, damit
+    # model.lcoe() fuer JEDE Technologie eine dokumentierte Abgrenzung findet.
+    for tech_key, tech in techs.items():
+        p = tech.get("params", {})
+        if not any(k.startswith("capex_") for k in p):
+            continue
+        p.setdefault("capex_scope", scope_param(
+            ("overnight", "overnight", "overnight"), (1.0, 1.0, 1.0), (1.0, 1.0, 1.0),
+            f"{SRC_LABEL['ee']} 12 technologies (schluesselfertige Investitionskosten)", "B",
+            note="Turnkey-Anker ohne Finanzierung; IDC-Aufschlag sachgerecht (kurze Bauzeit).",
+        ))
+        p.setdefault("idc_applicable_share", share_param(
+            (1.0, 1.0, 1.0), "1 (Anteil des IDC-Aufschlags)",
+            f"{SRC_LABEL['ee']} 12 technologies (overnight)", "B"))
+        p.setdefault("overrun_applicable_share", share_param(
+            (1.0, 1.0, 1.0), "1 (Anteil des Ueberschreitungsfaktors)",
+            f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren.definition", "B",
+            note="Faktor ist fuer diese Technologieklasse in Flyvbjerg/Sovacool NICHT gemessen "
+                 "(siehe system.cost_overrun_factors.unmeasured_technologies) - der Anteil 1,0 "
+                 "beschreibt nur, DASS ein Faktor angewendet wuerde, nicht dass einer belegt ist.",
+        ))
 
     out["technologies"] = techs
 
