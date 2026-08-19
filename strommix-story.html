@@ -336,7 +336,7 @@ footer a{color:var(--ink-2)}
   .fig{width:100vw;padding:0 6px}
   .fig .fig-title{padding:6px 6px 6px}
   .steps{position:relative;z-index:1;padding-top:16px;padding-bottom:6vh}
-  .step{min-height:74svh;align-items:flex-start;padding-bottom:0}
+  .step{min-height:66svh;align-items:flex-start;padding-bottom:0}
   .step-card{width:min(440px,94vw)}
   .kpi{display:block;font-family:var(--mono);font-size:12px;line-height:1.35;
        color:var(--ink-2);padding:6px 8px 7px;border-top:1px solid var(--ring);
@@ -723,9 +723,8 @@ footer a{color:var(--ink-2)}
         <span class="big" data-v="shared.monte_carlo.presets.ee100.emissions_mt_co2_a" data-d="1"></span>
         und <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas.emissions_mt_co2_a" data-d="0" data-unit=" Mt"></span>.</p>
       <p>Gleich stehen <b>zwei Zahlen je Szenario</b> im Bild: Die Raute ist der Punktwert mit den
-        mittleren Annahmen, der Strich in der Box die mittlere aller 1.000 durchgerechneten
-        Zukünfte. Sie liegt höher, weil die Spannen nach oben weiter reichen als nach unten.
-        <span class="simlabel"></span></p>
+        mittleren Annahmen, der Strich in der Box die mittlere aller 1.000 Zukünfte — sie liegt
+        höher, weil die Spannen nach oben weiter reichen. <span class="simlabel"></span></p>
     </div></div>
     <div class="step" data-idx="1" data-kpi=""><div class="step-card">
       <span class="n">Akt 4 / Schritt 2</span>
@@ -739,9 +738,9 @@ footer a{color:var(--ink-2)}
         Kernkraft-Welt derselbe wie in der Gas-Welt. Nur so darf man auszählen, wer wie oft gewinnt —
         unsere erste Fassung gab jedem Szenario eigene Würfel, und damit war jede Rangaussage
         wertlos.</p>
-      <p>Es sind 29 Größen und nicht 30, weil der Erdgaspreis <em>einmal</em> gezogen und von beiden
-        Gas-Technologien geteilt wird: Derselbe Rohstoff darf nicht zweimal gewürfelt werden.
-        Zinssatz und CO₂-Preis laufen in eigenen Konfigurationen mit.</p>
+      <p>Aus demselben Grund sind es 29 Größen und nicht 30: Der Erdgaspreis wird <em>einmal</em>
+        gezogen und von beiden Gas-Technologien geteilt. Zinssatz und CO₂-Preis laufen in eigenen
+        Konfigurationen mit.</p>
     </div></div>
     <div class="step" data-idx="2" data-kpi=""><div class="step-card">
       <span class="n">Akt 4 / Schritt 3</span>
@@ -760,8 +759,7 @@ footer a{color:var(--ink-2)}
         <span class="big neg" id="f-base-gas"></span> an den Gas-Pfad. Mit unsicherem CO₂-Preis sind
         es <span class="big pos" id="f-co2"></span>, mit historischen Kostenüberschreitungen
         <span class="big neg" id="f-over"></span>.</p>
-      <p>Alles hängt am Preis je Tonne CO₂ — der Gas-Pfad emittiert fast viermal so viel und zahlt
-        jeden Euro viermal. <b>Beim heutigen Preis führt der Gas-Pfad; erst ab rund
+      <p><b>Beim heutigen CO₂-Preis führt also der Gas-Pfad; erst ab rund
         <span class="big" data-v="co2_sensitivity.crossover_kernkraft_vs_gas_eur_t" data-d="0" data-unit=" € je Tonne"></span>
         dreht sich das.</b> Der Emissionshandel lag im Mai 2026 bei
         <span class="big" data-v="co2_sensitivity.ets1_market_may_2026_eur_t" data-d="0" data-unit=" €"></span>,
@@ -773,8 +771,7 @@ footer a{color:var(--ink-2)}
     <div class="step" data-idx="3" data-kpi=""><div class="step-card">
       <span class="n">Akt 4 / Schritt 4</span>
       <h3>Mit Abscheidung auf beiden Seiten</h3>
-      <p>Der Gleichstand hat einen Haken: Der Gas-Pfad ist auch deshalb billig, weil er fast viermal
-        so viel CO₂ ausstoßen darf —
+      <p>Der Gleichstand hat einen Haken: Der Gas-Pfad darf fast viermal so viel CO₂ ausstoßen —
         <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas.emissions_mt_co2_a" data-d="0"></span>
         gegen <span class="big pos" data-v="shared.monte_carlo.presets.kostenminimum.emissions_mt_co2_a" data-d="0" data-unit=" Millionen Tonnen"></span>.
         Zum Maßstab: Das Klimaschutzgesetz verlangt für 2045 Netto-Neutralität und rechnet mit einer
@@ -782,11 +779,11 @@ footer a{color:var(--ink-2)}
         <span class="big" data-v="klimaziel_2045.senke_mt_co2_aeq.2045" data-d="0" data-unit=" Millionen Tonnen"></span>
         <span class="conf conf-B" title="Konfidenzstufe B">B</span> — für alle Sektoren zusammen.
         Streng genommen ist keiner der beiden vorderen Pfade klimaneutral.</p>
-      <p>Rüstet man den Gas-Pfad mit CO₂-Abscheidung aus, kostet er
+      <p>Mit CO₂-Abscheidung kostet der Gas-Pfad
         <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas_ccs.deterministic" data-d="1" data-unit=" €/MWh"></span>
         und emittiert noch
         <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas_ccs.emissions_mt_co2_a" data-d="1" data-unit=" Mt"></span> —
-        ungefähr so viel wie das Kernkraft-Szenario ohne Abscheidung. Bei dieser <b>gleichen
+        etwa so viel wie das Kernkraft-Szenario ohne Abscheidung. Bei dieser <b>gleichen
         Emissionsmenge</b> liegt es in <span class="big pos" id="f-eqem"></span> von 1.000 Zukünften
         vorn, im Median <span class="big pos" id="d-eqem"></span> günstiger.
         <span class="anker" id="hh-a4-eqem"></span> Mit Abscheidung auf <em>beiden</em> Seiten sind es
@@ -796,41 +793,39 @@ footer a{color:var(--ink-2)}
         <span class="big" data-v="netzregel_anteil.sockel_effekt_kernkraft_eur_mwh" data-d="1"></span>
         der <span class="big" data-v="netzregel_anteil.median_vorsprung_ccs_paar_eur_mwh" data-d="1" data-unit=" €/MWh"></span>
         stammen aus einer Modellsetzung: dem Anteil des Übertragungsnetzes, der auch ohne Wind und
-        Sonne gebaut werden müsste. Und Deutschland hat <b>keine CO₂-Speicherstätte in Betrieb</b> —
-        mehr dazu gleich. <span class="simlabel"></span></p>
+        Sonne gebaut werden müsste. <span class="simlabel"></span></p>
     </div></div>
     <div class="step" data-idx="4" data-kpi=""><div class="step-card">
       <span class="n">Akt 4 / Schritt 5</span>
       <h3>Beide Richtungen: teurer und billiger</h3>
-      <p>Was, wenn die Baukosten anders liegen als angenommen? Das Bild zeigt jetzt beide
-        Gegenproben statt der Basisbänder.</p>
-      <p><b>Teurer.</b> Großprojekte überschreiten ihre Kostenschätzung; für Kernkraft nennen zwei
-        Datenbanken Faktoren von
+      <p>Was, wenn die Baukosten anders liegen als angenommen? Das Bild zeigt beide Gegenproben
+        statt der Basisbänder.</p>
+      <p><b>Teurer.</b> Großprojekte überschreiten ihre Kostenschätzung; zwei Datenbanken nennen für
+        Kernkraft Faktoren von
         <span class="big neg" data-v="shared.kostenueberschreitung_faktoren.technologien.kernkraft.sovacool" data-d="2"></span>
         und <span class="big neg" data-v="shared.kostenueberschreitung_faktoren.technologien.kernkraft.flyvbjerg" data-d="2"></span><sup class="cite" data-src="flyvbjerg-2023"></sup><sup class="cite" data-src="sovacool-ryu-2025"></sup>.
-        Den Aufschlag legen wir als festen Betrag auf eine Schätzbasis von
-        <span class="big" data-v="ueberschreitung.schaetzbasis_eur_kw" data-d="0" data-unit=" €/kW"></span>
-        und nicht auf Projekte wie Hinkley Point C, die ihre Verteuerung hinter sich haben: effektiv
+        Wir legen den Aufschlag als festen Betrag auf eine Schätzbasis von
+        <span class="big" data-v="ueberschreitung.schaetzbasis_eur_kw" data-d="0" data-unit=" €/kW"></span>,
+        nicht auf Projekte, die ihre Verteuerung hinter sich haben — effektiv
         <span class="big neg" data-v="ueberschreitung.capex_effektiv_median_eur_kw" data-d="0"></span>
         statt <span class="big" data-v="ueberschreitung.capex_effektiv_median_v02b_eur_kw" data-d="0" data-unit=" €/kW"></span>
-        im Median. Das Kernkraft-Szenario steht dann bei
-        <span class="big neg" data-v="shared.monte_carlo.presets.kostenminimum.configs.overrun.p50" data-d="0" data-unit=" €/MWh"></span> —
+        im Median. Das Kernkraft-Szenario gewinnt dann nur noch
         <span class="big neg" id="f-over-2"></span> von 1.000 Zukünften, mit Abscheidung auf beiden
-        Seiten ein Münzwurf (<span class="big" id="f-ccs-over"></span>). Der Lauf ist unfair zulasten
-        der Kernkraft: Für Batterien, Elektrolyseure und H₂-Speicher hat keine Datenbank Faktoren.</p>
-      <p><b>Billiger.</b> Unsere Baukosten werden zwischen
-        <span class="big" data-v="shared.nuclear_capex_scenarios.low" data-d="0"></span> und
-        <span class="big" data-v="shared.nuclear_capex_scenarios.high" data-d="0" data-unit=" €/kW"></span>
-        gezogen — ohne ein einziges asiatisches oder Golf-Projekt, weil deren Voraussetzungen
-        (Serienbau ohne Unterbrechung, gesteuerte Lieferketten, eingeschränkte Drittanfechtung) hier
-        nicht herstellbar sind. Mit dem Cluster Asien/Golf
+        Seiten <span class="big" id="f-ccs-over"></span>, gegenüber den Wasserstoffpfaden
+        <span class="big pos" id="f-h2-over"></span>. Unfair ist der Lauf trotzdem, zulasten der
+        Kernkraft: Für Batterien und H₂-Anlagen hat keine Datenbank Faktoren.</p>
+      <p><b>Billiger.</b> Unsere Baukosten
+        (<span class="big" data-v="shared.nuclear_capex_scenarios.low" data-d="0"></span>–<span class="big" data-v="shared.nuclear_capex_scenarios.high" data-d="0" data-unit=" €/kW"></span>)
+        enthalten kein asiatisches oder Golf-Projekt — deren Voraussetzungen, vom ununterbrochenen
+        Serienbau bis zur eingeschränkten Drittanfechtung, sind hier nicht herstellbar. Mit dem
+        Cluster Asien/Golf
         (<span class="big" data-v="shared.monte_carlo.nuclear_capex_contrast.distribution_eur_kw.min" data-d="0"></span>–<span class="big" data-v="shared.monte_carlo.nuclear_capex_contrast.distribution_eur_kw.max" data-d="0"></span>,
         wahrscheinlichster Wert
         <span class="big" data-v="shared.monte_carlo.nuclear_capex_contrast.distribution_eur_kw.mid" data-d="0" data-unit=" €/kW"></span>,
         dem Barakah-Exportvertrag) fällt es auf
-        <span class="big pos" data-v="shared.monte_carlo.presets.kostenminimum.configs.asia.p50" data-d="0" data-unit=" €/MWh"></span>,
-        und jede Rangfolge ist mit <span class="big pos" id="f-asia"></span> von 1.000 entschieden:
-        rund <span class="big" id="d-asia"></span> Unterschied je Megawattstunde.
+        <span class="big pos" data-v="shared.monte_carlo.presets.kostenminimum.configs.asia.p50" data-d="0" data-unit=" €/MWh"></span>:
+        <span class="big pos" id="f-asia"></span> von 1.000, rund
+        <span class="big" id="d-asia"></span> Unterschied je Megawattstunde.
         <span class="anker" id="hh-a4-asia"></span></p>
       <p>Die Rangfolge entscheidet <b>nicht die Technologie</b>, sondern drei Setzungen: welche
         Emissionsnebenbedingung gilt, welchem Institutionenrahmen man den Bau zutraut, und ob die
@@ -1200,12 +1195,16 @@ footer a{color:var(--ink-2)}
         Wichtig ist die Paarung: Jede einzelne Ziehung wird auf <b>alle</b> Szenarien angewandt
         (<em>common random numbers</em>) — nur so ist die Differenz zweier Szenarien je Ziehung
         überhaupt auswertbar. Zwischen den <em>Parametern</em> sind die Ziehungen dagegen
-        unabhängig, obwohl sie real korreliert sind: steigende Zinsen und steigende Materialpreise
-        treffen alle Technologien gleichzeitig. Die echte Streuung dürfte deshalb breiter sein als
-        die hier gezeigte.</p>
+        unabhängig — mit zwei Ausnahmen: Der Erdgaspreis gilt für beide Gas-Technologien gemeinsam,
+        und die Abscheidungsanlage wird als Faktor auf den in derselben Ziehung gezogenen
+        Gaskraftwerkspreis gerechnet. Real korreliert ist mehr als das: Steigende Zinsen und
+        steigende Materialpreise treffen alle Technologien gleichzeitig. Die echte Streuung dürfte
+        deshalb breiter sein als die hier gezeigte.</p>
       <p>Und: Ob zwei Verteilungen sich <em>überlappen</em>, sagt nichts über ihre Rangfolge. Die
-        richtige Größe ist die Verteilung der Differenz — daraus kommt die Angabe
-        „P(A günstiger als B)“, die in Akt 4 die frühere Überlappungs-Formulierung ersetzt.</p>
+        richtige Größe ist die Verteilung der Differenz je Ziehung — daraus kommt die Auszählung
+        „von 1.000 Zukünften gehen X an dieses Szenario“, die in Akt 4 die frühere
+        Überlappungs-Formulierung ersetzt. Entschieden nennen wir einen Vergleich erst, wenn
+        mindestens 950 von 1.000 Zukünften in dieselbe Richtung zeigen.</p>
       <a class="gl-back" href="#">↩ zurück zur Textstelle</a>
     </div>
   </details>
@@ -2791,14 +2790,13 @@ function renderProseBits(){
     nf(cn.delta_eur_mwh.kostenminimum,1) + "</b> gegen <b class='v'>" +
     nf(cn.delta_eur_mwh.ee80_gas,1) + " €/MWh</b>), hat einen einfachen Grund: Es hat viel weniger " +
     "Emissionen zu vermeiden, der Aufschlag verteilt sich also auf weniger Tonnen.</p>" +
-    "<p>Beide Zahlen liegen über dem, was eine Tonne heute im Emissionshandel kostet — und sie " +
-    "sind bewusst pessimistisch gerechnet: Wir rüsten den <b>kompletten</b> Reservepark mit " +
-    "Abscheidung aus, auch Kraftwerke, die nur " + nf(cn.backup_full_load_hours.kostenminimum,0) +
+    "<p>Beide Zahlen sind bewusst pessimistisch gerechnet: Wir rüsten den <b>kompletten</b> " +
+    "Reservepark aus, auch Kraftwerke, die nur " + nf(cn.backup_full_load_hours.kostenminimum,0) +
     " bis " + nf(cn.backup_full_load_hours.ee80_gas,0) + " Stunden im Jahr laufen. Wer real baut, " +
-    "würde nur die Dauerläufer ausrüsten und die Spitzenlast unabgeschieden fahren — dann fällt " +
-    "nicht nur die Vermeidungszahl kleiner aus, sondern auch der Aufschlag selbst, dafür bleibt " +
-    "mehr Restemission. Die Zahlen markieren die teure Grenze des Möglichen, nicht den zu " +
-    "erwartenden Preis.</p>", cn.confidence);
+    "rüstet nur die Dauerläufer aus und fährt die Spitzenlast unabgeschieden — dann fallen " +
+    "Vermeidungskosten <em>und</em> Aufschlag kleiner aus, dafür bleibt mehr Restemission. Die " +
+    "Zahlen markieren die teure Grenze des Möglichen, nicht den zu erwartenden Preis.</p>",
+    cn.confidence);
 
   /* --- Nach Akt 4: CO₂-Preis-Sensitivität und Marktdesign --- */
   const cs = D.co2_sensitivity;
@@ -2886,7 +2884,7 @@ function wireScroll(ACTS){
       if (ACTS[act]) ACTS[act].step(idx);
       setKpi(act, step);
     });
-  }, {rootMargin: narrow ? "-62% 0px -22% 0px" : "-42% 0px -42% 0px"});
+  }, {rootMargin: narrow ? "-58% 0px -26% 0px" : "-42% 0px -42% 0px"});
   $$(".step").forEach(s => io.observe(s));
 
   /* Erste Szene sichtbar machen, falls direkt in einen Akt gesprungen wird */
