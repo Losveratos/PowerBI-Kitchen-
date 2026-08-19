@@ -12,6 +12,16 @@
 
 ## P2 — nach Abnahme v0.10
 
+- [ ] **Story-Review durch Michael** (`strommix-story.html`, v0.1 Entwurf): Dramaturgie,
+  Tonfall, Kartenlänge, Reihenfolge der Akte. Zahlen nur über
+  `research/story_claims_check.md` → `scripts/build_story_data.py` ändern
+- [ ] **Story-Verlinkung**: `index.html` und `whitepaper-strommix.html` gegenseitig mit der
+  Story verknüpfen (Story verlinkt bereits auf die Whitepaper-Kapitel 3/4/5/6/9)
+- [ ] **Story-Feinschliff**: Gegenpositions-Kästen gleichmäßiger über die Akte verteilen;
+  Lesbarkeit der 13-Zeilen-Punktwolke (Akt 2) unter 360 px prüfen; ggf. Kapitel-Sprungmarken
+  oder Fortschrittsanzeige ergänzen (bewusst weggelassen, wie im Rhein-Original)
+- [ ] **EN-Version der Story** erst nach DE-Freigabe (gemeinsam mit der Whitepaper-EN-Version)
+
 - [ ] **Restliche KLEIN-Befunde** aus `research/review_v09.md` (C1, C12–C14,
   C16–C18, C20, C21) — bei v0.10 wurden C2, C3, C7, C9, C10, C15 und C19
   nebenbei mitbehoben, ebenso die hartcodierten CRF-Werte im HTML
@@ -40,6 +50,15 @@
 - [ ] **LinkedIn-Begleitpost** aus dem Executive Summary ableiten
 
 ## Erledigt
+
+- [x] 2026-08-19 · **Freigabe-Dossier + Scrollytelling-Story:**
+  `research/story_claims_check.md` (7 bestätigt, 11 korrigiert, 4 verworfen, 6 Setzungen,
+  3 unverifizierbar, maschinenlesbarer `story_data`-Freigabeblock),
+  `scripts/build_story_data.py` → `data/story_data.json` (44 Quellen, deterministisch),
+  `/strommix-story.html` (5 Akte × 4 Schritte, ein IntersectionObserver, Inline-SVG-Charts,
+  Selbstkritik-Kapitel, Glossar, Quellen mit Konfidenz-Badges, Backup-Block zum White Paper).
+  Playwright-QA: alle 20 data-step-Übergänge feuern, 0 Konsolenfehler, kein Overflow bei
+  1280/390 px, verworfene Zahlen per grep ausgeschlossen
 
 - [x] 2026-08-15 · **Paper-Struktur v0.10:** Executive Summary (7 Kernaussagen
   mit Quelle und Unsicherheitsangabe) + Kasten „So nutzt du diese Seite",

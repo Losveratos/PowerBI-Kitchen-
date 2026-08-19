@@ -1,0 +1,1989 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Was kostet ein klimaneutrales Stromsystem? · Daten-WG</title>
+<meta name="description" content="Scrollytelling: Eine Studie nennt 125 und 321 Euro je Megawattstunde. Woher kommen solche Zahlen — und wie belastbar sind sie? Eine nachgerechnete Spurensuche mit Bandbreiten statt Schlagzeilen.">
+<meta name="author" content="Michael Tenner · Daten-WG">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0d0d;
+  --surface:#191918;
+  --ink:#ffffff;
+  --ink-2:#c9c7bd;
+  --muted:#8b8981;
+  --muted-chart:#a3a19a;
+  --grid:#2c2c2a;
+  --axis:#3a3a37;
+  /* Genau zwei Akzente: Blau = die genannte Zahl / die einfache Erzaehlung.
+     Terrakotta (Kitchen-Akzent, auf Dunkel aufgehellt) = Nachrechnung, Korrektur,
+     Bandbreite. Nie mehr als diese beiden in einem Chart. */
+  --blue:#3987e5; --blue-soft:#8ab8ef;
+  --red:#e2694f;  --red-soft:#f3a58e;
+  --card:rgba(20,21,23,.86);
+  --ring:rgba(255,255,255,.14);
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'Geist','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink-2);font-family:var(--sans);font-size:16px;
+     line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--red);color:#fff}
+img,svg{max-width:100%}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;min-height:100svh;display:flex;align-items:center;justify-content:center;
+      overflow:hidden;text-align:center}
+.hero svg#hero-svg{position:absolute;inset:0;width:100%;height:100%;opacity:.55}
+.hero-inner{position:relative;max-width:900px;padding:96px 24px 40px;z-index:2}
+.hero-eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;
+              color:var(--blue-soft);margin-bottom:22px}
+.hero h1{font-family:var(--serif);font-weight:700;font-size:clamp(32px,6.2vw,70px);line-height:1.06;
+         color:var(--ink);letter-spacing:-.015em}
+.hero h1 em{font-style:normal;color:var(--red-soft)}
+.hero-sub{margin:26px auto 0;max-width:640px;font-size:clamp(15.5px,2vw,19px);color:var(--ink-2)}
+.hero-sub b{color:var(--ink);font-weight:600}
+.hero-meta{margin-top:38px;display:flex;gap:26px;justify-content:center;flex-wrap:wrap;
+           font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.hero-meta b{color:var(--ink);font-weight:600}
+.hero-scroll{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-family:var(--mono);
+             font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+             animation:bob 2.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+
+/* ---------- Prosa ---------- */
+.prose{max-width:680px;margin:0 auto;padding:78px 24px}
+.prose.tight{padding:46px 24px}
+.prose h2{font-family:var(--serif);font-weight:700;letter-spacing:-.015em;
+          font-size:clamp(25px,3.4vw,36px);color:var(--ink);margin-bottom:18px;line-height:1.18}
+.prose h3{font-family:var(--serif);font-weight:700;font-size:20px;color:var(--ink);margin:30px 0 10px}
+.prose p{margin-bottom:16px}
+.prose .lede{font-size:18.5px;color:var(--ink)}
+.prose ul{margin:0 0 16px;padding-left:20px}
+.prose li{margin-bottom:8px}
+.kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;
+        color:var(--blue-soft);margin-bottom:14px}
+.kicker.gegen{color:var(--red-soft)}
+b.v,span.v{font-family:var(--mono);font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;
+           white-space:nowrap}
+.prose b.v{font-size:.95em}
+
+/* ---------- Scrolly ---------- */
+.scrolly{position:relative}
+.graphic{position:sticky;top:0;height:100svh;display:flex;align-items:flex-start;justify-content:center;
+         overflow:hidden;padding-top:2vh}
+.fig{position:relative;width:min(1100px,99vw)}
+.fig svg{display:block;width:100%;height:auto;background:var(--surface);border:1px solid var(--ring)}
+.fig-title{position:absolute;top:22px;left:30px;right:30px;pointer-events:none}
+.fig-title .t{font-family:var(--serif);font-weight:700;letter-spacing:-.01em;
+              font-size:clamp(15px,1.9vw,20px);color:var(--ink)}
+.fig-title .s{font-family:var(--mono);font-size:11.5px;color:var(--muted-chart);margin-top:3px}
+.steps{position:relative;z-index:5;padding-bottom:4vh}
+.step{min-height:88svh;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4vh}
+.step-card{width:min(440px,92vw);background:var(--card);backdrop-filter:blur(10px);
+           -webkit-backdrop-filter:blur(10px);border:1px solid var(--ring);border-top:2px solid var(--red);
+           padding:20px 22px;opacity:.5;transform:translateY(10px);
+           transition:opacity .45s ease,transform .45s ease;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.step.is-active .step-card{opacity:1;transform:none}
+.step-card .n{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;color:var(--red-soft);
+              text-transform:uppercase;margin-bottom:8px;display:block}
+.step-card h3{font-family:var(--serif);font-size:20px;font-weight:700;letter-spacing:-.01em;
+              color:var(--ink);margin-bottom:8px;line-height:1.25}
+.step-card p{font-size:14.5px;line-height:1.6}
+.step-card p+p{margin-top:8px}
+.step-card .big{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--ink);white-space:nowrap}
+.step-card .pos{color:var(--blue-soft)} .step-card .neg{color:var(--red-soft)}
+@media (min-width:1020px){
+  .scrolly{display:grid;grid-template-columns:minmax(340px,430px) minmax(0,1fr);column-gap:6px}
+  .graphic{grid-area:1/2;height:100vh;align-items:center;padding:0 20px 0 0}
+  .fig{width:100%;max-width:1400px}
+  .steps{grid-area:1/1;padding:0 0 6vh clamp(12px,2.5vw,36px)}
+  .step{min-height:80vh;align-items:center;justify-content:flex-start;padding-bottom:0}
+  .step-card{width:min(400px,100%)}
+}
+
+/* ---------- SVG-Grundstile ---------- */
+svg text{font-family:var(--mono);fill:var(--muted-chart);font-size:13px}
+.tick line{stroke:var(--grid);stroke-width:1}
+.axisline{stroke:var(--axis);stroke-width:1}
+.lab-strong{fill:var(--ink);font-weight:600}
+.lab-blue{fill:var(--blue-soft)}
+.lab-red{fill:var(--red-soft)}
+.scene{transition:opacity .55s ease}
+.scene.off{opacity:0;pointer-events:none}
+.fade{transition:opacity .6s ease}
+path.draw{transition:stroke-dashoffset 2.2s cubic-bezier(.4,0,.2,1)}
+.grow{transform:scaleY(0);transform-box:fill-box;transform-origin:bottom;
+      transition:transform .7s cubic-bezier(.2,.7,.3,1)}
+.fig[data-step]:not([data-step="-1"]) .grow{transform:scaleY(1)}
+.growx{transform:scaleX(0);transform-box:fill-box;transform-origin:left;
+       transition:transform .7s cubic-bezier(.2,.7,.3,1)}
+.fig[data-step]:not([data-step="-1"]) .growx{transform:scaleX(1)}
+
+/* Akt 1 - Szenenschaltung */
+#act1 .scene{opacity:0;pointer-events:none}
+#act1[data-step="0"] .sc-0,#act1[data-step="1"] .sc-1,
+#act1[data-step="2"] .sc-2,#act1[data-step="3"] .sc-3{opacity:1;pointer-events:auto}
+/* Akt 2 */
+#act2 .scene{opacity:0;pointer-events:none}
+#act2[data-step="0"] .sc-0,#act2[data-step="1"] .sc-1,
+#act2[data-step="2"] .sc-2,#act2[data-step="3"] .sc-2{opacity:1;pointer-events:auto}
+#act2 .nuc-cluster{opacity:0;transition:opacity .6s ease}
+#act2[data-step="3"] .nuc-cluster{opacity:1}
+/* Akt 3 */
+#act3 .layer{opacity:0;transition:opacity .7s ease}
+#act3[data-step="0"] .l-early,#act3[data-step="1"] .l-early,
+#act3[data-step="2"] .l-early,#act3[data-step="3"] .l-early{opacity:1}
+#act3[data-step="1"] .l-cohort,#act3[data-step="2"] .l-cohort,#act3[data-step="3"] .l-cohort{opacity:1}
+#act3[data-step="2"] .l-france,#act3[data-step="3"] .l-france{opacity:1}
+#act3[data-step="3"] .l-modern{opacity:1}
+/* Akt 4 */
+#act4 .layer{opacity:0;transition:opacity .6s ease}
+#act4[data-step="0"] .l-det,#act4[data-step="1"] .l-det,
+#act4[data-step="2"] .l-det,#act4[data-step="3"] .l-det{opacity:1}
+#act4[data-step="1"] .l-base,#act4[data-step="2"] .l-base{opacity:1}
+#act4[data-step="2"] .l-overlap{opacity:1}
+#act4[data-step="3"] .l-over{opacity:1}
+/* Akt 5 */
+#act5 .scene{opacity:0;pointer-events:none}
+#act5[data-step="0"] .sc-0,#act5[data-step="1"] .sc-1,
+#act5[data-step="2"] .sc-2,#act5[data-step="3"] .sc-2{opacity:1;pointer-events:auto}
+#act5 .nuc-add{opacity:0;transition:opacity .6s ease}
+#act5[data-step="3"] .nuc-add{opacity:1}
+
+/* ---------- Kasten (Gegenpositionen, Beipackzettel) ---------- */
+.kasten{width:min(680px,calc(100vw - 32px));margin:30px auto;padding:20px 24px;background:var(--surface);
+        border:1px solid var(--ring);border-left:3px solid var(--blue)}
+.kasten.gegen{border-left-color:var(--red)}
+.kasten-kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+               color:var(--blue-soft);margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kasten.gegen .kasten-kicker{color:var(--red-soft)}
+.kasten p{font-size:14.5px;line-height:1.62;color:var(--ink-2)}
+.kasten p+p{margin-top:10px}
+.kasten-quelle{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:10px}
+
+/* ---------- Badges / Chips ---------- */
+.conf{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:600;line-height:1;
+      padding:3px 5px;border-radius:2px;vertical-align:1px;letter-spacing:.04em}
+.conf-A{background:#12363b;color:#79d2dd}
+.conf-B{background:#3a2d15;color:#e2bb78}
+.conf-C{background:#3d2418;color:#f0a184}
+.conf-M{background:#2b2b28;color:#bcbab1}
+.simlabel{display:inline-block;font-family:var(--mono);font-size:10px;color:var(--muted);
+          border:1px solid var(--grid);padding:2px 5px;vertical-align:1px;white-space:nowrap}
+sup.cite{font-family:var(--mono);font-size:10.5px;color:var(--blue-soft);cursor:pointer;
+         padding:0 1px;vertical-align:super;line-height:0;border-bottom:0;user-select:none}
+sup.cite:hover,sup.cite:focus-visible{color:var(--ink)}
+#pop{position:absolute;z-index:120;max-width:min(360px,calc(100vw - 24px));background:#202120;
+     border:1px solid var(--ring);padding:12px 14px;font-size:12.5px;line-height:1.5;color:var(--ink-2);
+     box-shadow:0 14px 40px rgba(0,0,0,.6);display:none}
+#pop.on{display:block}
+#pop b{color:var(--ink);display:block;margin-bottom:4px;font-size:13px}
+#pop a{color:var(--blue-soft);word-break:break-all}
+#pop em{color:var(--muted);font-style:normal;display:block;margin:5px 0}
+
+/* ---------- Grenzen / Selbstkritik ---------- */
+.limits{max-width:1000px;margin:0 auto;padding:0 24px 60px;display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.limit-card{background:var(--surface);border:1px solid var(--ring);padding:20px}
+.limit-card h4{font-family:var(--serif);font-weight:700;color:var(--ink);font-size:16px;margin-bottom:8px}
+.limit-card p{font-size:13.5px;line-height:1.55}
+
+/* ---------- Tabellen-Zwilling ---------- */
+details.tbl{max-width:680px;margin:6px auto 30px;padding:0 24px}
+details.tbl summary{cursor:pointer;font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.06em}
+details.tbl summary:hover{color:var(--ink-2)}
+details.tbl .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+details.tbl table{width:100%;min-width:min(560px,100%);margin-top:12px;border-collapse:collapse;
+                  font-family:var(--mono);font-size:12px}
+details.tbl th{text-align:left;color:var(--muted);font-weight:400;border-bottom:1px solid var(--axis);padding:6px 8px}
+details.tbl td{padding:5px 8px;border-bottom:1px solid var(--grid);color:var(--ink-2);
+               font-variant-numeric:tabular-nums}
+details.tbl td.num{text-align:right}
+
+/* ---------- Glossar ---------- */
+details.gloss{background:var(--surface);border:1px solid var(--ring);margin:10px 0;scroll-margin-top:24px}
+details.gloss>summary{cursor:pointer;list-style:none;font-family:var(--sans);font-weight:600;font-size:15px;
+                      color:var(--ink);padding:14px 18px;display:flex;gap:10px;align-items:baseline;line-height:1.35}
+details.gloss>summary::-webkit-details-marker{display:none}
+details.gloss>summary::before{content:"▸";font-family:var(--mono);color:var(--red-soft);display:inline-block;
+                              transition:transform .2s ease}
+details.gloss[open]>summary::before{transform:rotate(90deg)}
+details.gloss>summary:hover{color:var(--red-soft)}
+.gloss-body{padding:0 18px 16px;font-size:14px;line-height:1.6;color:var(--ink-2)}
+.gloss-body p+p{margin-top:10px}
+.gloss-formula{font-family:var(--mono);font-size:12.5px;color:var(--ink);background:var(--bg);
+               border:1px solid var(--grid);padding:10px 12px;margin-top:12px;overflow-x:auto;white-space:nowrap}
+a.gl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--muted);
+     transition:color .2s ease,border-color .2s ease}
+a.gl:hover,a.gl:focus-visible{color:var(--ink);border-bottom-color:var(--ink-2)}
+a.gl-back{display:inline-block;margin-top:14px;font-family:var(--mono);font-size:11.5px;color:var(--muted);
+          text-decoration:none;border-bottom:1px dotted var(--grid)}
+a.gl-back:hover{color:var(--ink-2)}
+a.gl-back.is-idle{opacity:.5}
+
+/* ---------- Quellen ---------- */
+.srclist{max-width:900px;margin:0 auto;padding:0 24px 40px;font-size:13px}
+.srcrow{display:grid;grid-template-columns:38px 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--grid)}
+.srcrow .nr{font-family:var(--mono);color:var(--muted);font-size:12px}
+.srcrow .ti{color:var(--ink);font-weight:500}
+.srcrow .me{color:var(--muted);font-size:12px;font-family:var(--mono);word-break:break-word}
+.srcrow a{color:var(--blue-soft);word-break:break-all}
+
+/* ---------- Backup / Deep-Dive ---------- */
+.deep{width:min(780px,calc(100vw - 32px));margin:40px auto 0;background:var(--surface);
+      border:1px solid var(--ring);border-top:3px solid var(--blue);padding:28px 26px}
+.deep h3{font-family:var(--serif);font-size:22px;color:var(--ink);margin-bottom:10px}
+.deep p{font-size:14.5px;margin-bottom:14px}
+.deep .links{display:flex;flex-wrap:wrap;gap:8px}
+.deep .links a{font-family:var(--mono);font-size:12px;color:var(--ink-2);text-decoration:none;
+               border:1px solid var(--ring);padding:7px 12px;transition:.2s}
+.deep .links a:hover{color:var(--ink);border-color:var(--blue)}
+a.deeplink{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--blue-soft);
+           text-decoration:none;border-bottom:1px dotted var(--blue);margin-top:6px}
+a.deeplink:hover{color:var(--ink)}
+
+.home-pill{display:inline-block;font-family:var(--mono);font-size:12px;line-height:1.2;padding:8px 16px;
+           border:1px solid var(--ring);border-radius:999px;background:rgba(26,26,25,.55);
+           backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--ink-2);
+           text-decoration:none;letter-spacing:.04em;white-space:nowrap;transition:.2s}
+.home-pill:hover,.home-pill:focus-visible{color:var(--ink);border-color:rgba(255,255,255,.32)}
+.hero .home-pill{position:absolute;top:22px;left:24px;z-index:6}
+.home-pill-wrap{text-align:center;padding:10px 24px 54px}
+
+.disclaimer{max-width:820px;margin:0 auto;padding:0 24px 40px;font-size:12.5px;color:var(--muted);line-height:1.7}
+footer{border-top:1px solid var(--grid);padding:40px 24px 60px;text-align:center;font-family:var(--mono);
+       font-size:12px;color:var(--muted);line-height:2}
+footer a{color:var(--ink-2)}
+
+#tip{position:fixed;pointer-events:none;background:#222320;border:1px solid var(--ring);padding:8px 11px;
+     font-family:var(--mono);font-size:12px;color:var(--ink);opacity:0;transition:opacity .15s ease;
+     z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.5);white-space:nowrap}
+#tip .l{color:var(--muted)}
+
+#loadnote{max-width:680px;margin:0 auto;padding:24px;font-size:14px;color:var(--ink-2);
+          border:1px solid var(--red);background:#241612;display:none}
+#loadnote.on{display:block}
+#loadnote code{font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+
+@media (max-width:760px){
+  /* Der 1060er-viewBox wird auf ~380 px skaliert (Faktor ca. 0,36). Ohne kraeftigen
+     Bump waere die Chart-Beschriftung unter 6 px gross. Die Zeilenabstaende der
+     Charts sind so gewaehlt, dass dieser Bump nicht kollidiert. */
+  svg text{font-size:25px}
+  svg text.sm{font-size:21px}
+  .graphic{padding-top:8px;height:auto;max-height:100svh}
+  .fig{width:100vw;padding:0 6px;display:flex;flex-direction:column}
+  .fig .fig-title{position:static;order:-1;padding:12px 8px 8px}
+  .hero .home-pill{top:14px;left:12px;font-size:11px;padding:6px 12px}
+  .hero-inner{padding-top:76px}
+  .limits{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  path.draw{stroke-dasharray:none!important;stroke-dashoffset:0!important}
+  .grow{transform:scaleY(1)!important}
+  .growx{transform:scaleX(1)!important}
+}
+</style>
+</head>
+<body>
+
+<div id="tip"></div>
+<div id="pop"></div>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <svg id="hero-svg" viewBox="0 0 960 540" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <a class="home-pill" href="index.html" rel="noopener">← Daten-WG Knowledge Kitchen</a>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Systemkosten · Eine Studie, zwei Zahlen · v 0.1 (Entwurf)</div>
+    <h1>Ein Stromsystem,<br>zwei <em>Preisschilder</em></h1>
+    <p class="hero-sub">Dieselbe Studie nennt für ein klimaneutrales deutsches Stromsystem
+      <b class="v" data-v="shared.ges_reference.scenarios.kostenminimum.lscoe" data-d="0" data-unit=" €/MWh"></b>
+      und <b class="v" data-v="shared.ges_reference.scenarios.ee100.lscoe" data-d="0" data-unit=" €/MWh"></b>.
+      Ein Kernkraft-System, halb so teuer wie hundert Prozent Erneuerbare?
+      Wer solche Zahlen liest, sollte <b>eine einzige Frage stellen: woher kommen sie?</b></p>
+    <div class="hero-meta">
+      <span><b class="v" data-v="meta.counts.korrigiert" data-d="0"></b> korrigierte Claims</span>
+      <span><b class="v" data-v="meta.counts.verworfen" data-d="0"></b> verworfene</span>
+      <span><b class="v" data-v="meta.counts.setzung" data-d="0"></b> Setzungen</span>
+      <span><b id="hm-src"></b> Quellen</span>
+    </div>
+  </div>
+  <div class="hero-scroll">▼ scrollen</div>
+</header>
+
+<div id="loadnote"></div>
+
+<!-- ================= PROLOG ================= -->
+<section class="prose">
+  <div class="kicker">Prolog</div>
+  <h2>Zwei Lager, eine Rechnung</h2>
+  <p class="lede">Die einen sagen: Erneuerbare sind längst die billigste Energie, der Rest ist
+    Ingenieursarbeit. Die anderen sagen: Rechnet man Speicher, Backup und Netze ehrlich mit,
+    ist ein System mit Kernkraft die günstigere Wahl. Beide Seiten zitieren Zahlen. Beide Seiten
+    zitieren <em>echte</em> Zahlen.</p>
+  <p>Der Auslöser für diese Geschichte ist eine Szenarioanalyse von Global Energy Solutions<sup class="cite" data-src="ges-studie-2026"></sup>.
+    Sie vergleicht vier Wege zu einem klimaneutralen deutschen Stromsystem und kommt auf
+    <b class="v" data-v="shared.ges_reference.scenarios.kostenminimum.lscoe" data-d="0" data-unit=" €/MWh"></b> für das
+    kernkraftgestützte „Kostenminimum" und
+    <b class="v" data-v="shared.ges_reference.scenarios.ee100.lscoe" data-d="0" data-unit=" €/MWh"></b>
+    für hundert Prozent Erneuerbare. Ein Faktor von rund <b class="v" id="hook-factor"></b>.</p>
+  <p>Diese Story macht keine Gegenstudie. Sie nimmt die Studie auseinander wie eine Uhr — und
+    zeigt in fünf Akten, welche Annahmen die Zahl tragen, welche davon der Realität standhalten,
+    was die Wirtschaftsgeschichte der Kernkraft dazu sagt, wie groß die Unsicherheit wirklich ist
+    und was am Ende von der Frage übrig bleibt. Zum Schluss steht, wie in jedem ehrlichen Papier,
+    das Kapitel über die eigenen Grenzen.</p>
+  <p>Eine Vorbemerkung, die an den Anfang gehört und nicht in eine Fußnote:</p>
+  <aside class="kasten" data-cp="cp_transparency"></aside>
+</section>
+
+<!-- ================= AKT 1 ================= -->
+<section class="scrolly" data-act="1">
+  <div class="graphic">
+    <div class="fig" id="act1" data-step="-1">
+      <svg id="svg1" viewBox="0 0 1060 600" role="img"
+           aria-label="Vier Schritte von den Investitionskosten je Kilowatt zur Systemkostenzahl je Megawattstunde"></svg>
+      <div class="fig-title">
+        <div class="t" id="t1">Akt 1 · Wie aus Euro je Kilowatt Euro je Megawattstunde werden</div>
+        <div class="s" id="s1">Annahmen der Studie · WACC 5 % · eigene Nachrechnung der Studienformel</div>
+      </div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 1 / Schritt 1</span>
+      <h3>Alles beginnt mit einer Investition</h3>
+      <p>Ein Kraftwerk kostet zuerst einmal Geld je Kilowatt Leistung. Die Studie setzt für
+        Photovoltaik <span class="big" data-v="shared.ges_reference.technologies.pv.capex_eur_kw" data-d="0" data-unit=" €/kW"></span>
+        an, für Kernkraft <span class="big" data-v="shared.ges_reference.technologies.nuclear.capex_eur_kw" data-d="0" data-unit=" €/kW"></span>.
+        Diese vier Zahlen tragen am Ende alles.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 1 / Schritt 2</span>
+      <h3>Die Investition wird verrentet</h3>
+      <p>Über die <a class="gl" id="ref-crf" href="#gl-crf">Annuität</a> verteilt sich die Investition auf die
+        Betriebsjahre. Der Zinssatz — hier
+        <span class="big" data-v="shared.ges_reference.methodology.wacc" data-d="0" data-pct="1"></span> — ist dabei
+        kein Detail: Er entscheidet, wie teuer langes Bauen und lange Laufzeiten sind.
+        Dazu kommen die Betriebskosten je Jahr.</p>
+      <p>Kernkraft trägt hier den größten Block, weil die Studie den Betrieb mit
+        <span class="big" data-v="shared.ges_reference.technologies.nuclear.opex_pct" data-d="0" data-pct="1"></span>
+        der Bausumme pro Jahr ansetzt.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 1 / Schritt 3</span>
+      <h3>Geteilt durch die Arbeit</h3>
+      <p>Die Jahreskosten werden durch die produzierte Strommenge geteilt — also durch die
+        <a class="gl" id="ref-vlh" href="#gl-lcoe">Volllaststunden</a>. Erst hier entsteht der Wert, den man
+        als <a class="gl" id="ref-lcoe" href="#gl-lcoe">LCOE</a> kennt.</p>
+      <p>Und hier passiert das Entscheidende: Kernkraft läuft in der Studie mit
+        <span class="big" data-v="shared.ges_reference.technologies.nuclear.full_load_hours" data-d="0" data-unit=" h"></span>,
+        Photovoltaik mit <span class="big" data-v="shared.ges_reference.technologies.pv.full_load_hours" data-d="0" data-unit=" h"></span>.
+        Dieselbe Investition, achtfache Arbeitszeit.</p>
+    </div></div>
+    <div class="step" data-idx="3"><div class="step-card">
+      <span class="n">Akt 1 / Schritt 4</span>
+      <h3>Vom Kraftwerk zum System</h3>
+      <p>Ein System ist mehr als die Summe seiner Kraftwerke: Speicher, Backup, Netze,
+        Überkapazität. Die Studie rechnet das durch und landet bei
+        <span class="big pos" data-v="shared.ges_reference.scenarios.kostenminimum.lscoe" data-d="0" data-unit=" €/MWh"></span>
+        bis <span class="big neg" data-v="shared.ges_reference.scenarios.ee100.lscoe" data-d="0" data-unit=" €/MWh"></span>
+        — der Kennzahl, um die gestritten wird: <a class="gl" id="ref-lscoe" href="#gl-lscoe">LSCOE</a>.</p>
+      <p>Die Rechnung selbst ist sauber. Wir haben sie nachgerechnet und reproduzieren die
+        Studien-LCOE auf <span class="big">±0,04 %</span> genau. Die Frage ist nicht das Rechnen.
+        Die Frage sind die vier Zahlen aus Schritt 1.</p>
+    </div></div>
+  </div>
+</section>
+
+<details class="tbl"><summary>▸ Datentabelle Akt 1 · Annahmen und Ergebnisse der Studie</summary>
+  <div class="scroll"><table id="tbl1"></table></div>
+</details>
+
+<section class="prose tight">
+  <div class="kicker">Zwischenruf</div>
+  <h2>Jede Systemkostenzahl ist eine Kette von Annahmen</h2>
+  <p>Vier Investitionswerte, vier Volllaststundenzahlen, ein Zinssatz, ein Betriebskostenansatz.
+    Wackelt ein Glied, wackelt das Ergebnis. Also prüfen wir die Glieder — nicht, weil wir ein
+    anderes Ergebnis wollen, sondern weil es der einzige Weg ist, ein Ergebnis überhaupt
+    einordnen zu können.</p>
+  <a class="deeplink" href="whitepaper-strommix.html#kap-3">Zur vollständigen Analyse · Kapitel 3 „Methodik" →</a>
+</section>
+
+<!-- ================= AKT 2 ================= -->
+<section class="scrolly" data-act="2">
+  <div class="graphic">
+    <div class="fig" id="act2" data-step="-1">
+      <svg id="svg2" viewBox="0 0 1060 600" role="img"
+           aria-label="Vergleich der Studienannahmen mit realen Marktdaten für Photovoltaik, Windkraft und Kernkraft"></svg>
+      <div class="fig-title">
+        <div class="t" id="t2">Akt 2 · Der Realitäts-Check</div>
+        <div class="s" id="s2">Studienannahme gegen belegte Marktdaten</div>
+      </div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 2 / Schritt 1</span>
+      <h3>Photovoltaik: zu teuer angesetzt</h3>
+      <p>Die Studie rechnet Solarstrom mit
+        <span class="big pos" data-v="shared.ges_reference.technologies.pv.lcoe" data-d="1" data-unit=" €/MWh"></span>.
+        Das Fraunhofer ISE nennt für Freiflächenanlagen
+        <span class="big neg" data-v="shared.lcoe_benchmarks.pv_freiflaeche.reference" data-fmt="minmax" data-d="0" data-unit=" €/MWh"></span><sup class="cite" data-src="fraunhofer-ise-2024"></sup>.</p>
+      <p>Noch härter ist der Markt selbst: Bei der Ausschreibung im März 2026 lagen die
+        Zuschläge zwischen
+        <span class="big neg" data-v="shared.lcoe_benchmarks.pv_freiflaeche.auction" data-fmt="minmax" data-d="1" data-unit=" €/MWh"></span><sup class="cite" data-src="bnetza-pv-2026-03"></sup>
+        — mengengewichtet
+        <span class="big neg" data-v="shared.lcoe_benchmarks.pv_freiflaeche.auction.mid" data-d="1" data-unit=" €/MWh"></span>.
+        Das sind Zuschlagswerte, keine Vollkosten — aber sie sind eher eine Ober- als eine Untergrenze
+        dessen, was Betreiber brauchen.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 2 / Schritt 2</span>
+      <h3>Wind: nicht die Baukosten, die Betriebsstunden</h3>
+      <p>Beim Wind sind die Investitionskosten der Studie plausibel. Der Hebel liegt woanders:
+        Sie rechnet mit
+        <span class="big pos" data-v="shared.ges_reference.technologies.wind_onshore.full_load_hours" data-d="0" data-unit=" h"></span>
+        Volllaststunden — das ist der Schnitt der <em>Bestandsflotte</em>, nicht der von Neuanlagen.</p>
+      <p>Mit den <span class="big neg" data-v="shared.lcoe_benchmarks.wind_onshore.sensitivity_flh[1].flh" data-d="0" data-unit=" h"></span>
+        heutiger Neuanlagen fällt der LCOE von
+        <span class="big pos" data-v="shared.lcoe_benchmarks.wind_onshore.sensitivity_flh[0].lcoe_eur_mwh" data-d="1" data-unit=" €/MWh"></span>
+        auf <span class="big neg" data-v="shared.lcoe_benchmarks.wind_onshore.sensitivity_flh[1].lcoe_eur_mwh" data-d="1" data-unit=" €/MWh"></span>.
+        Die Ausschreibung im Mai 2026 lag mengengewichtet bei
+        <span class="big neg" data-v="shared.lcoe_benchmarks.wind_onshore.auction[1].weighted_avg" data-d="1" data-unit=" €/MWh"></span><sup class="cite" data-src="bnetza-wind-2026-05"></sup>.
+        Dieser Hebel fehlt in der öffentlichen Debatte fast vollständig.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 2 / Schritt 3</span>
+      <h3>Kernkraft: 13 Projekte, drei Welten</h3>
+      <p>Die Studie setzt <span class="big pos" data-v="shared.ges_reference.technologies.nuclear.capex_eur_kw" data-d="0" data-unit=" €/kW"></span> an.
+        Gegen reale Projekte gehalten, ist das keine willkürliche Zahl — aber sie beschreibt eine
+        ganz bestimmte Welt.</p>
+      <p>Korea baut für
+        <span class="big pos" data-v="nuclear.clusters[0].capex_eur_kw" data-fmt="range" data-d="0" data-unit=" €/kW"></span>,
+        Hinkley Point C für
+        <span class="big neg" data-v="shared.nuclear_reference_projects[11].capex_eur_kw" data-d="0" data-unit=" €/kW"></span>
+        in laufenden Preisen. Zwischen diesen Polen liegt eine Spanne von mehr als Faktor
+        <span class="big" id="nuc-spread"></span>.</p>
+    </div></div>
+    <div class="step" data-idx="3"><div class="step-card">
+      <span class="n">Akt 2 / Schritt 4</span>
+      <h3>Beide Richtungen zeigen</h3>
+      <p>Der Studienwert liegt nur knapp unter dem, was EDF selbst für das serielle
+        EPR2-Programm ansetzt
+        (<span class="big" data-v="nuclear.clusters[1].capex_eur_kw" data-fmt="range" data-d="0" data-unit=" €/kW"></span>
+        für die EU-Serie). Das ist die faire Lesart.</p>
+      <p>Die andere ist genauso wahr: Er liegt <em>unter jedem einzelnen</em> westlichen Erstprojekt
+        der letzten zwanzig Jahre
+        (<span class="big neg" data-v="nuclear.clusters[2].capex_eur_kw" data-fmt="range" data-d="0" data-unit=" €/kW"></span>).
+        Wer <span class="big pos" data-v="shared.ges_reference.technologies.nuclear.capex_eur_kw" data-d="0" data-unit=" €/kW"></span>
+        annimmt, nimmt implizit an, dass Deutschland beim ersten Anlauf besser baut als Frankreich,
+        die USA und Großbritannien.</p>
+    </div></div>
+  </div>
+</section>
+
+<details class="tbl"><summary>▸ Datentabelle Akt 2 · 13 Kernkraft-Referenzprojekte</summary>
+  <div class="scroll"><table id="tbl2"></table></div>
+</details>
+
+<section class="prose">
+  <div class="kicker gegen">Beipackzettel</div>
+  <h2>Kostenabgrenzungen sind nicht vergleichbar</h2>
+  <p>Die 13 Punkte oben stammen aus unterschiedlichen Welten: manche sind reine
+    <em>Overnight</em>-Baukosten, manche EPC-Verträge ohne Eigentümerkosten, manche
+    Gesamtprojektkosten inklusive Bauzinsen. Hinkley Point C erscheint mit
+    <b class="v" data-v="shared.nuclear_reference_projects[11].capex_eur_kw" data-d="0" data-unit=" €/kW"></b>
+    in laufenden Preisen — real, in Preisen von 2015, sind es
+    <b class="v" data-v="nuclear_history_timeseries.points[14].capex_eur_kw_real_2015" data-d="0" data-unit=" €/kW"></b>.
+    Beides ist richtig, und wer nur eine der beiden Zahlen zeigt, erzählt eine Geschichte.</p>
+  <p>Genau deshalb steht in dieser Story bei jedem Punkt die Abgrenzung dabei, und genau deshalb
+    lehnen wir den in der Debatte beliebten „Mittelwert über fünf Projekte" ab: Ein ungewichtetes
+    Mittel über Vertragspreise, Gesamtprojektkosten und verschiedene Preisbasen hat keine
+    ökonomische Bedeutung.</p>
+  <aside class="kasten gegen" data-cp="cp_eu_references"></aside>
+  <aside class="kasten gegen" data-cp="cp_korea_both_ways"></aside>
+  <a class="deeplink" href="whitepaper-strommix.html#kap-4">Zur vollständigen Analyse · Kapitel 4 „Was kostet Strom" →</a>
+</section>
+
+<!-- ================= AKT 3 ================= -->
+<section class="scrolly" data-act="3">
+  <div class="graphic">
+    <div class="fig" id="act3" data-step="-1">
+      <svg id="svg3" viewBox="0 0 1060 600" role="img"
+           aria-label="Historische Baukosten von Kernkraftwerken von den 1960er Jahren bis zu den geplanten Projekten der 2030er Jahre"></svg>
+      <div class="fig-title">
+        <div class="t" id="t3">Akt 3 · Die Geschichtsstunde</div>
+        <div class="s" id="s3">Baukosten in Euro 2026 je Kilowatt · Bandbreiten, keine Trendlinie</div>
+      </div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 3 / Schritt 1</span>
+      <h3>Es war einmal billig</h3>
+      <p>Reaktoren mit Baubeginn Ende der 1960er Jahre kosteten umgerechnet höchstens
+        <span class="big pos" data-v="nuclear_history_timeseries.points[0].capex_eur_kw_range[1]" data-d="0" data-unit=" €/kW"></span>,
+        um 1970 rund
+        <span class="big pos" data-v="nuclear_history_timeseries.points[1].capex_eur_kw" data-d="0" data-unit=" €/kW"></span><sup class="cite" data-src="lovering-2016"></sup>.</p>
+      <p>Das ist der Datenpunkt, auf den sich fast jede Erzählung von der „früher billigen
+        Kernkraft" stützt. Er stimmt.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 3 / Schritt 2</span>
+      <h3>Die Explosion kam vor dem Unfall</h3>
+      <p>Die US-Blöcke mit Baubeginn 1968 bis 1978 streuen von
+        <span class="big neg" data-v="nuclear_history_timeseries.points[2].capex_eur_kw_range" data-fmt="range" data-d="0" data-unit=" €/kW"></span>.
+        Zwischen 1970 und 1978 stiegen die Kosten um 50 bis 200 Prozent —
+        <em>vor</em> Three Mile Island.</p>
+      <p>Und dann kam der Unfall doch noch dazu: Blöcke, die 1979 im Bau waren, wurden im Median
+        <span class="big neg">2,8-mal</span> so teuer und brauchten
+        <span class="big neg">2,2-mal</span> so lange. Beides gehört erzählt — sonst wird daraus
+        ein einseitiges Regulierungs-Narrativ.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 3 / Schritt 3</span>
+      <h3>Der Twist: Frankreich</h3>
+      <p>Frankreichs Messmer-Programm gilt als der erfolgreichste nukleare Hochlauf der Welt:
+        ein Betreiber, ein Regulator, standardisierte Serie. Die verbreitete Erzählung lautet,
+        genau das habe die Kosten stabilisiert.</p>
+      <p>Die Studie, die dafür zitiert wird, sagt das Gegenteil. Grubler misst einen Anstieg von
+        <span class="big pos" data-v="nuclear_history_timeseries.points[3].capex_eur_kw_range" data-fmt="range" data-d="0" data-unit=" €/kW"></span>
+        auf <span class="big neg" data-v="nuclear_history_timeseries.points[5].capex_eur_kw" data-d="0" data-unit=" €/kW"></span>
+        — real Faktor <span class="big neg">3,5</span> über 1970 bis 2000. Der Fachbegriff dafür steht
+        im Titel: <em>negative learning by doing</em><sup class="cite" data-src="grubler-2010"></sup>.</p>
+    </div></div>
+    <div class="step" data-idx="3"><div class="step-card">
+      <span class="n">Akt 3 / Schritt 4</span>
+      <h3>Und heute</h3>
+      <p>Die westlichen Projekte der Gegenwart liegen zwischen
+        <span class="big neg" data-v="nuclear.clusters[2].capex_eur_kw" data-fmt="range" data-d="0" data-unit=" €/kW"></span>,
+        die europäischen Serienprogramme darunter bei
+        <span class="big" data-v="nuclear.clusters[1].capex_eur_kw" data-fmt="range" data-d="0" data-unit=" €/kW"></span>.
+        Die Annahme der Studie liegt am unteren Rand dieser Welt.</p>
+      <p>Das ehrliche Fazit: Billige Kernkraft ist historisch real und heute in Korea real.
+        Sie ist aber an Bedingungen geknüpft — durchgehende Lieferkette, keine Designänderungen,
+        ein Regulator, staatlich gesteuerte Finanzierung —, die niemand für Deutschland
+        garantieren kann.</p>
+    </div></div>
+  </div>
+</section>
+
+<details class="tbl"><summary>▸ Datentabelle Akt 3 · historische Baukosten mit Kostenabgrenzung</summary>
+  <div class="scroll"><table id="tbl3"></table></div>
+</details>
+
+<section class="prose">
+  <div class="kicker gegen">Pflicht-Beipackzettel</div>
+  <h2>Der einzige globale Datensatz ist umstritten</h2>
+  <p id="lovering-disc"></p>
+  <p>Deshalb zeigen wir oben Bandbreiten und keine Trendlinie, und deshalb steht bei jedem Punkt
+    die Kostenabgrenzung. Wer aus diesen Daten eine glatte Lernkurve zeichnet — in die eine oder
+    die andere Richtung —, überinterpretiert sie.</p>
+  <aside class="kasten gegen" data-cp="cp_construction_time"></aside>
+  <aside class="kasten gegen" data-cp="cp_wacc_both_ways"></aside>
+  <p>Der letzte Punkt ist der wichtigste dieses Akts: Die Kernkraftfrage ist in Europa im Kern
+    keine Technologiefrage, sondern eine <b>Finanzierungsfrage</b>. Bei
+    <b class="v" data-v="shared.wacc_sensitivity.wacc_effect_at_60y.factor_3pct_to_10pct" data-d="2"></b>-fachem
+    Kapitalkostenfaktor zwischen 3 und 10 Prozent entscheidet der Zinssatz mehr als jede plausible
+    Variation der Baukosten<sup class="cite" data-src="iea-nea-2020"></sup>. Jedes europäische
+    Neubauprojekt braucht deshalb ein staatliches Instrument, das den Kapitalkostensatz künstlich
+    senkt: CfD, RAB-Modell, Staatsgarantien, zinsgünstige Staatsdarlehen. Das ist eine Feststellung,
+    kein Werturteil.</p>
+</section>
+
+<!-- ================= AKT 4 ================= -->
+<section class="scrolly" data-act="4">
+  <div class="graphic">
+    <div class="fig" id="act4" data-step="-1">
+      <svg id="svg4" viewBox="0 0 1060 600" role="img"
+           aria-label="Monte-Carlo-Verteilungen der Systemkosten für fünf Szenarien mit überlappenden Unsicherheitsbändern"></svg>
+      <div class="fig-title">
+        <div class="t" id="t4">Akt 4 · Die ehrliche Antwort ist eine Bandbreite</div>
+        <div class="s" id="s4">Monte-Carlo-Simulation · eigenes Modell</div>
+      </div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 4 / Schritt 1</span>
+      <h3>Punktwerte sehen präzise aus</h3>
+      <p>Wir haben die vier Szenarien mit unseren eigenen, dokumentierten Parametern
+        nachgerechnet — stündlicher Dispatch statt Jahresmittel, Kernkraft-Betriebskosten absolut
+        statt als Prozentsatz der Bausumme, Neuanlagen-Volllaststunden statt Bestandsflotte.</p>
+      <p>Heraus kommen wieder vier saubere Zahlen. Und genau die sind das Problem.
+        <span class="simlabel"></span></p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 4 / Schritt 2</span>
+      <h3>1.000 Würfe je Szenario</h3>
+      <p>Jeder unsichere Parameter — Baukosten, Betriebskosten, Volllaststunden, insgesamt
+        <span class="big" data-v="shared.monte_carlo.meta.drawn_parameters" data-d="0"></span> Größen —
+        wird als Dreiecksverteilung zwischen unserem dokumentierten Minimum und Maximum gezogen,
+        <span class="big" data-v="shared.monte_carlo.meta.n_draws" data-d="0"></span>-mal je Szenario.</p>
+      <p>Statt vier Punkten stehen jetzt vier Bänder da. Das dunkle Feld ist das mittlere Viertel
+        bis Dreiviertel, die Strichenden markieren das 5- und das 95-Prozent-Perzentil.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 4 / Schritt 3</span>
+      <h3>Die Rangfolge ist nicht entschieden</h3>
+      <p>Das Kernkraft-Szenario liegt im Median bei
+        <span class="big pos" data-v="shared.monte_carlo.presets.kostenminimum.configs.base.p50" data-d="0" data-unit=" €/MWh"></span>
+        <span class="v" data-v="shared.monte_carlo.presets.kostenminimum.configs.base" data-fmt="p5p95" data-d="0"></span>,
+        der gasgestützte 80-Prozent-Pfad bei
+        <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas.configs.base.p50" data-d="0" data-unit=" €/MWh"></span>
+        <span class="v" data-v="shared.monte_carlo.presets.ee80_gas.configs.base" data-fmt="p5p95" data-d="0"></span>.</p>
+      <p>Die Bänder überlappen vollständig im unteren Bereich. „Das eine ist teurer als das andere"
+        ist bei dieser Streuung <b>keine trennscharfe Aussage</b>. Gegenüber beiden
+        wasserstofflastigen Pfaden bleibt das Kernkraft-Szenario dagegen klar günstiger — die
+        Studie hat in diesem Punkt recht behalten. <span class="simlabel"></span></p>
+    </div></div>
+    <div class="step" data-idx="3"><div class="step-card">
+      <span class="n">Akt 4 / Schritt 4</span>
+      <h3>Und wenn Projekte sich verteuern?</h3>
+      <p>Großprojekte überschreiten ihre Kostenschätzung — empirisch, systematisch, messbar.
+        Für Kernkraft nennen zwei unabhängige Datenbanken Faktoren von
+        <span class="big neg" data-v="shared.kostenueberschreitung_faktoren.technologien.kernkraft.sovacool" data-d="2"></span>
+        und <span class="big neg" data-v="shared.kostenueberschreitung_faktoren.technologien.kernkraft.flyvbjerg" data-d="2"></span><sup class="cite" data-src="flyvbjerg-2023"></sup><sup class="cite" data-src="sovacool-ryu-2025"></sup>,
+        für Solar rund
+        <span class="big pos" data-v="shared.kostenueberschreitung_faktoren.technologien.solar.flyvbjerg" data-d="2"></span>.</p>
+      <p>Legt man diese Empirie auf alle Technologien, rutscht das Kernkraft-Szenario auf
+        <span class="big neg" data-v="shared.monte_carlo.presets.kostenminimum.configs.overrun.p50" data-d="0" data-unit=" €/MWh"></span>
+        <span class="v" data-v="shared.monte_carlo.presets.kostenminimum.configs.overrun" data-fmt="p5p95" data-d="0"></span>
+        — die anderen Pfade kaum. Das ist kein Beweis, sondern eine Frage:
+        Wie viel Empirie will man ignorieren? <span class="simlabel"></span></p>
+    </div></div>
+  </div>
+</section>
+
+<details class="tbl"><summary>▸ Datentabelle Akt 4 · Monte-Carlo-Perzentile je Szenario</summary>
+  <div class="scroll"><table id="tbl4"></table></div>
+</details>
+
+<section class="prose">
+  <div class="kicker">Zwischenruf</div>
+  <h2>Was von der Schlagzeile bleibt</h2>
+  <p class="lede" id="mc-honest"></p>
+  <p>Der Satz „das Studienergebnis kehrt sich um", den man in der Debatte findet, ist eine
+    Überdehnung — wir haben ihn geprüft und verworfen. Was bleibt, ist ein Rangwechsel um
+    <b>einen Platz</b> bei überlappenden Bändern. Das ist weniger schlagzeilentauglich und
+    deutlich näher an dem, was die Daten hergeben.</p>
+  <aside class="kasten gegen" data-cp="cp_ges_opex"></aside>
+  <aside class="kasten gegen" data-cp="cp_h2_physics"></aside>
+  <p>Auch der zweite populäre Einwand hält nicht: Dass die Studie Elektrolyseure mit
+    <b class="v" data-v="electrolyser.study_assumption_eur_kw" data-d="0" data-unit=" €/kW"></b>
+    zu teuer ansetze, weil der Markt bei
+    <b class="v" data-v="electrolyser.md_claim_eur_kw" data-fmt="range" data-d="0" data-unit=" €/kW"></b> liege
+    — dieser Vorwurf dreht sich um. Die niedrigen Zahlen sind Hardwarepreise. Rechnet man Planung,
+    Genehmigung und Installation dazu, kommt das Münchner FfE für 2025 auf rund
+    <b class="v" data-v="electrolyser.ffe_full_system_2025_eur_kw" data-d="0" data-unit=" €/kW"></b><sup class="cite" data-src="ffe-elektrolyse-2025"></sup>,
+    europäische Ist-Anlagen liegen bei
+    <b class="v" data-v="electrolyser.eu_actual_2025_eur_kw.alkali" data-d="0"></b> bis
+    <b class="v" data-v="electrolyser.eu_actual_2025_eur_kw.pem" data-d="0" data-unit=" €/kW"></b>.
+    Die Studie rechnet hier eher zu günstig als zu teuer.</p>
+  <a class="deeplink" href="whitepaper-strommix.html#kap-6">Zur vollständigen Analyse · Kapitel 6 „Unsicherheit und Monte Carlo" →</a>
+</section>
+
+<!-- ================= AKT 5 ================= -->
+<section class="scrolly" data-act="5">
+  <div class="graphic">
+    <div class="fig" id="act5" data-step="-1">
+      <svg id="svg5" viewBox="0 0 1060 600" role="img"
+           aria-label="Der 30-Jahres-Pfad von 2026 bis 2056: korrigierte Startwerte, Investitionen je Phase und die Systemkosten im Zieljahr"></svg>
+      <div class="fig-title">
+        <div class="t" id="t5">Akt 5 · Der 30-Jahres-Blick</div>
+        <div class="s" id="s5">Startwerte, Investitionen, Systemkosten 2056</div>
+      </div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 5 / Schritt 1</span>
+      <h3>Ein Plan startet zu niedrig</h3>
+      <p>Ein kursierender 30-Jahres-Plan beziffert den Ausbaubedarf bis 2056. Sein Fundament sind
+        die Startwerte für 2026 — und drei davon liegen unter der Realität.</p>
+      <p>Photovoltaik steht bei
+        <span class="big neg" data-v="thirty_year_plan.start_2026_corrected.pv_gw.corrected" data-d="1" data-unit=" GW"></span>
+        statt <span class="big pos" data-v="thirty_year_plan.start_2026_corrected.pv_gw.md" data-d="0" data-unit=" GW"></span>,
+        Batteriespeicher bei
+        <span class="big neg" data-v="thirty_year_plan.start_2026_corrected.battery.corrected_gwh" data-fmt="range" data-d="1" data-unit=" GWh"></span>
+        statt <span class="big pos" data-v="thirty_year_plan.start_2026_corrected.battery.md_gwh" data-d="0" data-unit=" GWh"></span>.
+        Der Strombedarf dagegen ist <em>zu hoch</em> angesetzt.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 5 / Schritt 2</span>
+      <h3>Über eine Billion Euro — und eine Lücke</h3>
+      <p>Die Investitionsrechnung des Plans ist arithmetisch sauber: rund
+        <span class="big" data-v="thirty_year_plan.investment_check.md_total_bn_eur" data-d="0" data-unit=" Mrd. €"></span>
+        über drei Phasen, davon
+        <span class="big" data-v="thirty_year_plan.investment_check.breakdown_bn_eur.grid" data-d="0" data-unit=" Mrd. €"></span>
+        für die Netze. Wir haben sie nachgerechnet und exakt reproduziert.</p>
+      <p>Was fehlt: <b>Ersatzinvestitionen.</b> Der Plan rechnet ausschließlich Netto-Zubau.
+        Die PV-Anlagen von heute erreichen bis 2056 ihr Lebensende, Wind onshore muss bis 2045
+        repowert werden. Grob geschätzt fehlen
+        <span class="big neg" data-v="thirty_year_plan.investment_check.missing_replacement_capex_bn_eur.sum" data-d="0" data-unit=" Mrd. €"></span>.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 5 / Schritt 3</span>
+      <h3>Ein Lehrstück über Nenner</h3>
+      <p>Der Plan endet bei
+        <span class="big pos" data-v="thirty_year_plan.lscoe_2056.md_value" data-d="1" data-unit=" €/MWh"></span>
+        für 2056. Diese Rechnung ist uns wohlgesonnen — trotzdem haben wir sie geprüft.
+        Und dabei einen Fehler gefunden: Die Gesamtkosten werden durch den <em>Bedarf</em>
+        (<span class="big" data-v="thirty_year_plan.lscoe_2056.md_reconstruction.demand_twh" data-d="0" data-unit=" TWh"></span>)
+        geteilt, obwohl der Anlagenpark nur
+        <span class="big" data-v="thirty_year_plan.lscoe_2056.md_reconstruction.generation_twh" data-d="0" data-unit=" TWh"></span>
+        erzeugt.</p>
+      <p>Allein diese Korrektur hebt den Wert auf
+        <span class="big neg" data-v="thirty_year_plan.lscoe_2056.md_reconstruction.divided_by_generation" data-d="1" data-unit=" €/MWh"></span>.
+        Unsere eigene Dispatch-Rechnung landet bei
+        <span class="big neg" data-v="thirty_year_plan.lscoe_2056.our_model.mittel" data-d="1" data-unit=" €/MWh"></span>
+        <span class="v" data-v="thirty_year_plan.lscoe_2056.recommended_value.range" data-fmt="range" data-d="0" data-unit=" €/MWh"></span>
+        — und ist selbst noch eine Untergrenze. <span class="simlabel"></span></p>
+    </div></div>
+    <div class="step" data-idx="3"><div class="step-card">
+      <span class="n">Akt 5 / Schritt 4</span>
+      <h3>Zwei Reaktoren ändern wenig</h3>
+      <p>Was passiert, wenn man diesem Pfad zwei Kernkraftblöcke hinzufügt? In unserem Modell
+        steigen die Systemkosten von
+        <span class="big" data-v="thirty_year_plan.lscoe_2056.our_model.mittel" data-d="1" data-unit=" €/MWh"></span>
+        auf <span class="big" data-v="thirty_year_plan.nuclear_variant.corrected.our_model_system_lscoe" data-d="1" data-unit=" €/MWh"></span>
+        — ein Plus von
+        <span class="big" data-v="thirty_year_plan.nuclear_variant.corrected.our_model_delta" data-d="1" data-unit=" €/MWh"></span>.</p>
+      <p>Das ist keine Kostenfrage. Es ist eine <b>Zeit- und Skalenfrage</b>: Der realistische Pfad
+        von der politischen Entscheidung bis zur ersten Kilowattstunde liegt bei
+        <span class="big neg" data-v="thirty_year_plan.nuclear_variant.lead_time" data-fmt="years" data-d="0"></span>.
+        Und 3,2 Gigawatt auf über 600 Gigawatt Gesamtkapazität sind ein Rundungsfehler.
+        <span class="simlabel"></span></p>
+    </div></div>
+  </div>
+</section>
+
+<details class="tbl"><summary>▸ Datentabelle Akt 5 · Startwerte 2026, Investitionen, Systemkosten 2056</summary>
+  <div class="scroll"><table id="tbl5"></table></div>
+</details>
+
+<section class="prose">
+  <div class="kicker gegen">Fairness</div>
+  <h2>Zwei Blöcke sind die ungünstigste aller Konstruktionen</h2>
+  <p id="nuc-counter"></p>
+  <p>Wer Kernkraft ernsthaft prüfen will, muss sie als <b>Programm</b> rechnen, nicht als
+    Alibi-Paar. Umgekehrt gilt: Ein Programm braucht eine Entscheidung, die zwei Jahrzehnte hält —
+    über mehrere Legislaturperioden hinweg, mit einem Neubauverbot, das erst aufgehoben,
+    und einer Aufsichtsbehörde, die erst wieder aufgebaut werden müsste.</p>
+  <aside class="kasten gegen" data-cp="cp_ee_risks"></aside>
+  <a class="deeplink" href="whitepaper-strommix.html#kap-5">Zur vollständigen Analyse · Kapitel 5 „Geht der Mix auf?" →</a>
+</section>
+
+<!-- ================= SELBSTKRITIK ================= -->
+<section class="prose">
+  <div class="kicker gegen">Gegenprobe</div>
+  <h2>Was diese Rechnung <em>nicht</em> kann</h2>
+  <p class="lede">Jede Zahl in dieser Story hat Grenzen. Sie hier zu verschweigen, wäre genau der
+    Fehler, den wir der Vorlage vorwerfen. Also: Das hier kann unser Modell nicht.</p>
+</section>
+<div class="limits" id="limits"></div>
+
+<section class="prose tight">
+  <p>Dazu kommt eine strukturelle Grenze dieser Session: Der Volltextabruf war für praktisch alle
+    Primärquellen-Domains blockiert — <b>einschließlich der Studien-PDF selbst</b>. Alle Aussagen
+    über die Methodik der Studie beruhen auf einer Sekundärwiedergabe und konnten nicht am
+    Original gegengeprüft werden. Das begrenzt die Konfidenz einzelner Zahlen; es begrenzt nicht
+    die Richtung der Befunde, weil jede davon zusätzlich gegen unsere eigene, unabhängig
+    recherchierte Datenbasis geprüft wurde.</p>
+  <a class="deeplink" href="whitepaper-strommix.html#kap-9">Zur vollständigen Analyse · Kapitel 9 „Limitationen des Modells" →</a>
+</section>
+
+<!-- ================= EPILOG ================= -->
+<section class="prose">
+  <div class="kicker">Epilog</div>
+  <h2>Die Kernbotschaft passt in einen Satz</h2>
+  <p class="lede">Wer eine Systemkostenzahl liest, liest keine Messung, sondern eine Annahmenkette.
+    Und die beiden stärksten Glieder dieser Kette sind fast immer dieselben: der
+    <a class="gl" id="ref-wacc2" href="#gl-wacc">Kapitalkostensatz</a> und der CO₂-Preis.</p>
+  <p>Der Zinssatz allein bewegt die Kernkraftkosten um den Faktor
+    <b class="v" data-v="shared.wacc_sensitivity.wacc_effect_at_60y.factor_3pct_to_10pct" data-d="2"></b>
+    zwischen 3 und 10 Prozent — mehr als jede plausible Variation der Baukosten. Der CO₂-Preis
+    entscheidet, ob Gas-Backup ein günstiger Lückenfüller oder ein teurer Restposten ist. Beide
+    sind politische Größen, keine technischen.</p>
+  <p>Was folgt daraus? Nicht, dass man keine Zahlen nennen darf. Sondern dass jede Zahl mit ihrer
+    Bandbreite und ihren Annahmen gezeigt gehört. Eine Studie, die das tut — wie diese —, kann man
+    prüfen. Eine Schlagzeile, die nur den Punktwert übernimmt, kann man nur glauben.</p>
+  <div class="deep">
+    <h3>Die vollständige Analyse</h3>
+    <p>Diese Story ist die Kurzfassung. Das White Paper enthält dieselben Daten als interaktive
+      Modelle: einen LCOE-Rechner mit Reglern für Baukosten, Kapitalkostensatz, Volllaststunden
+      und CO₂-Preis, eine stündliche Dispatch-Simulation mit Speicherfüllständen, die vollständige
+      Monte-Carlo-Rechnung und einen Selbsttest, der das Modell bei jedem Seitenaufruf gegen
+      hinterlegte Testvektoren nachrechnet.</p>
+    <div class="links">
+      <a href="whitepaper-strommix.html">→ White Paper öffnen</a>
+      <a href="whitepaper-strommix.html#kap-4">→ LCOE-Rechner</a>
+      <a href="whitepaper-strommix.html#kap-5">→ Dispatch-Simulation</a>
+      <a href="whitepaper-strommix.html#kap-6">→ Monte Carlo</a>
+      <a href="whitepaper-strommix.html#kap-9">→ Limitationen</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GLOSSAR ================= -->
+<section class="prose">
+  <div class="kicker">Anhang · Glossar</div>
+  <h2>Sechs Begriffe, die alles tragen</h2>
+
+  <details class="gloss" id="gl-lcoe"><summary>LCOE · Stromgestehungskosten</summary>
+    <div class="gloss-body">
+      <p>Die durchschnittlichen Kosten je erzeugter Megawattstunde über die gesamte Lebensdauer
+        einer Anlage. Investition wird über die Annuität verrentet, Betriebs- und Brennstoffkosten
+        kommen dazu, und alles wird durch die Jahresarbeit geteilt — also durch die
+        <b>Volllaststunden</b>, die Zahl der Stunden, die eine Anlage rechnerisch unter Volllast
+        liefert.</p>
+      <div class="gloss-formula">LCOE = (CAPEX · CRF + Opex) / (Volllaststunden / 1000) + Brennstoff</div>
+      <p>Der LCOE sagt nichts darüber, <em>wann</em> der Strom anfällt. Genau das ist seine
+        größte Schwäche — und der Grund, warum es LSCOE gibt.</p>
+      <a class="gl-back" href="#">↩ zurück zur Textstelle</a>
+    </div>
+  </details>
+
+  <details class="gloss" id="gl-lscoe"><summary>LSCOE · Systemkosten</summary>
+    <div class="gloss-body">
+      <p>Die Kosten des <em>gesamten</em> Systems je gelieferter Megawattstunde: Erzeugung plus
+        Speicher, Backup-Kraftwerke, Netzausbau und die Überkapazität, die man braucht, weil Wind
+        und Sonne nicht auf Zuruf liefern. Diese Kennzahl ist der einzige faire Vergleichsmaßstab
+        zwischen Systemen mit unterschiedlichem Anteil steuerbarer Erzeugung.</p>
+      <p>Sie ist zugleich die annahmenreichste Kennzahl überhaupt — jede Systemgrenze, die man
+        anders zieht, verschiebt sie.</p>
+      <a class="gl-back" href="#">↩ zurück zur Textstelle</a>
+    </div>
+  </details>
+
+  <details class="gloss" id="gl-wacc"><summary>WACC · Kapitalkostensatz</summary>
+    <div class="gloss-body">
+      <p>Der gewichtete durchschnittliche Kapitalkostensatz — der Zinssatz, zu dem ein Projekt
+        Fremd- und Eigenkapital bekommt. Er ist der stärkste einzelne Hebel auf die Kosten
+        kapitalintensiver Anlagen, weil sich die gesamte Investition über Jahrzehnte verzinst.</p>
+      <p>In dieser Story wird er als Bandbreite von 3 bis 9 Prozent geführt, nicht als
+        „realistischer" Punktwert. Der Unterschied macht bei 60 Jahren Laufzeit einen Faktor
+        <b class="v" data-v="shared.wacc_sensitivity.wacc_effect_at_60y.factor_3pct_to_10pct" data-d="2"></b>
+        auf den Kapitalkostenanteil aus.</p>
+      <a class="gl-back" href="#">↩ zurück zur Textstelle</a>
+    </div>
+  </details>
+
+  <details class="gloss" id="gl-crf"><summary>CRF · Annuitätenfaktor</summary>
+    <div class="gloss-body">
+      <p>Der Kapitalwiedergewinnungsfaktor rechnet eine einmalige Investition in gleich hohe
+        Jahresraten um — wie bei einem Annuitätendarlehen. Er hängt nur vom Zinssatz und der
+        Laufzeit ab.</p>
+      <div class="gloss-formula" id="crf-formula">CRF = r · (1+r)^n / ((1+r)^n − 1)</div>
+      <p>Bei 5 Prozent und 60 Jahren Laufzeit beträgt er
+        <b class="v" data-v="shared.crf_by_wacc_pct.5" data-d="5"></b>,
+        bei 9 Prozent <b class="v" data-v="shared.crf_by_wacc_pct.9" data-d="5"></b>.
+        Längere Laufzeiten helfen kaum: 60 gegen 80 Jahre ändern die Kosten um rund 3 Prozent.</p>
+      <a class="gl-back" href="#">↩ zurück zur Textstelle</a>
+    </div>
+  </details>
+
+  <details class="gloss" id="gl-dunkelflaute"><summary>Dunkelflaute</summary>
+    <div class="gloss-body">
+      <p>Eine längere Phase mit gleichzeitig sehr geringer Wind- und Solareinspeisung, typischerweise
+        im Winter bei Hochdrucklage. Sie ist der Grund, warum ein Stromsystem mit hohem Anteil
+        wetterabhängiger Erzeugung gesicherte Leistung, Speicher oder Importe braucht — und warum
+        die Systemkosten nicht einfach die Erzeugungskosten sind.</p>
+      <p>Batteriespeicher überbrücken zuverlässig Stunden, nicht Tage. Für mehrtägige Ereignisse
+        bleiben Gas- oder Wasserstoffkraftwerke, saisonale Speicher oder Import.</p>
+      <a class="gl-back" href="#">↩ zurück zur Textstelle</a>
+    </div>
+  </details>
+
+  <details class="gloss" id="gl-mc"><summary>Monte-Carlo-Simulation</summary>
+    <div class="gloss-body">
+      <p>Statt mit einem besten Schätzwert zu rechnen, zieht man jeden unsicheren Parameter
+        tausendfach zufällig aus seiner dokumentierten Spanne und rechnet das Modell jedes Mal neu.
+        Ergebnis ist keine Zahl, sondern eine Verteilung — man sieht, wie breit das Ergebnis
+        streut und ob zwei Szenarien sich überhaupt unterscheiden lassen.</p>
+      <p>Hier: <b class="v" data-v="shared.monte_carlo.meta.n_draws" data-d="0"></b> Ziehungen je
+        Szenario, Dreiecksverteilung zwischen Minimum und Maximum, Modus auf dem Zentralwert,
+        <b class="v" data-v="shared.monte_carlo.meta.drawn_parameters" data-d="0"></b> gezogene Parameter.
+        Wichtige Einschränkung: Die Parameter werden <b>unabhängig</b> gezogen. In der Realität
+        sind sie korreliert — steigende Zinsen und steigende Materialpreise treffen alle
+        Technologien gleichzeitig. Die echte Streuung dürfte deshalb breiter sein als die hier
+        gezeigte.</p>
+      <a class="gl-back" href="#">↩ zurück zur Textstelle</a>
+    </div>
+  </details>
+</section>
+
+<!-- ================= QUELLEN ================= -->
+<section class="prose tight">
+  <div class="kicker">Anhang · Quellen</div>
+  <h2>Jede Zahl mit Herkunft und Konfidenzstufe</h2>
+  <p><span class="conf conf-A">A</span> mehrfach unabhängig belegt oder institutionelle
+    Primärquelle · <span class="conf conf-B">B</span> einfach belegt, plausibel, nicht
+    gegengeprüft · <span class="conf conf-C">C</span> kursiert, Primärquelle nicht prüfbar ·
+    <span class="conf conf-M">M</span> Setzung, keine Quelle — als Annahme gekennzeichnet.</p>
+</section>
+<div class="srclist" id="srclist"></div>
+
+<div class="disclaimer">
+  <p><b>Disclaimer.</b> Diese Seite ist eine private, nicht-kommerzielle Analyse und keine Anlage-,
+  Rechts- oder Energieberatung. Alle Berechnungen sind eigene Rechnungen auf Basis der angegebenen
+  Quellen; für Richtigkeit und Vollständigkeit wird keine Gewähr übernommen. Die zugrunde liegende
+  Studie wird zitiert und geprüft, nicht wiedergegeben — die Prüfung stützt sich auf eine
+  Sekundärwiedergabe, weil das Original in dieser Arbeitsumgebung nicht abrufbar war.
+  Modellergebnisse tragen das Label der verwendeten Datenbasis; solange dort ein Halbjahresprofil
+  steht, sind alle daraus abgeleiteten Mengen hochgerechnet. Stand: v 0.1 (Entwurf).</p>
+</div>
+
+<div class="home-pill-wrap">
+  <a class="home-pill" href="index.html" rel="noopener">← Daten-WG Knowledge Kitchen</a>
+</div>
+
+<footer>
+  Analyse &amp; Visualisierung: Daten-WG · Michael Tenner<br>
+  Daten und Modell: <span id="foot-files"></span><br>
+  Alle Zahlen dieser Seite stammen aus <code>strommix/data/story_data.json</code>, erzeugt von
+  <code>strommix/scripts/build_story_data.py</code> aus dem Freigabe-Dossier
+  <code>research/story_claims_check.md</code><br>
+  Vollständige Analyse: <a href="whitepaper-strommix.html">whitepaper-strommix.html</a><br>
+  Kontakt: <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a>
+</footer>
+
+<script>
+/* ================================================================
+   0 · Helfer
+================================================================ */
+const NS = "http://www.w3.org/2000/svg";
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+function el(tag, attrs, parent){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) if (attrs[k] !== undefined && attrs[k] !== null) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function txt(parent, x, y, s, attrs){
+  const t = el("text", Object.assign({x:x, y:y}, attrs || {}), parent);
+  t.textContent = s;
+  return t;
+}
+const lin = (d0,d1,r0,r1) => v => r0 + (v-d0)/(d1-d0)*(r1-r0);
+function nf(v, d){
+  if (v === null || v === undefined || isNaN(v)) return "–";
+  return Number(v).toLocaleString("de-DE", {minimumFractionDigits:d, maximumFractionDigits:d});
+}
+function pathFrom(pts){
+  return pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join("");
+}
+function prepDraw(p){
+  const L = p.getTotalLength();
+  p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
+  p.classList.add("draw");
+  return p;
+}
+const tipEl = $("#tip");
+function showTip(html, x, y){
+  tipEl.innerHTML = html; tipEl.style.opacity = 1;
+  const w = tipEl.offsetWidth, vw = window.innerWidth;
+  tipEl.style.left = Math.max(6, Math.min(x+14, vw-w-10)) + "px";
+  tipEl.style.top  = Math.max(6, y-46) + "px";
+}
+function hideTip(){ tipEl.style.opacity = 0; }
+function hover(node, html){
+  node.addEventListener("mousemove", e => showTip(html, e.clientX, e.clientY));
+  node.addEventListener("mouseleave", hideTip);
+  node.style.cursor = "crosshair";
+}
+
+const W = 1060, H = 600, M = {t:82, r:46, b:56, l:100};
+
+function yAxis(g, y, ticks, dec){
+  ticks.forEach(v => {
+    const yy = y(v);
+    el("line", {x1:M.l, x2:W-M.r, y1:yy, y2:yy, stroke:"var(--grid)", "stroke-width":1}, g);
+    txt(g, M.l-10, yy+4, nf(v, dec||0), {"text-anchor":"end", class:"sm"});
+  });
+}
+function xAxisNum(g, x, ticks, yPos, dec){
+  ticks.forEach(v => {
+    const xx = x(v);
+    el("line", {x1:xx, x2:xx, y1:M.t, y2:yPos, stroke:"var(--grid)", "stroke-width":1}, g);
+    txt(g, xx, yPos+22, nf(v, dec||0), {"text-anchor":"middle", class:"sm"});
+  });
+}
+
+/* ================================================================
+   1 · Daten laden
+================================================================ */
+let D = null;
+const DATA_URL = "strommix/data/story_data.json";
+
+function get(path, root){
+  let o = root || D;
+  if (path === undefined || path === null || path === "") return o;
+  const parts = String(path).split(".");
+  for (let i=0;i<parts.length;i++){
+    if (o === undefined || o === null) return undefined;
+    let k = parts[i];
+    const m = k.match(/^(.*?)((\[\d+\])+)$/);
+    if (m){
+      if (m[1]) o = o[m[1]];
+      const idx = m[2].match(/\d+/g);
+      for (const n of idx){ if (o === undefined || o === null) return undefined; o = o[+n]; }
+    } else {
+      o = o[k];
+    }
+  }
+  return o;
+}
+
+/* Zahl-Platzhalter im Markup fuellen. Kein Erzaehlwert steht hart im HTML. */
+function hydrate(scope){
+  (scope || document).querySelectorAll("[data-v]").forEach(n => {
+    if (n.dataset.done) return;
+    const raw = get(n.dataset.v);
+    const d = n.dataset.d === undefined ? 0 : +n.dataset.d;
+    const unit = n.dataset.unit || "";
+    const fmt = n.dataset.fmt || "";
+    let out;
+    if (raw === undefined || raw === null){ out = "–"; }
+    else if (fmt === "range" && Array.isArray(raw)) out = nf(raw[0], d) + "–" + nf(raw[1], d);
+    else if (fmt === "minmax") out = nf(raw.min, d) + "–" + nf(raw.max, d);
+    else if (fmt === "p5p95") out = "[" + nf(raw.p5, d) + "–" + nf(raw.p95, d) + "]";
+    else if (fmt === "years"){
+      const s = String(raw.statement || "");
+      const m = s.match(/(\d+)\s*[–-]\s*(\d+)\s*Jahre/);
+      out = m ? (m[1] + " bis " + m[2] + " Jahren") : s;
+    }
+    else if (n.dataset.pct) out = nf(raw*100, d) + " %";
+    else out = nf(raw, d);
+    n.textContent = out + (fmt === "years" ? "" : unit);
+    n.dataset.done = "1";
+  });
+  (scope || document).querySelectorAll("[data-t]").forEach(n => {
+    if (n.dataset.done) return;
+    const v = get(n.dataset.t);
+    if (typeof v === "string") n.textContent = v;
+    n.dataset.done = "1";
+  });
+}
+
+function confBadge(k){
+  if (!k) return "";
+  return '<span class="conf conf-' + k + '" title="Konfidenzstufe ' + k + '">' + k + "</span>";
+}
+
+/* Quellen-Chips mit Popover (Mechanik adaptiert aus whitepaper-strommix.js) */
+function buildCitations(){
+  const pop = $("#pop");
+  const idx = {};
+  D.sources.forEach(s => { idx[s.id] = s; });
+  $$("sup.cite").forEach(node => {
+    if (node.dataset.done) return;
+    node.dataset.done = "1";
+    const src = idx[node.dataset.src];
+    if (!src){ node.remove(); return; }
+    node.textContent = "[" + src.nr + "]";
+    node.setAttribute("tabindex", "0");
+    node.setAttribute("role", "button");
+    node.setAttribute("aria-label", "Quelle " + src.nr + ": " + src.title);
+    const open = (e) => {
+      pop.innerHTML = "<b>[" + src.nr + "] " + src.title + "</b>" +
+        (src.publisher || "") + (src.date ? " · " + src.date : "") + " " + confBadge(src.confidence) +
+        (src.note ? "<em>" + src.note + "</em>" : "<br>") +
+        (src.url ? '<a href="' + src.url + '" target="_blank" rel="noopener">' + src.url + "</a><br>" : "") +
+        '<span style="font-size:11px;color:var(--muted)">Zugriff ' + (src.accessed || "–") +
+        (src.dossier ? " · " + src.dossier : "") + "</span>";
+      pop.classList.add("on");
+      const r = node.getBoundingClientRect();
+      const pw = Math.min(360, window.innerWidth - 24);
+      let left = r.left + window.scrollX;
+      if (left + pw > window.innerWidth - 12) left = window.innerWidth - pw - 12;
+      pop.style.left = Math.max(8, left) + "px";
+      pop.style.top = (r.bottom + window.scrollY + 6) + "px";
+      e.stopPropagation();
+    };
+    node.addEventListener("click", open);
+    node.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(e); }
+    });
+  });
+  document.addEventListener("click", () => pop.classList.remove("on"));
+}
+
+/* Halbjahres-Label an jede simulationsabgeleitete Zahl */
+function applySimLabels(){
+  const pm = D.shared.profiles_meta;
+  if (pm.data_completeness === "FULL"){ $$(".simlabel").forEach(n => n.remove()); return; }
+  $$(".simlabel").forEach(n => {
+    n.textContent = "◐ " + D.shared.monte_carlo.meta.profiles.label;
+    n.title = pm.result_label + " · " + D.shared.monte_carlo.meta.profiles.hours +
+      " von 8.784 Jahresstunden; Mengen über den Lastanteil des Zeitraums hochgerechnet.";
+  });
+}
+
+/* Gegenpositions-Kaesten aus den Pflicht-Elementen des Dossiers */
+function renderCounterpositions(){
+  const byId = {};
+  D.must_show_counterpositions.forEach(c => { byId[c.id] = c; });
+  $$("[data-cp]").forEach(box => {
+    const c = byId[box.dataset.cp];
+    if (!c){ box.remove(); return; }
+    box.innerHTML =
+      '<div class="kasten-kicker">' +
+        (box.classList.contains("gegen") ? "Gegenposition · Pflicht-Element" : "Fairness · Pflicht-Element") +
+        confBadge(c.confidence) + "</div>" +
+      "<p>" + c.text + "</p>";
+  });
+}
+
+/* ================================================================
+   2 · Akt 1 — Wie eine Systemkostenzahl entsteht
+================================================================ */
+function crf(r, n){ return r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1); }
+
+function buildAct1(){
+  const svg = $("#svg1");
+  const T = D.shared.ges_reference.technologies;
+  const wacc = D.shared.ges_reference.methodology.wacc;
+  const keys = ["pv","wind_onshore","wind_offshore","nuclear"];
+  const labels = {pv:"Photovoltaik", wind_onshore:"Wind an Land",
+                  wind_offshore:"Wind auf See", nuclear:"Kernkraft"};
+
+  const rows = keys.map(k => {
+    const t = T[k];
+    const ann = t.capex_eur_kw * crf(wacc, t.lifetime_years) + t.capex_eur_kw * t.opex_pct;
+    const lc  = ann / (t.full_load_hours/1000) + (t.fuel_cost_eur_mwh || 0);
+    return {key:k, label:labels[k], capex:t.capex_eur_kw, ann:ann, lcoe:t.lcoe, lcoeCalc:lc, t:t};
+  });
+  // Selbstpruefung: rekonstruierte LCOE gegen die Studienwerte
+  const maxDev = Math.max.apply(null, rows.map(r => Math.abs(r.lcoeCalc - r.lcoe)/r.lcoe));
+  console.log("[story] Akt 1 – LCOE-Rekonstruktion, max. Abweichung " + (maxDev*100).toFixed(3) + " %");
+
+  const scenes = D.shared.ges_reference.scenario_order.map(id => {
+    const s = D.shared.ges_reference.scenarios[id];
+    return {label:s.name.replace("(inkl. Kernkraft)","· Kernkraft").replace("80% EE","80 % EE")
+                        .replace("mehr H2","mehr H₂").replace("100% Erneuerbare","100 % Erneuerbare"),
+            v:s.lscoe, gw:s.installed_gw};
+  });
+
+  function barScene(cls, items, ticks, unit, dec, accentIdx){
+    const g = el("g", {class:"scene " + cls}, svg);
+    const yBot = H - M.b - 26;
+    const y = lin(0, ticks[ticks.length-1], yBot, M.t+40);
+    yAxis(g, y, ticks, 0);
+    el("line", {x1:M.l, x2:W-M.r, y1:y(0), y2:y(0), class:"axisline", stroke:"var(--axis)"}, g);
+    txt(g, W-M.r, M.t+26, unit, {"text-anchor":"end", fill:"var(--muted)", class:"sm"});
+    const n = items.length;
+    const slot = (W-M.r-M.l)/n;
+    const bw = Math.min(112, slot*0.52);
+    items.forEach((it,i) => {
+      const cx = M.l + slot*(i+0.5);
+      const yy = y(it.v);
+      const r = el("rect", {x:cx-bw/2, y:yy, width:bw, height:Math.max(1, y(0)-yy),
+        fill:(accentIdx !== undefined && i === accentIdx) ? "var(--red)" : "var(--blue)",
+        opacity:.92, class:"grow"}, g);
+      hover(r, "<b>" + it.label + "</b><br>" + nf(it.v, dec) + " " + unit + (it.sub ? "<br><span class='l'>" + it.sub + "</span>" : ""));
+      txt(g, cx, yy-10, nf(it.v, dec), {"text-anchor":"middle", class:"lab-strong"});
+      const words = it.label.split(" ");
+      let line = "", lines = [];
+      words.forEach(w => {
+        if ((line + " " + w).trim().length > 14){ lines.push(line.trim()); line = w; }
+        else line = (line + " " + w).trim();
+      });
+      if (line) lines.push(line);
+      lines.forEach((L,j) => txt(g, cx, yBot+26+j*23, L, {"text-anchor":"middle", class:"sm"}));
+      if (it.sub) txt(g, cx, yBot+26+lines.length*23+2, it.sub,
+        {"text-anchor":"middle", class:"sm", fill:"var(--muted)"});
+    });
+    return g;
+  }
+
+  barScene("sc-0", rows.map(r => ({label:r.label, v:r.capex})),
+           [0,1500,3000,4500,6000], "€/kW", 0, 3);
+  barScene("sc-1", rows.map(r => ({label:r.label, v:r.ann,
+              sub:"CRF " + nf(crf(wacc, r.t.lifetime_years), 4)})),
+           [0,200,400,600,800], "€/kW und Jahr", 0, 3);
+  barScene("sc-2", rows.map(r => ({label:r.label, v:r.lcoe,
+              sub:nf(r.t.full_load_hours,0) + " h"})),
+           [0,40,80,120,160], "€/MWh", 1, 3);
+  barScene("sc-3", scenes.map(s => ({label:s.label, v:s.v, sub:nf(s.gw,0) + " GW"})),
+           [0,100,200,300,400], "€/MWh · Systemebene", 0, 0);
+
+  // Tabellen-Zwilling
+  let html = "<tr><th>Technologie</th><th class='num'>CAPEX €/kW</th><th class='num'>Opex %/a</th>" +
+             "<th class='num'>Volllaststunden</th><th class='num'>Laufzeit a</th><th class='num'>LCOE €/MWh</th></tr>";
+  rows.forEach(r => {
+    html += "<tr><td>" + r.label + "</td><td class='num'>" + nf(r.capex,0) + "</td><td class='num'>" +
+      nf(r.t.opex_pct*100,0) + "</td><td class='num'>" + nf(r.t.full_load_hours,0) + "</td><td class='num'>" +
+      nf(r.t.lifetime_years,0) + "</td><td class='num'>" + nf(r.lcoe,1) + "</td></tr>";
+  });
+  scenes.forEach(s => {
+    html += "<tr><td>Szenario · " + s.label + "</td><td class='num'>–</td><td class='num'>–</td>" +
+      "<td class='num'>–</td><td class='num'>" + nf(s.gw,0) + " GW</td><td class='num'>" + nf(s.v,0) + "</td></tr>";
+  });
+  $("#tbl1").innerHTML = html;
+
+  const titles = ["Akt 1 · Schritt 1 — die Investition",
+                  "Akt 1 · Schritt 2 — verrentet plus Betrieb",
+                  "Akt 1 · Schritt 3 — geteilt durch die Volllaststunden",
+                  "Akt 1 · Schritt 4 — auf Systemebene"];
+  const subs = ["Investitionskosten je Kilowatt · Annahmen der Studie",
+                "Annuität nach CRF-Formel + Betriebskosten · WACC " + nf(wacc*100,0) + " %",
+                "Stromgestehungskosten je Megawattstunde · Studienwerte reproduziert",
+                "Systemkosten der vier Studienszenarien · inklusive Speicher, Backup und Netz"];
+  return { step(i){
+    $("#act1").dataset.step = i;
+    if (i >= 0){ $("#t1").textContent = titles[i]; $("#s1").textContent = subs[i]; }
+  }};
+}
+
+/* ================================================================
+   3 · Akt 2 — Der Realitäts-Check
+================================================================ */
+function buildAct2(){
+  const svg = $("#svg2");
+  const B = D.shared.lcoe_benchmarks;
+  const T = D.shared.ges_reference.technologies;
+
+  /* --- Szene PV und Wind: Zeilen auf einer €/MWh-Achse --- */
+  function rowScene(cls, rows, xmax){
+    const g = el("g", {class:"scene " + cls}, svg);
+    const x = lin(0, xmax, M.l+130, W-M.r-20);
+    const ticks = []; for (let v=0; v<=xmax; v+=20) ticks.push(v);
+    const yBase = H-M.b-6;
+    ticks.forEach(v => {
+      el("line", {x1:x(v), x2:x(v), y1:M.t, y2:yBase, stroke:"var(--grid)", "stroke-width":1}, g);
+      txt(g, x(v), yBase+22, nf(v,0), {"text-anchor":"middle", class:"sm"});
+    });
+    txt(g, W-M.r-20, yBase+42, "€/MWh", {"text-anchor":"end", class:"sm", fill:"var(--muted)"});
+    const top = M.t + 26, gap = (yBase - top - 20) / rows.length;
+    rows.forEach((r,i) => {
+      const yy = top + gap*(i+0.5);
+      const col = r.accent ? "var(--red)" : "var(--blue)";
+      txt(g, M.l+118, yy+5, r.label, {"text-anchor":"end", class:"sm",
+          fill: r.accent ? "var(--red-soft)" : "var(--blue-soft)"});
+      if (r.range){
+        const x0 = x(r.range[0]), x1 = x(r.range[1]);
+        const rect = el("rect", {x:x0, y:yy-11, width:Math.max(2,x1-x0), height:22, fill:col,
+                                 opacity:.30, class:"growx"}, g);
+        el("line", {x1:x0, x2:x0, y1:yy-13, y2:yy+13, stroke:col, "stroke-width":2}, g);
+        el("line", {x1:x1, x2:x1, y1:yy-13, y2:yy+13, stroke:col, "stroke-width":2}, g);
+        txt(g, x1+10, yy+5, nf(r.range[0],r.dec||0) + "–" + nf(r.range[1],r.dec||0),
+            {class:"sm", fill:"var(--ink-2)"});
+        hover(rect, "<b>" + r.label + "</b><br>" + nf(r.range[0],1) + " bis " + nf(r.range[1],1) +
+              " €/MWh" + (r.note ? "<br><span class='l'>" + r.note + "</span>" : ""));
+      }
+      if (r.point !== undefined && r.point !== null){
+        const px = x(r.point);
+        const d = el("path", {d:"M" + px + " " + (yy-13) + "L" + (px+11) + " " + yy +
+                                "L" + px + " " + (yy+13) + "L" + (px-11) + " " + yy + "Z",
+                              fill:col, stroke:"var(--surface)", "stroke-width":1.5}, g);
+        txt(g, px, yy-20, nf(r.point, r.dec===undefined?1:r.dec), {"text-anchor":"middle", class:"lab-strong"});
+        hover(d, "<b>" + r.label + "</b><br>" + nf(r.point,1) + " €/MWh" +
+              (r.note ? "<br><span class='l'>" + r.note + "</span>" : ""));
+      }
+    });
+    return g;
+  }
+
+  rowScene("sc-0", [
+    {label:"Studie · Annahme", point:T.pv.lcoe, dec:1, note:"CAPEX " + nf(T.pv.capex_eur_kw,0) +
+      " €/kW, " + nf(T.pv.full_load_hours,0) + " h"},
+    {label:"Fraunhofer ISE 2024", range:[B.pv_freiflaeche.reference.min, B.pv_freiflaeche.reference.max],
+      accent:true, note:"Freiflächen-PV, Stromgestehungskosten"},
+    {label:"BNetzA-Zuschläge 03/2026", range:[B.pv_freiflaeche.auction.min, B.pv_freiflaeche.auction.max],
+      point:B.pv_freiflaeche.auction.mid, accent:true, dec:1, note:B.pv_freiflaeche.auction.note},
+    {label:"ISE-Projektion 2045", range:[B.pv_freiflaeche.forecast_2045.min, B.pv_freiflaeche.forecast_2045.max],
+      accent:true, note:"technologiespezifische Lernraten"}
+  ], 140);
+
+  const wa = B.wind_onshore.auction[1], sf = B.wind_onshore.sensitivity_flh;
+  rowScene("sc-1", [
+    {label:"Studie · " + nf(sf[0].flh,0) + " h", point:sf[0].lcoe_eur_mwh, dec:1, note:sf[0].note},
+    {label:"Neuanlagen · " + nf(sf[1].flh,0) + " h", point:sf[1].lcoe_eur_mwh, accent:true, dec:1, note:sf[1].note},
+    {label:"gute Standorte · " + nf(sf[2].flh,0) + " h", point:sf[2].lcoe_eur_mwh, accent:true, dec:1, note:sf[2].note},
+    {label:"Fraunhofer ISE 2024", range:[B.wind_onshore.reference.min, B.wind_onshore.reference.max],
+      accent:true, note:"Wind an Land, Bandbreite über Standorte"},
+    {label:"BNetzA-Zuschläge 05/2026", range:[wa.min, wa.max], point:wa.weighted_avg, accent:true, dec:1,
+      note:nf(wa.awarded_mw,0) + " MW bezuschlagt, mengengewichtet"}
+  ], 140);
+
+  /* --- Szene Kernkraft: 13 Referenzprojekte --- */
+  const g = el("g", {class:"scene sc-2"}, svg);
+  const projects = D.shared.nuclear_reference_projects.slice().sort((a,b) => a.capex_eur_kw - b.capex_eur_kw);
+  const xmax = 18000;
+  const LX = 348;                      // rechte Kante der Zeilenbeschriftung
+  const x = lin(0, xmax, LX+18, W-M.r-40);
+  const yBase = H-M.b-4;
+  const clusterTop = M.t + 26;
+  for (let v=0; v<=xmax; v+=3000){
+    el("line", {x1:x(v), x2:x(v), y1:clusterTop-16, y2:yBase, stroke:"var(--grid)", "stroke-width":1}, g);
+    txt(g, x(v), yBase+22, nf(v,0), {"text-anchor":"middle", class:"sm"});
+  }
+  txt(g, W-M.r-40, yBase+42, "€/kW · Preisbasis und Abgrenzung je Projekt verschieden",
+      {"text-anchor":"end", class:"sm", fill:"var(--muted)"});
+
+  const gx0 = lin(0, xmax, LX+18, W-M.r-40)(T.nuclear.capex_eur_kw);
+  el("line", {x1:gx0, x2:gx0, y1:clusterTop-16, y2:yBase, stroke:"var(--ink)", "stroke-width":1.5,
+              "stroke-dasharray":"6 4", opacity:.85}, g);
+  txt(g, gx0+8, M.t+104, "Annahme der Studie " + nf(T.nuclear.capex_eur_kw,0) + " €/kW",
+      {class:"sm", fill:"var(--ink)"});
+
+  const top = M.t + 116, gap = (yBase - top - 4) / projects.length;
+  const SCOPE_SHORT = {overnight_only:"OCC", overnight_likely:"OCC", epc_only:"EPC",
+    total_project:"gesamt", total_incl_owners:"gesamt", total_incl_idc:"+Fin.",
+    total_incl_financing:"+Fin.", total_project_nominal:"nominal", unclear:"?"};
+  const base = l => l.replace(/\s*\([^)]*\)/g, "").trim();
+  // Nur wo die Kurzform mehrdeutig waere, wird die Kostenabgrenzung angehaengt.
+  const dupes = {};
+  projects.forEach(p => { dupes[base(p.label)] = (dupes[base(p.label)] || 0) + 1; });
+  const shortLabel = p => base(p.label) +
+    (dupes[base(p.label)] > 1 ? " · " + (SCOPE_SHORT[p.cost_scope] || p.cost_scope) : "");
+  const SCOPE = {overnight_only:"Overnight", overnight_likely:"Overnight (wahrsch.)",
+                 epc_only:"nur EPC-Vertrag", total_project:"Gesamtprojekt",
+                 total_incl_owners:"inkl. Eigentümerkosten", total_incl_idc:"inkl. Finanzierung",
+                 total_incl_financing:"inkl. Finanzierung", total_project_nominal:"Gesamtprojekt, nominal",
+                 unclear:"unklar"};
+  projects.forEach((p,i) => {
+    const yy = top + gap*(i+0.5);
+    const low = p.capex_eur_kw < 6000;
+    const col = low ? "var(--blue)" : "var(--red)";
+    txt(g, LX, yy+4, shortLabel(p) + " · " + p.country, {"text-anchor":"end", class:"sm",
+        fill: low ? "var(--blue-soft)" : "var(--red-soft)"});
+    el("line", {x1:x(0), x2:x(p.capex_eur_kw), y1:yy, y2:yy, stroke:col, "stroke-width":1, opacity:.25}, g);
+    const c = el("circle", {cx:x(p.capex_eur_kw), cy:yy, r:6, fill:col, stroke:"var(--surface)", "stroke-width":1.5}, g);
+    txt(g, x(p.capex_eur_kw)+13, yy+4, nf(p.capex_eur_kw,0), {class:"sm", fill:"var(--ink-2)"});
+    hover(c, "<b>" + p.label + "</b><br>" + nf(p.capex_eur_kw,0) + " €/kW · " +
+      (SCOPE[p.cost_scope] || p.cost_scope) + "<br><span class='l'>" + nf(p.capacity_mw,0) + " MW, " +
+      p.units + " Block(e) · Konfidenz " + p.confidence + "</span>");
+  });
+  // GES-Annahme als Referenzlinie
+  // Cluster-Baender (Schritt 4) - drei eigene Zeilen ueber den Projekten
+  const cg = el("g", {class:"nuc-cluster"}, g);
+  const clusters = D.nuclear.clusters;
+  clusters.forEach((c,i) => {
+    const x0 = x(c.capex_eur_kw[0]), x1 = x(c.capex_eur_kw[1]);
+    const yy = clusterTop + i*28;
+    const col = i === 2 ? "var(--red)" : "var(--blue)";
+    txt(cg, LX, yy+4, c.label, {"text-anchor":"end", class:"sm",
+      fill: i === 2 ? "var(--red-soft)" : "var(--blue-soft)"});
+    const r = el("rect", {x:x0, y:yy-8, width:Math.max(2,x1-x0), height:16, fill:col, opacity:.24,
+                          stroke:col, "stroke-width":1}, cg);
+    hover(r, "<b>" + c.label + "</b><br>" + nf(c.capex_eur_kw[0],0) + "–" + nf(c.capex_eur_kw[1],0) +
+      " €/kW · Konfidenz " + c.confidence);
+    txt(cg, x1+10, yy+4, nf(c.capex_eur_kw[0],0) + "–" + nf(c.capex_eur_kw[1],0),
+      {class:"sm", fill:"var(--ink-2)"});
+  });
+
+  // Tabellen-Zwilling
+  let html = "<tr><th>Projekt</th><th>Land</th><th class='num'>€/kW</th><th>Abgrenzung</th><th>Konf.</th></tr>";
+  projects.forEach(p => {
+    html += "<tr><td>" + p.label + "</td><td>" + p.country + "</td><td class='num'>" +
+      nf(p.capex_eur_kw,0) + "</td><td>" + (SCOPE[p.cost_scope] || p.cost_scope) + "</td><td>" +
+      p.confidence + "</td></tr>";
+  });
+  $("#tbl2").innerHTML = html;
+
+  const titles = ["Akt 2 · Photovoltaik — Annahme gegen Markt",
+                  "Akt 2 · Wind an Land — der Volllaststunden-Hebel",
+                  "Akt 2 · Kernkraft — 13 Referenzprojekte",
+                  "Akt 2 · Kernkraft — drei Cluster, beide Richtungen"];
+  const subs = ["Stromgestehungskosten Freiflächen-PV · €/MWh",
+                "Stromgestehungskosten Wind an Land · €/MWh",
+                "Investitionskosten je Kilowatt · sortiert, Abgrenzung im Tooltip",
+                "Asien/Golf · EU-Serie · westliches Erstprojekt"];
+  return { step(i){
+    $("#act2").dataset.step = i;
+    if (i >= 0){ $("#t2").textContent = titles[i]; $("#s2").textContent = subs[i]; }
+  }};
+}
+
+/* ================================================================
+   4 · Akt 3 — Die Geschichtsstunde
+================================================================ */
+function buildAct3(){
+  const svg = $("#svg3");
+  const TS = D.nuclear_history_timeseries;
+  const g = el("g", {}, svg);
+  const x = lin(1962, 2050, M.l, W-M.r-16);
+  const y = lin(0, 18000, H-M.b, M.t+40);
+
+  yAxis(g, y, [0,3000,6000,9000,12000,15000,18000], 0);
+  el("line", {x1:M.l, x2:W-M.r-16, y1:y(0), y2:y(0), class:"axisline", stroke:"var(--axis)"}, g);
+  for (let yr=1970; yr<=2050; yr+=10)
+    txt(g, x(yr), H-M.b+24, yr, {"text-anchor":"middle", class:"sm"});
+
+  const LAYER = {
+    us_1960s:"l-early", us_1970:"l-early",
+    us_1968_1978_cohort:"l-cohort",
+    fr_cp0_cp1:"l-france", fr_fleet_excl_n4:"l-france", fr_n4:"l-france", de_isar2:"l-france",
+    ges_assumption_2045:"l-modern", epr2:"l-modern", dukovany2:"l-modern", lubiatowo:"l-modern",
+    sizewell_c:"l-modern", vogtle:"l-modern", flamanville3:"l-modern", hinkley_c:"l-modern"
+  };
+  const layers = {};
+  ["l-early","l-cohort","l-france","l-modern"].forEach(k => { layers[k] = el("g", {class:"layer " + k}, g); });
+
+  const SCOPE = {overnight:"Overnight", epc_only:"nur EPC-Vertrag", total_project:"Gesamtprojekt",
+                 total_incl_financing:"inkl. Finanzierung", unbekannt:"unbekannt", unklar:"unklar",
+                 "overnight bis inkl. Finanzierung":"Overnight bis inkl. Finanzierung",
+                 "total_project, laufende Preise":"Gesamtprojekt, laufende Preise"};
+
+  TS.points.forEach(p => {
+    const lay = layers[LAYER[p.id] || "l-modern"];
+    const cool = ["us_1960s","us_1970","fr_cp0_cp1","ges_assumption_2045","epr2","dukovany2"].indexOf(p.id) >= 0;
+    const col = cool ? "var(--blue)" : "var(--red)";
+    const xm = x((p.period_start + p.period_end)/2);
+    const x0 = x(p.period_start), x1 = x(p.period_end);
+    const tipHtml = "<b>" + p.label + "</b><br>" +
+      (p.capex_eur_kw_range ? nf(p.capex_eur_kw_range[0],0) + "–" + nf(p.capex_eur_kw_range[1],0)
+                            : nf(p.capex_eur_kw,0)) + " €/kW · " +
+      (SCOPE[p.scope] || p.scope) + "<br><span class='l'>Konfidenz " + p.confidence +
+      (p.original ? " · Original: " + p.original : "") + "</span>";
+    let node;
+    if (p.capex_eur_kw_range){
+      const yTop = y(p.capex_eur_kw_range[1]), yBot = y(p.capex_eur_kw_range[0]);
+      const wRect = Math.max(9, x1-x0);
+      node = el("rect", {x:(x1-x0) > 9 ? x0 : xm-4.5, y:yTop, width:wRect,
+        height:Math.max(3, yBot-yTop), fill:col, opacity:.3, stroke:col, "stroke-width":1.2}, lay);
+      if (p.capex_eur_kw_midband){
+        el("rect", {x:(x1-x0) > 9 ? x0 : xm-4.5, y:y(p.capex_eur_kw_midband[1]), width:wRect,
+          height:Math.max(2, y(p.capex_eur_kw_midband[0]) - y(p.capex_eur_kw_midband[1])),
+          fill:col, opacity:.42}, lay);
+      }
+    } else {
+      node = el("circle", {cx:xm, cy:y(p.capex_eur_kw), r:6.5, fill:col,
+        stroke:"var(--surface)", "stroke-width":1.5}, lay);
+      if (p.period_end - p.period_start > 2)
+        el("line", {x1:x0, x2:x1, y1:y(p.capex_eur_kw), y2:y(p.capex_eur_kw), stroke:col,
+          "stroke-width":1.5, opacity:.55}, lay);
+    }
+    if (p.confidence === "C") node.setAttribute("stroke-dasharray", "4 3");
+    hover(node, tipHtml);
+  });
+
+  // Frankreich-Pfeil: CP0/CP1 -> N4, Faktor 3,5
+  const fr0 = TS.points.find(p => p.id === "fr_cp0_cp1");
+  const fr1 = TS.points.find(p => p.id === "fr_n4");
+  if (fr0 && fr1){
+    const ax0 = x((fr0.period_start+fr0.period_end)/2), ay0 = y(fr0.capex_eur_kw_range[1]);
+    const ax1 = x((fr1.period_start+fr1.period_end)/2), ay1 = y(fr1.capex_eur_kw);
+    const annX = x(1983), annY = y(7600);
+    el("path", {d:"M" + ax0 + " " + ay0 + " Q " + ((ax0+ax1)/2) + " " + (ay1-60) +
+      " " + ax1 + " " + (ay1-11), fill:"none", stroke:"var(--red-soft)", "stroke-width":2,
+      "stroke-dasharray":"5 4"}, layers["l-france"]);
+    el("path", {d:"M" + (ax1-8) + " " + (ay1-12) + " L " + (annX+130) + " " + (annY+26),
+      fill:"none", stroke:"var(--red-soft)", "stroke-width":1, opacity:.5}, layers["l-france"]);
+    txt(layers["l-france"], annX, annY, "Frankreichs Serienbau · real ×3,5",
+      {class:"lab-red"});
+    txt(layers["l-france"], annX, annY+18, "„negative learning by doing“",
+      {class:"sm", fill:"var(--muted)"});
+  }
+  // TMI-Marke
+  const tmi = el("g", {class:"layer l-cohort"}, g);
+  el("line", {x1:x(1979), x2:x(1979), y1:M.t+30, y2:y(0), stroke:"var(--muted)", "stroke-width":1,
+    "stroke-dasharray":"3 4"}, tmi);
+  txt(tmi, x(1979)+6, M.t+44, "Three Mile Island 1979", {class:"sm", fill:"var(--muted)"});
+  txt(tmi, x(1979)+6, M.t+61, "Eskalation begann davor", {class:"sm", fill:"var(--red-soft)"});
+  layers["l-cohort"].appendChild(tmi);
+
+  // Legende Kostenabgrenzung
+  const leg = el("g", {class:"layer l-modern"}, g);
+  txt(leg, W-M.r-20, H-M.b-8, "Abgrenzungen nicht einheitlich — Bandbreite, keine Trendlinie",
+    {"text-anchor":"end", class:"sm", fill:"var(--muted)"});
+  layers["l-modern"].appendChild(leg);
+
+  let html = "<tr><th>Datenpunkt</th><th class='num'>Zeitraum</th><th class='num'>€ 2026/kW</th>" +
+             "<th>Abgrenzung</th><th>Konf.</th></tr>";
+  TS.points.forEach(p => {
+    html += "<tr><td>" + p.label + "</td><td class='num'>" + p.period_start +
+      (p.period_end !== p.period_start ? "–" + p.period_end : "") + "</td><td class='num'>" +
+      (p.capex_eur_kw_range ? nf(p.capex_eur_kw_range[0],0) + "–" + nf(p.capex_eur_kw_range[1],0)
+                            : nf(p.capex_eur_kw,0)) + "</td><td>" +
+      (SCOPE[p.scope] || p.scope) + "</td><td>" + p.confidence + "</td></tr>";
+  });
+  $("#tbl3").innerHTML = html;
+
+  const titles = ["Akt 3 · Die 1960er Jahre — tatsächlich billig",
+                  "Akt 3 · Die Eskalation begann vor Three Mile Island",
+                  "Akt 3 · Frankreich — der Twist",
+                  "Akt 3 · Die Gegenwart"];
+  const subs = ["USA, Baubeginne bis 1970 · Overnight-Kosten in € 2026 je kW",
+                "USA, Kohorte 1968–1978 · 51 Blöcke, Mittelband hervorgehoben",
+                "Frankreich CP0/CP1 bis N4 · derselbe standardisierte Serienbau",
+                "Westliche Projekte 2013–2039 · Annahme der Studie zum Vergleich"];
+  return { step(i){
+    $("#act3").dataset.step = i;
+    if (i >= 0){ $("#t3").textContent = titles[i]; $("#s3").textContent = subs[i]; }
+  }};
+}
+
+/* ================================================================
+   5 · Akt 4 — Monte Carlo
+================================================================ */
+function buildAct4(){
+  const svg = $("#svg4");
+  const MC = D.shared.monte_carlo;
+  const g = el("g", {}, svg);
+  const order = MC.preset_order;
+  const xmin = 80, xmax = 360;
+  const x = lin(xmin, xmax, M.l+160, W-M.r-30);
+  const yBase = H-M.b-4, top = M.t + 6;
+  const gap = (yBase - top - 10) / order.length;
+
+  for (let v=xmin; v<=xmax; v+=40){
+    el("line", {x1:x(v), x2:x(v), y1:M.t-10, y2:yBase, stroke:"var(--grid)", "stroke-width":1}, g);
+    txt(g, x(v), yBase+22, nf(v,0), {"text-anchor":"middle", class:"sm"});
+  }
+  txt(g, M.l+160, yBase+42, "€/MWh Systemkosten", {class:"sm", fill:"var(--muted)"});
+
+  const lDet  = el("g", {class:"layer l-det"}, g);
+  const lBase = el("g", {class:"layer l-base"}, g);
+  const lOver = el("g", {class:"layer l-over"}, g);
+  const lOvl  = el("g", {class:"layer l-overlap"}, g);
+
+  function band(parent, cfg, yy, col, label){
+    const p5 = Math.max(xmin, cfg.p5), p95 = Math.min(xmax, cfg.p95);
+    el("line", {x1:x(p5), x2:x(p95), y1:yy, y2:yy, stroke:col, "stroke-width":2, opacity:.7}, parent);
+    el("line", {x1:x(p5), x2:x(p5), y1:yy-9, y2:yy+9, stroke:col, "stroke-width":2}, parent);
+    el("line", {x1:x(p95), x2:x(p95), y1:yy-9, y2:yy+9, stroke:col, "stroke-width":2}, parent);
+    const r = el("rect", {x:x(Math.max(xmin,cfg.p25)), y:yy-13,
+      width:Math.max(2, x(Math.min(xmax,cfg.p75)) - x(Math.max(xmin,cfg.p25))), height:26,
+      fill:col, opacity:.34}, parent);
+    el("line", {x1:x(cfg.p50), x2:x(cfg.p50), y1:yy-15, y2:yy+15, stroke:"var(--ink)", "stroke-width":2.2}, parent);
+    txt(parent, x(Math.min(xmax,cfg.p95))+12, yy+5, nf(cfg.p50,0), {class:"lab-strong"});
+    hover(r, "<b>" + label + "</b><br>Median " + nf(cfg.p50,0) + " €/MWh<br>" +
+      "<span class='l'>P5–P95 " + nf(cfg.p5,0) + "–" + nf(cfg.p95,0) +
+      " · P25–P75 " + nf(cfg.p25,0) + "–" + nf(cfg.p75,0) + "</span>");
+  }
+
+  order.forEach((id,i) => {
+    const p = MC.presets[id];
+    const yy = top + gap*(i+0.5);
+    const accent = (id === "kostenminimum");
+    const col = accent ? "var(--blue)" : "var(--red)";
+    txt(g, M.l+150, yy+5, p.label.replace("GES · ",""), {"text-anchor":"end", class:"sm",
+      fill: accent ? "var(--blue-soft)" : "var(--red-soft)"});
+    // deterministischer Punktwert
+    const dx = x(Math.min(xmax, p.deterministic));
+    const dia = el("path", {d:"M" + dx + " " + (yy-9) + "L" + (dx+8) + " " + yy + "L" + dx + " " +
+      (yy+9) + "L" + (dx-8) + " " + yy + "Z", fill:col, stroke:"var(--surface)", "stroke-width":1.4}, lDet);
+    txt(lDet, dx, yy-16, nf(p.deterministic,0), {"text-anchor":"middle", class:"lab-strong"});
+    hover(dia, "<b>" + p.label + "</b><br>deterministisch " + nf(p.deterministic,1) + " €/MWh");
+    band(lBase, p.configs.base, yy, col, p.label + " · " + MC.configs.base);
+    band(lOver, p.configs.overrun, yy, col, p.label + " · " + MC.configs.overrun);
+  });
+
+  // Ueberlappungsfeld Kostenminimum / 80 % EE + Gas
+  const a = MC.presets.kostenminimum.configs.base, b = MC.presets.ee80_gas.configs.base;
+  const ov0 = Math.max(a.p5, b.p5), ov1 = Math.min(a.p95, b.p95);
+  if (ov1 > ov0){
+    const iA = order.indexOf("kostenminimum"), iB = order.indexOf("ee80_gas");
+    const yA = top + gap*(Math.min(iA,iB)+0.5) - 20, yB = top + gap*(Math.max(iA,iB)+0.5) + 20;
+    el("rect", {x:x(ov0), y:yA, width:x(ov1)-x(ov0), height:yB-yA, fill:"var(--ink)", opacity:.10}, lOvl);
+    el("rect", {x:x(ov0), y:yA, width:x(ov1)-x(ov0), height:yB-yA, fill:"none",
+      stroke:"var(--ink)", "stroke-width":1, "stroke-dasharray":"4 4", opacity:.6}, lOvl);
+    txt(lOvl, (x(ov0)+x(ov1))/2, yA-8, "Überlappung " + nf(ov0,0) + "–" + nf(ov1,0) + " €/MWh",
+      {"text-anchor":"middle", class:"lab-strong"});
+  }
+
+  let html = "<tr><th>Szenario</th><th class='num'>determ.</th><th class='num'>P5</th>" +
+    "<th class='num'>P50</th><th class='num'>P95</th><th class='num'>P50 mit Überschreitung</th></tr>";
+  order.forEach(id => {
+    const p = MC.presets[id];
+    html += "<tr><td>" + p.label + "</td><td class='num'>" + nf(p.deterministic,1) + "</td><td class='num'>" +
+      nf(p.configs.base.p5,0) + "</td><td class='num'>" + nf(p.configs.base.p50,0) + "</td><td class='num'>" +
+      nf(p.configs.base.p95,0) + "</td><td class='num'>" + nf(p.configs.overrun.p50,0) + "</td></tr>";
+  });
+  $("#tbl4").innerHTML = html;
+
+  const titles = ["Akt 4 · Vier saubere Punktwerte",
+                  "Akt 4 · " + nf(MC.meta.n_draws,0) + " Ziehungen je Szenario",
+                  "Akt 4 · Die Bänder überlappen",
+                  "Akt 4 · Mit empirischer Kostenüberschreitung"];
+  const subs = ["deterministische Rechnung · " + MC.meta.profiles.label,
+                MC.configs.base + " · Dreiecksverteilungen",
+                "Rangfolge zwischen Kostenminimum und 80 % EE + Gas nicht entschieden",
+                MC.configs.overrun + " · Faktoren aus Flyvbjerg und Sovacool"];
+  return { step(i){
+    $("#act4").dataset.step = i;
+    if (i >= 0){ $("#t4").textContent = titles[i]; $("#s4").textContent = subs[i]; }
+  }};
+}
+
+/* ================================================================
+   6 · Akt 5 — Der 30-Jahres-Blick
+================================================================ */
+function buildAct5(){
+  const svg = $("#svg5");
+  const P = D.thirty_year_plan;
+
+  /* --- Szene 0: Startwerte 2026, Plan gegen Realität --- */
+  const g0 = el("g", {class:"scene sc-0"}, svg);
+  const S = P.start_2026_corrected;
+  const rows = [
+    {label:"Photovoltaik", md:S.pv_gw.md, real:S.pv_gw.corrected, unit:"GW", dec:1},
+    {label:"Wind an Land", md:S.wind_onshore_gw.md, real:S.wind_onshore_gw.corrected, unit:"GW", dec:1},
+    {label:"Wind auf See", md:S.wind_offshore_gw.md, real:S.wind_offshore_gw.corrected, unit:"GW", dec:1},
+    {label:"Batteriespeicher", md:S.battery.md_gwh, real:(S.battery.corrected_gwh[0]+S.battery.corrected_gwh[1])/2,
+     realTxt:nf(S.battery.corrected_gwh[0],1) + "–" + nf(S.battery.corrected_gwh[1],1),
+     unit:"GWh", dec:1, note:S.battery.scope},
+    {label:"Gaskraftwerke", md:S.gas_gw.md, real:(S.gas_gw.corrected[0]+S.gas_gw.corrected[1])/2,
+     realTxt:nf(S.gas_gw.corrected[0],0) + "–" + nf(S.gas_gw.corrected[1],0), unit:"GW", dec:1},
+    {label:"Strombedarf", md:S.demand_twh.md, real:S.demand_twh.corrected_2024, unit:"TWh", dec:0,
+     note:"Bruttostromverbrauch 2024 · der Planwert liegt zu hoch"}
+  ];
+  const LBL = 300, x0L = 322, x0R = W - M.r - 218;
+  const top0 = M.t + 54, gap0 = (H-M.b-16 - top0) / rows.length;
+  txt(g0, 10, M.t+26, "Abweichung", {class:"sm", fill:"var(--muted)"});
+  txt(g0, x0L, M.t+26, "◉ Planwert 2026", {class:"sm", fill:"var(--blue-soft)"});
+  txt(g0, W-M.r, M.t+26, "◉ belegter Ist-Wert", {"text-anchor":"end", class:"sm", fill:"var(--red-soft)"});
+  rows.forEach((r,i) => {
+    const yy = top0 + gap0*(i+0.5);
+    const maxV = Math.max(r.md, r.real) * 1.12;
+    const xs = lin(0, maxV, x0L, x0R);
+    txt(g0, LBL, yy+5, r.label, {"text-anchor":"end", class:"sm", fill:"var(--ink-2)"});
+    el("line", {x1:x0L, x2:x0R, y1:yy, y2:yy, stroke:"var(--grid)", "stroke-width":1}, g0);
+    const xm = xs(r.md), xr = xs(r.real);
+    el("line", {x1:xm, x2:xr, y1:yy, y2:yy, stroke: xr>xm ? "var(--red)" : "var(--blue)",
+      "stroke-width":3, opacity:.6}, g0);
+    const cm = el("circle", {cx:xm, cy:yy, r:6, fill:"var(--blue)", stroke:"var(--surface)", "stroke-width":1.5}, g0);
+    const cr = el("circle", {cx:xr, cy:yy, r:7, fill:"var(--red)", stroke:"var(--surface)", "stroke-width":1.5}, g0);
+    const dev = (r.real/r.md - 1) * 100;
+    const devTxt = (dev >= 0 ? "+" : "−") + nf(Math.abs(dev),0) + " %";
+    hover(cm, "<b>" + r.label + " · Planwert</b><br>" + nf(r.md, r.dec) + " " + r.unit);
+    hover(cr, "<b>" + r.label + " · belegter Ist-Wert</b><br>" + (r.realTxt || nf(r.real, r.dec)) +
+      " " + r.unit + "<br><span class='l'>Abweichung " + devTxt +
+      (r.note ? " · " + r.note : "") + "</span>");
+    // Beide Werte auf derselben Zeile, jeweils auf der vom anderen Punkt abgewandten Seite
+    const up = xr >= xm;
+    txt(g0, up ? xm-12 : xm+12, yy+5, nf(r.md, r.dec),
+      {"text-anchor": up ? "end" : "start", class:"sm", fill:"var(--blue-soft)"});
+    txt(g0, up ? xr+12 : xr-12, yy+5, (r.realTxt || nf(r.real, r.dec)) + " " + r.unit,
+      {"text-anchor": up ? "start" : "end", class:"lab-red"});
+    txt(g0, 10, yy+5, devTxt, {class:"sm", fill:"var(--muted)"});
+  });
+  txt(g0, 10, H-M.b+34, "Jede Zeile mit eigenem Maßstab · Abweichung links",
+    {class:"sm", fill:"var(--muted)"});
+
+  /* --- Szene 1: Investitionen je Phase --- */
+  const g1 = el("g", {class:"scene sc-1"}, svg);
+  const IC = P.investment_check;
+  const phases = Object.keys(IC.phase_generation_bn_eur);
+  const y1max = 560;
+  const y1 = lin(0, y1max, H-M.b, M.t+30);
+  yAxis(g1, y1, [0,140,280,420,560], 0);
+  txt(g1, M.l-10, M.t+10, "Mrd. €", {"text-anchor":"end", class:"sm", fill:"var(--muted)"});
+  el("line", {x1:M.l, x2:W-M.r, y1:y1(0), y2:y1(0), class:"axisline", stroke:"var(--axis)"}, g1);
+  const slot1 = (W-M.r-M.l)/(phases.length+1);
+  phases.forEach((ph,i) => {
+    const cx = M.l + slot1*(i+0.5) + slot1*0.25;
+    const gen = IC.phase_generation_bn_eur[ph], grid = IC.phase_implied_grid_bn_eur[ph];
+    const bw = Math.min(120, slot1*0.5);
+    const yGen = y1(gen);
+    const rg = el("rect", {x:cx-bw/2, y:yGen, width:bw, height:y1(0)-yGen, fill:"var(--blue)",
+      opacity:.9, class:"grow"}, g1);
+    const yAll = y1(gen+grid);
+    const rn = el("rect", {x:cx-bw/2, y:yAll, width:bw, height:yGen-yAll, fill:"var(--red)",
+      opacity:.75, class:"grow"}, g1);
+    hover(rg, "<b>Erzeugung, Speicher, Elektrolyse</b><br>" + nf(gen,1) + " Mrd. €<br><span class='l'>" + ph + "</span>");
+    hover(rn, "<b>impliziter Netzanteil (Setzung)</b><br>" + nf(grid,1) + " Mrd. €<br><span class='l'>" + ph + "</span>");
+    txt(g1, cx, yAll-10, nf(gen+grid,0), {"text-anchor":"middle", class:"lab-strong"});
+    txt(g1, cx, H-M.b+24, ph, {"text-anchor":"middle", class:"sm"});
+  });
+  // fehlende Ersatzinvestitionen
+  const cxR = M.l + slot1*(phases.length+0.5) + slot1*0.25;
+  const rep = IC.missing_replacement_capex_bn_eur.sum;
+  const bwR = Math.min(120, slot1*0.5);
+  const rr = el("rect", {x:cxR-bwR/2, y:y1(rep), width:bwR, height:y1(0)-y1(rep), fill:"none",
+    stroke:"var(--red)", "stroke-width":2, "stroke-dasharray":"6 4"}, g1);
+  hover(rr, "<b>fehlende Ersatzinvestitionen</b><br>" + nf(rep,0) + " Mrd. €<br><span class='l'>" +
+    IC.missing_replacement_capex_bn_eur.note + "</span>");
+  txt(g1, cxR, y1(rep)-10, nf(rep,0), {"text-anchor":"middle", class:"lab-red"});
+  txt(g1, cxR, H-M.b+24, "nicht gerechnet", {"text-anchor":"middle", class:"sm", fill:"var(--red-soft)"});
+  txt(g1, cxR, H-M.b+41, "Ersatz/Repowering", {"text-anchor":"middle", class:"sm", fill:"var(--red-soft)"});
+  // Legende
+  const lg = el("g", {}, g1);
+  el("rect", {x:M.l, y:M.t+18, width:14, height:14, fill:"var(--blue)", opacity:.9}, lg);
+  txt(lg, M.l+20, M.t+30, "Erzeugung, Speicher, Elektrolyse", {class:"sm"});
+  el("rect", {x:M.l+320, y:M.t+18, width:14, height:14, fill:"var(--red)", opacity:.75}, lg);
+  txt(lg, M.l+340, M.t+30, "impliziter Netzanteil · Setzung (M)", {class:"sm"});
+
+  /* --- Szene 2: LSCOE 2056 --- */
+  const g2 = el("g", {class:"scene sc-2"}, svg);
+  const L = P.lscoe_2056;
+  const steps = [
+    {label:"Planwert", sub:"÷ Bedarf", v:L.md_value, accent:false},
+    {label:"korrigierter Nenner", sub:"÷ Erzeugung", v:L.md_reconstruction.divided_by_generation, accent:true},
+    {label:"unser Modell", sub:"Dispatch, Zentralfall", v:L.our_model.mittel, accent:true,
+     band:[L.our_model.guenstig, L.our_model.teuer]},
+    {label:"mit zwei Reaktoren", sub:"3,2 GW ab 2045/2052", v:P.nuclear_variant.corrected.our_model_system_lscoe,
+     accent:true, extra:true}
+  ];
+  const y2 = lin(0, 320, H-M.b, M.t+58);
+  yAxis(g2, y2, [0,80,160,240,320], 0);
+  el("line", {x1:M.l, x2:W-M.r, y1:y2(0), y2:y2(0), class:"axisline", stroke:"var(--axis)"}, g2);
+  const slot2 = (W-M.r-M.l)/steps.length;
+  steps.forEach((s,i) => {
+    const parent = s.extra ? el("g", {class:"nuc-add"}, g2) : g2;
+    const cx = M.l + slot2*(i+0.5);
+    const bw = Math.min(110, slot2*0.46);
+    const col = s.accent ? "var(--red)" : "var(--blue)";
+    if (s.band){
+      const rb = el("rect", {x:cx-bw/2-10, y:y2(s.band[1]), width:bw+20,
+        height:y2(s.band[0])-y2(s.band[1]), fill:col, opacity:.16}, parent);
+      hover(rb, "<b>Bandbreite</b><br>" + nf(s.band[0],1) + "–" + nf(s.band[1],1) +
+        " €/MWh<br><span class='l'>günstig bis teuer, WACC 3 bis 9 %</span>");
+      txt(parent, cx+bw/2+16, y2(s.band[1])+14, nf(s.band[1],0), {class:"sm", fill:"var(--red-soft)"});
+      txt(parent, cx+bw/2+16, y2(s.band[0])-4, nf(s.band[0],0), {class:"sm", fill:"var(--red-soft)"});
+    }
+    const r = el("rect", {x:cx-bw/2, y:y2(s.v), width:bw, height:y2(0)-y2(s.v), fill:col,
+      opacity:.9, class:s.extra ? "" : "grow"}, parent);
+    hover(r, "<b>" + s.label + "</b><br>" + nf(s.v,1) + " €/MWh<br><span class='l'>" + s.sub + "</span>");
+    txt(parent, cx, y2(s.v)-10, nf(s.v,1), {"text-anchor":"middle", class:"lab-strong"});
+    txt(parent, cx, H-M.b+24, s.label, {"text-anchor":"middle", class:"sm"});
+    txt(parent, cx, H-M.b+41, s.sub, {"text-anchor":"middle", class:"sm", fill:"var(--muted)"});
+  });
+  const dg = el("g", {class:"nuc-add"}, g2);
+  const cxA = M.l + slot2*2.5, cxB = M.l + slot2*3.5;
+  el("line", {x1:cxA, x2:cxB, y1:y2(L.our_model.mittel), y2:y2(L.our_model.mittel),
+    stroke:"var(--ink)", "stroke-width":1.2, "stroke-dasharray":"4 4", opacity:.7}, dg);
+  txt(dg, W-M.r, y2(320)-20, "+" + nf(P.nuclear_variant.corrected.our_model_delta,1) + " €/MWh",
+    {"text-anchor":"end", class:"lab-strong"});
+  txt(dg, W-M.r, y2(320)-3, "für 51 Mrd. € und 2,4 % der Erzeugung",
+    {"text-anchor":"end", class:"sm", fill:"var(--muted)"});
+  txt(g2, M.l, M.t+34, "€/MWh · Untergrenze: ohne Erdgas-Brennstoffkosten, ohne Import",
+    {class:"sm", fill:"var(--muted)"});
+
+  let html = "<tr><th>Größe</th><th class='num'>Planwert</th><th class='num'>belegt / nachgerechnet</th><th>Konf.</th></tr>";
+  rows.forEach(r => {
+    html += "<tr><td>" + r.label + " (" + r.unit + ")</td><td class='num'>" + nf(r.md,r.dec) +
+      "</td><td class='num'>" + nf(r.real,r.dec) + "</td><td>A</td></tr>";
+  });
+  html += "<tr><td>Investition gesamt (Mrd. €)</td><td class='num'>" + nf(IC.md_total_bn_eur,0) +
+    "</td><td class='num'>" + nf(IC.md_total_bn_eur + rep,0) + " inkl. Ersatz</td><td>B</td></tr>";
+  steps.forEach(s => {
+    html += "<tr><td>LSCOE 2056 · " + s.label + " (€/MWh)</td><td class='num'>" +
+      (s.label === "Planwert" ? nf(s.v,1) : "–") + "</td><td class='num'>" +
+      (s.label === "Planwert" ? "–" : nf(s.v,1)) + "</td><td>B</td></tr>";
+  });
+  $("#tbl5").innerHTML = html;
+
+  const titles = ["Akt 5 · Startwerte 2026 — Plan gegen Realität",
+                  "Akt 5 · Investitionen je Phase",
+                  "Akt 5 · Systemkosten 2056 — ein Lehrstück über Nenner",
+                  "Akt 5 · Und mit zwei Reaktoren?"];
+  const subs = ["installierte Leistung und Strombedarf · belegte Ist-Werte",
+                "Mrd. € je Phase · Netzanteil ist eine Setzung (M)",
+                "€/MWh · unser Modell mit Bandbreite günstig bis teuer",
+                "3,2 GW Kernkraft im Pfad · Effekt auf die Systemkosten"];
+  return { step(i){
+    $("#act5").dataset.step = i;
+    if (i >= 0){ $("#t5").textContent = titles[i]; $("#s5").textContent = subs[i]; }
+  }};
+}
+
+/* ================================================================
+   7 · Hero-Hintergrund, Selbstkritik, Quellen
+================================================================ */
+function buildHero(){
+  const svg = $("#hero-svg");
+  const pts = D.nuclear_history_timeseries.points
+    .map(p => ({x:(p.period_start+p.period_end)/2,
+                y:p.capex_eur_kw !== undefined ? p.capex_eur_kw
+                  : (p.capex_eur_kw_range[0]+p.capex_eur_kw_range[1])/2}))
+    .sort((a,b) => a.x-b.x);
+  const x = lin(1962, 2042, -40, 1000);
+  const y = lin(0, 18000, 500, 120);
+  const line = el("path", {d:pathFrom(pts.map(p => [x(p.x), y(p.y)])), fill:"none",
+    stroke:"var(--red)", "stroke-width":1.4, opacity:.55}, svg);
+  el("path", {d:pathFrom(pts.map(p => [x(p.x), y(p.y)+26])), fill:"none",
+    stroke:"var(--blue)", "stroke-width":1, opacity:.22}, svg);
+  pts.forEach(p => el("circle", {cx:x(p.x), cy:y(p.y), r:2.5, fill:"var(--red)", opacity:.4}, svg));
+  prepDraw(line);
+  requestAnimationFrame(() => { line.style.transition = "stroke-dashoffset 6s ease"; line.style.strokeDashoffset = 0; });
+}
+
+function renderLimits(){
+  const pm = D.shared.profiles_meta;
+  const mc = D.shared.monte_carlo.meta;
+  const items = [
+    {h:"Ein halbes Jahr Wetter",
+     p:"Der stündliche Dispatch läuft auf " + nf(mc.profiles.hours,0) + " von 8.784 Jahresstunden — " +
+       pm.result_label + ". Alle Mengen sind über den Lastanteil des Zeitraums hochgerechnet. " +
+       "Der Zeitraum ist winterlastig — die Backup-Mengen werden dadurch eher über- als unterschätzt."},
+    {h:"Ein einziges Wetterjahr",
+     p:"Auch ein Volljahr wäre nur ein Jahr. Ein schlechtes Windjahr oder eine besonders lange " +
+       "Dunkelflaute würde andere Speicher- und Backup-Bedarfe erzeugen. Eine Sensitivität über " +
+       "mehrere Wetterjahre fehlt und steht auf der Liste."},
+    {h:"Kein Volltext geprüft",
+     p:"Der Abruf der Primärquellen war in dieser Arbeitsumgebung blockiert — einschließlich der " +
+       "Studien-PDF. Die Verifikation lief über Suchindex-Auszüge mit wörtlichen Zitaten. " +
+       "Jede Zahl trägt deshalb eine Konfidenzstufe; B und C sind nicht gegengeprüft."},
+    {h:"Parameter ziehen unabhängig",
+     p:"Die Monte-Carlo-Rechnung zieht " + nf(mc.drawn_parameters,0) + " Parameter unabhängig " +
+       "voneinander. In der Realität sind sie korreliert: Zinsen, Rohstoffpreise und Lieferketten " +
+       "treffen alle Technologien gleichzeitig. Die echte Streuung ist vermutlich breiter."},
+    {h:"Gaspreis fehlt",
+     p:"Für Erdgas als Brennstoff liegt in unseren Dossiers kein belegter Preis vor. Er ist mit " +
+       "null angesetzt. Damit ist jedes Szenario mit Gas-Backup — auch das Kernkraft-Szenario mit " +
+       "seinen " + nf(D.monte_carlo_headline.presets[1].gas_peak_gw,1) + " GW Spitzenlast — eine " +
+       "ausgewiesene Untergrenze."},
+    {h:"Kein Import, kein Lastmanagement",
+     p:"Import, Export und flexible Nachfrage sind bewusst nicht modelliert. Das ist konservativer " +
+       "als die Studie, die 20 GW Interkonnektoren ansetzt — und es macht unsere Systemkosten eher " +
+       "zu hoch als zu niedrig."},
+    {h:"Setzungen im 30-Jahres-Plan",
+     p:"Lernkurven für PV, Batterie und Elektrolyse, der Netzanteil von " +
+       nf(D.thirty_year_plan.investment_check.breakdown_bn_eur.grid,0) + " Mrd. €, die " +
+       "Phasenkapazitäten und der Strombedarf 2056 sind Setzungen, keine Modellergebnisse. " +
+       "Sie sind im Datensatz als Setzung markiert und dürfen nicht als Befund gelesen werden."},
+    {h:"Offshore nutzt ein Onshore-Profil",
+     p:"Für Wind auf See fehlt die Stundenreihe; ersatzweise wird die Profilform von Wind an Land " +
+       "verwendet. Das glättet die Offshore-Einspeisung zu wenig und ist als Übergangslösung " +
+       "gekennzeichnet."}
+  ];
+  $("#limits").innerHTML = items.map(i =>
+    '<div class="limit-card"><h4>' + i.h + "</h4><p>" + i.p + "</p></div>").join("");
+}
+
+function renderSources(){
+  $("#srclist").innerHTML = D.sources.map(s =>
+    '<div class="srcrow"><div class="nr">[' + s.nr + ']</div><div>' +
+    '<div class="ti">' + s.title + " " + confBadge(s.confidence) + "</div>" +
+    '<div class="me">' + [s.publisher, s.date].filter(Boolean).join(" · ") +
+    (s.url ? ' · <a href="' + s.url + '" target="_blank" rel="noopener">' + s.url + "</a>" : "") +
+    (s.accessed ? " · Zugriff " + s.accessed : "") + "</div>" +
+    (s.note ? '<div class="me" style="color:var(--muted)">' + s.note + "</div>" : "") +
+    "</div></div>").join("");
+  $("#hm-src").textContent = D.sources.length;
+  $("#foot-files").textContent = D.meta.inputs.join(" · ");
+}
+
+function renderProseBits(){
+  $("#lovering-disc").textContent = D.nuclear_history_timeseries.must_show_disclaimer;
+  $("#mc-honest").textContent = D.monte_carlo_headline.honest_statement;
+  $("#nuc-counter").textContent = D.thirty_year_plan.nuclear_variant.counterposition;
+  $("#crf-formula").textContent = "CRF = " + D.shared.ges_reference.methodology.crf_formula;
+  const sc = D.shared.ges_reference.scenarios;
+  $("#hook-factor").textContent = nf(sc.ee100.lscoe / sc.kostenminimum.lscoe, 1);
+  const proj = D.shared.nuclear_reference_projects.map(p => p.capex_eur_kw);
+  $("#nuc-spread").textContent = nf(Math.max.apply(null, proj) / Math.min.apply(null, proj), 0);
+}
+
+/* ================================================================
+   8 · Scroll-Steuerung
+================================================================ */
+function wireScroll(ACTS){
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const step = e.target;
+      const sec = step.closest(".scrolly");
+      if (!sec) return;
+      const act = sec.dataset.act;
+      const idx = +step.dataset.idx;
+      step.parentElement.querySelectorAll(".step").forEach(s => s.classList.toggle("is-active", s === step));
+      if (ACTS[act]) ACTS[act].step(idx);
+    });
+  }, {rootMargin:"-42% 0px -42% 0px"});
+  $$(".step").forEach(s => io.observe(s));
+
+  /* Erste Szene sichtbar machen, falls direkt in einen Akt gesprungen wird */
+  $$(".scrolly").forEach(sec => {
+    new IntersectionObserver((es, obs) => {
+      es.forEach(e => {
+        if (e.isIntersecting){
+          const act = sec.dataset.act;
+          const fig = document.getElementById("act" + act);
+          if (fig && fig.dataset.step === "-1" && ACTS[act]) ACTS[act].step(0);
+          obs.disconnect();
+        }
+      });
+    }, {threshold:.3}).observe(sec);
+  });
+}
+
+/* Glossar-Navigation */
+(function glossary(){
+  let lastRef = null;
+  const goTo = (elm, block) => {
+    const dist = Math.abs(elm.getBoundingClientRect().top);
+    elm.scrollIntoView({block:block, behavior: dist > innerHeight*3 ? "instant" : "smooth"});
+  };
+  $$("a.gl").forEach(a => {
+    a.addEventListener("click", ev => {
+      lastRef = a.id || null;
+      const href = a.getAttribute("href") || "";
+      const target = href.startsWith("#") ? document.getElementById(href.slice(1)) : null;
+      if (!target) return;
+      ev.preventDefault();
+      if (target.tagName === "DETAILS") target.open = true;
+      goTo(target, "start");
+      if (history.replaceState) history.replaceState(null, "", href);
+      $$("a.gl-back").forEach(b => b.classList.remove("is-idle"));
+    });
+  });
+  $$("a.gl-back").forEach(b => {
+    b.classList.add("is-idle");
+    b.addEventListener("click", ev => {
+      ev.preventDefault();
+      const src = lastRef ? document.getElementById(lastRef) : null;
+      if (src) goTo(src, "center");
+      else goTo(document.querySelector(".hero") || document.body, "start");
+    });
+  });
+})();
+
+/* ================================================================
+   9 · Bootstrap
+================================================================ */
+async function boot(){
+  try {
+    const r = await fetch(DATA_URL, {cache:"no-cache"});
+    if (!r.ok) throw new Error(DATA_URL + " → HTTP " + r.status);
+    D = await r.json();
+  } catch (err){
+    const isFile = location.protocol === "file:";
+    const note = $("#loadnote");
+    note.classList.add("on");
+    note.innerHTML = "<b>Die Daten konnten nicht geladen werden.</b><br>" + (isFile
+      ? "Die Seite wurde direkt aus dem Dateisystem geöffnet (<code>file://</code>). Browser blockieren " +
+        "in diesem Fall das Nachladen der JSON-Datei. Bitte einen lokalen Webserver starten:<br>" +
+        "<code>cd &lt;Repo-Wurzel&gt; &amp;&amp; python3 -m http.server 8000</code><br>" +
+        "und dann <code>http://localhost:8000/strommix-story.html</code> aufrufen."
+      : "Fehlermeldung: <code>" + String(err.message || err) + "</code>. Liegt der Ordner " +
+        "<code>strommix/data/</code> neben dieser Datei?");
+    console.error("[story] Laden fehlgeschlagen:", err);
+    return;
+  }
+
+  hydrate();
+  renderProseBits();
+  renderCounterpositions();
+  applySimLabels();
+  hydrate();                 // Kaesten koennen weitere Platzhalter enthalten
+  buildCitations();
+  buildHero();
+  renderLimits();
+  renderSources();
+
+  const ACTS = {1:buildAct1(), 2:buildAct2(), 3:buildAct3(), 4:buildAct4(), 5:buildAct5()};
+  wireScroll(ACTS);
+  window.__storyReady = true;
+  console.log("[story] bereit · " + D.sources.length + " Quellen · Version " + D.meta.story_version);
+}
+boot();
+</script>
+</body></html>

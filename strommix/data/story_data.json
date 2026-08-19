@@ -1,0 +1,2763 @@
+{
+ "meta": {
+  "block": "story_data",
+  "document": "story_claims_check.md",
+  "created": "2026-08-19",
+  "checks_source": "docs/03_grundlage_erweitert_v2.md (Kap. 5.4a, 6a, 6a.4, 6b, 8a)",
+  "validated_against": [
+   "research/kosten_kernkraft.md",
+   "research/kosten_ee_speicher.md",
+   "research/ist_zustand_de.md",
+   "research/risiken_co2.md",
+   "research/review_v09.md",
+   "data/model_params.json",
+   "data/monte_carlo_reference.json",
+   "scripts/model.py"
+  ],
+  "confidence_scale": {
+   "A": "mehrfach unabhaengig belegt / institutionelle Primärquelle",
+   "B": "einfach belegt, plausibel, nicht gegengeprüft",
+   "C": "kursiert, Primärquelle nicht pruefbar",
+   "M": "SETZUNG / Modellannahme - nicht quellenbelegt, als Annahme erzaehlen"
+  },
+  "verification_limit": "WebFetch war für praktisch alle Primärquellen-Domains durch den Netzwerk-Egress blockiert, einschliesslich der GES-Studien-PDF. Verifikation über Suchindex-Auszüge mit wörtlichen Quellenzitaten.",
+  "counts": {
+   "bestaetigt": 7,
+   "korrigiert": 11,
+   "verworfen": 4,
+   "setzung": 6,
+   "unverifizierbar": 3
+  },
+  "fx_and_deflators": {
+   "eur_per_usd": 0.86543,
+   "eur_per_gbp": 1.15567,
+   "fx_basis": "EZB-Referenzkurse 2026-03-09 (wie kosten_kernkraft.md 0.2)",
+   "usd2010_to_eur2026": 1.32,
+   "usd2010_to_eur2026_note": "US-CPI 2010->2026 ca. x1.52, dann x0.86543. Eigene Umrechnung, Konfidenz B.",
+   "ff1998_to_eur2026": 0.2523,
+   "ff1998_to_eur2026_note": "1 FF1998 = 0.152449 EUR1998, dt. VPI 1998->2026 ca. x1.655. Eigene Umrechnung, Konfidenz B.",
+   "dm1988_to_eur2026": 1.0742,
+   "dm1988_to_eur2026_note": "1 DM = 0.511292 EUR nominal, dt. VPI 1988->2026 ca. x2.10. Eigene Umrechnung, Konfidenz C."
+  },
+  "generated_by": "strommix/scripts/build_story_data.py",
+  "inputs": [
+   "research/story_claims_check.md (Block story_data)",
+   "data/page_data.json",
+   "data/monte_carlo_reference.json",
+   "research/kosten_kernkraft.md (sources)",
+   "research/kosten_ee_speicher.md (sources)"
+  ],
+  "story_version": "v0.1 (Entwurf)",
+  "story_file": "strommix-story.html",
+  "deep_dive": {
+   "file": "whitepaper-strommix.html",
+   "label": "Zur vollständigen Analyse",
+   "anchors": {
+    "einleitung": "kap-1",
+    "ist_zustand": "kap-2",
+    "methodik": "kap-3",
+    "lcoe": "kap-4",
+    "mix": "kap-5",
+    "monte_carlo": "kap-6",
+    "risiken": "kap-7",
+    "fazit": "kap-8",
+    "limitationen": "kap-9"
+   }
+  }
+ },
+ "rejected_do_not_use": [
+  {
+   "id": "mean_of_5_nuclear",
+   "value": 10275,
+   "unit": "EUR/kW",
+   "reason": "Ungewichtetes Mittel über fünf Projekte mit unterschiedlichen Kostenabgrenzungen, Preisbasen, Baujahren und Blockzahlen. Ohne oekonomische Bedeutung.",
+   "replace_with": "nuclear.clusters"
+  },
+  {
+   "id": "electrolyser_800_1200",
+   "value": [
+    800,
+    1200
+   ],
+   "unit": "EUR/kW",
+   "reason": "Stack-/Hardwarekosten, keine Systemkosten. FfE 2025 nennt für das Gesamtsystem rund 3120 EUR/kW. dena-Quelle weist gar keine Kosten aus.",
+   "replace_with": "electrolyser"
+  },
+  {
+   "id": "study_result_reverses",
+   "claim": "Das GES-Ergebnis kehrt sich faktisch um",
+   "reason": "Unsicherheitsbänder überlappen (Kostenminimum p5-p95 133-190 vs. 80%EE+Gas 132-152); Effekt beruht teilweise auf dem Opex-Artefakt; gegenüber beiden H2-Pfaden bleibt das Kernkraft-Szenario günstiger.",
+   "replace_with": "monte_carlo_headline"
+  },
+  {
+   "id": "opex_pct_on_slider_capex",
+   "claim": "Opex = 7 % des (korrigierten) CAPEX",
+   "reason": "Betriebskosten skalieren nicht mit den Baukosten. Bei 14667 EUR/kW ergaebe das 128 EUR/MWh reine Betriebskosten.",
+   "replace_with": "nuclear.opex_eur_kw_a"
+  },
+  {
+   "id": "sources_not_citable",
+   "items": [
+    "Achse des Guten",
+    "Grokipedia",
+    "Schlanj/Substack"
+   ],
+   "reason": "Meinungsblog, KI-generiertes Wiki, Blog ohne Peer Review. Für ein Papier mit wissenschaftlichem Anspruch nicht zitierfaehig.",
+   "replace_with": [
+    "grubler-2010",
+    "lovering-2016",
+    "pulaski-2021",
+    "sciencedirect-intl-costs"
+   ]
+  }
+ ],
+ "nuclear": {
+  "clusters": [
+   {
+    "id": "asien_golf",
+    "label": "Asien / Golf (Serienbau)",
+    "capex_eur_kw": [
+     1870,
+     4950
+    ],
+    "confidence": "B",
+    "anchors": [
+     "APR1400 Inland 1867",
+     "Shin Hanul 3&4 2720",
+     "Barakah EPC 3153",
+     "Barakah gesamt 4945"
+    ],
+    "caveat": "Voraussetzungen (ununterbrochene Lieferkette, ein Regulator, staatlich gesteuerte Finanzierung, niedrige Bau- und Ingenieurslöhne, eingeschränkte Drittanfechtung) in Deutschland rechtlich nicht herstellbar. Auch hier Verzögerungen: Shin Kori 3/4 3 bzw. 5 Jahre, +30 Prozent Kosten. Export-Aufschlag Faktor 2,7."
+   },
+   {
+    "id": "eu_serie",
+    "label": "EU-Serie / Vertragspreise",
+    "capex_eur_kw": [
+     7265,
+     13472
+    ],
+    "confidence": "A",
+    "anchors": [
+     "EPR2 OCC 2020er Preise 7265-7583",
+     "Dukovany II EPC 7906",
+     "EPR2 inkl. Finanzierung ca. 10400",
+     "Lubiatowo-Kopalino 11968",
+     "Sizewell C 13472"
+    ]
+   },
+   {
+    "id": "west_foak",
+    "label": "Westliches Erstprojekt (FOAK)",
+    "capex_eur_kw": [
+     13500,
+     17264
+    ],
+    "confidence": "A",
+    "anchors": [
+     "Vogtle 3&4 13500",
+     "Flamanville 3 14364",
+     "Hinkley Point C 17264 nominal / 12408 real GBP2015"
+    ]
+   }
+  ],
+  "model_presets_eur_kw": {
+   "eu_serie": 7500,
+   "eu_mittel": 12000,
+   "erstprojekt": 17500,
+   "ges_annahme": 6000
+  },
+  "opex_eur_kw_a": {
+   "min": 130,
+   "mid": 165,
+   "max": 200,
+   "confidence": "B",
+   "note": "ABSOLUT modellieren, nicht als CAPEX-Prozentsatz."
+  },
+  "fuel_eur_mwh": {
+   "min": 6,
+   "mid": 8,
+   "max": 11,
+   "confidence": "A"
+  },
+  "waste_eur_mwh": {
+   "min": 5,
+   "mid": 8,
+   "max": 14,
+   "confidence": "B"
+  },
+  "full_load_hours": {
+   "min": 6500,
+   "mid": 7500,
+   "max": 8000,
+   "confidence": "M"
+  },
+  "lifetime_years": 60,
+  "wacc_slider": {
+   "min": 0.03,
+   "mid": 0.05,
+   "max": 0.09,
+   "confidence": "A"
+  },
+  "construction_years": {
+   "min": 8,
+   "mid": 12,
+   "max": 17,
+   "confidence": "A"
+  },
+  "lead_time_before_concrete_years": {
+   "min": 5,
+   "mid": 8,
+   "max": 12,
+   "confidence": "M"
+  },
+  "idc_surcharge_pct": {
+   "min": 0.2,
+   "mid": 0.33,
+   "max": 0.55,
+   "confidence": "B",
+   "empirical_anchor": "EPR2 72,8 Mrd. EUR ohne -> ca. 100 Mrd. EUR mit Finanzierung = +37 Prozent"
+  },
+  "lcoe_recomputed_eur_mwh": {
+   "method": "CRF(r,60), Opex 165 EUR/kW/a absolut, 7500 h, Brennstoff 8, Entsorgung 8",
+   "wacc_5": {
+    "6000": 80.3,
+    "7500": 90.8,
+    "10275": 110.4,
+    "12000": 122.5,
+    "14667": 141.3,
+    "16000": 150.7,
+    "17500": 161.3
+   },
+   "wacc_8": {
+    "6000": 102.6,
+    "7500": 118.8,
+    "10275": 148.7,
+    "12000": 167.3,
+    "14667": 196.0,
+    "16000": 210.4,
+    "17500": 226.5
+   },
+   "confidence": "B"
+  },
+  "md_values_for_contrast_only": {
+   "note": "Nur zum Zeigen des Opex-Artefakts, NICHT als Ergebnis erzaehlen.",
+   "wacc_5": {
+    "6000": 101.6,
+    "10275": 166.9,
+    "14667": 234.0
+   },
+   "wacc_8": {
+    "6000": 122.9,
+    "10275": 203.4,
+    "14667": 286.0
+   }
+  },
+  "independent_benchmarks_eur_mwh": [
+   {
+    "source": "Fraunhofer ISE, Stromgestehungskosten, Juli 2024",
+    "range": [
+     136,
+     490
+    ],
+    "confidence": "A"
+   },
+   {
+    "source": "Lazard LCOE+ v18, Juni 2025 (unsubventioniert, USA)",
+    "range": [
+     122,
+     190
+    ],
+    "confidence": "A"
+   },
+   {
+    "source": "Hinkley Point C CfD, indexiert 17.01.2026",
+    "value": 147,
+    "confidence": "A",
+    "note": "Einziger real vertraglich fixierter Neubau-Strompreis."
+   },
+   {
+    "source": "IEA/NEA 2020 bei 7 Prozent Diskontsatz",
+    "range": [
+     36,
+     88
+    ],
+    "confidence": "A",
+    "note": "Ueberwiegend nicht-westliche Laender, Vorab-Schaetzung."
+   }
+  ]
+ },
+ "nuclear_history_timeseries": {
+  "note": "Für ein Zeitverlaufs-Chart. Alle Werte in EUR 2026 je kW, eigene Deflationierung (siehe meta.fx_and_deflators). ACHTUNG: Die Kostenabgrenzungen sind NICHT einheitlich (Overnight vs. Gesamtprojekt vs. inkl. Finanzierung) - im Chart als Bandbreite zeigen, nicht als Trendlinie, und die Abgrenzung je Punkt einblenden.",
+  "must_show_disclaimer": "Der einzige globale Datensatz historischer Baukosten (Lovering et al. 2016) ist fachlich umstritten: Gilbert et al. und Koomey et al. kritisieren in derselben Zeitschrift, dass Overnight-Kosten Bauzinsen und Eigentümerkosten ausklammern und frühe Demonstrationsreaktoren den Startpunkt senken.",
+  "points": [
+   {
+    "id": "us_1960s",
+    "label": "USA, Baubeginne Ende 1960er",
+    "period_start": 1965,
+    "period_end": 1970,
+    "capex_eur_kw_range": [
+     900,
+     1320
+    ],
+    "original": "<= 1000 USD2010/kW",
+    "scope": "overnight",
+    "source_id": "lovering-2016",
+    "confidence": "A"
+   },
+   {
+    "id": "us_1970",
+    "label": "USA, Baubeginn ca. 1970",
+    "period_start": 1970,
+    "period_end": 1970,
+    "capex_eur_kw": 2640,
+    "original": "ca. 2000 USD2010/kW",
+    "scope": "overnight",
+    "source_id": "lovering-2016",
+    "confidence": "A"
+   },
+   {
+    "id": "us_1968_1978_cohort",
+    "label": "USA, Kohorte Baubeginn 1968-1978 (51 Blöcke)",
+    "period_start": 1968,
+    "period_end": 1978,
+    "capex_eur_kw_range": [
+     2370,
+     14500
+    ],
+    "capex_eur_kw_midband": [
+     3960,
+     7910
+    ],
+    "original": "1800-11000 USD2010/kW, Mittelband 3000-6000",
+    "scope": "overnight",
+    "source_id": "lovering-2016",
+    "confidence": "A",
+    "note": "Blöcke, die bei Three Mile Island 1979 im Bau waren und danach fertig wurden: Median-OCC 2,8-fach hoeher, Bauzeit 2,2-fach laenger. Die Eskalation begann aber bereits VOR dem Unfall (+50 bis +200 Prozent zwischen 1970 und 1978)."
+   },
+   {
+    "id": "fr_cp0_cp1",
+    "label": "Frankreich, CP0/CP1 (Baujahre 1974-1977)",
+    "period_start": 1974,
+    "period_end": 1977,
+    "capex_eur_kw_range": [
+     1060,
+     1110
+    ],
+    "original": "4200-4400 FF1998/kW",
+    "scope": "overnight",
+    "source_id": "grubler-2010",
+    "confidence": "A"
+   },
+   {
+    "id": "fr_fleet_excl_n4",
+    "label": "Frankreich, Flotte ohne N4 (Verlauf)",
+    "period_start": 1974,
+    "period_end": 1990,
+    "capex_eur_kw_range": [
+     1010,
+     2520
+    ],
+    "original": "ca. 4000 -> 10000 FF1998/kW, Faktor 2,5",
+    "scope": "overnight",
+    "source_id": "grubler-2010",
+    "confidence": "A"
+   },
+   {
+    "id": "fr_n4",
+    "label": "Frankreich, N4 (Mitte 1990er)",
+    "period_start": 1993,
+    "period_end": 1997,
+    "capex_eur_kw": 3660,
+    "original": "14500 FF1998/kW",
+    "scope": "overnight",
+    "source_id": "grubler-2010",
+    "confidence": "A",
+    "note": "Grublers Gesamtbefund: Faktor ca. 3,5 reale Kostensteigerung 1970-2000 - 'negative learning by doing'."
+   },
+   {
+    "id": "de_isar2",
+    "label": "Deutschland, Isar 2 (1988, Konvoi)",
+    "period_start": 1982,
+    "period_end": 1988,
+    "capex_eur_kw_range": [
+     3600,
+     3750
+    ],
+    "original": "angegeben: 4,75 Mrd. DM / 1400 MW",
+    "scope": "unbekannt",
+    "source_id": "md-isar2-unverified",
+    "confidence": "C",
+    "note": "Eingangszahl NICHT belegbar; Kostenabgrenzung unbekannt. Nur mit sichtbarem C-Badge verwenden oder weglassen."
+   },
+   {
+    "id": "ges_assumption_2045",
+    "label": "GES-Studie, Annahme für 2045",
+    "period_start": 2045,
+    "period_end": 2045,
+    "capex_eur_kw": 6000,
+    "scope": "unklar",
+    "source_id": "ges-study",
+    "confidence": "A",
+    "note": "Zum Vergleich: EDF setzt für das serielle EPR2-Programm 7265-7583 EUR/kW Overnight an. Die GES-Annahme ist also keine willkürliche Zahl, ignoriert aber die Finanzierungskosten."
+   },
+   {
+    "id": "epr2",
+    "label": "Frankreich, EPR2-Programm (6 Blöcke, Planung)",
+    "period_start": 2027,
+    "period_end": 2038,
+    "capex_eur_kw_range": [
+     7265,
+     10417
+    ],
+    "scope": "overnight bis inkl. Finanzierung",
+    "source_id": "edf-epr2-2025",
+    "confidence": "A"
+   },
+   {
+    "id": "dukovany2",
+    "label": "Tschechien, Dukovany II (EPC-Vertrag)",
+    "period_start": 2029,
+    "period_end": 2036,
+    "capex_eur_kw": 7906,
+    "scope": "epc_only",
+    "source_id": "enerdata-dukovany",
+    "confidence": "A",
+    "note": "Nur EPC. Gesamtprojekt realistisch 9000-11000 EUR/kW."
+   },
+   {
+    "id": "lubiatowo",
+    "label": "Polen, Lubiatowo-Kopalino (Planzahl)",
+    "period_start": 2028,
+    "period_end": 2039,
+    "capex_eur_kw": 11968,
+    "scope": "total_project",
+    "source_id": "ec-ip-25-2963",
+    "confidence": "A"
+   },
+   {
+    "id": "sizewell_c",
+    "label": "UK, Sizewell C (FID 2025)",
+    "period_start": 2025,
+    "period_end": 2035,
+    "capex_eur_kw": 13472,
+    "scope": "total_project",
+    "source_id": "nucnet-sizewell-fid",
+    "confidence": "A"
+   },
+   {
+    "id": "vogtle",
+    "label": "USA, Vogtle 3&4 (fertig 2023/24)",
+    "period_start": 2013,
+    "period_end": 2024,
+    "capex_eur_kw": 13500,
+    "capex_eur_kw_range": [
+     12980,
+     14260
+    ],
+    "scope": "total_project",
+    "source_id": "eia-vogtle4",
+    "confidence": "A",
+    "corrects": "MD-Wert 12388 (nicht ausgewiesener Kurs ca. 1,21 USD/EUR)"
+   },
+   {
+    "id": "flamanville3",
+    "label": "Frankreich, Flamanville 3 (fertig 2024/25)",
+    "period_start": 2007,
+    "period_end": 2025,
+    "capex_eur_kw": 14364,
+    "scope": "total_incl_financing",
+    "source_id": "cour-des-comptes-2025",
+    "confidence": "A"
+   },
+   {
+    "id": "hinkley_c",
+    "label": "UK, Hinkley Point C (im Bau)",
+    "period_start": 2016,
+    "period_end": 2030,
+    "capex_eur_kw": 17264,
+    "capex_eur_kw_real_2015": 12408,
+    "scope": "total_project, laufende Preise",
+    "source_id": "iwr-hinkley-2026",
+    "confidence": "A",
+    "note": "Beide Preisbasen zeigen, sonst wird HPC im Vergleich systematisch zu teuer dargestellt."
+   }
+  ],
+  "narrative": "Kernkraft-Baukosten folgen keiner Lernkurve nach unten. Sie waren in den 1960er Jahren niedrig, stiegen in den USA schon vor Three Mile Island um ein Vielfaches, stiegen selbst im standardisierten franzoesischen Serienprogramm real um den Faktor 3,5 - und liegen bei westlichen Erstprojekten seit den 2000er Jahren noch einmal deutlich hoeher. Der Befund lautet nicht 'frueher war Kernkraft billig', sondern: Baukosten haengen an Institutionen, und sie sind historisch nach oben gelaufen."
+ },
+ "reverse_engineered_ges_capacities": {
+  "status": "arithmetisch bestätigt; Eingangsgroessen (Zubaufaktoren) nicht am Original pruefbar",
+  "confidence": "B",
+  "method": "Basis_i = k * b_i mit b = (66.5, 58.1, 8.1) GW und Faktoren f = (5.3, 3.6, 10.0); Bedingung Summe(k*b_i*f_i) = 438",
+  "denominator_sum_b_f": 642.61,
+  "k": 0.6816,
+  "model_baseline_2022_gw": {
+   "pv": 45.33,
+   "wind_onshore": 39.6,
+   "wind_offshore": 5.52,
+   "sum": 90.45
+  },
+  "cross_check": "Die unabhaengig aus der 438-GW-Bedingung abgeleitete Basis (90.45 GW) trifft die im Kostenminimum-Szenario ausgewiesene fEE-Leistung (90 GW) auf 0,5 Prozent genau - ein sauberer Kreuztest.",
+  "capacities_by_scenario_gw": {
+   "ee80_gas": {
+    "pv": 240.2,
+    "wind_onshore": 142.6,
+    "wind_offshore": 55.2,
+    "sum": 438.0,
+    "verified": true
+   },
+   "ee80_h2": {
+    "pv": 240.2,
+    "wind_onshore": 142.6,
+    "wind_offshore": 55.2,
+    "sum": 438.0,
+    "verified": true
+   },
+   "ee100": {
+    "pv": 519.3,
+    "wind_onshore": 213.5,
+    "wind_offshore": 53.2,
+    "sum": 786.0,
+    "verified": "nur die Summe; die impliziten Faktoren 11.46/5.39/9.64 sind im MD nicht genannt"
+   },
+   "kostenminimum": {
+    "pv": 45.3,
+    "wind_onshore": 39.6,
+    "wind_offshore": 5.5,
+    "baseload_nuclear": 125
+   }
+  },
+  "rejected_claim": "Die MD-Aussage, die Kontrollrechnung gegen das 100-Prozent-Szenario weiche nur um 4 Prozent ab, ist nicht nachvollziehbar dokumentiert und darf nicht als Validierungssignal erzaehlt werden.",
+  "new_finding": {
+   "id": "baseline_below_reality",
+   "real_2022_fee_gw": 132.7,
+   "model_baseline_gw": 90.45,
+   "ratio": 0.68,
+   "real_mid_2026_fee_gw": 208.4,
+   "components_mid_2026_gw": {
+    "pv": 126.6,
+    "wind_onshore": 71.0,
+    "wind_offshore": 10.8
+   },
+   "confidence": "A (Ist-Kapazitäten) / B (Schlussfolgerung)",
+   "statement": "Die zurueckgerechnete Modell-Basis liegt 32 Prozent unter der realen deutschen fEE-Leistung Ende 2022. Nimmt man die 90 GW des Kostenminimum-Szenarios woertlich als installierte Leistung, liegt dieses Szenario rund 118 GW unter dem Bestand von Mitte 2026. Worauf sich die Groesse genau bezieht, laesst sich ohne den Studienanhang nicht klaeren - als offene Frage kennzeichnen, nicht als Fehler behaupten."
+  }
+ },
+ "monte_carlo_headline": {
+  "source": "data/monte_carlo_reference.json, Modell scripts/model.py, 1000 Ziehungen, Dreiecksverteilungen aus data/model_params.json",
+  "co2_price_eur_t": 75,
+  "caveat": "Profile PARTIAL (H2-2024, 4416 h, hochgerechnet); Erdgas-Brennstoffkosten fehlen in den Dossiers und sind mit 0 angesetzt - alle Werte sind UNTERGRENZEN; Import/Export und Lastmanagement nicht modelliert.",
+  "confidence": "B",
+  "presets": [
+   {
+    "id": "ist2025",
+    "label": "Ist 2025 (Referenz)",
+    "deterministic": 107.1,
+    "p50_base": 108,
+    "p5_p95_base": [
+     101,
+     115
+    ],
+    "p50_wacc": 113,
+    "p5_p95_wacc": [
+     95,
+     140
+    ]
+   },
+   {
+    "id": "kostenminimum",
+    "label": "GES - Kostenminimum",
+    "deterministic": 155.8,
+    "p50_base": 161,
+    "p5_p95_base": [
+     133,
+     190
+    ],
+    "p50_wacc": 175,
+    "p5_p95_wacc": [
+     127,
+     256
+    ],
+    "gas_peak_gw": 53.9
+   },
+   {
+    "id": "ee80_gas",
+    "label": "GES - 80 % EE + Gas",
+    "deterministic": 140.7,
+    "p50_base": 142,
+    "p5_p95_base": [
+     132,
+     152
+    ],
+    "p50_wacc": 148,
+    "p5_p95_wacc": [
+     123,
+     185
+    ]
+   },
+   {
+    "id": "ee80_h2",
+    "label": "GES - 80 % EE + H2",
+    "deterministic": 197.2,
+    "p50_base": 197,
+    "p5_p95_base": [
+     186,
+     208
+    ],
+    "p50_wacc": 205,
+    "p5_p95_wacc": [
+     177,
+     246
+    ]
+   },
+   {
+    "id": "ee100",
+    "label": "GES - 100 % Erneuerbare",
+    "deterministic": 270.9,
+    "p50_base": 270,
+    "p5_p95_base": [
+     253,
+     288
+    ],
+    "p50_wacc": 286,
+    "p5_p95_wacc": [
+     239,
+     352
+    ]
+   }
+  ],
+  "honest_statement": "Mit unseren Kostenannahmen rutscht das Kernkraft-Szenario vom ersten auf den zweiten Platz - hinter den gasgestützten 80-Prozent-Erneuerbaren-Pfad. Von einer Umkehr des Studienergebnisses zu sprechen wäre zu viel: Die Unsicherheitsbänder überlappen, und gegenüber beiden wasserstofflastigen Pfaden bleibt das Kernkraft-Szenario günstiger."
+ },
+ "electrolyser": {
+  "status": "MD-Claim verworfen, Richtung dreht sich um",
+  "study_assumption_eur_kw": 1760,
+  "md_claim_eur_kw": [
+   800,
+   1200
+  ],
+  "md_claim_verdict": "verworfen - Stack-/Hardwarekosten statt Systemkosten; dena-Quelle weist gar keine Kosten aus",
+  "eu_actual_2025_eur_kw": {
+   "alkali": 2075,
+   "pem": 2196,
+   "source_id": "global-hydrogen-hub-2025",
+   "confidence": "B"
+  },
+  "ffe_full_system_2025_eur_kw": 3120,
+  "ffe_note": "FfE Discussion Paper 07/2025: realistische Systemkosten rund 3120 EUR/kW - etwa das Zweieinhalbfache des ueblicherweise Angenommenen. Viele Studien betrachten nur die Hardware (Stack, Gleichrichter, Kompressoren) und blenden Planung, Genehmigung und Installation aus. Reale Projektentwickler-Angaben 2024: 9-13 EUR/kg statt der prognostizierten 2,50-4,50 EUR/kg bis 2030.",
+  "model_range_eur_kw": {
+   "min": 1200,
+   "mid": 2100,
+   "max": 2600,
+   "confidence": "B"
+  },
+  "recommended_upper_reference_eur_kw": 3120,
+  "confidence": "B",
+  "statement": "Bei den Elektrolyseuren dreht sich der Vorwurf um: Wer 800 bis 1200 Euro je Kilowatt ansetzt, rechnet nur die Hardware. Mit Planung, Genehmigung und Installation kommt das Muenchner FfE für 2025 auf rund 3120 Euro je Kilowatt. Die GES-Studie rechnet hier also eher zu günstig als zu teuer."
+ },
+ "ets_gap_gas_ccs": {
+  "status": "Richtung bestätigt, Preisquelle korrigiert, Groesse klein",
+  "md_claim": "ETS-Preis laut EWI > 200 EUR/t bis 2035",
+  "correction": "Die EWI-Werte (ca. 120 EUR/t 2027, ca. 205 EUR/t 2035) stammen aus dem ETS 2 (Gebaeude, Verkehr, kleine Industrie). Der ETS 2 betrifft die Stromerzeugung NICHT - dafür gilt ETS 1. Zusätzlich startet ETS 2 nicht 2027, sondern 2028 (Rat 05.11.2025, EP 13.11.2025).",
+  "ets1_prices_eur_t": {
+   "mai_2026": 74,
+   "allzeithoch_feb_2023": 100.34,
+   "konsens_2030": 126,
+   "analystenspanne_2030": [
+    80,
+    147
+   ],
+   "2040": null
+  },
+  "ets1_2040_note": "Keine belastbare Projektion - EU-Ziel für 2040 regulatorisch nicht abschliessend festgelegt. Alle 2040-Werte sind Szenario, nicht Prognose.",
+  "gas_ccs_residual_g_co2_kwh": {
+   "min": 49,
+   "default": 120,
+   "max": 220,
+   "confidence": "B"
+  },
+  "cost_impact_eur_mwh_gas": {
+   "at_75": {
+    "min": 3.7,
+    "default": 9.0,
+    "max": 16.5
+   },
+   "at_126": {
+    "min": 6.2,
+    "default": 15.1,
+    "max": 27.7
+   },
+   "at_205": {
+    "min": 10.0,
+    "default": 24.6,
+    "max": 45.1
+   }
+  },
+  "system_impact_eur_mwh_at_10pct_gas_share": [
+   0.4,
+   4.5
+  ],
+  "additional_finding": "Die Luecke trifft nicht nur die 80-Prozent-Szenarien: In unserem Dispatch braucht auch das GES-Kostenminimum-Szenario 53,9 GW Gas-Spitzenleistung.",
+  "confidence": "A (ETS1/ETS2-Abgrenzung) / B (Projektion 2030, Restemissionen)",
+  "statement": "Dass auf die Restemissionen von Gas mit CCS kein CO2-Preis gelegt wird, ist eine echte Luecke - aber eine kleine: Sie bewegt die Systemkosten um weniger als fünf Euro je Megawattstunde. Und der oft zitierte Preis von über 200 Euro je Tonne stammt aus dem ETS 2, der für Strom gar nicht gilt."
+ },
+ "thirty_year_plan": {
+  "start_2026_corrected": {
+   "pv_gw": {
+    "md": 110,
+    "corrected": 126.6,
+    "as_of": "2026-07",
+    "eoy2025": 117.0,
+    "confidence": "A"
+   },
+   "wind_onshore_gw": {
+    "md": 65,
+    "corrected": 71.0,
+    "as_of": "2026-07",
+    "eoy2025": 68.1,
+    "confidence": "A"
+   },
+   "wind_offshore_gw": {
+    "md": 10,
+    "corrected": 10.8,
+    "as_of": "2026 Jahresmitte",
+    "eoy2025": 9.6,
+    "confidence": "A"
+   },
+   "battery": {
+    "md_gw": 5,
+    "md_gwh": 15,
+    "corrected_gw": [
+     18.5,
+     20.0
+    ],
+    "corrected_gwh": [
+     31.0,
+     31.5
+    ],
+    "scope": "alle Groessenklassen inkl. Heimspeicher (MaStR, H1 2026)",
+    "warning": "Ein kursierender Grossspeicher-Wert von 1,2 GW / 2,4 GWh (Q2 2026) ist laut ist_zustand_de.md 2.2 implausibel niedrig und nicht ohne Pruefung verwendbar. Abgrenzung IMMER mitnennen.",
+    "confidence": "A"
+   },
+   "gas_gw": {
+    "md": 30,
+    "corrected": [
+     35,
+     36
+    ],
+    "confidence": "B"
+   },
+   "nuclear_gw": {
+    "md": 0,
+    "corrected": 0,
+    "confidence": "A"
+   },
+   "demand_twh": {
+    "md": 560,
+    "corrected_2024": 518,
+    "corrected_2025_range": [
+     512,
+     526
+    ],
+    "note": "Bruttostromverbrauch. Der MD-Startwert liegt 7-9 Prozent zu hoch.",
+    "confidence": "A"
+   }
+  },
+  "learning_curves": {
+   "status": "SETZUNG (M) mit teilweise belegbarer Richtung",
+   "pv_eur_kw": {
+    "values": [
+     650,
+     500,
+     420
+    ],
+    "verdict": "M",
+    "supporting_evidence": [
+     {
+      "claim": "Fraunhofer ISE Juli 2024: PV-Freiflaeche 4,1-6,9 ct/kWh heute -> 3,1-5,0 ct/kWh 2045 (minus 24 bis 28 Prozent), auf Basis technologiespezifischer Lernraten",
+      "confidence": "A"
+     },
+     {
+      "claim": "ITRPV: historische Lernrate der PV-Industrie 26 Prozent je Verdopplung der kumulierten Produktion (1976-2025); zuvor 24,9 Prozent",
+      "confidence": "B"
+     },
+     {
+      "claim": "IRENA: global rund 500 USD/kW für PV im Jahr 2030 erwartet - mit ausdrücklichem Vorbehalt, dass in Europa und Nordamerika strukturell hoehere Kosten fortbestehen",
+      "confidence": "B"
+     }
+    ],
+    "caveat": "Die Degression von minus 35 Prozent über 30 Jahre ist etwas ambitionierter als die ISE-Projektion. Zusätzlich liegt der Startwert 650 EUR/kW bereits am optimistischen Ende unserer Modellspanne (600-1000, Default 750)."
+   },
+   "battery_eur_kwh": {
+    "values": [
+     200,
+     150,
+     120
+    ],
+    "verdict": "M",
+    "supporting_evidence": [
+     {
+      "claim": "BNEF Dez. 2025: Pack-Preise auf Rekordtief 108 USD/kWh (minus 8 Prozent), stationaere Packs 70 USD/kWh; berechnete Lernrate rund 18 Prozent je Verdopplung",
+      "confidence": "A"
+     },
+     {
+      "claim": "IRENA 2024: Batteriespeichersysteme minus 93 Prozent seit 2010, 2024 bei 192 USD/kWh",
+      "confidence": "B"
+     }
+    ],
+    "counter_evidence": [
+     {
+      "claim": "Lazard LCOE+ v19 (Juli 2026): Speichersystemkosten seit 2020 um 27 Prozent GESTIEGEN; LCOS 100 MW / 4 h bei 210-292 USD/MWh. Ursachen: Zinsen, Zoelle, Lieferkettendruck, Rechenzentrumsnachfrage.",
+      "confidence": "A"
+     },
+     {
+      "claim": "Zelle/Pack ist nicht System: Faktor 2,5 bis 3 zwischen Pack-Preis und betriebsbereitem Netzspeicher in Europa. Schluesselfertige 4-h-Systeme in Europa 180-260 EUR/kWh.",
+      "confidence": "B"
+     }
+    ],
+    "verdict_detail": "Startwert 200 EUR/kWh liegt korrekt in unserer Modellspanne. Endwert 120 EUR/kWh liegt unterhalb der heutigen Systemkosten-Untergrenze und ist reine Setzung. kosten_ee_speicher.md 6 warnt explizit vor automatischer Lernkurven-Extrapolation nach unten."
+   },
+   "wind_onshore_eur_kw": {
+    "values": [
+     1750,
+     1750,
+     1750
+    ],
+    "verdict": "M/B",
+    "note": "Plausible Setzung (ausgereifte Technologie), deckt sich mit unserem Modellwert 1790 EUR/kW."
+   },
+   "wind_offshore_eur_kw": {
+    "values": [
+     3700,
+     3500,
+     3400
+    ],
+    "verdict": "M",
+    "note": "Modellspanne 2600-4500, Default 3400. Die MD-Werte liegen darin."
+   },
+   "electrolyser_eur_kw": {
+    "values": [
+     900,
+     650,
+     480
+    ],
+    "verdict": "verworfen",
+    "reason": "Startwert liegt um Faktor 2,3 unter den europäischen Ist-Systemkosten (ca. 2100 EUR/kW) und um Faktor 3,5 unter der FfE-Vollkostenrechnung (3120 EUR/kW).",
+    "replacement_proposal": {
+     "start_2026": 2100,
+     "end_2056": [
+      1200,
+      1400
+     ],
+     "verdict": "M"
+    }
+   },
+   "gas_eur_kw": {
+    "values": [
+     2200,
+     2200,
+     2200
+    ],
+    "verdict": "B",
+    "note": "Konsistent mit unserem Befund, dass der alte Referenzwert 800 EUR/kW für 2026 um Faktor 2-2,5 zu niedrig ist. Modellspanne 1000/1600/2200."
+   }
+  },
+  "investment_check": {
+   "md_total_bn_eur": 1412,
+   "reproduced": true,
+   "breakdown_bn_eur": {
+    "generation_storage_electrolysis": 652,
+    "grid": 760
+   },
+   "phase_generation_bn_eur": {
+    "2026-2035": 234.8,
+    "2036-2045": 226.8,
+    "2046-2056": 190.3
+   },
+   "phase_implied_grid_bn_eur": {
+    "2026-2035": 180.2,
+    "2036-2045": 300.2,
+    "2046-2056": 279.7
+   },
+   "missing_replacement_capex_bn_eur": {
+    "pv_stock_110gw_at_420": 46,
+    "wind_onshore_65gw_at_1750": 114,
+    "wind_offshore_10gw_at_3400": 34,
+    "battery_phase1_120gwh_at_120": 14,
+    "sum": 208,
+    "confidence": "B",
+    "note": "Der Plan rechnet ausschliesslich Netto-Zubauten. Phase 3 heisst 'Konsolidierung & Repowering', enthält aber keinen Euro dafür. Realistische Gesamtinvestition eher 1550-1650 Mrd. EUR."
+   },
+   "grid_share_verdict": "M - 760 Mrd. EUR bis 2056 ist eine Extrapolation. Belegte Referenzen: IMK 651 Mrd. EUR bis 2045 (Übertragung 328 + Verteilung 323, Konfidenz A) und NEP 2037/2045 V2025 365-392 Mrd. EUR bis 2045 (nur Übertragung, Konfidenz B)."
+  },
+  "lscoe_2056": {
+   "md_value": 121.7,
+   "md_reconstruction": {
+    "total_cost_bn_eur_a": 127.6,
+    "generation_twh": 876,
+    "demand_twh": 1050,
+    "divided_by_demand": 121.5,
+    "divided_by_generation": 145.7,
+    "flaw": "Das MD teilt die Gesamtkosten durch den Bedarf (1050 TWh), obwohl nur 876 TWh erzeugt werden. Die Deckungsluecke von 174 TWh (17 Prozent) wird damit implizit zum Nulltarif gedeckt."
+   },
+   "our_model": {
+    "engine": "scripts/model.py mix_system",
+    "inputs": {
+     "pv_gw": 400,
+     "wind_onshore_gw": 150,
+     "wind_offshore_gw": 70,
+     "battery_gw": 110,
+     "battery_gwh": 450,
+     "electrolyser_gw": 55,
+     "h2_turbine_gw": 45,
+     "gas_backup_gw": 45,
+     "demand_twh": 1050,
+     "co2_price_eur_t": 75
+    },
+    "guenstig": 106.9,
+    "mittel": 162.8,
+    "teuer": 290.1,
+    "mittel_with_md_flh": 148.6,
+    "cost_components_eur_mwh_mittel": {
+     "netz": 38.6,
+     "wind_onshore": 26.7,
+     "wind_offshore": 25.3,
+     "pv": 25.2,
+     "electrolyser": 13.0,
+     "gas_backup": 11.3,
+     "battery": 9.7,
+     "h2_turbine": 6.5,
+     "h2_storage": 6.4
+    },
+    "deviation_vs_md_eur_mwh": 41.1,
+    "confidence": "B",
+    "caveats": "Profile PARTIAL (H2-2024, 4416 h, auf ein Jahr hochgerechnet - winterlastig); für Offshore wird ersatzweise das Onshore-Profil verwendet; Erdgas-Brennstoffkosten mit 0 angesetzt (harte Datenluecke) - der Wert ist eine UNTERGRENZE; Import/Export und Lastmanagement nicht modelliert."
+   },
+   "flh_finding": {
+    "statement": "Die 174-TWh-Deckungsluecke ist groesstenteils ein Artefakt der GES-Volllaststunden. Mit unseren Neuanlagen-Werten (PV 1030 h, Wind onshore 2400 h, Wind offshore 3800 h) erzeugt derselbe Anlagenpark 1038 statt 876 TWh - die Luecke schrumpft von 17 auf 1 Prozent.",
+    "confidence": "A",
+    "note": "Ein Befund ZUGUNSTEN des Plans, den das MD selbst verschenkt."
+   },
+   "recommended_value": {
+    "mid": 163,
+    "range": [
+     107,
+     290
+    ],
+    "unit": "EUR/MWh",
+    "is_lower_bound": true,
+    "confidence": "B"
+   }
+  },
+  "nuclear_variant": {
+   "md": {
+    "reactors": 2,
+    "gw_each": 1.6,
+    "online": [
+     2045,
+     2052
+    ],
+    "capex_eur_kw": 16000,
+    "wacc": 0.08,
+    "lcoe_eur_mwh": 311.1,
+    "investment_bn_eur": 51.2,
+    "system_lscoe": 129.3,
+    "delta": 7.6
+   },
+   "corrected": {
+    "capex_eur_kw_range": [
+     12000,
+     17500
+    ],
+    "lcoe_eur_mwh_at_16000": {
+     "wacc_5": 150.7,
+     "wacc_8": 210.4
+    },
+    "investment_bn_eur": 51.2,
+    "our_model_system_lscoe": 165.1,
+    "our_model_delta": 2.3,
+    "confidence": "B"
+   },
+   "robust_finding": "3,2 GW auf über 600 GW Gesamtkapazität sind ein Rundungsfehler. Zwei Blöcke liefern rund 25 TWh pro Jahr bei 1050 TWh Bedarf (2,4 Prozent) - bei 51 Mrd. EUR Kapitalbindung und ohne jeden Beitrag vor 2045. Das ist ein Skalen-Argument, kein Kosten-Argument.",
+   "counterposition": "Ein Programm mit nur zwei Blöcken ist die denkbar ungünstigste Konstruktion - genau die Konstellation ohne Serieneffekte. kosten_kernkraft.md 7.1 weist den Low-Fall (7500 EUR/kW) als 'nur erreichbar bei mindestens 6 Blöcken identischer Bauart und Turnkey-Festpreis' aus. Wer Kernkraft fair prüft, muss sie als Programm rechnen. Einziger dokumentierter Serieneffekt: OPG Darlington, minus 32 Prozent vom ersten Block zum Durchschnitt über vier Blöcke.",
+   "lead_time": {
+    "statement": "Realistischer Gesamtpfad von der politischen Entscheidung bis zum ersten kommerziellen Block: 18-25 Jahre - inklusive Aufhebung des gesetzlichen Neubauverbots, Behördenaufbau und Standortverfahren. Vergleich: Polen 6 Jahre von der Technologieentscheidung bis zum ersten Beton, Tschechien 5 Jahre von der Vergabe.",
+    "confidence": "A"
+   }
+  }
+ },
+ "assumption_audit_corrected": {
+  "note": "Effektgroessen statt Abzaehlen. Ein reiner Zaehler wäre irrefuehrend, weil die Befunde stark unterschiedlich gross sind.",
+  "items": [
+   {
+    "id": "pv_capex",
+    "direction": "zulasten_ee",
+    "verdict": "bestätigt",
+    "magnitude": "gross",
+    "confidence": "A"
+   },
+   {
+    "id": "wind_flh",
+    "direction": "zulasten_ee",
+    "verdict": "neu (im MD fehlend)",
+    "magnitude": "gross",
+    "confidence": "A",
+    "detail": "1700 h Bestandsflotte statt 2400 h Neuanlagen; LCOE 93 -> 66 EUR/MWh (minus 29 Prozent). BNetzA Mai 2026: 50,6 EUR/MWh mengengewichtet."
+   },
+   {
+    "id": "nuclear_capex",
+    "direction": "zugunsten_kernkraft",
+    "verdict": "korrigiert",
+    "magnitude": "gross",
+    "confidence": "A",
+    "detail": "Unterschaetzung 25-45 Prozent ggue. seriellem EU-Programm, 100-190 Prozent ggue. westlichem Erstprojekt - nicht pauschal 100-170 Prozent."
+   },
+   {
+    "id": "nuclear_wacc",
+    "direction": "zugunsten_kernkraft",
+    "verdict": "bestätigt",
+    "magnitude": "gross",
+    "confidence": "A"
+   },
+   {
+    "id": "electrolyser_capex",
+    "direction": "zugunsten_h2_szenarien",
+    "verdict": "verworfen, Richtung dreht",
+    "magnitude": "mittel",
+    "confidence": "B"
+   },
+   {
+    "id": "no_batteries_modelled",
+    "direction": "zulasten_ee",
+    "verdict": "neu (im MD fehlend)",
+    "magnitude": "mittel",
+    "confidence": "A"
+   },
+   {
+    "id": "gas_capex_explosion",
+    "direction": "zulasten_gas_pfade",
+    "verdict": "neu (im MD fehlend)",
+    "magnitude": "mittel",
+    "confidence": "B",
+    "detail": "Standardwert 800 EUR/kW für 2026 um Faktor 2-2,5 zu niedrig. Trifft alle Szenarien mit Gas-Backup, auch das Kostenminimum."
+   },
+   {
+    "id": "nuclear_opex_generous",
+    "direction": "zugunsten_ee",
+    "verdict": "neu (im MD fehlend)",
+    "magnitude": "mittel",
+    "confidence": "A",
+    "detail": "GES rechnet 7 Prozent CAPEX/a; bottom-up ergeben sich rund 4,2 Prozent. Die Studie rechnet Kernkraft-Betrieb also eher zu teuer - ein Befund zugunsten der Studie."
+   },
+   {
+    "id": "seasonal_h2_storage_expensive_end",
+    "direction": "zugunsten_ee",
+    "verdict": "neu (im MD fehlend)",
+    "magnitude": "mittel",
+    "confidence": "A",
+    "detail": "Faktor 7,8 zwischen hoher und niedriger Zyklenzahl. Saisonspeicher = niedrige Zyklenzahl = teures Ende. Stuetzt die Kernthese der Studie."
+   },
+   {
+    "id": "h2_roundtrip",
+    "direction": "zugunsten_ee",
+    "verdict": "bestätigt",
+    "magnitude": "gross",
+    "confidence": "B",
+    "detail": "Realistisch 30-40 Prozent, nicht 50+. Für 1 kWh rückverstromten Strom braucht es 2,5-3,3 kWh EE-Strom - der eigentliche Treiber der 1162 GW im 100-Prozent-Szenario. Physikalisch korrekt, darf nicht kleingeredet werden."
+   },
+   {
+    "id": "ets_gap_gas_ccs",
+    "direction": "zugunsten_gas_pfade",
+    "verdict": "korrigiert",
+    "magnitude": "klein",
+    "confidence": "B"
+   },
+   {
+    "id": "grid_investment",
+    "direction": "neutral",
+    "verdict": "bestätigt",
+    "magnitude": "-",
+    "confidence": "A"
+   },
+   {
+    "id": "nuclear_fuel",
+    "direction": "neutral",
+    "verdict": "bestätigt",
+    "magnitude": "-",
+    "confidence": "A"
+   },
+   {
+    "id": "ccs_cost",
+    "direction": "neutral",
+    "verdict": "bestätigt (Groessenordnung)",
+    "magnitude": "-",
+    "confidence": "C"
+   },
+   {
+    "id": "interconnectors",
+    "direction": "zugunsten_ee",
+    "verdict": "bestätigt",
+    "magnitude": "klein",
+    "confidence": "B",
+    "detail": "Unser eigenes Modell rechnet Import/Export gar nicht - das ist konservativer als die Studie und muss gesagt werden."
+   }
+  ]
+ },
+ "must_show_counterpositions": [
+  {
+   "id": "cp_transparency",
+   "text": "Die GES-Studie legt ihre Annahmen ungewöhnlich offen - Basisjahr, Interkonnektor-Deckelung, keine Batterien, keine Wasserstoffimporte als Standardlösung, WACC. Genau diese Transparenz macht diesen Check erst möglich.",
+   "confidence": "A"
+  },
+  {
+   "id": "cp_wacc_both_ways",
+   "text": "Bei drei Prozent Diskontsatz ist Kernkraft in allen von IEA und NEA untersuchten Ländern die günstigste Option, bei zehn Prozent in praktisch keinem. Dieselbe Technologie, dieselben Baukosten - nur eine andere Finanzierungsannahme.",
+   "confidence": "A"
+  },
+  {
+   "id": "cp_construction_time",
+   "text": "Der globale Median der Bauzeit liegt bei 6,3 Jahren, 68 Prozent aller Reaktoren weltweit wurden in unter acht Jahren gebaut. Für eine Deutschland-Prognose ist der Median allerdings die falsche Kennzahl: Jedes westliche Neubauprojekt der letzten 20 Jahre lag zwischen 10 und 18 Jahren.",
+   "confidence": "A"
+  },
+  {
+   "id": "cp_eu_references",
+   "text": "Die europäischen Neubauprojekte liegen deutlich unter Hinkley Point C: EPR2 7265 bis 7583 Euro je Kilowatt Overnight, Dukovany 7906 als EPC-Vertrag, Polen 11968, Sizewell C 13472. Die GES-Annahme von 6000 Euro ist keine willkürliche Zahl - sie liegt nur knapp unter dem, was EDF selbst für ein serielles Programm ansetzt.",
+   "confidence": "A"
+  },
+  {
+   "id": "cp_ges_opex",
+   "text": "Bei den Betriebskosten hat die GES-Studie eher zu hoch als zu niedrig gerechnet. Das relativiert die Aussage, sie unterschätze Kernkraft.",
+   "confidence": "A"
+  },
+  {
+   "id": "cp_h2_physics",
+   "text": "Der Round-Trip-Wirkungsgrad der Wasserstoffkette liegt realistisch bei 30 bis 40 Prozent. Für eine Kilowattstunde rückverstromten Strom braucht es zweieinhalb bis dreieinhalb Kilowattstunden erneuerbaren Strom. Genau daraus entsteht die Überkapazität im 100-Prozent-Szenario - dieser Mechanismus ist physikalisch korrekt.",
+   "confidence": "B"
+  },
+  {
+   "id": "cp_korea_both_ways",
+   "text": "Korea baut günstig, weil eine Baureihe ohne Designänderungen, eine ununterbrochene Lieferkette seit den 1970er Jahren, ein Betreiber, ein Regulator und staatlich gesteuerte Finanzierung zusammenkommen. Aber auch dort wurden Shin Kori 3 und 4 drei beziehungsweise fünf Jahre später fertig, mit rund 30 Prozent Mehrkosten - und derselbe Reaktortyp kostete im Export rund das 2,7-Fache.",
+   "confidence": "B"
+  },
+  {
+   "id": "cp_ee_risks",
+   "text": "Auch der erneuerbare Pfad hat Risiken: der China-Anteil in der Photovoltaik-Lieferkette, kritische Rohstoffe für Batterien und Windkraft, die Verluste der Wasserstoffkette, saisonale Speicherung am teuren Ende der Spanne und Aufwärtsrisiken beim Netzausbau durch Rohstoffpreise, Transformatorenknappheit und Genehmigungsverzüge.",
+   "confidence": "A"
+  }
+ ],
+ "shared": {
+  "_note": "Bereits validierte, mit dem White Paper geteilte Zahlen. Quelle jeweils data/page_data.json bzw. data/monte_carlo_reference.json.",
+  "ges_reference": {
+   "methodology": {
+    "wacc": 0.05,
+    "formula": "LCOE = (CAPEX*CRF + CAPEX*opex_pct) / (fullLoadHours/1000) + fuelCost",
+    "crf_formula": "r*(1+r)^n / ((1+r)^n - 1)"
+   },
+   "scenarios": {
+    "ee80_gas": {
+     "name": "80% EE + Gas-Peaker",
+     "lscoe": 197,
+     "installed_gw": 542,
+     "fee_gw": 438
+    },
+    "ee80_h2": {
+     "name": "80% EE + mehr H2",
+     "lscoe": 212,
+     "installed_gw": 618,
+     "fee_gw": 438
+    },
+    "ee100": {
+     "name": "100% Erneuerbare",
+     "lscoe": 321,
+     "installed_gw": 1162,
+     "fee_gw": 786
+    },
+    "kostenminimum": {
+     "name": "Kostenminimum (inkl. Kernkraft)",
+     "lscoe": 125,
+     "installed_gw": 215,
+     "fee_gw": 90
+    }
+   },
+   "scenario_order": [
+    "kostenminimum",
+    "ee80_gas",
+    "ee80_h2",
+    "ee100"
+   ],
+   "technologies": {
+    "pv": {
+     "capex_eur_kw": 1500,
+     "opex_pct": 0.01,
+     "full_load_hours": 940,
+     "lifetime_years": 27,
+     "lcoe": 124.9,
+     "source": "GES-Studie, Tab. 4 (NREL 2024)"
+    },
+    "wind_onshore": {
+     "capex_eur_kw": 1749,
+     "opex_pct": 0.02,
+     "full_load_hours": 1700,
+     "lifetime_years": 27,
+     "lcoe": 90.8,
+     "source": "GES-Studie, Tab. 4"
+    },
+    "wind_offshore": {
+     "capex_eur_kw": 3500,
+     "opex_pct": 0.03,
+     "full_load_hours": 3500,
+     "lifetime_years": 27,
+     "lcoe": 98.3,
+     "source": "GES-Studie, Tab. 4"
+    },
+    "nuclear": {
+     "capex_eur_kw": 6000,
+     "opex_pct": 0.07,
+     "full_load_hours": 8000,
+     "lifetime_years": 65,
+     "fuel_cost_eur_mwh": 10,
+     "lcoe": 101.6,
+     "source": "GES-Studie, Tab. 4 (NREL 2024)"
+    }
+   },
+   "source_id": "ges-studie-2026",
+   "confidence": "A"
+  },
+  "crf_by_wacc_pct": {
+   "3": 0.03613,
+   "5": 0.05283,
+   "7": 0.07124,
+   "9": 0.09051,
+   "10": 0.10033
+  },
+  "lcoe_benchmarks": {
+   "pv_freiflaeche": {
+    "reference": {
+     "min": 41,
+     "mid": 55,
+     "max": 69,
+     "source": "fraunhofer-ise-2024",
+     "confidence": "A"
+    },
+    "auction": {
+     "min": 39.9,
+     "mid": 49.4,
+     "max": 51.0,
+     "source": "bnetza-pv-2026-03",
+     "note": "Zuschlagswerte, nicht LCOE - eher Obergrenze der Betreiber-Vollkosten über 20 Jahre",
+     "confidence": "A"
+    },
+    "forecast_2045": {
+     "min": 31,
+     "max": 50,
+     "source": "fraunhofer-ise-2024",
+     "confidence": "A"
+    }
+   },
+   "wind_onshore": {
+    "reference": {
+     "min": 43,
+     "mid": 66,
+     "max": 92,
+     "source": "fraunhofer-ise-2024",
+     "confidence": "A"
+    },
+    "auction": [
+     {
+      "date": "2026-02",
+      "min": 51.9,
+      "weighted_avg": 55.4,
+      "max": 56.4,
+      "confidence": "A"
+     },
+     {
+      "date": "2026-05",
+      "min": 44.4,
+      "weighted_avg": 50.6,
+      "max": 51.9,
+      "awarded_mw": 2499,
+      "confidence": "A"
+     }
+    ],
+    "auction_cap": {
+     "value": 72.5,
+     "source": "bnetza-hoechstwert-2026",
+     "confidence": "A"
+    },
+    "irena_europe": {
+     "value": 47,
+     "usd": 51,
+     "confidence": "A"
+    },
+    "sensitivity_flh": [
+     {
+      "flh": 1700,
+      "lcoe_eur_mwh": 93.0,
+      "note": "GES-Studienannahme, entspricht Bestandsflotte"
+     },
+     {
+      "flh": 2400,
+      "lcoe_eur_mwh": 65.9,
+      "note": "Neuanlagen-Mittel"
+     },
+     {
+      "flh": 2600,
+      "lcoe_eur_mwh": 60.8,
+      "note": "gute Standorte"
+     }
+    ],
+    "full_load_hours_fleet": {
+     "value_2025": 1608,
+     "mean_since_2015": 1770,
+     "confidence": "A",
+     "note": "Bestandsflotte - NICHT für Neubau-LCOE verwenden"
+    }
+   },
+   "wind_offshore": {
+    "reference": {
+     "min": 55,
+     "mid": 78,
+     "max": 103,
+     "source": "fraunhofer-ise-2024",
+     "confidence": "A"
+    },
+    "lazard_2026": {
+     "min": 97,
+     "max": 154,
+     "usd_min": 105,
+     "usd_max": 167,
+     "confidence": "A"
+    },
+    "irena_europe": {
+     "value": 74,
+     "usd": 80,
+     "confidence": "A"
+    },
+    "auction": {
+     "available": false,
+     "reason": "Deutsche Offshore-Ausschreibungen laufen als Null-Cent-Gebote mit dynamischem Bieterverfahren. Bieter ZAHLEN an den Staat (N-9.4, 2025: TotalEnergies 180 Mio. EUR für 1000 MW) statt Vergütung zu erhalten. Kein LCOE-Signal ableitbar; die Zahlungen sind ein zusaetzlicher Kostenaufschlag.",
+     "auctions_2026": "auf 2027 verschoben (Flaechenentwicklungsplan-Aenderung 30.01.2026)"
+    }
+   },
+   "battery": {
+    "lcos_lazard_2026": {
+     "min": 193,
+     "max": 269,
+     "usd_min": 210,
+     "usd_max": 292,
+     "config": "100 MW / 4h",
+     "confidence": "A"
+    }
+   },
+   "h2_turbine": {
+    "new_plant": {
+     "min": 401,
+     "max": 605,
+     "source": "fraunhofer-ise-flexkraftwerke",
+     "confidence": "A"
+    },
+    "gas_retrofit_2035": {
+     "min": 143,
+     "max": 325,
+     "flh_range": [
+      500,
+      3000
+     ],
+     "source": "fraunhofer-ise-flexkraftwerke",
+     "confidence": "A"
+    }
+   },
+   "gas_ccgt": {
+    "de_new": {
+     "min": 230,
+     "max": 280,
+     "source": "foes-2025",
+     "note": "reine Erzeugungskosten je nach CO2-Preis",
+     "confidence": "B"
+    },
+    "incl_external": {
+     "max": 670,
+     "source": "foes-2025",
+     "confidence": "B"
+    },
+    "gas_crisis_price": {
+     "min": 480,
+     "max": 530,
+     "source": "foes-2025",
+     "note": "bei Gaspreisniveau 2022",
+     "confidence": "B"
+    }
+   },
+   "nuclear": {
+    "third_party": [
+     {
+      "source_id": "fraunhofer-ise-2024",
+      "label": "Fraunhofer ISE, Juli 2024",
+      "scope": "Neubau Kernenergie",
+      "lcoe_ct_kwh": [
+       13.6,
+       49.0
+      ],
+      "lcoe_eur_mwh": [
+       136,
+       490
+      ],
+      "confidence": "A"
+     },
+     {
+      "source_id": "lazard-lcoe-18",
+      "label": "Lazard LCOE+ v18, Juni 2025",
+      "scope": "unsubventioniert, USA",
+      "lcoe_usd_mwh": [
+       141,
+       220
+      ],
+      "lcoe_eur_mwh": [
+       122,
+       190
+      ],
+      "confidence": "B"
+     },
+     {
+      "source_id": "iwr-hinkley-2026",
+      "label": "Hinkley Point C CfD, indexiert 17.01.2026",
+      "scope": "real vertraglich fixiert",
+      "lcoe_gbp_mwh": 127,
+      "lcoe_eur_mwh": 147,
+      "confidence": "A"
+     },
+     {
+      "source_id": "iea-nea-2020",
+      "label": "IEA/NEA 2020 bei 7 Prozent",
+      "scope": "24 Laender, ueberwiegend nicht-westlich",
+      "lcoe_usd_mwh": [
+       42,
+       102
+      ],
+      "lcoe_eur_mwh": [
+       36,
+       88
+      ],
+      "confidence": "A"
+     }
+    ],
+    "resulting_range": {
+     "optimistisch": {
+      "capex": 7500,
+      "wacc": 0.03,
+      "flh": 8000,
+      "lcoe": 59
+     },
+     "ges_nah": {
+      "capex": 6000,
+      "wacc": 0.05,
+      "flh": 8000,
+      "lcoe": 62
+     },
+     "realistisch_eu": {
+      "capex": 12000,
+      "wacc": 0.05,
+      "flh": 7500,
+      "lcoe": 133
+     },
+     "realistisch_de": {
+      "capex": 12000,
+      "wacc": 0.07,
+      "flh": 7500,
+      "lcoe": 162
+     },
+     "pessimistisch": {
+      "capex": 17500,
+      "wacc": 0.09,
+      "flh": 6500,
+      "lcoe": 275
+     }
+    }
+   }
+  },
+  "nuclear_reference_projects": [
+   {
+    "id": "korea-apr1400-domestic",
+    "label": "APR1400 Inland (Referenzwert)",
+    "country": "KR",
+    "capacity_mw": 1400,
+    "units": 1,
+    "capex_eur_kw": 1867,
+    "cost_scope": "overnight_only",
+    "construction_years": null,
+    "delay_years": null,
+    "confidence": "B",
+    "note": "Historischer Inlandswert. Shin Kori 3/4 hatten 3 bzw. 5 Jahre Verzug und rund 30 Prozent Kostensteigerung."
+   },
+   {
+    "id": "shin-hanul-34",
+    "label": "Shin Hanul 3&4",
+    "country": "KR",
+    "capacity_mw": 2800,
+    "units": 2,
+    "capex_eur_kw": 2720,
+    "cost_scope": "overnight_likely",
+    "construction_years": null,
+    "delay_years": 0,
+    "confidence": "B",
+    "note": "Aktuellster koreanischer Neubaupreis. Beste Korea-Referenz."
+   },
+   {
+    "id": "barakah-epc",
+    "label": "Barakah (EPC-Vertrag 2009)",
+    "country": "AE",
+    "capacity_mw": 5600,
+    "units": 4,
+    "capex_eur_kw": 3153,
+    "cost_scope": "epc_only",
+    "construction_years": 8,
+    "delay_years": 3.5,
+    "confidence": "A",
+    "note": null
+   },
+   {
+    "id": "barakah-total",
+    "label": "Barakah (Gesamtkosten)",
+    "country": "AE",
+    "capacity_mw": 5600,
+    "units": 4,
+    "capex_eur_kw": 4945,
+    "cost_scope": "total_incl_owners",
+    "construction_years": 8,
+    "delay_years": 3.5,
+    "confidence": "B",
+    "note": "Faktencheck-Dokument nennt 5257 EUR/kW; korrekter Wert bei einheitlichem Kurs ist 4945."
+   },
+   {
+    "id": "dukovany-ii",
+    "label": "Dukovany II",
+    "country": "CZ",
+    "capacity_mw": 2110,
+    "units": 2,
+    "capex_eur_kw": 7906,
+    "cost_scope": "epc_only",
+    "construction_years": null,
+    "delay_years": null,
+    "confidence": "A",
+    "note": "Nur EPC. Ohne Eigentümerkosten, Netzanbindung, Bauzinsen. Gesamtprojekt realistisch 9000-11000 EUR/kW. Wichtigster Datenpunkt: koreanischer Vertragspreis innerhalb der EU."
+   },
+   {
+    "id": "epr2-programme-2020eur",
+    "label": "EPR2-Programm (OCC, Preise 2020)",
+    "country": "FR",
+    "capacity_mw": 9600,
+    "units": 6,
+    "capex_eur_kw": 7583,
+    "cost_scope": "overnight_only",
+    "construction_years": null,
+    "delay_years": null,
+    "confidence": "A",
+    "note": "Beste Analogie für ein serielles westeuropäisches Programm. Seit 2022 (51,7 Mrd.) bereits +40 Prozent, vor Baubeginn."
+   },
+   {
+    "id": "epr2-programme-incl-financing",
+    "label": "EPR2-Programm (inkl. Finanzierung)",
+    "country": "FR",
+    "capacity_mw": 9600,
+    "units": 6,
+    "capex_eur_kw": 10417,
+    "cost_scope": "total_incl_idc",
+    "construction_years": null,
+    "delay_years": null,
+    "confidence": "B",
+    "note": "Implizierter IDC-Aufschlag rund +37 Prozent gegenüber Overnight."
+   },
+   {
+    "id": "lubiatowo-kopalino",
+    "label": "Lubiatowo-Kopalino",
+    "country": "PL",
+    "capacity_mw": 3750,
+    "units": 3,
+    "capex_eur_kw": 11968,
+    "cost_scope": "total_project",
+    "construction_years": null,
+    "delay_years": null,
+    "confidence": "A",
+    "note": "Planzahl vor Baubeginn, beihilferechtlich geprüft. Historisches Muster: eher steigend."
+   },
+   {
+    "id": "sizewell-c",
+    "label": "Sizewell C",
+    "country": "GB",
+    "capacity_mw": 3260,
+    "units": 2,
+    "capex_eur_kw": 13472,
+    "cost_scope": "total_project",
+    "construction_years": null,
+    "delay_years": null,
+    "confidence": "A",
+    "note": "Erstschätzung 2020: 20 Mrd. GBP -> +90 Prozent bis FID. RAB senkt WACC, verlagert aber Baurisiko auf Verbraucher."
+   },
+   {
+    "id": "vogtle-34",
+    "label": "Vogtle 3&4",
+    "country": "US",
+    "capacity_mw": 2234,
+    "units": 2,
+    "capex_eur_kw": 14258,
+    "cost_scope": "total_project",
+    "construction_years": 10.5,
+    "delay_years": 7,
+    "confidence": "A",
+    "note": "Faktencheck-Dokument nennt 12388 EUR/kW (impliziert ~1,21 USD/EUR). Empfohlener Wert 13500, Spanne 12980-14260."
+   },
+   {
+    "id": "flamanville-3",
+    "label": "Flamanville 3",
+    "country": "FR",
+    "capacity_mw": 1650,
+    "units": 1,
+    "capex_eur_kw": 14364,
+    "cost_scope": "total_incl_financing",
+    "construction_years": 17,
+    "delay_years": 12,
+    "confidence": "A",
+    "note": "Wert im Faktencheck-Dokument bestätigt. Quellenangabe sollte von WNA auf Cour des Comptes (14.01.2025) geändert werden."
+   },
+   {
+    "id": "hinkley-point-c",
+    "label": "Hinkley Point C",
+    "country": "GB",
+    "capacity_mw": 3260,
+    "units": 2,
+    "capex_eur_kw": 17264,
+    "cost_scope": "total_project_nominal",
+    "construction_years": null,
+    "delay_years": 5.5,
+    "confidence": "A",
+    "note": "Wert im Faktencheck-Dokument bestätigt. ABER: nominale Preisbasis. Real (GBP 2015) sind es 12408 EUR/kW. Beide Werte ausweisen."
+   },
+   {
+    "id": "paks-ii",
+    "label": "Paks II",
+    "country": "HU",
+    "capacity_mw": 2400,
+    "units": 2,
+    "capex_eur_kw": 5208,
+    "cost_scope": "unclear",
+    "construction_years": null,
+    "delay_years": 10,
+    "confidence": "C",
+    "note": "NICHT als Kostenreferenz verwenden. Politisch ausgehandelter Paketpreis von 2014, aktuelle Kosten unveröffentlicht, rund 10 Jahre Verzug. Nur als Beispiel für Intransparenz und geopolitische Abhängigkeit zitieren."
+   }
+  ],
+  "nuclear_capex_scenarios": {
+   "low": 7500,
+   "mid": 12000,
+   "high": 17500,
+   "anchors": {
+    "low": [
+     "epr2-programme-2020eur",
+     "dukovany-ii"
+    ],
+    "mid": [
+     "lubiatowo-kopalino",
+     "sizewell-c",
+     "epr2-programme-incl-financing"
+    ],
+    "high": [
+     "hinkley-point-c"
+    ]
+   },
+   "rationale_high": "Für ein deutsches Erstprojekt eher Erwartungs- als Extremwert: zusätzlich zu allen HPC-Nachteilen gesetzliches Neubauverbot, abgewickelte Genehmigungsbehoerde, keine Bauerfahrung seit 1989."
+  },
+  "wacc_sensitivity": {
+   "crf_formula": "r*(1+r)^n / ((1+r)^n - 1)",
+   "lifetime_effect_at_5pct": {
+    "40": 0.05828,
+    "60": 0.05283,
+    "65": 0.05219,
+    "80": 0.05103,
+    "finding": "Schwacher Hebel: 60 vs. 80 Jahre aendern die LCOE um rund 3 Prozent."
+   },
+   "wacc_effect_at_60y": {
+    "0.03": 0.03613,
+    "0.05": 0.05283,
+    "0.07": 0.07124,
+    "0.09": 0.09051,
+    "0.10": 0.10033,
+    "factor_3pct_to_10pct": 2.78,
+    "finding": "Staerkster Einzelhebel, staerker als jede plausible CAPEX-Variation."
+   },
+   "worked_example": {
+    "assumptions": {
+     "capex_eur_kw": 12000,
+     "full_load_hours": 7500,
+     "lifetime_years": 60,
+     "opex_eur_kw_a": 240,
+     "fuel_eur_mwh": 8,
+     "waste_eur_mwh": 8
+    },
+    "lcoe_eur_mwh": {
+     "0.03": 105.8,
+     "0.05": 132.5,
+     "0.07": 162.0,
+     "0.09": 192.8,
+     "0.10": 208.5
+    }
+   },
+   "iea_nea_2020": {
+    "capacity_factor_pct": 85,
+    "lcoe_usd_mwh": {
+     "0.03": [
+      27,
+      61
+     ],
+     "0.07": [
+      42,
+      102
+     ],
+     "0.10": [
+      57,
+      146
+     ]
+    },
+    "note": "Bei 3 Prozent ist Nuklear in allen untersuchten Ländern die günstigste Option, bei 10 Prozent in praktisch keinem.",
+    "source_id": "iea-nea-2020",
+    "confidence": "A"
+   },
+   "idc_note": "Ein einheitlicher WACC ohne explizite Bauzeit-/IDC-Modellierung beguenstigt strukturell die Technologie mit der laengsten Bauzeit. Belegt durch EPR2: 72,8 Mrd. EUR ohne vs. rund 100 Mrd. EUR mit Finanzierungskosten = +37 Prozent.",
+   "policy_observation": "Jedes europäische Neubauprojekt benoetigt ein staatliches Instrument zur WACC-Senkung: CfD (Hinkley), RAB (Sizewell C), Staatsgarantien für 100 Prozent des Fremdkapitals plus CfD (Polen), zinsguenstiges Staatsdarlehen (Tschechien)."
+  },
+  "construction_time": {
+   "global_iaea_pris": {
+    "median_years": 6.3,
+    "mean_years": 7.5,
+    "share_under_5y_pct": 21,
+    "share_under_8y_pct": 68,
+    "share_under_10y_pct": 83,
+    "distribution": "rechtsschief mit langem Auslaeufer",
+    "fastest_countries": [
+     "JP",
+     "KR",
+     "CN"
+    ],
+    "source_id": "ritchie-construction-time",
+    "confidence": "A"
+   },
+   "western_recent_projects_years": {
+    "flamanville_3": 17,
+    "vogtle_3": 10.3,
+    "vogtle_4": 11,
+    "hinkley_point_c": "12+ (laufend)",
+    "barakah_unit1": 8,
+    "shin_hanul_1": 9
+   },
+   "finding": "Jedes westliche Neubauprojekt der letzten 20 Jahre lag deutlich über dem globalen Median. Für eine Deutschland-Prognose ist der Median die falsche Kennzahl.",
+   "pre_concrete_lead_time_years": {
+    "poland": 6,
+    "czechia": 5,
+    "germany_estimate": "8-12 (Modellannahme; Neubauverbot, Behördenaufbau, Standortverfahren)"
+   },
+   "total_path_decision_to_first_kwh_germany_years": [
+    18,
+    25
+   ]
+  },
+  "kostenueberschreitung_faktoren": {
+   "definition": "Faktor auf die urspruengliche Kostenschaetzung (decision-to-build). 1.00 = keine Ueberschreitung.",
+   "verwendung": "Multiplikator auf CAPEX im LCOE-Modell; Slider 'Realismus-Aufschlag' mit Default aus Empirie, abschaltbar auf 1.00",
+   "technologien": {
+    "solar": {
+     "flyvbjerg": 1.01,
+     "sovacool": 1.0,
+     "spanne": [
+      1.0,
+      1.05
+     ],
+     "stufe": "A"
+    },
+    "wind": {
+     "flyvbjerg": 1.13,
+     "sovacool": null,
+     "spanne": [
+      1.05,
+      1.2
+     ],
+     "stufe": "A"
+    },
+    "netz_uebertragung": {
+     "flyvbjerg": 1.08,
+     "sovacool": null,
+     "spanne": [
+      1.05,
+      1.15
+     ],
+     "stufe": "A"
+    },
+    "fossil_thermisch": {
+     "flyvbjerg": 1.16,
+     "sovacool": 1.097,
+     "spanne": [
+      1.1,
+      1.2
+     ],
+     "stufe": "A"
+    },
+    "geothermie": {
+     "flyvbjerg": null,
+     "sovacool": 1.207,
+     "spanne": [
+      1.15,
+      1.25
+     ],
+     "stufe": "B"
+    },
+    "wasserkraft": {
+     "flyvbjerg": 1.75,
+     "sovacool": 1.367,
+     "spanne": [
+      1.35,
+      1.8
+     ],
+     "stufe": "A"
+    },
+    "kernkraft": {
+     "flyvbjerg": 2.2,
+     "sovacool": 2.025,
+     "spanne": [
+      1.3,
+      2.4
+     ],
+     "stufe": "A",
+     "hinweis": "Untergrenze 1.30 bildet Serienbau (Korea/China) ab; Obergrenze westliche Erstbauten (Flamanville, Vogtle, HPC)"
+    },
+    "nukleare_endlagerung": {
+     "flyvbjerg": 3.38,
+     "sovacool": null,
+     "spanne": [
+      2.5,
+      3.5
+     ],
+     "stufe": "A"
+    }
+   },
+   "zeitueberschreitung_prozent": {
+    "kernkraft": 64,
+    "geothermie": 58.8,
+    "solar": 0,
+    "quelle": "Sovacool & Ryu 2025",
+    "stufe": "B"
+   },
+   "datenbasis": {
+    "flyvbjerg": {
+     "projekte": 16000,
+     "laender": 136,
+     "definition_megaprojekt_usd": 1000000000
+    },
+    "sovacool": {
+     "projekte": 662,
+     "laender": 83,
+     "zeitraum": "1936-2024"
+    }
+   },
+   "skaleneffekt_bruchpunkte_mw": [
+    1280,
+    1561
+   ],
+   "gegenargument": "Datenbasis dominiert von westlichen Erstbauten nach langer Baupause; Serienbau (APR1400) zeigt deutlich geringere Ueberschreitungen. SMR-Modularitaetsargument plausibel, aber empirisch unbelegt."
+  },
+  "netzkosten_referenzen": {
+   "imk_gesamt_bis_2045_mrd_eur": 651,
+   "imk_uebertragung_bis_2045_mrd_eur": 328,
+   "imk_verteilnetz_bis_2045_mrd_eur": 323,
+   "nep_uebertragung_bis_2045_mrd_eur": {
+    "low": 365,
+    "high": 392,
+    "confidence": "medium"
+   },
+   "source_ids": [
+    "imk-netzkosten",
+    "nep-2037-2045"
+   ],
+   "confidence": "A"
+  },
+  "installierte_leistung_juli_2026_gw": {
+   "photovoltaik": {
+    "wert": 126.6,
+    "confidence": "medium",
+    "derived": true
+   },
+   "wind_onshore": {
+    "wert": 71.0,
+    "confidence": "low",
+    "derived": true
+   },
+   "wind_offshore": {
+    "wert": 10.8,
+    "confidence": "high"
+   }
+  },
+  "batteriespeicher_ist": {
+   "leistung_gw": {
+    "low": 18.5,
+    "high": 20.0,
+    "confidence": "medium"
+   },
+   "kapazitaet_gwh": {
+    "low": 31.0,
+    "high": 31.5,
+    "confidence": "medium"
+   },
+   "anlagenzahl_mio": 2.6,
+   "stand": "2026-H1 bis 2026-07",
+   "zubau_h1_2026_mw": 2482.7,
+   "zubau_h1_2026_mwh": 5642,
+   "projektion_ende_2026_gwh": 35.0,
+   "hinweis": "Widerspruch W4: Angabe 'Grossspeicher 1.2 GW / 2.4 GWh' ist implausibel und nicht zu verwenden"
+  },
+  "profiles_meta": {
+   "path": "data/profiles_2024.json",
+   "data_completeness": "PARTIAL",
+   "gaps": {
+    "load_mw": "nur 4416/8784 Stunden abgedeckt (2024-07-01 00:00:00 bis 2024-12-31 23:00:00); Jahressumme daher NICHT die volle Kalenderjahressumme 2024, sondern Summe über den abgedeckten Zeitraum",
+    "solar_mw": "nur 4416/8784 Stunden abgedeckt (2024-07-01 00:00:00 bis 2024-12-31 23:00:00); Jahressumme daher NICHT die volle Kalenderjahressumme 2024, sondern Summe über den abgedeckten Zeitraum",
+    "wind_onshore_mw": "nur 4416/8784 Stunden abgedeckt (2024-07-01 00:00:00 bis 2024-12-31 23:00:00); Jahressumme daher NICHT die volle Kalenderjahressumme 2024, sondern Summe über den abgedeckten Zeitraum",
+    "wind_offshore_mw": "Reihe komplett fehlend",
+    "hydro_ror_mw": "Reihe komplett fehlend",
+    "biomass_mw": "Reihe komplett fehlend"
+   },
+   "capacity_factors_covered_period": {
+    "solar_mw": 0.0696,
+    "wind_onshore_mw": 0.1886
+   },
+   "seasonal_share_covered": {
+    "load_mw": {
+     "value": 0.5012,
+     "min": 0.4932,
+     "mid": 0.5012,
+     "max": 0.5095,
+     "unit": "1 (Anteil der Jahresenergie im abgedeckten Zeitraum)",
+     "source": "data/profiles_2024.json meta.plausibility_check_2024.load_mw",
+     "confidence": "C",
+     "note": "Abgeleitet aus Teilzeitraumsumme / erwarteter Jahressumme. Ersetzt die naive Annahme 'Stundenanteil = Energieanteil' (wäre für PV um rund 18 % falsch)."
+    },
+    "solar_mw": {
+     "value": 0.4524,
+     "min": 0.4072,
+     "mid": 0.4524,
+     "max": 0.509,
+     "unit": "1 (Anteil der Jahresenergie im abgedeckten Zeitraum)",
+     "source": "data/profiles_2024.json meta.plausibility_check_2024.solar_mw",
+     "confidence": "C",
+     "note": "Abgeleitet aus Teilzeitraumsumme / erwarteter Jahressumme. Ersetzt die naive Annahme 'Stundenanteil = Energieanteil' (wäre für PV um rund 18 % falsch).",
+     "cross_check": {
+      "value": 0.423,
+      "source": "ist_zustand_de.md 1.3 ist_mix.2024.pv_erzeugung_gesamt (72,2 TWh)",
+      "note": "Unabhaengige Gegenprobe zur abgeleiteten Saisonalitaet."
+     }
+    },
+    "wind_onshore_mw": {
+     "value": 0.4835,
+     "min": 0.452,
+     "mid": 0.4835,
+     "max": 0.5198,
+     "unit": "1 (Anteil der Jahresenergie im abgedeckten Zeitraum)",
+     "source": "data/profiles_2024.json meta.plausibility_check_2024.wind_onshore_mw",
+     "confidence": "C",
+     "note": "Abgeleitet aus Teilzeitraumsumme / erwarteter Jahressumme. Ersetzt die naive Annahme 'Stundenanteil = Energieanteil' (wäre für PV um rund 18 % falsch)."
+    }
+   },
+   "result_label": "H2-2024-basiert (nur 01.07.-31.12.2024)",
+   "architecture_note": "Alle Kennzahlen werden über coverage/seasonal_share normalisiert; ein Volljahres-profiles_2024.json laeuft ohne Codeaenderung."
+  },
+  "monte_carlo": {
+   "meta": {
+    "n_draws": 1000,
+    "base_seed": 20260815,
+    "prng": "mulberry32 (32-Bit, bitidentisch nach JavaScript portierbar)",
+    "distribution": "Dreieck, Modus = mid, Grenzen = min/max aus data/model_params.json",
+    "co2_price_eur_t": 75.0,
+    "profiles": {
+     "label": "H2-2024-basiert (Teilzeitraum)",
+     "hours": 4416,
+     "data_completeness": "PARTIAL"
+    },
+    "overrun_source": "page_data.kostenueberschreitung_faktoren (Flyvbjerg 2023, Sovacool & Ryu 2025); Modus = Flyvbjerg-Wert, sonst Sovacool, Grenzen = dokumentierte Modellspanne",
+    "assumptions": [
+     "Der Dispatch wird je Preset EINMAL mit mittleren Parametern gerechnet und zwischengespeichert; die 1000 Ziehungen wirken nur auf die Kostenseite.",
+     "Damit wirkt die Volllaststunden-Ziehung nur auf die abgeleiteten Kapazitäten und deren Kosten, nicht auf Erzeugungsmengen, Backup-Bedarf oder Abregelung.",
+     "Gezogen werden CAPEX, Opex und Volllaststunden je Technologie; optional WACC (Dreieck 3/5/9 %) und ein empirischer CAPEX-Ueberschreitungsfaktor.",
+     "Alle Ziehungen sind unabhaengig. Reale Korrelationen (z. B. hoher CAPEX an guten Standorten, gemeinsame Rohstoffpreise) sind NICHT abgebildet - das unterschaetzt die Breite der Verteilung an den Raendern eher, als sie zu uebertreiben.",
+     "Nicht variiert werden: Wetterjahr, Lastprofil, Lebensdauern, Wirkungsgrade, Brennstoff- und Entsorgungskosten, CO2-Preis, Netzinvestitionsvolumen.",
+     "Ebenfalls nicht variiert: die H2-Speicherkosten (105 EUR/MWh_H2). Ihre dokumentierte Spanne oeffnet nur nach unten und ist laut Parameternotiz nur bei hoher Zyklenzahl erreichbar - der simulierte Saisonspeicher hat aber genau einen Zyklus im Jahr.",
+     "Batterie, Elektrolyse, H2-Speicher und H2-Turbine haben in den Ueberschreitungsdatensaetzen (Flyvbjerg, Sovacool & Ryu) keine Projektklasse und bleiben deshalb bei Faktor 1,00."
+    ],
+    "drawn_parameters": 23
+   },
+   "configs": {
+    "base": "WACC fest (5 %), ohne Kostenüberschreitung",
+    "wacc": "WACC unsicher (Dreieck 3/5/9 %), ohne Kostenüberschreitung",
+    "overrun": "WACC fest (5 %), mit empirischer Kostenüberschreitung",
+    "wacc_overrun": "WACC unsicher, mit empirischer Kostenüberschreitung"
+   },
+   "preset_order": [
+    "ist2025",
+    "kostenminimum",
+    "ee80_gas",
+    "ee80_h2",
+    "ee100"
+   ],
+   "presets": {
+    "ist2025": {
+     "label": "Ist 2025",
+     "demand_twh": 520.0,
+     "deterministic": 107.1,
+     "gas_peak_gw": 76.8,
+     "configs": {
+      "base": {
+       "p5": 100.7,
+       "p25": 104.6,
+       "p50": 107.7,
+       "p75": 110.7,
+       "p95": 114.6,
+       "mean": 107.6,
+       "min": 96.0,
+       "max": 120.7
+      },
+      "wacc": {
+       "p5": 95.0,
+       "p25": 104.6,
+       "p50": 113.0,
+       "p75": 124.1,
+       "p95": 139.9,
+       "mean": 114.8,
+       "min": 87.1,
+       "max": 158.1
+      },
+      "overrun": {
+       "p5": 107.3,
+       "p25": 112.1,
+       "p50": 115.5,
+       "p75": 118.6,
+       "p95": 123.2,
+       "mean": 115.4,
+       "min": 102.3,
+       "max": 131.1
+      },
+      "wacc_overrun": {
+       "p5": 101.0,
+       "p25": 110.7,
+       "p50": 119.9,
+       "p75": 131.7,
+       "p95": 148.3,
+       "mean": 121.9,
+       "min": 88.8,
+       "max": 169.0
+      }
+     }
+    },
+    "kostenminimum": {
+     "label": "GES · Kostenminimum",
+     "demand_twh": 950.0,
+     "deterministic": 155.8,
+     "gas_peak_gw": 53.9,
+     "configs": {
+      "base": {
+       "p5": 133.1,
+       "p25": 149.1,
+       "p50": 161.2,
+       "p75": 173.2,
+       "p95": 189.7,
+       "mean": 161.0,
+       "min": 122.5,
+       "max": 208.0
+      },
+      "wacc": {
+       "p5": 127.0,
+       "p25": 148.6,
+       "p50": 175.4,
+       "p75": 202.9,
+       "p95": 255.8,
+       "mean": 180.0,
+       "min": 103.4,
+       "max": 383.1
+      },
+      "overrun": {
+       "p5": 196.6,
+       "p25": 228.7,
+       "p50": 255.3,
+       "p75": 283.5,
+       "p95": 331.2,
+       "mean": 257.6,
+       "min": 159.7,
+       "max": 385.9
+      },
+      "wacc_overrun": {
+       "p5": 189.2,
+       "p25": 236.3,
+       "p50": 278.2,
+       "p75": 338.9,
+       "p95": 442.6,
+       "mean": 293.4,
+       "min": 137.1,
+       "max": 632.7
+      }
+     }
+    },
+    "ee80_gas": {
+     "label": "GES · 80 % EE + Gas",
+     "demand_twh": 950.0,
+     "deterministic": 140.7,
+     "gas_peak_gw": 137.0,
+     "configs": {
+      "base": {
+       "p5": 131.7,
+       "p25": 137.4,
+       "p50": 141.8,
+       "p75": 146.2,
+       "p95": 152.1,
+       "mean": 142.0,
+       "min": 119.7,
+       "max": 163.2
+      },
+      "wacc": {
+       "p5": 122.6,
+       "p25": 136.5,
+       "p50": 148.1,
+       "p75": 163.0,
+       "p95": 185.1,
+       "mean": 150.4,
+       "min": 111.8,
+       "max": 213.5
+      },
+      "overrun": {
+       "p5": 141.8,
+       "p25": 148.0,
+       "p50": 152.5,
+       "p75": 157.8,
+       "p95": 164.1,
+       "mean": 152.8,
+       "min": 134.7,
+       "max": 174.1
+      },
+      "wacc_overrun": {
+       "p5": 133.3,
+       "p25": 149.0,
+       "p50": 161.7,
+       "p75": 178.9,
+       "p95": 202.6,
+       "mean": 164.5,
+       "min": 116.7,
+       "max": 226.7
+      }
+     }
+    },
+    "ee80_h2": {
+     "label": "GES · 80 % EE + H₂",
+     "demand_twh": 950.0,
+     "deterministic": 197.2,
+     "gas_peak_gw": 20.0,
+     "configs": {
+      "base": {
+       "p5": 186.4,
+       "p25": 192.6,
+       "p50": 196.9,
+       "p75": 201.2,
+       "p95": 207.5,
+       "mean": 197.0,
+       "min": 178.8,
+       "max": 221.2
+      },
+      "wacc": {
+       "p5": 177.4,
+       "p25": 191.0,
+       "p50": 204.5,
+       "p75": 221.7,
+       "p95": 245.6,
+       "mean": 207.4,
+       "min": 160.8,
+       "max": 272.0
+      },
+      "overrun": {
+       "p5": 195.1,
+       "p25": 201.7,
+       "p50": 206.4,
+       "p75": 210.9,
+       "p95": 218.7,
+       "mean": 206.5,
+       "min": 188.4,
+       "max": 232.5
+      },
+      "wacc_overrun": {
+       "p5": 186.4,
+       "p25": 201.4,
+       "p50": 215.2,
+       "p75": 231.7,
+       "p95": 260.0,
+       "mean": 217.9,
+       "min": 168.3,
+       "max": 286.0
+      }
+     }
+    },
+    "ee100": {
+     "label": "GES · 100 % Erneuerbare",
+     "demand_twh": 950.0,
+     "deterministic": 270.9,
+     "gas_peak_gw": 20.0,
+     "configs": {
+      "base": {
+       "p5": 253.1,
+       "p25": 262.4,
+       "p50": 269.8,
+       "p75": 277.5,
+       "p95": 288.0,
+       "mean": 270.2,
+       "min": 238.4,
+       "max": 308.7
+      },
+      "wacc": {
+       "p5": 239.3,
+       "p25": 262.7,
+       "p50": 285.5,
+       "p75": 313.0,
+       "p95": 352.1,
+       "mean": 289.1,
+       "min": 219.4,
+       "max": 379.3
+      },
+      "overrun": {
+       "p5": 268.5,
+       "p25": 279.0,
+       "p50": 286.1,
+       "p75": 294.3,
+       "p95": 306.7,
+       "mean": 286.7,
+       "min": 256.5,
+       "max": 318.3
+      },
+      "wacc_overrun": {
+       "p5": 252.0,
+       "p25": 279.9,
+       "p50": 304.7,
+       "p75": 333.0,
+       "p95": 372.4,
+       "mean": 308.1,
+       "min": 221.7,
+       "max": 423.6
+      }
+     }
+    }
+   }
+  }
+ },
+ "internal_source_ids_reused": [
+  "cour-des-comptes-2025",
+  "eia-vogtle4",
+  "mit-climate-nuclear-cost",
+  "iwr-hinkley-2026",
+  "edf-epr2-2025",
+  "enerdata-dukovany",
+  "ec-ip-25-2963",
+  "nucnet-sizewell-fid",
+  "pulaski-2021",
+  "sciencedirect-intl-costs",
+  "nei-shinhanul34",
+  "iea-nea-2020",
+  "ritchie-construction-time",
+  "fraunhofer-ise-2024",
+  "lazard-lcoe-18",
+  "global-hydrogen-hub-2025"
+ ],
+ "sources": [
+  {
+   "id": "bnef-battery-2025",
+   "title": "Lithium-Ion Battery Pack Prices Fall to 108 USD per Kilowatt-Hour (Battery Price Survey 2025); berechnete Lernrate rund 18 Prozent",
+   "publisher": "BloombergNEF",
+   "date": "2025-12",
+   "url": "https://about.bnef.com/insights/clean-transport/lithium-ion-battery-pack-prices-fall-to-108-per-kilowatt-hour-despite-rising-metal-prices-bloombergnef/",
+   "accessed": "2026-08-19",
+   "confidence": "A",
+   "dossier": "research/story_claims_check.md",
+   "nr": 1
+  },
+  {
+   "id": "bnetza-hoechstwert-2026",
+   "title": "Festlegung der Höchstwerte 2026 für Wind an Land und Solar-Dachanlagen",
+   "publisher": "Bundesnetzagentur",
+   "date": "2025-12-16",
+   "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2025/20251216_Hoechstwerte.html",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 2
+  },
+  {
+   "id": "bnetza-pv-2026-03",
+   "title": "Ausschreibung Solaranlagen erstes Segment, Gebotstermin 1. März 2026",
+   "publisher": "Bundesnetzagentur",
+   "date": "2026",
+   "url": "https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/Ausschreibungen/Solaranlagen1/BeendeteAusschreibungen/2026/01032026/start.html",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 3
+  },
+  {
+   "id": "bnetza-wind-2026-05",
+   "title": "Hohes Wettbewerbsniveau bei der Ausschreibung für Wind an Land zum 1. Mai 2026",
+   "publisher": "Bundesnetzagentur",
+   "date": "2026-06",
+   "url": "https://www.bundesnetzagentur.de/1110006",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 4
+  },
+  {
+   "id": "cour-des-comptes-2025",
+   "title": "Programme d'EPR: la Cour des Comptes publie un rapport critique et recalcule le cout de Flamanville 3",
+   "publisher": "Cour des Comptes / Connaissance des Energies (AFP)",
+   "date": "2025-01-14",
+   "url": "https://www.connaissancedesenergies.org/afp/programme-depr-la-cour-des-comptes-publie-un-rapport-critique-et-recalcule-le-cout-de-flamanville-3-250114",
+   "accessed": "2026-08-15",
+   "dossier": "research/kosten_kernkraft.md",
+   "nr": 5
+  },
+  {
+   "id": "dena-elektrolysekapazitaeten",
+   "title": "Elektrolysekapazitäten in Deutschland",
+   "publisher": "Deutsche Energie-Agentur (dena)",
+   "date": "2026-04",
+   "url": "https://www.dena.de/infocenter/elektrolysekapazitaeten-in-deutschland/",
+   "accessed": "2026-08-19",
+   "confidence": "A",
+   "note": "Kapazitäts- und Projektdatenbank - weist KEINE Investitionskosten je kW aus. Die Zuordnung im MD ist eine Fehlzuordnung.",
+   "dossier": "research/story_claims_check.md",
+   "nr": 6
+  },
+  {
+   "id": "ec-ip-25-2963",
+   "title": "Commission approves State aid for the construction and operation of Poland's first nuclear power plant",
+   "publisher": "Europäische Kommission",
+   "date": "2025-12-09",
+   "url": "https://ec.europa.eu/commission/presscorner/detail/en/ip_25_2963",
+   "accessed": "2026-08-15",
+   "dossier": "research/kosten_kernkraft.md",
+   "nr": 7
+  },
+  {
+   "id": "edf-epr2-2025",
+   "title": "EDF shares its forecasted cost estimate of the EPR2 programme for EUR72.8bn",
+   "publisher": "EDF Groupe (Pressemitteilung)",
+   "date": "2025-12-18",
+   "url": "https://www.edf.fr/en/the-edf-group/dedicated-sections/journalists/all-press-releases/edf-shares-its-forecasted-cost-estimate-of-the-epr2-programme-for-eu728bn",
+   "accessed": "2026-08-15",
+   "dossier": "research/kosten_kernkraft.md",
+   "nr": 8
+  },
+  {
+   "id": "eia-vogtle4",
+   "title": "Plant Vogtle Unit 4 begins commercial operation",
+   "publisher": "U.S. Energy Information Administration",
+   "date": "2024",
+   "url": "https://www.eia.gov/todayinenergy/detail.php?id=61963",
+   "accessed": "2026-08-15",
+   "dossier": "research/kosten_kernkraft.md",
+   "nr": 9
+  },
+  {
+   "id": "enerdata-dukovany",
+   "title": "KHNP signs final contract to build two nuclear reactors at Dukovany (Czechia)",
+   "publisher": "Enerdata",
+   "date": "2025-06",
+   "url": "https://www.enerdata.net/publications/daily-energy-news/khnp-signs-final-contract-build-two-nuclear-reactors-dukovany-czechia.html",
+   "accessed": "2026-08-15",
+   "dossier": "research/kosten_kernkraft.md",
+   "nr": 10
+  },
+  {
+   "id": "ews-ets2",
+   "title": "Auswirkungen und Preispfade des EU ETS2, Endbericht",
+   "publisher": "EWI, Universität zu Köln",
+   "date": "2025-04",
+   "url": "https://www.ewi.uni-koeln.de/cms/wp-content/uploads/2025/04/EU-ETS2_Endbericht.pdf",
+   "accessed": "2026-08-19",
+   "confidence": "B",
+   "note": "ETS 2, NICHT Stromsektor. Im MD fälschlich als Strom-CO2-Preis verwendet.",
+   "dossier": "research/story_claims_check.md",
+   "nr": 11
+  },
+  {
+   "id": "ffe-elektrolyse-2025",
+   "title": "Von der Theorie zur Praxis: Warum grüner Wasserstoff teurer ist als gedacht (Discussion Paper)",
+   "publisher": "Forschungsstelle für Energiewirtschaft (FfE), München",
+   "date": "2025-07",
+   "url": "https://www.ffe.de/wp-content/uploads/2025/07/Discussion_Paper-Investitionskosten_Elektrolyse-2.pdf",
+   "accessed": "2026-08-19",
+   "confidence": "B",
+   "note": "PDF in dieser Session durch den Netzwerk-Egress blockiert; Inhalte über Suchindex-Auszüge mit wörtlichen Zitaten verifiziert.",
+   "dossier": "research/story_claims_check.md",
+   "nr": 12
+  },
+  {
+   "id": "flyvbjerg-2023",
+   "title": "How Big Things Get Done (Megaprojekt-Datenbank, ~16.000 Projekte)",
+   "publisher": "B. Flyvbjerg / D. Gardner, Currency/Penguin",
+   "date": "2023",
+   "url": "https://budgetoverrun.com/studies/flyvbjerg-megaproject-database",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 7.1",
+   "nr": 13
+  },
+  {
+   "id": "foes-2025",
+   "title": "20 GW Gaskraftwerke bis 2030 - Was kostet die Erweiterung?",
+   "publisher": "FOES i.A. BUND",
+   "date": "2025-04",
+   "url": "https://foes.de/publikationen/2025/2025-04_FOES_BUND_Kraftwerkskosten.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 14
+  },
+  {
+   "id": "fraunhofer-ise-2024",
+   "title": "Stromgestehungskosten Erneuerbare Energien",
+   "publisher": "Fraunhofer ISE",
+   "date": "2024-07",
+   "url": "https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/DE2024_ISE_Studie_Stromgestehungskosten_Erneuerbare_Energien.pdf",
+   "accessed": "2026-08-19",
+   "confidence": "A",
+   "dossier": "research/story_claims_check.md",
+   "nr": 15
+  },
+  {
+   "id": "fraunhofer-ise-flexkraftwerke",
+   "title": "Kurzanalyse Stromgestehungskosten und Volllaststunden flexibler Kraftwerke",
+   "publisher": "Fraunhofer ISE (Kost, Sepulveda Schweiger, Thomsen)",
+   "date": "2024/2025",
+   "url": "https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/Kurzanalyse_flexibleKraftwerke.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 16
+  },
+  {
+   "id": "ges-studie-2026",
+   "title": "Der klimaneutrale Strommix der Zukunft — Eine Szenarioanalyse zu den Kosten des zukünftigen deutschen Stromsystems",
+   "publisher": "Global Energy Solutions e. V.",
+   "date": "2026-07",
+   "url": "https://global-energy-solutions.org/wp-content/uploads/2026/05/DER-KLIMANEUTRALE-STROMMIX-DER-ZUKUNFT-veroeffentlicht-V1.1.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "docs/01_grundlage_ges_faktencheck.md",
+   "nr": 17
+  },
+  {
+   "id": "ges-study",
+   "title": "Der klimaneutrale Strommix der Zukunft",
+   "publisher": "Global Energy Solutions e.V.",
+   "date": "2026-07",
+   "url": "https://global-energy-solutions.org/wp-content/uploads/2026/05/DER-KLIMANEUTRALE-STROMMIX-DER-ZUKUNFT-veroeffentlicht-V1.1.pdf",
+   "accessed": "2026-08-19",
+   "confidence": "C",
+   "note": "PDF in dieser Session durch den Netzwerk-Egress blockiert. Alle Aussagen zur Studien-Methodik beruhen auf der MD-Wiedergabe und konnten nicht am Original gegengeprüft werden.",
+   "dossier": "research/story_claims_check.md",
+   "nr": 18
+  },
+  {
+   "id": "gilbert-2017",
+   "title": "A reply to 'Historical construction costs of global nuclear power reactors'",
+   "author": "Alexander Gilbert, Benjamin K. Sovacool, Phil Johnstone, Andy Stirling",
+   "publisher": "Energy Policy 102, S. 640-643",
+   "date": "2017",
+   "url": "https://law.stanford.edu/publications/a-reply-to-historical-construction-costs-of-global-nuclear-power-reactors/",
+   "accessed": "2026-08-19",
+   "confidence": "A",
+   "dossier": "research/story_claims_check.md",
+   "nr": 19
+  },
+  {
+   "id": "global-hydrogen-hub-2025",
+   "title": "European electrolyser costs fall in 2025 as manufacturing capacity expands",
+   "publisher": "Global Hydrogen Hub",
+   "date": "2025",
+   "url": "https://globalhydrogenhub.com/european-electrolyser-costs-fall-in-2025-as-manufacturing-capacity-expands.html",
+   "accessed": "2026-08-15",
+   "fulltext_verified": false,
+   "dossier": "research/kosten_ee_speicher.md",
+   "nr": 20
+  },
+  {
+   "id": "grubler-2010",
+   "title": "The costs of the French nuclear scale-up: A case of negative learning by doing",
+   "author": "Arnulf Grubler",
+   "publisher": "Energy Policy 38(9), S. 5174-5188",
+   "date": "2010",
+   "url": "https://www.sciencedirect.com/science/article/abs/pii/S0301421510003526",
+   "accessed": "2026-08-19",
+   "confidence": "A",
+   "replaces": [
+    "Achse des Guten"
+   ],
+   "dossier": "research/story_claims_check.md",
+   "nr": 21
+  },
+  {
+   "id": "iea-nea-2020",
+   "title": "Projected Costs of Generating Electricity - 2020 Edition",
+   "publisher": "IEA / OECD NEA",
+   "date": "2020-12",
+   "url": "https://www.iea.org/reports/projected-costs-of-generating-electricity-2020",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": "Domain in dieser Session blockiert; LCOE-Calculator unter https://www.oecd-nea.org/lcoe/",
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 22
+  },
+  {
+   "id": "imk-netzkosten",
+   "title": "Netzinvestitionsbedarf bis 2045 (Uebertragungs- und Verteilnetz)",
+   "publisher": "IMK / Hans-Böckler-Stiftung",
+   "date": "2025",
+   "url": "https://www.imk-boeckler.de/",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "dossier": "ist_zustand_de.md 5.1",
+   "nr": 23
+  },
+  {
+   "id": "irena-2024",
+   "title": "Renewable Power Generation Costs in 2024",
+   "publisher": "IRENA",
+   "date": "2025-07",
+   "url": "https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2025/Jul/IRENA_TEC_RPGC_in_2024_Summary_2025.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 24
+  },
+  {
+   "id": "irena-rpgc-2024",
+   "title": "Renewable Power Generation Costs in 2024",
+   "publisher": "IRENA",
+   "date": "2025-07",
+   "url": "https://www.irena.org/Publications/2024/Sep/Renewable-Power-Generation-Costs-in-2023",
+   "accessed": "2026-08-19",
+   "confidence": "B",
+   "note": "BESS 192 USD/kWh (2024), minus 93 Prozent seit 2010; PV-Projektion rund 500 USD/kW für 2030 mit ausdrücklichem Europa-/Nordamerika-Vorbehalt.",
+   "dossier": "research/story_claims_check.md",
+   "nr": 25
+  },
+  {
+   "id": "itrpv-2026",
+   "title": "International Technology Roadmap for Photovoltaic (ITRPV), 16. Ausgabe - Lernrate 26 Prozent 1976-2025",
+   "publisher": "VDMA / ITRPV",
+   "date": "2026",
+   "url": "https://www.pv-tech.org/itrpv-2026-solar-industry-maintains-historic-learning-curve-despite-market-turbulence/",
+   "accessed": "2026-08-19",
+   "confidence": "B",
+   "dossier": "research/story_claims_check.md",
+   "nr": 26
+  },
+  {
+   "id": "iwr-hinkley-2026",
+   "title": "Britisches Atomkraftwerk Hinkley Point C verzögert sich weiter und wird teurer - Atomstrom kostet mindestens 15 Cent pro Kilowattstunde",
+   "publisher": "IWR-Pressedienst",
+   "date": "2026-02-23",
+   "url": "https://www.iwr.de/news/britisches-atomkraftwerk-hinkley-point-c-verzoegert-sich-weiter-und-wird-teurer-atomstrom-kostet-mindestens-15-cent-pro-kilowattstunde-news39541",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 27
+  },
+  {
+   "id": "kenfo",
+   "title": "Fonds zur Finanzierung der kerntechnischen Entsorgung — Kennzahlen und Jahresergebnis 2025",
+   "publisher": "KENFO",
+   "date": "2026",
+   "url": "https://www.kenfo.de/",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 6.2",
+   "nr": 28
+  },
+  {
+   "id": "koomey-2017",
+   "title": "Apples and oranges: Comparing nuclear construction costs across nations, time periods, and technologies",
+   "author": "Jonathan Koomey, Nathan E. Hultman, Arnulf Grubler",
+   "publisher": "Energy Policy 102, S. 650-654",
+   "date": "2017",
+   "url": "https://www.sciencedirect.com/science/article/abs/pii/S0301421516306000",
+   "accessed": "2026-08-19",
+   "confidence": "A",
+   "dossier": "research/story_claims_check.md",
+   "nr": 29
+  },
+  {
+   "id": "lazard-2026",
+   "title": "Levelized Cost of Energy+ (LCOE+), Version 19.0",
+   "publisher": "Lazard",
+   "date": "2026-07-13",
+   "url": "https://www.lazard.com/media/sdvdrvc5/lazards-lcoeplus_vf.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 30
+  },
+  {
+   "id": "lazard-lcoe-18",
+   "title": "Levelized Cost of Energy+ (LCOE+), Version 18.0",
+   "publisher": "Lazard",
+   "date": "2025-06-16",
+   "url": "https://www.lazard.com/media/uounhon4/lazards-lcoeplus-june-2025.pdf",
+   "accessed": "2026-08-15",
+   "dossier": "research/kosten_kernkraft.md",
+   "nr": 31
+  },
+  {
+   "id": "lazard-lcoe-19",
+   "title": "LCOE+ v19.0",
+   "publisher": "Lazard",
+   "date": "2026-07",
+   "confidence": "A",
+   "note": "Speicherkosten seit 2020 um 27 Prozent gestiegen; LCOS 100 MW / 4 h 210-292 USD/MWh.",
+   "dossier": "research/story_claims_check.md",
+   "nr": 32
+  },
+  {
+   "id": "lovering-2016",
+   "title": "Historical construction costs of global nuclear power reactors",
+   "author": "Jessica R. Lovering, Arthur Yip, Ted Nordhaus",
+   "publisher": "Energy Policy 91, S. 371-382",
+   "date": "2016-04",
+   "url": "https://www.sciencedirect.com/science/article/pii/S0301421516300106",
+   "accessed": "2026-08-19",
+   "confidence": "A",
+   "note": "349 Reaktoren in 7 Ländern, 58 Prozent aller weltweit gebauten Blöcke, Overnight Construction Cost in konstanten USD 2010. NUR gemeinsam mit den beiden Erwiderungen zitieren.",
+   "dossier": "research/story_claims_check.md",
+   "nr": 33
+  },
+  {
+   "id": "md-isar2-unverified",
+   "title": "Isar 2 Baukosten (4,75 Mrd. DM / 1400 MW)",
+   "publisher": "im MD als IAEA INIS angegeben",
+   "confidence": "C",
+   "note": "Eingangszahl nicht belegbar, Kostenabgrenzung unbekannt.",
+   "dossier": "research/story_claims_check.md",
+   "nr": 34
+  },
+  {
+   "id": "mit-climate-nuclear-cost",
+   "title": "Are nuclear power plants too expensive to build?",
+   "publisher": "MIT Climate Portal",
+   "date": "o.D.",
+   "url": "https://climate.mit.edu/ask-mit/are-nuclear-power-plants-too-expensive-build",
+   "accessed": "2026-08-15",
+   "dossier": "research/kosten_kernkraft.md",
+   "nr": 35
+  },
+  {
+   "id": "nei-shinhanul34",
+   "title": "Korea to resume construction of Shin Hanul 3&4",
+   "publisher": "Nuclear Engineering International",
+   "date": "o.D.",
+   "url": "https://www.neimagazine.com/news/korea-to-resume-construction-of-shin-hanul-34-10946507/",
+   "accessed": "2026-08-15",
+   "dossier": "research/kosten_kernkraft.md",
+   "nr": 36
+  },
+  {
+   "id": "nep-2037-2045",
+   "title": "Netzentwicklungsplan Strom 2037 mit Ausblick 2045, Version 2025, 1. Entwurf",
+   "publisher": "50Hertz, Amprion, TenneT, TransnetBW",
+   "date": "2025-12",
+   "url": "https://www.netzentwicklungsplan.de/sites/default/files/2025-12/NEP_2037_2045_V2025_1_Entwurf_0.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "ist_zustand_de.md 1.3 / 4.1 / 5.1",
+   "nr": 37
+  },
+  {
+   "id": "nucnet-sizewell-fid",
+   "title": "UK Announces Final Investment Decision For GBP38 Billion Sizewell C Nuclear Power Station",
+   "publisher": "NucNet",
+   "date": "2025-07",
+   "url": "https://www.nucnet.org/news/uk-announces-final-investment-decision-for-gbp38-billion-sizewell-c-nuclear-power-station-7-2-2025",
+   "accessed": "2026-08-15",
+   "dossier": "research/kosten_kernkraft.md",
+   "nr": 38
+  },
+  {
+   "id": "pulaski-2021",
+   "title": "Costs and timeframes of construction of nuclear power plants carried out by potential nuclear technology suppliers for Poland",
+   "publisher": "Casimir Pulaski Foundation, Policy Paper No. 6/2021",
+   "date": "2021-06",
+   "url": "https://pulaski.pl/wp-content/uploads/2021/06/Pulaski_Policy_Paper_No_6_2021_EN-1.pdf",
+   "accessed": "2026-08-15",
+   "dossier": "research/kosten_kernkraft.md",
+   "nr": 39
+  },
+  {
+   "id": "ritchie-construction-time",
+   "title": "How long does it take to build a nuclear reactor?",
+   "publisher": "Hannah Ritchie (Sustainability by Numbers), auf Basis IAEA PRIS",
+   "date": "2023",
+   "url": "https://hannahritchie.substack.com/p/nuclear-construction-time",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 40
+  },
+  {
+   "id": "sciencedirect-intl-costs",
+   "title": "Projected Electricity Costs in International Nuclear Power Markets",
+   "publisher": "Energy Policy (Elsevier)",
+   "date": "2022",
+   "url": "https://www.sciencedirect.com/science/article/am/pii/S0301421522001306",
+   "accessed": "2026-08-15",
+   "dossier": "research/kosten_kernkraft.md",
+   "nr": 41
+  },
+  {
+   "id": "smard-mirror-2024",
+   "title": "Stündliche SMARD-Exportdaten Deutschland Jul-Dez 2024 (GitHub-Mirror, Notlösung)",
+   "publisher": "SMARD / Bundesnetzagentur, über github.com/hakimdalim/smard-data-extractor",
+   "date": "2024",
+   "url": "https://github.com/hakimdalim/smard-data-extractor",
+   "accessed": "2026-08-15",
+   "confidence": "C",
+   "dossier": "daten_stundenprofile.md",
+   "note": "Primärquellen (energy-charts, smard.de, OPSD) waren aus der Arbeitsumgebung per Egress-Policy nicht erreichbar.",
+   "nr": 42
+  },
+  {
+   "id": "sovacool-ryu-2025",
+   "title": "Beyond economies of scale: Learning from construction cost overrun risks and time delays in global energy infrastructure projects",
+   "publisher": "Energy Research & Social Science (Sovacool, Ryu)",
+   "date": "2025-03",
+   "url": "https://www.sciencedirect.com/science/article/pii/S2214629625001380",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 7.2",
+   "nr": 43
+  },
+  {
+   "id": "windguard-2025",
+   "title": "Kostensituation der Windenergie an Land - Stand 2025",
+   "publisher": "Deutsche WindGuard i.A. BMWK",
+   "date": "2025-10",
+   "url": "https://www.windguard.de/veroeffentlichungen.html?file=files%2Fcto_layout%2Fimg%2Funternehmen%2Fveroeffentlichungen%2F2025%2FKostensituation+der+Windenergie+an+Land+%E2%80%93+Stand+2025.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 44
+  }
+ ]
+}
