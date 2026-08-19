@@ -64,7 +64,7 @@ Schlussfolgerung „nicht trennscharf" *kann* überleben — die bisherige Begr�
 - **V3 · Akt 5/S1 als Abweichungs-Balken** mit gemeinsamer Nullachse (K4: Skalierungsartefakt).
 - **V4 · Legende für Box-Whisker-Glyphe** in Akt 4; Blau/Rot-Zuordnung Text↔Chart angleichen (M1/M4).
 
-## Perspektiv-Spannungen (Entscheidung Michael)
+## Perspektiv-Spannungen (Entscheidung Michael — **2026-08-19 entschieden: alle 3 umsetzen**)
 
 1. **CCS aufnehmen?** Professor: GES rechnet mit Gas+CCS, unser Modell kennt es nicht →
    fairer Vergleich bräuchte CCS-Kostenpfad. Aufwand mittel; alternativ als Limitation schärfen.
