@@ -61,6 +61,21 @@ LCOE_CASES = [
      "H2-Rueckverstromung: Kapazitaetskosten je kW, auf 1.000 h normiert "
      "(genau der Pfad, den mix_system() fuer Backup-/Speicherkapazitaeten nutzt)",
      {"full_load_hours": 1000.0}),
+    # ---- Modell v0.2 -------------------------------------------------------
+    ("lcoe_nuclear_overrun_high", "nuclear", "teuer", 0.05, 0.0, True,
+     "v0.2/M7: Ueberschreitungsfaktor 2,2 auf den HIGH-Anker (Hinkley Point C, laufende "
+     "Preise). overrun_applicable_share = 0 -> der Faktor darf NICHT wirken; ebenso kein IDC.",
+     {"cost_overrun_factor": 2.2}),
+    ("lcoe_nuclear_overrun_low", "nuclear", "guenstig", 0.05, 0.0, True,
+     "v0.2/M7: derselbe Faktor auf den LOW-Anker (EPR2-Overnight-Schaetzung). "
+     "overrun_applicable_share = 1 und idc_applicable_share = 1 -> beide wirken voll.",
+     {"cost_overrun_factor": 2.2}),
+    ("lcoe_gas_fuel_from_thermal", "gas_ccgt", "mittel", 0.05, 75.0, False,
+     "v0.2/M2: Brennstoffpreis thermisch (35 EUR/MWh_th) ueber den Wirkungsgrad in "
+     "EUR/MWh_el umgerechnet, plus CO2 bei 75 EUR/t.", None),
+    ("lcoe_gas_fuel_max", "gas_ccgt", "teuer", 0.05, 75.0, False,
+     "v0.2/M2: teurer Szenariensatz -> Gaspreis 60 EUR/MWh_th bei niedrigerem Wirkungsgrad.",
+     None),
 ]
 
 # Ebene 2/3: zwei vollstaendige Mix-Laeufe (Dispatch + Systemkosten)
@@ -102,6 +117,49 @@ MIX_CASES = [
             "gas_backup_gw": 20.0,
         },
     },
+    {
+        # v0.2: Bestandsbaender (M6) + Ist-Netzentgelt statt Ausbau-Annuitaet
+        "id": "mix_ist_bands_grid",
+        "note": "Referenzsystem-Variante: Kohle-, Biomasse- und Wasserband als Jahresenergie, "
+                "Netzkosten auf Basis des heutigen Netzentgelts. Prueft M3 (Netzaufteilung/"
+                "Netzbasis), M5 (Emissionsausweis) und M6 (Baender) in einem Lauf.",
+        "shares": {"pv": 0.17, "wind_onshore": 0.21, "wind_offshore": 0.05},
+        "demand_twh": 520.0,
+        "scenario": "mittel",
+        "co2_price": 75.0,
+        "apply_idc": True,
+        "grid_variant": "mid",
+        "storage": {
+            "battery_power_gw": 20.0,
+            "battery_energy_gwh": 80.0,
+            "gas_backup_gw": None,
+        },
+        "bands_twh": {"coal_band": 101.7, "biomass_band": 42.7, "hydro_band": 21.0},
+        "grid_cost_basis": "ist_netzentgelt",
+    },
+    {
+        # v0.2: Netzaufteilung im Ausbaufall, inkl. Deckelung des Skalierungsfaktors
+        "id": "mix_grid_split_ee100",
+        "note": "Sehr hoher fEE-Anteil mit Abregelung: prueft, dass das Uebertragungsnetz mit der "
+                "GENUTZTEN fEE-Energie skaliert und der Faktor auf 1,0 gedeckelt wird.",
+        "shares": {"pv": 0.62, "wind_onshore": 0.63, "wind_offshore": 0.24},
+        "demand_twh": 950.0,
+        "scenario": "mittel",
+        "co2_price": 75.0,
+        "apply_idc": True,
+        "grid_variant": "mid",
+        "storage": {
+            "battery_power_gw": 60.0,
+            "battery_energy_gwh": 240.0,
+            "electrolyser_gw": 160.0,
+            "h2_storage_gwh": 120000.0,
+            "h2_turbine_gw": 90.0,
+            "h2_initial_fill_share": 1.0,
+            "gas_backup_gw": 20.0,
+        },
+        "bands_twh": {},
+        "grid_cost_basis": "buildout_2045",
+    },
 ]
 
 
@@ -131,6 +189,8 @@ def main() -> None:
             "profiles_data_completeness": profiles.get("data_completeness"),
             "profiles_hours": profiles["hours"],
             "profiles_label": profiles["label"],
+            "model_version": model.MODEL_VERSION,
+            "limitations": model.model_limitations(),
         },
         "crf": [],
         "idc": [],
@@ -174,20 +234,23 @@ def main() -> None:
             scenario=case["scenario"], storage=case["storage"],
             co2_price=case["co2_price"], grid_variant=case["grid_variant"],
             apply_idc=case["apply_idc"],
+            bands_twh=case.get("bands_twh"),
+            grid_cost_basis=case.get("grid_cost_basis", "buildout_2045"),
         )
         d = res["dispatch"]
         vectors["mix"].append(round_deep({
             "id": case["id"],
             "note": case["note"],
-            "input": {k: case[k] for k in
+            "input": {k: case.get(k) for k in
                       ("shares", "demand_twh", "scenario", "co2_price", "apply_idc",
-                       "grid_variant", "storage")},
+                       "grid_variant", "storage", "bands_twh", "grid_cost_basis")},
             "expected": {
                 "lscoe_eur_mwh": res["lscoe_eur_mwh"],
                 "total_cost_bn_eur_a": res["total_cost_bn_eur_a"],
                 "cost_components_eur_mwh": res["cost_components_eur_mwh"],
                 "capacities_gw": res["capacities_gw"],
                 "served_twh_a": res["served_twh_a"],
+                "emissions_mt_co2_a": res["emissions"]["total_mt_co2_a"],
                 "dispatch": {
                     "energy_twh": d["energy_twh"],
                     "vre_potential_twh": d["vre_potential_twh"],

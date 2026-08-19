@@ -260,7 +260,18 @@ def build() -> dict:
             "CO2-Preis wirkt nur ueber den direkten Emissionsfaktor fossiler Erzeugung; Lebenszyklus-g/kWh nur informativ.",
             "Backup/Speicher entstehen im Dispatch, nicht als pauschaler Risiko-Aufschlag (risiken_co2.md 9 risiko_aufschlaege_zusammenfassung backup_und_speicher).",
             "min/mid/max nicht mechanisch kombinieren - siehe scenario_sets (kosten_ee_speicher.md 12 derived_lcoe_selfcheck.warning).",
+            "v0.2/M1: IDC nur auf Overnight-Anker (capex_scope/idc_applicable_share). Die Kernkraft-Anker "
+            "mid/max enthalten Finanzierung bereits (kosten_kernkraft.md 7.3).",
+            "v0.2/M2: Erdgas-Brennstoffpreis als thermischer Parameter (fuel_eur_mwh_th), Umrechnung "
+            "ueber den Wirkungsgrad. Damit ist die Asymmetrie 'Gas gratis vs. H2 bezahlt' aufgehoben.",
+            "v0.2/M3: Netzkosten in Uebertragung (328 Mrd., skaliert mit genutzter fEE-Energie) und "
+            "Verteilnetz (323 Mrd., Sockel, skaliert mit Jahresbedarf) getrennt; Skalierung auf 1,0 gedeckelt.",
+            "v0.2/M5: Restemissionen je Szenario werden ausgewiesen (Mt CO2/a). CCS ist NICHT modelliert.",
+            "v0.2/M6: Ist-2025-Anker mit Kohle-, Biomasse- und Wasserbaendern und heutigen Netzentgelten "
+            "statt der Netzinvestition bis 2045.",
+            "v0.2/M7: Ueberschreitungsfaktor nur auf Schaetzbasis-Anker (overrun_applicable_share).",
         ],
+        "model_version": "0.2",
         "limitation": ee["meta"]["limitation"],
     }
 
@@ -713,6 +724,7 @@ def build() -> dict:
                     mn=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.min") / 1000.0, 4),
                     mid=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.min") / 1000.0, 4),
                     mx=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.max") / 1000.0, 4),
+                    status="PROXY (Lebenszyklus-Untergrenze statt Direktfaktor)",
                     note="PROXY: Ein direkter Verbrennungs-Emissionsfaktor fehlt in allen Dossiers. "
                          "Verwendet wird die UNECE-Lebenszyklus-Untergrenze fuer GuD, weil der Vorketten-"
                          "Anteil (Methanschlupf) darin am kleinsten ist. Vor Veroeffentlichung durch einen "
@@ -1052,25 +1064,110 @@ def build() -> dict:
                 status=modellannahme,
                 gap_id="netz_nutzungsdauer",
             ),
+            # ---- Modell v0.2, M3: Aufteilung statt einer linearen Regel -----
+            "transmission_bn_eur_until_2045": param(
+                imk.get("uebertragungsnetz_bis_2045"),
+                "Mrd. EUR",
+                f"{SRC_LABEL['ist']} 5.1 netzkosten.gesamtnetz_imk_boeckler_2024.uebertragungsnetz_bis_2045",
+                "B",
+                mn=imk.get("uebertragungsnetz_bis_2045"),
+                mid=imk.get("uebertragungsnetz_bis_2045"),
+                mx=nep.get("gesamt_bis_2045", {}).get("high") if isinstance(nep.get("gesamt_bis_2045"), dict) else None,
+                note="IMK/Boeckler 328 Mrd. EUR Uebertragungsnetz bis 2045; max = NEP 2037/2045 V2025 "
+                     "Obergrenze (392 Mrd., ebenfalls nur Uebertragungsnetz). Ueberwiegend "
+                     "EE-/Transportgetrieben (HGUE-Korridore Nord-Sued) - skaliert deshalb mit der "
+                     "GENUTZTEN fEE-Energie, nicht mit der erzeugten (abgeregelte Energie erzeugt "
+                     "keinen Transportbedarf).",
+            ),
+            "distribution_bn_eur_until_2045": param(
+                imk.get("verteilnetz_bis_2045"),
+                "Mrd. EUR",
+                f"{SRC_LABEL['ist']} 5.1 netzkosten.gesamtnetz_imk_boeckler_2024.verteilnetz_bis_2045",
+                "B",
+                mn=imk.get("verteilnetz_bis_2045"),
+                mid=imk.get("verteilnetz_bis_2045"),
+                mx=imk.get("verteilnetz_bis_2045"),
+                note="IMK/Boeckler 323 Mrd. EUR Verteilnetz bis 2045 - praktisch gleich gross wie das "
+                     "Uebertragungsnetz. Ueberwiegend elektrifizierungsgetrieben (Waermepumpen, "
+                     "Ladeinfrastruktur, Industrieanschluesse, Altersersatz) und damit weitgehend "
+                     "MIXUNABHAENGIG. Skaliert im Modell mit dem Jahresbedarf, nicht mit dem fEE-Anteil.",
+            ),
             "reference_fee_share": param(
                 1.0,
                 "1",
-                f"{SRC_LABEL['ist']} 5.1 / {SRC_LABEL['ges']} Kap. 4 (lineare fEE-Skalierung wie GES)",
+                f"{SRC_LABEL['ist']} 5.1 / {SRC_LABEL['ges']} Kap. 4 (Bezugspunkt der fEE-Skalierung)",
                 None,
                 mid=1.0,
-                note="Bezugspunkt der linearen Skalierung: Die NEP-/IMK-Investitionsvolumina gelten fuer "
-                     "ein weitgehend klimaneutrales (fEE-dominiertes) Zielsystem. Netzkosten werden im "
-                     "Modell linear mit dem fEE-Anteil skaliert - dieselbe Vereinfachung wie in der "
-                     "GES-Studie, inkl. derselben Limitation (keine raeumliche Netzsimulation).",
+                note="Bezugspunkt fuer den Uebertragungsnetz-Block: Die NEP-/IMK-Investitionsvolumina "
+                     "gelten fuer ein weitgehend klimaneutrales (fEE-dominiertes) Zielsystem, also "
+                     "fEE-Anteil 1,0 an der gedeckten Last. Der Skalierungsfaktor ist auf 1,0 gedeckelt "
+                     "- ein Szenario kann nicht mehr als das gesamte nationale Netzbudget tragen. "
+                     "Eine Ueberschreitung wird im Ergebnis als grid_scaling_raw ausgewiesen.",
                 status=modellannahme,
+            ),
+            "reference_demand_twh": param(
+                950,
+                "TWh/a",
+                f"{SRC_LABEL['ist']} 4.1 bedarfsprojektionen_twh.2045 / {SRC_LABEL['ges']} Zieljahr 2045",
+                "B",
+                mid=950,
+                note="Bezugspunkt fuer den Verteilnetz-Sockel: Die IMK-Verteilnetzinvestition ist auf "
+                     "das Zielsystem 2045 mit rund 950 TWh Jahresbedarf bezogen. Skalierung mit "
+                     "min(1,0; Bedarf/950).",
+                status=modellannahme,
+            ),
+            "scaling_rule": {
+                "version": "v0.2",
+                "transmission": "min(1,0; fEE-Anteil an der GEDECKTEN Last / reference_fee_share)",
+                "distribution": "min(1,0; Jahresbedarf / reference_demand_twh)",
+                "replaces": "v0.1: 651 Mrd. EUR x (fEE-Anteil inkl. abgeregelter Energie / 1,0), "
+                            "ungedeckelt - erreichte im 100-%-EE-Preset 165 % des nationalen Budgets.",
+                "source": f"{SRC_LABEL['ist']} 5.1 (Aufteilung 328/323) + Persona-Review 04 K1, 03 K2",
+                "confidence": "B",
+                "limitation": "Weiterhin keine raeumliche Netzsimulation und keine ueberproportionale "
+                              "Kostenkurve bei sehr hohen fEE-Anteilen. Die Aufteilung 328/323 ist "
+                              "quellenbelegt, die ZUORDNUNG der Treiber (Transport vs. Elektrifizierung) "
+                              "ist eine begruendete Modellannahme.",
+            },
+            "ist_2025_eur_mwh": param(
+                93.0,
+                "EUR/MWh (Netzentgelt, Ist)",
+                f"{SRC_LABEL['ist']} 5.1 netzkosten.netzentgelte_2026.netzentgelt_haushalt_ct_kwh",
+                "C",
+                mn=93.0,
+                mid=93.0,
+                mx=131.0,
+                note="M6: Der Ist-2025-Anker darf nicht die Netzinvestition BIS 2045 tragen. Er bekommt "
+                     "stattdessen das dokumentierte heutige Netzentgelt: 9,3 ct/kWh = 93 EUR/MWh "
+                     "(Haushalt 2026, wie erhoben). max = 131 EUR/MWh = ohne den Bundeszuschuss "
+                     "(9,3 + (6,65 - 2,86) ct/kWh) - das Dossier nennt den Zuschuss ausdruecklich eine "
+                     "'Transferleistung, keine Kostensenkung'. ACHTUNG: Haushalts-Netzentgelt, der "
+                     "systemweite Durchschnitt liegt darunter (Industrie zahlt weniger). Ausserdem hat "
+                     "die Groesse eine ANDERE Systemgrenze als der 2045-Block (Bestandsnetz + Betrieb "
+                     "statt Zusatzinvestition) - der Anker ist deshalb zusaetzlich als nicht direkt "
+                     "vergleichbar gekennzeichnet.",
             ),
             "redispatch_2024_bn_eur": param(
                 2.776,
                 "Mrd. EUR/a",
                 f"{SRC_LABEL['risk']} 4.1 netz_und_systemkosten.netzengpassmanagement_mrd_eur[2024]",
                 "A",
-                note="Ist-Wert, im Modell nicht doppelt angesetzt (in den Netzkosten enthalten).",
+                note="KORREKTUR v0.2 (Persona-Review 03, K2c): Dieser Betriebskostenblock ist in einer "
+                     "reinen Investitionsannuitaet gerade NICHT enthalten. Er wird im Modell weiterhin "
+                     "nicht angesetzt - nicht weil er doppelt waere, sondern weil fuer das Zielsystem "
+                     "2045 kein belegter Redispatch-/Netzbetriebskostenwert vorliegt. Siehe "
+                     "gaps.netz_opex.",
             ),
+            "opex_note": {
+                "status": "LUECKE",
+                "text": "Betriebs-, Instandhaltungs- und Verlustkosten der Netze sowie Redispatch sind im "
+                        "Modell NICHT enthalten. Belegt ist nur der Ist-Wert 2024/25 (2,776 bzw. "
+                        "2,7-3,1 Mrd. EUR/a Engpassmanagement); ein belegter Netzbetriebskostensatz fuer "
+                        "das Zielsystem 2045 existiert in keinem Dossier. Der Netzblock der "
+                        "Zukunftsszenarien ist deshalb eine UNTERGRENZE.",
+                "source": f"{SRC_LABEL['risk']} 4.1 + {SRC_LABEL['ist']} 5.3",
+                "confidence": "A",
+            },
             "curtailment_2024_twh": param(
                 9.4,
                 "TWh/a",
@@ -1109,6 +1206,36 @@ def build() -> dict:
             "_note": get(risk, "kostenueberschreitung_faktoren.verwendung"),
             "_source": f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren",
             "_default": 1.0,
+            # ---- Modell v0.2, M7 ---------------------------------------
+            "application_rule": {
+                "version": "v0.2",
+                "text": "Der Faktor ist definitionsgemaess ein Verhaeltnis Entscheidungsschaetzung -> Ist "
+                        "(risiken_co2.md 7 definition). Er wird deshalb nur auf CAPEX-Anker angewendet, "
+                        "die noch eine Schaetzung sind. Der Anteil steht je Technologie in "
+                        "params.overrun_applicable_share und wird zwischen den CAPEX-Stuetzstellen "
+                        "linear interpoliert.",
+                "affected": "Kernkraft: Anteil 1,0 bei 7.500 und 12.000 EUR/kW (EPR2-Programm, "
+                            "Dukovany-EPC, Lubiatowo, Sizewell C - alle vor bzw. bei FID), Anteil 0,0 "
+                            "bei 17.500 EUR/kW (Hinkley Point C, laufende Preise = bereits "
+                            "eingetretene Ueberschreitung).",
+                "source": f"{SRC_LABEL['risk']} 7 + {SRC_LABEL['kk']} 3 reference_projects",
+                "confidence": "B",
+            },
+            "unmeasured_technologies": {
+                "list": ["battery", "electrolyser", "h2_storage", "h2_turbine"],
+                "assumed_factor": 1.0,
+                "status": "NICHT GEMESSEN",
+                "text": "Fuer Batteriespeicher, Elektrolyse, H2-Kavernenspeicher und H2-Turbinen gibt es "
+                        "in Flyvbjerg (2023) und Sovacool & Ryu (2025) keine Projektklasse. Der Faktor "
+                        "1,00 ist deshalb eine LUECKE, keine Messung - und er ist der eine Wert, den "
+                        "man aus dieser Empirie fuer neuartige, genehmigungsintensive Grossinfrastruktur "
+                        "nicht ableiten kann (naechstgelegene Analoga: Wasserkraft 1,75, nukleare "
+                        "Endlagerung 3,38). Das Ueberschreitungs-Szenario ist damit asymmetrisch: es "
+                        "stresst die Kernkraft- und Netzseite, nicht die Speicher-/H2-Seite.",
+                "source": f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren.technologien "
+                          "(keine Klasse fuer Speicher/H2) + Persona-Review 06 K2",
+                "confidence": "A",
+            },
             "factors": {
                 k: {
                     "value": 1.0,
@@ -1122,6 +1249,79 @@ def build() -> dict:
                             "damit der Modellkern nicht mit Risikoannahmen vermischt wird.",
                 }
                 for k, v in get(risk, "kostenueberschreitung_faktoren.technologien", {}).items()
+            },
+        },
+        # ---- Modell v0.2, M6: Bestandsbaender fuer den Ist-2025-Anker -------
+        # Kohle, Biomasse und Wasserkraft fehlten im Ist-Anker vollstaendig -
+        # ihre Arbeit wurde vom Gas-Backup gedeckt (59 % der Erzeugung). Sie
+        # laufen jetzt als Baender mit. Kostenparameter gibt es in keinem
+        # Dossier (gaps.hydro_biomasse_band); die Anlagen sind Bestand und
+        # weitgehend abgeschrieben - angesetzt wird deshalb NUR der CO2-Preis
+        # auf die fossilen Baender. Das ist eine ausgewiesene Untergrenze.
+        "legacy_bands": {
+            "_status": "BESTANDSANLAGEN - nur CO2-Kosten, keine Kapital-/Betriebskosten",
+            "_note": "Kapital- und Betriebskosten der Bestandsflotte (Kohle, Biomasse, Wasser) sind in "
+                     "keinem Dossier belegt. Der Ist-2025-Anker ist auf der Erzeugungsseite deshalb eine "
+                     "Untergrenze: Brennstoff, Betrieb und CO2-Zertifikate der Kohleblocke sind nur zum "
+                     "Teil (CO2) enthalten. Biomasse wird im ETS bilanziell als CO2-neutral gefuehrt.",
+            "_source": f"{SRC_LABEL['ist']} 1.1 ist_mix.2025.traeger_twh + {SRC_LABEL['risk']} 1.2",
+            "coal": {
+                "generation_2025_twh": param(
+                    round(get(ist, "ist_mix.2025.traeger_twh.braunkohle.wert", 0.0)
+                          + (get(ist, "ist_mix.2025.traeger_twh.steinkohle.low", 0.0)
+                             + get(ist, "ist_mix.2025.traeger_twh.steinkohle.high", 0.0)) / 2.0, 1),
+                    "TWh/a",
+                    f"{SRC_LABEL['ist']} 1.1 ist_mix.2025.traeger_twh.braunkohle + .steinkohle",
+                    "C",
+                    note="Braunkohle 75,2 TWh (Stufe B) + Steinkohle 25-28 TWh (Stufe C, "
+                         "Differenzrechnung) = Mittel 26,5 TWh.",
+                ),
+                "installed_gw_2025": param(
+                    round(get(ist, "installierte_leistung_gw.stand_jahresende_2025.braunkohle.wert", 0.0)
+                          + get(ist, "installierte_leistung_gw.stand_jahresende_2025.steinkohle.wert", 0.0), 3),
+                    "GW",
+                    f"{SRC_LABEL['ist']} 2.1 installierte_leistung_gw.stand_jahresende_2025",
+                    "B",
+                ),
+                "emission_factor_t_mwh": param(
+                    round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.kohle.min") / 1000.0, 4),
+                    "t CO2/MWh_el",
+                    f"{SRC_LABEL['risk']} 1.2 co2_intensitaet_g_pro_kwh.technologien.kohle.min",
+                    "C",
+                    mn=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.kohle.min") / 1000.0, 4),
+                    mid=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.kohle.min") / 1000.0, 4),
+                    mx=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.kohle.max") / 1000.0, 4),
+                    note="PROXY wie bei Gas: direkter Verbrennungsfaktor fehlt in allen Dossiers, "
+                         "verwendet wird die UNECE-Lebenszyklus-Untergrenze (751 g/kWh). Der reale "
+                         "direkte Faktor liegt fuer Braunkohle darueber, fuer Steinkohle darunter.",
+                    status="PROXY (Lebenszyklus-Untergrenze statt Direktfaktor)",
+                ),
+            },
+            "biomass": {
+                "generation_2025_twh": param(
+                    get(ist, "ist_mix.2025.traeger_twh.biomasse.wert"),
+                    "TWh/a", f"{SRC_LABEL['ist']} 1.1 ist_mix.2025.traeger_twh.biomasse", "B"),
+                "installed_gw_2025": param(
+                    get(ist, "installierte_leistung_gw.stand_jahresende_2025.biomasse.wert"),
+                    "GW", f"{SRC_LABEL['ist']} 2.1 installierte_leistung_gw", "C"),
+                "emission_factor_t_mwh": param(
+                    0.0, "t CO2/MWh_el",
+                    "ETS-Systematik: Biomasse wird bilanziell mit 0 gefuehrt", "B",
+                    note="Bilanzielle Nullstellung, kein Lebenszyklus-Wert."),
+            },
+            "hydro": {
+                "generation_2025_twh": param(
+                    get(ist, "ist_mix.2025.traeger_twh.wasserkraft.wert"),
+                    "TWh/a", f"{SRC_LABEL['ist']} 1.1 ist_mix.2025.traeger_twh.wasserkraft", "C",
+                    note="Differenzrechnung aus der EE-Summe (Dossier-Stufe low)."),
+                "installed_gw_2025": param(
+                    round((get(ist, "installierte_leistung_gw.stand_jahresende_2025."
+                                    "wasserkraft_ohne_pumpspeicher.low", 0.0)
+                           + get(ist, "installierte_leistung_gw.stand_jahresende_2025."
+                                      "wasserkraft_ohne_pumpspeicher.high", 0.0)) / 2.0, 2),
+                    "GW", f"{SRC_LABEL['ist']} 2.1 installierte_leistung_gw", "C"),
+                "emission_factor_t_mwh": param(
+                    0.0, "t CO2/MWh_el", "keine direkten Verbrennungsemissionen", "A"),
             },
         },
         "double_counting_warning": next(
@@ -1147,6 +1347,42 @@ def build() -> dict:
             k: {"value": v.get("wert", v.get("low")), "confidence": norm_conf(v.get("confidence"))}
             for k, v in cap25.items()
             if isinstance(v, dict)
+        },
+        # ---- v0.2: Belegte Ist-Groessen fuer die 2025-Plausibilisierung -----
+        "ist_2025_reference": {
+            "_source": f"{SRC_LABEL['ist']} 1.1 ist_mix.2025 / 5.1 netzkosten / 7.1 preise, "
+                       f"{SRC_LABEL['risk']} 4.2 netz_und_systemkosten.abregelung",
+            "generation_twh": {
+                "photovoltaik": get(ist, "ist_mix.2025.traeger_twh.photovoltaik.wert"),
+                "wind_onshore": get(ist, "ist_mix.2025.traeger_twh.wind_onshore.wert"),
+                "wind_offshore": get(ist, "ist_mix.2025.traeger_twh.wind_offshore.wert"),
+                "erdgas": get(ist, "ist_mix.2025.traeger_twh.erdgas.wert"),
+                "braunkohle": get(ist, "ist_mix.2025.traeger_twh.braunkohle.wert"),
+                "steinkohle_mid": round((get(ist, "ist_mix.2025.traeger_twh.steinkohle.low", 0.0)
+                                         + get(ist, "ist_mix.2025.traeger_twh.steinkohle.high", 0.0)) / 2.0, 1),
+                "biomasse": get(ist, "ist_mix.2025.traeger_twh.biomasse.wert"),
+                "wasserkraft": get(ist, "ist_mix.2025.traeger_twh.wasserkraft.wert"),
+                "mineraloel_sonstige_abfall": get(
+                    ist, "ist_mix.2025.traeger_twh.mineraloel_sonstige_abfall.wert"),
+            },
+            "pumpspeichererzeugung_twh": get(ist, "ist_mix.2025.pumpspeichererzeugung"),
+            "bruttostromverbrauch_twh": get(ist, "ist_mix.2025.bruttostromverbrauch"),
+            "bruttostromerzeugung_twh": get(ist, "ist_mix.2025.bruttostromerzeugung_gesamt_inkl_pse"),
+            "nettoimport_twh": get(ist, "ist_mix.2025.nettoimport_twh"),
+            "boersenstrompreis_eur_mwh": get(ist, "preise.boersenstrompreis_jahresmittel_eur_mwh.2025.wert"),
+            "netzentgelt_haushalt_eur_mwh": round(
+                get(ist, "netzkosten.netzentgelte_2026.netzentgelt_haushalt_ct_kwh", 0.0) * 10.0, 1),
+            "netzentgelt_ohne_bundeszuschuss_eur_mwh": round(
+                (get(ist, "netzkosten.netzentgelte_2026.netzentgelt_haushalt_ct_kwh", 0.0)
+                 + get(ist, "netzkosten.netzentgelte_2026.uebertragungsnetzentgelt_ohne_zuschuss_ct_kwh", 0.0)
+                 - get(ist, "netzkosten.netzentgelte_2026.uebertragungsnetzentgelt_mit_zuschuss_ct_kwh", 0.0))
+                * 10.0, 1),
+            "abregelung_2024_twh": next(
+                (x.get("menge_twh") for x in get(risk, "netz_und_systemkosten.abregelung", [])
+                 if x.get("jahr") == 2024), None),
+            "redispatch_2025_mrd_eur": get(ist, "netzkosten.redispatch_engpassmanagement.2025_gesamt"),
+            "endkunde_haushalt_2026_ct_kwh": get(ist, "preise.endkunden_ct_kwh.haushalt_3500kwh.2026"),
+            "industrie_2026_ct_kwh": get(ist, "preise.endkunden_ct_kwh.industrie_neuabschluss_160mwh_bis_20gwh.2026"),
         },
         "generation_2024_twh": {
             "pv": param(
@@ -1278,10 +1514,36 @@ def build() -> dict:
     out["gaps"] = GAPS + [
         {
             "id": "gaspreis_erdgas",
-            "parameter": "technologies.gas_*.params.fuel_eur_mwh",
-            "reason": "Kein Erdgas-Brennstoffpreis (EUR/MWh_th oder EUR/MWh_el) in den Dossiers. "
-                      "Das Modell rechnet ohne expliziten Wert mit 0 und weist das Ergebnis als Untergrenze aus; "
-                      "gas_fuel_implied liefert eine rueckgerechnete Obergrenze.",
+            "parameter": "technologies.gas_*.params.fuel_eur_mwh_th",
+            "status": "GESCHLOSSEN in v0.2 (ausserhalb der Dossiers belegt)",
+            "reason": "Kein Erdgas-Brennstoffpreis in den Recherche-Dossiers. Seit v0.2 mit einer "
+                      "Marktspanne 20/35/60 EUR/MWh_th parametrisiert (TTF-Notierung, Recherche "
+                      "2026-08-19, Konfidenz B; Uebertragbarkeit auf 2045 Konfidenz C). Die "
+                      "Nullsetzung war eine Luecke der Recherche, nicht der Welt.",
+        },
+        {
+            "id": "netz_opex",
+            "parameter": "system.grid (Betrieb, Instandhaltung, Verluste, Redispatch)",
+            "reason": "Fuer das Zielsystem 2045 existiert in keinem Dossier ein Netzbetriebskostensatz. "
+                      "Das Modell enthaelt ausschliesslich die Investitionsannuitaet - der Netzblock der "
+                      "Zukunftsszenarien ist damit eine Untergrenze. Belegt ist nur der Ist-Wert "
+                      "Engpassmanagement (2,776 Mrd. EUR 2024 bzw. 2,7-3,1 Mrd. EUR 2025).",
+        },
+        {
+            "id": "ccs_nicht_modelliert",
+            "parameter": "technologies (keine CCS-Kette)",
+            "reason": "Die gepruefte GES-Studie rechnet ihren Gas-Pfad ausweislich des ETS-Abschnitts mit "
+                      "CCS. Das Modell kennt keine CCS-Kette (CAPEX/OPEX, Wirkungsgradverlust, "
+                      "Abscheidegrad, Transport/Speicherung). Offene Entscheidung - bis dahin sind die "
+                      "Szenarien NICHT emissionsaequivalent; die Restemissionen werden seit v0.2 je "
+                      "Szenario ausgewiesen (emissions_mt_co2_a).",
+        },
+        {
+            "id": "overrun_ungemessen_speicher_h2",
+            "parameter": "system.cost_overrun_factors.unmeasured_technologies",
+            "reason": "Batterie, Elektrolyse, H2-Speicher und H2-Turbine haben in Flyvbjerg/Sovacool "
+                      "keine Projektklasse und bleiben bei Faktor 1,00. Das ist eine Luecke, keine "
+                      "Messung - das Ueberschreitungs-Szenario ist deshalb asymmetrisch.",
         },
         {
             "id": "emissionsfaktor_direkt",

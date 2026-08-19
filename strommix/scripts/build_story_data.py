@@ -47,6 +47,7 @@ CLAIMS_MD = os.path.join(RESEARCH, "story_claims_check.md")
 PAGE_DATA = os.path.join(DATA, "page_data.json")
 MC_REF = os.path.join(DATA, "monte_carlo_reference.json")
 OUT_PATH = os.path.join(DATA, "story_data.json")
+PARAMS = os.path.join(DATA, "model_params.json")
 
 # Dossiers, aus denen Quellen-Metadaten nachgeschlagen werden.
 SOURCE_DOSSIERS = [
@@ -223,10 +224,12 @@ def collect_source_ids(node: Any) -> set[str]:
 # --------------------------------------------------------------------------
 # Anreicherung aus den geteilten, bereits validierten Datensaetzen
 # --------------------------------------------------------------------------
-def build_shared(page: dict, mc: dict) -> dict:
+def build_shared(page: dict, mc: dict, params: dict) -> dict:
     ges_ref = page["ges"]["reference"]
     imk = page["netzkosten"]["gesamtnetz_imk_boeckler_2024"]
     nep = page["netzkosten"]["uebertragungsnetz_nep_2037_2045_v2025"]
+    gasp = params["technologies"]["gas_ccgt"]["params"]["fuel_eur_mwh_th"]
+    gas_eff = params["technologies"]["gas_ccgt"]["params"]["efficiency"]
 
     # Szenarien der Studie als Dictionary, damit die Story sie per Pfad
     # ansprechen kann (statt per Listenindex).
@@ -252,6 +255,15 @@ def build_shared(page: dict, mc: dict) -> dict:
             "demand_twh": p["demand_twh"],
             "deterministic": round(p["deterministic_lscoe_eur_mwh"], 1),
             "gas_peak_gw": round(p["gas_peak_gw"], 1),
+            # Modell v0.2: Mengen- und Emissionsausweis je Szenario
+            "gas_backup_twh_a": round(p["gas_backup_twh_a"], 1),
+            "curtailed_twh_a": round(p["curtailed_twh_a"], 1),
+            "unserved_twh_a": round(p["unserved_twh_a"], 2),
+            "emissions_mt_co2_a": round(p["emissions_mt_co2_a"], 1),
+            "grid_cost_basis": p["grid_cost_basis"],
+            "comparable_to_target_scenarios": p["comparable_to_target_scenarios"],
+            "components_eur_mwh": {k: round(v, 1) for k, v in
+                                   p["deterministic_components_eur_mwh"].items()},
             "configs": {
                 cid: {k: round(v, 1) for k, v in cfg.items()
                       if k in ("p5", "p25", "p50", "p75", "p95", "mean", "min", "max")}
@@ -325,7 +337,30 @@ def build_shared(page: dict, mc: dict) -> dict:
             "configs": {c["id"]: c["label"] for c in mc["configs"]},
             "preset_order": mc["preset_order"],
             "presets": mc_presets,
+            # Modell v0.2 (M4): gepaarte Ziehungen -> P(A guenstiger als B).
+            # Das ersetzt das Ueberlappungsargument der Randverteilungen.
+            "paired_draws": mc["meta"]["paired_draws"],
+            "paired_draws_note": mc["meta"]["paired_draws_note"],
+            "rank_probabilities": {
+                cid: [{k: (round(v, 3) if isinstance(v, float) else v) for k, v in row.items()}
+                      for row in rows]
+                for cid, rows in mc["rank_probabilities"].items()
+            },
+            "limitations": mc["meta"]["limitations"],
         },
+        # v0.2 (M2): Der Erdgaspreis ist jetzt ein belegter Parameter, kein Nullwert.
+        "gaspreis_erdgas": {
+            "unit": "EUR/MWh_th",
+            "min": gasp["min"], "mid": gasp["mid"], "max": gasp["max"],
+            "source": gasp["source"],
+            "confidence": gasp["confidence"],
+            "note": gasp["note"],
+            "efficiency_ccgt": {
+                "min": gas_eff["min"], "mid": gas_eff["mid"], "max": gas_eff["max"],
+            },
+            "implied_eur_mwh_el_mid": round(gasp["mid"] / gas_eff["mid"], 1),
+        },
+        "model_version": params["meta"].get("model_version"),
     }
 
 
@@ -430,7 +465,7 @@ def main() -> int:
                 "assumption_audit_corrected", "must_show_counterpositions"):
         out[key] = story[key]
 
-    out["shared"] = build_shared(page, mc)
+    out["shared"] = build_shared(page, mc, load_json(PARAMS))
     out["internal_source_ids_reused"] = story["internal_source_ids_reused"]
 
     # Quellen aufloesen und durchnummerieren

@@ -10,7 +10,10 @@
 | (a) LCOE-Reproduktion GES | +/-2 % auf 4 Werte | BESTANDEN (max. Abweichung 0.04 %) |
 | (a2) Eigene Spannen vs. Fraunhofer ISE | Ueberlappung der Bandbreiten | BESTANDEN |
 | (b) Ist-2024 (H2) | +/-5 % je verfuegbarer Reihe | BESTANDEN |
-| (c) GES-Szenarien | Groessenordnung der 4 LSCOE | kostenminimum: -7 %; ee80_gas: -35 %; ee80_h2: -4 %; ee100: -6 % |
+| (c) GES-Szenarien | Groessenordnung der 4 LSCOE | kostenminimum: +9 %; ee80_gas: -22 %; ee80_h2: -3 %; ee100: -10 % |
+| (d) Ist-2025-Plausibilisierung | Mix +/-10 %, Kostenniveau im Ist-Korridor | BESTANDEN |
+
+> **Wichtig zur Lesart von (a) und (c).** Test (a) ist die *GES-Reproduktion*: dieselben Annahmen, dieselbe Rechenmethode, +/-2 %. Dieser Test ist von den Modell-Fixes der Version 0.2 bewusst NICHT beruehrt und muss unveraendert bestehen. Test (c) ist dagegen ein *Modelltest*: er rechnet die GES-Szenarien mit GES-Erzeugungsannahmen, aber mit dem eigenen Backup-, Speicher- und Netzblock. Er aendert sich mit v0.2 (Gaspreis, Netzaufteilung) - das ist beabsichtigt und keine Verschlechterung der Reproduktion.
 
 ## (a) Ebene 1 - LCOE-Reproduktion
 
@@ -103,10 +106,10 @@ Hauptlauf ohne CO2-Preis (GES rechnet ein klimaneutrales Zielsystem); die Spalte
 
 | Szenario | GES-LSCOE | Modell | Abweichung | mit CO2 | fEE-Anteil (Energie) | inst. Leistung GES / Modell | ungedeckte Last |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| kostenminimum | 125 | 116.0 | -7 % | 118.1 | 15 % | 215 / 241 GW | 0.0 % |
-| ee80_gas | 197 | 128.6 | -35 % | 139.8 | 75 % | 542 / 575 GW | 0.0 % |
-| ee80_h2 | 212 | 202.8 | -4 % | 202.8 | 75 % | 618 / 618 GW | 0.0 % |
-| ee100 | 321 | 301.9 | -6 % | 301.9 | 135 % | 1162 / 1162 GW | 0.0 % |
+| kostenminimum | 125 | 136.5 | +9 % | 138.6 | 15 % | 215 / 241 GW | 0.0 % |
+| ee80_gas | 197 | 152.7 | -22 % | 163.9 | 75 % | 542 / 575 GW | 0.0 % |
+| ee80_h2 | 212 | 206.5 | -3 % | 206.5 | 75 % | 618 / 618 GW | 0.0 % |
+| ee100 | 321 | 288.0 | -10 % | 288.0 | 135 % | 1162 / 1162 GW | 0.0 % |
 
 > Achtung bei der Lesart: Das LSCOE bezieht sich auf die **tatsaechlich gedeckte** Last. Ein Szenario mit ungedeckter Last ist damit nicht guenstiger, sondern unvollstaendig - die Deckungsluecke muesste durch zusaetzliche Kapazitaet (oder Importe/Lastmanagement, beides nicht modelliert) geschlossen werden.
 
@@ -114,10 +117,10 @@ Hauptlauf ohne CO2-Preis (GES rechnet ein klimaneutrales Zielsystem); die Spalte
 
 | Szenario | electrolyser | gas_backup | h2_storage | h2_turbine | netz | nuclear | pv | wind_offshore | wind_onshore |
 |---|---|---|---|---|---|---|---|---|---|
-| kostenminimum | 0.0 | 8.1 | 0.0 | 0.0 | 6.2 | 86.0 | 5.0 | 4.9 | 5.9 |
-| ee80_gas | 0.0 | 22.0 | 0.0 | 0.0 | 30.0 | 0.0 | 24.4 | 23.8 | 28.5 |
-| ee80_h2 | 10.0 | 0.0 | 66.9 | 19.2 | 30.0 | 0.0 | 24.4 | 23.8 | 28.5 |
-| ee100 | 56.2 | 0.0 | 35.3 | 19.0 | 53.8 | 0.0 | 43.7 | 42.7 | 51.1 |
+| kostenminimum | 0.0 | 12.1 | 0.0 | 0.0 | 22.6 | 86.0 | 5.0 | 4.9 | 5.9 |
+| ee80_gas | 0.0 | 43.5 | 0.0 | 0.0 | 32.5 | 0.0 | 24.4 | 23.8 | 28.5 |
+| ee80_h2 | 10.0 | 0.0 | 66.9 | 19.2 | 33.8 | 0.0 | 24.4 | 23.8 | 28.5 |
+| ee100 | 56.2 | 0.0 | 35.3 | 19.0 | 39.9 | 0.0 | 43.7 | 42.7 | 51.1 |
 
 ### Dispatch-Kennzahlen (H2-2024-Zeitraum)
 
@@ -139,8 +142,8 @@ Hauptlauf ohne CO2-Preis (GES rechnet ein klimaneutrales Zielsystem); die Spalte
 
 | Szenario | H2 aus Startfuellstand | LSCOE ohne Startfuellstand | ungedeckte Last ohne Startfuellstand |
 |---|---:|---:|---:|
-| ee80_h2 | 283.8 TWh_H2 | 214.3 | 34.6 % |
-| ee100 | 20.3 TWh_H2 | 314.9 | 5.0 % |
+| ee80_h2 | 283.8 TWh_H2 | 220.1 | 34.6 % |
+| ee100 | 20.3 TWh_H2 | 300.3 | 5.0 % |
 
 **Ehrliche Einordnung dieses Kunstgriffs:** Der Saisonspeicher startet gefuellt, weil der abgedeckte Zeitraum erst am 1. Juli beginnt. Der Strom, der dieses Wasserstoff-Inventar erzeugt hat, faellt in das nicht abgedeckte Halbjahr und ist in den Kosten **nicht** enthalten. Ohne Startfuellstand kippt das `ee80_h2`-Szenario dagegen in eine grosse Deckungsluecke. Beide Varianten sind falsch - die Wahrheit liegt dazwischen und ist mit einem Halbjahresprofil nicht ermittelbar. Das ist der staerkste Grund, `data/profiles_2024.json` als Volljahr nachzuziehen.
 
@@ -163,16 +166,69 @@ Beide Abregelungs-Bezugsgroessen sind noetig, weil im `kostenminimum`-Szenario e
 - Profil unvollstaendig (H2-2024-basiert (Teilzeitraum), 4416 h) - alle Dispatch-Ergebnisse sind auf diesen Zeitraum bezogen.
 - wind_offshore: UEBERGANGSLOESUNG: profiles_2024.json enthaelt keine Offshore-Reihe (series.wind_offshore_mw.available=false). Es wird ersatzweise die Onshore-Profilform verwendet, skaliert auf die Offshore-Volllaststunden. Die reale Offshore-Glaettung (hoehere Grundproduktion, weniger Flauten) fehlt damit - konservativ, d. h. das Modell unterschaetzt den Systemwert von Offshore-Wind.
 - Teilzeitraum-Hochrechnung: Dispatch-Mengen wurden mit Faktor 1.995 (Lastanteil des abgedeckten Zeitraums) auf ein Jahr hochgerechnet. Der abgedeckte Zeitraum Jul-Dez ist winterlastig - Backup- und Speichermengen werden dadurch eher ueber- als unterschaetzt.
-- Gas-Brennstoffkosten fehlen in den Dossiers (gaps.gaspreis_erdgas) - im Ergebnis mit 0 EUR/MWh angesetzt. Das LSCOE ist insoweit eine UNTERGRENZE.
 - 283.8 TWh H2 stammen aus dem gesetzten Anfangsfuellstand des Saisonspeichers. Die Stromkosten fuer deren Erzeugung liegen ausserhalb des abgedeckten Zeitraums und sind NICHT enthalten - das LSCOE ist insoweit eine Untergrenze.
 - 20.3 TWh H2 stammen aus dem gesetzten Anfangsfuellstand des Saisonspeichers. Die Stromkosten fuer deren Erzeugung liegen ausserhalb des abgedeckten Zeitraums und sind NICHT enthalten - das LSCOE ist insoweit eine Untergrenze.
+- Uebertragungsnetz-Skalierung 1.25 auf 1,00 gedeckelt - das Szenario wuerde sonst mehr als das gesamte nationale Uebertragungsnetzbudget tragen.
 - Ungedeckte Last: 0.00 TWh im abgedeckten Zeitraum (0.00 % der Last), Spitze 0.0 GW. Import/Export und Lastmanagement sind bewusst nicht modelliert (konservativ).
+
+## (d) Ist-2025-Plausibilisierung - rechnet das Modell die Gegenwart richtig?
+
+Neu in Modell v0.2 (Persona-Review 03, K3). Der Ist-2025-Anker ist die einzige falsifizierbare Groesse des Modells; alle anderen Szenarien liegen 20 Jahre in der Zukunft. Gerechnet wird das Preset `ist2025` aus `scripts/monte_carlo.py` - jetzt inklusive Kohle-, Biomasse- und Wasserband und mit dem **heutigen Netzentgelt** statt der Netzinvestition bis 2045.
+
+### d1 - Erzeugungsmengen gegen den belegten Ist-Mix 2025
+
+| Groesse | Modell TWh/a | Ist 2025 TWh | Abweichung | Toleranz | Anmerkung |
+|---|---:|---:|---:|:--:|---|
+| Photovoltaik | 80.8 | 89.5 | -9.7 % | OK | Erzeugungspotenzial vor Abregelung |
+| Wind onshore | 106.2 | 110.1 | -3.5 % | OK | Erzeugungspotenzial vor Abregelung |
+| Wind offshore | 27.0 | 28.0 | -3.5 % | OK | Onshore-Ersatzprofil |
+| Kohle (Band) | 101.7 | 101.7 | +0.0 % | OK | als konstantes Band gesetzt |
+| Biomasse (Band) | 42.7 | 42.7 | +0.0 % | OK | als konstantes Band gesetzt |
+| Wasserkraft (Band) | 21.0 | 21.0 | +0.0 % | OK | als konstantes Band gesetzt |
+| Erdgas (Modell-Backup) allein gegen Ist-Erdgas | 148.1 | 84.9 | +74.4 % | informativ | Erwartete Ueberschaetzung: das Modell kennt weder Import noch Pumpspeicher noch Mineraloel/Abfall - alles davon landet bei ihm im Gas-Backup. |
+| Restdeckung gesamt (Gas + Oel/Abfall + Pumpspeicher + Nettoimport) | 148.1 | 141.3 | +4.8 % | OK | Ist 2025: Erdgas 84.9 + Mineraloel/Sonstige/Abfall 28.9 + Pumpspeicher 7.1 + Nettoimport 20.4 TWh. Das ist die eigentliche Plausibilisierung der freien Modellgroesse. |
+| Abregelung | 6.2 | 9.4 | -33.7 % | OK | Ist-Wert 2024 (9,4 TWh); das Modell kennt keine Netzengpaesse, nur Ueberschuss. |
+
+**Lesart:** PV, Wind und die drei Baender sind gesetzt und muessen deshalb passen - der Test prueft hier die Umrechnungskette (Energieanteil -> Kapazitaet -> Profil -> Energie), nicht die Welt. Die **freien** Groessen sind die Gasarbeit und die Abregelung: Beide entstehen im Dispatch und sind mit dem Ist vergleichbar.
+
+### d2 - Kostenniveau gegen belegte Ist-Bloecke
+
+| Belegter Ist-Block bzw. Modellwert | EUR/MWh | Abgrenzung |
+|---|---:|---|
+| Boersenstrompreis 2025 (Jahresmittel) | 86.5 | Grenzkostenpreis, KEINE Vollkosten - enthaelt keine Kapitalkosten der EE-Flotte. |
+| Netzentgelt Haushalt 2026 (wie erhoben) | 93.0 | 9,3 ct/kWh; im Modell als Netzblock des Ankers angesetzt. |
+| Netzentgelt ohne Bundeszuschuss | 130.9 | Der 6,5-Mrd.-Zuschuss ist laut Dossier eine Transferleistung, keine Kostensenkung. |
+| Summe Boerse + Netzentgelt (wie erhoben) | 179.5 | Grobe Ist-Vergleichsgroesse ohne Steuern, Umlagen, Messwesen, Vertrieb. |
+| Endkundenpreis Haushalt 2026 | 370.0 | Obergrenze: enthaelt Steuern, Abgaben, Umlagen und Vertrieb. |
+| Industriepreis 2026 (Neuabschluss) | 167.0 | Untergrenze der Endkundenseite. |
+| MODELL: Ist-2025-Anker (LSCOE) | 180.8 | Vollkosten der Erzeugung (ohne Kapital-/Betriebskosten der Bestandsbaender) plus heutiges Netzentgelt. |
+
+Der Modellwert von **180.8 EUR/MWh** liegt innerhalb des Ist-Korridors 179.5-370.0 EUR/MWh (Boerse + Netzentgelt bis Endkundenpreis Haushalt).
+
+**Was dieser Test NICHT zeigt:** Die Bloecke haben unterschiedliche Systemgrenzen. Der Boersenpreis ist ein Grenzkostenpreis und enthaelt die Kapitalkosten der geforderten EE-Flotte nicht; der Endkundenpreis enthaelt Steuern, Abgaben und Vertrieb, die im Modell fehlen. Der Test ist deshalb eine **Groessenordnungspruefung**, kein Nachweis. Der Anker ist in allen Ausgaben als `comparable_to_target_scenarios: false` gekennzeichnet.
+
+### d3 - Kostenkomponenten und Restemissionen des Ankers
+
+| Komponente | EUR/MWh |
+|---|---:|
+| battery | 3.2 |
+| coal_band | 11.0 |
+| gas_backup | 43.1 |
+| netz | 93.0 |
+| pv | 10.2 |
+| wind_offshore | 5.0 |
+| wind_onshore | 15.3 |
+
+Restemissionen: **136.0 Mt CO2/a** (Gas 59.7, Kohle 76.4), entspricht 262 g/kWh gelieferter Arbeit. Emissionsfaktor-Status: PROXY - UNECE-Lebenszyklus-Untergrenze statt direktem Verbrennungsfaktor (gaps.emissionsfaktor_direkt). Der direkte ETS-Faktor liegt bei eta = 0,58-0,60 rund 10-20 % niedriger.
 
 ## Verbleibende Luecken (aus `model_params.json.gaps`)
 
 | ID | Parameter | Beschreibung |
 |---|---|---|
-| gaspreis_erdgas | `technologies.gas_*.params.fuel_eur_mwh` | Kein Erdgas-Brennstoffpreis (EUR/MWh_th oder EUR/MWh_el) in den Dossiers. Das Modell rechnet ohne expliziten Wert mit 0 und weist das Ergebnis als Untergrenze aus; gas_fuel_implied liefert eine rueckgerechnete Obergrenze. |
+| gaspreis_erdgas | `technologies.gas_*.params.fuel_eur_mwh_th` | Kein Erdgas-Brennstoffpreis in den Recherche-Dossiers. Seit v0.2 mit einer Marktspanne 20/35/60 EUR/MWh_th parametrisiert (TTF-Notierung, Recherche 2026-08-19, Konfidenz B; Uebertragbarkeit auf 2045 Konfidenz C). Die Nullsetzung war eine Luecke der Recherche, nicht der Welt. |
+| netz_opex | `system.grid (Betrieb, Instandhaltung, Verluste, Redispatch)` | Fuer das Zielsystem 2045 existiert in keinem Dossier ein Netzbetriebskostensatz. Das Modell enthaelt ausschliesslich die Investitionsannuitaet - der Netzblock der Zukunftsszenarien ist damit eine Untergrenze. Belegt ist nur der Ist-Wert Engpassmanagement (2,776 Mrd. EUR 2024 bzw. 2,7-3,1 Mrd. EUR 2025). |
+| ccs_nicht_modelliert | `technologies (keine CCS-Kette)` | Die gepruefte GES-Studie rechnet ihren Gas-Pfad ausweislich des ETS-Abschnitts mit CCS. Das Modell kennt keine CCS-Kette (CAPEX/OPEX, Wirkungsgradverlust, Abscheidegrad, Transport/Speicherung). Offene Entscheidung - bis dahin sind die Szenarien NICHT emissionsaequivalent; die Restemissionen werden seit v0.2 je Szenario ausgewiesen (emissions_mt_co2_a). |
+| overrun_ungemessen_speicher_h2 | `system.cost_overrun_factors.unmeasured_technologies` | Batterie, Elektrolyse, H2-Speicher und H2-Turbine haben in Flyvbjerg/Sovacool keine Projektklasse und bleiben bei Faktor 1,00. Das ist eine Luecke, keine Messung - das Ueberschreitungs-Szenario ist deshalb asymmetrisch. |
 | emissionsfaktor_direkt | `technologies.gas_*.params.emission_factor_t_mwh` | Kein direkter Verbrennungs-Emissionsfaktor in den Dossiers. Als Proxy dient die UNECE-Lebenszyklus-Untergrenze fuer GuD (403 g/kWh). Vor Veroeffentlichung ersetzen. |
 | profile_partial | `data/profiles_2024.json` | Nur 4.416 von 8.784 Stunden (Jul-Dez 2024); Wind offshore, Wasserkraft und Biomasse fehlen komplett. Alle Dispatch-Ergebnisse sind H2-2024-basiert. |
 | offshore_profil | `technologies.wind_offshore.profile_series` | Kein Offshore-Profil vorhanden; Uebergangsloesung mit Onshore-Profilform. |

@@ -164,6 +164,53 @@ function idcSurcharge(wacc, constructionYears) {
   return Math.pow(1.0 + wacc, constructionYears / 2.0) - 1.0;
 }
 
+/* --- Modell v0.2: Kostenabgrenzung der CAPEX-Anker -------------------
+   M1: Bauzinsen nur auf Anker ohne enthaltene Finanzierung.
+   M2: Brennstoffpreis thermisch, ueber den Wirkungsgrad umgerechnet.
+   M7: Ueberschreitungsfaktor nur auf Schaetzbasis-Anker.
+   Spiegelt scripts/model.py 1:1 - Aenderungen dort und hier gemeinsam. */
+function applShare(t, key) {
+  const v = t[key];
+  if (v === null || v === undefined) return 1.0;
+  const n = Number(v);
+  return n < 0 ? 0 : (n > 1 ? 1 : n);
+}
+
+function fuelEurMwhEl(t) {
+  const direct = t.fuel_eur_mwh;
+  if (direct !== null && direct !== undefined) return { fuel: Number(direct), basis: 'direkt (EUR/MWh_el)' };
+  const th = t.fuel_eur_mwh_th;
+  if (th === null || th === undefined) return { fuel: 0.0, basis: 'nicht gesetzt (0)' };
+  const eta = t.efficiency || t.efficiency_lhv;
+  if (!eta) return { fuel: 0.0, basis: 'thermisch gesetzt, aber kein Wirkungsgrad hinterlegt (0)' };
+  return { fuel: Number(th) / Number(eta), basis: 'thermisch ' + Number(th).toFixed(1) + ' EUR/MWh_th / eta ' + Number(eta).toFixed(3) };
+}
+
+function scopeShareForCapex(capexEntry, shareEntry, capexValue) {
+  if (!shareEntry || typeof shareEntry !== 'object') return 1.0;
+  const xs = [capexEntry.min, capexEntry.mid, capexEntry.max];
+  const ys = [shareEntry.min, shareEntry.mid, shareEntry.max];
+  const pts = [];
+  for (let i = 0; i < 3; i++) {
+    if (xs[i] !== null && xs[i] !== undefined && ys[i] !== null && ys[i] !== undefined) {
+      pts.push([Number(xs[i]), Number(ys[i])]);
+    }
+  }
+  if (!pts.length) return 1.0;
+  pts.sort((a, b) => a[0] - b[0]);
+  const x = Number(capexValue);
+  if (x <= pts[0][0]) return pts[0][1];
+  if (x >= pts[pts.length - 1][0]) return pts[pts.length - 1][1];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+    if (x0 <= x && x <= x1) {
+      if (x1 === x0) return y1;
+      return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
+    }
+  }
+  return pts[pts.length - 1][1];
+}
+
 function lcoe(t, wacc, co2Price) {
   co2Price = co2Price || 0.0;
   const capex = Number(t.capex_eur_kw);
@@ -172,9 +219,13 @@ function lcoe(t, wacc, co2Price) {
   if (!(flh > 0)) throw new Error('full_load_hours muss > 0 sein');
 
   const overrun = Number(t.cost_overrun_factor || 1.0);
+  const overrunShare = applShare(t, 'overrun_applicable_share');
+  const overrunEff = 1.0 + (overrun - 1.0) * overrunShare;
   const applyIdc = !!t.apply_idc;
-  const idc = applyIdc ? idcSurcharge(wacc, t.construction_years) : 0.0;
-  const capexEff = capex * overrun * (1.0 + idc);
+  const idcGross = applyIdc ? idcSurcharge(wacc, t.construction_years) : 0.0;
+  const idcShare = applShare(t, 'idc_applicable_share');
+  const idc = idcGross * idcShare;
+  const capexEff = capex * overrunEff * (1.0 + idc);
   const annuity = capexEff * crf(wacc, n);
 
   let fixedOpexKwA, opexMode;
@@ -189,7 +240,8 @@ function lcoe(t, wacc, co2Price) {
   const perMwh = flh / 1000.0;
   const capital = annuity / perMwh;
   const fixedOpex = fixedOpexKwA / perMwh;
-  const fuel = Number(t.fuel_eur_mwh || 0.0);
+  const fuelRes = fuelEurMwhEl(t);
+  const fuel = fuelRes.fuel;
   const waste = Number(t.waste_eur_mwh || 0.0);
   const ef = Number(t.emission_factor_t_mwh || 0.0);
   const co2 = co2Price * ef;
@@ -199,6 +251,11 @@ function lcoe(t, wacc, co2Price) {
     components_eur_mwh: { kapital: capital, fixbetrieb: fixedOpex, brennstoff: fuel, entsorgung: waste, co2: co2 },
     capex_effective_eur_kw: capexEff,
     idc_surcharge: idc,
+    idc_surcharge_gross: idcGross,
+    idc_applicable_share: idcShare,
+    cost_overrun_factor_effective: overrunEff,
+    overrun_applicable_share: overrunShare,
+    fuel_basis: fuelRes.basis,
     crf: crf(wacc, n),
     annuity_eur_kw_a: annuity,
     fixed_opex_eur_kw_a: fixedOpexKwA,
@@ -211,7 +268,9 @@ function lcoe(t, wacc, co2Price) {
 const SCENARIO_FIELD_MAP = {
   capex_eur_kw: 'capex', opex_pct: 'opex', opex_eur_kw_a: 'opex',
   full_load_hours: 'full_load_hours', lifetime_years: 'lifetime_years',
-  fuel_eur_mwh: 'fuel', waste_eur_mwh: 'waste'
+  fuel_eur_mwh: 'fuel', fuel_eur_mwh_th: 'fuel', waste_eur_mwh: 'waste',
+  /* v0.2: Kostenabgrenzung folgt der CAPEX-Stuetzstelle */
+  capex_scope: 'capex', idc_applicable_share: 'capex', overrun_applicable_share: 'capex'
 };
 
 function pickVal(entry, which) {
@@ -357,8 +416,11 @@ function dispatch(capacitiesGw, params, profiles, opts) {
     nuclearBandMw = nuclearGw * MW_PER_GW * availability;
     bandMw += nuclearBandMw;
   }
-  bandMw += Number(capacitiesGw.hydro_band || 0.0) * MW_PER_GW;
-  bandMw += Number(capacitiesGw.biomass_band || 0.0) * MW_PER_GW;
+  const hydroMw = Number(capacitiesGw.hydro_band || 0.0) * MW_PER_GW;
+  const bioMw = Number(capacitiesGw.biomass_band || 0.0) * MW_PER_GW;
+  /* v0.2 (M6): Kohle als Bestandsband */
+  const coalMw = Number(capacitiesGw.coal_band || 0.0) * MW_PER_GW;
+  bandMw += hydroMw + bioMw + coalMw;
 
   /* Speicher- und Backup-Parameter */
   const batPowerMw = Number(capacitiesGw.battery_power || 0.0) * MW_PER_GW;
@@ -476,7 +538,12 @@ function dispatch(capacitiesGw, params, profiles, opts) {
       curtailed: twh(tot.curtailed), battery_charge: twh(tot.bat_charge),
       battery_discharge: twh(tot.bat_discharge), electrolysis_input: twh(tot.ely_in),
       h2_produced: twh(tot.h2_produced), h2_reelectrified: twh(tot.h2_reelec),
-      gas_backup: twh(tot.gas), unserved: twh(tot.unserved)
+      gas_backup: twh(tot.gas), unserved: twh(tot.unserved),
+      /* Bandkomponenten getrennt (v0.2/M6) */
+      nuclear_band: twh(nuclearBandMw * hours),
+      hydro_band: twh(hydroMw * hours),
+      biomass_band: twh(bioMw * hours),
+      coal_band: twh(coalMw * hours)
     },
     vre_potential_twh: vrePotTwh,
     coverage_ratio: tot.load ? served / tot.load : 0.0,
@@ -514,6 +581,8 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
   const gridVariant = opts.grid_variant || 'mid';
   const gasTech = opts.gas_tech || 'gas_ccgt';
   const firmTech = opts.firm_tech || 'nuclear';
+  const bandsTwh = opts.bands_twh || {};
+  const gridCostBasis = opts.grid_cost_basis || 'buildout_2045';
   const warnings = [];
   const wacc = scenarioWacc(params, scenario);
   const co2Price = (opts.co2_price !== undefined && opts.co2_price !== null)
@@ -530,6 +599,14 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
     const flh = Number(techs[techKey].full_load_hours);
     const energyMwh = shares[shareKey] * demandTwh * MWH_PER_TWH;
     caps[shareKey] = energyMwh / flh / MW_PER_GW;
+  }
+  /* Bestandsbaender (v0.2/M6): Jahresenergie -> konstante Bandleistung */
+  {
+    const shareLoadCfg = (profiles.series.load_mw.seasonal_share || 1.0);
+    ['hydro_band', 'biomass_band', 'coal_band'].forEach(bk => {
+      const e = Number(bandsTwh[bk] || 0.0);
+      caps[bk] = (e <= 0) ? 0.0 : (e * MWH_PER_TWH * shareLoadCfg / profiles.hours / MW_PER_GW);
+    });
   }
   caps.battery_power = storage.battery_power_gw || 0.0;
   caps.battery_energy_gwh = storage.battery_energy_gwh || 0.0;
@@ -572,27 +649,48 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
       + co2Price * Number(flat.emission_factor_t_mwh || 0.0);
     if (varC) {
       let genTwh = disp.vre_potential_twh[shareKey];
-      if (genTwh === undefined || genTwh === null) genTwh = (shareKey === 'nuclear') ? disp.energy_twh.band : 0.0;
+      if (genTwh === undefined || genTwh === null) genTwh = (shareKey === 'nuclear') ? disp.energy_twh.nuclear_band : 0.0;
       cost[shareKey] = (cost[shareKey] || 0.0) + varC * genTwh * annualize * MWH_PER_TWH;
     }
   }
 
   let gasGw = caps.gas_backup;
   if (gasGw === null || gasGw === undefined) gasGw = disp.gas_peak_gw;
+  const efGas = Number(techs[gasTech].emission_factor_t_mwh || 0.0);
+  const gasTwhA = disp.energy_twh.gas_backup * annualize;
   if (gasGw > 0) {
     addCapacityCost('gas_backup', gasTech, gasGw);
     const flat = techs[gasTech];
-    let fuel = flat.fuel_eur_mwh;
-    if (fuel === null || fuel === undefined) {
-      warnings.push('Gas-Brennstoffkosten fehlen in den Dossiers (gaps.gaspreis_erdgas) – im Ergebnis ' +
-        'mit 0 €/MWh angesetzt. Das LSCOE ist insoweit eine UNTERGRENZE.');
-      fuel = 0.0;
+    /* v0.2 (M2): Brennstoffpreis thermisch, ueber den Wirkungsgrad umgerechnet */
+    const fr = fuelEurMwhEl(flat);
+    if (!fr.fuel) {
+      warnings.push('Gas-Brennstoffkosten konnten nicht bestimmt werden - im Ergebnis mit 0 EUR/MWh ' +
+        'angesetzt. Das LSCOE ist insoweit eine UNTERGRENZE.');
     }
-    const ef = Number(flat.emission_factor_t_mwh || 0.0);
-    const gasTwh = disp.energy_twh.gas_backup * annualize;
-    cost.gas_backup = (cost.gas_backup || 0.0) + (Number(fuel) + co2Price * ef) * gasTwh * MWH_PER_TWH;
+    cost.gas_backup = (cost.gas_backup || 0.0) + (fr.fuel + co2Price * efGas) * gasTwhA * MWH_PER_TWH;
     detail.gas_backup = Object.assign(detail.gas_backup || {},
-      { generation_twh_a: gasTwh, flh: disp.gas_full_load_hours * annualize });
+      { generation_twh_a: gasTwhA, flh: disp.gas_full_load_hours * annualize,
+        fuel_eur_mwh_el: fr.fuel, fuel_basis: fr.basis });
+  }
+
+  /* Bestandsbaender (v0.2/M6): nur CO2-Kosten, keine Kapital-/Betriebskosten */
+  const legacy = (params.system && params.system.legacy_bands) || {};
+  const LEGACY_MAP = { coal_band: 'coal', biomass_band: 'biomass', hydro_band: 'hydro' };
+  const legacyEf = {};
+  for (const bandKey in LEGACY_MAP) {
+    const lk = LEGACY_MAP[bandKey];
+    const bandTwh = (disp.energy_twh[bandKey] || 0.0) * annualize;
+    const efEntry = (legacy[lk] || {}).emission_factor_t_mwh || {};
+    const ef = Number(efEntry.value || 0.0);
+    legacyEf[bandKey] = ef;
+    if (bandTwh <= 0) continue;
+    if (ef) cost[bandKey] = (cost[bandKey] || 0.0) + co2Price * ef * bandTwh * MWH_PER_TWH;
+    detail[bandKey] = { generation_twh_a: bandTwh, emission_factor_t_mwh: ef };
+    if (lk === 'coal' || lk === 'biomass') {
+      warnings.push('Bestandsband ' + lk + ': ' + bandTwh.toFixed(1) + ' TWh/a laufen ohne Kapital- ' +
+        'und Betriebskosten in die Rechnung (keine Kostenparameter in den Dossiers). ' +
+        'Das LSCOE ist insoweit eine UNTERGRENZE.');
+    }
   }
 
   if (caps.battery_energy_gwh) {
@@ -619,20 +717,77 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
   }
   if (caps.h2_turbine) addCapacityCost('h2_turbine', 'h2_turbine', caps.h2_turbine);
 
-  /* Netzausbau, top-down linear mit dem fEE-Anteil (wie GES) */
-  let feeShare = 0;
-  for (const k in shares) if (k in VRE_TECHS) feeShare += shares[k];
+  /* Netzkosten (v0.2/M3: Uebertragung + Verteilnetz getrennt) */
+  let feeShareGenerated = 0;
+  for (const k in shares) if (k in VRE_TECHS) feeShareGenerated += shares[k];
   const grid = params.system.grid;
   const variant = ['min', 'mid', 'max'].includes(gridVariant) ? gridVariant : 'mid';
-  const investBn = pickVal(grid.investment_bn_eur_until_2045, variant);
   const gridLife = grid.lifetime_years.value;
-  const refShare = grid.reference_fee_share.value;
-  cost.netz = investBn * 1e9 * crf(wacc, gridLife) * (feeShare / refShare);
-  detail.netz = { invest_bn_eur: investBn, fee_share: feeShare };
-
+  const gridCrf = crf(wacc, gridLife);
   const servedTwhA = disp.energy_twh.served * annualize;
+
+  const vreGen = disp.energy_twh.vre_generated * annualize;
+  const bandGen = disp.energy_twh.band * annualize;
+  const curtA = disp.energy_twh.curtailed * annualize;
+  const vreUsed = vreGen - ((vreGen + bandGen) ? curtA * vreGen / (vreGen + bandGen) : 0.0);
+  const feeShareUsed = demandTwh ? vreUsed / demandTwh : 0.0;
+  let gridScalingRaw = { transmission: null, distribution: null };
+
+  if (gridCostBasis === 'ist_netzentgelt') {
+    const istGrid = Number(pickVal(grid.ist_2025_eur_mwh, variant));
+    cost.netz = istGrid * servedTwhA * MWH_PER_TWH;
+    detail.netz = { basis: 'ist_netzentgelt', eur_mwh: istGrid };
+  } else if (gridCostBasis === 'none') {
+    cost.netz = 0.0;
+    detail.netz = { basis: 'none' };
+  } else if (gridCostBasis === 'legacy_fee_linear') {
+    /* v0.1-Konvention, nur noch als Vergleichslauf */
+    const investBn = pickVal(grid.investment_bn_eur_until_2045, variant);
+    cost.netz = investBn * 1e9 * gridCrf * (feeShareGenerated / grid.reference_fee_share.value);
+    detail.netz = { basis: 'legacy_fee_linear', invest_bn_eur: investBn, fee_share: feeShareGenerated };
+  } else {
+    const refShare = grid.reference_fee_share.value;
+    const refDemand = grid.reference_demand_twh.value;
+    const transBn = pickVal(grid.transmission_bn_eur_until_2045, variant);
+    const distBn = pickVal(grid.distribution_bn_eur_until_2045, variant);
+    const rawT = refShare ? feeShareUsed / refShare : 0.0;
+    const rawD = refDemand ? demandTwh / refDemand : 0.0;
+    const scaleT = Math.min(1.0, rawT), scaleD = Math.min(1.0, rawD);
+    const costT = transBn * 1e9 * gridCrf * scaleT;
+    const costD = distBn * 1e9 * gridCrf * scaleD;
+    cost.netz = costT + costD;
+    gridScalingRaw = { transmission: rawT, distribution: rawD };
+    detail.netz = {
+      basis: 'buildout_2045', transmission_bn_eur: transBn, distribution_bn_eur: distBn,
+      fee_share_generated: feeShareGenerated, fee_share_used: feeShareUsed,
+      scaling_transmission: scaleT, scaling_distribution: scaleD,
+      scaling_transmission_raw: rawT, scaling_distribution_raw: rawD,
+      cost_transmission_bn_eur_a: costT / 1e9, cost_distribution_bn_eur_a: costD / 1e9
+    };
+    if (rawT > 1.0) {
+      warnings.push('Uebertragungsnetz-Skalierung ' + rawT.toFixed(2) + ' auf 1,00 gedeckelt - das ' +
+        'Szenario wuerde sonst mehr als das gesamte nationale Uebertragungsnetzbudget tragen.');
+    }
+    if (rawD > 1.0) {
+      warnings.push('Verteilnetz-Skalierung ' + rawD.toFixed(2) + ' auf 1,00 gedeckelt (Bedarf ueber ' +
+        'dem Referenzbedarf von ' + Number(refDemand).toFixed(0) + ' TWh).');
+    }
+  }
+
   let total = 0; for (const k in cost) total += cost[k];
   const lscoe = servedTwhA ? total / (servedTwhA * MWH_PER_TWH) : NaN;
+
+  /* Restemissionen (v0.2/M5) */
+  const coalTwhA = (disp.energy_twh.coal_band || 0.0) * annualize;
+  const efCoal = legacyEf.coal_band || 0.0;
+  const emissions = {
+    gas_mt_co2_a: gasTwhA * efGas,
+    coal_mt_co2_a: coalTwhA * efCoal,
+    total_mt_co2_a: gasTwhA * efGas + coalTwhA * efCoal,
+    g_co2_per_kwh_delivered: servedTwhA ? (gasTwhA * efGas + coalTwhA * efCoal) * 1000.0 / servedTwhA : 0.0,
+    emission_factor_gas_t_mwh: efGas,
+    emission_factor_coal_t_mwh: efCoal
+  };
 
   if (disp.energy_twh.unserved > 0) {
     warnings.push('Ungedeckte Last: ' + disp.energy_twh.unserved.toFixed(2) + ' TWh im abgedeckten ' +
@@ -665,7 +820,10 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
     cost_components_bn_eur_a: compBn, cost_components_eur_mwh: compMwh,
     capacities_gw: capsOut, installed_gw_total: installedTotal,
     served_twh_a: servedTwhA, dispatch: disp, scenario: scenario, wacc: wacc,
-    co2_price_eur_t: co2Price, detail: detail, warnings: warnings, gas_gw: gasGw
+    co2_price_eur_t: co2Price, detail: detail, warnings: warnings, gas_gw: gasGw,
+    emissions: emissions, emissions_mt_co2_a: emissions.total_mt_co2_a,
+    grid_cost_basis: gridCostBasis, grid_scaling_raw: gridScalingRaw,
+    comparable_to_target_scenarios: gridCostBasis === 'buildout_2045'
   };
 }
 
@@ -715,7 +873,8 @@ function runSelfTest(vec, params, profiles) {
     checked++;
     const res = mixSystem(c.input.shares, c.input.demand_twh, params, profiles, {
       scenario: c.input.scenario, storage: c.input.storage, co2_price: c.input.co2_price,
-      grid_variant: c.input.grid_variant, apply_idc: c.input.apply_idc
+      grid_variant: c.input.grid_variant, apply_idc: c.input.apply_idc,
+      bands_twh: c.input.bands_twh, grid_cost_basis: c.input.grid_cost_basis
     });
     compareDeep(res, c.expected, tol, 'mix/' + c.id, fails);
   });
@@ -2715,16 +2874,24 @@ const MC_BASE_SEED = 20260815;
 
 const MC_DRAW_TECHS = ['pv_freiflaeche', 'wind_onshore', 'wind_offshore', 'nuclear',
   'gas_ccgt', 'battery', 'electrolyser', 'h2_turbine', 'h2_storage'];
-const MC_DRAW_FIELDS = ['capex_eur_kw', 'capex_eur_kwh', 'opex_pct', 'opex_eur_kw_a', 'full_load_hours'];
+const MC_DRAW_FIELDS = ['capex_eur_kw', 'capex_eur_kwh', 'opex_pct', 'opex_eur_kw_a', 'full_load_hours',
+  /* v0.2 (M2): Erdgas-Brennstoffpreis, thermisch */
+  'fuel_eur_mwh_th'];
+/* v0.2 (M1/M7): Abgrenzungsanteile folgen dem gezogenen CAPEX */
+const MC_SCOPE_SHARE_FIELDS = ['idc_applicable_share', 'overrun_applicable_share'];
 const MC_OVERRUN_CLASS = {
   pv_freiflaeche: 'solar', wind_onshore: 'wind', wind_offshore: 'wind',
   nuclear: 'kernkraft', gas_ccgt: 'fossil_thermisch', netz: 'netz_uebertragung'
 };
+/* Reihenfolge und Inhalt muessen mit CONFIGS in monte_carlo.py uebereinstimmen -
+   sie bestimmen den Seed (base_seed + Index) und damit die Ziehungsfolge. */
 const MC_CONFIGS = [
-  { id: 'base', wacc: false, overrun: false },
-  { id: 'wacc', wacc: true, overrun: false },
-  { id: 'overrun', wacc: false, overrun: true },
-  { id: 'wacc_overrun', wacc: true, overrun: true }
+  { id: 'base', wacc: false, co2: false, overrun: false },
+  { id: 'wacc', wacc: true, co2: false, overrun: false },
+  { id: 'co2', wacc: false, co2: true, overrun: false },
+  { id: 'wacc_co2', wacc: true, co2: true, overrun: false },
+  { id: 'overrun', wacc: false, co2: false, overrun: true },
+  { id: 'wacc_overrun', wacc: true, co2: false, overrun: true }
 ];
 
 /* mulberry32 - bitgleich zur Python-Referenz (32-Bit-Arithmetik). */
@@ -2816,11 +2983,19 @@ function mcPresets() {
   };
 
   const d25 = Math.round(demand25 / 10) * 10;
+  /* v0.2 (M6): Bestandsbaender + heutiges Netzentgelt statt Ausbau-Annuitaet */
+  const lb = S.params.system.legacy_bands;
   const presets = [{
-    id: 'ist2025', label: 'Ist 2025', demand: d25,
+    id: 'ist2025', label: 'Ist 2025 (Referenzsystem)', demand: d25,
     shares: { pv: mix25.photovoltaik.wert / d25, wind_onshore: mix25.wind_onshore.wert / d25,
       wind_offshore: mix25.wind_offshore.wert / d25 },
-    storage: store(Math.round(bat25 / 5) * 5, 0, 0, 0, 0, true)
+    storage: store(Math.round(bat25 / 5) * 5, 0, 0, 0, 0, true),
+    bands_twh: {
+      coal_band: lb.coal.generation_2025_twh.value,
+      biomass_band: lb.biomass.generation_2025_twh.value,
+      hydro_band: lb.hydro.generation_2025_twh.value
+    },
+    grid_cost_basis: 'ist_netzentgelt', comparable: false
   }];
   [['kostenminimum', 'GES · Kostenminimum', 0, 0, 0, 0, 0, true],
    ['ee80_gas', 'GES · 80 % EE + Gas', 40, 0, 0, 0, 0, true],
@@ -2835,14 +3010,16 @@ function mcPresets() {
       if (nuc > 0) shares.nuclear = nuc;
     }
     presets.push({ id: id, label: label, demand: demand, shares: shares,
-      storage: store(bat, ely, h2t, h2s, fill, gasAuto) });
+      storage: store(bat, ely, h2t, h2s, fill, gasAuto),
+      bands_twh: {}, grid_cost_basis: 'buildout_2045', comparable: true });
   });
   return presets;
 }
 
 /* Schritt 3 aus mixSystem() ueber einem bereits gerechneten Dispatch. */
-function systemCostFromDispatch(shares, demandTwh, params, techs, disp, wacc, co2Price, storage, overrun) {
+function systemCostFromDispatch(shares, demandTwh, params, techs, disp, wacc, co2Price, storage, overrun, gridCostBasis) {
   overrun = overrun || {};
+  gridCostBasis = gridCostBasis || 'buildout_2045';
   const annualize = 1.0 / (disp.seasonal_share_load || 1.0);
   const cost = {};
   const techForShare = { pv: 'pv_freiflaeche', wind_onshore: 'wind_onshore',
@@ -2862,20 +3039,24 @@ function systemCostFromDispatch(shares, demandTwh, params, techs, disp, wacc, co
       + co2Price * Number(flat.emission_factor_t_mwh || 0);
     if (varC) {
       let genTwh = disp.vre_potential_twh[shareKey];
-      if (genTwh === undefined || genTwh === null) genTwh = (shareKey === 'nuclear') ? disp.energy_twh.band : 0;
+      if (genTwh === undefined || genTwh === null) genTwh = (shareKey === 'nuclear') ? disp.energy_twh.nuclear_band : 0;
       cost[shareKey] = (cost[shareKey] || 0) + varC * genTwh * annualize * MWH_PER_TWH;
     }
   }
 
   let gasGw = storage.gas_backup_gw;
   if (gasGw === null || gasGw === undefined) gasGw = disp.gas_peak_gw;
+  const efGasMc = Number(techs.gas_ccgt.emission_factor_t_mwh || 0);
   if (gasGw > 0) {
     cost.gas_backup = (cost.gas_backup || 0) + fixedCost('gas_ccgt') * gasGw * KW_PER_GW;
-    const flat = techs.gas_ccgt;
-    const fuel = Number(flat.fuel_eur_mwh || 0);
-    const ef = Number(flat.emission_factor_t_mwh || 0);
-    cost.gas_backup += (fuel + co2Price * ef) * disp.energy_twh.gas_backup * annualize * MWH_PER_TWH;
+    /* v0.2 (M2): Brennstoffpreis thermisch -> elektrisch */
+    const fuel = fuelEurMwhEl(techs.gas_ccgt).fuel;
+    cost.gas_backup += (fuel + co2Price * efGasMc) * disp.energy_twh.gas_backup * annualize * MWH_PER_TWH;
   }
+  /* v0.2 (M6): Kohle-Bestandsband, nur CO2-Kosten */
+  const coalTwhMc = (disp.energy_twh.coal_band || 0) * annualize;
+  const efCoalMc = Number((((params.system.legacy_bands || {}).coal || {}).emission_factor_t_mwh || {}).value || 0);
+  if (coalTwhMc > 0 && efCoalMc) cost.coal_band = (cost.coal_band || 0) + co2Price * efCoalMc * coalTwhMc * MWH_PER_TWH;
 
   const batGwh = storage.battery_energy_gwh || 0;
   if (batGwh) {
@@ -2892,14 +3073,27 @@ function systemCostFromDispatch(shares, demandTwh, params, techs, disp, wacc, co
   }
   if (storage.h2_turbine_gw) cost.h2_turbine = fixedCost('h2_turbine') * storage.h2_turbine_gw * KW_PER_GW;
 
-  let feeShare = 0;
-  for (const k in shares) if (k in VRE_TECHS) feeShare += shares[k];
+  /* v0.2 (M3): Uebertragung + Verteilnetz getrennt, Skalierung gedeckelt */
   const grid = params.system.grid;
-  const investBn = pickVal(grid.investment_bn_eur_until_2045, 'mid');
-  cost.netz = investBn * 1e9 * (overrun.netz || 1.0)
-    * crf(wacc, grid.lifetime_years.value) * (feeShare / grid.reference_fee_share.value);
-
+  const gridCrfMc = crf(wacc, grid.lifetime_years.value);
   const servedTwhA = disp.energy_twh.served * annualize;
+  if (gridCostBasis === 'ist_netzentgelt') {
+    cost.netz = Number(pickVal(grid.ist_2025_eur_mwh, 'mid')) * servedTwhA * MWH_PER_TWH;
+  } else if (gridCostBasis === 'none') {
+    cost.netz = 0.0;
+  } else {
+    const vreGen = disp.energy_twh.vre_generated * annualize;
+    const bandGen = disp.energy_twh.band * annualize;
+    const curtA = disp.energy_twh.curtailed * annualize;
+    const vreUsed = vreGen - ((vreGen + bandGen) ? curtA * vreGen / (vreGen + bandGen) : 0);
+    const feeShareUsed = demandTwh ? vreUsed / demandTwh : 0;
+    const scaleT = Math.min(1.0, grid.reference_fee_share.value ? feeShareUsed / grid.reference_fee_share.value : 0);
+    const scaleD = Math.min(1.0, grid.reference_demand_twh.value ? demandTwh / grid.reference_demand_twh.value : 0);
+    cost.netz = (overrun.netz || 1.0) * gridCrfMc * 1e9
+      * (pickVal(grid.transmission_bn_eur_until_2045, 'mid') * scaleT
+         + pickVal(grid.distribution_bn_eur_until_2045, 'mid') * scaleD);
+  }
+
   let total = 0; for (const k in cost) total += cost[k];
   return servedTwhA ? total / (servedTwhA * MWH_PER_TWH) : NaN;
 }
@@ -2910,26 +3104,13 @@ function mcMidTechs(params) {
   return out;
 }
 
-function mcRunConfig(preset, disp, plan, ovPlan, config, seed, co2Price) {
-  const rnd = mulberry32(seed);
-  const base = mcMidTechs(S.params);
-  const waccSpec = S.params.global.wacc;
-  const midWacc = scenarioWacc(S.params, 'mittel');
-  const values = new Array(MC_N_DRAWS);
-  for (let i = 0; i < MC_N_DRAWS; i++) {
-    const techs = {};
-    for (const k in base) techs[k] = Object.assign({}, base[k]);
-    plan.forEach(d => { techs[d.tech][d.field] = triangular(rnd(), d.min, d.mid, d.max); });
-    let wacc = midWacc;
-    if (config.wacc) wacc = triangular(rnd(), waccSpec.min, waccSpec.mid, waccSpec.max);
-    const overrun = {};
-    if (config.overrun) ovPlan.forEach(o => { overrun[o.target] = triangular(rnd(), o.min, o.mid, o.max); });
-    values[i] = systemCostFromDispatch(preset.shares, preset.demand, S.params, techs, disp,
-      wacc, co2Price, preset.storage, overrun);
-  }
-  values.sort((a, b) => a - b);
+/* v0.2 (M4): GEPAARTE Ziehungen (common random numbers). Je Konfiguration
+   laeuft EIN Ziehungsstrom; jede Ziehung wird auf alle Presets angewandt.
+   Muss zu run_config_paired() in monte_carlo.py bitgleich sein. */
+function mcSummarize(rawValues, binsHint) {
+  const values = rawValues.slice().sort((a, b) => a - b);
   const lo = values[0], hi = values[values.length - 1], span = hi - lo;
-  const bins = S.mcRef ? S.mcRef.presets[preset.id].configs[config.id].hist.bins : 28;
+  const bins = binsHint || 28;
   const counts = new Array(bins).fill(0);
   values.forEach(v => {
     let idx = span <= 0 ? bins - 1 : Math.floor((v - lo) / span * bins);
@@ -2945,6 +3126,67 @@ function mcRunConfig(preset, disp, plan, ovPlan, config, seed, co2Price) {
   };
 }
 
+function mcRunConfigPaired(presets, disps, plan, ovPlan, config, seed, co2Price) {
+  const rnd = mulberry32(seed);
+  const base = mcMidTechs(S.params);
+  const waccSpec = S.params.global.wacc;
+  const co2Spec = S.params.global.co2_price_eur_t;
+  const midWacc = scenarioWacc(S.params, 'mittel');
+  const values = {}; presets.forEach(p => { values[p.id] = new Array(MC_N_DRAWS); });
+
+  for (let i = 0; i < MC_N_DRAWS; i++) {
+    const techs = {};
+    for (const k in base) techs[k] = Object.assign({}, base[k]);
+    plan.forEach(d => { techs[d.tech][d.field] = triangular(rnd(), d.min, d.mid, d.max); });
+    MC_DRAW_TECHS.forEach(techKey => {
+      const tech = S.params.technologies[techKey];
+      if (!tech) return;
+      const capEntry = tech.params.capex_eur_kw || tech.params.capex_eur_kwh;
+      if (!capEntry) return;
+      let drawn = techs[techKey].capex_eur_kw;
+      if (drawn === undefined || drawn === null) drawn = techs[techKey].capex_eur_kwh;
+      if (drawn === undefined || drawn === null) return;
+      MC_SCOPE_SHARE_FIELDS.forEach(f => {
+        const se = tech.params[f];
+        if (se) techs[techKey][f] = scopeShareForCapex(capEntry, se, drawn);
+      });
+    });
+    let wacc = midWacc;
+    if (config.wacc) wacc = triangular(rnd(), waccSpec.min, waccSpec.mid, waccSpec.max);
+    let co2 = co2Price;
+    if (config.co2) co2 = triangular(rnd(), co2Spec.min, co2Spec.mid, co2Spec.max);
+    const overrun = {};
+    if (config.overrun) ovPlan.forEach(o => { overrun[o.target] = triangular(rnd(), o.min, o.mid, o.max); });
+    presets.forEach(p => {
+      values[p.id][i] = systemCostFromDispatch(p.shares, p.demand, S.params, techs, disps[p.id],
+        wacc, co2, p.storage, overrun, p.grid_cost_basis);
+    });
+  }
+  return values;
+}
+
+/* P(A guenstiger als B) ueber die gepaarten Ziehungen. */
+function mcPairwiseRanks(values, order) {
+  const out = [];
+  for (let i = 0; i < order.length; i++) {
+    for (let j = i + 1; j < order.length; j++) {
+      const a = order[i], b = order[j];
+      const diff = values[a].map((x, k) => x - values[b][k]);
+      const n = diff.length;
+      let wins = 0; diff.forEach(d => { if (d < 0) wins++; });
+      const sd = diff.slice().sort((x, y) => x - y);
+      let sum = 0; sd.forEach(v => { sum += v; });
+      out.push({
+        a: a, b: b, p_a_cheaper: wins / n, p_b_cheaper: (n - wins) / n,
+        median_diff_a_minus_b: percentileOf(sd, 0.50),
+        p5_diff: percentileOf(sd, 0.05), p95_diff: percentileOf(sd, 0.95),
+        mean_diff: sum / n, decided: Math.max(wins / n, (n - wins) / n) >= 0.95
+      });
+    }
+  }
+  return out;
+}
+
 const MC = { wacc: false, overrun: false, res: null, ms: 0, running: false, done: false };
 
 /* Laeuft in Haeppchen, damit die Fortschrittsanzeige sichtbar wird. */
@@ -2953,26 +3195,38 @@ function mcRunAll(onProgress) {
     const presets = mcPresets();
     const plan = mcDrawPlan(S.params), ovPlan = mcOverrunPlan(S.page);
     const co2 = Number(S.params.global.co2_price_eur_t.value);
-    const jobs = [];
-    presets.forEach((p, pi) => MC_CONFIGS.forEach((c, ci) => jobs.push({ p: p, pi: pi, c: c, ci: ci })));
     const out = {}, disps = {};
+    const order = presets.map(p => p.id);
+    presets.forEach(p => {
+      const det = mixSystem(p.shares, p.demand, S.params, S.profiles, {
+        scenario: 'mittel', storage: p.storage, co2_price: co2, grid_variant: 'mid', apply_idc: true,
+        bands_twh: p.bands_twh, grid_cost_basis: p.grid_cost_basis
+      });
+      disps[p.id] = det.dispatch;
+      out[p.id] = {
+        label: p.label, det: det.lscoe_eur_mwh, configs: {},
+        emissions_mt_co2_a: det.emissions_mt_co2_a,
+        comparable: p.comparable !== false
+      };
+    });
     const t0 = performance.now();
-    let k = 0;
+    let ci = 0;
+    /* Ein Chunk = eine Konfiguration, weil der Ziehungsstrom je Konfiguration
+       zusammenhaengen muss (common random numbers). */
     const step = () => {
-      const job = jobs[k];
-      if (!disps[job.p.id]) {
-        const det = mixSystem(job.p.shares, job.p.demand, S.params, S.profiles, {
-          scenario: 'mittel', storage: job.p.storage, co2_price: co2, grid_variant: 'mid', apply_idc: true
-        });
-        disps[job.p.id] = det.dispatch;
-        out[job.p.id] = { label: job.p.label, det: det.lscoe_eur_mwh, configs: {} };
-      }
-      out[job.p.id].configs[job.c.id] = mcRunConfig(job.p, disps[job.p.id], plan, ovPlan, job.c,
-        MC_BASE_SEED + job.pi * 1000 + job.ci, co2);
-      k++;
-      if (onProgress) onProgress(k / jobs.length);
-      if (k < jobs.length) setTimeout(step, 0);
-      else { MC.ms = performance.now() - t0; MC.order = presets.map(p => p.id); resolve(out); }
+      const c = MC_CONFIGS[ci];
+      const values = mcRunConfigPaired(presets, disps, plan, ovPlan, c, MC_BASE_SEED + ci, co2);
+      order.forEach(pid => {
+        const bins = (S.mcRef && S.mcRef.presets[pid] && S.mcRef.presets[pid].configs[c.id])
+          ? S.mcRef.presets[pid].configs[c.id].hist.bins : 28;
+        out[pid].configs[c.id] = mcSummarize(values[pid], bins);
+      });
+      MC.ranks = MC.ranks || {};
+      MC.ranks[c.id] = mcPairwiseRanks(values, order);
+      ci++;
+      if (onProgress) onProgress(ci / MC_CONFIGS.length);
+      if (ci < MC_CONFIGS.length) setTimeout(step, 0);
+      else { MC.ms = performance.now() - t0; MC.order = order; resolve(out); }
     };
     step();
   });

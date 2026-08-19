@@ -361,9 +361,128 @@ def validate_ges_scenarios(params: dict, profiles: dict) -> dict:
 
 
 # ==========================================================================
+# (d) Ist-2025-Plausibilisierung (neu in Modell v0.2)
+# ==========================================================================
+TOL_IST25_MIX = 0.10   # +/-10 % je Traeger
+TOL_IST25_GAS = 0.35   # +/-35 % fuer die Gasarbeit (Dispatch statt Marktergebnis)
+
+
+def validate_ist_2025(params: dict, profiles: dict) -> dict:
+    """Rechnet das Modell die Gegenwart richtig?
+
+    Der Ist-2025-Anker ist die einzige falsifizierbare Groesse des ganzen
+    Modells - alle anderen Szenarien liegen 20 Jahre in der Zukunft. Geprueft
+    werden drei Dinge:
+      (1) Erzeugungsmix je Traeger gegen ist_zustand_de.md 1.1
+      (2) Abregelung gegen den Ist-Wert 2024 (9,4 TWh)
+      (3) Kostenniveau gegen belegte Ist-Kostenbloecke (Boersenpreis +
+          Netzentgelt), mit ausdruecklicher Abgrenzung der Systemgrenzen
+    """
+    import monte_carlo  # lokal, damit model/validate ohne MC importierbar bleiben
+
+    ref = params["ist_zustand"]["ist_2025_reference"]
+    page_path = os.path.join(BASE, "data", "page_data.json")
+    with open(page_path, encoding="utf-8") as fh:
+        page = json.load(fh)
+    preset = monte_carlo.build_presets(params, page)[0]
+
+    res = model.mix_system(
+        preset["shares"], preset["demand_twh"], params, profiles, scenario="mittel",
+        storage=preset["storage"], co2_price=params["global"]["co2_price_eur_t"]["value"],
+        grid_variant="mid", apply_idc=True, bands_twh=preset["bands_twh"],
+        grid_cost_basis=preset["grid_cost_basis"],
+    )
+    disp = res["dispatch"]
+    ann = 1.0 / (disp["seasonal_share_load"] or 1.0)
+
+    rows = []
+
+    def add(label, model_twh, target_twh, tol, note=""):
+        """tol=None -> nur informativ, kein Bestanden/Nicht-bestanden."""
+        if not target_twh:
+            rows.append({"label": label, "model": model_twh, "target": None,
+                         "dev_pct": None, "passed": None, "note": note})
+            return
+        dv = dev_pct(model_twh, target_twh)
+        rows.append({"label": label, "model": model_twh, "target": target_twh,
+                     "dev_pct": dv, "passed": None if tol is None else abs(dv) <= tol * 100,
+                     "note": note})
+
+    g = ref["generation_twh"]
+    pot = disp["vre_potential_twh"]
+    add("Photovoltaik", pot.get("pv", 0.0) * ann, g["photovoltaik"], TOL_IST25_MIX,
+        "Erzeugungspotenzial vor Abregelung")
+    add("Wind onshore", pot.get("wind_onshore", 0.0) * ann, g["wind_onshore"], TOL_IST25_MIX,
+        "Erzeugungspotenzial vor Abregelung")
+    add("Wind offshore", pot.get("wind_offshore", 0.0) * ann, g["wind_offshore"], TOL_IST25_MIX,
+        "Onshore-Ersatzprofil")
+    add("Kohle (Band)", disp["energy_twh"]["coal_band"] * ann,
+        g["braunkohle"] + g["steinkohle_mid"], TOL_IST25_MIX, "als konstantes Band gesetzt")
+    add("Biomasse (Band)", disp["energy_twh"]["biomass_band"] * ann, g["biomasse"], TOL_IST25_MIX,
+        "als konstantes Band gesetzt")
+    add("Wasserkraft (Band)", disp["energy_twh"]["hydro_band"] * ann, g["wasserkraft"], TOL_IST25_MIX,
+        "als konstantes Band gesetzt")
+    # Das Modell kennt keine Importe, keine Pumpspeicher und keine
+    # Mineraloel-/Abfall-Erzeugung. Alles, was diese drei Bloecke real decken,
+    # muss im Modell aus dem Gas-Backup kommen. Die faire Vergleichsgroesse ist
+    # deshalb die SUMME der im Modell nicht abgebildeten Restdeckung.
+    imp = ref["nettoimport_twh"] or {}
+    import_mid = ((imp.get("low") or 0.0) + (imp.get("high") or 0.0)) / 2.0
+    residual_target = ((g["erdgas"] or 0.0) + (g.get("mineraloel_sonstige_abfall") or 0.0)
+                       + (ref.get("pumpspeichererzeugung_twh") or 0.0) + import_mid)
+    add("Erdgas (Modell-Backup) allein gegen Ist-Erdgas",
+        disp["energy_twh"]["gas_backup"] * ann, g["erdgas"], None,
+        "Erwartete Ueberschaetzung: das Modell kennt weder Import noch Pumpspeicher noch "
+        "Mineraloel/Abfall - alles davon landet bei ihm im Gas-Backup.")
+    add("Restdeckung gesamt (Gas + Oel/Abfall + Pumpspeicher + Nettoimport)",
+        disp["energy_twh"]["gas_backup"] * ann, residual_target, 0.20,
+        f"Ist 2025: Erdgas {g['erdgas']} + Mineraloel/Sonstige/Abfall "
+        f"{g.get('mineraloel_sonstige_abfall')} + Pumpspeicher "
+        f"{ref.get('pumpspeichererzeugung_twh')} + Nettoimport {import_mid:.1f} TWh. "
+        "Das ist die eigentliche Plausibilisierung der freien Modellgroesse.")
+    add("Abregelung", disp["energy_twh"]["curtailed"] * ann, ref["abregelung_2024_twh"],
+        0.60, "Ist-Wert 2024 (9,4 TWh); das Modell kennt keine Netzengpaesse, nur Ueberschuss.")
+
+    # ---- Kostenniveau -------------------------------------------------
+    boerse = ref["boersenstrompreis_eur_mwh"]
+    netz = ref["netzentgelt_haushalt_eur_mwh"]
+    netz_ohne = ref["netzentgelt_ohne_bundeszuschuss_eur_mwh"]
+    cost_rows = [
+        {"label": "Boersenstrompreis 2025 (Jahresmittel)", "value": boerse,
+         "note": "Grenzkostenpreis, KEINE Vollkosten - enthaelt keine Kapitalkosten der EE-Flotte."},
+        {"label": "Netzentgelt Haushalt 2026 (wie erhoben)", "value": netz,
+         "note": "9,3 ct/kWh; im Modell als Netzblock des Ankers angesetzt."},
+        {"label": "Netzentgelt ohne Bundeszuschuss", "value": netz_ohne,
+         "note": "Der 6,5-Mrd.-Zuschuss ist laut Dossier eine Transferleistung, keine Kostensenkung."},
+        {"label": "Summe Boerse + Netzentgelt (wie erhoben)", "value": (boerse or 0) + (netz or 0),
+         "note": "Grobe Ist-Vergleichsgroesse ohne Steuern, Umlagen, Messwesen, Vertrieb."},
+        {"label": "Endkundenpreis Haushalt 2026", "value": (ref["endkunde_haushalt_2026_ct_kwh"] or 0) * 10,
+         "note": "Obergrenze: enthaelt Steuern, Abgaben, Umlagen und Vertrieb."},
+        {"label": "Industriepreis 2026 (Neuabschluss)", "value": (ref["industrie_2026_ct_kwh"] or 0) * 10,
+         "note": "Untergrenze der Endkundenseite."},
+        {"label": "MODELL: Ist-2025-Anker (LSCOE)", "value": res["lscoe_eur_mwh"],
+         "note": "Vollkosten der Erzeugung (ohne Kapital-/Betriebskosten der Bestandsbaender) "
+                 "plus heutiges Netzentgelt."},
+    ]
+    band_lo = (boerse or 0) + (netz or 0)
+    band_hi = (ref["endkunde_haushalt_2026_ct_kwh"] or 0) * 10
+    in_band = band_lo <= res["lscoe_eur_mwh"] <= band_hi
+
+    mix_ok = all(r["passed"] for r in rows if r["passed"] is not None)
+    return {
+        "rows": rows, "cost_rows": cost_rows, "lscoe": res["lscoe_eur_mwh"],
+        "band": (band_lo, band_hi), "in_band": in_band, "passed": mix_ok and in_band,
+        "components": res["cost_components_eur_mwh"],
+        "emissions": res["emissions"], "warnings": res["warnings"],
+        "preset": {"demand_twh": preset["demand_twh"], "shares": preset["shares"],
+                   "bands_twh": preset["bands_twh"], "grid_cost_basis": preset["grid_cost_basis"]},
+    }
+
+
+# ==========================================================================
 # Report
 # ==========================================================================
-def write_report(params: dict, profiles: dict, a: dict, b: dict, c: dict) -> None:
+def write_report(params: dict, profiles: dict, a: dict, b: dict, c: dict, d: dict) -> None:
     L: list[str] = []
     w = L.append
 
@@ -391,6 +510,15 @@ def write_report(params: dict, profiles: dict, a: dict, b: dict, c: dict) -> Non
       f"{'BESTANDEN' if ist_ok else 'NICHT BESTANDEN'} |")
     w("| (c) GES-Szenarien | Groessenordnung der 4 LSCOE | "
       + ("; ".join(f"{r['name']}: {r['dev_pct']:+.0f} %" for r in c["results"])) + " |")
+    w("| (d) Ist-2025-Plausibilisierung | Mix +/-10 %, Kostenniveau im Ist-Korridor | "
+      + ("BESTANDEN" if d["passed"] else "NICHT BESTANDEN") + " |")
+    w("")
+    w("> **Wichtig zur Lesart von (a) und (c).** Test (a) ist die *GES-Reproduktion*: dieselben "
+      "Annahmen, dieselbe Rechenmethode, +/-2 %. Dieser Test ist von den Modell-Fixes der Version "
+      "0.2 bewusst NICHT beruehrt und muss unveraendert bestehen. Test (c) ist dagegen ein "
+      "*Modelltest*: er rechnet die GES-Szenarien mit GES-Erzeugungsannahmen, aber mit dem eigenen "
+      "Backup-, Speicher- und Netzblock. Er aendert sich mit v0.2 (Gaspreis, Netzaufteilung) - das "
+      "ist beabsichtigt und keine Verschlechterung der Reproduktion.")
     w("")
 
     # -------- (a)
@@ -575,12 +703,12 @@ def write_report(params: dict, profiles: dict, a: dict, b: dict, c: dict) -> Non
       "Backup-Spitze GW | ungedeckte Last TWh |")
     w("|---|---:|---:|---:|---:|---:|---:|")
     for r in c["results"]:
-        d = r["dispatch"]
-        backup = d["energy_twh"]["gas_backup"] + d["energy_twh"]["h2_reelectrified"]
-        w(f"| {r['name']} | {fmt(d['energy_twh']['curtailed'])} | "
-          f"{d['curtailment_share_of_vre'] * 100:.1f} % | "
-          f"{d['curtailment_share_of_generation'] * 100:.1f} % | {fmt(backup)} | {fmt(r['peak_gw'])} | "
-          f"{fmt(d['energy_twh']['unserved'], 2)} |")
+        dsp = r["dispatch"]
+        backup = dsp["energy_twh"]["gas_backup"] + dsp["energy_twh"]["h2_reelectrified"]
+        w(f"| {r['name']} | {fmt(dsp['energy_twh']['curtailed'])} | "
+          f"{dsp['curtailment_share_of_vre'] * 100:.1f} % | "
+          f"{dsp['curtailment_share_of_generation'] * 100:.1f} % | {fmt(backup)} | {fmt(r['peak_gw'])} | "
+          f"{fmt(dsp['energy_twh']['unserved'], 2)} |")
     w("")
     h2_rows = [r for r in c["results"] if r.get("required_h2_twh")]
     if h2_rows:
@@ -665,6 +793,60 @@ def write_report(params: dict, profiles: dict, a: dict, b: dict, c: dict) -> Non
             w(f"- {msg}")
     w("")
 
+    # -------- (d)
+    w("## (d) Ist-2025-Plausibilisierung - rechnet das Modell die Gegenwart richtig?")
+    w("")
+    w("Neu in Modell v0.2 (Persona-Review 03, K3). Der Ist-2025-Anker ist die einzige "
+      "falsifizierbare Groesse des Modells; alle anderen Szenarien liegen 20 Jahre in der Zukunft. "
+      "Gerechnet wird das Preset `ist2025` aus `scripts/monte_carlo.py` - jetzt inklusive Kohle-, "
+      "Biomasse- und Wasserband und mit dem **heutigen Netzentgelt** statt der Netzinvestition bis "
+      "2045.")
+    w("")
+    w("### d1 - Erzeugungsmengen gegen den belegten Ist-Mix 2025")
+    w("")
+    w("| Groesse | Modell TWh/a | Ist 2025 TWh | Abweichung | Toleranz | Anmerkung |")
+    w("|---|---:|---:|---:|:--:|---|")
+    for r in d["rows"]:
+        dev = "-" if r["dev_pct"] is None else f"{r['dev_pct']:+.1f} %"
+        ok = "informativ" if r["passed"] is None else ("OK" if r["passed"] else "ABWEICHUNG")
+        w(f"| {r['label']} | {fmt(r['model'])} | {fmt(r['target'])} | {dev} | {ok} | {r['note']} |")
+    w("")
+    w("**Lesart:** PV, Wind und die drei Baender sind gesetzt und muessen deshalb passen - der Test "
+      "prueft hier die Umrechnungskette (Energieanteil -> Kapazitaet -> Profil -> Energie), nicht "
+      "die Welt. Die **freien** Groessen sind die Gasarbeit und die Abregelung: Beide entstehen im "
+      "Dispatch und sind mit dem Ist vergleichbar.")
+    w("")
+    w("### d2 - Kostenniveau gegen belegte Ist-Bloecke")
+    w("")
+    w("| Belegter Ist-Block bzw. Modellwert | EUR/MWh | Abgrenzung |")
+    w("|---|---:|---|")
+    for r in d["cost_rows"]:
+        w(f"| {r['label']} | {fmt(r['value'])} | {r['note']} |")
+    w("")
+    w(f"Der Modellwert von **{fmt(d['lscoe'])} EUR/MWh** liegt "
+      f"{'innerhalb' if d['in_band'] else 'AUSSERHALB'} des Ist-Korridors "
+      f"{fmt(d['band'][0])}-{fmt(d['band'][1])} EUR/MWh (Boerse + Netzentgelt bis Endkundenpreis "
+      f"Haushalt).")
+    w("")
+    w("**Was dieser Test NICHT zeigt:** Die Bloecke haben unterschiedliche Systemgrenzen. Der "
+      "Boersenpreis ist ein Grenzkostenpreis und enthaelt die Kapitalkosten der geforderten "
+      "EE-Flotte nicht; der Endkundenpreis enthaelt Steuern, Abgaben und Vertrieb, die im Modell "
+      "fehlen. Der Test ist deshalb eine **Groessenordnungspruefung**, kein Nachweis. Der Anker ist "
+      "in allen Ausgaben als `comparable_to_target_scenarios: false` gekennzeichnet.")
+    w("")
+    w("### d3 - Kostenkomponenten und Restemissionen des Ankers")
+    w("")
+    w("| Komponente | EUR/MWh |")
+    w("|---|---:|")
+    for k, v in sorted(d["components"].items()):
+        w(f"| {k} | {fmt(v)} |")
+    w("")
+    w(f"Restemissionen: **{fmt(d['emissions']['total_mt_co2_a'])} Mt CO2/a** "
+      f"(Gas {fmt(d['emissions']['gas_mt_co2_a'])}, Kohle {fmt(d['emissions']['coal_mt_co2_a'])}), "
+      f"entspricht {fmt(d['emissions']['g_co2_per_kwh_delivered'], 0)} g/kWh gelieferter Arbeit. "
+      f"Emissionsfaktor-Status: {d['emissions']['factor_status']}")
+    w("")
+
     # -------- Limitationen / Luecken
     w("## Verbleibende Luecken (aus `model_params.json.gaps`)")
     w("")
@@ -691,7 +873,8 @@ def main() -> None:
     a = validate_lcoe(params)
     b = validate_ist(params, profiles)
     c = validate_ges_scenarios(params, profiles)
-    write_report(params, profiles, a, b, c)
+    d = validate_ist_2025(params, profiles)
+    write_report(params, profiles, a, b, c, d)
 
     print("(a) GES-LCOE-Reproduktion:")
     for r in a["ges_rows"]:
@@ -711,6 +894,16 @@ def main() -> None:
     print("(c) GES-Szenarien:")
     for r in c["results"]:
         print(f"    {r['name']:16s} publiziert {r['published']:4.0f}  Modell {r['model']:7.1f}  {r['dev_pct']:+7.1f} %")
+    print("(d) Ist-2025-Plausibilisierung:")
+    for r in d["rows"]:
+        if r["target"] is None:
+            continue
+        flag = "informativ" if r["passed"] is None else ("OK" if r["passed"] else "ABWEICHUNG")
+        print(f"    {r['label'][:44]:46s} Modell {r['model']:8.1f} TWh  Ist {r['target']:7.1f} TWh  "
+              f"{r['dev_pct']:+7.1f} %  {flag}")
+    print(f"    {'LSCOE Anker':36s} {d['lscoe']:8.1f} EUR/MWh  Ist-Korridor "
+          f"{d['band'][0]:.0f}-{d['band'][1]:.0f}  {'im Korridor' if d['in_band'] else 'AUSSERHALB'}")
+    print(f"    {'Restemissionen':36s} {d['emissions']['total_mt_co2_a']:8.1f} Mt CO2/a")
     print(f"\nBericht: {OUT_MD}")
 
 

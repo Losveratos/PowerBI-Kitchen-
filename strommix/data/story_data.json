@@ -1996,18 +1996,22 @@
     "assumptions": [
      "Der Dispatch wird je Preset EINMAL mit mittleren Parametern gerechnet und zwischengespeichert; die 1000 Ziehungen wirken nur auf die Kostenseite.",
      "Damit wirkt die Volllaststunden-Ziehung nur auf die abgeleiteten Kapazitäten und deren Kosten, nicht auf Erzeugungsmengen, Backup-Bedarf oder Abregelung.",
-     "Gezogen werden CAPEX, Opex und Volllaststunden je Technologie; optional WACC (Dreieck 3/5/9 %) und ein empirischer CAPEX-Ueberschreitungsfaktor.",
-     "Alle Ziehungen sind unabhaengig. Reale Korrelationen (z. B. hoher CAPEX an guten Standorten, gemeinsame Rohstoffpreise) sind NICHT abgebildet - das unterschaetzt die Breite der Verteilung an den Raendern eher, als sie zu uebertreiben.",
-     "Nicht variiert werden: Wetterjahr, Lastprofil, Lebensdauern, Wirkungsgrade, Brennstoff- und Entsorgungskosten, CO2-Preis, Netzinvestitionsvolumen.",
+     "Gezogen werden CAPEX, Opex, Volllaststunden und der Erdgas-Brennstoffpreis je Technologie; optional WACC (Dreieck 3/5/9 %), CO2-Preis (Dreieck 0/75/400 EUR/t) und ein empirischer CAPEX-Ueberschreitungsfaktor.",
+     "Bauzins- und Ueberschreitungsaufschlag werden nur auf die dafür geeignete Kostenabgrenzung gelegt (idc_applicable_share / overrun_applicable_share, zwischen den CAPEX-Stuetzstellen linear interpoliert). Für Kernkraft heisst das: kein zusaetzlicher Bauzins auf Gesamtprojekt-Anker, kein Ueberschreitungsfaktor auf den bereits eskalierten Hinkley-Point-C-Anker.",
+     "Der Ist-2025-Anker traegt das heutige Netzentgelt statt der Netzinvestition bis 2045 und ist deshalb NICHT direkt mit den Zielszenarien vergleichbar (comparable_to_target_scenarios = false).",
+     "Innerhalb einer Ziehung sind die Parameter über alle Presets identisch; zwischen den Parametern sind die Ziehungen unabhaengig. Reale Korrelationen (z. B. hoher CAPEX an guten Standorten, gemeinsame Rohstoffpreise) sind NICHT abgebildet - das unterschaetzt die Breite der Verteilung an den Raendern eher, als sie zu uebertreiben.",
+     "Nicht variiert werden: Wetterjahr, Lastprofil, Lebensdauern, Wirkungsgrade, Kernbrennstoff- und Entsorgungskosten, Netzinvestitionsvolumen (ausser über den Ueberschreitungsfaktor 'netz').",
      "Ebenfalls nicht variiert: die H2-Speicherkosten (105 EUR/MWh_H2). Ihre dokumentierte Spanne oeffnet nur nach unten und ist laut Parameternotiz nur bei hoher Zyklenzahl erreichbar - der simulierte Saisonspeicher hat aber genau einen Zyklus im Jahr.",
-     "Batterie, Elektrolyse, H2-Speicher und H2-Turbine haben in den Ueberschreitungsdatensaetzen (Flyvbjerg, Sovacool & Ryu) keine Projektklasse und bleiben deshalb bei Faktor 1,00."
+     "Batterie, Elektrolyse, H2-Speicher und H2-Turbine haben in den Ueberschreitungsdatensaetzen (Flyvbjerg, Sovacool & Ryu) keine Projektklasse und bleiben deshalb bei Faktor 1,00. Das ist eine LUECKE, keine Messung - das Ueberschreitungs-Szenario ist damit asymmetrisch (siehe limitations.overrun_asymmetry)."
     ],
-    "drawn_parameters": 23
+    "drawn_parameters": 24
    },
    "configs": {
-    "base": "WACC fest (5 %), ohne Kostenüberschreitung",
-    "wacc": "WACC unsicher (Dreieck 3/5/9 %), ohne Kostenüberschreitung",
-    "overrun": "WACC fest (5 %), mit empirischer Kostenüberschreitung",
+    "base": "WACC fest (5 %), CO2 fest (75 EUR/t), ohne Kostenüberschreitung",
+    "wacc": "WACC unsicher (Dreieck 3/5/9 %), CO2 fest",
+    "co2": "CO2-Preis unsicher (Dreieck 0/75/400 EUR/t), WACC fest",
+    "wacc_co2": "WACC und CO2-Preis unsicher",
+    "overrun": "WACC fest, CO2 fest, mit empirischer Kostenüberschreitung",
     "wacc_overrun": "WACC unsicher, mit empirischer Kostenüberschreitung"
    },
    "preset_order": [
@@ -2019,247 +2023,1174 @@
    ],
    "presets": {
     "ist2025": {
-     "label": "Ist 2025",
+     "label": "Ist 2025 (Referenzsystem)",
      "demand_twh": 520.0,
-     "deterministic": 107.1,
-     "gas_peak_gw": 76.8,
+     "deterministic": 180.8,
+     "gas_peak_gw": 58.0,
+     "gas_backup_twh_a": 148.1,
+     "curtailed_twh_a": 6.2,
+     "unserved_twh_a": 0.0,
+     "emissions_mt_co2_a": 136.0,
+     "grid_cost_basis": "ist_netzentgelt",
+     "comparable_to_target_scenarios": false,
+     "components_eur_mwh": {
+      "battery": 3.2,
+      "coal_band": 11.0,
+      "gas_backup": 43.1,
+      "netz": 93.0,
+      "pv": 10.2,
+      "wind_offshore": 5.0,
+      "wind_onshore": 15.3
+     },
      "configs": {
       "base": {
-       "p5": 100.7,
-       "p25": 104.6,
-       "p50": 107.7,
-       "p75": 110.7,
-       "p95": 114.6,
-       "mean": 107.6,
-       "min": 96.0,
-       "max": 120.7
+       "p5": 174.3,
+       "p25": 178.9,
+       "p50": 182.3,
+       "p75": 186.2,
+       "p95": 191.8,
+       "mean": 182.6,
+       "min": 169.0,
+       "max": 196.9
       },
       "wacc": {
-       "p5": 95.0,
-       "p25": 104.6,
-       "p50": 113.0,
-       "p75": 124.1,
-       "p95": 139.9,
-       "mean": 114.8,
-       "min": 87.1,
-       "max": 158.1
+       "p5": 174.1,
+       "p25": 180.6,
+       "p50": 185.6,
+       "p75": 191.5,
+       "p95": 200.4,
+       "mean": 186.2,
+       "min": 165.3,
+       "max": 213.5
+      },
+      "co2": {
+       "p5": 171.8,
+       "p25": 186.3,
+       "p50": 201.4,
+       "p75": 219.9,
+       "p95": 247.9,
+       "mean": 204.2,
+       "min": 153.1,
+       "max": 267.6
+      },
+      "wacc_co2": {
+       "p5": 172.6,
+       "p25": 190.0,
+       "p50": 205.4,
+       "p75": 225.5,
+       "p95": 252.6,
+       "mean": 208.7,
+       "min": 153.8,
+       "max": 284.7
       },
       "overrun": {
-       "p5": 107.3,
-       "p25": 112.1,
-       "p50": 115.5,
-       "p75": 118.6,
-       "p95": 123.2,
-       "mean": 115.4,
-       "min": 102.3,
-       "max": 131.1
+       "p5": 177.7,
+       "p25": 182.2,
+       "p50": 186.4,
+       "p75": 190.3,
+       "p95": 196.1,
+       "mean": 186.6,
+       "min": 171.7,
+       "max": 202.2
       },
       "wacc_overrun": {
-       "p5": 101.0,
-       "p25": 110.7,
-       "p50": 119.9,
-       "p75": 131.7,
-       "p95": 148.3,
-       "mean": 121.9,
-       "min": 88.8,
-       "max": 169.0
+       "p5": 177.8,
+       "p25": 183.8,
+       "p50": 189.2,
+       "p75": 195.6,
+       "p95": 206.4,
+       "mean": 190.2,
+       "min": 169.1,
+       "max": 221.0
       }
      }
     },
     "kostenminimum": {
      "label": "GES · Kostenminimum",
      "demand_twh": 950.0,
-     "deterministic": 155.8,
+     "deterministic": 152.3,
      "gas_peak_gw": 53.9,
+     "gas_backup_twh_a": 69.2,
+     "curtailed_twh_a": 64.7,
+     "unserved_twh_a": 0.0,
+     "emissions_mt_co2_a": 27.9,
+     "grid_cost_basis": "buildout_2045",
+     "comparable_to_target_scenarios": true,
+     "components_eur_mwh": {
+      "gas_backup": 15.5,
+      "netz": 23.2,
+      "nuclear": 99.5,
+      "pv": 2.6,
+      "wind_offshore": 5.0,
+      "wind_onshore": 6.6
+     },
      "configs": {
       "base": {
-       "p5": 133.1,
-       "p25": 149.1,
-       "p50": 161.2,
-       "p75": 173.2,
-       "p95": 189.7,
-       "mean": 161.0,
-       "min": 122.5,
-       "max": 208.0
+       "p5": 147.0,
+       "p25": 152.6,
+       "p50": 157.6,
+       "p75": 165.0,
+       "p95": 177.3,
+       "mean": 159.5,
+       "min": 139.1,
+       "max": 196.8
       },
       "wacc": {
-       "p5": 127.0,
-       "p25": 148.6,
-       "p50": 175.4,
-       "p75": 202.9,
-       "p95": 255.8,
-       "mean": 180.0,
-       "min": 103.4,
-       "max": 383.1
+       "p5": 136.0,
+       "p25": 153.0,
+       "p50": 171.2,
+       "p75": 192.9,
+       "p95": 222.4,
+       "mean": 173.9,
+       "min": 119.6,
+       "max": 256.5
+      },
+      "co2": {
+       "p5": 148.5,
+       "p25": 154.8,
+       "p50": 161.2,
+       "p75": 169.0,
+       "p95": 181.6,
+       "mean": 162.6,
+       "min": 142.3,
+       "max": 200.8
+      },
+      "wacc_co2": {
+       "p5": 136.0,
+       "p25": 154.4,
+       "p50": 172.3,
+       "p75": 191.6,
+       "p95": 220.6,
+       "mean": 174.5,
+       "min": 118.1,
+       "max": 265.3
       },
       "overrun": {
-       "p5": 196.6,
-       "p25": 228.7,
-       "p50": 255.3,
-       "p75": 283.5,
-       "p95": 331.2,
-       "mean": 257.6,
-       "min": 159.7,
-       "max": 385.9
+       "p5": 191.3,
+       "p25": 207.7,
+       "p50": 220.9,
+       "p75": 233.2,
+       "p95": 248.9,
+       "mean": 220.6,
+       "min": 174.7,
+       "max": 266.7
       },
       "wacc_overrun": {
-       "p5": 189.2,
-       "p25": 236.3,
-       "p50": 278.2,
-       "p75": 338.9,
-       "p95": 442.6,
-       "mean": 293.4,
-       "min": 137.1,
-       "max": 632.7
+       "p5": 184.6,
+       "p25": 209.9,
+       "p50": 238.0,
+       "p75": 269.1,
+       "p95": 320.3,
+       "mean": 242.8,
+       "min": 150.6,
+       "max": 396.4
       }
      }
     },
     "ee80_gas": {
      "label": "GES · 80 % EE + Gas",
      "demand_twh": 950.0,
-     "deterministic": 140.7,
+     "deterministic": 154.6,
      "gas_peak_gw": 137.0,
+     "gas_backup_twh_a": 264.4,
+     "curtailed_twh_a": 140.9,
+     "unserved_twh_a": 0.0,
+     "emissions_mt_co2_a": 106.5,
+     "grid_cost_basis": "buildout_2045",
+     "comparable_to_target_scenarios": true,
+     "components_eur_mwh": {
+      "battery": 3.5,
+      "gas_backup": 47.7,
+      "netz": 34.4,
+      "pv": 12.7,
+      "wind_offshore": 24.3,
+      "wind_onshore": 31.9
+     },
      "configs": {
       "base": {
-       "p5": 131.7,
-       "p25": 137.4,
-       "p50": 141.8,
-       "p75": 146.2,
-       "p95": 152.1,
-       "mean": 142.0,
-       "min": 119.7,
-       "max": 163.2
+       "p5": 144.5,
+       "p25": 151.8,
+       "p50": 156.9,
+       "p75": 162.0,
+       "p95": 169.5,
+       "mean": 156.9,
+       "min": 137.1,
+       "max": 180.9
       },
       "wacc": {
-       "p5": 122.6,
-       "p25": 136.5,
-       "p50": 148.1,
-       "p75": 163.0,
-       "p95": 185.1,
-       "mean": 150.4,
-       "min": 111.8,
-       "max": 213.5
+       "p5": 139.1,
+       "p25": 152.6,
+       "p50": 164.7,
+       "p75": 179.7,
+       "p95": 201.3,
+       "mean": 166.9,
+       "min": 125.4,
+       "max": 230.0
+      },
+      "co2": {
+       "p5": 147.8,
+       "p25": 157.8,
+       "p50": 166.3,
+       "p75": 174.1,
+       "p95": 188.4,
+       "mean": 166.6,
+       "min": 128.1,
+       "max": 203.2
+      },
+      "wacc_co2": {
+       "p5": 143.4,
+       "p25": 160.5,
+       "p50": 175.2,
+       "p75": 189.3,
+       "p95": 214.4,
+       "mean": 176.0,
+       "min": 124.9,
+       "max": 243.5
       },
       "overrun": {
-       "p5": 141.8,
-       "p25": 148.0,
-       "p50": 152.5,
-       "p75": 157.8,
-       "p95": 164.1,
-       "mean": 152.8,
-       "min": 134.7,
-       "max": 174.1
+       "p5": 155.0,
+       "p25": 162.0,
+       "p50": 167.8,
+       "p75": 173.3,
+       "p95": 180.8,
+       "mean": 167.9,
+       "min": 147.3,
+       "max": 192.4
       },
       "wacc_overrun": {
-       "p5": 133.3,
-       "p25": 149.0,
-       "p50": 161.7,
-       "p75": 178.9,
-       "p95": 202.6,
-       "mean": 164.5,
-       "min": 116.7,
-       "max": 226.7
+       "p5": 148.1,
+       "p25": 162.5,
+       "p50": 175.6,
+       "p75": 191.1,
+       "p95": 216.1,
+       "mean": 178.1,
+       "min": 127.8,
+       "max": 244.5
       }
      }
     },
     "ee80_h2": {
      "label": "GES · 80 % EE + H₂",
      "demand_twh": 950.0,
-     "deterministic": 197.2,
+     "deterministic": 198.4,
      "gas_peak_gw": 20.0,
+     "gas_backup_twh_a": 11.9,
+     "curtailed_twh_a": 12.1,
+     "unserved_twh_a": 4.58,
+     "emissions_mt_co2_a": 4.8,
+     "grid_cost_basis": "buildout_2045",
+     "comparable_to_target_scenarios": true,
+     "components_eur_mwh": {
+      "battery": 3.6,
+      "electrolyser": 24.4,
+      "gas_backup": 4.5,
+      "h2_storage": 47.5,
+      "h2_turbine": 11.8,
+      "netz": 37.3,
+      "pv": 12.8,
+      "wind_offshore": 24.4,
+      "wind_onshore": 32.1
+     },
      "configs": {
       "base": {
-       "p5": 186.4,
-       "p25": 192.6,
-       "p50": 196.9,
-       "p75": 201.2,
-       "p95": 207.5,
-       "mean": 197.0,
-       "min": 178.8,
-       "max": 221.2
+       "p5": 187.3,
+       "p25": 193.6,
+       "p50": 198.0,
+       "p75": 203.0,
+       "p95": 209.1,
+       "mean": 198.2,
+       "min": 179.8,
+       "max": 219.7
       },
       "wacc": {
-       "p5": 177.4,
-       "p25": 191.0,
-       "p50": 204.5,
-       "p75": 221.7,
-       "p95": 245.6,
-       "mean": 207.4,
-       "min": 160.8,
-       "max": 272.0
+       "p5": 179.5,
+       "p25": 192.8,
+       "p50": 206.6,
+       "p75": 223.3,
+       "p95": 246.5,
+       "mean": 209.0,
+       "min": 166.6,
+       "max": 269.2
+      },
+      "co2": {
+       "p5": 189.1,
+       "p25": 194.5,
+       "p50": 198.8,
+       "p75": 203.5,
+       "p95": 209.5,
+       "mean": 199.0,
+       "min": 180.5,
+       "max": 222.2
+      },
+      "wacc_co2": {
+       "p5": 178.9,
+       "p25": 193.7,
+       "p50": 206.8,
+       "p75": 222.5,
+       "p95": 244.4,
+       "mean": 208.7,
+       "min": 158.5,
+       "max": 275.0
       },
       "overrun": {
-       "p5": 195.1,
-       "p25": 201.7,
-       "p50": 206.4,
-       "p75": 210.9,
-       "p95": 218.7,
-       "mean": 206.5,
-       "min": 188.4,
-       "max": 232.5
+       "p5": 196.2,
+       "p25": 202.5,
+       "p50": 207.1,
+       "p75": 212.1,
+       "p95": 218.9,
+       "mean": 207.3,
+       "min": 186.4,
+       "max": 228.9
       },
       "wacc_overrun": {
-       "p5": 186.4,
-       "p25": 201.4,
-       "p50": 215.2,
-       "p75": 231.7,
-       "p95": 260.0,
-       "mean": 217.9,
-       "min": 168.3,
-       "max": 286.0
+       "p5": 186.6,
+       "p25": 201.9,
+       "p50": 215.5,
+       "p75": 231.8,
+       "p95": 256.7,
+       "mean": 217.8,
+       "min": 169.2,
+       "max": 289.5
       }
      }
     },
     "ee100": {
      "label": "GES · 100 % Erneuerbare",
      "demand_twh": 950.0,
-     "deterministic": 270.9,
+     "deterministic": 245.2,
      "gas_peak_gw": 20.0,
+     "gas_backup_twh_a": 3.2,
+     "curtailed_twh_a": 377.6,
+     "unserved_twh_a": 1.29,
+     "emissions_mt_co2_a": 1.3,
+     "grid_cost_basis": "buildout_2045",
+     "comparable_to_target_scenarios": true,
+     "components_eur_mwh": {
+      "battery": 5.3,
+      "electrolyser": 38.9,
+      "gas_backup": 3.7,
+      "h2_storage": 20.1,
+      "h2_turbine": 13.3,
+      "netz": 40.0,
+      "pv": 22.8,
+      "wind_offshore": 43.7,
+      "wind_onshore": 57.4
+     },
      "configs": {
       "base": {
-       "p5": 253.1,
-       "p25": 262.4,
-       "p50": 269.8,
-       "p75": 277.5,
-       "p95": 288.0,
-       "mean": 270.2,
-       "min": 238.4,
-       "max": 308.7
+       "p5": 226.7,
+       "p25": 236.7,
+       "p50": 244.0,
+       "p75": 252.6,
+       "p95": 262.6,
+       "mean": 244.4,
+       "min": 215.3,
+       "max": 283.1
       },
       "wacc": {
-       "p5": 239.3,
-       "p25": 262.7,
-       "p50": 285.5,
-       "p75": 313.0,
-       "p95": 352.1,
-       "mean": 289.1,
-       "min": 219.4,
-       "max": 379.3
+       "p5": 215.8,
+       "p25": 236.3,
+       "p50": 257.0,
+       "p75": 280.5,
+       "p95": 316.3,
+       "mean": 260.1,
+       "min": 194.9,
+       "max": 351.2
+      },
+      "co2": {
+       "p5": 229.1,
+       "p25": 237.6,
+       "p50": 244.4,
+       "p75": 252.6,
+       "p95": 262.4,
+       "mean": 245.2,
+       "min": 215.8,
+       "max": 281.6
+      },
+      "wacc_co2": {
+       "p5": 215.7,
+       "p25": 237.5,
+       "p50": 256.0,
+       "p75": 279.8,
+       "p95": 310.7,
+       "mean": 259.2,
+       "min": 183.1,
+       "max": 361.3
       },
       "overrun": {
-       "p5": 268.5,
-       "p25": 279.0,
-       "p50": 286.1,
-       "p75": 294.3,
-       "p95": 306.7,
-       "mean": 286.7,
-       "min": 256.5,
-       "max": 318.3
+       "p5": 239.5,
+       "p25": 249.9,
+       "p50": 257.6,
+       "p75": 266.3,
+       "p95": 277.3,
+       "mean": 258.0,
+       "min": 225.6,
+       "max": 295.3
       },
       "wacc_overrun": {
-       "p5": 252.0,
-       "p25": 279.9,
-       "p50": 304.7,
-       "p75": 333.0,
-       "p95": 372.4,
-       "mean": 308.1,
-       "min": 221.7,
-       "max": 423.6
+       "p5": 227.5,
+       "p25": 250.4,
+       "p50": 270.6,
+       "p75": 293.9,
+       "p95": 330.5,
+       "mean": 273.2,
+       "min": 199.9,
+       "max": 378.4
       }
      }
     }
-   }
-  }
+   },
+   "paired_draws": true,
+   "paired_draws_note": "v0.2 (M4): common random numbers. Je Konfiguration laeuft EIN Ziehungsstrom (Seed = base_seed + Konfigurationsindex); jede Ziehung wird auf ALLE Presets angewandt. Technologieparameter sind damit je Ziehung über die Szenarien identisch. Ausgewertet wird zusätzlich die Differenzverteilung je Szenariopaar (rank_probabilities) - die Ueberlappung der Randverteilungen ist KEIN zulaessiges Rangfolgen-Argument.",
+   "rank_probabilities": {
+    "base": [
+     {
+      "a": "ist2025",
+      "b": "kostenminimum",
+      "p_a_cheaper": 0.023,
+      "p_b_cheaper": 0.977,
+      "median_diff_a_minus_b": 24.833,
+      "p5_diff": 4.246,
+      "p95_diff": 37.23,
+      "mean_diff": 23.115,
+      "decided": true
+     },
+     {
+      "a": "ist2025",
+      "b": "ee80_gas",
+      "p_a_cheaper": 0.0,
+      "p_b_cheaper": 1.0,
+      "median_diff_a_minus_b": 25.95,
+      "p5_diff": 19.674,
+      "p95_diff": 30.92,
+      "mean_diff": 25.704,
+      "decided": true
+     },
+     {
+      "a": "ist2025",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.992,
+      "p_b_cheaper": 0.008,
+      "median_diff_a_minus_b": -15.743,
+      "p5_diff": -26.602,
+      "p95_diff": -3.76,
+      "mean_diff": -15.558,
+      "decided": true
+     },
+     {
+      "a": "ist2025",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -61.389,
+      "p5_diff": -79.039,
+      "p95_diff": -44.853,
+      "mean_diff": -61.785,
+      "decided": true
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee80_gas",
+      "p_a_cheaper": 0.461,
+      "p_b_cheaper": 0.539,
+      "median_diff_a_minus_b": 0.805,
+      "p5_diff": -12.814,
+      "p95_diff": 22.713,
+      "mean_diff": 2.589,
+      "decided": false
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.997,
+      "p_b_cheaper": 0.003,
+      "median_diff_a_minus_b": -39.801,
+      "p5_diff": -55.465,
+      "p95_diff": -19.607,
+      "mean_diff": -38.673,
+      "decided": true
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -85.441,
+      "p5_diff": -106.713,
+      "p95_diff": -61.627,
+      "mean_diff": -84.9,
+      "decided": true
+     },
+     {
+      "a": "ee80_gas",
+      "b": "ee80_h2",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -41.658,
+      "p5_diff": -51.366,
+      "p95_diff": -30.629,
+      "mean_diff": -41.262,
+      "decided": true
+     },
+     {
+      "a": "ee80_gas",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -87.744,
+      "p5_diff": -101.75,
+      "p95_diff": -72.712,
+      "mean_diff": -87.489,
+      "decided": true
+     },
+     {
+      "a": "ee80_h2",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -45.956,
+      "p5_diff": -53.718,
+      "p95_diff": -39.045,
+      "mean_diff": -46.227,
+      "decided": true
+     }
+    ],
+    "wacc": [
+     {
+      "a": "ist2025",
+      "b": "kostenminimum",
+      "p_a_cheaper": 0.271,
+      "p_b_cheaper": 0.729,
+      "median_diff_a_minus_b": 14.699,
+      "p5_diff": -26.769,
+      "p95_diff": 43.705,
+      "mean_diff": 12.324,
+      "decided": false
+     },
+     {
+      "a": "ist2025",
+      "b": "ee80_gas",
+      "p_a_cheaper": 0.076,
+      "p_b_cheaper": 0.924,
+      "median_diff_a_minus_b": 20.912,
+      "p5_diff": -2.278,
+      "p95_diff": 36.796,
+      "mean_diff": 19.294,
+      "decided": false
+     },
+     {
+      "a": "ist2025",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.951,
+      "p_b_cheaper": 0.049,
+      "median_diff_a_minus_b": -22.109,
+      "p5_diff": -50.236,
+      "p95_diff": -0.112,
+      "mean_diff": -22.793,
+      "decided": true
+     },
+     {
+      "a": "ist2025",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -72.157,
+      "p5_diff": -118.515,
+      "p95_diff": -37.05,
+      "mean_diff": -73.902,
+      "decided": true
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee80_gas",
+      "p_a_cheaper": 0.328,
+      "p_b_cheaper": 0.672,
+      "median_diff_a_minus_b": 5.273,
+      "p5_diff": -12.712,
+      "p95_diff": 32.477,
+      "mean_diff": 6.97,
+      "decided": false
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.988,
+      "p_b_cheaper": 0.012,
+      "median_diff_a_minus_b": -37.249,
+      "p5_diff": -53.256,
+      "p95_diff": -10.613,
+      "mean_diff": -35.117,
+      "decided": true
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -87.075,
+      "p5_diff": -110.545,
+      "p95_diff": -60.618,
+      "mean_diff": -86.226,
+      "decided": true
+     },
+     {
+      "a": "ee80_gas",
+      "b": "ee80_h2",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -41.961,
+      "p5_diff": -54.009,
+      "p95_diff": -30.341,
+      "mean_diff": -42.087,
+      "decided": true
+     },
+     {
+      "a": "ee80_gas",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -92.51,
+      "p5_diff": -118.012,
+      "p95_diff": -70.369,
+      "mean_diff": -93.196,
+      "decided": true
+     },
+     {
+      "a": "ee80_h2",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -50.144,
+      "p5_diff": -69.187,
+      "p95_diff": -36.188,
+      "mean_diff": -51.109,
+      "decided": true
+     }
+    ],
+    "co2": [
+     {
+      "a": "ist2025",
+      "b": "kostenminimum",
+      "p_a_cheaper": 0.03,
+      "p_b_cheaper": 0.97,
+      "median_diff_a_minus_b": 38.965,
+      "p5_diff": 6.644,
+      "p95_diff": 83.066,
+      "mean_diff": 41.569,
+      "decided": true
+     },
+     {
+      "a": "ist2025",
+      "b": "ee80_gas",
+      "p_a_cheaper": 0.0,
+      "p_b_cheaper": 1.0,
+      "median_diff_a_minus_b": 35.951,
+      "p5_diff": 19.364,
+      "p95_diff": 61.573,
+      "mean_diff": 37.643,
+      "decided": true
+     },
+     {
+      "a": "ist2025",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.471,
+      "p_b_cheaper": 0.529,
+      "median_diff_a_minus_b": 1.735,
+      "p5_diff": -26.754,
+      "p95_diff": 47.651,
+      "mean_diff": 5.197,
+      "decided": false
+     },
+     {
+      "a": "ist2025",
+      "b": "ee100",
+      "p_a_cheaper": 0.93,
+      "p_b_cheaper": 0.07,
+      "median_diff_a_minus_b": -44.143,
+      "p5_diff": -76.214,
+      "p95_diff": 2.734,
+      "mean_diff": -41.009,
+      "decided": false
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee80_gas",
+      "p_a_cheaper": 0.643,
+      "p_b_cheaper": 0.357,
+      "median_diff_a_minus_b": -4.426,
+      "p5_diff": -25.938,
+      "p95_diff": 19.423,
+      "mean_diff": -3.927,
+      "decided": false
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.997,
+      "p_b_cheaper": 0.003,
+      "median_diff_a_minus_b": -37.222,
+      "p5_diff": -53.534,
+      "p95_diff": -16.097,
+      "mean_diff": -36.373,
+      "decided": true
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -82.945,
+      "p5_diff": -104.829,
+      "p95_diff": -59.726,
+      "mean_diff": -82.578,
+      "decided": true
+     },
+     {
+      "a": "ee80_gas",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.999,
+      "p_b_cheaper": 0.001,
+      "median_diff_a_minus_b": -33.3,
+      "p5_diff": -49.297,
+      "p95_diff": -11.716,
+      "mean_diff": -32.446,
+      "decided": true
+     },
+     {
+      "a": "ee80_gas",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -79.659,
+      "p5_diff": -98.65,
+      "p95_diff": -55.096,
+      "mean_diff": -78.651,
+      "decided": true
+     },
+     {
+      "a": "ee80_h2",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -45.885,
+      "p5_diff": -53.429,
+      "p95_diff": -39.479,
+      "mean_diff": -46.205,
+      "decided": true
+     }
+    ],
+    "wacc_co2": [
+     {
+      "a": "ist2025",
+      "b": "kostenminimum",
+      "p_a_cheaper": 0.121,
+      "p_b_cheaper": 0.879,
+      "median_diff_a_minus_b": 33.535,
+      "p5_diff": -13.181,
+      "p95_diff": 83.138,
+      "mean_diff": 34.188,
+      "decided": false
+     },
+     {
+      "a": "ist2025",
+      "b": "ee80_gas",
+      "p_a_cheaper": 0.032,
+      "p_b_cheaper": 0.968,
+      "median_diff_a_minus_b": 32.77,
+      "p5_diff": 3.811,
+      "p95_diff": 62.328,
+      "mean_diff": 32.704,
+      "decided": true
+     },
+     {
+      "a": "ist2025",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.516,
+      "p_b_cheaper": 0.484,
+      "median_diff_a_minus_b": -1.405,
+      "p5_diff": -42.761,
+      "p95_diff": 48.769,
+      "mean_diff": -0.035,
+      "decided": false
+     },
+     {
+      "a": "ist2025",
+      "b": "ee100",
+      "p_a_cheaper": 0.922,
+      "p_b_cheaper": 0.078,
+      "median_diff_a_minus_b": -51.111,
+      "p5_diff": -104.681,
+      "p95_diff": 7.46,
+      "mean_diff": -50.526,
+      "decided": false
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee80_gas",
+      "p_a_cheaper": 0.566,
+      "p_b_cheaper": 0.434,
+      "median_diff_a_minus_b": -2.516,
+      "p5_diff": -24.903,
+      "p95_diff": 25.314,
+      "mean_diff": -1.484,
+      "decided": false
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.985,
+      "p_b_cheaper": 0.015,
+      "median_diff_a_minus_b": -36.113,
+      "p5_diff": -52.892,
+      "p95_diff": -10.292,
+      "mean_diff": -34.223,
+      "decided": true
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -85.096,
+      "p5_diff": -109.351,
+      "p95_diff": -59.393,
+      "mean_diff": -84.714,
+      "decided": true
+     },
+     {
+      "a": "ee80_gas",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.998,
+      "p_b_cheaper": 0.002,
+      "median_diff_a_minus_b": -33.361,
+      "p5_diff": -52.11,
+      "p95_diff": -11.023,
+      "mean_diff": -32.738,
+      "decided": true
+     },
+     {
+      "a": "ee80_gas",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -83.099,
+      "p5_diff": -111.592,
+      "p95_diff": -55.095,
+      "mean_diff": -83.23,
+      "decided": true
+     },
+     {
+      "a": "ee80_h2",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -49.414,
+      "p5_diff": -67.393,
+      "p95_diff": -36.48,
+      "mean_diff": -50.491,
+      "decided": true
+     }
+    ],
+    "overrun": [
+     {
+      "a": "ist2025",
+      "b": "kostenminimum",
+      "p_a_cheaper": 0.969,
+      "p_b_cheaper": 0.031,
+      "median_diff_a_minus_b": -34.211,
+      "p5_diff": -62.598,
+      "p95_diff": -3.861,
+      "mean_diff": -34.018,
+      "decided": true
+     },
+     {
+      "a": "ist2025",
+      "b": "ee80_gas",
+      "p_a_cheaper": 0.0,
+      "p_b_cheaper": 1.0,
+      "median_diff_a_minus_b": 18.935,
+      "p5_diff": 12.064,
+      "p95_diff": 24.868,
+      "mean_diff": 18.678,
+      "decided": true
+     },
+     {
+      "a": "ist2025",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.998,
+      "p_b_cheaper": 0.002,
+      "median_diff_a_minus_b": -20.712,
+      "p5_diff": -32.99,
+      "p95_diff": -8.983,
+      "mean_diff": -20.768,
+      "decided": true
+     },
+     {
+      "a": "ist2025",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -71.138,
+      "p5_diff": -90.379,
+      "p95_diff": -54.35,
+      "mean_diff": -71.479,
+      "decided": true
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee80_gas",
+      "p_a_cheaper": 0.001,
+      "p_b_cheaper": 0.999,
+      "median_diff_a_minus_b": 53.591,
+      "p5_diff": 21.045,
+      "p95_diff": 82.437,
+      "mean_diff": 52.695,
+      "decided": true
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.254,
+      "p_b_cheaper": 0.746,
+      "median_diff_a_minus_b": 14.293,
+      "p5_diff": -16.944,
+      "p95_diff": 42.621,
+      "mean_diff": 13.25,
+      "decided": false
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee100",
+      "p_a_cheaper": 0.974,
+      "p_b_cheaper": 0.026,
+      "median_diff_a_minus_b": -36.694,
+      "p5_diff": -71.32,
+      "p95_diff": -4.444,
+      "mean_diff": -37.462,
+      "decided": true
+     },
+     {
+      "a": "ee80_gas",
+      "b": "ee80_h2",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -39.37,
+      "p5_diff": -50.348,
+      "p95_diff": -27.946,
+      "mean_diff": -39.446,
+      "decided": true
+     },
+     {
+      "a": "ee80_gas",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -89.85,
+      "p5_diff": -105.691,
+      "p95_diff": -75.552,
+      "mean_diff": -90.157,
+      "decided": true
+     },
+     {
+      "a": "ee80_h2",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -50.601,
+      "p5_diff": -58.844,
+      "p95_diff": -43.026,
+      "mean_diff": -50.711,
+      "decided": true
+     }
+    ],
+    "wacc_overrun": [
+     {
+      "a": "ist2025",
+      "b": "kostenminimum",
+      "p_a_cheaper": 0.957,
+      "p_b_cheaper": 0.043,
+      "median_diff_a_minus_b": -48.215,
+      "p5_diff": -121.311,
+      "p95_diff": -2.172,
+      "mean_diff": -52.557,
+      "decided": true
+     },
+     {
+      "a": "ist2025",
+      "b": "ee80_gas",
+      "p_a_cheaper": 0.183,
+      "p_b_cheaper": 0.817,
+      "median_diff_a_minus_b": 13.788,
+      "p5_diff": -11.465,
+      "p95_diff": 30.87,
+      "mean_diff": 12.151,
+      "decided": false
+     },
+     {
+      "a": "ist2025",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.976,
+      "p_b_cheaper": 0.024,
+      "median_diff_a_minus_b": -26.878,
+      "p5_diff": -55.511,
+      "p95_diff": -3.832,
+      "mean_diff": -27.62,
+      "decided": true
+     },
+     {
+      "a": "ist2025",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -81.504,
+      "p5_diff": -127.018,
+      "p95_diff": -45.061,
+      "mean_diff": -82.949,
+      "decided": true
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee80_gas",
+      "p_a_cheaper": 0.001,
+      "p_b_cheaper": 0.999,
+      "median_diff_a_minus_b": 61.051,
+      "p5_diff": 25.741,
+      "p95_diff": 115.311,
+      "mean_diff": 64.708,
+      "decided": true
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee80_h2",
+      "p_a_cheaper": 0.17,
+      "p_b_cheaper": 0.83,
+      "median_diff_a_minus_b": 21.464,
+      "p5_diff": -12.636,
+      "p95_diff": 75.935,
+      "mean_diff": 24.937,
+      "decided": false
+     },
+     {
+      "a": "kostenminimum",
+      "b": "ee100",
+      "p_a_cheaper": 0.897,
+      "p_b_cheaper": 0.103,
+      "median_diff_a_minus_b": -32.395,
+      "p5_diff": -65.471,
+      "p95_diff": 12.455,
+      "mean_diff": -30.392,
+      "decided": false
+     },
+     {
+      "a": "ee80_gas",
+      "b": "ee80_h2",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -39.819,
+      "p5_diff": -50.879,
+      "p95_diff": -27.425,
+      "mean_diff": -39.771,
+      "decided": true
+     },
+     {
+      "a": "ee80_gas",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -94.486,
+      "p5_diff": -119.246,
+      "p95_diff": -72.824,
+      "mean_diff": -95.1,
+      "decided": true
+     },
+     {
+      "a": "ee80_h2",
+      "b": "ee100",
+      "p_a_cheaper": 1.0,
+      "p_b_cheaper": 0.0,
+      "median_diff_a_minus_b": -54.312,
+      "p5_diff": -73.41,
+      "p95_diff": -40.68,
+      "mean_diff": -55.329,
+      "decided": true
+     }
+    ]
+   },
+   "limitations": [
+    {
+     "id": "ccs_not_modelled",
+     "severity": "hoch",
+     "text": "CCS ist nicht modelliert. Die geprueften GES-Szenarien rechnen ihren Gas-Pfad mit CCS. Die hier verglichenen Szenarien sind deshalb NICHT emissionsaequivalent - die Restemissionen je Szenario stehen in `emissions`.",
+     "affects": "alle Szenarien mit Gas-Backup",
+     "ref_field": "gaps.ccs_nicht_modelliert"
+    },
+    {
+     "id": "emission_factor_proxy",
+     "severity": "mittel",
+     "text": "Der Emissionsfaktor für Gas (0,403 t/MWh_el) und Kohle (0,751 t/MWh_el) ist die UNECE-Lebenszyklus-Untergrenze, kein direkter Verbrennungsfaktor. Für die ETS-Bepreisung ueberschaetzt das die CO2-Kosten um rund 10-20 %.",
+     "affects": "CO2-Kosten und Mt-Ausweis",
+     "ref_field": "gaps.emissionsfaktor_direkt"
+    },
+    {
+     "id": "grid_opex_missing",
+     "severity": "hoch",
+     "text": "Netzbetrieb, Instandhaltung, Verluste und Redispatch sind nicht enthalten - nur die Investitionsannuitaet. Der Netzblock der Zukunftsszenarien ist eine Untergrenze.",
+     "affects": "alle Zukunftsszenarien",
+     "ref_field": "gaps.netz_opex"
+    },
+    {
+     "id": "overrun_asymmetry",
+     "severity": "hoch",
+     "text": "Der empirische Ueberschreitungsfaktor ist für Batterie, Elektrolyse, H2-Speicher und H2-Turbine NICHT gemessen (Faktor 1,00 = Datenluecke). Das Ueberschreitungs-Szenario stresst deshalb die Kernkraft- und Netzseite staerker als die Speicher-/H2-Seite.",
+     "affects": "Konfigurationen mit Kostenüberschreitung",
+     "ref_field": "system.cost_overrun_factors.unmeasured_technologies"
+    },
+    {
+     "id": "grid_allocation_assumption",
+     "severity": "mittel",
+     "text": "Die Aufteilung 328 Mrd. (Übertragung) / 323 Mrd. (Verteilung) ist quellenbelegt, die ZUORDNUNG der Treiber (Transport vs. Elektrifizierung) ist eine begruendete Modellannahme. Keine raeumliche Netzsimulation, keine ueberproportionale Kostenkurve.",
+     "affects": "alle Szenarien",
+     "ref_field": "system.grid.scaling_rule"
+    },
+    {
+     "id": "gas_price_transfer",
+     "severity": "mittel",
+     "text": "Der Erdgaspreis (20/35/60 EUR/MWh_th) ist eine Marktspanne von August 2026. Die Uebertragbarkeit auf ein Zieljahr 2045 ist nicht belegt (Konfidenz C).",
+     "affects": "alle Szenarien mit Gas-Backup",
+     "ref_field": "technologies.gas_ccgt.params.fuel_eur_mwh_th"
+    },
+    {
+     "id": "h2_initial_fill_free",
+     "severity": "hoch",
+     "text": "Der Saisonspeicher startet in den H2-Presets gefuellt; die Stromkosten dieser Anfangsfuellung liegen ausserhalb des abgedeckten Halbjahres und sind NICHT enthalten. Die H2-Pfade sind insoweit eine Untergrenze - das ist die Gegenrichtung zur Gas-Asymmetrie und bleibt auch nach M2 bestehen.",
+     "affects": "ee80_h2, ee100",
+     "ref_field": "model.mix_system (h2_initial_fill_share)"
+    },
+    {
+     "id": "half_year_profile",
+     "severity": "hoch",
+     "text": "Das Stundenprofil deckt nur Jul-Dez 2024 ab (4.416 von 8.784 h) und enthält den Sommerueberschuss nicht, aus dem Saisonspeicher befuellt werden.",
+     "affects": "alle Szenarien, H2-Pfade am staerksten",
+     "ref_field": "gaps.profile_partial"
+    }
+   ]
+  },
+  "gaspreis_erdgas": {
+   "unit": "EUR/MWh_th",
+   "min": 20.0,
+   "mid": 35.0,
+   "max": 60.0,
+   "source": "TTF-Frontmonat (Marktnotierung, Recherche 2026-08-19: Juli 2026 Ø 53,5, Spanne 43,0-63,1; Stand 19.08.2026 rund 62-64 EUR/MWh_th; 2024/25 30-45) gegengeprüft mit kosten_ee_speicher.md 8 gas_fuel_implied (FOeS-Rueckrechnung)",
+   "confidence": "B",
+   "note": "MODELL-STUETZPUNKTE (Konfidenz B für die Marktspanne, C für die Uebertragbarkeit auf ein Zieljahr 2045): min 20 = Vorkrisen-/Ueberangebotsniveau, mid 35 = Langfristannahme unterhalb des aktuellen Spots (2045 sinkende Gasnachfrage), max 60 = aktuelles Marktniveau August 2026. Die Krisenspitze 2022 (>200 EUR/MWh_th) ist bewusst NICHT in der Basisspanne. Umrechnung in EUR/MWh_el über den Wirkungsgrad der Technologie.",
+   "efficiency_ccgt": {
+    "min": 0.58,
+    "mid": 0.6,
+    "max": 0.64
+   },
+   "implied_eur_mwh_el_mid": 58.3
+  },
+  "model_version": "0.2"
  },
  "internal_source_ids_reused": [
   "cour-des-comptes-2025",

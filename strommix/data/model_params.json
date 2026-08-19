@@ -22,8 +22,15 @@
       "WACC global (3-9 %, Default 5 % wie GES); IDC-Aufschlag ueber Bauzeit separat.",
       "CO2-Preis wirkt nur ueber den direkten Emissionsfaktor fossiler Erzeugung; Lebenszyklus-g/kWh nur informativ.",
       "Backup/Speicher entstehen im Dispatch, nicht als pauschaler Risiko-Aufschlag (risiken_co2.md 9 risiko_aufschlaege_zusammenfassung backup_und_speicher).",
-      "min/mid/max nicht mechanisch kombinieren - siehe scenario_sets (kosten_ee_speicher.md 12 derived_lcoe_selfcheck.warning)."
+      "min/mid/max nicht mechanisch kombinieren - siehe scenario_sets (kosten_ee_speicher.md 12 derived_lcoe_selfcheck.warning).",
+      "v0.2/M1: IDC nur auf Overnight-Anker (capex_scope/idc_applicable_share). Die Kernkraft-Anker mid/max enthalten Finanzierung bereits (kosten_kernkraft.md 7.3).",
+      "v0.2/M2: Erdgas-Brennstoffpreis als thermischer Parameter (fuel_eur_mwh_th), Umrechnung ueber den Wirkungsgrad. Damit ist die Asymmetrie 'Gas gratis vs. H2 bezahlt' aufgehoben.",
+      "v0.2/M3: Netzkosten in Uebertragung (328 Mrd., skaliert mit genutzter fEE-Energie) und Verteilnetz (323 Mrd., Sockel, skaliert mit Jahresbedarf) getrennt; Skalierung auf 1,0 gedeckelt.",
+      "v0.2/M5: Restemissionen je Szenario werden ausgewiesen (Mt CO2/a). CCS ist NICHT modelliert.",
+      "v0.2/M6: Ist-2025-Anker mit Kohle-, Biomasse- und Wasserbaendern und heutigen Netzentgelten statt der Netzinvestition bis 2045.",
+      "v0.2/M7: Ueberschreitungsfaktor nur auf Schaetzbasis-Anker (overrun_applicable_share)."
     ],
+    "model_version": "0.2",
     "limitation": "Volltext-Abruf (WebFetch) war fuer praktisch alle Primaerquellen-Domains durch den Netzwerk-Egress blockiert. Alle Werte stammen aus Suchindex-Zusammenfassungen der genannten Quellen, nicht aus selbst gelesenem PDF-Volltext. Vor Veroeffentlichung am Original nachpruefen."
   },
   "global": {
@@ -187,6 +194,44 @@
           "source": "kosten_ee_speicher.md 12 technologies.pv_freiflaeche.capex_eur_kw",
           "confidence": "C"
         },
+        "capex_scope": {
+          "value": "overnight",
+          "min": "overnight",
+          "mid": "overnight",
+          "max": "overnight",
+          "idc_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "overrun_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "unit": "Kostenabgrenzung des CAPEX-Ankers",
+          "source": "kosten_ee_speicher.md 12 technologies.pv_freiflaeche.capex_eur_kw (schluesselfertige Investitionskosten ohne Bauzinsen)",
+          "confidence": "B",
+          "note": "EE-CAPEX-Anker sind Investitions-/Turnkey-Kosten ohne Finanzierung. Der IDC-Aufschlag ist deshalb sachgerecht (und wegen der kurzen Bauzeit klein: PV 1 a = +2,5 %). Der Ueberschreitungsfaktor greift ebenfalls, weil die Anker Kostenschaetzungen fuer Neuanlagen sind."
+        },
+        "idc_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des IDC-Aufschlags)",
+          "source": "kosten_ee_speicher.md 12 technologies.pv_freiflaeche.capex_eur_kw (overnight)",
+          "confidence": "B"
+        },
+        "overrun_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des Ueberschreitungsfaktors)",
+          "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.definition",
+          "confidence": "B"
+        },
         "opex_pct": {
           "value": 0.015,
           "min": 0.01,
@@ -297,6 +342,44 @@
           "source": "kosten_ee_speicher.md 12 technologies.pv_dach_gross.capex_eur_kw",
           "confidence": "C"
         },
+        "capex_scope": {
+          "value": "overnight",
+          "min": "overnight",
+          "mid": "overnight",
+          "max": "overnight",
+          "idc_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "overrun_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "unit": "Kostenabgrenzung des CAPEX-Ankers",
+          "source": "kosten_ee_speicher.md 12 technologies.pv_dach_gross.capex_eur_kw (schluesselfertige Investitionskosten ohne Bauzinsen)",
+          "confidence": "B",
+          "note": "EE-CAPEX-Anker sind Investitions-/Turnkey-Kosten ohne Finanzierung. Der IDC-Aufschlag ist deshalb sachgerecht (und wegen der kurzen Bauzeit klein: PV 1 a = +2,5 %). Der Ueberschreitungsfaktor greift ebenfalls, weil die Anker Kostenschaetzungen fuer Neuanlagen sind."
+        },
+        "idc_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des IDC-Aufschlags)",
+          "source": "kosten_ee_speicher.md 12 technologies.pv_dach_gross.capex_eur_kw (overnight)",
+          "confidence": "B"
+        },
+        "overrun_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des Ueberschreitungsfaktors)",
+          "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.definition",
+          "confidence": "B"
+        },
         "opex_pct": {
           "value": 0.015,
           "min": 0.01,
@@ -406,6 +489,44 @@
           "unit": "EUR/kW",
           "source": "kosten_ee_speicher.md 12 technologies.wind_onshore.capex_eur_kw",
           "confidence": "A"
+        },
+        "capex_scope": {
+          "value": "overnight",
+          "min": "overnight",
+          "mid": "overnight",
+          "max": "overnight",
+          "idc_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "overrun_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "unit": "Kostenabgrenzung des CAPEX-Ankers",
+          "source": "kosten_ee_speicher.md 12 technologies.wind_onshore.capex_eur_kw (schluesselfertige Investitionskosten ohne Bauzinsen)",
+          "confidence": "B",
+          "note": "EE-CAPEX-Anker sind Investitions-/Turnkey-Kosten ohne Finanzierung. Der IDC-Aufschlag ist deshalb sachgerecht (und wegen der kurzen Bauzeit klein: PV 1 a = +2,5 %). Der Ueberschreitungsfaktor greift ebenfalls, weil die Anker Kostenschaetzungen fuer Neuanlagen sind."
+        },
+        "idc_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des IDC-Aufschlags)",
+          "source": "kosten_ee_speicher.md 12 technologies.wind_onshore.capex_eur_kw (overnight)",
+          "confidence": "B"
+        },
+        "overrun_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des Ueberschreitungsfaktors)",
+          "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.definition",
+          "confidence": "B"
         },
         "opex_pct": {
           "value": 0.025,
@@ -526,6 +647,44 @@
           "max": 4500,
           "unit": "EUR/kW",
           "source": "kosten_ee_speicher.md 12 technologies.wind_offshore.capex_eur_kw",
+          "confidence": "B"
+        },
+        "capex_scope": {
+          "value": "overnight",
+          "min": "overnight",
+          "mid": "overnight",
+          "max": "overnight",
+          "idc_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "overrun_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "unit": "Kostenabgrenzung des CAPEX-Ankers",
+          "source": "kosten_ee_speicher.md 12 technologies.wind_offshore.capex_eur_kw (schluesselfertige Investitionskosten ohne Bauzinsen)",
+          "confidence": "B",
+          "note": "EE-CAPEX-Anker sind Investitions-/Turnkey-Kosten ohne Finanzierung. Der IDC-Aufschlag ist deshalb sachgerecht (und wegen der kurzen Bauzeit klein: PV 1 a = +2,5 %). Der Ueberschreitungsfaktor greift ebenfalls, weil die Anker Kostenschaetzungen fuer Neuanlagen sind."
+        },
+        "idc_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des IDC-Aufschlags)",
+          "source": "kosten_ee_speicher.md 12 technologies.wind_offshore.capex_eur_kw (overnight)",
+          "confidence": "B"
+        },
+        "overrun_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des Ueberschreitungsfaktors)",
+          "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.definition",
           "confidence": "B"
         },
         "opex_pct": {
@@ -669,6 +828,46 @@
           "source": "kosten_kernkraft.md 7.1 capex_eur_kw",
           "confidence": "B",
           "note": "Fuer ein deutsches Erstprojekt eher Erwartungs- als Extremwert: zusaetzlich zu allen HPC-Nachteilen gesetzliches Neubauverbot, abgewickelte Genehmigungsbehoerde, keine Bauerfahrung seit 1989."
+        },
+        "capex_scope": {
+          "value": "total_project",
+          "min": "overnight",
+          "mid": "total_project",
+          "max": "total_project_nominal",
+          "idc_share": {
+            "min": 1.0,
+            "mid": 0.0,
+            "max": 0.0
+          },
+          "overrun_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 0.0
+          },
+          "unit": "Kostenabgrenzung des CAPEX-Ankers",
+          "source": "kosten_kernkraft.md 7.1 capex_eur_kw.anchors + reference_projects[].cost_scope, Regel aus kosten_kernkraft.md 7.3",
+          "confidence": "A",
+          "note": "M1: kein zusaetzlicher Bauzins auf Gesamtprojekt-Anker (Doppelzaehlung). M7: kein Ueberschreitungsfaktor auf bereits realisierte Ist-Kosten (HPC)."
+        },
+        "idc_applicable_share": {
+          "value": 0.0,
+          "min": 1.0,
+          "mid": 0.0,
+          "max": 0.0,
+          "unit": "1 (Anteil des IDC-Aufschlags)",
+          "source": "kosten_kernkraft.md 7.3 ('ohne IDC-Aufschlag, da im CAPEX-Anker teilweise enthalten')",
+          "confidence": "A",
+          "note": "Zwischen den Stuetzstellen linear interpoliert (model.scope_share_for_capex), damit die Monte-Carlo-Ziehung keinen Sprung bekommt. Empirischer Beleg fuer die Identitaet: EPR2 7.583 EUR/kW overnight x 1,37 = 10.389 ~ 10.417 EUR/kW inkl. Finanzierung."
+        },
+        "overrun_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 0.0,
+          "unit": "1 (Anteil des Ueberschreitungsfaktors)",
+          "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.definition ('Faktor auf die urspruengliche Kostenschaetzung (decision-to-build)')",
+          "confidence": "A",
+          "note": "Der High-Anker (Hinkley Point C, 17.264 EUR/kW, laufende Preise) ist das Ergebnis einer bereits eingetretenen Ueberschreitung (Erstschaetzung 18 Mrd. GBP -> 48,7 Mrd. GBP). Ein weiterer Faktor 2,2 darauf waere eine zweite Doppelzaehlung (Persona-Review 06, K2)."
         },
         "opex_pct": {
           "value": null,
@@ -824,6 +1023,44 @@
           "source": "kosten_ee_speicher.md 12 technologies.ccgt_gas.capex_eur_kw",
           "confidence": "B"
         },
+        "capex_scope": {
+          "value": "overnight",
+          "min": "overnight",
+          "mid": "overnight",
+          "max": "overnight",
+          "idc_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "overrun_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "unit": "Kostenabgrenzung des CAPEX-Ankers",
+          "source": "kosten_ee_speicher.md 12 technologies.ccgt_gas.capex_eur_kw (Investitionskosten)",
+          "confidence": "B",
+          "note": "Turnkey-Investitionskosten ohne Finanzierung; IDC-Aufschlag sachgerecht."
+        },
+        "idc_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des IDC-Aufschlags)",
+          "source": "kosten_ee_speicher.md 12 technologies.ccgt_gas.capex_eur_kw (overnight)",
+          "confidence": "B"
+        },
+        "overrun_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des Ueberschreitungsfaktors)",
+          "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.definition",
+          "confidence": "B"
+        },
         "opex_pct": {
           "value": 0.03,
           "min": 0.025,
@@ -882,15 +1119,25 @@
           "note": "Bauzeit nicht im Dossier belegt; Annahme fuer den IDC-Aufschlag.",
           "status": "MODELLANNAHME (nicht quellenbelegt)"
         },
+        "fuel_eur_mwh_th": {
+          "value": 35.0,
+          "min": 20.0,
+          "mid": 35.0,
+          "max": 60.0,
+          "unit": "EUR/MWh_th",
+          "source": "TTF-Frontmonat (Marktnotierung, Recherche 2026-08-19: Juli 2026 Ø 53,5, Spanne 43,0-63,1; Stand 19.08.2026 rund 62-64 EUR/MWh_th; 2024/25 30-45) gegengeprueft mit kosten_ee_speicher.md 8 gas_fuel_implied (FOeS-Rueckrechnung)",
+          "confidence": "B",
+          "note": "MODELL-STUETZPUNKTE (Konfidenz B fuer die Marktspanne, C fuer die Uebertragbarkeit auf ein Zieljahr 2045): min 20 = Vorkrisen-/Ueberangebotsniveau, mid 35 = Langfristannahme unterhalb des aktuellen Spots (2045 sinkende Gasnachfrage), max 60 = aktuelles Marktniveau August 2026. Die Krisenspitze 2022 (>200 EUR/MWh_th) ist bewusst NICHT in der Basisspanne. Umrechnung in EUR/MWh_el ueber den Wirkungsgrad der Technologie."
+        },
         "fuel_eur_mwh": {
           "value": null,
           "min": null,
           "mid": null,
           "max": null,
           "unit": "EUR/MWh_el",
-          "source": "kosten_ee_speicher.md 8 (kein Gaspreis im Dossier)",
+          "source": "kosten_ee_speicher.md 8 (kein Gaspreis im Dossier) -> abgeleitet aus fuel_eur_mwh_th",
           "confidence": null,
-          "note": "HARTE LUECKE: kein Erdgas-Brennstoffpreis in den Dossiers. Siehe gas_fuel_implied fuer eine rueckgerechnete Groessenordnung; das Modell rechnet ohne expliziten Wert mit 0 und weist das als Untergrenze aus."
+          "note": "ABGELEITET, nicht gesetzt: das Modell rechnet fuel_eur_mwh_th / efficiency. Bei 35 EUR/MWh_th und eta = 0,60 sind das 58,3 EUR/MWh_el. Gegenprobe: gas_fuel_implied (Rueckrechnung aus der FOeS-LCOE)."
         },
         "waste_eur_mwh": {
           "value": 0.0,
@@ -909,7 +1156,8 @@
           "unit": "t CO2/MWh_el",
           "source": "risiken_co2.md 1.2 co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.min",
           "confidence": "C",
-          "note": "PROXY: Ein direkter Verbrennungs-Emissionsfaktor fehlt in allen Dossiers. Verwendet wird die UNECE-Lebenszyklus-Untergrenze fuer GuD, weil der Vorketten-Anteil (Methanschlupf) darin am kleinsten ist. Vor Veroeffentlichung durch einen echten Direktfaktor (z. B. UBA-Emissionsfaktor Erdgas) ersetzen."
+          "note": "PROXY: Ein direkter Verbrennungs-Emissionsfaktor fehlt in allen Dossiers. Verwendet wird die UNECE-Lebenszyklus-Untergrenze fuer GuD, weil der Vorketten-Anteil (Methanschlupf) darin am kleinsten ist. Vor Veroeffentlichung durch einen echten Direktfaktor (z. B. UBA-Emissionsfaktor Erdgas) ersetzen.",
+          "status": "PROXY (Lebenszyklus-Untergrenze statt Direktfaktor)"
         }
       },
       "key_finding": "Der Standardwert 800 EUR/kW ist fuer 2026 um Faktor 2-2.5 zu niedrig. Betrifft ALLE Szenarien mit Gas-Backup, auch das GES-'Kostenminimum'-Szenario.",
@@ -975,6 +1223,44 @@
           "source": "kosten_ee_speicher.md 12 technologies.ocgt_gas.capex_eur_kw",
           "confidence": "C"
         },
+        "capex_scope": {
+          "value": "overnight",
+          "min": "overnight",
+          "mid": "overnight",
+          "max": "overnight",
+          "idc_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "overrun_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "unit": "Kostenabgrenzung des CAPEX-Ankers",
+          "source": "kosten_ee_speicher.md 12 technologies.ocgt_gas.capex_eur_kw (Investitionskosten)",
+          "confidence": "B",
+          "note": "Turnkey-Investitionskosten ohne Finanzierung; IDC-Aufschlag sachgerecht."
+        },
+        "idc_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des IDC-Aufschlags)",
+          "source": "kosten_ee_speicher.md 12 technologies.ocgt_gas.capex_eur_kw (overnight)",
+          "confidence": "B"
+        },
+        "overrun_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des Ueberschreitungsfaktors)",
+          "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.definition",
+          "confidence": "B"
+        },
         "opex_pct": {
           "value": 0.03,
           "min": 0.025,
@@ -1033,15 +1319,25 @@
           "note": "Bauzeit nicht im Dossier belegt; Annahme fuer den IDC-Aufschlag.",
           "status": "MODELLANNAHME (nicht quellenbelegt)"
         },
+        "fuel_eur_mwh_th": {
+          "value": 35.0,
+          "min": 20.0,
+          "mid": 35.0,
+          "max": 60.0,
+          "unit": "EUR/MWh_th",
+          "source": "TTF-Frontmonat (Marktnotierung, Recherche 2026-08-19: Juli 2026 Ø 53,5, Spanne 43,0-63,1; Stand 19.08.2026 rund 62-64 EUR/MWh_th; 2024/25 30-45) gegengeprueft mit kosten_ee_speicher.md 8 gas_fuel_implied (FOeS-Rueckrechnung)",
+          "confidence": "B",
+          "note": "MODELL-STUETZPUNKTE (Konfidenz B fuer die Marktspanne, C fuer die Uebertragbarkeit auf ein Zieljahr 2045): min 20 = Vorkrisen-/Ueberangebotsniveau, mid 35 = Langfristannahme unterhalb des aktuellen Spots (2045 sinkende Gasnachfrage), max 60 = aktuelles Marktniveau August 2026. Die Krisenspitze 2022 (>200 EUR/MWh_th) ist bewusst NICHT in der Basisspanne. Umrechnung in EUR/MWh_el ueber den Wirkungsgrad der Technologie."
+        },
         "fuel_eur_mwh": {
           "value": null,
           "min": null,
           "mid": null,
           "max": null,
           "unit": "EUR/MWh_el",
-          "source": "kosten_ee_speicher.md 8 (kein Gaspreis im Dossier)",
+          "source": "kosten_ee_speicher.md 8 (kein Gaspreis im Dossier) -> abgeleitet aus fuel_eur_mwh_th",
           "confidence": null,
-          "note": "HARTE LUECKE: kein Erdgas-Brennstoffpreis in den Dossiers. Siehe gas_fuel_implied fuer eine rueckgerechnete Groessenordnung; das Modell rechnet ohne expliziten Wert mit 0 und weist das als Untergrenze aus."
+          "note": "ABGELEITET, nicht gesetzt: das Modell rechnet fuel_eur_mwh_th / efficiency. Bei 35 EUR/MWh_th und eta = 0,60 sind das 58,3 EUR/MWh_el. Gegenprobe: gas_fuel_implied (Rueckrechnung aus der FOeS-LCOE)."
         },
         "waste_eur_mwh": {
           "value": 0.0,
@@ -1060,7 +1356,8 @@
           "unit": "t CO2/MWh_el",
           "source": "risiken_co2.md 1.2 co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.min",
           "confidence": "C",
-          "note": "PROXY: Ein direkter Verbrennungs-Emissionsfaktor fehlt in allen Dossiers. Verwendet wird die UNECE-Lebenszyklus-Untergrenze fuer GuD, weil der Vorketten-Anteil (Methanschlupf) darin am kleinsten ist. Vor Veroeffentlichung durch einen echten Direktfaktor (z. B. UBA-Emissionsfaktor Erdgas) ersetzen."
+          "note": "PROXY: Ein direkter Verbrennungs-Emissionsfaktor fehlt in allen Dossiers. Verwendet wird die UNECE-Lebenszyklus-Untergrenze fuer GuD, weil der Vorketten-Anteil (Methanschlupf) darin am kleinsten ist. Vor Veroeffentlichung durch einen echten Direktfaktor (z. B. UBA-Emissionsfaktor Erdgas) ersetzen.",
+          "status": "PROXY (Lebenszyklus-Untergrenze statt Direktfaktor)"
         }
       },
       "lifecycle_co2_g_kwh": {
@@ -1144,6 +1441,45 @@
           "confidence": null,
           "note": "Bauzeit nicht im Dossier belegt.",
           "status": "MODELLANNAHME (nicht quellenbelegt)"
+        },
+        "capex_scope": {
+          "value": "overnight",
+          "min": "overnight",
+          "mid": "overnight",
+          "max": "overnight",
+          "idc_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "overrun_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "unit": "Kostenabgrenzung des CAPEX-Ankers",
+          "source": "kosten_ee_speicher.md 12 technologies (schluesselfertige Investitionskosten)",
+          "confidence": "B",
+          "note": "Turnkey-Anker ohne Finanzierung; IDC-Aufschlag sachgerecht (kurze Bauzeit)."
+        },
+        "idc_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des IDC-Aufschlags)",
+          "source": "kosten_ee_speicher.md 12 technologies (overnight)",
+          "confidence": "B"
+        },
+        "overrun_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des Ueberschreitungsfaktors)",
+          "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.definition",
+          "confidence": "B",
+          "note": "Faktor ist fuer diese Technologieklasse in Flyvbjerg/Sovacool NICHT gemessen (siehe system.cost_overrun_factors.unmeasured_technologies) - der Anteil 1,0 beschreibt nur, DASS ein Faktor angewendet wuerde, nicht dass einer belegt ist."
         }
       },
       "lcos_reference_eur_mwh": {
@@ -1233,6 +1569,45 @@
           "confidence": null,
           "note": "Bauzeit nicht im Dossier belegt.",
           "status": "MODELLANNAHME (nicht quellenbelegt)"
+        },
+        "capex_scope": {
+          "value": "overnight",
+          "min": "overnight",
+          "mid": "overnight",
+          "max": "overnight",
+          "idc_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "overrun_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "unit": "Kostenabgrenzung des CAPEX-Ankers",
+          "source": "kosten_ee_speicher.md 12 technologies (schluesselfertige Investitionskosten)",
+          "confidence": "B",
+          "note": "Turnkey-Anker ohne Finanzierung; IDC-Aufschlag sachgerecht (kurze Bauzeit)."
+        },
+        "idc_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des IDC-Aufschlags)",
+          "source": "kosten_ee_speicher.md 12 technologies (overnight)",
+          "confidence": "B"
+        },
+        "overrun_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des Ueberschreitungsfaktors)",
+          "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.definition",
+          "confidence": "B",
+          "note": "Faktor ist fuer diese Technologieklasse in Flyvbjerg/Sovacool NICHT gemessen (siehe system.cost_overrun_factors.unmeasured_technologies) - der Anteil 1,0 beschreibt nur, DASS ein Faktor angewendet wuerde, nicht dass einer belegt ist."
         }
       },
       "finding": "EU-Ist-CAPEX ~2100 EUR/kW liegen deutlich ueber den in vielen Energiesystemmodellen unterstellten 800-1500 EUR/kW."
@@ -1353,6 +1728,45 @@
           "unit": "t CO2/MWh_el",
           "source": "H2-Verstromung ohne CO2 am Schornstein",
           "confidence": "A"
+        },
+        "capex_scope": {
+          "value": "overnight",
+          "min": "overnight",
+          "mid": "overnight",
+          "max": "overnight",
+          "idc_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "overrun_share": {
+            "min": 1.0,
+            "mid": 1.0,
+            "max": 1.0
+          },
+          "unit": "Kostenabgrenzung des CAPEX-Ankers",
+          "source": "kosten_ee_speicher.md 12 technologies (schluesselfertige Investitionskosten)",
+          "confidence": "B",
+          "note": "Turnkey-Anker ohne Finanzierung; IDC-Aufschlag sachgerecht (kurze Bauzeit)."
+        },
+        "idc_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des IDC-Aufschlags)",
+          "source": "kosten_ee_speicher.md 12 technologies (overnight)",
+          "confidence": "B"
+        },
+        "overrun_applicable_share": {
+          "value": 1.0,
+          "min": 1.0,
+          "mid": 1.0,
+          "max": 1.0,
+          "unit": "1 (Anteil des Ueberschreitungsfaktors)",
+          "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.definition",
+          "confidence": "B",
+          "note": "Faktor ist fuer diese Technologieklasse in Flyvbjerg/Sovacool NICHT gemessen (siehe system.cost_overrun_factors.unmeasured_technologies) - der Anteil 1,0 beschreibt nur, DASS ein Faktor angewendet wuerde, nicht dass einer belegt ist."
         }
       },
       "lcoe_reference_eur_mwh": {
@@ -1433,16 +1847,66 @@
         "note": "Bilanzielle Nutzungsdauer der Netzinvestitionen nicht in den Dossiers belegt.",
         "status": "MODELLANNAHME (nicht quellenbelegt)"
       },
+      "transmission_bn_eur_until_2045": {
+        "value": 328,
+        "min": 328,
+        "mid": 328,
+        "max": 392,
+        "unit": "Mrd. EUR",
+        "source": "ist_zustand_de.md 5.1 netzkosten.gesamtnetz_imk_boeckler_2024.uebertragungsnetz_bis_2045",
+        "confidence": "B",
+        "note": "IMK/Boeckler 328 Mrd. EUR Uebertragungsnetz bis 2045; max = NEP 2037/2045 V2025 Obergrenze (392 Mrd., ebenfalls nur Uebertragungsnetz). Ueberwiegend EE-/Transportgetrieben (HGUE-Korridore Nord-Sued) - skaliert deshalb mit der GENUTZTEN fEE-Energie, nicht mit der erzeugten (abgeregelte Energie erzeugt keinen Transportbedarf)."
+      },
+      "distribution_bn_eur_until_2045": {
+        "value": 323,
+        "min": 323,
+        "mid": 323,
+        "max": 323,
+        "unit": "Mrd. EUR",
+        "source": "ist_zustand_de.md 5.1 netzkosten.gesamtnetz_imk_boeckler_2024.verteilnetz_bis_2045",
+        "confidence": "B",
+        "note": "IMK/Boeckler 323 Mrd. EUR Verteilnetz bis 2045 - praktisch gleich gross wie das Uebertragungsnetz. Ueberwiegend elektrifizierungsgetrieben (Waermepumpen, Ladeinfrastruktur, Industrieanschluesse, Altersersatz) und damit weitgehend MIXUNABHAENGIG. Skaliert im Modell mit dem Jahresbedarf, nicht mit dem fEE-Anteil."
+      },
       "reference_fee_share": {
         "value": 1.0,
         "min": null,
         "mid": 1.0,
         "max": null,
         "unit": "1",
-        "source": "ist_zustand_de.md 5.1 / docs/01_grundlage_ges_faktencheck.md Kap. 4 (lineare fEE-Skalierung wie GES)",
+        "source": "ist_zustand_de.md 5.1 / docs/01_grundlage_ges_faktencheck.md Kap. 4 (Bezugspunkt der fEE-Skalierung)",
         "confidence": null,
-        "note": "Bezugspunkt der linearen Skalierung: Die NEP-/IMK-Investitionsvolumina gelten fuer ein weitgehend klimaneutrales (fEE-dominiertes) Zielsystem. Netzkosten werden im Modell linear mit dem fEE-Anteil skaliert - dieselbe Vereinfachung wie in der GES-Studie, inkl. derselben Limitation (keine raeumliche Netzsimulation).",
+        "note": "Bezugspunkt fuer den Uebertragungsnetz-Block: Die NEP-/IMK-Investitionsvolumina gelten fuer ein weitgehend klimaneutrales (fEE-dominiertes) Zielsystem, also fEE-Anteil 1,0 an der gedeckten Last. Der Skalierungsfaktor ist auf 1,0 gedeckelt - ein Szenario kann nicht mehr als das gesamte nationale Netzbudget tragen. Eine Ueberschreitung wird im Ergebnis als grid_scaling_raw ausgewiesen.",
         "status": "MODELLANNAHME (nicht quellenbelegt)"
+      },
+      "reference_demand_twh": {
+        "value": 950,
+        "min": null,
+        "mid": 950,
+        "max": null,
+        "unit": "TWh/a",
+        "source": "ist_zustand_de.md 4.1 bedarfsprojektionen_twh.2045 / docs/01_grundlage_ges_faktencheck.md Zieljahr 2045",
+        "confidence": "B",
+        "note": "Bezugspunkt fuer den Verteilnetz-Sockel: Die IMK-Verteilnetzinvestition ist auf das Zielsystem 2045 mit rund 950 TWh Jahresbedarf bezogen. Skalierung mit min(1,0; Bedarf/950).",
+        "status": "MODELLANNAHME (nicht quellenbelegt)"
+      },
+      "scaling_rule": {
+        "version": "v0.2",
+        "transmission": "min(1,0; fEE-Anteil an der GEDECKTEN Last / reference_fee_share)",
+        "distribution": "min(1,0; Jahresbedarf / reference_demand_twh)",
+        "replaces": "v0.1: 651 Mrd. EUR x (fEE-Anteil inkl. abgeregelter Energie / 1,0), ungedeckelt - erreichte im 100-%-EE-Preset 165 % des nationalen Budgets.",
+        "source": "ist_zustand_de.md 5.1 (Aufteilung 328/323) + Persona-Review 04 K1, 03 K2",
+        "confidence": "B",
+        "limitation": "Weiterhin keine raeumliche Netzsimulation und keine ueberproportionale Kostenkurve bei sehr hohen fEE-Anteilen. Die Aufteilung 328/323 ist quellenbelegt, die ZUORDNUNG der Treiber (Transport vs. Elektrifizierung) ist eine begruendete Modellannahme."
+      },
+      "ist_2025_eur_mwh": {
+        "value": 93.0,
+        "min": 93.0,
+        "mid": 93.0,
+        "max": 131.0,
+        "unit": "EUR/MWh (Netzentgelt, Ist)",
+        "source": "ist_zustand_de.md 5.1 netzkosten.netzentgelte_2026.netzentgelt_haushalt_ct_kwh",
+        "confidence": "C",
+        "note": "M6: Der Ist-2025-Anker darf nicht die Netzinvestition BIS 2045 tragen. Er bekommt stattdessen das dokumentierte heutige Netzentgelt: 9,3 ct/kWh = 93 EUR/MWh (Haushalt 2026, wie erhoben). max = 131 EUR/MWh = ohne den Bundeszuschuss (9,3 + (6,65 - 2,86) ct/kWh) - das Dossier nennt den Zuschuss ausdruecklich eine 'Transferleistung, keine Kostensenkung'. ACHTUNG: Haushalts-Netzentgelt, der systemweite Durchschnitt liegt darunter (Industrie zahlt weniger). Ausserdem hat die Groesse eine ANDERE Systemgrenze als der 2045-Block (Bestandsnetz + Betrieb statt Zusatzinvestition) - der Anker ist deshalb zusaetzlich als nicht direkt vergleichbar gekennzeichnet."
       },
       "redispatch_2024_bn_eur": {
         "value": 2.776,
@@ -1452,7 +1916,13 @@
         "unit": "Mrd. EUR/a",
         "source": "risiken_co2.md 4.1 netz_und_systemkosten.netzengpassmanagement_mrd_eur[2024]",
         "confidence": "A",
-        "note": "Ist-Wert, im Modell nicht doppelt angesetzt (in den Netzkosten enthalten)."
+        "note": "KORREKTUR v0.2 (Persona-Review 03, K2c): Dieser Betriebskostenblock ist in einer reinen Investitionsannuitaet gerade NICHT enthalten. Er wird im Modell weiterhin nicht angesetzt - nicht weil er doppelt waere, sondern weil fuer das Zielsystem 2045 kein belegter Redispatch-/Netzbetriebskostenwert vorliegt. Siehe gaps.netz_opex."
+      },
+      "opex_note": {
+        "status": "LUECKE",
+        "text": "Betriebs-, Instandhaltungs- und Verlustkosten der Netze sowie Redispatch sind im Modell NICHT enthalten. Belegt ist nur der Ist-Wert 2024/25 (2,776 bzw. 2,7-3,1 Mrd. EUR/a Engpassmanagement); ein belegter Netzbetriebskostensatz fuer das Zielsystem 2045 existiert in keinem Dossier. Der Netzblock der Zukunftsszenarien ist deshalb eine UNTERGRENZE.",
+        "source": "risiken_co2.md 4.1 + ist_zustand_de.md 5.3",
+        "confidence": "A"
       },
       "curtailment_2024_twh": {
         "value": 9.4,
@@ -1570,6 +2040,26 @@
       "_note": "Multiplikator auf CAPEX im LCOE-Modell; Slider 'Realismus-Aufschlag' mit Default aus Empirie, abschaltbar auf 1.00",
       "_source": "risiken_co2.md 7 kostenueberschreitung_faktoren",
       "_default": 1.0,
+      "application_rule": {
+        "version": "v0.2",
+        "text": "Der Faktor ist definitionsgemaess ein Verhaeltnis Entscheidungsschaetzung -> Ist (risiken_co2.md 7 definition). Er wird deshalb nur auf CAPEX-Anker angewendet, die noch eine Schaetzung sind. Der Anteil steht je Technologie in params.overrun_applicable_share und wird zwischen den CAPEX-Stuetzstellen linear interpoliert.",
+        "affected": "Kernkraft: Anteil 1,0 bei 7.500 und 12.000 EUR/kW (EPR2-Programm, Dukovany-EPC, Lubiatowo, Sizewell C - alle vor bzw. bei FID), Anteil 0,0 bei 17.500 EUR/kW (Hinkley Point C, laufende Preise = bereits eingetretene Ueberschreitung).",
+        "source": "risiken_co2.md 7 + kosten_kernkraft.md 3 reference_projects",
+        "confidence": "B"
+      },
+      "unmeasured_technologies": {
+        "list": [
+          "battery",
+          "electrolyser",
+          "h2_storage",
+          "h2_turbine"
+        ],
+        "assumed_factor": 1.0,
+        "status": "NICHT GEMESSEN",
+        "text": "Fuer Batteriespeicher, Elektrolyse, H2-Kavernenspeicher und H2-Turbinen gibt es in Flyvbjerg (2023) und Sovacool & Ryu (2025) keine Projektklasse. Der Faktor 1,00 ist deshalb eine LUECKE, keine Messung - und er ist der eine Wert, den man aus dieser Empirie fuer neuartige, genehmigungsintensive Grossinfrastruktur nicht ableiten kann (naechstgelegene Analoga: Wasserkraft 1,75, nukleare Endlagerung 3,38). Das Ueberschreitungs-Szenario ist damit asymmetrisch: es stresst die Kernkraft- und Netzseite, nicht die Speicher-/H2-Seite.",
+        "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.technologien (keine Klasse fuer Speicher/H2) + Persona-Review 06 K2",
+        "confidence": "A"
+      },
       "factors": {
         "solar": {
           "value": 1.0,
@@ -1653,6 +2143,103 @@
         }
       }
     },
+    "legacy_bands": {
+      "_status": "BESTANDSANLAGEN - nur CO2-Kosten, keine Kapital-/Betriebskosten",
+      "_note": "Kapital- und Betriebskosten der Bestandsflotte (Kohle, Biomasse, Wasser) sind in keinem Dossier belegt. Der Ist-2025-Anker ist auf der Erzeugungsseite deshalb eine Untergrenze: Brennstoff, Betrieb und CO2-Zertifikate der Kohleblocke sind nur zum Teil (CO2) enthalten. Biomasse wird im ETS bilanziell als CO2-neutral gefuehrt.",
+      "_source": "ist_zustand_de.md 1.1 ist_mix.2025.traeger_twh + risiken_co2.md 1.2",
+      "coal": {
+        "generation_2025_twh": {
+          "value": 101.7,
+          "min": null,
+          "mid": null,
+          "max": null,
+          "unit": "TWh/a",
+          "source": "ist_zustand_de.md 1.1 ist_mix.2025.traeger_twh.braunkohle + .steinkohle",
+          "confidence": "C",
+          "note": "Braunkohle 75,2 TWh (Stufe B) + Steinkohle 25-28 TWh (Stufe C, Differenzrechnung) = Mittel 26,5 TWh."
+        },
+        "installed_gw_2025": {
+          "value": 30.145,
+          "min": null,
+          "mid": null,
+          "max": null,
+          "unit": "GW",
+          "source": "ist_zustand_de.md 2.1 installierte_leistung_gw.stand_jahresende_2025",
+          "confidence": "B"
+        },
+        "emission_factor_t_mwh": {
+          "value": 0.751,
+          "min": 0.751,
+          "mid": 0.751,
+          "max": 1.095,
+          "unit": "t CO2/MWh_el",
+          "source": "risiken_co2.md 1.2 co2_intensitaet_g_pro_kwh.technologien.kohle.min",
+          "confidence": "C",
+          "note": "PROXY wie bei Gas: direkter Verbrennungsfaktor fehlt in allen Dossiers, verwendet wird die UNECE-Lebenszyklus-Untergrenze (751 g/kWh). Der reale direkte Faktor liegt fuer Braunkohle darueber, fuer Steinkohle darunter.",
+          "status": "PROXY (Lebenszyklus-Untergrenze statt Direktfaktor)"
+        }
+      },
+      "biomass": {
+        "generation_2025_twh": {
+          "value": 42.7,
+          "min": null,
+          "mid": null,
+          "max": null,
+          "unit": "TWh/a",
+          "source": "ist_zustand_de.md 1.1 ist_mix.2025.traeger_twh.biomasse",
+          "confidence": "B"
+        },
+        "installed_gw_2025": {
+          "value": 9.033,
+          "min": null,
+          "mid": null,
+          "max": null,
+          "unit": "GW",
+          "source": "ist_zustand_de.md 2.1 installierte_leistung_gw",
+          "confidence": "C"
+        },
+        "emission_factor_t_mwh": {
+          "value": 0.0,
+          "min": null,
+          "mid": null,
+          "max": null,
+          "unit": "t CO2/MWh_el",
+          "source": "ETS-Systematik: Biomasse wird bilanziell mit 0 gefuehrt",
+          "confidence": "B",
+          "note": "Bilanzielle Nullstellung, kein Lebenszyklus-Wert."
+        }
+      },
+      "hydro": {
+        "generation_2025_twh": {
+          "value": 21.0,
+          "min": null,
+          "mid": null,
+          "max": null,
+          "unit": "TWh/a",
+          "source": "ist_zustand_de.md 1.1 ist_mix.2025.traeger_twh.wasserkraft",
+          "confidence": "C",
+          "note": "Differenzrechnung aus der EE-Summe (Dossier-Stufe low)."
+        },
+        "installed_gw_2025": {
+          "value": 5.15,
+          "min": null,
+          "mid": null,
+          "max": null,
+          "unit": "GW",
+          "source": "ist_zustand_de.md 2.1 installierte_leistung_gw",
+          "confidence": "C"
+        },
+        "emission_factor_t_mwh": {
+          "value": 0.0,
+          "min": null,
+          "mid": null,
+          "max": null,
+          "unit": "t CO2/MWh_el",
+          "source": "keine direkten Verbrennungsemissionen",
+          "confidence": "A"
+        }
+      }
+    },
     "double_counting_warning": {
       "id": "backup_und_speicher",
       "gilt_fuer": "pv, wind",
@@ -1715,6 +2302,46 @@
         "value": 265.4,
         "confidence": "B"
       }
+    },
+    "ist_2025_reference": {
+      "_source": "ist_zustand_de.md 1.1 ist_mix.2025 / 5.1 netzkosten / 7.1 preise, risiken_co2.md 4.2 netz_und_systemkosten.abregelung",
+      "generation_twh": {
+        "photovoltaik": 89.5,
+        "wind_onshore": 110.1,
+        "wind_offshore": 28.0,
+        "erdgas": 84.9,
+        "braunkohle": 75.2,
+        "steinkohle_mid": 26.5,
+        "biomasse": 42.7,
+        "wasserkraft": 21.0,
+        "mineraloel_sonstige_abfall": 28.9
+      },
+      "pumpspeichererzeugung_twh": 7.1,
+      "bruttostromverbrauch_twh": {
+        "low": 512.0,
+        "high": 526.0,
+        "confidence": "low",
+        "hinweis": "Widerspruch W3"
+      },
+      "bruttostromerzeugung_twh": 509.3,
+      "nettoimport_twh": {
+        "low": 19.0,
+        "high": 21.9,
+        "confidence": "medium",
+        "hinweis": "Widerspruch W2"
+      },
+      "boersenstrompreis_eur_mwh": 86.5,
+      "netzentgelt_haushalt_eur_mwh": 93.0,
+      "netzentgelt_ohne_bundeszuschuss_eur_mwh": 130.9,
+      "abregelung_2024_twh": 9.4,
+      "redispatch_2025_mrd_eur": {
+        "low": 2.7,
+        "high": 3.1,
+        "confidence": "medium",
+        "hinweis": "Widerspruch W6"
+      },
+      "endkunde_haushalt_2026_ct_kwh": 37.0,
+      "industrie_2026_ct_kwh": 16.7
     },
     "generation_2024_twh": {
       "pv": {
@@ -1927,8 +2554,24 @@
   "gaps": [
     {
       "id": "gaspreis_erdgas",
-      "parameter": "technologies.gas_*.params.fuel_eur_mwh",
-      "reason": "Kein Erdgas-Brennstoffpreis (EUR/MWh_th oder EUR/MWh_el) in den Dossiers. Das Modell rechnet ohne expliziten Wert mit 0 und weist das Ergebnis als Untergrenze aus; gas_fuel_implied liefert eine rueckgerechnete Obergrenze."
+      "parameter": "technologies.gas_*.params.fuel_eur_mwh_th",
+      "status": "GESCHLOSSEN in v0.2 (ausserhalb der Dossiers belegt)",
+      "reason": "Kein Erdgas-Brennstoffpreis in den Recherche-Dossiers. Seit v0.2 mit einer Marktspanne 20/35/60 EUR/MWh_th parametrisiert (TTF-Notierung, Recherche 2026-08-19, Konfidenz B; Uebertragbarkeit auf 2045 Konfidenz C). Die Nullsetzung war eine Luecke der Recherche, nicht der Welt."
+    },
+    {
+      "id": "netz_opex",
+      "parameter": "system.grid (Betrieb, Instandhaltung, Verluste, Redispatch)",
+      "reason": "Fuer das Zielsystem 2045 existiert in keinem Dossier ein Netzbetriebskostensatz. Das Modell enthaelt ausschliesslich die Investitionsannuitaet - der Netzblock der Zukunftsszenarien ist damit eine Untergrenze. Belegt ist nur der Ist-Wert Engpassmanagement (2,776 Mrd. EUR 2024 bzw. 2,7-3,1 Mrd. EUR 2025)."
+    },
+    {
+      "id": "ccs_nicht_modelliert",
+      "parameter": "technologies (keine CCS-Kette)",
+      "reason": "Die gepruefte GES-Studie rechnet ihren Gas-Pfad ausweislich des ETS-Abschnitts mit CCS. Das Modell kennt keine CCS-Kette (CAPEX/OPEX, Wirkungsgradverlust, Abscheidegrad, Transport/Speicherung). Offene Entscheidung - bis dahin sind die Szenarien NICHT emissionsaequivalent; die Restemissionen werden seit v0.2 je Szenario ausgewiesen (emissions_mt_co2_a)."
+    },
+    {
+      "id": "overrun_ungemessen_speicher_h2",
+      "parameter": "system.cost_overrun_factors.unmeasured_technologies",
+      "reason": "Batterie, Elektrolyse, H2-Speicher und H2-Turbine haben in Flyvbjerg/Sovacool keine Projektklasse und bleiben bei Faktor 1,00. Das ist eine Luecke, keine Messung - das Ueberschreitungs-Szenario ist deshalb asymmetrisch."
     },
     {
       "id": "emissionsfaktor_direkt",

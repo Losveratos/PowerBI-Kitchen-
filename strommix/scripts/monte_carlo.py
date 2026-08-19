@@ -144,7 +144,15 @@ DRAW_TECHS = [
 DRAW_FIELDS = [
     "capex_eur_kw", "capex_eur_kwh", "opex_pct", "opex_eur_kw_a",
     "full_load_hours",
+    # v0.2 (M2): Erdgas-Brennstoffpreis, thermisch. Wird ueber den
+    # Wirkungsgrad in EUR/MWh_el umgerechnet (model._fuel_eur_mwh_el).
+    "fuel_eur_mwh_th",
 ]
+
+# v0.2 (M1/M7): Wenn der CAPEX gezogen wird, muessen die Anwendungsanteile fuer
+# Bauzins und Ueberschreitungsfaktor mitgezogen werden - sie haengen an der
+# Kostenabgrenzung des jeweiligen Ankers.
+SCOPE_SHARE_FIELDS = ("idc_applicable_share", "overrun_applicable_share")
 
 # Empirische Kostenueberschreitung: Zuordnung Technologie -> Projektklasse in
 # page_data.kostenueberschreitung_faktoren.technologien. Fuer Batterie,
@@ -160,13 +168,17 @@ OVERRUN_CLASS = {
 }
 
 CONFIGS = [
-    {"id": "base", "wacc_uncertain": False, "overrun": False,
-     "label": "WACC fest (5 %), ohne Kostenueberschreitung"},
-    {"id": "wacc", "wacc_uncertain": True, "overrun": False,
-     "label": "WACC unsicher (Dreieck 3/5/9 %), ohne Kostenueberschreitung"},
-    {"id": "overrun", "wacc_uncertain": False, "overrun": True,
-     "label": "WACC fest (5 %), mit empirischer Kostenueberschreitung"},
-    {"id": "wacc_overrun", "wacc_uncertain": True, "overrun": True,
+    {"id": "base", "wacc_uncertain": False, "co2_uncertain": False, "overrun": False,
+     "label": "WACC fest (5 %), CO2 fest (75 EUR/t), ohne Kostenueberschreitung"},
+    {"id": "wacc", "wacc_uncertain": True, "co2_uncertain": False, "overrun": False,
+     "label": "WACC unsicher (Dreieck 3/5/9 %), CO2 fest"},
+    {"id": "co2", "wacc_uncertain": False, "co2_uncertain": True, "overrun": False,
+     "label": "CO2-Preis unsicher (Dreieck 0/75/400 EUR/t), WACC fest"},
+    {"id": "wacc_co2", "wacc_uncertain": True, "co2_uncertain": True, "overrun": False,
+     "label": "WACC und CO2-Preis unsicher"},
+    {"id": "overrun", "wacc_uncertain": False, "co2_uncertain": False, "overrun": True,
+     "label": "WACC fest, CO2 fest, mit empirischer Kostenueberschreitung"},
+    {"id": "wacc_overrun", "wacc_uncertain": True, "co2_uncertain": False, "overrun": True,
      "label": "WACC unsicher, mit empirischer Kostenueberschreitung"},
 ]
 
@@ -218,7 +230,8 @@ def overrun_plan(page: dict) -> list[dict]:
 # ==========================================================================
 def system_cost(shares, demand_twh, params, techs, disp, wacc, co2_price,
                 storage, overrun=None, grid_variant="mid",
-                gas_tech="gas_ccgt", firm_tech="nuclear") -> dict:
+                gas_tech="gas_ccgt", firm_tech="nuclear",
+                grid_cost_basis="buildout_2045") -> dict:
     """Schritt 3 aus model.mix_system, aber mit vorgegebenem Parametersatz.
 
     `techs`  flache Parametersaetze je Technologie (gezogen oder mittel)
@@ -253,20 +266,27 @@ def system_cost(shares, demand_twh, params, techs, disp, wacc, co2_price,
         if var:
             gen_twh = disp["vre_potential_twh"].get(share_key)
             if gen_twh is None:
-                gen_twh = disp["energy_twh"]["band"] if share_key == "nuclear" else 0.0
+                gen_twh = disp["energy_twh"]["nuclear_band"] if share_key == "nuclear" else 0.0
             cost[share_key] = cost.get(share_key, 0.0) + var * gen_twh * annualize * model.MWH_PER_TWH
 
     # --- Gas-Backup: Leistung aus dem zwischengespeicherten Dispatch -------
     gas_gw = storage.get("gas_backup_gw")
     if gas_gw is None:
         gas_gw = disp["gas_peak_gw"]
+    ef_gas = float(techs[gas_tech].get("emission_factor_t_mwh") or 0.0)
+    gas_twh = disp["energy_twh"]["gas_backup"] * annualize
     if gas_gw > 0:
         cost["gas_backup"] = cost.get("gas_backup", 0.0) + fixed_cost(gas_tech) * gas_gw * model.KW_PER_GW
         flat = techs[gas_tech]
-        fuel = float(flat.get("fuel_eur_mwh") or 0.0)  # fehlt in den Dossiers -> 0 (Untergrenze)
-        ef = float(flat.get("emission_factor_t_mwh") or 0.0)
-        gas_twh = disp["energy_twh"]["gas_backup"] * annualize
-        cost["gas_backup"] += (fuel + co2_price * ef) * gas_twh * model.MWH_PER_TWH
+        fuel, _ = model._fuel_eur_mwh_el(flat)  # v0.2: thermisch -> elektrisch
+        cost["gas_backup"] += (fuel + co2_price * ef_gas) * gas_twh * model.MWH_PER_TWH
+
+    # --- Bestandsbaender (v0.2/M6): nur CO2-Kosten ------------------------
+    legacy = params["system"].get("legacy_bands", {})
+    coal_twh = disp["energy_twh"].get("coal_band", 0.0) * annualize
+    ef_coal = float((legacy.get("coal", {}).get("emission_factor_t_mwh") or {}).get("value") or 0.0)
+    if coal_twh > 0 and ef_coal:
+        cost["coal_band"] = cost.get("coal_band", 0.0) + co2_price * ef_coal * coal_twh * model.MWH_PER_TWH
 
     # --- Speicher ---------------------------------------------------------
     bat_gwh = storage.get("battery_energy_gwh") or 0.0
@@ -286,20 +306,38 @@ def system_cost(shares, demand_twh, params, techs, disp, wacc, co2_price,
     if h2t_gw:
         cost["h2_turbine"] = fixed_cost("h2_turbine") * h2t_gw * model.KW_PER_GW
 
-    # --- Netzausbau -------------------------------------------------------
-    fee_share = sum(v for k, v in shares.items() if k in model.VRE_TECHS)
+    # --- Netzausbau (v0.2/M3: Uebertragung + Verteilnetz getrennt) --------
     grid = params["system"]["grid"]
-    invest_bn = model._pick(grid["investment_bn_eur_until_2045"],
-                            grid_variant if grid_variant in ("min", "mid", "max") else "mid")
+    variant = grid_variant if grid_variant in ("min", "mid", "max") else "mid"
     grid_life = grid["lifetime_years"]["value"]
-    ref_share = grid["reference_fee_share"]["value"]
-    cost["netz"] = (invest_bn * 1e9 * overrun.get("netz", 1.0)
-                    * model.crf(wacc, grid_life) * (fee_share / ref_share))
-
+    grid_crf = model.crf(wacc, grid_life)
     served_twh_a = disp["energy_twh"]["served"] * annualize
+
+    if grid_cost_basis == "ist_netzentgelt":
+        ist_grid = float(model._pick(grid["ist_2025_eur_mwh"], variant))
+        cost["netz"] = ist_grid * served_twh_a * model.MWH_PER_TWH
+    elif grid_cost_basis == "none":
+        cost["netz"] = 0.0
+    else:
+        vre_gen = disp["energy_twh"]["vre_generated"] * annualize
+        band_gen = disp["energy_twh"]["band"] * annualize
+        curt = disp["energy_twh"]["curtailed"] * annualize
+        vre_used = vre_gen - (curt * vre_gen / (vre_gen + band_gen) if (vre_gen + band_gen) else 0.0)
+        fee_share_used = vre_used / demand_twh if demand_twh else 0.0
+        ref_share = grid["reference_fee_share"]["value"]
+        ref_demand = grid["reference_demand_twh"]["value"]
+        trans_bn = model._pick(grid["transmission_bn_eur_until_2045"], variant)
+        dist_bn = model._pick(grid["distribution_bn_eur_until_2045"], variant)
+        scale_t = min(1.0, (fee_share_used / ref_share) if ref_share else 0.0)
+        scale_d = min(1.0, (demand_twh / ref_demand) if ref_demand else 0.0)
+        cost["netz"] = (overrun.get("netz", 1.0) * grid_crf * 1e9
+                        * (trans_bn * scale_t + dist_bn * scale_d))
+
     total = sum(cost.values())
     lscoe = total / (served_twh_a * model.MWH_PER_TWH) if served_twh_a else float("nan")
+    emissions_mt = gas_twh * ef_gas + coal_twh * ef_coal
     return {"lscoe_eur_mwh": lscoe, "total_cost_bn_eur_a": total / 1e9,
+            "emissions_mt_co2_a": emissions_mt,
             "cost_components_bn_eur_a": {k: v / 1e9 for k, v in sorted(cost.items())}}
 
 
@@ -343,12 +381,25 @@ def build_presets(params: dict, page: dict) -> list[dict]:
     presets = []
 
     d25 = _round_js(demand25 / 10.0) * 10.0
+    # v0.2 (M6): Kohle-, Biomasse- und Wasserband aus ist_zustand_de.md; der
+    # Anker deckt seine Residuallast nicht mehr vollstaendig aus Gas. Ausserdem
+    # traegt er NICHT die Netzinvestition bis 2045, sondern das heutige
+    # Netzentgelt (grid_cost_basis) - und ist damit ein Groessenordnungs-Bezug,
+    # kein Ranking-Teilnehmer.
+    lb = params["system"]["legacy_bands"]
     presets.append({
-        "id": "ist2025", "label": "Ist 2025", "demand_twh": d25,
+        "id": "ist2025", "label": "Ist 2025 (Referenzsystem)", "demand_twh": d25,
         "shares": {"pv": mix25["photovoltaik"]["wert"] / d25,
                    "wind_onshore": mix25["wind_onshore"]["wert"] / d25,
                    "wind_offshore": mix25["wind_offshore"]["wert"] / d25},
         "storage": storage(_round_js(bat25 / 5.0) * 5.0, 0, 0, 0, 0.0, True),
+        "bands_twh": {
+            "coal_band": lb["coal"]["generation_2025_twh"]["value"],
+            "biomass_band": lb["biomass"]["generation_2025_twh"]["value"],
+            "hydro_band": lb["hydro"]["generation_2025_twh"]["value"],
+        },
+        "grid_cost_basis": "ist_netzentgelt",
+        "comparable": False,
     })
 
     for pid, label, bat, ely, h2t, h2s, fill, gas_auto in (
@@ -365,7 +416,9 @@ def build_presets(params: dict, page: dict) -> list[dict]:
             if nuc > 0:
                 shares["nuclear"] = nuc
         presets.append({"id": pid, "label": label, "demand_twh": demand, "shares": shares,
-                        "storage": storage(bat, ely, h2t, h2s, fill, gas_auto)})
+                        "storage": storage(bat, ely, h2t, h2s, fill, gas_auto),
+                        "bands_twh": {}, "grid_cost_basis": "buildout_2045",
+                        "comparable": True})
     return presets
 
 
@@ -376,28 +429,8 @@ def mid_techs(params: dict) -> dict:
     return {k: model.resolve_tech(params, k, "mittel", apply_idc=True) for k in params["technologies"]}
 
 
-def run_config(preset, params, page, disp, plan, ov_plan, config, seed, co2_price):
-    """N Ziehungen fuer ein Preset und eine Toggle-Kombination."""
-    rnd = mulberry32(seed)
-    base_techs = mid_techs(params)
-    wacc_spec = params["global"]["wacc"]
-    values = []
-    for _ in range(N_DRAWS):
-        techs = {k: dict(v) for k, v in base_techs.items()}
-        for d in plan:
-            techs[d["tech"]][d["field"]] = triangular(rnd(), d["min"], d["mid"], d["max"])
-        wacc = model.scenario_wacc(params, "mittel")
-        if config["wacc_uncertain"]:
-            wacc = triangular(rnd(), wacc_spec["min"], wacc_spec["mid"], wacc_spec["max"])
-        overrun = {}
-        if config["overrun"]:
-            for o in ov_plan:
-                overrun[o["target"]] = triangular(rnd(), o["min"], o["mid"], o["max"])
-        res = system_cost(preset["shares"], preset["demand_twh"], params, techs, disp,
-                          wacc, co2_price, preset["storage"], overrun=overrun)
-        values.append(res["lscoe_eur_mwh"])
-
-    values.sort()
+def summarize(raw_values: list[float], seed: int) -> dict:
+    values = sorted(raw_values)
     lo, hi = values[0], values[-1]
     span = hi - lo
     counts = [0] * HIST_BINS
@@ -416,6 +449,95 @@ def run_config(preset, params, page, disp, plan, ov_plan, config, seed, co2_pric
     }
 
 
+def run_config_paired(presets, params, disps, plan, ov_plan, config, seed, co2_price):
+    """N GEPAARTE Ziehungen (common random numbers) ueber ALLE Presets.
+
+    Modell v0.2, Fix M4: Je Ziehung wird EIN Parametersatz gezogen und
+    anschliessend auf jedes Szenario angewandt. Damit ist der PV-CAPEX im
+    Kernkraft-Szenario derselbe wie im Gas-Szenario - so, wie es in der Welt
+    auch waere. Ausgewertet wird zusaetzlich die Verteilung der DIFFERENZ je
+    Szenario-Paar; daraus folgt P(A guenstiger als B). Das ersetzt das
+    (unzulaessige) Argument ueber die Ueberlappung der Randverteilungen.
+    """
+    rnd = mulberry32(seed)
+    base_techs = mid_techs(params)
+    wacc_spec = params["global"]["wacc"]
+    co2_spec = params["global"]["co2_price_eur_t"]
+    values: dict[str, list[float]] = {p["id"]: [] for p in presets}
+    emissions: dict[str, list[float]] = {p["id"]: [] for p in presets}
+
+    for _ in range(N_DRAWS):
+        techs = {k: dict(v) for k, v in base_techs.items()}
+        for d in plan:
+            techs[d["tech"]][d["field"]] = triangular(rnd(), d["min"], d["mid"], d["max"])
+        # v0.2 (M1/M7): Abgrenzungsanteile folgen dem gezogenen CAPEX.
+        for tech_key in DRAW_TECHS:
+            tech = params["technologies"].get(tech_key)
+            if not tech:
+                continue
+            cap_entry = tech["params"].get("capex_eur_kw") or tech["params"].get("capex_eur_kwh")
+            if not isinstance(cap_entry, dict):
+                continue
+            drawn = techs[tech_key].get("capex_eur_kw")
+            if drawn is None:
+                drawn = techs[tech_key].get("capex_eur_kwh")
+            if drawn is None:
+                continue
+            for field in SCOPE_SHARE_FIELDS:
+                share_entry = tech["params"].get(field)
+                if isinstance(share_entry, dict):
+                    techs[tech_key][field] = model.scope_share_for_capex(cap_entry, share_entry, drawn)
+
+        wacc = model.scenario_wacc(params, "mittel")
+        if config["wacc_uncertain"]:
+            wacc = triangular(rnd(), wacc_spec["min"], wacc_spec["mid"], wacc_spec["max"])
+        co2 = co2_price
+        if config.get("co2_uncertain"):
+            co2 = triangular(rnd(), co2_spec["min"], co2_spec["mid"], co2_spec["max"])
+        overrun = {}
+        if config["overrun"]:
+            for o in ov_plan:
+                overrun[o["target"]] = triangular(rnd(), o["min"], o["mid"], o["max"])
+
+        for preset in presets:
+            res = system_cost(preset["shares"], preset["demand_twh"], params, techs,
+                              disps[preset["id"]], wacc, co2, preset["storage"],
+                              overrun=overrun, grid_cost_basis=preset["grid_cost_basis"])
+            values[preset["id"]].append(res["lscoe_eur_mwh"])
+            emissions[preset["id"]].append(res["emissions_mt_co2_a"])
+
+    stats = {pid: summarize(v, seed) for pid, v in values.items()}
+    for pid, e in emissions.items():
+        se = sorted(e)
+        stats[pid]["emissions_mt_co2_a"] = {
+            "p5": percentile(se, 0.05), "p50": percentile(se, 0.50), "p95": percentile(se, 0.95),
+            "mean": sum(se) / len(se),
+        }
+    return stats, values
+
+
+def pairwise_ranks(values: dict[str, list[float]], order: list[str]) -> list[dict]:
+    """P(A guenstiger als B) und Verteilung der Differenz ueber gepaarte Ziehungen."""
+    out = []
+    for i, a in enumerate(order):
+        for b in order[i + 1:]:
+            diff = [x - y for x, y in zip(values[a], values[b])]  # A - B
+            n = len(diff)
+            wins = sum(1 for d in diff if d < 0)
+            sd = sorted(diff)
+            out.append({
+                "a": a, "b": b,
+                "p_a_cheaper": wins / n,
+                "p_b_cheaper": (n - wins) / n,
+                "median_diff_a_minus_b": percentile(sd, 0.50),
+                "p5_diff": percentile(sd, 0.05),
+                "p95_diff": percentile(sd, 0.95),
+                "mean_diff": sum(sd) / n,
+                "decided": max(wins / n, (n - wins) / n) >= 0.95,
+            })
+    return out
+
+
 def main() -> None:
     params = model.load_params()
     profiles = model.load_profiles(params=params)
@@ -428,35 +550,56 @@ def main() -> None:
     ov_plan = overrun_plan(page)
 
     results = {}
-    order = []
-    for pi, preset in enumerate(presets):
+    order = [p["id"] for p in presets]
+    disps = {}
+    for preset in presets:
         det = model.mix_system(preset["shares"], preset["demand_twh"], params, profiles,
                                scenario="mittel", storage=preset["storage"],
-                               co2_price=co2_price, grid_variant="mid", apply_idc=True)
+                               co2_price=co2_price, grid_variant="mid", apply_idc=True,
+                               bands_twh=preset["bands_twh"],
+                               grid_cost_basis=preset["grid_cost_basis"])
         disp = det["dispatch"]
+        disps[preset["id"]] = disp
 
         # Kontrolle: Der mittlere Parametersatz ueber dem gecachten Dispatch muss
         # das deterministische LSCOE exakt reproduzieren. Wenn nicht, weicht die
         # Kostenfunktion hier von model.mix_system ab.
         check = system_cost(preset["shares"], preset["demand_twh"], params, mid_techs(params),
                             disp, model.scenario_wacc(params, "mittel"), co2_price,
-                            preset["storage"])
+                            preset["storage"], grid_cost_basis=preset["grid_cost_basis"])
         rel = abs(check["lscoe_eur_mwh"] - det["lscoe_eur_mwh"]) / abs(det["lscoe_eur_mwh"])
         if rel > 1e-9:
             raise SystemExit(
                 f"Kostenfunktion weicht von model.mix_system ab ({preset['id']}): "
                 f"{check['lscoe_eur_mwh']:.6f} statt {det['lscoe_eur_mwh']:.6f}")
 
-        entry = {"label": preset["label"], "demand_twh": preset["demand_twh"],
-                 "shares": preset["shares"], "storage": preset["storage"],
-                 "deterministic_lscoe_eur_mwh": det["lscoe_eur_mwh"],
-                 "gas_peak_gw": disp["gas_peak_gw"], "configs": {}}
-        for ci, config in enumerate(CONFIGS):
-            seed = BASE_SEED + pi * 1000 + ci
-            entry["configs"][config["id"]] = run_config(
-                preset, params, page, disp, plan, ov_plan, config, seed, co2_price)
-        results[preset["id"]] = entry
-        order.append(preset["id"])
+        results[preset["id"]] = {
+            "label": preset["label"], "demand_twh": preset["demand_twh"],
+            "shares": preset["shares"], "storage": preset["storage"],
+            "bands_twh": preset["bands_twh"],
+            "grid_cost_basis": preset["grid_cost_basis"],
+            "comparable_to_target_scenarios": preset["comparable"],
+            "deterministic_lscoe_eur_mwh": det["lscoe_eur_mwh"],
+            "deterministic_components_eur_mwh": det["cost_components_eur_mwh"],
+            "emissions_mt_co2_a": det["emissions"]["total_mt_co2_a"],
+            "emissions_detail": det["emissions"],
+            "gas_peak_gw": disp["gas_peak_gw"],
+            "gas_backup_twh_a": disp["energy_twh"]["gas_backup"] / (disp["seasonal_share_load"] or 1.0),
+            "curtailed_twh_a": disp["energy_twh"]["curtailed"] / (disp["seasonal_share_load"] or 1.0),
+            "unserved_twh_a": disp["energy_twh"]["unserved"] / (disp["seasonal_share_load"] or 1.0),
+            "grid_scaling_raw": det["grid_scaling_raw"],
+            "configs": {},
+        }
+
+    # ---- Gepaarte Ziehungen: EIN Ziehungsstrom je Konfiguration ----------
+    rank_probabilities = {}
+    for ci, config in enumerate(CONFIGS):
+        seed = BASE_SEED + ci
+        stats, values = run_config_paired(presets, params, disps, plan, ov_plan,
+                                          config, seed, co2_price)
+        for pid in order:
+            results[pid]["configs"][config["id"]] = stats[pid]
+        rank_probabilities[config["id"]] = pairwise_ranks(values, order)
 
     out = {
         "meta": {
@@ -474,27 +617,50 @@ def main() -> None:
             "grid_variant": "mid",
             "profiles": {"label": profiles["label"], "hours": profiles["hours"],
                          "data_completeness": profiles["data_completeness"]},
+            "model_version": model.MODEL_VERSION,
+            "paired_draws": True,
+            "paired_draws_note": (
+                "v0.2 (M4): common random numbers. Je Konfiguration laeuft EIN Ziehungsstrom "
+                "(Seed = base_seed + Konfigurationsindex); jede Ziehung wird auf ALLE Presets "
+                "angewandt. Technologieparameter sind damit je Ziehung ueber die Szenarien "
+                "identisch. Ausgewertet wird zusaetzlich die Differenzverteilung je Szenariopaar "
+                "(rank_probabilities) - die Ueberlappung der Randverteilungen ist KEIN "
+                "zulaessiges Rangfolgen-Argument."
+            ),
             "assumptions": [
                 "Der Dispatch wird je Preset EINMAL mit mittleren Parametern gerechnet und "
                 "zwischengespeichert; die 1000 Ziehungen wirken nur auf die Kostenseite.",
                 "Damit wirkt die Volllaststunden-Ziehung nur auf die abgeleiteten Kapazitaeten "
                 "und deren Kosten, nicht auf Erzeugungsmengen, Backup-Bedarf oder Abregelung.",
-                "Gezogen werden CAPEX, Opex und Volllaststunden je Technologie; optional WACC "
-                "(Dreieck 3/5/9 %) und ein empirischer CAPEX-Ueberschreitungsfaktor.",
-                "Alle Ziehungen sind unabhaengig. Reale Korrelationen (z. B. hoher CAPEX an "
+                "Gezogen werden CAPEX, Opex, Volllaststunden und der Erdgas-Brennstoffpreis je "
+                "Technologie; optional WACC (Dreieck 3/5/9 %), CO2-Preis (Dreieck 0/75/400 EUR/t) "
+                "und ein empirischer CAPEX-Ueberschreitungsfaktor.",
+                "Bauzins- und Ueberschreitungsaufschlag werden nur auf die dafuer geeignete "
+                "Kostenabgrenzung gelegt (idc_applicable_share / overrun_applicable_share, zwischen "
+                "den CAPEX-Stuetzstellen linear interpoliert). Fuer Kernkraft heisst das: kein "
+                "zusaetzlicher Bauzins auf Gesamtprojekt-Anker, kein Ueberschreitungsfaktor auf den "
+                "bereits eskalierten Hinkley-Point-C-Anker.",
+                "Der Ist-2025-Anker traegt das heutige Netzentgelt statt der Netzinvestition bis "
+                "2045 und ist deshalb NICHT direkt mit den Zielszenarien vergleichbar "
+                "(comparable_to_target_scenarios = false).",
+                "Innerhalb einer Ziehung sind die Parameter ueber alle Presets identisch; zwischen "
+                "den Parametern sind die Ziehungen unabhaengig. Reale Korrelationen (z. B. hoher CAPEX an "
                 "guten Standorten, gemeinsame Rohstoffpreise) sind NICHT abgebildet - das "
                 "unterschaetzt die Breite der Verteilung an den Raendern eher, als sie zu "
                 "uebertreiben.",
                 "Nicht variiert werden: Wetterjahr, Lastprofil, Lebensdauern, Wirkungsgrade, "
-                "Brennstoff- und Entsorgungskosten, CO2-Preis, Netzinvestitionsvolumen.",
+                "Kernbrennstoff- und Entsorgungskosten, Netzinvestitionsvolumen (ausser ueber den "
+                "Ueberschreitungsfaktor 'netz').",
                 "Ebenfalls nicht variiert: die H2-Speicherkosten (105 EUR/MWh_H2). Ihre "
                 "dokumentierte Spanne oeffnet nur nach unten und ist laut Parameternotiz nur "
                 "bei hoher Zyklenzahl erreichbar - der simulierte Saisonspeicher hat aber genau "
                 "einen Zyklus im Jahr.",
                 "Batterie, Elektrolyse, H2-Speicher und H2-Turbine haben in den "
                 "Ueberschreitungsdatensaetzen (Flyvbjerg, Sovacool & Ryu) keine Projektklasse "
-                "und bleiben deshalb bei Faktor 1,00.",
+                "und bleiben deshalb bei Faktor 1,00. Das ist eine LUECKE, keine Messung - das "
+                "Ueberschreitungs-Szenario ist damit asymmetrisch (siehe limitations.overrun_asymmetry).",
             ],
+            "limitations": model.model_limitations(),
             "overrun_source": "page_data.kostenueberschreitung_faktoren (Flyvbjerg 2023, "
                               "Sovacool & Ryu 2025); Modus = Flyvbjerg-Wert, sonst Sovacool, "
                               "Grenzen = dokumentierte Modellspanne",
@@ -504,6 +670,7 @@ def main() -> None:
         "overrun_plan": ov_plan,
         "preset_order": order,
         "presets": results,
+        "rank_probabilities": rank_probabilities,
     }
     with open(OUT_PATH, "w", encoding="utf-8") as fh:
         json.dump(out, fh, ensure_ascii=False, indent=1, sort_keys=False)
@@ -515,9 +682,14 @@ def main() -> None:
     for pid in order:
         r = results[pid]
         b, o = r["configs"]["base"], r["configs"]["overrun"]
-        print(f"  {r['label']:26s} det {r['deterministic_lscoe_eur_mwh']:6.1f} | "
+        print(f"  {r['label']:28s} det {r['deterministic_lscoe_eur_mwh']:6.1f} | "
               f"P50 {b['p50']:6.1f} [{b['p5']:6.1f}-{b['p95']:6.1f}] | "
-              f"mit Ueberschreitung P50 {o['p50']:6.1f} [{o['p5']:6.1f}-{o['p95']:6.1f}]")
+              f"Overrun P50 {o['p50']:6.1f} | {r['emissions_mt_co2_a']:6.1f} Mt CO2/a")
+    print("  Rangwahrscheinlichkeiten (base):")
+    for rp in rank_probabilities["base"]:
+        print(f"    P({rp['a']} < {rp['b']}) = {rp['p_a_cheaper'] * 100:5.1f} %  "
+              f"Median Delta {rp['median_diff_a_minus_b']:+7.1f} "
+              f"[{rp['p5_diff']:+.1f} ... {rp['p95_diff']:+.1f}]")
 
 
 if __name__ == "__main__":

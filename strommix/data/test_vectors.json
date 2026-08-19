@@ -7,7 +7,66 @@
   "profiles_source": "data/profiles_2024.json",
   "profiles_data_completeness": "PARTIAL",
   "profiles_hours": 4416,
-  "profiles_label": "H2-2024-basiert (Teilzeitraum)"
+  "profiles_label": "H2-2024-basiert (Teilzeitraum)",
+  "model_version": "0.2",
+  "limitations": [
+   {
+    "id": "ccs_not_modelled",
+    "severity": "hoch",
+    "text": "CCS ist nicht modelliert. Die geprueften GES-Szenarien rechnen ihren Gas-Pfad mit CCS. Die hier verglichenen Szenarien sind deshalb NICHT emissionsaequivalent - die Restemissionen je Szenario stehen in `emissions`.",
+    "affects": "alle Szenarien mit Gas-Backup",
+    "ref_field": "gaps.ccs_nicht_modelliert"
+   },
+   {
+    "id": "emission_factor_proxy",
+    "severity": "mittel",
+    "text": "Der Emissionsfaktor fuer Gas (0,403 t/MWh_el) und Kohle (0,751 t/MWh_el) ist die UNECE-Lebenszyklus-Untergrenze, kein direkter Verbrennungsfaktor. Fuer die ETS-Bepreisung ueberschaetzt das die CO2-Kosten um rund 10-20 %.",
+    "affects": "CO2-Kosten und Mt-Ausweis",
+    "ref_field": "gaps.emissionsfaktor_direkt"
+   },
+   {
+    "id": "grid_opex_missing",
+    "severity": "hoch",
+    "text": "Netzbetrieb, Instandhaltung, Verluste und Redispatch sind nicht enthalten - nur die Investitionsannuitaet. Der Netzblock der Zukunftsszenarien ist eine Untergrenze.",
+    "affects": "alle Zukunftsszenarien",
+    "ref_field": "gaps.netz_opex"
+   },
+   {
+    "id": "overrun_asymmetry",
+    "severity": "hoch",
+    "text": "Der empirische Ueberschreitungsfaktor ist fuer Batterie, Elektrolyse, H2-Speicher und H2-Turbine NICHT gemessen (Faktor 1,00 = Datenluecke). Das Ueberschreitungs-Szenario stresst deshalb die Kernkraft- und Netzseite staerker als die Speicher-/H2-Seite.",
+    "affects": "Konfigurationen mit Kostenueberschreitung",
+    "ref_field": "system.cost_overrun_factors.unmeasured_technologies"
+   },
+   {
+    "id": "grid_allocation_assumption",
+    "severity": "mittel",
+    "text": "Die Aufteilung 328 Mrd. (Uebertragung) / 323 Mrd. (Verteilung) ist quellenbelegt, die ZUORDNUNG der Treiber (Transport vs. Elektrifizierung) ist eine begruendete Modellannahme. Keine raeumliche Netzsimulation, keine ueberproportionale Kostenkurve.",
+    "affects": "alle Szenarien",
+    "ref_field": "system.grid.scaling_rule"
+   },
+   {
+    "id": "gas_price_transfer",
+    "severity": "mittel",
+    "text": "Der Erdgaspreis (20/35/60 EUR/MWh_th) ist eine Marktspanne von August 2026. Die Uebertragbarkeit auf ein Zieljahr 2045 ist nicht belegt (Konfidenz C).",
+    "affects": "alle Szenarien mit Gas-Backup",
+    "ref_field": "technologies.gas_ccgt.params.fuel_eur_mwh_th"
+   },
+   {
+    "id": "h2_initial_fill_free",
+    "severity": "hoch",
+    "text": "Der Saisonspeicher startet in den H2-Presets gefuellt; die Stromkosten dieser Anfangsfuellung liegen ausserhalb des abgedeckten Halbjahres und sind NICHT enthalten. Die H2-Pfade sind insoweit eine Untergrenze - das ist die Gegenrichtung zur Gas-Asymmetrie und bleibt auch nach M2 bestehen.",
+    "affects": "ee80_h2, ee100",
+    "ref_field": "model.mix_system (h2_initial_fill_share)"
+   },
+   {
+    "id": "half_year_profile",
+    "severity": "hoch",
+    "text": "Das Stundenprofil deckt nur Jul-Dez 2024 ab (4.416 von 8.784 h) und enthaelt den Sommerueberschuss nicht, aus dem Saisonspeicher befuellt werden.",
+    "affects": "alle Szenarien, H2-Pfade am staerksten",
+    "ref_field": "gaps.profile_partial"
+   }
+  ]
  },
  "crf": [
   {
@@ -211,18 +270,18 @@
     "overrides": null
    },
    "expected": {
-    "lcoe_eur_mwh": 151.27171166,
+    "lcoe_eur_mwh": 122.52509524,
     "components_eur_mwh": {
-     "kapital": 113.27171166,
+     "kapital": 84.52509524,
      "fixbetrieb": 22.0,
      "brennstoff": 8.0,
      "entsorgung": 8.0,
      "co2": 0.0
     },
-    "capex_effective_eur_kw": 16081.1476875,
-    "idc_surcharge": 0.34009564,
+    "capex_effective_eur_kw": 12000.0,
+    "idc_surcharge": 0.0,
     "crf": 0.05282818,
-    "annuity_eur_kw_a": 849.53783745,
+    "annuity_eur_kw_a": 633.93821433,
     "fixed_opex_eur_kw_a": 165.0
    }
   },
@@ -238,18 +297,18 @@
     "overrides": null
    },
    "expected": {
-    "lcoe_eur_mwh": 405.86985028,
+    "lcoe_eur_mwh": 262.86645213,
     "components_eur_mwh": {
-     "kapital": 354.20318361,
+     "kapital": 211.19978546,
      "fixbetrieb": 26.66666667,
      "brennstoff": 11.0,
      "entsorgung": 14.0,
      "co2": 0.0
     },
-    "capex_effective_eur_kw": 29349.25193972,
-    "idc_surcharge": 0.67710011,
+    "capex_effective_eur_kw": 17500.0,
+    "idc_surcharge": 0.0,
     "crf": 0.09051419,
-    "annuity_eur_kw_a": 2656.5238771,
+    "annuity_eur_kw_a": 1583.99839099,
     "fixed_opex_eur_kw_a": 200.0
    }
   },
@@ -292,11 +351,11 @@
     "overrides": null
    },
    "expected": {
-    "lcoe_eur_mwh": 187.25683148,
+    "lcoe_eur_mwh": 245.59016482,
     "components_eur_mwh": {
      "kapital": 74.65683148,
      "fixbetrieb": 32.0,
-     "brennstoff": 0.0,
+     "brennstoff": 58.33333333,
      "entsorgung": 0.0,
      "co2": 80.6
     },
@@ -319,11 +378,11 @@
     "overrides": null
    },
    "expected": {
-    "lcoe_eur_mwh": 250.31072039,
+    "lcoe_eur_mwh": 337.81072039,
     "components_eur_mwh": {
      "kapital": 60.98572039,
      "fixbetrieb": 28.125,
-     "brennstoff": 0.0,
+     "brennstoff": 87.5,
      "entsorgung": 0.0,
      "co2": 161.2
     },
@@ -362,6 +421,118 @@
     "annuity_eur_kw_a": 97.98709132,
     "fixed_opex_eur_kw_a": 42.0
    }
+  },
+  {
+   "id": "lcoe_nuclear_overrun_high",
+   "note": "v0.2/M7: Ueberschreitungsfaktor 2,2 auf den HIGH-Anker (Hinkley Point C, laufende Preise). overrun_applicable_share = 0 -> der Faktor darf NICHT wirken; ebenso kein IDC.",
+   "input": {
+    "tech_key": "nuclear",
+    "scenario": "teuer",
+    "wacc": 0.05,
+    "co2_price_eur_t": 0.0,
+    "apply_idc": true,
+    "overrides": {
+     "cost_overrun_factor": 2.2
+    }
+   },
+   "expected": {
+    "lcoe_eur_mwh": 174.93243056,
+    "components_eur_mwh": {
+     "kapital": 123.2657639,
+     "fixbetrieb": 26.66666667,
+     "brennstoff": 11.0,
+     "entsorgung": 14.0,
+     "co2": 0.0
+    },
+    "capex_effective_eur_kw": 17500.0,
+    "idc_surcharge": 0.0,
+    "crf": 0.05282818,
+    "annuity_eur_kw_a": 924.49322923,
+    "fixed_opex_eur_kw_a": 200.0
+   }
+  },
+  {
+   "id": "lcoe_nuclear_overrun_low",
+   "note": "v0.2/M7: derselbe Faktor auf den LOW-Anker (EPR2-Overnight-Schaetzung). overrun_applicable_share = 1 und idc_applicable_share = 1 -> beide wirken voll.",
+   "input": {
+    "tech_key": "nuclear",
+    "scenario": "guenstig",
+    "wacc": 0.05,
+    "co2_price_eur_t": 0.0,
+    "apply_idc": true,
+    "overrides": {
+     "cost_overrun_factor": 2.2
+    }
+   },
+   "expected": {
+    "lcoe_eur_mwh": 173.26431581,
+    "components_eur_mwh": {
+     "kapital": 146.01431581,
+     "fixbetrieb": 16.25,
+     "brennstoff": 6.0,
+     "entsorgung": 5.0,
+     "co2": 0.0
+    },
+    "capex_effective_eur_kw": 22111.57807031,
+    "idc_surcharge": 0.34009564,
+    "crf": 0.05282818,
+    "annuity_eur_kw_a": 1168.11452649,
+    "fixed_opex_eur_kw_a": 130.0
+   }
+  },
+  {
+   "id": "lcoe_gas_fuel_from_thermal",
+   "note": "v0.2/M2: Brennstoffpreis thermisch (35 EUR/MWh_th) ueber den Wirkungsgrad in EUR/MWh_el umgerechnet, plus CO2 bei 75 EUR/t.",
+   "input": {
+    "tech_key": "gas_ccgt",
+    "scenario": "mittel",
+    "wacc": 0.05,
+    "co2_price_eur_t": 75.0,
+    "apply_idc": false,
+    "overrides": null
+   },
+   "expected": {
+    "lcoe_eur_mwh": 189.94653075,
+    "components_eur_mwh": {
+     "kapital": 69.38819742,
+     "fixbetrieb": 32.0,
+     "brennstoff": 58.33333333,
+     "entsorgung": 0.0,
+     "co2": 30.225
+    },
+    "capex_effective_eur_kw": 1600.0,
+    "idc_surcharge": 0.0,
+    "crf": 0.06505144,
+    "annuity_eur_kw_a": 104.08229613,
+    "fixed_opex_eur_kw_a": 48.0
+   }
+  },
+  {
+   "id": "lcoe_gas_fuel_max",
+   "note": "v0.2/M2: teurer Szenariensatz -> Gaspreis 60 EUR/MWh_th bei niedrigerem Wirkungsgrad.",
+   "input": {
+    "tech_key": "gas_ccgt",
+    "scenario": "teuer",
+    "wacc": 0.05,
+    "co2_price_eur_t": 75.0,
+    "apply_idc": false,
+    "overrides": null
+   },
+   "expected": {
+    "lcoe_eur_mwh": 292.95527071,
+    "components_eur_mwh": {
+     "kapital": 104.06360404,
+     "fixbetrieb": 58.66666667,
+     "brennstoff": 100.0,
+     "entsorgung": 0.0,
+     "co2": 30.225
+    },
+    "capex_effective_eur_kw": 2200.0,
+    "idc_surcharge": 0.0,
+    "crf": 0.07095246,
+    "annuity_eur_kw_a": 156.09540606,
+    "fixed_opex_eur_kw_a": 88.0
+   }
   }
  ],
  "mix": [
@@ -386,15 +557,17 @@
      "h2_storage_gwh": 0.0,
      "h2_turbine_gw": 0.0,
      "gas_backup_gw": null
-    }
+    },
+    "bands_twh": null,
+    "grid_cost_basis": null
    },
    "expected": {
-    "lscoe_eur_mwh": 125.61259138,
-    "total_cost_bn_eur_a": 119.33184248,
+    "lscoe_eur_mwh": 146.30375189,
+    "total_cost_bn_eur_a": 138.98842531,
     "cost_components_eur_mwh": {
      "battery": 3.54542558,
-     "gas_backup": 33.14833822,
-     "netz": 31.94873335,
+     "gas_backup": 52.41429606,
+     "netz": 33.37393601,
      "pv": 17.83790539,
      "wind_offshore": 13.88774997,
      "wind_onshore": 25.24443888
@@ -403,6 +576,9 @@
      "pv": 276.69902913,
      "wind_onshore": 138.54166667,
      "wind_offshore": 37.5,
+     "hydro_band": 0.0,
+     "biomass_band": 0.0,
+     "coal_band": 0.0,
      "battery_power": 40.0,
      "battery_energy_gwh": 160.0,
      "electrolyser": 0.0,
@@ -411,6 +587,7 @@
      "h2_initial_fill_share": 0.0
     },
     "served_twh_a": 949.99905,
+    "emissions_mt_co2_a": 126.4451072,
     "dispatch": {
      "energy_twh": {
       "load": 476.13952386,
@@ -424,7 +601,11 @@
       "h2_produced": 0.0,
       "h2_reelectrified": 0.0,
       "gas_backup": 157.25629709,
-      "unserved": 0.0
+      "unserved": 0.0,
+      "nuclear_band": 0.0,
+      "hydro_band": 0.0,
+      "biomass_band": 0.0,
+      "coal_band": 0.0
      },
      "vre_potential_twh": {
       "pv": 128.934,
@@ -467,19 +648,21 @@
      "h2_turbine_gw": 25.0,
      "h2_initial_fill_share": 0.5,
      "gas_backup_gw": 20.0
-    }
+    },
+    "bands_twh": null,
+    "grid_cost_basis": null
    },
    "expected": {
-    "lscoe_eur_mwh": 160.28735713,
-    "total_cost_bn_eur_a": 144.69661102,
+    "lscoe_eur_mwh": 158.5260623,
+    "total_cost_bn_eur_a": 143.10663289,
     "cost_components_eur_mwh": {
      "battery": 2.33191368,
      "electrolyser": 7.66057379,
-     "gas_backup": 3.54446621,
+     "gas_backup": 6.6974135,
      "h2_storage": 9.5757483,
      "h2_turbine": 3.87675992,
-     "netz": 26.05670084,
-     "nuclear": 60.53024273,
+     "netz": 32.63814345,
+     "nuclear": 49.03455801,
      "pv": 13.76605061,
      "wind_offshore": 11.69192324,
      "wind_onshore": 21.25297779
@@ -489,6 +672,9 @@
      "wind_onshore": 110.83333333,
      "wind_offshore": 30.0,
      "nuclear": 48.13333333,
+     "hydro_band": 0.0,
+     "biomass_band": 0.0,
+     "coal_band": 0.0,
      "battery_power": 25.0,
      "battery_energy_gwh": 100.0,
      "electrolyser": 30.0,
@@ -498,6 +684,7 @@
      "gas_backup": 20.0
     },
     "served_twh_a": 902.73252746,
+    "emissions_mt_co2_a": 19.66364625,
     "dispatch": {
      "energy_twh": {
       "load": 476.13952386,
@@ -511,7 +698,11 @@
       "h2_produced": 21.70986624,
       "h2_reelectrified": 23.93214195,
       "gas_backup": 24.45513524,
-      "unserved": 23.6899811
+      "unserved": 23.6899811,
+      "nuclear_band": 181.98356164,
+      "hydro_band": 0.0,
+      "biomass_band": 0.0,
+      "coal_band": 0.0
      },
      "vre_potential_twh": {
       "pv": 94.5516,
@@ -527,6 +718,191 @@
      "h2_soc_max_gwh": 20000.0,
      "unserved_share": 0.04975428,
      "nuclear_band_gw": 41.21004566,
+     "seasonal_share_load": 0.5012
+    }
+   }
+  },
+  {
+   "id": "mix_ist_bands_grid",
+   "note": "Referenzsystem-Variante: Kohle-, Biomasse- und Wasserband als Jahresenergie, Netzkosten auf Basis des heutigen Netzentgelts. Prueft M3 (Netzaufteilung/Netzbasis), M5 (Emissionsausweis) und M6 (Baender) in einem Lauf.",
+   "input": {
+    "shares": {
+     "pv": 0.17,
+     "wind_onshore": 0.21,
+     "wind_offshore": 0.05
+    },
+    "demand_twh": 520.0,
+    "scenario": "mittel",
+    "co2_price": 75.0,
+    "apply_idc": true,
+    "grid_variant": "mid",
+    "storage": {
+     "battery_power_gw": 20.0,
+     "battery_energy_gwh": 80.0,
+     "gas_backup_gw": null
+    },
+    "bands_twh": {
+     "coal_band": 101.7,
+     "biomass_band": 42.7,
+     "hydro_band": 21.0
+    },
+    "grid_cost_basis": "ist_netzentgelt"
+   },
+   "expected": {
+    "lscoe_eur_mwh": 180.70814838,
+    "total_cost_bn_eur_a": 93.96814319,
+    "cost_components_eur_mwh": {
+     "battery": 3.2386099,
+     "coal_band": 11.01588121,
+     "gas_backup": 43.56959757,
+     "netz": 93.0,
+     "pv": 10.10814639,
+     "wind_offshore": 4.62924999,
+     "wind_onshore": 15.14666333
+    },
+    "capacities_gw": {
+     "pv": 85.82524272,
+     "wind_onshore": 45.5,
+     "wind_offshore": 6.84210526,
+     "hydro_band": 2.38342391,
+     "biomass_band": 4.84629529,
+     "coal_band": 11.54258152,
+     "battery_power": 20.0,
+     "battery_energy_gwh": 80.0,
+     "electrolyser": 0.0,
+     "h2_storage_gwh": 0.0,
+     "h2_turbine": 0.0,
+     "h2_initial_fill_share": 0.0
+    },
+    "served_twh_a": 519.99948,
+    "emissions_mt_co2_a": 137.20324046,
+    "dispatch": {
+     "energy_twh": {
+      "load": 260.62373938,
+      "served": 260.62373938,
+      "vre_generated": 105.34656994,
+      "band": 82.89848,
+      "curtailed": 2.68565419,
+      "battery_charge": 4.79105589,
+      "battery_discharge": 4.20710651,
+      "electrolysis_input": 0.0,
+      "h2_produced": 0.0,
+      "h2_reelectrified": 0.0,
+      "gas_backup": 75.648293,
+      "unserved": 0.0,
+      "nuclear_band": 0.0,
+      "hydro_band": 10.5252,
+      "biomass_band": 21.40124,
+      "coal_band": 50.97204
+     },
+     "vre_potential_twh": {
+      "pv": 39.99216,
+      "wind_onshore": 52.7982,
+      "wind_offshore": 12.571
+     },
+     "coverage_ratio": 1.0,
+     "curtailment_share_of_vre": 0.02549351,
+     "gas_peak_gw": 58.06581752,
+     "gas_full_load_hours": 1302.80251337,
+     "battery_soc_max_gwh": 80.0,
+     "h2_storage_required_gwh": 0.0,
+     "h2_soc_max_gwh": 0.0,
+     "unserved_share": 0.0,
+     "nuclear_band_gw": 0.0,
+     "seasonal_share_load": 0.5012
+    }
+   }
+  },
+  {
+   "id": "mix_grid_split_ee100",
+   "note": "Sehr hoher fEE-Anteil mit Abregelung: prueft, dass das Uebertragungsnetz mit der GENUTZTEN fEE-Energie skaliert und der Faktor auf 1,0 gedeckelt wird.",
+   "input": {
+    "shares": {
+     "pv": 0.62,
+     "wind_onshore": 0.63,
+     "wind_offshore": 0.24
+    },
+    "demand_twh": 950.0,
+    "scenario": "mittel",
+    "co2_price": 75.0,
+    "apply_idc": true,
+    "grid_variant": "mid",
+    "storage": {
+     "battery_power_gw": 60.0,
+     "battery_energy_gwh": 240.0,
+     "electrolyser_gw": 160.0,
+     "h2_storage_gwh": 120000.0,
+     "h2_turbine_gw": 90.0,
+     "h2_initial_fill_share": 1.0,
+     "gas_backup_gw": 20.0
+    },
+    "bands_twh": {},
+    "grid_cost_basis": "buildout_2045"
+   },
+   "expected": {
+    "lscoe_eur_mwh": 231.86350257,
+    "total_cost_bn_eur_a": 219.9638809,
+    "cost_components_eur_mwh": {
+     "battery": 5.3255421,
+     "electrolyser": 38.87766187,
+     "gas_backup": 3.72845647,
+     "h2_storage": 25.98900582,
+     "h2_turbine": 13.28041107,
+     "netz": 39.99151413,
+     "pv": 36.91632669,
+     "wind_offshore": 22.25133443,
+     "wind_onshore": 45.50325
+    },
+    "capacities_gw": {
+     "pv": 571.84466019,
+     "wind_onshore": 249.375,
+     "wind_offshore": 60.0,
+     "hydro_band": 0.0,
+     "biomass_band": 0.0,
+     "coal_band": 0.0,
+     "battery_power": 60.0,
+     "battery_energy_gwh": 240.0,
+     "electrolyser": 160.0,
+     "h2_storage_gwh": 120000.0,
+     "h2_turbine": 90.0,
+     "h2_initial_fill_share": 1.0,
+     "gas_backup": 20.0
+    },
+    "served_twh_a": 948.67833209,
+    "emissions_mt_co2_a": 1.53540121,
+    "dispatch": {
+     "energy_twh": {
+      "load": 476.13952386,
+      "served": 475.47758004,
+      "vre_generated": 665.97949437,
+      "band": 0.0,
+      "curtailed": 115.74684241,
+      "battery_charge": 25.83563545,
+      "battery_discharge": 22.51021924,
+      "electrolysis_input": 141.59795347,
+      "h2_produced": 93.45464929,
+      "h2_reelectrified": 68.25876158,
+      "gas_backup": 1.90953619,
+      "unserved": 0.66194382,
+      "nuclear_band": 0.0,
+      "hydro_band": 0.0,
+      "biomass_band": 0.0,
+      "coal_band": 0.0
+     },
+     "vre_potential_twh": {
+      "pv": 266.4636,
+      "wind_onshore": 289.37475,
+      "wind_offshore": 110.238
+     },
+     "coverage_ratio": 0.99860977,
+     "curtailment_share_of_vre": 0.17379941,
+     "gas_peak_gw": 20.0,
+     "gas_full_load_hours": 95.47680944,
+     "battery_soc_max_gwh": 240.0,
+     "h2_storage_required_gwh": 42077.2486769,
+     "h2_soc_max_gwh": 120000.0,
+     "unserved_share": 0.00139023,
+     "nuclear_band_gw": 0.0,
      "seasonal_share_load": 0.5012
     }
    }

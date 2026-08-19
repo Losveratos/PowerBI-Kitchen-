@@ -124,6 +124,65 @@ def idc_surcharge(wacc: float, construction_years: float | None) -> float:
     return (1.0 + wacc) ** (construction_years / 2.0) - 1.0
 
 
+def _fuel_eur_mwh_el(tech_params: dict) -> tuple[float, str]:
+    """Brennstoffkosten je MWh_el.
+
+    Modell v0.2 (M2): Fuer thermische Technologien wird der Brennstoffpreis
+    THERMISCH gefuehrt (`fuel_eur_mwh_th`) und ueber den Wirkungsgrad in
+    EUR/MWh_el umgerechnet. Ein direkt gesetzter elektrischer Wert
+    (`fuel_eur_mwh`, z. B. Kernbrennstoff) hat Vorrang.
+    """
+    direct = tech_params.get("fuel_eur_mwh")
+    if direct is not None:
+        return float(direct), "direkt (EUR/MWh_el)"
+    th = tech_params.get("fuel_eur_mwh_th")
+    if th is None:
+        return 0.0, "nicht gesetzt (0)"
+    eta = tech_params.get("efficiency") or tech_params.get("efficiency_lhv")
+    if not eta:
+        return 0.0, "thermisch gesetzt, aber kein Wirkungsgrad hinterlegt (0)"
+    return float(th) / float(eta), f"thermisch {float(th):.1f} EUR/MWh_th / eta {float(eta):.3f}"
+
+
+def _share(tech_params: dict, key: str) -> float:
+    """Anwendungsanteil 0..1 (Default 1.0, wenn das Feld fehlt)."""
+    v = tech_params.get(key)
+    if v is None:
+        return 1.0
+    v = float(v)
+    return 0.0 if v < 0.0 else (1.0 if v > 1.0 else v)
+
+
+def scope_share_for_capex(capex_entry: dict, share_entry: dict, capex_value: float) -> float:
+    """Anwendungsanteil (IDC bzw. Ueberschreitung) fuer einen GEZOGENEN CAPEX.
+
+    Die drei Stuetzstellen min/mid/max eines CAPEX-Parameters koennen auf
+    unterschiedlichen Kostenabgrenzungen ruhen (Kernkraft: overnight bei 7.500,
+    Gesamtprojekt bei 12.000/17.500). Zwischen den Stuetzstellen wird der
+    Anteil linear interpoliert, damit eine Monte-Carlo-Ziehung keinen Sprung
+    bekommt. Ausserhalb der Stuetzstellen wird geklemmt.
+    """
+    if not isinstance(share_entry, dict):
+        return 1.0
+    xs = [capex_entry.get("min"), capex_entry.get("mid"), capex_entry.get("max")]
+    ys = [share_entry.get("min"), share_entry.get("mid"), share_entry.get("max")]
+    pts = [(float(x), float(y)) for x, y in zip(xs, ys) if x is not None and y is not None]
+    if not pts:
+        return 1.0
+    pts.sort(key=lambda p: p[0])
+    x = float(capex_value)
+    if x <= pts[0][0]:
+        return pts[0][1]
+    if x >= pts[-1][0]:
+        return pts[-1][1]
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        if x0 <= x <= x1:
+            if x1 == x0:
+                return y1
+            return y0 + (y1 - y0) * (x - x0) / (x1 - x0)
+    return pts[-1][1]
+
+
 def lcoe(tech_params: dict, wacc: float, co2_price: float = 0.0) -> dict:
     """Stromgestehungskosten einer Technologie (Annuitaetenmethode).
 
@@ -145,10 +204,21 @@ def lcoe(tech_params: dict, wacc: float, co2_price: float = 0.0) -> dict:
     if flh <= 0:
         raise ValueError("full_load_hours muss > 0 sein")
 
+    # --- Modell v0.2: Kostenabgrenzung der CAPEX-Anker beachten -----------
+    # M1: Bauzinsen duerfen nur auf Anker gelegt werden, die die Finanzierung
+    #     noch nicht enthalten (idc_applicable_share).
+    # M7: Der empirische Ueberschreitungsfaktor gilt nur fuer Anker, die eine
+    #     Schaetzung sind - nicht fuer bereits realisierte Ist-Kosten
+    #     (overrun_applicable_share).
     overrun = float(tech_params.get("cost_overrun_factor") or 1.0)
+    overrun_share = _share(tech_params, "overrun_applicable_share")
+    overrun_eff = 1.0 + (overrun - 1.0) * overrun_share
+
     apply_idc = bool(tech_params.get("apply_idc", False))
-    idc = idc_surcharge(wacc, tech_params.get("construction_years")) if apply_idc else 0.0
-    capex_eff = capex * overrun * (1.0 + idc)
+    idc_gross = idc_surcharge(wacc, tech_params.get("construction_years")) if apply_idc else 0.0
+    idc_share = _share(tech_params, "idc_applicable_share")
+    idc = idc_gross * idc_share
+    capex_eff = capex * overrun_eff * (1.0 + idc)
 
     annuity_eur_kw_a = capex_eff * crf(wacc, n)
 
@@ -166,7 +236,7 @@ def lcoe(tech_params: dict, wacc: float, co2_price: float = 0.0) -> dict:
     per_mwh = flh / 1000.0  # MWh je kW und Jahr
     capital = annuity_eur_kw_a / per_mwh
     fixed_opex = fixed_opex_eur_kw_a / per_mwh
-    fuel = float(tech_params.get("fuel_eur_mwh") or 0.0)
+    fuel, fuel_basis = _fuel_eur_mwh_el(tech_params)
     waste = float(tech_params.get("waste_eur_mwh") or 0.0)
     ef = float(tech_params.get("emission_factor_t_mwh") or 0.0)
     co2 = co2_price * ef
@@ -181,7 +251,15 @@ def lcoe(tech_params: dict, wacc: float, co2_price: float = 0.0) -> dict:
             "co2": co2,
         },
         "capex_effective_eur_kw": capex_eff,
+        # `idc_surcharge` ist der TATSAECHLICH angewandte Aufschlag (v0.2:
+        # bereits mit dem Abgrenzungsanteil multipliziert). Der ungekuerzte
+        # Wert steht daneben, damit der Unterschied sichtbar bleibt.
         "idc_surcharge": idc,
+        "idc_surcharge_gross": idc_gross,
+        "idc_applicable_share": idc_share,
+        "cost_overrun_factor_effective": overrun_eff,
+        "overrun_applicable_share": overrun_share,
+        "fuel_basis": fuel_basis,
         "crf": crf(wacc, n),
         "annuity_eur_kw_a": annuity_eur_kw_a,
         "fixed_opex_eur_kw_a": fixed_opex_eur_kw_a,
@@ -201,7 +279,12 @@ _SCENARIO_FIELD_MAP = {
     "full_load_hours": "full_load_hours",
     "lifetime_years": "lifetime_years",
     "fuel_eur_mwh": "fuel",
+    "fuel_eur_mwh_th": "fuel",
     "waste_eur_mwh": "waste",
+    # v0.2: Kostenabgrenzung folgt der CAPEX-Stuetzstelle
+    "capex_scope": "capex",
+    "idc_applicable_share": "capex",
+    "overrun_applicable_share": "capex",
 }
 
 
@@ -261,6 +344,7 @@ DEFAULT_CAPACITY_KEYS = (
     "nuclear",
     "hydro_band",
     "biomass_band",
+    "coal_band",
     "battery_power",
     "electrolyser",
     "h2_turbine",
@@ -376,7 +460,10 @@ def dispatch(
         band_mw += nuclear_band_mw
     hydro_mw = float(capacities_gw.get("hydro_band") or 0.0) * MW_PER_GW
     bio_mw = float(capacities_gw.get("biomass_band") or 0.0) * MW_PER_GW
-    band_mw += hydro_mw + bio_mw
+    # v0.2 (M6): Kohle als Bestandsband, damit der Ist-Anker nicht seine
+    # gesamte Residuallast aus Gas decken muss.
+    coal_mw = float(capacities_gw.get("coal_band") or 0.0) * MW_PER_GW
+    band_mw += hydro_mw + bio_mw + coal_mw
 
     # ---- Speicher- und Backup-Parameter ----------------------------------
     bat_power_mw = float(capacities_gw.get("battery_power") or 0.0) * MW_PER_GW
@@ -520,6 +607,11 @@ def dispatch(
             "h2_reelectrified": twh(tot["h2_reelec"]),
             "gas_backup": twh(tot["gas"]),
             "unserved": twh(tot["unserved"]),
+            # Bandkomponenten getrennt (v0.2/M6) - Grundlage der Emissionsrechnung
+            "nuclear_band": twh(nuclear_band_mw * hours),
+            "hydro_band": twh(hydro_mw * hours),
+            "biomass_band": twh(bio_mw * hours),
+            "coal_band": twh(coal_mw * hours),
         },
         "vre_potential_twh": {k: twh(v) for k, v in vre_potential.items()},
         "coverage_ratio": served / tot["load"] if tot["load"] else 0.0,
@@ -560,6 +652,70 @@ def _annual_fixed_cost_eur_kw(tech_flat: dict, wacc: float) -> float:
     return res["annuity_eur_kw_a"] + res["fixed_opex_eur_kw_a"]
 
 
+MODEL_VERSION = "0.2"
+
+# Maschinenlesbare Limitationen (v0.2). Sie gehen unveraendert in
+# data/test_vectors.json, data/monte_carlo_reference.json und ueber
+# build_story_data.py in die Seite - damit keine Einschraenkung nur im
+# Fliesstext lebt.
+LIMITATIONS = [
+    {"id": "ccs_not_modelled", "severity": "hoch",
+     "text": "CCS ist nicht modelliert. Die geprueften GES-Szenarien rechnen ihren Gas-Pfad mit CCS. "
+             "Die hier verglichenen Szenarien sind deshalb NICHT emissionsaequivalent - die "
+             "Restemissionen je Szenario stehen in `emissions`.",
+     "affects": "alle Szenarien mit Gas-Backup", "ref_field": "gaps.ccs_nicht_modelliert"},
+    {"id": "emission_factor_proxy", "severity": "mittel",
+     "text": "Der Emissionsfaktor fuer Gas (0,403 t/MWh_el) und Kohle (0,751 t/MWh_el) ist die "
+             "UNECE-Lebenszyklus-Untergrenze, kein direkter Verbrennungsfaktor. Fuer die "
+             "ETS-Bepreisung ueberschaetzt das die CO2-Kosten um rund 10-20 %.",
+     "affects": "CO2-Kosten und Mt-Ausweis", "ref_field": "gaps.emissionsfaktor_direkt"},
+    {"id": "grid_opex_missing", "severity": "hoch",
+     "text": "Netzbetrieb, Instandhaltung, Verluste und Redispatch sind nicht enthalten - nur die "
+             "Investitionsannuitaet. Der Netzblock der Zukunftsszenarien ist eine Untergrenze.",
+     "affects": "alle Zukunftsszenarien", "ref_field": "gaps.netz_opex"},
+    {"id": "overrun_asymmetry", "severity": "hoch",
+     "text": "Der empirische Ueberschreitungsfaktor ist fuer Batterie, Elektrolyse, H2-Speicher und "
+             "H2-Turbine NICHT gemessen (Faktor 1,00 = Datenluecke). Das Ueberschreitungs-Szenario "
+             "stresst deshalb die Kernkraft- und Netzseite staerker als die Speicher-/H2-Seite.",
+     "affects": "Konfigurationen mit Kostenueberschreitung",
+     "ref_field": "system.cost_overrun_factors.unmeasured_technologies"},
+    {"id": "grid_allocation_assumption", "severity": "mittel",
+     "text": "Die Aufteilung 328 Mrd. (Uebertragung) / 323 Mrd. (Verteilung) ist quellenbelegt, die "
+             "ZUORDNUNG der Treiber (Transport vs. Elektrifizierung) ist eine begruendete "
+             "Modellannahme. Keine raeumliche Netzsimulation, keine ueberproportionale Kostenkurve.",
+     "affects": "alle Szenarien", "ref_field": "system.grid.scaling_rule"},
+    {"id": "gas_price_transfer", "severity": "mittel",
+     "text": "Der Erdgaspreis (20/35/60 EUR/MWh_th) ist eine Marktspanne von August 2026. Die "
+             "Uebertragbarkeit auf ein Zieljahr 2045 ist nicht belegt (Konfidenz C).",
+     "affects": "alle Szenarien mit Gas-Backup", "ref_field": "technologies.gas_ccgt.params.fuel_eur_mwh_th"},
+    {"id": "h2_initial_fill_free", "severity": "hoch",
+     "text": "Der Saisonspeicher startet in den H2-Presets gefuellt; die Stromkosten dieser "
+             "Anfangsfuellung liegen ausserhalb des abgedeckten Halbjahres und sind NICHT enthalten. "
+             "Die H2-Pfade sind insoweit eine Untergrenze - das ist die Gegenrichtung zur "
+             "Gas-Asymmetrie und bleibt auch nach M2 bestehen.",
+     "affects": "ee80_h2, ee100", "ref_field": "model.mix_system (h2_initial_fill_share)"},
+    {"id": "half_year_profile", "severity": "hoch",
+     "text": "Das Stundenprofil deckt nur Jul-Dez 2024 ab (4.416 von 8.784 h) und enthaelt den "
+             "Sommerueberschuss nicht, aus dem Saisonspeicher befuellt werden.",
+     "affects": "alle Szenarien, H2-Pfade am staerksten", "ref_field": "gaps.profile_partial"},
+]
+
+
+def model_limitations(grid_cost_basis: str = "buildout_2045") -> list[dict]:
+    out = [dict(x) for x in LIMITATIONS]
+    if grid_cost_basis == "ist_netzentgelt":
+        out.append({
+            "id": "ist_anchor_not_comparable", "severity": "hoch",
+            "text": "Dieser Lauf verwendet das heutige Netzentgelt (Bestandsnetz inkl. Betrieb) statt "
+                    "der Netzinvestition bis 2045 (nur Zusatzinvestition). Die beiden Netzbloecke "
+                    "haben unterschiedliche Systemgrenzen - der Anker ist ein Groessenordnungs-Bezug, "
+                    "kein Ranking-Teilnehmer. Zusaetzlich laufen die Bestandsbaender Kohle, Biomasse "
+                    "und Wasser ohne Kapital- und Betriebskosten.",
+            "affects": "Ist-2025-Anker", "ref_field": "system.grid.ist_2025_eur_mwh",
+        })
+    return out
+
+
 def mix_system(
     shares: dict,
     demand_twh: float,
@@ -572,6 +728,8 @@ def mix_system(
     apply_idc: bool = True,
     gas_tech: str = "gas_ccgt",
     firm_tech: str = "nuclear",
+    bands_twh: dict | None = None,
+    grid_cost_basis: str = "buildout_2045",
 ) -> dict:
     """Systemkosten (LSCOE) eines gewaehlten Mixes.
 
@@ -606,6 +764,20 @@ def mix_system(
         flh = float(techs[tech_key]["full_load_hours"])
         energy_mwh = share * demand_twh * MWH_PER_TWH
         capacities_gw[share_key] = energy_mwh / flh / MW_PER_GW
+
+    # Bestandsbaender (v0.2/M6): als JAHRESENERGIE vorgegeben, hier in die
+    # konstante Bandleistung des abgedeckten Zeitraums umgerechnet.
+    bands_twh = dict(bands_twh or {})
+    share_load_cfg = (profiles["series"]["load_mw"].get("seasonal_share") or 1.0)
+    for band_key in ("hydro_band", "biomass_band", "coal_band"):
+        energy_twh = float(bands_twh.get(band_key) or 0.0)
+        if energy_twh <= 0:
+            capacities_gw[band_key] = 0.0
+            continue
+        # Jahresenergie -> MW-Band: E_a * share_load / Stunden des Zeitraums
+        capacities_gw[band_key] = (
+            energy_twh * MWH_PER_TWH * share_load_cfg / profiles["hours"] / MW_PER_GW
+        )
 
     capacities_gw["battery_power"] = storage.get("battery_power_gw", 0.0)
     capacities_gw["battery_energy_gwh"] = storage.get("battery_energy_gwh", 0.0)
@@ -656,7 +828,7 @@ def mix_system(
             # variable Kosten auf die tatsaechlich erzeugte (nicht abgeregelte) Energie
             gen_twh = disp["vre_potential_twh"].get(share_key)
             if gen_twh is None:
-                gen_twh = disp["energy_twh"]["band"] if share_key == "nuclear" else 0.0
+                gen_twh = disp["energy_twh"]["nuclear_band"] if share_key == "nuclear" else 0.0
             cost[share_key] = cost.get(share_key, 0.0) + var * gen_twh * annualize * MWH_PER_TWH
 
     # Backup (Gas): Kapazitaet aus dem Dispatch, nicht pauschal
@@ -666,18 +838,19 @@ def mix_system(
     if gas_gw > 0:
         add_capacity_cost("gas_backup", gas_tech, gas_gw)
         flat = techs[gas_tech]
-        fuel = flat.get("fuel_eur_mwh")
-        if fuel is None:
+        # v0.2 (M2): Brennstoffpreis thermisch, ueber den Wirkungsgrad umgerechnet.
+        fuel, fuel_basis = _fuel_eur_mwh_el(flat)
+        if not fuel:
             warnings.append(
-                "Gas-Brennstoffkosten fehlen in den Dossiers (gaps.gaspreis_erdgas) - "
-                "im Ergebnis mit 0 EUR/MWh angesetzt. Das LSCOE ist insoweit eine UNTERGRENZE."
+                "Gas-Brennstoffkosten konnten nicht bestimmt werden - im Ergebnis mit 0 EUR/MWh "
+                "angesetzt. Das LSCOE ist insoweit eine UNTERGRENZE."
             )
-            fuel = 0.0
         ef = float(flat.get("emission_factor_t_mwh") or 0.0)
         gas_twh = disp["energy_twh"]["gas_backup"] * annualize
         cost["gas_backup"] = cost.get("gas_backup", 0.0) + (float(fuel) + co2_price * ef) * gas_twh * MWH_PER_TWH
         detail.setdefault("gas_backup", {})
-        detail["gas_backup"].update({"generation_twh_a": gas_twh, "flh": disp["gas_full_load_hours"] * annualize})
+        detail["gas_backup"].update({"generation_twh_a": gas_twh, "flh": disp["gas_full_load_hours"] * annualize,
+                                     "fuel_eur_mwh_el": fuel, "fuel_basis": fuel_basis})
 
     # Speicher
     if capacities_gw["battery_energy_gwh"]:
@@ -709,19 +882,135 @@ def mix_system(
     if capacities_gw["h2_turbine"]:
         add_capacity_cost("h2_turbine", "h2_turbine", capacities_gw["h2_turbine"])
 
-    # Netzausbau (top-down, linear mit dem fEE-Anteil - wie GES, inkl. Limitation)
-    fee_share = sum(v for k, v in shares.items() if k in VRE_TECHS)
+    # --- Bestandsbaender: nur CO2-Kosten (v0.2/M6) ------------------------
+    legacy = params["system"].get("legacy_bands", {})
+    legacy_map = {"coal_band": "coal", "biomass_band": "biomass", "hydro_band": "hydro"}
+    for band_key, legacy_key in legacy_map.items():
+        band_twh = disp["energy_twh"].get(band_key, 0.0) * annualize
+        if band_twh <= 0:
+            continue
+        ef = float((legacy.get(legacy_key, {}).get("emission_factor_t_mwh") or {}).get("value") or 0.0)
+        if ef:
+            cost[band_key] = cost.get(band_key, 0.0) + co2_price * ef * band_twh * MWH_PER_TWH
+        detail[band_key] = {"generation_twh_a": band_twh, "emission_factor_t_mwh": ef,
+                            "note": "Bestandsanlage: nur CO2-Kosten, keine Kapital-/Betriebskosten "
+                                    "(in keinem Dossier belegt) - ausgewiesene Untergrenze."}
+        if band_twh > 0 and legacy_key in ("coal", "biomass"):
+            warnings.append(
+                f"Bestandsband {legacy_key}: {band_twh:.1f} TWh/a laufen ohne Kapital- und "
+                "Betriebskosten in die Rechnung (keine Kostenparameter in den Dossiers, "
+                "gaps.hydro_biomasse_band). Das LSCOE ist insoweit eine UNTERGRENZE."
+            )
+
+    # --- Netzkosten (v0.2/M3: Uebertragung + Verteilnetz getrennt) ---------
     grid = params["system"]["grid"]
-    invest_bn = _pick(grid["investment_bn_eur_until_2045"], grid_variant if grid_variant in ("min", "mid", "max") else "mid")
+    variant = grid_variant if grid_variant in ("min", "mid", "max") else "mid"
     grid_life = grid["lifetime_years"]["value"]
+    grid_crf = crf(wacc, grid_life)
+
+    # Genutzte (nicht abgeregelte) fEE-Energie. Abregelung wird zwischen fEE
+    # und Must-run-Band anteilig aufgeteilt, weil im Kernkraft-Preset ein Teil
+    # des Ueberschusses aus dem Band stammt.
+    vre_gen = disp["energy_twh"]["vre_generated"] * annualize
+    band_gen = disp["energy_twh"]["band"] * annualize
+    curt = disp["energy_twh"]["curtailed"] * annualize
+    vre_used = vre_gen - (curt * vre_gen / (vre_gen + band_gen) if (vre_gen + band_gen) else 0.0)
+    fee_share_generated = sum(v for k, v in shares.items() if k in VRE_TECHS)
+    fee_share_used = vre_used / demand_twh if demand_twh else 0.0
+
     ref_share = grid["reference_fee_share"]["value"]
-    cost["netz"] = invest_bn * 1e9 * crf(wacc, grid_life) * (fee_share / ref_share)
-    detail["netz"] = {"invest_bn_eur": invest_bn, "fee_share": fee_share,
-                      "note": "linear mit fEE-Anteil skaliert (GES-Vereinfachung, keine raeumliche Netzsimulation)"}
+    ref_demand = grid["reference_demand_twh"]["value"]
+
+    if grid_cost_basis == "ist_netzentgelt":
+        # M6: Der Ist-Anker traegt NICHT die Netzinvestition bis 2045, sondern
+        # das dokumentierte heutige Netzentgelt.
+        ist_grid = _pick(grid["ist_2025_eur_mwh"], variant)
+        served_probe = disp["energy_twh"]["served"] * annualize
+        cost["netz"] = float(ist_grid) * served_probe * MWH_PER_TWH
+        detail["netz"] = {
+            "basis": "ist_netzentgelt",
+            "eur_mwh": float(ist_grid),
+            "note": "Heutiges Netzentgelt (9,3 ct/kWh Haushalt 2026). ANDERE SYSTEMGRENZE als der "
+                    "Ausbaublock der Zukunftsszenarien: Bestandsnetz inkl. Betrieb statt "
+                    "Zusatzinvestition. Der Anker ist deshalb nicht direkt vergleichbar.",
+        }
+        grid_scaling_raw = {"transmission": None, "distribution": None}
+    elif grid_cost_basis == "none":
+        cost["netz"] = 0.0
+        detail["netz"] = {"basis": "none", "note": "Netzkosten bewusst ausgeschlossen (Kontrastlauf)."}
+        grid_scaling_raw = {"transmission": None, "distribution": None}
+    elif grid_cost_basis == "legacy_fee_linear":
+        # Regel aus Modell v0.1 (GES-Konvention): das GESAMTE Netzbudget linear
+        # mit dem ERZEUGTEN fEE-Anteil, ungedeckelt. Nur noch als Vergleichs-
+        # und Sensitivitaetslauf vorgehalten (Persona-Review 04, K1).
+        invest_bn = _pick(grid["investment_bn_eur_until_2045"], variant)
+        cost["netz"] = invest_bn * 1e9 * grid_crf * (fee_share_generated / ref_share)
+        detail["netz"] = {"basis": "legacy_fee_linear", "invest_bn_eur": invest_bn,
+                          "fee_share": fee_share_generated,
+                          "note": "v0.1-Konvention: linear mit dem erzeugten fEE-Anteil, ungedeckelt."}
+        grid_scaling_raw = {"transmission": fee_share_generated / ref_share if ref_share else None,
+                            "distribution": None}
+    else:
+        trans_bn = _pick(grid["transmission_bn_eur_until_2045"], variant)
+        dist_bn = _pick(grid["distribution_bn_eur_until_2045"], variant)
+        raw_t = (fee_share_used / ref_share) if ref_share else 0.0
+        raw_d = (demand_twh / ref_demand) if ref_demand else 0.0
+        scale_t, scale_d = min(1.0, raw_t), min(1.0, raw_d)
+        cost_t = trans_bn * 1e9 * grid_crf * scale_t
+        cost_d = dist_bn * 1e9 * grid_crf * scale_d
+        cost["netz"] = cost_t + cost_d
+        detail["netz"] = {
+            "basis": "buildout_2045",
+            "transmission_bn_eur": trans_bn, "distribution_bn_eur": dist_bn,
+            "fee_share_generated": fee_share_generated,
+            "fee_share_used": fee_share_used,
+            "scaling_transmission": scale_t, "scaling_distribution": scale_d,
+            "scaling_transmission_raw": raw_t, "scaling_distribution_raw": raw_d,
+            "cost_transmission_bn_eur_a": cost_t / 1e9,
+            "cost_distribution_bn_eur_a": cost_d / 1e9,
+            "note": "Uebertragungsnetz skaliert mit der GENUTZTEN fEE-Energie (abgeregelte Energie "
+                    "erzeugt keinen Transportbedarf), Verteilnetz als mixunabhaengiger Sockel mit "
+                    "dem Jahresbedarf. Beide Faktoren sind auf 1,0 gedeckelt. Netzbetrieb, "
+                    "Redispatch und Verluste sind NICHT enthalten (gaps.netz_opex).",
+        }
+        grid_scaling_raw = {"transmission": raw_t, "distribution": raw_d}
+        if raw_t > 1.0:
+            warnings.append(
+                f"Uebertragungsnetz-Skalierung {raw_t:.2f} auf 1,00 gedeckelt - das Szenario wuerde "
+                "sonst mehr als das gesamte nationale Uebertragungsnetzbudget tragen."
+            )
+        if raw_d > 1.0:
+            warnings.append(
+                f"Verteilnetz-Skalierung {raw_d:.2f} auf 1,00 gedeckelt "
+                f"(Bedarf ueber dem Referenzbedarf von {ref_demand:.0f} TWh)."
+            )
 
     served_twh_a = disp["energy_twh"]["served"] * annualize
     total = sum(cost.values())
     lscoe = total / (served_twh_a * MWH_PER_TWH) if served_twh_a else float("nan")
+
+    # --- Restemissionen (v0.2/M5) -----------------------------------------
+    ef_gas = float(techs[gas_tech].get("emission_factor_t_mwh") or 0.0)
+    gas_twh_a = disp["energy_twh"]["gas_backup"] * annualize
+    coal_twh_a = disp["energy_twh"].get("coal_band", 0.0) * annualize
+    ef_coal = float((legacy.get("coal", {}).get("emission_factor_t_mwh") or {}).get("value") or 0.0)
+    emissions = {
+        "gas_mt_co2_a": gas_twh_a * ef_gas,
+        "coal_mt_co2_a": coal_twh_a * ef_coal,
+        "total_mt_co2_a": gas_twh_a * ef_gas + coal_twh_a * ef_coal,
+        "g_co2_per_kwh_delivered": (
+            (gas_twh_a * ef_gas + coal_twh_a * ef_coal) * 1e6 / (served_twh_a * 1e6) * 1000.0
+            if served_twh_a else 0.0
+        ),
+        "emission_factor_gas_t_mwh": ef_gas,
+        "emission_factor_coal_t_mwh": ef_coal,
+        "factor_status": "PROXY - UNECE-Lebenszyklus-Untergrenze statt direktem Verbrennungsfaktor "
+                         "(gaps.emissionsfaktor_direkt). Der direkte ETS-Faktor liegt bei eta = 0,58-0,60 "
+                         "rund 10-20 % niedriger.",
+        "ccs": "NICHT MODELLIERT (gaps.ccs_nicht_modelliert). Die geprueften GES-Szenarien rechnen "
+               "ihren Gas-Pfad mit CCS; dieses Modell tut das nicht. Die Szenarien sind damit NICHT "
+               "emissionsaequivalent - der Kostenvergleich haengt insoweit.",
+    }
 
     if disp["energy_twh"]["unserved"] > 0:
         warnings.append(
@@ -751,6 +1040,12 @@ def mix_system(
         "scenario": scenario,
         "wacc": wacc,
         "co2_price_eur_t": co2_price,
+        "emissions": emissions,
+        "emissions_mt_co2_a": emissions["total_mt_co2_a"],
+        "grid_cost_basis": grid_cost_basis,
+        "grid_scaling_raw": grid_scaling_raw,
+        "comparable_to_target_scenarios": grid_cost_basis == "buildout_2045",
+        "limitations": model_limitations(grid_cost_basis),
         "detail": detail,
         "warnings": warnings,
     }
