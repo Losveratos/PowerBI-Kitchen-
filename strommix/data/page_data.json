@@ -1395,6 +1395,65 @@
    ]
   }
  },
+ "co2_kipppunkt": {
+  "_source": "research/modell_v02c_ergebnis.md 6.4 (Modellstand v0.2c)",
+  "_method": "Szenariensatz mittel, WACC 5 %, Netzvariante mid, Uebertragungsnetz-Sockelquote 0,40; variiert wird ausschliesslich der CO2-Preis. Deterministisch per Bisektion, probabilistisch als Median-Delta = 0 ueber 1.000 gepaarte Ziehungen.",
+  "_confidence": "B",
+  "deterministisch_eur_t": 101.8,
+  "gepaarte_ziehungen_median_eur_t": 152,
+  "mit_ccs_beidseitig": null,
+  "mit_ccs_note": "Mit Abscheidung auf beiden Seiten existiert kein Kipppunkt: Der Kernkraft-Pfad liegt bei jedem CO2-Preis vorn (Delta -13,6 EUR/MWh bei 0 EUR/t, -62,9 bei 2.000 EUR/t).",
+  "ets1_markt_eur_t": 74,
+  "modellwert_eur_t": 75,
+  "superseded_v02b_eur_t": 47.5,
+  "superseded_note": "Modellstand v0.2b wies 47,5 EUR/t aus. Der Wert ist mit dem Uebertragungsnetz-Sockel (v0.2c, Fix 1) auf 101,8 EUR/t gestiegen; der ETS-1-Marktpreis liegt damit UNTER der Kippmarke, nicht darueber.",
+  "levels": [
+   {
+    "co2_eur_t": 0,
+    "label": "kein CO2-Preis",
+    "ist2025": 161.2,
+    "kostenminimum": 156.8,
+    "kostenminimum_ccs": 168.9,
+    "ee80_gas": 148.4,
+    "ee80_gas_ccs": 182.5,
+    "ee80_h2": 199.1,
+    "ee100": 245.1
+   },
+   {
+    "co2_eur_t": 75,
+    "label": "Modellwert (ETS-1-Marktniveau)",
+    "ist2025": 180.8,
+    "kostenminimum": 159.0,
+    "kostenminimum_ccs": 169.6,
+    "ee80_gas": 156.8,
+    "ee80_gas_ccs": 185.0,
+    "ee80_h2": 199.5,
+    "ee100": 245.2
+   },
+   {
+    "co2_eur_t": 350,
+    "label": "UBA-Klimakostensatz MK 3.2 (1 % Diskontierung)",
+    "ist2025": 252.8,
+    "kostenminimum": 167.1,
+    "kostenminimum_ccs": 172.0,
+    "ee80_gas": 187.7,
+    "ee80_gas_ccs": 194.1,
+    "ee80_h2": 200.9,
+    "ee100": 245.5
+   },
+   {
+    "co2_eur_t": 990,
+    "label": "UBA-Klimakostensatz MK 4.0 (Zentralwert)",
+    "ist2025": 420.2,
+    "kostenminimum": 185.9,
+    "kostenminimum_ccs": 177.6,
+    "ee80_gas": 259.4,
+    "ee80_gas_ccs": 215.5,
+    "ee80_h2": 204.1,
+    "ee100": 246.4
+   }
+  ]
+ },
  "dunkelflaute": {
   "definitionen": [
    {
@@ -2034,11 +2093,11 @@
   },
   "model_reproduction": {
    "_source": "research/validierung_modell.md (c) - erzeugt von scripts/validate_model.py",
-   "_note": "Gerechnet mit den GES-Kostenannahmen fuer die Erzeuger, WACC 5 %, ohne IDC, Bedarf 950 TWh, ohne CO2-Preis. Backup, Speicher und Netz stammen aus dem eigenen Parametersatz, weil die GES-Studie ihre Kostenaufschluesselung nur als Grafik veroeffentlicht. Werte auf Modellstand v0.2b (Gaspreis und Netzaufteilung wirken hier mit) - Test (c) ist ein Modelltest, kein Reproduktionstest; die LCOE-Reproduktion selbst ist unveraendert.",
+   "_note": "Gerechnet mit den GES-Kostenannahmen fuer die Erzeuger, WACC 5 %, ohne IDC, Bedarf 950 TWh, ohne CO2-Preis. Backup, Speicher und Netz stammen aus dem eigenen Parametersatz, weil die GES-Studie ihre Kostenaufschluesselung nur als Grafik veroeffentlicht. Werte auf Modellstand v0.2c (Gaspreis, Netzaufteilung und der neue Uebertragungsnetz-Sockel wirken hier mit) - Test (c) ist ein Modelltest, kein Reproduktionstest; die LCOE-Reproduktion selbst ist von allen Fixes unberuehrt und liegt unveraendert bei 0,04 %.",
    "_confidence": "C",
-   "Kostenminimum (inkl. Kernkraft)": 136.5,
-   "80% EE + Gas-Peaker": 152.7,
-   "80% EE + mehr H2": 206.5,
+   "Kostenminimum (inkl. Kernkraft)": 143.4,
+   "80% EE + Gas-Peaker": 155.7,
+   "80% EE + mehr H2": 209.0,
    "100% Erneuerbare": 288.0
   },
   "lcoe_reproduction_max_deviation_pct": 0.04

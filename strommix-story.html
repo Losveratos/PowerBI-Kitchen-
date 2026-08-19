@@ -161,23 +161,27 @@ path.draw{transition:stroke-dashoffset 2.2s cubic-bezier(.4,0,.2,1)}
 #act3[data-step="1"] .l-cohort,#act3[data-step="2"] .l-cohort,#act3[data-step="3"] .l-cohort{opacity:1}
 #act3[data-step="2"] .l-france,#act3[data-step="3"] .l-france{opacity:1}
 #act3[data-step="3"] .l-modern{opacity:1}
-/* Akt 4 — sechs Schritte: Punktwerte, Baender, Rangfolge, Ueberschreitung,
-   Emissionsgleichheit (CCS), Institutionen-Kontrast (Asien/Golf). */
+/* Akt 4 — fuenf Schritte (v0.3, vorher sechs): Punktwerte, Baender, Rangfolge,
+   Emissionsgleichheit (CCS), beide Kontrastlaeufe (Ueberschreitung + Asien/Golf).
+   Das Zusammenlegen der beiden Kontrastlaeufe beantwortet dieselbe Frage einmal
+   nach oben und einmal nach unten (Journalist M-R2-2) und laesst den Akt
+   symmetrisch enden statt auf dem guenstigsten Kernkraft-Lauf (Viz M-R2-3).
+   Je Schritt aendert sich genau eine Sache - ausser beim Wechsel in den
+   Kontrastschritt, und der wird im Untertitel benannt (Viz R2-M2). */
 #act4 .layer{opacity:0;transition:opacity .6s ease}
 #act4[data-step="0"] .l-det,#act4[data-step="1"] .l-det,#act4[data-step="2"] .l-det,
-#act4[data-step="3"] .l-det,#act4[data-step="4"] .l-det,#act4[data-step="5"] .l-det{opacity:1}
-#act4[data-step="1"] .l-base,#act4[data-step="2"] .l-base,
-#act4[data-step="4"] .l-base,#act4[data-step="5"] .l-base{opacity:1}
+#act4[data-step="3"] .l-det,#act4[data-step="4"] .l-det{opacity:1}
+#act4[data-step="1"] .l-base,#act4[data-step="2"] .l-base,#act4[data-step="3"] .l-base{opacity:1}
 #act4[data-step="2"] .l-rank{opacity:1}
-#act4[data-step="3"] .l-over{opacity:1}
-#act4[data-step="4"] .l-ccs,#act4[data-step="5"] .l-ccs{opacity:1}
-#act4[data-step="5"] .l-asia{opacity:1}
+#act4[data-step="4"] .l-over{opacity:1}
+#act4[data-step="3"] .l-ccs{opacity:1}
+#act4[data-step="4"] .l-asia{opacity:1}
 #act4[data-step="0"] .l-legend,#act4[data-step="1"] .l-legend,#act4[data-step="2"] .l-legend,
-#act4[data-step="3"] .l-legend,#act4[data-step="4"] .l-legend,#act4[data-step="5"] .l-legend{opacity:1}
+#act4[data-step="3"] .l-legend,#act4[data-step="4"] .l-legend{opacity:1}
 /* CCS-Zeilen sind Varianten ihres Basis-Presets, keine eigenen Zukuenfte:
-   bis Schritt 4 sind sie ausgeblendet, danach gedaempft angeschrieben. */
+   sie erscheinen erst im Emissionsgleichheits-Schritt. */
 #act4 .ccs-row{opacity:0;transition:opacity .6s ease}
-#act4[data-step="4"] .ccs-row,#act4[data-step="5"] .ccs-row{opacity:1}
+#act4[data-step="3"] .ccs-row{opacity:1}
 /* Akt 5 */
 #act5 .scene{opacity:0;pointer-events:none}
 #act5[data-step="0"] .sc-0,#act5[data-step="1"] .sc-1,
@@ -365,17 +369,18 @@ footer a{color:var(--ink-2)}
     kernkraftgestützte „Kostenminimum“ und
     <b class="v" data-v="shared.ges_reference.scenarios.ee100.lscoe" data-d="0" data-unit=" €/MWh"></b>
     für hundert Prozent Erneuerbare. Ein Faktor von rund <b class="v" id="hook-factor"></b>.</p>
-  <p><b>Wer das rechnet, und wofür.</b> Global Energy Solutions e.&nbsp;V. ist ein
-    <span data-t="ges_absender.gegruendet"></span> gegründeter Verein; sein ursprüngliches Thema
+  <p><b>Wer das rechnet, und wofür.</b> Global Energy Solutions e.&nbsp;V. wurde
+    <span data-t="ges_absender.gegruendet"></span> gegründet,
+    <span data-t="ges_absender.gegruendet_kontext"></span>; sein ursprüngliches Thema
     war <span data-t="ges_absender.urspruenglicher_fokus"></span>. Dass ausgerechnet dieser Verein
     die wasserstofflastigen Pfade als die teuersten ausweist, spricht eher für als gegen die
     Unbefangenheit der Rechnung. Die Studie erschien im
     <span data-t="ges_absender.studie_erschienen"></span> und rechnet auf das Zieljahr
     <b class="v" data-v="ges_absender.zieljahr" data-fmt="plain"></b> mit einem Jahresbedarf von
     <b class="v" data-v="ges_absender.jahresbedarf_twh" data-d="0" data-unit=" TWh"></b> —
-    alle Zahlen dieser Geschichte beziehen sich auf dieses System.
-    <span class="conf conf-C" title="Konfidenzstufe C">C</span> für die Angaben zum Verein: Sie
-    stammen aus unserem eigenen Grundlagenpapier und sind nicht unabhängig gegengeprüft.</p>
+    alle Zahlen dieser Geschichte beziehen sich auf dieses System. (Die Angaben zum Verein stammen
+    aus unserem eigenen Grundlagenpapier und sind nicht unabhängig gegengeprüft —
+    <span class="conf conf-C" title="Konfidenzstufe C">C</span>.)</p>
   <p><b>Und eine Einschränkung, die an den Anfang gehört und nicht ans Ende:</b>
     <span data-t="ges_absender.volltext_status"></span></p>
   <p>Diese Geschichte ist keine Gegenstudie — aber sie bleibt auch nicht beim Lesen. Wir haben die
@@ -438,9 +443,11 @@ footer a{color:var(--ink-2)}
       <h3>Vom Kraftwerk zum System</h3>
       <p>Ein System ist mehr als die Summe seiner Kraftwerke: Speicher, Backup, Netze,
         Überkapazität. Die Studie rechnet das durch und landet bei
-        <span class="big pos" data-v="shared.ges_reference.scenarios.kostenminimum.lscoe" data-d="0" data-unit=" €/MWh"></span>
-        bis <span class="big neg" data-v="shared.ges_reference.scenarios.ee100.lscoe" data-d="0" data-unit=" €/MWh"></span>
+        <span class="big" data-v="shared.ges_reference.scenarios.kostenminimum.lscoe" data-d="0" data-unit=" €/MWh"></span>
+        bis <span class="big" data-v="shared.ges_reference.scenarios.ee100.lscoe" data-d="0" data-unit=" €/MWh"></span>
         — der Kennzahl, um die gestritten wird: <a class="gl" id="ref-lscoe" href="#gl-lscoe">LSCOE</a>.</p>
+      <p class="anker"><b>Damit man diese Einheit fühlen kann:</b> <span id="hh-akt1"></span>
+        <span class="conf conf-M" title="Setzung">M</span> <span id="hh-guard"></span></p>
       <p>Die Rechnung selbst ist sauber. Wir haben sie nachgerechnet und reproduzieren die
         Studien-LCOE auf
         <span class="big">±<span data-v="shared.ges_lcoe_reproduction_max_deviation_pct" data-d="2" data-unit=" %"></span></span>
@@ -524,8 +531,11 @@ footer a{color:var(--ink-2)}
         <span class="big pos" data-v="nuclear.clusters[0].capex_eur_kw" data-fmt="range" data-d="0" data-unit=" €/kW"></span>.
         Hinkley Point C kostet
         <span class="big neg" data-v="shared.nuclear_reference_projects[11].capex_eur_kw" data-d="0" data-unit=" €/kW"></span>
-        in laufenden Preisen. Zwischen diesen Polen liegt eine Spanne von mehr als Faktor
-        <span class="big" id="nuc-spread"></span>.</p>
+        — allerdings als Gesamtprojekt in laufenden Preisen, also einschließlich Bauzinsen und
+        Bauherrenkosten, die in der koreanischen Zahl gar nicht enthalten sind. Diese beiden Zahlen
+        darf man nicht durcheinander teilen; genau darum geht es in diesem Akt. Vergleichbar sind
+        die drei Cluster — und zwischen dem asiatischen und dem westlichen Erstprojekt liegt
+        trotzdem eine Welt.</p>
     </div></div>
     <div class="step" data-idx="3"><div class="step-card">
       <span class="n">Akt 2 / Schritt 4</span>
@@ -674,130 +684,128 @@ footer a{color:var(--ink-2)}
     </div>
   </div>
   <div class="steps">
-    <div class="step" data-idx="0"><div class="step-card">
+    <div class="step" data-idx="0" data-kpi="4 Zukünfte · 1 Referenzsystem"><div class="step-card">
       <span class="n">Akt 4 / Schritt 1</span>
       <h3>Punktwerte sehen präzise aus</h3>
-      <p>Wir haben die vier Szenarien mit unseren eigenen, dokumentierten Parametern
-        nachgerechnet — stündlicher Dispatch statt Jahresmittel, Kernkraft-Betriebskosten absolut
-        statt als Prozentsatz der Bausumme, Neuanlagen-Volllaststunden statt Bestandsflotte.</p>
-      <p>Dazu kommt ein <b>Referenzsystem</b>: das heutige System von 2025. Es steht bewusst
-        außerhalb der Reihe — es trägt das heutige Netzentgelt statt der Netzinvestition bis 2045
-        und seine Bestandskraftwerke ohne Kapitalkosten. Als Größenordnung lesbar, als fünfter
-        Platz nicht. Es emittiert
+      <p>Wir haben die vier Szenarien mit eigenen, dokumentierten Parametern nachgerechnet —
+        stündlicher Dispatch statt Jahresmittel. Dazu ein <b>Referenzsystem</b>: das heutige System
+        von 2025. Es steht außerhalb der Reihe — heutiges Netzentgelt statt Netzinvestition,
+        Bestandskraftwerke ohne Kapitalkosten. Es emittiert
         <span class="big neg" data-v="shared.monte_carlo.presets.ist2025.emissions_mt_co2_a" data-d="0" data-unit=" Mt CO₂"></span>
-        im Jahr; die vier Zukünfte liegen zwischen
+        im Jahr, die vier Zukünfte zwischen
         <span class="big" data-v="shared.monte_carlo.presets.ee100.emissions_mt_co2_a" data-d="1"></span>
-        und <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas.emissions_mt_co2_a" data-d="0" data-unit=" Mt"></span>.
+        und <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas.emissions_mt_co2_a" data-d="0" data-unit=" Mt"></span>.</p>
+      <p>Gleich stehen <b>zwei Zahlen je Szenario</b> im Bild: Die Raute ist der Punktwert mit den
+        mittleren Annahmen, der Strich in der Box die mittlere aller 1.000 durchgerechneten
+        Zukünfte. Sie liegt höher, weil die Spannen nach oben weiter reichen als nach unten.
         <span class="simlabel"></span></p>
     </div></div>
-    <div class="step" data-idx="1"><div class="step-card">
+    <div class="step" data-idx="1" data-kpi="1.000 Zukünfte · 29 gezogene Größen"><div class="step-card">
       <span class="n">Akt 4 / Schritt 2</span>
-      <h3>Gepaarte Ziehungen statt getrennter Würfe</h3>
-      <p>Gezogen werden die Kostengrößen — Baukosten, Betriebskosten, Volllaststunden und der
-        Erdgaspreis je Technologie, insgesamt
-        <span class="big" data-v="shared.monte_carlo.meta.drawn_parameters" data-d="0"></span> Größen —
-        je <span class="big" data-v="shared.monte_carlo.meta.n_draws" data-d="0"></span>-mal aus einer
-        Dreiecksverteilung zwischen unserem dokumentierten Minimum und Maximum.</p>
-      <p>Entscheidend ist, <em>wie</em> gezogen wird: Jede Ziehung gilt für <b>alle</b> Szenarien
-        gleichzeitig. Der Solarpreis ist in der Kernkraft-Welt derselbe wie in der Gas-Welt.
-        Nur so darf man am Ende zwei Szenarien miteinander vergleichen — die frühere Rechnung zog
-        für jedes Szenario eigene Zufallszahlen, und damit war jede Aussage über Rangfolgen
-        unzulässig.</p>
-      <p>Zinssatz und CO₂-Preis bleiben im Basislauf fest und laufen dafür in
-        <b>eigenen Konfigurationen</b> mit: WACC zwischen 3 und 9 Prozent, CO₂ zwischen 0 und
-        400 € je Tonne.</p>
+      <h3>Dieselbe Zufallswelt für alle Szenarien</h3>
+      <p>Wir haben <span class="big" data-v="shared.monte_carlo.meta.n_draws" data-d="0"></span>
+        Zukünfte ausgewürfelt: In Zukunft Nummer 312 ist Solar billig, Gas teuer, Beton knapp.
+        <span class="big" data-v="shared.monte_carlo.meta.drawn_parameters" data-d="0"></span> Größen
+        werden gezogen — Baukosten, Betrieb, Volllaststunden, Erdgaspreis —, jede zwischen
+        dokumentiertem Minimum und Maximum.</p>
+      <p>Jede Zukunft gilt für <b>alle</b> Szenarien gleichzeitig: Der Solarpreis ist in der
+        Kernkraft-Welt derselbe wie in der Gas-Welt. Nur so darf man auszählen, wer wie oft gewinnt —
+        unsere erste Fassung gab jedem Szenario eigene Würfel, und damit war jede Rangaussage
+        wertlos.</p>
+      <p>Es sind 29 Größen und nicht 30, weil der Erdgaspreis <em>einmal</em> gezogen und von beiden
+        Gas-Technologien geteilt wird: Derselbe Rohstoff darf nicht zweimal gewürfelt werden.
+        Zinssatz und CO₂-Preis laufen in eigenen Konfigurationen mit.</p>
     </div></div>
-    <div class="step" data-idx="2"><div class="step-card">
+    <div class="step" data-idx="2" data-kpi="257 von 1.000 Zukünften für die Kernkraft"><div class="step-card">
       <span class="n">Akt 4 / Schritt 3</span>
       <h3>Der Beinahe-Gleichstand</h3>
-      <p>Das Kernkraft-Szenario liegt im Median bei
-        <span class="big pos" data-v="shared.monte_carlo.presets.kostenminimum.configs.base.p50" data-d="0" data-unit=" €/MWh"></span>
-        <span class="v" data-v="shared.monte_carlo.presets.kostenminimum.configs.base" data-fmt="p5p95" data-d="0"></span>,
-        der gasgestützte 80-Prozent-Pfad bei
-        <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas.configs.base.p50" data-d="0" data-unit=" €/MWh"></span>
-        <span class="v" data-v="shared.monte_carlo.presets.ee80_gas.configs.base" data-fmt="p5p95" data-d="0"></span>.</p>
-      <p>Nicht die Bänder entscheiden das, sondern die Differenz je Ziehung: In
-        <span class="big pos" id="p-base"></span> der Fälle ist das Kernkraft-Szenario das
-        günstigere. Lässt man den CO₂-Preis mitlaufen, sind es
-        <span class="big pos" id="p-co2"></span>; schaltet man die Überschreitungs-Empirie zu,
-        <span class="big neg" id="p-over"></span>. <b>Die Rangfolge dieser beiden Pfade ist
-        offen</b> — und sie hängt an Setzungen, nicht an der Technologie.</p>
-      <p>Wie stark der CO₂-Preis wirkt, zeigt der Kipppunkt: Ab rund
+      <p>Im Punktwert kostet der gasgestützte 80-Prozent-Pfad
+        <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas.deterministic" data-d="1" data-unit=" €/MWh"></span>,
+        das kernkraftgestützte Kostenminimum
+        <span class="big pos" data-v="shared.monte_carlo.presets.kostenminimum.deterministic" data-d="1"></span>;
+        im Median der Zukünfte
+        <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas.configs.base.p50" data-d="0"></span>
+        gegen <span class="big pos" data-v="shared.monte_carlo.presets.kostenminimum.configs.base.p50" data-d="0"></span>.
+        <span class="anker" id="hh-a4-gleich"></span></p>
+      <p>Entscheidend ist nicht, wo die Bänder liegen, sondern wie oft welches Szenario in
+        <em>derselben</em> Zukunft billiger ist: Von 1.000 Zukünften gehen
+        <span class="big pos" id="f-base"></span> an die Kernkraft,
+        <span class="big neg" id="f-base-gas"></span> an den Gas-Pfad. Mit unsicherem CO₂-Preis sind
+        es <span class="big pos" id="f-co2"></span>, mit historischen Kostenüberschreitungen
+        <span class="big neg" id="f-over"></span>.</p>
+      <p>Alles hängt am Preis je Tonne CO₂ — der Gas-Pfad emittiert fast viermal so viel und zahlt
+        jeden Euro viermal. <b>Beim heutigen Preis führt der Gas-Pfad; erst ab rund
         <span class="big" data-v="co2_sensitivity.crossover_kernkraft_vs_gas_eur_t" data-d="0" data-unit=" € je Tonne"></span>
-        liegt das Kernkraft-Szenario vorn. Unser Modell rechnet mit 75 — der Beinahe-Gleichstand
-        ist also selbst schon ein Ergebnis dieser Annahme. <span class="simlabel"></span></p>
+        dreht sich das.</b> Der Emissionshandel lag im Mai 2026 bei
+        <span class="big" data-v="co2_sensitivity.ets1_market_may_2026_eur_t" data-d="0" data-unit=" €"></span>,
+        unser Modell rechnet mit 75. Die Marke gilt für den Punktwert — über alle Zukünfte kippt der
+        Median erst bei rund
+        <span class="big" data-v="co2_sensitivity.crossover_mc_median_eur_t" data-d="0" data-unit=" €"></span>,
+        und sie wandert mit dem Gaspreis und mit der Netzregel. <span class="simlabel"></span></p>
     </div></div>
-    <div class="step" data-idx="3"><div class="step-card">
+    <div class="step" data-idx="3" data-kpi="Bei gleicher Emissionsmenge: 943 von 1.000"><div class="step-card">
       <span class="n">Akt 4 / Schritt 4</span>
-      <h3>Und wenn Projekte sich verteuern?</h3>
-      <p>Großprojekte überschreiten ihre Kostenschätzung — empirisch, systematisch, messbar.
-        Für Kernkraft nennen zwei unabhängige Datenbanken Faktoren von
-        <span class="big neg" data-v="shared.kostenueberschreitung_faktoren.technologien.kernkraft.sovacool" data-d="2"></span>
-        und <span class="big neg" data-v="shared.kostenueberschreitung_faktoren.technologien.kernkraft.flyvbjerg" data-d="2"></span><sup class="cite" data-src="flyvbjerg-2023"></sup><sup class="cite" data-src="sovacool-ryu-2025"></sup>,
-        für Solar rund
-        <span class="big pos" data-v="shared.kostenueberschreitung_faktoren.technologien.solar.flyvbjerg" data-d="2"></span>.</p>
-      <p>Legt man diese Empirie auf die Technologien, für die sie überhaupt eine Projektklasse
-        hat — Solar, Wind, Netz, fossile Kraftwerke und Kernkraft —, rutscht das
-        Kernkraft-Szenario auf
-        <span class="big neg" data-v="shared.monte_carlo.presets.kostenminimum.configs.overrun.p50" data-d="0" data-unit=" €/MWh"></span>
-        <span class="v" data-v="shared.monte_carlo.presets.kostenminimum.configs.overrun" data-fmt="p5p95" data-d="0"></span>.</p>
-      <p><b>Dieser Lauf ist asymmetrisch, und das muss dabeistehen:</b> Batterie, Elektrolyse,
-        H₂-Speicher und H₂-Turbine haben in beiden Datenbanken <em>keine</em> Projektklasse und
-        bleiben bei Faktor 1,00 — das ist eine Datenlücke, keine Messung. Der Faktor liegt außerdem
-        nur noch auf den Ankern, die tatsächlich Schätzungen sind; auf bereits realisierte Kosten
-        wie Hinkley Point C wird er nicht mehr gestapelt. Die dokumentierte Modellspanne reicht
-        nach unten bis
-        <span class="big pos" data-v="shared.kostenueberschreitung_faktoren.technologien.kernkraft.spanne[0]" data-d="2"></span>.</p>
-      <p>Nebenbefund, der in beide Richtungen zeigt: Gegenüber den beiden wasserstofflastigen
-        Pfaden ist das Kernkraft-Szenario im Basislauf in
-        <span class="big pos" id="p-h2"></span> der Ziehungen günstiger — deutlicher, als die
-        frühere Formulierung nahelegte. In genau diesem Überschreitungs-Lauf ist aber auch dieser
-        Vergleich offen (<span class="big neg" id="p-h2-over"></span>).
-        <span class="simlabel"></span></p>
+      <h3>Mit Abscheidung auf beiden Seiten</h3>
+      <p>Der Gleichstand hat einen Haken: Der Gas-Pfad ist auch deshalb billig, weil er fast viermal
+        so viel CO₂ ausstoßen darf —
+        <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas.emissions_mt_co2_a" data-d="0"></span>
+        gegen <span class="big pos" data-v="shared.monte_carlo.presets.kostenminimum.emissions_mt_co2_a" data-d="0" data-unit=" Millionen Tonnen"></span>.
+        Zum Maßstab: Das Klimaschutzgesetz verlangt für 2045 Netto-Neutralität und rechnet mit einer
+        nationalen Senke von
+        <span class="big" data-v="klimaziel_2045.senke_mt_co2_aeq.2045" data-d="0" data-unit=" Millionen Tonnen"></span>
+        <span class="conf conf-B" title="Konfidenzstufe B">B</span> — für alle Sektoren zusammen.
+        Streng genommen ist keiner der beiden vorderen Pfade klimaneutral.</p>
+      <p>Rüstet man den Gas-Pfad mit CO₂-Abscheidung aus, kostet er
+        <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas_ccs.deterministic" data-d="1" data-unit=" €/MWh"></span>
+        und emittiert noch
+        <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas_ccs.emissions_mt_co2_a" data-d="1" data-unit=" Mt"></span> —
+        ungefähr so viel wie das Kernkraft-Szenario ohne Abscheidung. Bei dieser <b>gleichen
+        Emissionsmenge</b> liegt es in <span class="big pos" id="f-eqem"></span> von 1.000 Zukünften
+        vorn, im Median <span class="big pos" id="d-eqem"></span> günstiger.
+        <span class="anker" id="hh-a4-eqem"></span> Mit Abscheidung auf <em>beiden</em> Seiten sind es
+        <span class="big pos" id="f-ccs"></span> und <span class="big pos" id="d-ccs"></span>.</p>
+      <p>Beides bleibt nach unserer eigenen Schwelle — entschieden erst ab 950 von 1.000 — ein
+        <b>offener</b> Vergleich. Und
+        <span class="big" data-v="netzregel_anteil.sockel_effekt_kernkraft_eur_mwh" data-d="1"></span>
+        der <span class="big" data-v="netzregel_anteil.median_vorsprung_ccs_paar_eur_mwh" data-d="1" data-unit=" €/MWh"></span>
+        stammen aus einer Modellsetzung: dem Anteil des Übertragungsnetzes, der auch ohne Wind und
+        Sonne gebaut werden müsste. Und Deutschland hat <b>keine CO₂-Speicherstätte in Betrieb</b> —
+        mehr dazu gleich. <span class="simlabel"></span></p>
     </div></div>
-    <div class="step" data-idx="4"><div class="step-card">
+    <div class="step" data-idx="4" data-kpi="Teurer: 32 von 1.000 · billiger: 1.000 von 1.000"><div class="step-card">
       <span class="n">Akt 4 / Schritt 5</span>
-      <h3>Auf gleichem Emissionsniveau</h3>
-      <p>Der Gleichstand aus Schritt 3 hat einen Haken: Er vergleicht
-        <span class="big pos" data-v="shared.monte_carlo.presets.kostenminimum.emissions_mt_co2_a" data-d="0" data-unit=" Mt"></span>
-        gegen <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas.emissions_mt_co2_a" data-d="0" data-unit=" Mt CO₂/a"></span>.
-        Das ist kein Technologievergleich, das ist ein Emissions-Rabatt.</p>
-      <p>Rüstet man <em>beide</em> Pfade mit CO₂-Abscheidung aus — so, wie die geprüfte Studie
-        ihren Gas-Pfad meint —, kostet das Kernkraft-Szenario
-        <span class="big pos" data-v="shared.monte_carlo.presets.kostenminimum_ccs.deterministic" data-d="1" data-unit=" €/MWh"></span>
-        und der Gas-Pfad
-        <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas_ccs.deterministic" data-d="1" data-unit=" €/MWh"></span>.
-        Aus 45 Prozent werden <span class="big pos" id="p-ccs"></span>.</p>
-      <p>Der Aufschlag ist beim Gas-Pfad mit
-        <span class="big neg" data-v="ccs_narrative.delta_eur_mwh.ee80_gas" data-d="1" data-unit=" €/MWh"></span>
-        fast dreimal so groß wie beim Kernkraft-Szenario
-        (<span class="big" data-v="ccs_narrative.delta_eur_mwh.kostenminimum" data-d="1" data-unit=" €/MWh"></span>) —
-        und der dominante Posten ist nicht die Abscheidung, sondern die verdoppelte Kraftwerks­kapazität,
-        die sich auf wenige Betriebsstunden verteilt. Daraus folgen Vermeidungskosten von
-        <span class="big neg" data-v="ccs_narrative.implied_abatement_cost_eur_t.ee80_gas" data-d="0"></span>
-        bis <span class="big neg" data-v="ccs_narrative.implied_abatement_cost_eur_t.kostenminimum" data-d="0" data-unit=" € je Tonne"></span>.
-        Das ist eine <b>Obergrenze</b>, kein Preisschild. <span class="simlabel"></span></p>
-    </div></div>
-    <div class="step" data-idx="5"><div class="step-card">
-      <span class="n">Akt 4 / Schritt 6</span>
-      <h3>Zwei Welten für dieselbe Technologie</h3>
-      <p>Unsere Kernkraft-Baukosten werden zwischen
-        <span class="big" data-v="shared.nuclear_capex_scenarios.low" data-d="0"></span>
-        und <span class="big" data-v="shared.nuclear_capex_scenarios.high" data-d="0" data-unit=" €/kW"></span>
-        gezogen — <b>ohne ein einziges asiatisches oder Golf-Projekt</b>. Das ist eine Entscheidung,
-        keine Datenlage, und sie gehört auf diese Seite: Die Voraussetzungen dieser Projekte —
-        ununterbrochener Serienbau, staatlich gesteuerte Lieferkette, niedrigere Bau- und
-        Ingenieurlöhne, eingeschränkte Drittanfechtung — sind in Deutschland nicht herstellbar.</p>
-      <p>Was der Ausschluss kostet, rechnen wir trotzdem: Mit der Verteilung des Clusters
-        Asien/Golf
-        (<span class="big" data-v="shared.monte_carlo.nuclear_capex_contrast.distribution_eur_kw.min" data-d="0"></span>–<span class="big" data-v="shared.monte_carlo.nuclear_capex_contrast.distribution_eur_kw.max" data-d="0" data-unit=" €/kW"></span>,
-        acht Jahre Bauzeit) fällt das Kernkraft-Szenario von
-        <span class="big" data-v="shared.monte_carlo.presets.kostenminimum.configs.base.p50" data-d="0"></span>
-        auf <span class="big pos" data-v="shared.monte_carlo.presets.kostenminimum.configs.asia.p50" data-d="0" data-unit=" €/MWh"></span>
-        — und jede Rangfolge ist mit <span class="big pos" id="p-asia"></span> entschieden.</p>
-      <p>Zwischen zwei belegten Datenclustern für dieselbe Technologie liegen damit rund
-        <span class="big" id="d-asia"></span> Systemkosten. Die Rangfolge dieser Szenarien
-        entscheidet <b>nicht die Technologie</b>, sondern drei Setzungen: welche
+      <h3>Beide Richtungen: teurer und billiger</h3>
+      <p>Was, wenn die Baukosten anders liegen als angenommen? Das Bild zeigt jetzt beide
+        Gegenproben statt der Basisbänder.</p>
+      <p><b>Teurer.</b> Großprojekte überschreiten ihre Kostenschätzung; für Kernkraft nennen zwei
+        Datenbanken Faktoren von
+        <span class="big neg" data-v="shared.kostenueberschreitung_faktoren.technologien.kernkraft.sovacool" data-d="2"></span>
+        und <span class="big neg" data-v="shared.kostenueberschreitung_faktoren.technologien.kernkraft.flyvbjerg" data-d="2"></span><sup class="cite" data-src="flyvbjerg-2023"></sup><sup class="cite" data-src="sovacool-ryu-2025"></sup>.
+        Den Aufschlag legen wir als festen Betrag auf eine Schätzbasis von
+        <span class="big" data-v="ueberschreitung.schaetzbasis_eur_kw" data-d="0" data-unit=" €/kW"></span>
+        und nicht auf Projekte wie Hinkley Point C, die ihre Verteuerung hinter sich haben: effektiv
+        <span class="big neg" data-v="ueberschreitung.capex_effektiv_median_eur_kw" data-d="0"></span>
+        statt <span class="big" data-v="ueberschreitung.capex_effektiv_median_v02b_eur_kw" data-d="0" data-unit=" €/kW"></span>
+        im Median. Das Kernkraft-Szenario steht dann bei
+        <span class="big neg" data-v="shared.monte_carlo.presets.kostenminimum.configs.overrun.p50" data-d="0" data-unit=" €/MWh"></span> —
+        <span class="big neg" id="f-over-2"></span> von 1.000 Zukünften, mit Abscheidung auf beiden
+        Seiten ein Münzwurf (<span class="big" id="f-ccs-over"></span>). Der Lauf ist unfair zulasten
+        der Kernkraft: Für Batterien, Elektrolyseure und H₂-Speicher hat keine Datenbank Faktoren.</p>
+      <p><b>Billiger.</b> Unsere Baukosten werden zwischen
+        <span class="big" data-v="shared.nuclear_capex_scenarios.low" data-d="0"></span> und
+        <span class="big" data-v="shared.nuclear_capex_scenarios.high" data-d="0" data-unit=" €/kW"></span>
+        gezogen — ohne ein einziges asiatisches oder Golf-Projekt, weil deren Voraussetzungen
+        (Serienbau ohne Unterbrechung, gesteuerte Lieferketten, eingeschränkte Drittanfechtung) hier
+        nicht herstellbar sind. Mit dem Cluster Asien/Golf
+        (<span class="big" data-v="shared.monte_carlo.nuclear_capex_contrast.distribution_eur_kw.min" data-d="0"></span>–<span class="big" data-v="shared.monte_carlo.nuclear_capex_contrast.distribution_eur_kw.max" data-d="0"></span>,
+        wahrscheinlichster Wert
+        <span class="big" data-v="shared.monte_carlo.nuclear_capex_contrast.distribution_eur_kw.mid" data-d="0" data-unit=" €/kW"></span>,
+        dem Barakah-Exportvertrag) fällt es auf
+        <span class="big pos" data-v="shared.monte_carlo.presets.kostenminimum.configs.asia.p50" data-d="0" data-unit=" €/MWh"></span>,
+        und jede Rangfolge ist mit <span class="big pos" id="f-asia"></span> von 1.000 entschieden:
+        rund <span class="big" id="d-asia"></span> Unterschied je Megawattstunde.
+        <span class="anker" id="hh-a4-asia"></span></p>
+      <p>Die Rangfolge entscheidet <b>nicht die Technologie</b>, sondern drei Setzungen: welche
         Emissionsnebenbedingung gilt, welchem Institutionenrahmen man den Bau zutraut, und ob die
         Überschreitungs-Empirie eingeschaltet ist. <span class="simlabel"></span></p>
     </div></div>
@@ -1537,8 +1545,12 @@ function buildAct1(){
   barScene("sc-2", rows.map(r => ({label:r.label, v:r.lcoe,
               sub:nf(r.t.full_load_hours,0) + " h"})),
            [0,40,80,120,160], "€/MWh", 1, 3);
+  // Viz-Befund M1: Der Text hatte 125 blau und 321 rot ausgezeichnet, der Chart
+  // akzentuierte 125 terrakotta - zwei Farbschluessel fuer dieselbe Stelle. Beide
+  // Zahlen sind Aussagen der Studie und stehen deshalb jetzt in EINER Farbe;
+  // Terrakotta bleibt der Nachrechnung vorbehalten.
   barScene("sc-3", scenes.map(s => ({label:s.label, v:s.v, sub:nf(s.gw,0) + " GW"})),
-           [0,100,200,300,400], "€/MWh · Systemebene", 0, 0);
+           [0,100,200,300,400], "€/MWh · Systemebene", 0);
 
   // Tabellen-Zwilling
   let html = "<tr><th>Technologie</th><th class='num'>CAPEX €/kW</th><th class='num'>Opex %/a</th>" +
@@ -1901,16 +1913,19 @@ function buildAct3(){
 }
 
 /* ================================================================
-   5 · Akt 4 — Monte Carlo (Modell v0.2b)
+   5 · Akt 4 — Monte Carlo (Modell v0.2c)
 
-   Sechs Schritte statt vier. Neu gegenueber v0.1:
-   - sieben Presets statt fuenf; die beiden CCS-Varianten stehen als Variante
-     direkt unter ihrem Basis-Preset und erscheinen erst in Schritt 5,
-   - die Rangfolge wird nicht mehr ueber ueberlappende Randverteilungen
-     behauptet, sondern ueber P(A guenstiger als B) aus gepaarten Ziehungen,
-   - jede Zeile traegt ihre Restemissionen in Mt CO2 je Jahr,
-   - Schritt 6 zeigt die Kontrastverteilung Asien/Golf,
-   - der Chart hat eine Glyphen-Legende.
+   Fuenf Schritte (v0.3, vorher sechs): Punktwerte, Baender, Rangfolge,
+   Emissionsgleichheit (CCS), beide Kontrastlaeufe nebeneinander.
+   - sieben Presets; die beiden CCS-Varianten stehen als Variante direkt unter
+     ihrem Basis-Preset und erscheinen erst im Emissionsgleichheits-Schritt,
+   - die Rangfolge wird nicht ueber ueberlappende Randverteilungen behauptet,
+     sondern als natuerliche Haeufigkeit aus gepaarten Ziehungen ausgezaehlt
+     ("von 1.000 Zukuenften gehen 257 an ..."), nicht als P(A<B)-Formel,
+   - jede Zeile traegt ihre Restemissionen in Mt CO2 je Jahr und ein
+     monochromes 12-px-Piktogramm als Wiedererkennungsanker (Viz-Idee B5a),
+   - der Kontrastschritt zeigt Ueberschreitungs-Empirie UND Asien/Golf,
+   - der Chart hat eine Glyphen-Legende in Klartext.
 ================================================================ */
 function buildAct4(){
   const svg = $("#svg4");
@@ -1929,6 +1944,54 @@ function buildAct4(){
   const yBase = H - M.b - 2*LH, top = T4 + LH*0.6;
   const gap = (yBase - top) / order.length;
   const halfBox = Math.min(15, Math.max(9, gap*0.20));
+
+  /* Szenario-Piktogramme (Viz-Idee B5a): monochrome 12-px-Glyphen in der Farbe
+     des Zeilenlabels, gezeichnet in einem 12x12-Kasten und mit dem Faktor
+     FSS/12 auf die aktuelle Schriftgroesse skaliert. Sie kodieren nichts, was
+     nicht im Label steht - sie machen sieben aehnlich lange Textzeilen auf
+     einen Blick unterscheidbar. Keine Emojis, keine zusaetzliche Farbe. */
+  const ICONS = {
+    atom: g => {
+      el("circle", {cx:6, cy:6, r:1.5, fill:"currentColor", stroke:"none"}, g);
+      el("ellipse", {cx:6, cy:6, rx:5.2, ry:2.2}, g);
+      el("ellipse", {cx:6, cy:6, rx:5.2, ry:2.2, transform:"rotate(60 6 6)"}, g);
+      el("ellipse", {cx:6, cy:6, rx:5.2, ry:2.2, transform:"rotate(-60 6 6)"}, g);
+    },
+    flamme: g => {
+      el("path", {d:"M6 11.2C3.6 11.2 2.4 9.5 2.4 7.8 2.4 5.4 5 4.2 5.4 0.8c1.6 1.4 2.2 2.8 2.2 4.1 0.7-0.4 1-1 1.1-1.7 0.8 1 1.3 2.4 1.3 3.9 0 2-1.4 4.1-4 4.1Z"}, g);
+    },
+    ccs: g => {
+      el("path", {d:"M6 1.2V7.4M3.4 5.2 6 7.9l2.6-2.7"}, g);
+      el("path", {d:"M1.6 9.6h8.8M2.6 11.3h6.8"}, g);
+    },
+    h2: g => {
+      el("path", {d:"M2.4 1.6v8.2M2.4 5.7h4.2M6.6 1.6v8.2"}, g);
+      el("path", {d:"M8.4 7.6c0-1 2.2-1 2.2 0.2 0 1-2.2 1.4-2.2 2.6h2.4"}, g);
+    },
+    sonne: g => {
+      el("circle", {cx:6, cy:6, r:2.4}, g);
+      el("path", {d:"M6 0.6v1.6M6 9.8v1.6M0.6 6h1.6M9.8 6h1.6M2.2 2.2l1.1 1.1M8.7 8.7l1.1 1.1M9.8 2.2 8.7 3.3M3.3 8.7 2.2 9.8"}, g);
+    },
+    stecker: g => {
+      el("path", {d:"M4 1.4v2.6M8 1.4v2.6"}, g);
+      el("rect", {x:2.4, y:4, width:7.2, height:3.4, rx:1}, g);
+      el("path", {d:"M6 7.4v3.2"}, g);
+    }
+  };
+  const ICON_OF = {
+    ist2025: "stecker", kostenminimum: "atom", kostenminimum_ccs: "ccs",
+    ee80_gas: "flamme", ee80_gas_ccs: "ccs", ee80_h2: "h2", ee100: "sonne"
+  };
+  function icon(parent, id, x0, yy, col){
+    const draw = ICONS[ICON_OF[id]];
+    if (!draw) return;
+    const sc = FSS / 12;                       // 12 px effektiv, wie die sm-Schrift
+    const g2 = el("g", {transform:"translate(" + (x0).toFixed(1) + " " +
+      (yy - 6*sc).toFixed(1) + ") scale(" + sc.toFixed(3) + ")",
+      fill:"none", stroke:col, "stroke-width":1.3, "stroke-linecap":"round",
+      color:col, opacity:.9}, parent);
+    draw(g2);
+  }
 
   const SHORT = {
     ist2025: "Ist 2025 · Referenz",
@@ -2587,8 +2650,10 @@ function renderProseBits(){
   $("#crf-formula").textContent = "CRF = " + D.shared.ges_reference.methodology.crf_formula;
   const sc = D.shared.ges_reference.scenarios;
   $("#hook-factor").textContent = nf(sc.ee100.lscoe / sc.kostenminimum.lscoe, 1);
-  const proj = D.shared.nuclear_reference_projects.map(p => p.capex_eur_kw);
-  $("#nuc-spread").textContent = nf(Math.max.apply(null, proj) / Math.min.apply(null, proj), 0);
+  /* Der frühere Quotient „Faktor 9" (17.264 / 1.867) stand hier bis v0.2. Er ist
+     ersatzlos entfallen: Er teilt Gesamtprojektkosten in laufenden Preisen durch
+     reine Overnight-Baukosten — genau die Rechnung, die der Beipackzettel und das
+     Glossar dieser Seite für bedeutungslos erklären (Journalist-Befund K-R2-1). */
 }
 
 /* ================================================================

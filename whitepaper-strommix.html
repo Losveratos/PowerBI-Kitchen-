@@ -110,6 +110,8 @@
         border-radius:50%;background:var(--accent);color:#fff;font-family:'JetBrains Mono',monospace;
         font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center}
   .exec-u{display:block;margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--soft)}
+  .exec-foot{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);
+             font-size:13.5px;color:var(--soft);line-height:1.55}
   .howto{background:var(--bg-sunk);border-radius:12px;padding:16px 20px;margin:0 0 8px;font-size:14.5px}
   .howto ol{margin:8px 0 0;padding-left:20px}
 
@@ -223,10 +225,66 @@
                 border:1px solid var(--line);border-radius:20px;padding:4px 12px}
   .foot-links a:hover{color:var(--accent);border-color:var(--accent)}
 
+  /* ---- Szenario-Piktogramme (v0.12, DataViz-Idee 5) ----
+     Monochrom, in Textfarbe, feste Bedeutung je Szenario (IBCS-Semantik,
+     kein Dekor). Groesse bewusst an die Zeilenhoehe gekoppelt. */
+  .scen-ico{width:15px;height:15px;flex:none;vertical-align:-2.5px;margin-right:7px;
+            stroke:currentColor;fill:none;stroke-width:1.6;
+            stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+  .chip .scen-ico{width:13px;height:13px;vertical-align:-2px;margin-right:5px;opacity:.85}
+
+  /* ---- Haushalts-Anker (v0.12, DataViz-Idee 1) ---- */
+  .hh{display:block;font-family:'JetBrains Mono',monospace;font-size:11.5px;
+      color:var(--soft);margin-top:3px;line-height:1.4;font-weight:400}
+  .tile .hh{font-size:11px;margin-top:5px}
+  td .hh{font-size:11px}
+
+  /* ---- Aufklappbarer Expertenteil ---- */
+  details.xdet{border-top:1px solid var(--line);margin-top:14px;padding-top:10px}
+  details.xdet > summary{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--soft);
+        cursor:pointer;list-style:none;padding:4px 0}
+  details.xdet > summary::-webkit-details-marker{display:none}
+  details.xdet > summary::before{content:"▸ ";color:var(--accent)}
+  details.xdet[open] > summary::before{content:"▾ "}
+  details.xdet > summary:hover{color:var(--accent)}
+
+  /* ---- Waagerecht scrollende Tabellen: sichtbare Affordanz ----
+     R2-M5: mobil lag die Urteils-Spalte ohne jeden Hinweis ausserhalb des
+     Schirms. Kantenschatten + Hinweiszeile, und die Paar-Tabelle wird unter
+     640 px durch gestapelte Karten ersetzt. */
+  .scrollx{overflow-x:auto}
+  .scrollhint{background:
+      linear-gradient(to right,var(--bg-card) 30%,rgba(255,255,255,0)),
+      linear-gradient(to right,rgba(255,255,255,0),var(--bg-card) 70%) 100% 0,
+      radial-gradient(farthest-side at 0 50%,rgba(15,30,46,.12),rgba(0,0,0,0)),
+      radial-gradient(farthest-side at 100% 50%,rgba(15,30,46,.12),rgba(0,0,0,0)) 100% 0;
+    background-repeat:no-repeat;background-size:34px 100%,34px 100%,14px 100%,14px 100%;
+    background-attachment:local,local,scroll,scroll}
+  .scrollnote{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--soft);
+              margin:2px 0 0;display:none}
+  .pair-cards{display:none}
+  .pair-card{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0;
+             background:var(--bg-card)}
+  .pair-card .pt{font-weight:600;font-size:14.5px;line-height:1.35}
+  .pair-card .pw{font-size:13px;color:var(--soft);margin:3px 0 8px}
+  .pair-card dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0;font-size:13px}
+  .pair-card dt{color:var(--soft)}
+  .pair-card dd{margin:0;font-family:'JetBrains Mono',monospace;font-size:12.5px}
+
+  /* ---- Eine-Ziehung-Demo ---- */
+  #draw-demo table{margin:10px 0 0;font-size:13px}
+  #draw-demo td,#draw-demo th{padding:6px 9px}
+  .draw-win{font-weight:600;color:var(--conf-a)}
+
   @media (max-width:700px){
     body{font-size:16px}
     h2{font-size:25px}
     .summary-box{padding:18px 18px}
+  }
+  @media (max-width:640px){
+    .pair-cards{display:block}
+    .pair-table{display:none}
+    .scrollnote{display:block}
   }
 </style>
 </head>
@@ -257,7 +315,7 @@
   <p class="hero-sub">Ein nachrechenbares Modell für ein klimaneutrales, bezahlbares und
   versorgungssicheres deutsches Stromsystem. Alle Schieberegler rechnen live — mit demselben
   Modell, das auch die Python-Skripte im Repository verwenden.</p>
-  <div class="hero-meta">Michael Tenner · Daten-WG · Stand August 2026 · v0.11 (Entwurf) · Modell v0.2b ·
+  <div class="hero-meta">Michael Tenner · Daten-WG · Stand August 2026 · v 0.12 (Entwurf) · Modell v0.2c ·
   Lesezeit ca. 25 Minuten, mit den Simulationen deutlich länger</div>
 </header>
 
@@ -268,9 +326,9 @@
 <!-- ====================================================== EXECUTIVE SUMMARY -->
 <section class="summary-box" id="summary">
   <h2>Executive Summary</h2>
-  <p class="summary-lead">Die Aussagen, die dieses Papier belegt — mit Konfidenzstufe, Quelle und
-  einer ehrlichen Angabe, wie sicher sie jeweils sind. Die letzten drei erscheinen, sobald die
-  Monte-Carlo-Rechnung im Hintergrund durch ist. Wer nur zwei Minuten hat, liest bis hier.</p>
+  <p class="summary-lead">Fünf Aussagen, mehr gibt dieses Modell nicht her — jede mit Konfidenzstufe,
+  Quelle und einer ehrlichen Angabe, wie sicher sie ist. Wer nur zwei Minuten hat, liest bis hier;
+  die ausführliche Fassung mit allen Gegenrichtungen steht in <a href="#fazit">Kapitel 8.2</a>.</p>
   <div id="exec-list"></div>
 </section>
 
@@ -742,6 +800,32 @@ mit Modellversion 0.2 geändert — und das ist die wichtigste methodische Korre
 
 <div class="note" id="mc-config-note"></div>
 
+<!-- Eine-Ziehung-Demo (v0.12, DataViz-Idee 3): macht die gepaarte Ziehung
+     sichtbar, bevor die Verteilung gezeigt wird. -->
+<div class="card" id="draw-demo">
+  <p class="card-t">Eine einzelne gepaarte Ziehung ansehen</p>
+  <p style="font-size:14.5px" id="draw-demo-lead"></p>
+  <div class="runbar">
+    <button class="btn" id="draw-demo-btn" type="button" disabled>eine Ziehung zeigen</button>
+    <button class="chip" id="draw-demo-again" type="button" hidden>nächste Ziehung</button>
+    <span class="st" id="draw-demo-count"></span>
+  </div>
+  <div class="grid2" id="draw-demo-out" hidden style="margin-top:14px">
+    <div>
+      <p class="chart-sub" style="margin-bottom:4px"><strong>Gezogen in dieser einen Zukunft</strong>
+      — dieselben Werte gelten für <em>alle</em> Szenarien gleichzeitig.</p>
+      <div class="scrollx scrollhint" id="draw-demo-params"></div>
+    </div>
+    <div>
+      <p class="chart-sub" style="margin-bottom:4px"><strong>Was diese eine Zukunft kostet</strong>
+      — System-LSCOE je Szenario, mit genau diesen Werten gerechnet.</p>
+      <div class="scrollx scrollhint" id="draw-demo-result"></div>
+      <p class="scrollnote">← Tabelle waagerecht scrollbar →</p>
+      <p class="chart-sub" id="draw-demo-note"></p>
+    </div>
+  </div>
+</div>
+
 <div class="chartbox">
   <h4>Verteilung des System-LSCOE je Szenario</h4>
   <p class="chart-sub" id="mc-chart-sub"></p>
@@ -753,9 +837,18 @@ mit Modellversion 0.2 geändert — und das ist die wichtigste methodische Korre
 <p id="mc-rank-intro"></p>
 
 <div class="chartbox">
-  <h4>Rangwahrscheinlichkeiten P(A günstiger als B)</h4>
-  <p class="chart-sub" id="mc-rank-sub"></p>
-  <div class="scrollx" id="table-mc-ranks"></div>
+  <h4>Die entscheidungsrelevanten Paare</h4>
+  <p class="chart-sub" id="mc-pairs-sub"></p>
+  <div class="scrollx scrollhint pair-table" id="table-mc-pairs"></div>
+  <p class="scrollnote">← Tabelle waagerecht scrollbar →</p>
+  <div class="pair-cards" id="cards-mc-pairs"></div>
+  <p class="chart-sub" id="mc-pairs-foot"></p>
+  <details class="xdet" id="mc-matrix-details">
+    <summary>Vollständige Matrix aller Paare — für Expertinnen und Experten</summary>
+    <p class="chart-sub" id="mc-rank-sub"></p>
+    <div class="scrollx scrollhint" id="table-mc-ranks"></div>
+    <p class="scrollnote">← Tabelle waagerecht scrollbar →</p>
+  </details>
 </div>
 
 <div class="note warn" id="mc-finding"></div>
@@ -875,10 +968,7 @@ als vorhanden, ohne das Instrument mitzurechnen, das sie hervorbringen müsste.<
   <div class="card">
     <p class="card-t">Was das eigene Modell mit GES-Annahmen ergibt</p>
     <div class="scrollx" id="table-ges-repro"></div>
-    <p style="font-size:14px;color:var(--soft);margin:10px 0 0">Die <em>Rangfolge</em> der Szenarien
-    wird reproduziert, die Absolutwerte nicht. Größte Einzelursache: Die Technologie-Aufteilung je
-    Szenario liegt in der Studie nur als Grafik vor und musste rekonstruiert werden.
-    <span class="conf conf-C">C</span></p>
+    <p style="font-size:14px;color:var(--soft);margin:10px 0 0" id="ges-repro-note"></p>
   </div>
 </div>
 
@@ -961,7 +1051,7 @@ Recherche-Dossiers und Rohdaten liegen vollständig im Repository:</p>
     <a href="datenschutz.html">Datenschutz</a>
   </div>
   <p style="margin:0">Michael Tenner · Daten-WG · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a>
-  · August 2026 · v0.11 · Modell v0.2b</p>
+  · August 2026 · v 0.12 (Entwurf) · Modell v0.2c</p>
 </div></footer>
 
 <div class="pop" id="pop"></div>

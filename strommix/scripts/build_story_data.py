@@ -77,20 +77,30 @@ def load_story_block() -> dict:
     return found[0]
 
 
-def load_addendum() -> dict:
-    """Nachtrag v0.2b (Teil 6 des Dossiers).
+# Nachtraege in Anwendungsreihenfolge: der spaetere gewinnt bei gleichem
+# Schluessel. Teil 6 = Modellstand v0.2b, Teil 7 = Modellstand v0.2c.
+ADDENDUM_BLOCKS = ["story_data_v02b", "story_data_v02c"]
 
-    Der Nachtrag ersetzt einzelne Bloecke des Freigabe-Datensatzes (derzeit
-    `monte_carlo_headline`, dessen Zahlen aus Modellstand v0.1 stammen) und
-    ergaenzt die Bloecke, die das Story-Redigat neu braucht. Er ist optional:
-    fehlt er, faellt der Build auf den Stand aus Teil 5 zurueck.
+
+def load_addenda() -> list[dict]:
+    """Nachtraege (Teil 6 und Teil 7 des Dossiers).
+
+    Ein Nachtrag ersetzt einzelne Bloecke des Freigabe-Datensatzes (z. B.
+    `monte_carlo_headline`, dessen Zahlen sonst aus einem alten Modellstand
+    stammen) und ergaenzt die Bloecke, die das jeweilige Story-Redigat neu
+    braucht. Nachtraege sind optional: fehlen sie, faellt der Build auf den
+    Stand aus Teil 5 zurueck.
     """
-    found = [b for b in blocks(CLAIMS_MD)
-             if isinstance(b, dict) and b.get("meta", {}).get("block") == "story_data_v02b"]
-    if len(found) > 1:
-        raise RuntimeError(
-            f"Hoechstens ein story_data_v02b-Block erwartet, gefunden: {len(found)}")
-    return found[0] if found else {}
+    out: list[dict] = []
+    for name in ADDENDUM_BLOCKS:
+        found = [b for b in blocks(CLAIMS_MD)
+                 if isinstance(b, dict) and b.get("meta", {}).get("block") == name]
+        if len(found) > 1:
+            raise RuntimeError(
+                f"Hoechstens ein {name}-Block erwartet, gefunden: {len(found)}")
+        if found:
+            out.append(found[0])
+    return out
 
 
 def load_json(path: str) -> dict:
@@ -497,7 +507,7 @@ def check_sources(out: dict, pool: dict[str, dict],
 # --------------------------------------------------------------------------
 def main() -> int:
     story = load_story_block()
-    addendum = load_addendum()
+    addenda = load_addenda()
     page = load_json(PAGE_DATA)
     mc = load_json(MC_REF)
     pool = collect_source_pool()
@@ -512,9 +522,9 @@ def main() -> int:
         "research/kosten_kernkraft.md (sources)",
         "research/kosten_ee_speicher.md (sources)",
     ]
-    if addendum:
+    for i, add in enumerate(addenda):
         out["meta"]["inputs"].insert(
-            1, "research/story_claims_check.md (Nachtrag story_data_v02b)")
+            1 + i, f"research/story_claims_check.md (Nachtrag {add['meta']['block']})")
     out["meta"]["story_version"] = "v0.1 (Entwurf)"
     out["meta"]["story_file"] = "strommix-story.html"
     out["meta"]["deep_dive"] = {
@@ -536,13 +546,14 @@ def main() -> int:
     out["shared"] = build_shared(page, mc, load_json(PARAMS))
     out["internal_source_ids_reused"] = story["internal_source_ids_reused"]
 
-    # --- Nachtrag v0.2b darueberlegen -------------------------------------
-    # Reihenfolge: erst Teil 5, dann Teil 6. Gleichnamige Bloecke gewinnen aus
-    # dem Nachtrag (aktuell nur `monte_carlo_headline`), neue Bloecke kommen
-    # hinzu, `sources` werden angehaengt statt ersetzt.
+    # --- Nachtraege darueberlegen -----------------------------------------
+    # Reihenfolge: erst Teil 5, dann Teil 6 (v0.2b), dann Teil 7 (v0.2c).
+    # Gleichnamige Bloecke gewinnen aus dem juengsten Nachtrag, neue Bloecke
+    # kommen hinzu, `sources` werden angehaengt statt ersetzt.
     story_sources = list(story["sources"])
     extra_wanted: set[str] = set()
-    if addendum:
+    out["meta"]["addendum"] = []
+    for addendum in addenda:
         for key, value in addendum.items():
             if key in ("meta", "sources", "story_cited_source_ids"):
                 continue
@@ -551,12 +562,13 @@ def main() -> int:
         extra_wanted |= set(addendum.get("story_cited_source_ids", []))
         out["meta"]["story_version"] = addendum["meta"].get(
             "story_version", out["meta"]["story_version"])
-        out["meta"]["model_version"] = addendum["meta"].get("model_version")
-        out["meta"]["addendum"] = {
+        out["meta"]["model_version"] = addendum["meta"].get(
+            "model_version", out["meta"].get("model_version"))
+        out["meta"]["addendum"].append({
             "block": addendum["meta"]["block"],
             "created": addendum["meta"]["created"],
             "replaces": addendum["meta"].get("replaces", []),
-        }
+        })
 
     # Quellen aufloesen und durchnummerieren
     out["sources"] = story_sources

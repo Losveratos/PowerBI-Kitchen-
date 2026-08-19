@@ -43,12 +43,13 @@
   "inputs": [
    "research/story_claims_check.md (Block story_data)",
    "research/story_claims_check.md (Nachtrag story_data_v02b)",
+   "research/story_claims_check.md (Nachtrag story_data_v02c)",
    "data/page_data.json",
    "data/monte_carlo_reference.json",
    "research/kosten_kernkraft.md (sources)",
    "research/kosten_ee_speicher.md (sources)"
   ],
-  "story_version": "v0.2 (Entwurf)",
+  "story_version": "v0.3 (Entwurf)",
   "story_file": "strommix-story.html",
   "deep_dive": {
    "file": "whitepaper-strommix.html",
@@ -65,14 +66,26 @@
     "limitationen": "kap-9"
    }
   },
-  "model_version": "0.2b",
-  "addendum": {
-   "block": "story_data_v02b",
-   "created": "2026-08-19",
-   "replaces": [
-    "monte_carlo_headline"
-   ]
-  }
+  "addendum": [
+   {
+    "block": "story_data_v02b",
+    "created": "2026-08-19",
+    "replaces": [
+     "monte_carlo_headline"
+    ]
+   },
+   {
+    "block": "story_data_v02c",
+    "created": "2026-08-19",
+    "replaces": [
+     "monte_carlo_headline",
+     "co2_sensitivity",
+     "ccs_narrative",
+     "ges_absender"
+    ]
+   }
+  ],
+  "model_version": "0.2c"
  },
  "rejected_do_not_use": [
   {
@@ -552,17 +565,17 @@
   }
  },
  "monte_carlo_headline": {
-  "source": "data/monte_carlo_reference.json (Modell v0.2b, scripts/model.py, 1000 gepaarte Ziehungen je Konfiguration)",
-  "model_version": "0.2b",
+  "source": "data/monte_carlo_reference.json (Modell v0.2c, scripts/model.py, 1000 gepaarte Ziehungen je Konfiguration)",
+  "model_version": "0.2c",
   "co2_price_eur_t": 75,
-  "caveat": "Profile PARTIAL (H2-2024, 4416 h, hochgerechnet). Der Erdgas-Brennstoffpreis ist seit v0.2 bepreist (20/35/60 EUR/MWh_th, Marktspanne, Konfidenz B für die Spanne und C für die Uebertragbarkeit auf 2045) - die früheren Untergrenzen-Vorbehalte gelten dafür nicht mehr. Weiterhin fehlen Netzbetrieb, Redispatch und Verluste; der Netzblock der Zukunftsszenarien bleibt eine Untergrenze. Import, Export und Lastmanagement sind nicht modelliert.",
+  "caveat": "Profile PARTIAL (H2-2024, 4416 h, hochgerechnet). Seit v0.2c hat das Übertragungsnetz einen mixunabhängigen Sockel (Setzung 0,40, Sensitivität 0,20-0,60) - diese eine Setzung bewegt den Abstand zwischen dem Kernkraft- und dem gasgestützten Pfad über die ganze Breite von -2,3 bis +4,5 EUR/MWh. Weiterhin fehlen Netzbetrieb, Redispatch und Verluste; der Netzblock der Zukunftsszenarien bleibt eine Untergrenze. Import, Export und Lastmanagement sind nicht modelliert.",
   "confidence": "B",
   "presets": [
    {
     "id": "ist2025",
     "label": "Ist 2025 (Referenzsystem)",
     "deterministic": 180.8,
-    "p50_base": 182,
+    "p50_base": 183,
     "p5_p95_base": [
      174,
      192
@@ -575,11 +588,11 @@
    {
     "id": "kostenminimum",
     "label": "GES - Kostenminimum",
-    "deterministic": 152.3,
-    "p50_base": 158,
+    "deterministic": 159.0,
+    "p50_base": 165,
     "p5_p95_base": [
-     147,
-     180
+     154,
+     186
     ],
     "emissions_mt_co2_a": 27.9,
     "gas_backup_twh_a": 69.2,
@@ -589,11 +602,11 @@
    {
     "id": "kostenminimum_ccs",
     "label": "GES - Kostenminimum (Gas mit CCS)",
-    "deterministic": 163.3,
-    "p50_base": 170,
+    "deterministic": 169.6,
+    "p50_base": 176,
     "p5_p95_base": [
-     157,
-     191
+     164,
+     197
     ],
     "emissions_mt_co2_a": 8.3,
     "gas_backup_twh_a": 69.2,
@@ -603,11 +616,11 @@
    {
     "id": "ee80_gas",
     "label": "GES - 80 % EE + Gas",
-    "deterministic": 154.6,
-    "p50_base": 157,
+    "deterministic": 156.8,
+    "p50_base": 159,
     "p5_p95_base": [
-     145,
-     169
+     148,
+     171
     ],
     "emissions_mt_co2_a": 106.5,
     "gas_backup_twh_a": 264.4,
@@ -617,11 +630,11 @@
    {
     "id": "ee80_gas_ccs",
     "label": "GES - 80 % EE + Gas mit CCS",
-    "deterministic": 184.4,
-    "p50_base": 188,
+    "deterministic": 185.0,
+    "p50_base": 189,
     "p5_p95_base": [
-     171,
-     210
+     172,
+     206
     ],
     "emissions_mt_co2_a": 31.7,
     "gas_backup_twh_a": 264.4,
@@ -631,11 +644,11 @@
    {
     "id": "ee80_h2",
     "label": "GES - 80 % EE + H2",
-    "deterministic": 198.4,
-    "p50_base": 198,
+    "deterministic": 199.5,
+    "p50_base": 200,
     "p5_p95_base": [
-     188,
-     209
+     189,
+     210
     ],
     "emissions_mt_co2_a": 4.8,
     "gas_backup_twh_a": 11.9,
@@ -646,10 +659,10 @@
     "id": "ee100",
     "label": "GES - 100 % Erneuerbare",
     "deterministic": 245.2,
-    "p50_base": 244,
+    "p50_base": 245,
     "p5_p95_base": [
      228,
-     262
+     263
     ],
     "emissions_mt_co2_a": 1.3,
     "gas_backup_twh_a": 3.2,
@@ -657,7 +670,7 @@
     "comparable": true
    }
   ],
-  "honest_statement": "Nach allen sieben Korrekturen liegen die beiden vorderen Pfade fast gleichauf: 152,3 Euro je Megawattstunde für das kernkraftgestützte Kostenminimum, 154,6 für die gasgestützten 80 Prozent Erneuerbare. Ueber 1.000 gepaarte Ziehungen ist das Kernkraft-Szenario in 45 von 100 Fällen das günstigere - die Rangfolge zwischen diesen beiden ist offen, und das ist jetzt gerechnet statt behauptet. Nur vergleicht dieser Beinahe-Gleichstand 28 gegen 107 Millionen Tonnen CO2 im Jahr. Auf gleichem Emissionsniveau - beide Pfade mit Abscheidung, so wie die geprüften Studienszenarien ihren Gas-Pfad meinen - führt das Kernkraft-Szenario mit 90 Prozent.",
+  "honest_statement": "Die beiden vorderen Pfade liegen so eng beieinander, dass schon die Wahl der Kennzahl den Sieger wechselt: Im Punktwert kostet der gasgestützte 80-Prozent-Pfad 156,8 Euro je Megawattstunde und das kernkraftgestützte Kostenminimum 159,0 - von 1.000 durchgerechneten Zukünften gehen 257 an die Kernkraft und 743 an den Gas-Pfad. Entschieden ist damit nichts: Die Differenz je Zukunft reicht von 8 Euro zugunsten der Kernkraft bis 28 Euro zugunsten des Gases. Nur vergleicht dieser Beinahe-Gleichstand 28 gegen 107 Millionen Tonnen CO2 im Jahr. Verlangt man vom Gas-Pfad dieselbe Emissionsmenge - mit Abscheidung, so wie die geprüfte Studie ihren Gas-Pfad meint -, liegt das Kernkraft-Szenario in 943 von 1.000 Zukünften vorn; nach unserer eigenen Schwelle von 950 ist auch das formal kein entschiedener Vergleich, aber die Richtung dreht sich. Und 6,7 der 11,7 Euro Vorsprung, die davon im technologiesymmetrischen Vergleich übrig bleiben, stammen aus einer einzigen Modellsetzung: der Frage, welcher Teil des Übertragungsnetzes auch ohne Wind und Sonne gebaut werden müsste.",
   "ranking_note": "Der Ist-2025-Anker ist NICHT ranking-fähig: er trägt das heutige Netzentgelt statt der Netzinvestition bis 2045 und seine Bestandsbänder ohne Kapital- und Betriebskosten. Er ist ein Größenordnungs-Bezug, kein fünfter Platz."
  },
  "electrolyser": {
@@ -4952,8 +4965,8 @@
   "global-hydrogen-hub-2025"
  ],
  "co2_sensitivity": {
-  "method": "scripts/model.py, mix_system, Szenariensatz mittel, WACC 5 %, Netzvariante mid, Profil H2-2024; alle Parameter unverändert, variiert wird ausschließlich co2_price. Kipppunkt per Bisektion.",
-  "model_version": "0.2b",
+  "method": "scripts/model.py, mix_system, Szenariensatz mittel, WACC 5 %, Netzvariante mid, Profil H2-2024; alle Parameter unverändert, variiert wird ausschließlich co2_price. Kipppunkt per Bisektion; der Umschlagpunkt über die gepaarten Ziehungen ist der CO2-Preis, bei dem die Median-Differenz null wird.",
+  "model_version": "0.2c",
   "unit_costs": "EUR/MWh Systemkosten",
   "confidence": "B",
   "levels": [
@@ -4961,55 +4974,57 @@
     "co2_eur_t": 0,
     "label": "kein CO₂-Preis",
     "ist2025": 161.2,
-    "kostenminimum": 150.1,
-    "kostenminimum_ccs": 162.6,
-    "ee80_gas": 146.2,
-    "ee80_gas_ccs": 181.9,
-    "ee80_h2": 198.0,
+    "kostenminimum": 156.8,
+    "kostenminimum_ccs": 168.9,
+    "ee80_gas": 148.4,
+    "ee80_gas_ccs": 182.5,
+    "ee80_h2": 199.1,
     "ee100": 245.1
    },
    {
     "co2_eur_t": 75,
     "label": "Modellwert (ETS-1-Marktniveau)",
     "ist2025": 180.8,
-    "kostenminimum": 152.3,
-    "kostenminimum_ccs": 163.3,
-    "ee80_gas": 154.6,
-    "ee80_gas_ccs": 184.4,
-    "ee80_h2": 198.4,
+    "kostenminimum": 159.0,
+    "kostenminimum_ccs": 169.6,
+    "ee80_gas": 156.8,
+    "ee80_gas_ccs": 185.0,
+    "ee80_h2": 199.5,
     "ee100": 245.2
    },
    {
     "co2_eur_t": 350,
     "label": "UBA-Klimakostensatz MK 3.2 (1 % Diskontierung)",
     "ist2025": 252.8,
-    "kostenminimum": 160.4,
-    "kostenminimum_ccs": 165.7,
-    "ee80_gas": 185.5,
-    "ee80_gas_ccs": 193.6,
-    "ee80_h2": 199.8,
+    "kostenminimum": 167.1,
+    "kostenminimum_ccs": 172.0,
+    "ee80_gas": 187.7,
+    "ee80_gas_ccs": 194.1,
+    "ee80_h2": 200.9,
     "ee100": 245.5
    },
    {
     "co2_eur_t": 990,
     "label": "UBA-Klimakostensatz MK 4.0 (Zentralwert)",
     "ist2025": 420.2,
-    "kostenminimum": 179.2,
-    "kostenminimum_ccs": 171.3,
-    "ee80_gas": 257.2,
-    "ee80_gas_ccs": 214.9,
-    "ee80_h2": 203.0,
+    "kostenminimum": 185.9,
+    "kostenminimum_ccs": 177.6,
+    "ee80_gas": 259.4,
+    "ee80_gas_ccs": 215.5,
+    "ee80_h2": 204.1,
     "ee100": 246.4
    }
   ],
-  "crossover_kernkraft_vs_gas_eur_t": 47.5,
-  "crossover_note": "Oberhalb von rund 48 Euro je Tonne ist das Kernkraft-Szenario im deterministischen Lauf günstiger als der gasgestützte Pfad. Der Modellwert von 75 Euro liegt bereits darüber - der Beinahe-Gleichstand von 152,3 zu 154,6 ist also selbst schon ein Ergebnis des angesetzten CO₂-Preises.",
+  "crossover_kernkraft_vs_gas_eur_t": 101.8,
+  "crossover_mc_median_eur_t": 152,
+  "crossover_note": "Diese Marke gilt für den deterministischen Lauf mit den mittleren Annahmen: Darunter ist der gasgestützte Pfad günstiger, darüber das Kernkraft-Szenario. Über die 1.000 gepaarten Ziehungen wird die Median-Differenz erst bei rund 152 Euro je Tonne null. Der ETS-1-Marktpreis von 74 Euro (Mai 2026) und der Modellwert von 75 Euro liegen unter beiden Marken - beim heutigen CO2-Preis führt in dieser Rechnung der Gas-Pfad. Die Marke wandert mit dem Gaspreis und mit der Netzregel; sie ist keine Naturkonstante. Mit Abscheidung auf beiden Seiten gibt es gar keinen Kipppunkt: Dort liegt das Kernkraft-Szenario bei jedem CO2-Preis vorn.",
   "superseded_v01_estimate_eur_t": 260,
-  "superseded_note": "Im Panel-Review 05 wurde derselbe Kipppunkt mit Modellstand v0.1 auf rund 260 Euro je Tonne bestimmt. Er ist um mehr als das Fünffache gefallen, weil v0.2 dem Gas-Pfad seinen Brennstoff in Rechnung stellt (M2) und die Bauzinsen-Doppelzählung bei der Kernkraft entfernt (M1). Die alte Zahl darf nur als abgelöster Wert zitiert werden.",
+  "superseded_v02b_estimate_eur_t": 47.5,
+  "superseded_note": "Dieselbe Marke lag im Panel-Review 05 mit Modellstand v0.1 bei rund 260 Euro je Tonne und in v0.2b bei 47,5 Euro. Der Sturz auf 47,5 kam daher, dass v0.2 dem Gas-Pfad seinen Brennstoff in Rechnung stellt und die Bauzinsen-Doppelzählung bei der Kernkraft entfernt; der Wiederanstieg auf 101,8 kommt vom Übertragungsnetz-Sockel aus v0.2c, der den Kernkraft-Pfad um 6,7 und den Gas-Pfad nur um 2,2 Euro je Megawattstunde verteuert. Beide älteren Zahlen dürfen nur als abgelöste Werte zitiert werden.",
   "ets1_market_may_2026_eur_t": 74,
   "uba_mk32_1pct_eur_t": 350,
   "uba_mk40_central_eur_t": 990,
-  "uba_note": "Der Abstand zwischen Marktpreis und Klimakostensatz ist keine Rechenfrage, sondern eine ethische Setzung: 350 Euro je Tonne folgen einer Zeitpräferenzrate von 1 Prozent, die Werte um 990 bis 1.000 Euro gewichten heutige und künftige Generationen gleich.",
+  "uba_note": "Der Abstand zwischen Marktpreis und Klimakostensatz ist keine Rechenfrage, sondern eine Wertentscheidung: 350 Euro je Tonne folgen einer Zeitpräferenzrate von 1 Prozent, die Werte um 990 bis 1.000 Euro gewichten heutige und künftige Generationen gleich.",
   "source_ids": [
    "uba-methodenkonvention",
    "ews-ets2"
@@ -5017,36 +5032,34 @@
  },
  "ccs_narrative": {
   "delta_eur_mwh": {
-   "kostenminimum": 10.9,
-   "ee80_gas": 29.8
-  },
-  "decomposition_ee80_gas_eur_mwh": {
-   "kapazitaet": 23.9,
-   "mehrbrennstoff": 2.5,
-   "ccs_kette": 9.3,
-   "gesparte_co2_kosten": -5.9
-  },
-  "decomposition_kostenminimum_eur_mwh": {
-   "kapazitaet": 9.4,
-   "mehrbrennstoff": 0.7,
-   "ccs_kette": 2.4,
-   "gesparte_co2_kosten": -1.5
+   "kostenminimum": 10.5,
+   "ee80_gas": 28.1
   },
   "implied_abatement_cost_eur_t": {
-   "kostenminimum": 531,
-   "ee80_gas": 378
+   "kostenminimum": 510,
+   "ee80_gas": 357
+  },
+  "stored_mt_co2_a": {
+   "kostenminimum": 23.9,
+   "ee80_gas": 91.2
+  },
+  "residual_mt_co2_a": {
+   "kostenminimum": 8.3,
+   "ee80_gas": 31.7
   },
   "backup_full_load_hours": {
    "kostenminimum": 1282,
    "ee80_gas": 1930
   },
-  "note": "Der dominante Posten ist die verdoppelte Kapazität, nicht die Abscheidung selbst: ein verdoppelter Kapitalblock verteilt sich auf 1.300 bis 1.900 Betriebsstunden im Jahr. Die impliziten Vermeidungskosten sind deshalb eine OBERGRENZE - ein real optimiertes System würde nur die hoch ausgelasteten Blöcke mit Abscheidung bauen und die Spitzenlast unabgeschieden fahren.",
+  "decomposition_note": "Die Zerlegung des Aufschlags in Kapazität, Mehrbrennstoff, CCS-Kette und gesparte CO2-Kosten stammte aus dem v0.2b-Lauf und ist mit v0.2c nicht neu gerechnet worden. Sie ist deshalb aus dem Datensatz entfernt; qualitativ bleibt der Befund: Der dominante Posten ist der verdoppelte Kapitalblock, nicht die Abscheidung selbst.",
+  "note": "Ein Gaskraftwerk mit Abscheidung kostet in der Anschaffung rund das Doppelte, läuft aber nur 1.300 bis 1.900 Stunden im Jahr. Die impliziten Vermeidungskosten sind eine OBERGRENZE - und zwar für beides, für die Vermeidungskosten und für den Aufschlag selbst: Die Rechnung rüstet den GESAMTEN Backup-Park aus, auch die Blöcke mit sehr wenigen Betriebsstunden. Ein real optimiertes System würde nur die hoch ausgelasteten Blöcke ausrüsten und die Spitzenlast unabgeschieden fahren - dann fällt der Aufschlag kleiner aus, dafür bleibt mehr Restemission.",
   "confidence": "B",
-  "source": "research/modell_v02_ergebnis.md 4b.1"
+  "source": "research/modell_v02c_ergebnis.md 6.5"
  },
  "ges_absender": {
   "organisation": "Global Energy Solutions e.V.",
-  "gegruendet": "2020 in Ulm, initiiert aus dem Umfeld des Forschungsinstituts FAW/n",
+  "gegruendet": "2020 in Ulm",
+  "gegruendet_kontext": "initiiert aus dem Umfeld des Forschungsinstituts FAW/n",
   "urspruenglicher_fokus": "grüner Wasserstoff, Methanol und Power-to-X-Importe",
   "studie_erschienen": "Juli 2026",
   "zieljahr": 2045,
@@ -5152,6 +5165,64 @@
   "text": "Die Zeitreihe oben enthält 15 Datenpunkte und keinen einzigen asiatischen. Sie zeigt damit nicht die Geschichte der Kernkraft, sondern die des westlichen Kernkraftbaus nach der Bauunterbrechung. In den letzten zwanzig Jahren wurde die Mehrheit aller Reaktoren weltweit in Asien gebaut. Zu chinesischen Neubaukosten liegt uns keine prüfbare Quelle vor; der koreanische und der emiratische Teil des Weltbestands steht in unserem Datensatz und taucht in Akt 2 als Cluster Asien/Golf auf - und in Akt 4 als eigene, durchgerechnete Kontrastverteilung.",
   "confidence": "A",
   "source": "Persona-Review 06 (Pro-Kernkraft-Advocacy) K3"
+ },
+ "ueberschreitung": {
+  "schaetzbasis_eur_kw": 7500,
+  "rest_anteile": [
+   0.48,
+   0.5,
+   0.0
+  ],
+  "capex_effektiv_median_eur_kw": 15941,
+  "capex_effektiv_faktor": 1.3,
+  "capex_effektiv_median_v02b_eur_kw": 22770,
+  "hpc_nominal_eur_kw": 17264,
+  "text": "Der empirische Überschreitungsfaktor wird seit v0.2c nicht mehr auf jeden gezogenen Baukostenwert multipliziert, sondern als absoluter Betrag auf einer einzigen Schätzbasis von 7.500 Euro je Kilowatt gerechnet - und nur auf den Teil der Eskalation, der noch aussteht. Auf Anker, die ihre Verteuerung bereits hinter sich haben (Hinkley Point C in laufenden Preisen), kommt gar nichts mehr obendrauf. Ergebnis: Der effektive Baukostenwert liegt im Überschreitungs-Lauf im Median bei 15.941 statt 22.770 Euro je Kilowatt - ein effektiver Faktor von 1,30 statt 1,86, und damit erstmals vollständig unterhalb des teuersten je gebauten westlichen Reaktors (17.264 Euro je Kilowatt).",
+  "confidence": "B",
+  "source": "research/modell_v02c_ergebnis.md 4.1-4.4"
+ },
+ "netzregel_anteil": {
+  "sockel_effekt_kernkraft_eur_mwh": 6.7,
+  "sockel_effekt_gas_eur_mwh": 2.2,
+  "median_vorsprung_ccs_paar_eur_mwh": 11.7,
+  "anteil_am_median_vorsprung_pct": 58,
+  "anteil_am_deterministischen_abstand_pct": 44,
+  "sensitivitaet_abstand_eur_mwh": [
+   -2.3,
+   4.5
+  ],
+  "text": "Von den 11,7 Euro je Megawattstunde, mit denen das Kernkraft-Szenario im technologiesymmetrischen Vergleich vorn liegt, stammen 6,7 aus einer einzigen Modellsetzung: dem Anteil des Übertragungsnetzes, der auch ohne wetterabhängige Erzeugung gebaut werden müsste (0,40, Sensitivität 0,20 bis 0,60). Über diese Spanne bewegt sich der Abstand der beiden Pfade um 6,8 Euro je Megawattstunde - mehr als der Abstand selbst. Es ist der einzige Parameter des Modells, der die Rangfolge allein durch seine Wahl dreht.",
+  "confidence": "M",
+  "source": "research/modell_v02c_ergebnis.md 2.3"
+ },
+ "modell_offene_punkte": {
+  "wacc_anker_monotonie": {
+   "text": "Die drei Baukosten-Anker der Kernkraft haben verschiedene Kostenabgrenzungen: 7.500 Euro je Kilowatt sind reine Baukosten, 12.000 und 17.500 enthalten Finanzierung. Bei einem Kapitalkostensatz über rund 8,2 Prozent überholt der bauzinsbelastete untere Anker den mittleren - dort ist die Abbildung von gezogener zu effektiver Bausumme auch ohne jede Kostenüberschreitung nicht mehr monoton. Betroffen sind rund 2,7 Prozent der Ziehungen in den Zins-Konfigurationen. Der saubere Weg wäre, alle Anker auf dieselbe Abgrenzung zu bringen; bei 5 Prozent Zins wäre das ergebnisneutral. Er ist nicht umgesetzt.",
+   "confidence": "A",
+   "source": "research/modell_v02c_ergebnis.md 4.3 und 9"
+  }
+ },
+ "haushalt_anker": {
+  "verbrauch_kwh_a": 3500,
+  "umrechnung": "1 Euro je Megawattstunde sind 0,1 Cent je Kilowattstunde - und bei 3.500 Kilowattstunden Jahresverbrauch 3,50 Euro im Jahr.",
+  "guardrail": "Systemkosten, kein Strompreis: Diese Zahlen sagen, was Erzeugung, Speicher, Backup und Netzausbau je Kilowattstunde kosten. Auf einer Stromrechnung stehen zusätzlich Vertrieb, Messung, Steuern und Abgaben, und die Netzkosten werden dort anders verteilt als hier modelliert. Der Haushalts-Anker macht Größenordnungen fühlbar - er ist keine Preisprognose.",
+  "confidence": "M",
+  "note": "3.500 Kilowattstunden im Jahr sind die gerundete Referenzgröße für einen Zwei- bis Drei-Personen-Haushalt. Sie ist hier eine Rechenhilfe und keine Messung, deshalb als Setzung gekennzeichnet."
+ },
+ "klimaziel_2045": {
+  "gesetz": "Bundes-Klimaschutzgesetz (KSG), § 3a",
+  "netto_neutralitaet_jahr": 2045,
+  "senke_mt_co2_aeq": {
+   "2030": 25,
+   "2040": 35,
+   "2045": 40
+  },
+  "text": "Das Klimaschutzgesetz verlangt für 2045 Netto-Treibhausgasneutralität. Die dafür vorgesehene nationale Senkenleistung aus Landnutzung und Forstwirtschaft steht im selben Gesetz bei 40 Millionen Tonnen CO2-Äquivalent im Jahr - für alle Sektoren zusammen, Industrieprozesse, Landwirtschaft und Abfall eingeschlossen.",
+  "confidence": "B",
+  "confidence_note": "Zielwerte aus § 3a KSG, über Suchindex-Auszüge und Sekundärquellen erfasst; der Gesetzestext war in dieser Arbeitsumgebung nicht im Volltext abrufbar. Es ist ein Zielwert, kein Ist-Wert - die tatsächliche Senkenleistung des Sektors liegt derzeit deutlich darunter und war zuletzt sogar negativ.",
+  "source_ids": [
+   "ksg-3a"
+  ]
  },
  "sources": [
   {
@@ -5560,6 +5631,18 @@
    "nr": 35
   },
   {
+   "id": "ksg-3a",
+   "title": "Bundes-Klimaschutzgesetz (KSG) § 3a - Nationale Klimaschutzziele für den Sektor Landnutzung, Landnutzungsaenderung und Forstwirtschaft",
+   "publisher": "Bundesrepublik Deutschland",
+   "date": "2021/2024",
+   "url": "https://www.gesetze-im-internet.de/ksg/__3a.html",
+   "accessed": "2026-08-19",
+   "confidence": "B",
+   "note": "Senkenziele 25 Mt (2030), 35 Mt (2040), 40 Mt CO2-Aequivalent (2045). Ueber Suchindex-Auszüge und Sekundaerquellen erfasst, nicht am Gesetzestext im Volltext geprüft.",
+   "dossier": "research/story_claims_check.md",
+   "nr": 36
+  },
+  {
    "id": "lazard-2026",
    "title": "Levelized Cost of Energy+ (LCOE+), Version 19.0",
    "publisher": "Lazard",
@@ -5569,7 +5652,7 @@
    "confidence": "B",
    "note": null,
    "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
-   "nr": 36
+   "nr": 37
   },
   {
    "id": "lazard-lcoe-18",
@@ -5579,7 +5662,7 @@
    "url": "https://www.lazard.com/media/uounhon4/lazards-lcoeplus-june-2025.pdf",
    "accessed": "2026-08-15",
    "dossier": "research/kosten_kernkraft.md",
-   "nr": 37
+   "nr": 38
   },
   {
    "id": "lazard-lcoe-19",
@@ -5589,7 +5672,7 @@
    "confidence": "A",
    "note": "Speicherkosten seit 2020 um 27 Prozent gestiegen; LCOS 100 MW / 4 h 210-292 USD/MWh.",
    "dossier": "research/story_claims_check.md",
-   "nr": 38
+   "nr": 39
   },
   {
    "id": "lbbw-dunkelflaute-2025",
@@ -5600,7 +5683,7 @@
    "accessed": "2026-08-15",
    "confidence": "B",
    "dossier": "risiken_co2.md 3.2",
-   "nr": 39
+   "nr": 40
   },
   {
    "id": "lovering-2016",
@@ -5613,7 +5696,7 @@
    "confidence": "A",
    "note": "349 Reaktoren in 7 Ländern, 58 Prozent aller weltweit gebauten Blöcke, Overnight Construction Cost in konstanten USD 2010. NUR gemeinsam mit den beiden Erwiderungen zitieren.",
    "dossier": "research/story_claims_check.md",
-   "nr": 40
+   "nr": 41
   },
   {
    "id": "md-isar2-unverified",
@@ -5622,7 +5705,7 @@
    "confidence": "C",
    "note": "Eingangszahl nicht belegbar, Kostenabgrenzung unbekannt.",
    "dossier": "research/story_claims_check.md",
-   "nr": 41
+   "nr": 42
   },
   {
    "id": "mit-climate-nuclear-cost",
@@ -5632,7 +5715,7 @@
    "url": "https://climate.mit.edu/ask-mit/are-nuclear-power-plants-too-expensive-build",
    "accessed": "2026-08-15",
    "dossier": "research/kosten_kernkraft.md",
-   "nr": 42
+   "nr": 43
   },
   {
    "id": "nei-shinhanul34",
@@ -5642,7 +5725,7 @@
    "url": "https://www.neimagazine.com/news/korea-to-resume-construction-of-shin-hanul-34-10946507/",
    "accessed": "2026-08-15",
    "dossier": "research/kosten_kernkraft.md",
-   "nr": 43
+   "nr": 44
   },
   {
    "id": "nep-2037-2045",
@@ -5653,7 +5736,7 @@
    "accessed": "2026-08-15",
    "confidence": "A",
    "dossier": "ist_zustand_de.md 1.3 / 4.1 / 5.1",
-   "nr": 44
+   "nr": 45
   },
   {
    "id": "nucnet-sizewell-fid",
@@ -5663,7 +5746,7 @@
    "url": "https://www.nucnet.org/news/uk-announces-final-investment-decision-for-gbp38-billion-sizewell-c-nuclear-power-station-7-2-2025",
    "accessed": "2026-08-15",
    "dossier": "research/kosten_kernkraft.md",
-   "nr": 45
+   "nr": 46
   },
   {
    "id": "pulaski-2021",
@@ -5673,7 +5756,7 @@
    "url": "https://pulaski.pl/wp-content/uploads/2021/06/Pulaski_Policy_Paper_No_6_2021_EN-1.pdf",
    "accessed": "2026-08-15",
    "dossier": "research/kosten_kernkraft.md",
-   "nr": 46
+   "nr": 47
   },
   {
    "id": "ritchie-construction-time",
@@ -5685,7 +5768,7 @@
    "confidence": "B",
    "note": null,
    "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
-   "nr": 47
+   "nr": 48
   },
   {
    "id": "sciencedirect-intl-costs",
@@ -5695,7 +5778,7 @@
    "url": "https://www.sciencedirect.com/science/article/am/pii/S0301421522001306",
    "accessed": "2026-08-15",
    "dossier": "research/kosten_kernkraft.md",
-   "nr": 48
+   "nr": 49
   },
   {
    "id": "smard-mirror-2024",
@@ -5707,7 +5790,7 @@
    "confidence": "C",
    "dossier": "daten_stundenprofile.md",
    "note": "Primärquellen (energy-charts, smard.de, OPSD) waren aus der Arbeitsumgebung per Egress-Policy nicht erreichbar.",
-   "nr": 49
+   "nr": 50
   },
   {
    "id": "sovacool-ryu-2025",
@@ -5718,7 +5801,7 @@
    "accessed": "2026-08-15",
    "confidence": "A",
    "dossier": "risiken_co2.md 7.2",
-   "nr": 50
+   "nr": 51
   },
   {
    "id": "uba-methodenkonvention",
@@ -5729,7 +5812,7 @@
    "accessed": "2026-08-15",
    "confidence": "B",
    "dossier": "risiken_co2.md 2.4",
-   "nr": 51
+   "nr": 52
   },
   {
    "id": "unece-2022",
@@ -5740,7 +5823,7 @@
    "accessed": "2026-08-15",
    "confidence": "A",
    "dossier": "risiken_co2.md 1.2",
-   "nr": 52
+   "nr": 53
   },
   {
    "id": "uniper-dunkelflaute-2026",
@@ -5752,7 +5835,7 @@
    "confidence": "A",
    "dossier": "risiken_co2.md 3.1/3.2",
    "note": "Interessenlage: Uniper betreibt konventionelle Kraftwerke. 10-h-Schwelle statt DWD-48-h.",
-   "nr": 53
+   "nr": 54
   },
   {
    "id": "windguard-2025",
@@ -5764,7 +5847,7 @@
    "confidence": "B",
    "note": null,
    "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
-   "nr": 54
+   "nr": 55
   }
  ]
 }
