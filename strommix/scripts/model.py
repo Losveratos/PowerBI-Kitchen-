@@ -144,6 +144,29 @@ def _fuel_eur_mwh_el(tech_params: dict) -> tuple[float, str]:
     return float(th) / float(eta), f"thermisch {float(th):.1f} EUR/MWh_th / eta {float(eta):.3f}"
 
 
+def ccs_chain(tech_params: dict) -> tuple[float, float]:
+    """CO2-Abscheidung: (Kosten EUR/MWh_el, abgeschiedene t CO2/MWh_el).
+
+    Modell v0.2b: Die abgeschiedene Menge haengt am BRENNSTOFFbezogenen
+    Emissionsfaktor (t/MWh_th) und am Wirkungsgrad - der Abscheidungsverlust
+    erhoeht damit korrekt sowohl den Brennstoffeinsatz als auch die
+    abzuscheidende Tonnage je gelieferter MWh_el. Der Kostensatz ist die
+    Vollkette (Abscheidung + Transport + Speicherung) je Tonne.
+
+    Gibt (0, 0) zurueck, wenn die Technologie keine Abscheidung hat.
+    """
+    cost_t = tech_params.get("ccs_cost_eur_t")
+    ef_th = tech_params.get("emission_factor_t_mwh_th")
+    rate = tech_params.get("capture_rate")
+    if not cost_t or not ef_th or not rate:
+        return 0.0, 0.0
+    eta = tech_params.get("efficiency") or tech_params.get("efficiency_lhv")
+    if not eta:
+        return 0.0, 0.0
+    captured = float(ef_th) / float(eta) * float(rate)
+    return float(cost_t) * captured, captured
+
+
 def _share(tech_params: dict, key: str) -> float:
     """Anwendungsanteil 0..1 (Default 1.0, wenn das Feld fehlt)."""
     v = tech_params.get(key)
@@ -240,16 +263,19 @@ def lcoe(tech_params: dict, wacc: float, co2_price: float = 0.0) -> dict:
     waste = float(tech_params.get("waste_eur_mwh") or 0.0)
     ef = float(tech_params.get("emission_factor_t_mwh") or 0.0)
     co2 = co2_price * ef
+    ccs_cost, ccs_captured = ccs_chain(tech_params)
 
     return {
-        "lcoe_eur_mwh": capital + fixed_opex + fuel + waste + co2,
+        "lcoe_eur_mwh": capital + fixed_opex + fuel + waste + co2 + ccs_cost,
         "components_eur_mwh": {
             "kapital": capital,
             "fixbetrieb": fixed_opex,
             "brennstoff": fuel,
             "entsorgung": waste,
             "co2": co2,
+            "ccs": ccs_cost,
         },
+        "ccs_captured_t_mwh": ccs_captured,
         "capex_effective_eur_kw": capex_eff,
         # `idc_surcharge` ist der TATSAECHLICH angewandte Aufschlag (v0.2:
         # bereits mit dem Abgrenzungsanteil multipliziert). Der ungekuerzte
@@ -280,6 +306,7 @@ _SCENARIO_FIELD_MAP = {
     "lifetime_years": "lifetime_years",
     "fuel_eur_mwh": "fuel",
     "fuel_eur_mwh_th": "fuel",
+    "ccs_cost_eur_t": "fuel",  # variabler Kostenblock, folgt dem Brennstoff-Szenario
     "waste_eur_mwh": "waste",
     # v0.2: Kostenabgrenzung folgt der CAPEX-Stuetzstelle
     "capex_scope": "capex",
@@ -652,18 +679,47 @@ def _annual_fixed_cost_eur_kw(tech_flat: dict, wacc: float) -> float:
     return res["annuity_eur_kw_a"] + res["fixed_opex_eur_kw_a"]
 
 
-MODEL_VERSION = "0.2"
+MODEL_VERSION = "0.2b"
 
 # Maschinenlesbare Limitationen (v0.2). Sie gehen unveraendert in
 # data/test_vectors.json, data/monte_carlo_reference.json und ueber
 # build_story_data.py in die Seite - damit keine Einschraenkung nur im
 # Fliesstext lebt.
 LIMITATIONS = [
-    {"id": "ccs_not_modelled", "severity": "hoch",
-     "text": "CCS ist nicht modelliert. Die geprueften GES-Szenarien rechnen ihren Gas-Pfad mit CCS. "
-             "Die hier verglichenen Szenarien sind deshalb NICHT emissionsaequivalent - die "
-             "Restemissionen je Szenario stehen in `emissions`.",
-     "affects": "alle Szenarien mit Gas-Backup", "ref_field": "gaps.ccs_nicht_modelliert"},
+    {"id": "scenarios_not_emission_equivalent", "severity": "hoch",
+     "text": "Die verglichenen Szenarien haben sehr unterschiedliche Restemissionen (1 bis ueber "
+             "100 Mt CO2/a). Ein Kostenvergleich in EUR/MWh ist nur unter gleicher "
+             "Emissionsnebenbedingung eine Aussage ueber Technologien. Seit v0.2b gibt es dafuer "
+             "die CCS-Varianten - die Szenarien OHNE CCS bleiben untereinander nicht "
+             "emissionsaequivalent.",
+     "affects": "alle Szenarien", "ref_field": "emissions.total_mt_co2_a"},
+    {"id": "ccs_storage_availability", "severity": "hoch",
+     "text": "Deutschland hat keine in Betrieb befindliche CO2-Speicherstaette. Die CCS-Varianten "
+             "unterstellen Export in norwegische/niederlaendische Offshore-Speicher samt Logistik, "
+             "Genehmigungen und Akzeptanz. Modelliert ist davon NUR der Kostensatz je Tonne - keine "
+             "Kapazitaetsgrenze, keine Hochlaufkurve, kein Verfuegbarkeitsrisiko. Die jaehrlich "
+             "einzulagernde Menge steht als `emissions.captured_mt_co2_a` im Ergebnis.",
+     "affects": "kostenminimum_ccs, ee80_gas_ccs", "ref_field": "gaps.ccs_speicher_verfuegbarkeit"},
+    {"id": "ccs_cost_band_optimistic", "severity": "mittel",
+     "text": "Der CCS-Vollkettensatz 50/80/100 EUR/t ist die im Repository belegte Spanne. Eine "
+             "Recherche (2026-08-19, Clean Air Task Force / Carbon Management Europe) nennt fuer "
+             "europaeische Anlagen mit den derzeit geplanten Speichern rund 70-250 EUR/t. Das "
+             "Modellband liegt am unteren Rand und beguenstigt den CCS-Pfad.",
+     "affects": "kostenminimum_ccs, ee80_gas_ccs", "ref_field": "gaps.ccs_kostenband_optimistisch"},
+    {"id": "ccs_on_full_backup_fleet", "severity": "hoch",
+     "text": "Die CCS-Varianten ruesten den GESAMTEN Backup-Park aus, auch die Stunden mit sehr "
+             "wenigen Volllaststunden. Weil der CAPEX-Block dabei rund verdoppelt wird, die Anlage "
+             "aber nur 1.300-1.900 h im Jahr laeuft, faellt der Kapitalanteil je abgeschiedener "
+             "Tonne sehr hoch aus. Ein real optimiertes System wuerde CCS nur an den "
+             "hochausgelasteten Bloecken bauen und die Spitzenlast unabgeschieden fahren. Die hier "
+             "ausgewiesenen Vermeidungskosten sind deshalb eine OBERGRENZE.",
+     "affects": "kostenminimum_ccs, ee80_gas_ccs", "ref_field": "model.mix_system (gas_tech)"},
+    {"id": "ccs_residual_is_lifecycle", "severity": "mittel",
+     "text": "Die Restemission von Gas+CCS (49/120/220 g/kWh) ist ein Lebenszyklus-Wert und "
+             "enthaelt die Vorkette (Methanschlupf), die eine Abscheidung am Schornstein nicht "
+             "erfasst. Fuer eine reine ETS-Bepreisung ist der Wert eher zu hoch - dieselbe Richtung "
+             "wie beim GuD-Proxy, also gegen den CCS-Pfad.",
+     "affects": "kostenminimum_ccs, ee80_gas_ccs", "ref_field": "gaps.emissionsfaktor_direkt"},
     {"id": "emission_factor_proxy", "severity": "mittel",
      "text": "Der Emissionsfaktor fuer Gas (0,403 t/MWh_el) und Kohle (0,751 t/MWh_el) ist die "
              "UNECE-Lebenszyklus-Untergrenze, kein direkter Verbrennungsfaktor. Fuer die "
@@ -694,6 +750,14 @@ LIMITATIONS = [
              "Die H2-Pfade sind insoweit eine Untergrenze - das ist die Gegenrichtung zur "
              "Gas-Asymmetrie und bleibt auch nach M2 bestehen.",
      "affects": "ee80_h2, ee100", "ref_field": "model.mix_system (h2_initial_fill_share)"},
+    {"id": "nuclear_base_range_is_western", "severity": "mittel",
+     "text": "Die Kernkraft-Basisverteilung (7.500/12.000/17.500 EUR/kW) enthaelt bewusst kein "
+             "asiatisches oder Golf-Projekt - Begruendung in kosten_kernkraft.md 7.1 "
+             "(Uebertragbarkeit). Der Cluster Asien/Golf (1.870-4.950 EUR/kW) ist real und belegt "
+             "und wird seit v0.2b als EIGENE Monte-Carlo-Konfiguration ('asia', 'asia_wacc') "
+             "gerechnet - nicht in die Basisspanne gemischt.",
+     "affects": "alle Szenarien mit Kernkraft",
+     "ref_field": "technologies.nuclear.capex_alternative_asia_gulf"},
     {"id": "half_year_profile", "severity": "hoch",
      "text": "Das Stundenprofil deckt nur Jul-Dez 2024 ab (4.416 von 8.784 h) und enthaelt den "
              "Sommerueberschuss nicht, aus dem Saisonspeicher befuellt werden.",
@@ -846,11 +910,17 @@ def mix_system(
                 "angesetzt. Das LSCOE ist insoweit eine UNTERGRENZE."
             )
         ef = float(flat.get("emission_factor_t_mwh") or 0.0)
+        # v0.2b: CO2-Abscheidung, falls die Backup-Technologie eine hat.
+        ccs_eur_mwh, ccs_captured_t_mwh = ccs_chain(flat)
         gas_twh = disp["energy_twh"]["gas_backup"] * annualize
-        cost["gas_backup"] = cost.get("gas_backup", 0.0) + (float(fuel) + co2_price * ef) * gas_twh * MWH_PER_TWH
+        cost["gas_backup"] = cost.get("gas_backup", 0.0) + (
+            float(fuel) + co2_price * ef + ccs_eur_mwh) * gas_twh * MWH_PER_TWH
         detail.setdefault("gas_backup", {})
         detail["gas_backup"].update({"generation_twh_a": gas_twh, "flh": disp["gas_full_load_hours"] * annualize,
-                                     "fuel_eur_mwh_el": fuel, "fuel_basis": fuel_basis})
+                                     "fuel_eur_mwh_el": fuel, "fuel_basis": fuel_basis,
+                                     "tech_key": gas_tech,
+                                     "ccs_eur_mwh_el": ccs_eur_mwh,
+                                     "ccs_captured_t_mwh_el": ccs_captured_t_mwh})
 
     # Speicher
     if capacities_gw["battery_energy_gwh"]:
@@ -994,10 +1064,16 @@ def mix_system(
     gas_twh_a = disp["energy_twh"]["gas_backup"] * annualize
     coal_twh_a = disp["energy_twh"].get("coal_band", 0.0) * annualize
     ef_coal = float((legacy.get("coal", {}).get("emission_factor_t_mwh") or {}).get("value") or 0.0)
+    _, captured_t_mwh = ccs_chain(techs[gas_tech])
     emissions = {
         "gas_mt_co2_a": gas_twh_a * ef_gas,
         "coal_mt_co2_a": coal_twh_a * ef_coal,
         "total_mt_co2_a": gas_twh_a * ef_gas + coal_twh_a * ef_coal,
+        # v0.2b: Menge, die ein CCS-Pfad jaehrlich transportieren und einlagern
+        # muesste. Deutschland hat dafuer keine Speicherstaette - siehe
+        # gaps.ccs_speicher_verfuegbarkeit.
+        "captured_mt_co2_a": gas_twh_a * captured_t_mwh,
+        "backup_tech": gas_tech,
         "g_co2_per_kwh_delivered": (
             (gas_twh_a * ef_gas + coal_twh_a * ef_coal) * 1e6 / (served_twh_a * 1e6) * 1000.0
             if served_twh_a else 0.0
@@ -1042,6 +1118,7 @@ def mix_system(
         "co2_price_eur_t": co2_price,
         "emissions": emissions,
         "emissions_mt_co2_a": emissions["total_mt_co2_a"],
+        "captured_mt_co2_a": emissions["captured_mt_co2_a"],
         "grid_cost_basis": grid_cost_basis,
         "grid_scaling_raw": grid_scaling_raw,
         "comparable_to_target_scenarios": grid_cost_basis == "buildout_2045",

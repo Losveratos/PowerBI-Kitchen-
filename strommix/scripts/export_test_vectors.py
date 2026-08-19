@@ -76,6 +76,14 @@ LCOE_CASES = [
     ("lcoe_gas_fuel_max", "gas_ccgt", "teuer", 0.05, 75.0, False,
      "v0.2/M2: teurer Szenariensatz -> Gaspreis 60 EUR/MWh_th bei niedrigerem Wirkungsgrad.",
      None),
+    # ---- Modell v0.2b: CO2-Abscheidung -------------------------------------
+    ("lcoe_gas_ccs_mid", "gas_ccs", "mittel", 0.05, 75.0, True,
+     "v0.2b: GuD mit CCS. Prueft die ganze Kette - hoeherer CAPEX, niedrigerer Wirkungsgrad "
+     "(mehr Brennstoff je MWh_el), Vollkettenkosten je abgeschiedener Tonne und die "
+     "RESTemission, die weiterhin den vollen CO2-Preis traegt.", None),
+    ("lcoe_gas_ccs_teuer", "gas_ccs", "teuer", 0.09, 200.0, True,
+     "v0.2b: CCS im teuren Satz bei WACC 9 % und CO2 200 EUR/t - hier muss der CCS-Block mit "
+     "100 EUR/t und der CO2-Block auf die Restemission gleichzeitig sichtbar sein.", None),
 ]
 
 # Ebene 2/3: zwei vollstaendige Mix-Laeufe (Dispatch + Systemkosten)
@@ -160,6 +168,27 @@ MIX_CASES = [
         "bands_twh": {},
         "grid_cost_basis": "buildout_2045",
     },
+    {
+        # v0.2b: derselbe Mix wie mix_ee80_gas, aber mit CCS-Backup
+        "id": "mix_ee80_gas_ccs",
+        "note": "80 % fEE mit CCS-Backup. Identisch zu mix_ee80_gas bis auf gas_tech - prueft, "
+                "dass die CCS-Kette in mix_system greift und die Restemission bepreist wird.",
+        "shares": {"pv": 0.30, "wind_onshore": 0.35, "wind_offshore": 0.15},
+        "demand_twh": 950.0,
+        "scenario": "mittel",
+        "co2_price": 75.0,
+        "apply_idc": True,
+        "grid_variant": "mid",
+        "gas_tech": "gas_ccs",
+        "storage": {
+            "battery_power_gw": 40.0,
+            "battery_energy_gwh": 160.0,
+            "electrolyser_gw": 0.0,
+            "h2_storage_gwh": 0.0,
+            "h2_turbine_gw": 0.0,
+            "gas_backup_gw": None,
+        },
+    },
 ]
 
 
@@ -236,6 +265,7 @@ def main() -> None:
             apply_idc=case["apply_idc"],
             bands_twh=case.get("bands_twh"),
             grid_cost_basis=case.get("grid_cost_basis", "buildout_2045"),
+            gas_tech=case.get("gas_tech", "gas_ccgt"),
         )
         d = res["dispatch"]
         vectors["mix"].append(round_deep({
@@ -243,7 +273,7 @@ def main() -> None:
             "note": case["note"],
             "input": {k: case.get(k) for k in
                       ("shares", "demand_twh", "scenario", "co2_price", "apply_idc",
-                       "grid_variant", "storage", "bands_twh", "grid_cost_basis")},
+                       "grid_variant", "storage", "bands_twh", "grid_cost_basis", "gas_tech")},
             "expected": {
                 "lscoe_eur_mwh": res["lscoe_eur_mwh"],
                 "total_cost_bn_eur_a": res["total_cost_bn_eur_a"],
@@ -251,6 +281,7 @@ def main() -> None:
                 "capacities_gw": res["capacities_gw"],
                 "served_twh_a": res["served_twh_a"],
                 "emissions_mt_co2_a": res["emissions"]["total_mt_co2_a"],
+                "captured_mt_co2_a": res["emissions"]["captured_mt_co2_a"],
                 "dispatch": {
                     "energy_twh": d["energy_twh"],
                     "vre_potential_twh": d["vre_potential_twh"],

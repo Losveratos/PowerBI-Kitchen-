@@ -230,6 +230,7 @@ def build_shared(page: dict, mc: dict, params: dict) -> dict:
     nep = page["netzkosten"]["uebertragungsnetz_nep_2037_2045_v2025"]
     gasp = params["technologies"]["gas_ccgt"]["params"]["fuel_eur_mwh_th"]
     gas_eff = params["technologies"]["gas_ccgt"]["params"]["efficiency"]
+    ccsp = params["technologies"]["gas_ccs"]["params"]
 
     # Szenarien der Studie als Dictionary, damit die Story sie per Pfad
     # ansprechen kann (statt per Listenindex).
@@ -260,6 +261,8 @@ def build_shared(page: dict, mc: dict, params: dict) -> dict:
             "curtailed_twh_a": round(p["curtailed_twh_a"], 1),
             "unserved_twh_a": round(p["unserved_twh_a"], 2),
             "emissions_mt_co2_a": round(p["emissions_mt_co2_a"], 1),
+            "captured_mt_co2_a": round(p["captured_mt_co2_a"], 1),
+            "gas_tech": p["gas_tech"],
             "grid_cost_basis": p["grid_cost_basis"],
             "comparable_to_target_scenarios": p["comparable_to_target_scenarios"],
             "components_eur_mwh": {k: round(v, 1) for k, v in
@@ -347,6 +350,30 @@ def build_shared(page: dict, mc: dict, params: dict) -> dict:
                 for cid, rows in mc["rank_probabilities"].items()
             },
             "limitations": mc["meta"]["limitations"],
+            # v0.2b: CCS-Varianten und Kontrastverteilung Asien/Golf
+            "ccs": mc["meta"]["ccs"],
+            "nuclear_capex_contrast": mc["meta"]["nuclear_capex_contrast"],
+        },
+        # v0.2b: Parameter der CO2-Abscheidung, damit die Seite sie belegen kann.
+        "ccs_parameter": {
+            "capex_eur_kw": {k: ccsp["capex_eur_kw"][k] for k in ("min", "mid", "max")},
+            "efficiency": {k: ccsp["efficiency"][k] for k in ("min", "mid", "max")},
+            "capture_rate": {k: ccsp["capture_rate"][k] for k in ("min", "mid", "max")},
+            "ccs_cost_eur_t": {k: ccsp["ccs_cost_eur_t"][k] for k in ("min", "mid", "max")},
+            "residual_emission_t_mwh": {k: ccsp["emission_factor_t_mwh"][k] for k in ("min", "mid", "max")},
+            "sources": {
+                "capex": ccsp["capex_eur_kw"]["source"],
+                "capture_rate": ccsp["capture_rate"]["source"],
+                "cost": ccsp["ccs_cost_eur_t"]["source"],
+                "residual": ccsp["emission_factor_t_mwh"]["source"],
+            },
+            "confidence": {
+                "capex": ccsp["capex_eur_kw"]["confidence"],
+                "capture_rate": ccsp["capture_rate"]["confidence"],
+                "cost": ccsp["ccs_cost_eur_t"]["confidence"],
+                "residual": ccsp["emission_factor_t_mwh"]["confidence"],
+            },
+            "storage_availability_de": params["technologies"]["gas_ccs"]["ccs_chain"]["storage_availability_de"],
         },
         # v0.2 (M2): Der Erdgaspreis ist jetzt ein belegter Parameter, kein Nullwert.
         "gaspreis_erdgas": {

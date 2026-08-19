@@ -19,6 +19,7 @@ Grundregeln (aus dem Auftrag und den Dossier-Warnungen):
 
 from __future__ import annotations
 
+import copy
 import json
 import os
 import re
@@ -39,6 +40,7 @@ SRC_FILES = {
     "risk": os.path.join(RESEARCH, "risiken_co2.md"),
     "ges": os.path.join(DOCS, "01_grundlage_ges_faktencheck.md"),
     "profiles": os.path.join(DATA, "profiles_2024.json"),
+    "claims": os.path.join(RESEARCH, "story_claims_check.md"),
 }
 SRC_LABEL = {
     "ee": "kosten_ee_speicher.md",
@@ -47,6 +49,7 @@ SRC_LABEL = {
     "risk": "risiken_co2.md",
     "ges": "docs/01_grundlage_ges_faktencheck.md",
     "profiles": "data/profiles_2024.json",
+    "claims": "story_claims_check.md",
 }
 
 OUT_PATH = os.path.join(DATA, "model_params.json")
@@ -84,6 +87,90 @@ GAS_FUEL_TH = {
             "unterhalb des aktuellen Spots (2045 sinkende Gasnachfrage), max 60 = aktuelles "
             "Marktniveau August 2026. Die Krisenspitze 2022 (>200 EUR/MWh_th) ist bewusst NICHT "
             "in der Basisspanne. Umrechnung in EUR/MWh_el ueber den Wirkungsgrad der Technologie.",
+}
+
+# --------------------------------------------------------------------------
+# Modell v0.2b, Erweiterung 1 - Gas mit CO2-Abscheidung (CCS)
+# --------------------------------------------------------------------------
+# Die gepruefte GES-Studie rechnet ihren Gas-Pfad mit CCS (docs/03 Annahmen-
+# Audit: "CCS-Kosten 80 EUR/t | 50-100 EUR/t (Literatur) | plausibel").
+# Das Modell kannte bis v0.2 keine CCS-Kette und verglich deshalb einen
+# Gas-Pfad, den die Studie nicht behauptet. Alle vier Groessen unten sind
+# entweder dossierbelegt oder mit Quelle und Konfidenzstufe hinterlegt.
+CCS = {
+    "capex_factor": {
+        "min": 1.9, "mid": 2.0, "max": 2.2,
+        "note": "Aufschlag auf den GuD-CAPEX je kW. Quellenbelegter Zentralwert: NETL/IEAGHG 2023 "
+                "(Updated Performance and Cost Estimates for Carbon Capture Equipped Power "
+                "Generation) nennt fuer NGCC mit Abscheidung +100 bis +104 % je kW - der "
+                "Kapitalkostenblock verdoppelt sich also. Die Raender sind MODELLANNAHME: nach "
+                "unten Serieneffekt, nach oben europaeische Bau-/Genehmigungskosten und FOAK-Status "
+                "in Europa. Recherche 2026-08-19.",
+    },
+    "efficiency_penalty_pp": {
+        "min": 0.04, "mid": 0.08, "max": 0.12,
+        "note": "Wirkungsgradverlust der Abscheidung in Prozentpunkten. Literaturspanne 4-12 pp je "
+                "nach Verfahren; 8 pp als Zentralwert fuer Post-Combustion-Aminwaesche an einem GuD "
+                "(Recherche 2026-08-19). Wirkt doppelt: mehr Brennstoff je MWh_el UND mehr "
+                "abzuscheidende Tonnage je MWh_el.",
+    },
+    "capture_rate": {
+        "min": 0.85, "mid": 0.90, "max": 0.95,
+        "source": "Auslegungspunkt der Standard-Basisfaelle fuer GuD mit Post-Combustion-Abscheidung "
+                  "(90 %), Recherche 2026-08-19",
+        "confidence": "B",
+        "note": "Bezieht sich auf die VERBRENNUNGSemissionen. Die Vorkette (Methanschlupf) wird "
+                "nicht abgeschieden - deshalb ist die Restemission im Modell nicht 10 % des "
+                "Ausgangswertes, sondern der belegte Lebenszyklus-Restwert aus risiken_co2.md 1.2.",
+    },
+    "cost_eur_t": {
+        "min": 50.0, "mid": 80.0, "max": 100.0,
+        "source": "docs/03_grundlage_erweitert_v2.md 8a/Annahmen-Audit ('CCS-Kosten 80 EUR/t | "
+                  "50-100 EUR/t (Literatur) | plausibel') + story_claims_check.md C-Liste Nr. 9 "
+                  "('bestaetigt als Groessenordnung; in unseren Dossiers nicht eigenstaendig "
+                  "geprueft')",
+        "confidence": "C",
+        "note": "Vollkette je abgeschiedener Tonne: Abscheidung + Transport + Speicherung. "
+                "WARNUNG ZUR RICHTUNG: Eine Recherche vom 2026-08-19 (Clean Air Task Force, "
+                "Carbon Management Europe/ZEP) nennt fuer europaeische Anlagen mit den derzeit "
+                "GEPLANTEN Speichern eine Vollkettenspanne von rund 70-250 EUR/t; die hier "
+                "verwendete Dossier-Spanne 50-100 liegt damit am unteren Rand und beguenstigt den "
+                "CCS-Pfad. Bewusst beibehalten, weil sie die im Repository belegte Spanne ist - "
+                "als Limitation ccs_cost_band_optimistic gefuehrt.",
+    },
+    "storage_de": {
+        "status": "SETZUNG (M) - Verfuegbarkeit nicht modelliert",
+        "confidence": "C",
+        "text": "Deutschland hat keine in Betrieb befindliche CO2-Speicherstaette. Der Pfad "
+                "unterstellt implizit Export in norwegische oder niederlaendische Offshore-Speicher "
+                "(Northern Lights / Aramis-Typ) und die dafuer noetige Pipeline-/Schiffslogistik "
+                "samt Genehmigungen und Akzeptanz. Im Modell steckt davon NUR der Kostensatz je "
+                "Tonne - keine Kapazitaetsgrenze, keine Hochlaufkurve, kein Verfuegbarkeitsrisiko. "
+                "Ein Szenario, das 2045 dreistellige Millionen Tonnen jaehrlich abscheidet, "
+                "unterstellt damit eine Infrastruktur, die es heute nicht gibt.",
+    },
+}
+
+# --------------------------------------------------------------------------
+# Modell v0.2b, Erweiterung 2 - Kontrastverteilung Asien/Golf (Kernkraft)
+# --------------------------------------------------------------------------
+# kosten_kernkraft.md 7.1 begruendet ausdruecklich, warum die BASISSPANNE kein
+# asiatisches oder Golf-Projekt enthaelt. Diese Werte gehoeren laut Dossier
+# "als Kontrastwerte ins White Paper - aber nicht in die Modell-Basisspanne".
+# Sie werden deshalb als EIGENE Verteilung gefuehrt und nur in eigenen
+# Monte-Carlo-Konfigurationen verwendet, nie in die Basisspanne gemischt.
+NUCLEAR_ASIA = {
+    "min": 1870.0, "mid": 3150.0, "max": 4950.0,
+    "construction_years": 8.0,
+    "anchors": {
+        "min": "korea-apr1400-domestic 1.867 EUR/kW (overnight_only)",
+        "mid": "barakah-epc 3.153 EUR/kW (epc_only) - einziger EXPORT-Datenpunkt des Clusters und "
+               "damit der einzige mit ueberhaupt einem Uebertragbarkeitsanspruch; "
+               "shin-hanul-34 2.720 EUR/kW (overnight_likely) liegt knapp darunter",
+        "max": "barakah-total 4.945 EUR/kW (total_incl_owners)",
+    },
+    "idc_shares": (1.0, 1.0, 1.0),
+    "overrun_shares": (0.0, 0.0, 0.0),
 }
 
 
@@ -234,6 +321,10 @@ def build() -> dict:
     ist = read_json_blocks(SRC_FILES["ist"])[0]
     risk = read_json_blocks(SRC_FILES["risk"])[0]
     ges = read_json_blocks(SRC_FILES["ges"])[0]
+    # story_claims_check.md enthaelt mehrere JSON-Bloecke; gesucht ist der mit
+    # dem ETS-/CCS-Befund C13.
+    story_claims = next(
+        (b for b in read_json_blocks(SRC_FILES["claims"]) if "ets_gap_gas_ccs" in b), None)
     with open(SRC_FILES["profiles"], encoding="utf-8") as fh:
         prof = json.load(fh)
 
@@ -270,8 +361,14 @@ def build() -> dict:
             "v0.2/M6: Ist-2025-Anker mit Kohle-, Biomasse- und Wasserbaendern und heutigen Netzentgelten "
             "statt der Netzinvestition bis 2045.",
             "v0.2/M7: Ueberschreitungsfaktor nur auf Schaetzbasis-Anker (overrun_applicable_share).",
+            "v0.2b: Technologie gas_ccs (Abscheidung an GuD). CAPEX-Faktor 2,0 (NETL 2023), "
+            "Wirkungsgradverlust 8 pp, Abscheiderate 90 %, Vollkette 50/80/100 EUR/t; die "
+            "Restemission (49/120/220 g/kWh) traegt weiterhin den vollen CO2-Preis.",
+            "v0.2b: Kontrastverteilung Asien/Golf fuer Kernkraft-CAPEX (1.870/3.150/4.950 EUR/kW, "
+            "Bauzeit 8 a) - ausschliesslich als eigene Monte-Carlo-Konfiguration, NIE in der "
+            "Basisspanne (Begruendung kosten_kernkraft.md 7.1, maschinenlesbar hinterlegt).",
         ],
-        "model_version": "0.2",
+        "model_version": "0.2b",
         "limitation": ee["meta"]["limitation"],
     }
 
@@ -622,6 +719,72 @@ def build() -> dict:
             ),
             "emission_factor_t_mwh": param(0.0, "t CO2/MWh_el", "keine direkten Verbrennungsemissionen", "A"),
         },
+        # ---- Modell v0.2b: Kontrastverteilung Asien/Golf -------------------
+        # NICHT in der Basisspanne. Wird ausschliesslich in den eigens dafuer
+        # angelegten Monte-Carlo-Konfigurationen verwendet.
+        "capex_alternative_asia_gulf": {
+            "value": NUCLEAR_ASIA["mid"],
+            "min": NUCLEAR_ASIA["min"],
+            "mid": NUCLEAR_ASIA["mid"],
+            "max": NUCLEAR_ASIA["max"],
+            "unit": "EUR/kW",
+            "source": f"{SRC_LABEL['kk']} 3 reference_projects (korea-apr1400-domestic, "
+                      "shin-hanul-34, barakah-epc, barakah-total) + 6 (empfohlene Cluster-Spannen "
+                      "1.870-2.720 bzw. 3.150-4.950 EUR/kW)",
+            "confidence": "B",
+            "anchors": NUCLEAR_ASIA["anchors"],
+            "construction_years": {
+                "value": NUCLEAR_ASIA["construction_years"],
+                "source": f"{SRC_LABEL['kk']} 4 construction_time.western_recent_projects_years."
+                          "barakah_unit1 (8 a) bzw. shin_hanul_1 (9 a); globaler IAEA-PRIS-Median "
+                          "6,3 a",
+                "confidence": "A",
+                "note": "Der Cluster wird mit SEINER Bauzeit gerechnet, nicht mit der westlichen "
+                        "(12 a). Sonst waere der Kontrast unfair: die kurze Bauzeit ist ein "
+                        "konstitutives Merkmal dieser Projekte, nicht ein Zufall. IDC faellt "
+                        "dadurch von 34 % auf 21,6 % bei WACC 5 %.",
+            },
+            "idc_applicable_share": {
+                "min": NUCLEAR_ASIA["idc_shares"][0],
+                "mid": NUCLEAR_ASIA["idc_shares"][1],
+                "max": NUCLEAR_ASIA["idc_shares"][2],
+                "note": "Alle drei Anker sind overnight/EPC bzw. Gesamt-BAUkosten ohne separat "
+                        "ausgewiesene Finanzierung (cost_scope overnight_only / overnight_likely / "
+                        "epc_only / total_incl_owners - das Dossier fuehrt fuer "
+                        "finanzierungsinklusive Werte den eigenen Scope total_incl_idc, der hier "
+                        "nirgends vorkommt). Der Bauzins wird deshalb voll aufgeschlagen - das "
+                        "wirkt GEGEN den Cluster und ist die konservative Lesart.",
+            },
+            "overrun_applicable_share": {
+                "min": NUCLEAR_ASIA["overrun_shares"][0],
+                "mid": NUCLEAR_ASIA["overrun_shares"][1],
+                "max": NUCLEAR_ASIA["overrun_shares"][2],
+                "note": "0,0 auf ganzer Linie: Korea-Flotte und Barakah sind REALISIERTE Kosten, "
+                        "keine Entscheidungsschaetzungen. Ein Ueberschreitungsfaktor darauf waere "
+                        "dieselbe Doppelzaehlung wie beim Hinkley-Point-C-Anker (M7). Deshalb wird "
+                        "die Asien-Konfiguration auch NICHT mit dem Ueberschreitungs-Lauf "
+                        "kombiniert.",
+            },
+            "rationale_not_in_base_range": (
+                "kosten_kernkraft.md 7.1 woertlich: 'Was diese Spanne ehrlich macht: Sie enthaelt "
+                "kein einziges asiatisches oder Golf-Projekt. Nicht weil diese Werte falsch waeren "
+                "- sie sind real und belegt - sondern weil ihre Voraussetzungen (Serienbau ohne "
+                "Unterbrechung, staatliche Lieferkettensteuerung, niedrige Bau- und "
+                "Ingenieurloehne, eingeschraenkte Drittanfechtung) in Deutschland rechtlich und "
+                "oekonomisch nicht herstellbar sind. Sie gehoeren als Kontrastwerte ins White "
+                "Paper - mit genau dieser Erklaerung - aber nicht in die Modell-Basisspanne.'"),
+            "counterposition": (
+                "Die Gegenposition (Persona-Review 06, K3) lautet: Der Ausschluss ist "
+                "Cherry-Picking, weil in den letzten 20 Jahren die Mehrheit aller Reaktoren "
+                "weltweit in Asien gebaut wurde - und weil mit Dukovany II (7.906 EUR/kW EPC, "
+                "KHNP, innerhalb der EU) ein koreanischer Exportpreis unter EU-Beihilferecht "
+                "bereits vertraglich vorliegt. Dieser EU-Exportpunkt ist in der BASISSPANNE "
+                "enthalten (Low-Anker); der Kontrastlauf zeigt zusaetzlich, was der reine "
+                "Inlands-/Golf-Cluster bedeuten wuerde."),
+            "usage": "Nur in den Monte-Carlo-Konfigurationen 'asia' und 'asia_wacc'. Wird NIE mit "
+                     "der Basisspanne gemischt und nie mit dem Ueberschreitungsfaktor kombiniert.",
+            "status": "KONTRASTVERTEILUNG (nicht Modellbasis)",
+        },
         "idc_surcharge_reference": {
             "low": kkp["idc_surcharge_on_capex"]["low"],
             "mid": kkp["idc_surcharge_on_capex"]["mid"],
@@ -736,6 +899,92 @@ def build() -> dict:
     techs["gas_ccgt"] = thermal_block("ccgt_gas", "Gaskraftwerk GuD", "backup", 3, "bauzeit_gas_ccgt")
     techs["gas_ocgt"] = thermal_block("ocgt_gas", "Gaskraftwerk OCGT (Peaker)", "backup", 2, "bauzeit_gas_ocgt")
     techs["gas_ccgt"]["key_finding"] = eet["ccgt_gas"]["key_finding"]
+
+    # ------------------------------------------------- Gas + CCS (v0.2b)
+    # Die gepruefte GES-Studie rechnet ihren Gas-Pfad mit CCS (docs/03 8a.2,
+    # Annahmen-Audit "CCS-Kosten 80 EUR/t"). Ohne eine CCS-Kette vergleicht das
+    # Modell einen Gas-Pfad, den die Studie nicht behauptet. Diese Technologie
+    # schliesst die Luecke - als eigene Variante, nicht als Ersatz.
+    gud_eff = eet["ccgt_gas"]["efficiency"]
+    ef_el_gud = round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.min") / 1000.0, 4)
+    # Brennstoffbezogener Emissionsfaktor: wirkungsgradunabhaengig und deshalb
+    # die richtige Bezugsgroesse fuer die abgeschiedene Menge.
+    ef_th = round(ef_el_gud * gud_eff["mid"], 4)
+    ccs = copy.deepcopy(techs["gas_ccgt"])
+    ccs["label"] = "Gaskraftwerk GuD mit CO2-Abscheidung (CCS)"
+    ccs["role"] = "backup_ccs"
+    ccs["derived_from"] = "gas_ccgt"
+    ccs["params"]["capex_eur_kw"] = param(
+        round(eet["ccgt_gas"]["capex_eur_kw"]["mid"] * CCS["capex_factor"]["mid"]),
+        "EUR/kW",
+        f"{SRC_LABEL['ee']} 12 technologies.ccgt_gas.capex_eur_kw x Abscheidungs-Aufschlag "
+        "(NETL/IEAGHG 2023: +100 bis +104 % je kW fuer NGCC mit Abscheidung)",
+        "B",
+        mn=round(eet["ccgt_gas"]["capex_eur_kw"]["min"] * CCS["capex_factor"]["min"]),
+        mid=round(eet["ccgt_gas"]["capex_eur_kw"]["mid"] * CCS["capex_factor"]["mid"]),
+        mx=round(eet["ccgt_gas"]["capex_eur_kw"]["max"] * CCS["capex_factor"]["max"]),
+        note=CCS["capex_factor"]["note"],
+    )
+    ccs["params"]["efficiency"] = param(
+        round(gud_eff["mid"] - CCS["efficiency_penalty_pp"]["mid"], 4),
+        "1",
+        f"{SRC_LABEL['ee']} 12 technologies.ccgt_gas.efficiency minus Abscheidungs-Wirkungsgradverlust",
+        "B",
+        mn=round(gud_eff["min"] - CCS["efficiency_penalty_pp"]["max"], 4),
+        mid=round(gud_eff["mid"] - CCS["efficiency_penalty_pp"]["mid"], 4),
+        mx=round(gud_eff["max"] - CCS["efficiency_penalty_pp"]["min"], 4),
+        note=CCS["efficiency_penalty_pp"]["note"],
+    )
+    ccs["params"]["capture_rate"] = param(
+        CCS["capture_rate"]["mid"], "1 (Anteil der Verbrennungsemissionen)",
+        CCS["capture_rate"]["source"], CCS["capture_rate"]["confidence"],
+        mn=CCS["capture_rate"]["min"], mid=CCS["capture_rate"]["mid"], mx=CCS["capture_rate"]["max"],
+        note=CCS["capture_rate"]["note"],
+    )
+    ccs["params"]["ccs_cost_eur_t"] = param(
+        CCS["cost_eur_t"]["mid"], "EUR/t CO2 (Abscheidung + Transport + Speicherung)",
+        CCS["cost_eur_t"]["source"], CCS["cost_eur_t"]["confidence"],
+        mn=CCS["cost_eur_t"]["min"], mid=CCS["cost_eur_t"]["mid"], mx=CCS["cost_eur_t"]["max"],
+        note=CCS["cost_eur_t"]["note"],
+    )
+    ccs["params"]["emission_factor_t_mwh_th"] = param(
+        ef_th, "t CO2/MWh_th (Brennstoffeinsatz)",
+        f"{SRC_LABEL['risk']} 1.2 erdgas_gud.min ({ef_el_gud} t/MWh_el) x Wirkungsgrad GuD "
+        f"({gud_eff['mid']}) - abgeleitet, nicht gesetzt",
+        "C",
+        mid=ef_th,
+        note="Bezugsgroesse fuer die ABGESCHIEDENE Menge. Wirkungsgradunabhaengig, damit der "
+             "Abscheidungsverlust die abgeschiedene Tonnage korrekt erhoeht. Erbt den PROXY-Status "
+             "des zugrunde liegenden Lebenszyklus-Faktors.",
+        status="PROXY (abgeleitet aus der Lebenszyklus-Untergrenze)",
+    )
+    ccs["params"]["emission_factor_t_mwh"] = param(
+        round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud_ccs.default") / 1000.0, 4),
+        "t CO2/MWh_el (Restemission nach Abscheidung)",
+        f"{SRC_LABEL['risk']} 1.2 co2_intensitaet_g_pro_kwh.technologien.erdgas_gud_ccs",
+        "B",
+        mn=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud_ccs.min") / 1000.0, 4),
+        mid=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud_ccs.default") / 1000.0, 4),
+        mx=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud_ccs.max") / 1000.0, 4),
+        note="RESTEMISSION - traegt den vollen CO2-Preis. Lebenszyklus-Wert (49/120/220 g/kWh): "
+             "enthaelt die Vorkette (Methanschlupf), die CCS NICHT abscheidet. Fuer eine reine "
+             "ETS-Bepreisung ist der Wert deshalb eher zu hoch - dieselbe Richtung wie beim "
+             "GuD-Proxy. Gegenprobe: 10 % nicht abgeschiedene Verbrennungsemissionen ergeben bei "
+             "eta = 0,52 rund 47 g/kWh und treffen damit das untere Ende der Dossier-Spanne.",
+        status="PROXY (Lebenszyklus statt reiner Verbrennungs-Restemission)",
+    )
+    ccs["params"]["construction_years"] = construction_param(
+        4, None, idc_method_src,
+        "Bauzeit nicht im Dossier belegt; 4 a (GuD 3 a + Abscheidungsinsel) als Annahme.",
+        status=modellannahme, gap_id="bauzeit_gas_ccs",
+    )
+    ccs["ccs_chain"] = {
+        "storage_availability_de": CCS["storage_de"],
+        "residual_emissions_note": "CCS eliminiert Emissionen nicht - die Restemission traegt den "
+                                   "vollen CO2-Preis (story_claims_check.md C13).",
+        "ets_gap_reference": get(story_claims, "ets_gap_gas_ccs.statement") if story_claims else None,
+    }
+    techs["gas_ccs"] = ccs
 
     # Rueckrechnung: welcher variable Kostenblock steckt in der FOeS-LCOE-Angabe?
     foes = eet["ccgt_gas"]["lcoe_eur_mwh_de_new"]
@@ -1531,12 +1780,32 @@ def build() -> dict:
         },
         {
             "id": "ccs_nicht_modelliert",
-            "parameter": "technologies (keine CCS-Kette)",
-            "reason": "Die gepruefte GES-Studie rechnet ihren Gas-Pfad ausweislich des ETS-Abschnitts mit "
-                      "CCS. Das Modell kennt keine CCS-Kette (CAPEX/OPEX, Wirkungsgradverlust, "
-                      "Abscheidegrad, Transport/Speicherung). Offene Entscheidung - bis dahin sind die "
-                      "Szenarien NICHT emissionsaequivalent; die Restemissionen werden seit v0.2 je "
-                      "Szenario ausgewiesen (emissions_mt_co2_a).",
+            "parameter": "technologies.gas_ccs",
+            "status": "GESCHLOSSEN in v0.2b",
+            "reason": "Die gepruefte GES-Studie rechnet ihren Gas-Pfad mit CCS. Seit v0.2b existiert "
+                      "die Technologie gas_ccs (CAPEX-Aufschlag, Wirkungsgradverlust, Abscheiderate, "
+                      "Vollketten-Kostensatz je Tonne, Restemission mit CO2-Preis) und wird in den "
+                      "Presets kostenminimum_ccs und ee80_gas_ccs gerechnet. OFFEN BLEIBT die "
+                      "physische Verfuegbarkeit von Transport und Speicherung - siehe "
+                      "ccs_speicher_verfuegbarkeit.",
+        },
+        {
+            "id": "ccs_speicher_verfuegbarkeit",
+            "parameter": "technologies.gas_ccs.ccs_chain.storage_availability_de",
+            "reason": "Deutschland hat keine in Betrieb befindliche CO2-Speicherstaette. Der CCS-Pfad "
+                      "unterstellt Export in norwegische/niederlaendische Offshore-Speicher samt "
+                      "Logistik, Genehmigungen und Akzeptanz. Im Modell steckt davon nur der "
+                      "Kostensatz je Tonne - keine Kapazitaetsgrenze, keine Hochlaufkurve, kein "
+                      "Verfuegbarkeitsrisiko. SETZUNG (M), Konfidenz C.",
+        },
+        {
+            "id": "ccs_kostenband_optimistisch",
+            "parameter": "technologies.gas_ccs.params.ccs_cost_eur_t",
+            "reason": "Verwendet wird die im Repository belegte Spanne 50/80/100 EUR/t. Eine "
+                      "Recherche vom 2026-08-19 (Clean Air Task Force; Carbon Management Europe/ZEP) "
+                      "nennt fuer europaeische Anlagen mit den derzeit geplanten Speichern eine "
+                      "Vollkettenspanne von rund 70-250 EUR/t. Das Modellband liegt damit am unteren "
+                      "Rand und beguenstigt den CCS-Pfad.",
         },
         {
             "id": "overrun_ungemessen_speicher_h2",

@@ -1,5 +1,9 @@
 # Modell-Upgrade v0.2 · Ergebnisdokument
 
+**Stand:** Modellversion **0.2b** — Abschnitte 1–4 dokumentieren die sieben Pflicht-Fixes M1–M7
+(v0.2), Abschnitt **4b** die beiden danach beauftragten Erweiterungen (Gas + CCS, Kontrastverteilung
+Asien/Golf). Abschnitt 5 ist die zusammengeführte Redigat-Liste (R1–R23).
+
 **Datum:** 2026-08-19 · **Auftrag:** Umsetzung der sieben Konsens-Pflicht-Fixes M1–M7 aus
 `research/persona_synthese.md` · **Betroffener Code:** `scripts/model.py`,
 `scripts/monte_carlo.py`, `scripts/consolidate_params.py`, `scripts/validate_model.py`,
@@ -368,6 +372,176 @@ gezielt die neuen Pfade ab (`lcoe_nuclear_overrun_high/low`, `lcoe_gas_fuel_from
 
 ---
 
+## 4b · v0.2b: CCS und die Kontrastverteilung Asien/Golf
+
+Nachtrag nach Entscheidung Michael (beide offenen Modell-Erweiterungen umsetzen). Modellversion
+`0.2b`. Alles unter 1–4 bleibt gültig; die folgenden Ergänzungen kommen **oben drauf**, sie ersetzen
+nichts.
+
+### 4b.1 Gas + CCS als eigene Technologie
+
+Neue Technologie `technologies.gas_ccs`, abgeleitet vom GuD und in genau fünf Punkten verändert:
+
+| Parameter | min | mid | max | Beleg / Konfidenz |
+|---|---:|---:|---:|---|
+| CAPEX-Faktor auf GuD | 1,9 | **2,0** | 2,2 | NETL/IEAGHG 2023: NGCC mit Abscheidung **+100 bis +104 %** je kW (Recherche 19.08.2026) → CAPEX **1 900 / 3 200 / 4 840 €/kW**. Ränder Modellannahme. **B** |
+| Wirkungsgradverlust | 4 pp | **8 pp** | 12 pp | Literaturspanne 4–12 pp; 8 pp für Post-Combustion-Aminwäsche → η **0,46 / 0,52 / 0,60**. **B** |
+| Abscheiderate | 0,85 | **0,90** | 0,95 | Standard-Auslegungspunkt der GuD-Basisfälle. **B** |
+| CCS-Vollkette €/t | 50 | **80** | 100 | `docs/03` Annahmen-Audit („CCS-Kosten 80 €/t \| 50–100 €/t (Literatur) \| plausibel") + `story_claims_check.md` C-Liste Nr. 9. **C** |
+| Restemission t/MWh_el | 0,049 | **0,120** | 0,220 | `risiken_co2.md` 1.2 `erdgas_gud_ccs` (49/120/220 g/kWh). **B** |
+
+**Die Restemission trägt den vollen CO₂-Preis** — CCS eliminiert Emissionen nicht. Gegenprobe, die
+den Ansatz stützt: 0,120 t/MWh × 75 €/t = **9,0 €/MWh**, exakt der Wert, den `story_claims_check.md`
+C13 für denselben Fall ausrechnet. Zweite Gegenprobe: 10 % nicht abgeschiedene Verbrennungs­emissionen
+ergeben bei η = 0,52 rund 47 g/kWh und treffen damit das untere Ende der Dossier-Spanne (49).
+
+Die abgeschiedene Menge hängt am **brennstoffbezogenen** Emissionsfaktor
+(`emission_factor_t_mwh_th` = 0,2418 t/MWh_th, abgeleitet aus 0,403 t/MWh_el × η 0,60), damit der
+Wirkungsgradverlust die Tonnage je MWh_el korrekt erhöht: 0,2418 / 0,52 × 0,90 = **0,418 t/MWh_el**
+→ bei 80 €/t **33,5 €/MWh_el** CCS-Kosten.
+
+Integration: `mix_system(..., gas_tech="gas_ccs")`. Der Dispatch ist unverändert — die CCS-Variante
+eines Presets unterscheidet sich **ausschließlich** in der Backup-Technologie, bei gleichem Mix,
+gleicher Auslegung und identischem Stundengang. Nur so ist der Vergleich sauber.
+
+**Ergebnis (deterministisch, `mittel`, CO₂ 75 €/t):**
+
+| Preset | LSCOE €/MWh | Δ durch CCS | Mt CO₂/a | eingelagert Mt/a | Gas TWh/a |
+|---|---:|---:|---:|---:|---:|
+| GES · Kostenminimum | 152,3 | – | 27,9 | 0,0 | 69,2 |
+| **GES · Kostenminimum (Gas mit CCS)** | **163,3** | **+10,9** | **8,3** | **29,0** | 69,2 |
+| GES · 80 % EE + Gas | 154,6 | – | 106,5 | 0,0 | 264,4 |
+| **GES · 80 % EE + Gas mit CCS** | **184,4** | **+29,8** | **31,7** | **110,6** | 264,4 |
+
+Zerlegung des Aufschlags (80 % EE + Gas, €/MWh System): Kapazität **+23,9** · Mehrbrennstoff
+**+2,5** · CCS-Kette **+9,3** · gesparte CO₂-Kosten **−5,9** = **+29,8**. Für das
+Kostenminimum-Szenario analog +9,4 / +0,7 / +2,4 / −1,5 = +10,9.
+
+**Der dominante Posten ist die verdoppelte Kapazität, nicht die Abscheidung.** Der Backup-Park läuft
+mit 1 282 h (Kostenminimum) bzw. 1 930 h (80 % EE + Gas) — ein verdoppelter Kapitalblock verteilt
+sich dort auf sehr wenige Stunden. Daraus folgen implizite **Vermeidungskosten von 531 €/t
+(Kostenminimum) bzw. 378 €/t (80 % EE + Gas)** — ein Vielfaches des CO₂-Preises und des
+Vollkettensatzes. Das ist ein echtes Ergebnis, aber eine **Obergrenze**: ein real optimiertes System
+würde CCS nur an den hoch ausgelasteten Blöcken bauen und die Spitzenlast unabgeschieden fahren.
+Neue Limitation `ccs_on_full_backup_fleet` (severity hoch).
+
+**Der eigentliche Befund von 4b.1 ist aber ein anderer.** Der Vergleich, um den es in Akt 4 geht,
+war bisher unfair: er stellte ein System mit 27,9 Mt CO₂/a gegen eines mit 106,5 Mt/a. Auf
+vergleichbarem Emissionsniveau (8,3 vs. 31,7 Mt) liegt das Kernkraft-Szenario **klar vorn**:
+163,3 gegen 184,4 €/MWh, und **P(Kernkraft+CCS < Gas+CCS) = 90,3 %** statt der 46,1 % aus dem
+Vergleich ohne CCS. Der Beinahe-Gleichstand aus Abschnitt 3 war zu einem großen Teil ein
+Emissions-Rabatt für den Gas-Pfad.
+
+### 4b.2 Kontrastverteilung Asien/Golf (Kernkraft-CAPEX)
+
+Zwei neue Monte-Carlo-Konfigurationen `asia` und `asia_wacc`. Sie ersetzen **ausschließlich** die
+Kernkraft-CAPEX-Verteilung und werden **nie** mit der Basisspanne gemischt.
+
+| | Wert | Anker (`kosten_kernkraft.md` 3 `reference_projects`) |
+|---|---:|---|
+| min | 1 870 €/kW | `korea-apr1400-domestic` 1 867 (`overnight_only`) |
+| **Modus** | **3 150 €/kW** | `barakah-epc` 3 153 (`epc_only`) — der **einzige Export-Datenpunkt** des Clusters und damit der einzige mit überhaupt einem Übertragbarkeitsanspruch; `shin-hanul-34` 2 720 (`overnight_likely`) liegt knapp darunter |
+| max | 4 950 €/kW | `barakah-total` 4 945 (`total_incl_owners`) |
+| Bauzeit | 8 a | `construction_time.western_recent_projects_years.barakah_unit1`; globaler IAEA-PRIS-Median 6,3 a |
+
+Zwei Setzungen, beide bewusst **gegen** den Cluster:
+
+- **`idc_applicable_share` = 1,0 auf ganzer Linie.** Kein Anker des Clusters trägt den Scope
+  `total_incl_idc` (den das Dossier für finanzierungsinklusive Werte eigens führt), also wird der
+  Bauzins voll aufgeschlagen — bei 8 a und WACC 5 % sind das +21,6 % statt der +34 % der westlichen
+  Basisspanne.
+- **`overrun_applicable_share` = 0,0 auf ganzer Linie**, und die Asien-Konfigurationen werden
+  **nicht** mit dem Überschreitungs-Lauf kombiniert: Korea-Flotte und Barakah sind realisierte
+  Kosten, keine Entscheidungsschätzungen — ein Faktor darauf wäre dieselbe Doppelzählung wie beim
+  HPC-Anker (M7).
+
+Die Begründung, warum diese Werte **nicht** in die Basisspanne gehören, liegt jetzt maschinenlesbar
+im Output (`shared.monte_carlo.nuclear_capex_contrast.rationale_not_in_base_range`, wörtliches Zitat
+aus `kosten_kernkraft.md` 7.1) — zusammen mit der Gegenposition des Nuklear-Advocacy-Reviews
+(`counterposition`: Ausschluss sei Cherry-Picking, und mit Dukovany II liege ein koreanischer
+Exportpreis *innerhalb der EU* bereits vertraglich vor — dieser Punkt ist als Low-Anker in der
+Basisspanne enthalten).
+
+**Ergebnis:** Das Kostenminimum-Szenario fällt von P50 158 auf **P50 108 [100–118] €/MWh**, die
+CCS-Variante von 170 auf **121 [111–131]**. Damit ist jede Rangfolge gegen jedes andere Szenario mit
+**100 %** entschieden — auch gegen den gasgestützten Pfad mit CCS (Median-Δ −80,7 €/MWh). Der
+Kontrast zeigt also weniger über Kernkraft als über die Frage, welche Institutionen man unterstellt:
+zwischen westlicher Basisspanne und Asien/Golf liegen im Median **50 €/MWh Systemkosten**.
+
+### 4b.3 Neue Gesamttabelle (P50 [P5–P95], €/MWh)
+
+| Preset | base | wacc | co2 | wacc_co2 | overrun | wacc_overrun | **asia** | **asia_wacc** |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| *Ist 2025*¹ | *183 [174–192]* | *186 [174–200]* | *202 [173–247]* | *207 [173–253]* | *187 [177–196]* | *189 [177–206]* | *183 [174–191]* | *185 [173–200]* |
+| Kostenminimum | 158 [147–180] | 170 [135–221] | 161 [148–183] | 172 [139–226] | 222 [193–248] | 237 [179–320] | **108 [100–118]** | 114 [95–143] |
+| Kostenminimum + CCS | 170 [157–191] | 183 [147–236] | 171 [157–192] | 183 [148–237] | 235 [204–262] | 250 [191–336] | **121 [111–131]** | 126 [105–158] |
+| 80 % EE + Gas | 157 [145–169] | 165 [139–200] | 166 [149–188] | 174 [143–217] | 168 [155–181] | 175 [147–215] | 157 [145–169] | 164 [140–200] |
+| 80 % EE + Gas + CCS | 188 [171–210] | 198 [166–241] | 192 [173–210] | 201 [168–245] | 202 [182–223] | 212 [176–262] | 189 [171–209] | 196 [165–242] |
+| 80 % EE + H₂ | 198 [188–209] | 207 [179–246] | 199 [188–209] | 207 [178–247] | 207 [196–219] | 215 [186–257] | 198 [188–209] | 206 [180–245] |
+| 100 % Erneuerbare | 244 [228–262] | 258 [217–313] | 244 [227–262] | 256 [214–316] | 259 [240–277] | 269 [226–331] | 245 [227–263] | 256 [217–312] |
+
+¹ weiterhin nicht ranking-fähig (andere Netz-Systemgrenze).
+
+Die Zahlen der Konfigurationen `base` bis `wacc_overrun` verschieben sich gegenüber Abschnitt 2 um
+maximal 1–2 €/MWh. Grund: Der Ziehungsplan ist von 24 auf **30** Größen gewachsen (gas_ccs-Parameter
+plus `ccs_cost_eur_t` und `capture_rate`), damit läuft die Zufallsfolge anders. Die Punktwerte
+(deterministisch) sind unverändert.
+
+### 4b.4 Rangwahrscheinlichkeiten P(A < B) über alle acht Konfigurationen
+
+| Paar | base | wacc | co2 | wacc_co2 | overrun | wacc_overrun | asia | asia_wacc |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| **Kernkraft < Gas** (ohne CCS) | **44,9 %** | 34,8 % | 64,3 % | 55,5 % | 0,0 % | 0,2 % | **100 %** | **100 %** |
+| **Kernkraft+CCS < Gas+CCS** | **90,3 %** | 84,7 % | 93,3 % | 87,3 % | 4,3 % | 4,6 % | **100 %** | **100 %** |
+| Kernkraft+CCS < 80 % EE + H₂ | 98,1 % | 93,2 % | 97,0 % | 93,9 % | 9,9 % | 7,7 % | 100 % | 100 % |
+| Gas+CCS < 80 % EE + H₂ | 78,2 % | 78,1 % | 71,0 % | 69,5 % | 68,5 % | 60,4 % | 79,2 % | 75,5 % |
+| Kernkraft+CCS < 100 % EE | 100 % | 100 % | 100 % | 100 % | 87,0 % | 76,8 % | 100 % | 100 % |
+| Gas+CCS < 100 % EE | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % | 100 % |
+| CCS-Variante teurer als ihr Basis-Preset | 99,9 / 99,6 % | 100 / 100 % | 98,1 / 96,6 % | 98,8 / 97,2 % | 100 / 99,9 % | 100 / 100 % | 100 / 100 % | 100 / 99,8 % |
+
+Median-Δ der beiden Kernpaare (A − B, €/MWh):
+
+| Paar | base | wacc | co2 | wacc_co2 | overrun | wacc_overrun | asia | asia_wacc |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Kernkraft − Gas | **+1,4** | +5,2 | −4,5 | −2,6 | +53,3 | +60,5 | −48,4 | −50,0 |
+| Kernkraft+CCS − Gas+CCS | **−18,2** | −15,6 | −19,8 | −17,8 | +32,1 | +37,8 | −68,5 | −70,8 |
+
+**Drei Lesarten, die man auseinanderhalten muss.**
+(a) *Ohne CCS* ist die Rangfolge Kernkraft ↔ Gas weiter offen (44,9 %) — aber die beiden Systeme
+sind dann nicht emissionsäquivalent.
+(b) *Mit CCS auf beiden Seiten* — also so, wie die geprüfte Studie ihren Gas-Pfad meint — führt das
+Kernkraft-Szenario mit 90,3 % und einem Median-Vorsprung von 18,2 €/MWh. **Das ist das Ergebnis,
+das der Vergleich mit der Studie eigentlich braucht.**
+(c) *Unter der Überschreitungs-Empirie* dreht sich beides um (4,3 %), und *unter der Asien/Golf-
+Kontrastverteilung* wird beides mit 100 % zugunsten der Kernkraft entschieden. Die Rangfolge hängt
+damit nachweislich stärker an **Institutionen und Datenwahl** als an der Technologie — genau das
+ist die belastbare Aussage.
+
+### 4b.5 Was v0.2b nicht kann
+
+- **Keine CO₂-Speicherstätte in Deutschland.** Der CCS-Pfad unterstellt Export in norwegische oder
+  niederländische Offshore-Speicher samt Logistik, Genehmigung und Akzeptanz. Modelliert ist davon
+  **nur der Kostensatz je Tonne** — keine Kapazitätsgrenze, keine Hochlaufkurve, kein
+  Verfügbarkeitsrisiko. Größenordnung: **29,0 Mt/a** (Kostenminimum+CCS) bzw. **110,6 Mt/a**
+  (80 % EE + Gas + CCS) müssten dauerhaft eingelagert werden; zum Vergleich transportiert das größte
+  europäische Projekt derzeit einen niedrigen einstelligen Mt-Bereich. SETZUNG (M), Konfidenz C,
+  Limitation `ccs_storage_availability`.
+- **Das CCS-Kostenband ist optimistisch.** 50/80/100 €/t ist die im Repository belegte Spanne; eine
+  Recherche vom 19.08.2026 (Clean Air Task Force; Carbon Management Europe/ZEP) nennt für
+  europäische Anlagen mit den *derzeit geplanten* Speichern rund **70–250 €/t**. Bewusst die
+  Dossier-Spanne verwendet, aber als `ccs_cost_band_optimistic` geführt — der CCS-Pfad ist damit
+  eher zu billig gerechnet.
+- **Die Restemission ist ein Lebenszyklus-Wert.** 49/120/220 g/kWh enthalten die Vorkette
+  (Methanschlupf), die eine Abscheidung am Schornstein nicht erfasst. Für eine reine ETS-Bepreisung
+  ist der Wert eher zu hoch — das wirkt gegen den CCS-Pfad und kompensiert den vorigen Punkt
+  teilweise.
+- **CCS auf dem gesamten Backup-Park** (siehe oben) — Vermeidungskosten sind eine Obergrenze.
+- **Der Asien/Golf-Kontrast ist kein Deutschland-Szenario.** Er zeigt, was dieselbe Rechnung mit
+  einem anderen Institutionenrahmen ergäbe, nicht was in Deutschland baubar wäre. Die Begründung
+  steht wörtlich im Output.
+
+---
+
 ## 5 · Was an Story und White Paper jetzt nicht mehr stimmt (Liste für das Redigat)
 
 Story-HTML und White-Paper-HTML wurden **nicht** angefasst. Die folgende Liste ist die Arbeitsliste
@@ -394,7 +568,18 @@ nicht.
 | **R14** | Story Akt 4 / Schritt 1: „plus eine fünfte als Anker: **das heutige System von 2025**, mit demselben Modell gerechnet" | „mit demselben Modell" stimmt nicht mehr — der Anker hat jetzt bewusst eine andere Netz-Systemgrenze. | Umbenennen („Referenzsystem"), optisch absetzen, Nichtvergleichbarkeit nennen (`comparable_to_target_scenarios: false`). |
 | **R15** | Story Akt 4 / Schritt 2: „insgesamt **23 Größen**" (per Datenbindung `drawn_parameters`) | Zieht automatisch auf **24** nach — aber der Text nennt WACC und CO₂ weiterhin als *nicht* variiert. | Text an die zwei neuen Konfigurationen `co2` / `wacc_co2` anpassen. |
 | **R16** | `whitepaper-strommix.js` Kap. 3 (`#meth-mc`): „zieht N Parameter … **1 000-mal je Szenario**, mit festem Startwert" | Beschreibt das alte Verfahren. Es sind jetzt 1 000 Ziehungen **je Konfiguration**, gemeinsam für alle Szenarien. | Common random numbers erklären — didaktisch der wertvollste neue Absatz. |
-| **R17** | `whitepaper-strommix.js` Kap. 6 Badge/Fließtext: „… Kombinationen" und die Ziehungszahl im Fortschritts-Badge | Zahlen ändern sich automatisch (6 statt 4 Konfigurationen → 30 statt 20 Kombinationen, 30 000 statt 20 000 Ziehungen), der begleitende Text nennt aber weiterhin nur vier Konfigurationen. | Toggle-Beschreibung um `co2` ergänzen; die UI hat bislang nur Schalter für WACC und Überschreitung, die beiden CO₂-Konfigurationen sind gerechnet, aber nicht bedienbar. |
+| **R17** | `whitepaper-strommix.js` Kap. 6 Badge/Fließtext: „… Kombinationen" und die Ziehungszahl im Fortschritts-Badge | Zahlen ändern sich automatisch (8 statt 4 Konfigurationen und 7 statt 5 Presets → 56 statt 20 Kombinationen, 56 000 statt 20 000 Ziehungen), der begleitende Text nennt aber weiterhin nur vier Konfigurationen. | Toggle-Beschreibung um `co2` und `asia` ergänzen; die UI hat bislang nur Schalter für WACC und Überschreitung — die CO₂- und Asien-Konfigurationen werden gerechnet, sind aber nicht bedienbar. |
+
+**Zusätzlich durch v0.2b (CCS und Asien/Golf-Kontrast):**
+
+| # | Fundstelle | Was jetzt falsch ist | Neue Sachlage |
+|---|---|---|---|
+| **R18** | Story Akt 4 / Schritt 1: „vier Szenarien … plus eine fünfte als Anker" · Akt-4-Chart und Datentabelle | Es sind jetzt **sieben** Presets (zwei CCS-Varianten kommen dazu). Chart und Tabelle iterieren `preset_order` und zeigen sie automatisch — der Fließtext zählt weiter vier plus einen. | Umtexten; die CCS-Varianten optisch als *Variante ihres Basis-Presets* kennzeichnen, nicht als eigenständige fünfte/sechste Zukunft. |
+| **R19** | Story Akt 4 / Schritt 3 und Zwischenruf, jede Fassung des Kernsatzes | Der Vergleich Kernkraft ↔ Gas **ohne** CCS stellt 27,9 Mt gegen 106,5 Mt CO₂/a. Mit CCS auf beiden Seiten führt Kernkraft mit **90,3 %**. Ein Satz über die Rangfolge ohne Angabe, welche der beiden Vergleichsebenen gemeint ist, ist ab jetzt unvollständig. | Beide Ebenen erzählen: „ohne CCS unentschieden, aber nicht emissionsgleich — mit CCS auf beiden Seiten führt das Kernkraft-Szenario mit 90 %". |
+| **R20** | Story-Limitationen und White Paper Kap. 9: CCS als *fehlend* ausgewiesen | Die Limitation „Modell kennt kein CCS" ist überholt. An ihre Stelle treten drei neue: keine deutsche CO₂-Speicherstätte, optimistisches Kostenband, CCS auf dem gesamten Backup-Park. | Karten austauschen; alle drei liegen maschinenlesbar in `shared.monte_carlo.limitations`. |
+| **R21** | White Paper Kap. 4/5: Gas-Vergleichslinien und Mix-Simulator | Kennen nur `gas_ccgt`. Die Studie, gegen die verglichen wird, rechnet mit CCS. | Mindestens eine CCS-Linie ergänzen; im Mix-Simulator wäre ein Schalter „Backup: Gas / Gas+CCS" die kleinste sinnvolle Ergänzung (das Modell kann es bereits, `gas_tech`). |
+| **R22** | Story Akt 2/3: „Es gibt Projekte für 1 870 €/kW" bleibt ohne Modellbezug; Akt 4 sagt, es werde „zwischen dokumentiertem Minimum und Maximum" gezogen | Die Basisspanne beginnt weiterhin bei 7 500 €/kW — jetzt gibt es aber eine gerechnete Kontrastverteilung. Der Nuklear-Advocacy-Vorwurf (K3) ist damit beantwortbar, aber nur wenn die Seite es sagt. | Begründung und Kontrastergebnis zeigen: beide liegen wörtlich in `shared.monte_carlo.nuclear_capex_contrast` (`rationale_not_in_base_range`, `counterposition`). Kernaussage: 50 €/MWh Systemkosten-Differenz allein aus der Institutionenwahl. |
+| **R23** | Überall dort, wo „klimaneutrales Stromsystem" steht (R13) | Verschärft sich: Mit CCS gibt es jetzt Varianten mit 8,3 bzw. 31,7 Mt/a — der Unterschied zwischen „mit" und „ohne" ist erzählbar geworden und sollte nicht weiter unter einem pauschalen „klimaneutral" verschwinden. | Mt-Zahlen an den Chart; `emissions_mt_co2_a` und `captured_mt_co2_a` liegen je Preset bereit. |
 
 ### 5.2 Wird jetzt erst erzählbar (neue Belege im Datensatz)
 
@@ -413,7 +598,8 @@ nicht.
 
 | Punkt | Status |
 |---|---|
-| **CCS-Kostenpfad** | Bewusst nicht gebaut (offene Entscheidung Michael). Limitation ist maschinenlesbar. Solange sie besteht, sind die Szenarien nicht emissionsäquivalent. |
+| **CCS-Kostenpfad** | **In v0.2b umgesetzt** (`gas_ccs`, zwei Varianten-Presets). Offen bleiben Speicherverfügbarkeit, Kostenband und die Auslegung auf den gesamten Backup-Park — siehe 4b.5. |
+| **Asien/Golf in der Basisspanne** | **In v0.2b als eigene Konfiguration umgesetzt** (`asia`, `asia_wacc`), bewusst nicht eingemischt. Offen: ob die Story den Kontrast als Toggle oder als zweite Verteilung zeigt (Entscheidung Michael, Synthese Punkt 3). |
 | **Direkter ETS-Emissionsfaktor** statt Lebenszyklus-Proxy | `gaps.emissionsfaktor_direkt` weiter offen; überschätzt die CO₂-Kosten des Gas-Pfads um 10–20 %. |
 | **Netz-Opex, Redispatch, Verluste** | `gaps.netz_opex`. Netzblock der Zukunftsszenarien bleibt Untergrenze. |
 | **Volljahres-Stundenprofil** | Weiter der größte Einzelhebel für die H₂-Pfade; die Gratis-Anfangsfüllung ist damit nicht auflösbar. |
@@ -434,9 +620,22 @@ deshalb ist die Kernaussage von Akt 4 („nicht trennscharf") jetzt zum ersten M
 behauptet. Sie steht aber auf einer anderen Grundlage als bisher: nicht auf überlappenden
 Bändern, sondern auf einer Differenzverteilung, deren Median bei +0,8 €/MWh liegt.
 
-Was der Umbau **nicht** geleistet hat: Er macht die Szenarien nicht emissionsäquivalent (106,5 vs.
-27,9 Mt CO₂/a), er schließt die Netz-Opex-Lücke nicht, und er hebt die Overrun-Asymmetrie nicht auf
-— er macht diese drei Punkte nur maschinenlesbar, statt sie in Fließtext zu verstecken. Und er hat
-eine Nebenbotschaft der Story zerstört: „heute 107 €/MWh, jede Zukunft 141–271" wird zu „heute rund
-181 €/MWh bei 136 Mt CO₂, die Zukünfte liegen zwischen 152 und 245 bei 1–107 Mt" — wobei die
-heutige Zahl nach den eigenen neuen Regeln **nicht mehr in dieselbe Reihe gehört**.
+Was der Umbau **nicht** geleistet hat: Er schließt die Netz-Opex-Lücke nicht und hebt die
+Overrun-Asymmetrie nicht auf — er macht beides nur maschinenlesbar, statt es in Fließtext zu
+verstecken. Und er hat eine Nebenbotschaft der Story zerstört: „heute 107 €/MWh, jede Zukunft
+141–271" wird zu „heute rund 181 €/MWh bei 136 Mt CO₂, die Zukünfte liegen zwischen 152 und 245 bei
+1–107 Mt" — wobei die heutige Zahl nach den eigenen neuen Regeln **nicht mehr in dieselbe Reihe
+gehört**.
+
+**Nachtrag v0.2b.** Die Emissionsäquivalenz war der schwerwiegendste offene Punkt, und sie ist jetzt
+herstellbar. Das Ergebnis ist unbequem für die bisherige Erzählung: Auf vergleichbarem
+Emissionsniveau — beide Pfade mit CCS, so wie die geprüfte Studie ihren Gas-Pfad meint — führt das
+Kernkraft-Szenario mit **90,3 %** statt der 46,1 % aus dem Vergleich ohne CCS. Der
+Beinahe-Gleichstand, den Abschnitt 3 gefunden hat, war zu einem erheblichen Teil ein
+**Emissions-Rabatt für den Gas-Pfad**. Gleichzeitig zeigt der Asien/Golf-Kontrast, dass zwischen
+zwei belegten Datenclustern für dieselbe Technologie **50 €/MWh Systemkosten** liegen. Beides
+zusammen ergibt die belastbarste Aussage, die dieses Modell hergibt: Die Rangfolge dieser Szenarien
+wird nicht von der Technologie entschieden, sondern von drei Setzungen — welche
+Emissionsnebenbedingung gilt, welchem Institutionenrahmen man den Kernkraftbau zutraut, und ob man
+die Überschreitungs-Empirie einschaltet. Jede dieser drei Setzungen bewegt das Ergebnis stärker als
+der gesamte Abstand, den Akt 4 bisher erzählt hat.

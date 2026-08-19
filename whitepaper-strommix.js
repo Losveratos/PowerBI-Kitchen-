@@ -186,6 +186,17 @@ function fuelEurMwhEl(t) {
   return { fuel: Number(th) / Number(eta), basis: 'thermisch ' + Number(th).toFixed(1) + ' EUR/MWh_th / eta ' + Number(eta).toFixed(3) };
 }
 
+/* v0.2b: CO2-Abscheidung. Spiegelt model.ccs_chain() 1:1.
+   Rueckgabe: [Kosten EUR/MWh_el, abgeschiedene t CO2/MWh_el]. */
+function ccsChain(t) {
+  const costT = t.ccs_cost_eur_t, efTh = t.emission_factor_t_mwh_th, rate = t.capture_rate;
+  if (!costT || !efTh || !rate) return [0.0, 0.0];
+  const eta = t.efficiency || t.efficiency_lhv;
+  if (!eta) return [0.0, 0.0];
+  const captured = Number(efTh) / Number(eta) * Number(rate);
+  return [Number(costT) * captured, captured];
+}
+
 function scopeShareForCapex(capexEntry, shareEntry, capexValue) {
   if (!shareEntry || typeof shareEntry !== 'object') return 1.0;
   const xs = [capexEntry.min, capexEntry.mid, capexEntry.max];
@@ -245,10 +256,13 @@ function lcoe(t, wacc, co2Price) {
   const waste = Number(t.waste_eur_mwh || 0.0);
   const ef = Number(t.emission_factor_t_mwh || 0.0);
   const co2 = co2Price * ef;
+  const ccsRes = ccsChain(t);
 
   return {
-    lcoe_eur_mwh: capital + fixedOpex + fuel + waste + co2,
-    components_eur_mwh: { kapital: capital, fixbetrieb: fixedOpex, brennstoff: fuel, entsorgung: waste, co2: co2 },
+    lcoe_eur_mwh: capital + fixedOpex + fuel + waste + co2 + ccsRes[0],
+    components_eur_mwh: { kapital: capital, fixbetrieb: fixedOpex, brennstoff: fuel, entsorgung: waste,
+      co2: co2, ccs: ccsRes[0] },
+    ccs_captured_t_mwh: ccsRes[1],
     capex_effective_eur_kw: capexEff,
     idc_surcharge: idc,
     idc_surcharge_gross: idcGross,
@@ -268,7 +282,7 @@ function lcoe(t, wacc, co2Price) {
 const SCENARIO_FIELD_MAP = {
   capex_eur_kw: 'capex', opex_pct: 'opex', opex_eur_kw_a: 'opex',
   full_load_hours: 'full_load_hours', lifetime_years: 'lifetime_years',
-  fuel_eur_mwh: 'fuel', fuel_eur_mwh_th: 'fuel', waste_eur_mwh: 'waste',
+  fuel_eur_mwh: 'fuel', fuel_eur_mwh_th: 'fuel', ccs_cost_eur_t: 'fuel', waste_eur_mwh: 'waste',
   /* v0.2: Kostenabgrenzung folgt der CAPEX-Stuetzstelle */
   capex_scope: 'capex', idc_applicable_share: 'capex', overrun_applicable_share: 'capex'
 };
@@ -657,6 +671,7 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
   let gasGw = caps.gas_backup;
   if (gasGw === null || gasGw === undefined) gasGw = disp.gas_peak_gw;
   const efGas = Number(techs[gasTech].emission_factor_t_mwh || 0.0);
+  const ccsGas = ccsChain(techs[gasTech]);   /* v0.2b */
   const gasTwhA = disp.energy_twh.gas_backup * annualize;
   if (gasGw > 0) {
     addCapacityCost('gas_backup', gasTech, gasGw);
@@ -667,10 +682,12 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
       warnings.push('Gas-Brennstoffkosten konnten nicht bestimmt werden - im Ergebnis mit 0 EUR/MWh ' +
         'angesetzt. Das LSCOE ist insoweit eine UNTERGRENZE.');
     }
-    cost.gas_backup = (cost.gas_backup || 0.0) + (fr.fuel + co2Price * efGas) * gasTwhA * MWH_PER_TWH;
+    cost.gas_backup = (cost.gas_backup || 0.0) +
+      (fr.fuel + co2Price * efGas + ccsGas[0]) * gasTwhA * MWH_PER_TWH;
     detail.gas_backup = Object.assign(detail.gas_backup || {},
       { generation_twh_a: gasTwhA, flh: disp.gas_full_load_hours * annualize,
-        fuel_eur_mwh_el: fr.fuel, fuel_basis: fr.basis });
+        fuel_eur_mwh_el: fr.fuel, fuel_basis: fr.basis, tech_key: gasTech,
+        ccs_eur_mwh_el: ccsGas[0], ccs_captured_t_mwh_el: ccsGas[1] });
   }
 
   /* Bestandsbaender (v0.2/M6): nur CO2-Kosten, keine Kapital-/Betriebskosten */
@@ -784,6 +801,8 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
     gas_mt_co2_a: gasTwhA * efGas,
     coal_mt_co2_a: coalTwhA * efCoal,
     total_mt_co2_a: gasTwhA * efGas + coalTwhA * efCoal,
+    captured_mt_co2_a: gasTwhA * ccsGas[1],
+    backup_tech: gasTech,
     g_co2_per_kwh_delivered: servedTwhA ? (gasTwhA * efGas + coalTwhA * efCoal) * 1000.0 / servedTwhA : 0.0,
     emission_factor_gas_t_mwh: efGas,
     emission_factor_coal_t_mwh: efCoal
@@ -822,6 +841,7 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
     served_twh_a: servedTwhA, dispatch: disp, scenario: scenario, wacc: wacc,
     co2_price_eur_t: co2Price, detail: detail, warnings: warnings, gas_gw: gasGw,
     emissions: emissions, emissions_mt_co2_a: emissions.total_mt_co2_a,
+    captured_mt_co2_a: emissions.captured_mt_co2_a,
     grid_cost_basis: gridCostBasis, grid_scaling_raw: gridScalingRaw,
     comparable_to_target_scenarios: gridCostBasis === 'buildout_2045'
   };
@@ -874,7 +894,8 @@ function runSelfTest(vec, params, profiles) {
     const res = mixSystem(c.input.shares, c.input.demand_twh, params, profiles, {
       scenario: c.input.scenario, storage: c.input.storage, co2_price: c.input.co2_price,
       grid_variant: c.input.grid_variant, apply_idc: c.input.apply_idc,
-      bands_twh: c.input.bands_twh, grid_cost_basis: c.input.grid_cost_basis
+      bands_twh: c.input.bands_twh, grid_cost_basis: c.input.grid_cost_basis,
+      gas_tech: c.input.gas_tech
     });
     compareDeep(res, c.expected, tol, 'mix/' + c.id, fails);
   });
@@ -2873,15 +2894,18 @@ const MC_N_DRAWS = 1000;
 const MC_BASE_SEED = 20260815;
 
 const MC_DRAW_TECHS = ['pv_freiflaeche', 'wind_onshore', 'wind_offshore', 'nuclear',
-  'gas_ccgt', 'battery', 'electrolyser', 'h2_turbine', 'h2_storage'];
+  'gas_ccgt', 'gas_ccs', 'battery', 'electrolyser', 'h2_turbine', 'h2_storage'];
 const MC_DRAW_FIELDS = ['capex_eur_kw', 'capex_eur_kwh', 'opex_pct', 'opex_eur_kw_a', 'full_load_hours',
   /* v0.2 (M2): Erdgas-Brennstoffpreis, thermisch */
-  'fuel_eur_mwh_th'];
+  'fuel_eur_mwh_th',
+  /* v0.2b: CO2-Abscheidung */
+  'ccs_cost_eur_t', 'capture_rate'];
 /* v0.2 (M1/M7): Abgrenzungsanteile folgen dem gezogenen CAPEX */
 const MC_SCOPE_SHARE_FIELDS = ['idc_applicable_share', 'overrun_applicable_share'];
 const MC_OVERRUN_CLASS = {
   pv_freiflaeche: 'solar', wind_onshore: 'wind', wind_offshore: 'wind',
-  nuclear: 'kernkraft', gas_ccgt: 'fossil_thermisch', netz: 'netz_uebertragung'
+  nuclear: 'kernkraft', gas_ccgt: 'fossil_thermisch', gas_ccs: 'fossil_thermisch',
+  netz: 'netz_uebertragung'
 };
 /* Reihenfolge und Inhalt muessen mit CONFIGS in monte_carlo.py uebereinstimmen -
    sie bestimmen den Seed (base_seed + Index) und damit die Ziehungsfolge. */
@@ -2891,7 +2915,10 @@ const MC_CONFIGS = [
   { id: 'co2', wacc: false, co2: true, overrun: false },
   { id: 'wacc_co2', wacc: true, co2: true, overrun: false },
   { id: 'overrun', wacc: false, co2: false, overrun: true },
-  { id: 'wacc_overrun', wacc: true, co2: false, overrun: true }
+  { id: 'wacc_overrun', wacc: true, co2: false, overrun: true },
+  /* v0.2b: Kontrastverteilung Asien/Golf - nie mit der Basisspanne gemischt */
+  { id: 'asia', wacc: false, co2: false, overrun: false, nuclearCapex: 'asia_gulf' },
+  { id: 'asia_wacc', wacc: true, co2: false, overrun: false, nuclearCapex: 'asia_gulf' }
 ];
 
 /* mulberry32 - bitgleich zur Python-Referenz (32-Bit-Arithmetik). */
@@ -2995,31 +3022,36 @@ function mcPresets() {
       biomass_band: lb.biomass.generation_2025_twh.value,
       hydro_band: lb.hydro.generation_2025_twh.value
     },
-    grid_cost_basis: 'ist_netzentgelt', comparable: false
+    grid_cost_basis: 'ist_netzentgelt', comparable: false, gas_tech: 'gas_ccgt'
   }];
-  [['kostenminimum', 'GES · Kostenminimum', 0, 0, 0, 0, 0, true],
-   ['ee80_gas', 'GES · 80 % EE + Gas', 40, 0, 0, 0, 0, true],
-   ['ee80_h2', 'GES · 80 % EE + H₂', 40, 100, 80, 300, 1.0, false],
-   ['ee100', 'GES · 100 % Erneuerbare', 60, 160, 90, 120, 1.0, false]
-  ].forEach(([id, label, bat, ely, h2t, h2s, fill, gasAuto]) => {
+  /* v0.2b: je eine CCS-Variante zu den beiden gasgestuetzten Presets */
+  [['kostenminimum', 'GES · Kostenminimum', 0, 0, 0, 0, 0, true, 'kostenminimum'],
+   ['kostenminimum_ccs', 'GES · Kostenminimum (Gas mit CCS)', 0, 0, 0, 0, 0, true, 'kostenminimum'],
+   ['ee80_gas', 'GES · 80 % EE + Gas', 40, 0, 0, 0, 0, true, 'ee80_gas'],
+   ['ee80_gas_ccs', 'GES · 80 % EE + Gas mit CCS', 40, 0, 0, 0, 0, true, 'ee80_gas'],
+   ['ee80_h2', 'GES · 80 % EE + H₂', 40, 100, 80, 300, 1.0, false, 'ee80_h2'],
+   ['ee100', 'GES · 100 % Erneuerbare', 60, 160, 90, 120, 1.0, false, 'ee100']
+  ].forEach(([id, label, bat, ely, h2t, h2s, fill, gasAuto, baseId]) => {
     const demand = Number(rec.demand_twh);
-    const s = feeShares(rec.scenarios[id].fee_gw, demand);
+    const s = feeShares(rec.scenarios[baseId].fee_gw, demand);
     const shares = { pv: s.pv, wind_onshore: s.wind_onshore, wind_offshore: s.wind_offshore };
-    if (id === 'kostenminimum') {
+    if (baseId === 'kostenminimum') {
       const nuc = Math.max(0, 1 - (s.pv + s.wind_onshore + s.wind_offshore));
       if (nuc > 0) shares.nuclear = nuc;
     }
     presets.push({ id: id, label: label, demand: demand, shares: shares,
       storage: store(bat, ely, h2t, h2s, fill, gasAuto),
-      bands_twh: {}, grid_cost_basis: 'buildout_2045', comparable: true });
+      bands_twh: {}, grid_cost_basis: 'buildout_2045', comparable: true,
+      gas_tech: id.slice(-4) === '_ccs' ? 'gas_ccs' : 'gas_ccgt' });
   });
   return presets;
 }
 
 /* Schritt 3 aus mixSystem() ueber einem bereits gerechneten Dispatch. */
-function systemCostFromDispatch(shares, demandTwh, params, techs, disp, wacc, co2Price, storage, overrun, gridCostBasis) {
+function systemCostFromDispatch(shares, demandTwh, params, techs, disp, wacc, co2Price, storage, overrun, gridCostBasis, gasTech) {
   overrun = overrun || {};
   gridCostBasis = gridCostBasis || 'buildout_2045';
+  gasTech = gasTech || 'gas_ccgt';
   const annualize = 1.0 / (disp.seasonal_share_load || 1.0);
   const cost = {};
   const techForShare = { pv: 'pv_freiflaeche', wind_onshore: 'wind_onshore',
@@ -3046,12 +3078,14 @@ function systemCostFromDispatch(shares, demandTwh, params, techs, disp, wacc, co
 
   let gasGw = storage.gas_backup_gw;
   if (gasGw === null || gasGw === undefined) gasGw = disp.gas_peak_gw;
-  const efGasMc = Number(techs.gas_ccgt.emission_factor_t_mwh || 0);
+  const efGasMc = Number(techs[gasTech].emission_factor_t_mwh || 0);
+  const ccsMc = ccsChain(techs[gasTech]);   /* v0.2b */
   if (gasGw > 0) {
-    cost.gas_backup = (cost.gas_backup || 0) + fixedCost('gas_ccgt') * gasGw * KW_PER_GW;
+    cost.gas_backup = (cost.gas_backup || 0) + fixedCost(gasTech) * gasGw * KW_PER_GW;
     /* v0.2 (M2): Brennstoffpreis thermisch -> elektrisch */
-    const fuel = fuelEurMwhEl(techs.gas_ccgt).fuel;
-    cost.gas_backup += (fuel + co2Price * efGasMc) * disp.energy_twh.gas_backup * annualize * MWH_PER_TWH;
+    const fuel = fuelEurMwhEl(techs[gasTech]).fuel;
+    cost.gas_backup += (fuel + co2Price * efGasMc + ccsMc[0]) *
+      disp.energy_twh.gas_backup * annualize * MWH_PER_TWH;
   }
   /* v0.2 (M6): Kohle-Bestandsband, nur CO2-Kosten */
   const coalTwhMc = (disp.energy_twh.coal_band || 0) * annualize;
@@ -3133,21 +3167,34 @@ function mcRunConfigPaired(presets, disps, plan, ovPlan, config, seed, co2Price)
   const co2Spec = S.params.global.co2_price_eur_t;
   const midWacc = scenarioWacc(S.params, 'mittel');
   const values = {}; presets.forEach(p => { values[p.id] = new Array(MC_N_DRAWS); });
+  /* v0.2b: Kontrastverteilung Asien/Golf ersetzt genau eine Plan-Stelle -
+     die Zahl der rnd()-Aufrufe bleibt identisch. */
+  const alt = (config.nuclearCapex === 'asia_gulf')
+    ? S.params.technologies.nuclear.capex_alternative_asia_gulf : null;
 
   for (let i = 0; i < MC_N_DRAWS; i++) {
     const techs = {};
     for (const k in base) techs[k] = Object.assign({}, base[k]);
-    plan.forEach(d => { techs[d.tech][d.field] = triangular(rnd(), d.min, d.mid, d.max); });
+    plan.forEach(d => {
+      const u = rnd();
+      let lo = d.min, mid = d.mid, hi = d.max;
+      if (alt && d.tech === 'nuclear' && d.field === 'capex_eur_kw') {
+        lo = alt.min; mid = alt.mid; hi = alt.max;
+      }
+      techs[d.tech][d.field] = triangular(u, lo, mid, hi);
+    });
+    if (alt) techs.nuclear.construction_years = alt.construction_years.value;
     MC_DRAW_TECHS.forEach(techKey => {
       const tech = S.params.technologies[techKey];
       if (!tech) return;
-      const capEntry = tech.params.capex_eur_kw || tech.params.capex_eur_kwh;
+      let capEntry = tech.params.capex_eur_kw || tech.params.capex_eur_kwh;
       if (!capEntry) return;
       let drawn = techs[techKey].capex_eur_kw;
       if (drawn === undefined || drawn === null) drawn = techs[techKey].capex_eur_kwh;
       if (drawn === undefined || drawn === null) return;
+      if (alt && techKey === 'nuclear') capEntry = alt;
       MC_SCOPE_SHARE_FIELDS.forEach(f => {
-        const se = tech.params[f];
+        const se = (alt && techKey === 'nuclear') ? alt[f] : tech.params[f];
         if (se) techs[techKey][f] = scopeShareForCapex(capEntry, se, drawn);
       });
     });
@@ -3159,7 +3206,7 @@ function mcRunConfigPaired(presets, disps, plan, ovPlan, config, seed, co2Price)
     if (config.overrun) ovPlan.forEach(o => { overrun[o.target] = triangular(rnd(), o.min, o.mid, o.max); });
     presets.forEach(p => {
       values[p.id][i] = systemCostFromDispatch(p.shares, p.demand, S.params, techs, disps[p.id],
-        wacc, co2, p.storage, overrun, p.grid_cost_basis);
+        wacc, co2, p.storage, overrun, p.grid_cost_basis, p.gas_tech);
     });
   }
   return values;
@@ -3200,12 +3247,13 @@ function mcRunAll(onProgress) {
     presets.forEach(p => {
       const det = mixSystem(p.shares, p.demand, S.params, S.profiles, {
         scenario: 'mittel', storage: p.storage, co2_price: co2, grid_variant: 'mid', apply_idc: true,
-        bands_twh: p.bands_twh, grid_cost_basis: p.grid_cost_basis
+        bands_twh: p.bands_twh, grid_cost_basis: p.grid_cost_basis, gas_tech: p.gas_tech
       });
       disps[p.id] = det.dispatch;
       out[p.id] = {
         label: p.label, det: det.lscoe_eur_mwh, configs: {},
         emissions_mt_co2_a: det.emissions_mt_co2_a,
+        captured_mt_co2_a: det.emissions.captured_mt_co2_a,
         comparable: p.comparable !== false
       };
     });

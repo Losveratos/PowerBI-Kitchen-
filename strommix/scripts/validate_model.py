@@ -390,7 +390,7 @@ def validate_ist_2025(params: dict, profiles: dict) -> dict:
         preset["shares"], preset["demand_twh"], params, profiles, scenario="mittel",
         storage=preset["storage"], co2_price=params["global"]["co2_price_eur_t"]["value"],
         grid_variant="mid", apply_idc=True, bands_twh=preset["bands_twh"],
-        grid_cost_basis=preset["grid_cost_basis"],
+        grid_cost_basis=preset["grid_cost_basis"], gas_tech=preset["gas_tech"],
     )
     disp = res["dispatch"]
     ann = 1.0 / (disp["seasonal_share_load"] or 1.0)

@@ -127,7 +127,7 @@ def percentile(sorted_vals: list[float], p: float) -> float:
 # Mix-Modells vorkommen.
 DRAW_TECHS = [
     "pv_freiflaeche", "wind_onshore", "wind_offshore", "nuclear",
-    "gas_ccgt", "battery", "electrolyser", "h2_turbine", "h2_storage",
+    "gas_ccgt", "gas_ccs", "battery", "electrolyser", "h2_turbine", "h2_storage",
 ]
 
 # CAPEX / Opex / Volllaststunden. `capex_eur_kwh` ist der CAPEX der Batterie
@@ -147,6 +147,8 @@ DRAW_FIELDS = [
     # v0.2 (M2): Erdgas-Brennstoffpreis, thermisch. Wird ueber den
     # Wirkungsgrad in EUR/MWh_el umgerechnet (model._fuel_eur_mwh_el).
     "fuel_eur_mwh_th",
+    # v0.2b: CO2-Abscheidung - Vollkettenkosten je Tonne und Abscheiderate.
+    "ccs_cost_eur_t", "capture_rate",
 ]
 
 # v0.2 (M1/M7): Wenn der CAPEX gezogen wird, muessen die Anwendungsanteile fuer
@@ -164,6 +166,7 @@ OVERRUN_CLASS = {
     "wind_offshore": "wind",
     "nuclear": "kernkraft",
     "gas_ccgt": "fossil_thermisch",
+    "gas_ccs": "fossil_thermisch",
     "netz": "netz_uebertragung",
 }
 
@@ -180,6 +183,17 @@ CONFIGS = [
      "label": "WACC fest, CO2 fest, mit empirischer Kostenueberschreitung"},
     {"id": "wacc_overrun", "wacc_uncertain": True, "co2_uncertain": False, "overrun": True,
      "label": "WACC unsicher, mit empirischer Kostenueberschreitung"},
+    # ---- v0.2b: Kontrastverteilung Asien/Golf fuer den Kernkraft-CAPEX -----
+    # NICHT in die Basisspanne gemischt (kosten_kernkraft.md 7.1). Bewusst
+    # NICHT mit dem Ueberschreitungsfaktor kombiniert: die Anker sind
+    # realisierte Ist-Kosten, kein Schaetzwert (siehe M7).
+    {"id": "asia", "wacc_uncertain": False, "co2_uncertain": False, "overrun": False,
+     "nuclear_capex": "asia_gulf",
+     "label": "Kontrast: Kernkraft-CAPEX aus dem Cluster Asien/Golf (1.870/3.150/4.950 EUR/kW, "
+              "Bauzeit 8 a), WACC fest"},
+    {"id": "asia_wacc", "wacc_uncertain": True, "co2_uncertain": False, "overrun": False,
+     "nuclear_capex": "asia_gulf",
+     "label": "Kontrast Asien/Golf mit unsicherem WACC (Dreieck 3/5/9 %)"},
 ]
 
 
@@ -274,12 +288,13 @@ def system_cost(shares, demand_twh, params, techs, disp, wacc, co2_price,
     if gas_gw is None:
         gas_gw = disp["gas_peak_gw"]
     ef_gas = float(techs[gas_tech].get("emission_factor_t_mwh") or 0.0)
+    ccs_eur_mwh, ccs_captured_t_mwh = model.ccs_chain(techs[gas_tech])  # v0.2b
     gas_twh = disp["energy_twh"]["gas_backup"] * annualize
     if gas_gw > 0:
         cost["gas_backup"] = cost.get("gas_backup", 0.0) + fixed_cost(gas_tech) * gas_gw * model.KW_PER_GW
         flat = techs[gas_tech]
         fuel, _ = model._fuel_eur_mwh_el(flat)  # v0.2: thermisch -> elektrisch
-        cost["gas_backup"] += (fuel + co2_price * ef_gas) * gas_twh * model.MWH_PER_TWH
+        cost["gas_backup"] += (fuel + co2_price * ef_gas + ccs_eur_mwh) * gas_twh * model.MWH_PER_TWH
 
     # --- Bestandsbaender (v0.2/M6): nur CO2-Kosten ------------------------
     legacy = params["system"].get("legacy_bands", {})
@@ -338,6 +353,7 @@ def system_cost(shares, demand_twh, params, techs, disp, wacc, co2_price,
     emissions_mt = gas_twh * ef_gas + coal_twh * ef_coal
     return {"lscoe_eur_mwh": lscoe, "total_cost_bn_eur_a": total / 1e9,
             "emissions_mt_co2_a": emissions_mt,
+            "captured_mt_co2_a": gas_twh * ccs_captured_t_mwh,
             "cost_components_bn_eur_a": {k: v / 1e9 for k, v in sorted(cost.items())}}
 
 
@@ -400,25 +416,32 @@ def build_presets(params: dict, page: dict) -> list[dict]:
         },
         "grid_cost_basis": "ist_netzentgelt",
         "comparable": False,
+        "gas_tech": "gas_ccgt",
     })
 
-    for pid, label, bat, ely, h2t, h2s, fill, gas_auto in (
-        ("kostenminimum", "GES · Kostenminimum", 0, 0, 0, 0, 0.0, True),
-        ("ee80_gas", "GES · 80 % EE + Gas", 40, 0, 0, 0, 0.0, True),
-        ("ee80_h2", "GES · 80 % EE + H₂", 40, 100, 80, 300, 1.0, False),
-        ("ee100", "GES · 100 % Erneuerbare", 60, 160, 90, 120, 1.0, False),
+    # v0.2b: Zu den beiden gasgestuetzten Presets gibt es je eine CCS-Variante.
+    # Sie unterscheidet sich AUSSCHLIESSLICH in der Backup-Technologie - gleicher
+    # Mix, gleiches Dispatch, gleiche Auslegung. Damit ist der Vergleich sauber.
+    for pid, label, bat, ely, h2t, h2s, fill, gas_auto, base_id in (
+        ("kostenminimum", "GES · Kostenminimum", 0, 0, 0, 0, 0.0, True, "kostenminimum"),
+        ("kostenminimum_ccs", "GES · Kostenminimum (Gas mit CCS)", 0, 0, 0, 0, 0.0, True, "kostenminimum"),
+        ("ee80_gas", "GES · 80 % EE + Gas", 40, 0, 0, 0, 0.0, True, "ee80_gas"),
+        ("ee80_gas_ccs", "GES · 80 % EE + Gas mit CCS", 40, 0, 0, 0, 0.0, True, "ee80_gas"),
+        ("ee80_h2", "GES · 80 % EE + H₂", 40, 100, 80, 300, 1.0, False, "ee80_h2"),
+        ("ee100", "GES · 100 % Erneuerbare", 60, 160, 90, 120, 1.0, False, "ee100"),
     ):
         demand = float(rec["demand_twh"])
-        s = fee_shares_from_gw(rec["scenarios"][pid]["fee_gw"], split, params, demand)
+        s = fee_shares_from_gw(rec["scenarios"][base_id]["fee_gw"], split, params, demand)
         shares = {"pv": s["pv"], "wind_onshore": s["wind_onshore"], "wind_offshore": s["wind_offshore"]}
-        if pid == "kostenminimum":
+        if base_id == "kostenminimum":
             nuc = max(0.0, 1.0 - (s["pv"] + s["wind_onshore"] + s["wind_offshore"]))
             if nuc > 0:
                 shares["nuclear"] = nuc
         presets.append({"id": pid, "label": label, "demand_twh": demand, "shares": shares,
                         "storage": storage(bat, ely, h2t, h2s, fill, gas_auto),
                         "bands_twh": {}, "grid_cost_basis": "buildout_2045",
-                        "comparable": True})
+                        "comparable": True,
+                        "gas_tech": "gas_ccs" if pid.endswith("_ccs") else "gas_ccgt"})
     return presets
 
 
@@ -466,10 +489,24 @@ def run_config_paired(presets, params, disps, plan, ov_plan, config, seed, co2_p
     values: dict[str, list[float]] = {p["id"]: [] for p in presets}
     emissions: dict[str, list[float]] = {p["id"]: [] for p in presets}
 
+    # v0.2b: Kontrastverteilung fuer den Kernkraft-CAPEX. Sie ersetzt die
+    # Basisverteilung an genau einer Stelle des Ziehungsplans - die Zahl der
+    # rnd()-Aufrufe bleibt identisch, damit die Ziehungsfolge zwischen den
+    # Konfigurationen vergleichbar bleibt.
+    alt = None
+    if config.get("nuclear_capex") == "asia_gulf":
+        alt = params["technologies"]["nuclear"]["capex_alternative_asia_gulf"]
+
     for _ in range(N_DRAWS):
         techs = {k: dict(v) for k, v in base_techs.items()}
         for d in plan:
-            techs[d["tech"]][d["field"]] = triangular(rnd(), d["min"], d["mid"], d["max"])
+            u = rnd()
+            lo, mid, hi = d["min"], d["mid"], d["max"]
+            if alt is not None and d["tech"] == "nuclear" and d["field"] == "capex_eur_kw":
+                lo, mid, hi = alt["min"], alt["mid"], alt["max"]
+            techs[d["tech"]][d["field"]] = triangular(u, lo, mid, hi)
+        if alt is not None:
+            techs["nuclear"]["construction_years"] = alt["construction_years"]["value"]
         # v0.2 (M1/M7): Abgrenzungsanteile folgen dem gezogenen CAPEX.
         for tech_key in DRAW_TECHS:
             tech = params["technologies"].get(tech_key)
@@ -483,8 +520,11 @@ def run_config_paired(presets, params, disps, plan, ov_plan, config, seed, co2_p
                 drawn = techs[tech_key].get("capex_eur_kwh")
             if drawn is None:
                 continue
+            if alt is not None and tech_key == "nuclear":
+                cap_entry = alt
             for field in SCOPE_SHARE_FIELDS:
-                share_entry = tech["params"].get(field)
+                share_entry = (alt.get(field) if (alt is not None and tech_key == "nuclear")
+                               else tech["params"].get(field))
                 if isinstance(share_entry, dict):
                     techs[tech_key][field] = model.scope_share_for_capex(cap_entry, share_entry, drawn)
 
@@ -502,7 +542,8 @@ def run_config_paired(presets, params, disps, plan, ov_plan, config, seed, co2_p
         for preset in presets:
             res = system_cost(preset["shares"], preset["demand_twh"], params, techs,
                               disps[preset["id"]], wacc, co2, preset["storage"],
-                              overrun=overrun, grid_cost_basis=preset["grid_cost_basis"])
+                              overrun=overrun, grid_cost_basis=preset["grid_cost_basis"],
+                              gas_tech=preset["gas_tech"])
             values[preset["id"]].append(res["lscoe_eur_mwh"])
             emissions[preset["id"]].append(res["emissions_mt_co2_a"])
 
@@ -557,7 +598,8 @@ def main() -> None:
                                scenario="mittel", storage=preset["storage"],
                                co2_price=co2_price, grid_variant="mid", apply_idc=True,
                                bands_twh=preset["bands_twh"],
-                               grid_cost_basis=preset["grid_cost_basis"])
+                               grid_cost_basis=preset["grid_cost_basis"],
+                               gas_tech=preset["gas_tech"])
         disp = det["dispatch"]
         disps[preset["id"]] = disp
 
@@ -566,7 +608,8 @@ def main() -> None:
         # Kostenfunktion hier von model.mix_system ab.
         check = system_cost(preset["shares"], preset["demand_twh"], params, mid_techs(params),
                             disp, model.scenario_wacc(params, "mittel"), co2_price,
-                            preset["storage"], grid_cost_basis=preset["grid_cost_basis"])
+                            preset["storage"], grid_cost_basis=preset["grid_cost_basis"],
+                            gas_tech=preset["gas_tech"])
         rel = abs(check["lscoe_eur_mwh"] - det["lscoe_eur_mwh"]) / abs(det["lscoe_eur_mwh"])
         if rel > 1e-9:
             raise SystemExit(
@@ -578,10 +621,12 @@ def main() -> None:
             "shares": preset["shares"], "storage": preset["storage"],
             "bands_twh": preset["bands_twh"],
             "grid_cost_basis": preset["grid_cost_basis"],
+            "gas_tech": preset["gas_tech"],
             "comparable_to_target_scenarios": preset["comparable"],
             "deterministic_lscoe_eur_mwh": det["lscoe_eur_mwh"],
             "deterministic_components_eur_mwh": det["cost_components_eur_mwh"],
             "emissions_mt_co2_a": det["emissions"]["total_mt_co2_a"],
+            "captured_mt_co2_a": det["emissions"]["captured_mt_co2_a"],
             "emissions_detail": det["emissions"],
             "gas_peak_gw": disp["gas_peak_gw"],
             "gas_backup_twh_a": disp["energy_twh"]["gas_backup"] / (disp["seasonal_share_load"] or 1.0),
@@ -661,6 +706,34 @@ def main() -> None:
                 "Ueberschreitungs-Szenario ist damit asymmetrisch (siehe limitations.overrun_asymmetry).",
             ],
             "limitations": model.model_limitations(),
+            "ccs": {
+                "technology": "gas_ccs",
+                "presets": ["kostenminimum_ccs", "ee80_gas_ccs"],
+                "note": "v0.2b: Die CCS-Varianten unterscheiden sich von ihrem Basis-Preset "
+                        "AUSSCHLIESSLICH in der Backup-Technologie - gleicher Mix, gleiches "
+                        "Dispatch, gleiche Auslegung. Die gepruefte GES-Studie rechnet ihren "
+                        "Gas-Pfad mit CCS; erst dieser Vergleich ist deshalb fair.",
+                "storage_availability": "Deutschland hat keine CO2-Speicherstaette - die "
+                                        "eingelagerte Menge steht als captured_mt_co2_a je Preset "
+                                        "im Ergebnis (SETZUNG, siehe limitations).",
+            },
+            "nuclear_capex_contrast": {
+                "configs": ["asia", "asia_wacc"],
+                "distribution_eur_kw": {
+                    "min": params["technologies"]["nuclear"]["capex_alternative_asia_gulf"]["min"],
+                    "mid": params["technologies"]["nuclear"]["capex_alternative_asia_gulf"]["mid"],
+                    "max": params["technologies"]["nuclear"]["capex_alternative_asia_gulf"]["max"],
+                },
+                "anchors": params["technologies"]["nuclear"]["capex_alternative_asia_gulf"]["anchors"],
+                "construction_years": params["technologies"]["nuclear"]
+                                            ["capex_alternative_asia_gulf"]["construction_years"],
+                "rationale_not_in_base_range": params["technologies"]["nuclear"]
+                                                     ["capex_alternative_asia_gulf"]
+                                                     ["rationale_not_in_base_range"],
+                "counterposition": params["technologies"]["nuclear"]
+                                         ["capex_alternative_asia_gulf"]["counterposition"],
+                "usage": params["technologies"]["nuclear"]["capex_alternative_asia_gulf"]["usage"],
+            },
             "overrun_source": "page_data.kostenueberschreitung_faktoren (Flyvbjerg 2023, "
                               "Sovacool & Ryu 2025); Modus = Flyvbjerg-Wert, sonst Sovacool, "
                               "Grenzen = dokumentierte Modellspanne",
@@ -681,15 +754,16 @@ def main() -> None:
     print(f"  {len(plan)} gezogene Parameter, {len(ov_plan)} Ueberschreitungsfaktoren")
     for pid in order:
         r = results[pid]
-        b, o = r["configs"]["base"], r["configs"]["overrun"]
-        print(f"  {r['label']:28s} det {r['deterministic_lscoe_eur_mwh']:6.1f} | "
+        b, o = r["configs"]["base"], r["configs"]["asia"]
+        print(f"  {r['label']:34s} det {r['deterministic_lscoe_eur_mwh']:6.1f} | "
               f"P50 {b['p50']:6.1f} [{b['p5']:6.1f}-{b['p95']:6.1f}] | "
-              f"Overrun P50 {o['p50']:6.1f} | {r['emissions_mt_co2_a']:6.1f} Mt CO2/a")
-    print("  Rangwahrscheinlichkeiten (base):")
-    for rp in rank_probabilities["base"]:
-        print(f"    P({rp['a']} < {rp['b']}) = {rp['p_a_cheaper'] * 100:5.1f} %  "
-              f"Median Delta {rp['median_diff_a_minus_b']:+7.1f} "
-              f"[{rp['p5_diff']:+.1f} ... {rp['p95_diff']:+.1f}]")
+              f"Asien {o['p50']:6.1f} | {r['emissions_mt_co2_a']:6.1f} Mt "
+              f"| eingelagert {r['captured_mt_co2_a']:5.1f} Mt")
+    for cid in ("base", "asia"):
+        print(f"  Rangwahrscheinlichkeiten ({cid}):")
+        for rp in rank_probabilities[cid]:
+            print(f"    P({rp['a']:18s} < {rp['b']:18s}) = {rp['p_a_cheaper'] * 100:5.1f} %  "
+                  f"Median Delta {rp['median_diff_a_minus_b']:+7.1f}")
 
 
 if __name__ == "__main__":

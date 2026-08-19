@@ -8,14 +8,42 @@
   "profiles_data_completeness": "PARTIAL",
   "profiles_hours": 4416,
   "profiles_label": "H2-2024-basiert (Teilzeitraum)",
-  "model_version": "0.2",
+  "model_version": "0.2b",
   "limitations": [
    {
-    "id": "ccs_not_modelled",
+    "id": "scenarios_not_emission_equivalent",
     "severity": "hoch",
-    "text": "CCS ist nicht modelliert. Die geprueften GES-Szenarien rechnen ihren Gas-Pfad mit CCS. Die hier verglichenen Szenarien sind deshalb NICHT emissionsaequivalent - die Restemissionen je Szenario stehen in `emissions`.",
-    "affects": "alle Szenarien mit Gas-Backup",
-    "ref_field": "gaps.ccs_nicht_modelliert"
+    "text": "Die verglichenen Szenarien haben sehr unterschiedliche Restemissionen (1 bis ueber 100 Mt CO2/a). Ein Kostenvergleich in EUR/MWh ist nur unter gleicher Emissionsnebenbedingung eine Aussage ueber Technologien. Seit v0.2b gibt es dafuer die CCS-Varianten - die Szenarien OHNE CCS bleiben untereinander nicht emissionsaequivalent.",
+    "affects": "alle Szenarien",
+    "ref_field": "emissions.total_mt_co2_a"
+   },
+   {
+    "id": "ccs_storage_availability",
+    "severity": "hoch",
+    "text": "Deutschland hat keine in Betrieb befindliche CO2-Speicherstaette. Die CCS-Varianten unterstellen Export in norwegische/niederlaendische Offshore-Speicher samt Logistik, Genehmigungen und Akzeptanz. Modelliert ist davon NUR der Kostensatz je Tonne - keine Kapazitaetsgrenze, keine Hochlaufkurve, kein Verfuegbarkeitsrisiko. Die jaehrlich einzulagernde Menge steht als `emissions.captured_mt_co2_a` im Ergebnis.",
+    "affects": "kostenminimum_ccs, ee80_gas_ccs",
+    "ref_field": "gaps.ccs_speicher_verfuegbarkeit"
+   },
+   {
+    "id": "ccs_cost_band_optimistic",
+    "severity": "mittel",
+    "text": "Der CCS-Vollkettensatz 50/80/100 EUR/t ist die im Repository belegte Spanne. Eine Recherche (2026-08-19, Clean Air Task Force / Carbon Management Europe) nennt fuer europaeische Anlagen mit den derzeit geplanten Speichern rund 70-250 EUR/t. Das Modellband liegt am unteren Rand und beguenstigt den CCS-Pfad.",
+    "affects": "kostenminimum_ccs, ee80_gas_ccs",
+    "ref_field": "gaps.ccs_kostenband_optimistisch"
+   },
+   {
+    "id": "ccs_on_full_backup_fleet",
+    "severity": "hoch",
+    "text": "Die CCS-Varianten ruesten den GESAMTEN Backup-Park aus, auch die Stunden mit sehr wenigen Volllaststunden. Weil der CAPEX-Block dabei rund verdoppelt wird, die Anlage aber nur 1.300-1.900 h im Jahr laeuft, faellt der Kapitalanteil je abgeschiedener Tonne sehr hoch aus. Ein real optimiertes System wuerde CCS nur an den hochausgelasteten Bloecken bauen und die Spitzenlast unabgeschieden fahren. Die hier ausgewiesenen Vermeidungskosten sind deshalb eine OBERGRENZE.",
+    "affects": "kostenminimum_ccs, ee80_gas_ccs",
+    "ref_field": "model.mix_system (gas_tech)"
+   },
+   {
+    "id": "ccs_residual_is_lifecycle",
+    "severity": "mittel",
+    "text": "Die Restemission von Gas+CCS (49/120/220 g/kWh) ist ein Lebenszyklus-Wert und enthaelt die Vorkette (Methanschlupf), die eine Abscheidung am Schornstein nicht erfasst. Fuer eine reine ETS-Bepreisung ist der Wert eher zu hoch - dieselbe Richtung wie beim GuD-Proxy, also gegen den CCS-Pfad.",
+    "affects": "kostenminimum_ccs, ee80_gas_ccs",
+    "ref_field": "gaps.emissionsfaktor_direkt"
    },
    {
     "id": "emission_factor_proxy",
@@ -58,6 +86,13 @@
     "text": "Der Saisonspeicher startet in den H2-Presets gefuellt; die Stromkosten dieser Anfangsfuellung liegen ausserhalb des abgedeckten Halbjahres und sind NICHT enthalten. Die H2-Pfade sind insoweit eine Untergrenze - das ist die Gegenrichtung zur Gas-Asymmetrie und bleibt auch nach M2 bestehen.",
     "affects": "ee80_h2, ee100",
     "ref_field": "model.mix_system (h2_initial_fill_share)"
+   },
+   {
+    "id": "nuclear_base_range_is_western",
+    "severity": "mittel",
+    "text": "Die Kernkraft-Basisverteilung (7.500/12.000/17.500 EUR/kW) enthaelt bewusst kein asiatisches oder Golf-Projekt - Begruendung in kosten_kernkraft.md 7.1 (Uebertragbarkeit). Der Cluster Asien/Golf (1.870-4.950 EUR/kW) ist real und belegt und wird seit v0.2b als EIGENE Monte-Carlo-Konfiguration ('asia', 'asia_wacc') gerechnet - nicht in die Basisspanne gemischt.",
+    "affects": "alle Szenarien mit Kernkraft",
+    "ref_field": "technologies.nuclear.capex_alternative_asia_gulf"
    },
    {
     "id": "half_year_profile",
@@ -141,7 +176,8 @@
      "fixbetrieb": 10.9223301,
      "brennstoff": 0.0,
      "entsorgung": 0.0,
-     "co2": 0.0
+     "co2": 0.0,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 750.0,
     "idc_surcharge": 0.0,
@@ -168,7 +204,8 @@
      "fixbetrieb": 5.2173913,
      "brennstoff": 0.0,
      "entsorgung": 0.0,
-     "co2": 0.0
+     "co2": 0.0,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 608.93349391,
     "idc_surcharge": 0.01488916,
@@ -195,7 +232,8 @@
      "fixbetrieb": 18.64583333,
      "brennstoff": 0.0,
      "entsorgung": 0.0,
-     "co2": 0.0
+     "co2": 0.0,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 1879.5,
     "idc_surcharge": 0.05,
@@ -222,7 +260,8 @@
      "fixbetrieb": 47.36842105,
      "brennstoff": 0.0,
      "entsorgung": 0.0,
-     "co2": 0.0
+     "co2": 0.0,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 5120.97034262,
     "idc_surcharge": 0.13799341,
@@ -249,7 +288,8 @@
      "fixbetrieb": 22.0,
      "brennstoff": 8.0,
      "entsorgung": 8.0,
-     "co2": 0.0
+     "co2": 0.0,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 12000.0,
     "idc_surcharge": 0.0,
@@ -276,7 +316,8 @@
      "fixbetrieb": 22.0,
      "brennstoff": 8.0,
      "entsorgung": 8.0,
-     "co2": 0.0
+     "co2": 0.0,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 12000.0,
     "idc_surcharge": 0.0,
@@ -303,7 +344,8 @@
      "fixbetrieb": 26.66666667,
      "brennstoff": 11.0,
      "entsorgung": 14.0,
-     "co2": 0.0
+     "co2": 0.0,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 17500.0,
     "idc_surcharge": 0.0,
@@ -330,7 +372,8 @@
      "fixbetrieb": 16.25,
      "brennstoff": 6.0,
      "entsorgung": 5.0,
-     "co2": 0.0
+     "co2": 0.0,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 8955.39222397,
     "idc_surcharge": 0.1940523,
@@ -357,7 +400,8 @@
      "fixbetrieb": 32.0,
      "brennstoff": 58.33333333,
      "entsorgung": 0.0,
-     "co2": 80.6
+     "co2": 80.6,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 1721.48772868,
     "idc_surcharge": 0.07592983,
@@ -384,7 +428,8 @@
      "fixbetrieb": 28.125,
      "brennstoff": 87.5,
      "entsorgung": 0.0,
-     "co2": 161.2
+     "co2": 161.2,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 750.0,
     "idc_surcharge": 0.0,
@@ -413,7 +458,8 @@
      "fixbetrieb": 42.0,
      "brennstoff": 0.0,
      "entsorgung": 0.0,
-     "co2": 0.0
+     "co2": 0.0,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 1506.3017626,
     "idc_surcharge": 0.07592983,
@@ -442,7 +488,8 @@
      "fixbetrieb": 26.66666667,
      "brennstoff": 11.0,
      "entsorgung": 14.0,
-     "co2": 0.0
+     "co2": 0.0,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 17500.0,
     "idc_surcharge": 0.0,
@@ -471,7 +518,8 @@
      "fixbetrieb": 16.25,
      "brennstoff": 6.0,
      "entsorgung": 5.0,
-     "co2": 0.0
+     "co2": 0.0,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 22111.57807031,
     "idc_surcharge": 0.34009564,
@@ -498,7 +546,8 @@
      "fixbetrieb": 32.0,
      "brennstoff": 58.33333333,
      "entsorgung": 0.0,
-     "co2": 30.225
+     "co2": 30.225,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 1600.0,
     "idc_surcharge": 0.0,
@@ -525,13 +574,70 @@
      "fixbetrieb": 58.66666667,
      "brennstoff": 100.0,
      "entsorgung": 0.0,
-     "co2": 30.225
+     "co2": 30.225,
+     "ccs": 0.0
     },
     "capex_effective_eur_kw": 2200.0,
     "idc_surcharge": 0.0,
     "crf": 0.07095246,
     "annuity_eur_kw_a": 156.09540606,
     "fixed_opex_eur_kw_a": 88.0
+   }
+  },
+  {
+   "id": "lcoe_gas_ccs_mid",
+   "note": "v0.2b: GuD mit CCS. Prueft die ganze Kette - hoeherer CAPEX, niedrigerer Wirkungsgrad (mehr Brennstoff je MWh_el), Vollkettenkosten je abgeschiedener Tonne und die RESTemission, die weiterhin den vollen CO2-Preis traegt.",
+   "input": {
+    "tech_key": "gas_ccs",
+    "scenario": "mittel",
+    "wacc": 0.05,
+    "co2_price_eur_t": 75.0,
+    "apply_idc": true,
+    "overrides": null
+   },
+   "expected": {
+    "lcoe_eur_mwh": 326.78866762,
+    "components_eur_mwh": {
+     "kapital": 153.00097531,
+     "fixbetrieb": 64.0,
+     "brennstoff": 67.30769231,
+     "entsorgung": 0.0,
+     "co2": 9.0,
+     "ccs": 33.48
+    },
+    "capex_effective_eur_kw": 3528.0,
+    "idc_surcharge": 0.1025,
+    "crf": 0.06505144,
+    "annuity_eur_kw_a": 229.50146296,
+    "fixed_opex_eur_kw_a": 96.0
+   }
+  },
+  {
+   "id": "lcoe_gas_ccs_teuer",
+   "note": "v0.2b: CCS im teuren Satz bei WACC 9 % und CO2 200 EUR/t - hier muss der CCS-Block mit 100 EUR/t und der CO2-Block auf die Restemission gleichzeitig sichtbar sein.",
+   "input": {
+    "tech_key": "gas_ccs",
+    "scenario": "teuer",
+    "wacc": 0.09,
+    "co2_price_eur_t": 200.0,
+    "apply_idc": true,
+    "overrides": null
+   },
+   "expected": {
+    "lcoe_eur_mwh": 700.58599552,
+    "components_eur_mwh": {
+     "kapital": 390.28471347,
+     "fixbetrieb": 129.06666667,
+     "brennstoff": 115.38461538,
+     "entsorgung": 0.0,
+     "co2": 24.0,
+     "ccs": 41.85
+    },
+    "capex_effective_eur_kw": 5750.404,
+    "idc_surcharge": 0.1881,
+    "crf": 0.10180625,
+    "annuity_eur_kw_a": 585.42707021,
+    "fixed_opex_eur_kw_a": 193.6
    }
   }
  ],
@@ -559,7 +665,8 @@
      "gas_backup_gw": null
     },
     "bands_twh": null,
-    "grid_cost_basis": null
+    "grid_cost_basis": null,
+    "gas_tech": null
    },
    "expected": {
     "lscoe_eur_mwh": 146.30375189,
@@ -588,6 +695,7 @@
     },
     "served_twh_a": 949.99905,
     "emissions_mt_co2_a": 126.4451072,
+    "captured_mt_co2_a": 0.0,
     "dispatch": {
      "energy_twh": {
       "load": 476.13952386,
@@ -650,7 +758,8 @@
      "gas_backup_gw": 20.0
     },
     "bands_twh": null,
-    "grid_cost_basis": null
+    "grid_cost_basis": null,
+    "gas_tech": null
    },
    "expected": {
     "lscoe_eur_mwh": 158.5260623,
@@ -685,6 +794,7 @@
     },
     "served_twh_a": 902.73252746,
     "emissions_mt_co2_a": 19.66364625,
+    "captured_mt_co2_a": 0.0,
     "dispatch": {
      "energy_twh": {
       "load": 476.13952386,
@@ -746,7 +856,8 @@
      "biomass_band": 42.7,
      "hydro_band": 21.0
     },
-    "grid_cost_basis": "ist_netzentgelt"
+    "grid_cost_basis": "ist_netzentgelt",
+    "gas_tech": null
    },
    "expected": {
     "lscoe_eur_mwh": 180.70814838,
@@ -776,6 +887,7 @@
     },
     "served_twh_a": 519.99948,
     "emissions_mt_co2_a": 137.20324046,
+    "captured_mt_co2_a": 0.0,
     "dispatch": {
      "energy_twh": {
       "load": 260.62373938,
@@ -837,7 +949,8 @@
      "gas_backup_gw": 20.0
     },
     "bands_twh": {},
-    "grid_cost_basis": "buildout_2045"
+    "grid_cost_basis": "buildout_2045",
+    "gas_tech": null
    },
    "expected": {
     "lscoe_eur_mwh": 231.86350257,
@@ -870,6 +983,7 @@
     },
     "served_twh_a": 948.67833209,
     "emissions_mt_co2_a": 1.53540121,
+    "captured_mt_co2_a": 0.0,
     "dispatch": {
      "energy_twh": {
       "load": 476.13952386,
@@ -902,6 +1016,97 @@
      "h2_storage_required_gwh": 42077.2486769,
      "h2_soc_max_gwh": 120000.0,
      "unserved_share": 0.00139023,
+     "nuclear_band_gw": 0.0,
+     "seasonal_share_load": 0.5012
+    }
+   }
+  },
+  {
+   "id": "mix_ee80_gas_ccs",
+   "note": "80 % fEE mit CCS-Backup. Identisch zu mix_ee80_gas bis auf gas_tech - prueft, dass die CCS-Kette in mix_system greift und die Restemission bepreist wird.",
+   "input": {
+    "shares": {
+     "pv": 0.3,
+     "wind_onshore": 0.35,
+     "wind_offshore": 0.15
+    },
+    "demand_twh": 950.0,
+    "scenario": "mittel",
+    "co2_price": 75.0,
+    "apply_idc": true,
+    "grid_variant": "mid",
+    "storage": {
+     "battery_power_gw": 40.0,
+     "battery_energy_gwh": 160.0,
+     "electrolyser_gw": 0.0,
+     "h2_storage_gwh": 0.0,
+     "h2_turbine_gw": 0.0,
+     "gas_backup_gw": null
+    },
+    "bands_twh": null,
+    "grid_cost_basis": null,
+    "gas_tech": "gas_ccs"
+   },
+   "expected": {
+    "lscoe_eur_mwh": 177.28195041,
+    "total_cost_bn_eur_a": 168.41768447,
+    "cost_components_eur_mwh": {
+     "battery": 3.54542558,
+     "gas_backup": 83.39249459,
+     "netz": 33.37393601,
+     "pv": 17.83790539,
+     "wind_offshore": 13.88774997,
+     "wind_onshore": 25.24443888
+    },
+    "capacities_gw": {
+     "pv": 276.69902913,
+     "wind_onshore": 138.54166667,
+     "wind_offshore": 37.5,
+     "hydro_band": 0.0,
+     "biomass_band": 0.0,
+     "coal_band": 0.0,
+     "battery_power": 40.0,
+     "battery_energy_gwh": 160.0,
+     "electrolyser": 0.0,
+     "h2_storage_gwh": 0.0,
+     "h2_turbine": 0.0,
+     "h2_initial_fill_share": 0.0
+    },
+    "served_twh_a": 949.99905,
+    "emissions_mt_co2_a": 37.65114855,
+    "captured_mt_co2_a": 131.30838055,
+    "dispatch": {
+     "energy_twh": {
+      "load": 476.13952386,
+      "served": 476.13952386,
+      "vre_generated": 358.5479282,
+      "band": 0.0,
+      "curtailed": 37.68706284,
+      "battery_charge": 15.22954411,
+      "battery_discharge": 13.25190551,
+      "electrolysis_input": 0.0,
+      "h2_produced": 0.0,
+      "h2_reelectrified": 0.0,
+      "gas_backup": 157.25629709,
+      "unserved": 0.0,
+      "nuclear_band": 0.0,
+      "hydro_band": 0.0,
+      "biomass_band": 0.0,
+      "coal_band": 0.0
+     },
+     "vre_potential_twh": {
+      "pv": 128.934,
+      "wind_onshore": 160.76375,
+      "wind_offshore": 68.89875
+     },
+     "coverage_ratio": 1.0,
+     "curtailment_share_of_vre": 0.10511025,
+     "gas_peak_gw": 137.559601,
+     "gas_full_load_hours": 1143.18663291,
+     "battery_soc_max_gwh": 160.0,
+     "h2_storage_required_gwh": 0.0,
+     "h2_soc_max_gwh": 0.0,
+     "unserved_share": 0.0,
      "nuclear_band_gw": 0.0,
      "seasonal_share_load": 0.5012
     }

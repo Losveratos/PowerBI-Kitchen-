@@ -2024,8 +2024,19 @@
   },
   {
    "id": "ccs_nicht_modelliert",
-   "parameter": "technologies (keine CCS-Kette)",
-   "reason": "Die gepruefte GES-Studie rechnet ihren Gas-Pfad ausweislich des ETS-Abschnitts mit CCS. Das Modell kennt keine CCS-Kette (CAPEX/OPEX, Wirkungsgradverlust, Abscheidegrad, Transport/Speicherung). Offene Entscheidung - bis dahin sind die Szenarien NICHT emissionsaequivalent; die Restemissionen werden seit v0.2 je Szenario ausgewiesen (emissions_mt_co2_a)."
+   "parameter": "technologies.gas_ccs",
+   "status": "GESCHLOSSEN in v0.2b",
+   "reason": "Die gepruefte GES-Studie rechnet ihren Gas-Pfad mit CCS. Seit v0.2b existiert die Technologie gas_ccs (CAPEX-Aufschlag, Wirkungsgradverlust, Abscheiderate, Vollketten-Kostensatz je Tonne, Restemission mit CO2-Preis) und wird in den Presets kostenminimum_ccs und ee80_gas_ccs gerechnet. OFFEN BLEIBT die physische Verfuegbarkeit von Transport und Speicherung - siehe ccs_speicher_verfuegbarkeit."
+  },
+  {
+   "id": "ccs_speicher_verfuegbarkeit",
+   "parameter": "technologies.gas_ccs.ccs_chain.storage_availability_de",
+   "reason": "Deutschland hat keine in Betrieb befindliche CO2-Speicherstaette. Der CCS-Pfad unterstellt Export in norwegische/niederlaendische Offshore-Speicher samt Logistik, Genehmigungen und Akzeptanz. Im Modell steckt davon nur der Kostensatz je Tonne - keine Kapazitaetsgrenze, keine Hochlaufkurve, kein Verfuegbarkeitsrisiko. SETZUNG (M), Konfidenz C."
+  },
+  {
+   "id": "ccs_kostenband_optimistisch",
+   "parameter": "technologies.gas_ccs.params.ccs_cost_eur_t",
+   "reason": "Verwendet wird die im Repository belegte Spanne 50/80/100 EUR/t. Eine Recherche vom 2026-08-19 (Clean Air Task Force; Carbon Management Europe/ZEP) nennt fuer europaeische Anlagen mit den derzeit geplanten Speichern eine Vollkettenspanne von rund 70-250 EUR/t. Das Modellband liegt damit am unteren Rand und beguenstigt den CCS-Pfad."
   },
   {
    "id": "overrun_ungemessen_speicher_h2",
@@ -2125,7 +2136,9 @@
   "v0.2/M3: Netzkosten in Uebertragung (328 Mrd., skaliert mit genutzter fEE-Energie) und Verteilnetz (323 Mrd., Sockel, skaliert mit Jahresbedarf) getrennt; Skalierung auf 1,0 gedeckelt.",
   "v0.2/M5: Restemissionen je Szenario werden ausgewiesen (Mt CO2/a). CCS ist NICHT modelliert.",
   "v0.2/M6: Ist-2025-Anker mit Kohle-, Biomasse- und Wasserbaendern und heutigen Netzentgelten statt der Netzinvestition bis 2045.",
-  "v0.2/M7: Ueberschreitungsfaktor nur auf Schaetzbasis-Anker (overrun_applicable_share)."
+  "v0.2/M7: Ueberschreitungsfaktor nur auf Schaetzbasis-Anker (overrun_applicable_share).",
+  "v0.2b: Technologie gas_ccs (Abscheidung an GuD). CAPEX-Faktor 2,0 (NETL 2023), Wirkungsgradverlust 8 pp, Abscheiderate 90 %, Vollkette 50/80/100 EUR/t; die Restemission (49/120/220 g/kWh) traegt weiterhin den vollen CO2-Preis.",
+  "v0.2b: Kontrastverteilung Asien/Golf fuer Kernkraft-CAPEX (1.870/3.150/4.950 EUR/kW, Bauzeit 8 a) - ausschliesslich als eigene Monte-Carlo-Konfiguration, NIE in der Basisspanne (Begruendung kosten_kernkraft.md 7.1, maschinenlesbar hinterlegt)."
  ],
  "sources": [
   {
