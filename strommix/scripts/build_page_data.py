@@ -152,10 +152,58 @@ MANUAL_SOURCES = [
      "publisher": "Umweltbundesamt", "date": "2020",
      "url": "https://www.umweltbundesamt.de/publikationen/methodenkonvention-32-methodische-grundlagen",
      "accessed": "2026-08-15", "confidence": "B", "dossier": "risiken_co2.md 2.4"},
+    # Konfidenz C und nicht A: Das PDF war aus der Arbeitsumgebung nicht abrufbar.
+    # Eine Studie, die man nicht oeffnen konnte, kann auch als Quelle fuer sich
+    # selbst keine A-Stufe tragen (Persona-Review 02, M16).
     {"id": "ges-studie-2026", "title": "Der klimaneutrale Strommix der Zukunft — Eine Szenarioanalyse zu den Kosten des zukuenftigen deutschen Stromsystems",
      "publisher": "Global Energy Solutions e. V.", "date": "2026-07",
      "url": "https://global-energy-solutions.org/wp-content/uploads/2026/05/DER-KLIMANEUTRALE-STROMMIX-DER-ZUKUNFT-veroeffentlicht-V1.1.pdf",
-     "accessed": "2026-08-15", "confidence": "A", "dossier": "docs/01_grundlage_ges_faktencheck.md"},
+     "accessed": "2026-08-15", "confidence": "C", "dossier": "docs/01_grundlage_ges_faktencheck.md",
+     "note": ("Volltext-PDF in der Arbeitsumgebung nicht abrufbar (Egress-Policy). Alle Studienwerte "
+              "stammen aus der Aufbereitung in docs/01 und aus Suchindex-Zusammenfassungen, nicht aus "
+              "selbst gelesenem Volltext.")},
+    # --- Methodische Referenzliteratur (Persona-Review 01, M2/M9) --------------
+    {"id": "joskow-2011", "title": "Comparing the Costs of Intermittent and Dispatchable Electricity Generating Technologies",
+     "publisher": "American Economic Review 101(3), S. 238–241 (P. L. Joskow)", "date": "2011-05",
+     "url": "https://www.aeaweb.org/articles?id=10.1257/aer.101.3.238",
+     "accessed": "2026-08-19", "confidence": "A",
+     "dossier": "Persona-Review 01 (Energie-Professor:in), M2/M9",
+     "note": ("Begruendet, warum LCOE-Punktwerte fluktuierende und disponible Erzeugung nicht "
+              "vergleichbar machen — die methodische Referenz fuer den Schritt von LCOE zu "
+              "Systemkosten. Bibliographische Angaben aus der Verlagsseite, kein Volltext gelesen.")},
+    {"id": "ueckerdt-2013", "title": "System LCOE: What are the costs of variable renewables?",
+     "publisher": "Energy 63, S. 61–75 (F. Ueckerdt, L. Hirth, G. Luderer, O. Edenhofer)", "date": "2013",
+     "url": "https://www.sciencedirect.com/science/article/abs/pii/S0360544213009390",
+     "accessed": "2026-08-19", "confidence": "A",
+     "dossier": "Persona-Review 01 (Energie-Professor:in), M2/M9",
+     "note": ("Fuehrt die Kennzahl System-LCOE ein und zerlegt Integrationskosten in Profil-, "
+              "Ausgleichs- und Netzkosten. Die LSCOE-Definition dieses Papiers ist eine engere "
+              "Systemgrenze als dort — der Unterschied steht in Kapitel 3.")},
+    # --- Gegenliteratur zu Grubler 2010 (Persona-Review 01, M8) ---------------
+    {"id": "escobar-rangel-leveque-2015", "title": "Revisiting the Cost Escalation Curse of Nuclear Power: New Lessons from the French Experience",
+     "publisher": "Economics of Energy & Environmental Policy 4(2) (L. Escobar Rangel, F. Lévêque)", "date": "2015-09",
+     "url": "https://shs.hal.science/hal-00780566/",
+     "accessed": "2026-08-19", "confidence": "B",
+     "dossier": "Persona-Review 01 (Energie-Professor:in), M8",
+     "note": ("Rechnet das franzoesische Programm mit den Daten des Cour-des-Comptes-Berichts nach "
+              "und findet eine deutlich moderatere Eskalation als Grubler 2010; innerhalb gleicher "
+              "Baugroesse und Bauart zeigt sich eine Lernkurve. Gegenposition zum "
+              "„negativen Lernen“. Bibliographie aus Repositorien, kein Volltext gelesen.")},
+    {"id": "berthelemy-2015", "title": "Nuclear reactors' construction costs: The role of lead-time, standardization and technological progress",
+     "publisher": "Energy Policy 82, S. 118–130 (M. Berthélemy, L. Escobar Rangel)", "date": "2015-07",
+     "url": "https://www.sciencedirect.com/science/article/abs/pii/S0301421515001214",
+     "accessed": "2026-08-19", "confidence": "B",
+     "dossier": "Persona-Review 01 (Energie-Professor:in), M8",
+     "note": ("Oekonometrie der Baukosten in Frankreich und den USA: Standardisierung senkt Bauzeit "
+              "und Kosten, Designwechsel erhoehen beides. Stuetzt die Lesart, dass die Eskalation "
+              "an Programmorganisation haengt, nicht an der Technologie als solcher.")},
+    # --- Marktdesign / Kraftwerksstrategie (Persona-Review 03, S1) ------------
+    {"id": "bmwe-kraftwerksstrategie-2026", "title": "Grundsatzeinigung mit der Europaeischen Kommission ueber Eckpunkte der Kraftwerksstrategie (StromVKG)",
+     "publisher": "Bundesministerium fuer Wirtschaft und Energie (BMWE)", "date": "2026-01-15",
+     "url": "https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Pressemitteilungen/2026/01/20260115-grundsatzeinigung-mit-europaeischen-kommission-ueber-eckpunkte-der-kraftwerksstrategie.html",
+     "accessed": "2026-08-15", "confidence": "B", "dossier": "ist_zustand_de.md 6.2",
+     "note": ("Zeitschiene und Volumina der Kraftwerksausschreibungen; die Ausgestaltung des "
+              "Kapazitaetsmechanismus ab 2031 ist darin ausdruecklich noch offen.")},
     {"id": "smard-mirror-2024", "title": "Stuendliche SMARD-Exportdaten Deutschland Jul-Dez 2024 (GitHub-Mirror, Notloesung)",
      "publisher": "SMARD / Bundesnetzagentur, ueber github.com/hakimdalim/smard-data-extractor", "date": "2024",
      "url": "https://github.com/hakimdalim/smard-data-extractor",
@@ -192,6 +240,19 @@ def collect_sources(ee: dict, kk: dict) -> list[dict]:
         raise RuntimeError(f"Quellen-IDs nicht in den Dossiers gefunden: {missing}")
     out.extend(MANUAL_SOURCES)
     out.sort(key=lambda s: (s.get("publisher") or "", s.get("date") or ""))
+    # Dublettencheck (Persona-Reviews 01/S6, 02/M16, 04/M6): dieselbe Publikation
+    # darf nicht zweimal - und schon gar nicht mit zwei Konfidenzstufen - auftauchen.
+    seen: dict[tuple, str] = {}
+    dupes = []
+    for s in out:
+        key = ((s.get("title") or "").strip().lower(), (s.get("publisher") or "").strip().lower())
+        if key in seen:
+            dupes.append(f"{seen[key]} == {s['id']} ({s.get('title')})")
+        seen[key] = s["id"]
+    ids = [s["id"] for s in out]
+    dup_ids = sorted({i for i in ids if ids.count(i) > 1})
+    if dupes or dup_ids:
+        raise RuntimeError(f"Dubletten im Quellenverzeichnis: {dupes + dup_ids}")
     for i, s in enumerate(out, start=1):
         s["nr"] = i
     return out
@@ -226,6 +287,8 @@ def main() -> None:
         "bedarfsprojektionen_twh": ist["bedarfsprojektionen_twh"],
         "netzkosten": ist.get("netzkosten"),
         "preise": ist.get("preise"),
+        # Marktdesign: Wer baut den modellierten Backup-Park? (Persona-Review 03, S1)
+        "kraftwerksstrategie": ist["kraftwerksstrategie"],
 
         # ---------------- Teil B ------------------------------------------
         "lcoe_benchmarks": {
@@ -329,14 +392,16 @@ def main() -> None:
             "model_reproduction": {
                 "_source": "research/validierung_modell.md (c) - erzeugt von scripts/validate_model.py",
                 "_note": ("Gerechnet mit den GES-Kostenannahmen fuer die Erzeuger, WACC 5 %, ohne IDC, "
-                          "Bedarf 950 TWh. Backup, Speicher und Netz stammen aus dem eigenen "
-                          "Parametersatz, weil die GES-Studie ihre Kostenaufschluesselung nur als "
-                          "Grafik veroeffentlicht."),
+                          "Bedarf 950 TWh, ohne CO2-Preis. Backup, Speicher und Netz stammen aus dem "
+                          "eigenen Parametersatz, weil die GES-Studie ihre Kostenaufschluesselung nur "
+                          "als Grafik veroeffentlicht. Werte auf Modellstand v0.2b (Gaspreis und "
+                          "Netzaufteilung wirken hier mit) - Test (c) ist ein Modelltest, kein "
+                          "Reproduktionstest; die LCOE-Reproduktion selbst ist unveraendert."),
                 "_confidence": "C",
-                "Kostenminimum (inkl. Kernkraft)": 116.0,
-                "80% EE + Gas-Peaker": 128.6,
-                "80% EE + mehr H2": 202.8,
-                "100% Erneuerbare": 301.9,
+                "Kostenminimum (inkl. Kernkraft)": 136.5,
+                "80% EE + Gas-Peaker": 152.7,
+                "80% EE + mehr H2": 206.5,
+                "100% Erneuerbare": 288.0,
             },
             "lcoe_reproduction_max_deviation_pct": 0.04,
         },
