@@ -58,6 +58,13 @@
   im Hero und in der Fußleiste auf die Story (Story → Paper gab es schon).
   QA lokal über `http.server` mit Chromium: index + beide Seiten ohne JS-Fehler,
   Kachel-Klicks und beide Chips getestet.
+  **Nachtrag Pages-Build:** Der erste Build nach dem Merge ist an einem
+  unvollständigen Frontmatter-Datum (`date: "2026-08"`) in
+  `docs/01_grundlage_ges_faktencheck.md` / `docs/03_grundlage_erweitert_v2.md`
+  gescheitert und hat damit die ganze Seite blockiert. Datum korrigiert **und**
+  `_config.yml` ergänzt, das die Arbeitsdokumente unter `strommix/` vom
+  Jekyll-Build ausnimmt (`strommix/data/` bleibt drin — beide Seiten laden von
+  dort per `fetch()`). Pages-Build danach grün.
 
 - [x] 2026-08-19 · **Freigabe-Dossier + Scrollytelling-Story:**
   `research/story_claims_check.md` (7 bestätigt, 11 korrigiert, 4 verworfen, 6 Setzungen,
