@@ -144,27 +144,78 @@ def _fuel_eur_mwh_el(tech_params: dict) -> tuple[float, str]:
     return float(th) / float(eta), f"thermisch {float(th):.1f} EUR/MWh_th / eta {float(eta):.3f}"
 
 
-def ccs_chain(tech_params: dict) -> tuple[float, float]:
-    """CO2-Abscheidung: (Kosten EUR/MWh_el, abgeschiedene t CO2/MWh_el).
+def ccs_balance(tech_params: dict) -> dict | None:
+    """Massenbilanz der CO2-Abscheidung je MWh_el (Modell v0.2c, Fix 4).
 
-    Modell v0.2b: Die abgeschiedene Menge haengt am BRENNSTOFFbezogenen
-    Emissionsfaktor (t/MWh_th) und am Wirkungsgrad - der Abscheidungsverlust
-    erhoeht damit korrekt sowohl den Brennstoffeinsatz als auch die
-    abzuscheidende Tonnage je gelieferter MWh_el. Der Kostensatz ist die
-    Vollkette (Abscheidung + Transport + Speicherung) je Tonne.
+    Bis v0.2b wurden abgeschiedene Menge und Restemission aus zwei getrennten
+    Groessen gebildet und summierten sich auf 116 % des Brennstoffeintrags
+    (Versorger-Review R2 N7, Peer-Review R2 N2). Jetzt gibt es EINE Bilanz:
 
-    Gibt (0, 0) zurueck, wenn die Technologie keine Abscheidung hat.
+        input     = emission_factor_t_mwh_th / eta          (Gesamteintrag)
+        vorkette  = input x upstream_share_of_lifecycle     (nicht abscheidbar)
+        verbrenng = input - vorkette
+        captured  = verbrenng x capture_rate
+        residual  = verbrenng x (1 - capture_rate) + vorkette
+
+    Damit gilt `captured + residual == input` exakt - auch dann, wenn die
+    Monte-Carlo-Rechnung Wirkungsgrad oder Abscheiderate zieht: eine
+    Abscheideraten-Ziehung bewegt beide Seiten gleichzeitig.
+
+    Gibt None zurueck, wenn die Technologie keine Abscheidung hat.
     """
     cost_t = tech_params.get("ccs_cost_eur_t")
     ef_th = tech_params.get("emission_factor_t_mwh_th")
     rate = tech_params.get("capture_rate")
     if not cost_t or not ef_th or not rate:
-        return 0.0, 0.0
+        return None
     eta = tech_params.get("efficiency") or tech_params.get("efficiency_lhv")
     if not eta:
+        return None
+    rate = float(rate)
+    rate = 0.0 if rate < 0.0 else (1.0 if rate > 1.0 else rate)
+    up = tech_params.get("upstream_share_of_lifecycle")
+    up = 0.0 if up is None else float(up)
+    up = 0.0 if up < 0.0 else (1.0 if up > 1.0 else up)
+    total_in = float(ef_th) / float(eta)
+    upstream = total_in * up
+    combustion = total_in - upstream
+    captured = combustion * rate
+    residual = combustion * (1.0 - rate) + upstream
+    return {
+        "input_t_mwh_el": total_in,
+        "upstream_t_mwh_el": upstream,
+        "combustion_t_mwh_el": combustion,
+        "captured_t_mwh_el": captured,
+        "residual_t_mwh_el": residual,
+        "cost_eur_mwh_el": float(cost_t) * captured,
+        "balance_residual": captured + residual - total_in,  # muss 0 sein
+    }
+
+
+def ccs_chain(tech_params: dict) -> tuple[float, float]:
+    """CO2-Abscheidung: (Kosten EUR/MWh_el, abgeschiedene t CO2/MWh_el).
+
+    Duenne Huelle um `ccs_balance` - gibt (0, 0) zurueck, wenn die Technologie
+    keine Abscheidung hat.
+    """
+    b = ccs_balance(tech_params)
+    if b is None:
         return 0.0, 0.0
-    captured = float(ef_th) / float(eta) * float(rate)
-    return float(cost_t) * captured, captured
+    return b["cost_eur_mwh_el"], b["captured_t_mwh_el"]
+
+
+def emission_factor_eff(tech_params: dict) -> float:
+    """Wirksamer Emissionsfaktor t CO2/MWh_el.
+
+    Fuer Technologien mit Abscheidung ist das die aus der Massenbilanz
+    berechnete RESTemission (v0.2c) - nicht mehr der unabhaengig gesetzte
+    Lebenszyklus-Restwert. Der Datensatzwert `emission_factor_t_mwh` bleibt als
+    Kalibrierungsziel und als Rueckfall fuer Technologien ohne Abscheidung.
+    """
+    b = ccs_balance(tech_params)
+    if b is not None:
+        return b["residual_t_mwh_el"]
+    return float(tech_params.get("emission_factor_t_mwh") or 0.0)
 
 
 def _share(tech_params: dict, key: str) -> float:
@@ -241,7 +292,26 @@ def lcoe(tech_params: dict, wacc: float, co2_price: float = 0.0) -> dict:
     idc_gross = idc_surcharge(wacc, tech_params.get("construction_years")) if apply_idc else 0.0
     idc_share = _share(tech_params, "idc_applicable_share")
     idc = idc_gross * idc_share
-    capex_eff = capex * overrun_eff * (1.0 + idc)
+
+    # --- Modell v0.2c, Fix 3: Ueberschreitung auf EINER Schaetzbasis --------
+    # Wenn eine Technologie einen Schaetzanker fuehrt (Kernkraft: 7.500 EUR/kW),
+    # wird der Ueberschreitungsaufschlag als ABSOLUTER Betrag auf diesem Anker
+    # gerechnet statt multiplikativ auf dem gezogenen CAPEX. Grund: Die drei
+    # CAPEX-Stuetzstellen liegen auf verschiedenen Seiten der Ueberschreitungs-
+    # Transformation (7.500 ist eine Entscheidungsschaetzung, 17.500 ihr Ergeb-
+    # nis). Multiplikativ mit interpoliertem Anteil war die Abbildung
+    # "gezogener CAPEX -> effektiver CAPEX" nicht monoton (Nuklear-Review R2 N1).
+    # Der Bauzins wird auf den Ueberschreitungsbetrag NICHT zusaetzlich gelegt -
+    # die zugrunde liegenden Eskalationsangaben sind Gesamtprojektwerte.
+    ovr_base = tech_params.get("overrun_estimate_base_eur_kw")
+    if ovr_base:
+        overrun_surcharge = (overrun - 1.0) * float(ovr_base) * overrun_share
+        capex_eff = capex * (1.0 + idc) + overrun_surcharge
+        overrun_mode = "absolut auf Schaetzanker"
+    else:
+        overrun_surcharge = capex * (overrun_eff - 1.0) * (1.0 + idc)
+        capex_eff = capex * overrun_eff * (1.0 + idc)
+        overrun_mode = "multiplikativ auf gezogenem CAPEX"
 
     annuity_eur_kw_a = capex_eff * crf(wacc, n)
 
@@ -261,9 +331,12 @@ def lcoe(tech_params: dict, wacc: float, co2_price: float = 0.0) -> dict:
     fixed_opex = fixed_opex_eur_kw_a / per_mwh
     fuel, fuel_basis = _fuel_eur_mwh_el(tech_params)
     waste = float(tech_params.get("waste_eur_mwh") or 0.0)
-    ef = float(tech_params.get("emission_factor_t_mwh") or 0.0)
+    # v0.2c (Fix 4): Bei Technologien mit Abscheidung ist die Restemission die
+    # aus der Massenbilanz berechnete Groesse, nicht der unabhaengige Datensatzwert.
+    ef = emission_factor_eff(tech_params)
     co2 = co2_price * ef
     ccs_cost, ccs_captured = ccs_chain(tech_params)
+    ccs_bal = ccs_balance(tech_params)
 
     return {
         "lcoe_eur_mwh": capital + fixed_opex + fuel + waste + co2 + ccs_cost,
@@ -276,7 +349,12 @@ def lcoe(tech_params: dict, wacc: float, co2_price: float = 0.0) -> dict:
             "ccs": ccs_cost,
         },
         "ccs_captured_t_mwh": ccs_captured,
+        "ccs_residual_t_mwh": ccs_bal["residual_t_mwh_el"] if ccs_bal else None,
+        "ccs_input_t_mwh": ccs_bal["input_t_mwh_el"] if ccs_bal else None,
+        "emission_factor_effective_t_mwh": ef,
         "capex_effective_eur_kw": capex_eff,
+        "overrun_surcharge_eur_kw": overrun_surcharge,
+        "overrun_mode": overrun_mode,
         # `idc_surcharge` ist der TATSAECHLICH angewandte Aufschlag (v0.2:
         # bereits mit dem Abgrenzungsanteil multipliziert). Der ungekuerzte
         # Wert steht daneben, damit der Unterschied sichtbar bleibt.
@@ -308,6 +386,8 @@ _SCENARIO_FIELD_MAP = {
     "fuel_eur_mwh_th": "fuel",
     "ccs_cost_eur_t": "fuel",  # variabler Kostenblock, folgt dem Brennstoff-Szenario
     "waste_eur_mwh": "waste",
+    # v0.2c: der CCS-CAPEX-Faktor folgt derselben Stuetzstelle wie der CAPEX
+    "capex_factor_on_ccgt": "capex",
     # v0.2: Kostenabgrenzung folgt der CAPEX-Stuetzstelle
     "capex_scope": "capex",
     "idc_applicable_share": "capex",
@@ -325,6 +405,27 @@ def _pick(entry: dict, which: str) -> Any:
     if val is None:
         val = entry.get("value")
     return val
+
+
+def _socket_share(grid: dict, override: float | str | None = None) -> float:
+    """Mixunabhaengige Sockelquote des Uebertragungsnetzes (v0.2c, Fix 1).
+
+    `override` kann eine Zahl sein (direkte Quote fuer den Sensitivitaetslauf),
+    "min"/"mid"/"max" (Stuetzstelle der dokumentierten Setzung) oder None
+    (Zentralwert). Fehlt der Parameter im Datensatz, faellt die Funktion auf
+    0,0 zurueck - das ist exakt die v0.2b-Regel.
+    """
+    entry = grid.get("transmission_socket_share")
+    if isinstance(override, (int, float)):
+        v = float(override)
+    elif isinstance(override, str) and isinstance(entry, dict):
+        v = _pick(entry, override)
+        v = 0.0 if v is None else float(v)
+    elif isinstance(entry, dict):
+        v = float(_pick(entry, "mid") or 0.0)
+    else:
+        v = 0.0
+    return 0.0 if v < 0.0 else (1.0 if v > 1.0 else v)
 
 
 def resolve_tech(
@@ -679,7 +780,7 @@ def _annual_fixed_cost_eur_kw(tech_flat: dict, wacc: float) -> float:
     return res["annuity_eur_kw_a"] + res["fixed_opex_eur_kw_a"]
 
 
-MODEL_VERSION = "0.2b"
+MODEL_VERSION = "0.2c"
 
 # Maschinenlesbare Limitationen (v0.2). Sie gehen unveraendert in
 # data/test_vectors.json, data/monte_carlo_reference.json und ueber
@@ -715,11 +816,33 @@ LIMITATIONS = [
              "ausgewiesenen Vermeidungskosten sind deshalb eine OBERGRENZE.",
      "affects": "kostenminimum_ccs, ee80_gas_ccs", "ref_field": "model.mix_system (gas_tech)"},
     {"id": "ccs_residual_is_lifecycle", "severity": "mittel",
-     "text": "Die Restemission von Gas+CCS (49/120/220 g/kWh) ist ein Lebenszyklus-Wert und "
-             "enthaelt die Vorkette (Methanschlupf), die eine Abscheidung am Schornstein nicht "
-             "erfasst. Fuer eine reine ETS-Bepreisung ist der Wert eher zu hoch - dieselbe Richtung "
-             "wie beim GuD-Proxy, also gegen den CCS-Pfad.",
+     "text": "Die Restemission von Gas+CCS bleibt ein LEBENSZYKLUS-Wert: Seit v0.2c wird sie aus "
+             "der Massenbilanz gerechnet (Brennstoffeintrag minus abgeschiedene Verbrennungs"
+             "emissionen), der Eintrag selbst ist aber weiterhin der Lebenszyklus-Faktor inklusive "
+             "Vorkette. Fuer eine reine ETS-Bepreisung ist der Wert eher zu hoch - dieselbe "
+             "Richtung wie beim GuD-Proxy, also gegen den CCS-Pfad. Der Vorkettenanteil "
+             "(upstream_share_of_lifecycle) ist gegen die belegte Restemission von 120 g/kWh "
+             "KALIBRIERT, nicht eigenstaendig belegt.",
      "affects": "kostenminimum_ccs, ee80_gas_ccs", "ref_field": "gaps.emissionsfaktor_direkt"},
+    {"id": "grid_transmission_socket_assumption", "severity": "hoch",
+     "text": "Die mixunabhaengige Sockelquote des Uebertragungsnetzes (v0.2c: 0,40; Sensitivitaet "
+             "0,20-0,60) ist eine SETZUNG. Weder NEP 2037/2045 V2025 noch die IMK-Studie teilen die "
+             "328 (bzw. 365-392) Mrd. EUR nach Treibern auf - eine belastbare Quote existiert "
+             "nicht. Die Setzung bewegt den Abstand zwischen dem Kernkraft- und dem gasgestuetzten "
+             "Pfad unmittelbar; das Ergebnis weist die Differenz zum sockellosen Lauf (v0.2b) je "
+             "Szenario als detail.netz.socket_effect_eur_mwh aus.",
+     "affects": "alle Zukunftsszenarien, Kernkraft-Pfad am staerksten",
+     "ref_field": "system.grid.transmission_socket_share"},
+    {"id": "overrun_estimate_base_assumption", "severity": "mittel",
+     "text": "Der empirische Ueberschreitungsfaktor wird seit v0.2c als absoluter Betrag auf EINER "
+             "Schaetzbasis gerechnet (Kernkraft 7.500 EUR/kW) und nur auf den Rest-Anteil der "
+             "Eskalation gelegt (0,48/0,50/0,00). Das beseitigt die Nicht-Monotonie und die "
+             "Doppelzaehlung an den unteren Ankern, ist aber eine Modellstruktur: Die Rest-Anteile "
+             "sind aus den Eskalationsangaben des eigenen Datensatzes abgeleitet (EPR2 +40 %, "
+             "Sizewell C +90 %, Lubiatowo Planzahl), der mid-Wert zusaetzlich auf 0,50 abgerundet, "
+             "damit die Abbildung ueber den gesamten Faktor-Support monoton bleibt.",
+     "affects": "Konfigurationen mit Kostenueberschreitung",
+     "ref_field": "technologies.nuclear.params.overrun_estimate_base_eur_kw"},
     {"id": "emission_factor_proxy", "severity": "mittel",
      "text": "Der Emissionsfaktor fuer Gas (0,403 t/MWh_el) und Kohle (0,751 t/MWh_el) ist die "
              "UNECE-Lebenszyklus-Untergrenze, kein direkter Verbrennungsfaktor. Fuer die "
@@ -794,6 +917,7 @@ def mix_system(
     firm_tech: str = "nuclear",
     bands_twh: dict | None = None,
     grid_cost_basis: str = "buildout_2045",
+    grid_socket_share: float | str | None = None,
 ) -> dict:
     """Systemkosten (LSCOE) eines gewaehlten Mixes.
 
@@ -909,9 +1033,12 @@ def mix_system(
                 "Gas-Brennstoffkosten konnten nicht bestimmt werden - im Ergebnis mit 0 EUR/MWh "
                 "angesetzt. Das LSCOE ist insoweit eine UNTERGRENZE."
             )
-        ef = float(flat.get("emission_factor_t_mwh") or 0.0)
+        # v0.2c: Bei CCS ist die Restemission die Bilanzgroesse, nicht der
+        # unabhaengig gesetzte Lebenszyklus-Restwert.
+        ef = emission_factor_eff(flat)
         # v0.2b: CO2-Abscheidung, falls die Backup-Technologie eine hat.
         ccs_eur_mwh, ccs_captured_t_mwh = ccs_chain(flat)
+        ccs_bal_gas = ccs_balance(flat)
         gas_twh = disp["energy_twh"]["gas_backup"] * annualize
         cost["gas_backup"] = cost.get("gas_backup", 0.0) + (
             float(fuel) + co2_price * ef + ccs_eur_mwh) * gas_twh * MWH_PER_TWH
@@ -920,7 +1047,9 @@ def mix_system(
                                      "fuel_eur_mwh_el": fuel, "fuel_basis": fuel_basis,
                                      "tech_key": gas_tech,
                                      "ccs_eur_mwh_el": ccs_eur_mwh,
-                                     "ccs_captured_t_mwh_el": ccs_captured_t_mwh})
+                                     "ccs_captured_t_mwh_el": ccs_captured_t_mwh,
+                                     "emission_factor_eff_t_mwh_el": ef,
+                                     "ccs_balance": ccs_bal_gas})
 
     # Speicher
     if capacities_gw["battery_energy_gwh"]:
@@ -1023,10 +1152,19 @@ def mix_system(
     else:
         trans_bn = _pick(grid["transmission_bn_eur_until_2045"], variant)
         dist_bn = _pick(grid["distribution_bn_eur_until_2045"], variant)
-        raw_t = (fee_share_used / ref_share) if ref_share else 0.0
+        # v0.2c (Fix 1): Auch das Uebertragungsnetz hat einen mixunabhaengigen
+        # Sockel (Altersersatz, Lastzuwachs, n-1, Anschluss neuer Grosskraft-
+        # werke). Er skaliert - wie der Verteilnetz-Sockel - mit dem Bedarf;
+        # der Rest bleibt fEE-getrieben (HGUE-Korridore, Offshore-Anbindung).
+        # Die Sockelquote ist eine ausgewiesene SETZUNG mit Sensitivitaet.
+        socket = _socket_share(grid, grid_socket_share)
         raw_d = (demand_twh / ref_demand) if ref_demand else 0.0
+        raw_fee = (fee_share_used / ref_share) if ref_share else 0.0
+        raw_t = socket * min(1.0, raw_d) + (1.0 - socket) * raw_fee
+        raw_t_nosocket = raw_fee
         scale_t, scale_d = min(1.0, raw_t), min(1.0, raw_d)
         cost_t = trans_bn * 1e9 * grid_crf * scale_t
+        cost_t_nosocket = trans_bn * 1e9 * grid_crf * min(1.0, raw_t_nosocket)
         cost_d = dist_bn * 1e9 * grid_crf * scale_d
         cost["netz"] = cost_t + cost_d
         detail["netz"] = {
@@ -1034,16 +1172,23 @@ def mix_system(
             "transmission_bn_eur": trans_bn, "distribution_bn_eur": dist_bn,
             "fee_share_generated": fee_share_generated,
             "fee_share_used": fee_share_used,
+            "transmission_socket_share": socket,
             "scaling_transmission": scale_t, "scaling_distribution": scale_d,
             "scaling_transmission_raw": raw_t, "scaling_distribution_raw": raw_d,
+            "scaling_transmission_raw_without_socket": raw_t_nosocket,
             "cost_transmission_bn_eur_a": cost_t / 1e9,
+            "cost_transmission_without_socket_bn_eur_a": cost_t_nosocket / 1e9,
             "cost_distribution_bn_eur_a": cost_d / 1e9,
-            "note": "Uebertragungsnetz skaliert mit der GENUTZTEN fEE-Energie (abgeregelte Energie "
-                    "erzeugt keinen Transportbedarf), Verteilnetz als mixunabhaengiger Sockel mit "
-                    "dem Jahresbedarf. Beide Faktoren sind auf 1,0 gedeckelt. Netzbetrieb, "
-                    "Redispatch und Verluste sind NICHT enthalten (gaps.netz_opex).",
+            "note": "Uebertragungsnetz: mixunabhaengiger Sockel (Anteil "
+                    f"{socket:.2f}, SETZUNG mit Sensitivitaet) mit dem Jahresbedarf plus "
+                    "fEE-getriebener Rest mit der GENUTZTEN fEE-Energie (abgeregelte Energie erzeugt "
+                    "keinen Transportbedarf). Verteilnetz als mixunabhaengiger Sockel mit dem "
+                    "Jahresbedarf. Beide Faktoren sind auf 1,0 gedeckelt. Netzbetrieb, Redispatch "
+                    "und Verluste sind NICHT enthalten (gaps.netz_opex). "
+                    "cost_transmission_without_socket_bn_eur_a zeigt den Lauf ohne Sockel (v0.2b).",
         }
-        grid_scaling_raw = {"transmission": raw_t, "distribution": raw_d}
+        grid_scaling_raw = {"transmission": raw_t, "distribution": raw_d,
+                            "transmission_without_socket": raw_t_nosocket}
         if raw_t > 1.0:
             warnings.append(
                 f"Uebertragungsnetz-Skalierung {raw_t:.2f} auf 1,00 gedeckelt - das Szenario wuerde "
@@ -1059,12 +1204,22 @@ def mix_system(
     total = sum(cost.values())
     lscoe = total / (served_twh_a * MWH_PER_TWH) if served_twh_a else float("nan")
 
+    # v0.2c (Fix 1): Der Sockel-Effekt wird ausgewiesen, damit die Differenz zur
+    # v0.2b-Regel (Uebertragungsnetz ohne Sockel) nicht in der Zahl verschwindet.
+    if detail.get("netz", {}).get("basis") == "buildout_2045" and served_twh_a:
+        d = detail["netz"]
+        d["socket_effect_eur_mwh"] = (
+            (d["cost_transmission_bn_eur_a"] - d["cost_transmission_without_socket_bn_eur_a"])
+            * 1e9 / (served_twh_a * MWH_PER_TWH)
+        )
+
     # --- Restemissionen (v0.2/M5) -----------------------------------------
-    ef_gas = float(techs[gas_tech].get("emission_factor_t_mwh") or 0.0)
+    ef_gas = emission_factor_eff(techs[gas_tech])
     gas_twh_a = disp["energy_twh"]["gas_backup"] * annualize
     coal_twh_a = disp["energy_twh"].get("coal_band", 0.0) * annualize
     ef_coal = float((legacy.get("coal", {}).get("emission_factor_t_mwh") or {}).get("value") or 0.0)
     _, captured_t_mwh = ccs_chain(techs[gas_tech])
+    gas_balance = ccs_balance(techs[gas_tech])
     emissions = {
         "gas_mt_co2_a": gas_twh_a * ef_gas,
         "coal_mt_co2_a": coal_twh_a * ef_coal,
@@ -1073,6 +1228,15 @@ def mix_system(
         # muesste. Deutschland hat dafuer keine Speicherstaette - siehe
         # gaps.ccs_speicher_verfuegbarkeit.
         "captured_mt_co2_a": gas_twh_a * captured_t_mwh,
+        # v0.2c (Fix 4): geschlossene Massenbilanz der Abscheidung. Die Summe aus
+        # eingelagerter Menge und Restemission der Gasarbeit ist per Konstruktion
+        # gleich dem Brennstoffeintrag - `mass_balance_gap_mt_co2_a` muss 0 sein.
+        "ccs_balance_t_mwh_el": gas_balance,
+        "gas_carbon_input_mt_co2_a": (gas_twh_a * gas_balance["input_t_mwh_el"]) if gas_balance else None,
+        "mass_balance_gap_mt_co2_a": (
+            gas_twh_a * (gas_balance["captured_t_mwh_el"] + gas_balance["residual_t_mwh_el"]
+                         - gas_balance["input_t_mwh_el"]) if gas_balance else 0.0
+        ),
         "backup_tech": gas_tech,
         "g_co2_per_kwh_delivered": (
             (gas_twh_a * ef_gas + coal_twh_a * ef_coal) * 1e6 / (served_twh_a * 1e6) * 1000.0

@@ -142,7 +142,10 @@ DRAW_TECHS = [
 # Der Wert bleibt deshalb auf dem Zentralwert (105) und ist in den
 # Limitationen als nicht variierter Parameter ausgewiesen.
 DRAW_FIELDS = [
-    "capex_eur_kw", "capex_eur_kwh", "opex_pct", "opex_eur_kw_a",
+    "capex_eur_kw", "capex_eur_kwh",
+    # v0.2c: CCS-CAPEX ist ein FAKTOR auf den GuD-CAPEX (siehe SHARED_LINKS).
+    "capex_factor_on_ccgt",
+    "opex_pct", "opex_eur_kw_a",
     "full_load_hours",
     # v0.2 (M2): Erdgas-Brennstoffpreis, thermisch. Wird ueber den
     # Wirkungsgrad in EUR/MWh_el umgerechnet (model._fuel_eur_mwh_el).
@@ -150,6 +153,47 @@ DRAW_FIELDS = [
     # v0.2b: CO2-Abscheidung - Vollkettenkosten je Tonne und Abscheiderate.
     "ccs_cost_eur_t", "capture_rate",
 ]
+
+# --------------------------------------------------------------------------
+# v0.2c (Fix 2): gemeinsame Ziehungen ueber die CCS-Grenze
+# --------------------------------------------------------------------------
+# Bis v0.2b wurde jedes (Technologie, Feld)-Paar unabhaengig gezogen. Damit
+# konnte in EINER Ziehung das GuD 20 EUR/MWh_th Gas zahlen und die CCS-Anlage
+# 60 - derselbe physische Rohstoff am selben Handelsplatz. Ebenso wurde der
+# CCS-CAPEX als eigene Absolutverteilung gezogen, obwohl er im Datensatz
+# definitorisch ein Faktor auf den GuD-CAPEX ist. Kapitel 6 verkauft gepaarte
+# Ziehungen als DIE methodische Korrektur der Version - die Garantie darf
+# genau hier nicht brechen (Versorger-Review R2, N2).
+#
+# Regel: Das Zielfeld wird NICHT eigenstaendig gezogen, sondern nach dem
+# Ziehungsblock aus der Quelle abgeleitet.
+#   mode "copy"   : Zielwert = Quellwert
+#   mode "factor" : Zielwert = Quellwert x (in derselben Ziehung gezogener Faktor)
+SHARED_LINKS = [
+    {"tech": "gas_ccs", "field": "fuel_eur_mwh_th",
+     "from_tech": "gas_ccgt", "from_field": "fuel_eur_mwh_th", "mode": "copy",
+     "note": "Erdgaspreis: derselbe physische Rohstoff am selben Handelsplatz (TTF). Wird EINMAL "
+             "je Ziehung gezogen und von gas_ccgt und gas_ccs geteilt."},
+    {"tech": "gas_ccs", "field": "capex_eur_kw",
+     "from_tech": "gas_ccgt", "from_field": "capex_eur_kw", "mode": "factor",
+     "factor_field": "capex_factor_on_ccgt",
+     "note": "CCS-CAPEX ist im Datensatz definitorisch ein Faktor 1,9/2,0/2,2 auf den GuD-CAPEX "
+             "(NETL/IEAGHG 2023). Gezogen wird der Faktor, angewandt auf den in DERSELBEN Ziehung "
+             "gezogenen GuD-CAPEX."},
+]
+# Geprueft und bewusst NICHT gekoppelt (v0.2c):
+#   * Wirkungsgrade (efficiency / efficiency_lhv) werden ueberhaupt nicht
+#     gezogen - weder fuer gas_ccgt noch fuer gas_ccs (siehe meta.assumptions
+#     "Nicht variiert: ... Wirkungsgrade"). Es gibt hier also nichts zu koppeln;
+#     der Wirkungsgradverlust der Abscheidung ist deterministisch 8 pp.
+#   * opex_pct und lifetime_years von gas_ccgt/gas_ccs stammen aus derselben
+#     Dossier-Zeile. opex_pct wird gezogen und bleibt bewusst unabhaengig: der
+#     Betriebsaufwand einer Abscheidungsinsel (Solvent, Kompression, Wartung)
+#     ist ein anderer Kostenblock als der eines GuD, keine geteilte Rohstoff-
+#     oder Definitionsgroesse. lifetime_years wird nicht gezogen.
+#   * PV-, Wind- und Kernkraft-CAPEX teilen keine gemeinsame Rohstoffgroesse,
+#     die im Datensatz belegt waere - eine Korrelation waere hier eine Setzung
+#     und bleibt deshalb aus (so steht es auch in meta.assumptions).
 
 # v0.2 (M1/M7): Wenn der CAPEX gezogen wird, muessen die Anwendungsanteile fuer
 # Bauzins und Ueberschreitungsfaktor mitgezogen werden - sie haengen an der
@@ -207,19 +251,47 @@ def drawable(entry) -> bool:
     return hi > lo
 
 
+LINKED_FIELDS = {(l["tech"], l["field"]) for l in SHARED_LINKS}
+
+
 def draw_plan(params: dict) -> list[dict]:
-    """Feste Liste aller Ziehungen (Technologie, Feld, lo/mid/hi)."""
+    """Feste Liste aller Ziehungen (Technologie, Feld, lo/mid/hi).
+
+    v0.2c: Felder, die per SHARED_LINKS aus einer anderen Ziehung abgeleitet
+    werden, stehen NICHT im Plan - sie verbrauchen keine Zufallszahl.
+    """
     plan = []
     for tech_key in DRAW_TECHS:
         tech = params["technologies"].get(tech_key)
         if not tech:
             continue
         for field in DRAW_FIELDS:
+            if (tech_key, field) in LINKED_FIELDS:
+                continue
             entry = tech["params"].get(field)
             if drawable(entry):
                 plan.append({"tech": tech_key, "field": field,
                              "min": entry["min"], "mid": entry["mid"], "max": entry["max"]})
     return plan
+
+
+def apply_shared_links(techs: dict) -> None:
+    """Leitet die gekoppelten Felder aus derselben Ziehung ab (v0.2c, Fix 2)."""
+    for link in SHARED_LINKS:
+        src = techs.get(link["from_tech"])
+        dst = techs.get(link["tech"])
+        if src is None or dst is None:
+            continue
+        base = src.get(link["from_field"])
+        if base is None:
+            continue
+        if link["mode"] == "copy":
+            dst[link["field"]] = base
+        elif link["mode"] == "factor":
+            factor = dst.get(link["factor_field"])
+            if factor is None:
+                continue
+            dst[link["field"]] = float(base) * float(factor)
 
 
 def overrun_plan(page: dict) -> list[dict]:
@@ -245,7 +317,7 @@ def overrun_plan(page: dict) -> list[dict]:
 def system_cost(shares, demand_twh, params, techs, disp, wacc, co2_price,
                 storage, overrun=None, grid_variant="mid",
                 gas_tech="gas_ccgt", firm_tech="nuclear",
-                grid_cost_basis="buildout_2045") -> dict:
+                grid_cost_basis="buildout_2045", grid_socket_share=None) -> dict:
     """Schritt 3 aus model.mix_system, aber mit vorgegebenem Parametersatz.
 
     `techs`  flache Parametersaetze je Technologie (gezogen oder mittel)
@@ -287,7 +359,9 @@ def system_cost(shares, demand_twh, params, techs, disp, wacc, co2_price,
     gas_gw = storage.get("gas_backup_gw")
     if gas_gw is None:
         gas_gw = disp["gas_peak_gw"]
-    ef_gas = float(techs[gas_tech].get("emission_factor_t_mwh") or 0.0)
+    # v0.2c (Fix 4): Restemission aus der Massenbilanz - die capture_rate-Ziehung
+    # bewegt damit beide Seiten (eingelagerte Menge UND Restemission).
+    ef_gas = model.emission_factor_eff(techs[gas_tech])
     ccs_eur_mwh, ccs_captured_t_mwh = model.ccs_chain(techs[gas_tech])  # v0.2b
     gas_twh = disp["energy_twh"]["gas_backup"] * annualize
     if gas_gw > 0:
@@ -343,8 +417,12 @@ def system_cost(shares, demand_twh, params, techs, disp, wacc, co2_price,
         ref_demand = grid["reference_demand_twh"]["value"]
         trans_bn = model._pick(grid["transmission_bn_eur_until_2045"], variant)
         dist_bn = model._pick(grid["distribution_bn_eur_until_2045"], variant)
-        scale_t = min(1.0, (fee_share_used / ref_share) if ref_share else 0.0)
-        scale_d = min(1.0, (demand_twh / ref_demand) if ref_demand else 0.0)
+        # v0.2c (Fix 1): mixunabhaengiger Sockel auch im Uebertragungsnetz.
+        socket = model._socket_share(grid, grid_socket_share)
+        raw_d = (demand_twh / ref_demand) if ref_demand else 0.0
+        raw_fee = (fee_share_used / ref_share) if ref_share else 0.0
+        scale_t = min(1.0, socket * min(1.0, raw_d) + (1.0 - socket) * raw_fee)
+        scale_d = min(1.0, raw_d)
         cost["netz"] = (overrun.get("netz", 1.0) * grid_crf * 1e9
                         * (trans_bn * scale_t + dist_bn * scale_d))
 
@@ -507,6 +585,9 @@ def run_config_paired(presets, params, disps, plan, ov_plan, config, seed, co2_p
             techs[d["tech"]][d["field"]] = triangular(u, lo, mid, hi)
         if alt is not None:
             techs["nuclear"]["construction_years"] = alt["construction_years"]["value"]
+        # v0.2c (Fix 2): gemeinsame Rohstoff-/Definitionsziehungen aufloesen,
+        # BEVOR die Abgrenzungsanteile am gezogenen CAPEX haengen.
+        apply_shared_links(techs)
         # v0.2 (M1/M7): Abgrenzungsanteile folgen dem gezogenen CAPEX.
         for tech_key in DRAW_TECHS:
             tech = params["technologies"].get(tech_key)
@@ -670,7 +751,9 @@ def main() -> None:
                 "angewandt. Technologieparameter sind damit je Ziehung ueber die Szenarien "
                 "identisch. Ausgewertet wird zusaetzlich die Differenzverteilung je Szenariopaar "
                 "(rank_probabilities) - die Ueberlappung der Randverteilungen ist KEIN "
-                "zulaessiges Rangfolgen-Argument."
+                "zulaessiges Rangfolgen-Argument. v0.2c (Fix 2): Die Garantie gilt jetzt auch "
+                "UEBER die CCS-Grenze - Gaspreis und CCS-CAPEX werden nicht mehr je Technologie "
+                "doppelt gewuerfelt (siehe shared_links)."
             ),
             "assumptions": [
                 "Der Dispatch wird je Preset EINMAL mit mittleren Parametern gerechnet und "

@@ -31,9 +31,13 @@
       "v0.2/M6: Ist-2025-Anker mit Kohle-, Biomasse- und Wasserbaendern und heutigen Netzentgelten statt der Netzinvestition bis 2045.",
       "v0.2/M7: Ueberschreitungsfaktor nur auf Schaetzbasis-Anker (overrun_applicable_share).",
       "v0.2b: Technologie gas_ccs (Abscheidung an GuD). CAPEX-Faktor 2,0 (NETL 2023), Wirkungsgradverlust 8 pp, Abscheiderate 90 %, Vollkette 50/80/100 EUR/t; die Restemission (49/120/220 g/kWh) traegt weiterhin den vollen CO2-Preis.",
-      "v0.2b: Kontrastverteilung Asien/Golf fuer Kernkraft-CAPEX (1.870/3.150/4.950 EUR/kW, Bauzeit 8 a) - ausschliesslich als eigene Monte-Carlo-Konfiguration, NIE in der Basisspanne (Begruendung kosten_kernkraft.md 7.1, maschinenlesbar hinterlegt)."
+      "v0.2b: Kontrastverteilung Asien/Golf fuer Kernkraft-CAPEX (1.870/3.150/4.950 EUR/kW, Bauzeit 8 a) - ausschliesslich als eigene Monte-Carlo-Konfiguration, NIE in der Basisspanne (Begruendung kosten_kernkraft.md 7.1, maschinenlesbar hinterlegt).",
+      "v0.2c/1: Auch das Uebertragungsnetz bekommt einen mixunabhaengigen Sockel (transmission_socket_share, SETZUNG 0,20/0,40/0,60 mit Sensitivitaet). Bis v0.2b skalierte der 328-Mrd.-Block linear von null mit der genutzten fEE-Arbeit.",
+      "v0.2c/2: Gemeinsame Rohstoff- und Definitionsziehungen - der Gaspreis wird EINMAL je Ziehung gezogen und von gas_ccgt und gas_ccs geteilt; der CCS-CAPEX ist ein gezogener FAKTOR (capex_factor_on_ccgt) auf den in derselben Ziehung gezogenen GuD-CAPEX.",
+      "v0.2c/3: Der Ueberschreitungsaufschlag wird als absoluter Betrag auf EINER Schaetzbasis gerechnet (overrun_estimate_base_eur_kw = 7.500) mit Rest-Overrun-Anteilen 0,48/0,50/0,00 - damit ist die Abbildung 'gezogener CAPEX -> effektiver CAPEX' monoton und die Doppelzaehlung an den unteren Ankern beseitigt.",
+      "v0.2c/4: Geschlossene CCS-Massenbilanz - abgeschiedene Menge und Restemission werden aus EINEM Brennstoffeintrag gebildet (upstream_share_of_lifecycle); captured + residual = Eintrag gilt exakt, auch unter Ziehung von Wirkungsgrad und Abscheiderate."
     ],
-    "model_version": "0.2b",
+    "model_version": "0.2c",
     "limitation": "Volltext-Abruf (WebFetch) war fuer praktisch alle Primaerquellen-Domains durch den Netzwerk-Egress blockiert. Alle Werte stammen aus Suchindex-Zusammenfassungen der genannten Quellen, nicht aus selbst gelesenem PDF-Volltext. Vor Veroeffentlichung am Original nachpruefen."
   },
   "global": {
@@ -843,14 +847,14 @@
             "max": 0.0
           },
           "overrun_share": {
-            "min": 1.0,
-            "mid": 1.0,
+            "min": 0.48,
+            "mid": 0.5,
             "max": 0.0
           },
           "unit": "Kostenabgrenzung des CAPEX-Ankers",
           "source": "kosten_kernkraft.md 7.1 capex_eur_kw.anchors + reference_projects[].cost_scope, Regel aus kosten_kernkraft.md 7.3",
           "confidence": "A",
-          "note": "M1: kein zusaetzlicher Bauzins auf Gesamtprojekt-Anker (Doppelzaehlung). M7: kein Ueberschreitungsfaktor auf bereits realisierte Ist-Kosten (HPC)."
+          "note": "M1: kein zusaetzlicher Bauzins auf Gesamtprojekt-Anker (Doppelzaehlung). M7/v0.2c: der Ueberschreitungsfaktor wirkt nur auf den Teil der Eskalation, den der jeweilige Anker NOCH NICHT enthaelt (Rest-Overrun-Anteil)."
         },
         "idc_applicable_share": {
           "value": 0.0,
@@ -863,14 +867,25 @@
           "note": "Zwischen den Stuetzstellen linear interpoliert (model.scope_share_for_capex), damit die Monte-Carlo-Ziehung keinen Sprung bekommt. Empirischer Beleg fuer die Identitaet: EPR2 7.583 EUR/kW overnight x 1,37 = 10.389 ~ 10.417 EUR/kW inkl. Finanzierung."
         },
         "overrun_applicable_share": {
-          "value": 1.0,
-          "min": 1.0,
-          "mid": 1.0,
+          "value": 0.5,
+          "min": 0.48,
+          "mid": 0.5,
           "max": 0.0,
-          "unit": "1 (Anteil des Ueberschreitungsfaktors)",
-          "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.definition ('Faktor auf die urspruengliche Kostenschaetzung (decision-to-build)')",
-          "confidence": "A",
-          "note": "Der High-Anker (Hinkley Point C, 17.264 EUR/kW, laufende Preise) ist das Ergebnis einer bereits eingetretenen Ueberschreitung (Erstschaetzung 18 Mrd. GBP -> 48,7 Mrd. GBP). Ein weiterer Faktor 2,2 darauf waere eine zweite Doppelzaehlung (Persona-Review 06, K2)."
+          "unit": "1 (Rest-Anteil des Ueberschreitungsfaktors)",
+          "source": "risiken_co2.md 7 kostenueberschreitung_faktoren.definition ('Faktor auf die urspruengliche Kostenschaetzung (decision-to-build)') + kosten_kernkraft.md 3 reference_projects (realisierte Eskalation je Anker)",
+          "confidence": "B",
+          "note": "v0.2c (Fix 3): Der Faktor wirkt nur noch auf die NOCH NICHT realisierte Eskalation. Herleitung s = (f/e - 1)/(f - 1) mit f = 2,20: EPR2 +40 % -> 0,476 (low), Mittel Lubiatowo/Sizewell C/EPR2-total 0,536 -> auf 0,50 gesetzt (mid, Monotonie-Schranke), Hinkley Point C realisiert -> 0,00 (high). Bis v0.2b standen hier 1,0/1,0/0,0 - das war eine Doppelzaehlung an den unteren Ankern (Persona-Review 06 R2, N2) und erzeugte zusammen mit der Interpolation eine nicht-monotone Abbildung (N1)."
+        },
+        "overrun_estimate_base_eur_kw": {
+          "value": 7500,
+          "min": null,
+          "mid": 7500,
+          "max": null,
+          "unit": "EUR/kW (Schaetzanker fuer den Ueberschreitungsaufschlag)",
+          "source": "kosten_kernkraft.md 7.1 capex_eur_kw.anchors.low (EPR2-Programm 7.583 OCC, Dukovany II 7.906 EPC) + risiken_co2.md 7 (Faktor auf die Schaetzung)",
+          "confidence": "B",
+          "note": "v0.2c (Fix 3): Der Ueberschreitungsaufschlag wird als ABSOLUTER Betrag auf genau einer Schaetzbasis gerechnet - (f - 1) x 7.500 x Rest-Anteil - statt multiplikativ auf den jeweils gezogenen CAPEX. Grund: Die drei Stuetzstellen liegen auf verschiedenen Seiten der Ueberschreitungs-Transformation (7.500 ist eine Entscheidungsschaetzung, 17.500 ihr Ergebnis). Multiplikativ mit interpoliertem Anteil war die Abbildung nicht monoton: ein hoeher gezogener CAPEX ergab niedrigere Effektivkosten. Der Bauzins-Aufschlag wird auf den Ueberschreitungsbetrag NICHT zusaetzlich gelegt - die zugrunde liegenden Eskalationsangaben (Sizewell C +90 %, HPC 48,7 Mrd. GBP laufende Preise) sind Gesamtprojektwerte inklusive Finanzierung.",
+          "status": "MODELLANNAHME (Struktur), Anker quellenbelegt"
         },
         "opex_pct": {
           "value": null,
@@ -1559,8 +1574,18 @@
           "unit": "t CO2/MWh_el (Restemission nach Abscheidung)",
           "source": "risiken_co2.md 1.2 co2_intensitaet_g_pro_kwh.technologien.erdgas_gud_ccs",
           "confidence": "B",
-          "note": "RESTEMISSION - traegt den vollen CO2-Preis. Lebenszyklus-Wert (49/120/220 g/kWh): enthaelt die Vorkette (Methanschlupf), die CCS NICHT abscheidet. Fuer eine reine ETS-Bepreisung ist der Wert deshalb eher zu hoch - dieselbe Richtung wie beim GuD-Proxy. Gegenprobe: 10 % nicht abgeschiedene Verbrennungsemissionen ergeben bei eta = 0,52 rund 47 g/kWh und treffen damit das untere Ende der Dossier-Spanne.",
-          "status": "PROXY (Lebenszyklus statt reiner Verbrennungs-Restemission)"
+          "note": "RESTEMISSION - traegt den vollen CO2-Preis. Lebenszyklus-Wert (49/120/220 g/kWh): enthaelt die Vorkette (Methanschlupf), die CCS NICHT abscheidet. AB v0.2c ist dieser Wert nur noch KALIBRIERUNGSZIEL und Rueckfallwert: Gerechnet wird die Restemission aus der Massenbilanz (model.ccs_balance) als Eintrag x [(1 - v)(1 - Rate) + v]; bei den Zentralwerten ergibt das exakt diese 0,120 t/MWh_el, bei abweichendem Wirkungsgrad oder abweichender Abscheiderate bewegt sich die Restemission konsistent mit der abgeschiedenen Menge mit (Spanne der Bilanz rund 0,087-0,157 gegen die dokumentierte Bandbreite 0,049-0,220).",
+          "status": "KALIBRIERUNGSZIEL (gerechnet wird die Massenbilanz, siehe upstream_share_of_lifecycle)"
+        },
+        "capex_factor_on_ccgt": {
+          "value": 2.0,
+          "min": 1.9,
+          "mid": 2.0,
+          "max": 2.2,
+          "unit": "1 (Faktor auf den GuD-CAPEX je kW)",
+          "source": "NETL/IEAGHG 2023 (Updated Performance and Cost Estimates for Carbon Capture Equipped Power Generation), Recherche 2026-08-19",
+          "confidence": "B",
+          "note": "Aufschlag auf den GuD-CAPEX je kW. Quellenbelegter Zentralwert: NETL/IEAGHG 2023 (Updated Performance and Cost Estimates for Carbon Capture Equipped Power Generation) nennt fuer NGCC mit Abscheidung +100 bis +104 % je kW - der Kapitalkostenblock verdoppelt sich also. Die Raender sind MODELLANNAHME: nach unten Serieneffekt, nach oben europaeische Bau-/Genehmigungskosten und FOAK-Status in Europa. Recherche 2026-08-19. v0.2c: Dieser Faktor ist die gezogene Groesse; capex_eur_kw ist der daraus abgeleitete Absolutwert und wird in der Monte-Carlo-Rechnung NICHT mehr eigenstaendig gezogen (Versorger-Review R2, N2)."
         },
         "capture_rate": {
           "value": 0.9,
@@ -1592,6 +1617,17 @@
           "confidence": "C",
           "note": "Bezugsgroesse fuer die ABGESCHIEDENE Menge. Wirkungsgradunabhaengig, damit der Abscheidungsverlust die abgeschiedene Tonnage korrekt erhoeht. Erbt den PROXY-Status des zugrunde liegenden Lebenszyklus-Faktors.",
           "status": "PROXY (abgeleitet aus der Lebenszyklus-Untergrenze)"
+        },
+        "upstream_share_of_lifecycle": {
+          "value": 0.175627,
+          "min": null,
+          "mid": 0.175627,
+          "max": null,
+          "unit": "1 (Vorkettenanteil am Lebenszyklus-Emissionsfaktor)",
+          "source": "risiken_co2.md 1.2 erdgas_gud_ccs.default (0.12 t/MWh_el Restemission) kalibriert gegen erdgas_gud.min (0.403 t/MWh_el) bei eta 0.52 und Abscheiderate 0.9",
+          "confidence": "C",
+          "note": "v0.2c (Fix 4): Zerlegt den Lebenszyklus-Emissionsfaktor in den abscheidbaren Verbrennungsteil und die nicht abscheidbare Vorkette (Methanschlupf). Der Wert ist KEINE eigene Quelle, sondern eine Kalibrierung: er ist genau so gewaehlt, dass die belegte Restemission von 0,120 t/MWh_el (49/120/220 g/kWh) bei den Zentralwerten exakt herauskommt. Damit gilt captured + residual = Brennstoffeintrag fuer JEDE Ziehung von Wirkungsgrad und Abscheiderate - die Doppelbuchung von 16 % des eingesetzten Kohlenstoffs faellt weg. Groessenordnung: rund 17,6 % Vorkettenanteil liegt im ueblichen Bereich fuer Erdgas-Lebenszyklusfaktoren.",
+          "status": "KALIBRIERT (aus belegten Groessen abgeleitet, keine eigene Quelle)"
         }
       },
       "key_finding": "Der Standardwert 800 EUR/kW ist fuer 2026 um Faktor 2-2.5 zu niedrig. Betrifft ALLE Szenarien mit Gas-Backup, auch das GES-'Kostenminimum'-Szenario.",
@@ -2102,6 +2138,17 @@
         "confidence": "B",
         "note": "IMK/Boeckler 323 Mrd. EUR Verteilnetz bis 2045 - praktisch gleich gross wie das Uebertragungsnetz. Ueberwiegend elektrifizierungsgetrieben (Waermepumpen, Ladeinfrastruktur, Industrieanschluesse, Altersersatz) und damit weitgehend MIXUNABHAENGIG. Skaliert im Modell mit dem Jahresbedarf, nicht mit dem fEE-Anteil."
       },
+      "transmission_socket_share": {
+        "value": 0.4,
+        "min": 0.2,
+        "mid": 0.4,
+        "max": 0.6,
+        "unit": "1 (mixunabhaengiger Anteil des Uebertragungsnetz-Budgets)",
+        "source": "ist_zustand_de.md 5.1 netzkosten (NEP 2037/2045 V2025 und IMK/Boeckler nennen KEINE Aufteilung des Uebertragungsnetz-Budgets nach Treibern)",
+        "confidence": null,
+        "note": "SETZUNG (M) mit Sensitivitaet - eine belastbare Quote existiert in keinem Dossier: Weder der NEP 2037/2045 V2025 noch die IMK-Studie teilen die 328 (bzw. 365-392) Mrd. EUR nach Treibern auf; die einzige treibernahe Angabe ist die Differenz Szenario A -> B (+41 Mrd. = rund 10 %), und die misst nur die Klimaziel-AMBITION, nicht den mixunabhaengigen Anteil. Begruendung der Setzung: Dieselben Treiber, mit denen der Verteilnetz-Sockel belegt ist (Altersersatz - grosse Teile des Hoechstspannungsnetzes stammen aus den 1960er/70er Jahren -, Lastzuwachs aus Elektrifizierung und Rechenzentren, n-1-Redundanz, Systemdienstleistungen, Anschluss neuer Grosskraftwerke inkl. Kernkraftbloecken), gelten eine Spannungsebene hoeher weiter. Wirklich fEE-spezifisch sind die HGUE-Nord-Sued-Korridore und die Offshore-Anbindung - zusammen die Mehrheit, aber nicht das Ganze. mid 0,40 liegt deshalb unter der Haelfte; min/max 0,20/0,60 sind die ausgewiesene Sensitivitaet. Das Ergebnis weist die Differenz zum sockellosen Lauf als detail.netz.socket_effect_eur_mwh aus.",
+        "status": "MODELLANNAHME (nicht quellenbelegt, dokumentierte Setzung)"
+      },
       "reference_fee_share": {
         "value": 1.0,
         "min": null,
@@ -2125,13 +2172,13 @@
         "status": "MODELLANNAHME (nicht quellenbelegt)"
       },
       "scaling_rule": {
-        "version": "v0.2",
-        "transmission": "min(1,0; fEE-Anteil an der GEDECKTEN Last / reference_fee_share)",
+        "version": "v0.2c",
+        "transmission": "min(1,0; a x min(1,0; Jahresbedarf / reference_demand_twh) + (1 - a) x fEE-Anteil an der GEDECKTEN Last / reference_fee_share) mit a = transmission_socket_share",
         "distribution": "min(1,0; Jahresbedarf / reference_demand_twh)",
-        "replaces": "v0.1: 651 Mrd. EUR x (fEE-Anteil inkl. abgeregelter Energie / 1,0), ungedeckelt - erreichte im 100-%-EE-Preset 165 % des nationalen Budgets.",
-        "source": "ist_zustand_de.md 5.1 (Aufteilung 328/323) + Persona-Review 04 K1, 03 K2",
+        "replaces": "v0.1: 651 Mrd. EUR x (fEE-Anteil inkl. abgeregelter Energie / 1,0), ungedeckelt - erreichte im 100-%-EE-Preset 165 % des nationalen Budgets. v0.2/v0.2b: Uebertragungsnetz OHNE Sockel (a = 0), also linear von null mit der genutzten fEE-Arbeit.",
+        "source": "ist_zustand_de.md 5.1 (Aufteilung 328/323) + Persona-Review 04 K1, 03 K2 und 03 R2 N1 (Uebertragungsnetz-Sockel)",
         "confidence": "B",
-        "limitation": "Weiterhin keine raeumliche Netzsimulation und keine ueberproportionale Kostenkurve bei sehr hohen fEE-Anteilen. Die Aufteilung 328/323 ist quellenbelegt, die ZUORDNUNG der Treiber (Transport vs. Elektrifizierung) ist eine begruendete Modellannahme."
+        "limitation": "Weiterhin keine raeumliche Netzsimulation und keine ueberproportionale Kostenkurve bei sehr hohen fEE-Anteilen. Die Aufteilung 328/323 ist quellenbelegt, die ZUORDNUNG der Treiber (Transport vs. Elektrifizierung) ist eine begruendete Modellannahme - und die Sockelquote a des Uebertragungsnetzes ist eine ausgewiesene SETZUNG (M) mit Sensitivitaet 0,20/0,40/0,60."
       },
       "ist_2025_eur_mwh": {
         "value": 93.0,
@@ -2276,9 +2323,9 @@
       "_source": "risiken_co2.md 7 kostenueberschreitung_faktoren",
       "_default": 1.0,
       "application_rule": {
-        "version": "v0.2",
-        "text": "Der Faktor ist definitionsgemaess ein Verhaeltnis Entscheidungsschaetzung -> Ist (risiken_co2.md 7 definition). Er wird deshalb nur auf CAPEX-Anker angewendet, die noch eine Schaetzung sind. Der Anteil steht je Technologie in params.overrun_applicable_share und wird zwischen den CAPEX-Stuetzstellen linear interpoliert.",
-        "affected": "Kernkraft: Anteil 1,0 bei 7.500 und 12.000 EUR/kW (EPR2-Programm, Dukovany-EPC, Lubiatowo, Sizewell C - alle vor bzw. bei FID), Anteil 0,0 bei 17.500 EUR/kW (Hinkley Point C, laufende Preise = bereits eingetretene Ueberschreitung).",
+        "version": "v0.2c",
+        "text": "Der Faktor ist definitionsgemaess ein Verhaeltnis Entscheidungsschaetzung -> Ist (risiken_co2.md 7 definition). Er wird deshalb nur auf den Teil der Eskalation angewendet, den ein CAPEX-Anker noch NICHT enthaelt. Der Rest-Anteil steht je Technologie in params.overrun_applicable_share und wird zwischen den CAPEX-Stuetzstellen linear interpoliert. Fuer Technologien mit params.overrun_estimate_base_eur_kw (Kernkraft: 7.500 EUR/kW) wird der Aufschlag ABSOLUT auf dieser einen Schaetzbasis gerechnet - (f - 1) x Basis x Anteil - statt multiplikativ auf den gezogenen CAPEX; sonst bliebe die Abbildung nicht monoton.",
+        "affected": "Kernkraft (v0.2c): Rest-Anteil 0,48 bei 7.500 EUR/kW (EPR2-Programm-OCC, bereits +40 % eskaliert; Dukovany-EPC ist ein Festpreis), 0,50 bei 12.000 EUR/kW (Mittel aus Lubiatowo-Planzahl, Sizewell C +90 % und EPR2 inkl. Finanzierung) und 0,00 bei 17.500 EUR/kW (Hinkley Point C, laufende Preise = bereits eingetretene Ueberschreitung). Bis v0.2b standen an den unteren Ankern 1,0 - eine Doppelzaehlung.",
         "source": "risiken_co2.md 7 + kosten_kernkraft.md 3 reference_projects",
         "confidence": "B"
       },
