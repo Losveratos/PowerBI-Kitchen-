@@ -183,9 +183,10 @@ function eurYear(eurMwh) { return fmt(eurMwh * HH_KWH_A / 1000, 0) + ' €/a'; }
 function hh(eurMwh, opts) {
   const o = opts || {};
   const v = Math.abs(eurMwh);
-  const body = o.diff
-    ? '≙ ' + ctKwh(v) + ' · rund ' + eurYear(v) + ' Unterschied für einen 3.500-kWh-Haushalt'
-    : '≙ ' + ctKwh(v) + ' · rund ' + eurYear(v) + ' für einen 3.500-kWh-Haushalt';
+  const body = o.compact
+    ? '≙ ' + ctKwh(v) + ' · ' + eurYear(v) + ' (3.500-kWh-Haushalt)'
+    : (o.label ? o.label + ': ' : '') + '≙ ' + ctKwh(v) + ' · rund ' + eurYear(v) +
+      (o.diff ? ' Unterschied' : '') + ' für einen 3.500-kWh-Haushalt';
   return o.plain ? body : '<span class="hh">' + body + '</span>';
 }
 
@@ -216,19 +217,26 @@ function hhGuard() {
    Bedeutung).
    --------------------------------------------------------------------- */
 const SCEN_ICON_PATHS = {
-  atom: '<circle cx="8" cy="8" r="1.6"/><ellipse cx="8" cy="8" rx="7" ry="2.8"/>' +
-        '<ellipse cx="8" cy="8" rx="7" ry="2.8" transform="rotate(60 8 8)"/>' +
-        '<ellipse cx="8" cy="8" rx="7" ry="2.8" transform="rotate(120 8 8)"/>',
+  /* Atom: Kern plus zwei Bahnen - drei waeren bei 15 px Brei. */
+  atom: '<circle cx="8" cy="8" r="1.5"/><ellipse cx="8" cy="8" rx="6.9" ry="2.9" transform="rotate(30 8 8)"/>' +
+        '<ellipse cx="8" cy="8" rx="6.9" ry="2.9" transform="rotate(-30 8 8)"/>',
   flame: '<path d="M8 15c2.6 0 4.4-1.8 4.4-4.2 0-3.2-3.2-4.6-3-9.8-2 1.4-4 4-4 6.6 0 1 .3 1.8.8 2.4' +
          '-.5-.2-1-.7-1.3-1.3-.7.9-1.3 1.9-1.3 3.2C3.6 13.4 5.4 15 8 15Z"/>',
-  ccsMark: '<path d="M12.4 9.6v4.2"/><path d="M10.8 12.4 12.4 14l1.6-1.6"/>',
-  h2: '<path d="M2.4 3.4v9.2M7 3.4v9.2M2.4 8H7"/>' +
-      '<path d="M9.8 12.6h3.8M9.8 12.6c0-2.6 3.6-2.6 3.6-4.6 0-1-.8-1.7-1.8-1.7s-1.8.7-1.8 1.7"/>',
-  sunwind: '<circle cx="5.2" cy="5.2" r="2.4"/><path d="M5.2 1v1.2M5.2 8.2v1.2M1 5.2h1.2M8.2 5.2h1.2' +
-           'M2.3 2.3l.8.8M7.3 7.3l.8.8M8.1 2.3l-.8.8M3.1 7.3l-.8.8"/>' +
-           '<path d="M12.2 15V9.4M12.2 9.4 15 7.6M12.2 9.4 9.4 7.8M12.2 9.4V5.6"/>',
-  plug: '<path d="M5.6 2v3.4M10.4 2v3.4"/><path d="M3.6 5.4h8.8v2.2A4.4 4.4 0 0 1 8 12a4.4 4.4 0 0 1-4.4-4.4Z"/>' +
-        '<path d="M8 12v2.6"/>'
+  h2: '<path d="M2.6 3.2v9.6M7.4 3.2v9.6M2.6 8h4.8"/>' +
+      '<path d="M9.9 12.8h3.9M9.9 12.8c0-2.7 3.7-2.7 3.7-4.8 0-1.05-.83-1.8-1.85-1.8s-1.85.75-1.85 1.8"/>',
+  /* Sonne links, Rotor rechts - die beiden Traeger des 100-%-Pfads. */
+  sunwind: '<circle cx="4.2" cy="4.4" r="2"/>' +
+           '<path d="M4.2 .8v1M4.2 7v1M.6 4.4h1M6.8 4.4h1M1.75 1.95l.7.7M5.95 6.15l.7.7' +
+           'M6.65 1.95l-.7.7M2.45 6.15l-.7.7"/>' +
+           '<path d="M12.4 15.4V9.6M12.4 9.6 15.6 7.9M12.4 9.6 9.2 7.9M12.4 9.6V5.9"/>',
+  plug: '<path d="M5.6 2.1v3.3M10.4 2.1v3.3"/>' +
+        '<path d="M3.7 5.4h8.6v2.1a4.3 4.3 0 0 1-4.3 4.3 4.3 4.3 0 0 1-4.3-4.3Z"/>' +
+        '<path d="M8 11.8v2.4"/>',
+  /* Abscheidung: Pfeil in den Untergrund. Steht IMMER frei in der rechten
+     unteren Ecke, waehrend das Basiszeichen dafuer verkleinert wird -
+     sonst ueberlagern sich zwei Zeichen zu einem dritten. */
+  ccsMark: '<path d="M12.5 8.2v3.4"/><path d="M10.9 10.2l1.6 1.6 1.6-1.6"/>' +
+           '<path d="M9.6 13.9h5.8"/>'
 };
 const SCEN_ICON_FOR = {
   ist2025: { g: 'plug', t: 'heutiges System (Referenz, nicht ranking-fähig)' },
@@ -243,9 +251,12 @@ const SCEN_ICON_FOR = {
 function scenIcon(pid) {
   const spec = SCEN_ICON_FOR[pid];
   if (!spec) return '';
+  const base = spec.ccs
+    ? '<g transform="translate(-0.9,-1.4) scale(0.78)" stroke-width="2.05">' +
+      SCEN_ICON_PATHS[spec.g] + '</g>' + SCEN_ICON_PATHS.ccsMark
+    : SCEN_ICON_PATHS[spec.g];
   return '<svg class="scen-ico" viewBox="0 0 16 16" role="img" aria-label="' + spec.t + '">' +
-    '<title>' + spec.t + '</title>' + SCEN_ICON_PATHS[spec.g] +
-    (spec.ccs ? SCEN_ICON_PATHS.ccsMark : '') + '</svg>';
+    '<title>' + spec.t + '</title>' + base + '</svg>';
 }
 
 /* ---------------------------------------------------------------------
@@ -2119,7 +2130,10 @@ function syncLcoeUI() {
   if (key === 'wind_onshore') {
     const fl = S.page.lcoe_benchmarks.wind_onshore.full_load_hours_fleet;
     flhHint += ' · <strong>Der wichtigste Einzelhebel bei Wind:</strong> die Bestandsflotte erreichte 2025 nur ' +
-      fmt(fl.value_2025, 0) + ' h/a, Neuanlagen im Mittel über 2.400 h/a. Wer mit Bestandswerten rechnet, ' +
+      fmt(fl.value_2025, 0) + ' h/a ' + confBadge(fl.confidence) + ', Neuanlagen im Mittel über ' +
+      fmt(((S.page.lcoe_benchmarks.wind_onshore.sensitivity_flh || [])[1] || {}).flh || 2400, 0) +
+      ' h/a — dieser zweite Wert trägt im Datensatz nur die Notiz „Neuanlagen-Mittel“ und keine ' +
+      'eigene Quelle ' + confBadge('M') + '. Wer mit Bestandswerten rechnet, ' +
       'verteuert Windstrom systematisch um rund 30 %.';
     /* M1 (Journalist R1/R2): Die Studie weist bei 1.700 h 90,8 EUR/MWh aus,
        dieses Modell bei denselben 1.700 h einen anderen Wert - weil es mit
@@ -2127,16 +2141,17 @@ function syncLcoeUI() {
        liest sich der Unterschied wie ein Widerspruch zur Zusage, die
        Studien-LCOE auf 0,04 % genau zu reproduzieren. */
     const gw = S.page.ges.reference.technologies.wind_onshore;
-    const own = resolveTech(S.params, 'wind_onshore', 'mittel', null, LC.idc);
-    own.full_load_hours = gw.full_load_hours;
-    const ownLcoe = lcoe(own, LC.wacc, 0).lcoe_eur_mwh;
-    flhHint += ' <strong>Zur Einordnung zweier Zahlen, die dasselbe zu meinen scheinen:</strong> Die ' +
-      'geprüfte Studie weist bei ' + fmt(gw.full_load_hours, 0) + ' h ' + fmt(gw.lcoe, 1) + ' €/MWh aus; ' +
-      'dieses Modell kommt bei denselben ' + fmt(gw.full_load_hours, 0) + ' h auf rund ' +
-      fmt(ownLcoe, 1) + ' €/MWh, weil es <em>eigene</em> Betriebskosten und Laufzeiten ansetzt. Mit ' +
-      'den Annahmen der Studie reproduziert es deren Wert dagegen auf ±' +
-      fmt(S.page.ges.lcoe_reproduction_max_deviation_pct, 2) + '&nbsp;% genau — die Differenz ist ein ' +
-      'Unterschied der Eingangsdaten, nicht der Rechenmethode.';
+    const own1700 = (S.page.lcoe_benchmarks.wind_onshore.sensitivity_flh || [])
+      .find(x => x.flh === gw.full_load_hours);
+    if (own1700) {
+      flhHint += ' <strong>Zur Einordnung zweier Zahlen, die dasselbe zu meinen scheinen:</strong> Die ' +
+        'geprüfte Studie weist bei ' + fmt(gw.full_load_hours, 0) + ' h ' + fmt(gw.lcoe, 1) +
+        ' €/MWh aus, dieses Papier bei denselben ' + fmt(gw.full_load_hours, 0) + ' h ' +
+        fmt(own1700.lcoe_eur_mwh, 1) + ' €/MWh — kein Widerspruch, sondern ein Unterschied der ' +
+        '<em>Eingangsdaten</em>: Der zweite Wert rechnet mit unseren eigenen Betriebskosten und ' +
+        'Laufzeiten. Mit den Annahmen der Studie reproduziert dasselbe Modell deren Wert auf ±' +
+        fmt(S.page.ges.lcoe_reproduction_max_deviation_pct, 2) + '&nbsp;% genau.';
+    }
   }
   if (key === 'nuclear') {
     flhHint += ' · In einem System mit hohem PV-/Windanteil muss Kernkraft lastfolgen. Wer 8.000 h ' +
@@ -3162,7 +3177,7 @@ function renderLimitations() {
       'Stelle also hinter der Studie zurück, die es prüft. <em>(Korrigiert in v0.11 — frühere Fassungen ' +
       'behaupteten hier, die Auslassung treffe „alle Szenarien gleichermaßen“. Das war falsch.)</em>',
     '<strong>Keine räumliche Netzsimulation, und die Aufteilung des Netzblocks ist eine Setzung.</strong> ' +
-      'Der Netzausbau geht nur als top-down-Kostenzuschlag ein. ' + gridRuleText() +
+      gridRuleText() +
       ' Räumlich aufgelöst wird nichts: keine Leitungstopologie, keine Engpässe, kein Redispatch.',
     '<strong>Speicher-Dispatch ist greedy, nicht optimiert.</strong> Das Modell unterstellt <em>keine</em> ' +
       'perfekte Voraussicht. Das überschätzt den Speicherbedarf tendenziell leicht.',
@@ -3420,7 +3435,8 @@ function renderConclusion() {
     { t: 'Die Volllaststunden-Annahme bei Wind ist ein größerer Hebel als der CAPEX — und wird selten diskutiert.',
       b: 'Die deutsche Bestandsflotte erreichte 2025 rund ' +
          fmt(P.lcoe_benchmarks.wind_onshore.full_load_hours_fleet.value_2025, 0) + ' Volllaststunden, ' +
-         'Neuanlagen im Mittel über 2.400. ' + confBadge('A') + ' Wer mit Bestandswerten rechnet, verteuert ' +
+         'Neuanlagen im Mittel über 2.400 ' + confBadge('A') + ' — der zweite Wert allerdings ohne ' +
+         'eigene Quellenangabe im Datensatz ' + confBadge('M') + '. Wer mit Bestandswerten rechnet, verteuert ' +
          'Windstrom um rund 30 % — bei identischen Baukosten. Der Realitätscheck stützt die niedrigeren ' +
          'Kosten: Die BNetzA-Ausschreibung im Mai 2026 ergab mengengewichtet ' +
          fmt(P.lcoe_benchmarks.wind_onshore.auction[P.lcoe_benchmarks.wind_onshore.auction.length - 1].weighted_avg, 1) +
@@ -3543,7 +3559,7 @@ function renderExecSummary() {
       'mit ' + fmt(ist.deterministic_lscoe_eur_mwh, 0) + ' €/MWh in derselben Größenordnung — bei ' +
       fmt(ist.emissions_mt_co2_a, 0) + ' Mt CO₂ im Jahr und nicht in derselben Systemgrenze, also ' +
       'kein Ranking-Partner. ' + confBadge('B') +
-      hh(hi - lo, { diff: true }),
+      hh(hi - lo, { diff: true, label: 'Abstand zwischen billigstem und teuerstem Pfad' }),
       'mittel — Punktwerte aus einem Halbjahresprofil; die Spannbreite der Ziehungen steht in Kapitel 6'],
 
     ['Über die Rangfolge entscheidet nicht die Technologie, sondern vier Setzungen.',
@@ -3565,7 +3581,8 @@ function renderExecSummary() {
       ' €/MWh im Punktwert, günstiger in ' + nat(nucGas.p_b_cheaper) + ' Ziehungen — dann vergleicht ' +
       'man aber ' + fmt(km.emissions_mt_co2_a, 0) + ' gegen ' + fmt(eg.emissions_mt_co2_a, 0) +
       ' Mt CO₂/a. ' + confBadge('B') +
-      hh(Math.abs(km.deterministic_lscoe_eur_mwh - eg.deterministic_lscoe_eur_mwh), { diff: true }),
+      hh(Math.abs(km.deterministic_lscoe_eur_mwh - eg.deterministic_lscoe_eur_mwh),
+        { diff: true, label: 'der Beinahe-Gleichstand im Punktwert' }),
       'hoch — das CCS-Kostenband ist am unteren Rand der Literatur, die Abscheidung läuft auf dem ' +
       'gesamten Backup-Park, und ' + fmt(egC.captured_mt_co2_a, 0) + ' Mt CO₂/a müssten in einem Land ' +
       'ohne CO₂-Speicherstätte eingelagert werden'],
@@ -3600,8 +3617,11 @@ function renderExecSummary() {
     fmt(kip.gepaarte_ziehungen_median_eur_t, 0) + ' €/t im Median der Ziehungen — beides <em>über</em> ' +
     'dem heutigen ETS-1-Marktpreis von ' + fmt(kip.ets1_markt_eur_t, 0) + ' €/t ' +
     confBadge(kip._confidence) + '. Mit Abscheidung auf beiden Seiten gibt es keinen Kipppunkt: Dort ' +
-    'führt der Kernkraft-Pfad bei jedem CO₂-Preis. Was die Zahlen bedeuten, steht ausführlich in ' +
-    '<a href="#kap-6">Kapitel 6</a>, die Grenzen in <a href="#kap-9">Kapitel 9</a>.';
+    'führt der Kernkraft-Pfad bei jedem CO₂-Preis. <strong>Die ct/kWh- und €/Jahr-Angaben sind ' +
+    'Größenordnungs-Hilfen, kein Strompreis</strong> — Systemkosten enthalten weder Bestandsnetz noch ' +
+    'Vertrieb, Steuern und Umlagen (Kasten in <a href="#kap-5">Kapitel 5</a>). Was die Zahlen ' +
+    'bedeuten, steht ausführlich in <a href="#kap-6">Kapitel 6</a>, die Grenzen in ' +
+    '<a href="#kap-9">Kapitel 9</a>.';
 
   const box = $('#exec-list'); clear(box);
   const ol = el('ol', { cls: 'exec' });
@@ -4231,8 +4251,11 @@ function renderDrawDemo(replay) {
     '<strong>' + fmt(dr.techs.gas_ccs.capex_eur_kw, 0) + '</strong> €/kW', '–']);
   const nucEff = lcoe(dr.techs.nuclear, dr.wacc, dr.co2);
   rows.push(['<em>daraus abgeleitet:</em> Kernkraft · <strong>effektiver</strong> CAPEX' +
-    '<span class="hh">nach Kostenabgrenzung, Bauzins' +
-    (config.overrun ? ' und Überschreitungsaufschlag' : '') + '</span>',
+    '<span class="hh">Bauzins ' + pct(nucEff.idc_surcharge_gross, 0) + ' brutto × Anteil ' +
+    fmt(nucEff.idc_applicable_share, 2) +
+    (config.overrun ? ' · Überschreitungs-Anteil ' + fmt(nucEff.overrun_applicable_share, 2) +
+      ', Aufschlag ' + fmt(nucEff.overrun_surcharge_eur_kw, 0) + ' €/kW' : '') +
+    ' — der Anteil hängt am gezogenen Wert, nicht am Szenariensatz</span>',
     '<strong>' + fmt(nucEff.capex_effective_eur_kw, 0) + '</strong> €/kW', '–']);
   if (config.wacc) rows.push(['Kapitalkostensatz (WACC)', '<strong>' + pct(dr.wacc, 1) + '</strong>', '–']);
   if (config.co2) rows.push(['CO₂-Preis', '<strong>' + fmt(dr.co2, 0) + '</strong> €/t', '–']);
@@ -4258,7 +4281,7 @@ function renderDrawDemo(replay) {
     .find(r => r.a === 'kostenminimum' && r.b === 'ee80_gas');
   $('#draw-demo-note').innerHTML = '<strong>Ziehung Nr. ' + fmt(idx + 1, 0) + ' von ' +
     fmt(MC_N_DRAWS, 0) + '</strong> der Konfiguration <code>' + key + '</code>. In dieser einen ' +
-    'Zukunft kostet der Kernkraft-Pfad <strong>' + fmt(dNuc, 1) + '</strong> und der gasgestützte ' +
+    'Zukunft kostet der Kernkraft-Pfad (Zeile „Kostenminimum“) <strong>' + fmt(dNuc, 1) + '</strong> und der gasgestützte ' +
     'Pfad <strong>' + fmt(dGas, 1) + ' €/MWh</strong> — ' +
     (aWins ? 'der Kernkraft-Pfad ist hier günstiger' : 'der gasgestützte Pfad ist hier günstiger') +
     ', um ' + fmt(Math.abs(dNuc - dGas), 1) + ' €/MWh. ' + hh(dNuc - dGas, { diff: true, plain: true }) +
@@ -4563,7 +4586,7 @@ function renderMcRanks() {
           '<br><span style="font-size:13px;color:var(--soft)">' + d.why + '</span>',
         rankCell(d.p) + '<span class="hh">' + natOf(d.p) + ' Ziehungen</span>',
         '<strong>' + fmt(Math.abs(d.med), 1) + ' €/MWh</strong> ' +
-          (d.med <= 0 ? 'günstiger' : 'teurer') + hh(d.med, { diff: true }),
+          (d.med <= 0 ? 'günstiger' : 'teurer') + hh(d.med, { compact: true }),
         'zwischen ' + fmt(Math.abs(d.lo), 0) + ' €/MWh ' + (d.lo <= 0 ? 'günstiger' : 'teurer') +
           ' und ' + fmt(Math.abs(d.hi), 0) + ' €/MWh ' + (d.hi <= 0 ? 'günstiger' : 'teurer'),
         d.decided
@@ -4584,7 +4607,7 @@ function renderMcRanks() {
       '<dt>erstes günstiger</dt><dd>' + natOf(d.p) + ' Ziehungen (' + fmt(d.p * 100, 0) + ' %)</dd>' +
       '<dt>typisch</dt><dd>' + fmt(Math.abs(d.med), 1) + ' €/MWh ' +
         (d.med <= 0 ? 'günstiger' : 'teurer') + '</dd>' +
-      '<dt>Haushalt</dt><dd>' + hh(d.med, { diff: true, plain: true }) + '</dd>' +
+      '<dt>Haushalt</dt><dd>' + hh(d.med, { compact: true, plain: true }) + '</dd>' +
       '<dt>9 von 10</dt><dd>' + fmt(d.lo, 0) + ' … ' + fmt(d.hi, 0) + ' €/MWh (Differenz)</dd></dl>' }));
   });
 
@@ -4601,21 +4624,33 @@ function renderMcRanks() {
      Vorsprungs im entscheidenden Paar aus der Netzregel stammt statt aus der
      Technologie. Beides datengebunden, damit es mit der Setzung mitwandert. */
   const pr = S.mcRef.presets;
+  /* Uebertragungsnetz-Kosten je gelieferter MWh, aus dem Ergebnis gerechnet -
+     das ist der Block, aus dem der Vorsprung ueberwiegend stammt. */
+  const transEurMwh = (pid) => {
+    const p = pr[pid];
+    return (p.grid_detail.cost_transmission_bn_eur_a * 1e9) / (p.demand_twh * 1e6);
+  };
+  const gridDelta = transEurMwh('ee80_gas_ccs') - transEurMwh('kostenminimum_ccs');
   const socketDelta = (pr.kostenminimum_ccs.grid_socket_effect_eur_mwh || 0) -
                       (pr.ee80_gas_ccs.grid_socket_effect_eur_mwh || 0);
   const ccsPair = pairData.find(d => d.a === 'kostenminimum_ccs' && d.b === 'ee80_gas_ccs');
   $('#mc-pairs-foot').innerHTML = ccsPair
-    ? '<strong>Woher der Vorsprung im zweiten Paar kommt.</strong> Von den ' +
-      fmt(Math.abs(ccsPair.med), 1) + ' €/MWh, mit denen der Kernkraft-Pfad hier typischerweise vorn ' +
-      'liegt, stammen <strong>' + fmt(socketDelta, 1) + ' €/MWh (' +
-      pct(socketDelta / Math.abs(ccsPair.med), 0) + ')</strong> aus einer <em>Modellsetzung</em> und ' +
-      'nicht aus der Technologie: der Sockelquote des Übertragungsnetzes (' +
+    ? '<strong>Woher der Vorsprung im zweiten Paar kommt — die wichtigste Fußnote dieser Tabelle.</strong> ' +
+      'Von den ' + fmt(Math.abs(ccsPair.med), 1) + ' €/MWh, mit denen der Kernkraft-Pfad hier ' +
+      'typischerweise vorn liegt, stammen <strong>' + fmt(gridDelta, 1) + ' €/MWh (' +
+      pct(gridDelta / Math.abs(ccsPair.med), 0) + ')</strong> nicht aus der Technologie, sondern aus ' +
+      'der <em>Netzregel</em>: Das Übertragungsnetz kostet im Kernkraft-Pfad ' +
+      fmt(transEurMwh('kostenminimum_ccs'), 1) + ' und im gasgestützten Pfad ' +
+      fmt(transEurMwh('ee80_gas_ccs'), 1) + ' €/MWh, weil dort mehr fluktuierende Arbeit zu ' +
+      'transportieren ist. <strong>Der neue Sockel hat diesen Anteil bereits gesenkt</strong> — vor ' +
+      'Modellversion 0.2c waren es 11,2 €/MWh und 62 % — er ist aber selbst eine Setzung (' +
       fmt(Number(S.params.system.grid.transmission_socket_share.value), 2) + ' ' + confBadge('M') +
-      ', <a href="#kap-3">Kapitel 3</a>). Wählt man stattdessen die Sensitivitätsränder ' +
+      ', <a href="#kap-3">Kapitel 3</a>) und kostet dieses Paar ' + fmt(socketDelta, 1) + ' €/MWh ' +
+      'Vorsprung. Wählt man die Sensitivitätsränder ' +
       fmt(Number(S.params.system.grid.transmission_socket_share.min), 2) + ' bzw. ' +
-      fmt(Number(S.params.system.grid.transmission_socket_share.max), 2) + ', verschiebt sich der ' +
-      'offene Vergleich Kernkraft ↔ Gas ohne CCS über die ganze Breite von −2,3 bis +4,5 €/MWh — ' +
-      'er dreht also allein an dieser Zahl. Das gehört neben jede Zitierung dieser Tabelle.'
+      fmt(Number(S.params.system.grid.transmission_socket_share.max), 2) + ', wandert der offene ' +
+      'Vergleich ohne CCS über die ganze Breite von −2,3 bis +4,5 €/MWh: Diese eine Zahl dreht die ' +
+      'Rangfolge allein. Das gehört neben jede Zitierung dieser Tabelle.'
     : '';
 
   /* (2) Vollstaendige Matrix - Expertenteil im <details> */
@@ -4845,6 +4880,23 @@ function renderMcChapter() {
     'Netzseite stärker als die Speicher- und Wasserstoffseite; die nächstgelegenen Analoga wären ' +
     'Wasserkraft (+' + fmt((ko.technologien.wasserkraft.flyvbjerg - 1) * 100, 0) + ' %) und nukleare ' +
     'Endlagerung (+' + fmt((ko.technologien.nukleare_endlagerung.flyvbjerg - 1) * 100, 0) + ' %). ' +
+    /* V3: Die beiden Kernzahlen des Ueberschreitungs-Laufs, datengebunden -
+       sie haben sich mit v0.2c deutlich verschoben (aus „0 %" wurden 3,2 %,
+       aus 4,3 % ein Muenzwurf). */
+    (() => {
+      const ro = (S.mcRef.rank_probabilities.overrun || []);
+      const a = ro.find(r => r.a === 'kostenminimum' && r.b === 'ee80_gas');
+      const c = ro.find(r => r.a === 'kostenminimum_ccs' && r.b === 'ee80_gas_ccs');
+      if (!a || !c) return '';
+      return '<br><br><strong>Was der Schalter am Ergebnis ändert.</strong> Ohne Abscheidung fällt ' +
+        'der Kernkraft-Pfad klar zurück: günstiger in nur ' + fmt(a.p_a_cheaper * MC_N_DRAWS, 0) +
+        ' von ' + fmt(MC_N_DRAWS, 0) + ' Ziehungen. Auf der emissionsgleicheren CCS-Ebene wird daraus ' +
+        'ein <strong>Münzwurf</strong> (' + fmt(c.p_a_cheaper * MC_N_DRAWS, 0) + ' von ' +
+        fmt(MC_N_DRAWS, 0) + ', typischer Unterschied ' + fmt(Math.abs(c.median_diff_a_minus_b), 1) +
+        ' €/MWh). Vor der Korrektur der Anwendungsregel standen an dieser Stelle „0 %“ und „4 %“ — ' +
+        'beide Zahlen stammten aus der nicht-monotonen Abbildung mit Doppelzählung und sind ' +
+        'überholt. ';
+    })() +
     'Ergebnisse aus dieser Konfiguration ohne diesen Hinweis zu zitieren, wäre unredlich ' +
     '(Limitation <code>overrun_asymmetry</code>). Seit v0.2 wirkt der Faktor außerdem nur noch auf ' +
     'CAPEX-Anker, die tatsächlich eine <em>Entscheidungsschätzung</em> sind — auf bereits ' +
