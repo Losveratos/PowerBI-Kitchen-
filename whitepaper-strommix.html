@@ -51,7 +51,13 @@
   p{margin:0 0 14px}
   a{color:var(--teal-text)}
   ul,ol{margin:0 0 14px;padding-left:22px} li{margin-bottom:6px}
-  code{font-family:'JetBrains Mono',monospace;font-size:13.5px;background:#F0EFE9;padding:1.5px 5px;border-radius:4px}
+  /* Lange Feldpfade (z. B. nuclear_capex_contrast.rationale_not_in_base_range)
+     duerfen auf 390 px umbrechen, sonst schiebt ein einziges <code> die Seite auf.
+     `break-word` und NICHT `anywhere`: `anywhere` wuerde auch die
+     min-content-Breite senken und laesst Tabellenspalten mit Feld-IDs
+     buchstabenweise zusammenfallen. */
+  code{font-family:'JetBrains Mono',monospace;font-size:13.5px;background:#F0EFE9;padding:1.5px 5px;
+       border-radius:4px;overflow-wrap:break-word}
   hr{border:none;border-top:1px solid var(--line);margin:36px 0}
   em{color:var(--soft)}
   .anchor-alias{display:block;height:0;overflow:hidden}
@@ -251,8 +257,8 @@
   <p class="hero-sub">Ein nachrechenbares Modell für ein klimaneutrales, bezahlbares und
   versorgungssicheres deutsches Stromsystem. Alle Schieberegler rechnen live — mit demselben
   Modell, das auch die Python-Skripte im Repository verwenden.</p>
-  <div class="hero-meta">Michael Tenner · Daten-WG · Stand August 2026 · v0.10 (Entwurf) · Lesezeit ca. 25 Minuten,
-  mit den Simulationen deutlich länger</div>
+  <div class="hero-meta">Michael Tenner · Daten-WG · Stand August 2026 · v0.11 (Entwurf) · Modell v0.2b ·
+  Lesezeit ca. 25 Minuten, mit den Simulationen deutlich länger</div>
 </header>
 
 <div class="wrap">
@@ -262,8 +268,9 @@
 <!-- ====================================================== EXECUTIVE SUMMARY -->
 <section class="summary-box" id="summary">
   <h2>Executive Summary</h2>
-  <p class="summary-lead">Sieben Aussagen, die dieses Papier belegt — mit Konfidenzstufe, Quelle und
-  einer ehrlichen Angabe, wie sicher sie jeweils sind. Wer nur zwei Minuten hat, liest bis hier.</p>
+  <p class="summary-lead">Die Aussagen, die dieses Papier belegt — mit Konfidenzstufe, Quelle und
+  einer ehrlichen Angabe, wie sicher sie jeweils sind. Die letzten drei erscheinen, sobald die
+  Monte-Carlo-Rechnung im Hintergrund durch ist. Wer nur zwei Minuten hat, liest bis hier.</p>
   <div id="exec-list"></div>
 </section>
 
@@ -290,17 +297,18 @@
     <li><a href="#kap-3"><span class="n">3</span><span><span class="t">Methodik</span>
       <span class="d">Das Drei-Ebenen-Modell, die Validierung gegen publizierte Werte, die Konfidenzstufen.</span></span></a></li>
     <li><a href="#kap-4"><span class="n">4</span><span><span class="t">Was kostet Strom</span>
-      <span class="d">LCOE-Rechner je Technologie: CAPEX, WACC, Volllaststunden, CO₂-Preis, Bauzinsen.</span></span></a></li>
+      <span class="d">LCOE-Rechner je Technologie: CAPEX, WACC, Volllaststunden, CO₂-Preis, Bauzinsen, CO₂-Abscheidung.</span></span></a></li>
     <li><a href="#kap-5"><span class="n">5</span><span><span class="t">Geht der Mix auf</span>
-      <span class="d">Stündliche Dispatch-Simulation, Speicher, Backup, Abregelung, System-LSCOE.</span></span></a></li>
+      <span class="d">Stündliche Dispatch-Simulation, Speicher, Backup mit und ohne CCS, Abregelung, Emissionen, System-LSCOE.</span></span></a></li>
     <li><a href="#kap-6"><span class="n">6</span><span><span class="t">Unsicherheit und Monte Carlo</span>
-      <span class="d">1.000 Ziehungen je Szenario statt eines Punktwerts — und was das über die Rangfolge sagt.</span></span></a></li>
+      <span class="d">1.000 gepaarte Ziehungen je Konfiguration statt eines Punktwerts — und wie wahrscheinlich
+      welche Rangfolge ist.</span></span></a></li>
     <li><a href="#kap-7"><span class="n">7</span><span><span class="t">Risiken und Ehrlichkeit</span>
-      <span class="d">Dunkelflaute, Kostenüberschreitungen, Lieferketten, Endlagerung — beide Seiten.</span></span></a></li>
+      <span class="d">Dunkelflaute, Kostenüberschreitungen, Marktdesign, Lieferketten, Endlagerung — beide Seiten.</span></span></a></li>
     <li><a href="#kap-8"><span class="n">8</span><span><span class="t">Diskussion und Fazit</span>
-      <span class="d">Die GES-Studie als Fallstudie, dann sechs belastbare Aussagen.</span></span></a></li>
+      <span class="d">Die GES-Studie als Fallstudie, dann sieben belastbare Aussagen.</span></span></a></li>
     <li><a href="#kap-9"><span class="n">9</span><span><span class="t">Limitationen</span>
-      <span class="d">Was dieses Modell nicht kann, welche Daten fehlen, wo Ergebnisse Untergrenzen sind.</span></span></a></li>
+      <span class="d">Was dieses Modell nicht kann, welche Daten fehlen, wo Ergebnisse Untergrenzen sind — inklusive der maschinenlesbaren Limitationsliste.</span></span></a></li>
     <li><a href="#anhang"><span class="n">A</span><span><span class="t">Anhang</span>
       <span class="d">Quellenverzeichnis mit Zugriffsdatum, Methodik-Details und Rohdaten im Repository.</span></span></a></li>
   </ul>
@@ -619,6 +627,12 @@ schöngerechnet.</p>
         <div class="hint" id="mx-scen-hint"></div></div>
       <div class="ctl"><label for="mx-co2">CO₂-Preis <span class="val" id="mx-co2-v"></span></label>
         <input type="range" id="mx-co2" min="0" max="400" step="5" value="75"></div>
+      <div class="ctl"><label for="mx-gastech">Backup-Technologie</label>
+        <select id="mx-gastech">
+          <option value="gas_ccgt">Gas GuD ohne Abscheidung</option>
+          <option value="gas_ccs">Gas GuD mit CO₂-Abscheidung (CCS)</option>
+        </select>
+        <div class="hint" id="mx-gastech-hint"></div></div>
       <div class="ctl">
         <label class="switch"><input type="checkbox" id="mx-gasauto" checked>
           Gas-Backup automatisch auf den gemessenen Spitzenbedarf auslegen</label>
@@ -650,9 +664,11 @@ verschwindet.</p>
 
 <div class="chartbox">
   <h4>System-LSCOE — woraus sich der Strompreis zusammensetzt</h4>
-  <p class="chart-sub">LSCOE = <em>Levelized System Cost of Electricity</em>: alle Kosten des Systems,
-  geteilt durch die tatsächlich gedeckte Last. Anders als LCOE enthält es Backup, Speicher, Netz und
-  die Verluste durch Abregelung. <span class="simlabel simdata"></span></p>
+  <p class="chart-sub">LSCOE = <em>Levelized System Cost of Electricity</em>: die Kosten des
+  modellierten Erzeugungs-, Speicher- und Netz<em>ausbaus</em>, geteilt durch die tatsächlich gedeckte
+  Last. Anders als LCOE enthält es Backup, Speicher, Netz und die Verluste durch Abregelung.
+  <span class="simlabel simdata"></span></p>
+  <div class="note" id="lscoe-scope-note"></div>
   <div class="scrollx"><svg id="chart-lscoe" class="chart" role="img" aria-label="Aufschlüsselung des System-LSCOE"></svg></div>
   <div class="legend" id="legend-lscoe"></div>
 </div>
@@ -662,16 +678,26 @@ verschwindet.</p>
 <!-- ================================================================ KAPITEL 6 -->
 <h2 id="kap-6"><span class="kapnum">6</span>Unsicherheit und Monte Carlo</h2>
 
-<p>Bis hierher zeigt jedes Szenario einen Punktwert: 141&nbsp;€/MWh, 197&nbsp;€/MWh, 271&nbsp;€/MWh.
+<p>Bis hierher zeigt jedes Szenario einen Punktwert. <span id="mc-intro-points"></span>
 Diese Zahlen entstehen, indem <em>jeder</em> Parameter auf seinen Zentralwert gesetzt wird. Das ist
 eine legitime Rechnung — aber sie sagt nichts darüber, wie sicher das Ergebnis ist. Denn kein
 einziger dieser Parameter ist ein Punktwert: In <code>model_params.json</code> steht zu jedem eine
 Spanne aus den Dossiers.</p>
 
 <p>Die Monte-Carlo-Simulation zieht diese Spannen gleichzeitig. Statt eines Balkens je Szenario
-entsteht eine <strong>Verteilung</strong> — und die interessante Frage ist nicht mehr „welches
-Szenario ist billiger“, sondern: <strong>Überlappen sich die Verteilungen?</strong> Wenn ja, ist die
-Rangfolge der Szenarien nicht entschieden, egal wie eindeutig die Punktwerte aussehen.</p>
+entsteht eine <strong>Verteilung</strong>. Wie die daraus folgende Rangfolge zu lesen ist, hat sich
+mit Modellversion 0.2 geändert — und das ist die wichtigste methodische Korrektur dieses Papiers.</p>
+
+<div class="note warn" id="mc-paired-note">
+  <strong>Korrektur gegenüber v0.10: Überlappende Bänder sind kein Argument.</strong>
+  Frühere Fassungen dieses Kapitels haben gefragt, ob sich die Verteilungen zweier Szenarien
+  überlappen, und aus einer Überlappung geschlossen, die Rangfolge sei „nicht entschieden“. Das ist
+  ein bekannter Fehlschluss: Zwei Randverteilungen können sich weit überlappen, während die
+  <em>Differenz</em> beider Größen fast nie das Vorzeichen wechselt — nämlich immer dann, wenn beide
+  Szenarien von denselben Unsicherheiten in dieselbe Richtung getrieben werden. Genau das ist hier
+  der Fall: PV-CAPEX, Zins und Gaspreis wirken auf alle Szenarien zugleich.
+  <span id="mc-paired-fix"></span>
+</div>
 
 <div class="card">
   <p class="card-t">Monte-Carlo-Rechner</p>
@@ -685,9 +711,19 @@ Rangfolge der Szenarien nicht entschieden, egal wie eindeutig die Punktwerte aus
         genau das wird hier sichtbar.</div>
       </div>
       <div class="ctl">
+        <label class="switch"><input type="checkbox" id="mc-co2">
+          CO₂-Preis als Unsicherheit mitziehen</label>
+        <div class="hint" id="mc-co2-hint"></div>
+      </div>
+      <div class="ctl">
         <label class="switch"><input type="checkbox" id="mc-overrun">
           empirische Kostenüberschreitung einrechnen</label>
         <div class="hint" id="mc-overrun-hint"></div>
+      </div>
+      <div class="ctl">
+        <label class="switch"><input type="checkbox" id="mc-asia">
+          Kontrast: Kernkraft-CAPEX aus dem Cluster Asien/Golf</label>
+        <div class="hint" id="mc-asia-hint"></div>
       </div>
     </div>
     <div>
@@ -696,15 +732,15 @@ Rangfolge der Szenarien nicht entschieden, egal wie eindeutig die Punktwerte aus
       demselben Startwert. Beide Ergebnisse müssen übereinstimmen; geprüft wird das automatisch beim
       Laden dieser Seite (Badge im Fußbereich).</p>
       <div class="runbar">
-        <button class="btn" id="mc-run" type="button" disabled>1.000 Szenarien durchspielen</button>
+        <button class="btn" id="mc-run" type="button" disabled>alle Konfigurationen durchspielen</button>
         <span class="st" id="mc-progress">rechnet …</span>
       </div>
-      <p style="font-size:13px;color:var(--soft);margin:10px 0 0">Die Regler aus Kapitel 5 wirken hier
-      <em>nicht</em>: Die Monte-Carlo-Rechnung läuft immer auf den fünf Szenario-Presets, damit die
-      Verteilungen untereinander vergleichbar bleiben.</p>
+      <p style="font-size:13px;color:var(--soft);margin:10px 0 0" id="mc-scope-note"></p>
     </div>
   </div>
 </div>
+
+<div class="note" id="mc-config-note"></div>
 
 <div class="chartbox">
   <h4>Verteilung des System-LSCOE je Szenario</h4>
@@ -713,15 +749,27 @@ Rangfolge der Szenarien nicht entschieden, egal wie eindeutig die Punktwerte aus
   <div class="legend" id="legend-mc"></div>
 </div>
 
+<h3>Wie wahrscheinlich ist welche Rangfolge?</h3>
+<p id="mc-rank-intro"></p>
+
+<div class="chartbox">
+  <h4>Rangwahrscheinlichkeiten P(A günstiger als B)</h4>
+  <p class="chart-sub" id="mc-rank-sub"></p>
+  <div class="scrollx" id="table-mc-ranks"></div>
+</div>
+
 <div class="note warn" id="mc-finding"></div>
 
 <div class="chartbox">
   <h4>Alle Szenarien im Vergleich</h4>
   <p class="chart-sub">Punktwert = Ergebnis mit allen Parametern auf dem Zentralwert (das, was in
   Kapitel 5 angezeigt wird). P50 = Median der 1.000 Ziehungen. Die Klammer P5–P95 enthält 90&nbsp;%
-  der Ziehungen.</p>
+  der Ziehungen. Die Spalte „Mt CO₂/a“ macht sichtbar, dass die Zeilen <em>nicht</em>
+  emissionsäquivalent sind — die CCS-Varianten sind der Versuch, das zu heilen.</p>
   <div class="scrollx" id="table-mc"></div>
 </div>
+
+<div class="note" id="mc-contrast"></div>
 
 <div class="note" id="mc-method"></div>
 
@@ -760,6 +808,16 @@ Kernkraftwerk ist ein weitgehend einzigartiges Bauwerk.</p>
 </div>
 
 <div class="note warn" id="overrun-note"></div>
+
+<h3 id="marktdesign">Wer baut die Reserve? Marktdesign als unbepreiste Voraussetzung</h3>
+<p>Jedes Szenario dieses Papiers stellt einen thermischen Backup-Park bereit, der nur wenige hundert
+bis knapp zweitausend Stunden im Jahr läuft. Im reinen Energy-Only-Markt entsteht ein solcher Park
+nicht: Wer nur über wenige Stunden Deckungsbeiträge verdient, refinanziert seine Investition nicht
+— das ist das <em>Missing-Money-Problem</em>. Die LSCOE-Zahlen oben unterstellen die Anlagen also
+als vorhanden, ohne das Instrument mitzurechnen, das sie hervorbringen müsste.</p>
+
+<div class="grid2" id="tiles-marktdesign"></div>
+<div class="note warn" id="marktdesign-note"></div>
 
 <h3>Lieferketten — wo hängt was?</h3>
 <div class="grid2" id="tiles-supply"></div>
@@ -824,7 +882,7 @@ Kernkraftwerk ist ein weitgehend einzigartiges Bauwerk.</p>
   </div>
 </div>
 
-<h3 id="fazit">8.2 · Sechs belastbare Aussagen</h3>
+<h3 id="fazit">8.2 · Sieben belastbare Aussagen</h3>
 <p>Ausführliche Fassung der Kernaussagen aus dem Executive Summary — mit den Zahlen, die dahinter
 stehen, und der jeweiligen Gegenrichtung, wo es eine gibt.</p>
 <div id="fazit-list"></div>
@@ -839,6 +897,13 @@ die es prüft.</p>
 
 <h3>Bewusste Vereinfachungen</h3>
 <ul id="lim-simplifications"></ul>
+
+<h3>Maschinenlesbare Modell-Limitationen</h3>
+<p>Diese Liste steht nicht in diesem HTML, sondern in
+<code>strommix/data/monte_carlo_reference.json</code> unter <code>meta.limitations</code> und wird
+hier unverändert wiedergegeben — inklusive Schweregrad und betroffenen Szenarien. Wer das Modell
+nachrechnet, bekommt dieselbe Liste als Datei.</p>
+<div class="scrollx" id="table-model-limits"></div>
 
 <h3>Dokumentierte Datenlücken</h3>
 <p>Diese Lücken stehen maschinenlesbar in <code>strommix/data/model_params.json</code> unter
@@ -896,7 +961,7 @@ Recherche-Dossiers und Rohdaten liegen vollständig im Repository:</p>
     <a href="datenschutz.html">Datenschutz</a>
   </div>
   <p style="margin:0">Michael Tenner · Daten-WG · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a>
-  · August 2026 · v0.10</p>
+  · August 2026 · v0.11 · Modell v0.2b</p>
 </div></footer>
 
 <div class="pop" id="pop"></div>

@@ -92,12 +92,38 @@ const DE_ASCII = [
   ['ueberzeichnet', 'überzeichnet'], ['UEBERschaetzt', 'ÜBERschätzt'],
   ['ueberschaetzt', 'überschätzt'], ['unterschaetzt', 'unterschätzt'],
   ['veroeffentlicht', 'veröffentlicht'], ['Uebergangsloesung', 'Übergangslösung'],
-  ['Ueberschreitung', 'Überschreitung'], ['Groesse', 'Größe']
+  ['Ueberschreitung', 'Überschreitung'], ['Groesse', 'Größe'],
+  /* v0.2/v0.2b: Woerter aus den jetzt woertlich uebernommenen Feldern
+     (monte_carlo_reference.meta.limitations / nuclear_capex_contrast,
+     page_data.kraftwerksstrategie). Eintraege wirken als Wortpraefix. */
+  ['Anfangsfuellung', 'Anfangsfüllung'], ['Begruendung', 'Begründung'], ['Bloecken', 'Blöcken'],
+  ['Datenluecke', 'Datenlücke'], ['Erklaerung', 'Erklärung'], ['Ingenieurloehne', 'Ingenieurlöhne'],
+  ['Investitionsannuitaet', 'Investitionsannuität'], ['Kapazitaet', 'Kapazität'],
+  ['Kostenueberschreitung', 'Kostenüberschreitung'], ['Luecke', 'Lücke'],
+  ['Sommerueberschuss', 'Sommerüberschuss'], ['Speicherstaette', 'Speicherstätte'],
+  ['Uebertragbarkeit', 'Übertragbarkeit'], ['Uebertragung', 'Übertragung'],
+  ['Verfuegbarkeit', 'Verfügbarkeit'], ['befuellt', 'befüllt'], ['begruendete', 'begründete'],
+  ['beguenstigt', 'begünstigt'], ['dafuer', 'dafür'], ['eingeschraenkte', 'eingeschränkte'],
+  ['emissionsaequivalent', 'emissionsäquivalent'], ['europaeische', 'europäische'],
+  ['faellt', 'fällt'], ['gefuellt', 'gefüllt'], ['gehoeren', 'gehören'],
+  ['gepruefte', 'geprüfte'], ['jaehrlich', 'jährlich'], ['niederlaendische', 'niederländische'],
+  ['oekonomisch', 'ökonomisch'], ['raeumliche', 'räumliche'], ['ruesten', 'rüsten'],
+  ['staerker', 'stärker'], ['staerksten', 'stärksten'], ['verfuegbarkeit', 'verfügbarkeit'],
+  ['wasserstofffaehige', 'wasserstofffähige'], ['woertlich', 'wörtlich'], ['wuerde', 'würde'],
+  ['zusaetzlich', 'zusätzlich'],
+  /* Einheiten aus maschinenlesbaren Feldern lesbar machen. */
+  ['EUR/kW', '€/kW'], ['EUR/MWh', '€/MWh'], ['EUR/t', '€/t'], ['Mrd. EUR', 'Mrd. €']
 ];
+/* Wortstaemme, die auch OHNE Wortgrenze ersetzt werden duerfen, weil die
+   ASCII-Folge im Deutschen sonst nicht vorkommt. Noetig, weil die
+   Praefixregel oben bei zusammengesetzten Woertern nicht greift
+   (z. B. "ueberschaetzt" wird zuerst zu "überschaetzt"). */
+const DE_ASCII_SUB = [['schaetz', 'schätz'], ['Schaetz', 'Schätz']];
 function deAscii(t) {
   if (!t) return t;
   let out = String(t);
   DE_ASCII.forEach(([a, b]) => { out = out.replace(new RegExp('\\b' + a, 'g'), b); });
+  DE_ASCII_SUB.forEach(([a, b]) => { out = out.split(a).join(b); });
   return out;
 }
 
@@ -1251,12 +1277,42 @@ function applySimLabels() {
   });
 }
 
+/* Die Netzkostenregel in einem Absatz - v0.2 (M3). Wird in Kapitel 3 und in den
+   Limitationen (Kapitel 9) an derselben Stelle gebraucht; die Zahlen kommen aus
+   `system.grid`, damit sie nur einmal existieren. */
+function gridRuleText() {
+  const g = S.params.system.grid;
+  const t = g.transmission_bn_eur_until_2045, d = g.distribution_bn_eur_until_2045;
+  return 'Netzkosten gehen weiterhin top-down ein, seit Modellversion 0.2 aber <strong>in zwei ' +
+    'Blöcken statt linear</strong>: <strong>' + fmt(t.value, 0) + '&nbsp;Mrd.&nbsp;€ Übertragungsnetz</strong> ' +
+    confBadge(t.confidence) + ' skalieren mit der <em>genutzten</em> fEE-Arbeit (abgeregelte Energie ' +
+    'zählt nicht mehr mit), <strong>' + fmt(d.value, 0) + '&nbsp;Mrd.&nbsp;€ Verteilnetz</strong> ' +
+    confBadge(d.confidence) + ' dagegen mit dem Jahresbedarf gegen einen Referenzbedarf von ' +
+    fmt(g.reference_demand_twh.value, 0) + '&nbsp;TWh — als <strong>mixunabhängiger Sockel</strong>, weil ' +
+    'dieser Block von der Elektrifizierung der Nachfrage getrieben wird (Wärmepumpen, Ladepunkte, ' +
+    'Industrieanschlüsse), nicht von der Erzeugungsstruktur. Beide Faktoren sind auf 1,00 gedeckelt; ' +
+    'ein Szenario kann nicht mehr als das gesamte nationale Netzbudget tragen. ' + cite('imk-netzkosten') +
+    ' Die alte Regel (' + fmt(g.investment_bn_eur_until_2045.value, 0) + '&nbsp;Mrd.&nbsp;€ linear mit dem ' +
+    'fEE-Anteil, wie in der GES-Studie) ist als Vergleichslauf <code>grid_cost_basis = ' +
+    '"legacy_fee_linear"</code> weiter rechenbar. <strong>Der Preis dieser Korrektur:</strong> Die ' +
+    'Begründung „dieselbe Vereinfachung wie GES, also direkt vergleichbar“ trägt für den Netzblock ' +
+    'nicht mehr — der Netzvergleich mit der Studie ist jetzt ein Vergleich zweier verschiedener ' +
+    'Regeln. Die <strong>Zuordnung</strong> der Treiber (Transport → Übertragung, Elektrifizierung → ' +
+    'Verteilung) ist dabei eine Setzung ' + confBadge('M') + ', auch wenn die beiden Volumina belegt sind. ' +
+    'Abgeschrieben wird über ' + fmt(g.lifetime_years.value, 0) + '&nbsp;Jahre — ebenfalls eine ' +
+    'Modellannahme ohne Quellenbeleg ' + confBadge('M') + '.';
+}
+
+/* Zahl der Presets im Monte Carlo - aus der Referenz, nicht hartkodiert. */
+function MC_PRESET_COUNT_HINT() {
+  return (S.mcRef && S.mcRef.preset_order) ? S.mcRef.preset_order.length : '–';
+}
+
 /* Kapitel 3 - Methodik. Alle Zahlen aus den Daten, keine im Markup. */
 function renderMethodik() {
   const G = S.page.ges;
   const vecCount = ['crf', 'idc', 'lcoe', 'mix'].reduce((a, k) => a + (S.vectors[k] || []).length, 0);
   const pm = S.page.profiles_meta;
-  const val = S.params.system.grid;
 
   $('#meth-validation').innerHTML = [
     '<strong>Gegen die geprüfte Studie.</strong> Mit den Annahmen der GES-Studie reproduziert das ' +
@@ -1278,21 +1334,33 @@ function renderMethodik() {
 
   $('#meth-mc').innerHTML = 'Die Monte-Carlo-Rechnung in Kapitel 6 zieht ' +
     mcDrawPlan(S.params).length + ' Parameter gleichzeitig als Dreiecksverteilung, ' +
-    fmt(MC_N_DRAWS, 0) + '-mal je Szenario, mit festem Startwert und einem eigenen ' +
-    'Zufallszahlengenerator — damit Python-Referenz und Browser bitgleich dieselbe Ziehungsfolge ' +
-    'erzeugen. Die zentrale Vereinfachung dabei: Der stündliche Dispatch wird je Szenario einmal ' +
-    'gerechnet und wiederverwendet, die Ziehungen wirken nur auf die Kostenseite. Was das genau ' +
-    'bedeutet und was <em>nicht</em> variiert wird, steht in Kapitel 6 und in den Limitationen.';
+    fmt(MC_N_DRAWS, 0) + '-mal <strong>je Konfiguration</strong>, mit festem Startwert und einem ' +
+    'eigenen Zufallszahlengenerator — damit Python-Referenz und Browser bitgleich dieselbe ' +
+    'Ziehungsfolge erzeugen. <strong>Neu in Modellversion 0.2: gepaarte Ziehungen.</strong> Früher zog ' +
+    'jedes Szenario seinen eigenen Zufallsstrom; ein günstiger PV-Preis in der einen Welt hatte keine ' +
+    'Entsprechung in der anderen. Jetzt läuft je Konfiguration <em>ein</em> Ziehungsstrom, und jede ' +
+    'einzelne Ziehung wird auf <em>alle</em> ' + MC_PRESET_COUNT_HINT() + ' Szenarien angewandt — ' +
+    'derselbe PV-Preis, derselbe Zins, derselbe Gaspreis in jeder Welt (in der Literatur: ' +
+    '<em>common random numbers</em>). Erst dadurch wird die <strong>Differenz</strong> zweier ' +
+    'Szenarien je Ziehung berechenbar, und aus ihr die Wahrscheinlichkeit, dass A günstiger ist als B. ' +
+    'Die zentrale Vereinfachung bleibt: Der stündliche Dispatch wird je Szenario einmal gerechnet und ' +
+    'wiederverwendet, die Ziehungen wirken nur auf die Kostenseite. Was das genau bedeutet und was ' +
+    '<em>nicht</em> variiert wird, steht in Kapitel 6 und in den Limitationen.';
 
   $('#meth-repro').innerHTML = 'Diese Seite rechnet nichts, was nicht auch offline nachrechenbar wäre: ' +
     'Modell (<code>scripts/model.py</code>), Parametersatz (<code>data/model_params.json</code>, jeder ' +
     'Wert mit Spanne, Einheit, Quelle und Konfidenzstufe), Profile (<code>data/profiles_2024.json</code>, ' +
     'aktuell <code>' + pm.data_completeness + '</code> mit ' + S.profiles.hours + ' Stunden) und die ' +
     'Referenzläufe liegen im Repository — Details und Links im <a href="#anhang">Anhang</a>. ' +
-    'Netzkosten gehen top-down mit ' + fmt(val.investment_bn_eur_until_2045.value, 0) + '&nbsp;Mrd.&nbsp;€ ' +
-    'Investitionsvolumen ein ' + confBadge(val.investment_bn_eur_until_2045.confidence) +
-    ', linear mit dem fEE-Anteil skaliert — dieselbe Vereinfachung wie in der GES-Studie, inklusive ' +
-    'derselben Limitation.';
+    gridRuleText() +
+    '<br><br><strong>Wozu die Systemkosten-Kennzahl dieses Papiers gehört.</strong> Dass ein ' +
+    'LCOE-Punktwert fluktuierende und disponible Erzeugung nicht vergleichbar macht, ist keine ' +
+    'Entdeckung dieses Papiers, sondern seit Joskow (2011) Standard ' + cite('joskow-2011') +
+    '; die Kennzahl „System-LCOE“ und die Zerlegung in Profil-, Ausgleichs- und Netzkosten stammt ' +
+    'von Ueckerdt et al. (2013) ' + cite('ueckerdt-2013') + '. Das LSCOE dieses Papiers ist eine ' +
+    '<em>engere</em> Systemgrenze als dort: Es enthält nur den modellierten Ausbau, nicht das ' +
+    'Bestandsnetz, dessen Betrieb, Redispatch, Regelleistung, Steuern und Abgaben. Es ist damit ' +
+    'kein Endkundenpreis und auch nicht mit einem Arbeitspreis vergleichbar.';
 
   /* Der CRF-Hebel in Kapitel 4: Zahlen aus den Daten statt im Markup. */
   const ws = S.page.wacc_sensitivity.wacc_effect_at_60y;
@@ -1508,6 +1576,9 @@ const LCOE_TECHS = [
   { key: 'wind_offshore',  label: 'Wind offshore', color: PAL.windoff },
   { key: 'nuclear',        label: 'Kernkraft (EU-Neubau)', color: PAL.band },
   { key: 'gas_ccgt',       label: 'Gas GuD', color: PAL.gas },
+  /* v0.2b: Die geprüfte Studie rechnet ihren Gas-Pfad mit Abscheidung — ohne diese
+     Zeile vergleicht das Kapitel zwei verschiedene Emissionsniveaus. */
+  { key: 'gas_ccs',        label: 'Gas GuD + CCS', color: '#a8622f' },
   { key: 'gas_ocgt',       label: 'Gas OCGT (Peaker)', color: '#c9793c' }
 ];
 
@@ -1550,7 +1621,7 @@ function lcoeRefs(key) {
     push(G.nuclear.lcoe, PAL.accent, 'Annahme der GES-Studie: ' + G.nuclear.lcoe + ' €/MWh (6.000 €/kW, 8.000 h)');
   } else if (key === 'pv_dach_gross') {
     push(B.pv_freiflaeche.reference.max, PAL.soft, 'Fraunhofer ISE 2024 (PV gesamt), obere Grenze Freifläche', '3 3');
-  } else if (key === 'gas_ccgt') {
+  } else if (key === 'gas_ccgt' || key === 'gas_ccs') {
     push(B.gas_ccgt.de_new.min, PAL.soft, 'FÖS 2025, Neubau DE inkl. Brennstoff, untere Grenze: ' + B.gas_ccgt.de_new.min + ' €/MWh', '3 3');
     push(B.gas_ccgt.de_new.max, PAL.soft, 'FÖS 2025, Neubau DE inkl. Brennstoff, obere Grenze: ' + B.gas_ccgt.de_new.max + ' €/MWh', '3 3');
   }
@@ -1635,6 +1706,8 @@ function updateLcoe() {
   const pv = rows.find(r => r.key === 'pv_freiflaeche');
   const hpc = S.page.lcoe_benchmarks.nuclear.third_party.find(x => x.source_id === 'iwr-hinkley-2026');
   const auc = S.page.lcoe_benchmarks.pv_freiflaeche.auction;
+  /* v0.2: Der Gaspreis ist jetzt ein Parameter mit Spanne, kein Loch mehr. */
+  const gf = techParam('gas_ccgt', 'fuel_eur_mwh_th');
   $('#lcoe-note').innerHTML = '<strong>Was der Regler gerade zeigt.</strong> Bei WACC ' +
     fmt(LC.wacc * 100, 1) + ' % und ' + fmt(LC.co2, 0) + ' €/t CO₂ liegt der Zentralwert für Kernkraft bei <strong>' +
     fmt(nuc.value, 0) + ' €/MWh</strong>, für PV Freifläche bei <strong>' + fmt(pv.value, 0) + ' €/MWh</strong>. ' +
@@ -1647,18 +1720,44 @@ function updateLcoe() {
     fmt(auc.mid, 1) + ' €/MWh</strong> Zuschlagswert ' +
     confBadge(auc.confidence) + cite('bnetza-pv-2026-03') + ' — das ist ein Marktpreis, kein Modellwert, und ' +
     'eher eine Obergrenze der Betreiber-Vollkosten über 20 Jahre.' +
-    '<br><br><strong>Wichtig für den Vergleich mit den Gaslinien:</strong> Für Erdgas fehlt in allen ' +
-    'Dossiers ein Brennstoffpreis (<code>gaps.gaspreis_erdgas</code>). Die Modellwerte für Gas GuD und ' +
-    'Gas OCGT enthalten deshalb <strong>nur Kapital-, Fixbetriebs- und CO₂-Kosten</strong> und sind ' +
-    'ausgewiesene <strong>Untergrenzen</strong>. Die FÖS-Vergleichslinien (' +
+    '<br><br><strong>Wichtig für den Vergleich mit den Gaslinien — geändert in Modellversion 0.2.</strong> ' +
+    'Bis v0.1 hatte das Modell keinen Erdgas-Brennstoffpreis; die Gaswerte waren ausgewiesene ' +
+    'Untergrenzen und der Abstand zu den FÖS-Linien war keine Aussage, sondern eine Lücke. ' +
+    'Seit v0.2 ist der Brennstoff enthalten: <strong>' + fmt(gf.min, 0) + ' / ' + fmt(gf.mid, 0) +
+    ' / ' + fmt(gf.max, 0) + ' €/MWh<sub>th</sub></strong> ' + confBadge(gf.confidence) +
+    ', über den Wirkungsgrad in elektrische Kosten umgerechnet (bei η&nbsp;=&nbsp;' +
+    fmt(Number(pickVal(techParam('gas_ccgt', 'efficiency'), 'mid')), 2) + ' also ' +
+    fmt(gf.min / Number(pickVal(techParam('gas_ccgt', 'efficiency'), 'mid')), 0) + '–' +
+    fmt(gf.max / Number(pickVal(techParam('gas_ccgt', 'efficiency'), 'mid')), 0) + ' €/MWh<sub>el</sub>). ' +
+    'Damit werden die FÖS-Vergleichslinien (' +
     fmt(S.page.lcoe_benchmarks.gas_ccgt.de_new.min, 0) + '–' +
-    fmt(S.page.lcoe_benchmarks.gas_ccgt.de_new.max, 0) + ' €/MWh) enthalten den Brennstoff — ' +
-    'der Abstand ist kein Modellbefund, sondern diese Lücke.' + cite('foes-2025');
+    fmt(S.page.lcoe_benchmarks.gas_ccgt.de_new.max, 0) + ' €/MWh, inkl. Brennstoff) ' +
+    cite('foes-2025') + ' zum echten Vergleich statt zum Lückenanzeiger. ' +
+    '<strong>Der Beleg ist trotzdem schwächer als der Rest dieses Kapitels:</strong> Die Stützpunkte ' +
+    'sind Marktnotierungen (TTF-Frontmonat, Recherche 19.08.2026), keine institutionelle ' +
+    'Primärquelle, und ihre Übertragbarkeit auf ein Zieljahr 2045 ist eine Annahme ' + confBadge('C') +
+    '. Der Zentralwert liegt bewusst <em>unter</em> dem aktuellen Spot; die Krisenspitze 2022 ' +
+    '(über 200 €/MWh<sub>th</sub>) ist nicht in der Spanne.' +
+    '<br><br><strong>Warum Gas mit CCS in dieser Liste steht.</strong> Die geprüfte GES-Studie rechnet ' +
+    'ihren Gas-Pfad mit Abscheidung. Ohne diese Zeile vergliche das Kapitel Technologien mit sehr ' +
+    'unterschiedlichem Emissionsniveau. Die Abscheidung kostet hier dreimal: der CAPEX je kW steigt um ' +
+    'den Faktor ' + fmt(Number(pickVal(techParam('gas_ccs', 'capex_eur_kw'), 'mid')) /
+      Number(pickVal(techParam('gas_ccgt', 'capex_eur_kw'), 'mid')), 1) + ' ' +
+    confBadge(srcConfOf(techParam('gas_ccs', 'capex_eur_kw'))) + ', ein Wirkungsgradverlust ' +
+    '(η ' + fmt(Number(pickVal(techParam('gas_ccs', 'efficiency'), 'mid')), 2) + ' statt ' +
+    fmt(Number(pickVal(techParam('gas_ccgt', 'efficiency'), 'mid')), 2) + ') und der Vollkettensatz von ' +
+    fmt(Number(pickVal(techParam('gas_ccs', 'ccs_cost_eur_t'), 'mid')), 0) + ' €/t ' +
+    confBadge(srcConfOf(techParam('gas_ccs', 'ccs_cost_eur_t'))) + ' auf die abgeschiedene Menge. ' +
+    'Gutgeschrieben wird nur die vermiedene CO₂-Zahlung — die <strong>Restemission von ' +
+    fmt(Number(pickVal(techParam('gas_ccs', 'emission_factor_t_mwh'), 'mid')) * 1000, 0) +
+    ' g/kWh trägt weiterhin den vollen CO₂-Preis</strong>. CCS eliminiert Emissionen nicht.';
   buildCitations();
 }
 
 /* Konfidenzstufe einer Quelle aus dem Quellenregister (statt hartcodiert). */
 function srcConf(id) { return (S.srcIndex[id] || {}).confidence || 'C'; }
+/* Konfidenzstufe eines Parametereintrags aus model_params.json. */
+function srcConfOf(entry) { return (entry && entry.confidence) || 'C'; }
 
 function setLcoeTech(key) {
   LC.tech = key;
@@ -1839,7 +1938,11 @@ function renderPartB() {
 const MX = {
   demand: 950, pv: 0.30, won: 0.35, woff: 0.15, nuc: 0.0,
   batGw: 40, elyGw: 0, h2tGw: 0, h2sTwh: 0, fill: 0,
-  scen: 'mittel', co2: 75, gasAuto: true, week: 23, preset: 'ee80_gas', last: null
+  scen: 'mittel', co2: 75, gasAuto: true, week: 23, preset: 'ee80_gas', last: null,
+  /* v0.2/v0.2b: Bestandsbaender, Netzkostenbasis und Backup-Technologie sind
+     jetzt Teil des Zustands - sonst kann das Ist-2025-Preset den Anker aus
+     Kapitel 6 nicht abbilden (R12) und CCS nicht geschaltet werden (R21). */
+  bands: {}, gridBasis: 'buildout_2045', gasTech: 'gas_ccgt'
 };
 
 function feeSharesFromGw(feeGw, split) {
@@ -1857,8 +1960,15 @@ function mixPresets() {
   const mix25 = S.page.ist_mix['2025'].traeger_twh;
   const demand25 = (S.page.ist_mix['2025'].bruttostromverbrauch.low + S.page.ist_mix['2025'].bruttostromverbrauch.high) / 2;
   const bat25 = S.page.installierte_leistung_gw.batteriespeicher;
+  const lb = S.params.system.legacy_bands;
+  const gridIst = S.params.system.grid.ist_2025_eur_mwh;
+  /* Gemeinsame Rueckstellung: alles, was ein Preset NICHT setzt, muss auf den
+     Zukunftsszenario-Standard zurueckfallen - sonst schleppt der Simulator die
+     Baender oder die CCS-Einstellung des zuvor geklickten Presets mit. */
+  const future = () => { MX.bands = {}; MX.gridBasis = 'buildout_2045'; MX.gasTech = 'gas_ccgt'; };
   return [
-    { id: 'ist2025', label: 'Ist 2025', apply: () => {
+    { id: 'ist2025', label: 'Ist 2025 (Referenzsystem)', apply: () => {
+        future();
         MX.demand = Math.round(demand25 / 10) * 10;
         MX.pv = mix25.photovoltaik.wert / MX.demand;
         MX.won = mix25.wind_onshore.wert / MX.demand;
@@ -1866,12 +1976,30 @@ function mixPresets() {
         MX.nuc = 0; MX.batGw = Math.round(bat25.leistung_gw.high / 5) * 5;
         MX.elyGw = 0; MX.h2tGw = 0; MX.h2sTwh = 0; MX.fill = 0;
         MX.gasAuto = true; MX.scen = 'mittel';
+        /* R12: identisch zum Ist-Anker in Kapitel 6 - Bestandsbaender und
+           heutiges Netzentgelt statt Ausbau-Annuitaet. */
+        MX.bands = {
+          coal_band: lb.coal.generation_2025_twh.value,
+          biomass_band: lb.biomass.generation_2025_twh.value,
+          hydro_band: lb.hydro.generation_2025_twh.value
+        };
+        MX.gridBasis = 'ist_netzentgelt';
       },
       hint: 'Energieanteile aus der Bruttostromerzeugung 2025, Bedarf ' + fmt(Math.round(demand25 / 10) * 10, 0) +
-        ' TWh (Regler gerundet). <strong>Achtung:</strong> Das Modell leitet die Kapazitäten aus <em>Neuanlagen-</em>' +
-        'Volllaststunden ab und rechnet den Rest fossil als Backup — es bildet damit nicht die reale ' +
-        'Bestandsflotte 2025 ab, sondern ein hypothetisches System mit derselben Energiestruktur.' },
+        ' TWh (Regler gerundet). <strong>Dieses Preset ist seit v0.2 identisch zum Ist-Anker in ' +
+        '<a href="#kap-6">Kapitel&nbsp;6</a>:</strong> Kohle ' + fmt(lb.coal.generation_2025_twh.value, 0) +
+        ', Biomasse ' + fmt(lb.biomass.generation_2025_twh.value, 0) + ' und Wasserkraft ' +
+        fmt(lb.hydro.generation_2025_twh.value, 0) + ' TWh/a laufen als Bestandsbänder mit ' +
+        confBadge(lb.coal.generation_2025_twh.confidence) + ', und der Netzblock ist das heutige ' +
+        'Netzentgelt von ' + fmt(gridIst.value, 0) + ' €/MWh ' + confBadge(gridIst.confidence) +
+        ' statt der Investitionsannuität bis 2045. <strong>Deshalb ist der Wert nicht mit den vier ' +
+        'Zukunftsszenarien vergleichbar</strong> — andere Systemgrenze auf beiden Seiten: Die Bänder ' +
+        'tragen nur ihre CO₂-Kosten (Kapital und Betrieb der abgeschriebenen Bestandsflotte stehen in ' +
+        'keinem Dossier), das Netzentgelt dagegen enthält den Betrieb des Bestandsnetzes. Das Modell ' +
+        'leitet die fEE-Kapazitäten außerdem aus <em>Neuanlagen-</em>Volllaststunden ab; es bildet also ' +
+        'nicht die reale Bestandsflotte 2025 ab, sondern ein System mit derselben Energiestruktur.' },
     { id: 'kostenminimum', label: 'GES · Kostenminimum', apply: () => {
+        future();
         MX.demand = rec.demand_twh;
         const s = feeSharesFromGw(rec.scenarios.kostenminimum.fee_gw, split);
         MX.pv = s.pv; MX.won = s.wind_onshore; MX.woff = s.wind_offshore;
@@ -1882,7 +2010,20 @@ function mixPresets() {
       hint: 'Rekonstruktion des GES-Szenarios „Kostenminimum“: 90 GW fEE plus Kernkraft-Band. ' +
         'Gerechnet wird mit <strong>unseren</strong> Kostenparametern, nicht mit denen der Studie — ' +
         'genau das ist der Unterschied.' },
+    { id: 'kostenminimum_ccs', label: 'GES · Kostenminimum + CCS', apply: () => {
+        future();
+        MX.demand = rec.demand_twh;
+        const s = feeSharesFromGw(rec.scenarios.kostenminimum.fee_gw, split);
+        MX.pv = s.pv; MX.won = s.wind_onshore; MX.woff = s.wind_offshore;
+        MX.nuc = Math.max(0, 1 - (s.pv + s.wind_onshore + s.wind_offshore));
+        MX.batGw = 0; MX.elyGw = 0; MX.h2tGw = 0; MX.h2sTwh = 0; MX.fill = 0;
+        MX.gasAuto = true; MX.scen = 'mittel'; MX.gasTech = 'gas_ccs';
+      },
+      hint: '<strong>Variante</strong> des Kostenminimum-Szenarios, kein eigenes Zukunftsbild: gleicher ' +
+        'Mix, gleiches Dispatch, gleiche Auslegung — nur das Backup scheidet CO₂ ab. Nur so ist der ' +
+        'Aufschlag der Abscheidung sauber ablesbar.' },
     { id: 'ee80_gas', label: 'GES · 80 % EE + Gas', apply: () => {
+        future();
         MX.demand = rec.demand_twh;
         const s = feeSharesFromGw(rec.scenarios.ee80_gas.fee_gw, split);
         MX.pv = s.pv; MX.won = s.wind_onshore; MX.woff = s.wind_offshore; MX.nuc = 0;
@@ -1891,7 +2032,20 @@ function mixPresets() {
       },
       hint: '438 GW fEE, Rest über Gas-Backup. Anders als die GES-Studie sind hier 40 GW ' +
         'Batteriespeicher enthalten — die Studie modelliert keine Batterien.' },
+    { id: 'ee80_gas_ccs', label: 'GES · 80 % EE + Gas mit CCS', apply: () => {
+        future();
+        MX.demand = rec.demand_twh;
+        const s = feeSharesFromGw(rec.scenarios.ee80_gas.fee_gw, split);
+        MX.pv = s.pv; MX.won = s.wind_onshore; MX.woff = s.wind_offshore; MX.nuc = 0;
+        MX.batGw = 40; MX.elyGw = 0; MX.h2tGw = 0; MX.h2sTwh = 0; MX.fill = 0;
+        MX.gasAuto = true; MX.scen = 'mittel'; MX.gasTech = 'gas_ccs';
+      },
+      hint: '<strong>Variante</strong> des gasgestützten 80-%-Pfads — und die Vergleichsebene, die die ' +
+        'geprüfte Studie eigentlich meint: Sie rechnet ihren Gas-Pfad mit Abscheidung. Der Aufschlag ' +
+        'stammt hier überwiegend aus der <em>verdoppelten Kapazität</em>, nicht aus der Abscheidung ' +
+        'selbst — der Backup-Park läuft nur wenige hundert bis knapp zweitausend Stunden im Jahr.' },
     { id: 'ee80_h2', label: 'GES · 80 % EE + H₂', apply: () => {
+        future();
         MX.demand = rec.demand_twh;
         const s = feeSharesFromGw(rec.scenarios.ee80_h2.fee_gw, split);
         MX.pv = s.pv; MX.won = s.wind_onshore; MX.woff = s.wind_offshore; MX.nuc = 0;
@@ -1902,6 +2056,7 @@ function mixPresets() {
         'Profil erst am 1. Juli beginnt — die Einspeicherphase liegt davor. Die Stromkosten dafür ' +
         'sind nicht enthalten; das LSCOE ist insoweit eine Untergrenze.' },
     { id: 'ee100', label: 'GES · 100 % Erneuerbare', apply: () => {
+        future();
         MX.demand = rec.demand_twh;
         const s = feeSharesFromGw(rec.scenarios.ee100.fee_gw, split);
         MX.pv = s.pv; MX.won = s.wind_onshore; MX.woff = s.wind_offshore; MX.nuc = 0;
@@ -1930,7 +2085,8 @@ function runMix(withHourly) {
   if (MX.nuc > 0) shares.nuclear = MX.nuc;
   return mixSystem(shares, MX.demand, S.params, S.profiles, {
     scenario: MX.scen, storage: currentStorage(), co2_price: MX.co2,
-    apply_idc: true, grid_variant: 'mid', return_hourly: !!withHourly
+    apply_idc: true, grid_variant: 'mid', return_hourly: !!withHourly,
+    bands_twh: MX.bands, grid_cost_basis: MX.gridBasis, gas_tech: MX.gasTech
   });
 }
 
@@ -2123,9 +2279,20 @@ function renderMixTiles(res) {
         pct(d.curtailment_share_of_generation, 1) + ' der Gesamterzeugung' },
     { n: fmt(d.gas_full_load_hours * ann, 0) + ' h/a', l: 'Backup-Volllaststunden bei ' +
         fmt(res.gas_gw, 1) + ' GW Spitzenleistung — je weniger, desto teurer wird jede Backup-MWh' },
-    { n: fmt(co2OfMix(res), 0) + ' Mt/a', l: 'CO₂-Emissionen des Mixes (fossiles Backup). ' +
+    { n: fmt(res.emissions.total_mt_co2_a, 1) + ' Mt/a', l: 'CO₂-Restemissionen des Systems' +
+        (res.emissions.coal_mt_co2_a > 0.05 ? ' (Gas-Backup + Kohleband)' : ' (fossiles Backup)') +
+        ' — ' + fmt(res.emissions.g_co2_per_kwh_delivered, 0) + ' g je gelieferter kWh. ' +
         '<strong>Achtung:</strong> mangels direktem Verbrennungsfaktor rechnet das Modell mit der ' +
-        'UNECE-Lebenszyklus-<em>Untergrenze</em> für GuD als Proxy (<code>gaps.emissionsfaktor_direkt</code>)' },
+        'UNECE-Lebenszyklus-<em>Untergrenze</em> als Proxy (<code>gaps.emissionsfaktor_direkt</code>); ' +
+        'für eine reine ETS-Bepreisung sind das rund 10–20 % zu viel' },
+    { n: fmt(res.emissions.captured_mt_co2_a, 1) + ' Mt/a',
+      l: MX.gasTech === 'gas_ccs'
+        ? 'abgeschiedenes und <strong>dauerhaft einzulagerndes</strong> CO₂. Deutschland hat keine ' +
+          'CO₂-Speicherstätte in Betrieb — der Pfad unterstellt Export in norwegische oder ' +
+          'niederländische Offshore-Speicher; modelliert ist davon nur der Kostensatz je Tonne ' +
+          confBadge('C')
+        : 'abgeschiedenes CO₂ — ohne CCS-Backup naturgemäß null. Der Schalter „Backup-Technologie“ ' +
+          'oben rechts macht daraus die Variante, die die geprüfte Studie meint' },
     { n: fmt(d.h2_storage_required_gwh / 1000, 1) + ' TWh', l: 'benötigter H₂-Saisonspeicher (Füllstandshub im Zeitraum)' },
     { n: fmt(potTotal, 0) + ' TWh/a', noSim: true,
       l: 'fEE-Erzeugungspotenzial vor Abregelung, bei ' + fmt(MX.demand, 0) + ' TWh Bedarf — ' +
@@ -2137,12 +2304,10 @@ function renderMixTiles(res) {
   applySimLabels();
 }
 
-function co2OfMix(res) {
-  const ann = 1 / (res.dispatch.seasonal_share_load || 1);
-  const flat = resolveTech(S.params, 'gas_ccgt', MX.scen);
-  const ef = Number(flat.emission_factor_t_mwh || 0);
-  return res.dispatch.energy_twh.gas_backup * ann * 1e6 * ef / 1e6;
-}
+/* v0.2/M5: Der Emissionsausweis kommt jetzt aus dem Modell selbst
+   (`emissions`, inkl. Kohleband und CCS-Restemission) statt aus einer
+   Nachrechnung, die nur das Gas-Backup kannte. */
+function co2OfMix(res) { return res.emissions.total_mt_co2_a; }
 
 function renderLscoeBar(res) {
   const comp = res.cost_components_eur_mwh;
@@ -2153,8 +2318,47 @@ function renderLscoeBar(res) {
   legend('#legend-lscoe', segs.map(s => ({ c: s.c, l: s.l + ' · ' + fmt(s.v, 1) })));
 }
 
+/* v0.2b: Was die Abscheidung im aktuell eingestellten Mix kostet - und je Tonne.
+   Der Vergleich laeuft gegen denselben Mix mit unabgeschiedenem Backup, damit
+   ausschliesslich die Backup-Technologie variiert. */
+function renderCcsNote(box, res) {
+  if (MX.gasTech !== 'gas_ccs') return;
+  const shares = { pv: MX.pv, wind_onshore: MX.won, wind_offshore: MX.woff };
+  if (MX.nuc > 0) shares.nuclear = MX.nuc;
+  const ref = mixSystem(shares, MX.demand, S.params, S.profiles, {
+    scenario: MX.scen, storage: currentStorage(), co2_price: MX.co2, apply_idc: true,
+    grid_variant: 'mid', bands_twh: MX.bands, grid_cost_basis: MX.gridBasis, gas_tech: 'gas_ccgt'
+  });
+  const dLscoe = res.lscoe_eur_mwh - ref.lscoe_eur_mwh;
+  const dMt = ref.emissions.total_mt_co2_a - res.emissions.total_mt_co2_a;
+  const dCost = res.total_cost_bn_eur_a - ref.total_cost_bn_eur_a;
+  const abate = dMt > 0.001 ? (dCost * 1e9) / (dMt * 1e6) : null;
+  const cc = S.params.technologies.gas_ccs.params.ccs_cost_eur_t;
+  box.appendChild(el('div', { cls: 'note warn', html:
+    '<strong>Was die Abscheidung in diesem Mix kostet.</strong> Gegenüber demselben Mix mit ' +
+    'unabgeschiedenem Backup steigt das LSCOE um <strong>' + fmt(dLscoe, 1) + ' €/MWh</strong> ' +
+    '(' + fmt(ref.lscoe_eur_mwh, 0) + ' → ' + fmt(res.lscoe_eur_mwh, 0) + '), die Restemissionen ' +
+    'sinken um <strong>' + fmt(dMt, 1) + ' Mt CO₂/a</strong> (' + fmt(ref.emissions.total_mt_co2_a, 1) +
+    ' → ' + fmt(res.emissions.total_mt_co2_a, 1) + '), und ' +
+    fmt(res.emissions.captured_mt_co2_a, 1) + ' Mt/a müssten eingelagert werden. ' +
+    (abate === null ? '' :
+      'Daraus folgen <strong>implizite Vermeidungskosten von ' + fmt(abate, 0) + ' €/t</strong> — ' +
+      'ein Vielfaches sowohl des eingestellten CO₂-Preises (' + fmt(MX.co2, 0) + ' €/t) als auch des ' +
+      'CCS-Vollkettensatzes (' + fmt(Number(cc.mid), 0) + ' €/t ' + confBadge(cc.confidence) + '). ') +
+    '<strong>Diese Zahl ist eine Obergrenze, kein Preisschild.</strong> Das Modell rüstet den ' +
+    '<em>gesamten</em> Backup-Park aus, auch die Blöcke, die nur wenige hundert Stunden laufen — bei ' +
+    fmt(res.dispatch.gas_full_load_hours / (res.dispatch.seasonal_share_load || 1), 0) + ' h/a ' +
+    'verteilt sich der um den Faktor ' +
+    fmt(Number(pickVal(S.params.technologies.gas_ccs.params.capex_eur_kw, 'mid')) /
+      Number(pickVal(S.params.technologies.gas_ccgt.params.capex_eur_kw, 'mid')), 1) +
+    ' größere Kapitalblock auf sehr wenige Stunden. Ein real optimiertes ' +
+    'System würde nur die hoch ausgelasteten Blöcke mit Abscheidung bauen und die Spitzenlast ' +
+    'unabgeschieden fahren (Limitation <code>ccs_on_full_backup_fleet</code>).' }));
+}
+
 function renderMixWarnings(res) {
   const box = $('#mix-warnings'); clear(box);
+  renderCcsNote(box, res);
   const pot = S.params.technologies.h2_storage.params.de_repurposing_potential_twh;
   const need = res.dispatch.h2_storage_required_gwh / 1000;
   if (need > pot.value) {
@@ -2212,6 +2416,7 @@ function syncMixUI() {
   $('#mx-h2s').value = MX.h2sTwh; $('#mx-h2s-v').textContent = fmt(MX.h2sTwh, 0) + ' TWh';
   $('#mx-co2').value = MX.co2; $('#mx-co2-v').textContent = fmt(MX.co2, 0) + ' €/t';
   $('#mx-scen').value = MX.scen;
+  $('#mx-gastech').value = MX.gasTech;
   $('#mx-gasauto').checked = MX.gasAuto;
   $('#dp-week').value = MX.week;
   const ts = S.profiles.timestamps;
@@ -2228,6 +2433,19 @@ function syncMixUI() {
   $('#mx-bat-hint').innerHTML = 'Auslegung ' + fmt(dur, 0) + ' h (entspricht der CAPEX-Referenz). ' +
     'Studienbedarf 2045: ' + fmt(bat.min, 0) + '–' + fmt(bat.max, 0) + ' GWh, Median ' + fmt(bat.mid, 0) +
     ' GWh ' + confBadge(bat.confidence) + ' — die Spanne von Faktor 3 ist selbst ein Befund.';
+  const ccsP = S.params.technologies.gas_ccs.params;
+  const gcCapex = S.params.technologies.gas_ccgt.params.capex_eur_kw;
+  $('#mx-gastech-hint').innerHTML = MX.gasTech === 'gas_ccs'
+    ? 'CAPEX ' + fmt(Number(ccsP.capex_eur_kw.mid), 0) + '&nbsp;€/kW statt ' +
+      fmt(Number(gcCapex.mid), 0) + ' ' + confBadge(ccsP.capex_eur_kw.confidence) + ', Wirkungsgrad ' +
+      fmt(Number(ccsP.efficiency.mid), 2) + ' statt ' +
+      fmt(Number(S.params.technologies.gas_ccgt.params.efficiency.mid), 2) + ', Abscheiderate ' +
+      pct(Number(ccsP.capture_rate.mid), 0) + ' ' + confBadge(ccsP.capture_rate.confidence) +
+      ', Vollkette ' + fmt(Number(ccsP.ccs_cost_eur_t.mid), 0) + ' €/t ' +
+      confBadge(ccsP.ccs_cost_eur_t.confidence) + '. Die Restemission von ' +
+      fmt(Number(ccsP.emission_factor_t_mwh.mid) * 1000, 0) + ' g/kWh trägt den vollen CO₂-Preis.'
+    : 'Ohne Abscheidung. Die geprüfte GES-Studie rechnet ihren Gas-Pfad <em>mit</em> CCS — der ' +
+      'Vergleich Kernkraft gegen Gas ist ohne diese Umschaltung nicht emissionsäquivalent.';
   const potH2 = S.params.technologies.h2_storage.params.de_repurposing_potential_twh;
   $('#mx-h2s-hint').innerHTML = 'Deutsches Kavernen-Umwidmungspotenzial: rund ' + fmt(potH2.value, 0) +
     ' TWh ' + confBadge(potH2.confidence) + '. Wird der Regler höher gestellt, ist der Speicher physisch ' +
@@ -2268,7 +2486,25 @@ function renderPartC() {
   bind('#mx-h2s', v => MX.h2sTwh = v);
   bind('#mx-co2', v => MX.co2 = v);
   $('#mx-scen').onchange = e => { MX.scen = e.target.value; syncMixUI(); updateMix(); };
+  $('#mx-gastech').onchange = e => {
+    MX.gasTech = e.target.value; MX.preset = 'custom';
+    $$('#mix-presets .chip').forEach(x => x.classList.remove('on'));
+    syncMixUI(); updateMix();
+  };
   $('#mx-gasauto').onchange = e => { MX.gasAuto = e.target.checked; updateMix(); };
+
+  /* Systemgrenze der Kennzahl - Professor M2. */
+  $('#lscoe-scope-note').innerHTML = '<strong>Was in dieser Zahl nicht steckt.</strong> Das LSCOE ' +
+    'dieses Papiers enthält den <em>Ausbau</em>: Erzeugung, Speicher, Backup und die Annuität der ' +
+    'zusätzlichen Netzinvestition. Es enthält <strong>nicht</strong> das Bestandsnetz und dessen ' +
+    'Betrieb, Redispatch (Ist 2024: ' +
+    fmt(Number(S.params.system.grid.redispatch_2024_bn_eur.value), 1) + '&nbsp;Mrd.&nbsp;€/a ' +
+    confBadge(S.params.system.grid.redispatch_2024_bn_eur.confidence) + '), Regelleistung, ' +
+    'Verteilnetz-Betrieb, Messwesen, Konzessionsabgaben, Steuern und Umlagen. Es ist damit kein ' +
+    'Endkundenpreis und nicht mit einem Arbeitspreis vergleichbar. Der Netzblock der ' +
+    'Zukunftsszenarien ist eine ausgewiesene <strong>Untergrenze</strong> (Lücke ' +
+    '<code>netz_opex</code>). Die Kennzahl folgt der System-LCOE-Literatur ' + cite('ueckerdt-2013') +
+    ', hat aber eine engere Systemgrenze als dort.';
 
   const weeks = Math.max(1, Math.floor(S.profiles.hours / 168));
   $('#dp-week').max = weeks - 1;
@@ -2426,6 +2662,9 @@ function renderPartD() {
     'werden. Wer sie einrechnen will, hat dafür den Schalter in <a href="#kap-6">Kapitel 6</a> ' +
     '(Monte Carlo) oder multipliziert den CAPEX-Regler in Kapitel 4 entsprechend hoch.';
 
+  /* --- Marktdesign: wer baut die Reserve? (Persona-Review 03, S1) -------- */
+  renderMarktdesign();
+
   /* --- Lieferketten ----------------------------------------------------- */
   const lk = P.lieferketten_konzentration;
   const sup = $('#tiles-supply'); clear(sup);
@@ -2518,21 +2757,87 @@ function renderPartD() {
   renderGes();
 }
 
+/* Kapitel 7 - Marktdesign. Alle Daten aus page_data.kraftwerksstrategie
+   (Quelle: ist_zustand_de.md 6.2), keine Zahl im Markup. */
+function renderMarktdesign() {
+  const k = S.page.kraftwerksstrategie;
+  const d = (iso) => deDatum(iso);
+  const gap = S.params.system.security_of_supply.firm_capacity_gap_2030_gw;
+  /* Backup-Spitzenlast der Zukunftsszenarien - aus der Monte-Carlo-Referenz,
+     nicht aus dem Text. */
+  const peaks = Object.entries(S.mcRef.presets)
+    .filter(([, v]) => v.comparable_to_target_scenarios !== false && v.gas_peak_gw > 0)
+    .map(([, v]) => v.gas_peak_gw);
+  const peakRange = peaks.length
+    ? fmt(Math.min(...peaks), 0) + ' bis ' + fmt(Math.max(...peaks), 0) : '50 bis 140';
+  const cards = [
+    { t: 'Das Instrument · StromVKG', body:
+      '<p style="font-size:14.5px">Das <em>' + deAscii(k.gesetz) + '</em> (früherer Arbeitstitel: ' +
+      deAscii(k.frueherer_arbeitstitel) + ') ist der Rahmen, über den neue steuerbare Kapazität ' +
+      'entstehen soll. Grundsatzeinigung mit der EU-Kommission am <strong>' +
+      d(k.grundsatzeinigung_eu_kommission) + '</strong>, Kabinettsbeschluss am <strong>' +
+      d(k.kabinettsbeschluss) + '</strong>. ' + confBadge(k.confidence === 'high' ? 'A' : 'B') +
+      cite('bmwe-kraftwerksstrategie-2026') + '</p>' +
+      '<p style="font-size:14.5px;margin-bottom:0">Im Fokus stehen ' +
+      k.technologiefokus.map(t => deAscii(t)).join(', ') + '.</p>' },
+    { t: 'Die Zeitschiene', body:
+      '<ul style="font-size:14.5px;margin-bottom:0">' +
+      '<li>1. Ausschreibungsrunde <strong>' + fmt(k.ausschreibung_1.volumen_gw, 1) + ' GW</strong> am ' +
+        d(k.ausschreibung_1.datum) + '</li>' +
+      '<li>2. Runde <strong>' + fmt(k.ausschreibung_2.volumen_gw, 1) + ' GW</strong> am ' +
+        d(k.ausschreibung_2.datum) + '</li>' +
+      '<li>zunächst insgesamt <strong>' + fmt(k.gesamtvolumen_zunaechst_gw, 0) + ' GW</strong>, ' +
+        'weitere Runden ' + k.weitere_runden.join(' und ') + '</li>' +
+      '<li>Inbetriebnahme aus Runde 1 spätestens <strong>' + k.inbetriebnahme_spaetestens + '</strong></li>' +
+      '<li>Kapazitätsmechanismus ab ' + k.inbetriebnahme_spaetestens + ': ' +
+        (k.kapazitaetsmechanismus.ausgestaltung === null
+          ? '<strong>Ausgestaltung noch nicht entschieden</strong>' : deAscii(k.kapazitaetsmechanismus.ausgestaltung)) +
+        '</li></ul>' }
+  ];
+  const box = $('#tiles-marktdesign'); clear(box);
+  cards.forEach(c => box.appendChild(el('div', { cls: 'card',
+    html: '<p class="card-t">' + c.t + '</p>' + c.body })));
+
+  $('#marktdesign-note').innerHTML = '<strong>Was das für die Zahlen dieses Papiers heißt.</strong> ' +
+    'Der Backup-Park, den die Szenarien in Kapitel 5 und 6 bereitstellen, liegt deutlich über dem, was ' +
+    'derzeit ausgeschrieben wird: <strong>' + fmt(k.gesamtvolumen_zunaechst_gw, 0) + ' GW</strong> ' +
+    'zunächst ausgeschriebenes Volumen stehen einem Koalitionsvertragsziel von bis zu <strong>' +
+    fmt(k.koalitionsvertrag_ziel_gw_bis_2030, 0) + ' GW bis 2030</strong> gegenüber — die Diskrepanz ist ' +
+    'im Datensatz ausdrücklich als offener Widerspruch geführt: „' + deAscii(k.offener_widerspruch) + '“ ' +
+    confBadge('B') + cite('bmwe-kraftwerksstrategie-2026') + ' Der amtlich ermittelte Zusatzbedarf an ' +
+    'gesicherter Leistung für 2030 liegt bei ' + fmt(gap.min, 0) + '–' + fmt(gap.max, 0) + ' GW ' +
+    confBadge(gap.confidence) + '.' +
+    '<br><br>Dieses Papier sagt oben zu Recht, der WACC sei keine technische, sondern eine politische ' +
+    'Größe. Für den Backup-Park gilt dasselbe in schärferer Form: <strong>Wer ' + peakRange +
+    ' GW Reserve rechnet, rechnet implizit einen Kapazitätsmechanismus mit, dessen Ausgestaltung heute ' +
+    'offen ist und dessen Kosten in keiner LSCOE-Zahl dieses Papiers auftauchen.</strong> Das ist keine ' +
+    'Modellungenauigkeit, sondern eine Systemgrenze: Das Modell beschreibt, was ein System kosten ' +
+    'würde — nicht, ob und unter welchen Bedingungen es entsteht.' +
+    '<br><br>Für die erneuerbare Seite gilt die Spiegelbildlichkeit: Die EEG-Marktprämie wirkt de facto ' +
+    'als Differenzvertrag und nimmt den Anlagen dasselbe Preisrisiko ab, das ein Kapazitätsmechanismus ' +
+    'dem Backup-Park abnehmen soll. Beide Instrumente senken den WACC, und beide tauchen in keiner ' +
+    'der Kostenzahlen dieses Papiers als eigener Posten auf.';
+}
+
 function renderLimitations() {
   const P = S.page;
   $('#lim-simplifications').innerHTML = [
     '<strong>Ein Wetterjahr, kein Ensemble.</strong> Das Modell rechnet mit den Profilen eines einzigen ' +
       'Zeitraums. Ein Extremwetterjahr würde Backup- und Speicherbedarf anders ausfallen lassen.',
-    '<strong>Kein Import/Export, kein Lastmanagement.</strong> Beides existiert real und würde das System ' +
-      'entlasten. Die Vereinfachung ist damit <em>konservativ</em> — sie macht jedes Szenario eher teurer, ' +
-      'und zwar alle gleichermaßen.',
-    '<strong>Keine räumliche Netzsimulation.</strong> Der Netzausbau geht nur als top-down-Kostenzuschlag ' +
-      'ein, linear mit dem fEE-Anteil skaliert — dieselbe Vereinfachung wie in der GES-Studie, inklusive ' +
-      'derselben Limitation. Zugrunde liegen ' + fmt(S.params.system.grid.investment_bn_eur_until_2045.value, 0) +
-      ' Mrd. € Investitionsvolumen bis 2045 ' + confBadge(S.params.system.grid.investment_bn_eur_until_2045.confidence) +
-      cite('imk-netzkosten') + ', abgeschrieben über ' + fmt(S.params.system.grid.lifetime_years.value, 0) +
-      ' Jahre — die Abschreibungsdauer ist eine <strong>Modellannahme ohne Quellenbeleg</strong> ' +
-      confBadge('M') + '.',
+    '<strong>Kein Import/Export, kein Lastmanagement — und diese Lücke ist nicht neutral.</strong> ' +
+      'Beides existiert real und würde das System entlasten. Die Vereinfachung ist damit konservativ, ' +
+      'aber <strong>nicht symmetrisch</strong>: Flexibilität und Interkonnektoren sind Substitute für ' +
+      'Speicher und Backup, und ihr Wert steigt mit der Schwankungsbreite der Residuallast — also ' +
+      'überproportional mit dem Anteil fluktuierender Erzeugung. Im Kernkraft-Szenario, das überwiegend ' +
+      'aus einem Band besteht, ersetzt verschiebbare Last fast nichts; in den EE-lastigen Szenarien ' +
+      'ersetzt sie Batterieleistung, Elektrolyseur und Rückverstromung — genau die teuersten Posten. ' +
+      '<strong>Der Vergleich fällt damit zulasten der erneuerbaren Pfade aus.</strong> Zur Größenordnung: ' +
+      'Die geprüfte GES-Studie setzt selbst 20 GW Interkonnektoren an; dieses Modell bleibt an dieser ' +
+      'Stelle also hinter der Studie zurück, die es prüft. <em>(Korrigiert in v0.11 — frühere Fassungen ' +
+      'behaupteten hier, die Auslassung treffe „alle Szenarien gleichermaßen“. Das war falsch.)</em>',
+    '<strong>Keine räumliche Netzsimulation, und die Aufteilung des Netzblocks ist eine Setzung.</strong> ' +
+      'Der Netzausbau geht nur als top-down-Kostenzuschlag ein. ' + gridRuleText() +
+      ' Räumlich aufgelöst wird nichts: keine Leitungstopologie, keine Engpässe, kein Redispatch.',
     '<strong>Speicher-Dispatch ist greedy, nicht optimiert.</strong> Das Modell unterstellt <em>keine</em> ' +
       'perfekte Voraussicht. Das überschätzt den Speicherbedarf tendenziell leicht.',
     '<strong>Kernkraft läuft als Band.</strong> Ein lastfolgender Betrieb würde die Abregelung senken, ' +
@@ -2555,9 +2860,26 @@ function renderLimitations() {
       fmt(P.co2_intensitaet_g_pro_kwh.technologien.pv_deutschland.default, 0) + ' g/kWh) stammt <em>nicht</em> ' +
       'von der UNECE, sondern aus Fraunhofer-ISE-Sekundärberichterstattung und trägt nur ' +
       confBadge(P.co2_intensitaet_g_pro_kwh.technologien.pv_deutschland.stufe) + '.',
-    '<strong>Kostenüberschreitungsfaktoren sind abgeschaltet.</strong> Der Basisfall rechnet mit 1,00, ' +
-      'damit Modellkern und Risikoannahme nicht vermischt werden. Wer sie einrechnen will, hat dafür ' +
-      'den Schalter in <a href="#kap-6">Kapitel 6</a>.',
+    '<strong>Kostenüberschreitungsfaktoren sind abgeschaltet — und wenn nicht, wirken sie einseitig.</strong> ' +
+      'Der Basisfall rechnet mit 1,00, damit Modellkern und Risikoannahme nicht vermischt werden. Wer sie ' +
+      'einrechnen will, hat dafür den Schalter in <a href="#kap-6">Kapitel 6</a>. Dieser Lauf ist aber ' +
+      '<strong>asymmetrisch</strong>: Für Batterie, Elektrolyse, H₂-Speicher und H₂-Turbine gibt es in ' +
+      'beiden Empirie-Datensätzen keine Projektklasse; die dort stehende 1,00 ist eine Datenlücke, keine ' +
+      'Messung. Der Schalter stresst deshalb die Kernkraft- und Netzseite stärker als die Speicher- und ' +
+      'Wasserstoffseite. Umgekehrt wirkt der Faktor seit v0.2 nur noch auf CAPEX-Anker, die eine ' +
+      '<em>Entscheidungsschätzung</em> sind — auf bereits realisierte Kosten nicht, sonst wäre die ' +
+      'Überschreitung doppelt gezählt.',
+    '<strong>Kein Optimierungsschritt — verglichen werden gesetzte Auslegungen.</strong> Speicher- und ' +
+      'Backup-Größen sind je Szenario vorgegeben, nicht kostenminimal bestimmt. Kein Szenario liegt damit ' +
+      'in seinem eigenen Optimum, und in den H₂-lastigen Pfaden dominiert diese Setzung das Ergebnis. ' +
+      'Ein Vergleich gesetzter Auslegungen misst insoweit die Setzung, nicht die Technologie. In der ' +
+      'Systemkostenliteratur wird jedes Szenario stattdessen als kostenminimaler Ausbau unter ' +
+      'Nebenbedingungen gerechnet ' + cite('ueckerdt-2013') + ' — das leistet dieses Modell nicht.',
+    '<strong>Ungedeckte Last bleibt kostenlos.</strong> Das LSCOE teilt die Systemkosten durch die ' +
+      '<em>gedeckte</em> Last. Ein Szenario, das Last abwirft, senkt damit rechnerisch seine ' +
+      'spezifischen Kosten. Ein Value of Lost Load ist nicht angesetzt, weil dafür kein belegter Wert ' +
+      'in den Dossiers steht. Die ungedeckte Arbeit je Szenario wird deshalb in Kapitel 5 und 6 ' +
+      'ausgewiesen, statt in der €/MWh-Zahl zu verschwinden.',
     '<strong>Die Monte-Carlo-Rechnung variiert die Kosten, nicht die Physik.</strong> Der stündliche ' +
       'Dispatch wird je Szenario <em>einmal</em> mit mittleren Parametern gerechnet und für alle ' +
       fmt(MC_N_DRAWS, 0) + ' Ziehungen wiederverwendet. Für CAPEX, Fixbetrieb und WACC ist das exakt ' +
@@ -2574,6 +2896,22 @@ function renderLimitations() {
       'Lastprofil, Lebensdauern, Wirkungsgrade, Brennstoff- und Entsorgungskosten, CO₂-Preis, ' +
       'Netzinvestitionsvolumen und die H₂-Speicherkosten.'
   ].map(x => '<li>' + x + '</li>').join('');
+
+  /* v0.2/v0.2b: Die Limitationen des Rechenkerns stehen maschinenlesbar in der
+     Monte-Carlo-Referenz. Sie werden hier unveraendert wiedergegeben - inklusive
+     der drei CCS-Eintraege, die die alte Karte „Modell kennt kein CCS" ersetzen. */
+  const SEV = { hoch: PAL.accent, mittel: PAL.band, gering: PAL.soft };
+  const lims = ((S.mcRef || {}).meta || {}).limitations || [];
+  /* Umbruchchancen an den Unterstrichen: sonst bestimmt der laengste
+     Bezeichner die min-content-Breite der ganzen Spalte. */
+  const wbr = (s) => String(s).replace(/_/g, '_<wbr>').replace(/\./g, '.<wbr>');
+  mount('#table-model-limits', table(
+    [{ l: 'ID' }, { l: 'Schwere' }, { l: 'Betrifft' }, { l: 'Worum es geht' }],
+    lims.map(l => ['<code>' + wbr(l.id) + '</code>',
+      '<span style="color:' + (SEV[l.severity] || PAL.soft) + ';font-weight:600">' +
+        (l.severity || '–') + '</span>',
+      '<span style="font-size:13.5px">' + deAscii(l.affects || '–') + '</span>',
+      deAscii(l.text) + (l.ref_field ? ' <code>' + wbr(l.ref_field) + '</code>' : '')])));
 
   mount('#table-gaps', table(
     [{ l: 'ID' }, { l: 'Parameter' }, { l: 'Warum das eine Lücke ist' }],
@@ -2665,6 +3003,9 @@ function renderConclusion() {
   const nucLow = nucProj[0], nucHigh = nucProj[nucProj.length - 1];
   const nucFla = P.nuclear_reference_projects.find(p => p.id === 'flamanville-3');
   const ws = P.wacc_sensitivity.wacc_effect_at_60y;
+  /* Szenario-Ergebnisse fuer das Fazit: aus der Monte-Carlo-Referenz, damit die
+     Kernaussagen auch vor dem Ende des Browser-Laufs stimmen. */
+  const mcP = S.mcRef.presets;
   const items = [
     { t: 'Der Kapitalkostensatz entscheidet mehr als die Technologiewahl.',
       b: 'Zwischen WACC 3 % und 10 % liegt beim Kapitalwiedergewinnungsfaktor der Faktor <strong>' +
@@ -2687,6 +3028,15 @@ function renderConclusion() {
          'Sizewell C (UK) — liegen mit rund 7.900–13.500 €/kW systematisch dazwischen; die westlichen ' +
          '<em>Erstbauten</em> Flamanville 3 (' + fmt(nucFla.capex_eur_kw, 0) + ' €/kW) und Hinkley Point C ' +
          'liegen darüber, nicht in diesem Band. ' +
+         'Das gilt auch für die historische Kostenentwicklung: Grublers vielzitierter Befund eines ' +
+         '„negativen Lernens“ im französischen Programm ist nicht unwidersprochen. Die Nachrechnung ' +
+         'mit den Daten des Cour-des-Comptes-Berichts findet eine deutlich moderatere Eskalation und ' +
+         'innerhalb gleicher Baugröße und Bauart sogar eine Lernkurve ' +
+         confBadge(srcConf('escobar-rangel-leveque-2015')) + cite('escobar-rangel-leveque-2015') +
+         '; die ökonometrische Untersuchung für Frankreich und die USA führt die Eskalation auf ' +
+         'Designwechsel und fehlende Standardisierung zurück, nicht auf die Technologie als solche ' +
+         confBadge(srcConf('berthelemy-2015')) + cite('berthelemy-2015') + '. Beide Repliken gehören ' +
+         'genauso dazu wie der Ausgangsbefund. ' +
          'Das Dossier-Band für ein realistisches EU-Neubauszenario reicht von ' +
          '<strong>' + fmt(nucRange.realistisch_eu.lcoe, 0) + ' €/MWh</strong> (' +
          fmt(nucRange.realistisch_eu.capex, 0) + ' €/kW, WACC ' + pct(nucRange.realistisch_eu.wacc, 0) +
@@ -2727,7 +3077,31 @@ function renderConclusion() {
          fmt(S.params.system.security_of_supply.firm_capacity_gap_2030_gw.min, 0) + '–' +
          fmt(S.params.system.security_of_supply.firm_capacity_gap_2030_gw.max, 0) + ' GW ' +
          confBadge(S.params.system.security_of_supply.firm_capacity_gap_2030_gw.confidence) +
-         '. <em>Unsicherheit:</em> mittel — die Spanne hängt am Erfolg der Nachfrageflexibilisierung.' }
+         '. <em>Unsicherheit:</em> mittel — die Spanne hängt am Erfolg der Nachfrageflexibilisierung. ' +
+         'Offen bleibt dabei die Frage, <em>wer</em> diese Leistung baut: Im Energy-Only-Markt ' +
+         'refinanziert sich ein Kraftwerk mit wenigen hundert Volllaststunden nicht. ' +
+         '<a href="#marktdesign">Mehr dazu in Kapitel 7</a>.' },
+    { t: 'Die Rangfolge der Szenarien hängt an drei Setzungen — nicht an der Technologie.',
+      b: 'Das ist die belastbarste Aussage, die dieses Modell hergibt, und sie ist unbequem für jede ' +
+         'Seite. <strong>Erstens die Emissionsnebenbedingung:</strong> Ohne CO₂-Abscheidung vergleicht ' +
+         'man ein System mit ' + fmt(mcP.kostenminimum.emissions_mt_co2_a, 1) + ' Mt CO₂/a gegen eines ' +
+         'mit ' + fmt(mcP.ee80_gas.emissions_mt_co2_a, 1) + ' Mt/a; mit Abscheidung auf beiden ' +
+         'Seiten (' + fmt(mcP.kostenminimum_ccs.emissions_mt_co2_a, 1) + ' gegen ' +
+         fmt(mcP.ee80_gas_ccs.emissions_mt_co2_a, 1) + ' Mt/a) kehrt sich das Bild deutlich zugunsten ' +
+         'des Kernkraft-Szenarios. <strong>Zweitens der ' +
+         'unterstellte Institutionenrahmen:</strong> Zwischen der westlichen Kernkraft-CAPEX-Spanne ' +
+         '(' + fmt(S.params.technologies.nuclear.params.capex_eur_kw.min, 0) + '–' +
+         fmt(S.params.technologies.nuclear.params.capex_eur_kw.max, 0) + ' €/kW) und dem belegten ' +
+         'Cluster Asien/Golf (' + fmt(S.params.technologies.nuclear.capex_alternative_asia_gulf.min, 0) +
+         '–' + fmt(S.params.technologies.nuclear.capex_alternative_asia_gulf.max, 0) + ' €/kW) liegen ' +
+         'im Median ' + fmt(mcP.kostenminimum.configs.base.p50 - mcP.kostenminimum.configs.asia.p50, 0) +
+         ' €/MWh Systemkosten — mehr als der gesamte Abstand, um den gestritten wird. ' +
+         '<strong>Drittens die Überschreitungs-Empirie:</strong> Schaltet man sie zu, dreht sich die ' +
+         'Rangfolge; dieser Lauf ist aber asymmetrisch, weil für Batterie und Wasserstoff kein ' +
+         'gemessener Faktor existiert. <em>Unsicherheit:</em> Die drei Setzungen sind offengelegt und ' +
+         'in <a href="#kap-6">Kapitel 6</a> einzeln schaltbar — was sie nicht weniger folgenreich macht. ' +
+         'Wer ein Ergebnis dieses Modells zitiert, ohne alle drei zu nennen, zitiert eine Setzung als ' +
+         'Befund. ' + confBadge('M') }
   ];
   const box = $('#fazit-list'); clear(box);
   items.forEach((it, i) => box.appendChild(el('div', { cls: 'card',
@@ -2742,9 +3116,10 @@ function renderConclusion() {
 }
 
 /* --- Executive Summary -------------------------------------------------
-   Destillat des Fazits (Kapitel 8) auf sieben Zeilen. Jede Zeile traegt
-   Quelle bzw. Konfidenzstufe und eine Unsicherheitsangabe. Die siebte Zeile
-   wird nachgetragen, sobald die Monte-Carlo-Rechnung durch ist.
+   Destillat des Fazits (Kapitel 8). Jede Zeile traegt Quelle bzw.
+   Konfidenzstufe und eine Unsicherheitsangabe. Die letzten drei Zeilen
+   werden nachgetragen, sobald die Monte-Carlo-Rechnung durch ist - sie
+   brauchen Rangwahrscheinlichkeiten und Emissionsmengen.
    --------------------------------------------------------------------- */
 function renderExecSummary() {
   const P = S.page;
@@ -2799,23 +3174,63 @@ function renderExecSummary() {
       'mittel — die Spanne hängt am Erfolg der Nachfrageflexibilisierung']
   ];
 
-  /* Siebte Kernaussage: das Monte-Carlo-Ergebnis, sobald es vorliegt. */
-  if (MC.res) {
+  /* Kernaussagen 7 und 8: das Monte-Carlo-Ergebnis, sobald es vorliegt.
+     Grundlage sind gepaarte Ziehungen und Rangwahrscheinlichkeiten - nicht
+     mehr die (unzulaessige) Ueberlappung der Randverteilungen. */
+  if (MC.res && MC.ranks) {
     const key = mcCfgKey();
-    const order = MC.order || S.mcRef.preset_order;
-    const st = order.map(pid => ({ label: MC.res[pid].label, s: MC.res[pid].configs[key] }))
+    const order = (MC.order || S.mcRef.preset_order).filter(pid => MC.res[pid].comparable !== false);
+    const st = order.map(pid => ({ id: pid, s: MC.res[pid].configs[key] }))
       .sort((a, b) => a.s.p50 - b.s.p50);
-    let ov = 0;
-    for (let i = 0; i < st.length - 1; i++) if (st[i].s.p95 > st[i + 1].s.p5) ov++;
-    items.push(['Die Rangfolge der Szenarien ist unsicherer, als die Punktwerte suggerieren.',
-      'Werden alle dokumentierten Parameterspannen als Verteilung gezogen (' + fmt(MC_N_DRAWS, 0) +
-      ' Ziehungen je Szenario), reicht das System-LSCOE von ' +
-      st.map(x => x.label.replace('GES · ', '') + ' ' + fmt(x.s.p50, 0) + ' [' + fmt(x.s.p5, 0) + '–' +
-        fmt(x.s.p95, 0) + ']').join(', ') + ' €/MWh. ' +
-      (ov ? '<strong>' + ov + ' benachbarte Szenario-Paare überlappen sich</strong> im Bereich P5–P95 — ' +
-        'für sie ist die Reihenfolge nicht entschieden.'
-          : 'Kein benachbartes Paar überlappt sich im Bereich P5–P95.'),
-      'die Verteilungsform (Dreieck) und die Unabhängigkeit der Ziehungen sind Annahmen, keine Befunde']);
+    const ranks = (MC.ranks[key] || []).filter(r => order.indexOf(r.a) >= 0 && order.indexOf(r.b) >= 0);
+    const open = ranks.filter(r => !r.decided);
+    const nucGas = (MC.ranks.base || []).find(r => r.a === 'kostenminimum' && r.b === 'ee80_gas');
+    const nucGasCcs = (MC.ranks.base || []).find(r => r.a === 'kostenminimum_ccs' && r.b === 'ee80_gas_ccs');
+    const ist = MC.res.ist2025;
+
+    items.push(['Für die entscheidende Rangfolge reicht die Datenlage nicht — für die übrigen schon.',
+      'Werden alle dokumentierten Parameterspannen gleichzeitig gezogen (' + fmt(MC_N_DRAWS, 0) +
+      ' <strong>gepaarte</strong> Ziehungen, dieselben Parameter in jeder Welt), liegt das System-LSCOE bei ' +
+      st.map(x => mcShort(x.id) + ' ' + fmt(x.s.p50, 0) + ' [' + fmt(x.s.p5, 0) + '–' +
+        fmt(x.s.p95, 0) + ']').join(', ') + ' €/MWh. Entschieden sind ' +
+      (ranks.length - open.length) + ' von ' + ranks.length + ' Paaren. ' +
+      (nucGas ? 'Offen bleibt vor allem Kernkraft-Szenario gegen gasgestützten 80-%-Pfad: ' +
+        'P&nbsp;=&nbsp;' + fmt(nucGas.p_a_cheaper * 100, 1) + '&nbsp;% bei einem Median-Δ von ' +
+        (nucGas.median_diff_a_minus_b >= 0 ? '+' : '') + fmt(nucGas.median_diff_a_minus_b, 1) +
+        '&nbsp;€/MWh — ein Münzwurf. ' : '') +
+      '<strong>Die frühere Begründung dafür („die Bänder überlappen sich“) war ein Fehlschluss und ' +
+      'ist ersetzt</strong>; entscheidend ist die Differenz je Ziehung, nicht die Lage der ' +
+      'Randverteilungen.',
+      'die Verteilungsform (Dreieck) und die Unabhängigkeit zwischen den Parametern sind Annahmen, ' +
+      'keine Befunde; Wetterjahr und Dispatch-Physik stehen außerhalb der Bänder']);
+
+    items.push(['Emissionsgleichheit dreht das Ergebnis — der Beinahe-Gleichstand war zum Teil ein Emissions-Rabatt.',
+      'Die Szenarien ohne CO₂-Abscheidung sind nicht emissionsäquivalent: ' +
+      fmt(MC.res.kostenminimum.emissions_mt_co2_a, 1) + ' gegen ' +
+      fmt(MC.res.ee80_gas.emissions_mt_co2_a, 1) + ' Mt CO₂/a. Rüstet man beide Backup-Parks mit ' +
+      'Abscheidung aus — so, wie die geprüfte Studie ihren Gas-Pfad meint —, liegen sie bei ' +
+      fmt(MC.res.kostenminimum_ccs.emissions_mt_co2_a, 1) + ' und ' +
+      fmt(MC.res.ee80_gas_ccs.emissions_mt_co2_a, 1) + ' Mt/a' +
+      (nucGasCcs ? ', und das Kernkraft-Szenario führt mit <strong>' +
+        fmt(nucGasCcs.p_a_cheaper * 100, 1) + '&nbsp;%</strong> statt der ' +
+        fmt(nucGas.p_a_cheaper * 100, 1) + '&nbsp;% ohne CCS' : '') +
+      '. Der Preis: rund ' + fmt(MC.res.ee80_gas_ccs.captured_mt_co2_a, 0) + ' Mt CO₂/a müssten im ' +
+      'Gas-Pfad dauerhaft eingelagert werden — in einem Land ohne CO₂-Speicherstätte. ' + confBadge('C'),
+      'hoch — das CCS-Kostenband ist am unteren Rand der Literatur angesetzt, die Abscheidung läuft ' +
+      'auf dem gesamten Backup-Park, und die Speicherverfügbarkeit ist nicht modelliert']);
+
+    if (ist) {
+      items.push(['Das heutige System ist nicht der billige Referenzpunkt, als der es gern erzählt wird.',
+        'Vervollständigt man den Ist-Anker um die Bestandsbänder (Kohle, Biomasse, Wasserkraft) und ' +
+        'rechnet ihn mit dem <em>heutigen</em> Netzentgelt statt mit der Netzinvestition bis 2045, ' +
+        'landet er bei <strong>' + fmt(ist.det, 1) + ' €/MWh</strong> bei ' +
+        fmt(ist.emissions_mt_co2_a, 0) + ' Mt CO₂/a — in derselben Größenordnung wie die ' +
+        'Zukunftsszenarien, aber deutlich schmutziger. <strong>Er gehört trotzdem nicht in dieselbe ' +
+        'Reihe:</strong> Die Bänder tragen nur ihre CO₂-Kosten (Kapital und Betrieb der ' +
+        'abgeschriebenen Bestandsflotte stehen in keinem Dossier), das Netzentgelt enthält dagegen ' +
+        'den Betrieb des Bestandsnetzes. Zwei verschiedene Systemgrenzen ergeben kein Ranking.',
+        'hoch — der Anker ist ausdrücklich als nicht ranking-fähig gekennzeichnet']);
+    }
   } else {
     items.push(['Die Rangfolge der Szenarien ist unsicherer, als die Punktwerte suggerieren.',
       'Die Monte-Carlo-Rechnung läuft gerade — das Ergebnis erscheint hier automatisch ' +
@@ -3234,7 +3649,8 @@ function mcPairwiseRanks(values, order) {
   return out;
 }
 
-const MC = { wacc: false, overrun: false, res: null, ms: 0, running: false, done: false };
+const MC = { wacc: false, co2: false, overrun: false, asia: false,
+  res: null, ms: 0, running: false, done: false };
 
 /* Laeuft in Haeppchen, damit die Fortschrittsanzeige sichtbar wird. */
 function mcRunAll(onProgress) {
@@ -3307,12 +3723,49 @@ function mcParityTest(res) {
   return { checked: checked, fails: fails, tol: tol };
 }
 
+/* Aus den vier Schaltern die gerechnete Konfiguration ableiten. Nicht jede
+   Kombination existiert: Der Asien/Golf-Kontrast wird bewusst NIE mit der
+   Ueberschreitungs-Empirie kombiniert (realisierte Kosten sind keine
+   Entscheidungsschaetzung), und einen co2+overrun-Lauf gibt es nicht. */
 function mcCfgKey() {
-  if (MC.wacc && MC.overrun) return 'wacc_overrun';
-  if (MC.wacc) return 'wacc';
-  if (MC.overrun) return 'overrun';
-  return 'base';
+  if (MC.asia) return MC.wacc ? 'asia_wacc' : 'asia';
+  if (MC.overrun) return MC.wacc ? 'wacc_overrun' : 'overrun';
+  if (MC.co2) return MC.wacc ? 'wacc_co2' : 'co2';
+  return MC.wacc ? 'wacc' : 'base';
 }
+
+/* Gegenseitige Sperren der Schalter sichtbar machen, statt still zu ignorieren. */
+function syncMcToggles() {
+  const set = (id, on, dis, why) => {
+    const n = $(id); if (!n) return;
+    n.checked = on; n.disabled = !!dis;
+    const lab = n.closest('.ctl');
+    if (lab) lab.style.opacity = dis ? 0.55 : 1;
+    n.title = dis ? why : '';
+  };
+  set('#mc-wacc', MC.wacc, false, '');
+  set('#mc-co2', MC.co2, MC.overrun || MC.asia,
+    'Für diese Kombination gibt es keinen Referenzlauf.');
+  set('#mc-overrun', MC.overrun, MC.asia,
+    'Der Asien/Golf-Kontrast wird bewusst nicht mit der Überschreitungs-Empirie kombiniert.');
+  set('#mc-asia', MC.asia, MC.overrun || MC.co2,
+    'Der Kontrastlauf ersetzt die Kernkraft-CAPEX-Verteilung und wird nicht gemischt.');
+}
+
+/* Kurzlabel eines Presets fuer Tabellenkoepfe. */
+function mcShort(pid) {
+  const lbl = (MC.res && MC.res[pid] ? MC.res[pid].label : (S.mcRef.presets[pid] || {}).label) || pid;
+  return lbl.replace('GES · ', '').replace(' (Referenzsystem)', '')
+    .replace(' (Gas mit CCS)', ' + CCS').replace('Gas mit CCS', 'Gas + CCS');
+}
+
+/* Feste Farbzuordnung: die CCS-Variante erbt den Ton ihres Basis-Presets,
+   damit sie optisch als Variante lesbar ist und nicht als eigene Zukunft. */
+const MC_PRESET_COLORS = {
+  ist2025: PAL.soft, kostenminimum: PAL.teal, kostenminimum_ccs: PAL.teal,
+  ee80_gas: PAL.gas, ee80_gas_ccs: PAL.gas, ee80_h2: PAL.h2, ee100: PAL.windon
+};
+const MC_IS_CCS = (pid) => pid.slice(-4) === '_ccs';
 
 /* --- Verteilungs-Chart (Violin je Szenario, gemeinsame x-Achse) -------- */
 function renderMcChart() {
@@ -3339,17 +3792,20 @@ function renderMcChart() {
   s.appendChild(svg('text', { x: W - padR, y: 13, 'text-anchor': 'end', fill: PAL.soft, 'font-size': 11,
     'font-family': 'JetBrains Mono, monospace', text: '€/MWh (System-LSCOE)' }));
 
-  const COLORS = [PAL.teal, PAL.band, PAL.windon, PAL.h2, PAL.accent];
   rows.forEach((r, i) => {
     const yMid = padT + i * rowH + rowH / 2 - 4;
-    const c = COLORS[i % COLORS.length];
+    const c = MC_PRESET_COLORS[r.id] || PAL.soft;
     const st = r.st, hist = st.hist;
     const maxCount = Math.max(...hist.counts, 1);
     const binW = (hist.hi - hist.lo) / hist.bins;
     const amp = rowH * 0.31;
 
-    s.appendChild(svg('text', { x: padL - 12, y: yMid + 4, 'text-anchor': 'end', fill: PAL.ink,
-      'font-size': 12.5, text: r.label }));
+    const lblNode = svg('text', { x: padL - 12, y: yMid + 4, 'text-anchor': 'end',
+      fill: MC.res[r.id].comparable === false ? PAL.soft : PAL.ink,
+      'font-size': 12.5, text: (MC_IS_CCS(r.id) ? '↳ ' : '') + mcShort(r.id) +
+        (MC.res[r.id].comparable === false ? ' *' : '') });
+    if (MC_IS_CCS(r.id) || MC.res[r.id].comparable === false) lblNode.setAttribute('font-style', 'italic');
+    s.appendChild(lblNode);
 
     /* Dichtekoerper: gespiegelte Treppe ueber den Histogramm-Bins */
     let up = '', down = '';
@@ -3389,14 +3845,19 @@ function renderMcChart() {
       'P50 (Median): ' + fmt(st.p50, 1) + '<br>P5–P95: ' + fmt(st.p5, 1) + ' – ' + fmt(st.p95, 1) +
       '<br>P25–P75: ' + fmt(st.p25, 1) + ' – ' + fmt(st.p75, 1) +
       '<br>Spannweite P95−P5: ' + fmt(st.p95 - st.p5, 1) + ' €/MWh (' +
-      pct((st.p95 - st.p5) / st.p50, 0) + ' des Medians)');
+      pct((st.p95 - st.p5) / st.p50, 0) + ' des Medians)' +
+      '<br>Restemissionen: ' + fmt(MC.res[r.id].emissions_mt_co2_a, 1) + ' Mt CO₂/a' +
+      (MC.res[r.id].captured_mt_co2_a > 0.01
+        ? ', davon eingelagert ' + fmt(MC.res[r.id].captured_mt_co2_a, 1) + ' Mt/a' : ''));
     s.appendChild(g);
   });
 
   legend('#legend-mc', [
-    { c: PAL.soft, l: 'Dichte der 1.000 Ziehungen (Breite = Häufigkeit)' },
+    { c: PAL.soft, l: 'Dichte der ' + fmt(MC_N_DRAWS, 0) + ' Ziehungen (Breite = Häufigkeit)' },
     { c: PAL.soft, l: 'Balken = P25–P75, Linie = P5–P95, Punkt = Median (P50)' },
-    { c: PAL.ink, l: 'Raute = Punktwert des deterministischen Laufs (alle Parameter auf mid)' }
+    { c: PAL.ink, l: 'Raute = Punktwert des deterministischen Laufs (alle Parameter auf mid)' },
+    { c: PAL.soft, l: '↳ = CCS-Variante ihres Basis-Szenarios (gleicher Mix, nur anderes Backup)' },
+    { c: PAL.soft, l: '* = nicht ranking-fähig (andere Systemgrenze im Netzblock)' }
   ]);
 }
 
@@ -3405,71 +3866,179 @@ function renderMcTable() {
   const order = MC.order || S.mcRef.preset_order;
   const rows = order.map(pid => {
     const r = MC.res[pid], st = r.configs[key];
-    return [r.label, fmt(r.det, 0), '<strong>' + fmt(st.p50, 0) + '</strong>',
+    const name = (MC_IS_CCS(pid) ? '↳ ' : '') + r.label +
+      (r.comparable === false ? ' <span class="conf conf-M" title="andere Systemgrenze im Netzblock">nicht ranking-fähig</span>' : '');
+    return [name, fmt(r.det, 0), '<strong>' + fmt(st.p50, 0) + '</strong>',
       fmt(st.p5, 0) + ' – ' + fmt(st.p95, 0), fmt(st.p95 - st.p5, 0),
-      pct((st.p95 - st.p5) / st.p50, 0)];
+      pct((st.p95 - st.p5) / st.p50, 0),
+      fmt(r.emissions_mt_co2_a, 1) + (r.captured_mt_co2_a > 0.01
+        ? ' <span style="color:var(--soft)">(+' + fmt(r.captured_mt_co2_a, 0) + ' eingel.)</span>' : '')];
   });
   mount('#table-mc', table([{ l: 'Szenario' }, { l: 'Punktwert', num: true }, { l: 'Median P50', num: true },
-    { l: 'P5 – P95', num: true }, { l: 'Spannweite', num: true }, { l: 'relativ zum Median', num: true }], rows));
+    { l: 'P5 – P95', num: true }, { l: 'Spannweite', num: true }, { l: 'relativ zum Median', num: true },
+    { l: 'Mt CO₂/a', num: true }], rows));
 }
 
-/* Der eigentliche Befund: ueberlappen sich die Verteilungen? */
+/* Faerbung einer Rangwahrscheinlichkeit: entschieden (>= 95 %) faellt auf. */
+function rankCell(p) {
+  const dec = p >= 0.95 || p <= 0.05;
+  const col = p >= 0.95 ? PAL.teal : (p <= 0.05 ? PAL.accent : PAL.soft);
+  return '<span style="color:' + col + (dec ? ';font-weight:600' : '') + '">' +
+    fmt(p * 100, 1) + '&nbsp;%</span>';
+}
+
+/* R11: Rangwahrscheinlichkeiten statt Ueberlappungsargument.
+   Basis sind die gepaarten Ziehungen - je Ziehung dieselben Parameter in
+   allen Welten, deshalb ist die Differenz A-B eine sinnvolle Groesse. */
+function renderMcRanks() {
+  const key = mcCfgKey();
+  const ranks = (MC.ranks || {})[key] || [];
+  const order = (MC.order || S.mcRef.preset_order).filter(pid => MC.res[pid].comparable !== false);
+  const byPair = {};
+  ranks.forEach(r => { byPair[r.a + '|' + r.b] = r; });
+  const pOf = (a, b) => {
+    const d = byPair[a + '|' + b];
+    if (d) return { p: d.p_a_cheaper, rec: d, flip: false };
+    const e = byPair[b + '|' + a];
+    return e ? { p: e.p_b_cheaper, rec: e, flip: true } : null;
+  };
+
+  /* (1) Matrix P(Zeile guenstiger als Spalte) */
+  const head = [{ l: 'P(Zeile&nbsp;&lt;&nbsp;Spalte)' }].concat(order.map(p => ({ l: mcShort(p), num: true })));
+  const rows = order.map(a => [
+    (MC_IS_CCS(a) ? '↳ ' : '') + mcShort(a)
+  ].concat(order.map(b => {
+    if (a === b) return '<span style="color:var(--grid)">—</span>';
+    const r = pOf(a, b);
+    return r ? rankCell(r.p) : '–';
+  })));
+  const box = $('#table-mc-ranks'); clear(box);
+  box.appendChild(table(head, rows));
+
+  /* (2) Die entscheidungsrelevanten Paare mit Differenzverteilung */
+  const KEY_PAIRS = [
+    ['kostenminimum', 'ee80_gas', 'ohne CCS — <em>nicht</em> emissionsäquivalent'],
+    ['kostenminimum_ccs', 'ee80_gas_ccs', 'mit CCS auf beiden Seiten — die faire Ebene'],
+    ['kostenminimum_ccs', 'ee80_h2', 'Kernkraft mit CCS-Backup gegen den H₂-Pfad'],
+    ['ee80_gas_ccs', 'ee80_h2', 'zwei Wege, dasselbe fEE-Gerüst zu sichern'],
+    ['kostenminimum', 'ee100', 'die beiden Extreme des Feldes']
+  ].filter(([a, b]) => order.indexOf(a) >= 0 && order.indexOf(b) >= 0 && pOf(a, b));
+  const pairRows = KEY_PAIRS.map(([a, b, why]) => {
+    const r = pOf(a, b);
+    const rec = r.rec;
+    const med = r.flip ? -rec.median_diff_a_minus_b : rec.median_diff_a_minus_b;
+    const lo = r.flip ? -rec.p95_diff : rec.p5_diff;
+    const hi = r.flip ? -rec.p5_diff : rec.p95_diff;
+    return ['<strong>' + mcShort(a) + '</strong> vs. ' + mcShort(b) +
+      '<br><span style="font-size:13px;color:var(--soft)">' + why + '</span>',
+      rankCell(r.p),
+      (med >= 0 ? '+' : '') + fmt(med, 1),
+      fmt(lo, 0) + ' … ' + fmt(hi, 0),
+      rec.decided
+        ? '<span style="color:' + PAL.teal + ';font-weight:600">entschieden</span>'
+        : '<span style="color:var(--soft)">offen</span>'];
+  });
+  if (pairRows.length) {
+    box.appendChild(el('p', { cls: 'chart-sub', html:
+      '<strong>Die entscheidungsrelevanten Paare im Detail.</strong> Δ ist die Differenz ' +
+      '<em>erstes minus zweites Szenario</em> je gepaarter Ziehung; negativ heißt: das erste ist ' +
+      'günstiger. „Entschieden“ bedeutet, dass mindestens 95 % der Ziehungen in dieselbe Richtung ' +
+      'zeigen — nicht, dass die Frage sachlich geklärt wäre.' }));
+    box.appendChild(table([{ l: 'Paar' }, { l: 'P(erstes günstiger)', num: true },
+      { l: 'Median Δ €/MWh', num: true }, { l: 'P5 … P95 der Differenz', num: true },
+      { l: 'Urteil' }], pairRows));
+  }
+
+  $('#mc-rank-sub').innerHTML = 'Konfiguration <code>' + key + '</code> · ' + fmt(MC_N_DRAWS, 0) +
+    ' gepaarte Ziehungen · Anteil der Ziehungen, in denen das Zeilen-Szenario günstiger ausfällt als ' +
+    'das Spalten-Szenario. Werte ab 95&nbsp;% bzw. bis 5&nbsp;% sind hervorgehoben — dort ist die ' +
+    'Rangfolge innerhalb der dokumentierten Spannen entschieden. Das Referenzsystem „Ist 2025“ fehlt ' +
+    'in dieser Tabelle bewusst: Es hat eine andere Systemgrenze im Netzblock und darf nicht in eine ' +
+    'Reihe gestellt werden.';
+}
+
+/* Der eigentliche Befund - jetzt aus der Differenzverteilung, nicht aus der
+   Ueberlappung der Randverteilungen (Fehlschluss, korrigiert in v0.2). */
 function renderMcFinding() {
   const key = mcCfgKey();
-  const order = MC.order || S.mcRef.preset_order;
+  const ranks = (MC.ranks || {})[key] || [];
+  const order = (MC.order || S.mcRef.preset_order).filter(pid => MC.res[pid].comparable !== false);
+  const comparable = ranks.filter(r => order.indexOf(r.a) >= 0 && order.indexOf(r.b) >= 0);
+  const open = comparable.filter(r => !r.decided);
   const items = order.map(pid => ({ id: pid, label: MC.res[pid].label, det: MC.res[pid].det,
     st: MC.res[pid].configs[key] }));
   const byMedian = items.slice().sort((a, b) => a.st.p50 - b.st.p50);
-  const overlaps = [];
-  for (let i = 0; i < byMedian.length - 1; i++) {
-    const a = byMedian[i], b = byMedian[i + 1];
-    if (a.st.p95 > b.st.p5) {
-      overlaps.push({ a: a, b: b, from: b.st.p5, to: a.st.p95 });
-    }
-  }
   const detOrder = items.slice().sort((x, y) => x.det - y.det).map(x => x.id).join('>');
   const medOrder = byMedian.map(x => x.id).join('>');
 
-  let html = '<strong>Was die Verteilungen über die Rangfolge sagen.</strong> ';
-  if (overlaps.length) {
-    html += 'Bei dieser Einstellung überlappen sich <strong>' + overlaps.length + ' von ' +
-      (byMedian.length - 1) + '</strong> benachbarten Szenario-Paaren im Bereich P5–P95: ' +
-      overlaps.map(o => '<em>' + o.a.label + '</em> und <em>' + o.b.label + '</em> (gemeinsamer Bereich ' +
-        fmt(o.from, 0) + '–' + fmt(o.to, 0) + ' €/MWh)').join('; ') + '. ' +
-      'Für diese Paare ist die Reihenfolge <strong>nicht entschieden</strong>: Es gibt Parametersätze ' +
-      'innerhalb der dokumentierten Spannen, bei denen das jeweils teurere Szenario günstiger ausfällt. ' +
-      'Wer die Punktwerte als Ranking liest, liest mehr hinein, als die Datenlage hergibt.';
+  let html = '<strong>Was die gepaarten Ziehungen über die Rangfolge sagen.</strong> ';
+  html += 'Bei dieser Einstellung sind <strong>' + (comparable.length - open.length) + ' von ' +
+    comparable.length + '</strong> vergleichbaren Szenario-Paaren entschieden (≥&nbsp;95&nbsp;% der ' +
+    'Ziehungen zeigen in dieselbe Richtung). ';
+  if (open.length) {
+    html += 'Offen bleiben: ' + open.map(r =>
+      '<em>' + mcShort(r.a) + '</em> gegen <em>' + mcShort(r.b) + '</em> (P&nbsp;=&nbsp;' +
+      fmt(r.p_a_cheaper * 100, 1) + '&nbsp;%, Median-Δ ' +
+      (r.median_diff_a_minus_b >= 0 ? '+' : '') + fmt(r.median_diff_a_minus_b, 1) + '&nbsp;€/MWh)'
+    ).join('; ') + '. Für diese Paare gibt es innerhalb der dokumentierten Spannen Parametersätze, ' +
+      'bei denen die Reihenfolge kippt — und zwar nicht selten, sondern in einem relevanten Anteil ' +
+      'der Ziehungen.';
   } else {
-    html += 'Bei dieser Einstellung überlappt kein benachbartes Szenario-Paar im Bereich P5–P95. ' +
-      'Die Rangfolge ist innerhalb der dokumentierten Parameterspannen stabil — was ausdrücklich ' +
-      '<em>nicht</em> heißt, dass sie gegenüber den nicht variierten Größen (Wetterjahr, Physik, ' +
-      'Datenlücken) stabil wäre.';
+    html += 'Kein Paar bleibt offen. Das heißt ausdrücklich <em>nicht</em>, dass die Rangfolge ' +
+      'gegenüber den nicht variierten Größen stabil wäre — Wetterjahr, Dispatch-Physik, ' +
+      'Speicherauslegung und die dokumentierten Datenlücken stehen außerhalb dieser Bänder.';
   }
   html += ' Die Rangfolge nach Median ist ' + (detOrder === medOrder
     ? 'dieselbe wie nach den Punktwerten'
     : '<strong>eine andere als nach den Punktwerten</strong>') + '.';
 
   const widest = items.slice().sort((a, b) => (b.st.p95 - b.st.p5) - (a.st.p95 - a.st.p5))[0];
-  html += ' Die breiteste Verteilung hat <em>' + widest.label + '</em> mit ' +
+  html += ' Die breiteste Verteilung hat <em>' + mcShort(widest.id) + '</em> mit ' +
     fmt(widest.st.p95 - widest.st.p5, 0) + ' €/MWh zwischen P5 und P95 (' +
     pct((widest.st.p95 - widest.st.p5) / widest.st.p50, 0) + ' des Medians).';
+
+  /* Der Punkt, den man ohne gepaarte Ziehungen nicht sehen kann. */
+  const spurious = comparable.filter(r =>
+    r.decided && MC.res[r.a].configs[key].p95 > MC.res[r.b].configs[key].p5 &&
+    MC.res[r.b].configs[key].p95 > MC.res[r.a].configs[key].p5);
+  if (spurious.length) {
+    html += '<br><br><strong>Warum das Überlappungsargument nicht trägt:</strong> Bei ' +
+      spurious.length + ' dieser Paare überlappen sich die P5–P95-Bänder <em>trotzdem</em> — die ' +
+      'alte Lesart hätte sie als „nicht entschieden“ ausgewiesen, obwohl die Differenz je Ziehung ' +
+      'in mindestens 95 % der Fälle dasselbe Vorzeichen hat. Beispiel: <em>' +
+      mcShort(spurious[0].a) + '</em> gegen <em>' + mcShort(spurious[0].b) + '</em> mit P&nbsp;=&nbsp;' +
+      fmt(Math.max(spurious[0].p_a_cheaper, spurious[0].p_b_cheaper) * 100, 1) + '&nbsp;%.';
+  }
   $('#mc-finding').innerHTML = html;
 }
 
 function renderMcAll() {
   if (!MC.res) return;
+  syncMcToggles();
   renderMcChart();
+  renderMcRanks();
   renderMcTable();
   renderMcFinding();
   const key = mcCfgKey();
+  const cfgMeta = (S.mcRef.configs || []).find(c => c.id === key) || {};
+  const nPresets = (MC.order || S.mcRef.preset_order).length;
   $('#mc-chart-sub').innerHTML = 'Einstellung: WACC ' +
     (MC.wacc ? '<strong>unsicher</strong> (Dreieck 3 / 5 / 9 %)' : '<strong>fest</strong> (5 %)') +
+    ' · CO₂-Preis ' + (MC.co2 ? '<strong>unsicher</strong>' : '<strong>fest</strong>') +
     ' · empirische Kostenüberschreitung ' + (MC.overrun ? '<strong>an</strong>' : '<strong>aus</strong>') +
-    ' · ' + fmt(MC_N_DRAWS, 0) + ' Ziehungen je Szenario · Konfiguration <code>' + key + '</code> · ' +
+    ' · Kernkraft-CAPEX ' + (MC.asia ? '<strong>Kontrast Asien/Golf</strong>' : '<strong>westliche Basisspanne</strong>') +
+    ' · ' + fmt(MC_N_DRAWS, 0) + ' gepaarte Ziehungen · Konfiguration <code>' + key + '</code> · ' +
     'Rechenzeit im Browser ' + fmt(MC.ms, 0) + ' ms für alle ' +
-    (MC_CONFIGS.length * (MC.order || S.mcRef.preset_order).length) + ' Kombinationen. ' +
-    '<span class="simlabel simdata"></span>';
+    (MC_CONFIGS.length * nPresets) + ' Kombinationen (' + MC_CONFIGS.length + ' Konfigurationen × ' +
+    nPresets + ' Szenarien). <span class="simlabel simdata"></span>';
+  $('#mc-config-note').innerHTML = '<strong>Gerechnete Konfiguration: <code>' + key + '</code></strong>' +
+    (cfgMeta.label ? ' — ' + deAscii(cfgMeta.label) : '') + '. Alle ' + MC_CONFIGS.length +
+    ' Konfigurationen sind bereits gerechnet; die Schalter blättern zwischen ihnen, sie starten keine ' +
+    'neue Rechnung. Nicht jede Kombination existiert: Der Asien/Golf-Kontrast wird bewusst nicht mit ' +
+    'der Überschreitungs-Empirie gemischt (dazu unten), und einen kombinierten CO₂-plus-Überschreitungs-' +
+    'Lauf gibt es nicht. Die dann gesperrten Schalter zeigen das an, statt still etwas anderes zu rechnen.';
   applySimLabels();
+  buildCitations();
 }
 
 function renderMcChapter() {
@@ -3490,18 +4059,55 @@ function renderMcChapter() {
     });
   };
   $('#mc-wacc').onchange = e => { MC.wacc = e.target.checked; renderMcAll(); };
+  $('#mc-co2').onchange = e => { MC.co2 = e.target.checked; renderMcAll(); };
   $('#mc-overrun').onchange = e => { MC.overrun = e.target.checked; renderMcAll(); };
+  $('#mc-asia').onchange = e => { MC.asia = e.target.checked; renderMcAll(); };
+
+  /* --- Erklaertexte zu den vier Schaltern ------------------------------- */
+  const co2Spec = S.params.global.co2_price_eur_t;
+  $('#mc-co2-hint').innerHTML = 'Dreieck ' + fmt(co2Spec.min, 0) + ' / ' + fmt(co2Spec.mid, 0) + ' / ' +
+    fmt(co2Spec.max, 0) + ' €/t ' + confBadge(co2Spec.confidence) + '. Abgeschaltet rechnen alle ' +
+    'Ziehungen mit ' + fmt(Number(co2Spec.value), 0) + ' €/t. Der CO₂-Preis ist die einzige Größe in ' +
+    'dieser Auswahl, die die Rangfolge zwischen Kernkraft- und Gas-Pfad <em>umdrehen</em> kann — er ' +
+    'trifft ausschließlich die fossile Seite und wirkt dort proportional zur Gasarbeit.' +
+    cite('uba-methodenkonvention');
+
+  const contrast = (S.mcRef.meta || {}).nuclear_capex_contrast || {};
+  const alt = S.params.technologies.nuclear.capex_alternative_asia_gulf;
+  const baseCapex = S.params.technologies.nuclear.params.capex_eur_kw;
+  $('#mc-asia-hint').innerHTML = 'Ersetzt <strong>ausschließlich</strong> die Kernkraft-CAPEX-Verteilung ' +
+    'durch ' + fmt(alt.min, 0) + ' / ' + fmt(alt.mid, 0) + ' / ' + fmt(alt.max, 0) + ' €/kW ' +
+    confBadge(alt.confidence) + ' bei ' + fmt(Number(alt.construction_years.value), 0) + ' Jahren Bauzeit ' +
+    confBadge(alt.construction_years.confidence) + ' — statt der westlichen Basisspanne ' +
+    fmt(baseCapex.min, 0) + ' / ' + fmt(baseCapex.mid, 0) + ' / ' + fmt(baseCapex.max, 0) + ' €/kW. ' +
+    'Alles andere bleibt gleich. Warum diese Werte <em>nicht</em> in der Basisspanne stehen, ' +
+    'steht unter der Tabelle.';
 
   const ovPlan = mcOverrunPlan(S.page);
   const ko = S.page.kostenueberschreitung_faktoren;
+  /* Der Ziehungsplan fuehrt jede Projektklasse mehrfach (je Technologie).
+     Fuer die Anzeige einmal genuegt - die Reihenfolge des Plans bleibt
+     unangetastet, sie bestimmt die Ziehungsfolge. */
+  const OV_LABEL = { solar: 'Solar', wind: 'Wind', kernkraft: 'Kernkraft',
+    fossil_thermisch: 'fossil-thermisch', netz_uebertragung: 'Übertragungsnetz' };
+  const ovSeen = {};
+  const ovShown = ovPlan.filter(o => (ovSeen[o.cls] ? false : (ovSeen[o.cls] = 1)));
   $('#mc-overrun-hint').innerHTML = 'Multipliziert den CAPEX je Technologie mit einem empirischen ' +
     'Überschreitungsfaktor, ebenfalls als Dreieck: ' +
-    ovPlan.map(o => o.cls + ' ' + fmt((o.mid - 1) * 100, 0) + ' % [' +
-      fmt((o.min - 1) * 100, 0) + '–' + fmt((o.max - 1) * 100, 0) + ' %]').join(' · ') +
+    ovShown.map(o => (OV_LABEL[o.cls] || o.cls) + ' +' + fmt((o.mid - 1) * 100, 0) + ' % [+' +
+      fmt((o.min - 1) * 100, 0) + ' bis +' + fmt((o.max - 1) * 100, 0) + ' %]').join(' · ') +
     '. Modus = Flyvbjerg-Wert (sonst Sovacool), Grenzen = dokumentierte Modellspanne ' +
     confBadge(ko.technologien.kernkraft.stufe) + cite('flyvbjerg-2023') + cite('sovacool-ryu-2025') +
-    '. Batterie, Elektrolyse und H₂ haben in beiden Datensätzen keine Projektklasse und bleiben ' +
-    'deshalb bei 1,00 — statt eine Zahl zu erfinden.';
+    '. <strong>Dieser Lauf ist ausdrücklich asymmetrisch:</strong> Batterie, Elektrolyse, H₂-Speicher ' +
+    'und H₂-Turbine haben in beiden Datensätzen <em>keine</em> Projektklasse und bleiben deshalb bei ' +
+    '1,00 — das ist eine Datenlücke, keine Messung. Der Schalter stresst also die Kernkraft- und ' +
+    'Netzseite stärker als die Speicher- und Wasserstoffseite; die nächstgelegenen Analoga wären ' +
+    'Wasserkraft (+' + fmt((ko.technologien.wasserkraft.flyvbjerg - 1) * 100, 0) + ' %) und nukleare ' +
+    'Endlagerung (+' + fmt((ko.technologien.nukleare_endlagerung.flyvbjerg - 1) * 100, 0) + ' %). ' +
+    'Ergebnisse aus dieser Konfiguration ohne diesen Hinweis zu zitieren, wäre unredlich ' +
+    '(Limitation <code>overrun_asymmetry</code>). Seit v0.2 wirkt der Faktor außerdem nur noch auf ' +
+    'CAPEX-Anker, die tatsächlich eine <em>Entscheidungsschätzung</em> sind — auf bereits ' +
+    'realisierte Kosten (Hinkley Point C) nicht, sonst wäre er doppelt gezählt.';
 
   const plan = mcDrawPlan(S.params);
   $('#mc-method').innerHTML = '<strong>Was hier gerechnet wird — und was nicht.</strong> ' +
@@ -3514,17 +4120,21 @@ function renderMcChapter() {
     'dass min/max harte Grenzen sind. Beides ist nicht belegt, sondern die übliche Wahl, wenn nur ' +
     'drei Punkte einer Verteilung bekannt sind. ' + confBadge('M') +
     '<br><br><strong>Nicht variiert werden:</strong> das Wetterjahr und die Lastprofile, die Physik ' +
-    'des Dispatch (siehe unten), Lebensdauern, Wirkungsgrade, Brennstoff- und Entsorgungskosten, ' +
-    'der CO₂-Preis (fest ' + fmt(Number(S.params.global.co2_price_eur_t.value), 0) + ' €/t), das ' +
+    'des Dispatch (siehe unten), Lebensdauern, Wirkungsgrade, Entsorgungskosten, das ' +
     'Netzinvestitionsvolumen und die H₂-Speicherkosten (deren dokumentierte Spanne öffnet nur nach ' +
     'unten und ist laut Parameternotiz nur bei hoher Zyklenzahl erreichbar — der simulierte ' +
-    'Saisonspeicher hat aber genau einen Zyklus im Jahr).' +
-    '<br><br><strong>Alle Ziehungen sind unabhängig.</strong> Reale Korrelationen — gemeinsame ' +
-    'Rohstoff- und Zinsentwicklung, hoher CAPEX an guten Standorten (genau die Warnung, die in ' +
+    'Saisonspeicher hat aber genau einen Zyklus im Jahr). Der Erdgas-Brennstoffpreis <em>wird</em> ' +
+    'seit v0.2 gezogen, der CO₂-Preis und der WACC über die Schalter oben.' +
+    '<br><br><strong>Gepaart zwischen Szenarien, unabhängig zwischen Parametern.</strong> Innerhalb ' +
+    'einer Ziehung sind alle Parameter über alle Szenarien identisch (common random numbers) — nur ' +
+    'so ist die Differenz zweier Szenarien eine sinnvolle Größe. <em>Zwischen</em> den Parametern ' +
+    'sind die Ziehungen dagegen unabhängig: Reale Korrelationen — gemeinsame Rohstoff- und ' +
+    'Zinsentwicklung, hoher CAPEX an guten Standorten (genau die Warnung, die in ' +
     '<code>scenario_sets._warning</code> steht) — sind nicht abgebildet. Das macht die Ränder der ' +
     'Verteilung eher zu schmal als zu breit.' +
     '<br><br><strong>Die zentrale Vereinfachung:</strong> Der stündliche Dispatch wird je Szenario ' +
-    '<strong>einmal</strong> mit mittleren Parametern gerechnet und wiederverwendet; die 1.000 ' +
+    '<strong>einmal</strong> mit mittleren Parametern gerechnet und wiederverwendet; die ' +
+    fmt(MC_N_DRAWS, 0) + ' ' +
     'Ziehungen wirken nur auf die Kostenseite. Für CAPEX, Fixbetrieb und WACC ist das exakt richtig ' +
     '— sie beeinflussen die Physik nicht. Für die Volllaststunden ist es eine Näherung: Sie ändern ' +
     'im Modell eigentlich auch die installierte Leistung und damit Erzeugung, Abregelung und ' +
@@ -3535,8 +4145,77 @@ function renderMcChapter() {
     ', PRNG mulberry32). Diese Seite rechnet dieselben Ziehungen live nach und vergleicht die ' +
     'Mediane mit der Python-Referenz — das Ergebnis steckt im Verifikations-Badge im Fußbereich.';
 
-  $('#mc-wacc').checked = MC.wacc;
-  $('#mc-overrun').checked = MC.overrun;
+  /* --- Kapiteltexte, die Zahlen aus den Daten brauchen ------------------ */
+  const order = MC.order || ref.preset_order;
+  const cmp = order.filter(pid => MC.res[pid].comparable !== false);
+  $('#mc-intro-points').innerHTML = 'Für die vergleichbaren Szenarien sind das ' +
+    cmp.map(pid => fmt(MC.res[pid].det, 1) + '&nbsp;€/MWh').join(', ') + '. ';
+
+  const basePairs = (MC.ranks || {}).base || [];
+  const nucGas = basePairs.find(r => r.a === 'kostenminimum' && r.b === 'ee80_gas');
+  $('#mc-paired-fix').innerHTML = '<br><br><strong>Was stattdessen gerechnet wird.</strong> Seit ' +
+    'Modellversion 0.2 läuft je Konfiguration <em>ein</em> Ziehungsstrom, und jede Ziehung wird auf ' +
+    'alle ' + order.length + ' Szenarien angewandt. Damit lässt sich je Ziehung die <strong>Differenz</strong> ' +
+    'zweier Szenarien bilden und auszählen, wie oft A günstiger ist als B. Das ist die Zahl, die eine ' +
+    'Rangfolge trägt — nicht die Frage, ob sich zwei Bänder berühren.' +
+    (nucGas ? ' Beispiel im Basisfall: <em>' + mcShort('kostenminimum') + '</em> gegen <em>' +
+      mcShort('ee80_gas') + '</em> ergibt P&nbsp;=&nbsp;' + fmt(nucGas.p_a_cheaper * 100, 1) +
+      '&nbsp;% bei einem Median-Δ von ' + (nucGas.median_diff_a_minus_b >= 0 ? '+' : '') +
+      fmt(nucGas.median_diff_a_minus_b, 1) + '&nbsp;€/MWh — hier ist die Rangfolge tatsächlich offen, ' +
+      'und jetzt zum ersten Mal belegt statt behauptet.' : '');
+
+  $('#mc-scope-note').innerHTML = 'Die Regler aus Kapitel 5 wirken hier <em>nicht</em>: Die ' +
+    'Monte-Carlo-Rechnung läuft immer auf denselben ' + order.length + ' Szenario-Presets, damit die ' +
+    'Verteilungen untereinander vergleichbar bleiben. Zwei davon (die CCS-Varianten) sind keine ' +
+    'eigenen Zukünfte, sondern <em>Varianten</em> ihres Basis-Szenarios: gleicher Mix, gleiches ' +
+    'Dispatch, nur ein anderes Backup.';
+
+  $('#mc-rank-intro').innerHTML = 'Die folgende Tabelle beantwortet die Frage, die ein Kostenvergleich ' +
+    'eigentlich stellt: <strong>Wie oft ist Szenario A günstiger als Szenario B?</strong> Weil die ' +
+    'Ziehungen gepaart sind, lässt sich das direkt auszählen — je Ziehung wird die Differenz gebildet ' +
+    'und das Vorzeichen gezählt. Eine Rangfolge gilt hier als <em>entschieden</em>, wenn mindestens ' +
+    '95 % der Ziehungen dasselbe Vorzeichen haben. <strong>Der wichtigste Vorbehalt steht dabei nicht ' +
+    'in der Tabelle:</strong> Szenarien ohne CCS sind nicht emissionsäquivalent — ' +
+    (MC.res.kostenminimum && MC.res.ee80_gas
+      ? fmt(MC.res.kostenminimum.emissions_mt_co2_a, 1) + ' gegen ' +
+        fmt(MC.res.ee80_gas.emissions_mt_co2_a, 1) + ' Mt CO₂/a. '
+      : '') +
+    'Ein Kostenvergleich zwischen zwei verschieden sauberen Systemen ist keine Aussage über ' +
+    'Technologien, sondern über Emissionsniveaus. Genau dafür gibt es die CCS-Varianten.';
+
+  /* Asien/Golf-Kontrast: Begruendung und Gegenposition woertlich aus dem Datensatz. */
+  const ct = contrast;
+  const kmA = (MC.res.kostenminimum || {}).configs, kmBase = kmA ? kmA.base : null,
+    kmAsia = kmA ? kmA.asia : null;
+  $('#mc-contrast').innerHTML = '<strong>Der Kontrast Asien/Golf — und warum er nicht in der ' +
+    'Basisspanne steht.</strong> ' +
+    (kmBase && kmAsia
+      ? 'Tauscht man nur die Kernkraft-CAPEX-Verteilung gegen den asiatisch-arabischen Cluster aus, ' +
+        'fällt der Median des Kostenminimum-Szenarios von <strong>' + fmt(kmBase.p50, 0) + '</strong> auf ' +
+        '<strong>' + fmt(kmAsia.p50, 0) + ' €/MWh</strong> — rund ' +
+        fmt(kmBase.p50 - kmAsia.p50, 0) + ' €/MWh Systemkosten, allein aus der Frage, welchen ' +
+        'Institutionenrahmen man unterstellt. Das ist mehr, als der gesamte Abstand zwischen den ' +
+        'beiden führenden Szenarien beträgt. '
+      : '') +
+    'Die Begründung für den Ausschluss steht wörtlich im Datensatz ' +
+    '(<code>nuclear_capex_contrast.rationale_not_in_base_range</code>): ' +
+    (ct.rationale_not_in_base_range
+      ? '<br><br><em>„' + deAscii(String(ct.rationale_not_in_base_range).replace(/^[^:]*woertlich:\s*'?/, '').replace(/'$/, '')) + '“</em>'
+      : '') +
+    (ct.counterposition
+      ? '<br><br><strong>Die Gegenposition, ebenfalls aus dem Datensatz</strong> ' +
+        '(<code>counterposition</code>): ' + deAscii(ct.counterposition)
+      : '') +
+    (ct.construction_years && ct.construction_years.note
+      ? '<br><br><strong>Zur Bauzeit:</strong> ' + deAscii(ct.construction_years.note) + ' ' +
+        confBadge(ct.construction_years.confidence)
+      : '') +
+    '<br><br><strong>Was der Kontrast nicht ist:</strong> ein Deutschland-Szenario. Er zeigt, was ' +
+    'dieselbe Rechnung unter einem anderen Institutionenrahmen ergäbe, nicht, was hier baubar wäre. ' +
+    'Deshalb wird er nie mit der Basisspanne gemischt und nie mit der Überschreitungs-Empirie ' +
+    'kombiniert — die Anker dieses Clusters sind realisierte Kosten, keine Entscheidungsschätzungen.';
+
+  syncMcToggles();
   $('#mc-run').disabled = false;
   renderMcAll();
   buildCitations();
