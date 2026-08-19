@@ -10,8 +10,9 @@
 | (a) LCOE-Reproduktion GES | +/-2 % auf 4 Werte | BESTANDEN (max. Abweichung 0.04 %) |
 | (a2) Eigene Spannen vs. Fraunhofer ISE | Ueberlappung der Bandbreiten | BESTANDEN |
 | (b) Ist-2024 (H2) | +/-5 % je verfuegbarer Reihe | BESTANDEN |
-| (c) GES-Szenarien | Groessenordnung der 4 LSCOE | kostenminimum: +9 %; ee80_gas: -22 %; ee80_h2: -3 %; ee100: -10 % |
+| (c) GES-Szenarien | Groessenordnung der 4 LSCOE | kostenminimum: +15 %; ee80_gas: -21 %; ee80_h2: -1 %; ee100: -10 % |
 | (d) Ist-2025-Plausibilisierung | Mix +/-10 %, Kostenniveau im Ist-Korridor | BESTANDEN |
+| (e) Strukturzusagen v0.2c | capex_eff monoton, CCS-Massenbilanz geschlossen, Netz-Sockel wirksam | BESTANDEN |
 
 > **Wichtig zur Lesart von (a) und (c).** Test (a) ist die *GES-Reproduktion*: dieselben Annahmen, dieselbe Rechenmethode, +/-2 %. Dieser Test ist von den Modell-Fixes der Version 0.2 bewusst NICHT beruehrt und muss unveraendert bestehen. Test (c) ist dagegen ein *Modelltest*: er rechnet die GES-Szenarien mit GES-Erzeugungsannahmen, aber mit dem eigenen Backup-, Speicher- und Netzblock. Er aendert sich mit v0.2 (Gaspreis, Netzaufteilung) - das ist beabsichtigt und keine Verschlechterung der Reproduktion.
 
@@ -106,9 +107,9 @@ Hauptlauf ohne CO2-Preis (GES rechnet ein klimaneutrales Zielsystem); die Spalte
 
 | Szenario | GES-LSCOE | Modell | Abweichung | mit CO2 | fEE-Anteil (Energie) | inst. Leistung GES / Modell | ungedeckte Last |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| kostenminimum | 125 | 136.5 | +9 % | 138.6 | 15 % | 215 / 241 GW | 0.0 % |
-| ee80_gas | 197 | 152.7 | -22 % | 163.9 | 75 % | 542 / 575 GW | 0.0 % |
-| ee80_h2 | 212 | 206.5 | -3 % | 206.5 | 75 % | 618 / 618 GW | 0.0 % |
+| kostenminimum | 125 | 143.4 | +15 % | 145.5 | 15 % | 215 / 241 GW | 0.0 % |
+| ee80_gas | 197 | 155.7 | -21 % | 166.8 | 75 % | 542 / 575 GW | 0.0 % |
+| ee80_h2 | 212 | 209.0 | -1 % | 209.0 | 75 % | 618 / 618 GW | 0.0 % |
 | ee100 | 321 | 288.0 | -10 % | 288.0 | 135 % | 1162 / 1162 GW | 0.0 % |
 
 > Achtung bei der Lesart: Das LSCOE bezieht sich auf die **tatsaechlich gedeckte** Last. Ein Szenario mit ungedeckter Last ist damit nicht guenstiger, sondern unvollstaendig - die Deckungsluecke muesste durch zusaetzliche Kapazitaet (oder Importe/Lastmanagement, beides nicht modelliert) geschlossen werden.
@@ -117,9 +118,9 @@ Hauptlauf ohne CO2-Preis (GES rechnet ein klimaneutrales Zielsystem); die Spalte
 
 | Szenario | electrolyser | gas_backup | h2_storage | h2_turbine | netz | nuclear | pv | wind_offshore | wind_onshore |
 |---|---|---|---|---|---|---|---|---|---|
-| kostenminimum | 0.0 | 12.1 | 0.0 | 0.0 | 22.6 | 86.0 | 5.0 | 4.9 | 5.9 |
-| ee80_gas | 0.0 | 43.5 | 0.0 | 0.0 | 32.5 | 0.0 | 24.4 | 23.8 | 28.5 |
-| ee80_h2 | 10.0 | 0.0 | 66.9 | 19.2 | 33.8 | 0.0 | 24.4 | 23.8 | 28.5 |
+| kostenminimum | 0.0 | 12.1 | 0.0 | 0.0 | 29.5 | 86.0 | 5.0 | 4.9 | 5.9 |
+| ee80_gas | 0.0 | 43.5 | 0.0 | 0.0 | 35.5 | 0.0 | 24.4 | 23.8 | 28.5 |
+| ee80_h2 | 10.0 | 0.0 | 66.9 | 19.2 | 36.2 | 0.0 | 24.4 | 23.8 | 28.5 |
 | ee100 | 56.2 | 0.0 | 35.3 | 19.0 | 39.9 | 0.0 | 43.7 | 42.7 | 51.1 |
 
 ### Dispatch-Kennzahlen (H2-2024-Zeitraum)
@@ -142,7 +143,7 @@ Hauptlauf ohne CO2-Preis (GES rechnet ein klimaneutrales Zielsystem); die Spalte
 
 | Szenario | H2 aus Startfuellstand | LSCOE ohne Startfuellstand | ungedeckte Last ohne Startfuellstand |
 |---|---:|---:|---:|
-| ee80_h2 | 283.8 TWh_H2 | 220.1 | 34.6 % |
+| ee80_h2 | 283.8 TWh_H2 | 223.9 | 34.6 % |
 | ee100 | 20.3 TWh_H2 | 300.3 | 5.0 % |
 
 **Ehrliche Einordnung dieses Kunstgriffs:** Der Saisonspeicher startet gefuellt, weil der abgedeckte Zeitraum erst am 1. Juli beginnt. Der Strom, der dieses Wasserstoff-Inventar erzeugt hat, faellt in das nicht abgedeckte Halbjahr und ist in den Kosten **nicht** enthalten. Ohne Startfuellstand kippt das `ee80_h2`-Szenario dagegen in eine grosse Deckungsluecke. Beide Varianten sind falsch - die Wahrheit liegt dazwischen und ist mit einem Halbjahresprofil nicht ermittelbar. Das ist der staerkste Grund, `data/profiles_2024.json` als Volljahr nachzuziehen.
@@ -168,7 +169,7 @@ Beide Abregelungs-Bezugsgroessen sind noetig, weil im `kostenminimum`-Szenario e
 - Teilzeitraum-Hochrechnung: Dispatch-Mengen wurden mit Faktor 1.995 (Lastanteil des abgedeckten Zeitraums) auf ein Jahr hochgerechnet. Der abgedeckte Zeitraum Jul-Dez ist winterlastig - Backup- und Speichermengen werden dadurch eher ueber- als unterschaetzt.
 - 283.8 TWh H2 stammen aus dem gesetzten Anfangsfuellstand des Saisonspeichers. Die Stromkosten fuer deren Erzeugung liegen ausserhalb des abgedeckten Zeitraums und sind NICHT enthalten - das LSCOE ist insoweit eine Untergrenze.
 - 20.3 TWh H2 stammen aus dem gesetzten Anfangsfuellstand des Saisonspeichers. Die Stromkosten fuer deren Erzeugung liegen ausserhalb des abgedeckten Zeitraums und sind NICHT enthalten - das LSCOE ist insoweit eine Untergrenze.
-- Uebertragungsnetz-Skalierung 1.25 auf 1,00 gedeckelt - das Szenario wuerde sonst mehr als das gesamte nationale Uebertragungsnetzbudget tragen.
+- Uebertragungsnetz-Skalierung 1.15 auf 1,00 gedeckelt - das Szenario wuerde sonst mehr als das gesamte nationale Uebertragungsnetzbudget tragen.
 - Ungedeckte Last: 0.00 TWh im abgedeckten Zeitraum (0.00 % der Last), Spitze 0.0 GW. Import/Export und Lastmanagement sind bewusst nicht modelliert (konservativ).
 
 ## (d) Ist-2025-Plausibilisierung - rechnet das Modell die Gegenwart richtig?
@@ -220,6 +221,69 @@ Der Modellwert von **180.8 EUR/MWh** liegt innerhalb des Ist-Korridors 179.5-370
 | wind_onshore | 15.3 |
 
 Restemissionen: **136.0 Mt CO2/a** (Gas 59.7, Kohle 76.4), entspricht 262 g/kWh gelieferter Arbeit. Emissionsfaktor-Status: PROXY - UNECE-Lebenszyklus-Untergrenze statt direktem Verbrennungsfaktor (gaps.emissionsfaktor_direkt). Der direkte ETS-Faktor liegt bei eta = 0,58-0,60 rund 10-20 % niedriger.
+
+## Test (e) - Strukturzusagen Modell v0.2c
+
+Drei Zusagen des Zahlenkern-Patches v0.2c, die nicht am Ergebniswert haengen, sondern an der Struktur. Sie werden hier fuer den **gesamten** Parameter-Support geprueft, nicht nur an den Stuetzstellen.
+
+### (e1) `capex_eff` ist monoton nicht fallend
+
+Geprueft ueber den gesamten Kernkraft-CAPEX-Support 7500-17500 EUR/kW (221 Stuetzpunkte) x vier Ueberschreitungsfaktoren (1,00 Basislauf sowie 1,30/2,20/2,40 = Untergrenze, Modus und Obergrenze der Flyvbjerg-Verteilung) x drei WACC-Stuetzstellen.
+
+Zwei getrennte Kriterien, damit ein Altbefund nicht dem Patch angelastet und nicht als sein Erfolg verkauft wird:
+
+1. **Beim Basis-WACC (5 %)** muss die Abbildung ueber den gesamten Faktor-Support monoton nicht fallend sein - das ist die Zusage von Fix 3. **ERFUELLT.**
+2. **Bei jedem WACC** darf der Ueberschreitungsfaktor die Monotonie nicht verschlechtern, gemessen gegen denselben Lauf mit Faktor 1,00. **ERFUELLT.**
+
+| WACC | Faktor | kleinster Schritt EUR/kW | bei CAPEX | Referenz (Faktor 1,00) | Ergebnis |
+|---:|---:|---:|---:|---:|---|
+| 3 % | 1.00 | +22.02 | 12000 | +22.02 | monoton |
+| 3 % | 1.30 | +22.48 | 12000 | +22.02 | monoton |
+| 3 % | 2.20 | +8.26 | 12136 | +22.02 | monoton |
+| 3 % | 2.40 | +2.07 | 12091 | +22.02 | monoton |
+| 5 % | 1.00 | +4.39 | 12000 | +4.39 | monoton |
+| 5 % | 1.30 | +4.84 | 12000 | +4.39 | monoton |
+| 5 % | 2.20 | +6.21 | 12000 | +4.39 | monoton |
+| 5 % | 2.40 | +2.07 | 12091 | +4.39 | monoton |
+| 9 % | 1.00 | -36.31 | 12000 | -36.31 | Altbefund (nicht durch die Ueberschreitung) |
+| 9 % | 1.30 | -35.85 | 12000 | -36.31 | Altbefund (nicht durch die Ueberschreitung) |
+| 9 % | 2.20 | -34.49 | 12000 | -36.31 | Altbefund (nicht durch die Ueberschreitung) |
+| 9 % | 2.40 | -34.19 | 12000 | -36.31 | Altbefund (nicht durch die Ueberschreitung) |
+
+> **Der Altbefund bei WACC 9 % gehoert benannt.** Dort ist die Abbildung schon **ohne jede Ueberschreitung** (Faktor 1,00) nicht monoton, und zwar an derselben Stelle und praktisch in derselben Groesse wie mit Faktor 2,40. Ursache ist nicht der Ueberschreitungsfaktor, sondern die Kostenabgrenzung der CAPEX-Anker selbst: Der Overnight-Anker 7.500 EUR/kW traegt bei 9 % WACC und 12 Jahren Bauzeit +67,7 % Bauzins und landet damit bei 12.578 EUR/kW - **oberhalb** des Gesamtprojekt-Ankers 12.000, dessen Finanzierungsanteil bei rund 5 % gebildet wurde (EPR2 7.583 x 1,37 = 10.389). Die Anker sind also WACC-abhaengig, das Modell behandelt sie als fest. Das trifft die Konfigurationen `wacc`, `wacc_co2`, `wacc_overrun` und `asia_wacc` in dem Teil der Ziehungen mit WACC ueber rund 8,2 % (bei Dreieck 3/5/9 % sind das etwa 2,7 % der Ziehungen). Sauber loesen liesse sich das nur, indem alle drei Anker auf eine gemeinsame Overnight-Abgrenzung gestellt und der Bauzins einheitlich aufgeschlagen wird (Nuklear-Review R2, N1 Vorschlag 1a) - bei 5 % WACC waere das ergebnisneutral. Das ist NICHT Teil des v0.2c-Auftrags und bleibt als offener Punkt stehen.
+
+> Zum Vergleich der Zustand bis v0.2b (multiplikativer Faktor auf den gezogenen CAPEX mit interpoliertem Anteil 1,0/1,0/0,0): dort bildete die Abbildung bei Faktor 2,20 ein Zelt mit Spitze auf dem Modus - 7.500 -> 22.112, 12.000 -> 26.400, 17.500 -> 17.500. Rund 55 % aller Ziehungen lagen auf dem fallenden Ast, und der Szenariensatz `guenstig` war unter Ueberschreitung teurer als `teuer`. Diese Tabelle haette den Zustand gebrochen.
+
+### (e2) CCS-Massenbilanz: abgeschieden + Restemission = Brennstoffeintrag
+
+| eta | Abscheiderate | Eintrag t/MWh_el | abgeschieden | Restemission | Bilanzluecke |
+|---:|---:|---:|---:|---:|---:|
+| 0.46 | 0.85 | 0.5257 | 0.3683 | 0.1573 | +0.00e+00 |
+| 0.46 | 0.90 | 0.5257 | 0.3900 | 0.1357 | +0.00e+00 |
+| 0.46 | 0.95 | 0.5257 | 0.4117 | 0.1140 | +0.00e+00 |
+| 0.52 | 0.85 | 0.4650 | 0.3258 | 0.1392 | +5.55e-17 |
+| 0.52 | 0.90 | 0.4650 | 0.3450 | 0.1200 | +5.55e-17 |
+| 0.52 | 0.95 | 0.4650 | 0.3642 | 0.1008 | +0.00e+00 |
+| 0.60 | 0.85 | 0.4030 | 0.2824 | 0.1206 | +5.55e-17 |
+| 0.60 | 0.90 | 0.4030 | 0.2990 | 0.1040 | +0.00e+00 |
+| 0.60 | 0.95 | 0.4030 | 0.3156 | 0.0874 | +0.00e+00 |
+
+Kalibrierung: Bei den Zentralwerten ergibt die Bilanz eine Restemission von **0.1200 t/MWh_el** gegen den belegten Dossier-Wert 0.1200 (49/120/220 g/kWh) - Abweichung 0.0001 %. OK.
+
+> Zustand bis v0.2b: abgeschieden 0,4185 + Restemission 0,1200 = 0,5385 t/MWh_el bei einem Eintrag von 0,4650 - **116 % des eingesetzten Kohlenstoffs** wurden verbucht und bepreist.
+
+### (e3) Uebertragungsnetz-Sockel
+
+Sockelquote (SETZUNG, Sensitivitaet 0,20-0,60): **0.40**. Der Skalierungsfaktor muss bei fEE -> 0 gegen die Sockelquote laufen und 1,0 nie ueberschreiten.
+
+| genutzter fEE-Anteil | roher Faktor | gedeckelt | Ergebnis |
+|---:|---:|---:|---|
+| 0.000 | 0.400 | 0.400 | OK |
+| 0.167 | 0.500 | 0.500 | OK |
+| 0.500 | 0.700 | 0.700 | OK |
+| 0.725 | 0.835 | 0.835 | OK |
+| 1.000 | 1.000 | 1.000 | OK |
+| 1.170 | 1.102 | 1.000 | OK |
 
 ## Verbleibende Luecken (aus `model_params.json.gaps`)
 

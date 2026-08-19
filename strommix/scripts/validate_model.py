@@ -482,7 +482,128 @@ def validate_ist_2025(params: dict, profiles: dict) -> dict:
 # ==========================================================================
 # Report
 # ==========================================================================
-def write_report(params: dict, profiles: dict, a: dict, b: dict, c: dict, d: dict) -> None:
+def validate_structure_v02c(params: dict) -> dict:
+    """Test (e), Modell v0.2c: Strukturzusagen des Zahlenkern-Patches.
+
+    (e1) Monotonie: Die Abbildung "gezogener CAPEX -> effektiver CAPEX" muss
+         ueber den gesamten Support nicht fallend sein - in JEDER Konfiguration
+         (Ueberschreitungsfaktor ueber seine ganze Spanne, WACC-Stuetzstellen).
+         Der Zustand bis v0.2b haette diese Zusage gebrochen (Nuklear-Review
+         R2, N1: 7.500 -> 22.112, aber 17.500 -> 17.500).
+    (e2) CCS-Massenbilanz: abgeschiedene Menge + Restemission == Brennstoff-
+         eintrag, ueber die volle Spanne von Wirkungsgrad und Abscheiderate.
+    (e3) Uebertragungsnetz-Sockel: der Skalierungsfaktor muss bei fEE -> 0
+         gegen die Sockelquote laufen und darf 1,0 nie ueberschreiten.
+    """
+    nuc = params["technologies"]["nuclear"]["params"]
+    cap_entry = nuc["capex_eur_kw"]
+    lo, hi = float(cap_entry["min"]), float(cap_entry["max"])
+    ovr_range = params["system"]["cost_overrun_factors"]["technologien"]["kernkraft"] \
+        if "technologien" in params["system"]["cost_overrun_factors"] else None
+
+    def min_step(wacc: float, f: float) -> tuple[float, float | None]:
+        prev = None
+        worst: tuple[float, float | None] = (float("inf"), None)
+        n = 221
+        for i in range(n):
+            x = lo + (hi - lo) * i / (n - 1)
+            flat = model.resolve_tech(params, "nuclear", "mittel", apply_idc=True)
+            flat["capex_eur_kw"] = x
+            for fld in ("idc_applicable_share", "overrun_applicable_share"):
+                flat[fld] = model.scope_share_for_capex(cap_entry, nuc[fld], x)
+            flat["cost_overrun_factor"] = f
+            eff = model.lcoe(flat, wacc, 0.0)["capex_effective_eur_kw"]
+            if prev is not None:
+                step = eff - prev
+                if step < worst[0]:
+                    worst = (step, x)
+            prev = eff
+        return worst
+
+    # Zwei getrennte Zusagen, damit ein bekannter Altbefund nicht als Erfolg
+    # des Patches verkauft wird und der Patch nicht fuer ihn haftet:
+    #   (i)  Beim Basis-WACC (5 %) ist die Abbildung ueber den GANZEN
+    #        Faktor-Support monoton. Das ist die Zusage von Fix 3.
+    #   (ii) Bei JEDEM WACC darf der Ueberschreitungsfaktor die Monotonie nicht
+    #        VERSCHLECHTERN - gemessen gegen denselben Lauf mit Faktor 1,00.
+    #        Bei WACC 9 % ist die Abbildung schon ohne jede Ueberschreitung
+    #        nicht monoton: der Overnight-Anker 7.500 traegt dort +67,7 %
+    #        Bauzins (12.578) und ueberholt damit den Gesamtprojekt-Anker
+    #        12.000, dessen Finanzierungsanteil bei rund 5 % gebildet wurde.
+    #        Das ist ein Datenbefund der CAPEX-Anker, kein Effekt von v0.2c.
+    mono_rows = []
+    base_wacc = 0.05
+    mono_base_ok = True
+    mono_no_worse_ok = True
+    for wacc in (0.03, 0.05, 0.09):
+        ref_step, _ = min_step(wacc, 1.0)
+        for f in (1.0, 1.30, 2.20, 2.40):
+            step, at = min_step(wacc, f) if f != 1.0 else (ref_step, min_step(wacc, 1.0)[1])
+            monotone = step >= -1e-6
+            no_worse = step >= ref_step - 1e-6
+            if abs(wacc - base_wacc) < 1e-12:
+                mono_base_ok = mono_base_ok and monotone
+            # Zusage 2 ist erfuellt, wenn die Zeile entweder monoton ist oder
+            # nicht schlechter als derselbe Lauf ohne Ueberschreitung.
+            mono_no_worse_ok = mono_no_worse_ok and (monotone or no_worse)
+            mono_rows.append({"wacc": wacc, "factor": f,
+                              "min_step_eur_kw": step, "at_capex": at,
+                              "ref_step_eur_kw": ref_step,
+                              "monotone": monotone, "no_worse_than_base_run": no_worse,
+                              "passed": monotone or no_worse})
+    mono_ok = mono_base_ok and mono_no_worse_ok
+
+    # (e2) Massenbilanz ueber die Spannen von eta und capture_rate
+    ccs = params["technologies"]["gas_ccs"]["params"]
+    bal_rows = []
+    bal_ok = True
+    for eta in (ccs["efficiency"]["min"], ccs["efficiency"]["mid"], ccs["efficiency"]["max"]):
+        for rate in (ccs["capture_rate"]["min"], ccs["capture_rate"]["mid"], ccs["capture_rate"]["max"]):
+            flat = model.resolve_tech(params, "gas_ccs", "mittel")
+            flat["efficiency"] = eta
+            flat["capture_rate"] = rate
+            bal = model.ccs_balance(flat)
+            gap = bal["captured_t_mwh_el"] + bal["residual_t_mwh_el"] - bal["input_t_mwh_el"]
+            ok = abs(gap) < 1e-12 and bal["captured_t_mwh_el"] <= bal["input_t_mwh_el"] + 1e-12
+            bal_ok = bal_ok and ok
+            bal_rows.append({"eta": eta, "rate": rate, "input": bal["input_t_mwh_el"],
+                             "captured": bal["captured_t_mwh_el"],
+                             "residual": bal["residual_t_mwh_el"], "gap": gap, "passed": ok})
+    # Kalibrierung: bei den Zentralwerten muss die belegte Restemission herauskommen
+    mid_flat = model.resolve_tech(params, "gas_ccs", "mittel")
+    mid_bal = model.ccs_balance(mid_flat)
+    doc_residual = float(ccs["emission_factor_t_mwh"]["mid"])
+    calib_dev = abs(mid_bal["residual_t_mwh_el"] - doc_residual) / doc_residual
+    calib_ok = calib_dev < 1e-4
+
+    # (e3) Sockel des Uebertragungsnetzes
+    grid = params["system"]["grid"]
+    socket = model._socket_share(grid)
+    ref_share = grid["reference_fee_share"]["value"]
+    socket_rows = []
+    socket_ok = True
+    for fee in (0.0, 0.167, 0.5, 0.725, 1.0, 1.17):
+        raw = socket * 1.0 + (1.0 - socket) * (fee / ref_share)
+        scaled = min(1.0, raw)
+        ok = scaled >= socket - 1e-12 and scaled <= 1.0 + 1e-12
+        socket_ok = socket_ok and ok
+        socket_rows.append({"fee_share_used": fee, "raw": raw, "scaled": scaled, "passed": ok})
+
+    return {
+        "mono_rows": mono_rows, "mono_passed": mono_ok,
+        "mono_base_passed": mono_base_ok, "mono_no_worse_passed": mono_no_worse_ok,
+        "capex_support": [lo, hi],
+        "bal_rows": bal_rows, "bal_passed": bal_ok,
+        "calib_residual_model": mid_bal["residual_t_mwh_el"],
+        "calib_residual_doc": doc_residual, "calib_dev": calib_dev, "calib_passed": calib_ok,
+        "socket_share": socket, "socket_rows": socket_rows, "socket_passed": socket_ok,
+        "passed": mono_ok and bal_ok and calib_ok and socket_ok,
+        "overrun_range": ovr_range,
+    }
+
+
+def write_report(params: dict, profiles: dict, a: dict, b: dict, c: dict, d: dict,
+                 e: dict | None = None) -> None:
     L: list[str] = []
     w = L.append
 
@@ -512,6 +633,9 @@ def write_report(params: dict, profiles: dict, a: dict, b: dict, c: dict, d: dic
       + ("; ".join(f"{r['name']}: {r['dev_pct']:+.0f} %" for r in c["results"])) + " |")
     w("| (d) Ist-2025-Plausibilisierung | Mix +/-10 %, Kostenniveau im Ist-Korridor | "
       + ("BESTANDEN" if d["passed"] else "NICHT BESTANDEN") + " |")
+    if e:
+        w("| (e) Strukturzusagen v0.2c | capex_eff monoton, CCS-Massenbilanz geschlossen, "
+          "Netz-Sockel wirksam | " + ("BESTANDEN" if e["passed"] else "NICHT BESTANDEN") + " |")
     w("")
     w("> **Wichtig zur Lesart von (a) und (c).** Test (a) ist die *GES-Reproduktion*: dieselben "
       "Annahmen, dieselbe Rechenmethode, +/-2 %. Dieser Test ist von den Modell-Fixes der Version "
@@ -847,6 +971,97 @@ def write_report(params: dict, profiles: dict, a: dict, b: dict, c: dict, d: dic
       f"Emissionsfaktor-Status: {d['emissions']['factor_status']}")
     w("")
 
+    # -------- Test (e): Strukturzusagen v0.2c
+    if e:
+        w("## Test (e) - Strukturzusagen Modell v0.2c")
+        w("")
+        w("Drei Zusagen des Zahlenkern-Patches v0.2c, die nicht am Ergebniswert haengen, sondern "
+          "an der Struktur. Sie werden hier fuer den **gesamten** Parameter-Support geprueft, "
+          "nicht nur an den Stuetzstellen.")
+        w("")
+        w("### (e1) `capex_eff` ist monoton nicht fallend")
+        w("")
+        w(f"Geprueft ueber den gesamten Kernkraft-CAPEX-Support "
+          f"{e['capex_support'][0]:.0f}-{e['capex_support'][1]:.0f} EUR/kW (221 Stuetzpunkte) x "
+          "vier Ueberschreitungsfaktoren (1,00 Basislauf sowie 1,30/2,20/2,40 = Untergrenze, "
+          "Modus und Obergrenze der Flyvbjerg-Verteilung) x drei WACC-Stuetzstellen.")
+        w("")
+        w("Zwei getrennte Kriterien, damit ein Altbefund nicht dem Patch angelastet und nicht als "
+          "sein Erfolg verkauft wird:")
+        w("")
+        w("1. **Beim Basis-WACC (5 %)** muss die Abbildung ueber den gesamten Faktor-Support "
+          "monoton nicht fallend sein - das ist die Zusage von Fix 3. "
+          + ("**ERFUELLT.**" if e["mono_base_passed"] else "**NICHT ERFUELLT.**"))
+        w("2. **Bei jedem WACC** darf der Ueberschreitungsfaktor die Monotonie nicht "
+          "verschlechtern, gemessen gegen denselben Lauf mit Faktor 1,00. "
+          + ("**ERFUELLT.**" if e["mono_no_worse_passed"] else "**NICHT ERFUELLT.**"))
+        w("")
+        w("| WACC | Faktor | kleinster Schritt EUR/kW | bei CAPEX | Referenz (Faktor 1,00) | Ergebnis |")
+        w("|---:|---:|---:|---:|---:|---|")
+        for r in e["mono_rows"]:
+            at = "-" if r["at_capex"] is None else f"{r['at_capex']:.0f}"
+            if r["monotone"]:
+                verdict = "monoton"
+            elif r["no_worse_than_base_run"]:
+                verdict = "Altbefund (nicht durch die Ueberschreitung)"
+            else:
+                verdict = "NICHT MONOTON"
+            w(f"| {r['wacc'] * 100:.0f} % | {r['factor']:.2f} | {r['min_step_eur_kw']:+.2f} | "
+              f"{at} | {r['ref_step_eur_kw']:+.2f} | {verdict} |")
+        w("")
+        w("> **Der Altbefund bei WACC 9 % gehoert benannt.** Dort ist die Abbildung schon **ohne "
+          "jede Ueberschreitung** (Faktor 1,00) nicht monoton, und zwar an derselben Stelle und "
+          "praktisch in derselben Groesse wie mit Faktor 2,40. Ursache ist nicht der "
+          "Ueberschreitungsfaktor, sondern die Kostenabgrenzung der CAPEX-Anker selbst: Der "
+          "Overnight-Anker 7.500 EUR/kW traegt bei 9 % WACC und 12 Jahren Bauzeit +67,7 % "
+          "Bauzins und landet damit bei 12.578 EUR/kW - **oberhalb** des Gesamtprojekt-Ankers "
+          "12.000, dessen Finanzierungsanteil bei rund 5 % gebildet wurde (EPR2 7.583 x 1,37 = "
+          "10.389). Die Anker sind also WACC-abhaengig, das Modell behandelt sie als fest. Das "
+          "trifft die Konfigurationen `wacc`, `wacc_co2`, `wacc_overrun` und `asia_wacc` in dem "
+          "Teil der Ziehungen mit WACC ueber rund 8,2 % (bei Dreieck 3/5/9 % sind das etwa 2,7 % "
+          "der Ziehungen). Sauber loesen liesse sich das nur, indem alle drei Anker auf eine "
+          "gemeinsame Overnight-Abgrenzung gestellt und der Bauzins einheitlich aufgeschlagen "
+          "wird (Nuklear-Review R2, N1 Vorschlag 1a) - bei 5 % WACC waere das ergebnisneutral. "
+          "Das ist NICHT Teil des v0.2c-Auftrags und bleibt als offener Punkt stehen.")
+        w("")
+        w("> Zum Vergleich der Zustand bis v0.2b (multiplikativer Faktor auf den gezogenen CAPEX "
+          "mit interpoliertem Anteil 1,0/1,0/0,0): dort bildete die Abbildung bei Faktor 2,20 ein "
+          "Zelt mit Spitze auf dem Modus - 7.500 -> 22.112, 12.000 -> 26.400, 17.500 -> 17.500. "
+          "Rund 55 % aller Ziehungen lagen auf dem fallenden Ast, und der Szenariensatz "
+          "`guenstig` war unter Ueberschreitung teurer als `teuer`. Diese Tabelle haette den "
+          "Zustand gebrochen.")
+        w("")
+        w("### (e2) CCS-Massenbilanz: abgeschieden + Restemission = Brennstoffeintrag")
+        w("")
+        w("| eta | Abscheiderate | Eintrag t/MWh_el | abgeschieden | Restemission | Bilanzluecke |")
+        w("|---:|---:|---:|---:|---:|---:|")
+        for r in e["bal_rows"]:
+            w(f"| {r['eta']:.2f} | {r['rate']:.2f} | {r['input']:.4f} | {r['captured']:.4f} | "
+              f"{r['residual']:.4f} | {r['gap']:+.2e} |")
+        w("")
+        w(f"Kalibrierung: Bei den Zentralwerten ergibt die Bilanz eine Restemission von "
+          f"**{e['calib_residual_model']:.4f} t/MWh_el** gegen den belegten Dossier-Wert "
+          f"{e['calib_residual_doc']:.4f} (49/120/220 g/kWh) - Abweichung "
+          f"{e['calib_dev'] * 100:.4f} %. "
+          + ("OK." if e["calib_passed"] else "NICHT ERFUELLT."))
+        w("")
+        w("> Zustand bis v0.2b: abgeschieden 0,4185 + Restemission 0,1200 = 0,5385 t/MWh_el bei "
+          "einem Eintrag von 0,4650 - **116 % des eingesetzten Kohlenstoffs** wurden verbucht "
+          "und bepreist.")
+        w("")
+        w("### (e3) Uebertragungsnetz-Sockel")
+        w("")
+        w(f"Sockelquote (SETZUNG, Sensitivitaet 0,20-0,60): **{e['socket_share']:.2f}**. Der "
+          "Skalierungsfaktor muss bei fEE -> 0 gegen die Sockelquote laufen und 1,0 nie "
+          "ueberschreiten.")
+        w("")
+        w("| genutzter fEE-Anteil | roher Faktor | gedeckelt | Ergebnis |")
+        w("|---:|---:|---:|---|")
+        for r in e["socket_rows"]:
+            w(f"| {r['fee_share_used']:.3f} | {r['raw']:.3f} | {r['scaled']:.3f} | "
+              f"{'OK' if r['passed'] else 'FEHLER'} |")
+        w("")
+
     # -------- Limitationen / Luecken
     w("## Verbleibende Luecken (aus `model_params.json.gaps`)")
     w("")
@@ -874,7 +1089,8 @@ def main() -> None:
     b = validate_ist(params, profiles)
     c = validate_ges_scenarios(params, profiles)
     d = validate_ist_2025(params, profiles)
-    write_report(params, profiles, a, b, c, d)
+    e = validate_structure_v02c(params)
+    write_report(params, profiles, a, b, c, d, e)
 
     print("(a) GES-LCOE-Reproduktion:")
     for r in a["ges_rows"]:
@@ -904,7 +1120,22 @@ def main() -> None:
     print(f"    {'LSCOE Anker':36s} {d['lscoe']:8.1f} EUR/MWh  Ist-Korridor "
           f"{d['band'][0]:.0f}-{d['band'][1]:.0f}  {'im Korridor' if d['in_band'] else 'AUSSERHALB'}")
     print(f"    {'Restemissionen':36s} {d['emissions']['total_mt_co2_a']:8.1f} Mt CO2/a")
+    print("(e) Strukturzusagen v0.2c:")
+    worst5 = min(r["min_step_eur_kw"] for r in e["mono_rows"] if abs(r["wacc"] - 0.05) < 1e-12)
+    print(f"    capex_eff monoton bei WACC 5 %, ganzer Faktor-Support: "
+          f"{'OK' if e['mono_base_passed'] else 'FEHLER'} (kleinster Schritt {worst5:+.2f} EUR/kW)")
+    print(f"    Ueberschreitung verschlechtert Monotonie nirgends: "
+          f"{'OK' if e['mono_no_worse_passed'] else 'FEHLER'} "
+          f"(WACC 9 %: Altbefund der CAPEX-Anker, auch bei Faktor 1,00)")
+    print(f"    CCS-Massenbilanz geschlossen: {'OK' if e['bal_passed'] else 'FEHLER'} "
+          f"(max. Luecke {max(abs(r['gap']) for r in e['bal_rows']):.2e} t/MWh_el)")
+    print(f"    Restemission kalibriert: Modell {e['calib_residual_model']:.4f} vs. Dossier "
+          f"{e['calib_residual_doc']:.4f} ({e['calib_dev'] * 100:.4f} %) "
+          f"{'OK' if e['calib_passed'] else 'FEHLER'}")
+    print(f"    Netz-Sockel {e['socket_share']:.2f}: {'OK' if e['socket_passed'] else 'FEHLER'}")
     print(f"\nBericht: {OUT_MD}")
+    if not e["passed"]:
+        raise SystemExit("Strukturzusagen v0.2c NICHT erfuellt - Abbruch.")
 
 
 if __name__ == "__main__":

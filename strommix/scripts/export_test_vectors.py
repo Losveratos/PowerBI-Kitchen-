@@ -84,6 +84,61 @@ LCOE_CASES = [
     ("lcoe_gas_ccs_teuer", "gas_ccs", "teuer", 0.09, 200.0, True,
      "v0.2b: CCS im teuren Satz bei WACC 9 % und CO2 200 EUR/t - hier muss der CCS-Block mit "
      "100 EUR/t und der CO2-Block auf die Restemission gleichzeitig sichtbar sein.", None),
+    # ---- Modell v0.2c ------------------------------------------------------
+    ("lcoe_nuclear_overrun_mid", "nuclear", "mittel", 0.05, 0.0, True,
+     "v0.2c/Fix 3: Ueberschreitungsfaktor 2,2 auf den MID-Anker (12.000, Gesamtprojekt). Der "
+     "Aufschlag wird ABSOLUT auf dem Schaetzanker 7.500 gerechnet und nur mit dem Rest-Anteil "
+     "0,50 gewichtet: 12.000 + 1,2 x 7.500 x 0,50 = 16.500 EUR/kW, ohne Bauzins.",
+     {"cost_overrun_factor": 2.2}),
+    ("lcoe_nuclear_overrun_interp", "nuclear", "mittel", 0.05, 0.0, True,
+     "v0.2c/Fix 3: derselbe Faktor auf einem INTERPOLIERTEN CAPEX (14.000 EUR/kW). Rest-Anteil "
+     "0,50 x (17.500-14.000)/5.500 = 0,3182, idc_applicable_share 0. Erwartung 16.864 EUR/kW - "
+     "muss ueber dem Wert des MID-Ankers liegen (Monotonie).",
+     {"capex_eur_kw": 14000.0, "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.5 * (17500.0 - 14000.0) / 5500.0,
+      "cost_overrun_factor": 2.2}),
+    ("lcoe_gas_ccs_capture_max", "gas_ccs", "mittel", 0.05, 75.0, True,
+     "v0.2c/Fix 4: Abscheiderate am oberen Rand (0,95). Die Restemission MUSS mitlaufen "
+     "(kleiner werden), waehrend die abgeschiedene Menge steigt - beide kommen aus derselben "
+     "Massenbilanz. Prueft, dass emission_factor_t_mwh NICHT mehr unabhaengig wirkt.",
+     {"capture_rate": 0.95}),
+    ("lcoe_gas_ccs_capture_min", "gas_ccs", "mittel", 0.05, 75.0, True,
+     "v0.2c/Fix 4: Abscheiderate am unteren Rand (0,85) - Gegenprobe zu capture_max. "
+     "captured + residual muss in beiden Faellen exakt den Brennstoffeintrag ergeben.",
+     {"capture_rate": 0.85}),
+]
+
+# v0.2c/Fix 3: Monotonie-Testvektor. Die Abbildung "gezogener CAPEX -> effektiver
+# CAPEX" muss ueber den gesamten Support nicht fallend sein. Bis v0.2b war sie im
+# Ueberschreitungslauf ein Zelt mit Spitze auf dem Modus (7.500 -> 22.112,
+# 12.000 -> 26.400, 17.500 -> 17.500).
+CAPEX_EFF_CASES = [
+    {"id": "capex_eff_monotonic_nuclear_base",
+     "note": "Basislauf ohne Ueberschreitung, WACC 5 %. Muss streng steigend sein.",
+     "tech_key": "nuclear", "wacc": 0.05, "cost_overrun_factor": 1.0,
+     "capex_grid": [7500, 8500, 9750, 11000, 12000, 13000, 14000, 15500, 16500, 17500]},
+    {"id": "capex_eff_monotonic_nuclear_overrun",
+     "note": "Ueberschreitungslauf mit dem Modus 2,20, WACC 5 %. Der eigentliche Testfall "
+             "von Fix 3 - hier brach v0.2b.",
+     "tech_key": "nuclear", "wacc": 0.05, "cost_overrun_factor": 2.2,
+     "capex_grid": [7500, 8500, 9750, 11000, 12000, 13000, 14000, 15500, 16500, 17500]},
+    {"id": "capex_eff_monotonic_nuclear_overrun_max",
+     "note": "Ueberschreitungslauf an der Obergrenze der Flyvbjerg-Spanne (2,40), WACC 5 %.",
+     "tech_key": "nuclear", "wacc": 0.05, "cost_overrun_factor": 2.4,
+     "capex_grid": [7500, 8500, 9750, 11000, 12000, 13000, 14000, 15500, 16500, 17500]},
+]
+
+# v0.2c/Fix 4: Massenbilanz der Abscheidung ueber die Spannen von Wirkungsgrad
+# und Abscheiderate. Kriterium: captured + residual == input, exakt.
+CCS_BALANCE_CASES = [
+    {"id": "ccs_balance_mid", "eta": None, "rate": None,
+     "note": "Zentralwerte - muss die belegte Restemission 0,120 t/MWh_el reproduzieren."},
+    {"id": "ccs_balance_eta_min_rate_min", "eta": 0.46, "rate": 0.85,
+     "note": "Schlechtester Wirkungsgrad, niedrigste Abscheiderate."},
+    {"id": "ccs_balance_eta_max_rate_max", "eta": 0.60, "rate": 0.95,
+     "note": "Bester Wirkungsgrad, hoechste Abscheiderate."},
+    {"id": "ccs_balance_eta_min_rate_max", "eta": 0.46, "rate": 0.95,
+     "note": "Kreuzfall - die Bilanz muss auch hier exakt aufgehen."},
 ]
 
 # Ebene 2/3: zwei vollstaendige Mix-Laeufe (Dispatch + Systemkosten)
@@ -169,6 +224,31 @@ MIX_CASES = [
         "grid_cost_basis": "buildout_2045",
     },
     {
+        # v0.2c/Fix 1: derselbe Mix wie mix_ee80_gas, aber mit der v0.2b-Netzregel
+        # (Uebertragungsnetz OHNE Sockel). Der Unterschied zu mix_ee80_gas ist
+        # exakt die Wirkung der neuen Sockel-Setzung und wird damit im JS-Port
+        # mitgeprueft.
+        "id": "mix_grid_no_socket",
+        "note": "Sensitivitaetslauf zu Fix 1: Uebertragungsnetz-Sockelquote auf 0 gesetzt - das "
+                "ist die Netzregel von v0.2b. Prueft, dass der Sockel als Parameter durchgereicht "
+                "wird und die Differenz reproduzierbar ist.",
+        "shares": {"pv": 0.30, "wind_onshore": 0.35, "wind_offshore": 0.15},
+        "demand_twh": 950.0,
+        "scenario": "mittel",
+        "co2_price": 75.0,
+        "apply_idc": True,
+        "grid_variant": "mid",
+        "grid_socket_share": 0.0,
+        "storage": {
+            "battery_power_gw": 40.0,
+            "battery_energy_gwh": 160.0,
+            "electrolyser_gw": 0.0,
+            "h2_storage_gwh": 0.0,
+            "h2_turbine_gw": 0.0,
+            "gas_backup_gw": None,
+        },
+    },
+    {
         # v0.2b: derselbe Mix wie mix_ee80_gas, aber mit CCS-Backup
         "id": "mix_ee80_gas_ccs",
         "note": "80 % fEE mit CCS-Backup. Identisch zu mix_ee80_gas bis auf gas_tech - prueft, "
@@ -224,6 +304,8 @@ def main() -> None:
         "crf": [],
         "idc": [],
         "lcoe": [],
+        "capex_eff": [],
+        "ccs_balance": [],
         "mix": [],
     }
 
@@ -256,6 +338,58 @@ def main() -> None:
             },
         }))
 
+    # --- v0.2c/Fix 3: Monotonie der Abbildung CAPEX -> capex_eff ----------
+    for case in CAPEX_EFF_CASES:
+        tp = params["technologies"][case["tech_key"]]["params"]
+        cap_entry = tp["capex_eur_kw"]
+        points = []
+        for x in case["capex_grid"]:
+            flat = model.resolve_tech(params, case["tech_key"], "mittel", apply_idc=True)
+            flat["capex_eur_kw"] = float(x)
+            for fld in ("idc_applicable_share", "overrun_applicable_share"):
+                flat[fld] = model.scope_share_for_capex(cap_entry, tp[fld], float(x))
+            flat["cost_overrun_factor"] = case["cost_overrun_factor"]
+            res = model.lcoe(flat, case["wacc"], 0.0)
+            points.append({"capex_eur_kw": float(x),
+                           "idc_applicable_share": flat["idc_applicable_share"],
+                           "overrun_applicable_share": flat["overrun_applicable_share"],
+                           "capex_effective_eur_kw": res["capex_effective_eur_kw"]})
+        eff = [p["capex_effective_eur_kw"] for p in points]
+        monotonic = all(eff[i + 1] >= eff[i] - 1e-9 for i in range(len(eff) - 1))
+        if not monotonic:
+            raise SystemExit(f"capex_eff NICHT monoton in {case['id']} - Abbruch.")
+        vectors["capex_eff"].append(round_deep({
+            "id": case["id"], "note": case["note"],
+            "input": {"tech_key": case["tech_key"], "wacc": case["wacc"],
+                      "cost_overrun_factor": case["cost_overrun_factor"],
+                      "capex_grid": case["capex_grid"]},
+            "expected": {"points": points, "monotonic": True},
+        }))
+
+    # --- v0.2c/Fix 4: geschlossene CCS-Massenbilanz -----------------------
+    for case in CCS_BALANCE_CASES:
+        flat = model.resolve_tech(params, "gas_ccs", "mittel")
+        if case["eta"] is not None:
+            flat["efficiency"] = case["eta"]
+        if case["rate"] is not None:
+            flat["capture_rate"] = case["rate"]
+        bal = model.ccs_balance(flat)
+        gap = bal["captured_t_mwh_el"] + bal["residual_t_mwh_el"] - bal["input_t_mwh_el"]
+        if abs(gap) > 1e-10:
+            raise SystemExit(f"CCS-Massenbilanz geht nicht auf in {case['id']} - Abbruch.")
+        vectors["ccs_balance"].append(round_deep({
+            "id": case["id"], "note": case["note"],
+            "input": {"tech_key": "gas_ccs", "scenario": "mittel",
+                      "overrides": {k: case[k] for k in ("eta", "rate") if case[k] is not None}},
+            "expected": {
+                "input_t_mwh_el": bal["input_t_mwh_el"],
+                "upstream_t_mwh_el": bal["upstream_t_mwh_el"],
+                "captured_t_mwh_el": bal["captured_t_mwh_el"],
+                "residual_t_mwh_el": bal["residual_t_mwh_el"],
+                "cost_eur_mwh_el": bal["cost_eur_mwh_el"],
+            },
+        }))
+
     # --- Ebene 2 + 3 ------------------------------------------------------
     for case in MIX_CASES:
         res = model.mix_system(
@@ -266,6 +400,7 @@ def main() -> None:
             bands_twh=case.get("bands_twh"),
             grid_cost_basis=case.get("grid_cost_basis", "buildout_2045"),
             gas_tech=case.get("gas_tech", "gas_ccgt"),
+            grid_socket_share=case.get("grid_socket_share"),
         )
         d = res["dispatch"]
         vectors["mix"].append(round_deep({
@@ -273,7 +408,8 @@ def main() -> None:
             "note": case["note"],
             "input": {k: case.get(k) for k in
                       ("shares", "demand_twh", "scenario", "co2_price", "apply_idc",
-                       "grid_variant", "storage", "bands_twh", "grid_cost_basis", "gas_tech")},
+                       "grid_variant", "storage", "bands_twh", "grid_cost_basis", "gas_tech",
+                       "grid_socket_share")},
             "expected": {
                 "lscoe_eur_mwh": res["lscoe_eur_mwh"],
                 "total_cost_bn_eur_a": res["total_cost_bn_eur_a"],
@@ -302,10 +438,19 @@ def main() -> None:
     with open(OUT_PATH, "w", encoding="utf-8") as fh:
         json.dump(vectors, fh, ensure_ascii=False, indent=1)
 
-    n = len(vectors["crf"]) + len(vectors["idc"]) + len(vectors["lcoe"]) + len(vectors["mix"])
+    n = (len(vectors["crf"]) + len(vectors["idc"]) + len(vectors["lcoe"])
+         + len(vectors["capex_eff"]) + len(vectors["ccs_balance"]) + len(vectors["mix"]))
     print(f"OK {n} Testvektoren -> {os.path.relpath(OUT_PATH, BASE)}")
     print(f"   crf {len(vectors['crf'])} · idc {len(vectors['idc'])} · "
-          f"lcoe {len(vectors['lcoe'])} · mix {len(vectors['mix'])}")
+          f"lcoe {len(vectors['lcoe'])} · capex_eff {len(vectors['capex_eff'])} · "
+          f"ccs_balance {len(vectors['ccs_balance'])} · mix {len(vectors['mix'])}")
+    for v in vectors["capex_eff"]:
+        eff = [p["capex_effective_eur_kw"] for p in v["expected"]["points"]]
+        print(f"   {v['id']:38s} {eff[0]:8.0f} -> {eff[-1]:8.0f} EUR/kW (monoton)")
+    for v in vectors["ccs_balance"]:
+        e = v["expected"]
+        print(f"   {v['id']:38s} Eintrag {e['input_t_mwh_el']:.4f} = abgeschieden "
+              f"{e['captured_t_mwh_el']:.4f} + Rest {e['residual_t_mwh_el']:.4f}")
     for v in vectors["lcoe"]:
         print(f"   {v['id']:26s} {v['expected']['lcoe_eur_mwh']:8.2f} EUR/MWh")
     for v in vectors["mix"]:

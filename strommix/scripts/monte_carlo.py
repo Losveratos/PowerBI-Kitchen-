@@ -714,6 +714,10 @@ def main() -> None:
             "curtailed_twh_a": disp["energy_twh"]["curtailed"] / (disp["seasonal_share_load"] or 1.0),
             "unserved_twh_a": disp["energy_twh"]["unserved"] / (disp["seasonal_share_load"] or 1.0),
             "grid_scaling_raw": det["grid_scaling_raw"],
+            # v0.2c (Fix 1): Wirkung des Uebertragungsnetz-Sockels je Preset,
+            # damit die Setzung nicht unsichtbar in der Zahl verschwindet.
+            "grid_socket_effect_eur_mwh": det["detail"].get("netz", {}).get("socket_effect_eur_mwh"),
+            "grid_detail": det["detail"].get("netz"),
             "configs": {},
         }
 
@@ -741,6 +745,7 @@ def main() -> None:
             "co2_price_eur_t": co2_price,
             "scenario_set": "mittel",
             "grid_variant": "mid",
+            "grid_transmission_socket_share": params["system"]["grid"]["transmission_socket_share"],
             "profiles": {"label": profiles["label"], "hours": profiles["hours"],
                          "data_completeness": profiles["data_completeness"]},
             "model_version": model.MODEL_VERSION,
@@ -768,14 +773,29 @@ def main() -> None:
                 "den CAPEX-Stuetzstellen linear interpoliert). Fuer Kernkraft heisst das: kein "
                 "zusaetzlicher Bauzins auf Gesamtprojekt-Anker, kein Ueberschreitungsfaktor auf den "
                 "bereits eskalierten Hinkley-Point-C-Anker.",
+                "v0.2c (Fix 3): Der Ueberschreitungsaufschlag wird fuer Kernkraft als ABSOLUTER "
+                "Betrag auf einer einzigen Schaetzbasis gerechnet ((f-1) x 7.500 EUR/kW x "
+                "Rest-Anteil 0,48/0,50/0,00), nicht multiplikativ auf dem gezogenen CAPEX. Damit "
+                "ist die Abbildung 'gezogener CAPEX -> effektiver CAPEX' in JEDER Konfiguration "
+                "monoton nicht fallend (geprueft in validate_model.py und als Testvektor "
+                "capex_eff_monotonic_nuclear exportiert).",
+                "v0.2c (Fix 1): Das Uebertragungsnetz hat einen mixunabhaengigen Sockel "
+                "(transmission_socket_share, SETZUNG 0,40 mit Sensitivitaet 0,20-0,60). Der "
+                "Sockelanteil skaliert mit dem Jahresbedarf, der Rest mit der genutzten "
+                "fEE-Arbeit.",
+                "v0.2c (Fix 4): Abgeschiedene Menge und Restemission stammen aus EINER "
+                "Massenbilanz (model.ccs_balance). Die capture_rate-Ziehung bewegt deshalb beide "
+                "Seiten; captured + residual = Brennstoffeintrag gilt in jeder Ziehung exakt.",
                 "Der Ist-2025-Anker traegt das heutige Netzentgelt statt der Netzinvestition bis "
                 "2045 und ist deshalb NICHT direkt mit den Zielszenarien vergleichbar "
                 "(comparable_to_target_scenarios = false).",
-                "Innerhalb einer Ziehung sind die Parameter ueber alle Presets identisch; zwischen "
-                "den Parametern sind die Ziehungen unabhaengig. Reale Korrelationen (z. B. hoher CAPEX an "
-                "guten Standorten, gemeinsame Rohstoffpreise) sind NICHT abgebildet - das "
-                "unterschaetzt die Breite der Verteilung an den Raendern eher, als sie zu "
-                "uebertreiben.",
+                "Innerhalb einer Ziehung sind die Parameter ueber alle Presets identisch. Zwischen "
+                "den Parametern sind die Ziehungen unabhaengig - MIT ZWEI AUSNAHMEN (v0.2c, siehe "
+                "shared_links): Der Erdgaspreis wird einmal gezogen und von gas_ccgt und gas_ccs "
+                "geteilt, und der CCS-CAPEX ist ein gezogener Faktor auf den in derselben Ziehung "
+                "gezogenen GuD-CAPEX. Weitere reale Korrelationen (z. B. hoher CAPEX an guten "
+                "Standorten) sind NICHT abgebildet - das unterschaetzt die Breite der Verteilung "
+                "an den Raendern eher, als sie zu uebertreiben.",
                 "Nicht variiert werden: Wetterjahr, Lastprofil, Lebensdauern, Wirkungsgrade, "
                 "Kernbrennstoff- und Entsorgungskosten, Netzinvestitionsvolumen (ausser ueber den "
                 "Ueberschreitungsfaktor 'netz').",
@@ -823,6 +843,7 @@ def main() -> None:
         },
         "configs": CONFIGS,
         "draw_plan": plan,
+        "shared_links": SHARED_LINKS,
         "overrun_plan": ov_plan,
         "preset_order": order,
         "presets": results,

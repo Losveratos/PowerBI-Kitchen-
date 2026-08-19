@@ -8,7 +8,7 @@
   "profiles_data_completeness": "PARTIAL",
   "profiles_hours": 4416,
   "profiles_label": "H2-2024-basiert (Teilzeitraum)",
-  "model_version": "0.2b",
+  "model_version": "0.2c",
   "limitations": [
    {
     "id": "scenarios_not_emission_equivalent",
@@ -41,9 +41,23 @@
    {
     "id": "ccs_residual_is_lifecycle",
     "severity": "mittel",
-    "text": "Die Restemission von Gas+CCS (49/120/220 g/kWh) ist ein Lebenszyklus-Wert und enthaelt die Vorkette (Methanschlupf), die eine Abscheidung am Schornstein nicht erfasst. Fuer eine reine ETS-Bepreisung ist der Wert eher zu hoch - dieselbe Richtung wie beim GuD-Proxy, also gegen den CCS-Pfad.",
+    "text": "Die Restemission von Gas+CCS bleibt ein LEBENSZYKLUS-Wert: Seit v0.2c wird sie aus der Massenbilanz gerechnet (Brennstoffeintrag minus abgeschiedene Verbrennungsemissionen), der Eintrag selbst ist aber weiterhin der Lebenszyklus-Faktor inklusive Vorkette. Fuer eine reine ETS-Bepreisung ist der Wert eher zu hoch - dieselbe Richtung wie beim GuD-Proxy, also gegen den CCS-Pfad. Der Vorkettenanteil (upstream_share_of_lifecycle) ist gegen die belegte Restemission von 120 g/kWh KALIBRIERT, nicht eigenstaendig belegt.",
     "affects": "kostenminimum_ccs, ee80_gas_ccs",
     "ref_field": "gaps.emissionsfaktor_direkt"
+   },
+   {
+    "id": "grid_transmission_socket_assumption",
+    "severity": "hoch",
+    "text": "Die mixunabhaengige Sockelquote des Uebertragungsnetzes (v0.2c: 0,40; Sensitivitaet 0,20-0,60) ist eine SETZUNG. Weder NEP 2037/2045 V2025 noch die IMK-Studie teilen die 328 (bzw. 365-392) Mrd. EUR nach Treibern auf - eine belastbare Quote existiert nicht. Die Setzung bewegt den Abstand zwischen dem Kernkraft- und dem gasgestuetzten Pfad unmittelbar; das Ergebnis weist die Differenz zum sockellosen Lauf (v0.2b) je Szenario als detail.netz.socket_effect_eur_mwh aus.",
+    "affects": "alle Zukunftsszenarien, Kernkraft-Pfad am staerksten",
+    "ref_field": "system.grid.transmission_socket_share"
+   },
+   {
+    "id": "overrun_estimate_base_assumption",
+    "severity": "mittel",
+    "text": "Der empirische Ueberschreitungsfaktor wird seit v0.2c als absoluter Betrag auf EINER Schaetzbasis gerechnet (Kernkraft 7.500 EUR/kW) und nur auf den Rest-Anteil der Eskalation gelegt (0,48/0,50/0,00). Das beseitigt die Nicht-Monotonie und die Doppelzaehlung an den unteren Ankern, ist aber eine Modellstruktur: Die Rest-Anteile sind aus den Eskalationsangaben des eigenen Datensatzes abgeleitet (EPR2 +40 %, Sizewell C +90 %, Lubiatowo Planzahl), der mid-Wert zusaetzlich auf 0,50 abgerundet, damit die Abbildung ueber den gesamten Faktor-Support monoton bleibt.",
+    "affects": "Konfigurationen mit Kostenueberschreitung",
+    "ref_field": "technologies.nuclear.params.overrun_estimate_base_eur_kw"
    },
    {
     "id": "emission_factor_proxy",
@@ -512,19 +526,19 @@
     }
    },
    "expected": {
-    "lcoe_eur_mwh": 173.26431581,
+    "lcoe_eur_mwh": 122.1473632,
     "components_eur_mwh": {
-     "kapital": 146.01431581,
+     "kapital": 94.8973632,
      "fixbetrieb": 16.25,
      "brennstoff": 6.0,
      "entsorgung": 5.0,
      "co2": 0.0,
      "ccs": 0.0
     },
-    "capex_effective_eur_kw": 22111.57807031,
+    "capex_effective_eur_kw": 14370.71730469,
     "idc_surcharge": 0.34009564,
     "crf": 0.05282818,
-    "annuity_eur_kw_a": 1168.11452649,
+    "annuity_eur_kw_a": 759.17890556,
     "fixed_opex_eur_kw_a": 130.0
    }
   },
@@ -596,14 +610,14 @@
     "overrides": null
    },
    "expected": {
-    "lcoe_eur_mwh": 326.78866762,
+    "lcoe_eur_mwh": 320.90866812,
     "components_eur_mwh": {
      "kapital": 153.00097531,
      "fixbetrieb": 64.0,
      "brennstoff": 67.30769231,
      "entsorgung": 0.0,
-     "co2": 9.0,
-     "ccs": 33.48
+     "co2": 8.99999246,
+     "ccs": 27.60000804
     },
     "capex_effective_eur_kw": 3528.0,
     "idc_surcharge": 0.1025,
@@ -624,20 +638,478 @@
     "overrides": null
    },
    "expected": {
-    "lcoe_eur_mwh": 700.58599552,
+    "lcoe_eur_mwh": 693.23598547,
     "components_eur_mwh": {
      "kapital": 390.28471347,
      "fixbetrieb": 129.06666667,
      "brennstoff": 115.38461538,
      "entsorgung": 0.0,
-     "co2": 24.0,
-     "ccs": 41.85
+     "co2": 23.9999799,
+     "ccs": 34.50001005
     },
     "capex_effective_eur_kw": 5750.404,
     "idc_surcharge": 0.1881,
     "crf": 0.10180625,
     "annuity_eur_kw_a": 585.42707021,
     "fixed_opex_eur_kw_a": 193.6
+   }
+  },
+  {
+   "id": "lcoe_nuclear_overrun_mid",
+   "note": "v0.2c/Fix 3: Ueberschreitungsfaktor 2,2 auf den MID-Anker (12.000, Gesamtprojekt). Der Aufschlag wird ABSOLUT auf dem Schaetzanker 7.500 gerechnet und nur mit dem Rest-Anteil 0,50 gewichtet: 12.000 + 1,2 x 7.500 x 0,50 = 16.500 EUR/kW, ohne Bauzins.",
+   "input": {
+    "tech_key": "nuclear",
+    "scenario": "mittel",
+    "wacc": 0.05,
+    "co2_price_eur_t": 0.0,
+    "apply_idc": true,
+    "overrides": {
+     "cost_overrun_factor": 2.2
+    }
+   },
+   "expected": {
+    "lcoe_eur_mwh": 154.22200596,
+    "components_eur_mwh": {
+     "kapital": 116.22200596,
+     "fixbetrieb": 22.0,
+     "brennstoff": 8.0,
+     "entsorgung": 8.0,
+     "co2": 0.0,
+     "ccs": 0.0
+    },
+    "capex_effective_eur_kw": 16500.0,
+    "idc_surcharge": 0.0,
+    "crf": 0.05282818,
+    "annuity_eur_kw_a": 871.6650447,
+    "fixed_opex_eur_kw_a": 165.0
+   }
+  },
+  {
+   "id": "lcoe_nuclear_overrun_interp",
+   "note": "v0.2c/Fix 3: derselbe Faktor auf einem INTERPOLIERTEN CAPEX (14.000 EUR/kW). Rest-Anteil 0,50 x (17.500-14.000)/5.500 = 0,3182, idc_applicable_share 0. Erwartung 16.864 EUR/kW - muss ueber dem Wert des MID-Ankers liegen (Monotonie).",
+   "input": {
+    "tech_key": "nuclear",
+    "scenario": "mittel",
+    "wacc": 0.05,
+    "co2_price_eur_t": 0.0,
+    "apply_idc": true,
+    "overrides": {
+     "capex_eur_kw": 14000.0,
+     "idc_applicable_share": 0.0,
+     "overrun_applicable_share": 0.31818182,
+     "cost_overrun_factor": 2.2
+    }
+   },
+   "expected": {
+    "lcoe_eur_mwh": 156.78337248,
+    "components_eur_mwh": {
+     "kapital": 118.78337248,
+     "fixbetrieb": 22.0,
+     "brennstoff": 8.0,
+     "entsorgung": 8.0,
+     "co2": 0.0,
+     "ccs": 0.0
+    },
+    "capex_effective_eur_kw": 16863.63636364,
+    "idc_surcharge": 0.0,
+    "crf": 0.05282818,
+    "annuity_eur_kw_a": 890.87529362,
+    "fixed_opex_eur_kw_a": 165.0
+   }
+  },
+  {
+   "id": "lcoe_gas_ccs_capture_max",
+   "note": "v0.2c/Fix 4: Abscheiderate am oberen Rand (0,95). Die Restemission MUSS mitlaufen (kleiner werden), waehrend die abgeschiedene Menge steigt - beide kommen aus derselben Massenbilanz. Prueft, dass emission_factor_t_mwh NICHT mehr unabhaengig wirkt.",
+   "input": {
+    "tech_key": "gas_ccs",
+    "scenario": "mittel",
+    "wacc": 0.05,
+    "co2_price_eur_t": 75.0,
+    "apply_idc": true,
+    "overrides": {
+     "capture_rate": 0.95
+    }
+   },
+   "expected": {
+    "lcoe_eur_mwh": 321.00450148,
+    "components_eur_mwh": {
+     "kapital": 153.00097531,
+     "fixbetrieb": 64.0,
+     "brennstoff": 67.30769231,
+     "entsorgung": 0.0,
+     "co2": 7.56249204,
+     "ccs": 29.13334182
+    },
+    "capex_effective_eur_kw": 3528.0,
+    "idc_surcharge": 0.1025,
+    "crf": 0.06505144,
+    "annuity_eur_kw_a": 229.50146296,
+    "fixed_opex_eur_kw_a": 96.0
+   }
+  },
+  {
+   "id": "lcoe_gas_ccs_capture_min",
+   "note": "v0.2c/Fix 4: Abscheiderate am unteren Rand (0,85) - Gegenprobe zu capture_max. captured + residual muss in beiden Faellen exakt den Brennstoffeintrag ergeben.",
+   "input": {
+    "tech_key": "gas_ccs",
+    "scenario": "mittel",
+    "wacc": 0.05,
+    "co2_price_eur_t": 75.0,
+    "apply_idc": true,
+    "overrides": {
+     "capture_rate": 0.85
+    }
+   },
+   "expected": {
+    "lcoe_eur_mwh": 320.81283476,
+    "components_eur_mwh": {
+     "kapital": 153.00097531,
+     "fixbetrieb": 64.0,
+     "brennstoff": 67.30769231,
+     "entsorgung": 0.0,
+     "co2": 10.43749288,
+     "ccs": 26.06667426
+    },
+    "capex_effective_eur_kw": 3528.0,
+    "idc_surcharge": 0.1025,
+    "crf": 0.06505144,
+    "annuity_eur_kw_a": 229.50146296,
+    "fixed_opex_eur_kw_a": 96.0
+   }
+  }
+ ],
+ "capex_eff": [
+  {
+   "id": "capex_eff_monotonic_nuclear_base",
+   "note": "Basislauf ohne Ueberschreitung, WACC 5 %. Muss streng steigend sein.",
+   "input": {
+    "tech_key": "nuclear",
+    "wacc": 0.05,
+    "cost_overrun_factor": 1.0,
+    "capex_grid": [
+     7500,
+     8500,
+     9750,
+     11000,
+     12000,
+     13000,
+     14000,
+     15500,
+     16500,
+     17500
+    ]
+   },
+   "expected": {
+    "points": [
+     {
+      "capex_eur_kw": 7500.0,
+      "idc_applicable_share": 1.0,
+      "overrun_applicable_share": 0.48,
+      "capex_effective_eur_kw": 10050.71730469
+     },
+     {
+      "capex_eur_kw": 8500.0,
+      "idc_applicable_share": 0.77777778,
+      "overrun_applicable_share": 0.48444444,
+      "capex_effective_eur_kw": 10748.41006858
+     },
+     {
+      "capex_eur_kw": 9750.0,
+      "idc_applicable_share": 0.5,
+      "overrun_applicable_share": 0.49,
+      "capex_effective_eur_kw": 11407.96624805
+     },
+     {
+      "capex_eur_kw": 11000.0,
+      "idc_applicable_share": 0.22222222,
+      "overrun_applicable_share": 0.49555556,
+      "capex_effective_eur_kw": 11831.34489931
+     },
+     {
+      "capex_eur_kw": 12000.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.5,
+      "capex_effective_eur_kw": 12000.0
+     },
+     {
+      "capex_eur_kw": 13000.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.40909091,
+      "capex_effective_eur_kw": 13000.0
+     },
+     {
+      "capex_eur_kw": 14000.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.31818182,
+      "capex_effective_eur_kw": 14000.0
+     },
+     {
+      "capex_eur_kw": 15500.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.18181818,
+      "capex_effective_eur_kw": 15500.0
+     },
+     {
+      "capex_eur_kw": 16500.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.09090909,
+      "capex_effective_eur_kw": 16500.0
+     },
+     {
+      "capex_eur_kw": 17500.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.0,
+      "capex_effective_eur_kw": 17500.0
+     }
+    ],
+    "monotonic": true
+   }
+  },
+  {
+   "id": "capex_eff_monotonic_nuclear_overrun",
+   "note": "Ueberschreitungslauf mit dem Modus 2,20, WACC 5 %. Der eigentliche Testfall von Fix 3 - hier brach v0.2b.",
+   "input": {
+    "tech_key": "nuclear",
+    "wacc": 0.05,
+    "cost_overrun_factor": 2.2,
+    "capex_grid": [
+     7500,
+     8500,
+     9750,
+     11000,
+     12000,
+     13000,
+     14000,
+     15500,
+     16500,
+     17500
+    ]
+   },
+   "expected": {
+    "points": [
+     {
+      "capex_eur_kw": 7500.0,
+      "idc_applicable_share": 1.0,
+      "overrun_applicable_share": 0.48,
+      "capex_effective_eur_kw": 14370.71730469
+     },
+     {
+      "capex_eur_kw": 8500.0,
+      "idc_applicable_share": 0.77777778,
+      "overrun_applicable_share": 0.48444444,
+      "capex_effective_eur_kw": 15108.41006858
+     },
+     {
+      "capex_eur_kw": 9750.0,
+      "idc_applicable_share": 0.5,
+      "overrun_applicable_share": 0.49,
+      "capex_effective_eur_kw": 15817.96624805
+     },
+     {
+      "capex_eur_kw": 11000.0,
+      "idc_applicable_share": 0.22222222,
+      "overrun_applicable_share": 0.49555556,
+      "capex_effective_eur_kw": 16291.34489931
+     },
+     {
+      "capex_eur_kw": 12000.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.5,
+      "capex_effective_eur_kw": 16500.0
+     },
+     {
+      "capex_eur_kw": 13000.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.40909091,
+      "capex_effective_eur_kw": 16681.81818182
+     },
+     {
+      "capex_eur_kw": 14000.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.31818182,
+      "capex_effective_eur_kw": 16863.63636364
+     },
+     {
+      "capex_eur_kw": 15500.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.18181818,
+      "capex_effective_eur_kw": 17136.36363636
+     },
+     {
+      "capex_eur_kw": 16500.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.09090909,
+      "capex_effective_eur_kw": 17318.18181818
+     },
+     {
+      "capex_eur_kw": 17500.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.0,
+      "capex_effective_eur_kw": 17500.0
+     }
+    ],
+    "monotonic": true
+   }
+  },
+  {
+   "id": "capex_eff_monotonic_nuclear_overrun_max",
+   "note": "Ueberschreitungslauf an der Obergrenze der Flyvbjerg-Spanne (2,40), WACC 5 %.",
+   "input": {
+    "tech_key": "nuclear",
+    "wacc": 0.05,
+    "cost_overrun_factor": 2.4,
+    "capex_grid": [
+     7500,
+     8500,
+     9750,
+     11000,
+     12000,
+     13000,
+     14000,
+     15500,
+     16500,
+     17500
+    ]
+   },
+   "expected": {
+    "points": [
+     {
+      "capex_eur_kw": 7500.0,
+      "idc_applicable_share": 1.0,
+      "overrun_applicable_share": 0.48,
+      "capex_effective_eur_kw": 15090.71730469
+     },
+     {
+      "capex_eur_kw": 8500.0,
+      "idc_applicable_share": 0.77777778,
+      "overrun_applicable_share": 0.48444444,
+      "capex_effective_eur_kw": 15835.07673524
+     },
+     {
+      "capex_eur_kw": 9750.0,
+      "idc_applicable_share": 0.5,
+      "overrun_applicable_share": 0.49,
+      "capex_effective_eur_kw": 16552.96624805
+     },
+     {
+      "capex_eur_kw": 11000.0,
+      "idc_applicable_share": 0.22222222,
+      "overrun_applicable_share": 0.49555556,
+      "capex_effective_eur_kw": 17034.67823264
+     },
+     {
+      "capex_eur_kw": 12000.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.5,
+      "capex_effective_eur_kw": 17250.0
+     },
+     {
+      "capex_eur_kw": 13000.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.40909091,
+      "capex_effective_eur_kw": 17295.45454545
+     },
+     {
+      "capex_eur_kw": 14000.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.31818182,
+      "capex_effective_eur_kw": 17340.90909091
+     },
+     {
+      "capex_eur_kw": 15500.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.18181818,
+      "capex_effective_eur_kw": 17409.09090909
+     },
+     {
+      "capex_eur_kw": 16500.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.09090909,
+      "capex_effective_eur_kw": 17454.54545455
+     },
+     {
+      "capex_eur_kw": 17500.0,
+      "idc_applicable_share": 0.0,
+      "overrun_applicable_share": 0.0,
+      "capex_effective_eur_kw": 17500.0
+     }
+    ],
+    "monotonic": true
+   }
+  }
+ ],
+ "ccs_balance": [
+  {
+   "id": "ccs_balance_mid",
+   "note": "Zentralwerte - muss die belegte Restemission 0,120 t/MWh_el reproduzieren.",
+   "input": {
+    "tech_key": "gas_ccs",
+    "scenario": "mittel",
+    "overrides": {}
+   },
+   "expected": {
+    "input_t_mwh_el": 0.465,
+    "upstream_t_mwh_el": 0.08166656,
+    "captured_t_mwh_el": 0.3450001,
+    "residual_t_mwh_el": 0.1199999,
+    "cost_eur_mwh_el": 27.60000804
+   }
+  },
+  {
+   "id": "ccs_balance_eta_min_rate_min",
+   "note": "Schlechtester Wirkungsgrad, niedrigste Abscheiderate.",
+   "input": {
+    "tech_key": "gas_ccs",
+    "scenario": "mittel",
+    "overrides": {
+     "eta": 0.46,
+     "rate": 0.85
+    }
+   },
+   "expected": {
+    "input_t_mwh_el": 0.52565217,
+    "upstream_t_mwh_el": 0.09231871,
+    "captured_t_mwh_el": 0.36833344,
+    "residual_t_mwh_el": 0.15731873,
+    "cost_eur_mwh_el": 29.46667525
+   }
+  },
+  {
+   "id": "ccs_balance_eta_max_rate_max",
+   "note": "Bester Wirkungsgrad, hoechste Abscheiderate.",
+   "input": {
+    "tech_key": "gas_ccs",
+    "scenario": "mittel",
+    "overrides": {
+     "eta": 0.6,
+     "rate": 0.95
+    }
+   },
+   "expected": {
+    "input_t_mwh_el": 0.403,
+    "upstream_t_mwh_el": 0.07077768,
+    "captured_t_mwh_el": 0.3156112,
+    "residual_t_mwh_el": 0.0873888,
+    "cost_eur_mwh_el": 25.24889624
+   }
+  },
+  {
+   "id": "ccs_balance_eta_min_rate_max",
+   "note": "Kreuzfall - die Bilanz muss auch hier exakt aufgehen.",
+   "input": {
+    "tech_key": "gas_ccs",
+    "scenario": "mittel",
+    "overrides": {
+     "eta": 0.46,
+     "rate": 0.95
+    }
+   },
+   "expected": {
+    "input_t_mwh_el": 0.52565217,
+    "upstream_t_mwh_el": 0.09231871,
+    "captured_t_mwh_el": 0.41166679,
+    "residual_t_mwh_el": 0.11398539,
+    "cost_eur_mwh_el": 32.93334293
    }
   }
  ],
@@ -666,15 +1138,16 @@
     },
     "bands_twh": null,
     "grid_cost_basis": null,
-    "gas_tech": null
+    "gas_tech": null,
+    "grid_socket_share": null
    },
    "expected": {
-    "lscoe_eur_mwh": 146.30375189,
-    "total_cost_bn_eur_a": 138.98842531,
+    "lscoe_eur_mwh": 148.92854416,
+    "total_cost_bn_eur_a": 141.48197547,
     "cost_components_eur_mwh": {
      "battery": 3.54542558,
      "gas_backup": 52.41429606,
-     "netz": 33.37393601,
+     "netz": 35.99872829,
      "pv": 17.83790539,
      "wind_offshore": 13.88774997,
      "wind_onshore": 25.24443888
@@ -759,18 +1232,19 @@
     },
     "bands_twh": null,
     "grid_cost_basis": null,
-    "gas_tech": null
+    "gas_tech": null,
+    "grid_socket_share": null
    },
    "expected": {
-    "lscoe_eur_mwh": 158.5260623,
-    "total_cost_bn_eur_a": 143.10663289,
+    "lscoe_eur_mwh": 162.28157966,
+    "total_cost_bn_eur_a": 146.49686056,
     "cost_components_eur_mwh": {
      "battery": 2.33191368,
      "electrolyser": 7.66057379,
      "gas_backup": 6.6974135,
      "h2_storage": 9.5757483,
      "h2_turbine": 3.87675992,
-     "netz": 32.63814345,
+     "netz": 36.39366081,
      "nuclear": 49.03455801,
      "pv": 13.76605061,
      "wind_offshore": 11.69192324,
@@ -857,7 +1331,8 @@
      "hydro_band": 21.0
     },
     "grid_cost_basis": "ist_netzentgelt",
-    "gas_tech": null
+    "gas_tech": null,
+    "grid_socket_share": null
    },
    "expected": {
     "lscoe_eur_mwh": 180.70814838,
@@ -950,7 +1425,8 @@
     },
     "bands_twh": {},
     "grid_cost_basis": "buildout_2045",
-    "gas_tech": null
+    "gas_tech": null,
+    "grid_socket_share": null
    },
    "expected": {
     "lscoe_eur_mwh": 231.86350257,
@@ -1022,6 +1498,98 @@
    }
   },
   {
+   "id": "mix_grid_no_socket",
+   "note": "Sensitivitaetslauf zu Fix 1: Uebertragungsnetz-Sockelquote auf 0 gesetzt - das ist die Netzregel von v0.2b. Prueft, dass der Sockel als Parameter durchgereicht wird und die Differenz reproduzierbar ist.",
+   "input": {
+    "shares": {
+     "pv": 0.3,
+     "wind_onshore": 0.35,
+     "wind_offshore": 0.15
+    },
+    "demand_twh": 950.0,
+    "scenario": "mittel",
+    "co2_price": 75.0,
+    "apply_idc": true,
+    "grid_variant": "mid",
+    "storage": {
+     "battery_power_gw": 40.0,
+     "battery_energy_gwh": 160.0,
+     "electrolyser_gw": 0.0,
+     "h2_storage_gwh": 0.0,
+     "h2_turbine_gw": 0.0,
+     "gas_backup_gw": null
+    },
+    "bands_twh": null,
+    "grid_cost_basis": null,
+    "gas_tech": null,
+    "grid_socket_share": 0.0
+   },
+   "expected": {
+    "lscoe_eur_mwh": 146.30375189,
+    "total_cost_bn_eur_a": 138.98842531,
+    "cost_components_eur_mwh": {
+     "battery": 3.54542558,
+     "gas_backup": 52.41429606,
+     "netz": 33.37393601,
+     "pv": 17.83790539,
+     "wind_offshore": 13.88774997,
+     "wind_onshore": 25.24443888
+    },
+    "capacities_gw": {
+     "pv": 276.69902913,
+     "wind_onshore": 138.54166667,
+     "wind_offshore": 37.5,
+     "hydro_band": 0.0,
+     "biomass_band": 0.0,
+     "coal_band": 0.0,
+     "battery_power": 40.0,
+     "battery_energy_gwh": 160.0,
+     "electrolyser": 0.0,
+     "h2_storage_gwh": 0.0,
+     "h2_turbine": 0.0,
+     "h2_initial_fill_share": 0.0
+    },
+    "served_twh_a": 949.99905,
+    "emissions_mt_co2_a": 126.4451072,
+    "captured_mt_co2_a": 0.0,
+    "dispatch": {
+     "energy_twh": {
+      "load": 476.13952386,
+      "served": 476.13952386,
+      "vre_generated": 358.5479282,
+      "band": 0.0,
+      "curtailed": 37.68706284,
+      "battery_charge": 15.22954411,
+      "battery_discharge": 13.25190551,
+      "electrolysis_input": 0.0,
+      "h2_produced": 0.0,
+      "h2_reelectrified": 0.0,
+      "gas_backup": 157.25629709,
+      "unserved": 0.0,
+      "nuclear_band": 0.0,
+      "hydro_band": 0.0,
+      "biomass_band": 0.0,
+      "coal_band": 0.0
+     },
+     "vre_potential_twh": {
+      "pv": 128.934,
+      "wind_onshore": 160.76375,
+      "wind_offshore": 68.89875
+     },
+     "coverage_ratio": 1.0,
+     "curtailment_share_of_vre": 0.10511025,
+     "gas_peak_gw": 137.559601,
+     "gas_full_load_hours": 1143.18663291,
+     "battery_soc_max_gwh": 160.0,
+     "h2_storage_required_gwh": 0.0,
+     "h2_soc_max_gwh": 0.0,
+     "unserved_share": 0.0,
+     "nuclear_band_gw": 0.0,
+     "seasonal_share_load": 0.5012
+    }
+   }
+  },
+  {
    "id": "mix_ee80_gas_ccs",
    "note": "80 % fEE mit CCS-Backup. Identisch zu mix_ee80_gas bis auf gas_tech - prueft, dass die CCS-Kette in mix_system greift und die Restemission bepreist wird.",
    "input": {
@@ -1045,15 +1613,16 @@
     },
     "bands_twh": null,
     "grid_cost_basis": null,
-    "gas_tech": "gas_ccs"
+    "gas_tech": "gas_ccs",
+    "grid_socket_share": null
    },
    "expected": {
-    "lscoe_eur_mwh": 177.28195041,
-    "total_cost_bn_eur_a": 168.41768447,
+    "lscoe_eur_mwh": 177.9647343,
+    "total_cost_bn_eur_a": 169.06632852,
     "cost_components_eur_mwh": {
      "battery": 3.54542558,
-     "gas_backup": 83.39249459,
-     "netz": 33.37393601,
+     "gas_backup": 81.4504862,
+     "netz": 35.99872829,
      "pv": 17.83790539,
      "wind_offshore": 13.88774997,
      "wind_onshore": 25.24443888
@@ -1073,8 +1642,8 @@
      "h2_initial_fill_share": 0.0
     },
     "served_twh_a": 949.99905,
-    "emissions_mt_co2_a": 37.65114855,
-    "captured_mt_co2_a": 131.30838055,
+    "emissions_mt_co2_a": 37.65111701,
+    "captured_mt_co2_a": 108.2470836,
     "dispatch": {
      "energy_twh": {
       "load": 476.13952386,

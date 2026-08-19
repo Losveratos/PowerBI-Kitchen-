@@ -212,15 +212,63 @@ function fuelEurMwhEl(t) {
   return { fuel: Number(th) / Number(eta), basis: 'thermisch ' + Number(th).toFixed(1) + ' EUR/MWh_th / eta ' + Number(eta).toFixed(3) };
 }
 
+/* v0.2c (Fix 4): Massenbilanz der CO2-Abscheidung. Spiegelt model.ccs_balance() 1:1.
+   captured + residual == input gilt exakt, auch unter Ziehung von eta und Rate. */
+function ccsBalance(t) {
+  const costT = t.ccs_cost_eur_t, efTh = t.emission_factor_t_mwh_th;
+  let rate = t.capture_rate;
+  if (!costT || !efTh || !rate) return null;
+  const eta = t.efficiency || t.efficiency_lhv;
+  if (!eta) return null;
+  rate = Number(rate);
+  rate = rate < 0 ? 0 : (rate > 1 ? 1 : rate);
+  let up = t.upstream_share_of_lifecycle;
+  up = (up === null || up === undefined) ? 0.0 : Number(up);
+  up = up < 0 ? 0 : (up > 1 ? 1 : up);
+  const totalIn = Number(efTh) / Number(eta);
+  const upstream = totalIn * up;
+  const combustion = totalIn - upstream;
+  const captured = combustion * rate;
+  const residual = combustion * (1.0 - rate) + upstream;
+  return {
+    input_t_mwh_el: totalIn, upstream_t_mwh_el: upstream, combustion_t_mwh_el: combustion,
+    captured_t_mwh_el: captured, residual_t_mwh_el: residual,
+    cost_eur_mwh_el: Number(costT) * captured,
+    balance_residual: captured + residual - totalIn
+  };
+}
+
 /* v0.2b: CO2-Abscheidung. Spiegelt model.ccs_chain() 1:1.
    Rueckgabe: [Kosten EUR/MWh_el, abgeschiedene t CO2/MWh_el]. */
 function ccsChain(t) {
-  const costT = t.ccs_cost_eur_t, efTh = t.emission_factor_t_mwh_th, rate = t.capture_rate;
-  if (!costT || !efTh || !rate) return [0.0, 0.0];
-  const eta = t.efficiency || t.efficiency_lhv;
-  if (!eta) return [0.0, 0.0];
-  const captured = Number(efTh) / Number(eta) * Number(rate);
-  return [Number(costT) * captured, captured];
+  const b = ccsBalance(t);
+  if (b === null) return [0.0, 0.0];
+  return [b.cost_eur_mwh_el, b.captured_t_mwh_el];
+}
+
+/* v0.2c: wirksamer Emissionsfaktor - bei Abscheidung die Bilanz-Restemission. */
+function emissionFactorEff(t) {
+  const b = ccsBalance(t);
+  if (b !== null) return b.residual_t_mwh_el;
+  return Number(t.emission_factor_t_mwh || 0.0);
+}
+
+/* v0.2c (Fix 1): mixunabhaengige Sockelquote des Uebertragungsnetzes.
+   Spiegelt model._socket_share(). */
+function socketShare(grid, override) {
+  const entry = grid.transmission_socket_share;
+  let v;
+  if (typeof override === 'number') {
+    v = override;
+  } else if (typeof override === 'string' && entry) {
+    const p = pickVal(entry, override);
+    v = (p === null || p === undefined) ? 0.0 : Number(p);
+  } else if (entry) {
+    v = Number(pickVal(entry, 'mid') || 0.0);
+  } else {
+    v = 0.0;
+  }
+  return v < 0 ? 0 : (v > 1 ? 1 : v);
 }
 
 function scopeShareForCapex(capexEntry, shareEntry, capexValue) {
@@ -262,7 +310,20 @@ function lcoe(t, wacc, co2Price) {
   const idcGross = applyIdc ? idcSurcharge(wacc, t.construction_years) : 0.0;
   const idcShare = applShare(t, 'idc_applicable_share');
   const idc = idcGross * idcShare;
-  const capexEff = capex * overrunEff * (1.0 + idc);
+
+  /* v0.2c (Fix 3): Ueberschreitung auf EINER Schaetzbasis, absolut.
+     Spiegelt model.lcoe() 1:1 - siehe dortigen Kommentar. */
+  const ovrBase = t.overrun_estimate_base_eur_kw;
+  let capexEff, overrunSurcharge, overrunMode;
+  if (ovrBase) {
+    overrunSurcharge = (overrun - 1.0) * Number(ovrBase) * overrunShare;
+    capexEff = capex * (1.0 + idc) + overrunSurcharge;
+    overrunMode = 'absolut auf Schaetzanker';
+  } else {
+    overrunSurcharge = capex * (overrunEff - 1.0) * (1.0 + idc);
+    capexEff = capex * overrunEff * (1.0 + idc);
+    overrunMode = 'multiplikativ auf gezogenem CAPEX';
+  }
   const annuity = capexEff * crf(wacc, n);
 
   let fixedOpexKwA, opexMode;
@@ -280,16 +341,23 @@ function lcoe(t, wacc, co2Price) {
   const fuelRes = fuelEurMwhEl(t);
   const fuel = fuelRes.fuel;
   const waste = Number(t.waste_eur_mwh || 0.0);
-  const ef = Number(t.emission_factor_t_mwh || 0.0);
+  /* v0.2c (Fix 4): Restemission aus der Massenbilanz. */
+  const ef = emissionFactorEff(t);
   const co2 = co2Price * ef;
   const ccsRes = ccsChain(t);
+  const ccsBal = ccsBalance(t);
 
   return {
     lcoe_eur_mwh: capital + fixedOpex + fuel + waste + co2 + ccsRes[0],
     components_eur_mwh: { kapital: capital, fixbetrieb: fixedOpex, brennstoff: fuel, entsorgung: waste,
       co2: co2, ccs: ccsRes[0] },
     ccs_captured_t_mwh: ccsRes[1],
+    ccs_residual_t_mwh: ccsBal ? ccsBal.residual_t_mwh_el : null,
+    ccs_input_t_mwh: ccsBal ? ccsBal.input_t_mwh_el : null,
+    emission_factor_effective_t_mwh: ef,
     capex_effective_eur_kw: capexEff,
+    overrun_surcharge_eur_kw: overrunSurcharge,
+    overrun_mode: overrunMode,
     idc_surcharge: idc,
     idc_surcharge_gross: idcGross,
     idc_applicable_share: idcShare,
@@ -309,6 +377,8 @@ const SCENARIO_FIELD_MAP = {
   capex_eur_kw: 'capex', opex_pct: 'opex', opex_eur_kw_a: 'opex',
   full_load_hours: 'full_load_hours', lifetime_years: 'lifetime_years',
   fuel_eur_mwh: 'fuel', fuel_eur_mwh_th: 'fuel', ccs_cost_eur_t: 'fuel', waste_eur_mwh: 'waste',
+  /* v0.2c: der CCS-CAPEX-Faktor folgt derselben Stuetzstelle wie der CAPEX */
+  capex_factor_on_ccgt: 'capex',
   /* v0.2: Kostenabgrenzung folgt der CAPEX-Stuetzstelle */
   capex_scope: 'capex', idc_applicable_share: 'capex', overrun_applicable_share: 'capex'
 };
@@ -696,7 +766,8 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
 
   let gasGw = caps.gas_backup;
   if (gasGw === null || gasGw === undefined) gasGw = disp.gas_peak_gw;
-  const efGas = Number(techs[gasTech].emission_factor_t_mwh || 0.0);
+  /* v0.2c (Fix 4): Restemission aus der Massenbilanz statt Datensatzwert */
+  const efGas = emissionFactorEff(techs[gasTech]);
   const ccsGas = ccsChain(techs[gasTech]);   /* v0.2b */
   const gasTwhA = disp.energy_twh.gas_backup * annualize;
   if (gasGw > 0) {
@@ -713,7 +784,8 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
     detail.gas_backup = Object.assign(detail.gas_backup || {},
       { generation_twh_a: gasTwhA, flh: disp.gas_full_load_hours * annualize,
         fuel_eur_mwh_el: fr.fuel, fuel_basis: fr.basis, tech_key: gasTech,
-        ccs_eur_mwh_el: ccsGas[0], ccs_captured_t_mwh_el: ccsGas[1] });
+        ccs_eur_mwh_el: ccsGas[0], ccs_captured_t_mwh_el: ccsGas[1],
+        emission_factor_eff_t_mwh_el: efGas, ccs_balance: ccsBalance(flat) });
   }
 
   /* Bestandsbaender (v0.2/M6): nur CO2-Kosten, keine Kapital-/Betriebskosten */
@@ -793,19 +865,28 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
     const refDemand = grid.reference_demand_twh.value;
     const transBn = pickVal(grid.transmission_bn_eur_until_2045, variant);
     const distBn = pickVal(grid.distribution_bn_eur_until_2045, variant);
-    const rawT = refShare ? feeShareUsed / refShare : 0.0;
+    /* v0.2c (Fix 1): mixunabhaengiger Sockel auch im Uebertragungsnetz. */
+    const socket = socketShare(grid, opts.grid_socket_share);
     const rawD = refDemand ? demandTwh / refDemand : 0.0;
+    const rawFee = refShare ? feeShareUsed / refShare : 0.0;
+    const rawT = socket * Math.min(1.0, rawD) + (1.0 - socket) * rawFee;
+    const rawTNoSocket = rawFee;
     const scaleT = Math.min(1.0, rawT), scaleD = Math.min(1.0, rawD);
     const costT = transBn * 1e9 * gridCrf * scaleT;
+    const costTNoSocket = transBn * 1e9 * gridCrf * Math.min(1.0, rawTNoSocket);
     const costD = distBn * 1e9 * gridCrf * scaleD;
     cost.netz = costT + costD;
-    gridScalingRaw = { transmission: rawT, distribution: rawD };
+    gridScalingRaw = { transmission: rawT, distribution: rawD, transmission_without_socket: rawTNoSocket };
     detail.netz = {
       basis: 'buildout_2045', transmission_bn_eur: transBn, distribution_bn_eur: distBn,
       fee_share_generated: feeShareGenerated, fee_share_used: feeShareUsed,
+      transmission_socket_share: socket,
       scaling_transmission: scaleT, scaling_distribution: scaleD,
       scaling_transmission_raw: rawT, scaling_distribution_raw: rawD,
-      cost_transmission_bn_eur_a: costT / 1e9, cost_distribution_bn_eur_a: costD / 1e9
+      scaling_transmission_raw_without_socket: rawTNoSocket,
+      cost_transmission_bn_eur_a: costT / 1e9,
+      cost_transmission_without_socket_bn_eur_a: costTNoSocket / 1e9,
+      cost_distribution_bn_eur_a: costD / 1e9
     };
     if (rawT > 1.0) {
       warnings.push('Uebertragungsnetz-Skalierung ' + rawT.toFixed(2) + ' auf 1,00 gedeckelt - das ' +
@@ -820,14 +901,27 @@ function mixSystem(shares, demandTwh, params, profiles, opts) {
   let total = 0; for (const k in cost) total += cost[k];
   const lscoe = servedTwhA ? total / (servedTwhA * MWH_PER_TWH) : NaN;
 
+  /* v0.2c (Fix 1): Sockel-Effekt ausweisen, damit die Setzung sichtbar bleibt. */
+  if (detail.netz && detail.netz.basis === 'buildout_2045' && servedTwhA) {
+    detail.netz.socket_effect_eur_mwh =
+      (detail.netz.cost_transmission_bn_eur_a - detail.netz.cost_transmission_without_socket_bn_eur_a)
+      * 1e9 / (servedTwhA * MWH_PER_TWH);
+  }
+
   /* Restemissionen (v0.2/M5) */
   const coalTwhA = (disp.energy_twh.coal_band || 0.0) * annualize;
   const efCoal = legacyEf.coal_band || 0.0;
+  const gasBalance = ccsBalance(techs[gasTech]);
   const emissions = {
     gas_mt_co2_a: gasTwhA * efGas,
     coal_mt_co2_a: coalTwhA * efCoal,
     total_mt_co2_a: gasTwhA * efGas + coalTwhA * efCoal,
     captured_mt_co2_a: gasTwhA * ccsGas[1],
+    ccs_balance_t_mwh_el: gasBalance,
+    gas_carbon_input_mt_co2_a: gasBalance ? gasTwhA * gasBalance.input_t_mwh_el : null,
+    mass_balance_gap_mt_co2_a: gasBalance
+      ? gasTwhA * (gasBalance.captured_t_mwh_el + gasBalance.residual_t_mwh_el - gasBalance.input_t_mwh_el)
+      : 0.0,
     backup_tech: gasTech,
     g_co2_per_kwh_delivered: servedTwhA ? (gasTwhA * efGas + coalTwhA * efCoal) * 1000.0 / servedTwhA : 0.0,
     emission_factor_gas_t_mwh: efGas,
@@ -915,13 +1009,57 @@ function runSelfTest(vec, params, profiles) {
     compareDeep(res, c.expected, tol, 'lcoe/' + c.id, fails);
   });
 
+  /* v0.2c (Fix 3): Monotonie der Abbildung "gezogener CAPEX -> effektiver CAPEX".
+     Geprueft werden die Werte selbst UND die Monotonie-Eigenschaft. */
+  (vec.capex_eff || []).forEach(c => {
+    checked++;
+    const tp = params.technologies[c.input.tech_key].params;
+    const capEntry = tp.capex_eur_kw;
+    const points = c.input.capex_grid.map(x => {
+      const flat = resolveTech(params, c.input.tech_key, 'mittel', null, true);
+      flat.capex_eur_kw = Number(x);
+      MC_SCOPE_SHARE_FIELDS.forEach(f => {
+        if (tp[f]) flat[f] = scopeShareForCapex(capEntry, tp[f], Number(x));
+      });
+      flat.cost_overrun_factor = c.input.cost_overrun_factor;
+      const r = lcoe(flat, c.input.wacc, 0.0);
+      return { capex_eur_kw: Number(x), idc_applicable_share: flat.idc_applicable_share,
+        overrun_applicable_share: flat.overrun_applicable_share,
+        capex_effective_eur_kw: r.capex_effective_eur_kw };
+    });
+    const eff = points.map(p => p.capex_effective_eur_kw);
+    let monotonic = true;
+    for (let i = 0; i + 1 < eff.length; i++) if (eff[i + 1] < eff[i] - 1e-6) monotonic = false;
+    compareDeep({ points: points, monotonic: monotonic }, c.expected, tol, 'capex_eff/' + c.id, fails);
+    if (!monotonic) fails.push('capex_eff/' + c.id + ': capex_eff NICHT monoton');
+  });
+
+  /* v0.2c (Fix 4): geschlossene CCS-Massenbilanz. */
+  (vec.ccs_balance || []).forEach(c => {
+    checked++;
+    const flat = resolveTech(params, c.input.tech_key, c.input.scenario, null, true);
+    const o = c.input.overrides || {};
+    if (o.eta !== undefined) flat.efficiency = o.eta;
+    if (o.rate !== undefined) flat.capture_rate = o.rate;
+    const b = ccsBalance(flat);
+    compareDeep({
+      input_t_mwh_el: b.input_t_mwh_el, upstream_t_mwh_el: b.upstream_t_mwh_el,
+      captured_t_mwh_el: b.captured_t_mwh_el, residual_t_mwh_el: b.residual_t_mwh_el,
+      cost_eur_mwh_el: b.cost_eur_mwh_el
+    }, c.expected, tol, 'ccs_balance/' + c.id, fails);
+    const gap = b.captured_t_mwh_el + b.residual_t_mwh_el - b.input_t_mwh_el;
+    if (Math.abs(gap) > 1e-10) {
+      fails.push('ccs_balance/' + c.id + ': Bilanzluecke ' + gap.toExponential(2) + ' t/MWh_el');
+    }
+  });
+
   vec.mix.forEach(c => {
     checked++;
     const res = mixSystem(c.input.shares, c.input.demand_twh, params, profiles, {
       scenario: c.input.scenario, storage: c.input.storage, co2_price: c.input.co2_price,
       grid_variant: c.input.grid_variant, apply_idc: c.input.apply_idc,
       bands_twh: c.input.bands_twh, grid_cost_basis: c.input.grid_cost_basis,
-      gas_tech: c.input.gas_tech
+      gas_tech: c.input.gas_tech, grid_socket_share: c.input.grid_socket_share
     });
     compareDeep(res, c.expected, tol, 'mix/' + c.id, fails);
   });
@@ -1189,7 +1327,7 @@ async function boot() {
       MC.done = true;
       const mc = mcParityTest(res);
       S.test = { checked: test.checked, fails: test.fails.concat(mc.fails), tol: test.tol,
-        mcChecked: mc.checked };
+        mcChecked: mc.checked, mcPercentiles: mc.percentiles, mcRanks: mc.ranks };
       renderVerification(S.test);
       $('#mc-progress').innerHTML = '<span class="badge-ok">✓ ' +
         fmt(MC_N_DRAWS * MC_CONFIGS.length * (MC.order || []).length, 0) + ' Ziehungen in ' +
@@ -1204,7 +1342,14 @@ async function boot() {
 function renderVerification(test) {
   const ok = test.fails.length === 0;
   const box = $('#verify-badge');
-  const mcPart = test.mcChecked ? ' + ' + test.mcChecked + ' Monte-Carlo-Perzentile' : '';
+  /* v0.2c: Perzentile und Rangwahrscheinlichkeiten getrennt ausweisen - die
+     Rangwahrscheinlichkeiten haengen an der Ziehungsfolge und sind der
+     eigentliche Paritaetstest fuer die gepaarten Ziehungen. */
+  const mcPart = test.mcChecked
+    ? (test.mcRanks
+      ? ' + ' + test.mcPercentiles + ' Monte-Carlo-Perzentile + ' + test.mcRanks + ' Rangwahrscheinlichkeiten'
+      : ' + ' + test.mcChecked + ' Monte-Carlo-Perzentile')
+    : '';
   box.innerHTML = ok
     ? '<span class="badge-ok">✓ Modell verifiziert — ' + test.checked + ' Testvektoren' + mcPart +
       ', Toleranz ' + fmt(test.tol * 100, 1) + ' %</span>'
@@ -1643,6 +1788,20 @@ function computeLcoeRows() {
       if (ov) {
         flat.capex_eur_kw = flat.capex_eur_kw * ov.capexFactor;
         flat.full_load_hours = flat.full_load_hours * ov.flhFactor;
+        /* v0.2c (Fix 5): Die Kostenabgrenzung haengt am CAPEX-Wert, nicht am
+           Szenariensatz. Bis v0.2b blieben idc_applicable_share und
+           overrun_applicable_share auf der Szenario-Stuetzstelle stehen, waehrend
+           der Regler den CAPEX verschob - der Leser sah dann z. B. einen
+           Overnight-Wert von 7.500 EUR/kW OHNE Bauzins (Zeile "mittel", Anteil
+           0,0) oder 17.500 EUR/kW MIT vollem Bauzins (Zeile "guenstig", Anteil
+           1,0). Beides sind genau die Fehler aus K1. Jetzt werden die Anteile
+           auf dem REGLERWERT interpoliert - identisch zur Monte-Carlo-Rechnung
+           (model.scope_share_for_capex). */
+        const capEntry = techParam(t.key, 'capex_eur_kw');
+        MC_SCOPE_SHARE_FIELDS.forEach(f => {
+          const se = S.params.technologies[t.key].params[f];
+          if (se) flat[f] = scopeShareForCapex(capEntry, se, flat.capex_eur_kw);
+        });
       }
       return { sc: sc, flat: flat, res: lcoe(flat, LC.wacc, LC.co2) };
     });
@@ -3310,11 +3469,40 @@ const MC_BASE_SEED = 20260815;
 
 const MC_DRAW_TECHS = ['pv_freiflaeche', 'wind_onshore', 'wind_offshore', 'nuclear',
   'gas_ccgt', 'gas_ccs', 'battery', 'electrolyser', 'h2_turbine', 'h2_storage'];
-const MC_DRAW_FIELDS = ['capex_eur_kw', 'capex_eur_kwh', 'opex_pct', 'opex_eur_kw_a', 'full_load_hours',
+const MC_DRAW_FIELDS = ['capex_eur_kw', 'capex_eur_kwh',
+  /* v0.2c: CCS-CAPEX ist ein FAKTOR auf den GuD-CAPEX (siehe MC_SHARED_LINKS) */
+  'capex_factor_on_ccgt',
+  'opex_pct', 'opex_eur_kw_a', 'full_load_hours',
   /* v0.2 (M2): Erdgas-Brennstoffpreis, thermisch */
   'fuel_eur_mwh_th',
   /* v0.2b: CO2-Abscheidung */
   'ccs_cost_eur_t', 'capture_rate'];
+/* v0.2c (Fix 2): gemeinsame Ziehungen ueber die CCS-Grenze. Muss mit
+   SHARED_LINKS in monte_carlo.py uebereinstimmen - die verlinkten Felder
+   verbrauchen KEINE eigene Zufallszahl. */
+const MC_SHARED_LINKS = [
+  { tech: 'gas_ccs', field: 'fuel_eur_mwh_th', fromTech: 'gas_ccgt', fromField: 'fuel_eur_mwh_th', mode: 'copy' },
+  { tech: 'gas_ccs', field: 'capex_eur_kw', fromTech: 'gas_ccgt', fromField: 'capex_eur_kw',
+    mode: 'factor', factorField: 'capex_factor_on_ccgt' }
+];
+const MC_LINKED = {};
+MC_SHARED_LINKS.forEach(l => { MC_LINKED[l.tech + '|' + l.field] = true; });
+
+function mcApplySharedLinks(techs) {
+  MC_SHARED_LINKS.forEach(l => {
+    const src = techs[l.fromTech], dst = techs[l.tech];
+    if (!src || !dst) return;
+    const base = src[l.fromField];
+    if (base === null || base === undefined) return;
+    if (l.mode === 'copy') {
+      dst[l.field] = base;
+    } else if (l.mode === 'factor') {
+      const f = dst[l.factorField];
+      if (f === null || f === undefined) return;
+      dst[l.field] = Number(base) * Number(f);
+    }
+  });
+}
 /* v0.2 (M1/M7): Abgrenzungsanteile folgen dem gezogenen CAPEX */
 const MC_SCOPE_SHARE_FIELDS = ['idc_applicable_share', 'overrun_applicable_share'];
 const MC_OVERRUN_CLASS = {
@@ -3380,6 +3568,7 @@ function mcDrawPlan(params) {
     const tech = params.technologies[techKey];
     if (!tech) return;
     MC_DRAW_FIELDS.forEach(field => {
+      if (MC_LINKED[techKey + '|' + field]) return;   /* v0.2c: abgeleitet, nicht gezogen */
       const e = tech.params[field];
       if (mcDrawable(e)) plan.push({ tech: techKey, field: field, min: e.min, mid: e.mid, max: e.max });
     });
@@ -3463,7 +3652,7 @@ function mcPresets() {
 }
 
 /* Schritt 3 aus mixSystem() ueber einem bereits gerechneten Dispatch. */
-function systemCostFromDispatch(shares, demandTwh, params, techs, disp, wacc, co2Price, storage, overrun, gridCostBasis, gasTech) {
+function systemCostFromDispatch(shares, demandTwh, params, techs, disp, wacc, co2Price, storage, overrun, gridCostBasis, gasTech, gridSocketShare) {
   overrun = overrun || {};
   gridCostBasis = gridCostBasis || 'buildout_2045';
   gasTech = gasTech || 'gas_ccgt';
@@ -3493,7 +3682,9 @@ function systemCostFromDispatch(shares, demandTwh, params, techs, disp, wacc, co
 
   let gasGw = storage.gas_backup_gw;
   if (gasGw === null || gasGw === undefined) gasGw = disp.gas_peak_gw;
-  const efGasMc = Number(techs[gasTech].emission_factor_t_mwh || 0);
+  /* v0.2c (Fix 4): Restemission aus der Massenbilanz - die capture_rate-Ziehung
+     bewegt damit beide Seiten. */
+  const efGasMc = emissionFactorEff(techs[gasTech]);
   const ccsMc = ccsChain(techs[gasTech]);   /* v0.2b */
   if (gasGw > 0) {
     cost.gas_backup = (cost.gas_backup || 0) + fixedCost(gasTech) * gasGw * KW_PER_GW;
@@ -3536,8 +3727,12 @@ function systemCostFromDispatch(shares, demandTwh, params, techs, disp, wacc, co
     const curtA = disp.energy_twh.curtailed * annualize;
     const vreUsed = vreGen - ((vreGen + bandGen) ? curtA * vreGen / (vreGen + bandGen) : 0);
     const feeShareUsed = demandTwh ? vreUsed / demandTwh : 0;
-    const scaleT = Math.min(1.0, grid.reference_fee_share.value ? feeShareUsed / grid.reference_fee_share.value : 0);
-    const scaleD = Math.min(1.0, grid.reference_demand_twh.value ? demandTwh / grid.reference_demand_twh.value : 0);
+    /* v0.2c (Fix 1): mixunabhaengiger Sockel auch im Uebertragungsnetz */
+    const socketMc = socketShare(grid, gridSocketShare);
+    const rawDMc = grid.reference_demand_twh.value ? demandTwh / grid.reference_demand_twh.value : 0;
+    const rawFeeMc = grid.reference_fee_share.value ? feeShareUsed / grid.reference_fee_share.value : 0;
+    const scaleT = Math.min(1.0, socketMc * Math.min(1.0, rawDMc) + (1.0 - socketMc) * rawFeeMc);
+    const scaleD = Math.min(1.0, rawDMc);
     cost.netz = (overrun.netz || 1.0) * gridCrfMc * 1e9
       * (pickVal(grid.transmission_bn_eur_until_2045, 'mid') * scaleT
          + pickVal(grid.distribution_bn_eur_until_2045, 'mid') * scaleD);
@@ -3599,6 +3794,9 @@ function mcRunConfigPaired(presets, disps, plan, ovPlan, config, seed, co2Price)
       techs[d.tech][d.field] = triangular(u, lo, mid, hi);
     });
     if (alt) techs.nuclear.construction_years = alt.construction_years.value;
+    /* v0.2c (Fix 2): gemeinsame Rohstoff-/Definitionsziehungen aufloesen,
+       BEVOR die Abgrenzungsanteile am gezogenen CAPEX haengen. */
+    mcApplySharedLinks(techs);
     MC_DRAW_TECHS.forEach(techKey => {
       const tech = S.params.technologies[techKey];
       if (!tech) return;
@@ -3702,17 +3900,17 @@ function mcParityTest(res) {
   const ref = S.mcRef;
   const tol = (ref.meta && ref.meta.parity_tolerance_relative) || 0.005;
   const fails = [];
-  let checked = 0;
+  let checked = 0, percentiles = 0, ranks = 0;
   ref.preset_order.forEach(pid => {
     const r = ref.presets[pid], got = res[pid];
     if (!got) { fails.push({ path: 'mc/' + pid, expected: 1, actual: 0, dev: NaN }); return; }
-    checked++;
+    checked++; percentiles++;
     if (!closeEnough(got.det, r.deterministic_lscoe_eur_mwh, tol)) {
       fails.push({ path: 'mc/' + pid + '/deterministisch', expected: r.deterministic_lscoe_eur_mwh,
         actual: got.det, dev: (got.det - r.deterministic_lscoe_eur_mwh) / r.deterministic_lscoe_eur_mwh });
     }
     MC_CONFIGS.forEach(c => {
-      checked++;
+      checked++; percentiles++;
       const exp = r.configs[c.id].p50, act = got.configs[c.id].p50;
       if (!closeEnough(act, exp, tol)) {
         fails.push({ path: 'mc/' + pid + '/' + c.id + '/p50', expected: exp, actual: act,
@@ -3720,7 +3918,28 @@ function mcParityTest(res) {
       }
     });
   });
-  return { checked: checked, fails: fails, tol: tol };
+  /* v0.2c: Auch die Rangwahrscheinlichkeiten gegen die Python-Referenz pruefen.
+     Sie haengen an der Ziehungsfolge - genau das, was Fix 2 (gemeinsame
+     Ziehungen) und Fix 3 (Ueberschreitungsregel) veraendert haben. */
+  if (ref.rank_probabilities && MC.ranks) {
+    Object.keys(ref.rank_probabilities).forEach(cid => {
+      const got = MC.ranks[cid];
+      if (!got) return;
+      ref.rank_probabilities[cid].forEach((row, i) => {
+        const g = got[i];
+        if (!g) return;
+        checked++; ranks++;
+        /* Wahrscheinlichkeiten absolut vergleichen (0,5 Prozentpunkte), weil
+           eine relative Toleranz bei Werten nahe 0 nichts aussagt. */
+        if (Math.abs(g.p_a_cheaper - row.p_a_cheaper) > 0.005) {
+          fails.push({ path: 'mc/rank/' + cid + '/' + row.a + '<' + row.b,
+            expected: row.p_a_cheaper, actual: g.p_a_cheaper,
+            dev: g.p_a_cheaper - row.p_a_cheaper });
+        }
+      });
+    });
+  }
+  return { checked: checked, fails: fails, tol: tol, percentiles: percentiles, ranks: ranks };
 }
 
 /* Aus den vier Schaltern die gerechnete Konfiguration ableiten. Nicht jede

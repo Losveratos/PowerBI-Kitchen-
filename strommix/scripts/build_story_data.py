@@ -279,6 +279,10 @@ def build_shared(page: dict, mc: dict, params: dict) -> dict:
             "emissions_mt_co2_a": round(p["emissions_mt_co2_a"], 1),
             "captured_mt_co2_a": round(p["captured_mt_co2_a"], 1),
             "gas_tech": p["gas_tech"],
+            # v0.2c (Fix 1): Wieviel des Netzblocks aus der Sockel-SETZUNG stammt.
+            "grid_socket_effect_eur_mwh": (round(p["grid_socket_effect_eur_mwh"], 1)
+                                           if p.get("grid_socket_effect_eur_mwh") is not None
+                                           else None),
             "grid_cost_basis": p["grid_cost_basis"],
             "comparable_to_target_scenarios": p["comparable_to_target_scenarios"],
             "components_eur_mwh": {k: round(v, 1) for k, v in
@@ -337,6 +341,12 @@ def build_shared(page: dict, mc: dict, params: dict) -> dict:
             "nep_uebertragung_bis_2045_mrd_eur": nep["gesamt_bis_2045"],
             "source_ids": ["imk-netzkosten", "nep-2037-2045"],
             "confidence": "A",
+            # v0.2c (Fix 1): mixunabhaengige Sockelquote des Uebertragungsnetzes.
+            # SETZUNG (M) - keine Quelle teilt das Uebertragungsnetz-Budget nach
+            # Treibern auf. Die Wirkung je Szenario steht als
+            # monte_carlo.presets.*.grid_socket_effect_eur_mwh daneben.
+            "uebertragung_sockelquote": params["system"]["grid"]["transmission_socket_share"],
+            "skalierungsregel": params["system"]["grid"]["scaling_rule"],
         },
         "installierte_leistung_juli_2026_gw": page["installierte_leistung_gw"]["stand_juli_2026"],
         "batteriespeicher_ist": page["installierte_leistung_gw"]["batteriespeicher"],
@@ -352,6 +362,11 @@ def build_shared(page: dict, mc: dict, params: dict) -> dict:
                 "overrun_source": mc["meta"]["overrun_source"],
                 "assumptions": mc["meta"]["assumptions"],
                 "drawn_parameters": len(mc["draw_plan"]),
+                # v0.2c (Fix 2): welche Ziehungen ueber Technologiegrenzen
+                # hinweg geteilt werden (Gaspreis, CCS-CAPEX-Faktor).
+                "shared_links": mc.get("shared_links", []),
+                # v0.2c (Fix 1): Sockelquote des Uebertragungsnetzes als Setzung
+                "grid_transmission_socket_share": mc["meta"].get("grid_transmission_socket_share"),
             },
             "configs": {c["id"]: c["label"] for c in mc["configs"]},
             "preset_order": mc["preset_order"],
@@ -377,6 +392,11 @@ def build_shared(page: dict, mc: dict, params: dict) -> dict:
             "capture_rate": {k: ccsp["capture_rate"][k] for k in ("min", "mid", "max")},
             "ccs_cost_eur_t": {k: ccsp["ccs_cost_eur_t"][k] for k in ("min", "mid", "max")},
             "residual_emission_t_mwh": {k: ccsp["emission_factor_t_mwh"][k] for k in ("min", "mid", "max")},
+            # v0.2c (Fix 4): Die Restemission ist jetzt eine Bilanzgroesse.
+            # captured + residual = Brennstoffeintrag, exakt und in jeder Ziehung.
+            "capex_factor_on_ccgt": {k: ccsp["capex_factor_on_ccgt"][k] for k in ("min", "mid", "max")},
+            "upstream_share_of_lifecycle": ccsp["upstream_share_of_lifecycle"]["value"],
+            "mass_balance_note": ccsp["upstream_share_of_lifecycle"]["note"],
             "sources": {
                 "capex": ccsp["capex_eur_kw"]["source"],
                 "capture_rate": ccsp["capture_rate"]["source"],

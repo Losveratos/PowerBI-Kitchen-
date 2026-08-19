@@ -2171,7 +2171,11 @@
   "v0.2/M6: Ist-2025-Anker mit Kohle-, Biomasse- und Wasserbaendern und heutigen Netzentgelten statt der Netzinvestition bis 2045.",
   "v0.2/M7: Ueberschreitungsfaktor nur auf Schaetzbasis-Anker (overrun_applicable_share).",
   "v0.2b: Technologie gas_ccs (Abscheidung an GuD). CAPEX-Faktor 2,0 (NETL 2023), Wirkungsgradverlust 8 pp, Abscheiderate 90 %, Vollkette 50/80/100 EUR/t; die Restemission (49/120/220 g/kWh) traegt weiterhin den vollen CO2-Preis.",
-  "v0.2b: Kontrastverteilung Asien/Golf fuer Kernkraft-CAPEX (1.870/3.150/4.950 EUR/kW, Bauzeit 8 a) - ausschliesslich als eigene Monte-Carlo-Konfiguration, NIE in der Basisspanne (Begruendung kosten_kernkraft.md 7.1, maschinenlesbar hinterlegt)."
+  "v0.2b: Kontrastverteilung Asien/Golf fuer Kernkraft-CAPEX (1.870/3.150/4.950 EUR/kW, Bauzeit 8 a) - ausschliesslich als eigene Monte-Carlo-Konfiguration, NIE in der Basisspanne (Begruendung kosten_kernkraft.md 7.1, maschinenlesbar hinterlegt).",
+  "v0.2c/1: Auch das Uebertragungsnetz bekommt einen mixunabhaengigen Sockel (transmission_socket_share, SETZUNG 0,20/0,40/0,60 mit Sensitivitaet). Bis v0.2b skalierte der 328-Mrd.-Block linear von null mit der genutzten fEE-Arbeit.",
+  "v0.2c/2: Gemeinsame Rohstoff- und Definitionsziehungen - der Gaspreis wird EINMAL je Ziehung gezogen und von gas_ccgt und gas_ccs geteilt; der CCS-CAPEX ist ein gezogener FAKTOR (capex_factor_on_ccgt) auf den in derselben Ziehung gezogenen GuD-CAPEX.",
+  "v0.2c/3: Der Ueberschreitungsaufschlag wird als absoluter Betrag auf EINER Schaetzbasis gerechnet (overrun_estimate_base_eur_kw = 7.500) mit Rest-Overrun-Anteilen 0,48/0,50/0,00 - damit ist die Abbildung 'gezogener CAPEX -> effektiver CAPEX' monoton und die Doppelzaehlung an den unteren Ankern beseitigt.",
+  "v0.2c/4: Geschlossene CCS-Massenbilanz - abgeschiedene Menge und Restemission werden aus EINEM Brennstoffeintrag gebildet (upstream_share_of_lifecycle); captured + residual = Eintrag gilt exakt, auch unter Ziehung von Wirkungsgrad und Abscheiderate."
  ],
  "sources": [
   {
