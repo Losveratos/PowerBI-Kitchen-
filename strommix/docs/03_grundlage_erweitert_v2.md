@@ -2,7 +2,7 @@
 title: "Was kostet ein klimaneutrales Stromsystem wirklich? Ein Faktencheck für Deutschland und die EU"
 subtitle: "Eine kritische Prüfung der GES-Studie 'Der klimaneutrale Strommix der Zukunft' mit eigener Neuberechnung der Kostenannahmen"
 author: ""
-date: "2026-08"
+date: "2026-08-01"
 status: "Grundlage für HTML-Simulation / interaktiven Blogpost"
 scope: "Deutschland / EU"
 language: "de"
