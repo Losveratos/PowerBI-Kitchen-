@@ -15,8 +15,6 @@
 - [ ] **Story-Review durch Michael** (`strommix-story.html`, v0.1 Entwurf): Dramaturgie,
   Tonfall, Kartenlänge, Reihenfolge der Akte. Zahlen nur über
   `research/story_claims_check.md` → `scripts/build_story_data.py` ändern
-- [ ] **Story-Verlinkung**: `index.html` und `whitepaper-strommix.html` gegenseitig mit der
-  Story verknüpfen (Story verlinkt bereits auf die Whitepaper-Kapitel 3/4/5/6/9)
 - [ ] **Story-Feinschliff**: Gegenpositions-Kästen gleichmäßiger über die Akte verteilen;
   Lesbarkeit der 13-Zeilen-Punktwolke (Akt 2) unter 360 px prüfen; ggf. Kapitel-Sprungmarken
   oder Fortschrittsanzeige ergänzen (bewusst weggelassen, wie im Rhein-Original)
@@ -31,8 +29,6 @@
 - [ ] **Politur-Runde:** die 21 kleinen Befunde aus `research/review_v09.md`
 - [ ] **Wind-offshore-Profil** ergänzen (aktuell Onshore-Form als markierte
   Übergangslösung — glättet Offshore-Einspeisung zu wenig)
-- [ ] **Verlinkung von index.html** auf das Paper (nach Abnahme durch Michael)
-- [ ] **Merge auf main** → GitHub Pages live
 
 ## P3 — Ideen / spätere Ausbaustufen
 
@@ -50,6 +46,18 @@
 - [ ] **LinkedIn-Begleitpost** aus dem Executive Summary ableiten
 
 ## Erledigt
+
+- [x] 2026-08-19 · **Live in der Kitchen (Merge auf main + Verlinkung):**
+  Branch `claude/strohmix-analysis-whitepaper-0rkhas` konfliktfrei nach `main`
+  gemerged (`--no-ff`), GitHub Pages liefert damit `strommix-story.html` und
+  `whitepaper-strommix.html` von `datenwgknowledgekitchen.com`.
+  Startseite: zwei neue Kacheln unter *Posts & Talks* (`index.html` **und**
+  `daten_wg_learn_buckets.html`), neue Filter-Chips **„Visual Story"** (`story`)
+  und **„White Paper"** (`whitepaper`); die Rhein-Story hat das `story`-Tag
+  ebenfalls bekommen. Querverlinkung ist jetzt beidseitig: das White Paper zeigt
+  im Hero und in der Fußleiste auf die Story (Story → Paper gab es schon).
+  QA lokal über `http.server` mit Chromium: index + beide Seiten ohne JS-Fehler,
+  Kachel-Klicks und beide Chips getestet.
 
 - [x] 2026-08-19 · **Freigabe-Dossier + Scrollytelling-Story:**
   `research/story_claims_check.md` (7 bestätigt, 11 korrigiert, 4 verworfen, 6 Setzungen,
