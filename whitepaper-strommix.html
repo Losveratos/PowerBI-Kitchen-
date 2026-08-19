@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Was braucht ein gesunder Strommix — und was kostet er? · Daten-WG</title>
+<meta name="description" content="Interaktives White Paper: Ist-Zustand, Kostenmodell (LCOE), stündliche Dispatch-Simulation, Monte-Carlo-Unsicherheit und Risiken eines klimaneutralen deutschen Stromsystems. Jede Zahl mit Quelle und Konfidenzstufe.">
+<meta name="author" content="Michael Tenner · Daten-WG">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,750&amp;family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-sunk:#F3F2EC; --ink:#0F1E2E; --soft:#475569;
+    --accent:#C25A2D; --teal:#1B9AA8; --line:#E4E2DA; --grid:#EAE8E0;
+    /* Textvariante des Teals: #1B9AA8 erreicht auf Weiss nur 3,37:1 und damit
+       kein WCAG-AA fuer Fliesstext. Fuer Links, Kicker und Quellen-Chips gilt
+       deshalb der dunklere Ton (4,98:1). */
+    --teal-text:#0E6E7A;
+    /* Serien-Palette (validiert: adjazente CVD-ΔE ≥ 9.1, Normalsicht ≥ 22.9) */
+    --s-pv:#eda100; --s-windon:#1baf7a; --s-windoff:#2a78d6; --s-band:#e87ba4;
+    --s-bat:#008300; --s-h2:#4a3aa7; --s-gas:#eb6834; --s-unserved:#e34948;
+    --s-net:#5b6472; --s-ely:#8a7cd8;
+    --conf-a:#0E6E7A; --conf-a-bg:#DDEEF0;
+    --conf-b:#95601F; --conf-b-bg:#FAEDDC;
+    --conf-c:#B34E22; --conf-c-bg:#F7E5DB;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; scroll-padding-top:76px}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:'Geist',system-ui,sans-serif;font-size:16.5px;line-height:1.65}
+  .rule{height:10px;background:var(--accent)}
+  .rule2{height:4px;background:var(--teal)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+  header.hero{max-width:960px;margin:0 auto;padding:48px 24px 22px}
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:3px;
+          text-transform:uppercase;color:var(--teal-text);font-weight:600;margin-bottom:18px}
+  h1{font-family:'Fraunces',serif;font-weight:750;font-size:clamp(32px,5.6vw,52px);
+     line-height:1.08;margin:0 0 16px;letter-spacing:-0.5px}
+  .hero-sub{font-size:clamp(17px,2.3vw,20px);color:var(--soft);max-width:680px;line-height:1.5;margin:0}
+  .hero-meta{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--soft);margin-top:20px}
+  /* Querverweis auf die Scroll-Story: gleiche Analyse, erzaehlte Kurzfassung. */
+  .hero-storylink{margin:16px 0 0;font-size:15.5px}
+  .hero-storylink a{font-weight:600;text-decoration:none;border-bottom:2px solid var(--teal)}
+  .hero-storylink a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  h2{font-family:'Fraunces',serif;font-weight:650;font-size:29px;line-height:1.2;
+     margin:60px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--accent)}
+  h2 .kapnum{font-family:'JetBrains Mono',monospace;font-size:0.6em;font-weight:600;
+             color:var(--accent);margin-right:12px;vertical-align:3px}
+  h3{font-family:'Fraunces',serif;font-weight:650;font-size:21px;margin:34px 0 10px}
+  h4{font-family:'Geist',sans-serif;font-weight:600;font-size:16px;margin:22px 0 8px}
+  p{margin:0 0 14px}
+  a{color:var(--teal-text)}
+  ul,ol{margin:0 0 14px;padding-left:22px} li{margin-bottom:6px}
+  /* Lange Feldpfade (z. B. nuclear_capex_contrast.rationale_not_in_base_range)
+     duerfen auf 390 px umbrechen, sonst schiebt ein einziges <code> die Seite auf.
+     `break-word` und NICHT `anywhere`: `anywhere` wuerde auch die
+     min-content-Breite senken und laesst Tabellenspalten mit Feld-IDs
+     buchstabenweise zusammenfallen. */
+  code{font-family:'JetBrains Mono',monospace;font-size:13.5px;background:#F0EFE9;padding:1.5px 5px;
+       border-radius:4px;overflow-wrap:break-word}
+  hr{border:none;border-top:1px solid var(--line);margin:36px 0}
+  em{color:var(--soft)}
+  .anchor-alias{display:block;height:0;overflow:hidden}
+
+  /* ---- Sticky Kapitel-Navigation ---- */
+  #chapnav{position:sticky;top:0;z-index:55;background:rgba(250,250,247,.95);
+           border-bottom:1px solid var(--line);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  .chapnav-in{max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:center;
+              gap:12px;min-height:46px}
+  #chapnav .nav-t{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;
+                  text-transform:uppercase;color:var(--soft);font-weight:600;flex:none}
+  #chapnav .links{display:flex;gap:3px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  #chapnav .links::-webkit-scrollbar{display:none}
+  #chapnav a{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--soft);
+             text-decoration:none;padding:5px 9px;border-radius:16px;white-space:nowrap}
+  #chapnav a:hover{color:var(--accent)}
+  #chapnav a.on{background:var(--ink);color:#fff}
+  #chapnav-toggle{display:none;font-family:'JetBrains Mono',monospace;font-size:12px;
+                  background:var(--bg-card);border:1px solid var(--line);border-radius:16px;
+                  padding:5px 12px;color:var(--ink);cursor:pointer;margin-left:auto}
+  @media (max-width:760px){
+    .chapnav-in{flex-wrap:wrap;padding:7px 18px}
+    #chapnav-toggle{display:inline-block}
+    #chapnav .links{display:none;width:100%;flex-wrap:wrap;overflow:visible;padding:6px 0 8px}
+    #chapnav.open .links{display:flex}
+  }
+
+  /* ---- Karten / Kästen ---- */
+  .card{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:22px 0}
+  .card-t{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;
+          color:var(--soft);font-weight:600;margin:0 0 10px}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px}
+  .note{background:var(--bg-sunk);border-left:4px solid var(--teal);border-radius:0 10px 10px 0;
+        padding:14px 18px;margin:18px 0;font-size:15px;color:var(--soft)}
+  .note strong{color:var(--ink)}
+  .warn{background:#FDF3EE;border-left:4px solid var(--accent)}
+  .crit{background:#FBEDED;border-left:4px solid var(--s-unserved)}
+
+  /* ---- Executive Summary ---- */
+  .summary-box{background:var(--bg-card);border:2px solid var(--accent);border-radius:14px;
+               padding:24px 26px;margin:30px 0 18px}
+  .summary-box > h2{margin:0 0 6px;border:none;padding:0;font-size:27px}
+  .summary-lead{font-size:15px;color:var(--soft);margin:0 0 6px}
+  ol.exec{list-style:none;padding:0;margin:14px 0 0;counter-reset:ex}
+  ol.exec li{counter-increment:ex;position:relative;padding:13px 0 13px 44px;
+             border-bottom:1px solid var(--line);font-size:15px;line-height:1.55;margin:0}
+  ol.exec li:last-child{border-bottom:none;padding-bottom:2px}
+  ol.exec li::before{content:counter(ex);position:absolute;left:0;top:14px;width:26px;height:26px;
+        border-radius:50%;background:var(--accent);color:#fff;font-family:'JetBrains Mono',monospace;
+        font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center}
+  .exec-u{display:block;margin-top:5px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--soft)}
+  .exec-foot{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);
+             font-size:13.5px;color:var(--soft);line-height:1.55}
+  .howto{background:var(--bg-sunk);border-radius:12px;padding:16px 20px;margin:0 0 8px;font-size:14.5px}
+  .howto ol{margin:8px 0 0;padding-left:20px}
+
+  /* ---- Inhaltsverzeichnis ---- */
+  .toc-box{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:16px 20px}
+  .toc-box h2{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;
+              color:var(--soft);margin:0 0 6px;border:none;padding:0}
+  ul.toc-list{list-style:none;margin:0;padding:0}
+  ul.toc-list li{margin:0;border-bottom:1px solid var(--line)}
+  ul.toc-list li:last-child{border-bottom:none}
+  ul.toc-list a{display:flex;gap:14px;align-items:baseline;padding:9px 2px;text-decoration:none;color:var(--ink)}
+  ul.toc-list a:hover{color:var(--accent)}
+  ul.toc-list .n{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);
+                 font-weight:600;flex:none;width:28px}
+  ul.toc-list .t{font-weight:600;font-size:15px;line-height:1.35}
+  ul.toc-list .d{display:block;color:var(--soft);font-size:13.5px;font-weight:400;line-height:1.4}
+
+  /* ---- Kennzahl-Kacheln ---- */
+  .tile{background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .tile .n{font-family:'Fraunces',serif;font-weight:650;font-size:25px;color:var(--accent);line-height:1.15}
+  .tile .n.sm{font-size:20px}
+  .tile .l{font-size:13px;color:var(--soft);margin-top:4px;line-height:1.4}
+
+  /* ---- Konfidenz + Quellen-Chips ---- */
+  .conf{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
+        line-height:1.7;border-radius:4px;padding:0 5px;vertical-align:2px;letter-spacing:.5px}
+  .conf-A{background:var(--conf-a-bg);color:var(--conf-a)}
+  .conf-B{background:var(--conf-b-bg);color:var(--conf-b)}
+  .conf-C{background:var(--conf-c-bg);color:var(--conf-c)}
+  .conf-M{background:#EDECE6;color:#475569}
+  sup.cite{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;color:var(--teal-text);
+           cursor:pointer;padding:0 1px;border-bottom:1px dotted var(--teal-text);vertical-align:super;line-height:0}
+  sup.cite:hover,sup.cite:focus{color:var(--accent);border-color:var(--accent);outline:none}
+  .pop{position:absolute;z-index:60;max-width:340px;background:var(--bg-card);border:1px solid var(--line);
+       border-radius:10px;box-shadow:0 8px 26px rgba(15,30,46,.13);padding:12px 14px;font-size:13px;
+       line-height:1.5;color:var(--soft);display:none}
+  .pop.on{display:block}
+  .pop b{color:var(--ink);display:block;margin-bottom:3px;font-size:13.5px}
+  .pop a{word-break:break-all;font-size:12px}
+
+  /* ---- Simulations-Label ---- */
+  .simlabel{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;
+            background:var(--conf-c-bg);color:var(--conf-c);border-radius:4px;padding:2px 7px;letter-spacing:.3px}
+
+  /* ---- Steuerelemente ---- */
+  .ctl{margin:0 0 16px}
+  .ctl label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+  .ctl .val{font-family:'JetBrains Mono',monospace;color:var(--accent);font-weight:600}
+  .ctl .hint{font-size:12px;color:var(--soft);margin-top:4px;line-height:1.45}
+  input[type=range]{width:100%;accent-color:var(--accent);height:22px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+  .chip{font-family:'JetBrains Mono',monospace;font-size:11.5px;border:1px solid var(--line);
+        background:var(--bg-card);color:var(--soft);border-radius:20px;padding:4px 11px;cursor:pointer}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chiprow{overflow-x:auto;padding-bottom:4px}
+  .chiprow .chips{flex-wrap:nowrap}
+  select{font-family:'Geist',sans-serif;font-size:14px;padding:7px 10px;border:1px solid var(--line);
+         border-radius:8px;background:var(--bg-card);color:var(--ink);width:100%}
+  .switch{display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer}
+  .switch input{accent-color:var(--accent);width:16px;height:16px}
+  .btn{font-family:'Geist',sans-serif;font-size:14.5px;font-weight:600;background:var(--ink);color:#fff;
+       border:none;border-radius:9px;padding:10px 18px;cursor:pointer}
+  .btn:hover{background:var(--accent)}
+  .btn:disabled{background:var(--soft);cursor:progress}
+  .runbar{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:4px}
+  .runbar .st{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--soft)}
+
+  /* ---- Charts ---- */
+  .chartbox{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:18px 0}
+  .chartbox h4{margin:0 0 2px}
+  .chart-sub{font-size:12.5px;color:var(--soft);margin:0 0 12px}
+  .scrollx{overflow-x:auto}
+  svg.chart{display:block;width:100%;height:auto;min-width:520px}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:12.5px;color:var(--soft)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block;flex:none}
+  .legend i.ln{height:3px;border-radius:2px;width:14px}
+  .tt{position:absolute;z-index:70;background:var(--ink);color:#fff;border-radius:8px;padding:8px 11px;
+      font-size:12px;line-height:1.5;pointer-events:none;display:none;box-shadow:0 6px 20px rgba(0,0,0,.2);max-width:270px}
+  .tt.on{display:block}
+  .tt b{color:#fff}
+  .tt .k{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+
+  /* ---- Tabellen ---- */
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;background:var(--bg-card);
+        border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th{text-align:left;background:#F5F4EF;border-bottom:2px solid var(--ink);padding:9px 11px;font-weight:600}
+  td{border-bottom:1px solid var(--line);padding:8px 11px;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-family:'JetBrains Mono',monospace;font-size:13px}
+
+  /* ---- Statusbanner ---- */
+  #databanner{margin:0 0 18px;font-size:14px}
+  .badge-ok{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:12px;
+            background:var(--conf-a-bg);color:var(--conf-a);border-radius:20px;padding:4px 12px;font-weight:600}
+  .badge-bad{background:#FBEDED;color:#B3261E}
+  .badge-wait{background:#EDECE6;color:#475569}
+
+  /* ---- Quellen ---- */
+  ol.sources{padding-left:0;list-style:none;counter-reset:src}
+  ol.sources li{counter-increment:src;padding:9px 0 9px 40px;border-bottom:1px solid var(--line);position:relative;font-size:14px;line-height:1.5}
+  ol.sources li::before{content:"[" counter(src) "]";position:absolute;left:0;top:9px;
+        font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);font-weight:600}
+  ol.sources a{word-break:break-word;font-size:13px}
+
+  footer{border-top:1px solid var(--line);background:var(--bg-card);margin-top:56px}
+  .foot-in{max-width:960px;margin:0 auto;padding:26px 24px;font-size:13.5px;color:var(--soft)}
+  .foot-links{display:flex;flex-wrap:wrap;gap:14px;margin:14px 0}
+  .foot-links a{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--soft);text-decoration:none;
+                border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+  .foot-links a:hover{color:var(--accent);border-color:var(--accent)}
+
+  /* ---- Szenario-Piktogramme (v0.12, DataViz-Idee 5) ----
+     Monochrom, in Textfarbe, feste Bedeutung je Szenario (IBCS-Semantik,
+     kein Dekor). Groesse bewusst an die Zeilenhoehe gekoppelt. */
+  .scen-ico{width:15px;height:15px;flex:none;vertical-align:-2.5px;margin-right:7px;
+            stroke:currentColor;fill:none;stroke-width:1.6;
+            stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+  .chip .scen-ico{width:13px;height:13px;vertical-align:-2px;margin-right:5px;opacity:.85}
+
+  /* ---- Haushalts-Anker (v0.12, DataViz-Idee 1) ---- */
+  .hh{display:block;font-family:'JetBrains Mono',monospace;font-size:11.5px;
+      color:var(--soft);margin-top:3px;line-height:1.4;font-weight:400}
+  .tile .hh{font-size:11px;margin-top:5px}
+  td .hh{font-size:11px}
+
+  /* ---- Aufklappbarer Expertenteil ---- */
+  details.xdet{border-top:1px solid var(--line);margin-top:14px;padding-top:10px}
+  details.xdet > summary{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--soft);
+        cursor:pointer;list-style:none;padding:4px 0}
+  details.xdet > summary::-webkit-details-marker{display:none}
+  details.xdet > summary::before{content:"▸ ";color:var(--accent)}
+  details.xdet[open] > summary::before{content:"▾ "}
+  details.xdet > summary:hover{color:var(--accent)}
+
+  /* ---- Waagerecht scrollende Tabellen: sichtbare Affordanz ----
+     R2-M5: mobil lag die Urteils-Spalte ohne jeden Hinweis ausserhalb des
+     Schirms. Kantenschatten + Hinweiszeile, und die Paar-Tabelle wird unter
+     640 px durch gestapelte Karten ersetzt. */
+  .scrollx{overflow-x:auto}
+  .scrollhint{background:
+      linear-gradient(to right,var(--bg-card) 30%,rgba(255,255,255,0)),
+      linear-gradient(to right,rgba(255,255,255,0),var(--bg-card) 70%) 100% 0,
+      radial-gradient(farthest-side at 0 50%,rgba(15,30,46,.12),rgba(0,0,0,0)),
+      radial-gradient(farthest-side at 100% 50%,rgba(15,30,46,.12),rgba(0,0,0,0)) 100% 0;
+    background-repeat:no-repeat;background-size:34px 100%,34px 100%,14px 100%,14px 100%;
+    background-attachment:local,local,scroll,scroll}
+  .scrollnote{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--soft);
+              margin:2px 0 0;display:none}
+  .pair-cards{display:none}
+  .pair-card{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0;
+             background:var(--bg-card)}
+  .pair-card .pt{font-weight:600;font-size:14.5px;line-height:1.35}
+  .pair-card .pw{font-size:13px;color:var(--soft);margin:3px 0 8px}
+  .pair-card dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0;font-size:13px}
+  .pair-card dt{color:var(--soft)}
+  .pair-card dd{margin:0;font-family:'JetBrains Mono',monospace;font-size:12.5px}
+
+  /* ---- Eine-Ziehung-Demo ---- */
+  #draw-demo table{margin:10px 0 0;font-size:13px}
+  #draw-demo td,#draw-demo th{padding:6px 9px}
+  .draw-win{font-weight:600;color:var(--conf-a)}
+
+  @media (max-width:700px){
+    body{font-size:16px}
+    h2{font-size:25px}
+    .summary-box{padding:18px 18px}
+  }
+  @media (max-width:640px){
+    .pair-cards{display:block}
+    .pair-table{display:none}
+    .scrollnote{display:block}
+  }
+</style>
+</head>
+<body>
+<div class="rule"></div><div class="rule2"></div>
+
+<nav id="chapnav" aria-label="Kapitel"><div class="chapnav-in">
+  <span class="nav-t">Kapitel</span>
+  <button id="chapnav-toggle" type="button" aria-expanded="false" aria-controls="chapnav-links">Inhalt ▾</button>
+  <div class="links" id="chapnav-links">
+    <a href="#summary">Summary</a>
+    <a href="#kap-1">1 Prämissen</a>
+    <a href="#kap-2">2 Wo stehen wir</a>
+    <a href="#kap-3">3 Methodik</a>
+    <a href="#kap-4">4 Was kostet Strom</a>
+    <a href="#kap-5">5 Geht der Mix auf</a>
+    <a href="#kap-6">6 Unsicherheit</a>
+    <a href="#kap-7">7 Risiken</a>
+    <a href="#kap-8">8 Diskussion &amp; Fazit</a>
+    <a href="#kap-9">9 Limitationen</a>
+    <a href="#anhang">Anhang</a>
+  </div>
+</div></nav>
+
+<header class="hero">
+  <div class="kicker">Interaktives White Paper · Daten-WG Kitchen</div>
+  <h1>Was braucht ein gesunder Strommix — und was kostet er?</h1>
+  <p class="hero-sub">Ein nachrechenbares Modell für ein klimaneutrales, bezahlbares und
+  versorgungssicheres deutsches Stromsystem. Alle Schieberegler rechnen live — mit demselben
+  Modell, das auch die Python-Skripte im Repository verwenden.</p>
+  <p class="hero-storylink"><a href="strommix-story.html">Die Kurzfassung als Scroll-Story:
+  „Was kostet ein klimaneutrales Stromsystem?“ →</a></p>
+  <div class="hero-meta">Michael Tenner · Daten-WG · Stand August 2026 · v 0.12 (Entwurf) · Modell v0.2c ·
+  Lesezeit ca. 25 Minuten, mit den Simulationen deutlich länger</div>
+</header>
+
+<div class="wrap">
+
+<div id="databanner"></div>
+
+<!-- ====================================================== EXECUTIVE SUMMARY -->
+<section class="summary-box" id="summary">
+  <h2>Executive Summary</h2>
+  <p class="summary-lead">Fünf Aussagen, mehr gibt dieses Modell nicht her — jede mit Konfidenzstufe,
+  Quelle und einer ehrlichen Angabe, wie sicher sie ist. Wer nur zwei Minuten hat, liest bis hier;
+  die ausführliche Fassung mit allen Gegenrichtungen steht in <a href="#fazit">Kapitel 8.2</a>.</p>
+  <div id="exec-list"></div>
+</section>
+
+<div class="howto">
+  <strong>So nutzt du diese Seite.</strong>
+  <ol style="margin-bottom:0">
+    <li><strong>Lesen.</strong> Die Kapitel 1 bis 9 bauen aufeinander auf: erst der Ist-Zustand, dann
+      die Methodik, dann Kosten, Physik, Unsicherheit, Risiken und Fazit.</li>
+    <li><strong>Selbst rechnen.</strong> Jeder Schieberegler in den Kapiteln 4, 5 und 6 rechnet das
+      Modell live neu — mit deinen Annahmen statt mit meinen.</li>
+    <li><strong>Quellen prüfen.</strong> Jede hochgestellte Ziffer öffnet Quelle, Datum und
+      Konfidenzstufe; der komplette Datensatz und alle Skripte liegen im Anhang verlinkt.</li>
+  </ol>
+</div>
+
+<!-- ====================================================== INHALTSVERZEICHNIS -->
+<nav style="margin:22px 0 0" aria-label="Inhaltsverzeichnis"><div class="toc-box" id="toc">
+  <h2>Inhalt</h2>
+  <ul class="toc-list">
+    <li><a href="#kap-1"><span class="n">1</span><span><span class="t">Einleitung und Prämissen</span>
+      <span class="d">Was vorausgesetzt wird, was verhandelbar ist — und die zwei Einschränkungen vorweg.</span></span></a></li>
+    <li><a href="#kap-2"><span class="n">2</span><span><span class="t">Wo stehen wir</span>
+      <span class="d">Ist-Strommix 2025, Zielerreichung gegenüber dem EEG 2023, Bedarfsprojektionen.</span></span></a></li>
+    <li><a href="#kap-3"><span class="n">3</span><span><span class="t">Methodik</span>
+      <span class="d">Das Drei-Ebenen-Modell, die Validierung gegen publizierte Werte, die Konfidenzstufen.</span></span></a></li>
+    <li><a href="#kap-4"><span class="n">4</span><span><span class="t">Was kostet Strom</span>
+      <span class="d">LCOE-Rechner je Technologie: CAPEX, WACC, Volllaststunden, CO₂-Preis, Bauzinsen, CO₂-Abscheidung.</span></span></a></li>
+    <li><a href="#kap-5"><span class="n">5</span><span><span class="t">Geht der Mix auf</span>
+      <span class="d">Stündliche Dispatch-Simulation, Speicher, Backup mit und ohne CCS, Abregelung, Emissionen, System-LSCOE.</span></span></a></li>
+    <li><a href="#kap-6"><span class="n">6</span><span><span class="t">Unsicherheit und Monte Carlo</span>
+      <span class="d">1.000 gepaarte Ziehungen je Konfiguration statt eines Punktwerts — und wie wahrscheinlich
+      welche Rangfolge ist.</span></span></a></li>
+    <li><a href="#kap-7"><span class="n">7</span><span><span class="t">Risiken und Ehrlichkeit</span>
+      <span class="d">Dunkelflaute, Kostenüberschreitungen, Marktdesign, Lieferketten, Endlagerung — beide Seiten.</span></span></a></li>
+    <li><a href="#kap-8"><span class="n">8</span><span><span class="t">Diskussion und Fazit</span>
+      <span class="d">Die GES-Studie als Fallstudie, dann sieben belastbare Aussagen.</span></span></a></li>
+    <li><a href="#kap-9"><span class="n">9</span><span><span class="t">Limitationen</span>
+      <span class="d">Was dieses Modell nicht kann, welche Daten fehlen, wo Ergebnisse Untergrenzen sind — inklusive der maschinenlesbaren Limitationsliste.</span></span></a></li>
+    <li><a href="#anhang"><span class="n">A</span><span><span class="t">Anhang</span>
+      <span class="d">Quellenverzeichnis mit Zugriffsdatum, Methodik-Details und Rohdaten im Repository.</span></span></a></li>
+  </ul>
+</div></nav>
+
+<!-- ================================================================ KAPITEL 1 -->
+<h2 id="kap-1"><span class="kapnum">1</span>Einleitung und Prämissen</h2>
+
+<p>Dieses Papier beantwortet drei Fragen in dieser Reihenfolge: Wo steht das deutsche Stromsystem
+heute, was kostet Strom aus den einzelnen Technologien, und geht ein gewählter Mix physikalisch
+überhaupt auf — Stunde für Stunde. Alles darüber hinaus (Kapitel 6 bis 9) dient dazu, die Grenzen
+dieser Antworten sichtbar zu machen: Unsicherheit, Risiken, Limitationen.</p>
+
+<div class="grid2">
+  <div class="card">
+    <p class="card-t">Prämissen — nicht verhandelt, sondern belegt</p>
+    <ol style="margin:0;padding-left:20px;font-size:14.5px">
+      <li><strong>Der Klimawandel ist real und menschengemacht.</strong> Der IPCC formuliert im
+        sechsten Sachstandsbericht: menschliche Aktivitäten haben „unequivocally“ die globale
+        Erwärmung verursacht, 1,1&nbsp;°C über 1850–1900 im Mittel 2011–2020.
+        <sup class="cite" data-src="ipcc-ar6-syr"></sup><sup class="cite" data-src="ipcc-ar6-wg1"></sup>
+        Das wird hier vorausgesetzt.</li>
+      <li><strong>Warum überhaupt ein Preis je Tonne?</strong> Zwischen kumulativen CO₂-Emissionen und
+        Temperaturanstieg besteht ein nahezu linearer Zusammenhang. Erst das rechtfertigt einen
+        einheitlichen Preis pro Tonne, unabhängig von Ort und Zeitpunkt.
+        <sup class="cite" data-src="ipcc-ar6-syr"></sup></li>
+      <li><strong>CO₂-Bepreisung ist eine Variable, kein Dogma.</strong> Der Slider in Kapitel 4 geht von
+        0 bis 400&nbsp;€/t und lässt sich auf die UBA-Schattenpreise umschalten.</li>
+      <li><strong>Technologieoffenheit.</strong> Keine Technologie wird vorab aus- oder eingeschlossen.
+        Bewertet wird nach Kosten, Systembeitrag und Risiken auf Basis realer Marktdaten.</li>
+      <li><strong>Neutralität heißt Bandbreiten.</strong> Wo die Datenlage keinen Punktwert hergibt,
+        steht eine Spanne. Lücken werden benannt, nicht überbrückt.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <p class="card-t">Zwei Einschränkungen vorweg</p>
+    <p style="font-size:14.5px">Beide betreffen die Belastbarkeit jeder einzelnen Zahl auf dieser
+    Seite. Sie stehen deshalb vor dem ersten Ergebnis und nicht im Anhang. Wie mit Unsicherheit
+    umgegangen wird — Konfidenzstufen, Spannen, Monte Carlo — steht in Kapitel&nbsp;3.</p>
+    <div class="note warn" style="margin-bottom:0" id="transparency-note">
+      <span id="limit-fulltext"></span>
+      <span id="limit-partial"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ KAPITEL 2 -->
+<span id="teil-a" class="anchor-alias"></span>
+<h2 id="kap-2"><span class="kapnum">2</span>Wo stehen wir</h2>
+
+<p>Bevor man über Zielsysteme streitet, hilft ein nüchterner Blick auf den Ausgangspunkt.
+Drei Fragen: Was erzeugt Deutschland heute? Wie weit ist der Ausbau gegenüber den eigenen
+gesetzlichen Zielen? Und wie viel Strom wird künftig gebraucht?</p>
+
+<div class="note">
+  <strong>Eine Vorbemerkung zur Statistik, die viele Debatten unnötig macht.</strong>
+  „Der EE-Anteil“ hat mindestens vier verschiedene Werte, je nach Abgrenzung —
+  Bruttostromerzeugung, Bruttostromverbrauch, öffentliche Nettostromerzeugung oder eingespeiste
+  Strommenge. Für 2025 kursieren deshalb 54&nbsp;%, 55,1&nbsp;%, 55,9&nbsp;% und 56&nbsp;% nebeneinander,
+  alle korrekt. <span id="ee-share-note"></span></p>
+</div>
+
+<div class="chartbox">
+  <h4>Bruttostromerzeugung Deutschland 2025 nach Energieträgern</h4>
+  <p class="chart-sub" id="mix-sub"></p>
+  <div class="scrollx"><svg id="chart-mix" class="chart" role="img" aria-label="Bruttostromerzeugung 2025 nach Energieträgern"></svg></div>
+  <div class="legend" id="legend-mix"></div>
+</div>
+
+<div class="grid3" id="tiles-a"></div>
+
+<h3>Zielerreichung: der Ausbau gegen die eigenen Gesetze</h3>
+<p>Das EEG&nbsp;2023 schreibt für 2030 fest: 215&nbsp;GW Photovoltaik, 115&nbsp;GW Wind onshore,
+mindestens 30&nbsp;GW Wind offshore, mindestens 80&nbsp;% erneuerbarer Anteil am Bruttostromverbrauch.
+<sup class="cite" data-src="eeg-2023"></sup> Gemessen am Stand Anfang 2026 ergibt sich folgendes Bild.</p>
+
+<div class="chartbox">
+  <h4>Zielerreichungsgrad 2030 — Stand Anfang 2026</h4>
+  <p class="chart-sub">Balken = installierte Leistung heute, Rahmen = gesetzliches Ziel 2030.
+  Der Faktor rechts zeigt, um welches Vielfache der Zubau des Jahres 2025 steigen müsste.
+  Die Stichtage unterscheiden sich je Reihe (PV und Wind onshore: Jahresende 2025; Wind offshore:
+  Jahresmitte 2026) — sie stehen an den jeweiligen Balken.</p>
+  <div id="chart-ziele"></div>
+</div>
+
+<div class="note warn" id="ziele-note"></div>
+
+<h3>Wie viel Strom wird gebraucht?</h3>
+<p>Die Bedarfsprojektionen streuen stärker als jede Kostenannahme in diesem Papier. Wer eine
+einzelne Zahl nennt, verschweigt die Streuung. Deshalb hier ausschließlich Spannen.</p>
+
+<div class="chartbox">
+  <h4>Bruttostromverbrauch — Ist und Projektionen</h4>
+  <p class="chart-sub">Balken = Spanne der jeweiligen Quelle. Die Revision der 2030er Annahme ist
+  eigens ausgewiesen, weil sie die Debatte 2025/26 geprägt hat.</p>
+  <div class="scrollx"><svg id="chart-bedarf" class="chart" role="img" aria-label="Bedarfsprojektionen Bruttostromverbrauch"></svg></div>
+</div>
+
+<div class="note" id="bedarf-note"></div>
+
+<!-- ================================================================ KAPITEL 3 -->
+<h2 id="kap-3"><span class="kapnum">3</span>Methodik</h2>
+
+<p>Das Modell steht in <code>strommix/docs/02_modellkonzept.md</code> — festgeschrieben
+<em>vor</em> Eintreffen der Recherche-Ergebnisse, damit die Methodik nicht nachträglich an
+gewünschte Ergebnisse angepasst wurde. Es besteht aus drei aufeinander aufbauenden Ebenen.</p>
+
+<div class="scrollx"><table>
+  <thead><tr><th>Ebene</th><th>Frage</th><th>Methode</th><th class="num">Kapitel</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1 · LCOE</strong></td><td>Was kostet eine MWh aus Technologie X?</td>
+      <td>Annuitätenmethode, identisch zur GES-Studie und damit direkt vergleichbar</td><td class="num">4</td></tr>
+    <tr><td><strong>2 · Mix-Modell</strong></td><td>Was kostet ein gewählter Strommix als System?</td>
+      <td>Jahresbilanz plus Zuschläge für Backup, Speicher, Netz und Abregelung → System-LSCOE</td><td class="num">5</td></tr>
+    <tr><td><strong>3 · Dispatch</strong></td><td>Geht der Mix physikalisch auf — Stunde für Stunde?</td>
+      <td>Stündliche Merit-Order auf realen 2024er-Profilen; liefert die Mengen für Ebene 2</td><td class="num">5</td></tr>
+  </tbody>
+</table></div>
+
+<p>Ebene 3 liefert die Backup- und Speicherbedarfe, die in Ebene 2 als Kosten eingehen. Genau das
+ist der Unterschied zu reinen LCOE-Vergleichen — und genau der Punkt, an dem Systemstudien über
+ihre Annahmen streiten.</p>
+
+<div class="grid2">
+  <div class="card">
+    <p class="card-t">Validierung — woran sich das Modell messen lässt</p>
+    <ul style="font-size:14.5px;margin-bottom:0" id="meth-validation"></ul>
+  </div>
+  <div class="card">
+    <p class="card-t">Transparenz — wie belastbar ist eine Zahl?</p>
+    <p style="font-size:14.5px;margin-bottom:10px">Jede Zahl trägt eine Konfidenzstufe. Ein Klick auf die
+    hochgestellte Ziffer zeigt Quelle, Datum und Zugriffsdatum.</p>
+    <p style="font-size:14.5px;margin-bottom:6px"><span class="conf conf-A">A</span> mehrfach bestätigt oder institutionelle Primärquelle</p>
+    <p style="font-size:14.5px;margin-bottom:6px"><span class="conf conf-B">B</span> einzelner Treffer, institutionelle Quelle</p>
+    <p style="font-size:14.5px;margin-bottom:6px"><span class="conf conf-C">C</span> Branchen-/Marktquelle oder Modellannahme mit schwacher Belegbasis</p>
+    <p style="font-size:14.5px;margin-bottom:0"><span class="conf conf-M">M</span> Modellannahme, ausdrücklich nicht quellenbelegt</p>
+  </div>
+</div>
+
+<h3>Wie mit Unsicherheit umgegangen wird</h3>
+<p>Auf drei Wegen, bewusst getrennt gehalten:</p>
+<ul>
+  <li><strong>Konsistente Parametersätze statt mechanischer Extremkombinationen.</strong> Die Sätze
+    „günstig / mittel / teuer“ koppeln nicht einfach alle Minima bzw. Maxima, sondern kombinieren
+    das, was real gemeinsam auftritt — hoher CAPEX etwa mit <em>mittleren</em> Volllaststunden, weil
+    teure Projekte überwiegend an guten Standorten entstehen.</li>
+  <li><strong>Spannen statt Punktwerte in der Anzeige.</strong> Jeder Balken in Kapitel 4 zeigt eine
+    Bandbreite, jede Kennzahl trägt ihre Konfidenzstufe.</li>
+  <li><strong>Monte Carlo für die Systemkosten (Kapitel 6).</strong> Dort werden alle dokumentierten
+    Parameterspannen gleichzeitig als Verteilung gezogen, damit sichtbar wird, wie breit das
+    Ergebnis wirklich ist — und ob sich die Szenarien überlappen.</li>
+</ul>
+<p id="meth-mc" style="font-size:15px;color:var(--soft)"></p>
+
+<h3>Reproduzierbarkeit</h3>
+<p id="meth-repro">Diese Seite rechnet nichts, was nicht auch offline nachrechenbar wäre.</p>
+
+<!-- ================================================================ KAPITEL 4 -->
+<span id="teil-b" class="anchor-alias"></span>
+<h2 id="kap-4"><span class="kapnum">4</span>Was kostet Strom</h2>
+
+<p><strong>LCOE</strong> („Levelized Cost of Electricity“, Stromgestehungskosten) sind die über die
+Lebensdauer gemittelten Vollkosten einer Anlage je erzeugter Megawattstunde. Die Formel ist simpel
+und in diesem Papier identisch mit der der GES-Studie, damit die Ergebnisse direkt vergleichbar
+bleiben:</p>
+
+<p style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:14px;background:var(--bg-sunk);
+   padding:14px;border-radius:10px;overflow-x:auto">
+CRF = r·(1+r)<sup>n</sup> / ((1+r)<sup>n</sup> − 1)<br>
+LCOE = (CAPEX·CRF + Fixbetrieb) / (VLh/1000) + Brennstoff + Entsorgung + CO₂-Preis·Emissionsfaktor
+</p>
+
+<p>Dabei ist <code>r</code> der WACC (gewichteter Kapitalkostensatz), <code>n</code> die Lebensdauer
+und <code>VLh</code> die Volllaststunden — die Zahl der Stunden pro Jahr, die eine Anlage rechnerisch
+mit voller Leistung liefert. <code>CRF</code> ist der Kapitalwiedergewinnungsfaktor, der die
+Investition in eine jährliche Annuität umrechnet.</p>
+
+<div class="note warn">
+  <strong>Der WACC ist der stärkste Einzelhebel — stärker als jede plausible CAPEX-Variation.</strong>
+  <span id="wacc-crf-note"></span>
+  Das ist keine Quellenangabe, sondern reine Arithmetik der oben stehenden Annuitätenformel;
+  nachrechenbar in <code>strommix/scripts/model.py</code> (<code>crf</code>) und im Dossier
+  <code>kosten_kernkraft.md</code> 5.3/8.
+  Zum Vergleich: Die Lebensdauer von 60 auf 80 Jahre zu strecken, ändert die Kosten um rund 3&nbsp;%.
+  Das erklärt, warum jedes europäische Kernkraft-Neubauprojekt ein staatliches Finanzierungsinstrument
+  braucht — und warum kapitalintensive Technologien (Kernkraft, Offshore) auf den WACC-Slider unten
+  ungleich stärker reagieren als PV.
+  <span id="wacc-lever-note"></span>
+  <span id="wacc-counterpoint"></span>
+</div>
+
+<div class="card">
+  <p class="card-t">LCOE-Rechner</p>
+  <div class="grid2">
+    <div>
+      <div class="ctl">
+        <label for="lc-tech">Technologie im Fokus (CAPEX- und Volllaststunden-Regler)</label>
+        <select id="lc-tech"></select>
+        <div class="hint" id="lc-tech-hint"></div>
+      </div>
+      <div class="ctl">
+        <label for="lc-capex">CAPEX <span class="val" id="lc-capex-v"></span></label>
+        <input type="range" id="lc-capex" min="300" max="20000" step="50">
+        <div class="chips" id="lc-capex-presets"></div>
+        <div class="hint" id="lc-capex-hint"></div>
+      </div>
+      <div class="ctl" id="lc-refproj-box" hidden>
+        <label>Referenzprojekte (reale Baukosten je kW, mit Landes-Label)</label>
+        <div class="chiprow"><div class="chips" id="lc-refproj"></div></div>
+        <div class="hint">Alle Werte: Gesamtprojektkosten der jeweils genannten Abgrenzung geteilt durch
+        die Leistung. Abgrenzungen sind <em>nicht</em> einheitlich (overnight vs. inkl. Finanzierung) —
+        Details im Dossier <code>kosten_kernkraft.md</code>.</div>
+      </div>
+      <div class="ctl">
+        <label for="lc-flh">Volllaststunden <span class="val" id="lc-flh-v"></span></label>
+        <input type="range" id="lc-flh" min="200" max="8500" step="25">
+        <div class="hint" id="lc-flh-hint"></div>
+      </div>
+    </div>
+    <div>
+      <div class="ctl">
+        <label for="lc-wacc">WACC (global, gilt für alle Technologien) <span class="val" id="lc-wacc-v"></span></label>
+        <input type="range" id="lc-wacc" min="3" max="9" step="0.1" value="5">
+        <div class="chips" id="lc-wacc-presets"></div>
+        <div class="hint">3&nbsp;% = sozialer Diskontsatz / RAB-Modell · 5&nbsp;% = Annahme der GES-Studie ·
+        9&nbsp;% = marktnahe Projektfinanzierung ohne Staatsgarantie.</div>
+      </div>
+      <div class="ctl">
+        <label for="lc-co2">CO₂-Preis <span class="val" id="lc-co2-v"></span></label>
+        <input type="range" id="lc-co2" min="0" max="400" step="5" value="75">
+        <div class="chips" id="lc-co2-presets"></div>
+        <div class="hint" id="lc-co2-hint"></div>
+      </div>
+      <div class="ctl">
+        <label class="switch"><input type="checkbox" id="lc-idc" checked>
+          Bauzinsen (IDC) über die Bauzeit aufschlagen</label>
+        <div class="hint" id="lc-idc-hint"></div>
+      </div>
+      <div class="ctl">
+        <label class="switch"><input type="checkbox" id="lc-refs" checked>
+          Vergleichslinien Dritter einblenden</label>
+        <div class="hint">Fraunhofer&nbsp;ISE / Lazard-Bänder, BNetzA-Zuschlagswerte, Hinkley-Point-C-CfD
+        und die Annahmen der GES-Studie.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="chartbox">
+  <h4>Stromgestehungskosten je Technologie</h4>
+  <p class="chart-sub">Balken = Spanne aus den drei konsistenten Parametersätzen
+  (günstig / mittel / teuer), alle beim gewählten WACC gerechnet. Der Punkt markiert den
+  Zentralwert. <strong>Die Spanne ist keine mechanische min/max-Kombination</strong> — der teure
+  Satz kombiniert maximalen CAPEX bewusst mit <em>mittleren</em> Volllaststunden, weil hohe
+  Baukosten real überwiegend an guten Standorten auftreten.</p>
+  <div class="scrollx"><svg id="chart-lcoe" class="chart" role="img" aria-label="LCOE je Technologie mit Unsicherheitsband"></svg></div>
+  <div class="legend" id="legend-lcoe"></div>
+  <div class="scrollx" id="table-lcoe"></div>
+</div>
+
+<div class="note" id="lcoe-note"></div>
+
+<!-- ================================================================ KAPITEL 5 -->
+<span id="teil-c" class="anchor-alias"></span>
+<h2 id="kap-5"><span class="kapnum">5</span>Geht der Mix auf?</h2>
+
+<p>LCOE beantworten nur die halbe Frage. Eine Kilowattstunde Solarstrom um 13&nbsp;Uhr im Juni ist
+nicht dasselbe wie eine Kilowattstunde um 18&nbsp;Uhr im Dezember. Der eigentliche Streitpunkt aller
+Systemstudien sind deshalb die <strong>Folgekosten</strong>: Backup-Kraftwerke, Speicher, Netzausbau
+und die Energie, die mangels Abnehmer abgeregelt werden muss.</p>
+
+<p>Der Simulator rechnet dafür Stunde für Stunde mit realen Last- und Erzeugungsprofilen eine
+einfache Merit-Order durch: Überschuss lädt erst die Batterie, dann den Elektrolyseur, der Rest wird
+abgeregelt. Ein Defizit deckt erst die Batterie, dann die Wasserstoff-Rückverstromung, dann das
+Gas-Backup. Was übrig bleibt, ist <strong>ungedeckte Last</strong> — rot dargestellt und bewusst nicht
+schöngerechnet.</p>
+
+<div class="note crit" id="partial-warning"></div>
+
+<div class="card">
+  <p class="card-t">Mix-Simulator</p>
+  <div class="chips" id="mix-presets" style="margin-bottom:16px"></div>
+  <div class="grid2">
+    <div>
+      <div class="ctl">
+        <label for="mx-demand">Jahresbedarf <span class="val" id="mx-demand-v"></span></label>
+        <input type="range" id="mx-demand" min="500" max="1300" step="10">
+        <div class="hint" id="mx-demand-hint"></div>
+      </div>
+      <div class="ctl"><label for="mx-pv">Anteil Photovoltaik <span class="val" id="mx-pv-v"></span></label>
+        <input type="range" id="mx-pv" min="0" max="120" step="1"></div>
+      <div class="ctl"><label for="mx-won">Anteil Wind onshore <span class="val" id="mx-won-v"></span></label>
+        <input type="range" id="mx-won" min="0" max="120" step="1"></div>
+      <div class="ctl"><label for="mx-woff">Anteil Wind offshore <span class="val" id="mx-woff-v"></span></label>
+        <input type="range" id="mx-woff" min="0" max="120" step="1"></div>
+      <div class="ctl"><label for="mx-nuc">Anteil Kernkraft (Band) <span class="val" id="mx-nuc-v"></span></label>
+        <input type="range" id="mx-nuc" min="0" max="100" step="1">
+        <div class="hint">Anteile sind <em>Energie</em>anteile am Jahresbedarf. Die Summe darf über
+        100&nbsp;% liegen — genau das ist die Überkapazität, die EE-lastige Systeme brauchen.
+        <span id="mx-sum"></span></div></div>
+    </div>
+    <div>
+      <div class="ctl"><label for="mx-bat">Batteriespeicher <span class="val" id="mx-bat-v"></span></label>
+        <input type="range" id="mx-bat" min="0" max="200" step="5">
+        <div class="hint" id="mx-bat-hint"></div></div>
+      <div class="ctl"><label for="mx-ely">Elektrolyseur-Leistung <span class="val" id="mx-ely-v"></span></label>
+        <input type="range" id="mx-ely" min="0" max="200" step="5"></div>
+      <div class="ctl"><label for="mx-h2t">H₂-Rückverstromung <span class="val" id="mx-h2t-v"></span></label>
+        <input type="range" id="mx-h2t" min="0" max="200" step="5"></div>
+      <div class="ctl"><label for="mx-h2s">H₂-Speichergröße <span class="val" id="mx-h2s-v"></span></label>
+        <input type="range" id="mx-h2s" min="0" max="400" step="5">
+        <div class="hint" id="mx-h2s-hint"></div></div>
+      <div class="ctl"><label for="mx-scen">Parametersatz (bestimmt auch den WACC)</label>
+        <select id="mx-scen"></select>
+        <div class="hint" id="mx-scen-hint"></div></div>
+      <div class="ctl"><label for="mx-co2">CO₂-Preis <span class="val" id="mx-co2-v"></span></label>
+        <input type="range" id="mx-co2" min="0" max="400" step="5" value="75"></div>
+      <div class="ctl"><label for="mx-gastech">Backup-Technologie</label>
+        <select id="mx-gastech">
+          <option value="gas_ccgt">Gas GuD ohne Abscheidung</option>
+          <option value="gas_ccs">Gas GuD mit CO₂-Abscheidung (CCS)</option>
+        </select>
+        <div class="hint" id="mx-gastech-hint"></div></div>
+      <div class="ctl">
+        <label class="switch"><input type="checkbox" id="mx-gasauto" checked>
+          Gas-Backup automatisch auf den gemessenen Spitzenbedarf auslegen</label>
+        <div class="hint">Abgeschaltet: feste 20&nbsp;GW. Das macht Deckungslücken sichtbar,
+        statt sie per Annahme zu schließen.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="chartbox">
+  <h4>Stündlicher Dispatch — eine Woche</h4>
+  <p class="chart-sub" id="disp-sub"></p>
+  <div class="ctl"><label for="dp-week">Woche <span class="val" id="dp-week-v"></span></label>
+    <input type="range" id="dp-week" min="0" max="25" step="1"></div>
+  <div class="chips" id="dp-week-presets" style="margin-bottom:10px"></div>
+  <div class="scrollx"><svg id="chart-disp" class="chart" role="img" aria-label="Stündlicher Dispatch einer Woche"></svg></div>
+  <div class="legend" id="legend-disp"></div>
+  <div class="scrollx"><svg id="chart-soc" class="chart" role="img" aria-label="Speicherfüllstände"></svg></div>
+  <div class="legend" id="legend-soc"></div>
+</div>
+
+<h3>Jahresbilanz</h3>
+<p style="font-size:14.5px;color:var(--soft)">Alle folgenden Werte stammen aus der stündlichen Simulation
+und sind auf ein Jahr hochgerechnet — erkennbar am Marker <span class="simlabel simdata short"></span>,
+der aus <code>meta.data_completeness</code> gelesen wird und bei vollständiger Jahresdatenbasis automatisch
+verschwindet.</p>
+<div class="grid3" id="tiles-mix"></div>
+
+<div class="chartbox">
+  <h4>System-LSCOE — woraus sich der Strompreis zusammensetzt</h4>
+  <p class="chart-sub">LSCOE = <em>Levelized System Cost of Electricity</em>: die Kosten des
+  modellierten Erzeugungs-, Speicher- und Netz<em>ausbaus</em>, geteilt durch die tatsächlich gedeckte
+  Last. Anders als LCOE enthält es Backup, Speicher, Netz und die Verluste durch Abregelung.
+  <span class="simlabel simdata"></span></p>
+  <div class="note" id="lscoe-scope-note"></div>
+  <div class="scrollx"><svg id="chart-lscoe" class="chart" role="img" aria-label="Aufschlüsselung des System-LSCOE"></svg></div>
+  <div class="legend" id="legend-lscoe"></div>
+</div>
+
+<div id="mix-warnings"></div>
+
+<!-- ================================================================ KAPITEL 6 -->
+<h2 id="kap-6"><span class="kapnum">6</span>Unsicherheit und Monte Carlo</h2>
+
+<p>Bis hierher zeigt jedes Szenario einen Punktwert. <span id="mc-intro-points"></span>
+Diese Zahlen entstehen, indem <em>jeder</em> Parameter auf seinen Zentralwert gesetzt wird. Das ist
+eine legitime Rechnung — aber sie sagt nichts darüber, wie sicher das Ergebnis ist. Denn kein
+einziger dieser Parameter ist ein Punktwert: In <code>model_params.json</code> steht zu jedem eine
+Spanne aus den Dossiers.</p>
+
+<p>Die Monte-Carlo-Simulation zieht diese Spannen gleichzeitig. Statt eines Balkens je Szenario
+entsteht eine <strong>Verteilung</strong>. Wie die daraus folgende Rangfolge zu lesen ist, hat sich
+mit Modellversion 0.2 geändert — und das ist die wichtigste methodische Korrektur dieses Papiers.</p>
+
+<div class="note warn" id="mc-paired-note">
+  <strong>Korrektur gegenüber v0.10: Überlappende Bänder sind kein Argument.</strong>
+  Frühere Fassungen dieses Kapitels haben gefragt, ob sich die Verteilungen zweier Szenarien
+  überlappen, und aus einer Überlappung geschlossen, die Rangfolge sei „nicht entschieden“. Das ist
+  ein bekannter Fehlschluss: Zwei Randverteilungen können sich weit überlappen, während die
+  <em>Differenz</em> beider Größen fast nie das Vorzeichen wechselt — nämlich immer dann, wenn beide
+  Szenarien von denselben Unsicherheiten in dieselbe Richtung getrieben werden. Genau das ist hier
+  der Fall: PV-CAPEX, Zins und Gaspreis wirken auf alle Szenarien zugleich.
+  <span id="mc-paired-fix"></span>
+</div>
+
+<div class="card">
+  <p class="card-t">Monte-Carlo-Rechner</p>
+  <div class="grid2">
+    <div>
+      <div class="ctl">
+        <label class="switch"><input type="checkbox" id="mc-wacc">
+          WACC als Unsicherheit mitziehen (Dreieck 3 / 5 / 9 %)</label>
+        <div class="hint">Abgeschaltet rechnen alle Ziehungen mit 5&nbsp;% wie im Basisfall. Angeschaltet
+        wird der Kapitalkostensatz mitgezogen — er ist laut Kapitel 4 der stärkste Einzelhebel, und
+        genau das wird hier sichtbar.</div>
+      </div>
+      <div class="ctl">
+        <label class="switch"><input type="checkbox" id="mc-co2">
+          CO₂-Preis als Unsicherheit mitziehen</label>
+        <div class="hint" id="mc-co2-hint"></div>
+      </div>
+      <div class="ctl">
+        <label class="switch"><input type="checkbox" id="mc-overrun">
+          empirische Kostenüberschreitung einrechnen</label>
+        <div class="hint" id="mc-overrun-hint"></div>
+      </div>
+      <div class="ctl">
+        <label class="switch"><input type="checkbox" id="mc-asia">
+          Kontrast: Kernkraft-CAPEX aus dem Cluster Asien/Golf</label>
+        <div class="hint" id="mc-asia-hint"></div>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:14.5px">Die Rechnung läuft live im Browser — dieselben Ziehungen, die auch
+      <code>strommix/scripts/monte_carlo.py</code> erzeugt, mit demselben Zufallszahlengenerator und
+      demselben Startwert. Beide Ergebnisse müssen übereinstimmen; geprüft wird das automatisch beim
+      Laden dieser Seite (Badge im Fußbereich).</p>
+      <div class="runbar">
+        <button class="btn" id="mc-run" type="button" disabled>alle Konfigurationen durchspielen</button>
+        <span class="st" id="mc-progress">rechnet …</span>
+      </div>
+      <p style="font-size:13px;color:var(--soft);margin:10px 0 0" id="mc-scope-note"></p>
+    </div>
+  </div>
+</div>
+
+<div class="note" id="mc-config-note"></div>
+
+<!-- Eine-Ziehung-Demo (v0.12, DataViz-Idee 3): macht die gepaarte Ziehung
+     sichtbar, bevor die Verteilung gezeigt wird. -->
+<div class="card" id="draw-demo">
+  <p class="card-t">Eine einzelne gepaarte Ziehung ansehen</p>
+  <p style="font-size:14.5px" id="draw-demo-lead"></p>
+  <div class="runbar">
+    <button class="btn" id="draw-demo-btn" type="button" disabled>eine Ziehung zeigen</button>
+    <button class="chip" id="draw-demo-again" type="button" hidden>nächste Ziehung</button>
+    <span class="st" id="draw-demo-count"></span>
+  </div>
+  <div class="grid2" id="draw-demo-out" hidden style="margin-top:14px">
+    <div>
+      <p class="chart-sub" style="margin-bottom:4px"><strong>Gezogen in dieser einen Zukunft</strong>
+      — dieselben Werte gelten für <em>alle</em> Szenarien gleichzeitig.</p>
+      <div class="scrollx scrollhint" id="draw-demo-params"></div>
+    </div>
+    <div>
+      <p class="chart-sub" style="margin-bottom:4px"><strong>Was diese eine Zukunft kostet</strong>
+      — System-LSCOE je Szenario, mit genau diesen Werten gerechnet.</p>
+      <div class="scrollx scrollhint" id="draw-demo-result"></div>
+      <p class="scrollnote">← Tabelle waagerecht scrollbar →</p>
+      <p class="chart-sub" id="draw-demo-note"></p>
+    </div>
+  </div>
+</div>
+
+<div class="chartbox">
+  <h4>Verteilung des System-LSCOE je Szenario</h4>
+  <p class="chart-sub" id="mc-chart-sub"></p>
+  <div class="scrollx"><svg id="chart-mc" class="chart" role="img" aria-label="Verteilung des System-LSCOE je Szenario"></svg></div>
+  <div class="legend" id="legend-mc"></div>
+</div>
+
+<h3>Wie wahrscheinlich ist welche Rangfolge?</h3>
+<p id="mc-rank-intro"></p>
+
+<div class="chartbox">
+  <h4>Die entscheidungsrelevanten Paare</h4>
+  <p class="chart-sub" id="mc-pairs-sub"></p>
+  <div class="scrollx scrollhint pair-table" id="table-mc-pairs"></div>
+  <p class="scrollnote">← Tabelle waagerecht scrollbar →</p>
+  <div class="pair-cards" id="cards-mc-pairs"></div>
+  <p class="chart-sub" id="mc-pairs-foot"></p>
+  <details class="xdet" id="mc-matrix-details">
+    <summary>Vollständige Matrix aller Paare — für Expertinnen und Experten</summary>
+    <p class="chart-sub" id="mc-rank-sub"></p>
+    <div class="scrollx scrollhint" id="table-mc-ranks"></div>
+    <p class="scrollnote">← Tabelle waagerecht scrollbar →</p>
+  </details>
+</div>
+
+<div class="note warn" id="mc-finding"></div>
+
+<div class="chartbox">
+  <h4>Alle Szenarien im Vergleich</h4>
+  <p class="chart-sub">Punktwert = Ergebnis mit allen Parametern auf dem Zentralwert (das, was in
+  Kapitel 5 angezeigt wird). P50 = Median der 1.000 Ziehungen. Die Klammer P5–P95 enthält 90&nbsp;%
+  der Ziehungen. Die Spalte „Mt CO₂/a“ macht sichtbar, dass die Zeilen <em>nicht</em>
+  emissionsäquivalent sind — die CCS-Varianten sind der Versuch, das zu heilen.</p>
+  <div class="scrollx" id="table-mc"></div>
+</div>
+
+<div class="note" id="mc-contrast"></div>
+
+<div class="note" id="mc-method"></div>
+
+<!-- ================================================================ KAPITEL 7 -->
+<span id="teil-d" class="anchor-alias"></span>
+<h2 id="kap-7"><span class="kapnum">7</span>Risiken und Ehrlichkeit</h2>
+
+<h3>Dunkelflaute ist zuerst eine Definitionsfrage</h3>
+<p>Warum kann die eine Seite sagen „Dunkelflauten sind selten“ und die andere „Dunkelflauten sind
+der Normalzustand“ — und beide haben korrekte Zahlen? Weil es keine einheitliche Definition gibt.
+Die Schwelle (wie wenig Erzeugung?) und die Mindestdauer (wie lange?) unterscheiden sich um
+Größenordnungen.</p>
+
+<div class="scrollx" id="table-df-def"></div>
+
+<div class="chartbox">
+  <h4>Häufigkeit nach Ereignisdauer, Datenbasis 2016–2025</h4>
+  <p class="chart-sub">Je länger das Ereignis, desto seltener — aber desto weniger hilft ein
+  Kurzzeitspeicher. Batterien überbrücken zuverlässig bis etwa 10&nbsp;Stunden.</p>
+  <div class="scrollx" id="table-df-freq"></div>
+</div>
+
+<div class="note" id="df-dec2024"></div>
+
+<h3>Kostenüberschreitungen: was die Empirie sagt</h3>
+<p>Zwei unabhängige Datensätze mit unterschiedlicher Methodik kommen zum selben Ranking. Die
+erklärende Hypothese beider Autorengruppen ist <strong>Modularität</strong>: PV- und Windprojekte
+bestehen aus tausenden identischen, seriengefertigten Einheiten mit steiler Lernkurve; ein
+Kernkraftwerk ist ein weitgehend einzigartiges Bauwerk.</p>
+
+<div class="chartbox">
+  <h4>Mittlere Kostenüberschreitung gegenüber der Entscheidungsgrundlage</h4>
+  <p class="chart-sub" id="overrun-sub"></p>
+  <div class="scrollx"><svg id="chart-overrun" class="chart" role="img" aria-label="Kostenüberschreitung je Technologie"></svg></div>
+  <div class="legend" id="legend-overrun"></div>
+</div>
+
+<div class="note warn" id="overrun-note"></div>
+
+<h3 id="marktdesign">Wer baut die Reserve? Marktdesign als unbepreiste Voraussetzung</h3>
+<p>Jedes Szenario dieses Papiers stellt einen thermischen Backup-Park bereit, der nur wenige hundert
+bis knapp zweitausend Stunden im Jahr läuft. Im reinen Energy-Only-Markt entsteht ein solcher Park
+nicht: Wer nur über wenige Stunden Deckungsbeiträge verdient, refinanziert seine Investition nicht
+— das ist das <em>Missing-Money-Problem</em>. Die LSCOE-Zahlen oben unterstellen die Anlagen also
+als vorhanden, ohne das Instrument mitzurechnen, das sie hervorbringen müsste.</p>
+
+<div class="grid2" id="tiles-marktdesign"></div>
+<div class="note warn" id="marktdesign-note"></div>
+
+<h3>Lieferketten — wo hängt was?</h3>
+<div class="grid2" id="tiles-supply"></div>
+
+<h3>Endlagerung, KENFO, Haftung — nüchtern, beide Seiten</h3>
+<div class="grid2">
+  <div class="card">
+    <p class="card-t">Was für die Entwarnung spricht</p>
+    <ul id="nuc-pro" style="font-size:14.5px;margin-bottom:0"></ul>
+  </div>
+  <div class="card">
+    <p class="card-t">Was offen bleibt</p>
+    <ul id="nuc-con" style="font-size:14.5px;margin-bottom:0"></ul>
+  </div>
+</div>
+<div class="scrollx" id="table-endlager"></div>
+
+<!-- ================================================================ KAPITEL 8 -->
+<h2 id="kap-8"><span class="kapnum">8</span>Diskussion und Fazit</h2>
+
+<h3 id="ges">8.1 · Fallstudie: die GES-Studie</h3>
+
+<div class="card">
+  <p class="card-t">Warum diese Studie hier auftaucht</p>
+  <p style="font-size:15px">Im Juli 2026 veröffentlichte der Ulmer Verein Global Energy Solutions
+  e.&nbsp;V. die Studie <em>„Der klimaneutrale Strommix der Zukunft“</em>.<sup class="cite" data-src="ges-studie-2026"></sup>
+  Sie vergleicht vier Szenarien für 2045 (950&nbsp;TWh Jahresbedarf) und kommt zu einem eindeutigen
+  Ergebnis: ein technologieoffenes System mit Kernkraft sei mit 125&nbsp;€/MWh weniger als halb so
+  teuer wie ein vollständig erneuerbares System (321&nbsp;€/MWh).</p>
+  <p style="font-size:15px">Sie eignet sich als Fallstudie, weil sie ihre Annahmen ungewöhnlich
+  offen dokumentiert — Basisjahr der Profile, Interkonnektor-Deckelung, keine Batteriespeicher,
+  kein Lastmanagement, lineare Netzkostenskalierung, WACC 5&nbsp;%. Genau diese Transparenz macht
+  einen Annahmen-Check erst möglich. <strong>Das ist ausdrücklich positiv zu werten.</strong></p>
+  <p style="font-size:15px;margin-bottom:0">Der Punkt ist nicht, ob die Studie „recht hat“, sondern
+  wie stark ein Systemvergleich an seinen Inputs hängt. Das Modell dieses Papiers reproduziert die
+  vier LCOE-Werte der Studie mit deren eigenen Annahmen auf <span class="ges-repro-dev" id="ges-repro-dev">±0,04&nbsp;%</span> genau — jede spätere
+  Abweichung ist damit eine Frage der <em>Eingangsdaten</em>, nicht der Rechenmethode.</p>
+</div>
+
+<div class="chartbox">
+  <h4>Verzerrungen — in beide Richtungen</h4>
+  <p class="chart-sub">Nicht alle Befunde sprechen gegen die Studie. Zwei sprechen ausdrücklich
+  für sie.</p>
+  <div class="scrollx" id="table-bias"></div>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <p class="card-t">Was passiert, wenn man nur eine Annahme austauscht</p>
+    <div class="scrollx" id="table-ges-sens"></div>
+    <p style="font-size:14px;color:var(--soft);margin:10px 0 0">Illustrative Näherung aus dem
+    Grundlagen-Dokument, keine exakte Neurechnung des GES-Modells — die Kostenaufschlüsselung liegt
+    dort nur als Grafik vor. <span class="conf conf-C">C</span></p>
+  </div>
+  <div class="card">
+    <p class="card-t">Was das eigene Modell mit GES-Annahmen ergibt</p>
+    <div class="scrollx" id="table-ges-repro"></div>
+    <p style="font-size:14px;color:var(--soft);margin:10px 0 0" id="ges-repro-note"></p>
+  </div>
+</div>
+
+<h3 id="fazit">8.2 · Sieben belastbare Aussagen</h3>
+<p>Die fünf Punkte des Executive Summary, ausgeschrieben und um zwei fachliche Aussagen ergänzt —
+mit den Zahlen, die dahinterstehen, und der jeweiligen Gegenrichtung, wo es eine gibt.</p>
+<div id="fazit-list"></div>
+
+<!-- ================================================================ KAPITEL 9 -->
+<span id="limitationen" class="anchor-alias"></span>
+<h2 id="kap-9"><span class="kapnum">9</span>Limitationen des Modells</h2>
+
+<p>Dieser Abschnitt gehört nicht in den Anhang. Wer die Grenzen eines Modells nicht kennt,
+überinterpretiert seine Ergebnisse — und das gilt für dieses Modell genauso wie für die Studien,
+die es prüft.</p>
+
+<h3>Bewusste Vereinfachungen</h3>
+<ul id="lim-simplifications"></ul>
+
+<h3>Maschinenlesbare Modell-Limitationen</h3>
+<p>Diese Liste steht nicht in diesem HTML, sondern in
+<code>strommix/data/monte_carlo_reference.json</code> unter <code>meta.limitations</code> und wird
+hier unverändert wiedergegeben — inklusive Schweregrad und betroffenen Szenarien. Wer das Modell
+nachrechnet, bekommt dieselbe Liste als Datei.</p>
+<div class="scrollx" id="table-model-limits"></div>
+
+<h3>Dokumentierte Datenlücken</h3>
+<p>Diese Lücken stehen maschinenlesbar in <code>strommix/data/model_params.json</code> unter
+<code>gaps</code> und werden hier unverändert wiedergegeben.</p>
+<div class="scrollx" id="table-gaps"></div>
+
+<h3>Die Datenlage der Simulation</h3>
+<div id="lim-partial"></div>
+
+<!-- ================================================================== ANHANG -->
+<h2 id="anhang"><span class="kapnum">A</span>Anhang</h2>
+
+<h3 id="quellen">A.1 · Quellenverzeichnis</h3>
+<p>Alle Zugriffe am 15.08.2026. Die Konfidenzstufe bezieht sich auf die Belastbarkeit der aus
+dieser Quelle entnommenen Werte, nicht auf die Seriosität des Herausgebers.</p>
+<ol class="sources" id="sources-list"></ol>
+
+<h3 id="methodik">A.2 · Methodik-Details und Rohdaten</h3>
+<p>Diese Seite rechnet nichts, was nicht auch offline nachrechenbar wäre. Modell, Parameter,
+Recherche-Dossiers und Rohdaten liegen vollständig im Repository:</p>
+<ul>
+  <li><code>strommix/docs/02_modellkonzept.md</code> — das Modellkonzept, festgeschrieben
+    <em>vor</em> Eintreffen der Recherche-Ergebnisse</li>
+  <li><code>strommix/scripts/model.py</code> — die Referenzimplementierung (LCOE, Mix, Dispatch)</li>
+  <li><code>strommix/scripts/consolidate_params.py</code> → <code>data/model_params.json</code> —
+    jeder Parameter mit Wert, Spanne, Einheit, Quelle und Konfidenzstufe</li>
+  <li><code>strommix/scripts/build_page_data.py</code> → <code>data/page_data.json</code> —
+    die redaktionellen Zahlen dieser Seite</li>
+  <li><code>strommix/scripts/export_test_vectors.py</code> → <code>data/test_vectors.json</code> —
+    die Referenzwerte, gegen die sich diese Seite beim Laden selbst prüft</li>
+  <li><code>strommix/scripts/monte_carlo.py</code> → <code>data/monte_carlo_reference.json</code> —
+    die Monte-Carlo-Referenz aus Kapitel 6 (fester Seed, dokumentierte Ziehungsreihenfolge)</li>
+  <li><code>strommix/research/validierung_modell.md</code> — der Validierungsbericht</li>
+</ul>
+<p><a href="https://github.com/MichaelTenner/PowerBI-Kitchen-/tree/main/strommix">→ Ordner
+<code>strommix/</code> auf GitHub</a> · Korrekturen und Gegenrechnungen sind ausdrücklich willkommen.</p>
+
+</div><!-- /wrap -->
+
+<footer><div class="foot-in">
+  <div id="verify-badge"></div>
+  <p style="margin:14px 0 0"><strong>Disclaimer.</strong> Dieses Dokument ist keine Anlage-, Rechts-
+  oder Energieberatung. Es enthält eigene Berechnungen auf Basis öffentlich zugänglicher Quellen,
+  Stand August 2026. Für Richtigkeit, Vollständigkeit und Aktualität wird keine Gewähr übernommen;
+  Rundungsdifferenzen sind möglich. Die zugrundeliegenden Primärquellen waren aus der
+  Arbeitsumgebung überwiegend nicht im Volltext abrufbar (siehe Transparenzhinweis in Kapitel 1) — vor
+  einer Verwendung in Entscheidungen sind die Werte am Original zu prüfen.</p>
+  <div class="foot-links">
+    <a href="index.html">Kitchen-Startseite</a>
+    <a href="strommix-story.html">Scroll-Story zum Thema</a>
+    <a href="daten_wg_learn_buckets.html">Daten-WG Folgen</a>
+    <a href="whitepaper-ki-entwicklung-roi.html">White Paper KI-Entwicklung</a>
+    <a href="https://github.com/MichaelTenner/PowerBI-Kitchen-/tree/main/strommix" target="_blank" rel="noopener">Methodik &amp; Rohdaten</a>
+    <a href="https://www.daten-wg.com" target="_blank" rel="noopener">daten-wg.com</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+  </div>
+  <p style="margin:0">Michael Tenner · Daten-WG · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a>
+  · August 2026 · v 0.12 (Entwurf) · Modell v0.2c</p>
+</div></footer>
+
+<div class="pop" id="pop"></div>
+<div class="tt" id="tt"></div>
+
+<script src="whitepaper-strommix.js"></script>
+</body></html>
