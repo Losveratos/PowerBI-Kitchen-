@@ -77,6 +77,22 @@ def load_story_block() -> dict:
     return found[0]
 
 
+def load_addendum() -> dict:
+    """Nachtrag v0.2b (Teil 6 des Dossiers).
+
+    Der Nachtrag ersetzt einzelne Bloecke des Freigabe-Datensatzes (derzeit
+    `monte_carlo_headline`, dessen Zahlen aus Modellstand v0.1 stammen) und
+    ergaenzt die Bloecke, die das Story-Redigat neu braucht. Er ist optional:
+    fehlt er, faellt der Build auf den Stand aus Teil 5 zurueck.
+    """
+    found = [b for b in blocks(CLAIMS_MD)
+             if isinstance(b, dict) and b.get("meta", {}).get("block") == "story_data_v02b"]
+    if len(found) > 1:
+        raise RuntimeError(
+            f"Hoechstens ein story_data_v02b-Block erwartet, gefunden: {len(found)}")
+    return found[0] if found else {}
+
+
 def load_json(path: str) -> dict:
     with open(path, encoding="utf-8") as fh:
         return json.load(fh)
@@ -419,8 +435,9 @@ def check_rejected_not_narrated(out: dict) -> list[str]:
     return problems
 
 
-def check_sources(out: dict, pool: dict[str, dict]) -> tuple[list[dict], list[str]]:
-    wanted: set[str] = set()
+def check_sources(out: dict, pool: dict[str, dict],
+                  extra: set[str] | None = None) -> tuple[list[dict], list[str]]:
+    wanted: set[str] = set(extra or ())
     wanted |= collect_source_ids(out)
     wanted |= {s["id"] for s in out.get("sources", [])}
     wanted |= set(out.get("internal_source_ids_reused", []))
@@ -460,6 +477,7 @@ def check_sources(out: dict, pool: dict[str, dict]) -> tuple[list[dict], list[st
 # --------------------------------------------------------------------------
 def main() -> int:
     story = load_story_block()
+    addendum = load_addendum()
     page = load_json(PAGE_DATA)
     mc = load_json(MC_REF)
     pool = collect_source_pool()
@@ -474,6 +492,9 @@ def main() -> int:
         "research/kosten_kernkraft.md (sources)",
         "research/kosten_ee_speicher.md (sources)",
     ]
+    if addendum:
+        out["meta"]["inputs"].insert(
+            1, "research/story_claims_check.md (Nachtrag story_data_v02b)")
     out["meta"]["story_version"] = "v0.1 (Entwurf)"
     out["meta"]["story_file"] = "strommix-story.html"
     out["meta"]["deep_dive"] = {
@@ -495,9 +516,31 @@ def main() -> int:
     out["shared"] = build_shared(page, mc, load_json(PARAMS))
     out["internal_source_ids_reused"] = story["internal_source_ids_reused"]
 
+    # --- Nachtrag v0.2b darueberlegen -------------------------------------
+    # Reihenfolge: erst Teil 5, dann Teil 6. Gleichnamige Bloecke gewinnen aus
+    # dem Nachtrag (aktuell nur `monte_carlo_headline`), neue Bloecke kommen
+    # hinzu, `sources` werden angehaengt statt ersetzt.
+    story_sources = list(story["sources"])
+    extra_wanted: set[str] = set()
+    if addendum:
+        for key, value in addendum.items():
+            if key in ("meta", "sources", "story_cited_source_ids"):
+                continue
+            out[key] = value
+        story_sources += list(addendum.get("sources", []))
+        extra_wanted |= set(addendum.get("story_cited_source_ids", []))
+        out["meta"]["story_version"] = addendum["meta"].get(
+            "story_version", out["meta"]["story_version"])
+        out["meta"]["model_version"] = addendum["meta"].get("model_version")
+        out["meta"]["addendum"] = {
+            "block": addendum["meta"]["block"],
+            "created": addendum["meta"]["created"],
+            "replaces": addendum["meta"].get("replaces", []),
+        }
+
     # Quellen aufloesen und durchnummerieren
-    out["sources"] = story["sources"]
-    sources, missing = check_sources(out, pool)
+    out["sources"] = story_sources
+    sources, missing = check_sources(out, pool, extra_wanted)
     out["sources"] = sources
 
     problems = check_rejected_not_narrated(out)

@@ -1342,6 +1342,213 @@ alles, was in `rejected_do_not_use` steht, darf nicht erzaehlt werden.
 
 ---
 
+# Teil 6 · Nachtrag v0.2b (Story-Redigat) — zusätzlicher Freigabe-Datensatz
+
+**Angelegt:** 2026-08-19 · **Anlass:** Modellstand **v0.2b** (`research/modell_v02_ergebnis.md`,
+Fixes M1–M7 plus Abschnitt 4b: Gas mit CCS, Kontrastverteilung Asien/Golf) und das darauf
+aufsetzende Story-Redigat (Redigat-Punkte R1–R23, Panel-Punkte E1–E7 / V1–V4).
+
+**Was dieser Nachtrag tut.** Er **ersetzt** den Block `monte_carlo_headline` aus Teil 5 — dessen
+Zahlen (107,1 / 155,8 / 140,7 / 197,2 / 270,9 €/MWh, alle Perzentile, der Gaspreis-Caveat und das
+`honest_statement`) stammen aus Modellstand v0.1 und sind seit v0.2 **falsch** (R7, R8). Und er
+**ergänzt** die Blöcke, die das Redigat neu braucht und die in Teil 5 noch nicht vorgesehen waren.
+Alles Übrige aus Teil 5 bleibt unverändert gültig.
+
+Der Block trägt `meta.block = "story_data_v02b"`. `scripts/build_story_data.py` liest ihn zusätzlich
+zum Block aus Teil 5 und legt ihn darüber (Schlüssel gleichen Namens gewinnen, `sources` werden
+angehängt). Der Lauf bleibt deterministisch: keine Zeitstempel, keine Modellaufrufe zur Bauzeit.
+
+**Herkunft der neuen Zahlen — kurz und prüfbar:**
+
+| Block | Woher |
+|---|---|
+| `monte_carlo_headline` | `data/monte_carlo_reference.json` (v0.2b) — dieselbe Datei, aus der auch `shared.monte_carlo` gefüllt wird |
+| `co2_sensitivity` | eigener Lauf von `scripts/model.py → mix_system` über alle sieben Presets, **nur** `co2_price` variiert, sonst identische Parameter und Profile wie im Basislauf. Reproduzierbar; der Kipppunkt wurde per Bisektion auf 0,1 €/t bestimmt. |
+| `ccs_narrative` | `research/modell_v02_ergebnis.md` 4b.1 (Zerlegung des Aufschlags, implizite Vermeidungskosten) |
+| `ges_absender` | unser eigenes Grundlagenpapier `docs/03_grundlage_erweitert_v2.md` Kap. 2 — **nicht** unabhängig gegengeprüft, deshalb Konfidenz C |
+| `klimapraemisse` | `research/risiken_co2.md` 1.1 (IPCC AR6 K1 und K4) und 2.4 (UBA) |
+| `marktdesign` | `research/ist_zustand_de.md` 6.2 |
+| `dunkelflaute_definition` | `research/risiken_co2.md` 3.1 und 3.2, inklusive des dort ausgewiesenen Interessenlagen-Hinweises |
+| `wind_flh_open_question` | `research/kosten_ee_speicher.md` 4, Absatz „Gegen-Einwand, der fairerweise dazugehört" |
+| `import_dsm_asymmetry` | Persona-Review 04 (EE-Expertin) K2 — der Befund ist inhaltlich unstrittig |
+| `grubler_repliken`, `akt3_hinweis` | Persona-Review 06 (Nuklear-Advocacy) K3 plus WebSearch 2026-08-19 nach den beiden Erwiderungen |
+| neue `sources` | drei Einträge (zwei Fachaufsätze, eine Ministeriumsquelle) |
+
+**Was ausdrücklich nicht freigegeben ist:** Der im Panel-Review (05, Klimaaktivist:in) mit dem
+**alten** Modellstand v0.1 errechnete CO₂-Kipppunkt von rund **260 €/t** darf nicht als aktueller
+Wert erzählt werden. Er steht unten als `superseded_v01_estimate_eur_t` und ist ausschließlich als
+*abgelöste* Zahl zitierbar — mit dem Grund, warum er sich verschoben hat.
+
+```json
+{
+  "meta": {
+    "block": "story_data_v02b",
+    "document": "story_claims_check.md · Teil 6",
+    "created": "2026-08-19",
+    "model_version": "0.2b",
+    "replaces": ["monte_carlo_headline"],
+    "basis": [
+      "research/modell_v02_ergebnis.md",
+      "data/monte_carlo_reference.json",
+      "research/risiken_co2.md",
+      "research/ist_zustand_de.md",
+      "research/kosten_ee_speicher.md"
+    ],
+    "story_version": "v0.2 (Entwurf)"
+  },
+
+  "monte_carlo_headline": {
+    "source": "data/monte_carlo_reference.json (Modell v0.2b, scripts/model.py, 1000 gepaarte Ziehungen je Konfiguration)",
+    "model_version": "0.2b",
+    "co2_price_eur_t": 75,
+    "caveat": "Profile PARTIAL (H2-2024, 4416 h, hochgerechnet). Der Erdgas-Brennstoffpreis ist seit v0.2 bepreist (20/35/60 EUR/MWh_th, Marktspanne, Konfidenz B fuer die Spanne und C fuer die Uebertragbarkeit auf 2045) - die früheren Untergrenzen-Vorbehalte gelten dafuer nicht mehr. Weiterhin fehlen Netzbetrieb, Redispatch und Verluste; der Netzblock der Zukunftsszenarien bleibt eine Untergrenze. Import, Export und Lastmanagement sind nicht modelliert.",
+    "confidence": "B",
+    "presets": [
+      {"id": "ist2025", "label": "Ist 2025 (Referenzsystem)", "deterministic": 180.8, "p50_base": 182, "p5_p95_base": [174, 192], "emissions_mt_co2_a": 136.0, "gas_backup_twh_a": 148.1, "gas_peak_gw": 58.0, "comparable": false},
+      {"id": "kostenminimum", "label": "GES - Kostenminimum", "deterministic": 152.3, "p50_base": 158, "p5_p95_base": [147, 180], "emissions_mt_co2_a": 27.9, "gas_backup_twh_a": 69.2, "gas_peak_gw": 53.9, "comparable": true},
+      {"id": "kostenminimum_ccs", "label": "GES - Kostenminimum (Gas mit CCS)", "deterministic": 163.3, "p50_base": 170, "p5_p95_base": [157, 191], "emissions_mt_co2_a": 8.3, "gas_backup_twh_a": 69.2, "gas_peak_gw": 53.9, "comparable": true},
+      {"id": "ee80_gas", "label": "GES - 80 % EE + Gas", "deterministic": 154.6, "p50_base": 157, "p5_p95_base": [145, 169], "emissions_mt_co2_a": 106.5, "gas_backup_twh_a": 264.4, "gas_peak_gw": 137.0, "comparable": true},
+      {"id": "ee80_gas_ccs", "label": "GES - 80 % EE + Gas mit CCS", "deterministic": 184.4, "p50_base": 188, "p5_p95_base": [171, 210], "emissions_mt_co2_a": 31.7, "gas_backup_twh_a": 264.4, "gas_peak_gw": 137.0, "comparable": true},
+      {"id": "ee80_h2", "label": "GES - 80 % EE + H2", "deterministic": 198.4, "p50_base": 198, "p5_p95_base": [188, 209], "emissions_mt_co2_a": 4.8, "gas_backup_twh_a": 11.9, "gas_peak_gw": 20.0, "comparable": true},
+      {"id": "ee100", "label": "GES - 100 % Erneuerbare", "deterministic": 245.2, "p50_base": 244, "p5_p95_base": [228, 262], "emissions_mt_co2_a": 1.3, "gas_backup_twh_a": 3.2, "gas_peak_gw": 20.0, "comparable": true}
+    ],
+    "honest_statement": "Nach allen sieben Korrekturen liegen die beiden vorderen Pfade fast gleichauf: 152,3 Euro je Megawattstunde fuer das kernkraftgestützte Kostenminimum, 154,6 fuer die gasgestuetzten 80 Prozent Erneuerbare. Ueber 1.000 gepaarte Ziehungen ist das Kernkraft-Szenario in 45 von 100 Fällen das günstigere - die Rangfolge zwischen diesen beiden ist offen, und das ist jetzt gerechnet statt behauptet. Nur vergleicht dieser Beinahe-Gleichstand 28 gegen 107 Millionen Tonnen CO2 im Jahr. Auf gleichem Emissionsniveau - beide Pfade mit Abscheidung, so wie die geprüften Studienszenarien ihren Gas-Pfad meinen - führt das Kernkraft-Szenario mit 90 Prozent.",
+    "ranking_note": "Der Ist-2025-Anker ist NICHT ranking-fähig: er trägt das heutige Netzentgelt statt der Netzinvestition bis 2045 und seine Bestandsbänder ohne Kapital- und Betriebskosten. Er ist ein Größenordnungs-Bezug, kein fünfter Platz."
+  },
+
+  "co2_sensitivity": {
+    "method": "scripts/model.py, mix_system, Szenariensatz mittel, WACC 5 %, Netzvariante mid, Profil H2-2024; alle Parameter unverändert, variiert wird ausschließlich co2_price. Kipppunkt per Bisektion.",
+    "model_version": "0.2b",
+    "unit_costs": "EUR/MWh Systemkosten",
+    "confidence": "B",
+    "levels": [
+      {"co2_eur_t": 0,   "label": "kein CO₂-Preis",                  "ist2025": 161.2, "kostenminimum": 150.1, "kostenminimum_ccs": 162.6, "ee80_gas": 146.2, "ee80_gas_ccs": 181.9, "ee80_h2": 198.0, "ee100": 245.1},
+      {"co2_eur_t": 75,  "label": "Modellwert (ETS-1-Marktniveau)",  "ist2025": 180.8, "kostenminimum": 152.3, "kostenminimum_ccs": 163.3, "ee80_gas": 154.6, "ee80_gas_ccs": 184.4, "ee80_h2": 198.4, "ee100": 245.2},
+      {"co2_eur_t": 350, "label": "UBA-Klimakostensatz MK 3.2 (1 % Diskontierung)", "ist2025": 252.8, "kostenminimum": 160.4, "kostenminimum_ccs": 165.7, "ee80_gas": 185.5, "ee80_gas_ccs": 193.6, "ee80_h2": 199.8, "ee100": 245.5},
+      {"co2_eur_t": 990, "label": "UBA-Klimakostensatz MK 4.0 (Zentralwert)",       "ist2025": 420.2, "kostenminimum": 179.2, "kostenminimum_ccs": 171.3, "ee80_gas": 257.2, "ee80_gas_ccs": 214.9, "ee80_h2": 203.0, "ee100": 246.4}
+    ],
+    "crossover_kernkraft_vs_gas_eur_t": 47.5,
+    "crossover_note": "Oberhalb von rund 48 Euro je Tonne ist das Kernkraft-Szenario im deterministischen Lauf guenstiger als der gasgestützte Pfad. Der Modellwert von 75 Euro liegt bereits darüber - der Beinahe-Gleichstand von 152,3 zu 154,6 ist also selbst schon ein Ergebnis des angesetzten CO₂-Preises.",
+    "superseded_v01_estimate_eur_t": 260,
+    "superseded_note": "Im Panel-Review 05 wurde derselbe Kipppunkt mit Modellstand v0.1 auf rund 260 Euro je Tonne bestimmt. Er ist um mehr als das Fünffache gefallen, weil v0.2 dem Gas-Pfad seinen Brennstoff in Rechnung stellt (M2) und die Bauzinsen-Doppelzählung bei der Kernkraft entfernt (M1). Die alte Zahl darf nur als abgelöster Wert zitiert werden.",
+    "ets1_market_may_2026_eur_t": 74,
+    "uba_mk32_1pct_eur_t": 350,
+    "uba_mk40_central_eur_t": 990,
+    "uba_note": "Der Abstand zwischen Marktpreis und Klimakostensatz ist keine Rechenfrage, sondern eine ethische Setzung: 350 Euro je Tonne folgen einer Zeitpräferenzrate von 1 Prozent, die Werte um 990 bis 1.000 Euro gewichten heutige und künftige Generationen gleich.",
+    "source_ids": ["uba-methodenkonvention", "ews-ets2"]
+  },
+
+  "ccs_narrative": {
+    "delta_eur_mwh": {"kostenminimum": 10.9, "ee80_gas": 29.8},
+    "decomposition_ee80_gas_eur_mwh": {"kapazitaet": 23.9, "mehrbrennstoff": 2.5, "ccs_kette": 9.3, "gesparte_co2_kosten": -5.9},
+    "decomposition_kostenminimum_eur_mwh": {"kapazitaet": 9.4, "mehrbrennstoff": 0.7, "ccs_kette": 2.4, "gesparte_co2_kosten": -1.5},
+    "implied_abatement_cost_eur_t": {"kostenminimum": 531, "ee80_gas": 378},
+    "backup_full_load_hours": {"kostenminimum": 1282, "ee80_gas": 1930},
+    "note": "Der dominante Posten ist die verdoppelte Kapazität, nicht die Abscheidung selbst: ein verdoppelter Kapitalblock verteilt sich auf 1.300 bis 1.900 Betriebsstunden im Jahr. Die impliziten Vermeidungskosten sind deshalb eine OBERGRENZE - ein real optimiertes System würde nur die hoch ausgelasteten Bloecke mit Abscheidung bauen und die Spitzenlast unabgeschieden fahren.",
+    "confidence": "B",
+    "source": "research/modell_v02_ergebnis.md 4b.1"
+  },
+
+  "ges_absender": {
+    "organisation": "Global Energy Solutions e.V.",
+    "gegruendet": "2020 in Ulm, initiiert aus dem Umfeld des Forschungsinstituts FAW/n",
+    "urspruenglicher_fokus": "gruener Wasserstoff, Methanol und Power-to-X-Importe",
+    "studie_erschienen": "Juli 2026",
+    "zieljahr": 2045,
+    "jahresbedarf_twh": 950,
+    "fairness_hinweis": "Dass ausgerechnet ein wasserstoffnaher Verein die wasserstofflastigen Pfade als die teuersten ausweist, spricht eher fuer als gegen die Unbefangenheit der Rechnung.",
+    "volltext_status": "Das Studien-PDF war in dieser Arbeitsumgebung nicht abrufbar. Alles, was hier ueber die Methodik der Studie steht, stützt sich auf unsere eigene, vor Wochen angefertigte Wiedergabe ihrer Annahmetabellen — jede einzelne Zahl daraus ist gegen unabhängige Quellen gehalten, die Studie im Original haben wir nicht gelesen.",
+    "confidence": "C",
+    "confidence_note": "Angaben zu Trägerschaft und Vereinsgeschichte stammen aus unserem eigenen Grundlagenpapier und sind nicht unabhängig gegengeprueft.",
+    "source_ids": ["ges-studie-2026"]
+  },
+
+  "klimapraemisse": {
+    "titel": "Was hier nicht verhandelt wird",
+    "k1_zitat": "Human activities, principally through emissions of greenhouse gases, have unequivocally caused global warming, with global surface temperature reaching 1.1 °C above 1850-1900 in 2011-2020.",
+    "k1_fundstelle": "IPCC AR6 Synthesis Report, Summary for Policymakers, A.1",
+    "k4_aussage": "Zwischen kumulativen CO₂-Emissionen und dem Anstieg der globalen Oberflächentemperatur besteht ein nahezu linearer Zusammenhang (high confidence). Erst das rechtfertigt es, überhaupt einen einheitlichen Preis je Tonne anzusetzen — unabhängig davon, wo und wann emittiert wird.",
+    "k4_fundstelle": "IPCC AR6 WG1, Summary for Policymakers, D.1.1 und Abbildung SPM.10",
+    "restbudget_gt_co2": {"1_5_grad_50_prozent": 500, "2_grad_67_prozent": 1150, "stand": "Anfang 2020", "fundstelle": "AR6 Synthesis Report SPM, B.5.2"},
+    "grenze": "Dieses Modell vergleicht Endzustände, keine Transformationspfade. Kumulative Emissionen — nach AR6 die klimarelevante Größe — sind darin nicht bilanziert.",
+    "confidence": "A",
+    "confidence_note": "Substanz Konfidenz A. Der Wortlaut der Zitate ist aus Suchindex-Auszügen rekonstruiert, das PDF war in dieser Arbeitsumgebung nicht abrufbar (Konfidenz B fuer die wörtliche Fassung).",
+    "source_ids": ["ipcc-ar6-syr", "ipcc-ar6-wg1"]
+  },
+
+  "marktdesign": {
+    "gesetz": "StromVKG - Gesetz zur Sicherung der Versorgungssicherheit Strom und zur Bereitstellung neuer Kapazitaeten",
+    "grundsatzeinigung_eu": "2026-01-15",
+    "kabinettsbeschluss": "2026-05-13",
+    "ausschreibung_1": {"datum": "1. September 2026", "volumen_gw": 4.5},
+    "ausschreibung_2": {"datum": "8. Dezember 2026", "volumen_gw": 4.5},
+    "gesamtvolumen_zunaechst_gw": 11,
+    "inbetriebnahme_spaetestens": 2031,
+    "koalitionsvertrag_ziel_gw_bis_2030": 20,
+    "technologiefokus": "wasserstofffähige Gaskraftwerke, daneben ausdruecklich Speicher und andere steuerbare Anlagen",
+    "offener_widerspruch": "11 GW Ausschreibungsarchitektur gegen 20 GW Koalitionsvertragsziel; die Ausgestaltung des Kapazitätsmechanismus ist nicht final entschieden.",
+    "bezug_zum_modell": "Unser Modell setzt die Backup-Leistung als Ergebnis des Dispatch, nicht als Marktprozess. Wer die 137 GW Gasleistung des gasgestuetzten Pfades liest, sollte wissen, in welchem Tempo Deutschland gesicherte Leistung derzeit tatsächlich beschafft.",
+    "confidence": "A",
+    "source_ids": ["bmwe-kraftwerksstrategie"]
+  },
+
+  "dunkelflaute_definition": {
+    "kernaussage": "Es gibt keine einheitliche Definition. Deshalb koennen beide Seiten mit korrekten Zahlen das Gegenteil behaupten.",
+    "definitionen": [
+      {"quelle": "Deutscher Wetterdienst", "schwelle": "unter 10 % der Nennleistung", "mindestdauer_h": 48},
+      {"quelle": "Uniper-Kurzstudie 2026", "schwelle": "unter 10 % der installierten Leistung von Wind und PV zusammen, gleitender 6-Stunden-Mittelwert", "mindestdauer_h": 10}
+    ],
+    "haeufigkeit_uniper": "1.435 Ereignisse ueber 10 Stunden zwischen 2016 und 2025, mittlere Dauer 12,9 Stunden - also im Mittel öfter als alle drei Tage.",
+    "haeufigkeit_lang": "Ereignisse ueber 48 Stunden treten rund zwei- bis dreimal im Jahr auf; das längste Ereignis der letzten zehn Jahre dauerte 5,4 Tage.",
+    "interessenlage": "Uniper betreibt konventionelle Kraftwerke und hat ein wirtschaftliches Interesse daran, den Backup-Bedarf zu betonen. Die 10-Stunden-Schwelle ist nicht falsch, sie produziert aber naturgemäß viel höhere Ereigniszahlen als die 48-Stunden-Definition des DWD. Umgekehrt blendet die DWD-Definition Erzeugungslücken von 10 bis 24 Stunden aus, die fuer den Speicherbedarf sehr wohl zählen.",
+    "dezember_2024": "Beim Referenzereignis im Dezember 2024 hat das System die Dunkelflaute technisch bewältigt - Reserven waren vorhanden, es gab keine Versorgungsunterbrechung -, aber zu Day-Ahead-Preisen zeitweise ueber 1.000 Euro je Megawattstunde. Bundesnetzagentur und Bundeskartellamt fanden keinen Marktmissbrauch, wohl aber ein strukturelles Problem.",
+    "confidence": "A",
+    "source_ids": ["uniper-dunkelflaute-2026", "lbbw-dunkelflaute-2025", "bnetza-preisspitzen-2025"]
+  },
+
+  "wind_flh_open_question": {
+    "text": "Offene Frage, nicht erwiesener Fehler: Wir lesen die 1.700 Stunden als Neuanlagenwert - dann ist es der Schnitt der Bestandsflotte und der Hebel ist groß. Es ist aber moeglich, dass die Studie damit einen systemweiten Flottendurchschnitt fuer 2045 meint, inklusive Altanlagen und Abregelung. Ohne Zugriff auf den Volltext ihrer Annahmetabelle lässt sich das nicht entscheiden. Wäre es ein Flottenwert inklusive Abregelung, wären die 1.700 und unsere 2.400 Stunden nicht dieselbe Größe - unser Modell erzeugt die Abregelung erst im Dispatch.",
+    "confidence": "B",
+    "source": "research/kosten_ee_speicher.md 4"
+  },
+
+  "import_dsm_asymmetry": {
+    "text": "Import, Export und flexible Nachfrage sind nicht modelliert. Das ist konservativ, aber NICHT symmetrisch: Flexibilität und Interkonnektoren ersetzen Speicher und Backup, ihr Wert steigt also mit dem Anteil wetterabhängiger Erzeugung. Im Kostenminimum-Szenario mit seiner grossen Bandlast ersetzt verschiebbare Last fast nichts, im 100-Prozent-Pfad ersetzt sie Batterieleistung, Elektrolyse und Rückverstromung. Die Auslassung fällt damit zulasten der erneuerbaren Pfade aus - und sie bleibt zusaetzlich hinter der geprüften Studie zurück, die 20 GW Interkonnektoren ansetzt.",
+    "confidence": "A",
+    "source": "Persona-Review 04 (EE-Expertise) K2"
+  },
+
+  "grubler_repliken": {
+    "text": "Grublers Befund ist belegt und er ist bestritten. Escobar Rangel und Lévêque rechnen die französische Kostenentwicklung 2015 mit den Daten des Rechnungshofs nach und finden eine deutlich geringere Eskalation als Grubler - und, neben dem verteuernden Skalierungseffekt, sehr wohl Lerneffekte: die Standardisierungsstrategie des französischen Programms habe die Kosten spürbar gesenkt. Berthelemy und Escobar Rangel finden im selben Jahr ueber französische und US-amerikanische Reaktoren, dass Standardisierung Bauzeiten und Kosten senkt, waehrend Designaenderungen beides erhöhen. Wer Grubler zitiert, sollte die Erwiderungen mitzitieren - und umgekehrt.",
+    "confidence": "C",
+    "confidence_note": "Beide Aufsätze wurden ueber Suchindex-Auszuege erfasst, nicht im Volltext gelesen. Die Richtung der Befunde ist eindeutig, die genauen Effektgrößen sind hier bewusst nicht beziffert.",
+    "source_ids": ["grubler-2010", "escobar-rangel-leveque-2015", "berthelemy-2015"]
+  },
+
+  "akt3_hinweis": {
+    "titel": "Das hier ist eine westliche Kostengeschichte",
+    "text": "Die Zeitreihe oben enthaelt 15 Datenpunkte und keinen einzigen asiatischen. Sie zeigt damit nicht die Geschichte der Kernkraft, sondern die des westlichen Kernkraftbaus nach der Bauunterbrechung. In den letzten zwanzig Jahren wurde die Mehrheit aller Reaktoren weltweit in Asien gebaut. Zu chinesischen Neubaukosten liegt uns keine prüfbare Quelle vor; der koreanische und der emiratische Teil des Weltbestands steht in unserem Datensatz und taucht in Akt 2 als Cluster Asien/Golf auf - und in Akt 4 als eigene, durchgerechnete Kontrastverteilung.",
+    "confidence": "A",
+    "source": "Persona-Review 06 (Pro-Kernkraft-Advocacy) K3"
+  },
+
+  "sources": [
+    {"id": "escobar-rangel-leveque-2015", "title": "Revisiting the Cost Escalation Curse of Nuclear Power: New Lessons from the French Experience", "author": "Lina Escobar Rangel, Francois Lévêque", "publisher": "Economics of Energy & Environmental Policy 4(2)", "date": "2015", "url": "https://ideas.repec.org/a/aen/eeepjl/eeep4-2-escobar.html", "accessed": "2026-08-19", "confidence": "C", "note": "Erwiderung auf Grubler 2010: geringere Eskalation als dort berichtet, Belege fuer Lerneffekte und fuer eine kostensenkende Wirkung der Standardisierung. Ueber Suchindex-Auszuege erfasst, nicht im Volltext gelesen."},
+    {"id": "berthelemy-2015", "title": "Nuclear reactors' construction costs: The role of lead-time, standardization and technological progress", "author": "Michel Berthelemy, Lina Escobar Rangel", "publisher": "Energy Policy 82, S. 118-130", "date": "2015", "url": "https://doi.org/10.1016/j.enpol.2015.03.015", "accessed": "2026-08-19", "confidence": "C", "note": "Oekonometrie ueber französische und US-amerikanische Reaktoren: Standardisierung senkt Bauzeit und Kosten, Designaenderungen erhöhen beides. Ueber Suchindex-Auszuege erfasst, nicht im Volltext gelesen."},
+    {"id": "bmwe-kraftwerksstrategie", "title": "Kraftwerksstrategie / StromVKG - Grundsatzeinigung mit der Europaeischen Kommission und Kabinettsbeschluss", "publisher": "Bundesministerium fuer Wirtschaft und Energie (BMWE)", "date": "2026-01 / 2026-05", "url": "https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Pressemitteilungen/2026/01/20260115-grundsatzeinigung-mit-europaeischen-kommission-ueber-eckpunkte-der-kraftwerksstrategie.html", "accessed": "2026-08-15", "confidence": "A", "note": "Termine und Volumina der ersten beiden Ausschreibungsrunden nach research/ist_zustand_de.md 6.2."}
+  ],
+
+  "story_cited_source_ids": [
+    "ipcc-ar6-syr", "ipcc-ar6-wg1", "unece-2022", "uba-methodenkonvention",
+    "uniper-dunkelflaute-2026", "lbbw-dunkelflaute-2025", "bnetza-preisspitzen-2025",
+    "escobar-rangel-leveque-2015", "berthelemy-2015", "bmwe-kraftwerksstrategie",
+    "grubler-2010", "lovering-2016", "gilbert-2017", "koomey-2017"
+  ]
+}
+```
+
+---
+
 ## Anhang · Reproduzierbarkeit
 
 Alle Nachrechnungen dieses Dossiers sind mit Bordmitteln des Repos
@@ -1352,8 +1559,8 @@ reproduzierbar:
   vollstaendig ausgeschrieben.
 - **Systemkosten 2056:** `scripts/model.py`, Funktion `mix_system`, mit den in
   `story_data.thirty_year_plan.lscoe_2056.our_model.inputs` genannten
-  Kapazitaeten; Energieanteile aus Kapazitaet × Volllaststunden / Bedarf.
-- **Monte-Carlo-Bandbreiten:** unveraendert aus
+  Kapazitaeten; Energieanteile aus Kapazität × Volllaststunden / Bedarf.
+- **Monte-Carlo-Bandbreiten:** unverändert aus
   `data/monte_carlo_reference.json` uebernommen (erzeugt von
   `scripts/monte_carlo.py`).
 
@@ -1367,6 +1574,6 @@ reproduzierbar:
    die US-/Frankreich-/BRD-Zeitreihe punktgenau statt bandweise zu zeigen.
 4. Erdgas-Brennstoffpreis schliessen — solange er fehlt, sind **alle**
    Modell-LSCOE Untergrenzen. Die GES-Annahme (40 €/MWh) waere ein brauchbarer
-   Anker, ist aber nicht unabhaengig belegt.
+   Anker, ist aber nicht unabhängig belegt.
 5. Fraunhofer ISE „Stromgestehungskosten" auf eine 2025/2026-Neuauflage pruefen
    (Stand dieser Recherche: Juli 2024 ist die aktuellste Ausgabe).
