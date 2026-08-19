@@ -1,0 +1,38 @@
+# Jekyll-Konfiguration fuer GitHub Pages
+#
+# Die Kitchen ist eine statische Seite: alle Inhalte sind fertige HTML-Dateien.
+# GitHub Pages baut den Branch trotzdem mit Jekyll, und dabei rendert Jekyll
+# jede Markdown-Datei im Repo mit dem Standard-Theme mit.
+#
+# Die Arbeitsdokumente unter strommix/ (Recherche-Dossiers, Persona-Reviews,
+# Konzepte, Skripte) sind Markdown mit YAML-Frontmatter inklusive Datumsfeldern.
+# Der Pages-Build ist daran gescheitert:
+#   Liquid Exception: Invalid Date: '"2026-08"' is not a valid datetime.
+#     in /_layouts/default.html
+# Damit wurde die gesamte Seite nicht mehr ausgeliefert. Diese Dateien sind
+# internes Arbeitsmaterial und sollen ohnehin nicht als Webseiten gerendert
+# werden -- sie werden hier vom Build ausgenommen.
+#
+# WICHTIG: strommix/data/ bleibt ausdruecklich drin. whitepaper-strommix.html
+# und strommix-story.html laden ihre Zahlen zur Laufzeit per fetch() aus
+# strommix/data/*.json -- ohne diesen Ordner zeigen beide Seiten nur noch den
+# Fehlerkasten "Die Daten konnten nicht geladen werden".
+
+exclude:
+  # Arbeitsmaterial des Strommix-Projekts (kein Web-Inhalt)
+  - strommix/docs/
+  - strommix/research/
+  - strommix/scripts/
+  - strommix/README.md
+  - strommix/BACKLOG.md
+
+  # Die Jekyll-/Pages-Standardausschluesse. `exclude` ersetzt die Vorgabeliste,
+  # statt sie zu ergaenzen -- deshalb stehen sie hier noch einmal.
+  - CNAME
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
