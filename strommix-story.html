@@ -666,7 +666,7 @@ footer a{color:var(--ink-2)}
   <div class="graphic">
     <div class="fig" id="act4" data-step="-1">
       <svg id="svg4" viewBox="0 0 1060 600" role="img"
-           aria-label="Monte-Carlo-Verteilungen der Systemkosten für fünf Szenarien mit überlappenden Unsicherheitsbändern"></svg>
+           aria-label="Monte-Carlo-Verteilungen der Systemkosten für sieben Szenarien — deterministischer Punktwert, mittlere Hälfte und 5- bis 95-Prozent-Perzentil je Zeile, dazu die Restemissionen in Millionen Tonnen CO₂ je Jahr"></svg>
       <div class="fig-title">
         <div class="t" id="t4">Akt 4 · Die ehrliche Antwort ist eine Bandbreite</div>
         <div class="s" id="s4">Monte-Carlo-Simulation · eigenes Modell</div>
@@ -749,10 +749,11 @@ footer a{color:var(--ink-2)}
         nach unten bis
         <span class="big pos" data-v="shared.kostenueberschreitung_faktoren.technologien.kernkraft.spanne[0]" data-d="2"></span>.</p>
       <p>Nebenbefund, der in beide Richtungen zeigt: Gegenüber den beiden wasserstofflastigen
-        Pfaden ist das Kernkraft-Szenario im Basislauf mit <span class="big pos" id="p-h2"></span>
-        günstiger — deutlicher, als die frühere Formulierung nahelegte. In genau diesem
-        Überschreitungs-Lauf ist aber auch dieser Vergleich offen
-        (<span class="big neg" id="p-h2-over"></span>). <span class="simlabel"></span></p>
+        Pfaden ist das Kernkraft-Szenario im Basislauf in
+        <span class="big pos" id="p-h2"></span> der Ziehungen günstiger — deutlicher, als die
+        frühere Formulierung nahelegte. In genau diesem Überschreitungs-Lauf ist aber auch dieser
+        Vergleich offen (<span class="big neg" id="p-h2-over"></span>).
+        <span class="simlabel"></span></p>
     </div></div>
     <div class="step" data-idx="4"><div class="step-card">
       <span class="n">Akt 4 / Schritt 5</span>
@@ -854,7 +855,7 @@ footer a{color:var(--ink-2)}
   <div class="graphic">
     <div class="fig" id="act5" data-step="-1">
       <svg id="svg5" viewBox="0 0 1060 600" role="img"
-           aria-label="Der 30-Jahres-Pfad von 2026 bis 2056: korrigierte Startwerte, Investitionen je Phase und die Systemkosten im Zieljahr"></svg>
+           aria-label="Der 30-Jahres-Pfad von 2026 bis 2056: Abweichung der Startwerte 2026 vom belegten Ist-Wert in Prozent, Investitionen je Phase und die Systemkosten im Zieljahr"></svg>
       <div class="fig-title">
         <div class="t" id="t5">Akt 5 · Der 30-Jahres-Blick</div>
         <div class="s" id="s5">Startwerte, Investitionen, Systemkosten 2056</div>
@@ -1948,6 +1949,10 @@ function buildAct4(){
     return inv ? {p: inv.p_b_cheaper, med: -inv.median_diff_a_minus_b} : null;
   }
   const pct = v => nf(v*100, 0) + " %";
+  // Die Konfigurationslabels kommen aus dem Modelllauf und sind dort in ASCII
+  // notiert; fuer die Seite werden Formelzeichen und Einheiten gesetzt.
+  const cfgLabel = id => String(MC.configs[id] || id)
+    .replace(/CO2/g, "CO₂").replace(/EUR\/t/g, "€ je Tonne").replace(/EUR\/kW/g, "€/kW");
 
   /* Achse. Sie beginnt bei 80 €/MWh — das steht sichtbar dabei, weil ein
      abgeschnittener Nullpunkt Verhaeltnisse optisch uebertreibt. */
@@ -2029,8 +2034,8 @@ function buildAct4(){
       nf(p.gas_backup_twh_a,1) + " TWh/a" +
       (p.comparable_to_target_scenarios ? "" : " · nicht ranking-fähig") + "</span>");
 
-    band(isCcs ? lCcs : lBase, p.configs.base, yy, col, p.label + " · " + MC.configs.base, isCcs);
-    if (!isCcs) band(lOver, p.configs.overrun, yy, col, p.label + " · " + MC.configs.overrun, false);
+    band(isCcs ? lCcs : lBase, p.configs.base, yy, col, p.label + " · " + cfgLabel("base"), isCcs);
+    if (!isCcs) band(lOver, p.configs.overrun, yy, col, p.label + " · " + cfgLabel("overrun"), false);
   });
 
   /* Schritt 3: die Rangfolge — als Differenzverteilung, nicht als Ueberlappung */
@@ -2062,7 +2067,7 @@ function buildAct4(){
     const p = MC.presets[id];
     if (!p.configs.asia) return;
     band(lAsia, p.configs.asia, yOf[id] + gap*0.30, "var(--blue-soft)",
-      p.label + " · " + MC.configs.asia, true);
+      p.label + " · " + cfgLabel("asia"), true);
   });
   const dAsia = MC.presets.kostenminimum.configs.base.p50 - MC.presets.kostenminimum.configs.asia.p50;
   if (NARROW){
@@ -2118,13 +2123,13 @@ function buildAct4(){
                   "Akt 4 · Auf gleichem Emissionsniveau",
                   "Akt 4 · Zwei Welten für dieselbe Technologie"];
   const subs = ["deterministische Rechnung · " + MC.meta.profiles.label,
-                MC.configs.base + " · gemeinsame Zufallszahlen über alle Szenarien",
+                cfgLabel("base") + " · gemeinsame Zufallszahlen über alle Szenarien",
                 "P(Kernkraft günstiger als Gas-Pfad) = " + (rBase ? pct(rBase.p) : "–") +
                   " · mit CO₂-Unsicherheit " + (rCo2 ? pct(rCo2.p) : "–") +
                   " · mit Überschreitungs-Empirie " + (rOver ? pct(rOver.p) : "–"),
-                MC.configs.overrun + " · asymmetrisch: für Batterie und H₂-Kette gibt es keine Faktoren",
+                cfgLabel("overrun") + " · asymmetrisch: für Batterie und H₂-Kette gibt es keine Faktoren",
                 "beide Pfade mit CO₂-Abscheidung · 8 gegen 32 Mt CO₂/a statt 28 gegen 107",
-                MC.configs.asia + " · Kontrast, kein Deutschland-Szenario"];
+                cfgLabel("asia") + " · Kontrast, kein Deutschland-Szenario"];
   return { step(i){
     $("#act4").dataset.step = i;
     if (i >= 0){ $("#t4").textContent = titles[i]; $("#s4").textContent = subs[i]; }
