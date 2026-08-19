@@ -278,6 +278,21 @@ def build_shared(page: dict, mc: dict) -> dict:
             for k, v in page["wacc_sensitivity"]["wacc_effect_at_60y"].items()
             if k.replace(".", "", 1).isdigit()
         },
+        # Dasselbe fuer das durchgerechnete Kernkraft-Beispiel. Wichtig fuer die
+        # Story: der Faktor 2,78 zwischen 3 % und 10 % WACC gilt fuer den
+        # KAPITALKOSTENANTEIL, nicht fuer die LCOE. Die LCOE bewegen sich im
+        # selben Intervall nur um Faktor ~2,0 - beides muss abrufbar sein,
+        # damit im HTML nicht die groessere Zahl auf die kleinere Aussage
+        # gelegt wird.
+        "nuclear_lcoe_by_wacc_pct": {
+            str(int(round(float(k) * 100))): v
+            for k, v in page["wacc_sensitivity"]["worked_example"]["lcoe_eur_mwh"].items()
+        },
+        "nuclear_lcoe_example_assumptions": page["wacc_sensitivity"]["worked_example"]["assumptions"],
+        # Genauigkeit, mit der die Studien-LCOE aus den Studienannahmen
+        # reproduziert werden (scripts/validate_model.py).
+        "ges_lcoe_reproduction_max_deviation_pct":
+            page["ges"]["lcoe_reproduction_max_deviation_pct"],
         "lcoe_benchmarks": page["lcoe_benchmarks"],
         "nuclear_reference_projects": page["nuclear_reference_projects"],
         "nuclear_capex_scenarios": page["nuclear_capex_scenarios"],

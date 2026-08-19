@@ -1228,6 +1228,22 @@
    "9": 0.09051,
    "10": 0.10033
   },
+  "nuclear_lcoe_by_wacc_pct": {
+   "3": 105.8,
+   "5": 132.5,
+   "7": 162.0,
+   "9": 192.8,
+   "10": 208.5
+  },
+  "nuclear_lcoe_example_assumptions": {
+   "capex_eur_kw": 12000,
+   "full_load_hours": 7500,
+   "lifetime_years": 60,
+   "opex_eur_kw_a": 240,
+   "fuel_eur_mwh": 8,
+   "waste_eur_mwh": 8
+  },
+  "ges_lcoe_reproduction_max_deviation_pct": 0.04,
   "lcoe_benchmarks": {
    "pv_freiflaeche": {
     "reference": {

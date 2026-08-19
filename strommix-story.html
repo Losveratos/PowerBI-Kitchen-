@@ -310,7 +310,7 @@ footer a{color:var(--ink-2)}
     <p class="hero-sub">Dieselbe Studie nennt für ein klimaneutrales deutsches Stromsystem
       <b class="v" data-v="shared.ges_reference.scenarios.kostenminimum.lscoe" data-d="0" data-unit=" €/MWh"></b>
       und <b class="v" data-v="shared.ges_reference.scenarios.ee100.lscoe" data-d="0" data-unit=" €/MWh"></b>.
-      Ein Kernkraft-System, halb so teuer wie hundert Prozent Erneuerbare?
+      Ein Kernkraft-System für weniger als die Hälfte von hundert Prozent Erneuerbare?
       Wer solche Zahlen liest, sollte <b>eine einzige Frage stellen: woher kommen sie?</b></p>
     <div class="hero-meta">
       <span><b class="v" data-v="meta.counts.korrigiert" data-d="0"></b> korrigierte Claims</span>
@@ -335,7 +335,7 @@ footer a{color:var(--ink-2)}
   <p>Der Auslöser für diese Geschichte ist eine Szenarioanalyse von Global Energy Solutions<sup class="cite" data-src="ges-studie-2026"></sup>.
     Sie vergleicht vier Wege zu einem klimaneutralen deutschen Stromsystem und kommt auf
     <b class="v" data-v="shared.ges_reference.scenarios.kostenminimum.lscoe" data-d="0" data-unit=" €/MWh"></b> für das
-    kernkraftgestützte „Kostenminimum" und
+    kernkraftgestützte „Kostenminimum“ und
     <b class="v" data-v="shared.ges_reference.scenarios.ee100.lscoe" data-d="0" data-unit=" €/MWh"></b>
     für hundert Prozent Erneuerbare. Ein Faktor von rund <b class="v" id="hook-factor"></b>.</p>
   <p>Diese Story macht keine Gegenstudie. Sie nimmt die Studie auseinander wie eine Uhr — und
@@ -400,8 +400,9 @@ footer a{color:var(--ink-2)}
         bis <span class="big neg" data-v="shared.ges_reference.scenarios.ee100.lscoe" data-d="0" data-unit=" €/MWh"></span>
         — der Kennzahl, um die gestritten wird: <a class="gl" id="ref-lscoe" href="#gl-lscoe">LSCOE</a>.</p>
       <p>Die Rechnung selbst ist sauber. Wir haben sie nachgerechnet und reproduzieren die
-        Studien-LCOE auf <span class="big">±0,04 %</span> genau. Die Frage ist nicht das Rechnen.
-        Die Frage sind die vier Zahlen aus Schritt 1.</p>
+        Studien-LCOE auf
+        <span class="big">±<span data-v="shared.ges_lcoe_reproduction_max_deviation_pct" data-d="2" data-unit=" %"></span></span>
+        genau. Die Frage ist nicht das Rechnen. Die Frage sind die vier Zahlen aus Schritt 1.</p>
     </div></div>
   </div>
 </section>
@@ -417,7 +418,7 @@ footer a{color:var(--ink-2)}
     Wackelt ein Glied, wackelt das Ergebnis. Also prüfen wir die Glieder — nicht, weil wir ein
     anderes Ergebnis wollen, sondern weil es der einzige Weg ist, ein Ergebnis überhaupt
     einordnen zu können.</p>
-  <a class="deeplink" href="whitepaper-strommix.html#kap-3">Zur vollständigen Analyse · Kapitel 3 „Methodik" →</a>
+  <a class="deeplink" href="whitepaper-strommix.html#kap-3">Zur vollständigen Analyse · Kapitel 3 „Methodik“ →</a>
 </section>
 
 <!-- ================= AKT 2 ================= -->
@@ -461,7 +462,8 @@ footer a{color:var(--ink-2)}
         auf <span class="big neg" data-v="shared.lcoe_benchmarks.wind_onshore.sensitivity_flh[1].lcoe_eur_mwh" data-d="1" data-unit=" €/MWh"></span>.
         Die Ausschreibung im Mai 2026 lag mengengewichtet bei
         <span class="big neg" data-v="shared.lcoe_benchmarks.wind_onshore.auction[1].weighted_avg" data-d="1" data-unit=" €/MWh"></span><sup class="cite" data-src="bnetza-wind-2026-05"></sup>.
-        Dieser Hebel fehlt in der öffentlichen Debatte fast vollständig.</p>
+        In den Annahmen-Audits, die zu dieser Studie kursieren, taucht dieser Hebel nicht auf —
+        die Volllaststunden gelten dort als „plausibel“.</p>
     </div></div>
     <div class="step" data-idx="2"><div class="step-card">
       <span class="n">Akt 2 / Schritt 3</span>
@@ -469,9 +471,12 @@ footer a{color:var(--ink-2)}
       <p>Die Studie setzt <span class="big pos" data-v="shared.ges_reference.technologies.nuclear.capex_eur_kw" data-d="0" data-unit=" €/kW"></span> an.
         Gegen reale Projekte gehalten, ist das keine willkürliche Zahl — aber sie beschreibt eine
         ganz bestimmte Welt.</p>
-      <p>Korea baut für
-        <span class="big pos" data-v="nuclear.clusters[0].capex_eur_kw" data-fmt="range" data-d="0" data-unit=" €/kW"></span>,
-        Hinkley Point C für
+      <p>Koreas eigene Blöcke liegen bei
+        <span class="big pos" data-v="shared.nuclear_reference_projects[0].capex_eur_kw" data-d="0"></span>
+        bis <span class="big pos" data-v="shared.nuclear_reference_projects[1].capex_eur_kw" data-d="0" data-unit=" €/kW"></span>;
+        zusammen mit den Emiraten ergibt das den Cluster Asien und Golf mit
+        <span class="big pos" data-v="nuclear.clusters[0].capex_eur_kw" data-fmt="range" data-d="0" data-unit=" €/kW"></span>.
+        Hinkley Point C kostet
         <span class="big neg" data-v="shared.nuclear_reference_projects[11].capex_eur_kw" data-d="0" data-unit=" €/kW"></span>
         in laufenden Preisen. Zwischen diesen Polen liegt eine Spanne von mehr als Faktor
         <span class="big" id="nuc-spread"></span>.</p>
@@ -500,20 +505,24 @@ footer a{color:var(--ink-2)}
 <section class="prose">
   <div class="kicker gegen">Beipackzettel</div>
   <h2>Kostenabgrenzungen sind nicht vergleichbar</h2>
-  <p>Die 13 Punkte oben stammen aus unterschiedlichen Welten: manche sind reine
-    <em>Overnight</em>-Baukosten, manche EPC-Verträge ohne Eigentümerkosten, manche
-    Gesamtprojektkosten inklusive Bauzinsen. Hinkley Point C erscheint mit
+  <p>Die 13 Punkte oben stammen aus unterschiedlichen Welten. Im Diagramm stehen dafür drei
+    Kürzel, die alles entscheiden — sie sind im
+    <a class="gl" id="ref-abgrenzung" href="#gl-abgrenzung">Glossar erklärt</a>:
+    <b>OCC</b> („Overnight“) sind die reinen Baukosten ohne jeden Zins, <b>EPC</b> ist der
+    Preis, den der Anlagenbauer zusagt — ohne die Kosten des Bauherrn —, und <b>FOAK</b>
+    („first of a kind“) meint das erste Exemplar einer Bauart, das noch keinen Serieneffekt hat.
+    Hinkley Point C erscheint mit
     <b class="v" data-v="shared.nuclear_reference_projects[11].capex_eur_kw" data-d="0" data-unit=" €/kW"></b>
     in laufenden Preisen — real, in Preisen von 2015, sind es
     <b class="v" data-v="nuclear_history_timeseries.points[14].capex_eur_kw_real_2015" data-d="0" data-unit=" €/kW"></b>.
     Beides ist richtig, und wer nur eine der beiden Zahlen zeigt, erzählt eine Geschichte.</p>
   <p>Genau deshalb steht in dieser Story bei jedem Punkt die Abgrenzung dabei, und genau deshalb
-    lehnen wir den in der Debatte beliebten „Mittelwert über fünf Projekte" ab: Ein ungewichtetes
+    lehnen wir den in der Debatte beliebten „Mittelwert über fünf Projekte“ ab: Ein ungewichtetes
     Mittel über Vertragspreise, Gesamtprojektkosten und verschiedene Preisbasen hat keine
     ökonomische Bedeutung.</p>
   <aside class="kasten gegen" data-cp="cp_eu_references"></aside>
   <aside class="kasten gegen" data-cp="cp_korea_both_ways"></aside>
-  <a class="deeplink" href="whitepaper-strommix.html#kap-4">Zur vollständigen Analyse · Kapitel 4 „Was kostet Strom" →</a>
+  <a class="deeplink" href="whitepaper-strommix.html#kap-4">Zur vollständigen Analyse · Kapitel 4 „Was kostet Strom“ →</a>
 </section>
 
 <!-- ================= AKT 3 ================= -->
@@ -537,7 +546,7 @@ footer a{color:var(--ink-2)}
         um 1970 rund
         <span class="big pos" data-v="nuclear_history_timeseries.points[1].capex_eur_kw" data-d="0" data-unit=" €/kW"></span><sup class="cite" data-src="lovering-2016"></sup>.</p>
       <p>Das ist der Datenpunkt, auf den sich fast jede Erzählung von der „früher billigen
-        Kernkraft" stützt. Er stimmt.</p>
+        Kernkraft“ stützt. Er stimmt.</p>
     </div></div>
     <div class="step" data-idx="1"><div class="step-card">
       <span class="n">Akt 3 / Schritt 2</span>
@@ -621,8 +630,9 @@ footer a{color:var(--ink-2)}
       <p>Wir haben die vier Szenarien mit unseren eigenen, dokumentierten Parametern
         nachgerechnet — stündlicher Dispatch statt Jahresmittel, Kernkraft-Betriebskosten absolut
         statt als Prozentsatz der Bausumme, Neuanlagen-Volllaststunden statt Bestandsflotte.</p>
-      <p>Heraus kommen wieder vier saubere Zahlen. Und genau die sind das Problem.
-        <span class="simlabel"></span></p>
+      <p>Heraus kommen wieder vier saubere Zahlen — plus eine fünfte als Anker: das heutige
+        System von 2025, mit demselben Modell gerechnet. Und genau diese Sauberkeit ist das
+        Problem. <span class="simlabel"></span></p>
     </div></div>
     <div class="step" data-idx="1"><div class="step-card">
       <span class="n">Akt 4 / Schritt 2</span>
@@ -643,7 +653,7 @@ footer a{color:var(--ink-2)}
         der gasgestützte 80-Prozent-Pfad bei
         <span class="big neg" data-v="shared.monte_carlo.presets.ee80_gas.configs.base.p50" data-d="0" data-unit=" €/MWh"></span>
         <span class="v" data-v="shared.monte_carlo.presets.ee80_gas.configs.base" data-fmt="p5p95" data-d="0"></span>.</p>
-      <p>Die Bänder überlappen vollständig im unteren Bereich. „Das eine ist teurer als das andere"
+      <p>Die Bänder überlappen vollständig im unteren Bereich. „Das eine ist teurer als das andere“
         ist bei dieser Streuung <b>keine trennscharfe Aussage</b>. Gegenüber beiden
         wasserstofflastigen Pfaden bleibt das Kernkraft-Szenario dagegen klar günstiger — die
         Studie hat in diesem Punkt recht behalten. <span class="simlabel"></span></p>
@@ -660,8 +670,13 @@ footer a{color:var(--ink-2)}
       <p>Legt man diese Empirie auf alle Technologien, rutscht das Kernkraft-Szenario auf
         <span class="big neg" data-v="shared.monte_carlo.presets.kostenminimum.configs.overrun.p50" data-d="0" data-unit=" €/MWh"></span>
         <span class="v" data-v="shared.monte_carlo.presets.kostenminimum.configs.overrun" data-fmt="p5p95" data-d="0"></span>
-        — die anderen Pfade kaum. Das ist kein Beweis, sondern eine Frage:
-        Wie viel Empirie will man ignorieren? <span class="simlabel"></span></p>
+        — die anderen Pfade kaum, weil ihre Faktoren nahe bei 1 liegen.</p>
+      <p>Das ist kein Beweis, sondern ein Szenario, und es hat eine offene Flanke: Die
+        Kernkraft-Faktoren stammen überwiegend aus westlichen Einzelprojekten der Vergangenheit;
+        die dokumentierte Modellspanne reicht deshalb bis hinunter auf
+        <span class="big pos" data-v="shared.kostenueberschreitung_faktoren.technologien.kernkraft.spanne[0]" data-d="2"></span>.
+        Wer ein serielles Programm für wahrscheinlich hält, darf das untere Ende einsetzen — nur
+        begründen muss er es. <span class="simlabel"></span></p>
     </div></div>
   </div>
 </section>
@@ -674,7 +689,7 @@ footer a{color:var(--ink-2)}
   <div class="kicker">Zwischenruf</div>
   <h2>Was von der Schlagzeile bleibt</h2>
   <p class="lede" id="mc-honest"></p>
-  <p>Der Satz „das Studienergebnis kehrt sich um", den man in der Debatte findet, ist eine
+  <p>Der Satz „das Studienergebnis kehrt sich um“, den man in der Debatte findet, ist eine
     Überdehnung — wir haben ihn geprüft und verworfen. Was bleibt, ist ein Rangwechsel um
     <b>einen Platz</b> bei überlappenden Bändern. Das ist weniger schlagzeilentauglich und
     deutlich näher an dem, was die Daten hergeben.</p>
@@ -691,7 +706,7 @@ footer a{color:var(--ink-2)}
     <b class="v" data-v="electrolyser.eu_actual_2025_eur_kw.alkali" data-d="0"></b> bis
     <b class="v" data-v="electrolyser.eu_actual_2025_eur_kw.pem" data-d="0" data-unit=" €/kW"></b>.
     Die Studie rechnet hier eher zu günstig als zu teuer.</p>
-  <a class="deeplink" href="whitepaper-strommix.html#kap-6">Zur vollständigen Analyse · Kapitel 6 „Unsicherheit und Monte Carlo" →</a>
+  <a class="deeplink" href="whitepaper-strommix.html#kap-6">Zur vollständigen Analyse · Kapitel 6 „Unsicherheit und Monte Carlo“ →</a>
 </section>
 
 <!-- ================= AKT 5 ================= -->
@@ -711,7 +726,8 @@ footer a{color:var(--ink-2)}
       <span class="n">Akt 5 / Schritt 1</span>
       <h3>Ein Plan startet zu niedrig</h3>
       <p>Ein kursierender 30-Jahres-Plan beziffert den Ausbaubedarf bis 2056. Sein Fundament sind
-        die Startwerte für 2026 — und drei davon liegen unter der Realität.</p>
+        die Startwerte für 2026 — und fünf der sechs liegen unter den belegten Ist-Werten:
+        bei Wind auf See nur knapp, bei den Batteriespeichern um mehr als das Doppelte.</p>
       <p>Photovoltaik steht bei
         <span class="big neg" data-v="thirty_year_plan.start_2026_corrected.pv_gw.corrected" data-d="1" data-unit=" GW"></span>
         statt <span class="big pos" data-v="thirty_year_plan.start_2026_corrected.pv_gw.md" data-d="0" data-unit=" GW"></span>,
@@ -738,8 +754,9 @@ footer a{color:var(--ink-2)}
       <h3>Ein Lehrstück über Nenner</h3>
       <p>Der Plan endet bei
         <span class="big pos" data-v="thirty_year_plan.lscoe_2056.md_value" data-d="1" data-unit=" €/MWh"></span>
-        für 2056. Diese Rechnung ist uns wohlgesonnen — trotzdem haben wir sie geprüft.
-        Und dabei einen Fehler gefunden: Die Gesamtkosten werden durch den <em>Bedarf</em>
+        für 2056 — ein bemerkenswert niedriger Wert für ein fast vollständig erneuerbares System.
+        Genau deshalb haben wir ihn nachgerechnet, und dabei einen Fehler gefunden, der die Zahl
+        zu <em>klein</em> macht: Die Gesamtkosten werden durch den <em>Bedarf</em>
         (<span class="big" data-v="thirty_year_plan.lscoe_2056.md_reconstruction.demand_twh" data-d="0" data-unit=" TWh"></span>)
         geteilt, obwohl der Anlagenpark nur
         <span class="big" data-v="thirty_year_plan.lscoe_2056.md_reconstruction.generation_twh" data-d="0" data-unit=" TWh"></span>
@@ -782,7 +799,7 @@ footer a{color:var(--ink-2)}
     über mehrere Legislaturperioden hinweg, mit einem Neubauverbot, das erst aufgehoben,
     und einer Aufsichtsbehörde, die erst wieder aufgebaut werden müsste.</p>
   <aside class="kasten gegen" data-cp="cp_ee_risks"></aside>
-  <a class="deeplink" href="whitepaper-strommix.html#kap-5">Zur vollständigen Analyse · Kapitel 5 „Geht der Mix auf?" →</a>
+  <a class="deeplink" href="whitepaper-strommix.html#kap-5">Zur vollständigen Analyse · Kapitel 5 „Geht der Mix auf?“ →</a>
 </section>
 
 <!-- ================= SELBSTKRITIK ================= -->
@@ -801,7 +818,7 @@ footer a{color:var(--ink-2)}
     Original gegengeprüft werden. Das begrenzt die Konfidenz einzelner Zahlen; es begrenzt nicht
     die Richtung der Befunde, weil jede davon zusätzlich gegen unsere eigene, unabhängig
     recherchierte Datenbasis geprüft wurde.</p>
-  <a class="deeplink" href="whitepaper-strommix.html#kap-9">Zur vollständigen Analyse · Kapitel 9 „Limitationen des Modells" →</a>
+  <a class="deeplink" href="whitepaper-strommix.html#kap-9">Zur vollständigen Analyse · Kapitel 9 „Limitationen des Modells“ →</a>
 </section>
 
 <!-- ================= EPILOG ================= -->
@@ -809,13 +826,30 @@ footer a{color:var(--ink-2)}
   <div class="kicker">Epilog</div>
   <h2>Die Kernbotschaft passt in einen Satz</h2>
   <p class="lede">Wer eine Systemkostenzahl liest, liest keine Messung, sondern eine Annahmenkette.
-    Und die beiden stärksten Glieder dieser Kette sind fast immer dieselben: der
-    <a class="gl" id="ref-wacc2" href="#gl-wacc">Kapitalkostensatz</a> und der CO₂-Preis.</p>
-  <p>Der Zinssatz allein bewegt die Kernkraftkosten um den Faktor
-    <b class="v" data-v="shared.wacc_sensitivity.wacc_effect_at_60y.factor_3pct_to_10pct" data-d="2"></b>
-    zwischen 3 und 10 Prozent — mehr als jede plausible Variation der Baukosten. Der CO₂-Preis
-    entscheidet, ob Gas-Backup ein günstiger Lückenfüller oder ein teurer Restposten ist. Beide
-    sind politische Größen, keine technischen.</p>
+    Und das stärkste Glied dieser Kette ist in unserer Rechnung fast immer dasselbe: der
+    <a class="gl" id="ref-wacc2" href="#gl-wacc">Kapitalkostensatz</a>. Er ist keine technische
+    Größe, sondern eine politische.</p>
+  <p>Ein Rechenbeispiel aus unserem Datensatz — derselbe Reaktor,
+    <b class="v" data-v="shared.nuclear_lcoe_example_assumptions.capex_eur_kw" data-d="0" data-unit=" €/kW"></b>,
+    <b class="v" data-v="shared.nuclear_lcoe_example_assumptions.full_load_hours" data-d="0" data-unit=" Volllaststunden"></b>,
+    <b class="v" data-v="shared.nuclear_lcoe_example_assumptions.lifetime_years" data-d="0" data-unit=" Jahre"></b>:
+    Bei 3 Prozent Kapitalkostensatz kostet sein Strom
+    <b class="v" data-v="shared.nuclear_lcoe_by_wacc_pct.3" data-d="1" data-unit=" €/MWh"></b>,
+    bei 10 Prozent <b class="v" data-v="shared.nuclear_lcoe_by_wacc_pct.10" data-d="1" data-unit=" €/MWh"></b>.
+    Der reine Kapitalkostenanteil wächst dabei um den Faktor
+    <b class="v" data-v="shared.wacc_sensitivity.wacc_effect_at_60y.factor_3pct_to_10pct" data-d="2"></b>,
+    die Stromkosten fast auf das Doppelte — gebaut wird in beiden Fällen dasselbe
+    Kraftwerk<sup class="cite" data-src="iea-nea-2020"></sup>.</p>
+  <p>Der zweite politische Hebel, der CO₂-Preis, wirkt in dieselbe Richtung, aber deutlich
+    schwächer — und er wird in der Debatte regelmäßig überschätzt. Dass auf die Restemissionen von
+    Gas mit CCS kein CO₂-Preis gelegt wird, ist eine echte Lücke, aber eine kleine: systemweit
+    <b class="v" data-v="ets_gap_gas_ccs.system_impact_eur_mwh_at_10pct_gas_share" data-fmt="range" data-d="1" data-unit=" €/MWh"></b>
+    bei rund zehn Prozent Gasanteil. Und der oft zitierte Preis von über 200 € je Tonne stammt aus
+    dem ETS 2 für Gebäude und Verkehr<sup class="cite" data-src="ews-ets2"></sup> — für die
+    Stromerzeugung gilt der ETS 1, dessen Marktpreis im Mai 2026 bei
+    <b class="v" data-v="ets_gap_gas_ccs.ets1_prices_eur_t.mai_2026" data-d="0" data-unit=" € je Tonne"></b>
+    lag; unser Modell rechnet mit
+    <b class="v" data-v="shared.monte_carlo.meta.co2_price_eur_t" data-d="0" data-unit=" € je Tonne"></b>.</p>
   <p>Was folgt daraus? Nicht, dass man keine Zahlen nennen darf. Sondern dass jede Zahl mit ihrer
     Bandbreite und ihren Annahmen gezeigt gehört. Eine Studie, die das tut — wie diese —, kann man
     prüfen. Eine Schlagzeile, die nur den Punktwert übernimmt, kann man nur glauben.</p>
@@ -839,7 +873,7 @@ footer a{color:var(--ink-2)}
 <!-- ================= GLOSSAR ================= -->
 <section class="prose">
   <div class="kicker">Anhang · Glossar</div>
-  <h2>Sechs Begriffe, die alles tragen</h2>
+  <h2>Sieben Begriffe, die alles tragen</h2>
 
   <details class="gloss" id="gl-lcoe"><summary>LCOE · Stromgestehungskosten</summary>
     <div class="gloss-body">
@@ -873,9 +907,12 @@ footer a{color:var(--ink-2)}
         Fremd- und Eigenkapital bekommt. Er ist der stärkste einzelne Hebel auf die Kosten
         kapitalintensiver Anlagen, weil sich die gesamte Investition über Jahrzehnte verzinst.</p>
       <p>In dieser Story wird er als Bandbreite von 3 bis 9 Prozent geführt, nicht als
-        „realistischer" Punktwert. Der Unterschied macht bei 60 Jahren Laufzeit einen Faktor
+        „realistischer“ Punktwert. Zwischen 3 und 10 Prozent macht das bei 60 Jahren Laufzeit
+        einen Faktor
         <b class="v" data-v="shared.wacc_sensitivity.wacc_effect_at_60y.factor_3pct_to_10pct" data-d="2"></b>
-        auf den Kapitalkostenanteil aus.</p>
+        <em>auf den Kapitalkostenanteil</em> aus — auf die fertigen Stromkosten wirkt sich das
+        im Rechenbeispiel des Epilogs als knappe Verdopplung aus. Beide Zahlen zu verwechseln,
+        ist einer der häufigsten Fehler in dieser Debatte.</p>
       <a class="gl-back" href="#">↩ zurück zur Textstelle</a>
     </div>
   </details>
@@ -890,6 +927,30 @@ footer a{color:var(--ink-2)}
         <b class="v" data-v="shared.crf_by_wacc_pct.5" data-d="5"></b>,
         bei 9 Prozent <b class="v" data-v="shared.crf_by_wacc_pct.9" data-d="5"></b>.
         Längere Laufzeiten helfen kaum: 60 gegen 80 Jahre ändern die Kosten um rund 3 Prozent.</p>
+      <a class="gl-back" href="#">↩ zurück zur Textstelle</a>
+    </div>
+  </details>
+
+  <details class="gloss" id="gl-abgrenzung"><summary>Kostenabgrenzung · OCC, EPC, FOAK</summary>
+    <div class="gloss-body">
+      <p>Eine Angabe „X Euro je Kilowatt“ ist ohne ihre Abgrenzung praktisch wertlos, weil
+        dieselbe Anlage je nach Zählweise um mehr als die Hälfte auseinanderliegt:</p>
+      <p><b>OCC · Overnight Construction Cost</b> — die Baukosten so, als wäre das Kraftwerk
+        über Nacht entstanden: ohne Bauzinsen, ohne Eigentümerkosten. Der niedrigste der drei
+        Werte, und der, den Vergleichsstudien am liebsten zeigen.</p>
+      <p><b>EPC · Engineering, Procurement, Construction</b> — der Festpreis, den der
+        Anlagenbauer zusagt. Nicht enthalten: alles, was der Bauherr selbst trägt —
+        Standort, Netzanschluss, Genehmigung, Erstkernladung, Finanzierung.</p>
+      <p><b>Gesamtprojekt, inkl. Finanzierung</b> — was am Ende bezahlt wird. Bei zehn Jahren
+        Bauzeit machen allein die Bauzinsen 25 bis 30 Prozent aus; EDF nennt für das
+        EPR2-Programm rund 73 Milliarden Euro ohne und rund 100 Milliarden mit Finanzierung.</p>
+      <p><b>FOAK · first of a kind</b> — das erste Exemplar einer Bauart an einem Standort ohne
+        eingespielte Lieferkette. Das Gegenstück ist die Serie, bei der Lern- und
+        Wiederholungseffekte greifen. Der einzige quantifizierte Serieneffekt in unseren
+        Quellen: minus 32 Prozent vom ersten Block zum Schnitt über vier Blöcke.</p>
+      <p>Deshalb steht in den Diagrammen dieser Story bei jedem Punkt die Abgrenzung dabei —
+        und deshalb ist ein Mittelwert über Punkte mit verschiedenen Abgrenzungen
+        bedeutungslos.</p>
       <a class="gl-back" href="#">↩ zurück zur Textstelle</a>
     </div>
   </details>
@@ -983,6 +1044,24 @@ function nf(v, d){
   if (v === null || v === undefined || isNaN(v)) return "–";
   return Number(v).toLocaleString("de-DE", {minimumFractionDigits:d, maximumFractionDigits:d});
 }
+/* Haelt einen SVG-Text innerhalb der viewBox. Noetig, weil die Schriftgroesse
+   auf schmalen Viewports per Media Query hochgezogen wird und Beschriftungen
+   dadurch aus dem Koordinatensystem laufen (Clipping). */
+function clampTxt(t, padL, padR){
+  padL = padL === undefined ? 6 : padL;
+  padR = padR === undefined ? 6 : padR;
+  let len = 0;
+  try { len = t.getComputedTextLength(); } catch (e) { return t; }
+  if (!len) return t;
+  const a = t.getAttribute("text-anchor") || "start";
+  const x = parseFloat(t.getAttribute("x"));
+  const x0 = a === "middle" ? x - len/2 : (a === "end" ? x - len : x);
+  let dx = 0;
+  if (x0 + len > W - padR) dx = (W - padR) - (x0 + len);
+  if (x0 + dx < padL) dx = padL - x0;
+  if (dx) t.setAttribute("x", x + dx);
+  return t;
+}
 function pathFrom(pts){
   return pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join("");
 }
@@ -1007,6 +1086,20 @@ function hover(node, html){
 }
 
 const W = 1060, H = 600, M = {t:82, r:46, b:56, l:100};
+
+/* Zeilenabstand fuer zweizeilige SVG-Beschriftungen. Die Schriftgroesse in den
+   Diagrammen wird auf schmalen Viewports per Media Query hochgezogen; ein fest
+   verdrahteter Abstand von 17 px liesse die Zeilen dort ineinanderlaufen.
+   Deshalb wird er einmal an einem Probetext gemessen. */
+let LH = 18;
+function measureLH(){
+  const s = $("#svg1");
+  if (!s) return;
+  const a = txt(s, -9999, -9999, "Hg", {});
+  const b = txt(s, -9999, -9999, "Hg", {class:"sm"});
+  try { LH = Math.ceil(Math.max(a.getBBox().height, b.getBBox().height)) + 3; } catch (e) {}
+  a.remove(); b.remove();
+}
 
 function yAxis(g, y, ticks, dec){
   ticks.forEach(v => {
@@ -1257,10 +1350,14 @@ function buildAct2(){
   const B = D.shared.lcoe_benchmarks;
   const T = D.shared.ges_reference.technologies;
 
-  /* --- Szene PV und Wind: Zeilen auf einer €/MWh-Achse --- */
+  /* --- Szene PV und Wind: Zeilen auf einer €/MWh-Achse ---
+     LBLX ist bewusst breit: unter 760 px Viewport wird die SVG-Schrift
+     hochskaliert (siehe Media Query), sonst laufen Zeilenbeschriftungen wie
+     "BNetzA-Zuschläge 03/2026" links aus der viewBox heraus. */
+  const LBLX = 310;
   function rowScene(cls, rows, xmax){
     const g = el("g", {class:"scene " + cls}, svg);
-    const x = lin(0, xmax, M.l+130, W-M.r-20);
+    const x = lin(0, xmax, LBLX+12, W-M.r-20);
     const ticks = []; for (let v=0; v<=xmax; v+=20) ticks.push(v);
     const yBase = H-M.b-6;
     ticks.forEach(v => {
@@ -1272,7 +1369,7 @@ function buildAct2(){
     rows.forEach((r,i) => {
       const yy = top + gap*(i+0.5);
       const col = r.accent ? "var(--red)" : "var(--blue)";
-      txt(g, M.l+118, yy+5, r.label, {"text-anchor":"end", class:"sm",
+      txt(g, LBLX, yy+5, r.label, {"text-anchor":"end", class:"sm",
           fill: r.accent ? "var(--red-soft)" : "var(--blue-soft)"});
       if (r.range){
         const x0 = x(r.range[0]), x1 = x(r.range[1]);
@@ -1324,7 +1421,7 @@ function buildAct2(){
   const g = el("g", {class:"scene sc-2"}, svg);
   const projects = D.shared.nuclear_reference_projects.slice().sort((a,b) => a.capex_eur_kw - b.capex_eur_kw);
   const xmax = 18000;
-  const LX = 348;                      // rechte Kante der Zeilenbeschriftung
+  const LX = 376;                      // rechte Kante der Zeilenbeschriftung
   const x = lin(0, xmax, LX+18, W-M.r-40);
   const yBase = H-M.b-4;
   const clusterTop = M.t + 26;
@@ -1332,8 +1429,9 @@ function buildAct2(){
     el("line", {x1:x(v), x2:x(v), y1:clusterTop-16, y2:yBase, stroke:"var(--grid)", "stroke-width":1}, g);
     txt(g, x(v), yBase+22, nf(v,0), {"text-anchor":"middle", class:"sm"});
   }
-  txt(g, W-M.r-40, yBase+42, "€/kW · Preisbasis und Abgrenzung je Projekt verschieden",
-      {"text-anchor":"end", class:"sm", fill:"var(--muted)"});
+  clampTxt(txt(g, W-M.r-40, yBase+42,
+      "€/kW · Preisbasis und Abgrenzung je Projekt verschieden · C = Quelle nicht prüfbar",
+      {"text-anchor":"end", class:"sm", fill:"var(--muted)"}));
 
   const gx0 = lin(0, xmax, LX+18, W-M.r-40)(T.nuclear.capex_eur_kw);
   el("line", {x1:gx0, x2:gx0, y1:clusterTop-16, y2:yBase, stroke:"var(--ink)", "stroke-width":1.5,
@@ -1364,7 +1462,11 @@ function buildAct2(){
         fill: low ? "var(--blue-soft)" : "var(--red-soft)"});
     el("line", {x1:x(0), x2:x(p.capex_eur_kw), y1:yy, y2:yy, stroke:col, "stroke-width":1, opacity:.25}, g);
     const c = el("circle", {cx:x(p.capex_eur_kw), cy:yy, r:6, fill:col, stroke:"var(--surface)", "stroke-width":1.5}, g);
-    txt(g, x(p.capex_eur_kw)+13, yy+4, nf(p.capex_eur_kw,0), {class:"sm", fill:"var(--ink-2)"});
+    if (p.confidence === "C") c.setAttribute("fill-opacity", ".45");
+    const vlab = txt(g, x(p.capex_eur_kw)+13, yy+4,
+      nf(p.capex_eur_kw,0) + (p.confidence === "C" ? "  C" : ""),
+      {class:"sm", fill:"var(--ink-2)"});
+    clampTxt(vlab);
     hover(c, "<b>" + p.label + "</b><br>" + nf(p.capex_eur_kw,0) + " €/kW · " +
       (SCOPE[p.cost_scope] || p.cost_scope) + "<br><span class='l'>" + nf(p.capacity_mw,0) + " MW, " +
       p.units + " Block(e) · Konfidenz " + p.confidence + "</span>");
@@ -1383,8 +1485,19 @@ function buildAct2(){
                           stroke:col, "stroke-width":1}, cg);
     hover(r, "<b>" + c.label + "</b><br>" + nf(c.capex_eur_kw[0],0) + "–" + nf(c.capex_eur_kw[1],0) +
       " €/kW · Konfidenz " + c.confidence);
-    txt(cg, x1+10, yy+4, nf(c.capex_eur_kw[0],0) + "–" + nf(c.capex_eur_kw[1],0),
+    // Rechts neben dem Band, wenn dort Platz ist; sonst links davor, sonst
+    // wuerde die Beschriftung des obersten Clusters aus der viewBox laufen.
+    const vt = txt(cg, x1+10, yy+4, nf(c.capex_eur_kw[0],0) + "–" + nf(c.capex_eur_kw[1],0),
       {class:"sm", fill:"var(--ink-2)"});
+    let vlen = 0;
+    try { vlen = vt.getComputedTextLength(); } catch (e) { vlen = 0; }
+    if (vlen && x1 + 10 + vlen > W - 8){
+      // an den freien linken Rand derselben Zeile, sonst kollidiert die
+      // Beschriftung mit der Annotation der Studienlinie darunter
+      vt.setAttribute("x", LX + 18);
+      vt.setAttribute("text-anchor", "start");
+      clampTxt(vt);
+    }
   });
 
   // Tabellen-Zwilling
@@ -1469,7 +1582,16 @@ function buildAct3(){
         el("line", {x1:x0, x2:x1, y1:y(p.capex_eur_kw), y2:y(p.capex_eur_kw), stroke:col,
           "stroke-width":1.5, opacity:.55}, lay);
     }
-    if (p.confidence === "C") node.setAttribute("stroke-dasharray", "4 3");
+    if (p.confidence === "C"){
+      // Konfidenz C muss sichtbar sein, nicht nur im Tooltip (Touch-Geraete
+      // haben keinen Hover). Dossier C4: "nur mit sichtbarem C-Badge".
+      node.setAttribute("stroke-dasharray", "4 3");
+      const bx = p.capex_eur_kw_range ? x1 + 8 : xm + 10;
+      const by = p.capex_eur_kw_range ? y(p.capex_eur_kw_range[1]) + 2
+                                      : y(p.capex_eur_kw) - 12;
+      clampTxt(txt(lay, bx, by, "C · Abgrenzung unbekannt",
+        {class:"sm", fill:"var(--muted)"}));
+    }
     hover(node, tipHtml);
   });
 
@@ -1487,7 +1609,7 @@ function buildAct3(){
       fill:"none", stroke:"var(--red-soft)", "stroke-width":1, opacity:.5}, layers["l-france"]);
     txt(layers["l-france"], annX, annY, "Frankreichs Serienbau · real ×3,5",
       {class:"lab-red"});
-    txt(layers["l-france"], annX, annY+18, "„negative learning by doing“",
+    txt(layers["l-france"], annX, annY+LH, "„negative learning by doing“",
       {class:"sm", fill:"var(--muted)"});
   }
   // TMI-Marke
@@ -1495,7 +1617,7 @@ function buildAct3(){
   el("line", {x1:x(1979), x2:x(1979), y1:M.t+30, y2:y(0), stroke:"var(--muted)", "stroke-width":1,
     "stroke-dasharray":"3 4"}, tmi);
   txt(tmi, x(1979)+6, M.t+44, "Three Mile Island 1979", {class:"sm", fill:"var(--muted)"});
-  txt(tmi, x(1979)+6, M.t+61, "Eskalation begann davor", {class:"sm", fill:"var(--red-soft)"});
+  txt(tmi, x(1979)+6, M.t+44+LH, "Eskalation begann davor", {class:"sm", fill:"var(--red-soft)"});
   layers["l-cohort"].appendChild(tmi);
 
   // Legende Kostenabgrenzung
@@ -1594,8 +1716,10 @@ function buildAct4(){
     el("rect", {x:x(ov0), y:yA, width:x(ov1)-x(ov0), height:yB-yA, fill:"var(--ink)", opacity:.10}, lOvl);
     el("rect", {x:x(ov0), y:yA, width:x(ov1)-x(ov0), height:yB-yA, fill:"none",
       stroke:"var(--ink)", "stroke-width":1, "stroke-dasharray":"4 4", opacity:.6}, lOvl);
-    txt(lOvl, (x(ov0)+x(ov1))/2, yA-8, "Überlappung " + nf(ov0,0) + "–" + nf(ov1,0) + " €/MWh",
-      {"text-anchor":"middle", class:"lab-strong"});
+    // rechts neben dem Feld statt darueber: oberhalb kollidiert die Beschriftung
+    // auf schmalen Viewports mit dem deterministischen Punktwert der oberen Zeile
+    clampTxt(txt(lOvl, x(ov1)+12, (yA+yB)/2 + 5,
+      "Überlappung " + nf(ov0,0) + "–" + nf(ov1,0) + " €/MWh", {class:"lab-strong"}));
   }
 
   let html = "<tr><th>Szenario</th><th class='num'>determ.</th><th class='num'>P5</th>" +
@@ -1682,7 +1806,8 @@ function buildAct5(){
   const IC = P.investment_check;
   const phases = Object.keys(IC.phase_generation_bn_eur);
   const y1max = 560;
-  const y1 = lin(0, y1max, H-M.b, M.t+30);
+  const yb1 = H-M.b-LH;              // Achsenhoehe: Platz fuer zwei Textzeilen darunter
+  const y1 = lin(0, y1max, yb1, M.t+56);
   yAxis(g1, y1, [0,140,280,420,560], 0);
   txt(g1, M.l-10, M.t+10, "Mrd. €", {"text-anchor":"end", class:"sm", fill:"var(--muted)"});
   el("line", {x1:M.l, x2:W-M.r, y1:y1(0), y2:y1(0), class:"axisline", stroke:"var(--axis)"}, g1);
@@ -1700,7 +1825,7 @@ function buildAct5(){
     hover(rg, "<b>Erzeugung, Speicher, Elektrolyse</b><br>" + nf(gen,1) + " Mrd. €<br><span class='l'>" + ph + "</span>");
     hover(rn, "<b>impliziter Netzanteil (Setzung)</b><br>" + nf(grid,1) + " Mrd. €<br><span class='l'>" + ph + "</span>");
     txt(g1, cx, yAll-10, nf(gen+grid,0), {"text-anchor":"middle", class:"lab-strong"});
-    txt(g1, cx, H-M.b+24, ph, {"text-anchor":"middle", class:"sm"});
+    txt(g1, cx, yb1+24, ph, {"text-anchor":"middle", class:"sm"});
   });
   // fehlende Ersatzinvestitionen
   const cxR = M.l + slot1*(phases.length+0.5) + slot1*0.25;
@@ -1710,15 +1835,18 @@ function buildAct5(){
     stroke:"var(--red)", "stroke-width":2, "stroke-dasharray":"6 4"}, g1);
   hover(rr, "<b>fehlende Ersatzinvestitionen</b><br>" + nf(rep,0) + " Mrd. €<br><span class='l'>" +
     IC.missing_replacement_capex_bn_eur.note + "</span>");
-  txt(g1, cxR, y1(rep)-10, nf(rep,0), {"text-anchor":"middle", class:"lab-red"});
-  txt(g1, cxR, H-M.b+24, "nicht gerechnet", {"text-anchor":"middle", class:"sm", fill:"var(--red-soft)"});
-  txt(g1, cxR, H-M.b+41, "Ersatz/Repowering", {"text-anchor":"middle", class:"sm", fill:"var(--red-soft)"});
+  clampTxt(txt(g1, cxR, y1(rep)-10, nf(rep,0), {"text-anchor":"middle", class:"lab-red"}));
+  clampTxt(txt(g1, cxR, yb1+24, "nicht gerechnet", {"text-anchor":"middle", class:"sm", fill:"var(--red-soft)"}));
+  clampTxt(txt(g1, cxR, yb1+24+LH, "Ersatz/Repowering", {"text-anchor":"middle", class:"sm", fill:"var(--red-soft)"}));
   // Legende
+  // Kurze Legendentexte: auf schmalen Viewports wird die SVG-Schrift
+  // hochskaliert, lange Beschriftungen wuerden sich ueberlappen. Die
+  // vollstaendige Bezeichnung steht in den Tooltips der Balken.
   const lg = el("g", {}, g1);
   el("rect", {x:M.l, y:M.t+18, width:14, height:14, fill:"var(--blue)", opacity:.9}, lg);
-  txt(lg, M.l+20, M.t+30, "Erzeugung, Speicher, Elektrolyse", {class:"sm"});
+  txt(lg, M.l+20, M.t+30, "Erzeugung/Speicher/H₂", {class:"sm"});
   el("rect", {x:M.l+320, y:M.t+18, width:14, height:14, fill:"var(--red)", opacity:.75}, lg);
-  txt(lg, M.l+340, M.t+30, "impliziter Netzanteil · Setzung (M)", {class:"sm"});
+  txt(lg, M.l+340, M.t+30, "Netz · Setzung (M)", {class:"sm"});
 
   /* --- Szene 2: LSCOE 2056 --- */
   const g2 = el("g", {class:"scene sc-2"}, svg);
@@ -1731,7 +1859,8 @@ function buildAct5(){
     {label:"mit zwei Reaktoren", sub:"3,2 GW ab 2045/2052", v:P.nuclear_variant.corrected.our_model_system_lscoe,
      accent:true, extra:true}
   ];
-  const y2 = lin(0, 320, H-M.b, M.t+58);
+  const yb2 = H-M.b-LH;
+  const y2 = lin(0, 320, yb2, M.t+58);
   yAxis(g2, y2, [0,80,160,240,320], 0);
   el("line", {x1:M.l, x2:W-M.r, y1:y2(0), y2:y2(0), class:"axisline", stroke:"var(--axis)"}, g2);
   const slot2 = (W-M.r-M.l)/steps.length;
@@ -1752,14 +1881,14 @@ function buildAct5(){
       opacity:.9, class:s.extra ? "" : "grow"}, parent);
     hover(r, "<b>" + s.label + "</b><br>" + nf(s.v,1) + " €/MWh<br><span class='l'>" + s.sub + "</span>");
     txt(parent, cx, y2(s.v)-10, nf(s.v,1), {"text-anchor":"middle", class:"lab-strong"});
-    txt(parent, cx, H-M.b+24, s.label, {"text-anchor":"middle", class:"sm"});
-    txt(parent, cx, H-M.b+41, s.sub, {"text-anchor":"middle", class:"sm", fill:"var(--muted)"});
+    txt(parent, cx, yb2+24, s.label, {"text-anchor":"middle", class:"sm"});
+    txt(parent, cx, yb2+24+LH, s.sub, {"text-anchor":"middle", class:"sm", fill:"var(--muted)"});
   });
   const dg = el("g", {class:"nuc-add"}, g2);
   const cxA = M.l + slot2*2.5, cxB = M.l + slot2*3.5;
   el("line", {x1:cxA, x2:cxB, y1:y2(L.our_model.mittel), y2:y2(L.our_model.mittel),
     stroke:"var(--ink)", "stroke-width":1.2, "stroke-dasharray":"4 4", opacity:.7}, dg);
-  txt(dg, W-M.r, y2(320)-20, "+" + nf(P.nuclear_variant.corrected.our_model_delta,1) + " €/MWh",
+  txt(dg, W-M.r, y2(320)-3-LH, "+" + nf(P.nuclear_variant.corrected.our_model_delta,1) + " €/MWh",
     {"text-anchor":"end", class:"lab-strong"});
   txt(dg, W-M.r, y2(320)-3, "für 51 Mrd. € und 2,4 % der Erzeugung",
     {"text-anchor":"end", class:"sm", fill:"var(--muted)"});
@@ -1871,6 +2000,36 @@ function renderSources(){
   $("#foot-files").textContent = D.meta.inputs.join(" · ");
 }
 
+/* Einige Textstellen adressieren Listeneintraege ueber ihren Index. Der
+   Datensatz ist deterministisch, aber ein spaeterer Umbau von page_data.json
+   wuerde die Zuordnung still verschieben. Deshalb hier eine harte Zusicherung. */
+function assertBindings(){
+  const checks = [
+    ["shared.nuclear_reference_projects[0].label", "APR1400"],
+    ["shared.nuclear_reference_projects[1].label", "Shin Hanul"],
+    ["shared.nuclear_reference_projects[11].label", "Hinkley"],
+    ["nuclear_history_timeseries.points[14].id", "hinkley_c"],
+    ["nuclear_history_timeseries.points[5].id", "fr_n4"],
+    ["nuclear_history_timeseries.points[3].id", "fr_cp0_cp1"],
+    ["nuclear_history_timeseries.points[2].id", "us_1968_1978_cohort"],
+    ["monte_carlo_headline.presets[1].id", "kostenminimum"],
+    ["shared.lcoe_benchmarks.wind_onshore.sensitivity_flh[1].flh", 2400]
+  ];
+  const bad = checks.filter(c => {
+    const v = get(c[0]);
+    return typeof c[1] === "number" ? v !== c[1] : !(String(v).indexOf(c[1]) >= 0);
+  });
+  if (bad.length){
+    console.error("[story] Datenbindung verschoben:", bad.map(b => b[0]).join(", "));
+    const note = $("#loadnote");
+    note.classList.add("on");
+    note.innerHTML = "<b>Achtung: Datenbindung stimmt nicht mehr.</b><br>" +
+      "Betroffene Pfade: <code>" + bad.map(b => b[0]).join("</code>, <code>") + "</code>. " +
+      "Die Story zeigt in diesem Zustand moeglicherweise falsch zugeordnete Zahlen.";
+  }
+  return bad.length === 0;
+}
+
 function renderProseBits(){
   $("#lovering-disc").textContent = D.nuclear_history_timeseries.must_show_disclaimer;
   $("#mc-honest").textContent = D.monte_carlo_headline.honest_statement;
@@ -1969,6 +2128,8 @@ async function boot(){
     return;
   }
 
+  measureLH();
+  assertBindings();
   hydrate();
   renderProseBits();
   renderCounterpositions();
