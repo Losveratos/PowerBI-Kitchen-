@@ -742,7 +742,30 @@ footer {
   padding: 34px 0 60px; font-size: 14px; color: var(--ink-mute);
   border-top: 1px solid var(--line);
 }
+
+/* ---------- Hell/Dunkel-Umschalter ---------- */
+.theme-toggle {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px;
+  background: var(--bg-soft); border: 1px solid var(--line); border-radius: 100px;
+  padding: 5px 13px; font-size: 13px; font-weight: 600; color: var(--ink-soft);
+  cursor: pointer; transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--line-strong); color: var(--ink); }
+.theme-toggle .icon { font-size: 13px; line-height: 1; }
+.theme-toggle .txt-hell { display: none; }
+.theme-toggle .txt-dunkel { display: inline; }
+:root[data-theme="dark"] .theme-toggle .txt-hell { display: inline; }
+:root[data-theme="dark"] .theme-toggle .txt-dunkel { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .txt-hell { display: inline; }
+  :root:not([data-theme="light"]) .theme-toggle .txt-dunkel { display: none; }
+}
+@media (max-width: 480px) { .theme-toggle .txt-hell, .theme-toggle .txt-dunkel { display: none !important; } }
 </style>
+<script>
+/* Gespeicherte Theme-Wahl sofort setzen, bevor gerendert wird. */
+(function(){try{var t=localStorage.getItem("pboc-theme");if(t){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();
+</script>
 </head>
 <body>
 
@@ -752,6 +775,10 @@ footer {
   <div class="topbar-inner">
     <a class="back" href="power-bi-on-claude.html">&larr; Zum Angebot</a>
     <span class="topbar-title">Details und Fragen</span>
+    <button class="theme-toggle" type="button" id="themeToggle" aria-label="Zwischen hellem und dunklem Erscheinungsbild wechseln">
+      <span class="icon" aria-hidden="true">◐</span>
+      <span class="txt-hell">Hell</span><span class="txt-dunkel">Dunkel</span>
+    </button>
     <div class="topnav">
       <a href="#kracht">Grenzen</a>
       <a href="#prototyp">Prototyping</a>
@@ -1435,5 +1462,21 @@ footer {
   </div>
 </footer>
 
+<script>
+(function(){
+  var btn=document.getElementById("themeToggle");
+  if(!btn) return;
+  function aktuell(){
+    var gesetzt=document.documentElement.getAttribute("data-theme");
+    if(gesetzt) return gesetzt;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  btn.addEventListener("click",function(){
+    var neu = aktuell()==="dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme",neu);
+    try{localStorage.setItem("pboc-theme",neu);}catch(e){}
+  });
+})();
+</script>
 </body>
 </html>
