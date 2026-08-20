@@ -18,6 +18,48 @@
 # strommix/data/*.json -- ohne diesen Ordner zeigen beide Seiten nur noch den
 # Fehlerkasten "Die Daten konnten nicht geladen werden".
 
+
+# ---------------------------------------------------------------------------
+# markdown_ext: warum ".md" hier fehlt
+# ---------------------------------------------------------------------------
+# Unter /md/ liegen die Markdown-Fassungen der wichtigsten Inhalte -- fuer
+# KI-Agenten, Zitate und Offline-Lektuere. Sie sollen unter stabilen URLs wie
+#   https://datenwgknowledgekitchen.com/md/whitepaper-strommix.md
+# als ROHER Markdown-Text ausgeliefert werden.
+#
+# Der Standardwert von markdown_ext ist "markdown,mkdown,mkdn,mkd,md". Damit
+# behandelt Jekyll jede .md-Datei als Markdown-Quelle: GitHub Pages laedt
+# zusaetzlich jekyll-optional-front-matter, das auch Dateien ohne YAML-Header
+# zu Seiten macht. Ergebnis waere /md/whitepaper-strommix.HTML -- und die
+# .md-URL gaebe es gar nicht (404).
+#
+# Indem "md" aus der Liste entfernt wird, sind .md-Dateien fuer Jekyll
+# gewoehnliche statische Dateien: sie werden unveraendert nach _site kopiert
+# und unter ihrem eigenen Namen ausgeliefert. Genau das wollen wir.
+#
+# Nebenwirkungen -- geprueft, alle unkritisch:
+#   * Kein einziges href="" in der Site zeigt auf eine von Jekyll gerenderte
+#     Markdown-Seite; alle internen Links gehen auf .html-Dateien.
+#   * ibcsInspiredChartDeck/AGENT-GUIDE.md wird aus chartkitchen-schnellstart
+#     verlinkt. Bisher lief dieser Link ins Leere (Jekyll machte .html daraus);
+#     jetzt liefert er die Datei aus. Also eine Reparatur, kein Bruch.
+#   * blog/ibcs-reporting-power-bi.md, README.md, STATUS.md, PowerBIhub.md und
+#     die uebrigen Repo-Markdowns wurden bisher als themenlose HTML-Seiten
+#     mitgerendert, aber nirgends verlinkt. Sie sind jetzt roher Text.
+#   * Die Arbeitsdokumente unter strommix/ bleiben ueber `exclude` aussen vor.
+#
+# Nebenbei repariert die Einstellung eine echte Bruchgefahr: Der
+# Power-BI-Guide unter md/ enthaelt die Power-Query-Zeile
+#   Table.Sort({{"Datum", Order.Descending}})
+# Die doppelte geschweifte Klammer ist gueltiges M -- und gleichzeitig eine
+# Liquid-Variable. Als gerenderte Seite waere der Build daran gescheitert.
+#
+# WICHTIG fuer neue Dateien unter /md/: KEIN YAML-Frontmatter. Eine Datei mit
+# YAML-Header wird von Jekyll trotz dieser Einstellung als Page behandelt, durch
+# Liquid geschickt und der Header abgeschnitten. Genau so ist der Pages-Build
+# schon einmal komplett gebrochen (siehe oben). Siehe md/README.md.
+markdown_ext: "markdown,mkdown,mkdn,mkd"
+
 exclude:
   # Arbeitsmaterial des Strommix-Projekts (kein Web-Inhalt)
   - strommix/docs/

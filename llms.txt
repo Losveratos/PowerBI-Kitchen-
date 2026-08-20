@@ -1,0 +1,56 @@
+# Daten-WG Knowledge Kitchen
+
+> Werkstatt und Publikationsplattform von Michael Tenner rund um Business Intelligence, Datenanalyse und die ehrliche Auseinandersetzung mit Zahlen: Power BI und Microsoft Fabric, IBCS-konformes Reporting, eigene Power-BI-Custom-Visuals — dazu datenjournalistische Analysen (Strommix, Rhein-Abflussreihe, KI-Risiko, KI-CO2) und der Daten-WG-Podcast. Alles selbst gebaut, quellenbelegt und mit offengelegten Grenzen.
+
+Diese Datei folgt der Konvention von llmstxt.org. Sie listet die inhaltlich wichtigen Seiten der Site in einer maschinenlesbaren Markdown-Fassung unter `/md/`. Die HTML-Fassungen sind interaktiv (Regler, Filter, Scrollytelling, eingebettete Power-BI-Berichte); die Markdown-Fassungen enthalten denselben Fliesstext plus die zugehoerigen Zahlen als Tabelle.
+
+Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als **Entwurf** gekennzeichnet und tragen je Zahl eine **Konfidenzstufe** (A mehrfach belegt · B einfach belegt · C schwache Belegbasis · M Modellsetzung). Eine Zahl ohne ihre Konfidenzstufe zu uebernehmen, verfaelscht die Aussage. Sprache: ueberwiegend Deutsch; einzelne Dokumente zusaetzlich auf Englisch.
+
+## Publikationen
+
+- [Was braucht ein gesunder Strommix — und was kostet er?](https://datenwgknowledgekitchen.com/md/whitepaper-strommix.md): Nachgerechnetes Kostenmodell fuer das deutsche Stromsystem 2045 — sieben Szenarien, System-LSCOE mit Monte-Carlo-Band, Emissionsbilanz, CO2-Kipppunkt, Rangwahrscheinlichkeiten und 44 Quellen mit Konfidenzstufe. Generiert direkt aus den Modelldaten.
+- [Was kostet ein klimaneutrales Stromsystem? (Visual Story)](https://datenwgknowledgekitchen.com/md/strommix-story.md): Die erzaehlerische Fassung derselben Analyse — wie aus einer Investitionssumme eine Stromgestehungszahl wird, was die Faktenpruefung einer oeffentlich diskutierten Studie ergab (7 bestaetigt, 11 korrigiert, 4 verworfen) und welche Gegenpositionen mitlaufen muessen.
+- [209 Jahre, ein Fluss, zwei Wahrheiten](https://datenwgknowledgekitchen.com/md/rhein-story.md): Die Abflussreihe des Pegels Koeln seit 1816 (GRDC, 76.397 Tageswerte). Im Jahresmittel kein Trend — in der Saisonalitaet ein hochsignifikanter (Wald-Test p = 0,004). Mit Monats-Trendtabelle, Extremwertanalyse und expliziter Selbstkritik.
+- [Zehn Tage bis zum marktfaehigen Stand](https://datenwgknowledgekitchen.com/whitepaper-ki-entwicklung-roi.md): Bewertungsmodell fuer KI-gestuetzte Software-Entwicklung in festen Frameworks, durchgerechnet an einer dokumentierten Fallstudie — Kostenhebel, Build-vs.-Buy, Grenzen der Uebertragbarkeit.
+- [Ten Days to a Market-Ready Build (English edition)](https://datenwgknowledgekitchen.com/whitepaper-ki-entwicklung-roi_en.md): Englische Fassung des Thesenpapiers.
+- [Wie wahrscheinlich ist die KI-Apokalypse? — p(doom)](https://datenwgknowledgekitchen.com/md/pdoom-ki-risiko.md): Kommentierte Sammlung oeffentlicher p(doom)-Aussagen von Forschenden, CEOs und Prognostikern — Spannweite unter 0,01 % bis ueber 99 %, mit Verteilung, Rollenvergleich und Zeitverlauf. Ausdruecklich eine Aussagen-Sammlung, keine Messung.
+- [Wie viel CO2 steckt in einem Token?](https://datenwgknowledgekitchen.com/md/ki-co2-simulator.md): Modell und Annahmen des Energie-/CO2-Simulators fuer KI-Nutzung im Unternehmen — Modellklassen, Strommix-Voreinstellungen, PUE, vollstaendiger Quellenanhang. Rechnet durchgaengig in Min-Max-Baendern, nicht in Punktwerten.
+- [Die Schweiz faehrt Europa davon — Bahnnutzung 2024](https://datenwgknowledgekitchen.com/md/zugfahrten-europa.md): Making-of einer Infografik auf Eurostat-Daten 2024 — inklusive der Fehler auf dem Weg von einem schnellen KI-Draft zur ehrlich skalierten Metro-Karte.
+- [175 Jahre Klimageschichte zum Anfassen](https://datenwgknowledgekitchen.com/md/waermestreifen-3d.md): Warming Stripes in der dritten Dimension — 758 GHCN-Wetterstationen, 1850 bis heute, als Power-BI-Custom-Visual.
+
+## Guides und Dokumentation
+
+- [Power BI End-to-End — Einsteiger-Guide](https://datenwgknowledgekitchen.com/md/power-bi-einsteiger-guide.md): Der vollstaendige Weg von der Datenanbindung bis zum Sharing in 87 Abschnitten — Architektur, Power Query, Query Folding, Stern-Schema, DAX, IBCS, Interaktivitaet, Service, Row-Level Security, externe Tools. Mit Schritt-fuer-Schritt-Anleitungen und typischen Anfaengerfallen.
+- [Microsoft Fabric End-to-End — Einsteiger-Guide](https://datenwgknowledgekitchen.com/md/fabric-einsteiger-guide.md): OneLake, Lakehouse, Warehouse, Direct Lake und semantische Modelle — was wofuer da ist, welche Architektur wann passt, inklusive Snowflake-Sonderfall.
+- [Power BI Praxis-Pfad](https://datenwgknowledgekitchen.com/md/powerbi-praxis-pfad.md): Gefuehrter Uebungspfad von der Installation zum ersten fertigen Dashboard in gut zwei Stunden — mit Beispieldaten, ohne Konto, ohne Vorkenntnisse.
+- [ChartKitchen byDatenWG — Dokumentation](https://datenwgknowledgekitchen.com/md/chartkitchen-doku.md): Vollstaendige Doku des IBCS-inspirierten Power-BI-Custom-Visuals: 13 Diagramm-Modi in einem Visual, Szenario-Notation (AC/PY/PL/FC), Varianzen, Einstellungs-Referenz.
+- [Country Indicator Explorer](https://datenwgknowledgekitchen.com/md/laender-indikatoren-explorer.md): Methodik und Quellen des Explorers zu Lebenszufriedenheit und ihren Korrelaten — 164 Laender, 15 Indikatoren, Pearson-Korrelationen. Deskriptiv, ausdruecklich nicht kausal.
+- [Daten-WG · Video-Guide](https://datenwgknowledgekitchen.com/md/daten-wg-videos.md): Linkliste aller 143 Podcast-Folgen in neun Themen-Clustern, mit Gast, Datum, Laenge, Sprache und YouTube-Link.
+
+## Daten (maschinenlesbar)
+
+- [strommix/data/model_params.json](https://datenwgknowledgekitchen.com/strommix/data/model_params.json): Vollstaendiger Parametersatz des Strommix-Kostenmodells — je Technologie CAPEX/OPEX/Volllaststunden als min/mid/max mit Quelle und Konfidenzstufe, dazu Systemparameter, Szenariensaetze und die Liste der offenen Datenluecken (`gaps`).
+- [strommix/data/monte_carlo_reference.json](https://datenwgknowledgekitchen.com/strommix/data/monte_carlo_reference.json): 1.000 gepaarte Ziehungen je Konfiguration (Seed 20260815, PRNG mulberry32) — deterministische Punktwerte, Perzentile P5/P25/P50/P75/P95, Emissionen und paarweise Rangwahrscheinlichkeiten fuer sieben Szenarien und acht Unsicherheits-Konfigurationen. Wichtig: das Feld `meta.profiles.data_completeness` steht auf `PARTIAL` — die Stundenprofile decken nur 4.416 Stunden (2. Halbjahr 2024) ab und sind hochgerechnet. Ergebnisse sind entsprechend Groessenordnungen, keine Prognosen.
+- [strommix/data/page_data.json](https://datenwgknowledgekitchen.com/strommix/data/page_data.json): Redaktioneller Datensatz des White Papers — Ist-Mix, installierte Leistung, Zielpfade, Bedarfsprojektionen, Netzkosten, Preise, LCOE-Benchmarks, Kernkraft-Referenzprojekte, CO2-Kipppunkt, Dunkelflaute, plus 44 Quellen mit Konfidenzstufen A/B/C.
+- [strommix/data/story_data.json](https://datenwgknowledgekitchen.com/strommix/data/story_data.json): Geprueft Aussage fuer Aussage — jede Zahl der Visual Story mit Herkunft, Konfidenzstufe und Vorbehalt, inklusive der verworfenen Behauptungen und der Gegenpositionen.
+- [strommix/data/profiles_2024.json](https://datenwgknowledgekitchen.com/strommix/data/profiles_2024.json): Normierte Stundenprofile fuer Last, PV und Wind, Basis 2. Halbjahr 2024 (`PARTIAL`).
+- [strommix/data/test_vectors.json](https://datenwgknowledgekitchen.com/strommix/data/test_vectors.json): Testvektoren zur Verifikation der JavaScript-Portierung des Modells gegen die Python-Referenz.
+- [assets/country_data_15_indicators.csv](https://datenwgknowledgekitchen.com/assets/country_data_15_indicators.csv): 164 Laender x 15 Indikatoren plus Bevoelkerung, Region und ISO2-Code. UTF-8, komma-getrennt. Quellen ueberwiegend Gapminder (CC BY 4.0), dazu RSF und Trading Economics.
+
+## Optional
+
+- [llms-full.txt](https://datenwgknowledgekitchen.com/llms-full.txt): Die Publikationen und die kompakteren Guides in einer einzigen Datei zusammengefasst — fuer Agenten, die lieber einmal alles laden als viele Einzeldateien.
+- [Startseite der Kitchen](https://datenwgknowledgekitchen.com/): Uebersicht aller Seiten, auch der interaktiven Werkzeuge und Spiele, die hier bewusst nicht als Markdown vorliegen (Business Chart Builder, IBCS-Trainer, P&L-Treiberbaum, Daten-WG-Spiel, Konferenz-Agenda).
+- [Interaktives White Paper Strommix](https://datenwgknowledgekitchen.com/whitepaper-strommix.html): HTML-Fassung mit Reglern, Dispatch-Simulation und Szenario-Vergleich.
+- [Visual Story Strommix](https://datenwgknowledgekitchen.com/strommix-story.html): HTML-Fassung als Scrollytelling.
+- [Rhein-Story](https://datenwgknowledgekitchen.com/rhein-story.html): HTML-Fassung mit animierten Charts in sechs Akten.
+- [md/README.md](https://datenwgknowledgekitchen.com/md/README.md): Konvention hinter diesem Export — wie neue Inhalte aufgenommen werden, warum datengetriebene Seiten per Skript generiert werden und welche Frontmatter-Regel wegen Jekyll gilt.
+- [Impressum](https://datenwgknowledgekitchen.com/impressum.html) und [Datenschutz](https://datenwgknowledgekitchen.com/datenschutz.html): Kontakt und rechtliche Angaben.
+
+## Zitieren und Kontakt
+
+Autor und Verantwortlicher: Michael Tenner, Daten-WG Knowledge Kitchen, https://datenwgknowledgekitchen.com
+
+Zitierweise: Autor, Titel, URL der jeweiligen Seite, Abrufdatum. Bei Zahlen aus den datenjournalistischen Arbeiten bitte die Konfidenzstufe und den Datenstand mit uebernehmen — beide stehen im Kopfblock jeder Markdown-Datei und im Quellenverzeichnis. Weiterverwendung mit Quellenangabe ist ausdruecklich erwuenscht.
+
+Kontakt: ueber die Angaben im Impressum. Der Podcast laeuft unter https://www.youtube.com/@Daten-WG

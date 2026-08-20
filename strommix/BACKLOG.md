@@ -47,6 +47,25 @@
 
 ## Erledigt
 
+- [x] 2026-08-20 · **MD-Export-System live:** Die Kitchen liefert ihre
+  wichtigen Inhalte jetzt zusätzlich als rohes Markdown unter `/md/` aus,
+  plus `/llms.txt` (Index nach llmstxt.org) und `/llms-full.txt`
+  (Volltext-Bündel, 277 KB). Mechanik: `markdown_ext` in `_config.yml` ohne
+  `md`, damit Jekyll `.md` als statische Datei behandelt statt sie zu HTML
+  zu rendern — `exclude` und `strommix/data/` bleiben unangetastet.
+  Für dieses Projekt neu: `strommix/scripts/build_md_exports.py` erzeugt
+  `md/whitepaper-strommix.md` und `md/strommix-story.md` deterministisch aus
+  `page_data.json`, `story_data.json`, `monte_carlo_reference.json` und
+  `model_params.json` — Szenario-Tabellen (deterministisch, P50 [P5–P95],
+  Mt CO₂), CO₂-Kipppunkt, Rangwahrscheinlichkeiten je Konfiguration,
+  Limitationen, Datenlücken und das vollständige Quellenverzeichnis mit
+  Konfidenzstufen. Stand-Datum kommt aus dem Git-Commit-Datum der Quelldaten,
+  nicht aus der Laufzeituhr; `--check` prüft Determinismus und Aktualität.
+  Beide Strommix-Seiten haben einen Fußleisten-Link „Diese Seite als Markdown
+  (für KI & Zitate)". Konvention dokumentiert in `md/README.md` — inklusive
+  der Regel: **kein YAML-Frontmatter** unter `/md/`, sonst bricht der
+  Pages-Build wie beim Datumsfeld-Vorfall.
+
 - [x] 2026-08-19 · **Live in der Kitchen (Merge auf main + Verlinkung):**
   Branch `claude/strohmix-analysis-whitepaper-0rkhas` konfliktfrei nach `main`
   gemerged (`--no-ff`), GitHub Pages liefert damit `strommix-story.html` und
