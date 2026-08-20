@@ -28,31 +28,40 @@
 # als ROHER Markdown-Text ausgeliefert werden.
 #
 # Der Standardwert von markdown_ext ist "markdown,mkdown,mkdn,mkd,md". Damit
-# behandelt Jekyll jede .md-Datei als Markdown-Quelle: GitHub Pages laedt
+# behandelt Jekyll jede .md-Datei als Markdown-Quelle, und GitHub Pages laedt
 # zusaetzlich jekyll-optional-front-matter, das auch Dateien ohne YAML-Header
-# zu Seiten macht. Ergebnis waere /md/whitepaper-strommix.HTML -- und die
-# .md-URL gaebe es gar nicht (404).
+# zu Seiten macht.
+#
+# Gegenprobe lokal gefahren, mit Jekyll 3.10.0 (der Version, die Pages faehrt)
+# plus dem Plugin. Ergebnis mit dem Standardwert: Jekyll legt fuer jede
+# .md-Datei ZWEI Dateien ab -- die gerenderte .html UND die rohe .md. Die
+# .md-URL funktioniert dabei zwar, aber nur als Nebenprodukt davon, wie das
+# Plugin mit statischen Dateien umgeht. Auf so etwas baut man keine stabilen
+# URLs. Der gerenderte Zwilling ist ausserdem schaedlich:
+#
+#   * Er schickt den Inhalt durch Liquid. Der Power-BI-Guide enthaelt die
+#     Power-Query-Zeile Table.Sort({{"Datum", Order.Descending}}) -- gueltiges
+#     M und gleichzeitig eine Liquid-Variable. Der Build meldet dafuer
+#     "Liquid syntax error" als Warnung und macht aus der Zeile im HTML
+#     stillschweigend Table.Sort(Datum). Falscher Code, ohne Fehlermeldung.
+#   * Er verdoppelt jede Seite unter einer zweiten URL, die niemand pflegt.
 #
 # Indem "md" aus der Liste entfernt wird, sind .md-Dateien fuer Jekyll
 # gewoehnliche statische Dateien: sie werden unveraendert nach _site kopiert
-# und unter ihrem eigenen Namen ausgeliefert. Genau das wollen wir.
+# und unter ihrem eigenen Namen ausgeliefert -- kein Konverter, kein Liquid,
+# kein Plugin im Weg, keine .html-Zwillinge. Lokal verifiziert: alle Dateien
+# unter md/ landen byteidentisch im Build.
 #
 # Nebenwirkungen -- geprueft, alle unkritisch:
 #   * Kein einziges href="" in der Site zeigt auf eine von Jekyll gerenderte
 #     Markdown-Seite; alle internen Links gehen auf .html-Dateien.
-#   * ibcsInspiredChartDeck/AGENT-GUIDE.md wird aus chartkitchen-schnellstart
-#     verlinkt. Bisher lief dieser Link ins Leere (Jekyll machte .html daraus);
-#     jetzt liefert er die Datei aus. Also eine Reparatur, kein Bruch.
+#   * ibcsInspiredChartDeck/AGENT-GUIDE.md (verlinkt aus den
+#     ChartKitchen-Schnellstart-Seiten) wurde schon vorher roh mit
+#     ausgeliefert und wird es weiterhin -- jetzt garantiert statt zufaellig.
 #   * blog/ibcs-reporting-power-bi.md, README.md, STATUS.md, PowerBIhub.md und
-#     die uebrigen Repo-Markdowns wurden bisher als themenlose HTML-Seiten
-#     mitgerendert, aber nirgends verlinkt. Sie sind jetzt roher Text.
+#     die uebrigen Repo-Markdowns verlieren ihren nirgends verlinkten
+#     HTML-Zwilling. Die .md-URLs bleiben.
 #   * Die Arbeitsdokumente unter strommix/ bleiben ueber `exclude` aussen vor.
-#
-# Nebenbei repariert die Einstellung eine echte Bruchgefahr: Der
-# Power-BI-Guide unter md/ enthaelt die Power-Query-Zeile
-#   Table.Sort({{"Datum", Order.Descending}})
-# Die doppelte geschweifte Klammer ist gueltiges M -- und gleichzeitig eine
-# Liquid-Variable. Als gerenderte Seite waere der Build daran gescheitert.
 #
 # WICHTIG fuer neue Dateien unter /md/: KEIN YAML-Frontmatter. Eine Datei mit
 # YAML-Header wird von Jekyll trotz dieser Einstellung als Page behandelt, durch

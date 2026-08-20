@@ -76,26 +76,34 @@ Danach war die **ganze Site** offline, nicht nur die eine Datei.
 
 Deshalb: Dateien unter `/md/` beginnen mit `# Titel`, nie mit `---`.
 
-Dieselbe Falle lauert bei Code-Beispielen. `md/power-bi-einsteiger-guide.md`
-enthaelt die Power-Query-Zeile
+Dieselbe Falle lauert bei Code-Beispielen, nur leiser.
+`md/power-bi-einsteiger-guide.md` enthaelt die Power-Query-Zeile
 
     Table.Sort({{"Datum", Order.Descending}})
 
 Die doppelte geschweifte Klammer ist gueltiges M — und gleichzeitig eine
-Liquid-Variable. Ginge die Datei durch Liquid, wuerde der Build daran
-scheitern. Mit der `markdown_ext`-Einstellung unten kommt sie gar nicht erst
-in die Naehe des Template-Renderers. Das ist genau der Grund, warum die
-Auslieferung als statische Datei die robustere Loesung ist und nicht nur die
-bequemere.
+Liquid-Variable. Ginge die Datei durch Liquid, meldet der Build einen
+`Liquid syntax error` als blosse **Warnung** und macht aus der Zeile
+stillschweigend `Table.Sort(Datum)`. Kein Abbruch, kein roter Balken, nur
+falscher Code auf der Seite. Mit der `markdown_ext`-Einstellung unten kommt
+die Datei gar nicht erst in die Naehe des Template-Renderers.
 
 ---
 
 ## Wie die Auslieferung als roher Text funktioniert
 
-Standardmaessig macht Jekyll aus `md/foo.md` die Seite `md/foo.html` — die
-URL mit `.md` gaebe es gar nicht. Auf GitHub Pages ist zusaetzlich das
-Plugin `jekyll-optional-front-matter` aktiv, das auch Dateien ohne Header
-rendert.
+Jekyll behandelt `.md` standardmaessig als Markdown-Quelle, und GitHub Pages
+laedt zusaetzlich `jekyll-optional-front-matter`, das auch Dateien ohne
+YAML-Header zu Seiten macht.
+
+Die Gegenprobe wurde lokal gefahren, mit Jekyll 3.10.0 — der Version, die
+Pages faehrt — plus dem Plugin. Mit dem Standardwert legt Jekyll fuer jede
+`.md`-Datei **zwei** Dateien ab: die gerenderte `.html` *und* die rohe `.md`.
+Die `.md`-URL funktioniert dabei zwar, aber nur als Nebenprodukt davon, wie
+das Plugin mit statischen Dateien umgeht — darauf baut man keine stabilen
+URLs. Und der gerenderte Zwilling schadet aktiv: er schickt den Inhalt durch
+Liquid (siehe die `Table.Sort`-Zeile oben) und legt jede Seite unter einer
+zweiten, ungepflegten URL ab.
 
 Die Loesung steht in `_config.yml`:
 
@@ -103,19 +111,21 @@ Die Loesung steht in `_config.yml`:
 
 `md` fehlt in dieser Liste. Damit ist jede `.md`-Datei fuer Jekyll eine
 gewoehnliche **statische Datei**: sie wird unveraendert nach `_site` kopiert
-und unter ihrem eigenen Namen ausgeliefert.
+und unter ihrem eigenen Namen ausgeliefert — kein Konverter, kein Liquid,
+kein Plugin dazwischen. Lokal verifiziert: alle Dateien unter `md/` landen
+byteidentisch im Build, ohne `.html`-Zwillinge.
 
 Geprueft und unkritisch:
 
 - Kein internes `href` der Site zeigt auf eine von Jekyll gerenderte
   Markdown-Seite; alle internen Links gehen auf `.html`.
 - `ibcsInspiredChartDeck/AGENT-GUIDE.md` wird aus den
-  ChartKitchen-Schnellstart-Seiten verlinkt. Der Link lief vorher ins Leere
-  (Jekyll machte `.html` daraus) und funktioniert jetzt — eine Reparatur.
+  ChartKitchen-Schnellstart-Seiten verlinkt. Die Datei wurde schon vorher
+  roh mit ausgeliefert und wird es weiterhin — jetzt garantiert statt
+  zufaellig.
 - `blog/ibcs-reporting-power-bi.md`, `README.md`, `STATUS.md`,
-  `PowerBIhub.md` und die uebrigen Repo-Markdowns wurden bisher als
-  themenlose, nirgends verlinkte HTML-Seiten mitgerendert. Sie sind jetzt
-  roher Text — kein Verlust.
+  `PowerBIhub.md` und die uebrigen Repo-Markdowns verlieren ihren nirgends
+  verlinkten HTML-Zwilling. Die `.md`-URLs bleiben.
 - Die Arbeitsdokumente unter `strommix/docs/`, `strommix/research/` und
   `strommix/scripts/` bleiben ueber `exclude` vom Build ausgenommen.
   `strommix/data/` bleibt ausdruecklich **drin**: beide Strommix-Seiten
