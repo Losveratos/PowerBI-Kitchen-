@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power BI on Claude</title>
+<meta name="description" content="Inhouse-Training der Daten-WG für agentische Power-BI-Entwicklung mit Claude. Drei Stufen ab 3.000 €, immer im Haus, immer am eigenen Modell.">
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root {
+  /* Flächen: Paper/Cream, wie im Knowledge-Kitchen-System */
+  --bg:        #FAFAF5;
+  --bg-card:   #FFFFFF;
+  --bg-soft:   #F4F1E8;
+  --bg-deep:   #12211E;
+  --term-bg:   #060F0E;
+  --ink:       #1A1A1A;
+  --ink-soft:  #46504D;
+  --ink-mute:  #666E6C;
+  --on-deep:   #EFEDE4;
+  --on-deep-mute: #9DB3AC;
+
+  --line:        #E3DFD2;
+  --line-soft:   #EDE9DE;
+  --line-strong: #1A1A1A;
+
+  /* Brand + Gang-Farben */
+  --brand:      #117865;
+  --brand-soft: #2A9582;
+  --brand-deep: #0A5A4D;
+  --brand-wash: #EAF3F0;
+  --gang-1:     #C25A2D;
+  --gang-1-wash:#FBEFE7;
+  --gang-2:     #166088;
+  --gang-2-wash:#EAF1F6;
+  --gang-3:     #5B3B7A;
+  --gang-3-wash:#F1ECF6;
+  --warn:       #8B2E2E;
+
+  /* Chips: eigene Töne, damit die Schrift in beiden Schemata lesbar bleibt */
+  --chip-1:   #A94A22;
+  --chip-2:   #14567A;
+  --chip-3:   #513469;
+  --chip-ink: #FFFFFF;
+
+  --serif: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --sans:  "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --mono:  ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+
+  --radius:    12px;
+  --radius-sm: 8px;
+  --shadow-sm: 0 1px 2px rgba(10,10,10,.04), 0 1px 3px rgba(10,10,10,.06);
+  --shadow-md: 0 6px 20px rgba(10,10,10,.07), 0 2px 6px rgba(10,10,10,.05);
+}
+
+/* Dunkles Schema: nur Token neu belegen, damit jede Komponente mitzieht.
+   Guard auf :not([data-theme="light"]), damit eine bewusste Hell-Wahl gewinnt. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #10100E;
+    --bg-card:   #191917;
+    --bg-soft:   #201F1B;
+    --bg-deep:   #1D2E29;
+    --term-bg:   #0B1817;
+    --ink:       #ECEAE1;
+    --ink-soft:  #BDBAAE;
+    --ink-mute:  #8E8B80;
+    --on-deep:   #ECEAE1;
+    --on-deep-mute: #97AAA4;
+    --line:        #2E2D28;
+    --line-soft:   #262521;
+    --line-strong: #C9C5B8;
+    --brand:      #4FBFA6;
+    --brand-soft: #6FD3BC;
+    --brand-deep: #A7E6D6;
+    --brand-wash: #14312B;
+    --gang-1:     #E08A5C;
+    --gang-1-wash:#332017;
+    --gang-2:     #6BA9D2;
+    --gang-2-wash:#16252F;
+    --gang-3:     #A98BD0;
+    --gang-3-wash:#241C31;
+    --warn:       #D97D6E;
+    --chip-1:   #E08A5C;
+    --chip-2:   #6BA9D2;
+    --chip-3:   #A98BD0;
+    --chip-ink: #14140F;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+    --shadow-md: 0 8px 24px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"] {
+  --bg:        #10100E;
+  --bg-card:   #191917;
+  --bg-soft:   #201F1B;
+  --bg-deep:   #1D2E29;
+  --term-bg:   #0B1817;
+  --ink:       #ECEAE1;
+  --ink-soft:  #BDBAAE;
+  --ink-mute:  #8E8B80;
+  --on-deep:   #ECEAE1;
+  --on-deep-mute: #97AAA4;
+  --line:        #2E2D28;
+  --line-soft:   #262521;
+  --line-strong: #C9C5B8;
+  --brand:      #4FBFA6;
+  --brand-soft: #6FD3BC;
+  --brand-deep: #A7E6D6;
+  --brand-wash: #14312B;
+  --gang-1:     #E08A5C;
+  --gang-1-wash:#332017;
+  --gang-2:     #6BA9D2;
+  --gang-2-wash:#16252F;
+  --gang-3:     #A98BD0;
+  --gang-3-wash:#241C31;
+  --warn:       #D97D6E;
+  --chip-1:   #E08A5C;
+  --chip-2:   #6BA9D2;
+  --chip-3:   #A98BD0;
+  --chip-ink: #14140F;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+  --shadow-md: 0 8px 24px rgba(0,0,0,.5);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+a { color: var(--brand-deep); text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 3px; }
+
+/* ---------- Raster ---------- */
+.wrap  { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+.col   { max-width: 660px; }
+section { padding: 68px 0; border-bottom: 1px solid var(--line-soft); scroll-margin-top: 64px; }
+/* Unter 900px waechst die Topbar um die Chipleiste, sonst landet der Ankersprung darunter. */
+@media (max-width: 900px) { section { scroll-margin-top: 112px; } }
+section:last-of-type { border-bottom: 0; }
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-mute); font-weight: 600; margin: 0 0 14px;
+}
+h1, h2, h3 { font-family: var(--serif); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(38px, 6.4vw, 66px); line-height: 1.04; font-weight: 700; letter-spacing: -.02em; }
+h2 { font-size: clamp(25px, 3.4vw, 34px); line-height: 1.16; font-weight: 700; letter-spacing: -.01em; margin-bottom: 14px; }
+h3 { font-size: 19px; line-height: 1.3; font-weight: 700; margin-bottom: 6px; }
+p  { margin: 0 0 16px; }
+.lead { font-size: clamp(18px, 2.1vw, 21px); color: var(--ink-soft); }
+strong { font-weight: 700; }
+
+/* ---------- Kopfleiste ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 60;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.topbar-inner {
+  max-width: 1160px; margin: 0 auto; padding: 10px 24px;
+  display: flex; align-items: center; gap: 14px;
+}
+.back {
+  text-decoration: none; white-space: nowrap; color: var(--brand);
+  border: 1px solid var(--brand); border-radius: 100px;
+  padding: 5px 13px; font-size: 13px; font-weight: 600;
+  transition: background .15s, color .15s;
+}
+.back:hover { background: var(--brand); color: var(--bg); }
+.topbar-title { font-size: 13px; color: var(--ink-mute); margin-right: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topnav { display: flex; gap: 16px; }
+.topnav a { font-size: 13.5px; color: var(--ink-soft); text-decoration: none; }
+.topnav a:hover { color: var(--ink); text-decoration: underline; }
+@media (max-width: 900px) {
+  .topbar-inner { flex-wrap: wrap; }
+  .topbar-title { display: none; }
+  .topnav {
+    order: 3; width: 100%; gap: 8px; padding-bottom: 2px;
+    overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .topnav::-webkit-scrollbar { display: none; }
+  .topnav a {
+    white-space: nowrap; background: var(--bg-soft);
+    border: 1px solid var(--line); border-radius: 100px; padding: 4px 12px;
+  }
+}
+
+/* ---------- Hero ---------- */
+.hero { padding: 76px 0 60px; border-bottom: 1px solid var(--line-soft); }
+.hero h1 em { font-style: italic; color: var(--brand); }
+.hero-lead { max-width: 660px; margin-top: 22px; }
+.hero-claim {
+  font-family: var(--serif); font-size: clamp(20px, 2.6vw, 26px);
+  line-height: 1.3; font-weight: 600; color: var(--ink);
+  border-left: 3px solid var(--brand); padding-left: 18px;
+  margin: 28px 0 26px; max-width: 620px;
+}
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+.badge {
+  background: var(--bg-soft); border: 1px solid var(--line); border-radius: 100px;
+  padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--ink-soft);
+}
+.badge-brand { background: var(--brand-wash); border-color: var(--brand-soft); color: var(--brand-deep); }
+
+.note {
+  background: var(--bg-soft); border: 1px solid var(--line);
+  border-left: 3px solid var(--ink-mute);
+  border-radius: var(--radius-sm); padding: 16px 20px; margin: 30px 0 0;
+  font-size: 15px; color: var(--ink-soft); max-width: 720px;
+}
+.note strong { color: var(--ink); }
+
+/* ---------- Schnell-Einstieg direkt unter dem Hero ---------- */
+.schnell {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: start;
+}
+/* Ohne min-width:0 zwingt die Mindestbreite des Schaubilds die Spalte auf,
+   und die ganze Seite scrollt seitlich. */
+.schnell > * { min-width: 0; }
+@media (max-width: 900px) { .schnell { grid-template-columns: 1fr; gap: 26px; } }
+.fakten { list-style: none; margin: 0 0 22px; padding: 0; }
+.fakten li {
+  display: grid; grid-template-columns: 130px 1fr; gap: 16px;
+  padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 15.5px;
+}
+.fakten .lbl {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-mute); font-weight: 700; padding-top: 3px;
+}
+.fakten .val { color: var(--ink); }
+.fakten .val b { font-weight: 700; }
+@media (max-width: 520px) { .fakten li { grid-template-columns: 1fr; gap: 2px; } }
+
+.schnell-cta { margin: 0 0 22px; }
+.mehr-cta { margin: 26px 0 0; }
+.abgrenzung {
+  background: var(--brand-wash); border: 1px solid var(--brand-soft);
+  border-radius: var(--radius); padding: 18px 22px; font-size: 15.5px; color: var(--ink);
+}
+.abgrenzung b { color: var(--brand-deep); }
+
+/* ---------- Belege ---------- */
+.belege { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 30px; }
+@media (max-width: 860px) { .belege { grid-template-columns: 1fr; } }
+.beleg {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-left: 3px solid var(--brand); border-radius: var(--radius); padding: 22px 24px;
+}
+.beleg .kicker {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--brand-deep); font-weight: 700; margin: 0 0 8px;
+}
+.beleg h3 { font-size: 17px; margin-bottom: 6px; }
+.beleg p { font-size: 14.5px; color: var(--ink-soft); margin: 0 0 12px; line-height: 1.55; }
+.beleg p:last-child { margin-bottom: 0; }
+.beleg ul { margin: 0; padding-left: 18px; font-size: 14.5px; color: var(--ink-soft); }
+.beleg li { margin-bottom: 5px; }
+
+/* ---------- Technik-Gegenüberstellung ---------- */
+.technik { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 30px; }
+.technik-karte {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 22px 24px; box-shadow: var(--shadow-sm);
+}
+.technik-karte .kicker {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; font-weight: 700; margin-bottom: 10px;
+}
+.technik-alt .kicker { color: var(--ink-mute); }
+.technik-neu { border-color: var(--brand-soft); background: var(--brand-wash); }
+.technik-neu .kicker { color: var(--brand-deep); }
+.technik-karte ul { margin: 0; padding-left: 18px; font-size: 15.5px; color: var(--ink-soft); }
+.technik-karte li { margin-bottom: 8px; }
+.technik-karte li:last-child { margin-bottom: 0; }
+@media (max-width: 820px) { .technik { grid-template-columns: 1fr; } }
+
+/* ---------- Der Loop ---------- */
+.loop { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 12px; margin: 34px 0 8px; }
+.loop-step {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-top: 3px solid var(--brand);
+  border-radius: var(--radius-sm); padding: 16px 16px 18px;
+}
+.loop-step .n {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: var(--brand-deep); letter-spacing: .1em; display: block; margin-bottom: 6px;
+}
+.loop-step h3 { font-size: 15.5px; margin-bottom: 4px; }
+.loop-step p { font-size: 14px; color: var(--ink-soft); margin: 0; line-height: 1.5; }
+@media (max-width: 520px) { .loop { grid-template-columns: 1fr; } }
+
+/* ---------- Bausteine ---------- */
+.bausteine { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 30px; }
+.baustein {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px 22px;
+}
+.baustein h3 { font-size: 16.5px; }
+.baustein p { font-size: 14.5px; color: var(--ink-soft); margin: 0; line-height: 1.55; }
+.baustein code {
+  font-family: var(--mono); font-size: 12.5px; background: var(--bg-soft);
+  border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 900px) { .bausteine { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .bausteine { grid-template-columns: 1fr; } }
+
+/* ---------- Signature Dish: dunkle Sektion ---------- */
+.dish {
+  background: var(--bg-deep); color: var(--on-deep);
+  border-top: 1px solid var(--brand-soft);
+  border-bottom: 1px solid var(--brand-soft);
+  padding: 76px 0;
+}
+.dish h2, .dish h3 { color: var(--on-deep); }
+.dish .eyebrow { color: var(--on-deep-mute); }
+.dish .lead { color: var(--on-deep-mute); }
+.dish-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; margin-top: 36px; align-items: start; }
+@media (max-width: 900px) { .dish-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+.rezept { list-style: none; margin: 0; padding: 0; counter-reset: schritt; }
+.rezept li {
+  counter-increment: schritt;
+  position: relative; padding: 0 0 22px 46px;
+  border-left: 1px solid rgba(157, 179, 172, .32);
+  margin-left: 13px;
+}
+.rezept li:last-child { border-left-color: transparent; padding-bottom: 0; }
+.rezept li::before {
+  content: counter(schritt);
+  position: absolute; left: -14px; top: 0;
+  width: 27px; height: 27px; border-radius: 50%;
+  background: #2A9582; color: #05201B;
+  font-family: var(--mono); font-size: 12.5px; font-weight: 700;
+  display: grid; place-items: center;
+}
+.rezept h3 { font-size: 17px; margin-bottom: 3px; }
+.rezept p { color: var(--on-deep-mute); font-size: 15px; margin: 0; line-height: 1.55; }
+
+.terminal {
+  background: var(--term-bg); border: 1px solid rgba(157, 179, 172, .22);
+  border-radius: var(--radius); overflow: hidden; font-family: var(--mono); font-size: 13px;
+}
+.terminal-top {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 14px; border-bottom: 1px solid rgba(157, 179, 172, .18);
+  color: var(--on-deep-mute); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase;
+}
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #2E4744; }
+.terminal-body {
+  margin: 0; padding: 16px 18px; line-height: 1.65;
+  font-family: var(--mono); font-size: clamp(11px, 2.9vw, 13px);
+  white-space: pre; overflow-x: auto;
+}
+.terminal-body:focus-visible { outline-offset: -3px; }
+.terminal-body .u { color: #7FE3C9; }
+.terminal-body .a { color: #E6E2D6; }
+.terminal-body .c { color: #8FA5A0; }
+.terminal-body .f { color: #E0A87C; }
+
+.ergebnis {
+  margin-top: 22px; background: rgba(239, 237, 228, .06);
+  border: 1px solid rgba(157, 179, 172, .22);
+  border-radius: var(--radius); padding: 18px 20px;
+}
+.ergebnis h3 { font-size: 15px; margin-bottom: 8px; }
+.ergebnis ul { margin: 0; padding-left: 18px; color: var(--on-deep-mute); font-size: 14.5px; }
+.ergebnis li { margin-bottom: 5px; }
+
+/* ---------- Die Speisekarte: ein Blatt, drei Gaenge ---------- */
+.speisekarte {
+  margin-top: 36px; background: var(--bg-soft);
+  border-top: 2px solid var(--line-strong); border-bottom: 2px solid var(--line-strong);
+  padding: 8px 0 4px;
+}
+.gang { padding: 30px 0; border-bottom: 1px dashed var(--line); }
+.gang:last-child { border-bottom: 0; }
+.gang-kopf {
+  display: grid; grid-template-columns: 1fr auto; gap: 8px 24px;
+  align-items: baseline; padding: 0 clamp(16px, 3vw, 34px);
+}
+.gang-nr {
+  grid-column: 1 / -1;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+  text-transform: uppercase; font-weight: 700; margin: 0 0 4px;
+}
+.gang-titel { font-family: var(--serif); font-size: clamp(23px, 3vw, 30px); font-weight: 700; line-height: 1.15; margin: 0; }
+.gang-preis { text-align: right; font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+.gang-preis .zusatz { display: block; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-mute); margin-top: 3px; }
+.gang-unter { font-family: var(--serif); font-style: italic; font-size: 17px; color: var(--ink-soft); margin: 2px 0 0; }
+.gang-fuer { grid-column: 1 / -1; font-size: 15px; color: var(--ink-soft); margin: 12px 0 0; max-width: 62ch; }
+
+.gang-body { padding: 22px clamp(16px, 3vw, 34px) 0; }
+.gang-label {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-soft); font-weight: 700;
+  margin: 0 0 8px;
+}
+.gericht-liste + .gang-label { margin-top: 22px; }
+
+/* Zwei Spalten erst, wenn jede Spalte genug Lauf fuer die Punktfuehrung hat */
+.gericht-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 0 40px; }
+@media (min-width: 1024px) { .gericht-liste.zweispaltig { grid-template-columns: 1fr 1fr; } }
+
+.gericht {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: baseline;
+  column-gap: 10px; font-size: 15.5px; padding: 6px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.gericht .name { color: var(--ink); }
+.gericht .fuell {
+  min-width: 40px; align-self: center;
+  border-bottom: 1px dotted color-mix(in srgb, var(--ink-mute) 60%, transparent);
+}
+.gericht .tag {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--ink-soft); white-space: nowrap;
+}
+.gericht.geerbt .name { color: var(--ink-mute); }
+@media (max-width: 520px) {
+  .gericht { grid-template-columns: 1fr auto; }
+  .gericht .fuell { display: none; }
+}
+
+.gang-fuss { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .04em;
+  border-radius: 100px; padding: 4px 11px; border: 1px solid var(--line);
+  background: var(--bg-card); color: var(--ink-soft);
+}
+.chip.stark { color: var(--chip-ink); }
+.gang-1 .gang-nr, .gang-1 .gang-preis .zusatz { color: var(--chip-1); }
+.gang-1 .chip.stark { background: var(--chip-1); border-color: var(--chip-1); }
+.gang-2 .gang-nr, .gang-2 .gang-preis .zusatz { color: var(--chip-2); }
+.gang-2 .chip.stark { background: var(--chip-2); border-color: var(--chip-2); }
+.gang-3 .gang-nr, .gang-3 .gang-preis .zusatz { color: var(--chip-3); }
+.gang-3 .chip.stark { background: var(--chip-3); border-color: var(--chip-3); }
+
+/* Immer-dabei-Leiste unter der Karte */
+.immer {
+  margin-top: 26px; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+}
+.immer-item {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-top: 3px solid var(--brand); border-radius: var(--radius-sm); padding: 16px 18px;
+}
+.immer-item h3 { font-size: 15.5px; margin-bottom: 4px; }
+.immer-item p { font-size: 14.5px; color: var(--ink-soft); margin: 0; line-height: 1.5; }
+
+.tisch-hinweis { margin-top: 22px; font-size: 14.5px; color: var(--ink-mute); }
+
+/* ---------- Vorgespraech ---------- */
+.vorgespraech {
+  margin-top: 34px; background: var(--brand-wash);
+  border: 1px solid var(--brand-soft); border-radius: var(--radius);
+  padding: 26px 28px; display: grid; grid-template-columns: .85fr 1.15fr; gap: 30px;
+}
+@media (max-width: 820px) { .vorgespraech { grid-template-columns: 1fr; gap: 18px; } }
+.vorgespraech h3 { font-size: 20px; margin-bottom: 8px; }
+.vorgespraech p { font-size: 15.5px; color: var(--ink-soft); margin: 0; }
+
+/* ---------- Glossar ---------- */
+.glossar { margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0 40px; }
+.glossar-item { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.glossar-item dt {
+  font-family: var(--serif); font-size: 16.5px; font-weight: 700; margin-bottom: 3px;
+}
+.glossar-item dt span {
+  font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  color: var(--ink-mute); text-transform: none; margin-left: 8px;
+}
+.glossar-item dd { margin: 0; font-size: 15px; color: var(--ink-soft); line-height: 1.55; }
+
+/* ---------- Schaubilder ---------- */
+figure.schaubild {
+  margin: 34px 0 0; max-width: 640px;
+  overflow-x: auto; /* auf schmalen Displays lieber schieben als winzig setzen */
+}
+figure.schaubild svg { width: 100%; min-width: 470px; height: auto; display: block; }
+figure.schaubild figcaption {
+  margin-top: 10px; font-size: 14px; color: var(--ink-mute); max-width: 62ch;
+}
+.sv-flaeche { fill: var(--bg-card); }
+.sv-soft    { fill: var(--bg-soft); }
+.sv-linie   { stroke: var(--line-strong); stroke-width: 1.2; fill: none; }
+.sv-linie-fein { stroke: var(--ink-mute); stroke-width: 1; fill: none; }
+.sv-brand   { fill: var(--brand); }
+.sv-brand-l { stroke: var(--brand); stroke-width: 1.6; fill: none; }
+.sv-text    { fill: var(--ink); font-family: var(--sans); font-size: 14px; }
+.sv-text-s  { fill: var(--ink-mute); font-family: var(--mono); font-size: 11px; letter-spacing: .08em; }
+.sv-text-w  { fill: var(--bg-card); font-family: var(--mono); font-size: 11px; font-weight: 700; }
+
+/* ---------- Unterueberschriften ---------- */
+h2.klein { font-size: clamp(21px, 2.4vw, 25px); letter-spacing: 0; }
+.abschnitt-sub { margin-top: 46px; }
+
+/* ---------- Prototyping: zwei Bahnen im Vergleich ---------- */
+.bahnen { display: grid; gap: 14px; margin-top: 30px; }
+.bahn {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 18px 22px;
+}
+.bahn.schnell { border-color: var(--brand-soft); background: var(--brand-wash); }
+.bahn-kopf { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.bahn-kopf h3 { font-size: 16.5px; margin: 0; }
+.bahn-dauer {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em;
+  text-transform: uppercase; font-weight: 700; color: var(--ink-mute); margin-left: auto;
+}
+.bahn.schnell .bahn-dauer { color: var(--brand-deep); }
+.phasen { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.phase {
+  font-size: 13.5px; padding: 5px 12px; border-radius: 100px;
+  border: 1px solid var(--line); background: var(--bg-soft); color: var(--ink-soft);
+}
+.bahn.schnell .phase { background: var(--bg-card); border-color: var(--brand-soft); }
+.pfeil { color: var(--ink-mute); font-size: 12px; }
+
+/* ---------- Governance: Ebenen und Rolle ---------- */
+.ebenen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 30px; }
+.ebene {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-left: 3px solid var(--brand); border-radius: var(--radius); padding: 18px 20px;
+}
+.ebene:nth-child(2) { border-left-color: var(--chip-2); }
+.ebene:nth-child(3) { border-left-color: var(--chip-1); }
+.ebene .stufe-status { margin-bottom: 8px; }
+.ebene h3 { font-size: 16px; }
+.ebene p { font-size: 14.5px; color: var(--ink-soft); margin: 0; line-height: 1.55; }
+@media (max-width: 860px) { .ebenen { grid-template-columns: 1fr; } }
+
+.rolle {
+  margin-top: 30px; display: grid; grid-template-columns: .9fr 1.1fr; gap: 34px;
+  background: var(--bg-soft); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 26px 28px;
+}
+@media (max-width: 860px) { .rolle { grid-template-columns: 1fr; gap: 20px; } }
+.rolle h3 { font-size: 20px; margin-bottom: 8px; }
+.rolle p { font-size: 15.5px; color: var(--ink-soft); }
+.rolle p:last-child { margin-bottom: 0; }
+.aufgaben { list-style: none; margin: 0; padding: 0; }
+.aufgaben li {
+  display: flex; gap: 10px; align-items: baseline;
+  font-size: 15px; color: var(--ink-soft);
+  padding: 8px 0; border-bottom: 1px solid var(--line);
+}
+.aufgaben li:last-child { border-bottom: 0; padding-bottom: 0; }
+.aufgaben li::before { content: "✓"; color: var(--brand-deep); font-size: 13px; flex: 0 0 auto; }
+.aufgaben b { color: var(--ink); font-weight: 600; }
+
+.schritte { list-style: none; margin: 30px 0 0; padding: 0; counter-reset: sch; display: grid; gap: 10px; }
+.schritte li {
+  counter-increment: sch; display: flex; gap: 16px; align-items: baseline;
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 14px 18px;
+}
+.schritte li::before {
+  content: counter(sch, decimal-leading-zero);
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  color: var(--brand-deep); flex: 0 0 auto;
+}
+.schritte .txt { font-size: 15px; color: var(--ink-soft); }
+.schritte .txt b { color: var(--ink); font-weight: 600; }
+
+/* ---------- Aufklappbares ---------- */
+.klapp {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--bg-card); margin-top: 20px; overflow: hidden;
+}
+.klapp > summary {
+  cursor: pointer; list-style: none; padding: 16px 22px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 15.5px; font-weight: 600; color: var(--ink);
+}
+.klapp > summary::-webkit-details-marker { display: none; }
+.klapp > summary::after {
+  content: "+"; margin-left: auto; font-family: var(--mono);
+  font-size: 18px; font-weight: 400; color: var(--brand-deep); line-height: 1;
+}
+.klapp[open] > summary::after { content: "−"; }
+.klapp > summary:hover { background: var(--bg-soft); }
+.klapp > summary:focus-visible { outline-offset: -3px; }
+@media (max-width: 560px) {
+  /* Label darf umbrechen, das Badge rutscht darunter. Kompaktere Masse,
+     damit die Klickzeile trotzdem nicht zum Block wird. */
+  .klapp > summary { flex-wrap: wrap; padding: 13px 16px; font-size: 14.5px; gap: 4px 10px; }
+  .klapp > summary .zahl { flex-basis: 100%; margin-left: 0; font-size: 10px; }
+  .klapp > summary::after { margin-left: auto; align-self: flex-start; }
+}
+.klapp > summary .zahl {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-mute); font-weight: 700;
+}
+.klapp-inhalt { padding: 4px 22px 24px; border-top: 1px solid var(--line-soft); }
+.klapp-inhalt > *:first-child { margin-top: 18px; }
+
+/* Aufklappbares im Stufen-Blatt sitzt auf der Papierflaeche */
+.gang .klapp { background: transparent; border-color: var(--line); margin-top: 18px; }
+.gang .klapp > summary { padding: 12px 16px; font-size: 14.5px; }
+.gang .klapp-inhalt { padding: 0 16px 16px; }
+
+/* ---------- FAQ ---------- */
+.faq { margin-top: 30px; display: grid; gap: 10px; }
+.faq details {
+  border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg-card);
+}
+.faq summary {
+  cursor: pointer; list-style: none; padding: 15px 20px;
+  font-size: 16px; font-weight: 600; display: flex; gap: 12px; align-items: baseline;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; margin-left: auto; font-family: var(--mono); color: var(--brand-deep); }
+.faq details[open] summary::after { content: "−"; }
+.faq summary:hover { background: var(--bg-soft); }
+.faq .antwort { padding: 0 20px 18px; font-size: 15px; color: var(--ink-soft); }
+.faq .antwort p { margin: 0 0 10px; }
+.faq .antwort p:last-child { margin: 0; }
+
+/* ---------- Trainer ---------- */
+.trainer { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 26px; }
+@media (max-width: 760px) { .trainer { grid-template-columns: 1fr; } }
+.trainer-karte {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-left: 3px solid var(--brand); border-radius: var(--radius); padding: 22px 24px;
+}
+.trainer-karte h3 { font-size: 18px; margin-bottom: 2px; }
+.trainer-rolle {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-soft); font-weight: 700; margin: 0 0 10px;
+}
+.trainer-karte p { font-size: 14.5px; color: var(--ink-soft); margin: 0 0 12px; line-height: 1.55; }
+.trainer-links { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; font-weight: 600; }
+
+/* ---------- Einstiegshilfe ohne Budget ---------- */
+.gratis {
+  margin-top: 26px; background: var(--bg-soft); border: 1px dashed var(--line-strong);
+  border-radius: var(--radius); padding: 20px 24px; font-size: 15px; color: var(--ink-soft);
+}
+.gratis b { color: var(--ink); }
+.gratis a { font-weight: 600; }
+
+/* ---------- IT-Abschnitt ---------- */
+.it-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 30px; }
+.it-karte {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px 22px;
+}
+.it-karte h3 { font-size: 16px; margin-bottom: 6px; }
+.it-karte p { font-size: 14.5px; color: var(--ink-soft); margin: 0; line-height: 1.55; }
+
+/* ---------- Tabellen ---------- */
+.tabelle-wrap { overflow-x: auto; margin-top: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-card); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 620px; }
+th, td { text-align: left; padding: 13px 16px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+thead th { background: var(--bg-soft); font-weight: 700; font-size: 14px; border-bottom: 1px solid var(--line); }
+tbody tr:last-child td { border-bottom: 0; }
+td.stufe { font-weight: 600; white-space: nowrap; }
+
+/* ---------- Roadmap ---------- */
+.roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 30px; }
+.stufe-karte {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 22px 24px;
+}
+.stufe-karte.jetzt { border-color: var(--brand); background: var(--brand-wash); }
+.stufe-status {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em;
+  text-transform: uppercase; font-weight: 700; color: var(--ink-mute); margin: 0 0 10px;
+}
+.stufe-karte.jetzt .stufe-status { color: var(--brand-deep); }
+.stufe-karte ul { margin: 10px 0 0; padding-left: 18px; font-size: 14.5px; color: var(--ink-soft); }
+.stufe-karte li { margin-bottom: 6px; }
+@media (max-width: 900px) { .roadmap { grid-template-columns: 1fr; } }
+
+/* ---------- Mise en Place ---------- */
+.mep { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 34px; margin-top: 26px; }
+.mep-item { display: flex; gap: 12px; align-items: baseline; padding-bottom: 12px; border-bottom: 1px solid var(--line-soft); }
+.mep-item .k { font-family: var(--mono); font-size: 12px; color: var(--brand-deep); font-weight: 700; flex: 0 0 auto; }
+.mep-item .t { font-size: 15px; color: var(--ink-soft); }
+.mep-item .t b { color: var(--ink); font-weight: 600; }
+@media (max-width: 760px) { .mep { grid-template-columns: 1fr; } }
+
+/* ---------- Offene Punkte ---------- */
+.offen { margin-top: 26px; display: grid; gap: 12px; }
+.offen-item {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-left: 3px solid var(--warn); border-radius: var(--radius-sm);
+  padding: 15px 18px;
+}
+.offen-item h3 { font-size: 15.5px; margin-bottom: 3px; }
+.offen-item p { font-size: 14.5px; color: var(--ink-soft); margin: 0; }
+
+/* ---------- CTA ---------- */
+.cta {
+  background: var(--bg-soft); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 34px 36px;
+  display: flex; gap: 30px; align-items: center; flex-wrap: wrap;
+}
+.cta-text { flex: 1 1 340px; }
+.cta h2 { margin-bottom: 8px; }
+.cta p { margin-bottom: 0; color: var(--ink-soft); }
+.cta-actions { display: flex; flex-direction: column; gap: 10px; }
+.btn {
+  display: inline-block; text-decoration: none; text-align: center;
+  border-radius: 100px; padding: 11px 24px; font-size: 15px; font-weight: 600;
+  border: 1px solid var(--brand); transition: transform .12s, background .15s;
+}
+.btn-primary { background: var(--brand); color: #FFFFFF; }
+.btn-primary:hover { background: var(--brand-deep); transform: translateY(-1px); }
+.btn-ghost { color: var(--brand-deep); background: transparent; }
+.btn-ghost:hover { background: var(--brand-wash); }
+:root[data-theme="dark"] .btn-primary,
+:root[data-theme="dark"] .btn-primary:hover { color: #06231E; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .btn-primary,
+  :root:not([data-theme="light"]) .btn-primary:hover { color: #06231E; }
+}
+
+.skip {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--brand); color: #FFFFFF; padding: 10px 18px;
+  border-radius: 0 0 var(--radius-sm) 0; font-size: 14px; font-weight: 600; z-index: 100;
+}
+.skip:focus { left: 0; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+footer {
+  padding: 34px 0 60px; font-size: 14px; color: var(--ink-mute);
+  border-top: 1px solid var(--line);
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#inhalt">Zum Inhalt springen</a>
+
+<nav class="topbar" aria-label="Seitennavigation">
+  <div class="topbar-inner">
+    <a class="back" href="index.html">&larr; Knowledge Kitchen</a>
+    <span class="topbar-title">Power BI on Claude &middot; Inhouse-Training</span>
+    <div class="topnav">
+      <a href="#technik">Die Technik</a>
+      <a href="#agentic">Agentic Development</a>
+      <a href="#dish">Agentic Report</a>
+      <a href="#belege">Belege</a>
+      <a href="#karte">Stufen &amp; Preise</a>
+      <a href="#danach">Nach dem Kurs</a>
+      <a href="#wir">Wer wir sind</a>
+      <a href="power-bi-on-claude-details.html">Details &amp; Fragen</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Daten-WG &middot; Inhouse-Training &middot; Agentic Power BI Development</p>
+    <h1>Power BI <em>on Claude</em></h1>
+    <p class="hero-claim">KI ist keine neue Zutat. KI ist eine neue Kochtechnik.</p>
+    <p class="lead hero-lead">Die Zutaten bleiben, was sie immer waren: saubere Daten, ein tragfähiges
+    Semantikmodell, ehrliche Kennzahlen, verständliche Berichte. Was sich ändert, ist die Art, wie
+    gearbeitet wird. Wer heute nur ein paar Prompts in den vorhandenen Ablauf streut, kocht
+    dasselbe Gericht wie vorher, nur mit mehr Rauch. Wer die Technik wirklich lernt, ändert
+    Reihenfolge, Werkzeug und Ergebnis.</p>
+    <div class="badges">
+      <span class="badge badge-brand">Drei Stufen: Starter &middot; Menu &middot; Master Class</span>
+      <span class="badge">Inhouse, mit euren Daten</span>
+      <span class="badge">Agentic Power BI Development</span>
+      <span class="badge">Prototyping und Governance</span>
+      <span class="badge">Eigener Use Case statt Demo-Datensatz</span>
+    </div>
+
+  </div>
+</header>
+
+<main id="inhalt">
+
+<section id="schnell">
+  <div class="wrap">
+    <div class="schnell">
+      <div>
+        <p class="eyebrow">In 30 Sekunden</p>
+        <ul class="fakten">
+          <li><span class="lbl">Was</span><span class="val">Ein <b>Inhouse-Training</b> für Teams, die Power BI schon können und lernen wollen, wie KI-gestützte Entwicklung wirklich funktioniert.</span></li>
+          <li><span class="lbl">Für wen</span><span class="val">BI-Teams, Controlling, Berichtsbau. Vorkenntnisse in Power BI ja, in Git und Kommandozeile nein.</span></li>
+          <li><span class="lbl">Umfang</span><span class="val">Ein Tag, zwei bis drei Tage oder mehrwöchig. <b>Ab 3.000 € pro Gruppe</b>, immer bei euch, immer mit euren Daten.</span></li>
+          <li><span class="lbl">Ergebnis</span><span class="val">Ein Bericht, den ihr in der Sitzung selbst gebaut habt, plus eure Regeln als wiederverwendbare Dateien.</span></li>
+        </ul>
+        <p class="schnell-cta"><a class="btn btn-primary" href="#kontakt">Vorgespräch anfragen</a></p>
+        <div class="abgrenzung">
+          <b>Und was ist mit Copilot?</b> Claude ist ein KI-Assistent wie ChatGPT oder Copilot, nur mit Zugriff auf euren Projektordner. Copilot arbeitet im Bericht und schlägt vor. Hier arbeitet
+          die KI am Projekt: sie liest euer Modell als Datei, ändert Measures und Seiten, prüft sich
+          selbst und legt jede Änderung nachvollziehbar ab. Copilot bleibt nützlich, aber es ist ein
+          Werkzeug, keine Arbeitsweise.
+        </div>
+      </div>
+
+      <div>
+        <figure class="schaubild" tabindex="0">
+      <svg viewBox="0 0 600 250" role="img" aria-labelledby="fig1t fig1d">
+        <title id="fig1t">Bericht als Datei gegenüber Bericht als Projekt</title>
+        <desc id="fig1d">Links eine einzelne pbix-Datei, deren Inhalt nicht einsehbar ist. Rechts derselbe Bericht als Ordner mit lesbaren Dateien für Modell, Bericht und Versionsverlauf.</desc>
+
+        <text x="0" y="14" class="sv-text-s">HEUTE</text>
+        <rect x="0" y="28" width="230" height="120" rx="10" class="sv-soft"/>
+        <rect x="0" y="28" width="230" height="120" rx="10" class="sv-linie"/>
+        <text x="24" y="72" class="sv-text" font-weight="700">Bericht.pbix</text>
+        <g class="sv-linie-fein" opacity=".5">
+          <path d="M24 92h182M24 104h150M24 116h182M24 128h120"/>
+        </g>
+        <text x="0" y="176" class="sv-text" opacity=".75">Eine Datei. Was sich darin ändert,</text>
+        <text x="0" y="196" class="sv-text" opacity=".75">sieht niemand von außen.</text>
+
+        <path d="M258 88h48m0 0-11-9m11 9-11 9" class="sv-brand-l" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <text x="345" y="14" class="sv-text-s">MIT PROJEKTFORMAT</text>
+        <rect x="345" y="28" width="255" height="120" rx="10" class="sv-flaeche"/>
+        <rect x="345" y="28" width="255" height="120" rx="10" class="sv-linie"/>
+        <g class="sv-text">
+          <text x="365" y="54" font-weight="700">Vertrieb.pbip</text>
+          <text x="381" y="78">model.tmdl</text>
+          <text x="381" y="100">report.json</text>
+          <text x="381" y="122">.git</text>
+        </g>
+        <g class="sv-brand">
+          <circle cx="371" cy="73" r="3"/>
+          <circle cx="371" cy="95" r="3"/>
+          <circle cx="371" cy="117" r="3"/>
+        </g>
+        <text x="345" y="176" class="sv-text" opacity=".75">Lesbare Dateien. Jede Änderung ist</text>
+        <text x="345" y="196" class="sv-text" opacity=".75">sichtbar, prüfbar und rückholbar.</text>
+      </svg>
+      <figcaption>Der gleiche Bericht, zwei Zustände. Erst rechts kann eine KI mitarbeiten, weil es
+      etwas zu lesen und zu ändern gibt.</figcaption>
+    </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="technik">
+  <div class="wrap">
+    <p class="eyebrow">Die These</p>
+    <div class="col">
+      <h2>Warum Kochtechnik und nicht Werkzeug</h2>
+      <p>Eine neue Technik ist kein besseres Werkzeug. Sie verändert die Reihenfolge der Arbeit, die
+      Kontrolle über das Ergebnis und die Aufgabenteilung im Team. Genau das passiert gerade in der Power-BI-Entwicklung.</p>
+      <p>Der Markt verkauft aktuell vor allem Zutaten: ein Copilot hier, eine Prompt-Sammlung dort.
+      Das Ergebnis ist bekannt. Es entstehen schnellere Klickstrecken, aber keine besseren Modelle.
+      Wir setzen woanders an. Wenn der Bericht als Projekt vorliegt, wenn das Modell als Text lesbar
+      ist und die Versionierung sitzt, dann kann eine KI nicht nur Vorschläge murmeln, sondern
+      tatsächlich an der Sache arbeiten. Die Entscheidung bleibt bei dir.</p>
+    </div>
+
+    <div class="technik">
+      <div class="technik-karte technik-alt">
+        <p class="kicker">Zutat dazugekippt</p>
+        <ul>
+          <li>KI schlägt DAX vor, der Rest bleibt Handarbeit im Desktop</li>
+          <li>Ergebnisse leben im Chatfenster und nirgendwo sonst</li>
+          <li>Kein Review, kein Verlauf, keine Wiederholbarkeit</li>
+          <li>Jede Person kocht anders, Standards entstehen nicht</li>
+          <li>Gefühlter Fortschritt, gleiche Durchlaufzeit</li>
+        </ul>
+      </div>
+      <div class="technik-karte technik-neu">
+        <p class="kicker">Technik gelernt</p>
+        <ul>
+          <li>Der Bericht liegt als Projekt vor und ist damit maschinell änderbar</li>
+          <li>Modell, Bericht und Regeln liegen im Repository, jede Änderung ist nachvollziehbar</li>
+          <li>Der Agent arbeitet in Schleifen: planen, ändern, prüfen, korrigieren</li>
+          <li>Hauseigene Regeln werden zu Skills, die alle im Team benutzen</li>
+          <li>Zeitgewinn genau dort, wo bisher nachgebaut statt gedacht wurde</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Abgrenzung, damit nichts vermischt wird.</strong> Copilot in Power BI bleibt Teil des
+      Kurses, aber als ein Werkzeug unter mehreren. Der Kern ist die Arbeit am Projektformat mit
+      einem Agenten, der Dateien liest, schreibt und prüfen kann.
+    </div>
+  </div>
+</section>
+
+<section id="agentic">
+  <div class="wrap">
+    <p class="eyebrow">Der Einstieg</p>
+    <div class="col">
+      <h2>Was Agentic Power BI Development bedeutet</h2>
+      <p>Agentisch heißt nicht, dass eine KI dir Vorschläge macht. Agentisch heißt, dass sie einen
+      Auftrag annimmt, sich den vorhandenen Stand ansieht, einen Plan macht, Änderungen durchführt,
+      das Ergebnis prüft und den nächsten Schritt daraus ableitet. Dein Job verschiebt sich vom
+      Klicken zum Beschreiben, Bewerten und Freigeben.</p>
+      <p>Damit das funktioniert, braucht die Arbeit eine Grundordnung. Ein Agent kann nur an dem
+      arbeiten, was lesbar, schreibbar und prüfbar ist. Deshalb steht am Anfang jedes Formats nicht
+      der Prompt, sondern das Setup.</p>
+    </div>
+
+    
+
+    <div class="loop" role="list">
+      <div class="loop-step" role="listitem">
+        <span class="n">01 Kontext</span>
+        <h3>Ansehen</h3>
+        <p>Modellmetadaten, Berichtsdefinition, Regeln und Zielbild liegen als Dateien vor.</p>
+      </div>
+      <div class="loop-step" role="listitem">
+        <span class="n">02 Plan</span>
+        <h3>Ansagen</h3>
+        <p>Der Agent formuliert, was er ändern will, bevor er es tut. Du korrigierst hier, nicht später.</p>
+      </div>
+      <div class="loop-step" role="listitem">
+        <span class="n">03 Arbeit</span>
+        <h3>Ändern</h3>
+        <p>Measures, Seiten, Visuals und Themes entstehen direkt im Projekt, nicht im Chatverlauf.</p>
+      </div>
+      <div class="loop-step" role="listitem">
+        <span class="n">04 Prüfung</span>
+        <h3>Prüfen</h3>
+        <p>Schema und Regeln maschinell, Zahlen gegen feste Erwartungswerte, Optik mit eigenen Augen.</p>
+      </div>
+      <div class="loop-step" role="listitem">
+        <span class="n">05 Freigabe</span>
+        <h3>Freigeben</h3>
+        <p>Commit, Review, Deployment. Was gut war, wird als Regel festgehalten und wiederverwendet.</p>
+      </div>
+    </div>
+
+    <figure class="schaubild" tabindex="0">
+      <svg viewBox="0 0 600 210" role="img" aria-labelledby="fig2t fig2d">
+        <title id="fig2t">Aufgabenteilung zwischen Mensch und Agent</title>
+        <desc id="fig2d">Briefing und Freigabe liegen beim Menschen, Lesen, Ändern sowie das Prüfen von Regeln und Zahlen beim Agenten. Die Optik prüft der Mensch.</desc>
+
+        <text x="0" y="14" class="sv-text-s">DU</text>
+        <text x="0" y="126" class="sv-text-s">AGENT</text>
+
+        <rect x="62" y="0" width="128" height="52" rx="8" class="sv-brand"/>
+        <text x="126" y="31" class="sv-text-w" text-anchor="middle">BRIEFING</text>
+
+        <rect x="204" y="0" width="150" height="52" rx="8" class="sv-soft"/>
+        <rect x="204" y="0" width="150" height="52" rx="8" class="sv-linie"/>
+        <text x="279" y="31" class="sv-text" text-anchor="middle" font-weight="600">Prüfen: Optik</text>
+
+        <rect x="440" y="0" width="160" height="52" rx="8" class="sv-brand"/>
+        <text x="520" y="31" class="sv-text-w" text-anchor="middle">FREIGABE</text>
+
+        <g class="sv-linie-fein" opacity=".55">
+          <path d="M126 52v60M279 52v60M520 52v60"/>
+        </g>
+
+        <rect x="62" y="112" width="128" height="52" rx="8" class="sv-flaeche"/>
+        <rect x="62" y="112" width="128" height="52" rx="8" class="sv-linie"/>
+        <text x="126" y="143" class="sv-text" text-anchor="middle" font-weight="600">Modell lesen</text>
+
+        <rect x="204" y="112" width="150" height="52" rx="8" class="sv-flaeche"/>
+        <rect x="204" y="112" width="150" height="52" rx="8" class="sv-linie"/>
+        <text x="279" y="143" class="sv-text" text-anchor="middle" font-weight="600">Ändern</text>
+
+        <rect x="368" y="112" width="232" height="52" rx="8" class="sv-flaeche"/>
+        <rect x="368" y="112" width="232" height="52" rx="8" class="sv-linie"/>
+        <text x="484" y="143" class="sv-text" text-anchor="middle" font-weight="600">Prüfen: Regeln und Zahlen</text>
+
+        <path d="M190 138h14m164 0h14" class="sv-brand-l" stroke-linecap="round"/>
+        <text x="0" y="200" class="sv-text" opacity=".75">Die Maschine übernimmt das Nachbauen. Das Urteil bleibt bei dir.</text>
+      </svg>
+      <figcaption>Wer macht was: Der Agent liest und ändert, du entscheidest, was gebaut wird und
+      was durchgeht.</figcaption>
+    </figure>
+
+    <div class="bausteine">
+      <div class="baustein">
+        <h3>Projektformat</h3>
+        <p>Berichte als <code>PBIP</code> statt als undurchsichtige Binärdatei, und zwar mit
+        aktiviertem <code>PBIR</code>. Ohne das liegt der Bericht zwar als Text vor, ist aber weder
+        sinnvoll änderbar noch zusammenführbar.</p>
+      </div>
+      <div class="baustein">
+        <h3>Modell als Text</h3>
+        <p><code>TMDL</code> macht Tabellen, Beziehungen und Measures lesbar. Metadaten sind die
+        Sprache, in der du dich mit dem Agenten über das Modell verständigst.</p>
+      </div>
+      <div class="baustein">
+        <h3>Versionierung</h3>
+        <p>Git ist hier kein Entwicklerspielzeug, sondern das Sicherheitsnetz, das agentisches
+        Arbeiten überhaupt erst verantwortbar macht.</p>
+      </div>
+      <div class="baustein">
+        <h3>Skills</h3>
+        <p>Wiederverwendbare Anweisungen für wiederkehrende Aufgaben: Namenskonventionen,
+        Designregeln, Prüfroutinen. Das Rezeptbuch deines Hauses.</p>
+      </div>
+      <div class="baustein">
+        <h3>Kommandozeile</h3>
+        <p>Konkret: Tabular Editor CLI für Modell und Regelprüfung, Fabric CLI für Workspaces und
+        Deployment. Was der Agent aufrufen kann, kann er auch selbst prüfen.</p>
+      </div>
+      <div class="baustein">
+        <h3>Review</h3>
+        <p>Die wichtigste Zutat bleibt der Mensch. Du lernst, Ergebnisse schnell zu bewerten, statt
+        sie blind zu übernehmen.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="dish" class="dish">
+  <div class="wrap">
+    <p class="eyebrow">Das Kernstück</p>
+    <div class="col">
+      <h2>Agentic Report bauen</h2>
+      <p class="lead">Das Stück, an dem der Unterschied sichtbar wird. Aus einem Semantikmodell und
+      einem Briefing entsteht in einer Sitzung ein vorzeigbarer Berichtsentwurf als Projekt,
+      regelkonform und versioniert. Produktivreif ist er damit noch nicht, und genau diese Grenze
+      üben wir mit.</p>
+    </div>
+
+    <div class="dish-grid">
+      <ol class="rezept">
+        <li>
+          <h3>Briefing statt Anforderungsliste</h3>
+          <p>Wer liest den Bericht, welche Entscheidung soll er auslösen, welche Fragen muss die erste
+          Seite beantworten. Das ist die eigentliche Arbeit, und sie bleibt bei dir.</p>
+        </li>
+        <li>
+          <h3>Das Modell lesen lassen</h3>
+          <p>Der Agent liest die Metadaten, findet Fakten, Dimensionen und vorhandene Measures und
+          benennt, was fehlt oder unsauber ist, bevor irgendetwas gebaut wird.</p>
+        </li>
+        <li>
+          <h3>Regeln setzen</h3>
+          <p>Designsprache, Notation und Layoutraster kommen als Skill dazu, zum Beispiel IBCS. Damit
+          ist die Gestaltung nicht Geschmackssache, sondern Vorgabe.</p>
+        </li>
+        <li>
+          <h3>Seiten erzeugen</h3>
+          <p>Struktur, Visuals, Filter, Navigation und Theme entstehen im Projekt. Kein Nachbauen per
+          Hand, kein Verschieben von Kacheln mit der Maus.</p>
+        </li>
+        <li>
+          <h3>Prüfen, und zwar dreistufig</h3>
+          <p>Struktur und Regeln prüft die Maschine. Die Zahlen prüft sie auch, mit festen Abfragen
+          gegen erwartete Werte aus eurem Modell. Nur wie der Bericht aussieht, sieht ein Mensch im
+          geöffneten Bericht. Wer eine Stufe weglässt, liefert ein Ergebnis aus, das niemand geprüft
+          hat.</p>
+        </li>
+        <li>
+          <h3>Übergeben</h3>
+          <p>Commit mit lesbarer Historie, Deployment in den Workspace, und die gelernten Regeln
+          wandern zurück in die Regelsammlung für den nächsten Bericht.</p>
+        </li>
+      </ol>
+
+      <div>
+        <div class="terminal">
+          <div class="terminal-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span> Arbeitssitzung</div>
+<pre class="terminal-body" tabindex="0" role="region" aria-label="Beispielhafter Ablauf einer Arbeitssitzung"><span class="c"># gekürzt, aber so läuft es wirklich</span>
+<span class="u">&gt; Lies das Modell und sag mir, was für
+  einen Vertriebsbericht fehlt.</span>
+
+<span class="c">Read model.tmdl (412 Zeilen)
+Grep "PY|Vorjahr" → 0 Treffer</span>
+<span class="a">3 Faktentabellen, 7 Dimensionen,
+41 Measures. Keine Zeitintelligenz.
+Plan-Werte finde ich nicht. Gibt es die?</span>
+
+<span class="u">&gt; Plan liegt in Excel. Erst Kalender,
+  dann Übersicht nach unseren Regeln.</span>
+
+<span class="a">Plan: 3 Schritte, 6 Dateien. Weiter?</span>
+<span class="u">&gt; ja</span>
+
+<span class="c">Write Kalender.tmdl</span>
+<span class="f">Fehlgeschlagen: Datei gesperrt.
+Bitte Power BI Desktop schließen.</span>
+<span class="u">&gt; zu</span>
+<span class="c">✓ 6 Dateien · Schema ok · BPA 0</span>
+
+<span class="a">Rendern kann ich nicht. Öffne den
+Bericht, ich sehe mir den Screenshot an.</span>
+<span class="f">! Achse nicht fixiert, korrigiere ich</span>
+
+<span class="c">Sitzung: 2 Fehlversuche, 18 Minuten</span></pre>
+        </div>
+
+        <div class="ergebnis">
+          <h3>Was du danach kannst</h3>
+          <ul>
+            <li>Ein Briefing so schreiben, dass ein Agent damit arbeiten kann</li>
+            <li>Ergebnisse in Minuten bewerten statt in Stunden nachbauen</li>
+            <li>Deine Hausregeln so festhalten, dass sie jedes Mal gelten</li>
+            <li>Erkennen, wann der Agent gerade Unsinn baut, und ihn stoppen</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="belege">
+  <div class="wrap">
+    <p class="eyebrow">Belege</p>
+    <div class="col">
+      <h2>Womit wir das belegen</h2>
+      <p>Wir unterrichten nicht, was wir gelesen haben, sondern was wir selbst so gebaut haben.
+      Zwei Beispiele aus unserer eigenen Arbeit, beide agentisch entstanden, beide öffentlich
+      nachprüfbar.</p>
+    </div>
+
+    <div class="belege">
+      <div class="beleg">
+        <p class="kicker">Eigenes Produkt</p>
+        <h3>Custom Visuals der Daten-WG</h3>
+        <p>Unsere Visuals sind agentisch entwickelt: aus einem Prototyp im Browser wird ein
+        fertiges Power-BI-Visual, mit Datenrollen, Formatkarten, Selektion und Tooltips.</p>
+        <ul>
+          <li>Gantt mit Plan-Ist-Vergleich in IBCS-Notation und Projekthierarchie</li>
+          <li>ChartKitchen, P&amp;L Statement und Wärmestreifen aus derselben Werkbank</li>
+          <li><a href="https://github.com/Losveratos/Power-BI-Custom-Visuals-byDatenWG" target="_blank" rel="noopener">Öffentlich als fertige Datei zum Ausprobieren</a></li>
+        </ul>
+      </div>
+
+      <div class="beleg">
+        <p class="kicker">Kompletter Bericht</p>
+        <h3>DataViz World Champs, ohne Power BI Desktop</h3>
+        <p>Unser Beitrag zu Runde 3 der Power BI DataViz World Championships entstand als bewusster
+        Test: ein vollständiger Report, gebaut auf Linux, vollständig über die Projektdateien, ohne
+        den Berichtsdesigner überhaupt zu öffnen. Die Frage dahinter war nicht, ob es schneller
+        geht, sondern ob es ohne Klicken überhaupt geht.</p>
+        <ul>
+          <li>Semantikmodell in TMDL mit 24 Measures und 14 abgeleiteten Spalten</li>
+          <li>Auswertung auf rund 930.000 Filmen, Quelle und Lizenz sauber ausgewiesen</li>
+          <li>Ein Prüfskript, das jeden Feldverweis gegen das Modell auflöst und jede im Bericht behauptete Zahl gegen die Auswertung kontrolliert. Schlägt es fehl, kommt der Commit nicht durch</li>
+          <li>Ein Dutzend Markdown-Dokumente, die den Weg festhalten, darunter ein Protokoll dessen, was der Agent falsch gemacht hat und was ihn erwischt hat</li>
+        </ul>
+        <p><a href="https://github.com/Losveratos/Power-BI-Viz-Challenge" target="_blank" rel="noopener">Projekt öffentlich ansehen</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="karte">
+  <div class="wrap">
+    <p class="eyebrow">Stufen und Preise</p>
+    <div class="col">
+      <h2>Drei Stufen, ein Prinzip</h2>
+      <p>Jede Stufe ist für sich buchbar und baut auf der vorherigen auf. Alle drei laufen
+      ausschließlich inhouse und mit euren eigenen Daten. Offene Termine bieten wir bewusst nicht
+      an, weil der Erfolg genau daran hängt: gelernt wird am echten Modell, nicht an einem
+      Beispieldatensatz, den danach niemand wiedersieht. Für Einzelpersonen ist dieses Format deshalb
+      nicht gedacht.</p>
+    </div>
+
+    <div class="speisekarte">
+      <article class="gang gang-1">
+        <div class="gang-kopf">
+          <p class="gang-nr">Stufe 1 &middot; Einstieg</p>
+          <div>
+            <h3 class="gang-titel">Power BI on Claude &middot; Starter</h3>
+            <p class="gang-unter">Start Course</p>
+          </div>
+          <p class="gang-preis">ab 3.000 €<span class="zusatz">1 Tag · bis 15 Personen</span></p>
+          <p class="gang-fuer">Für Teams, die Power BI können und wissen wollen, wie KI-gestützte
+          Entwicklung tatsächlich funktioniert. Git und Kommandozeile fangen bei null an, ihr lernt
+          beides nur so weit, wie ihr es für agentisches Arbeiten braucht. Im Starter arbeiten wir
+          geführt, deshalb sind hier größere Gruppen möglich. Ab dem Menu baut jeder selbst am
+          eigenen Modell.</p>
+        </div>
+        <div class="gang-body">
+          <p class="gang-label">Inhalte</p>
+          <ul class="gericht-liste zweispaltig">
+            <li class="gericht"><span class="name">Setup-Sprechstunde vorab, damit der Kurstag nicht mit Installieren vergeht</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Vorab</span></li>
+            <li class="gericht"><span class="name">Metadaten und Semantikmodell-Grundlagen</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Basis</span></li>
+            <li class="gericht"><span class="name">TMDL lesen und verstehen</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Basis</span></li>
+            <li class="gericht"><span class="name">Claude Code einrichten, im Terminal oder in VS Code</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Setup</span></li>
+            <li class="gericht"><span class="name">Projektformat für Power BI</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Setup</span></li>
+            <li class="gericht"><span class="name">Git-Integration ohne Angst</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Setup</span></li>
+            <li class="gericht"><span class="name">Euer eigener Use Case als Trainingsmaterial</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Praxis</span></li>
+            <li class="gericht"><span class="name">Erste Skills und Projekte</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Praxis</span></li>
+            <li class="gericht"><span class="name">Erster eigener Prototyp</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Praxis</span></li>
+          </ul>
+          <p class="gang-label">Danach habt ihr</p>
+          <ul class="gericht-liste zweispaltig">
+            <li class="gericht"><span class="name">Eine lauffähige Arbeitsumgebung</span><span class="fuell" aria-hidden="true"></span></li>
+            <li class="gericht"><span class="name">Ein eigenes Projekt unter Versionskontrolle</span><span class="fuell" aria-hidden="true"></span></li>
+            <li class="gericht"><span class="name">Den ersten eigenen Skill</span><span class="fuell" aria-hidden="true"></span></li>
+            <li class="gericht"><span class="name">Alle gezeigten Skills und Vorlagen zum Mitnehmen</span><span class="fuell" aria-hidden="true"></span></li>
+          </ul>
+          <div class="gang-fuss">
+            <span class="chip stark">Ab 3.000 €</span>
+            <span class="chip">1 Tag</span>
+            <span class="chip">Bis 15 Personen</span>
+            <span class="chip">Inhouse</span>
+            <span class="chip">Mit euren Daten</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="gang gang-2">
+        <div class="gang-kopf">
+          <p class="gang-nr">Stufe 2 &middot; Praxis</p>
+          <div>
+            <h3 class="gang-titel">Power BI on Claude &middot; Menu</h3>
+            <p class="gang-unter">Selected Main Dishes</p>
+          </div>
+          <p class="gang-preis">5.500 bis 8.000 €<span class="zusatz">2 bis 3 Tage · bis 10 Personen</span></p>
+          <p class="gang-fuer">Für Teams, die nach dem Setup produktiv werden wollen. Hier entsteht
+          zum ersten Mal ein kompletter Bericht agentisch, samt Gestaltungsregeln und einem
+          Prototyp-Ablauf, den ihr danach mit dem Fachbereich fahren könnt.</p>
+        </div>
+        <div class="gang-body">
+          <p class="gang-label">Enthält Starter</p>
+          <ul class="gericht-liste">
+            <li class="gericht geerbt"><span class="name">Setup, TMDL, Projektformat, Git, erste Skills</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>inklusive</span></li>
+          </ul>
+          <p class="gang-label">Zusätzlich</p>
+          <ul class="gericht-liste zweispaltig">
+            <li class="gericht"><span class="name">Custom Visuals bauen und einbinden</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Bauen</span></li>
+            <li class="gericht"><span class="name">Skills gezielt einsetzen</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Bauen</span></li>
+            <li class="gericht"><span class="name">IBCS-Regeln als Vorgabe im Projekt</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Design</span></li>
+            <li class="gericht"><span class="name">Agentic Development in der Praxis</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Methode</span></li>
+            <li class="gericht"><span class="name">Prototypen bauen, zeigen, verwerfen</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Methode</span></li>
+            <li class="gericht"><span class="name">Wenn der Agent danebenliegt: prüfen, stoppen, zurückrollen</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Methode</span></li>
+            <li class="gericht"><span class="name">CLI-Themen für den Alltag</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Werkzeug</span></li>
+            <li class="gericht"><span class="name">Agentic Report bauen</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Signature</span></li>
+          </ul>
+          <p class="gang-label">Danach habt ihr</p>
+          <ul class="gericht-liste zweispaltig">
+            <li class="gericht"><span class="name">Einen fertigen Bericht aus eigener Sitzung</span><span class="fuell" aria-hidden="true"></span></li>
+            <li class="gericht"><span class="name">Designregeln, die automatisch greifen</span><span class="fuell" aria-hidden="true"></span></li>
+            <li class="gericht"><span class="name">Einen Prototyp-Ablauf für den Fachbereich</span><span class="fuell" aria-hidden="true"></span></li>
+            <li class="gericht"><span class="name">Alle gezeigten Skills, Markdowns und Beispielprojekte</span><span class="fuell" aria-hidden="true"></span></li>
+            <li class="gericht"><span class="name">Das Abnahme-Kit, mit dem ihr eure Regeln dauerhaft prüft</span><span class="fuell" aria-hidden="true"></span></li>
+            <li class="gericht"><span class="name">Zwei Nachtermine nach 30 und 60 Tagen</span><span class="fuell" aria-hidden="true"></span></li>
+          </ul>
+          <div class="gang-fuss">
+            <span class="chip stark">5.500 bis 8.000 €</span>
+            <span class="chip">2 bis 3 Tage plus 2 Nachtermine</span>
+            <span class="chip">Bis 10 Personen</span>
+            <span class="chip">Inhouse</span>
+            <span class="chip">Mit euren Daten</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="gang gang-3">
+        <div class="gang-kopf">
+          <p class="gang-nr">Stufe 3 &middot; Eigene Standards</p>
+          <div>
+            <h3 class="gang-titel">Power BI on Claude &middot; Master Class</h3>
+            <p class="gang-unter">Become your own Chef</p>
+          </div>
+          <p class="gang-preis">ab 18.000 €<span class="zusatz">mehrwöchig · bis 10 Personen</span></p>
+          <p class="gang-fuer">Für Organisationen, die nicht nur mitarbeiten, sondern den Rahmen selbst setzen
+          wollen: eigene Werkzeuge, eigene Standards, eigene Multiplikatoren. Train the
+          Trainer ist hier Teil des Programms, damit das Wissen nach dem Kurs bei euch bleibt.</p>
+        </div>
+        <div class="gang-body">
+          <p class="gang-label">Enthält Starter und Menu</p>
+          <ul class="gericht-liste">
+            <li class="gericht geerbt"><span class="name">Setup, Praxis, Design, Prototyping, Agentic Report</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>inklusive</span></li>
+          </ul>
+          <p class="gang-label">Zusätzlich</p>
+          <ul class="gericht-liste zweispaltig">
+            <li class="gericht"><span class="name">Train the Trainer für eure Multiplikatoren</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Team</span></li>
+            <li class="gericht"><span class="name">Die Rolle KI-Trainer im Haus aufbauen</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Team</span></li>
+            <li class="gericht"><span class="name">Eigener Design-Skill mit euren Hausregeln</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Governance</span></li>
+            <li class="gericht"><span class="name">Regelebenen Haus, Bereich, Projekt</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Governance</span></li>
+            <li class="gericht"><span class="name">Company Best Practices etablieren</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Governance</span></li>
+            <li class="gericht"><span class="name">VS Code als Entwicklungsumgebung</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Werkzeug</span></li>
+            <li class="gericht"><span class="name">Tabular Editor per Kommandozeile</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Werkzeug</span></li>
+            <li class="gericht"><span class="name">Git und Fabric zusammenbringen</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Plattform</span></li>
+            <li class="gericht"><span class="name">CLI für Fabric und Workspaces</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Plattform</span></li>
+            <li class="gericht"><span class="name">Design-Themen in der Tiefe</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Design</span></li>
+            <li class="gericht"><span class="name">Claude erweitern: MCP, Hooks, Subagenten</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Ausbau</span></li>
+            <li class="gericht"><span class="name">Eigene Skills schreiben</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Ausbau</span></li>
+            <li class="gericht"><span class="name">Videos zum Nacharbeiten</span><span class="fuell" aria-hidden="true"></span><span class="tag"><span class="sr-only">Kategorie: </span>Material</span></li>
+          </ul>
+          <div class="gang-fuss">
+            <span class="chip stark">Ab 18.000 €</span>
+            <span class="chip">Mehrwöchig plus Begleitung</span>
+            <span class="chip">Bis 10 Personen</span>
+            <span class="chip">Inhouse</span>
+            <span class="chip">Train the Trainer</span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="immer">
+      <div class="immer-item">
+        <h3>Immer inhouse</h3>
+        <p>Keine offenen Termine. Wir kommen zu euch oder in euren virtuellen Raum, mit eurem
+        Modell, eurer Freigabesituation und euren Leuten.</p>
+      </div>
+      <div class="immer-item">
+        <h3>Alles zum Mitnehmen</h3>
+        <p>Jeder gezeigte Skill, jede Vorlage, jede Markdown-Datei und jedes Beispielprojekt bleibt
+        bei euch und ist danach weiterverwendbar.</p>
+      </div>
+      <div class="immer-item">
+        <h3>Eure Daten, euer Use Case</h3>
+        <p>Gelernt wird am echten Fall. Wenn eure Daten das Haus nicht verlassen dürfen, läuft der
+        komplette Kurs mit Ersatzdaten in eurer Umgebung. Das ist kein Notbehelf, sondern für
+        regulierte Häuser der Normalfall.</p>
+      </div>
+    </div>
+
+    <div class="vorgespraech">
+      <div>
+        <h3>Vor jeder Stufe: das Vorgespräch</h3>
+        <p>Kein Verkaufstermin, sondern die Vorbereitung, ohne die ein Inhouse-Format nicht
+        funktioniert. Danach wisst ihr, welche Stufe passt, und wir wissen, womit wir arbeiten.</p>
+      </div>
+      <details class="klapp">
+        <summary>Was diese Rolle konkret tut <span class="zahl">6 Aufgaben</span></summary>
+        <div class="klapp-inhalt">
+      <ul class="aufgaben">
+        <li><span><b>Werkzeugwahl</b>: Claude Code im Terminal oder in VS Code für die Projektarbeit, Desktop ergänzend fürs Briefing. Was davon bei euch freigegeben ist, klären wir hier</span></li>
+        <li><span><b>Verfügbarkeit klären</b>: Zugänge, Lizenzen, Rechte und Freigaben durch eure IT</span></li>
+        <li><span><b>Datenfrage</b>: was echt sein darf, was wir ersetzen, und welchen Bezugsweg euer Datenschutz verlangt. Das halten wir schriftlich fest, bevor der Kurs beginnt</span></li>
+        <li><span><b>Use Case wählen</b>, an dem der Kurs stattfindet</span></li>
+        <li><span><b>Zielbild</b>: was nach dem Kurs anders sein soll, in einem Satz</span></li>
+      </ul>
+        </div>
+      </details>
+    </div>
+
+    <p class="tisch-hinweis">Alle Preise gelten pro Gruppe, nicht pro Kopf. Den genauen Umfang und damit
+    den Preis legen wir im Vorgespräch fest, weil beides vom Use Case abhängt.</p>
+  </div>
+</section>
+
+<section id="danach">
+  <div class="wrap">
+    <p class="eyebrow">Nach dem Kurs</p>
+    <div class="col">
+      <h2>Damit es nicht bei einem guten Tag bleibt</h2>
+      <p>Der häufigste Grund, warum Schulungen verpuffen, ist nicht schlechter Unterricht. Es ist
+      der Alltag, der zwei Wochen später alles zurückdreht. Deshalb hört unser Format nicht mit
+      dem letzten Kurstag auf.</p>
+    </div>
+
+    <div class="roadmap">
+      <div class="stufe-karte">
+        <p class="stufe-status">Ab Stufe 2</p>
+        <h3>Zwei Nachtermine</h3>
+        <ul>
+          <li>Nach etwa 30 und nach etwa 60 Tagen</li>
+          <li>An dem, was ihr inzwischen selbst gebaut habt</li>
+          <li>Offene Fragen aus dem Alltag statt Wiederholung</li>
+        </ul>
+      </div>
+      <div class="stufe-karte">
+        <p class="stufe-status">Ab Stufe 2</p>
+        <h3>Das Abnahme-Kit bleibt bei euch</h3>
+        <ul>
+          <li>Prüfer für Feldverweise, Schema und eure Designregeln</li>
+          <li>Zahlenprobe: feste Abfragen mit hinterlegten Erwartungswerten</li>
+          <li>Auslöser lokal und in der Pipeline, mit Sperre bei Verstoß</li>
+          <li>Kurzverfahren, mit dem ihr nach jedem Werkzeugwechsel prüft, ob eure Regeln noch greifen</li>
+        </ul>
+      </div>
+      <div class="stufe-karte">
+        <p class="stufe-status">Master Class</p>
+        <h3>Eigene Multiplikatoren</h3>
+        <ul>
+          <li>Train the Trainer für die Menschen, die es intern weitertragen</li>
+          <li>Die Rolle KI-Trainer mit Aufgaben und Mandat</li>
+          <li>Begleitung quartalsweise, wenn ihr sie wollt</li>
+          <li>Abschlussprojekt und Nachweis für eure Personalentwicklung</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="mehr">
+  <div class="wrap">
+    <p class="eyebrow">Zum Weiterlesen</p>
+    <div class="col">
+      <h2>Details und Fragen</h2>
+      <p>Was hier bewusst nicht steht, damit die Seite lesbar bleibt, liegt eine Ebene tiefer:
+      unsere Arbeitsweise mit Prototypen, wie Regeln im Haus wirklich durchgesetzt werden, was
+      eure IT freigeben muss, und was passiert, wenn ihr das Werkzeug später wechselt.</p>
+    </div>
+
+    <div class="it-grid">
+      <div class="it-karte">
+        <h3>Grenzen und Fehlerbilder</h3>
+        <p>Acht Stellen, an denen agentisches Arbeiten in echten Projekten klemmt, und wann ihr
+        es besser lasst.</p>
+      </div>
+      <div class="it-karte">
+        <h3>Prototyping und Governance</h3>
+        <p>Wie aus Wegwerf-Entwürfen bessere Anforderungen werden, und wie eure Hausregeln vom
+        PDF zur wirksamen Vorgabe werden.</p>
+      </div>
+      <div class="it-karte">
+        <h3>Für IT, Datenschutz und Einkauf</h3>
+        <p>Zugangswege, Daten, Rechte, laufende Kosten, und was ihr vor Vertragsschluss
+        schriftlich von uns bekommt.</p>
+      </div>
+      <div class="it-karte">
+        <h3>Glossar und Vorbereitung</h3>
+        <p>Sechzehn Begriffe in Alltagssprache und die vollständige Liste dessen, was vor dem
+        ersten Kurstag bereitliegen muss.</p>
+      </div>
+    </div>
+
+    <p class="mehr-cta"><a class="btn btn-primary" href="power-bi-on-claude-details.html">Details und Fragen öffnen</a></p>
+  </div>
+</section>
+
+<section id="wir">
+  <div class="wrap">
+    <p class="eyebrow">Wer das macht</p>
+    <div class="col">
+      <h2>Die Daten-WG</h2>
+      <p>Wir sind eine deutschsprachige Power-BI-Community mit Beratungsarbeit dahinter. Bekannt
+      sind wir vor allem durch unseren Podcast mit über hundert Folgen, durch die Knowledge Kitchen
+      mit frei nutzbaren Werkzeugen und Lernpfaden, und durch unsere eigenen Custom Visuals, die
+      jeder herunterladen und einsetzen kann.</p>
+      <p>Wir unterrichten das, was wir selbst täglich tun. Die Beispiele in diesem Angebot stammen
+      nicht aus einer Schulungsmappe, sondern aus unserer eigenen Arbeit, und beides ist öffentlich
+      nachprüfbar. Wer wissen will, wie wir denken, hört eine Folge oder liest den Code.</p>
+      <p>Durch dieses Format begleiten euch zwei Trainer aus dem Kernteam.</p>
+      <p><strong>Und eine Ansage in eigener Sache:</strong> Dieses Programm startet gerade. Wer
+      jetzt bucht, gehört zu den ersten Häusern, die es fahren. Neu sind allerdings nur die
+      Werkzeuge, nicht wir. Hinter dem Format stehen über zweihundert Schulungen und eine lange
+      Reihe von Power-BI- und Fabric-Projekten, aus denen wir wissen, woran Einführungen
+      scheitern. Was ihr im Gegenzug bekommt: unsere volle Aufmerksamkeit und Inhalte, die wir
+      gemeinsam mit euch schärfen.</p>
+    </div>
+
+    <div class="immer">
+      <div class="immer-item">
+        <h3>Podcast</h3>
+        <p>Über hundert Folgen zu Power BI, Fabric, Modellierung und Datenkultur, kostenlos und
+        ohne Anmeldung.</p>
+      </div>
+      <div class="immer-item">
+        <h3>Knowledge Kitchen</h3>
+        <p>Lernpfade, Werkzeuge und Vorlagen, die wir frei zur Verfügung stellen, weil sie im
+        Alltag helfen.</p>
+      </div>
+      <div class="immer-item">
+        <h3>Eigene Werkzeuge</h3>
+        <p>Custom Visuals, die wir selbst bauen, pflegen und öffentlich teilen, unter anderem für
+        Gantt, P&amp;L und IBCS-konforme Diagramme.</p>
+      </div>
+    </div>
+
+    <div class="trainer">
+      <div class="trainer-karte">
+        <h3>Michael Tenner</h3>
+        <p class="trainer-rolle">Der Datenenthusiast</p>
+        <p>Schwerpunkt Adoption und Migration von Power BI: Roadmaps, hauseigene Leitfäden,
+        Best Practices für Reporting und Dashboarding. Baut die Custom Visuals und die Werkzeuge
+        der Knowledge Kitchen und hat die beiden oben verlinkten Projekte agentisch entwickelt.</p>
+        <div class="trainer-links">
+          <a href="https://www.linkedin.com/in/michael-tenner-5b885970" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://www.daten-wg.com/team" target="_blank" rel="noopener">Profil bei der Daten-WG</a>
+        </div>
+      </div>
+      <div class="trainer-karte">
+        <h3>Ulrik Harnisch</h3>
+        <p class="trainer-rolle">Der Analytics-Mentor</p>
+        <p>Über 30 Jahre in einer Versicherungsgruppe, zuletzt als Ansprechpartner für Power BI,
+        SAP Business Objects und Data Warehouse. Hat dort die Power-BI-Einführung geleitet und eine
+        interne Daten-Community mit Key-Usern aufgebaut, also genau das, was in der Master Class
+        als Rolle des KI-Trainers vermittelt wird.</p>
+        <div class="trainer-links">
+          <a href="https://www.linkedin.com/in/ulrik-harnisch" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://www.daten-wg.com/team" target="_blank" rel="noopener">Profil bei der Daten-WG</a>
+        </div>
+      </div>
+    </div>
+
+    <p class="tisch-hinweis">Das ganze Team findet ihr auf
+    <a href="https://www.daten-wg.com/team" target="_blank" rel="noopener">daten-wg.com/team</a>.</p>
+
+  </div>
+</section>
+
+<section id="kontakt">
+  <div class="wrap">
+    <div class="cta">
+      <div class="cta-text">
+        <h2>Erst probieren, dann entscheiden</h2>
+        <p>Der nächste Schritt ist ein kurzer Durchlauf an einem echten Modell von euch.
+        Wenn das sitzt, steht der Rest schnell.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="btn btn-primary" href="https://www.daten-wg.com/kontakt" target="_blank" rel="noopener">Gespräch vereinbaren</a>
+        <a class="btn btn-ghost" href="power-bi-on-claude-details.html">Details und Fragen</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Daten-WG &middot; Knowledge Kitchen &middot; Stand August 2026. Das Format ist neu, die Inhalte
+    werden mit jedem Durchlauf geschärft. Zurück zur <a href="index.html">Knowledge Kitchen</a>.</p>
+  </div>
+</footer>
+
+</body>
+</html>

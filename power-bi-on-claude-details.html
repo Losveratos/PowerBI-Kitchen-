@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power BI on Claude · Details</title>
+<meta name="description" content="Details zum Inhouse-Training Power BI on Claude: Prototyping, Governance, Voraussetzungen, Glossar und Antworten für IT und Datenschutz.">
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root {
+  /* Flächen: Paper/Cream, wie im Knowledge-Kitchen-System */
+  --bg:        #FAFAF5;
+  --bg-card:   #FFFFFF;
+  --bg-soft:   #F4F1E8;
+  --bg-deep:   #12211E;
+  --term-bg:   #060F0E;
+  --ink:       #1A1A1A;
+  --ink-soft:  #46504D;
+  --ink-mute:  #666E6C;
+  --on-deep:   #EFEDE4;
+  --on-deep-mute: #9DB3AC;
+
+  --line:        #E3DFD2;
+  --line-soft:   #EDE9DE;
+  --line-strong: #1A1A1A;
+
+  /* Brand + Gang-Farben */
+  --brand:      #117865;
+  --brand-soft: #2A9582;
+  --brand-deep: #0A5A4D;
+  --brand-wash: #EAF3F0;
+  --gang-1:     #C25A2D;
+  --gang-1-wash:#FBEFE7;
+  --gang-2:     #166088;
+  --gang-2-wash:#EAF1F6;
+  --gang-3:     #5B3B7A;
+  --gang-3-wash:#F1ECF6;
+  --warn:       #8B2E2E;
+
+  /* Chips: eigene Töne, damit die Schrift in beiden Schemata lesbar bleibt */
+  --chip-1:   #A94A22;
+  --chip-2:   #14567A;
+  --chip-3:   #513469;
+  --chip-ink: #FFFFFF;
+
+  --serif: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --sans:  "Segoe UI Variable Text", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --mono:  ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+
+  --radius:    12px;
+  --radius-sm: 8px;
+  --shadow-sm: 0 1px 2px rgba(10,10,10,.04), 0 1px 3px rgba(10,10,10,.06);
+  --shadow-md: 0 6px 20px rgba(10,10,10,.07), 0 2px 6px rgba(10,10,10,.05);
+}
+
+/* Dunkles Schema: nur Token neu belegen, damit jede Komponente mitzieht.
+   Guard auf :not([data-theme="light"]), damit eine bewusste Hell-Wahl gewinnt. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #10100E;
+    --bg-card:   #191917;
+    --bg-soft:   #201F1B;
+    --bg-deep:   #1D2E29;
+    --term-bg:   #0B1817;
+    --ink:       #ECEAE1;
+    --ink-soft:  #BDBAAE;
+    --ink-mute:  #8E8B80;
+    --on-deep:   #ECEAE1;
+    --on-deep-mute: #97AAA4;
+    --line:        #2E2D28;
+    --line-soft:   #262521;
+    --line-strong: #C9C5B8;
+    --brand:      #4FBFA6;
+    --brand-soft: #6FD3BC;
+    --brand-deep: #A7E6D6;
+    --brand-wash: #14312B;
+    --gang-1:     #E08A5C;
+    --gang-1-wash:#332017;
+    --gang-2:     #6BA9D2;
+    --gang-2-wash:#16252F;
+    --gang-3:     #A98BD0;
+    --gang-3-wash:#241C31;
+    --warn:       #D97D6E;
+    --chip-1:   #E08A5C;
+    --chip-2:   #6BA9D2;
+    --chip-3:   #A98BD0;
+    --chip-ink: #14140F;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+    --shadow-md: 0 8px 24px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"] {
+  --bg:        #10100E;
+  --bg-card:   #191917;
+  --bg-soft:   #201F1B;
+  --bg-deep:   #1D2E29;
+  --term-bg:   #0B1817;
+  --ink:       #ECEAE1;
+  --ink-soft:  #BDBAAE;
+  --ink-mute:  #8E8B80;
+  --on-deep:   #ECEAE1;
+  --on-deep-mute: #97AAA4;
+  --line:        #2E2D28;
+  --line-soft:   #262521;
+  --line-strong: #C9C5B8;
+  --brand:      #4FBFA6;
+  --brand-soft: #6FD3BC;
+  --brand-deep: #A7E6D6;
+  --brand-wash: #14312B;
+  --gang-1:     #E08A5C;
+  --gang-1-wash:#332017;
+  --gang-2:     #6BA9D2;
+  --gang-2-wash:#16252F;
+  --gang-3:     #A98BD0;
+  --gang-3-wash:#241C31;
+  --warn:       #D97D6E;
+  --chip-1:   #E08A5C;
+  --chip-2:   #6BA9D2;
+  --chip-3:   #A98BD0;
+  --chip-ink: #14140F;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+  --shadow-md: 0 8px 24px rgba(0,0,0,.5);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+a { color: var(--brand-deep); text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 3px; }
+
+/* ---------- Raster ---------- */
+.wrap  { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+.col   { max-width: 660px; }
+section { padding: 68px 0; border-bottom: 1px solid var(--line-soft); scroll-margin-top: 64px; }
+/* Unter 900px waechst die Topbar um die Chipleiste, sonst landet der Ankersprung darunter. */
+@media (max-width: 900px) { section { scroll-margin-top: 112px; } }
+section:last-of-type { border-bottom: 0; }
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-mute); font-weight: 600; margin: 0 0 14px;
+}
+h1, h2, h3 { font-family: var(--serif); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(38px, 6.4vw, 66px); line-height: 1.04; font-weight: 700; letter-spacing: -.02em; }
+h2 { font-size: clamp(25px, 3.4vw, 34px); line-height: 1.16; font-weight: 700; letter-spacing: -.01em; margin-bottom: 14px; }
+h3 { font-size: 19px; line-height: 1.3; font-weight: 700; margin-bottom: 6px; }
+p  { margin: 0 0 16px; }
+.lead { font-size: clamp(18px, 2.1vw, 21px); color: var(--ink-soft); }
+strong { font-weight: 700; }
+
+/* ---------- Kopfleiste ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 60;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.topbar-inner {
+  max-width: 1160px; margin: 0 auto; padding: 10px 24px;
+  display: flex; align-items: center; gap: 14px;
+}
+.back {
+  text-decoration: none; white-space: nowrap; color: var(--brand);
+  border: 1px solid var(--brand); border-radius: 100px;
+  padding: 5px 13px; font-size: 13px; font-weight: 600;
+  transition: background .15s, color .15s;
+}
+.back:hover { background: var(--brand); color: var(--bg); }
+.topbar-title { font-size: 13px; color: var(--ink-mute); margin-right: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topnav { display: flex; gap: 16px; }
+.topnav a { font-size: 13.5px; color: var(--ink-soft); text-decoration: none; }
+.topnav a:hover { color: var(--ink); text-decoration: underline; }
+@media (max-width: 900px) {
+  .topbar-inner { flex-wrap: wrap; }
+  .topbar-title { display: none; }
+  .topnav {
+    order: 3; width: 100%; gap: 8px; padding-bottom: 2px;
+    overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .topnav::-webkit-scrollbar { display: none; }
+  .topnav a {
+    white-space: nowrap; background: var(--bg-soft);
+    border: 1px solid var(--line); border-radius: 100px; padding: 4px 12px;
+  }
+}
+
+/* ---------- Hero ---------- */
+.hero { padding: 76px 0 60px; border-bottom: 1px solid var(--line-soft); }
+.hero h1 em { font-style: italic; color: var(--brand); }
+.hero-lead { max-width: 660px; margin-top: 22px; }
+.hero-claim {
+  font-family: var(--serif); font-size: clamp(20px, 2.6vw, 26px);
+  line-height: 1.3; font-weight: 600; color: var(--ink);
+  border-left: 3px solid var(--brand); padding-left: 18px;
+  margin: 28px 0 26px; max-width: 620px;
+}
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+.badge {
+  background: var(--bg-soft); border: 1px solid var(--line); border-radius: 100px;
+  padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--ink-soft);
+}
+.badge-brand { background: var(--brand-wash); border-color: var(--brand-soft); color: var(--brand-deep); }
+
+.note {
+  background: var(--bg-soft); border: 1px solid var(--line);
+  border-left: 3px solid var(--ink-mute);
+  border-radius: var(--radius-sm); padding: 16px 20px; margin: 30px 0 0;
+  font-size: 15px; color: var(--ink-soft); max-width: 720px;
+}
+.note strong { color: var(--ink); }
+
+/* ---------- Schnell-Einstieg direkt unter dem Hero ---------- */
+.schnell {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: start;
+}
+/* Ohne min-width:0 zwingt die Mindestbreite des Schaubilds die Spalte auf,
+   und die ganze Seite scrollt seitlich. */
+.schnell > * { min-width: 0; }
+@media (max-width: 900px) { .schnell { grid-template-columns: 1fr; gap: 26px; } }
+.fakten { list-style: none; margin: 0 0 22px; padding: 0; }
+.fakten li {
+  display: grid; grid-template-columns: 130px 1fr; gap: 16px;
+  padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 15.5px;
+}
+.fakten .lbl {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-mute); font-weight: 700; padding-top: 3px;
+}
+.fakten .val { color: var(--ink); }
+.fakten .val b { font-weight: 700; }
+@media (max-width: 520px) { .fakten li { grid-template-columns: 1fr; gap: 2px; } }
+
+.schnell-cta { margin: 0 0 22px; }
+.abgrenzung {
+  background: var(--brand-wash); border: 1px solid var(--brand-soft);
+  border-radius: var(--radius); padding: 18px 22px; font-size: 15.5px; color: var(--ink);
+}
+.abgrenzung b { color: var(--brand-deep); }
+
+/* ---------- Belege ---------- */
+.belege { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 30px; }
+@media (max-width: 860px) { .belege { grid-template-columns: 1fr; } }
+.beleg {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-left: 3px solid var(--brand); border-radius: var(--radius); padding: 22px 24px;
+}
+.beleg .kicker {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--brand-deep); font-weight: 700; margin: 0 0 8px;
+}
+.beleg h3 { font-size: 17px; margin-bottom: 6px; }
+.beleg p { font-size: 14.5px; color: var(--ink-soft); margin: 0 0 12px; line-height: 1.55; }
+.beleg p:last-child { margin-bottom: 0; }
+.beleg ul { margin: 0; padding-left: 18px; font-size: 14.5px; color: var(--ink-soft); }
+.beleg li { margin-bottom: 5px; }
+
+/* ---------- Technik-Gegenüberstellung ---------- */
+.technik { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 30px; }
+.technik-karte {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 22px 24px; box-shadow: var(--shadow-sm);
+}
+.technik-karte .kicker {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; font-weight: 700; margin-bottom: 10px;
+}
+.technik-alt .kicker { color: var(--ink-mute); }
+.technik-neu { border-color: var(--brand-soft); background: var(--brand-wash); }
+.technik-neu .kicker { color: var(--brand-deep); }
+.technik-karte ul { margin: 0; padding-left: 18px; font-size: 15.5px; color: var(--ink-soft); }
+.technik-karte li { margin-bottom: 8px; }
+.technik-karte li:last-child { margin-bottom: 0; }
+@media (max-width: 820px) { .technik { grid-template-columns: 1fr; } }
+
+/* ---------- Der Loop ---------- */
+.loop { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 12px; margin: 34px 0 8px; }
+.loop-step {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-top: 3px solid var(--brand);
+  border-radius: var(--radius-sm); padding: 16px 16px 18px;
+}
+.loop-step .n {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: var(--brand-deep); letter-spacing: .1em; display: block; margin-bottom: 6px;
+}
+.loop-step h3 { font-size: 15.5px; margin-bottom: 4px; }
+.loop-step p { font-size: 14px; color: var(--ink-soft); margin: 0; line-height: 1.5; }
+@media (max-width: 520px) { .loop { grid-template-columns: 1fr; } }
+
+/* ---------- Bausteine ---------- */
+.bausteine { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 30px; }
+.baustein {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px 22px;
+}
+.baustein h3 { font-size: 16.5px; }
+.baustein p { font-size: 14.5px; color: var(--ink-soft); margin: 0; line-height: 1.55; }
+.baustein code {
+  font-family: var(--mono); font-size: 12.5px; background: var(--bg-soft);
+  border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 900px) { .bausteine { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .bausteine { grid-template-columns: 1fr; } }
+
+/* ---------- Signature Dish: dunkle Sektion ---------- */
+.dish {
+  background: var(--bg-deep); color: var(--on-deep);
+  border-top: 1px solid var(--brand-soft);
+  border-bottom: 1px solid var(--brand-soft);
+  padding: 76px 0;
+}
+.dish h2, .dish h3 { color: var(--on-deep); }
+.dish .eyebrow { color: var(--on-deep-mute); }
+.dish .lead { color: var(--on-deep-mute); }
+.dish-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; margin-top: 36px; align-items: start; }
+@media (max-width: 900px) { .dish-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+.rezept { list-style: none; margin: 0; padding: 0; counter-reset: schritt; }
+.rezept li {
+  counter-increment: schritt;
+  position: relative; padding: 0 0 22px 46px;
+  border-left: 1px solid rgba(157, 179, 172, .32);
+  margin-left: 13px;
+}
+.rezept li:last-child { border-left-color: transparent; padding-bottom: 0; }
+.rezept li::before {
+  content: counter(schritt);
+  position: absolute; left: -14px; top: 0;
+  width: 27px; height: 27px; border-radius: 50%;
+  background: #2A9582; color: #05201B;
+  font-family: var(--mono); font-size: 12.5px; font-weight: 700;
+  display: grid; place-items: center;
+}
+.rezept h3 { font-size: 17px; margin-bottom: 3px; }
+.rezept p { color: var(--on-deep-mute); font-size: 15px; margin: 0; line-height: 1.55; }
+
+.terminal {
+  background: var(--term-bg); border: 1px solid rgba(157, 179, 172, .22);
+  border-radius: var(--radius); overflow: hidden; font-family: var(--mono); font-size: 13px;
+}
+.terminal-top {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 14px; border-bottom: 1px solid rgba(157, 179, 172, .18);
+  color: var(--on-deep-mute); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase;
+}
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #2E4744; }
+.terminal-body {
+  margin: 0; padding: 16px 18px; line-height: 1.65;
+  font-family: var(--mono); font-size: clamp(11px, 2.9vw, 13px);
+  white-space: pre; overflow-x: auto;
+}
+.terminal-body:focus-visible { outline-offset: -3px; }
+.terminal-body .u { color: #7FE3C9; }
+.terminal-body .a { color: #E6E2D6; }
+.terminal-body .c { color: #8FA5A0; }
+.terminal-body .f { color: #E0A87C; }
+
+.ergebnis {
+  margin-top: 22px; background: rgba(239, 237, 228, .06);
+  border: 1px solid rgba(157, 179, 172, .22);
+  border-radius: var(--radius); padding: 18px 20px;
+}
+.ergebnis h3 { font-size: 15px; margin-bottom: 8px; }
+.ergebnis ul { margin: 0; padding-left: 18px; color: var(--on-deep-mute); font-size: 14.5px; }
+.ergebnis li { margin-bottom: 5px; }
+
+/* ---------- Die Speisekarte: ein Blatt, drei Gaenge ---------- */
+.speisekarte {
+  margin-top: 36px; background: var(--bg-soft);
+  border-top: 2px solid var(--line-strong); border-bottom: 2px solid var(--line-strong);
+  padding: 8px 0 4px;
+}
+.gang { padding: 30px 0; border-bottom: 1px dashed var(--line); }
+.gang:last-child { border-bottom: 0; }
+.gang-kopf {
+  display: grid; grid-template-columns: 1fr auto; gap: 8px 24px;
+  align-items: baseline; padding: 0 clamp(16px, 3vw, 34px);
+}
+.gang-nr {
+  grid-column: 1 / -1;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+  text-transform: uppercase; font-weight: 700; margin: 0 0 4px;
+}
+.gang-titel { font-family: var(--serif); font-size: clamp(23px, 3vw, 30px); font-weight: 700; line-height: 1.15; margin: 0; }
+.gang-preis { text-align: right; font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+.gang-preis .zusatz { display: block; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-mute); margin-top: 3px; }
+.gang-unter { font-family: var(--serif); font-style: italic; font-size: 17px; color: var(--ink-soft); margin: 2px 0 0; }
+.gang-fuer { grid-column: 1 / -1; font-size: 15px; color: var(--ink-soft); margin: 12px 0 0; max-width: 62ch; }
+
+.gang-body { padding: 22px clamp(16px, 3vw, 34px) 0; }
+.gang-label {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--ink-soft); font-weight: 700;
+  margin: 0 0 8px;
+}
+.gericht-liste + .gang-label { margin-top: 22px; }
+
+/* Zwei Spalten erst, wenn jede Spalte genug Lauf fuer die Punktfuehrung hat */
+.gericht-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 0 40px; }
+@media (min-width: 1024px) { .gericht-liste.zweispaltig { grid-template-columns: 1fr 1fr; } }
+
+.gericht {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: baseline;
+  column-gap: 10px; font-size: 15.5px; padding: 6px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.gericht .name { color: var(--ink); }
+.gericht .fuell {
+  min-width: 40px; align-self: center;
+  border-bottom: 1px dotted color-mix(in srgb, var(--ink-mute) 60%, transparent);
+}
+.gericht .tag {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--ink-soft); white-space: nowrap;
+}
+.gericht.geerbt .name { color: var(--ink-mute); }
+@media (max-width: 520px) {
+  .gericht { grid-template-columns: 1fr auto; }
+  .gericht .fuell { display: none; }
+}
+
+.gang-fuss { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .04em;
+  border-radius: 100px; padding: 4px 11px; border: 1px solid var(--line);
+  background: var(--bg-card); color: var(--ink-soft);
+}
+.chip.stark { color: var(--chip-ink); }
+.gang-1 .gang-nr, .gang-1 .gang-preis .zusatz { color: var(--chip-1); }
+.gang-1 .chip.stark { background: var(--chip-1); border-color: var(--chip-1); }
+.gang-2 .gang-nr, .gang-2 .gang-preis .zusatz { color: var(--chip-2); }
+.gang-2 .chip.stark { background: var(--chip-2); border-color: var(--chip-2); }
+.gang-3 .gang-nr, .gang-3 .gang-preis .zusatz { color: var(--chip-3); }
+.gang-3 .chip.stark { background: var(--chip-3); border-color: var(--chip-3); }
+
+/* Immer-dabei-Leiste unter der Karte */
+.immer {
+  margin-top: 26px; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+}
+.immer-item {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-top: 3px solid var(--brand); border-radius: var(--radius-sm); padding: 16px 18px;
+}
+.immer-item h3 { font-size: 15.5px; margin-bottom: 4px; }
+.immer-item p { font-size: 14.5px; color: var(--ink-soft); margin: 0; line-height: 1.5; }
+
+.tisch-hinweis { margin-top: 22px; font-size: 14.5px; color: var(--ink-mute); }
+
+/* ---------- Vorgespraech ---------- */
+.vorgespraech {
+  margin-top: 34px; background: var(--brand-wash);
+  border: 1px solid var(--brand-soft); border-radius: var(--radius);
+  padding: 26px 28px; display: grid; grid-template-columns: .85fr 1.15fr; gap: 30px;
+}
+@media (max-width: 820px) { .vorgespraech { grid-template-columns: 1fr; gap: 18px; } }
+.vorgespraech h3 { font-size: 20px; margin-bottom: 8px; }
+.vorgespraech p { font-size: 15.5px; color: var(--ink-soft); margin: 0; }
+
+/* ---------- Glossar ---------- */
+.glossar { margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0 40px; }
+.glossar-item { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.glossar-item dt {
+  font-family: var(--serif); font-size: 16.5px; font-weight: 700; margin-bottom: 3px;
+}
+.glossar-item dt span {
+  font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  color: var(--ink-mute); text-transform: none; margin-left: 8px;
+}
+.glossar-item dd { margin: 0; font-size: 15px; color: var(--ink-soft); line-height: 1.55; }
+
+/* ---------- Schaubilder ---------- */
+figure.schaubild {
+  margin: 34px 0 0; max-width: 640px;
+  overflow-x: auto; /* auf schmalen Displays lieber schieben als winzig setzen */
+}
+figure.schaubild svg { width: 100%; min-width: 470px; height: auto; display: block; }
+figure.schaubild figcaption {
+  margin-top: 10px; font-size: 14px; color: var(--ink-mute); max-width: 62ch;
+}
+.sv-flaeche { fill: var(--bg-card); }
+.sv-soft    { fill: var(--bg-soft); }
+.sv-linie   { stroke: var(--line-strong); stroke-width: 1.2; fill: none; }
+.sv-linie-fein { stroke: var(--ink-mute); stroke-width: 1; fill: none; }
+.sv-brand   { fill: var(--brand); }
+.sv-brand-l { stroke: var(--brand); stroke-width: 1.6; fill: none; }
+.sv-text    { fill: var(--ink); font-family: var(--sans); font-size: 14px; }
+.sv-text-s  { fill: var(--ink-mute); font-family: var(--mono); font-size: 11px; letter-spacing: .08em; }
+.sv-text-w  { fill: var(--bg-card); font-family: var(--mono); font-size: 11px; font-weight: 700; }
+
+/* ---------- Unterueberschriften ---------- */
+h2.klein { font-size: clamp(21px, 2.4vw, 25px); letter-spacing: 0; }
+.abschnitt-sub { margin-top: 46px; }
+
+/* ---------- Prototyping: zwei Bahnen im Vergleich ---------- */
+.bahnen { display: grid; gap: 14px; margin-top: 30px; }
+.bahn {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 18px 22px;
+}
+.bahn.schnell { border-color: var(--brand-soft); background: var(--brand-wash); }
+.bahn-kopf { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.bahn-kopf h3 { font-size: 16.5px; margin: 0; }
+.bahn-dauer {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em;
+  text-transform: uppercase; font-weight: 700; color: var(--ink-mute); margin-left: auto;
+}
+.bahn.schnell .bahn-dauer { color: var(--brand-deep); }
+.phasen { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.phase {
+  font-size: 13.5px; padding: 5px 12px; border-radius: 100px;
+  border: 1px solid var(--line); background: var(--bg-soft); color: var(--ink-soft);
+}
+.bahn.schnell .phase { background: var(--bg-card); border-color: var(--brand-soft); }
+.pfeil { color: var(--ink-mute); font-size: 12px; }
+
+/* ---------- Governance: Ebenen und Rolle ---------- */
+.ebenen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 30px; }
+.ebene {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-left: 3px solid var(--brand); border-radius: var(--radius); padding: 18px 20px;
+}
+.ebene:nth-child(2) { border-left-color: var(--chip-2); }
+.ebene:nth-child(3) { border-left-color: var(--chip-1); }
+.ebene .stufe-status { margin-bottom: 8px; }
+.ebene h3 { font-size: 16px; }
+.ebene p { font-size: 14.5px; color: var(--ink-soft); margin: 0; line-height: 1.55; }
+@media (max-width: 860px) { .ebenen { grid-template-columns: 1fr; } }
+
+.rolle {
+  margin-top: 30px; display: grid; grid-template-columns: .9fr 1.1fr; gap: 34px;
+  background: var(--bg-soft); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 26px 28px;
+}
+@media (max-width: 860px) { .rolle { grid-template-columns: 1fr; gap: 20px; } }
+.rolle h3 { font-size: 20px; margin-bottom: 8px; }
+.rolle p { font-size: 15.5px; color: var(--ink-soft); }
+.rolle p:last-child { margin-bottom: 0; }
+.aufgaben { list-style: none; margin: 0; padding: 0; }
+.aufgaben li {
+  display: flex; gap: 10px; align-items: baseline;
+  font-size: 15px; color: var(--ink-soft);
+  padding: 8px 0; border-bottom: 1px solid var(--line);
+}
+.aufgaben li:last-child { border-bottom: 0; padding-bottom: 0; }
+.aufgaben li::before { content: "✓"; color: var(--brand-deep); font-size: 13px; flex: 0 0 auto; }
+.aufgaben b { color: var(--ink); font-weight: 600; }
+
+.schritte { list-style: none; margin: 30px 0 0; padding: 0; counter-reset: sch; display: grid; gap: 10px; }
+.schritte li {
+  counter-increment: sch; display: flex; gap: 16px; align-items: baseline;
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 14px 18px;
+}
+.schritte li::before {
+  content: counter(sch, decimal-leading-zero);
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  color: var(--brand-deep); flex: 0 0 auto;
+}
+.schritte .txt { font-size: 15px; color: var(--ink-soft); }
+.schritte .txt b { color: var(--ink); font-weight: 600; }
+
+/* ---------- Aufklappbares ---------- */
+.klapp {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--bg-card); margin-top: 20px; overflow: hidden;
+}
+.klapp > summary {
+  cursor: pointer; list-style: none; padding: 16px 22px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 15.5px; font-weight: 600; color: var(--ink);
+}
+.klapp > summary::-webkit-details-marker { display: none; }
+.klapp > summary::after {
+  content: "+"; margin-left: auto; font-family: var(--mono);
+  font-size: 18px; font-weight: 400; color: var(--brand-deep); line-height: 1;
+}
+.klapp[open] > summary::after { content: "−"; }
+.klapp > summary:hover { background: var(--bg-soft); }
+.klapp > summary:focus-visible { outline-offset: -3px; }
+@media (max-width: 560px) {
+  /* Label darf umbrechen, das Badge rutscht darunter. Kompaktere Masse,
+     damit die Klickzeile trotzdem nicht zum Block wird. */
+  .klapp > summary { flex-wrap: wrap; padding: 13px 16px; font-size: 14.5px; gap: 4px 10px; }
+  .klapp > summary .zahl { flex-basis: 100%; margin-left: 0; font-size: 10px; }
+  .klapp > summary::after { margin-left: auto; align-self: flex-start; }
+}
+.klapp > summary .zahl {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--ink-mute); font-weight: 700;
+}
+.klapp-inhalt { padding: 4px 22px 24px; border-top: 1px solid var(--line-soft); }
+.klapp-inhalt > *:first-child { margin-top: 18px; }
+
+/* Aufklappbares im Stufen-Blatt sitzt auf der Papierflaeche */
+.gang .klapp { background: transparent; border-color: var(--line); margin-top: 18px; }
+.gang .klapp > summary { padding: 12px 16px; font-size: 14.5px; }
+.gang .klapp-inhalt { padding: 0 16px 16px; }
+
+/* ---------- FAQ ---------- */
+.faq { margin-top: 30px; display: grid; gap: 10px; }
+.faq details {
+  border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg-card);
+}
+.faq summary {
+  cursor: pointer; list-style: none; padding: 15px 20px;
+  font-size: 16px; font-weight: 600; display: flex; gap: 12px; align-items: baseline;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; margin-left: auto; font-family: var(--mono); color: var(--brand-deep); }
+.faq details[open] summary::after { content: "−"; }
+.faq summary:hover { background: var(--bg-soft); }
+.faq .antwort { padding: 0 20px 18px; font-size: 15px; color: var(--ink-soft); }
+.faq .antwort p { margin: 0 0 10px; }
+.faq .antwort p:last-child { margin: 0; }
+
+/* ---------- Trainer ---------- */
+.trainer { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 26px; }
+@media (max-width: 760px) { .trainer { grid-template-columns: 1fr; } }
+.trainer-karte {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-left: 3px solid var(--brand); border-radius: var(--radius); padding: 22px 24px;
+}
+.trainer-karte h3 { font-size: 18px; margin-bottom: 2px; }
+.trainer-rolle {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-soft); font-weight: 700; margin: 0 0 10px;
+}
+.trainer-karte p { font-size: 14.5px; color: var(--ink-soft); margin: 0 0 12px; line-height: 1.55; }
+.trainer-links { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; font-weight: 600; }
+
+/* ---------- Einstiegshilfe ohne Budget ---------- */
+.gratis {
+  margin-top: 26px; background: var(--bg-soft); border: 1px dashed var(--line-strong);
+  border-radius: var(--radius); padding: 20px 24px; font-size: 15px; color: var(--ink-soft);
+}
+.gratis b { color: var(--ink); }
+.gratis a { font-weight: 600; }
+
+/* ---------- IT-Abschnitt ---------- */
+.it-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 30px; }
+.it-karte {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px 22px;
+}
+.it-karte h3 { font-size: 16px; margin-bottom: 6px; }
+.it-karte p { font-size: 14.5px; color: var(--ink-soft); margin: 0; line-height: 1.55; }
+
+/* ---------- Tabellen ---------- */
+.tabelle-wrap { overflow-x: auto; margin-top: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-card); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 620px; }
+th, td { text-align: left; padding: 13px 16px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+thead th { background: var(--bg-soft); font-weight: 700; font-size: 14px; border-bottom: 1px solid var(--line); }
+tbody tr:last-child td { border-bottom: 0; }
+td.stufe { font-weight: 600; white-space: nowrap; }
+
+/* ---------- Roadmap ---------- */
+.roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 30px; }
+.stufe-karte {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 22px 24px;
+}
+.stufe-karte.jetzt { border-color: var(--brand); background: var(--brand-wash); }
+.stufe-status {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em;
+  text-transform: uppercase; font-weight: 700; color: var(--ink-mute); margin: 0 0 10px;
+}
+.stufe-karte.jetzt .stufe-status { color: var(--brand-deep); }
+.stufe-karte ul { margin: 10px 0 0; padding-left: 18px; font-size: 14.5px; color: var(--ink-soft); }
+.stufe-karte li { margin-bottom: 6px; }
+@media (max-width: 900px) { .roadmap { grid-template-columns: 1fr; } }
+
+/* ---------- Mise en Place ---------- */
+.mep { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 34px; margin-top: 26px; }
+.mep-item { display: flex; gap: 12px; align-items: baseline; padding-bottom: 12px; border-bottom: 1px solid var(--line-soft); }
+.mep-item .k { font-family: var(--mono); font-size: 12px; color: var(--brand-deep); font-weight: 700; flex: 0 0 auto; }
+.mep-item .t { font-size: 15px; color: var(--ink-soft); }
+.mep-item .t b { color: var(--ink); font-weight: 600; }
+@media (max-width: 760px) { .mep { grid-template-columns: 1fr; } }
+
+/* ---------- Offene Punkte ---------- */
+.offen { margin-top: 26px; display: grid; gap: 12px; }
+.offen-item {
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-left: 3px solid var(--warn); border-radius: var(--radius-sm);
+  padding: 15px 18px;
+}
+.offen-item h3 { font-size: 15.5px; margin-bottom: 3px; }
+.offen-item p { font-size: 14.5px; color: var(--ink-soft); margin: 0; }
+
+/* ---------- CTA ---------- */
+.cta {
+  background: var(--bg-soft); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 34px 36px;
+  display: flex; gap: 30px; align-items: center; flex-wrap: wrap;
+}
+.cta-text { flex: 1 1 340px; }
+.cta h2 { margin-bottom: 8px; }
+.cta p { margin-bottom: 0; color: var(--ink-soft); }
+.cta-actions { display: flex; flex-direction: column; gap: 10px; }
+.btn {
+  display: inline-block; text-decoration: none; text-align: center;
+  border-radius: 100px; padding: 11px 24px; font-size: 15px; font-weight: 600;
+  border: 1px solid var(--brand); transition: transform .12s, background .15s;
+}
+.btn-primary { background: var(--brand); color: #FFFFFF; }
+.btn-primary:hover { background: var(--brand-deep); transform: translateY(-1px); }
+.btn-ghost { color: var(--brand-deep); background: transparent; }
+.btn-ghost:hover { background: var(--brand-wash); }
+:root[data-theme="dark"] .btn-primary,
+:root[data-theme="dark"] .btn-primary:hover { color: #06231E; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .btn-primary,
+  :root:not([data-theme="light"]) .btn-primary:hover { color: #06231E; }
+}
+
+.skip {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--brand); color: #FFFFFF; padding: 10px 18px;
+  border-radius: 0 0 var(--radius-sm) 0; font-size: 14px; font-weight: 600; z-index: 100;
+}
+.skip:focus { left: 0; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+footer {
+  padding: 34px 0 60px; font-size: 14px; color: var(--ink-mute);
+  border-top: 1px solid var(--line);
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#inhalt">Zum Inhalt springen</a>
+
+<nav class="topbar" aria-label="Seitennavigation">
+  <div class="topbar-inner">
+    <a class="back" href="power-bi-on-claude.html">&larr; Zum Angebot</a>
+    <span class="topbar-title">Details und Fragen</span>
+    <div class="topnav">
+      <a href="#kracht">Grenzen</a>
+      <a href="#prototyp">Prototyping</a>
+      <a href="#governance">Governance</a>
+      <a href="#it">Für die IT</a>
+      <a href="#portfolio">Einordnung</a>
+      <a href="#glossar">Glossar</a>
+      <a href="#mise">Vorbereitung</a>
+      <a href="#faq">Fragen</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Power BI on Claude &middot; Details und Fragen</p>
+    <h1>Alles, was <em>tiefer geht</em></h1>
+    <p class="lead hero-lead">Das Angebot steht auf der
+    <a href="power-bi-on-claude.html">Hauptseite</a>. Hier liegen die Antworten für alle, die es
+    genauer wissen wollen: wie wir mit Prototypen arbeiten, wie Regeln durchgesetzt werden, was
+    eure IT freigeben muss, und was die Fachbegriffe eigentlich bedeuten.</p>
+    <div class="badges">
+      <span class="badge badge-brand">Für Genauleser</span>
+      <span class="badge">IT und Datenschutz</span>
+      <span class="badge">Glossar und Vorbereitung</span>
+    </div>
+  </div>
+</header>
+
+<main id="inhalt">
+
+<section id="kracht">
+  <div class="wrap">
+    <p class="eyebrow">Grenzen</p>
+    <div class="col">
+      <h2 class="klein">Wo es kracht</h2>
+      <p>Jede Demo läuft glatt, jeder Alltag nicht. Diese Stellen kosten in echten Projekten Zeit,
+      und deshalb üben wir sie mit, statt sie wegzuschneiden.</p>
+    </div>
+
+    <div class="offen">
+      <div class="offen-item">
+        <h3>Erfundene Formeln und Spalten</h3>
+        <p>Ein Agent schreibt notfalls DAX, das plausibel aussieht und falsch rechnet. Gegenmittel
+        ist nicht Vertrauen, sondern die Gegenprobe an bekannten Werten.</p>
+      </div>
+      <div class="offen-item">
+        <h3>Zerschossene Verweise im Modell</h3>
+        <p>Interne Kennungen dürfen beim Umbenennen nicht neu erzeugt werden, sonst fallen
+        Feldparameter, Berechnungsgruppen und Visual-Bindungen aus. Klassischer Totalschaden.</p>
+      </div>
+      <div class="offen-item">
+        <h3>Zusammenführen zu zweit</h3>
+        <p>Zwei Personen am selben Bericht heißt Konflikte auflösen, und Power BI Desktop
+        formatiert beim Speichern gerne um. Dafür braucht es Absprachen, nicht Hoffnung.</p>
+      </div>
+      <div class="offen-item">
+        <h3>Große Modelle sprengen den Kontext</h3>
+        <p>Vierzig Measures sind Spielzeug, dreihundert nicht. Gezielt suchen statt alles laden ist
+        eine eigene Fertigkeit, und ohne sie wird es teuer und ungenau.</p>
+      </div>
+    </div>
+
+    <details class="klapp">
+      <summary>Vier weitere Stellen, an denen es klemmt <span class="zahl">Für Genauleser</span></summary>
+      <div class="klapp-inhalt">
+        <div class="offen">
+      <div class="offen-item">
+        <h3>Das Bild bleibt Handarbeit</h3>
+        <p>Struktur, Regeln und Zahlen sind maschinell prüfbar. Wie der fertige Bericht aussieht,
+        lässt sich nicht automatisch erzeugen, dafür öffnet ihn jemand. Wer das überspringt,
+        liefert Berichte aus, die nie jemand gesehen hat.</p>
+      </div>
+      <div class="offen-item">
+        <h3>Anweisungen aus den Daten</h3>
+        <p>In Tabellenbeschreibungen, Kommentaren und Tickets kann Text stehen, der wie ein Auftrag
+        klingt. Ein Agent mit Schreibrechten liest das mit. Deshalb gehören Rechte und Freigaben
+        genauso zum Thema wie das Bauen.</p>
+      </div>
+      <div class="offen-item">
+        <h3>Gleicher Auftrag, anderes Ergebnis</h3>
+        <p>Zweimal dasselbe zu fragen, führt nicht zweimal zum selben Bericht. Und wenn sich das
+        Modell hinter dem Agenten ändert, greifen eure Regeln vielleicht anders. Deshalb braucht es
+        einen kurzen Test, mit dem ihr das selbst nachprüfen könnt.</p>
+      </div>
+      <div class="offen-item">
+        <h3>Wann du es besser lässt</h3>
+        <p>Performance-Tuning, Berechtigungslogik und Einzeiler sind von Hand schneller. Zu wissen,
+        wann man den Agenten nicht ruft, gehört zur Technik dazu.</p>
+      </div>
+        </div>
+      </div>
+    </details>
+    </div>  </div>
+</section>
+
+<section id="prototyp">
+  <div class="wrap">
+    <p class="eyebrow">Prototyping</p>
+    <div class="col">
+      <h2>Der Probelauf</h2>
+      <p>Der größte Hebel liegt nicht im fertigen Bericht, sondern in dem, was davor passiert.
+      Wenn ein lauffähiger Entwurf in zwei Stunden statt in zwei Wochen steht, ändert sich die
+      Zusammenarbeit mit dem Fachbereich grundlegend. Es wird nicht mehr über ein Konzeptpapier
+      diskutiert, sondern über etwas, das man anfassen kann.</p>
+      <p>Der wichtigste Satz dabei lautet: Dieser Prototyp darf weg. Ein Entwurf, der billig
+      entstanden ist, darf verworfen werden, ohne dass jemand sein Gesicht verliert. Genau das
+      macht ihn ehrlich. Anforderungen entstehen am Objekt, nicht am Tisch.</p>
+    </div>
+
+    <div class="bahnen">
+      <div class="bahn">
+        <div class="bahn-kopf">
+          <h3>Klassischer Weg</h3>
+          <span class="bahn-dauer">Wochen bis Monate</span>
+        </div>
+        <div class="phasen">
+          <span class="phase">Anforderungsworkshop</span><span class="pfeil">→</span>
+          <span class="phase">Konzeptpapier</span><span class="pfeil">→</span>
+          <span class="phase">Freigabe</span><span class="pfeil">→</span>
+          <span class="phase">Bau</span><span class="pfeil">→</span>
+          <span class="phase">Abnahme</span><span class="pfeil">→</span>
+          <span class="phase">"So war das nicht gemeint"</span>
+        </div>
+      </div>
+      <div class="bahn schnell">
+        <div class="bahn-kopf">
+          <h3>Mit Prototyp</h3>
+          <span class="bahn-dauer">Stunden bis Tage</span>
+        </div>
+        <div class="phasen">
+          <span class="phase">Grobes Briefing</span><span class="pfeil">→</span>
+          <span class="phase">Prototyp am Modell</span><span class="pfeil">→</span>
+          <span class="phase">Gemeinsam draufschauen</span><span class="pfeil">→</span>
+          <span class="phase">Verwerfen oder schärfen</span><span class="pfeil">→</span>
+          <span class="phase">Erst dann sauber bauen</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bausteine">
+      <div class="baustein">
+        <h3>Drei Varianten statt einer</h3>
+        <p>Weil der Bau billig wird, lohnt sich der Vergleich. Drei Entwürfe nebeneinander
+        beantworten Layoutfragen in zehn Minuten, über die sonst zwei Sitzungen streiten.</p>
+      </div>
+      <div class="baustein">
+        <h3>Der Fachbereich sitzt daneben</h3>
+        <p>Änderungswünsche werden direkt eingebaut und sofort angesehen. Das ist der Moment,
+        in dem Fachbereiche zum ersten Mal verstehen, was mit ihren Daten möglich ist.</p>
+      </div>
+      <div class="baustein">
+        <h3>Vom Entwurf zum Produktivstand</h3>
+        <p>Du lernst die Grenze zu ziehen: Was im Prototyp erlaubt ist und was vor dem Produktivgang
+        aufgeräumt werden muss, damit aus schnell nicht schlampig wird.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Wichtig, damit kein Missverständnis entsteht.</strong> Prototyping ersetzt keine
+      Architektur. Es verschiebt nur den Zeitpunkt, an dem Missverständnisse auffallen, nach ganz
+      vorne, wo sie noch nichts kosten.
+    </div>
+  </div>
+</section>
+<section id="governance">
+  <div class="wrap">
+    <p class="eyebrow">Governance</p>
+    <div class="col">
+      <h2>Regeln, die beim Kochen greifen</h2>
+      <p>Governance scheitert selten am guten Willen. Sie scheitert daran, dass Regeln in einem
+      Dokument stehen, das niemand liest, während gebaut wird. Genau hier hilft agentisches
+      Arbeiten mehr, als viele erwarten: Wenn eure Regeln als Text im Projekt liegen, wirken sie
+      schon beim Bauen und nicht erst im Review. Was immer gelten soll, steht in der
+      Projektanweisung, die der Agent bei jeder Aufgabe vor sich hat. Was nur für bestimmte
+      Aufgaben gilt, liegt als Skill daneben und wird geholt, wenn es passt.</p>
+      <p>Ehrlich dazu gehört die Grenze. Ein Skill ist eine sehr wirksame Vorgabe, aber keine
+      Sperre. Wer sie umgehen will, kann das. Durchgesetzt wird eine Regel erst durch ein Gate:
+      eine automatische Prüfung nach jeder Änderung, ein Best-Practice-Lauf in der Pipeline, eine
+      geschützte Branch mit Vier-Augen-Freigabe. Skill sagt, wie gebaut wird. Das Gate sagt, was
+      durchkommt.</p>
+      <p>Aus nachträglicher Kontrolle wird eine Vorgabe, die schon beim ersten Entwurf greift.
+      Namenskonventionen, Farblogik, Notation, Struktur der Measures, Berechtigungsmuster, all das
+      wird vom Prüfpunkt zur Voreinstellung. Und weil es Text im Repository ist, ist jede Regel
+      versioniert, diskutierbar und änderbar.</p>
+    </div>
+
+    <div class="ebenen">
+      <div class="ebene">
+        <p class="stufe-status">Ebene 1</p>
+        <h3>Haus</h3>
+        <p>Was für alle gilt: Namenskonventionen, Designsprache, Notation, Umgang mit sensiblen
+        Daten. Selten geändert, von wenigen gepflegt.</p>
+      </div>
+      <div class="ebene">
+        <p class="stufe-status">Ebene 2</p>
+        <h3>Bereich</h3>
+        <p>Was im Controlling anders ist als im Vertrieb: Kennzahlendefinitionen, Berichtsaufbau,
+        Rhythmus. Erbt vom Haus, ergänzt es.</p>
+      </div>
+      <div class="ebene">
+        <p class="stufe-status">Ebene 3</p>
+        <h3>Projekt</h3>
+        <p>Was nur hier zählt: Besonderheiten des Modells, Ausnahmen mit Begründung. Wer eine
+        Hausregel bricht, schreibt dazu, warum.</p>
+      </div>
+    </div>
+
+    <figure class="schaubild" tabindex="0">
+      <svg viewBox="0 0 600 260" role="img" aria-labelledby="fig3t fig3d">
+        <title id="fig3t">Regelebenen und Gate</title>
+        <desc id="fig3d">Regeln des Hauses vererben sich auf Bereich und Projekt. Vor der Freigabe steht ein automatisches Gate, das prüft, was durchkommt.</desc>
+
+        <rect x="0" y="10" width="330" height="46" rx="8" class="sv-soft"/>
+        <rect x="0" y="10" width="330" height="46" rx="8" class="sv-linie"/>
+        <text x="18" y="38" class="sv-text" font-weight="700">Haus</text>
+        <text x="96" y="38" class="sv-text" opacity=".75">Namen, Design, Notation</text>
+
+        <rect x="30" y="74" width="300" height="46" rx="8" class="sv-soft"/>
+        <rect x="30" y="74" width="300" height="46" rx="8" class="sv-linie"/>
+        <text x="48" y="102" class="sv-text" font-weight="700">Bereich</text>
+        <text x="140" y="102" class="sv-text" opacity=".75">Kennzahlen, Aufbau</text>
+
+        <rect x="60" y="138" width="270" height="46" rx="8" class="sv-soft"/>
+        <rect x="60" y="138" width="270" height="46" rx="8" class="sv-linie"/>
+        <text x="78" y="166" class="sv-text" font-weight="700">Projekt</text>
+        <text x="164" y="166" class="sv-text" opacity=".75">Ausnahmen, begründet</text>
+
+        <g class="sv-linie-fein" opacity=".6">
+          <path d="M14 56v18h16M44 120v18h16"/>
+        </g>
+
+        <path d="M340 161h52m0 0-11-9m11 9-11 9" class="sv-brand-l" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <rect x="404" y="120" width="196" height="82" rx="10" class="sv-flaeche"/>
+        <rect x="404" y="120" width="196" height="82" rx="10" class="sv-linie"/>
+        <text x="424" y="150" class="sv-text" font-weight="700">Gate</text>
+        <text x="424" y="174" class="sv-text" opacity=".75">Automatische Prüfung</text>
+        <text x="424" y="192" class="sv-text" opacity=".75">vor der Freigabe</text>
+
+        <text x="0" y="230" class="sv-text" opacity=".75">Der Skill sagt, wie gebaut wird. Das Gate sagt, was durchkommt.</text>
+      </svg>
+      <figcaption>Regeln erben sich nach unten, Ausnahmen brauchen eine Begründung. Durchgesetzt
+      wird am Ende durch eine Prüfung, die niemand vergessen kann.</figcaption>
+    </figure>
+
+    <div class="rolle">
+      <div>
+        <h3>Der KI-Trainer im Unternehmen</h3>
+        <p>Damit das trägt, braucht es eine Rolle, nicht nur ein Werkzeug. Jemanden, der die
+        Hausregeln pflegt, neue Kolleginnen und Kollegen anlernt und dafür sorgt, dass gute
+        Lösungen in der gemeinsamen Regelsammlung landen statt in einem privaten Chatverlauf.</p>
+        <p>Das ist keine neue Planstelle, sondern meistens eine Person, die ohnehin schon als
+        interne Anlaufstelle für Power BI gilt. Wir bilden genau diese Rolle aus, damit euer
+        Wissen nach dem Kurs bei euch bleibt.</p>
+      </div>
+      <ul class="aufgaben">
+        <li><span><b>Hausregeln pflegen</b> und mit den Fachbereichen abstimmen</span></li>
+        <li><span><b>Skills schreiben</b>, die diese Regeln für alle anwendbar machen</span></li>
+        <li><span><b>Neue Kollegen anlernen</b>, statt jede Frage einzeln zu beantworten</span></li>
+        <li><span><b>Ergebnisse prüfen</b> und Rückmeldungen in die Regeln zurückspielen</span></li>
+        <li><span><b>Grenzen setzen</b>, welche Daten und welche Aufgaben in Ordnung sind</span></li>
+        <li><span><b>Erfolge sichtbar machen</b>, damit die Arbeitsweise Rückhalt bekommt</span></li>
+      </ul>
+    </div>
+
+    <div class="col abschnitt-sub">
+      <h2 class="klein">Euren Design-Skill aufbauen</h2>
+      <p>Der konkreteste Einstieg ins Thema, und der, der am schnellsten Wirkung zeigt. Aus eurem
+      vorhandenen Styleguide, den Berichtsvorlagen und dem, was ihr im Review ohnehin immer wieder
+      anmerkt, entsteht eine Regel, die der Agent jedes Mal anwendet.</p>
+    </div>
+
+    <details class="klapp">
+      <summary>Der Weg zum eigenen Design-Skill <span class="zahl">6 Schritte</span></summary>
+      <div class="klapp-inhalt">
+    <ol class="schritte">
+      <li><span class="txt"><b>Sammeln.</b> Was moniert ihr im Review immer wieder? Diese Liste ist
+      der ehrlichste Styleguide, den ihr habt.</span></li>
+      <li><span class="txt"><b>Entscheiden.</b> Was ist Regel und was Geschmack. Nur Regeln kommen in
+      den Skill, alles andere bleibt Diskussion.</span></li>
+      <li><span class="txt"><b>Schreiben.</b> Regeln in klare Anweisungen fassen, mit Beispiel und
+      Gegenbeispiel. Ein gutes Gegenbeispiel wirkt oft stärker als drei Absätze Erklärung.</span></li>
+      <li><span class="txt"><b>Verankern.</b> Was immer gelten soll, in die Projektanweisung,
+      alles Aufgabenbezogene als Skill daneben. Beides liegt im Repository, damit jede Änderung
+      nachvollziehbar ist.</span></li>
+      <li><span class="txt"><b>Durchsetzen.</b> Der Agent prüft eigene Ergebnisse gegen die Regeln,
+      und ein automatisches Gate in der Pipeline lässt nichts durch, was dagegen verstößt.</span></li>
+      <li><span class="txt"><b>Pflegen.</b> Jede Ausnahme, die im Alltag Sinn ergibt, wandert zurück
+      in den Skill. So wird aus einem Dokument ein lebendiger Standard.</span></li>
+    </ol>
+      </div>
+    </details>
+
+    <div class="col abschnitt-sub">
+      <h2 class="klein">Was bleibt, wenn ihr das Werkzeug wechselt</h2>
+      <p>Die berechtigte Frage bei einem Angebot, das den Namen eines Anbieters trägt: Was ist in
+      zwei Jahren davon noch da? Die Antwort ist unspektakulär und genau deshalb belastbar.
+      Alles, was ihr hier baut, entsteht als Markdown und als normale Projektdateien.</p>
+      <p>Eure Regeln, Prüfroutinen und Arbeitsanweisungen werden zu einer eigenen Bibliothek in
+      eurem Repository. Die ist nicht an Claude gebunden, sondern lesbar für jedes andere agentische
+      System und für jeden KI-Hub, den ihr später einsetzt. Auch für Menschen übrigens, was
+      der unterschätzte Teil ist: Zum ersten Mal steht euer Hauswissen an einer Stelle, statt in
+      den Köpfen von vier Leuten.</p>
+      <p>Was bleibt, ist damit: das Projektformat, die Versionierung, die Regelbibliothek, die
+      Prüfungen und die Arbeitsweise. Was wechselbar ist: der Agent, der es ausführt.</p>
+      <p>Wie das aussieht, könnt ihr euch bei unserem
+      <a href="https://github.com/Losveratos/Power-BI-Viz-Challenge" target="_blank" rel="noopener">Wettbewerbsbeitrag</a>
+      ansehen: Die Dokumentation liegt dort als Markdown neben dem Projekt, ein Dutzend Dateien, die jedes andere System genauso lesen kann.</p>
+    </div>
+
+    <div class="note">
+      <strong>Was das für die IT bedeutet.</strong> Agentisches Arbeiten macht Entwicklung nicht
+      unkontrollierbarer, sondern erstmals nachvollziehbar. Wer heute im Desktop klickt,
+      hinterlässt keine Spur. Wer im Projekt arbeitet, hinterlässt jede.
+    </div>
+  </div>
+</section>
+<section id="it">
+  <div class="wrap">
+    <p class="eyebrow">Für IT, Datenschutz und Einkauf</p>
+    <div class="col">
+      <h2>Die Fragen, die vor der Buchung kommen</h2>
+      <p>Ein Inhouse-Format mit einem KI-Werkzeug berührt Themen, die nicht im Fachbereich
+      entschieden werden. Wir kennen die Fragen und beantworten sie vor dem ersten Kurstag,
+      schriftlich, gemeinsam mit euren Zuständigen.</p>
+    </div>
+
+    <div class="it-grid">
+      <div class="it-karte">
+        <h3>Welcher Zugangsweg</h3>
+        <p>Es gibt mehrere Wege, Claude im Unternehmen zu nutzen. Welcher zu eurer Freigabelage
+        passt, klären wir im Vorgespräch, bevor irgendetwas beschafft wird.</p>
+      </div>
+      <div class="it-karte">
+        <h3>Welche Daten das Haus verlassen</h3>
+        <p>Wir schreiben vor dem Kurs auf, womit gearbeitet wird: eigenes Modell, Kopie oder
+        Ersatzdaten. In regulierten Häusern läuft das komplette Format mit Ersatzdaten.</p>
+      </div>
+      <div class="it-karte">
+        <h3>Welche Rechte nötig sind</h3>
+        <p>Die Vorbereitungsliste nennt jede Einstellung und jede Freigabe einzeln, damit eure IT
+        einmal prüfen kann statt dreimal nachzufragen.</p>
+      </div>
+      <div class="it-karte">
+        <h3>Was der Agent darf</h3>
+        <p>Ein Agent mit Schreibrechten braucht Grenzen. Freigabelisten für Kommandos, kein
+        automatisches Durchwinken, ein begrenzter Netzweg. Das ist Kursinhalt, nicht Kleingedrucktes.</p>
+      </div>
+      <div class="it-karte">
+        <h3>Was ihr schriftlich bekommt</h3>
+        <p>Vor Vertragsschluss: eine Übersicht, welche Daten auf welchem Weg verarbeitet werden,
+        ein Vertrag zur Auftragsverarbeitung und die Angaben zum gewählten Bezugsweg. Ohne diese
+        Unterlagen fängt bei uns kein Kurs an.</p>
+      </div>
+      <div class="it-karte">
+        <h3>Was es laufend kostet</h3>
+        <p>Neben dem Kurspreis stehen Zugänge für die Teilnehmenden und gegebenenfalls Kapazität
+        für den Arbeitsbereich. Wir rechnen das im Vorgespräch offen durch.</p>
+      </div>
+      <div class="it-karte">
+        <h3>Warum das ohnehin ansteht</h3>
+        <p>Die KI-Verordnung der EU verlangt seit Februar 2025, dass Beschäftigte, die KI
+        einsetzen, dafür ausreichend geschult sind. Dieses Format ist eine Antwort darauf,
+        nicht nur ein Effizienzprojekt.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="portfolio">
+  <div class="wrap">
+    <p class="eyebrow">Einordnung</p>
+    <div class="col">
+      <h2>Wo das ins bestehende Angebot passt</h2>
+      <p>Die Daten-WG hat bereits Training, Coaching, Kick Start und die Masterclass. Power BI on
+      Claude ersetzt nichts davon, sondern beantwortet eine andere Frage: nicht was Power BI kann,
+      sondern wie du künftig damit arbeitest.</p>
+    </div>
+
+    <details class="klapp">
+      <summary>Vergleich mit unseren anderen Formaten <span class="zahl">Training, Coaching, Kick Start, Masterclass</span></summary>
+      <div class="klapp-inhalt">
+    <div class="tabelle-wrap" tabindex="0" role="region" aria-label="Vergleich der Formate">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Format</th>
+            <th scope="col">Beantwortet die Frage</th>
+            <th scope="col">Passt, wenn</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="stufe">Training</td>
+            <td>Wie funktioniert Power BI?</td>
+            <td>gemeinsame Grundlagen im Team fehlen</td>
+          </tr>
+          <tr>
+            <td class="stufe">Coaching</td>
+            <td>Wie löse ich genau dieses Problem?</td>
+            <td>es um euer echtes Modell und laufende Berichte geht</td>
+          </tr>
+          <tr>
+            <td class="stufe">Kick Start</td>
+            <td>Wie kommen wir schnell zur ersten Lösung?</td>
+            <td>ein sauberes Startsetup oder ein MVP gebraucht wird</td>
+          </tr>
+          <tr>
+            <td class="stufe">Masterclass</td>
+            <td>Wie werde ich richtig gut in Power BI?</td>
+            <td>ihr eine Lernreise über mehrere Wochen wollt</td>
+          </tr>
+          <tr>
+            <td class="stufe">Power BI on Claude</td>
+            <td>Wie arbeite ich ab jetzt mit KI an Power BI?</td>
+            <td>Power BI sitzt und die Arbeitsweise das Nächste ist, was sich ändert. Immer inhouse, immer am eigenen Modell</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+      </div>
+    </details>
+  </div>
+</section>
+<section id="glossar">
+  <div class="wrap">
+    <p class="eyebrow">Glossar</p>
+    <div class="col">
+      <h2>Die Begriffe, kurz erklärt</h2>
+      <p>Diese Seite benutzt Wörter, die im Umfeld selbstverständlich klingen und es außerhalb
+      nicht sind. Hier stehen sie in Alltagssprache. Wer sie nicht kennt, hat nichts verpasst,
+      das ist genau der Stoff des Starters.</p>
+    </div>
+
+    <details class="klapp">
+      <summary>Alle Begriffe nachschlagen <span class="zahl">16 Einträge</span></summary>
+      <div class="klapp-inhalt">
+    <dl class="glossar">
+      <div class="glossar-item">
+        <dt>Semantikmodell</dt>
+        <dd>Das Datenmodell hinter dem Bericht: Tabellen, ihre Beziehungen und die Kennzahlen.
+        Früher hieß das Datensatz.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>Metadaten</dt>
+        <dd>Die Beschreibung des Modells, nicht die Daten selbst. Also: wie heißt die Tabelle, wie
+        rechnet die Kennzahl. Nicht: welcher Kunde was gekauft hat.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>TMDL</dt>
+        <dd>Das Textformat, in dem Power BI diese Modellbeschreibung ablegt. Lesbar wie ein
+        Dokument, statt in einer Datei versteckt, die nur das Programm öffnen kann.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>Projektformat <span>PBIP</span></dt>
+        <dd>Statt einer einzelnen pbix-Datei speichert Power BI den Bericht als Ordner mit
+        einzelnen Dateien. Erst dadurch kann man sehen, was sich geändert hat.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>Berichtsdefinition <span>PBIR</span></dt>
+        <dd>Die Einstellung, die auch die Berichtsseiten in einzelne Dateien zerlegt. Ohne sie liegt
+        der Bericht zwar als Text vor, ist aber praktisch nicht änderbar.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>Git</dt>
+        <dd>Ein Programm, das jede Änderung an diesen Dateien mitschreibt. Man sieht, wer wann was
+        geändert hat, und kann jederzeit zurück. Braucht keinen eigenen Server.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>Repository</dt>
+        <dd>Der Ordner, den Git überwacht. Dort liegen Modell, Bericht und eure Regeln zusammen.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>Commit</dt>
+        <dd>Ein gespeicherter Zwischenstand mit Notiz, warum geändert wurde. Wie ein benannter
+        Sicherungspunkt, zu dem man zurückkehren kann.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>Agent, agentisch</dt>
+        <dd>Eine KI, die nicht nur antwortet, sondern arbeitet: Dateien liest, ändert, das Ergebnis
+        prüft und weitermacht. Sie fragt vorher, was sie tun darf.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>Skill</dt>
+        <dd>Ein kleiner Ordner mit euren Regeln, Beispielen und Hilfsskripten. Der Agent holt ihn
+        sich, wenn die Aufgabe dazu passt. Euer Rezeptbuch, nicht eine Fähigkeit der KI. Was immer
+        gelten soll, gehört nicht in einen Skill, sondern in die Projektanweisung.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>Gate</dt>
+        <dd>Eine automatische Prüfung vor der Freigabe. Was gegen die Regeln verstößt, kommt nicht
+        durch. Der Unterschied zwischen Empfehlung und Vorgabe.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>Kommandozeile <span>CLI</span></dt>
+        <dd>Programme ohne Fenster, die man mit einer Zeile Text startet. Ihr braucht eine Handvoll
+        davon, mehr nicht, und der Agent ruft sie meistens selbst auf.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>Claude Desktop, Claude Code, Claude in VS Code</dt>
+        <dd>Dieselbe KI, aber nicht dieselben Fähigkeiten. Claude Code arbeitet im Projektordner,
+        ruft Werkzeuge auf und ändert Dateien, in VS Code ist es dasselbe mit Oberfläche. Desktop
+        ist der bequeme Weg zum Lesen, Erklären und Briefen, für die Projektarbeit reicht es
+        nicht.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>MCP, Hooks, Subagenten</dt>
+        <dd>Anschluss an andere Systeme, automatische Prüfungen nach jeder Änderung, Helfer für
+        Teilaufgaben. Ein Hook ist das Gate, das schon am Arbeitsplatz greift, bevor überhaupt etwas
+        eingecheckt wird.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>Prototyp</dt>
+        <dd>Ein schneller Entwurf zum Anschauen und Wegwerfen. Kein halbfertiger Bericht, sondern
+        ein Gesprächsangebot.</dd>
+      </div>
+      <div class="glossar-item">
+        <dt>IBCS</dt>
+        <dd>Ein verbreiteter Standard für einheitliche Geschäftsberichte: gleiche Farben, gleiche
+        Formen, gleiche Bedeutung. Gut geeignet als Regelwerk für den Agenten.</dd>
+      </div>
+    </dl>
+      </div>
+    </details>
+  </div>
+</section>
+<section id="mise">
+  <div class="wrap">
+    <p class="eyebrow">Vorbereitung</p>
+    <div class="col">
+      <h2>Was vorher bereitliegen muss</h2>
+      <p>Damit die erste Sitzung nicht mit Installationen vergeht, klären wir das Setup vorher.
+      Technisch ist nichts davon exotisch. Der Zeitfresser ist nicht die Installation, sondern die
+      Freigabe. Sprecht Punkt 2 und Punkt 6 mindestens zwei Wochen vorher mit eurer IT durch.</p>
+    </div>
+    <details class="klapp">
+      <summary>Die Vorbereitungsliste im Detail <span class="zahl">10 Punkte</span></summary>
+      <div class="klapp-inhalt">
+    <div class="mep">
+      <div class="mep-item"><span class="k">01</span><span class="t"><b>Windows-Rechner</b> mit aktuellem Power BI Desktop</span></div>
+      <div class="mep-item"><span class="k">02</span><span class="t"><b>Claude Code freigegeben</b>, im Terminal oder in VS Code. Desktop zusätzlich, wenn ihr mögt</span></div>
+      <div class="mep-item"><span class="k">03</span><span class="t"><b>Git</b> installiert, ein Repository für die Übungen</span></div>
+      <div class="mep-item"><span class="k">04</span><span class="t"><b>Ein eigener Use Case</b>, gerne unfertig, gerne hässlich</span></div>
+      <div class="mep-item"><span class="k">05</span><span class="t"><b>Arbeitsbereich</b> zum Ausprobieren, für Deployment und Modellzugriff mit Kapazität (PPU oder F-SKU)</span></div>
+      <div class="mep-item"><span class="k">06</span><span class="t"><b>Klarheit zu Daten</b>, welche echt sein dürfen und welche nicht</span></div>
+      <div class="mep-item"><span class="k">07</span><span class="t"><b>Projektformat aktiviert</b> in Power BI Desktop, inklusive der Vorschau für die Berichtsdefinition</span></div>
+      <div class="mep-item"><span class="k">08</span><span class="t"><b>Lokale Rechte</b> zum Installieren, plus offener Weg durch Proxy und Firewall</span></div>
+      <div class="mep-item"><span class="k">09</span><span class="t"><b>XMLA-Endpunkt</b> auf Lesen und Schreiben, sonst laufen Modellwerkzeuge und Prüfabfragen nicht</span></div>
+      <div class="mep-item"><span class="k">10</span><span class="t"><b>Tenant-Einstellungen</b> für Git-Integration und Entwicklermodus, freigegeben durch eure Administration</span></div>
+    </div>
+      </div>
+    </details>
+  </div>
+</section>
+<section id="faq">
+  <div class="wrap">
+    <p class="eyebrow">Häufige Fragen</p>
+    <div class="col">
+      <h2>Was uns am häufigsten gefragt wird</h2>
+    </div>
+
+    <div class="faq">
+      <details>
+        <summary>Wir haben schon Copilot. Brauchen wir das trotzdem?</summary>
+        <div class="antwort">
+          <p>Copilot hilft im Bericht und macht Vorschläge. Es ändert weder euer Modell noch eure
+          Berichtsdefinition, es hinterlässt keine nachvollziehbare Spur und es kennt eure
+          Hausregeln nicht. Dieses Format setzt eine Ebene tiefer an, am Projekt selbst. Beides
+          schließt sich nicht aus, Copilot bleibt Teil des Kurses.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Müssen unsere echten Daten irgendwohin hochgeladen werden?</summary>
+        <div class="antwort">
+          <p>Nein. Gearbeitet wird an eurem Projekt in eurer Umgebung. Was genau dabei verarbeitet
+          wird, halten wir vor dem Kurs schriftlich fest. Wenn eure Daten das Haus nicht verlassen
+          dürfen, läuft das komplette Format mit Ersatzdaten, die wir gemeinsam aufsetzen.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Unsere Leute können kein Git und keine Kommandozeile. Geht das trotzdem?</summary>
+        <div class="antwort">
+          <p>Ja, genau dafür ist der Starter da. Ihr lernt von beidem so viel, wie ihr für die
+          Arbeit braucht, nicht mehr. Wer Power Query und ein paar Measures beherrscht, kommt mit.
+          Wer noch nie ein Datenmodell gebaut hat, sollte vorher ein klassisches Power-BI-Training
+          machen.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Wie viele Personen können teilnehmen, und gilt der Preis pro Kopf?</summary>
+        <div class="antwort">
+          <p>Der Preis gilt pro Gruppe, nicht pro Kopf. Im Starter sind bis zu 15 Personen dabei,
+          im Menu und in der Master Class bis zu 10. Die beiden oberen Stufen sind kleiner
+          geschnitten, weil dort jeder selbst am eigenen Modell baut und das mit einer großen
+          Gruppe nicht funktioniert.</p>
+          <p>Wer mehr Leute ausbilden will, fährt besser über die Master Class mit eigenen
+          Multiplikatoren: Die geben das Format anschließend intern weiter.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Was kostet uns das laufend, zusätzlich zum Kurs?</summary>
+        <div class="antwort">
+          <p>Zugänge für die Teilnehmenden und, je nach Vorhaben, Kapazität für den Arbeitsbereich,
+          über den Modelle geschrieben und geprüft werden. Beides rechnen wir im Vorgespräch
+          zusammen, bevor ihr entscheidet.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Was passiert, wenn wir das Werkzeug später wechseln?</summary>
+        <div class="antwort">
+          <p>Eure Regeln, Prüfroutinen und die Dokumentation entstehen als Markdown und als normale
+          Projektdateien in eurem Repository. Sie sind an kein Produkt gebunden und für andere
+          agentische Systeme genauso lesbar. Was wechselbar ist, ist der Agent, der sie ausführt.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Wer prüft am Ende, ob das Ergebnis stimmt?</summary>
+        <div class="antwort">
+          <p>Struktur und Regeln prüft die Maschine, die Zahlen prüft sie gegen hinterlegte
+          Erwartungswerte, und wie der Bericht aussieht, sieht ein Mensch. Genau diese Trennung
+          üben wir, und das Abnahme-Kit macht die ersten beiden Stufen dauerhaft wiederholbar.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Bekommen wir das Material?</summary>
+        <div class="antwort">
+          <p>Ja. Jeder gezeigte Skill, jede Vorlage, jede Markdown-Datei und jedes Beispielprojekt
+          bleibt bei euch und darf intern weiterverwendet werden.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Wir sind eine Behörde. Ist das für uns machbar?</summary>
+        <div class="antwort">
+          <p>Machbar ja, aber mit Vorlauf. Freigaben, Vergabe und Datenschutz brauchen im
+          öffentlichen Dienst länger als in einem Mittelständler. Sprecht uns früh an, dann
+          liefern wir die Unterlagen, die eure IT und euer Datenschutz für die Prüfung brauchen.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Ich bin Einzelperson. Kann ich mitmachen?</summary>
+        <div class="antwort">
+          <p>Nicht in diesem Format, es lebt vom eigenen Modell und vom Team. Kostenlos einsteigen
+          könnt ihr trotzdem: über unseren Podcast, den Praxis-Pfad und die Werkzeuge der Knowledge
+          Kitchen.</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="gratis">
+      <b>Kein Budget, trotzdem neugierig?</b> Der größte Teil unseres Wissens ist frei zugänglich:
+      über hundert Podcast-Folgen, der <a href="powerbi_praxis_pfad.html">Praxis-Pfad</a> für den
+      ersten eigenen Bericht und die Werkzeuge der
+      <a href="index.html">Knowledge Kitchen</a>. Fang dort an, das Angebot läuft nicht weg.
+    </div>
+  </div>
+</section>
+
+<section id="zurueck">
+  <div class="wrap">
+    <div class="cta">
+      <div class="cta-text">
+        <h2>Zurück zum Angebot</h2>
+        <p>Stufen, Preise und Leistungen stehen auf der Hauptseite. Wenn ihr so weit seid,
+        vereinbaren wir ein Vorgespräch.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="btn btn-primary" href="power-bi-on-claude.html">Zum Angebot</a>
+        <a class="btn btn-ghost" href="https://www.daten-wg.com/kontakt" target="_blank" rel="noopener">Vorgespräch anfragen</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Daten-WG &middot; Knowledge Kitchen &middot; Stand August 2026.
+    <a href="power-bi-on-claude.html">Zum Angebot</a> &middot;
+    <a href="index.html">Knowledge Kitchen</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
