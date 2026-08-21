@@ -7,7 +7,7 @@ Ein Power-BI-Custom-Visual „ChartKitchen byDatenWG" — ein Visual mit 13 Diag
 (inspiriert von den IBCS-Prinzipien). Geschäftsmodell: **kostenlos, Open Source (MIT),
 für immer frei; Umsatz über Beratung.** Aktuell **offene Beta**, noch nicht im AppSource.
 
-- **Version:** 1.40.0.0 (1.39 Politur-Paket + 1.40 AC+FC-Splitsäule, 05.08.) · API 5.11.0 · GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D`
+- **Version:** 1.42.0.0 (1.41 Cross-Highlight & Karten-Paket + 1.42 Quick-Win-Paket, 13.08.) · API 5.11.0 · GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D`
 - **Repo/Branch:** Arbeitsbranch `claude/inspired-ibcs-power-bi-visual-h04y05`, deckungsgleich mit `main`
 - **Website:** datenwgknowledgekitchen.com (GitHub Pages von `main`, Build ~3 min)
 - **Kontakt:** Michael Tenner · michael.tenner84@gmail.com
@@ -30,6 +30,13 @@ für immer frei; Umsatz über Beratung.** Aktuell **offene Beta**, noch nicht im
 - **Doku** DE+EN (HTML+PDF) mit 13-Modi-Galerie, echten PBI-Screenshots, 84-Settings-Referenz
   (aus dem Code generiert) inkl. Formatbereich-Schemas, FAQ.
 - **Schnellstart-Seite** DE+EN mit Deep-Links in die Doku + Beta-Disclaimer.
+- **MD-Begleiter (llms-freundliche Site, 21.08.):** `llms.txt` an der Root + `md/`-Fassungen
+  aller Inhaltsseiten (ChartKitchen-Doku/Schnellstart DE+EN, beide Einsteiger-Guides inkl.
+  aufgelöster DETAILS-Karten, Praxis-Pfad, Chart-Builder-Anleitung, Posts, Episoden-Guide
+  aus den EPISODES-Daten). Generatoren: `scripts/build_md.py` (Seiten-Registry — nach
+  inhaltlichen Änderungen an einer registrierten Seite neu laufen lassen!) und
+  `scripts/build_learn_md.py` (nach jedem Kitchen-Update). Jede Seite verlinkt ihre
+  MD-Fassung per `<link rel="alternate" type="text/markdown">` + Footer-Link.
 - **Skill `chartkitchen-report` v1** — Befragung (Zweck/Seiten/Detailtiefe/Navigation/…),
   drei Blaupausen (Monitoring · Monatsreport · Sales-Analyse), Feld-Vertrag aus capabilities.json,
   PBIR-Einsetzung über den „Referenz-Instanz"-Trick. **prepare+plan** (schreibt nicht ungefragt).

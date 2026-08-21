@@ -1,5 +1,76 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.42.0.0 (2026-08-13)
+
+**Quick-Win-Paket: schneller starten, schneller Auffälligkeiten sehen.**
+Vier Backlog-Punkte aus Ease-of-Use, Builder-UX und Analytik:
+
+- **Feldrollen-Tooltips:** Alle 15 Datenrollen erklären sich jetzt beim
+  Hover im Feld-Bereich selbst — was reinkommt, was es bewirkt, inkl. des
+  wichtigsten Fallstricks (z. B. FC-Flag-Werte, colgroup → Matrix). Sauber
+  lokalisiert über `descriptionKey` in allen vier Sprachen; die bisherigen
+  teils deutschen Hardcode-Texte sind ersetzt.
+- **Hervorhebung (EMPHASIZE) in allen Modi:** Das Highlight-Setting griff
+  bisher nur in Columns/Bars/Line, Tabelle und Karten. Jetzt auch in
+  **Pareto, GuV-Wasserfall, Integrierter Brücke, Kategorie-Brücke und
+  gestapelten Säulen/Balken** — einheitlich als schattiertes Band hinter
+  dem Slot plus fettes Label, im Hochkontrast-Modus als Rahmen. Der
+  Band-Code ist dabei in eine gemeinsame Hilfsfunktion gewandert
+  (Columns/Bars/Tabelle nutzen sie jetzt mit). Testfälle c125–c127.
+- **Abweichungs-Filter „nur Auffälligkeiten"** (Chart → Analyse,
+  `exceptionOnly`): Exception-Reporting auf einen Klick — nur Kategorien
+  über der Wesentlichkeitsschwelle bleiben einzeln stehen, der Rest wird
+  zu einer neutralen Sammelzeile „Unauffällig (n)" verdichtet (Σ bleibt
+  exakt erhalten). Dazu ein ⚠-Chip im Chart zum Umschalten (persistiert,
+  bookmarkfähig) und ein Fußzeilen-Hinweis „⚠ n zusammengefasst" für
+  Transparenz. Greift bewusst nur in Struktur-Modi (Bars, Karten, flache
+  Tabelle) — Zeitachsen und Kaskaden bekommen keine Lücken. Sichtbar nur,
+  wenn Materialitätsschwellen gesetzt sind. Testfälle c128–c129.
+- **Smart-Start:** Nach dem Binden der Felder erkennt das Visual die
+  Konstellation und schlägt im Bearbeitungsmodus per Klick den passenden
+  Modus vor (Struktur-Kategorien → Balken, sum/delta-Typen → Wasserfall,
+  Spaltengruppen → Matrix, lange Zeitreihe → Linie). Ein Klick wendet den
+  Modus an, ✕ verwirft den Vorschlag dauerhaft für diese Konstellation;
+  im Lesemodus erscheint nichts. Abschaltbar (Chart → Layout). Testfall
+  c130.
+
+## 1.41.0.0 (2026-08-13)
+
+**Cross-Highlighting und zwei Karten-Wünsche aus dem Beta-Feedback.**
+
+- **Cross-Highlight statt stiller Filterung** (`supportsHighlight`): Klickt
+  jemand in einem anderen Visual auf einen Balken, bekam ChartKitchen bisher
+  nur noch die gefilterten Zeilen — der Vergleichskontext verschwand. Jetzt
+  liefert Power BI alle Zeilen plus die Information, welche zur Auswahl
+  gehören: **die hervorgehobenen Kategorien bleiben voll deckend, alle
+  übrigen rendern gedimmt**. Der Rest des Charts bleibt als Kontext stehen,
+  Skalen und Σ-Kopf springen beim Klicken nicht mehr. Gilt für alle Modi
+  (Säulen, Balken, Brücken, Tabelle, Matrix, Karten), weil die Dimmung an
+  derselben Gruppen-Mechanik hängt wie die eigene Selektion. Eine eigene
+  Selektion im Visual hat weiterhin Vorrang, solange sie aktiv ist.
+  Teil-Hervorhebungen (die Kategorie ist nur anteilig ausgewählt) zählen als
+  hervorgehoben. Testfall c124.
+  *Hinweis:* Das ist eine bewusste Verhaltensänderung — wer bisher erwartet
+  hat, dass Cross-Filtering die Zahlen im Visual filtert, sieht jetzt den
+  vollen Datenkontext mit optischer Hervorhebung (so verhalten sich auch die
+  nativen Power-BI-Diagramme).
+- **KPI-Karten ohne Kategoriefeld** (Beta-Wunsch): Bisher war ein
+  Kategoriefeld Pflicht — wer einfach „Umsatz, Vorjahr, Plan" auf eine
+  Karte legen wollte, landete auf der Landing Page. Jetzt reichen die
+  Measures: das Visual rendert **eine Kachel, überschrieben mit dem Namen
+  der AC-Measure**, inklusive Δ-Zeilen und Mini-Brücke wie gewohnt. Gilt
+  technisch für alle Modi (eine Kategorie ohne Namen), gedacht ist es für
+  die „eine große Zahl"-Karte. Testfall c122.
+- **Referenzwerte auf der Karte** (Beta-Wunsch): Die Karte zeigte bisher nur
+  die Abweichung („ΔVJ +700 T€"), nicht den Vergleichswert selbst. Neues
+  Setting **„Referenzwerte anzeigen"** (Chart → KPI cards): *Nur
+  Abweichungen* (Standard, unverändert), *Basiswert* blendet die
+  Vergleichsbasis als eigene Zeile ein, *Alle gebundenen Szenarien*
+  zusätzlich VJ, Plan, Prognose und Benchmark. Die Wertzeilen stehen in
+  Tinte über den farbigen Δ-Zeilen — die Abweichung behält das optische
+  Gewicht. Bei knapper Kachelhöhe entfallen die unteren Zeilen wie bisher.
+  Testfall c123.
+
 ## 1.40.0.0 (2026-08-05)
 
 **AC + FC im selben Monat: die Splitsäule.** Der laufende Monat ist im

@@ -2,9 +2,19 @@
 
 > Werkstatt und Publikationsplattform von Michael Tenner rund um Business Intelligence, Datenanalyse und die ehrliche Auseinandersetzung mit Zahlen: Power BI und Microsoft Fabric, IBCS-konformes Reporting, eigene Power-BI-Custom-Visuals — dazu datenjournalistische Analysen (Strommix, Rhein-Abflussreihe, KI-Risiko, KI-CO2) und der Daten-WG-Podcast. Alles selbst gebaut, quellenbelegt und mit offengelegten Grenzen.
 
-Diese Datei folgt der Konvention von llmstxt.org. Sie listet die inhaltlich wichtigen Seiten der Site in einer maschinenlesbaren Markdown-Fassung unter `/md/`. Die HTML-Fassungen sind interaktiv (Regler, Filter, Scrollytelling, eingebettete Power-BI-Berichte); die Markdown-Fassungen enthalten denselben Fliesstext plus die zugehoerigen Zahlen als Tabelle.
+Diese Datei folgt der Konvention von llmstxt.org. Sie listet die inhaltlich wichtigen Seiten der Site in einer maschinenlesbaren Markdown-Fassung unter `/md/`. Die HTML-Fassungen sind interaktiv (Regler, Filter, Scrollytelling, eingebettete Power-BI-Berichte); die Markdown-Fassungen enthalten denselben Fliesstext plus die zugehoerigen Zahlen als Tabelle. Inhaltsseiten verweisen zusaetzlich selbst auf ihre Markdown-Fassung — per `<link rel="alternate" type="text/markdown">` im Head und einem sichtbaren Footer-Link.
 
 Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als **Entwurf** gekennzeichnet und tragen je Zahl eine **Konfidenzstufe** (A mehrfach belegt · B einfach belegt · C schwache Belegbasis · M Modellsetzung). Eine Zahl ohne ihre Konfidenzstufe zu uebernehmen, verfaelscht die Aussage. Sprache: ueberwiegend Deutsch; einzelne Dokumente zusaetzlich auf Englisch.
+
+## ChartKitchen (Power-BI-Custom-Visual)
+
+- [Schnellstart (DE)](https://datenwgknowledgekitchen.com/md/chartkitchen-schnellstart.md): Was das Visual kann, Download, Import in Power BI Desktop, Beta-Hinweis.
+- [Quick Start (EN)](https://datenwgknowledgekitchen.com/md/chartkitchen-schnellstart_en.md): Englische Fassung der Schnellstart-Seite.
+- [Dokumentation (DE)](https://datenwgknowledgekitchen.com/md/chartkitchen-doku.md): Vollstaendige Doku des IBCS-inspirierten Visuals — 13 Diagramm-Modi, Szenario-Notation (AC/PY/PL/FC), Varianzen, 84-Settings-Referenz, 15 Feldrollen, FAQ.
+- [Documentation (EN)](https://datenwgknowledgekitchen.com/md/chartkitchen-doku_en.md): Englische Fassung der Dokumentation.
+- [AGENT-GUIDE](https://datenwgknowledgekitchen.com/ibcsInspiredChartDeck/AGENT-GUIDE.md): Maschinenlesbare Referenz fuer KI-Agenten — exakte Property-Namen fuers PBIR-Authoring, Datenvertrag, persistierte Zustaende, bekannte Fallen. Erste Wahl, wenn ein Agent Berichte mit dem Visual konfigurieren soll.
+- [CHANGELOG](https://datenwgknowledgekitchen.com/ibcsInspiredChartDeck/CHANGELOG.md): Versionshistorie des Visuals.
+- Download (.pbiviz, immer die aktuelle Version): https://datenwgknowledgekitchen.com/downloads/chartkitchen-byDatenWG-latest.pbiviz — Versionsinfo als JSON: https://datenwgknowledgekitchen.com/downloads/latest.json
 
 ## Publikationen
 
@@ -13,19 +23,25 @@ Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als *
 - [209 Jahre, ein Fluss, zwei Wahrheiten](https://datenwgknowledgekitchen.com/md/rhein-story.md): Die Abflussreihe des Pegels Koeln seit 1816 (GRDC, 76.397 Tageswerte). Im Jahresmittel kein Trend — in der Saisonalitaet ein hochsignifikanter (Wald-Test p = 0,004). Mit Monats-Trendtabelle, Extremwertanalyse und expliziter Selbstkritik.
 - [Zehn Tage bis zum marktfaehigen Stand](https://datenwgknowledgekitchen.com/whitepaper-ki-entwicklung-roi.md): Bewertungsmodell fuer KI-gestuetzte Software-Entwicklung in festen Frameworks, durchgerechnet an einer dokumentierten Fallstudie — Kostenhebel, Build-vs.-Buy, Grenzen der Uebertragbarkeit.
 - [Ten Days to a Market-Ready Build (English edition)](https://datenwgknowledgekitchen.com/whitepaper-ki-entwicklung-roi_en.md): Englische Fassung des Thesenpapiers.
+- [Zehn Tage — Thesenpapier (Kurzfassung, DE)](https://datenwgknowledgekitchen.com/md/ki-entwicklung-zehn-tage.md): Kompakte Thesen-Fassung des Whitepapers, mit Evidenzstufen je Aussage.
+- [Ten Days — thesis paper (short, EN)](https://datenwgknowledgekitchen.com/md/ki-entwicklung-zehn-tage_en.md): Englische Kurzfassung.
 - [Wie wahrscheinlich ist die KI-Apokalypse? — p(doom)](https://datenwgknowledgekitchen.com/md/pdoom-ki-risiko.md): Kommentierte Sammlung oeffentlicher p(doom)-Aussagen von Forschenden, CEOs und Prognostikern — Spannweite unter 0,01 % bis ueber 99 %, mit Verteilung, Rollenvergleich und Zeitverlauf. Ausdruecklich eine Aussagen-Sammlung, keine Messung.
 - [Wie viel CO2 steckt in einem Token?](https://datenwgknowledgekitchen.com/md/ki-co2-simulator.md): Modell und Annahmen des Energie-/CO2-Simulators fuer KI-Nutzung im Unternehmen — Modellklassen, Strommix-Voreinstellungen, PUE, vollstaendiger Quellenanhang. Rechnet durchgaengig in Min-Max-Baendern, nicht in Punktwerten.
 - [Die Schweiz faehrt Europa davon — Bahnnutzung 2024](https://datenwgknowledgekitchen.com/md/zugfahrten-europa.md): Making-of einer Infografik auf Eurostat-Daten 2024 — inklusive der Fehler auf dem Weg von einem schnellen KI-Draft zur ehrlich skalierten Metro-Karte.
 - [175 Jahre Klimageschichte zum Anfassen](https://datenwgknowledgekitchen.com/md/waermestreifen-3d.md): Warming Stripes in der dritten Dimension — 758 GHCN-Wetterstationen, 1850 bis heute, als Power-BI-Custom-Visual.
+- [Post: IBCS-Reporting in Power BI](https://datenwgknowledgekitchen.com/blog/ibcs-reporting-power-bi.md): Semantische Notation, Varianzen und Bruecken mit Bordmitteln plus Deneb.
+- [Post: Power BI Design Skill](https://datenwgknowledgekitchen.com/md/powerbi-design-skill.md): Report-Design als wiederverwendbares Framework (Claude-Skill) — Branding, Navigation, Kachel-Raster, Accessibility-Checks.
+- [Post: Ist KI das neue Papier? (DE)](https://datenwgknowledgekitchen.com/md/prototyping-pnl-treiberbaum.md): Prototyping neu gedacht — vom Markdown-Spec zum klickbaren P&L-Prototyp.
+- [Post: Is AI the New Paper? (EN)](https://datenwgknowledgekitchen.com/md/prototyping-pnl-treiberbaum_en.md): Englische Fassung.
 
 ## Guides und Dokumentation
 
-- [Power BI End-to-End — Einsteiger-Guide](https://datenwgknowledgekitchen.com/md/power-bi-einsteiger-guide.md): Der vollstaendige Weg von der Datenanbindung bis zum Sharing in 87 Abschnitten — Architektur, Power Query, Query Folding, Stern-Schema, DAX, IBCS, Interaktivitaet, Service, Row-Level Security, externe Tools. Mit Schritt-fuer-Schritt-Anleitungen und typischen Anfaengerfallen.
-- [Microsoft Fabric End-to-End — Einsteiger-Guide](https://datenwgknowledgekitchen.com/md/fabric-einsteiger-guide.md): OneLake, Lakehouse, Warehouse, Direct Lake und semantische Modelle — was wofuer da ist, welche Architektur wann passt, inklusive Snowflake-Sonderfall.
-- [Power BI Praxis-Pfad](https://datenwgknowledgekitchen.com/md/powerbi-praxis-pfad.md): Gefuehrter Uebungspfad von der Installation zum ersten fertigen Dashboard in gut zwei Stunden — mit Beispieldaten, ohne Konto, ohne Vorkenntnisse.
-- [ChartKitchen byDatenWG — Dokumentation](https://datenwgknowledgekitchen.com/md/chartkitchen-doku.md): Vollstaendige Doku des IBCS-inspirierten Power-BI-Custom-Visuals: 13 Diagramm-Modi in einem Visual, Szenario-Notation (AC/PY/PL/FC), Varianzen, Einstellungs-Referenz.
+- [Power BI End-to-End — Einsteiger-Guide](https://datenwgknowledgekitchen.com/md/power_bi_einsteiger_guide_v4.md): Der vollstaendige Weg von der Datenanbindung bis zum Sharing in 87 Abschnitten — Architektur, Power Query, Query Folding, Stern-Schema, DAX, IBCS, Interaktivitaet, Service, Row-Level Security, externe Tools. Mit Schritt-fuer-Schritt-Anleitungen, Code-Beispielen und typischen Anfaengerfallen.
+- [Microsoft Fabric End-to-End — Einsteiger-Guide](https://datenwgknowledgekitchen.com/md/fabric_einsteiger_guide_v1.md): OneLake, Lakehouse, Warehouse, Direct Lake und semantische Modelle — was wofuer da ist, welche Architektur wann passt, inklusive Snowflake-Sonderfall.
+- [Power BI Praxis-Pfad](https://datenwgknowledgekitchen.com/md/powerbi_praxis_pfad.md): Gefuehrter Uebungspfad von der Installation zum ersten fertigen Dashboard in gut zwei Stunden — mit Beispieldaten, ohne Konto, ohne Vorkenntnisse.
+- [Business Chart Builder — Anleitung](https://datenwgknowledgekitchen.com/md/business-chart-builder-anleitung.md): Anleitung zum Chart-Builder-Werkzeug inkl. 1-Klick-Export nach Power BI (Deneb).
 - [Country Indicator Explorer](https://datenwgknowledgekitchen.com/md/laender-indikatoren-explorer.md): Methodik und Quellen des Explorers zu Lebenszufriedenheit und ihren Korrelaten — 164 Laender, 15 Indikatoren, Pearson-Korrelationen. Deskriptiv, ausdruecklich nicht kausal.
-- [Daten-WG · Video-Guide](https://datenwgknowledgekitchen.com/md/daten-wg-videos.md): Linkliste aller 143 Podcast-Folgen in neun Themen-Clustern, mit Gast, Datum, Laenge, Sprache und YouTube-Link.
+- [Daten-WG · Episoden-Guide](https://datenwgknowledgekitchen.com/md/daten_wg_learn_buckets.md): Alle 143 Folgen des Daten-WG-Podcasts in neun Themen-Clustern — mit Gast, Datum, Laenge, Sprache, Beschreibung und Kapitel-Sprungmarken als YouTube-Timestamp-Links. Generiert aus den Episodendaten.
 
 ## Daten (maschinenlesbar)
 
@@ -44,7 +60,8 @@ Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als *
 - [Interaktives White Paper Strommix](https://datenwgknowledgekitchen.com/whitepaper-strommix.html): HTML-Fassung mit Reglern, Dispatch-Simulation und Szenario-Vergleich.
 - [Visual Story Strommix](https://datenwgknowledgekitchen.com/strommix-story.html): HTML-Fassung als Scrollytelling.
 - [Rhein-Story](https://datenwgknowledgekitchen.com/rhein-story.html): HTML-Fassung mit animierten Charts in sechs Akten.
-- [md/README.md](https://datenwgknowledgekitchen.com/md/README.md): Konvention hinter diesem Export — wie neue Inhalte aufgenommen werden, warum datengetriebene Seiten per Skript generiert werden und welche Frontmatter-Regel wegen Jekyll gilt.
+- [md/README.md](https://datenwgknowledgekitchen.com/md/README.md): Konvention hinter diesem Export — wie neue Inhalte aufgenommen werden, welche Seiten per Skript generiert werden und welche Frontmatter-Regel wegen Jekyll gilt.
+- [GitHub-Repo der Website und des Visuals](https://github.com/Losveratos/PowerBI-Kitchen-): Quellcode, Issues, Backlog.
 - [Impressum](https://datenwgknowledgekitchen.com/impressum.html) und [Datenschutz](https://datenwgknowledgekitchen.com/datenschutz.html): Kontakt und rechtliche Angaben.
 
 ## Zitieren und Kontakt

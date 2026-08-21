@@ -43,6 +43,30 @@ type Basis = "py" | "plan" | "fcrev";
 /** persisted comma lists editable via the one-click structure menu */
 type ListProp = "invertList" | "resultList" | "skipList" | "hideList" | "chartList" | "indentList";
 
+/** Smart-Start: one high-confidence mode suggestion derived from bound fields */
+interface SmartStartSuggestion {
+    /** rule id, also the orientation value the chip applies + the dismiss signature prefix */
+    rule: "waterfall" | "table" | "bars" | "line";
+    textKey: string;
+    textFallback: string;
+}
+
+/** month tokens (DE + EN, short and long) recognized by looksLikeTime — lower-case */
+const SMARTSTART_MONTHS = [
+    "jan", "januar", "january",
+    "feb", "februar", "february",
+    "mär", "maer", "mrz", "märz", "maerz", "mar", "march",
+    "apr", "april",
+    "mai", "may",
+    "jun", "juni", "june",
+    "jul", "juli", "july",
+    "aug", "august",
+    "sep", "sept", "september",
+    "okt", "oktober", "oct", "october",
+    "nov", "november",
+    "dez", "dezember", "dec", "december"
+];
+
 interface DataPoint {
     cat: string;
     /** per-level labels when the category field is an expanded hierarchy (else null) */
@@ -84,6 +108,9 @@ interface DataPoint {
     rowType: string | null;
     /** true for the synthetic "Rest (n)" row produced by top-N aggregation */
     isRest: boolean;
+    /** cross-highlight from another visual is active and this row is NOT part of
+     *  it — rendered faded. False whenever no highlight is active at all */
+    dim: boolean;
     sel: ISelectionId | null;
 }
 
@@ -179,6 +206,8 @@ interface ChartConfig {
     cardBars: boolean;
     /** KPI cards: order ("none" | "deviation" — biggest color deviation first) */
     cardSort: string;
+    /** KPI cards: reference values as own rows ("off" | "basis" | "all") */
+    cardRefVals: string;
     /** sum-safe label rounding (largest remainder): labels add up to the Σ header */
     sumSafe: boolean;
     /** deck-wide absolute-variance domain (incl. fixedVarMax) for scale sync */
@@ -296,7 +325,7 @@ export class Visual implements IVisual {
     private tooltipService: ITooltipService;
     private formattingSettings: VisualFormattingSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
-    private catGroups: { g: SVGGElement; sel: ISelectionId | null }[] = [];
+    private catGroups: { g: SVGGElement; sel: ISelectionId | null; dim?: boolean }[] = [];
     private measureFormat: string | undefined;
     private measureName: string | undefined;
     private lineFormat: string | undefined;
@@ -347,6 +376,12 @@ export class Visual implements IVisual {
     private pendingCardSort: string | null = null;
     /** last seen pane value of chart.cardSort — a change drops the chip override */
     private lastPaneCardSort: string | null = null;
+    /** exception reporting: mode + thresholds allow the filter (gates the ⚠ chip) */
+    private exceptionCapable = false;
+    /** exception reporting: filter is actually on (pane setting AND capable) */
+    private exceptionOn = false;
+    /** rows the exception filter folded into the collector row (filter footer) */
+    private exceptionHidden = 0;
     /** finance number convention (negatives in parentheses, zero as "–") */
     private financeFmt = false;
     /** landing font-preset pill: value we persisted but the host has not echoed yet */
@@ -384,6 +419,25 @@ export class Visual implements IVisual {
     private paneHasBm = false;
     /** false in export/print contexts — suppresses all in-chart buttons/chrome */
     private allowInteractions = true;
+    /** update() ViewMode, saved verbatim — the chip gates on it (Edit or unknown host = show,
+     *  real View mode = hide). Compared against the literal 1 (powerbi.ViewMode.Edit): the
+     *  test-bundle shims powerbi-visuals-api with an empty object, so const-enum VALUES
+     *  (unlike types, which erase) are not available at runtime — same reason settings.ts
+     *  spells out ValidatorType as raw numbers instead of importing the enum */
+    private viewMode: powerbi.ViewMode | null = null;
+    /** rowType / colgroup role bound at all (Smart-Start rules a/b), independent of the
+     *  current orientation's own filtering of those fields */
+    private paneHasRowType = false;
+    private paneHasColgroup = false;
+    /** Smart-Start: distinct category count + time-likeness of the primary category field,
+     *  and its display name (used in the dismiss signature) — computed once in parseData */
+    private smartStartCatCount = 0;
+    private smartStartCatIsTime = false;
+    private smartStartCatFieldName: string | null = null;
+    /** Smart-Start: signature of the suggestion the user last dismissed (bookmarkable,
+     *  chart.smartStartDismissed) — NOT a pane slice, same pattern as cardSortSel */
+    private smartStartDismissedSig = "";
+    private pendingSmartStartDismissed: string | null = null;
 
     /** export/PDF/subscription rendering with "Export: expand all" on — every
      *  row/column branch and GuV sum block renders open, screen state untouched */
@@ -450,6 +504,8 @@ export class Visual implements IVisual {
             const dataView: DataView | undefined = options.dataViews && options.dataViews[0];
             this.formattingSettings = this.formattingSettingsService
                 .populateFormattingSettingsModel(VisualFormattingSettingsModel, dataView);
+            // Smart-Start gates on the edit context — save the raw ViewMode every update
+            this.viewMode = options.viewMode ?? null;
             // one-click-P&L lists: a just-persisted value must survive a stale
             // metadata update that arrives before the host echoes it back
             for (const [prop, val] of [...this.pendingListProps]) {
@@ -594,6 +650,15 @@ export class Visual implements IVisual {
                 });
             }
             this.lastPaneCardSort = paneCs;
+            // Smart-Start dismiss signature (bookmarkable, not a pane slice — a declined
+            // suggestion must not resurface until the bound-field constellation changes),
+            // same echo-guard pattern as cardSortSel
+            const rawSsd = dataView?.metadata?.objects?.["chart"]?.["smartStartDismissed"];
+            const rawSsdStr = typeof rawSsd === "string" ? rawSsd : "";
+            if (this.pendingSmartStartDismissed == null || rawSsdStr === this.pendingSmartStartDismissed) {
+                this.pendingSmartStartDismissed = null;
+                this.smartStartDismissedSig = rawSsdStr;
+            }
             const points = this.parseData(dataView);
             // an open structure menu must not outlive its row (filter/data change)
             if (this.structEditor && this.structCat != null
@@ -608,6 +673,7 @@ export class Visual implements IVisual {
             this.svg.style.display = "block";
             this.lastRender = { points, width, height };
             this.render(points, width, height);
+            this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
             this.events.renderingFinished(options);
         } catch (error) {
             this.events.renderingFailed(options, String(error));
@@ -619,6 +685,7 @@ export class Visual implements IVisual {
         if (!this.lastRender) { return; }
         // render() mutates order in place via groups — pass a copy of the point list
         this.render([...this.lastRender.points], this.lastRender.width, this.lastRender.height);
+        this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
@@ -662,6 +729,11 @@ export class Visual implements IVisual {
         // BM and need the materiality thresholds just as much
         fs.chartCard.materialityAbs.visible = this.paneHasPy || this.paneHasPl || this.paneHasBm;
         fs.chartCard.materialityPct.visible = this.paneHasPy || this.paneHasPl || this.paneHasBm;
+        // exception filter needs something to filter against — and a mode whose row
+        // order may shrink (time axes and cascades must stay gapless)
+        fs.chartCard.exceptionOnly.visible = ((fs.chartCard.materialityAbs.value ?? 0) > 0
+            || (fs.chartCard.materialityPct.value ?? 0) > 0)
+            && (orient === "bars" || orient === "cards" || orient === "table");
         fs.chartCard.compareClick.visible = orient === "columns" || orient === "bars";
         fs.chartCard.showTotal.visible = orient === "columns" || orient === "bars"
             || orient === "line" || orient === "table";
@@ -693,13 +765,47 @@ export class Visual implements IVisual {
         const rowTypeCol = catCols?.find(c => c.source.roles?.["rowType"]);
         const fcFlagCol = catCols?.find(c => c.source.roles?.["fcFlag"]);
         const colCols = catCols?.filter(c => c.source.roles?.["colgroup"]) ?? [];
+        // Smart-Start rules a/b key off the roles being bound AT ALL — independent of
+        // what the current orientation later filters/merges them into
+        this.paneHasRowType = !!rowTypeCol;
+        this.paneHasColgroup = colCols.length > 0;
+        this.smartStartCatFieldName = cat?.source.displayName ?? null;
+        // Smart-Start rules c/d: distinct category count + time-likeness of the primary
+        // category field, computed once here (raw Date typing is only available on this
+        // column before categoryLabel() flattens it to a locale string)
+        if (cat) {
+            const seen = new Set<string>();
+            const distinctLabels: string[] = [];
+            let hasDate = false;
+            for (const v of cat.values) {
+                if (v instanceof Date) { hasDate = true; }
+                const lbl = this.categoryLabel(v);
+                if (!seen.has(lbl)) { seen.add(lbl); distinctLabels.push(lbl); }
+            }
+            this.smartStartCatCount = distinctLabels.length;
+            this.smartStartCatIsTime = hasDate || this.looksLikeTime(distinctLabels);
+        } else {
+            this.smartStartCatCount = 0;
+            this.smartStartCatIsTime = false;
+        }
         const valueCols = dataView?.categorical?.values;
-        if (!cat || !valueCols || valueCols.length === 0) { return null; }
+        // no category is legitimate: measures alone make a single KPI tile (the
+        // "one big number" case). Only the value columns are mandatory.
+        if (!valueCols || valueCols.length === 0) { return null; }
 
         this.missingHint = null;
         const byRole: { [role: string]: (number | null)[] } = {};
+        // cross-highlight (supportsHighlight): Power BI keeps every row in values
+        // and marks the un-highlighted ones as null in a parallel highlights array.
+        // A row counts as highlighted when ANY bound measure has a non-null entry —
+        // partial highlights (highlight < value) count as highlighted too.
+        let anyHighlights = false;
+        const hlRows: boolean[] = [];
         let comments: (string | null)[] | null = null;
         this.measureFormat = undefined;
+        // reset with the format: it names the title block and (measure-only binding)
+        // the card itself, so a swapped measure must not leave the old name standing
+        this.measureName = undefined;
         this.filterInfo = null;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
@@ -715,6 +821,12 @@ export class Visual implements IVisual {
                     if (role === "lineMeasure") {
                         this.lineFormat = col.source.format;
                         this.lineName = col.source.displayName;
+                    }
+                    if (col.highlights) {
+                        anyHighlights = true;
+                        for (let i = 0; i < col.highlights.length; i++) {
+                            if (col.highlights[i] != null) { hlRows[i] = true; }
+                        }
                     }
                 }
             }
@@ -753,7 +865,9 @@ export class Visual implements IVisual {
         // silently (beta feedback A. Korn)
         const hideBlank = this.formattingSettings.chartCard.hideBlankCat.value === true;
         const acFcSplit = String(this.formattingSettings.chartCard.acFcSplit.value.value);
-        for (let i = 0; i < cat.values.length; i++) {
+        // without a category the measures deliver a single scalar row each
+        const rowCount = cat ? cat.values.length : (valueCols[0]?.values?.length ?? 1);
+        for (let i = 0; i < rowCount; i++) {
             if (hideBlank && catLevels.length > 0 && catLevels.every(l => {
                 const v = l.values[i];
                 return v == null || String(v).trim() === "";
@@ -800,6 +914,11 @@ export class Visual implements IVisual {
             for (const level of catLevels) { selBuilder = selBuilder.withCategory(level, i); }
             if (mult) { selBuilder = selBuilder.withCategory(mult, i); }
             const levelLabels = catLevels.map(level => this.categoryLabel(level.values[i]));
+            // measure-only binding: the KPI carries the measure's own name instead
+            // of a category label, so a single card reads "Umsatz · 12,4 Mio"
+            if (levelLabels.length === 0) {
+                levelLabels.push(this.measureName ?? this.locStr("Role_Actual", "Actual (AC)"));
+            }
             points.push({
                 cat: levelLabels.join(" · "),
                 catLevels: levelLabels.length > 1 ? levelLabels : null,
@@ -818,7 +937,8 @@ export class Visual implements IVisual {
                 rowType: rowTypeCol && rowTypeCol.values[i] != null
                     ? String(rowTypeCol.values[i]).toLowerCase() : null,
                 isRest: false,
-                sel: selBuilder.createSelectionId()
+                dim: anyHighlights && !hlRows[i],
+                sel: catLevels.length > 0 || mult ? selBuilder.createSelectionId() : null
             });
         }
         // merge user-entered comments (persisted via the in-chart editor) and renumber;
@@ -845,6 +965,151 @@ export class Visual implements IVisual {
             return v.toLocaleDateString(this.host.locale, { year: "2-digit", month: "short" });
         }
         return String(v);
+    }
+
+    /** Smart-Start rule c/d: true when a MAJORITY of labels look like time buckets
+     *  (month, quarter, calendar week, year or a date-shaped string). False positives
+     *  are worse than false negatives here — a tie or unclear mix stays false. */
+    private looksLikeTime(labels: string[]): boolean {
+        if (labels.length === 0) { return false; }
+        const QUARTER_RX = /^q[1-4](\s?[/-]?\s?\d{2,4})?$/i;
+        const WEEK_RX = /^(kw|cw|w)\s?\d{1,2}$/i;
+        const YEAR_RX = /^20\d{2}$/;
+        const DATE_RX = /^\d{1,4}[.\-/]\d{1,2}[.\-/]\d{1,4}$/;
+        let hits = 0;
+        for (const raw of labels) {
+            const t = (raw ?? "").trim();
+            if (!t) { continue; }
+            const low = t.toLowerCase();
+            // month token + optional trailing dot + optional 2-/4-digit year, e.g.
+            // "Mär", "Mär.", "Mär 26", "Sep25", "January 2026"
+            const monthMatch = /^([a-zäöüß]+)\.?\s*(\d{2}|\d{4})?$/.exec(low);
+            const isMonth = !!monthMatch && SMARTSTART_MONTHS.includes(monthMatch[1]);
+            if (isMonth || QUARTER_RX.test(low) || WEEK_RX.test(low)
+                || YEAR_RX.test(low) || DATE_RX.test(t)) {
+                hits++;
+            }
+        }
+        return hits / labels.length > 0.5;
+    }
+
+    /** Smart-Start rules a–d, first match wins. null = no confident suggestion, the
+     *  suggestion is already active, no/too few categories, or the user dismissed
+     *  this exact constellation before (chart.smartStartDismissed). */
+    private computeSmartStartSuggestion(orientationRaw: string): SmartStartSuggestion | null {
+        if (!this.formattingSettings.chartCard.smartStart.value) { return null; }
+        // measure-only KPI (no category) or too few categories to read a shape from
+        if (this.smartStartCatCount < 3) { return null; }
+        let sug: SmartStartSuggestion | null = null;
+        if (this.paneHasRowType && orientationRaw !== "waterfall" && orientationRaw !== "pnl"
+            && orientationRaw !== "table") {
+            sug = { rule: "waterfall", textKey: "SmartStart_Waterfall",
+                textFallback: "Sum/delta types detected — P&L waterfall?" };
+        } else if (this.paneHasColgroup && orientationRaw !== "table") {
+            sug = { rule: "table", textKey: "SmartStart_Table",
+                textFallback: "Column groups detected — matrix/table?" };
+        } else if (orientationRaw === "columns" && !this.smartStartCatIsTime) {
+            sug = { rule: "bars", textKey: "SmartStart_Bars",
+                textFallback: "Structure detected — bars?" };
+        } else if (orientationRaw === "columns" && this.smartStartCatIsTime
+            && this.smartStartCatCount > 24) {
+            sug = { rule: "line", textKey: "SmartStart_Line",
+                textFallback: "Many time points — line chart?" };
+        }
+        if (!sug || sug.rule === orientationRaw) { return null; }
+        if (this.smartStartSignature(sug.rule) === this.smartStartDismissedSig) { return null; }
+        return sug;
+    }
+
+    /** compact dismiss signature: rule + bound category field, e.g. "bars|cat:Region" —
+     *  a different field or a different rule is a new constellation and may suggest again */
+    private smartStartSignature(rule: string): string {
+        return `${rule}|cat:${this.smartStartCatFieldName ?? ""}`;
+    }
+
+    /**
+     * Smart-Start suggestion chip, top-left of the chart area (top-right is the ⚠/sort
+     * chip cluster): "💡 <suggestion>" applies the mode, a small "✕" dismisses just this
+     * constellation. Drawn AFTER the IBCS title block (topY = the title's own height) and
+     * reserves its own row so it never overlaps the title text. Returns the reserved height.
+     */
+    private drawSmartStartChip(topY: number, cfg: ChartConfig, sug: SmartStartSuggestion): number {
+        const k = this.fontK;
+        const bh = Math.round(18 * k), font = Math.round(11 * k);
+        const suggestionText = this.locStr(sug.textKey, sug.textFallback);
+        const label = `\u{1F4A1} ${suggestionText}`;
+        const chipTip = this.locStr("SmartStart_ChipTip",
+            "Smart-Start suggestion based on the bound fields — click to apply.");
+        const segW = this.textWidth(label, font) + Math.round(16 * k);
+        const x = 6, y = topY + 3;
+
+        const chip = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+        chip.setAttribute("aria-label", `${label} — ${chipTip}`);
+        const tip = this.el("title", {}, chip);
+        tip.textContent = `${label} — ${chipTip}`;
+        this.el("rect", {
+            x, y, width: segW, height: bh, rx: bh / 2,
+            fill: cfg.paper, stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
+        }, chip);
+        const t = this.el("text", {
+            x: x + segW / 2, y: y + bh / 2 + font * 0.36, "text-anchor": "middle",
+            "font-size": font, fill: cfg.ink, "font-family": FONT
+        }, chip);
+        t.textContent = label;
+        chip.style.cursor = "pointer";
+        const apply = () => {
+            // optimistic: the pane echo arrives one update later, the chip's own click
+            // must already flip the render — same TTL-guarded pattern as pickMode()
+            const oSlice = this.formattingSettings.chartCard.orientation;
+            const oIt = oSlice.items.find(it => String(it.value) === sug.rule);
+            if (oIt) { oSlice.value = oIt; }
+            this.pendingOrientation = sug.rule;
+            this.pendingOrientationTtl = 5;
+            this.host.persistProperties({
+                merge: [{ objectName: "chart", selector: null, properties: { orientation: sug.rule } }]
+            });
+            this.rerender();
+        };
+        chip.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); apply(); });
+        chip.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key !== "Enter" && e.key !== " ") { return; }
+            e.preventDefault(); e.stopPropagation(); apply();
+        });
+
+        // dismiss segment ("✕"), directly to the right — persists the constellation
+        // signature so THIS suggestion stays quiet, a different one may still appear
+        const dx = x + segW + Math.round(4 * k), dw = bh;
+        const dismissTip = this.locStr("SmartStart_Dismiss", "Dismiss suggestion");
+        const closeChip = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+        closeChip.setAttribute("aria-label", dismissTip);
+        const dtip = this.el("title", {}, closeChip);
+        dtip.textContent = dismissTip;
+        this.el("rect", {
+            x: dx, y, width: dw, height: bh, rx: bh / 2,
+            fill: cfg.paper, stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
+        }, closeChip);
+        const dt = this.el("text", {
+            x: dx + dw / 2, y: y + bh / 2 + font * 0.36, "text-anchor": "middle",
+            "font-size": font, fill: cfg.subtle, "font-family": FONT
+        }, closeChip);
+        dt.textContent = "✕";
+        closeChip.style.cursor = "pointer";
+        const dismiss = () => {
+            const sig = this.smartStartSignature(sug.rule);
+            this.smartStartDismissedSig = sig;
+            this.pendingSmartStartDismissed = sig;
+            this.host.persistProperties({
+                merge: [{ objectName: "chart", selector: null, properties: { smartStartDismissed: sig } }]
+            });
+            this.rerender();
+        };
+        closeChip.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); dismiss(); });
+        closeChip.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key !== "Enter" && e.key !== " ") { return; }
+            e.preventDefault(); e.stopPropagation(); dismiss();
+        });
+
+        return bh + 6;
     }
 
     private resolveBasis(byRole: { [role: string]: (number | null)[] }): Basis {
@@ -1611,6 +1876,28 @@ export class Visual implements IVisual {
             this.compareCats = [];
         }
 
+        // exception reporting: only categories above the materiality threshold stay
+        // as own rows, everything else is folded into ONE collector row. Limited to
+        // structure comparisons without a fixed axis order — time axes (columns/line,
+        // YTD) and cascades (waterfall style, bridges, P&L rows) would get gaps, and
+        // matrix/hierarchy tables carry their own tree aggregation
+        const matSet = (s.chartCard.materialityAbs.value ?? 0) > 0
+            || (s.chartCard.materialityPct.value ?? 0) > 0;
+        this.exceptionCapable = matSet && !isStacked && !wfStyleGlobal && !cumulativeOn
+            && (orientationRaw === "bars" || isCards
+                || (isTable && !listPnl
+                    && !points.some(p => p.colLevels && p.colLevels.length > 0)
+                    && !points.some(p => (p.catLevels?.length ?? 0) >= 2)
+                    && !points.some(p => p.rowType != null)));
+        this.exceptionOn = this.exceptionCapable && s.chartCard.exceptionOnly.value === true;
+        this.exceptionHidden = 0;
+        // order with topN: exception filter FIRST, then topN ranks the remaining
+        // conspicuous rows. The other way round the "Rest (n)" row of topN would
+        // itself be swallowed by the collector row and lose its label
+        if (this.exceptionOn) {
+            for (const g of groups) { g.pts = this.applyExceptionFilter(g.pts); }
+        }
+
         // top N + rest aggregation (structure comparisons only), per group —
         // never combined with cumulation: topN re-sorts by value, cumulate needs
         // the chronological order, the combination would sum a scrambled sequence
@@ -1775,6 +2062,7 @@ export class Visual implements IVisual {
             cardBullet: s.chartCard.cardBullet.value,
             cardBulletZoom: s.chartCard.cardBulletZoom.value,
             cardHl: String(s.chartCard.cardHighlight.value.value),
+            cardRefVals: String(s.chartCard.cardRefValues.value.value),
             cardBars: s.chartCard.cardBars.value,
             // the in-chart chip override wins over the pane dropdown when set
             cardSort: this.cardSortSel !== "" ? this.cardSortSel
@@ -1802,22 +2090,7 @@ export class Visual implements IVisual {
             deltaIcons: s.chartCard.deltaIcons.value === true,
             sharedIntWf: null,
             sharedCatBridge: null,
-            isMaterial: (() => {
-                const mAbs = s.chartCard.materialityAbs.value ?? 0;
-                const mPct = s.chartCard.materialityPct.value ?? 0;
-                if (mAbs <= 0 && mPct <= 0) { return () => true; }
-                // material = every configured threshold exceeded (AND) — filters both
-                // small absolute noise and small percentage noise
-                return (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => {
-                    if (!p) { return true; }
-                    const a = vAbs !== undefined ? vAbs : p.varAbs;
-                    const r = vRel !== undefined ? vRel : p.varRel;
-                    if (a == null && r == null) { return true; }
-                    if (mAbs > 0 && a != null && Math.abs(a) < mAbs) { return false; }
-                    if (mPct > 0 && r != null && Math.abs(r) < mPct) { return false; }
-                    return true;
-                };
-            })()
+            isMaterial: this.materialityFn()
         };
 
         // hatch patterns for forecast (base chart + good/bad variance colors)
@@ -2026,6 +2299,14 @@ export class Visual implements IVisual {
             if (isPnl && s.chartCard.chartButtons.value) {
                 this.drawPnlButtons(width, cfg, points);
             }
+            // ⚠ exception filter chip, top-right of the visual. Bars and table have
+            // that corner free (the rounding hint sits bottom right, the sort button
+            // only exists in waterfall style, which excludes the filter anyway); the
+            // KPI cards draw their own chip left of the sort chip in renderCards
+            let excReserve = 0;
+            if (this.exceptionCapable && !isCards) {
+                excReserve = this.drawExceptionChip(width - 6, 6, cfg) + Math.round(6 * this.fontK);
+            }
             // active-mode chip: comment capture, structure edit and compare-on-click
             // silently repurpose clicks — show a pill so nobody wonders why
             // crossfiltering stopped working
@@ -2041,7 +2322,8 @@ export class Visual implements IVisual {
                     : this.structureEdit
                         ? this.locStr("Chip_StructureMode", "⚙ Structure mode")
                         : `${this.locStr("Chip_Compare", "⇄ Compare")} (${this.compareCats.length}/2)`;
-                this.drawModeChip(width - 6 - toolbarReserve - sortReserve - ytdReserve, text, cfg);
+                this.drawModeChip(width - 6 - toolbarReserve - sortReserve - ytdReserve - excReserve,
+                    text, cfg);
             }
 
             // YTD chip (opt-in): the end user flips the cumulative view on the report
@@ -2052,9 +2334,17 @@ export class Visual implements IVisual {
             }
         }
         // IBCS title block on top of everything (incl. multiples grid)
-        const topOffset = s.ibcsTitleCard.show.value
+        const titleH = s.ibcsTitleCard.show.value
             ? this.drawTitleBlock(width, points, cfg, maxAbs, orientation)
             : 0;
+        // Smart-Start suggestion chip: below the title, reserving its own row so it
+        // never overlaps it — visible only in the edit context (or an unset ViewMode,
+        // i.e. the test harness), never in read-only views or export/print contexts
+        const smartStartOn = this.allowInteractions
+            && (this.viewMode == null || this.viewMode === 1 /* powerbi.ViewMode.Edit */);
+        const smartStartSug = smartStartOn ? this.computeSmartStartSuggestion(orientationRaw) : null;
+        const smartStartH = smartStartSug ? this.drawSmartStartChip(titleH, cfg, smartStartSug) : 0;
+        const topOffset = titleH + smartStartH;
         const footerText = (s.ibcsTitleCard.footer.value || "").trim();
         // optional second footer line: the applied-filter context. Report/page
         // filters are not exposed to custom visuals, so the author binds a text
@@ -2066,6 +2356,11 @@ export class Visual implements IVisual {
             const topNSet = Math.round(s.chartCard.topN.value ?? 0);
             if (topNSet > 0 && orientationRaw === "bars" && !cfg.cumulative) {
                 filterParts.push(`Top ${topNSet}`);
+            }
+            // the exception filter withholds rows — say so, or the reader takes the
+            // shortened list for the whole picture
+            if (this.exceptionOn && this.exceptionHidden > 0) {
+                filterParts.push(`⚠ ${this.exceptionHidden} ${this.locStr("Foot_Hidden", "summarised")}`);
             }
             if (this.tableSort && isTable && !cfg.cumulative) {
                 const [sk, sd] = this.tableSort.split("_");
@@ -2312,6 +2607,19 @@ export class Visual implements IVisual {
             w: region.w, h: region.h - pad - catArea
         };
 
+        // highlight bands (IBCS EMPHASIZE): span the variance tiers too, so they have
+        // to be laid down before those groups exist. Anchors/totals carry no p and are
+        // only emphasized when their own label (PY, Σ, AC …) is named in the setting.
+        if (cfg.highlight.size > 0) {
+            const hlG = this.el("g", {}, this.svg);
+            const hlStep = (bandEnd - bandStart) / segs.length;
+            for (let i = 0; i < segs.length; i++) {
+                if (!this.isEmph(cfg, segs[i].label)) { continue; }
+                this.emphBand(hlG, bandStart + i * hlStep + 1, outer.y,
+                    hlStep - 2, region.y + region.h - outer.y, cfg);
+            }
+        }
+
         // variance tiers above the waterfall (IBCS CT 12): ΔBasis bars and ΔBasis %
         // pins per calculation line. In the variance-bridge mode the waterfall bars
         // ARE the absolute deltas, so only the relative tier is added there.
@@ -2461,11 +2769,11 @@ export class Visual implements IVisual {
                     "columns", text, cfg.labelFont, cfg.ink, 0, cfg.paper);
             }
             this.drawCategoryLabel(g, sg.label, pos(i) + slotW / 2, "columns", cfg.catFont,
-                region, step, rect, cfg.ink);
+                region, step, rect, cfg.ink, this.isEmph(cfg, sg.label));
 
             if (sg.p) {
                 this.attachInteraction(g, sg.p, cfg);
-                this.catGroups.push({ g, sel: sg.p.sel });
+                this.catGroups.push({ g, sel: sg.p.sel, dim: sg.p.dim });
             }
         }
     }
@@ -2555,6 +2863,16 @@ export class Visual implements IVisual {
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
         const fmtD = (v: number) => this.fmtSigned(cfg.fmtVar, v);
+
+        // highlight bands (IBCS EMPHASIZE): full column slot from the pin tier down to
+        // the category labels; the flanking total columns sit outside the band area
+        if (cfg.highlight.size > 0) {
+            for (let i = 0; i < n; i++) {
+                if (!this.isEmph(cfg, pts[i].cat)) { continue; }
+                this.emphBand(bg, cx(i) - step / 2 + 1, region.y + pad,
+                    step - 2, region.h - pad * 2, cfg);
+            }
+        }
 
         // ------- ΔBasis% pin chart (top)
         if (showPins) {
@@ -2731,10 +3049,11 @@ export class Visual implements IVisual {
 
             // category labels (month + FC/first-year hint)
             const showCatAt = this.labelPredicate(pts, pts.map(q => q.cat), cf, step, "columns", undefined, true);
-            if (showCatAt(i)) {
+            const isHl = this.isEmph(cfg, p.cat);
+            if (showCatAt(i) || isHl) {
                 const ct = this.el("text", {
                     x, y: yBase + cf + 4, "text-anchor": "middle", "font-size": cf,
-                    fill: cfg.ink, "font-family": FONT
+                    fill: cfg.ink, "font-family": FONT, "font-weight": isHl ? 600 : 400
                 }, g);
                 ct.textContent = this.truncate(p.cat, step - 2, cf);
             }
@@ -2747,7 +3066,7 @@ export class Visual implements IVisual {
             }
 
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
 
@@ -2909,6 +3228,17 @@ export class Visual implements IVisual {
 
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
+
+        // highlight bands (IBCS EMPHASIZE): full category row incl. label column and
+        // pin tier. The PY/PL/AC total rows are anchors, not categories — untouched.
+        if (cfg.highlight.size > 0) {
+            for (let i = 0; i < n; i++) {
+                if (!this.isEmph(cfg, pts[i].cat)) { continue; }
+                this.emphBand(bg, region.x + pad, yS0 + i * rowH + 1,
+                    rightEdge - region.x - pad, rowH - 2, cfg);
+            }
+        }
+
         const rowLabel = (yy: number, text: string, bold: boolean, parent: SVGElement) => {
             const t = this.el("text", {
                 x: x0 - 8, y: yy + rowH / 2 + cf * 0.35, "text-anchor": "end",
@@ -3021,7 +3351,7 @@ export class Visual implements IVisual {
         pts.forEach((p, i) => {
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
             const yy = yS0 + i * rowH;
-            rowLabel(yy, p.cat, false, g);
+            rowLabel(yy, p.cat, this.isEmph(cfg, p.cat), g);
 
             // mini bars: reference (PY grey / PL outline) behind, AC in front;
             // with three scenarios the PY reference collapses to the triangle marker
@@ -3107,7 +3437,7 @@ export class Visual implements IVisual {
             }
 
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
 
@@ -3497,7 +3827,7 @@ export class Visual implements IVisual {
             }
 
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
     }
@@ -3779,7 +4109,7 @@ export class Visual implements IVisual {
             const blank = {
                 catLevels: null, isFc: false, bm: null, fcPrev: null, lineVal: null,
                 stackSeries: null, comment: null, commentNo: null,
-                group: points[0].group, isRest: false, sel: null
+                group: points[0].group, isRest: false, dim: false, sel: null
             };
             // unauflösbare Formel (Tippfehler im Zeilennamen, kaputte Syntax):
             // sichtbare "= ?"-Zeile statt lautlosem Weglassen (Backlog-Punkt)
@@ -4256,12 +4586,8 @@ export class Visual implements IVisual {
                     stroke: cfg.ink, "stroke-width": 1.2
                 }, bg);
             }
-            if (cfg.highlight.has(p.cat.toLowerCase())) {
-                this.el("rect", {
-                    x: region.x + pad, y: y + 1, width: region.w - pad * 2, height: rowH - 2,
-                    fill: cfg.hc ? "none" : cfg.ink, "fill-opacity": cfg.hc ? 0 : 0.07,
-                    stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 1 : 0
-                }, bg);
+            if (this.isEmph(cfg, p.cat)) {
+                this.emphBand(bg, region.x + pad, y + 1, region.w - pad * 2, rowH - 2, cfg);
             }
 
             const rowFont = Math.min(cf, rowH - 4);
@@ -4486,7 +4812,7 @@ export class Visual implements IVisual {
                     toggle();
                 });
             }
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
 
@@ -4773,7 +5099,7 @@ export class Visual implements IVisual {
                 const varAbs = (value != null && basis != null) ? value - basis : null;
                 return {
                     cat: label, catLevels: null, ac: null, py: null, pl: null, fc: null,
-                    value, isFc: false, basis, varAbs,
+                    value, isFc: false, basis, varAbs, dim: false,
                     varRel: (!ratio && varAbs != null && basis != null && basis !== 0)
                         ? (varAbs / Math.abs(basis)) * 100 : null,
                     var2Abs: null, var2Rel: null, bm: null, fcPrev: null, lineVal: null,
@@ -5440,9 +5766,9 @@ export class Visual implements IVisual {
                     toggle();
                 });
             }
-            this.catGroups.push({ g, sel: agg.sel });
+            this.catGroups.push({ g, sel: agg.sel, dim: agg.dim });
             // the scroll subgroup dims + animates together with the fixed row group
-            if (bp !== g) { this.catGroups.push({ g: bp, sel: agg.sel }); }
+            if (bp !== g) { this.catGroups.push({ g: bp, sel: agg.sel, dim: agg.dim }); }
             this.animGroups.push(bp !== g ? [g, bp] : [g]);
         };
         // Σ-row placement: "top" freezes it under the header (body shifts down one
@@ -5747,6 +6073,7 @@ export class Visual implements IVisual {
         return {
             cat: key, catLevels: null,
             ac, py, pl, fc, value, isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
+            dim: kids.length > 0 && kids.every(c => c.dim),
             bm: null, fcPrev: sum(p => p.fcPrev), lineVal: null, stackSeries: null, comment: null, commentNo: null,
             group: kids[0].group, rowType: null, isRest: false, sel: null
         };
@@ -5930,9 +6257,17 @@ export class Visual implements IVisual {
             // value column starts past the widest actual row label ("ΔFC Vm" is wider than
             // the old fixed 2.6-char slot) so the value never overpaints the label
             let refLabelW = refF * 2.6;
+            // plain = a reference VALUE row ("PY  45.200") instead of a variance row
+            // ("ΔPY  −1.200 · −2,6 %"): no Δ prefix, no status color, not bold — the
+            // variance keeps the visual weight
             const refRowAt = (tx: number, ty: number, label: string,
-                vAbs: number | null, vRel: number | null) => {
+                vAbs: number | null, vRel: number | null, plain = false) => {
                 if (vAbs == null) { return; }
+                if (plain) {
+                    txt(tx, ty, label, refF, false, cfg.subtle);
+                    txt(tx + refLabelW, ty, fmtP.format(vAbs), refF, false, cfg.ink);
+                    return;
+                }
                 const col = (vAbs === 0 || !cfg.isMaterial(p, vAbs, vRel) || !hlShow(vAbs, p))
                     ? cfg.subtle : (good(vAbs, p) ? cfg.colors.good : cfg.colors.bad);
                 const icon = !cfg.deltaIcons ? ""
@@ -6057,15 +6392,38 @@ export class Visual implements IVisual {
 
             // Δ reference rows: variance basis, second basis, benchmark — in
             // benchmark-status mode the BM row leads (it carries the judgement)
-            const refRows: [string, number, number | null][] = [];
-            if (p.varAbs != null) { refRows.push([cfg.basisLabel, p.varAbs, p.varRel]); }
-            if (p.var2Abs != null) { refRows.push([cfg.basis2Label, p.var2Abs, p.var2Rel]); }
+            const deltaRows: [string, number, number | null, boolean][] = [];
+            if (p.varAbs != null) { deltaRows.push([cfg.basisLabel, p.varAbs, p.varRel, false]); }
+            if (p.var2Abs != null) { deltaRows.push([cfg.basis2Label, p.var2Abs, p.var2Rel, false]); }
             if (bmV != null) {
-                if (cfg.cardBasis === "benchmark") { refRows.unshift(["BM", bmV, bmRel]); }
-                else { refRows.push(["BM", bmV, bmRel]); }
+                if (cfg.cardBasis === "benchmark") { deltaRows.unshift(["BM", bmV, bmRel, false]); }
+                else { deltaRows.push(["BM", bmV, bmRel, false]); }
             }
+            // reference VALUES ahead of the variances (beta wish): a card that only
+            // ever showed "ΔPY −1.200" now also states what PY actually was. "basis"
+            // adds the comparison basis alone, "all" every other bound scenario.
+            const valRows: [string, number, number | null, boolean][] = [];
+            if (cfg.cardRefVals !== "off") {
+                const seen = new Set<string>();
+                const addVal = (lbl: string, v: number | null) => {
+                    if (v == null || seen.has(lbl)) { return; }
+                    seen.add(lbl);
+                    valRows.push([lbl, v, null, true]);
+                };
+                if (cfg.cardRefVals === "basis") {
+                    addVal(cfg.basisLabel, p.basis);
+                } else {
+                    addVal(cfg.scenL.py, p.py);
+                    addVal(cfg.scenL.pl, p.pl);
+                    // a pure FC period already shows the FC as the big number
+                    if (!p.isFc) { addVal(cfg.scenL.fc, p.fc); }
+                    addVal("BM", p.bm);
+                }
+            }
+            const refRows: [string, number, number | null, boolean][] = [...valRows, ...deltaRows];
             refLabelW = Math.max(refLabelW,
-                this.maxTextWidth(refRows.map(([lbl]) => `Δ${lbl}`), refF) + refF * 0.6);
+                this.maxTextWidth(refRows.map(([lbl, , , plain]) => plain ? lbl : `Δ${lbl}`), refF)
+                + refF * 0.6);
 
             // flat layout: wide + short tile → Δ rows and bridge move to the right
             const flat = h < 118 * k && w >= 250 * k;
@@ -6079,17 +6437,18 @@ export class Visual implements IVisual {
 
                 let refX = x + pad + leftW + Math.round(20 * k);
                 let maxRefW = 0;
-                for (const [, va, vr] of refRows) {
-                    maxRefW = Math.max(maxRefW, this.maxTextWidth([refText(va, vr)], refF));
+                for (const [, va, vr, plain] of refRows) {
+                    maxRefW = Math.max(maxRefW,
+                        this.maxTextWidth([plain ? fmtP.format(va) : refText(va, vr)], refF));
                 }
                 const rowsShown = refRows.slice(0, refRows.length >= 2 && h >= 52 * k ? 2 : 1);
                 if (rowsShown.length > 0 && refX + refLabelW + maxRefW <= x + w - pad) {
                     const yMid = y + h / 2;
                     if (rowsShown.length === 2) {
-                        refRowAt(refX, yMid - Math.round(2 * k), rowsShown[0][0], rowsShown[0][1], rowsShown[0][2]);
-                        refRowAt(refX, yMid + refF + Math.round(4 * k), rowsShown[1][0], rowsShown[1][1], rowsShown[1][2]);
+                        refRowAt(refX, yMid - Math.round(2 * k), rowsShown[0][0], rowsShown[0][1], rowsShown[0][2], rowsShown[0][3]);
+                        refRowAt(refX, yMid + refF + Math.round(4 * k), rowsShown[1][0], rowsShown[1][1], rowsShown[1][2], rowsShown[1][3]);
                     } else {
-                        refRowAt(refX, yMid + refF * 0.35, rowsShown[0][0], rowsShown[0][1], rowsShown[0][2]);
+                        refRowAt(refX, yMid + refF * 0.35, rowsShown[0][0], rowsShown[0][1], rowsShown[0][2], rowsShown[0][3]);
                     }
                     refX += refLabelW + maxRefW + Math.round(24 * k);
                 }
@@ -6113,12 +6472,12 @@ export class Visual implements IVisual {
                 titleValue(yCur, yCur + valueF + Math.round(4 * k), w - pad * 2);
                 yCur += valueF + Math.round(4 * k) + refF + Math.round(9 * k);
                 if (refRows.length > 0 && yCur <= y + h - 4) {
-                    refRowAt(x + pad, yCur, refRows[0][0], refRows[0][1], refRows[0][2]);
+                    refRowAt(x + pad, yCur, refRows[0][0], refRows[0][1], refRows[0][2], refRows[0][3]);
                     yCur += refF + Math.round(5 * k);
                 }
-                for (const [rLbl, rVa, rVr] of refRows.slice(1)) {
+                for (const [rLbl, rVa, rVr, rPlain] of refRows.slice(1)) {
                     if (h < 118 * k || yCur > y + h - 4) { break; }
-                    refRowAt(x + pad, yCur, rLbl, rVa, rVr);
+                    refRowAt(x + pad, yCur, rLbl, rVa, rVr, rPlain);
                     yCur += refF + Math.round(5 * k);
                 }
                 // bullet under the value/Δ block when benchmark is bound
@@ -6141,10 +6500,15 @@ export class Visual implements IVisual {
             }
 
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
 
+        // top-right chip cluster of the tile: sort chip on the outside, ⚠ exception
+        // chip to its left — both anchored on the same right edge so they never overlap.
+        // Luft zum Kachelrand statt 2px Klebeabstand (Beta-Feedback A. Korn)
+        const chipTop = region.y + Math.round(8 * k) - 2;
+        let chipRight = region.x + region.w - Math.round(8 * k);
         // in-chart sort chip (top-right of the region): cycles none → deviation →
         // worst → best; persists as an override of the pane dropdown, bookmarkable
         if (this.allowInteractions && region.w >= 220 * k) {
@@ -6160,9 +6524,8 @@ export class Visual implements IVisual {
             const label = labels[cur] ?? labels["none"];
             const font = Math.round(11 * k), bh = Math.round(18 * k);
             const segW = this.textWidth(label, font) + Math.round(16 * k);
-            // Luft zum Kachelrand statt 2px Klebeabstand (Beta-Feedback A. Korn)
-            const inset = Math.round(8 * k);
-            const cx = region.x + region.w - segW - inset, cy = region.y + inset - 2;
+            const cx = chipRight - segW, cy = chipTop;
+            chipRight -= segW + Math.round(6 * k);
             const chip = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
             chip.setAttribute("aria-label", this.locStr("Cards_Sort", "Sort by deviation"));
             const tip = this.el("title", {}, chip);
@@ -6194,6 +6557,9 @@ export class Visual implements IVisual {
                 e.stopPropagation();
                 cycle();
             });
+        }
+        if (this.allowInteractions && this.exceptionCapable) {
+            this.drawExceptionChip(chipRight, chipTop, cfg);
         }
     }
 
@@ -6246,6 +6612,17 @@ export class Visual implements IVisual {
         }, bg);
         t80.textContent = "80 %";
 
+        // highlight bands (IBCS EMPHASIZE): behind the column slot only — the
+        // cumulative line rides on top and stays untouched
+        if (cfg.highlight.size > 0) {
+            const hlTop = rect.y + 2;
+            for (let i = 0; i < n; i++) {
+                if (!this.isEmph(cfg, pts[i].cat)) { continue; }
+                this.emphBand(bg, bandStart + i * step + 1, hlTop, step - 2,
+                    region.y + region.h - hlTop, cfg);
+            }
+        }
+
         const marks = this.el("g", {}, this.svg);
         const valueTexts = pts.map(p => cfg.fmt.format(p.value as number));
         const showValueAt = this.labelPredicate(pts, valueTexts, lf, step, "columns");
@@ -6264,8 +6641,9 @@ export class Visual implements IVisual {
                 this.drawEndLabelAt(g, cx(i), Math.max(p.value as number, 0), true, scale,
                     "columns", valueTexts[i], lf, cfg.ink, 0, cfg.paper);
             }
-            if (showCatAt(i)) {
-                this.drawCategoryLabel(g, p.cat, cx(i), "columns", cf, region, step, rect, cfg.ink);
+            const isHl = this.isEmph(cfg, p.cat);
+            if (showCatAt(i) || isHl) {
+                this.drawCategoryLabel(g, p.cat, cx(i), "columns", cf, region, step, rect, cfg.ink, isHl);
             }
             cum += Math.max(p.value as number, 0) / (total || 1) * 100;
             if (cross < 0 && cum >= 80) { cross = i; }
@@ -6274,7 +6652,7 @@ export class Visual implements IVisual {
                 this.drawCommentMarker(g, cx(i), p, scale, "columns", cfg);
             }
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
 
@@ -6400,7 +6778,7 @@ export class Visual implements IVisual {
                 this.drawCommentMarker(g, y, p, scale, "bars", cfg);
             }
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
     }
@@ -6483,7 +6861,7 @@ export class Visual implements IVisual {
             }, g);
             rt.textContent = this.truncate(`${cfg.fmt.format(p.value as number)}  ${p.cat}`, region.x + region.w - x1 - 12, cf);
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
         });
     }
@@ -6570,6 +6948,22 @@ export class Visual implements IVisual {
             lx += legFont + 8 + label.length * legFont * 0.56;
         }
 
+        // highlight bands (IBCS EMPHASIZE): one band per category slot, behind the
+        // whole stack — not per series, otherwise the ramp would read as a scenario
+        if (cfg.highlight.size > 0) {
+            const hlTop = rect.y + 2;
+            for (let i = 0; i < n; i++) {
+                if (!this.isEmph(cfg, cats[i])) { continue; }
+                if (orientation === "columns") {
+                    this.emphBand(bg, bandStart + i * step + 1, hlTop, step - 2,
+                        region.y + region.h - hlTop, cfg);
+                } else {
+                    this.emphBand(bg, region.x + 1, bandStart + i * step + 1,
+                        region.w - 2, step - 2, cfg);
+                }
+            }
+        }
+
         const marks = this.el("g", {}, this.svg);
         const totalTexts = totals.map(t => cfg.fmt.format(t));
         const fakePts = cats.map((c, i) => ({ cat: c, value: totals[i] } as DataPoint));
@@ -6600,7 +6994,7 @@ export class Visual implements IVisual {
                     st.textContent = cfg.fmt.format(v);
                 }
                 this.attachInteraction(g, p, cfg);
-                this.catGroups.push({ g, sel: p.sel });
+                this.catGroups.push({ g, sel: p.sel, dim: p.dim });
                 cum += v;
             });
             // total label at the stack end
@@ -6608,8 +7002,9 @@ export class Visual implements IVisual {
                 this.drawEndLabelAt(gCat, pos(i) + slotW / 2, totals[i], true, scale,
                     orientation, totalTexts[i], lf, cfg.ink, 0, cfg.paper);
             }
-            if (showCatAt(i)) {
-                this.drawCategoryLabel(gCat, c, pos(i) + slotW / 2, orientation, cf, region, step, rect, cfg.ink);
+            const isHl = this.isEmph(cfg, c);
+            if (showCatAt(i) || isHl) {
+                this.drawCategoryLabel(gCat, c, pos(i) + slotW / 2, orientation, cf, region, step, rect, cfg.ink, isHl);
             }
             this.animGroups.push([gCat]);
         });
@@ -6832,24 +7227,12 @@ export class Visual implements IVisual {
                 panels.rel2 ? panels.rel2.y : Infinity,
                 panels.bridge ? panels.bridge.y : Infinity) + 2;
             for (let i = 0; i < n; i++) {
-                if (!cfg.highlight.has(points[i].cat.toLowerCase())) { continue; }
+                if (!this.isEmph(cfg, points[i].cat)) { continue; }
                 const x0 = bandStart + i * step;
                 if (orientation === "columns") {
-                    this.el("rect", {
-                        x: x0 + 1, y: hlTop, width: step - 2,
-                        height: region.y + region.h - hlTop,
-                        fill: cfg.hc ? "none" : cfg.ink,
-                        "fill-opacity": cfg.hc ? 0 : 0.07,
-                        stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 1 : 0
-                    }, bg);
+                    this.emphBand(bg, x0 + 1, hlTop, step - 2, region.y + region.h - hlTop, cfg);
                 } else {
-                    this.el("rect", {
-                        x: region.x + 1, y: x0 + 1,
-                        width: region.w - 2, height: step - 2,
-                        fill: cfg.hc ? "none" : cfg.ink,
-                        "fill-opacity": cfg.hc ? 0 : 0.07,
-                        stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 1 : 0
-                    }, bg);
+                    this.emphBand(bg, region.x + 1, x0 + 1, region.w - 2, step - 2, cfg);
                 }
             }
         }
@@ -7123,7 +7506,7 @@ export class Visual implements IVisual {
             }
 
             // category label (highlighted categories always get one, in bold)
-            const isHl = cfg.highlight.has(p.cat.toLowerCase());
+            const isHl = this.isEmph(cfg, p.cat);
             if (showCatAt(i) || isHl) {
                 this.drawCategoryLabel(g, p.cat, pos + slotW / 2, orientation, cfg.catFont,
                     region, step, panels.main, cfg.ink, isHl);
@@ -7135,7 +7518,7 @@ export class Visual implements IVisual {
             }
 
             this.attachInteraction(g, p, cfg);
-            this.catGroups.push({ g, sel: p.sel });
+            this.catGroups.push({ g, sel: p.sel, dim: p.dim });
         }
 
         // ------- waterfall-bridge connectors: link the basis anchor to the first brick,
@@ -7612,12 +7995,34 @@ export class Visual implements IVisual {
         });
     }
 
-    /** keeps the N largest categories (by base value) and aggregates the tail into one "Rest" row */
-    private applyTopN(points: DataPoint[], topN: number): DataPoint[] {
-        const sorted = [...points].sort((a, b) => (b.value ?? -Infinity) - (a.value ?? -Infinity));
-        const head = sorted.slice(0, topN);
-        const tail = sorted.slice(topN);
+    /**
+     * materiality predicate from the pane thresholds — shared by the render config
+     * (grey variances) and the exception filter, so both judge by the same rule.
+     */
+    private materialityFn(): (p: DataPoint | null | undefined,
+        vAbs?: number | null, vRel?: number | null) => boolean {
+        const mAbs = this.formattingSettings.chartCard.materialityAbs.value ?? 0;
+        const mPct = this.formattingSettings.chartCard.materialityPct.value ?? 0;
+        if (mAbs <= 0 && mPct <= 0) { return () => true; }
+        // material = every configured threshold exceeded (AND) — filters both
+        // small absolute noise and small percentage noise
+        return (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => {
+            if (!p) { return true; }
+            const a = vAbs !== undefined ? vAbs : p.varAbs;
+            const r = vRel !== undefined ? vRel : p.varRel;
+            if (a == null && r == null) { return true; }
+            if (mAbs > 0 && a != null && Math.abs(a) < mAbs) { return false; }
+            if (mPct > 0 && r != null && Math.abs(r) < mPct) { return false; }
+            return true;
+        };
+    }
 
+    /**
+     * folds a tail of categories into ONE synthetic row: every scenario is summed
+     * and the variances are recomputed from those sums, so the Σ header over the
+     * shortened list still matches the Σ over all data.
+     */
+    private aggregateTail(tail: DataPoint[], cat: string, group: string | null): DataPoint {
         const sum = (vals: (number | null)[]): number | null => {
             let acc: number | null = null;
             for (const v of vals) {
@@ -7639,21 +8044,49 @@ export class Visual implements IVisual {
         const var2Abs = (value != null && basis2Sum != null) ? value - basis2Sum : null;
         const var2Rel = (var2Abs != null && basis2Sum != null && basis2Sum !== 0)
             ? (var2Abs / Math.abs(basis2Sum)) * 100 : null;
-        const rest: DataPoint = {
-            cat: `${this.locStr("Label_Rest", "Other")} (${tail.length})`,
+        return {
+            cat,
             catLevels: null,
+            dim: tail.length > 0 && tail.every(p => p.dim),
             ac, py, pl, fc, value,
             isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
             bm: sum(tail.map(p => p.bm)),
             fcPrev: sum(tail.map(p => p.fcPrev)),
             lineVal: null, stackSeries: null,
             comment: null, commentNo: null,
-            group: head.length > 0 ? head[0].group : null,
+            group,
             rowType: null,
             isRest: true,
             sel: null
         };
-        return [...head, rest];
+    }
+
+    /** keeps the N largest categories (by base value) and aggregates the tail into one "Rest" row */
+    private applyTopN(points: DataPoint[], topN: number): DataPoint[] {
+        const sorted = [...points].sort((a, b) => (b.value ?? -Infinity) - (a.value ?? -Infinity));
+        const head = sorted.slice(0, topN);
+        const tail = sorted.slice(topN);
+        return [...head, this.aggregateTail(tail,
+            `${this.locStr("Label_Rest", "Other")} (${tail.length})`,
+            head.length > 0 ? head[0].group : null)];
+    }
+
+    /**
+     * exception reporting: keeps every category whose variance clears the materiality
+     * thresholds and folds ALL others into one collector row at the end of the list.
+     * Nothing is dropped — the tail is summed, so Σ stays true; a category without any
+     * variance (no reference bound) counts as material and always stays visible.
+     */
+    private applyExceptionFilter(points: DataPoint[]): DataPoint[] {
+        const material = this.materialityFn();
+        const head = points.filter(p => material(p));
+        const tail = points.filter(p => !material(p));
+        // nothing below the thresholds → the view must stay exactly as it was
+        if (tail.length === 0) { return points; }
+        this.exceptionHidden += tail.length;
+        return [...head, this.aggregateTail(tail,
+            `${this.locStr("Label_Unremarkable", "Immaterial")} (${tail.length})`,
+            head.length > 0 ? head[0].group : tail[0].group)];
     }
 
     private drawCommentMarker(parent: SVGElement, bandCenter: number, p: DataPoint,
@@ -7798,6 +8231,23 @@ export class Visual implements IVisual {
             ...(cfg.hc
                 ? { fill: "none", stroke: cfg.ink, "stroke-width": 1 }
                 : { fill: cfg.ink, "fill-opacity": 0.05 })
+        }, parent);
+    }
+
+    /** category / segment name is listed in the EMPHASIZE setting (chart.highlight) */
+    private isEmph(cfg: ChartConfig, name: string | null | undefined): boolean {
+        return cfg.highlight.size > 0 && name != null && cfg.highlight.has(name.trim().toLowerCase());
+    }
+
+    /** IBCS EMPHASIZE: shaded band behind the slot of a highlighted category. In
+     *  high-contrast the 7 % ink tint would not survive the forced palette — thin
+     *  outline instead, same as the hover band and the KPI cards */
+    private emphBand(parent: SVGElement, x: number, y: number, w: number, h: number, cfg: ChartConfig): void {
+        this.el("rect", {
+            x, y, width: Math.max(1, w), height: Math.max(1, h),
+            fill: cfg.hc ? "none" : cfg.ink,
+            "fill-opacity": cfg.hc ? 0 : 0.07,
+            stroke: cfg.hc ? cfg.ink : "none", "stroke-width": cfg.hc ? 1 : 0
         }, parent);
     }
 
@@ -8474,11 +8924,18 @@ export class Visual implements IVisual {
         });
     }
 
+    /**
+     * Fades everything that is not in focus. Two independent sources: the visual's
+     * OWN selection (click on a bar) and a cross-highlight coming from another
+     * visual on the page (supportsHighlight). An own selection wins while it is
+     * active — it is the more recent, more local intent.
+     */
     private applySelectionOpacity(selected: ISelectionId[]): void {
         const hasSelection = selected && selected.length > 0;
         for (const cg of this.catGroups) {
             const isSel = hasSelection && cg.sel != null && selected.some(s => s.equals(cg.sel));
-            cg.g.setAttribute("opacity", !hasSelection || isSel ? "1" : "0.35");
+            const faded = hasSelection ? !isSel : cg.dim === true;
+            cg.g.setAttribute("opacity", faded ? "0.35" : "1");
         }
     }
 
@@ -8948,6 +9405,58 @@ export class Visual implements IVisual {
         tip.textContent = text.startsWith("✎")
             ? this.locStr("ChipTip_Comment", "Comment mode active: clicking a category opens the editor")
             : this.locStr("ChipTip_Compare", "Compare mode active: click two elements to show the difference, click empty space to reset");
+    }
+
+    /**
+     * ⚠ chip: end-user switch for the exception filter, persisted like the other
+     * in-chart buttons (bookmarkable). Returns the width it took so a neighbouring
+     * chip can step aside; the caller anchors it by its RIGHT edge.
+     */
+    private drawExceptionChip(xRight: number, yTop: number, cfg: ChartConfig): number {
+        const k = this.fontK;
+        const on = this.exceptionOn;
+        const bh = Math.round(18 * k), font = Math.round(11 * k);
+        const label = on
+            ? this.locStr("Chip_ExceptionOn", "⚠ Exceptions")
+            : this.locStr("Chip_ExceptionOff", "⚠ All");
+        const segW = this.textWidth(label, font) + Math.round(16 * k);
+        const x = xRight - segW;
+        const tipText = this.locStr("ChipTip_Exception",
+            "Exceptions only: shows just the categories above the materiality threshold, everything else as one collected row. The Σ total stays unchanged.");
+        const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
+        btn.setAttribute("aria-label", tipText);
+        const tip = this.el("title", {}, btn);
+        tip.textContent = tipText;
+        this.el("rect", {
+            x, y: yTop, width: segW, height: bh, rx: bh / 2,
+            fill: on ? cfg.colors.ac : cfg.paper,
+            stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
+        }, btn);
+        const t = this.el("text", {
+            x: x + segW / 2, y: yTop + bh / 2 + font * 0.36, "text-anchor": "middle",
+            "font-size": font, fill: on ? cfg.paper : cfg.ink, "font-family": FONT
+        }, btn);
+        t.textContent = label;
+        btn.style.cursor = "pointer";
+        const toggle = () => {
+            const next = !on;
+            // optimistic: the pane echo arrives one update later, the chip must
+            // already show the new state on this click
+            this.formattingSettings.chartCard.exceptionOnly.value = next;
+            this.host.persistProperties({
+                merge: [{
+                    objectName: "chart", selector: null,
+                    properties: { exceptionOnly: next }
+                }]
+            });
+            this.rerender();
+        };
+        btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); toggle(); });
+        btn.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key !== "Enter" && e.key !== " ") { return; }
+            e.preventDefault(); e.stopPropagation(); toggle();
+        });
+        return segW;
     }
 
     /** YTD chip top-right: persists chart.cumulative so end users can flip the view */

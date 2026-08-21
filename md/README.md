@@ -57,11 +57,19 @@ Pruefen vor dem Commit:
 
     python3 strommix/scripts/build_md_exports.py --check
     python3 scripts/build_llms_full.py --check
+    python3 scripts/build_md.py --check
+    python3 scripts/build_learn_md.py --check
 
-Die einmalig aus HTML extrahierten Dateien (siehe Tabelle unten) sind davon
-ausgenommen: ihre Quellseiten sind handgeschriebener Text, kein Datensatz.
-Aendert sich so eine Seite substanziell, wird die Markdown-Fassung von Hand
-nachgezogen und das Stand-Datum im Kopfblock aktualisiert.
+Fuer die Seiten-Begleiter gilt seit 21.08. dasselbe Prinzip auch fuer
+handgeschriebene HTML-Seiten: `scripts/build_md.py` konvertiert registrierte
+Seiten regelbasiert (Seiten-Registry `PAGES`, Namensschema
+`md/<html-basename>.md`), `scripts/build_learn_md.py` generiert den
+Episoden-Guide aus den `EPISODES`-Daten. Nach inhaltlichen Aenderungen an
+einer registrierten Seite das jeweilige Skript neu laufen lassen; neue
+Inhaltsseiten kommen als Registry-Eintrag dazu (Anleitung im Kommentarblock
+ueber `PAGES`). Die wenigen verbleibenden einmalig extrahierten Dateien
+(siehe Tabelle unten) werden bei substanziellen Aenderungen von Hand
+nachgezogen, inklusive Stand-Datum im Kopfblock.
 
 ### 3. KEIN YAML-Frontmatter. Niemals.
 
@@ -163,16 +171,23 @@ Konfidenzstufen beachten".
 | `whitepaper-strommix.md` | `whitepaper-strommix.html` | generiert · `strommix/scripts/build_md_exports.py` |
 | `strommix-story.md` | `strommix-story.html` | generiert · `strommix/scripts/build_md_exports.py` |
 | `rhein-story.md` | `rhein-story.html` | einmalig extrahiert (Tabellen aus dem JS-Datenblock) |
-| `power-bi-einsteiger-guide.md` | `power_bi_einsteiger_guide_v4.html` | einmalig extrahiert (87 Detailabschnitte) |
-| `fabric-einsteiger-guide.md` | `fabric_einsteiger_guide_v1.html` | einmalig extrahiert (40 Detailabschnitte) |
-| `powerbi-praxis-pfad.md` | `powerbi_praxis_pfad.html` | einmalig extrahiert |
-| `chartkitchen-doku.md` | `chartkitchen-doku.html` | einmalig extrahiert |
+| `power_bi_einsteiger_guide_v4.md` | `power_bi_einsteiger_guide_v4.html` | generiert · `scripts/build_md.py` (87 Detail-Karten aus `DETAILS` aufgeloest) |
+| `fabric_einsteiger_guide_v1.md` | `fabric_einsteiger_guide_v1.html` | generiert · `scripts/build_md.py` (43 Detail-Karten) |
+| `powerbi_praxis_pfad.md` | `powerbi_praxis_pfad.html` | generiert · `scripts/build_md.py` |
+| `chartkitchen-doku.md` | `chartkitchen-doku.html` | generiert · `scripts/build_md.py` |
+| `chartkitchen-doku_en.md` | `chartkitchen-doku_en.html` | generiert · `scripts/build_md.py` |
+| `chartkitchen-schnellstart.md` | `chartkitchen-schnellstart.html` | generiert · `scripts/build_md.py` |
+| `chartkitchen-schnellstart_en.md` | `chartkitchen-schnellstart_en.html` | generiert · `scripts/build_md.py` |
+| `business-chart-builder-anleitung.md` | `business-chart-builder-anleitung.html` | generiert · `scripts/build_md.py` |
+| `ki-entwicklung-zehn-tage.md` / `_en.md` | `ki-entwicklung-zehn-tage.html` / `_en.html` | generiert · `scripts/build_md.py` |
+| `powerbi-design-skill.md` | `powerbi-design-skill.html` | generiert · `scripts/build_md.py` |
+| `prototyping-pnl-treiberbaum.md` / `_en.md` | `prototyping-pnl-treiberbaum.html` / `_en.html` | generiert · `scripts/build_md.py` |
 | `laender-indikatoren-explorer.md` | `laender-indikatoren-explorer.html` | einmalig extrahiert |
 | `pdoom-ki-risiko.md` | `pdoom-ki-risiko.html` | einmalig extrahiert |
 | `ki-co2-simulator.md` | `ki-co2-simulator.html` | einmalig extrahiert (Annahmen und Quellenanhang aus dem JS) |
 | `zugfahrten-europa.md` | `zugfahrten-infografik.html` | einmalig extrahiert |
 | `waermestreifen-3d.md` | `waermestreifen-3d.html` | einmalig extrahiert |
-| `daten-wg-videos.md` | `daten_wg_learn_buckets.html` | einmalig extrahiert (aus `EPISODES`/`BUCKETS`) |
+| `daten_wg_learn_buckets.md` | `daten_wg_learn_buckets.html` | generiert · `scripts/build_learn_md.py` (aus `EPISODES`/`BUCKETS`, inkl. Kapitel-Deep-Links) |
 
 Nicht in diesem Ordner, aber in `llms.txt` verlinkt:
 `whitepaper-ki-entwicklung-roi.md` und `whitepaper-ki-entwicklung-roi_en.md`

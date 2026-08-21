@@ -2,116 +2,131 @@
     "dataRoles": [
         {
             "displayName": "Category",
+            "description": "Axis or structure field — supports multiple columns for drill-down and a table row tree. Dates render automatically as \"Mar 26\". Optional since 1.41: leave it empty and the visual renders a single KPI tile/column labeled with the actual measure's name.",
+            "descriptionKey": "RoleDesc_Category",
             "displayNameKey": "Role_Category",
             "name": "category",
-            "kind": "Grouping",
-            "description": "Zeitachse (Monate) oder Struktur (z. B. Länder, Produkte)"
+            "kind": "Grouping"
         },
         {
             "displayName": "Actual (AC)",
+            "description": "Actual (AC) value — the primary measure. Required unless a forecast measure is bound instead.",
+            "descriptionKey": "RoleDesc_Actual",
             "displayNameKey": "Role_Actual",
             "name": "actual",
             "kind": "Measure",
-            "description": "Ist-Wert",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "Previous Year (PY)",
+            "description": "Previous year (PY) value, used as one of the variance comparison bases (ΔPY).",
+            "descriptionKey": "RoleDesc_PreviousYear",
             "displayNameKey": "Role_PreviousYear",
             "name": "previousYear",
             "kind": "Measure",
-            "description": "Vorjahreswert",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "Plan / Budget (PL)",
+            "description": "Plan/Budget measure. Rendered as outlined columns (IBCS notation) and used as the ΔPL variance basis.",
+            "descriptionKey": "RoleDesc_Plan",
             "displayNameKey": "Role_Plan",
             "name": "plan",
             "kind": "Measure",
-            "description": "Plan- oder Budgetwert",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "Forecast (FC)",
+            "description": "Forecast (FC) value, shown hatched. Displayed only where actual is missing — unless chart.acFcSplit is set to full/rest, which renders a split column (AC base + FC top).",
+            "descriptionKey": "RoleDesc_Forecast",
             "displayNameKey": "Role_Forecast",
             "name": "forecast",
             "kind": "Measure",
-            "description": "Forecast-Wert (wird schraffiert dargestellt)",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "Benchmark (BM)",
+            "description": "Benchmark (BM) value per category — shown as a dash marker on charts and as a bullet indicator on KPI cards.",
+            "descriptionKey": "RoleDesc_Benchmark",
             "displayNameKey": "Role_Benchmark",
             "name": "benchmark",
             "kind": "Measure",
-            "description": "Vergleichswert je Kategorie (z. B. Marktdurchschnitt, Ziel) — als Querstrich-Marker",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "FC Vormonat (Revision)",
+            "description": "Forecast from the previous cycle. Enables the \"fcrev\" variance basis (ΔFC vs. last forecast) to show what shifted since the prior forecast.",
+            "descriptionKey": "RoleDesc_PrevForecast",
             "displayNameKey": "Role_PrevForecast",
             "name": "prevForecast",
             "kind": "Measure",
-            "description": "Forecast des vorherigen Zyklus — als Abweichungsbasis wählbar (FC-Revision: was hat sich seit dem letzten Forecast verschoben?)",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "Line (Kombi)",
+            "description": "Second measure drawn as a combo line over the columns on its own right-hand scale (e.g. margin %). Available only in columns orientation.",
+            "descriptionKey": "RoleDesc_LineMeasure",
             "displayNameKey": "Role_LineMeasure",
             "name": "lineMeasure",
             "kind": "Measure",
-            "description": "Zweite Kennzahl als Linie über den Säulen (z. B. Marge %) — eigene Skala rechts. Nur Columns.",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "Stack Series (Gestapelt)",
+            "description": "Splits Actual by an additional dimension and stacks the columns/bars by that series, with legend and stack-total labels.",
+            "descriptionKey": "RoleDesc_Series",
             "displayNameKey": "Role_Series",
             "name": "series",
-            "kind": "Grouping",
-            "description": "Feld gefüllt = Säulen/Balken stapeln sich nach dieser Serie (AC je Serie, mit Legende und Summen-Label)."
+            "kind": "Grouping"
         },
         {
             "displayName": "Spalten (Matrix)",
+            "description": "Table/matrix only: pivots the values into column groups (e.g. quarter → month, max. 2 levels), turning the plain table into a matrix with a collapsible column hierarchy.",
+            "descriptionKey": "RoleDesc_ColGroup",
             "displayNameKey": "Role_ColGroup",
             "name": "colgroup",
-            "kind": "Grouping",
-            "description": "Nur Tabelle: pivotiert die Werte in Spaltengruppen (z. B. Quartal → Monat, max. 2 Ebenen) — mit klappbarer Spalten-Hierarchie wie in der Power-BI-Matrix"
+            "kind": "Grouping"
         },
         {
             "displayName": "Filter-Info (Fußzeile)",
+            "description": "Text measure carrying the current filter context (e.g. via CONCATENATEX/SELECTEDVALUE) — shown as a second footer line when the filter footer is enabled.",
+            "descriptionKey": "RoleDesc_FilterInfo",
             "displayNameKey": "Role_FilterInfo",
             "name": "filterInfo",
             "kind": "Measure",
-            "description": "Text-Measure mit dem aktuellen Filterkontext (z. B. via CONCATENATEX/SELECTEDVALUE) — wird als zweite Fußzeile angezeigt, wenn „Filter-Fußzeile“ aktiv ist",
             "requiredTypes": [ { "text": true } ]
         },
         {
             "displayName": "Comments",
+            "description": "Text measure — categories with a comment get a numbered marker (①②…) and the text appears in the footnote panel.",
+            "descriptionKey": "RoleDesc_Comments",
             "displayNameKey": "Role_Comments",
             "name": "comments",
-            "kind": "Measure",
-            "description": "Text-Measure: Kategorien mit Kommentar bekommen einen nummerierten Marker, Text im Tooltip"
+            "kind": "Measure"
         },
         {
             "displayName": "Small Multiples",
+            "description": "Splits the chart into small-multiple tiles per group, all sharing the same scale (IBCS small multiples).",
+            "descriptionKey": "RoleDesc_Multiples",
             "displayNameKey": "Role_Multiples",
             "name": "multiples",
-            "kind": "Grouping",
-            "description": "Teilt das Chart in kleine Kacheln pro Gruppe — mit identischer Skalierung (IBCS)"
+            "kind": "Grouping"
         },
         {
             "displayName": "Waterfall Type (sum/delta)",
+            "description": "Waterfall/P&L only: \"sum\" marks a subtotal/anchor row, \"delta\" a movement row, \"pct\" a margin row (shown as %, with variance in percentage points).",
+            "descriptionKey": "RoleDesc_RowType",
             "displayNameKey": "Role_RowType",
             "name": "rowType",
-            "kind": "Grouping",
-            "description": "Nur Waterfall-Modus: 'sum' = absolute Zwischensumme, 'delta' = Bewegung (GuV-Wasserfall)"
+            "kind": "Grouping"
         },
         {
             "displayName": "Forecast Flag (1/0)",
+            "description": "Alternative to a separate FC measure: 1/true marks the AC value as forecast (hatched); 2 or \"prelim\" marks it as preliminary actual (solid bar with thin overlay hatching); 0/blank means a normal actual.",
+            "descriptionKey": "RoleDesc_FcFlag",
             "displayNameKey": "Role_FcFlag",
             "name": "fcFlag",
-            "kind": "Grouping",
-            "description": "Alternative zur FC-Measure: 1/0-Spalte — Zeilen mit 1 werden als Forecast (schraffiert) dargestellt, AC-Measure läuft durch"
+            "kind": "Grouping"
         }
     ],
     "objects": {
@@ -146,6 +161,8 @@
                         ]
                     }
                 },
+                "smartStart": { "type": { "bool": true } },
+                "smartStartDismissed": { "type": { "text": true } },
                 "pnlView": { "type": { "text": true } },
                 "tableExpanded": { "type": { "text": true } },
                 "tableSort": { "type": { "text": true } },
@@ -241,6 +258,15 @@
                     }
                 },
                 "cardBars": { "type": { "bool": true } },
+                "cardRefValues": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Only variances" },
+                            { "value": "basis", "displayName": "Basis value" },
+                            { "value": "all", "displayName": "All bound scenarios" }
+                        ]
+                    }
+                },
                 "cardSort": {
                     "type": {
                         "enumeration": [
@@ -297,6 +323,7 @@
                 "cumulativeButton": { "type": { "bool": true } },
                 "materialityAbs": { "type": { "numeric": true } },
                 "materialityPct": { "type": { "numeric": true } },
+                "exceptionOnly": { "type": { "bool": true } },
                 "highlight": { "type": { "text": true } },
                 "groupEvery": { "type": { "numeric": true } },
                 "multiplesTotal": { "type": { "bool": true } },
@@ -457,6 +484,7 @@
             "canvas": true
         }
     },
+    "supportsHighlight": true,
     "supportsKeyboardFocus": true,
     "supportsMultiVisualSelection": true,
     "supportsLandingPage": true,

@@ -37,7 +37,7 @@ DOCS = [
     ("md/laender-indikatoren-explorer.md", "md/laender-indikatoren-explorer.md"),
     ("md/zugfahrten-europa.md", "md/zugfahrten-europa.md"),
     ("md/waermestreifen-3d.md", "md/waermestreifen-3d.md"),
-    ("md/powerbi-praxis-pfad.md", "md/powerbi-praxis-pfad.md"),
+    ("md/powerbi_praxis_pfad.md", "md/powerbi_praxis_pfad.md"),
 ]
 
 PREAMBLE = f"""# Daten-WG Knowledge Kitchen — Volltext-Buendel

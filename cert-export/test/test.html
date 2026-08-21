@@ -103,7 +103,7 @@ function makeHost(hc, noInteract) {
       : { isHighContrast: false, positive: { value: "#1B7F4D" }, negative: { value: "#B3282D" },
           foregroundNeutralDark: { value: "#252423" }, foregroundNeutralTertiary: { value: "#C8C6C4" } },
     eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o,e){ console.error("renderfail", e); } },
-    createSelectionManager: () => ({ select: (ids, multi) => { console.log("crossfilter-select", JSON.stringify({multi: !!multi})); return Promise.resolve([]); }, clear: () => Promise.resolve(), showContextMenu(){} }),
+    createSelectionManager: () => ({ select: (ids, multi) => { console.log("crossfilter-select", JSON.stringify({multi: !!multi})); return Promise.resolve([]); }, clear: () => Promise.resolve(), getSelectionIds: () => [], showContextMenu(){} }),
     createSelectionIdBuilder: () => ({ withCategory(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
     tooltipService: { show(){}, move(){}, hide(){} },
     createLocalizationManager: () => ({ getDisplayName: () => "" }),
@@ -112,12 +112,16 @@ function makeHost(hc, noInteract) {
   };
 }
 
-function col(role, values, format) {
-  return { source: { displayName: role === "actual" ? "Umsatz" : role, roles: { [role]: true }, isMeasure: true, format }, values };
+// highlights: parallel array as Power BI delivers it with supportsHighlight —
+// null marks a row outside the cross-highlight coming from another visual
+function col(role, values, format, highlights) {
+  return { source: { displayName: role === "actual" ? "Umsatz" : role, roles: { [role]: true }, isMeasure: true, format }, values, highlights };
 }
 
+// cats === null renders the measure-only case (KPI card without a category)
 function dataView(cats, cols, objects, multValues, rowTypes) {
-  const categories = [{ source: { displayName: "Category", roles: { category: true } }, values: cats }];
+  const categories = cats == null ? []
+    : [{ source: { displayName: "Category", roles: { category: true } }, values: cats }];
   if (multValues) {
     categories.push({ source: { displayName: "Region", roles: { multiples: true } }, values: multValues });
   }
@@ -1152,6 +1156,123 @@ const spAc = [820, 771, 900, 955, 1020, 980, 610, null, null, null, null, null].
 const spFc = [null, null, null, null, null, null, 1080, 1150, 1080, 1210, 1260, 1400].map(v => v == null ? null : v * 1000);
 run("c121", dataView(months, [col("actual", spAc, "#,0 €"), col("forecast", spFc, "#,0 €"), col("plan", pl, "#,0 €")],
   { chart: { acFcSplit: "full" } }), 960, 420);
+</script>
+
+<div class="case"><h4>c122 · 1.41 · KPI-Karte ohne Kategorie: nur AC + PY + PL gebunden — eine Kachel, Titel = Measure-Name</h4><div class="stage" id="c122" style="width:420px;height:220px"></div></div>
+<script>
+// Beta-Wunsch: Karten sollen auch ohne Kategoriefeld funktionieren. Ohne
+// Kategorie liefert Power BI je Measure genau einen Skalar — erwartet: EINE
+// Karte, überschrieben mit dem Namen der AC-Measure ("Umsatz")
+run("c122", dataView(null,
+  [col("actual", [9800000], "#,0 €"),
+   col("previousYear", [9100000], "#,0 €"),
+   col("plan", [10200000], "#,0 €")],
+  { chart: { orientation: "cards" } }), 420, 220);
+</script>
+
+<div class="case"><h4>c123 · 1.41 · KPI-Karten mit Referenzwerten („Alle gebundenen Szenarien") — VJ/Plan/BM als eigene Zeilen über den Δ-Zeilen</h4><div class="stage" id="c123" style="width:960px;height:460px"></div></div>
+<script>
+// erwartet: je Karte erst die Werte (PY, PL, BM) in Tinte, darunter die
+// farbigen Δ-Zeilen; bei knapper Höhe fallen die unteren Zeilen weg
+run("c123", dataView(["Umsatz", "Rohertrag", "Opex", "EBIT"],
+  [col("actual", [9800000, 4200000, 2950000, 1300000], "#,0 €"),
+   col("previousYear", [9100000, 3900000, 2700000, 1200000], "#,0 €"),
+   col("plan", [9500000, 4100000, 2800000, 1250000], "#,0 €"),
+   col("benchmark", [9900000, 4000000, 2900000, 1280000], "#,0 €")],
+  { chart: { orientation: "cards", cardRefValues: "all", cardBars: false } }), 960, 460);
+</script>
+
+<div class="case"><h4>c124 · 1.41 · Cross-Highlight: nur Mär–Mai sind Teil der Hervorhebung — der Rest rendert gedimmt (opacity 0.35)</h4><div class="stage" id="c124" style="width:960px;height:420px"></div></div>
+<script>
+// supportsHighlight: Power BI liefert ALLE Zeilen plus ein highlights-Array,
+// in dem alles außerhalb der Hervorhebung null ist. Erwartet: Mär/Apr/Mai voll
+// deckend, alle anderen Säulengruppen auf 0.35
+const hlAc = ac.map((v, i) => (i >= 2 && i <= 4) ? v : null);
+run("c124", dataView(months,
+  [col("actual", ac, "#,0 €", hlAc),
+   col("previousYear", py, "#,0 €", py.map((v, i) => (i >= 2 && i <= 4) ? v : null)),
+   col("plan", pl, "#,0 €")]), 960, 420);
+</script>
+
+<div class="case"><h4>c125 · 1.42 · Pareto mit Highlight („Mixer, Toaster") — Band hinter dem Säulenslot, kum. %-Linie unberührt</h4><div class="stage" id="c125" style="width:960px;height:420px"></div></div>
+<script>
+// EMPHASIZE greift jetzt auch im Pareto. Erwartet: zwei getönte Bänder über die
+// volle Panelhöhe inkl. Kategoriezeile, die beiden Labels fett; 80-%-Linie und
+// kumulierte Kurve laufen unverändert darüber
+const paCats = ["Kaffeemaschine", "Mixer", "Wasserkocher", "Toaster", "Grill", "Fritteuse", "Waffeleisen", "Standmixer"];
+const paAc = [412000, 331000, 268000, 214000, 168000, 121000, 84000, 46000];
+run("c125", dataView(paCats, [col("actual", paAc, "#,0 €")],
+  { chart: { orientation: "pareto", highlight: "Mixer, Toaster" } }), 960, 420);
+</script>
+
+<div class="case"><h4>c126 · 1.42 · Gestapelt mit Highlight („Mär") — ein Band hinter der ganzen Säule, nicht je Serie</h4><div class="stage" id="c126" style="width:960px;height:440px"></div></div>
+<script>
+// Stack-Serien liegen im Rollenfeld "series"; das Band darf nicht pro Segment
+// gezeichnet werden, sonst liest sich die Grauabstufung wie ein Szenario
+const shCats = [], shSeries = [], shAc = [];
+["Jan", "Feb", "Mär", "Apr", "Mai", "Jun"].forEach((m, mi) => {
+  ["Premium", "Standard", "Basis"].forEach((s, si) => {
+    shCats.push(m); shSeries.push(s);
+    shAc.push((70 + mi * 8) * (3 - si) * 1000);
+  });
+});
+run("c126", {
+  metadata: { columns: [], objects: { chart: { highlight: "Mär" } } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Monat", roles: { category: true } }, values: shCats },
+      { source: { displayName: "Produkt", roles: { series: true } }, values: shSeries }
+    ],
+    values: [col("actual", shAc, "#,0 €")]
+  }
+}, 960, 440);
+</script>
+
+<div class="case"><h4>c127 · 1.42 · Kategorie-Brücke mit Highlight („Süd, Export") — Band über die ganze Zeile inkl. Label- und Pin-Spalte</h4><div class="stage" id="c127" style="width:1340px;height:520px"></div></div>
+<script>
+// erwartet: zwei getönte Zeilenbänder in der Kaskade, deren Zeilenlabels fett
+// werden; die PY-/AC-Ankerzeilen sind keine Kategorien und bleiben unverändert
+const cbHlCats = ["Nord", "Ost", "Süd", "West", "Export", "Online"];
+const cbHlAc = [242, 118, 176, 205, 91, 143];
+const cbHlPy = [228, 131, 149, 212, 74, 96];
+run("c127", dataView(cbHlCats, [col("actual", cbHlAc), col("previousYear", cbHlPy)],
+  { chart: { orientation: "catbridge", highlight: "Süd, Export" } }), 1340, 520);
+</script>
+
+<div class="case"><h4>c128 · 1.43 · Nur Auffälligkeiten · Bars, materialityAbs=200 → 5 auffällige Balken + Sammelbalken „Unauffällig (5)" · Σ bleibt 20.690 € (wie ohne Filter)</h4><div class="stage" id="c128" style="width:960px;height:420px"></div></div>
+<script>
+// Abweichungen: DE +400, AT +250, CH +10, FR -320, IT +350, BE +10, NL -10,
+// PL +20, CZ -15, ES -300 → über der Schwelle bleiben DE/AT/FR/IT/ES, die fünf
+// übrigen wandern in die Sammelzeile (AC 5.890 vs. PL 5.875 → Δ +15, also grau).
+// Erwartet: ⚠-Chip oben rechts (gefüllt), Fußzeile „⚠ 5 zusammengefasst",
+// Σ-Kopfzeile 20.690 € — identisch zum ungefilterten Bild
+const exCats = ["Deutschland","Österreich","Schweiz","Frankreich","Italien","Belgien","Niederlande","Polen","Tschechien","Spanien"];
+const exAc   = [5400, 1900, 2400, 3100, 2800,  700,  950, 1200,  640, 1600];
+const exPl   = [5000, 1650, 2390, 3420, 2450,  690,  960, 1180,  655, 1900];
+run("c128", dataView(exCats, [col("actual", exAc, "#,0 €"), col("plan", exPl, "#,0 €")],
+  { chart: { orientation: "bars", materialityAbs: 200, exceptionOnly: true },
+    ibcsTitle: { kpi: "Umsatz", period: "2026", filterFooter: true } }), 960, 420);
+</script>
+
+<div class="case"><h4>c129 · 1.43 · Nur Auffälligkeiten · KPI-Karten mit denselben Daten — 5 auffällige Kacheln + Kachel „Unauffällig (5)", ⚠-Chip links neben dem Sortier-Chip</h4><div class="stage" id="c129" style="width:1200px;height:420px"></div></div>
+<script>
+// gleiche Zahlen wie c128, nur als Kacheln: prüft die zweite Chip-Position
+// (Cluster oben rechts) und dass die Sammelkachel neutral/grau bleibt
+run("c129", dataView(exCats, [col("actual", exAc, "#,0 €"), col("plan", exPl, "#,0 €")],
+  { chart: { orientation: "cards", materialityAbs: 200, exceptionOnly: true },
+    ibcsTitle: { kpi: "Umsatz", period: "2026", filterFooter: true } }), 1200, 420);
+</script>
+
+<div class="case"><h4>c130 · 1.42 · Smart-Start: Bars-Vorschlag — 6 Text-Kategorien (Regionen) + AC + PL, Orientation nicht gesetzt (Default Columns) → 💡-Chip oben links „Structure detected — bars?"</h4><div class="stage" id="c130" style="width:960px;height:420px"></div></div>
+<script>
+// Smart-Start Regel c: orientation===columns (Default) + Kategorie NICHT zeitartig
+// (6 Regionsnamen, kein Monat/Quartal/KW/Jahr/Datum) + >=3 Kategorien -> Vorschlag "bars".
+// chart.orientation bleibt bewusst ungesetzt (Default "columns" aus orientationItems[0]).
+const ssRegions = ["Nord", "Süd", "West", "Ost", "Mitte", "Süd-Ost"];
+const ssAc = [4200, 3100, 2800, 1900, 1200, 900];
+const ssPl = [4000, 3200, 2750, 2100, 1150, 950];
+run("c130", dataView(ssRegions, [col("actual", ssAc, "#,0 €"), col("plan", ssPl, "#,0 €")],
+  {}), 960, 420);
 </script>
 </body>
 </html>

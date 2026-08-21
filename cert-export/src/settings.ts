@@ -108,6 +108,12 @@ const cardHighlightItems: LocEnumMember[] = [
     { value: "good", displayName: "Only good", key: "Enum_CardHl_Good" }
 ];
 
+const cardRefValueItems: LocEnumMember[] = [
+    { value: "off", displayName: "Only variances (Δ)", key: "Enum_CardRefVals_Off" },
+    { value: "basis", displayName: "Basis value (PY or PL)", key: "Enum_CardRefVals_Basis" },
+    { value: "all", displayName: "All bound scenarios", key: "Enum_CardRefVals_All" }
+];
+
 const cardSortItems: LocEnumMember[] = [
     { value: "none", displayName: "Data order", key: "Enum_CardSort_None" },
     { value: "deviation", displayName: "Biggest deviation first", key: "Enum_CardSort_Dev" },
@@ -132,6 +138,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
     const lists: LocEnumMember[][] = [orientationItems, comparisonItems,
         displayUnitsItems, cumulativeKindItems, fontPresetItems, valueColumnsItems,
         cardBasisItems, matrixCompareItems, cardHighlightItems, cardSortItems,
+        cardRefValueItems,
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
         gridLinesItems, cellLayoutItems];
     for (const items of lists) {
@@ -217,6 +224,15 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Chart_Orientation",
         items: orientationItems,
         value: orientationItems[0]
+    });
+
+    smartStart = new formattingSettings.ToggleSwitch({
+        name: "smartStart",
+        displayName: "Smart-Start suggestions",
+        displayNameKey: "Chart_SmartStart",
+        description: "Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL). Nur im Bearbeitungsmodus des Reports sichtbar, nie in der Leseansicht oder in Exporten.",
+        descriptionKey: "Desc_Chart_SmartStart",
+        value: true
     });
 
     comparisonMode = new formattingSettings.ItemDropdown({
@@ -438,7 +454,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartLayout",
         displayName: "Layout",
         displayNameKey: "Group_Layout",
-        slices: [this.orientation, this.comparisonMode, this.showAbsoluteVariance,
+        slices: [this.orientation, this.smartStart, this.comparisonMode, this.showAbsoluteVariance,
             this.showRelativeVariance, this.dualVariance, this.pyTriangle, this.showTotal,
             this.acFcSplit, this.hideBlankCat, this.groupEvery]
     });
@@ -477,6 +493,15 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         }
     });
 
+    exceptionOnly = new formattingSettings.ToggleSwitch({
+        name: "exceptionOnly",
+        displayName: "Exceptions only",
+        displayNameKey: "Chart_ExceptionOnly",
+        description: "Exception-Reporting: Zeigt nur Kategorien, deren Abweichung die Wesentlichkeits-Schwelle überschreitet; alle übrigen werden zu EINER Sammelzeile „Unauffällig (n)\" verdichtet — deren Werte werden aufsummiert, die Σ-Kopfzeile bleibt also unverändert. Setzt eine Schwelle voraus (absolut oder %). Wirkt in Balken, KPI-Karten und der flachen Tabelle (nicht in Matrix- oder Hierarchie-Tabellen); Zeitachsen (Säulen/Linie) und Kaskaden (Wasserfall, Brücken, GuV) bleiben lückenlos. Standard aus.",
+        descriptionKey: "Desc_Chart_ExceptionOnly",
+        value: false
+    });
+
     pinStyle = new formattingSettings.ItemDropdown({
         name: "pinStyle",
         displayName: "Δ%-pin shape",
@@ -502,7 +527,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Group_Analysis",
         slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.cumulativeButton, this.movingAverage, this.topN,
             this.highlight, this.invert, this.invertList, this.compareClick,
-            this.materialityAbs, this.materialityPct, this.pinStyle, this.deltaIcons]
+            this.materialityAbs, this.materialityPct, this.exceptionOnly, this.pinStyle, this.deltaIcons]
     });
 
     multiplesTotal = new formattingSettings.ToggleSwitch({
@@ -797,6 +822,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    cardRefValues = new formattingSettings.ItemDropdown({
+        name: "cardRefValues",
+        displayName: "Show reference values",
+        displayNameKey: "Cards_RefValues",
+        description: "Zeigt neben der Abweichung auch den Referenzwert selbst auf der Karte: „Basiswert“ blendet die Vergleichsbasis ein (VJ bzw. Plan), „Alle gebundenen Szenarien“ zusätzlich die übrigen gebundenen Measures (VJ, Plan, Prognose, Benchmark). Bei knapper Kachelhöhe entfallen die unteren Zeilen.",
+        descriptionKey: "Desc_Cards_RefValues",
+        items: cardRefValueItems,
+        value: cardRefValueItems[0]
+    });
+
     cardSort = new formattingSettings.ItemDropdown({
         name: "cardSort",
         displayName: "Sort by deviation",
@@ -811,8 +846,9 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartCards",
         displayName: "KPI cards",
         displayNameKey: "Group_Cards",
-        slices: [this.cardStatusBasis, this.cardHighlight, this.cardSort, this.cardBars,
-            this.cardTint, this.cardTintStrength, this.cardBullet, this.cardBulletZoom]
+        slices: [this.cardStatusBasis, this.cardHighlight, this.cardRefValues, this.cardSort,
+            this.cardBars, this.cardTint, this.cardTintStrength, this.cardBullet,
+            this.cardBulletZoom]
     });
 
     name: string = "chart";

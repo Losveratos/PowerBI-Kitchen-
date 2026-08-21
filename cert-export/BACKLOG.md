@@ -91,6 +91,20 @@ klassischer, den jedes Monatsreporting hat:
       AC|FC-Trennlinie liegt dann *innerhalb* einer Säule statt zwischen
       zweien, und YTD/kumuliert muss entscheiden, ob der FC-Anteil mitzählt.
 
+### Beta-Feedback KPI-Karten (August 2026)
+
+Zwei Punkte aus der Praxis, beide in 1.41.0.0 gebaut:
+
+- [x] **Karten ohne Kategoriefeld** (S–M) — erledigt in 1.41.0.0. — „nur AC
+      und PY oder FC füllen, ohne Kategorie" war nicht möglich: ohne
+      Kategorie-Rolle lief das Visual in die Landing Page. Jetzt genügen die
+      Measures, der Kartentitel kommt aus dem Namen der AC-Measure
+      (Testfall c122).
+- [x] **Referenzwert statt nur Abweichung auf der Karte** (S–M) — erledigt in
+      1.41.0.0 (Setting „Referenzwerte anzeigen": Basiswert bzw. alle
+      gebundenen Szenarien als eigene Wertzeilen über den Δ-Zeilen;
+      Testfall c123).
+
 ## Barrierefreiheit
 
 - [ ] **Schraffur-Redundanz für „schlecht"** (M) — optionaler Schalter:
@@ -171,9 +185,10 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
 
 ### Analytik
 
-- [ ] **Abweichungs-Filter „nur Auffälligkeiten"** (S–M) — nur Zeilen über der
-      Materialitätsschwelle zeigen, Rest als „Unauffällig (n)"-Sammelzeile;
-      optional In-Chart-Chip ⚠ (Exception-Reporting).
+- [x] **Abweichungs-Filter „nur Auffälligkeiten"** (S–M) — erledigt in
+      1.42.0.0 (Setting `exceptionOnly` + ⚠-Chip; Sammelzeile über die
+      Top-N-Aggregationsmechanik, Σ-treu; nur Bars/Karten/flache Tabelle,
+      Fußzeilen-Hinweis; Testfälle c128–c129).
 - [ ] **Zielerreichungs-Spalte** (S–M) — AC/PL in % mit Mini-Balken und
       100 %-Marke (Bullet-Logik der Karten wiederverwenden).
 - [ ] **Common-Size-/%-vom-Total-Spalte** (S) — Anteil je Zeile an Σ oder an
@@ -251,8 +266,9 @@ markiert Punkte, die dort bereits (oder besser) gelöst sind.
 - [ ] **Skalierungsbänder / Scale Bands** (M) — bei bewusst abweichenden
       Skalen (IBCS CH-Regelgruppe).
 - [ ] **Automatische Ausreißer-Kennzeichnung** (M) — statt nur manuellem Cap.
-- [ ] **Highlight (EMPHASIZE) in allen Modi** (M) — greift bisher nicht in
-      Pareto, Waterfall, IntWf, CatBridge, Stacked.
+- [x] **Highlight (EMPHASIZE) in allen Modi** (M) — erledigt in 1.42.0.0
+      (Pareto, Waterfall, IntWf, CatBridge, Stacked; gemeinsame
+      Band-Hilfsfunktion, hc-Modus als Rahmen; Testfälle c125–c127).
 - [ ] **refLine / fixedMax in allen Modi** (M–L) — wirken bisher nur in
       columns/bars/line; überall respektieren oder Pane-Optionen ausblenden.
 - [ ] **YTD-Reset bei Wochen-Labels** (S) — Kumulierung erkennt Jahreswechsel
@@ -282,17 +298,21 @@ markiert Punkte, die dort bereits (oder besser) gelöst sind.
       an-/abschaltbar für Report-Autoren.
 - [ ] **Viewer-Layout-Umschalter** (M) — Chart-Slider-Äquivalent: Betrachter
       wechselt zwischen Modi ohne Formatbereich.
-- [ ] **Highlight-Data-API unterstützen** (M) — von pbiviz empfohlen; Voraus-
-      setzung für sauberes Crossfilter-Highlighting (auch fürs Listing schön).
+- [x] **Highlight-Data-API unterstützen** (M) — erledigt in 1.41.0.0
+      (`supportsHighlight`, nicht hervorgehobene Kategorien rendern gedimmt über
+      dieselbe Gruppen-Mechanik wie die eigene Selektion; Testfall c124). Offene
+      Ausbaustufe: echte Teilfüllung der Säule bei anteiliger Hervorhebung statt
+      Dimmen der ganzen Kategorie.
 - [ ] **Adversariale Prüf-Runde 1.25+** (M) — die letzten großen Pakete
       (Matrix-Vollausbau, Formel-pro-Zelle) sind nur selbst-verifiziert;
       volle Agenten-Runde nachholen, sobald Kapazität da ist.
 
 ## Ease of Use (Ideation Juli 2026 — Auswahl 5/6/9 gebaut in 1.34.0.0)
 
-- [ ] **Smart-Start: Modus-Vorschlag nach Feldern** (S) — nach dem Binden
-      erkennt das Visual die Feld-Konstellation und schlägt per Klick den
-      passenden Modus vor („Datum + AC + PL → Säulen mit ΔPL?").
+- [x] **Smart-Start: Modus-Vorschlag nach Feldern** (S) — erledigt in
+      1.42.0.0 (Vorschlags-Chip im Edit-Modus: Struktur→Bars,
+      rowType→Waterfall, colgroup→Matrix, lange Zeitreihe→Line; ✕ verwirft
+      je Konstellation, global abschaltbar; Testfall c130).
 - [ ] **Drillthrough & Rechtsklick-Kontextmenü** (M) — natives Power-BI-
       Kontextmenü (selectionManager.showContextMenu) auf Balken, Brücken-
       Segmenten und Tabellenzeilen; größtes „verhält sich nicht wie
@@ -324,9 +344,9 @@ Persona-Vorlagen/Share-Code auf die Builder-UX ein.
       Edit-Modus: gebundene Rollen (AC ✓ · PY ✓ · PL —), Modus, aktive
       Sonderoptionen + Warnungen („Basis=PL, aber PL nicht gebunden");
       im Lesemodus unsichtbar.
-- [ ] **Feldrollen-Tooltips** (S) — description je Datenrolle in den
-      capabilities („Plan/Budget → Rahmen-Notation, Basis für ΔPL"),
-      erscheint beim Hover im Feld-Bereich.
+- [x] **Feldrollen-Tooltips** (S) — erledigt in 1.42.0.0 (description +
+      descriptionKey je Datenrolle, lokalisiert in allen vier Sprachen;
+      die alten teils deutschen Hardcode-Texte ersetzt).
 - [ ] **Struktur-Editor als Übersicht** (M) — Overlay mit allen Zeilen als
       Matrix (Σ/Formel/Skip/Hide/Grafik/Einrücken/Invertieren),
       Mehrfachauswahl per Shift-Klick statt Zeile-für-Zeile-Menü.
