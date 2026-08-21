@@ -1,0 +1,2749 @@
+{
+ "meta": {
+  "generated_by": "scripts/build_page_data.py",
+  "purpose": "Redaktioneller Datensatz fuer whitepaper-strommix.html (Text- und Vergleichszahlen)",
+  "inputs": [
+   "research/kosten_ee_speicher.md",
+   "research/kosten_kernkraft.md",
+   "research/ist_zustand_de.md",
+   "research/risiken_co2.md",
+   "data/model_params.json"
+  ],
+  "limitation": "Volltext-Abruf (WebFetch) war fuer praktisch alle Primaerquellen-Domains durch den Netzwerk-Egress blockiert. Alle Werte stammen aus Suchindex-Zusammenfassungen der genannten Quellen, nicht aus selbst gelesenem PDF-Volltext. Vor Veroeffentlichung am Original nachpruefen.",
+  "confidence_scale": {
+   "A": "mehrfach bestaetigt / institutionelle Primaerquelle",
+   "B": "einzelner Treffer, institutionelle Quelle",
+   "C": "Branchen-/Marktquelle oder Modellannahme mit schwacher Belegbasis"
+  }
+ },
+ "ist_mix": {
+  "2025": {
+   "bruttostromerzeugung_gesamt_inkl_pse": 509.3,
+   "bruttostromerzeugung_ohne_pse": 502.2,
+   "erneuerbare_gesamt": 292.0,
+   "fossil_gesamt": 217.3,
+   "kernenergie": 0.0,
+   "pumpspeichererzeugung": 7.1,
+   "confidence": "medium",
+   "quelle": "AG Energiebilanzen, STRERZ-Datenblatt 2025 / AGEB-Wintertagung 15.12.2025",
+   "traeger_twh": {
+    "wind_onshore": {
+     "wert": 110.1,
+     "confidence": "medium",
+     "derived": false
+    },
+    "photovoltaik": {
+     "wert": 89.5,
+     "confidence": "medium",
+     "derived": false
+    },
+    "erdgas": {
+     "wert": 84.9,
+     "confidence": "medium",
+     "derived": false
+    },
+    "braunkohle": {
+     "wert": 75.2,
+     "confidence": "medium",
+     "derived": false
+    },
+    "biomasse": {
+     "wert": 42.7,
+     "confidence": "medium",
+     "derived": false
+    },
+    "wind_offshore": {
+     "wert": 28.0,
+     "confidence": "low",
+     "derived": true,
+     "hinweis": "Differenzrechnung aus EE-Summe"
+    },
+    "steinkohle": {
+     "low": 25.0,
+     "high": 28.0,
+     "confidence": "low",
+     "derived": true
+    },
+    "wasserkraft": {
+     "wert": 21.0,
+     "confidence": "low",
+     "derived": true,
+     "hinweis": "Differenzrechnung aus EE-Summe"
+    },
+    "mineraloel_sonstige_abfall": {
+     "wert": 28.9,
+     "confidence": "low",
+     "derived": false,
+     "hinweis": "gemeinsam ausgewiesen; im Fossil-Block enthalten, nicht additiv"
+    },
+    "kernenergie": {
+     "wert": 0.0,
+     "confidence": "high",
+     "derived": false
+    }
+   },
+   "oeffentliche_nettoerzeugung_ise": {
+    "ee_anteil_prozent": 55.9,
+    "wind_gesamt": 132.0,
+    "photovoltaik_gesamt": 87.0,
+    "pv_wachstum_prozent": 21.0,
+    "confidence": "high",
+    "quelle": "Fraunhofer ISE / Energy-Charts, Jahresauswertung 2025"
+   },
+   "ee_anteil_bruttostromverbrauch_prozent": {
+    "low": 55.0,
+    "high": 56.0,
+    "confidence": "medium",
+    "hinweis": "Quellen nennen 54 / 55.1 / 56 je nach Stand und Abgrenzung"
+   },
+   "bruttostromverbrauch": {
+    "low": 512.0,
+    "high": 526.0,
+    "confidence": "low",
+    "hinweis": "Widerspruch W3"
+   },
+   "nettostromverbrauch": {
+    "wert": null,
+    "schaetzung_low": 470.0,
+    "schaetzung_high": 485.0,
+    "confidence": "low",
+    "derived": true,
+    "hinweis": "Datenluecke L1; Schaetzung ueber 7-9 % Abschlag"
+   },
+   "import_twh": 76.2,
+   "export_twh": 54.3,
+   "nettoimport_twh": {
+    "low": 19.0,
+    "high": 21.9,
+    "confidence": "medium",
+    "hinweis": "Widerspruch W2"
+   },
+   "import_struktur_prozent": {
+    "erneuerbar": 55,
+    "kernenergie": 23,
+    "fossil": 13,
+    "hinweis": "summiert nicht auf 100, Quelle unvollstaendig"
+   },
+   "wichtigste_lieferlaender": [
+    "Daenemark",
+    "Frankreich",
+    "Niederlande",
+    "Norwegen"
+   ]
+  },
+  "2024": {
+   "bruttostromerzeugung": {
+    "low": 501.0,
+    "high": 507.0,
+    "confidence": "low",
+    "hinweis": "Widerspruch W3/L3"
+   },
+   "bruttostromverbrauch": {
+    "wert": 518.0,
+    "confidence": "high",
+    "quelle": "NEP 2037/2045 V2025, Basisjahr"
+   },
+   "eingespeiste_strommenge_destatis": {
+    "wert": 431.7,
+    "confidence": "low",
+    "derived": true
+   },
+   "ee_eingespeist_destatis": {
+    "wert": 256.4,
+    "anteil_prozent": 59.4,
+    "confidence": "high"
+   },
+   "ee_erzeugung_gesamt_agee": 275.2,
+   "pv_erzeugung_gesamt": 72.2,
+   "wind_gesamt_ise": 136.4,
+   "ee_anteil_oeff_nettoerzeugung_prozent": 62.7,
+   "erdgas_anteil_prozent": 14.9,
+   "nettoimport_twh": {
+    "wert": 28.3,
+    "confidence": "low",
+    "derived": true
+   }
+  },
+  "2026_h1": {
+   "ee_anteil_bruttostromverbrauch_prozent": 57.0,
+   "ee_wachstum_prozent": 6.0,
+   "ee_struktur_prozent": {
+    "wind": 45,
+    "photovoltaik": 34,
+    "biomasse": 15
+   },
+   "handelssaldo_q1": "erstmals seit 2023 wieder Netto-Exporteur",
+   "confidence": "high",
+   "quelle": "UBA / AGEE-Stat, Pressemitteilung Juli 2026"
+  }
+ },
+ "installierte_leistung_gw": {
+  "stand_jahresende_2025": {
+   "photovoltaik": {
+    "wert": 117.0,
+    "confidence": "high"
+   },
+   "wind_onshore": {
+    "wert": 68.1,
+    "confidence": "high"
+   },
+   "wind_offshore": {
+    "wert": 9.6,
+    "confidence": "high"
+   },
+   "erdgas": {
+    "low": 35.0,
+    "high": 36.0,
+    "confidence": "medium"
+   },
+   "steinkohle": {
+    "wert": 15.387,
+    "confidence": "medium"
+   },
+   "braunkohle": {
+    "wert": 14.758,
+    "confidence": "medium",
+    "veraenderung_ggue_2024": -0.361
+   },
+   "biomasse": {
+    "wert": 9.033,
+    "confidence": "low",
+    "hinweis": "Stand Okt 2024, veraltet - Luecke L5"
+   },
+   "wasserkraft_ohne_pumpspeicher": {
+    "low": 4.7,
+    "high": 5.6,
+    "confidence": "low",
+    "hinweis": "Luecke L4"
+   },
+   "pumpspeicher": {
+    "wert": 6.253,
+    "confidence": "medium"
+   },
+   "erneuerbare_gesamt": {
+    "wert": 210.0,
+    "zubau_2025": 21.0,
+    "confidence": "high"
+   },
+   "alle_anlagen_netto": {
+    "wert": 265.4,
+    "stand": "2025-05",
+    "confidence": "medium"
+   }
+  },
+  "stand_juli_2026": {
+   "photovoltaik": {
+    "wert": 126.6,
+    "confidence": "medium",
+    "derived": true
+   },
+   "wind_onshore": {
+    "wert": 71.0,
+    "confidence": "low",
+    "derived": true
+   },
+   "wind_offshore": {
+    "wert": 10.8,
+    "confidence": "high"
+   }
+  },
+  "batteriespeicher": {
+   "leistung_gw": {
+    "low": 18.5,
+    "high": 20.0,
+    "confidence": "medium"
+   },
+   "kapazitaet_gwh": {
+    "low": 31.0,
+    "high": 31.5,
+    "confidence": "medium"
+   },
+   "anlagenzahl_mio": 2.6,
+   "stand": "2026-H1 bis 2026-07",
+   "zubau_h1_2026_mw": 2482.7,
+   "zubau_h1_2026_mwh": 5642,
+   "projektion_ende_2026_gwh": 35.0,
+   "hinweis": "Widerspruch W4: Angabe 'Grossspeicher 1.2 GW / 2.4 GWh' ist implausibel und nicht zu verwenden"
+  },
+  "zubau_2025": {
+   "photovoltaik": {
+    "bnetza": 16.4,
+    "bsw": 17.5,
+    "confidence": "high",
+    "hinweis": "Widerspruch W5"
+   },
+   "wind_onshore": {
+    "wert": 4.6,
+    "vorjahr": 2.6,
+    "confidence": "high"
+   },
+   "wind_offshore": {
+    "wert": 0.0,
+    "confidence": "high"
+   }
+  },
+  "zubau_jan_jul_2026": {
+   "photovoltaik_mw": 9572,
+   "photovoltaik_anlagen": 484530,
+   "wind_gesamt_mw": 3948,
+   "wind_anlagen": 587,
+   "wind_offshore_mw_h1": 1062.2,
+   "wind_onshore_mw": {
+    "wert": 2886,
+    "derived": true
+   },
+   "wind_plus_pv_mw": 12916,
+   "vorjahreswert_wind_plus_pv_mw": 11600
+  }
+ },
+ "zielpfade": {
+  "rechtsgrundlagen": [
+   "EEG 2023 (§1, §4)",
+   "WindSeeG"
+  ],
+  "ee_anteil_bruttostromverbrauch_2030_prozent": 80,
+  "ziele_gw": {
+   "photovoltaik": {
+    "2030": 215,
+    "2045_richtwert": 400,
+    "max_jahreszubau": 22
+   },
+   "wind_onshore": {
+    "2030": 115,
+    "2045_richtwert": 160,
+    "max_jahreszubau": 10
+   },
+   "wind_offshore": {
+    "2030": 30,
+    "2035": 40,
+    "2045": 70
+   }
+  },
+  "zielerreichung_anfang_2026": {
+   "photovoltaik": {
+    "ist_gw": 117.0,
+    "ziel_gw": 215,
+    "erreichung_prozent": 54,
+    "rest_gw": 98.0,
+    "erforderlich_gw_pro_jahr": 19.6,
+    "ist_zubau_2025": 16.4,
+    "luecke_faktor": 1.2,
+    "derived": true
+   },
+   "wind_onshore": {
+    "ist_gw": 68.1,
+    "ziel_gw": 115,
+    "erreichung_prozent": 59,
+    "rest_gw": 46.9,
+    "erforderlich_gw_pro_jahr": 9.4,
+    "ist_zubau_2025": 4.6,
+    "luecke_faktor": 2.0,
+    "derived": true
+   },
+   "wind_offshore": {
+    "ist_gw": 10.8,
+    "ziel_gw": 30,
+    "erreichung_prozent": 36,
+    "rest_gw": 19.2,
+    "erforderlich_gw_pro_jahr": 4.3,
+    "ist_zubau_2025": 0.0,
+    "luecke_faktor": 4.0,
+    "derived": true
+   }
+  },
+  "offshore_pipeline_gw": {
+   "in_betrieb": 10.8,
+   "im_bau": 1.3,
+   "finale_investitionsentscheidung": 2.6,
+   "zuschlag_oder_netzanbindungsanspruch": 17.5,
+   "nur_fuer_ausschreibung_vorgesehen": 9.0,
+   "stand": "2026-Jahresmitte",
+   "bewertung_quelle": "Ziel 2030 zeitlich nicht mehr erreichbar; Ziel 2035 bei plangemaesser Umsetzung moeglich; Ziel 2045 erfordert weitere Festlegungen"
+  },
+  "pv_zwischenziel_2026_gw": 128
+ },
+ "bedarfsprojektionen_twh": {
+  "basis_2024": 518,
+  "2030": {
+   "bmwk_langfristszenarien": {
+    "low": 594,
+    "high": 638,
+    "confidence": "medium"
+   },
+   "monitoringbericht_2025_ewi_bet": {
+    "low": 600,
+    "high": 700,
+    "confidence": "high"
+   },
+   "eeg_novelle_2023_alte_annahme": 750,
+   "mckinsey_trendpfad_netto": 530,
+   "empfohlene_modellspanne": {
+    "low": 594,
+    "high": 700
+   }
+  },
+  "2035": {
+   "wert": null,
+   "confidence": null,
+   "hinweis": "Datenluecke L7"
+  },
+  "2037": {
+   "nep_2037_2045_v2025": {
+    "low": 845,
+    "high": 1065,
+    "confidence": "high"
+   }
+  },
+  "2045": {
+   "nep_2037_2045_v2025": {
+    "low": 948,
+    "high": 1275,
+    "confidence": "high"
+   },
+   "ariadne_ee_erzeugungsbedarf_wind_pv": {
+    "low": 630,
+    "high": 1480,
+    "confidence": "medium"
+   }
+  },
+  "treiber": {
+   "elektrolyse": {
+    "2037": {
+     "low": 104,
+     "high": 160,
+     "confidence": "high"
+    },
+    "2045": {
+     "low": 184,
+     "high": 320,
+     "confidence": "high"
+    }
+   },
+   "rechenzentren": {
+    "2037_ueberschreitung_korridor": 50,
+    "2045_it_stromverbrauch_max": 88,
+    "confidence": "medium"
+   },
+   "waermepumpen": {
+    "wert": null,
+    "hinweis": "als Haupttreiber benannt, nicht quantifiziert - Luecke L6"
+   },
+   "e_mobilitaet": {
+    "wert": null,
+    "hinweis": "als Haupttreiber benannt, nicht quantifiziert - Luecke L6"
+   },
+   "batteriezellproduktion": {
+    "wert": null,
+    "hinweis": "als Treiber benannt, nicht quantifiziert - Luecke L6"
+   }
+  },
+  "revision_hinweis": "Monitoringbericht 15.09.2025 senkte die 2030er Annahme von ca. 750 auf 600-700 TWh (-10 bis -15 %); Gruende: langsamerer H2-Hochlauf, geringere Industrienachfrage"
+ },
+ "netzkosten": {
+  "uebertragungsnetz_nep_2037_2045_v2025": {
+   "gesamt_bis_2045": {
+    "low": 365,
+    "high": 392,
+    "confidence": "medium"
+   },
+   "szenario_a_bis_2037": 283,
+   "szenario_a_2037_bis_2045": 80,
+   "szenario_b_aufschlag_bis_2037": 17,
+   "szenario_b_aufschlag_2037_bis_2045": 24,
+   "szenario_b_gesamt": 400,
+   "jahresinvest_bis_2037": 19.8,
+   "jahresinvest_ab_2037": 5.4
+  },
+  "gesamtnetz_imk_boeckler_2024": {
+   "uebertragungsnetz_bis_2045": 328,
+   "verteilnetz_bis_2045": 323,
+   "gesamt_bis_2045": 651,
+   "verteilnetz_jahresdurchschnitt": 14.4,
+   "jahresvolumen_ist_2023": 15,
+   "jahresvolumen_erforderlich": 34,
+   "steigerung_prozent": 127,
+   "confidence": "high"
+  },
+  "netzentgelte_2026": {
+   "uebertragungsnetzentgelt_ohne_zuschuss_ct_kwh": 6.65,
+   "uebertragungsnetzentgelt_mit_zuschuss_ct_kwh": 2.86,
+   "reduktion_prozent": 57,
+   "bundeszuschuss_mrd_eur": 6.5,
+   "finanzierungsquelle": "Klima- und Transformationsfonds (KTF)",
+   "netzentgelt_haushalt_ct_kwh": 9.3,
+   "entlastung_haushalt_3500kwh_eur": 130,
+   "confidence": "high",
+   "hinweis": "Transferleistung, keine Kostensenkung - Netzkosten sinken nicht, sie werden verlagert"
+  },
+  "redispatch_engpassmanagement": {
+   "2025_gesamt": {
+    "low": 2.7,
+    "high": 3.1,
+    "confidence": "medium",
+    "hinweis": "Widerspruch W6"
+   },
+   "2025_konventioneller_redispatch": 1.2,
+   "2025_reservekraftwerke": 1.4,
+   "2025_countertrading_mio_eur": 102,
+   "2025_q2_ee_entschaedigung_mio_eur": 158,
+   "2025_q3_gesamt_mio_eur": 667,
+   "2025_q4_gesamt_mio_eur": 885,
+   "2024_q2_ee_entschaedigung_mio_eur": 162,
+   "2024_q3_gesamt_mio_eur": 608
+  }
+ },
+ "preise": {
+  "boersenstrompreis_jahresmittel_eur_mwh": {
+   "2023": {
+    "wert": 95.5,
+    "confidence": "medium"
+   },
+   "2024": {
+    "low": 78.0,
+    "high": 79.5,
+    "confidence": "medium",
+    "hinweis": "Widerspruch W7"
+   },
+   "2025": {
+    "wert": 86.5,
+    "confidence": "medium",
+    "veraenderung_prozent": 10.9
+   },
+   "2026_h1": {
+    "wert": 99.0,
+    "confidence": "high",
+    "hinweis": "nur Halbjahr, nicht hochrechenbar"
+   },
+   "2026_gesamt": {
+    "wert": null,
+    "hinweis": "Luecke L11 - Jahr laeuft"
+   }
+  },
+  "negative_preisstunden": {
+   "2024_h1": 224,
+   "2025_gesamt": 575,
+   "2025_h1": 389,
+   "2026_h1": 299,
+   "2026_h1_extremwert_eur_mwh": -499.99,
+   "2026_h1_negative_viertelstunden": 1178
+  },
+  "endkunden_ct_kwh": {
+   "haushalt_3500kwh": {
+    "2025": 39.3,
+    "2026": 37.0,
+    "veraenderung": -2.3,
+    "confidence": "high"
+   },
+   "haushalt_2026_komponenten": {
+    "beschaffung_vertrieb": 15.2,
+    "netzentgelte": 9.3,
+    "steuern_abgaben_umlagen": 12.6
+   },
+   "industrie_neuabschluss_160mwh_bis_20gwh": {
+    "2025": 17.6,
+    "2026": 16.7,
+    "veraenderung": -0.9,
+    "confidence": "medium"
+   },
+   "quelle": "BDEW-Strompreisanalyse April 2026"
+  },
+  "eeg_foerderkosten_mrd_eur": {
+   "finanzierungsquelle_bis_2024": "Klima- und Transformationsfonds (KTF)",
+   "finanzierungsquelle_ab_2025": "Kernhaushalt",
+   "eeg_umlage_status": "seit Juli 2022 auf null gesetzt",
+   "2025": {
+    "einnahmen": 3.904,
+    "ausgaben": 19.564,
+    "bundeszuschuss": 16.5,
+    "kontosaldo_jahresende": 1.5,
+    "confidence": "high"
+   },
+   "2026": {
+    "haushaltsansatz": 17.2,
+    "uenb_prognose_einnahmen": 3.109,
+    "uenb_prognose_kosten": 17.792,
+    "finanzierungsbedarf_ohne_kontoguthaben": 16.152,
+    "finanzierungsbedarf_mit_kontoguthaben": 14.6,
+    "confidence": "medium"
+   }
+  },
+  "haushaltsfinanzierte_strompreisstuetzung_2026_mrd_eur": {
+   "netzentgeltzuschuss": 6.5,
+   "eeg_finanzierung": {
+    "low": 14.6,
+    "high": 17.2
+   },
+   "summe": {
+    "low": 21.1,
+    "high": 23.7
+   },
+   "derived": true,
+   "confidence": "low"
+  }
+ },
+ "kraftwerksstrategie": {
+  "gesetz": "StromVKG - Gesetz zur Sicherung der Versorgungssicherheit Strom und zur Bereitstellung neuer Kapazitaeten",
+  "frueherer_arbeitstitel": "Kraftwerkssicherheitsgesetz (KWSG)",
+  "grundsatzeinigung_eu_kommission": "2026-01-15",
+  "kabinettsbeschluss": "2026-05-13",
+  "ausschreibung_1": {
+   "datum": "2026-09-01",
+   "volumen_gw": 4.5
+  },
+  "ausschreibung_2": {
+   "datum": "2026-12-08",
+   "volumen_gw": 4.5
+  },
+  "gesamtvolumen_zunaechst_gw": 11,
+  "weitere_runden": [
+   2027,
+   2029
+  ],
+  "inbetriebnahme_spaetestens": 2031,
+  "koalitionsvertrag_ziel_gw_bis_2030": 20,
+  "technologiefokus": [
+   "wasserstofffaehige Gaskraftwerke",
+   "Speicher",
+   "sonstige steuerbare Erzeugungsanlagen"
+  ],
+  "kapazitaetsmechanismus": {
+   "zielsetzung": "ausreichend gesicherte Leistung bis 2031",
+   "ausgestaltung": null,
+   "hinweis": "final nicht entschieden - Luecke L10"
+  },
+  "confidence": "high",
+  "offener_widerspruch": "11 GW Ausschreibungsarchitektur vs. 20 GW Koalitionsvertragsziel"
+ },
+ "lcoe_benchmarks": {
+  "pv_freiflaeche": {
+   "reference": {
+    "min": 41,
+    "mid": 55,
+    "max": 69,
+    "source": "fraunhofer-ise-2024",
+    "confidence": "A"
+   },
+   "auction": {
+    "min": 39.9,
+    "mid": 49.4,
+    "max": 51.0,
+    "source": "bnetza-pv-2026-03",
+    "note": "Zuschlagswerte, nicht LCOE - eher Obergrenze der Betreiber-Vollkosten ueber 20 Jahre",
+    "confidence": "A"
+   },
+   "forecast_2045": {
+    "min": 31,
+    "max": 50,
+    "source": "fraunhofer-ise-2024",
+    "confidence": "A"
+   }
+  },
+  "wind_onshore": {
+   "reference": {
+    "min": 43,
+    "mid": 66,
+    "max": 92,
+    "source": "fraunhofer-ise-2024",
+    "confidence": "A"
+   },
+   "auction": [
+    {
+     "date": "2026-02",
+     "min": 51.9,
+     "weighted_avg": 55.4,
+     "max": 56.4,
+     "confidence": "A"
+    },
+    {
+     "date": "2026-05",
+     "min": 44.4,
+     "weighted_avg": 50.6,
+     "max": 51.9,
+     "awarded_mw": 2499,
+     "confidence": "A"
+    }
+   ],
+   "auction_cap": {
+    "value": 72.5,
+    "source": "bnetza-hoechstwert-2026",
+    "confidence": "A"
+   },
+   "irena_europe": {
+    "value": 47,
+    "usd": 51,
+    "confidence": "A"
+   },
+   "sensitivity_flh": [
+    {
+     "flh": 1700,
+     "lcoe_eur_mwh": 93.0,
+     "note": "GES-Studienannahme, entspricht Bestandsflotte"
+    },
+    {
+     "flh": 2400,
+     "lcoe_eur_mwh": 65.9,
+     "note": "Neuanlagen-Mittel"
+    },
+    {
+     "flh": 2600,
+     "lcoe_eur_mwh": 60.8,
+     "note": "gute Standorte"
+    }
+   ],
+   "full_load_hours_fleet": {
+    "value_2025": 1608,
+    "mean_since_2015": 1770,
+    "confidence": "A",
+    "note": "Bestandsflotte - NICHT fuer Neubau-LCOE verwenden"
+   }
+  },
+  "wind_offshore": {
+   "reference": {
+    "min": 55,
+    "mid": 78,
+    "max": 103,
+    "source": "fraunhofer-ise-2024",
+    "confidence": "A"
+   },
+   "lazard_2026": {
+    "min": 97,
+    "max": 154,
+    "usd_min": 105,
+    "usd_max": 167,
+    "confidence": "A"
+   },
+   "irena_europe": {
+    "value": 74,
+    "usd": 80,
+    "confidence": "A"
+   },
+   "auction": {
+    "available": false,
+    "reason": "Deutsche Offshore-Ausschreibungen laufen als Null-Cent-Gebote mit dynamischem Bieterverfahren. Bieter ZAHLEN an den Staat (N-9.4, 2025: TotalEnergies 180 Mio. EUR fuer 1000 MW) statt Verguetung zu erhalten. Kein LCOE-Signal ableitbar; die Zahlungen sind ein zusaetzlicher Kostenaufschlag.",
+    "auctions_2026": "auf 2027 verschoben (Flaechenentwicklungsplan-Aenderung 30.01.2026)"
+   }
+  },
+  "battery": {
+   "lcos_lazard_2026": {
+    "min": 193,
+    "max": 269,
+    "usd_min": 210,
+    "usd_max": 292,
+    "config": "100 MW / 4h",
+    "confidence": "A"
+   }
+  },
+  "h2_turbine": {
+   "new_plant": {
+    "min": 401,
+    "max": 605,
+    "source": "fraunhofer-ise-flexkraftwerke",
+    "confidence": "A"
+   },
+   "gas_retrofit_2035": {
+    "min": 143,
+    "max": 325,
+    "flh_range": [
+     500,
+     3000
+    ],
+    "source": "fraunhofer-ise-flexkraftwerke",
+    "confidence": "A"
+   }
+  },
+  "gas_ccgt": {
+   "de_new": {
+    "min": 230,
+    "max": 280,
+    "source": "foes-2025",
+    "note": "reine Erzeugungskosten je nach CO2-Preis",
+    "confidence": "B"
+   },
+   "incl_external": {
+    "max": 670,
+    "source": "foes-2025",
+    "confidence": "B"
+   },
+   "gas_crisis_price": {
+    "min": 480,
+    "max": 530,
+    "source": "foes-2025",
+    "note": "bei Gaspreisniveau 2022",
+    "confidence": "B"
+   }
+  },
+  "nuclear": {
+   "third_party": [
+    {
+     "source_id": "fraunhofer-ise-2024",
+     "label": "Fraunhofer ISE, Juli 2024",
+     "scope": "Neubau Kernenergie",
+     "lcoe_ct_kwh": [
+      13.6,
+      49.0
+     ],
+     "lcoe_eur_mwh": [
+      136,
+      490
+     ],
+     "confidence": "A"
+    },
+    {
+     "source_id": "lazard-lcoe-18",
+     "label": "Lazard LCOE+ v18, Juni 2025",
+     "scope": "unsubventioniert, USA",
+     "lcoe_usd_mwh": [
+      141,
+      220
+     ],
+     "lcoe_eur_mwh": [
+      122,
+      190
+     ],
+     "confidence": "B"
+    },
+    {
+     "source_id": "iwr-hinkley-2026",
+     "label": "Hinkley Point C CfD, indexiert 17.01.2026",
+     "scope": "real vertraglich fixiert",
+     "lcoe_gbp_mwh": 127,
+     "lcoe_eur_mwh": 147,
+     "confidence": "A"
+    },
+    {
+     "source_id": "iea-nea-2020",
+     "label": "IEA/NEA 2020 bei 7 Prozent",
+     "scope": "24 Laender, ueberwiegend nicht-westlich",
+     "lcoe_usd_mwh": [
+      42,
+      102
+     ],
+     "lcoe_eur_mwh": [
+      36,
+      88
+     ],
+     "confidence": "A"
+    }
+   ],
+   "resulting_range": {
+    "optimistisch": {
+     "capex": 7500,
+     "wacc": 0.03,
+     "flh": 8000,
+     "lcoe": 59
+    },
+    "ges_nah": {
+     "capex": 6000,
+     "wacc": 0.05,
+     "flh": 8000,
+     "lcoe": 62
+    },
+    "realistisch_eu": {
+     "capex": 12000,
+     "wacc": 0.05,
+     "flh": 7500,
+     "lcoe": 133
+    },
+    "realistisch_de": {
+     "capex": 12000,
+     "wacc": 0.07,
+     "flh": 7500,
+     "lcoe": 162
+    },
+    "pessimistisch": {
+     "capex": 17500,
+     "wacc": 0.09,
+     "flh": 6500,
+     "lcoe": 275
+    }
+   }
+  }
+ },
+ "nuclear_reference_projects": [
+  {
+   "id": "korea-apr1400-domestic",
+   "label": "APR1400 Inland (Referenzwert)",
+   "country": "KR",
+   "capacity_mw": 1400,
+   "units": 1,
+   "capex_eur_kw": 1867,
+   "cost_scope": "overnight_only",
+   "construction_years": null,
+   "delay_years": null,
+   "confidence": "B",
+   "note": "Historischer Inlandswert. Shin Kori 3/4 hatten 3 bzw. 5 Jahre Verzug und rund 30 Prozent Kostensteigerung."
+  },
+  {
+   "id": "shin-hanul-34",
+   "label": "Shin Hanul 3&4",
+   "country": "KR",
+   "capacity_mw": 2800,
+   "units": 2,
+   "capex_eur_kw": 2720,
+   "cost_scope": "overnight_likely",
+   "construction_years": null,
+   "delay_years": 0,
+   "confidence": "B",
+   "note": "Aktuellster koreanischer Neubaupreis. Beste Korea-Referenz."
+  },
+  {
+   "id": "barakah-epc",
+   "label": "Barakah (EPC-Vertrag 2009)",
+   "country": "AE",
+   "capacity_mw": 5600,
+   "units": 4,
+   "capex_eur_kw": 3153,
+   "cost_scope": "epc_only",
+   "construction_years": 8,
+   "delay_years": 3.5,
+   "confidence": "A",
+   "note": null
+  },
+  {
+   "id": "barakah-total",
+   "label": "Barakah (Gesamtkosten)",
+   "country": "AE",
+   "capacity_mw": 5600,
+   "units": 4,
+   "capex_eur_kw": 4945,
+   "cost_scope": "total_incl_owners",
+   "construction_years": 8,
+   "delay_years": 3.5,
+   "confidence": "B",
+   "note": "Faktencheck-Dokument nennt 5257 EUR/kW; korrekter Wert bei einheitlichem Kurs ist 4945."
+  },
+  {
+   "id": "dukovany-ii",
+   "label": "Dukovany II",
+   "country": "CZ",
+   "capacity_mw": 2110,
+   "units": 2,
+   "capex_eur_kw": 7906,
+   "cost_scope": "epc_only",
+   "construction_years": null,
+   "delay_years": null,
+   "confidence": "A",
+   "note": "Nur EPC. Ohne Eigentuemerkosten, Netzanbindung, Bauzinsen. Gesamtprojekt realistisch 9000-11000 EUR/kW. Wichtigster Datenpunkt: koreanischer Vertragspreis innerhalb der EU."
+  },
+  {
+   "id": "epr2-programme-2020eur",
+   "label": "EPR2-Programm (OCC, Preise 2020)",
+   "country": "FR",
+   "capacity_mw": 9600,
+   "units": 6,
+   "capex_eur_kw": 7583,
+   "cost_scope": "overnight_only",
+   "construction_years": null,
+   "delay_years": null,
+   "confidence": "A",
+   "note": "Beste Analogie fuer ein serielles westeuropaeisches Programm. Seit 2022 (51,7 Mrd.) bereits +40 Prozent, vor Baubeginn."
+  },
+  {
+   "id": "epr2-programme-incl-financing",
+   "label": "EPR2-Programm (inkl. Finanzierung)",
+   "country": "FR",
+   "capacity_mw": 9600,
+   "units": 6,
+   "capex_eur_kw": 10417,
+   "cost_scope": "total_incl_idc",
+   "construction_years": null,
+   "delay_years": null,
+   "confidence": "B",
+   "note": "Implizierter IDC-Aufschlag rund +37 Prozent gegenueber Overnight."
+  },
+  {
+   "id": "lubiatowo-kopalino",
+   "label": "Lubiatowo-Kopalino",
+   "country": "PL",
+   "capacity_mw": 3750,
+   "units": 3,
+   "capex_eur_kw": 11968,
+   "cost_scope": "total_project",
+   "construction_years": null,
+   "delay_years": null,
+   "confidence": "A",
+   "note": "Planzahl vor Baubeginn, beihilferechtlich geprueft. Historisches Muster: eher steigend."
+  },
+  {
+   "id": "sizewell-c",
+   "label": "Sizewell C",
+   "country": "GB",
+   "capacity_mw": 3260,
+   "units": 2,
+   "capex_eur_kw": 13472,
+   "cost_scope": "total_project",
+   "construction_years": null,
+   "delay_years": null,
+   "confidence": "A",
+   "note": "Erstschaetzung 2020: 20 Mrd. GBP -> +90 Prozent bis FID. RAB senkt WACC, verlagert aber Baurisiko auf Verbraucher."
+  },
+  {
+   "id": "vogtle-34",
+   "label": "Vogtle 3&4",
+   "country": "US",
+   "capacity_mw": 2234,
+   "units": 2,
+   "capex_eur_kw": 14258,
+   "cost_scope": "total_project",
+   "construction_years": 10.5,
+   "delay_years": 7,
+   "confidence": "A",
+   "note": "Faktencheck-Dokument nennt 12388 EUR/kW (impliziert ~1,21 USD/EUR). Empfohlener Wert 13500, Spanne 12980-14260."
+  },
+  {
+   "id": "flamanville-3",
+   "label": "Flamanville 3",
+   "country": "FR",
+   "capacity_mw": 1650,
+   "units": 1,
+   "capex_eur_kw": 14364,
+   "cost_scope": "total_incl_financing",
+   "construction_years": 17,
+   "delay_years": 12,
+   "confidence": "A",
+   "note": "Wert im Faktencheck-Dokument bestaetigt. Quellenangabe sollte von WNA auf Cour des Comptes (14.01.2025) geaendert werden."
+  },
+  {
+   "id": "hinkley-point-c",
+   "label": "Hinkley Point C",
+   "country": "GB",
+   "capacity_mw": 3260,
+   "units": 2,
+   "capex_eur_kw": 17264,
+   "cost_scope": "total_project_nominal",
+   "construction_years": null,
+   "delay_years": 5.5,
+   "confidence": "A",
+   "note": "Wert im Faktencheck-Dokument bestaetigt. ABER: nominale Preisbasis. Real (GBP 2015) sind es 12408 EUR/kW. Beide Werte ausweisen."
+  },
+  {
+   "id": "paks-ii",
+   "label": "Paks II",
+   "country": "HU",
+   "capacity_mw": 2400,
+   "units": 2,
+   "capex_eur_kw": 5208,
+   "cost_scope": "unclear",
+   "construction_years": null,
+   "delay_years": 10,
+   "confidence": "C",
+   "note": "NICHT als Kostenreferenz verwenden. Politisch ausgehandelter Paketpreis von 2014, aktuelle Kosten unveroeffentlicht, rund 10 Jahre Verzug. Nur als Beispiel fuer Intransparenz und geopolitische Abhaengigkeit zitieren."
+  }
+ ],
+ "nuclear_capex_scenarios": {
+  "low": 7500,
+  "mid": 12000,
+  "high": 17500,
+  "anchors": {
+   "low": [
+    "epr2-programme-2020eur",
+    "dukovany-ii"
+   ],
+   "mid": [
+    "lubiatowo-kopalino",
+    "sizewell-c",
+    "epr2-programme-incl-financing"
+   ],
+   "high": [
+    "hinkley-point-c"
+   ]
+  },
+  "rationale_high": "Fuer ein deutsches Erstprojekt eher Erwartungs- als Extremwert: zusaetzlich zu allen HPC-Nachteilen gesetzliches Neubauverbot, abgewickelte Genehmigungsbehoerde, keine Bauerfahrung seit 1989."
+ },
+ "wacc_sensitivity": {
+  "crf_formula": "r*(1+r)^n / ((1+r)^n - 1)",
+  "lifetime_effect_at_5pct": {
+   "40": 0.05828,
+   "60": 0.05283,
+   "65": 0.05219,
+   "80": 0.05103,
+   "finding": "Schwacher Hebel: 60 vs. 80 Jahre aendern die LCOE um rund 3 Prozent."
+  },
+  "wacc_effect_at_60y": {
+   "0.03": 0.03613,
+   "0.05": 0.05283,
+   "0.07": 0.07124,
+   "0.09": 0.09051,
+   "0.10": 0.10033,
+   "factor_3pct_to_10pct": 2.78,
+   "finding": "Staerkster Einzelhebel, staerker als jede plausible CAPEX-Variation."
+  },
+  "worked_example": {
+   "assumptions": {
+    "capex_eur_kw": 12000,
+    "full_load_hours": 7500,
+    "lifetime_years": 60,
+    "opex_eur_kw_a": 240,
+    "fuel_eur_mwh": 8,
+    "waste_eur_mwh": 8
+   },
+   "lcoe_eur_mwh": {
+    "0.03": 105.8,
+    "0.05": 132.5,
+    "0.07": 162.0,
+    "0.09": 192.8,
+    "0.10": 208.5
+   }
+  },
+  "iea_nea_2020": {
+   "capacity_factor_pct": 85,
+   "lcoe_usd_mwh": {
+    "0.03": [
+     27,
+     61
+    ],
+    "0.07": [
+     42,
+     102
+    ],
+    "0.10": [
+     57,
+     146
+    ]
+   },
+   "note": "Bei 3 Prozent ist Nuklear in allen untersuchten Laendern die guenstigste Option, bei 10 Prozent in praktisch keinem.",
+   "source_id": "iea-nea-2020",
+   "confidence": "A"
+  },
+  "idc_note": "Ein einheitlicher WACC ohne explizite Bauzeit-/IDC-Modellierung beguenstigt strukturell die Technologie mit der laengsten Bauzeit. Belegt durch EPR2: 72,8 Mrd. EUR ohne vs. rund 100 Mrd. EUR mit Finanzierungskosten = +37 Prozent.",
+  "policy_observation": "Jedes europaeische Neubauprojekt benoetigt ein staatliches Instrument zur WACC-Senkung: CfD (Hinkley), RAB (Sizewell C), Staatsgarantien fuer 100 Prozent des Fremdkapitals plus CfD (Polen), zinsguenstiges Staatsdarlehen (Tschechien)."
+ },
+ "construction_time": {
+  "global_iaea_pris": {
+   "median_years": 6.3,
+   "mean_years": 7.5,
+   "share_under_5y_pct": 21,
+   "share_under_8y_pct": 68,
+   "share_under_10y_pct": 83,
+   "distribution": "rechtsschief mit langem Auslaeufer",
+   "fastest_countries": [
+    "JP",
+    "KR",
+    "CN"
+   ],
+   "source_id": "ritchie-construction-time",
+   "confidence": "A"
+  },
+  "western_recent_projects_years": {
+   "flamanville_3": 17,
+   "vogtle_3": 10.3,
+   "vogtle_4": 11,
+   "hinkley_point_c": "12+ (laufend)",
+   "barakah_unit1": 8,
+   "shin_hanul_1": 9
+  },
+  "finding": "Jedes westliche Neubauprojekt der letzten 20 Jahre lag deutlich ueber dem globalen Median. Fuer eine Deutschland-Prognose ist der Median die falsche Kennzahl.",
+  "pre_concrete_lead_time_years": {
+   "poland": 6,
+   "czechia": 5,
+   "germany_estimate": "8-12 (Modellannahme; Neubauverbot, Behoerdenaufbau, Standortverfahren)"
+  },
+  "total_path_decision_to_first_kwh_germany_years": [
+   18,
+   25
+  ]
+ },
+ "co2_intensitaet_g_pro_kwh": {
+  "quelle_primaer": "UNECE (2022): Carbon Neutrality in the UNECE Region — Integrated Life-cycle Assessment of Electricity Sources",
+  "systemgrenze": "Lebenszyklus (cradle to grave)",
+  "technologien": {
+   "kohle": {
+    "min": 751,
+    "max": 1095,
+    "default": 900,
+    "stufe": "A"
+   },
+   "kohle_ccs": {
+    "min": 147,
+    "max": 469,
+    "default": 300,
+    "stufe": "B"
+   },
+   "erdgas_gud": {
+    "min": 403,
+    "max": 513,
+    "default": 450,
+    "stufe": "A"
+   },
+   "erdgas_gud_ccs": {
+    "min": 49,
+    "max": 220,
+    "default": 120,
+    "stufe": "B"
+   },
+   "kernkraft": {
+    "min": 5.1,
+    "max": 6.4,
+    "default": 5.8,
+    "stufe": "A"
+   },
+   "wasserkraft": {
+    "min": 6,
+    "max": 147,
+    "default": 20,
+    "stufe": "B"
+   },
+   "wind_onshore": {
+    "min": 7.8,
+    "max": 16,
+    "default": 12,
+    "stufe": "A"
+   },
+   "wind_offshore": {
+    "min": 12,
+    "max": 23,
+    "default": 17,
+    "stufe": "A"
+   },
+   "pv_international": {
+    "min": 8.0,
+    "max": 83,
+    "default": 45,
+    "stufe": "A"
+   },
+   "pv_deutschland": {
+    "min": 40,
+    "max": 56,
+    "default": 48,
+    "stufe": "C",
+    "quelle": "Fraunhofer ISE (2025/26), Sekundaerberichterstattung",
+    "hinweis": "Fuer DE-Modell diesen Wert verwenden, nicht die internationale Untergrenze"
+   },
+   "csp": {
+    "min": 27,
+    "max": 122,
+    "default": 70,
+    "stufe": "B"
+   }
+  },
+  "offene_punkte": [
+   "UNECE-Daten von 2022 — Dekarbonisierung der chinesischen Modulfertigung seither nicht abgebildet",
+   "Methanschlupf der Gasvorkette ist der groesste Unsicherheitstreiber bei Erdgas"
+  ]
+ },
+ "co2_preis_szenarien": {
+  "slider": {
+   "min": 0,
+   "max": 400,
+   "schritt": 5,
+   "default": 75,
+   "einheit": "EUR/t CO2",
+   "label": "CO2-Preis im Stromsektor (EU-ETS 1)"
+  },
+  "stuetzpunkte": [
+   {
+    "wert": 0,
+    "label": "Kein CO2-Preis",
+    "typ": "referenz",
+    "quelle": "Modellreferenzfall",
+    "stufe": null
+   },
+   {
+    "wert": 25,
+    "label": "Niveau ~2019/2020",
+    "typ": "historisch",
+    "quelle": "EEX/Sandbag Preisverlauf",
+    "stufe": "C"
+   },
+   {
+    "wert": 56,
+    "label": "Feb 2024",
+    "typ": "historisch",
+    "quelle": "Statista EU-ETS",
+    "stufe": "B"
+   },
+   {
+    "wert": 75,
+    "label": "Marktpreis Stand Mai 2026 (Default)",
+    "typ": "ist",
+    "quelle": "Statista / Marktberichte 2026",
+    "stufe": "C"
+   },
+   {
+    "wert": 82,
+    "label": "Nov 2025",
+    "typ": "historisch",
+    "quelle": "Statista EU-ETS",
+    "stufe": "B"
+   },
+   {
+    "wert": 100,
+    "label": "Allzeithoch Feb 2023 (100,34)",
+    "typ": "historisch",
+    "quelle": "mehrfach bestaetigt",
+    "stufe": "A"
+   },
+   {
+    "wert": 126,
+    "label": "Analystenkonsens 2030 (Median)",
+    "typ": "projektion",
+    "quelle": "GMK Center, Median aus 7 Haeusern",
+    "stufe": "B"
+   },
+   {
+    "wert": 147,
+    "label": "BNEF Base Case 2030",
+    "typ": "projektion",
+    "quelle": "BloombergNEF",
+    "stufe": "B"
+   },
+   {
+    "wert": 205,
+    "label": "EWI ETS2-Pfad 2035 (Sektorkopplung)",
+    "typ": "projektion",
+    "quelle": "EWI Endbericht 04/2025",
+    "stufe": "B"
+   },
+   {
+    "wert": 350,
+    "label": "UBA Klimafolgekosten (1 % Diskont)",
+    "typ": "schattenpreis",
+    "quelle": "UBA Methodenkonvention 3.2",
+    "stufe": "B"
+   },
+   {
+    "wert": 400,
+    "label": "Slider-Maximum",
+    "typ": "grenze",
+    "quelle": "Modellsetzung",
+    "stufe": null
+   }
+  ],
+  "ausserhalb_slider": [
+   {
+    "wert": 990,
+    "label": "UBA Klimakostensatz MK 4.0 (Zentralwert)",
+    "quelle": "UBA Handbuch Umweltkosten, MK 4.0, 02/2026, Modell GIVE",
+    "stufe": "B",
+    "hinweis": "Separater Umschalter 'Klimafolgekosten statt Marktpreis'"
+   },
+   {
+    "wert": 1000,
+    "label": "UBA MK 3.2, 0 % Zeitpraeferenz",
+    "quelle": "UBA Methodological Convention 3.2",
+    "stufe": "B",
+    "hinweis": "Ethische Setzung: Gleichgewichtung der Generationen"
+   },
+   {
+    "wert": 500,
+    "label": "Enerdata: EU-ETS 2044 ohne MSR-Reform",
+    "quelle": "Enerdata Carbon Price Forecast 2030-2050",
+    "stufe": "C",
+    "hinweis": "Extremszenario"
+   }
+  ],
+  "ets1_historie": [
+   {
+    "jahr": 2023,
+    "monat": 2,
+    "wert": 100.34,
+    "typ": "allzeithoch",
+    "stufe": "A"
+   },
+   {
+    "jahr": 2024,
+    "monat": 2,
+    "wert": 56.0,
+    "typ": "monatsende",
+    "stufe": "B"
+   },
+   {
+    "jahr": 2025,
+    "monat": 11,
+    "wert": 81.9,
+    "typ": "spot",
+    "stufe": "B"
+   },
+   {
+    "jahr": 2026,
+    "monat": 4,
+    "wert": 69.99,
+    "typ": "spot",
+    "stufe": "C"
+   },
+   {
+    "jahr": 2026,
+    "monat": 5,
+    "wert": 74.0,
+    "typ": "monatsmittel",
+    "stufe": "C"
+   }
+  ],
+  "ets2": {
+   "start": 2028,
+   "start_urspruenglich": 2027,
+   "verschiebung_beschlossen": "2025-11-05 (Rat), 2025-11-13 (EP)",
+   "preiskorrektur_schwelle_eur_t": 45,
+   "preiskorrektur_basisjahr": 2020,
+   "preiskorrektur_inflationsindexiert": true,
+   "zusatzzertifikate_max_mio": 80,
+   "zusatzzertifikate_vorher_mio": 40,
+   "harter_preisdeckel": false,
+   "betrifft_stromsektor": false,
+   "preisprognosen_2030": {
+    "min": 60,
+    "median": 126,
+    "max": 380,
+    "stufe": "C"
+   },
+   "quellen": [
+    "CLECAT 2025",
+    "IRU 2025",
+    "EWI 04/2025",
+    "FES-Modellvergleich",
+    "BloombergNEF"
+   ]
+  }
+ },
+ "co2_kipppunkt": {
+  "_source": "research/modell_v02c_ergebnis.md 6.4 (Modellstand v0.2c)",
+  "_method": "Szenariensatz mittel, WACC 5 %, Netzvariante mid, Uebertragungsnetz-Sockelquote 0,40; variiert wird ausschliesslich der CO2-Preis. Deterministisch per Bisektion, probabilistisch als Median-Delta = 0 ueber 1.000 gepaarte Ziehungen.",
+  "_confidence": "B",
+  "deterministisch_eur_t": 101.8,
+  "gepaarte_ziehungen_median_eur_t": 152,
+  "mit_ccs_beidseitig": null,
+  "mit_ccs_note": "Mit Abscheidung auf beiden Seiten existiert kein Kipppunkt: Der Kernkraft-Pfad liegt bei jedem CO2-Preis vorn (Delta -13,6 EUR/MWh bei 0 EUR/t, -62,9 bei 2.000 EUR/t).",
+  "ets1_markt_eur_t": 74,
+  "modellwert_eur_t": 75,
+  "superseded_v02b_eur_t": 47.5,
+  "superseded_note": "Modellstand v0.2b wies 47,5 EUR/t aus. Der Wert ist mit dem Uebertragungsnetz-Sockel (v0.2c, Fix 1) auf 101,8 EUR/t gestiegen; der ETS-1-Marktpreis liegt damit UNTER der Kippmarke, nicht darueber.",
+  "levels": [
+   {
+    "co2_eur_t": 0,
+    "label": "kein CO2-Preis",
+    "ist2025": 161.2,
+    "kostenminimum": 156.8,
+    "kostenminimum_ccs": 168.9,
+    "ee80_gas": 148.4,
+    "ee80_gas_ccs": 182.5,
+    "ee80_h2": 199.1,
+    "ee100": 245.1
+   },
+   {
+    "co2_eur_t": 75,
+    "label": "Modellwert (ETS-1-Marktniveau)",
+    "ist2025": 180.8,
+    "kostenminimum": 159.0,
+    "kostenminimum_ccs": 169.6,
+    "ee80_gas": 156.8,
+    "ee80_gas_ccs": 185.0,
+    "ee80_h2": 199.5,
+    "ee100": 245.2
+   },
+   {
+    "co2_eur_t": 350,
+    "label": "UBA-Klimakostensatz MK 3.2 (1 % Diskontierung)",
+    "ist2025": 252.8,
+    "kostenminimum": 167.1,
+    "kostenminimum_ccs": 172.0,
+    "ee80_gas": 187.7,
+    "ee80_gas_ccs": 194.1,
+    "ee80_h2": 200.9,
+    "ee100": 245.5
+   },
+   {
+    "co2_eur_t": 990,
+    "label": "UBA-Klimakostensatz MK 4.0 (Zentralwert)",
+    "ist2025": 420.2,
+    "kostenminimum": 185.9,
+    "kostenminimum_ccs": 177.6,
+    "ee80_gas": 259.4,
+    "ee80_gas_ccs": 215.5,
+    "ee80_h2": 204.1,
+    "ee100": 246.4
+   }
+  ]
+ },
+ "dunkelflaute": {
+  "definitionen": [
+   {
+    "id": "dwd",
+    "schwelle_prozent_nennleistung": 10,
+    "min_dauer_h": 48,
+    "quelle": "Deutscher Wetterdienst / LBBW",
+    "stufe": "B"
+   },
+   {
+    "id": "uniper",
+    "schwelle_prozent_installierte_leistung": 10,
+    "min_dauer_h": 10,
+    "glaettung": "gleitender 6-h-Mittelwert",
+    "quelle": "Uniper Kurzstudie 2026",
+    "stufe": "A"
+   }
+  ],
+  "datenbasis": "Zeitreihen Wind- und Solarerzeugung Deutschland 2016-2025",
+  "haeufigkeit": [
+   {
+    "dauer_h": 10,
+    "anzahl_10_jahre": 1435,
+    "mittlere_dauer_h": 12.9,
+    "haeufigkeit_text": "oefter als alle 3 Tage",
+    "quelle": "Uniper 2026",
+    "stufe": "A"
+   },
+   {
+    "dauer_h": 24,
+    "haeufigkeit_pro_jahr_min": 10,
+    "haeufigkeit_pro_jahr_max": 12,
+    "haeufigkeit_text": "etwa monatlich",
+    "quelle": "Uniper 2026",
+    "stufe": "B"
+   },
+   {
+    "dauer_h": 48,
+    "haeufigkeit_pro_jahr_min": 2,
+    "haeufigkeit_pro_jahr_max": 3,
+    "quelle": "LBBW 2025 / Uniper 2026",
+    "stufe": "A"
+   },
+   {
+    "dauer_h": 72,
+    "haeufigkeit_pro_jahr_min": 2,
+    "haeufigkeit_pro_jahr_max": 2,
+    "quelle": "Uniper 2026",
+    "stufe": "B"
+   },
+   {
+    "dauer_h": 120,
+    "wiederkehrperiode_jahre": 3.5,
+    "quelle": "Uniper 2026",
+    "stufe": "B"
+   },
+   {
+    "dauer_h": 168,
+    "wiederkehrperiode_jahre": 10,
+    "quelle": "LBBW 2025",
+    "stufe": "B"
+   }
+  ],
+  "extremwerte": {
+   "laengstes_ereignis_tage_10j": 5.4,
+   "quelle": "LBBW 2025",
+   "stufe": "B"
+  },
+  "referenzereignis_dez_2024": {
+   "datum": "2024-12-11 bis 2024-12-12",
+   "zweites_ereignis": "2024-11-06",
+   "day_ahead_spitze_eur_mwh_min": 900,
+   "day_ahead_spitze_eur_mwh_max": 1000,
+   "intraday_mittel_eur_mwh": 1000,
+   "marktverfuegbare_kapazitaet_gw": {
+    "min": 3.4,
+    "max": 4.5
+   },
+   "reserven_gw": {
+    "min": 12,
+    "max": 13
+   },
+   "marktmissbrauch_festgestellt": false,
+   "strukturelles_problem_festgestellt": true,
+   "quelle": "Bundesnetzagentur und Bundeskartellamt, PM 21.10.2025",
+   "stufe": "A"
+  },
+  "energiebedarf_48h_winter_twh": {
+   "min": 3.5,
+   "max": 4.0,
+   "quelle": "LBBW 2025",
+   "stufe": "B"
+  },
+  "batteriespeicher_grenze": {
+   "zuverlaessig_ueberbrueckbar_bis_h": 10,
+   "hinweis": "Ereignisse ueber 10 h koennen von Batteriespeichern nicht zuverlaessig ueberbrueckt werden (Speichertiefe)",
+   "quelle": "Uniper Kurzstudie 2026",
+   "stufe": "A"
+  }
+ },
+ "versorgungssicherheit": {
+  "gesicherte_leistung_zusatzbedarf_gw": {
+   "2030": {
+    "min": 17,
+    "max": 21,
+    "stufe": "B"
+   },
+   "2035_zielszenario": {
+    "wert": 22.4,
+    "stufe": "A"
+   },
+   "2035_verzoegerte_wende": {
+    "wert": 35.5,
+    "stufe": "A"
+   }
+  },
+  "quelle": "Bundesnetzagentur, Bericht zur Versorgungssicherheit Strom 2025, 03.09.2025",
+  "treiber_der_spanne": "Erfolg der Nachfrageflexibilisierung und Tempo des EE-Ausbaus",
+  "speicherbedarf_2045": {
+   "batterie_gwh": {
+    "min": 180,
+    "max": 600,
+    "median": 380,
+    "stufe": "C",
+    "quellen": [
+     "Fraunhofer ISE 2022 (180)",
+     "Fraunhofer ISE 2026 (380)",
+     "CAV Partners 2026 (500-600)"
+    ]
+   },
+   "wasserstoff_speicher_twh": {
+    "min": 130,
+    "stufe": "C",
+    "quelle": "Fraunhofer ISE"
+   },
+   "hinweis": "Spanne Faktor 3 — Ursache nicht rekonstruierbar, als Datenluecke ausweisen"
+  }
+ },
+ "netz_und_systemkosten": {
+  "netzengpassmanagement_mrd_eur": [
+   {
+    "jahr": 2023,
+    "kosten": 3.335,
+    "volumen_gwh": 34297,
+    "stufe": "A"
+   },
+   {
+    "jahr": 2024,
+    "kosten": 2.776,
+    "volumen_gwh": 30304,
+    "stufe": "A"
+   },
+   {
+    "jahr": 2025,
+    "kosten": 3.1,
+    "volumen_gwh": null,
+    "stufe": "B"
+   }
+  ],
+  "abregelung": [
+   {
+    "jahr": 2024,
+    "menge_twh": 9.4,
+    "anteil_ee_prozent": 3.5,
+    "davon_pv_gwh": 1389,
+    "stufe": "A"
+   },
+   {
+    "jahr": 2025,
+    "menge_twh": null,
+    "anteil_ee_prozent": 3.5,
+    "davon_pv_gwh": 2700,
+    "stufe": "B"
+   }
+  ],
+  "negative_strompreise_stunden": [
+   {
+    "jahr": 2023,
+    "stunden": 399,
+    "stufe": "B"
+   },
+   {
+    "jahr": 2024,
+    "stunden": 457,
+    "stufe": "A"
+   },
+   {
+    "jahr": 2025,
+    "stunden": 573,
+    "stufe": "B"
+   }
+  ],
+  "netzausbau_investitionen_mrd_eur_bis_2045": {
+   "uebertragungsnetz_nep": {
+    "min": 360,
+    "max": 392,
+    "stufe": "B",
+    "quelle": "NEP 2037/2045 (2025)"
+   },
+   "uebertragungsnetz_imk": {
+    "wert": 328,
+    "stufe": "C"
+   },
+   "verteilnetz_imk": {
+    "wert": 323,
+    "stufe": "C"
+   },
+   "gesamt": {
+    "wert": 651,
+    "stufe": "B",
+    "quelle": "IMK / Hans-Boeckler-Stiftung"
+   },
+   "hinweis": "Nicht alle Netzkosten sind EE-induziert — Ersatzinvestitionen und Elektrifizierung von Waerme/Verkehr trennen"
+  }
+ },
+ "lieferketten_konzentration": {
+  "pv": {
+   "china_anteil_alle_fertigungsstufen_prozent": 80,
+   "china_anteil_polysilizium_wafer_ausblick_prozent": 95,
+   "china_anteil_wafer_2023_prozent": 98,
+   "quelle": "IEA Special Report on Solar PV Global Supply Chains; Wood Mackenzie",
+   "stufe": "A",
+   "relativierung": "Investitionsgut, kein Brennstoff — Lieferstopp trifft Zubau, nicht Betrieb bestehender Anlagen"
+  },
+  "uran": {
+   "eu_natururan_2024_prozent": {
+    "kanada": 33,
+    "kasachstan": 24,
+    "russland": 15,
+    "australien": 10
+   },
+   "eu_anreicherung_russland_2024_prozent": 23,
+   "eu_anreicherung_russland_2023_prozent": 38,
+   "eu_anreicherung_eigen_prozent": 60,
+   "russland_anteil_globale_anreicherungskapazitaet_2022_prozent": 44,
+   "rosatom_plus_cnnc_globale_swu_2024_prozent": 62,
+   "quelle": "Euratom Supply Agency Annual Report 2024; RUSI",
+   "stufe": "A"
+  },
+  "gas": {
+   "importe_2025_twh": 1031,
+   "importe_2024_twh": 864,
+   "veraenderung_prozent": 19,
+   "anteile_2025_prozent": {
+    "norwegen": 44,
+    "niederlande": 24,
+    "belgien": 21
+   },
+   "lng_terminals_de_twh": 106,
+   "lng_terminals_de_anteil_prozent": 10.3,
+   "russland_pipeline": 0,
+   "quelle": "Bundesnetzagentur, PM 09.01.2026; SMARD",
+   "stufe": "B",
+   "einschraenkung": "Ein grosser Teil der NL/BE-Importe ist regasifiziertes LNG — Diversifizierung nach Herkunftsland ueberzeichnet die Diversifizierung nach Quelle"
+  },
+  "kritische_rohstoffe": {
+   "top3_raffination_anteil_2024_prozent": 86,
+   "top3_raffination_anteil_2020_prozent": 82,
+   "china_graphit_raffination_prozent": 90,
+   "china_seltene_erden_raffination_prozent": 90,
+   "china_lithium_verarbeitung_prozent": 60,
+   "china_kobalt_verarbeitung_prozent": 60,
+   "trend": "steigend",
+   "quelle": "IEA Global Critical Minerals Outlook 2025",
+   "stufe": "A"
+  }
+ },
+ "kernkraft_restrisiken": {
+  "endlager_status": [
+   {
+    "land": "Finnland",
+    "projekt": "Onkalo",
+    "status": "Probebetrieb seit 09/2024, Betriebsgenehmigung STUK ausstehend, Inbetriebnahme 2026 vorgesehen",
+    "erste_einlagerung_jahr": 2026,
+    "stufe": "A"
+   },
+   {
+    "land": "Schweden",
+    "projekt": "Forsmark",
+    "status": "Bau/abschliessende Genehmigung",
+    "erste_einlagerung_jahr": null,
+    "stufe": "B"
+   },
+   {
+    "land": "Frankreich",
+    "projekt": "Cigeo",
+    "status": "Enquete publique bis 16.07.2026, danach Dekret",
+    "erste_einlagerung_jahr": 2050,
+    "stufe": "A"
+   },
+   {
+    "land": "USA",
+    "projekt": null,
+    "status": "kein nationales Endlager, dezentrale Zwischenlager",
+    "erste_einlagerung_jahr": null,
+    "stufe": "A"
+   },
+   {
+    "land": "Deutschland",
+    "projekt": "StandAG",
+    "status": "Standortentscheidung 2046-2074 erwartet",
+    "erste_einlagerung_jahr": null,
+    "stufe": "B"
+   }
+  ],
+  "kenfo": {
+   "einzahlung_2017_mrd_eur": 24.1,
+   "anlagevermoegen_mrd_eur": 28,
+   "rendite_2025_prozent": 6.2,
+   "zielrendite_2025_prozent": 3.95,
+   "rendite_seit_auflage_prozent_pa": 4.8,
+   "erstattungen_seit_2017_mrd_eur": 5.3,
+   "erstattung_2025_mio_eur": 823,
+   "betreiber_enthaftet": true,
+   "auffanghaftung": "Bundeshaushalt / Steuerzahler",
+   "deckungsluecke_quantifiziert": false,
+   "stufe": "A/B"
+  },
+  "haftung": {
+   "haftpflichtversicherung_mio_eur": 255.645,
+   "solidarvereinbarung_mrd_eur": 2.5,
+   "darueber": "Staat (Paragraph 34 AtG)",
+   "betreiberhaftung_dem_grunde_nach": "unbegrenzt",
+   "schattenpreis_je_mwh_quantifiziert": false,
+   "stufe": "B",
+   "hinweis": "Als optionaler Risikoaufschlag mit weiter Spanne modellieren, nicht als Fixwert — Groessenordnung ist methodisch umstritten"
+  }
+ },
+ "kostenueberschreitung_faktoren": {
+  "definition": "Faktor auf die urspruengliche Kostenschaetzung (decision-to-build). 1.00 = keine Ueberschreitung.",
+  "verwendung": "Multiplikator auf CAPEX im LCOE-Modell; Slider 'Realismus-Aufschlag' mit Default aus Empirie, abschaltbar auf 1.00",
+  "technologien": {
+   "solar": {
+    "flyvbjerg": 1.01,
+    "sovacool": 1.0,
+    "spanne": [
+     1.0,
+     1.05
+    ],
+    "stufe": "A"
+   },
+   "wind": {
+    "flyvbjerg": 1.13,
+    "sovacool": null,
+    "spanne": [
+     1.05,
+     1.2
+    ],
+    "stufe": "A"
+   },
+   "netz_uebertragung": {
+    "flyvbjerg": 1.08,
+    "sovacool": null,
+    "spanne": [
+     1.05,
+     1.15
+    ],
+    "stufe": "A"
+   },
+   "fossil_thermisch": {
+    "flyvbjerg": 1.16,
+    "sovacool": 1.097,
+    "spanne": [
+     1.1,
+     1.2
+    ],
+    "stufe": "A"
+   },
+   "geothermie": {
+    "flyvbjerg": null,
+    "sovacool": 1.207,
+    "spanne": [
+     1.15,
+     1.25
+    ],
+    "stufe": "B"
+   },
+   "wasserkraft": {
+    "flyvbjerg": 1.75,
+    "sovacool": 1.367,
+    "spanne": [
+     1.35,
+     1.8
+    ],
+    "stufe": "A"
+   },
+   "kernkraft": {
+    "flyvbjerg": 2.2,
+    "sovacool": 2.025,
+    "spanne": [
+     1.3,
+     2.4
+    ],
+    "stufe": "A",
+    "hinweis": "Untergrenze 1.30 bildet Serienbau (Korea/China) ab; Obergrenze westliche Erstbauten (Flamanville, Vogtle, HPC)"
+   },
+   "nukleare_endlagerung": {
+    "flyvbjerg": 3.38,
+    "sovacool": null,
+    "spanne": [
+     2.5,
+     3.5
+    ],
+    "stufe": "A"
+   }
+  },
+  "zeitueberschreitung_prozent": {
+   "kernkraft": 64,
+   "geothermie": 58.8,
+   "solar": 0,
+   "quelle": "Sovacool & Ryu 2025",
+   "stufe": "B"
+  },
+  "datenbasis": {
+   "flyvbjerg": {
+    "projekte": 16000,
+    "laender": 136,
+    "definition_megaprojekt_usd": 1000000000
+   },
+   "sovacool": {
+    "projekte": 662,
+    "laender": 83,
+    "zeitraum": "1936-2024"
+   }
+  },
+  "skaleneffekt_bruchpunkte_mw": [
+   1280,
+   1561
+  ],
+  "gegenargument": "Datenbasis dominiert von westlichen Erstbauten nach langer Baupause; Serienbau (APR1400) zeigt deutlich geringere Ueberschreitungen. SMR-Modularitaetsargument plausibel, aber empirisch unbelegt."
+ },
+ "ges": {
+  "reference": {
+   "_source": "docs/01_grundlage_ges_faktencheck.md Kap. 10 (maschinenlesbarer Datenblock)",
+   "methodology": {
+    "wacc": 0.05,
+    "formula": "LCOE = (CAPEX*CRF + CAPEX*opex_pct) / (fullLoadHours/1000) + fuelCost",
+    "crf_formula": "r*(1+r)^n / ((1+r)^n - 1)"
+   },
+   "scenarios": [
+    {
+     "name": "80% EE + Gas-Peaker",
+     "lscoe": 197,
+     "installed_gw": 542,
+     "fee_gw": 438
+    },
+    {
+     "name": "80% EE + mehr H2",
+     "lscoe": 212,
+     "installed_gw": 618,
+     "fee_gw": 438
+    },
+    {
+     "name": "100% Erneuerbare",
+     "lscoe": 321,
+     "installed_gw": 1162,
+     "fee_gw": 786
+    },
+    {
+     "name": "Kostenminimum (inkl. Kernkraft)",
+     "lscoe": 125,
+     "installed_gw": 215,
+     "fee_gw": 90
+    }
+   ],
+   "technologies": {
+    "pv": {
+     "capex_eur_kw": 1500,
+     "opex_pct": 0.01,
+     "full_load_hours": 940,
+     "lifetime_years": 27,
+     "lcoe": 124.9,
+     "source": "GES-Studie, Tab. 4 (NREL 2024)"
+    },
+    "wind_onshore": {
+     "capex_eur_kw": 1749,
+     "opex_pct": 0.02,
+     "full_load_hours": 1700,
+     "lifetime_years": 27,
+     "lcoe": 90.8,
+     "source": "GES-Studie, Tab. 4"
+    },
+    "wind_offshore": {
+     "capex_eur_kw": 3500,
+     "opex_pct": 0.03,
+     "full_load_hours": 3500,
+     "lifetime_years": 27,
+     "lcoe": 98.3,
+     "source": "GES-Studie, Tab. 4"
+    },
+    "nuclear": {
+     "capex_eur_kw": 6000,
+     "opex_pct": 0.07,
+     "full_load_hours": 8000,
+     "lifetime_years": 65,
+     "fuel_cost_eur_mwh": 10,
+     "lcoe": 101.6,
+     "source": "GES-Studie, Tab. 4 (NREL 2024)"
+    }
+   },
+   "system_level_estimate": {
+    "note": "Illustrative Näherung, keine exakte Modell-Neurechnung",
+    "kostenminimum_scenario": [
+     {
+      "nuclear_capex_assumption": "Studie (6000)",
+      "lscoe_estimate": 125
+     },
+     {
+      "nuclear_capex_assumption": "Westlicher Mittelwert (~13000)",
+      "lscoe_estimate_range": [
+       210,
+       215
+      ]
+     },
+     {
+      "nuclear_capex_assumption": "Hinkley Point C (17250)",
+      "lscoe_estimate_range": [
+       260,
+       265
+      ]
+     }
+    ]
+   }
+  },
+  "reconstruction": {
+   "_status": "REKONSTRUKTION - die GES-Studie veroeffentlicht die Technologie-Aufteilung je Szenario nur als Grafik (siehe docs/01 Kap. 6). Die folgenden Energieanteile sind aus den veroeffentlichten installierten Leistungen (gesamt / fEE) und den GES-Volllaststunden abgeleitet und daher naeherungsweise.",
+   "_source": "docs/01_grundlage_ges_faktencheck.md Kap. 3 + 6 + scenarios_original",
+   "_confidence": "C",
+   "demand_twh": 950,
+   "fee_split_assumption": {
+    "pv": 0.45,
+    "wind_onshore": 0.4,
+    "wind_offshore": 0.15,
+    "basis": "Kapazitaetsanteile in Anlehnung an die EEG-/WindSeeG-Ziele 2045 (ist_zustand_de.md 3.1 zielpfade.ziele_gw: PV 400 GW, Wind on 160 GW, Wind off 70 GW)",
+    "status": "MODELLANNAHME (nicht quellenbelegt)"
+   },
+   "scenarios": {
+    "kostenminimum": {
+     "installed_gw": 215,
+     "fee_gw": 90,
+     "lscoe_published": 125,
+     "firm_technology": "nuclear",
+     "note": "Grundlast ~125 GW bei 8.000 VLh, laut docs/01 Kap. 6 rund 80 % der Erzeugung."
+    },
+    "ee80_gas": {
+     "installed_gw": 542,
+     "fee_gw": 438,
+     "lscoe_published": 197,
+     "firm_technology": "gas_ccgt"
+    },
+    "ee80_h2": {
+     "installed_gw": 618,
+     "fee_gw": 438,
+     "lscoe_published": 212,
+     "firm_technology": "h2_turbine"
+    },
+    "ee100": {
+     "installed_gw": 1162,
+     "fee_gw": 786,
+     "lscoe_published": 321,
+     "firm_technology": "h2_turbine"
+    }
+   }
+  },
+  "bias_check": [
+   {
+    "technologie": "Photovoltaik",
+    "richtung": "Kosten überschätzt",
+    "ausmass": "+50 bis +150 %",
+    "effekt": "verteuert die EE-Szenarien",
+    "bewertung": "contra",
+    "quelle": "docs/01_grundlage_ges_faktencheck.md 5.5"
+   },
+   {
+    "technologie": "Wind on-/offshore (CAPEX)",
+    "richtung": "keine systematische Verzerrung",
+    "ausmass": "–",
+    "effekt": "neutral",
+    "bewertung": "neutral",
+    "quelle": "docs/01_grundlage_ges_faktencheck.md 5.5"
+   },
+   {
+    "technologie": "Wind onshore (Volllaststunden)",
+    "richtung": "Ertrag unterschätzt",
+    "ausmass": "1.700 statt 2.400 h/a",
+    "effekt": "verteuert Windstrom um rund 30 %",
+    "bewertung": "contra",
+    "quelle": "kosten_ee_speicher.md 1 (Befund 2) / 4"
+   },
+   {
+    "technologie": "Kernkraft (CAPEX)",
+    "richtung": "Kosten unterschätzt",
+    "ausmass": "−50 bis −75 %",
+    "effekt": "verbilligt das Kostenminimum-Szenario",
+    "bewertung": "contra",
+    "quelle": "docs/01_grundlage_ges_faktencheck.md 5.5"
+   },
+   {
+    "technologie": "Kernkraft (Betriebskosten)",
+    "richtung": "Kosten ÜBERschätzt",
+    "ausmass": "7 % CAPEX/a statt rund 165 €/kW/a",
+    "effekt": "verteuert Kernkraft – wirkt der CAPEX-Verzerrung entgegen",
+    "bewertung": "pro",
+    "quelle": "kosten_kernkraft.md 4.2 / 8 (Satz 5)"
+   },
+   {
+    "technologie": "H₂-Round-Trip",
+    "richtung": "realistisch konservativ angesetzt",
+    "ausmass": "30–40 % statt der oft unterstellten 50 %+",
+    "effekt": "spricht für die Studie",
+    "bewertung": "pro",
+    "quelle": "kosten_ee_speicher.md 1 (Befund 5) / 7.3"
+   }
+  ],
+  "system_level_estimate": {
+   "note": "Illustrative Näherung, keine exakte Modell-Neurechnung",
+   "kostenminimum_scenario": [
+    {
+     "nuclear_capex_assumption": "Studie (6000)",
+     "lscoe_estimate": 125
+    },
+    {
+     "nuclear_capex_assumption": "Westlicher Mittelwert (~13000)",
+     "lscoe_estimate_range": [
+      210,
+      215
+     ]
+    },
+    {
+     "nuclear_capex_assumption": "Hinkley Point C (17250)",
+     "lscoe_estimate_range": [
+      260,
+      265
+     ]
+    }
+   ]
+  },
+  "model_reproduction": {
+   "_source": "research/validierung_modell.md (c) - erzeugt von scripts/validate_model.py",
+   "_note": "Gerechnet mit den GES-Kostenannahmen fuer die Erzeuger, WACC 5 %, ohne IDC, Bedarf 950 TWh, ohne CO2-Preis. Backup, Speicher und Netz stammen aus dem eigenen Parametersatz, weil die GES-Studie ihre Kostenaufschluesselung nur als Grafik veroeffentlicht. Werte auf Modellstand v0.2c (Gaspreis, Netzaufteilung und der neue Uebertragungsnetz-Sockel wirken hier mit) - Test (c) ist ein Modelltest, kein Reproduktionstest; die LCOE-Reproduktion selbst ist von allen Fixes unberuehrt und liegt unveraendert bei 0,04 %.",
+   "_confidence": "C",
+   "Kostenminimum (inkl. Kernkraft)": 143.4,
+   "80% EE + Gas-Peaker": 155.7,
+   "80% EE + mehr H2": 209.0,
+   "100% Erneuerbare": 288.0
+  },
+  "lcoe_reproduction_max_deviation_pct": 0.04
+ },
+ "gaps": [
+  {
+   "id": "gaspreis_erdgas",
+   "parameter": "technologies.gas_*.params.fuel_eur_mwh_th",
+   "status": "GESCHLOSSEN in v0.2 (ausserhalb der Dossiers belegt)",
+   "reason": "Kein Erdgas-Brennstoffpreis in den Recherche-Dossiers. Seit v0.2 mit einer Marktspanne 20/35/60 EUR/MWh_th parametrisiert (TTF-Notierung, Recherche 2026-08-19, Konfidenz B; Uebertragbarkeit auf 2045 Konfidenz C). Die Nullsetzung war eine Luecke der Recherche, nicht der Welt."
+  },
+  {
+   "id": "netz_opex",
+   "parameter": "system.grid (Betrieb, Instandhaltung, Verluste, Redispatch)",
+   "reason": "Fuer das Zielsystem 2045 existiert in keinem Dossier ein Netzbetriebskostensatz. Das Modell enthaelt ausschliesslich die Investitionsannuitaet - der Netzblock der Zukunftsszenarien ist damit eine Untergrenze. Belegt ist nur der Ist-Wert Engpassmanagement (2,776 Mrd. EUR 2024 bzw. 2,7-3,1 Mrd. EUR 2025)."
+  },
+  {
+   "id": "ccs_nicht_modelliert",
+   "parameter": "technologies.gas_ccs",
+   "status": "GESCHLOSSEN in v0.2b",
+   "reason": "Die gepruefte GES-Studie rechnet ihren Gas-Pfad mit CCS. Seit v0.2b existiert die Technologie gas_ccs (CAPEX-Aufschlag, Wirkungsgradverlust, Abscheiderate, Vollketten-Kostensatz je Tonne, Restemission mit CO2-Preis) und wird in den Presets kostenminimum_ccs und ee80_gas_ccs gerechnet. OFFEN BLEIBT die physische Verfuegbarkeit von Transport und Speicherung - siehe ccs_speicher_verfuegbarkeit."
+  },
+  {
+   "id": "ccs_speicher_verfuegbarkeit",
+   "parameter": "technologies.gas_ccs.ccs_chain.storage_availability_de",
+   "reason": "Deutschland hat keine in Betrieb befindliche CO2-Speicherstaette. Der CCS-Pfad unterstellt Export in norwegische/niederlaendische Offshore-Speicher samt Logistik, Genehmigungen und Akzeptanz. Im Modell steckt davon nur der Kostensatz je Tonne - keine Kapazitaetsgrenze, keine Hochlaufkurve, kein Verfuegbarkeitsrisiko. SETZUNG (M), Konfidenz C."
+  },
+  {
+   "id": "ccs_kostenband_optimistisch",
+   "parameter": "technologies.gas_ccs.params.ccs_cost_eur_t",
+   "reason": "Verwendet wird die im Repository belegte Spanne 50/80/100 EUR/t. Eine Recherche vom 2026-08-19 (Clean Air Task Force; Carbon Management Europe/ZEP) nennt fuer europaeische Anlagen mit den derzeit geplanten Speichern eine Vollkettenspanne von rund 70-250 EUR/t. Das Modellband liegt damit am unteren Rand und beguenstigt den CCS-Pfad."
+  },
+  {
+   "id": "overrun_ungemessen_speicher_h2",
+   "parameter": "system.cost_overrun_factors.unmeasured_technologies",
+   "reason": "Batterie, Elektrolyse, H2-Speicher und H2-Turbine haben in Flyvbjerg/Sovacool keine Projektklasse und bleiben bei Faktor 1,00. Das ist eine Luecke, keine Messung - das Ueberschreitungs-Szenario ist deshalb asymmetrisch."
+  },
+  {
+   "id": "emissionsfaktor_direkt",
+   "parameter": "technologies.gas_*.params.emission_factor_t_mwh",
+   "reason": "Kein direkter Verbrennungs-Emissionsfaktor in den Dossiers. Als Proxy dient die UNECE-Lebenszyklus-Untergrenze fuer GuD (403 g/kWh). Vor Veroeffentlichung ersetzen."
+  },
+  {
+   "id": "profile_partial",
+   "parameter": "data/profiles_2024.json",
+   "reason": "Nur 4.416 von 8.784 Stunden (Jul-Dez 2024); Wind offshore, Wasserkraft und Biomasse fehlen komplett. Alle Dispatch-Ergebnisse sind H2-2024-basiert."
+  },
+  {
+   "id": "offshore_profil",
+   "parameter": "technologies.wind_offshore.profile_series",
+   "reason": "Kein Offshore-Profil vorhanden; Uebergangsloesung mit Onshore-Profilform."
+  },
+  {
+   "id": "ges_technologie_split",
+   "parameter": "ges_scenario_reconstruction",
+   "reason": "GES veroeffentlicht die Technologie-Aufteilung je Szenario nur als Grafik; der Mix-Test arbeitet daher mit einer rekonstruierten Aufteilung."
+  },
+  {
+   "id": "hydro_biomasse_band",
+   "parameter": "technologies (Wasserkraft, Biomasse)",
+   "reason": "Keine Kostenparameter fuer Wasserkraft und Biomasse in den Dossiers; im Mix-Modell nur als optionales Band ohne Kostenansatz fuehrbar."
+  }
+ ],
+ "profiles_meta": {
+  "path": "data/profiles_2024.json",
+  "data_completeness": "PARTIAL",
+  "gaps": {
+   "load_mw": "nur 4416/8784 Stunden abgedeckt (2024-07-01 00:00:00 bis 2024-12-31 23:00:00); Jahressumme daher NICHT die volle Kalenderjahressumme 2024, sondern Summe über den abgedeckten Zeitraum",
+   "solar_mw": "nur 4416/8784 Stunden abgedeckt (2024-07-01 00:00:00 bis 2024-12-31 23:00:00); Jahressumme daher NICHT die volle Kalenderjahressumme 2024, sondern Summe über den abgedeckten Zeitraum",
+   "wind_onshore_mw": "nur 4416/8784 Stunden abgedeckt (2024-07-01 00:00:00 bis 2024-12-31 23:00:00); Jahressumme daher NICHT die volle Kalenderjahressumme 2024, sondern Summe über den abgedeckten Zeitraum",
+   "wind_offshore_mw": "Reihe komplett fehlend",
+   "hydro_ror_mw": "Reihe komplett fehlend",
+   "biomass_mw": "Reihe komplett fehlend"
+  },
+  "capacity_factors_covered_period": {
+   "solar_mw": 0.0696,
+   "wind_onshore_mw": 0.1886
+  },
+  "seasonal_share_covered": {
+   "load_mw": {
+    "value": 0.5012,
+    "min": 0.4932,
+    "mid": 0.5012,
+    "max": 0.5095,
+    "unit": "1 (Anteil der Jahresenergie im abgedeckten Zeitraum)",
+    "source": "data/profiles_2024.json meta.plausibility_check_2024.load_mw",
+    "confidence": "C",
+    "note": "Abgeleitet aus Teilzeitraumsumme / erwarteter Jahressumme. Ersetzt die naive Annahme 'Stundenanteil = Energieanteil' (waere fuer PV um rund 18 % falsch)."
+   },
+   "solar_mw": {
+    "value": 0.4524,
+    "min": 0.4072,
+    "mid": 0.4524,
+    "max": 0.509,
+    "unit": "1 (Anteil der Jahresenergie im abgedeckten Zeitraum)",
+    "source": "data/profiles_2024.json meta.plausibility_check_2024.solar_mw",
+    "confidence": "C",
+    "note": "Abgeleitet aus Teilzeitraumsumme / erwarteter Jahressumme. Ersetzt die naive Annahme 'Stundenanteil = Energieanteil' (waere fuer PV um rund 18 % falsch).",
+    "cross_check": {
+     "value": 0.423,
+     "source": "ist_zustand_de.md 1.3 ist_mix.2024.pv_erzeugung_gesamt (72,2 TWh)",
+     "note": "Unabhaengige Gegenprobe zur abgeleiteten Saisonalitaet."
+    }
+   },
+   "wind_onshore_mw": {
+    "value": 0.4835,
+    "min": 0.452,
+    "mid": 0.4835,
+    "max": 0.5198,
+    "unit": "1 (Anteil der Jahresenergie im abgedeckten Zeitraum)",
+    "source": "data/profiles_2024.json meta.plausibility_check_2024.wind_onshore_mw",
+    "confidence": "C",
+    "note": "Abgeleitet aus Teilzeitraumsumme / erwarteter Jahressumme. Ersetzt die naive Annahme 'Stundenanteil = Energieanteil' (waere fuer PV um rund 18 % falsch)."
+   }
+  },
+  "result_label": "H2-2024-basiert (nur 01.07.-31.12.2024)",
+  "architecture_note": "Alle Kennzahlen werden ueber coverage/seasonal_share normalisiert; ein Volljahres-profiles_2024.json laeuft ohne Codeaenderung."
+ },
+ "modelling_decisions": [
+  "Kernkraft-Opex absolut in EUR/kW/a (kosten_kernkraft.md 4.2/7.2) - NICHT als CAPEX-Prozentsatz.",
+  "Brennstoff und Entsorgung/Rueckbau als getrennte variable Posten (kosten_kernkraft.md 7.2).",
+  "WACC global (3-9 %, Default 5 % wie GES); IDC-Aufschlag ueber Bauzeit separat.",
+  "CO2-Preis wirkt nur ueber den direkten Emissionsfaktor fossiler Erzeugung; Lebenszyklus-g/kWh nur informativ.",
+  "Backup/Speicher entstehen im Dispatch, nicht als pauschaler Risiko-Aufschlag (risiken_co2.md 9 risiko_aufschlaege_zusammenfassung backup_und_speicher).",
+  "min/mid/max nicht mechanisch kombinieren - siehe scenario_sets (kosten_ee_speicher.md 12 derived_lcoe_selfcheck.warning).",
+  "v0.2/M1: IDC nur auf Overnight-Anker (capex_scope/idc_applicable_share). Die Kernkraft-Anker mid/max enthalten Finanzierung bereits (kosten_kernkraft.md 7.3).",
+  "v0.2/M2: Erdgas-Brennstoffpreis als thermischer Parameter (fuel_eur_mwh_th), Umrechnung ueber den Wirkungsgrad. Damit ist die Asymmetrie 'Gas gratis vs. H2 bezahlt' aufgehoben.",
+  "v0.2/M3: Netzkosten in Uebertragung (328 Mrd., skaliert mit genutzter fEE-Energie) und Verteilnetz (323 Mrd., Sockel, skaliert mit Jahresbedarf) getrennt; Skalierung auf 1,0 gedeckelt.",
+  "v0.2/M5: Restemissionen je Szenario werden ausgewiesen (Mt CO2/a). CCS ist NICHT modelliert.",
+  "v0.2/M6: Ist-2025-Anker mit Kohle-, Biomasse- und Wasserbaendern und heutigen Netzentgelten statt der Netzinvestition bis 2045.",
+  "v0.2/M7: Ueberschreitungsfaktor nur auf Schaetzbasis-Anker (overrun_applicable_share).",
+  "v0.2b: Technologie gas_ccs (Abscheidung an GuD). CAPEX-Faktor 2,0 (NETL 2023), Wirkungsgradverlust 8 pp, Abscheiderate 90 %, Vollkette 50/80/100 EUR/t; die Restemission (49/120/220 g/kWh) traegt weiterhin den vollen CO2-Preis.",
+  "v0.2b: Kontrastverteilung Asien/Golf fuer Kernkraft-CAPEX (1.870/3.150/4.950 EUR/kW, Bauzeit 8 a) - ausschliesslich als eigene Monte-Carlo-Konfiguration, NIE in der Basisspanne (Begruendung kosten_kernkraft.md 7.1, maschinenlesbar hinterlegt).",
+  "v0.2c/1: Auch das Uebertragungsnetz bekommt einen mixunabhaengigen Sockel (transmission_socket_share, SETZUNG 0,20/0,40/0,60 mit Sensitivitaet). Bis v0.2b skalierte der 328-Mrd.-Block linear von null mit der genutzten fEE-Arbeit.",
+  "v0.2c/2: Gemeinsame Rohstoff- und Definitionsziehungen - der Gaspreis wird EINMAL je Ziehung gezogen und von gas_ccgt und gas_ccs geteilt; der CCS-CAPEX ist ein gezogener FAKTOR (capex_factor_on_ccgt) auf den in derselben Ziehung gezogenen GuD-CAPEX.",
+  "v0.2c/3: Der Ueberschreitungsaufschlag wird als absoluter Betrag auf EINER Schaetzbasis gerechnet (overrun_estimate_base_eur_kw = 7.500) mit Rest-Overrun-Anteilen 0,48/0,50/0,00 - damit ist die Abbildung 'gezogener CAPEX -> effektiver CAPEX' monoton und die Doppelzaehlung an den unteren Ankern beseitigt.",
+  "v0.2c/4: Geschlossene CCS-Massenbilanz - abgeschiedene Menge und Restemission werden aus EINEM Brennstoffeintrag gebildet (upstream_share_of_lifecycle); captured + residual = Eintrag gilt exakt, auch unter Ziehung von Wirkungsgrad und Abscheiderate."
+ ],
+ "sources": [
+  {
+   "id": "nep-2037-2045",
+   "title": "Netzentwicklungsplan Strom 2037 mit Ausblick 2045, Version 2025, 1. Entwurf",
+   "publisher": "50Hertz, Amprion, TenneT, TransnetBW",
+   "date": "2025-12",
+   "url": "https://www.netzentwicklungsplan.de/sites/default/files/2025-12/NEP_2037_2045_V2025_1_Entwurf_0.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "ist_zustand_de.md 1.3 / 4.1 / 5.1",
+   "nr": 1
+  },
+  {
+   "id": "ageb-strerz-2025",
+   "title": "Bruttostromerzeugung in Deutschland nach Energietraegern (Datenblatt STRERZ) / Jahresauswertung Wintertagung",
+   "publisher": "AG Energiebilanzen e. V.",
+   "date": "2025-12-15",
+   "url": "https://ag-energiebilanzen.de/wp-content/uploads/2025/02/STRERZ-Abgabe-2025-06.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "dossier": "ist_zustand_de.md 1.1",
+   "nr": 2
+  },
+  {
+   "id": "joskow-2011",
+   "title": "Comparing the Costs of Intermittent and Dispatchable Electricity Generating Technologies",
+   "publisher": "American Economic Review 101(3), S. 238–241 (P. L. Joskow)",
+   "date": "2011-05",
+   "url": "https://www.aeaweb.org/articles?id=10.1257/aer.101.3.238",
+   "accessed": "2026-08-19",
+   "confidence": "A",
+   "dossier": "Persona-Review 01 (Energie-Professor:in), M2/M9",
+   "note": "Begruendet, warum LCOE-Punktwerte fluktuierende und disponible Erzeugung nicht vergleichbar machen — die methodische Referenz fuer den Schritt von LCOE zu Systemkosten. Bibliographische Angaben aus der Verlagsseite, kein Volltext gelesen.",
+   "nr": 3
+  },
+  {
+   "id": "flyvbjerg-2023",
+   "title": "How Big Things Get Done (Megaprojekt-Datenbank, ~16.000 Projekte)",
+   "publisher": "B. Flyvbjerg / D. Gardner, Currency/Penguin",
+   "date": "2023",
+   "url": "https://budgetoverrun.com/studies/flyvbjerg-megaproject-database",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 7.1",
+   "nr": 4
+  },
+  {
+   "id": "monitoringbericht-2025",
+   "title": "Monitoringbericht zur Energiewende (wiss. Zuarbeit EWI und BET Aachen)",
+   "publisher": "BMWE",
+   "date": "2025-09-15",
+   "url": "https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Publikationen/Energie/monitoringbericht-energiewende.html",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "ist_zustand_de.md 4.2",
+   "nr": 5
+  },
+  {
+   "id": "base-endlager",
+   "title": "Endlagerung — Statusinformationen Finnland, Frankreich, Deutschland",
+   "publisher": "Bundesamt fuer die Sicherheit der nuklearen Entsorgung (BASE)",
+   "date": "2026",
+   "url": "https://www.base.bund.de/de/endlager/endlager-ausland/finnland/finnland-endlager.html",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 6.1",
+   "nr": 6
+  },
+  {
+   "id": "bmwe-kraftwerksstrategie-2026",
+   "title": "Grundsatzeinigung mit der Europaeischen Kommission ueber Eckpunkte der Kraftwerksstrategie (StromVKG)",
+   "publisher": "Bundesministerium fuer Wirtschaft und Energie (BMWE)",
+   "date": "2026-01-15",
+   "url": "https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Pressemitteilungen/2026/01/20260115-grundsatzeinigung-mit-europaeischen-kommission-ueber-eckpunkte-der-kraftwerksstrategie.html",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "dossier": "ist_zustand_de.md 6.2",
+   "note": "Zeitschiene und Volumina der Kraftwerksausschreibungen; die Ausgestaltung des Kapazitaetsmechanismus ab 2031 ist darin ausdruecklich noch offen.",
+   "nr": 7
+  },
+  {
+   "id": "eeg-2023",
+   "title": "Erneuerbare-Energien-Gesetz (EEG 2023), §§ 1 und 4 — Ausbauziele",
+   "publisher": "Bundesministerium fuer Wirtschaft und Energie / UBA",
+   "date": "2023",
+   "url": "https://www.umweltbundesamt.de/themen/klima-energie/erneuerbare-energien/erneuerbare-energien-gesetz",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "ist_zustand_de.md 3.1",
+   "nr": 8
+  },
+  {
+   "id": "bnetza-hoechstwert-2026",
+   "title": "Festlegung der Hoechstwerte 2026 fuer Wind an Land und Solar-Dachanlagen",
+   "publisher": "Bundesnetzagentur",
+   "date": "2025-12-16",
+   "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2025/20251216_Hoechstwerte.html",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 9
+  },
+  {
+   "id": "bnetza-pv-2026-03",
+   "title": "Ausschreibung Solaranlagen erstes Segment, Gebotstermin 1. Maerz 2026",
+   "publisher": "Bundesnetzagentur",
+   "date": "2026",
+   "url": "https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/Ausschreibungen/Solaranlagen1/BeendeteAusschreibungen/2026/01032026/start.html",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 10
+  },
+  {
+   "id": "bnetza-wind-2026-05",
+   "title": "Hohes Wettbewerbsniveau bei der Ausschreibung fuer Wind an Land zum 1. Mai 2026",
+   "publisher": "Bundesnetzagentur",
+   "date": "2026-06",
+   "url": "https://www.bundesnetzagentur.de/1110006",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 11
+  },
+  {
+   "id": "bnetza-preisspitzen-2025",
+   "title": "Untersuchung zu Strompreisspitzen waehrend Dunkelflauten 2024 (Pressemitteilung)",
+   "publisher": "Bundesnetzagentur / Bundeskartellamt",
+   "date": "2025-10-21",
+   "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2025/20251021_Preisspitzen.html",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 3.3",
+   "nr": 12
+  },
+  {
+   "id": "windguard-2025",
+   "title": "Kostensituation der Windenergie an Land - Stand 2025",
+   "publisher": "Deutsche WindGuard i.A. BMWK",
+   "date": "2025-10",
+   "url": "https://www.windguard.de/veroeffentlichungen.html?file=files%2Fcto_layout%2Fimg%2Funternehmen%2Fveroeffentlichungen%2F2025%2FKostensituation+der+Windenergie+an+Land+%E2%80%93+Stand+2025.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 13
+  },
+  {
+   "id": "bundestag-wd-haftung",
+   "title": "Die Versicherungspflicht von Atomkraftwerken (WD 3 - 330/10)",
+   "publisher": "Deutscher Bundestag, Wissenschaftliche Dienste",
+   "date": "2010",
+   "url": "https://www.bundestag.de/resource/blob/412752/5782d652a8e25945c65d84744d314b88/WD-3-330-10-pdf.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "dossier": "risiken_co2.md 6.3",
+   "nr": 14
+  },
+  {
+   "id": "ewi-h2-speicher",
+   "title": "Wasserstoffspeicherung in Salzkavernen kostet 0,66 bis 1,77 Euro pro Kilogramm (EWI-Analyse)",
+   "publisher": "EWI / referiert in pv magazine Deutschland",
+   "date": "2024-03-06",
+   "url": "https://www.pv-magazine.de/2024/03/06/wasserstoffspeicherung-in-salzkavernen-kostet-066-bis-177-euro-pro-kilogramm/",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": "Originalstudie des EWI sollte noch direkt beschafft werden",
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 15
+  },
+  {
+   "id": "escobar-rangel-leveque-2015",
+   "title": "Revisiting the Cost Escalation Curse of Nuclear Power: New Lessons from the French Experience",
+   "publisher": "Economics of Energy & Environmental Policy 4(2) (L. Escobar Rangel, F. Lévêque)",
+   "date": "2015-09",
+   "url": "https://shs.hal.science/hal-00780566/",
+   "accessed": "2026-08-19",
+   "confidence": "B",
+   "dossier": "Persona-Review 01 (Energie-Professor:in), M8",
+   "note": "Rechnet das franzoesische Programm mit den Daten des Cour-des-Comptes-Berichts nach und findet eine deutlich moderatere Eskalation als Grubler 2010; innerhalb gleicher Baugroesse und Bauart zeigt sich eine Lernkurve. Gegenposition zum „negativen Lernen“. Bibliographie aus Repositorien, kein Volltext gelesen.",
+   "nr": 16
+  },
+  {
+   "id": "ueckerdt-2013",
+   "title": "System LCOE: What are the costs of variable renewables?",
+   "publisher": "Energy 63, S. 61–75 (F. Ueckerdt, L. Hirth, G. Luderer, O. Edenhofer)",
+   "date": "2013",
+   "url": "https://www.sciencedirect.com/science/article/abs/pii/S0360544213009390",
+   "accessed": "2026-08-19",
+   "confidence": "A",
+   "dossier": "Persona-Review 01 (Energie-Professor:in), M2/M9",
+   "note": "Fuehrt die Kennzahl System-LCOE ein und zerlegt Integrationskosten in Profil-, Ausgleichs- und Netzkosten. Die LSCOE-Definition dieses Papiers ist eine engere Systemgrenze als dort — der Unterschied steht in Kapitel 3.",
+   "nr": 17
+  },
+  {
+   "id": "berthelemy-2015",
+   "title": "Nuclear reactors' construction costs: The role of lead-time, standardization and technological progress",
+   "publisher": "Energy Policy 82, S. 118–130 (M. Berthélemy, L. Escobar Rangel)",
+   "date": "2015-07",
+   "url": "https://www.sciencedirect.com/science/article/abs/pii/S0301421515001214",
+   "accessed": "2026-08-19",
+   "confidence": "B",
+   "dossier": "Persona-Review 01 (Energie-Professor:in), M8",
+   "note": "Oekonometrie der Baukosten in Frankreich und den USA: Standardisierung senkt Bauzeit und Kosten, Designwechsel erhoehen beides. Stuetzt die Lesart, dass die Eskalation an Programmorganisation haengt, nicht an der Technologie als solcher.",
+   "nr": 18
+  },
+  {
+   "id": "sovacool-ryu-2025",
+   "title": "Beyond economies of scale: Learning from construction cost overrun risks and time delays in global energy infrastructure projects",
+   "publisher": "Energy Research & Social Science (Sovacool, Ryu)",
+   "date": "2025-03",
+   "url": "https://www.sciencedirect.com/science/article/pii/S2214629625001380",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 7.2",
+   "nr": 19
+  },
+  {
+   "id": "euratom-esa-2024",
+   "title": "Euratom Supply Agency — Annual Report 2024",
+   "publisher": "Europaeische Kommission",
+   "date": "2025",
+   "url": "https://euratom-supply.ec.europa.eu/",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 5.2",
+   "nr": 20
+  },
+  {
+   "id": "ecb-fx",
+   "title": "Euro foreign exchange reference rates",
+   "publisher": "Europaeische Zentralbank",
+   "date": "2026-03-09 / laufend",
+   "url": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 21
+  },
+  {
+   "id": "foes-2025",
+   "title": "20 GW Gaskraftwerke bis 2030 - Was kostet die Erweiterung?",
+   "publisher": "FOES i.A. BUND",
+   "date": "2025-04",
+   "url": "https://foes.de/publikationen/2025/2025-04_FOES_BUND_Kraftwerkskosten.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 22
+  },
+  {
+   "id": "fraunhofer-ise-flexkraftwerke",
+   "title": "Kurzanalyse Stromgestehungskosten und Volllaststunden flexibler Kraftwerke",
+   "publisher": "Fraunhofer ISE (Kost, Sepulveda Schweiger, Thomsen)",
+   "date": "2024/2025",
+   "url": "https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/Kurzanalyse_flexibleKraftwerke.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 23
+  },
+  {
+   "id": "ise-stromerzeugung-2025",
+   "title": "Stromerzeugung in Deutschland im Jahr 2025 (Jahresauswertung)",
+   "publisher": "Fraunhofer ISE / Energy-Charts (B. Burger)",
+   "date": "2026-01",
+   "url": "https://www.energy-charts.info/downloads/Stromerzeugung_2025.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "ist_zustand_de.md 1.2",
+   "nr": 24
+  },
+  {
+   "id": "fraunhofer-ise-2024",
+   "title": "Stromgestehungskosten Erneuerbare Energien",
+   "publisher": "Fraunhofer-Institut fuer Solare Energiesysteme ISE",
+   "date": "2024-07",
+   "url": "https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/DE2024_ISE_Studie_Stromgestehungskosten_Erneuerbare_Energien.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 25
+  },
+  {
+   "id": "ges-studie-2026",
+   "title": "Der klimaneutrale Strommix der Zukunft — Eine Szenarioanalyse zu den Kosten des zukuenftigen deutschen Stromsystems",
+   "publisher": "Global Energy Solutions e. V.",
+   "date": "2026-07",
+   "url": "https://global-energy-solutions.org/wp-content/uploads/2026/05/DER-KLIMANEUTRALE-STROMMIX-DER-ZUKUNFT-veroeffentlicht-V1.1.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "C",
+   "dossier": "docs/01_grundlage_ges_faktencheck.md",
+   "note": "Volltext-PDF in der Arbeitsumgebung nicht abrufbar (Egress-Policy). Alle Studienwerte stammen aus der Aufbereitung in docs/01 und aus Suchindex-Zusammenfassungen, nicht aus selbst gelesenem Volltext.",
+   "nr": 26
+  },
+  {
+   "id": "ritchie-construction-time",
+   "title": "How long does it take to build a nuclear reactor?",
+   "publisher": "Hannah Ritchie (Sustainability by Numbers), auf Basis IAEA PRIS",
+   "date": "2023",
+   "url": "https://hannahritchie.substack.com/p/nuclear-construction-time",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 27
+  },
+  {
+   "id": "iea-pv-supply-chains",
+   "title": "Special Report on Solar PV Global Supply Chains",
+   "publisher": "IEA",
+   "date": "2022",
+   "url": "https://www.iea.org/reports/solar-pv-global-supply-chains/executive-summary",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 5.1",
+   "nr": 28
+  },
+  {
+   "id": "iea-critical-minerals-2025",
+   "title": "Global Critical Minerals Outlook 2025",
+   "publisher": "IEA",
+   "date": "2025",
+   "url": "https://www.iea.org/reports/global-critical-minerals-outlook-2025",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 5.4",
+   "nr": 29
+  },
+  {
+   "id": "iea-nea-2020",
+   "title": "Projected Costs of Generating Electricity - 2020 Edition",
+   "publisher": "IEA / OECD NEA",
+   "date": "2020-12",
+   "url": "https://www.iea.org/reports/projected-costs-of-generating-electricity-2020",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": "Domain in dieser Session blockiert; LCOE-Calculator unter https://www.oecd-nea.org/lcoe/",
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 30
+  },
+  {
+   "id": "imk-netzkosten",
+   "title": "Netzinvestitionsbedarf bis 2045 (Uebertragungs- und Verteilnetz)",
+   "publisher": "IMK / Hans-Boeckler-Stiftung",
+   "date": "2025",
+   "url": "https://www.imk-boeckler.de/",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "dossier": "ist_zustand_de.md 5.1",
+   "nr": 31
+  },
+  {
+   "id": "ipcc-ar6-syr",
+   "title": "Climate Change 2023: Synthesis Report — Summary for Policymakers",
+   "publisher": "IPCC",
+   "date": "2023-03",
+   "url": "https://www.ipcc.ch/report/ar6/syr/summary-for-policymakers/",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 1.1 (K1, K4)",
+   "nr": 32
+  },
+  {
+   "id": "ipcc-ar6-wg1",
+   "title": "Climate Change 2021: The Physical Science Basis — Summary for Policymakers",
+   "publisher": "IPCC (WG1)",
+   "date": "2021-08",
+   "url": "https://www.ipcc.ch/report/ar6/wg1/chapter/summary-for-policymakers/",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 1.1 (K2, K3)",
+   "nr": 33
+  },
+  {
+   "id": "irena-2024",
+   "title": "Renewable Power Generation Costs in 2024",
+   "publisher": "IRENA",
+   "date": "2025-07",
+   "url": "https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2025/Jul/IRENA_TEC_RPGC_in_2024_Summary_2025.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 34
+  },
+  {
+   "id": "iwr-hinkley-2026",
+   "title": "Britisches Atomkraftwerk Hinkley Point C verzoegert sich weiter und wird teurer - Atomstrom kostet mindestens 15 Cent pro Kilowattstunde",
+   "publisher": "IWR-Pressedienst",
+   "date": "2026-02-23",
+   "url": "https://www.iwr.de/news/britisches-atomkraftwerk-hinkley-point-c-verzoegert-sich-weiter-und-wird-teurer-atomstrom-kostet-mindestens-15-cent-pro-kilowattstunde-news39541",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 35
+  },
+  {
+   "id": "kenfo",
+   "title": "Fonds zur Finanzierung der kerntechnischen Entsorgung — Kennzahlen und Jahresergebnis 2025",
+   "publisher": "KENFO",
+   "date": "2026",
+   "url": "https://www.kenfo.de/",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 6.2",
+   "nr": 36
+  },
+  {
+   "id": "lbbw-dunkelflaute-2025",
+   "title": "Analysen und Statistiken zu Dunkelflauten in Deutschland",
+   "publisher": "LBBW Research",
+   "date": "2025",
+   "url": "https://www.lbbw.de/artikel/research-studien-2025/dunkelflaute_ake25jccd8_d.html",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "dossier": "risiken_co2.md 3.2",
+   "nr": 37
+  },
+  {
+   "id": "lazard-2026",
+   "title": "Levelized Cost of Energy+ (LCOE+), Version 19.0",
+   "publisher": "Lazard",
+   "date": "2026-07-13",
+   "url": "https://www.lazard.com/media/sdvdrvc5/lazards-lcoeplus_vf.pdf",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 38
+  },
+  {
+   "id": "newcivilengineer-hpc",
+   "title": "Hinkley Point C's cost climbs to GBP35bn with confirmation Unit 1 will power up in 2030",
+   "publisher": "New Civil Engineer",
+   "date": "2026-02-20",
+   "url": "https://www.newcivilengineer.com/latest/hinkley-point-cs-cost-climbs-to-35bn-with-confirmation-unit-1-will-power-up-in-2030-20-02-2026/",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 39
+  },
+  {
+   "id": "smard-mirror-2024",
+   "title": "Stuendliche SMARD-Exportdaten Deutschland Jul-Dez 2024 (GitHub-Mirror, Notloesung)",
+   "publisher": "SMARD / Bundesnetzagentur, ueber github.com/hakimdalim/smard-data-extractor",
+   "date": "2024",
+   "url": "https://github.com/hakimdalim/smard-data-extractor",
+   "accessed": "2026-08-15",
+   "confidence": "C",
+   "dossier": "daten_stundenprofile.md",
+   "note": "Primaerquellen (energy-charts, smard.de, OPSD) waren aus der Arbeitsumgebung per Egress-Policy nicht erreichbar.",
+   "nr": 40
+  },
+  {
+   "id": "offshore-stiftung-2025",
+   "title": "Ausschreibungsergebnisse 2025",
+   "publisher": "Stiftung Offshore-Windenergie",
+   "date": "2025",
+   "url": "https://www.offshore-stiftung.de/de/Pressemitteilung-Ausschreibungsergebnisse-2025",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "note": null,
+   "dossier": "kosten_ee_speicher.md / kosten_kernkraft.md (sources)",
+   "nr": 41
+  },
+  {
+   "id": "unece-2022",
+   "title": "Carbon Neutrality in the UNECE Region — Integrated Life-cycle Assessment of Electricity Sources",
+   "publisher": "UNECE",
+   "date": "2022",
+   "url": "https://unece.org/sed/documents/2021/10/reports/life-cycle-assessment-electricity-generation-options",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 1.2",
+   "nr": 42
+  },
+  {
+   "id": "uba-methodenkonvention",
+   "title": "Methodenkonvention 3.2 zur Ermittlung von Umweltkosten (CO2-Schattenpreise)",
+   "publisher": "Umweltbundesamt",
+   "date": "2020",
+   "url": "https://www.umweltbundesamt.de/publikationen/methodenkonvention-32-methodische-grundlagen",
+   "accessed": "2026-08-15",
+   "confidence": "B",
+   "dossier": "risiken_co2.md 2.4",
+   "nr": 43
+  },
+  {
+   "id": "uniper-dunkelflaute-2026",
+   "title": "Kurzstudie Dunkelflauten (Zeitreihenanalyse 2016-2025)",
+   "publisher": "Uniper SE",
+   "date": "2026-06",
+   "url": "https://www.pv-magazine.de/2026/06/01/uniper-dunkelflauten-sind-regelmaessiger-bestandteil-des-deutschen-stromsystems/",
+   "accessed": "2026-08-15",
+   "confidence": "A",
+   "dossier": "risiken_co2.md 3.1/3.2",
+   "note": "Interessenlage: Uniper betreibt konventionelle Kraftwerke. 10-h-Schwelle statt DWD-48-h.",
+   "nr": 44
+  }
+ ]
+}

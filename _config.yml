@@ -1,0 +1,89 @@
+# Jekyll-Konfiguration fuer GitHub Pages
+#
+# Die Kitchen ist eine statische Seite: alle Inhalte sind fertige HTML-Dateien.
+# GitHub Pages baut den Branch trotzdem mit Jekyll, und dabei rendert Jekyll
+# jede Markdown-Datei im Repo mit dem Standard-Theme mit.
+#
+# Die Arbeitsdokumente unter strommix/ (Recherche-Dossiers, Persona-Reviews,
+# Konzepte, Skripte) sind Markdown mit YAML-Frontmatter inklusive Datumsfeldern.
+# Der Pages-Build ist daran gescheitert:
+#   Liquid Exception: Invalid Date: '"2026-08"' is not a valid datetime.
+#     in /_layouts/default.html
+# Damit wurde die gesamte Seite nicht mehr ausgeliefert. Diese Dateien sind
+# internes Arbeitsmaterial und sollen ohnehin nicht als Webseiten gerendert
+# werden -- sie werden hier vom Build ausgenommen.
+#
+# WICHTIG: strommix/data/ bleibt ausdruecklich drin. whitepaper-strommix.html
+# und strommix-story.html laden ihre Zahlen zur Laufzeit per fetch() aus
+# strommix/data/*.json -- ohne diesen Ordner zeigen beide Seiten nur noch den
+# Fehlerkasten "Die Daten konnten nicht geladen werden".
+
+
+# ---------------------------------------------------------------------------
+# markdown_ext: warum ".md" hier fehlt
+# ---------------------------------------------------------------------------
+# Unter /md/ liegen die Markdown-Fassungen der wichtigsten Inhalte -- fuer
+# KI-Agenten, Zitate und Offline-Lektuere. Sie sollen unter stabilen URLs wie
+#   https://datenwgknowledgekitchen.com/md/whitepaper-strommix.md
+# als ROHER Markdown-Text ausgeliefert werden.
+#
+# Der Standardwert von markdown_ext ist "markdown,mkdown,mkdn,mkd,md". Damit
+# behandelt Jekyll jede .md-Datei als Markdown-Quelle, und GitHub Pages laedt
+# zusaetzlich jekyll-optional-front-matter, das auch Dateien ohne YAML-Header
+# zu Seiten macht.
+#
+# Gegenprobe lokal gefahren, mit Jekyll 3.10.0 (der Version, die Pages faehrt)
+# plus dem Plugin. Ergebnis mit dem Standardwert: Jekyll legt fuer jede
+# .md-Datei ZWEI Dateien ab -- die gerenderte .html UND die rohe .md. Die
+# .md-URL funktioniert dabei zwar, aber nur als Nebenprodukt davon, wie das
+# Plugin mit statischen Dateien umgeht. Auf so etwas baut man keine stabilen
+# URLs. Der gerenderte Zwilling ist ausserdem schaedlich:
+#
+#   * Er schickt den Inhalt durch Liquid. Der Power-BI-Guide enthaelt die
+#     Power-Query-Zeile Table.Sort({{"Datum", Order.Descending}}) -- gueltiges
+#     M und gleichzeitig eine Liquid-Variable. Der Build meldet dafuer
+#     "Liquid syntax error" als Warnung und macht aus der Zeile im HTML
+#     stillschweigend Table.Sort(Datum). Falscher Code, ohne Fehlermeldung.
+#   * Er verdoppelt jede Seite unter einer zweiten URL, die niemand pflegt.
+#
+# Indem "md" aus der Liste entfernt wird, sind .md-Dateien fuer Jekyll
+# gewoehnliche statische Dateien: sie werden unveraendert nach _site kopiert
+# und unter ihrem eigenen Namen ausgeliefert -- kein Konverter, kein Liquid,
+# kein Plugin im Weg, keine .html-Zwillinge. Lokal verifiziert: alle Dateien
+# unter md/ landen byteidentisch im Build.
+#
+# Nebenwirkungen -- geprueft, alle unkritisch:
+#   * Kein einziges href="" in der Site zeigt auf eine von Jekyll gerenderte
+#     Markdown-Seite; alle internen Links gehen auf .html-Dateien.
+#   * ibcsInspiredChartDeck/AGENT-GUIDE.md (verlinkt aus den
+#     ChartKitchen-Schnellstart-Seiten) wurde schon vorher roh mit
+#     ausgeliefert und wird es weiterhin -- jetzt garantiert statt zufaellig.
+#   * blog/ibcs-reporting-power-bi.md, README.md, STATUS.md, PowerBIhub.md und
+#     die uebrigen Repo-Markdowns verlieren ihren nirgends verlinkten
+#     HTML-Zwilling. Die .md-URLs bleiben.
+#   * Die Arbeitsdokumente unter strommix/ bleiben ueber `exclude` aussen vor.
+#
+# WICHTIG fuer neue Dateien unter /md/: KEIN YAML-Frontmatter. Eine Datei mit
+# YAML-Header wird von Jekyll trotz dieser Einstellung als Page behandelt, durch
+# Liquid geschickt und der Header abgeschnitten. Genau so ist der Pages-Build
+# schon einmal komplett gebrochen (siehe oben). Siehe md/README.md.
+markdown_ext: "markdown,mkdown,mkdn,mkd"
+
+exclude:
+  # Arbeitsmaterial des Strommix-Projekts (kein Web-Inhalt)
+  - strommix/docs/
+  - strommix/research/
+  - strommix/scripts/
+  - strommix/README.md
+  - strommix/BACKLOG.md
+
+  # Die Jekyll-/Pages-Standardausschluesse. `exclude` ersetzt die Vorgabeliste,
+  # statt sie zu ergaenzen -- deshalb stehen sie hier noch einmal.
+  - CNAME
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/

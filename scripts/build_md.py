@@ -1569,14 +1569,26 @@ def main(argv: list[str]) -> int:
             print("Bekannt: " + ", ".join(p["basename"] for p in PAGES), file=sys.stderr)
             return 2
 
+    # --check: zweimal rendern, gegeneinander und gegen die Platte vergleichen,
+    # nichts schreiben (Konvention aus md/README.md)
+    check = "--check" in argv
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    dirty = 0
     for cfg in pages:
         out, md = build_page(cfg)
+        if check:
+            _, md2 = build_page(cfg)
+            on_disk = out.read_text(encoding="utf-8") if out.exists() else None
+            ok = md == md2 and md == on_disk
+            print(f"{'✓' if ok else '✗'} {out.relative_to(ROOT)}  "
+                  + ("ok" if ok else "WEICHT AB" if md == md2 else "NICHT DETERMINISTISCH"))
+            dirty += 0 if ok else 1
+            continue
         changed = (not out.exists()) or out.read_text(encoding="utf-8") != md
         out.write_text(md, encoding="utf-8")
         state = "geschrieben" if changed else "unveraendert"
         print(f"✓ {out.relative_to(ROOT)}  {len(md.encode('utf-8')):>7,d} B  {state}")
-    return 0
+    return 1 if dirty else 0
 
 
 if __name__ == "__main__":

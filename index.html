@@ -2174,6 +2174,8 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
     <div class="pt-chips" role="group" aria-label="Nach Thema filtern">
       <button class="pt-chip active" type="button" data-tag="alle">Alle</button>
       <button class="pt-chip" type="button" data-tag="post">Post</button>
+      <button class="pt-chip" type="button" data-tag="story">Visual Story</button>
+      <button class="pt-chip" type="button" data-tag="whitepaper">White Paper</button>
       <button class="pt-chip" type="button" data-tag="tool">Tool</button>
       <button class="pt-chip" type="button" data-tag="doku">Doku</button>
       <button class="pt-chip" type="button" data-tag="talkevent">Talk &amp; Event</button>
@@ -2198,6 +2200,34 @@ body.bucket-filter-on .bucket-filter-bar { display: flex; }
       <span class="top-pick-title">Report-Design als Framework — der Power BI Design Skill</span>
       <span class="top-pick-why"><strong>Worum geht's?</strong> Ein Claude-Code-Skill macht Power-BI-Seiten konsistent: Interview → Branding aus der eigenen Webseite → theme.json + Agent-Brief. Dazu Bulk-Restyle („überall Schatten raus"), Design-Linter und SVG-Wireframes — für menschliche und KI-Entwickler. Mit Praxistest an dieser Seite.</span>
       <span class="top-pick-meta"><span>📖 Post + GitHub-Repo</span><span>🆓 MIT · Open Source</span></span>
+    </a>
+    <a class="top-pick" href="strommix-story.html" data-tags="post story">
+      <span class="top-pick-rank">⚡</span>
+      <span class="top-pick-eyebrow">Visual Story · Scrollytelling</span>
+      <span class="top-pick-title">Was kostet ein klimaneutrales Stromsystem?</span>
+      <span class="top-pick-why"><strong>Worum geht's?</strong> Eine Scroll-Story über Annahmen, Bandbreiten und die Frage, warum seriöse Antworten Verteilungen sind statt einzelner Zahlen — mit 1.000 durchgerechneten Zukünften.</span>
+      <span class="top-pick-meta"><span>📜 Scrollytelling</span><span>🎲 1.000 Monte-Carlo-Läufe</span></span>
+    </a>
+    <a class="top-pick" href="whitepaper-strommix.html" data-tags="post whitepaper">
+      <span class="top-pick-rank">📄</span>
+      <span class="top-pick-eyebrow">White Paper · Interaktiv</span>
+      <span class="top-pick-title">Was braucht ein gesunder Strommix — und was kostet er?</span>
+      <span class="top-pick-why"><strong>Worum geht's?</strong> Die vollständige Analyse hinter der Story: interaktives Kostenmodell, stündliche Dispatch-Simulation, Monte-Carlo mit 8 Konfigurationen, 60+ Quellen mit Konfidenzstufen.</span>
+      <span class="top-pick-meta"><span>📖 White Paper</span><span>🧮 Live-Rechner</span></span>
+    </a>
+    <a class="top-pick" href="rhein-story.html" data-tags="post story">
+      <span class="top-pick-rank">🌊</span>
+      <span class="top-pick-eyebrow">Daten-Story · Scrollytelling</span>
+      <span class="top-pick-title">209 Jahre, ein Fluss, zwei Wahrheiten</span>
+      <span class="top-pick-why"><strong>Worum geht's?</strong> Eine der längsten Abflussreihen der Welt sagt: Dem Rhein geht es gut. Dieselben Daten sagen das Gegenteil. Sechs animierte Akte zeigen, wie ein Klimasignal im Rauschen untergeht — und warum das alte 20-Jahres-Niedrigwasser heute alle 4–5 Jahre kommt. Mit Köln-Bildern, Rekord-Watch August 2026 und aufklappbarem Methoden-Appendix.</span>
+      <span class="top-pick-meta"><span>📜 Scrollytelling</span><span>📊 GRDC-Daten 1816–2025</span></span>
+    </a>
+    <a class="top-pick" href="laender-indikatoren-explorer.html" data-tags="tool">
+      <span class="top-pick-rank">🌍</span>
+      <span class="top-pick-eyebrow">Tool · Datenexploration</span>
+      <span class="top-pick-title">Länder-Indikatoren-Explorer</span>
+      <span class="top-pick-why"><strong>Selbst erkunden:</strong> 164 Länder × 15 Indikatoren — von Lebenszufriedenheit über BIP und Demokratie bis Suizidrate. Jede Kennzahl gegen jede geplottet, nach Korrelationsstärke sortiert, mit Kontinent-Filter und Länder-Rangliste. Rohdaten als CSV zum Download.</span>
+      <span class="top-pick-meta"><span>⚡ Web-App</span><span>📥 CSV-Download</span></span>
     </a>
     <a class="top-pick" href="business-chart-builder-anleitung.html" data-tags="doku ibcs pbi">
       <span class="top-pick-rank">📝</span>
@@ -6413,7 +6443,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function titleOf(c) { var t = c.querySelector('.top-pick-title'); return t ? t.textContent.trim() : ''; }
   function typRank(c) {
     var t = (c.dataset.tags || '').split(' ');
-    var order = ['post', 'tool', 'doku', 'talkevent'];
+    var order = ['post', 'story', 'whitepaper', 'tool', 'doku', 'talkevent'];
     for (var k = 0; k < order.length; k++) if (t.indexOf(order[k]) > -1) return k;
     return 9;
   }

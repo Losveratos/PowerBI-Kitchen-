@@ -436,6 +436,15 @@ def main():
 
     text = "\n".join(out).rstrip() + "\n"
 
+    # --check: nur vergleichen, nichts schreiben (Konvention aus md/README.md)
+    if "--check" in sys.argv[1:]:
+        on_disk = MD_PATH.read_text(encoding="utf-8") if MD_PATH.exists() else None
+        if on_disk == text:
+            print(f"OK --check: {MD_PATH.relative_to(ROOT)} aktuell ({len(episodes)} Folgen)")
+            return
+        print(f"WEICHT AB: {MD_PATH.relative_to(ROOT)} — bitte neu generieren", file=sys.stderr)
+        raise SystemExit(1)
+
     MD_PATH.parent.mkdir(parents=True, exist_ok=True)
     MD_PATH.write_text(text, encoding="utf-8")
 

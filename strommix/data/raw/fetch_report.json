@@ -1,0 +1,25 @@
+{
+  "year": 2024,
+  "expected_hours": 8784,
+  "retrieved_at_utc": "2026-08-15T11:20:52Z",
+  "source_used": "github-mirror (Notlösung)",
+  "source_note": "NOTLÖSUNG (nicht Teil der offiziellen Quellen-Priorität): öffentlicher GitHub-Mirror https://github.com/hakimdalim/smard-data-extractor (Datei juli24-25_energie_zusammengefasst_mit_aufloesung.csv, Commit 189bcdf697fe12e05127ea15eb6ac7bc67a134b2), enthält reale SMARD-Exportdaten, aber nur Jul-Dez 2024 und nur Wind Onshore/Photovoltaik/Netzlast. Grund: api.energy-charts.info, smard.de und open-power-system-data.org sind aus dieser Sandbox heraus per Egress-Policy blockiert (403 auf CONNECT), siehe research/daten_stundenprofile.md.",
+  "complete": false,
+  "output_csv": "data/raw/de_2024_hourly_PARTIAL.csv",
+  "rows": 4416,
+  "columns": [
+    "wind_onshore_mw",
+    "solar_mw",
+    "load_mw"
+  ],
+  "missing_per_column": {
+    "wind_onshore_mw": 0,
+    "solar_mw": 0,
+    "load_mw": 0
+  },
+  "attempts_log": [
+    "energy-charts.info: HTTPSConnectionPool(host='api.energy-charts.info', port=443): Max retries exceeded with url: /public_power?country=de&start=2024-01-01&end=2024-01-31 (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+    "smard.de index (load_mw): HTTPSConnectionPool(host='www.smard.de', port=443): Max retries exceeded with url: /app/chart_data/410/DE/index_hour.json (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))",
+    "open-power-system-data.org: HTTPSConnectionPool(host='data.open-power-system-data.org', port=443): Max retries exceeded with url: /time_series/latest/time_series_60min_singleindex.csv (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))"
+  ]
+}
