@@ -1,0 +1,50 @@
+# Daten-WG Knowledge Kitchen
+
+> Wissens-Hub von Michael Tenner (Daten-WG): das kostenlose Power-BI-Custom-Visual „ChartKitchen byDatenWG" (IBCS-inspiriert, Open Source), Einsteiger-Guides zu Power BI und Microsoft Fabric, der Daten-WG-Podcast-Episoden-Guide sowie Whitepaper und Posts zu KI-gestützter Entwicklung. Sprache überwiegend Deutsch, Kernseiten auch auf Englisch. Alle unten verlinkten .md-Dateien sind maschinenfreundliche Fassungen der HTML-Seiten — bei Abweichungen gilt die HTML-Fassung.
+
+## ChartKitchen (Power-BI-Visual)
+
+- [Schnellstart (DE)](https://datenwgknowledgekitchen.com/md/chartkitchen-schnellstart.md): Was das Visual kann, Download, Import in Power BI Desktop, Beta-Hinweis
+- [Quick Start (EN)](https://datenwgknowledgekitchen.com/md/chartkitchen-schnellstart_en.md): English version of the quick-start page
+- [Dokumentation (DE)](https://datenwgknowledgekitchen.com/md/chartkitchen-doku.md): 13 Diagramm-Modi, 84-Settings-Referenz, 15 Feldrollen, FAQ
+- [Documentation (EN)](https://datenwgknowledgekitchen.com/md/chartkitchen-doku_en.md): English version of the full documentation
+- [AGENT-GUIDE](https://datenwgknowledgekitchen.com/ibcsInspiredChartDeck/AGENT-GUIDE.md): Maschinenlesbare Referenz für KI-Agenten — exakte Property-Namen fürs PBIR-Authoring, Datenvertrag, bekannte Fallen. Erste Wahl, wenn ein Agent Reports mit dem Visual konfigurieren soll
+- [CHANGELOG](https://datenwgknowledgekitchen.com/ibcsInspiredChartDeck/CHANGELOG.md): Versionshistorie des Visuals
+- Download (.pbiviz, immer aktuelle Version): https://datenwgknowledgekitchen.com/downloads/chartkitchen-byDatenWG-latest.pbiviz — Versionsinfo als JSON: https://datenwgknowledgekitchen.com/downloads/latest.json
+
+## Lern-Guides
+
+- [Power BI Einsteiger-Guide](https://datenwgknowledgekitchen.com/md/power_bi_einsteiger_guide_v4.md): End-to-End durch Power BI — Architektur, Power Query, Datenmodell, DAX, Visualisierung, Deployment
+- [Microsoft Fabric Einsteiger-Guide](https://datenwgknowledgekitchen.com/md/fabric_einsteiger_guide_v1.md): End-to-End durch Microsoft Fabric — Lakehouse, OneLake, Pipelines, Direct Lake
+- [Power BI Praxis-Pfad](https://datenwgknowledgekitchen.com/md/powerbi_praxis_pfad.md): Geführtes Übungsprojekt in 7 Modulen (Installieren → Daten anbinden → … → Export) mit Kontrollpunkten
+- [Business Chart Builder — Anleitung](https://datenwgknowledgekitchen.com/md/business-chart-builder-anleitung.md): Anleitung zum Chart-Builder-Tool inkl. 1-Klick-Export nach Power BI (Deneb)
+
+## Podcast & Videos
+
+- [Daten-WG Episoden-Guide](https://datenwgknowledgekitchen.com/md/daten_wg_learn_buckets.md): Alle Folgen des YouTube-Kanals @Daten-WG in 9 Themen-Buckets, mit Gästen, Tags und Kapitel-Sprungmarken als YouTube-Timestamp-Links
+
+## Whitepaper & Posts
+
+- [Whitepaper: Zehn Tage bis zum marktfähigen Stand (DE)](https://datenwgknowledgekitchen.com/whitepaper-ki-entwicklung-roi.md): KI-gestützte Produktentwicklung — Methodik, Zahlen, ROI
+- [Whitepaper: Ten Days to a Market-Ready Build (EN)](https://datenwgknowledgekitchen.com/whitepaper-ki-entwicklung-roi_en.md): English version
+- [Thesenpapier: Zehn Tage (Kurzfassung, DE)](https://datenwgknowledgekitchen.com/md/ki-entwicklung-zehn-tage.md): Kompakte Thesen-Fassung des Whitepapers
+- [Thesis paper: Ten Days (short, EN)](https://datenwgknowledgekitchen.com/md/ki-entwicklung-zehn-tage_en.md): English short version
+- [Post: IBCS-Reporting in Power BI](https://datenwgknowledgekitchen.com/blog/ibcs-reporting-power-bi.md): Semantische Notation, Varianzen und Brücken mit Bordmitteln + Deneb
+- [Post: Power BI Design Skill](https://datenwgknowledgekitchen.com/md/powerbi-design-skill.md): Report-Design als wiederverwendbares Framework (Claude-Skill)
+- [Post: Ist KI das neue Papier? (DE)](https://datenwgknowledgekitchen.com/md/prototyping-pnl-treiberbaum.md): Prototyping neu gedacht — vom Markdown-Spec zum klickbaren P&L-Prototyp
+- [Post: Is AI the New Paper? (EN)](https://datenwgknowledgekitchen.com/md/prototyping-pnl-treiberbaum_en.md): English version
+
+## Interaktive Tools (nur als HTML sinnvoll)
+
+- [Business Chart Builder](https://datenwgknowledgekitchen.com/business-chart-builder.html): Browser-Tool für IBCS-inspirierte Charts mit Power-BI-Export
+- [IBCS-Trainer](https://datenwgknowledgekitchen.com/ibcs-trainer.html): Visuelle Regeln spielerisch lernen
+- [P&L-Treiberbaum](https://datenwgknowledgekitchen.com/pnl-treiberbaum-demo.html): Interaktiver Treiberbaum-Prototyp
+- [KI-CO₂-Simulator](https://datenwgknowledgekitchen.com/ki-co2-simulator.html): Szenario-Simulator zu KI-Energiebedarf
+- [Startseite](https://datenwgknowledgekitchen.com/): Übersicht über alle Inhalte, Posts und Talks
+
+## Optional
+
+- [Daten-WG Konferenz-Agenda](https://datenwgknowledgekitchen.com/daten-wg-agenda.html): Agenda & Speaker der Daten-WG-Konferenz (HTML)
+- [Vortrag: Morally Aligned AI](https://datenwgknowledgekitchen.com/morally_aligned_ai.html): Talk-Begleitseite (HTML)
+- [GitHub-Repo der Website & des Visuals](https://github.com/Losveratos/PowerBI-Kitchen-): Quellcode, Issues, Backlog
+- [Impressum](https://datenwgknowledgekitchen.com/impressum.html) · [Datenschutz](https://datenwgknowledgekitchen.com/datenschutz.html)
