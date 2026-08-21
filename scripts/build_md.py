@@ -35,6 +35,7 @@ Architektur
 
 from __future__ import annotations
 
+import html as html_mod
 import json
 import re
 import sys
@@ -225,8 +226,10 @@ class Converter:
         self.dom = dom
         self.drop = list(cfg.get("drop", []))
         self.headings: dict[str, int] = cfg.get("headings", {})
+        self.heading_offset: int = int(cfg.get("heading_offset", 0))
         self.inline_sep: dict[str, str] = cfg.get("inline_sep", {})
         self.inline_join: dict[str, str] = cfg.get("inline_join", {})
+        self.inline_wrap: dict[str, tuple] = cfg.get("inline_wrap", {})
         self.blockquotes = list(cfg.get("blockquote", []))
         self.custom: dict = cfg.get("custom", {})
         self.link_prefix = cfg.get("link_prefix", "../")
@@ -247,7 +250,9 @@ class Converter:
             if cls in self.headings:
                 return self.headings[cls]
         if re.fullmatch(r"h[1-6]", node.tag):
-            return min(int(node.tag[1]), 4)
+            # `heading_offset` verschiebt NUR die echten h-Tags; per Klasse
+            # gesetzte Ebenen (siehe `headings`) bleiben unberuehrt.
+            return min(min(int(node.tag[1]), 4) + self.heading_offset, 6)
         return None
 
     def rewrite_url(self, url: str) -> str:
@@ -265,6 +270,11 @@ class Converter:
             return squash(node.text)
         if self.is_dropped(node):
             return ""
+        for cls in node.classes:
+            if cls in self.inline_wrap:
+                pre, post = self.inline_wrap[cls]
+                inner = self.inline_children(node).strip()
+                return f"{pre}{inner}{post}" if inner else ""
         tag = node.tag
         if tag == "br":
             return " "
@@ -464,6 +474,9 @@ class Converter:
         ordered = node.tag == "ol"
         lines: list[str] = []
         idx = 0
+        if ordered and node.get("start").strip().isdigit():
+            # <ol start="6"> setzt eine unterbrochene Nummerierung fort.
+            idx = max(int(node.get("start")) - 1, 0)
         for li in node.children:
             if li.tag != "li" or self.is_dropped(li):
                 continue
@@ -587,6 +600,473 @@ def h_agent_button(conv: Converter, node: Node) -> str:
             f"absolute: {SITE}/{href}")
 
 
+# -- Post-Seiten (ki-entwicklung-zehn-tage, prototyping-pnl-treiberbaum, …) --
+
+def h_figure(conv: Converter, node: Node) -> str:
+    """<figure> mit Bildunterschrift — robuster als der generische Zweig.
+
+    Deckt drei Faelle ab, an denen `Converter.figure()` scheitert:
+    1. die Unterschrift steht in `<div class="figure-cap">` statt <figcaption>,
+    2. das Medium liegt eine Ebene tiefer (`.figure-embed`) — der generische
+       Zweig gaebe das Bild dann zweimal aus,
+    3. `<video>` statt `<img>` (wird zur Link-Zeile).
+    Ausserdem: Unterschriften, die mit **fett** beginnen, werden nicht zusaetzlich
+    kursiv gesetzt — das ergaebe das mehrdeutige "***".
+    """
+    out: list[str] = []
+    cap_node = node.find(".figure-cap") or node.find("figcaption")
+    caption = conv.inline_children(cap_node).strip() if cap_node is not None else ""
+    img = node.find("img")
+    video = node.find("video")
+    if img is not None:
+        alt = squash(img.get("alt")).strip() or strip_md(caption) or "Abbildung"
+        out.append(f"![{alt}]({conv.rewrite_url(img.get('src'))})")
+    elif video is not None:
+        label = "Demo-Video" if conv.cfg.get("lang") == "de" else "Demo video"
+        out.append(f"**{label}:** {conv.rewrite_url(video.get('src'))}")
+        poster = video.get("poster")
+        if poster:
+            word = "Standbild" if conv.cfg.get("lang") == "de" else "Poster frame"
+            out.append(f"**{word}:** {conv.rewrite_url(poster)}")
+    if caption:
+        # Die Bildunterschriften beginnen fast alle mit einem **fetten** Vorspann;
+        # ein zusaetzliches Kursiv-Paar daraus machte "***…" (mehrdeutig).
+        out.append(caption if caption.startswith("**") else f"*{caption}*")
+    return "\n\n".join(out)
+
+
+def h_note_box(conv: Converter, node: Node) -> str:
+    """`.example` · `.trap` · `.tip` — Kasten aus <strong>Label</strong> + Fliesstext.
+
+    Ohne Doppelpunkt klebte das Label am ersten Satz ("**Praxis-Beispiel** Du …").
+    """
+    label, label_node = "", None
+    for ch in node.children:
+        if ch.tag == "#text" and ch.text.strip():
+            break
+        if ch.tag in ("strong", "b"):
+            label_node = ch
+            label = conv.inline_children(ch).strip()
+            break
+    rest = Node("div")
+    rest.children = [c for c in node.children if c is not label_node]
+    blocks = conv.blocks(rest)
+    if label:
+        sep = "" if label[-1] in ".:!?…—-" else ":"
+        head = f"**{label}{sep}**"
+        # Nur vor Fliesstext einruecken — vor Code-Fence, Liste oder Tabelle
+        # muss das Label eine eigene Zeile bleiben.
+        if blocks and re.match(r"[^`|>#\-]", blocks[0]) and not re.match(r"\d+\. ", blocks[0]):
+            blocks[0] = f"{head} {blocks[0]}"
+        else:
+            blocks.insert(0, head)
+    return quote("\n\n".join(b for b in blocks if b.strip()))
+
+
+def h_step_card(conv: Converter, node: Node) -> str:
+    """`.step` — nummerierte Schrittkarte: Nummer-Div, h3 mit Badge-<span>, Text."""
+    num_node = node.find(".step-num")
+    num = squash(num_node.plain_text()).strip() if num_node is not None else ""
+    head = node.find("h3")
+    title, badge = "", ""
+    if head is not None:
+        span = head.find("span")
+        if span is not None:
+            badge = conv.inline_children(span).strip()
+        rest = Node("h3")
+        rest.children = [c for c in head.children if c is not span]
+        title = conv.inline_children(rest).strip()
+    line = "### " + (f"{num} · " if num else "") + title
+    if badge:
+        line += f" — {badge}"
+    out = [line.strip()]
+    for p in node.find_all("p"):
+        text = conv.inline_children(p).strip()
+        if text:
+            out.append(text)
+    return "\n\n".join(out)
+
+
+# -- business-chart-builder-anleitung ---------------------------------------
+
+def h_live_link(conv: Converter, node: Node) -> str:
+    """`a.live` — Live-Beispiel oder Download.
+
+    Die Live-Links tragen die komplette Chart-Konfiguration als komprimierten
+    `#s=`-Hash (1–2 KB Base64 pro Link). In der MD-Fassung waere das Muell, also
+    bleibt nur die Basis-URL stehen plus ein Hinweis, wo der Permalink steht.
+    """
+    href = node.get("href").strip()
+    label = conv.inline_children(node).strip()
+    label = re.sub(r"^(?:[▶⬇]\s*)?(?:Live|Demo)\s*:\s*", "", label).strip("▶⬇ ").strip()
+    de = conv.cfg.get("lang") == "de"
+    if "#s=" in href:
+        base = href.split("#s=")[0]
+        note = ("Konfiguration steckt im Permalink der HTML-Fassung" if de
+                else "configuration lives in the permalink of the HTML version")
+        head = "Live-Beispiel" if de else "Live example"
+        return f"**{head}:** {label} — {base} ({note})"
+    return f"**Download:** [{label}]({conv.rewrite_url(href)})"
+
+
+# -- powerbi_praxis_pfad -----------------------------------------------------
+
+def h_shot_figure(conv: Converter, node: Node) -> str:
+    """`figure.pp-shot` — Screenshot; alt-Text und <figcaption> sind identisch.
+
+    Der generische Zweig wuerde beide ausgeben und damit jeden Screenshot-Text
+    verdoppeln.
+    """
+    img = node.find("img")
+    if img is None:
+        return ""
+    cap_node = node.find("figcaption")
+    caption = squash(cap_node.plain_text()).strip() if cap_node is not None else ""
+    alt = squash(img.get("alt")).strip() or caption or "Screenshot"
+    out = [f"![{alt}]({conv.rewrite_url(img.get('src'))})"]
+    if caption and caption != alt:
+        out.append(f"*{caption}*")
+    return "\n\n".join(out)
+
+
+_PP_LIST_BREAK = re.compile(r"\n(?=[ \t]*(?:\d{1,2}\.|-)[ \t])")
+
+
+def h_pp_paragraph(conv: Converter, node: Node) -> str:
+    """Absaetze, in denen im Quelltext eine Liste als Klartext steckt.
+
+    Im Praxis-Pfad sind einige Fortsetzungs-Aufzaehlungen im HTML in einem <p>
+    gelandet (Zeilenumbrueche statt <li>) — der Browser macht daraus eine
+    Bleiwueste ("… auf OK. 4. Jetzt fragt Power BI … 5. Du siehst …"). Fuer die
+    MD-Fassung stellen wir die Zeilenstruktur wieder her; alle anderen Absaetze
+    laufen unveraendert durch.
+    """
+    if not _PP_LIST_BREAK.search(node.plain_text()):
+        return conv.inline_children(node).strip()
+
+    groups: list[list[Node]] = [[]]
+    for ch in node.children:
+        if ch.tag == "#text" and _PP_LIST_BREAK.search(ch.text):
+            pieces = _PP_LIST_BREAK.split(ch.text)
+            groups[-1].append(Node("#text", text=pieces[0]))
+            for piece in pieces[1:]:
+                groups.append([Node("#text", text=piece)])
+        else:
+            groups[-1].append(ch)
+
+    rendered = []
+    for group in groups:
+        holder = Node("div")
+        holder.children = group
+        text = conv.inline_children(holder).strip()
+        if text:
+            rendered.append(text)
+    if not rendered:
+        return ""
+    lead, items = rendered[0], rendered[1:]
+    if not items:
+        return lead
+    return lead + "\n\n" + "\n".join(items)
+
+
+# -- Einsteiger-Guides (Power BI · Fabric) -----------------------------------
+#
+# Beide Guides sind Klick-Erkundungen: die Seite zeigt nur Karten-Kacheln, der
+# eigentliche Inhalt (87 bzw. 43 Detail-Karten) liegt als HTML-Bausteine in
+# einem `const DETAILS = {…}`-Objekt im <script> und wird per Klick in ein Modal
+# gerendert. Ohne diese Aufloesung waere die MD-Fassung eine leere Huelle.
+
+GUIDE_CARD_CONTAINERS = [
+    ".arch-flow", ".card-grid", ".col-body", ".star-grid-inner",
+    ".star-aside", ".success-wheel", ".notation-grid",
+]
+
+_DETAILS_CACHE: dict[str, dict] = {}
+
+_DETAILS_RX = re.compile(
+    r"'(?P<key>[A-Za-z0-9_-]+)':\s*\{\s*"
+    r"eyebrow:\s*'(?P<eyebrow>(?:[^'\\]|\\.)*)',\s*"
+    r"title:\s*'(?P<title>(?:[^'\\]|\\.)*)',\s*"
+    r"body:\s*`(?P<body>(?:[^`\\]|\\.)*)`\s*\}",
+    re.S,
+)
+
+_JS_ESCAPES = {"n": "\n", "t": "\t", "r": "\r"}
+
+
+def js_unescape(text: str) -> str:
+    return re.sub(r"\\(.)", lambda m: _JS_ESCAPES.get(m.group(1), m.group(1)), text)
+
+
+def guide_details(conv: Converter) -> dict[str, dict]:
+    base = conv.cfg["basename"]
+    if base not in _DETAILS_CACHE:
+        src = (ROOT / f"{base}.html").read_text(encoding="utf-8")
+        block = re.search(r"const DETAILS = \{(.*?)\n\};", src, re.S)
+        found: dict[str, dict] = {}
+        if block:
+            for m in _DETAILS_RX.finditer(block.group(1)):
+                found[m.group("key")] = {
+                    # eyebrow/title sind JS-Strings mit HTML-Entities ("&amp;"),
+                    # landen aber direkt in der Ueberschrift statt im Parser.
+                    "eyebrow": html_mod.unescape(js_unescape(m.group("eyebrow"))).strip(),
+                    "title": html_mod.unescape(js_unescape(m.group("title"))).strip(),
+                    "body": js_unescape(m.group("body")),
+                }
+        _DETAILS_CACHE[base] = found
+    return _DETAILS_CACHE[base]
+
+
+def _first_visible(children) -> "Node | None":
+    for ch in children:
+        if ch.tag == "#text" and not ch.text.strip():
+            continue
+        return ch
+    return None
+
+
+def guide_card_level(conv: Converter, node: Node) -> int:
+    """Ebene der Karten-Ueberschriften: 3, sonst 4 unter einer h3-Gruppe.
+
+    Manche Karten-Container haengen unter einer eigenen Gruppenueberschrift
+    (Pipeline-Spalte, Stern-Seitenspalte, die SUCCESS-/Notations-Gruppen im
+    Viz-Kapitel) — dort muessen die Karten eine Ebene tiefer stehen.
+    """
+    inner = _first_visible(node.children)
+    if inner is not None and conv.heading_level(inner) == 3:
+        return 4
+    parent = node.parent
+    if parent is None:
+        return 3
+    preceding = []
+    for ch in parent.children:
+        if ch is node:
+            break
+        if ch.tag == "#text" and not ch.text.strip():
+            continue
+        preceding.append(ch)
+    for ch in reversed(preceding):
+        level = conv.heading_level(ch)
+        if level is not None:
+            return 4 if level == 3 else 3
+        if matches_any(ch, GUIDE_CARD_CONTAINERS):
+            return 3
+    return 3
+
+
+_EPISODES_CACHE: dict[str, dict] = {}
+
+_EPI_KEY_RX = re.compile(r"'(?P<key>[A-Za-z0-9_-]+)':\s*\[(?P<rows>.*?)\n\s*\],", re.S)
+_EPI_ROW_RX = re.compile(
+    r"\[\s*'(?P<id>(?:[^'\\]|\\.)*)',\s*"
+    r"'(?P<eyebrow>(?:[^'\\]|\\.)*)',\s*"
+    r"'(?P<title>(?:[^'\\]|\\.)*)'(?P<external>\s*,\s*true)?\s*,?\s*\]",
+    re.S,
+)
+
+
+def guide_episodes(conv: Converter) -> dict[str, list]:
+    """`const EPISODE_LINKS = {…}` — Daten-WG-Folgen, die das Modal je Karte anhaengt."""
+    base = conv.cfg["basename"]
+    if base not in _EPISODES_CACHE:
+        src = (ROOT / f"{base}.html").read_text(encoding="utf-8")
+        block = re.search(r"const EPISODE_LINKS = \{(.*?)\n\};", src, re.S)
+        found: dict[str, list] = {}
+        if block:
+            for m in _EPI_KEY_RX.finditer(block.group(1)):
+                rows = []
+                for r in _EPI_ROW_RX.finditer(m.group("rows")):
+                    rows.append({
+                        "id": js_unescape(r.group("id")),
+                        "eyebrow": html_mod.unescape(js_unescape(r.group("eyebrow"))),
+                        "title": html_mod.unescape(js_unescape(r.group("title"))),
+                        "external": bool(r.group("external")),
+                    })
+                if rows:
+                    found[m.group("key")] = rows
+        _EPISODES_CACHE[base] = found
+    return _EPISODES_CACHE[base]
+
+
+def render_episodes(conv: Converter, key: str) -> list[str]:
+    rows = guide_episodes(conv).get(key)
+    if not rows:
+        return []
+    de = conv.cfg.get("lang") != "en"
+    head = "**Daten-WG dazu:**" if de else "**Daten-WG on this topic:**"
+    lines = []
+    for row in rows:
+        parts = [f"**[{row['title']}](https://youtu.be/{row['id']})**"]
+        if row["eyebrow"]:
+            parts.append(row["eyebrow"])
+        if not row["external"]:
+            parts.append(f"[Knowledge Kitchen]({conv.link_prefix}index.html#ep-{row['id']})")
+        lines.append("- " + " · ".join(parts))
+    return [head, "\n".join(lines)]
+
+
+def h_guide_cards(conv: Converter, node: Node) -> str:
+    """Karten-Container -> je Karte ein Abschnitt mit dem vollen Detail-Inhalt."""
+    details = guide_details(conv)
+    seen: set = conv.__dict__.setdefault("_guide_seen", set())
+    de = conv.cfg.get("lang") != "en"
+    level = guide_card_level(conv, node)
+    hashes = "#" * level
+    out: list[str] = []
+    buf: list[Node] = []
+
+    def flush():
+        if buf:
+            holder = Node("div")
+            holder.children = list(buf)
+            buf.clear()
+            out.extend(conv.blocks(holder))
+
+    for ch in node.children:
+        key = ch.get("data-key") if ch.tag == "button" else ""
+        if not key:
+            buf.append(ch)
+            continue
+        flush()
+        entry = details.get(key)
+        if entry is None:
+            continue
+        title = entry["title"]
+        if key in seen:
+            again = (f"{hashes} {title}\n\nSiehe den gleichnamigen Abschnitt weiter oben."
+                     if de else
+                     f"{hashes} {title}\n\nSee the section of the same name above.")
+            out.append(again)
+            continue
+        seen.add(key)
+        out.append(f"{hashes} {title}")
+        if entry["eyebrow"]:
+            out.append(f"*{entry['eyebrow']}*")
+        # Was auf der Kachel steht und NICHT im Detail wiederkehrt (z. B. die
+        # Spaltenlisten des Stern-Schemas) — der Rest der Kachel ist gedroppt.
+        # Die Spaltenlisten trennen teils selbst schon mit "·".
+        out.extend(re.sub(r"·\s+·", "·", b) for b in conv.blocks(ch))
+        # Die <h4> im Detail-Rumpf liegen genau eine Ebene unter der Karte.
+        saved = conv.heading_offset
+        conv.heading_offset = saved + level - 3
+        try:
+            out.extend(conv.blocks(node_from_html(entry["body"])))
+        finally:
+            conv.heading_offset = saved
+        out.extend(render_episodes(conv, key))
+    flush()
+    return "\n\n".join(b for b in out if b.strip())
+
+
+def node_from_html(fragment: str) -> Node:
+    return parse_html(fragment)
+
+
+def h_hero_block(conv: Converter, node: Node) -> str:
+    """`.hero-block` — grosse Kennzahl + Label + Fliesstext.
+
+    Zahl und Label stehen als zwei Divs nebeneinander und wuerden sonst zu zwei
+    zusammenhanglosen Ein-Wort-Absaetzen.
+    """
+    out: list[str] = []
+    stat = node.find(".hero-stat")
+    if stat is not None:
+        label = node.find(".hero-stat-label")
+        num = squash(stat.plain_text()).strip()
+        lbl = squash(label.plain_text()).strip() if label is not None else ""
+        out.append(f"**{num}** — {lbl}" if lbl else f"**{num}**")
+    for ch in node.children:
+        if ch.tag == "#text" or conv.is_dropped(ch):
+            continue
+        out.extend(conv.blocks(ch))
+    return "\n\n".join(b for b in out if b.strip())
+
+
+def h_journey_steps(conv: Converter, node: Node) -> str:
+    """`.journey-steps` — Etappen-Navigation als schlichte Inhaltsuebersicht.
+
+    Die `#anchor`-Links haben in der MD-Fassung kein Ziel, der Ueberblick ueber
+    die Sektionen ist aber wertvoll — also Text statt Link.
+    """
+    lines = []
+    for step in node.children:
+        if step.tag != "a":
+            continue
+        num = step.find(".journey-step-num")
+        name = step.find(".journey-step-name")
+        num_t = squash(num.plain_text()).strip() if num is not None else ""
+        name_t = squash(name.plain_text()).strip() if name is not None else ""
+        if name_t:
+            lines.append(f"- **{name_t}**" + (f" — {num_t}" if num_t else ""))
+    return "\n".join(lines)
+
+
+def h_dwg_folgen(conv: Converter, node: Node) -> str:
+    """`.dwg-folgen-list` — verlinkte Daten-WG-Folgen als Liste."""
+    lines = []
+    for folge in node.children:
+        if folge.tag != "div" or "dwg-folge" not in folge.classes:
+            continue
+        title_n = folge.find(".dwg-folge-title")
+        eyebrow_n = folge.find(".dwg-folge-eyebrow")
+        yt = folge.find("a.dwg-folge-yt")
+        page = folge.find("a.dwg-folge-link")
+        title = squash(title_n.plain_text()).strip() if title_n is not None else ""
+        eyebrow = squash(eyebrow_n.plain_text()).strip() if eyebrow_n is not None else ""
+        if not title:
+            continue
+        href = (yt.get("href") if yt is not None else "") or ""
+        item = f"**[{title}]({href})**" if href else f"**{title}**"
+        parts = [item]
+        if eyebrow:
+            parts.append(eyebrow)
+        if page is not None and page.get("href"):
+            parts.append(f"[Knowledge Kitchen]({conv.rewrite_url(page.get('href'))})")
+        lines.append("- " + " · ".join(parts))
+    return "\n".join(lines)
+
+
+# -- Code-Bloecke ------------------------------------------------------------
+
+_LANG_M = re.compile(
+    r"\b(?:Table|List|Text|Record|Csv|Json|Web|Sql|Excel|Folder|Number|Date|"
+    r"DateTime|Duration|Replacer|Splitter|Binary|Value|Lines|Character)\.[A-Z]\w*\s*\(")
+_LANG_DAX = re.compile(
+    r"\b(?:VAR|RETURN|CALCULATE|CALCULATETABLE|SUMX|AVERAGEX|MAXX|MINX|COUNTROWS|"
+    r"DIVIDE|TOTALYTD|TOTALQTD|TOTALMTD|SAMEPERIODLASTYEAR|DATESINPERIOD|DATESYTD|"
+    r"EVALUATE|SUMMARIZECOLUMNS|USERELATIONSHIP|USERPRINCIPALNAME|LOOKUPVALUE|"
+    r"IFERROR|SELECTEDVALUE|ALLEXCEPT|ALLSELECTED|IF|SWITCH|FORMAT|SUM|RELATED)\s*[\(\[ ]")
+
+
+def sniff_code_lang(code: str) -> str:
+    """Sprache eines Code-Blocks raten. Im Zweifel lieber kein Tag als ein falsches."""
+    s = code.strip()
+    if not s:
+        return ""
+    if s.startswith("{") and '":' in s:
+        return "json"
+    if re.match(r"^\s*let\b", s) or _LANG_M.search(s):
+        return "powerquery"
+    if re.match(r"^\s*(SELECT|WITH)\b", s, re.I) and re.search(r"\bFROM\b", s, re.I):
+        return "sql"
+    if _LANG_DAX.search(s):
+        return "dax"
+    if re.match(r"^\s*(//|\[)", s) and "=" in s:
+        return "dax"
+    if re.match(r"^[^\n=]{1,60}=\s*[^=\s]", s) and re.search(r"\[[A-Za-zÄÖÜ]", s):
+        return "dax"
+    return ""
+
+
+def h_code(conv: Converter, node: Node) -> str:
+    """`<pre>` -> ```-Fence samt geratener Sprache (DAX · M · SQL · JSON)."""
+    code = node.plain_text().strip("\n").rstrip()
+    if not code.strip():
+        return ""
+    fence = "```" if "```" not in code else "````"
+    return f"{fence}{sniff_code_lang(code)}\n{code}\n{fence}"
+
+
 # ---------------------------------------------------------------------------
 # 5 · Seiten-Registry
 # ---------------------------------------------------------------------------
@@ -605,6 +1085,11 @@ def h_agent_button(conv: Converter, node: Node) -> str:
 #   headings      Klasse -> Ueberschriftenebene. Noetig fuer <div>s, die optisch
 #                 Ueberschriften sind (z. B. .grp-h), oder um die Ebene eines
 #                 h-Tags zu korrigieren.
+#   heading_offset Verschiebt ALLE echten h-Tags um n Ebenen (h2 -> h3 bei 1).
+#                 Fuer Seiten, die h2 als Absatz-Ueberschrift innerhalb eines
+#                 Kapitels benutzen. Per `headings` gesetzte Ebenen bleiben.
+#   inline_wrap   Klasse -> (Praefix, Suffix) um ein Inline-Element herum, z. B.
+#                 Evidenz-Badges: <span class="ev">S</span> -> "[Evidenz: S]".
 #   inline_sep    Klasse -> Trenner, der NACH diesem Inline-Element eingefuegt
 #                 wird (z. B. Nummern-Badge .snum -> " · ").
 #   inline_join   Klasse eines Containers -> Trenner, mit dem seine Kinder zu
@@ -676,6 +1161,104 @@ SCHNELLSTART_COMMON = {
     "version_ids": {"dl-version": "version", "ck-version": "version", "dl-date": "date"},
 }
 
+# --- Einsteiger-Guides (Power BI v4 · Fabric v1) ----------------------------
+# Beide Seiten teilen dasselbe Geruest: Sektionen mit Karten-Kacheln, der
+# Inhalt der Kacheln kommt aus `const DETAILS = {…}` (siehe h_guide_cards).
+# Karten-Container -> Detail-Abschnitte; die Kachel-Beschriftungen selbst
+# fliegen raus, weil Titel/Eyebrow/Teaser im Detail-Datensatz stehen.
+
+GUIDE_COMMON = {
+    "root": ".container",
+    "drop": [
+        "nav",                       # Sticky-Topnav = Seiten-Chrome
+        "h1",                        # H1 liefert der Kopfblock
+        ".read-progress",            # Lesefortschritt (JS-Zustand)
+        ".author-avatar", ".author-footer-avatar",   # Initialen-Kreis
+        ".start-here-icon", ".col-icon",             # Deko
+        ".section-hint", ".beispiele-num", ".beispiele-hint",
+        ".rel-label",                # Beziehungs-Labels im Stern-Diagramm
+        ".beispiel-frame",           # iframe-Rahmen; Link steht in .beispiel-meta
+        ".url",                      # Klartext-URL neben dem Quellen-Link
+        # Kachel-Beschriftungen — stehen alle im DETAILS-Datensatz:
+        ".card-eyebrow", ".card-title", ".card-desc", ".card-more",
+        ".arch-box-meta", ".arch-box-title",
+        ".item-marker", ".item-body",
+        ".dim-title", ".fact-title", ".aside-meta",
+        ".success-big", ".success-name",
+        ".notation-card-title", ".notation-card-meaning", ".notation-card-desc",
+        ".hero-stat", ".hero-stat-label",             # h_hero_block baut daraus eine Zeile
+        ".arch-arrow",               # Pfeil-Deko zwischen den Architektur-Kacheln
+        ".footer-nav-sep",           # "·" als eigenes Element in der Fussleiste
+    ],
+    "headings": {
+        "section-head": 2,
+        "start-here-title": 2,
+        "journey-title": 2,
+        "beispiele-head": 2,
+        "sources-title": 2,
+        "col-header": 3,
+        "sources-group-label": 3,
+        "dwg-folgen-block-head": 3,
+        "beispiel-title": 3,
+    },
+    "inline_sep": {
+        "section-num": " · ",
+        "start-with-label": ": ",
+        "col-num": " · ",
+        "dwg-folgen-block-eyebrow": " · ",
+        "rls-role": " · ",
+    },
+    "inline_join": {
+        "header-meta": " · ",
+        "author-card": " · ",
+        "author-footer": " · ",
+        "author-footer-info": " · ",
+        "author-info": " · ",
+        "dim-cols": " · ",
+        "fact-cols": " · ",
+        "beispiel-meta": " · ",
+        "footer-nav": " · ",
+        "rls-row": " · ",
+    },
+    "blockquote": [".start-with"],
+    "custom": {
+        **{sel: h_guide_cards for sel in GUIDE_CARD_CONTAINERS},
+        ".example": h_note_box,
+        ".trap": h_note_box,
+        ".tip": h_note_box,
+        "figure": h_figure,
+        ".journey-steps": h_journey_steps,
+        ".dwg-folgen-list": h_dwg_folgen,
+        ".hero-block": h_hero_block,
+        "pre": h_code,
+    },
+}
+
+# --- Post-Seiten (gemeinsames Layout: .container > header + .prose) ---------
+
+POST_COMMON = {
+    "root": ".container",
+    "drop": [
+        ".back-link",     # "Zurueck zur Knowledge Kitchen"
+        ".lang-switch",   # DE/EN-Umschalter; Verweis steht in append_md
+        "h1",             # H1 liefert der Kopfblock
+    ],
+    "headings": {
+        "li-head": 3,     # <div class="li-head"><span>LinkedIn-Post</span><button>…
+    },
+    "inline_join": {
+        "post-meta": " · ",
+        "bigstat": " — ",
+        "cta-actions": " · ",
+    },
+    "blockquote": [".src-box"],
+    "custom": {
+        ".figure": h_figure,
+        ".step": h_step_card,
+        "pre": h_code,
+    },
+}
+
 
 PAGES: list[dict] = [
     {
@@ -725,6 +1308,168 @@ PAGES: list[dict] = [
         "basename": "chartkitchen-schnellstart_en",
         "lang": "en",
         "title": "ChartKitchen byDatenWG — Quick Start",
+    },
+
+    # --- Lern-Guides -------------------------------------------------------
+    {
+        **GUIDE_COMMON,
+        "basename": "power_bi_einsteiger_guide_v4",
+        "lang": "de",
+        "title": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+        "append_md": (
+            "---\n\n"
+            "## Weiter\n\n"
+            "- HTML (maßgeblich): https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html\n"
+            "- Anschluss-Guide: [fabric_einsteiger_guide_v1.html](../fabric_einsteiger_guide_v1.html) · "
+            "[fabric_einsteiger_guide_v1.md](fabric_einsteiger_guide_v1.md)\n"
+            "- Übungspfad für absolute Anfänger: [powerbi_praxis_pfad.html](../powerbi_praxis_pfad.html) · "
+            "[powerbi_praxis_pfad.md](powerbi_praxis_pfad.md)\n"
+        ),
+    },
+    {
+        **GUIDE_COMMON,
+        "basename": "fabric_einsteiger_guide_v1",
+        "lang": "de",
+        "title": "Microsoft Fabric — Einsteiger-Guide",
+        "append_md": (
+            "---\n\n"
+            "## Weiter\n\n"
+            "- HTML (maßgeblich): https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html\n"
+            "- Grundlagen-Guide: [power_bi_einsteiger_guide_v4.html](../power_bi_einsteiger_guide_v4.html) · "
+            "[power_bi_einsteiger_guide_v4.md](power_bi_einsteiger_guide_v4.md)\n"
+        ),
+    },
+    {
+        "basename": "powerbi_praxis_pfad",
+        "lang": "de",
+        "title": "Dein erstes Dashboard — Power-BI-Praxis-Pfad",
+        "root": ".pp-wrap",
+        # Modul-Ueberschriften stehen als h2.pp-modul-titel fest auf Ebene 2;
+        # alle uebrigen h-Tags sind Abschnitte INNERHALB eines Moduls und
+        # rutschen deshalb eine Ebene tiefer.
+        "heading_offset": 1,
+        "drop": [
+            ".pp-topbar",   # Sprungleiste
+            ".pp-nav",      # Modul-Kacheln = dieselbe Navigation nochmal
+            "h1",           # H1 liefert der Kopfblock
+        ],
+        "headings": {
+            "pp-modul-titel": 2,
+            "pp-check-titel": 3,
+            "pp-wort-label": 4,
+        },
+        "inline_join": {"pp-meta": " · "},
+        "blockquote": [".pp-hinweis", ".pp-wort"],
+        "custom": {".pp-shot": h_shot_figure, "p": h_pp_paragraph},
+    },
+    {
+        "basename": "business-chart-builder-anleitung",
+        "lang": "de",
+        "title": "Business Chart Builder — Anleitung",
+        "root": ".wrap",
+        "drop": [
+            ".top",   # Zurueck-/Sprach-Leiste
+            "h1",     # H1 liefert der Kopfblock
+        ],
+        # <span class="pill">AC</span> sind Szenario-Kuerzel — als Code-Span
+        # bleiben sie im Fliesstext als Kuerzel erkennbar.
+        "inline_wrap": {"pill": ("`", "`")},
+        "blockquote": [".tip"],
+        "custom": {".live": h_live_link},
+        "append_md": (
+            "---\n\n"
+            "## Weitere Fassungen dieser Seite\n\n"
+            "- HTML (maßgeblich, mit DE/EN-Umschalter und allen Live-Permalinks): "
+            "https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html\n"
+            "- Das Werkzeug selbst: [business-chart-builder.html](../business-chart-builder.html)\n"
+        ),
+    },
+
+    # --- Posts -------------------------------------------------------------
+    {
+        **POST_COMMON,
+        "basename": "ki-entwicklung-zehn-tage",
+        "lang": "de",
+        "title": "Zehn Tage bis zum marktfähigen Stand",
+        # <span class="ev ev-S">S</span> markiert die Evidenzstufe einer Aussage.
+        # Ohne Klammer stuende mitten im Satz ein nacktes "S".
+        "inline_wrap": {"ev": ("[Evidenz: ", "]")},
+        "append_md": (
+            "---\n\n"
+            "## Weiterlesen\n\n"
+            "- HTML (maßgeblich): https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html\n"
+            "- Englische Fassung: [ki-entwicklung-zehn-tage_en.html](../ki-entwicklung-zehn-tage_en.html) · "
+            "[ki-entwicklung-zehn-tage_en.md](ki-entwicklung-zehn-tage_en.md)\n"
+            "- Das vollständige Thesenpapier: "
+            "[whitepaper-ki-entwicklung-roi.html](../whitepaper-ki-entwicklung-roi.html) · "
+            "[whitepaper-ki-entwicklung-roi.md](../whitepaper-ki-entwicklung-roi.md) · "
+            "[PDF](../whitepaper-ki-entwicklung-roi.pdf)\n"
+            "- Evidenz-Labels: M = gemessen · A = Annahme · S = Schätzung · H = Hypothese\n"
+        ),
+    },
+    {
+        **POST_COMMON,
+        "basename": "ki-entwicklung-zehn-tage_en",
+        "lang": "en",
+        "title": "Ten Days to a Market-Ready State",
+        "inline_wrap": {"ev": ("[Evidence: ", "]")},
+        "append_md": (
+            "---\n\n"
+            "## Read on\n\n"
+            "- HTML (authoritative): https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html\n"
+            "- German version: [ki-entwicklung-zehn-tage.html](../ki-entwicklung-zehn-tage.html) · "
+            "[ki-entwicklung-zehn-tage.md](ki-entwicklung-zehn-tage.md)\n"
+            "- The full position paper: "
+            "[whitepaper-ki-entwicklung-roi_en.html](../whitepaper-ki-entwicklung-roi_en.html) · "
+            "[whitepaper-ki-entwicklung-roi_en.md](../whitepaper-ki-entwicklung-roi_en.md) · "
+            "[PDF](../whitepaper-ki-entwicklung-roi_en.pdf)\n"
+            "- Evidence labels: M = measured · A = assumption · S = estimate · H = hypothesis\n"
+        ),
+    },
+    {
+        **POST_COMMON,
+        "basename": "powerbi-design-skill",
+        "lang": "de",
+        "title": "Report-Design als Framework — ein Skill für Power BI",
+        "append_md": (
+            "---\n\n"
+            "## Mehr dazu\n\n"
+            "- HTML (maßgeblich): https://datenwgknowledgekitchen.com/powerbi-design-skill.html\n"
+            "- Skill-Repository (englische Standalone-Edition): "
+            "https://github.com/Losveratos/Power-BI-Design-Skill\n"
+            "- Deutsches Original in der PowerBI-Kitchen: "
+            "https://github.com/Losveratos/PowerBI-Kitchen-\n"
+        ),
+    },
+    {
+        **POST_COMMON,
+        "basename": "prototyping-pnl-treiberbaum",
+        "lang": "de",
+        "title": "Ist KI das neue Papier — und Markdown der neue Stift?",
+        "append_md": (
+            "---\n\n"
+            "## Weiterlesen\n\n"
+            "- HTML (maßgeblich): https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html\n"
+            "- Englische Fassung: [prototyping-pnl-treiberbaum_en.html](../prototyping-pnl-treiberbaum_en.html) · "
+            "[prototyping-pnl-treiberbaum_en.md](prototyping-pnl-treiberbaum_en.md)\n"
+            "- Interaktive Demo: [pnl-treiberbaum-demo.html](../pnl-treiberbaum-demo.html) · "
+            "https://datenwgknowledgekitchen.com/pnl-treiberbaum-demo.html\n"
+        ),
+    },
+    {
+        **POST_COMMON,
+        "basename": "prototyping-pnl-treiberbaum_en",
+        "lang": "en",
+        "title": "Is AI the New Paper — and Markdown the New Pen?",
+        "append_md": (
+            "---\n\n"
+            "## Read on\n\n"
+            "- HTML (authoritative): https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html\n"
+            "- German version: [prototyping-pnl-treiberbaum.html](../prototyping-pnl-treiberbaum.html) · "
+            "[prototyping-pnl-treiberbaum.md](prototyping-pnl-treiberbaum.md)\n"
+            "- Interactive demo: [pnl-treiberbaum-demo.html](../pnl-treiberbaum-demo.html) · "
+            "https://datenwgknowledgekitchen.com/pnl-treiberbaum-demo.html\n"
+        ),
     },
 ]
 
