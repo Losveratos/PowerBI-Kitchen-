@@ -1,6 +1,6 @@
 # Die Kitchen spricht jetzt Markdown
 
-> **ENTWURF** — noch nicht veröffentlicht, nicht verlinkt. Nach Freigabe: HTML-Fassung bauen, Startseiten-Kachel, llms.txt-Eintrag.
+> Markdown-Fassung von [kitchen-fuer-ki-agenten.html](../kitchen-fuer-ki-agenten.html) · https://datenwgknowledgekitchen.com/kitchen-fuer-ki-agenten.html · erschienen 23.08.2026 — bei Abweichungen gilt die HTML-Fassung.
 
 *Warum unsere Website eine zweite Ausgabe für KI-Agenten bekommen hat — und was dabei schiefgegangen wäre, wenn wir es nicht gemerkt hätten.*
 
