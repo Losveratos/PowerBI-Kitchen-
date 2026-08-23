@@ -43,6 +43,11 @@ Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als *
 - [Country Indicator Explorer](https://datenwgknowledgekitchen.com/md/laender-indikatoren-explorer.md): Methodik und Quellen des Explorers zu Lebenszufriedenheit und ihren Korrelaten — 164 Laender, 15 Indikatoren, Pearson-Korrelationen. Deskriptiv, ausdruecklich nicht kausal.
 - [Daten-WG · Episoden-Guide](https://datenwgknowledgekitchen.com/md/daten_wg_learn_buckets.md): Alle 143 Folgen des Daten-WG-Podcasts in neun Themen-Clustern — mit Gast, Datum, Laenge, Sprache, Beschreibung und Kapitel-Sprungmarken als YouTube-Timestamp-Links. Generiert aus den Episodendaten.
 
+## Angebot (Training und Beratung)
+
+- [Power BI on Claude — Inhouse-Training](https://datenwgknowledgekitchen.com/power-bi-on-claude.html): Training der Daten-WG fuer agentische Power-BI-Entwicklung mit Claude — drei Stufen (Starter ab 3.000 EUR bis Master Class), immer im Haus des Kunden, immer am eigenen Datenmodell. Mit Preisen, Belegen aus oeffentlichen Projekten und Trainerprofilen. Nur als HTML.
+- [Power BI on Claude — Details](https://datenwgknowledgekitchen.com/power-bi-on-claude-details.html): Vertiefungsseite fuer IT, Datenschutz und Einkauf — Prototyping-Ablauf, Governance, Datenfluss/Auftragsverarbeitung, Glossar und FAQ. Nur als HTML.
+
 ## Daten (maschinenlesbar)
 
 - [strommix/data/model_params.json](https://datenwgknowledgekitchen.com/strommix/data/model_params.json): Vollstaendiger Parametersatz des Strommix-Kostenmodells — je Technologie CAPEX/OPEX/Volllaststunden als min/mid/max mit Quelle und Konfidenzstufe, dazu Systemparameter, Szenariensaetze und die Liste der offenen Datenluecken (`gaps`).
