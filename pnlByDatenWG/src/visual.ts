@@ -96,8 +96,6 @@ const TREE_HEAD_GAP = 10;
  * many diamond references or a deep account hierarchy must stay bounded.
  */
 const TREE_MAX_CARDS = 400;
-/** Tree level that is open by default: root + its direct operands. */
-const TREE_DEFAULT_LEVEL = 2;
 /** Scenario-triangle size (px at font scale 1) — IBCS UN 4.1. */
 const TREE_TRI = 5.5;
 
@@ -121,7 +119,7 @@ interface UiState {
     blocks: { mtd: boolean; ytd: boolean; fy: boolean };
     /** driver-tree root (row id) chosen by the reader; empty = author/auto default */
     treeRoot: string;
-    /** collapsed driver-tree subtrees (row ids); null = default depth (level 2) */
+    /** collapsed driver-tree subtrees (row ids); null = author default (whole tree) */
     treeCollapsed: string[] | null;
     /** mini chart inside the driver-tree cards */
     treeCard: TreeCardMode;
@@ -144,6 +142,8 @@ interface TreeCard {
     compact: boolean;
     /** the row branches — formula operands or hierarchy children (⇒ chevron) */
     hasKids: boolean;
+    /** branches that were NOT built because the card budget ran out */
+    moreKids: number;
     /** operands exist but are folded away */
     collapsed: boolean;
     /** the branch below this card is the account hierarchy, not the formula */
@@ -162,6 +162,10 @@ interface TreeCtx {
     depth: number;
     /** ids to collapse for "expand to level n" (index n) */
     levels: string[][];
+    /** collapse set that applies while the reader has not touched anything */
+    auto: string[];
+    /** child row ids per row id over the full built graph (subtree expand) */
+    kidsOf: Map<string, string[]>;
     /** breadcrumb from the home root down to the picked root */
     path: PnlNode[];
 }
@@ -1945,21 +1949,25 @@ export class Visual implements IVisual {
      *
      * Cycles and repeated refs on the same path are cut. No depth limit —
      * readers fold subtrees away themselves — but a card budget keeps a
-     * pathological diamond graph or a very deep hierarchy bounded.
+     * pathological diamond graph or a very deep hierarchy bounded. The budget
+     * is spent in LEVEL ORDER, so a large tree loses its deepest level
+     * uniformly — never whole limbs after one deep first branch. Branches the
+     * budget could not build are counted in `moreKids` (rendered as "+N",
+     * re-rooting the card restores them with a fresh budget).
      */
     private treeCards(root: PnlNode, resolve: (id: string) => PnlNode | undefined): TreeCard {
         let budget = TREE_MAX_CARDS;
-        const build = (node: PnlNode, op: FormulaOp | null, depth: number, path: string[]): TreeCard => {
-            const card: TreeCard = {
-                node, op, depth, children: [], x: 0, y: 0, h: TREE_CARD_H, compact: false,
-                hasKids: false, collapsed: false, drill: false,
-            };
-            const t = node.row.rowType;
-            if (t === "separator") { return card; }
+        const mk = (node: PnlNode, op: FormulaOp | null, depth: number): TreeCard => ({
+            node, op, depth, children: [], x: 0, y: 0, h: TREE_CARD_H, compact: false,
+            hasKids: false, moreKids: 0, collapsed: false, drill: false,
+        });
+        const branches = (card: TreeCard, path: ReadonlySet<string>): { child: PnlNode; op: FormulaOp }[] => {
+            const t = card.node.row.rowType;
+            if (t === "separator") { return []; }
             const seen = new Set(path);
             const kids: { child: PnlNode; op: FormulaOp }[] = [];
             if (t === "formula" || t === "kpi") {
-                for (const o of formulaOperands(node, resolve)) {
+                for (const o of formulaOperands(card.node, resolve)) {
                     const id = o.child.row.id;
                     if (seen.has(id)) { continue; }
                     seen.add(id);
@@ -1967,23 +1975,33 @@ export class Visual implements IVisual {
                 }
             } else {
                 card.drill = true;
-                for (const child of node.children) {
+                for (const child of card.node.children) {
                     const id = child.row.id;
                     if (child.row.rowType === "separator" || seen.has(id)) { continue; }
                     seen.add(id);
                     kids.push({ child, op: child.row.sign === -1 ? "−" : "+" });
                 }
             }
-            card.hasKids = kids.length > 0;
-            if (!card.hasKids) { card.drill = false; }
-            for (const o of kids) {
-                if (budget <= 0) { break; }
-                budget--;
-                card.children.push(build(o.child, o.op, depth + 1, [...path, o.child.row.id]));
-            }
-            return card;
+            return kids;
         };
-        return build(root, null, 0, [root.row.id]);
+        const rootCard = mk(root, null, 0);
+        const queue: { card: TreeCard; path: ReadonlySet<string> }[] =
+            [{ card: rootCard, path: new Set([root.row.id]) }];
+        let head = 0;
+        while (head < queue.length) {
+            const { card, path } = queue[head++];
+            const kids = branches(card, path);
+            card.hasKids = kids.length > 0;
+            if (!card.hasKids) { card.drill = false; continue; }
+            for (const o of kids) {
+                if (budget <= 0) { card.moreKids++; continue; }
+                budget--;
+                const k = mk(o.child, o.op, card.depth + 1);
+                card.children.push(k);
+                queue.push({ card: k, path: new Set([...path, o.child.row.id]) });
+            }
+        }
+        return rootCard;
     }
 
     /** every card of a (sub)tree in reading order */
@@ -2022,12 +2040,26 @@ export class Visual implements IVisual {
         const full = this.treeCollect(rootCard);
         let depth = 1;
         for (const c of full) { depth = Math.max(depth, c.depth + 1); }
-        // levels[n] = subtrees to fold so that n levels stay visible
+        // levels[n] = subtrees to fold so that n levels stay visible — only
+        // branches that were actually built (budget) are worth folding
         const levels: string[][] = [];
         for (let l = 0; l <= depth; l++) {
-            levels.push(full.filter(c => c.hasKids && c.depth + 1 >= Math.max(l, 1)).map(c => c.node.row.id));
+            levels.push(full.filter(c => c.children.length > 0 && c.depth + 1 >= Math.max(l, 1))
+                .map(c => c.node.row.id));
         }
-        const collapsed = ui.treeCollapsed ?? levels[Math.min(TREE_DEFAULT_LEVEL, depth)];
+        // full graph adjacency, so "expand" can open a whole limb at once
+        const kidsOf = new Map<string, string[]>();
+        for (const c of full) {
+            if (c.children.length === 0) { continue; }
+            const list = kidsOf.get(c.node.row.id) ?? [];
+            for (const k of c.children) { list.push(k.node.row.id); }
+            kidsOf.set(c.node.row.id, list);
+        }
+        // untouched default: the WHOLE tree (bounded by the card budget) —
+        // the author can pin a start depth in the format pane instead
+        const authorLvl = Math.round(Number(this.settings.columnsCard.treeLevel.value) || 0);
+        const auto = authorLvl >= 1 ? levels[Math.min(authorLvl, depth)] : [];
+        const collapsed = ui.treeCollapsed ?? auto;
         this.treePrune(rootCard, new Set(collapsed));
 
         // breadcrumb: path through the formula graph from home to the picked root
@@ -2045,7 +2077,10 @@ export class Visual implements IVisual {
             path = find(homeCard) ? chain : [home, picked];
         }
 
-        return { resolve, home, picked, root, rootCard, cards: this.treeCollect(rootCard), depth, levels, path };
+        return {
+            resolve, home, picked, root, rootCard, cards: this.treeCollect(rootCard),
+            depth, levels, auto, kidsOf, path,
+        };
     }
 
     /** move a whole subtree down (tidy-layout correction pass) */
@@ -2835,9 +2870,33 @@ export class Visual implements IVisual {
             g.appendChild(e);
         }
 
+        // budget marker: branches exist but the card budget could not build
+        // them — say so instead of showing a chevron that does nothing
+        if (card.moreKids > 0 && !card.collapsed) {
+            const badge = document.createElementNS(ns, "text");
+            const ownChevron = card.children.length > 0;
+            badge.setAttribute("x", (card.x + geo.cw - (ownChevron ? 24 : 11) * s).toFixed(2));
+            badge.setAttribute("y", (card.y + cardH - 5.6 * s).toFixed(2));
+            badge.setAttribute("text-anchor", ownChevron ? "end" : "middle");
+            badge.setAttribute("font-size", (8 * s).toFixed(1));
+            badge.setAttribute("font-family", FONT);
+            badge.setAttribute("fill", C.soft);
+            badge.textContent = "+" + card.moreKids;
+            const bt = document.createElementNS(ns, "title");
+            bt.textContent = this.str(
+                `Card budget reached — ${card.moreKids} more branches not drawn. ` +
+                "Use ⌖ to open this limb as its own tree.",
+                `Kartenbudget erreicht — ${card.moreKids} weitere Zweige nicht gezeichnet. ` +
+                "Mit ⌖ diesen Ast als eigenen Baum öffnen.");
+            badge.appendChild(bt);
+            g.appendChild(badge);
+        }
+
         // chevron: opens / closes exactly this subtree — a bordered hit area so
-        // it reads as a control, not as a data mark
-        if (card.hasKids) {
+        // it reads as a control, not as a data mark. Expanding unfolds the
+        // WHOLE limb below the card (the reader asked for the tree, not for
+        // one more level); folding hides just this subtree.
+        if (card.children.length > 0 || card.collapsed) {
             const hit = document.createElementNS(ns, "rect");
             hit.setAttribute("x", (card.x + geo.cw - 19 * s).toFixed(2));
             hit.setAttribute("y", (card.y + cardH - 15 * s).toFixed(2));
@@ -2861,10 +2920,20 @@ export class Visual implements IVisual {
             ch.appendChild(ct);
             const toggle = (e: Event): void => {
                 e.stopPropagation();
-                const cur = new Set(ui.treeCollapsed ?? this.treeCtx?.levels[
-                    Math.min(TREE_DEFAULT_LEVEL, this.treeCtx.depth)] ?? []);
+                const ctx = this.treeCtx;
+                const cur = new Set(ui.treeCollapsed ?? ctx?.auto ?? []);
                 const id = card.node.row.id;
-                if (cur.has(id)) { cur.delete(id); } else { cur.add(id); }
+                if (cur.has(id)) {
+                    const done = new Set<string>();
+                    const stack = [id];
+                    while (stack.length > 0) {
+                        const n = stack.pop()!;
+                        if (done.has(n)) { continue; }
+                        done.add(n);
+                        cur.delete(n);
+                        for (const k of ctx?.kidsOf.get(n) ?? []) { stack.push(k); }
+                    }
+                } else { cur.add(id); }
                 ui.treeCollapsed = [...cur];
                 this.persistUi(); this.rerender();
             };

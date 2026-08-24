@@ -1,5 +1,35 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.9.1.0 (2026-08-24) — Treiberbaum klappt jetzt wirklich ganz auf
+
+Behebt „der Baum zeigt immer nur 2 Ebenen": drei Ursachen, drei Fixes.
+
+- **Standard = ganzer Baum**: ohne Nutzer-Eingriff öffnet der Treiberbaum jetzt
+  **alle Ebenen** (begrenzt nur durch das Kartenbudget), nicht mehr fix Ebene 2.
+  Wer flacher starten will, setzt im Formatbereich **Spalten → „Start-Tiefe
+  Treiberbaum"** (neu, 0 = ganzer Baum, 1–8 = feste Start-Ebene) — die
+  Leser-Interaktion (Chevrons, Ebenen-Buttons) überstimmt das wie gehabt und
+  bleibt per Bookmark/Speichern erhalten.
+- **Aufklappen öffnet den ganzen Ast**: der Chevron ▸ einer zugeklappten Karte
+  entfernt jetzt **alle** gemerkten Falt-Zustände unterhalb dieser Karte — ein
+  Klick fächert den kompletten Ast bis zu den Blättern auf. Vorher erschien
+  jede neu sichtbare Ebene wieder zugeklappt (Erbe des Ebene-2-Standards, der
+  beim ersten Klick als Falt-Liste materialisiert wurde) — genau das fühlte
+  sich wie „immer nur 2 Ebenen" an. Zuklappen faltet weiterhin nur genau
+  diesen Teilbaum.
+- **Kartenbudget jetzt ebenenweise (Breadth-First)**: die 400-Karten-Grenze
+  wurde bisher **Tiefe-zuerst** verbraucht — bei echten, großen Modellen fraß
+  der erste Ast das ganze Budget, spätere Äste bekamen **stumme Chevrons ohne
+  Kinder** (Klick ohne Wirkung). Jetzt wird das Budget in Ebenen-Reihenfolge
+  vergeben: ein zu großer Baum verliert gleichmäßig nur die tiefste Ebene.
+  Nicht gebaute Zweige zeigen statt eines toten Chevrons ein **„+N"** mit
+  Tooltip-Hinweis, den Ast per ⌖ als eigenen Baum (mit frischem Budget) zu
+  öffnen.
+- Ebenen-Buttons zählen nur noch tatsächlich gebaute Verzweigungen; Chevron
+  erscheint nur, wenn wirklich Kinder da sind (oder die Karte zugeklappt ist).
+- Neue Regressionstests: Standard-Aufklappung des ganzen Baums, Autoren-Tiefe 2,
+  Ein-Klick-Aufklappen eines kompletten Asts (jetzt 67 Tree-Checks).
+
 ## 0.9.0.0 (2026-08-24) — Treiberbaum: echtes Tidy-Tree-Layout, Eltern-Bus, Operatoren am richtigen Ort, Kompakt-Karten
 
 - **Echtes mehrstufiges Baum-Layout (Reingold–Tilford, vereinfacht)**: die

@@ -547,6 +547,45 @@ function tidyChecks(geom, tag) {
         tiny.cards > 10 && tiny.heights.length === 1 && tiny.heights[0] === CARD_H_COMPACT,
         "cards=" + tiny.cards + " h=" + tiny.heights.join(","));
 
+    // ---- 11) v0.9.1: untouched default = whole tree; author start depth folds;
+    // one expand click opens the entire limb, not just the next level
+    const whole = await page.evaluate(() => {
+        const mk = (id) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id;
+            d.style.cssText = "width:1400px;height:900px;";
+            document.body.appendChild(d);
+            return d;
+        };
+        const cols = (el) => new Set([...el.querySelectorAll("svg rect[rx='4']")]
+            .map(r => Math.round(parseFloat(r.getAttribute("x"))))).size;
+        const cards = (el) => el.querySelectorAll("svg rect[rx='4']").length;
+
+        const a = mk("whole-a");
+        run("whole-a", { toolbar: { show: false, showLegend: false },
+            state: { uiState: JSON.stringify({ view: "tree" }) } });
+        const b = mk("whole-b");
+        run("whole-b", { toolbar: { show: false, showLegend: false },
+            columns: { treeLevel: 2 },
+            state: { uiState: JSON.stringify({ view: "tree" }) } });
+        const before = { cols: cols(b), cards: cards(b) };
+        const chev = [...b.querySelectorAll("svg text")]
+            .find(t => t.textContent.startsWith("▸"));
+        if (chev) { chev.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+        return {
+            defCols: cols(a), defCards: cards(a),
+            lvl2: before, chev: !!chev,
+            after: { cols: cols(b), cards: cards(b) },
+        };
+    });
+    check("untouched default opens the whole tree", whole.defCols > 2 && whole.defCards > 20,
+        "cols=" + whole.defCols + " cards=" + whole.defCards);
+    check("author start depth 2 folds to two columns", whole.lvl2.cols === 2,
+        "cols=" + whole.lvl2.cols);
+    check("one expand click opens the whole limb",
+        whole.chev && whole.after.cols > 3 && whole.after.cards > whole.lvl2.cards + 2,
+        JSON.stringify(whole.after));
+
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();
 

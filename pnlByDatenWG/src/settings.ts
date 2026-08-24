@@ -130,6 +130,18 @@ export class ColumnsCardSettings extends FormattingSettingsCard {
         value: ""
     });
 
+    treeLevel = new formattingSettings.NumUpDown({
+        name: "treeLevel",
+        displayName: "Driver tree start depth",
+        displayNameKey: "Columns_TreeLevel",
+        description: "0 = open the whole tree",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 8 }
+        }
+    });
+
     treeCard = new formattingSettings.ItemDropdown({
         name: "treeCard",
         displayName: "Driver tree card chart",
@@ -149,7 +161,7 @@ export class ColumnsCardSettings extends FormattingSettingsCard {
     displayName: string = "Columns";
     displayNameKey: string = "Card_Columns";
     slices = [this.preset, this.reference, this.pctRevenue, this.revenueBase, this.hideZeroRows,
-        this.treeRoot, this.treeCard, this.treeStatus];
+        this.treeRoot, this.treeLevel, this.treeCard, this.treeStatus];
 }
 
 export class NumbersCardSettings extends FormattingSettingsCard {

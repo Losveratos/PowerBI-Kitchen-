@@ -414,6 +414,11 @@
                         "text": true
                     }
                 },
+                "treeLevel": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
                 "treeCard": {
                     "type": {
                         "enumeration": [
