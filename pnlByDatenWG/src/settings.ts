@@ -38,6 +38,12 @@ const densityItems: powerbi.IEnumMember[] = [
     { value: "compact", displayName: "Compact" }
 ];
 
+const treeCardItems: powerbi.IEnumMember[] = [
+    { value: "months", displayName: "Monatssäulen (AC vs PL)" },
+    { value: "delta", displayName: "Abweichungssäulen (Δ vs Referenz)" },
+    { value: "bridge", displayName: "Mini-Brücke (REF → Δ → AC)" }
+];
+
 const fontPresetItems: powerbi.IEnumMember[] = [
     { value: "hd", displayName: "HD (kompakt)" },
     { value: "fullhd", displayName: "Full HD" },
@@ -124,10 +130,26 @@ export class ColumnsCardSettings extends FormattingSettingsCard {
         value: ""
     });
 
+    treeCard = new formattingSettings.ItemDropdown({
+        name: "treeCard",
+        displayName: "Driver tree card chart",
+        displayNameKey: "Columns_TreeCard",
+        items: treeCardItems,
+        value: treeCardItems[0]
+    });
+
+    treeStatus = new formattingSettings.ToggleSwitch({
+        name: "treeStatus",
+        displayName: "Driver tree status indicator (Δ colour)",
+        displayNameKey: "Columns_TreeStatus",
+        value: true
+    });
+
     name: string = "columns";
     displayName: string = "Columns";
     displayNameKey: string = "Card_Columns";
-    slices = [this.preset, this.reference, this.pctRevenue, this.revenueBase, this.hideZeroRows, this.treeRoot];
+    slices = [this.preset, this.reference, this.pctRevenue, this.revenueBase, this.hideZeroRows,
+        this.treeRoot, this.treeCard, this.treeStatus];
 }
 
 export class NumbersCardSettings extends FormattingSettingsCard {

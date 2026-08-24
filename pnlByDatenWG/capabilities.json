@@ -413,6 +413,29 @@
                     "type": {
                         "text": true
                     }
+                },
+                "treeCard": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "months",
+                                "displayName": "Monthly columns (AC vs PL)"
+                            },
+                            {
+                                "value": "delta",
+                                "displayName": "Variance columns (Δ vs reference)"
+                            },
+                            {
+                                "value": "bridge",
+                                "displayName": "Mini bridge (REF → Δ → AC)"
+                            }
+                        ]
+                    }
+                },
+                "treeStatus": {
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },

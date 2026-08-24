@@ -1,5 +1,64 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.7.0.0 (2026-08-24) — Treiberbaum: echtes Auf- und Zuklappen, drei Karten-Diagramme, Status-Indikator
+
+- **Echtes Expand/Collapse statt fester Tiefe 4**: jede Karte mit Formel-Operanden
+  trägt unten rechts einen **Chevron ▸/▾** in einem kleinen Rahmen (klare
+  Klick-Affordanz, Tooltip „Aufklappen"/„Zuklappen"). Der Klick klappt **nur
+  diesen Teilbaum** auf oder zu, der Zustand landet als `treeCollapsed` im
+  persistierten UI-State (bookmark-fähig), und das Layout fließt nach — ein
+  zugeklappter Teilbaum zeigt weder Ellbogen-Linien noch Operator-Kreise.
+  Voreinstellung: **bis Ebene 2 offen** (Wurzel + direkte Operanden), tiefere
+  Ebenen zu. Eine harte Tiefenbegrenzung gibt es nicht mehr; breite Bäume
+  scrollen horizontal (Sicherheitsbudget: 400 Karten gegen entartete
+  Formel-Graphen).
+- **Ebenen-Buttons wieder in der Tree-Ansicht**: die Toolbar-Gruppe „Bis Ebene"
+  (1 · 2 · 3 … · Alle) steuert jetzt auch die **Baum-Tiefe** über den
+  Formel-Graphen — das Gegenstück zu `collapseToLevel` in der Tabelle.
+- **Re-Root vom Klappen getrennt**: der Kartenkörper re-rootet nicht mehr.
+  Stattdessen sitzt oben rechts in jeder Formel-Karte ein gezeichnetes
+  **Fadenkreuz ⌖** („Als Wurzel anzeigen"). Bei aktivem Re-Root steht über dem
+  Baum eine **Breadcrumb-Zeile** („Net margin › Net income › EBT") mit
+  klickbaren Segmenten zurück bis zur Standard-Wurzel — das alte „↩" entfällt.
+- **Neue Toolbar-Gruppe „Karten"** (nur im Tree, `treeCard`, Format-Pane-Default
+  unter *Spalten*) mit drei Diagrammtypen je Karte:
+  - **Monate** (überarbeitet, strenger IBCS): AC solide `#404040`, PL als
+    **breitere outlined Säule dahinter** (Überlappungs-Notation wie in der
+    Bars-Ansicht), FC-Monate schraffiert (AC&FC-Composite). Gegen die
+    Gedrängtheit: Werte-Labels **nur an erster Säule, letzter Säule und dem
+    betragsmäßigen Extremum** (max. 3 Labels, drei signifikante Stellen),
+    Perioden-Labels nur am ersten und letzten Monat, Säulenbreite aus der
+    Kartenbreite berechnet (**Lücke ≥ 40 % der Säulenbreite**), durchgezogene
+    Nulllinie, keine Gridlines. Ohne Monatsdaten: zwei bis drei
+    Szenario-Säulen AC · PL · PY mit Labels.
+  - **Δ (neu)**: IBCS-**Varianzsäulen je Monat**, Δ = AC − Referenz (Toolbar-
+    Referenz; die Gruppe „Δ Referenz" ist im Tree wieder eingeblendet). Säulen
+    in good/bad-Farbe unter Beachtung von `VarianceInvert`, die **Achse kodiert
+    die Referenz** (grau = PY, Doppellinie = PL, gestrichelt = FC), Labels nur
+    an den ein bis zwei größten Ausschlägen (nie an zwei Nachbarn), „+" bei
+    positiven Abweichungen, `pp` bei Kennzahlen-Zeilen.
+  - **Brücke (neu)**: **horizontale Mini-Brücke** in der Optik der IBCS KPI
+    Card — Referenz-Balken (PY grau / PL outlined / FC schraffiert) → schwebendes
+    **Δ-Segment** in good/bad-Farbe → AC-Balken solide, mit Zeilen-Labels REF ·
+    Δ · AC und Werten (YTD, `computed`). Kein Achsenkreuz, keine Gridlines, nur
+    der Null-Anker. Fehlt die Referenz, bleibt der AC-Balken allein.
+- **Indikator-Farbe der Karten** (`treeStatus`, Standard an, Toggle „Status" in
+  der Karten-Gruppe): die Karte bekommt einen **3 px breiten linken Rand** in
+  good/bad-Farbe und im Kopf rechts neben der Einheit ein kleines **Δ%-Label**
+  in derselben Farbe („+" explizit). Ohne Referenz oder ohne Δ bleibt die Karte
+  neutral — ohne Rand, ohne Label. Die Kartenfläche bleibt **weiß** (IBCS),
+  Farbe trägt ausschließlich die Abweichung.
+- **Vorzeichen-Logik der Karten vereinheitlicht**: Geometrie und Zahl folgen dem
+  **angezeigten** Wert (eine Kostenzeile mit `DisplayInvert` steigt, wenn ihr Δ
+  steigt), die **Bewertung good/bad** bleibt die rohe aus `variance()` wie in der
+  Tabelle. Damit steht nie mehr „+10,3" neben „−9,4 %" auf derselben Karte.
+- **Tests**: `test/test.html` bekommt **p9** (Tree · Mini-Brücke · Status an ·
+  Teilbaum EBT über `uiState.treeCollapsed` zugeklappt) und **p10** (Tree ·
+  Δ-Säulen gegen PY · Teilbaum EBIT zugeklappt); **p8** zeigt jetzt Chevrons,
+  Status-Ränder und die Default-Tiefe 2. Der Clipping-Check von `test/shot.js`
+  deckt die neuen Karten mit ab. Die Fälle **p1–p7 rendern pixelidentisch** zu
+  0.6.0.0 (per Screenshot-Vergleich je Stage verifiziert).
+
 ## 0.6.0.0 (2026-08-13) — Treiberbaum-Ansicht (DuPont)
 
 - **Vierte Ansicht „Tree" — IBCS-Werttreiberbaum**: neben Table, Bars und

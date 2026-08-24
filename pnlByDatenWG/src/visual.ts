@@ -67,13 +67,21 @@ const TREE_CARD_W = 152;
 const TREE_CARD_H = 104;
 const TREE_GAP_X = 64;
 const TREE_GAP_Y = 16;
-/** Tree levels drawn at once (root = level 1); deeper drivers need a re-root click. */
-const TREE_MAX_DEPTH = 4;
+/**
+ * Safety budget for the expanded formula graph — there is no depth limit any
+ * more (readers open and close subtrees themselves), but a pathological model
+ * with many diamond references must not expand without bound.
+ */
+const TREE_MAX_CARDS = 400;
+/** Tree level that is open by default: root + its direct operands. */
+const TREE_DEFAULT_LEVEL = 2;
 
 type ViewMode = "table" | "bars" | "waterfall" | "tree";
 type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct";
 type Unit = "auto" | "none" | "k" | "m";
 type Density = "normal" | "compact";
+/** Mini chart drawn inside a driver-tree card. */
+type TreeCardMode = "months" | "delta" | "bridge";
 
 interface UiState {
     view: ViewMode;
@@ -88,6 +96,12 @@ interface UiState {
     blocks: { mtd: boolean; ytd: boolean; fy: boolean };
     /** driver-tree root (row id) chosen by the reader; empty = author/auto default */
     treeRoot: string;
+    /** collapsed driver-tree subtrees (row ids); null = default depth (level 2) */
+    treeCollapsed: string[] | null;
+    /** mini chart inside the driver-tree cards */
+    treeCard: TreeCardMode;
+    /** colour indicator (left edge + Δ% label) on the driver-tree cards */
+    treeStatus: boolean;
 }
 
 /** One node of the laid-out driver tree (x/y = top-left of the card). */
@@ -99,13 +113,33 @@ interface TreeCard {
     children: TreeCard[];
     x: number;
     y: number;
+    /** the row has formula operands (⇒ the card carries a chevron) */
+    hasKids: boolean;
+    /** operands exist but are folded away */
+    collapsed: boolean;
+}
+
+/** Everything the toolbar and the tree renderer need about the current graph. */
+interface TreeCtx {
+    resolve: (id: string) => PnlNode | undefined;
+    home: PnlNode | null;
+    picked: PnlNode | null;
+    root: PnlNode;
+    rootCard: TreeCard;
+    cards: TreeCard[];
+    /** levels of the fully expanded graph (root = 1) */
+    depth: number;
+    /** ids to collapse for "expand to level n" (index n) */
+    levels: string[][];
+    /** breadcrumb from the home root down to the picked root */
+    path: PnlNode[];
 }
 
 /** One column of a card's mini chart: AC-style bar plus optional reference bar behind it. */
 interface TreeSlot {
     v: number | null;
     ref: number | null;
-    style: "ac" | "py" | "pl";
+    style: "ac" | "py" | "pl" | "fc";
     /** period/scenario label under the axis (only first and last carry one) */
     tag: string | null;
     label: boolean;
@@ -196,6 +230,13 @@ export class Visual implements IVisual {
     private vs: VirtualState | null = null;
     private scrollRaf = 0;
     private commentNo = new Map<string, number>();
+
+    // --- driver tree ---
+    /** graph context of the current render (toolbar and tree share it) */
+    private treeCtx: TreeCtx | null = null;
+    /** instance suffix for svg pattern ids (several visuals per page) */
+    private static instances = 0;
+    private uid = "t" + (++Visual.instances).toString(36);
 
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
@@ -452,6 +493,9 @@ export class Visual implements IVisual {
             spark: [],
             blocks: { mtd: false, ytd: true, fy: this.has.fcfy && this.has.plfy },
             treeRoot: "",
+            treeCollapsed: null,
+            treeCard: String(s.columnsCard.treeCard.value.value) as TreeCardMode,
+            treeStatus: s.columnsCard.treeStatus.value,
         };
     }
 
@@ -487,6 +531,9 @@ export class Visual implements IVisual {
         if (this.model) {
             this.ui.collapsed = this.ui.collapsed.filter(id => this.model!.byId.has(id));
             this.ui.spark = this.ui.spark.filter(id => this.model!.byId.has(id));
+            if (this.ui.treeCollapsed) {
+                this.ui.treeCollapsed = this.ui.treeCollapsed.filter(id => this.model!.byId.has(id));
+            }
         }
         const json = JSON.stringify(this.ui);
         this.pendingPersist = json;
@@ -628,6 +675,9 @@ export class Visual implements IVisual {
 
         const scan = this.scans();
         const fmt = this.makeFmt(scan.maxAbsVal);
+        // the driver-tree graph drives the tree AND its toolbar groups (depth
+        // buttons, breadcrumb) — build it before the toolbar
+        this.treeCtx = ui.view === "tree" ? this.buildTreeCtx() : null;
 
         if (this.settings.titleCard.show.value) { this.root.appendChild(this.buildTitle(fmt)); }
         if (this.settings.toolbarCard.show.value) { this.root.appendChild(this.buildToolbar()); }
@@ -848,9 +898,12 @@ export class Visual implements IVisual {
                     "Werttreiberbaum: der Formel-Graph als DuPont-Baum")),
         ])); }
 
-        // column presets, Δ reference, periods and expand level describe the
-        // table layout — the driver tree follows the formula graph instead
+        // column presets, periods and options describe the table layout — the
+        // driver tree follows the formula graph instead. The Δ reference and the
+        // expand level do apply to it: they drive the card variances and the
+        // depth of the opened graph.
         const tableViews = ui.view !== "tree";
+        const isTree = ui.view === "tree";
 
         const presets: [Preset, string][] = [
             ["full", "AC·PY·PL·FC"], ["acref", "AC vs Ref"], ["acpydpy", "AC·PY·ΔPY"],
@@ -862,7 +915,7 @@ export class Visual implements IVisual {
         }
 
         const refs: Scenario[] = (["py", "pl", "fc"] as Scenario[]).filter(s => this.has[s]);
-        if (refs.length > 0 && tset.showReference.value && tableViews) {
+        if (refs.length > 0 && tset.showReference.value && (tableViews || isTree)) {
             bar.appendChild(this.tbGroup("Δ " + this.str("reference", "Referenz"),
                 refs.map(r => this.tbBtn(r.toUpperCase(), ui.ref === r, () => { ui.ref = r; }))));
         }
@@ -890,13 +943,40 @@ export class Visual implements IVisual {
             this.tbBtn("Compact", ui.density === "compact", () => { ui.density = "compact"; }),
         ])); }
 
-        const maxL = Math.min(this.model!.maxDepth, 8);
+        // card chart + status indicator only make sense on the driver tree
+        if (isTree) {
+            const cardBtn = (m: TreeCardMode, label: string, tip: string): HTMLElement =>
+                this.tbBtn(label, ui.treeCard === m, () => { ui.treeCard = m; }, tip);
+            bar.appendChild(this.tbGroup(this.str("Cards", "Karten"), [
+                cardBtn("months", this.str("Months", "Monate"),
+                    this.str("Monthly columns: AC solid, PL outlined behind",
+                        "Monatssäulen: AC solide, PL outlined dahinter")),
+                cardBtn("delta", "Δ",
+                    this.str("Variance columns per month: AC − reference",
+                        "Abweichungssäulen je Monat: AC − Referenz")),
+                cardBtn("bridge", this.str("Bridge", "Brücke"),
+                    this.str("Mini bridge: reference → Δ → AC (year to date)",
+                        "Mini-Brücke: Referenz → Δ → AC (Jahresverlauf)")),
+                this.tbBtn(this.str("Status", "Status"), ui.treeStatus,
+                    () => { ui.treeStatus = !ui.treeStatus; },
+                    this.str("Colour indicator: card edge and Δ% in the header",
+                        "Indikator-Farbe: Kartenrand und Δ% im Kopf")),
+            ]));
+        }
+
+        const treeDepth = this.treeCtx ? this.treeCtx.depth : 1;
+        const maxL = Math.min(isTree ? treeDepth : this.model!.maxDepth, 8);
         const lvlBtns: HTMLElement[] = [];
         for (let l = 1; l < maxL; l++) {
-            lvlBtns.push(this.tbBtn(String(l), false, () => { ui.collapsed = [...collapseToLevel(this.model!.roots, l)]; }));
+            lvlBtns.push(this.tbBtn(String(l), false, () => {
+                if (isTree) { ui.treeCollapsed = this.treeCtx ? [...this.treeCtx.levels[l]] : []; }
+                else { ui.collapsed = [...collapseToLevel(this.model!.roots, l)]; }
+            }));
         }
-        lvlBtns.push(this.tbBtn(this.str("All", "Alle"), false, () => { ui.collapsed = []; }));
-        if (tset.showLevels.value && tableViews) {
+        lvlBtns.push(this.tbBtn(this.str("All", "Alle"), false, () => {
+            if (isTree) { ui.treeCollapsed = []; } else { ui.collapsed = []; }
+        }));
+        if (tset.showLevels.value && (tableViews || (isTree && maxL > 1))) {
             bar.appendChild(this.tbGroup(this.str("Expand to level", "Bis Ebene"), lvlBtns));
         }
 
@@ -1806,22 +1886,98 @@ export class Visual implements IVisual {
         return resolve(k) ?? null;
     }
 
-    /** expand the formula graph into cards; cycles and repeated refs are cut */
+    /**
+     * Expand the formula graph into cards; cycles and repeated refs on the same
+     * path are cut. No depth limit — readers fold subtrees away themselves —
+     * but a card budget keeps a pathological diamond graph bounded.
+     */
     private treeCards(root: PnlNode, resolve: (id: string) => PnlNode | undefined): TreeCard {
+        let budget = TREE_MAX_CARDS;
         const build = (node: PnlNode, op: FormulaOp | null, depth: number, path: string[]): TreeCard => {
-            const card: TreeCard = { node, op, depth, children: [], x: 0, y: 0 };
+            const card: TreeCard = {
+                node, op, depth, children: [], x: 0, y: 0, hasKids: false, collapsed: false,
+            };
             const t = node.row.rowType;
-            if ((t !== "formula" && t !== "kpi") || depth + 1 >= TREE_MAX_DEPTH) { return card; }
+            if (t !== "formula" && t !== "kpi") { return card; }
             const seen = new Set(path);
+            const kids: { child: PnlNode; op: FormulaOp }[] = [];
             for (const o of formulaOperands(node, resolve)) {
                 const id = o.child.row.id;
                 if (seen.has(id)) { continue; }
                 seen.add(id);
-                card.children.push(build(o.child, o.op, depth + 1, [...path, id]));
+                kids.push(o);
+            }
+            card.hasKids = kids.length > 0;
+            for (const o of kids) {
+                if (budget <= 0) { break; }
+                budget--;
+                card.children.push(build(o.child, o.op, depth + 1, [...path, o.child.row.id]));
             }
             return card;
         };
         return build(root, null, 0, [root.row.id]);
+    }
+
+    /** every card of a (sub)tree in reading order */
+    private treeCollect(card: TreeCard): TreeCard[] {
+        const out: TreeCard[] = [];
+        const walk = (c: TreeCard): void => { out.push(c); for (const k of c.children) { walk(k); } };
+        walk(card);
+        return out;
+    }
+
+    /** fold the subtrees the reader closed: children go, the chevron stays */
+    private treePrune(card: TreeCard, collapsed: ReadonlySet<string>): void {
+        if (card.hasKids && collapsed.has(card.node.row.id)) {
+            card.collapsed = true;
+            card.children = [];
+            return;
+        }
+        for (const k of card.children) { this.treePrune(k, collapsed); }
+    }
+
+    /**
+     * Graph context of the current render: the expanded formula graph, the
+     * collapse sets per depth level, the pruned tree and the breadcrumb from
+     * the author/auto root down to the re-rooted card.
+     */
+    private buildTreeCtx(): TreeCtx | null {
+        const model = this.model!; const ui = this.ui!;
+        const resolve = nodeResolver(model);
+        const home = this.treeLookup(this.settings.columnsCard.treeRoot.value, resolve)
+            ?? this.treeDefaultRoot(resolve);
+        const picked = this.treeLookup(ui.treeRoot, resolve);
+        const root = picked ?? home;
+        if (!root) { return null; }
+
+        const rootCard = this.treeCards(root, resolve);
+        const full = this.treeCollect(rootCard);
+        let depth = 1;
+        for (const c of full) { depth = Math.max(depth, c.depth + 1); }
+        // levels[n] = subtrees to fold so that n levels stay visible
+        const levels: string[][] = [];
+        for (let l = 0; l <= depth; l++) {
+            levels.push(full.filter(c => c.hasKids && c.depth + 1 >= Math.max(l, 1)).map(c => c.node.row.id));
+        }
+        const collapsed = ui.treeCollapsed ?? levels[Math.min(TREE_DEFAULT_LEVEL, depth)];
+        this.treePrune(rootCard, new Set(collapsed));
+
+        // breadcrumb: path through the formula graph from home to the picked root
+        let path: PnlNode[] = [];
+        if (picked && home && picked !== home) {
+            const homeCard = this.treeCards(home, resolve);
+            const chain: PnlNode[] = [];
+            const find = (c: TreeCard): boolean => {
+                chain.push(c.node);
+                if (c.node === picked) { return true; }
+                for (const k of c.children) { if (find(k)) { return true; } }
+                chain.pop();
+                return false;
+            };
+            path = find(homeCard) ? chain : [home, picked];
+        }
+
+        return { resolve, home, picked, root, rootCard, cards: this.treeCollect(rootCard), depth, levels, path };
     }
 
     /** tidy layout: one column per level, leaves stacked, parents centered */
@@ -1857,26 +2013,45 @@ export class Visual implements IVisual {
         return s.length <= max ? s : s.slice(0, Math.max(1, max - 1)) + "…";
     }
 
-    /** columns of a card's mini chart: monthly AC vs PL, or AC/PL/PY when no periods are loaded */
+    /** monthly columns of a card: AC (or FC) vs PL, or AC/PL/PY when no periods are loaded */
     private treeSlots(node: PnlNode): TreeSlot[] {
         const inv = node.row.displayInvert ? -1 : 1;
         const months = this.model!.months;
-        const ac = node.series.ac; const pl = node.series.pl;
+        const ac = node.series.ac; const pl = node.series.pl; const fc = node.series.fc;
         const slots: TreeSlot[] = [];
-        if (months.length > 1 && ac) {
+        if (months.length > 1 && (ac || fc)) {
             const n = months.length;
-            const withPl = pl != null;
+            let anyFc = false;
             for (let i = 0; i < n; i++) {
-                const a = ac[i]; const p = pl ? pl[i] : null;
+                const a = ac ? ac[i] : null;
+                const f = fc ? fc[i] : null;
+                // AC&FC composite: the forecast fills the months the actuals have not reached
+                const raw = a != null ? a : f;
+                const isFc = a == null && f != null;
+                if (isFc) { anyFc = true; }
+                const p = pl ? pl[i] : null;
                 slots.push({
-                    v: a == null ? null : a * inv,
+                    v: raw == null ? null : raw * inv,
                     ref: p == null ? null : p * inv,
-                    style: "ac",
-                    tag: i === 0 ? `${this.monthLabel(months[0])} AC`
-                        : i === n - 1 ? `${this.monthLabel(months[n - 1])} ${withPl ? "AC·PL" : "AC"}` : null,
-                    label: i === 0 || i === n - 1,
+                    style: isFc ? "fc" : "ac",
+                    tag: null,
+                    label: false,
                 });
             }
+            // period labels only at the ends of the series (IBCS UN 2.3)
+            const withPl = slots.some(sl => sl.ref != null);
+            const scen = anyFc ? "AC&FC" : "AC";
+            slots[0].tag = `${this.monthLabel(months[0])} ${scen}`;
+            slots[n - 1].tag = `${this.monthLabel(months[n - 1])} ${withPl ? scen + "·PL" : scen}`;
+            // value labels only at first, last and the absolute extremum (max 3)
+            const marked = new Set<number>([0, n - 1]);
+            let ext = -1; let extAbs = -1;
+            slots.forEach((sl, i) => {
+                if (sl.v == null) { return; }
+                if (Math.abs(sl.v) > extAbs) { extAbs = Math.abs(sl.v); ext = i; }
+            });
+            if (ext > 1 && ext < n - 2) { marked.add(ext); }
+            for (const i of marked) { slots[i].label = true; }
             return slots;
         }
         const add = (scen: Scenario, style: "ac" | "py" | "pl", tag: string): void => {
@@ -1890,11 +2065,102 @@ export class Visual implements IVisual {
         return slots;
     }
 
-    /** IBCS mini column chart inside a card: no gridlines, solid zero line, labels outside */
+    /** hatch fill for FC elements inside the tree (one pattern per rendered tree) */
+    private treeHatchId(svg: SVGSVGElement): string {
+        const id = `pnltreefc${this.uid}`;
+        if (!svg.querySelector(`#${id}`)) {
+            const ns = "http://www.w3.org/2000/svg";
+            this.hatchPattern(svg, ns, id, C.ac);
+        }
+        return id;
+    }
+
+    /** reference-coded zero line of a card chart: gray = PY, double line = PL, dashed = FC */
+    private treeRefLine(g: SVGGElement, x1: number, x2: number, y: number, ref: Scenario): void {
+        const ns = "http://www.w3.org/2000/svg";
+        const mk = (yy: number, color: string, wd: number, dash: string | null): void => {
+            const l = document.createElementNS(ns, "line");
+            l.setAttribute("x1", x1.toFixed(2)); l.setAttribute("x2", x2.toFixed(2));
+            l.setAttribute("y1", yy.toFixed(2)); l.setAttribute("y2", yy.toFixed(2));
+            l.setAttribute("stroke", color); l.setAttribute("stroke-width", String(wd));
+            if (dash) { l.setAttribute("stroke-dasharray", dash); }
+            g.appendChild(l);
+        };
+        if (ref === "py") { mk(y, C.py, 2, null); }
+        else if (ref === "pl" || ref === "plfy") { mk(y - 1.1, C.ac, 0.9, null); mk(y + 1.1, C.ac, 0.9, null); }
+        else { mk(y, C.ac, 1, "3,2"); }
+    }
+
+    /** small soft note inside a card chart when a mode has nothing to draw */
+    private treeHint(g: SVGGElement, box: { x: number; y: number; w: number; h: number }, s: number, text: string): void {
+        const ns = "http://www.w3.org/2000/svg";
+        const t = document.createElementNS(ns, "text");
+        t.setAttribute("x", (box.x + box.w / 2).toFixed(2));
+        t.setAttribute("y", (box.y + box.h / 2).toFixed(2));
+        t.setAttribute("text-anchor", "middle");
+        t.setAttribute("font-size", (7.5 * s).toFixed(1));
+        t.setAttribute("font-family", FONT);
+        t.setAttribute("fill", C.soft);
+        t.textContent = this.fitLabel(text, box.w, 7.5 * s);
+        g.appendChild(t);
+    }
+
+    /** value/period label of a card chart, clamped into the chart box */
+    private treeLabel(g: SVGGElement, box: { x: number; w: number }, cx: number, y: number,
+        text: string, fs: number, color: string): void {
+        const ns = "http://www.w3.org/2000/svg";
+        const t = document.createElementNS(ns, "text");
+        const half = text.length * fs * 0.3;
+        const x = Math.min(Math.max(cx, box.x + half), box.x + box.w - half);
+        t.setAttribute("x", x.toFixed(2)); t.setAttribute("y", y.toFixed(2));
+        t.setAttribute("text-anchor", "middle");
+        t.setAttribute("font-size", fs.toFixed(1));
+        t.setAttribute("font-family", FONT);
+        t.setAttribute("fill", color);
+        t.textContent = text;
+        g.appendChild(t);
+    }
+
+    /** period/scenario tags under a card chart: first one left, last one right */
+    private treeTags(g: SVGGElement, tags: (string | null)[], box: { x: number; y: number; w: number; h: number },
+        slotW: number, s: number, rightInset: number): void {
+        const ns = "http://www.w3.org/2000/svg";
+        const n = tags.length;
+        const tfs = 7 * s;
+        const y = box.y + box.h + 8 * s;
+        tags.forEach((tag, i) => {
+            if (!tag) { return; }
+            const first = i === 0;
+            const t = document.createElementNS(ns, "text");
+            const wide = n <= 4;
+            const maxW = wide ? slotW : box.w * 0.5 - (first ? 0 : rightInset);
+            if (wide) {
+                t.setAttribute("x", (box.x + (i + 0.5) * slotW).toFixed(2));
+                t.setAttribute("text-anchor", "middle");
+            } else {
+                t.setAttribute("x", (first ? box.x : box.x + box.w - rightInset).toFixed(2));
+                t.setAttribute("text-anchor", first ? "start" : "end");
+            }
+            t.setAttribute("y", y.toFixed(2));
+            t.setAttribute("font-size", tfs.toFixed(1));
+            t.setAttribute("font-family", FONT);
+            t.setAttribute("fill", C.soft);
+            t.textContent = this.fitLabel(tag, maxW, tfs);
+            g.appendChild(t);
+        });
+    }
+
+    /**
+     * IBCS mini column chart inside a card: AC solid, PL outlined behind (wider,
+     * overlap notation), FC hatched; solid zero line, no gridlines. Against the
+     * crowding of many months only three value labels are drawn — first, last
+     * and the absolute extremum — and only the outer periods carry a tag.
+     */
     private treeMini(g: SVGGElement, node: PnlNode, box: { x: number; y: number; w: number; h: number },
-        s: number, fmt: Fmt): void {
+        s: number, fmt: Fmt, svg: SVGSVGElement, rightInset: number): void {
         const ns = "http://www.w3.org/2000/svg";
         const slots = this.treeSlots(node);
+        if (slots.length === 0) { this.treeHint(g, box, s, "–"); return; }
         const isRatio = node.row.rowType === "kpi";
         const lfs = 7.5 * s;
         let min = 0; let max = 0;
@@ -1920,37 +2186,30 @@ export class Visual implements IVisual {
             if (stroke) { r.setAttribute("stroke", stroke); r.setAttribute("stroke-width", String(sw)); }
             g.appendChild(r);
         };
-        const label = (cx: number, v: number, color: string): void => {
-            const t = document.createElementNS(ns, "text");
-            const txt = isRatio ? fmt.pct(v) : this.treeNum(v, fmt);
-            const half = txt.length * lfs * 0.3;
-            const x = Math.min(Math.max(cx, box.x + half), box.x + box.w - half);
-            t.setAttribute("x", x.toFixed(2));
-            t.setAttribute("y", (v >= 0 ? yOf(v) - 2.5 : yOf(v) + lfs).toFixed(2));
-            t.setAttribute("text-anchor", "middle");
-            t.setAttribute("font-size", lfs.toFixed(1));
-            t.setAttribute("font-family", FONT);
-            t.setAttribute("fill", color);
-            t.textContent = txt;
-            g.appendChild(t);
-        };
 
-        const n = Math.max(slots.length, 1);
+        const n = slots.length;
         const slotW = box.w / n;
         const paired = slots.some(sl => sl.ref != null);
+        // column width from the card width: the gap keeps at least 40 % of the
+        // widest column, so many months stay legible instead of merging
+        const colW = Math.min(slotW / 1.5, 17 * s);
+        const inner = paired ? colW * 0.58 : colW;
+        const hatch = slots.some(sl => sl.style === "fc") ? this.treeHatchId(svg) : "";
         slots.forEach((sl, i) => {
             const cx = box.x + (i + 0.5) * slotW;
             // reference (PL) behind and wider — IBCS comparison notation
-            if (sl.ref != null) {
-                const w = slotW * 0.72;
-                rect(cx - w / 2, w, sl.ref, "#FFF", C.ac, 1.3);
-            }
+            if (sl.ref != null) { rect(cx - colW / 2, colW, sl.ref, "#FFF", C.ac, 1.2); }
             if (sl.v == null) { return; }
-            const w = slotW * (paired ? 0.42 : 0.56);
-            if (sl.style === "pl") { rect(cx - w / 2, w, sl.v, "#FFF", C.ac, 1.3); }
-            else if (sl.style === "py") { rect(cx - w / 2, w, sl.v, C.refGray, null, 0); }
+            const w = paired || slots.length > 1 ? inner : colW;
+            if (sl.style === "pl") { rect(cx - colW / 2, colW, sl.v, "#FFF", C.ac, 1.2); }
+            else if (sl.style === "py") { rect(cx - colW / 2, colW, sl.v, C.refGray, null, 0); }
+            else if (sl.style === "fc") { rect(cx - w / 2, w, sl.v, `url(#${hatch})`, C.ac, 1); }
             else { rect(cx - w / 2, w, sl.v, C.ac, null, 0); }
-            if (sl.label) { label(cx, sl.v, sl.style === "py" ? C.refGray : C.text); }
+            if (sl.label) {
+                this.treeLabel(g, box, cx, sl.v >= 0 ? yOf(sl.v) - 2.5 : yOf(sl.v) + lfs,
+                    isRatio ? fmt.pct(sl.v) : this.treeNum(sl.v, fmt), lfs,
+                    sl.style === "py" ? C.refGray : C.text);
+            }
         });
 
         // zero line last so the columns sit on it
@@ -1960,34 +2219,245 @@ export class Visual implements IVisual {
         axis.setAttribute("stroke", C.ac); axis.setAttribute("stroke-width", "1");
         g.appendChild(axis);
 
-        // period / scenario labels under the axis: centered per column while
-        // there is room, otherwise only the first and last of the series
-        const tagY = box.y + box.h + 8 * s;
-        const tfs = 7 * s;
-        slots.forEach((sl, i) => {
-            if (!sl.tag) { return; }
-            const t = document.createElementNS(ns, "text");
-            const first = i === 0;
-            if (n <= 4) {
-                t.setAttribute("x", (box.x + (i + 0.5) * slotW).toFixed(2));
-                t.setAttribute("text-anchor", "middle");
-            } else {
-                t.setAttribute("x", (first ? box.x : box.x + box.w).toFixed(2));
-                t.setAttribute("text-anchor", first ? "start" : "end");
-            }
-            t.setAttribute("y", tagY.toFixed(2));
-            t.setAttribute("font-size", tfs.toFixed(1));
-            t.setAttribute("font-family", FONT);
-            t.setAttribute("fill", C.soft);
-            t.textContent = this.fitLabel(sl.tag, n <= 4 ? slotW : box.w * 0.5, tfs);
-            g.appendChild(t);
-        });
+        this.treeTags(g, slots.map(sl => sl.tag), box, slotW, s, rightInset);
     }
 
-    /** one driver card: white box, title + unit, mini chart, optional re-root affordances */
-    private treeCardG(card: TreeCard, geo: { cw: number; ch: number; s: number; fmt: Fmt },
-        expandable: boolean, back: boolean): SVGGElement {
+    /**
+     * IBCS variance columns inside a card: Δ = AC − reference per month, green /
+     * red by impact, the zero line encodes the reference scenario. Only the one
+     * or two largest swings carry a label, positives keep their explicit "+".
+     */
+    private treeMiniDelta(g: SVGGElement, node: PnlNode, box: { x: number; y: number; w: number; h: number },
+        s: number, fmt: Fmt, rightInset: number): void {
+        const ref = this.ui!.ref;
+        const months = this.model!.months;
+        const isRatio = node.row.rowType === "kpi";
+        const lfs = 7.5 * s;
+        const refLabel = "Δ" + ref.toUpperCase();
+        const acs = node.series.ac; const refs = node.series[ref];
+        const inv = node.row.displayInvert ? -1 : 1;
+        // bar direction follows the displayed value, colour the raw evaluation
+        const goodOf = (raw: number): boolean =>
+            node.row.varianceInvert ? !(raw >= 0) : raw >= 0;
+        const vals: (number | null)[] = [];
+        const goods: boolean[] = [];
+        const tags: (string | null)[] = [];
+        if (this.has[ref] && months.length > 1 && acs && refs) {
+            for (let i = 0; i < months.length; i++) {
+                const a = acs[i]; const r = refs[i];
+                const raw = a != null && r != null ? a - r : null;
+                vals.push(raw == null ? null : raw * inv);
+                goods.push(raw != null && goodOf(raw));
+                tags.push(null);
+            }
+            tags[0] = this.monthLabel(months[0]);
+            tags[months.length - 1] = `${this.monthLabel(months[months.length - 1])} ${refLabel}`;
+        }
+        if (vals.every(v => v == null)) {
+            // no monthly reference series — fall back to the year-to-date variance
+            const v = this.treeVariance(node);
+            if (!v || v.delta == null) { this.treeHint(g, box, s, refLabel + " –"); return; }
+            vals.length = 0; tags.length = 0; goods.length = 0;
+            vals.push(v.delta);
+            goods.push(v.good);
+            tags.push(months.length > 0
+                ? `_${this.monthLabel(months[months.length - 1])} ${refLabel}` : refLabel);
+        }
+
+        let min = 0; let max = 0;
+        for (const v of vals) {
+            if (v == null) { continue; }
+            min = Math.min(min, v); max = Math.max(max, v);
+        }
+        if (max === min) { max = min + 1; }
+        const top = box.y + lfs + 2;
+        const bot = box.y + box.h - (min < 0 ? lfs + 2 : 0);
+        const yOf = (v: number): number => bot - ((v - min) / (max - min)) * (bot - top);
+        const zeroY = yOf(0);
+
+        // label the one or two biggest swings only, and never two neighbours —
+        // adjacent labels are exactly the crowding this mode avoids
+        const order = vals.map((v, i) => ({ v, i })).filter(e => e.v != null)
+            .sort((a, b) => Math.abs(b.v!) - Math.abs(a.v!));
+        const marked = new Set<number>();
+        for (const e of order) {
+            if (marked.size >= 2) { break; }
+            if ([...marked].some(i => Math.abs(i - e.i) < 2)) { continue; }
+            marked.add(e.i);
+        }
+
         const ns = "http://www.w3.org/2000/svg";
+        const n = vals.length;
+        const slotW = box.w / n;
+        const colW = Math.min(slotW / 1.45, 18 * s);
+        vals.forEach((d, i) => {
+            if (d == null) { return; }
+            const color = goods[i] ? this.goodColor() : this.badColor();
+            const cx = box.x + (i + 0.5) * slotW;
+            const y = Math.min(yOf(d), zeroY);
+            const h = Math.max(Math.abs(yOf(d) - zeroY), 0.8);
+            const r = document.createElementNS(ns, "rect");
+            r.setAttribute("x", (cx - colW / 2).toFixed(2)); r.setAttribute("y", y.toFixed(2));
+            r.setAttribute("width", colW.toFixed(2)); r.setAttribute("height", h.toFixed(2));
+            r.setAttribute("fill", color);
+            g.appendChild(r);
+            if (!marked.has(i)) { return; }
+            const txt = isRatio
+                ? fmt.pct(d, true).replace("%", "pp")
+                : (d > 0 ? "+" : "") + this.treeNum(d, fmt);
+            this.treeLabel(g, box, cx, d >= 0 ? yOf(d) - 2.5 : yOf(d) + lfs, txt, lfs, color);
+        });
+
+        // the axis carries the reference scenario (IBCS UN 4.1)
+        this.treeRefLine(g, box.x, box.x + box.w, zeroY, ref);
+        this.treeTags(g, tags, box, slotW, s, rightInset);
+    }
+
+    /**
+     * Horizontal mini bridge inside a card (year to date): reference bar →
+     * floating Δ segment → AC bar, in the optics of the IBCS KPI card. No axes,
+     * no gridlines — only the zero anchor and the three labelled rows.
+     */
+    private treeMiniBridge(g: SVGGElement, node: PnlNode, box: { x: number; y: number; w: number; h: number },
+        s: number, fmt: Fmt, svg: SVGSVGElement, rightInset: number): void {
+        const ns = "http://www.w3.org/2000/svg";
+        const ref = this.ui!.ref;
+        const isRatio = node.row.rowType === "kpi";
+        const acv = displayValue(node, "ac");
+        const refv = this.has[ref] ? displayValue(node, ref) : null;
+        if (acv == null && refv == null) { this.treeHint(g, box, s, "–"); return; }
+        const lfs = 7.5 * s;
+        const num = (v: number, plus: boolean): string =>
+            isRatio ? fmt.pct(v, plus) : (plus && v > 0 ? "+" : "") + this.treeNum(v, fmt);
+
+        const va = this.treeVariance(node);
+        const dRaw = va != null && acv != null && refv != null ? va.delta : null;
+        const vColor = va == null || va.good ? this.goodColor() : this.badColor();
+
+        // ratios vary in percentage points (IBCS UN 4.1)
+        const dText = dRaw == null ? ""
+            : isRatio ? fmt.pct(dRaw, true).replace("%", "pp") : num(dRaw, true);
+        const texts = [refv != null ? num(refv, false) : "", dText, acv != null ? num(acv, false) : ""];
+        const valW = Math.max(...texts.map(t => t.length)) * lfs * 0.58 + 3 * s;
+        const labW = 14 * s;
+        const x0 = box.x + labW;
+        const availW = Math.max(box.w - labW - valW - rightInset, 8 * s);
+        const lo = Math.min(0, acv ?? 0, refv ?? 0);
+        const hi = Math.max(0, acv ?? 0, refv ?? 0);
+        const S = availW / ((hi - lo) || 1);
+        const xz = x0 + (0 - lo) * S;
+        const xOf = (v: number): number => xz + v * S;
+
+        const rows = refv != null ? 3 : 1;
+        const gapY = 4 * s;
+        const rowH = Math.max((box.h - (rows - 1) * gapY) / rows, 4 * s);
+        const yR = box.y;
+        const yD = box.y + rowH + gapY;
+        const yA = refv != null ? box.y + 2 * (rowH + gapY) : box.y + (box.h - rowH) / 2;
+
+        const bar = (y: number, v: number, fill: string, stroke: string | null): void => {
+            const x1 = xOf(v); const x = Math.min(xz, x1);
+            const r = document.createElementNS(ns, "rect");
+            r.setAttribute("x", x.toFixed(2)); r.setAttribute("y", y.toFixed(2));
+            r.setAttribute("width", Math.max(Math.abs(x1 - xz), 1).toFixed(2));
+            r.setAttribute("height", rowH.toFixed(2));
+            r.setAttribute("fill", fill);
+            if (stroke) { r.setAttribute("stroke", stroke); r.setAttribute("stroke-width", "1"); }
+            g.appendChild(r);
+        };
+        const connector = (x: number, y1: number, y2: number): void => {
+            const l = document.createElementNS(ns, "line");
+            l.setAttribute("x1", x.toFixed(2)); l.setAttribute("x2", x.toFixed(2));
+            l.setAttribute("y1", y1.toFixed(2)); l.setAttribute("y2", y2.toFixed(2));
+            l.setAttribute("stroke", C.gridSoft); l.setAttribute("stroke-width", "1");
+            g.appendChild(l);
+        };
+        const rowLabel = (y: number, text: string, color: string, bold: boolean): void => {
+            const t = document.createElementNS(ns, "text");
+            t.setAttribute("x", box.x.toFixed(2));
+            t.setAttribute("y", (y + rowH / 2 + lfs * 0.35).toFixed(2));
+            t.setAttribute("font-size", lfs.toFixed(1));
+            t.setAttribute("font-family", FONT);
+            if (bold) { t.setAttribute("font-weight", "600"); }
+            t.setAttribute("fill", color);
+            t.textContent = this.fitLabel(text, labW, lfs);
+            g.appendChild(t);
+        };
+        const valLabel = (y: number, v: number, text: string, color: string, bold: boolean): void => {
+            const t = document.createElementNS(ns, "text");
+            const grow = v >= 0;
+            t.setAttribute("x", (grow ? xOf(v) + 2.5 * s : xOf(v) - 2.5 * s).toFixed(2));
+            t.setAttribute("y", (y + rowH / 2 + lfs * 0.35).toFixed(2));
+            t.setAttribute("text-anchor", grow ? "start" : "end");
+            t.setAttribute("font-size", lfs.toFixed(1));
+            t.setAttribute("font-family", FONT);
+            if (bold) { t.setAttribute("font-weight", "600"); }
+            t.setAttribute("fill", color);
+            t.textContent = text;
+            g.appendChild(t);
+        };
+
+        // zero anchor (no axis, no gridlines — just the line the bars start on)
+        connector(xz, box.y, box.y + box.h);
+
+        if (refv != null) {
+            const isPlan = ref === "pl";
+            const isFc = ref === "fc";
+            const fill = isPlan ? "#FFF" : isFc ? `url(#${this.treeHatchId(svg)})` : C.py;
+            bar(yR, refv, fill, isPlan || isFc ? C.ac : null);
+            rowLabel(yR, ref.toUpperCase(), C.soft, false);
+            valLabel(yR, refv, texts[0], C.soft, false);
+        }
+        if (dRaw != null && acv != null && refv != null) {
+            const xa = xOf(acv); const xr = xOf(refv);
+            const x = Math.min(xa, xr);
+            const w = Math.max(Math.abs(xa - xr), 2);
+            const r = document.createElementNS(ns, "rect");
+            r.setAttribute("x", x.toFixed(2)); r.setAttribute("y", yD.toFixed(2));
+            r.setAttribute("width", w.toFixed(2)); r.setAttribute("height", rowH.toFixed(2));
+            r.setAttribute("fill", vColor);
+            g.appendChild(r);
+            connector(xr, yR + rowH, yD);
+            connector(xa, yD + rowH, yA);
+            rowLabel(yD, "Δ", vColor, true);
+            const grow = xa >= xr;
+            const t = document.createElementNS(ns, "text");
+            t.setAttribute("x", (grow ? x + w + 2.5 * s : x - 2.5 * s).toFixed(2));
+            t.setAttribute("y", (yD + rowH / 2 + lfs * 0.35).toFixed(2));
+            t.setAttribute("text-anchor", grow ? "start" : "end");
+            t.setAttribute("font-size", lfs.toFixed(1));
+            t.setAttribute("font-family", FONT);
+            t.setAttribute("fill", vColor);
+            t.textContent = texts[1];
+            g.appendChild(t);
+        }
+        if (acv != null) {
+            bar(yA, acv, C.ac, null);
+            rowLabel(yA, "AC", C.text, true);
+            valLabel(yA, acv, texts[2], C.text, true);
+        }
+    }
+
+    /**
+     * Δ of a driver card against the toolbar reference — null when neutral.
+     * Geometry and sign follow the *displayed* value (a cost row shown as +119
+     * rises when its Δ is positive), the good/bad evaluation stays the raw one
+     * the table uses, so colour and table never contradict each other.
+     */
+    private treeVariance(node: PnlNode): Variance | null {
+        const ref = this.ui!.ref;
+        if (!this.has[ref]) { return null; }
+        const v = variance(node, ref, "ac");
+        if (v.delta == null) { return null; }
+        const inv = node.row.displayInvert ? -1 : 1;
+        return { delta: v.delta * inv, deltaPct: v.deltaPct == null ? null : v.deltaPct * inv, good: v.good };
+    }
+
+    /** one driver card: white box, header, mini chart, chevron and re-root marks */
+    private treeCardG(card: TreeCard, geo: { cw: number; ch: number; s: number; fmt: Fmt; svg: SVGSVGElement },
+        reroot: boolean): SVGGElement {
+        const ns = "http://www.w3.org/2000/svg";
+        const ui = this.ui!;
         const s = geo.s;
         const g = document.createElementNS(ns, "g") as SVGGElement;
         const box = document.createElementNS(ns, "rect");
@@ -2001,28 +2471,87 @@ export class Visual implements IVisual {
         const isRatio = card.node.row.rowType === "kpi";
         const unit = isRatio ? "%" : geo.fmt.suffix + this.settings.numbersCard.unitText.value;
         const tfs = 9.5 * s; const ufs = 7.5 * s;
-        const backW = back ? 13 * s : 0;
-        const unitW = unit.length * ufs * 0.6;
+        const headY = card.y + pad + tfs * 0.85;
 
-        const title = document.createElementNS(ns, "text");
-        title.setAttribute("x", (card.x + pad).toFixed(2));
-        title.setAttribute("y", (card.y + pad + tfs * 0.85).toFixed(2));
-        title.setAttribute("font-size", tfs.toFixed(1));
-        title.setAttribute("font-family", FONT);
-        title.setAttribute("font-weight", "600");
-        title.setAttribute("fill", C.text);
-        const cno = this.commentNo.get(card.node.row.id);
-        const raw = card.node.row.name + (cno != null ? " " + String.fromCharCode(0x2460 + cno - 1) : "");
-        title.textContent = this.fitLabel(raw, geo.cw - 2 * pad - unitW - backW - 4, tfs);
-        const tip = document.createElementNS(ns, "title");
-        tip.textContent = card.node.row.name + (card.node.row.formulaDef ? " = " + card.node.row.formulaDef : "");
-        title.appendChild(tip);
-        g.appendChild(title);
+        // status indicator: 3 px edge + Δ% in the header, both in the variance
+        // colour — the card body itself stays white (IBCS)
+        const va = ui.treeStatus ? this.treeVariance(card.node) : null;
+        const vColor = va == null ? null : (va.good ? this.goodColor() : this.badColor());
+        if (vColor) {
+            const edge = document.createElementNS(ns, "rect");
+            edge.setAttribute("x", (card.x + 0.5).toFixed(2));
+            edge.setAttribute("y", (card.y + 2).toFixed(2));
+            edge.setAttribute("width", (3 * s).toFixed(2));
+            edge.setAttribute("height", (geo.ch - 4).toFixed(2));
+            edge.setAttribute("rx", "1.5");
+            edge.setAttribute("fill", vColor);
+            g.appendChild(edge);
+        }
 
+        // header right: unit, then Δ%, then the re-root mark at the outer edge
+        let rightX = card.x + geo.cw - pad;
+        if (reroot) {
+            // drawn crosshair (⌖) instead of a glyph — no font can drop it
+            const cx = card.x + geo.cw - pad + 1.5 * s;
+            const cy = headY - tfs * 0.3;
+            const r = 3.2 * s;
+            const rr = document.createElementNS(ns, "g") as SVGGElement;
+            const circ = document.createElementNS(ns, "circle");
+            circ.setAttribute("cx", cx.toFixed(2)); circ.setAttribute("cy", cy.toFixed(2));
+            circ.setAttribute("r", r.toFixed(2));
+            circ.setAttribute("fill", "none");
+            circ.setAttribute("stroke", C.soft); circ.setAttribute("stroke-width", "1");
+            rr.appendChild(circ);
+            const tick = (dx: number, dy: number): void => {
+                const l = document.createElementNS(ns, "line");
+                l.setAttribute("x1", (cx + dx * r).toFixed(2)); l.setAttribute("y1", (cy + dy * r).toFixed(2));
+                l.setAttribute("x2", (cx + dx * r * 2).toFixed(2)); l.setAttribute("y2", (cy + dy * r * 2).toFixed(2));
+                l.setAttribute("stroke", C.soft); l.setAttribute("stroke-width", "1");
+                rr.appendChild(l);
+            };
+            tick(-1, 0); tick(1, 0); tick(0, -1); tick(0, 1);
+            const hitR = document.createElementNS(ns, "rect");
+            hitR.setAttribute("x", (cx - 2 * r).toFixed(2)); hitR.setAttribute("y", (cy - 2 * r).toFixed(2));
+            hitR.setAttribute("width", (4 * r).toFixed(2)); hitR.setAttribute("height", (4 * r).toFixed(2));
+            hitR.setAttribute("fill", "#FFF"); hitR.setAttribute("fill-opacity", "0.01");
+            rr.appendChild(hitR);
+            const rt = document.createElementNS(ns, "title");
+            rt.textContent = this.str("Show as root", "Als Wurzel anzeigen");
+            rr.appendChild(rt);
+            rr.style.cursor = "pointer";
+            rr.onclick = (e: Event): void => {
+                e.stopPropagation();
+                ui.treeRoot = card.node.row.id;
+                ui.treeCollapsed = null;
+                this.persistUi(); this.rerender();
+            };
+            g.appendChild(rr);
+            rightX -= 11 * s;
+        }
+        let pctW = 0;
+        if (vColor && va && va.deltaPct != null) {
+            const txt = geo.fmt.pct(va.deltaPct, true);
+            const p = document.createElementNS(ns, "text");
+            p.setAttribute("x", rightX.toFixed(2));
+            p.setAttribute("y", headY.toFixed(2));
+            p.setAttribute("text-anchor", "end");
+            p.setAttribute("font-size", ufs.toFixed(1));
+            p.setAttribute("font-family", FONT);
+            p.setAttribute("font-weight", "600");
+            p.setAttribute("fill", vColor);
+            p.textContent = txt;
+            const pt = document.createElementNS(ns, "title");
+            pt.textContent = `Δ${this.ui!.ref.toUpperCase()} ${txt}`;
+            p.appendChild(pt);
+            g.appendChild(p);
+            pctW = txt.length * ufs * 0.6 + 4 * s;
+            rightX -= pctW;
+        }
+        const unitW = unit === "" ? 0 : unit.length * ufs * 0.6;
         if (unit !== "") {
             const u = document.createElementNS(ns, "text");
-            u.setAttribute("x", (card.x + geo.cw - pad - backW).toFixed(2));
-            u.setAttribute("y", (card.y + pad + tfs * 0.85).toFixed(2));
+            u.setAttribute("x", rightX.toFixed(2));
+            u.setAttribute("y", headY.toFixed(2));
             u.setAttribute("text-anchor", "end");
             u.setAttribute("font-size", ufs.toFixed(1));
             u.setAttribute("font-family", FONT);
@@ -2031,10 +2560,33 @@ export class Visual implements IVisual {
             g.appendChild(u);
         }
 
-        this.treeMini(g, card.node, {
-            x: card.x + pad, y: card.y + pad + tfs + 6 * s,
-            w: geo.cw - 2 * pad, h: geo.ch - (pad + tfs + 6 * s) - 15 * s,
-        }, s, geo.fmt);
+        const title = document.createElementNS(ns, "text");
+        title.setAttribute("x", (card.x + pad + (vColor ? 3 * s : 0)).toFixed(2));
+        title.setAttribute("y", headY.toFixed(2));
+        title.setAttribute("font-size", tfs.toFixed(1));
+        title.setAttribute("font-family", FONT);
+        title.setAttribute("font-weight", "600");
+        title.setAttribute("fill", C.text);
+        const cno = this.commentNo.get(card.node.row.id);
+        const raw = card.node.row.name + (cno != null ? " " + String.fromCharCode(0x2460 + cno - 1) : "");
+        title.textContent = this.fitLabel(raw,
+            geo.cw - 2 * pad - unitW - pctW - (reroot ? 11 * s : 0) - (vColor ? 3 * s : 0) - 4, tfs);
+        const tip = document.createElementNS(ns, "title");
+        tip.textContent = card.node.row.name + (card.node.row.formulaDef ? " = " + card.node.row.formulaDef : "");
+        title.appendChild(tip);
+        g.appendChild(title);
+
+        // chart area — the bridge needs no period tags, so it may use the strip
+        const chartTop = card.y + pad + tfs + 6 * s;
+        const bottom = ui.treeCard === "bridge" ? 7 * s : 15 * s;
+        const area = {
+            x: card.x + pad + (vColor ? 3 * s : 0), y: chartTop,
+            w: geo.cw - 2 * pad - (vColor ? 3 * s : 0), h: geo.ch - (chartTop - card.y) - bottom,
+        };
+        const inset = card.hasKids ? 14 * s : 0;
+        if (ui.treeCard === "delta") { this.treeMiniDelta(g, card.node, area, s, geo.fmt, inset); }
+        else if (ui.treeCard === "bridge") { this.treeMiniBridge(g, card.node, area, s, geo.fmt, geo.svg, inset); }
+        else { this.treeMini(g, card.node, area, s, geo.fmt, geo.svg, inset); }
 
         if (card.node.error) {
             const e = document.createElementNS(ns, "text");
@@ -2047,54 +2599,91 @@ export class Visual implements IVisual {
             g.appendChild(e);
         }
 
-        if (expandable) {
-            g.style.cursor = "pointer";
-            g.onclick = (e: Event): void => {
+        // chevron: opens / closes exactly this subtree — a bordered hit area so
+        // it reads as a control, not as a data mark
+        if (card.hasKids) {
+            const hit = document.createElementNS(ns, "rect");
+            hit.setAttribute("x", (card.x + geo.cw - 19 * s).toFixed(2));
+            hit.setAttribute("y", (card.y + geo.ch - 15 * s).toFixed(2));
+            hit.setAttribute("width", (16 * s).toFixed(2));
+            hit.setAttribute("height", (12.5 * s).toFixed(2));
+            hit.setAttribute("rx", (2 * s).toFixed(2));
+            hit.setAttribute("fill", "#FFF");
+            hit.setAttribute("stroke", C.cardEdge);
+            hit.setAttribute("stroke-width", "1");
+            const ch = document.createElementNS(ns, "text");
+            ch.setAttribute("x", (card.x + geo.cw - 11 * s).toFixed(2));
+            ch.setAttribute("y", (card.y + geo.ch - 5.6 * s).toFixed(2));
+            ch.setAttribute("text-anchor", "middle");
+            ch.setAttribute("font-size", (9 * s).toFixed(1));
+            ch.setAttribute("font-family", FONT);
+            ch.setAttribute("fill", C.soft);
+            ch.textContent = card.collapsed ? "▸" : "▾";
+            const ct = document.createElementNS(ns, "title");
+            ct.textContent = card.collapsed
+                ? this.str("Expand", "Aufklappen") : this.str("Collapse", "Zuklappen");
+            ch.appendChild(ct);
+            const toggle = (e: Event): void => {
                 e.stopPropagation();
-                this.ui!.treeRoot = card.node.row.id;
+                const cur = new Set(ui.treeCollapsed ?? this.treeCtx?.levels[
+                    Math.min(TREE_DEFAULT_LEVEL, this.treeCtx.depth)] ?? []);
+                const id = card.node.row.id;
+                if (cur.has(id)) { cur.delete(id); } else { cur.add(id); }
+                ui.treeCollapsed = [...cur];
                 this.persistUi(); this.rerender();
             };
-        }
-        if (back) {
-            const b = document.createElementNS(ns, "text");
-            b.setAttribute("x", (card.x + geo.cw - pad + 2 * s).toFixed(2));
-            b.setAttribute("y", (card.y + pad + tfs * 0.85).toFixed(2));
-            b.setAttribute("text-anchor", "end");
-            b.setAttribute("font-size", (10 * s).toFixed(1));
-            b.setAttribute("font-family", FONT);
-            b.setAttribute("fill", C.soft);
-            b.style.cursor = "pointer";
-            b.textContent = "↩";
-            const bt = document.createElementNS(ns, "title");
-            bt.textContent = this.str("Back to the default root", "Zurück zur Standard-Wurzel");
-            b.appendChild(bt);
-            b.onclick = (e: Event): void => {
-                e.stopPropagation();
-                this.ui!.treeRoot = "";
-                this.persistUi(); this.rerender();
-            };
-            g.appendChild(b);
+            hit.style.cursor = "pointer"; ch.style.cursor = "pointer";
+            hit.onclick = toggle; ch.onclick = toggle;
+            g.appendChild(hit); g.appendChild(ch);
         }
         return g;
+    }
+
+    /** breadcrumb over a re-rooted tree: every segment jumps back to that card */
+    private treeBreadcrumb(path: PnlNode[]): HTMLElement {
+        const crumbs = document.createElement("div");
+        crumbs.style.cssText = `font-size:10px;color:${C.soft};padding:0 0 5px 0;` +
+            "display:flex;gap:5px;flex-wrap:wrap;align-items:center;";
+        path.forEach((node, i) => {
+            if (i > 0) {
+                const sep = document.createElement("span");
+                sep.textContent = "›";
+                crumbs.appendChild(sep);
+            }
+            const last = i === path.length - 1;
+            const seg = document.createElement("span");
+            seg.textContent = node.row.name;
+            seg.style.cssText = last
+                ? `color:${C.text};font-weight:600;`
+                : `color:${C.soft};cursor:pointer;text-decoration:underline;`;
+            if (!last) {
+                seg.title = this.str("Back to this card", "Zurück zu dieser Karte");
+                seg.onclick = (e: Event): void => {
+                    e.stopPropagation();
+                    this.ui!.treeRoot = i === 0 ? "" : node.row.id;
+                    this.ui!.treeCollapsed = null;
+                    this.persistUi(); this.rerender();
+                };
+            }
+            crumbs.appendChild(seg);
+        });
+        return crumbs;
     }
 
     /**
      * Value driver tree (DuPont): the formula graph of the P&L drawn as cards.
      * The root is a formula/KPI row, its operands branch to the right, and the
-     * operator of the formula sits in a circle at the branch point. Cards whose
-     * row is itself a formula can be clicked to become the new root.
+     * operator of the formula sits in a circle at the branch point. Every card
+     * with operands opens and closes its own subtree (chevron); the ⌖ mark
+     * lifts a card to the root of the tree.
      */
     private buildTree(fmt: Fmt): HTMLElement {
-        const model = this.model!; const ui = this.ui!;
+        const ui = this.ui!;
         const wrap = document.createElement("div");
         wrap.style.cssText = "padding:4px 14px 10px 14px;";
 
-        const resolve = nodeResolver(model);
-        const home = this.treeLookup(this.settings.columnsCard.treeRoot.value, resolve)
-            ?? this.treeDefaultRoot(resolve);
-        const picked = this.treeLookup(ui.treeRoot, resolve);
-        const root = picked ?? home;
-        if (!root) {
+        const ctx = this.treeCtx;
+        if (!ctx) {
             const hint = document.createElement("div");
             hint.style.cssText = `font-size:11px;color:${C.soft};line-height:1.55;padding:10px 0;max-width:620px;`;
             hint.textContent = this.str(
@@ -2109,12 +2698,9 @@ export class Visual implements IVisual {
         const s = this.fontScale() * (ui.density === "compact" ? 0.9 : 1);
         const cw = TREE_CARD_W * s; const ch = TREE_CARD_H * s;
         const gx = TREE_GAP_X * s; const gy = TREE_GAP_Y * s;
-        const rootCard = this.treeCards(root, resolve);
+        const rootCard = ctx.rootCard;
+        const all = ctx.cards;
         const size = this.treeLayout(rootCard, cw, ch, gx, gy);
-
-        const all: TreeCard[] = [];
-        const collect = (c: TreeCard): void => { all.push(c); for (const k of c.children) { collect(k); } };
-        collect(rootCard);
 
         // comment footnotes follow the cards on screen (numbering in reading order)
         this.comments = [];
@@ -2127,11 +2713,13 @@ export class Visual implements IVisual {
             this.commentNo.set(c.node.row.id, n);
         }
 
+        if (ctx.path.length > 1) { wrap.appendChild(this.treeBreadcrumb(ctx.path)); }
+
         const note = document.createElement("div");
         note.style.cssText = `font-size:9px;color:${C.soft};padding:0 0 4px 0;`;
         note.textContent = this.str(
-            "Value driver tree from the formula graph — click a formula card to make it the root.",
-            "Werttreiberbaum aus dem Formel-Graphen — Klick auf eine Formel-Karte macht sie zur Wurzel.");
+            "Value driver tree from the formula graph — ▾ opens and closes a subtree, ⌖ makes a card the root.",
+            "Werttreiberbaum aus dem Formel-Graphen — ▾ klappt einen Teilbaum auf und zu, ⌖ macht eine Karte zur Wurzel.");
         wrap.appendChild(note);
 
         const ns = "http://www.w3.org/2000/svg";
@@ -2169,7 +2757,7 @@ export class Visual implements IVisual {
             inner.appendChild(t);
         };
 
-        // elbows first, cards on top
+        // elbows first, cards on top — a folded subtree draws no outgoing lines
         for (const c of all) {
             if (c.children.length === 0) { continue; }
             const midX = c.x + cw + gx / 2;
@@ -2183,12 +2771,10 @@ export class Visual implements IVisual {
                 if (op) { opCircle(midX, (ys[i - 1] + ys[i]) / 2, op); }
             }
         }
-        const showBack = picked != null && home != null && picked !== home;
         for (const c of all) {
             const t = c.node.row.rowType;
-            const expandable = (t === "formula" || t === "kpi")
-                && c.node !== root && formulaOperands(c.node, resolve).length > 0;
-            inner.appendChild(this.treeCardG(c, { cw, ch, s, fmt }, expandable, showBack && c === rootCard));
+            const reroot = (t === "formula" || t === "kpi") && c !== rootCard && c.hasKids;
+            inner.appendChild(this.treeCardG(c, { cw, ch, s, fmt, svg }, reroot));
         }
         wrap.appendChild(svg);
         return wrap;

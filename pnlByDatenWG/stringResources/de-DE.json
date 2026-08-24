@@ -29,6 +29,8 @@
         "Columns_RevBase": "Umsatz-Basiszeile (ID oder Name)",
         "Columns_HideZero": "Nullzeilen ausblenden (Standard)",
         "Columns_TreeRoot": "Wurzelzeile Treiberbaum (ID oder Name)",
+        "Columns_TreeCard": "Karten-Diagramm im Treiberbaum",
+        "Columns_TreeStatus": "Status-Indikator der Karten (Δ-Farbe)",
         "Card_Numbers": "Zahlen",
         "Numbers_Scaling": "Skalierung",
         "Numbers_Unit": "Einheit (z. B. EUR)",
