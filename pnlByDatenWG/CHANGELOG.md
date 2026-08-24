@@ -1,5 +1,61 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.8.0.0 (2026-08-24) — Treiberbaum: Versatz-Säulen mit Szenario-Dreiecken, Hierarchie-Drill, ruhigeres Layout
+
+- **Monats-Karten in klassischer IBCS-Versatz-Notation (UN 4.1)**: die
+  Referenz-Säule steht nicht mehr konzentrisch hinter der AC-Säule, sondern
+  **dahinter und um 40 % einer Säulenbreite nach rechts versetzt**, dabei ein
+  Viertel breiter — AC solide `#404040` im Vordergrund links, die Referenz
+  dahinter rechts. Die Füllung der Referenz folgt dem Szenario: **PL weiß mit
+  Rand, PY grau gefüllt, FC schraffiert**. FC-Monate bleiben die schraffierte
+  AC&FC-Front-Säule. Die Referenz ist jetzt die **Toolbar-Referenz** und nicht
+  mehr fest PL.
+- **Szenario-Dreiecke für den zweiten Vergleich (UN 4.1)**: ist neben der
+  Haupt-Referenz noch ein weiteres Szenario gebunden (z. B. PY bei Ref = PL),
+  bekommt jede Säule rechts daneben ein **kleines Dreieck auf Werthöhe**, das
+  auf die Säule zeigt und die Szenario-Füllung trägt — mit `<title>`-Tooltip
+  („PY 245"). Statt einer dritten Säule pro Monat bleibt die Karte damit
+  lesbar. Die Dreiecke bekommen einen eigenen Streifen am rechten Chartrand,
+  damit das letzte Dreieck nicht auf seine Säule zurückgedrängt wird.
+  Die Label-Disziplin bleibt: **max. drei Werte-Labels** je Karte.
+- **Fallback ohne Monatsdaten** zeigt statt drei getrennten Szenario-Säulen
+  **eine Versatz-Gruppe** AC · Referenz · Dreieck über den ganzen Zeitraum.
+- **Hierarchie-Drill im Baum**: der Baum verzweigt nicht mehr nur entlang der
+  Formel-Operanden. Karten **ohne** Formel (Subtotals, bebuchbare Konten) tragen
+  jetzt ebenfalls einen **Chevron ▸/▾** und klappen ihre **Kontenhierarchie**
+  als Karten auf. Operator am Verzweigungskreis ist die **Vorzeichen-Konvention
+  des Kindes** — „+" für Ertragszeilen, **„−" für Kostenzeilen** (`sign === -1`),
+  sodass die Verzweigung als „Umsatz − Kosten" lesbar bleibt. Eine Karte hat
+  immer nur **eine** Art Kinder: Formel-Operanden **oder** Hierarchie-Kinder.
+  Beispiel-Pfad: `Net margin ÷ Net income + EBT + EBIT + EBITDA + Gross profit
+  → Cost of goods sold → Materials · Production · Other cost of sales` (−).
+- **Ebenen-Buttons, `treeCollapsed` und das Karten-Budget (400) gelten für beide
+  Verzweigungsarten**; die Karten-Reihenfolge ist die Hierarchie-Sortierung.
+- **Re-Root auf Hierarchie-Karten**: das Fadenkreuz ⌖ sitzt jetzt auf **jeder**
+  verzweigenden Karte, also auch auf Subtotals. Die Breadcrumb-Zeile ist
+  generisch und führt von der Standard-Wurzel bis zur gewählten Karte zurück
+  (z. B. „Net margin › Net income › EBT › EBIT › EBITDA › Gross profit").
+- **Ruhigeres Layout**: die Eltern-Karte sitzt **exakt auf der vertikalen Mitte
+  ihres Kinder-Blocks**; zwischen zwei Geschwister-**Teilbäumen** liegt ein
+  zusätzlicher Abstand (14 px), damit ein aufgeklappter Ast als Block liest
+  statt in die Spalte darüber zu verschmelzen; unter Breadcrumb und
+  Hinweiszeile steht ein **fester Abstand von 10 px** zur ersten Kartenreihe.
+  Die Ellbogen-Linien bleiben orthogonal (Eltern-Mitte → Verzweigungskreis →
+  Kind-Mitten); beim Auf- und Zuklappen überlappt keine Karte eine andere.
+- **Neuer Interaktionstest `test/tree-interact.js`** (`npm run test:tree`, auch
+  Teil von `npm test`): fährt Chevrons auf Formel- **und** Hierarchie-Karten,
+  die Ebenen-Buttons, das ⌖ auf einer Subtotal-Karte, die Breadcrumb, alle drei
+  Karten-Modi, den Status-Toggle und den Referenz-Wechsel PL ↔ PY durch und
+  prüft danach jeweils den Baumzustand — inklusive **Versatz** (Ref-Rect x ≠
+  AC-Rect x, Ref breiter, Ref zuerst gezeichnet), **Dreiecke** samt Tooltip,
+  Label-Disziplin, exakter Eltern-Zentrierung, Überlappungsfreiheit und
+  Clipping. 37 Checks.
+- **Tests**: `p8` zeigt jetzt Versatz-Säulen mit PY-Dreiecken **und** den
+  aufgeklappten Net-revenue-Hierarchiezweig, `p9` das Re-Root auf Gross profit
+  mit Breadcrumb und dem COGS-Drill („−"), `p10` unverändert die Δ-Säulen gegen
+  PY. `p1–p7` rendern **pixelidentisch** zu 0.7.0.0 (per Screenshot-Vergleich je
+  Stage verifiziert).
+
 ## 0.7.0.0 (2026-08-24) — Treiberbaum: echtes Auf- und Zuklappen, drei Karten-Diagramme, Status-Indikator
 
 - **Echtes Expand/Collapse statt fester Tiefe 4**: jede Karte mit Formel-Operanden

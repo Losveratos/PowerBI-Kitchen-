@@ -13,9 +13,9 @@
 <div class="case"><h4>p1 · Voll-Layout: Toolbar · YTD- + FY-Block · %Rev · Kommentare · Konten-IDs · Ebene 2</h4><div class="stage" id="p1" style="width:1560px;height:900px"></div></div>
 <div class="case"><h4>p2 · Zeilen-Waterfall · 3 Perioden-Blöcke MTD | YTD | FY (AC&amp;FC vs PL)</h4><div class="stage" id="p2" style="width:2100px;height:780px"></div></div>
 <div class="case"><h4>p7 · Struktur-Balken-Ansicht (view=bars) · AC vs PL + FY-Block</h4><div class="stage" id="p7" style="width:1250px;height:640px"></div></div>
-<div class="case"><h4>p8 · Werttreiberbaum (view=tree) · Default-Root, Ebene 2 offen, Status-Ränder</h4><div class="stage" id="p8" style="width:1250px;height:720px"></div></div>
-<div class="case"><h4>p9 · Tree · Karten = Mini-Brücke (REF→Δ→AC) · Status an · Teilbaum EBT zugeklappt</h4><div class="stage" id="p9" style="width:1250px;height:680px"></div></div>
-<div class="case"><h4>p10 · Tree · Karten = Abweichungssäulen Δ vs PY · Teilbaum EBIT zugeklappt</h4><div class="stage" id="p10" style="width:1250px;height:760px"></div></div>
+<div class="case"><h4>p8 · Werttreiberbaum (view=tree) · Versatz-Säulen AC/PL + PY-Dreiecke · Hierarchie-Drill Net revenue (+)</h4><div class="stage" id="p8" style="width:1250px;height:800px"></div></div>
+<div class="case"><h4>p9 · Tree · Re-Root auf Gross profit (Breadcrumb) · Mini-Brücke · Hierarchie-Drill COGS (−)</h4><div class="stage" id="p9" style="width:1250px;height:820px"></div></div>
+<div class="case"><h4>p10 · Tree · Karten = Abweichungssäulen Δ vs PY · Teilbaum EBIT zugeklappt</h4><div class="stage" id="p10" style="width:1250px;height:820px"></div></div>
 <div class="case"><h4>p3 · Compact · Preset AC·PL·ΔPL · ohne %Rev · Nullzeilen aus · alles auf</h4><div class="stage" id="p3" style="width:1100px;height:800px"></div></div>
 <div class="case"><h4>p4 · Preset ΔPY%·ΔPL% · IBCS-Grün klassisch · de-DE</h4><div class="stage" id="p4" style="width:900px;height:760px"></div></div>
 <div class="case"><h4>p5 · Landing Page</h4><div class="stage" id="p5" style="width:700px;height:200px"></div></div>
@@ -97,17 +97,20 @@ run("p7", {
   state: { uiState: JSON.stringify({ view: "bars" }) },
 });
 
-// p8 — value driver tree (DuPont) on the default root
+// p8 — driver tree on the default root: offset AC/PL columns with PY triangles,
+// the Net revenue account hierarchy opened ("+" operators), Net income folded
 run("p8", {
   titleBlock: { measureLine: "Income statement (P&L) in mEUR" },
-  state: { uiState: JSON.stringify({ view: "tree" }) },
+  state: { uiState: JSON.stringify({ view: "tree", treeCollapsed: ["F_NETINCOME"] }) },
 });
 
-// p9 — tree with the horizontal mini bridge, status indicator, EBT folded away
+// p9 — re-rooted on Gross profit (breadcrumb), mini bridge cards, the cost of
+// goods sold hierarchy opened ("−" operators), Net revenue folded
 run("p9", {
   titleBlock: { measureLine: "Income statement (P&L) in mEUR" },
   state: { uiState: JSON.stringify({
-    view: "tree", treeCard: "bridge", treeStatus: true, treeCollapsed: ["F_EBT"],
+    view: "tree", treeCard: "bridge", treeStatus: true,
+    treeRoot: "F_GROSSPROFIT", treeCollapsed: ["L:Net revenue"],
   }) },
 });
 
@@ -115,7 +118,8 @@ run("p9", {
 run("p10", {
   titleBlock: { measureLine: "Income statement (P&L) in mEUR" },
   state: { uiState: JSON.stringify({
-    view: "tree", treeCard: "delta", ref: "py", treeCollapsed: ["F_EBIT"],
+    view: "tree", treeCard: "delta", ref: "py",
+    treeCollapsed: ["F_EBIT", "L:Net revenue", "L:Financial result"],
   }) },
 });
 

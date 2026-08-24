@@ -68,13 +68,22 @@ const TREE_CARD_H = 104;
 const TREE_GAP_X = 64;
 const TREE_GAP_Y = 16;
 /**
- * Safety budget for the expanded formula graph — there is no depth limit any
- * more (readers open and close subtrees themselves), but a pathological model
- * with many diamond references must not expand without bound.
+ * Extra air between two sibling *subtrees* (as opposed to two sibling leaves) —
+ * without it a branch that opens reads as one continuous column of cards.
+ */
+const TREE_GAP_SUB = 14;
+/** Fixed distance between the tree hint line and the first card row. */
+const TREE_HEAD_GAP = 10;
+/**
+ * Safety budget for the expanded graph — there is no depth limit any more
+ * (readers open and close subtrees themselves), but a pathological model with
+ * many diamond references or a deep account hierarchy must stay bounded.
  */
 const TREE_MAX_CARDS = 400;
 /** Tree level that is open by default: root + its direct operands. */
 const TREE_DEFAULT_LEVEL = 2;
+/** Scenario-triangle size (px at font scale 1) — IBCS UN 4.1. */
+const TREE_TRI = 5.5;
 
 type ViewMode = "table" | "bars" | "waterfall" | "tree";
 type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct";
@@ -113,10 +122,12 @@ interface TreeCard {
     children: TreeCard[];
     x: number;
     y: number;
-    /** the row has formula operands (⇒ the card carries a chevron) */
+    /** the row branches — formula operands or hierarchy children (⇒ chevron) */
     hasKids: boolean;
     /** operands exist but are folded away */
     collapsed: boolean;
+    /** the branch below this card is the account hierarchy, not the formula */
+    drill: boolean;
 }
 
 /** Everything the toolbar and the tree renderer need about the current graph. */
@@ -135,14 +146,30 @@ interface TreeCtx {
     path: PnlNode[];
 }
 
-/** One column of a card's mini chart: AC-style bar plus optional reference bar behind it. */
+/**
+ * One column of a card's mini chart: the AC/FC column in front plus, behind and
+ * offset to the right, the reference column, plus the scenario triangle of a
+ * second reference (IBCS UN 4.1).
+ */
 interface TreeSlot {
     v: number | null;
     ref: number | null;
-    style: "ac" | "py" | "pl" | "fc";
+    /** second scenario, drawn as a triangle pointing at the column */
+    ref2: number | null;
+    /** front column: actuals, or the forecast that fills the months after them */
+    style: "ac" | "fc";
     /** period/scenario label under the axis (only first and last carry one) */
     tag: string | null;
     label: boolean;
+}
+
+/** A card's mini chart series plus the scenarios its reference marks encode. */
+interface TreeSeries {
+    slots: TreeSlot[];
+    /** scenario of the offset reference column ("" = none) */
+    refScen: Scenario | "";
+    /** scenario of the triangle marks ("" = none) */
+    ref2Scen: Scenario | "";
 }
 
 interface ColSpec {
@@ -1887,27 +1914,45 @@ export class Visual implements IVisual {
     }
 
     /**
-     * Expand the formula graph into cards; cycles and repeated refs on the same
-     * path are cut. No depth limit — readers fold subtrees away themselves —
-     * but a card budget keeps a pathological diamond graph bounded.
+     * Expand a node into cards. A card branches in exactly one way: a formula /
+     * KPI row along its operands (operator ×÷+− at the branch point), any other
+     * row along its account hierarchy (subtotals and posted accounts), where the
+     * branch operator is the child's sign convention — "+" for income, "−" for
+     * cost rows, so the branch reads as "revenue − cost".
+     *
+     * Cycles and repeated refs on the same path are cut. No depth limit —
+     * readers fold subtrees away themselves — but a card budget keeps a
+     * pathological diamond graph or a very deep hierarchy bounded.
      */
     private treeCards(root: PnlNode, resolve: (id: string) => PnlNode | undefined): TreeCard {
         let budget = TREE_MAX_CARDS;
         const build = (node: PnlNode, op: FormulaOp | null, depth: number, path: string[]): TreeCard => {
             const card: TreeCard = {
-                node, op, depth, children: [], x: 0, y: 0, hasKids: false, collapsed: false,
+                node, op, depth, children: [], x: 0, y: 0,
+                hasKids: false, collapsed: false, drill: false,
             };
             const t = node.row.rowType;
-            if (t !== "formula" && t !== "kpi") { return card; }
+            if (t === "separator") { return card; }
             const seen = new Set(path);
             const kids: { child: PnlNode; op: FormulaOp }[] = [];
-            for (const o of formulaOperands(node, resolve)) {
-                const id = o.child.row.id;
-                if (seen.has(id)) { continue; }
-                seen.add(id);
-                kids.push(o);
+            if (t === "formula" || t === "kpi") {
+                for (const o of formulaOperands(node, resolve)) {
+                    const id = o.child.row.id;
+                    if (seen.has(id)) { continue; }
+                    seen.add(id);
+                    kids.push(o);
+                }
+            } else {
+                card.drill = true;
+                for (const child of node.children) {
+                    const id = child.row.id;
+                    if (child.row.rowType === "separator" || seen.has(id)) { continue; }
+                    seen.add(id);
+                    kids.push({ child, op: child.row.sign === -1 ? "−" : "+" });
+                }
             }
             card.hasKids = kids.length > 0;
+            if (!card.hasKids) { card.drill = false; }
             for (const o of kids) {
                 if (budget <= 0) { break; }
                 budget--;
@@ -1980,8 +2025,14 @@ export class Visual implements IVisual {
         return { resolve, home, picked, root, rootCard, cards: this.treeCollect(rootCard), depth, levels, path };
     }
 
-    /** tidy layout: one column per level, leaves stacked, parents centered */
-    private treeLayout(root: TreeCard, cw: number, ch: number, gx: number, gy: number): { w: number; h: number } {
+    /**
+     * Tidy layout: one column per level, leaves stacked top to bottom, every
+     * parent exactly on the vertical centre of its children block. Two sibling
+     * subtrees get one extra gap between them so an opened branch reads as a
+     * block instead of merging into the column above it.
+     */
+    private treeLayout(root: TreeCard, cw: number, ch: number, gx: number, gy: number,
+        sub: number): { w: number; h: number } {
         let cursor = 0; let maxDepth = 0;
         const place = (c: TreeCard): void => {
             c.x = c.depth * (cw + gx);
@@ -1991,7 +2042,13 @@ export class Visual implements IVisual {
                 cursor += ch + gy;
                 return;
             }
-            for (const k of c.children) { place(k); }
+            c.children.forEach((k, i) => {
+                if (i > 0 && (k.children.length > 0 || c.children[i - 1].children.length > 0)) {
+                    cursor += sub;
+                }
+                place(k);
+            });
+            // exact centre of the children block (all cards share one height)
             c.y = (c.children[0].y + c.children[c.children.length - 1].y) / 2;
         };
         place(root);
@@ -2013,13 +2070,37 @@ export class Visual implements IVisual {
         return s.length <= max ? s : s.slice(0, Math.max(1, max - 1)) + "…";
     }
 
-    /** monthly columns of a card: AC (or FC) vs PL, or AC/PL/PY when no periods are loaded */
-    private treeSlots(node: PnlNode): TreeSlot[] {
+    /**
+     * The two reference scenarios of a card chart in priority order: the
+     * toolbar reference first (it stays the one the Δ marks talk about), the
+     * remaining comparison scenario second. The first becomes the offset
+     * reference column, the second the scenario triangle (IBCS UN 4.1).
+     * `fy` allows the full-year plan as a stand-in when no monthly PL exists.
+     */
+    private treeRefScenarios(fy: boolean): Scenario[] {
+        const pool: Scenario[] = this.ui!.ref === "py" ? ["py", "pl"] : ["pl", "py"];
+        const out: Scenario[] = [];
+        for (const s of pool) {
+            if (this.has[s]) { out.push(s); }
+            else if (s === "pl" && fy && this.has.plfy) { out.push("plfy"); }
+        }
+        return out;
+    }
+
+    /**
+     * Monthly columns of a card: the AC (or FC) column per month, the reference
+     * column of the same month behind it, and the second scenario as a triangle.
+     * Without monthly data one overlapped scenario group stands in for the year.
+     */
+    private treeSeries(node: PnlNode): TreeSeries {
         const inv = node.row.displayInvert ? -1 : 1;
         const months = this.model!.months;
-        const ac = node.series.ac; const pl = node.series.pl; const fc = node.series.fc;
+        const ac = node.series.ac; const fc = node.series.fc;
         const slots: TreeSlot[] = [];
         if (months.length > 1 && (ac || fc)) {
+            const scens = this.treeRefScenarios(false);
+            const r1 = scens[0] ? node.series[scens[0]] : undefined;
+            const r2 = scens[1] ? node.series[scens[1]] : undefined;
             const n = months.length;
             let anyFc = false;
             for (let i = 0; i < n; i++) {
@@ -2029,20 +2110,25 @@ export class Visual implements IVisual {
                 const raw = a != null ? a : f;
                 const isFc = a == null && f != null;
                 if (isFc) { anyFc = true; }
-                const p = pl ? pl[i] : null;
+                const p = r1 ? r1[i] : null;
+                const q = r2 ? r2[i] : null;
                 slots.push({
                     v: raw == null ? null : raw * inv,
                     ref: p == null ? null : p * inv,
+                    ref2: q == null ? null : q * inv,
                     style: isFc ? "fc" : "ac",
                     tag: null,
                     label: false,
                 });
             }
+            const refScen: Scenario | "" = slots.some(sl => sl.ref != null) ? scens[0] : "";
+            const ref2Scen: Scenario | "" = slots.some(sl => sl.ref2 != null) ? scens[1] : "";
             // period labels only at the ends of the series (IBCS UN 2.3)
-            const withPl = slots.some(sl => sl.ref != null);
-            const scen = anyFc ? "AC&FC" : "AC";
-            slots[0].tag = `${this.monthLabel(months[0])} ${scen}`;
-            slots[n - 1].tag = `${this.monthLabel(months[n - 1])} ${withPl ? scen + "·PL" : scen}`;
+            const front = anyFc ? "AC&FC" : "AC";
+            const scen = [front, refScen.toUpperCase(), ref2Scen.toUpperCase()]
+                .filter(t => t !== "").join("·");
+            slots[0].tag = `${this.monthLabel(months[0])} ${front}`;
+            slots[n - 1].tag = `${this.monthLabel(months[n - 1])} ${scen}`;
             // value labels only at first, last and the absolute extremum (max 3)
             const marked = new Set<number>([0, n - 1]);
             let ext = -1; let extAbs = -1;
@@ -2052,17 +2138,20 @@ export class Visual implements IVisual {
             });
             if (ext > 1 && ext < n - 2) { marked.add(ext); }
             for (const i of marked) { slots[i].label = true; }
-            return slots;
+            return { slots, refScen, ref2Scen };
         }
-        const add = (scen: Scenario, style: "ac" | "py" | "pl", tag: string): void => {
-            const v = displayValue(node, scen);
-            if (v != null) { slots.push({ v, ref: null, style, tag, label: true }); }
-        };
-        add("ac", "ac", "AC");
-        if (this.has.pl) { add("pl", "pl", "PL"); }
-        else if (this.has.plfy) { add("plfy", "pl", "PL FY"); }
-        if (this.has.py) { add("py", "py", "PY"); }
-        return slots;
+        // no periods loaded: one overlapped scenario group for the whole span
+        const scens = this.treeRefScenarios(true);
+        const acv = displayValue(node, "ac");
+        const r1v = scens[0] ? displayValue(node, scens[0]) : null;
+        const r2v = scens[1] ? displayValue(node, scens[1]) : null;
+        if (acv == null && r1v == null && r2v == null) { return { slots: [], refScen: "", ref2Scen: "" }; }
+        const refScen: Scenario | "" = r1v == null ? "" : scens[0];
+        const ref2Scen: Scenario | "" = r2v == null ? "" : scens[1];
+        const tag = ["AC", refScen.toUpperCase(), ref2Scen.toUpperCase()]
+            .filter(t => t !== "").join("·");
+        slots.push({ v: acv, ref: r1v, ref2: r2v, style: "ac", tag, label: true });
+        return { slots, refScen, ref2Scen };
     }
 
     /** hatch fill for FC elements inside the tree (one pattern per rendered tree) */
@@ -2150,22 +2239,36 @@ export class Visual implements IVisual {
         });
     }
 
+    /** scenario fill of a reference element: PY solid gray, PL outlined, FC hatched */
+    private treeScenFill(scen: Scenario, hatch: string): { fill: string; stroke: string | null } {
+        if (scen === "py") { return { fill: C.refGray, stroke: null }; }
+        if (scen === "fc" || scen === "fcfy") { return { fill: `url(#${hatch})`, stroke: C.ac }; }
+        return { fill: "#FFF", stroke: C.ac };
+    }
+
     /**
-     * IBCS mini column chart inside a card: AC solid, PL outlined behind (wider,
-     * overlap notation), FC hatched; solid zero line, no gridlines. Against the
-     * crowding of many months only three value labels are drawn — first, last
-     * and the absolute extremum — and only the outer periods carry a tag.
+     * IBCS mini column chart inside a card, overlapped-group notation (UN 4.1):
+     * the reference column sits *behind* the AC column, a touch wider and offset
+     * to the right by ~40 % of a column width, so both scenarios stay readable;
+     * AC solid in front, FC months hatched. A second scenario is not given a
+     * third column but a small triangle carrying its scenario fill, pointing at
+     * the column at the height of its value.
+     *
+     * Solid zero line, no gridlines. Against the crowding of many months only
+     * three value labels are drawn — first, last and the absolute extremum —
+     * and only the outer periods carry a tag.
      */
     private treeMini(g: SVGGElement, node: PnlNode, box: { x: number; y: number; w: number; h: number },
         s: number, fmt: Fmt, svg: SVGSVGElement, rightInset: number): void {
         const ns = "http://www.w3.org/2000/svg";
-        const slots = this.treeSlots(node);
+        const series = this.treeSeries(node);
+        const slots = series.slots;
         if (slots.length === 0) { this.treeHint(g, box, s, "–"); return; }
         const isRatio = node.row.rowType === "kpi";
         const lfs = 7.5 * s;
         let min = 0; let max = 0;
         for (const sl of slots) {
-            for (const v of [sl.v, sl.ref]) {
+            for (const v of [sl.v, sl.ref, sl.ref2]) {
                 if (v == null) { continue; }
                 min = Math.min(min, v); max = Math.max(max, v);
             }
@@ -2188,27 +2291,59 @@ export class Visual implements IVisual {
         };
 
         const n = slots.length;
-        const slotW = box.w / n;
-        const paired = slots.some(sl => sl.ref != null);
+        const paired = series.refScen !== "";
+        const tri = TREE_TRI * s;
+        const triangles = series.ref2Scen !== "";
+        // the triangles of the last period need a strip of their own, otherwise
+        // they would be pushed back onto the column they point at
+        const slotW = (box.w - (triangles ? tri + 1.5 * s : 0)) / n;
         // column width from the card width: the gap keeps at least 40 % of the
-        // widest column, so many months stay legible instead of merging
-        const colW = Math.min(slotW / 1.5, 17 * s);
-        const inner = paired ? colW * 0.58 : colW;
-        const hatch = slots.some(sl => sl.style === "fc") ? this.treeHatchId(svg) : "";
+        // widest column (55 % where a triangle needs room to its right), so many
+        // months stay legible instead of merging
+        const colW = triangles ? Math.min(slotW / 1.75, 15 * s) : Math.min(slotW / 1.5, 17 * s);
+        // offset notation: AC left and narrow, the reference behind it, wider
+        // and shifted right; the pair stays centred inside its slot
+        const acW = paired ? colW * 0.60 : colW;
+        const refW = acW * 1.25;
+        const dx = paired ? acW * 0.40 : 0;
+        const needHatch = slots.some(sl => sl.style === "fc")
+            || series.refScen === "fc" || series.ref2Scen === "fc";
+        const hatch = needHatch ? this.treeHatchId(svg) : "";
+
         slots.forEach((sl, i) => {
             const cx = box.x + (i + 0.5) * slotW;
-            // reference (PL) behind and wider — IBCS comparison notation
-            if (sl.ref != null) { rect(cx - colW / 2, colW, sl.ref, "#FFF", C.ac, 1.2); }
-            if (sl.v == null) { return; }
-            const w = paired || slots.length > 1 ? inner : colW;
-            if (sl.style === "pl") { rect(cx - colW / 2, colW, sl.v, "#FFF", C.ac, 1.2); }
-            else if (sl.style === "py") { rect(cx - colW / 2, colW, sl.v, C.refGray, null, 0); }
-            else if (sl.style === "fc") { rect(cx - w / 2, w, sl.v, `url(#${hatch})`, C.ac, 1); }
-            else { rect(cx - w / 2, w, sl.v, C.ac, null, 0); }
-            if (sl.label) {
-                this.treeLabel(g, box, cx, sl.v >= 0 ? yOf(sl.v) - 2.5 : yOf(sl.v) + lfs,
-                    isRatio ? fmt.pct(sl.v) : this.treeNum(sl.v, fmt), lfs,
-                    sl.style === "py" ? C.refGray : C.text);
+            const acCx = cx - dx / 2;
+            const refCx = cx + dx / 2;
+            // reference behind, wider and offset — IBCS overlapped grouped columns
+            if (sl.ref != null && series.refScen !== "") {
+                const st = this.treeScenFill(series.refScen, hatch);
+                rect(refCx - refW / 2, refW, sl.ref, st.fill, st.stroke, 1.2);
+            }
+            if (sl.v != null) {
+                if (sl.style === "fc") { rect(acCx - acW / 2, acW, sl.v, `url(#${hatch})`, C.ac, 1); }
+                else { rect(acCx - acW / 2, acW, sl.v, C.ac, null, 0); }
+            }
+            // scenario triangle for the second reference (IBCS UN 4.1)
+            if (sl.ref2 != null && series.ref2Scen !== "") {
+                const st = this.treeScenFill(series.ref2Scen, hatch);
+                const ty = yOf(sl.ref2);
+                const tx = Math.min(refCx + refW / 2 + 1.2 * s, box.x + box.w - tri);
+                const p = document.createElementNS(ns, "path");
+                p.setAttribute("d", `M${tx.toFixed(2)},${ty.toFixed(2)}`
+                    + `L${(tx + tri).toFixed(2)},${(ty - tri * 0.62).toFixed(2)}`
+                    + `L${(tx + tri).toFixed(2)},${(ty + tri * 0.62).toFixed(2)}Z`);
+                p.setAttribute("fill", st.fill);
+                p.setAttribute("stroke", st.stroke ?? C.refGray);
+                p.setAttribute("stroke-width", "0.8");
+                const tt = document.createElementNS(ns, "title");
+                tt.textContent = `${series.ref2Scen.toUpperCase()} `
+                    + (isRatio ? fmt.pct(sl.ref2) : this.treeNum(sl.ref2, fmt));
+                p.appendChild(tt);
+                g.appendChild(p);
+            }
+            if (sl.v != null && sl.label) {
+                this.treeLabel(g, box, acCx, sl.v >= 0 ? yOf(sl.v) - 2.5 : yOf(sl.v) + lfs,
+                    isRatio ? fmt.pct(sl.v) : this.treeNum(sl.v, fmt), lfs, C.text);
             }
         });
 
@@ -2642,7 +2777,7 @@ export class Visual implements IVisual {
     /** breadcrumb over a re-rooted tree: every segment jumps back to that card */
     private treeBreadcrumb(path: PnlNode[]): HTMLElement {
         const crumbs = document.createElement("div");
-        crumbs.style.cssText = `font-size:10px;color:${C.soft};padding:0 0 5px 0;` +
+        crumbs.style.cssText = `font-size:10px;color:${C.soft};margin:0 0 4px 0;padding:0;line-height:1.5;` +
             "display:flex;gap:5px;flex-wrap:wrap;align-items:center;";
         path.forEach((node, i) => {
             if (i > 0) {
@@ -2671,11 +2806,12 @@ export class Visual implements IVisual {
     }
 
     /**
-     * Value driver tree (DuPont): the formula graph of the P&L drawn as cards.
-     * The root is a formula/KPI row, its operands branch to the right, and the
-     * operator of the formula sits in a circle at the branch point. Every card
-     * with operands opens and closes its own subtree (chevron); the ⌖ mark
-     * lifts a card to the root of the tree.
+     * Value driver tree (DuPont): the P&L drawn as cards. The root is a formula
+     * or KPI row, its operands branch to the right with the formula operator
+     * (×÷+−) in a circle at the branch point; a card that carries no formula
+     * branches into its account hierarchy instead, with "+" / "−" per the sign
+     * convention of the child. Every branching card opens and closes its own
+     * subtree (chevron); the ⌖ mark lifts a card to the root of the tree.
      */
     private buildTree(fmt: Fmt): HTMLElement {
         const ui = this.ui!;
@@ -2700,7 +2836,7 @@ export class Visual implements IVisual {
         const gx = TREE_GAP_X * s; const gy = TREE_GAP_Y * s;
         const rootCard = ctx.rootCard;
         const all = ctx.cards;
-        const size = this.treeLayout(rootCard, cw, ch, gx, gy);
+        const size = this.treeLayout(rootCard, cw, ch, gx, gy, TREE_GAP_SUB * s);
 
         // comment footnotes follow the cards on screen (numbering in reading order)
         this.comments = [];
@@ -2713,13 +2849,17 @@ export class Visual implements IVisual {
             this.commentNo.set(c.node.row.id, n);
         }
 
+        // head block: breadcrumb, hint line, then a fixed gap to the first card
+        // row — the tree must never grow into the lines above it
         if (ctx.path.length > 1) { wrap.appendChild(this.treeBreadcrumb(ctx.path)); }
 
         const note = document.createElement("div");
-        note.style.cssText = `font-size:9px;color:${C.soft};padding:0 0 4px 0;`;
+        note.style.cssText = `font-size:9px;color:${C.soft};margin:0;padding:0;line-height:1.5;`;
         note.textContent = this.str(
-            "Value driver tree from the formula graph — ▾ opens and closes a subtree, ⌖ makes a card the root.",
-            "Werttreiberbaum aus dem Formel-Graphen — ▾ klappt einen Teilbaum auf und zu, ⌖ macht eine Karte zur Wurzel.");
+            "Value driver tree — ▾ opens and closes a subtree (formula operands, otherwise the account hierarchy), "
+            + "⌖ makes a card the root.",
+            "Werttreiberbaum — ▾ klappt einen Teilbaum auf und zu (Formel-Operanden, sonst die Kontenhierarchie), "
+            + "⌖ macht eine Karte zur Wurzel.");
         wrap.appendChild(note);
 
         const ns = "http://www.w3.org/2000/svg";
@@ -2727,7 +2867,7 @@ export class Visual implements IVisual {
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
         svg.setAttribute("width", String(Math.ceil(size.w + 2 * pad)));
         svg.setAttribute("height", String(Math.ceil(size.h + 2 * pad)));
-        svg.style.cssText = "display:block;";
+        svg.style.cssText = `display:block;margin-top:${TREE_HEAD_GAP}px;`;
         const inner = document.createElementNS(ns, "g") as SVGGElement;
         inner.setAttribute("transform", `translate(${pad},${pad})`);
         svg.appendChild(inner);
@@ -2772,9 +2912,9 @@ export class Visual implements IVisual {
             }
         }
         for (const c of all) {
-            const t = c.node.row.rowType;
-            const reroot = (t === "formula" || t === "kpi") && c !== rootCard && c.hasKids;
-            inner.appendChild(this.treeCardG(c, { cw, ch, s, fmt, svg }, reroot));
+            // any branching card can become the root — formula rows as well as
+            // subtotals that open into their account hierarchy
+            inner.appendChild(this.treeCardG(c, { cw, ch, s, fmt, svg }, c !== rootCard && c.hasKids));
         }
         wrap.appendChild(svg);
         return wrap;

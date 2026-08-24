@@ -69,6 +69,7 @@ RLS-beschnittenen Daten).
 npm install
 npm run test:engine   # Unit-Tests des Rechenkerns (Hierarchie, Formeln, Vorzeichen)
 npm run test:render   # Headless-Render aller Testfälle -> test/render.png
+npm run test:tree     # Interaktionstest des Treiberbaums (Chevrons, Drill, ⌖)
 npm run lint
 npm run package       # baut dist/*.pbiviz
 ```

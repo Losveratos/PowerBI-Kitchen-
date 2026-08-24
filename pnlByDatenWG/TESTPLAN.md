@@ -110,8 +110,16 @@ Alle Monate ausgewählt (kein Filter):
   EBITDA, EBIT, EBT, Net income) stehen auf der Nulllinie, Kostenblöcke floaten
 - [ ] **Tree**: Treiberbaum öffnet mit der letzten Formel-/KPI-Zeile als Wurzel
   (Pharma-Demo: Net margin = Net income ÷ Net revenue); Operator-Kreise ×/÷/+/−
-  sitzen an den Verzweigungen, Klick auf eine Formel-Karte re-rootet, „↩" in der
-  Wurzelkarte führt zurück; Perioden-/Preset-/Referenz-Gruppen sind ausgeblendet
+  sitzen an den Verzweigungen; Perioden-/Preset-Gruppen sind ausgeblendet
+- [ ] **Tree · Hierarchie-Drill**: Karten ohne Formel (Subtotals, Konten) tragen
+  ebenfalls einen Chevron und klappen ihre Kontenhierarchie auf — Operator „+"
+  bei Ertrags-, „−" bei Kostenzeilen (`Cost of goods sold` → Materials ·
+  Production · Other cost of sales)
+- [ ] **Tree · ⌖ / Breadcrumb**: das Fadenkreuz macht jede verzweigende Karte —
+  auch eine Subtotal-Karte — zur Wurzel, die Breadcrumb führt zurück
+- [ ] **Tree · Karten „Monate"**: AC solide vorn, Referenz dahinter und nach
+  rechts versetzt (PL outlined / PY grau / FC schraffiert), Dreiecke des
+  zweiten Szenarios auf Werthöhe mit Tooltip, max. 3 Werte-Labels
 - [ ] **12M**-Chip an einer Zeile: Sparkline klappt auf (AC solide, PY dünn)
 - [ ] **Monats-Slicer** auf `Monat` (z. B. nur Jan–Mrz): alle Zahlen inkl.
   Formelzeilen rechnen live neu
