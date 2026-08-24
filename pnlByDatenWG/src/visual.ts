@@ -266,6 +266,9 @@ export class Visual implements IVisual {
     private locale = "en-US";
 
     private ui: UiState | null = null;
+    /** open hover-zoom panel of the driver tree (one at a time) */
+    private zoomEl: HTMLElement | null = null;
+    private zoomTimer: ReturnType<typeof setTimeout> | null = null;
     private wfSegs = new Map<string, Map<string, { s: number; e: number }>>();
     private stateLoaded = false;
     private pendingPersist: string | null = null;
@@ -310,7 +313,7 @@ export class Visual implements IVisual {
         this.root.className = "pnl-root";
         this.root.style.cssText =
             `width:100%;height:100%;overflow:auto;background:#FFF;font-family:${FONT};` +
-            `color:${C.text};box-sizing:border-box;`;
+            `color:${C.text};box-sizing:border-box;position:relative;`;
         this.root.addEventListener("scroll", () => this.onScroll());
         options.element.appendChild(this.root);
     }
@@ -741,6 +744,7 @@ export class Visual implements IVisual {
         const model = this.model; const ui = this.ui;
         if (!model || !ui) { return; }
         const keepScroll = this.root.scrollTop;
+        this.treeZoomHide();
         this.root.replaceChildren();
         this.comments = [];
         this.vs = null;
@@ -781,6 +785,7 @@ export class Visual implements IVisual {
     // ---------------- windowed rendering ----------------
 
     private onScroll(): void {
+        if (this.zoomEl || this.zoomTimer != null) { this.treeZoomHide(); }
         if (!this.vs || this.scrollRaf !== 0) { return; }
         const raf = typeof requestAnimationFrame === "function"
             ? requestAnimationFrame : (cb: FrameRequestCallback): number => setTimeout(() => cb(0), 16) as unknown as number;
@@ -2720,6 +2725,169 @@ export class Visual implements IVisual {
     }
 
     /** one driver card: white box, header, mini chart, chevron and re-root marks */
+    private treeZoomHide(): void {
+        if (this.zoomTimer != null) { clearTimeout(this.zoomTimer); this.zoomTimer = null; }
+        if (this.zoomEl) { this.zoomEl.remove(); this.zoomEl = null; }
+    }
+
+    /**
+     * Hover zoom of one driver-tree card: the full IBCS detail view of that
+     * node — YTD values and variances for every scenario, the FY outlook, and
+     * the three chart forms (offset monthly columns, Δ columns, bridge) at
+     * readable size. Pointer events stay off so the panel never traps the
+     * mouse; it lives inside the visual root and clamps to the viewport.
+     */
+    private treeZoomShow(card: TreeCard, anchor: SVGGElement, fmt: Fmt): void {
+        this.treeZoomHide();
+        const node = card.node;
+        const ns = "http://www.w3.org/2000/svg";
+        const isRatio = node.row.rowType === "kpi";
+        const unit = isRatio ? "%" : (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
+        const W = 396; const inner = W - 26;
+        const box = document.createElement("div");
+        box.style.cssText = `position:absolute;z-index:40;width:${W}px;background:#FFF;` +
+            `border:1px solid ${C.cardEdge};border-radius:5px;` +
+            `box-shadow:0 8px 28px rgba(15,30,46,.22);padding:11px 13px 8px 13px;` +
+            `pointer-events:none;font-family:${FONT};box-sizing:border-box;`;
+
+        // ---- header: name + unit + Δ headline in the status colour
+        const va = this.treeVariance(node);
+        const vColor = va == null ? null : (va.good ? this.goodColor() : this.badColor());
+        const head = document.createElement("div");
+        head.style.cssText = "display:flex;align-items:baseline;gap:8px;margin-bottom:1px;";
+        const nm = document.createElement("div");
+        nm.style.cssText = `flex:1;font-size:13px;font-weight:700;color:${C.text};` +
+            "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
+        const cno = this.commentNo.get(node.row.id);
+        nm.textContent = node.row.name + (cno != null ? " " + String.fromCharCode(0x2460 + cno - 1) : "");
+        head.appendChild(nm);
+        const un = document.createElement("div");
+        un.style.cssText = `font-size:9px;color:${C.soft};white-space:nowrap;`;
+        un.textContent = unit;
+        head.appendChild(un);
+        if (vColor && va && va.deltaPct != null) {
+            const dp = document.createElement("div");
+            dp.style.cssText = `font-size:11px;font-weight:700;color:${vColor};white-space:nowrap;`;
+            dp.textContent = fmt.pct(va.deltaPct, true);
+            head.appendChild(dp);
+        }
+        box.appendChild(head);
+        const sub = document.createElement("div");
+        sub.style.cssText = `font-size:9px;color:${C.soft};margin-bottom:7px;`;
+        const acct = node.row.rowType === "account" ? node.row.id : "";
+        sub.textContent = [acct, node.row.formulaDef ? "= " + node.row.formulaDef : "",
+            this.periodTag()].filter(Boolean).join(" · ");
+        box.appendChild(sub);
+
+        // ---- scenario grid: YTD value, Δ vs AC and Δ% per reference + FY
+        const num = (v: number | null, plus = false): string =>
+            v == null ? "·" : isRatio ? fmt.pct(v, plus) : fmt.val(v, plus);
+        const grid = document.createElement("div");
+        grid.style.cssText = "display:table;width:100%;border-collapse:collapse;margin-bottom:7px;";
+        const row = (cells: string[], opts?: { bold?: boolean; color?: (string | null)[] }): void => {
+            const r = document.createElement("div");
+            r.style.cssText = "display:table-row;";
+            cells.forEach((cTxt, i) => {
+                const c = document.createElement("div");
+                c.style.cssText = "display:table-cell;padding:1.5px 0 1.5px 8px;font-size:10px;" +
+                    `font-family:${FONT};font-variant-numeric:tabular-nums;` +
+                    (i === 0 ? `text-align:left;padding-left:0;color:${C.soft};` : "text-align:right;") +
+                    (opts?.bold ? "font-weight:700;" : "") +
+                    (opts?.color?.[i] ? `color:${opts.color[i]};font-weight:600;` : "");
+                c.textContent = cTxt;
+                r.appendChild(c);
+            });
+            grid.appendChild(r);
+        };
+        row(["", this.str("YTD", "YTD"), "Δ AC", "Δ%"], { bold: false });
+        row(["AC", num(displayValue(node, "ac")), "", ""], { bold: true });
+        for (const sc of ["py", "pl", "fc"] as Scenario[]) {
+            if (!this.has[sc]) { continue; }
+            const v = variance(node, sc, "ac");
+            const inv = node.row.displayInvert ? -1 : 1;
+            const col = v.delta == null ? null : (v.good ? this.goodColor() : this.badColor());
+            row([sc.toUpperCase(), num(displayValue(node, sc)),
+                num(v.delta == null ? null : v.delta * inv, true),
+                v.deltaPct == null ? "·" : fmt.pct(v.deltaPct * inv, true)],
+            { color: [null, null, col, col] });
+        }
+        if (this.has.fcfy) {
+            const fy = variance(node, "plfy", "fcfy");
+            const inv = node.row.displayInvert ? -1 : 1;
+            const col = fy.delta == null ? null : (fy.good ? this.goodColor() : this.badColor());
+            row(["FY FC" + (this.has.plfy ? " · PL" : ""),
+                num(displayValue(node, "fcfy")),
+                this.has.plfy ? num(fy.delta == null ? null : fy.delta * inv, true) : "",
+                this.has.plfy && fy.deltaPct != null ? fmt.pct(fy.deltaPct * inv, true) : ""],
+            { color: [null, null, col, col] });
+        }
+        box.appendChild(grid);
+
+        // ---- charts: months (offset columns + triangles), Δ columns, bridge
+        const refUp = this.ui!.ref.toUpperCase();
+        const caption = (t: string): void => {
+            const c = document.createElement("div");
+            c.style.cssText = `font-size:8.5px;color:${C.soft};margin:2px 0 1px 0;`;
+            c.textContent = t;
+            box.appendChild(c);
+        };
+        const chart = (h: number, draw: (g: SVGGElement, svg: SVGSVGElement) => void): void => {
+            const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
+            svg.setAttribute("width", String(inner)); svg.setAttribute("height", String(h));
+            svg.style.cssText = "display:block;";
+            const g = document.createElementNS(ns, "g") as SVGGElement;
+            svg.appendChild(g);
+            box.appendChild(svg);
+            draw(g, svg);
+        };
+        const zs = 1.15;
+        caption(this.str(`Months — AC solid, ${refUp} behind`, `Monate — AC solide, ${refUp} dahinter`));
+        chart(104, (g, svg) => this.treeMini(g, node, { x: 0, y: 2, w: inner, h: 100 }, zs, fmt, svg, 0));
+        caption(`Δ${refUp} ` + this.str("per month", "je Monat"));
+        chart(72, (g) => this.treeMiniDelta(g, node, { x: 0, y: 2, w: inner, h: 68 }, zs, fmt, 0));
+        caption(this.str(`Bridge ${refUp} → Δ → AC (YTD)`, `Brücke ${refUp} → Δ → AC (YTD)`));
+        chart(84, (g, svg) => this.treeMiniBridge(g, node, { x: 0, y: 2, w: inner, h: 80 }, zs, fmt, svg, 0));
+
+        if (node.row.comment) {
+            const cm = document.createElement("div");
+            cm.style.cssText = `font-size:9px;color:${C.soft};font-style:italic;` +
+                `margin-top:6px;border-top:1px solid ${C.gridSoft};padding-top:5px;line-height:1.45;`;
+            cm.textContent = node.row.comment;
+            box.appendChild(cm);
+        }
+        if (node.error) {
+            const er = document.createElement("div");
+            er.style.cssText = `font-size:9px;color:${this.badColor()};margin-top:4px;`;
+            er.textContent = "⚠ " + node.error;
+            box.appendChild(er);
+        }
+
+        // ---- place next to the card, clamped to the visible viewport
+        this.root.appendChild(box);
+        const ar = anchor.getBoundingClientRect();
+        const rr = this.root.getBoundingClientRect();
+        const bh = box.offsetHeight;
+        let left = ar.right - rr.left + this.root.scrollLeft + 10;
+        if (left + W > this.root.scrollLeft + this.root.clientWidth - 6) {
+            left = Math.max(this.root.scrollLeft + 6,
+                ar.left - rr.left + this.root.scrollLeft - W - 10);
+        }
+        let top = ar.top - rr.top + this.root.scrollTop - 4;
+        top = Math.min(top, this.root.scrollTop + this.root.clientHeight - bh - 8);
+        top = Math.max(top, this.root.scrollTop + 4);
+        box.style.left = left.toFixed(0) + "px";
+        box.style.top = top.toFixed(0) + "px";
+        this.zoomEl = box;
+    }
+
+    /** period tag of the headline, e.g. "2026 Jan..Jun" */
+    private periodTag(): string {
+        const months = this.model!.months;
+        if (months.length === 0) { return ""; }
+        const a = months[0]; const b = months[months.length - 1];
+        return `${a.slice(0, 4)} ${this.monthLabel(a)}..${this.monthLabel(b)}`;
+    }
+
     private treeCardG(card: TreeCard, geo: { cw: number; s: number; fmt: Fmt; svg: SVGSVGElement },
         reroot: boolean): SVGGElement {
         const ns = "http://www.w3.org/2000/svg";
@@ -2941,7 +3109,8 @@ export class Visual implements IVisual {
             ch.textContent = card.collapsed ? "▸" : "▾";
             const ct = document.createElementNS(ns, "title");
             ct.textContent = card.collapsed
-                ? this.str("Expand", "Aufklappen") : this.str("Collapse", "Zuklappen");
+                ? this.str("Expand (Shift: whole limb)", "Aufklappen (Shift: ganzer Ast)")
+                : this.str("Collapse", "Zuklappen");
             ch.appendChild(ct);
             const toggle = (e: Event): void => {
                 e.stopPropagation();
@@ -2949,14 +3118,19 @@ export class Visual implements IVisual {
                 const cur = new Set(ui.treeCollapsed ?? ctx?.auto ?? []);
                 const id = card.node.row.id;
                 if (cur.has(id)) {
-                    const done = new Set<string>();
-                    const stack = [id];
-                    while (stack.length > 0) {
-                        const n = stack.pop()!;
-                        if (done.has(n)) { continue; }
-                        done.add(n);
-                        cur.delete(n);
-                        for (const k of ctx?.kidsOf.get(n) ?? []) { stack.push(k); }
+                    // plain click opens only this node — the children keep
+                    // their own remembered fold state; Shift opens the limb
+                    cur.delete(id);
+                    if ((e as MouseEvent).shiftKey) {
+                        const done = new Set<string>();
+                        const stack = [id];
+                        while (stack.length > 0) {
+                            const n = stack.pop()!;
+                            if (done.has(n)) { continue; }
+                            done.add(n);
+                            cur.delete(n);
+                            for (const k of ctx?.kidsOf.get(n) ?? []) { stack.push(k); }
+                        }
                     }
                 } else { cur.add(id); }
                 ui.treeCollapsed = [...cur];
@@ -2966,6 +3140,16 @@ export class Visual implements IVisual {
             hit.onclick = toggle; ch.onclick = toggle;
             g.appendChild(hit); g.appendChild(ch);
         }
+
+        // hover zoom: after a short dwell the card opens its IBCS detail view
+        g.addEventListener("mouseenter", () => {
+            if (this.zoomTimer != null) { clearTimeout(this.zoomTimer); }
+            this.zoomTimer = setTimeout(() => {
+                this.zoomTimer = null;
+                this.treeZoomShow(card, g, geo.fmt);
+            }, 260);
+        });
+        g.addEventListener("mouseleave", () => this.treeZoomHide());
         return g;
     }
 
@@ -3077,10 +3261,10 @@ export class Visual implements IVisual {
         const note = document.createElement("div");
         note.style.cssText = `font-size:9px;color:${C.soft};margin:0;padding:0;line-height:1.5;`;
         note.textContent = this.str(
-            "Value driver tree — ▾ opens and closes a subtree (formula operands, otherwise the account hierarchy), "
-            + "⌖ makes a card the root.",
-            "Werttreiberbaum — ▾ klappt einen Teilbaum auf und zu (Formel-Operanden, sonst die Kontenhierarchie), "
-            + "⌖ macht eine Karte zur Wurzel.");
+            "Value driver tree — ▾ opens and closes one node (Shift: whole limb), ⌖ makes a card the root, "
+            + "hovering a card zooms into its IBCS detail view.",
+            "Werttreiberbaum — ▾ klappt einen Knoten auf und zu (Shift: ganzer Ast), ⌖ macht eine Karte zur "
+            + "Wurzel, Hover über einer Karte öffnet die IBCS-Detailansicht.");
         wrap.appendChild(note);
 
         const ns = "http://www.w3.org/2000/svg";

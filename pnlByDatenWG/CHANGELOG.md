@@ -1,5 +1,30 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.10.0.0 (2026-08-24) — Baum: feines Aufklappen + IBCS-Detail-Zoom beim Hover
+
+- **Aufklappen wieder knotenweise**: der Chevron ▸ öffnet jetzt **genau diesen
+  Knoten** (eine Ebene) — die Kinder behalten ihren eigenen gemerkten
+  Falt-Zustand. Wer weiterhin den ganzen Ast auf einmal will: **Shift-Klick**
+  auf den Chevron fächert den kompletten Teilbaum bis zu den Blättern auf.
+  Tooltip und Hinweiszeile erklären beides.
+- **Neu: IBCS-Detail-Zoom beim Hover** — kurz auf einer Karte verweilen
+  (~0,25 s) öffnet ein Detail-Panel neben der Karte mit allem, was der Knoten
+  hergibt:
+  - Kopf: Name (+ Kommentar-Ziffer), Einheit, Δ% zur gewählten Referenz in der
+    Statusfarbe; darunter Konto-ID bzw. Formel und der Berichtszeitraum.
+  - **Szenario-Tabelle**: YTD-Wert je Szenario (AC · PY · PL · FC), Δ zu AC
+    absolut und in %, Teal/Rot nach Günstig-Logik (VarianceInvert wird
+    respektiert); bei FY-Daten zusätzlich die Outlook-Zeile FC FY vs. PL FY.
+  - **Drei Charts in lesbarer Größe**: Monatssäulen (AC solide, Referenz
+    versetzt dahinter, Dreiecke fürs zweite Szenario), Δ-Säulen je Monat in
+    Teal/Rot und die Brücke Referenz → Δ → AC.
+  - Fußnote mit dem Kommentartext und ggf. der Fehlerhinweis der Zeile.
+  - Das Panel klemmt sich neben die Karte, weicht am rechten Rand nach links
+    aus, bleibt im Sichtbereich, fängt keine Mausereignisse (kein Flackern)
+    und schließt beim Verlassen der Karte oder beim Scrollen.
+- 4 neue Regressionstests: Ein-Ebenen-Klick, Shift-Ast, Zoom öffnet mit drei
+  Charts + Szenario-Grid, Zoom schließt wieder (72 Tree-Checks gesamt).
+
 ## 0.9.2.0 (2026-08-24) — Alt-Zustand-Migration + ⌂-Heimat-Button
 
 Nach dem Update auf ≥ 0.9.1 blieb der Baum trotzdem zu, wenn im Report noch

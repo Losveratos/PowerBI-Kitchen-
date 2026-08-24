@@ -569,9 +569,17 @@ function tidyChecks(geom, tag) {
             columns: { treeLevel: 2 },
             state: { uiState: JSON.stringify({ view: "tree" }) } });
         const before = { cols: cols(b), cards: cards(b) };
-        const chev = [...b.querySelectorAll("svg text")]
+        const findChev = () => [...b.querySelectorAll("svg text")]
             .find(t => t.textContent.startsWith("▸"));
+        // plain click: exactly one more level, the revealed children stay folded
+        const chev = findChev();
         if (chev) { chev.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+        const oneLevel = { cols: cols(b), cards: cards(b) };
+        // shift click on a revealed folded child: its whole limb fans out
+        const chev2 = findChev();
+        if (chev2) {
+            chev2.dispatchEvent(new MouseEvent("click", { bubbles: true, shiftKey: true }));
+        }
         // a state persisted by a pre-v0.9.1 version (no treeV): its re-root and
         // fold list must be dropped on load — whole tree from the true root
         const c = mk("whole-c");
@@ -582,7 +590,7 @@ function tidyChecks(geom, tag) {
             }) } });
         return {
             defCols: cols(a), defCards: cards(a),
-            lvl2: before, chev: !!chev,
+            lvl2: before, chev: !!chev, chev2: !!chev2, oneLevel,
             after: { cols: cols(b), cards: cards(b) },
             migrated: { cols: cols(c), cards: cards(c) },
         };
@@ -591,12 +599,50 @@ function tidyChecks(geom, tag) {
         "cols=" + whole.defCols + " cards=" + whole.defCards);
     check("author start depth 2 folds to two columns", whole.lvl2.cols === 2,
         "cols=" + whole.lvl2.cols);
-    check("one expand click opens the whole limb",
-        whole.chev && whole.after.cols > 3 && whole.after.cards > whole.lvl2.cards + 2,
+    check("a plain expand click opens exactly one more level",
+        whole.chev && whole.oneLevel.cols === 3 && whole.oneLevel.cards > whole.lvl2.cards,
+        JSON.stringify(whole.oneLevel));
+    check("a shift expand click opens the whole limb",
+        whole.chev2 && whole.after.cols > whole.oneLevel.cols
+        && whole.after.cards > whole.oneLevel.cards,
         JSON.stringify(whole.after));
     check("pre-v0.9.1 persisted tree state is dropped on load (whole tree again)",
         whole.migrated.cols === whole.defCols && whole.migrated.cards === whole.defCards,
         JSON.stringify(whole.migrated) + " vs default " + whole.defCols + "/" + whole.defCards);
+
+    // ---- 12) hover zoom: dwelling on a card opens the IBCS detail panel
+    await page.evaluate((stageId) => {
+        const stage = document.getElementById(stageId);
+        const g = [...stage.querySelectorAll("svg > g > g")].find(x => x.querySelector("rect[rx='4']"));
+        g.dispatchEvent(new MouseEvent("mouseenter"));
+    }, STAGE);
+    await page.waitForTimeout(500);
+    const zoom = await page.evaluate((stageId) => {
+        const stage = document.getElementById(stageId);
+        const panel = [...stage.querySelectorAll("div")].find(d => d.style.zIndex === "40");
+        if (!panel) { return null; }
+        return {
+            svgs: panel.querySelectorAll("svg").length,
+            gridRows: [...panel.querySelectorAll("div")]
+                .filter(d => d.style.display === "table-row").length,
+            w: panel.offsetWidth,
+            text: panel.textContent.slice(0, 60),
+        };
+    }, STAGE);
+    check("hover zoom opens with the three IBCS charts", !!zoom && zoom.svgs === 3,
+        JSON.stringify(zoom));
+    check("hover zoom shows the scenario grid (AC + references)",
+        !!zoom && zoom.gridRows >= 3, zoom ? String(zoom.gridRows) : "no panel");
+    await page.evaluate((stageId) => {
+        const stage = document.getElementById(stageId);
+        const g = [...stage.querySelectorAll("svg > g > g")].find(x => x.querySelector("rect[rx='4']"));
+        g.dispatchEvent(new MouseEvent("mouseleave"));
+    }, STAGE);
+    const zoomGone = await page.evaluate((stageId) => {
+        const stage = document.getElementById(stageId);
+        return ![...stage.querySelectorAll("div")].some(d => d.style.zIndex === "40");
+    }, STAGE);
+    check("hover zoom closes again on mouseleave", zoomGone);
 
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();
