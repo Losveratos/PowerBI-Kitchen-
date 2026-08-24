@@ -8,6 +8,12 @@
  * offset AC/reference columns (UN 4.1 overlapped grouped columns) and the
  * scenario triangles for the second reference scenario.
  *
+ * On top of that it verifies the tidy-tree geometry: level columns, the leaf
+ * gap vs. the (larger) subtree gap, the one bus per parent that stays inside
+ * the column gap, the operator circles on the parent stub (uniform branch) or
+ * right before the child card (mixed branch), and the automatic compact cards
+ * on deep levels.
+ *
  * Run: node test/tree-interact.js  (npm run test:tree)
  */
 let chromium;
@@ -17,6 +23,12 @@ catch { ({ chromium } = require("/opt/node22/lib/node_modules/playwright")); }
 const STAGE = "p8";
 const failures = [];
 const notes = [];
+/** tidy-tree gaps at font scale 1 / density normal (src/visual.ts) */
+const LEAF_GAP = 10;
+const SUB_GAP = 18;
+const CARD_H = 104;
+const CARD_H_COMPACT = 44;
+const COMPACT_LEVEL = 4;
 
 function check(label, cond, detail) {
     if (cond) { notes.push("  ok · " + label); return; }
@@ -88,6 +100,84 @@ function readState(stageId) {
     };
 }
 
+/**
+ * runs in the page: the drawn tidy-tree geometry — cards, the parent buses with
+ * their stub/elbow lines, and the operator circles with their glyph. Parent and
+ * children of a bus are recovered from the line ends, so the assertions below
+ * see exactly what a reader sees, not what the layout intended.
+ */
+function readGeom(stageId) {
+    const stage = document.getElementById(stageId);
+    const inner = stage.querySelector("svg > g");
+    if (!inner) { return { cards: [], buses: [], links: [], ops: [] }; }
+    const num = (e, a) => parseFloat(e.getAttribute(a));
+    // own text only — a <title> child inside a <text> must not leak into the label
+    const own = (t) => (t && t.firstChild ? String(t.firstChild.nodeValue) : "");
+    const top = [...inner.children];
+    const eps = 0.6;
+
+    const cards = [...stage.querySelectorAll("svg > g > g > rect[rx='4']")].map((r, i) => {
+        const g = r.parentElement;
+        const title = [...g.querySelectorAll("text")].find(t => t.getAttribute("font-weight") === "600"
+            && t.getAttribute("text-anchor") == null);
+        const boxTip = r.querySelector("title");
+        return {
+            i, name: own(title),
+            x: num(r, "x"), y: num(r, "y"), w: num(r, "width"), h: num(r, "height"),
+            chevron: [...g.querySelectorAll("text")]
+                .map(own).filter(v => v === "▸" || v === "▾")[0] || "",
+            reroot: [...g.querySelectorAll("title")].some(t => t.textContent.indexOf("Show as root") === 0),
+            edges: [...g.querySelectorAll("rect")].filter(x => x.getAttribute("rx") === "1.5").length,
+            tip: boxTip ? boxTip.textContent : "",
+        };
+    });
+
+    const lines = top.filter(e => e.tagName === "line")
+        .map(l => ({ x1: num(l, "x1"), y1: num(l, "y1"), x2: num(l, "x2"), y2: num(l, "y2") }));
+    const glyphs = top.filter(e => e.tagName === "text")
+        .map(t => ({ x: num(t, "x"), y: num(t, "y"), v: own(t) }));
+    const ops = top.filter(e => e.tagName === "circle").map(c => {
+        const cx = num(c, "cx"); const cy = num(c, "cy");
+        const gl = glyphs.find(t => Math.abs(t.x - cx) < eps && Math.abs(t.y - cy) < 8);
+        return { cx, cy, r: num(c, "r"), op: gl ? gl.v : "" };
+    });
+
+    // a bus may be degenerate (one child on the parent's own centre line), so the
+    // horizontal set explicitly excludes zero-width lines
+    const vert = lines.filter(l => Math.abs(l.x1 - l.x2) < eps);
+    const horiz = lines.filter(l => Math.abs(l.y1 - l.y2) < eps && Math.abs(l.x1 - l.x2) > eps);
+    const buses = vert.map(l => ({ x: l.x1, y1: Math.min(l.y1, l.y2), y2: Math.max(l.y1, l.y2) }));
+    const links = buses.map(b => {
+        // every parent of one level puts its bus on the same x, so a bus owns
+        // only the lines inside its own vertical span
+        const mine = horiz.filter(h => h.y1 >= b.y1 - eps && h.y1 <= b.y2 + eps);
+        // stub: the one horizontal line that *ends* on the bus (comes from the parent)
+        const stub = mine.find(h => Math.abs(Math.max(h.x1, h.x2) - b.x) < eps);
+        const parent = stub ? cards.find(c => Math.abs(c.x + c.w - Math.min(stub.x1, stub.x2)) < eps
+            && Math.abs(c.y + c.h / 2 - stub.y1) < eps) : null;
+        // elbows: horizontal lines that *start* on the bus and end on a card edge
+        const kids = mine.filter(h => Math.abs(Math.min(h.x1, h.x2) - b.x) < eps)
+            .map(h => cards.find(c => Math.abs(c.x - Math.max(h.x1, h.x2)) < eps
+                && Math.abs(c.y + c.h / 2 - h.y1) < eps))
+            .filter(c => c != null);
+        return {
+            busX: b.x, y1: b.y1, y2: b.y2,
+            parent: parent ? parent.i : -1,
+            parentRight: parent ? parent.x + parent.w : null,
+            kids: kids.map(c => c.i),
+            stubOps: parent == null ? [] : ops.filter(o => o.cx > parent.x + parent.w
+                && o.cx < b.x - eps && Math.abs(o.cy - (parent.y + parent.h / 2)) < eps)
+                .map(o => o.op),
+            edgeOps: kids.map(c => {
+                const o = ops.find(z => z.cx > b.x + eps && z.cx < c.x
+                    && Math.abs(z.cy - (c.y + c.h / 2)) < eps);
+                return o ? o.op : "";
+            }),
+        };
+    });
+    return { cards, buses, links, ops };
+}
+
 /** click a card's chevron by card title */
 function clickChevron(args) {
     const stageId = args[0]; const name = args[1];
@@ -148,6 +238,97 @@ function clickLevel(args) {
 
 const names = (st) => st.cards.map(c => c.name);
 const card = (st, n) => st.cards.find(c => c.name.indexOf(n) === 0);
+const colsOf = (geom) => [...new Set(geom.cards.map(c => Math.round(c.x)))].sort((a, b) => a - b);
+
+/** the tidy-tree invariants that must hold in every state of the tree */
+function tidyChecks(geom, tag) {
+    const parentOf = new Map();
+    for (const l of geom.links) { for (const k of l.kids) { parentOf.set(k, l.parent); } }
+    const nameOf = (i) => (geom.cards[i] ? geom.cards[i].name : "?");
+
+    // level columns: one x slot per level, evenly spaced (card width + gap)
+    const cols = colsOf(geom);
+    const pitch = cols.length > 1 ? cols[1] - cols[0] : 0;
+    check(tag + "cards sit on evenly spaced level columns",
+        cols.every((x, i) => Math.abs(x - cols[0] - i * pitch) < 1.5), cols.join(","));
+
+    // one bus per branching parent, and it runs in the gap between two columns
+    check(tag + "exactly one bus per branching parent",
+        geom.links.every(l => l.parent >= 0 && l.kids.length > 0)
+        && new Set(geom.links.map(l => l.parent)).size === geom.links.length,
+        "buses=" + geom.links.length + " parents="
+        + new Set(geom.links.map(l => l.parent)).size);
+    check(tag + "the parent bus stays in the column gap and crosses no card",
+        geom.buses.every(b => geom.cards.every(c => b.x < c.x - 0.5 || b.x > c.x + c.w + 0.5)),
+        geom.buses.map(b => b.x.toFixed(0)).join(","));
+
+    // operator circles never sit between two siblings on the bus any more
+    check(tag + "no operator circle sits on the sibling bus",
+        geom.ops.every(o => geom.buses.every(b => Math.abs(o.cx - b.x) > o.r)),
+        geom.ops.map(o => o.op + "@" + o.cx.toFixed(0)).join(","));
+
+    // uniform branch → one circle on the parent stub, no edge circles;
+    // mixed branch → one circle per child edge, nothing on the stub
+    const badOps = [];
+    for (const l of geom.links) {
+        const stub = l.stubOps.length;
+        const edge = l.edgeOps.filter(o => o !== "").length;
+        const uniform = l.edgeOps.every(o => o === l.edgeOps[0]);
+        if (stub === 1 && edge === 0) { continue; }
+        if (stub === 0 && edge === l.kids.length && !uniform) { continue; }
+        badOps.push(nameOf(l.parent) + " stub=" + stub + " edge=" + l.edgeOps.join(""));
+    }
+    check(tag + "one operator on the stub for a uniform branch, one per edge for a mixed one",
+        badOps.length === 0, badOps.join(" | "));
+
+    // vertical air: siblings keep the leaf gap, cards of different parents the
+    // (larger) subtree gap — two limbs may never butt against each other
+    const byCol = new Map();
+    for (const c of geom.cards) {
+        const k = Math.round(c.x);
+        if (!byCol.has(k)) { byCol.set(k, []); }
+        byCol.get(k).push(c);
+    }
+    const tight = [];
+    for (const list of byCol.values()) {
+        list.sort((a, b) => a.y - b.y);
+        for (let i = 1; i < list.length; i++) {
+            const gap = list[i].y - (list[i - 1].y + list[i - 1].h);
+            const same = parentOf.get(list[i].i) === parentOf.get(list[i - 1].i);
+            const need = same ? LEAF_GAP : SUB_GAP;
+            if (gap < need - 0.5) {
+                tight.push(list[i - 1].name + "/" + list[i].name + " gap=" + gap.toFixed(1)
+                    + " need=" + need);
+            }
+        }
+    }
+    check(tag + "leaf gap between siblings, subtree gap between limbs of different parents",
+        tight.length === 0, tight.slice(0, 3).join(" | "));
+
+    // no card overlaps another, in any direction
+    let hit = "";
+    for (let i = 0; i < geom.cards.length && hit === ""; i++) {
+        for (let j = i + 1; j < geom.cards.length; j++) {
+            const a = geom.cards[i]; const b = geom.cards[j];
+            if (a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h) {
+                hit = a.name + "/" + b.name; break;
+            }
+        }
+    }
+    check(tag + "no two cards overlap", hit === "", hit);
+
+    // post-order centring: every parent exactly on the middle of its own block
+    const off = [];
+    for (const l of geom.links) {
+        const kids = l.kids.map(i => geom.cards[i]);
+        const p = geom.cards[l.parent];
+        if (!p || kids.length === 0) { continue; }
+        const mid = (Math.min(...kids.map(k => k.y)) + Math.max(...kids.map(k => k.y + k.h))) / 2;
+        if (Math.abs(p.y + p.h / 2 - mid) > 1.5) { off.push(p.name); }
+    }
+    check(tag + "every parent sits on the vertical centre of its children",
+        off.length === 0, off.join(","));
+}
 
 (async () => {
     const browser = await chromium.launch();
@@ -174,8 +355,8 @@ const card = (st, n) => st.cards.find(c => c.name.indexOf(n) === 0);
     check("hierarchy children of Net revenue are cards",
         card(st, "Pharmaceuticals") != null && card(st, "Consumer Health") != null,
         names(st).join(","));
-    check("hierarchy branch uses + for income rows", st.ops.filter(o => o.op === "+").length >= 2,
-        st.ops.map(o => o.op).join(""));
+    check("uniform hierarchy branch carries exactly one + circle",
+        st.ops.filter(o => o.op === "+").length === 1, st.ops.map(o => o.op).join(""));
     check("no clipped labels", st.clipped.length === 0, st.clipped.join(", "));
 
     // ---- 2) IBCS notation on the month cards: offset columns + triangles
@@ -234,6 +415,18 @@ const card = (st, n) => st.cards.find(c => c.name.indexOf(n) === 0);
     }, STAGE);
     check("no two cards overlap", overlap === "", overlap);
 
+    // ---- 3b) tidy-tree geometry: columns, gaps, one bus per parent, operators
+    let geom = await page.evaluate(readGeom, STAGE);
+    tidyChecks(geom, "");
+    check("three levels are open at once and fan out as a tree",
+        colsOf(geom).length === 3, colsOf(geom).join(","));
+    check("the ÷ of the root ratio sits on the parent stub (DuPont)",
+        geom.links.some(l => l.stubOps.length === 1 && l.stubOps[0] === "÷"),
+        geom.links.map(l => l.stubOps.join("")).join("|"));
+    check("full cards on the shallow levels",
+        geom.cards.every(c => Math.abs(c.h - CARD_H) < 1.5),
+        [...new Set(geom.cards.map(c => c.h))].join(","));
+
     // ---- 4) chevron on a hierarchy card: fold Net revenue away again
     check("chevron click on Net revenue", await step(clickChevron, [STAGE, "Net revenue"]) !== false);
     st = await state();
@@ -258,6 +451,35 @@ const card = (st, n) => st.cards.find(c => c.name.indexOf(n) === 0);
     check("expand all opens every chevron", st.collapsed === 0, "collapsed=" + st.collapsed);
     check("card budget respected", st.cards.length <= 400, "cards=" + st.cards.length);
     check("no clipped labels after expand all", st.clipped.length === 0, st.clipped.join(", "));
+
+    // ---- 6b) the deep tree: tidy invariants, mixed branches, compact cards
+    geom = await page.evaluate(readGeom, STAGE);
+    tidyChecks(geom, "expand all: ");
+    const cols = colsOf(geom);
+    check("expand all fans out over many levels", cols.length >= 6, "levels=" + cols.length);
+    const mixed = geom.links.filter(l => l.stubOps.length === 0);
+    check("mixed branches label every child edge instead of the stub",
+        mixed.length >= 1 && mixed.every(l => l.edgeOps.every(o => "+−×÷".indexOf(o) >= 0)),
+        "mixed=" + mixed.length + " ops=" + mixed.map(l => l.edgeOps.join("")).join("|"));
+    check("a mixed branch really carries different operators",
+        mixed.some(l => new Set(l.edgeOps).size > 1),
+        mixed.map(l => l.edgeOps.join("")).join("|"));
+    const deep = geom.cards.filter(c => cols.indexOf(Math.round(c.x)) >= COMPACT_LEVEL);
+    check("levels " + COMPACT_LEVEL + "+ switch to the compact card automatically",
+        deep.length > 0 && deep.every(c => Math.abs(c.h - CARD_H_COMPACT) < 1.5),
+        "deep=" + deep.length + " h=" + [...new Set(deep.map(c => c.h))].join(","));
+    check("shallow levels keep the full card",
+        geom.cards.filter(c => cols.indexOf(Math.round(c.x)) < COMPACT_LEVEL)
+            .every(c => Math.abs(c.h - CARD_H) < 1.5),
+        [...new Set(geom.cards.map(c => c.h))].join(","));
+    check("compact cards keep chevron, ⌖ and the status edge",
+        deep.some(c => c.chevron !== "") && deep.some(c => c.reroot) && deep.some(c => c.edges > 0),
+        "chev=" + deep.filter(c => c.chevron !== "").length
+        + " reroot=" + deep.filter(c => c.reroot).length
+        + " edge=" + deep.filter(c => c.edges > 0).length);
+    check("compact cards name the monthly values in a tooltip",
+        deep.every(c => c.tip !== "") && deep.some(c => /Jan|Jun/.test(c.tip)),
+        (deep.find(c => c.tip === "") || {}).name || (deep[0] || {}).tip);
 
     await step(clickLevel, [STAGE, "2"]);
     st = await state();

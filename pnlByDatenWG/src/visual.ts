@@ -65,13 +65,29 @@ const SEP_EXTRA_H = 9;
 /** Driver-tree geometry at font scale 1 (px). */
 const TREE_CARD_W = 152;
 const TREE_CARD_H = 104;
-const TREE_GAP_X = 64;
-const TREE_GAP_Y = 16;
 /**
- * Extra air between two sibling *subtrees* (as opposed to two sibling leaves) —
- * without it a branch that opens reads as one continuous column of cards.
+ * Compact card (title · AC value · Δ%, no mini chart) — deep levels and very
+ * tall layouts switch to it automatically so a wide tree stays readable.
  */
-const TREE_GAP_SUB = 14;
+const TREE_CARD_H_COMPACT = 44;
+const TREE_GAP_X = 64;
+/** Air between two sibling *leaf* cards. */
+const TREE_GAP_Y = 10;
+/**
+ * Air between two sibling *subtrees* (at least one of the two branches) —
+ * strictly larger than the leaf gap, so an opened branch reads as one grouped
+ * limb instead of merging into the cards above it.
+ */
+const TREE_GAP_SUB = 18;
+/** Tree level (root = 0) from which cards are drawn compact. */
+const TREE_COMPACT_LEVEL = 4;
+/** Layout taller than this multiple of the stage switches every card to compact. */
+const TREE_COMPACT_STAGE = 3;
+/**
+ * Where the parent bus sits inside the column gap: a short stub carries the
+ * operator, the remaining gap holds the elbows into the children.
+ */
+const TREE_BUS_FRAC = 0.62;
 /** Fixed distance between the tree hint line and the first card row. */
 const TREE_HEAD_GAP = 10;
 /**
@@ -122,6 +138,10 @@ interface TreeCard {
     children: TreeCard[];
     x: number;
     y: number;
+    /** card height of this node — full card or compact card */
+    h: number;
+    /** drawn without the mini chart (deep level or a very tall layout) */
+    compact: boolean;
     /** the row branches — formula operands or hierarchy children (⇒ chevron) */
     hasKids: boolean;
     /** operands exist but are folded away */
@@ -261,6 +281,8 @@ export class Visual implements IVisual {
     // --- driver tree ---
     /** graph context of the current render (toolbar and tree share it) */
     private treeCtx: TreeCtx | null = null;
+    /** stage height of the last host update — drives the compact-card fallback */
+    private vpH = 0;
     /** instance suffix for svg pattern ids (several visuals per page) */
     private static instances = 0;
     private uid = "t" + (++Visual.instances).toString(36);
@@ -282,6 +304,7 @@ export class Visual implements IVisual {
     public update(options: VisualUpdateOptions): void {
         this.events.renderingStarted(options);
         try {
+            if (options.viewport && options.viewport.height > 0) { this.vpH = options.viewport.height; }
             const dataView = options.dataViews && options.dataViews[0];
             this.settings = this.formattingSettingsService.populateFormattingSettingsModel(
                 VisualFormattingSettingsModel, dataView);
@@ -1928,7 +1951,7 @@ export class Visual implements IVisual {
         let budget = TREE_MAX_CARDS;
         const build = (node: PnlNode, op: FormulaOp | null, depth: number, path: string[]): TreeCard => {
             const card: TreeCard = {
-                node, op, depth, children: [], x: 0, y: 0,
+                node, op, depth, children: [], x: 0, y: 0, h: TREE_CARD_H, compact: false,
                 hasKids: false, collapsed: false, drill: false,
             };
             const t = node.row.rowType;
@@ -2025,34 +2048,56 @@ export class Visual implements IVisual {
         return { resolve, home, picked, root, rootCard, cards: this.treeCollect(rootCard), depth, levels, path };
     }
 
+    /** move a whole subtree down (tidy-layout correction pass) */
+    private treeShift(c: TreeCard, dy: number): void {
+        c.y += dy;
+        for (const k of c.children) { this.treeShift(k, dy); }
+    }
+
     /**
-     * Tidy layout: one column per level, leaves stacked top to bottom, every
-     * parent exactly on the vertical centre of its children block. Two sibling
-     * subtrees get one extra gap between them so an opened branch reads as a
-     * block instead of merging into the column above it.
+     * Tidy tree layout (Reingold–Tilford in its simplified, post-order form):
+     * one column per level (x = level × (card + column gap)), the leaves of a
+     * subtree get consecutive y slots top to bottom, and every parent lands
+     * exactly on the vertical centre of its own children block. Two adjacent
+     * sibling subtrees are separated by the larger subtree gap (a pair of
+     * leaves only by the leaf gap), so several levels opened at once fan out as
+     * distinct limbs instead of merging into one column of cards.
+     *
+     * Card heights may differ per level (compact cards), so a parent that is
+     * taller than its children block is not allowed to grow into the limb above
+     * it: the block is pushed down instead.
      */
-    private treeLayout(root: TreeCard, cw: number, ch: number, gx: number, gy: number,
+    private treeLayout(root: TreeCard, cw: number, gx: number, gy: number,
         sub: number): { w: number; h: number } {
-        let cursor = 0; let maxDepth = 0;
-        const place = (c: TreeCard): void => {
+        let maxDepth = 0;
+        /** places the subtree of `c` starting at `top`, returns its lower edge */
+        const place = (c: TreeCard, top: number): number => {
             c.x = c.depth * (cw + gx);
             maxDepth = Math.max(maxDepth, c.depth);
-            if (c.children.length === 0) {
-                c.y = cursor;
-                cursor += ch + gy;
-                return;
-            }
+            if (c.children.length === 0) { c.y = top; return top + c.h; }
+            let y = top;
             c.children.forEach((k, i) => {
-                if (i > 0 && (k.children.length > 0 || c.children[i - 1].children.length > 0)) {
-                    cursor += sub;
+                if (i > 0) {
+                    // one of the two neighbours branches ⇒ the wider subtree gap
+                    const limb = k.children.length > 0 || c.children[i - 1].children.length > 0;
+                    y += limb ? sub : gy;
                 }
-                place(k);
+                y = place(k, y);
             });
-            // exact centre of the children block (all cards share one height)
-            c.y = (c.children[0].y + c.children[c.children.length - 1].y) / 2;
+            const first = c.children[0];
+            const last = c.children[c.children.length - 1];
+            c.y = (first.y + last.y + last.h) / 2 - c.h / 2;
+            if (c.y < top) {
+                // parent taller than its block — push the block down, never up
+                const dy = top - c.y;
+                for (const k of c.children) { this.treeShift(k, dy); }
+                c.y = top;
+                y += dy;
+            }
+            return Math.max(y, c.y + c.h);
         };
-        place(root);
-        return { w: (maxDepth + 1) * cw + maxDepth * gx, h: Math.max(cursor - gy, ch) };
+        const h = place(root, 0);
+        return { w: (maxDepth + 1) * cw + maxDepth * gx, h: Math.max(h, root.h) };
     }
 
     /** chart number per IBCS UN 1: at most three digits, unit carried by the card label */
@@ -2588,21 +2633,48 @@ export class Visual implements IVisual {
         return { delta: v.delta * inv, deltaPct: v.deltaPct == null ? null : v.deltaPct * inv, good: v.good };
     }
 
+    /**
+     * Tooltip of a compact card: the monthly series the mini chart would have
+     * drawn, so folding the chart away never loses the numbers.
+     */
+    private treeMonthsTip(node: PnlNode, fmt: Fmt): string {
+        const months = this.model!.months;
+        const isRatio = node.row.rowType === "kpi";
+        const inv = node.row.displayInvert ? -1 : 1;
+        const num = (v: number): string => isRatio ? fmt.pct(v) : this.treeNum(v, fmt);
+        const parts: string[] = [];
+        const ac = node.series.ac; const fc = node.series.fc;
+        for (let i = 0; i < months.length; i++) {
+            const a = ac ? ac[i] : null;
+            const f = fc ? fc[i] : null;
+            const raw = a != null ? a : f;
+            if (raw == null) { continue; }
+            parts.push(`${this.monthLabel(months[i])} ${num(raw * inv)}`
+                + (a == null ? " FC" : ""));
+        }
+        if (parts.length === 0) {
+            const v = displayValue(node, "ac");
+            if (v != null) { parts.push("AC " + num(v)); }
+        }
+        return parts.length === 0 ? "" : "AC · " + parts.join(" · ");
+    }
+
     /** one driver card: white box, header, mini chart, chevron and re-root marks */
-    private treeCardG(card: TreeCard, geo: { cw: number; ch: number; s: number; fmt: Fmt; svg: SVGSVGElement },
+    private treeCardG(card: TreeCard, geo: { cw: number; s: number; fmt: Fmt; svg: SVGSVGElement },
         reroot: boolean): SVGGElement {
         const ns = "http://www.w3.org/2000/svg";
         const ui = this.ui!;
         const s = geo.s;
+        const cardH = card.h;
         const g = document.createElementNS(ns, "g") as SVGGElement;
         const box = document.createElementNS(ns, "rect");
         box.setAttribute("x", card.x.toFixed(2)); box.setAttribute("y", card.y.toFixed(2));
-        box.setAttribute("width", geo.cw.toFixed(2)); box.setAttribute("height", geo.ch.toFixed(2));
+        box.setAttribute("width", geo.cw.toFixed(2)); box.setAttribute("height", cardH.toFixed(2));
         box.setAttribute("rx", "4"); box.setAttribute("fill", "#FFF");
         box.setAttribute("stroke", C.cardEdge); box.setAttribute("stroke-width", "1");
         g.appendChild(box);
 
-        const pad = 8 * s;
+        const pad = (card.compact ? 6 : 8) * s;
         const isRatio = card.node.row.rowType === "kpi";
         const unit = isRatio ? "%" : geo.fmt.suffix + this.settings.numbersCard.unitText.value;
         const tfs = 9.5 * s; const ufs = 7.5 * s;
@@ -2617,7 +2689,7 @@ export class Visual implements IVisual {
             edge.setAttribute("x", (card.x + 0.5).toFixed(2));
             edge.setAttribute("y", (card.y + 2).toFixed(2));
             edge.setAttribute("width", (3 * s).toFixed(2));
-            edge.setAttribute("height", (geo.ch - 4).toFixed(2));
+            edge.setAttribute("height", (cardH - 4).toFixed(2));
             edge.setAttribute("rx", "1.5");
             edge.setAttribute("fill", vColor);
             g.appendChild(edge);
@@ -2711,22 +2783,51 @@ export class Visual implements IVisual {
         title.appendChild(tip);
         g.appendChild(title);
 
-        // chart area — the bridge needs no period tags, so it may use the strip
-        const chartTop = card.y + pad + tfs + 6 * s;
-        const bottom = ui.treeCard === "bridge" ? 7 * s : 15 * s;
-        const area = {
-            x: card.x + pad + (vColor ? 3 * s : 0), y: chartTop,
-            w: geo.cw - 2 * pad - (vColor ? 3 * s : 0), h: geo.ch - (chartTop - card.y) - bottom,
-        };
-        const inset = card.hasKids ? 14 * s : 0;
-        if (ui.treeCard === "delta") { this.treeMiniDelta(g, card.node, area, s, geo.fmt, inset); }
-        else if (ui.treeCard === "bridge") { this.treeMiniBridge(g, card.node, area, s, geo.fmt, geo.svg, inset); }
-        else { this.treeMini(g, card.node, area, s, geo.fmt, geo.svg, inset); }
+        if (card.compact) {
+            // compact card: no mini chart, only the AC value — the monthly
+            // series the chart would have shown moves into the tooltip
+            const vfs = 11 * s;
+            const acv = displayValue(card.node, "ac");
+            const v = document.createElementNS(ns, "text");
+            v.setAttribute("x", (card.x + pad + (vColor ? 3 * s : 0)).toFixed(2));
+            v.setAttribute("y", (card.y + cardH - pad - 1.5 * s).toFixed(2));
+            v.setAttribute("font-size", vfs.toFixed(1));
+            v.setAttribute("font-family", FONT);
+            v.setAttribute("font-weight", "600");
+            v.setAttribute("fill", C.text);
+            const vTxt = acv == null ? "–" : isRatio ? geo.fmt.pct(acv) : this.treeNum(acv, geo.fmt);
+            v.textContent = this.fitLabel(vTxt,
+                geo.cw - 2 * pad - (vColor ? 3 * s : 0) - (card.hasKids ? 20 * s : 0), vfs);
+            g.appendChild(v);
+            const mt = this.treeMonthsTip(card.node, geo.fmt);
+            const err = card.node.error ? " ⚠ " + card.node.error : "";
+            if (mt !== "" || err !== "") {
+                const bt = document.createElementNS(ns, "title");
+                bt.textContent = card.node.row.name + (mt === "" ? "" : " · " + mt) + err;
+                box.appendChild(bt);
+                const vt = document.createElementNS(ns, "title");
+                vt.textContent = (mt === "" ? card.node.row.name : mt) + err;
+                v.appendChild(vt);
+            }
+            if (card.node.error) { v.setAttribute("fill", this.badColor()); }
+        } else {
+            // chart area — the bridge needs no period tags, so it may use the strip
+            const chartTop = card.y + pad + tfs + 6 * s;
+            const bottom = ui.treeCard === "bridge" ? 7 * s : 15 * s;
+            const area = {
+                x: card.x + pad + (vColor ? 3 * s : 0), y: chartTop,
+                w: geo.cw - 2 * pad - (vColor ? 3 * s : 0), h: cardH - (chartTop - card.y) - bottom,
+            };
+            const inset = card.hasKids ? 14 * s : 0;
+            if (ui.treeCard === "delta") { this.treeMiniDelta(g, card.node, area, s, geo.fmt, inset); }
+            else if (ui.treeCard === "bridge") { this.treeMiniBridge(g, card.node, area, s, geo.fmt, geo.svg, inset); }
+            else { this.treeMini(g, card.node, area, s, geo.fmt, geo.svg, inset); }
+        }
 
-        if (card.node.error) {
+        if (card.node.error && !card.compact) {
             const e = document.createElementNS(ns, "text");
             e.setAttribute("x", (card.x + pad).toFixed(2));
-            e.setAttribute("y", (card.y + geo.ch - 4 * s).toFixed(2));
+            e.setAttribute("y", (card.y + cardH - 4 * s).toFixed(2));
             e.setAttribute("font-size", (7 * s).toFixed(1));
             e.setAttribute("font-family", FONT);
             e.setAttribute("fill", this.badColor());
@@ -2739,7 +2840,7 @@ export class Visual implements IVisual {
         if (card.hasKids) {
             const hit = document.createElementNS(ns, "rect");
             hit.setAttribute("x", (card.x + geo.cw - 19 * s).toFixed(2));
-            hit.setAttribute("y", (card.y + geo.ch - 15 * s).toFixed(2));
+            hit.setAttribute("y", (card.y + cardH - 15 * s).toFixed(2));
             hit.setAttribute("width", (16 * s).toFixed(2));
             hit.setAttribute("height", (12.5 * s).toFixed(2));
             hit.setAttribute("rx", (2 * s).toFixed(2));
@@ -2748,7 +2849,7 @@ export class Visual implements IVisual {
             hit.setAttribute("stroke-width", "1");
             const ch = document.createElementNS(ns, "text");
             ch.setAttribute("x", (card.x + geo.cw - 11 * s).toFixed(2));
-            ch.setAttribute("y", (card.y + geo.ch - 5.6 * s).toFixed(2));
+            ch.setAttribute("y", (card.y + cardH - 5.6 * s).toFixed(2));
             ch.setAttribute("text-anchor", "middle");
             ch.setAttribute("font-size", (9 * s).toFixed(1));
             ch.setAttribute("font-family", FONT);
@@ -2806,12 +2907,21 @@ export class Visual implements IVisual {
     }
 
     /**
-     * Value driver tree (DuPont): the P&L drawn as cards. The root is a formula
-     * or KPI row, its operands branch to the right with the formula operator
-     * (×÷+−) in a circle at the branch point; a card that carries no formula
-     * branches into its account hierarchy instead, with "+" / "−" per the sign
-     * convention of the child. Every branching card opens and closes its own
-     * subtree (chevron); the ⌖ mark lifts a card to the root of the tree.
+     * Value driver tree (DuPont): the P&L drawn as cards in a tidy multi-level
+     * tree. The root is a formula or KPI row, its operands branch to the right,
+     * a card that carries no formula branches into its account hierarchy
+     * instead, with "+" / "−" per the sign convention of the child.
+     *
+     * Every parent owns one bus: a short stub leaves the card to the right and
+     * meets a vertical bar in the column gap, from which one orthogonal elbow
+     * runs into the middle of every child card. When all edges of a parent
+     * carry the same operator (a pure sum, a pure product, a two-operand
+     * ratio), a single circle sits on that stub — classic DuPont; only a mixed
+     * branch (e.g. "+" and "−") labels its edges individually, with a smaller
+     * circle right before each child card.
+     *
+     * Every branching card opens and closes its own subtree (chevron); the ⌖
+     * mark lifts a card to the root of the tree.
      */
     private buildTree(fmt: Fmt): HTMLElement {
         const ui = this.ui!;
@@ -2832,11 +2942,28 @@ export class Visual implements IVisual {
         }
 
         const s = this.fontScale() * (ui.density === "compact" ? 0.9 : 1);
-        const cw = TREE_CARD_W * s; const ch = TREE_CARD_H * s;
-        const gx = TREE_GAP_X * s; const gy = TREE_GAP_Y * s;
+        const cw = TREE_CARD_W * s;
+        const chFull = TREE_CARD_H * s; const chSmall = TREE_CARD_H_COMPACT * s;
+        const gx = TREE_GAP_X * s; const gy = TREE_GAP_Y * s; const sub = TREE_GAP_SUB * s;
         const rootCard = ctx.rootCard;
         const all = ctx.cards;
-        const size = this.treeLayout(rootCard, cw, ch, gx, gy, TREE_GAP_SUB * s);
+        // card size follows fontScale/density; on top of that a deep level
+        // (≥ TREE_COMPACT_LEVEL) always draws compact, and a layout that would
+        // outgrow the stage several times over switches every card to compact —
+        // automatic, independent of the format pane
+        const setHeights = (allCompact: boolean): void => {
+            for (const c of all) {
+                c.compact = allCompact || c.depth >= TREE_COMPACT_LEVEL;
+                c.h = c.compact ? chSmall : chFull;
+            }
+        };
+        setHeights(false);
+        let size = this.treeLayout(rootCard, cw, gx, gy, sub);
+        const stageH = this.vpH > 0 ? this.vpH : (this.root.clientHeight || 0);
+        if (stageH > 0 && size.h > TREE_COMPACT_STAGE * stageH) {
+            setHeights(true);
+            size = this.treeLayout(rootCard, cw, gx, gy, sub);
+        }
 
         // comment footnotes follow the cards on screen (numbering in reading order)
         this.comments = [];
@@ -2879,17 +3006,16 @@ export class Visual implements IVisual {
             l.setAttribute("stroke", C.elbow); l.setAttribute("stroke-width", "1");
             inner.appendChild(l);
         };
-        const opCircle = (cx: number, cy: number, op: FormulaOp): void => {
-            const r = 10 * s;
+        const opCircle = (cx: number, cy: number, op: FormulaOp, r: number): void => {
             const c = document.createElementNS(ns, "circle");
             c.setAttribute("cx", cx.toFixed(2)); c.setAttribute("cy", cy.toFixed(2));
             c.setAttribute("r", r.toFixed(2)); c.setAttribute("fill", "#FFF");
             c.setAttribute("stroke", C.ac); c.setAttribute("stroke-width", "1");
             inner.appendChild(c);
             const t = document.createElementNS(ns, "text");
-            t.setAttribute("x", cx.toFixed(2)); t.setAttribute("y", (cy + 3.9 * s).toFixed(2));
+            t.setAttribute("x", cx.toFixed(2)); t.setAttribute("y", (cy + r * 0.39).toFixed(2));
             t.setAttribute("text-anchor", "middle");
-            t.setAttribute("font-size", (11 * s).toFixed(1));
+            t.setAttribute("font-size", (r * 1.1).toFixed(1));
             t.setAttribute("font-family", FONT);
             t.setAttribute("font-weight", "700");
             t.setAttribute("fill", C.ac);
@@ -2897,24 +3023,34 @@ export class Visual implements IVisual {
             inner.appendChild(t);
         };
 
-        // elbows first, cards on top — a folded subtree draws no outgoing lines
+        // bus + elbows first, cards on top — a folded subtree draws no lines
         for (const c of all) {
             if (c.children.length === 0) { continue; }
-            const midX = c.x + cw + gx / 2;
-            const pcy = c.y + ch / 2;
-            const ys = c.children.map(k => k.y + ch / 2);
-            line(c.x + cw, pcy, midX, pcy);
-            line(midX, Math.min(pcy, ...ys), midX, Math.max(pcy, ...ys));
-            for (const k of c.children) { line(midX, k.y + ch / 2, k.x, k.y + ch / 2); }
-            for (let i = 1; i < c.children.length; i++) {
-                const op = c.children[i].op;
-                if (op) { opCircle(midX, (ys[i - 1] + ys[i]) / 2, op); }
+            // the bus sits inside the column gap, never over a card column
+            const busX = c.x + cw + gx * TREE_BUS_FRAC;
+            const stubX = (c.x + cw + busX) / 2;
+            const pcy = c.y + c.h / 2;
+            const ys = c.children.map(k => k.y + k.h / 2);
+            line(c.x + cw, pcy, busX, pcy);
+            line(busX, Math.min(pcy, ...ys), busX, Math.max(pcy, ...ys));
+            for (let i = 0; i < c.children.length; i++) { line(busX, ys[i], c.children[i].x, ys[i]); }
+            // one operator for the whole branch when every edge agrees (sum,
+            // product, two-operand ratio ⇒ classic DuPont), otherwise per edge
+            const ops = c.children.map(k => k.op);
+            const head = ops[0];
+            if (head != null && ops.every(o => o === head)) {
+                opCircle(stubX, pcy, head, 10 * s);
+            } else {
+                c.children.forEach((k, i) => {
+                    const op = ops[i];
+                    if (op) { opCircle(k.x - 12 * s, ys[i], op, 8 * s); }
+                });
             }
         }
         for (const c of all) {
             // any branching card can become the root — formula rows as well as
             // subtotals that open into their account hierarchy
-            inner.appendChild(this.treeCardG(c, { cw, ch, s, fmt, svg }, c !== rootCard && c.hasKids));
+            inner.appendChild(this.treeCardG(c, { cw, s, fmt, svg }, c !== rootCard && c.hasKids));
         }
         wrap.appendChild(svg);
         return wrap;

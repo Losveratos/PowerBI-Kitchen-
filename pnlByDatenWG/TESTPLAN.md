@@ -109,8 +109,20 @@ Alle Monate ausgewählt (kein Filter):
 - [ ] **Waterfall**: Ansicht wechselt — Anker (Net revenue, Gross profit,
   EBITDA, EBIT, EBT, Net income) stehen auf der Nulllinie, Kostenblöcke floaten
 - [ ] **Tree**: Treiberbaum öffnet mit der letzten Formel-/KPI-Zeile als Wurzel
-  (Pharma-Demo: Net margin = Net income ÷ Net revenue); Operator-Kreise ×/÷/+/−
-  sitzen an den Verzweigungen; Perioden-/Preset-Gruppen sind ausgeblendet
+  (Pharma-Demo: Net margin = Net income ÷ Net revenue); Perioden-/Preset-Gruppen
+  sind ausgeblendet
+- [ ] **Tree · Tidy-Layout**: mehrere gleichzeitig offene Ebenen fächern als Baum
+  auf — eine Spalte je Ebene, jeder Elternknoten auf der Mitte seines
+  Kinder-Blocks, Geschwister-Blätter eng (10 px), zwei Teilbäume klar getrennt
+  (18 px); je Elternkarte **ein** waagerechter Stich → senkrechter Bus im Spalt
+  zwischen den Spalten → Ellbogen in die Kind-Mitten
+- [ ] **Tree · Operatoren**: einheitlicher Zweig ⇒ **ein** großer Kreis (÷ × + −)
+  auf dem Stich zwischen Eltern-Karte und Bus; gemischter Zweig (z. B.
+  `Other operating result`: +, +, −) ⇒ kleiner Kreis je Kante kurz vor der
+  Kind-Karte. Keine Kreise zwischen den Geschwistern auf dem Bus
+- [ ] **Tree · Kompakt-Karten**: ab Ebene 4 (oder bei sehr hohen Layouts) zeigen
+  die Karten nur Titel · AC-Wert · Δ% ohne Mini-Chart; Chevron, ⌖ und
+  Status-Rand bleiben, der Tooltip nennt die Monatswerte
 - [ ] **Tree · Hierarchie-Drill**: Karten ohne Formel (Subtotals, Konten) tragen
   ebenfalls einen Chevron und klappen ihre Kontenhierarchie auf — Operator „+"
   bei Ertrags-, „−" bei Kostenzeilen (`Cost of goods sold` → Materials ·

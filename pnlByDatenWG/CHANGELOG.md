@@ -1,5 +1,59 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.9.0.0 (2026-08-24) — Treiberbaum: echtes Tidy-Tree-Layout, Eltern-Bus, Operatoren am richtigen Ort, Kompakt-Karten
+
+- **Echtes mehrstufiges Baum-Layout (Reingold–Tilford, vereinfacht)**: die
+  Karten werden im **Post-Order** platziert — die Blätter eines Teilbaums
+  bekommen fortlaufende Y-Slots, jeder Elternknoten sitzt danach **exakt auf der
+  vertikalen Mitte seines eigenen Kinder-Blocks**, die X-Position ist die
+  **Ebenen-Spalte** (Kartenbreite + fester Spaltenabstand 64 px). Damit fächern
+  mehrere gleichzeitig geöffnete Ebenen als Baum auf, statt in einer Spalte zu
+  verschmelzen. Beispiel Pharma-Demo mit drei offenen Ebenen:
+  `Net margin ÷ (Net income | Net revenue) + (Pharmaceuticals · Consumer Health
+  · Contract manufacturing)`.
+- **Geschwister-Gap 10 px, Teilbaum-Gap 18 px**: zwei benachbarte Blätter stehen
+  eng beieinander, sobald einer der beiden Nachbarn selbst verzweigt, trennt der
+  **größere Teilbaum-Abstand** die beiden Äste — ein aufgeklappter Ast liest als
+  gruppierter Block, zwei Äste stoßen nie aneinander.
+- **Verbindungen als Eltern-Bus (DuPont-Vorbild)**: pro Elternkarte gibt es
+  **einen** kurzen waagerechten Stich von der Kartenmitte nach rechts zu einem
+  **senkrechten Bus**, von dort läuft je ein orthogonaler Ellbogen in die Mitte
+  jeder Kind-Karte. Der Bus liegt bei 62 % des Spaltenabstands, also **im Spalt
+  zwischen zwei Ebenen-Spalten** — er kreuzt nie eine fremde Karte.
+- **Operatoren an der richtigen Stelle**: tragen **alle** Kanten eines Elternteils
+  denselben Operator (reine Summe, reines Produkt, Division mit zwei Operanden),
+  steht **ein** Kreis (r = 10 px, weiß, Rand `#404040`, Operator fett) auf dem
+  Stich zwischen Karte und Bus — „÷" damit klassisch am Eltern-Stich. Nur bei
+  **gemischten** Operatoren (z. B. „+" und „−" im Hierarchie-Drill von
+  *Other operating result* oder *Financial result*) wird je Kante beschriftet:
+  ein **kleiner Kreis (r = 8 px) auf dem Kinder-Ellbogen kurz vor der Kind-Karte**.
+  **Keine Operator-Kreise mehr zwischen den Geschwistern auf der Stange** — das
+  war der Grund, warum der Baum wie eine Liste wirkte.
+- **Automatische Kompakt-Karten bei tiefen Bäumen**: ab **Baum-Ebene 4** (oder
+  wenn die Gesamthöhe des Layouts sonst mehr als das **Dreifache der
+  Stage-Höhe** wäre) zeichnet die Karte nur noch **Titel · AC-Wert · Δ%-Label**
+  ohne Mini-Chart, Höhe ~44 px statt 104 px. Das ist **Format-Pane-unabhängig
+  und automatisch**; die Kartengröße folgt weiterhin `fontScale`/Dichte.
+  Chevron ▸/▾, Fadenkreuz ⌖ und der farbige Status-Rand bleiben auch auf
+  Kompakt-Karten, und ein `<title>`-Tooltip nennt die **Monatswerte**, die das
+  Mini-Chart sonst gezeigt hätte (inkl. FC-Kennzeichnung).
+- **Sauberkeit**: Karten unterschiedlicher Höhe verschieben ihren Kinder-Block
+  nach unten statt nach oben, wenn eine Elternkarte höher ist als ihr Block —
+  ein Ast wächst nie in den Ast darüber. Breadcrumb- und Hinweiszeilen-Abstände
+  bleiben unverändert (fester 10-px-Abstand zur ersten Kartenreihe).
+- **Interaktionstest erweitert** (`test/tree-interact.js`, jetzt 63 Checks): die
+  gezeichnete Geometrie wird aus den SVG-Linien zurückgerechnet (Bus, Stich,
+  Ellbogen) und geprüft auf gleichmäßige Ebenen-Spalten, **genau einen Bus je
+  verzweigender Karte**, **Bus im Spalt zwischen den Spalten**, **kein
+  Operator-Kreis auf dem Bus**, „ein Operator am Stich bei einheitlichem Zweig /
+  einer je Kante bei gemischtem Zweig", **Blatt-Gap unter Geschwistern vs.
+  Teilbaum-Gap zwischen Kindern verschiedener Eltern**, Überlappungsfreiheit in
+  beide Richtungen sowie die Kompakt-Karten (Höhe, Chevron/⌖/Status-Rand,
+  Monats-Tooltip).
+- Nur die Baum-Ansicht ist betroffen: die Karten-Renderer (`months`, `delta`,
+  `bridge`) sind unverändert, Tabelle, Struktur-Balken und Waterfall rendern
+  pixelidentisch zu 0.8.0.0 (per Stage-Screenshot-Hash verifiziert).
+
 ## 0.8.0.0 (2026-08-24) — Treiberbaum: Versatz-Säulen mit Szenario-Dreiecken, Hierarchie-Drill, ruhigeres Layout
 
 - **Monats-Karten in klassischer IBCS-Versatz-Notation (UN 4.1)**: die
