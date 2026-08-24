@@ -528,6 +528,25 @@ function tidyChecks(geom, tag) {
         st.tris.length > 0 && /^PL /.test(st.tris[0].tip), (st.tris[0] || {}).tip);
     await step(clickToolbar, [STAGE, "PL"]);
 
+    // ---- 10) a fully expanded tree on a small stage falls back to compact cards
+    const tiny = await page.evaluate(() => {
+        const d = document.createElement("div");
+        d.className = "stage"; d.id = "tiny";
+        d.style.cssText = "width:1200px;height:200px;overflow:hidden;";
+        document.body.appendChild(d);
+        run("tiny", {
+            titleBlock: { measureLine: "compact fallback" },
+            toolbar: { show: false, showLegend: false },
+            state: { uiState: JSON.stringify({ view: "tree", treeCollapsed: [] }) },
+        });
+        const hs = [...document.querySelectorAll("#tiny svg > g > g > rect[rx='4']")]
+            .map(r => Math.round(parseFloat(r.getAttribute("height"))));
+        return { heights: [...new Set(hs)], cards: hs.length };
+    });
+    check("a layout far taller than the stage switches every card to compact",
+        tiny.cards > 10 && tiny.heights.length === 1 && tiny.heights[0] === CARD_H_COMPACT,
+        "cards=" + tiny.cards + " h=" + tiny.heights.join(","));
+
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();
 
