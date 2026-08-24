@@ -537,7 +537,7 @@ function tidyChecks(geom, tag) {
         run("tiny", {
             titleBlock: { measureLine: "compact fallback" },
             toolbar: { show: false, showLegend: false },
-            state: { uiState: JSON.stringify({ view: "tree", treeCollapsed: [] }) },
+            state: { uiState: JSON.stringify({ view: "tree", treeV: 2, treeCollapsed: [] }) },
         });
         const hs = [...document.querySelectorAll("#tiny svg > g > g > rect[rx='4']")]
             .map(r => Math.round(parseFloat(r.getAttribute("height"))));
@@ -572,10 +572,19 @@ function tidyChecks(geom, tag) {
         const chev = [...b.querySelectorAll("svg text")]
             .find(t => t.textContent.startsWith("▸"));
         if (chev) { chev.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+        // a state persisted by a pre-v0.9.1 version (no treeV): its re-root and
+        // fold list must be dropped on load — whole tree from the true root
+        const c = mk("whole-c");
+        run("whole-c", { toolbar: { show: false, showLegend: false },
+            state: { uiState: JSON.stringify({
+                view: "tree", treeRoot: "F_GROSSPROFIT",
+                treeCollapsed: ["F_NETINCOME", "F_EBIT", "L:Net revenue"],
+            }) } });
         return {
             defCols: cols(a), defCards: cards(a),
             lvl2: before, chev: !!chev,
             after: { cols: cols(b), cards: cards(b) },
+            migrated: { cols: cols(c), cards: cards(c) },
         };
     });
     check("untouched default opens the whole tree", whole.defCols > 2 && whole.defCards > 20,
@@ -585,6 +594,9 @@ function tidyChecks(geom, tag) {
     check("one expand click opens the whole limb",
         whole.chev && whole.after.cols > 3 && whole.after.cards > whole.lvl2.cards + 2,
         JSON.stringify(whole.after));
+    check("pre-v0.9.1 persisted tree state is dropped on load (whole tree again)",
+        whole.migrated.cols === whole.defCols && whole.migrated.cards === whole.defCards,
+        JSON.stringify(whole.migrated) + " vs default " + whole.defCols + "/" + whole.defCards);
 
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();

@@ -1,5 +1,24 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.9.2.0 (2026-08-24) — Alt-Zustand-Migration + ⌂-Heimat-Button
+
+Nach dem Update auf ≥ 0.9.1 blieb der Baum trotzdem zu, wenn im Report noch
+ein **gespeicherter Zustand der alten Version** lag (Falt-Liste nach alter
+„eine Ebene pro Klick"-Semantik, ggf. plus einer tief gesetzten ⌖-Wurzel wie
+`… › EMEA › DWG Automation UK Ltd.`). Zwei Fixes:
+
+- **Automatische Migration**: der gespeicherte UI-Zustand trägt jetzt eine
+  Baum-Schema-Version (`treeV`). Zustände aus Versionen vor 0.9.1 werden beim
+  Laden erkannt und ihre Baum-Felder (`treeRoot`, `treeCollapsed`) verworfen —
+  der Baum startet frisch: oberste Wurzel, ganz aufgeklappt. Alle anderen
+  gemerkten Einstellungen (Ansicht, Referenz, Einheit …) bleiben erhalten.
+- **Neuer ⌂-Button** in der Gruppe „Bis Ebene" (nur Tree-Ansicht): ein Klick
+  springt aus jeder ⌖-Um-Wurzelung zurück zur obersten Wurzel und öffnet den
+  ganzen Baum. Die Gruppe erscheint jetzt auch, wenn der aktuelle (um-gewurzelte)
+  Baum nur 1 Ebene tief ist — vorher fehlte dort genau der Ausweg.
+- Neuer Regressionstest: alter Zustand ohne `treeV` (Re-Root + Falt-Liste) wird
+  beim Laden verworfen und rendert identisch zum frischen Standard (68 Checks).
+
 ## 0.9.1.0 (2026-08-24) — Treiberbaum klappt jetzt wirklich ganz auf
 
 Behebt „der Baum zeigt immer nur 2 Ebenen": drei Ursachen, drei Fixes.

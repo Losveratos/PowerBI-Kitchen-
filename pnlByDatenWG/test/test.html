@@ -101,7 +101,7 @@ run("p7", {
 // the Net revenue account hierarchy opened ("+" operators), Net income folded
 run("p8", {
   titleBlock: { measureLine: "Income statement (P&L) in mEUR" },
-  state: { uiState: JSON.stringify({ view: "tree", treeCollapsed: ["F_NETINCOME"] }) },
+  state: { uiState: JSON.stringify({ view: "tree", treeV: 2, treeCollapsed: ["F_NETINCOME"] }) },
 });
 
 // p9 — re-rooted on Gross profit (breadcrumb), mini bridge cards, the cost of
@@ -109,7 +109,7 @@ run("p8", {
 run("p9", {
   titleBlock: { measureLine: "Income statement (P&L) in mEUR" },
   state: { uiState: JSON.stringify({
-    view: "tree", treeCard: "bridge", treeStatus: true,
+    view: "tree", treeV: 2, treeCard: "bridge", treeStatus: true,
     treeRoot: "F_GROSSPROFIT", treeCollapsed: ["L:Net revenue"],
   }) },
 });
@@ -118,7 +118,7 @@ run("p9", {
 run("p10", {
   titleBlock: { measureLine: "Income statement (P&L) in mEUR" },
   state: { uiState: JSON.stringify({
-    view: "tree", treeCard: "delta", ref: "py",
+    view: "tree", treeV: 2, treeCard: "delta", ref: "py",
     treeCollapsed: ["F_EBIT", "L:Net revenue", "L:Financial result"],
   }) },
 });

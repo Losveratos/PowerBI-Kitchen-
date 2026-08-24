@@ -125,7 +125,17 @@ interface UiState {
     treeCard: TreeCardMode;
     /** colour indicator (left edge + Δ% label) on the driver-tree cards */
     treeStatus: boolean;
+    /**
+     * schema version of the tree fields. States persisted before v0.9.1 carry
+     * fold lists built for the old "one level at a time" semantics — loading
+     * them keeps the tree stuck. Anything below TREE_STATE_V drops treeRoot
+     * and treeCollapsed back to the fresh whole-tree default on load.
+     */
+    treeV: number;
 }
+
+/** current schema version of the persisted tree state (see UiState.treeV) */
+const TREE_STATE_V = 2;
 
 /** One node of the laid-out driver tree (x/y = top-left of the card). */
 interface TreeCard {
@@ -550,6 +560,7 @@ export class Visual implements IVisual {
             treeCollapsed: null,
             treeCard: String(s.columnsCard.treeCard.value.value) as TreeCardMode,
             treeStatus: s.columnsCard.treeStatus.value,
+            treeV: TREE_STATE_V,
         };
     }
 
@@ -569,7 +580,14 @@ export class Visual implements IVisual {
         }
         if (str != null && str !== this.lastApplied) {
             try {
-                this.ui = { ...this.defaultUi(), ...JSON.parse(str) as Partial<UiState> };
+                const parsed = JSON.parse(str) as Partial<UiState>;
+                if ((parsed.treeV ?? 0) < TREE_STATE_V) {
+                    // pre-v0.9.1 tree state: fold lists and re-roots from the
+                    // old semantics would keep the tree stuck — start fresh
+                    delete parsed.treeRoot;
+                    delete parsed.treeCollapsed;
+                }
+                this.ui = { ...this.defaultUi(), ...parsed };
                 this.lastApplied = str;
                 this.stateLoaded = true;
             } catch { /* keep current */ }
@@ -1021,6 +1039,13 @@ export class Visual implements IVisual {
         const treeDepth = this.treeCtx ? this.treeCtx.depth : 1;
         const maxL = Math.min(isTree ? treeDepth : this.model!.maxDepth, 8);
         const lvlBtns: HTMLElement[] = [];
+        if (isTree) {
+            lvlBtns.push(this.tbBtn("⌂", false, () => {
+                ui.treeRoot = "";
+                ui.treeCollapsed = null;
+            }, this.str("Back to the top root, whole tree open",
+                "Zurück zur obersten Wurzel, ganzer Baum offen")));
+        }
         for (let l = 1; l < maxL; l++) {
             lvlBtns.push(this.tbBtn(String(l), false, () => {
                 if (isTree) { ui.treeCollapsed = this.treeCtx ? [...this.treeCtx.levels[l]] : []; }
@@ -1030,7 +1055,7 @@ export class Visual implements IVisual {
         lvlBtns.push(this.tbBtn(this.str("All", "Alle"), false, () => {
             if (isTree) { ui.treeCollapsed = []; } else { ui.collapsed = []; }
         }));
-        if (tset.showLevels.value && (tableViews || (isTree && maxL > 1))) {
+        if (tset.showLevels.value && (tableViews || isTree)) {
             bar.appendChild(this.tbGroup(this.str("Expand to level", "Bis Ebene"), lvlBtns));
         }
 
