@@ -106,9 +106,30 @@ const TREE_HEAD_GAP = 10;
 const TREE_MAX_CARDS = 400;
 /** Scenario-triangle size (px at font scale 1) — IBCS UN 4.1. */
 const TREE_TRI = 5.5;
-/** Tile view: neighbour cards a column shows before it says "+N more". */
-const TREE_ZOOM_PARENTS = 3;
-const TREE_ZOOM_KIDS = 8;
+/**
+ * Tile view: neighbour cards a column builds at most. Everything that does not
+ * fit the column height stays reachable through the ▲ / ▼ pager, so no card is
+ * ever cut in half — only a pathological graph runs into this hard cap.
+ */
+const TREE_ZOOM_CARDS_MAX = 40;
+/** Micro card of the tile view (px): height, chart strip, mini-chart scale. */
+const MICRO_CARD_CHART_H = 66;
+const MICRO_CARD_S = 1.15;
+/** vertical air between two micro cards (px) — the paging pitch */
+const MICRO_CARD_GAP = 8;
+/**
+ * The zoom page fits the viewport: the integrated chart is the part that gives
+ * way first. It starts at the natural height and shrinks down to this floor —
+ * below it the page scrolls again instead of turning the chart into a strip.
+ */
+const ZOOM_CHART_H = 420;
+const ZOOM_CHART_MIN = 260;
+/** …and it may grow into height the page does not need, up to this ceiling. */
+const ZOOM_CHART_MAX = 760;
+/** Chart fonts follow the squeeze, but only this far (never below 0.8). */
+const ZOOM_FONT_MIN = 0.8;
+/** Below this chart height the scenario grid switches to its compact rows. */
+const ZOOM_GRID_COMPACT = 320;
 
 /** Right padding of a table column in px — fit mode shrinks it to the minimum. */
 const CELL_PAD = 7;
@@ -390,6 +411,18 @@ export class Visual implements IVisual {
     private treeCtx: TreeCtx | null = null;
     /** stage height of the last host update — drives the compact-card fallback */
     private vpH = 0;
+
+    /** the frozen head block (title · toolbar · legend · scale note) */
+    private headEl: HTMLElement | null = null;
+    /** whether the head currently draws its divider + shadow (scrollTop > 0) */
+    private headStuck = false;
+    /** resolved height of the integrated zoom chart (see ZOOM_CHART_H) */
+    private zoomChartH = ZOOM_CHART_H;
+    /** pager refresh of the tile-view neighbour columns (rebuilt every render) */
+    private pagerSync: (() => void)[] = [];
+    /** memoized "last month with AC data" over the whole model (see mtdIndex) */
+    private mtdCache = -2;
+    private mtdCacheVer = -1;
     /** instance suffix for svg pattern ids (several visuals per page) */
     private static instances = 0;
     private uid = "t" + (++Visual.instances).toString(36);
@@ -771,6 +804,18 @@ export class Visual implements IVisual {
         };
         return `rgb(${mix(0)},${mix(1)},${mix(2)})`;
     }
+    /** paper of the visual — behind the tree and behind the tiles of the zoom */
+    private pageBg(): string {
+        return this.settings.styleCard.pageBackground.value?.value || "#FFF";
+    }
+    /** fill of every card: tree cards, micro cards, the big tile, hover panel */
+    private cardBg(): string {
+        return this.settings.styleCard.cardBackground.value?.value || "#FFF";
+    }
+    /** whether head block and column headers stay on screen while scrolling */
+    private sticky(): boolean {
+        return this.settings.styleCard.stickyHeader.value;
+    }
     private fontScale(): number {
         const fp = String(this.settings.styleCard.fontPreset.value.value);
         return fp === "fullhd" ? 1.25 : fp === "uhd" ? 1.6 : 1;
@@ -788,10 +833,39 @@ export class Visual implements IVisual {
     private headerInk(): string {
         return this.settings.styleCard.headerColor.value?.value || C.soft;
     }
-    /** block-aware displayed value: MTD reads the last month of the series */
+    /**
+     * The month the MTD block talks about: the **last month that carries AC
+     * data anywhere in the model**, not simply the last month of the period.
+     *
+     * A P&L bound to a full calendar year but posted only up to August has
+     * empty AC months at the end. Reading the last month there would report an
+     * actual of 0 against a full plan month — a −100 % ghost. One shared index
+     * over all rows keeps the whole table talking about the same month.
+     * Falls back to the last month when no AC series exists at all.
+     */
+    private mtdIndex(): number {
+        const model = this.model!;
+        const n = model.months.length;
+        if (n === 0) { return -1; }
+        if (this.mtdCacheVer === this.modelVer && this.mtdCache >= -1) { return this.mtdCache; }
+        let idx = -1;
+        for (const node of model.byId.values()) {
+            const arr = node.series.ac;
+            if (!arr) { continue; }
+            for (let i = n - 1; i > idx; i--) {
+                if (arr[i] != null) { idx = i; break; }
+            }
+            if (idx === n - 1) { break; }
+        }
+        this.mtdCache = idx < 0 ? n - 1 : idx;
+        this.mtdCacheVer = this.modelVer;
+        return this.mtdCache;
+    }
+
+    /** block-aware displayed value: MTD reads the last month *with* AC data */
     private blockDisplay(node: PnlNode, block: "mtd" | "ytd" | "fy", scen: Scenario): number | null {
         if (block !== "mtd") { return displayValue(node, scen); }
-        const li = this.model!.months.length - 1;
+        const li = this.mtdIndex();
         const v = li >= 0 ? (node.series[scen]?.[li] ?? null) : null;
         return v == null ? null : (node.row.displayInvert ? -v : v);
     }
@@ -874,8 +948,12 @@ export class Visual implements IVisual {
         const keepScroll = this.root.scrollTop;
         this.treeZoomHide();
         this.root.replaceChildren();
+        this.root.style.background = this.pageBg();
         this.comments = [];
         this.vs = null;
+        this.headEl = null;
+        this.headStuck = false;
+        this.pagerSync = [];
 
         const scan = this.scans();
         const fmt = this.makeFmt(scan.maxAbsVal);
@@ -883,13 +961,57 @@ export class Visual implements IVisual {
         // buttons, breadcrumb) — build it before the toolbar
         this.treeCtx = ui.view === "tree" ? this.buildTreeCtx() : null;
 
-        if (this.settings.titleCard.show.value) { this.root.appendChild(this.buildTitle(fmt)); }
-        if (this.settings.toolbarCard.show.value) { this.root.appendChild(this.buildToolbar()); }
-        if (this.awaitingSegment) { this.root.appendChild(this.buildLoadingBar()); }
-        if (this.settings.toolbarCard.showLegend.value) { this.root.appendChild(this.buildLegend()); }
+        // the head block — title, toolbar, legend and the scale note ride in one
+        // wrapper so they can be frozen above the scrolling body as one piece
+        const head = document.createElement("div");
+        head.className = "pnl-head";
+        head.setAttribute("data-pnl", "head");
+        head.style.cssText = `background:${this.pageBg()};box-sizing:border-box;` +
+            "border-bottom:1px solid transparent;transition:box-shadow .12s ease,border-color .12s ease;" +
+            (this.sticky() ? "position:sticky;top:0;z-index:30;" : "");
+        if (this.settings.titleCard.show.value) { head.appendChild(this.buildTitle(fmt)); }
+        if (this.settings.toolbarCard.show.value) { head.appendChild(this.buildToolbar()); }
+        if (this.awaitingSegment) { head.appendChild(this.buildLoadingBar()); }
+        if (this.settings.toolbarCard.showLegend.value) { head.appendChild(this.buildLegend()); }
+        if (ui.view !== "tree") { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
+        if (head.childElementCount > 0) {
+            this.root.appendChild(head);
+            this.headEl = head;
+        }
 
         if (ui.view === "tree") {
-            this.root.appendChild(this.buildTree(fmt));
+            // the tile view fits the viewport: build, measure, squeeze the chart
+            this.zoomChartH = Math.round(ZOOM_CHART_H * this.fontScale());
+            let tree = this.buildTree(fmt);
+            this.root.appendChild(tree);
+            this.buildFootnotes(fmt);
+            this.root.appendChild(this.buildFooter());
+            this.root.scrollTop = keepScroll;
+            if (ui.treeZoom != null) {
+                // one page, no vertical scrolling: the chart takes what the rest
+                // of the page leaves over — it shrinks when the page is too tall
+                // and grows into unused height, always inside its two limits
+                const k = this.fontScale();
+                const lo = Math.round(ZOOM_CHART_MIN * k);
+                const hi = Math.round(ZOOM_CHART_MAX * k);
+                for (let pass = 0; pass < 4; pass++) {
+                    this.zoomPostLayout();
+                    const avail = this.root.clientHeight || this.vpH;
+                    if (avail <= 0) { break; }
+                    const over = this.contentHeight() - avail;
+                    if (Math.abs(over) <= 3) { break; }
+                    // growing keeps a 4 px safety margin, so the last pass can
+                    // never end one pixel over the edge and bring back a scrollbar
+                    const want = over > 0 ? this.zoomChartH - over : this.zoomChartH - over - 4;
+                    const next = Math.max(lo, Math.min(hi, want));
+                    if (Math.abs(next - this.zoomChartH) < 4) { break; }
+                    this.zoomChartH = next;
+                    const fresh = this.buildTree(fmt);
+                    this.root.replaceChild(fresh, tree);
+                    tree = fresh;
+                }
+                this.zoomPostLayout();
+            }
         } else {
             // fit mode needs the table on screen before it can solve — the
             // row-label column is auto-width, so it is measured, not guessed,
@@ -903,11 +1025,115 @@ export class Visual implements IVisual {
                 this.root.replaceChild(tighter, body);
                 body = tighter;
             }
+            this.buildFootnotes(fmt);
+            this.root.appendChild(this.buildFooter());
+            this.root.scrollTop = keepScroll;
         }
-        this.buildFootnotes(fmt);
-        this.root.appendChild(this.buildFooter());
-        this.root.scrollTop = keepScroll;
+        this.applySticky();
         this.measureWindow();
+    }
+
+    /**
+     * How tall the rendered page really is. `scrollHeight` cannot answer this:
+     * it never drops below the viewport, so a page with room to spare looks
+     * exactly like one that fits to the pixel. The bottom edge of the last block
+     * does answer it — and that is what the tile view balances against.
+     */
+    private contentHeight(): number {
+        const last = this.root.lastElementChild as HTMLElement | null;
+        if (!last) { return 0; }
+        const rb = this.root.getBoundingClientRect();
+        return Math.ceil(last.getBoundingClientRect().bottom - rb.top + this.root.scrollTop);
+    }
+
+    /** the uniform-Δ-scale note — part of the frozen head, not of the table */
+    private scaleNote(fmt: Fmt, maxAbsDelta: number): HTMLElement {
+        const note = document.createElement("div");
+        note.setAttribute("data-pnl", "scale-note");
+        note.style.cssText = `font-size:9px;color:${C.soft};text-align:right;` +
+            `padding:0 ${TABLE_PAD_X}px 3px ${TABLE_PAD_X}px;`;
+        note.textContent = this.str("uniform Δ scale: bars ±", "einheitliche Δ-Skala: Balken ±")
+            + fmt.val(maxAbsDelta) + " " + fmt.suffix + this.settings.numbersCard.unitText.value
+            + " · pins ±40%";
+        return note;
+    }
+
+    /**
+     * Freeze what belongs on top. The head wrapper is sticky by itself; the two
+     * table header rows cannot be (a `display:table-row` is not a positioning
+     * box), so their *cells* stick instead — one shared top offset that stacks
+     * head + block row + column row. Cells ride inside the table, so horizontal
+     * scrolling moves them along with their columns, exactly as it should.
+     */
+    private applySticky(): void {
+        this.syncHeadShadow();
+        if (!this.sticky()) { return; }
+        let top = this.headEl ? Math.round(this.headEl.getBoundingClientRect().height) : 0;
+        const zoomHead = this.root.querySelector('[data-pnl="zoom-head"]') as HTMLElement | null;
+        if (zoomHead) {
+            zoomHead.style.top = top + "px";
+            top += Math.round(zoomHead.getBoundingClientRect().height);
+        }
+        const rows = this.root.querySelectorAll('[data-pnl="hdr-row"]');
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i] as HTMLElement;
+            const cells = row.children;
+            for (let j = 0; j < cells.length; j++) { (cells[j] as HTMLElement).style.top = top + "px"; }
+            top += Math.round(row.getBoundingClientRect().height);
+        }
+    }
+
+    /**
+     * The divider under the frozen head: a 1 px rule plus a very quiet shadow,
+     * both only once the body has actually moved underneath it. At rest the
+     * head carries no line at all — nothing to explain, nothing to distract.
+     */
+    private syncHeadShadow(): void {
+        const head = this.headEl;
+        if (!head) { return; }
+        const on = this.sticky() && this.root.scrollTop > 0;
+        if (on === this.headStuck) { return; }
+        this.headStuck = on;
+        head.className = on ? "pnl-head pnl-head-stuck" : "pnl-head";
+        head.style.borderBottomColor = on ? C.gridSoft : "transparent";
+        head.style.boxShadow = on ? "0 3px 8px rgba(15,30,46,.07)" : "none";
+    }
+
+    /**
+     * After the tile view is on screen: the two neighbour columns take exactly
+     * the height of the big tile — same top edge, same bottom edge, one clean
+     * rectangle — and their pagers learn how much is still hidden.
+     */
+    private zoomPostLayout(): void {
+        const tile = this.root.querySelector('[data-pnl="zoom-center"]') as HTMLElement | null;
+        if (tile) {
+            const h = Math.round(tile.getBoundingClientRect().height);
+            const cols = this.root.querySelectorAll('[data-pnl="zoom-side"]');
+            for (let i = 0; i < cols.length; i++) { (cols[i] as HTMLElement).style.height = h + "px"; }
+        }
+        // a scrolling column is cropped to whole cards: what is on screen is
+        // always complete, what does not fit is behind the pager — never a stump
+        const lists = this.root.querySelectorAll('[data-pnl="micro-list"]');
+        for (let i = 0; i < lists.length; i++) {
+            const list = lists[i] as HTMLElement;
+            const first = list.firstElementChild as HTMLElement | null;
+            list.style.maxHeight = "";
+            if (!first) { continue; }
+            const avail = list.clientHeight;
+            if (avail <= 0 || list.scrollHeight <= avail) { continue; }
+            // measure the real pitch (sub-pixel): rounding a card height would
+            // let a hairline of the next card peek out — exactly the stump the
+            // pager exists to avoid
+            const r0 = first.getBoundingClientRect();
+            const second = list.children[1] as HTMLElement | undefined;
+            const pitch = second ? second.getBoundingClientRect().top - r0.top
+                : r0.height + MICRO_CARD_GAP;
+            const gap = Math.max(pitch - r0.height, 0);
+            if (pitch <= 0) { continue; }
+            const fit = Math.max(1, Math.floor((avail + gap) / pitch));
+            list.style.maxHeight = Math.min(avail, Math.floor(fit * pitch - gap)) + "px";
+        }
+        for (const fn of this.pagerSync) { fn(); }
     }
 
     /** visible status line while further data segments are still on their way */
@@ -927,6 +1153,7 @@ export class Visual implements IVisual {
 
     private onScroll(): void {
         if (this.zoomEl || this.zoomTimer != null) { this.treeZoomHide(); }
+        this.syncHeadShadow();
         if (!this.vs || this.scrollRaf !== 0) { return; }
         const raf = typeof requestAnimationFrame === "function"
             ? requestAnimationFrame : (cb: FrameRequestCallback): number => setTimeout(() => cb(0), 16) as unknown as number;
@@ -995,10 +1222,10 @@ export class Visual implements IVisual {
         this.renderWindow(from, to);
     }
 
-    /** variance for a period block: MTD reads the last month of the series */
+    /** variance for a period block: MTD reads the last month *with* AC data */
     private blockVariance(node: PnlNode, block: "mtd" | "ytd" | "fy", ref: Scenario, minuend: Scenario): Variance {
         if (block !== "mtd") { return variance(node, ref, minuend); }
-        const li = this.model!.months.length - 1;
+        const li = this.mtdIndex();
         if (li < 0) { return { delta: null, deltaPct: null, good: true }; }
         const a = node.series[minuend]?.[li] ?? null;
         const r = node.series[ref]?.[li] ?? null;
@@ -1340,7 +1567,11 @@ export class Visual implements IVisual {
         const ytdLabel = months.length > 0
             ? `${year} ${this.monthLabel(months[0])}..${last} (_${last}) · ${this.str("year to date", "Jahresverlauf")}`
             : this.str("current period", "aktueller Zeitraum");
-        const mtdLabel = `MTD ${last} · ${this.str("month", "Monat")}`;
+        // the MTD block names the month it really reports — the last one that
+        // carries actuals, not the last one the period happens to run to
+        const mi = this.mtdIndex();
+        const mtdMonth = mi >= 0 ? this.monthLabel(months[mi]) : last;
+        const mtdLabel = `MTD ${mtdMonth} · ${this.str("month", "Monat")}`;
         const fyLabel = `FY ${year} · ${this.str("outlook", "Ausblick")} AC&FC ${this.str("vs", "vs.")} PL`;
         const fyOn = this.has.fcfy && this.has.plfy && ui.blocks.fy;
         const blocks: Block[] = [];
@@ -1555,18 +1786,11 @@ export class Visual implements IVisual {
         const wrap = document.createElement("div");
         wrap.style.cssText = `padding:2px ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;`;
 
-        const scaleNote = document.createElement("div");
-        scaleNote.style.cssText = `font-size:9px;color:${C.soft};text-align:right;padding:0 0 3px 0;`;
-        scaleNote.textContent = this.str("uniform Δ scale: bars ±", "einheitliche Δ-Skala: Balken ±")
-            + fmt.val(maxAbsDelta) + " " + fmt.suffix + this.settings.numbersCard.unitText.value
-            + " · pins ±40%";
-        wrap.appendChild(scaleNote);
-
         const table = document.createElement("div");
         table.style.cssText = "display:table;border-collapse:collapse;";
         this.tableEl = table;
-        table.appendChild(this.blockHeaderRow(blocks, geo));
-        table.appendChild(this.headerRow(cols, geo));
+        table.appendChild(this.stickyHeaderRow(this.blockHeaderRow(blocks, geo)));
+        table.appendChild(this.stickyHeaderRow(this.headerRow(cols, geo)));
 
         const sparkOn = (node: PnlNode): boolean =>
             ui.spark.includes(node.row.id) && node.series.ac != null && model.months.length > 1;
@@ -1635,7 +1859,7 @@ export class Visual implements IVisual {
         }
 
         const wf = new Map<string, Map<string, { s: number; e: number }>>();
-        const li = model.months.length - 1;
+        const li = this.mtdIndex();
         for (const c of cols) {
             if (c.kind !== "wbar") { continue; }
             const wkey = `${c.block}:${c.scen}`;
@@ -1682,6 +1906,26 @@ export class Visual implements IVisual {
         c.style.cssText = `display:table-cell;vertical-align:middle;padding:1px ${this.fitPad}px 1px 0;` +
             `width:${w > 0 ? w + "px" : "auto"};text-align:${align};font-size:${fs}px;white-space:nowrap;`;
         return c;
+    }
+
+    /**
+     * Lift one header row out of the scroll: the row itself carries the marker
+     * the layout pass finds, its cells carry the sticky position (a table row is
+     * no positioning box). The paper fill is what the body rows disappear behind.
+     */
+    private stickyHeaderRow(row: HTMLElement): HTMLElement {
+        row.setAttribute("data-pnl", "hdr-row");
+        if (!this.sticky()) { return row; }
+        const bg = this.pageBg();
+        const cells = row.children;
+        for (let i = 0; i < cells.length; i++) {
+            const c = cells[i] as HTMLElement;
+            c.style.position = "sticky";
+            c.style.top = "0px";
+            c.style.zIndex = "4";
+            c.style.background = bg;
+        }
+        return row;
     }
 
     private blockHeaderRow(blocks: Block[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number }): HTMLElement {
@@ -2529,7 +2773,14 @@ export class Visual implements IVisual {
             slots[0].tag = `${this.monthLabel(months[0])} ${front}`;
             slots[n - 1].tag = `${this.monthLabel(months[n - 1])} ${scen}`;
             // value labels only at first, last and the absolute extremum (max 3)
-            const marked = new Set<number>([0, n - 1]);
+            // — "last" is the last month that carries a value, so an empty tail
+            // (year bound, actuals only up to the current month) never claims a
+            // label it has no number for
+            const dataIdx: number[] = [];
+            slots.forEach((sl, i) => { if (sl.v != null) { dataIdx.push(i); } });
+            const marked = dataIdx.length > 0
+                ? new Set<number>([dataIdx[0], dataIdx[dataIdx.length - 1]])
+                : new Set<number>([0, n - 1]);
             let ext = -1; let extAbs = -1;
             slots.forEach((sl, i) => {
                 if (sl.v == null) { return; }
@@ -3033,7 +3284,7 @@ export class Visual implements IVisual {
         const unit = isRatio ? "%" : (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
         const W = 396; const inner = W - 26;
         const box = document.createElement("div");
-        box.style.cssText = `position:absolute;z-index:40;width:${W}px;background:#FFF;` +
+        box.style.cssText = `position:absolute;z-index:40;width:${W}px;background:${this.cardBg()};` +
             `border:1px solid ${C.cardEdge};border-radius:6px;` +
             `box-shadow:0 6px 20px rgba(15,30,46,.16);padding:12px 14px 8px 14px;` +
             `pointer-events:none;font-family:${FONT};box-sizing:border-box;`;
@@ -3131,19 +3382,29 @@ export class Visual implements IVisual {
      * AC absolute and in %, coloured by the good/bad evaluation the table uses,
      * plus the FY outlook row when full-year measures are loaded.
      */
-    private treeScenGrid(node: PnlNode, fmt: Fmt): HTMLElement {
+    private treeScenGrid(node: PnlNode, fmt: Fmt, compact = false): HTMLElement {
         const isRatio = node.row.rowType === "kpi";
         const num = (v: number | null, plus = false): string =>
             v == null ? "·" : isRatio ? fmt.pct(v, plus) : fmt.val(v, plus);
+        // a ratio does not vary in mEUR: its absolute Δ is a percentage-point
+        // figure, so the column is labelled "Δ pp" and drops the unit sign
+        const dNum = (v: number | null): string => {
+            if (v == null) { return "·"; }
+            if (!isRatio) { return fmt.val(v, true); }
+            return fmt.pct(v, true).replace("%", "");
+        };
         const grid = document.createElement("div");
-        grid.style.cssText = "display:table;width:100%;border-collapse:collapse;margin:8px 0;" +
+        grid.setAttribute("data-pnl", "scen-grid");
+        grid.style.cssText = `display:table;width:100%;border-collapse:collapse;margin:${compact ? 6 : 8}px 0;` +
             `border-top:1px solid ${C.gridSoft};padding-top:4px;`;
+        const pad = compact ? 0.5 : 1.5;
+        const fs = compact ? 9 : 10;
         const row = (cells: string[], opts?: { bold?: boolean; color?: (string | null)[] }): void => {
             const r = document.createElement("div");
             r.style.cssText = "display:table-row;";
             cells.forEach((cTxt, i) => {
                 const c = document.createElement("div");
-                c.style.cssText = "display:table-cell;padding:1.5px 0 1.5px 8px;font-size:10px;" +
+                c.style.cssText = `display:table-cell;padding:${pad}px 0 ${pad}px 8px;font-size:${fs}px;` +
                     `font-family:${FONT};font-variant-numeric:tabular-nums;` +
                     (i === 0 ? `text-align:left;padding-left:0;color:${C.soft};` : "text-align:right;") +
                     (opts?.bold ? "font-weight:700;" : "") +
@@ -3154,14 +3415,14 @@ export class Visual implements IVisual {
             grid.appendChild(r);
         };
         const inv = node.row.displayInvert ? -1 : 1;
-        row(["", this.str("YTD", "YTD"), "Δ AC", "Δ%"], { bold: false });
+        row(["", this.str("YTD", "YTD"), isRatio ? "Δ pp" : "Δ AC", "Δ%"], { bold: false });
         row(["AC", num(displayValue(node, "ac")), "", ""], { bold: true });
         for (const sc of ["py", "pl", "fc"] as Scenario[]) {
             if (!this.has[sc]) { continue; }
             const v = variance(node, sc, "ac");
             const col = v.delta == null ? null : (v.good ? this.goodColor() : this.badColor());
             row([sc.toUpperCase(), num(displayValue(node, sc)),
-                num(v.delta == null ? null : v.delta * inv, true),
+                dNum(v.delta == null ? null : v.delta * inv),
                 v.deltaPct == null ? "·" : fmt.pct(v.deltaPct * inv, true)],
             { color: [null, null, col, col] });
         }
@@ -3170,7 +3431,7 @@ export class Visual implements IVisual {
             const col = fy.delta == null ? null : (fy.good ? this.goodColor() : this.badColor());
             row(["FY FC" + (this.has.plfy ? " · PL" : ""),
                 num(displayValue(node, "fcfy")),
-                this.has.plfy ? num(fy.delta == null ? null : fy.delta * inv, true) : "",
+                this.has.plfy ? dNum(fy.delta == null ? null : fy.delta * inv) : "",
                 this.has.plfy && fy.deltaPct != null ? fmt.pct(fy.deltaPct * inv, true) : ""],
             { color: [null, null, col, col] });
         }
@@ -3219,7 +3480,7 @@ export class Visual implements IVisual {
         const box = document.createElementNS(ns, "rect");
         box.setAttribute("x", card.x.toFixed(2)); box.setAttribute("y", card.y.toFixed(2));
         box.setAttribute("width", geo.cw.toFixed(2)); box.setAttribute("height", cardH.toFixed(2));
-        box.setAttribute("rx", "4"); box.setAttribute("fill", "#FFF");
+        box.setAttribute("rx", "4"); box.setAttribute("fill", this.cardBg());
         box.setAttribute("stroke", C.cardEdge); box.setAttribute("stroke-width", "1");
         box.setAttribute("shape-rendering", "crispEdges");
         g.appendChild(box);
@@ -3594,12 +3855,16 @@ export class Visual implements IVisual {
         const ui = this.ui!;
         const wrap = document.createElement("div");
         wrap.setAttribute("data-pnl", "zoom");
-        wrap.style.cssText = `padding:4px ${TABLE_PAD_X}px 10px ${TABLE_PAD_X}px;`;
+        wrap.style.cssText = `padding:0 ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;`;
 
         // the way back is the dominant control of this page, the breadcrumb
-        // rides next to it on the same optical line
+        // rides next to it on the same optical line. It stays on screen with
+        // the head above it — the page never loses its exit.
         const head = document.createElement("div");
-        head.style.cssText = "display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:0 0 12px 0;";
+        head.setAttribute("data-pnl", "zoom-head");
+        head.style.cssText = "display:flex;gap:16px;align-items:center;flex-wrap:wrap;" +
+            `padding:8px 0;margin:0 0 8px 0;background:${this.pageBg()};` +
+            (this.sticky() ? "position:sticky;top:0;z-index:20;" : "");
         head.appendChild(this.zoomBackBtn(() => { ui.treeZoom = null; }));
         const path = this.treeZoomPath(ctx, node);
         if (path.length > 1) {
@@ -3610,12 +3875,15 @@ export class Visual implements IVisual {
         }
         wrap.appendChild(head);
 
-        // three columns: what this row feeds · the row itself · what drives it
+        // three columns: what this row feeds · the row itself · what drives it.
+        // They start on one line (flex-start) — a neighbour column never
+        // stretches the row, it takes the tile height in the layout pass.
         const avail = this.root.clientWidth || 900;
         const sideW = Math.max(150, Math.min(215, Math.round(avail * 0.18)));
         const centerW = Math.max(340, avail - 2 * TABLE_PAD_X - 2 * sideW - 32);
         const cols = document.createElement("div");
-        cols.style.cssText = "display:flex;gap:16px;align-items:stretch;";
+        cols.setAttribute("data-pnl", "zoom-cols");
+        cols.style.cssText = "display:flex;gap:16px;align-items:flex-start;";
         cols.appendChild(this.treeZoomSide(ctx, node, fmt, sideW, "parents"));
         cols.appendChild(this.treeZoomCenter(node, fmt, centerW));
         cols.appendChild(this.treeZoomSide(ctx, node, fmt, sideW, "children"));
@@ -3633,16 +3901,20 @@ export class Visual implements IVisual {
         const ns = "http://www.w3.org/2000/svg";
         const isRatio = node.row.rowType === "kpi";
         const unit = isRatio ? "%" : (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
-        const tile = document.createElement("div");
-        tile.setAttribute("data-pnl", "zoom-center");
-        tile.style.cssText = `flex:1 1 ${w}px;min-width:0;background:#FFF;box-sizing:border-box;` +
-            `border:1px solid ${C.cardEdge};border-radius:6px;box-shadow:${SHADOW};` +
-            "padding:16px 16px 12px 16px;";
-        const inner = Math.max(w - 34, 260);
-
         // ---- head: name > formula > period, Δ headline in the status colour
         const va = this.treeVariance(node);
         const vColor = va == null ? null : (va.good ? this.goodColor() : this.badColor());
+        // the tile wears the same status edge as every card in the tree — quiet,
+        // 3 px on the left, so the whole page speaks one colour language
+        const edge = this.ui!.treeStatus ? vColor : null;
+
+        const tile = document.createElement("div");
+        tile.setAttribute("data-pnl", "zoom-center");
+        tile.style.cssText = `flex:1 1 ${w}px;min-width:0;background:${this.cardBg()};box-sizing:border-box;` +
+            `border:1px solid ${C.cardEdge};border-radius:6px;box-shadow:${SHADOW};` +
+            (edge ? `border-left:3px solid ${edge};` : "") +
+            "padding:16px 16px 12px 16px;";
+        const inner = Math.max(w - 34, 260);
         const head = document.createElement("div");
         head.style.cssText = "display:flex;align-items:baseline;gap:8px;margin:0 0 2px 0;";
         const nm = document.createElement("div");
@@ -3690,6 +3962,12 @@ export class Visual implements IVisual {
             tile.appendChild(c);
         };
         const k = this.fontScale();
+        // the chart is the elastic part of the page: it takes the height that is
+        // left over after the head, the grid and the neighbour columns. Its type
+        // follows the squeeze, but only down to ZOOM_FONT_MIN — clamped, so a
+        // short page thins its labels out instead of shrinking them to crumbs.
+        const full = Math.round(ZOOM_CHART_H * k);
+        const sc = Math.max(ZOOM_FONT_MIN, Math.min(1, this.zoomChartH / Math.max(full, 1)));
         if (isRatio) {
             // percentages do not add up: no bridge, no stacked total — the
             // monthly comparison plus the grid is the honest picture here
@@ -3698,14 +3976,26 @@ export class Visual implements IVisual {
                 + `Months AC solid, ${refUp} offset behind, Δ${refUp} in the grid.`,
                 `Quotenzeile — Prozente sind nicht additiv: keine Brücke, kein AC+FC-Stapel. `
                 + `Monate AC solide, ${refUp} versetzt dahinter, Δ${refUp} im Grid.`));
-            chart(Math.round(230 * k), (g, svg) => this.treeMini(g, node,
-                { x: 1, y: 4, w: inner - 2, h: Math.round(230 * k) - 30 }, 1.5 * k, fmt, svg, 0));
+            const h = Math.max(Math.round(this.zoomChartH * 0.55), Math.round(150 * k));
+            chart(h, (g, svg) => this.treeMini(g, node,
+                { x: 1, y: 4, w: inner - 2, h: h - 30 }, 1.5 * k * sc, fmt, svg, 0));
         } else {
-            const h = Math.round(420 * k);
+            const h = this.zoomChartH;
             chart(h, (g, svg) => this.treeZoomCombo(g, node,
-                { x: 1, y: 2, w: inner - 2, h: h - 6 }, 1.25 * k, fmt, svg));
+                { x: 1, y: 2, w: inner - 2, h: h - 6 }, 1.25 * k * sc, fmt, svg));
         }
-        tile.appendChild(this.treeScenGrid(node, fmt));
+        const skipped = isRatio ? 0 : this.treeMissingMonths(node);
+        if (skipped > 0) {
+            // months without actuals and without a forecast are not zero months:
+            // they carry no step, no column and no pin, and the comparison the
+            // badge reports runs over the months that do have data
+            note(this.str(
+                `${skipped} month(s) without AC or FC are left out — bridge, Δ% pins and the total `
+                + `compare only the months that carry data.`,
+                `${skipped} Monat(e) ohne AC und FC bleiben außen vor — Brücke, Δ%-Pins und der `
+                + `Gesamtvergleich rechnen nur mit den Monaten, die Daten tragen.`));
+        }
+        tile.appendChild(this.treeScenGrid(node, fmt, this.zoomChartH < ZOOM_GRID_COMPACT * k));
 
         if (node.row.comment) {
             const cm = document.createElement("div");
@@ -3732,13 +4022,16 @@ export class Visual implements IVisual {
     private treeZoomSide(ctx: TreeCtx, node: PnlNode, fmt: Fmt, w: number,
         side: "parents" | "children"): HTMLElement {
         const col = document.createElement("div");
-        col.style.cssText = `flex:0 0 ${w}px;width:${w}px;box-sizing:border-box;`;
+        col.setAttribute("data-pnl", "zoom-side");
+        col.style.cssText = `flex:0 0 ${w}px;width:${w}px;box-sizing:border-box;` +
+            "display:flex;flex-direction:column;min-height:0;";
         // section head in the very type style of the toolbar group labels, and
         // on the same optical line as the head of the big tile next to it
         const title = this.capsLabel(side === "parents"
             ? this.str("Feeds into", "Zahlt ein auf")
             : this.str("Driven by", "Getrieben von"));
         title.style.margin = "0 0 8px 0";
+        title.style.flex = "0 0 auto";
         col.appendChild(title);
 
         const items: { node: PnlNode; op: FormulaOp | null }[] = [];
@@ -3766,14 +4059,81 @@ export class Visual implements IVisual {
             col.appendChild(hint);
             return col;
         }
-        const cap = side === "parents" ? TREE_ZOOM_PARENTS : TREE_ZOOM_KIDS;
-        const more = items.length - cap;
-        for (const it of items.slice(0, cap)) {
-            col.appendChild(this.treeMicroCard(it.node, it.op, fmt, w, side));
+        // more drivers than the column is tall: the column pages instead of
+        // showing a stump. ▲ / ▼ appear exactly when there is something above
+        // or below, and the ▼ says how many cards are still waiting.
+        const list = document.createElement("div");
+        list.setAttribute("data-pnl", "micro-list");
+        list.style.cssText = "flex:1 1 auto;min-height:0;position:relative;" +
+            "overflow-y:auto;overflow-x:hidden;";
+        const more = items.length - TREE_ZOOM_CARDS_MAX;
+        for (const it of items.slice(0, TREE_ZOOM_CARDS_MAX)) {
+            list.appendChild(this.treeMicroCard(it.node, it.op, fmt, w, side));
         }
+
+        const arrow = (dir: -1 | 1): HTMLElement => {
+            const b = document.createElement("button");
+            b.setAttribute("data-pnl", dir < 0 ? "micro-up" : "micro-down");
+            b.style.cssText = `font-family:${FONT};font-size:9.5px;line-height:1.3;width:100%;` +
+                `padding:3px 6px;cursor:pointer;border-radius:4px;border:1px solid ${C.ctlEdge};` +
+                `background:${this.cardBg()};color:${C.text};transition:${TRANSITION};` +
+                `display:none;margin:${dir < 0 ? "0 0 6px 0" : "6px 0 0 0"};box-sizing:border-box;`;
+            b.onmouseenter = (): void => { b.style.background = C.ctlHover; b.style.borderColor = C.cardEdgeHover; };
+            b.onmouseleave = (): void => { b.style.background = this.cardBg(); b.style.borderColor = C.ctlEdge; };
+            // paging snaps to card tops — the reader never lands on a stump
+            b.onclick = (e: Event): void => {
+                e.stopPropagation();
+                const kids = list.children;
+                if (dir > 0) {
+                    let next = list.scrollHeight;
+                    for (let i = 0; i < kids.length; i++) {
+                        const c = kids[i] as HTMLElement;
+                        if (c.offsetTop + c.offsetHeight > list.scrollTop + list.clientHeight + 1) {
+                            next = c.offsetTop; break;
+                        }
+                    }
+                    list.scrollTop = next;
+                } else {
+                    let next = 0;
+                    for (let i = 0; i < kids.length; i++) {
+                        const t = (kids[i] as HTMLElement).offsetTop;
+                        if (t < list.scrollTop - 1 && t + list.clientHeight >= list.scrollTop) {
+                            next = t; break;
+                        }
+                    }
+                    list.scrollTop = next;
+                }
+                sync();
+            };
+            return b;
+        };
+        const up = arrow(-1);
+        const down = arrow(1);
+        const sync = (): void => {
+            let hidden = 0;
+            const kids = list.children;
+            const edge = list.scrollTop + list.clientHeight + 1;
+            if (list.clientHeight > 0) {
+                for (let i = 0; i < kids.length; i++) {
+                    const c = kids[i] as HTMLElement;
+                    if (c.offsetTop + c.offsetHeight > edge) { hidden++; }
+                }
+            }
+            const above = list.scrollTop > 2;
+            up.style.display = above ? "block" : "none";
+            up.textContent = "▲";
+            down.style.display = hidden > 0 ? "block" : "none";
+            down.textContent = `▼ ${hidden} ` + this.str("more", "weitere");
+        };
+        this.pagerSync.push(sync);
+
+        col.appendChild(up);
+        col.appendChild(list);
+        col.appendChild(down);
+        list.addEventListener("scroll", sync);
         if (more > 0) {
             const rest = document.createElement("div");
-            rest.style.cssText = `font-size:9.5px;color:${C.soft};`;
+            rest.style.cssText = `font-size:9.5px;color:${C.soft};flex:0 0 auto;padding-top:4px;`;
             rest.textContent = `+${more} ` + this.str("more", "weitere");
             col.appendChild(rest);
         }
@@ -3785,53 +4145,67 @@ export class Visual implements IVisual {
         side: "parents" | "children"): HTMLElement {
         const ns = "http://www.w3.org/2000/svg";
         const ui = this.ui!;
+        const va = this.treeVariance(node);
+        const vColor = va == null ? null : (va.good ? this.goodColor() : this.badColor());
+        // status edge exactly as in the tree: 3 px on the left, in the variance
+        // colour, and it follows the Status toggle of the toolbar
+        const edge = ui.treeStatus ? vColor : null;
+
         const card = document.createElement("div");
         card.setAttribute("data-pnl", side === "parents" ? "zoom-parent" : "zoom-child");
         card.title = this.str("Zoom into this card", "Auf diese Karte zoomen");
-        card.style.cssText = `background:#FFF;border:1px solid ${C.cardEdge};border-radius:4px;` +
-            `box-shadow:${SHADOW};transition:${TRANSITION};` +
-            "padding:8px 8px 6px 8px;margin-bottom:8px;cursor:pointer;box-sizing:border-box;";
-        // click affordance: the edge darkens and the card lifts by a hair
-        card.onmouseenter = (): void => {
-            card.style.borderColor = C.cardEdgeHover; card.style.boxShadow = SHADOW_HOVER;
+        card.style.cssText = `background:${this.cardBg()};border:1px solid ${C.cardEdge};` +
+            (edge ? `border-left:3px solid ${edge};` : "") +
+            `border-radius:4px;box-shadow:${SHADOW};transition:${TRANSITION};` +
+            `padding:8px 8px 7px 8px;margin-bottom:${MICRO_CARD_GAP}px;` +
+            "cursor:pointer;box-sizing:border-box;";
+        // click affordance: the edge darkens and the card lifts by a hair — the
+        // status edge keeps its colour, only the three quiet sides react
+        const sides = (c: string): void => {
+            card.style.borderTopColor = c; card.style.borderRightColor = c;
+            card.style.borderBottomColor = c;
+            if (!edge) { card.style.borderLeftColor = c; }
         };
-        card.onmouseleave = (): void => {
-            card.style.borderColor = C.cardEdge; card.style.boxShadow = SHADOW;
-        };
+        card.onmouseenter = (): void => { sides(C.cardEdgeHover); card.style.boxShadow = SHADOW_HOVER; };
+        card.onmouseleave = (): void => { sides(C.cardEdge); card.style.boxShadow = SHADOW; };
 
         const head = document.createElement("div");
         head.style.cssText = "display:flex;gap:5px;align-items:baseline;";
         if (op) {
             const o = document.createElement("span");
-            o.style.cssText = `font-size:11px;font-weight:700;color:${C.ac};`;
+            o.style.cssText = `font-size:12px;font-weight:700;color:${C.ac};`;
             o.textContent = op;
             head.appendChild(o);
         }
         const nm = document.createElement("span");
         nm.setAttribute("data-pnl", "micro-name");
-        nm.style.cssText = `flex:1;font-size:10px;font-weight:600;color:${C.text};` +
-            "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
+        nm.style.cssText = `flex:1;font-size:11px;font-weight:600;color:${C.text};` +
+            "line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
         nm.textContent = node.row.name;
         head.appendChild(nm);
-        const va = this.treeVariance(node);
         if (va && va.deltaPct != null) {
             const dp = document.createElement("span");
-            dp.style.cssText = "font-size:9.5px;font-weight:700;white-space:nowrap;" +
+            dp.setAttribute("data-pnl", "micro-delta");
+            dp.style.cssText = "font-size:11px;font-weight:700;white-space:nowrap;" +
                 "font-variant-numeric:tabular-nums;" +
-                `color:${va.good ? this.goodColor() : this.badColor()};`;
+                `color:${vColor};`;
             dp.textContent = fmt.pct(va.deltaPct, true);
             head.appendChild(dp);
         }
         card.appendChild(head);
 
-        const cw = Math.max(w - 18, 90);
+        // the numbers in the mini chart are what the reader came for: the card
+        // gives the chart a taller strip and draws it at readable type size
+        const cw = Math.max(w - 20, 90);
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
-        svg.setAttribute("width", String(cw)); svg.setAttribute("height", "56");
-        svg.style.cssText = "display:block;margin-top:3px;";
+        svg.setAttribute("width", String(cw));
+        svg.setAttribute("height", String(MICRO_CARD_CHART_H));
+        svg.style.cssText = "display:block;margin-top:4px;";
         const g = document.createElementNS(ns, "g") as SVGGElement;
         svg.appendChild(g);
         card.appendChild(svg);
-        this.treeMini(g, node, { x: 1, y: 2, w: cw - 2, h: 36 }, 0.85, fmt, svg, 0);
+        this.treeMini(g, node, { x: 1, y: 2, w: cw - 2, h: MICRO_CARD_CHART_H - 20 },
+            MICRO_CARD_S, fmt, svg, 0);
 
         card.onclick = (e: Event): void => {
             e.stopPropagation();
@@ -3843,9 +4217,25 @@ export class Visual implements IVisual {
     }
 
     /**
+     * Months of a row that carry neither an actual nor a forecast — the empty
+     * tail of a P&L bound to a full year but posted only up to the current
+     * month. They are not zero months: nothing of the chart is drawn for them.
+     */
+    private treeMissingMonths(node: PnlNode): number {
+        const pts = this.treeComboPts(node).pts;
+        return pts.filter(p => p.v == null).length;
+    }
+
+    /**
      * One point of the integrated zoom chart: the month, its AC (or forecast)
      * value, the reference of that month, the second scenario for the triangle,
      * and the variance the bridge step and the Δ% pin are drawn from.
+     *
+     * A month whose AC *and* FC are null keeps `v = null` — the series nulls
+     * are carried through untouched, never coerced to zero. Such a month gets
+     * no bridge step, no Δ% pin and no value column; only its (pale) reference
+     * column stays, so the reader sees the plan that was there and the actual
+     * that was not.
      */
     private treeComboPts(node: PnlNode): {
         pts: ComboPt[]; refScen: Scenario; triScen: Scenario | "";
@@ -3920,13 +4310,18 @@ export class Visual implements IVisual {
         const n = pts.length;
 
         // totals — the bridge must reconcile, so every total is summed over the
-        // very months the steps are drawn from, not read from the YTD scalar
+        // very months the steps are drawn from, not read from the YTD scalar.
+        // Months without an actual and without a forecast carry no step, so
+        // their reference must not enter the anchor either: otherwise the badge
+        // would report a gap against a plan for months nobody has posted yet.
         let refSum: number | null = null; let triSum: number | null = null;
         let acSum = 0; let fcSum = 0; let hasVal = false;
         for (const p of pts) {
+            if (p.v == null) { continue; }
             if (p.ref != null) { refSum = (refSum ?? 0) + p.ref; }
             if (p.tri != null) { triSum = (triSum ?? 0) + p.tri; }
-            if (p.v != null) { hasVal = true; if (p.isFc) { fcSum += p.v; } else { acSum += p.v; } }
+            hasVal = true;
+            if (p.isFc) { fcSum += p.v; } else { acSum += p.v; }
         }
         // a model without monthly series still gets the anchors and the badge
         if (n === 0 || !hasVal) {
@@ -3961,7 +4356,10 @@ export class Visual implements IVisual {
         const slots = Math.max(n, 1);
         const step = (bandEnd - bandStart) / slots;
         const segW = Math.max(4, Math.min(step * 0.70, 30 * s));
-        const colW = Math.max(3, Math.min(step * 0.46, 20 * s));
+        // the monthly slot now carries the IBCS pair of the card charts: the AC
+        // column in front, the reference column behind it and offset right — so
+        // the slot needs room for both plus the triangle strip
+        const colW = Math.max(4, Math.min(step * 0.58, 24 * s));
         const cx = (i: number): number => bandStart + (i + 0.5) * step;
         const xTot = bandEnd + 14 * s;
         const cxTot = xTot + totW / 2;
@@ -3993,7 +4391,7 @@ export class Visual implements IVisual {
         const zoneH = (yBase - plotTop) * 0.42;
         let maxMon = 0;
         for (const p of pts) {
-            maxMon = Math.max(maxMon, Math.abs(p.v ?? 0), Math.abs(p.tri ?? 0));
+            maxMon = Math.max(maxMon, Math.abs(p.v ?? 0), Math.abs(p.tri ?? 0), Math.abs(p.ref ?? 0));
         }
         const mk = maxMon * unit > zoneH && maxMon > 0 ? zoneH / (maxMon * unit) : 1;
         const mY = (v: number): number => axisY - v * unit * mk;
@@ -4060,8 +4458,13 @@ export class Visual implements IVisual {
             if (p.d != null) { maxTxt = Math.max(maxTxt, signed(p.d).length); }
         }
         const every = Math.max(1, Math.ceil((maxTxt * lfs * 0.58 + 5 * s) / Math.max(step, 1)));
+        // thinning runs over the months that actually carry data — an empty tail
+        // must not eat the labels of the months in front of it, and the last
+        // month *with* data is always named
+        const dataIdx: number[] = [];
+        pts.forEach((p, i) => { if (p.v != null) { dataIdx.push(i); } });
         const marks = new Set<number>();
-        for (let i = n - 1; i >= 0; i -= every) { marks.add(i); }
+        for (let k = dataIdx.length - 1; k >= 0; k -= every) { marks.add(dataIdx[k]); }
         const catEvery = Math.max(1, Math.ceil((5 * cfs * 0.6 + 4 * s) / Math.max(step, 1)));
 
         // ---------------- caption
@@ -4126,13 +4529,26 @@ export class Visual implements IVisual {
         line(bandEnd, yOf(vTot), xTot, yOf(vTot), C.gridSoft, 1);
 
         // ---------------- bridge steps, monthly columns, month labels
+        //
+        // The monthly zone draws the IBCS pair of the card charts: the AC column
+        // in front, the reference column of the same month behind it and offset
+        // to the right, the second scenario as a triangle beside them. A month
+        // without an actual keeps only its (pale) reference column — no step, no
+        // pin, no zero column, and the bridge connector skips right over it.
+        const hasRefCols = pts.some(p => p.ref != null);
+        const hasTriCols = triScen !== "" && pts.some(p => p.tri != null);
+        const acW = hasRefCols ? colW * 0.60 : colW;
+        const refW = acW * 1.25;
+        const dxPair = hasRefCols ? acW * 0.40 : 0;
         level = refSum;
+        /** x of the bridge step the connector last left (skips empty months) */
+        let lastStepX: number | null = null;
         pts.forEach((p, i) => {
-            const x = cx(i);
+            const x = cx(i) - (hasTriCols ? colW * 0.18 : 0);
             if (p.d != null) {
                 // connector at the incoming level, then the floating step
-                const from = i === 0 ? xRefAnc + totW : cx(i - 1) + segW / 2;
-                line(from, yOf(level), x - segW / 2, yOf(level), C.gridSoft, 1);
+                const from = lastStepX == null ? xRefAnc + totW : lastStepX + segW / 2;
+                line(from, yOf(level), cx(i) - segW / 2, yOf(level), C.gridSoft, 1);
                 const prev = level;
                 level += p.d;
                 const top = Math.min(yOf(prev), yOf(level));
@@ -4140,24 +4556,44 @@ export class Visual implements IVisual {
                 const h = Math.max(Math.abs(yOf(prev) - yOf(level)), 3.5 * s);
                 const color = p.good ? this.goodColor() : this.badColor();
                 const sr = p.isFc
-                    ? rect(x - segW / 2, top, segW, h, dHatch(color, p.good), color, 1)
-                    : rect(x - segW / 2, top, segW, h, color);
+                    ? rect(cx(i) - segW / 2, top, segW, h, dHatch(color, p.good), color, 1)
+                    : rect(cx(i) - segW / 2, top, segW, h, color);
                 sr.setAttribute("data-pnl", "combo-step");
                 if (p.isFc) { sr.setAttribute("data-fc", "1"); }
+                lastStepX = cx(i);
                 if (marks.has(i)) {
-                    label(x, p.d >= 0 ? top - 2.5 * s : top + h + lfs, signed(p.d), lfs, color,
+                    label(cx(i), p.d >= 0 ? top - 2.5 * s : top + h + lfs, signed(p.d), lfs, color,
                         "middle", undefined, true);
                 }
             }
-            // monthly column: AC solid / FC hatched, second scenario as triangle
+            const acCx = x - dxPair / 2;
+            const refCx = x + dxPair / 2;
             const tops: number[] = [];
+            // reference column of this month, behind and offset — pale where the
+            // month carries no actual at all, so the gap stays visible as a gap
+            if (p.ref != null && this.has[ref]) {
+                const st = this.treeScenFill(ref, hatch);
+                const y = Math.min(mY(p.ref), axisY);
+                const h = Math.abs(mY(p.ref) - axisY);
+                const rr = rect(refCx - refW / 2, y, refW, h, st.fill, st.stroke ?? undefined, 1.2);
+                rr.setAttribute("data-pnl", "combo-month-ref");
+                rr.setAttribute("data-scen", ref);
+                if (p.v == null) {
+                    rr.setAttribute("opacity", "0.42");
+                    rr.setAttribute("data-empty", "1");
+                }
+                const rt = document.createElementNS(ns, "title");
+                rt.textContent = `${refUp} ${num(p.ref)}`;
+                rr.appendChild(rt);
+                tops.push(y);
+            }
+            // monthly column: AC solid / FC hatched, second scenario as triangle
             if (p.v != null) {
                 const y = Math.min(mY(p.v), axisY);
                 const h = Math.abs(mY(p.v) - axisY);
-                const bx = x - colW * (p.tri != null ? 0.75 : 0.5);
                 const mr = p.isFc
-                    ? rect(bx, y, colW, h, `url(#${hatch})`, C.ac, 1)
-                    : rect(bx, y, colW, h, C.ac);
+                    ? rect(acCx - acW / 2, y, acW, h, `url(#${hatch})`, C.ac, 1)
+                    : rect(acCx - acW / 2, y, acW, h, C.ac);
                 mr.setAttribute("data-pnl", "combo-month");
                 if (p.isFc) { mr.setAttribute("data-fc", "1"); }
                 tops.push(y);
@@ -4166,7 +4602,7 @@ export class Visual implements IVisual {
                 const st = this.treeScenFill(triScen, hatch);
                 const ty = mY(p.tri);
                 const tri = TREE_TRI * s;
-                const tx = x + colW * 0.35;
+                const tx = refCx + refW / 2 + 1.2 * s;
                 const path = document.createElementNS(ns, "path");
                 path.setAttribute("d", `M${tx.toFixed(2)},${ty.toFixed(2)}`
                     + `L${(tx + tri).toFixed(2)},${(ty - tri * 0.62).toFixed(2)}`
@@ -4174,6 +4610,7 @@ export class Visual implements IVisual {
                 path.setAttribute("fill", st.fill);
                 path.setAttribute("stroke", st.stroke ?? C.refGray);
                 path.setAttribute("stroke-width", "0.8");
+                if (p.v == null) { path.setAttribute("opacity", "0.42"); }
                 const tt = document.createElementNS(ns, "title");
                 tt.textContent = `${triScen.toUpperCase()} ${num(p.tri)}`;
                 path.appendChild(tt);
@@ -4181,10 +4618,10 @@ export class Visual implements IVisual {
                 tops.push(ty - tri * 0.62);
             }
             if (p.v != null && marks.has(i) && tops.length > 0) {
-                label(x, Math.min(...tops) - 2.5 * s, num(p.v), lfs, C.text);
+                label(acCx, Math.min(...tops) - 2.5 * s, num(p.v), lfs, C.text);
             }
             if (i % catEvery === 0 || i === n - 1) {
-                label(x, yBase + cfs + 4 * s, this.fitLabel(p.tag, step, cfs), cfs, C.soft);
+                label(cx(i), yBase + cfs + 4 * s, this.fitLabel(p.tag, step, cfs), cfs, C.soft);
             }
         });
 

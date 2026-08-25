@@ -582,6 +582,29 @@
                             }
                         }
                     }
+                },
+                "stickyHeader": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "pageBackground": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "cardBackground": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
                 }
             }
         },

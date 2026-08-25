@@ -1,5 +1,125 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.13.0.0 (2026-08-25) — Fixierter Kopfbereich, selbstskalierender Kachel-Zoom, lesbare Treiber-Karten, Referenzsäulen je Monat, ehrlicher Umgang mit fehlenden Monaten
+
+Diese Version kommt komplett aus echter Power-BI-Nutzung: fixierbarer Kopf,
+eine Zoom-Seite, die sich in den Viewport einpasst, deutlich lesbarere
+Treiber-Karten, die fehlende Referenz-Säule in der Monatszone — und der
+wichtigste Datenfix: Monate ohne Ist-Werte sind keine Null-Monate mehr.
+
+- **Neu: Kopfbereich fixieren** (`Stil → Kopfbereich fixieren`, Standard **an**).
+  Titelblock, Toolbar, Legende und der Skalen-Hinweis liegen jetzt in **einem
+  Kopf-Wrapper**, der beim vertikalen Scrollen oben stehen bleibt — in der
+  Tabelle, in den Struktur-Balken, im Waterfall und im Baum.
+  - Die **beiden Spalten-Kopfzeilen** (Block-Header und Spalten-Header) bleiben
+    mit einem eigenen Top-Offset direkt darunter stehen. Sie sitzen weiter
+    *innerhalb* der Tabelle, also **scrollen sie beim Querscrollen mit ihren
+    Spalten mit** — Kopf und Spalte laufen nie auseinander. Mit dem Virtual
+    Scrolling großer Modelle vertragen sie sich unverändert.
+  - **Elegante Trennlinie**: 1 px in `#EDEBE9` plus ein sehr dezenter Schatten,
+    beides **nur wenn wirklich gescrollt ist** (`scrollTop > 0`), eingeblendet
+    über 120 ms. In Ruhe trägt der Kopf keine Linie.
+  - Ausschalten gibt Kopf und Kopfzeilen wieder frei — exakt das Verhalten von
+    v0.12.
+- **Der Kachel-Zoom passt sich dynamisch in den Viewport ein.** Die Seite
+  rechnet sich die verfügbare Höhe aus (Viewport minus Kopfbereich) und
+  verteilt sie auf Chart, Grid und Treiber-Spalten:
+  - Das **integrierte Diagramm ist das elastische Element**: es schrumpft
+    zuerst (Minimum ~260 px, darunter bleibt Scrollen als Notausgang) und
+    **wächst in ungenutzte Höhe hinein** (bis ~760 px), statt eine halbleere
+    Seite stehen zu lassen.
+  - Die **Schriftgrößen des Charts skalieren moderat mit** (Faktor auf
+    0,8–1,0 geklemmt). Labels werden nie geclippt — die vorhandene
+    Ausdünnungs-Logik greift weiter.
+  - Bei knapper Höhe wird das **Szenario-Grid kompakter** (9 px, engere Zeilen)
+    statt zu verschwinden.
+  - Auch die **Zurück-Button-Zeile mit Breadcrumb bleibt stehen** und bekommt
+    dieselbe Trennlinien-Sprache — der Weg zurück geht nie verloren.
+- **Treiber-/Mikro-Karten: deutlich lesbarer.**
+  - Kartenhöhe rauf auf ~100 px, Mini-Chart-Streifen 66 px statt 56 px,
+    **Name 11 px**, **Δ% 11 px fett** mit Tabellenziffern, und — die Priorität
+    aus dem Nutzerfeedback — die **Zahlen im Mini-Chart deutlich größer**
+    (Chart-Maßstab 0,85 → 1,15, Wert-Labels damit ~8,6 px statt ~6,4 px).
+  - **Status-Akzent wie im Baum**: 3 px farbige Kante an der **linken**
+    Kartenseite, günstig/ungünstig nach der Abweichung gegen die gewählte
+    Referenz, mit `VarianceInvert` und dem Toolbar-Schalter „Status". Die
+    **große Kachel** trägt dieselbe Kante, dezent. Der Hover färbt nur die drei
+    ruhigen Seiten um, die Status-Kante behält ihre Farbe.
+  - **Überlauf sauber gelöst**: passen mehr Treiber in die Spalte, als die Höhe
+    hergibt, wird die Spalte intern scrollbar und bekommt sichtbare Blätter-
+    Knöpfe — unten „▼ N weitere", oben „▲". Geblättert wird **auf
+    Kartenkanten**, und die Spalte wird auf ganze Karten zugeschnitten: es gibt
+    **keinen abgeschnittenen Kartenstumpf** mehr. Statt hart bei 3 bzw. 8 Karten
+    abzuschneiden, baut die Spalte jetzt bis zu 40 Treiber und macht sie alle
+    erreichbar.
+- **Monatszone des Kombi-Charts zeigt endlich das IBCS-Paar.** Je Monat steht
+  nun — genau wie in den Karten-Mini-Charts — die **Referenz-Säule versetzt
+  hinter der AC-Säule** (PY grau gefüllt, PL outlined, FC schraffiert; folgt der
+  Toolbar-Referenz), AC solide davor, das Dreieck des zweiten Szenarios bleibt
+  rechts daneben. Slotbreite und Label-Ausdünnung sind entsprechend
+  nachgezogen; die gemeinsame Skala bleibt unverändert.
+- **Fehlende Monate werden sauber behandelt (der wichtigste Datenfix).** Läuft
+  der gebundene Zeitraum bis Dezember, sind aber nur Ist-Werte bis August
+  gebucht (und kein monatlicher FC gebunden), erzeugte v0.12 Geisterwerte:
+  „0,00"-Säulen, rote Brückenschritte und „−100,0 %"-Pins für September bis
+  Dezember, dazu eine MTD-Spalte auf einem leeren Dezember. Jetzt gilt
+  durchgehend: **ein Monat ohne AC- und ohne FC-Wert ist kein Null-Monat.**
+  - Im Kombi-Chart: **keine Monatssäule, kein Brückenschritt, kein Δ%-Pin**;
+    nur die **blasse Referenz-Säule** bleibt stehen, damit sichtbar ist, dass
+    dort ein Plan lag und kein Ist. Der Konnektor der Brücke **überspringt**
+    solche Monate, die Brücke endet beim letzten Monat mit Daten.
+  - **Anker und Badge rechnen mit denselben Monaten wie die Brücke.** Der
+    Referenz-Anker summiert nur die Monate, die auch einen Schritt tragen — die
+    Brücke stimmt damit wieder auf den Cent, statt eine Lücke gegen einen
+    vollen Jahresplan auszuweisen. Eine Hinweiszeile unter dem Chart nennt die
+    Zahl der ausgelassenen Monate.
+  - **Tabellen-MTD-Block**: „MTD" liest nicht mehr blind den letzten Monat des
+    Zeitraums, sondern den **letzten Monat mit Ist-Daten** — ein gemeinsamer
+    Index über alle Zeilen des Modells (Fallback: letzter Monat). Die
+    Block-Überschrift nennt ihn („MTD Aug" statt „MTD Dez"); Δ und Δ% erscheinen
+    nur, wenn beide Seiten vorhanden sind, sonst „·". Der MTD-Waterfall folgt
+    demselben Index.
+  - **Mini-/Mikro-Charts und Hover-Panel** ziehen die Serien-Nulls
+    unverändert durch: keine −100 %-Artefakte, und die Wert-Labels der
+    Monatskarten setzen ihr „letztes" Label auf den letzten Monat **mit** Wert.
+  - Die Engine bleibt unangetastet — die Serien tragen die Nulls bereits, der
+    Fix sitzt vollständig in der Darstellungsschicht.
+- **Anzeige-Format je Inhalt.** KPI-/Quotenzeilen sprechen im Zoom durchgehend
+  Prozent: das Szenario-Grid überschreibt seine absolute Δ-Spalte mit
+  **„Δ pp"** und gibt den Wert in **Prozentpunkten** aus (ohne %-Zeichen und
+  ohne Einheit), Werte bleiben in Prozent, und die Einheit „mEUR" taucht auf
+  einer Quotenzeile nirgends auf. Wertzeilen behalten „Δ AC" und ihre Einheit;
+  ein Wechsel kEUR/mEUR formatiert Kachel, Karten und Grid konsistent um.
+- **Alignment der Zoom-Seite.** Die Außenkanten bilden jetzt eine Linie: linke
+  Kante des Zurück-Buttons = linke Kante der linken Treiber-Spalte, rechte
+  Kante der rechten Spalte = rechte Kante des Kopfbereichs, und linke Spalte,
+  große Kachel und rechte Spalte teilen sich **eine Oberkante und eine
+  Unterkante** (die Spalten übernehmen nach dem Layout exakt die Kachelhöhe).
+  Die vertikalen Abstände liegen auf dem 8er-Raster. Ein Geometrie-Test prüft
+  das auf 1 px genau.
+- **Neu: Hintergrundfarben** (`Stil`): **Hintergrund Seite** (`pageBackground`)
+  färbt die Fläche hinter den Kacheln der Zoom-Seite, den Baum-Hintergrund und
+  den fixierten Kopf; **Hintergrund Kacheln** (`cardBackground`) füllt
+  Baum-Karten, Mikro-Karten, die große Kachel und das Hover-Panel. Beide
+  Standard weiß — ein unveränderter Bericht sieht exakt aus wie vorher.
+  Kartenkanten und Trennlinien bleiben sichtbar, damit auch dunkle
+  Hintergründe die Struktur nicht verschlucken.
+
+### Tests
+
+- `npm run test:tree` umfasst jetzt **179 Checks** (vorher 138). Neu sind
+  eigene Stages für: fixierten Kopf (Kopf bleibt an der Containerkante,
+  Kopfzeilen sticky mit korrektem Offset, Trennlinie/Schatten erst bei
+  `scrollTop > 0`, Abschalten gibt alles frei), Zoom ohne vertikales Scrollen
+  (Standard- und kurzer Viewport), Alignment-Geometrie auf 1 px, Status-Kante
+  und Typo-Größen der Mikro-Karten, Blätter-Pager bei elf Treibern (inkl.
+  „kein Stumpf"), Referenz-Säule je Monat (versetzt, breiter, dahinter),
+  Prozentpunkt-Grid der Quotenzeilen sowie ein synthetischer Datensatz
+  „AC Jan–Aug, PL/PY Jan–Dez, kein FC" mit acht Brückenschritten, neun Pins,
+  vier blassen Referenz-Säulen, ohne −100 %-Label und mit „MTD Aug" in der
+  Tabelle. `test:engine`, `test:render` und `test:perf` laufen unverändert
+  (Budgets 1500 / 300 ms eingehalten).
+
 ## 0.12.0.0 (2026-08-25) — Ein integriertes ChartKitchen-Diagramm im Kachel-Zoom, schlanker Zoom-Kopf, Design-Pass, Akzentfarbe
 
 - **Neu: der Kachel-Zoom zeigt EIN integriertes Diagramm statt zweier.** Der

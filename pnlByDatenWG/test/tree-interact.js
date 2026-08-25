@@ -692,6 +692,14 @@ function tidyChecks(geom, tag) {
             fcSteps: zoom.querySelectorAll('[data-pnl="combo-step"][data-fc="1"]').length,
             monthCols: zoom.querySelectorAll('[data-pnl="combo-month"]').length,
             fcMonths: zoom.querySelectorAll('[data-pnl="combo-month"][data-fc="1"]').length,
+            // v0.13: the reference column that sits behind each monthly column
+            monthRefs: [...zoom.querySelectorAll('[data-pnl="combo-month-ref"]')].map(r => ({
+                x: parseFloat(r.getAttribute("x")), w: parseFloat(r.getAttribute("width")),
+                empty: r.getAttribute("data-empty") === "1",
+            })),
+            acCols: [...zoom.querySelectorAll('[data-pnl="combo-month"]')].map(r => ({
+                x: parseFloat(r.getAttribute("x")), w: parseFloat(r.getAttribute("width")),
+            })),
             pins: zoom.querySelectorAll('[data-pnl="combo-pin"]').length,
             fcLine: zoom.querySelectorAll('[data-pnl="combo-fcline"]').length,
             totalAc: zoom.querySelectorAll('[data-pnl="combo-total-ac"]').length,
@@ -1075,6 +1083,418 @@ function tidyChecks(geom, tag) {
         fc ? fc.texts[0] : "no tile");
     check("the forecast chart clips no label", !!fc && fc.clipped.length === 0,
         fc ? fc.clipped.join(", ") : "no tile");
+
+    // ---- 21) v0.13: the frozen head. Title, toolbar, legend and the scale note
+    // ride in one sticky wrapper; the two table header rows keep their own top
+    // offset below it, so the columns stay named however far the body scrolls.
+    const stickyRes = await page.evaluate(() => {
+        const mk = (id, style) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = "width:1300px;height:520px;";
+            document.body.appendChild(d);
+            run(id, { titleBlock: { measureLine: "sticky" }, style,
+                hierarchy: { defaultLevel: 0 },
+                state: { uiState: JSON.stringify({ view: "table" }) } });
+            const root = d.querySelector(".pnl-root");
+            const head = d.querySelector('[data-pnl="head"]');
+            const rows = [...d.querySelectorAll('[data-pnl="hdr-row"]')];
+            root.scrollTop = 260;
+            root.dispatchEvent(new Event("scroll"));
+            const rb = root.getBoundingClientRect();
+            const top = (e) => Math.round(e.getBoundingClientRect().top - rb.top);
+            return {
+                scrolled: root.scrollTop > 0,
+                headTop: head ? top(head) : null,
+                headH: head ? Math.round(head.getBoundingClientRect().height) : 0,
+                stuck: head ? head.className.indexOf("pnl-head-stuck") >= 0 : false,
+                shadow: head ? head.style.boxShadow : "",
+                border: head ? head.style.borderBottomColor : "",
+                noteInHead: !!(head && head.querySelector('[data-pnl="scale-note"]')),
+                rowCellTops: rows.map(r => top(r.children[0])),
+                rowCellPos: rows.map(r => r.children[0].style.position),
+                // a body row really is scrolled out from under the header
+                bodyBelow: [...d.querySelectorAll("div")]
+                    .filter(x => x.style.display === "table-row"
+                        && x.getAttribute("data-pnl") !== "hdr-row").length,
+            };
+        };
+        return { on: mk("sticky-on", {}), off: mk("sticky-off", { stickyHeader: false }) };
+    });
+    check("the head block stays at the top edge while the body scrolls",
+        stickyRes.on.scrolled && stickyRes.on.headTop === 0,
+        "top=" + stickyRes.on.headTop);
+    check("the scale note rides in the frozen head", stickyRes.on.noteInHead);
+    check("the two column header rows stick right under the head",
+        stickyRes.on.rowCellPos.every(p => p === "sticky")
+        && stickyRes.on.rowCellTops.length === 2
+        && Math.abs(stickyRes.on.rowCellTops[0] - stickyRes.on.headH) <= 1
+        && stickyRes.on.rowCellTops[1] > stickyRes.on.rowCellTops[0],
+        JSON.stringify(stickyRes.on.rowCellTops) + " headH=" + stickyRes.on.headH);
+    check("a scrolled head draws its divider and the quiet shadow",
+        stickyRes.on.stuck && stickyRes.on.shadow !== "" && stickyRes.on.shadow !== "none"
+        && stickyRes.on.border !== "transparent",
+        stickyRes.on.shadow + " / " + stickyRes.on.border);
+    check("switching the setting off releases head and header rows",
+        stickyRes.off.rowCellPos.every(p => p !== "sticky") && !stickyRes.off.stuck,
+        JSON.stringify(stickyRes.off.rowCellPos));
+
+    // ---- 22) v0.13: the tile view fits the viewport without vertical scrolling
+    const fitZoom = await page.evaluate(() => {
+        const mk = (id, h) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = `width:1340px;height:${h}px;`;
+            document.body.appendChild(d);
+            run(id, { titleBlock: { measureLine: "zoom fit" },
+                state: { uiState: JSON.stringify({ view: "tree", treeV: 2, ref: "pl",
+                    treeZoom: "F_EBITDA" }) } });
+            const root = d.querySelector(".pnl-root");
+            const chart = d.querySelector('[data-pnl="zoom-combo"]');
+            const head = d.querySelector('[data-pnl="zoom-head"]');
+            return {
+                scrollH: root.scrollHeight, clientH: root.clientHeight,
+                chartH: chart ? parseFloat(chart.getAttribute("height")) : 0,
+                headSticky: head ? head.style.position : "",
+                gridFs: (() => {
+                    const g = d.querySelector('[data-pnl="scen-grid"]');
+                    return g && g.firstElementChild
+                        ? g.firstElementChild.children[0].style.fontSize : "";
+                })(),
+            };
+        };
+        return { tall: mk("zfit-tall", 1000), short: mk("zfit-short", 760) };
+    });
+    check("the tile view fits a standard viewport without vertical scrolling",
+        fitZoom.tall.scrollH <= fitZoom.tall.clientH + 1,
+        "scroll=" + fitZoom.tall.scrollH + " client=" + fitZoom.tall.clientH);
+    check("a shorter viewport squeezes the chart instead of scrolling",
+        fitZoom.short.scrollH <= fitZoom.short.clientH + 1
+        && fitZoom.short.chartH < fitZoom.tall.chartH && fitZoom.short.chartH >= 260,
+        "short=" + fitZoom.short.chartH + " tall=" + fitZoom.tall.chartH
+        + " scroll=" + fitZoom.short.scrollH + "/" + fitZoom.short.clientH);
+    check("the back button row of the tile view is frozen too",
+        fitZoom.tall.headSticky === "sticky", fitZoom.tall.headSticky);
+
+    // ---- 23) v0.13: alignment of the tile page — one line on every outer edge
+    const align = await page.evaluate(() => {
+        const d = document.getElementById("zfit-tall");
+        const box = (sel, i) => {
+            const list = d.querySelectorAll(sel);
+            const e = list[i == null ? 0 : i];
+            if (!e) { return null; }
+            const b = e.getBoundingClientRect();
+            return { l: b.left, r: b.right, t: b.top, b: b.bottom };
+        };
+        const sides = d.querySelectorAll('[data-pnl="zoom-side"]');
+        return {
+            back: box('[data-pnl="zoom-back"]'),
+            head: box('[data-pnl="zoom-head"]'),
+            tile: box('[data-pnl="zoom-center"]'),
+            left: box('[data-pnl="zoom-side"]', 0),
+            right: box('[data-pnl="zoom-side"]', sides.length - 1),
+        };
+    });
+    const near = (a, b) => Math.abs(a - b) <= 1;
+    check("the back button starts on the left edge of the left driver column",
+        near(align.back.l, align.left.l), align.back.l + " vs " + align.left.l);
+    check("the right driver column ends on the right edge of the head",
+        near(align.right.r, align.head.r), align.right.r + " vs " + align.head.r);
+    check("left column, big tile and right column share one top edge",
+        near(align.left.t, align.tile.t) && near(align.right.t, align.tile.t),
+        [align.left.t, align.tile.t, align.right.t].join(" / "));
+    check("the driver columns end where the tile ends",
+        near(align.left.b, align.tile.b) && near(align.right.b, align.tile.b),
+        [align.left.b, align.tile.b, align.right.b].join(" / "));
+
+    // ---- 24) v0.13: the status edge of the tree cards reaches the tile page
+    const edges = await page.evaluate(() => {
+        const d = document.getElementById("zfit-tall");
+        const read = (sel) => [...d.querySelectorAll(sel)].map(e => ({
+            w: e.style.borderLeftWidth, c: e.style.borderLeftColor,
+            h: Math.round(e.getBoundingClientRect().height),
+            name: (e.querySelector('[data-pnl="micro-name"]') || {}).textContent || "",
+            nameFs: (e.querySelector('[data-pnl="micro-name"]') || { style: {} }).style.fontSize,
+            deltaFs: (e.querySelector('[data-pnl="micro-delta"]') || { style: {} }).style.fontSize,
+            valueFs: [...e.querySelectorAll("svg text")]
+                .filter(t => t.getAttribute("fill") === "#1A1A1A")
+                .map(t => parseFloat(t.getAttribute("font-size"))),
+        }));
+        return { micro: read('[data-pnl="zoom-child"]'), tile: read('[data-pnl="zoom-center"]') };
+    });
+    check("every micro card carries the 3 px status edge on its left side",
+        edges.micro.length > 0 && edges.micro.every(m => m.w === "3px" && m.c !== ""),
+        JSON.stringify(edges.micro.map(m => m.w + "/" + m.c)));
+    check("the big tile wears the same edge, quietly",
+        edges.tile.length === 1 && edges.tile[0].w === "3px", JSON.stringify(edges.tile[0]));
+    check("micro cards are tall enough to be read (96–108 px)",
+        edges.micro.every(m => m.h >= 96 && m.h <= 108),
+        edges.micro.map(m => m.h).join(","));
+    check("micro card name and Δ% are set at 11 px",
+        edges.micro.every(m => m.nameFs === "11px" && (m.deltaFs === "11px" || m.deltaFs === "")),
+        edges.micro.map(m => m.nameFs + "/" + m.deltaFs).join(" "));
+    check("the numbers inside a micro chart are drawn at 8.5 px or more",
+        edges.micro.some(m => m.valueFs.length > 0)
+        && edges.micro.every(m => m.valueFs.every(v => v >= 8.5)),
+        JSON.stringify(edges.micro.map(m => m.valueFs)));
+
+    // ---- 25) v0.13: page and card background reach the page and the cards
+    const bg = await page.evaluate(() => {
+        const mk = (id, style) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = "width:1340px;height:1000px;";
+            document.body.appendChild(d);
+            run(id, { titleBlock: { measureLine: "background" }, style,
+                state: { uiState: JSON.stringify({ view: "tree", treeV: 2, ref: "pl",
+                    treeZoom: "F_EBITDA" }) } });
+            const root = d.querySelector(".pnl-root");
+            return {
+                page: root.style.background,
+                head: d.querySelector('[data-pnl="head"]').style.background,
+                tile: d.querySelector('[data-pnl="zoom-center"]').style.background,
+                micro: d.querySelector('[data-pnl="zoom-child"]').style.background,
+            };
+        };
+        const treeCards = (id, style) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = "width:1340px;height:900px;";
+            document.body.appendChild(d);
+            run(id, { toolbar: { show: false, showLegend: false }, style,
+                state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } });
+            return [...new Set([...d.querySelectorAll("svg rect[rx='4']")]
+                .map(r => r.getAttribute("fill")))];
+        };
+        return {
+            def: mk("bg-def", {}),
+            set: mk("bg-set", { pageBackground: { solid: { color: "#F4F1EA" } },
+                cardBackground: { solid: { color: "#FFFDF7" } } }),
+            treeDef: treeCards("bg-tree-def", {}),
+            treeSet: treeCards("bg-tree-set", { cardBackground: { solid: { color: "#FFFDF7" } } }),
+        };
+    });
+    check("the defaults keep the previous white page and white cards",
+        bg.def.page === "rgb(255, 255, 255)" && bg.def.tile === "rgb(255, 255, 255)"
+        && bg.def.micro === "rgb(255, 255, 255)" && bg.treeDef.join() === "#FFFFFF",
+        JSON.stringify(bg.def) + " tree=" + bg.treeDef.join());
+    check("a page background paints the page and the frozen head",
+        bg.set.page === "rgb(244, 241, 234)" && bg.set.head === "rgb(244, 241, 234)",
+        bg.set.page + " / " + bg.set.head);
+    check("a card background paints tile, micro cards and the tree cards",
+        bg.set.tile === "rgb(255, 253, 247)" && bg.set.micro === "rgb(255, 253, 247)"
+        && bg.treeSet.join() === "#FFFDF7",
+        bg.set.tile + " / " + bg.set.micro + " / " + bg.treeSet.join());
+
+    // ---- 26) v0.13: months without actuals are not zero months. AC runs
+    // Jan..Aug, PL and PY over all twelve months, no monthly FC is bound.
+    await page.evaluate(() => {
+        window.PNL_GAP_DV = (uiState) => {
+            const MON = [];
+            for (let m = 1; m <= 12; m++) { MON.push("2026-" + String(m).padStart(2, "0")); }
+            const rows = [];
+            const mk = (l1, l2, acF, plF) => MON.forEach((m, i) => rows.push({
+                levels: [l1, l2], account: l2, sort: 10, rowType: "account", formulaDef: null,
+                sign: 1, month: m,
+                // actuals stop after August — those months carry no value at all
+                values: { ac: i < 8 ? acF(i) : null, pl: plF(i), py: plF(i) * 0.93 },
+            }));
+            mk("Revenue", "Products", i => 100 + i * 4, i => 98 + i * 4);
+            mk("Revenue", "Services", i => 40 + i * 2, i => 41 + i * 2);
+            rows.push({ levels: ["Total revenue", null], account: "F_TOT", sort: 90,
+                rowType: "formula", formulaDef: "[Products]+[Services]", sign: 1,
+                month: null, values: {} });
+            const col = (role, name, vals) =>
+                ({ source: { roles: { [role]: true }, displayName: name, index: 0 }, values: vals });
+            const L = (i) => rows.map(r => r.levels[i] ?? null);
+            return {
+                categorical: {
+                    categories: [
+                        col("levels", "L1", L(0)), col("levels", "L2", L(1)),
+                        col("account", "A", rows.map(r => r.account)),
+                        col("sortOrder", "S", rows.map(r => r.sort)),
+                        col("rowType", "RT", rows.map(r => r.rowType)),
+                        col("formulaDef", "F", rows.map(r => r.formulaDef)),
+                        col("signConvention", "SG", rows.map(r => r.sign)),
+                        col("period", "P", rows.map(r => r.month)),
+                    ],
+                    values: [
+                        col("ac", "AC", rows.map(r => r.values.ac ?? null)),
+                        col("py", "PY", rows.map(r => r.values.py ?? null)),
+                        col("pl", "PL", rows.map(r => r.values.pl ?? null)),
+                    ],
+                },
+                metadata: { objects: { state: { uiState: JSON.stringify(uiState) } } },
+            };
+        };
+        const stage = (id, w, h, uiState) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = `width:${w}px;height:${h}px;`;
+            document.body.appendChild(d);
+            const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US") });
+            v.update({ dataViews: [window.PNL_GAP_DV(uiState)],
+                viewport: { width: w, height: h }, type: 2 });
+        };
+        stage("gap-zoom", 1420, 1000,
+            { view: "tree", treeV: 2, ref: "pl", treeZoom: "F_TOT" });
+        stage("gap-table", 1420, 700,
+            { view: "table", preset: "full", blocks: { mtd: true, ytd: true, fy: false } });
+    });
+    await page.waitForTimeout(300);
+    const gap = await page.evaluate(readTile, "gap-zoom");
+    check("a month without AC and without FC draws no zero column",
+        !!gap && gap.monthCols === 8, gap ? "cols=" + gap.monthCols : "no tile");
+    check("the bridge stops at the last month that carries data",
+        !!gap && gap.steps === 8, gap ? "steps=" + gap.steps : "no tile");
+    check("the Δ% pins count only the months with data (plus the total)",
+        !!gap && gap.pins === 9, gap ? "pins=" + gap.pins : "no tile");
+    check("no −100 % ghost pin and no 0.00 column label survives",
+        !!gap && gap.texts.every(t => !/^[-−]100/.test(t) && !/^0\.00$/.test(t)),
+        gap ? gap.texts.filter(t => /100|0\.00/.test(t)).join(" | ") : "no tile");
+    check("the empty months keep their reference column, drawn pale",
+        !!gap && gap.monthRefs.length === 12
+        && gap.monthRefs.filter(r => r.empty).length === 4,
+        gap ? "refs=" + gap.monthRefs.length
+            + " pale=" + gap.monthRefs.filter(r => r.empty).length : "no tile");
+    check("the missing months are named in a note under the chart",
+        !!gap && gap.note === 1, gap ? "notes=" + gap.note : "no tile");
+    check("the gap chart clips no label", !!gap && gap.clipped.length === 0,
+        gap ? gap.clipped.join(", ") : "no tile");
+
+    const gapTable = await page.evaluate(() => {
+        const d = document.getElementById("gap-table");
+        const cells = [...d.querySelectorAll("div")]
+            .filter(x => x.style.display === "table-cell" && x.textContent !== "");
+        const mtd = cells.find(x => x.textContent.indexOf("MTD") === 0);
+        // the first body row: AC of the MTD block must be the August actual
+        const rows = [...d.querySelectorAll("div")].filter(x => x.style.display === "table-row");
+        const body = rows.slice(2).find(r => r.textContent.indexOf("Products") >= 0);
+        return {
+            mtd: mtd ? mtd.textContent : "",
+            body: body ? [...body.children].map(c => c.textContent).filter(t => t !== "") : [],
+        };
+    });
+    check("the MTD block names the last month that carries actuals",
+        gapTable.mtd.indexOf("MTD Aug") === 0, gapTable.mtd);
+    check("the MTD column reports the August actual, not a zero December",
+        gapTable.body.length > 1 && gapTable.body.indexOf("0.0") < 0,
+        gapTable.body.join(" | "));
+
+    // ---- 27) v0.13: the monthly zone draws the IBCS pair, AC in front and the
+    // reference behind it, offset to the right (UN 4.1) — same as the cards
+    check("every month draws an AC column and a reference column",
+        !!combo && combo.acCols.length === MONTHS && combo.monthRefs.length === MONTHS,
+        combo ? "ac=" + combo.acCols.length + " ref=" + combo.monthRefs.length : "no tile");
+    check("the reference column is offset against the AC column and wider",
+        !!combo && combo.monthRefs[0].x > combo.acCols[0].x + 0.5
+        && combo.monthRefs[0].w > combo.acCols[0].w,
+        combo ? JSON.stringify([combo.acCols[0], combo.monthRefs[0]]) : "no tile");
+    check("the reference column sits behind the AC column",
+        !!combo && combo.monthRefs[0].x < combo.acCols[0].x + combo.acCols[0].w,
+        combo ? JSON.stringify([combo.acCols[0], combo.monthRefs[0]]) : "no tile");
+
+    // ---- 28) v0.13: a column with more drivers than height offers the pager
+    const pager = await page.evaluate(() => {
+        const MON = ["2026-01", "2026-02", "2026-03"];
+        const rows = [];
+        const drivers = [];
+        for (let k = 1; k <= 11; k++) { drivers.push("Driver " + k); }
+        drivers.forEach((name, k) => MON.forEach((m, i) => rows.push({
+            levels: ["Cost", name], account: name, sort: 10 + k, rowType: "account",
+            formulaDef: null, sign: 1, month: m,
+            values: { ac: 20 + k + i, pl: 21 + k + i, py: 19 + k + i },
+        })));
+        rows.push({ levels: ["Total cost", null], account: "F_COST", sort: 90,
+            rowType: "formula", sign: 1, month: null, values: {},
+            formulaDef: drivers.map(d => "[" + d + "]").join("+") });
+        const col = (role, name, vals) =>
+            ({ source: { roles: { [role]: true }, displayName: name, index: 0 }, values: vals });
+        const L = (i) => rows.map(r => r.levels[i] ?? null);
+        const dataView = {
+            categorical: {
+                categories: [
+                    col("levels", "L1", L(0)), col("levels", "L2", L(1)),
+                    col("account", "A", rows.map(r => r.account)),
+                    col("sortOrder", "S", rows.map(r => r.sort)),
+                    col("rowType", "RT", rows.map(r => r.rowType)),
+                    col("formulaDef", "F", rows.map(r => r.formulaDef)),
+                    col("signConvention", "SG", rows.map(r => r.sign)),
+                    col("period", "P", rows.map(r => r.month)),
+                ],
+                values: [
+                    col("ac", "AC", rows.map(r => r.values.ac ?? null)),
+                    col("py", "PY", rows.map(r => r.values.py ?? null)),
+                    col("pl", "PL", rows.map(r => r.values.pl ?? null)),
+                ],
+            },
+            metadata: { objects: { state: { uiState: JSON.stringify({
+                view: "tree", treeV: 2, ref: "pl", treeZoom: "F_COST" }) } } },
+        };
+        const d = document.createElement("div");
+        d.className = "stage"; d.id = "pager"; d.style.cssText = "width:1340px;height:900px;";
+        document.body.appendChild(d);
+        const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US") });
+        v.update({ dataViews: [dataView], viewport: { width: 1340, height: 900 }, type: 2 });
+        const list = [...d.querySelectorAll('[data-pnl="micro-list"]')].pop();
+        const down = [...d.querySelectorAll('[data-pnl="micro-down"]')].pop();
+        const up = [...d.querySelectorAll('[data-pnl="micro-up"]')].pop();
+        const before = { down: down.style.display, text: down.textContent, up: up.style.display };
+        down.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        // no card may be cut in half by the column edge
+        const lb = list.getBoundingClientRect();
+        const stumps = [...list.children].filter(c => {
+            const b = c.getBoundingClientRect();
+            return b.top < lb.bottom - 1 && b.bottom > lb.bottom + 1;
+        }).length;
+        return {
+            cards: d.querySelectorAll('[data-pnl="zoom-child"]').length,
+            before, after: { up: up.style.display, down: down.style.display },
+            scrolled: list.scrollTop > 0, stumps,
+            listOverflow: list.scrollHeight > list.clientHeight,
+        };
+    });
+    check("all eleven drivers are built into the column", pager.cards === 11,
+        "cards=" + pager.cards);
+    check("a column that cannot show them all offers the ▼ pager",
+        pager.before.down === "block" && /^▼ \d+ more$/.test(pager.before.text),
+        pager.before.down + " '" + pager.before.text + "'");
+    check("at the top of the column the ▲ pager stays away",
+        pager.before.up === "none", pager.before.up);
+    check("a click on ▼ pages the column and reveals the ▲",
+        pager.scrolled && pager.after.up === "block",
+        "scrolled=" + pager.scrolled + " up=" + pager.after.up);
+    check("no driver card is left cut in half at the column edge",
+        pager.listOverflow && pager.stumps === 0, "stumps=" + pager.stumps);
+
+    // ---- 29) v0.13: a ratio row talks in percent and percentage points, a
+    // value row keeps its unit — the grid header says which of the two it is
+    const pp = await page.evaluate(() => {
+        const mk = (id, zoomId) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = "width:1340px;height:1000px;";
+            document.body.appendChild(d);
+            run(id, { titleBlock: { measureLine: "pp" },
+                state: { uiState: JSON.stringify({ view: "tree", treeV: 2, ref: "pl",
+                    unit: "m", treeZoom: zoomId }) } });
+            const grid = d.querySelector('[data-pnl="zoom-center"] [data-pnl="scen-grid"]');
+            const rows = grid ? [...grid.children] : [];
+            const cells = (r) => [...r.children].map(c => c.textContent);
+            const tile = d.querySelector('[data-pnl="zoom-center"]');
+            return {
+                head: rows[0] ? cells(rows[0]) : [],
+                body: rows.slice(1).map(cells),
+                unit: tile ? tile.textContent.indexOf("mEUR") >= 0 : false,
+                pct: tile ? tile.textContent.indexOf("%") >= 0 : false,
+            };
+        };
+        return { ratio: mk("pp-ratio", "K_NETMARGIN"), value: mk("pp-value", "F_EBITDA") };
+    });
+    check("a ratio row heads its absolute Δ column with percentage points",
+        pp.ratio.head[2] === "Δ pp", pp.ratio.head.join(" | "));
+    check("a ratio row shows no mEUR unit anywhere on the tile",
+        !pp.ratio.unit && pp.ratio.pct, "unit=" + pp.ratio.unit + " pct=" + pp.ratio.pct);
+    check("a ratio row prints its grid values as percentages",
+        pp.ratio.body.some(r => /%$/.test(r[1] || "")),
+        JSON.stringify(pp.ratio.body[0]));
+    check("a value row keeps Δ AC and its unit",
+        pp.value.head[2] === "Δ AC" && pp.value.unit,
+        pp.value.head.join(" | ") + " unit=" + pp.value.unit);
 
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();

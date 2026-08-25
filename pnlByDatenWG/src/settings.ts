@@ -291,11 +291,43 @@ export class StyleCardSettings extends FormattingSettingsCard {
         value: { value: "#404040" }
     });
 
+    /**
+     * Freeze the head — title block, toolbar, legend, scale note and the two
+     * table header rows stay on screen while the body scrolls underneath.
+     */
+    stickyHeader = new formattingSettings.ToggleSwitch({
+        name: "stickyHeader",
+        displayName: "Freeze the header while scrolling",
+        displayNameKey: "Style_StickyHeader",
+        description: "Title, toolbar, legend and the column headers stay on top while the rows scroll",
+        value: true
+    });
+
+    /**
+     * Paper of the visual: the ground behind the tiles of the zoom page and
+     * behind the driver tree. Default white = exactly the previous look.
+     */
+    pageBackground = new formattingSettings.ColorPicker({
+        name: "pageBackground",
+        displayName: "Page background",
+        displayNameKey: "Style_PageBg",
+        value: { value: "#FFFFFF" }
+    });
+
+    /** Fill of the cards: tree cards, micro cards, the big tile, hover panel. */
+    cardBackground = new formattingSettings.ColorPicker({
+        name: "cardBackground",
+        displayName: "Card background",
+        displayNameKey: "Style_CardBg",
+        value: { value: "#FFFFFF" }
+    });
+
     name: string = "style";
     displayName: string = "Style";
     displayNameKey: string = "Card_Style";
     slices = [this.colorMode, this.fontPreset, this.headerFontSize, this.headerColor,
-        this.goodColor, this.badColor, this.accentColor, this.density];
+        this.goodColor, this.badColor, this.accentColor, this.stickyHeader,
+        this.pageBackground, this.cardBackground, this.density];
 }
 
 export class TitleBlockCardSettings extends FormattingSettingsCard {
