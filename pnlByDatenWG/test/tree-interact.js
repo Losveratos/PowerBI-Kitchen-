@@ -683,8 +683,23 @@ function tidyChecks(geom, tag) {
             parents: zoom.querySelectorAll('[data-pnl="zoom-parent"]').length,
             children: zoom.querySelectorAll('[data-pnl="zoom-child"]').length,
             centerCharts: zoom.querySelectorAll('[data-pnl="zoom-center"] svg').length,
-            // the bridge draws one anchor per side plus a step per month
-            bridgeBars: zoom.querySelectorAll('[data-pnl="zoom-center"] svg:last-of-type rect').length,
+            // v0.12: one integrated chart instead of the two stacked ones
+            combo: zoom.querySelectorAll('[data-pnl="zoom-combo"]').length,
+            months: zoom.querySelectorAll('[data-pnl="zoom-months"]').length,
+            anchors: [...zoom.querySelectorAll('[data-pnl="combo-anchor"]')]
+                .map(r => r.getAttribute("data-scen")),
+            steps: zoom.querySelectorAll('[data-pnl="combo-step"]').length,
+            fcSteps: zoom.querySelectorAll('[data-pnl="combo-step"][data-fc="1"]').length,
+            monthCols: zoom.querySelectorAll('[data-pnl="combo-month"]').length,
+            fcMonths: zoom.querySelectorAll('[data-pnl="combo-month"][data-fc="1"]').length,
+            pins: zoom.querySelectorAll('[data-pnl="combo-pin"]').length,
+            fcLine: zoom.querySelectorAll('[data-pnl="combo-fcline"]').length,
+            totalAc: zoom.querySelectorAll('[data-pnl="combo-total-ac"]').length,
+            totalFc: zoom.querySelectorAll('[data-pnl="combo-total-fc"]').length,
+            badge: zoom.querySelectorAll('[data-pnl="combo-badge"]').length,
+            note: zoom.querySelectorAll('[data-pnl="zoom-note"]').length,
+            texts: [...zoom.querySelectorAll('[data-pnl="zoom-center"] svg text')]
+                .map(t => t.textContent),
             gridRows: [...zoom.querySelectorAll('[data-pnl="zoom-center"] div')]
                 .filter(x => x.style.display === "table-row").length,
             clipped,
@@ -693,15 +708,23 @@ function tidyChecks(geom, tag) {
     let tile = await page.evaluate(readTile, "tile");
     check("the chart click opens the tile view", tile != null && tile.back,
         JSON.stringify(tile));
-    check("the tile view names the node and shows both big charts",
-        !!tile && tile.title.length > 0 && tile.centerCharts === 2,
+    check("the tile view names the node and draws exactly one integrated chart",
+        !!tile && tile.title.length > 0 && tile.centerCharts === 1,
         tile ? tile.title + " charts=" + tile.centerCharts : "no tile");
     check("the tile view carries the scenario grid", !!tile && tile.gridRows >= 3,
         tile ? String(tile.gridRows) : "no tile");
     check("the tile view offers driver cards to walk down",
         !!tile && tile.children >= 1, tile ? "children=" + tile.children : "no tile");
-    check("the big bridge draws both anchors plus a step per month",
-        !!tile && tile.bridgeBars >= 8, tile ? "bars=" + tile.bridgeBars : "no tile");
+    // the default root of the demo is the Net margin ratio — not additive, so
+    // it keeps the monthly chart and says why the bridge is missing
+    check("a ratio row keeps the monthly chart instead of the bridge",
+        !!tile && tile.months === 1 && tile.combo === 0,
+        tile ? "months=" + tile.months + " combo=" + tile.combo : "no tile");
+    check("a ratio row explains the missing bridge in a note",
+        !!tile && tile.note === 1, tile ? "notes=" + tile.note : "no tile");
+    check("a ratio row draws neither bridge steps nor an AC+FC stack",
+        !!tile && tile.steps === 0 && tile.totalFc === 0,
+        tile ? "steps=" + tile.steps : "no tile");
     check("no clipped labels in the tile view", !!tile && tile.clipped.length === 0,
         tile ? tile.clipped.join(", ") : "no tile");
 
@@ -869,6 +892,189 @@ function tidyChecks(geom, tag) {
         JSON.stringify(headRes.big));
     check("a header colour override reaches the column labels",
         headRes.big.color === "rgb(0, 100, 255)", headRes.big.color);
+
+
+    // ---- 17) v0.12: the integrated ChartKitchen chart in the tile view —
+    // anchors, monthly columns, cumulated bridge, Δ% pins, AC+FC total, badge
+    await page.evaluate(() => {
+        const d = document.createElement("div");
+        d.className = "stage"; d.id = "combo"; d.style.cssText = "width:1420px;height:1250px;";
+        document.body.appendChild(d);
+        run("combo", { titleBlock: { measureLine: "combo" },
+            state: { uiState: JSON.stringify({ view: "tree", treeV: 2, ref: "pl",
+                treeZoom: "F_EBITDA" }) } });
+    });
+    await page.waitForTimeout(260);
+    const combo = await page.evaluate(readTile, "combo");
+    const MONTHS = 6; // the pharma demo runs 2026-01..2026-06
+    check("a value row draws the integrated chart, not the monthly one",
+        !!combo && combo.combo === 1 && combo.months === 0,
+        combo ? "combo=" + combo.combo + " months=" + combo.months : "no tile");
+    check("the integrated chart anchors PY and PL on the left",
+        !!combo && combo.anchors.length === 2
+        && combo.anchors.indexOf("py") >= 0 && combo.anchors.indexOf("pl") >= 0,
+        combo ? combo.anchors.join(",") : "no tile");
+    check("the bridge draws exactly one step per month",
+        !!combo && combo.steps === MONTHS,
+        combo ? "steps=" + combo.steps + " months=" + MONTHS : "no tile");
+    check("one monthly column per month sits under the bridge",
+        !!combo && combo.monthCols === MONTHS,
+        combo ? "cols=" + combo.monthCols : "no tile");
+    check("the Δ% pin row carries a pin per month plus the total",
+        !!combo && combo.pins === MONTHS + 1,
+        combo ? "pins=" + combo.pins : "no tile");
+    check("the chart names the reference in its caption line",
+        !!combo && combo.texts.some(t => t.indexOf("PL →") === 0),
+        combo ? combo.texts.slice(0, 2).join(" | ") : "no tile");
+    check("the Δ% zone is labelled with the reference",
+        !!combo && combo.texts.indexOf("ΔPL%") >= 0,
+        combo ? combo.texts.slice(0, 4).join(" | ") : "no tile");
+    check("the total column and the variance badge close the chart on the right",
+        !!combo && combo.totalAc === 1 && combo.badge === 1,
+        combo ? "ac=" + combo.totalAc + " badge=" + combo.badge : "no tile");
+    check("a series without forecast months draws no FC divider and no FC stack",
+        !!combo && combo.fcLine === 0 && combo.totalFc === 0 && combo.fcMonths === 0,
+        combo ? "line=" + combo.fcLine + " stack=" + combo.totalFc : "no tile");
+    check("no clipped labels in the integrated chart",
+        !!combo && combo.clipped.length === 0, combo ? combo.clipped.join(", ") : "no tile");
+
+    // ---- 18) v0.12: the toolbar collapses to what still works in the tile view
+    const zoomBar = await page.evaluate((id) => {
+        const d = document.getElementById(id);
+        const labels = [...d.querySelectorAll("div")]
+            .filter(x => x.style.textTransform === "uppercase" && x.style.letterSpacing !== "")
+            .map(x => x.textContent);
+        const back = d.querySelector('[data-pnl="zoom-back"]');
+        return {
+            groups: labels,
+            buttons: [...d.querySelectorAll("button")].map(b => b.textContent),
+            back: back ? { fs: back.style.fontSize, bg: back.style.background,
+                color: back.style.color } : null,
+        };
+    }, "combo");
+    // the group labels are typeset in caps by css — the text stays as written
+    for (const gone of ["View", "Column preset", "Periods", "Density", "Cards",
+        "Expand to level", "Options"]) {
+        check("the tile view hides the toolbar group " + gone,
+            zoomBar.groups.indexOf(gone) < 0, zoomBar.groups.join(" | "));
+    }
+    check("the tile view keeps the Δ reference group",
+        zoomBar.groups.indexOf("Δ reference") >= 0, zoomBar.groups.join(" | "));
+    check("the tile view keeps the unit group", zoomBar.groups.indexOf("Unit") >= 0,
+        zoomBar.groups.join(" | "));
+    check("the neighbour columns use the very same caps label style",
+        zoomBar.groups.indexOf("Feeds into") >= 0 && zoomBar.groups.indexOf("Driven by") >= 0,
+        zoomBar.groups.join(" | "));
+    check("no view button survives in the tile view",
+        ["Table", "Bars", "Waterfall", "Tree"].every(t => zoomBar.buttons.indexOf(t) < 0),
+        zoomBar.buttons.join(","));
+    check("the back button is the dominant control of the tile header",
+        zoomBar.back != null && parseFloat(zoomBar.back.fs) >= 13
+        && zoomBar.back.color === "rgb(255, 255, 255)",
+        JSON.stringify(zoomBar.back));
+
+    // ---- 19) v0.12: the accent colour of the interactive chrome
+    const accent = await page.evaluate(() => {
+        const mk = (id, style) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = "width:1300px;height:600px;";
+            document.body.appendChild(d);
+            run(id, { titleBlock: { measureLine: "accent" }, style,
+                state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } });
+            const active = [...d.querySelectorAll("button")].find(b => b.textContent === "Tree");
+            // the AC column fill must never follow the accent (IBCS)
+            const acFill = [...d.querySelectorAll("svg rect")]
+                .filter(r => r.getAttribute("fill") === "#404040").length;
+            return { bg: active ? active.style.backgroundColor : "",
+                color: active ? active.style.color : "", radius: active ? active.style.borderRadius : "",
+                acFill };
+        };
+        return { def: mk("acc-def", {}),
+            set: mk("acc-set", { accentColor: { solid: { color: "#C25A2D" } } }) };
+    });
+    check("the default accent keeps the previous ink on the active button",
+        accent.def.bg === "rgb(64, 64, 64)", accent.def.bg);
+    check("an accent override paints the active toolbar button",
+        accent.set.bg === "rgb(194, 90, 45)" && accent.set.color === "rgb(255, 255, 255)",
+        accent.set.bg + " / " + accent.set.color);
+    check("toolbar buttons keep the 4 px radius", accent.set.radius === "4px", accent.set.radius);
+    check("the accent never reaches the AC column fill",
+        accent.set.acFill > 0 && accent.set.acFill === accent.def.acFill,
+        "set=" + accent.set.acFill + " def=" + accent.def.acFill);
+
+    // ---- 20) v0.12: forecast months. The pharma demo binds no monthly FC role,
+    // so the forecast zone gets a synthetic model: AC Jan..Jun, FC Jul..Sep,
+    // PL and PY over all nine months.
+    await page.evaluate(() => {
+        const MON = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06",
+            "2026-07", "2026-08", "2026-09"];
+        const rows = [];
+        const mk = (l1, l2, acF, plF) => MON.forEach((m, i) => rows.push({
+            levels: [l1, l2], account: l2, sort: 10, rowType: "account", formulaDef: null,
+            sign: 1, month: m,
+            values: { ac: i < 6 ? acF(i) : null, fc: i >= 6 ? acF(i) * 1.04 : null,
+                pl: plF(i), py: plF(i) * 0.93 },
+        }));
+        mk("Revenue", "Products", i => 100 + i * 4, i => 98 + i * 4);
+        mk("Revenue", "Services", i => 40 + i * 2, i => 41 + i * 2);
+        rows.push({ levels: ["Total revenue", null], account: "F_TOT", sort: 90,
+            rowType: "formula", formulaDef: "[Products]+[Services]", sign: 1,
+            month: null, values: {} });
+        const col = (role, name, vals) =>
+            ({ source: { roles: { [role]: true }, displayName: name, index: 0 }, values: vals });
+        const L = (i) => rows.map(r => r.levels[i] ?? null);
+        const dataView = {
+            categorical: {
+                categories: [
+                    col("levels", "L1", L(0)), col("levels", "L2", L(1)),
+                    col("account", "A", rows.map(r => r.account)),
+                    col("sortOrder", "S", rows.map(r => r.sort)),
+                    col("rowType", "RT", rows.map(r => r.rowType)),
+                    col("formulaDef", "F", rows.map(r => r.formulaDef)),
+                    col("signConvention", "SG", rows.map(r => r.sign)),
+                    col("period", "P", rows.map(r => r.month)),
+                ],
+                values: [
+                    col("ac", "AC", rows.map(r => r.values.ac ?? null)),
+                    col("py", "PY", rows.map(r => r.values.py ?? null)),
+                    col("pl", "PL", rows.map(r => r.values.pl ?? null)),
+                    col("fc", "FC", rows.map(r => r.values.fc ?? null)),
+                ],
+            },
+            metadata: { objects: { state: { uiState: JSON.stringify({
+                view: "tree", treeV: 2, ref: "pl", treeZoom: "F_TOT" }) } } },
+        };
+        const d = document.createElement("div");
+        d.className = "stage"; d.id = "fc"; d.style.cssText = "width:1420px;height:1050px;";
+        document.body.appendChild(d);
+        const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US") });
+        v.update({ dataViews: [dataView], viewport: { width: 1420, height: 1050 }, type: 2 });
+    });
+    await page.waitForTimeout(260);
+    const fc = await page.evaluate(readTile, "fc");
+    check("the forecast model opens its tile view", fc != null && fc.combo === 1,
+        JSON.stringify(fc && fc.combo));
+    check("nine months give nine bridge steps and nine columns",
+        !!fc && fc.steps === 9 && fc.monthCols === 9,
+        fc ? "steps=" + fc.steps + " cols=" + fc.monthCols : "no tile");
+    check("the three forecast months are drawn hatched",
+        !!fc && fc.fcMonths === 3, fc ? "fcMonths=" + fc.fcMonths : "no tile");
+    check("their bridge steps keep the hatched forecast notation",
+        !!fc && fc.fcSteps === 3, fc ? "fcSteps=" + fc.fcSteps : "no tile");
+    check("a vertical rule separates the last actual from the first forecast month",
+        !!fc && fc.fcLine === 1, fc ? "line=" + fc.fcLine : "no tile");
+    check("the rule is labelled FC", !!fc && fc.texts.indexOf("FC") >= 0,
+        fc ? fc.texts.join(" | ").slice(0, 120) : "no tile");
+    check("the total column stacks AC solid and FC hatched",
+        !!fc && fc.totalAc === 1 && fc.totalFc === 1,
+        fc ? "ac=" + fc.totalAc + " fc=" + fc.totalFc : "no tile");
+    check("the stack is named AC+FC under the axis",
+        !!fc && fc.texts.indexOf("AC+FC") >= 0, fc ? "no AC+FC label" : "no tile");
+    check("the caption follows the forecast into PL → AC/FC",
+        !!fc && fc.texts.some(t => t.indexOf("PL → AC/FC") === 0),
+        fc ? fc.texts[0] : "no tile");
+    check("the forecast chart clips no label", !!fc && fc.clipped.length === 0,
+        fc ? fc.clipped.join(", ") : "no tile");
 
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();

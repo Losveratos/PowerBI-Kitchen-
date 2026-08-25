@@ -43,8 +43,16 @@ const C = {
     ibcsGood: "#8CB400", ibcsBad: "#FF2600",
     comment: "#0064FF", loading: "#B35C00",
     // driver tree
-    cardEdge: "#D8D6D1", elbow: "#B4B4B4", refGray: "#9A9A9A",
+    cardEdge: "#E3E1DC", cardEdgeHover: "#C6C3BC", elbow: "#B4B4B4", refGray: "#9A9A9A",
+    /** resting border of a control (toolbar button, chip) — quieter than a card edge */
+    ctlEdge: "#DEDCD7", ctlHover: "#F4F3F0",
 };
+
+/** shadow language of the cards — one resting elevation, one on hover */
+const SHADOW = "0 1px 2px rgba(15,30,46,.06)";
+const SHADOW_HOVER = "0 2px 6px rgba(15,30,46,.10)";
+/** transition of the interactive chrome — present, never a show */
+const TRANSITION = "background-color .12s ease,border-color .12s ease,box-shadow .12s ease,color .12s ease";
 
 /**
  * powerbi.VisualDataChangeOperationKind.Append — mirrored as a plain number
@@ -229,6 +237,26 @@ interface TreeSlot {
     /** period/scenario label under the axis (only first and last carry one) */
     tag: string | null;
     label: boolean;
+}
+
+/**
+ * One month of the integrated zoom chart: the value column, its reference, the
+ * second scenario drawn as a triangle, and the variance the bridge step and the
+ * Δ% pin of that month are built from.
+ */
+interface ComboPt {
+    tag: string;
+    /** AC of the month, or the forecast that fills the months after the actuals */
+    v: number | null;
+    ref: number | null;
+    /** second scenario, drawn as a triangle next to the column */
+    tri: number | null;
+    /** the month is a forecast month (FC has a value, AC has none) */
+    isFc: boolean;
+    /** Δ against the reference, in display orientation */
+    d: number | null;
+    pct: number | null;
+    good: boolean;
 }
 
 /** A card's mini chart series plus the scenarios its reference marks encode. */
@@ -724,6 +752,25 @@ export class Visual implements IVisual {
         if (o) { return o; }
         return String(this.settings.styleCard.colorMode.value.value) === "ibcs" ? C.ibcsBad : C.tealBad;
     }
+    /**
+     * Accent of the interactive chrome (active toolbar buttons, the back button
+     * of the tile view, breadcrumb hover). Data marks, axes and the AC column
+     * fill never read this — they stay on the IBCS ink C.ac, which is also the
+     * default, so an untouched report keeps exactly the previous look.
+     */
+    private accent(): string {
+        return this.settings.styleCard.accentColor.value?.value || C.ac;
+    }
+    /** slightly lifted accent for hover states — mixed towards paper in sRGB */
+    private accentSoft(alpha: number): string {
+        const hex = this.accent().replace("#", "");
+        if (!/^[0-9a-fA-F]{6}$/.test(hex)) { return this.accent(); }
+        const mix = (i: number): number => {
+            const c = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+            return Math.round(c + (255 - c) * alpha);
+        };
+        return `rgb(${mix(0)},${mix(1)},${mix(2)})`;
+    }
     private fontScale(): number {
         const fp = String(this.settings.styleCard.fontPreset.value.value);
         return fp === "fullhd" ? 1.25 : fp === "uhd" ? 1.6 : 1;
@@ -1036,35 +1083,86 @@ export class Visual implements IVisual {
         const b = document.createElement("button");
         b.textContent = label;
         if (title) { b.title = title; }
+        const acc = this.accent();
+        const rest = active
+            ? `background:${acc};border:1px solid ${acc};color:#FFF;font-weight:600;`
+            : `background:#FFF;border:1px solid ${C.ctlEdge};color:${C.text};font-weight:400;`;
         b.style.cssText =
-            `font-family:${FONT};font-size:10.5px;padding:3px 10px;cursor:pointer;border-radius:2px;` +
-            (active
-                ? `background:${C.ac};border:1px solid ${C.ac};color:#FFF;font-weight:600;`
-                : `background:#FFF;border:1px solid ${C.gridSoft};color:${C.text};`);
+            `font-family:${FONT};font-size:10.5px;line-height:1.35;padding:3.5px 10px;cursor:pointer;` +
+            `border-radius:4px;transition:${TRANSITION};` + rest;
+        // hover is a tint, never a jump: the inactive button warms up, the
+        // active one lifts a shade so both stay recognisably the same control
+        b.onmouseenter = (): void => {
+            if (active) { b.style.background = this.accentSoft(0.14); b.style.borderColor = this.accentSoft(0.14); }
+            else { b.style.background = C.ctlHover; b.style.borderColor = C.cardEdgeHover; }
+        };
+        b.onmouseleave = (): void => {
+            if (active) { b.style.background = acc; b.style.borderColor = acc; }
+            else { b.style.background = "#FFF"; b.style.borderColor = C.ctlEdge; }
+        };
         b.onclick = (e) => { e.stopPropagation(); onClick(); this.persistUi(); this.rerender(); };
         return b;
     }
 
+    /** caps label of a control group — the one type style for every section head */
+    private capsLabel(text: string, fs = 8.5): HTMLElement {
+        const l = document.createElement("div");
+        l.style.cssText = `font-size:${fs}px;letter-spacing:.09em;color:${C.soft};` +
+            "text-transform:uppercase;font-weight:600;line-height:1.4;";
+        l.textContent = text;
+        return l;
+    }
+
     private tbGroup(label: string, buttons: HTMLElement[]): HTMLElement {
         const g = document.createElement("div");
-        g.style.cssText = "display:flex;flex-direction:column;gap:3px;";
-        const l = document.createElement("div");
-        l.style.cssText = `font-size:8.5px;letter-spacing:.08em;color:${C.soft};text-transform:uppercase;`;
-        l.textContent = label;
+        g.style.cssText = "display:flex;flex-direction:column;gap:4px;";
         const row = document.createElement("div");
         row.style.cssText = "display:flex;gap:4px;flex-wrap:wrap;";
         buttons.forEach(b => row.appendChild(b));
-        g.appendChild(l); g.appendChild(row);
+        g.appendChild(this.capsLabel(label)); g.appendChild(row);
         return g;
+    }
+
+    /**
+     * Back out of the tile view — the dominant control of the zoomed header:
+     * accent filled, larger type, generous padding, so the way back is the
+     * first thing the eye finds in the top left corner.
+     */
+    private zoomBackBtn(onClick: () => void): HTMLElement {
+        const acc = this.accent();
+        const b = document.createElement("button");
+        b.setAttribute("data-pnl", "zoom-back");
+        b.textContent = this.str("← Back to tree", "← Zurück zum Baum");
+        b.title = this.str("Close the tile view", "Kachel-Ansicht schließen");
+        b.style.cssText = `font-family:${FONT};font-size:13px;font-weight:600;line-height:1.3;` +
+            `padding:8px 16px;cursor:pointer;border-radius:6px;border:1px solid ${acc};` +
+            `background:${acc};color:#FFF;transition:${TRANSITION};box-shadow:${SHADOW};`;
+        b.onmouseenter = (): void => {
+            b.style.background = this.accentSoft(0.16);
+            b.style.borderColor = this.accentSoft(0.16);
+            b.style.boxShadow = SHADOW_HOVER;
+        };
+        b.onmouseleave = (): void => {
+            b.style.background = acc; b.style.borderColor = acc; b.style.boxShadow = SHADOW;
+        };
+        b.onclick = (e: Event): void => {
+            e.stopPropagation(); onClick(); this.persistUi(); this.rerender();
+        };
+        return b;
     }
 
     private buildToolbar(): HTMLElement {
         const ui = this.ui!;
         const bar = document.createElement("div");
-        bar.style.cssText = "display:flex;gap:18px;flex-wrap:wrap;padding:8px 14px 6px 14px;align-items:flex-end;";
+        bar.style.cssText = "display:flex;gap:16px 20px;flex-wrap:wrap;padding:8px 14px 6px 14px;" +
+            "align-items:flex-end;";
 
         const tset = this.settings.toolbarCard;
-        if (tset.showView.value) { bar.appendChild(this.tbGroup(this.str("View", "Ansicht"), [
+        // Tile view: everything that cannot change the tile disappears. Only the
+        // Δ reference and the unit reach the zoom chart, so only those two stay —
+        // the header belongs to the back button and the breadcrumb.
+        const inZoom = ui.view === "tree" && ui.treeZoom != null;
+        if (tset.showView.value && !inZoom) { bar.appendChild(this.tbGroup(this.str("View", "Ansicht"), [
             this.tbBtn("Table", ui.view === "table", () => { ui.view = "table"; }),
             this.tbBtn("Bars", ui.view === "bars", () => { ui.view = "bars"; },
                 this.str("Structure bars: AC vs reference per row", "Struktur-Balken: AC vs. Referenz je Zeile")),
@@ -1079,8 +1177,8 @@ export class Visual implements IVisual {
         // driver tree follows the formula graph instead. The Δ reference and the
         // expand level do apply to it: they drive the card variances and the
         // depth of the opened graph.
-        const tableViews = ui.view !== "tree";
-        const isTree = ui.view === "tree";
+        const tableViews = ui.view !== "tree" && !inZoom;
+        const isTree = ui.view === "tree" && !inZoom;
 
         const presets: [Preset, string][] = [
             ["full", "AC·PY·PL·FC"], ["acref", "AC vs Ref"], ["dall", "AC vs PY·PL·FC"],
@@ -1092,7 +1190,7 @@ export class Visual implements IVisual {
         }
 
         const refs: Scenario[] = (["py", "pl", "fc"] as Scenario[]).filter(s => this.has[s]);
-        if (refs.length > 0 && tset.showReference.value && (tableViews || isTree)) {
+        if (refs.length > 0 && tset.showReference.value && (tableViews || isTree || inZoom)) {
             bar.appendChild(this.tbGroup("Δ " + this.str("reference", "Referenz"),
                 refs.map(r => this.tbBtn(r.toUpperCase(), ui.ref === r, () => { ui.ref = r; }))));
         }
@@ -1115,7 +1213,7 @@ export class Visual implements IVisual {
             this.tbBtn("m" + unitText, ui.unit === "m", () => { ui.unit = "m"; }),
         ])); }
 
-        if (tset.showDensity.value) { bar.appendChild(this.tbGroup(this.str("Density", "Dichte"), [
+        if (tset.showDensity.value && !inZoom) { bar.appendChild(this.tbGroup(this.str("Density", "Dichte"), [
             this.tbBtn("Normal", ui.density === "normal", () => { ui.density = "normal"; }),
             this.tbBtn("Compact", ui.density === "compact", () => { ui.density = "compact"; }),
         ])); }
@@ -2936,8 +3034,8 @@ export class Visual implements IVisual {
         const W = 396; const inner = W - 26;
         const box = document.createElement("div");
         box.style.cssText = `position:absolute;z-index:40;width:${W}px;background:#FFF;` +
-            `border:1px solid ${C.cardEdge};border-radius:5px;` +
-            `box-shadow:0 8px 28px rgba(15,30,46,.22);padding:11px 13px 8px 13px;` +
+            `border:1px solid ${C.cardEdge};border-radius:6px;` +
+            `box-shadow:0 6px 20px rgba(15,30,46,.16);padding:12px 14px 8px 14px;` +
             `pointer-events:none;font-family:${FONT};box-sizing:border-box;`;
 
         // ---- header: name + unit + Δ headline in the status colour
@@ -3038,7 +3136,8 @@ export class Visual implements IVisual {
         const num = (v: number | null, plus = false): string =>
             v == null ? "·" : isRatio ? fmt.pct(v, plus) : fmt.val(v, plus);
         const grid = document.createElement("div");
-        grid.style.cssText = "display:table;width:100%;border-collapse:collapse;margin-bottom:7px;";
+        grid.style.cssText = "display:table;width:100%;border-collapse:collapse;margin:8px 0;" +
+            `border-top:1px solid ${C.gridSoft};padding-top:4px;`;
         const row = (cells: string[], opts?: { bold?: boolean; color?: (string | null)[] }): void => {
             const r = document.createElement("div");
             r.style.cssText = "display:table-row;";
@@ -3105,12 +3204,34 @@ export class Visual implements IVisual {
         const s = geo.s;
         const cardH = card.h;
         const g = document.createElementNS(ns, "g") as SVGGElement;
+        // the drop shadow of the card: one soft slab a pixel below the box —
+        // an svg filter would repaint the whole tree on every hover
+        const shade = document.createElementNS(ns, "rect");
+        // rx 5, a hair softer than the box — and never confusable with the card
+        shade.setAttribute("x", (card.x + 0.5).toFixed(2));
+        shade.setAttribute("y", (card.y + 1.5).toFixed(2));
+        shade.setAttribute("width", geo.cw.toFixed(2)); shade.setAttribute("height", cardH.toFixed(2));
+        shade.setAttribute("rx", "5"); shade.setAttribute("fill", "none");
+        shade.setAttribute("stroke", "rgba(15,30,46,.06)"); shade.setAttribute("stroke-width", "2");
+        g.appendChild(shade);
+        // crisp 1 px edge without moving the card: the renderer snaps the stroke
+        // to the pixel grid, the geometry the bus lines rely on stays exact
         const box = document.createElementNS(ns, "rect");
         box.setAttribute("x", card.x.toFixed(2)); box.setAttribute("y", card.y.toFixed(2));
         box.setAttribute("width", geo.cw.toFixed(2)); box.setAttribute("height", cardH.toFixed(2));
         box.setAttribute("rx", "4"); box.setAttribute("fill", "#FFF");
         box.setAttribute("stroke", C.cardEdge); box.setAttribute("stroke-width", "1");
+        box.setAttribute("shape-rendering", "crispEdges");
         g.appendChild(box);
+        // hover: the edge darkens, the shadow gains a touch — nothing moves
+        g.addEventListener("mouseenter", () => {
+            box.setAttribute("stroke", C.cardEdgeHover);
+            shade.setAttribute("stroke", "rgba(15,30,46,.10)");
+        });
+        g.addEventListener("mouseleave", () => {
+            box.setAttribute("stroke", C.cardEdge);
+            shade.setAttribute("stroke", "rgba(15,30,46,.06)");
+        });
 
         const pad = (card.compact ? 6 : 8) * s;
         const isRatio = card.node.row.rowType === "kpi";
@@ -3145,13 +3266,13 @@ export class Visual implements IVisual {
             circ.setAttribute("cx", cx.toFixed(2)); circ.setAttribute("cy", cy.toFixed(2));
             circ.setAttribute("r", r.toFixed(2));
             circ.setAttribute("fill", "none");
-            circ.setAttribute("stroke", C.soft); circ.setAttribute("stroke-width", "1");
+            circ.setAttribute("stroke", C.refGray); circ.setAttribute("stroke-width", "1");
             rr.appendChild(circ);
             const tick = (dx: number, dy: number): void => {
                 const l = document.createElementNS(ns, "line");
                 l.setAttribute("x1", (cx + dx * r).toFixed(2)); l.setAttribute("y1", (cy + dy * r).toFixed(2));
                 l.setAttribute("x2", (cx + dx * r * 2).toFixed(2)); l.setAttribute("y2", (cy + dy * r * 2).toFixed(2));
-                l.setAttribute("stroke", C.soft); l.setAttribute("stroke-width", "1");
+                l.setAttribute("stroke", C.refGray); l.setAttribute("stroke-width", "1");
                 rr.appendChild(l);
             };
             tick(-1, 0); tick(1, 0); tick(0, -1); tick(0, 1);
@@ -3336,7 +3457,7 @@ export class Visual implements IVisual {
             hit.setAttribute("height", (12.5 * s).toFixed(2));
             hit.setAttribute("rx", (2 * s).toFixed(2));
             hit.setAttribute("fill", "#FFF");
-            hit.setAttribute("stroke", C.cardEdge);
+            hit.setAttribute("stroke", C.ctlEdge);
             hit.setAttribute("stroke-width", "1");
             const ch = document.createElementNS(ns, "text");
             ch.setAttribute("x", (card.x + geo.cw - 11 * s).toFixed(2));
@@ -3389,8 +3510,8 @@ export class Visual implements IVisual {
     private treeBreadcrumb(path: PnlNode[], onPick: (node: PnlNode, i: number) => void,
         tip: string): HTMLElement {
         const crumbs = document.createElement("div");
-        crumbs.style.cssText = `font-size:10px;color:${C.soft};margin:0 0 4px 0;padding:0;line-height:1.5;` +
-            "display:flex;gap:5px;flex-wrap:wrap;align-items:center;";
+        crumbs.style.cssText = `font-size:10.5px;color:${C.soft};margin:0 0 4px 0;padding:0;line-height:1.5;` +
+            "display:flex;gap:6px;flex-wrap:wrap;align-items:center;";
         path.forEach((node, i) => {
             if (i > 0) {
                 const sep = document.createElement("span");
@@ -3402,9 +3523,11 @@ export class Visual implements IVisual {
             seg.textContent = node.row.name;
             seg.style.cssText = last
                 ? `color:${C.text};font-weight:600;`
-                : `color:${C.soft};cursor:pointer;text-decoration:underline;`;
+                : `color:${C.soft};cursor:pointer;text-decoration:underline;transition:${TRANSITION};`;
             if (!last) {
                 seg.title = tip;
+                seg.onmouseenter = (): void => { seg.style.color = this.accent(); };
+                seg.onmouseleave = (): void => { seg.style.color = C.soft; };
                 seg.onclick = (e: Event): void => {
                     e.stopPropagation();
                     onPick(node, i);
@@ -3473,26 +3596,26 @@ export class Visual implements IVisual {
         wrap.setAttribute("data-pnl", "zoom");
         wrap.style.cssText = `padding:4px ${TABLE_PAD_X}px 10px ${TABLE_PAD_X}px;`;
 
+        // the way back is the dominant control of this page, the breadcrumb
+        // rides next to it on the same optical line
         const head = document.createElement("div");
-        head.style.cssText = "display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:8px;";
-        const back = this.tbBtn(this.str("← Back to the tree", "← Zurück zum Baum"), false,
-            () => { ui.treeZoom = null; },
-            this.str("Close the tile view", "Kachel-Ansicht schließen"));
-        back.setAttribute("data-pnl", "zoom-back");
-        head.appendChild(back);
+        head.style.cssText = "display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:0 0 12px 0;";
+        head.appendChild(this.zoomBackBtn(() => { ui.treeZoom = null; }));
         const path = this.treeZoomPath(ctx, node);
         if (path.length > 1) {
-            head.appendChild(this.treeBreadcrumb(path, (n) => { ui.treeZoom = n.row.id; },
-                this.str("Zoom into this card", "Auf diese Karte zoomen")));
+            const crumbs = this.treeBreadcrumb(path, (n) => { ui.treeZoom = n.row.id; },
+                this.str("Zoom into this card", "Auf diese Karte zoomen"));
+            crumbs.style.margin = "0";
+            head.appendChild(crumbs);
         }
         wrap.appendChild(head);
 
         // three columns: what this row feeds · the row itself · what drives it
         const avail = this.root.clientWidth || 900;
         const sideW = Math.max(150, Math.min(215, Math.round(avail * 0.18)));
-        const centerW = Math.max(340, avail - 2 * TABLE_PAD_X - 2 * sideW - 28);
+        const centerW = Math.max(340, avail - 2 * TABLE_PAD_X - 2 * sideW - 32);
         const cols = document.createElement("div");
-        cols.style.cssText = "display:flex;gap:14px;align-items:flex-start;";
+        cols.style.cssText = "display:flex;gap:16px;align-items:stretch;";
         cols.appendChild(this.treeZoomSide(ctx, node, fmt, sideW, "parents"));
         cols.appendChild(this.treeZoomCenter(node, fmt, centerW));
         cols.appendChild(this.treeZoomSide(ctx, node, fmt, sideW, "children"));
@@ -3500,7 +3623,12 @@ export class Visual implements IVisual {
         return wrap;
     }
 
-    /** the big middle tile: head, monthly chart, month bridge, scenario grid */
+    /**
+     * The big middle tile: head, the integrated ChartKitchen chart (anchors,
+     * monthly columns, cumulated Δ bridge, Δ% pins, AC+FC total) and the
+     * scenario grid. Ratio rows are not additive, so they keep the monthly
+     * chart and say why the bridge is missing.
+     */
     private treeZoomCenter(node: PnlNode, fmt: Fmt, w: number): HTMLElement {
         const ns = "http://www.w3.org/2000/svg";
         const isRatio = node.row.rowType === "kpi";
@@ -3508,18 +3636,19 @@ export class Visual implements IVisual {
         const tile = document.createElement("div");
         tile.setAttribute("data-pnl", "zoom-center");
         tile.style.cssText = `flex:1 1 ${w}px;min-width:0;background:#FFF;box-sizing:border-box;` +
-            `border:1px solid ${C.cardEdge};border-radius:6px;padding:12px 14px 10px 14px;`;
-        const inner = Math.max(w - 30, 260);
+            `border:1px solid ${C.cardEdge};border-radius:6px;box-shadow:${SHADOW};` +
+            "padding:16px 16px 12px 16px;";
+        const inner = Math.max(w - 34, 260);
 
-        // ---- head: name, unit, Δ headline in the status colour
+        // ---- head: name > formula > period, Δ headline in the status colour
         const va = this.treeVariance(node);
         const vColor = va == null ? null : (va.good ? this.goodColor() : this.badColor());
         const head = document.createElement("div");
-        head.style.cssText = "display:flex;align-items:baseline;gap:8px;margin-bottom:1px;";
+        head.style.cssText = "display:flex;align-items:baseline;gap:8px;margin:0 0 2px 0;";
         const nm = document.createElement("div");
         nm.setAttribute("data-pnl", "zoom-title");
-        nm.style.cssText = `flex:1;font-size:16px;font-weight:700;color:${C.text};` +
-            "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
+        nm.style.cssText = `flex:1;font-size:17px;font-weight:700;letter-spacing:-.01em;color:${C.text};` +
+            "line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
         const cno = this.commentNo.get(node.row.id);
         nm.textContent = node.row.name + (cno != null ? " " + String.fromCharCode(0x2460 + cno - 1) : "");
         head.appendChild(nm);
@@ -3529,46 +3658,59 @@ export class Visual implements IVisual {
         head.appendChild(un);
         if (vColor && va && va.deltaPct != null) {
             const dp = document.createElement("div");
-            dp.style.cssText = `font-size:13px;font-weight:700;color:${vColor};white-space:nowrap;`;
+            dp.style.cssText = `font-size:14px;font-weight:700;color:${vColor};white-space:nowrap;` +
+                "font-variant-numeric:tabular-nums;";
             dp.textContent = fmt.pct(va.deltaPct, true);
             head.appendChild(dp);
         }
         tile.appendChild(head);
         const sub = document.createElement("div");
-        sub.style.cssText = `font-size:9.5px;color:${C.soft};margin-bottom:8px;`;
+        sub.style.cssText = `font-size:9.5px;color:${C.soft};line-height:1.5;margin:0 0 16px 0;`;
         const acct = node.row.rowType === "account" ? node.row.id : "";
         sub.textContent = [acct, node.row.formulaDef ? "= " + node.row.formulaDef : "",
             this.periodTag()].filter(Boolean).join(" · ");
         tile.appendChild(sub);
 
         const refUp = this.ui!.ref.toUpperCase();
-        const caption = (t: string): void => {
-            const c = document.createElement("div");
-            c.style.cssText = `font-size:9px;color:${C.soft};margin:4px 0 1px 0;`;
-            c.textContent = t;
-            tile.appendChild(c);
-        };
         const chart = (h: number, draw: (g: SVGGElement, svg: SVGSVGElement) => void): void => {
             const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
             svg.setAttribute("width", String(inner)); svg.setAttribute("height", String(h));
+            svg.setAttribute("data-pnl", isRatio ? "zoom-months" : "zoom-combo");
             svg.style.cssText = "display:block;";
             const g = document.createElementNS(ns, "g") as SVGGElement;
             svg.appendChild(g);
             tile.appendChild(svg);
             draw(g, svg);
         };
-        caption(this.str(`Months — AC solid, ${refUp} offset behind`,
-            `Monate — AC solide, ${refUp} versetzt dahinter`));
-        chart(160, (g, svg) => this.treeMini(g, node, { x: 1, y: 4, w: inner - 2, h: 134 }, 1.5, fmt, svg, 0));
-        caption(this.str(`Bridge ${refUp} YTD → Δ per month → AC YTD`,
-            `Brücke ${refUp} YTD → Δ je Monat → AC YTD`));
-        chart(196, (g, svg) => this.treeBigBridge(g, node, { x: 1, y: 4, w: inner - 2, h: 188 }, 1.3, fmt, svg));
+        const note = (t: string): void => {
+            const c = document.createElement("div");
+            c.setAttribute("data-pnl", "zoom-note");
+            c.style.cssText = `font-size:9.5px;color:${C.soft};line-height:1.5;margin:0 0 8px 0;`;
+            c.textContent = t;
+            tile.appendChild(c);
+        };
+        const k = this.fontScale();
+        if (isRatio) {
+            // percentages do not add up: no bridge, no stacked total — the
+            // monthly comparison plus the grid is the honest picture here
+            note(this.str(
+                `Ratio row — percentages are not additive: no bridge and no AC+FC stack. `
+                + `Months AC solid, ${refUp} offset behind, Δ${refUp} in the grid.`,
+                `Quotenzeile — Prozente sind nicht additiv: keine Brücke, kein AC+FC-Stapel. `
+                + `Monate AC solide, ${refUp} versetzt dahinter, Δ${refUp} im Grid.`));
+            chart(Math.round(230 * k), (g, svg) => this.treeMini(g, node,
+                { x: 1, y: 4, w: inner - 2, h: Math.round(230 * k) - 30 }, 1.5 * k, fmt, svg, 0));
+        } else {
+            const h = Math.round(420 * k);
+            chart(h, (g, svg) => this.treeZoomCombo(g, node,
+                { x: 1, y: 2, w: inner - 2, h: h - 6 }, 1.25 * k, fmt, svg));
+        }
         tile.appendChild(this.treeScenGrid(node, fmt));
 
         if (node.row.comment) {
             const cm = document.createElement("div");
             cm.style.cssText = `font-size:9.5px;color:${C.soft};font-style:italic;` +
-                `margin-top:6px;border-top:1px solid ${C.gridSoft};padding-top:5px;line-height:1.45;`;
+                `margin-top:8px;border-top:1px solid ${C.gridSoft};padding-top:8px;line-height:1.45;`;
             cm.textContent = node.row.comment;
             tile.appendChild(cm);
         }
@@ -3591,12 +3733,12 @@ export class Visual implements IVisual {
         side: "parents" | "children"): HTMLElement {
         const col = document.createElement("div");
         col.style.cssText = `flex:0 0 ${w}px;width:${w}px;box-sizing:border-box;`;
-        const title = document.createElement("div");
-        title.style.cssText = "font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;" +
-            `color:${C.soft};margin-bottom:5px;`;
-        title.textContent = side === "parents"
+        // section head in the very type style of the toolbar group labels, and
+        // on the same optical line as the head of the big tile next to it
+        const title = this.capsLabel(side === "parents"
             ? this.str("Feeds into", "Zahlt ein auf")
-            : this.str("Driven by", "Getrieben von");
+            : this.str("Driven by", "Getrieben von"));
+        title.style.margin = "0 0 8px 0";
         col.appendChild(title);
 
         const items: { node: PnlNode; op: FormulaOp | null }[] = [];
@@ -3647,7 +3789,15 @@ export class Visual implements IVisual {
         card.setAttribute("data-pnl", side === "parents" ? "zoom-parent" : "zoom-child");
         card.title = this.str("Zoom into this card", "Auf diese Karte zoomen");
         card.style.cssText = `background:#FFF;border:1px solid ${C.cardEdge};border-radius:4px;` +
-            "padding:6px 7px 4px 7px;margin-bottom:8px;cursor:pointer;box-sizing:border-box;";
+            `box-shadow:${SHADOW};transition:${TRANSITION};` +
+            "padding:8px 8px 6px 8px;margin-bottom:8px;cursor:pointer;box-sizing:border-box;";
+        // click affordance: the edge darkens and the card lifts by a hair
+        card.onmouseenter = (): void => {
+            card.style.borderColor = C.cardEdgeHover; card.style.boxShadow = SHADOW_HOVER;
+        };
+        card.onmouseleave = (): void => {
+            card.style.borderColor = C.cardEdge; card.style.boxShadow = SHADOW;
+        };
 
         const head = document.createElement("div");
         head.style.cssText = "display:flex;gap:5px;align-items:baseline;";
@@ -3667,13 +3817,14 @@ export class Visual implements IVisual {
         if (va && va.deltaPct != null) {
             const dp = document.createElement("span");
             dp.style.cssText = "font-size:9.5px;font-weight:700;white-space:nowrap;" +
+                "font-variant-numeric:tabular-nums;" +
                 `color:${va.good ? this.goodColor() : this.badColor()};`;
             dp.textContent = fmt.pct(va.deltaPct, true);
             head.appendChild(dp);
         }
         card.appendChild(head);
 
-        const cw = Math.max(w - 20, 90);
+        const cw = Math.max(w - 18, 90);
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
         svg.setAttribute("width", String(cw)); svg.setAttribute("height", "56");
         svg.style.cssText = "display:block;margin-top:3px;";
@@ -3692,123 +3843,379 @@ export class Visual implements IVisual {
     }
 
     /**
-     * Large IBCS bridge of one node (ChartKitchen cascade): the reference year
-     * to date anchors on the left, one floating Δ step per month carries the
-     * eye across, the actuals anchor on the right. Steps are teal / red by
-     * impact and inherit the hatched notation when the reference is a forecast;
-     * connector lines join the steps, month labels sit under the axis, and the
-     * axis itself encodes the reference (gray = PY, double line = PL, dashed = FC).
+     * One point of the integrated zoom chart: the month, its AC (or forecast)
+     * value, the reference of that month, the second scenario for the triangle,
+     * and the variance the bridge step and the Δ% pin are drawn from.
      */
-    private treeBigBridge(g: SVGGElement, node: PnlNode, box: { x: number; y: number; w: number; h: number },
+    private treeComboPts(node: PnlNode): {
+        pts: ComboPt[]; refScen: Scenario; triScen: Scenario | "";
+    } {
+        const ref = this.ui!.ref;
+        const months = this.model!.months;
+        const inv = node.row.displayInvert ? -1 : 1;
+        // triangle = the *other* comparison scenario; the reference itself is
+        // already carried by the bridge, repeating it per month says nothing
+        const triScen: Scenario | "" = this.treeRefScenarios(false).filter(x => x !== ref)[0] ?? "";
+        const acs = node.series.ac; const fcs = node.series.fc;
+        const refs = this.has[ref] ? node.series[ref] : undefined;
+        const tris = triScen === "" ? undefined : node.series[triScen];
+        const pts: ComboPt[] = [];
+        for (let i = 0; i < months.length; i++) {
+            const a = acs ? acs[i] : null;
+            const f = fcs ? fcs[i] : null;
+            // AC&FC composite: the forecast fills the months the actuals have
+            // not reached — those months are drawn hatched (IBCS UN 4.1)
+            const raw = a != null ? a : f;
+            const r = refs ? refs[i] : null;
+            const t = tris ? tris[i] : null;
+            if (raw == null && r == null) { continue; }
+            const dRaw = raw != null && r != null ? raw - r : null;
+            pts.push({
+                tag: this.monthLabel(months[i]),
+                v: raw == null ? null : raw * inv,
+                ref: r == null ? null : r * inv,
+                tri: t == null ? null : t * inv,
+                isFc: a == null && f != null,
+                d: dRaw == null ? null : dRaw * inv,
+                pct: dRaw == null || r == null || r === 0 ? null : (dRaw / Math.abs(r)) * inv,
+                good: dRaw == null ? true : (node.row.varianceInvert ? dRaw < 0 : dRaw >= 0),
+            });
+        }
+        return { pts, refScen: ref, triScen };
+    }
+
+    /**
+     * The integrated zoom chart (ChartKitchen "integrated bridge"), one picture
+     * instead of the two stacked charts of v0.11:
+     *
+     *   · one baseline over the full width, one value scale for every column;
+     *   · left, the full-height anchors — the second scenario outermost (PY
+     *     solid gray), the reference next to the band (PL outlined, FC hatched);
+     *   · bottom of the band, one column per month, AC solid, forecast months
+     *     hatched, the second scenario as a triangle beside it;
+     *   · above them the cumulated Δ bridge: it starts on the level of the
+     *     reference anchor and floats one step per month across the band, teal
+     *     when favorable, red when not, hatched in the forecast months, thin
+     *     connectors between the steps;
+     *   · on top of that the Δ% pin row of the same months;
+     *   · a vertical rule between the last actual and the first forecast month;
+     *   · right, the stacked AC + FC total column and the total variance badge.
+     *
+     * All full columns and the bridge share one scale. The monthly columns keep
+     * that very scale as long as they fit the lower zone — which they do for
+     * any normal year — and only a degenerate series (one or two months, each
+     * nearly the whole total) compresses them, so the two zones never collide.
+     */
+    private treeZoomCombo(g: SVGGElement, node: PnlNode, box: { x: number; y: number; w: number; h: number },
         s: number, fmt: Fmt, svg: SVGSVGElement): void {
         const ns = "http://www.w3.org/2000/svg";
         const ref = this.ui!.ref;
-        const months = this.model!.months;
-        const isRatio = node.row.rowType === "kpi";
-        const inv = node.row.displayInvert ? -1 : 1;
-        const refv = this.has[ref] ? displayValue(node, ref) : null;
-        const acv = displayValue(node, "ac");
         const refUp = ref.toUpperCase();
-        if (refv == null || acv == null) { this.treeHint(g, box, s, `Δ${refUp} –`); return; }
-        const lfs = 8.5 * s;
+        const inv = node.row.displayInvert ? -1 : 1;
+        const lfs = 8.5 * s; const cfs = 8 * s; const hfs = 9 * s;
+        const num = (v: number): string => this.treeNum(v, fmt);
+        const signed = (v: number): string => (v > 0 ? "+" : "") + this.treeNum(v, fmt);
 
-        // one step per month; without monthly series the year-to-date Δ stands in
-        const acs = node.series.ac; const refs = node.series[ref];
-        const steps: { tag: string; d: number; good: boolean }[] = [];
-        if (months.length > 1 && acs && refs) {
-            for (let i = 0; i < months.length; i++) {
-                const a = acs[i]; const r = refs[i];
-                if (a == null || r == null) { continue; }
-                const raw = a - r;
-                steps.push({ tag: this.monthLabel(months[i]), d: raw * inv,
-                    good: node.row.varianceInvert ? raw < 0 : raw >= 0 });
-            }
-        }
-        if (steps.length === 0) {
-            const va = this.treeVariance(node);
-            if (va && va.delta != null) { steps.push({ tag: "Δ" + refUp, d: va.delta, good: va.good }); }
-        }
+        const { pts, triScen } = this.treeComboPts(node);
+        const n = pts.length;
 
-        // columns: reference anchor, the cumulated steps, actuals anchor
-        type Col = { tag: string; s0: number; s1: number; kind: "ref" | "step" | "ac"; good: boolean };
-        const cols: Col[] = [{ tag: refUp, s0: 0, s1: refv, kind: "ref", good: true }];
-        let cum = refv;
-        for (const st of steps) {
-            const from = cum;
-            cum += st.d;
-            cols.push({ tag: st.tag, s0: from, s1: cum, kind: "step", good: st.good });
+        // totals — the bridge must reconcile, so every total is summed over the
+        // very months the steps are drawn from, not read from the YTD scalar
+        let refSum: number | null = null; let triSum: number | null = null;
+        let acSum = 0; let fcSum = 0; let hasVal = false;
+        for (const p of pts) {
+            if (p.ref != null) { refSum = (refSum ?? 0) + p.ref; }
+            if (p.tri != null) { triSum = (triSum ?? 0) + p.tri; }
+            if (p.v != null) { hasVal = true; if (p.isFc) { fcSum += p.v; } else { acSum += p.v; } }
         }
-        cols.push({ tag: "AC", s0: 0, s1: acv, kind: "ac", good: true });
+        // a model without monthly series still gets the anchors and the badge
+        if (n === 0 || !hasVal) {
+            const yv = displayValue(node, "ac");
+            const rv = this.has[ref] ? displayValue(node, ref) : null;
+            if (yv == null || rv == null) { this.treeHint(g, box, s, `Δ${refUp} –`); return; }
+            acSum = yv; fcSum = 0; refSum = rv;
+            triSum = triScen === "" ? null : displayValue(node, triScen);
+        }
+        if (refSum == null) { this.treeHint(g, box, s, `Δ${refUp} –`); return; }
+        const vTot = acSum + fcSum;
+        const dTot = vTot - refSum;
+        const dTotRaw = dTot * inv;
+        const totGood = node.row.varianceInvert ? dTotRaw < 0 : dTotRaw >= 0;
+        const totColor = totGood ? this.goodColor() : this.badColor();
+        const pctTot = refSum !== 0 ? (dTot / Math.abs(refSum)) : null;
 
+        // ---------------- horizontal layout
+        const totW = Math.max(24 * s, Math.min(46 * s, box.w * 0.05));
+        const twoAnchors = triSum != null;
+        const xRefAnc = box.x + (twoAnchors ? totW + 8 * s : 0);
+        const bandStart = xRefAnc + totW + 14 * s;
+        const badge = signed(dTot);
+        const badgeW = Math.max(46 * s, badge.length * lfs * 0.62 + 14 * s);
+        const sideW = fcSum !== 0 ? lfs * 2.1 : 0;
+        const bandEnd = box.x + box.w - badgeW - 8 * s - sideW - totW - 14 * s;
+        if (bandEnd - bandStart < Math.max(n, 1) * 6) {
+            this.treeHint(g, box, s, this.str("Not enough width for the bridge",
+                "Zu wenig Breite für die Brücke"));
+            return;
+        }
+        const slots = Math.max(n, 1);
+        const step = (bandEnd - bandStart) / slots;
+        const segW = Math.max(4, Math.min(step * 0.70, 30 * s));
+        const colW = Math.max(3, Math.min(step * 0.46, 20 * s));
+        const cx = (i: number): number => bandStart + (i + 0.5) * step;
+        const xTot = bandEnd + 14 * s;
+        const cxTot = xTot + totW / 2;
+
+        // ---------------- vertical layout
+        const headH = hfs + 8 * s;
+        const showPins = pts.some(p => p.pct != null);
+        const pinH = showPins ? Math.max(52 * s, box.h * 0.18) : 4 * s;
+        const pinAxisY = box.y + headH + pinH * 0.56;
+        const catH = cfs * 2 + 10 * s;
+        const yBase = box.y + box.h - catH;
+        const plotTop = box.y + headH + pinH + lfs + 5 * s;
+
+        // one domain for every full column and for the bridge levels
         let lo = 0; let hi = 0;
-        for (const c of cols) {
-            lo = Math.min(lo, c.s0, c.s1); hi = Math.max(hi, c.s0, c.s1);
-        }
+        const see = (v: number | null): void => {
+            if (v == null) { return; }
+            lo = Math.min(lo, v); hi = Math.max(hi, v);
+        };
+        see(refSum); see(triSum); see(vTot); see(acSum);
+        let level = refSum;
+        for (const p of pts) { see(p.v); see(p.tri); if (p.d != null) { level += p.d; see(level); } }
         if (hi === lo) { hi = lo + 1; }
-        const tagH = lfs + 6 * s;
-        const top = box.y + lfs + 3 * s;
-        const bot = box.y + box.h - tagH;
-        const yOf = (v: number): number => bot - ((v - lo) / (hi - lo)) * (bot - top);
-        const slotW = box.w / cols.length;
-        const colW = Math.min(slotW * 0.62, 34 * s);
-        const cxOf = (i: number): number => box.x + (i + 0.5) * slotW;
-
-        // connectors first, the columns sit on top of them
-        for (let i = 0; i < cols.length - 1; i++) {
-            const y = yOf(cols[i].s1);
-            const l = document.createElementNS(ns, "line");
-            l.setAttribute("x1", (cxOf(i) + colW / 2).toFixed(2));
-            l.setAttribute("x2", (cxOf(i + 1) - colW / 2).toFixed(2));
-            l.setAttribute("y1", y.toFixed(2)); l.setAttribute("y2", y.toFixed(2));
-            l.setAttribute("stroke", C.gridSoft); l.setAttribute("stroke-width", "1");
-            g.appendChild(l);
+        const unit = (yBase - plotTop) / (hi - lo);
+        const yOf = (v: number): number => yBase - (v - lo) * unit;
+        const axisY = yOf(0);
+        // the monthly columns keep the shared scale unless a very short series
+        // would push them into the bridge — then, and only then, they compress
+        const zoneH = (yBase - plotTop) * 0.42;
+        let maxMon = 0;
+        for (const p of pts) {
+            maxMon = Math.max(maxMon, Math.abs(p.v ?? 0), Math.abs(p.tri ?? 0));
         }
+        const mk = maxMon * unit > zoneH && maxMon > 0 ? zoneH / (maxMon * unit) : 1;
+        const mY = (v: number): number => axisY - v * unit * mk;
 
-        const hatch = ref === "fc" ? this.treeHatchId(svg) : "";
-        /** a Δ step against a forecast keeps the hatched forecast notation */
-        const stepFill = (color: string, good: boolean): string => {
-            if (ref !== "fc") { return color; }
-            const id = `pnlbr${good ? "g" : "b"}${this.uid}`;
+        // ---------------- small drawing helpers
+        const rect = (x: number, y: number, w: number, h: number,
+            fill: string, stroke?: string, sw = 1): SVGElement => {
+            const r = document.createElementNS(ns, "rect");
+            r.setAttribute("x", x.toFixed(2)); r.setAttribute("y", y.toFixed(2));
+            r.setAttribute("width", Math.max(w, 0.6).toFixed(2));
+            r.setAttribute("height", Math.max(h, 0.6).toFixed(2));
+            r.setAttribute("fill", fill);
+            if (stroke) { r.setAttribute("stroke", stroke); r.setAttribute("stroke-width", String(sw)); }
+            g.appendChild(r);
+            return r;
+        };
+        const line = (x1: number, y1: number, x2: number, y2: number,
+            stroke: string, sw: number, dash?: string): SVGElement => {
+            const l = document.createElementNS(ns, "line");
+            l.setAttribute("x1", x1.toFixed(2)); l.setAttribute("y1", y1.toFixed(2));
+            l.setAttribute("x2", x2.toFixed(2)); l.setAttribute("y2", y2.toFixed(2));
+            l.setAttribute("stroke", stroke); l.setAttribute("stroke-width", String(sw));
+            if (dash) { l.setAttribute("stroke-dasharray", dash); }
+            g.appendChild(l);
+            return l;
+        };
+        /** text clamped into the chart box, so no label can ever leave the svg */
+        const label = (x: number, y: number, txt: string, fs: number, fill: string,
+            anchor: "middle" | "start" | "end" = "middle", weight?: string, halo = false): void => {
+            const t = document.createElementNS(ns, "text");
+            const half = txt.length * fs * 0.3;
+            const min = anchor === "start" ? box.x : box.x + (anchor === "end" ? 2 * half : half);
+            const max = anchor === "end" ? box.x + box.w
+                : box.x + box.w - (anchor === "start" ? 2 * half : half);
+            t.setAttribute("x", Math.min(Math.max(x, min), max).toFixed(2));
+            t.setAttribute("y", y.toFixed(2));
+            t.setAttribute("text-anchor", anchor);
+            t.setAttribute("font-size", fs.toFixed(1));
+            t.setAttribute("font-family", FONT);
+            t.setAttribute("fill", fill);
+            if (weight) { t.setAttribute("font-weight", weight); }
+            // a number sitting on a hatched fill needs a paper halo to stay legible
+            if (halo) {
+                t.setAttribute("stroke", "#FFF"); t.setAttribute("stroke-width", "2.6");
+                t.setAttribute("paint-order", "stroke"); t.setAttribute("stroke-linejoin", "round");
+            }
+            t.textContent = txt;
+            g.appendChild(t);
+        };
+
+        const hatch = this.treeHatchId(svg);
+        /** hatched fill in the Δ colour — a forecast step keeps the FC notation */
+        const dHatch = (color: string, good: boolean): string => {
+            const id = `pnlcb${good ? "g" : "b"}${this.uid}`;
             if (!svg.querySelector(`#${id}`)) { this.hatchPattern(svg, ns, id, color); }
             return `url(#${id})`;
         };
 
-        cols.forEach((c, i) => {
-            const cx = cxOf(i);
-            const y0 = yOf(c.s0); const y1 = yOf(c.s1);
-            const y = Math.min(y0, y1);
-            const h = Math.max(Math.abs(y1 - y0), 1);
-            const r = document.createElementNS(ns, "rect");
-            r.setAttribute("x", (cx - colW / 2).toFixed(2)); r.setAttribute("y", y.toFixed(2));
-            r.setAttribute("width", colW.toFixed(2)); r.setAttribute("height", h.toFixed(2));
-            let ink = C.text;
-            if (c.kind === "ref") {
-                const st = this.treeScenFill(ref, hatch);
-                r.setAttribute("fill", st.fill);
-                if (st.stroke) { r.setAttribute("stroke", st.stroke); r.setAttribute("stroke-width", "1"); }
-                ink = C.soft;
-            } else if (c.kind === "ac") {
-                r.setAttribute("fill", C.ac);
-            } else {
-                ink = c.good ? this.goodColor() : this.badColor();
-                r.setAttribute("fill", stepFill(ink, c.good));
-                if (ref === "fc") { r.setAttribute("stroke", ink); r.setAttribute("stroke-width", "1"); }
-            }
-            g.appendChild(r);
+        // labels thin out until they fit their slot — never two on top of each
+        // other, and the last month is always named
+        let maxTxt = 4;
+        for (const p of pts) {
+            if (p.v != null) { maxTxt = Math.max(maxTxt, num(p.v).length); }
+            if (p.d != null) { maxTxt = Math.max(maxTxt, signed(p.d).length); }
+        }
+        const every = Math.max(1, Math.ceil((maxTxt * lfs * 0.58 + 5 * s) / Math.max(step, 1)));
+        const marks = new Set<number>();
+        for (let i = n - 1; i >= 0; i -= every) { marks.add(i); }
+        const catEvery = Math.max(1, Math.ceil((5 * cfs * 0.6 + 4 * s) / Math.max(step, 1)));
 
-            const d = c.s1 - c.s0;
-            const txt = c.kind === "step"
-                ? (isRatio ? fmt.pct(d, true).replace("%", "pp") : (d > 0 ? "+" : "") + this.treeNum(d, fmt))
-                : (isRatio ? fmt.pct(c.s1) : this.treeNum(c.s1, fmt));
-            // value label outside the column, in the direction the step moves
-            const up = c.kind === "step" ? d >= 0 : c.s1 >= 0;
-            this.treeLabel(g, box, cx, up ? y - 2.5 * s : y + h + lfs, txt, lfs, ink);
-            this.treeLabel(g, box, cx, bot + tagH - 1.5 * s, this.fitLabel(c.tag, slotW, lfs),
-                lfs, C.soft);
+        // ---------------- caption
+        label(box.x, box.y + hfs, this.str(
+            `${refUp} → AC${fcSum !== 0 ? "/FC" : ""} · bridge + monthly columns`,
+            `${refUp} → AC${fcSum !== 0 ? "/FC" : ""} · Brücke + Monatssäulen`),
+        hfs, C.soft, "start", "600");
+
+        // ---------------- Δ% pin row
+        if (showPins) {
+            let maxPct = Math.abs(pctTot ?? 0);
+            for (const p of pts) { maxPct = Math.max(maxPct, Math.abs(p.pct ?? 0)); }
+            if (maxPct === 0) { maxPct = 1; }
+            const pinMax = Math.max(pinH * 0.40 - lfs, 8 * s);
+            label(box.x, pinAxisY + lfs * 0.35, `Δ${refUp}%`, hfs, C.soft, "start", "600");
+            line(bandStart - 4 * s, pinAxisY, bandEnd + 4 * s, pinAxisY, C.py, 2);
+            line(cxTot - totW / 2 - 2 * s, pinAxisY, cxTot + totW / 2 + 2 * s, pinAxisY, C.py, 2);
+            const pin = (x: number, pct: number, good: boolean, hollow: boolean): void => {
+                const color = good ? this.goodColor() : this.badColor();
+                const h = Math.max(2, (Math.abs(pct) / maxPct) * pinMax);
+                const yEnd = pct >= 0 ? pinAxisY - h : pinAxisY + h;
+                line(x, pinAxisY, x, yEnd, color, 2);
+                const r = Math.max(2.2, 2.6 * s);
+                rect(x - r, yEnd - r, 2 * r, 2 * r, hollow ? "#FFF" : color, color, 1)
+                    .setAttribute("data-pnl", "combo-pin");
+                label(x, pct >= 0 ? yEnd - r - 2.5 * s : yEnd + r + lfs,
+                    fmt.pct(pct, true), lfs, color);
+            };
+            pts.forEach((p, i) => {
+                if (p.pct == null || !marks.has(i)) { return; }
+                pin(cx(i), p.pct, p.good, p.isFc);
+            });
+            if (pctTot != null) { pin(cxTot, pctTot, totGood, fcSum !== 0); }
+        }
+
+        // ---------------- AC | FC divider
+        const firstFc = pts.findIndex(p => p.isFc);
+        if (firstFc > 0) {
+            const dx = cx(firstFc) - step / 2;
+            line(dx, box.y + headH, dx, yBase + 5 * s, C.ac, 1.2)
+                .setAttribute("data-pnl", "combo-fcline");
+            label(dx + 3 * s, yBase + cfs * 2 + 7 * s, "FC", cfs, C.ac, "start", "600");
+        }
+
+        // ---------------- left anchors, full height
+        const anchor = (x: number, v: number, scen: Scenario, tag: string): void => {
+            const st = this.treeScenFill(scen, hatch);
+            const y = Math.min(yOf(v), axisY);
+            const r = rect(x, y, totW, Math.abs(yOf(v) - axisY), st.fill, st.stroke ?? undefined, 1.2);
+            r.setAttribute("data-pnl", "combo-anchor");
+            r.setAttribute("data-scen", scen);
+            label(x + totW / 2, y - 3 * s, num(v), lfs, C.text);
+            label(x + totW / 2, yBase + cfs + 4 * s, tag, cfs, C.soft);
+        };
+        if (twoAnchors && triSum != null && triScen !== "") {
+            anchor(box.x, triSum, triScen, triScen.toUpperCase().replace("FY", ""));
+        }
+        anchor(xRefAnc, refSum, ref, refUp);
+
+        // ---------------- level guides: reference level and the reached total
+        line(xRefAnc + totW, yOf(refSum), cxTot + totW / 2, yOf(refSum), C.gridSoft, 1);
+        line(bandEnd, yOf(vTot), xTot, yOf(vTot), C.gridSoft, 1);
+
+        // ---------------- bridge steps, monthly columns, month labels
+        level = refSum;
+        pts.forEach((p, i) => {
+            const x = cx(i);
+            if (p.d != null) {
+                // connector at the incoming level, then the floating step
+                const from = i === 0 ? xRefAnc + totW : cx(i - 1) + segW / 2;
+                line(from, yOf(level), x - segW / 2, yOf(level), C.gridSoft, 1);
+                const prev = level;
+                level += p.d;
+                const top = Math.min(yOf(prev), yOf(level));
+                // a small Δ on a big scale must still read as a brick, not a rule
+                const h = Math.max(Math.abs(yOf(prev) - yOf(level)), 3.5 * s);
+                const color = p.good ? this.goodColor() : this.badColor();
+                const sr = p.isFc
+                    ? rect(x - segW / 2, top, segW, h, dHatch(color, p.good), color, 1)
+                    : rect(x - segW / 2, top, segW, h, color);
+                sr.setAttribute("data-pnl", "combo-step");
+                if (p.isFc) { sr.setAttribute("data-fc", "1"); }
+                if (marks.has(i)) {
+                    label(x, p.d >= 0 ? top - 2.5 * s : top + h + lfs, signed(p.d), lfs, color,
+                        "middle", undefined, true);
+                }
+            }
+            // monthly column: AC solid / FC hatched, second scenario as triangle
+            const tops: number[] = [];
+            if (p.v != null) {
+                const y = Math.min(mY(p.v), axisY);
+                const h = Math.abs(mY(p.v) - axisY);
+                const bx = x - colW * (p.tri != null ? 0.75 : 0.5);
+                const mr = p.isFc
+                    ? rect(bx, y, colW, h, `url(#${hatch})`, C.ac, 1)
+                    : rect(bx, y, colW, h, C.ac);
+                mr.setAttribute("data-pnl", "combo-month");
+                if (p.isFc) { mr.setAttribute("data-fc", "1"); }
+                tops.push(y);
+            }
+            if (p.tri != null && triScen !== "") {
+                const st = this.treeScenFill(triScen, hatch);
+                const ty = mY(p.tri);
+                const tri = TREE_TRI * s;
+                const tx = x + colW * 0.35;
+                const path = document.createElementNS(ns, "path");
+                path.setAttribute("d", `M${tx.toFixed(2)},${ty.toFixed(2)}`
+                    + `L${(tx + tri).toFixed(2)},${(ty - tri * 0.62).toFixed(2)}`
+                    + `L${(tx + tri).toFixed(2)},${(ty + tri * 0.62).toFixed(2)}Z`);
+                path.setAttribute("fill", st.fill);
+                path.setAttribute("stroke", st.stroke ?? C.refGray);
+                path.setAttribute("stroke-width", "0.8");
+                const tt = document.createElementNS(ns, "title");
+                tt.textContent = `${triScen.toUpperCase()} ${num(p.tri)}`;
+                path.appendChild(tt);
+                g.appendChild(path);
+                tops.push(ty - tri * 0.62);
+            }
+            if (p.v != null && marks.has(i) && tops.length > 0) {
+                label(x, Math.min(...tops) - 2.5 * s, num(p.v), lfs, C.text);
+            }
+            if (i % catEvery === 0 || i === n - 1) {
+                label(x, yBase + cfs + 4 * s, this.fitLabel(p.tag, step, cfs), cfs, C.soft);
+            }
         });
 
-        // the axis carries the reference scenario (IBCS UN 4.1)
-        this.treeRefLine(g, box.x, box.x + box.w, yOf(0), ref);
+        // ---------------- shared baseline over the full width
+        line(box.x, axisY, box.x + box.w, axisY, C.ac, 1.2);
+
+        // ---------------- right: the stacked AC + FC total column
+        const acTop = yOf(acSum);
+        rect(xTot, Math.min(acTop, axisY), totW, Math.abs(acTop - axisY), C.ac)
+            .setAttribute("data-pnl", "combo-total-ac");
+        if (fcSum !== 0) {
+            const vTop = yOf(vTot);
+            rect(xTot, Math.min(vTop, acTop), totW, Math.abs(vTop - acTop),
+                `url(#${hatch})`, C.ac, 1.2).setAttribute("data-pnl", "combo-total-fc");
+            label(xTot + totW / 2, (vTop + acTop) / 2 + lfs * 0.35, num(fcSum), lfs, C.text,
+                "middle", undefined, true);
+            label(xTot + totW + 3 * s, (vTop + acTop) / 2 + lfs * 0.35, "FC", cfs, C.soft, "start");
+            label(xTot + totW / 2, (acTop + axisY) / 2 + lfs * 0.35, num(acSum), lfs, "#FFF");
+            label(xTot + totW + 3 * s, (acTop + axisY) / 2 + lfs * 0.35, "AC", cfs, C.soft, "start");
+        }
+        label(cxTot, yOf(vTot) - 3 * s, num(vTot), lfs, C.text, "middle", "600");
+        label(cxTot, yBase + cfs + 4 * s, fcSum !== 0 ? "AC+FC" : "AC", cfs, C.soft);
+
+        // ---------------- total variance badge
+        const bh = lfs + 9 * s;
+        const bcx = box.x + box.w - badgeW / 2;
+        const bcy = Math.min(Math.max((yOf(refSum) + yOf(vTot)) / 2, plotTop + bh / 2), yBase - bh / 2);
+        const bg = rect(bcx - badgeW / 2, bcy - bh / 2, badgeW, bh, "#FFF", totColor, 1.6);
+        bg.setAttribute("rx", (bh / 2).toFixed(2));
+        bg.setAttribute("data-pnl", "combo-badge");
+        label(bcx, bcy + lfs * 0.36, badge, lfs, totColor, "middle", "600");
     }
 
     /**
@@ -3910,6 +4317,12 @@ export class Visual implements IVisual {
         inner.setAttribute("transform", `translate(${pad},${pad})`);
         svg.appendChild(inner);
 
+        /**
+         * Pixel-grid centre of a 1 px stroke — keeps the bus hairline-sharp.
+         * Idempotent (floor, not round), so snapping an already-snapped
+         * coordinate a second time cannot drift the operator off its stub.
+         */
+        const half = (v: number): number => Math.floor(v) + 0.5;
         const line = (x1: number, y1: number, x2: number, y2: number): void => {
             const l = document.createElementNS(ns, "line");
             l.setAttribute("x1", x1.toFixed(2)); l.setAttribute("y1", y1.toFixed(2));
@@ -3917,7 +4330,11 @@ export class Visual implements IVisual {
             l.setAttribute("stroke", C.elbow); l.setAttribute("stroke-width", "1");
             inner.appendChild(l);
         };
-        const opCircle = (cx: number, cy: number, op: FormulaOp, r: number): void => {
+        const opCircle = (cxRaw: number, cyRaw: number, op: FormulaOp, r: number): void => {
+            // crisp ring: centre on the half pixel so the 1 px stroke lands on
+            // exactly one device row instead of smearing over two — the bus
+            // lines below snap to the same grid, so nothing drifts apart
+            const cx = half(cxRaw); const cy = half(cyRaw);
             const c = document.createElementNS(ns, "circle");
             c.setAttribute("cx", cx.toFixed(2)); c.setAttribute("cy", cy.toFixed(2));
             c.setAttribute("r", r.toFixed(2)); c.setAttribute("fill", "#FFF");
@@ -3938,10 +4355,10 @@ export class Visual implements IVisual {
         for (const c of all) {
             if (c.children.length === 0) { continue; }
             // the bus sits inside the column gap, never over a card column
-            const busX = c.x + cw + gx * TREE_BUS_FRAC;
+            const busX = half(c.x + cw + gx * TREE_BUS_FRAC);
             const stubX = (c.x + cw + busX) / 2;
-            const pcy = c.y + c.h / 2;
-            const ys = c.children.map(k => k.y + k.h / 2);
+            const pcy = half(c.y + c.h / 2);
+            const ys = c.children.map(k => half(k.y + k.h / 2));
             line(c.x + cw, pcy, busX, pcy);
             line(busX, Math.min(pcy, ...ys), busX, Math.max(pcy, ...ys));
             for (let i = 0; i < c.children.length; i++) { line(busX, ys[i], c.children[i].x, ys[i]); }

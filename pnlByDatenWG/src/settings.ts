@@ -277,11 +277,25 @@ export class StyleCardSettings extends FormattingSettingsCard {
         value: { value: "" }
     });
 
+    /**
+     * Accent of the interactive chrome — active toolbar buttons, the back
+     * button of the tile view, breadcrumb hover. Never a data mark: columns,
+     * axes and the AC fill keep the IBCS ink (#404040), which is also the
+     * default here, so an untouched report looks exactly as before.
+     */
+    accentColor = new formattingSettings.ColorPicker({
+        name: "accentColor",
+        displayName: "Accent color (controls)",
+        displayNameKey: "Style_AccentColor",
+        description: "Active toolbar buttons, back button and breadcrumb hover — never data marks or axes",
+        value: { value: "#404040" }
+    });
+
     name: string = "style";
     displayName: string = "Style";
     displayNameKey: string = "Card_Style";
     slices = [this.colorMode, this.fontPreset, this.headerFontSize, this.headerColor,
-        this.goodColor, this.badColor, this.density];
+        this.goodColor, this.badColor, this.accentColor, this.density];
 }
 
 export class TitleBlockCardSettings extends FormattingSettingsCard {

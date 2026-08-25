@@ -573,6 +573,15 @@
                             }
                         }
                     }
+                },
+                "accentColor": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
                 }
             }
         },

@@ -16,6 +16,7 @@
 <div class="case"><h4>p8 · Werttreiberbaum (view=tree) · Versatz-Säulen AC/PL + PY-Dreiecke · Hierarchie-Drill Net revenue (+)</h4><div class="stage" id="p8" style="width:1250px;height:800px"></div></div>
 <div class="case"><h4>p9 · Tree · Re-Root auf Gross profit (Breadcrumb) · Mini-Brücke · Hierarchie-Drill COGS (−)</h4><div class="stage" id="p9" style="width:1250px;height:820px"></div></div>
 <div class="case"><h4>p10 · Tree · Karten = Abweichungssäulen Δ vs PY · Teilbaum EBIT zugeklappt</h4><div class="stage" id="p10" style="width:1250px;height:820px"></div></div>
+<div class="case"><h4>p11 · Kachel-Zoom (v0.12) · integriertes ChartKitchen-Diagramm: Anker PY/PL · Monatssäulen · kumulierte Δ-Brücke · ΔPL%-Pins · AC-Gesamtsäule + Badge</h4><div class="stage" id="p11" style="width:1420px;height:1150px"></div></div>
 <div class="case"><h4>p3 · Compact · Preset AC·PL·ΔPL · ohne %Rev · Nullzeilen aus · alles auf</h4><div class="stage" id="p3" style="width:1100px;height:800px"></div></div>
 <div class="case"><h4>p4 · Preset ΔPY%·ΔPL% · IBCS-Grün klassisch · de-DE</h4><div class="stage" id="p4" style="width:900px;height:760px"></div></div>
 <div class="case"><h4>p5 · Landing Page</h4><div class="stage" id="p5" style="width:700px;height:200px"></div></div>
@@ -120,6 +121,14 @@ run("p10", {
   state: { uiState: JSON.stringify({
     view: "tree", treeV: 2, treeCard: "delta", ref: "py",
     treeCollapsed: ["F_EBIT", "L:Net revenue", "L:Financial result"],
+  }) },
+});
+
+// p11 — v0.12 tile view of a value row: the integrated ChartKitchen chart
+run("p11", {
+  titleBlock: { measureLine: "Income statement (P&L) in mEUR" },
+  state: { uiState: JSON.stringify({
+    view: "tree", treeV: 2, ref: "pl", treeZoom: "F_EBITDA",
   }) },
 });
 

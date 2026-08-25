@@ -1,5 +1,91 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.12.0.0 (2026-08-25) — Ein integriertes ChartKitchen-Diagramm im Kachel-Zoom, schlanker Zoom-Kopf, Design-Pass, Akzentfarbe
+
+- **Neu: der Kachel-Zoom zeigt EIN integriertes Diagramm statt zweier.** Der
+  bisherige Doppel-Chart (großer Monats-Chart + separate Brücke) weicht dem
+  „integrierten Waterfall" nach dem Vorbild des ChartKitchen-Visuals — alles auf
+  **einer gemeinsamen Nulllinie über die volle Breite** und mit **einer
+  Werteskala**:
+  - **Links zwei Anker-Säulen in voller Höhe**: das zweite Vergleichsszenario
+    außen (PY grau gefüllt) und direkt neben dem Monatsband die gewählte
+    Referenz (PL outlined, FC schraffiert), jeweils mit Wert-Label oben und
+    Szenario-Kürzel unter der Achse. Fehlt PY, steht dort nur der
+    Referenz-Anker.
+  - **Untere Zone**: je Monat eine Säule — AC-Monate solide in IBCS-Dunkelgrau,
+    **Forecast-Monate** (FC-Serie hat Werte, AC nicht) **schraffiert** —,
+    daneben das Dreieck des zweiten Szenarios (UN 4.1) und Wert-Labels mit drei
+    signifikanten Stellen. Die Labels dünnen sich automatisch aus, bis sie in
+    ihren Slot passen; der letzte Monat ist immer beschriftet.
+  - **Obere Zone**: die **kumulierte Δ-Brücke**. Sie startet exakt auf dem
+    Niveau des Referenz-Ankers und läuft je Monat einen schwebenden Schritt
+    weiter (Δ = Monatswert AC bzw. FC minus Monats-Referenz) — günstig teal,
+    ungünstig rot, in Forecast-Monaten in der Δ-Farbe schraffiert, verbunden
+    durch dünne Konnektorlinien, Labels mit explizitem Vorzeichen.
+  - **Darüber die Δ%-Pin-Zeile** derselben Monate plus der Gesamtabweichung,
+    mit eigener Achse und dem Zonen-Label „ΔPL%" (bzw. der gewählten Referenz)
+    am linken Rand.
+  - **Senkrechte Trennlinie** zwischen dem letzten AC- und dem ersten
+    FC-Monat, darunter das Label „FC". Ohne Forecast-Monate entfällt sie.
+  - **Rechts die Gesamt-Säule „AC+FC"**: AC solide gestapelt unter dem
+    schraffierten FC-Anteil, Labels im Segment, Gesamtwert oben — daneben ein
+    **Badge** mit der Gesamtabweichung zur Referenz in Teal/Rot als outlined
+    Pille. Ohne Forecast-Monate ist die Säule schlicht AC YTD.
+  - **Kopfzeile im Chart**: „PL → AC/FC · Brücke + Monatssäulen", folgt der
+    Toolbar-Referenz und der Sprache. Höhe ~420 px, skaliert mit dem
+    Schrift-Preset, volle Kachelbreite.
+  - **Alle vollen Säulen und die Brücke teilen sich eine Skala.** Die
+    Monatssäulen behalten genau diese Skala, solange sie in die untere Zone
+    passen — bei einer normalen Monatsreihe immer. Nur eine entartete Reihe
+    (ein, zwei Monate, die fast den ganzen Gesamtwert ausmachen) staucht sie,
+    damit die beiden Zonen nie ineinander laufen.
+  - **KPI-/Quotenzeilen** bekommen weiterhin den Monats-Chart plus Grid und
+    eine Hinweiszeile: Prozente sind nicht additiv, deshalb gibt es dort weder
+    Brücke noch AC+FC-Stapel.
+  - Das Szenario-Grid (AC · PY · PL · FC YTD, Δ absolut und in %, FY-Zeile)
+    steht unverändert darunter.
+- **Zoom-Kopf entschlackt.** Im Kachel-Zoom blendet die Toolbar alle Gruppen
+  aus, die dort nichts bewirken — Ansicht, Spalten-Preset, Perioden, Dichte,
+  Karten, Bis-Ebene, Optionen. Sichtbar bleiben nur **Δ-Referenz** und
+  **Einheit** (beide wirken auf den Zoom-Chart) sowie die Legende.
+- **Der Zurück-Button ist jetzt das dominante Element oben links**: 13 px,
+  kräftiges Padding, Akzentfarbe als Füllung mit weißer Schrift, abgerundet,
+  Hover-Aufhellung, Label „← Zurück zum Baum". Der Breadcrumb sitzt vertikal
+  zentriert daneben.
+- **Design-Pass „modern & crisp"** — rein visuell, ohne Verhaltensänderung; die
+  IBCS-Regeln bleiben unangetastet (Datenfarben weiterhin nur AC-Dunkelgrau,
+  PY-Grau, PL-outlined, FC-Schraffur, Teal und Rot):
+  - **Toolbar**: 4-px-Radien, ruhigere Rahmen (`#DEDCD7`), Hover als leichte
+    Tönung, aktive Buttons in der Akzentfarbe, Gruppen-Labels als saubere
+    Caps-Labels (8,5 px, Letterspacing) — derselbe Typo-Stil trägt jetzt auch
+    die Abschnittstitel „Zahlt ein auf" / „Getrieben von" im Zoom. Übergänge
+    120 ms.
+  - **Baum-Karten**: feinere Kartenkante (`#E3E1DC`), sehr dezenter Schatten,
+    beim Hover dunklere Kante und ein Hauch mehr Schatten; die Kante wird
+    pixelgenau gerendert, Chevron-Hitareas und die ⌖-Marke treten optisch
+    zurück, die Operator-Kreise und der Bus liegen auf dem Pixelraster und
+    stehen damit haarscharf.
+  - **Mikro-Karten im Zoom**: einheitliche Innenabstände, gemeinsame Oberkante
+    mit der großen Kachel, Hover-Kante als Klick-Affordanz, Δ% mit
+    Tabellenziffern.
+  - **Große Kachel**: Innenabstände auf dem 8er-Raster, klare Kopf-Hierarchie
+    (Name > Formel > Zeitraum), Grid mit Trennlinie in `gridSoft`.
+  - **Hover-Detail-Panel**: gleiche Kartensprache wie die neuen Karten
+    (Radius 6 px, leichterer Schatten).
+- **Neu: Akzentfarbe der Bedienelemente** (Format → Stil → „Akzentfarbe
+  Bedienelemente", Standard `#404040`). Sie färbt aktive Toolbar-Buttons, den
+  Zurück-Button und den Breadcrumb-Hover — **nie Datenmarken, Achsen oder die
+  AC-Säulenfarbe**. Der Standardwert entspricht exakt dem bisherigen Verhalten.
+- **Tests**: 138 Interaktions-Checks (vorher 100). Neu sind der integrierte
+  Zoom-Chart (PY/PL-Anker, ein Brückenschritt und eine Monatssäule je Monat,
+  Δ%-Pins, Gesamt-Säule und Badge, Quotenzeile ohne Brücke), die reduzierte
+  Zoom-Toolbar samt Zurück-Button, die Akzentfarbe (Override färbt den aktiven
+  Button, lässt die AC-Füllung in Ruhe) und — über einen synthetischen
+  Datensatz mit AC Jan..Jun und FC Jul..Sep — die komplette Forecast-Zone mit
+  schraffierten Monaten, schraffierten Brückenschritten, FC-Trennlinie und
+  AC+FC-Stapel. Die Demo-Daten binden keine monatliche FC-Rolle, deshalb der
+  eigene Datensatz. Neue Referenz-Bühne `p11` in `test/test.html`.
+
 ## 0.11.0.0 (2026-08-25) — Kachel-Zoom im Baum, Fit-Breite, PY·PL·FC nebeneinander, Kopfzeilen-Schrift
 
 - **Neu: Kachel-Ansicht im Treiberbaum (Klick auf das Karten-Diagramm)** — ein
