@@ -1383,6 +1383,25 @@ function tidyChecks(geom, tag) {
         gapTable.body.length > 1 && gapTable.body.indexOf("0.0") < 0,
         gapTable.body.join(" | "));
 
+    // ---- 26b) v0.13.2: YTD is period-matched. The references in the grid and
+    // in the Δ headline read over the same window as AC (Jan..Aug) instead of
+    // the full bound year — no more red −37 % next to an all-teal bridge.
+    const gapGrid = await page.evaluate(() => {
+        const d = document.getElementById("gap-zoom");
+        const grid = d.querySelector('[data-pnl="scen-grid"]');
+        if (!grid) { return null; }
+        return { rows: [...grid.children].map(r => [...r.children].map(c => c.textContent)) };
+    });
+    check("the scenario grid says which window it reads (YTD _Aug)",
+        !!gapGrid && gapGrid.rows[0].join(" ").indexOf("_Aug") >= 0,
+        gapGrid ? gapGrid.rows[0].join(" ") : "no grid");
+    const gapPl = gapGrid ? gapGrid.rows.find(r => r[0] === "PL") : null;
+    check("ΔPL agrees with the bridge: +8.0 over the eight AC months",
+        !!gapPl && gapPl.some(t => t.indexOf("+8.0") >= 0)
+        && gapPl.some(t => /1[\s.,  ]?280/.test(t))
+        && gapPl.every(t => t.indexOf("776") < 0),
+        gapPl ? gapPl.join(" | ") : "no PL row");
+
     // ---- 27) v0.13: the monthly zone draws the IBCS pair, AC in front and the
     // reference behind it, offset to the right (UN 4.1) — same as the cards
     check("every month draws an AC column and a reference column",

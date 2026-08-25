@@ -867,10 +867,70 @@ export class Visual implements IVisual {
 
     /** block-aware displayed value: MTD reads the last month *with* AC data */
     private blockDisplay(node: PnlNode, block: "mtd" | "ytd" | "fy", scen: Scenario): number | null {
+        if (block === "ytd") { return this.ytdDisplay(node, scen); }
         if (block !== "mtd") { return displayValue(node, scen); }
         const li = this.mtdIndex();
         const v = li >= 0 ? (node.series[scen]?.[li] ?? null) : null;
         return v == null ? null : (node.row.displayInvert ? -v : v);
+    }
+
+    /** true when the bound period has no months after the last actuals month */
+    private ytdFull(): boolean {
+        const n = this.model!.months.length;
+        const li = this.mtdIndex();
+        return n === 0 || li < 0 || li >= n - 1;
+    }
+
+    /** raw month sum of a scenario over the period-matched YTD window */
+    private ytdRawSum(node: PnlNode, sc: Scenario): number | null {
+        const arr = node.series[sc];
+        if (!arr) { return null; }
+        const li = this.mtdIndex();
+        let sum = 0; let seen = false;
+        for (let i = 0; i <= li; i++) {
+            const v = arr[i];
+            if (v != null) { sum += v; seen = true; }
+        }
+        return seen ? sum : null;
+    }
+
+    /**
+     * Period-matched YTD value: reference scenarios are summed only up to the
+     * last month that carries actuals anywhere in the model — the same window
+     * for every row, so the whole report talks about the same period. Without
+     * this, a P&L posted through August reads eight months of AC against
+     * twelve months of plan and shows a −27 % ghost next to an all-teal
+     * monthly bridge. With actuals through the last bound month this is
+     * exactly the engine value. Ratio rows keep the engine value — they are
+     * intensive figures, not month sums.
+     */
+    private ytdDisplay(node: PnlNode, sc: Scenario): number | null {
+        if (this.ytdFull() || node.row.rowType === "kpi"
+            || sc === "fcfy" || sc === "plfy") { return displayValue(node, sc); }
+        const v = this.ytdRawSum(node, sc);
+        if (v == null) { return null; }
+        return node.row.displayInvert ? -v : v;
+    }
+
+    /** Δ = AC − reference over the period-matched YTD window (raw, no invert) */
+    private ytdVariance(node: PnlNode, ref: Scenario): Variance {
+        if (this.ytdFull() || node.row.rowType === "kpi") { return variance(node, ref, "ac"); }
+        const a = this.ytdRawSum(node, "ac");
+        const r = this.ytdRawSum(node, ref);
+        if (a == null && r == null) { return variance(node, ref, "ac"); }
+        if (a == null || r == null) { return { delta: null, deltaPct: null, good: true }; }
+        const delta = a - r;
+        let good = delta >= 0;
+        if (node.row.varianceInvert) { good = !good; }
+        return { delta, deltaPct: r !== 0 ? delta / Math.abs(r) : null, good };
+    }
+
+    /** the "_Aug"-style YTD status month for header labels (IBCS UN 2.2) */
+    private ytdMarker(): string {
+        const months = this.model!.months;
+        const li = this.mtdIndex();
+        if (months.length === 0) { return ""; }
+        return this.monthLabel(months[li >= 0 ? li : months.length - 1]);
     }
 
     private monthLabel(m: string): string {
@@ -1224,6 +1284,7 @@ export class Visual implements IVisual {
 
     /** variance for a period block: MTD reads the last month *with* AC data */
     private blockVariance(node: PnlNode, block: "mtd" | "ytd" | "fy", ref: Scenario, minuend: Scenario): Variance {
+        if (block === "ytd" && minuend === "ac") { return this.ytdVariance(node, ref); }
         if (block !== "mtd") { return variance(node, ref, minuend); }
         const li = this.mtdIndex();
         if (li < 0) { return { delta: null, deltaPct: null, good: true }; }
@@ -1564,13 +1625,13 @@ export class Visual implements IVisual {
         const months = this.model!.months;
         const last = months.length > 0 ? this.monthLabel(months[months.length - 1]) : "";
         const year = months.length > 0 ? months[0].slice(0, 4) : "";
-        const ytdLabel = months.length > 0
-            ? `${year} ${this.monthLabel(months[0])}..${last} (_${last}) · ${this.str("year to date", "Jahresverlauf")}`
-            : this.str("current period", "aktueller Zeitraum");
-        // the MTD block names the month it really reports — the last one that
-        // carries actuals, not the last one the period happens to run to
+        // the "_Aug" marker names the month YTD really reaches — the last one
+        // that carries actuals, not the last one the period happens to run to
         const mi = this.mtdIndex();
         const mtdMonth = mi >= 0 ? this.monthLabel(months[mi]) : last;
+        const ytdLabel = months.length > 0
+            ? `${year} ${this.monthLabel(months[0])}..${last} (_${mtdMonth}) · ${this.str("year to date", "Jahresverlauf")}`
+            : this.str("current period", "aktueller Zeitraum");
         const mtdLabel = `MTD ${mtdMonth} · ${this.str("month", "Monat")}`;
         const fyLabel = `FY ${year} · ${this.str("outlook", "Ausblick")} AC&FC ${this.str("vs", "vs.")} PL`;
         const fyOn = this.has.fcfy && this.has.plfy && ui.blocks.fy;
@@ -3154,7 +3215,7 @@ export class Visual implements IVisual {
         const ref = this.ui!.ref;
         const isRatio = node.row.rowType === "kpi";
         const acv = displayValue(node, "ac");
-        const refv = this.has[ref] ? displayValue(node, ref) : null;
+        const refv = this.has[ref] ? this.ytdDisplay(node, ref) : null;
         if (acv == null && refv == null) { this.treeHint(g, box, s, "–"); return; }
         const lfs = 7.5 * s;
         const num = (v: number, plus: boolean): string =>
@@ -3277,7 +3338,7 @@ export class Visual implements IVisual {
     private treeVariance(node: PnlNode): Variance | null {
         const ref = this.ui!.ref;
         if (!this.has[ref]) { return null; }
-        const v = variance(node, ref, "ac");
+        const v = this.ytdVariance(node, ref);
         if (v.delta == null) { return null; }
         const inv = node.row.displayInvert ? -1 : 1;
         return { delta: v.delta * inv, deltaPct: v.deltaPct == null ? null : v.deltaPct * inv, good: v.good };
@@ -3460,13 +3521,15 @@ export class Visual implements IVisual {
             grid.appendChild(r);
         };
         const inv = node.row.displayInvert ? -1 : 1;
-        row(["", this.str("YTD", "YTD"), isRatio ? "Δ pp" : "Δ AC", "Δ%"], { bold: false });
+        // references read over the same window as AC — "YTD _Aug" says so
+        const ytdLbl = this.ytdFull() ? "YTD" : `YTD _${this.ytdMarker()}`;
+        row(["", ytdLbl, isRatio ? "Δ pp" : "Δ AC", "Δ%"], { bold: false });
         row(["AC", num(displayValue(node, "ac")), "", ""], { bold: true });
         for (const sc of ["py", "pl", "fc"] as Scenario[]) {
             if (!this.has[sc]) { continue; }
-            const v = variance(node, sc, "ac");
+            const v = this.ytdVariance(node, sc);
             const col = v.delta == null ? null : (v.good ? this.goodColor() : this.badColor());
-            row([sc.toUpperCase(), num(displayValue(node, sc)),
+            row([sc.toUpperCase(), num(this.ytdDisplay(node, sc)),
                 dNum(v.delta == null ? null : v.delta * inv),
                 v.deltaPct == null ? "·" : fmt.pct(v.deltaPct * inv, true)],
             { color: [null, null, col, col] });

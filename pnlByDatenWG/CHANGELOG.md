@@ -1,5 +1,29 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.14.0.0 (2026-08-25) — Periodengerechte YTD: Δ-Kennzahlen passen jetzt zur Brücke
+
+Nutzer-Befund am echten Modell (AC gebucht bis August, PL/PY/FC fürs volle
+Jahr gebunden): die Brücke zeigte lauter günstige Monats-Schritte und ein
+teal Gesamt-Badge (+48 937 / +13,7 %), während Headline und Szenario-Grid
+rote −11,5 % / −26,6 % / −35,5 % meldeten. Ursache: die Grid-/Headline-Werte
+verglichen **8 Monate AC gegen 12 Monate Referenz** — mathematisch korrekt,
+inhaltlich Äpfel gegen Birnen.
+
+- **YTD ist jetzt überall periodengerecht**: Referenz-Szenarien (PY, PL, FC)
+  werden bis zum letzten Monat mit Ist-Daten im Modell summiert — dasselbe
+  Fenster für jede Zeile. Gilt konsistent für die Δ%-Headline der Kacheln,
+  die Status-Kanten und Δ% der Baum-/Mikro-Karten, das Szenario-Grid in Zoom
+  und Hover-Panel, die Mini-Brücke sowie **Wert-, Δ- und Δ%-Spalten des
+  YTD-Blocks der Tabelle** (auch Bars/Waterfall).
+- **Die Beschriftung sagt es dazu** (IBCS-Statusmarker): das Grid titelt
+  „YTD _Aug", der YTD-Block der Tabelle markiert „(_Aug)" statt „(_Dez)".
+- Laufen die Ist-Daten bis zum letzten gebundenen Monat, ist alles
+  byte-identisch zu vorher. Quoten-/KPI-Zeilen behalten bewusst den
+  Engine-Wert (intensive Größen, keine Monatssummen). Der FY-Ausblick
+  (FC FY vs. PL FY) bleibt unverändert ein Ganzjahres-Vergleich.
+- Neue Regressionstests am Lücken-Datensatz: Grid liest „YTD _Aug",
+  ΔPL = +8,0 / +0,6 % passend zur Brücke, kein −776-Geist (181 Checks).
+
 ## 0.13.1.0 (2026-08-25) — Fixierter Kopf: Durchbluten der Body-Zeilen behoben
 
 - Beim Scrollen konnten Fragmente der Body-Zeilen (Zahlen, Δ-Balken) durch die

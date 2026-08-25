@@ -1,5 +1,5 @@
 {
-		"version": "0.13.1.0",
+		"version": "0.14.0.0",
 		"author": {"name":"PowerBI Kitchen","email":"michael.tenner84@gmail.com"},
 		"resources": [
 			{
@@ -8,7 +8,7 @@
 				"file": "resources/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.pbiviz.json"
 			}
 		],
-		"visual": {"name":"pnlByDatenWG","displayName":"P&L Statement byDatenWG","guid":"pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358","visualClassName":"Visual","version":"0.13.1.0","description":"IBCS-inspired P&L / GuV statement: unbalanced parent-child account hierarchy from a dimension table, subtotal and formula rows (EBITDA, margins), sign conventions with variance-invert for cost rows, scenarios AC/PY/PL/FC with delta bars and delta-percent pins against a selectable reference, expand/collapse with persisted state, k/m scaling and a 3-line IBCS title block. Four views: table, structure bars, row waterfall and a DuPont value driver tree built from the formula graph.","supportUrl":"https://github.com/losveratos/powerbi-kitchen-/issues","gitHubUrl":"https://github.com/losveratos/powerbi-kitchen-"},
+		"visual": {"name":"pnlByDatenWG","displayName":"P&L Statement byDatenWG","guid":"pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358","visualClassName":"Visual","version":"0.14.0.0","description":"IBCS-inspired P&L / GuV statement: unbalanced parent-child account hierarchy from a dimension table, subtotal and formula rows (EBITDA, margins), sign conventions with variance-invert for cost rows, scenarios AC/PY/PL/FC with delta bars and delta-percent pins against a selectable reference, expand/collapse with persisted state, k/m scaling and a 3-line IBCS title block. Four views: table, structure bars, row waterfall and a DuPont value driver tree built from the formula graph.","supportUrl":"https://github.com/losveratos/powerbi-kitchen-/issues","gitHubUrl":"https://github.com/losveratos/powerbi-kitchen-"},
 		"metadata": {
 			"pbivizjson": {
 				"resourceId": "rId0"
