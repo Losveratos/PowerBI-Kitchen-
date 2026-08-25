@@ -1,5 +1,64 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.11.0.0 (2026-08-25) — Kachel-Zoom im Baum, Fit-Breite, PY·PL·FC nebeneinander, Kopfzeilen-Schrift
+
+- **Neu: Kachel-Ansicht im Treiberbaum (Klick auf das Karten-Diagramm)** — ein
+  Klick auf die Diagrammfläche einer Baum-Karte (nicht auf ▾, nicht auf ⌖, nicht
+  auf den Kopf) blendet den Baum aus und zeigt den Knoten als ganze Seite. Der
+  Zustand (`treeZoom`) wird gespeichert, Lesezeichen stellen ihn wieder her.
+  - **Kopfzeile**: Button „← Zurück zum Baum" plus Breadcrumb von der
+    Baum-Wurzel bis zum Knoten — jedes Segment springt direkt dorthin.
+  - **Mitte, große Kachel** (~60 % der Breite): Name, Einheit und Δ% in der
+    Statusfarbe, darunter Konto-ID bzw. Formel und Zeitraum; ein **großer
+    Monats-Chart** (AC solide, Referenz versetzt dahinter, Dreiecke fürs zweite
+    Szenario, Wert-Labels) und darunter die **große Brücke im
+    ChartKitchen-Stil**: Anker REF-YTD → ein Δ-Schritt je Monat (Teal/Rot nach
+    Günstig-Logik, schraffiert wenn die Referenz ein Forecast ist) → Anker
+    AC-YTD, mit Konnektorlinien, Monats-Labels unter der Achse, Werte-Labels
+    außen mit explizitem „+" und referenz-kodierter Achse (grau = PY,
+    Doppellinie = PL, gestrichelt = FC). Abgeschlossen vom Szenario-Grid
+    (AC · PY · PL · FC YTD, Δ absolut und in %, FY-Outlook-Zeile).
+  - **Links „Zahlt ein auf"**: die KPI(s)/Zwischensummen, in die der Knoten
+    einfließt — aus der umgekehrten Nachbarschaft des Graphen, also auch
+    mehrere; bis zu 3, der Rest als „+N weitere". Ist der Knoten die Wurzel,
+    steht dort ein Hinweis statt einer leeren Spalte.
+  - **Rechts „Getrieben von"**: die Operanden bzw. Hierarchie-Kinder mit ihrem
+    Operator (÷ × + −) am linken Rand; bis zu 8, der Rest als „+N weitere".
+  - Alle Nachbar-Karten sind Mikro-Karten mit kleinem Monats-Chart und Δ% und
+    **navigieren per Klick** eine Stufe nach oben oder unten; der Hover-Detail-
+    Zoom aus 0.10 bleibt auf ihnen erhalten.
+  - Zeigt ein gespeicherter Zustand auf eine Zeile, die es nicht mehr gibt
+    (Modellwechsel), fällt die Ansicht still auf den Baum zurück.
+- **Neu: „Fit" — Tabelle ohne Querscrollen.** Neuer Toolbar-Button in der Gruppe
+  Optionen (nur Tabellen-Ansichten) und ein Standard im Formatbereich
+  (Spalten → „Tabelle auf Breite einpassen"). Ist Fit an und die Tabelle breiter
+  als das Visual, werden die **Diagramm-Spalten** (Δ-Balken, Δ%-Pins,
+  Struktur- und Waterfall-Balken) proportional gestaucht und die Zellen-
+  Innenabstände reduziert, bis es passt. Die Label-Spuren schrumpfen nur wenig
+  und ihre Schrift schrumpft mit — **eine Zahl wird nie abgeschnitten**. Die
+  Breite der Zeilenbeschriftung wird gemessen, nicht geschätzt, deshalb sitzt
+  die Tabelle nach ein bis zwei Korrekturrunden exakt im Rahmen. Sind die
+  Mindestbreiten erreicht, bleibt die Tabelle so eng wie möglich und der Rest
+  scrollt weiter — nichts wird kaputt gequetscht. Die einheitliche Δ-Skala
+  bleibt unverändert, nur der Pixel-Maßstab ändert sich.
+- **Neu: Spalten-Preset „AC vs PY·PL·FC"** — AC-Wert und dann je verfügbarer
+  Referenz ein Δ-Balken plus Δ%-Pin nebeneinander, also PY, PL und FC in einem
+  Blick statt in drei Presets. Die Achsen-Kodierung trennt sie sauber
+  (grau = PY, Doppellinie = PL, gestrichelt = FC), und alle drei Kombinationen
+  gehen in die einheitliche Δ-Skala ein. Als Toolbar-Button und als Standard im
+  Formatbereich verfügbar; Bars/Waterfall bleiben bei ihrem eigenen Spaltensatz.
+- **Neu: Kopfzeilen-Schrift einstellbar** (Formatbereich → Stil):
+  „Schriftgröße Kopfzeilen" (0 = automatisch, sonst 7–20 px, skaliert Block-
+  Titel MTD/YTD/FY und Spaltenbeschriftungen gemeinsam) und „Schriftfarbe
+  Kopfzeilen" als Überschreibung. Auf automatisch bleibt das Rendering
+  pixelgenau wie bisher.
+- 28 neue Regressionstests (100 Tree-/Interaktions-Checks gesamt): Kachel-Zoom
+  öffnen, nach unten navigieren, zurück zum Baum, unbekanntes Zoom-Ziel;
+  Fit-Breite mit und ohne Clipping-Prüfung; alle sechs Δ-Spalten des neuen
+  Presets samt Achsen-Kodierung; automatische und überschriebene Kopfzeilen-
+  Schrift. Die Tabellen-Geometrie von p1–p7 wurde gegen 0.10 verglichen und ist
+  identisch.
+
 ## 0.10.0.0 (2026-08-24) — Baum: feines Aufklappen + IBCS-Detail-Zoom beim Hover
 
 - **Aufklappen wieder knotenweise**: der Chevron ▸ öffnet jetzt **genau diesen

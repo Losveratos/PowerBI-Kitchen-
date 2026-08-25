@@ -98,9 +98,35 @@ const TREE_HEAD_GAP = 10;
 const TREE_MAX_CARDS = 400;
 /** Scenario-triangle size (px at font scale 1) — IBCS UN 4.1. */
 const TREE_TRI = 5.5;
+/** Tile view: neighbour cards a column shows before it says "+N more". */
+const TREE_ZOOM_PARENTS = 3;
+const TREE_ZOOM_KIDS = 8;
+
+/** Right padding of a table column in px — fit mode shrinks it to the minimum. */
+const CELL_PAD = 7;
+const CELL_PAD_MIN = 2;
+/** Horizontal padding of the table wrapper (px, per side). */
+const TABLE_PAD_X = 14;
+/**
+ * Fit mode floors: the drawn half of a Δ bar / Δ% pin and the value-bar span may
+ * shrink down to these, never below — the label lanes are untouched, so a
+ * squeezed table stays readable and never clips a number.
+ */
+const FIT_BAR_HALF_MIN = 6;
+const FIT_PIN_HALF_MIN = 5;
+const FIT_SPAN_MIN = 28;
+/**
+ * How far the *label* lanes of the chart and value columns follow the squeeze.
+ * They carry the numbers, so they shrink far less than the bars — and the label
+ * font shrinks with the lane, which is what keeps a number from ever running
+ * out of its cell.
+ */
+const FIT_LABEL_MIN = 0.78;
+/** measure-and-correct rounds the fit solver is allowed (it converges in 1–2). */
+const FIT_PASSES = 3;
 
 type ViewMode = "table" | "bars" | "waterfall" | "tree";
-type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct";
+type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct" | "dall";
 type Unit = "auto" | "none" | "k" | "m";
 type Density = "normal" | "compact";
 /** Mini chart drawn inside a driver-tree card. */
@@ -114,6 +140,8 @@ interface UiState {
     density: Density;
     pctRev: boolean;
     hideZero: boolean;
+    /** squeeze the chart columns until the table fits the viewport width */
+    fit: boolean;
     collapsed: string[];
     spark: string[];      // row ids with open sparkline
     blocks: { mtd: boolean; ytd: boolean; fy: boolean };
@@ -125,6 +153,12 @@ interface UiState {
     treeCard: TreeCardMode;
     /** colour indicator (left edge + Δ% label) on the driver-tree cards */
     treeStatus: boolean;
+    /**
+     * driver-tree card opened as a full tile page (row id); null = the tree.
+     * Additive since v0.11 — deliberately NOT part of the treeV migration gate,
+     * an unknown id simply falls back to the tree.
+     */
+    treeZoom: string | null;
     /**
      * schema version of the tree fields. States persisted before v0.9.1 carry
      * fold lists built for the old "one level at a time" semantics — loading
@@ -246,6 +280,26 @@ interface GeoCache {
     wf: Map<string, Map<string, { s: number; e: number }>>;
 }
 
+/** Pixel geometry of one table render (see tableGeo). */
+interface TableGeo {
+    rowH: number;
+    fs: number;
+    /** font size of the in-chart value labels (fit mode shrinks it with the lane) */
+    labelFs: number;
+    BAR_HALF: number;
+    PIN_HALF: number;
+    barW: number;
+    pinW: number;
+    valW: number;
+    maxAbsDelta: number;
+    vbarW: number;
+    vAxisX: number;
+    vPpu: number;
+    vLabelW: number;
+    /** total px of every column except the auto-width row-label column */
+    colsW: number;
+}
+
 interface Fmt {
     div: number;
     suffix: string;
@@ -289,6 +343,14 @@ export class Visual implements IVisual {
     private modelVer = 0;
     private scanCache: ScanCache | null = null;
     private geoCache: GeoCache | null = null;
+
+    // --- fit mode ---
+    /** squeeze factor of the chart columns (1 = untouched natural widths) */
+    private fitK = 1;
+    /** column padding of the current table build */
+    private fitPad = CELL_PAD;
+    /** the display:table element of the last table build (fit measures it) */
+    private tableEl: HTMLElement | null = null;
 
     // --- windowed rendering ---
     private vs: VirtualState | null = null;
@@ -556,6 +618,7 @@ export class Visual implements IVisual {
             density: String(s.styleCard.density.value.value) as Density,
             pctRev: s.columnsCard.pctRevenue.value,
             hideZero: s.columnsCard.hideZeroRows.value,
+            fit: s.columnsCard.fitWidth.value,
             collapsed: this.model && lvl > 0 ? [...collapseToLevel(this.model.roots, lvl)] : [],
             spark: [],
             blocks: { mtd: false, ytd: true, fy: this.has.fcfy && this.has.plfy },
@@ -563,6 +626,7 @@ export class Visual implements IVisual {
             treeCollapsed: null,
             treeCard: String(s.columnsCard.treeCard.value.value) as TreeCardMode,
             treeStatus: s.columnsCard.treeStatus.value,
+            treeZoom: null,
             treeV: TREE_STATE_V,
         };
     }
@@ -608,6 +672,10 @@ export class Visual implements IVisual {
             this.ui.spark = this.ui.spark.filter(id => this.model!.byId.has(id));
             if (this.ui.treeCollapsed) {
                 this.ui.treeCollapsed = this.ui.treeCollapsed.filter(id => this.model!.byId.has(id));
+            }
+            // a tile view on a row the model no longer knows falls back to the tree
+            if (this.ui.treeZoom != null && !this.model.byId.has(this.ui.treeZoom)) {
+                this.ui.treeZoom = null;
             }
         }
         const json = JSON.stringify(this.ui);
@@ -659,6 +727,19 @@ export class Visual implements IVisual {
     private fontScale(): number {
         const fp = String(this.settings.styleCard.fontPreset.value.value);
         return fp === "fullhd" ? 1.25 : fp === "uhd" ? 1.6 : 1;
+    }
+    /**
+     * Font size of a table header line. 0 — or anything outside 7..20 px — keeps
+     * the built-in sizes untouched; any other value scales them, so the block
+     * titles stay proportionally larger than the column labels.
+     */
+    private headerFs(base: number): number {
+        const v = Math.round(Number(this.settings.styleCard.headerFontSize.value) || 0);
+        return v < 7 || v > 20 ? base : base * (v / 9);
+    }
+    /** header ink of the table — an empty override keeps the built-in soft gray */
+    private headerInk(): string {
+        return this.settings.styleCard.headerColor.value?.value || C.soft;
     }
     /** block-aware displayed value: MTD reads the last month of the series */
     private blockDisplay(node: PnlNode, block: "mtd" | "ytd" | "fy", scen: Scenario): number | null {
@@ -760,9 +841,22 @@ export class Visual implements IVisual {
         if (this.awaitingSegment) { this.root.appendChild(this.buildLoadingBar()); }
         if (this.settings.toolbarCard.showLegend.value) { this.root.appendChild(this.buildLegend()); }
 
-        this.root.appendChild(ui.view === "tree"
-            ? this.buildTree(fmt)
-            : this.buildTable(fmt, scan.maxAbsDelta));
+        if (ui.view === "tree") {
+            this.root.appendChild(this.buildTree(fmt));
+        } else {
+            // fit mode needs the table on screen before it can solve — the
+            // row-label column is auto-width, so it is measured, not guessed,
+            // and a second pass corrects what the first could not foresee
+            this.fitK = 1; this.fitPad = CELL_PAD;
+            let body = this.buildTable(fmt, scan.maxAbsDelta);
+            this.root.appendChild(body);
+            for (let pass = 0; ui.fit && pass < FIT_PASSES; pass++) {
+                if (!this.solveFit(fmt, scan.maxAbsDelta)) { break; }
+                const tighter = this.buildTable(fmt, scan.maxAbsDelta);
+                this.root.replaceChild(tighter, body);
+                body = tighter;
+            }
+        }
         this.buildFootnotes(fmt);
         this.root.appendChild(this.buildFooter());
         this.root.scrollTop = keepScroll;
@@ -889,6 +983,12 @@ export class Visual implements IVisual {
             if (this.has.py) { out.push({ ref: "py", minuend: "ac", block: "ytd" }); }
             if (this.has.pl) { out.push({ ref: "pl", minuend: "ac", block: "ytd" }); }
             if (this.has.fcfy && this.has.plfy && ui.blocks.fy) { out.push({ ref: "plfy", minuend: "fcfy", block: "fy" }); }
+        } else if (ui.preset === "dall") {
+            // every available reference side by side — all combinations feed the
+            // one uniform Δ scale, so the bars stay comparable across references
+            for (const r of ["py", "pl", "fc"] as Scenario[]) {
+                if (this.has[r]) { out.push({ ref: r, minuend: "ac", block: "ytd" }); }
+            }
         } else if (ui.preset === "acpydpy") { if (this.has.py) { out.push({ ref: "py", minuend: "ac", block: "ytd" }); } }
         else if (ui.preset === "acpldpl") { if (this.has.pl) { out.push({ ref: "pl", minuend: "ac", block: "ytd" }); } }
         else if (ui.preset === "dpct") {
@@ -983,8 +1083,8 @@ export class Visual implements IVisual {
         const isTree = ui.view === "tree";
 
         const presets: [Preset, string][] = [
-            ["full", "AC·PY·PL·FC"], ["acref", "AC vs Ref"], ["acpydpy", "AC·PY·ΔPY"],
-            ["acpldpl", "AC·PL·ΔPL"], ["dpct", "ΔPY% · ΔPL%"],
+            ["full", "AC·PY·PL·FC"], ["acref", "AC vs Ref"], ["dall", "AC vs PY·PL·FC"],
+            ["acpydpy", "AC·PY·ΔPY"], ["acpldpl", "AC·PL·ΔPL"], ["dpct", "ΔPY% · ΔPL%"],
         ];
         if (tset.showPresets.value && tableViews) {
             bar.appendChild(this.tbGroup(this.str("Column preset", "Spalten-Preset"),
@@ -1067,6 +1167,9 @@ export class Visual implements IVisual {
         if (tset.showOptions.value && tableViews) { bar.appendChild(this.tbGroup(this.str("Options", "Optionen"), [
             this.tbBtn(this.str("% of revenue", "% vom Umsatz"), ui.pctRev, () => { ui.pctRev = !ui.pctRev; }),
             this.tbBtn(this.str("Hide zero rows", "Nullzeilen aus"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
+            this.tbBtn("Fit", ui.fit, () => { ui.fit = !ui.fit; },
+                this.str("Squeeze the chart columns until the table fits the width — no horizontal scrolling",
+                    "Diagramm-Spalten stauchen, bis die Tabelle in die Breite passt — kein Querscrollen")),
         ])); }
         return bar;
     }
@@ -1211,6 +1314,12 @@ export class Visual implements IVisual {
         } else if (ui.preset === "acref") {
             const r2 = this.ui!.ref;
             if (this.has[r2]) { ytd.push({ kind: "val", scen: r2, block: "ytd", label: r2.toUpperCase() }); push(ytd, r2, "ac", false); }
+        } else if (ui.preset === "dall") {
+            // PY, PL and FC next to each other: one Δ bar + Δ% pin per reference,
+            // the axis notation keeps them apart (gray / double line / dashed)
+            for (const r of ["py", "pl", "fc"] as Scenario[]) {
+                if (this.has[r]) { push(ytd, r, "ac", false); }
+            }
         } else if (ui.preset === "acpydpy" && this.has.py) {
             ytd.push({ kind: "val", scen: "py", block: "ytd", label: "PY" }); push(ytd, "py", "ac", false);
         } else if (ui.preset === "acpldpl" && this.has.pl) {
@@ -1224,6 +1333,99 @@ export class Visual implements IVisual {
         return blocks;
     }
 
+    /** the columns of all blocks in render order, gap columns in between */
+    private flatCols(blocks: Block[]): ColSpec[] {
+        const cols: ColSpec[] = [];
+        blocks.forEach((b, i) => {
+            if (i > 0) { cols.push({ kind: "gap", label: "" }); }
+            cols.push(...b.specs);
+        });
+        return cols;
+    }
+
+    /**
+     * Pixel geometry of the table. `k` squeezes the chart columns (fit mode):
+     * only the drawn half of a Δ bar / Δ% pin and the value-bar span shrink, the
+     * label lanes stay — a tighter table never clips a number, and the uniform
+     * Δ scale is untouched (the same delta simply maps to fewer pixels).
+     * k = 1 with pad = CELL_PAD reproduces the natural layout exactly.
+     */
+    private tableGeo(cols: ColSpec[], gc: GeoCache, maxAbsDelta: number,
+        k: number, pad: number): TableGeo {
+        const compact = this.ui!.density === "compact";
+        const fscale = this.fontScale();
+        const rowH = Math.round((compact ? 18 : 23) * fscale);
+        const fs = Math.round((compact ? 10 : 11) * fscale);
+        const BAR_HALF = Math.max(34 * k, FIT_BAR_HALF_MIN);
+        const PIN_HALF = Math.max(24 * k, FIT_PIN_HALF_MIN);
+        const lk = Math.max(k, FIT_LABEL_MIN);
+        const labelFs = fs * lk;
+        const dLabelW = Math.ceil(gc.dLabelLen * (labelFs * 0.52)) + 4;
+        const pLabelW = Math.ceil(gc.pLabelLen * (labelFs * 0.52)) + 4;
+        const barW = 2 * (BAR_HALF + dLabelW + 4) + 8;
+        const pinW = 2 * (PIN_HALF + pLabelW + 4) + 8;
+        const valW = Math.round((compact ? 66 : 76) * lk);
+
+        // shared display-space scale for the value / cascade bars
+        let vAxisX = 0; let vPpu = 0; let vLabelW = 0; let vbarW = 0;
+        const hasVbar = cols.some(c => c.kind === "vbar");
+        if (hasVbar || gc.wf.size > 0) {
+            vLabelW = Math.ceil(gc.vLabelLen * (fs * 0.52)) + 4;
+            const full = gc.wf.size > 0 ? (compact ? 190 : 240) : (compact ? 150 : 190);
+            const span = Math.max(full * k, FIT_SPAN_MIN);
+            vPpu = span / ((gc.maxPosD + gc.maxNegD) || 1);
+            vAxisX = 4 + vLabelW + gc.maxNegD * vPpu;
+            vbarW = span + 2 * (vLabelW + 4) + 8;
+        }
+
+        let colsW = 0;
+        for (const c of cols) {
+            colsW += pad + (c.kind === "gap" ? 18
+                : c.kind === "val" || c.kind === "pct" ? valW
+                    : c.kind === "vbar" || c.kind === "wbar" ? vbarW
+                        : c.kind === "bar" ? barW : pinW);
+        }
+        return { rowH, fs, labelFs, BAR_HALF, PIN_HALF, barW, pinW, valW, maxAbsDelta,
+            vbarW, vAxisX, vPpu, vLabelW, colsW };
+    }
+
+    /**
+     * Fit mode: with the table on screen, solve for the one squeeze factor that
+     * brings it inside the viewport. Everything the column geometry does not own
+     * — the auto-width row-label column, a value cell that grew past its width
+     * rather than cut a number — is *measured*, never estimated, so calling this
+     * again after a rebuild corrects the previous pass. Returns true when the
+     * table has to be built once more, tighter; false once nothing more can be
+     * won, and then the rest simply keeps scrolling (no squashing).
+     */
+    private solveFit(fmt: Fmt, maxAbsDelta: number): boolean {
+        const table = this.tableEl;
+        const avail = this.root.clientWidth;
+        if (!table || avail <= 0) { return false; }
+        const now = table.getBoundingClientRect().width;
+        const room = avail - 2 * TABLE_PAD_X;
+        if (now <= room) { return false; }
+        const cols = this.flatCols(this.colSpecs());
+        const gc = this.geoScans(cols, fmt);
+        const wide = (k: number, pad: number): number =>
+            this.tableGeo(cols, gc, maxAbsDelta, k, pad).colsW;
+        const target = room - (now - wide(this.fitK, this.fitPad));
+        let k = 1;
+        if (wide(1, CELL_PAD_MIN) > target) {
+            let lo = 0; let hi = 1;
+            for (let i = 0; i < 24; i++) {
+                const mid = (lo + hi) / 2;
+                if (wide(mid, CELL_PAD_MIN) > target) { hi = mid; } else { lo = mid; }
+            }
+            k = lo;
+        }
+        // the floors are reached — a further pass would change nothing
+        if (k >= this.fitK - 0.002 && this.fitPad === CELL_PAD_MIN) { return false; }
+        this.fitK = Math.min(k, this.fitK);
+        this.fitPad = CELL_PAD_MIN;
+        return true;
+    }
+
     private buildTable(fmt: Fmt, maxAbsDelta: number): HTMLElement {
         const model = this.model!; const ui = this.ui!;
         const collapsed = new Set(ui.collapsed);
@@ -1232,42 +1434,14 @@ export class Visual implements IVisual {
 
         const revBase = revenueBase(model, this.settings.columnsCard.revenueBase.value);
         const blocks = this.colSpecs();
-        const cols: ColSpec[] = [];
-        blocks.forEach((b, i) => {
-            if (i > 0) { cols.push({ kind: "gap", label: "" }); }
-            cols.push(...b.specs);
-        });
+        const cols = this.flatCols(blocks);
 
         // label maxima, cascade segments and bar extrema are O(rows) scans —
         // memoized per model + column set + number format (see geoScans)
         const gc = this.geoScans(cols, fmt);
-        const dLabelLen = gc.dLabelLen; const pLabelLen = gc.pLabelLen;
-        const compact = ui.density === "compact";
-        const fscale = this.fontScale();
-        const rowH = Math.round((compact ? 18 : 23) * fscale);
-        const fs = Math.round((compact ? 10 : 11) * fscale);
-        const BAR_HALF = 34; const PIN_HALF = 24;
-        const dLabelW = Math.ceil(dLabelLen * (fs * 0.52)) + 4;
-        const pLabelW = Math.ceil(pLabelLen * (fs * 0.52)) + 4;
-        const barW = 2 * (BAR_HALF + dLabelW + 4) + 8;
-        const pinW = 2 * (PIN_HALF + pLabelW + 4) + 8;
-        const valW = compact ? 66 : 76;
-
         // waterfall view: cascade segments per scenario (tree order, expand-independent)
         this.wfSegs = gc.wf;
-
-        // shared display-space scale for the value / cascade bars
-        let vAxisX = 0; let vPpu = 0; let vLabelW = 0; let vbarW = 0;
-        const hasVbar = cols.some(c => c.kind === "vbar");
-        if (hasVbar || this.wfSegs.size > 0) {
-            vLabelW = Math.ceil(gc.vLabelLen * (fs * 0.52)) + 4;
-            const span = this.wfSegs.size > 0 ? (compact ? 190 : 240) : (compact ? 150 : 190);
-            vPpu = span / ((gc.maxPosD + gc.maxNegD) || 1);
-            vAxisX = 4 + vLabelW + gc.maxNegD * vPpu;
-            vbarW = span + 2 * (vLabelW + 4) + 8;
-        }
-
-        const geo = { rowH, fs, BAR_HALF, PIN_HALF, barW, pinW, valW, maxAbsDelta, vbarW, vAxisX, vPpu, vLabelW };
+        const geo = this.tableGeo(cols, gc, maxAbsDelta, this.fitK, this.fitPad);
 
         // comment footnotes are numbered over ALL visible rows, not just the
         // rows currently in the DOM (windowed rendering)
@@ -1281,7 +1455,7 @@ export class Visual implements IVisual {
         }
 
         const wrap = document.createElement("div");
-        wrap.style.cssText = "padding:2px 14px 8px 14px;";
+        wrap.style.cssText = `padding:2px ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;`;
 
         const scaleNote = document.createElement("div");
         scaleNote.style.cssText = `font-size:9px;color:${C.soft};text-align:right;padding:0 0 3px 0;`;
@@ -1292,6 +1466,7 @@ export class Visual implements IVisual {
 
         const table = document.createElement("div");
         table.style.cssText = "display:table;border-collapse:collapse;";
+        this.tableEl = table;
         table.appendChild(this.blockHeaderRow(blocks, geo));
         table.appendChild(this.headerRow(cols, geo));
 
@@ -1310,7 +1485,7 @@ export class Visual implements IVisual {
             let acc = 0;
             for (let i = 0; i < visible.length; i++) {
                 offsets[i] = acc;
-                acc += rowH
+                acc += geo.rowH
                     + (visible[i].row.rowType === "separator" ? SEP_EXTRA_H : 0)
                     + (sparkOn(visible[i]) ? SPARK_ROW_H : 0);
             }
@@ -1323,7 +1498,7 @@ export class Visual implements IVisual {
                 table, top, bottom, rows: [], visible, offsets, make,
                 bodyTop: 0, from: -1, to: -1,
             };
-            const guess = Math.ceil((this.root.clientHeight || 800) / Math.max(rowH, 1)) + 2 * VIRT_BUFFER;
+            const guess = Math.ceil((this.root.clientHeight || 800) / Math.max(geo.rowH, 1)) + 2 * VIRT_BUFFER;
             this.renderWindow(0, Math.min(visible.length, guess));
         } else {
             for (const node of visible) {
@@ -1406,7 +1581,7 @@ export class Visual implements IVisual {
 
     private cell(w: number, align: string, fs: number): HTMLElement {
         const c = document.createElement("div");
-        c.style.cssText = `display:table-cell;vertical-align:middle;padding:1px 7px 1px 0;` +
+        c.style.cssText = `display:table-cell;vertical-align:middle;padding:1px ${this.fitPad}px 1px 0;` +
             `width:${w > 0 ? w + "px" : "auto"};text-align:${align};font-size:${fs}px;white-space:nowrap;`;
         return c;
     }
@@ -1414,12 +1589,14 @@ export class Visual implements IVisual {
     private blockHeaderRow(blocks: Block[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number }): HTMLElement {
         const row = document.createElement("div");
         row.style.cssText = "display:table-row;";
+        const hfs = this.headerFs(9);
+        const ink = this.headerInk();
         row.appendChild(this.cell(0, "left", geo.fs));
         blocks.forEach((b, bi) => {
-            if (bi > 0) { row.appendChild(this.cell(18, "center", 9)); }
+            if (bi > 0) { row.appendChild(this.cell(18, "center", hfs)); }
             b.specs.forEach((spec, si) => {
-                const c = this.cell(0, "center", 9);
-                c.style.cssText += `color:${C.soft};border-bottom:1px solid ${C.gridSoft};`;
+                const c = this.cell(0, "center", hfs);
+                c.style.cssText += `color:${ink};border-bottom:1px solid ${C.gridSoft};`;
                 if (si === 0) { c.textContent = b.label; c.style.whiteSpace = "nowrap"; }
                 void spec;
                 row.appendChild(c);
@@ -1431,14 +1608,17 @@ export class Visual implements IVisual {
     private headerRow(cols: ColSpec[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number }): HTMLElement {
         const row = document.createElement("div");
         row.style.cssText = "display:table-row;";
+        const gapFs = this.headerFs(9);
+        const hfs = this.headerFs(9.5);
+        const ink = this.headerInk();
         row.appendChild(this.cell(0, "left", geo.fs));
         for (const c of cols) {
-            if (c.kind === "gap") { row.appendChild(this.cell(18, "center", 9)); continue; }
+            if (c.kind === "gap") { row.appendChild(this.cell(18, "center", gapFs)); continue; }
             const w = c.kind === "val" || c.kind === "pct" ? geo.valW
                 : (c.kind === "vbar" || c.kind === "wbar") ? geo.vbarW
                 : c.kind === "bar" ? geo.barW : geo.pinW;
-            const cell = this.cell(w, c.kind === "val" || c.kind === "pct" ? "right" : "center", 9.5);
-            cell.style.color = C.soft;
+            const cell = this.cell(w, c.kind === "val" || c.kind === "pct" ? "right" : "center", hfs);
+            cell.style.color = ink;
             if (c.kind === "val" && c.scen) {
                 const style = c.scen === "ac" ? "ac" : c.scen === "py" ? "py" : (c.scen === "fc" || c.scen === "fcfy") ? "fc" : "pl";
                 cell.appendChild(this.legendChip(style as "ac"));
@@ -1452,8 +1632,7 @@ export class Visual implements IVisual {
     private capPct(p: number): number { return Math.max(-0.4, Math.min(0.4, p)); }
 
     private bodyRow(node: PnlNode, cols: ColSpec[], fmt: Fmt,
-        geo: { rowH: number; fs: number; BAR_HALF: number; PIN_HALF: number; barW: number; pinW: number; valW: number; maxAbsDelta: number; vbarW: number; vAxisX: number; vPpu: number; vLabelW: number },
-        revBase: PnlNode | null): HTMLElement {
+        geo: TableGeo, revBase: PnlNode | null): HTMLElement {
         const ui = this.ui!;
         const t = node.row.rowType;
         const isRatio = t === "kpi";
@@ -1624,7 +1803,7 @@ export class Visual implements IVisual {
     }
 
     private deltaBarCell(v: { delta: number | null; good: boolean }, c: ColSpec,
-        geo: { rowH: number; fs: number; BAR_HALF: number; barW: number; maxAbsDelta: number }, fmt: Fmt): HTMLElement {
+        geo: { rowH: number; fs: number; labelFs: number; BAR_HALF: number; barW: number; maxAbsDelta: number }, fmt: Fmt): HTMLElement {
         const cell = this.cell(geo.barW, "left", geo.fs);
         if (v.delta == null) { return cell; }
         const w = geo.barW - 8; const h = geo.rowH - 4; const mid = w / 2;
@@ -1651,7 +1830,7 @@ export class Visual implements IVisual {
         const tx = v.delta >= 0 ? mid + len + 3 : mid - len - 3;
         txt.setAttribute("x", String(tx)); txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
         txt.setAttribute("text-anchor", anchor);
-        txt.setAttribute("font-size", String(geo.fs - 1.5)); txt.setAttribute("font-family", FONT);
+        txt.setAttribute("font-size", String(geo.labelFs - 1.5)); txt.setAttribute("font-family", FONT);
         txt.setAttribute("fill", v.good ? this.goodColor() : this.badColor());
         txt.textContent = fmt.val(v.delta, true);
         svg.appendChild(txt);
@@ -1660,7 +1839,7 @@ export class Visual implements IVisual {
     }
 
     private deltaPinCell(v: { deltaPct: number | null; good: boolean }, c: ColSpec,
-        geo: { rowH: number; fs: number; PIN_HALF: number; pinW: number }, fmt: Fmt): HTMLElement {
+        geo: { rowH: number; fs: number; labelFs: number; PIN_HALF: number; pinW: number }, fmt: Fmt): HTMLElement {
         const cell = this.cell(geo.pinW, "left", geo.fs);
         if (v.deltaPct == null) { return cell; }
         const w = geo.pinW - 8; const h = geo.rowH - 4; const mid = w / 2;
@@ -1692,7 +1871,7 @@ export class Visual implements IVisual {
         const tx = v.deltaPct >= 0 ? Math.max(px + 4, mid + 4) : Math.min(px - 4, mid - 4);
         txt.setAttribute("x", String(tx)); txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
         txt.setAttribute("text-anchor", anchor);
-        txt.setAttribute("font-size", String(geo.fs - 1.5)); txt.setAttribute("font-family", FONT);
+        txt.setAttribute("font-size", String(geo.labelFs - 1.5)); txt.setAttribute("font-family", FONT);
         txt.setAttribute("fill", color);
         txt.textContent = fmt.pct(v.deltaPct, true) + (overflow ? "▸" : "");
         svg.appendChild(txt);
@@ -1741,7 +1920,7 @@ export class Visual implements IVisual {
 
     /** row-waterfall cell: floating segment or anchor bar in scenario notation */
     private cascadeBarCell(node: PnlNode, c: ColSpec,
-        geo: { rowH: number; fs: number; vbarW: number; vAxisX: number; vPpu: number },
+        geo: { rowH: number; fs: number; labelFs: number; vbarW: number; vAxisX: number; vPpu: number },
         fmt: Fmt, isSum: boolean, isRatio: boolean): HTMLElement {
         const cell = this.cell(geo.vbarW, "left", geo.fs);
         const h = geo.rowH - 3;
@@ -1811,7 +1990,7 @@ export class Visual implements IVisual {
             txt.setAttribute("x", String(grow ? x1 + 3 : x0 - 3));
             txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
             txt.setAttribute("text-anchor", grow ? "start" : "end");
-            txt.setAttribute("font-size", String(geo.fs - 1));
+            txt.setAttribute("font-size", String(geo.labelFs - 1));
             txt.setAttribute("font-family", FONT);
             txt.setAttribute("fill", C.text);
             if (isSum) { txt.setAttribute("font-weight", "600"); }
@@ -1824,7 +2003,7 @@ export class Visual implements IVisual {
 
     /** structure view: horizontal AC (or FC) bar with the reference scenario behind it */
     private valueBarCell(node: PnlNode, c: ColSpec,
-        geo: { rowH: number; fs: number; vbarW: number; vAxisX: number; vPpu: number },
+        geo: { rowH: number; fs: number; labelFs: number; vbarW: number; vAxisX: number; vPpu: number },
         fmt: Fmt, isSum: boolean, isRatio: boolean): HTMLElement {
         const cell = this.cell(geo.vbarW, "left", geo.fs);
         const h = geo.rowH - 3;
@@ -1882,7 +2061,7 @@ export class Visual implements IVisual {
             txt.setAttribute("x", String(tx));
             txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
             txt.setAttribute("text-anchor", lv >= 0 ? "start" : "end");
-            txt.setAttribute("font-size", String(geo.fs - 1));
+            txt.setAttribute("font-size", String(geo.labelFs - 1));
             txt.setAttribute("font-family", FONT);
             txt.setAttribute("fill", C.text);
             if (isSum) { txt.setAttribute("font-weight", "600"); }
@@ -1971,6 +2150,28 @@ export class Visual implements IVisual {
     }
 
     /**
+     * The one way a row branches: a formula / KPI row along its operands (the
+     * operator ×÷+− comes from the formula), any other row along its account
+     * hierarchy, where the operator is the child's sign convention — "+" for
+     * income, "−" for cost rows, so the branch reads as "revenue − cost".
+     * `drill` says the branch is the hierarchy, not the formula.
+     */
+    private treeBranches(node: PnlNode, resolve: (id: string) => PnlNode | undefined):
+        { kids: { child: PnlNode; op: FormulaOp }[]; drill: boolean } {
+        const t = node.row.rowType;
+        if (t === "separator") { return { kids: [], drill: false }; }
+        if (t === "formula" || t === "kpi") {
+            return { kids: formulaOperands(node, resolve), drill: false };
+        }
+        const kids: { child: PnlNode; op: FormulaOp }[] = [];
+        for (const child of node.children) {
+            if (child.row.rowType === "separator") { continue; }
+            kids.push({ child, op: child.row.sign === -1 ? "−" : "+" });
+        }
+        return { kids, drill: true };
+    }
+
+    /**
      * Expand a node into cards. A card branches in exactly one way: a formula /
      * KPI row along its operands (operator ×÷+− at the branch point), any other
      * row along its account hierarchy (subtotals and posted accounts), where the
@@ -1992,25 +2193,15 @@ export class Visual implements IVisual {
             hasKids: false, moreKids: 0, collapsed: false, drill: false,
         });
         const branches = (card: TreeCard, path: ReadonlySet<string>): { child: PnlNode; op: FormulaOp }[] => {
-            const t = card.node.row.rowType;
-            if (t === "separator") { return []; }
+            const b = this.treeBranches(card.node, resolve);
+            card.drill = b.drill;
             const seen = new Set(path);
             const kids: { child: PnlNode; op: FormulaOp }[] = [];
-            if (t === "formula" || t === "kpi") {
-                for (const o of formulaOperands(card.node, resolve)) {
-                    const id = o.child.row.id;
-                    if (seen.has(id)) { continue; }
-                    seen.add(id);
-                    kids.push(o);
-                }
-            } else {
-                card.drill = true;
-                for (const child of card.node.children) {
-                    const id = child.row.id;
-                    if (child.row.rowType === "separator" || seen.has(id)) { continue; }
-                    seen.add(id);
-                    kids.push({ child, op: child.row.sign === -1 ? "−" : "+" });
-                }
+            for (const o of b.kids) {
+                const id = o.child.row.id;
+                if (seen.has(id)) { continue; }
+                seen.add(id);
+                kids.push(o);
             }
             return kids;
         };
@@ -2737,9 +2928,8 @@ export class Visual implements IVisual {
      * readable size. Pointer events stay off so the panel never traps the
      * mouse; it lives inside the visual root and clamps to the viewport.
      */
-    private treeZoomShow(card: TreeCard, anchor: SVGGElement, fmt: Fmt): void {
+    private treeZoomShow(node: PnlNode, anchor: Element, fmt: Fmt): void {
         this.treeZoomHide();
-        const node = card.node;
         const ns = "http://www.w3.org/2000/svg";
         const isRatio = node.row.rowType === "kpi";
         const unit = isRatio ? "%" : (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
@@ -2779,49 +2969,7 @@ export class Visual implements IVisual {
             this.periodTag()].filter(Boolean).join(" · ");
         box.appendChild(sub);
 
-        // ---- scenario grid: YTD value, Δ vs AC and Δ% per reference + FY
-        const num = (v: number | null, plus = false): string =>
-            v == null ? "·" : isRatio ? fmt.pct(v, plus) : fmt.val(v, plus);
-        const grid = document.createElement("div");
-        grid.style.cssText = "display:table;width:100%;border-collapse:collapse;margin-bottom:7px;";
-        const row = (cells: string[], opts?: { bold?: boolean; color?: (string | null)[] }): void => {
-            const r = document.createElement("div");
-            r.style.cssText = "display:table-row;";
-            cells.forEach((cTxt, i) => {
-                const c = document.createElement("div");
-                c.style.cssText = "display:table-cell;padding:1.5px 0 1.5px 8px;font-size:10px;" +
-                    `font-family:${FONT};font-variant-numeric:tabular-nums;` +
-                    (i === 0 ? `text-align:left;padding-left:0;color:${C.soft};` : "text-align:right;") +
-                    (opts?.bold ? "font-weight:700;" : "") +
-                    (opts?.color?.[i] ? `color:${opts.color[i]};font-weight:600;` : "");
-                c.textContent = cTxt;
-                r.appendChild(c);
-            });
-            grid.appendChild(r);
-        };
-        row(["", this.str("YTD", "YTD"), "Δ AC", "Δ%"], { bold: false });
-        row(["AC", num(displayValue(node, "ac")), "", ""], { bold: true });
-        for (const sc of ["py", "pl", "fc"] as Scenario[]) {
-            if (!this.has[sc]) { continue; }
-            const v = variance(node, sc, "ac");
-            const inv = node.row.displayInvert ? -1 : 1;
-            const col = v.delta == null ? null : (v.good ? this.goodColor() : this.badColor());
-            row([sc.toUpperCase(), num(displayValue(node, sc)),
-                num(v.delta == null ? null : v.delta * inv, true),
-                v.deltaPct == null ? "·" : fmt.pct(v.deltaPct * inv, true)],
-            { color: [null, null, col, col] });
-        }
-        if (this.has.fcfy) {
-            const fy = variance(node, "plfy", "fcfy");
-            const inv = node.row.displayInvert ? -1 : 1;
-            const col = fy.delta == null ? null : (fy.good ? this.goodColor() : this.badColor());
-            row(["FY FC" + (this.has.plfy ? " · PL" : ""),
-                num(displayValue(node, "fcfy")),
-                this.has.plfy ? num(fy.delta == null ? null : fy.delta * inv, true) : "",
-                this.has.plfy && fy.deltaPct != null ? fmt.pct(fy.deltaPct * inv, true) : ""],
-            { color: [null, null, col, col] });
-        }
-        box.appendChild(grid);
+        box.appendChild(this.treeScenGrid(node, fmt));
 
         // ---- charts: months (offset columns + triangles), Δ columns, bridge
         const refUp = this.ui!.ref.toUpperCase();
@@ -2878,6 +3026,68 @@ export class Visual implements IVisual {
         box.style.left = left.toFixed(0) + "px";
         box.style.top = top.toFixed(0) + "px";
         this.zoomEl = box;
+    }
+
+    /**
+     * Scenario grid of a detail view: the YTD value per scenario, its Δ against
+     * AC absolute and in %, coloured by the good/bad evaluation the table uses,
+     * plus the FY outlook row when full-year measures are loaded.
+     */
+    private treeScenGrid(node: PnlNode, fmt: Fmt): HTMLElement {
+        const isRatio = node.row.rowType === "kpi";
+        const num = (v: number | null, plus = false): string =>
+            v == null ? "·" : isRatio ? fmt.pct(v, plus) : fmt.val(v, plus);
+        const grid = document.createElement("div");
+        grid.style.cssText = "display:table;width:100%;border-collapse:collapse;margin-bottom:7px;";
+        const row = (cells: string[], opts?: { bold?: boolean; color?: (string | null)[] }): void => {
+            const r = document.createElement("div");
+            r.style.cssText = "display:table-row;";
+            cells.forEach((cTxt, i) => {
+                const c = document.createElement("div");
+                c.style.cssText = "display:table-cell;padding:1.5px 0 1.5px 8px;font-size:10px;" +
+                    `font-family:${FONT};font-variant-numeric:tabular-nums;` +
+                    (i === 0 ? `text-align:left;padding-left:0;color:${C.soft};` : "text-align:right;") +
+                    (opts?.bold ? "font-weight:700;" : "") +
+                    (opts?.color?.[i] ? `color:${opts.color[i]};font-weight:600;` : "");
+                c.textContent = cTxt;
+                r.appendChild(c);
+            });
+            grid.appendChild(r);
+        };
+        const inv = node.row.displayInvert ? -1 : 1;
+        row(["", this.str("YTD", "YTD"), "Δ AC", "Δ%"], { bold: false });
+        row(["AC", num(displayValue(node, "ac")), "", ""], { bold: true });
+        for (const sc of ["py", "pl", "fc"] as Scenario[]) {
+            if (!this.has[sc]) { continue; }
+            const v = variance(node, sc, "ac");
+            const col = v.delta == null ? null : (v.good ? this.goodColor() : this.badColor());
+            row([sc.toUpperCase(), num(displayValue(node, sc)),
+                num(v.delta == null ? null : v.delta * inv, true),
+                v.deltaPct == null ? "·" : fmt.pct(v.deltaPct * inv, true)],
+            { color: [null, null, col, col] });
+        }
+        if (this.has.fcfy) {
+            const fy = variance(node, "plfy", "fcfy");
+            const col = fy.delta == null ? null : (fy.good ? this.goodColor() : this.badColor());
+            row(["FY FC" + (this.has.plfy ? " · PL" : ""),
+                num(displayValue(node, "fcfy")),
+                this.has.plfy ? num(fy.delta == null ? null : fy.delta * inv, true) : "",
+                this.has.plfy && fy.deltaPct != null ? fmt.pct(fy.deltaPct * inv, true) : ""],
+            { color: [null, null, col, col] });
+        }
+        return grid;
+    }
+
+    /** dwell on an element to open the IBCS detail panel of one node */
+    private treeHoverZoom(el: Element, node: PnlNode, fmt: Fmt): void {
+        el.addEventListener("mouseenter", () => {
+            if (this.zoomTimer != null) { clearTimeout(this.zoomTimer); }
+            this.zoomTimer = setTimeout(() => {
+                this.zoomTimer = null;
+                this.treeZoomShow(node, el, fmt);
+            }, 260);
+        });
+        el.addEventListener("mouseleave", () => this.treeZoomHide());
     }
 
     /** period tag of the headline, e.g. "2026 Jan..Jun" */
@@ -3011,6 +3221,9 @@ export class Visual implements IVisual {
         title.appendChild(tip);
         g.appendChild(title);
 
+        // the face of the card — the chart (or, on a compact card, the value
+        // line) — is the hit area that opens the tile view of this driver
+        let face: { x: number; y: number; w: number; h: number };
         if (card.compact) {
             // compact card: no mini chart, only the AC value — the monthly
             // series the chart would have shown moves into the tooltip
@@ -3038,6 +3251,12 @@ export class Visual implements IVisual {
                 v.appendChild(vt);
             }
             if (card.node.error) { v.setAttribute("fill", this.badColor()); }
+            const top = card.y + pad + tfs + 2 * s;
+            face = {
+                x: card.x + pad, y: top,
+                w: geo.cw - 2 * pad - (card.hasKids ? 20 * s : 0),
+                h: Math.max(card.y + cardH - pad - top, 4),
+            };
         } else {
             // chart area — the bridge needs no period tags, so it may use the strip
             const chartTop = card.y + pad + tfs + 6 * s;
@@ -3050,7 +3269,27 @@ export class Visual implements IVisual {
             if (ui.treeCard === "delta") { this.treeMiniDelta(g, card.node, area, s, geo.fmt, inset); }
             else if (ui.treeCard === "bridge") { this.treeMiniBridge(g, card.node, area, s, geo.fmt, geo.svg, inset); }
             else { this.treeMini(g, card.node, area, s, geo.fmt, geo.svg, inset); }
+            face = area;
         }
+
+        // click target over the face — the "+N" badge and the chevron are drawn
+        // after it, so those controls keep their own clicks
+        const zoomHit = document.createElementNS(ns, "rect");
+        zoomHit.setAttribute("x", face.x.toFixed(2)); zoomHit.setAttribute("y", face.y.toFixed(2));
+        zoomHit.setAttribute("width", Math.max(face.w, 1).toFixed(2));
+        zoomHit.setAttribute("height", Math.max(face.h, 1).toFixed(2));
+        zoomHit.setAttribute("fill", "#FFF"); zoomHit.setAttribute("fill-opacity", "0.01");
+        zoomHit.style.cursor = "pointer";
+        const zt = document.createElementNS(ns, "title");
+        zt.textContent = this.str("Open the tile view of this driver",
+            "Kachel-Ansicht dieses Treibers öffnen");
+        zoomHit.appendChild(zt);
+        zoomHit.onclick = (e: Event): void => {
+            e.stopPropagation();
+            ui.treeZoom = card.node.row.id;
+            this.persistUi(); this.rerender();
+        };
+        g.appendChild(zoomHit);
 
         if (card.node.error && !card.compact) {
             const e = document.createElementNS(ns, "text");
@@ -3142,19 +3381,13 @@ export class Visual implements IVisual {
         }
 
         // hover zoom: after a short dwell the card opens its IBCS detail view
-        g.addEventListener("mouseenter", () => {
-            if (this.zoomTimer != null) { clearTimeout(this.zoomTimer); }
-            this.zoomTimer = setTimeout(() => {
-                this.zoomTimer = null;
-                this.treeZoomShow(card, g, geo.fmt);
-            }, 260);
-        });
-        g.addEventListener("mouseleave", () => this.treeZoomHide());
+        this.treeHoverZoom(g, card.node, geo.fmt);
         return g;
     }
 
-    /** breadcrumb over a re-rooted tree: every segment jumps back to that card */
-    private treeBreadcrumb(path: PnlNode[]): HTMLElement {
+    /** breadcrumb over a path of cards: every segment but the last is a jump */
+    private treeBreadcrumb(path: PnlNode[], onPick: (node: PnlNode, i: number) => void,
+        tip: string): HTMLElement {
         const crumbs = document.createElement("div");
         crumbs.style.cssText = `font-size:10px;color:${C.soft};margin:0 0 4px 0;padding:0;line-height:1.5;` +
             "display:flex;gap:5px;flex-wrap:wrap;align-items:center;";
@@ -3171,17 +3404,411 @@ export class Visual implements IVisual {
                 ? `color:${C.text};font-weight:600;`
                 : `color:${C.soft};cursor:pointer;text-decoration:underline;`;
             if (!last) {
-                seg.title = this.str("Back to this card", "Zurück zu dieser Karte");
+                seg.title = tip;
                 seg.onclick = (e: Event): void => {
                     e.stopPropagation();
-                    this.ui!.treeRoot = i === 0 ? "" : node.row.id;
-                    this.ui!.treeCollapsed = null;
+                    onPick(node, i);
                     this.persistUi(); this.rerender();
                 };
             }
             crumbs.appendChild(seg);
         });
         return crumbs;
+    }
+
+    /** footnote numbers of the tree, in card reading order */
+    private treeComments(cards: TreeCard[]): void {
+        this.comments = [];
+        this.commentNo.clear();
+        for (const c of cards) {
+            const text = c.node.row.comment;
+            if (!text || this.commentNo.has(c.node.row.id)) { continue; }
+            const n = this.comments.length + 1;
+            this.comments.push({ n, node: c.node, text });
+            this.commentNo.set(c.node.row.id, n);
+        }
+    }
+
+    /** path through the built graph from the tree root down to one node */
+    private treeZoomPath(ctx: TreeCtx, node: PnlNode): PnlNode[] {
+        const id = node.row.id;
+        const rootId = ctx.root.row.id;
+        if (id === rootId) { return [ctx.root]; }
+        const prev = new Map<string, string>();
+        const seen = new Set<string>([rootId]);
+        const queue = [rootId];
+        let head = 0;
+        let found = false;
+        while (head < queue.length && !found) {
+            const cur = queue[head++];
+            for (const k of ctx.kidsOf.get(cur) ?? []) {
+                if (seen.has(k)) { continue; }
+                seen.add(k); prev.set(k, cur); queue.push(k);
+                if (k === id) { found = true; break; }
+            }
+        }
+        // a node outside the built graph (card budget) still gets a way back
+        if (!found) { return [ctx.root, node]; }
+        const chain: PnlNode[] = [node];
+        let cur = id;
+        while (cur !== rootId) {
+            const p = prev.get(cur);
+            const n = p == null ? undefined : ctx.resolve(p);
+            if (p == null || !n) { break; }
+            chain.unshift(n);
+            cur = p;
+        }
+        return chain;
+    }
+
+    /**
+     * Tile view of one driver: the node itself as a large IBCS card in the
+     * middle, the rows it feeds on the left, its own drivers on the right.
+     * Every neighbour is a jump — the reader walks the formula graph one node
+     * at a time instead of scanning the whole tree.
+     */
+    private buildTreeZoom(ctx: TreeCtx, node: PnlNode, fmt: Fmt): HTMLElement {
+        const ui = this.ui!;
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "zoom");
+        wrap.style.cssText = `padding:4px ${TABLE_PAD_X}px 10px ${TABLE_PAD_X}px;`;
+
+        const head = document.createElement("div");
+        head.style.cssText = "display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:8px;";
+        const back = this.tbBtn(this.str("← Back to the tree", "← Zurück zum Baum"), false,
+            () => { ui.treeZoom = null; },
+            this.str("Close the tile view", "Kachel-Ansicht schließen"));
+        back.setAttribute("data-pnl", "zoom-back");
+        head.appendChild(back);
+        const path = this.treeZoomPath(ctx, node);
+        if (path.length > 1) {
+            head.appendChild(this.treeBreadcrumb(path, (n) => { ui.treeZoom = n.row.id; },
+                this.str("Zoom into this card", "Auf diese Karte zoomen")));
+        }
+        wrap.appendChild(head);
+
+        // three columns: what this row feeds · the row itself · what drives it
+        const avail = this.root.clientWidth || 900;
+        const sideW = Math.max(150, Math.min(215, Math.round(avail * 0.18)));
+        const centerW = Math.max(340, avail - 2 * TABLE_PAD_X - 2 * sideW - 28);
+        const cols = document.createElement("div");
+        cols.style.cssText = "display:flex;gap:14px;align-items:flex-start;";
+        cols.appendChild(this.treeZoomSide(ctx, node, fmt, sideW, "parents"));
+        cols.appendChild(this.treeZoomCenter(node, fmt, centerW));
+        cols.appendChild(this.treeZoomSide(ctx, node, fmt, sideW, "children"));
+        wrap.appendChild(cols);
+        return wrap;
+    }
+
+    /** the big middle tile: head, monthly chart, month bridge, scenario grid */
+    private treeZoomCenter(node: PnlNode, fmt: Fmt, w: number): HTMLElement {
+        const ns = "http://www.w3.org/2000/svg";
+        const isRatio = node.row.rowType === "kpi";
+        const unit = isRatio ? "%" : (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
+        const tile = document.createElement("div");
+        tile.setAttribute("data-pnl", "zoom-center");
+        tile.style.cssText = `flex:1 1 ${w}px;min-width:0;background:#FFF;box-sizing:border-box;` +
+            `border:1px solid ${C.cardEdge};border-radius:6px;padding:12px 14px 10px 14px;`;
+        const inner = Math.max(w - 30, 260);
+
+        // ---- head: name, unit, Δ headline in the status colour
+        const va = this.treeVariance(node);
+        const vColor = va == null ? null : (va.good ? this.goodColor() : this.badColor());
+        const head = document.createElement("div");
+        head.style.cssText = "display:flex;align-items:baseline;gap:8px;margin-bottom:1px;";
+        const nm = document.createElement("div");
+        nm.setAttribute("data-pnl", "zoom-title");
+        nm.style.cssText = `flex:1;font-size:16px;font-weight:700;color:${C.text};` +
+            "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
+        const cno = this.commentNo.get(node.row.id);
+        nm.textContent = node.row.name + (cno != null ? " " + String.fromCharCode(0x2460 + cno - 1) : "");
+        head.appendChild(nm);
+        const un = document.createElement("div");
+        un.style.cssText = `font-size:10px;color:${C.soft};white-space:nowrap;`;
+        un.textContent = unit;
+        head.appendChild(un);
+        if (vColor && va && va.deltaPct != null) {
+            const dp = document.createElement("div");
+            dp.style.cssText = `font-size:13px;font-weight:700;color:${vColor};white-space:nowrap;`;
+            dp.textContent = fmt.pct(va.deltaPct, true);
+            head.appendChild(dp);
+        }
+        tile.appendChild(head);
+        const sub = document.createElement("div");
+        sub.style.cssText = `font-size:9.5px;color:${C.soft};margin-bottom:8px;`;
+        const acct = node.row.rowType === "account" ? node.row.id : "";
+        sub.textContent = [acct, node.row.formulaDef ? "= " + node.row.formulaDef : "",
+            this.periodTag()].filter(Boolean).join(" · ");
+        tile.appendChild(sub);
+
+        const refUp = this.ui!.ref.toUpperCase();
+        const caption = (t: string): void => {
+            const c = document.createElement("div");
+            c.style.cssText = `font-size:9px;color:${C.soft};margin:4px 0 1px 0;`;
+            c.textContent = t;
+            tile.appendChild(c);
+        };
+        const chart = (h: number, draw: (g: SVGGElement, svg: SVGSVGElement) => void): void => {
+            const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
+            svg.setAttribute("width", String(inner)); svg.setAttribute("height", String(h));
+            svg.style.cssText = "display:block;";
+            const g = document.createElementNS(ns, "g") as SVGGElement;
+            svg.appendChild(g);
+            tile.appendChild(svg);
+            draw(g, svg);
+        };
+        caption(this.str(`Months — AC solid, ${refUp} offset behind`,
+            `Monate — AC solide, ${refUp} versetzt dahinter`));
+        chart(160, (g, svg) => this.treeMini(g, node, { x: 1, y: 4, w: inner - 2, h: 134 }, 1.5, fmt, svg, 0));
+        caption(this.str(`Bridge ${refUp} YTD → Δ per month → AC YTD`,
+            `Brücke ${refUp} YTD → Δ je Monat → AC YTD`));
+        chart(196, (g, svg) => this.treeBigBridge(g, node, { x: 1, y: 4, w: inner - 2, h: 188 }, 1.3, fmt, svg));
+        tile.appendChild(this.treeScenGrid(node, fmt));
+
+        if (node.row.comment) {
+            const cm = document.createElement("div");
+            cm.style.cssText = `font-size:9.5px;color:${C.soft};font-style:italic;` +
+                `margin-top:6px;border-top:1px solid ${C.gridSoft};padding-top:5px;line-height:1.45;`;
+            cm.textContent = node.row.comment;
+            tile.appendChild(cm);
+        }
+        if (node.error) {
+            const er = document.createElement("div");
+            er.style.cssText = `font-size:9.5px;color:${this.badColor()};margin-top:4px;`;
+            er.textContent = "⚠ " + node.error;
+            tile.appendChild(er);
+        }
+        return tile;
+    }
+
+    /**
+     * One neighbour column of the tile view: the KPIs a row feeds into (from the
+     * reverse adjacency of the built graph — a row may serve several) or the
+     * operands / hierarchy children that drive it, each as a micro card that
+     * navigates one step up or down.
+     */
+    private treeZoomSide(ctx: TreeCtx, node: PnlNode, fmt: Fmt, w: number,
+        side: "parents" | "children"): HTMLElement {
+        const col = document.createElement("div");
+        col.style.cssText = `flex:0 0 ${w}px;width:${w}px;box-sizing:border-box;`;
+        const title = document.createElement("div");
+        title.style.cssText = "font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;" +
+            `color:${C.soft};margin-bottom:5px;`;
+        title.textContent = side === "parents"
+            ? this.str("Feeds into", "Zahlt ein auf")
+            : this.str("Driven by", "Getrieben von");
+        col.appendChild(title);
+
+        const items: { node: PnlNode; op: FormulaOp | null }[] = [];
+        if (side === "parents") {
+            const seen = new Set<string>();
+            for (const [pid, kids] of ctx.kidsOf) {
+                if (seen.has(pid) || !kids.includes(node.row.id)) { continue; }
+                seen.add(pid);
+                const p = ctx.resolve(pid);
+                if (p) { items.push({ node: p, op: null }); }
+            }
+        } else {
+            for (const k of this.treeBranches(node, ctx.resolve).kids) {
+                items.push({ node: k.child, op: k.op });
+            }
+        }
+        if (items.length === 0) {
+            const hint = document.createElement("div");
+            hint.style.cssText = `font-size:10px;color:${C.soft};line-height:1.5;`;
+            hint.textContent = side === "parents"
+                ? this.str("Top of the tree — no row builds on this one.",
+                    "Spitze des Baums — keine Zeile baut auf dieser auf.")
+                : this.str("No drivers — this row is a posted account.",
+                    "Keine Treiber — diese Zeile ist ein gebuchtes Konto.");
+            col.appendChild(hint);
+            return col;
+        }
+        const cap = side === "parents" ? TREE_ZOOM_PARENTS : TREE_ZOOM_KIDS;
+        const more = items.length - cap;
+        for (const it of items.slice(0, cap)) {
+            col.appendChild(this.treeMicroCard(it.node, it.op, fmt, w, side));
+        }
+        if (more > 0) {
+            const rest = document.createElement("div");
+            rest.style.cssText = `font-size:9.5px;color:${C.soft};`;
+            rest.textContent = `+${more} ` + this.str("more", "weitere");
+            col.appendChild(rest);
+        }
+        return col;
+    }
+
+    /** neighbour card of the tile view: operator, name, Δ%, small monthly chart */
+    private treeMicroCard(node: PnlNode, op: FormulaOp | null, fmt: Fmt, w: number,
+        side: "parents" | "children"): HTMLElement {
+        const ns = "http://www.w3.org/2000/svg";
+        const ui = this.ui!;
+        const card = document.createElement("div");
+        card.setAttribute("data-pnl", side === "parents" ? "zoom-parent" : "zoom-child");
+        card.title = this.str("Zoom into this card", "Auf diese Karte zoomen");
+        card.style.cssText = `background:#FFF;border:1px solid ${C.cardEdge};border-radius:4px;` +
+            "padding:6px 7px 4px 7px;margin-bottom:8px;cursor:pointer;box-sizing:border-box;";
+
+        const head = document.createElement("div");
+        head.style.cssText = "display:flex;gap:5px;align-items:baseline;";
+        if (op) {
+            const o = document.createElement("span");
+            o.style.cssText = `font-size:11px;font-weight:700;color:${C.ac};`;
+            o.textContent = op;
+            head.appendChild(o);
+        }
+        const nm = document.createElement("span");
+        nm.setAttribute("data-pnl", "micro-name");
+        nm.style.cssText = `flex:1;font-size:10px;font-weight:600;color:${C.text};` +
+            "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
+        nm.textContent = node.row.name;
+        head.appendChild(nm);
+        const va = this.treeVariance(node);
+        if (va && va.deltaPct != null) {
+            const dp = document.createElement("span");
+            dp.style.cssText = "font-size:9.5px;font-weight:700;white-space:nowrap;" +
+                `color:${va.good ? this.goodColor() : this.badColor()};`;
+            dp.textContent = fmt.pct(va.deltaPct, true);
+            head.appendChild(dp);
+        }
+        card.appendChild(head);
+
+        const cw = Math.max(w - 20, 90);
+        const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
+        svg.setAttribute("width", String(cw)); svg.setAttribute("height", "56");
+        svg.style.cssText = "display:block;margin-top:3px;";
+        const g = document.createElementNS(ns, "g") as SVGGElement;
+        svg.appendChild(g);
+        card.appendChild(svg);
+        this.treeMini(g, node, { x: 1, y: 2, w: cw - 2, h: 36 }, 0.85, fmt, svg, 0);
+
+        card.onclick = (e: Event): void => {
+            e.stopPropagation();
+            ui.treeZoom = node.row.id;
+            this.persistUi(); this.rerender();
+        };
+        this.treeHoverZoom(card, node, fmt);
+        return card;
+    }
+
+    /**
+     * Large IBCS bridge of one node (ChartKitchen cascade): the reference year
+     * to date anchors on the left, one floating Δ step per month carries the
+     * eye across, the actuals anchor on the right. Steps are teal / red by
+     * impact and inherit the hatched notation when the reference is a forecast;
+     * connector lines join the steps, month labels sit under the axis, and the
+     * axis itself encodes the reference (gray = PY, double line = PL, dashed = FC).
+     */
+    private treeBigBridge(g: SVGGElement, node: PnlNode, box: { x: number; y: number; w: number; h: number },
+        s: number, fmt: Fmt, svg: SVGSVGElement): void {
+        const ns = "http://www.w3.org/2000/svg";
+        const ref = this.ui!.ref;
+        const months = this.model!.months;
+        const isRatio = node.row.rowType === "kpi";
+        const inv = node.row.displayInvert ? -1 : 1;
+        const refv = this.has[ref] ? displayValue(node, ref) : null;
+        const acv = displayValue(node, "ac");
+        const refUp = ref.toUpperCase();
+        if (refv == null || acv == null) { this.treeHint(g, box, s, `Δ${refUp} –`); return; }
+        const lfs = 8.5 * s;
+
+        // one step per month; without monthly series the year-to-date Δ stands in
+        const acs = node.series.ac; const refs = node.series[ref];
+        const steps: { tag: string; d: number; good: boolean }[] = [];
+        if (months.length > 1 && acs && refs) {
+            for (let i = 0; i < months.length; i++) {
+                const a = acs[i]; const r = refs[i];
+                if (a == null || r == null) { continue; }
+                const raw = a - r;
+                steps.push({ tag: this.monthLabel(months[i]), d: raw * inv,
+                    good: node.row.varianceInvert ? raw < 0 : raw >= 0 });
+            }
+        }
+        if (steps.length === 0) {
+            const va = this.treeVariance(node);
+            if (va && va.delta != null) { steps.push({ tag: "Δ" + refUp, d: va.delta, good: va.good }); }
+        }
+
+        // columns: reference anchor, the cumulated steps, actuals anchor
+        type Col = { tag: string; s0: number; s1: number; kind: "ref" | "step" | "ac"; good: boolean };
+        const cols: Col[] = [{ tag: refUp, s0: 0, s1: refv, kind: "ref", good: true }];
+        let cum = refv;
+        for (const st of steps) {
+            const from = cum;
+            cum += st.d;
+            cols.push({ tag: st.tag, s0: from, s1: cum, kind: "step", good: st.good });
+        }
+        cols.push({ tag: "AC", s0: 0, s1: acv, kind: "ac", good: true });
+
+        let lo = 0; let hi = 0;
+        for (const c of cols) {
+            lo = Math.min(lo, c.s0, c.s1); hi = Math.max(hi, c.s0, c.s1);
+        }
+        if (hi === lo) { hi = lo + 1; }
+        const tagH = lfs + 6 * s;
+        const top = box.y + lfs + 3 * s;
+        const bot = box.y + box.h - tagH;
+        const yOf = (v: number): number => bot - ((v - lo) / (hi - lo)) * (bot - top);
+        const slotW = box.w / cols.length;
+        const colW = Math.min(slotW * 0.62, 34 * s);
+        const cxOf = (i: number): number => box.x + (i + 0.5) * slotW;
+
+        // connectors first, the columns sit on top of them
+        for (let i = 0; i < cols.length - 1; i++) {
+            const y = yOf(cols[i].s1);
+            const l = document.createElementNS(ns, "line");
+            l.setAttribute("x1", (cxOf(i) + colW / 2).toFixed(2));
+            l.setAttribute("x2", (cxOf(i + 1) - colW / 2).toFixed(2));
+            l.setAttribute("y1", y.toFixed(2)); l.setAttribute("y2", y.toFixed(2));
+            l.setAttribute("stroke", C.gridSoft); l.setAttribute("stroke-width", "1");
+            g.appendChild(l);
+        }
+
+        const hatch = ref === "fc" ? this.treeHatchId(svg) : "";
+        /** a Δ step against a forecast keeps the hatched forecast notation */
+        const stepFill = (color: string, good: boolean): string => {
+            if (ref !== "fc") { return color; }
+            const id = `pnlbr${good ? "g" : "b"}${this.uid}`;
+            if (!svg.querySelector(`#${id}`)) { this.hatchPattern(svg, ns, id, color); }
+            return `url(#${id})`;
+        };
+
+        cols.forEach((c, i) => {
+            const cx = cxOf(i);
+            const y0 = yOf(c.s0); const y1 = yOf(c.s1);
+            const y = Math.min(y0, y1);
+            const h = Math.max(Math.abs(y1 - y0), 1);
+            const r = document.createElementNS(ns, "rect");
+            r.setAttribute("x", (cx - colW / 2).toFixed(2)); r.setAttribute("y", y.toFixed(2));
+            r.setAttribute("width", colW.toFixed(2)); r.setAttribute("height", h.toFixed(2));
+            let ink = C.text;
+            if (c.kind === "ref") {
+                const st = this.treeScenFill(ref, hatch);
+                r.setAttribute("fill", st.fill);
+                if (st.stroke) { r.setAttribute("stroke", st.stroke); r.setAttribute("stroke-width", "1"); }
+                ink = C.soft;
+            } else if (c.kind === "ac") {
+                r.setAttribute("fill", C.ac);
+            } else {
+                ink = c.good ? this.goodColor() : this.badColor();
+                r.setAttribute("fill", stepFill(ink, c.good));
+                if (ref === "fc") { r.setAttribute("stroke", ink); r.setAttribute("stroke-width", "1"); }
+            }
+            g.appendChild(r);
+
+            const d = c.s1 - c.s0;
+            const txt = c.kind === "step"
+                ? (isRatio ? fmt.pct(d, true).replace("%", "pp") : (d > 0 ? "+" : "") + this.treeNum(d, fmt))
+                : (isRatio ? fmt.pct(c.s1) : this.treeNum(c.s1, fmt));
+            // value label outside the column, in the direction the step moves
+            const up = c.kind === "step" ? d >= 0 : c.s1 >= 0;
+            this.treeLabel(g, box, cx, up ? y - 2.5 * s : y + h + lfs, txt, lfs, ink);
+            this.treeLabel(g, box, cx, bot + tagH - 1.5 * s, this.fitLabel(c.tag, slotW, lfs),
+                lfs, C.soft);
+        });
+
+        // the axis carries the reference scenario (IBCS UN 4.1)
+        this.treeRefLine(g, box.x, box.x + box.w, yOf(0), ref);
     }
 
     /**
@@ -3219,6 +3846,17 @@ export class Visual implements IVisual {
             return wrap;
         }
 
+        // comment footnotes follow the cards on screen (numbering in reading order)
+        this.treeComments(ctx.cards);
+
+        // one card blown up to a full page — the tree itself steps aside
+        if (ui.treeZoom != null) {
+            const zoomed = ctx.resolve(ui.treeZoom);
+            if (zoomed) { return this.buildTreeZoom(ctx, zoomed, fmt); }
+            // the model no longer knows that row (model change): back to the tree
+            ui.treeZoom = null;
+        }
+
         const s = this.fontScale() * (ui.density === "compact" ? 0.9 : 1);
         const cw = TREE_CARD_W * s;
         const chFull = TREE_CARD_H * s; const chSmall = TREE_CARD_H_COMPACT * s;
@@ -3243,28 +3881,23 @@ export class Visual implements IVisual {
             size = this.treeLayout(rootCard, cw, gx, gy, sub);
         }
 
-        // comment footnotes follow the cards on screen (numbering in reading order)
-        this.comments = [];
-        this.commentNo.clear();
-        for (const c of all) {
-            const text = c.node.row.comment;
-            if (!text || this.commentNo.has(c.node.row.id)) { continue; }
-            const n = this.comments.length + 1;
-            this.comments.push({ n, node: c.node, text });
-            this.commentNo.set(c.node.row.id, n);
-        }
-
         // head block: breadcrumb, hint line, then a fixed gap to the first card
         // row — the tree must never grow into the lines above it
-        if (ctx.path.length > 1) { wrap.appendChild(this.treeBreadcrumb(ctx.path)); }
+        if (ctx.path.length > 1) {
+            wrap.appendChild(this.treeBreadcrumb(ctx.path, (node, i) => {
+                ui.treeRoot = i === 0 ? "" : node.row.id;
+                ui.treeCollapsed = null;
+            }, this.str("Back to this card", "Zurück zu dieser Karte")));
+        }
 
         const note = document.createElement("div");
         note.style.cssText = `font-size:9px;color:${C.soft};margin:0;padding:0;line-height:1.5;`;
         note.textContent = this.str(
             "Value driver tree — ▾ opens and closes one node (Shift: whole limb), ⌖ makes a card the root, "
-            + "hovering a card zooms into its IBCS detail view.",
+            + "hovering a card zooms into its IBCS detail view, clicking its chart opens the tile view.",
             "Werttreiberbaum — ▾ klappt einen Knoten auf und zu (Shift: ganzer Ast), ⌖ macht eine Karte zur "
-            + "Wurzel, Hover über einer Karte öffnet die IBCS-Detailansicht.");
+            + "Wurzel, Hover über einer Karte öffnet die IBCS-Detailansicht, ein Klick auf ihr Diagramm die "
+            + "Kachel-Ansicht.");
         wrap.appendChild(note);
 
         const ns = "http://www.w3.org/2000/svg";

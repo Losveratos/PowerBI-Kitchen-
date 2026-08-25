@@ -644,6 +644,232 @@ function tidyChecks(geom, tag) {
     }, STAGE);
     check("hover zoom closes again on mouseleave", zoomGone);
 
+    // ---- 13) v0.11: clicking a card's chart face opens the tile view, the
+    // neighbour cards navigate the graph and the back button restores the tree
+    const zoomStage = await page.evaluate(() => {
+        const d = document.createElement("div");
+        d.className = "stage"; d.id = "tile"; d.style.cssText = "width:1340px;height:1150px;";
+        document.body.appendChild(d);
+        run("tile", { titleBlock: { measureLine: "tile view" },
+            state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } });
+        const face = [...d.querySelectorAll("svg rect")].find(r => {
+            const t = r.querySelector("title");
+            return t && t.textContent.indexOf("Open the tile view") === 0;
+        });
+        if (!face) { return { face: false }; }
+        face.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        return { face: true };
+    });
+    check("every tree card offers a chart-face click target", zoomStage.face);
+    await page.waitForTimeout(260);
+
+    const readTile = (id) => {
+        const stage = document.getElementById(id);
+        const zoom = stage.querySelector('[data-pnl="zoom"]');
+        if (!zoom) { return null; }
+        const title = zoom.querySelector('[data-pnl="zoom-title"]');
+        const clipped = [];
+        zoom.querySelectorAll("svg text").forEach(t => {
+            const own = t.ownerSVGElement;
+            const b = t.getBBox();
+            const w = parseFloat(own.getAttribute("width"));
+            if (b.x < -0.5 || b.x + b.width > w + 0.5) { clipped.push(t.textContent); }
+        });
+        return {
+            title: title ? title.textContent : "",
+            back: !!zoom.querySelector('[data-pnl="zoom-back"]'),
+            crumbs: [...zoom.querySelectorAll("span")]
+                .filter(s => s.style.cursor === "pointer").length,
+            parents: zoom.querySelectorAll('[data-pnl="zoom-parent"]').length,
+            children: zoom.querySelectorAll('[data-pnl="zoom-child"]').length,
+            centerCharts: zoom.querySelectorAll('[data-pnl="zoom-center"] svg').length,
+            // the bridge draws one anchor per side plus a step per month
+            bridgeBars: zoom.querySelectorAll('[data-pnl="zoom-center"] svg:last-of-type rect').length,
+            gridRows: [...zoom.querySelectorAll('[data-pnl="zoom-center"] div')]
+                .filter(x => x.style.display === "table-row").length,
+            clipped,
+        };
+    };
+    let tile = await page.evaluate(readTile, "tile");
+    check("the chart click opens the tile view", tile != null && tile.back,
+        JSON.stringify(tile));
+    check("the tile view names the node and shows both big charts",
+        !!tile && tile.title.length > 0 && tile.centerCharts === 2,
+        tile ? tile.title + " charts=" + tile.centerCharts : "no tile");
+    check("the tile view carries the scenario grid", !!tile && tile.gridRows >= 3,
+        tile ? String(tile.gridRows) : "no tile");
+    check("the tile view offers driver cards to walk down",
+        !!tile && tile.children >= 1, tile ? "children=" + tile.children : "no tile");
+    check("the big bridge draws both anchors plus a step per month",
+        !!tile && tile.bridgeBars >= 8, tile ? "bars=" + tile.bridgeBars : "no tile");
+    check("no clipped labels in the tile view", !!tile && tile.clipped.length === 0,
+        tile ? tile.clipped.join(", ") : "no tile");
+
+    const rootTitle = tile ? tile.title : "";
+    await step((id) => {
+        const kid = document.getElementById(id).querySelector('[data-pnl="zoom-child"]');
+        kid.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        return true;
+    }, "tile");
+    tile = await page.evaluate(readTile, "tile");
+    check("clicking a driver card navigates the tile view down",
+        !!tile && tile.title !== "" && tile.title !== rootTitle,
+        (tile ? tile.title : "no tile") + " was " + rootTitle);
+    check("the node below the root knows what it feeds into",
+        !!tile && tile.parents >= 1, tile ? "parents=" + tile.parents : "no tile");
+    check("the tile view breadcrumb offers the way back up",
+        !!tile && tile.crumbs >= 1, tile ? "crumbs=" + tile.crumbs : "no tile");
+
+    await step((id) => {
+        document.getElementById(id).querySelector('[data-pnl="zoom-back"]').click();
+        return true;
+    }, "tile");
+    const backToTree = await page.evaluate((id) => {
+        const stage = document.getElementById(id);
+        return {
+            zoom: stage.querySelectorAll('[data-pnl="zoom"]').length,
+            cards: stage.querySelectorAll("svg rect[rx='4']").length,
+        };
+    }, "tile");
+    check("back to the tree restores the card tree",
+        backToTree.zoom === 0 && backToTree.cards >= 3, JSON.stringify(backToTree));
+
+    // a persisted tile view on a row the model does not know falls back silently
+    const stale = await page.evaluate(() => {
+        const d = document.createElement("div");
+        d.className = "stage"; d.id = "tile-stale"; d.style.cssText = "width:1340px;height:900px;";
+        document.body.appendChild(d);
+        run("tile-stale", { toolbar: { show: false, showLegend: false },
+            state: { uiState: JSON.stringify({ view: "tree", treeV: 2, treeZoom: "NO_SUCH_ROW" }) } });
+        return { zoom: d.querySelectorAll('[data-pnl="zoom"]').length,
+            cards: d.querySelectorAll("svg rect[rx='4']").length };
+    });
+    check("an unknown persisted tile target falls back to the tree",
+        stale.zoom === 0 && stale.cards >= 3, JSON.stringify(stale));
+
+    // ---- 14) v0.11: the Fit option squeezes the table into the stage width
+    const fitRes = await page.evaluate(() => {
+        const W = 1500;
+        const mk = (id, fit) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = `width:${W}px;height:700px;`;
+            document.body.appendChild(d);
+            run(id, { titleBlock: { measureLine: "fit" },
+                state: { uiState: JSON.stringify({ view: "table", fit,
+                    preset: "full", blocks: { mtd: true, ytd: true, fy: true } }) } });
+            const t = [...d.querySelectorAll("div")].find(x => x.style.display === "table");
+            const clipped = [];
+            d.querySelectorAll("svg text").forEach(e => {
+                const own = e.ownerSVGElement;
+                const b = e.getBBox();
+                const w = parseFloat(own.getAttribute("width"));
+                if (b.x < -0.5 || b.x + b.width > w + 0.5) { clipped.push(e.textContent); }
+            });
+            return { w: t ? t.getBoundingClientRect().width : -1, clipped, stage: W,
+                fitBtn: [...d.querySelectorAll("button")].some(b => b.textContent === "Fit") };
+        };
+        return { off: mk("fit-off", false), on: mk("fit-on", true) };
+    });
+    check("the Fit button sits in the toolbar options", fitRes.off.fitBtn);
+    check("without Fit the three-block table overflows the stage",
+        fitRes.off.w > fitRes.off.stage,
+        "table=" + Math.round(fitRes.off.w) + " stage=" + fitRes.off.stage);
+    check("Fit squeezes the same table inside the stage width",
+        fitRes.on.w <= fitRes.on.stage - 2 * 14 + 1,
+        "table=" + Math.round(fitRes.on.w) + " stage=" + fitRes.on.stage);
+    check("Fit clips no number", fitRes.on.clipped.length === 0, fitRes.on.clipped.join(", "));
+
+    // ---- 15) v0.11: the AC vs PY·PL·FC preset shows all three references
+    const presetRes = await page.evaluate(() => {
+        // the shared demo data view carries no monthly FC — build one that does,
+        // so the preset can be checked against all three references at once
+        const rows = PNL_DEMO.levelRows;
+        const col = (role, name, vals) => ({
+            source: { roles: { [role]: true }, displayName: name, index: 0 }, values: vals });
+        const L = (i) => rows.map(r => r.levels[i] ?? null);
+        const dataView = {
+            categorical: {
+                categories: [
+                    col("levels", "L1", L(0)), col("levels", "L2", L(1)), col("levels", "L3", L(2)),
+                    col("account", "AccountID", rows.map(r => r.account)),
+                    col("sortOrder", "Sort", rows.map(r => r.sort)),
+                    col("rowType", "RowType", rows.map(r => r.rowType)),
+                    col("formulaDef", "Formula", rows.map(r => r.formulaDef)),
+                    col("signConvention", "Sign", rows.map(r => r.sign)),
+                    col("displayInvert", "DispInv", rows.map(r => r.displayInvert)),
+                    col("varianceInvert", "VarInv", rows.map(r => r.varianceInvert)),
+                    col("period", "Monat", rows.map(r => r.month)),
+                ],
+                values: [
+                    col("ac", "AC", rows.map(r => r.values.ac ?? null)),
+                    col("py", "PY", rows.map(r => r.values.py ?? null)),
+                    col("pl", "PL", rows.map(r => r.values.pl ?? null)),
+                    col("fc", "FC", rows.map(r => r.values.pl == null ? null
+                        : Math.round(r.values.pl * 101) / 100)),
+                ],
+            },
+            metadata: { objects: { state: { uiState: JSON.stringify({
+                view: "table", preset: "dall", fit: false }) } } },
+        };
+        const d = document.createElement("div");
+        d.className = "stage"; d.id = "dall"; d.style.cssText = "width:1500px;height:700px;";
+        document.body.appendChild(d);
+        const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US") });
+        v.update({ dataViews: [dataView], viewport: { width: 1500, height: 700 }, type: 2 });
+        const heads = [...d.querySelectorAll("div")]
+            .filter(x => x.style.display === "table-cell").map(x => x.textContent);
+        // Δ axes: gray = PY, double line = PL, dashed = FC (IBCS UN 4.1)
+        const axes = [...d.querySelectorAll("svg line")].map(l => ({
+            stroke: l.getAttribute("stroke"), dash: l.getAttribute("stroke-dasharray") }));
+        return {
+            heads: [...new Set(heads)].filter(t => t.indexOf("Δ") === 0),
+            presetBtn: [...d.querySelectorAll("button")].some(b => b.textContent === "AC vs PY·PL·FC"),
+            gray: axes.some(a => a.stroke === "#B3B3B3"),
+            dashed: axes.some(a => a.dash === "3,2"),
+        };
+    });
+    for (const label of ["ΔPY", "ΔPY%", "ΔPL", "ΔPL%", "ΔFC", "ΔFC%"]) {
+        check("preset AC vs PY·PL·FC shows the " + label + " column",
+            presetRes.heads.indexOf(label) >= 0, presetRes.heads.join(","));
+    }
+    check("the AC vs PY·PL·FC preset button sits in the toolbar", presetRes.presetBtn);
+    check("the Δ axes keep encoding their reference (gray PY, dashed FC)",
+        presetRes.gray && presetRes.dashed,
+        "gray=" + presetRes.gray + " dashed=" + presetRes.dashed);
+
+    // ---- 16) v0.11: header font size and colour of the table headers
+    const headRes = await page.evaluate(() => {
+        const mk = (id, style) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = "width:1300px;height:600px;";
+            document.body.appendChild(d);
+            run(id, { titleBlock: { measureLine: "header" }, style,
+                state: { uiState: JSON.stringify({ view: "table" }) } });
+            // the block title row and the column label row, in that order
+            const cells = [...d.querySelectorAll("div")]
+                .filter(x => x.style.display === "table-cell" && x.textContent !== "");
+            const block = cells.find(x => x.textContent.indexOf("year to date") >= 0);
+            const label = cells.find(x => x.textContent === "% Rev");
+            return {
+                blockFs: block ? block.style.fontSize : "",
+                labelFs: label ? label.style.fontSize : "",
+                color: label ? label.style.color : "",
+            };
+        };
+        return { auto: mk("hd-auto", {}), big: mk("hd-big", { headerFontSize: 18,
+            headerColor: { solid: { color: "#0064FF" } } }) };
+    });
+    check("automatic header sizing keeps the built-in 9 / 9.5 px",
+        headRes.auto.blockFs === "9px" && headRes.auto.labelFs === "9.5px",
+        JSON.stringify(headRes.auto));
+    check("automatic header colour keeps the built-in soft gray",
+        headRes.auto.color === "rgb(138, 136, 134)", headRes.auto.color);
+    check("a header font size scales both header rows",
+        parseFloat(headRes.big.blockFs) === 18 && parseFloat(headRes.big.labelFs) === 19,
+        JSON.stringify(headRes.big));
+    check("a header colour override reaches the column labels",
+        headRes.big.color === "rgb(0, 100, 255)", headRes.big.color);
+
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();
 

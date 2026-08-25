@@ -9,6 +9,7 @@ import FormattingSettingsModel = formattingSettings.Model;
 const presetItems: powerbi.IEnumMember[] = [
     { value: "full", displayName: "AC·PY·PL·FC (full)" },
     { value: "acref", displayName: "AC vs reference" },
+    { value: "dall", displayName: "AC vs PY·PL·FC" },
     { value: "acpydpy", displayName: "AC·PY·ΔPY" },
     { value: "acpldpl", displayName: "AC·PL·ΔPL" },
     { value: "dpct", displayName: "ΔPY% · ΔPL%" }
@@ -121,6 +122,14 @@ export class ColumnsCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    fitWidth = new formattingSettings.ToggleSwitch({
+        name: "fitWidth",
+        displayName: "Fit table to width (default)",
+        displayNameKey: "Columns_FitWidth",
+        description: "Squeezes the chart columns until the table fits the viewport — no horizontal scrolling",
+        value: false
+    });
+
     treeRoot = new formattingSettings.TextInput({
         name: "treeRoot",
         displayName: "Driver tree root row (id or name)",
@@ -161,7 +170,7 @@ export class ColumnsCardSettings extends FormattingSettingsCard {
     displayName: string = "Columns";
     displayNameKey: string = "Card_Columns";
     slices = [this.preset, this.reference, this.pctRevenue, this.revenueBase, this.hideZeroRows,
-        this.treeRoot, this.treeLevel, this.treeCard, this.treeStatus];
+        this.fitWidth, this.treeRoot, this.treeLevel, this.treeCard, this.treeStatus];
 }
 
 export class NumbersCardSettings extends FormattingSettingsCard {
@@ -235,6 +244,25 @@ export class StyleCardSettings extends FormattingSettingsCard {
         value: fontPresetItems[0]
     });
 
+    headerFontSize = new formattingSettings.NumUpDown({
+        name: "headerFontSize",
+        displayName: "Header font size (px)",
+        displayNameKey: "Style_HeaderFont",
+        description: "0 = automatic (built-in sizes), otherwise 7–20 px",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 20 }
+        }
+    });
+
+    headerColor = new formattingSettings.ColorPicker({
+        name: "headerColor",
+        displayName: "Header font color (override)",
+        displayNameKey: "Style_HeaderColor",
+        value: { value: "" }
+    });
+
     goodColor = new formattingSettings.ColorPicker({
         name: "goodColor",
         displayName: "Favorable Δ color (override)",
@@ -252,7 +280,8 @@ export class StyleCardSettings extends FormattingSettingsCard {
     name: string = "style";
     displayName: string = "Style";
     displayNameKey: string = "Card_Style";
-    slices = [this.colorMode, this.fontPreset, this.goodColor, this.badColor, this.density];
+    slices = [this.colorMode, this.fontPreset, this.headerFontSize, this.headerColor,
+        this.goodColor, this.badColor, this.density];
 }
 
 export class TitleBlockCardSettings extends FormattingSettingsCard {

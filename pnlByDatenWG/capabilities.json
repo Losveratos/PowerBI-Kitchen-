@@ -358,6 +358,10 @@
                                 "displayName": "AC vs reference"
                             },
                             {
+                                "value": "dall",
+                                "displayName": "AC vs PY·PL·FC"
+                            },
+                            {
                                 "value": "acpydpy",
                                 "displayName": "AC·PY·ΔPY"
                             },
@@ -405,6 +409,11 @@
                     }
                 },
                 "hideZeroRows": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "fitWidth": {
                     "type": {
                         "bool": true
                     }
@@ -531,6 +540,20 @@
                                 "displayName": "UHD / Präsentation"
                             }
                         ]
+                    }
+                },
+                "headerFontSize": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "headerColor": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
                     }
                 },
                 "goodColor": {
