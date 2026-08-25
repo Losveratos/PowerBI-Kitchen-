@@ -372,6 +372,9 @@ export class Visual implements IVisual {
     /** open hover-zoom panel of the driver tree (one at a time) */
     private zoomEl: HTMLElement | null = null;
     private zoomTimer: ReturnType<typeof setTimeout> | null = null;
+    /** floating clone of the sticky table header rows (see stickyHeaderRow) */
+    private floatHeadEl: HTMLElement | null = null;
+    private floatTop = 0;
     private wfSegs = new Map<string, Map<string, { s: number; e: number }>>();
     private stateLoaded = false;
     private pendingPersist: string | null = null;
@@ -947,6 +950,7 @@ export class Visual implements IVisual {
         if (!model || !ui) { return; }
         const keepScroll = this.root.scrollTop;
         this.treeZoomHide();
+        this.floatHeadEl = null;
         this.root.replaceChildren();
         this.root.style.background = this.pageBg();
         this.comments = [];
@@ -1072,15 +1076,10 @@ export class Visual implements IVisual {
         const zoomHead = this.root.querySelector('[data-pnl="zoom-head"]') as HTMLElement | null;
         if (zoomHead) {
             zoomHead.style.top = top + "px";
+            zoomHead.style.boxShadow = `0 -1px 0 ${this.pageBg()}`;
             top += Math.round(zoomHead.getBoundingClientRect().height);
         }
-        const rows = this.root.querySelectorAll('[data-pnl="hdr-row"]');
-        for (let i = 0; i < rows.length; i++) {
-            const row = rows[i] as HTMLElement;
-            const cells = row.children;
-            for (let j = 0; j < cells.length; j++) { (cells[j] as HTMLElement).style.top = top + "px"; }
-            top += Math.round(row.getBoundingClientRect().height);
-        }
+        this.buildFloatHead(top);
     }
 
     /**
@@ -1154,6 +1153,7 @@ export class Visual implements IVisual {
     private onScroll(): void {
         if (this.zoomEl || this.zoomTimer != null) { this.treeZoomHide(); }
         this.syncHeadShadow();
+        this.syncFloatHead();
         if (!this.vs || this.scrollRaf !== 0) { return; }
         const raf = typeof requestAnimationFrame === "function"
             ? requestAnimationFrame : (cb: FrameRequestCallback): number => setTimeout(() => cb(0), 16) as unknown as number;
@@ -1913,19 +1913,64 @@ export class Visual implements IVisual {
      * the layout pass finds, its cells carry the sticky position (a table row is
      * no positioning box). The paper fill is what the body rows disappear behind.
      */
+    /**
+     * Sticky header rows cannot be stickied in place: Chromium paints
+     * position:sticky table-cells BEHIND later body content (hit-testing says
+     * otherwise), so the scrolling rows bleed through the header. Instead the
+     * in-table rows only keep driving the column widths (visibility:hidden),
+     * and applySticky() overlays a floating clone that is repositioned on
+     * every scroll frame — an ordinary div, painted in declared z-order.
+     */
     private stickyHeaderRow(row: HTMLElement): HTMLElement {
         row.setAttribute("data-pnl", "hdr-row");
         if (!this.sticky()) { return row; }
-        const bg = this.pageBg();
         const cells = row.children;
         for (let i = 0; i < cells.length; i++) {
-            const c = cells[i] as HTMLElement;
-            c.style.position = "sticky";
-            c.style.top = "0px";
-            c.style.zIndex = "4";
-            c.style.background = bg;
+            (cells[i] as HTMLElement).style.visibility = "hidden";
         }
         return row;
+    }
+
+    /** overlay clone of the header rows — see stickyHeaderRow */
+    private buildFloatHead(topOffset: number): void {
+        this.floatHeadEl?.remove();
+        this.floatHeadEl = null;
+        const rows = this.root.querySelectorAll('[data-pnl="hdr-row"]');
+        if (rows.length === 0) { return; }
+        const table = rows[0].parentElement as HTMLElement;
+        const bg = this.pageBg();
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "float-head");
+        wrap.style.cssText = "position:absolute;z-index:25;pointer-events:none;" +
+            `display:table;table-layout:fixed;background:${bg};` +
+            `box-shadow:0 1px 0 ${bg},0 -1px 0 ${bg};`;
+        for (let r = 0; r < rows.length; r++) {
+            const row = rows[r] as HTMLElement;
+            const clone = row.cloneNode(true) as HTMLElement;
+            clone.removeAttribute("data-pnl");
+            const src = row.children; const dst = clone.children;
+            for (let i = 0; i < src.length; i++) {
+                const d = dst[i] as HTMLElement;
+                d.style.visibility = "visible";
+                d.style.width = (src[i] as HTMLElement).getBoundingClientRect().width.toFixed(2) + "px";
+                d.style.boxSizing = "border-box";
+                d.style.overflow = "hidden";
+            }
+            wrap.appendChild(clone);
+        }
+        const rb = this.root.getBoundingClientRect();
+        const tb = table.getBoundingClientRect();
+        wrap.style.left = (tb.left - rb.left + this.root.scrollLeft).toFixed(2) + "px";
+        this.floatTop = topOffset;
+        this.root.appendChild(wrap);
+        this.floatHeadEl = wrap;
+        this.syncFloatHead();
+    }
+
+    /** pin the floating header just under the frozen head, in content space */
+    private syncFloatHead(): void {
+        if (!this.floatHeadEl) { return; }
+        this.floatHeadEl.style.top = (this.root.scrollTop + this.floatTop).toFixed(2) + "px";
     }
 
     private blockHeaderRow(blocks: Block[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number }): HTMLElement {

@@ -1110,8 +1110,14 @@ function tidyChecks(geom, tag) {
                 shadow: head ? head.style.boxShadow : "",
                 border: head ? head.style.borderBottomColor : "",
                 noteInHead: !!(head && head.querySelector('[data-pnl="scale-note"]')),
-                rowCellTops: rows.map(r => top(r.children[0])),
-                rowCellPos: rows.map(r => r.children[0].style.position),
+                // the visible header is the floating clone (Chromium paints
+                // stickied table-cells behind body content, so the in-table
+                // rows are width-drivers only, visibility:hidden)
+                floatRowTops: (() => {
+                    const fh = d.querySelector('[data-pnl="float-head"]');
+                    return fh ? [...fh.children].map(r => top(r)) : [];
+                })(),
+                srcHidden: rows.map(r => r.children[0].style.visibility),
                 // a body row really is scrolled out from under the header
                 bodyBelow: [...d.querySelectorAll("div")]
                     .filter(x => x.style.display === "table-row"
@@ -1125,18 +1131,19 @@ function tidyChecks(geom, tag) {
         "top=" + stickyRes.on.headTop);
     check("the scale note rides in the frozen head", stickyRes.on.noteInHead);
     check("the two column header rows stick right under the head",
-        stickyRes.on.rowCellPos.every(p => p === "sticky")
-        && stickyRes.on.rowCellTops.length === 2
-        && Math.abs(stickyRes.on.rowCellTops[0] - stickyRes.on.headH) <= 1
-        && stickyRes.on.rowCellTops[1] > stickyRes.on.rowCellTops[0],
-        JSON.stringify(stickyRes.on.rowCellTops) + " headH=" + stickyRes.on.headH);
+        stickyRes.on.srcHidden.every(v => v === "hidden")
+        && stickyRes.on.floatRowTops.length === 2
+        && Math.abs(stickyRes.on.floatRowTops[0] - stickyRes.on.headH) <= 1
+        && stickyRes.on.floatRowTops[1] > stickyRes.on.floatRowTops[0],
+        JSON.stringify(stickyRes.on.floatRowTops) + " headH=" + stickyRes.on.headH);
     check("a scrolled head draws its divider and the quiet shadow",
         stickyRes.on.stuck && stickyRes.on.shadow !== "" && stickyRes.on.shadow !== "none"
         && stickyRes.on.border !== "transparent",
         stickyRes.on.shadow + " / " + stickyRes.on.border);
     check("switching the setting off releases head and header rows",
-        stickyRes.off.rowCellPos.every(p => p !== "sticky") && !stickyRes.off.stuck,
-        JSON.stringify(stickyRes.off.rowCellPos));
+        stickyRes.off.srcHidden.every(v => v !== "hidden")
+        && stickyRes.off.floatRowTops.length === 0 && !stickyRes.off.stuck,
+        JSON.stringify(stickyRes.off.srcHidden) + " float=" + stickyRes.off.floatRowTops.length);
 
     // ---- 22) v0.13: the tile view fits the viewport without vertical scrolling
     const fitZoom = await page.evaluate(() => {

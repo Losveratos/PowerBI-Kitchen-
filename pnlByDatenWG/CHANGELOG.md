@@ -1,5 +1,18 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.13.1.0 (2026-08-25) — Fixierter Kopf: Durchbluten der Body-Zeilen behoben
+
+- Beim Scrollen konnten Fragmente der Body-Zeilen (Zahlen, Δ-Balken) durch die
+  fixierten Spalten-Kopfzeilen durchscheinen. Ursache ist ein
+  Chromium-Rendering-Fehler: `position:sticky` auf Tabellen-Zellen wird beim
+  Malen hinter später gezeichnetem Inhalt einsortiert, obwohl die z-Ordnung
+  stimmt. Die Kopfzeilen in der Tabelle treiben jetzt nur noch die
+  Spaltenbreiten (unsichtbar); sichtbar ist ein **schwebender Klon**, der auf
+  jedem Scroll-Frame exakt unter dem Kopfbereich nachgeführt wird — als
+  normales Element mit korrekter Malreihenfolge, inklusive Naht-Versiegelung
+  gegen Subpixel-Fugen. Verhalten (vertikal fixiert, horizontal scrollt er mit
+  den Spalten) unverändert.
+
 ## 0.13.0.0 (2026-08-25) — Fixierter Kopfbereich, selbstskalierender Kachel-Zoom, lesbare Treiber-Karten, Referenzsäulen je Monat, ehrlicher Umgang mit fehlenden Monaten
 
 Diese Version kommt komplett aus echter Power-BI-Nutzung: fixierbarer Kopf,
