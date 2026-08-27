@@ -504,4 +504,128 @@ test("syntheticTotal: monthly series roll up like a subtotal", () => {
     assert.equal(t.series.py, undefined);
 });
 
+// v0.16 — the period parser: every shape a period column really arrives in
+test("period parsing: keys, dates, month names, numbers, junk", () => {
+    const p = (s) => E.parsePeriod(s);
+    const eq = (s, y, mo, d) => assert.deepEqual(p(s), { y, m: mo, d }, "parse " + s);
+
+    // the classic text keys — unchanged
+    eq("2026-01", 2026, 1, 0);
+    eq("2026-12", 2026, 12, 0);
+    eq("2026-01-15", 2026, 1, 15);
+    eq("2026-03-01T00:00:00Z", 2026, 3, 1);
+    eq("2026/07", 2026, 7, 0);
+    assert.equal(p("2026-13"), null);                  // no such month
+
+    // German month names, short and long, with and without a dot, any casing
+    eq("Dez", null, 12, 0);
+    eq("dez.", null, 12, 0);
+    eq("Dezember", null, 12, 0);
+    eq("MÄRZ", null, 3, 0);
+    eq("Mär", null, 3, 0);
+    eq("Mrz", null, 3, 0);
+    eq("Jan", null, 1, 0);
+    eq("Sept.", null, 9, 0);
+    eq("Okt", null, 10, 0);
+
+    // English, short and long
+    eq("Dec", null, 12, 0);
+    eq("March", null, 3, 0);
+    eq("May", null, 5, 0);
+    eq("october", null, 10, 0);
+
+    // month name plus a four-digit year, on either side
+    eq("Mär 2026", 2026, 3, 0);
+    eq("2026 Mar", 2026, 3, 0);
+    eq("Dez. 2025", 2025, 12, 0);
+
+    // plain calendar numbers
+    eq("1", null, 1, 0);
+    eq("12", null, 12, 0);
+    eq("07", null, 7, 0);
+    assert.equal(p("0"), null);
+    assert.equal(p("13"), null);
+
+    // an epoch timestamp in milliseconds
+    const ms = new Date(2026, 4, 15).getTime();
+    assert.deepEqual(p(String(ms)), { y: 2026, m: 5, d: 15 });
+
+    // …and everything the visual must NOT guess at
+    for (const junk of ["", null, undefined, "   ", "P07", "KW 12", "Quartal 1", "FY26", "-"]) {
+        assert.equal(p(junk), null, "junk " + junk);
+    }
+});
+
+test("period sorting: auto / data / calendar", () => {
+    const DE = ["Dez", "Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov"];
+    const CAL = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+
+    // auto: readable labels go into calendar order …
+    assert.deepEqual(E.sortMonths(DE, "auto"), CAL);
+    assert.deepEqual(E.sortMonths(DE), CAL);                       // auto is the default
+    // … and the classic key path stays exactly what .sort() produced before
+    const keys = ["2026-03", "2026-01", "2025-12", "2026-02"];
+    assert.deepEqual(E.sortMonths(keys, "auto"), ["2025-12", "2026-01", "2026-02", "2026-03"]);
+    assert.deepEqual(E.sortMonths(keys, "auto"), [...keys].sort());
+    // days inside one month keep their day order
+    assert.deepEqual(E.sortMonths(["2026-01-30", "2026-01-02"], "auto"),
+        ["2026-01-02", "2026-01-30"]);
+
+    // auto: one unreadable label and the whole column falls back to data order
+    const fiscal = ["P04", "P05", "P06", "P07"];
+    assert.deepEqual(E.sortMonths(fiscal, "auto"), fiscal);
+    assert.deepEqual(E.sortMonths(["Jan", "P02", "Mär"], "auto"), ["Jan", "P02", "Mär"]);
+
+    // data: the sequence is never touched, however readable it is
+    assert.deepEqual(E.sortMonths(DE, "data"), DE);
+    assert.deepEqual(E.sortMonths(keys, "data"), keys);
+
+    // calendar: forced, unreadable labels keep their data order behind the rest
+    assert.deepEqual(E.sortMonths(["Jan", "P02", "Mär"], "calendar"), ["Jan", "Mär", "P02"]);
+    assert.deepEqual(E.sortMonths(["Zeta", "Alpha"], "calendar"), ["Zeta", "Alpha"]);
+    // with years the year wins over the calendar position
+    assert.deepEqual(E.sortMonths(["Mär 2026", "Dez 2025", "Jan 2026"], "calendar"),
+        ["Dez 2025", "Jan 2026", "Mär 2026"]);
+
+    // data order is stable: equal keys never shuffle
+    assert.deepEqual(E.sortMonths(["Jul", "Jul", "Jan"], "auto"), ["Jan", "Jul", "Jul"]);
+});
+
+test("period sorting: the monthly series follow the period order", () => {
+    const mk = (sort) => {
+        const rows = [
+            ["Dez", 12], ["Jan", 1], ["Feb", 2], ["Mär", 3],
+        ].map(([m, v], i) => lrow(["Umsatz", "Produkte"], {
+            month: m, values: { ac: v }, index: i,
+        }));
+        const lr = E.rowsFromLevels(rows, sort);
+        return { model: E.buildModel(lr.rows, "U", lr.months), months: lr.months };
+    };
+    const prod = (r) => [...r.model.byId.values()].find(x => x.row.name === "Produkte");
+
+    const auto = mk("auto");
+    assert.deepEqual(auto.months, ["Jan", "Feb", "Mär", "Dez"]);
+    assert.deepEqual(auto.model.months, auto.months);
+    assert.deepEqual(prod(auto).series.ac, [1, 2, 3, 12]);   // series indices follow the months
+    assert.equal(prod(auto).computed.ac, 18);                // the YTD sum is order-free
+
+    const data = mk("data");
+    assert.deepEqual(data.months, ["Dez", "Jan", "Feb", "Mär"]);
+    assert.deepEqual(prod(data).series.ac, [12, 1, 2, 3]);
+    assert.equal(prod(data).computed.ac, 18);
+
+    const cal = mk("calendar");
+    assert.deepEqual(cal.months, ["Jan", "Feb", "Mär", "Dez"]);
+    assert.deepEqual(prod(cal).series.ac, [1, 2, 3, 12]);
+
+    // the classic key path is untouched by any of this
+    const keyRows = ["2026-02", "2026-01"].map((m, i) => lrow(["Umsatz", "Produkte"], {
+        month: m, values: { ac: i === 0 ? 20 : 10 }, index: i,
+    }));
+    const kr = E.rowsFromLevels(keyRows);
+    assert.deepEqual(kr.months, ["2026-01", "2026-02"]);
+    const km = E.buildModel(kr.rows, "U", kr.months);
+    assert.deepEqual([...km.byId.values()].find(x => x.row.name === "Produkte").series.ac, [10, 20]);
+});
+
 console.log(`\n${n} engine test blocks passed`);

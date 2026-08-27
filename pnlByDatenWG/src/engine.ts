@@ -89,15 +89,156 @@ export interface LevelInputRow {
     index: number;
 }
 
+// ---- period keys: one place decides in which order the periods are read
+
+/** How the bound period column is ordered (format pane: columns.periodSort). */
+export type PeriodSort = "auto" | "data" | "calendar";
+
+/**
+ * A period label broken into its calendar position. `y` is null when the label
+ * carries no year at all ("Dez", "March", "7") — such a column can only be put
+ * in calendar order, never on a timeline.
+ */
+export interface PeriodKey {
+    y: number | null;
+    /** 1..12 */
+    m: number;
+    /** day of month, 0 when the label names no day */
+    d: number;
+}
+
+/**
+ * Month stems, German and English, long and short. Everything is folded to
+ * lower case without umlauts first, then looked up whole and — failing that —
+ * by its first three letters, so "Dezember", "Dez.", "Dec", "March", "März"
+ * and "Mrz" all land on the same number.
+ */
+const MONTH_STEM: Record<string, number> = {
+    jan: 1, feb: 2, mar: 3, mrz: 3, apr: 4, mai: 5, may: 5, jun: 6,
+    jul: 7, aug: 8, sep: 9, okt: 10, oct: 10, nov: 11, dez: 12, dec: 12,
+};
+
+/** lower case, umlauts folded — the shape MONTH_STEM is keyed on */
+function foldWord(s: string): string {
+    return s.toLowerCase()
+        .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "s");
+}
+
+/**
+ * Below this a bare number is a figure (a month position, a fiscal period),
+ * above it an epoch timestamp in milliseconds (~1973 and later). Hosts hand
+ * date columns over as ISO text or as Date objects; a numeric stamp only shows
+ * up when the model itself carries one.
+ */
+const MS_EPOCH_MIN = 1e11;
+
+/**
+ * Read one period label into its calendar position — the single parser behind
+ * every ordering decision. Supported, in this order:
+ *
+ *  · "YYYY-MM", "YYYY-MM-DD", ISO timestamps ("2026-03-01T00:00:00Z"),
+ *    "YYYY/MM" — the classic text key, unchanged;
+ *  · a plain number: 1..12 is a calendar position, a large one an epoch
+ *    timestamp in milliseconds;
+ *  · a month name, German or English, long or short, with or without a dot and
+ *    in any casing ("Dez", "Dez.", "Dezember", "Dec", "March", "Mär", "Mrz"),
+ *    optionally with a four-digit year on either side ("Mär 2026", "2026 Mar").
+ *
+ * Anything else returns null — the caller then falls back to data order rather
+ * than guessing (fiscal calendars, week labels, "P01".."P13" …).
+ */
+export function parsePeriod(raw: string | null | undefined): PeriodKey | null {
+    const s = String(raw ?? "").trim();
+    if (s === "") { return null; }
+
+    const iso = /^(\d{4})[-/](\d{1,2})(?:[-/](\d{1,2}))?/.exec(s);
+    if (iso) {
+        const m = Number(iso[2]);
+        if (m < 1 || m > 12) { return null; }
+        return { y: Number(iso[1]), m, d: iso[3] == null ? 0 : Number(iso[3]) };
+    }
+
+    if (/^-?\d+(?:[.,]\d+)?$/.test(s)) {
+        const n = Number(s.replace(",", "."));
+        if (!isFinite(n)) { return null; }
+        if (Number.isInteger(n) && n >= 1 && n <= 12) { return { y: null, m: n, d: 0 }; }
+        if (Math.abs(n) >= MS_EPOCH_MIN) {
+            const dt = new Date(n);
+            if (!isNaN(dt.getTime())) {
+                return { y: dt.getFullYear(), m: dt.getMonth() + 1, d: dt.getDate() };
+            }
+        }
+        return null;
+    }
+
+    let m = 0;
+    let y: number | null = null;
+    for (const tok of foldWord(s).split(/[^0-9a-z]+/)) {
+        if (tok === "") { continue; }
+        if (/^\d+$/.test(tok)) {
+            if (tok.length === 4 && y == null) { y = Number(tok); }
+            continue;
+        }
+        if (m !== 0) { continue; }
+        const hit = MONTH_STEM[tok] ?? MONTH_STEM[tok.slice(0, 3)];
+        if (hit) { m = hit; }
+    }
+    return m === 0 ? null : { y, m, d: 0 };
+}
+
+/**
+ * THE one place the period order is decided. `keys` arrive in data order (first
+ * appearance in the data view) and come back in render order. Everything
+ * downstream — the monthly series indices, the YTD window, the combo chart, the
+ * sparklines, the "_Aug" marker — reads PnlModel.months, so the whole visual
+ * follows this single decision and no consumer sorts on its own.
+ *
+ *  · "data"     — first appearance wins (fiscal years, models with their own
+ *                 sort column on the period attribute);
+ *  · "calendar" — Jan..Dec; where the labels carry a year, year first;
+ *  · "auto"     — calendar as soon as *every* label parses, data order
+ *                 otherwise (default).
+ *
+ * Labels that do not parse keep their data order and sort behind the dated
+ * ones — a column that mixes the two is a modelling accident, and guessing
+ * would only hide it.
+ */
+export function sortMonths(keys: string[], mode: PeriodSort = "auto"): string[] {
+    if (mode === "data") { return [...keys]; }
+    const idx = new Map<string, number>();
+    const parsed = new Map<string, PeriodKey | null>();
+    keys.forEach((k, i) => {
+        if (idx.has(k)) { return; }
+        idx.set(k, i);
+        parsed.set(k, parsePeriod(k));
+    });
+    if (mode === "auto") {
+        for (const p of parsed.values()) { if (p == null) { return [...keys]; } }
+    }
+    return [...keys].sort((a, b) => {
+        const ia = idx.get(a) ?? 0; const ib = idx.get(b) ?? 0;
+        const pa = parsed.get(a) ?? null; const pb = parsed.get(b) ?? null;
+        if (pa == null || pb == null) {
+            if (pa == null && pb == null) { return ia - ib; }
+            return pa == null ? 1 : -1;
+        }
+        return (pa.y ?? -1) - (pb.y ?? -1) || pa.m - pb.m || pa.d - pb.d || ia - ib;
+    });
+}
+
 /**
  * Month-grain aggregation: merge rows sharing an id into one InputRow —
  * regular scenarios sum up and fill the monthly series, FY scalars
  * (fcfy/plfy, repeated on every month row) take the first value.
+ *
+ * The period order comes from sortMonths (see there) — the months array this
+ * returns is the order every series index in the model is built against.
  */
 export function aggregateMonthly(
-    rows: (InputRow & { month: string | null })[]
+    rows: (InputRow & { month: string | null })[], sort: PeriodSort = "auto"
 ): { rows: InputRow[]; months: string[] } {
-    const months = [...new Set(rows.map(r => r.month).filter((m): m is string => m != null))].sort();
+    const months = sortMonths(
+        [...new Set(rows.map(r => r.month).filter((m): m is string => m != null))], sort);
     const byId = new Map<string, InputRow>();
     for (const r of rows) {
         let t = byId.get(r.id);
@@ -137,7 +278,9 @@ export function aggregateMonthly(
  * subtotal, so its own value acts as the per-scenario fallback instead of
  * double counting.
  */
-export function rowsFromLevels(rows: LevelInputRow[]): { rows: InputRow[]; months: string[] } {
+export function rowsFromLevels(
+    rows: LevelInputRow[], sort: PeriodSort = "auto"
+): { rows: InputRow[]; months: string[] } {
     const synth = new Map<string, InputRow>();
     const leaves: (InputRow & { month: string | null })[] = [];
     const pathId = (path: string[]): string => LEVEL_PREFIX + path.join(LEVEL_SEP);
@@ -179,7 +322,7 @@ export function rowsFromLevels(rows: LevelInputRow[]): { rows: InputRow[]; month
 
     // month-grain rows sharing a path merge into one leaf (values summed,
     // FY scalars first-wins, monthly series filled)
-    const agg = aggregateMonthly(leaves);
+    const agg = aggregateMonthly(leaves, sort);
     // a real data row at a synthetic parent's path replaces the synthetic
     for (const leaf of agg.rows) { synth.delete(leaf.id); }
     const out = [...synth.values(), ...agg.rows];

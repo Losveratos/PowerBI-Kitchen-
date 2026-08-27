@@ -30,8 +30,8 @@ import {
     buildModel, flattenVisible, collapseToLevel, variance, displayValue,
     parseRowType, parseBool, parseSign, rowsFromLevels, aggregateMonthly,
     isZeroRow, revenueBase, formulaOperands, nodeResolver, Variance,
-    syntheticTotal, TOTAL_ID,
-    FormulaOp, InputRow, LevelInputRow, PnlModel, PnlNode, Scenario,
+    syntheticTotal, TOTAL_ID, parsePeriod,
+    FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
 } from "./engine";
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
@@ -61,6 +61,16 @@ const TRANSITION = "background-color .12s ease,border-color .12s ease,box-shadow
  * (Create = 0, Append = 1, Segment = 2; no runtime object exists).
  */
 const OP_APPEND = 1;
+
+/**
+ * Ceiling of the type scale: the size preset (HD 1 · Full HD 1.25 · UHD 1.6)
+ * multiplied by the fine scaling (80–160 %) would reach 2.56 at both maxima.
+ * Beyond ~2.2 the table stops being a table — the row-label column eats the
+ * viewport, the chart columns lose their bars and every squeeze mechanism runs
+ * into its floor. The product is capped here instead, so the two controls stay
+ * independent and the extreme corner still renders a readable page.
+ */
+const FONT_SCALE_MAX = 2.2;
 
 /** Windowed table rendering kicks in above this many visible rows. */
 const VIRT_MIN_ROWS = 300;
@@ -336,6 +346,10 @@ interface TableGeo {
     fs: number;
     /** font size of the in-chart value labels (fit mode shrinks it with the lane) */
     labelFs: number;
+    /** drawn size of a Δ bar / Δ% pin label */
+    barLabelFs: number;
+    /** drawn size of a value-bar / cascade label */
+    valLabelFs: number;
     BAR_HALF: number;
     PIN_HALF: number;
     barW: number;
@@ -346,6 +360,12 @@ interface TableGeo {
     vAxisX: number;
     vPpu: number;
     vLabelW: number;
+    /** width of the air column between two period blocks */
+    gapW: number;
+    /** height a separator row adds through its top padding */
+    sepExtraH: number;
+    /** height of an opened sparkline row */
+    sparkH: number;
     /** total px of every column except the auto-width row-label column */
     colsW: number;
 }
@@ -550,7 +570,10 @@ export class Visual implements IVisual {
     private fingerprint(dataView: DataView): string {
         const cat = dataView.categorical;
         if (!cat) { return "none"; }
-        const parts: string[] = [];
+        // the period sort mode is a parse-time decision (it fixes model.months),
+        // so it belongs in the fingerprint — otherwise switching it in the
+        // format pane would silently reuse the previously ordered model
+        const parts: string[] = ["ps:" + this.periodSortMode()];
         for (const c of cat.categories ?? []) {
             const v = c.values;
             parts.push((c.source.queryName ?? c.source.displayName ?? "") + "#" + v.length
@@ -617,6 +640,31 @@ export class Visual implements IVisual {
             return t === "" ? null : t;
         };
 
+        /**
+         * The period cell as one stable text key — the only place a host value
+         * is normalised. A date column arrives as a Date object or as an ISO
+         * string depending on the host and the model, and a numeric column may
+         * carry an epoch stamp; all of them become "YYYY-MM-DD" here, so the
+         * engine (and everything reading model.months) only ever sees text.
+         * Month names, fiscal labels and plain numbers pass through untouched —
+         * engine.parsePeriod reads them where they are, and they stay the label
+         * the report author wrote.
+         */
+        const periodKey = (i: number): string | null => {
+            if (!periodCol) { return null; }
+            const v = periodCol.values[i];
+            if (v == null) { return null; }
+            if (v instanceof Date) {
+                if (isNaN(v.getTime())) { return null; }
+                const mm = String(v.getMonth() + 1).padStart(2, "0");
+                const dd = String(v.getDate()).padStart(2, "0");
+                return `${v.getFullYear()}-${mm}-${dd}`;
+            }
+            const t = String(v).trim();
+            return t === "" ? null : t;
+        };
+        const sortMode = this.periodSortMode();
+
         const n = (idCol ?? levelCols[0]).values.length;
         const has: Record<Scenario, boolean> = {
             ac: !!acCol, py: !!pyCol, pl: !!plCol, fc: !!fcCol, fcfy: !!fcFyCol, plfy: !!plFyCol,
@@ -645,11 +693,11 @@ export class Visual implements IVisual {
                     sort: isFinite(sortRaw) ? sortRaw : null,
                     ...attrs(i),
                     values: values(i),
-                    month: periodCol ? key(periodCol, i) : null,
+                    month: periodKey(i),
                     index: i,
                 });
             }
-            const lr = rowsFromLevels(lrows);
+            const lr = rowsFromLevels(lrows, sortMode);
             return { rows: lr.rows, months: lr.months, rowCount: n, has };
         }
         if (!idCol) { return null; }
@@ -665,11 +713,11 @@ export class Visual implements IVisual {
                 sort: isFinite(sortRaw) ? sortRaw : Number.MAX_SAFE_INTEGER,
                 ...attrs(i),
                 values: values(i),
-                month: periodCol ? key(periodCol, i) : null,
+                month: periodKey(i),
                 index: i,
             });
         }
-        const agg = aggregateMonthly(raw);
+        const agg = aggregateMonthly(raw, sortMode);
         return { rows: agg.rows, months: agg.months, rowCount: n, has };
     }
 
@@ -826,18 +874,39 @@ export class Visual implements IVisual {
     private sticky(): boolean {
         return this.settings.styleCard.stickyHeader.value;
     }
+    /**
+     * The one type scale of the visual: the size preset (HD 1 · Full HD 1.25 ·
+     * UHD 1.6) times the fine scaling (80–160 %), capped at FONT_SCALE_MAX.
+     * Every label of the visual reads it through k() / kpx(), so a preset
+     * change moves the whole page at once — table and headers, toolbar, legend,
+     * notes, tree, tile page, hover panel and footer alike.
+     *
+     * HD at 100 % returns exactly 1, and k() then hands the base value back
+     * untouched — the default render stays pixel-identical.
+     */
     private fontScale(): number {
         const fp = String(this.settings.styleCard.fontPreset.value.value);
-        return fp === "fullhd" ? 1.25 : fp === "uhd" ? 1.6 : 1;
+        const preset = fp === "fullhd" ? 1.25 : fp === "uhd" ? 1.6 : 1;
+        const raw = Math.round(Number(this.settings.styleCard.fontZoom.value) || 100);
+        const zoom = (raw < 80 || raw > 160 ? 100 : raw) / 100;
+        return Math.min(preset * zoom, FONT_SCALE_MAX);
     }
+    /** a base px value on the type scale — scale 1 returns it unchanged */
+    private k(base: number): number {
+        const s = this.fontScale();
+        return s === 1 ? base : Math.round(base * s * 10) / 10;
+    }
+    /** …the same, ready for a css declaration */
+    private kpx(base: number): string { return this.k(base) + "px"; }
     /**
      * Font size of a table header line. 0 — or anything outside 7..20 px — keeps
      * the built-in sizes untouched; any other value scales them, so the block
-     * titles stay proportionally larger than the column labels.
+     * titles stay proportionally larger than the column labels. The type scale
+     * applies on top, exactly as it does to the body rows.
      */
     private headerFs(base: number): number {
         const v = Math.round(Number(this.settings.styleCard.headerFontSize.value) || 0);
-        return v < 7 || v > 20 ? base : base * (v / 9);
+        return this.k(v < 7 || v > 20 ? base : base * (v / 9));
     }
     /** header ink of the table — an empty override keeps the built-in soft gray */
     private headerInk(): string {
@@ -940,11 +1009,45 @@ export class Visual implements IVisual {
         return this.monthLabel(months[li >= 0 ? li : months.length - 1]);
     }
 
+    /**
+     * Label of one period key. A "YYYY-MM…" key becomes the short month name of
+     * the reader's locale — unchanged. A bare calendar number (1..12) is the
+     * only other key a reader cannot read as a month, so it becomes a short
+     * month name too. Everything else — "Dez", "März 2026", "P07", a fiscal
+     * label — is the author's own text and passes straight through.
+     */
     private monthLabel(m: string): string {
         const parts = /^(\d{4})-(\d{2})/.exec(m);
-        if (!parts) { return m; }
-        const d = new Date(Number(parts[1]), Number(parts[2]) - 1, 1);
-        return d.toLocaleDateString(this.locale, { month: "short" });
+        if (parts) {
+            const d = new Date(Number(parts[1]), Number(parts[2]) - 1, 1);
+            return d.toLocaleDateString(this.locale, { month: "short" });
+        }
+        if (/^\d{1,2}$/.test(m.trim())) {
+            const p = parsePeriod(m);
+            if (p) {
+                return new Date(2000, p.m - 1, 1).toLocaleDateString(this.locale, { month: "short" });
+            }
+        }
+        return m;
+    }
+
+    /** four-digit year of a period key — "" when the label carries none */
+    private periodYear(m: string): string {
+        const p = parsePeriod(m);
+        return p && p.y != null ? String(p.y) : "";
+    }
+
+    /** the year prefix of a header label, blank (and space-free) without one */
+    private yearPrefix(text: string): string {
+        const months = this.model!.months;
+        const y = months.length > 0 ? this.periodYear(months[0]) : "";
+        return y === "" ? text : y + " " + text;
+    }
+
+    /** the period sort mode of the format pane (see engine.sortMonths) */
+    private periodSortMode(): PeriodSort {
+        const v = String(this.settings.columnsCard.periodSort.value.value);
+        return v === "data" || v === "calendar" ? v : "auto";
     }
 
     // ---------------- render entry ----------------
@@ -954,10 +1057,10 @@ export class Visual implements IVisual {
         const box = document.createElement("div");
         box.style.cssText = "padding:22px 26px;max-width:600px;";
         const h = document.createElement("div");
-        h.style.cssText = "font-size:15px;font-weight:600;margin-bottom:8px;";
+        h.style.cssText = `font-size:${this.kpx(15)};font-weight:600;margin-bottom:8px;`;
         h.textContent = "P&L Statement byDatenWG";
         const p = document.createElement("div");
-        p.style.cssText = `font-size:12px;color:${C.soft};line-height:1.55;`;
+        p.style.cssText = `font-size:${this.kpx(12)};color:${C.soft};line-height:1.55;`;
         p.textContent = this.str(
             "Add the AC measure plus level columns (L1..Ln, star schema) or Account ID + Parent ID. " +
             "Optional: PY / PL / FC, FY outlook measures (FC/PL full year), period (month) for sparklines, " +
@@ -972,7 +1075,7 @@ export class Visual implements IVisual {
     private renderEmpty(): void {
         this.vs = null;
         const box = document.createElement("div");
-        box.style.cssText = `padding:18px 22px;font-size:12px;color:${C.soft};`;
+        box.style.cssText = `padding:18px 22px;font-size:${this.kpx(12)};color:${C.soft};`;
         box.textContent = this.str("No data for the current selection.", "Keine Daten für die aktuelle Auswahl.");
         this.root.replaceChildren(box);
     }
@@ -1121,7 +1224,7 @@ export class Visual implements IVisual {
     private scaleNote(fmt: Fmt, maxAbsDelta: number): HTMLElement {
         const note = document.createElement("div");
         note.setAttribute("data-pnl", "scale-note");
-        note.style.cssText = `font-size:9px;color:${C.soft};text-align:right;` +
+        note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};text-align:right;` +
             `padding:0 ${TABLE_PAD_X}px 3px ${TABLE_PAD_X}px;`;
         note.textContent = this.str("uniform Δ scale: bars ±", "einheitliche Δ-Skala: Balken ±")
             + fmt.val(maxAbsDelta) + " " + fmt.suffix + this.settings.numbersCard.unitText.value
@@ -1193,7 +1296,7 @@ export class Visual implements IVisual {
             const r0 = first.getBoundingClientRect();
             const second = list.children[1] as HTMLElement | undefined;
             const pitch = second ? second.getBoundingClientRect().top - r0.top
-                : r0.height + MICRO_CARD_GAP;
+                : r0.height + this.k(MICRO_CARD_GAP);
             const gap = Math.max(pitch - r0.height, 0);
             if (pitch <= 0) { continue; }
             const fit = Math.max(1, Math.floor((avail + gap) / pitch));
@@ -1205,7 +1308,8 @@ export class Visual implements IVisual {
     /** visible status line while further data segments are still on their way */
     private buildLoadingBar(): HTMLElement {
         const bar = document.createElement("div");
-        bar.style.cssText = `margin:2px 14px 0 14px;padding:4px 8px;font-size:10px;` +
+        bar.style.cssText = `margin:2px 14px 0 14px;padding:${this.kpx(4)} ${this.kpx(8)};` +
+            `font-size:${this.kpx(10)};` +
             `color:${C.loading};border:1px solid ${C.loading};border-radius:2px;` +
             `display:inline-block;`;
         bar.textContent = this.loadingText();
@@ -1349,13 +1453,16 @@ export class Visual implements IVisual {
         const msg = t.message.value.trim();
         if (msg) {
             const m = document.createElement("div");
-            m.style.cssText = "font-size:13.5px;font-weight:700;line-height:1.45;margin-bottom:8px;max-width:900px;";
+            m.style.cssText = `font-size:${this.kpx(13.5)};font-weight:700;line-height:1.45;` +
+                `margin-bottom:${this.kpx(8)};max-width:${this.k(900)}px;`;
             m.textContent = msg;
             wrap.appendChild(m);
         }
         const months = this.model!.months;
+        // the "_Jun" marker names the month the actuals really reach — the same
+        // month the YTD block header and the scenario grid talk about
         const autoPeriod = months.length > 0
-            ? `${months[0].slice(0, 4)} ${this.monthLabel(months[0])}..${this.monthLabel(months[months.length - 1])} (_${this.monthLabel(months[months.length - 1])})`
+            ? this.yearPrefix(`${this.monthLabel(months[0])}..${this.monthLabel(months[months.length - 1])} (_${this.ytdMarker()})`)
             : "";
         const scen = ["AC", this.has.py ? "PY" : "", this.has.pl ? "PL" : ""].filter(Boolean).join(", ");
         const lines = [
@@ -1366,8 +1473,8 @@ export class Visual implements IVisual {
         lines.forEach((line, i) => {
             const el = document.createElement("div");
             el.style.cssText = i === 1
-                ? "font-size:12px;line-height:1.5;font-weight:600;"
-                : `font-size:12px;line-height:1.5;color:${i === 0 ? C.text : C.text};`;
+                ? `font-size:${this.kpx(12)};line-height:1.5;font-weight:600;`
+                : `font-size:${this.kpx(12)};line-height:1.5;color:${i === 0 ? C.text : C.text};`;
             el.textContent = line;
             wrap.appendChild(el);
         });
@@ -1383,7 +1490,8 @@ export class Visual implements IVisual {
             ? `background:${acc};border:1px solid ${acc};color:#FFF;font-weight:600;`
             : `background:#FFF;border:1px solid ${C.ctlEdge};color:${C.text};font-weight:400;`;
         b.style.cssText =
-            `font-family:${FONT};font-size:10.5px;line-height:1.35;padding:3.5px 10px;cursor:pointer;` +
+            `font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;` +
+            `padding:${this.kpx(3.5)} ${this.kpx(10)};cursor:pointer;` +
             `border-radius:4px;transition:${TRANSITION};` + rest;
         // hover is a tint, never a jump: the inactive button warms up, the
         // active one lifts a shade so both stay recognisably the same control
@@ -1402,7 +1510,7 @@ export class Visual implements IVisual {
     /** caps label of a control group — the one type style for every section head */
     private capsLabel(text: string, fs = 8.5): HTMLElement {
         const l = document.createElement("div");
-        l.style.cssText = `font-size:${fs}px;letter-spacing:.09em;color:${C.soft};` +
+        l.style.cssText = `font-size:${this.kpx(fs)};letter-spacing:.09em;color:${C.soft};` +
             "text-transform:uppercase;font-weight:600;line-height:1.4;";
         l.textContent = text;
         return l;
@@ -1410,9 +1518,9 @@ export class Visual implements IVisual {
 
     private tbGroup(label: string, buttons: HTMLElement[]): HTMLElement {
         const g = document.createElement("div");
-        g.style.cssText = "display:flex;flex-direction:column;gap:4px;";
+        g.style.cssText = `display:flex;flex-direction:column;gap:${this.kpx(4)};`;
         const row = document.createElement("div");
-        row.style.cssText = "display:flex;gap:4px;flex-wrap:wrap;";
+        row.style.cssText = `display:flex;gap:${this.kpx(4)};flex-wrap:wrap;`;
         buttons.forEach(b => row.appendChild(b));
         g.appendChild(this.capsLabel(label)); g.appendChild(row);
         return g;
@@ -1429,8 +1537,8 @@ export class Visual implements IVisual {
         b.setAttribute("data-pnl", "zoom-back");
         b.textContent = this.str("← Back to tree", "← Zurück zum Baum");
         b.title = this.str("Close the tile view", "Kachel-Ansicht schließen");
-        b.style.cssText = `font-family:${FONT};font-size:13px;font-weight:600;line-height:1.3;` +
-            `padding:8px 16px;cursor:pointer;border-radius:6px;border:1px solid ${acc};` +
+        b.style.cssText = `font-family:${FONT};font-size:${this.kpx(13)};font-weight:600;line-height:1.3;` +
+            `padding:${this.kpx(8)} ${this.kpx(16)};cursor:pointer;border-radius:6px;border:1px solid ${acc};` +
             `background:${acc};color:#FFF;transition:${TRANSITION};box-shadow:${SHADOW};`;
         b.onmouseenter = (): void => {
             b.style.background = this.accentSoft(0.16);
@@ -1449,8 +1557,8 @@ export class Visual implements IVisual {
     private buildToolbar(): HTMLElement {
         const ui = this.ui!;
         const bar = document.createElement("div");
-        bar.style.cssText = "display:flex;gap:16px 20px;flex-wrap:wrap;padding:8px 14px 6px 14px;" +
-            "align-items:flex-end;";
+        bar.style.cssText = `display:flex;gap:${this.kpx(16)} ${this.kpx(20)};flex-wrap:wrap;` +
+            `padding:${this.kpx(8)} 14px ${this.kpx(6)} 14px;align-items:flex-end;`;
 
         const tset = this.settings.toolbarCard;
         // Tile view: everything that cannot change the tile disappears. Only the
@@ -1569,7 +1677,8 @@ export class Visual implements IVisual {
 
     private legendChip(style: "ac" | "py" | "pl" | "fc"): HTMLElement {
         const chip = document.createElement("span");
-        const base = "display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;";
+        const base = `display:inline-block;width:${this.kpx(10)};height:${this.kpx(10)};` +
+            `margin-right:${this.kpx(5)};vertical-align:-1px;`;
         if (style === "ac") { chip.style.cssText = base + `background:${C.ac};`; }
         else if (style === "py") { chip.style.cssText = base + `background:${C.py};`; }
         else if (style === "pl") { chip.style.cssText = base + `background:#FFF;border:1.4px solid ${C.ac};box-sizing:border-box;`; }
@@ -1583,8 +1692,8 @@ export class Visual implements IVisual {
 
     private buildLegend(): HTMLElement {
         const bar = document.createElement("div");
-        bar.style.cssText = `display:flex;gap:16px;flex-wrap:wrap;align-items:center;` +
-            `padding:6px 14px;font-size:10px;color:${C.soft};`;
+        bar.style.cssText = `display:flex;gap:${this.kpx(16)};flex-wrap:wrap;align-items:center;` +
+            `padding:${this.kpx(6)} 14px;font-size:${this.kpx(10)};color:${C.soft};`;
         const item = (chipEl: HTMLElement | null, label: string, color?: string): void => {
             const s = document.createElement("span");
             if (chipEl) { s.appendChild(chipEl); }
@@ -1601,7 +1710,8 @@ export class Visual implements IVisual {
         const g = document.createElement("span");
         const sq = (color: string): HTMLElement => {
             const el = document.createElement("span");
-            el.style.cssText = `display:inline-block;width:10px;height:10px;background:${color};margin:0 5px 0 0;vertical-align:-1px;`;
+            el.style.cssText = `display:inline-block;width:${this.kpx(10)};height:${this.kpx(10)};` +
+                `background:${color};margin:0 ${this.kpx(5)} 0 0;vertical-align:-1px;`;
             return el;
         };
         const fav = document.createElement("span"); fav.appendChild(sq(this.goodColor()));
@@ -1631,16 +1741,19 @@ export class Visual implements IVisual {
         const ui = this.ui!;
         const months = this.model!.months;
         const last = months.length > 0 ? this.monthLabel(months[months.length - 1]) : "";
-        const year = months.length > 0 ? months[0].slice(0, 4) : "";
+        // a period column of month names carries no year — the labels then say
+        // the span without inventing one (see periodYear / yearPrefix)
+        const year = months.length > 0 ? this.periodYear(months[0]) : "";
+        const fyYear = year === "" ? "FY" : "FY " + year;
         // the "_Aug" marker names the month YTD really reaches — the last one
         // that carries actuals, not the last one the period happens to run to
         const mi = this.mtdIndex();
         const mtdMonth = mi >= 0 ? this.monthLabel(months[mi]) : last;
         const ytdLabel = months.length > 0
-            ? `${year} ${this.monthLabel(months[0])}..${last} (_${mtdMonth}) · ${this.str("year to date", "Jahresverlauf")}`
+            ? `${this.yearPrefix(`${this.monthLabel(months[0])}..${last} (_${mtdMonth})`)} · ${this.str("year to date", "Jahresverlauf")}`
             : this.str("current period", "aktueller Zeitraum");
         const mtdLabel = `MTD ${mtdMonth} · ${this.str("month", "Monat")}`;
-        const fyLabel = `FY ${year} · ${this.str("outlook", "Ausblick")} AC&FC ${this.str("vs", "vs.")} PL`;
+        const fyLabel = `${fyYear} · ${this.str("outlook", "Ausblick")} AC&FC ${this.str("vs", "vs.")} PL`;
         const fyOn = this.has.fcfy && this.has.plfy && ui.blocks.fy;
         const blocks: Block[] = [];
 
@@ -1726,7 +1839,7 @@ export class Visual implements IVisual {
             if (this.has.pl) { ytd.push({ kind: "pin", ref: "pl", minuend: "ac", block: "ytd", label: "ΔPL%" }); }
         }
         blocks.push({ key: "ytd", label: ytdLabel, specs: ytd });
-        if (fy.length > 0) { blocks.push({ key: "fy", label: `FY ${year} · ${this.str("outlook (FC)", "Ausblick (FC)")}`, specs: fy }); }
+        if (fy.length > 0) { blocks.push({ key: "fy", label: `${fyYear} · ${this.str("outlook (FC)", "Ausblick (FC)")}`, specs: fy }); }
         return blocks;
     }
 
@@ -1750,40 +1863,55 @@ export class Visual implements IVisual {
     private tableGeo(cols: ColSpec[], gc: GeoCache, maxAbsDelta: number,
         k: number, pad: number): TableGeo {
         const compact = this.ui!.density === "compact";
+        // the type scale reaches the geometry as well: rows, label lanes, value
+        // columns and the drawn bars grow with the type, so a Full-HD or UHD
+        // table stays the same picture — only bigger — and never clips a number
         const fscale = this.fontScale();
         const rowH = Math.round((compact ? 18 : 23) * fscale);
         const fs = Math.round((compact ? 10 : 11) * fscale);
-        const BAR_HALF = Math.max(34 * k, FIT_BAR_HALF_MIN);
-        const PIN_HALF = Math.max(24 * k, FIT_PIN_HALF_MIN);
+        const BAR_HALF = Math.max(34 * k * fscale, FIT_BAR_HALF_MIN);
+        const PIN_HALF = Math.max(24 * k * fscale, FIT_PIN_HALF_MIN);
         const lk = Math.max(k, FIT_LABEL_MIN);
         const labelFs = fs * lk;
-        const dLabelW = Math.ceil(gc.dLabelLen * (labelFs * 0.52)) + 4;
-        const pLabelW = Math.ceil(gc.pLabelLen * (labelFs * 0.52)) + 4;
+        // The in-chart labels sit a fixed 1.5 / 1 px below their lane size, and
+        // the per-character estimate below is calibrated against exactly that
+        // pairing at scale 1. A fixed offset loses its share as the type grows,
+        // so both halves of the calibration follow the scale: the drawn label
+        // keeps its relative offset, and the lane keeps the headroom the
+        // estimate had — at scale 1 both terms vanish and nothing moves.
+        const barLabelFs = labelFs - 1.5 * fscale;
+        const valLabelFs = labelFs - fscale;
+        const laneSlack = (fscale - 1) * 3;
+        const dLabelW = Math.ceil(gc.dLabelLen * (labelFs * 0.52 + laneSlack)) + 4;
+        const pLabelW = Math.ceil(gc.pLabelLen * (labelFs * 0.52 + laneSlack)) + 4;
         const barW = 2 * (BAR_HALF + dLabelW + 4) + 8;
         const pinW = 2 * (PIN_HALF + pLabelW + 4) + 8;
-        const valW = Math.round((compact ? 66 : 76) * lk);
+        const valW = Math.round((compact ? 66 : 76) * lk * fscale);
 
         // shared display-space scale for the value / cascade bars
         let vAxisX = 0; let vPpu = 0; let vLabelW = 0; let vbarW = 0;
         const hasVbar = cols.some(c => c.kind === "vbar");
         if (hasVbar || gc.wf.size > 0) {
-            vLabelW = Math.ceil(gc.vLabelLen * (fs * 0.52)) + 4;
-            const full = gc.wf.size > 0 ? (compact ? 190 : 240) : (compact ? 150 : 190);
+            vLabelW = Math.ceil(gc.vLabelLen * (fs * 0.52 + laneSlack)) + 4;
+            const full = (gc.wf.size > 0 ? (compact ? 190 : 240) : (compact ? 150 : 190)) * fscale;
             const span = Math.max(full * k, FIT_SPAN_MIN);
             vPpu = span / ((gc.maxPosD + gc.maxNegD) || 1);
             vAxisX = 4 + vLabelW + gc.maxNegD * vPpu;
             vbarW = span + 2 * (vLabelW + 4) + 8;
         }
 
+        const gapW = Math.round(18 * fscale);
         let colsW = 0;
         for (const c of cols) {
-            colsW += pad + (c.kind === "gap" ? 18
+            colsW += pad + (c.kind === "gap" ? gapW
                 : c.kind === "val" || c.kind === "pct" ? valW
                     : c.kind === "vbar" || c.kind === "wbar" ? vbarW
                         : c.kind === "bar" ? barW : pinW);
         }
-        return { rowH, fs, labelFs, BAR_HALF, PIN_HALF, barW, pinW, valW, maxAbsDelta,
-            vbarW, vAxisX, vPpu, vLabelW, colsW };
+        return { rowH, fs, labelFs, barLabelFs, valLabelFs, BAR_HALF, PIN_HALF, barW, pinW, valW, maxAbsDelta,
+            vbarW, vAxisX, vPpu, vLabelW, gapW,
+            sepExtraH: Math.round(SEP_EXTRA_H * fscale),
+            sparkH: Math.round(SPARK_ROW_H * fscale), colsW };
     }
 
     /**
@@ -1876,8 +2004,8 @@ export class Visual implements IVisual {
             for (let i = 0; i < visible.length; i++) {
                 offsets[i] = acc;
                 acc += geo.rowH
-                    + (visible[i].row.rowType === "separator" ? SEP_EXTRA_H : 0)
-                    + (sparkOn(visible[i]) ? SPARK_ROW_H : 0);
+                    + (visible[i].row.rowType === "separator" ? geo.sepExtraH : 0)
+                    + (sparkOn(visible[i]) ? geo.sparkH : 0);
             }
             offsets[visible.length] = acc;
             const top = this.spacerRow();
@@ -2041,14 +2169,14 @@ export class Visual implements IVisual {
         this.floatHeadEl.style.top = (this.root.scrollTop + this.floatTop).toFixed(2) + "px";
     }
 
-    private blockHeaderRow(blocks: Block[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number }): HTMLElement {
+    private blockHeaderRow(blocks: Block[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number; gapW: number }): HTMLElement {
         const row = document.createElement("div");
         row.style.cssText = "display:table-row;";
         const hfs = this.headerFs(9);
         const ink = this.headerInk();
         row.appendChild(this.cell(0, "left", geo.fs));
         blocks.forEach((b, bi) => {
-            if (bi > 0) { row.appendChild(this.cell(18, "center", hfs)); }
+            if (bi > 0) { row.appendChild(this.cell(geo.gapW, "center", hfs)); }
             b.specs.forEach((spec, si) => {
                 const c = this.cell(0, "center", hfs);
                 c.style.cssText += `color:${ink};border-bottom:1px solid ${C.gridSoft};`;
@@ -2060,7 +2188,7 @@ export class Visual implements IVisual {
         return row;
     }
 
-    private headerRow(cols: ColSpec[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number }): HTMLElement {
+    private headerRow(cols: ColSpec[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number; gapW: number }): HTMLElement {
         const row = document.createElement("div");
         row.style.cssText = "display:table-row;";
         const gapFs = this.headerFs(9);
@@ -2068,7 +2196,7 @@ export class Visual implements IVisual {
         const ink = this.headerInk();
         row.appendChild(this.cell(0, "left", geo.fs));
         for (const c of cols) {
-            if (c.kind === "gap") { row.appendChild(this.cell(18, "center", gapFs)); continue; }
+            if (c.kind === "gap") { row.appendChild(this.cell(geo.gapW, "center", gapFs)); continue; }
             const w = c.kind === "val" || c.kind === "pct" ? geo.valW
                 : (c.kind === "vbar" || c.kind === "wbar") ? geo.vbarW
                 : c.kind === "bar" ? geo.barW : geo.pinW;
@@ -2097,8 +2225,8 @@ export class Visual implements IVisual {
         const row = document.createElement("div");
         row.style.cssText = `display:table-row;height:${geo.rowH}px;`;
         if (t === "separator") {
-            const c = this.cell(0, "left", 9);
-            c.style.cssText += `padding-top:9px;font-weight:600;color:${C.soft};`;
+            const c = this.cell(0, "left", this.k(9));
+            c.style.cssText += `padding-top:${this.kpx(9)};font-weight:600;color:${C.soft};`;
             c.textContent = node.row.name === node.row.id ? "" : node.row.name;
             row.appendChild(c);
             return row;
@@ -2107,7 +2235,7 @@ export class Visual implements IVisual {
         // name cell
         const name = this.cell(0, "left", geo.fs);
         name.style.paddingLeft = `${node.level * indent}px`;
-        name.style.minWidth = "230px";
+        name.style.minWidth = this.kpx(230);
         if (isSum) { name.style.fontWeight = "600"; }
         if (node.isOrphanBucket) { name.style.color = this.badColor(); }
         if (isRatio) { name.style.fontStyle = "italic"; name.style.color = C.soft; }
@@ -2116,7 +2244,7 @@ export class Visual implements IVisual {
             const open = !ui.collapsed.includes(node.row.id);
             const chev = document.createElement("span");
             chev.textContent = open ? "▾ " : "▸ ";
-            chev.style.cssText = `cursor:pointer;color:${C.soft};font-size:9px;`;
+            chev.style.cssText = `cursor:pointer;color:${C.soft};font-size:${this.kpx(9)};`;
             const toggle = (e: Event): void => {
                 e.stopPropagation();
                 if (open) { ui.collapsed.push(node.row.id); }
@@ -2132,7 +2260,7 @@ export class Visual implements IVisual {
         const rid = node.row.id;
         if (!rid.startsWith("L:") && rid !== node.row.name && rid !== "__unassigned__") {
             const idEl = document.createElement("span");
-            idEl.style.cssText = `font-size:8px;color:${C.soft};margin-right:6px;`;
+            idEl.style.cssText = `font-size:${this.kpx(8)};color:${C.soft};margin-right:${this.kpx(6)};`;
             idEl.textContent = rid;
             name.appendChild(idEl);
         }
@@ -2142,7 +2270,7 @@ export class Visual implements IVisual {
         name.appendChild(label);
         if (node.error) {
             const err = document.createElement("span");
-            err.style.cssText = `color:${this.badColor()};font-size:8.5px;`;
+            err.style.cssText = `color:${this.badColor()};font-size:${this.kpx(8.5)};`;
             err.textContent = " ⚠ " + node.error;
             name.appendChild(err);
         }
@@ -2150,7 +2278,8 @@ export class Visual implements IVisual {
             const n = this.commentNo.get(node.row.id);
             if (n != null) {
                 const mark = document.createElement("span");
-                mark.style.cssText = `color:${C.comment};font-size:9.5px;margin-left:5px;cursor:default;`;
+                mark.style.cssText = `color:${C.comment};font-size:${this.kpx(9.5)};` +
+                    `margin-left:${this.kpx(5)};cursor:default;`;
                 mark.textContent = String.fromCharCode(0x2460 + n - 1);
                 mark.title = node.row.comment;
                 name.appendChild(mark);
@@ -2160,7 +2289,8 @@ export class Visual implements IVisual {
         // incomplete subtotal must never look like a final figure
         if (this.awaitingSegment && (isSum || isRatio)) {
             const inc = document.createElement("span");
-            inc.style.cssText = `color:${C.loading};font-size:9.5px;margin-left:5px;cursor:default;`;
+            inc.style.cssText = `color:${C.loading};font-size:${this.kpx(9.5)};` +
+                `margin-left:${this.kpx(5)};cursor:default;`;
             inc.textContent = "≈";
             inc.title = this.str("value still incomplete — data is loading",
                 "Wert noch unvollständig — Daten werden geladen");
@@ -2171,7 +2301,8 @@ export class Visual implements IVisual {
             const chip = document.createElement("span");
             const active = ui.spark.includes(node.row.id);
             chip.textContent = `${this.model!.months.length}M`;
-            chip.style.cssText = `font-size:8px;margin-left:6px;padding:0 4px;cursor:pointer;border-radius:2px;` +
+            chip.style.cssText = `font-size:${this.kpx(8)};margin-left:${this.kpx(6)};` +
+                `padding:0 ${this.kpx(4)};cursor:pointer;border-radius:2px;` +
                 (active ? `background:${C.ac};color:#FFF;` : `border:1px solid ${C.gridSoft};color:${C.soft};`);
             chip.onclick = (e) => {
                 e.stopPropagation();
@@ -2186,7 +2317,7 @@ export class Visual implements IVisual {
 
         const lineTop = isSum && !isRatio;
         for (const c of cols) {
-            if (c.kind === "gap") { row.appendChild(this.cell(18, "center", geo.fs)); continue; }
+            if (c.kind === "gap") { row.appendChild(this.cell(geo.gapW, "center", geo.fs)); continue; }
             let cell: HTMLElement;
             if (c.kind === "val") {
                 cell = this.cell(geo.valW, "right", geo.fs);
@@ -2258,7 +2389,7 @@ export class Visual implements IVisual {
     }
 
     private deltaBarCell(v: { delta: number | null; good: boolean }, c: ColSpec,
-        geo: { rowH: number; fs: number; labelFs: number; BAR_HALF: number; barW: number; maxAbsDelta: number }, fmt: Fmt): HTMLElement {
+        geo: { rowH: number; fs: number; barLabelFs: number; BAR_HALF: number; barW: number; maxAbsDelta: number }, fmt: Fmt): HTMLElement {
         const cell = this.cell(geo.barW, "left", geo.fs);
         if (v.delta == null) { return cell; }
         const w = geo.barW - 8; const h = geo.rowH - 4; const mid = w / 2;
@@ -2285,7 +2416,7 @@ export class Visual implements IVisual {
         const tx = v.delta >= 0 ? mid + len + 3 : mid - len - 3;
         txt.setAttribute("x", String(tx)); txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
         txt.setAttribute("text-anchor", anchor);
-        txt.setAttribute("font-size", String(geo.labelFs - 1.5)); txt.setAttribute("font-family", FONT);
+        txt.setAttribute("font-size", String(geo.barLabelFs)); txt.setAttribute("font-family", FONT);
         txt.setAttribute("fill", v.good ? this.goodColor() : this.badColor());
         txt.textContent = fmt.val(v.delta, true);
         svg.appendChild(txt);
@@ -2294,7 +2425,7 @@ export class Visual implements IVisual {
     }
 
     private deltaPinCell(v: { deltaPct: number | null; good: boolean }, c: ColSpec,
-        geo: { rowH: number; fs: number; labelFs: number; PIN_HALF: number; pinW: number }, fmt: Fmt): HTMLElement {
+        geo: { rowH: number; fs: number; barLabelFs: number; PIN_HALF: number; pinW: number }, fmt: Fmt): HTMLElement {
         const cell = this.cell(geo.pinW, "left", geo.fs);
         if (v.deltaPct == null) { return cell; }
         const w = geo.pinW - 8; const h = geo.rowH - 4; const mid = w / 2;
@@ -2326,7 +2457,7 @@ export class Visual implements IVisual {
         const tx = v.deltaPct >= 0 ? Math.max(px + 4, mid + 4) : Math.min(px - 4, mid - 4);
         txt.setAttribute("x", String(tx)); txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
         txt.setAttribute("text-anchor", anchor);
-        txt.setAttribute("font-size", String(geo.labelFs - 1.5)); txt.setAttribute("font-family", FONT);
+        txt.setAttribute("font-size", String(geo.barLabelFs)); txt.setAttribute("font-family", FONT);
         txt.setAttribute("fill", color);
         txt.textContent = fmt.pct(v.deltaPct, true) + (overflow ? "▸" : "");
         svg.appendChild(txt);
@@ -2375,7 +2506,7 @@ export class Visual implements IVisual {
 
     /** row-waterfall cell: floating segment or anchor bar in scenario notation */
     private cascadeBarCell(node: PnlNode, c: ColSpec,
-        geo: { rowH: number; fs: number; labelFs: number; vbarW: number; vAxisX: number; vPpu: number },
+        geo: { rowH: number; fs: number; valLabelFs: number; vbarW: number; vAxisX: number; vPpu: number },
         fmt: Fmt, isSum: boolean, isRatio: boolean): HTMLElement {
         const cell = this.cell(geo.vbarW, "left", geo.fs);
         const h = geo.rowH - 3;
@@ -2445,7 +2576,7 @@ export class Visual implements IVisual {
             txt.setAttribute("x", String(grow ? x1 + 3 : x0 - 3));
             txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
             txt.setAttribute("text-anchor", grow ? "start" : "end");
-            txt.setAttribute("font-size", String(geo.labelFs - 1));
+            txt.setAttribute("font-size", String(geo.valLabelFs));
             txt.setAttribute("font-family", FONT);
             txt.setAttribute("fill", C.text);
             if (isSum) { txt.setAttribute("font-weight", "600"); }
@@ -2458,7 +2589,7 @@ export class Visual implements IVisual {
 
     /** structure view: horizontal AC (or FC) bar with the reference scenario behind it */
     private valueBarCell(node: PnlNode, c: ColSpec,
-        geo: { rowH: number; fs: number; labelFs: number; vbarW: number; vAxisX: number; vPpu: number },
+        geo: { rowH: number; fs: number; valLabelFs: number; vbarW: number; vAxisX: number; vPpu: number },
         fmt: Fmt, isSum: boolean, isRatio: boolean): HTMLElement {
         const cell = this.cell(geo.vbarW, "left", geo.fs);
         const h = geo.rowH - 3;
@@ -2516,7 +2647,7 @@ export class Visual implements IVisual {
             txt.setAttribute("x", String(tx));
             txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
             txt.setAttribute("text-anchor", lv >= 0 ? "start" : "end");
-            txt.setAttribute("font-size", String(geo.labelFs - 1));
+            txt.setAttribute("font-size", String(geo.valLabelFs));
             txt.setAttribute("font-family", FONT);
             txt.setAttribute("fill", C.text);
             if (isSum) { txt.setAttribute("font-weight", "600"); }
@@ -2531,9 +2662,10 @@ export class Visual implements IVisual {
         const row = document.createElement("div");
         row.style.cssText = "display:table-row;";
         const lead = this.cell(0, "left", geo.fs);
-        lead.style.cssText += "padding:2px 0 4px 24px;";
+        lead.style.cssText += `padding:2px 0 4px ${this.kpx(24)};`;
         const months = this.model!.months;
-        const w = 300; const h = 34;
+        const w = this.k(300); const h = this.k(34);
+        const lfs = this.k(8);
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg");
         svg.setAttribute("width", String(w)); svg.setAttribute("height", String(h));
@@ -2544,8 +2676,9 @@ export class Visual implements IVisual {
             }
         }
         if (max === min) { max = min + 1; }
-        const X = (i: number): number => 26 + (i / Math.max(months.length - 1, 1)) * (w - 60);
-        const Y = (v: number): number => 4 + (1 - (v - min) / (max - min)) * (h - 12);
+        const X = (i: number): number =>
+            this.k(26) + (i / Math.max(months.length - 1, 1)) * (w - this.k(60));
+        const Y = (v: number): number => 4 + (1 - (v - min) / (max - min)) * (h - this.k(12));
         const line = (arr: (number | null)[], color: string, dash: string | null, sw: number): void => {
             let d = ""; let pen = false;
             arr.forEach((v, i) => {
@@ -2565,11 +2698,11 @@ export class Visual implements IVisual {
         if (node.series.ac) { line(node.series.ac, C.ac, null, 1.6); }
         const l0 = document.createElementNS(ns, "text");
         l0.setAttribute("x", "0"); l0.setAttribute("y", String(h / 2));
-        l0.setAttribute("font-size", "8"); l0.setAttribute("font-family", FONT); l0.setAttribute("fill", C.soft);
+        l0.setAttribute("font-size", String(lfs)); l0.setAttribute("font-family", FONT); l0.setAttribute("fill", C.soft);
         l0.textContent = this.monthLabel(months[0]);
         const l1 = document.createElementNS(ns, "text");
-        l1.setAttribute("x", String(w - 30)); l1.setAttribute("y", String(h / 2));
-        l1.setAttribute("font-size", "8"); l1.setAttribute("font-family", FONT); l1.setAttribute("fill", C.soft);
+        l1.setAttribute("x", String(w - this.k(30))); l1.setAttribute("y", String(h / 2));
+        l1.setAttribute("font-size", String(lfs)); l1.setAttribute("font-family", FONT); l1.setAttribute("fill", C.soft);
         l1.textContent = this.monthLabel(months[months.length - 1]);
         svg.appendChild(l0); svg.appendChild(l1);
         lead.appendChild(svg);
@@ -3430,37 +3563,39 @@ export class Visual implements IVisual {
         const ns = "http://www.w3.org/2000/svg";
         const isRatio = node.row.rowType === "kpi";
         const unit = isRatio ? "%" : (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
-        const W = 396; const inner = W - 26;
+        const zk = this.fontScale();
+        const W = this.k(396); const inner = W - this.k(26);
         const box = document.createElement("div");
         box.style.cssText = `position:absolute;z-index:40;width:${W}px;background:${this.cardBg()};` +
             `border:1px solid ${C.cardEdge};border-radius:6px;` +
-            `box-shadow:0 6px 20px rgba(15,30,46,.16);padding:12px 14px 8px 14px;` +
+            `box-shadow:0 6px 20px rgba(15,30,46,.16);` +
+            `padding:${this.kpx(12)} ${this.kpx(14)} ${this.kpx(8)} ${this.kpx(14)};` +
             `pointer-events:none;font-family:${FONT};box-sizing:border-box;`;
 
         // ---- header: name + unit + Δ headline in the status colour
         const va = this.treeVariance(node);
         const vColor = va == null ? null : (va.good ? this.goodColor() : this.badColor());
         const head = document.createElement("div");
-        head.style.cssText = "display:flex;align-items:baseline;gap:8px;margin-bottom:1px;";
+        head.style.cssText = `display:flex;align-items:baseline;gap:${this.kpx(8)};margin-bottom:1px;`;
         const nm = document.createElement("div");
-        nm.style.cssText = `flex:1;font-size:13px;font-weight:700;color:${C.text};` +
+        nm.style.cssText = `flex:1;font-size:${this.kpx(13)};font-weight:700;color:${C.text};` +
             "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
         const cno = this.commentNo.get(node.row.id);
         nm.textContent = node.row.name + (cno != null ? " " + String.fromCharCode(0x2460 + cno - 1) : "");
         head.appendChild(nm);
         const un = document.createElement("div");
-        un.style.cssText = `font-size:9px;color:${C.soft};white-space:nowrap;`;
+        un.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};white-space:nowrap;`;
         un.textContent = unit;
         head.appendChild(un);
         if (vColor && va && va.deltaPct != null) {
             const dp = document.createElement("div");
-            dp.style.cssText = `font-size:11px;font-weight:700;color:${vColor};white-space:nowrap;`;
+            dp.style.cssText = `font-size:${this.kpx(11)};font-weight:700;color:${vColor};white-space:nowrap;`;
             dp.textContent = fmt.pct(va.deltaPct, true);
             head.appendChild(dp);
         }
         box.appendChild(head);
         const sub = document.createElement("div");
-        sub.style.cssText = `font-size:9px;color:${C.soft};margin-bottom:7px;`;
+        sub.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};margin-bottom:${this.kpx(7)};`;
         const acct = node.row.rowType === "account" ? node.row.id : "";
         sub.textContent = [acct, node.row.formulaDef ? "= " + node.row.formulaDef : "",
             this.periodTag()].filter(Boolean).join(" · ");
@@ -3472,7 +3607,7 @@ export class Visual implements IVisual {
         const refUp = this.ui!.ref.toUpperCase();
         const caption = (t: string): void => {
             const c = document.createElement("div");
-            c.style.cssText = `font-size:8.5px;color:${C.soft};margin:2px 0 1px 0;`;
+            c.style.cssText = `font-size:${this.kpx(8.5)};color:${C.soft};margin:2px 0 1px 0;`;
             c.textContent = t;
             box.appendChild(c);
         };
@@ -3485,24 +3620,24 @@ export class Visual implements IVisual {
             box.appendChild(svg);
             draw(g, svg);
         };
-        const zs = 1.15;
+        const zs = 1.15 * zk;
         caption(this.str(`Months — AC solid, ${refUp} behind`, `Monate — AC solide, ${refUp} dahinter`));
-        chart(104, (g, svg) => this.treeMini(g, node, { x: 0, y: 2, w: inner, h: 100 }, zs, fmt, svg, 0));
+        chart(this.k(104), (g, svg) => this.treeMini(g, node, { x: 0, y: 2, w: inner, h: this.k(100) }, zs, fmt, svg, 0));
         caption(`Δ${refUp} ` + this.str("per month", "je Monat"));
-        chart(72, (g) => this.treeMiniDelta(g, node, { x: 0, y: 2, w: inner, h: 68 }, zs, fmt, 0));
+        chart(this.k(72), (g) => this.treeMiniDelta(g, node, { x: 0, y: 2, w: inner, h: this.k(68) }, zs, fmt, 0));
         caption(this.str(`Bridge ${refUp} → Δ → AC (YTD)`, `Brücke ${refUp} → Δ → AC (YTD)`));
-        chart(84, (g, svg) => this.treeMiniBridge(g, node, { x: 0, y: 2, w: inner, h: 80 }, zs, fmt, svg, 0));
+        chart(this.k(84), (g, svg) => this.treeMiniBridge(g, node, { x: 0, y: 2, w: inner, h: this.k(80) }, zs, fmt, svg, 0));
 
         if (node.row.comment) {
             const cm = document.createElement("div");
-            cm.style.cssText = `font-size:9px;color:${C.soft};font-style:italic;` +
+            cm.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};font-style:italic;` +
                 `margin-top:6px;border-top:1px solid ${C.gridSoft};padding-top:5px;line-height:1.45;`;
             cm.textContent = node.row.comment;
             box.appendChild(cm);
         }
         if (node.error) {
             const er = document.createElement("div");
-            er.style.cssText = `font-size:9px;color:${this.badColor()};margin-top:4px;`;
+            er.style.cssText = `font-size:${this.kpx(9)};color:${this.badColor()};margin-top:4px;`;
             er.textContent = "⚠ " + node.error;
             box.appendChild(er);
         }
@@ -3545,14 +3680,15 @@ export class Visual implements IVisual {
         grid.setAttribute("data-pnl", "scen-grid");
         grid.style.cssText = `display:table;width:100%;border-collapse:collapse;margin:${compact ? 6 : 8}px 0;` +
             `border-top:1px solid ${C.gridSoft};padding-top:4px;`;
-        const pad = compact ? 0.5 : 1.5;
-        const fs = compact ? 9 : 10;
+        const pad = this.k(compact ? 0.5 : 1.5);
+        const fs = this.k(compact ? 9 : 10);
+        const cellPad = this.k(8);
         const row = (cells: string[], opts?: { bold?: boolean; color?: (string | null)[] }): void => {
             const r = document.createElement("div");
             r.style.cssText = "display:table-row;";
             cells.forEach((cTxt, i) => {
                 const c = document.createElement("div");
-                c.style.cssText = `display:table-cell;padding:${pad}px 0 ${pad}px 8px;font-size:${fs}px;` +
+                c.style.cssText = `display:table-cell;padding:${pad}px 0 ${pad}px ${cellPad}px;font-size:${fs}px;` +
                     `font-family:${FONT};font-variant-numeric:tabular-nums;` +
                     (i === 0 ? `text-align:left;padding-left:0;color:${C.soft};` : "text-align:right;") +
                     (opts?.bold ? "font-weight:700;" : "") +
@@ -3605,7 +3741,7 @@ export class Visual implements IVisual {
         const months = this.model!.months;
         if (months.length === 0) { return ""; }
         const a = months[0]; const b = months[months.length - 1];
-        return `${a.slice(0, 4)} ${this.monthLabel(a)}..${this.monthLabel(b)}`;
+        return this.yearPrefix(`${this.monthLabel(a)}..${this.monthLabel(b)}`);
     }
 
     private treeCardG(card: TreeCard, geo: { cw: number; s: number; fmt: Fmt; svg: SVGSVGElement },
@@ -3921,8 +4057,8 @@ export class Visual implements IVisual {
     private treeBreadcrumb(path: PnlNode[], onPick: (node: PnlNode, i: number) => void,
         tip: string): HTMLElement {
         const crumbs = document.createElement("div");
-        crumbs.style.cssText = `font-size:10.5px;color:${C.soft};margin:0 0 4px 0;padding:0;line-height:1.5;` +
-            "display:flex;gap:6px;flex-wrap:wrap;align-items:center;";
+        crumbs.style.cssText = `font-size:${this.kpx(10.5)};color:${C.soft};margin:0 0 4px 0;` +
+            `padding:0;line-height:1.5;display:flex;gap:${this.kpx(6)};flex-wrap:wrap;align-items:center;`;
         path.forEach((node, i) => {
             if (i > 0) {
                 const sep = document.createElement("span");
@@ -4012,8 +4148,8 @@ export class Visual implements IVisual {
         // the head above it — the page never loses its exit.
         const head = document.createElement("div");
         head.setAttribute("data-pnl", "zoom-head");
-        head.style.cssText = "display:flex;gap:16px;align-items:center;flex-wrap:wrap;" +
-            `padding:8px 0;margin:0 0 8px 0;background:${this.pageBg()};` +
+        head.style.cssText = `display:flex;gap:${this.kpx(16)};align-items:center;flex-wrap:wrap;` +
+            `padding:${this.kpx(8)} 0;margin:0 0 8px 0;background:${this.pageBg()};` +
             (this.sticky() ? "position:sticky;top:0;z-index:20;" : "");
         head.appendChild(this.zoomBackBtn(() => { ui.treeZoom = null; }));
         const path = this.treeZoomPath(ctx, node);
@@ -4029,11 +4165,14 @@ export class Visual implements IVisual {
         // They start on one line (flex-start) — a neighbour column never
         // stretches the row, it takes the tile height in the layout pass.
         const avail = this.root.clientWidth || 900;
-        const sideW = Math.max(150, Math.min(215, Math.round(avail * 0.18)));
+        // the neighbour columns carry type too — their width follows the scale,
+        // but never past a fifth of the stage, so the tile keeps the stage
+        const sideW = Math.max(this.k(150),
+            Math.min(this.k(215), Math.round(avail * (this.fontScale() > 1 ? 0.2 : 0.18))));
         const centerW = Math.max(340, avail - 2 * TABLE_PAD_X - 2 * sideW - 32);
         const cols = document.createElement("div");
         cols.setAttribute("data-pnl", "zoom-cols");
-        cols.style.cssText = "display:flex;gap:16px;align-items:flex-start;";
+        cols.style.cssText = `display:flex;gap:${this.kpx(16)};align-items:flex-start;`;
         cols.appendChild(this.treeZoomSide(ctx, node, fmt, sideW, "parents"));
         cols.appendChild(this.treeZoomCenter(node, fmt, centerW));
         cols.appendChild(this.treeZoomSide(ctx, node, fmt, sideW, "children"));
@@ -4063,31 +4202,32 @@ export class Visual implements IVisual {
         tile.style.cssText = `flex:1 1 ${w}px;min-width:0;background:${this.cardBg()};box-sizing:border-box;` +
             `border:1px solid ${C.cardEdge};border-radius:6px;box-shadow:${SHADOW};` +
             (edge ? `border-left:3px solid ${edge};` : "") +
-            "padding:16px 16px 12px 16px;";
-        const inner = Math.max(w - 34, 260);
+            `padding:${this.kpx(16)} ${this.kpx(16)} ${this.kpx(12)} ${this.kpx(16)};`;
+        const inner = Math.max(w - 2 * this.k(16) - 2, 260);
         const head = document.createElement("div");
-        head.style.cssText = "display:flex;align-items:baseline;gap:8px;margin:0 0 2px 0;";
+        head.style.cssText = `display:flex;align-items:baseline;gap:${this.kpx(8)};margin:0 0 2px 0;`;
         const nm = document.createElement("div");
         nm.setAttribute("data-pnl", "zoom-title");
-        nm.style.cssText = `flex:1;font-size:17px;font-weight:700;letter-spacing:-.01em;color:${C.text};` +
+        nm.style.cssText = `flex:1;font-size:${this.kpx(17)};font-weight:700;letter-spacing:-.01em;color:${C.text};` +
             "line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
         const cno = this.commentNo.get(node.row.id);
         nm.textContent = node.row.name + (cno != null ? " " + String.fromCharCode(0x2460 + cno - 1) : "");
         head.appendChild(nm);
         const un = document.createElement("div");
-        un.style.cssText = `font-size:10px;color:${C.soft};white-space:nowrap;`;
+        un.style.cssText = `font-size:${this.kpx(10)};color:${C.soft};white-space:nowrap;`;
         un.textContent = unit;
         head.appendChild(un);
         if (vColor && va && va.deltaPct != null) {
             const dp = document.createElement("div");
-            dp.style.cssText = `font-size:14px;font-weight:700;color:${vColor};white-space:nowrap;` +
+            dp.style.cssText = `font-size:${this.kpx(14)};font-weight:700;color:${vColor};white-space:nowrap;` +
                 "font-variant-numeric:tabular-nums;";
             dp.textContent = fmt.pct(va.deltaPct, true);
             head.appendChild(dp);
         }
         tile.appendChild(head);
         const sub = document.createElement("div");
-        sub.style.cssText = `font-size:9.5px;color:${C.soft};line-height:1.5;margin:0 0 16px 0;`;
+        sub.style.cssText = `font-size:${this.kpx(9.5)};color:${C.soft};line-height:1.5;` +
+            `margin:0 0 ${this.kpx(16)} 0;`;
         const acct = node.row.rowType === "account" ? node.row.id : "";
         sub.textContent = [acct, node.row.formulaDef ? "= " + node.row.formulaDef : "",
             this.periodTag()].filter(Boolean).join(" · ");
@@ -4107,7 +4247,8 @@ export class Visual implements IVisual {
         const note = (t: string): void => {
             const c = document.createElement("div");
             c.setAttribute("data-pnl", "zoom-note");
-            c.style.cssText = `font-size:9.5px;color:${C.soft};line-height:1.5;margin:0 0 8px 0;`;
+            c.style.cssText = `font-size:${this.kpx(9.5)};color:${C.soft};line-height:1.5;` +
+                `margin:0 0 ${this.kpx(8)} 0;`;
             c.textContent = t;
             tile.appendChild(c);
         };
@@ -4149,14 +4290,14 @@ export class Visual implements IVisual {
 
         if (node.row.comment) {
             const cm = document.createElement("div");
-            cm.style.cssText = `font-size:9.5px;color:${C.soft};font-style:italic;` +
+            cm.style.cssText = `font-size:${this.kpx(9.5)};color:${C.soft};font-style:italic;` +
                 `margin-top:8px;border-top:1px solid ${C.gridSoft};padding-top:8px;line-height:1.45;`;
             cm.textContent = node.row.comment;
             tile.appendChild(cm);
         }
         if (node.error) {
             const er = document.createElement("div");
-            er.style.cssText = `font-size:9.5px;color:${this.badColor()};margin-top:4px;`;
+            er.style.cssText = `font-size:${this.kpx(9.5)};color:${this.badColor()};margin-top:4px;`;
             er.textContent = "⚠ " + node.error;
             tile.appendChild(er);
         }
@@ -4180,7 +4321,7 @@ export class Visual implements IVisual {
         const title = this.capsLabel(side === "parents"
             ? this.str("Feeds into", "Zahlt ein auf")
             : this.str("Driven by", "Getrieben von"));
-        title.style.margin = "0 0 8px 0";
+        title.style.margin = `0 0 ${this.kpx(8)} 0`;
         title.style.flex = "0 0 auto";
         col.appendChild(title);
 
@@ -4200,7 +4341,7 @@ export class Visual implements IVisual {
         }
         if (items.length === 0) {
             const hint = document.createElement("div");
-            hint.style.cssText = `font-size:10px;color:${C.soft};line-height:1.5;`;
+            hint.style.cssText = `font-size:${this.kpx(10)};color:${C.soft};line-height:1.5;`;
             hint.textContent = side === "parents"
                 ? this.str("Top of the tree — no row builds on this one.",
                     "Spitze des Baums — keine Zeile baut auf dieser auf.")
@@ -4224,8 +4365,9 @@ export class Visual implements IVisual {
         const arrow = (dir: -1 | 1): HTMLElement => {
             const b = document.createElement("button");
             b.setAttribute("data-pnl", dir < 0 ? "micro-up" : "micro-down");
-            b.style.cssText = `font-family:${FONT};font-size:9.5px;line-height:1.3;width:100%;` +
-                `padding:3px 6px;cursor:pointer;border-radius:4px;border:1px solid ${C.ctlEdge};` +
+            b.style.cssText = `font-family:${FONT};font-size:${this.kpx(9.5)};line-height:1.3;width:100%;` +
+                `padding:${this.kpx(3)} ${this.kpx(6)};cursor:pointer;border-radius:4px;` +
+                `border:1px solid ${C.ctlEdge};` +
                 `background:${this.cardBg()};color:${C.text};transition:${TRANSITION};` +
                 `display:none;margin:${dir < 0 ? "0 0 6px 0" : "6px 0 0 0"};box-sizing:border-box;`;
             b.onmouseenter = (): void => { b.style.background = C.ctlHover; b.style.borderColor = C.cardEdgeHover; };
@@ -4283,7 +4425,7 @@ export class Visual implements IVisual {
         list.addEventListener("scroll", sync);
         if (more > 0) {
             const rest = document.createElement("div");
-            rest.style.cssText = `font-size:9.5px;color:${C.soft};flex:0 0 auto;padding-top:4px;`;
+            rest.style.cssText = `font-size:${this.kpx(9.5)};color:${C.soft};flex:0 0 auto;padding-top:4px;`;
             rest.textContent = `+${more} ` + this.str("more", "weitere");
             col.appendChild(rest);
         }
@@ -4307,7 +4449,8 @@ export class Visual implements IVisual {
         card.style.cssText = `background:${this.cardBg()};border:1px solid ${C.cardEdge};` +
             (edge ? `border-left:3px solid ${edge};` : "") +
             `border-radius:4px;box-shadow:${SHADOW};transition:${TRANSITION};` +
-            `padding:8px 8px 7px 8px;margin-bottom:${MICRO_CARD_GAP}px;` +
+            `padding:${this.kpx(8)} ${this.kpx(8)} ${this.kpx(7)} ${this.kpx(8)};` +
+            `margin-bottom:${this.k(MICRO_CARD_GAP)}px;` +
             "cursor:pointer;box-sizing:border-box;";
         // click affordance: the edge darkens and the card lifts by a hair — the
         // status edge keeps its colour, only the three quiet sides react
@@ -4320,23 +4463,23 @@ export class Visual implements IVisual {
         card.onmouseleave = (): void => { sides(C.cardEdge); card.style.boxShadow = SHADOW; };
 
         const head = document.createElement("div");
-        head.style.cssText = "display:flex;gap:5px;align-items:baseline;";
+        head.style.cssText = `display:flex;gap:${this.kpx(5)};align-items:baseline;`;
         if (op) {
             const o = document.createElement("span");
-            o.style.cssText = `font-size:12px;font-weight:700;color:${C.ac};`;
+            o.style.cssText = `font-size:${this.kpx(12)};font-weight:700;color:${C.ac};`;
             o.textContent = op;
             head.appendChild(o);
         }
         const nm = document.createElement("span");
         nm.setAttribute("data-pnl", "micro-name");
-        nm.style.cssText = `flex:1;font-size:11px;font-weight:600;color:${C.text};` +
+        nm.style.cssText = `flex:1;font-size:${this.kpx(11)};font-weight:600;color:${C.text};` +
             "line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
         nm.textContent = node.row.name;
         head.appendChild(nm);
         if (va && va.deltaPct != null) {
             const dp = document.createElement("span");
             dp.setAttribute("data-pnl", "micro-delta");
-            dp.style.cssText = "font-size:11px;font-weight:700;white-space:nowrap;" +
+            dp.style.cssText = `font-size:${this.kpx(11)};font-weight:700;white-space:nowrap;` +
                 "font-variant-numeric:tabular-nums;" +
                 `color:${vColor};`;
             dp.textContent = fmt.pct(va.deltaPct, true);
@@ -4346,16 +4489,17 @@ export class Visual implements IVisual {
 
         // the numbers in the mini chart are what the reader came for: the card
         // gives the chart a taller strip and draws it at readable type size
-        const cw = Math.max(w - 20, 90);
+        const cw = Math.max(w - this.k(20), 90);
+        const chartH = this.k(MICRO_CARD_CHART_H);
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
         svg.setAttribute("width", String(cw));
-        svg.setAttribute("height", String(MICRO_CARD_CHART_H));
+        svg.setAttribute("height", String(chartH));
         svg.style.cssText = "display:block;margin-top:4px;";
         const g = document.createElementNS(ns, "g") as SVGGElement;
         svg.appendChild(g);
         card.appendChild(svg);
-        this.treeMini(g, node, { x: 1, y: 2, w: cw - 2, h: MICRO_CARD_CHART_H - 20 },
-            MICRO_CARD_S, fmt, svg, 0);
+        this.treeMini(g, node, { x: 1, y: 2, w: cw - 2, h: chartH - this.k(20) },
+            MICRO_CARD_S * this.fontScale(), fmt, svg, 0);
 
         card.onclick = (e: Event): void => {
             e.stopPropagation();
@@ -4830,7 +4974,8 @@ export class Visual implements IVisual {
         const ctx = this.treeCtx;
         if (!ctx) {
             const hint = document.createElement("div");
-            hint.style.cssText = `font-size:11px;color:${C.soft};line-height:1.55;padding:10px 0;max-width:620px;`;
+            hint.style.cssText = `font-size:${this.kpx(11)};color:${C.soft};line-height:1.55;` +
+                `padding:10px 0;max-width:${this.k(620)}px;`;
             hint.textContent = this.str(
                 "The driver tree needs rows to grow from — an account or dimension hierarchy, or a formula / "
                 + "KPI row that references other rows (e.g. [EBIT]/[Net revenue]). Bind the level or account "
@@ -4888,7 +5033,7 @@ export class Visual implements IVisual {
         }
 
         const note = document.createElement("div");
-        note.style.cssText = `font-size:9px;color:${C.soft};margin:0;padding:0;line-height:1.5;`;
+        note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};margin:0;padding:0;line-height:1.5;`;
         note.textContent = this.str(
             "Value driver tree — ▾ opens and closes one node (Shift: whole limb), ⌖ makes a card the root, "
             + "hovering a card zooms into its IBCS detail view, clicking its chart opens the tile view.",
@@ -4902,7 +5047,7 @@ export class Visual implements IVisual {
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
         svg.setAttribute("width", String(Math.ceil(size.w + 2 * pad)));
         svg.setAttribute("height", String(Math.ceil(size.h + 2 * pad)));
-        svg.style.cssText = `display:block;margin-top:${TREE_HEAD_GAP}px;`;
+        svg.style.cssText = `display:block;margin-top:${this.k(TREE_HEAD_GAP)}px;`;
         const inner = document.createElementNS(ns, "g") as SVGGElement;
         inner.setAttribute("transform", `translate(${pad},${pad})`);
         svg.appendChild(inner);
@@ -4984,12 +5129,13 @@ export class Visual implements IVisual {
         const box = document.createElement("div");
         box.style.cssText = "padding:8px 14px 4px 14px;max-width:960px;";
         const h = document.createElement("div");
-        h.style.cssText = `font-size:9px;font-weight:700;letter-spacing:.08em;color:${C.soft};margin-bottom:4px;`;
+        h.style.cssText = `font-size:${this.kpx(9)};font-weight:700;letter-spacing:.08em;` +
+            `color:${C.soft};margin-bottom:4px;`;
         h.textContent = this.str("COMMENTS & DATA-QUALITY SIGNALS", "KOMMENTARE & DATENQUALITÄTS-SIGNALE");
         box.appendChild(h);
         for (const cm of this.comments) {
             const li = document.createElement("div");
-            li.style.cssText = "font-size:10px;line-height:1.5;margin-bottom:3px;";
+            li.style.cssText = `font-size:${this.kpx(10)};line-height:1.5;margin-bottom:3px;`;
             const m = document.createElement("span");
             m.style.cssText = `color:${C.comment};margin-right:6px;`;
             m.textContent = String.fromCharCode(0x2460 + cm.n - 1);
@@ -5000,7 +5146,7 @@ export class Visual implements IVisual {
         for (const w of warnings) {
             const li = document.createElement("div");
             const loading = w.charAt(0) === "⏳";
-            li.style.cssText = `font-size:10px;line-height:1.5;margin-bottom:3px;` +
+            li.style.cssText = `font-size:${this.kpx(10)};line-height:1.5;margin-bottom:3px;` +
                 `color:${loading ? C.loading : C.soft};`;
             li.textContent = loading ? w : "⚠ " + w;
             box.appendChild(li);
@@ -5011,7 +5157,8 @@ export class Visual implements IVisual {
     private buildFooter(): HTMLElement {
         const f = document.createElement("div");
         f.style.cssText = `padding:10px 14px 12px 14px;border-top:1px solid ${C.gridSoft};` +
-            `margin-top:8px;font-size:8.5px;color:${C.soft};line-height:1.5;max-width:960px;`;
+            `margin-top:8px;font-size:${this.kpx(8.5)};color:${C.soft};line-height:1.5;` +
+            `max-width:${this.k(960)}px;`;
         const dev = String(this.settings.styleCard.colorMode.value.value) !== "ibcs"
             ? this.str(" Documented corporate deviation: teal replaces the IBCS variance green to remain readable with red–green color-vision deficiency.",
                 " Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben.")

@@ -1,5 +1,96 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.16.0.0 (2026-08-26) — Monatsnamen als Periode: die Reihenfolge stimmt wieder, und das Schrift-Preset gilt für alles
+
+Nutzer-Befund am echten Modell: als Periode war eine **Monatsnamen-Spalte**
+gebunden („Month Name": Dez, Jan, Feb, …, deutsche Kurznamen, **kein Jahr**).
+Der Kombi-Chart reihte die Monate Apr · Aug · Dez · Feb · Jan … auf und das
+Grid titelte „YTD \_Sep" — sichtbar falsch. Ursache: die Engine sortierte die
+Perioden **lexikografisch** (`[...new Set(months)].sort()`). Für „JJJJ-MM" ist
+das zufällig identisch mit chronologisch, für Monatsnamen ist es Alphabet.
+
+### Perioden-Sortierung
+
+- **Ein Parser für alles, was als Periode ankommt** (`parsePeriod` in der
+  Engine): „JJJJ-MM", „JJJJ-MM-TT", ISO-Zeitstempel, „JJJJ/MM"; deutsche und
+  englische Monatsnamen, lang und kurz, mit und ohne Punkt, unabhängig von
+  Groß-/Kleinschreibung und Umlaut („Dez", „Dez.", „Dezember", „Dec",
+  „March", „Mär", „Mrz", „Sept."); Kombinationen mit Jahr („Mär 2026",
+  „2026 Mar"); reine Zahlen 1–12 als Kalenderposition sowie Epoch-Zeitstempel
+  in Millisekunden. Was er **nicht** lesen kann („P07", „KW 12", Fiskal-Labels),
+  meldet er als nicht lesbar — statt zu raten.
+- **Date-Spalten werden beim Einlesen normalisiert**: liefert der Host ein
+  `Date`-Objekt statt Text, wird daraus im Visual ein stabiler „JJJJ-MM-TT"-
+  Schlüssel. Alles andere — Monatsnamen, Fiskal-Labels, Zahlen — bleibt
+  unverändert der Text, den der Autor geschrieben hat, und ist damit auch das
+  angezeigte Label.
+- **Die Ordnung entsteht an genau einer Stelle** (`sortMonths`). Sie liefert
+  `PnlModel.months`, und **jeder** Verbraucher liest nur noch diese Liste:
+  Serien-Indizes, MTD-Index, YTD-Fenster, Kombi-Chart samt Brücke und Δ%-Pins,
+  Mini-Charts der Karten, Sparklines, Tooltips, MTD-Label und der
+  „\_Aug"-Statusmarker. Kein Verbraucher sortiert mehr selbst.
+- **Neue Format-Einstellung „Perioden-Sortierung"** (Spalten):
+  - **Automatisch** (Standard) — Kalenderreihenfolge, sobald *jedes* Label
+    lesbar ist (Jahr zählt vor Monat), sonst Datenreihenfolge;
+  - **Datenreihenfolge (Fiskaljahr)** — die Reihenfolge des ersten Auftretens
+    im DataView bleibt, für Fiskaljahre und Modelle mit eigener Sortierspalte;
+  - **Kalenderjahr** — erzwungen Jan..Dez; nicht lesbare Labels behalten ihre
+    Datenreihenfolge und stehen hinten.
+  Die Einstellung geht in den Model-Fingerprint ein, ein Umschalten baut das
+  Modell also wirklich neu auf.
+- **Labels ohne Jahr erfinden keines mehr**: wo bisher `months[0].slice(0,4)`
+  ein Jahr aus dem Schlüssel schnitt (Titelzeile, YTD-/FY-Blockköpfe,
+  Perioden-Tag der Kacheln), steht jetzt entweder das echte Jahr oder gar
+  nichts — „Jan..Dez (\_Jul)" statt „Dez Dez..Nov (\_Nov)".
+- **Der `_`-Marker der Titelzeile nennt jetzt denselben Monat** wie Blockkopf
+  und Szenario-Grid: den letzten Monat mit Ist-Daten, nicht den letzten
+  gebundenen. Bei Ist bis zum Periodenende ändert sich dadurch nichts.
+- **Der bisherige „JJJJ-MM"-Pfad ist byte-identisch**: chronologisch und
+  lexikografisch fallen dort zusammen, der Standard-Render ist Pixel für Pixel
+  derselbe wie in 0.15.
+
+### Schrift-Preset für wirklich alle Beschriftungen
+
+- **Das Schriftgrößen-Preset (HD · Full HD · UHD) galt bisher nur für Baum und
+  Kachel-Zoom.** Jetzt zieht es durch die ganze Seite: Titelblock,
+  Toolbar-Buttons und Gruppen-Labels, Legende samt Szenario-Chips, Hinweis- und
+  Skalenzeile, **Tabellen-Kopfzeilen und -Zeilen** (inklusive Zeilenhöhen,
+  Wertspalten, Δ-Balken- und Δ%-Pin-Spuren, Trennspalten), Konten-IDs,
+  Kommentarmarken, Sparkline-Chips und Sparklines, Fußnoten, Footer,
+  Szenario-Grid, Hover-Panel, Mikro-Karten, Breadcrumb, Zurück-Button und die
+  Ladeanzeige.
+- **Neue Feinskalierung „Schrift-Feinskalierung (%)"** (Stil): 80–160 %,
+  Standard 100 %, multipliziert das Preset. **Das Produkt ist bei 2,2 gedeckelt**
+  (UHD × 160 % wären 2,56): darüber frisst die Zeilenbeschriftung den Viewport,
+  die Diagramm-Spalten verlieren ihre Balken und jeder Stauch-Mechanismus läuft
+  in seinen Boden. Der Deckel steht als `FONT_SCALE_MAX` im Code und ist dort
+  begründet.
+- **Die Anti-Clipping-Mechanik kennt die Skala**: die Label-Spuren der Δ- und
+  Δ%-Spalten sind gegen die Standard-Schriftgröße kalibriert, in der das
+  gezeichnete Label feste 1,5 px unter der Spurgröße liegt. Dieser feste Abzug
+  verliert mit wachsender Schrift seinen Anteil — deshalb folgen jetzt **beide**
+  Hälften der Kalibrierung der Skala. Bei Skala 1 werden beide Terme null, es
+  bewegt sich nichts.
+- **Das virtuelle Scrolling rechnet mit den skalierten Höhen** (Zeilenhöhe,
+  Trennzeilen-Zuschlag, offene Sparkline-Zeile), der fixierte Kopf-Klon misst
+  wie bisher nach dem Layout und übernimmt die Größen automatisch.
+- **Standard (HD, 100 %) bleibt pixel-identisch.** Verifiziert: die
+  Render-Suite p1–p7 erzeugt ein byte-gleiches PNG wie vor der Änderung.
+
+### Tests
+
+- Engine: drei neue Blöcke (→ **28**) — Parsing-Matrix über alle Formen
+  inklusive Müllwerten, die drei Sortier-Modi samt Stabilität der
+  Datenreihenfolge, und die Kopplung „Monatsreihen folgen der Periodenordnung".
+- Interaktion: zwei neue Blöcke (→ **240** Checks) — eine Bühne mit deutschen
+  Monatskurznamen in Datenreihenfolge Dez · Jan · … · Nov (AC bis Jul, FC ab
+  Aug) prüft die Achsenbeschriftung des Kombi-Charts unter *auto*, *data* und
+  *calendar*, den AC|FC-Trenner, den „\_Jul"-Marker und die jahresfreien
+  Blockköpfe; eine zweite Bühne prüft mit UHD × 160 % die Schriftgrößen von
+  Tabellenzelle, Kopfzeile, Toolbar, Legende, Szenario-Grid und Zurück-Button,
+  den 2,2-Deckel, die Pixel-Identität des Standards und Clipping-Freiheit in
+  Tabelle, Kachelseite und Baum.
+
 ## 0.15.0.0 (2026-08-26) — Treiberbaum ohne Formelzeilen: jede Dimensions-Hierarchie wird zum Baum
 
 Nutzer-Befund am echten Modell: gebunden waren nur zwei Ebenen-Spalten

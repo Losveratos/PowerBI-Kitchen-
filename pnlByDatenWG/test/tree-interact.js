@@ -1763,6 +1763,221 @@ function tidyChecks(geom, tag) {
         && dimOne.ops.length === 1 && dimOne.ops[0].op === "+",
         names(dimOne).join(",") + " ops=" + dimOne.ops.map(o => o.op).join(""));
 
+    // ---- 31) v0.16: a period column of German month names, no year anywhere.
+    // The data arrives Dez · Jan · Feb … Nov — the order the model happened to
+    // deliver — with actuals through Jul and the forecast filling Aug..Dez.
+    // "auto" has to read the names and put them in calendar order, "data" has
+    // to leave the sequence exactly as it came (fiscal years), and the "_Jul"
+    // marker has to name the same month either way.
+    await page.evaluate(() => {
+        // deliberately NOT the calendar order
+        const MON = ["Dez", "Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul",
+            "Aug", "Sep", "Okt", "Nov"];
+        const POS = { Jan: 1, Feb: 2, "Mär": 3, Apr: 4, Mai: 5, Jun: 6, Jul: 7,
+            Aug: 8, Sep: 9, Okt: 10, Nov: 11, Dez: 12 };
+        const LINES = [["Revenue", "Products", 10], ["Revenue", "Services", 4]];
+        window.PNL_MON_DV = (uiState, objects) => {
+            const rows = [];
+            LINES.forEach((L, k) => MON.forEach(m => {
+                const p = POS[m];
+                rows.push({
+                    l1: L[0], l2: L[1], sort: 10 + k, month: m,
+                    // actuals to Jul, forecast from Aug on — the picture of the
+                    // screenshot this fix came from
+                    ac: p <= 7 ? L[2] * 10 + p : null,
+                    fc: p >= 8 ? L[2] * 10 + p : null,
+                    pl: L[2] * 10,
+                });
+            }));
+            const col = (role, name, vals) =>
+                ({ source: { roles: { [role]: true }, displayName: name, index: 0 }, values: vals });
+            return {
+                categorical: {
+                    categories: [
+                        col("levels", "Category", rows.map(r => r.l1)),
+                        col("levels", "Line", rows.map(r => r.l2)),
+                        col("account", "A", rows.map(r => r.l2)),
+                        col("sortOrder", "S", rows.map(r => r.sort)),
+                        col("period", "Month Name", rows.map(r => r.month)),
+                    ],
+                    values: [
+                        col("ac", "AC", rows.map(r => r.ac)),
+                        col("fc", "FC", rows.map(r => r.fc)),
+                        col("pl", "PL", rows.map(r => r.pl)),
+                    ],
+                },
+                metadata: {
+                    objects: Object.assign({}, objects || {},
+                        { state: { uiState: JSON.stringify(uiState) } }),
+                },
+            };
+        };
+        window.PNL_MON_STAGE = (id, w, h, uiState, objects) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = `width:${w}px;height:${h}px;`;
+            document.body.appendChild(d);
+            const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US") });
+            v.update({ dataViews: [window.PNL_MON_DV(uiState, objects)],
+                viewport: { width: w, height: h }, type: 2 });
+        };
+        const zoomUi = { view: "tree", treeV: 2, ref: "pl", unit: "none", treeZoom: "L:Revenue" };
+        window.PNL_MON_STAGE("mon-auto", 1420, 1000, zoomUi);
+        window.PNL_MON_STAGE("mon-data", 1420, 1000, zoomUi, { columns: { periodSort: "data" } });
+        window.PNL_MON_STAGE("mon-cal", 1420, 1000, zoomUi, { columns: { periodSort: "calendar" } });
+        window.PNL_MON_STAGE("mon-table", 1500, 700,
+            { view: "table", preset: "acref", ref: "pl", unit: "none" });
+    });
+    await page.waitForTimeout(340);
+
+    const NAMES_DE = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+    const axisMonths = (id) => page.evaluate((a) => {
+        const svg = document.getElementById(a.id).querySelector('[data-pnl="zoom-combo"]');
+        if (!svg) { return []; }
+        return [...svg.querySelectorAll("text")]
+            .filter(t => a.names.indexOf(t.textContent) >= 0)
+            .sort((x, y) => parseFloat(x.getAttribute("x")) - parseFloat(y.getAttribute("x")))
+            .map(t => t.textContent);
+    }, { id, names: NAMES_DE });
+    /** the auto-generated period line of the title block ("Jan..Dez (_Jul): …") */
+    const periodLine = (id) => page.evaluate((sid) => {
+        const el = [...document.getElementById(sid).querySelectorAll("div")]
+            .filter(x => x.children.length === 0 && x.textContent.indexOf("(_") >= 0)[0];
+        return el ? el.textContent : "";
+    }, id);
+
+    const monAuto = await axisMonths("mon-auto");
+    const monData = await axisMonths("mon-data");
+    const monCal = await axisMonths("mon-cal");
+    check("month names in a scrambled data order read Jan..Dez under auto",
+        monAuto.join(",") === NAMES_DE.join(","), monAuto.join(","));
+    check("the same column keeps its data order under 'data' (fiscal years)",
+        monData.join(",") === "Dez,Jan,Feb,Mär,Apr,Mai,Jun,Jul,Aug,Sep,Okt,Nov",
+        monData.join(","));
+    check("'calendar' forces Jan..Dez just like auto does here",
+        monCal.join(",") === NAMES_DE.join(","), monCal.join(","));
+
+    const monAutoTile = await page.evaluate(readTile, "mon-auto");
+    const monDataTile = await page.evaluate(readTile, "mon-data");
+    check("all twelve months carry a column and a bridge step",
+        !!monAutoTile && monAutoTile.monthCols === 12 && monAutoTile.steps === 12
+        && monAutoTile.fcMonths === 5,
+        monAutoTile ? "cols=" + monAutoTile.monthCols + " steps=" + monAutoTile.steps
+            + " fc=" + monAutoTile.fcMonths : "no tile");
+    check("in calendar order the AC|FC divider sits between Jul and Aug",
+        !!monAutoTile && monAutoTile.fcLine === 1,
+        monAutoTile ? "fcLine=" + monAutoTile.fcLine : "no tile");
+    check("in data order the forecast leads, so no divider is drawn",
+        !!monDataTile && monDataTile.fcLine === 0 && monDataTile.monthCols === 12,
+        monDataTile ? "fcLine=" + monDataTile.fcLine : "no tile");
+    check("a month-name period clips no label in the tile view",
+        !!monAutoTile && monAutoTile.clipped.length === 0,
+        monAutoTile ? monAutoTile.clipped.join(", ") : "no tile");
+
+    const lineAuto = await periodLine("mon-auto");
+    const lineData = await periodLine("mon-data");
+    check("the title names the span in calendar order and invents no year",
+        lineAuto.indexOf("Jan..Dez (_Jul)") === 0, lineAuto);
+    check("in data order the title says exactly that span",
+        lineData.indexOf("Dez..Nov (_Jul)") === 0, lineData);
+    check("the _Jul marker names the last month with actuals in either mode",
+        lineAuto.indexOf("(_Jul)") >= 0 && lineData.indexOf("(_Jul)") >= 0,
+        lineAuto + " | " + lineData);
+
+    const monTable = await page.evaluate(() => {
+        const d = document.getElementById("mon-table");
+        const cells = [...d.querySelectorAll("div")]
+            .filter(x => x.style.display === "table-cell" && x.textContent !== "");
+        const ytd = cells.find(x => x.textContent.indexOf("year to date") >= 0);
+        return { ytd: ytd ? ytd.textContent : "", stage: d.textContent.indexOf("Products") >= 0 };
+    });
+    check("the YTD block header reads the calendar span, year-free",
+        monTable.ytd.indexOf("Jan..Dez (_Jul) · year to date") === 0, monTable.ytd);
+    check("the table itself renders on a month-name period", monTable.stage);
+
+    // ---- 32) v0.16: the size preset and the fine scaling reach EVERY label —
+    // table body and headers, toolbar, legend, the scenario grid of the tile
+    // page — and the default (HD · 100 %) stays pixel-identical.
+    await page.evaluate(() => {
+        const mk = (id, w, h, style, ui) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = `width:${w}px;height:${h}px;`;
+            document.body.appendChild(d);
+            run(id, { titleBlock: { measureLine: "type scale" }, style,
+                hierarchy: { defaultLevel: 2 },
+                state: { uiState: JSON.stringify(ui) } });
+        };
+        const UHD = { fontPreset: "uhd", fontZoom: 160 };
+        mk("fs-def", 1560, 900, {}, { view: "table" });
+        mk("fs-hd2", 1900, 900, { fontPreset: "fullhd" }, { view: "table" });
+        mk("fs-big", 3000, 1100, UHD, { view: "table" });
+        mk("fs-def-zoom", 1420, 1150, {},
+            { view: "tree", treeV: 2, ref: "pl", treeZoom: "F_EBITDA" });
+        mk("fs-big-zoom", 2400, 1600, UHD,
+            { view: "tree", treeV: 2, ref: "pl", treeZoom: "F_EBITDA" });
+        mk("fs-big-tree", 2400, 1400, UHD, { view: "tree", treeV: 2, ref: "pl" });
+    });
+    await page.waitForTimeout(420);
+
+    const fsRead = (id) => page.evaluate((sid) => {
+        const d = document.getElementById(sid);
+        const divs = [...d.querySelectorAll("div")];
+        const cells = divs.filter(x => x.style.display === "table-cell" && x.textContent !== "");
+        const body = cells.find(x => x.textContent.indexOf("Net revenue") >= 0);
+        const hdr = cells.find(x => x.textContent.indexOf("year to date") >= 0);
+        const grid = d.querySelector('[data-pnl="scen-grid"] div div');
+        const btn = [...d.querySelectorAll("button")].find(b => b.textContent === "Table"
+            || b.textContent.indexOf("Back to tree") >= 0);
+        const legend = divs.filter(x => x.textContent.indexOf("AC actual") >= 0
+            && x.style.fontSize !== "").pop();
+        const clipped = [];
+        d.querySelectorAll("svg text").forEach(t => {
+            const own = t.ownerSVGElement;
+            const b = t.getBBox();
+            const w = parseFloat(own.getAttribute("width"));
+            if (b.x < -0.5 || b.x + b.width > w + 0.5) { clipped.push(t.textContent); }
+        });
+        return {
+            body: body ? body.style.fontSize : "",
+            hdr: hdr ? hdr.style.fontSize : "",
+            grid: grid ? grid.style.fontSize : "",
+            btn: btn ? btn.style.fontSize : "",
+            legend: legend ? legend.style.fontSize : "",
+            clipped,
+        };
+    }, id);
+
+    const fsDef = await fsRead("fs-def");
+    const fsHd2 = await fsRead("fs-hd2");
+    const fsBig = await fsRead("fs-big");
+    const fsDefZoom = await fsRead("fs-def-zoom");
+    const fsBigZoom = await fsRead("fs-big-zoom");
+    const fsBigTree = await fsRead("fs-big-tree");
+
+    check("the default stage keeps the built-in sizes to the pixel",
+        fsDef.body === "11px" && fsDef.hdr === "9px" && fsDef.btn === "10.5px"
+        && fsDef.legend === "10px", JSON.stringify(fsDef));
+    check("the Full HD preset alone scales the table by 1.25",
+        fsHd2.body === "14px" && fsHd2.btn === "13.1px", JSON.stringify(fsHd2));
+    // UHD 1.6 × 160 % would be 2.56 — the product is capped at 2.2 (FONT_SCALE_MAX)
+    check("UHD × 160 % lands on the documented 2.2 cap in the table body",
+        fsBig.body === "24px", "body=" + fsBig.body);
+    check("the cap reaches the table headers as well",
+        fsBig.hdr === "19.8px", "hdr=" + fsBig.hdr);
+    check("the toolbar buttons scale with the rest",
+        fsBig.btn === "23.1px", "btn=" + fsBig.btn);
+    check("the scenario legend scales with the rest",
+        fsBig.legend === "22px", "legend=" + fsBig.legend);
+    check("the scenario grid of the tile page scales too",
+        parseFloat(fsBigZoom.grid) >= parseFloat(fsDefZoom.grid) * 1.9,
+        fsDefZoom.grid + " -> " + fsBigZoom.grid);
+    check("the back button of the tile page scales too",
+        parseFloat(fsBigZoom.btn) >= parseFloat(fsDefZoom.btn) * 1.9,
+        fsDefZoom.btn + " -> " + fsBigZoom.btn);
+    for (const [label, res] of [["table", fsBig], ["tile page", fsBigZoom], ["tree", fsBigTree]]) {
+        check("UHD × 160 % clips no label in the " + label,
+            res.clipped.length === 0, res.clipped.slice(0, 5).join(", "));
+    }
+
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();
 

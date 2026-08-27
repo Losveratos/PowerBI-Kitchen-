@@ -29,6 +29,12 @@ const scalingItems: powerbi.IEnumMember[] = [
     { value: "m", displayName: "Millions (m)" }
 ];
 
+const periodSortItems: powerbi.IEnumMember[] = [
+    { value: "auto", displayName: "Automatisch" },
+    { value: "data", displayName: "Datenreihenfolge (Fiskaljahr)" },
+    { value: "calendar", displayName: "Kalenderjahr" }
+];
+
 const colorModeItems: powerbi.IEnumMember[] = [
     { value: "teal", displayName: "Teal deviation (color-vision safe)" },
     { value: "ibcs", displayName: "IBCS classic green" }
@@ -97,6 +103,21 @@ export class ColumnsCardSettings extends FormattingSettingsCard {
         displayNameKey: "Columns_Reference",
         items: referenceItems,
         value: referenceItems[0]
+    });
+
+    /**
+     * How the bound period column is ordered. "Automatisch" reads month names,
+     * date keys and timestamps and puts them in calendar order; a column it
+     * cannot read keeps the order the data arrives in. "Datenreihenfolge" is
+     * the setting for fiscal years — the model's own sort column decides.
+     */
+    periodSort = new formattingSettings.ItemDropdown({
+        name: "periodSort",
+        displayName: "Period sort order",
+        displayNameKey: "Columns_PeriodSort",
+        description: "Auto reads YYYY-MM keys, dates and month names; data order keeps the model's own sequence (fiscal years)",
+        items: periodSortItems,
+        value: periodSortItems[0]
     });
 
     pctRevenue = new formattingSettings.ToggleSwitch({
@@ -169,8 +190,9 @@ export class ColumnsCardSettings extends FormattingSettingsCard {
     name: string = "columns";
     displayName: string = "Columns";
     displayNameKey: string = "Card_Columns";
-    slices = [this.preset, this.reference, this.pctRevenue, this.revenueBase, this.hideZeroRows,
-        this.fitWidth, this.treeRoot, this.treeLevel, this.treeCard, this.treeStatus];
+    slices = [this.preset, this.reference, this.periodSort, this.pctRevenue, this.revenueBase,
+        this.hideZeroRows, this.fitWidth, this.treeRoot, this.treeLevel, this.treeCard,
+        this.treeStatus];
 }
 
 export class NumbersCardSettings extends FormattingSettingsCard {
@@ -242,6 +264,23 @@ export class StyleCardSettings extends FormattingSettingsCard {
         displayNameKey: "Style_FontPreset",
         items: fontPresetItems,
         value: fontPresetItems[0]
+    });
+
+    /**
+     * Fine scaling on top of the size preset, in percent. 100 % leaves the
+     * preset alone; the product of both is capped inside the visual so a
+     * presentation setting cannot turn the table into a poster.
+     */
+    fontZoom = new formattingSettings.NumUpDown({
+        name: "fontZoom",
+        displayName: "Font fine scaling (%)",
+        displayNameKey: "Style_FontZoom",
+        description: "80–160 % on top of the size preset (100 = preset unchanged)",
+        value: 100,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 80 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 160 }
+        }
     });
 
     headerFontSize = new formattingSettings.NumUpDown({
@@ -325,7 +364,7 @@ export class StyleCardSettings extends FormattingSettingsCard {
     name: string = "style";
     displayName: string = "Style";
     displayNameKey: string = "Card_Style";
-    slices = [this.colorMode, this.fontPreset, this.headerFontSize, this.headerColor,
+    slices = [this.colorMode, this.fontPreset, this.fontZoom, this.headerFontSize, this.headerColor,
         this.goodColor, this.badColor, this.accentColor, this.stickyHeader,
         this.pageBackground, this.cardBackground, this.density];
 }

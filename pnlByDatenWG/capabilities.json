@@ -74,7 +74,7 @@
             "displayName": "Period (month)",
             "displayNameKey": "Role_Period",
             "kind": "Grouping",
-            "description": "Month column for sparklines and YTD aggregation; values are summed across the shown periods"
+            "description": "Month column for sparklines and YTD aggregation; values are summed across the shown periods. Date keys (YYYY-MM, YYYY-MM-DD), date columns and month names (Dez, Dezember, Dec, March, Mär …) are read into calendar order automatically — see Columns → Period sort order for fiscal years"
         },
         {
             "name": "comment",
@@ -398,6 +398,24 @@
                         ]
                     }
                 },
+                "periodSort": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "auto",
+                                "displayName": "Automatisch"
+                            },
+                            {
+                                "value": "data",
+                                "displayName": "Datenreihenfolge (Fiskaljahr)"
+                            },
+                            {
+                                "value": "calendar",
+                                "displayName": "Kalenderjahr"
+                            }
+                        ]
+                    }
+                },
                 "pctRevenue": {
                     "type": {
                         "bool": true
@@ -540,6 +558,11 @@
                                 "displayName": "UHD / Präsentation"
                             }
                         ]
+                    }
+                },
+                "fontZoom": {
+                    "type": {
+                        "numeric": true
                     }
                 },
                 "headerFontSize": {
