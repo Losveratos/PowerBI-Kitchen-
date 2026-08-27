@@ -1522,6 +1522,247 @@ function tidyChecks(geom, tag) {
         pp.value.head[2] === "Δ AC" && pp.value.unit,
         pp.value.head.join(" | ") + " unit=" + pp.value.unit);
 
+    // ---- 30) v0.15: a plain dimension hierarchy — two level columns, AC/PY/PL
+    // and a period, no row type and no formula definition anywhere. The tree
+    // must grow from the hierarchy alone: a virtual total root over the four
+    // categories, the product lines below them, and every control of the tree
+    // (chevron, level buttons, ⌂, ⌖, breadcrumb, tile zoom) working on it.
+    await page.evaluate(() => {
+        const MON = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06"];
+        // category · product line · monthly AC base (× 10); PL flat, PY below it
+        const LINES = [
+            ["Pharma", "Rx", 6], ["Pharma", "OTC", 4],
+            ["Consumer", "Care", 7], ["Consumer", "Nutrition", 5],
+            ["Diagnostics", "Lab", 9], ["Diagnostics", "Imaging", 3],
+            ["Services", "Contract", 8], ["Services", "Logistics", 2],
+        ];
+        window.PNL_DIM_DV = (uiState, only) => {
+            const rows = [];
+            LINES.forEach((L, k) => {
+                if (only && L[0] !== only) { return; }
+                MON.forEach((m, i) => rows.push({
+                    l1: L[0], l2: L[1], sort: 10 + k, month: m,
+                    ac: L[2] * 10 + i, pl: L[2] * 10, py: L[2] * 10 - 3,
+                }));
+            });
+            const col = (role, name, vals) =>
+                ({ source: { roles: { [role]: true }, displayName: name, index: 0 }, values: vals });
+            return {
+                categorical: {
+                    // levels + account + sort + period + measures — that is all
+                    categories: [
+                        col("levels", "Category", rows.map(r => r.l1)),
+                        col("levels", "Product line", rows.map(r => r.l2)),
+                        col("account", "A", rows.map(r => r.l2)),
+                        col("sortOrder", "S", rows.map(r => r.sort)),
+                        col("period", "P", rows.map(r => r.month)),
+                    ],
+                    values: [
+                        col("ac", "AC", rows.map(r => r.ac)),
+                        col("py", "PY", rows.map(r => r.py)),
+                        col("pl", "PL", rows.map(r => r.pl)),
+                    ],
+                },
+                metadata: { objects: { state: { uiState: JSON.stringify(uiState) } } },
+            };
+        };
+        window.PNL_DIM_STAGE = (id, w, h, uiState, only) => {
+            let d = document.getElementById(id);
+            if (!d) {
+                d = document.createElement("div");
+                d.className = "stage"; d.id = id; d.style.cssText = `width:${w}px;height:${h}px;`;
+                document.body.appendChild(d);
+            }
+            const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US") });
+            v.update({ dataViews: [window.PNL_DIM_DV(uiState, only)],
+                viewport: { width: w, height: h }, type: 2 });
+        };
+        window.PNL_DIM_UI = { view: "tree", treeV: 2, ref: "pl", unit: "none" };
+        window.PNL_DIM_STAGE("dim", 1250, 900, window.PNL_DIM_UI);
+    });
+    await page.waitForTimeout(320);
+
+    // (a) the tree exists at all: virtual root + 4 categories + 8 product lines
+    let dim = await page.evaluate(readState, "dim");
+    const dimHint = await page.evaluate((id) =>
+        document.getElementById(id).textContent.indexOf("driver tree needs") >= 0, "dim");
+    check("a dimension hierarchy without formula rows still grows a tree",
+        dim.cards.length === 13, "cards=" + dim.cards.length);
+    check("the formula/KPI hint is gone once a hierarchy can carry the tree",
+        !dimHint, "hint shown");
+    check("the tree is topped by a virtual total root",
+        dim.cards[0] && dim.cards[0].name === "Total", names(dim).join(","));
+    check("the four categories and their product lines are cards",
+        ["Pharma", "Consumer", "Diagnostics", "Services", "Rx", "Logistics"]
+            .every(nm => card(dim, nm) != null), names(dim).join(","));
+    check("the hierarchy edges are labelled with the sign convention (+)",
+        dim.ops.length === 5 && dim.ops.every(o => o.op === "+"),
+        dim.ops.map(o => o.op).join(""));
+    check("the hierarchy tree clips no label", dim.clipped.length === 0, dim.clipped.join(", "));
+    tidyChecks(await page.evaluate(readGeom, "dim"), "hierarchy: ");
+
+    // (b) the virtual root carries the sum of the categories, not a null row
+    const sums = await page.evaluate(() => {
+        const acOf = (id, zoom) => {
+            window.PNL_DIM_STAGE(id, 1420, 1000,
+                { ...window.PNL_DIM_UI, treeZoom: zoom });
+            const grid = document.getElementById(id)
+                .querySelector('[data-pnl="zoom-center"] [data-pnl="scen-grid"]');
+            if (!grid) { return null; }
+            const r = [...grid.children].find(x => x.children[0].textContent === "AC");
+            return r ? parseFloat(r.children[1].textContent.replace(/[^\d.-]/g, "")) : null;
+        };
+        return {
+            total: acOf("dim-z-total", "__TOTAL__"),
+            cats: ["Pharma", "Consumer", "Diagnostics", "Services"]
+                .map((c, i) => acOf("dim-z-" + i, "L:" + c)),
+        };
+    });
+    check("the virtual root reports the sum of its categories",
+        sums.total != null && sums.cats.every(v => v != null)
+        && Math.abs(sums.total - sums.cats.reduce((a, b) => a + b, 0)) < 0.05,
+        JSON.stringify(sums));
+
+    // (c) chevron, the level buttons and ⌂ drive the hierarchy tree
+    await step(clickChevron, ["dim", "Consumer"]);
+    dim = await page.evaluate(readState, "dim");
+    check("a chevron folds a whole category away",
+        dim.cards.length === 11 && card(dim, "Care") == null, names(dim).join(","));
+    await step(clickChevron, ["dim", "Consumer"]);
+    dim = await page.evaluate(readState, "dim");
+    check("clicking the chevron again opens the category",
+        dim.cards.length === 13 && card(dim, "Care") != null, names(dim).join(","));
+    await step(clickLevel, ["dim", "1"]);
+    dim = await page.evaluate(readState, "dim");
+    check("level 1 leaves the virtual root alone on the stage",
+        dim.cards.length === 1 && dim.cards[0].name === "Total", names(dim).join(","));
+    await step(clickLevel, ["dim", "2"]);
+    dim = await page.evaluate(readState, "dim");
+    check("level 2 shows the root and its four categories",
+        dim.cards.length === 5, names(dim).join(","));
+    await step(clickLevel, ["dim", "All"]);
+    dim = await page.evaluate(readState, "dim");
+    check("All opens the whole hierarchy again", dim.cards.length === 13,
+        names(dim).join(","));
+
+    // (d) ⌖ re-roots on a category, the breadcrumb walks back, ⌂ goes home
+    await step(clickReroot, ["dim", "Diagnostics"]);
+    dim = await page.evaluate(readState, "dim");
+    check("⌖ re-roots the tree on a category",
+        dim.cards.length === 3 && dim.cards[0].name === "Diagnostics", names(dim).join(","));
+    check("the re-rooted tree offers a breadcrumb back to the total",
+        dim.crumbs === 1, "crumbs=" + dim.crumbs);
+    const crumbBack = await page.evaluate((id) => {
+        const b = [...document.getElementById(id).querySelectorAll("span")]
+            .find(s => s.title && s.title.indexOf("Back to") === 0);
+        if (!b) { return false; }
+        b.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        return true;
+    }, "dim");
+    await page.waitForTimeout(240);
+    dim = await page.evaluate(readState, "dim");
+    check("the breadcrumb walks back to the virtual root",
+        crumbBack && dim.cards.length === 13 && dim.cards[0].name === "Total",
+        names(dim).join(","));
+    await step(clickReroot, ["dim", "Services"]);
+    await step(clickLevel, ["dim", "⌂"]);
+    dim = await page.evaluate(readState, "dim");
+    check("⌂ returns to the virtual root with the whole tree open",
+        dim.cards.length === 13 && dim.cards[0].name === "Total", names(dim).join(","));
+
+    // (e) tile zoom on a product line: combo chart, grid, and the neighbour
+    // columns that navigate up to the category and back down again
+    const zoomHit = await page.evaluate((id) => {
+        const stage = document.getElementById(id);
+        const box = [...stage.querySelectorAll("svg > g > g > rect[rx='4']")].find(r =>
+            [...r.parentElement.querySelectorAll("text")].some(t =>
+                t.getAttribute("font-weight") === "600" && t.getAttribute("text-anchor") == null
+                && String(t.firstChild ? t.firstChild.nodeValue : "") === "Imaging"));
+        if (!box) { return false; }
+        const hit = [...box.parentElement.querySelectorAll("rect")].find(r => {
+            const t = r.querySelector("title");
+            return t && t.textContent.indexOf("Open the tile view") === 0;
+        });
+        if (!hit) { return false; }
+        hit.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        return true;
+    }, "dim");
+    await page.waitForTimeout(280);
+    const dimTile = await page.evaluate(readTile, "dim");
+    const sideNames = (id) => page.evaluate((sid) => {
+        const z = document.getElementById(sid).querySelector('[data-pnl="zoom"]');
+        const nm = (sel) => [...z.querySelectorAll(sel)]
+            .map(c => c.querySelector('[data-pnl="micro-name"]').textContent);
+        return { parents: nm('[data-pnl="zoom-parent"]'), children: nm('[data-pnl="zoom-child"]') };
+    }, id);
+    let dimSides = await sideNames("dim");
+    check("a click on the card chart opens the tile view of a product line",
+        zoomHit && !!dimTile && dimTile.title === "Imaging" && dimTile.combo === 1,
+        dimTile ? dimTile.title + " combo=" + dimTile.combo : "no tile");
+    check("the tile view of a dimension row carries the scenario grid",
+        !!dimTile && dimTile.gridRows >= 3 && dimTile.monthCols === 6,
+        dimTile ? "rows=" + dimTile.gridRows + " months=" + dimTile.monthCols : "no tile");
+    check('"Feeds into" names the category the product line pays into',
+        dimSides.parents.join() === "Diagnostics", dimSides.parents.join());
+    check("a leaf product line reports no drivers of its own",
+        dimSides.children.length === 0, dimSides.children.join());
+    check("the tile view of a dimension row clips no label",
+        !!dimTile && dimTile.clipped.length === 0, dimTile ? dimTile.clipped.join(", ") : "no tile");
+    await page.evaluate((id) => {
+        document.getElementById(id).querySelector('[data-pnl="zoom-parent"]')
+            .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    }, "dim");
+    await page.waitForTimeout(280);
+    const catTile = await page.evaluate(readTile, "dim");
+    dimSides = await sideNames("dim");
+    check("a click on the parent card walks up to the category",
+        !!catTile && catTile.title === "Diagnostics" && catTile.children === 2,
+        catTile ? catTile.title + " children=" + catTile.children : "no tile");
+    check("the category in turn pays into the virtual total root",
+        dimSides.parents.join() === "Total", dimSides.parents.join());
+    await page.evaluate((id) => {
+        document.getElementById(id).querySelectorAll('[data-pnl="zoom-child"]')[0]
+            .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    }, "dim");
+    await page.waitForTimeout(280);
+    const leafTile = await page.evaluate(readTile, "dim");
+    check("a click on a driver card walks back down to the product line",
+        !!leafTile && leafTile.title === "Lab",
+        leafTile ? leafTile.title : "no tile");
+
+    // (f) a bookmark that zoomed the virtual root must survive the state filter
+    const book = await page.evaluate(() => {
+        window.PNL_DIM_STAGE("dim-book", 1420, 1000,
+            { ...window.PNL_DIM_UI, treeZoom: "__TOTAL__" });
+        const z = document.getElementById("dim-book").querySelector('[data-pnl="zoom"]');
+        return z == null ? null : {
+            title: z.querySelector('[data-pnl="zoom-title"]').textContent,
+            children: z.querySelectorAll('[data-pnl="zoom-child"]').length,
+            parents: z.querySelectorAll('[data-pnl="zoom-parent"]').length,
+            combo: z.querySelectorAll('[data-pnl="zoom-combo"]').length,
+        };
+    });
+    check("a bookmark that zooms the virtual root survives and renders",
+        !!book && book.title === "Total" && book.children === 4 && book.combo === 1,
+        JSON.stringify(book));
+    check("the virtual root is the top of the tree — nothing builds on it",
+        !!book && book.parents === 0, JSON.stringify(book));
+
+    // (g) one single root: no virtual total is invented, the root leads itself
+    const one = await page.evaluate(() => {
+        window.PNL_DIM_STAGE("dim-one", 1250, 700, window.PNL_DIM_UI, "Pharma");
+        return null;
+    });
+    await page.waitForTimeout(260);
+    const dimOne = await page.evaluate(readState, "dim-one");
+    check("a model with one root needs no virtual total above it",
+        one === null && dimOne.cards.length === 3 && dimOne.cards[0].name === "Pharma",
+        names(dimOne).join(","));
+    check("the single root branches straight into its product lines",
+        card(dimOne, "Rx") != null && card(dimOne, "OTC") != null
+        && dimOne.ops.length === 1 && dimOne.ops[0].op === "+",
+        names(dimOne).join(",") + " ops=" + dimOne.ops.map(o => o.op).join(""));
+
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();
 

@@ -421,4 +421,87 @@ test("formulaOperands: name resolution in level mode", () => {
     assert.deepEqual(ebitda.map(o => o.op + o.child.row.name), ["+Umsatzerlöse", "+Betriebsaufwand"]);
 });
 
+// v0.15 — syntheticTotal: the virtual root of a driver tree that has no
+// formula row to start from. It must behave exactly like a subtotal row.
+test("syntheticTotal: sums the model roots per scenario", () => {
+    const m = E.buildModel([
+        row("A", null, { rowType: "subtotal" }),
+        row("a1", "A", { values: { ac: 10, py: 8, pl: 9, fcfy: 100, plfy: 90 } }),
+        row("a2", "A", { values: { ac: 5, py: 4, pl: 5, fcfy: 50, plfy: 45 } }),
+        row("B", null, { rowType: "subtotal" }),
+        row("b1", "B", { values: { ac: 7, py: 6, pl: 7, fcfy: 70, plfy: 66 } }),
+    ], "U");
+    const t = E.syntheticTotal(m);
+    assert.equal(t.row.id, E.TOTAL_ID);
+    assert.equal(E.TOTAL_ID, "__TOTAL__");
+    assert.equal(t.row.rowType, "subtotal");
+    assert.equal(t.row.sign, 1);
+    assert.equal(t.row.name, "");                    // the view supplies the label
+    assert.equal(t.level, 0);
+    assert.ok(t.hasChildren);
+    assert.equal(t.children.length, 2);
+    assert.ok(!m.byId.has(E.TOTAL_ID), "the virtual root is no row of the model");
+    assert.equal(t.computed.ac, 22);
+    assert.equal(t.computed.py, 18);
+    assert.equal(t.computed.pl, 21);
+    // FY scalars roll up here exactly like in the engine's subtotal branch —
+    // their first-wins rule lives one level below, in aggregateMonthly
+    assert.equal(t.computed.fcfy, 220);
+    assert.equal(t.computed.plfy, 201);
+});
+
+test("syntheticTotal: sign weighting, ratio roots, single root, empty model", () => {
+    // a cost root with sign −1 subtracts, exactly as under a subtotal parent
+    const m = E.buildModel([
+        row("rev", null, { rowType: "subtotal" }),
+        row("r1", "rev", { values: { ac: 100 } }),
+        row("cost", null, { rowType: "subtotal", sign: -1 }),
+        row("c1", "cost", { values: { ac: 40 } }),
+    ], "U");
+    assert.equal(m.byId.get("cost").computed.ac, -40);
+    assert.equal(E.syntheticTotal(m).computed.ac, 60);
+
+    // ratio and separator roots never contribute to a sum (contributes())
+    const m2 = E.buildModel([
+        row("A", null, { values: { ac: 10 } }),
+        row("K", null, { rowType: "kpi", formulaDef: "[A]/[A]" }),
+        row("S", null, { rowType: "separator" }),
+    ], "U");
+    assert.equal(m2.byId.get("K").computed.ac, 1);
+    assert.equal(E.syntheticTotal(m2).computed.ac, 10);
+
+    // one root: the total repeats it — the visual uses the root itself instead
+    const m3 = E.buildModel([
+        row("only", null, { rowType: "subtotal" }),
+        row("o1", "only", { values: { ac: 12, py: 11 } }),
+    ], "U");
+    assert.equal(m3.roots.length, 1);
+    assert.equal(E.syntheticTotal(m3).computed.ac, 12);
+
+    // no scenario value anywhere stays null instead of turning into a 0
+    const m4 = E.buildModel([row("x", null, {}), row("y", null, {})], "U");
+    const t4 = E.syntheticTotal(m4);
+    assert.equal(t4.computed.ac, null);
+    assert.equal(t4.computed.plfy, null);
+});
+
+test("syntheticTotal: monthly series roll up like a subtotal", () => {
+    const m = buildLevels([
+        lrow(["Pharma", "Rx"], { account: "Rx", values: { ac: 10, pl: 9 }, month: "2026-01", index: 0 }),
+        lrow(["Pharma", "Rx"], { account: "Rx", values: { ac: 12, pl: 11 }, month: "2026-02", index: 1 }),
+        lrow(["Consumer", "Care"], { account: "Care", values: { ac: 5, pl: 6 }, month: "2026-01", index: 2 }),
+        lrow(["Consumer", "Care"], { account: "Care", values: { ac: 6, pl: 6 }, month: "2026-02", index: 3 }),
+        // a cost branch: sign −1 turns its months negative before they are summed
+        lrow(["Cost", "Materials"], { account: "Mat", sign: -1, values: { ac: 4 }, month: "2026-01", index: 4 }),
+        lrow(["Cost", "Materials"], { account: "Mat", sign: -1, values: { ac: 3 }, month: "2026-02", index: 5 }),
+    ]);
+    assert.equal(m.roots.length, 3);
+    const t = E.syntheticTotal(m);
+    assert.deepEqual(t.series.ac, [11, 15]);          // 10 + 5 − 4 · 12 + 6 − 3
+    assert.deepEqual(t.series.pl, [15, 17]);          // the cost branch carries no PL
+    assert.equal(t.computed.ac, 26);
+    // scenarios without any series stay out of the series map entirely
+    assert.equal(t.series.py, undefined);
+});
+
 console.log(`\n${n} engine test blocks passed`);

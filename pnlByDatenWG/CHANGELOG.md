@@ -1,5 +1,53 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.15.0.0 (2026-08-26) — Treiberbaum ohne Formelzeilen: jede Dimensions-Hierarchie wird zum Baum
+
+Nutzer-Befund am echten Modell: gebunden waren nur zwei Ebenen-Spalten
+(Kategorie, Produktlinie), die Measures AC/PY/PL/FC und die Periode — **kein
+Zeilentyp, keine Formeldefinition**. Tabelle, Struktur-Balken und Waterfall
+liefen; die Tree-Ansicht zeigte nur den Hinweis „Der Treiberbaum braucht eine
+Formel- oder KPI-Zeile…". Ursache: die Auto-Wurzel suchte ausschließlich nach
+der letzten Formel-/KPI-Zeile mit Operanden — fand keine und brach ab, obwohl
+der Hierarchie-Drill im Baum längst existierte.
+
+- **Der Baum wächst jetzt auch aus einer reinen Hierarchie.** Findet sich keine
+  Formel-/KPI-Zeile, startet er am Modell selbst:
+  - **genau eine Wurzel** → diese Wurzel ist die Baum-Wurzel, der Drill läuft
+    ab dort durch die Ebenen;
+  - **mehrere Wurzeln** → eine **virtuelle Gesamt-Wurzel** („Gesamt" / „Total")
+    trägt sie als Kinder.
+  Für P&L-Modelle mit Formelzeilen ändert sich **nichts** — gleiche Wurzel,
+  gleiche Bäume, gleiche Kanten.
+- **Die Gesamt-Wurzel rechnet wie eine Zwischensumme der Engine**, nicht wie
+  eine zweite Wahrheit: neuer Engine-Helfer `syntheticTotal(model)` aggregiert
+  je Szenario die vorzeichengewichtete Summe der beitragenden Wurzeln — Werte
+  **und** Monatsreihen. Die Subtotal-Semantik ist dafür einmal als
+  `aggregateSubtotal()` herausgezogen und wird vom Roll-up der Engine und von
+  der Gesamt-Wurzel **geteilt** (keine Kopie, kein Auseinanderlaufen).
+  Quoten-/Trenn-Zeilen zählen wie überall nicht mit, FY-Skalare rollen genau
+  wie in jeder anderen Zwischensumme hoch.
+- **Alles am Baum funktioniert damit unverändert**: Auf-/Zuklappen per Chevron
+  (auch Shift für den ganzen Ast), die Ebenen-Buttons, ⌂, das ⌖-Re-Root auf
+  eine Kategorie, Breadcrumb und Zurück-Button, die drei Karten-Modi
+  (Monate · Δ · Brücke), die Status-Kanten, das Hover-Detail-Panel, die
+  Kompakt-Karten und der **Kachel-Zoom** mit Kombi-Chart, Szenario-Grid,
+  „Zahlt ein auf" (für Kinder der virtuellen Wurzel ist das die Wurzel selbst)
+  und „Getrieben von". Die Kanten tragen wie im Hierarchie-Drill das
+  Rechenvorzeichen: **„+" bei +1, „−" bei −1**.
+- **Bookmarks und persistierter Zustand halten**: die ID der virtuellen Wurzel
+  überlebt den Abgleich gegen das Modell, Re-Root, Fold-Listen und ein
+  Kachel-Zoom auf ihr laden sauber wieder; ⌂ landet naturgemäß wieder auf ihr.
+- **Der Hinweistext erscheint nur noch, wenn wirklich nichts gebunden ist**,
+  und sagt jetzt beide Wege: Konten-/Dimensions-Hierarchie **oder**
+  Formel-Graph. Die Format-Pane-Wurzel („Wurzelzeile Treiberbaum") funktioniert
+  weiter und startet den Baum auf Wunsch direkt an einer Kategorie.
+- Tests: drei neue Engine-Blöcke zu `syntheticTotal` (Summe, Vorzeichen,
+  Quoten-Wurzeln, Ein-Wurzel-Fall, Monatsreihen, Leermodell → 25 Blöcke) und
+  ein neuer Interaktions-Block auf einem synthetischen Dimensions-DataView
+  ohne Zeilentyp und Formel (217 statt 181 Checks): Baum, Werte-Summe,
+  Chevron/Ebenen/⌂, ⌖ + Breadcrumb, Kachel-Zoom mit Auf- und Abwärts-Navigation,
+  Bookmark auf der virtuellen Wurzel und der Ein-Wurzel-Fall.
+
 ## 0.14.0.0 (2026-08-25) — Periodengerechte YTD: Δ-Kennzahlen passen jetzt zur Brücke
 
 Nutzer-Befund am echten Modell (AC gebucht bis August, PL/PY/FC fürs volle

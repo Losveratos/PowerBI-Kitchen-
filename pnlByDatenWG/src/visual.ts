@@ -30,6 +30,7 @@ import {
     buildModel, flattenVisible, collapseToLevel, variance, displayValue,
     parseRowType, parseBool, parseSign, rowsFromLevels, aggregateMonthly,
     isZeroRow, revenueBase, formulaOperands, nodeResolver, Variance,
+    syntheticTotal, TOTAL_ID,
     FormulaOp, InputRow, LevelInputRow, PnlModel, PnlNode, Scenario,
 } from "./engine";
 
@@ -412,6 +413,9 @@ export class Visual implements IVisual {
     // --- driver tree ---
     /** graph context of the current render (toolbar and tree share it) */
     private treeCtx: TreeCtx | null = null;
+    /** memoized virtual total root (see treeTotalNode) and the model it belongs to */
+    private totalNode: PnlNode | null = null;
+    private totalVer = -1;
     /** stage height of the last host update — drives the compact-card fallback */
     private vpH = 0;
 
@@ -734,11 +738,14 @@ export class Visual implements IVisual {
         if (this.model) {
             this.ui.collapsed = this.ui.collapsed.filter(id => this.model!.byId.has(id));
             this.ui.spark = this.ui.spark.filter(id => this.model!.byId.has(id));
+            // the virtual total root is no row of the model, yet it is a card the
+            // reader folds, re-roots and zooms into — it survives the filter
+            const known = (id: string): boolean => id === TOTAL_ID || this.model!.byId.has(id);
             if (this.ui.treeCollapsed) {
-                this.ui.treeCollapsed = this.ui.treeCollapsed.filter(id => this.model!.byId.has(id));
+                this.ui.treeCollapsed = this.ui.treeCollapsed.filter(known);
             }
             // a tile view on a row the model no longer knows falls back to the tree
-            if (this.ui.treeZoom != null && !this.model.byId.has(this.ui.treeZoom)) {
+            if (this.ui.treeZoom != null && !known(this.ui.treeZoom)) {
                 this.ui.treeZoom = null;
             }
         }
@@ -2574,9 +2581,41 @@ export class Visual implements IVisual {
     // ---------------- driver tree (DuPont) ----------------
 
     /**
+     * The virtual total over all model roots, memoized per model version — the
+     * top of a driver tree that has no formula row to start from. The engine
+     * aggregates it like a subtotal; the label is the only thing the view adds.
+     */
+    private treeTotalNode(): PnlNode | null {
+        const model = this.model;
+        if (!model || model.roots.length === 0) { return null; }
+        if (this.totalNode == null || this.totalVer !== this.modelVer) {
+            const n = syntheticTotal(model);
+            n.row.name = this.str("Total", "Gesamt");
+            this.totalNode = n;
+            this.totalVer = this.modelVer;
+        }
+        return this.totalNode;
+    }
+
+    /**
+     * Node resolver of the tree: rows by id or unique name (exactly what the
+     * formulas use) plus the virtual total root, so a re-root, a bookmark or a
+     * tile view can name it like any other card.
+     */
+    private treeResolver(): (id: string) => PnlNode | undefined {
+        const base = nodeResolver(this.model!);
+        return (id: string): PnlNode | undefined =>
+            (id === TOTAL_ID ? this.treeTotalNode() ?? undefined : undefined) ?? base(id);
+    }
+
+    /**
      * Auto root: the last formula/KPI row in P&L order whose formula actually
      * references other rows — in a P&L that is the bottom-line ratio
      * (net margin, ROI …), the natural top of a driver tree.
+     *
+     * A plain dimension hierarchy has no such row. There the tree starts at the
+     * model root itself — and when the model carries several roots, at a virtual
+     * total that sums them, so the reader still gets one top card to drill from.
      */
     private treeDefaultRoot(resolve: (id: string) => PnlNode | undefined): PnlNode | null {
         let best: PnlNode | null = null;
@@ -2587,7 +2626,10 @@ export class Visual implements IVisual {
             if (best == null || node.row.sort > best.row.sort
                 || (node.row.sort === best.row.sort && node.row.index > best.row.index)) { best = node; }
         }
-        return best;
+        if (best) { return best; }
+        const roots = this.model!.roots;
+        if (roots.length === 1) { return roots[0]; }
+        return this.treeTotalNode();
     }
 
     /** row id or unique row name → node (same resolution the formulas use) */
@@ -2697,8 +2739,8 @@ export class Visual implements IVisual {
      * the author/auto root down to the re-rooted card.
      */
     private buildTreeCtx(): TreeCtx | null {
-        const model = this.model!; const ui = this.ui!;
-        const resolve = nodeResolver(model);
+        const ui = this.ui!;
+        const resolve = this.treeResolver();
         const home = this.treeLookup(this.settings.columnsCard.treeRoot.value, resolve)
             ?? this.treeDefaultRoot(resolve);
         const picked = this.treeLookup(ui.treeRoot, resolve);
@@ -4790,10 +4832,13 @@ export class Visual implements IVisual {
             const hint = document.createElement("div");
             hint.style.cssText = `font-size:11px;color:${C.soft};line-height:1.55;padding:10px 0;max-width:620px;`;
             hint.textContent = this.str(
-                "The driver tree needs a formula or KPI row that references other rows, e.g. [EBIT]/[Net revenue]. "
-                + "Assign the row type and formula fields, or name a root row in the format pane.",
-                "Der Treiberbaum braucht eine Formel- oder KPI-Zeile, die andere Zeilen referenziert, z. B. [EBIT]/[Umsatz]. "
-                + "Zeilentyp- und Formel-Feld zuweisen oder im Format-Pane eine Wurzelzeile angeben.");
+                "The driver tree needs rows to grow from — an account or dimension hierarchy, or a formula / "
+                + "KPI row that references other rows (e.g. [EBIT]/[Net revenue]). Bind the level or account "
+                + "field first; a root row named in the format pane starts the tree at that card instead.",
+                "Der Treiberbaum braucht Zeilen, aus denen er wächst — eine Konten- oder Dimensions-Hierarchie "
+                + "oder eine Formel-/KPI-Zeile, die andere Zeilen referenziert (z. B. [EBIT]/[Umsatz]). Zuerst "
+                + "das Ebenen- oder Kontofeld zuweisen; eine im Format-Pane genannte Wurzelzeile startet den "
+                + "Baum stattdessen an dieser Karte.");
             wrap.appendChild(hint);
             return wrap;
         }

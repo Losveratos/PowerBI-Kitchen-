@@ -29,7 +29,7 @@
         "Columns_RevBase": "Umsatz-Basiszeile (ID oder Name)",
         "Columns_HideZero": "Nullzeilen ausblenden (Standard)",
         "Columns_FitWidth": "Tabelle auf Breite einpassen (Standard)",
-        "Columns_TreeRoot": "Wurzelzeile Treiberbaum (ID oder Name)",
+        "Columns_TreeRoot": "Wurzelzeile Treiberbaum (ID, Name oder Kategorie)",
         "Columns_TreeLevel": "Start-Tiefe Treiberbaum (0 = ganzer Baum)",
         "Columns_TreeCard": "Karten-Diagramm im Treiberbaum",
         "Columns_TreeStatus": "Status-Indikator der Karten (Δ-Farbe)",

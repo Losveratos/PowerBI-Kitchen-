@@ -67,6 +67,8 @@ export interface Variance {
 }
 
 const ORPHAN_ID = "__unassigned__";
+/** id of the virtual total root (see syntheticTotal) — never a real row id */
+export const TOTAL_ID = "__TOTAL__";
 const LEVEL_PREFIX = "L:";
 const LEVEL_SEP = "¦"; // ¦ — unlikely in account names
 
@@ -351,6 +353,60 @@ function contributes(node: PnlNode): boolean {
     return t === "account" || t === "subtotal";
 }
 
+/** per-scenario sum of the contributing children (null when no child carries a value) */
+function childSum(node: PnlNode, s: Scenario): number | null {
+    let acc: number | null = null;
+    for (const c of node.children) {
+        if (!contributes(c)) { continue; }
+        const cv = c.computed[s];
+        if (cv == null) { continue; }
+        acc = (acc ?? 0) + cv;
+    }
+    return acc;
+}
+
+/** per-month sum of the contributing children (null when no child carries a series) */
+function childSeriesSum(node: PnlNode, s: Scenario): (number | null)[] | null {
+    let acc: (number | null)[] | null = null;
+    for (const c of node.children) {
+        if (!contributes(c)) { continue; }
+        const cs = c.series[s];
+        if (!cs) { continue; }
+        if (!acc) { acc = new Array(cs.length).fill(null); }
+        for (let i = 0; i < cs.length; i++) {
+            const v = cs[i];
+            if (v == null) { continue; }
+            acc[i] = (acc[i] ?? 0) + v;
+        }
+    }
+    return acc;
+}
+
+/**
+ * Subtotal semantics on one node: the children win, the row's own value is the
+ * per-scenario fallback for aggregate-only data (e.g. PY delivered without
+ * account detail), and the row's own sign applies to the aggregate — values and
+ * monthly series alike. FY scalars (fcfy/plfy) roll up like every other
+ * scenario here; their first-wins rule lives in aggregateMonthly, one level
+ * below. The engine's roll-up pass and syntheticTotal() share this definition.
+ */
+export function aggregateSubtotal(node: PnlNode): void {
+    for (const s of SCENARIOS) {
+        const childAcc = childSum(node, s);
+        const base = childAcc != null ? childAcc : node.row.values[s];
+        node.computed[s] = base == null ? null : base * node.row.sign;
+    }
+    for (const s of SERIES_SCENARIOS) {
+        const ownRaw = node.row.series?.[s];
+        const own = ownRaw ? ownRaw.map(v => (v == null ? null : v * node.row.sign)) : null;
+        const childAcc = childSeriesSum(node, s);
+        const base = childAcc
+            ? (node.row.sign === -1 ? childAcc.map(v => (v == null ? null : -v)) : childAcc)
+            : own;
+        if (base) { node.series[s] = base; }
+    }
+}
+
 function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: string[], months: string[]): void {
     // pass 1: additive values bottom-up (accounts + subtotals)
     const sumNode = (node: PnlNode): void => {
@@ -365,57 +421,27 @@ function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: s
 
         if (t !== "account" && t !== "subtotal") { return; } // formula/kpi in pass 2
 
+        if (t === "subtotal") { aggregateSubtotal(node); return; }
+
+        // postable parent account: own value + children
         for (const s of SCENARIOS) {
             const own = node.row.values[s];
-            let childAcc: number | null = null;
-            for (const c of node.children) {
-                if (!contributes(c)) { continue; }
-                const cv = c.computed[s];
-                if (cv == null) { continue; }
-                childAcc = (childAcc ?? 0) + cv;
-            }
-            if (t === "subtotal") {
-                // children win; the own value is the per-scenario fallback for
-                // aggregate-only data (e.g. PY delivered without account detail);
-                // the subtotal's own sign applies to its aggregate
-                const base = childAcc != null ? childAcc : own;
-                node.computed[s] = base == null ? null : base * node.row.sign;
-            } else {
-                // postable parent account: own value + children
-                let acc: number | null = own != null ? own * node.row.sign : null;
-                if (childAcc != null) { acc = (acc ?? 0) + childAcc; }
-                node.computed[s] = acc;
-            }
+            const childAcc = childSum(node, s);
+            let acc: number | null = own != null ? own * node.row.sign : null;
+            if (childAcc != null) { acc = (acc ?? 0) + childAcc; }
+            node.computed[s] = acc;
         }
 
         // monthly series roll up with the same semantics (sparklines)
         for (const s of SERIES_SCENARIOS) {
             const ownRaw = node.row.series?.[s];
             const own = ownRaw ? ownRaw.map(v => (v == null ? null : v * node.row.sign)) : null;
-            let childAcc: (number | null)[] | null = null;
-            for (const c of node.children) {
-                if (!contributes(c)) { continue; }
-                const cs = c.series[s];
-                if (!cs) { continue; }
-                if (!childAcc) { childAcc = new Array(cs.length).fill(null); }
-                for (let i = 0; i < cs.length; i++) {
-                    const v = cs[i];
-                    if (v == null) { continue; }
-                    childAcc[i] = (childAcc[i] ?? 0) + v;
-                }
-            }
-            if (t === "subtotal") {
-                const base = childAcc
-                    ? (node.row.sign === -1 ? childAcc.map(v => (v == null ? null : -v)) : childAcc)
-                    : own;
-                if (base) { node.series[s] = base; }
+            const childAcc = childSeriesSum(node, s);
+            if (own && childAcc) {
+                node.series[s] = own.map((v, i) =>
+                    v == null && childAcc[i] == null ? null : (v ?? 0) + (childAcc[i] ?? 0));
             } else if (own || childAcc) {
-                if (own && childAcc) {
-                    node.series[s] = own.map((v, i) =>
-                        v == null && childAcc![i] == null ? null : (v ?? 0) + (childAcc![i] ?? 0));
-                } else {
-                    node.series[s] = (own ?? childAcc)!;
-                }
+                node.series[s] = (own ?? childAcc)!;
             }
         }
     };
@@ -713,6 +739,33 @@ export function revenueBase(model: PnlModel, override?: string): PnlNode | null 
         if ((t === "account" || t === "subtotal") && r.computed.ac != null) { return r; }
     }
     return null;
+}
+
+/**
+ * Virtual total over all model roots — the top of a driver tree built from a
+ * plain dimension hierarchy, where no formula or KPI row offers a natural root.
+ * It aggregates exactly like a subtotal row of the engine (sign-weighted sum of
+ * the contributing roots per scenario, the same for the monthly series), so the
+ * cards, the bridge and the scenario grid read the node like any other row.
+ *
+ * The node is deliberately NOT registered in model.byId: it belongs to the
+ * view, not to the data. Its name is left empty — the caller labels it in the
+ * reader's language.
+ */
+export function syntheticTotal(model: PnlModel): PnlNode {
+    const row: InputRow = {
+        id: TOTAL_ID, parent: null, name: "", sort: Number.MIN_SAFE_INTEGER,
+        rowType: "subtotal", formulaDef: null, sign: 1,
+        displayInvert: false, varianceInvert: false, values: {}, comment: null, index: -1,
+    };
+    const node: PnlNode = {
+        row, children: [...model.roots], level: 0,
+        computed: { ac: null, py: null, pl: null, fc: null, fcfy: null, plfy: null },
+        series: {},
+        error: null, hasChildren: model.roots.length > 0, isOrphanBucket: false,
+    };
+    aggregateSubtotal(node);
+    return node;
 }
 
 // ---- visible rows (expand/collapse)

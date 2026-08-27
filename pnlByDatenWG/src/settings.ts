@@ -134,7 +134,7 @@ export class ColumnsCardSettings extends FormattingSettingsCard {
         name: "treeRoot",
         displayName: "Driver tree root row (id or name)",
         displayNameKey: "Columns_TreeRoot",
-        description: "Empty = last formula/KPI row with operands",
+        description: "Empty = last formula/KPI row with operands, otherwise the model root",
         placeholder: "e.g. Net margin",
         value: ""
     });
