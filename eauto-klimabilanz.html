@@ -103,13 +103,18 @@
   .chip.on{background:var(--teal-text);border-color:var(--teal-text);color:#fff}
   .switch-row{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:500;margin:0 0 12px}
   .switch-row input{accent-color:var(--accent);width:18px;height:18px}
+  .chapchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+  .chapchips a{font-family:'JetBrains Mono',monospace;font-size:11.5px;padding:5px 11px;border-radius:16px;
+               border:1px solid var(--line);background:var(--bg-card);color:var(--ink);text-decoration:none}
+  .chapchips a:hover{border-color:var(--teal);color:var(--teal-text)}
   .derived{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--soft);
            background:var(--bg-sunk);border-radius:8px;padding:8px 12px;margin-top:4px}
 
   /* ---- Charts ---- */
   .chart-box{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;
              padding:18px 18px 12px;margin:20px 0;overflow-x:auto}
-  .chart-box svg{display:block;width:100%;height:auto;min-width:300px}
+  /* min-width haelt die SVG-Schriften mobil lesbar; die Box scrollt horizontal. */
+  .chart-box svg{display:block;width:100%;height:auto;min-width:640px}
   .chart-cap{font-size:13px;color:var(--soft);margin:8px 2px 4px;line-height:1.5}
   .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--soft);margin:8px 2px 0}
   .legend span{display:inline-flex;align-items:center;gap:6px}
@@ -161,6 +166,11 @@
      allerdings niemand prüfen, der Volltext ist unveröffentlicht). Dieses kleine Modell macht die Hebel drehbar.</p>
   <p class="hero-meta">Stand 30.08.2026 · Modell: <code>eauto/scripts/model.py</code> · Jede Zahl mit Quelle + Konfidenz
      <span class="conf conf-A">A</span> amtlich/mehrfach · <span class="conf conf-B">B</span> seriöse Sekundärquelle · <span class="conf conf-C">C</span> Einzelquelle/Setzung</p>
+  <nav class="chapchips" aria-label="Kapitel">
+    <a href="#auspuff">1 Auspuff-Logik</a><a href="#modell">2 Modell</a><a href="#sensitivitaet">3 Strommix-Hebel</a>
+    <a href="#montecarlo">4 Monte Carlo</a><a href="#hochrechnung">5 Hochrechnung</a><a href="#einordnung">6 Einordnung</a>
+    <a href="#limitationen">7 Limitationen</a><a href="#quellen">8 Quellen</a>
+  </nav>
 </header>
 
 <div id="load-hint">
@@ -307,7 +317,9 @@
      Verteilungen, nicht die Reglerstellungen aus Kapitel 2. Wichtig für die Lesart: Die Bänder mischen
      <em>Streuung über reale Fahrzeuge und Fahrer</em> (kleines vs. großes Auto, Wenig- vs. Vielfahrer) mit
      echter <em>Unsicherheit</em> der Parameter — sie beschreiben die Bandbreite realer Fälle, nicht die
-     Unsicherheit eines Mittelwerts. Die Flottenrechnung in Kapitel 5 trennt das sauber.</p>
+     Unsicherheit eines Mittelwerts. Die Flottenrechnung in Kapitel 5 trennt das sauber.
+     Zur Notation: <strong>Median</strong> = die Mitte aller Ziehungen; <strong>[P5–P95]</strong> = das Band,
+     in dem 9 von 10 Ziehungen liegen.</p>
   <div class="card">
     <p class="card-t">Drei Korrelationen, damit die Kombinationen konsistent sind</p>
     <ul style="margin-bottom:0">
@@ -357,13 +369,9 @@
      zum Ausgangspunkt wie stark verschiebt (sortiert nach Wirkung):</p>
   <div class="chart-box">
     <div id="chart-tornado"></div>
-    <div class="legend">
-      <span><i style="background:var(--c-bev)"></i> mehr Ersparnis</span>
-      <span><i style="background:var(--c-ice)"></i> weniger Ersparnis</span>
-    </div>
     <p class="chart-cap">Eine-Annahme-nach-der-anderen-Analyse (deterministisch, kein Zufall), Metrik:
-       Ersparnis je Fahrzeug in Deutschland mit Strompfad. An den Balkenenden steht der jeweils
-       eingesetzte Extremwert.</p>
+       Ersparnis je Fahrzeug in Deutschland mit Strompfad. Balken nach rechts = mehr Ersparnis für das
+       E-Auto, nach links = weniger; an den Balkenenden steht der jeweils eingesetzte Extremwert.</p>
   </div>
   <p id="tornado-finding"></p>
 
@@ -657,7 +665,7 @@ function chartReg(r){
   vals.forEach((b, i) => {
     const y = 16 + i * (rowH + gap) + (i > 1 ? 14 : 0);
     s += `<text x="${L-8}" y="${y+rowH/2+4}" text-anchor="end" font-size="13" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">${b.l}</text>`;
-    s += `<rect x="${L}" y="${y}" width="${Math.max(x(b.v)-L, 1.5)}" height="${rowH}" rx="4" fill="${b.c}" opacity="${i<2?0.55:1}"></rect>`;
+    s += `<rect x="${L}" y="${y}" width="${Math.max(x(b.v)-L, 1.5)}" height="${rowH}" rx="4" fill="${b.c}" opacity="${i<2?0.55:1}"><title>${b.l}: ${fmt0(b.v)} g CO₂e/km</title></rect>`;
     s += `<text x="${x(b.v)+7}" y="${y+rowH/2+4}" font-size="12.5" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">${fmt0(b.v)} g/km</text>`;
   });
   $('chart-reg').innerHTML = s + '</svg>';
@@ -711,13 +719,13 @@ function chartParts(r){
   const W = 720, H = 190, L = 110, R = 88, rowH = 44;
   const rows = [
     { l:'E-Auto', total: r.bev.total_kg, parts: [
-        { v:r.bev.prod_base_kg, c:CSSV('--c-prod') },
-        { v:r.bev.battery_kg, c:CSSV('--c-batt') },
-        { v:r.bev.operation_kg, c:CSSV('--c-strom') }], eol: r.bev.eol_kg },
+        { v:r.bev.prod_base_kg, c:CSSV('--c-prod'), n:'Produktion ohne Batterie' },
+        { v:r.bev.battery_kg, c:CSSV('--c-batt'), n:'Batterie' },
+        { v:r.bev.operation_kg, c:CSSV('--c-strom'), n:'Ladestrom' }], eol: r.bev.eol_kg },
     { l:'Verbrenner', total: r.ice.total_kg, parts: [
-        { v:r.ice.prod_kg, c:CSSV('--c-prod') },
-        { v:r.ice.fuel_ttw_kg, c:CSSV('--c-ttw') },
-        { v:r.ice.fuel_chain_kg, c:CSSV('--c-chain') }], eol: r.ice.eol_kg }
+        { v:r.ice.prod_kg, c:CSSV('--c-prod'), n:'Produktion' },
+        { v:r.ice.fuel_ttw_kg, c:CSSV('--c-ttw'), n:'Auspuff (Tank-to-Wheel)' },
+        { v:r.ice.fuel_chain_kg, c:CSSV('--c-chain'), n:'Kraftstoff-Vorkette' }], eol: r.ice.eol_kg }
   ];
   const maxG = Math.max(...rows.map(rw => rw.parts.reduce((a,b)=>a+b.v,0) + Math.max(rw.eol,0))) * 1.02;
   const x = v => (W - L - R) * v / maxG;
@@ -728,7 +736,7 @@ function chartParts(r){
     let cx = L;
     rw.parts.forEach(pt => {
       const w = x(pt.v);
-      if (w > 0.5) s += `<rect x="${cx}" y="${yy}" width="${w}" height="${rowH}" fill="${pt.c}"></rect>`;
+      if (w > 0.5) s += `<rect x="${cx}" y="${yy}" width="${w}" height="${rowH}" fill="${pt.c}"><title>${rw.l} · ${pt.n}: ${fmt(pt.v/1000,1)} t CO₂e</title></rect>`;
       if (w > 46){
         const kg = pt.v / 1000;
         s += `<text x="${cx+w/2}" y="${yy+rowH/2+4}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#fff" font-family="JetBrains Mono,monospace">${fmt(kg, kg<10?1:0)}</text>`;
@@ -759,16 +767,19 @@ function chartSens(p){
     const q = Object.assign({}, p, { strom_start: g, strom_dynamic: false });
     pts.push([g, clampY(runModel(q).reduction_pct)]);
   }
-  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Reduktion als Funktion des Strommix">`;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ersparnis als Funktion des Strommix">`;
+  // Bereich unter der Nulllinie toenen: dort waere der Verbrenner besser.
+  s += `<rect x="${L}" y="${y(0)}" width="${W-L-R}" height="${y(yMin)-y(0)}" fill="#FBEDED" opacity="0.55"></rect>`;
+  s += `<text x="${W-R-6}" y="${y(yMin)-8}" text-anchor="end" font-size="10.5" fill="#A8492F" font-family="Geist,sans-serif">unterhalb der Nulllinie wäre der Verbrenner besser</text>`;
   for (let pct = yMin; pct <= yMax; pct += 20){
     const yy = y(pct);
     s += `<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="${pct===0 ? CSSV('--soft') : CSSV('--grid')}" stroke-width="${pct===0?1.5:1}"></line>`;
-    s += `<text x="${L-8}" y="${yy+4}" text-anchor="end" font-size="11.5" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${pct>0?'−':pct<0?'+':''}${Math.abs(pct)} %</text>`;
+    s += `<text x="${L-8}" y="${yy+4}" text-anchor="end" font-size="11.5" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${pct<0?'−':''}${Math.abs(pct)} %</text>`;
   }
   for (let g = 0; g <= gMax; g += 200){
     s += `<text x="${x(g)}" y="${H-B+20}" text-anchor="middle" font-size="11.5" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g}</text>`;
   }
-  s += `<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Statischer Strommix [g CO₂e/kWh] — y-Achse: CO₂-Ersparnis des BEV</text>`;
+  s += `<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Statischer Strommix [g CO₂e/kWh] — y-Achse: CO₂-Ersparnis des E-Autos [%]</text>`;
   s += `<path d="${pts.map((pt,i)=>(i?'L':'M')+x(pt[0]).toFixed(1)+','+y(pt[1]).toFixed(1)).join('')}" fill="none" stroke="${CSSV('--c-bev')}" stroke-width="3"></path>`;
   // Marker-Labels kollisionsbewusst setzen: liegen zwei Marker horizontal
   // dicht beieinander (DE 2024/2025), wandert das zweite Label auf die
@@ -1059,13 +1070,16 @@ function chartTornado(tor){
   const lo = Math.min(...rows.map(r => Math.min(r.d_lo, r.d_hi, 0)));
   const hi = Math.max(...rows.map(r => Math.max(r.d_lo, r.d_hi, 0)));
   const x = v => L + (W - L - R) * (v - lo) / (hi - lo);
-  const posC = CSSV('--c-bev'), negC = CSSV('--c-ice');
+  // Eine neutrale Balkenfarbe: Die Richtung steckt bereits in der Position
+  // (links/rechts der Nullachse); Teal/Terrakotta sind seitenweit als
+  // E-Auto/Verbrenner belegt und wuerden hier fehlgelesen.
+  const barC = CSSV('--c-prod');
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Wirkung jeder Annahme auf die Ersparnis">`;
   // Gitter + Nullachse (= Ausgangspunkt)
   const step = (hi - lo) > 60 ? 20 : 10;
   for (let g = Math.ceil(lo / step) * step; g <= hi; g += step){
     s += `<line x1="${x(g)}" y1="${T}" x2="${x(g)}" y2="${T + rows.length*rowH}" stroke="${g===0 ? CSSV('--soft') : CSSV('--grid')}" stroke-width="${g===0?1.5:1}"></line>`;
-    s += `<text x="${x(g)}" y="${T + rows.length*rowH + 18}" text-anchor="middle" font-size="11" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g>0?'+':''}${g}</text>`;
+    s += `<text x="${x(g)}" y="${T + rows.length*rowH + 18}" text-anchor="middle" font-size="11" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g>0?'+':''}${g<0?'−'+Math.abs(g):g}</text>`;
   }
   s += `<text x="${x(0)}" y="${T-18}" text-anchor="middle" font-size="11.5" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">Ausgangspunkt ${fmt(tor.baseline_t,1)} t</text>`;
   const range = hi - lo;
@@ -1077,7 +1091,7 @@ function chartTornado(tor){
     [[rw.d_lo, rw.lo_label], [rw.d_hi, rw.hi_label]].forEach(([d, lab]) => {
       if (Math.abs(d) < 1e-9) return;
       const x0 = x(0), x1 = x(d);
-      s += `<rect x="${Math.min(x0,x1).toFixed(1)}" y="${cy-8}" width="${Math.abs(x1-x0).toFixed(1)}" height="16" rx="3" fill="${d>0?posC:negC}" opacity="0.85"></rect>`;
+      s += `<rect x="${Math.min(x0,x1).toFixed(1)}" y="${cy-8}" width="${Math.abs(x1-x0).toFixed(1)}" height="16" rx="3" fill="${barC}" opacity="0.85"><title>${esc(rw.label)}: ${esc(lab)} → ${d>0?'+':'−'}${fmt(Math.abs(d),1)} t</title></rect>`;
       if (Math.abs(d) > range * 0.05){
         const anchor = d > 0 ? 'end' : 'start';
         const tx = Math.min(Math.max(x1, L + 4), W - R - 4);
@@ -1172,8 +1186,8 @@ function chartMcFan(mc){
   regions.forEach((e, i) => {
     const cy = T + i * rowH + rowH / 2;
     s += `<text x="${L-10}" y="${cy+4}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Geist,sans-serif">${esc(e.label)}</text>`;
-    s += `<line x1="${x(e.delta_t.p5)}" y1="${cy}" x2="${x(e.delta_t.p95)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="6" opacity="0.35" stroke-linecap="round"></line>`;
-    s += `<line x1="${x(e.delta_t.p25)}" y1="${cy}" x2="${x(e.delta_t.p75)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="10" opacity="0.75" stroke-linecap="round"></line>`;
+    s += `<line x1="${x(e.delta_t.p5)}" y1="${cy}" x2="${x(e.delta_t.p95)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="6" opacity="0.35" stroke-linecap="round"><title>${esc(e.label)}: Median ${fmt(e.delta_t.p50,0)} t, P5–P95 ${fmt(e.delta_t.p5,0)}–${fmt(e.delta_t.p95,0)} t</title></line>`;
+    s += `<line x1="${x(e.delta_t.p25)}" y1="${cy}" x2="${x(e.delta_t.p75)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="10" opacity="0.75" stroke-linecap="round"><title>${esc(e.label)}: P25–P75 ${fmt(e.delta_t.p25,0)}–${fmt(e.delta_t.p75,0)} t</title></line>`;
     s += `<line x1="${x(e.delta_t.p50)}" y1="${cy-10}" x2="${x(e.delta_t.p50)}" y2="${cy+10}" stroke="${CSSV('--ink')}" stroke-width="2.5"></line>`;
     s += `<text x="${x(e.delta_t.p95)+10}" y="${cy+4}" font-size="12" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">${fmt(e.delta_t.p50,0)} t</text>`;
   });
@@ -1238,7 +1252,7 @@ function chartScale(mc){
     s += `<circle cx="${x(pkwPct)}" cy="${cy}" r="6" fill="none" stroke="${CSSV('--c-ice')}" stroke-width="2"></circle>`;
     s += `<text x="${x(pkwPct)}" y="${cy-12}" text-anchor="middle" font-size="10.5" fill="${CSSV('--c-ice')}" font-family="JetBrains Mono,monospace">Pkw ${fmt(pkwPct,1)} %</text>`;
     // Ersparnis-Band
-    s += `<line x1="${x(e.pct_total.p5)}" y1="${cy}" x2="${x(e.pct_total.p95)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="6" opacity="0.35" stroke-linecap="round"></line>`;
+    s += `<line x1="${x(e.pct_total.p5)}" y1="${cy}" x2="${x(e.pct_total.p95)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="6" opacity="0.35" stroke-linecap="round"><title>${esc(e.label)}: Ersparnis ${fmt(e.mt_a.p50,0)} Mt/a = ${fmt(e.pct_total.p50,1)} % der THG (P5–P95 ${fmt(e.pct_total.p5,1)}–${fmt(e.pct_total.p95,1)} %)</title></line>`;
     s += `<line x1="${x(e.pct_total.p25)}" y1="${cy}" x2="${x(e.pct_total.p75)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="10" opacity="0.75" stroke-linecap="round"></line>`;
     s += `<line x1="${x(e.pct_total.p50)}" y1="${cy-10}" x2="${x(e.pct_total.p50)}" y2="${cy+10}" stroke="${CSSV('--ink')}" stroke-width="2.5"></line>`;
     s += `<text x="${W-R+10}" y="${cy+4}" font-size="12" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">${fmt(e.mt_a.p50,0)} Mt/a</text>`;
@@ -1258,7 +1272,7 @@ function renderScaleTable(mc){
       <td class="num">${fmt(sc.total_mt.mid, 0)} / ${fmt(sc.pkw_mt.mid, 0)}</td></tr>`;
   }).join('');
   $('scale-table').innerHTML = `<div class="mtable-wrap"><table class="mtable">
-    <thead><tr><th>Region</th><th>Ersparnis Mt CO₂e/a<br>P50 [P5–P95]</th>
+    <thead><tr><th>Region</th><th>Ersparnis Mt CO₂e/a<br>Median [P5–P95]</th>
     <th>% der THG-Gesamt&shy;emissionen</th><th>% des Pkw-Inventars<br>(nur Auspuff, CO₂)</th>
     <th>Pkw-Bestand</th><th>Gesamt / Pkw [Mt]</th></tr></thead><tbody>${rows}</tbody></table></div>
     <div class="note"><strong>Warum hier über 100 % stehen kann — zwei Gründe:</strong> Erstens zählt
