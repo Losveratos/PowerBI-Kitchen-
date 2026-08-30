@@ -160,6 +160,82 @@
       "overrides": { "strom_start": 830 }
     }
   ],
+  "mc": {
+    "n_draws": 1000,
+    "base_seed": 20260830,
+    "tolerance_pct": 0.5,
+    "note": "Monte Carlo: Dreiecksverteilungen (Modus = value, Grenzen = min/max der defaults). Korrelationsstruktur über gemeinsame Faktoren je Ziehung: u_segment (Fahrzeuggröße → Batteriegröße, Verbräuche, Produktion beider Antriebe), u_energy (Sauberkeit des Energiesystems → Strommix, Batteriefertigung, Kraftstoff-Vorkette: wird der Strom sauberer, wird auch der Verbrenner-Pfad sauberer), u_usage (Fahrprofil km/Jahr und Nutzungsdauer — für beide Antriebe identisch, sonst wäre der Vergleich unfair). Gewichte sind Setzungen (Konfidenz C). PRNG mulberry32, bitidentisch in Python und JS; Ziehungsreihenfolge ist normativ in scripts/monte_carlo.py dokumentiert.",
+    "weights": {
+      "energy_on_batt": 0.65,
+      "energy_on_fuelchain": 0.15,
+      "segment_on_batt_kwh": 0.8,
+      "segment_on_cons": 0.7,
+      "segment_on_prod": 0.6,
+      "energy_on_grid": 0.85,
+      "weights_note": "energy_on_batt aus hochrechnung_quellen.md §7: Fertigungsstrom-Anteil 30–50 %, Standort-Varianz ~1 Größenordnung → ρ 0,5–0,8, gesetzt 0,65 (B). energy_on_fuelchain bewusst NIEDRIG: Raffinerien beziehen nur ~0,05–0,175 kWh Netzstrom je Liter (~7 % des Prozessenergieeinsatzes), der ‚1,5 kWh Strom pro Liter'-Mythos ist im Dossier verworfen → ρ 0–0,2, gesetzt 0,15 (B). Übrige Gewichte Setzung (C)."
+    },
+    "fuel_chain": {
+      "min": 0.43, "mid": 0.53, "max": 1.03, "unit": "kg CO₂e/l",
+      "source": "Vorkette = WTW − TTW (Benzin): abgeleitet aus fuel_wtw-Spanne bei festem TTW 2,37",
+      "confidence": "B"
+    },
+    "regions": [
+      {
+        "id": "de", "label": "Deutschland",
+        "strom_start": { "min": 320, "mid": 363, "max": 434 },
+        "strom_ende": { "min": 40, "mid": 100, "max": 280 },
+        "note": "Start: UBA-Spanne 2022–2025 um den 2024-Wert; Ende: Klimapfad-Unsicherheit bis Politikversagen (Setzung C)"
+      },
+      {
+        "id": "eu", "label": "EU-27",
+        "strom_start": { "min": 180, "mid": 213, "max": 260 },
+        "strom_ende": { "min": 30, "mid": 80, "max": 220 },
+        "note": "Start um Ember 2024 (213); Ende Setzung C"
+      },
+      {
+        "id": "welt", "label": "Welt",
+        "strom_start": { "min": 420, "mid": 480, "max": 560 },
+        "strom_ende": { "min": 180, "mid": 320, "max": 500 },
+        "note": "Start um globale Erzeugungsintensität ~480 g/kWh (Ember-Größenordnung, C); Ende Setzung C"
+      }
+    ]
+  },
+  "scaleup": {
+    "note": "Hochrechnung ‚vollelektrische Pkw-Flotte, eingeschwungener Zustand'. Quellen und Herleitung: eauto/research/hochrechnung_quellen.md. Einheiten-Hinweis: Totale sind THG in Mt CO₂e (DE 2025 UBA; EU 2024 netto EEA; Welt 2024 UNEP); Pkw-Sektor-Werte teils nur CO₂ bzw. inkl. Vans — als Größenordnung ausgewiesen, siehe gaps im Dossier.",
+    "km_fleet": {
+      "min": 10500, "mid": 12300, "max": 13500, "unit": "km/Jahr",
+      "source": "KBA-Flottenmittel DE ~12.300 km; EU/Welt-Mittel ähnlich, Spanne als Unsicherheit des Mittels (nicht Fahrer-Streuung)",
+      "confidence": "B"
+    },
+    "years_fleet": {
+      "min": 15, "mid": 18, "max": 24, "unit": "Jahre",
+      "source": "Flottenumschlag: DE ~17,3 a (rechnerisch), Welt ~16 a, EU-27 ~23,7 a — Dossier-Empfehlung 15/18/24",
+      "confidence": "B"
+    },
+    "regions": [
+      {
+        "id": "de", "label": "Deutschland",
+        "bestand_mio": { "min": 48.0, "mid": 49.5, "max": 51.0 },
+        "total_mt": { "min": 620, "mid": 649, "max": 680 },
+        "pkw_mt": { "min": 87, "mid": 93, "max": 100 },
+        "source": "Bestand 49,49 Mio (KBA 1.1.2026, A); THG 649 Mt CO₂e 2025 (UBA, A); Pkw ~87–100 Mt (Ableitung aus Verkehr 146,3 Mt, C)"
+      },
+      {
+        "id": "eu", "label": "EU-27",
+        "bestand_mio": { "min": 245, "mid": 256, "max": 265 },
+        "total_mt": { "min": 2700, "mid": 2786, "max": 3106 },
+        "pkw_mt": { "min": 420, "mid": 457, "max": 500 },
+        "source": "Bestand 256 Mio (ACEA 2024, A); THG netto 2.786 Mt CO₂e 2024, brutto 2023 3.106 (EEA, A); Pkw ≈ 61 % von Straße 749 Mt CO₂ 2023 (B)"
+      },
+      {
+        "id": "welt", "label": "Welt",
+        "bestand_mio": { "min": 1200, "mid": 1300, "max": 1450 },
+        "total_mt": { "min": 55000, "mid": 57700, "max": 60000 },
+        "pkw_mt": { "min": 3300, "mid": 3800, "max": 4200 },
+        "source": "Bestand ~1,3 Mrd Pkw (B; 1,4–1,6 Mrd wären Kfz gesamt); THG 57,7 Gt CO₂e 2024 (UNEP, B; fossil-CO₂ allein: 38,1 Gt 2025, GCB); Pkw+Vans 3,8 Gt 2023 (IEA, B — reine Pkw nicht separat ausgewiesen)"
+      }
+    ]
+  },
   "context": {
     "tum": {
       "reduction_avg_pct": 41, "n_studies": 19, "n_scenarios": 47,
@@ -193,6 +269,11 @@
     { "id": 12, "label": "KBA: mittlere Jahresfahrleistung deutscher Pkw (~12.300 km, 2023)", "url": "https://www.kba.de", "accessed": "2026-08-30", "confidence": "A" },
     { "id": 13, "label": "Quarks: CO₂-Vorkette Kraftstoffe (+0,6–1,7 kg/l Benzin, +0,5–1,5 kg/l Diesel)", "url": "https://www.quarks.de/umwelt/klimawandel/co2-rechner-fuer-auto-flugzeug-und-co/", "accessed": "2026-08-30", "confidence": "C" },
     { "id": 14, "label": "Stiftung Warentest (2025): E-Auto nach ~2 Jahren mit besserer Ökobilanz als Verbrenner", "url": "https://www.test.de/Elektroauto-versus-Verbrenner-E-Auto-hat-schon-nach-zwei-Jahren-die-bessere-Oekobilanz-6234394-0/", "accessed": "2026-08-30", "confidence": "B" },
-    { "id": 15, "label": "Ember: Stromerzeugungs-Emissionsintensität EU-27 2024 ≈ 213 g CO₂/kWh; China ≈ 560 g/kWh", "url": "https://ember-energy.org/data/electricity-data-explorer/", "accessed": "2026-08-30", "confidence": "B" }
+    { "id": 15, "label": "Ember: Stromerzeugungs-Emissionsintensität EU-27 2024 ≈ 213 g CO₂/kWh; China ≈ 560 g/kWh; Welt ≈ 480 g/kWh", "url": "https://ember-energy.org/data/electricity-data-explorer/", "accessed": "2026-08-30", "confidence": "B" },
+    { "id": 16, "label": "KBA: Pkw-Bestand Deutschland 49,49 Mio (1.1.2026), davon BEV 4,1 %; Neuzulassungen 2025: 2,86 Mio (BEV-Anteil 19,1 %)", "url": "https://www.kba.de", "accessed": "2026-08-30", "confidence": "A" },
+    { "id": 17, "label": "ACEA: Pkw-Bestand EU-27 ≈ 256 Mio (2024, BEV-Anteil 2,3 %); mittleres Pkw-Alter EU 12,7 Jahre", "url": "https://www.acea.auto/figure/vehicles-in-use-europe/", "accessed": "2026-08-30", "confidence": "A" },
+    { "id": 18, "label": "UBA: Treibhausgasemissionen Deutschland 2025 ≈ 649 Mt CO₂e; Verkehr 146,3 Mt", "url": "https://www.umweltbundesamt.de/daten/klima/treibhausgas-emissionen-in-deutschland", "accessed": "2026-08-30", "confidence": "A" },
+    { "id": 19, "label": "EEA: THG EU-27 2024 netto ≈ 2.786 Mt CO₂e (2023 brutto 3.106); Straßenverkehr 749 Mt CO₂ (2023), davon Pkw ≈ 61 %", "url": "https://www.eea.europa.eu/en/analysis/indicators/total-greenhouse-gas-emission-trends", "accessed": "2026-08-30", "confidence": "A" },
+    { "id": 20, "label": "UNEP Emissions Gap / Global Carbon Budget: Welt-THG 2024 ≈ 57,7 Gt CO₂e; fossiles CO₂ 2025 ≈ 38,1 Gt; IEA: Pkw+Vans ≈ 3,8 Gt CO₂ (2023); Welt-Pkw-Bestand ~1,3 Mrd", "url": "https://www.unep.org/resources/emissions-gap-report-2025", "accessed": "2026-08-30", "confidence": "B" }
   ]
 }

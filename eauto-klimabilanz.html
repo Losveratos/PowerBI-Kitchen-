@@ -115,6 +115,16 @@
   .legend span{display:inline-flex;align-items:center;gap:6px}
   .legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
 
+  /* ---- Hochrechnungs-Tabelle ---- */
+  .mtable-wrap{overflow-x:auto;margin:16px 0}
+  table.mtable{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
+  table.mtable th{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;
+                  text-transform:uppercase;color:var(--soft);text-align:left;font-weight:600;
+                  padding:8px 10px;border-bottom:2px solid var(--line)}
+  table.mtable td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.mtable td.num{font-family:'JetBrains Mono',monospace;white-space:nowrap}
+  table.mtable td:first-child{font-weight:600}
+
   /* ---- Quellen ---- */
   ol.srcs{padding-left:0;list-style:none;counter-reset:q}
   ol.srcs li{counter-increment:q;position:relative;padding:9px 0 9px 40px;border-bottom:1px solid var(--line);
@@ -282,8 +292,77 @@
   </div>
   <p id="sens-finding"></p>
 
-  <!-- ================= Kapitel 4 ================= -->
-  <h2 id="einordnung"><span class="kapnum">4</span>Einordnung: Warum −41 % und −73 % beide „stimmen“ können</h2>
+  <!-- ================= Kapitel 4 · Monte Carlo ================= -->
+  <h2 id="montecarlo"><span class="kapnum">4</span>Monte Carlo: die Bandbreite ehrlich gerechnet</h2>
+  <p>Punktwerte täuschen Präzision vor. Deshalb zieht die Seite beim Laden
+     <strong><span id="mc-n">1.000</span> Parameterkombinationen</strong> aus den dokumentierten Spannen
+     (Dreiecksverteilungen: Modus = Mittelwert, Grenzen = min/max der Regler) und rechnet jede komplett durch —
+     einmal je Netz-Region <em>Deutschland</em>, <em>EU-27</em> und <em>Welt</em>. Die Simulation läuft live in
+     deinem Browser und wird gegen die Python-Referenz verifiziert (Badge unten). Sie nutzt die dokumentierten
+     Verteilungen, nicht die Reglerstellungen aus Kapitel 2.</p>
+  <div class="card">
+    <p class="card-t">Drei Korrelationen, damit die Kombinationen konsistent sind</p>
+    <ul style="margin-bottom:0">
+      <li><strong>Fahrzeuggröße:</strong> Ein großes Auto bekommt in derselben Ziehung eine große Batterie,
+          höhere Verbräuche <em>und</em> höhere Produktionsemissionen — bei beiden Antrieben.</li>
+      <li><strong>Energiesystem:</strong> Wird der Strom sauberer, sinken in derselben Ziehung auch die
+          Emissionen der Batteriefertigung <em>und</em> der Kraftstoff-Vorkette — der Verbrenner profitiert
+          also mit, nur schwächer, weil seine Verbrennung selbst nicht am Stromsystem hängt.</li>
+      <li><strong>Fahrprofil:</strong> Jahresfahrleistung und Nutzungsdauer werden je Ziehung <em>einmal</em>
+          gezogen und für beide Antriebe identisch verwendet — derselbe Fahrer, sonst wäre der Vergleich unfair.</li>
+    </ul>
+  </div>
+
+  <h3>Der Produktions-„Rucksack“</h3>
+  <p>Womit beide Autos ins Leben starten — Produktion inklusive Batterie, bevor der erste Kilometer gefahren ist:</p>
+  <div class="tile-grid">
+    <div class="tile"><div class="n teal" id="mt-ruck-bev">–</div><div class="l">Rucksack E-Auto, Median [P5–P95]</div></div>
+    <div class="tile"><div class="n" id="mt-ruck-ice">–</div><div class="l">Rucksack Verbrenner, Median [P5–P95]</div></div>
+    <div class="tile"><div class="n teal" id="mt-ruck-diff">–</div><div class="l">Mehr-Rucksack des E-Autos, Median [P5–P95]</div></div>
+  </div>
+  <div class="chart-box">
+    <div id="chart-mc-ruck"></div>
+    <p class="chart-cap">Verteilung der Produktionsemissionen über 1.000 Ziehungen, gemeinsame Achse.
+       Senkrechte Linie = Median, Balken unter der Verteilung = P5–P95-Spanne.</p>
+  </div>
+
+  <h3>Ersparnis je Fahrzeug — drei Netz-Regionen</h3>
+  <p>Dieselben 1.000 Fahrzeuge, dreimal gerechnet: geladen im deutschen, europäischen und im Welt-Strommix
+     (jeweils mit sinkendem Pfad und der jeweiligen Pfad-Unsicherheit):</p>
+  <div class="chart-box">
+    <div id="chart-mc-fan"></div>
+    <p class="chart-cap">Lebenszyklus-Ersparnis des E-Autos gegenüber dem Verbrenner in t CO₂e je Fahrzeug.
+       Helles Band = P5–P95, dunkles Band = P25–P75, Strich = Median.</p>
+  </div>
+  <div class="chart-box">
+    <div id="chart-mc-hist"></div>
+    <p class="chart-cap">Die vollständige Verteilung für Deutschland. Links der Nulllinie wäre der Verbrenner
+       besser gewesen.</p>
+  </div>
+  <p id="mc-finding"></p>
+
+  <!-- ================= Kapitel 5 · Hochrechnung ================= -->
+  <h2 id="hochrechnung"><span class="kapnum">5</span>Hochrechnung: Flotte, Deutschland, Europa, Welt</h2>
+  <p>Gedankenexperiment im eingeschwungenen Zustand: Der <em>gesamte</em> Pkw-Bestand einer Region fährt
+     elektrisch statt mit Benzin — was würde das pro Jahr einsparen? Für die Flotte rechnet die Simulation
+     bewusst <em>nicht</em> mit der Fahrer-Streuung aus Kapitel 4 (die enthält Vielfahrer und würde das Mittel
+     überschätzen), sondern mit einer engen Verteilung um das amtliche Flottenmittel.
+     Bestands- und Emissionsdaten: KBA, ACEA, UBA, EEA, UNEP/IEA<sup class="cite"><a href="#quellen">[16]</a></sup><sup class="cite"><a href="#quellen">[17]</a></sup><sup class="cite"><a href="#quellen">[18]</a></sup><sup class="cite"><a href="#quellen">[19]</a></sup><sup class="cite"><a href="#quellen">[20]</a></sup>.</p>
+  <div class="note warn"><strong>So ist es gemeint — und nicht anders:</strong> Kein Prognose-, sondern ein
+     Größenordnungs-Modell. Der reale Flottenumschlag dauert ~15 Jahre; der Mehrbedarf an Strom ist nicht auf
+     den Strommix zurückgekoppelt; offizielle Inventare zählen nur Auspuff-Emissionen im Inland, unser Modell
+     Well-to-Wheel plus Produktion. Details in den Limitationen.</p>
+  <div class="chart-box">
+    <div id="chart-scale"></div>
+    <p class="chart-cap">Jährliche Ersparnis einer vollelektrischen Pkw-Flotte als Anteil an den
+       gesamten <em>Treibhausgas</em>-Emissionen der Region (CO₂e). Hohler Marker = Anteil des Pkw-Sektors
+       laut Inventar (nur Auspuff, zur Einordnung), Band = P5–P95 der Simulation, Strich = Median.</p>
+  </div>
+  <div id="scale-table"></div>
+  <p id="scale-finding"></p>
+
+  <!-- ================= Kapitel 6 ================= -->
+  <h2 id="einordnung"><span class="kapnum">6</span>Einordnung: Warum −41 % und −73 % beide „stimmen“ können</h2>
   <ul>
     <li><strong>Strommix statisch vs. Pfad:</strong> Wer den heutigen (oder gar globalen) Mix über 15–20 Jahre
         festschreibt, belastet das BEV mit einem Stromsystem, das es so voraussichtlich nur noch wenige Jahre
@@ -313,10 +392,12 @@
      (E-Fuels bildet dieses Modell nicht ab, siehe Limitationen).</div>
 
   <!-- ================= Limitationen ================= -->
-  <h2 id="limitationen"><span class="kapnum">5</span>Limitationen</h2>
+  <h2 id="limitationen"><span class="kapnum">7</span>Limitationen</h2>
   <ul>
     <li>Kompaktklassen-Mittelwerte; kein Segment-, kein Flottenmodell. Hybride, PHEV und E-Fuels sind nicht abgebildet.</li>
     <li>Der Strommix-Pfad ist linear — real verläuft er treppig; Marginalstrom- vs. Durchschnittsstrom-Debatte ist nicht modelliert (wir rechnen mit Durchschnittswerten, wie UBA und ICCT).</li>
+    <li>Monte Carlo: Die Korrelations-Gewichte (Segment-, Energiesystem-Faktor) sind dokumentierte Setzungen (Konfidenz C); die Mischung der Zufallsfaktoren macht die Randverteilungen leicht mittenlastiger als reine Dreiecksverteilungen.</li>
+    <li>Hochrechnung: Gedankenexperiment im eingeschwungenen Zustand — der reale Flottenumschlag dauert ~15 Jahre und ist nicht modelliert. Der Mehrbedarf an Strom durch eine vollelektrische Flotte ist nicht auf den Strommix zurückgekoppelt. Offizielle Inventare zählen nur Auspuff-Emissionen im Inland, unser Modell Well-to-Wheel plus Produktion (teils im Ausland) — die Prozentwerte sind daher Größenordnungen, keine Inventar-Arithmetik.</li>
     <li>End-of-Life ist ein einzelner additiver Term mit Konfidenz C — die Literaturspannen sind groß.</li>
     <li>Produktionsemissionen ohne Batterie (Konfidenz C) stammen aus Sekundäraufbereitungen; die Primär-PDFs waren aus dieser Umgebung nicht abrufbar (Egress-Sperre, siehe <code>eauto/research/</code>).</li>
     <li>Batterietausch innerhalb der Nutzungsdauer ist nicht modelliert (bei heutigen Zyklenfestigkeiten für die betrachteten Fahrleistungen meist nicht nötig).</li>
@@ -324,7 +405,7 @@
   </ul>
 
   <!-- ================= Quellen ================= -->
-  <h2 id="quellen"><span class="kapnum">6</span>Quellen</h2>
+  <h2 id="quellen"><span class="kapnum">8</span>Quellen</h2>
   <ol class="srcs" id="src-list"></ol>
 
   <div class="note" style="margin-top:30px"><strong>Verwandt in der Kitchen:</strong>
@@ -726,6 +807,352 @@ function fillContext(){
      <span class="u"><a href="${esc(s.url)}" rel="noopener">${esc(s.url)}</a> · Zugriff ${esc(s.accessed)}</span></li>`).join('');
 }
 
+/* ================= Monte Carlo (1:1-Port von eauto/scripts/monte_carlo.py) ================= */
+function mulberry32(seed){
+  let state = seed >>> 0;
+  return function(){
+    state = (state + 0x6D2B79F5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), 1 | t);
+    t = ((t + Math.imul(t ^ (t >>> 7), 61 | t)) >>> 0) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function triangular(u, lo, mode, hi){
+  if (hi <= lo) return lo;
+  mode = Math.min(Math.max(mode, lo), hi);
+  const c = (mode - lo) / (hi - lo);
+  if (u < c) return lo + Math.sqrt(u * (hi - lo) * (mode - lo));
+  return hi - Math.sqrt((1 - u) * (hi - lo) * (hi - mode));
+}
+const blendU = (uShared, uOwn, w) => Math.min(Math.max(w * uShared + (1 - w) * uOwn, 0), 1);
+function percentileSorted(s, p){
+  const n = s.length;
+  if (!n) return NaN;
+  const idx = (n - 1) * p, lo = Math.floor(idx), hi = Math.ceil(idx);
+  if (lo === hi) return s[lo];
+  return s[lo] + (s[hi] - s[lo]) * (idx - lo);
+}
+function summarize(values){
+  const s = values.slice().sort((a, b) => a - b);
+  return { p5: percentileSorted(s, .05), p25: percentileSorted(s, .25), p50: percentileSorted(s, .50),
+           p75: percentileSorted(s, .75), p95: percentileSorted(s, .95), n: s.length };
+}
+function histogramOf(values, lo, hi, bins){
+  const counts = new Array(bins).fill(0);
+  if (hi <= lo) hi = lo + 1;
+  for (const v of values){
+    const k = Math.floor((v - lo) / (hi - lo) * bins);
+    counts[Math.min(Math.max(k, 0), bins - 1)]++;
+  }
+  return { lo, hi, bins, counts };
+}
+const triSpec = d => [d.min, d.mid !== undefined ? d.mid : d.value, d.max];
+
+function runMC(){
+  // Ziehungsreihenfolge ist normativ — identisch zu scripts/monte_carlo.py.
+  const mc = PF.mc, w = mc.weights, dflt = PF.defaults;
+  const scaleup = PF.scaleup || null;
+  const rnd = mulberry32(mc.base_seed);
+  const dspec = k => [dflt[k].min, dflt[k].value, dflt[k].max];
+  const n = mc.n_draws;
+  const draws = { rucksack_bev_t: [], rucksack_ice_t: [], rucksack_diff_t: [] };
+  const perRegion = {}, noBreakeven = {};
+  for (const r of mc.regions){
+    perRegion[r.id] = { bev_t: [], ice_t: [], delta_t: [], reduction_pct: [],
+                        breakeven_km: [], ersparnis_a_t: [], mt_a: [], pct_total: [], pct_pkw: [] };
+    noBreakeven[r.id] = 0;
+  }
+  const fuelTtw = dflt.fuel_ttw.value;
+  for (let i = 0; i < n; i++){
+    const uSeg = rnd(), uEn = rnd();
+    const kmPerYear = triangular(rnd(), ...dspec('km_per_year'));
+    const years = triangular(rnd(), ...dspec('years'));
+    const battKwh = triangular(blendU(uSeg, rnd(), w.segment_on_batt_kwh), ...dspec('batt_kwh'));
+    const battCo2 = triangular(blendU(uEn, rnd(), w.energy_on_batt), ...dspec('batt_co2'));
+    const prodBev = triangular(blendU(uSeg, rnd(), w.segment_on_prod), ...dspec('prod_bev_t'));
+    const prodIce = triangular(blendU(uSeg, rnd(), w.segment_on_prod), ...dspec('prod_ice_t'));
+    const consBev = triangular(blendU(uSeg, rnd(), w.segment_on_cons), ...dspec('cons_bev'));
+    const consIce = triangular(blendU(uSeg, rnd(), w.segment_on_cons), ...dspec('cons_ice'));
+    const fuelChain = triangular(blendU(uEn, rnd(), w.energy_on_fuelchain), ...triSpec(mc.fuel_chain));
+    const eolBev = triangular(rnd(), ...dspec('eol_bev_t'));
+    const eolIce = triangular(rnd(), ...dspec('eol_ice_t'));
+    let kmFleet = 0, yearsFleet = 0;
+    if (scaleup){
+      kmFleet = triangular(rnd(), ...triSpec(scaleup.km_fleet));
+      yearsFleet = triangular(rnd(), ...triSpec(scaleup.years_fleet));
+    }
+    const rucksackBev = prodBev + battKwh * battCo2 / 1000;
+    draws.rucksack_bev_t.push(rucksackBev);
+    draws.rucksack_ice_t.push(prodIce);
+    draws.rucksack_diff_t.push(rucksackBev - prodIce);
+
+    for (const r of mc.regions){
+      const stromStart = triangular(blendU(uEn, rnd(), w.energy_on_grid), ...triSpec(r.strom_start));
+      let stromEnde = triangular(blendU(uEn, rnd(), w.energy_on_grid), ...triSpec(r.strom_ende));
+      stromEnde = Math.min(stromEnde, stromStart);
+      const p = { batt_kwh: battKwh, batt_co2: battCo2, prod_bev_t: prodBev, prod_ice_t: prodIce,
+                  cons_bev: consBev, cons_ice: consIce, fuel_ttw: fuelTtw, fuel_wtw: fuelTtw + fuelChain,
+                  strom_start: stromStart, strom_ende: stromEnde, strom_dynamic: true,
+                  km_per_year: kmPerYear, years, eol_bev_t: eolBev, eol_ice_t: eolIce };
+      const res = runModel(p);
+      const d = perRegion[r.id];
+      const bevT = res.bev.total_kg / 1000, iceT = res.ice.total_kg / 1000;
+      const delta = iceT - bevT;
+      d.bev_t.push(bevT); d.ice_t.push(iceT); d.delta_t.push(delta);
+      d.reduction_pct.push(res.reduction_pct);
+      if (res.break_even_km === null) noBreakeven[r.id]++;
+      else d.breakeven_km.push(res.break_even_km);
+      d.ersparnis_a_t.push(delta / years);
+
+      if (scaleup){
+        const sc = scaleup.regions.find(s => s.id === r.id);
+        const bestand = triangular(rnd(), ...triSpec(sc.bestand_mio));
+        const totalMt = triangular(rnd(), ...triSpec(sc.total_mt));
+        const pkwMt = triangular(rnd(), ...triSpec(sc.pkw_mt));
+        const resFleet = runModel(Object.assign({}, p, { km_per_year: kmFleet, years: yearsFleet }));
+        const deltaFleet = (resFleet.ice.total_kg - resFleet.bev.total_kg) / 1000;
+        const mtA = deltaFleet / yearsFleet * bestand;
+        d.mt_a.push(mtA);
+        d.pct_total.push(mtA / totalMt * 100);
+        d.pct_pkw.push(mtA / pkwMt * 100);
+      }
+    }
+  }
+
+  const ruckHi = Math.max(Math.max(...draws.rucksack_bev_t), Math.max(...draws.rucksack_ice_t)) * 1.02;
+  const out = {
+    rucksack: {
+      bev: summarize(draws.rucksack_bev_t), ice: summarize(draws.rucksack_ice_t),
+      diff: summarize(draws.rucksack_diff_t),
+      hist_bev: histogramOf(draws.rucksack_bev_t, 0, ruckHi, 28),
+      hist_ice: histogramOf(draws.rucksack_ice_t, 0, ruckHi, 28)
+    },
+    regions: {}
+  };
+  for (const r of mc.regions){
+    const d = perRegion[r.id];
+    const deltaLo = Math.min(Math.min(...d.delta_t), 0), deltaHi = Math.max(...d.delta_t) * 1.02;
+    const e = {
+      label: r.label,
+      bev_t: summarize(d.bev_t), ice_t: summarize(d.ice_t), delta_t: summarize(d.delta_t),
+      reduction_pct: summarize(d.reduction_pct), ersparnis_a_t: summarize(d.ersparnis_a_t),
+      hist_delta: histogramOf(d.delta_t, deltaLo, deltaHi, 28),
+      share_ice_better_pct: 100 * d.delta_t.filter(v => v < 0).length / n,
+      breakeven_km: d.breakeven_km.length ? summarize(d.breakeven_km) : null,
+      no_breakeven_pct: 100 * noBreakeven[r.id] / n
+    };
+    if (scaleup){
+      e.mt_a = summarize(d.mt_a);
+      e.pct_total = summarize(d.pct_total);
+      e.pct_pkw = summarize(d.pct_pkw);
+    }
+    out.regions[r.id] = e;
+  }
+  return out;
+}
+
+function mcParityCheck(mcRef, mcLive){
+  const tol = mcRef.meta.tolerance_pct / 100;
+  const live = {
+    rucksack_bev_p50: mcLive.rucksack.bev.p50,
+    rucksack_ice_p50: mcLive.rucksack.ice.p50,
+    rucksack_diff_p50: mcLive.rucksack.diff.p50
+  };
+  for (const [rid, e] of Object.entries(mcLive.regions)){
+    live[rid + '_delta_p50'] = e.delta_t.p50;
+    live[rid + '_delta_p5'] = e.delta_t.p5;
+    live[rid + '_delta_p95'] = e.delta_t.p95;
+    live[rid + '_reduction_p50'] = e.reduction_pct.p50;
+    if (e.mt_a){
+      live[rid + '_mt_a_p50'] = e.mt_a.p50;
+      live[rid + '_pct_total_p50'] = e.pct_total.p50;
+    }
+  }
+  let pass = 0, fail = 0;
+  for (const [k, ref] of Object.entries(mcRef.parity)){
+    const got = live[k];
+    const ok = got !== undefined && (Math.abs(ref) < 1e-9
+      ? Math.abs(got) < 1e-6 : Math.abs(got - ref) / Math.abs(ref) <= tol);
+    if (ok) pass++; else { fail++; console.error('MC-Parität abweichend:', k, {got, ref}); }
+  }
+  return { pass, fail, total: pass + fail };
+}
+
+/* ---------------- MC-Charts ---------------- */
+function fmtBand(s, digits){
+  return fmt(s.p50, digits) + ' [' + fmt(s.p5, digits) + '–' + fmt(s.p95, digits) + ']';
+}
+function chartMcRuck(mc){
+  const W = 720, rowH = 120, gap = 34, L = 108, R = 20, H = 2 * (rowH + gap) + 26;
+  const rows = [
+    { l: 'E-Auto', hist: mc.rucksack.hist_bev, sum: mc.rucksack.bev, c: CSSV('--c-bev') },
+    { l: 'Verbrenner', hist: mc.rucksack.hist_ice, sum: mc.rucksack.ice, c: CSSV('--c-ice') }
+  ];
+  const hi = rows[0].hist.hi;
+  const x = v => L + (W - L - R) * v / hi;
+  const maxCount = Math.max(...rows[0].hist.counts, ...rows[1].hist.counts);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Verteilung der Produktionsemissionen">`;
+  rows.forEach((rw, i) => {
+    const top = 10 + i * (rowH + gap), base = top + rowH - 26;
+    s += `<text x="${L-10}" y="${top+42}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Geist,sans-serif">${rw.l}</text>`;
+    const bw = (W - L - R) / rw.hist.bins;
+    rw.hist.counts.forEach((c, k) => {
+      if (!c) return;
+      const h = (base - top - 4) * c / maxCount;
+      s += `<rect x="${(L + k * bw + 0.5).toFixed(1)}" y="${(base - h).toFixed(1)}" width="${(bw - 1).toFixed(1)}" height="${h.toFixed(1)}" fill="${rw.c}" opacity="0.82"></rect>`;
+    });
+    s += `<line x1="${L}" y1="${base}" x2="${W-R}" y2="${base}" stroke="${CSSV('--line')}" stroke-width="1"></line>`;
+    // Median + P5-P95-Spanne
+    s += `<line x1="${x(rw.sum.p50)}" y1="${top}" x2="${x(rw.sum.p50)}" y2="${base}" stroke="${CSSV('--ink')}" stroke-width="1.5" stroke-dasharray="4 3"></line>`;
+    s += `<text x="${x(rw.sum.p50)+6}" y="${top+12}" font-size="11.5" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">${fmt(rw.sum.p50,1)} t</text>`;
+    s += `<line x1="${x(rw.sum.p5)}" y1="${base+8}" x2="${x(rw.sum.p95)}" y2="${base+8}" stroke="${rw.c}" stroke-width="4" stroke-linecap="round"></line>`;
+    s += `<text x="${x(rw.sum.p5)}" y="${base+22}" text-anchor="middle" font-size="10.5" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${fmt(rw.sum.p5,1)}</text>`;
+    s += `<text x="${x(rw.sum.p95)}" y="${base+22}" text-anchor="middle" font-size="10.5" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${fmt(rw.sum.p95,1)}</text>`;
+  });
+  const axisY = H - 6;
+  for (let g = 0; g <= hi; g += 4){
+    if (x(g) < W - R - 64) // Platz fuer das Einheiten-Label freihalten
+      s += `<text x="${x(g)}" y="${axisY}" text-anchor="middle" font-size="11" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g}</text>`;
+  }
+  s += `<text x="${W-R}" y="${axisY}" text-anchor="end" font-size="11" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">t CO₂e</text>`;
+  $('chart-mc-ruck').innerHTML = s + '</svg>';
+}
+function chartMcFan(mc){
+  const regions = Object.values(mc.regions);
+  const W = 720, rowH = 54, L = 108, R = 96, T = 12, B = 44;
+  const H = T + regions.length * rowH + B;
+  const hi = Math.max(...regions.map(e => e.delta_t.p95)) * 1.08;
+  const x = v => L + (W - L - R) * Math.max(v, 0) / hi;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ersparnis je Fahrzeug nach Region">`;
+  s += `<line x1="${x(0)}" y1="${T}" x2="${x(0)}" y2="${T + regions.length*rowH}" stroke="${CSSV('--soft')}" stroke-width="1"></line>`;
+  regions.forEach((e, i) => {
+    const cy = T + i * rowH + rowH / 2;
+    s += `<text x="${L-10}" y="${cy+4}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Geist,sans-serif">${esc(e.label)}</text>`;
+    s += `<line x1="${x(e.delta_t.p5)}" y1="${cy}" x2="${x(e.delta_t.p95)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="6" opacity="0.35" stroke-linecap="round"></line>`;
+    s += `<line x1="${x(e.delta_t.p25)}" y1="${cy}" x2="${x(e.delta_t.p75)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="10" opacity="0.75" stroke-linecap="round"></line>`;
+    s += `<line x1="${x(e.delta_t.p50)}" y1="${cy-10}" x2="${x(e.delta_t.p50)}" y2="${cy+10}" stroke="${CSSV('--ink')}" stroke-width="2.5"></line>`;
+    s += `<text x="${x(e.delta_t.p95)+10}" y="${cy+4}" font-size="12" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">${fmt(e.delta_t.p50,0)} t</text>`;
+  });
+  const axisY = T + regions.length * rowH;
+  for (let g = 0; g <= hi; g += 20){
+    s += `<line x1="${x(g)}" y1="${T}" x2="${x(g)}" y2="${axisY}" stroke="${CSSV('--grid')}" stroke-width="1"></line>`;
+    s += `<text x="${x(g)}" y="${axisY+18}" text-anchor="middle" font-size="11" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g}</text>`;
+  }
+  s += `<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Ersparnis über den Lebenszyklus [t CO₂e je Fahrzeug]</text>`;
+  $('chart-mc-fan').innerHTML = s + '</svg>';
+}
+function chartMcHist(mc){
+  const e = mc.regions.de;
+  const W = 720, H = 240, L = 62, R = 20, T = 14, B = 46;
+  const h = e.hist_delta;
+  const lo = Math.min(h.lo, -2), hi = h.hi;
+  const x = v => L + (W - L - R) * (v - lo) / (hi - lo);
+  const maxCount = Math.max(...h.counts);
+  const bw = (W - L - R) * (h.hi - h.lo) / (hi - lo) / h.bins;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Verteilung der Ersparnis in Deutschland">`;
+  h.counts.forEach((c, k) => {
+    if (!c) return;
+    const bx = x(h.lo + k * (h.hi - h.lo) / h.bins);
+    const bh = (H - T - B - 4) * c / maxCount;
+    s += `<rect x="${bx.toFixed(1)}" y="${(H - B - bh).toFixed(1)}" width="${(bw-1).toFixed(1)}" height="${bh.toFixed(1)}" fill="${CSSV('--c-bev')}" opacity="0.82"></rect>`;
+  });
+  s += `<line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" stroke="${CSSV('--line')}" stroke-width="1"></line>`;
+  s += `<line x1="${x(0)}" y1="${T}" x2="${x(0)}" y2="${H-B}" stroke="${CSSV('--soft')}" stroke-width="1.5"></line>`;
+  s += `<text x="${x(0)}" y="${T+2}" text-anchor="middle" font-size="10.5" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">0</text>`;
+  [['p5', e.delta_t.p5], ['p50', e.delta_t.p50], ['p95', e.delta_t.p95]].forEach(([lab, v]) => {
+    s += `<line x1="${x(v)}" y1="${T+8}" x2="${x(v)}" y2="${H-B}" stroke="${CSSV('--ink')}" stroke-width="${lab==='p50'?2:1}" stroke-dasharray="${lab==='p50'?'':'3 3'}"></line>`;
+    s += `<text x="${x(v)}" y="${T+(lab==='p50'?2:20)}" text-anchor="middle" font-size="10.5" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">${lab.toUpperCase()} ${fmt(v,0)}</text>`;
+  });
+  for (let g = Math.ceil(lo / 20) * 20; g <= hi; g += 20){
+    s += `<text x="${x(g)}" y="${H-B+18}" text-anchor="middle" font-size="11" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g}</text>`;
+  }
+  s += `<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Ersparnis Deutschland [t CO₂e je Fahrzeug] — 1.000 Ziehungen</text>`;
+  $('chart-mc-hist').innerHTML = s + '</svg>';
+}
+function chartScale(mc){
+  if (!PF.scaleup) { $('chart-scale').innerHTML = ''; return; }
+  const regions = Object.entries(mc.regions);
+  const W = 720, rowH = 62, L = 108, R = 108, T = 12, B = 46;
+  const H = T + regions.length * rowH + B;
+  const pkwPcts = regions.map(([rid]) => {
+    const sc = PF.scaleup.regions.find(s => s.id === rid);
+    return sc.pkw_mt.mid / sc.total_mt.mid * 100;
+  });
+  const hiPct = Math.max(...regions.map(([, e]) => e.pct_total.p95), ...pkwPcts) * 1.25;
+  const x = v => L + (W - L - R) * v / hiPct;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ersparnis als Anteil der Gesamtemissionen">`;
+  for (let g = 0; g <= hiPct; g += hiPct > 12 ? 5 : 2){
+    s += `<line x1="${x(g)}" y1="${T}" x2="${x(g)}" y2="${T + regions.length*rowH}" stroke="${CSSV('--grid')}" stroke-width="1"></line>`;
+    s += `<text x="${x(g)}" y="${T + regions.length*rowH + 18}" text-anchor="middle" font-size="11" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g} %</text>`;
+  }
+  regions.forEach(([rid, e], i) => {
+    const cy = T + i * rowH + rowH / 2;
+    const sc = PF.scaleup.regions.find(sr => sr.id === rid);
+    const pkwPct = sc.pkw_mt.mid / sc.total_mt.mid * 100;
+    s += `<text x="${L-10}" y="${cy+4}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Geist,sans-serif">${esc(e.label)}</text>`;
+    // Pkw-Sektor-Anteil als hohler Referenzmarker
+    s += `<circle cx="${x(pkwPct)}" cy="${cy}" r="6" fill="none" stroke="${CSSV('--c-ice')}" stroke-width="2"></circle>`;
+    s += `<text x="${x(pkwPct)}" y="${cy-12}" text-anchor="middle" font-size="10.5" fill="${CSSV('--c-ice')}" font-family="JetBrains Mono,monospace">Pkw ${fmt(pkwPct,1)} %</text>`;
+    // Ersparnis-Band
+    s += `<line x1="${x(e.pct_total.p5)}" y1="${cy}" x2="${x(e.pct_total.p95)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="6" opacity="0.35" stroke-linecap="round"></line>`;
+    s += `<line x1="${x(e.pct_total.p25)}" y1="${cy}" x2="${x(e.pct_total.p75)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="10" opacity="0.75" stroke-linecap="round"></line>`;
+    s += `<line x1="${x(e.pct_total.p50)}" y1="${cy-10}" x2="${x(e.pct_total.p50)}" y2="${cy+10}" stroke="${CSSV('--ink')}" stroke-width="2.5"></line>`;
+    s += `<text x="${W-R+10}" y="${cy+4}" font-size="12" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">${fmt(e.mt_a.p50,0)} Mt/a</text>`;
+  });
+  s += `<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Anteil an den THG-Gesamtemissionen der Region (CO₂e) [%]</text>`;
+  $('chart-scale').innerHTML = s + '</svg>';
+}
+function renderScaleTable(mc){
+  if (!PF.scaleup) { $('scale-table').innerHTML = ''; return; }
+  const rows = Object.entries(mc.regions).map(([rid, e]) => {
+    const sc = PF.scaleup.regions.find(s => s.id === rid);
+    return `<tr><td>${esc(e.label)}</td>
+      <td class="num">${fmtBand(e.mt_a, 0)}</td>
+      <td class="num">${fmtBand(e.pct_total, 1)}</td>
+      <td class="num">${fmtBand(e.pct_pkw, 0)}</td>
+      <td class="num">${fmt(sc.bestand_mio.mid, 0)} Mio</td>
+      <td class="num">${fmt(sc.total_mt.mid, 0)} / ${fmt(sc.pkw_mt.mid, 0)}</td></tr>`;
+  }).join('');
+  $('scale-table').innerHTML = `<div class="mtable-wrap"><table class="mtable">
+    <thead><tr><th>Region</th><th>Ersparnis Mt CO₂e/a<br>P50 [P5–P95]</th>
+    <th>% der THG-Gesamt&shy;emissionen</th><th>% des Pkw-Inventars<br>(nur Auspuff)</th>
+    <th>Pkw-Bestand</th><th>Gesamt / Pkw [Mt]</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="note"><strong>Warum hier über 100 % stehen kann:</strong> Das Pkw-Inventar zählt nur
+    Auspuff-Emissionen im Inland — genau die „Auspuff-Logik“ aus Kapitel 1. Die simulierte Ersparnis
+    umfasst zusätzlich Kraftstoff-Vorkette und den Produktions-Rucksack (teils im Ausland verbucht).
+    Liegt die Ersparnis über dem Inventarwert, ist das kein Rechenfehler, sondern macht die Lücke
+    zwischen Inventar-Sicht und Lebenszyklus-Sicht sichtbar.</div>`;
+}
+function renderMC(mcRef){
+  const mc = runMC();
+  $('mc-n').textContent = fmt0(PF.mc.n_draws);
+  $('mt-ruck-bev').innerHTML = fmtBand(mc.rucksack.bev, 1) + ' <small>t</small>';
+  $('mt-ruck-ice').innerHTML = fmtBand(mc.rucksack.ice, 1) + ' <small>t</small>';
+  $('mt-ruck-diff').innerHTML = fmtBand(mc.rucksack.diff, 1) + ' <small>t</small>';
+  chartMcRuck(mc); chartMcFan(mc); chartMcHist(mc); chartScale(mc); renderScaleTable(mc);
+  const de = mc.regions.de;
+  const iceBetter = de.share_ice_better_pct;
+  $('mc-finding').innerHTML = `<strong>Befund:</strong> In Deutschland spart das E-Auto über den Lebenszyklus
+    im Median <strong>${fmt(de.delta_t.p50,0)} t CO₂e</strong> je Fahrzeug
+    [P5–P95: ${fmt(de.delta_t.p5,0)}–${fmt(de.delta_t.p95,0)} t]; der Verbrenner lag in
+    <strong>${fmt(iceBetter,1)} %</strong> der Ziehungen vorn. Der Break-even liegt im Median bei
+    ${de.breakeven_km ? fmt0(de.breakeven_km.p50/1000) : '—'} Tsd. km. Die Spannen wirken breit —
+    das ist der ehrliche Preis dafür, alle dokumentierten Unsicherheiten gleichzeitig zuzulassen;
+    das Vorzeichen der Ersparnis ist davon unberührt.`;
+  if (PF.scaleup){
+    const w2 = mc.regions.welt;
+    $('scale-finding').innerHTML = `<strong>Befund:</strong> Eine vollelektrische Welt-Pkw-Flotte spart in
+      der Simulation <strong>${fmt(w2.mt_a.p50,0)} Mt CO₂e pro Jahr</strong>
+      [${fmt(w2.mt_a.p5,0)}–${fmt(w2.mt_a.p95,0)}] — das sind
+      <strong>${fmt(w2.pct_total.p50,1)} %</strong> der globalen Treibhausgas-Emissionen (CO₂e) bzw.
+      ${fmt(w2.pct_pkw.p50,0)} % des heutigen Pkw-Sektors. Die Elektrifizierung des Pkw ist damit ein
+      relevanter, aber kein hinreichender Hebel: Sie adressiert genau den Pkw-Anteil der Emissionen —
+      nicht mehr und nicht weniger — und ihr Nutzen wächst mit jedem Gramm, das der Strommix sauberer wird.`;
+  }
+  return mcParityCheck(mcRef, mc);
+}
+
 /* ---------------- Selbsttest ---------------- */
 function selfTest(tv){
   const tol = tv.tolerance_pct / 100;
@@ -752,29 +1179,38 @@ function selfTest(tv){
       && close(r.regulatory.ice_g_per_km, e.regulatory.ice_g_per_km);
     if (ok) pass++; else { fail++; console.error('Testvektor abweichend:', vec.name, {got: r, expect: e}); }
   }
+  console.log(`[eauto] Selbsttest Punktmodell: ${pass}/${tv.vectors.length} bestanden`);
+  return { pass, fail, total: tv.vectors.length };
+}
+function setBadge(vec, mc){
   const badge = $('selftest-badge');
-  if (fail === 0){
-    badge.textContent = `Modell verifiziert ✓ ${pass}/${tv.vectors.length} Testvektoren (Python-Referenz)`;
+  if (vec.fail === 0 && mc.fail === 0){
+    badge.textContent = `Modell verifiziert ✓ ${vec.pass}/${vec.total} Testvektoren + ${mc.pass}/${mc.total} Monte-Carlo-Kennzahlen (Python-Referenz)`;
     badge.classList.add('ok');
   } else {
-    badge.textContent = `Selbsttest: ${fail} von ${tv.vectors.length} Vektoren abweichend — Konsole prüfen`;
+    badge.textContent = `Selbsttest: ${vec.fail} Testvektoren / ${mc.fail} MC-Kennzahlen abweichend — Konsole prüfen`;
     badge.classList.add('fail');
   }
-  console.log(`[eauto] Selbsttest: ${pass}/${tv.vectors.length} bestanden`);
 }
 
 /* ---------------- Init ---------------- */
 (async function init(){
   try {
-    const [pf, tv] = await Promise.all([
+    const [pf, tv, mcRef] = await Promise.all([
       fetch('eauto/data/model_params.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }),
-      fetch('eauto/data/test_vectors.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      fetch('eauto/data/test_vectors.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }),
+      fetch('eauto/data/monte_carlo_reference.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
     ]);
     PF = pf;
     $('content').hidden = false;
     buildSliders(); buildPresets(); buildChips(); fillContext();
     applyPreset('de_statisch');
-    selfTest(tv);
+    const vecResult = selfTest(tv);
+    const t0 = performance.now();
+    const mcResult = renderMC(mcRef);
+    console.log(`[eauto] Monte Carlo live gerechnet in ${(performance.now()-t0).toFixed(0)} ms; ` +
+                `Parität: ${mcResult.pass}/${mcResult.total}`);
+    setBadge(vecResult, mcResult);
   } catch (err){
     console.error('Daten laden fehlgeschlagen:', err);
     $('load-hint').style.display = 'block';
