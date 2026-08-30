@@ -112,8 +112,9 @@
     { "id": "kohle", "label": "Steinkohle (LCA)", "value": 830, "confidence": "B" }
   ],
   "fuel_presets": [
-    { "id": "benzin", "label": "Benzin (E10)", "fuel_ttw": 2.37, "fuel_wtw": 2.9 },
-    { "id": "diesel", "label": "Diesel", "fuel_ttw": 2.65, "fuel_wtw": 3.24 }
+    { "id": "benzin", "label": "Benzin (E10)", "fuel_ttw": 2.37, "fuel_wtw": 2.9, "cons_ice": 7.9 },
+    { "id": "diesel", "label": "Diesel", "fuel_ttw": 2.65, "fuel_wtw": 3.24, "cons_ice": 6.3,
+      "note": "Diesel-Chip setzt auch den Realverbrauch (Spritmonitor ~6,3 l) — nur die Faktoren zu tauschen würde den Diesel fälschlich schlechter rechnen" }
   ],
   "presets": [
     {
@@ -156,23 +157,23 @@
     {
       "id": "kohlestrom",
       "label": "Kohlestrom",
-      "desc": "Extremfall: Laden mit reinem Steinkohlestrom (~830 g/kWh, LCA-Spanne 790–1.080) — der Stresstest für das E-Auto.",
+      "desc": "Extremfall: Laden mit reinem Steinkohlestrom (~830 g/kWh, LCA-Spanne 790–1.080) — der Stresstest für das E-Auto. Der verbleibende Vorsprung gilt gegen den Flotten-Benziner (7,9 l); gegen einen sparsamen Kompakt-Benziner (6,5 l, Regler) schrumpft er Richtung null.",
       "overrides": { "strom_start": 830 }
     }
   ],
   "mc": {
-    "n_draws": 1000,
+    "n_draws": 10000,
     "base_seed": 20260830,
-    "tolerance_pct": 0.5,
+    "tolerance_pct": 0.0001,
     "note": "Monte Carlo: Dreiecksverteilungen (Modus = value, Grenzen = min/max der defaults). Korrelationsstruktur über gemeinsame Faktoren je Ziehung: u_segment (Fahrzeuggröße → Batteriegröße, Verbräuche, Produktion beider Antriebe), u_energy (Sauberkeit des Energiesystems → Strommix, Batteriefertigung, Kraftstoff-Vorkette: wird der Strom sauberer, wird auch der Verbrenner-Pfad sauberer), u_usage (Fahrprofil km/Jahr und Nutzungsdauer — für beide Antriebe identisch, sonst wäre der Vergleich unfair). Gewichte sind Setzungen (Konfidenz C). PRNG mulberry32, bitidentisch in Python und JS; Ziehungsreihenfolge ist normativ in scripts/monte_carlo.py dokumentiert.",
     "weights": {
-      "energy_on_batt": 0.65,
+      "energy_on_batt": 0.47,
       "energy_on_fuelchain": 0.15,
       "segment_on_batt_kwh": 0.8,
       "segment_on_cons": 0.7,
       "segment_on_prod": 0.6,
       "energy_on_grid": 0.85,
-      "weights_note": "energy_on_batt aus hochrechnung_quellen.md §7: Fertigungsstrom-Anteil 30–50 %, Standort-Varianz ~1 Größenordnung → ρ 0,5–0,8, gesetzt 0,65 (B). energy_on_fuelchain bewusst NIEDRIG: Raffinerien beziehen nur ~0,05–0,175 kWh Netzstrom je Liter (~7 % des Prozessenergieeinsatzes), der ‚1,5 kWh Strom pro Liter'-Mythos ist im Dossier verworfen → ρ 0–0,2, gesetzt 0,15 (B). Übrige Gewichte Setzung (C)."
+      "weights_note": "Werte sind MISCHGEWICHTE w (u = w·u_shared + (1−w)·u_eigen), keine Korrelationen. energy_on_batt = 0,47 realisiert eine Rangkorrelation von ≈ 0,65 zwischen Batteriefertigung und Strommix — Mitte der Dossier-Empfehlung ρ 0,5–0,8 (hochrechnung_quellen.md §7: Fertigungsstrom-Anteil 30–50 %, Standort-Varianz ~1 Größenordnung). energy_on_fuelchain = 0,15 realisiert ρ ≈ 0,16, im Dossier-Band 0–0,2: Raffinerien beziehen nur ~0,05–0,175 kWh Netzstrom je Liter, der ‚1,5 kWh pro Liter'-Mythos ist im Dossier verworfen. Übrige Gewichte Setzung (C)."
     },
     "fuel_chain": {
       "min": 0.43, "mid": 0.53, "max": 1.03, "unit": "kg CO₂e/l",
@@ -182,7 +183,7 @@
     "regions": [
       {
         "id": "de", "label": "Deutschland",
-        "strom_start": { "min": 320, "mid": 363, "max": 434 },
+        "strom_start": { "min": 344, "mid": 363, "max": 434 },
         "strom_ende": { "min": 40, "mid": 100, "max": 280 },
         "note": "Start: UBA-Spanne 2022–2025 um den 2024-Wert; Ende: Klimapfad-Unsicherheit bis Politikversagen (Setzung C)"
       },
@@ -201,38 +202,48 @@
     ]
   },
   "scaleup": {
-    "note": "Hochrechnung ‚vollelektrische Pkw-Flotte, eingeschwungener Zustand'. Quellen und Herleitung: eauto/research/hochrechnung_quellen.md. Einheiten-Hinweis: Totale sind THG in Mt CO₂e (DE 2025 UBA; EU 2024 netto EEA; Welt 2024 UNEP); Pkw-Sektor-Werte teils nur CO₂ bzw. inkl. Vans — als Größenordnung ausgewiesen, siehe gaps im Dossier.",
+    "note": "Hochrechnung ‚vollelektrische Pkw-Flotte, eingeschwungener Zustand'. Quellen und Herleitung: eauto/research/hochrechnung_quellen.md. Einheiten-Hinweis: Totale sind THG in Mt CO₂e (DE 2025 UBA; EU brutto EEA; Welt 2024 UNEP); Pkw-Sektor-Nenner sind CO₂ (Auspuff) — als Größenordnung ausgewiesen, siehe gaps im Dossier. Die Flotten-Fahr- und Verbrauchsparameter sind ENGE Verteilungen um das Flottenmittel (Unsicherheit des Mittels, nicht Fahrer-/Segment-Streuung — die mittelt sich über ~50 Mio Fahrzeuge weg). Spannen teils bewusst breiter als die Dossier-Punktwerte (Jahres- und Abgrenzungsunsicherheit) — Setzung C.",
     "km_fleet": {
       "min": 10500, "mid": 12300, "max": 13500, "unit": "km/Jahr",
-      "source": "KBA-Flottenmittel DE ~12.300 km; EU/Welt-Mittel ähnlich, Spanne als Unsicherheit des Mittels (nicht Fahrer-Streuung)",
-      "confidence": "B"
+      "source": "KBA-Flottenmittel DE ~12.300 km; EU-/Welt-Mittel im Dossier nicht belegt (Lücke) — Übertragung ist Setzung; Spanne = Unsicherheit des Mittels",
+      "confidence": "C"
     },
     "years_fleet": {
       "min": 15, "mid": 18, "max": 24, "unit": "Jahre",
       "source": "Flottenumschlag: DE ~17,3 a (rechnerisch), Welt ~16 a, EU-27 ~23,7 a — Dossier-Empfehlung 15/18/24",
-      "confidence": "B"
+      "confidence": "C"
+    },
+    "cons_bev_fleet": {
+      "min": 17.0, "mid": 18.5, "max": 20.0, "unit": "kWh/100 km",
+      "source": "Flottenmittel-Unsicherheit um den ADAC-Mittelwert; die Segment-Streuung (bis 30 kWh) gehört nicht in den Flottenmittelwert",
+      "confidence": "C"
+    },
+    "cons_ice_fleet": {
+      "min": 7.4, "mid": 7.9, "max": 8.4, "unit": "l/100 km",
+      "source": "Flottenmittel-Unsicherheit um das Spritmonitor-Mittel (Benziner)",
+      "confidence": "C"
     },
     "regions": [
       {
         "id": "de", "label": "Deutschland",
-        "bestand_mio": { "min": 48.0, "mid": 49.5, "max": 51.0 },
-        "total_mt": { "min": 620, "mid": 649, "max": 680 },
-        "pkw_mt": { "min": 87, "mid": 93, "max": 100 },
-        "source": "Bestand 49,49 Mio (KBA 1.1.2026, A); THG 649 Mt CO₂e 2025 (UBA, A); Pkw ~87–100 Mt (Ableitung aus Verkehr 146,3 Mt, C)"
+        "bestand_mio": { "min": 49.0, "mid": 49.5, "max": 50.0 },
+        "total_mt": { "min": 630, "mid": 649, "max": 665 },
+        "pkw_mt": { "min": 87, "mid": 95, "max": 100 },
+        "source": "Bestand 49,49 Mio (KBA 1.1.2026, A); THG 649 Mt CO₂e 2025 (UBA, A; Spanne = Jahresschwankung, Setzung); Pkw ~87–100 Mt CO₂, Dossier-Setzung mid 95 (Ableitung aus Verkehr 146,3 Mt, C)"
       },
       {
         "id": "eu", "label": "EU-27",
         "bestand_mio": { "min": 245, "mid": 256, "max": 265 },
-        "total_mt": { "min": 2700, "mid": 2786, "max": 3106 },
-        "pkw_mt": { "min": 420, "mid": 457, "max": 500 },
-        "source": "Bestand 256 Mio (ACEA 2024, A); THG netto 2.786 Mt CO₂e 2024, brutto 2023 3.106 (EEA, A); Pkw ≈ 61 % von Straße 749 Mt CO₂ 2023 (B)"
+        "total_mt": { "min": 2786, "mid": 3000, "max": 3106 },
+        "pkw_mt": { "min": 440, "mid": 457, "max": 470 },
+        "source": "Bestand 256 Mio (ACEA 2024, A); THG brutto ~3,0 Gt CO₂e (EEA; Dossier-Empfehlung: Brutto als Nenner, netto 2024 = 2.786 als Untergrenze); Pkw ≈ 61 % von Straße 749 Mt CO₂ 2023 (B)"
       },
       {
         "id": "welt", "label": "Welt",
-        "bestand_mio": { "min": 1200, "mid": 1300, "max": 1450 },
+        "bestand_mio": { "min": 1200, "mid": 1300, "max": 1500 },
         "total_mt": { "min": 55000, "mid": 57700, "max": 60000 },
-        "pkw_mt": { "min": 3300, "mid": 3800, "max": 4200 },
-        "source": "Bestand ~1,3 Mrd Pkw (B; 1,4–1,6 Mrd wären Kfz gesamt); THG 57,7 Gt CO₂e 2024 (UNEP, B; fossil-CO₂ allein: 38,1 Gt 2025, GCB); Pkw+Vans 3,8 Gt 2023 (IEA, B — reine Pkw nicht separat ausgewiesen)"
+        "pkw_mt": { "min": 3000, "mid": 3300, "max": 3800 },
+        "source": "Bestand ~1,3 Mrd Pkw (B; 1,4–1,6 Mrd wären Kfz gesamt); THG 57,7 Gt CO₂e 2024 (UNEP, B; fossil-CO₂ allein: 38,1 Gt 2025, GCB); Pkw-only ~3,0–3,3 Gt CO₂ (Dossier-Ableitung, C), IEA Pkw+Vans 3,8 Gt 2023 als Obergrenze (B)"
       }
     ]
   },

@@ -155,9 +155,10 @@
 <header class="hero">
   <div class="kicker"><a href="index.html">Daten-WG · Knowledge Kitchen</a> — Kleines Modell</div>
   <h1>E-Auto-Klimabilanz: Was zählt — der Auspuff oder der Lebenszyklus?</h1>
-  <p class="hero-sub">Eine TUM-Meta-Analyse kommt auf <strong data-v="tum41">−41 %</strong> CO₂ gegenüber dem Verbrenner,
-     die ICCT-Studie für Europa auf <strong data-v="icct73">−73 %</strong>. Beide können methodisch sauber sein —
-     entscheidend sind die Annahmen. Dieses kleine Modell macht genau diese Hebel drehbar.</p>
+  <p class="hero-sub">Eine TUM-Meta-Analyse kommt auf <strong data-v="tum41">−41 %</strong> <span class="conf conf-B">B</span> CO₂
+     gegenüber dem Verbrenner, die ICCT-Studie für Europa auf <strong data-v="icct73">−73 %</strong> <span class="conf conf-A">A</span>.
+     Beide können methodisch sauber sein — entscheidend sind die Annahmen (die TUM-Methodik kann bislang
+     allerdings niemand prüfen, der Volltext ist unveröffentlicht). Dieses kleine Modell macht die Hebel drehbar.</p>
   <p class="hero-meta">Stand 30.08.2026 · Modell: <code>eauto/scripts/model.py</code> · Jede Zahl mit Quelle + Konfidenz
      <span class="conf conf-A">A</span> amtlich/mehrfach · <span class="conf conf-B">B</span> seriöse Sekundärquelle · <span class="conf conf-C">C</span> Einzelquelle/Setzung</p>
 </header>
@@ -214,8 +215,12 @@
 
   <!-- ================= Kapitel 2 ================= -->
   <h2 id="modell"><span class="kapnum">2</span>Das Modell: dreh selbst</h2>
-  <p>Verglichen wird ein batterieelektrisches Auto (BEV) mit einem Benziner derselben Klasse über die gesamte
-     Nutzungsdauer. Presets stellen dokumentierte Szenarien ein — jeder Regler lässt sich danach frei ändern.</p>
+  <p>Verglichen wird ein durchschnittliches batterieelektrisches Auto (BEV) mit einem durchschnittlichen
+     Benziner — beide mit Flottenmittel-Realverbräuchen und identischem Fahrprofil — über die gesamte
+     Nutzungsdauer. Presets stellen dokumentierte Szenarien ein, jeder Regler lässt sich danach frei ändern
+     (ein sparsamer Kompakt-Benziner mit 6,5 l ist also genauso einstellbar wie ein SUV).
+     Die Vorgabewerte sind bewusst konservativ gewählt — z. B. Batterie 75 statt aktuell ~55 kg CO₂e/kWh:
+     Wo das Modell irrt, irrt es tendenziell <em>zulasten</em> des E-Autos.</p>
 
   <div class="preset-row" id="preset-row"></div>
   <p class="preset-desc" id="preset-desc"></p>
@@ -299,7 +304,10 @@
      (Dreiecksverteilungen: Modus = Mittelwert, Grenzen = min/max der Regler) und rechnet jede komplett durch —
      einmal je Netz-Region <em>Deutschland</em>, <em>EU-27</em> und <em>Welt</em>. Die Simulation läuft live in
      deinem Browser und wird gegen die Python-Referenz verifiziert (Badge unten). Sie nutzt die dokumentierten
-     Verteilungen, nicht die Reglerstellungen aus Kapitel 2.</p>
+     Verteilungen, nicht die Reglerstellungen aus Kapitel 2. Wichtig für die Lesart: Die Bänder mischen
+     <em>Streuung über reale Fahrzeuge und Fahrer</em> (kleines vs. großes Auto, Wenig- vs. Vielfahrer) mit
+     echter <em>Unsicherheit</em> der Parameter — sie beschreiben die Bandbreite realer Fälle, nicht die
+     Unsicherheit eines Mittelwerts. Die Flottenrechnung in Kapitel 5 trennt das sauber.</p>
   <div class="card">
     <p class="card-t">Drei Korrelationen, damit die Kombinationen konsistent sind</p>
     <ul style="margin-bottom:0">
@@ -311,6 +319,8 @@
       <li><strong>Fahrprofil:</strong> Jahresfahrleistung und Nutzungsdauer werden je Ziehung <em>einmal</em>
           gezogen und für beide Antriebe identisch verwendet — derselbe Fahrer, sonst wäre der Vergleich unfair.</li>
     </ul>
+    <p style="margin:10px 0 0;font-size:13.5px;color:var(--soft)">Fix bleibt der Tank-to-Wheel-Faktor
+       (Benzin, 2,37 kg CO₂/l) — die Benziner-Referenz wird nicht zwischen Kraftstoffarten gezogen.</p>
   </div>
 
   <h3>Der Produktions-„Rucksack“</h3>
@@ -322,12 +332,12 @@
   </div>
   <div class="chart-box">
     <div id="chart-mc-ruck"></div>
-    <p class="chart-cap">Verteilung der Produktionsemissionen über 1.000 Ziehungen, gemeinsame Achse.
-       Senkrechte Linie = Median, Balken unter der Verteilung = P5–P95-Spanne.</p>
+    <p class="chart-cap">Verteilung der Produktionsemissionen über <span data-mcn>10.000</span> Ziehungen,
+       gemeinsame Achse. Senkrechte Linie = Median, Balken unter der Verteilung = P5–P95-Spanne.</p>
   </div>
 
   <h3>Ersparnis je Fahrzeug — drei Netz-Regionen</h3>
-  <p>Dieselben 1.000 Fahrzeuge, dreimal gerechnet: geladen im deutschen, europäischen und im Welt-Strommix
+  <p>Dieselben <span data-mcn>10.000</span> Fahrzeuge, dreimal gerechnet: geladen im deutschen, im EU- und im Welt-Strommix
      (jeweils mit sinkendem Pfad und der jeweiligen Pfad-Unsicherheit):</p>
   <div class="chart-box">
     <div id="chart-mc-fan"></div>
@@ -341,15 +351,31 @@
   </div>
   <p id="mc-finding"></p>
 
+  <h3>Was bewegt das Ergebnis? Jede Annahme einzeln</h3>
+  <p>Ergänzend zur Simulation: Hier wird jede Annahme <em>einzeln</em> von ihrem Minimum zum Maximum
+     gedreht, alle anderen bleiben auf dem Mittelwert — das zeigt, welcher Hebel das Ergebnis relativ
+     zum Ausgangspunkt wie stark verschiebt (sortiert nach Wirkung):</p>
+  <div class="chart-box">
+    <div id="chart-tornado"></div>
+    <div class="legend">
+      <span><i style="background:var(--c-bev)"></i> mehr Ersparnis</span>
+      <span><i style="background:var(--c-ice)"></i> weniger Ersparnis</span>
+    </div>
+    <p class="chart-cap">Eine-Annahme-nach-der-anderen-Analyse (deterministisch, kein Zufall), Metrik:
+       Ersparnis je Fahrzeug in Deutschland mit Strompfad. An den Balkenenden steht der jeweils
+       eingesetzte Extremwert.</p>
+  </div>
+  <p id="tornado-finding"></p>
+
   <!-- ================= Kapitel 5 · Hochrechnung ================= -->
-  <h2 id="hochrechnung"><span class="kapnum">5</span>Hochrechnung: Flotte, Deutschland, Europa, Welt</h2>
+  <h2 id="hochrechnung"><span class="kapnum">5</span>Hochrechnung: Flotte, Deutschland, EU-27, Welt</h2>
   <p>Gedankenexperiment im eingeschwungenen Zustand: Der <em>gesamte</em> Pkw-Bestand einer Region fährt
      elektrisch statt mit Benzin — was würde das pro Jahr einsparen? Für die Flotte rechnet die Simulation
      bewusst <em>nicht</em> mit der Fahrer-Streuung aus Kapitel 4 (die enthält Vielfahrer und würde das Mittel
      überschätzen), sondern mit einer engen Verteilung um das amtliche Flottenmittel.
      Bestands- und Emissionsdaten: KBA, ACEA, UBA, EEA, UNEP/IEA<sup class="cite"><a href="#quellen">[16]</a></sup><sup class="cite"><a href="#quellen">[17]</a></sup><sup class="cite"><a href="#quellen">[18]</a></sup><sup class="cite"><a href="#quellen">[19]</a></sup><sup class="cite"><a href="#quellen">[20]</a></sup>.</p>
   <div class="note warn"><strong>So ist es gemeint — und nicht anders:</strong> Kein Prognose-, sondern ein
-     Größenordnungs-Modell. Der reale Flottenumschlag dauert ~15 Jahre; der Mehrbedarf an Strom ist nicht auf
+     Größenordnungs-Modell. Der reale Flottenumschlag dauert ~15–24 Jahre; der Mehrbedarf an Strom ist nicht auf
      den Strommix zurückgekoppelt; offizielle Inventare zählen nur Auspuff-Emissionen im Inland, unser Modell
      Well-to-Wheel plus Produktion. Details in den Limitationen.</p>
   <div class="chart-box">
@@ -360,6 +386,11 @@
   </div>
   <div id="scale-table"></div>
   <p id="scale-finding"></p>
+  <div class="note"><strong>Was dieses Modell nicht vergleicht:</strong> Es stellt nur Antrieb gegen Antrieb —
+     nicht Auto gegen Bahn, Rad oder das nicht gekaufte Auto. Die größten Klima-Hebel der Mobilität bleiben
+     Vermeiden und Verlagern vor Verbessern: Ein kleines E-Auto mit wenig Fahrleistung schlägt jedes große —
+     das lässt sich oben direkt nachstellen (Batteriekapazität 35 kWh, 8.000 km/Jahr), und weniger Auto
+     schlägt beides.</div>
 
   <!-- ================= Kapitel 6 ================= -->
   <h2 id="einordnung"><span class="kapnum">6</span>Einordnung: Warum −41 % und −73 % beide „stimmen“ können</h2>
@@ -388,8 +419,10 @@
      0-Gramm-Anrechnung der EU-Regulierung ist tatsächlich keine Klimabilanz — darin haben beide Studien
      recht. Strittig ist, welche Konsequenz daraus folgt: eine LCA-Regulierung bzw. ein CO₂-Grenzausgleich
      für Batterien und Stahl, ein schnellerer Ausbau sauberer Stromerzeugung — oder, wie die TUM-Autoren
-     folgern, „Defossilisierung“ auch über Kraftstoffe für die Bestandsflotte<sup class="cite"><a href="#quellen">[2]</a></sup>
-     (E-Fuels bildet dieses Modell nicht ab, siehe Limitationen).</div>
+     folgern, „Defossilisierung“ auch über Kraftstoffe für die Bestandsflotte<sup class="cite"><a href="#quellen">[2]</a></sup>.
+     E-Fuels bildet dieses Modell nicht ab (siehe Limitationen); zur physikalischen Einordnung gehört aber:
+     Über die Wirkungsgradkette benötigt ein E-Fuel-Pkw pro Kilometer ein Mehrfaches — Größenordnung
+     fünffach — an erneuerbarem Strom gegenüber einem batterieelektrischen Auto.</div>
 
   <!-- ================= Limitationen ================= -->
   <h2 id="limitationen"><span class="kapnum">7</span>Limitationen</h2>
@@ -397,7 +430,13 @@
     <li>Kompaktklassen-Mittelwerte; kein Segment-, kein Flottenmodell. Hybride, PHEV und E-Fuels sind nicht abgebildet.</li>
     <li>Der Strommix-Pfad ist linear — real verläuft er treppig; Marginalstrom- vs. Durchschnittsstrom-Debatte ist nicht modelliert (wir rechnen mit Durchschnittswerten, wie UBA und ICCT).</li>
     <li>Monte Carlo: Die Korrelations-Gewichte (Segment-, Energiesystem-Faktor) sind dokumentierte Setzungen (Konfidenz C); die Mischung der Zufallsfaktoren macht die Randverteilungen leicht mittenlastiger als reine Dreiecksverteilungen.</li>
-    <li>Hochrechnung: Gedankenexperiment im eingeschwungenen Zustand — der reale Flottenumschlag dauert ~15 Jahre und ist nicht modelliert. Der Mehrbedarf an Strom durch eine vollelektrische Flotte ist nicht auf den Strommix zurückgekoppelt. Offizielle Inventare zählen nur Auspuff-Emissionen im Inland, unser Modell Well-to-Wheel plus Produktion (teils im Ausland) — die Prozentwerte sind daher Größenordnungen, keine Inventar-Arithmetik.</li>
+    <li>Hochrechnung: Gedankenexperiment im eingeschwungenen Zustand — der reale Flottenumschlag dauert ~15–24 Jahre und ist nicht modelliert. Der Mehrbedarf an Strom durch eine vollelektrische Flotte ist nicht auf den Strommix zurückgekoppelt. Offizielle Inventare zählen nur Auspuff-Emissionen im Inland, unser Modell Well-to-Wheel plus Produktion (teils im Ausland) — die Prozentwerte sind daher Größenordnungen, keine Inventar-Arithmetik.</li>
+    <li>Die Vergleichsflotte der Hochrechnung ist eine reine Benziner-Flotte mit Realverbrauch — der reale Bestand enthält Diesel, Hybride und bereits E-Autos. Die ausgewiesene Ersparnis ist insofern eine Obergrenze gegenüber dem heutigen Ist-Zustand.</li>
+    <li>Inventargrenzen-Asymmetrie beim Strom: Die UBA-Mixwerte sind Verbrauchsmix-CO₂ ohne Anlagen-Vorkette (laut Dossier +10–15 % Lücke), während der Kraftstoff seine volle Well-to-Wheel-Vorkette trägt — eine Asymmetrie von grob 1–2 Prozentpunkten <em>zugunsten</em> des E-Autos. Die LCA-Chips (Wind/PV, Steinkohle) sind dagegen echte Lebenszyklus-Werte.</li>
+    <li>Der Kraftstoff bleibt im Modell über die gesamte Nutzungsdauer fossil (kein Bio-/E-Fuel-Beimischungspfad), während der Strom einen sinkenden Pfad bekommen kann — die Verbrenner-Seite hat also keinen eigenen Dekarbonisierungshebel im Modell.</li>
+    <li>Wartung und Ladeinfrastruktur liegen außerhalb der Systemgrenze; die ICCT-Studie enthält Wartung — das ≈ICCT-Preset trifft die berichtete Endzahl also bei leicht anderer Systemgrenze über kompensierende Parameter.</li>
+    <li>Die End-of-Life-Gutschrift ist per Default nur beim E-Auto gesetzt (−0,5 t, Batterie-Recycling, Konfidenz C) — beide EoL-Regler sind frei einstellbar.</li>
+    <li>Gemischte Referenz: Produktionsemissionen stammen aus Kompaktklassen-LCAs, die Verbräuche sind Flottenmittel. Die Monte-Carlo-Verteilungen nutzen die (bewusst konservativen) Reglerspannen — mit der Dossier-Empfehlung für die Batterie (Modus 55 statt 75 kg CO₂e/kWh) läge der Rucksack-Median rund 1 t niedriger.</li>
     <li>End-of-Life ist ein einzelner additiver Term mit Konfidenz C — die Literaturspannen sind groß.</li>
     <li>Produktionsemissionen ohne Batterie (Konfidenz C) stammen aus Sekundäraufbereitungen; die Primär-PDFs waren aus dieser Umgebung nicht abrufbar (Egress-Sperre, siehe <code>eauto/research/</code>).</li>
     <li>Batterietausch innerhalb der Nutzungsdauer ist nicht modelliert (bei heutigen Zyklenfestigkeiten für die betrachteten Fahrleistungen meist nicht nötig).</li>
@@ -588,6 +627,7 @@ function buildChips(){
     c.addEventListener('click', () => {
       const fp = PF.fuel_presets.find(x => x.id === c.dataset.id);
       P.fuel_ttw = fp.fuel_ttw; P.fuel_wtw = fp.fuel_wtw;
+      if (fp.cons_ice !== undefined) P.cons_ice = fp.cons_ice;
       clearPreset(); renderAll();
     }));
 }
@@ -877,10 +917,12 @@ function runMC(){
     const fuelChain = triangular(blendU(uEn, rnd(), w.energy_on_fuelchain), ...triSpec(mc.fuel_chain));
     const eolBev = triangular(rnd(), ...dspec('eol_bev_t'));
     const eolIce = triangular(rnd(), ...dspec('eol_ice_t'));
-    let kmFleet = 0, yearsFleet = 0;
+    let kmFleet = 0, yearsFleet = 0, consBevFleet = 0, consIceFleet = 0;
     if (scaleup){
       kmFleet = triangular(rnd(), ...triSpec(scaleup.km_fleet));
       yearsFleet = triangular(rnd(), ...triSpec(scaleup.years_fleet));
+      consBevFleet = triangular(rnd(), ...triSpec(scaleup.cons_bev_fleet));
+      consIceFleet = triangular(rnd(), ...triSpec(scaleup.cons_ice_fleet));
     }
     const rucksackBev = prodBev + battKwh * battCo2 / 1000;
     draws.rucksack_bev_t.push(rucksackBev);
@@ -910,7 +952,8 @@ function runMC(){
         const bestand = triangular(rnd(), ...triSpec(sc.bestand_mio));
         const totalMt = triangular(rnd(), ...triSpec(sc.total_mt));
         const pkwMt = triangular(rnd(), ...triSpec(sc.pkw_mt));
-        const resFleet = runModel(Object.assign({}, p, { km_per_year: kmFleet, years: yearsFleet }));
+        const resFleet = runModel(Object.assign({}, p, { km_per_year: kmFleet, years: yearsFleet,
+                                                         cons_bev: consBevFleet, cons_ice: consIceFleet }));
         const deltaFleet = (resFleet.ice.total_kg - resFleet.bev.total_kg) / 1000;
         const mtA = deltaFleet / yearsFleet * bestand;
         d.mt_a.push(mtA);
@@ -925,8 +968,8 @@ function runMC(){
     rucksack: {
       bev: summarize(draws.rucksack_bev_t), ice: summarize(draws.rucksack_ice_t),
       diff: summarize(draws.rucksack_diff_t),
-      hist_bev: histogramOf(draws.rucksack_bev_t, 0, ruckHi, 28),
-      hist_ice: histogramOf(draws.rucksack_ice_t, 0, ruckHi, 28)
+      hist_bev: histogramOf(draws.rucksack_bev_t, 0, ruckHi, 40),
+      hist_ice: histogramOf(draws.rucksack_ice_t, 0, ruckHi, 40)
     },
     regions: {}
   };
@@ -937,7 +980,7 @@ function runMC(){
       label: r.label,
       bev_t: summarize(d.bev_t), ice_t: summarize(d.ice_t), delta_t: summarize(d.delta_t),
       reduction_pct: summarize(d.reduction_pct), ersparnis_a_t: summarize(d.ersparnis_a_t),
-      hist_delta: histogramOf(d.delta_t, deltaLo, deltaHi, 28),
+      hist_delta: histogramOf(d.delta_t, deltaLo, deltaHi, 40),
       share_ice_better_pct: 100 * d.delta_t.filter(v => v < 0).length / n,
       breakeven_km: d.breakeven_km.length ? summarize(d.breakeven_km) : null,
       no_breakeven_pct: 100 * noBreakeven[r.id] / n
@@ -950,6 +993,101 @@ function runMC(){
     out.regions[r.id] = e;
   }
   return out;
+}
+
+function computeTornado(){
+  // 1:1-Port der tornado()-Funktion aus eauto/scripts/monte_carlo.py
+  // (deterministisch; Labels werden hier de-DE formatiert).
+  const dflt = PF.defaults, mc = PF.mc;
+  const de = mc.regions.find(r => r.id === 'de');
+  const ttw = dflt.fuel_ttw.value;
+  const keys = ['batt_kwh', 'batt_co2', 'prod_bev_t', 'prod_ice_t',
+                'cons_bev', 'cons_ice', 'km_per_year', 'years',
+                'eol_bev_t', 'eol_ice_t'];
+  const makeP = over => {
+    const p = {};
+    keys.forEach(k => { p[k] = dflt[k].value; });
+    p.fuel_ttw = ttw;
+    p.fuel_wtw = ttw + mc.fuel_chain.mid;
+    p.strom_start = de.strom_start.mid;
+    p.strom_ende = Math.min(de.strom_ende.mid, p.strom_start);
+    p.strom_dynamic = true;
+    return Object.assign(p, over);
+  };
+  const deltaOf = over => {
+    const r = runModel(makeP(over));
+    return (r.ice.total_kg - r.bev.total_kg) / 1000;
+  };
+  const baseline = deltaOf({});
+  const numDe = (v, unit) => v.toLocaleString('de-DE', {maximumFractionDigits: 2}) + ' ' + unit;
+  const levers = [];
+  const add = (id, label, overLo, overHi, loLabel, hiLabel) => {
+    levers.push({ id, label, lo_label: loLabel, hi_label: hiLabel,
+                  d_lo: deltaOf(overLo) - baseline, d_hi: deltaOf(overHi) - baseline });
+  };
+  // Kurzlabels nur fuer die Chart-Darstellung (volle Labels stehen an den Reglern).
+  const shortLabels = {
+    batt_kwh: 'Batteriekapazität', batt_co2: 'Batterie-Fußabdruck',
+    prod_bev_t: 'BEV-Produktion o. Batterie', prod_ice_t: 'Verbrenner-Produktion',
+    cons_bev: 'BEV-Verbrauch', cons_ice: 'Verbrenner-Verbrauch',
+    km_per_year: 'Jahresfahrleistung', years: 'Nutzungsdauer',
+    eol_bev_t: 'End-of-Life BEV', eol_ice_t: 'End-of-Life Verbrenner'
+  };
+  keys.forEach(k => {
+    const d = dflt[k];
+    add(k, shortLabels[k] || d.label, {[k]: d.min}, {[k]: d.max}, numDe(d.min, d.unit), numDe(d.max, d.unit));
+  });
+  const fc = mc.fuel_chain;
+  add('fuel_chain', 'Kraftstoff-Vorkette',
+      {fuel_wtw: ttw + fc.min}, {fuel_wtw: ttw + fc.max},
+      '+' + numDe(fc.min, 'kg/l'), '+' + numDe(fc.max, 'kg/l'));
+  const ss = de.strom_start, se = de.strom_ende;
+  add('strommix', 'Strommix-Pfad DE',
+      {strom_start: ss.min, strom_ende: Math.min(se.min, ss.min)},
+      {strom_start: ss.max, strom_ende: Math.min(se.max, ss.max)},
+      fmt0(ss.min) + '→' + fmt0(Math.min(se.min, ss.min)) + ' g/kWh',
+      fmt0(ss.max) + '→' + fmt0(Math.min(se.max, ss.max)) + ' g/kWh');
+  levers.sort((a, b) => Math.max(Math.abs(b.d_lo), Math.abs(b.d_hi))
+                      - Math.max(Math.abs(a.d_lo), Math.abs(a.d_hi)));
+  return { baseline_t: baseline, levers };
+}
+
+function chartTornado(tor){
+  const rows = tor.levers;
+  const W = 720, rowH = 46, L = 208, R = 20, T = 34, B = 46;
+  const H = T + rows.length * rowH + B;
+  const lo = Math.min(...rows.map(r => Math.min(r.d_lo, r.d_hi, 0)));
+  const hi = Math.max(...rows.map(r => Math.max(r.d_lo, r.d_hi, 0)));
+  const x = v => L + (W - L - R) * (v - lo) / (hi - lo);
+  const posC = CSSV('--c-bev'), negC = CSSV('--c-ice');
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Wirkung jeder Annahme auf die Ersparnis">`;
+  // Gitter + Nullachse (= Ausgangspunkt)
+  const step = (hi - lo) > 60 ? 20 : 10;
+  for (let g = Math.ceil(lo / step) * step; g <= hi; g += step){
+    s += `<line x1="${x(g)}" y1="${T}" x2="${x(g)}" y2="${T + rows.length*rowH}" stroke="${g===0 ? CSSV('--soft') : CSSV('--grid')}" stroke-width="${g===0?1.5:1}"></line>`;
+    s += `<text x="${x(g)}" y="${T + rows.length*rowH + 18}" text-anchor="middle" font-size="11" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g>0?'+':''}${g}</text>`;
+  }
+  s += `<text x="${x(0)}" y="${T-18}" text-anchor="middle" font-size="11.5" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">Ausgangspunkt ${fmt(tor.baseline_t,1)} t</text>`;
+  const range = hi - lo;
+  rows.forEach((rw, i) => {
+    const cy = T + i * rowH + rowH / 2;
+    s += `<text x="${L-10}" y="${cy+4}" text-anchor="end" font-size="12.5" font-weight="500" fill="${CSSV('--ink')}" font-family="Geist,sans-serif">${esc(rw.label)}</text>`;
+    // Extremwert-Labels: negative Seite oberhalb, positive unterhalb des
+    // Balkens, x auf den Plotbereich geklemmt - so kollidiert nichts.
+    [[rw.d_lo, rw.lo_label], [rw.d_hi, rw.hi_label]].forEach(([d, lab]) => {
+      if (Math.abs(d) < 1e-9) return;
+      const x0 = x(0), x1 = x(d);
+      s += `<rect x="${Math.min(x0,x1).toFixed(1)}" y="${cy-8}" width="${Math.abs(x1-x0).toFixed(1)}" height="16" rx="3" fill="${d>0?posC:negC}" opacity="0.85"></rect>`;
+      if (Math.abs(d) > range * 0.05){
+        const anchor = d > 0 ? 'end' : 'start';
+        const tx = Math.min(Math.max(x1, L + 4), W - R - 4);
+        const ty = d > 0 ? cy + 24 : cy - 13;
+        s += `<text x="${tx.toFixed(1)}" y="${ty}" text-anchor="${anchor}" font-size="10" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${esc(lab)}</text>`;
+      }
+    });
+  });
+  s += `<text x="${W/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Änderung der Ersparnis je Fahrzeug [t CO₂e] vs. Ausgangspunkt (alle Annahmen auf Mittelwert)</text>`;
+  $('chart-tornado').innerHTML = s + '</svg>';
 }
 
 function mcParityCheck(mcRef, mcLive){
@@ -968,6 +1106,11 @@ function mcParityCheck(mcRef, mcLive){
       live[rid + '_mt_a_p50'] = e.mt_a.p50;
       live[rid + '_pct_total_p50'] = e.pct_total.p50;
     }
+  }
+  live.tor_baseline = mcLive.tornado.baseline_t;
+  for (const lv of mcLive.tornado.levers){
+    live['tor_' + lv.id + '_lo'] = lv.d_lo;
+    live['tor_' + lv.id + '_hi'] = lv.d_hi;
   }
   let pass = 0, fail = 0;
   for (const [k, ref] of Object.entries(mcRef.parity)){
@@ -1067,7 +1210,7 @@ function chartMcHist(mc){
   for (let g = Math.ceil(lo / 20) * 20; g <= hi; g += 20){
     s += `<text x="${x(g)}" y="${H-B+18}" text-anchor="middle" font-size="11" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g}</text>`;
   }
-  s += `<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Ersparnis Deutschland [t CO₂e je Fahrzeug] — 1.000 Ziehungen</text>`;
+  s += `<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Ersparnis Deutschland [t CO₂e je Fahrzeug] — ${fmt0(PF.mc.n_draws)} Ziehungen</text>`;
   $('chart-mc-hist').innerHTML = s + '</svg>';
 }
 function chartScale(mc){
@@ -1111,44 +1254,68 @@ function renderScaleTable(mc){
       <td class="num">${fmtBand(e.mt_a, 0)}</td>
       <td class="num">${fmtBand(e.pct_total, 1)}</td>
       <td class="num">${fmtBand(e.pct_pkw, 0)}</td>
-      <td class="num">${fmt(sc.bestand_mio.mid, 0)} Mio</td>
+      <td class="num">${sc.bestand_mio.mid >= 1000 ? fmt(sc.bestand_mio.mid/1000, 1) + ' Mrd' : fmt(sc.bestand_mio.mid, 0) + ' Mio'}</td>
       <td class="num">${fmt(sc.total_mt.mid, 0)} / ${fmt(sc.pkw_mt.mid, 0)}</td></tr>`;
   }).join('');
   $('scale-table').innerHTML = `<div class="mtable-wrap"><table class="mtable">
     <thead><tr><th>Region</th><th>Ersparnis Mt CO₂e/a<br>P50 [P5–P95]</th>
-    <th>% der THG-Gesamt&shy;emissionen</th><th>% des Pkw-Inventars<br>(nur Auspuff)</th>
+    <th>% der THG-Gesamt&shy;emissionen</th><th>% des Pkw-Inventars<br>(nur Auspuff, CO₂)</th>
     <th>Pkw-Bestand</th><th>Gesamt / Pkw [Mt]</th></tr></thead><tbody>${rows}</tbody></table></div>
-    <div class="note"><strong>Warum hier über 100 % stehen kann:</strong> Das Pkw-Inventar zählt nur
-    Auspuff-Emissionen im Inland — genau die „Auspuff-Logik“ aus Kapitel 1. Die simulierte Ersparnis
-    umfasst zusätzlich Kraftstoff-Vorkette und den Produktions-Rucksack (teils im Ausland verbucht).
-    Liegt die Ersparnis über dem Inventarwert, ist das kein Rechenfehler, sondern macht die Lücke
-    zwischen Inventar-Sicht und Lebenszyklus-Sicht sichtbar.</div>`;
+    <div class="note"><strong>Warum hier über 100 % stehen kann — zwei Gründe:</strong> Erstens zählt
+    das Pkw-Inventar nur Auspuff-Emissionen im Inland — die „Auspuff-Logik“ aus Kapitel 1 —, während die
+    simulierte Ersparnis Kraftstoff-Vorkette und Produktions-Rucksack einschließt (teils im Ausland und
+    in anderen Sektoren verbucht). Zweitens — und das ist der größere Effekt — rechnet das
+    Gedankenexperiment die Vergleichsflotte komplett als <em>Benziner</em> mit Realverbrauch: Der reale
+    Bestand enthält aber ~27 % Diesel (weniger CO₂/km), Hybride und bereits ~4 % E-Autos, sein
+    Inventarwert liegt also unter der modellierten Benziner-Flotte. Beides zusammen erklärt Werte
+    über 100 % — ein Rechenfehler ist es nicht, aber eine Obergrenzen-Rechnung.</div>`;
 }
 function renderMC(mcRef){
   const mc = runMC();
+  mc.tornado = computeTornado();
   $('mc-n').textContent = fmt0(PF.mc.n_draws);
+  document.querySelectorAll('[data-mcn]').forEach(el => { el.textContent = fmt0(PF.mc.n_draws); });
   $('mt-ruck-bev').innerHTML = fmtBand(mc.rucksack.bev, 1) + ' <small>t</small>';
   $('mt-ruck-ice').innerHTML = fmtBand(mc.rucksack.ice, 1) + ' <small>t</small>';
   $('mt-ruck-diff').innerHTML = fmtBand(mc.rucksack.diff, 1) + ' <small>t</small>';
-  chartMcRuck(mc); chartMcFan(mc); chartMcHist(mc); chartScale(mc); renderScaleTable(mc);
+  chartMcRuck(mc); chartMcFan(mc); chartMcHist(mc); chartTornado(mc.tornado);
+  chartScale(mc); renderScaleTable(mc);
+  const tor = mc.tornado;
+  $('tornado-finding').innerHTML = `<strong>Lesart:</strong> Vom Ausgangspunkt
+    (alle Annahmen auf Mittelwert, deutsches Netz mit Strompfad: <strong>${fmt(tor.baseline_t,1)} t</strong>
+    Ersparnis je Fahrzeug) bewegt <em>${esc(tor.levers[0].label)}</em> das Ergebnis am stärksten
+    (${fmt(tor.levers[0].d_lo,0)} bis +${fmt(tor.levers[0].d_hi,0)} t). Die Batterie-Hebel wirken mit
+    sinkendem Strompfad deutlich schwächer, als die öffentliche Debatte vermuten lässt. Der Ausgangspunkt
+    liegt unter dem Simulations-Median, weil die Fahrleistungs-Verteilung rechtsschief ist (Vielfahrer
+    ziehen den Median der Ziehungen nach oben).`;
   const de = mc.regions.de;
   const iceBetter = de.share_ice_better_pct;
   $('mc-finding').innerHTML = `<strong>Befund:</strong> In Deutschland spart das E-Auto über den Lebenszyklus
     im Median <strong>${fmt(de.delta_t.p50,0)} t CO₂e</strong> je Fahrzeug
     [P5–P95: ${fmt(de.delta_t.p5,0)}–${fmt(de.delta_t.p95,0)} t]; der Verbrenner lag in
-    <strong>${fmt(iceBetter,1)} %</strong> der Ziehungen vorn. Der Break-even liegt im Median bei
-    ${de.breakeven_km ? fmt0(de.breakeven_km.p50/1000) : '—'} Tsd. km. Die Spannen wirken breit —
-    das ist der ehrliche Preis dafür, alle dokumentierten Unsicherheiten gleichzeitig zuzulassen;
-    das Vorzeichen der Ersparnis ist davon unberührt.`;
+    <strong>${fmt(iceBetter,1)} %</strong> der Ziehungen vorn — wohlgemerkt <em>innerhalb der hier
+    dokumentierten Spannen</em>: Der Strom bekommt einen sinkenden Pfad, der Kraftstoff bleibt fossil
+    (kein Bio-/E-Fuel-Pfad — eine dokumentierte Asymmetrie, siehe Limitationen), und Extremkombinationen
+    wie dauerhafter Kohlestrom × historische Batteriewerte liegen außerhalb des Ziehungsraums
+    (dazu Kapitel 2 und 6).
+    Der Break-even liegt im Median bei ${de.breakeven_km ? fmt0(de.breakeven_km.p50/1000) : '—'} Tsd. km.
+    Die Spannen wirken breit — das ist der ehrliche Preis dafür, alle dokumentierten Unsicherheiten
+    gleichzeitig zuzulassen.`;
   if (PF.scaleup){
     const w2 = mc.regions.welt;
     $('scale-finding').innerHTML = `<strong>Befund:</strong> Eine vollelektrische Welt-Pkw-Flotte spart in
       der Simulation <strong>${fmt(w2.mt_a.p50,0)} Mt CO₂e pro Jahr</strong>
       [${fmt(w2.mt_a.p5,0)}–${fmt(w2.mt_a.p95,0)}] — das sind
       <strong>${fmt(w2.pct_total.p50,1)} %</strong> der globalen Treibhausgas-Emissionen (CO₂e) bzw.
-      ${fmt(w2.pct_pkw.p50,0)} % des heutigen Pkw-Sektors. Die Elektrifizierung des Pkw ist damit ein
-      relevanter, aber kein hinreichender Hebel: Sie adressiert genau den Pkw-Anteil der Emissionen —
-      nicht mehr und nicht weniger — und ihr Nutzen wächst mit jedem Gramm, das der Strommix sauberer wird.`;
+      ${fmt(w2.pct_pkw.p50,0)} % des heutigen Pkw-Sektors. Zur Einordnung der Größenordnung: Das ist mehr
+      als das Dreifache <em>sämtlicher</em> deutscher Treibhausgas-Emissionen — „nur x %“ ist auf dem Weg zu
+      Netto-Null bei keinem Sektor ein Gegenargument, jeder Sektor muss auf null. Die Elektrifizierung des
+      Pkw ist damit ein relevanter, aber kein hinreichender Hebel: Sie adressiert höchstens den Pkw-Anteil
+      der Emissionen — wie viel davon tatsächlich realisiert wird, hängt am Strommix (im Welt-Mix heute gut
+      die Hälfte, in Deutschland und der EU mit sinkendem Pfad praktisch der ganze Sektor). Nicht
+      rückgekoppelt ist der Strom-Mehrbedarf: Für Deutschland wären das grob
+      ${fmt0(PF.scaleup.regions.find(r => r.id === 'de').bestand_mio.mid * PF.scaleup.km_fleet.mid * PF.scaleup.cons_bev_fleet.mid / 100 / 1000)} TWh/a
+      (≈ +20–25 % der heutigen Erzeugung).`;
   }
   return mcParityCheck(mcRef, mc);
 }

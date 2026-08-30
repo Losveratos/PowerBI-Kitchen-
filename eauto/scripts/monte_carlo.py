@@ -21,7 +21,8 @@ Korrelationsstruktur (der inhaltliche Kern)
                  Wird der Strom sauberer, wird also auch der Verbrenner
                  sauberer - nur schwaecher, weil nur seine Vorkette am
                  Stromsystem haengt, nicht die Verbrennung selbst.
-      u_usage    Fahrprofil (km/Jahr, Nutzungsdauer): wird EINMAL gezogen und
+      Fahrprofil: km/Jahr und Nutzungsdauer werden je Ziehung EINMAL gezogen
+                 (zwei unabhaengige Ziehungen, kein eigener Mischfaktor) und
                  fuer beide Antriebe identisch verwendet - derselbe Fahrer.
     Mischung: u = clamp01(w * u_shared + (1-w) * u_eigen). Die Gewichte sind
     Setzungen (Konfidenz C, dokumentiert in model_params.json -> mc.weights).
@@ -36,6 +37,7 @@ Determinismus
                   batt_kwh, batt_co2, prod_bev, prod_ice,
                   cons_bev, cons_ice, fuel_chain, eol_bev, eol_ice,
                   [nur mit scaleup-Block:] km_fleet, years_fleet,
+                                           cons_bev_fleet, cons_ice_fleet,
       dann je Region (Reihenfolge wie mc.regions):
                   strom_start, strom_ende,
                   [nur mit scaleup-Block:] bestand, total_mt, pkw_mt
@@ -45,9 +47,11 @@ Hochrechnung: Streuung vs. Unsicherheit des Mittels
     (5.000-30.000 km) - richtig fuer die Einzelfahrzeug-Verteilung, aber
     falsch fuer die Flotte: deren Erwartungswert ist das KBA-Mittel, nicht
     der Mittelwert der Dreiecksverteilung (der laege ~25 % zu hoch). Die
-    Hochrechnung nutzt deshalb eine EIGENE, enge Ziehung um das
-    Flottenmittel (scaleup.km_fleet / scaleup.years_fleet) und rechnet die
-    Fahrzeugbilanz damit noch einmal.
+    Hochrechnung nutzt deshalb EIGENE, enge Ziehungen um die Flottenmittel
+    (scaleup.km_fleet / years_fleet / cons_bev_fleet / cons_ice_fleet) und
+    rechnet die Fahrzeugbilanz damit noch einmal. Die uebrigen
+    Fahrzeugparameter (Batterie, Produktion) behalten die Ziehung des
+    Einzelfahrzeugs - deren Verteilungsmittel liegt nahe am Flottenmittel.
 
 Aufruf:  python3 scripts/monte_carlo.py
 Ausgabe: data/monte_carlo_reference.json
@@ -64,7 +68,7 @@ import model  # noqa: E402
 
 DATA = model.DATA
 OUT = os.path.join(DATA, "monte_carlo_reference.json")
-HIST_BINS = 28
+HIST_BINS = 40
 MASK32 = 0xFFFFFFFF
 
 
@@ -136,6 +140,72 @@ def tri_spec(d: dict) -> tuple[float, float, float]:
     return d["min"], d.get("mid", d.get("value")), d["max"]
 
 
+def tornado(pf: dict) -> dict:
+    """Eine-Annahme-nach-der-anderen-Analyse (deterministisch, kein Zufall).
+
+    Ausgangspunkt: alle Parameter auf Mittelwert, deutsches Netz mit
+    Pfad-Mittelwerten. Dann wird je Annahme EINZELN auf min bzw. max
+    gestellt und die Aenderung der Ersparnis je Fahrzeug (t CO2e) relativ
+    zum Ausgangspunkt festgehalten. Sortiert nach Hebelwirkung.
+    Der JS-Port rechnet identisch; Werte stehen in der Paritaetsliste.
+    """
+    dflt = pf["defaults"]
+    mc = pf["mc"]
+    de = next(r for r in mc["regions"] if r["id"] == "de")
+    ttw = dflt["fuel_ttw"]["value"]
+    keys = ["batt_kwh", "batt_co2", "prod_bev_t", "prod_ice_t",
+            "cons_bev", "cons_ice", "km_per_year", "years",
+            "eol_bev_t", "eol_ice_t"]
+
+    def make_p(over: dict) -> dict:
+        p = {k: dflt[k]["value"] for k in keys}
+        p["fuel_ttw"] = ttw
+        p["fuel_wtw"] = ttw + mc["fuel_chain"]["mid"]
+        p["strom_start"] = tri_spec(de["strom_start"])[1]
+        p["strom_ende"] = min(tri_spec(de["strom_ende"])[1], p["strom_start"])
+        p["strom_dynamic"] = True
+        p.update(over)
+        return p
+
+    def delta_of(over: dict) -> float:
+        r = model.run(make_p(over))
+        return (r["ice"]["total_kg"] - r["bev"]["total_kg"]) / 1000.0
+
+    baseline = delta_of({})
+    levers = []
+
+    def add(lid: str, label: str, over_lo: dict, over_hi: dict,
+            lo_label: str, hi_label: str) -> None:
+        levers.append({
+            "id": lid, "label": label,
+            "lo_label": lo_label, "hi_label": hi_label,
+            "d_lo": delta_of(over_lo) - baseline,
+            "d_hi": delta_of(over_hi) - baseline,
+        })
+
+    for k in keys:
+        d = dflt[k]
+        add(k, d["label"], {k: d["min"]}, {k: d["max"]},
+            f"{d['min']:g} {d['unit']}", f"{d['max']:g} {d['unit']}")
+    fc = mc["fuel_chain"]
+    add("fuel_chain", "Kraftstoff-Vorkette",
+        {"fuel_wtw": ttw + fc["min"]}, {"fuel_wtw": ttw + fc["max"]},
+        f"+{fc['min']:g} kg/l", f"+{fc['max']:g} kg/l")
+    ss, se = de["strom_start"], de["strom_ende"]
+    add("strommix", "Strommix-Pfad (DE, Start und Ende)",
+        {"strom_start": ss["min"], "strom_ende": min(se["min"], ss["min"])},
+        {"strom_start": ss["max"], "strom_ende": min(se["max"], ss["max"])},
+        f"{ss['min']:g}→{min(se['min'], ss['min']):g} g/kWh",
+        f"{ss['max']:g}→{min(se['max'], ss['max']):g} g/kWh")
+
+    levers.sort(key=lambda l: max(abs(l["d_lo"]), abs(l["d_hi"])), reverse=True)
+    return {
+        "metric": "Ersparnis je Fahrzeug, Deutschland, mit Strompfad [t CO2e]",
+        "baseline_t": baseline,
+        "levers": levers,
+    }
+
+
 def run_mc(pf: dict) -> dict:
     mc = pf["mc"]
     w = mc["weights"]
@@ -178,6 +248,8 @@ def run_mc(pf: dict) -> dict:
         if scaleup:
             km_fleet = triangular(rnd(), *tri_spec(scaleup["km_fleet"]))
             years_fleet = triangular(rnd(), *tri_spec(scaleup["years_fleet"]))
+            cons_bev_fleet = triangular(rnd(), *tri_spec(scaleup["cons_bev_fleet"]))
+            cons_ice_fleet = triangular(rnd(), *tri_spec(scaleup["cons_ice_fleet"]))
 
         fuel_ttw = dflt["fuel_ttw"]["value"]
         rucksack_bev = prod_bev + batt_kwh * batt_co2 / 1000.0
@@ -226,7 +298,8 @@ def run_mc(pf: dict) -> dict:
                 pkw_mt = triangular(rnd(), *tri_spec(sc["pkw_mt"]))
                 # Flottenbilanz: gleiches Fahrzeug/Netz, aber Flottenmittel-
                 # Fahrprofil statt Fahrer-Streuung (siehe Docstring).
-                p_fleet = dict(p, km_per_year=km_fleet, years=years_fleet)
+                p_fleet = dict(p, km_per_year=km_fleet, years=years_fleet,
+                               cons_bev=cons_bev_fleet, cons_ice=cons_ice_fleet)
                 res_fleet = model.run(p_fleet)
                 delta_fleet = (res_fleet["ice"]["total_kg"] - res_fleet["bev"]["total_kg"]) / 1000.0
                 mt_a = delta_fleet / years_fleet * bestand  # t/Fzg/a * Mio Fzg = Mt/a
@@ -257,6 +330,7 @@ def run_mc(pf: dict) -> dict:
             "years": summarize(draws["years"]),
         },
         "regions": {},
+        "tornado": tornado(pf),
     }
     for r in regions:
         rid = r["id"]
@@ -295,6 +369,10 @@ def run_mc(pf: dict) -> dict:
         if scaleup:
             parity[f"{rid}_mt_a_p50"] = e["mt_a"]["p50"]
             parity[f"{rid}_pct_total_p50"] = e["pct_total"]["p50"]
+    parity["tor_baseline"] = out["tornado"]["baseline_t"]
+    for lv in out["tornado"]["levers"]:
+        parity[f"tor_{lv['id']}_lo"] = lv["d_lo"]
+        parity[f"tor_{lv['id']}_hi"] = lv["d_hi"]
     out["parity"] = parity
     return out
 
