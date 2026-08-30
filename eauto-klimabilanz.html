@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-Auto-Klimabilanz: Auspuff oder Lebenszyklus? · Daten-WG</title>
+<meta name="description" content="Kleines interaktives Lebenszyklus-Modell: Wie viel CO₂ spart ein E-Auto gegenüber einem Verbrenner — und welche Annahmen entscheiden, ob −41 % (TUM-Meta-Analyse) oder −73 % (ICCT) herauskommt? Jede Zahl mit Quelle und Konfidenzstufe.">
+<meta name="author" content="Michael Tenner · Daten-WG">
+<meta property="og:title" content="E-Auto-Klimabilanz: Auspuff oder Lebenszyklus?">
+<meta property="og:description" content="Interaktives Modell: dreh selbst an Strommix, Batterie und Fahrleistung — und sieh, wie aus −41 % auch −73 % werden.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/eauto-klimabilanz.html">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/eauto-klimabilanz.html">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,750&amp;family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-sunk:#F3F2EC; --ink:#0F1E2E; --soft:#475569;
+    --accent:#C25A2D; --teal:#1B9AA8; --teal-text:#0E6E7A; --line:#E4E2DA; --grid:#EAE8E0;
+    /* Serienfarben (aus der validierten Strommix-Palette uebernommen) */
+    --c-bev:#1B9AA8; --c-ice:#C25A2D;
+    --c-prod:#5b6472; --c-batt:#8a7cd8; --c-strom:#2a78d6;
+    --c-ttw:#eb6834; --c-chain:#eda100; --c-eol:#008300;
+    --conf-a:#0E6E7A; --conf-a-bg:#DDEEF0;
+    --conf-b:#95601F; --conf-b-bg:#FAEDDC;
+    --conf-c:#B34E22; --conf-c-bg:#F7E5DB;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; scroll-padding-top:20px}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:'Geist',system-ui,sans-serif;font-size:16.5px;line-height:1.65}
+  .rule{height:10px;background:var(--accent)}
+  .rule2{height:4px;background:var(--teal)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+  header.hero{max-width:960px;margin:0 auto;padding:44px 24px 20px}
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:3px;
+          text-transform:uppercase;color:var(--teal-text);font-weight:600;margin-bottom:16px}
+  .kicker a{color:inherit;text-decoration:none}
+  .kicker a:hover{color:var(--accent)}
+  h1{font-family:'Fraunces',serif;font-weight:750;font-size:clamp(30px,5.4vw,50px);
+     line-height:1.08;margin:0 0 16px;letter-spacing:-0.5px}
+  .hero-sub{font-size:clamp(17px,2.3vw,20px);color:var(--soft);max-width:700px;line-height:1.5;margin:0}
+  .hero-meta{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--soft);margin-top:18px}
+  h2{font-family:'Fraunces',serif;font-weight:650;font-size:28px;line-height:1.2;
+     margin:56px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--accent)}
+  h2 .kapnum{font-family:'JetBrains Mono',monospace;font-size:0.6em;font-weight:600;
+             color:var(--accent);margin-right:12px;vertical-align:3px}
+  h3{font-family:'Fraunces',serif;font-weight:650;font-size:20px;margin:30px 0 10px}
+  p{margin:0 0 14px}
+  a{color:var(--teal-text)}
+  ul,ol{margin:0 0 14px;padding-left:22px} li{margin-bottom:6px}
+  code{font-family:'JetBrains Mono',monospace;font-size:13.5px;background:#F0EFE9;
+       padding:1.5px 5px;border-radius:4px;overflow-wrap:break-word}
+  em{color:var(--soft)}
+
+  .card{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:22px 0}
+  .card-t{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;
+          color:var(--soft);font-weight:600;margin:0 0 10px}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+  .note{background:var(--bg-sunk);border-left:4px solid var(--teal);border-radius:0 10px 10px 0;
+        padding:14px 18px;margin:18px 0;font-size:15px;color:var(--soft)}
+  .note strong{color:var(--ink)}
+  .warn{background:#FDF3EE;border-left-color:var(--accent)}
+
+  .tile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:20px 0}
+  .tile{background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+  .tile .n{font-family:'Fraunces',serif;font-weight:650;font-size:27px;color:var(--accent);line-height:1.15}
+  .tile .n.teal{color:var(--teal-text)}
+  .tile .n small{font-size:0.55em;font-weight:500;color:var(--soft)}
+  .tile .l{font-size:13px;color:var(--soft);margin-top:4px;line-height:1.4}
+
+  .conf{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
+        line-height:1.7;border-radius:4px;padding:0 5px;vertical-align:2px;letter-spacing:.5px}
+  .conf-A{background:var(--conf-a-bg);color:var(--conf-a)}
+  .conf-B{background:var(--conf-b-bg);color:var(--conf-b)}
+  .conf-C{background:var(--conf-c-bg);color:var(--conf-c)}
+  sup.cite{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;color:var(--teal-text);
+           padding:0 1px;vertical-align:super;line-height:0}
+  sup.cite a{text-decoration:none;border-bottom:1px dotted var(--teal-text)}
+
+  /* ---- Presets ---- */
+  .preset-row{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+  .preset-btn{font-family:'JetBrains Mono',monospace;font-size:12.5px;padding:8px 13px;border-radius:20px;
+              border:1px solid var(--line);background:var(--bg-card);color:var(--ink);cursor:pointer;
+              transition:all .12s ease}
+  .preset-btn:hover{border-color:var(--teal)}
+  .preset-btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .preset-desc{font-size:13.5px;color:var(--soft);min-height:40px;margin:6px 0 0;line-height:1.5}
+
+  /* ---- Slider ---- */
+  .sl{margin:0 0 15px}
+  .sl label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+            font-size:13.5px;font-weight:500;margin-bottom:4px}
+  .sl label .v{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--teal-text);
+               font-weight:600;white-space:nowrap}
+  .sl input[type=range]{width:100%;accent-color:var(--accent);height:4px;margin:2px 0 0}
+  .sl .src{font-size:11.5px;color:var(--soft);line-height:1.45;margin-top:3px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+  .chip{font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 9px;border-radius:14px;
+        border:1px solid var(--line);background:var(--bg-sunk);cursor:pointer;color:var(--ink)}
+  .chip:hover{border-color:var(--teal)}
+  .chip.on{background:var(--teal-text);border-color:var(--teal-text);color:#fff}
+  .switch-row{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:500;margin:0 0 12px}
+  .switch-row input{accent-color:var(--accent);width:18px;height:18px}
+  .derived{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--soft);
+           background:var(--bg-sunk);border-radius:8px;padding:8px 12px;margin-top:4px}
+
+  /* ---- Charts ---- */
+  .chart-box{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;
+             padding:18px 18px 12px;margin:20px 0;overflow-x:auto}
+  .chart-box svg{display:block;width:100%;height:auto;min-width:300px}
+  .chart-cap{font-size:13px;color:var(--soft);margin:8px 2px 4px;line-height:1.5}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--soft);margin:8px 2px 0}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+  /* ---- Quellen ---- */
+  ol.srcs{padding-left:0;list-style:none;counter-reset:q}
+  ol.srcs li{counter-increment:q;position:relative;padding:9px 0 9px 40px;border-bottom:1px solid var(--line);
+             font-size:14px;line-height:1.5;margin:0}
+  ol.srcs li::before{content:"[" counter(q) "]";position:absolute;left:0;top:9px;
+        font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--accent)}
+  ol.srcs .u{display:block;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--soft);
+             overflow-wrap:anywhere}
+
+  /* ---- Footer ---- */
+  footer{border-top:1px solid var(--line);margin-top:64px;padding:28px 0 46px;font-size:14px;color:var(--soft)}
+  .badge{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:12px;
+         border:1px solid var(--line);border-radius:20px;padding:6px 13px;background:var(--bg-card)}
+  .badge.ok{border-color:#8CC3A5;color:#1E6B43;background:#EDF7F1}
+  .badge.fail{border-color:#D99;color:#A33;background:#FBEDED}
+
+  #load-hint{display:none;max-width:960px;margin:20px auto;padding:0 24px}
+  #load-hint .card{border-color:var(--accent)}
+  @media (max-width:760px){
+    body{font-size:15.5px}
+    .card{padding:16px 16px}
+  }
+</style>
+</head>
+<body>
+<div class="rule"></div><div class="rule2"></div>
+
+<header class="hero">
+  <div class="kicker"><a href="index.html">Daten-WG · Knowledge Kitchen</a> — Kleines Modell</div>
+  <h1>E-Auto-Klimabilanz: Was zählt — der Auspuff oder der Lebenszyklus?</h1>
+  <p class="hero-sub">Eine TUM-Meta-Analyse kommt auf <strong data-v="tum41">−41 %</strong> CO₂ gegenüber dem Verbrenner,
+     die ICCT-Studie für Europa auf <strong data-v="icct73">−73 %</strong>. Beide können methodisch sauber sein —
+     entscheidend sind die Annahmen. Dieses kleine Modell macht genau diese Hebel drehbar.</p>
+  <p class="hero-meta">Stand 30.08.2026 · Modell: <code>eauto/scripts/model.py</code> · Jede Zahl mit Quelle + Konfidenz
+     <span class="conf conf-A">A</span> amtlich/mehrfach · <span class="conf conf-B">B</span> seriöse Sekundärquelle · <span class="conf conf-C">C</span> Einzelquelle/Setzung</p>
+</header>
+
+<div id="load-hint">
+  <div class="card">
+    <p class="card-t">Daten laden fehlgeschlagen</p>
+    <p>Diese Seite lädt ihre Zahlen aus <code>eauto/data/*.json</code>. Bei direktem Öffnen als Datei
+       (<code>file://</code>) blockiert der Browser das. Lokal bitte so starten:</p>
+    <p><code>python3 -m http.server 8000</code> → <code>http://localhost:8000/eauto-klimabilanz.html</code></p>
+  </div>
+</div>
+
+<main class="wrap" id="content" hidden>
+
+  <!-- ================= Anlass ================= -->
+  <div class="card" style="border-width:2px;border-color:var(--accent)">
+    <p class="card-t">Der Anlass · zwei Studien, zwei Zahlen</p>
+    <p>Am 30.08.2026 berichtete BILD vorab über eine Studie der TU München<sup class="cite"><a href="#quellen">[1]</a></sup>:
+       Die EU-Flottenregulierung misst CO₂ nur am Auspuff — ein E-Auto gilt dort als <em>0-Gramm-Auto</em>.
+       Über den ganzen Lebenszyklus (Rohstoffe, Batterie, Strommix, Recycling) senke es die Emissionen
+       gegenüber dem Verbrenner aber im Mittel nur um <strong data-v="tum41">−41 %</strong> — so das Ergebnis einer
+       Auswertung von <span data-v="tum_n">19 Studien</span> mit <span data-v="tum_sz">47 Szenarien</span><sup class="cite"><a href="#quellen">[2]</a></sup>.
+       Die ICCT-Lebenszyklus-Studie vom Juli 2025 kommt für Europa dagegen auf
+       <strong data-v="icct73">−73 %</strong> (<span data-v="icct_g">63 vs. 235 g CO₂e/km</span>)<sup class="cite"><a href="#quellen">[4]</a></sup>.</p>
+    <p style="margin-bottom:0"><strong>Wie passt das zusammen?</strong> Vor allem über vier Annahmen: Wird der Strommix
+       über die Nutzungsdauer <em>statisch</em> oder <em>sinkend</em> gerechnet? Welcher Batterie-Fußabdruck
+       (ältere Studien: bis dreimal höhere Werte als aktuelle Fertigung)? Welche Lebensfahrleistung
+       (150.000 oder 240.000 km)? Und welcher Vergleichs-Verbrenner? Unten kannst du jede dieser
+       Stellschrauben selbst drehen.</p>
+  </div>
+  <div class="note warn"><strong>Transparenz:</strong> Der Volltext der TUM-Studie war bei Erstellung dieser Seite noch
+     nicht veröffentlicht (Vorstellung angekündigt für Anfang September 2026, vor der Abstimmung über das
+     EU-Automobil-Paket im November). Alle TUM-Zahlen stammen aus Medien-/Agenturberichten
+     <span class="conf conf-B">B</span>. Die Presets „≈ TUM“ und „≈ ICCT“ sind <em>nachgestellte</em> Annahmen-Sets,
+     die auf die berichteten Endzahlen führen — nicht die Originalrechnungen.</div>
+
+  <!-- ================= Kapitel 1 ================= -->
+  <h2 id="auspuff"><span class="kapnum">1</span>Die Auspuff-Logik</h2>
+  <p>Die EU-Flottengrenzwerte zählen nur, was aus dem Auspuff kommt (Tank-to-Wheel). Ein Verbrenner wird also
+     mit seiner Verbrennung bilanziert — aber ohne die Vorkette des Kraftstoffs. Ein E-Auto steht mit
+     <strong>0 g/km</strong> in der Bilanz — ohne Batterieproduktion und ohne Ladestrom. Die Lebenszyklus-Sicht
+     (LCA) zählt beides voll. So sieht der Unterschied mit den aktuellen Modell-Einstellungen aus:</p>
+  <div class="chart-box">
+    <div id="chart-reg"></div>
+    <p class="chart-cap">Links die Regulierungssicht (nur Auspuff), rechts die Lebenszyklus-Sicht des Modells
+       (Produktion + Nutzung + End-of-Life, verteilt auf die Lebensfahrleistung). Die Balken rechts ändern sich live mit den Reglern unten.</p>
+  </div>
+  <p>Beide Sichten haben einen Zweck: Die Regulierungssicht ist einfach mess- und durchsetzbar, die
+     LCA-Sicht ist die ehrlichere Klimabilanz. Die TUM-Kritik zielt genau auf diese Lücke — und daran hängen
+     industriepolitische Fragen (Batteriefertigung, grüner Stahl, Standort), weil eine LCA-Regulierung
+     Produktionsemissionen plötzlich mit bepreisen würde<sup class="cite"><a href="#quellen">[1]</a></sup>.</p>
+
+  <!-- ================= Kapitel 2 ================= -->
+  <h2 id="modell"><span class="kapnum">2</span>Das Modell: dreh selbst</h2>
+  <p>Verglichen wird ein batterieelektrisches Auto (BEV) mit einem Benziner derselben Klasse über die gesamte
+     Nutzungsdauer. Presets stellen dokumentierte Szenarien ein — jeder Regler lässt sich danach frei ändern.</p>
+
+  <div class="preset-row" id="preset-row"></div>
+  <p class="preset-desc" id="preset-desc"></p>
+
+  <div class="tile-grid">
+    <div class="tile"><div class="n" id="t-red">–</div><div class="l">CO₂-Reduktion BEV vs. Verbrenner (Lebenszyklus)</div></div>
+    <div class="tile"><div class="n teal" id="t-bev">–</div><div class="l">BEV gesamt, verteilt auf die Fahrleistung</div></div>
+    <div class="tile"><div class="n" id="t-ice">–</div><div class="l">Verbrenner gesamt (Well-to-Wheel + Produktion)</div></div>
+    <div class="tile"><div class="n teal" id="t-be">–</div><div class="l" id="t-be-l">Break-even: ab hier ist das BEV vorn</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <p class="card-t">E-Auto</p>
+      <div id="sl-bev"></div>
+    </div>
+    <div class="card">
+      <p class="card-t">Verbrenner</p>
+      <div class="chips" id="fuel-chips"></div>
+      <div id="sl-ice"></div>
+    </div>
+    <div class="card">
+      <p class="card-t">Strommix beim Laden</p>
+      <div class="chips" id="strom-chips"></div>
+      <div id="sl-strom-start"></div>
+      <label class="switch-row"><input type="checkbox" id="dyn-toggle">
+        Strommix sinkt über die Nutzungsdauer (linearer Pfad)</label>
+      <div id="sl-strom-ende"></div>
+    </div>
+    <div class="card">
+      <p class="card-t">Nutzung &amp; End-of-Life</p>
+      <div id="sl-use"></div>
+      <div class="derived" id="derived-km">–</div>
+    </div>
+  </div>
+
+  <h3>Wann rechnet sich der CO₂-Rucksack?</h3>
+  <p>Das BEV startet mit höheren Produktionsemissionen (vor allem Batterie) und holt sie im Fahrbetrieb auf —
+     wie schnell, bestimmt der Strommix:</p>
+  <div class="chart-box">
+    <div id="chart-be"></div>
+    <div class="legend">
+      <span><i style="background:var(--c-bev)"></i> E-Auto (kumuliert)</span>
+      <span><i style="background:var(--c-ice)"></i> Verbrenner (kumuliert)</span>
+      <span><i style="background:var(--ink);width:2px;height:14px;border-radius:0"></i> Break-even</span>
+    </div>
+    <p class="chart-cap">Kumulierte Emissionen ab Produktion über die Kilometer. End-of-Life-Terme werden erst
+       in der Gesamtbilanz verrechnet und sind hier nicht enthalten.</p>
+  </div>
+
+  <h3>Woraus sich die Bilanz zusammensetzt</h3>
+  <div class="chart-box">
+    <div id="chart-parts"></div>
+    <div class="legend">
+      <span><i style="background:var(--c-prod)"></i> Produktion (ohne Batterie)</span>
+      <span><i style="background:var(--c-batt)"></i> Batterie</span>
+      <span><i style="background:var(--c-strom)"></i> Ladestrom</span>
+      <span><i style="background:var(--c-ttw)"></i> Auspuff (TTW)</span>
+      <span><i style="background:var(--c-chain)"></i> Kraftstoff-Vorkette</span>
+      <span><i style="background:var(--c-eol)"></i> End-of-Life (± saldiert)</span>
+    </div>
+    <p class="chart-cap">Gesamtemissionen über die Lebensfahrleistung in t CO₂e. Der End-of-Life-Term kann
+       als Recycling-Gutschrift negativ sein — er wird im Summenwert rechts verrechnet.</p>
+  </div>
+
+  <!-- ================= Kapitel 3 ================= -->
+  <h2 id="sensitivitaet"><span class="kapnum">3</span>Der stärkste Hebel: der Strommix</h2>
+  <p>Hält man alle übrigen Regler fest und variiert nur einen <em>statischen</em> Strommix, ergibt sich diese
+     Kurve — mit den realen Mix-Werten als Marker:</p>
+  <div class="chart-box">
+    <div id="chart-sens"></div>
+    <p class="chart-cap">CO₂-Reduktion des BEV gegenüber dem Verbrenner als Funktion des (statischen) Strommix.
+       Unter der Nulllinie wäre das BEV schlechter. Marker: Mix-Referenzwerte aus <code>model_params.json</code>.</p>
+  </div>
+  <p id="sens-finding"></p>
+
+  <!-- ================= Kapitel 4 ================= -->
+  <h2 id="einordnung"><span class="kapnum">4</span>Einordnung: Warum −41 % und −73 % beide „stimmen“ können</h2>
+  <ul>
+    <li><strong>Strommix statisch vs. Pfad:</strong> Wer den heutigen (oder gar globalen) Mix über 15–20 Jahre
+        festschreibt, belastet das BEV mit einem Stromsystem, das es so voraussichtlich nur noch wenige Jahre
+        gibt. Wer den Klimapfad einrechnet, entlastet es — und setzt voraus, dass der Ausbau gelingt.
+        Allein dieser Schalter verschiebt das Ergebnis im Modell um gut 10 Prozentpunkte.</li>
+    <li><strong>Batterie-Fußabdruck:</strong> Meta-Analysen mitteln ältere Studien (bis <span data-v="batt_alt">150–200</span> kg CO₂e/kWh)
+        mit aktuellen Werten (~<span data-v="batt_akt">55</span> kg)<sup class="cite"><a href="#quellen">[7]</a></sup><sup class="cite"><a href="#quellen">[8]</a></sup> —
+        der Mittelwert beschreibt dann kein real kaufbares Auto, weder ein altes noch ein neues.</li>
+    <li><strong>Lebensfahrleistung:</strong> Der Produktions-Rucksack ist fix; jeder weitere Kilometer verdünnt ihn.
+        150.000 km (konservativ) vs. ~240.000 km (ICCT, 20 Jahre) macht im Modell 8–10 Prozentpunkte aus.</li>
+    <li><strong>Break-even-Spanne in der Literatur:</strong> Die VDI-Ökobilanz 2023 nennt ~90.000 km<sup class="cite"><a href="#quellen">[9]</a></sup>,
+        die ICCT ~17.000 km<sup class="cite"><a href="#quellen">[4]</a></sup>, Stiftung Warentest ~2 Jahre<sup class="cite"><a href="#quellen">[14]</a></sup> —
+        der Hauptunterschied ist wieder die Strommix-Annahme. Im Modell oben kannst du beide Welten einstellen.</li>
+    <li><strong>Referenz-Verbrenner:</strong> Realverbrauch oder Normverbrauch, mit oder ohne Kraftstoff-Vorkette
+        (+15–25 %)<sup class="cite"><a href="#quellen">[11]</a></sup><sup class="cite"><a href="#quellen">[13]</a></sup> — auch die Verbrenner-Seite hat eine „Auspuff-Logik“-Falle.</li>
+  </ul>
+  <div class="note"><strong>Was im Modell robust ist:</strong> In keiner plausiblen Kombination — selbst mit reinem
+     Kohlestrom — wird das BEV über den Lebenszyklus <em>deutlich schlechter</em> als der Benziner; mit realen
+     europäischen Mixen liegt es klar vorn, die Frage ist nur <em>wie weit</em>. Und: Die 0-Gramm-Anrechnung der
+     EU-Regulierung ist tatsächlich keine Klimabilanz — darin haben beide Studien recht. Strittig ist, welche
+     Konsequenz daraus folgt: LCA-Regulierung, CO₂-Grenzausgleich für Batterien und Stahl — oder schlicht
+     ein schnellerer Ausbau sauberer Stromerzeugung, der beide Probleme zugleich verkleinert.</div>
+
+  <!-- ================= Limitationen ================= -->
+  <h2 id="limitationen"><span class="kapnum">5</span>Limitationen</h2>
+  <ul>
+    <li>Kompaktklassen-Mittelwerte; kein Segment-, kein Flottenmodell. Hybride, PHEV und E-Fuels sind nicht abgebildet.</li>
+    <li>Der Strommix-Pfad ist linear — real verläuft er treppig; Marginalstrom- vs. Durchschnittsstrom-Debatte ist nicht modelliert (wir rechnen mit Durchschnittswerten, wie UBA und ICCT).</li>
+    <li>End-of-Life ist ein einzelner additiver Term mit Konfidenz C — die Literaturspannen sind groß.</li>
+    <li>Produktionsemissionen ohne Batterie (Konfidenz C) stammen aus Sekundäraufbereitungen; die Primär-PDFs waren aus dieser Umgebung nicht abrufbar (Egress-Sperre, siehe <code>eauto/research/</code>).</li>
+    <li>Batterietausch innerhalb der Nutzungsdauer ist nicht modelliert (bei heutigen Zyklenfestigkeiten für die betrachteten Fahrleistungen meist nicht nötig).</li>
+    <li>Die TUM-Studie selbst lag nicht vor — sobald der Volltext veröffentlicht ist, wird das Preset gegen die echten Studienannahmen ersetzt.</li>
+  </ul>
+
+  <!-- ================= Quellen ================= -->
+  <h2 id="quellen"><span class="kapnum">6</span>Quellen</h2>
+  <ol class="srcs" id="src-list"></ol>
+
+  <div class="note" style="margin-top:30px"><strong>Verwandt in der Kitchen:</strong>
+     <a href="whitepaper-strommix.html">White Paper „Was braucht ein gesunder Strommix?“</a> ·
+     <a href="strommix-story.html">Strommix-Story (Scrollytelling)</a> ·
+     <a href="ki-co2-simulator.html">KI-Token → CO₂-Simulator</a></div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="badge" id="selftest-badge">Selbsttest läuft …</span>
+    <p style="margin-top:14px">Eigene Berechnungen (Referenzmodell <code>eauto/scripts/model.py</code>, hier als
+       JavaScript-Port; die Seite verifiziert beim Laden alle Testvektoren). Keine Gewähr; keine Anlage-,
+       Kauf- oder Rechtsberatung. Feedback gern an die
+       <a href="index.html">Daten-WG Knowledge Kitchen</a>. ·
+       <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a></p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+/* ================= Modell (1:1-Port von eauto/scripts/model.py) ================= */
+function lifetimeKm(p){ return p.km_per_year * p.years; }
+
+function stromIntegral(p, tYears){
+  const y = p.years, start = p.strom_start;
+  const ende = p.strom_dynamic ? p.strom_ende : start;
+  if (y <= 0) return 0;
+  return start * tYears + (ende - start) * tYears * tYears / (2 * y);
+}
+function bevProductionKg(p){ return p.prod_bev_t * 1000 + p.batt_kwh * p.batt_co2; }
+function iceProductionKg(p){ return p.prod_ice_t * 1000; }
+function bevCumulativeKg(p, km){
+  const t = p.km_per_year > 0 ? km / p.km_per_year : 0;
+  const kwhPerKm = p.cons_bev / 100;
+  const opG = kwhPerKm * p.km_per_year * stromIntegral(p, t);
+  return bevProductionKg(p) + opG / 1000;
+}
+function iceCumulativeKg(p, km){
+  const kgPerKm = p.cons_ice / 100 * p.fuel_wtw;
+  return iceProductionKg(p) + kgPerKm * km;
+}
+function breakEvenKm(p){
+  const total = lifetimeKm(p);
+  const diff = km => bevCumulativeKg(p, km) - iceCumulativeKg(p, km);
+  if (diff(0) <= 0) return 0;
+  if (diff(total) > 0) return null;
+  let lo = 0, hi = total;
+  for (let i = 0; i < 200; i++){
+    const mid = (lo + hi) / 2;
+    if (diff(mid) > 0) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+function runModel(p){
+  const totalKm = lifetimeKm(p);
+  const bevProd = bevProductionKg(p);
+  const bevBatt = p.batt_kwh * p.batt_co2;
+  const bevOp = bevCumulativeKg(p, totalKm) - bevProd;
+  const bevTotal = bevProd + bevOp + p.eol_bev_t * 1000;
+  const iceProd = iceProductionKg(p);
+  const iceOp = iceCumulativeKg(p, totalKm) - iceProd;
+  const ttwShare = p.fuel_wtw > 0 ? p.fuel_ttw / p.fuel_wtw : 0;
+  const iceTotal = iceProd + iceOp + p.eol_ice_t * 1000;
+  return {
+    total_km: totalKm,
+    bev: { prod_base_kg: bevProd - bevBatt, battery_kg: bevBatt, operation_kg: bevOp,
+           eol_kg: p.eol_bev_t * 1000, total_kg: bevTotal,
+           g_per_km: totalKm ? bevTotal / totalKm * 1000 : 0 },
+    ice: { prod_kg: iceProd, fuel_ttw_kg: iceOp * ttwShare, fuel_chain_kg: iceOp * (1 - ttwShare),
+           eol_kg: p.eol_ice_t * 1000, total_kg: iceTotal,
+           g_per_km: totalKm ? iceTotal / totalKm * 1000 : 0 },
+    reduction_pct: iceTotal > 0 ? (1 - bevTotal / iceTotal) * 100 : 0,
+    break_even_km: breakEvenKm(p),
+    regulatory: { bev_g_per_km: 0, ice_g_per_km: p.cons_ice / 100 * p.fuel_ttw * 1000 }
+  };
+}
+
+/* ================= Hilfen ================= */
+const $ = id => document.getElementById(id);
+const fmt = (n, d=1) => n.toLocaleString('de-DE', {minimumFractionDigits:d, maximumFractionDigits:d});
+const fmt0 = n => Math.round(n).toLocaleString('de-DE');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+let PF = null;          // model_params.json
+let P = null;           // aktueller Parametersatz
+let activePreset = null;
+
+function defaultsMid(){
+  const o = {};
+  for (const [k, v] of Object.entries(PF.defaults)) o[k] = v.value;
+  return o;
+}
+
+/* ---------------- Slider-UI ---------------- */
+const GROUPS = {
+  'sl-bev': ['batt_kwh', 'batt_co2', 'cons_bev', 'prod_bev_t'],
+  'sl-ice': ['cons_ice', 'fuel_ttw', 'fuel_wtw', 'prod_ice_t'],
+  'sl-strom-start': ['strom_start'],
+  'sl-strom-ende': ['strom_ende'],
+  'sl-use': ['km_per_year', 'years', 'eol_bev_t', 'eol_ice_t']
+};
+function sliderHtml(key){
+  const d = PF.defaults[key];
+  return `<div class="sl" id="sl-${key}">
+    <label>${esc(d.label)} <span class="conf conf-${d.confidence}">${d.confidence}</span>
+      <span class="v" id="v-${key}"></span></label>
+    <input type="range" id="in-${key}" min="${d.min}" max="${d.max}" step="${d.step || 1}">
+    <div class="src">${esc(d.source)}</div>
+  </div>`;
+}
+function buildSliders(){
+  for (const [container, keys] of Object.entries(GROUPS)){
+    $(container).innerHTML = keys.map(sliderHtml).join('');
+    keys.forEach(k => {
+      $('in-' + k).addEventListener('input', e => {
+        P[k] = parseFloat(e.target.value);
+        clearPreset();
+        renderAll();
+      });
+    });
+  }
+  $('dyn-toggle').addEventListener('change', e => {
+    P.strom_dynamic = e.target.checked;
+    clearPreset();
+    renderAll();
+  });
+}
+function valueLabel(key){
+  const d = PF.defaults[key];
+  const v = P[key];
+  const digits = (d.step || 1) >= 1 ? 0 : ((d.step || 1) >= 0.1 ? 1 : 2);
+  return `${(+v).toLocaleString('de-DE', {minimumFractionDigits:digits, maximumFractionDigits:digits})} ${d.unit}`;
+}
+function syncSliders(){
+  for (const keys of Object.values(GROUPS)){
+    for (const k of keys){
+      $('in-' + k).value = P[k];
+      $('v-' + k).textContent = valueLabel(k);
+    }
+  }
+  $('dyn-toggle').checked = !!P.strom_dynamic;
+  $('sl-strom-ende').style.opacity = P.strom_dynamic ? 1 : 0.35;
+  $('in-strom_ende').disabled = !P.strom_dynamic;
+}
+
+/* ---------------- Presets & Chips ---------------- */
+function clearPreset(){
+  activePreset = null;
+  document.querySelectorAll('#preset-row .preset-btn').forEach(b => b.classList.remove('on'));
+  $('preset-desc').textContent = 'Eigene Einstellung — Regler frei verändert.';
+  syncChips();
+}
+function applyPreset(id){
+  const pr = PF.presets.find(x => x.id === id);
+  P = Object.assign(defaultsMid(), pr.overrides);
+  activePreset = id;
+  document.querySelectorAll('#preset-row .preset-btn').forEach(b =>
+    b.classList.toggle('on', b.dataset.id === id));
+  $('preset-desc').textContent = pr.desc;
+  renderAll();
+}
+function buildPresets(){
+  $('preset-row').innerHTML = PF.presets.map(pr =>
+    `<button class="preset-btn" data-id="${pr.id}">${esc(pr.label)}</button>`).join('');
+  document.querySelectorAll('#preset-row .preset-btn').forEach(b =>
+    b.addEventListener('click', () => applyPreset(b.dataset.id)));
+}
+function buildChips(){
+  $('strom-chips').innerHTML = PF.strommix_presets.map(c =>
+    `<button class="chip" data-v="${c.value}" title="Konfidenz ${c.confidence}">${esc(c.label)} · ${c.value}</button>`).join('');
+  document.querySelectorAll('#strom-chips .chip').forEach(c =>
+    c.addEventListener('click', () => {
+      P.strom_start = parseFloat(c.dataset.v);
+      clearPreset(); renderAll();
+    }));
+  $('fuel-chips').innerHTML = PF.fuel_presets.map(c =>
+    `<button class="chip" data-id="${c.id}">${esc(c.label)}</button>`).join('');
+  document.querySelectorAll('#fuel-chips .chip').forEach(c =>
+    c.addEventListener('click', () => {
+      const fp = PF.fuel_presets.find(x => x.id === c.dataset.id);
+      P.fuel_ttw = fp.fuel_ttw; P.fuel_wtw = fp.fuel_wtw;
+      clearPreset(); renderAll();
+    }));
+}
+function syncChips(){
+  document.querySelectorAll('#strom-chips .chip').forEach(c =>
+    c.classList.toggle('on', Math.abs(parseFloat(c.dataset.v) - P.strom_start) < 0.5 && !P.strom_dynamic));
+  document.querySelectorAll('#fuel-chips .chip').forEach(c => {
+    const fp = PF.fuel_presets.find(x => x.id === c.dataset.id);
+    c.classList.toggle('on', Math.abs(fp.fuel_ttw - P.fuel_ttw) < 0.005 && Math.abs(fp.fuel_wtw - P.fuel_wtw) < 0.005);
+  });
+}
+
+/* ---------------- Charts (Inline-SVG) ---------------- */
+const CSSV = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function chartReg(r){
+  const W = 720, H = 210, L = 190, R = 26, rowH = 34, gap = 10;
+  const vals = [
+    { l:'Regulierung · E-Auto', v:r.regulatory.bev_g_per_km, c:CSSV('--c-bev') },
+    { l:'Regulierung · Verbrenner', v:r.regulatory.ice_g_per_km, c:CSSV('--c-ice') },
+    { l:'Lebenszyklus · E-Auto', v:r.bev.g_per_km, c:CSSV('--c-bev') },
+    { l:'Lebenszyklus · Verbrenner', v:r.ice.g_per_km, c:CSSV('--c-ice') }
+  ];
+  const max = Math.max(...vals.map(x => x.v), 1) * 1.12;
+  const x = v => L + (W - L - R) * v / max;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Regulierungssicht vs. Lebenszyklus in g CO2e pro km">`;
+  vals.forEach((b, i) => {
+    const y = 16 + i * (rowH + gap) + (i > 1 ? 14 : 0);
+    s += `<text x="${L-8}" y="${y+rowH/2+4}" text-anchor="end" font-size="13" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">${b.l}</text>`;
+    s += `<rect x="${L}" y="${y}" width="${Math.max(x(b.v)-L, 1.5)}" height="${rowH}" rx="4" fill="${b.c}" opacity="${i<2?0.55:1}"></rect>`;
+    s += `<text x="${x(b.v)+7}" y="${y+rowH/2+4}" font-size="12.5" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">${fmt0(b.v)} g/km</text>`;
+  });
+  $('chart-reg').innerHTML = s + '</svg>';
+}
+
+function chartBreakEven(r, p){
+  const W = 720, H = 330, L = 62, R = 20, T = 16, B = 42;
+  const totalKm = r.total_km;
+  const N = 60;
+  const bevPts = [], icePts = [];
+  let maxT = 0;
+  for (let i = 0; i <= N; i++){
+    const km = totalKm * i / N;
+    const b = bevCumulativeKg(p, km) / 1000, c = iceCumulativeKg(p, km) / 1000;
+    bevPts.push([km, b]); icePts.push([km, c]);
+    maxT = Math.max(maxT, b, c);
+  }
+  maxT *= 1.06;
+  const x = km => L + (W - L - R) * km / totalKm;
+  const y = t => T + (H - T - B) * (1 - t / maxT);
+  const path = pts => pts.map((pt, i) => (i ? 'L' : 'M') + x(pt[0]).toFixed(1) + ',' + y(pt[1]).toFixed(1)).join('');
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Kumulierte Emissionen über die Kilometer">`;
+  // Gitter + Achsen
+  const ySteps = 5;
+  for (let i = 0; i <= ySteps; i++){
+    const tv = maxT * i / ySteps, yy = y(tv);
+    s += `<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="${CSSV('--grid')}" stroke-width="1"></line>`;
+    s += `<text x="${L-8}" y="${yy+4}" text-anchor="end" font-size="11.5" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${fmt(tv,0)} t</text>`;
+  }
+  const xSteps = 6;
+  for (let i = 0; i <= xSteps; i++){
+    const km = totalKm * i / xSteps;
+    s += `<text x="${x(km)}" y="${H-B+20}" text-anchor="middle" font-size="11.5" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${fmt0(km/1000)}</text>`;
+  }
+  s += `<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Fahrleistung [Tsd. km]</text>`;
+  s += `<path d="${path(icePts)}" fill="none" stroke="${CSSV('--c-ice')}" stroke-width="3"></path>`;
+  s += `<path d="${path(bevPts)}" fill="none" stroke="${CSSV('--c-bev')}" stroke-width="3"></path>`;
+  const be = r.break_even_km;
+  if (be !== null && be > 0){
+    const bx = x(be), byv = y(bevCumulativeKg(p, be) / 1000);
+    s += `<line x1="${bx}" y1="${y(0)}" x2="${bx}" y2="${byv}" stroke="${CSSV('--ink')}" stroke-width="1.5" stroke-dasharray="5 4"></line>`;
+    s += `<circle cx="${bx}" cy="${byv}" r="5" fill="${CSSV('--ink')}"></circle>`;
+    const anchor = bx > W - 190 ? 'end' : 'start';
+    const tx = bx > W - 190 ? bx - 10 : bx + 10;
+    s += `<text x="${tx}" y="${byv-10}" text-anchor="${anchor}" font-size="12.5" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">Break-even ${fmt0(be/1000)} Tsd. km</text>`;
+  }
+  $('chart-be').innerHTML = s + '</svg>';
+}
+
+function chartParts(r){
+  const W = 720, H = 190, L = 110, R = 88, rowH = 44;
+  const rows = [
+    { l:'E-Auto', total: r.bev.total_kg, parts: [
+        { v:r.bev.prod_base_kg, c:CSSV('--c-prod') },
+        { v:r.bev.battery_kg, c:CSSV('--c-batt') },
+        { v:r.bev.operation_kg, c:CSSV('--c-strom') }], eol: r.bev.eol_kg },
+    { l:'Verbrenner', total: r.ice.total_kg, parts: [
+        { v:r.ice.prod_kg, c:CSSV('--c-prod') },
+        { v:r.ice.fuel_ttw_kg, c:CSSV('--c-ttw') },
+        { v:r.ice.fuel_chain_kg, c:CSSV('--c-chain') }], eol: r.ice.eol_kg }
+  ];
+  const maxG = Math.max(...rows.map(rw => rw.parts.reduce((a,b)=>a+b.v,0) + Math.max(rw.eol,0))) * 1.02;
+  const x = v => (W - L - R) * v / maxG;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Zerlegung der Lebenszyklus-Emissionen">`;
+  rows.forEach((rw, i) => {
+    const yy = 24 + i * (rowH + 34);
+    s += `<text x="${L-8}" y="${yy+rowH/2+4}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Geist,sans-serif">${rw.l}</text>`;
+    let cx = L;
+    rw.parts.forEach(pt => {
+      const w = x(pt.v);
+      if (w > 0.5) s += `<rect x="${cx}" y="${yy}" width="${w}" height="${rowH}" fill="${pt.c}"></rect>`;
+      if (w > 46){
+        const kg = pt.v / 1000;
+        s += `<text x="${cx+w/2}" y="${yy+rowH/2+4}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#fff" font-family="JetBrains Mono,monospace">${fmt(kg, kg<10?1:0)}</text>`;
+      }
+      cx += w;
+    });
+    if (Math.abs(rw.eol) > 1){
+      const w = Math.max(x(Math.abs(rw.eol)), 2);
+      s += `<rect x="${cx}" y="${yy}" width="${w}" height="${rowH}" fill="none" stroke="${CSSV('--c-eol')}" stroke-width="2" stroke-dasharray="4 3"></rect>`;
+      s += `<text x="${cx+w/2}" y="${yy-6}" text-anchor="middle" font-size="11" font-weight="600" fill="${CSSV('--c-eol')}" font-family="JetBrains Mono,monospace">${rw.eol<0?'−':'+'}${fmt(Math.abs(rw.eol)/1000,1)}</text>`;
+      cx += w;
+    }
+    s += `<text x="${cx+8}" y="${yy+rowH/2+4}" font-size="13" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">Σ ${fmt(rw.total/1000,1)} t</text>`;
+  });
+  $('chart-parts').innerHTML = s + '</svg>';
+}
+
+function chartSens(p){
+  const W = 720, H = 300, L = 62, R = 20, T = 14, B = 56;
+  const gMax = 1100, yMin = -40, yMax = 100;
+  const x = g => L + (W - L - R) * g / gMax;
+  const y = pct => T + (H - T - B) * (1 - (pct - yMin) / (yMax - yMin));
+  const pts = [];
+  for (let g = 0; g <= gMax; g += 20){
+    const q = Object.assign({}, p, { strom_start: g, strom_dynamic: false });
+    pts.push([g, runModel(q).reduction_pct]);
+  }
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Reduktion als Funktion des Strommix">`;
+  for (let pct = yMin; pct <= yMax; pct += 20){
+    const yy = y(pct);
+    s += `<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="${pct===0 ? CSSV('--soft') : CSSV('--grid')}" stroke-width="${pct===0?1.5:1}"></line>`;
+    s += `<text x="${L-8}" y="${yy+4}" text-anchor="end" font-size="11.5" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${pct>0?'−':pct<0?'+':''}${Math.abs(pct)} %</text>`;
+  }
+  for (let g = 0; g <= gMax; g += 200){
+    s += `<text x="${x(g)}" y="${H-B+20}" text-anchor="middle" font-size="11.5" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g}</text>`;
+  }
+  s += `<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Statischer Strommix [g CO₂e/kWh] — y-Achse: CO₂-Ersparnis des BEV</text>`;
+  s += `<path d="${pts.map((pt,i)=>(i?'L':'M')+x(pt[0]).toFixed(1)+','+y(pt[1]).toFixed(1)).join('')}" fill="none" stroke="${CSSV('--c-bev')}" stroke-width="3"></path>`;
+  // Marker-Labels kollisionsbewusst setzen: liegen zwei Marker horizontal
+  // dicht beieinander (DE 2024/2025), wandert das zweite Label auf die
+  // andere Seite der Kurve.
+  const marks = PF.strommix_presets
+    .map(m => {
+      const q = Object.assign({}, p, { strom_start: m.value, strom_dynamic: false });
+      return { label: m.label, g: m.value, red: runModel(q).reduction_pct };
+    })
+    .sort((a, b) => a.g - b.g);
+  let lastX = -1e9, lastAbove = false;
+  marks.forEach(m => {
+    const mx = x(m.g), my = y(m.red);
+    let above = m.red < 40;
+    if (mx - lastX < 90) above = !lastAbove;
+    lastX = mx; lastAbove = above;
+    s += `<circle cx="${mx}" cy="${my}" r="4.5" fill="${CSSV('--accent')}"></circle>`;
+    s += `<text x="${mx}" y="${my + (above ? -10 : 20)}" text-anchor="middle" font-size="10.5" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">${esc(m.label)}</text>`;
+  });
+  $('chart-sens').innerHTML = s + '</svg>';
+  // Befundtext: Nullstelle suchen
+  let zero = null;
+  for (let i = 1; i < pts.length; i++){
+    if ((pts[i-1][1] > 0) !== (pts[i][1] > 0)){
+      const [g0, r0] = pts[i-1], [g1, r1] = pts[i];
+      zero = g0 + (g1 - g0) * r0 / (r0 - r1);
+      break;
+    }
+  }
+  $('sens-finding').innerHTML = zero
+    ? `<strong>Befund bei den aktuellen übrigen Einstellungen:</strong> Erst ab einem dauerhaften Strommix von etwa
+       <strong>${fmt0(zero)} g CO₂e/kWh</strong> würde das BEV schlechter abschneiden als der Verbrenner — zum Vergleich:
+       Deutschland 2024 lag bei ${fmt0(PF.context.uba_mix['2024'])} g/kWh, reiner Steinkohlestrom bei rund 950 g/kWh.`
+    : `<strong>Befund bei den aktuellen übrigen Einstellungen:</strong> Im gesamten dargestellten Bereich bis
+       ${fmt0(gMax)} g CO₂e/kWh bleibt das BEV vorn — die Nulllinie wird nicht erreicht.`;
+}
+
+/* ---------------- Rendern ---------------- */
+function renderAll(){
+  syncSliders(); syncChips();
+  const r = runModel(P);
+  $('t-red').textContent = (r.reduction_pct >= 0 ? '−' : '+') + fmt(Math.abs(r.reduction_pct), 1) + ' %';
+  $('t-bev').innerHTML = fmt(r.bev.g_per_km, 0) + ' <small>g CO₂e/km</small>';
+  $('t-ice').innerHTML = fmt(r.ice.g_per_km, 0) + ' <small>g CO₂e/km</small>';
+  if (r.break_even_km === null){
+    $('t-be').textContent = '—';
+    $('t-be-l').textContent = 'Kein Break-even innerhalb der Lebensfahrleistung';
+  } else {
+    $('t-be').innerHTML = fmt0(r.break_even_km / 1000) + ' <small>Tsd. km</small>';
+    $('t-be-l').textContent = 'Break-even: ab hier ist das BEV vorn';
+  }
+  $('derived-km').textContent = 'Lebensfahrleistung: ' + fmt0(r.total_km) + ' km ('
+    + fmt0(P.km_per_year) + ' km/Jahr × ' + P.years + ' Jahre)';
+  chartReg(r); chartBreakEven(r, P); chartParts(r); chartSens(P);
+}
+
+/* ---------------- Kontextzahlen & Quellen ---------------- */
+function fillContext(){
+  const c = PF.context;
+  const map = {
+    tum41: '−' + c.tum.reduction_avg_pct + ' %',
+    icct73: '−' + c.icct.reduction_pct + ' %',
+    tum_n: c.tum.n_studies + ' Studien',
+    tum_sz: c.tum.n_scenarios + ' Szenarien',
+    icct_g: c.icct.bev_g_per_km + ' vs. ' + c.icct.ice_g_per_km + ' g CO₂e/km',
+    batt_alt: c.batt.ivl2017,
+    batt_akt: String(c.batt.current)
+  };
+  document.querySelectorAll('[data-v]').forEach(el => {
+    if (map[el.dataset.v] !== undefined) el.textContent = map[el.dataset.v];
+  });
+  $('src-list').innerHTML = PF.sources.map(s =>
+    `<li>${esc(s.label)} <span class="conf conf-${s.confidence}">${s.confidence}</span>
+     <span class="u"><a href="${esc(s.url)}" rel="noopener">${esc(s.url)}</a> · Zugriff ${esc(s.accessed)}</span></li>`).join('');
+}
+
+/* ---------------- Selbsttest ---------------- */
+function selfTest(tv){
+  const tol = tv.tolerance_pct / 100;
+  let pass = 0, fail = 0;
+  const close = (a, b) => {
+    if (a === null || b === null) return a === b;
+    if (Math.abs(b) < 1e-9) return Math.abs(a) < 1e-6;
+    return Math.abs(a - b) / Math.abs(b) <= tol;
+  };
+  for (const vec of tv.vectors){
+    const r = runModel(vec.params);
+    const e = vec.expect;
+    const ok = close(r.bev.total_kg, e.bev.total_kg)
+      && close(r.ice.total_kg, e.ice.total_kg)
+      && close(r.reduction_pct, e.reduction_pct)
+      && close(r.break_even_km, e.break_even_km)
+      && close(r.regulatory.ice_g_per_km, e.regulatory.ice_g_per_km);
+    if (ok) pass++; else { fail++; console.error('Testvektor abweichend:', vec.name, {got: r, expect: e}); }
+  }
+  const badge = $('selftest-badge');
+  if (fail === 0){
+    badge.textContent = `Modell verifiziert ✓ ${pass}/${tv.vectors.length} Testvektoren (Python-Referenz)`;
+    badge.classList.add('ok');
+  } else {
+    badge.textContent = `Selbsttest: ${fail} von ${tv.vectors.length} Vektoren abweichend — Konsole prüfen`;
+    badge.classList.add('fail');
+  }
+  console.log(`[eauto] Selbsttest: ${pass}/${tv.vectors.length} bestanden`);
+}
+
+/* ---------------- Init ---------------- */
+(async function init(){
+  try {
+    const [pf, tv] = await Promise.all([
+      fetch('eauto/data/model_params.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }),
+      fetch('eauto/data/test_vectors.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    ]);
+    PF = pf;
+    $('content').hidden = false;
+    buildSliders(); buildPresets(); buildChips(); fillContext();
+    applyPreset('de_statisch');
+    selfTest(tv);
+  } catch (err){
+    console.error('Daten laden fehlgeschlagen:', err);
+    $('load-hint').style.display = 'block';
+    $('selftest-badge').textContent = 'Daten nicht geladen';
+    $('selftest-badge').classList.add('fail');
+  }
+})();
+</script>
+</body></html>

@@ -1,0 +1,198 @@
+{
+  "meta": {
+    "project": "eauto-klimabilanz",
+    "created": "2026-08-30",
+    "note": "Konsolidierte Parameter für das kleine Lebenszyklus-Modell BEV vs. Verbrenner. Quellen und Herleitung: eauto/research/parameter_quellen.md. Konfidenz A = amtlich/mehrfach belegt, B = seriöse Sekundärquelle, C = Einzelquelle/abgeleitet/Setzung.",
+    "unit_convention": "Emissionen kg CO2e; Strommix g CO2e/kWh; Produktion t CO2e"
+  },
+  "defaults": {
+    "batt_kwh": {
+      "value": 60, "min": 30, "max": 100, "step": 1, "unit": "kWh",
+      "source": "Typische Kompakt-/Mittelklasse-BEV 2024/25 (40–80 kWh)",
+      "confidence": "B",
+      "label": "Batteriekapazität",
+      "note": "Kleinwagen ~35–45 kWh, Kompaktklasse ~55–65 kWh, Oberklasse 90–100+ kWh"
+    },
+    "batt_co2": {
+      "value": 75, "min": 40, "max": 130, "step": 1, "unit": "kg CO₂e/kWh",
+      "source": "Aktuelle Fertigung ~55 kg CO₂e/kWh (P3-Group-Whitepaper 2025); IVL 2019: 61–106; IVL 2017: 150–200; LFP Norwegen 27–64 vs. LFP China 90–127 (Nature Comm. 2024); mit EE-Strom Richtung 20–40",
+      "confidence": "B",
+      "label": "Batterie-Fußabdruck",
+      "note": "Haupthebel: Strommix am Fertigungsstandort und Zellchemie (LFP < NMC)"
+    },
+    "prod_bev_t": {
+      "value": 6.5, "min": 5.0, "max": 8.0, "step": 0.1, "unit": "t CO₂e",
+      "source": "LCA-Spannen Kompaktklasse ohne Batterie (VDI-Ökobilanz 2023 u. a.)",
+      "confidence": "C",
+      "label": "BEV-Produktion ohne Batterie",
+      "note": "Karosserie, Fahrwerk, E-Motor, Elektronik inkl. Vorketten"
+    },
+    "prod_ice_t": {
+      "value": 7.0, "min": 5.5, "max": 8.5, "step": 0.1, "unit": "t CO₂e",
+      "source": "LCA-Spannen Kompaktklasse Verbrenner (VDI-Ökobilanz 2023 u. a.)",
+      "confidence": "C",
+      "label": "Verbrenner-Produktion",
+      "note": "Inkl. Motor und Getriebe; Spannen je nach Segment und Studiengrenze"
+    },
+    "cons_bev": {
+      "value": 18.5, "min": 14.0, "max": 30.0, "step": 0.5, "unit": "kWh/100 km",
+      "source": "ADAC Ecotest: Spanne 15,5–29,7 kWh/100 km inkl. Ladeverluste; Mittelwert abgeleitet",
+      "confidence": "B",
+      "label": "BEV-Verbrauch (real, inkl. Ladeverluste)"
+    },
+    "cons_ice": {
+      "value": 7.9, "min": 5.5, "max": 10.0, "step": 0.1, "unit": "l/100 km",
+      "source": "Spritmonitor: Benziner real ~7,9 l/100 km (Diesel ~6,3)",
+      "confidence": "B",
+      "label": "Verbrenner-Verbrauch (real)"
+    },
+    "fuel_ttw": {
+      "value": 2.37, "min": 2.32, "max": 2.65, "step": 0.01, "unit": "kg CO₂/l",
+      "source": "Benzin E10 Tank-to-Wheel 2,37 kg/l; Diesel 2,65 kg/l (DIN EN 16258 / GLEC)",
+      "confidence": "A",
+      "label": "Kraftstoff Tank-to-Wheel",
+      "note": "Nur direkte Verbrennung — die Größe, die die EU-Flottenregulierung sieht"
+    },
+    "fuel_wtw": {
+      "value": 2.9, "min": 2.75, "max": 3.4, "step": 0.01, "unit": "kg CO₂e/l",
+      "source": "Diesel WTW 3,24 (DIN EN 16258); Benzin WTW abgeleitet ~2,9 (+15–25 % Vorkette auf TTW)",
+      "confidence": "B",
+      "label": "Kraftstoff Well-to-Wheel",
+      "note": "Inklusive Förderung, Raffinerie, Transport"
+    },
+    "strom_start": {
+      "value": 363, "min": 0, "max": 1100, "step": 1, "unit": "g CO₂e/kWh",
+      "source": "UBA: deutscher Strommix 2024 = 363 g/kWh (2025: 344; 2023: 380; 2022: 434)",
+      "confidence": "A",
+      "label": "Strommix zu Beginn der Nutzung"
+    },
+    "strom_ende": {
+      "value": 100, "min": 0, "max": 1100, "step": 1, "unit": "g CO₂e/kWh",
+      "source": "Setzung: deutscher Klimapfad Richtung 2040 (Zielwert, kein Messwert; Projektion 2030 ~113 g/kWh, Einzelquelle)",
+      "confidence": "C",
+      "label": "Strommix am Ende der Nutzung (nur bei Pfad)"
+    },
+    "strom_dynamic": {
+      "value": false, "min": false, "max": true, "unit": "bool",
+      "source": "Modellschalter: statischer Mix vs. linearer Pfad über die Nutzungsdauer",
+      "confidence": "A",
+      "label": "Strommix-Pfad aktiv"
+    },
+    "km_per_year": {
+      "value": 12500, "min": 5000, "max": 30000, "step": 500, "unit": "km/Jahr",
+      "source": "KBA: mittlere Jahresfahrleistung Pkw ~12.300 km (2023)",
+      "confidence": "A",
+      "label": "Jahresfahrleistung"
+    },
+    "years": {
+      "value": 15, "min": 8, "max": 22, "step": 1, "unit": "Jahre",
+      "source": "Mittlere Pkw-Lebensdauer in Deutschland ~15 Jahre; ICCT rechnet EU-weit mit ~20 Jahren",
+      "confidence": "B",
+      "label": "Nutzungsdauer"
+    },
+    "eol_bev_t": {
+      "value": -0.5, "min": -1.5, "max": 0.5, "step": 0.1, "unit": "t CO₂e",
+      "source": "Recycling-Gutschrift/-Belastung Batterie + Fahrzeug — große Spannbreite in der Literatur",
+      "confidence": "C",
+      "label": "End-of-Life BEV (Gutschrift negativ)"
+    },
+    "eol_ice_t": {
+      "value": 0.0, "min": -0.5, "max": 0.5, "step": 0.1, "unit": "t CO₂e",
+      "source": "End-of-Life Verbrenner, Größenordnung klein",
+      "confidence": "C",
+      "label": "End-of-Life Verbrenner"
+    }
+  },
+  "strommix_presets": [
+    { "id": "de2024", "label": "DE 2024", "value": 363, "confidence": "A" },
+    { "id": "de2025", "label": "DE 2025", "value": 344, "confidence": "A" },
+    { "id": "eu", "label": "EU-27 2024", "value": 213, "confidence": "B" },
+    { "id": "oeko", "label": "Wind/PV (LCA)", "value": 25, "confidence": "B" },
+    { "id": "china", "label": "China-Mix", "value": 560, "confidence": "C" },
+    { "id": "kohle", "label": "Steinkohle (LCA)", "value": 950, "confidence": "B" }
+  ],
+  "fuel_presets": [
+    { "id": "benzin", "label": "Benzin (E10)", "fuel_ttw": 2.37, "fuel_wtw": 2.9 },
+    { "id": "diesel", "label": "Diesel", "fuel_ttw": 2.65, "fuel_wtw": 3.24 }
+  ],
+  "presets": [
+    {
+      "id": "de_statisch",
+      "label": "Deutschland heute (statisch)",
+      "desc": "UBA-Strommix 2024 konstant über die gesamte Nutzung — die konservative Sicht.",
+      "overrides": {}
+    },
+    {
+      "id": "de_pfad",
+      "label": "Deutschland mit Strompfad",
+      "desc": "Gleiches Auto, aber der Strommix sinkt über die Nutzungsdauer von 363 auf 80 g/kWh (Klimapfad).",
+      "overrides": { "strom_dynamic": true, "strom_ende": 80 }
+    },
+    {
+      "id": "tum_mittel",
+      "label": "≈ Meta-Analyse-Mittel (TUM)",
+      "desc": "Nachgestellt, nicht die Originalrechnung: statischer, CO₂-intensiverer Mix (~430 g/kWh, global/älterer EU-Mix), Batterie 95 kg CO₂e/kWh, ~150.000 km Lebensfahrleistung. Eine von mehreren Kombinationen, die auf etwa −41 % führen.",
+      "overrides": {
+        "batt_co2": 95, "cons_bev": 20.0, "strom_start": 430,
+        "cons_ice": 7.5, "fuel_wtw": 3.1, "years": 13, "km_per_year": 11500
+      }
+    },
+    {
+      "id": "icct_eu",
+      "label": "≈ ICCT Europa 2025",
+      "desc": "Nachgestellt: dynamischer EU-Mix (240 → 55 g/kWh), aktuelle Batteriefertigung (55 kg CO₂e/kWh), 20 Jahre / ~244.000 km. Landet bei etwa −73 %.",
+      "overrides": {
+        "batt_co2": 55, "cons_bev": 19.0, "cons_ice": 7.0, "fuel_wtw": 3.0,
+        "strom_dynamic": true, "strom_start": 240, "strom_ende": 55,
+        "prod_bev_t": 6.0, "years": 20, "km_per_year": 12200
+      }
+    },
+    {
+      "id": "oekostrom",
+      "label": "100 % Ökostrom",
+      "desc": "Laden ausschließlich mit Wind/PV (25 g/kWh LCA), sonst wie Deutschland heute.",
+      "overrides": { "strom_start": 25 }
+    },
+    {
+      "id": "kohlestrom",
+      "label": "Kohlestrom",
+      "desc": "Extremfall: Laden mit reinem Steinkohlestrom (950 g/kWh) — der Stresstest für das E-Auto.",
+      "overrides": { "strom_start": 950 }
+    }
+  ],
+  "context": {
+    "tum": {
+      "reduction_avg_pct": 41, "n_studies": 19, "n_scenarios": 47,
+      "initiator": "TUM-Präsident Thomas Hofmann",
+      "presented": "Vorstellung Anfang September 2026 in München",
+      "eu_context": "Abstimmung über das EU-Automobil-Paket im November 2026",
+      "source_ids": [1, 2, 3]
+    },
+    "icct": {
+      "reduction_pct": 73, "reduction_re_pct": 78,
+      "bev_g_per_km": 63, "ice_g_per_km": 235,
+      "breakeven_km": 17000, "prod_surplus_pct": 40,
+      "published": "Juli 2025",
+      "source_ids": [4]
+    },
+    "uba_mix": { "2022": 434, "2023": 380, "2024": 363, "2025": 344, "source_ids": [5, 6] },
+    "batt": { "current": 55, "future": 20, "ivl2019": "61–106", "ivl2017": "150–200", "source_ids": [7, 8] }
+  },
+  "sources": [
+    { "id": 1, "label": "BILD (Peter Tiede), 30.08.2026: Vorabbericht zur TUM-Studie („lückenhafte Auspuff-Logik“)", "url": "https://www.bild.de", "accessed": "2026-08-30", "confidence": "B", "note": "Paywall; Kernaussagen über dts-Agenturmeldung mehrfach gespiegelt" },
+    { "id": 2, "label": "dts-Agenturmeldung zur TUM-Studie: Meta-Analyse, 19 Studien / 47 Szenarien, im Mittel −41 %", "url": "https://www.oldenburger-onlinezeitung.de/nachrichten/studie-eu-klimapolitik-bei-autos-basiert-auf-irrtuemlichen-annahmen-227835.html", "accessed": "2026-08-30", "confidence": "B", "note": "Studien-Volltext bei Erstellung noch nicht veröffentlicht" },
+    { "id": 3, "label": "Cleanthinking.de: „Klimaneutrales Elektroauto: Auto-Lüge, die keine ist“ — kritische Einordnung der TUM-Studie", "url": "https://www.cleanthinking.de/klimaneutrales-elektroauto-tum-studie/", "accessed": "2026-08-30", "confidence": "C" },
+    { "id": 4, "label": "ICCT (Juli 2025): Lebenszyklus-Analyse Pkw Europa — BEV −73 % vs. Benziner (63 vs. 235 g CO₂e/km), −78 % bei 100 % EE, Break-even ~17.000 km", "url": "https://theicct.org/wp-content/uploads/2025/07/ICCT-Press-Release-EV-LCA-study-de.pdf", "accessed": "2026-08-30", "confidence": "A" },
+    { "id": 5, "label": "Umweltbundesamt: CO₂-Emissionen pro Kilowattstunde Strom 2024 (363 g/kWh; 2023: 380; 2022: 434)", "url": "https://www.umweltbundesamt.de/themen/co2-emissionen-pro-kilowattstunde-strom-2024", "accessed": "2026-08-30", "confidence": "A" },
+    { "id": 6, "label": "Umweltbundesamt: CO₂-Emissionen pro Kilowattstunde Strom 2025 nur leicht gesunken (344 g/kWh)", "url": "https://www.umweltbundesamt.de/themen/co2-emissionen-pro-kilowattstunde-strom-2025-nur", "accessed": "2026-08-30", "confidence": "A" },
+    { "id": 7, "label": "P3-Group-Whitepaper (2025, via electrive 14.08.2025): Batterieproduktion aktuell ~55 kg CO₂e/kWh, Potenzial ~20", "url": "https://www.electrive.net/2025/08/14/so-viel-co2-stoesst-die-batterieproduktion-wirklich-aus/", "accessed": "2026-08-30", "confidence": "B" },
+    { "id": 8, "label": "Wiss. Dienste des Bundestags (WD 8-165/19) / IVL: Batterieproduktion 61–146 kg CO₂e/kWh (2019), 150–200 (2017)", "url": "https://www.bundestag.de/resource/blob/710958/88d53d0482edb1731594729850ee49e7/WD-8-165-19-pdf-data.pdf", "accessed": "2026-08-30", "confidence": "B" },
+    { "id": 9, "label": "VDI-Ökobilanz für Pkw-Antriebe (2023): Produktions- und Lebenszyklus-Vergleich Kompaktklasse", "url": "https://www.vdi.de/themen/mobilitaet/vdi-oekobilanz-fuer-pkw-antriebe-1", "accessed": "2026-08-30", "confidence": "B" },
+    { "id": 10, "label": "Carwow/EnBW-Aufbereitungen: Produktionsemissionen BEV-Antriebsstrang (Beispiel 82 kWh: 10,12 t, davon Batterie 8,37 t) — Antriebsstrang, nicht Gesamtfahrzeug", "url": "https://www.carwow.de/ratgeber/verkehr/co2-ausstoss-antriebsarten", "accessed": "2026-08-30", "confidence": "C" },
+    { "id": 11, "label": "DIN EN 16258 / GLEC (via Verkehrsrundschau/Linqo): Benzin 2,37 kg CO₂/l TTW, Diesel 2,65; WTW Diesel ~3,24", "url": "https://www.verkehrsrundschau.de/nachrichten/transport-logistik/neue-co2-umrechnungsfaktoren-fuer-transport-und-logistik-3007064", "accessed": "2026-08-30", "confidence": "A" },
+    { "id": 12, "label": "KBA: mittlere Jahresfahrleistung deutscher Pkw (~12.300 km, 2023)", "url": "https://www.kba.de", "accessed": "2026-08-30", "confidence": "A" },
+    { "id": 13, "label": "Quarks: CO₂-Vorkette Kraftstoffe (+0,6–1,7 kg/l Benzin, +0,5–1,5 kg/l Diesel)", "url": "https://www.quarks.de/umwelt/klimawandel/co2-rechner-fuer-auto-flugzeug-und-co/", "accessed": "2026-08-30", "confidence": "C" },
+    { "id": 14, "label": "Stiftung Warentest (2025): E-Auto nach ~2 Jahren mit besserer Ökobilanz als Verbrenner", "url": "https://www.test.de/Elektroauto-versus-Verbrenner-E-Auto-hat-schon-nach-zwei-Jahren-die-bessere-Oekobilanz-6234394-0/", "accessed": "2026-08-30", "confidence": "B" },
+    { "id": 15, "label": "Ember: Stromerzeugungs-Emissionsintensität EU-27 2024 ≈ 213 g CO₂/kWh; China ≈ 560 g/kWh", "url": "https://ember-energy.org/data/electricity-data-explorer/", "accessed": "2026-08-30", "confidence": "B" }
+  ]
+}
