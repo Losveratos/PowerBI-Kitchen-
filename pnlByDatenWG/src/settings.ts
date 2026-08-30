@@ -361,12 +361,26 @@ export class StyleCardSettings extends FormattingSettingsCard {
         value: { value: "#FFFFFF" }
     });
 
+    /**
+     * Selection + native context menu: a click sets the Power BI selection of
+     * the row (cross-filtering, and the drillthrough buttons of the page become
+     * live), a right click opens the host menu with the drillthrough targets.
+     * Off = the pre-0.17 behaviour, a pure display.
+     */
+    interactions = new formattingSettings.ToggleSwitch({
+        name: "interactions",
+        displayName: "Selection & context menu active",
+        displayNameKey: "Style_Interactions",
+        description: "Click sets the page selection (cross-filtering, drillthrough), right click opens the native menu",
+        value: true
+    });
+
     name: string = "style";
     displayName: string = "Style";
     displayNameKey: string = "Card_Style";
     slices = [this.colorMode, this.fontPreset, this.fontZoom, this.headerFontSize, this.headerColor,
         this.goodColor, this.badColor, this.accentColor, this.stickyHeader,
-        this.pageBackground, this.cardBackground, this.density];
+        this.pageBackground, this.cardBackground, this.density, this.interactions];
 }
 
 export class TitleBlockCardSettings extends FormattingSettingsCard {

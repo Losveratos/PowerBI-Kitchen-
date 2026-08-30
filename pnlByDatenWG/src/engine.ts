@@ -38,6 +38,15 @@ export interface InputRow {
     series?: Partial<Record<Scenario, (number | null)[]>>;
     comment: string | null;
     index: number;
+    /**
+     * Every data-view row index this row was built from. A month-grain account
+     * folds twelve source rows into one InputRow — `index` keeps the first one
+     * (sort fallback), `srcIdx` keeps all of them, which is what a Power BI
+     * selection id has to be built over (one id per source row). Generated rows
+     * (synthetic level parents, the orphan bucket) carry none; their selection
+     * is the union of the leaves below them.
+     */
+    srcIdx?: number[];
 }
 
 export interface PnlNode {
@@ -243,10 +252,13 @@ export function aggregateMonthly(
     for (const r of rows) {
         let t = byId.get(r.id);
         if (!t) {
-            t = { ...r, values: {}, series: {} };
+            t = { ...r, values: {}, series: {}, srcIdx: [] };
             delete (t as { month?: string | null }).month;
             byId.set(r.id, t);
         }
+        // every source row of this account stays addressable — the selection id
+        // of a month-grain account is one id per month, not one for the first
+        if (r.index >= 0) { (t.srcIdx as number[]).push(r.index); }
         if (t.comment == null && r.comment != null) { t.comment = r.comment; }
         const mi = r.month != null ? months.indexOf(r.month) : -1;
         for (const s of SCENARIOS) {

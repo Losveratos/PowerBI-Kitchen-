@@ -26,17 +26,61 @@
 <script>
 const Visual = PnlByDatenWG.Visual;
 
-function makeHost(locale) {
+// every selection call of every host mock lands here, in order — the
+// interaction test reads it to see what the visual asked the host to do
+window.__selLog = [];
+window.__selReset = function () { window.__selLog.length = 0; };
+
+// selection manager / id builder mock: an identity carries the category column
+// name and the data-view row index it was built over, so a test can assert
+// "this click selected exactly the twelve month rows of account 402010"
+function makeSelectionMocks() {
   return {
+    createSelectionManager: () => ({
+      select(ids, multi) {
+        const arr = Array.isArray(ids) ? ids : [ids];
+        window.__selLog.push({ call: "select", n: arr.length, multi: !!multi,
+          idx: arr.map(i => i.idx), col: arr.length ? arr[0].col : null });
+        return Promise.resolve(arr);
+      },
+      clear() { window.__selLog.push({ call: "clear" }); return Promise.resolve(); },
+      showContextMenu(id, pos) {
+        window.__selLog.push({ call: "menu", idx: id && id.idx != null ? id.idx : null,
+          x: pos ? pos.x : null, y: pos ? pos.y : null });
+        return Promise.resolve({});
+      },
+      registerOnSelectCallback(cb) { window.__selCb = cb; },
+      hasSelection: () => false,
+      getSelectionIds: () => [],
+    }),
+    createSelectionIdBuilder: () => {
+      const b = { col: null, idx: null };
+      b.withCategory = function (cat, i) {
+        this.col = cat && cat.source ? cat.source.displayName : null;
+        this.idx = i; return this;
+      };
+      b.createSelectionId = function () {
+        return { col: this.col, idx: this.idx, equals: () => false };
+      };
+      return b;
+    },
+  };
+}
+
+function makeHost(locale, opts) {
+  const o = opts || {};
+  const host = {
     locale: locale || "en-US",
     colorPalette: { isHighContrast: false },
     eventService: { renderingStarted(){}, renderingFinished(){}, renderingFailed(o,e){ console.error("renderfail", e); } },
-    createSelectionManager: () => ({ select: () => Promise.resolve([]), clear: () => Promise.resolve(), showContextMenu(){}, registerOnSelectCallback(){}, getSelectionIds: () => [] }),
-    createSelectionIdBuilder: () => ({ withCategory(){ return this; }, createSelectionId(){ return { equals: () => false }; } }),
     tooltipService: { enabled: () => false, show(){}, move(){}, hide(){} },
     createLocalizationManager: () => ({ getDisplayName: () => "" }),
     persistProperties: () => {},
   };
+  // "legacy" reproduces a host that offers no selection manager at all
+  if (!o.legacy) { Object.assign(host, makeSelectionMocks()); }
+  if (o.allowInteractions === false) { host.hostCapabilities = { allowInteractions: false }; }
+  return host;
 }
 
 // dataview from PNL_DEMO.levelRows (engine LevelInputRow shape)

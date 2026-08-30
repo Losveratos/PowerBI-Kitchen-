@@ -24,6 +24,8 @@ import IVisualEventService = powerbi.extensibility.IVisualEventService;
 import DataView = powerbi.DataView;
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
 import DataViewValueColumn = powerbi.DataViewValueColumn;
+import ISelectionManager = powerbi.extensibility.ISelectionManager;
+import ISelectionId = powerbi.extensibility.ISelectionId;
 
 import { VisualFormattingSettingsModel } from "./settings";
 import {
@@ -61,6 +63,16 @@ const TRANSITION = "background-color .12s ease,border-color .12s ease,box-shadow
  * (Create = 0, Append = 1, Segment = 2; no runtime object exists).
  */
 const OP_APPEND = 1;
+
+/**
+ * Ceiling of source rows one selection may carry. A selection id is built per
+ * data-view row (withCategory + row index), so a subtotal over 5.000 accounts
+ * × 12 months would ask the host to swallow 60.000 identities on a single
+ * click. The union is cut off here; the title tooltip of the affected control
+ * says so, and cross-filtering still works — it just filters the first
+ * SEL_MAX_ROWS source rows of that node.
+ */
+const SEL_MAX_ROWS = 2000;
 
 /**
  * Ceiling of the type scale: the size preset (HD 1 · Full HD 1.25 · UHD 1.6)
@@ -454,9 +466,45 @@ export class Visual implements IVisual {
     private static instances = 0;
     private uid = "t" + (++Visual.instances).toString(36);
 
+    // --- selection · cross-filtering · context menu (v0.17) ---
+    /**
+     * null when the host does not offer one (older shims, test harnesses) —
+     * every call site guards on it, the visual stays a pure display then.
+     */
+    private selectionManager: ISelectionManager | null = null;
+    /**
+     * The categorical column the selection ids are built over: the bound
+     * account column, else the first level column. It is the ORIGINAL object
+     * out of the data view — the host matches identities by reference.
+     */
+    private selCat: DataViewCategoryColumn | null = null;
+    /** row id of the node whose selection is currently set (visual feedback) */
+    private selKey: string | null = null;
+    /** memoized source-row indices per row id (cleared with the model) */
+    private selIdxCache = new Map<string, number[]>();
+    /** memoized selection ids per row id (cleared with the model) */
+    private selIdCache = new Map<string, ISelectionId[]>();
+    /** memoized row resolver of the current model (see resolver) */
+    private resolveFn: ((id: string) => PnlNode | undefined) | null = null;
+    private resolveVer = -1;
+
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
         this.events = options.host.eventService;
+        // defensive: a host without a selection manager (old test shims) simply
+        // gets the pre-0.17 behaviour — no selection, no context menu, no button
+        if (typeof options.host.createSelectionManager === "function") {
+            this.selectionManager = options.host.createSelectionManager();
+            if (typeof this.selectionManager?.registerOnSelectCallback === "function") {
+                // bookmark / "selected by another visual" restores: the host owns
+                // the truth, the visual only drops its own highlight when the
+                // restored set no longer matches the row it had marked
+                this.selectionManager.registerOnSelectCallback((ids: ISelectionId[]) => {
+                    const n = ids == null ? 0 : ids.length;
+                    if (n === 0 && this.selKey != null) { this.selKey = null; this.rerender(); }
+                });
+            }
+        }
         this.formattingSettingsService = new FormattingSettingsService();
         this.locale = options.host.locale || "en-US";
         this.root = document.createElement("div");
@@ -465,6 +513,10 @@ export class Visual implements IVisual {
             `width:100%;height:100%;overflow:auto;background:#FFF;font-family:${FONT};` +
             `color:${C.text};box-sizing:border-box;position:relative;`;
         this.root.addEventListener("scroll", () => this.onScroll());
+        // empty ground: a click that no row claimed drops the selection, a
+        // right-click that no row claimed still opens the page context menu
+        this.root.addEventListener("click", () => this.clearSelection());
+        this.root.addEventListener("contextmenu", (e: MouseEvent) => this.showMenu(null, e));
         options.element.appendChild(this.root);
     }
 
@@ -502,7 +554,9 @@ export class Visual implements IVisual {
                 this.modelVer++;
                 this.scanCache = null;
                 this.geoCache = null;
+                this.resetSelection();
             }
+            this.syncSelectionColumn(dataView);
             this.buildStatusWarnings();
             this.syncUiState(dataView);
             this.render();
@@ -719,6 +773,230 @@ export class Visual implements IVisual {
         }
         const agg = aggregateMonthly(raw, sortMode);
         return { rows: agg.rows, months: agg.months, rowCount: n, has };
+    }
+
+    // ---------------- selection · cross-filtering · context menu ----------------
+
+    /**
+     * The column every selection id of this render is built over: the bound
+     * account key, else the first level column. The host compares identities by
+     * object reference, so the column has to come out of the CURRENT data view —
+     * a new update delivers new column objects and invalidates the id cache.
+     */
+    private syncSelectionColumn(dataView: DataView): void {
+        const cats = dataView.categorical?.categories;
+        let next: DataViewCategoryColumn | null = null;
+        if (cats && cats.length > 0) {
+            next = cats.find(c => c.source.roles && c.source.roles["account"])
+                ?? cats.find(c => c.source.roles && c.source.roles["levels"])
+                ?? null;
+        }
+        if (next !== this.selCat) { this.selIdCache.clear(); }
+        this.selCat = next;
+    }
+
+    /** everything selection-related is dropped with the model it belonged to */
+    private resetSelection(): void {
+        this.selIdxCache.clear();
+        this.selIdCache.clear();
+        this.selKey = null;
+        this.resolveFn = null;
+    }
+
+    /** memoized row resolver (id / unique name → node) for the current model */
+    private resolver(): (id: string) => PnlNode | undefined {
+        if (this.resolveFn == null || this.resolveVer !== this.modelVer) {
+            this.resolveFn = this.treeResolver();
+            this.resolveVer = this.modelVer;
+        }
+        return this.resolveFn;
+    }
+
+    /**
+     * Whether this render reacts to clicks at all: the format-pane switch, a
+     * host that offers a selection manager, and a host that allows interactions
+     * (a static export / e-mail subscription sets allowInteractions = false).
+     */
+    private interactive(): boolean {
+        if (this.selectionManager == null) { return false; }
+        if (typeof this.host.createSelectionIdBuilder !== "function") { return false; }
+        if (this.settings?.styleCard?.interactions?.value === false) { return false; }
+        return this.host.hostCapabilities?.allowInteractions !== false;
+    }
+
+    /**
+     * Data-view row indices behind one node, in reading order and capped at
+     * SEL_MAX_ROWS:
+     *  - leaf account → its own source rows (all months)
+     *  - subtotal / generated level node / virtual total → union of the leaves
+     *  - formula / KPI row → union of the leaves of its operands
+     * Rows reached twice (a diamond in the formula graph) count once.
+     */
+    private nodeIndices(node: PnlNode): number[] {
+        const cached = this.selIdxCache.get(node.row.id);
+        if (cached) { return cached; }
+        const out: number[] = [];
+        const seenIdx = new Set<number>();
+        const seenNode = new Set<string>();
+        const add = (i: number): boolean => {
+            if (!seenIdx.has(i)) { seenIdx.add(i); out.push(i); }
+            return out.length < SEL_MAX_ROWS;
+        };
+        const walk = (n: PnlNode): boolean => {
+            if (seenNode.has(n.row.id)) { return true; }
+            seenNode.add(n.row.id);
+            for (const i of n.row.srcIdx ?? []) { if (!add(i)) { return false; } }
+            const t = n.row.rowType;
+            if (t === "formula" || t === "kpi") {
+                // the resolver is only built where a formula actually needs it —
+                // a plain account table never pays for it
+                for (const o of formulaOperands(n, this.resolver())) {
+                    if (!walk(o.child)) { return false; }
+                }
+            }
+            // the virtual total root carries the model roots as its children
+            // (see engine.syntheticTotal), so this walk covers it too
+            for (const c of n.children) {
+                if (c.row.rowType === "separator") { continue; }
+                if (!walk(c)) { return false; }
+            }
+            return true;
+        };
+        walk(node);
+        this.selIdxCache.set(node.row.id, out);
+        return out;
+    }
+
+    /** Power BI selection ids of one node — one id per source row (memoized). */
+    private selIdsFor(node: PnlNode): ISelectionId[] {
+        if (this.selectionManager == null || this.selCat == null) { return []; }
+        const cached = this.selIdCache.get(node.row.id);
+        if (cached) { return cached; }
+        const cat = this.selCat;
+        const ids: ISelectionId[] = [];
+        if (typeof this.host.createSelectionIdBuilder === "function") {
+            for (const i of this.nodeIndices(node)) {
+                const b = this.host.createSelectionIdBuilder();
+                if (b == null || typeof b.withCategory !== "function") { break; }
+                ids.push(b.withCategory(cat, i).createSelectionId());
+            }
+        }
+        this.selIdCache.set(node.row.id, ids);
+        return ids;
+    }
+
+    /**
+     * True when this node can be selected at all (button / handler visibility).
+     * Deliberately asks the cheap index map, never the id builder — a rendered
+     * table asks this once per row, building ids there would cost thousands of
+     * identities nobody clicks.
+     */
+    private selectable(node: PnlNode): boolean {
+        if (!this.interactive() || this.selCat == null) { return false; }
+        return this.nodeIndices(node).length > 0;
+    }
+
+    private isSelected(node: PnlNode): boolean {
+        return this.selKey === node.row.id;
+    }
+
+    /** the tooltip suffix that names the performance cap, when it bites */
+    private selCapNote(node: PnlNode): string {
+        if (this.nodeIndices(node).length < SEL_MAX_ROWS) { return ""; }
+        return " · " + this.str(
+            `selection limited to the first ${SEL_MAX_ROWS} source rows`,
+            `Selektion auf die ersten ${SEL_MAX_ROWS} Quellzeilen begrenzt`);
+    }
+
+    /**
+     * Left click: set the page selection of this node (cross-filtering, and the
+     * native drillthrough buttons of the page become live). A second click on
+     * the same row drops it again; Ctrl/Cmd adds to the current selection, the
+     * way every other Power BI visual behaves.
+     */
+    private selectNode(node: PnlNode, e: MouseEvent): void {
+        if (!this.interactive()) { return; }
+        e.stopPropagation();
+        const sm = this.selectionManager!;
+        if (this.isSelected(node)) { this.selKey = null; sm.clear(); this.rerender(); return; }
+        const ids = this.selIdsFor(node);
+        if (ids.length === 0) { return; }
+        this.selKey = node.row.id;
+        sm.select(ids, e.ctrlKey || e.metaKey);
+        this.rerender();
+    }
+
+    private clearSelection(): void {
+        if (!this.interactive() || this.selKey == null) { return; }
+        this.selKey = null;
+        this.selectionManager!.clear();
+        this.rerender();
+    }
+
+    /**
+     * Right click: the native Power BI context menu at the pointer — the host
+     * hangs the drillthrough targets of the page in there itself. Without a
+     * node (empty ground) the menu opens without a selection context.
+     */
+    private showMenu(node: PnlNode | null, e: MouseEvent): void {
+        if (!this.interactive()) { return; }
+        e.preventDefault();
+        e.stopPropagation();
+        const ids = node == null ? [] : this.selIdsFor(node);
+        this.selectionManager!.showContextMenu(
+            ids.length > 0 ? ids[0] : ({} as ISelectionId),
+            { x: e.clientX, y: e.clientY });
+    }
+
+    /**
+     * One node, one element: right click always opens the context menu, left
+     * click sets the selection only where it does not collide with a control
+     * that already owns the click (tree cards zoom, chevrons fold).
+     */
+    private bindSelect(el: HTMLElement | SVGElement, node: PnlNode, leftClick: boolean): void {
+        if (!this.interactive()) { return; }
+        el.addEventListener("contextmenu", (e: Event) => this.showMenu(node, e as MouseEvent));
+        if (!leftClick) { return; }
+        el.addEventListener("click", (e: Event) => this.selectNode(node, e as MouseEvent));
+    }
+
+    /**
+     * "↗ Drill" in the head of the tile view — one click sets the selection of
+     * the zoomed node AND opens the context menu right under the button, so the
+     * drillthrough targets of the page are one gesture away. Outlined in the
+     * accent colour: present next to the filled back button, never louder.
+     */
+    private zoomDrillBtn(node: PnlNode): HTMLElement | null {
+        if (!this.selectable(node)) { return null; }
+        const acc = this.accent();
+        const b = document.createElement("button");
+        b.setAttribute("data-pnl", "zoom-drill");
+        b.textContent = this.str("↗ Drill", "↗ Drill");
+        b.title = this.str(
+            "Set the selection of this card and open the drillthrough targets",
+            "Selektion dieser Karte setzen und Drillthrough-Ziele öffnen") + this.selCapNote(node);
+        b.style.cssText = `font-family:${FONT};font-size:${this.kpx(13)};font-weight:600;line-height:1.3;` +
+            `padding:${this.kpx(8)} ${this.kpx(16)};cursor:pointer;border-radius:6px;border:1px solid ${acc};` +
+            `background:#FFF;color:${acc};transition:${TRANSITION};box-shadow:${SHADOW};`;
+        b.onmouseenter = (): void => {
+            b.style.background = this.accentSoft(0.10);
+            b.style.boxShadow = SHADOW_HOVER;
+        };
+        b.onmouseleave = (): void => { b.style.background = "#FFF"; b.style.boxShadow = SHADOW; };
+        b.oncontextmenu = (e: MouseEvent): void => this.showMenu(node, e);
+        b.onclick = (e: MouseEvent): void => {
+            e.stopPropagation();
+            const sm = this.selectionManager!;
+            const ids = this.selIdsFor(node);
+            if (ids.length === 0) { return; }
+            this.selKey = node.row.id;
+            sm.select(ids);
+            // the menu opens at the button, not at the pointer — the reader
+            // knows where the list will appear before clicking
+            const r = b.getBoundingClientRect();
+            sm.showContextMenu(ids[0], { x: Math.round(r.left), y: Math.round(r.bottom) });
+        };
+        return b;
     }
 
     // ---------------- ui state ----------------
@@ -1118,6 +1396,9 @@ export class Visual implements IVisual {
     private render(): void {
         const model = this.model; const ui = this.ui;
         if (!model || !ui) { return; }
+        // interactions switched off (format pane, host, or a host without a
+        // selection manager): no element may keep a selection marker
+        if (!this.interactive()) { this.selKey = null; }
         const keepScroll = this.root.scrollTop;
         this.treeZoomHide();
         this.floatHeadEl = null;
@@ -2315,6 +2596,20 @@ export class Visual implements IVisual {
         }
         row.appendChild(name);
 
+        // selection: the value / chart cells carry the click (the name cell keeps
+        // the chevron, the 12M chip keeps its own), the whole row carries the
+        // right click — so the native context menu is reachable everywhere
+        const canSelect = this.selectable(node);
+        if (canSelect) {
+            this.bindSelect(row, node, false);
+            row.setAttribute("data-pnl-row", node.row.id);
+            const cap = this.selCapNote(node);
+            if (cap !== "") { row.title = this.str("Selection", "Selektion") + cap; }
+        }
+        const selected = canSelect && this.isSelected(node);
+        if (selected) { row.setAttribute("data-pnl-sel", "1"); }
+        const accent = this.accent();
+
         const lineTop = isSum && !isRatio;
         for (const c of cols) {
             if (c.kind === "gap") { row.appendChild(this.cell(geo.gapW, "center", geo.fs)); continue; }
@@ -2355,7 +2650,25 @@ export class Visual implements IVisual {
                 if (lineTop) { cell.style.borderTop = `1px solid ${C.line}`; }
             }
             if (lineTop && (c.kind === "val" || c.kind === "pct")) { cell.style.borderTop = `1px solid ${C.line}`; }
+            if (canSelect) {
+                cell.style.cursor = "pointer";
+                this.bindSelect(cell, node, true);
+            }
             row.appendChild(cell);
+        }
+        // feedback of the set selection: a pale accent wash plus an accent
+        // underline along the row. The wash is what separates it from the 1 px
+        // sum rules that sit on TOP of a subtotal row. The other rows keep their
+        // look — dimming a whole statement to mark one line would make the page
+        // restless and would touch the IBCS data ink
+        if (selected) {
+            const wash = this.accentSoft(0.94);
+            const kids = row.children;
+            for (let i = 0; i < kids.length; i++) {
+                const cell = kids[i] as HTMLElement;
+                cell.style.background = wash;
+                cell.style.boxShadow = `inset 0 -2px 0 ${accent}`;
+            }
         }
         return row;
     }
@@ -3770,13 +4083,15 @@ export class Visual implements IVisual {
         box.setAttribute("stroke", C.cardEdge); box.setAttribute("stroke-width", "1");
         box.setAttribute("shape-rendering", "crispEdges");
         g.appendChild(box);
-        // hover: the edge darkens, the shadow gains a touch — nothing moves
+        // hover: the edge darkens, the shadow gains a touch — nothing moves.
+        // A card that carries the current selection keeps its accent edge.
+        const selCard = this.isSelected(card.node) && this.selectable(card.node);
         g.addEventListener("mouseenter", () => {
-            box.setAttribute("stroke", C.cardEdgeHover);
+            if (!selCard) { box.setAttribute("stroke", C.cardEdgeHover); }
             shade.setAttribute("stroke", "rgba(15,30,46,.10)");
         });
         g.addEventListener("mouseleave", () => {
-            box.setAttribute("stroke", C.cardEdge);
+            if (!selCard) { box.setAttribute("stroke", C.cardEdge); }
             shade.setAttribute("stroke", "rgba(15,30,46,.06)");
         });
 
@@ -4048,6 +4363,19 @@ export class Visual implements IVisual {
             g.appendChild(hit); g.appendChild(ch);
         }
 
+        // selection: the left click of a tree card already belongs to the tile
+        // view, so a card only carries the RIGHT click (native context menu).
+        // A selected card wears the accent on its edge — the data ink is IBCS
+        // and stays untouched.
+        if (this.selectable(card.node)) {
+            this.bindSelect(g, card.node, false);
+            if (selCard) {
+                box.setAttribute("stroke", this.accent());
+                box.setAttribute("stroke-width", "2");
+                g.setAttribute("data-pnl-sel", "1");
+            }
+        }
+
         // hover zoom: after a short dwell the card opens its IBCS detail view
         this.treeHoverZoom(g, card.node, geo.fmt);
         return g;
@@ -4152,6 +4480,10 @@ export class Visual implements IVisual {
             `padding:${this.kpx(8)} 0;margin:0 0 8px 0;background:${this.pageBg()};` +
             (this.sticky() ? "position:sticky;top:0;z-index:20;" : "");
         head.appendChild(this.zoomBackBtn(() => { ui.treeZoom = null; }));
+        // one gesture to the drillthrough targets of the page — only when the
+        // host allows interactions and this card actually has a selection
+        const drill = this.zoomDrillBtn(node);
+        if (drill) { head.appendChild(drill); }
         const path = this.treeZoomPath(ctx, node);
         if (path.length > 1) {
             const crumbs = this.treeBreadcrumb(path, (n) => { ui.treeZoom = n.row.id; },
@@ -4203,6 +4535,8 @@ export class Visual implements IVisual {
             `border:1px solid ${C.cardEdge};border-radius:6px;box-shadow:${SHADOW};` +
             (edge ? `border-left:3px solid ${edge};` : "") +
             `padding:${this.kpx(16)} ${this.kpx(16)} ${this.kpx(12)} ${this.kpx(16)};`;
+        // right click anywhere on the tile opens the native menu of this row
+        this.bindSelect(tile, node, false);
         const inner = Math.max(w - 2 * this.k(16) - 2, 260);
         const head = document.createElement("div");
         head.style.cssText = `display:flex;align-items:baseline;gap:${this.kpx(8)};margin:0 0 2px 0;`;
@@ -4212,6 +4546,18 @@ export class Visual implements IVisual {
             "line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
         const cno = this.commentNo.get(node.row.id);
         nm.textContent = node.row.name + (cno != null ? " " + String.fromCharCode(0x2460 + cno - 1) : "");
+        // the tile head is the one left-click selection target of the tile page —
+        // the charts below it stay reading surface, not controls
+        if (this.selectable(node)) {
+            nm.style.cursor = "pointer";
+            nm.title = this.str("Set the page selection to this row",
+                "Seiten-Selektion auf diese Zeile setzen") + this.selCapNote(node);
+            this.bindSelect(nm, node, true);
+            if (this.isSelected(node)) {
+                nm.setAttribute("data-pnl-sel", "1");
+                nm.style.boxShadow = `inset 0 -2px 0 ${this.accent()}`;
+            }
+        }
         head.appendChild(nm);
         const un = document.createElement("div");
         un.style.cssText = `font-size:${this.kpx(10)};color:${C.soft};white-space:nowrap;`;
@@ -4459,8 +4805,10 @@ export class Visual implements IVisual {
             card.style.borderBottomColor = c;
             if (!edge) { card.style.borderLeftColor = c; }
         };
+        const selMicro = this.isSelected(node) && this.selectable(node);
+        const rest = selMicro ? `0 0 0 2px ${this.accent()}` : SHADOW;
         card.onmouseenter = (): void => { sides(C.cardEdgeHover); card.style.boxShadow = SHADOW_HOVER; };
-        card.onmouseleave = (): void => { sides(C.cardEdge); card.style.boxShadow = SHADOW; };
+        card.onmouseleave = (): void => { sides(C.cardEdge); card.style.boxShadow = rest; };
 
         const head = document.createElement("div");
         head.style.cssText = `display:flex;gap:${this.kpx(5)};align-items:baseline;`;
@@ -4506,6 +4854,11 @@ export class Visual implements IVisual {
             ui.treeZoom = node.row.id;
             this.persistUi(); this.rerender();
         };
+        // left click zooms (as before) — the right click opens the native menu
+        if (this.selectable(node)) {
+            this.bindSelect(card, node, false);
+            if (selMicro) { card.setAttribute("data-pnl-sel", "1"); card.style.boxShadow = rest; }
+        }
         this.treeHoverZoom(card, node, fmt);
         return card;
     }
@@ -5039,7 +5392,12 @@ export class Visual implements IVisual {
             + "hovering a card zooms into its IBCS detail view, clicking its chart opens the tile view.",
             "Werttreiberbaum — ▾ klappt einen Knoten auf und zu (Shift: ganzer Ast), ⌖ macht eine Karte zur "
             + "Wurzel, Hover über einer Karte öffnet die IBCS-Detailansicht, ein Klick auf ihr Diagramm die "
-            + "Kachel-Ansicht.");
+            + "Kachel-Ansicht.")
+            + (this.interactive() ? this.str(
+                " Right-click a card for the context menu (drillthrough); in the tile view “↗ Drill” sets the "
+                + "selection and opens the targets.",
+                " Rechtsklick auf eine Karte öffnet das Kontextmenü (Drillthrough); in der Kachel-Ansicht "
+                + "setzt „↗ Drill“ die Selektion und öffnet die Ziele.") : "");
         wrap.appendChild(note);
 
         const ns = "http://www.w3.org/2000/svg";

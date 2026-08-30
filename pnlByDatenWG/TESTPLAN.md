@@ -147,6 +147,66 @@ Alle Monate ausgewählt (kein Filter):
 - [ ] **Spalten → Umsatz-Basiszeile**: leer = „Net revenue" automatisch;
   Test: `EBITDA` eintragen → %Rev-Spalte rechnet auf EBITDA-Basis
 
+## 6a · Drillthrough einrichten (v0.17)
+
+Ab 0.17 setzt ein Klick im Visual die **Power-BI-Selektion** — damit filtert es
+die übrige Seite (Cross-Filtering) und die **nativen Drillthrough-Schaltflächen**
+der Seite werden scharf. Der Rechtsklick öffnet das **native Kontextmenü**, in
+das Power BI die Drillthrough-Ziele selbst einhängt.
+
+### Zielseite anlegen
+
+1. Neue Berichtsseite anlegen, z. B. `Konto-Detail`.
+2. Im Bereich **Visualisierungen → Seite auf Detailsuche filtern** (Drillthrough)
+   das Feld einziehen, das im Visual als **Konto-ID (Key)** gebunden ist —
+   im Pharma-Demo `pharma-dim-konten[AccountID]`.
+   > Wichtig: **dieselbe Spalte** wie im Visual. Ist keine Konto-ID gebunden,
+   > baut das Visual seine Selektion über die **erste Ebenen-Spalte** (`L1`) —
+   > dann muss auch das Drillthrough-Feld `L1` sein. Eine Produktlinien- oder
+   > Segment-Spalte funktioniert genauso, solange sie im Visual gebunden ist.
+3. Auf der Zielseite die Detail-Visuals platzieren (Tabelle je Monat,
+   Trend, Kommentare …).
+4. Optional „Alle Filter beibehalten" einschalten, damit der Monats-Slicer
+   der Quellseite mitkommt.
+
+### Nativen Drillthrough-Button auf der Quellseite
+
+1. **Einfügen → Schaltflächen → Leer** (oder eine beliebige Form).
+2. Format-Bereich der Schaltfläche → **Aktion → Ein**, **Typ = Detailsuche
+   (Drillthrough)**, **Ziel = Konto-Detail**.
+3. Beschriftung z. B. „Details zum markierten Konto".
+   Der Button ist grau, solange nichts selektiert ist, und wird aktiv, sobald
+   im Visual eine Zeile/Karte angeklickt wurde.
+
+### Abnahme-Checks
+
+- [ ] **Linksklick** auf eine **Wertspalte** (nicht auf den Namen, nicht auf das
+  Chevron, nicht auf den 12M-Chip) einer Konto-Zeile: die Zeile bekommt einen
+  hellen Akzent-Streifen mit Unterstrich, andere Visuals der Seite filtern mit,
+  die Drillthrough-Schaltfläche wird aktiv
+- [ ] **Zweiter Klick** auf dieselbe Zeile hebt die Selektion auf; ein Klick auf
+  freie Fläche im Visual ebenfalls
+- [ ] **Subtotal-Zeile** (z. B. `Net revenue`) klicken: es werden **alle**
+  Quellzeilen der Blätter darunter selektiert (alle Konten × alle Monate)
+- [ ] **Formel-Zeile** (z. B. `EBITDA`) klicken: die Blätter der Operanden
+  werden selektiert
+- [ ] **Rechtsklick** auf eine Zeile / eine Baum-Karte / eine Mikro-Karte /
+  die Kachel: das **native** Power-BI-Kontextmenü öffnet sich, die
+  Drillthrough-Ziele stehen darin
+- [ ] **Kachel-Ansicht** (Baum → Klick auf ein Karten-Diagramm): neben
+  „← Zurück zum Baum" steht **„↗ Drill"**. Ein Klick setzt die Selektion des
+  gezoomten Knotens **und** öffnet direkt darunter das Kontextmenü mit den
+  Drillthrough-Zielen
+- [ ] **Baum-Karten**: der Linksklick öffnet weiterhin die Kachel-Ansicht
+  (Belegung steht in der Hinweiszeile über dem Baum), nur der Rechtsklick
+  selektiert/öffnet das Menü
+- [ ] **Stil → „Selektion & Kontextmenü aktiv" = Aus**: keinerlei Selektion,
+  kein Kontextmenü, kein „↗ Drill"-Button — der Stand vor 0.17
+- [ ] **Lesezeichen**: ein Lesezeichen ohne Selektion zurückholen löscht auch
+  die optische Markierung im Visual
+- [ ] Sehr große Knoten (> 2.000 Quellzeilen): der Tooltip der Zeile sagt, dass
+  die Selektion auf die ersten 2.000 Quellzeilen begrenzt ist
+
 ## 7 · Speichern für die Automatisierung (wichtig!)
 
 1. **Datei → Speichern unter → Power BI Projekt (.pbip)** in deinen

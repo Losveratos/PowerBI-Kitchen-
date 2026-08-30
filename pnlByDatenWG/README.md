@@ -22,6 +22,8 @@ Toolbar-Zustände sind bookmark-fähig persistiert.
 | F4 | Szenarien AC / PY / PL / FC als Measure-Slots (Datenvertrag Variante A); Δ und Δ% gegen wählbare Referenz (Auto/PY/PL/FC), zweites Δ% parallel zuschaltbar |
 | F7 | Expand/Collapse je Zeile + Ebenen-Buttons (1·2·3·alle); Zustand wird via `persistProperties` gehalten (bookmark-fähig) und übersteht Cross-Filter |
 | F9 | Skalierung Auto/k/m, Dezimalstellen, 3-zeiliger IBCS-Titelblock mit optionaler Message-Zeile |
+| F11 | Selektion & Cross-Filtering: Linksklick auf eine Wertspalte (bzw. den Kachel-Kopf) setzt die Power-BI-Selektion der Zeile — inkl. aller Quellzeilen eines Kontos; Subtotals und Formelzeilen selektieren die Blätter darunter |
+| F12 | Natives Kontextmenü per Rechtsklick auf jede Zeile und jede Karte — Power BI hängt die **Drillthrough-Ziele** der Seite selbst ein; in der Kachel-Ansicht erledigt der Knopf „↗ Drill“ Selektion und Menü in einem Griff. Abschaltbar über Stil → „Selektion & Kontextmenü aktiv“ |
 
 IBCS-Notation: AC solide `#404040`, PY grau, PL weiß mit Rahmen, FC schraffiert;
 Abweichungen grün `#8CB400` / rot `#FF2600`, Labels außerhalb mit explizitem `+`;
@@ -69,7 +71,7 @@ RLS-beschnittenen Daten).
 npm install
 npm run test:engine   # Unit-Tests des Rechenkerns (Hierarchie, Formeln, Vorzeichen)
 npm run test:render   # Headless-Render aller Testfälle -> test/render.png
-npm run test:tree     # Interaktionstest des Treiberbaums (Chevrons, Drill, ⌖)
+npm run test:tree     # Interaktionstest: Baum (Chevrons, Drill, ⌖) + Selektion/Kontextmenü
 npm run lint
 npm run package       # baut dist/*.pbiviz
 ```
@@ -82,7 +84,7 @@ Vertrauens-Killer (Anforderungsdok. Kap. 10).
 
 - v1.0: Spalten-Presets (F6), mehrere Referenzen parallel voll (F5), gemischte
   Einheiten (F8), Nullzeilen-Unterdrückung (F10), A11y, Zertifizierung
-- v1.x: GuV-Wasserfall, Common-Size-Spalte, Kommentare, Drillthrough, Top-N
+- v1.x: Common-Size-Spalte, Top-N (Wasserfall, Kommentare und Drillthrough sind seit 0.14 / 0.17 drin)
 - Offen: `fetchMoreData`-Strategie für Kontenpläne > 30 k Datenpunkte,
   Virtual Scrolling für > 2 000 Zeilen, eigenes Icon (aktuell Platzhalter)
 

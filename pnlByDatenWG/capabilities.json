@@ -628,6 +628,11 @@
                             }
                         }
                     }
+                },
+                "interactions": {
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },
@@ -685,6 +690,7 @@
         }
     },
     "supportsHighlight": false,
+    "supportsMultiVisualSelection": true,
     "supportsLandingPage": true,
     "supportsEmptyDataView": true,
     "sorting": {

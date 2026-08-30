@@ -1,5 +1,121 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.17.0.0 (2026-08-26) — Selektion, Cross-Filtering und natives Kontextmenü: das Statement wird zum Einstieg in den Drillthrough
+
+Bisher war das Visual eine reine Lesefläche: es zeigte die GuV, filterte aber
+nichts und beantwortete keinen Rechtsklick. Wer aus einer auffälligen Zeile in
+die Belegdetails wollte, musste die Kontonummer ablesen und auf einer anderen
+Seite von Hand filtern. 0.17 schließt diese Lücke — mit den Bordmitteln, die
+Power BI dafür vorsieht, ohne eigene Filterlogik.
+
+### Was jetzt geht
+
+- **Linksklick auf eine Wertspalte** einer Tabellen-, Balken- oder
+  Waterfall-Zeile setzt die **Power-BI-Selektion** dieser Zeile. Damit filtert
+  das Visual die übrige Berichtsseite (Cross-Filtering) — und die **nativen
+  Drillthrough-Schaltflächen** der Seite werden mit genau diesem Kontext scharf.
+  Ein zweiter Klick auf dieselbe Zeile hebt die Selektion wieder auf, ein Klick
+  auf freie Fläche ebenfalls.
+- **Rechtsklick** auf eine Zeile, eine Baum-Karte, eine Mikro-Karte oder die
+  große Kachel öffnet das **native Kontextmenü** des Hosts an der Zeigerposition.
+  Power BI hängt dort selbst die Drillthrough-Ziele der Seite an — das Visual
+  baut kein eigenes Menü und pflegt keine eigene Zielliste.
+- **„↗ Drill" in der Kachel-Ansicht**: neben „← Zurück zum Baum" steht ein
+  zweiter Knopf in derselben Formensprache, akzentfarben umrandet statt gefüllt.
+  Ein Klick setzt die Selektion des gezoomten Knotens **und** öffnet direkt
+  unter dem Knopf das Kontextmenü — ein Griff, die Ziele stehen sichtbar da.
+  Der Knopf erscheint nur, wenn Interaktionen erlaubt sind und der Knoten
+  wirklich eine Selektion hat.
+- **Die Belegung der Maus bleibt kollisionsfrei.** Der Linksklick einer
+  Baum-Karte gehört weiter der Kachel-Ansicht, das Chevron klappt weiter auf und
+  zu, der 12M-Chip schaltet weiter die Sparkline, der Name klappt weiter die
+  Hierarchie — selektiert wird über die **Wert- und Diagrammspalten** der
+  Tabellenansichten und über den **Kopf der Kachel**. Der Rechtsklick liegt
+  überall. Die Hinweiszeile über dem Baum sagt das jetzt auch.
+
+### Wie die Selektion gebaut wird
+
+- Eine Power-BI-Selektions-ID gehört zu **einer Quellzeile des DataViews**. Bei
+  Monats-Granularität steht ein Konto aber für zwölf Quellzeilen. Das Visual
+  merkt sich deshalb beim Einlesen **alle** Zeilenindizes je Konto
+  (`InputRow.srcIdx`) und selektiert das ganze Bündel auf einmal.
+- Für einen **Subtotal**, einen generierten Ebenen-Knoten oder die virtuelle
+  Gesamt-Wurzel ist die Selektion die **Vereinigung aller Blätter darunter**;
+  für eine **Formel-/KPI-Zeile** die Vereinigung der Blätter ihrer Operanden
+  (über den Formelgraphen, Diamanten zählen einmal). Findet sich nichts, gibt es
+  keine Selektion — dann bietet das Visual dort auch nichts an.
+- Gebaut wird über die **Konto-Spalte**, sofern gebunden, sonst über die erste
+  **Ebenen-Spalte** — immer über das Original-Spaltenobjekt aus dem aktuellen
+  DataView, weil der Host Identitäten über die Referenz vergleicht.
+- **Performance-Deckel bei 2.000 Quellzeilen** je Knoten (`SEL_MAX_ROWS`):
+  ein Segment über 5.000 Konten × 12 Monate wären 60.000 Identitäten auf einen
+  Klick. Wo der Deckel greift, sagt es der Tooltip der Zeile bzw. des Knopfes.
+  Gebaut werden die IDs außerdem **erst beim Klick**, nie beim Rendern — die
+  Tabelle fragt pro Zeile nur die (billige) Indexliste ab.
+
+### Rückmeldung an den Leser
+
+- Die selektierte **Zeile** bekommt einen blassen Akzent-Waschton plus einen
+  2 px starken Akzent-Unterstrich; der Waschton unterscheidet sie eindeutig von
+  den 1 px Summenstrichen, die über einer Subtotal-Zeile sitzen.
+- Die selektierte **Baum-Karte** bekommt eine 2 px starke Akzent-Kante, die
+  **Mikro-Karte** einen Akzent-Ring, der **Kachel-Kopf** einen Unterstrich.
+- **Andere Zeilen werden nicht abgedunkelt.** Ein halbtransparentes Statement
+  wäre unruhig und würde die IBCS-Datenfarben verfälschen — die Markierung sitzt
+  ausschließlich auf dem gewählten Element.
+- `registerOnSelectCallback`: holt ein Lesezeichen einen Zustand **ohne**
+  Selektion zurück, verschwindet auch die optische Markierung. Ein Lesezeichen
+  *mit* Selektion stellt den Filter über den Host wieder her; die Markierung im
+  Visual wird dabei bewusst nicht nachgezeichnet (die Identität wäre nur über
+  einen vollständigen ID-Vergleich je Zeile zu finden — das kostet mehr, als es
+  optisch bringt).
+
+### Schalter und Fähigkeiten
+
+- **Neue Format-Einstellung „Selektion & Kontextmenü aktiv"** (Stil), Standard
+  **an**. Aus = exakt der Stand vor 0.17: keine Selektion, kein Kontextmenü,
+  kein „↗ Drill"-Knopf, keine Klick-Handler an den Zellen.
+- **`supportsMultiVisualSelection: true`** in den Capabilities — das Visual
+  spielt im Cross-Highlight-Ökosystem der Seite mit. **Keine neuen Datenrollen.**
+- **Defensiv gegenüber dem Host**: fehlt `createSelectionManager` oder
+  `createSelectionIdBuilder` (ältere Hosts, Test-Shims), oder meldet der Host
+  `hostCapabilities.allowInteractions === false` (statischer Export,
+  E-Mail-Abo), verhält sich das Visual wie vor 0.17 — ohne Fehler, ohne Knopf.
+
+### Kurzanleitung: Zielseite für den Drillthrough
+
+1. Neue Seite anlegen, z. B. `Konto-Detail`.
+2. Unter **Visualisierungen → Seite auf Detailsuche filtern** genau die Spalte
+   einziehen, die im Visual als **Konto-ID (Key)** gebunden ist (Pharma-Demo:
+   `pharma-dim-konten[AccountID]`). Ohne gebundene Konto-ID ist es die erste
+   **Ebenen-Spalte** (`L1`) — dann muss auch dort dieselbe Spalte stehen.
+3. Detail-Visuals auf der Zielseite platzieren.
+4. Auf der Quellseite **Einfügen → Schaltflächen → Leer**, dann
+   **Aktion → Ein**, **Typ = Detailsuche**, **Ziel = Konto-Detail**.
+5. Im Visual eine Zeile anklicken → der Knopf wird aktiv. Oder gleich
+   rechtsklicken bzw. in der Kachel-Ansicht „↗ Drill" drücken.
+
+Ausführlich mit Abnahme-Checkliste in `TESTPLAN.md`, Abschnitt
+**6a · Drillthrough einrichten**.
+
+### Tests
+
+- Engine: 28 Blöcke unverändert grün.
+- Render: **p1–p7 sind Pixel für Pixel identisch** zu 0.16 (per Stage-Screenshot
+  gegen den Vorgänger-Commit verglichen); p8–p11 ändern sich gewollt um die
+  Hinweiszeile und den „↗ Drill"-Knopf.
+- Interaktion: **262 Checks** (240 aus 0.16 unverändert + 22 neue). Die neuen
+  prüfen gegen einen protokollierenden Host-Mock: Linksklick selektiert alle
+  Monatszeilen des Kontos über die Konto-Spalte, zweiter Klick löscht,
+  Rechtsklick öffnet das Menü mit Selektions-ID an der Zeigerposition und
+  unterdrückt das Browser-Menü, ein Subtotal liefert die Vereinigung der
+  Blatt-Indizes, die Kachel zeigt „↗ Drill" und löst damit Selektion **und**
+  Menü aus, `interactions = false` bindet nichts und feuert nichts,
+  `allowInteractions = false` ebenso, und ein Host ganz **ohne**
+  Selektionsmanager rendert fehlerfrei ohne Knopf.
+- Performance: unverändert im Budget (60.000 Datenzeilen, First Render ~440 ms
+  bei 1.500 ms Budget, Expand-Rerender ~100 ms bei 300 ms Budget).
+
 ## 0.16.0.0 (2026-08-26) — Monatsnamen als Periode: die Reihenfolge stimmt wieder, und das Schrift-Preset gilt für alles
 
 Nutzer-Befund am echten Modell: als Periode war eine **Monatsnamen-Spalte**

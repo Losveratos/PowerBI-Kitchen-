@@ -1978,6 +1978,183 @@ function tidyChecks(geom, tag) {
             res.clipped.length === 0, res.clipped.slice(0, 5).join(", "));
     }
 
+    // ---- 24) v0.17: selection ids, cross-filtering, native context menu
+    // The host mock in test.html records every select/clear/showContextMenu call
+    // in window.__selLog, and every selection id carries the category column and
+    // the data-view row index it was built over — so the assertions below see
+    // exactly what Power BI would be asked to filter on.
+    const selRes = await page.evaluate(() => {
+        const out = {};
+        let seq = 0;
+        const stage = (objects, opts) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = "sel" + (++seq);
+            d.style.cssText = "width:1400px;height:700px;";
+            document.body.appendChild(d);
+            const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US", opts) });
+            v.update({ dataViews: [dv(objects)], viewport: { width: 1400, height: 700 }, type: 2 });
+            return d;
+        };
+        const fire = (el, type, x, y) => {
+            const ev = new MouseEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y });
+            el.dispatchEvent(ev);
+            return ev.defaultPrevented;
+        };
+        const rowOf = (d, id) => d.querySelector('[data-pnl-row="' + id + '"]');
+        const table = { hierarchy: { defaultLevel: 0 },
+            state: { uiState: JSON.stringify({ view: "table", fit: false }) } };
+
+        // (a) left click on a value cell of a leaf account
+        const d1 = stage(table);
+        out.rowsBound = d1.querySelectorAll("[data-pnl-row]").length;
+        window.__selReset();
+        fire(rowOf(d1, "401010").children[1], "click", 300, 300);
+        out.leaf = window.__selLog.slice();
+        out.leafMarked = rowOf(d1, "401010").getAttribute("data-pnl-sel");
+        // (b) a second click on the same row drops the selection again
+        window.__selReset();
+        fire(rowOf(d1, "401010").children[1], "click", 300, 300);
+        out.second = window.__selLog.slice();
+        out.secondMarked = rowOf(d1, "401010").getAttribute("data-pnl-sel");
+
+        // (c) right click anywhere on the row opens the native menu
+        window.__selReset();
+        out.prevented = fire(rowOf(d1, "402000").children[2], "contextmenu", 411, 222);
+        out.menu = window.__selLog.slice();
+
+        // (e) a subtotal collects the source rows of every leaf below it
+        window.__selReset();
+        fire(rowOf(d1, "L:Net revenue").children[1], "click", 300, 300);
+        out.subtotal = window.__selLog.slice();
+
+        // click on empty ground clears again
+        window.__selReset();
+        fire(d1.firstChild, "click", 5, 5);
+        out.ground = window.__selLog.slice();
+
+        // (d) the tile view carries the ↗ Drill button
+        const d2 = stage({ state: { uiState: JSON.stringify({
+            view: "tree", treeV: 2, ref: "pl", treeZoom: "F_EBITDA" }) } });
+        const drill = d2.querySelector('[data-pnl="zoom-drill"]');
+        out.drillShown = drill != null;
+        out.drillLabel = drill ? drill.textContent : "";
+        out.drillTitle = drill ? drill.title : "";
+        out.drillAfterBack = drill != null && d2.querySelector('[data-pnl="zoom-head"]')
+            && d2.querySelector('[data-pnl="zoom-head"]').children[1] === drill;
+        window.__selReset();
+        if (drill) { fire(drill, "click", 90, 90); }
+        out.drillLog = window.__selLog.slice();
+
+        // (f) the format-pane switch turns the whole behaviour off
+        const d3 = stage({ hierarchy: { defaultLevel: 0 }, style: { interactions: false },
+            state: { uiState: JSON.stringify({ view: "table", fit: false }) } });
+        out.offRows = d3.querySelectorAll("[data-pnl-row]").length;
+        window.__selReset();
+        const offRow = [...d3.querySelectorAll("div")].filter(x => x.style.display === "table-row")[3];
+        fire(offRow.children[1], "click", 300, 300);
+        out.offPrevented = fire(offRow.children[1], "contextmenu", 300, 300);
+        out.offLog = window.__selLog.slice();
+        const d3z = stage({ style: { interactions: false }, state: { uiState: JSON.stringify({
+            view: "tree", treeV: 2, treeZoom: "F_EBITDA" }) } });
+        out.offDrill = d3z.querySelector('[data-pnl="zoom-drill"]') != null;
+
+        // (g) a host that offers no selection manager at all (pre-0.17 shim)
+        const d4 = stage(table, { legacy: true });
+        out.legacyRows = d4.querySelectorAll("[data-pnl-row]").length;
+        out.legacyCells = [...d4.querySelectorAll("div")].filter(x => x.style.display === "table-row").length;
+        window.__selReset();
+        const legRow = [...d4.querySelectorAll("div")].filter(x => x.style.display === "table-row")[3];
+        fire(legRow.children[1], "click", 300, 300);
+        fire(legRow.children[1], "contextmenu", 300, 300);
+        const d4z = stage({ state: { uiState: JSON.stringify({
+            view: "tree", treeV: 2, treeZoom: "F_EBITDA" }) } }, { legacy: true });
+        out.legacyDrill = d4z.querySelector('[data-pnl="zoom-drill"]') != null;
+        out.legacyZoom = d4z.querySelector('[data-pnl="zoom-center"]') != null;
+        out.legacyLog = window.__selLog.slice();
+
+        // a right click on a tree card opens the same menu (the left click of a
+        // card belongs to the tile view and keeps it)
+        const d6 = stage({ state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } });
+        window.__selReset();
+        const cardG = d6.querySelector("svg > g > g");
+        out.treePrevented = cardG ? fire(cardG, "contextmenu", 77, 88) : false;
+        out.treeLog = window.__selLog.slice();
+        out.treeHint = [...d6.querySelectorAll("div")]
+            .map(x => x.textContent).filter(t => t.indexOf("Value driver tree") === 0)[0] || "";
+
+        // a host that forbids interactions behaves like the switch being off
+        const d5 = stage(table, { allowInteractions: false });
+        out.noInteractRows = d5.querySelectorAll("[data-pnl-row]").length;
+
+        // expected index sets, straight from the demo rows
+        const lv = PNL_DEMO.levelRows;
+        out.expLeaf = lv.map((r, i) => [r, i]).filter(p => p[0].account === "401010").map(p => p[1]);
+        out.expSub = lv.map((r, i) => [r, i])
+            .filter(p => p[0].levels[0] === "Net revenue").map(p => p[1]);
+        return out;
+    });
+
+    const eq = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+    const sorted = (a) => [...a].sort((x, y) => x - y);
+
+    check("every table row of a bound account carries a selection handle",
+        selRes.rowsBound >= 18, "rows=" + selRes.rowsBound);
+    check("a left click on a value cell selects the account",
+        selRes.leaf.length === 1 && selRes.leaf[0].call === "select",
+        JSON.stringify(selRes.leaf));
+    check("the selection carries one id per month of that account",
+        selRes.leaf[0] && eq(sorted(selRes.leaf[0].idx), selRes.expLeaf),
+        JSON.stringify(selRes.leaf[0] && selRes.leaf[0].idx) + " vs " + JSON.stringify(selRes.expLeaf));
+    check("the ids are built over the bound account column",
+        selRes.leaf[0] && selRes.leaf[0].col === "AccountID",
+        selRes.leaf[0] && selRes.leaf[0].col);
+    check("the selected row shows the accent feedback",
+        selRes.leafMarked === "1", String(selRes.leafMarked));
+    check("a second click on the same row clears the selection",
+        selRes.second.length === 1 && selRes.second[0].call === "clear",
+        JSON.stringify(selRes.second));
+    check("and the row drops its feedback again", selRes.secondMarked == null,
+        String(selRes.secondMarked));
+    check("a right click opens the native context menu with a selection id",
+        selRes.menu.length === 1 && selRes.menu[0].call === "menu" && selRes.menu[0].idx != null,
+        JSON.stringify(selRes.menu));
+    check("the context menu is placed at the pointer",
+        selRes.menu[0] && selRes.menu[0].x === 411 && selRes.menu[0].y === 222,
+        JSON.stringify(selRes.menu[0]));
+    check("the browser menu is suppressed (preventDefault)", selRes.prevented === true);
+    check("a subtotal selects the union of the source rows below it",
+        selRes.subtotal[0] && eq(sorted(selRes.subtotal[0].idx), selRes.expSub),
+        JSON.stringify(selRes.subtotal[0] && selRes.subtotal[0].idx));
+    check("a click on empty ground clears the selection",
+        selRes.ground.length === 1 && selRes.ground[0].call === "clear",
+        JSON.stringify(selRes.ground));
+    check("the tile view shows the ↗ Drill button next to the back button",
+        selRes.drillShown && selRes.drillAfterBack, selRes.drillLabel);
+    check("its tooltip explains what the button does",
+        selRes.drillTitle.indexOf("drillthrough") > 0, selRes.drillTitle);
+    check("↗ Drill sets the selection and opens the menu in one click",
+        selRes.drillLog.length === 2 && selRes.drillLog[0].call === "select"
+        && selRes.drillLog[1].call === "menu" && selRes.drillLog[1].idx != null,
+        JSON.stringify(selRes.drillLog));
+    check("interactions = off binds no row and fires nothing",
+        selRes.offRows === 0 && selRes.offLog.length === 0 && selRes.offPrevented === false,
+        selRes.offRows + " / " + JSON.stringify(selRes.offLog));
+    check("interactions = off hides the ↗ Drill button", selRes.offDrill === false);
+    check("a host without a selection manager renders and fires nothing",
+        selRes.legacyRows === 0 && selRes.legacyLog.length === 0 && selRes.legacyCells > 10,
+        selRes.legacyRows + " / " + JSON.stringify(selRes.legacyLog));
+    check("a host without a selection manager still opens the tile view, without ↗ Drill",
+        selRes.legacyZoom === true && selRes.legacyDrill === false,
+        "zoom=" + selRes.legacyZoom + " drill=" + selRes.legacyDrill);
+    check("a right click on a tree card opens the context menu of that card",
+        selRes.treeLog.length === 1 && selRes.treeLog[0].call === "menu"
+        && selRes.treeLog[0].idx != null && selRes.treePrevented === true,
+        JSON.stringify(selRes.treeLog));
+    check("the tree hint line documents the right click and the ↗ Drill button",
+        selRes.treeHint.indexOf("Right-click") > 0 && selRes.treeHint.indexOf("Drill") > 0,
+        selRes.treeHint);
+    check("allowInteractions = false switches the behaviour off as well",
+        selRes.noInteractRows === 0, "rows=" + selRes.noInteractRows);
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();
 
