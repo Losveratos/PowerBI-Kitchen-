@@ -168,8 +168,8 @@
     <p class="card-t">Der Anlass · zwei Studien, zwei Zahlen</p>
     <p>Am 30.08.2026 berichtete BILD vorab über eine Studie der TU München<sup class="cite"><a href="#quellen">[1]</a></sup>:
        Die EU-Flottenregulierung misst CO₂ nur am Auspuff — ein E-Auto gilt dort als <em>0-Gramm-Auto</em>.
-       Über den ganzen Lebenszyklus (Rohstoffe, Batterie, Strommix, Recycling) senke es die Emissionen
-       gegenüber dem Verbrenner aber im Mittel nur um <strong data-v="tum41">−41 %</strong> — so das Ergebnis einer
+       Über den ganzen Lebenszyklus (Rohstoffe, Batterie, Strommix, Recycling) liege die Ersparnis
+       gegenüber dem Verbrenner aber im Mittel nur bei <strong data-v="tum41">−41 %</strong> — so das Ergebnis einer
        Auswertung von <span data-v="tum_n">19 Studien</span> mit <span data-v="tum_sz">47 Szenarien</span><sup class="cite"><a href="#quellen">[2]</a></sup>.
        Die ICCT-Lebenszyklus-Studie vom Juli 2025 kommt für Europa dagegen auf
        <strong data-v="icct73">−73 %</strong> (<span data-v="icct_g">63 vs. 235 g CO₂e/km</span>)<sup class="cite"><a href="#quellen">[4]</a></sup>.</p>
@@ -183,7 +183,8 @@
      nicht veröffentlicht (Vorstellung angekündigt für Anfang September 2026, vor der Abstimmung über das
      EU-Automobil-Paket im November). Alle TUM-Zahlen stammen aus Medien-/Agenturberichten
      <span class="conf conf-B">B</span>. Die Presets „≈ TUM“ und „≈ ICCT“ sind <em>nachgestellte</em> Annahmen-Sets,
-     die auf die berichteten Endzahlen führen — nicht die Originalrechnungen.</div>
+     die auf die berichteten Endzahlen führen — nicht die Originalrechnungen. Erste kritische Einordnungen
+     der TUM-Studie sind ebenfalls verlinkt<sup class="cite"><a href="#quellen">[3]</a></sup>.</div>
 
   <!-- ================= Kapitel 1 ================= -->
   <h2 id="auspuff"><span class="kapnum">1</span>Die Auspuff-Logik</h2>
@@ -210,10 +211,10 @@
   <p class="preset-desc" id="preset-desc"></p>
 
   <div class="tile-grid">
-    <div class="tile"><div class="n" id="t-red">–</div><div class="l">CO₂-Reduktion BEV vs. Verbrenner (Lebenszyklus)</div></div>
-    <div class="tile"><div class="n teal" id="t-bev">–</div><div class="l">BEV gesamt, verteilt auf die Fahrleistung</div></div>
+    <div class="tile"><div class="n" id="t-red">–</div><div class="l">CO₂-Reduktion E-Auto vs. Verbrenner (Lebenszyklus, inkl. End-of-Life)</div></div>
+    <div class="tile"><div class="n teal" id="t-bev">–</div><div class="l">E-Auto gesamt, verteilt auf die Fahrleistung</div></div>
     <div class="tile"><div class="n" id="t-ice">–</div><div class="l">Verbrenner gesamt (Well-to-Wheel + Produktion)</div></div>
-    <div class="tile"><div class="n teal" id="t-be">–</div><div class="l" id="t-be-l">Break-even: ab hier ist das BEV vorn</div></div>
+    <div class="tile"><div class="n teal" id="t-be">–</div><div class="l" id="t-be-l">Break-even (ohne End-of-Life): ab hier ist das E-Auto vorn</div></div>
   </div>
 
   <div class="grid2">
@@ -287,24 +288,29 @@
     <li><strong>Strommix statisch vs. Pfad:</strong> Wer den heutigen (oder gar globalen) Mix über 15–20 Jahre
         festschreibt, belastet das BEV mit einem Stromsystem, das es so voraussichtlich nur noch wenige Jahre
         gibt. Wer den Klimapfad einrechnet, entlastet es — und setzt voraus, dass der Ausbau gelingt.
-        Allein dieser Schalter verschiebt das Ergebnis im Modell um gut 10 Prozentpunkte.</li>
+        Allein dieser Schalter verschiebt das Ergebnis im Modell um knapp 10 Prozentpunkte.</li>
     <li><strong>Batterie-Fußabdruck:</strong> Meta-Analysen mitteln ältere Studien (bis <span data-v="batt_alt">150–200</span> kg CO₂e/kWh)
         mit aktuellen Werten (~<span data-v="batt_akt">55</span> kg)<sup class="cite"><a href="#quellen">[7]</a></sup><sup class="cite"><a href="#quellen">[8]</a></sup> —
         der Mittelwert beschreibt dann kein real kaufbares Auto, weder ein altes noch ein neues.</li>
     <li><strong>Lebensfahrleistung:</strong> Der Produktions-Rucksack ist fix; jeder weitere Kilometer verdünnt ihn.
-        150.000 km (konservativ) vs. ~240.000 km (ICCT, 20 Jahre) macht im Modell 8–10 Prozentpunkte aus.</li>
+        150.000 km (konservativ) vs. ~240.000 km (ICCT, 20 Jahre) macht im Modell rund 7 Prozentpunkte aus.</li>
     <li><strong>Break-even-Spanne in der Literatur:</strong> Die VDI-Ökobilanz 2023 nennt ~90.000 km<sup class="cite"><a href="#quellen">[9]</a></sup>,
         die ICCT ~17.000 km<sup class="cite"><a href="#quellen">[4]</a></sup>, Stiftung Warentest ~2 Jahre<sup class="cite"><a href="#quellen">[14]</a></sup> —
         der Hauptunterschied ist wieder die Strommix-Annahme. Im Modell oben kannst du beide Welten einstellen.</li>
     <li><strong>Referenz-Verbrenner:</strong> Realverbrauch oder Normverbrauch, mit oder ohne Kraftstoff-Vorkette
         (+15–25 %)<sup class="cite"><a href="#quellen">[11]</a></sup><sup class="cite"><a href="#quellen">[13]</a></sup> — auch die Verbrenner-Seite hat eine „Auspuff-Logik“-Falle.</li>
   </ul>
-  <div class="note"><strong>Was im Modell robust ist:</strong> In keiner plausiblen Kombination — selbst mit reinem
-     Kohlestrom — wird das BEV über den Lebenszyklus <em>deutlich schlechter</em> als der Benziner; mit realen
-     europäischen Mixen liegt es klar vorn, die Frage ist nur <em>wie weit</em>. Und: Die 0-Gramm-Anrechnung der
-     EU-Regulierung ist tatsächlich keine Klimabilanz — darin haben beide Studien recht. Strittig ist, welche
-     Konsequenz daraus folgt: LCA-Regulierung, CO₂-Grenzausgleich für Batterien und Stahl — oder schlicht
-     ein schnellerer Ausbau sauberer Stromerzeugung, der beide Probleme zugleich verkleinert.</div>
+  <div class="note"><strong>Was im Modell robust ist — und was kippt:</strong> Mit <em>aktuellen</em>
+     Batterie-Fußabdrücken (≲ 80 kg CO₂e/kWh) und durchschnittlicher Fahrleistung bleibt das E-Auto selbst
+     mit reinem Steinkohlestrom vorn (siehe Kohlestrom-Preset); mit realen europäischen Mixen liegt es klar
+     vorn, die Frage ist nur <em>wie weit</em>. Die Bilanz kippt erst, wenn mehrere ungünstige Annahmen
+     zusammenkommen — historische Batteriewerte (≳ 100 kg CO₂e/kWh) <em>plus</em> Kohlestrom, oder sehr kurze
+     Lebensfahrleistung. Genau das lässt sich mit den Regler-Extremen oben nachstellen. Und: Die
+     0-Gramm-Anrechnung der EU-Regulierung ist tatsächlich keine Klimabilanz — darin haben beide Studien
+     recht. Strittig ist, welche Konsequenz daraus folgt: eine LCA-Regulierung bzw. ein CO₂-Grenzausgleich
+     für Batterien und Stahl, ein schnellerer Ausbau sauberer Stromerzeugung — oder, wie die TUM-Autoren
+     folgern, „Defossilisierung“ auch über Kraftstoffe für die Bestandsflotte<sup class="cite"><a href="#quellen">[2]</a></sup>
+     (E-Fuels bildet dieses Modell nicht ab, siehe Limitationen).</div>
 
   <!-- ================= Limitationen ================= -->
   <h2 id="limitationen"><span class="kapnum">5</span>Limitationen</h2>
@@ -424,7 +430,7 @@ const GROUPS = {
 function sliderHtml(key){
   const d = PF.defaults[key];
   return `<div class="sl" id="sl-${key}">
-    <label>${esc(d.label)} <span class="conf conf-${d.confidence}">${d.confidence}</span>
+    <label for="in-${key}">${esc(d.label)} <span class="conf conf-${d.confidence}">${d.confidence}</span>
       <span class="v" id="v-${key}"></span></label>
     <input type="range" id="in-${key}" min="${d.min}" max="${d.max}" step="${d.step || 1}">
     <div class="src">${esc(d.source)}</div>
@@ -506,7 +512,7 @@ function buildChips(){
 }
 function syncChips(){
   document.querySelectorAll('#strom-chips .chip').forEach(c =>
-    c.classList.toggle('on', Math.abs(parseFloat(c.dataset.v) - P.strom_start) < 0.5 && !P.strom_dynamic));
+    c.classList.toggle('on', Math.abs(parseFloat(c.dataset.v) - P.strom_start) < 0.5));
   document.querySelectorAll('#fuel-chips .chip').forEach(c => {
     const fp = PF.fuel_presets.find(x => x.id === c.dataset.id);
     c.classList.toggle('on', Math.abs(fp.fuel_ttw - P.fuel_ttw) < 0.005 && Math.abs(fp.fuel_wtw - P.fuel_wtw) < 0.005);
@@ -624,10 +630,13 @@ function chartSens(p){
   const gMax = 1100, yMin = -40, yMax = 100;
   const x = g => L + (W - L - R) * g / gMax;
   const y = pct => T + (H - T - B) * (1 - (pct - yMin) / (yMax - yMin));
+  // Werte ausserhalb des festen y-Bereichs werden auf den Rand geklemmt,
+  // damit die Kurve bei Extrem-Reglerstellungen nicht in die Achsen zeichnet.
+  const clampY = v => Math.max(yMin, Math.min(yMax, v));
   const pts = [];
   for (let g = 0; g <= gMax; g += 20){
     const q = Object.assign({}, p, { strom_start: g, strom_dynamic: false });
-    pts.push([g, runModel(q).reduction_pct]);
+    pts.push([g, clampY(runModel(q).reduction_pct)]);
   }
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Reduktion als Funktion des Strommix">`;
   for (let pct = yMin; pct <= yMax; pct += 20){
@@ -651,7 +660,7 @@ function chartSens(p){
     .sort((a, b) => a.g - b.g);
   let lastX = -1e9, lastAbove = false;
   marks.forEach(m => {
-    const mx = x(m.g), my = y(m.red);
+    const mx = x(m.g), my = y(clampY(m.red));
     let above = m.red < 40;
     if (mx - lastX < 90) above = !lastAbove;
     lastX = mx; lastAbove = above;
@@ -668,12 +677,14 @@ function chartSens(p){
       break;
     }
   }
+  const kohleChip = PF.strommix_presets.find(m => m.id === 'kohle');
   $('sens-finding').innerHTML = zero
     ? `<strong>Befund bei den aktuellen übrigen Einstellungen:</strong> Erst ab einem dauerhaften Strommix von etwa
-       <strong>${fmt0(zero)} g CO₂e/kWh</strong> würde das BEV schlechter abschneiden als der Verbrenner — zum Vergleich:
-       Deutschland 2024 lag bei ${fmt0(PF.context.uba_mix['2024'])} g/kWh, reiner Steinkohlestrom bei rund 950 g/kWh.`
+       <strong>${fmt0(zero)} g CO₂e/kWh</strong> würde das E-Auto schlechter abschneiden als der Verbrenner — zum Vergleich:
+       Deutschland 2024 lag bei ${fmt0(PF.context.uba_mix['2024'])} g/kWh, reiner Steinkohlestrom (LCA-Zentralwert) bei
+       rund ${fmt0(kohleChip.value)} g/kWh.`
     : `<strong>Befund bei den aktuellen übrigen Einstellungen:</strong> Im gesamten dargestellten Bereich bis
-       ${fmt0(gMax)} g CO₂e/kWh bleibt das BEV vorn — die Nulllinie wird nicht erreicht.`;
+       ${fmt0(gMax)} g CO₂e/kWh bleibt das E-Auto vorn — die Nulllinie wird nicht erreicht.`;
 }
 
 /* ---------------- Rendern ---------------- */
@@ -685,10 +696,10 @@ function renderAll(){
   $('t-ice').innerHTML = fmt(r.ice.g_per_km, 0) + ' <small>g CO₂e/km</small>';
   if (r.break_even_km === null){
     $('t-be').textContent = '—';
-    $('t-be-l').textContent = 'Kein Break-even innerhalb der Lebensfahrleistung';
+    $('t-be-l').textContent = 'Kein Break-even innerhalb der Lebensfahrleistung (ohne End-of-Life gerechnet)';
   } else {
     $('t-be').innerHTML = fmt0(r.break_even_km / 1000) + ' <small>Tsd. km</small>';
-    $('t-be-l').textContent = 'Break-even: ab hier ist das BEV vorn';
+    $('t-be-l').textContent = 'Break-even (ohne End-of-Life): ab hier ist das E-Auto vorn';
   }
   $('derived-km').textContent = 'Lebensfahrleistung: ' + fmt0(r.total_km) + ' km ('
     + fmt0(P.km_per_year) + ' km/Jahr × ' + P.years + ' Jahre)';
@@ -728,7 +739,14 @@ function selfTest(tv){
     const r = runModel(vec.params);
     const e = vec.expect;
     const ok = close(r.bev.total_kg, e.bev.total_kg)
+      && close(r.bev.prod_base_kg, e.bev.prod_base_kg)
+      && close(r.bev.battery_kg, e.bev.battery_kg)
+      && close(r.bev.operation_kg, e.bev.operation_kg)
+      && close(r.bev.g_per_km, e.bev.g_per_km)
       && close(r.ice.total_kg, e.ice.total_kg)
+      && close(r.ice.fuel_ttw_kg, e.ice.fuel_ttw_kg)
+      && close(r.ice.fuel_chain_kg, e.ice.fuel_chain_kg)
+      && close(r.ice.g_per_km, e.ice.g_per_km)
       && close(r.reduction_pct, e.reduction_pct)
       && close(r.break_even_km, e.break_even_km)
       && close(r.regulatory.ice_g_per_km, e.regulatory.ice_g_per_km);

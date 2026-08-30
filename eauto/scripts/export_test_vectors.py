@@ -25,7 +25,7 @@ def main() -> None:
         "edge:min_batt_oeko": dict(base, batt_kwh=30, batt_co2=40, strom_start=0),
         "edge:max_batt_kohle": dict(base, batt_kwh=100, batt_co2=130,
                                     strom_start=1100, cons_bev=25.0),
-        "edge:kurzstrecke": dict(base, km_per_year=5000, years=8),
+        "edge:kurzstrecke": dict(base, km_per_year=5000, years=9),
         "edge:vielfahrer_pfad": dict(base, km_per_year=30000, years=22,
                                      strom_dynamic=True, strom_ende=0),
         "edge:diesel_artig": dict(base, cons_ice=6.5, fuel_ttw=2.65, fuel_wtw=3.24),

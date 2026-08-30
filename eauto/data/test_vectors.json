@@ -7,7 +7,7 @@
     "batt_kwh": 60,
     "batt_co2": 75,
     "prod_bev_t": 6.5,
-    "prod_ice_t": 7.0,
+    "prod_ice_t": 6.5,
     "cons_bev": 18.5,
     "cons_ice": 7.9,
     "fuel_ttw": 2.37,
@@ -31,15 +31,15 @@
      "g_per_km": 123.155
     },
     "ice": {
-     "prod_kg": 7000.0,
+     "prod_kg": 6500.0,
      "fuel_ttw_kg": 35105.625,
      "fuel_chain_kg": 7850.624999999996,
      "eol_kg": 0.0,
-     "total_kg": 49956.25,
-     "g_per_km": 266.43333333333334
+     "total_kg": 49456.25,
+     "g_per_km": 263.76666666666665
     },
-    "reduction_pct": 53.776429375703735,
-    "break_even_km": 24699.743740158687,
+    "reduction_pct": 53.309111588525205,
+    "break_even_km": 27787.21170767852,
     "regulatory": {
      "bev_g_per_km": 0.0,
      "ice_g_per_km": 187.23000000000002
@@ -52,7 +52,7 @@
     "batt_kwh": 60,
     "batt_co2": 75,
     "prod_bev_t": 6.5,
-    "prod_ice_t": 7.0,
+    "prod_ice_t": 6.5,
     "cons_bev": 18.5,
     "cons_ice": 7.9,
     "fuel_ttw": 2.37,
@@ -76,15 +76,15 @@
      "g_per_km": 96.97749999999999
     },
     "ice": {
-     "prod_kg": 7000.0,
+     "prod_kg": 6500.0,
      "fuel_ttw_kg": 35105.625,
      "fuel_chain_kg": 7850.624999999996,
      "eol_kg": 0.0,
-     "total_kg": 49956.25,
-     "g_per_km": 266.43333333333334
+     "total_kg": 49456.25,
+     "g_per_km": 263.76666666666665
     },
-    "reduction_pct": 63.60158889027899,
-    "break_even_km": 24195.067310862556,
+    "reduction_pct": 63.23360293188425,
+    "break_even_km": 27151.65827253311,
     "regulatory": {
      "bev_g_per_km": 0.0,
      "ice_g_per_km": 187.23000000000002
@@ -97,12 +97,12 @@
     "batt_kwh": 60,
     "batt_co2": 95,
     "prod_bev_t": 6.5,
-    "prod_ice_t": 7.0,
+    "prod_ice_t": 6.5,
     "cons_bev": 20.0,
     "cons_ice": 7.5,
     "fuel_ttw": 2.37,
     "fuel_wtw": 3.1,
-    "strom_start": 430,
+    "strom_start": 420,
     "strom_ende": 100,
     "strom_dynamic": false,
     "km_per_year": 11500,
@@ -115,21 +115,21 @@
     "bev": {
      "prod_base_kg": 6500.0,
      "battery_kg": 5700,
-     "operation_kg": 12857.0,
+     "operation_kg": 12558.0,
      "eol_kg": -500.0,
-     "total_kg": 24557.0,
-     "g_per_km": 164.2608695652174
+     "total_kg": 24258.0,
+     "g_per_km": 162.2608695652174
     },
     "ice": {
-     "prod_kg": 7000.0,
+     "prod_kg": 6500.0,
      "fuel_ttw_kg": 26573.625,
      "fuel_chain_kg": 8185.125,
      "eol_kg": 0.0,
-     "total_kg": 41758.75,
-     "g_per_km": 279.3227424749164
+     "total_kg": 41258.75,
+     "g_per_km": 275.97826086956525
     },
-    "reduction_pct": 41.193163109527944,
-    "break_even_km": 35494.880546075074,
+    "reduction_pct": 41.20519889720362,
+    "break_even_km": 38383.838383838374,
     "regulatory": {
      "bev_g_per_km": 0.0,
      "ice_g_per_km": 177.75
@@ -142,7 +142,7 @@
     "batt_kwh": 60,
     "batt_co2": 55,
     "prod_bev_t": 6.0,
-    "prod_ice_t": 7.0,
+    "prod_ice_t": 6.5,
     "cons_bev": 19.0,
     "cons_ice": 7.0,
     "fuel_ttw": 2.37,
@@ -166,15 +166,15 @@
      "g_per_km": 64.0905737704918
     },
     "ice": {
-     "prod_kg": 7000.0,
+     "prod_kg": 6500.0,
      "fuel_ttw_kg": 40479.600000000006,
      "fuel_chain_kg": 10760.4,
      "eol_kg": 0.0,
-     "total_kg": 58240.00000000001,
-     "g_per_km": 238.68852459016395
+     "total_kg": 57740.00000000001,
+     "g_per_km": 236.6393442622951
     },
-    "reduction_pct": 73.14886675824177,
-    "break_even_km": 13905.548807505766,
+    "reduction_pct": 72.9163491513682,
+    "break_even_km": 16906.400851583152,
     "regulatory": {
      "bev_g_per_km": 0.0,
      "ice_g_per_km": 165.9
@@ -187,7 +187,7 @@
     "batt_kwh": 60,
     "batt_co2": 75,
     "prod_bev_t": 6.5,
-    "prod_ice_t": 7.0,
+    "prod_ice_t": 6.5,
     "cons_bev": 18.5,
     "cons_ice": 7.9,
     "fuel_ttw": 2.37,
@@ -211,15 +211,15 @@
      "g_per_km": 60.625
     },
     "ice": {
-     "prod_kg": 7000.0,
+     "prod_kg": 6500.0,
      "fuel_ttw_kg": 35105.625,
      "fuel_chain_kg": 7850.624999999996,
      "eol_kg": 0.0,
-     "total_kg": 49956.25,
-     "g_per_km": 266.43333333333334
+     "total_kg": 49456.25,
+     "g_per_km": 263.76666666666665
     },
-    "reduction_pct": 77.24571500062555,
-    "break_even_km": 17819.356275754537,
+    "reduction_pct": 77.01567041577151,
+    "break_even_km": 20046.77581022385,
     "regulatory": {
      "bev_g_per_km": 0.0,
      "ice_g_per_km": 187.23000000000002
@@ -232,12 +232,12 @@
     "batt_kwh": 60,
     "batt_co2": 75,
     "prod_bev_t": 6.5,
-    "prod_ice_t": 7.0,
+    "prod_ice_t": 6.5,
     "cons_bev": 18.5,
     "cons_ice": 7.9,
     "fuel_ttw": 2.37,
     "fuel_wtw": 2.9,
-    "strom_start": 950,
+    "strom_start": 830,
     "strom_ende": 100,
     "strom_dynamic": false,
     "km_per_year": 12500,
@@ -250,21 +250,21 @@
     "bev": {
      "prod_base_kg": 6500.0,
      "battery_kg": 4500,
-     "operation_kg": 32953.125,
+     "operation_kg": 28790.625,
      "eol_kg": -500.0,
-     "total_kg": 43453.125,
-     "g_per_km": 231.75
+     "total_kg": 39290.625,
+     "g_per_km": 209.54999999999998
     },
     "ice": {
-     "prod_kg": 7000.0,
+     "prod_kg": 6500.0,
      "fuel_ttw_kg": 35105.625,
      "fuel_chain_kg": 7850.624999999996,
      "eol_kg": 0.0,
-     "total_kg": 49956.25,
-     "g_per_km": 266.43333333333334
+     "total_kg": 49456.25,
+     "g_per_km": 263.76666666666665
     },
-    "reduction_pct": 13.017640435380962,
-    "break_even_km": 74976.5698219306,
+    "reduction_pct": 20.554783268039934,
+    "break_even_km": 59563.20317670415,
     "regulatory": {
      "bev_g_per_km": 0.0,
      "ice_g_per_km": 187.23000000000002
@@ -277,7 +277,7 @@
     "batt_kwh": 30,
     "batt_co2": 40,
     "prod_bev_t": 6.5,
-    "prod_ice_t": 7.0,
+    "prod_ice_t": 6.5,
     "cons_bev": 18.5,
     "cons_ice": 7.9,
     "fuel_ttw": 2.37,
@@ -301,15 +301,15 @@
      "g_per_km": 38.4
     },
     "ice": {
-     "prod_kg": 7000.0,
+     "prod_kg": 6500.0,
      "fuel_ttw_kg": 35105.625,
      "fuel_chain_kg": 7850.624999999996,
      "eol_kg": 0.0,
-     "total_kg": 49956.25,
-     "g_per_km": 266.43333333333334
+     "total_kg": 49456.25,
+     "g_per_km": 263.76666666666665
     },
-    "reduction_pct": 85.58738896534467,
-    "break_even_km": 3055.434308162372,
+    "reduction_pct": 85.44167825097941,
+    "break_even_km": 5237.887385421211,
     "regulatory": {
      "bev_g_per_km": 0.0,
      "ice_g_per_km": 187.23000000000002
@@ -322,7 +322,7 @@
     "batt_kwh": 100,
     "batt_co2": 130,
     "prod_bev_t": 6.5,
-    "prod_ice_t": 7.0,
+    "prod_ice_t": 6.5,
     "cons_bev": 25.0,
     "cons_ice": 7.9,
     "fuel_ttw": 2.37,
@@ -346,14 +346,14 @@
      "g_per_km": 376.33333333333337
     },
     "ice": {
-     "prod_kg": 7000.0,
+     "prod_kg": 6500.0,
      "fuel_ttw_kg": 35105.625,
      "fuel_chain_kg": 7850.624999999996,
      "eol_kg": 0.0,
-     "total_kg": 49956.25,
-     "g_per_km": 266.43333333333334
+     "total_kg": 49456.25,
+     "g_per_km": 263.76666666666665
     },
-    "reduction_pct": -41.248592518453655,
+    "reduction_pct": -42.676608113231396,
     "break_even_km": null,
     "regulatory": {
      "bev_g_per_km": 0.0,
@@ -367,7 +367,7 @@
     "batt_kwh": 60,
     "batt_co2": 75,
     "prod_bev_t": 6.5,
-    "prod_ice_t": 7.0,
+    "prod_ice_t": 6.5,
     "cons_bev": 18.5,
     "cons_ice": 7.9,
     "fuel_ttw": 2.37,
@@ -376,30 +376,30 @@
     "strom_ende": 100,
     "strom_dynamic": false,
     "km_per_year": 5000,
-    "years": 8,
+    "years": 9,
     "eol_bev_t": -0.5,
     "eol_ice_t": 0.0
    },
    "expect": {
-    "total_km": 40000,
+    "total_km": 45000,
     "bev": {
      "prod_base_kg": 6500.0,
      "battery_kg": 4500,
-     "operation_kg": 2686.2000000000007,
+     "operation_kg": 3021.9750000000004,
      "eol_kg": -500.0,
-     "total_kg": 13186.2,
-     "g_per_km": 329.65500000000003
+     "total_kg": 13521.975,
+     "g_per_km": 300.48833333333334
     },
     "ice": {
-     "prod_kg": 7000.0,
-     "fuel_ttw_kg": 7489.200000000001,
-     "fuel_chain_kg": 1674.7999999999993,
+     "prod_kg": 6500.0,
+     "fuel_ttw_kg": 8425.35,
+     "fuel_chain_kg": 1884.1499999999992,
      "eol_kg": 0.0,
-     "total_kg": 16164.0,
-     "g_per_km": 404.1
+     "total_kg": 16809.5,
+     "g_per_km": 373.5444444444445
     },
-    "reduction_pct": 18.422420193021527,
-    "break_even_km": 24699.743740158687,
+    "reduction_pct": 19.557541866206606,
+    "break_even_km": 27787.21170767852,
     "regulatory": {
      "bev_g_per_km": 0.0,
      "ice_g_per_km": 187.23000000000002
@@ -412,7 +412,7 @@
     "batt_kwh": 60,
     "batt_co2": 75,
     "prod_bev_t": 6.5,
-    "prod_ice_t": 7.0,
+    "prod_ice_t": 6.5,
     "cons_bev": 18.5,
     "cons_ice": 7.9,
     "fuel_ttw": 2.37,
@@ -436,15 +436,15 @@
      "g_per_km": 49.48659090909091
     },
     "ice": {
-     "prod_kg": 7000.0,
+     "prod_kg": 6500.0,
      "fuel_ttw_kg": 123571.80000000002,
      "fuel_chain_kg": 27634.19999999999,
      "eol_kg": 0.0,
-     "total_kg": 158206.0,
-     "g_per_km": 239.70606060606062
+     "total_kg": 157706.0,
+     "g_per_km": 238.94848484848487
     },
-    "reduction_pct": 79.35530258018026,
-    "break_even_km": 24511.00582872163,
+    "reduction_pct": 79.28984946672924,
+    "break_even_km": 27548.79208242256,
     "regulatory": {
      "bev_g_per_km": 0.0,
      "ice_g_per_km": 187.23000000000002
@@ -457,7 +457,7 @@
     "batt_kwh": 60,
     "batt_co2": 75,
     "prod_bev_t": 6.5,
-    "prod_ice_t": 7.0,
+    "prod_ice_t": 6.5,
     "cons_bev": 18.5,
     "cons_ice": 6.5,
     "fuel_ttw": 2.65,
@@ -481,15 +481,15 @@
      "g_per_km": 123.155
     },
     "ice": {
-     "prod_kg": 7000.0,
+     "prod_kg": 6500.0,
      "fuel_ttw_kg": 32296.875,
      "fuel_chain_kg": 7190.625000000001,
      "eol_kg": 0.0,
-     "total_kg": 46487.5,
-     "g_per_km": 247.93333333333334
+     "total_kg": 45987.5,
+     "g_per_km": 245.26666666666665
     },
-    "reduction_pct": 50.32737294971766,
-    "break_even_km": 27885.25218724946,
+    "reduction_pct": 49.78730633324273,
+    "break_even_km": 31370.908710655647,
     "regulatory": {
      "bev_g_per_km": 0.0,
      "ice_g_per_km": 172.25

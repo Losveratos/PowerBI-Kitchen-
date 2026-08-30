@@ -49,7 +49,7 @@ war zum Zugriffsdatum noch nicht öffentlich auffindbar.
 
 ## 1. TUM-Studie 2026 (Anlass des Modells)
 
-**Gesichert (mehrere unabhängige Medienquellen, dpa-Meldung vom 30.08.2026):**
+**Gesichert (mehrere unabhängige Medienquellen; Agenturmeldung vom 30.08.2026 — dts/dpa, die spiegelnden Portale nennen die Agentur nicht einheitlich):**
 
 | Aspekt | Befund | Konf. |
 |---|---|---|
@@ -354,7 +354,7 @@ Quelle als Institution, nicht auf jede Einzelzahl.
 | # | Quelle | URL | Konf. |
 |---|---|---|---|
 | 1 | cleanthinking.de: „Klimaneutrales Elektroauto: Auto-Lüge, die keine ist" (TUM-Studie, Kritik) | https://www.cleanthinking.de/klimaneutrales-elektroauto-tum-studie/ | B |
-| 2 | dpa-Meldung (via klamm.de): „Studie: EU-Klimapolitik bei Autos basiert auf irrtümlichen Annahmen" | https://www.klamm.de/news/studie-eu-klimapolitik-bei-autos-basiert-auf-irrtuemlichen-annahmen-21N1788022630306.html | B |
+| 2 | Agenturmeldung (dts/dpa, via klamm.de u. a. — Agentur-Zuordnung uneinheitlich): „Studie: EU-Klimapolitik bei Autos basiert auf irrtümlichen Annahmen" | https://www.klamm.de/news/studie-eu-klimapolitik-bei-autos-basiert-auf-irrtuemlichen-annahmen-21N1788022630306.html | B |
 | 3 | ad-hoc-news: „TUM-Studie kritisiert EU-Klimapolitik bei Autos als fehlgeleitet" | https://www.ad-hoc-news.de/politik/tum-studie-kritisiert-eu-klimapolitik-bei-autos-als-fehlgeleitet/70022094 | C |
 | 4 | Tichys Einblick: „Brüssels Auspuff-Rechentrick …" (Sekundärbericht, politisch gefärbt) | https://www.tichyseinblick.de/daili-es-sentials/studie-elektroautos-nicht-klimaneutral/ | C |
 | 5 | ICCT-Publikationsseite: „Life-cycle GHG emissions from passenger cars in the EU: A 2025 update" | https://theicct.org/publication/electric-cars-life-cycle-analysis-emissions-europe-jul25/ | A |
