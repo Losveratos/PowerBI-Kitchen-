@@ -13,7 +13,7 @@
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,750&amp;family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-sunk:#F3F2EC; --ink:#0F1E2E; --soft:#475569;
@@ -29,7 +29,7 @@
   *{box-sizing:border-box}
   html{scroll-behavior:smooth; scroll-padding-top:20px}
   body{margin:0;background:var(--bg);color:var(--ink);
-       font-family:'Geist',system-ui,sans-serif;font-size:16.5px;line-height:1.65}
+       font-family:'Segoe UI',Arial,system-ui,sans-serif;font-size:16.5px;line-height:1.65}
   .rule{height:10px;background:var(--accent)}
   .rule2{height:4px;background:var(--teal)}
   .wrap{max-width:960px;margin:0 auto;padding:0 24px}
@@ -38,15 +38,15 @@
           text-transform:uppercase;color:var(--teal-text);font-weight:600;margin-bottom:16px}
   .kicker a{color:inherit;text-decoration:none}
   .kicker a:hover{color:var(--accent)}
-  h1{font-family:'Fraunces',serif;font-weight:750;font-size:clamp(30px,5.4vw,50px);
-     line-height:1.08;margin:0 0 16px;letter-spacing:-0.5px}
+  h1{font-family:'Segoe UI',Arial,system-ui,sans-serif;font-weight:700;font-size:clamp(30px,5.4vw,50px);
+     line-height:1.08;margin:0 0 16px;letter-spacing:-0.3px}
   .hero-sub{font-size:clamp(17px,2.3vw,20px);color:var(--soft);max-width:700px;line-height:1.5;margin:0}
   .hero-meta{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--soft);margin-top:18px}
-  h2{font-family:'Fraunces',serif;font-weight:650;font-size:28px;line-height:1.2;
+  h2{font-family:'Segoe UI',Arial,system-ui,sans-serif;font-weight:700;font-size:28px;line-height:1.2;
      margin:56px 0 16px;padding-bottom:10px;border-bottom:2px solid var(--accent)}
   h2 .kapnum{font-family:'JetBrains Mono',monospace;font-size:0.6em;font-weight:600;
              color:var(--accent);margin-right:12px;vertical-align:3px}
-  h3{font-family:'Fraunces',serif;font-weight:650;font-size:20px;margin:30px 0 10px}
+  h3{font-family:'Segoe UI',Arial,system-ui,sans-serif;font-weight:700;font-size:20px;margin:30px 0 10px}
   p{margin:0 0 14px}
   a{color:var(--teal-text)}
   ul,ol{margin:0 0 14px;padding-left:22px} li{margin-bottom:6px}
@@ -65,7 +65,7 @@
 
   .tile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:20px 0}
   .tile{background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
-  .tile .n{font-family:'Fraunces',serif;font-weight:650;font-size:27px;color:var(--accent);line-height:1.15}
+  .tile .n{font-family:'Segoe UI',Arial,system-ui,sans-serif;font-weight:700;font-size:27px;color:var(--accent);line-height:1.15}
   .tile .n.teal{color:var(--teal-text)}
   .tile .n small{font-size:0.55em;font-weight:500;color:var(--soft)}
   .tile .l{font-size:13px;color:var(--soft);margin-top:4px;line-height:1.4}
@@ -664,7 +664,7 @@ function chartReg(r){
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Regulierungssicht vs. Lebenszyklus in g CO2e pro km">`;
   vals.forEach((b, i) => {
     const y = 16 + i * (rowH + gap) + (i > 1 ? 14 : 0);
-    s += `<text x="${L-8}" y="${y+rowH/2+4}" text-anchor="end" font-size="13" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">${b.l}</text>`;
+    s += `<text x="${L-8}" y="${y+rowH/2+4}" text-anchor="end" font-size="13" fill="${CSSV('--soft')}" font-family="Segoe UI,Arial,sans-serif">${b.l}</text>`;
     s += `<rect x="${L}" y="${y}" width="${Math.max(x(b.v)-L, 1.5)}" height="${rowH}" rx="4" fill="${b.c}" opacity="${i<2?0.55:1}"><title>${b.l}: ${fmt0(b.v)} g CO₂e/km</title></rect>`;
     s += `<text x="${x(b.v)+7}" y="${y+rowH/2+4}" font-size="12.5" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">${fmt0(b.v)} g/km</text>`;
   });
@@ -700,7 +700,7 @@ function chartBreakEven(r, p){
     const km = totalKm * i / xSteps;
     s += `<text x="${x(km)}" y="${H-B+20}" text-anchor="middle" font-size="11.5" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${fmt0(km/1000)}</text>`;
   }
-  s += `<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Fahrleistung [Tsd. km]</text>`;
+  s += `<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Segoe UI,Arial,sans-serif">Fahrleistung [Tsd. km]</text>`;
   s += `<path d="${path(icePts)}" fill="none" stroke="${CSSV('--c-ice')}" stroke-width="3"></path>`;
   s += `<path d="${path(bevPts)}" fill="none" stroke="${CSSV('--c-bev')}" stroke-width="3"></path>`;
   const be = r.break_even_km;
@@ -732,7 +732,7 @@ function chartParts(r){
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Zerlegung der Lebenszyklus-Emissionen">`;
   rows.forEach((rw, i) => {
     const yy = 24 + i * (rowH + 34);
-    s += `<text x="${L-8}" y="${yy+rowH/2+4}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Geist,sans-serif">${rw.l}</text>`;
+    s += `<text x="${L-8}" y="${yy+rowH/2+4}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Segoe UI,Arial,sans-serif">${rw.l}</text>`;
     let cx = L;
     rw.parts.forEach(pt => {
       const w = x(pt.v);
@@ -770,7 +770,7 @@ function chartSens(p){
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Ersparnis als Funktion des Strommix">`;
   // Bereich unter der Nulllinie toenen: dort waere der Verbrenner besser.
   s += `<rect x="${L}" y="${y(0)}" width="${W-L-R}" height="${y(yMin)-y(0)}" fill="#FBEDED" opacity="0.55"></rect>`;
-  s += `<text x="${W-R-6}" y="${y(yMin)-8}" text-anchor="end" font-size="10.5" fill="#A8492F" font-family="Geist,sans-serif">unterhalb der Nulllinie wäre der Verbrenner besser</text>`;
+  s += `<text x="${W-R-6}" y="${y(yMin)-8}" text-anchor="end" font-size="10.5" fill="#A8492F" font-family="Segoe UI,Arial,sans-serif">unterhalb der Nulllinie wäre der Verbrenner besser</text>`;
   for (let pct = yMin; pct <= yMax; pct += 20){
     const yy = y(pct);
     s += `<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="${pct===0 ? CSSV('--soft') : CSSV('--grid')}" stroke-width="${pct===0?1.5:1}"></line>`;
@@ -779,7 +779,7 @@ function chartSens(p){
   for (let g = 0; g <= gMax; g += 200){
     s += `<text x="${x(g)}" y="${H-B+20}" text-anchor="middle" font-size="11.5" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g}</text>`;
   }
-  s += `<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Statischer Strommix [g CO₂e/kWh] — y-Achse: CO₂-Ersparnis des E-Autos [%]</text>`;
+  s += `<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Segoe UI,Arial,sans-serif">Statischer Strommix [g CO₂e/kWh] — y-Achse: CO₂-Ersparnis des E-Autos [%]</text>`;
   s += `<path d="${pts.map((pt,i)=>(i?'L':'M')+x(pt[0]).toFixed(1)+','+y(pt[1]).toFixed(1)).join('')}" fill="none" stroke="${CSSV('--c-bev')}" stroke-width="3"></path>`;
   // Marker-Labels kollisionsbewusst setzen: liegen zwei Marker horizontal
   // dicht beieinander (DE 2024/2025), wandert das zweite Label auf die
@@ -1085,7 +1085,7 @@ function chartTornado(tor){
   const range = hi - lo;
   rows.forEach((rw, i) => {
     const cy = T + i * rowH + rowH / 2;
-    s += `<text x="${L-10}" y="${cy+4}" text-anchor="end" font-size="12.5" font-weight="500" fill="${CSSV('--ink')}" font-family="Geist,sans-serif">${esc(rw.label)}</text>`;
+    s += `<text x="${L-10}" y="${cy+4}" text-anchor="end" font-size="12.5" font-weight="500" fill="${CSSV('--ink')}" font-family="Segoe UI,Arial,sans-serif">${esc(rw.label)}</text>`;
     // Extremwert-Labels: negative Seite oberhalb, positive unterhalb des
     // Balkens, x auf den Plotbereich geklemmt - so kollidiert nichts.
     [[rw.d_lo, rw.lo_label], [rw.d_hi, rw.hi_label]].forEach(([d, lab]) => {
@@ -1100,7 +1100,7 @@ function chartTornado(tor){
       }
     });
   });
-  s += `<text x="${W/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Änderung der Ersparnis je Fahrzeug [t CO₂e] vs. Ausgangspunkt (alle Annahmen auf Mittelwert)</text>`;
+  s += `<text x="${W/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Segoe UI,Arial,sans-serif">Änderung der Ersparnis je Fahrzeug [t CO₂e] vs. Ausgangspunkt (alle Annahmen auf Mittelwert)</text>`;
   $('chart-tornado').innerHTML = s + '</svg>';
 }
 
@@ -1152,7 +1152,7 @@ function chartMcRuck(mc){
   let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Verteilung der Produktionsemissionen">`;
   rows.forEach((rw, i) => {
     const top = 10 + i * (rowH + gap), base = top + rowH - 26;
-    s += `<text x="${L-10}" y="${top+42}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Geist,sans-serif">${rw.l}</text>`;
+    s += `<text x="${L-10}" y="${top+42}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Segoe UI,Arial,sans-serif">${rw.l}</text>`;
     const bw = (W - L - R) / rw.hist.bins;
     rw.hist.counts.forEach((c, k) => {
       if (!c) return;
@@ -1172,7 +1172,7 @@ function chartMcRuck(mc){
     if (x(g) < W - R - 64) // Platz fuer das Einheiten-Label freihalten
       s += `<text x="${x(g)}" y="${axisY}" text-anchor="middle" font-size="11" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g}</text>`;
   }
-  s += `<text x="${W-R}" y="${axisY}" text-anchor="end" font-size="11" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">t CO₂e</text>`;
+  s += `<text x="${W-R}" y="${axisY}" text-anchor="end" font-size="11" fill="${CSSV('--soft')}" font-family="Segoe UI,Arial,sans-serif">t CO₂e</text>`;
   $('chart-mc-ruck').innerHTML = s + '</svg>';
 }
 function chartMcFan(mc){
@@ -1185,7 +1185,7 @@ function chartMcFan(mc){
   s += `<line x1="${x(0)}" y1="${T}" x2="${x(0)}" y2="${T + regions.length*rowH}" stroke="${CSSV('--soft')}" stroke-width="1"></line>`;
   regions.forEach((e, i) => {
     const cy = T + i * rowH + rowH / 2;
-    s += `<text x="${L-10}" y="${cy+4}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Geist,sans-serif">${esc(e.label)}</text>`;
+    s += `<text x="${L-10}" y="${cy+4}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Segoe UI,Arial,sans-serif">${esc(e.label)}</text>`;
     s += `<line x1="${x(e.delta_t.p5)}" y1="${cy}" x2="${x(e.delta_t.p95)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="6" opacity="0.35" stroke-linecap="round"><title>${esc(e.label)}: Median ${fmt(e.delta_t.p50,0)} t, P5–P95 ${fmt(e.delta_t.p5,0)}–${fmt(e.delta_t.p95,0)} t</title></line>`;
     s += `<line x1="${x(e.delta_t.p25)}" y1="${cy}" x2="${x(e.delta_t.p75)}" y2="${cy}" stroke="${CSSV('--c-bev')}" stroke-width="10" opacity="0.75" stroke-linecap="round"><title>${esc(e.label)}: P25–P75 ${fmt(e.delta_t.p25,0)}–${fmt(e.delta_t.p75,0)} t</title></line>`;
     s += `<line x1="${x(e.delta_t.p50)}" y1="${cy-10}" x2="${x(e.delta_t.p50)}" y2="${cy+10}" stroke="${CSSV('--ink')}" stroke-width="2.5"></line>`;
@@ -1196,7 +1196,7 @@ function chartMcFan(mc){
     s += `<line x1="${x(g)}" y1="${T}" x2="${x(g)}" y2="${axisY}" stroke="${CSSV('--grid')}" stroke-width="1"></line>`;
     s += `<text x="${x(g)}" y="${axisY+18}" text-anchor="middle" font-size="11" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g}</text>`;
   }
-  s += `<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Ersparnis über den Lebenszyklus [t CO₂e je Fahrzeug]</text>`;
+  s += `<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Segoe UI,Arial,sans-serif">Ersparnis über den Lebenszyklus [t CO₂e je Fahrzeug]</text>`;
   $('chart-mc-fan').innerHTML = s + '</svg>';
 }
 function chartMcHist(mc){
@@ -1224,7 +1224,7 @@ function chartMcHist(mc){
   for (let g = Math.ceil(lo / 20) * 20; g <= hi; g += 20){
     s += `<text x="${x(g)}" y="${H-B+18}" text-anchor="middle" font-size="11" fill="${CSSV('--soft')}" font-family="JetBrains Mono,monospace">${g}</text>`;
   }
-  s += `<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Ersparnis Deutschland [t CO₂e je Fahrzeug] — ${fmt0(PF.mc.n_draws)} Ziehungen</text>`;
+  s += `<text x="${(L+W-R)/2}" y="${H-8}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Segoe UI,Arial,sans-serif">Ersparnis Deutschland [t CO₂e je Fahrzeug] — ${fmt0(PF.mc.n_draws)} Ziehungen</text>`;
   $('chart-mc-hist').innerHTML = s + '</svg>';
 }
 function chartScale(mc){
@@ -1247,7 +1247,7 @@ function chartScale(mc){
     const cy = T + i * rowH + rowH / 2;
     const sc = PF.scaleup.regions.find(sr => sr.id === rid);
     const pkwPct = sc.pkw_mt.mid / sc.total_mt.mid * 100;
-    s += `<text x="${L-10}" y="${cy+4}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Geist,sans-serif">${esc(e.label)}</text>`;
+    s += `<text x="${L-10}" y="${cy+4}" text-anchor="end" font-size="13.5" font-weight="600" fill="${CSSV('--ink')}" font-family="Segoe UI,Arial,sans-serif">${esc(e.label)}</text>`;
     // Pkw-Sektor-Anteil als hohler Referenzmarker
     s += `<circle cx="${x(pkwPct)}" cy="${cy}" r="6" fill="none" stroke="${CSSV('--c-ice')}" stroke-width="2"></circle>`;
     s += `<text x="${x(pkwPct)}" y="${cy-12}" text-anchor="middle" font-size="10.5" fill="${CSSV('--c-ice')}" font-family="JetBrains Mono,monospace">Pkw ${fmt(pkwPct,1)} %</text>`;
@@ -1257,7 +1257,7 @@ function chartScale(mc){
     s += `<line x1="${x(e.pct_total.p50)}" y1="${cy-10}" x2="${x(e.pct_total.p50)}" y2="${cy+10}" stroke="${CSSV('--ink')}" stroke-width="2.5"></line>`;
     s += `<text x="${W-R+10}" y="${cy+4}" font-size="12" font-weight="600" fill="${CSSV('--ink')}" font-family="JetBrains Mono,monospace">${fmt(e.mt_a.p50,0)} Mt/a</text>`;
   });
-  s += `<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Geist,sans-serif">Anteil an den THG-Gesamtemissionen der Region (CO₂e) [%]</text>`;
+  s += `<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="12" fill="${CSSV('--soft')}" font-family="Segoe UI,Arial,sans-serif">Anteil an den THG-Gesamtemissionen der Region (CO₂e) [%]</text>`;
   $('chart-scale').innerHTML = s + '</svg>';
 }
 function renderScaleTable(mc){
