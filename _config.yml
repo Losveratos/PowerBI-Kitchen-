@@ -77,6 +77,17 @@ exclude:
   - strommix/README.md
   - strommix/BACKLOG.md
 
+  # Arbeitsmaterial des E-Auto-Projekts (kein Web-Inhalt). Gleiche Lage wie
+  # oben: vier der Markdowns unter eauto/research/ tragen YAML-Frontmatter mit
+  # gequoteten Datumsfeldern ("2026-08-30") -- genau das Muster, an dem der
+  # Pages-Build beim Strommix-Live-Gang gescheitert ist.
+  # WICHTIG: eauto/data/ bleibt ausdruecklich drin -- eauto-klimabilanz.html
+  # laedt Modellparameter, Testvektoren und die Monte-Carlo-Referenz zur
+  # Laufzeit per fetch() aus eauto/data/*.json.
+  - eauto/research/
+  - eauto/scripts/
+  - eauto/README.md
+
   # Die Jekyll-/Pages-Standardausschluesse. `exclude` ersetzt die Vorgabeliste,
   # statt sie zu ergaenzen -- deshalb stehen sie hier noch einmal.
   - CNAME
