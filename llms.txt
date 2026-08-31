@@ -42,7 +42,7 @@ Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als *
 - [Power BI Praxis-Pfad](https://datenwgknowledgekitchen.com/md/powerbi_praxis_pfad.md): Gefuehrter Uebungspfad von der Installation zum ersten fertigen Dashboard in gut zwei Stunden — mit Beispieldaten, ohne Konto, ohne Vorkenntnisse.
 - [Business Chart Builder — Anleitung](https://datenwgknowledgekitchen.com/md/business-chart-builder-anleitung.md): Anleitung zum Chart-Builder-Werkzeug inkl. 1-Klick-Export nach Power BI (Deneb).
 - [Country Indicator Explorer](https://datenwgknowledgekitchen.com/md/laender-indikatoren-explorer.md): Methodik und Quellen des Explorers zu Lebenszufriedenheit und ihren Korrelaten — 164 Laender, 15 Indikatoren, Pearson-Korrelationen. Deskriptiv, ausdruecklich nicht kausal.
-- [Daten-WG · Episoden-Guide](https://datenwgknowledgekitchen.com/md/daten_wg_learn_buckets.md): Alle 143 Folgen des Daten-WG-Podcasts in neun Themen-Clustern — mit Gast, Datum, Laenge, Sprache, Beschreibung und Kapitel-Sprungmarken als YouTube-Timestamp-Links. Generiert aus den Episodendaten.
+- [Daten-WG · Episoden-Guide](https://datenwgknowledgekitchen.com/md/daten_wg_learn_buckets.md): Alle 147 Folgen des Daten-WG-Podcasts in neun Themen-Clustern — mit Gast, Datum, Laenge, Sprache, Beschreibung und Kapitel-Sprungmarken als YouTube-Timestamp-Links. Generiert aus den Episodendaten.
 
 ## Angebot (Training und Beratung)
 

@@ -2,25 +2,50 @@
 
 > Markdown-Fassung von [daten_wg_learn_buckets.html](../daten_wg_learn_buckets.html) · https://datenwgknowledgekitchen.com/daten_wg_learn_buckets.html · generiert mit scripts/build_learn_md.py aus den Episodendaten — bei Abweichungen gilt die HTML-Fassung.
 
-Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **143 Folgen** insgesamt · Sprachverteilung: 122 DE / 21 EN.
+Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **147 Folgen** insgesamt · Sprachverteilung: 126 DE / 21 EN.
 
 ## Übersicht
 
 | Bucket | Folgen |
 | --- | --- |
-| 01 · Quarterly · Updates & News | 21 |
-| 02 · Microsoft Fabric | 27 |
+| 01 · Quarterly · Updates & News | 22 |
+| 02 · Microsoft Fabric | 29 |
 | 03 · Datenmodellierung & Architektur | 28 |
 | 04 · Self-Service & Governance | 5 |
 | 05 · Visualisierung & IBCS | 12 |
 | 06 · Power BI · Deep Dive & Vergleiche | 29 |
-| 07 · Karriere & Community | 6 |
+| 07 · Karriere & Community | 7 |
 | 08 · Digitalisierung & Strategie | 6 |
 | 09 · Daten-WG Konferenz | 9 |
 
 ## 01 · Quarterly · Updates & News
 
 _Vier Mal im Jahr räumt das Quarterly-Format auf, was sich in der Microsoft Data Platform getan hat: neue Power BI Features, Fabric-Ankündigungen, was GA geht, was Preview bleibt. Wenn du nur ein Format hörst, dann das hier — komprimiertes Branchen-Briefing._
+
+### Power BI Update August 2026
+
+August 2026 · 9 min · DE · Tags: Update, Power BI, Fabric, DE
+
+YouTube: https://www.youtube.com/watch?v=GWCHNmLs72M
+
+Das August-Update 2026: Spaltenüberschriften der Matrix per Plus-Minus auf- und zuklappen, Zeilenüberschriften wahlweise fixieren oder mitscrollen, ein Mittenwert im Donut Chart und mehr Kontrolle beim Balkenabstand. Für Entwickler: PBIP direkt aus dem Desktop in VS Code öffnen, externe Änderungen live übernehmen, Bilder aus OneLake einbinden und Direct-Lake-Modelle per Klick in Import umwandeln.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=GWCHNmLs72M&t=0s) Intro: Frontend-Update und Entwickler-Goodies im August 2026
+- [00:19](https://www.youtube.com/watch?v=GWCHNmLs72M&t=19s) Highlight Matrix: Plus-Minus für Spaltenüberschriften
+- [00:49](https://www.youtube.com/watch?v=GWCHNmLs72M&t=49s) Matrix-Layout: Zeilenüberschriften fixieren oder frei mitscrollen
+- [01:37](https://www.youtube.com/watch?v=GWCHNmLs72M&t=97s) Donut Chart: der neue Mittenwert
+- [02:13](https://www.youtube.com/watch?v=GWCHNmLs72M&t=133s) Mittenwert frei belegen: Gesamtsumme, Bilder und mehr
+- [02:41](https://www.youtube.com/watch?v=GWCHNmLs72M&t=161s) Balkendiagramm: äußerer Abstand jetzt steuerbar
+- [02:59](https://www.youtube.com/watch?v=GWCHNmLs72M&t=179s) GA: Berichtsdesign anpassen und Date-Picker im Slicer
+- [03:26](https://www.youtube.com/watch?v=GWCHNmLs72M&t=206s) PBIP direkt aus dem Desktop in Visual Studio Code öffnen
+- [03:51](https://www.youtube.com/watch?v=GWCHNmLs72M&t=231s) Externe Änderungen live im Desktop übernehmen
+- [04:23](https://www.youtube.com/watch?v=GWCHNmLs72M&t=263s) Der Trick: das Visual über die Objekt-ID in VS Code finden
+- [05:29](https://www.youtube.com/watch?v=GWCHNmLs72M&t=329s) Warum das Ganze vor allem auf AI-Anpassungen zielt
+- [05:57](https://www.youtube.com/watch?v=GWCHNmLs72M&t=357s) Bilder direkt aus OneLake in Power BI einbinden
+- [06:57](https://www.youtube.com/watch?v=GWCHNmLs72M&t=417s) Den OneLake-Link aufbauen und die Stolperfallen im Desktop
+- [07:35](https://www.youtube.com/watch?v=GWCHNmLs72M&t=455s) Direct-Lake-Modelle mit wenigen Klicks in Import umwandeln
+- [08:32](https://www.youtube.com/watch?v=GWCHNmLs72M&t=512s) Fazit: Frontend, Entwickler und ein bisschen Fabric
 
 ### Power BI Update Juli 2026
 
@@ -420,6 +445,56 @@ Kapitel:
 ## 02 · Microsoft Fabric
 
 _Lakehouse, OneLake, F-SKUs, Direct Lake — Fabric ist die strategische Wette von Microsoft. Hier geht es um die ehrlichen Fragen: Für wen ist es wirklich? Wo sind die Stolperfallen? Wann lohnt es sich, wann nicht? Mit echten Praxis-Stimmen statt Marketing._
+
+### Daten-WG Life-Update | Fabric Architekturen
+
+Gast: WG-Runde · August 2026 · 51 min · DE · Tags: Fabric, Architektur, Lakehouse, DE
+
+YouTube: https://www.youtube.com/watch?v=J-lN5JN-F5I
+
+Vier Berater, vier laufende Fabric-Projekte — und wenig Einigkeit, wie eine Datenplattform in Fabric aussehen sollte. Die Runde streitet über die Medaillon-Architektur (auch mal umgedreht: Gold ins Lakehouse), ob es wirklich immer drei Layer sein müssen, Warehouses mit Stored Procedures gegen Notebooks, Self-Service-Lakehouses und warum SQL leichter zu lernen ist als DAX.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=0s) Intro: Zu viert im Regen und die Frage nach dem Fabric-Standard
+- [00:34](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=34s) Marcus' SAP-Projekt: Datasphere, Delta-Dateien und warum es ein Notebook wurde
+- [04:16](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=256s) F64 für die Lizenzen, 2% Auslastung und die Exit-Strategie aus dem Projekt
+- [06:11](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=371s) Navision, Data Gateway und eine Medaillon-Architektur auf Warehouses
+- [09:26](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=566s) Business Central und Open Mirroring: die Session von Julian Wissel
+- [10:45](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=645s) Architekturen entstehen nicht aus Vorsystemen, sondern aus Menschen
+- [12:15](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=735s) Umgekehrt gedacht: Warehouse für Bronze und Silber, Lakehouse für Gold
+- [13:57](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=837s) Dataflows für Citizen Developer und wo die Aufteilung plötzlich wehtut
+- [17:21](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1041s) Immer drei Layer, und die sind nicht diskutabel
+- [20:34](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1234s) Self-Service-Lakehouse, Composite Models und das Excel-Monster
+- [25:07](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1507s) TMDL, fachliche Pakete und die Frage nach dem Ease of Use
+- [30:19](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1819s) Warum SQL leichter zu lernen ist als DAX
+- [35:07](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2107s) Von der Excel-Kreuztabelle über M-Code zum SQL-Statement
+- [39:00](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2340s) Power Apps, eine F2 am Limit und der Umstieg auf Stored Procedures
+- [47:20](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2840s) Sessions auf der Daten-WG 2026: DAX, Data Vault und Python
+
+### Fabric Workload Demo mit Alexander Korn und Lukasz Obst
+
+Gast: Alexander Korn & Lukasz Obst · August 2026 · 27 min · DE · Tags: Fabric, Workloads, KI-Agent, DE
+
+YouTube: https://www.youtube.com/watch?v=e50qKdVn-24
+
+Alexander Korn und Lukasz Obst haben in Microsoft Fabric einen eigenen Developer-Workload gebaut: einen Agenten für Entwickler, der in der Plattform lebt. Drin stecken der Power BI Fixer (Model Explorer, BPA, neue Report View) und ein Agent Hub, der agentische Workflows über Items hinweg ausführt — von der Ingestion bis zum fertigen Report. Dazu, was Fabric Workloads sind und warum jedes Tool einen MCP-Server exponiert.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=e50qKdVn-24&t=0s) Intro: Feature-Overview zum Developer Hub statt Livestream
+- [00:50](https://www.youtube.com/watch?v=e50qKdVn-24&t=50s) Das Feedback dahinter: zu viele Tools, zu viel Tempo
+- [02:15](https://www.youtube.com/watch?v=e50qKdVn-24&t=135s) Fabric Workloads: die Plattform selbst erweitern
+- [02:46](https://www.youtube.com/watch?v=e50qKdVn-24&t=166s) Was es schon gibt: ArcGIS Maps von Esri, Business Process Solutions
+- [03:47](https://www.youtube.com/watch?v=e50qKdVn-24&t=227s) Der Developer Hub: Agent Hub und Tools unter einem Dach
+- [05:30](https://www.youtube.com/watch?v=e50qKdVn-24&t=330s) Power BI Fixer in Fabric: Model Explorer, BPA und Memory Analyzer
+- [07:42](https://www.youtube.com/watch?v=e50qKdVn-24&t=462s) Neu gebaut: Report View für Berichtsdesign analog zur TMDL View
+- [09:54](https://www.youtube.com/watch?v=e50qKdVn-24&t=594s) Die Idee dahinter: jedes Tool exponiert einen MCP-Server
+- [10:50](https://www.youtube.com/watch?v=e50qKdVn-24&t=650s) Warum kann Copilot das nicht einfach selbst?
+- [13:04](https://www.youtube.com/watch?v=e50qKdVn-24&t=784s) Fabric Copilot im Item versus Agent Hub über Items hinweg
+- [14:36](https://www.youtube.com/watch?v=e50qKdVn-24&t=876s) Agent Hub live: Prompt, Referenzen, Branch-Out und Modelle
+- [17:07](https://www.youtube.com/watch?v=e50qKdVn-24&t=1027s) Mission gestartet: Multi-Agenten-Workflow mit Verification Loop
+- [18:59](https://www.youtube.com/watch?v=e50qKdVn-24&t=1139s) Das Ergebnis: Notebook, Lakehouse, Semantic Model und Report
+- [22:51](https://www.youtube.com/watch?v=e50qKdVn-24&t=1371s) Wie kommt man ran? Workloads hinzufügen und Governance
+- [24:39](https://www.youtube.com/watch?v=e50qKdVn-24&t=1479s) Ausblick: was Extensibility für die Community bedeutet
 
 ### Microsoft Fabric Dataflow Gen2 Kosten verstehen - CU-Verbrauch einfach erklärt
 
@@ -1816,6 +1891,31 @@ Ich liebe Buttons, ich liebe responsives Desgin, Icons für Useability und Bookm
 ## 07 · Karriere & Community
 
 _Datenarbeit ist nicht nur Technik. Hier sprechen Gäste über ihren Weg ins Daten-Feld, über User-Groups, über den Mut, eigene Wege zu gehen statt sich auf eine Nische zu pressen — und über das, was Daten-Profis menschlich brauchen._
+
+### Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst
+
+Gast: Alexander Korn & Lukasz Obst · August 2026 · 21 min · DE · Tags: Karriere, Microsoft, Podcast, DE
+
+YouTube: https://www.youtube.com/watch?v=_C69B0i-QQA
+
+Alexander Korn und Lukasz Obst sind im Januar von der Beratung zu Microsoft gewechselt — in eine Pre-Sales-Rolle, die viele Kunden gar nicht auf dem Schirm haben: kostenlos, aber mit klarem Interesse. Sie erklären die Rollenlandschaft bei Microsoft (vom Account Executive bis Delivery), wonach sie entscheiden, wem sie ihre Zeit geben, und warum es sich für Microsoft nicht rechnet, einfach die teurere Plattform zu verkaufen.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=_C69B0i-QQA&t=0s) Intro: zwei Insider von Microsoft zu Gast
+- [00:53](https://www.youtube.com/watch?v=_C69B0i-QQA&t=53s) Vom Softwareentwickler in die Datenwelt: Lukasz' Weg
+- [02:32](https://www.youtube.com/watch?v=_C69B0i-QQA&t=152s) Vom Microsoft-Partner zu Microsoft: was Pre-Sales wirklich heißt
+- [03:54](https://www.youtube.com/watch?v=_C69B0i-QQA&t=234s) Drei Solution-Engineer-Rollen: Data, Infrastruktur, AI und Apps
+- [04:30](https://www.youtube.com/watch?v=_C69B0i-QQA&t=270s) Wer macht bei Microsoft was? Von AE über CSA bis Delivery
+- [06:32](https://www.youtube.com/watch?v=_C69B0i-QQA&t=392s) Kostenlose Beratung mit Verkaufsinteresse: das Spannungsfeld
+- [08:12](https://www.youtube.com/watch?v=_C69B0i-QQA&t=492s) Impact als Maßstab: welchem Kunden helfen wir?
+- [09:45](https://www.youtube.com/watch?v=_C69B0i-QQA&t=585s) Partnerstufen, Spezialisierungen und Managed Partner
+- [10:26](https://www.youtube.com/watch?v=_C69B0i-QQA&t=626s) POC bei Microsoft, Umsetzung beim Partner
+- [12:16](https://www.youtube.com/watch?v=_C69B0i-QQA&t=736s) Freiheit und Druck: Ziele, Industrien und 15 Kunden
+- [14:36](https://www.youtube.com/watch?v=_C69B0i-QQA&t=876s) Warum "verkaufen, verkaufen, verkaufen" nicht aufgeht
+- [16:15](https://www.youtube.com/watch?v=_C69B0i-QQA&t=975s) Trusted Advisor statt Quick Win: Kapazität sinnvoll nutzen
+- [17:57](https://www.youtube.com/watch?v=_C69B0i-QQA&t=1077s) Fabric Planning als Beispiel: Konsolidierung statt Nischenlösung
+- [19:05](https://www.youtube.com/watch?v=_C69B0i-QQA&t=1145s) Eigene Kompetenz im Markt: Power BI Fixer und Developer Hub
+- [20:32](https://www.youtube.com/watch?v=_C69B0i-QQA&t=1232s) Ausblick: Fabric-Debatte und Dashboard Roast auf der Daten-WG
 
 ### KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber
 

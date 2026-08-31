@@ -6,7 +6,7 @@ Power BI visual · Quick start
 
 One Power BI visual with 13 IBCS-inspired modes — from columns, lines and waterfall to table, matrix and a full P&L statement. Understand in two minutes what the visual does, how to get going and where to find the full documentation.
 
-13 modes · DE · EN · ES · JA · Version 1.41.0.0
+13 modes · DE · EN · ES · JA · Version 1.42.0.0
 
 ![A complete Power BI report page with KPI cards and bridges, built from ChartKitchen visuals](../doku-assets/pbi/pbi-demo-report.png)
 
@@ -14,7 +14,7 @@ One Power BI visual with 13 IBCS-inspired modes — from columns, lines and wate
 
 ### Download the visual
 
-Version **1.41.0.0** · **.pbiviz** · 13.08.2026
+Version **1.42.0.0** · **.pbiviz** · 23.08.2026
 
 Direct download, no registration — this link always serves the latest release. Import in Power BI Desktop: *Visualizations → “…” → Import a visual from a file*. All builds are also available on [GitHub](https://github.com/Losveratos/Power-BI-Custom-Visuals-byDatenWG).
 
@@ -56,7 +56,7 @@ Each tile jumps straight to the matching section of the full documentation.
 - **[FAQ & troubleshooting](../chartkitchen-doku_en.html#faq)** · Chapter 07 — Common questions, typical pitfalls and quick answers around the visual.
 - **[Docs as PDF (EN)](../chartkitchen-doku_en.pdf)** · Download — The complete English documentation as a PDF for offline reading and sharing.
 
-**ChartKitchen byDatenWG** · Version 1.41.0.0
+**ChartKitchen byDatenWG** · Version 1.42.0.0
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 

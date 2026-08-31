@@ -6,7 +6,7 @@ Power-BI-Visual · Schnellstart
 
 Ein einzelnes Power-BI-Visual mit 13 IBCS-inspirierten Modi — von Säulen, Linien und Wasserfall über Tabelle und Matrix bis zum GuV-Statement. In zwei Minuten verstehen, was das Visual kann, wie du loslegst und wo die ausführliche Dokumentation steht.
 
-13 Modi · DE · EN · ES · JA · Version 1.41.0.0
+13 Modi · DE · EN · ES · JA · Version 1.42.0.0
 
 ![Komplette Power-BI-Berichtsseite mit KPI-Karten und Brücken, aus ChartKitchen-Visuals gebaut](../doku-assets/pbi/pbi-demo-report.png)
 
@@ -14,7 +14,7 @@ Ein einzelnes Power-BI-Visual mit 13 IBCS-inspirierten Modi — von Säulen, Lin
 
 ### Visual herunterladen
 
-Version **1.41.0.0** · **.pbiviz** · 13.08.2026
+Version **1.42.0.0** · **.pbiviz** · 23.08.2026
 
 Direkt-Download, keine Registrierung — der Link liefert immer die aktuelle Version. Import in Power BI Desktop: *Visualisierungen → „…" → Visual aus einer Datei importieren*. Alternativ gibt es alle Builds auch auf [GitHub](https://github.com/Losveratos/Power-BI-Custom-Visuals-byDatenWG).
 
@@ -56,7 +56,7 @@ Jede Kachel springt direkt in die passende Sektion der ausführlichen Doku.
 - **[FAQ & Troubleshooting](../chartkitchen-doku.html#faq)** · Kapitel 07 — Häufige Fragen, typische Stolpersteine und schnelle Antworten rund um das Visual.
 - **[Doku als PDF (DE)](../chartkitchen-doku.pdf)** · Download — Die komplette deutsche Dokumentation als PDF zum Offline-Lesen und Weitergeben.
 
-**ChartKitchen byDatenWG** · Version 1.41.0.0
+**ChartKitchen byDatenWG** · Version 1.42.0.0
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
