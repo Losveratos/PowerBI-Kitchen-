@@ -38,6 +38,15 @@ export interface InputRow {
     series?: Partial<Record<Scenario, (number | null)[]>>;
     comment: string | null;
     index: number;
+    /**
+     * Every data-view row index this row was built from. A month-grain account
+     * folds twelve source rows into one InputRow — `index` keeps the first one
+     * (sort fallback), `srcIdx` keeps all of them, which is what a Power BI
+     * selection id has to be built over (one id per source row). Generated rows
+     * (synthetic level parents, the orphan bucket) carry none; their selection
+     * is the union of the leaves below them.
+     */
+    srcIdx?: number[];
 }
 
 export interface PnlNode {
@@ -67,6 +76,8 @@ export interface Variance {
 }
 
 const ORPHAN_ID = "__unassigned__";
+/** id of the virtual total root (see syntheticTotal) — never a real row id */
+export const TOTAL_ID = "__TOTAL__";
 const LEVEL_PREFIX = "L:";
 const LEVEL_SEP = "¦"; // ¦ — unlikely in account names
 
@@ -87,23 +98,167 @@ export interface LevelInputRow {
     index: number;
 }
 
+// ---- period keys: one place decides in which order the periods are read
+
+/** How the bound period column is ordered (format pane: columns.periodSort). */
+export type PeriodSort = "auto" | "data" | "calendar";
+
+/**
+ * A period label broken into its calendar position. `y` is null when the label
+ * carries no year at all ("Dez", "March", "7") — such a column can only be put
+ * in calendar order, never on a timeline.
+ */
+export interface PeriodKey {
+    y: number | null;
+    /** 1..12 */
+    m: number;
+    /** day of month, 0 when the label names no day */
+    d: number;
+}
+
+/**
+ * Month stems, German and English, long and short. Everything is folded to
+ * lower case without umlauts first, then looked up whole and — failing that —
+ * by its first three letters, so "Dezember", "Dez.", "Dec", "March", "März"
+ * and "Mrz" all land on the same number.
+ */
+const MONTH_STEM: Record<string, number> = {
+    jan: 1, feb: 2, mar: 3, mrz: 3, apr: 4, mai: 5, may: 5, jun: 6,
+    jul: 7, aug: 8, sep: 9, okt: 10, oct: 10, nov: 11, dez: 12, dec: 12,
+};
+
+/** lower case, umlauts folded — the shape MONTH_STEM is keyed on */
+function foldWord(s: string): string {
+    return s.toLowerCase()
+        .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "s");
+}
+
+/**
+ * Below this a bare number is a figure (a month position, a fiscal period),
+ * above it an epoch timestamp in milliseconds (~1973 and later). Hosts hand
+ * date columns over as ISO text or as Date objects; a numeric stamp only shows
+ * up when the model itself carries one.
+ */
+const MS_EPOCH_MIN = 1e11;
+
+/**
+ * Read one period label into its calendar position — the single parser behind
+ * every ordering decision. Supported, in this order:
+ *
+ *  · "YYYY-MM", "YYYY-MM-DD", ISO timestamps ("2026-03-01T00:00:00Z"),
+ *    "YYYY/MM" — the classic text key, unchanged;
+ *  · a plain number: 1..12 is a calendar position, a large one an epoch
+ *    timestamp in milliseconds;
+ *  · a month name, German or English, long or short, with or without a dot and
+ *    in any casing ("Dez", "Dez.", "Dezember", "Dec", "March", "Mär", "Mrz"),
+ *    optionally with a four-digit year on either side ("Mär 2026", "2026 Mar").
+ *
+ * Anything else returns null — the caller then falls back to data order rather
+ * than guessing (fiscal calendars, week labels, "P01".."P13" …).
+ */
+export function parsePeriod(raw: string | null | undefined): PeriodKey | null {
+    const s = String(raw ?? "").trim();
+    if (s === "") { return null; }
+
+    const iso = /^(\d{4})[-/](\d{1,2})(?:[-/](\d{1,2}))?/.exec(s);
+    if (iso) {
+        const m = Number(iso[2]);
+        if (m < 1 || m > 12) { return null; }
+        return { y: Number(iso[1]), m, d: iso[3] == null ? 0 : Number(iso[3]) };
+    }
+
+    if (/^-?\d+(?:[.,]\d+)?$/.test(s)) {
+        const n = Number(s.replace(",", "."));
+        if (!isFinite(n)) { return null; }
+        if (Number.isInteger(n) && n >= 1 && n <= 12) { return { y: null, m: n, d: 0 }; }
+        if (Math.abs(n) >= MS_EPOCH_MIN) {
+            const dt = new Date(n);
+            if (!isNaN(dt.getTime())) {
+                return { y: dt.getFullYear(), m: dt.getMonth() + 1, d: dt.getDate() };
+            }
+        }
+        return null;
+    }
+
+    let m = 0;
+    let y: number | null = null;
+    for (const tok of foldWord(s).split(/[^0-9a-z]+/)) {
+        if (tok === "") { continue; }
+        if (/^\d+$/.test(tok)) {
+            if (tok.length === 4 && y == null) { y = Number(tok); }
+            continue;
+        }
+        if (m !== 0) { continue; }
+        const hit = MONTH_STEM[tok] ?? MONTH_STEM[tok.slice(0, 3)];
+        if (hit) { m = hit; }
+    }
+    return m === 0 ? null : { y, m, d: 0 };
+}
+
+/**
+ * THE one place the period order is decided. `keys` arrive in data order (first
+ * appearance in the data view) and come back in render order. Everything
+ * downstream — the monthly series indices, the YTD window, the combo chart, the
+ * sparklines, the "_Aug" marker — reads PnlModel.months, so the whole visual
+ * follows this single decision and no consumer sorts on its own.
+ *
+ *  · "data"     — first appearance wins (fiscal years, models with their own
+ *                 sort column on the period attribute);
+ *  · "calendar" — Jan..Dec; where the labels carry a year, year first;
+ *  · "auto"     — calendar as soon as *every* label parses, data order
+ *                 otherwise (default).
+ *
+ * Labels that do not parse keep their data order and sort behind the dated
+ * ones — a column that mixes the two is a modelling accident, and guessing
+ * would only hide it.
+ */
+export function sortMonths(keys: string[], mode: PeriodSort = "auto"): string[] {
+    if (mode === "data") { return [...keys]; }
+    const idx = new Map<string, number>();
+    const parsed = new Map<string, PeriodKey | null>();
+    keys.forEach((k, i) => {
+        if (idx.has(k)) { return; }
+        idx.set(k, i);
+        parsed.set(k, parsePeriod(k));
+    });
+    if (mode === "auto") {
+        for (const p of parsed.values()) { if (p == null) { return [...keys]; } }
+    }
+    return [...keys].sort((a, b) => {
+        const ia = idx.get(a) ?? 0; const ib = idx.get(b) ?? 0;
+        const pa = parsed.get(a) ?? null; const pb = parsed.get(b) ?? null;
+        if (pa == null || pb == null) {
+            if (pa == null && pb == null) { return ia - ib; }
+            return pa == null ? 1 : -1;
+        }
+        return (pa.y ?? -1) - (pb.y ?? -1) || pa.m - pb.m || pa.d - pb.d || ia - ib;
+    });
+}
+
 /**
  * Month-grain aggregation: merge rows sharing an id into one InputRow —
  * regular scenarios sum up and fill the monthly series, FY scalars
  * (fcfy/plfy, repeated on every month row) take the first value.
+ *
+ * The period order comes from sortMonths (see there) — the months array this
+ * returns is the order every series index in the model is built against.
  */
 export function aggregateMonthly(
-    rows: (InputRow & { month: string | null })[]
+    rows: (InputRow & { month: string | null })[], sort: PeriodSort = "auto"
 ): { rows: InputRow[]; months: string[] } {
-    const months = [...new Set(rows.map(r => r.month).filter((m): m is string => m != null))].sort();
+    const months = sortMonths(
+        [...new Set(rows.map(r => r.month).filter((m): m is string => m != null))], sort);
     const byId = new Map<string, InputRow>();
     for (const r of rows) {
         let t = byId.get(r.id);
         if (!t) {
-            t = { ...r, values: {}, series: {} };
+            t = { ...r, values: {}, series: {}, srcIdx: [] };
             delete (t as { month?: string | null }).month;
             byId.set(r.id, t);
         }
+        // every source row of this account stays addressable — the selection id
+        // of a month-grain account is one id per month, not one for the first
+        if (r.index >= 0) { (t.srcIdx as number[]).push(r.index); }
         if (t.comment == null && r.comment != null) { t.comment = r.comment; }
         const mi = r.month != null ? months.indexOf(r.month) : -1;
         for (const s of SCENARIOS) {
@@ -135,7 +290,9 @@ export function aggregateMonthly(
  * subtotal, so its own value acts as the per-scenario fallback instead of
  * double counting.
  */
-export function rowsFromLevels(rows: LevelInputRow[]): { rows: InputRow[]; months: string[] } {
+export function rowsFromLevels(
+    rows: LevelInputRow[], sort: PeriodSort = "auto"
+): { rows: InputRow[]; months: string[] } {
     const synth = new Map<string, InputRow>();
     const leaves: (InputRow & { month: string | null })[] = [];
     const pathId = (path: string[]): string => LEVEL_PREFIX + path.join(LEVEL_SEP);
@@ -177,7 +334,7 @@ export function rowsFromLevels(rows: LevelInputRow[]): { rows: InputRow[]; month
 
     // month-grain rows sharing a path merge into one leaf (values summed,
     // FY scalars first-wins, monthly series filled)
-    const agg = aggregateMonthly(leaves);
+    const agg = aggregateMonthly(leaves, sort);
     // a real data row at a synthetic parent's path replaces the synthetic
     for (const leaf of agg.rows) { synth.delete(leaf.id); }
     const out = [...synth.values(), ...agg.rows];
@@ -351,6 +508,60 @@ function contributes(node: PnlNode): boolean {
     return t === "account" || t === "subtotal";
 }
 
+/** per-scenario sum of the contributing children (null when no child carries a value) */
+function childSum(node: PnlNode, s: Scenario): number | null {
+    let acc: number | null = null;
+    for (const c of node.children) {
+        if (!contributes(c)) { continue; }
+        const cv = c.computed[s];
+        if (cv == null) { continue; }
+        acc = (acc ?? 0) + cv;
+    }
+    return acc;
+}
+
+/** per-month sum of the contributing children (null when no child carries a series) */
+function childSeriesSum(node: PnlNode, s: Scenario): (number | null)[] | null {
+    let acc: (number | null)[] | null = null;
+    for (const c of node.children) {
+        if (!contributes(c)) { continue; }
+        const cs = c.series[s];
+        if (!cs) { continue; }
+        if (!acc) { acc = new Array(cs.length).fill(null); }
+        for (let i = 0; i < cs.length; i++) {
+            const v = cs[i];
+            if (v == null) { continue; }
+            acc[i] = (acc[i] ?? 0) + v;
+        }
+    }
+    return acc;
+}
+
+/**
+ * Subtotal semantics on one node: the children win, the row's own value is the
+ * per-scenario fallback for aggregate-only data (e.g. PY delivered without
+ * account detail), and the row's own sign applies to the aggregate — values and
+ * monthly series alike. FY scalars (fcfy/plfy) roll up like every other
+ * scenario here; their first-wins rule lives in aggregateMonthly, one level
+ * below. The engine's roll-up pass and syntheticTotal() share this definition.
+ */
+export function aggregateSubtotal(node: PnlNode): void {
+    for (const s of SCENARIOS) {
+        const childAcc = childSum(node, s);
+        const base = childAcc != null ? childAcc : node.row.values[s];
+        node.computed[s] = base == null ? null : base * node.row.sign;
+    }
+    for (const s of SERIES_SCENARIOS) {
+        const ownRaw = node.row.series?.[s];
+        const own = ownRaw ? ownRaw.map(v => (v == null ? null : v * node.row.sign)) : null;
+        const childAcc = childSeriesSum(node, s);
+        const base = childAcc
+            ? (node.row.sign === -1 ? childAcc.map(v => (v == null ? null : -v)) : childAcc)
+            : own;
+        if (base) { node.series[s] = base; }
+    }
+}
+
 function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: string[], months: string[]): void {
     // pass 1: additive values bottom-up (accounts + subtotals)
     const sumNode = (node: PnlNode): void => {
@@ -365,57 +576,27 @@ function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: s
 
         if (t !== "account" && t !== "subtotal") { return; } // formula/kpi in pass 2
 
+        if (t === "subtotal") { aggregateSubtotal(node); return; }
+
+        // postable parent account: own value + children
         for (const s of SCENARIOS) {
             const own = node.row.values[s];
-            let childAcc: number | null = null;
-            for (const c of node.children) {
-                if (!contributes(c)) { continue; }
-                const cv = c.computed[s];
-                if (cv == null) { continue; }
-                childAcc = (childAcc ?? 0) + cv;
-            }
-            if (t === "subtotal") {
-                // children win; the own value is the per-scenario fallback for
-                // aggregate-only data (e.g. PY delivered without account detail);
-                // the subtotal's own sign applies to its aggregate
-                const base = childAcc != null ? childAcc : own;
-                node.computed[s] = base == null ? null : base * node.row.sign;
-            } else {
-                // postable parent account: own value + children
-                let acc: number | null = own != null ? own * node.row.sign : null;
-                if (childAcc != null) { acc = (acc ?? 0) + childAcc; }
-                node.computed[s] = acc;
-            }
+            const childAcc = childSum(node, s);
+            let acc: number | null = own != null ? own * node.row.sign : null;
+            if (childAcc != null) { acc = (acc ?? 0) + childAcc; }
+            node.computed[s] = acc;
         }
 
         // monthly series roll up with the same semantics (sparklines)
         for (const s of SERIES_SCENARIOS) {
             const ownRaw = node.row.series?.[s];
             const own = ownRaw ? ownRaw.map(v => (v == null ? null : v * node.row.sign)) : null;
-            let childAcc: (number | null)[] | null = null;
-            for (const c of node.children) {
-                if (!contributes(c)) { continue; }
-                const cs = c.series[s];
-                if (!cs) { continue; }
-                if (!childAcc) { childAcc = new Array(cs.length).fill(null); }
-                for (let i = 0; i < cs.length; i++) {
-                    const v = cs[i];
-                    if (v == null) { continue; }
-                    childAcc[i] = (childAcc[i] ?? 0) + v;
-                }
-            }
-            if (t === "subtotal") {
-                const base = childAcc
-                    ? (node.row.sign === -1 ? childAcc.map(v => (v == null ? null : -v)) : childAcc)
-                    : own;
-                if (base) { node.series[s] = base; }
+            const childAcc = childSeriesSum(node, s);
+            if (own && childAcc) {
+                node.series[s] = own.map((v, i) =>
+                    v == null && childAcc[i] == null ? null : (v ?? 0) + (childAcc[i] ?? 0));
             } else if (own || childAcc) {
-                if (own && childAcc) {
-                    node.series[s] = own.map((v, i) =>
-                        v == null && childAcc![i] == null ? null : (v ?? 0) + (childAcc![i] ?? 0));
-                } else {
-                    node.series[s] = (own ?? childAcc)!;
-                }
+                node.series[s] = (own ?? childAcc)!;
             }
         }
     };
@@ -581,6 +762,89 @@ function evalAst(
     }
 }
 
+// ---- formula operands (value-driver tree)
+
+/** Operator shown at the branch point of a driver tree. */
+export type FormulaOp = "×" | "÷" | "+" | "−";
+
+export interface FormulaOperand {
+    child: PnlNode;
+    /** operator that binds this operand to the one before it (see formulaOperands) */
+    op: FormulaOp;
+}
+
+/**
+ * Reference resolver with the same semantics the formula evaluator uses:
+ * by row id first, then by *unique* row name — level mode has synthetic path
+ * ids, so "[Net revenue]" must resolve by name there.
+ */
+export function nodeResolver(model: PnlModel): (id: string) => PnlNode | undefined {
+    const byName = new Map<string, PnlNode | null>(); // null = ambiguous
+    for (const node of model.byId.values()) {
+        const n = node.row.name;
+        if (!byName.has(n)) { byName.set(n, node); }
+        else if (byName.get(n) !== node) { byName.set(n, null); }
+    }
+    return (id: string): PnlNode | undefined => model.byId.get(id) ?? (byName.get(id) || undefined);
+}
+
+/** operator that binds the right-hand side of `op` inside an inherited context */
+function combineOp(inherited: FormulaOp, op: "+" | "-" | "*" | "/"): FormulaOp {
+    const mapped: FormulaOp = op === "+" ? "+" : op === "-" ? "−" : op === "*" ? "×" : "÷";
+    // an inverted context flips its right side: a-(b-c) adds c, a/(b/c) multiplies c
+    if (inherited === "−") { return mapped === "+" ? "−" : mapped === "−" ? "+" : mapped; }
+    if (inherited === "÷") { return mapped === "×" ? "÷" : mapped === "÷" ? "×" : mapped; }
+    return mapped;
+}
+
+/**
+ * Operands of a formula/KPI row in reading order, each with the operator that
+ * connects it to the operand before it — the input for a DuPont-style value
+ * driver tree, where the operator sits at the branch point between two cards.
+ *
+ * Conventions:
+ *  - `[a]*[b]` → both `×`, `[a]/[b]` → both `÷` (the first operand adopts a
+ *    multiplicative branch operator so a two-operand ratio reads as one group)
+ *  - `[a]+[b]` → `+`,`+`; `[a]-[b]` → `+`,`−` (the minus belongs to b)
+ *  - mixed formulas keep the operator per edge: `[a]*[b]+[c]` → `×`,`×`,`+`
+ *  - references that resolve to nothing are skipped, a parse error yields [];
+ *    a lone operand (`[a]*2`) keeps `+` — there is no branch point to label
+ *
+ * The list is flat: parentheses around additive groups (`[a]/([b]+[c])`) cannot
+ * be expressed by a single chain of operators and are not reconstructed.
+ */
+export function formulaOperands(
+    node: PnlNode, resolve: (id: string) => PnlNode | undefined
+): FormulaOperand[] {
+    const def = (node.row.formulaDef ?? "").trim();
+    if (def === "") { return []; }
+    let ast: Ast;
+    try { ast = parseFormula(def); } catch { return []; }
+
+    const out: FormulaOperand[] = [];
+    const walk = (a: Ast, inherited: FormulaOp): void => {
+        switch (a.kind) {
+            case "num": return;
+            case "ref": {
+                const child = resolve(a.id);
+                if (child) { out.push({ child, op: inherited }); }
+                return;
+            }
+            case "neg":
+                walk(a.arg, inherited === "+" ? "−" : inherited === "−" ? "+" : inherited);
+                return;
+            case "bin":
+                walk(a.left, inherited);
+                walk(a.right, combineOp(inherited, a.op));
+                return;
+        }
+    };
+    walk(ast, "+");
+
+    if (out.length > 1 && (out[1].op === "×" || out[1].op === "÷")) { out[0].op = out[1].op; }
+    return out;
+}
+
 // ---- variances
 
 export function variance(node: PnlNode, ref: Scenario, minuend: Scenario = "ac"): Variance {
@@ -630,6 +894,33 @@ export function revenueBase(model: PnlModel, override?: string): PnlNode | null 
         if ((t === "account" || t === "subtotal") && r.computed.ac != null) { return r; }
     }
     return null;
+}
+
+/**
+ * Virtual total over all model roots — the top of a driver tree built from a
+ * plain dimension hierarchy, where no formula or KPI row offers a natural root.
+ * It aggregates exactly like a subtotal row of the engine (sign-weighted sum of
+ * the contributing roots per scenario, the same for the monthly series), so the
+ * cards, the bridge and the scenario grid read the node like any other row.
+ *
+ * The node is deliberately NOT registered in model.byId: it belongs to the
+ * view, not to the data. Its name is left empty — the caller labels it in the
+ * reader's language.
+ */
+export function syntheticTotal(model: PnlModel): PnlNode {
+    const row: InputRow = {
+        id: TOTAL_ID, parent: null, name: "", sort: Number.MIN_SAFE_INTEGER,
+        rowType: "subtotal", formulaDef: null, sign: 1,
+        displayInvert: false, varianceInvert: false, values: {}, comment: null, index: -1,
+    };
+    const node: PnlNode = {
+        row, children: [...model.roots], level: 0,
+        computed: { ac: null, py: null, pl: null, fc: null, fcfy: null, plfy: null },
+        series: {},
+        error: null, hasChildren: model.roots.length > 0, isOrphanBucket: false,
+    };
+    aggregateSubtotal(node);
+    return node;
 }
 
 // ---- visible rows (expand/collapse)

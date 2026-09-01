@@ -4,8 +4,8 @@
         "displayName": "P&L Statement byDatenWG",
         "guid": "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358",
         "visualClassName": "Visual",
-        "version": "0.5.0.0",
-        "description": "IBCS-inspired P&L / GuV statement: unbalanced parent-child account hierarchy from a dimension table, subtotal and formula rows (EBITDA, margins), sign conventions with variance-invert for cost rows, scenarios AC/PY/PL/FC with delta bars and delta-percent pins against a selectable reference, expand/collapse with persisted state, k/m scaling and a 3-line IBCS title block.",
+        "version": "0.17.0.0",
+        "description": "IBCS-inspired P&L / GuV statement: unbalanced parent-child account hierarchy from a dimension table, subtotal and formula rows (EBITDA, margins), sign conventions with variance-invert for cost rows, scenarios AC/PY/PL/FC with delta bars and delta-percent pins against a selectable reference, expand/collapse with persisted state, k/m scaling and a 3-line IBCS title block. Four views: table, structure bars, row waterfall and a value driver tree that grows either from the formula graph (DuPont) or from a plain dimension hierarchy, with card zoom, re-root and breadcrumb. Clicking a row or card sets the Power BI selection (cross-filtering and native drillthrough), a right click opens the host context menu, and the tile view carries a drill button that does both in one gesture.",
         "supportUrl": "https://github.com/losveratos/powerbi-kitchen-/issues",
         "gitHubUrl": "https://github.com/losveratos/powerbi-kitchen-"
     },
@@ -24,5 +24,5 @@
     "stringResources": [
         "stringResources/de-DE.json"
     ],
-    "version": "0.5.0.0"
+    "version": "0.17.0.0"
 }

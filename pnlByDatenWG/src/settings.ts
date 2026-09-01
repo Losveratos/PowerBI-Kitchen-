@@ -9,6 +9,7 @@ import FormattingSettingsModel = formattingSettings.Model;
 const presetItems: powerbi.IEnumMember[] = [
     { value: "full", displayName: "AC·PY·PL·FC (full)" },
     { value: "acref", displayName: "AC vs reference" },
+    { value: "dall", displayName: "AC vs PY·PL·FC" },
     { value: "acpydpy", displayName: "AC·PY·ΔPY" },
     { value: "acpldpl", displayName: "AC·PL·ΔPL" },
     { value: "dpct", displayName: "ΔPY% · ΔPL%" }
@@ -28,6 +29,12 @@ const scalingItems: powerbi.IEnumMember[] = [
     { value: "m", displayName: "Millions (m)" }
 ];
 
+const periodSortItems: powerbi.IEnumMember[] = [
+    { value: "auto", displayName: "Automatisch" },
+    { value: "data", displayName: "Datenreihenfolge (Fiskaljahr)" },
+    { value: "calendar", displayName: "Kalenderjahr" }
+];
+
 const colorModeItems: powerbi.IEnumMember[] = [
     { value: "teal", displayName: "Teal deviation (color-vision safe)" },
     { value: "ibcs", displayName: "IBCS classic green" }
@@ -36,6 +43,12 @@ const colorModeItems: powerbi.IEnumMember[] = [
 const densityItems: powerbi.IEnumMember[] = [
     { value: "normal", displayName: "Normal" },
     { value: "compact", displayName: "Compact" }
+];
+
+const treeCardItems: powerbi.IEnumMember[] = [
+    { value: "months", displayName: "Monatssäulen (AC vs PL)" },
+    { value: "delta", displayName: "Abweichungssäulen (Δ vs Referenz)" },
+    { value: "bridge", displayName: "Mini-Brücke (REF → Δ → AC)" }
 ];
 
 const fontPresetItems: powerbi.IEnumMember[] = [
@@ -92,6 +105,21 @@ export class ColumnsCardSettings extends FormattingSettingsCard {
         value: referenceItems[0]
     });
 
+    /**
+     * How the bound period column is ordered. "Automatisch" reads month names,
+     * date keys and timestamps and puts them in calendar order; a column it
+     * cannot read keeps the order the data arrives in. "Datenreihenfolge" is
+     * the setting for fiscal years — the model's own sort column decides.
+     */
+    periodSort = new formattingSettings.ItemDropdown({
+        name: "periodSort",
+        displayName: "Period sort order",
+        displayNameKey: "Columns_PeriodSort",
+        description: "Auto reads YYYY-MM keys, dates and month names; data order keeps the model's own sequence (fiscal years)",
+        items: periodSortItems,
+        value: periodSortItems[0]
+    });
+
     pctRevenue = new formattingSettings.ToggleSwitch({
         name: "pctRevenue",
         displayName: "% of revenue column",
@@ -115,10 +143,56 @@ export class ColumnsCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    fitWidth = new formattingSettings.ToggleSwitch({
+        name: "fitWidth",
+        displayName: "Fit table to width (default)",
+        displayNameKey: "Columns_FitWidth",
+        description: "Squeezes the chart columns until the table fits the viewport — no horizontal scrolling",
+        value: false
+    });
+
+    treeRoot = new formattingSettings.TextInput({
+        name: "treeRoot",
+        displayName: "Driver tree root row (id or name)",
+        displayNameKey: "Columns_TreeRoot",
+        description: "Empty = last formula/KPI row with operands, otherwise the model root",
+        placeholder: "e.g. Net margin",
+        value: ""
+    });
+
+    treeLevel = new formattingSettings.NumUpDown({
+        name: "treeLevel",
+        displayName: "Driver tree start depth",
+        displayNameKey: "Columns_TreeLevel",
+        description: "0 = open the whole tree",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 8 }
+        }
+    });
+
+    treeCard = new formattingSettings.ItemDropdown({
+        name: "treeCard",
+        displayName: "Driver tree card chart",
+        displayNameKey: "Columns_TreeCard",
+        items: treeCardItems,
+        value: treeCardItems[0]
+    });
+
+    treeStatus = new formattingSettings.ToggleSwitch({
+        name: "treeStatus",
+        displayName: "Driver tree status indicator (Δ colour)",
+        displayNameKey: "Columns_TreeStatus",
+        value: true
+    });
+
     name: string = "columns";
     displayName: string = "Columns";
     displayNameKey: string = "Card_Columns";
-    slices = [this.preset, this.reference, this.pctRevenue, this.revenueBase, this.hideZeroRows];
+    slices = [this.preset, this.reference, this.periodSort, this.pctRevenue, this.revenueBase,
+        this.hideZeroRows, this.fitWidth, this.treeRoot, this.treeLevel, this.treeCard,
+        this.treeStatus];
 }
 
 export class NumbersCardSettings extends FormattingSettingsCard {
@@ -192,6 +266,42 @@ export class StyleCardSettings extends FormattingSettingsCard {
         value: fontPresetItems[0]
     });
 
+    /**
+     * Fine scaling on top of the size preset, in percent. 100 % leaves the
+     * preset alone; the product of both is capped inside the visual so a
+     * presentation setting cannot turn the table into a poster.
+     */
+    fontZoom = new formattingSettings.NumUpDown({
+        name: "fontZoom",
+        displayName: "Font fine scaling (%)",
+        displayNameKey: "Style_FontZoom",
+        description: "80–160 % on top of the size preset (100 = preset unchanged)",
+        value: 100,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 80 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 160 }
+        }
+    });
+
+    headerFontSize = new formattingSettings.NumUpDown({
+        name: "headerFontSize",
+        displayName: "Header font size (px)",
+        displayNameKey: "Style_HeaderFont",
+        description: "0 = automatic (built-in sizes), otherwise 7–20 px",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 20 }
+        }
+    });
+
+    headerColor = new formattingSettings.ColorPicker({
+        name: "headerColor",
+        displayName: "Header font color (override)",
+        displayNameKey: "Style_HeaderColor",
+        value: { value: "" }
+    });
+
     goodColor = new formattingSettings.ColorPicker({
         name: "goodColor",
         displayName: "Favorable Δ color (override)",
@@ -206,10 +316,71 @@ export class StyleCardSettings extends FormattingSettingsCard {
         value: { value: "" }
     });
 
+    /**
+     * Accent of the interactive chrome — active toolbar buttons, the back
+     * button of the tile view, breadcrumb hover. Never a data mark: columns,
+     * axes and the AC fill keep the IBCS ink (#404040), which is also the
+     * default here, so an untouched report looks exactly as before.
+     */
+    accentColor = new formattingSettings.ColorPicker({
+        name: "accentColor",
+        displayName: "Accent color (controls)",
+        displayNameKey: "Style_AccentColor",
+        description: "Active toolbar buttons, back button and breadcrumb hover — never data marks or axes",
+        value: { value: "#404040" }
+    });
+
+    /**
+     * Freeze the head — title block, toolbar, legend, scale note and the two
+     * table header rows stay on screen while the body scrolls underneath.
+     */
+    stickyHeader = new formattingSettings.ToggleSwitch({
+        name: "stickyHeader",
+        displayName: "Freeze the header while scrolling",
+        displayNameKey: "Style_StickyHeader",
+        description: "Title, toolbar, legend and the column headers stay on top while the rows scroll",
+        value: true
+    });
+
+    /**
+     * Paper of the visual: the ground behind the tiles of the zoom page and
+     * behind the driver tree. Default white = exactly the previous look.
+     */
+    pageBackground = new formattingSettings.ColorPicker({
+        name: "pageBackground",
+        displayName: "Page background",
+        displayNameKey: "Style_PageBg",
+        value: { value: "#FFFFFF" }
+    });
+
+    /** Fill of the cards: tree cards, micro cards, the big tile, hover panel. */
+    cardBackground = new formattingSettings.ColorPicker({
+        name: "cardBackground",
+        displayName: "Card background",
+        displayNameKey: "Style_CardBg",
+        value: { value: "#FFFFFF" }
+    });
+
+    /**
+     * Selection + native context menu: a click sets the Power BI selection of
+     * the row (cross-filtering, and the drillthrough buttons of the page become
+     * live), a right click opens the host menu with the drillthrough targets.
+     * Off = the pre-0.17 behaviour, a pure display.
+     */
+    interactions = new formattingSettings.ToggleSwitch({
+        name: "interactions",
+        displayName: "Selection & context menu active",
+        displayNameKey: "Style_Interactions",
+        description: "Click sets the page selection (cross-filtering, drillthrough), right click opens the native menu",
+        value: true
+    });
+
     name: string = "style";
     displayName: string = "Style";
     displayNameKey: string = "Card_Style";
-    slices = [this.colorMode, this.fontPreset, this.goodColor, this.badColor, this.density];
+    slices = [this.colorMode, this.fontPreset, this.fontZoom, this.headerFontSize, this.headerColor,
+        this.goodColor, this.badColor, this.accentColor, this.stickyHeader,
+        this.pageBackground, this.cardBackground, this.density, this.interactions];
 }
 
 export class TitleBlockCardSettings extends FormattingSettingsCard {
