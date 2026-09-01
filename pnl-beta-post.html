@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P&amp;L Statement byDatenWG · Beta · Daten-WG</title>
+<meta name="description" content="Ein neues Power-BI-Custom-Visual in der Beta: die IBCS-inspirierte GuV mit Tabelle, Struktur-Bars, Zeilen-Waterfall und Werttreiberbaum — Kontenhierarchie, Formelzeilen, Szenarien AC/PY/PL/FC, Cross-Filtering und Drillthrough.">
+<style>
+:root {
+  --bg:#FAFAF5; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#1A1A1A; --ink-soft:#4A4A4A; --ink-mute:#6B6B6B; --black:#0A0A0A;
+  --line:#E5E2D8; --line-strong:#1A1A1A;
+  --accent:#117865; --accent-deep:#0A5A4D;
+  --topic:#C25A2D; --low:#2A857A; --mid:#C9962E; --high:#8B2E2E; --beta:#C0392B;
+  --shadow-sm:0 1px 2px rgba(10,10,10,.04),0 1px 3px rgba(10,10,10,.06);
+  --shadow-md:0 4px 12px rgba(10,10,10,.08),0 2px 4px rgba(10,10,10,.06);
+  --radius-sm:6px; --radius:10px; --radius-lg:16px;
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Segoe UI Variable Small","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:var(--sans); font-size:16px; line-height:1.62; color:var(--ink); background:var(--bg);
+  background-image:radial-gradient(circle at 12% -5%,rgba(194,90,45,.05),transparent 35%),radial-gradient(circle at 95% 12%,rgba(17,120,101,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; min-height:100vh;
+}
+a { color:inherit; }
+.container { max-width:820px; margin:0 auto; padding:36px 28px 110px; }
+
+.back-link {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--ink-mute); text-decoration:none; padding:8px 14px; border:1px solid var(--line); border-radius:100px;
+  transition:all .15s ease; margin-bottom:40px;
+}
+.back-link:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+.lang-switch { display:inline-flex; align-items:center; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-mute); text-decoration:none; margin-left:8px; padding:8px 14px; border:1px solid var(--line); border-radius:100px; transition:all .15s ease; }
+.lang-switch:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+
+.post-eyebrow { display:inline-flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--topic); margin-bottom:20px; }
+.post-eyebrow::before { content:''; width:28px; height:1px; background:var(--topic); }
+.post-title { font-family:var(--serif); font-weight:300; font-size:clamp(2.1rem,5.5vw,3.6rem); line-height:1.05; letter-spacing:-0.025em; color:var(--black); margin-bottom:18px; }
+.post-title em { font-style:italic; font-weight:300; color:var(--topic); }
+.beta-badge { display:inline-block; margin-left:12px; padding:4px 11px 5px; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:#fff; background:var(--beta); border-radius:100px; vertical-align:middle; line-height:1; }
+.post-dek { font-size:18px; color:var(--ink-soft); line-height:1.5; max-width:64ch; margin-bottom:24px; }
+.post-meta { display:flex; flex-wrap:wrap; gap:18px; align-items:center; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-mute); padding:16px 0 28px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:40px; }
+.post-meta strong { color:var(--ink); font-weight:600; }
+
+.prose h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.5rem,3.2vw,2rem); letter-spacing:-0.015em; color:var(--black); margin:52px 0 16px; line-height:1.15; }
+.prose h2 em { font-style:italic; color:var(--topic); font-weight:500; }
+.prose p { margin-bottom:18px; color:var(--ink-soft); max-width:70ch; }
+.prose p strong { color:var(--ink); font-weight:600; }
+.prose ul { margin:0 0 20px; padding-left:0; list-style:none; max-width:70ch; }
+.prose ul li { position:relative; padding:8px 0 8px 26px; color:var(--ink-soft); border-bottom:1px solid var(--line); }
+.prose ul li:last-child { border-bottom:none; }
+.prose ul li::before { content:''; position:absolute; left:6px; top:16px; width:7px; height:7px; border-radius:50%; background:var(--topic); }
+.prose ul li strong { color:var(--ink); font-weight:600; }
+.prose code { font-family:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace; font-size:.86em; background:var(--bg-soft); padding:1px 5px; border-radius:4px; color:var(--accent-deep); }
+
+.bigstat { display:grid; grid-template-columns:auto 1fr; gap:24px; align-items:center; background:linear-gradient(135deg,var(--bg-card) 0%,rgba(194,90,45,.05) 100%); border:1px solid var(--line); border-left:4px solid var(--topic); border-radius:var(--radius-lg); padding:26px 30px; margin:36px 0; }
+.bigstat-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:clamp(2rem,6vw,3.4rem); line-height:1; letter-spacing:-0.03em; color:var(--topic); white-space:nowrap; }
+.bigstat-text { font-size:15px; color:var(--ink-soft); line-height:1.55; }
+.bigstat-text strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .bigstat { grid-template-columns:1fr; gap:12px; } }
+
+.src-box { background:var(--bg-soft); border:1px solid var(--line); border-left:4px solid var(--ink-mute); border-radius:var(--radius); padding:20px 24px; margin:28px 0; font-size:13.5px; color:var(--ink-soft); line-height:1.6; }
+.src-box h3 { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--black); margin-bottom:8px; }
+.src-box a { color:var(--accent); }
+.src-box.beta { border-left-color:var(--beta); }
+
+.cta-card { display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; background:var(--black); color:#fff; border-radius:var(--radius-lg); padding:28px 32px; margin:52px 0 0; }
+.cta-card-text { max-width:46ch; }
+.cta-card-text .k { font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--mid); display:block; margin-bottom:8px; }
+.cta-card-text h3 { font-family:var(--serif); font-weight:500; font-size:1.35rem; color:#fff; margin:0 0 6px; }
+.cta-card-text p { color:rgba(255,255,255,.7); font-size:14px; margin:0; }
+.cta-actions { display:flex; flex-wrap:wrap; gap:12px; }
+.cta-btn { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--black); background:var(--mid); padding:13px 22px; border-radius:100px; text-decoration:none; white-space:nowrap; transition:filter .15s ease; }
+.cta-btn:hover { filter:brightness(1.08); }
+.cta-btn.ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.4); }
+.cta-btn.ghost:hover { border-color:#fff; filter:none; }
+
+.post-foot { margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--ink-mute); line-height:1.6; }
+.post-foot a { color:var(--accent); }
+.post-foot .ibcs { margin-top:12px; font-size:11px; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
+  <a class="lang-switch" href="pnl-beta-post_en.html">EN</a>
+
+  <header>
+    <div class="post-eyebrow">Post · Power-BI-Visual</div>
+    <h1 class="post-title">Die GuV als eigenes <em>Visual</em><span class="beta-badge">Beta</span></h1>
+    <p class="post-dek">Neben der ChartKitchen gibt es jetzt ein zweites, eigenständiges Power-BI-Custom-Visual aus der Daten-WG-Küche: <strong>P&amp;L Statement byDatenWG</strong>. Es macht genau eine Sache — die Gewinn- und Verlustrechnung — und die im IBCS-inspirierten Layout: Kontenhierarchie aus der Dimensionstabelle, Summen- und Formelzeilen, Szenarien AC · PY · PL · FC mit Δ-Balken. Ab heute als <strong>Beta</strong> zum Ausprobieren.</p>
+    <div class="post-meta">
+      <span>Von <strong>Michael Tenner</strong></span>
+      <span>Stand · <strong>August 2026</strong></span>
+      <span>Version · <strong>0.17.0.0 (Beta)</strong></span>
+      <span>Lesezeit · <strong>~4 min</strong></span>
+    </div>
+  </header>
+
+  <div class="prose">
+
+    <p>Eine GuV ist kein Diagramm. Sie ist eine Tabelle mit Gedächtnis: Zeilen, die zueinander gehören, Zwischensummen, die sich aus Kindern ergeben, Formelzeilen wie EBITDA oder Bruttomarge, Kostenzeilen, die negativ rechnen und positiv angezeigt werden — und ein „unter Plan", das bei Umsatz schlecht und bei Kosten gut ist. Das mit einer Matrix und ein paar bedingten Formatierungen nachzubauen, kostet jedes Mal einen Nachmittag, und das Ergebnis ist trotzdem starr.</p>
+
+    <p>Genau diese Lücke füllt das neue Visual. Man bindet die Kontendimension und die Kennzahlen — und bekommt das Statement inklusive Struktur, Vorzeichenlogik und Abweichungen.</p>
+
+    <div class="bigstat">
+      <div class="bigstat-num">4 Ansichten</div>
+      <div class="bigstat-text"><strong>aus einer einzigen Datenbindung.</strong> Tabelle · Struktur-Bars · Zeilen-Waterfall · Werttreiberbaum — umgeschaltet in der Toolbar über dem Statement, ohne den Formatbereich zu öffnen. Alle Zustände sind persistiert und damit lesezeichenfähig.</div>
+    </div>
+
+    <h2>Warum <em>IBCS-inspiriert</em></h2>
+    <p>Weil Controlling-Berichte eine Sprache haben, die man nicht jedes Mal neu erfinden sollte. Das Visual übernimmt die Notation, statt sie zu interpretieren: Ist solide dunkelgrau, Vorjahr grau, Plan weiß mit Rahmen, Forecast schraffiert. Abweichungen als Balken neben der Zahl, mit <strong>einer identischen Skala je Δ-Spalte über alle Zeilen</strong> — sonst vergleicht das Auge Balkenlängen, die nichts miteinander zu tun haben. Labels außerhalb, positives Vorzeichen explizit, kein Gitternetz, weißer Grund.</p>
+    <p>Eine Abweichung ist bewusst dokumentiert: statt des klassischen IBCS-Grüns steht ein Teal-Ton für günstige Abweichungen — lesbar auch bei Rot-Grün-Sehschwäche. Wer die reine Lehre will, schaltet im Formatbereich auf „IBCS classic green"; der Hinweis in Legende und Fußzeile verschwindet dann mit.</p>
+
+    <h2>Was die Beta <em>schon</em> kann</h2>
+    <p>Der Kern ist der Rechenkern: unbalancierte Kontenhierarchien in beliebiger Tiefe — entweder als Parent-Child oder, häufiger, als Ebenen-Spalten <code>L1..Ln</code> aus einem Sternschema. Zwischensummen entstehen dabei automatisch aus den Pfaden; Formelzeilen referenzieren andere Zeilen über ihren Namen (<code>[Gross profit]+[Operating expenses]</code>), auch Formel auf Formel, mit Zirkelbezugs-Erkennung. Waisen-Konten landen sichtbar in „Nicht zugeordnet" statt still zu verschwinden — ein Datenqualitäts-Signal, kein Fehler.</p>
+    <ul>
+      <li><strong>Der Werttreiberbaum</strong> wächst aus dem Formel-Graphen (DuPont) — und seit kurzem auch aus einer reinen Dimensions-Hierarchie ohne jede Formelzeile: bei mehreren Wurzeln trägt eine virtuelle Gesamt-Wurzel sie als Kinder. Tidy-Layout, Operator-Kreise an den Kanten, ⌖ macht jede Karte zur neuen Wurzel.</li>
+      <li><strong>Der Kachel-Zoom</strong> holt einen Knoten auf die ganze Fläche: Kombi-Chart mit Monaten und Brücke, Szenario-Grid, „Zahlt ein auf" und „Getrieben von" — und skaliert sich selbst in den Viewport.</li>
+      <li><strong>Periodengerechte YTD-Werte:</strong> stehen Ist-Daten nur bis August, wird auch die Referenz bis August summiert. Vorher verglich die Kennzahl acht Monate Ist gegen zwölf Monate Plan — rechnerisch korrekt, inhaltlich Äpfel gegen Birnen. Die Beschriftung sagt es jetzt dazu: „YTD _Aug".</li>
+      <li><strong>Perioden, wie sie wirklich ankommen:</strong> „2026-01", Datumsspalten, deutsche und englische Monatsnamen, mit und ohne Jahr. Ein Parser für alles, eine Sortierung für alle Verbraucher — und ein Schalter „Datenreihenfolge" für Fiskaljahre. Was nicht lesbar ist, wird gemeldet statt geraten.</li>
+      <li><strong>Selektion, Cross-Filtering, Drillthrough:</strong> ein Klick auf eine Wertspalte setzt die Power-BI-Selektion der Zeile — bei einer Zwischensumme die Vereinigung aller Blätter darunter, bei einer Formelzeile die Blätter ihrer Operanden. Der Rechtsklick öffnet das native Kontextmenü mit den Drillthrough-Zielen der Seite; im Kachel-Zoom erledigt „↗ Drill" beides in einem Griff.</li>
+      <li><strong>Lesbar auf jedem Bildschirm:</strong> ein Schriftgrößen-Preset von HD über Full HD bis UHD, dazu eine Feinskalierung — und es gilt für alles, von der Titelzeile bis zur Fußnote.</li>
+    </ul>
+
+    <h2>Von KI gebaut — und <em>offen dokumentiert</em></h2>
+    <p>Wie schon die ChartKitchen ist dieses Visual KI-gestützt entstanden: gesteuert von einer Person mit Controlling- und BI-Hintergrund, geschrieben von einem KI-Agenten, verifiziert über Tests und die öffentliche Git-Historie. Das steht hier nicht als Marketing, sondern als Einordnung — wer wissen will, wie belastbar so etwas ist, soll es nachlesen können. Der Rechenkern ist bewusst frei von Power-BI-Abhängigkeiten und isoliert getestet, weil ein Reconciliation-Fehler in einer GuV der schnellste Weg wäre, Vertrauen zu verlieren: 28 Engine-Testblöcke, Headless-Render-Tests aller Testfälle und über 260 Interaktions-Checks laufen bei jeder Version.</p>
+    <p>Die ausführliche Rechnung dazu — was so ein Stand klassisch gekostet hätte und warum nicht die KI allein den Unterschied macht — steht im Thesenpapier <a href="ki-entwicklung-zehn-tage.html">„Zehn Tage bis zum marktfähigen Stand"</a>.</p>
+
+    <div class="src-box beta">
+      <h3>Was „Beta" hier heißt</h3>
+      Die Versionsnummer beginnt mit 0 — und das ist ernst gemeint: <strong>Funktionsumfang, Feldrollen und Formateinstellungen können sich noch ändern</strong>, ebenso das Format des gespeicherten Zustands. Das Visual ist nicht im Microsoft AppSource gelistet und damit auch nicht von Microsoft zertifiziert; installiert wird es als <code>.pbiviz</code>-Datei. Bekannte Grenzen: das DataView-Limit von 30.000 Zeilen wird sichtbar gemeldet statt still gekappt, es gibt noch kein virtuelles Scrolling für sehr viele gleichzeitig aufgeklappte Zeilen, und der Waterfall arbeitet auf der Wurzelebene der Hierarchie. Erst in einem Testbericht ausprobieren, dann entscheiden.
+    </div>
+
+    <div class="cta-card">
+      <div class="cta-card-text">
+        <span class="k">Beta · Version 0.17.0.0</span>
+        <h3>Ausprobieren und widersprechen</h3>
+        <p>Der Schnellstart zeigt beide Wege in das Visual — die normale Hierarchie in zwei Minuten und die volle GuV mit Formelzeilen. Demo-Daten liegen im Repo.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="cta-btn" href="pnl-schnellstart.html">Zum Schnellstart →</a>
+        <a class="cta-btn ghost" href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/claude/visual-chartkitchen-git-link-rvi81z/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.0.17.0.0.pbiviz">.pbiviz laden ↓</a>
+        <a class="cta-btn ghost" href="https://github.com/losveratos/powerbi-kitchen-/issues">Feedback geben</a>
+      </div>
+    </div>
+
+    <div class="post-foot">
+      Rückfragen, Fehlerberichte und Gegenbeispiele: <strong>Michael Tenner</strong> · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a> · Issues: <a href="https://github.com/losveratos/powerbi-kitchen-/issues">github.com/losveratos/powerbi-kitchen-/issues</a><br>
+      Quellcode, Änderungshistorie, Testplan und Demo-Daten sind öffentlich: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/claude/visual-chartkitchen-git-link-rvi81z/pnlByDatenWG">pnlByDatenWG im Repository</a>.
+      <div class="ibcs">Notation nach den IBCS®-Standards 1.2 der IBCS Association (CC BY-SA 4.0, ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke der HICHERT+FAISST GmbH. Dieses Visual ist nicht von der IBCS Association zertifiziert und steht in keiner Verbindung zu ihr.</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

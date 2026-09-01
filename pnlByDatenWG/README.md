@@ -12,6 +12,12 @@ bleibt als Alternative voll unterstützt. Die Toolbar macht das Visual für
 Report-Ersteller wie -Leser ohne Format-Pane bedienbar; alle
 Toolbar-Zustände sind bookmark-fähig persistiert.
 
+> **Schnellstart:** [`QUICKSTART.md`](QUICKSTART.md) — beide Wege in das Visual
+> (normale Hierarchie in zwei Minuten · volle GuV mit Formelzeilen), Ragged-
+> Regeln, Perioden-Formate, Drillthrough-Setup und die typischen Fehlerbilder.
+> Web-Fassung: [`pnl-schnellstart.html`](../pnl-schnellstart.html) (DE) /
+> [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
+
 ## Was es kann (MVP)
 
 | Anf. | Feature |
