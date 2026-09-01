@@ -184,8 +184,8 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);max-width
         <div class="dl-title">Download the visual</div>
         <div class="dl-ver">Version <strong>0.17.0.0</strong> · <strong>.pbiviz</strong> · beta</div>
         <p class="dl-note">Download straight from the repository and import it in Power BI Desktop via <em>Visualizations → ⋯ → Import a visual from a file</em>.</p>
-        <a class="dl-btn" href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/claude/visual-chartkitchen-git-link-rvi81z/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.0.17.0.0.pbiviz">Get the .pbiviz ↓</a>
-        <div class="dl-file">The <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/claude/visual-chartkitchen-git-link-rvi81z/pnlByDatenWG/dist">dist folder</a> always holds exactly the newest build — when the version number moves on, that folder is the reliable source.</div>
+        <a class="dl-btn" href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.0.17.0.0.pbiviz">Get the .pbiviz ↓</a>
+        <div class="dl-file">The <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG/dist">dist folder</a> always holds exactly the newest build — when the version number moves on, that folder is the reliable source.</div>
 
         <div class="dl-beta">
           <strong>Beta notice:</strong> this is a beta (0.x) and it is not listed on Microsoft AppSource — so it is not certified by Microsoft either. <strong>Feature scope, field roles and format settings may still change</strong>, as may the format of the persisted state. Please try it in a test report first; using it in production reports is at your own risk. Feedback and bug reports are explicitly welcome — via <a href="https://github.com/losveratos/powerbi-kitchen-/issues">GitHub issues</a> or at <a href="mailto:michael.tenner84@gmail.com?subject=P%26L%20Statement%20byDatenWG%20%E2%80%94%20Feedback">michael.tenner84@gmail.com</a>.
@@ -273,8 +273,8 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);max-width
       <h4>Demo data to play with</h4>
       The full pharma demo (a fictional group, star schema L1–L3, monthly grain, values in mEUR, YTD 2026-01…2026-06) lives in the repository under <code>pnlByDatenWG/demoData/pharma/</code>:
       <ul>
-        <li><a href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/claude/visual-chartkitchen-git-link-rvi81z/pnlByDatenWG/demoData/pharma/pharma-dim-konten.csv">pharma-dim-konten.csv</a> — 27 rows: 18 accounts, 5 formulas, 4 KPIs</li>
-        <li><a href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/claude/visual-chartkitchen-git-link-rvi81z/pnlByDatenWG/demoData/pharma/pharma-fact-guv.csv">pharma-fact-guv.csv</a> — monthly rows with AC, PY, PL, FC_FY, PL_FY</li>
+        <li><a href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/demoData/pharma/pharma-dim-konten.csv">pharma-dim-konten.csv</a> — 27 rows: 18 accounts, 5 formulas, 4 KPIs</li>
+        <li><a href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/demoData/pharma/pharma-fact-guv.csv">pharma-fact-guv.csv</a> — monthly rows with AC, PY, PL, FC_FY, PL_FY</li>
       </ul>
       Both CSVs are semicolon-separated (UTF-8). Relationship: <code>pharma-dim-konten[AccountID]</code> 1:* <code>pharma-fact-guv[AccountID]</code>. Measures: <code>AC = SUM('pharma-fact-guv'[AC])</code>, likewise PY and PL; <code>FC FY = MAX('pharma-fact-guv'[FC_FY])</code> and <code>PL FY = MAX('pharma-fact-guv'[PL_FY])</code>. To reconcile: EBITDA YTD AC = <strong>571.2</strong> · PY 499.6 · PL 532.0 mEUR.
     </div>
@@ -382,7 +382,7 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);max-width
   <footer class="foot">
     <strong>P&amp;L Statement byDatenWG</strong> · version 0.17.0.0 · beta<br>
     Contact: Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
-    Source code, changelog, test plan and demo data: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/claude/visual-chartkitchen-git-link-rvi81z/pnlByDatenWG">pnlByDatenWG in the repository</a> · Feedback and bugs: <a href="https://github.com/losveratos/powerbi-kitchen-/issues">GitHub issues</a> · <a href="pnl-beta-post_en.html">read the beta post</a>
+    Source code, changelog, test plan and demo data: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG">pnlByDatenWG in the repository</a> · Feedback and bugs: <a href="https://github.com/losveratos/powerbi-kitchen-/issues">GitHub issues</a> · <a href="pnl-beta-post_en.html">read the beta post</a>
     <div class="ibcs">Notation based on the IBCS® Standards 1.2 by the IBCS Association (CC BY-SA 4.0, ibcs.com). Documented deviation: teal replaces the IBCS variance green to remain readable with red–green color-vision deficiency. IBCS® is a registered trademark of HICHERT+FAISST GmbH. This visual is not certified by or affiliated with the IBCS Association.</div>
   </footer>
 

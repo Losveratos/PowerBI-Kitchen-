@@ -16,8 +16,8 @@
 > 3. Nach dem Posten den Kommentar-Baustein als ersten eigenen Kommentar setzen.
 >
 > Link-Varianten (falls kein Merge/Deploy):
-> - Visual (.pbiviz): `https://github.com/Losveratos/PowerBI-Kitchen-/tree/claude/visual-chartkitchen-git-link-rvi81z/pnlByDatenWG/dist`
-> - Repo-Ordner: `https://github.com/Losveratos/PowerBI-Kitchen-/tree/claude/visual-chartkitchen-git-link-rvi81z/pnlByDatenWG`
+> - Visual (.pbiviz): `https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG/dist`
+> - Repo-Ordner: `https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG`
 > - Feedback/Issues: `https://github.com/losveratos/powerbi-kitchen-/issues`
 
 ---
