@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P&amp;L Statement byDatenWG · Schnellstart (Beta)</title>
+<meta name="description" content="Schnellstart zum Power-BI-Visual P&amp;L Statement byDatenWG (Beta): IBCS-inspirierte GuV mit Tabelle, Struktur-Bars, Zeilen-Waterfall und Werttreiberbaum. Zwei Wege — normale Hierarchie in 2 Minuten oder volle GuV mit Formelzeilen.">
+<style>
+:root{
+  --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#0F1E2E; --ink-soft:#475569; --ink-mute:#6B7686;
+  --line:#E4E2DA; --accent:#C25A2D; --accent-deep:#A2481F; --teal:#1B9AA8;
+  --beta:#C0392B;
+  --radius:10px; --radius-lg:16px;
+  --shadow-sm:0 1px 2px rgba(15,30,46,.04),0 1px 3px rgba(15,30,46,.06);
+  --shadow-md:0 6px 18px rgba(15,30,46,.08),0 2px 6px rgba(15,30,46,.05);
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans);font-size:16px;line-height:1.62;color:var(--ink);background:var(--bg);
+  background-image:radial-gradient(circle at 10% -5%,rgba(194,90,45,.05),transparent 34%),radial-gradient(circle at 96% 8%,rgba(27,154,168,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased;min-height:100vh;}
+a{color:inherit;}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 26px 120px;}
+
+/* top chrome */
+.topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:26px;}
+.back-link,.lang-pill,.doku-link{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;
+  padding:8px 14px;border:1px solid var(--line);border-radius:100px;color:var(--ink-mute);transition:all .15s ease;background:var(--bg-card);}
+.back-link:hover,.doku-link:hover{color:var(--accent);border-color:var(--accent);}
+.lang-group{display:inline-flex;gap:6px;}
+.lang-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.lang-pill:hover{border-color:var(--accent);}
+.doku-link{color:var(--teal);border-color:#B9DEE2;}
+.doku-link:hover{background:var(--teal);color:#fff;border-color:var(--teal);}
+
+/* hero */
+header.hero{border-bottom:1px solid var(--line);padding-bottom:30px;margin-bottom:34px;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+.eyebrow::before{content:'';width:26px;height:1px;background:var(--accent);}
+h1.hero-title{font-family:var(--serif);font-weight:600;font-size:clamp(2.1rem,5.4vw,3.4rem);line-height:1.05;letter-spacing:-.02em;margin-bottom:16px;}
+h1.hero-title em{font-style:normal;color:var(--accent);}
+.beta-badge{display:inline-block;margin-left:12px;padding:4px 11px 5px;font-family:var(--mono);font-size:11px;
+  font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;background:var(--beta);
+  border-radius:100px;vertical-align:middle;line-height:1;}
+.dek{font-size:17px;color:var(--ink-soft);line-height:1.55;max-width:72ch;margin-bottom:20px;}
+.chips{display:flex;flex-wrap:wrap;gap:10px;}
+.chip{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.04em;
+  padding:7px 14px;border-radius:100px;background:var(--bg-soft);border:1px solid var(--line);color:var(--ink);}
+.chip.teal{border-color:#B9DEE2;color:var(--teal);}
+.chip.beta{background:#FBECEA;border-color:#EDC7C1;color:var(--beta);}
+
+/* section heading */
+.sec-h{font-family:var(--serif);font-weight:600;font-size:clamp(1.4rem,3.2vw,1.9rem);letter-spacing:-.01em;
+  margin:0 0 6px;display:flex;align-items:baseline;gap:12px;}
+.sec-h .snum{font-family:var(--mono);font-size:.95rem;color:var(--accent);font-weight:700;}
+.sec-sub{color:var(--ink-soft);max-width:72ch;margin:0 0 20px;}
+section.block{margin-bottom:52px;}
+
+/* download card */
+.dl-card{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:start;
+  background:var(--bg-card);border:1px solid var(--line);border-left:4px solid var(--accent);
+  border-radius:var(--radius-lg);padding:26px 28px;box-shadow:var(--shadow-sm);}
+@media(max-width:640px){.dl-card{grid-template-columns:1fr;gap:16px;}}
+.dl-icon{width:66px;height:66px;border-radius:16px;background:var(--bg-soft);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:32px;}
+.dl-title{font-family:var(--serif);font-weight:600;font-size:1.3rem;margin:0 0 4px;}
+.dl-ver{font-family:var(--mono);font-size:12px;letter-spacing:.03em;color:var(--ink-mute);margin-bottom:12px;}
+.dl-ver strong{color:var(--ink);}
+.dl-note{font-size:14px;color:var(--ink-soft);max-width:62ch;margin:0 0 16px;}
+.dl-note a{color:var(--accent);font-weight:600;}
+.dl-btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;padding:12px 22px;border-radius:100px;text-decoration:none;
+  background:var(--accent);color:#fff;border:1px solid var(--accent);transition:background .15s ease;}
+.dl-btn:hover{background:var(--accent-deep);}
+.dl-file{font-family:var(--mono);font-size:11.5px;color:var(--ink-mute);margin-top:12px;word-break:break-all;}
+.dl-beta{margin-top:16px;font-size:13px;line-height:1.55;color:var(--ink-soft);
+  background:var(--bg-soft);border:1px solid var(--line);border-left:3px solid var(--beta);
+  border-radius:var(--radius);padding:12px 15px;max-width:64ch;}
+.dl-beta strong{color:var(--ink);}
+.dl-beta a{color:var(--accent);font-weight:600;}
+
+/* two-path cards */
+.paths{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:860px){.paths{grid-template-columns:1fr;}}
+.path{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:24px 24px 26px;box-shadow:var(--shadow-sm);border-top:3px solid var(--accent);}
+.path.b{border-top-color:var(--teal);}
+.path-kicker{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.path.b .path-kicker{color:var(--teal);}
+.path h3{font-family:var(--serif);font-weight:600;font-size:1.22rem;margin:0 0 8px;line-height:1.2;}
+.path p{font-size:14.5px;color:var(--ink-soft);margin:0 0 14px;}
+.path h4{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-mute);margin:18px 0 8px;}
+.fieldlist{list-style:none;margin:0;padding:0;font-size:14px;}
+.fieldlist li{display:grid;grid-template-columns:minmax(120px,42%) 1fr;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);color:var(--ink-soft);}
+.fieldlist li:last-child{border-bottom:none;}
+.fieldlist .well{font-family:var(--mono);font-size:12px;color:var(--ink);letter-spacing:.01em;}
+@media(max-width:520px){.fieldlist li{grid-template-columns:1fr;gap:2px;}}
+.path .result{margin-top:16px;font-size:13.5px;color:var(--ink-soft);background:var(--bg-soft);
+  border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;}
+.path .result strong{color:var(--ink);}
+
+/* notes / callouts */
+.note{background:var(--bg-card);border:1px solid var(--line);border-left:3px solid var(--teal);
+  border-radius:var(--radius);padding:16px 18px;margin-top:18px;font-size:14px;color:var(--ink-soft);}
+.note strong{color:var(--ink);}
+.note.warn{border-left-color:var(--beta);}
+.note h4{font-family:var(--serif);font-weight:600;font-size:1.02rem;color:var(--ink);margin:0 0 6px;}
+.note ul{margin:8px 0 0 18px;}
+.note li{margin-bottom:5px;}
+
+code{font-family:var(--mono);font-size:.86em;background:var(--bg-soft);padding:1px 5px;border-radius:4px;color:var(--accent-deep);}
+pre{font-family:var(--mono);font-size:12.5px;line-height:1.6;background:var(--bg-card);border:1px solid var(--line);
+  border-radius:var(--radius);padding:14px 16px;overflow-x:auto;margin:14px 0;color:var(--ink);}
+pre code{background:none;padding:0;color:inherit;}
+
+/* data table */
+.tbl-scroll{overflow-x:auto;margin:16px 0 4px;}
+table.demo{border-collapse:collapse;width:100%;min-width:640px;font-size:13px;background:var(--bg-card);
+  border:1px solid var(--line);border-radius:var(--radius);}
+table.demo th,table.demo td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top;}
+table.demo th{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mute);background:var(--bg-soft);}
+table.demo td{color:var(--ink-soft);}
+table.demo td.m{font-family:var(--mono);font-size:12px;color:var(--ink);}
+table.demo tr:last-child td{border-bottom:none;}
+.tbl-cap{font-family:var(--mono);font-size:11px;color:var(--ink-mute);margin-top:8px;line-height:1.5;}
+
+/* feature tiles (no images) */
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+@media(max-width:760px){.tiles{grid-template-columns:1fr;}}
+.tile{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:20px 22px 22px;box-shadow:var(--shadow-sm);}
+.tile-eyebrow{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;}
+.tile h3{font-family:var(--serif);font-weight:600;font-size:1.12rem;margin:0 0 7px;line-height:1.2;}
+.tile p{font-size:14px;color:var(--ink-soft);margin:0;}
+
+/* settings list */
+.setlist{display:grid;grid-template-columns:repeat(2,1fr);gap:0 26px;list-style:none;margin:0;padding:0;}
+@media(max-width:760px){.setlist{grid-template-columns:1fr;}}
+.setlist li{padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink-soft);}
+.setlist li strong{color:var(--ink);font-weight:600;}
+
+/* footer */
+footer.foot{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-mute);line-height:1.65;}
+footer.foot a{color:var(--accent);}
+footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);max-width:80ch;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <a class="doku-link" href="pnl-beta-post.html">Zum Beta-Post →</a>
+      <div class="lang-group">
+        <a class="lang-pill active" href="pnl-schnellstart.html">DE</a>
+        <a class="lang-pill" href="pnl-schnellstart_en.html">EN</a>
+      </div>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Power-BI-Visual · Schnellstart</div>
+    <h1 class="hero-title">P&amp;L Statement <em>byDatenWG</em><span class="beta-badge">Beta</span></h1>
+    <p class="dek">Ein eigenständiges Power-BI-Custom-Visual für die <strong>IBCS-inspirierte GuV</strong>: Kontenhierarchie aus deiner Dimensionstabelle, Summen- und Formelzeilen, Szenarien AC · PY · PL · FC mit Δ-Balken und Δ%-Pins — in vier Ansichten aus einer Datenbindung: <strong>Tabelle</strong>, <strong>Struktur-Bars</strong>, <strong>Zeilen-Waterfall</strong> und <strong>Werttreiberbaum</strong> mit Kachel-Zoom. Klick setzt die Power-BI-Selektion (Cross-Filtering und nativer Drillthrough), Perioden werden aus „JJJJ-MM", Datumsspalten oder Monatsnamen gelesen, und die Schrift folgt einem Preset von HD bis UHD.</p>
+    <div class="chips">
+      <span class="chip beta">Beta · Version 0.17.0.0</span>
+      <span class="chip">4 Ansichten</span>
+      <span class="chip teal">Format-Pane DE · EN</span>
+      <span class="chip">IBCS-inspiriert</span>
+    </div>
+  </header>
+
+  <section class="block">
+    <div class="dl-card">
+      <div class="dl-icon">📊</div>
+      <div>
+        <div class="dl-title">Visual herunterladen</div>
+        <div class="dl-ver">Version <strong>0.17.0.0</strong> · <strong>.pbiviz</strong> · Beta</div>
+        <p class="dl-note">Direkt aus dem Repository laden und in Power BI Desktop über <em>Visualisierungen → ⋯ → Visual aus einer Datei importieren</em> einbinden.</p>
+        <a class="dl-btn" href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.0.17.0.0.pbiviz">.pbiviz laden ↓</a>
+        <div class="dl-file">Im <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG/dist">dist-Ordner</a> liegt immer genau die neueste Version — ändert sich die Versionsnummer, ist der Ordner die verlässliche Quelle.</div>
+
+        <div class="dl-beta">
+          <strong>Beta-Hinweis:</strong> Das Visual ist eine Beta (0.x) und nicht im Microsoft AppSource gelistet — also auch nicht von Microsoft zertifiziert. <strong>Funktionsumfang, Feldrollen und Formateinstellungen können sich noch ändern</strong>, ebenso das Format des gespeicherten Zustands. Bitte erst in einem Testbericht ausprobieren; Einsatz in Produktionsberichten auf eigene Verantwortung. Feedback und Fehlerberichte sind ausdrücklich erwünscht — über <a href="https://github.com/losveratos/powerbi-kitchen-/issues">GitHub-Issues</a> oder an <a href="mailto:michael.tenner84@gmail.com?subject=P%26L%20Statement%20byDatenWG%20%E2%80%94%20Feedback">michael.tenner84@gmail.com</a>.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="sec-h"><span class="snum">01</span>Zwei Wege in das Visual</h2>
+    <p class="sec-sub">Du musst keine GuV-Struktur modellieren, um loszulegen. <strong>Weg&nbsp;1</strong> bindet nur die Ebenen deiner vorhandenen Hierarchie und die Kennzahlen — zwei Minuten. <strong>Weg&nbsp;2</strong> ergänzt die Felder, die aus der Hierarchie eine echte GuV machen: Zeilentypen, Formelzeilen, Vorzeichen und Kommentare.</p>
+
+    <div class="paths">
+
+      <div class="path">
+        <div class="path-kicker">Weg 1 · 2 Minuten</div>
+        <h3>Normale Hierarchie</h3>
+        <p>Für jede Dimensions-Hierarchie, die du schon hast — etwa <code>Kategorie</code> → <code>Produktlinie</code>, oder Region → Land → Standort. Keine Zeilentypen, keine Formeln.</p>
+
+        <h4>Felder zuweisen</h4>
+        <ul class="fieldlist">
+          <li><span class="well">Ebenen-Spalten (L1..Ln)</span><span>Deine Ebenen <em>in der Reihenfolge, in der du sie hineinziehst</em> — z. B. erst <code>Kategorie</code>, dann <code>Produktlinie</code> (max. 8).</span></li>
+          <li><span class="well">Konto-ID (Key)</span><span>Der eindeutige Schlüssel der Zeile. Ist er gebunden, hängt der Drillthrough daran.</span></li>
+          <li><span class="well">Sortierung</span><span>Ganzzahl-Spalte für die Reihenfolge innerhalb einer Ebene.</span></li>
+          <li><span class="well">Periode (Monat)</span><span>Monatsspalte aus der Faktentabelle — sie speist Monatssäulen, Sparklines und YTD.</span></li>
+          <li><span class="well">AC (Ist)</span><span>Pflicht-Measure. PY, PL und FC sind optional und schalten Δ-Spalten frei.</span></li>
+          <li><span class="well">PY · PL · FC</span><span>Vorjahr, Plan und Forecast als Measures — jedes gebundene Szenario erscheint in Legende und Presets.</span></li>
+        </ul>
+
+        <div class="result"><strong>Was du bekommst:</strong> Tabelle mit automatischen Zwischensummen je Ebene, Struktur-Bars, Zeilen-Waterfall — und einen Werttreiberbaum, der ohne Formelzeilen direkt aus der Hierarchie wächst: bei genau einer Wurzel ist sie die Baum-Wurzel, bei mehreren trägt eine <strong>virtuelle Gesamt-Wurzel</strong> („Gesamt") sie als Kinder. Klick auf eine Karte öffnet den <strong>Kachel-Zoom</strong> mit Kombi-Chart und Szenario-Grid, der Knopf <strong>„↗ Drill"</strong> setzt Selektion und öffnet das Kontextmenü in einem Griff.</div>
+      </div>
+
+      <div class="path b">
+        <div class="path-kicker">Weg 2 · volle GuV</div>
+        <h3>P&amp;L mit Formelzeilen</h3>
+        <p>Alle Felder aus Weg&nbsp;1 — plus die Spalten deiner Kontendimension, die Struktur und Vorzeichen tragen. Erst damit rechnet das Visual Gross&nbsp;profit, EBITDA, Margen und den Ganzjahres-Ausblick.</p>
+
+        <h4>Zusätzliche Felder</h4>
+        <ul class="fieldlist">
+          <li><span class="well">Zeilentyp</span><span><code>Account</code> · <code>Subtotal</code> · <code>Formula</code> · <code>KPI</code> · <code>Separator</code>. Zwischensummen aus Ebenen entstehen ohnehin synthetisch.</span></li>
+          <li><span class="well">Formeldefinition</span><span>Referenzen auf andere Zeilen per Name, z. B. <code>[Gross profit]+[Operating expenses]</code> oder <code>[EBITDA]/[Net revenue]</code>; <code>+ − × ÷</code> und Klammern, Formel auf Formel erlaubt.</span></li>
+          <li><span class="well">Rechenvorzeichen (±1)</span><span><code>1</code> für Erlöse, <code>-1</code> für Kosten — das ist das Vorzeichen, mit dem die Zeile in Summen eingeht.</span></li>
+          <li><span class="well">Anzeige invertieren</span><span><code>true</code> bei Kostenzeilen: sie rechnen negativ, werden aber positiv dargestellt.</span></li>
+          <li><span class="well">Abweichungsfarbe drehen</span><span><code>true</code>, wo „unter Plan" gut ist — Kosten und Steuern.</span></li>
+          <li><span class="well">Kommentar</span><span>Freitext je Konto → nummerierter Marker an der Zeile und Fußnote unter der Tabelle.</span></li>
+          <li><span class="well">FC Gesamtjahr · PL Gesamtjahr</span><span>Jahres-Skalare für den FY-Ausblicksblock (schraffierte Δ-Balken).</span></li>
+        </ul>
+
+        <div class="result"><strong>Was du bekommst:</strong> die vollständige GuV mit Ergebniszeilen und Margen, drei Perioden-Blöcken (MTD · YTD · FY-Ausblick), %-vom-Umsatz-Spalte, Kommentar-Fußnoten — und einen Treiberbaum, der aus dem <strong>Formel-Graphen</strong> wächst (DuPont): Wurzel ist die letzte Formel-/KPI-Zeile, die Kanten tragen die Operatoren <code>÷ × + −</code>.</div>
+      </div>
+
+    </div>
+
+    <div class="note warn">
+      <h4>Die eine Einstellung, an der die meisten hängen bleiben</h4>
+      Alle Gruppierungsfelder — Ebenen-Spalten, Konto-ID, Sortierung, Zeilentyp, Formeldefinition, Vorzeichen, Periode — müssen im Feldbereich auf <strong>„Nicht zusammenfassen"</strong> stehen. Sonst aggregiert Power BI sie und das Visual bekommt leere Werte.
+      <ul>
+        <li><strong>FY-Measures mit <code>MAX</code>, nicht <code>SUM</code>:</strong> die Jahres-Skalare stehen auf jeder Monatszeile identisch — summiert wären sie um den Faktor der Monatszahl zu groß.</li>
+        <li><strong>Ein Berichtsjahr filtern</strong>, sonst summieren AC/PY/PL/FC über Jahre hinweg.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="sec-h"><span class="snum">02</span>Wie die Kontendimension aussieht</h2>
+    <p class="sec-sub">Eine Zeile je GuV-Zeile. Der Ausschnitt zeigt genau die Spalten aus Weg&nbsp;2 — Ebenen, Sortierung, Zeilentyp, Formel und Vorzeichen.</p>
+
+    <div class="tbl-scroll">
+      <table class="demo">
+        <thead>
+          <tr><th>AccountID</th><th>L1</th><th>L2</th><th>SortOrder</th><th>RowType</th><th>FormulaDef</th><th>Sign</th><th>DisplayInvert</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="m">401010</td><td>Net revenue</td><td>Pharmaceuticals (Rx)</td><td class="m">11</td><td class="m">Account</td><td></td><td class="m">1</td><td class="m">false</td></tr>
+          <tr><td class="m">402000</td><td>Net revenue</td><td>Consumer Health</td><td class="m">12</td><td class="m">Account</td><td></td><td class="m">1</td><td class="m">false</td></tr>
+          <tr><td class="m">550010</td><td>Cost of goods sold</td><td>Materials</td><td class="m">21</td><td class="m">Account</td><td></td><td class="m">-1</td><td class="m">true</td></tr>
+          <tr><td class="m">F_GROSSPROFIT</td><td>Gross profit</td><td></td><td class="m">25</td><td class="m">Formula</td><td class="m">[Net revenue]+[Cost of goods sold]</td><td class="m">1</td><td class="m">false</td></tr>
+          <tr><td class="m">K_GROSSMARGIN</td><td>Gross margin</td><td></td><td class="m">26</td><td class="m">KPI</td><td class="m">[Gross profit]/[Net revenue]</td><td class="m">1</td><td class="m">false</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl-cap">Ausschnitt aus der Pharma-Demo im Repo. <code>Net revenue</code> und <code>Cost of goods sold</code> sind <em>keine</em> eigenen Zeilen — die Zwischensummen entstehen synthetisch aus den L1-Pfaden, und die Formelzeilen referenzieren sie über ihren Namen.</div>
+
+    <div class="note">
+      <h4>Demo-Daten zum Mitspielen</h4>
+      Die vollständige Pharma-Demo (fiktive Gruppe, Sternschema L1–L3, Monatsgrain, Werte in mEUR, YTD 2026-01…2026-06) liegt im Repo unter <code>pnlByDatenWG/demoData/pharma/</code>:
+      <ul>
+        <li><a href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/demoData/pharma/pharma-dim-konten.csv">pharma-dim-konten.csv</a> — 27 Zeilen: 18 Konten, 5 Formeln, 4 KPIs</li>
+        <li><a href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/demoData/pharma/pharma-fact-guv.csv">pharma-fact-guv.csv</a> — Monatszeilen mit AC, PY, PL, FC_FY, PL_FY</li>
+      </ul>
+      Beide CSVs sind semikolongetrennt (UTF-8). Beziehung: <code>pharma-dim-konten[AccountID]</code> 1:* <code>pharma-fact-guv[AccountID]</code>. Measures: <code>AC = SUM('pharma-fact-guv'[AC])</code>, analog PY und PL; <code>FC FY = MAX('pharma-fact-guv'[FC_FY])</code> und <code>PL FY = MAX('pharma-fact-guv'[PL_FY])</code>. Zum Gegenrechnen: EBITDA YTD AC = <strong>571,2</strong> · PY 499,6 · PL 532,0 mEUR.
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="sec-h"><span class="snum">03</span>Hierarchie und Perioden — die Regeln</h2>
+    <p class="sec-sub">Zwei Dinge, bei denen echte Modelle gerne von der Lehrbuchform abweichen: ungleich tiefe Hierarchien und Perioden-Beschriftungen jenseits von „JJJJ-MM".</p>
+
+    <div class="note">
+      <h4>Ragged: unterschiedlich tiefe Äste</h4>
+      Das Visual kennt beide üblichen Konventionen und braucht keine Sonderbehandlung im Modell:
+      <ul>
+        <li><strong>Leere tiefere Ebenen</strong> — ist <code>L3</code> leer, ist die letzte gefüllte Ebene das Blatt.</li>
+        <li><strong>Wiederholtes Level</strong> — steht in <code>L2</code> derselbe Text wie in <code>L1</code>, endet die Hierarchie dort.</li>
+        <li>Zeilen mit gleichem Pfad werden aggregiert; Aggregat-Zeilen (z. B. PY nur auf L1) wirken als Szenario-Fallback.</li>
+        <li>Alternativ statt Ebenen-Spalten: <strong>Parent-Child</strong> über <em>Konto-ID</em> + <em>Parent-Konto-ID</em> — beliebig tief und unbalanciert; Waisen landen sichtbar in „Nicht zugeordnet" statt still zu verschwinden. Sind beide gebunden, gewinnt Parent-Child.</li>
+      </ul>
+    </div>
+
+    <div class="note">
+      <h4>Perioden-Formate</h4>
+      Gelesen werden <code>JJJJ-MM</code>, <code>JJJJ-MM-TT</code>, ISO-Zeitstempel, <code>JJJJ/MM</code>, echte Datumsspalten, deutsche und englische Monatsnamen (lang und kurz, mit und ohne Punkt: „Dez", „Dez.", „Dezember", „Dec", „Mrz", „Sept.") auch kombiniert mit Jahr („Mär 2026"), sowie reine Zahlen 1–12. Was nicht lesbar ist, wird als nicht lesbar gemeldet statt geraten.
+      <ul>
+        <li><strong>Fiskaljahr?</strong> Format-Pane → <em>Spalten → Perioden-Sortierung</em> auf <strong>„Datenreihenfolge (Fiskaljahr)"</strong> stellen: dann gilt die Reihenfolge des ersten Auftretens im Modell — ideal für Perioden-Labels mit eigener Sortierspalte.</li>
+        <li><strong>Automatisch</strong> (Standard) sortiert kalendarisch, sobald jedes Label lesbar ist; <strong>Kalenderjahr</strong> erzwingt Jan..Dez.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="sec-h"><span class="snum">04</span>Die vier Ansichten</h2>
+    <p class="sec-sub">Eine Datenbindung, vier Blickwinkel — umgeschaltet in der Toolbar über dem Statement, ohne Format-Pane. Alle Toolbar-Zustände sind bookmark-fähig persistiert.</p>
+    <div class="tiles">
+
+      <div class="tile">
+        <div class="tile-eyebrow">Ansicht 1</div>
+        <h3>Tabelle</h3>
+        <p>Das klassische Statement: Konten und Ergebniszeilen mit Perioden-Blöcken MTD · YTD · FY-Ausblick, Δ-Balken und Δ%-Pins gegen die gewählte Referenz. Die Δ-Skala ist je Spalte über alle Zeilen identisch; Margen-Zeilen rechnen in Prozentpunkten.</p>
+      </div>
+
+      <div class="tile">
+        <div class="tile-eyebrow">Ansicht 2</div>
+        <h3>Struktur-Bars</h3>
+        <p>Dieselben Zeilen, aber mit einem Größenbalken je Zeile — die Struktur des Ergebnisses wird sofort sichtbar, ohne die Zahlen aufzugeben. Gedacht für den Blick „woraus besteht diese GuV eigentlich".</p>
+      </div>
+
+      <div class="tile">
+        <div class="tile-eyebrow">Ansicht 3</div>
+        <h3>Zeilen-Waterfall</h3>
+        <p>Die GuV als Kaskade: Ergebnisanker (Net revenue, Gross profit, EBITDA, EBIT, EBT, Net income) stehen auf der Nulllinie, die Kostenblöcke floaten dazwischen. Der Waterfall nutzt die Wurzelebene der Hierarchie.</p>
+      </div>
+
+      <div class="tile">
+        <div class="tile-eyebrow">Ansicht 4</div>
+        <h3>Werttreiberbaum</h3>
+        <p>Der Ergebnisbaum — aus dem Formel-Graphen (DuPont) oder, wenn keine Formelzeile gebunden ist, aus der reinen Hierarchie. Tidy-Layout mit einer Spalte je Ebene, Operator-Kreisen an den Kanten, Status-Rändern und Kompakt-Karten ab Ebene 4. ⌖ macht jede Karte zur Wurzel, die Breadcrumb führt zurück.</p>
+      </div>
+
+      <div class="tile">
+        <div class="tile-eyebrow">Detail</div>
+        <h3>Kachel-Zoom</h3>
+        <p>Klick auf ein Karten-Diagramm im Baum zoomt den Knoten auf eine ganze Seite: Kombi-Chart mit Monaten und Brücke, Szenario-Grid, „Zahlt ein auf" und „Getrieben von". Der Zoom skaliert sich selbst in den Viewport; „← Zurück zum Baum" führt heraus.</p>
+      </div>
+
+      <div class="tile">
+        <div class="tile-eyebrow">Detail</div>
+        <h3>Selektion &amp; Drillthrough</h3>
+        <p>Linksklick auf eine Wertspalte (oder den Kachel-Kopf) setzt die Power-BI-Selektion der Zeile — inklusive aller Quellzeilen des Kontos; Subtotals selektieren die Blätter darunter, Formelzeilen die Blätter ihrer Operanden. Rechtsklick öffnet das native Kontextmenü mit den Drillthrough-Zielen der Seite. Abschaltbar über <em>Stil → Selektion &amp; Kontextmenü aktiv</em>.</p>
+      </div>
+
+    </div>
+
+    <div class="note">
+      <h4>Drillthrough einrichten — drei Schritte</h4>
+      <ul>
+        <li><strong>1 · Zielseite:</strong> neue Seite anlegen (z. B. „Konto-Detail") und unter <em>Visualisierungen → Seite auf Detailsuche filtern</em> genau die Spalte einziehen, die im Visual als <em>Konto-ID (Key)</em> gebunden ist. Ohne gebundene Konto-ID ist es die erste Ebenen-Spalte (<code>L1</code>).</li>
+        <li><strong>2 · Schaltfläche:</strong> auf der Quellseite <em>Einfügen → Schaltflächen → Leer</em>, dann <em>Aktion → Ein</em>, <em>Typ = Detailsuche</em>, <em>Ziel = Konto-Detail</em>.</li>
+        <li><strong>3 · Benutzen:</strong> im Visual eine Zeile anklicken — die Schaltfläche wird scharf. Oder direkt rechtsklicken bzw. in der Kachel-Ansicht „↗ Drill" drücken.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2 class="sec-h"><span class="snum">05</span>Format-Pane — was sich lohnt</h2>
+    <p class="sec-sub">Das meiste stellt die Toolbar im Visual ein (Ansicht · Spalten-Preset · Δ-Referenz · Perioden · Einheit · Dichte · Ebenen · Optionen). Diese Einstellungen im Formatbereich setzen die Standards dafür — und ein paar Dinge, die die Toolbar nicht kann.</p>
+    <ul class="setlist">
+      <li><strong>Spalten → Standard-Spalten-Preset</strong> — welche Wertspalten beim Öffnen stehen (AC·PY·PL·FC bis ΔPY%·ΔPL%).</li>
+      <li><strong>Spalten → Standard-Δ-Referenz</strong> — Auto (PL, sonst PY), PY, PL oder FC.</li>
+      <li><strong>Spalten → Perioden-Sortierung</strong> — Automatisch · Datenreihenfolge (Fiskaljahr) · Kalenderjahr.</li>
+      <li><strong>Spalten → %-vom-Umsatz + Umsatz-Basiszeile</strong> — leer heißt „Net revenue"; jede andere Zeile geht auch.</li>
+      <li><strong>Spalten → Nullzeilen ausblenden</strong> und <strong>Tabelle auf Breite einpassen</strong>.</li>
+      <li><strong>Spalten → Wurzelzeile Treiberbaum</strong> — ID, Name oder Kategorie; plus Start-Tiefe, Karten-Diagramm (Monate · Δ · Mini-Brücke) und Status-Indikator.</li>
+      <li><strong>Zahlen → Skalierung, Einheit, Dezimalstellen</strong> — Auto/k/m, Einheitstext, getrennte Dezimalstellen für Werte und Δ%.</li>
+      <li><strong>Stil → Abweichungsfarben</strong> — Teal-Abweichung (sicher bei Rot-Grün-Sehschwäche, Standard) oder IBCS classic green.</li>
+      <li><strong>Stil → Schriftgrößen-Preset</strong> — HD · Full HD · UHD, dazu Feinskalierung 80–160 %; gilt für alle Beschriftungen.</li>
+      <li><strong>Stil → Kopfbereich fixieren</strong> — Kopfzeilen bleiben beim Scrollen stehen.</li>
+      <li><strong>Stil → Selektion &amp; Kontextmenü aktiv</strong> — Cross-Filtering und Drillthrough an oder aus.</li>
+      <li><strong>Titelblock</strong> — drei IBCS-Zeilen (Berichtseinheit · Kennzahl + Einheit · Zeitraum + Szenarien) plus optionale Message-Zeile.</li>
+      <li><strong>Hierarchie</strong> — Standard-Aufklapp-Ebene und Einrückung je Ebene.</li>
+      <li><strong>Toolbar</strong> — ganz ausblenden oder einzelne Gruppen abschalten; die Einstellungen wirken weiter.</li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    <strong>P&amp;L Statement byDatenWG</strong> · Version 0.17.0.0 · Beta<br>
+    Kontakt: Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
+    Quellcode, Änderungshistorie, Testplan und Demo-Daten: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG">pnlByDatenWG im Repository</a> · Feedback und Fehler: <a href="https://github.com/losveratos/powerbi-kitchen-/issues">GitHub-Issues</a> · <a href="pnl-beta-post.html">Beta-Post lesen</a>
+    <div class="ibcs">Notation nach den IBCS®-Standards 1.2 der IBCS Association (CC BY-SA 4.0, ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke der HICHERT+FAISST GmbH. Dieses Visual ist nicht von der IBCS Association zertifiziert und steht in keiner Verbindung zu ihr.</div>
+  </footer>
+
+</div>
+</body>
+</html>

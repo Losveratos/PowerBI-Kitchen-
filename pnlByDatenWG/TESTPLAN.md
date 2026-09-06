@@ -108,6 +108,30 @@ Alle Monate ausgewählt (kein Filter):
 - [ ] **% of revenue** an/aus · **Hide zero rows** an/aus
 - [ ] **Waterfall**: Ansicht wechselt — Anker (Net revenue, Gross profit,
   EBITDA, EBIT, EBT, Net income) stehen auf der Nulllinie, Kostenblöcke floaten
+- [ ] **Tree**: Treiberbaum öffnet mit der letzten Formel-/KPI-Zeile als Wurzel
+  (Pharma-Demo: Net margin = Net income ÷ Net revenue); Perioden-/Preset-Gruppen
+  sind ausgeblendet
+- [ ] **Tree · Tidy-Layout**: mehrere gleichzeitig offene Ebenen fächern als Baum
+  auf — eine Spalte je Ebene, jeder Elternknoten auf der Mitte seines
+  Kinder-Blocks, Geschwister-Blätter eng (10 px), zwei Teilbäume klar getrennt
+  (18 px); je Elternkarte **ein** waagerechter Stich → senkrechter Bus im Spalt
+  zwischen den Spalten → Ellbogen in die Kind-Mitten
+- [ ] **Tree · Operatoren**: einheitlicher Zweig ⇒ **ein** großer Kreis (÷ × + −)
+  auf dem Stich zwischen Eltern-Karte und Bus; gemischter Zweig (z. B.
+  `Other operating result`: +, +, −) ⇒ kleiner Kreis je Kante kurz vor der
+  Kind-Karte. Keine Kreise zwischen den Geschwistern auf dem Bus
+- [ ] **Tree · Kompakt-Karten**: ab Ebene 4 (oder bei sehr hohen Layouts) zeigen
+  die Karten nur Titel · AC-Wert · Δ% ohne Mini-Chart; Chevron, ⌖ und
+  Status-Rand bleiben, der Tooltip nennt die Monatswerte
+- [ ] **Tree · Hierarchie-Drill**: Karten ohne Formel (Subtotals, Konten) tragen
+  ebenfalls einen Chevron und klappen ihre Kontenhierarchie auf — Operator „+"
+  bei Ertrags-, „−" bei Kostenzeilen (`Cost of goods sold` → Materials ·
+  Production · Other cost of sales)
+- [ ] **Tree · ⌖ / Breadcrumb**: das Fadenkreuz macht jede verzweigende Karte —
+  auch eine Subtotal-Karte — zur Wurzel, die Breadcrumb führt zurück
+- [ ] **Tree · Karten „Monate"**: AC solide vorn, Referenz dahinter und nach
+  rechts versetzt (PL outlined / PY grau / FC schraffiert), Dreiecke des
+  zweiten Szenarios auf Werthöhe mit Tooltip, max. 3 Werte-Labels
 - [ ] **12M**-Chip an einer Zeile: Sparkline klappt auf (AC solide, PY dünn)
 - [ ] **Monats-Slicer** auf `Monat` (z. B. nur Jan–Mrz): alle Zahlen inkl.
   Formelzeilen rechnen live neu
@@ -122,6 +146,66 @@ Alle Monate ausgewählt (kein Filter):
 - [ ] **Toolbar → anzeigen** aus → Leser-UI weg, Einstellungen wirken weiter
 - [ ] **Spalten → Umsatz-Basiszeile**: leer = „Net revenue" automatisch;
   Test: `EBITDA` eintragen → %Rev-Spalte rechnet auf EBITDA-Basis
+
+## 6a · Drillthrough einrichten (v0.17)
+
+Ab 0.17 setzt ein Klick im Visual die **Power-BI-Selektion** — damit filtert es
+die übrige Seite (Cross-Filtering) und die **nativen Drillthrough-Schaltflächen**
+der Seite werden scharf. Der Rechtsklick öffnet das **native Kontextmenü**, in
+das Power BI die Drillthrough-Ziele selbst einhängt.
+
+### Zielseite anlegen
+
+1. Neue Berichtsseite anlegen, z. B. `Konto-Detail`.
+2. Im Bereich **Visualisierungen → Seite auf Detailsuche filtern** (Drillthrough)
+   das Feld einziehen, das im Visual als **Konto-ID (Key)** gebunden ist —
+   im Pharma-Demo `pharma-dim-konten[AccountID]`.
+   > Wichtig: **dieselbe Spalte** wie im Visual. Ist keine Konto-ID gebunden,
+   > baut das Visual seine Selektion über die **erste Ebenen-Spalte** (`L1`) —
+   > dann muss auch das Drillthrough-Feld `L1` sein. Eine Produktlinien- oder
+   > Segment-Spalte funktioniert genauso, solange sie im Visual gebunden ist.
+3. Auf der Zielseite die Detail-Visuals platzieren (Tabelle je Monat,
+   Trend, Kommentare …).
+4. Optional „Alle Filter beibehalten" einschalten, damit der Monats-Slicer
+   der Quellseite mitkommt.
+
+### Nativen Drillthrough-Button auf der Quellseite
+
+1. **Einfügen → Schaltflächen → Leer** (oder eine beliebige Form).
+2. Format-Bereich der Schaltfläche → **Aktion → Ein**, **Typ = Detailsuche
+   (Drillthrough)**, **Ziel = Konto-Detail**.
+3. Beschriftung z. B. „Details zum markierten Konto".
+   Der Button ist grau, solange nichts selektiert ist, und wird aktiv, sobald
+   im Visual eine Zeile/Karte angeklickt wurde.
+
+### Abnahme-Checks
+
+- [ ] **Linksklick** auf eine **Wertspalte** (nicht auf den Namen, nicht auf das
+  Chevron, nicht auf den 12M-Chip) einer Konto-Zeile: die Zeile bekommt einen
+  hellen Akzent-Streifen mit Unterstrich, andere Visuals der Seite filtern mit,
+  die Drillthrough-Schaltfläche wird aktiv
+- [ ] **Zweiter Klick** auf dieselbe Zeile hebt die Selektion auf; ein Klick auf
+  freie Fläche im Visual ebenfalls
+- [ ] **Subtotal-Zeile** (z. B. `Net revenue`) klicken: es werden **alle**
+  Quellzeilen der Blätter darunter selektiert (alle Konten × alle Monate)
+- [ ] **Formel-Zeile** (z. B. `EBITDA`) klicken: die Blätter der Operanden
+  werden selektiert
+- [ ] **Rechtsklick** auf eine Zeile / eine Baum-Karte / eine Mikro-Karte /
+  die Kachel: das **native** Power-BI-Kontextmenü öffnet sich, die
+  Drillthrough-Ziele stehen darin
+- [ ] **Kachel-Ansicht** (Baum → Klick auf ein Karten-Diagramm): neben
+  „← Zurück zum Baum" steht **„↗ Drill"**. Ein Klick setzt die Selektion des
+  gezoomten Knotens **und** öffnet direkt darunter das Kontextmenü mit den
+  Drillthrough-Zielen
+- [ ] **Baum-Karten**: der Linksklick öffnet weiterhin die Kachel-Ansicht
+  (Belegung steht in der Hinweiszeile über dem Baum), nur der Rechtsklick
+  selektiert/öffnet das Menü
+- [ ] **Stil → „Selektion & Kontextmenü aktiv" = Aus**: keinerlei Selektion,
+  kein Kontextmenü, kein „↗ Drill"-Button — der Stand vor 0.17
+- [ ] **Lesezeichen**: ein Lesezeichen ohne Selektion zurückholen löscht auch
+  die optische Markierung im Visual
+- [ ] Sehr große Knoten (> 2.000 Quellzeilen): der Tooltip der Zeile sagt, dass
+  die Selektion auf die ersten 2.000 Quellzeilen begrenzt ist
 
 ## 7 · Speichern für die Automatisierung (wichtig!)
 

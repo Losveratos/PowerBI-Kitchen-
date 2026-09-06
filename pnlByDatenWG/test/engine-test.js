@@ -361,4 +361,271 @@ test("formula parser rejects garbage cleanly", () => {
     assert.equal(mk("-[a]+2,5").computed.ac, 1.5); // unary minus + decimal comma
 });
 
+// v0.6 — formula operands for the value driver tree (DuPont)
+test("formulaOperands: DuPont chain, mixed ops, unknown refs", () => {
+    const m = E.buildModel([
+        row("Sales", null, { name: "Sales", values: { ac: 1000 } }),
+        row("Ret", null, { name: "Ret", values: { ac: 100 } }),
+        row("Cap", null, { name: "Cap", values: { ac: 500 } }),
+        row("ROS", null, { name: "ROS", rowType: "kpi", formulaDef: "[Ret]/[Sales]" }),
+        row("CT", null, { name: "CT", rowType: "kpi", formulaDef: "[Sales]/[Cap]" }),
+        row("ROI", null, { name: "ROI", rowType: "kpi", formulaDef: "[ROS]*[CT]" }),
+        row("mix", null, { rowType: "formula", formulaDef: "[Ret]*[CT]+[Cap]" }),
+        row("minus", null, { rowType: "formula", formulaDef: "[Sales]-[Ret]" }),
+        row("nested", null, { rowType: "formula", formulaDef: "[Sales]-([Ret]-[Cap])" }),
+        row("scaled", null, { rowType: "formula", formulaDef: "[Ret]*2" }),
+        row("ghost", null, { rowType: "formula", formulaDef: "[nope]+[alsoNope]" }),
+        row("halfGhost", null, { rowType: "formula", formulaDef: "[Sales]+[nope]" }),
+        row("broken", null, { rowType: "formula", formulaDef: "[Sales]+" }),
+        row("plain", null, { values: { ac: 1 } }),
+    ], "U");
+    const resolve = E.nodeResolver(m);
+    const ops = id => E.formulaOperands(m.byId.get(id), resolve)
+        .map(o => o.op + o.child.row.name);
+
+    // multiplication and division: one branch operator for the whole group
+    assert.deepEqual(ops("ROI"), ["×ROS", "×CT"]);
+    assert.deepEqual(ops("ROS"), ["÷Ret", "÷Sales"]);
+    assert.deepEqual(ops("CT"), ["÷Sales", "÷Cap"]);
+    // the operands are real nodes with computed values (ROI = 0.1 * 2 = 0.2)
+    const roi = E.formulaOperands(m.byId.get("ROI"), resolve);
+    assert.equal(roi.length, 2);
+    assert.equal(roi[0].child.computed.ac, 0.1);
+    assert.equal(roi[1].child.computed.ac, 2);
+    // mixed / additive formulas keep the operator per edge
+    assert.deepEqual(ops("mix"), ["×Ret", "×CT", "+Cap"]);
+    assert.deepEqual(ops("minus"), ["+Sales", "−Ret"]);
+    assert.deepEqual(ops("nested"), ["+Sales", "−Ret", "+Cap"]);   // -(-Cap) adds again
+    assert.deepEqual(ops("scaled"), ["+Ret"]);                     // literals are no operands
+    // unresolvable references drop out, a parse error yields nothing
+    assert.deepEqual(ops("ghost"), []);
+    assert.deepEqual(ops("halfGhost"), ["+Sales"]);
+    assert.deepEqual(ops("broken"), []);
+    assert.deepEqual(ops("plain"), []);                            // no formula at all
+});
+
+test("formulaOperands: name resolution in level mode", () => {
+    const m = buildLevels([
+        lrow(["Umsatzerlöse", "Produkte"], { values: { ac: 100 }, index: 0 }),
+        lrow(["Betriebsaufwand", "Material"], { sign: -1, values: { ac: 40 }, index: 1 }),
+        lrow(["EBITDA"], { rowType: "formula", formulaDef: "[Umsatzerlöse]+[Betriebsaufwand]", index: 2 }),
+        lrow(["Marge"], { rowType: "kpi", formulaDef: "[EBITDA]/[Umsatzerlöse]", index: 3 }),
+    ]);
+    const resolve = E.nodeResolver(m);
+    const byName = nm => [...m.byId.values()].find(x => x.row.name === nm);
+    const marge = E.formulaOperands(byName("Marge"), resolve);
+    assert.deepEqual(marge.map(o => o.op), ["÷", "÷"]);
+    assert.deepEqual(marge.map(o => o.child.row.name), ["EBITDA", "Umsatzerlöse"]);
+    assert.equal(marge[0].child.computed.ac, 60);                  // synthetic path id resolved by name
+    const ebitda = E.formulaOperands(byName("EBITDA"), resolve);
+    assert.deepEqual(ebitda.map(o => o.op + o.child.row.name), ["+Umsatzerlöse", "+Betriebsaufwand"]);
+});
+
+// v0.15 — syntheticTotal: the virtual root of a driver tree that has no
+// formula row to start from. It must behave exactly like a subtotal row.
+test("syntheticTotal: sums the model roots per scenario", () => {
+    const m = E.buildModel([
+        row("A", null, { rowType: "subtotal" }),
+        row("a1", "A", { values: { ac: 10, py: 8, pl: 9, fcfy: 100, plfy: 90 } }),
+        row("a2", "A", { values: { ac: 5, py: 4, pl: 5, fcfy: 50, plfy: 45 } }),
+        row("B", null, { rowType: "subtotal" }),
+        row("b1", "B", { values: { ac: 7, py: 6, pl: 7, fcfy: 70, plfy: 66 } }),
+    ], "U");
+    const t = E.syntheticTotal(m);
+    assert.equal(t.row.id, E.TOTAL_ID);
+    assert.equal(E.TOTAL_ID, "__TOTAL__");
+    assert.equal(t.row.rowType, "subtotal");
+    assert.equal(t.row.sign, 1);
+    assert.equal(t.row.name, "");                    // the view supplies the label
+    assert.equal(t.level, 0);
+    assert.ok(t.hasChildren);
+    assert.equal(t.children.length, 2);
+    assert.ok(!m.byId.has(E.TOTAL_ID), "the virtual root is no row of the model");
+    assert.equal(t.computed.ac, 22);
+    assert.equal(t.computed.py, 18);
+    assert.equal(t.computed.pl, 21);
+    // FY scalars roll up here exactly like in the engine's subtotal branch —
+    // their first-wins rule lives one level below, in aggregateMonthly
+    assert.equal(t.computed.fcfy, 220);
+    assert.equal(t.computed.plfy, 201);
+});
+
+test("syntheticTotal: sign weighting, ratio roots, single root, empty model", () => {
+    // a cost root with sign −1 subtracts, exactly as under a subtotal parent
+    const m = E.buildModel([
+        row("rev", null, { rowType: "subtotal" }),
+        row("r1", "rev", { values: { ac: 100 } }),
+        row("cost", null, { rowType: "subtotal", sign: -1 }),
+        row("c1", "cost", { values: { ac: 40 } }),
+    ], "U");
+    assert.equal(m.byId.get("cost").computed.ac, -40);
+    assert.equal(E.syntheticTotal(m).computed.ac, 60);
+
+    // ratio and separator roots never contribute to a sum (contributes())
+    const m2 = E.buildModel([
+        row("A", null, { values: { ac: 10 } }),
+        row("K", null, { rowType: "kpi", formulaDef: "[A]/[A]" }),
+        row("S", null, { rowType: "separator" }),
+    ], "U");
+    assert.equal(m2.byId.get("K").computed.ac, 1);
+    assert.equal(E.syntheticTotal(m2).computed.ac, 10);
+
+    // one root: the total repeats it — the visual uses the root itself instead
+    const m3 = E.buildModel([
+        row("only", null, { rowType: "subtotal" }),
+        row("o1", "only", { values: { ac: 12, py: 11 } }),
+    ], "U");
+    assert.equal(m3.roots.length, 1);
+    assert.equal(E.syntheticTotal(m3).computed.ac, 12);
+
+    // no scenario value anywhere stays null instead of turning into a 0
+    const m4 = E.buildModel([row("x", null, {}), row("y", null, {})], "U");
+    const t4 = E.syntheticTotal(m4);
+    assert.equal(t4.computed.ac, null);
+    assert.equal(t4.computed.plfy, null);
+});
+
+test("syntheticTotal: monthly series roll up like a subtotal", () => {
+    const m = buildLevels([
+        lrow(["Pharma", "Rx"], { account: "Rx", values: { ac: 10, pl: 9 }, month: "2026-01", index: 0 }),
+        lrow(["Pharma", "Rx"], { account: "Rx", values: { ac: 12, pl: 11 }, month: "2026-02", index: 1 }),
+        lrow(["Consumer", "Care"], { account: "Care", values: { ac: 5, pl: 6 }, month: "2026-01", index: 2 }),
+        lrow(["Consumer", "Care"], { account: "Care", values: { ac: 6, pl: 6 }, month: "2026-02", index: 3 }),
+        // a cost branch: sign −1 turns its months negative before they are summed
+        lrow(["Cost", "Materials"], { account: "Mat", sign: -1, values: { ac: 4 }, month: "2026-01", index: 4 }),
+        lrow(["Cost", "Materials"], { account: "Mat", sign: -1, values: { ac: 3 }, month: "2026-02", index: 5 }),
+    ]);
+    assert.equal(m.roots.length, 3);
+    const t = E.syntheticTotal(m);
+    assert.deepEqual(t.series.ac, [11, 15]);          // 10 + 5 − 4 · 12 + 6 − 3
+    assert.deepEqual(t.series.pl, [15, 17]);          // the cost branch carries no PL
+    assert.equal(t.computed.ac, 26);
+    // scenarios without any series stay out of the series map entirely
+    assert.equal(t.series.py, undefined);
+});
+
+// v0.16 — the period parser: every shape a period column really arrives in
+test("period parsing: keys, dates, month names, numbers, junk", () => {
+    const p = (s) => E.parsePeriod(s);
+    const eq = (s, y, mo, d) => assert.deepEqual(p(s), { y, m: mo, d }, "parse " + s);
+
+    // the classic text keys — unchanged
+    eq("2026-01", 2026, 1, 0);
+    eq("2026-12", 2026, 12, 0);
+    eq("2026-01-15", 2026, 1, 15);
+    eq("2026-03-01T00:00:00Z", 2026, 3, 1);
+    eq("2026/07", 2026, 7, 0);
+    assert.equal(p("2026-13"), null);                  // no such month
+
+    // German month names, short and long, with and without a dot, any casing
+    eq("Dez", null, 12, 0);
+    eq("dez.", null, 12, 0);
+    eq("Dezember", null, 12, 0);
+    eq("MÄRZ", null, 3, 0);
+    eq("Mär", null, 3, 0);
+    eq("Mrz", null, 3, 0);
+    eq("Jan", null, 1, 0);
+    eq("Sept.", null, 9, 0);
+    eq("Okt", null, 10, 0);
+
+    // English, short and long
+    eq("Dec", null, 12, 0);
+    eq("March", null, 3, 0);
+    eq("May", null, 5, 0);
+    eq("october", null, 10, 0);
+
+    // month name plus a four-digit year, on either side
+    eq("Mär 2026", 2026, 3, 0);
+    eq("2026 Mar", 2026, 3, 0);
+    eq("Dez. 2025", 2025, 12, 0);
+
+    // plain calendar numbers
+    eq("1", null, 1, 0);
+    eq("12", null, 12, 0);
+    eq("07", null, 7, 0);
+    assert.equal(p("0"), null);
+    assert.equal(p("13"), null);
+
+    // an epoch timestamp in milliseconds
+    const ms = new Date(2026, 4, 15).getTime();
+    assert.deepEqual(p(String(ms)), { y: 2026, m: 5, d: 15 });
+
+    // …and everything the visual must NOT guess at
+    for (const junk of ["", null, undefined, "   ", "P07", "KW 12", "Quartal 1", "FY26", "-"]) {
+        assert.equal(p(junk), null, "junk " + junk);
+    }
+});
+
+test("period sorting: auto / data / calendar", () => {
+    const DE = ["Dez", "Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov"];
+    const CAL = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+
+    // auto: readable labels go into calendar order …
+    assert.deepEqual(E.sortMonths(DE, "auto"), CAL);
+    assert.deepEqual(E.sortMonths(DE), CAL);                       // auto is the default
+    // … and the classic key path stays exactly what .sort() produced before
+    const keys = ["2026-03", "2026-01", "2025-12", "2026-02"];
+    assert.deepEqual(E.sortMonths(keys, "auto"), ["2025-12", "2026-01", "2026-02", "2026-03"]);
+    assert.deepEqual(E.sortMonths(keys, "auto"), [...keys].sort());
+    // days inside one month keep their day order
+    assert.deepEqual(E.sortMonths(["2026-01-30", "2026-01-02"], "auto"),
+        ["2026-01-02", "2026-01-30"]);
+
+    // auto: one unreadable label and the whole column falls back to data order
+    const fiscal = ["P04", "P05", "P06", "P07"];
+    assert.deepEqual(E.sortMonths(fiscal, "auto"), fiscal);
+    assert.deepEqual(E.sortMonths(["Jan", "P02", "Mär"], "auto"), ["Jan", "P02", "Mär"]);
+
+    // data: the sequence is never touched, however readable it is
+    assert.deepEqual(E.sortMonths(DE, "data"), DE);
+    assert.deepEqual(E.sortMonths(keys, "data"), keys);
+
+    // calendar: forced, unreadable labels keep their data order behind the rest
+    assert.deepEqual(E.sortMonths(["Jan", "P02", "Mär"], "calendar"), ["Jan", "Mär", "P02"]);
+    assert.deepEqual(E.sortMonths(["Zeta", "Alpha"], "calendar"), ["Zeta", "Alpha"]);
+    // with years the year wins over the calendar position
+    assert.deepEqual(E.sortMonths(["Mär 2026", "Dez 2025", "Jan 2026"], "calendar"),
+        ["Dez 2025", "Jan 2026", "Mär 2026"]);
+
+    // data order is stable: equal keys never shuffle
+    assert.deepEqual(E.sortMonths(["Jul", "Jul", "Jan"], "auto"), ["Jan", "Jul", "Jul"]);
+});
+
+test("period sorting: the monthly series follow the period order", () => {
+    const mk = (sort) => {
+        const rows = [
+            ["Dez", 12], ["Jan", 1], ["Feb", 2], ["Mär", 3],
+        ].map(([m, v], i) => lrow(["Umsatz", "Produkte"], {
+            month: m, values: { ac: v }, index: i,
+        }));
+        const lr = E.rowsFromLevels(rows, sort);
+        return { model: E.buildModel(lr.rows, "U", lr.months), months: lr.months };
+    };
+    const prod = (r) => [...r.model.byId.values()].find(x => x.row.name === "Produkte");
+
+    const auto = mk("auto");
+    assert.deepEqual(auto.months, ["Jan", "Feb", "Mär", "Dez"]);
+    assert.deepEqual(auto.model.months, auto.months);
+    assert.deepEqual(prod(auto).series.ac, [1, 2, 3, 12]);   // series indices follow the months
+    assert.equal(prod(auto).computed.ac, 18);                // the YTD sum is order-free
+
+    const data = mk("data");
+    assert.deepEqual(data.months, ["Dez", "Jan", "Feb", "Mär"]);
+    assert.deepEqual(prod(data).series.ac, [12, 1, 2, 3]);
+    assert.equal(prod(data).computed.ac, 18);
+
+    const cal = mk("calendar");
+    assert.deepEqual(cal.months, ["Jan", "Feb", "Mär", "Dez"]);
+    assert.deepEqual(prod(cal).series.ac, [1, 2, 3, 12]);
+
+    // the classic key path is untouched by any of this
+    const keyRows = ["2026-02", "2026-01"].map((m, i) => lrow(["Umsatz", "Produkte"], {
+        month: m, values: { ac: i === 0 ? 20 : 10 }, index: i,
+    }));
+    const kr = E.rowsFromLevels(keyRows);
+    assert.deepEqual(kr.months, ["2026-01", "2026-02"]);
+    const km = E.buildModel(kr.rows, "U", kr.months);
+    assert.deepEqual([...km.byId.values()].find(x => x.row.name === "Produkte").series.ac, [10, 20]);
+});
+
 console.log(`\n${n} engine test blocks passed`);

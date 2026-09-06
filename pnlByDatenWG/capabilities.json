@@ -74,7 +74,7 @@
             "displayName": "Period (month)",
             "displayNameKey": "Role_Period",
             "kind": "Grouping",
-            "description": "Month column for sparklines and YTD aggregation; values are summed across the shown periods"
+            "description": "Month column for sparklines and YTD aggregation; values are summed across the shown periods. Date keys (YYYY-MM, YYYY-MM-DD), date columns and month names (Dez, Dezember, Dec, March, Mär …) are read into calendar order automatically — see Columns → Period sort order for fiscal years"
         },
         {
             "name": "comment",
@@ -358,6 +358,10 @@
                                 "displayName": "AC vs reference"
                             },
                             {
+                                "value": "dall",
+                                "displayName": "AC vs PY·PL·FC"
+                            },
+                            {
                                 "value": "acpydpy",
                                 "displayName": "AC·PY·ΔPY"
                             },
@@ -394,6 +398,24 @@
                         ]
                     }
                 },
+                "periodSort": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "auto",
+                                "displayName": "Automatisch"
+                            },
+                            {
+                                "value": "data",
+                                "displayName": "Datenreihenfolge (Fiskaljahr)"
+                            },
+                            {
+                                "value": "calendar",
+                                "displayName": "Kalenderjahr"
+                            }
+                        ]
+                    }
+                },
                 "pctRevenue": {
                     "type": {
                         "bool": true
@@ -405,6 +427,44 @@
                     }
                 },
                 "hideZeroRows": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "fitWidth": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "treeRoot": {
+                    "type": {
+                        "text": true
+                    }
+                },
+                "treeLevel": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "treeCard": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "months",
+                                "displayName": "Monthly columns (AC vs PL)"
+                            },
+                            {
+                                "value": "delta",
+                                "displayName": "Variance columns (Δ vs reference)"
+                            },
+                            {
+                                "value": "bridge",
+                                "displayName": "Mini bridge (REF → Δ → AC)"
+                            }
+                        ]
+                    }
+                },
+                "treeStatus": {
                     "type": {
                         "bool": true
                     }
@@ -500,6 +560,25 @@
                         ]
                     }
                 },
+                "fontZoom": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "headerFontSize": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "headerColor": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
                 "goodColor": {
                     "type": {
                         "fill": {
@@ -516,6 +595,43 @@
                                 "color": true
                             }
                         }
+                    }
+                },
+                "accentColor": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "stickyHeader": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "pageBackground": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "cardBackground": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "interactions": {
+                    "type": {
+                        "bool": true
                     }
                 }
             }
@@ -574,6 +690,7 @@
         }
     },
     "supportsHighlight": false,
+    "supportsMultiVisualSelection": true,
     "supportsLandingPage": true,
     "supportsEmptyDataView": true,
     "sorting": {
