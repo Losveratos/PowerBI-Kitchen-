@@ -298,7 +298,8 @@ function renderTimeline() {
   months.forEach((k, i) => { if (+k.slice(5) === 1 && i > 0) s.append('line').attr('x1', labelW + i * colW - 1).attr('x2', labelW + i * colW - 1).attr('y1', top - 6).attr('y2', H - 8).attr('stroke', '#D8D3C4'); });
   const grid = rows.map(n => months.map(k => cell(n, k)));
   const max = Math.max(1, ...grid.flat().map(c => c.length));
-  const colorFor = (n, v) => { const c = TYPE_COLOR[n.type] || '#888'; return d3.interpolateRgb('#F1EEE5', c)(0.25 + 0.75 * v / max); };
+  const HEX = {Topic: '#2A857A', Tool: '#166088', Person: '#B8336A', Organization: '#5B3B7A', Bucket: '#B8860B'};
+  const colorFor = (n, v) => d3.interpolateRgb('#F1EEE5', HEX[n.type] || '#6B6B6B')(0.25 + 0.75 * v / max);
   // Spaltenköpfe: Jahr bei Januar, sonst Monat alle 3
   months.forEach((k, i) => { const mm = +k.slice(5); if (mm === 1 || i === 0) s.append('text').attr('class', 'col-label').attr('x', labelW + i * colW + 2).attr('y', 14).text(k.slice(0, 4)); else if (mm % 3 === 1 && colW >= 18) s.append('text').attr('class', 'col-label').attr('x', labelW + i * colW + 2).attr('y', 14).text(mm); });
   // Gesamtzeile
