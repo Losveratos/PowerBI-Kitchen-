@@ -4,8 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DatenWG Library · Graph</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#FAFAF5;--bg-card:#FFFFFF;--bg-soft:#F4F1E8;--ink:#1A1A1A;--ink-soft:#4A4A4A;--ink-mute:#6B6B6B;
@@ -13,15 +11,15 @@
   --c-update:#C25A2D;--c-fabric:#1E3A5F;--c-model:#2A857A;--c-gov:#8B2E2E;--c-viz:#5C2E2E;--c-pbi:#166088;
   --c-career:#B8336A;--c-strategy:#5B3B7A;--c-event:#B8860B;
   --n-topic:#2A857A;--n-tool:#166088;--n-person:#B8336A;--n-bucket:#B8860B;--n-org:#5B3B7A;--n-doc:#8A8A8A;--n-page:#4A4A4A;
-  --serif:'Fraunces',Georgia,serif;--sans:'Geist',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;--sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;--mono:"Segoe UI Variable Small","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;--code:ui-monospace,"Cascadia Code",Consolas,monospace;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px}
 a{color:var(--accent)}
 header{display:flex;align-items:baseline;gap:18px;padding:14px 22px;border-bottom:1px solid var(--line);background:var(--bg-card)}
-header h1{font-family:var(--serif);font-weight:600;font-size:22px;margin:0}
-header h1 em{font-style:italic;color:var(--accent)}
-header .meta{font-family:var(--mono);font-size:11px;color:var(--ink-mute)}
+header h1{font-family:var(--serif);font-weight:300;font-size:22px;letter-spacing:-0.01em;margin:0}
+header h1 em{font-style:normal;font-weight:700;color:var(--accent)}
+header .meta{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink-mute)}
 header .back{margin-left:auto;font-size:13px}
 main{display:grid;grid-template-columns:300px 1fr 420px;height:calc(100% - 55px)}
 aside{overflow:auto;padding:16px;border-right:1px solid var(--line);background:var(--bg-card)}
@@ -73,7 +71,7 @@ a.btn.share{border-style:dashed}
 .empty{color:var(--ink-mute);font-style:italic}
 .crumbs{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:8px;font-size:12px}
 .crumbs .chip{padding:2px 8px;font-size:11px}
-.gql{font-family:var(--mono);font-size:11px;background:#0F1E2E;color:#DCE6EE;padding:10px 12px;border-radius:8px;white-space:pre-wrap;margin:8px 0 12px;line-height:1.5}
+.gql{font-family:var(--code);font-size:11px;background:#0F1E2E;color:#DCE6EE;padding:10px 12px;border-radius:8px;white-space:pre-wrap;margin:8px 0 12px;line-height:1.5}
 .gql .k{color:#8FD3C4}
 details.q{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0;background:var(--bg)}
 details.q summary{cursor:pointer;font-weight:500;font-size:13px}

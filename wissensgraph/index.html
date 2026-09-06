@@ -4,8 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DatenWG Library · Knowledge Kitchen</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#FAFAF5;--bg-card:#FFFFFF;--bg-soft:#F4F1E8;--ink:#1A1A1A;--ink-soft:#4A4A4A;--ink-mute:#6B6B6B;
@@ -13,7 +11,7 @@
   --c-update:#C25A2D;--c-fabric:#1E3A5F;--c-model:#2A857A;--c-gov:#8B2E2E;--c-viz:#5C2E2E;--c-pbi:#166088;
   --c-career:#B8336A;--c-strategy:#5B3B7A;--c-event:#B8860B;
   --n-topic:#2A857A;--n-tool:#166088;--n-person:#B8336A;--n-bucket:#B8860B;--n-org:#5B3B7A;--n-page:#4A4A4A;
-  --serif:'Fraunces',Georgia,serif;--sans:'Geist',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;--sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;--mono:"Segoe UI Variable Small","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;--code:ui-monospace,"Cascadia Code",Consolas,monospace;
   --shadow:0 1px 2px rgba(10,10,10,.04),0 2px 8px rgba(10,10,10,.06);
 }
 *{box-sizing:border-box}
@@ -21,10 +19,10 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
 header{display:flex;align-items:center;gap:16px;padding:12px 22px;border-bottom:1px solid var(--line);background:var(--bg-card);position:sticky;top:0;z-index:5}
-header h1{font-family:var(--serif);font-weight:600;font-size:22px;margin:0;white-space:nowrap}
-header h1 em{font-style:italic;color:var(--accent)}
+header h1{font-family:var(--serif);font-weight:300;font-size:22px;letter-spacing:-0.01em;margin:0;white-space:nowrap}
+header h1 em{font-style:normal;font-weight:700;color:var(--accent)}
 header h1 a{color:inherit;text-decoration:none}
-.meta{font-family:var(--mono);font-size:11px;color:var(--ink-mute)}
+.meta{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink-mute)}
 .beta{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:var(--accent-warm);color:#fff;padding:2px 8px;border-radius:999px;vertical-align:middle;margin-left:6px;cursor:help}
 .searchbox{position:relative;flex:1;max-width:520px}
 .searchbox input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:var(--bg)}
@@ -58,18 +56,18 @@ a.chip.on:hover{color:#fff}
 article{padding:22px 34px 60px;max-width:1080px}
 .crumbs{font-family:var(--mono);font-size:11px;color:var(--ink-mute);margin-bottom:10px}
 .crumbs a{color:var(--ink-mute)}
-h1.title{font-family:var(--serif);font-weight:600;font-size:34px;margin:0 0 6px;line-height:1.1}
+h1.title{font-family:var(--serif);font-weight:300;font-size:36px;letter-spacing:-0.02em;margin:0 0 6px;line-height:1.08}
 h1.title small{font-family:var(--mono);font-size:11px;font-weight:400;color:#fff;padding:2px 8px;border-radius:4px;vertical-align:middle;margin-left:8px}
 .lead{font-size:16px;color:var(--ink-soft);line-height:1.55;max-width:70ch;margin:8px 0 12px}
 .kpis{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 18px}
 .kpi{background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--ink-soft)}
-.kpi b{display:block;font-family:var(--serif);font-size:20px;color:var(--ink);font-weight:600}
-h2{font-family:var(--serif);font-size:20px;font-weight:600;margin:28px 0 10px}
+.kpi b{display:block;font-family:var(--serif);font-size:22px;color:var(--ink);font-weight:300;letter-spacing:-0.02em}
+h2{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-0.01em;margin:28px 0 10px}
 h2 .sub{font-family:var(--mono);font-size:11px;color:var(--ink-mute);font-weight:400;margin-left:8px}
 .carousel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;scrollbar-width:thin}
 .card{flex:0 0 250px;scroll-snap-align:start;background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;color:var(--ink);transition:border-color .15s}
 .card:hover{border-color:var(--accent);text-decoration:none}
-.card .name{font-family:var(--serif);font-size:16px;font-weight:600;line-height:1.2}
+.card .name{font-family:var(--serif);font-size:15px;font-weight:600;line-height:1.25}
 .card .w{font-family:var(--mono);font-size:10px;color:var(--ink-mute)}
 .card .q{font-size:12.5px;color:var(--ink-soft);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .card.doc{flex-basis:280px;padding:0;overflow:hidden}
@@ -103,7 +101,7 @@ h2 .sub{font-family:var(--mono);font-size:11px;color:var(--ink-mute);font-weight
 .spark div{flex:1;background:var(--accent);opacity:.75;border-radius:2px 2px 0 0;min-width:3px;position:relative}
 .spark div:hover{opacity:1}
 .spark-x{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--ink-mute)}
-.gql{font-family:var(--mono);font-size:11px;background:#0F1E2E;color:#DCE6EE;padding:10px 12px;border-radius:8px;white-space:pre-wrap;margin:8px 0 12px;line-height:1.5}
+.gql{font-family:var(--code);font-size:11px;background:#0F1E2E;color:#DCE6EE;padding:10px 12px;border-radius:8px;white-space:pre-wrap;margin:8px 0 12px;line-height:1.5}
 .gql .k{color:#8FD3C4}
 .empty{color:var(--ink-mute);font-style:italic}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
@@ -325,7 +323,7 @@ function renderStart() {
   const askHref = (t, a, b, p) => '#' + new URLSearchParams(Object.assign({ask: t, a}, b ? {b} : {}, p ? {p} : {}, timeRange !== 'all' ? {t: timeRange} : {})).toString();
   const label = (t, a, b, p) => ({who: `Wer erklärt ${a}?`, both: `Was verbindet ${a} und ${b}?`, said: `Was wurde zu ${a} gesagt?`, person: `Was sagt ${p} zu ${a}?`, latest: `Neuestes zu ${a}`})[t];
   $('#page').innerHTML = `
-    <h1 class="title">DatenWG Library: das Wissen der Daten-WG, <em style="color:var(--accent)">verknüpft</em></h1>
+    <h1 class="title">DatenWG Library: das Wissen der Daten-WG, <strong style="color:var(--accent);font-weight:700">verknüpft</strong></h1>
     <p class="meta" style="margin:-2px 0 10px">Early Access Beta · Kernaussagen und Themen sind maschinell extrahiert, nicht redigiert. Bei Widersprüchen gilt das Video oder die Seite. Feedback: <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a></p>
     <p class="lead">${G.docs.filter(d => d.source === 'youtube').length} Folgen und ${G.docs.filter(d => d.source === 'markdown').length} Seiten der Kitchen als Graph: Themen, Tools, Personen und ${G.claims.length} belegte Kernaussagen. Jede Stelle springt auf die Sekunde ins Video oder auf den Abschnitt der Seite.</p>
     <div class="kpis"><div class="kpi"><b>${G.concepts.length}</b>Konzepte</div><div class="kpi"><b>${G.claims.length}</b>Kernaussagen</div><div class="kpi"><b>${G.edges.filter(e => e.type === 'RELATES_TO').length}</b>Themenbeziehungen</div><div class="kpi"><b>${G.docs.filter(docActive).length}</b>Dokumente im Filter</div></div>
