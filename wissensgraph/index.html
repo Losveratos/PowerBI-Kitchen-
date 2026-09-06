@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wissensgraph · Daten-WG Knowledge Kitchen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF5;--bg-card:#FFFFFF;--bg-soft:#F4F1E8;--ink:#1A1A1A;--ink-soft:#4A4A4A;--ink-mute:#6B6B6B;
+  --line:#E6E2D6;--accent:#117865;--accent-warm:#C25A2D;
+  --c-update:#C25A2D;--c-fabric:#1E3A5F;--c-model:#2A857A;--c-gov:#8B2E2E;--c-viz:#5C2E2E;--c-pbi:#166088;
+  --c-career:#B8336A;--c-strategy:#5B3B7A;--c-event:#B8860B;
+  --n-topic:#2A857A;--n-tool:#166088;--n-person:#B8336A;--n-bucket:#B8860B;--n-org:#5B3B7A;--n-doc:#8A8A8A;
+  --serif:'Fraunces',Georgia,serif;--sans:'Geist',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px}
+a{color:var(--accent)}
+header{display:flex;align-items:baseline;gap:18px;padding:14px 22px;border-bottom:1px solid var(--line);background:var(--bg-card)}
+header h1{font-family:var(--serif);font-weight:600;font-size:22px;margin:0}
+header h1 em{font-style:italic;color:var(--accent)}
+header .meta{font-family:var(--mono);font-size:11px;color:var(--ink-mute)}
+header .back{margin-left:auto;font-size:13px}
+main{display:grid;grid-template-columns:300px 1fr 400px;height:calc(100% - 55px)}
+aside{overflow:auto;padding:16px;border-right:1px solid var(--line);background:var(--bg-card)}
+aside.right{border-right:0;border-left:1px solid var(--line)}
+h2{font-family:var(--serif);font-size:15px;font-weight:600;margin:14px 0 8px}
+h2:first-child{margin-top:0}
+label.small{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-mute);margin:10px 0 4px}
+input[type=search]{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--bg)}
+input[type=range]{width:100%}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px;cursor:pointer;background:var(--bg);user-select:none}
+.chip.on{color:#fff;border-color:transparent}
+.chip[data-t=Topic].on{background:var(--n-topic)}.chip[data-t=Tool].on{background:var(--n-tool)}
+.chip[data-t=Person].on{background:var(--n-person)}.chip[data-t=Bucket].on{background:var(--n-bucket)}
+.chip[data-t=Organization].on{background:var(--n-org)}.chip[data-t=Document].on{background:var(--n-doc)}
+#graph{position:relative;overflow:hidden;background:var(--bg)}
+#graph svg{width:100%;height:100%;display:block}
+.node circle{stroke:#fff;stroke-width:1.5px;cursor:pointer}
+.node text{font-family:var(--sans);font-size:11px;pointer-events:none;fill:var(--ink)}
+.node.dim{opacity:.18}
+.link{stroke:#9a958a;stroke-opacity:.35}
+.link.dim{stroke-opacity:.05}
+.link.hl{stroke:var(--accent);stroke-opacity:.9}
+.hint{position:absolute;left:14px;bottom:12px;font-family:var(--mono);font-size:11px;color:var(--ink-mute);background:rgba(250,250,245,.85);padding:6px 8px;border-radius:6px}
+.list{list-style:none;margin:0;padding:0}
+.list li{padding:8px 0;border-bottom:1px solid var(--line)}
+.list li:last-child{border-bottom:0}
+.list .t{font-weight:500;cursor:pointer}
+.list .t:hover{color:var(--accent)}
+.list .m{font-family:var(--mono);font-size:11px;color:var(--ink-mute);margin-top:2px}
+.badge{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:4px;background:var(--bg-soft);color:var(--ink-soft);margin-left:6px}
+.badge.ex{background:#E3F2ED;color:var(--accent)}
+.badge.type{color:#fff}
+.badge.Topic{background:var(--n-topic)}.badge.Tool{background:var(--n-tool)}.badge.Person{background:var(--n-person)}
+.badge.Bucket{background:var(--n-bucket)}.badge.Organization{background:var(--n-org)}.badge.Document{background:var(--n-doc)}
+.seg{margin:6px 0 10px;padding:8px 10px;border-left:3px solid var(--line);background:var(--bg-soft);border-radius:0 6px 6px 0;font-size:13px;line-height:1.45}
+.seg .ts{font-family:var(--mono);font-size:11px;color:var(--accent);text-decoration:none;margin-right:6px;white-space:nowrap}
+.seg .h{font-family:var(--mono);font-size:10px;color:var(--ink-mute);display:block;margin-bottom:3px}
+.seg mark{background:#FFE9A8;padding:0 1px}
+.desc{color:var(--ink-soft);line-height:1.5;margin:6px 0}
+.btn{display:inline-block;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;background:var(--bg);margin:4px 4px 0 0}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.stat{font-family:var(--mono);font-size:11px;color:var(--ink-mute);line-height:1.7}
+.empty{color:var(--ink-mute);font-style:italic}
+@media (max-width:1100px){main{grid-template-columns:260px 1fr;grid-template-rows:1fr auto}aside.right{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);max-height:40vh}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Wissens<em>graph</em></h1>
+  <span class="meta" id="hdr-stats">lädt …</span>
+  <a class="back" href="../index.html">← Knowledge Kitchen</a>
+</header>
+<main>
+  <aside class="left">
+    <h2>Suche</h2>
+    <input type="search" id="q" placeholder="Volltext in allen Folgen … (Enter)" autocomplete="off">
+    <div class="stat" id="q-stat"></div>
+    <h2>Knoten</h2>
+    <div class="chips" id="type-chips">
+      <span class="chip on" data-t="Topic">Themen</span>
+      <span class="chip on" data-t="Tool">Tools</span>
+      <span class="chip on" data-t="Person">Personen</span>
+      <span class="chip" data-t="Bucket">Buckets</span>
+      <span class="chip" data-t="Organization">Organisationen</span>
+    </div>
+    <label class="small">Mindestens in <b id="min-docs-v">6</b> Folgen erwähnt</label>
+    <input type="range" id="min-docs" min="1" max="40" value="6">
+    <label class="small">Verbindung ab <b id="min-w-v">12</b> gemeinsamen Segmenten</label>
+    <input type="range" id="min-w" min="3" max="80" value="12">
+    <h2>Stärkste Knoten</h2>
+    <ul class="list" id="top-nodes"></ul>
+  </aside>
+  <section id="graph">
+    <svg></svg>
+    <div class="hint">Klick: Details · Ziehen: verschieben · Rad: zoomen · <a href="#" onclick="fit(true);return false">einpassen</a></div>
+  </section>
+  <aside class="right" id="detail">
+    <h2>Details</h2>
+    <p class="empty">Knoten anklicken oder suchen. Jede Verbindung führt auf die Sekunde genau in die Folge.</p>
+  </aside>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const DATA = 'data/';
+const BUCKET_COLOR = {'bucket-1':'var(--c-update)','bucket-2':'var(--c-fabric)','bucket-3':'var(--c-model)','bucket-4':'var(--c-gov)','bucket-5':'var(--c-viz)','bucket-6':'var(--c-pbi)','bucket-7':'var(--c-career)','bucket-8':'var(--c-strategy)','bucket-9':'var(--c-event)'};
+const TYPE_COLOR = {Topic:'var(--n-topic)',Tool:'var(--n-tool)',Person:'var(--n-person)',Bucket:'var(--n-bucket)',Organization:'var(--n-org)',Document:'var(--n-doc)'};
+let G, byId, segs = null, segsByDoc = null, sim, svg, gRoot, linkSel, nodeSel, selected = null, shownDocs = new Set();
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtT = s => { s = Math.floor(s || 0); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60; return (h?h+':':'')+String(m).padStart(h?2:1,'0')+':'+String(x).padStart(2,'0'); };
+const ytLink = (doc, s) => (doc.url || '#') + (s != null ? '&t=' + Math.floor(s) + 's' : '');
+
+fetch(DATA + 'graph.json').then(r => r.json()).then(g => {
+  G = g; byId = new Map(g.nodes.map(n => [n.id, n]));
+  G.docs = g.nodes.filter(n => n.type === 'Document');
+  // Nachbarschaften
+  G.out = new Map(); G.in = new Map();
+  for (const e of g.edges) { (G.out.get(e.s) || G.out.set(e.s, []).get(e.s)).push(e); (G.in.get(e.t) || G.in.set(e.t, []).get(e.t)).push(e); }
+  G.claims = g.nodes.filter(n => n.type === 'Claim');
+  $('#hdr-stats').textContent = `${G.docs.length} Folgen · ${g.nodes.length - G.docs.length - G.claims.length} Konzepte · ${G.claims.length} Kernaussagen · ${g.edges.length} Verbindungen`;
+  initGraph(); render(); renderTop();
+  requestAnimationFrame(() => fit(false));
+  window.addEventListener('resize', () => fit(false));
+  const fromHash = () => { const h = decodeURIComponent(location.hash.slice(1)); if (h && byId.has(h) && h !== selected) select(h); };
+  window.addEventListener('hashchange', fromHash);
+  fromHash();
+});
+
+// ---------- Filter-UI ----------
+const activeTypes = () => [...document.querySelectorAll('#type-chips .chip.on')].map(c => c.dataset.t);
+$('#type-chips').addEventListener('click', e => { if (e.target.classList.contains('chip')) { e.target.classList.toggle('on'); render(); } });
+for (const id of ['min-docs', 'min-w']) $('#' + id).addEventListener('input', e => { $('#' + id + '-v').textContent = e.target.value; render(); });
+
+function visibleConcepts() {
+  const types = new Set(activeTypes()), minDocs = +$('#min-docs').value;
+  return G.nodes.filter(n => n.type !== 'Document' && n.type !== 'Claim' && types.has(n.type) && ((n.doc_count || 0) >= minDocs || n.type === 'Bucket' || n.type === 'Person'));
+}
+
+// Person -> Konzept über die Folgen (abgeleitet), Bucket -> Konzept ebenso
+function derivedEdges(concepts) {
+  const ids = new Set(concepts.map(n => n.id)), out = [];
+  for (const n of concepts) {
+    if (n.type !== 'Person' && n.type !== 'Bucket') continue;
+    const docs = n.type === 'Person' ? (G.out.get(n.id) || []).filter(e => e.type === 'SPEAKS_IN').map(e => e.t)
+                                     : (G.in.get(n.id) || []).filter(e => e.type === 'IN_BUCKET').map(e => e.s);
+    const acc = new Map();
+    for (const d of docs) for (const e of (G.out.get(d) || [])) if (e.type === 'MENTIONS' && ids.has(e.t)) acc.set(e.t, (acc.get(e.t) || 0) + (e.share || 0));
+    [...acc.entries()].sort((a, b) => b[1] - a[1]).slice(0, n.type === 'Person' ? 4 : 6)
+      .forEach(([t, w]) => out.push({s: n.id, t, type: 'DERIVED', w: w * 10}));
+  }
+  return out;
+}
+
+function currentGraph() {
+  const concepts = visibleConcepts(), ids = new Set(concepts.map(n => n.id)), minW = +$('#min-w').value;
+  const links = G.edges.filter(e => e.type === 'RELATES_TO' && e.w >= minW && ids.has(e.s) && ids.has(e.t)).map(e => ({...e}));
+  links.push(...derivedEdges(concepts));
+  const nodes = concepts.map(n => n);
+  // Folgen, die der Nutzer eingeblendet hat
+  for (const d of shownDocs) {
+    const doc = byId.get(d); if (!doc) continue;
+    nodes.push(doc);
+    for (const e of (G.out.get(d) || [])) if (ids.has(e.t) && (e.type === 'MENTIONS' && (e.share || 0) >= 0.08 || e.type === 'EXPLAINS')) links.push({s: d, t: e.t, type: e.type, w: (e.share || 0.2) * 10});
+    for (const e of (G.in.get(d) || [])) if (ids.has(e.s) && e.type === 'SPEAKS_IN') links.push({s: e.s, t: d, type: 'SPEAKS_IN', w: 3});
+  }
+  const seen = new Set(), uniq = [];
+  for (const l of links) { const k = l.s + '|' + l.t + '|' + l.type; if (!seen.has(k)) { seen.add(k); uniq.push(l); } }
+  return {nodes, links: uniq};
+}
+
+// ---------- D3 ----------
+function initGraph() {
+  svg = d3.select('#graph svg');
+  gRoot = svg.append('g');
+  linkSel = gRoot.append('g').selectAll('line');
+  nodeSel = gRoot.append('g').selectAll('g');
+  zoomer = d3.zoom().scaleExtent([0.2, 4]).on('zoom', e => gRoot.attr('transform', e.transform));
+  svg.call(zoomer);
+  sim = d3.forceSimulation().force('charge', d3.forceManyBody().strength(-220).distanceMax(320)).force('collide', d3.forceCollide().radius(d => radius(d) + 6))
+    .on('tick', () => { linkSel.attr('x1', d => d.source.x).attr('y1', d => d.source.y).attr('x2', d => d.target.x).attr('y2', d => d.target.y); nodeSel.attr('transform', d => `translate(${d.x},${d.y})`); })
+    ;
+}
+let zoomer;
+function fit(animate) {
+  const ns = sim.nodes(); if (!ns.length) return;
+  const box = $('#graph').getBoundingClientRect();
+  const xs = ns.map(n => n.x), ys = ns.map(n => n.y);
+  const x0 = Math.min(...xs) - 60, x1 = Math.max(...xs) + 120, y0 = Math.min(...ys) - 30, y1 = Math.max(...ys) + 30;
+  const W = box.width > 50 ? box.width : window.innerWidth - 700, H = box.height > 50 ? box.height : window.innerHeight - 60;
+  let k = Math.min(2, 0.92 / Math.max((x1 - x0) / W, (y1 - y0) / H));
+  if (!isFinite(k) || k <= 0.05) k = 0.6;
+  const t = d3.zoomIdentity.translate(W/2 - k*(x0+x1)/2, H/2 - k*(y0+y1)/2).scale(k);
+  if (animate) svg.transition().duration(500).call(zoomer.transform, t); else svg.call(zoomer.transform, t);
+}
+const radius = d => d.type === 'Document' ? 6 : 5 + Math.sqrt(d.doc_count || 1) * 2.2;
+const color = d => d.type === 'Document' ? (BUCKET_COLOR[d.bucket] || TYPE_COLOR.Document) : TYPE_COLOR[d.type];
+
+function render() {
+  const {nodes, links} = currentGraph();
+  const box = $('#graph').getBoundingClientRect();
+  const old = new Map((sim.nodes() || []).map(n => [n.id, n]));
+  const nn = nodes.map(n => { const o = old.get(n.id); if (o) { n.x = o.x; n.y = o.y; n.vx = o.vx; n.vy = o.vy; } else if (n.x == null) { n.x = box.width/2 + (Math.random()-.5)*200; n.y = box.height/2 + (Math.random()-.5)*200; } return n; });
+  const ll = links.map(l => ({...l, source: l.s, target: l.t}));
+  sim.nodes(nn).force('link', d3.forceLink(ll).id(d => d.id).distance(l => l.type === 'RELATES_TO' ? 90 : 60).strength(l => Math.min(1, 0.15 + (l.w || 1) / 60)))
+     .force('center', null)
+     .force('x', d3.forceX(box.width/2).strength(0.06)).force('y', d3.forceY(box.height/2).strength(0.08));
+  linkSel = linkSel.data(ll, d => d.s + '|' + d.t + '|' + d.type).join('line').attr('class', 'link').attr('stroke-width', d => Math.max(0.8, Math.min(6, Math.sqrt(d.w || 1))));
+  nodeSel = nodeSel.data(nn, d => d.id).join(enter => {
+    const g = enter.append('g').attr('class', 'node').call(d3.drag().on('start', (e, d) => { if (!e.active) sim.alphaTarget(.3).restart(); d.fx = d.x; d.fy = d.y; }).on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; }).on('end', (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }));
+    g.append('circle'); g.append('text').attr('dy', 3);
+    g.on('click', (e, d) => select(d.id));
+    return g;
+  });
+  nodeSel.select('circle').attr('r', radius).attr('fill', color);
+  nodeSel.select('text').attr('x', d => radius(d) + 4).text(d => d.type === 'Document' ? shortTitle(d.name) : d.name);
+  // Layout synchron rechnen (robust gegen gedrosselte Tabs), dann zeichnen und einpassen
+  sim.alpha(1).stop();
+  for (let i = 0; i < 250; i++) sim.tick();
+  linkSel.attr('x1', d => d.source.x).attr('y1', d => d.source.y).attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+  nodeSel.attr('transform', d => `translate(${d.x},${d.y})`);
+  fit();
+  highlight();
+}
+const shortTitle = t => t.length > 34 ? t.slice(0, 32) + '…' : t;
+
+function highlight() {
+  if (!selected) { nodeSel.classed('dim', false); linkSel.classed('dim', false).classed('hl', false); return; }
+  const nb = new Set([selected]);
+  linkSel.each(d => { if (d.source.id === selected) nb.add(d.target.id); if (d.target.id === selected) nb.add(d.source.id); });
+  nodeSel.classed('dim', d => !nb.has(d.id));
+  linkSel.classed('hl', d => d.source.id === selected || d.target.id === selected).classed('dim', d => !(d.source.id === selected || d.target.id === selected));
+}
+
+// ---------- Top-Liste ----------
+function renderTop() {
+  const top = G.nodes.filter(n => ['Topic','Tool','Person'].includes(n.type)).sort((a, b) => (b.doc_count||0) - (a.doc_count||0)).slice(0, 25);
+  $('#top-nodes').innerHTML = top.map(n => `<li><span class="t" data-id="${esc(n.id)}">${esc(n.name)}</span><span class="badge type ${n.type}">${n.type}</span><div class="m">${n.doc_count} Folgen</div></li>`).join('');
+  $('#top-nodes').querySelectorAll('.t').forEach(el => el.onclick = () => select(el.dataset.id));
+}
+
+// ---------- Detail-Panel ----------
+async function ensureSegs() {
+  if (segs) return;
+  segs = await (await fetch(DATA + 'segments.json')).json();
+  segsByDoc = new Map();
+  for (const s of segs) (segsByDoc.get(s.d) || segsByDoc.set(s.d, []).get(s.d)).push(s);
+}
+
+function select(id) {
+  selected = id; location.hash = encodeURIComponent(id);
+  const n = byId.get(id); if (!n) return;
+  highlight();
+  if (n.type === 'Document') return showDoc(n);
+  showConcept(n);
+}
+
+function showConcept(n) {
+  const docs = (G.in.get(n.id) || []).filter(e => e.type === 'MENTIONS').map(e => ({doc: byId.get(e.s), e}))
+    .filter(x => x.doc).sort((a, b) => (b.e.share||0) - (a.e.share||0));
+  const explains = new Set((G.in.get(n.id) || []).filter(e => e.type === 'EXPLAINS').map(e => e.s));
+  const spoken = n.type === 'Person' ? (G.out.get(n.id) || []).filter(e => e.type === 'SPEAKS_IN').map(e => byId.get(e.t)).filter(Boolean) : [];
+  const rel = [...(G.out.get(n.id) || []), ...(G.in.get(n.id) || [])].filter(e => e.type === 'RELATES_TO').map(e => ({o: byId.get(e.s === n.id ? e.t : e.s), w: e.w})).filter(x => x.o).sort((a, b) => b.w - a.w).slice(0, 10);
+  const inGraph = shownDocs;
+  let h = `<h2>${esc(n.name)} <span class="badge type ${n.type}">${n.type}</span></h2>`;
+  h += `<div class="stat">${n.doc_count || docs.length} Folgen · ${docs.reduce((a, x) => a + (x.e.segments||0), 0)} Segmente</div>`;
+  if (spoken.length) h += `<h2>Zu Gast in</h2><ul class="list">${spoken.map(d => docRow(d, null, explains)).join('')}</ul>`;
+  if (rel.length) h += `<h2>Hängt zusammen mit</h2><div class="chips">${rel.map(x => `<span class="chip" data-id="${esc(x.o.id)}" title="${x.w} gemeinsame Segmente">${esc(x.o.name)} <span class="stat">${x.w}</span></span>`).join('')}</div>`;
+  // Belegte Beziehungen und Kernaussagen aus der LLM-Anreicherung
+  const typed = [...(G.out.get(n.id) || []), ...(G.in.get(n.id) || [])].filter(e => ['RECOMMENDS','CONTRASTS','REQUIRES','REPLACES','PART_OF'].includes(e.type));
+  if (typed.length) h += `<h2>Belegte Beziehungen</h2><ul class="list">${typed.map(e => { const a = byId.get(e.s), b = byId.get(e.t), d = byId.get(e.doc_id); return `<li><span class="t" data-id="${esc(e.s === n.id ? e.t : e.s)}">${esc(a.name)} <span class="badge">${e.type}</span> ${esc(b.name)}</span><div class="m">${esc(e.ev)}${d ? ' · <span class="t" data-id="' + esc(d.id) + '">' + esc(shortTitle(d.name)) + '</span>' : ''}</div></li>`; }).join('')}</ul>`;
+  const claims = (G.in.get(n.id) || []).filter(e => e.type === 'ABOUT').map(e => byId.get(e.s)).filter(Boolean);
+  if (claims.length) h += `<h2>Kernaussagen (${claims.length})</h2>${claims.slice(0, 30).map(c => claimHtml(c)).join('')}`;
+  h += `<h2>Folgen (nach Anteil)</h2><div><span class="btn" id="show-all">Top 8 im Graph zeigen</span><span class="btn" id="hide-all">Folgen ausblenden</span></div><ul class="list">${docs.slice(0, 40).map(x => docRow(x.doc, x.e, explains)).join('') || '<li class="empty">keine</li>'}</ul>`;
+  $('#detail').innerHTML = h;
+  $('#detail').querySelectorAll('.chip[data-id], .t[data-id]').forEach(el => el.onclick = e => { e.stopPropagation(); select(el.dataset.id); });
+  $('#detail').querySelectorAll('.ev[data-doc]').forEach(el => el.onclick = e => { e.preventDefault(); showEvidence(el, el.dataset.doc, n.id); });
+  $('#show-all').onclick = () => { docs.slice(0, 8).forEach(x => shownDocs.add(x.doc.id)); render(); };
+  $('#hide-all').onclick = () => { shownDocs.clear(); render(); };
+}
+
+const KIND = {fact: 'Fakt', opinion: 'Meinung', recommendation: 'Empfehlung', warning: 'Warnung'};
+function claimHtml(c) {
+  const d = byId.get(c.doc);
+  const ts = d && c.start_s != null ? `<a class="ts" target="_blank" rel="noopener" href="${ytLink(d, c.start_s)}">▶ ${fmtT(c.start_s)}</a>` : '';
+  return `<div class="seg" style="border-left-color:var(--accent)"><span class="h">${KIND[c.kind] || c.kind}${d ? ' · <span class="t" data-id="' + esc(d.id) + '" style="cursor:pointer">' + esc(shortTitle(d.name)) + '</span>' : ''}</span>${ts}${esc(c.name)}</div>`;
+}
+function docRow(d, e, explains) {
+  const ex = explains && explains.has(d.id) ? '<span class="badge ex">erklärt</span>' : '';
+  const share = e ? `${Math.round((e.share||0)*100)} % der Segmente` : '';
+  return `<li><span class="t" data-id="${esc(d.id)}">${esc(d.name)}</span>${ex}<div class="m">${esc(d.guest || 'Solo')} · ${d.published || ''} · ${share} ${e ? `· <a href="#" class="ev" data-doc="${esc(d.id)}">Stellen zeigen</a>` : ''}</div><div class="evbox"></div></li>`;
+}
+
+async function showEvidence(el, docId, nodeId) {
+  await ensureSegs();
+  const doc = byId.get(docId);
+  const box = el.closest('li').querySelector('.evbox');
+  if (box.innerHTML) { box.innerHTML = ''; return; }
+  const hits = (segsByDoc.get(docId) || []).filter(s => s.m.some(m => m[0] === nodeId)).slice(0, 12);
+  box.innerHTML = hits.map(s => segHtml(doc, s, byId.get(nodeId).name)).join('') || '<div class="empty">keine Segmente</div>';
+}
+
+function segHtml(doc, s, term) {
+  const terms = Array.isArray(term) ? term : (term ? [term] : []);
+  let raw = s.t;
+  if (terms.length && raw.length > 420) {   // Fenster um den ersten Treffer legen
+    const i = raw.toLowerCase().indexOf(terms[0].toLowerCase());
+    const a = Math.max(0, (i < 0 ? 0 : i) - 160);
+    raw = (a > 0 ? '… ' : '') + raw.slice(a, a + 400) + ' …';
+  } else if (raw.length > 420) raw = raw.slice(0, 400) + ' …';
+  let t = esc(raw);
+  for (const term of terms) { const rx = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig'); t = t.replace(rx, '<mark>$1</mark>'); }
+  const ts = s.s != null ? `<a class="ts" target="_blank" rel="noopener" href="${ytLink(doc, s.s)}">▶ ${fmtT(s.s)}</a>` : '';
+  return `<div class="seg">${s.h ? `<span class="h">${esc(s.h)}</span>` : ''}${ts}${t}</div>`;
+}
+
+async function showDoc(d) {
+  const ments = (G.out.get(d.id) || []).filter(e => e.type === 'MENTIONS').map(e => ({n: byId.get(e.t), e})).filter(x => x.n).sort((a, b) => b.e.w - a.e.w).slice(0, 14);
+  const explains = (G.out.get(d.id) || []).filter(e => e.type === 'EXPLAINS').map(e => ({n: byId.get(e.t), ev: e.ev})).filter(x => x.n);
+  const persons = (G.in.get(d.id) || []).filter(e => e.type === 'SPEAKS_IN').map(e => byId.get(e.s)).filter(Boolean);
+  let h = `<h2>${esc(d.name)}</h2><div class="stat">${esc(d.guest || 'Solo')} · ${d.published || ''} · ${d.duration_s ? Math.round(d.duration_s/60) + ' min' : ''} · ${(d.lang||'').toUpperCase()}</div>`;
+  h += `<p class="desc">${esc(d.summary || d.desc)}</p><div><a class="btn" target="_blank" rel="noopener" href="${esc(d.url)}">▶ Auf YouTube</a><span class="btn" id="add-doc">Im Graph zeigen</span></div>`;
+  const claims = G.claims.filter(c => c.doc === d.id).sort((a, b) => (a.start_s || 0) - (b.start_s || 0));
+  if (claims.length) h += `<h2>Kernaussagen (${claims.length})</h2>${claims.map(c => claimHtml(c)).join('')}`;
+  if (persons.length) h += `<h2>Personen</h2><div class="chips">${persons.map(p => `<span class="chip" data-id="${esc(p.id)}">${esc(p.name)}</span>`).join('')}</div>`;
+  if (explains.length) h += `<h2>Erklärt</h2><ul class="list">${explains.map(x => `<li><span class="t" data-id="${esc(x.n.id)}">${esc(x.n.name)}</span><div class="m">${esc(x.ev)}</div></li>`).join('')}</ul>`;
+  h += `<h2>Erwähnt</h2><div class="chips">${ments.map(x => `<span class="chip" data-id="${esc(x.n.id)}">${esc(x.n.name)} <span class="stat">${x.e.segments}</span></span>`).join('')}</div>`;
+  h += `<h2>Kapitel und Segmente</h2><div id="doc-segs" class="empty">lädt …</div>`;
+  $('#detail').innerHTML = h;
+  $('#detail').querySelectorAll('[data-id]').forEach(el => el.onclick = () => select(el.dataset.id));
+  $('#add-doc').onclick = () => { shownDocs.add(d.id); render(); };
+  await ensureSegs();
+  const ss = segsByDoc.get(d.id) || [];
+  let last = null, out = '';
+  for (const s of ss) { if (s.h && s.h !== last) { out += `<div class="stat" style="margin-top:8px">${esc(s.h)}</div>`; last = s.h; } out += segHtml(d, s, null); }
+  $('#doc-segs').className = ''; $('#doc-segs').innerHTML = out || '<span class="empty">kein Transkript</span>';
+}
+
+// ---------- Volltextsuche ----------
+$('#q').addEventListener('keydown', e => { if (e.key === 'Enter' || e.keyCode === 13) { e.preventDefault(); search(e.target.value.trim()); } });
+$('#q').addEventListener('search', e => search(e.target.value.trim()));
+$('#q').addEventListener('change', e => search(e.target.value.trim()));
+async function search(q) {
+  if (!q) return;
+  await ensureSegs();
+  const terms = q.toLowerCase().split(/\s+/).filter(t => t.length > 1);
+  const hits = [];
+  for (const s of segs) { const lt = s.t.toLowerCase(); if (terms.every(t => lt.includes(t))) hits.push(s); }
+  const byDoc = new Map();
+  for (const s of hits) (byDoc.get(s.d) || byDoc.set(s.d, []).get(s.d)).push(s);
+  const docsSorted = [...byDoc.entries()].sort((a, b) => b[1].length - a[1].length);
+  $('#q-stat').textContent = `${hits.length} Segmente in ${byDoc.size} Folgen`;
+  let h = `<h2>„${esc(q)}"</h2><div class="stat">${hits.length} Segmente in ${byDoc.size} Folgen</div>`;
+  for (const [docId, ss] of docsSorted.slice(0, 30)) {
+    const d = byId.get(docId);
+    h += `<h2 style="font-size:14px"><span class="t" data-id="${esc(docId)}" style="cursor:pointer">${esc(d.name)}</span> <span class="badge">${ss.length}</span></h2>`;
+    h += ss.slice(0, 3).map(s => segHtml(d, s, terms)).join('');
+  }
+  $('#detail').innerHTML = h;
+  $('#detail').querySelectorAll('.t[data-id]').forEach(el => el.onclick = () => select(el.dataset.id));
+  // Knoten hervorheben, die in den Treffern häufig sind
+  const cnt = new Map(); for (const s of hits) for (const m of s.m) cnt.set(m[0], (cnt.get(m[0]) || 0) + 1);
+  selected = null; nodeSel.classed('dim', d => d.type !== 'Document' && !(cnt.get(d.id) >= Math.max(2, hits.length * 0.05)));
+  linkSel.classed('hl', false).classed('dim', false);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aus 126 Folgen wird ein Wissensgraph · Daten-WG</title>
+<link rel="alternate" type="text/markdown" title="Markdown" href="blog/wissensgraph-aus-transkripten.md">
+<meta name="description" content="Wie aus den Transkripten der Daten-WG ein Wissensgraph wurde: Segmente mit Zeitstempel, ein Vokabular gegen Spracherkennungsfehler, Heuristik vor LLM, ein Explorer mit Sprungmarken. Und was davon in Microsoft Fabric wie weitergeht.">
+<style>
+:root {
+  --bg:#FAFAF5; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#1A1A1A; --ink-soft:#4A4A4A; --ink-mute:#6B6B6B; --black:#0A0A0A;
+  --line:#E5E2D8; --line-strong:#1A1A1A;
+  --accent:#117865; --accent-deep:#0A5A4D;
+  --topic:#2A857A; --low:#2A857A; --mid:#C9962E; --high:#8B2E2E;
+  --shadow-sm:0 1px 2px rgba(10,10,10,.04),0 1px 3px rgba(10,10,10,.06);
+  --shadow-md:0 4px 12px rgba(10,10,10,.08),0 2px 4px rgba(10,10,10,.06);
+  --radius-sm:6px; --radius:10px; --radius-lg:16px;
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Segoe UI Variable Small","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:var(--sans); font-size:16px; line-height:1.62; color:var(--ink); background:var(--bg);
+  background-image:radial-gradient(circle at 12% -5%,rgba(42,133,122,.06),transparent 35%),radial-gradient(circle at 95% 12%,rgba(17,120,101,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; min-height:100vh;
+}
+a { color:inherit; }
+.container { max-width:820px; margin:0 auto; padding:36px 28px 110px; }
+.back-link { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-mute); text-decoration:none; padding:8px 14px; border:1px solid var(--line); border-radius:100px; transition:all .15s ease; margin-bottom:40px; }
+.back-link:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+.post-eyebrow { display:inline-flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--topic); font-weight:700; margin-bottom:18px; }
+.post-eyebrow::before { content:''; width:28px; height:1px; background:var(--topic); }
+.post-title { font-family:var(--serif); font-weight:300; font-size:clamp(2.1rem,5.5vw,3.6rem); line-height:1.05; letter-spacing:-0.025em; color:var(--black); margin-bottom:18px; }
+.post-title em { font-style:italic; font-weight:300; color:var(--topic); }
+.post-dek { font-size:18px; color:var(--ink-soft); line-height:1.5; max-width:64ch; margin-bottom:24px; }
+.post-meta { display:flex; flex-wrap:wrap; gap:18px; align-items:center; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-mute); padding-bottom:28px; border-bottom:1px solid var(--line); margin-bottom:8px; }
+.post-meta strong { color:var(--ink); font-weight:600; }
+.prose h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.5rem,3.2vw,2rem); letter-spacing:-0.015em; color:var(--black); margin:52px 0 16px; line-height:1.15; }
+.prose h2 em { font-style:italic; color:var(--topic); font-weight:500; }
+.prose p { margin-bottom:18px; color:var(--ink-soft); max-width:70ch; }
+.prose p strong { color:var(--ink); font-weight:600; }
+.prose p a { color:var(--accent); }
+.prose p code, .prose li code { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:.86em; background:var(--bg-soft); border:1px solid var(--line); border-radius:4px; padding:1px 5px; }
+.prose ul { margin:0 0 20px; padding-left:0; list-style:none; max-width:70ch; }
+.prose ul li { position:relative; padding:8px 0 8px 26px; color:var(--ink-soft); border-bottom:1px solid var(--line); }
+.prose ul li:last-child { border-bottom:none; }
+.prose ul li::before { content:''; position:absolute; left:6px; top:16px; width:7px; height:7px; border-radius:50%; background:var(--topic); }
+.prose ul li strong { color:var(--ink); font-weight:600; }
+.bigstat { display:grid; grid-template-columns:auto 1fr; gap:24px; align-items:center; background:linear-gradient(135deg,var(--bg-card) 0%,rgba(42,133,122,.06) 100%); border:1px solid var(--line); border-left:4px solid var(--topic); border-radius:var(--radius-lg); padding:24px 28px; margin:28px 0; box-shadow:var(--shadow-sm); }
+.bigstat-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:clamp(2rem,6vw,3.4rem); line-height:1; letter-spacing:-0.03em; color:var(--topic); white-space:nowrap; }
+.bigstat-text { font-size:15px; color:var(--ink-soft); line-height:1.55; }
+.bigstat-text strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .bigstat { grid-template-columns:1fr; gap:12px; } }
+.quote { border-left:3px solid var(--topic); background:var(--bg-soft); border-radius:0 var(--radius) var(--radius) 0; padding:14px 18px; margin:18px 0 24px; font-size:14.5px; color:var(--ink-soft); line-height:1.55; }
+.quote .ts { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:12px; color:var(--accent); text-decoration:none; margin-right:8px; white-space:nowrap; }
+.quote .k { display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:4px; }
+.step { display:grid; grid-template-columns:56px 1fr; gap:20px; align-items:start; background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:22px 26px; margin:16px 0; box-shadow:var(--shadow-sm); }
+.step-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:2.2rem; line-height:1; color:var(--topic); }
+.step h3 { font-family:var(--serif); font-weight:600; font-size:1.1rem; color:var(--black); margin-bottom:6px; }
+.step h3 span { font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin-left:8px; }
+.step p { font-size:14.5px; color:var(--ink-soft); margin:0; line-height:1.6; }
+.step p strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .step { grid-template-columns:1fr; gap:8px; } }
+.tbl { width:100%; border-collapse:collapse; font-size:14px; margin:12px 0 28px; }
+.tbl th, .tbl td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top; color:var(--ink-soft); }
+.tbl th { font-family:var(--mono); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-mute); }
+.tbl td:first-child { color:var(--ink); font-weight:600; }
+.src-box { background:var(--bg-soft); border:1px solid var(--line); border-left:4px solid var(--ink-mute); border-radius:var(--radius); padding:20px 24px; margin:28px 0; font-size:13.5px; color:var(--ink-soft); line-height:1.6; }
+.src-box h3 { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--black); margin-bottom:8px; }
+.src-box a { color:var(--accent); }
+.cta-card { display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; background:var(--black); color:#fff; border-radius:var(--radius-lg); padding:28px 32px; margin:52px 0 0; }
+.cta-card-text { max-width:46ch; }
+.cta-card-text .k { font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--mid); display:block; margin-bottom:8px; }
+.cta-card-text h3 { font-family:var(--serif); font-weight:500; font-size:1.35rem; color:#fff; margin:0 0 6px; }
+.cta-card-text p { color:rgba(255,255,255,.7); font-size:14px; margin:0; }
+.cta-actions { display:flex; flex-wrap:wrap; gap:12px; }
+.cta-btn { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--black); background:var(--mid); padding:13px 18px; border-radius:100px; text-decoration:none; }
+.cta-btn:hover { filter:brightness(1.08); }
+.cta-btn.ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.4); }
+.cta-btn.ghost:hover { border-color:#fff; filter:none; }
+.post-foot { margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--ink-mute); line-height:1.6; }
+.post-foot a { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
+
+  <header>
+    <div class="post-eyebrow">Post · Wissensgraph aus Transkripten</div>
+    <h1 class="post-title">Aus 126 Folgen wird ein <em>Wissensgraph</em></h1>
+    <p class="post-dek">Die Kitchen konnte bisher Titel, Beschreibungen und Kapitel durchsuchen. Das eigentliche Wissen steckt aber im Gespräch. Jetzt gibt es einen Graphen über alle Transkripte: Themen, Tools, Personen und Kernaussagen, und jede Verbindung springt auf die Sekunde genau ins Video.</p>
+    <div class="post-meta">
+      <span>Von <strong>Michael Tenner</strong></span>
+      <span>Stand · <strong>September 2026</strong></span>
+      <span>Quelle · <strong>126 Folgen, 2.697 Segmente</strong></span>
+      <span>Werkzeug · <strong><a href="wissensgraph/">Wissensgraph-Explorer</a></strong></span>
+    </div>
+  </header>
+
+  <div class="prose">
+
+    <h2>Warum ein Graph und nicht <em>noch eine Suche?</em></h2>
+    <p>Eine Suche beantwortet die Frage „Wo kommt das Wort vor?". Sie beantwortet nicht „Wer hat Direct Lake erklärt, und in welchem Zusammenhang mit Import Mode?". Dafür braucht es Verbindungen: Folge zu Thema, Thema zu Thema, Person zu Folge, Aussage zu Beleg. Genau das ist ein Graph.</p>
+    <p>Der zweite Grund ist der Beleg. Ein Chatbot, der über Transkripten sitzt, liefert Antworten. Ein Graph mit Zeitstempeln liefert Antworten <strong>und die Stelle im Video</strong>, an der sie fallen. Für uns ist das der Unterschied zwischen „klingt plausibel" und „kann ich nachhören".</p>
+
+    <h2>Was wir <em>gebaut haben</em></h2>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <h3>Transkripte mit Zeitstempel <span>Segmente</span></h3>
+        <p>Unsere erste Transkript-Pipeline hatte die Zeitstempel weggeworfen, es ging nur um Volltextsuche. Diesmal bleiben sie drin: jedes Wort mit Sekunde. Daraus werden <strong>Segmente von rund 90 Sekunden</strong>, geschnitten am Satzende und nie über eine Kapitelgrenze. Jedes Segment kennt sein Kapitel und seine Startsekunde.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <h3>Ein Vokabular gegen die Spracherkennung <span>Heuristik</span></h3>
+        <p>Rund 100 Begriffe mit Aliasen: Produkte, Themen, Personen. Die Aliase decken Schreibvarianten ab, aber vor allem die typischen Fehler der automatischen Untertitel. „Power DI", „Fabrik" und „Click" sind in unseren Transkripten Power BI, Fabric und Qlik. Generische Wörter wie „Desktop" oder „Delta" zählen nur, wenn im selben Video auch ein eindeutiger Alias vorkommt.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <h3>Kernaussagen und belegte Beziehungen <span>LLM</span></h3>
+        <p>Erst jetzt kommt ein Sprachmodell dazu. Pro Folge extrahiert es 8 bis 20 prüfbare Aussagen, jede mit Segmentnummer und Themen aus dem Vokabular, dazu typisierte Beziehungen wie „Translytical Task Flows ersetzt Power Automate", jeweils mit Zitat als Beleg. Im Pilot sind das 8 Folgen und <strong>154 Kernaussagen</strong>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div>
+        <h3>Vier Tabellen, ein Explorer <span>SQLite und statisch</span></h3>
+        <p>Dokumente, Segmente, Knoten, Kanten. Lokal in SQLite mit Volltextindex, für die Website als zwei JSON-Dateien. Der <a href="wissensgraph/">Explorer</a> zeigt den Graphen, die Volltextsuche und zu jeder Verbindung die Stellen im Video. Kein Server, kein Login, läuft auf GitHub Pages wie der Rest der Kitchen.</p>
+      </div>
+    </div>
+
+    <div class="bigstat">
+      <div class="bigstat-num">8.047 → 390</div>
+      <div class="bigstat-text"><strong>So viel liefert die Heuristik ohne ein einziges Modell:</strong> 8.047 Erwähnungen von Themen, Tools und Personen in Segmenten, 730 Beziehungen zwischen Themen aus gemeinsamem Vorkommen, und 390 „erklärt"-Kanten, weil eine Kapitelüberschrift das Thema nennt. Reproduzierbar, in Sekunden, nachvollziehbar.</div>
+    </div>
+
+    <h2>Was die Heuristik schon kann, <em>bevor ein Modell dran ist</em></h2>
+    <p>Die Kapitel aus den Videobeschreibungen sind Gold. Wenn ein Kapitel „Preview: DAX columns in Direct Lake" heißt, dann erklärt diese Folge Direct Lake, und das ist belastbarer als jede Erwähnung im Text. Im Unternehmen entsprechen dem Agenda-Punkte in Meeting-Notizen, Überschriften in Word-Dokumenten und Betreffzeilen in Mails.</p>
+    <p>Die zweite Quelle sind Ko-Vorkommen: Welche Themen fallen im selben 90-Sekunden-Fenster? Daraus entsteht das Netz, das man im Explorer sieht. Sternschema hängt mit Datenmodellierung, Performance und Power Query zusammen, Direct Lake mit DirectQuery, Lakehouse und Refresh. Das ist keine Überraschung, aber es ist gemessen, nicht gemeint.</p>
+
+    <h2>Und wo das Modell <em>dazukommt</em></h2>
+    <p>Ein Beispiel aus dem Pilot, BI Thinkers Talk Nr. 62, in dem es um natives Writeback in Power BI geht. Das Modell hat daraus unter anderem diese Aussagen gezogen, jede mit Sprungmarke:</p>
+    <div class="quote"><span class="k">Warnung · 23:49</span><a class="ts" href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1429s" target="_blank" rel="noopener">▶</a>Beim Aufbau der SQL-Query sollten Parameter beziehungsweise Platzhalter statt direkt eingefügter Werte verwendet werden, um SQL-Injection zu vermeiden.</div>
+    <div class="quote"><span class="k">Empfehlung · 12:57</span><a class="ts" href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=777s" target="_blank" rel="noopener">▶</a>Für das Zurückschreiben aus Power BI wird eine SQL-Datenbank in Fabric statt eines Lakehouse verwendet.</div>
+    <div class="quote"><span class="k">Beziehung · belegt</span>Translytical Task Flows <strong>ersetzt</strong> Power Automate: „dann hat Power Automate ja explizit über einen Power BI Connector den Refresh triggern müssen. Jetzt ist das alles in einem."</div>
+    <p>Das Modell bekommt das Vokabular mit und darf Themen nur daraus wählen. So landen die Aussagen an denselben Knoten wie die Heuristik, und Entity Resolution bleibt an einer Stelle: in der Vokabular-Tabelle, nicht im Prompt.</p>
+
+    <h2>Was das mit <em>Microsoft Fabric</em> zu tun hat</h2>
+    <p>Der Kitchen-Graph ist der Testfall. Das eigentliche Ziel ist ein Vorgehen, mit dem ein Unternehmen dasselbe über seine Projektdokumente, Meeting-Transkripte und Mails legt, und zwar im eigenen Tenant. Deshalb ist das Schema von Anfang an die Schnittmenge dessen, was <strong>Graph in Microsoft Fabric</strong> (Preview) kann: gerichtete Kanten, skalare Properties, keine Schema-Evolution. Wer die vier Tabellen lokal sauber hat, lädt sie als Delta ins Lakehouse und modelliert den Graphen darüber.</p>
+
+    <table class="tbl">
+      <thead><tr><th>Schritt</th><th>Kitchen lokal</th><th>Im Fabric-Tenant</th></tr></thead>
+      <tbody>
+        <tr><td>Transkript</td><td>YouTube-Untertitel als VTT</td><td>Teams-Aufzeichnung, Azure AI Speech, VTT behalten</td></tr>
+        <tr><td>Anreicherung</td><td>Vokabular-Heuristik, Claude für Aussagen</td><td>Dieselbe Heuristik im Notebook, <code>ai.extract</code> mit JSON-Schema statt externem Modell</td></tr>
+        <tr><td>Speicher</td><td>SQLite mit FTS5</td><td>Vier Delta-Tabellen im Lakehouse, Cosmos DB in Fabric für Vektor- und Hybridsuche</td></tr>
+        <tr><td>Graph</td><td>graph.json, D3 im Browser</td><td>Graph-Modell über die Tabellen, GQL, REST-Endpunkt mit Entra-Token</td></tr>
+        <tr><td>Fragen stellen</td><td>Volltextsuche im Explorer</td><td>Data Agent mit Graph als Quelle (NL2GQL), publizierbar nach Teams und Copilot Studio</td></tr>
+        <tr><td>Oberfläche</td><td>Statische Seite auf GitHub Pages</td><td>Snapshot-Export, später Fabric App mit SSO (Region beachten)</td></tr>
+      </tbody>
+    </table>
+
+    <p>Die Checkpoints dafür, von Rahmen und Berechtigungen bis Löschkonzept und Capacity-Kosten, stehen in einem <a href="wissensgraph/playbook.md">Playbook</a>, das mit dem Projekt wächst. Die wichtigsten Grenzen von Graph in Fabric, Stand heute: Zugriff nur für Workspace-Mitglieder, Abfragen nur lesend, jede Schemaänderung heißt Graph neu laden, und die Fabric App als Oberfläche gibt es in North Europe noch nicht.</p>
+
+    <div class="src-box">
+      <h3>Ehrlich eingeordnet</h3>
+      17 der 126 Folgen haben bei YouTube keine automatischen Untertitel, vor allem englische; sie stehen im Graphen nur mit Metadaten. 6 weitere haben Text ohne Zeitstempel. Die Heuristik zählt Erwähnungen, keine Bedeutung: „Excel" in 61 Folgen heißt nicht, dass es 61 Folgen über Excel gibt. Die Kernaussagen stammen bisher aus 8 von 126 Folgen und sind maschinell erzeugt, nicht redigiert. Bei Widersprüchen gilt das Video.
+    </div>
+
+    <div class="cta-card">
+      <div class="cta-card-text">
+        <span class="k">Selbst erkunden</span>
+        <h3>Der Wissensgraph der Kitchen</h3>
+        <p>Thema anklicken, Folgen sehen, „Stellen zeigen" und direkt an die Sekunde springen. Oder Volltext über alle Transkripte suchen.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="cta-btn" href="wissensgraph/">Explorer öffnen →</a>
+        <a class="cta-btn ghost" href="wissensgraph/playbook.md">Playbook (Fabric)</a>
+      </div>
+    </div>
+
+    <div class="post-foot">
+      Fragen, Feedback, eigene Umsetzungen: <strong>Michael Tenner</strong> · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
+      Das Kit (Adapter, Vokabular, Heuristik, Export) ist so gebaut, dass Word- und Mail-Adapter in dasselbe Schema liefern. Das ist der nächste Schritt.
+    <br><a href="blog/wissensgraph-aus-transkripten.md">📄 Diese Seite als Markdown</a>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
