@@ -16,8 +16,10 @@ Der zweite Grund ist der Beleg. Ein Chatbot, der über Transkripten sitzt, liefe
 
 1. **Transkripte mit Zeitstempel.** Jedes Wort mit Sekunde. Daraus Segmente von rund 90 Sekunden, geschnitten am Satzende und nie über eine Kapitelgrenze.
 2. **Ein Vokabular gegen die Spracherkennung.** Rund 100 Begriffe mit Aliasen, auch für Fehler der automatischen Untertitel („Power DI", „Fabrik", „Click"). Generische Wörter zählen nur mit eindeutigem Anker im selben Video.
-3. **Kernaussagen und belegte Beziehungen per LLM.** 8 bis 20 prüfbare Aussagen pro Folge mit Segmentnummer und Themen aus dem Vokabular, dazu typisierte Beziehungen (ersetzt, setzt voraus, steht im Gegensatz zu) mit Zitat. Pilot: 8 Folgen, 154 Kernaussagen.
+3. **Kernaussagen und belegte Beziehungen per LLM.** 8 bis 20 prüfbare Aussagen pro Folge mit Segmentnummer und Themen aus dem Vokabular, dazu typisierte Beziehungen (ersetzt, setzt voraus, steht im Gegensatz zu) mit Zitat. Stand: 38 Folgen, 677 Kernaussagen, 59 belegte Beziehungen.
 4. **Vier Tabellen, ein Explorer.** Dokumente, Segmente, Knoten, Kanten. Lokal SQLite mit Volltextindex, für die Website zwei JSON-Dateien und ein D3-Explorer ohne Server.
+
+Dazugekommen seit dem ersten Build: 21 Kitchen-Seiten als Dokumente, Zeitfilter, Zeitstrahl, Fokus-Modus, Frage-Baukasten mit GQL, Teilen-Links, Absprung auf Seitenabschnitte.
 
 Zahlen aus dem Build (September 2026): 126 Folgen, 109 mit Zeitstempeln, 2.697 Segmente, 140 Konzepte, 8.047 Erwähnungen, 390 „erklärt"-Kanten aus Kapitelüberschriften, 730 Themenbeziehungen aus gemeinsamem Vorkommen.
 
@@ -38,4 +40,4 @@ Grenzen von Graph in Fabric, Stand heute: Zugriff nur für Workspace-Mitglieder,
 
 ## Ehrlich eingeordnet
 
-17 der 126 Folgen haben bei YouTube keine automatischen Untertitel und stehen im Graphen nur mit Metadaten. 6 weitere haben Text ohne Zeitstempel. Die Heuristik zählt Erwähnungen, keine Bedeutung. Die Kernaussagen stammen aus 8 von 126 Folgen und sind maschinell erzeugt, nicht redigiert. Bei Widersprüchen gilt das Video.
+17 der 126 Folgen haben bei YouTube keine automatischen Untertitel und stehen im Graphen nur mit Metadaten. 6 weitere haben Text ohne Zeitstempel. Die Heuristik zählt Erwähnungen, keine Bedeutung. Die Kernaussagen stammen aus 38 von 126 Folgen und sind maschinell erzeugt, nicht redigiert. Bei Widersprüchen gilt das Video.

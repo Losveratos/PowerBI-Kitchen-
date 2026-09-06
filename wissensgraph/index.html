@@ -74,6 +74,25 @@ input[type=range]{width:100%}
 .gql .k{color:#8FD3C4}
 details.q{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0;background:var(--bg)}
 details.q summary{cursor:pointer;font-weight:500;font-size:13px}
+.viewbar{position:absolute;top:10px;left:14px;display:flex;gap:4px;background:rgba(250,250,245,.9);padding:4px;border-radius:999px;border:1px solid var(--line);z-index:2}
+.viewbar .chip{border:0}
+.viewbar .chip.on{background:var(--ink);color:#fff}
+.focusbar{position:absolute;top:10px;right:14px;font-family:var(--mono);font-size:11px;background:#E3F2ED;color:var(--accent);padding:6px 10px;border-radius:999px;z-index:2;display:none}
+.focusbar a{color:var(--accent);margin-left:8px}
+#timeline,#listview{position:absolute;inset:0;overflow:auto;padding:52px 16px 16px;display:none}
+#timeline svg{display:block}
+#timeline .row-label{font-size:12px;cursor:pointer;fill:var(--ink)}
+#timeline .row-label:hover{fill:var(--accent)}
+#timeline .col-label{font-family:var(--mono);font-size:10px;fill:var(--ink-mute)}
+#timeline rect.cell{cursor:pointer;stroke:#fff;stroke-width:1}
+#timeline rect.cell:hover{stroke:var(--ink)}
+#timeline .sel .row-label{fill:var(--accent);font-weight:600}
+table.docs{width:100%;border-collapse:collapse;font-size:13px;background:var(--bg-card)}
+table.docs th,table.docs td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.docs th{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-mute);cursor:pointer;position:sticky;top:0;background:var(--bg-card)}
+table.docs td.t{cursor:pointer;font-weight:500}
+table.docs td.t:hover{color:var(--accent)}
+table.docs td.m{font-family:var(--mono);font-size:11px;color:var(--ink-mute);white-space:nowrap}
 @media (max-width:1100px){main{grid-template-columns:260px 1fr;grid-template-rows:1fr auto}aside.right{grid-column:1/-1;border-left:0;border-top:1px solid var(--line);max-height:45vh}}
 </style>
 </head>
@@ -135,8 +154,16 @@ details.q summary{cursor:pointer;font-weight:500;font-size:13px}
     <ul class="list" id="top-nodes"></ul>
   </aside>
   <section id="graph">
+    <div class="viewbar" id="viewbar">
+      <span class="chip on" data-v="graph">Graph</span>
+      <span class="chip" data-v="timeline">Zeitstrahl</span>
+      <span class="chip" data-v="list">Liste</span>
+    </div>
+    <div class="focusbar" id="focusbar">Fokus: <b id="focus-name"></b> · Doppelklick erweitert <a href="#" id="focus-off">alles zeigen</a></div>
     <svg></svg>
-    <div class="hint">Klick: Details · Doppelklick: Dokumente ein/aus · Ziehen · Rad: zoomen · <a href="#" onclick="fit(true);return false">einpassen</a></div>
+    <div id="timeline"></div>
+    <div id="listview"></div>
+    <div class="hint" id="hint">Klick: Details · Doppelklick: Nachbarn aufklappen · Ziehen · Rad: zoomen · <a href="#" onclick="fit(true);return false">einpassen</a></div>
   </section>
   <aside class="right" id="detail">
     <h2>Details</h2>
@@ -153,12 +180,19 @@ const KIND = {fact: 'Fakt', opinion: 'Meinung', recommendation: 'Empfehlung', wa
 const REL = {RECOMMENDS: 'empfiehlt', CONTRASTS: 'steht im Gegensatz zu', REQUIRES: 'setzt voraus', REPLACES: 'ersetzt', PART_OF: 'ist Teil von'};
 let G, byId, segs = null, segsByDoc = null, sim, svg, gRoot, linkSel, nodeSel, zoomer, selected = null, shownDocs = new Set();
 let timeRange = 'all', sources = new Set(['youtube', 'markdown']);
+let view = 'graph', focus = null;   // focus = {center, nodes:Set}
+let lastAsk = null;                  // {tpl, a, b, p} für Teilen-Links
 const history = [];
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmtT = s => { s = Math.floor(s || 0); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60; return (h?h+':':'')+String(m).padStart(h?2:1,'0')+':'+String(x).padStart(2,'0'); };
 const fmtD = d => d ? new Date(d).toLocaleDateString('de-DE', {year:'numeric', month:'short'}) : '';
-const deepLink = (doc, s) => (doc.source === 'youtube' && s != null) ? doc.url + '&t=' + Math.floor(s) + 's' : (doc.url || '#');
+// Absprung: Video auf die Sekunde, Seite auf den Abschnitt (Text-Fragment, funktioniert in Chromium und Safari)
+const deepLink = (doc, s, heading) => {
+  if (doc.source === 'youtube' && s != null) return doc.url + '&t=' + Math.floor(s) + 's';
+  if (doc.source !== 'youtube' && heading) return doc.url + '#:~:text=' + encodeURIComponent(heading.replace(/[.,;:!?]+$/, '').slice(0, 80));
+  return doc.url || '#';
+};
 const isDoc = n => n && n.type === 'Document';
 const docLabel = d => d.source === 'markdown' ? 'Seite' : 'Folge';
 const shortTitle = t => t.length > 34 ? t.slice(0, 32) + '…' : t;
@@ -177,11 +211,148 @@ fetch(DATA + 'graph.json').then(r => r.json()).then(g => {
   $('#persons').innerHTML = concepts.filter(n => n.type === 'Person').map(n => `<option value="${esc(n.name)}">`).join('');
   initGraph(); render(); renderTop();
   requestAnimationFrame(() => fit(false));
-  window.addEventListener('resize', () => fit(false));
-  const fromHash = () => { const h = decodeURIComponent(location.hash.slice(1)); if (h && byId.has(h) && h !== selected) select(h, true); };
+  window.addEventListener('resize', () => { fit(false); if (view === 'timeline') renderTimeline(); });
   window.addEventListener('hashchange', fromHash);
   fromHash();
 });
+
+// ---------- Teilen: Zustand in der URL ----------
+// #<knoten-id>  oder  #ask=who&a=Direct%20Lake&b=…&p=…   jeweils optional &t=m3&s=youtube&v=timeline
+function stateHash(extra) {
+  const p = new URLSearchParams();
+  if (extra && extra.ask) { p.set('ask', extra.ask.tpl); p.set('a', extra.ask.a); if (extra.ask.b) p.set('b', extra.ask.b); if (extra.ask.p) p.set('p', extra.ask.p); }
+  else if (selected) p.set('n', selected);
+  if (timeRange !== 'all') p.set('t', timeRange);
+  if (sources.size !== 2) p.set('s', [...sources].join(','));
+  if (view !== 'graph') p.set('v', view);
+  if (focus) p.set('f', focus.center);
+  return p.toString();
+}
+let applyingHash = false;
+function pushState(extra) { applyingHash = true; location.hash = stateHash(extra); setTimeout(() => applyingHash = false, 0); }
+function fromHash() {
+  if (applyingHash) return;
+  const raw = decodeURIComponent(location.hash.slice(1));
+  if (!raw) return;
+  if (!raw.includes('=')) { if (byId.has(raw) && raw !== selected) select(raw, true); return; }   // alte Form: nackte Knoten-ID
+  const p = new URLSearchParams(location.hash.slice(1));
+  if (p.get('t') && p.get('t') !== timeRange) { timeRange = p.get('t'); [...$('#time-chips').children].forEach(c => c.classList.toggle('on', c.dataset.r === timeRange)); dcCache = null; }
+  if (p.get('s')) { sources = new Set(p.get('s').split(',')); [...$('#src-chips').children].forEach(c => c.classList.toggle('on', sources.has(c.dataset.s))); dcCache = null; }
+  if (p.get('f') && byId.has(p.get('f'))) setFocus(p.get('f'), true);
+  if (p.get('v') && p.get('v') !== view) setView(p.get('v'), true);
+  else if (dcCache === null) { render(); renderTop(); }
+  if (p.get('ask')) { $('#q-tpl').value = p.get('ask'); $('#q-tpl').dispatchEvent(new Event('change')); $('#q-a').value = p.get('a') || ''; $('#q-b').value = p.get('b') || ''; $('#q-p').value = p.get('p') || ''; ask(p.get('ask'), p.get('a') || '', p.get('b') || '', p.get('p') || '', true); }
+  else if (p.get('n') && byId.has(p.get('n')) && p.get('n') !== selected) select(p.get('n'), true);
+}
+async function copyLink(extra) {
+  const url = location.origin + location.pathname + '#' + stateHash(extra);
+  try { await navigator.clipboard.writeText(url); toast('Link kopiert'); } catch (e) { prompt('Link kopieren:', url); }
+}
+function toast(msg) { const t = document.createElement('div'); t.textContent = msg; t.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 14px;border-radius:999px;font-size:12px;z-index:9'; document.body.appendChild(t); setTimeout(() => t.remove(), 1600); }
+const shareBtn = extra => `<span class="btn" data-share="${extra ? 'ask' : 'node'}">🔗 Link kopieren</span>`;
+
+// ---------- Ansichten ----------
+$('#viewbar').addEventListener('click', e => { if (e.target.dataset.v) setView(e.target.dataset.v); });
+function setView(v, silent) {
+  view = v;
+  [...$('#viewbar').children].forEach(c => c.classList.toggle('on', c.dataset.v === v));
+  $('#graph svg').style.display = v === 'graph' ? 'block' : 'none';
+  $('#hint').style.display = v === 'graph' ? 'block' : 'none';
+  $('#timeline').style.display = v === 'timeline' ? 'block' : 'none';
+  $('#listview').style.display = v === 'list' ? 'block' : 'none';
+  if (v === 'timeline') renderTimeline(); else if (v === 'list') renderList(); else { render(); }
+  if (!silent) pushState(lastAsk && !selected ? {ask: lastAsk} : null);
+}
+
+// Zeitstrahl: Zeilen = ausgewählter Knoten + stärkste Nachbarn (oder Top 12), Spalten = Monate
+function timelineRows() {
+  const isC = n => !isDoc(n) && n.type !== 'Claim' && n.type !== 'Bucket';
+  let rows;
+  if (selected && byId.get(selected) && isC(byId.get(selected))) {
+    const n = byId.get(selected);
+    const rel = [...(G.out.get(n.id) || []), ...(G.in.get(n.id) || [])].filter(e => e.type === 'RELATES_TO').map(e => ({o: byId.get(e.s === n.id ? e.t : e.s), w: e.w})).filter(x => x.o).sort((a, b) => b.w - a.w).slice(0, 11).map(x => x.o);
+    rows = [n, ...rel];
+  } else rows = G.nodes.filter(isC).map(n => [n, docCount(n.id)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map(x => x[0]);
+  return rows;
+}
+function monthKey(d) { return d.published ? d.published.slice(0, 7) : null; }
+function renderTimeline() {
+  const el = $('#timeline'); el.innerHTML = '';
+  const rows = timelineRows();
+  const docs = G.docs.filter(docActive).filter(d => d.published);
+  if (!docs.length) { el.innerHTML = '<p class="empty">Keine datierten Dokumente im Filter.</p>'; return; }
+  const months = []; const mn = docs.map(monthKey).sort();
+  let [y, m] = mn[0].split('-').map(Number); const end = mn[mn.length - 1];
+  while (true) { const k = `${y}-${String(m).padStart(2, '0')}`; months.push(k); if (k >= end) break; m++; if (m > 12) { m = 1; y++; } }
+  const docsByMonth = new Map(); for (const d of docs) (docsByMonth.get(monthKey(d)) || docsByMonth.set(monthKey(d), []).get(monthKey(d))).push(d);
+  // Zelle: Dokumente des Monats, die den Knoten erwähnen (Personen: in denen sie sprechen)
+  const cell = (n, k) => {
+    const ds = docsByMonth.get(k) || [];
+    return ds.filter(d => n.type === 'Person' ? speakers(d.id).some(s => s.p.id === n.id) : (G.out.get(d.id) || []).some(e => e.type === 'MENTIONS' && e.t === n.id && (e.share || 0) >= 0.05));
+  };
+  const box = el.getBoundingClientRect();
+  const labelW = 150, top = 26, rowH = 26, colW = Math.max(16, Math.min(40, (box.width - labelW - 40) / months.length));
+  const W = labelW + colW * months.length + 20, H = top + rowH * (rows.length + 1) + 10;
+  const s = d3.select(el).append('svg').attr('width', W).attr('height', H);
+  // Jahresgrenzen als feine Linien
+  months.forEach((k, i) => { if (+k.slice(5) === 1 && i > 0) s.append('line').attr('x1', labelW + i * colW - 1).attr('x2', labelW + i * colW - 1).attr('y1', top - 6).attr('y2', H - 8).attr('stroke', '#D8D3C4'); });
+  const grid = rows.map(n => months.map(k => cell(n, k)));
+  const max = Math.max(1, ...grid.flat().map(c => c.length));
+  const colorFor = (n, v) => { const c = TYPE_COLOR[n.type] || '#888'; return d3.interpolateRgb('#F1EEE5', c)(0.25 + 0.75 * v / max); };
+  // Spaltenköpfe: Jahr bei Januar, sonst Monat alle 3
+  months.forEach((k, i) => { const mm = +k.slice(5); if (mm === 1 || i === 0) s.append('text').attr('class', 'col-label').attr('x', labelW + i * colW + 2).attr('y', 14).text(k.slice(0, 4)); else if (mm % 3 === 1 && colW >= 18) s.append('text').attr('class', 'col-label').attr('x', labelW + i * colW + 2).attr('y', 14).text(mm); });
+  // Gesamtzeile
+  s.append('text').attr('class', 'row-label').attr('x', labelW - 8).attr('y', top + rowH - 8).attr('text-anchor', 'end').style('fill', 'var(--ink-mute)').text('alle Dokumente');
+  months.forEach((k, i) => { const ds = docsByMonth.get(k) || []; s.append('rect').attr('class', 'cell').attr('x', labelW + i * colW).attr('y', top).attr('width', colW).attr('height', rowH - 2).attr('rx', 3).attr('fill', d3.interpolateRgb('#F1EEE5', '#6B6B6B')(Math.min(1, ds.length / 6))).on('click', () => showMonth(null, k, ds)).append('title').text(`${k}: ${ds.length} Dokumente`); });
+  rows.forEach((n, r) => {
+    const g = s.append('g').attr('class', n.id === selected ? 'sel' : '');
+    g.append('text').attr('class', 'row-label').attr('x', labelW - 8).attr('y', top + rowH * (r + 1) + rowH - 8).attr('text-anchor', 'end').text(n.name.length > 22 ? n.name.slice(0, 21) + '…' : n.name).on('click', () => select(n.id));
+    months.forEach((k, i) => { const ds = grid[r][i]; g.append('rect').attr('class', 'cell').attr('x', labelW + i * colW).attr('y', top + rowH * (r + 1)).attr('width', colW).attr('height', rowH - 2).attr('rx', 3).attr('fill', ds.length ? colorFor(n, ds.length) : '#F7F5EE').on('click', () => showMonth(n, k, ds)).append('title').text(`${n.name} · ${k}: ${ds.length}`); });
+  });
+  el.scrollLeft = el.scrollWidth;   // die jüngsten Monate zuerst sichtbar
+  const note = document.createElement('div'); note.className = 'stat'; note.style.marginTop = '8px';
+  note.textContent = selected && rows[0] && rows[0].id === selected ? `Zeile 1 ist der gewählte Knoten, darunter seine stärksten Nachbarn. Zelle anklicken zeigt die Dokumente des Monats.` : `Top 12 Knoten nach Dokumenten im Filter. Knoten anklicken, dann zeigt der Zeitstrahl seine Nachbarn.`;
+  el.appendChild(note);
+}
+async function showMonth(n, k, ds) {
+  let h = crumbsHtml() + `<h2>${n ? esc(n.name) + ' · ' : ''}${k}</h2><div class="stat">${ds.length} Dokumente in diesem Monat</div>`;
+  const explains = n ? new Set((G.in.get(n.id) || []).filter(e => e.type === 'EXPLAINS').map(e => e.s)) : new Set();
+  h += `<ul class="list">${ds.map(d => { const e = n ? (G.out.get(d.id) || []).find(x => x.type === 'MENTIONS' && x.t === n.id) : null; return docRow(d, e, explains, null, n ? n.id : null); }).join('') || '<li class="empty">keine</li>'}</ul>`;
+  $('#detail').innerHTML = h; $('#detail').scrollTop = 0; bindPanel(); bindCrumbs();
+}
+
+// Liste: alle Dokumente im Filter als Tabelle
+let listSort = {key: 'published', dir: -1};
+function renderList() {
+  const el = $('#listview');
+  const docs = G.docs.filter(docActive).map(d => ({d, sp: speakers(d.id).map(x => x.p.name).join(', '), top: (G.out.get(d.id) || []).filter(e => e.type === 'MENTIONS').sort((a, b) => b.w - a.w).slice(0, 3).map(e => byId.get(e.t)).filter(Boolean)}));
+  const k = listSort.key, dir = listSort.dir;
+  docs.sort((a, b) => dir * String(a.d[k] || a[k] || '').localeCompare(String(b.d[k] || b[k] || ''), 'de'));
+  const th = (key, label) => `<th data-k="${key}">${label}${listSort.key === key ? (dir > 0 ? ' ▲' : ' ▼') : ''}</th>`;
+  el.innerHTML = `<div class="stat" style="margin-bottom:6px">${docs.length} Dokumente im Filter · Spalte anklicken sortiert</div><table class="docs"><thead><tr>${th('published', 'Datum')}${th('source', 'Typ')}${th('name', 'Titel')}${th('sp', 'Gespräch')}<th>Erwähnt vor allem</th></tr></thead><tbody>${docs.map(x => `<tr><td class="m">${fmtD(x.d.published)}</td><td class="m">${docLabel(x.d)}${x.d.format ? '<br>' + esc(x.d.format) : ''}</td><td class="t" data-id="${esc(x.d.id)}">${esc(x.d.name)}</td><td>${esc(x.sp || x.d.guest || '')}</td><td>${x.top.map(n => `<span class="chip" data-id="${esc(n.id)}" style="margin:1px 2px 1px 0">${esc(n.name)}</span>`).join('')}</td></tr>`).join('')}</tbody></table>`;
+  el.querySelectorAll('[data-id]').forEach(t => t.onclick = () => select(t.dataset.id));
+  el.querySelectorAll('th[data-k]').forEach(t => t.onclick = () => { const key = t.dataset.k; listSort = {key, dir: listSort.key === key ? -listSort.dir : (key === 'published' ? -1 : 1)}; renderList(); });
+}
+
+// ---------- Fokus (Drill-in) ----------
+$('#focus-off').onclick = e => { e.preventDefault(); focus = null; $('#focusbar').style.display = 'none'; render(); pushState(); };
+function neighbours(nid, limit) {
+  return [...(G.out.get(nid) || []), ...(G.in.get(nid) || [])].filter(e => e.type === 'RELATES_TO').map(e => ({id: e.s === nid ? e.t : e.s, w: e.w})).sort((a, b) => b.w - a.w).slice(0, limit).map(x => x.id);
+}
+function setFocus(nid, silent) {
+  const n = byId.get(nid); if (!n || isDoc(n)) return;
+  const set = new Set([nid, ...neighbours(nid, 14)]);
+  if (n.type === 'Person') for (const x of neighbourDocs(nid).slice(0, 6)) for (const e of (G.out.get(x.doc.id) || [])) if (e.type === 'MENTIONS' && (e.share || 0) >= 0.15) set.add(e.t);
+  focus = {center: nid, nodes: set};
+  $('#focus-name').textContent = n.name; $('#focusbar').style.display = 'block';
+  if (view !== 'graph') setView('graph', true); else render();
+  if (!silent) pushState();
+}
+function expandFocus(nid) {
+  if (!focus) return setFocus(nid);
+  neighbours(nid, 8).forEach(id => focus.nodes.add(id));
+  render();
+}
 
 // ---------- Filter: Zeit und Quelle ----------
 function docActive(d) {
@@ -203,7 +374,7 @@ function docCount(nid) {   // Dokumente im aktiven Filter, die den Knoten erwäh
   else c = (G.in.get(nid) || []).filter(e => e.type === 'MENTIONS' && isDoc(byId.get(e.s)) && docActive(byId.get(e.s))).length;
   dcCache.set(nid, c); return c;
 }
-function filtersChanged() { dcCache = null; render(); renderTop(); if (selected) select(selected, true); }
+function filtersChanged() { dcCache = null; render(); renderTop(); if (view === 'timeline') renderTimeline(); if (view === 'list') renderList(); if (selected) select(selected, true); else if (lastAsk) ask(lastAsk.tpl, lastAsk.a, lastAsk.b, lastAsk.p, true); pushState(lastAsk && !selected ? {ask: lastAsk} : null); }
 $('#time-chips').addEventListener('click', e => { if (!e.target.classList.contains('chip')) return; [...e.currentTarget.children].forEach(c => c.classList.remove('on')); e.target.classList.add('on'); timeRange = e.target.dataset.r; filtersChanged(); });
 $('#src-chips').addEventListener('click', e => { if (!e.target.classList.contains('chip')) return; e.target.classList.toggle('on'); sources = new Set([...e.currentTarget.querySelectorAll('.chip.on')].map(c => c.dataset.s)); filtersChanged(); });
 $('#type-chips').addEventListener('click', e => { if (e.target.classList.contains('chip')) { e.target.classList.toggle('on'); render(); } });
@@ -212,6 +383,7 @@ const activeTypes = () => [...document.querySelectorAll('#type-chips .chip.on')]
 
 // ---------- Graph-Auswahl ----------
 function visibleConcepts() {
+  if (focus) return [...focus.nodes].map(id => byId.get(id)).filter(n => n && !isDoc(n));
   const types = new Set(activeTypes()), minDocs = +$('#min-docs').value;
   return G.nodes.filter(n => !isDoc(n) && n.type !== 'Claim' && types.has(n.type) && (docCount(n.id) >= Math.min(minDocs, n.type === 'Person' || n.type === 'Bucket' ? 1 : minDocs)));
 }
@@ -228,7 +400,7 @@ function derivedEdges(concepts) {
   return out;
 }
 function currentGraph() {
-  const concepts = visibleConcepts(), ids = new Set(concepts.map(n => n.id)), minW = +$('#min-w').value;
+  const concepts = visibleConcepts(), ids = new Set(concepts.map(n => n.id)), minW = focus ? 3 : +$('#min-w').value;
   const links = G.edges.filter(e => e.type === 'RELATES_TO' && e.w >= minW && ids.has(e.s) && ids.has(e.t)).map(e => ({...e}));
   links.push(...derivedEdges(concepts));
   const nodes = concepts.slice();
@@ -281,7 +453,7 @@ function render() {
     const g = enter.append('g').attr('class', 'node').call(d3.drag().on('start', (e, d) => { if (!e.active) sim.alphaTarget(.3).restart(); d.fx = d.x; d.fy = d.y; }).on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; }).on('end', (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }));
     g.append('circle'); g.append('text').attr('dy', 3);
     g.on('click', (e, d) => select(d.id));
-    g.on('dblclick', (e, d) => { e.stopPropagation(); toggleDocs(d); });
+    g.on('dblclick', (e, d) => { e.stopPropagation(); if (isDoc(d)) toggleDocs(d); else expandFocus(d.id); });
     return g;
   });
   nodeSel.select('circle').attr('r', radius).attr('fill', color);
@@ -327,6 +499,9 @@ function neighbourDocs(nid) {   // Dokumente, die den Knoten erwähnen (aktiver 
 function speakers(docId) { return (G.in.get(docId) || []).filter(e => e.type === 'SPEAKS_IN').map(e => ({p: byId.get(e.s), role: e.role})).filter(x => x.p); }
 function bindPanel() {
   $('#detail').querySelectorAll('[data-id]').forEach(el => el.onclick = e => { e.stopPropagation(); e.preventDefault(); select(el.dataset.id); });
+  $('#detail').querySelectorAll('[data-share]').forEach(el => el.onclick = e => { e.stopPropagation(); copyLink(el.dataset.share === 'ask' && lastAsk ? {ask: lastAsk} : null); });
+  $('#detail').querySelectorAll('[data-focus]').forEach(el => el.onclick = e => { e.stopPropagation(); setFocus(el.dataset.focus); });
+  $('#detail').querySelectorAll('[data-timeline]').forEach(el => el.onclick = e => { e.stopPropagation(); setView('timeline'); });
   $('#detail').querySelectorAll('.ev[data-doc]').forEach(el => el.onclick = e => { e.preventDefault(); e.stopPropagation(); showEvidence(el, el.dataset.doc, el.dataset.node, el.dataset.node2); });
 }
 function crumbsHtml() {
@@ -339,10 +514,11 @@ function bindCrumbs() { const b = $('#crumb-back'); if (b) b.onclick = () => { h
 // ---------- Auswahl ----------
 function select(id, fromHash) {
   const n = byId.get(id); if (!n) return;
-  selected = id;
+  selected = id; lastAsk = null;
   if (history[history.length - 1] !== id) history.push(id);
-  if (!fromHash) location.hash = encodeURIComponent(id);
+  if (!fromHash) pushState();
   highlight();
+  if (view === 'timeline') renderTimeline();
   if (isDoc(n)) showDoc(n); else showConcept(n);
 }
 
@@ -354,6 +530,7 @@ function showConcept(n) {
   const claims = (G.in.get(n.id) || []).filter(e => e.type === 'ABOUT').map(e => byId.get(e.s)).filter(c => c && docActive(byId.get(c.doc) || {}));
   let h = crumbsHtml() + `<h2>${esc(n.name)} <span class="badge type ${n.type}">${n.type}</span></h2>`;
   h += `<div class="stat">${docs.length} Dokumente im gewählten Zeitraum${n.type !== 'Person' ? ' · ' + docs.reduce((a, x) => a + (x.e.segments||0), 0) + ' Segmente' : ''}</div>`;
+  h += `<div><span class="btn" data-focus="${esc(n.id)}">⌖ Fokus: Nachbarn</span><span class="btn" data-timeline="1">📈 Zeitstrahl</span>${shareBtn(null)}</div>`;
   if (n.type === 'Person') {
     h += `<h2>Dabei in</h2><ul class="list">${docs.map(x => docRow(x.doc, null, explains, x.role)).join('') || '<li class="empty">keine im Zeitraum</li>'}</ul>`;
   }
@@ -397,7 +574,7 @@ function segHtml(doc, s, term) {
   } else if (raw.length > 420) raw = raw.slice(0, 400) + ' …';
   let t = esc(raw);
   for (const term of terms) { const rx = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig'); t = t.replace(rx, '<mark>$1</mark>'); }
-  const ts = s.s != null ? `<a class="ts" target="_blank" rel="noopener" href="${deepLink(doc, s.s)}">▶ ${fmtT(s.s)}</a>` : `<a class="ts" target="_blank" rel="noopener" href="${deepLink(doc)}">📄 Seite</a>`;
+  const ts = s.s != null ? `<a class="ts" target="_blank" rel="noopener" href="${deepLink(doc, s.s)}">▶ ${fmtT(s.s)}</a>` : `<a class="ts" target="_blank" rel="noopener" href="${deepLink(doc, null, s.h)}">📄 ${s.h ? 'Abschnitt' : 'Seite'}</a>`;
   return `<div class="seg">${s.h ? `<span class="h">${esc(s.h)}</span>` : ''}${ts}${t}</div>`;
 }
 function claimHtml(c) {
@@ -412,7 +589,7 @@ async function showDoc(d) {
   const persons = speakers(d.id);
   let h = crumbsHtml() + `<h2>${esc(d.name)} ${d.source === 'markdown' ? '<span class="badge page">Seite</span>' : ''}</h2>`;
   h += `<div class="stat">${d.format ? d.format + ' · ' : ''}${fmtD(d.published)}${d.source === 'markdown' ? ' (Dateistand)' : ''} · ${d.duration_s ? Math.round(d.duration_s/60) + ' min · ' : ''}${(d.lang||'').toUpperCase()}</div>`;
-  h += `<p class="desc">${esc(d.summary || d.desc)}</p><div><a class="btn" target="_blank" rel="noopener" href="${esc(d.url)}">${d.source === 'markdown' ? '📄 Seite öffnen' : '▶ Auf YouTube'}</a><span class="btn" id="add-doc">Im Graph zeigen</span></div>`;
+  h += `<p class="desc">${esc(d.summary || d.desc)}</p><div><a class="btn" target="_blank" rel="noopener" href="${esc(d.url)}">${d.source === 'markdown' ? '📄 Seite öffnen' : '▶ Auf YouTube'}</a><span class="btn" id="add-doc">Im Graph zeigen</span>${shareBtn(null)}</div>`;
   if (persons.length) h += `<h2>Gespräch</h2><div class="chips">${persons.map(x => `<span class="chip" data-id="${esc(x.p.id)}">${esc(x.p.name)} <span class="stat">${x.role === 'host' ? 'Host' : 'Gast'}</span></span>`).join('')}</div>`;
   const claims = G.claims.filter(c => c.doc === d.id).sort((a, b) => (a.start_s || 0) - (b.start_s || 0));
   if (claims.length) h += `<h2>Kernaussagen (${claims.length})</h2>${claims.map(c => claimHtml(c)).join('')}`;
@@ -460,9 +637,11 @@ $('#q-run').onclick = () => ask($('#q-tpl').value, $('#q-a').value.trim(), $('#q
 for (const id of ['q-a','q-b','q-p']) $('#' + id).addEventListener('keydown', e => { if (e.key === 'Enter') $('#q-run').click(); });
 const byName = name => G.nodes.find(n => !isDoc(n) && n.type !== 'Claim' && n.name.toLowerCase() === name.toLowerCase()) || G.nodes.find(n => !isDoc(n) && n.type !== 'Claim' && n.name.toLowerCase().startsWith(name.toLowerCase()));
 const gqlTime = () => timeRange === 'all' ? '' : `\n<span class="k">FILTER</span> d.published >= '${timeRange === 'm3' ? 'heute-3M' : timeRange === 'm12' ? 'heute-12M' : timeRange === '2024' ? '…' : timeRange + '-01-01'}'`;
-async function ask(tpl, a, b, p) {
+async function ask(tpl, a, b, p, fromHash) {
   const A = byName(a); if (!A) { $('#detail').innerHTML = `<h2>Frage</h2><p class="empty">„${esc(a)}" ist kein bekannter Knoten. Tipp: aus der Liste wählen.</p>`; return; }
   await ensureSegs();
+  lastAsk = {tpl, a: A.name, b, p}; selected = null;
+  if (!fromHash) pushState({ask: lastAsk});
   let h = `<h2>Frage</h2>`, gql = '', body = '';
   const explains = new Set((G.in.get(A.id) || []).filter(e => e.type === 'EXPLAINS').map(e => e.s));
   if (tpl === 'who') {
@@ -499,9 +678,9 @@ async function ask(tpl, a, b, p) {
     gql = `<span class="k">MATCH</span> (d:Document)-[m:MENTIONS]->(t {name: '${A.name}'})${gqlTime()}\n<span class="k">RETURN</span> d.title, d.published <span class="k">ORDER BY</span> d.published <span class="k">DESC LIMIT</span> 15`;
     body = `<ul class="list">${docs.map(x => docRow(x.doc, x.e, explains, null, A.id)).join('') || '<li class="empty">nichts</li>'}</ul>`;
   }
-  h += `<div class="gql">${gql}</div><div class="stat">So sähe die Frage als GQL gegen Graph in Fabric aus. Hier beantwortet sie der Browser aus graph.json.</div>` + body;
+  h += `<div class="gql">${gql}</div><div class="stat">So sähe die Frage als GQL gegen Graph in Fabric aus. Hier beantwortet sie der Browser aus graph.json.</div><div>${shareBtn(true)}<span class="btn" data-focus="${esc(A.id)}">⌖ Fokus auf ${esc(A.name)}</span></div>` + body;
   $('#detail').innerHTML = h; $('#detail').scrollTop = 0; bindPanel();
-  selected = A.id; highlight();
+  selected = null; const hl = new Set([A.id]); nodeSel.classed('dim', d => !hl.has(d.id) && !isDoc(d)); linkSel.classed('hl', false).classed('dim', false);
 }
 </script>
 </body>
