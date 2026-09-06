@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wissensgraph · Daten-WG Knowledge Kitchen</title>
+<title>DatenWG Library · Graph</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -101,7 +101,7 @@ table.docs td.m{font-family:var(--mono);font-size:11px;color:var(--ink-mute);whi
 </head>
 <body>
 <header>
-  <h1>Wissens<em>graph</em></h1>
+  <h1>DatenWG <em>Library</em> · Graph</h1>
   <span class="meta" id="hdr-stats">lädt …</span>
   <a class="back" href="../index.html">← Knowledge Kitchen</a>
 </header>
@@ -589,8 +589,8 @@ function segHtml(doc, s, term) {
     const a = Math.max(0, (i < 0 ? 0 : i) - 160);
     raw = (a > 0 ? '… ' : '') + raw.slice(a, a + 400) + ' …';
   } else if (raw.length > 420) raw = raw.slice(0, 400) + ' …';
-  let t = esc(raw);
-  for (const term of terms) { const rx = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig'); t = t.replace(rx, '<mark>$1</mark>'); }
+  let t = esc(raw).replace(/(https?:\/\/[^\s<>"']+?)([.,;:)!?]*)(?=\s|$|&lt;|<)/g, (m, u, tail) => `<a href="${u}" target="_blank" rel="noopener">${u.replace(/^https?:\/\//, '')}</a>${tail}`);
+  for (const term of terms) { const rx = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?![^<]*>)', 'ig'); t = t.replace(rx, '<mark>$1</mark>'); }
   const ts = s.s != null ? `<a class="ts" target="_blank" rel="noopener" href="${deepLink(doc, s.s)}">▶ ${fmtT(s.s)}</a>` : `<a class="ts" target="_blank" rel="noopener" href="${deepLink(doc, null, s.h)}">📄 ${s.h ? 'Abschnitt' : 'Seite'}</a>`;
   return `<div class="seg">${s.h ? `<span class="h">${esc(s.h)}</span>` : ''}${ts}${t}</div>`;
 }

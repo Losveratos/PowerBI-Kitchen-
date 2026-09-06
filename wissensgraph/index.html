@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wissensgraph · Daten-WG Knowledge Kitchen</title>
+<title>DatenWG Library · Knowledge Kitchen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -113,7 +113,7 @@ h2 .sub{font-family:var(--mono);font-size:11px;color:var(--ink-mute);font-weight
 </head>
 <body>
 <header>
-  <h1><a href="#">Wissens<em>graph</em></a></h1>
+  <h1><a href="#">DatenWG <em>Library</em></a></h1>
   <div class="searchbox"><input id="q" type="search" placeholder="Thema, Person, Folge oder Volltext … " autocomplete="off"><div class="suggest" id="suggest"></div></div>
   <div class="hdr-links"><a id="graph-link" href="graph.html">Graph-Sicht</a><a href="../index.html">← Kitchen</a></div>
 </header>
@@ -276,11 +276,13 @@ function segHtml(doc, s, terms) {
   let raw = s.t;
   if (terms.length && raw.length > 420) { const i = raw.toLowerCase().indexOf(terms[0].toLowerCase()); const a = Math.max(0, (i < 0 ? 0 : i) - 160); raw = (a > 0 ? '… ' : '') + raw.slice(a, a + 400) + ' …'; }
   else if (raw.length > 420) raw = raw.slice(0, 400) + ' …';
-  let t = esc(raw);
-  for (const term of terms) { const rx = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig'); t = t.replace(rx, '<mark>$1</mark>'); }
+  let t = linkUrls(esc(raw));
+  for (const term of terms) { const rx = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')(?![^<]*>)', 'ig'); t = t.replace(rx, '<mark>$1</mark>'); }
   const ts = s.s != null ? `<a class="ts" target="_blank" rel="noopener" href="${deepLink(doc, s.s)}">▶ ${fmtT(s.s)}</a>` : `<a class="ts" target="_blank" rel="noopener" href="${deepLink(doc, null, s.h)}">📄 ${s.h ? 'Abschnitt' : 'Seite'}</a>`;
   return `<div class="seg">${s.h ? `<span class="h">${esc(s.h)}</span>` : ''}${ts}${t}</div>`;
 }
+// URLs im Text anklickbar machen (Text ist bereits HTML-escaped)
+const linkUrls = t => t.replace(/(https?:\/\/[^\s<>"']+?)([.,;:)!?]*)(?=\s|$|&lt;|<)/g, (m, u, tail) => `<a href="${u}" target="_blank" rel="noopener">${u.replace(/^https?:\/\//, '')}</a>${tail}`);
 function claimsSection(claims, title) {
   if (!claims.length) return '';
   const kinds = ['fact','opinion','recommendation','warning'].filter(k => claims.some(c => c.kind === k));
@@ -322,7 +324,7 @@ function renderStart() {
   const askHref = (t, a, b, p) => '#' + new URLSearchParams(Object.assign({ask: t, a}, b ? {b} : {}, p ? {p} : {}, timeRange !== 'all' ? {t: timeRange} : {})).toString();
   const label = (t, a, b, p) => ({who: `Wer erklärt ${a}?`, both: `Was verbindet ${a} und ${b}?`, said: `Was wurde zu ${a} gesagt?`, person: `Was sagt ${p} zu ${a}?`, latest: `Neuestes zu ${a}`})[t];
   $('#page').innerHTML = `
-    <h1 class="title">Das Wissen der Daten-WG, <em style="color:var(--accent)">verknüpft</em></h1>
+    <h1 class="title">DatenWG Library: das Wissen der Daten-WG, <em style="color:var(--accent)">verknüpft</em></h1>
     <p class="lead">${G.docs.filter(d => d.source === 'youtube').length} Folgen und ${G.docs.filter(d => d.source === 'markdown').length} Seiten der Kitchen als Graph: Themen, Tools, Personen und ${G.claims.length} belegte Kernaussagen. Jede Stelle springt auf die Sekunde ins Video oder auf den Abschnitt der Seite.</p>
     <div class="kpis"><div class="kpi"><b>${G.concepts.length}</b>Konzepte</div><div class="kpi"><b>${G.claims.length}</b>Kernaussagen</div><div class="kpi"><b>${G.edges.filter(e => e.type === 'RELATES_TO').length}</b>Themenbeziehungen</div><div class="kpi"><b>${G.docs.filter(docActive).length}</b>Dokumente im Filter</div></div>
     <h2>Fragen zum Ausprobieren</h2><div class="chips">${examples.map(([t, a, b, p]) => `<a class="chip" href="${askHref(t, a, b, p)}">${esc(label(t, a, b, p))}</a>`).join('')}</div>

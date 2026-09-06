@@ -2,7 +2,7 @@
 
 > Post · Wissensgraph aus Transkripten · Von Michael Tenner · Stand September 2026
 > HTML-Fassung: https://datenwgknowledgekitchen.com/wissensgraph-aus-transkripten.html
-> Werkzeug: https://datenwgknowledgekitchen.com/wissensgraph/
+> Werkzeug: DatenWG Library, https://datenwgknowledgekitchen.com/wissensgraph/
 
 Die Kitchen konnte bisher Titel, Beschreibungen und Kapitel durchsuchen. Das eigentliche Wissen steckt aber im Gespräch. Jetzt gibt es einen Graphen über alle Transkripte: Themen, Tools, Personen und Kernaussagen, und jede Verbindung springt auf die Sekunde genau ins Video.
 
