@@ -311,6 +311,7 @@ function renderTimeline() {
     months.forEach((k, i) => { const ds = grid[r][i]; g.append('rect').attr('class', 'cell').attr('x', labelW + i * colW).attr('y', top + rowH * (r + 1)).attr('width', colW).attr('height', rowH - 2).attr('rx', 3).attr('fill', ds.length ? colorFor(n, ds.length) : '#F7F5EE').on('click', () => showMonth(n, k, ds)).append('title').text(`${n.name} · ${k}: ${ds.length}`); });
   });
   el.scrollLeft = el.scrollWidth;   // die jüngsten Monate zuerst sichtbar
+  requestAnimationFrame(() => { el.scrollLeft = el.scrollWidth; });
   const note = document.createElement('div'); note.className = 'stat'; note.style.marginTop = '8px';
   note.textContent = selected && rows[0] && rows[0].id === selected ? `Zeile 1 ist der gewählte Knoten, darunter seine stärksten Nachbarn. Zelle anklicken zeigt die Dokumente des Monats.` : `Top 12 Knoten nach Dokumenten im Filter. Knoten anklicken, dann zeigt der Zeitstrahl seine Nachbarn.`;
   el.appendChild(note);
