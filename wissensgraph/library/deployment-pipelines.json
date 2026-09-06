@@ -1,0 +1,471 @@
+{
+ "id": "tool:deployment-pipelines",
+ "name": "Deployment Pipelines",
+ "typ": "tool",
+ "slug": "deployment-pipelines",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 13,
+ "kernaussagen_gesamt": 8,
+ "mit_kernaussagen": 3,
+ "aliase": [
+  "Bereitstellungspipelines",
+  "Deployment Pipeline"
+ ],
+ "einordnung": "Bei einem Direct-Lake-Modell bleibt das Semantic Model nach einem Deployment über eine Deployment Pipeline weiterhin mit dem Lakehouse der Testumgebung verbunden, die Datenquelle wird also nicht automatisch auf die Zielumgebung umgehängt. Deployment Pipelines unterstützen Dataflows, Lakehouses und Direct Lake nicht zuverlässig, sodass danach oft manuell mit VS Code nachgearbeitet werden muss. Für Import-Modelle gibt es in Deployment Pipelines eigene Deployment Rules, für Direct Lake dagegen nicht.",
+ "nachbarn": [
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "tool:semantic-model",
+   "name": "Semantic Model",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "semantic-model.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:premium",
+   "name": "Premium",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "premium.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "refresh.md"
+  },
+  {
+   "id": "topic:row-level-security",
+   "name": "Row-Level Security",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "row-level-security.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 2144,
+   "zeit": "35:44",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2144s",
+   "aussage": "Bei einem Direct-Lake-Modell bleibt das Semantic Model nach einem Deployment über eine Deployment Pipeline weiterhin mit dem Lakehouse der Testumgebung verbunden, die Datenquelle wird also nicht automatisch auf die Zielumgebung umgehängt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 3124,
+   "zeit": "52:04",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3124s",
+   "aussage": "Ein im Power BI Service umgebundenes Semantic Model eines Reports wird bei einem erneuten Deployment über die Deployment Pipeline wieder auf die ursprüngliche Testquelle zurückgesetzt, sodass die Umbindung nach jedem Deployment wiederholt werden muss."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 3334,
+   "zeit": "55:34",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3334s",
+   "aussage": "Beim Deployment eines Lakehouse über eine Deployment Pipeline werden Views, die im SQL-Endpunkt des Lakehouse angelegt wurden, nicht mit übertragen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 3334,
+   "zeit": "55:34",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3334s",
+   "aussage": "Als Workaround definiert der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 3234,
+   "zeit": "53:54",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3234s",
+   "aussage": "Deployment Pipelines unterstützen Dataflows, Lakehouses und Direct Lake nicht zuverlässig, sodass danach oft manuell mit VS Code nachgearbeitet werden muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 3234,
+   "zeit": "53:54",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3234s",
+   "aussage": "Für Import-Modelle gibt es in Deployment Pipelines eigene Deployment Rules, für Direct Lake dagegen nicht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 365,
+   "zeit": "06:05",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=365s",
+   "aussage": "Bei Fabric-Deployment-Pipelines werden Verbindungen zwischen Artefakten je nach Asset-Typ unterschiedlich und inkonsistent gehandhabt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 365,
+   "zeit": "06:05",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=365s",
+   "aussage": "Ein Lakehouse wird beim Deployment in einen neuen Workspace leer angelegt, ohne die enthaltenen Daten mitzukopieren."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "11:50",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=710s",
+     "sekunde": 710
+    },
+    {
+     "label": "18:22",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1102s",
+     "sekunde": 1102
+    },
+    {
+     "label": "19:55",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1195s",
+     "sekunde": 1195
+    }
+   ]
+  },
+  {
+   "id": "yt:pOJpXxsfUt0",
+   "titel": "BI Thinkers Talk n.73",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.108,
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0",
+   "sprungmarken": [
+    {
+     "label": "34:07",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2047s",
+     "sekunde": 2047
+    },
+    {
+     "label": "35:44",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2144s",
+     "sekunde": 2144
+    },
+    {
+     "label": "53:40",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3220s",
+     "sekunde": 3220
+    }
+   ]
+  },
+  {
+   "id": "yt:luk4S4ukKmg",
+   "titel": "BI Thinkers Talk n.72",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.079,
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg",
+   "sprungmarken": [
+    {
+     "label": "45:26",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2726s",
+     "sekunde": 2726
+    },
+    {
+     "label": "47:00",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2820s",
+     "sekunde": 2820
+    },
+    {
+     "label": "53:54",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3234s",
+     "sekunde": 3234
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.065,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "02:11",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=131s",
+     "sekunde": 131
+    },
+    {
+     "label": "12:15",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=735s",
+     "sekunde": 735
+    }
+   ]
+  },
+  {
+   "id": "yt:DQENmzAkNqw",
+   "titel": "Daten-WG BI Thinkers Talk nr.66",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
+   "sprungmarken": [
+    {
+     "label": "53:48",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=3228s",
+     "sekunde": 3228
+    },
+    {
+     "label": "55:34",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=3334s",
+     "sekunde": 3334
+    }
+   ]
+  },
+  {
+   "id": "yt:KwySyTxW_EI",
+   "titel": "The Day After Tomorrow – Nach der Einführung geht es erst richtig los | Power BI Summit 2023",
+   "datum": "2023-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=KwySyTxW_EI",
+   "sprungmarken": [
+    {
+     "label": "45:10",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=2710s",
+     "sekunde": 2710
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "29:17",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1757s",
+     "sekunde": 1757
+    }
+   ]
+  },
+  {
+   "id": "yt:EVsJ6zyGUWc",
+   "titel": "Was ist Self-Service und warum ist das so schwer?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc",
+   "sprungmarken": [
+    {
+     "label": "43:05",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2585s",
+     "sekunde": 2585
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "50:46",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3046s",
+     "sekunde": 3046
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.022,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Sicherheitsgruppen%20statt%20Einzelpersonen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wie%20es%20funktioniert",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20nur%20im%20Service%20geht",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:rWE0gMx7v7I",
+   "titel": "BI Thinkers Talk n.74",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.021,
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I",
+   "sprungmarken": [
+    {
+     "label": "1:16:34",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=4594s",
+     "sekunde": 4594
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "1:05:00",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3900s",
+     "sekunde": 3900
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.008,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Workspace-Schnitt",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Adeployment-pipelines",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Adeployment-pipelines&f=tool%3Adeployment-pipelines"
+}

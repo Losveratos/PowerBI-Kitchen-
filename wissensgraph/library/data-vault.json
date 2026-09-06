@@ -1,0 +1,161 @@
+{
+ "id": "topic:data-vault",
+ "name": "Data Vault",
+ "typ": "thema",
+ "slug": "data-vault",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 3,
+ "kernaussagen_gesamt": 4,
+ "mit_kernaussagen": 2,
+ "aliase": [
+  "Datavault",
+  "Hub",
+  "Satellite"
+ ],
+ "einordnung": "Größere Unternehmen setzen auf der Ebene des Kern-Data-Warehouse heute häufig entweder auf normalisierte Datenhaltung oder auf Data Vault. Data Vault ist als Konzept bereits rund 25 Jahre alt, hat sich in Europa aber erst seit etwa zehn Jahren verbreitet. Data Vault ist eine Modellierungsmethode für die mittlere Datenschicht, die auf Hubs für Business Keys, Links für Beziehungen und Satelliten für zusätzliche Attribute aufbaut.",
+ "nachbarn": [
+  {
+   "id": "topic:sternschema",
+   "name": "Sternschema",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "Sternschema findet sich eher auf der Ebene der Data Marts; auf Ebene des Core-DWH setzen größere Unternehmen auf normalisierte Datenhaltung oder Data Vault.",
+   "datei": "sternschema.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "power-bi.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 492,
+   "zeit": "08:12",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s",
+   "aussage": "Größere Unternehmen setzen auf der Ebene des Kern-Data-Warehouse heute häufig entweder auf normalisierte Datenhaltung oder auf Data Vault."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 492,
+   "zeit": "08:12",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s",
+   "aussage": "Data Vault ist als Konzept bereits rund 25 Jahre alt, hat sich in Europa aber erst seit etwa zehn Jahren verbreitet."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 492,
+   "zeit": "08:12",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s",
+   "aussage": "Data Vault bietet gegenüber klassischen Cube-Strukturen laut Peter Gluchowski eine deutlich höhere Änderungsflexibilität."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 476,
+   "zeit": "07:56",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=476s",
+   "aussage": "Data Vault ist eine Modellierungsmethode für die mittlere Datenschicht, die auf Hubs für Business Keys, Links für Beziehungen und Satelliten für zusätzliche Attribute aufbaut."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:rrCi0lnGrCg",
+   "titel": "Mythos Data Vault und richtig große Modelle",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.273,
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
+   "sprungmarken": [
+    {
+     "label": "07:44",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=464s",
+     "sekunde": 464
+    },
+    {
+     "label": "09:20",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=560s",
+     "sekunde": 560
+    },
+    {
+     "label": "12:07",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=727s",
+     "sekunde": 727
+    }
+   ]
+  },
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.031,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.004,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Star%20vor%20Snowflake",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Adata-vault",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Adata-vault&f=topic%3Adata-vault"
+}

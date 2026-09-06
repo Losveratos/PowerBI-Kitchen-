@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Power Query · DatenWG Library</title>
+<meta name="description" content="Viele Fachanwender kennen Power Query nicht und bleiben deshalb bei breiten Tabellen, obwohl Power Query die Ein-Millionen-Zeilen-Grenze von Power Pivot umgeht. Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen.">
+<meta property="og:title" content="Power Query · DatenWG Library">
+<meta property="og:description" content="Viele Fachanwender kennen Power Query nicht und bleiben deshalb bei breiten Tabellen, obwohl Power Query die Ein-Millionen-Zeilen-Grenze von Power Pivot umgeht. Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/power-query.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · tool</p>
+<h1>Power Query</h1>
+<p class="lead">Viele Fachanwender kennen Power Query nicht und bleiben deshalb bei breiten Tabellen, obwohl Power Query die Ein-Millionen-Zeilen-Grenze von Power Pivot umgeht. Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen. Die Schaltfläche &quot;Zeilen behalten&quot; im Power Query Editor bietet fünf Optionen: erste Zeilen behalten, letzte Zeilen behalten, einen Bereich von Zeilen behalten, Duplikate behalten und Fehler behalten.</p>
+<div class="btns"><a class="btn" href="../#n=tool%3Apower-query">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Apower-query&amp;f=tool%3Apower-query">Im Graph öffnen</a></div>
+<p class="meta">45 Dokumente · 13 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">M-Code</span> <span class="tag">Power Query M</span> <span class="tag">Query Editor</span> <span class="tag">Abfrage-Editor</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Aus einem Fabric-Notebook lässt sich per API ein Dataflow ansteuern und darüber Power-Query-Code (M-Code) ausführen.<span class="meta quote">Fakt · BI Thinkers Talk n.74 · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=2246s">37:26</a></span></li>
+<li>Für kleinere Datenmengen und einfache Transformationen wie Entpivotieren eignet sich ein Dataflow, während stark verschachteltes JSON, etwa aus der Scanner API, eher in einem Notebook verarbeitet werden sollte.<span class="meta quote">Empfehlung · BI Thinkers Talk n.74 · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=2460s">41:00</a></span></li>
+<li>Beim Versuch, verschachtelte Power-Query-Objekte wie Record oder List aus einem Notebook heraus in ein Lakehouse zu schreiben, werden diese aktuell nur als Text gespeichert statt strukturiert aufgelöst.<span class="meta quote">Fakt · BI Thinkers Talk n.74 · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=4385s">1:13:05</a></span></li>
+<li>Sowohl Qlik als auch Power BI lassen sich von der Quelle bis zum Modell als vollständige Datenplattform nutzen, Qlik über Skripte und Power BI über Power Query und das Datenmodell.<span class="meta quote">Fakt · Power BI vs. Qlik · <a href="https://www.youtube.com/watch?v=vd1r02bj9Qk&amp;t=310s">05:10</a></span></li>
+<li>Breite, lange Tabellen sind in Power BI und Power Query aus Performance- und Speicherplatzgründen ungünstig.<span class="meta quote">Warnung · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=410s">06:50</a></span></li>
+<li>Viele Fachanwender kennen Power Query nicht und bleiben deshalb bei breiten Tabellen, obwohl Power Query die Ein-Millionen-Zeilen-Grenze von Power Pivot umgeht.<span class="meta quote">Fakt · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=621s">10:21</a></span></li>
+<li>Die Schaltfläche &quot;Zeilen behalten&quot; im Power Query Editor bietet fünf Optionen: erste Zeilen behalten, letzte Zeilen behalten, einen Bereich von Zeilen behalten, Duplikate behalten und Fehler behalten.<span class="meta quote">Fakt · BI Thinkers Talk nr.71 · <a href="https://www.youtube.com/watch?v=LUrL8A5lNgI&amp;t=1441s">24:01</a></span></li>
+<li>Transformationsschritte sollen möglichst weit Richtung Quelle beziehungsweise in die dazwischenliegende Datenplattform verlagert werden, damit das Power-BI-Modell die Daten bereits aufbereitet erhält.<span class="meta quote">Empfehlung · BI Thinkers Talk - Data Modelling - Fabric Data Days Edition · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=574s">09:34</a></span></li>
+<li>Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt.<span class="meta quote">Fakt · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1068s">17:48</a></span></li>
+<li>Ein zentrales, datenhaltendes Objekt wie ein Lakehouse macht Power-BI-Modelle laut Artur deutlich stabiler und beschleunigt Aktualisierungen von zwei Stunden auf zwei Minuten.<span class="meta quote">Meinung · Microsoft Fabric — braucht das wirklich jemand? · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=601s">10:01</a></span></li>
+<li>Eine Datei über den direkten Cloud-Link statt über die lokal synchronisierte SharePoint-Kopie einzubinden gilt laut Martin als schlecht gelöst und ist eine häufige Fehlerquelle.<span class="meta quote">Warnung · Microsoft Fabric — braucht das wirklich jemand? · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=908s">15:08</a></span></li>
+<li>Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht.<span class="meta quote">Fakt · Was ist Self-Service und warum ist das so schwer? · <a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=1042s">17:22</a></span></li>
+<li>Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen.<span class="meta quote">Fakt · Microsoft Fabric — braucht das wirklich jemand? · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=2494s">41:34</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=LnNoXBIG7Lc">Power BI Update Juni 2025</a><span class="meta quote">2025-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=LnNoXBIG7Lc&amp;t=0s">00:00</a> · <a href="https://www.youtube.com/watch?v=LnNoXBIG7Lc&amp;t=345s">05:45</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=jTXo4aEr07o">Power BI Update August 2025</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=jTXo4aEr07o&amp;t=34s">00:34</a> · <a href="https://www.youtube.com/watch?v=jTXo4aEr07o&amp;t=233s">03:53</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=cD-5z_Bq0N4">Projektcontrolling mit dynamischen Arbeitstagen in Power BI</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=cD-5z_Bq0N4&amp;t=514s">08:34</a> · <a href="https://www.youtube.com/watch?v=cD-5z_Bq0N4&amp;t=724s">12:04</a> · <a href="https://www.youtube.com/watch?v=cD-5z_Bq0N4&amp;t=819s">13:39</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=aYHk_V8n_CE">Daten-WG Special: Power BI vs. Qlik</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=aYHk_V8n_CE&amp;t=1342s">22:22</a> · <a href="https://www.youtube.com/watch?v=aYHk_V8n_CE&amp;t=2140s">35:40</a> · <a href="https://www.youtube.com/watch?v=aYHk_V8n_CE&amp;t=2332s">38:52</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datei-Quellen%20%C2%B7%20CSV%20%C2%B7%20Excel%20%C2%B7%20JSON%20%C2%B7%20Parquet">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Web-%20%26%20API-Quellen">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Klassifizierungen%20ableiten">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=KMk1k5uCLZU">Daten-WG Thinkers Talk n61</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=KMk1k5uCLZU&amp;t=1627s">27:07</a> · <a href="https://www.youtube.com/watch?v=KMk1k5uCLZU&amp;t=2975s">49:35</a> · <a href="https://www.youtube.com/watch?v=KMk1k5uCLZU&amp;t=3446s">57:26</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=m3xNYfVih0Q">Starting with Microsft Fabric the Skills you need</a><span class="meta quote">2024-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=388s">06:28</a> · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=1339s">22:19</a> · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=1534s">25:34</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=hbUYMyqb6r8">Denken in Tabellen</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=410s">06:50</a> · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=517s">08:37</a> · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=621s">10:21</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mTVeZzshLzE">Microsoft Fabric — braucht das wirklich jemand?</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=507s">08:27</a> · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=601s">10:01</a> · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=2400s">40:00</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=LVSttJlhrqM">Power BI Update Oktober 2025</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=LVSttJlhrqM&amp;t=261s">04:21</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYmKrreMO3I">Daten-WG Deep Dive Financial Reporting</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=782s">13:02</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2149s">35:49</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2244s">37:24</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=LUrL8A5lNgI">BI Thinkers Talk nr.71</a><span class="meta quote">2025-12-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=LUrL8A5lNgI&amp;t=1248s">20:48</a> · <a href="https://www.youtube.com/watch?v=LUrL8A5lNgI&amp;t=1346s">22:26</a> · <a href="https://www.youtube.com/watch?v=LUrL8A5lNgI&amp;t=2896s">48:16</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=psLPsI32sAs">Power BI Update Mai 2026</a><span class="meta quote">2026-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=psLPsI32sAs&amp;t=195s">03:15</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=vd1r02bj9Qk">Power BI vs. Qlik</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=vd1r02bj9Qk&amp;t=310s">05:10</a> · <a href="https://www.youtube.com/watch?v=vd1r02bj9Qk&amp;t=1845s">30:45</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=6gQiIbyhWEc">Power BI Update September 2025</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=6gQiIbyhWEc&amp;t=536s">08:56</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=232JhS9vbQ0">Daten-WG Deep Dive Financial Reporting - part 7</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=232JhS9vbQ0&amp;t=205s">03:25</a> · <a href="https://www.youtube.com/watch?v=232JhS9vbQ0&amp;t=1406s">23:26</a> · <a href="https://www.youtube.com/watch?v=232JhS9vbQ0&amp;t=2843s">47:23</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=iinfiHxznOU">Unboxing MCP Server for Power BI Modelling</a><span class="meta quote">2025-12-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=iinfiHxznOU&amp;t=279s">04:39</a> · <a href="https://www.youtube.com/watch?v=iinfiHxznOU&amp;t=1552s">25:52</a> · <a href="https://www.youtube.com/watch?v=iinfiHxznOU&amp;t=1811s">30:11</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=iymmxuXHh44">Daten-WG Deep Dive Financial Reporting - part 5</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=iymmxuXHh44&amp;t=2966s">49:26</a> · <a href="https://www.youtube.com/watch?v=iymmxuXHh44&amp;t=3056s">50:56</a> · <a href="https://www.youtube.com/watch?v=iymmxuXHh44&amp;t=3942s">1:05:42</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=bt81POE-9Ig">Daten-WG Deep Dive Financial Reporting - part 6</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=bt81POE-9Ig&amp;t=1095s">18:15</a> · <a href="https://www.youtube.com/watch?v=bt81POE-9Ig&amp;t=2479s">41:19</a> · <a href="https://www.youtube.com/watch?v=bt81POE-9Ig&amp;t=3384s">56:24</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=UxE0DPnLgIg">Visual Analytics with Power BI</a><span class="meta quote">2021-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=UxE0DPnLgIg&amp;t=1314s">21:54</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=G8s96sHUHac">BI Thinkers Talk nr.67</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1068s">17:48</a> · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=2566s">42:46</a> · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=4111s">1:08:31</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mUALlPmGcEk">BI Thinkers Talk - Data Modelling - Fabric Data Days Edition</a><span class="meta quote">2025-11-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=1362s">22:42</a> · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=1648s">27:28</a> · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=3029s">50:29</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/powerbi_praxis_pfad.html">Dein erstes Dashboard — Power-BI-Praxis-Pfad</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/powerbi_praxis_pfad.html#:~:text=So%20geht%27s">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/powerbi_praxis_pfad.html#:~:text=Die%20Schrittliste%20ist%20dein%20Rezept">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=d3HdhRe_nK8">Daten-WG Life-Update | State of Power BI, Fabric &amp; AI-Tools</a><span class="meta quote">2026-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=d3HdhRe_nK8&amp;t=1020s">17:00</a> · <a href="https://www.youtube.com/watch?v=d3HdhRe_nK8&amp;t=1577s">26:17</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=UnW4wHhw_IY">Daten-WG Deep Dive Financial Reporting pt.4</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=UnW4wHhw_IY&amp;t=2953s">49:13</a> · <a href="https://www.youtube.com/watch?v=UnW4wHhw_IY&amp;t=3435s">57:15</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2119s">35:19</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2430s">40:30</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI">10 Jahre Power BI</a><span class="meta quote">2025-07-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=510s">08:30</a> · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=621s">10:21</a> · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=724s">12:04</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=VD1N68Fhoco">BI Thinkers Talk nr.68</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=VD1N68Fhoco&amp;t=2812s">46:52</a> · <a href="https://www.youtube.com/watch?v=VD1N68Fhoco&amp;t=3571s">59:31</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=369s">06:09</a> · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1740s">29:00</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=_Vh5fDfHWz4">Daten-WG Special: Power BI vs. Qlik -part2</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=_Vh5fDfHWz4&amp;t=728s">12:08</a> · <a href="https://www.youtube.com/watch?v=_Vh5fDfHWz4&amp;t=4038s">1:07:18</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=r416vanitYw">BI Thinkers Talk nr.69</a><span class="meta quote">2025-11-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=3341s">55:41</a> · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=3624s">1:00:24</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w">Daten-WG Thinkers Talk nr.65</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=2750s">45:50</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=4130s">1:08:50</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=uxYFqwe_Wiw">BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]</a><span class="meta quote">2025-12-01 · nur-text · <a href="https://www.youtube.com/watch?v=uxYFqwe_Wiw">Abschnitt</a> · <a href="https://www.youtube.com/watch?v=uxYFqwe_Wiw">Abschnitt</a> · <a href="https://www.youtube.com/watch?v=uxYFqwe_Wiw">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=rWE0gMx7v7I">BI Thinkers Talk n.74</a><span class="meta quote">2026-03-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=2246s">37:26</a> · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=2460s">41:00</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9wl_PLvgvyc">10 Jahre BI für alle? Was Power BI wirklich verändert hat</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9wl_PLvgvyc&amp;t=1686s">28:06</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lH_-A8NAQ-k">Datenmodellierung ist Governance</a><span class="meta quote">2025-11-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lH_-A8NAQ-k&amp;t=553s">09:13</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I">Daten-WG Life-Update | Fabric Architekturen</a><span class="meta quote">2026-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=953s">15:53</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Dataflow%20Gen2">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Weg%20C%20%C2%B7%20Shortcut%2C%20wenn%20Daten%20schon%20existieren">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Dataflow-Weg%20%28Low-Code%29">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=1184s">19:44</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc">Was ist Self-Service und warum ist das so schwer?</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=771s">12:51</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="excel.html">Excel</a><span class="meta quote">teil-von · belegt · 23 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">teil-von · belegt · 53 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 36 gemeinsame Segmente</span></li>
+<li><a href="dataflow.html">Dataflow</a><span class="meta quote">ko-vorkommen · heuristik · 28 gemeinsame Segmente</span></li>
+<li><a href="sternschema.html">Sternschema</a><span class="meta quote">ko-vorkommen · heuristik · 26 gemeinsame Segmente</span></li>
+<li><a href="dax.html">DAX</a><span class="meta quote">ko-vorkommen · heuristik · 22 gemeinsame Segmente</span></li>
+<li><a href="datenmodellierung.html">Datenmodellierung</a><span class="meta quote">ko-vorkommen · heuristik · 22 gemeinsame Segmente</span></li>
+<li><a href="refresh.html">Refresh</a><span class="meta quote">ko-vorkommen · heuristik · 21 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 19 gemeinsame Segmente</span></li>
+<li><a href="power-bi-desktop.html">Power BI Desktop</a><span class="meta quote">ko-vorkommen · heuristik · 19 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 18 gemeinsame Segmente</span></li>
+<li><a href="ki.html">KI</a><span class="meta quote">ko-vorkommen · heuristik · 15 gemeinsame Segmente</span></li>
+<li><a href="notebook.html">Notebook</a><span class="meta quote">ko-vorkommen · heuristik · 15 gemeinsame Segmente</span></li>
+<li><a href="python.html">Python</a><span class="meta quote">ko-vorkommen · heuristik · 12 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 10 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

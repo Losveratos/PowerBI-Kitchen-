@@ -1,0 +1,605 @@
+{
+ "id": "tool:onelake",
+ "name": "OneLake",
+ "typ": "tool",
+ "slug": "onelake",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 14,
+ "kernaussagen_gesamt": 22,
+ "mit_kernaussagen": 7,
+ "aliase": [
+  "One Lake"
+ ],
+ "einordnung": "Microsoft Fabric besteht im Kern aus zwei wesentlichen Komponenten: der Kapazität, die man in Azure bucht, und dem OneLake, in dem die Daten liegen und verwaltet werden. Ein Arbeitsbereich wird einer Kapazität zugeordnet, und innerhalb dieses Arbeitsbereichs werden Artefakte und Daten entsprechend im OneLake abgelegt. Die Rechenleistung, die innerhalb eines Arbeitsbereichs zum Arbeiten mit den Daten im OneLake genutzt wird, stammt aus der zugeordneten Fabric-Kapazität.",
+ "nachbarn": [
+  {
+   "id": "tool:mirroring",
+   "name": "Mirroring",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 16,
+   "beleg": "geben ihn mit dem entsprechenden Event als Row Marker in Oneel Lake und Fabric baut daraus auf der Fabricseite eine identische Tabelle",
+   "datei": "mirroring.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 57,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 42,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 34,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:delta-lake",
+   "name": "Delta Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 31,
+   "beleg": "",
+   "datei": "delta-lake.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 29,
+   "beleg": "",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 25,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 25,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:directquery",
+   "name": "DirectQuery",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 22,
+   "beleg": "",
+   "datei": "directquery.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 21,
+   "beleg": "",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 18,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "tool:snowflake",
+   "name": "Snowflake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 18,
+   "beleg": "",
+   "datei": "snowflake.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 15,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 15,
+   "beleg": "",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "topic:echtzeit",
+   "name": "Echtzeit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "echtzeit.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Empfehlung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 961,
+   "zeit": "16:01",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=961s",
+   "aussage": "Statt sofort eine komplexe Architektur mit Machine Learning aufzubauen, empfiehlt es sich, zunächst nur die ERP-Daten täglich in ein Warehouse oder OneLake zu laden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 2,
+   "zeit": "00:02",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=2s",
+   "aussage": "Die im gehörten Podcast getroffene Aussage, dass Fabric-Daten im OneLake stets in der Home-Region des Tenants liegen, ist nur teilweise richtig."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 26,
+   "zeit": "00:26",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=26s",
+   "aussage": "Microsoft Fabric besteht im Kern aus zwei wesentlichen Komponenten: der Kapazität, die man in Azure bucht, und dem OneLake, in dem die Daten liegen und verwaltet werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 26,
+   "zeit": "00:26",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=26s",
+   "aussage": "Ein Arbeitsbereich wird einer Kapazität zugeordnet, und innerhalb dieses Arbeitsbereichs werden Artefakte und Daten entsprechend im OneLake abgelegt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 26,
+   "zeit": "00:26",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=26s",
+   "aussage": "Die Rechenleistung, die innerhalb eines Arbeitsbereichs zum Arbeiten mit den Daten im OneLake genutzt wird, stammt aus der zugeordneten Fabric-Kapazität."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 79,
+   "zeit": "01:19",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=79s",
+   "aussage": "Verschiebt man die Rechenleistung einer Kapazität in eine andere Region, verschiebt sich dadurch auch der Ablageort der zugehörigen Daten im OneLake."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 79,
+   "zeit": "01:19",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=79s",
+   "aussage": "Bestimmte Szenarien erfordern, dass Daten aus rechtlichen oder regulatorischen Gründen in einem bestimmten Land oder einer bestimmten Region abgelegt und verarbeitet werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 117,
+   "zeit": "01:57",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=117s",
+   "aussage": "Laut einem Microsoft-Blogartikel zum OneLake gibt es pro Tenant nur ein OneLake, das aber lediglich den zentralen Zugangspunkt darstellt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 117,
+   "zeit": "01:57",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=117s",
+   "aussage": "Die tatsächlichen Daten werden laut dem Microsoft-Blogartikel in der Region gespeichert, in der die zugeordnete Kapazität liegt, und nicht zwingend in der Region des Tenants."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 154,
+   "zeit": "02:34",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=154s",
+   "aussage": "Workspaces können in unterschiedlichen Regionen liegen, etwa manche im US-Bereich und andere in Europa, wobei die Daten jeweils in der Region gespeichert sind, in der der Workspace angelegt wurde."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 196,
+   "zeit": "03:16",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=196s",
+   "aussage": "Ordnet man einen Arbeitsbereich einer Kapazität zu, werden die zugehörigen Daten im OneLake tatsächlich in der Region gespeichert, in der die Kapazität liegt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 196,
+   "zeit": "03:16",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=196s",
+   "aussage": "Verschiebt man einen Arbeitsbereich zwischen Kapazitäten in unterschiedlichen Regionen, müssen die zugrunde liegenden Daten tatsächlich in die neue Region überführt werden, es ist also kein reiner Wechsel der Rechenleistung."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 237,
+   "zeit": "03:57",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=237s",
+   "aussage": "OneLake existiert pro Tenant nur einmal und beschreibt die Gesamtumgebung, während der tatsächliche Ablageort der Daten durch die Region der jeweils gehosteten Kapazität gesteuert wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 381,
+   "zeit": "06:21",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=381s",
+   "aussage": "Direct Lake auf OneLake ist jetzt allgemein verfügbar und damit der neue Standard für Direct Lake."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 114,
+   "zeit": "01:54",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=114s",
+   "aussage": "Beim Open-Mirroring-Datenfluss wird der Datensatz mit Row-Marker-Event zunächst nach OneLake geschrieben, von wo Fabric eine identische Replik-Tabelle aufbaut."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 405,
+   "zeit": "06:45",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=405s",
+   "aussage": "Der Sync-Prozess schreibt die replizierten Daten in Paketdateien und lädt sie in Batches mit Wartezeit zwischen den Schritten nach Fabric hoch."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 315,
+   "zeit": "05:15",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=315s",
+   "aussage": "Ein direktes Schreiben aus SSIS in den OneLake-Speicher ist aktuell nicht möglich, weil der mitgelieferte Connector diese Einstellung noch nicht unterstützt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 3358,
+   "zeit": "55:58",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3358s",
+   "aussage": "Mirroring in Microsoft Fabric enthält kostenlosen Speicherplatz proportional zur gebuchten Kapazität, etwa 64 TB bei einer F64-Kapazität, inklusive der automatischen Transformation in Tabellenformat."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 3358,
+   "zeit": "55:58",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3358s",
+   "aussage": "Beim Mirroring von Databricks-Daten werden nur die Metadaten gespiegelt, weil Fabric direkt auf denselben zugrunde liegenden Speicher wie OneLake oder ADLS Gen2 zugreift, den Databricks bereits nutzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1613,
+   "zeit": "26:53",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1613s",
+   "aussage": "Fabric bietet jetzt bidirektionale Shortcut-Integrationen mit Snowflake und Databricks."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1717,
+   "zeit": "28:37",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1717s",
+   "aussage": "OneLake Security stellt dieselben Zugriffsinformationen sowohl nativen Fabric-Workloads als auch Third-Party-Workloads zur Verfügung."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1919,
+   "zeit": "31:59",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1919s",
+   "aussage": "Komplexere Sicherheitsszenarien wie dynamische Row-Level Security und Dynamic Data Masking fehlen in OneLake Security noch und stehen auf der Roadmap."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.45,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=02%20%C2%B7%20Architektur%20%26%20%2Azentrale%20Komponenten%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Das%20%E2%80%9EOne%20Copy%22-Prinzip",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20drei%20Plattform-Schichten%20unter%20den%20Workloads",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:ZVVSPQj9dlc",
+   "titel": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc",
+   "sprungmarken": [
+    {
+     "label": "00:26",
+     "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=26s",
+     "sekunde": 26
+    }
+   ]
+  },
+  {
+   "id": "yt:TkxwcAyBGUM",
+   "titel": "Power BI Update Juli 2025",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM",
+   "sprungmarken": [
+    {
+     "label": "06:09",
+     "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM&t=369s",
+     "sekunde": 369
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.085,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "54:26",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3266s",
+     "sekunde": 3266
+    },
+    {
+     "label": "55:58",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3358s",
+     "sekunde": 3358
+    },
+    {
+     "label": "57:28",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3448s",
+     "sekunde": 3448
+    }
+   ]
+  },
+  {
+   "id": "yt:GWCHNmLs72M",
+   "titel": "Power BI Update August 2026",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=GWCHNmLs72M",
+   "sprungmarken": [
+    {
+     "label": "05:57",
+     "url": "https://www.youtube.com/watch?v=GWCHNmLs72M&t=357s",
+     "sekunde": 357
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "08:28",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=508s",
+     "sekunde": 508
+    },
+    {
+     "label": "32:41",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1961s",
+     "sekunde": 1961
+    }
+   ]
+  },
+  {
+   "id": "yt:5HhNQZlB-1E",
+   "titel": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E",
+   "sprungmarken": [
+    {
+     "label": "05:15",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=315s",
+     "sekunde": 315
+    }
+   ]
+  },
+  {
+   "id": "yt:YzfcMurbWNc",
+   "titel": "Power BI-Teams werden Fabric-Datendienstleister",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.045,
+   "url": "https://www.youtube.com/watch?v=YzfcMurbWNc",
+   "sprungmarken": [
+    {
+     "label": "01:10",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=70s",
+     "sekunde": 70
+    }
+   ]
+  },
+  {
+   "id": "yt:ihi7UiJ_TtQ",
+   "titel": "Why Passion Beats Niche",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.038,
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
+   "sprungmarken": [
+    {
+     "label": "26:46",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1606s",
+     "sekunde": 1606
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.035,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20Power-BI-Nutzer%20wissen%20m%C3%BCssen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric%20vs.%20klassisches%20Power%20BI",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Direct%20Lake%20%28Fabric%29",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "53:23",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3203s",
+     "sekunde": 3203
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "23:47",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1427s",
+     "sekunde": 1427
+    }
+   ]
+  },
+  {
+   "id": "yt:iymmxuXHh44",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 5",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=iymmxuXHh44",
+   "sprungmarken": [
+    {
+     "label": "30:48",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1848s",
+     "sekunde": 1848
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.023,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "42:49",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2569s",
+     "sekunde": 2569
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Aonelake",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Aonelake&f=tool%3Aonelake"
+}

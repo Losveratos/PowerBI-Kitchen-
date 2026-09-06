@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Vault · DatenWG Library</title>
+<meta name="description" content="Größere Unternehmen setzen auf der Ebene des Kern-Data-Warehouse heute häufig entweder auf normalisierte Datenhaltung oder auf Data Vault. Data Vault ist als Konzept bereits rund 25 Jahre alt, hat sich in Europa aber erst seit etwa zehn Jahren verbreitet.">
+<meta property="og:title" content="Data Vault · DatenWG Library">
+<meta property="og:description" content="Größere Unternehmen setzen auf der Ebene des Kern-Data-Warehouse heute häufig entweder auf normalisierte Datenhaltung oder auf Data Vault. Data Vault ist als Konzept bereits rund 25 Jahre alt, hat sich in Europa aber erst seit etwa zehn Jahren verbreitet.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/data-vault.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · thema</p>
+<h1>Data Vault</h1>
+<p class="lead">Größere Unternehmen setzen auf der Ebene des Kern-Data-Warehouse heute häufig entweder auf normalisierte Datenhaltung oder auf Data Vault. Data Vault ist als Konzept bereits rund 25 Jahre alt, hat sich in Europa aber erst seit etwa zehn Jahren verbreitet. Data Vault ist eine Modellierungsmethode für die mittlere Datenschicht, die auf Hubs für Business Keys, Links für Beziehungen und Satelliten für zusätzliche Attribute aufbaut.</p>
+<div class="btns"><a class="btn" href="../#n=topic%3Adata-vault">In der Library öffnen</a><a class="btn" href="../graph.html#n=topic%3Adata-vault&amp;f=topic%3Adata-vault">Im Graph öffnen</a></div>
+<p class="meta">3 Dokumente · 4 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">Datavault</span> <span class="tag">Hub</span> <span class="tag">Satellite</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Größere Unternehmen setzen auf der Ebene des Kern-Data-Warehouse heute häufig entweder auf normalisierte Datenhaltung oder auf Data Vault.<span class="meta quote">Fakt · 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite · <a href="https://www.youtube.com/watch?v=dKA-38gRD8Q&amp;t=492s">08:12</a></span></li>
+<li>Data Vault ist als Konzept bereits rund 25 Jahre alt, hat sich in Europa aber erst seit etwa zehn Jahren verbreitet.<span class="meta quote">Fakt · 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite · <a href="https://www.youtube.com/watch?v=dKA-38gRD8Q&amp;t=492s">08:12</a></span></li>
+<li>Data Vault bietet gegenüber klassischen Cube-Strukturen laut Peter Gluchowski eine deutlich höhere Änderungsflexibilität.<span class="meta quote">Meinung · 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite · <a href="https://www.youtube.com/watch?v=dKA-38gRD8Q&amp;t=492s">08:12</a></span></li>
+<li>Data Vault ist eine Modellierungsmethode für die mittlere Datenschicht, die auf Hubs für Business Keys, Links für Beziehungen und Satelliten für zusätzliche Attribute aufbaut.<span class="meta quote">Fakt · BI Thinkers Talk - Data Modelling - Fabric Data Days Edition · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=476s">07:56</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=rrCi0lnGrCg">Mythos Data Vault und richtig große Modelle</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=rrCi0lnGrCg&amp;t=464s">07:44</a> · <a href="https://www.youtube.com/watch?v=rrCi0lnGrCg&amp;t=560s">09:20</a> · <a href="https://www.youtube.com/watch?v=rrCi0lnGrCg&amp;t=727s">12:07</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=uxYFqwe_Wiw">BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]</a><span class="meta quote">2025-12-01 · nur-text · <a href="https://www.youtube.com/watch?v=uxYFqwe_Wiw">Abschnitt</a> · <a href="https://www.youtube.com/watch?v=uxYFqwe_Wiw">Abschnitt</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Star%20vor%20Snowflake">Abschnitt</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="sternschema.html">Sternschema</a><span class="meta quote">gegensatz · belegt · 0 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

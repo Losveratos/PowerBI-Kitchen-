@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DatenWG Library · Knowledge Kitchen</title>
+<meta name="description" content="DatenWG Library: Themen, Tools, Personen und belegte Kernaussagen aus den Folgen und Seiten der Daten-WG. Jede Verbindung springt auf die Sekunde ins Video oder auf den Abschnitt der Seite.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="DatenWG Library · Early Access Beta">
+<meta property="og:description" content="Themen, Personen und Kernaussagen aus 126 Folgen. Jede Verbindung springt auf die Sekunde ins Video.">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" type="text/markdown" title="Markdown-Index" href="library/index.md">
 <style>
 :root{
   --bg:#FAFAF5;--bg-card:#FFFFFF;--bg-soft:#F4F1E8;--ink:#1A1A1A;--ink-soft:#4A4A4A;--ink-mute:#6B6B6B;
@@ -23,6 +31,26 @@ header h1{font-family:var(--serif);font-weight:300;font-size:22px;letter-spacing
 header h1 em{font-style:normal;font-weight:700;color:var(--accent)}
 header h1 a{color:inherit;text-decoration:none}
 .meta{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink-mute)}
+.status{font-family:var(--mono);font-size:11px;color:var(--ink-mute);border-bottom:1px solid var(--line);background:var(--bg-soft)}
+.status summary{cursor:pointer;padding:6px 22px;list-style:none;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.status summary::-webkit-details-marker{display:none}
+.status summary b{color:var(--ink);font-weight:600}
+.status .body{padding:4px 22px 12px;max-width:900px;line-height:1.6;font-family:var(--sans);font-size:13px;color:var(--ink-soft)}
+.status .body a{color:var(--accent)}
+.cov{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px;border:1px solid var(--line);color:var(--ink-mute);background:var(--bg)}
+.cov.c4{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.cov.c3{border-color:#8FD3C4;color:var(--accent)}
+.cov.c1{opacity:.7}
+.skel{background:linear-gradient(90deg,#F1EEE5 25%,#F7F5EE 50%,#F1EEE5 75%);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:8px;height:16px;margin:10px 0}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.err{background:#FBE7EF;border:1px solid var(--n-person);color:var(--n-person);padding:12px 14px;border-radius:10px;margin:16px 0}
+.tour{position:fixed;inset:0;background:rgba(26,26,26,.55);z-index:20;display:flex;align-items:center;justify-content:center;padding:20px}
+.tour .box{background:var(--bg-card);border-radius:16px;padding:26px 28px;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.tour h2{margin:0 0 6px;font-size:22px;font-weight:300}
+.tour ol{margin:10px 0 18px;padding-left:22px;color:var(--ink-soft);line-height:1.7}
+.tour ol b{color:var(--ink)}
+.fb{font-family:var(--mono);font-size:10px;color:var(--ink-mute);margin-left:8px;text-decoration:none}
+.fb:hover{color:var(--n-person)}
 .beta{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:var(--accent-warm);color:#fff;padding:2px 8px;border-radius:999px;vertical-align:middle;margin-left:6px;cursor:help}
 .searchbox{position:relative;flex:1;max-width:520px}
 .searchbox input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:var(--bg)}
@@ -116,9 +144,11 @@ h2 .sub{font-family:var(--mono);font-size:11px;color:var(--ink-mute);font-weight
   <div class="searchbox"><input id="q" type="search" placeholder="Thema, Person, Folge oder Volltext … " autocomplete="off"><div class="suggest" id="suggest"></div></div>
   <div class="hdr-links"><a id="graph-link" href="graph.html">Graph-Sicht</a><a href="../index.html">← Kitchen</a></div>
 </header>
+<noscript><div style="padding:16px 22px;font-family:'Segoe UI',sans-serif;max-width:820px"><p><b>DatenWG Library</b>: Themen, Tools, Personen und belegte Kernaussagen aus den Folgen und Seiten der Daten-WG. Jede Verbindung springt auf die Sekunde ins Video. Diese Ansicht braucht JavaScript.</p><p>Ohne JavaScript: <a href="library/index.md">Markdown-Index aller Themen</a> · <a href="thema/">Themen-Landingpages</a> · <a href="../wissensgraph-aus-transkripten.html">Wie die Library entstanden ist</a></p></div></noscript>
+<details class="status" id="status"><summary id="status-sum">lädt …</summary><div class="body" id="status-body"></div></details>
 <main>
   <nav class="tree" id="tree"></nav>
-  <article id="page"><p class="empty">lädt …</p></article>
+  <article id="page"><div class="skel" style="width:40%;height:28px"></div><div class="skel" style="width:80%"></div><div class="skel" style="width:70%"></div><div class="skel" style="width:60%"></div><p class="meta" id="loading-note">Lade Datenbasis …</p></article>
 </main>
 
 <script>
@@ -136,11 +166,29 @@ const fmtD = d => d ? new Date(d).toLocaleDateString('de-DE', {year:'numeric', m
 const isDoc = n => n && n.type === 'Document';
 const deepLink = (doc, s, heading) => { if (doc.source === 'youtube' && s != null) return doc.url + '&t=' + Math.floor(s) + 's'; if (doc.source !== 'youtube' && heading) return doc.url + '#:~:text=' + encodeURIComponent(heading.replace(/[.,;:!?]+$/, '').slice(0, 80)); return doc.url || '#'; };
 const thumb = d => d.ytId ? `https://i.ytimg.com/vi/${d.ytId}/mqdefault.jpg` : null;
-const href = (id, extra) => '#' + new URLSearchParams(Object.assign({n: id}, timeRange !== 'all' ? {t: timeRange} : {}, sources.size !== 2 ? {s: [...sources].join(',')} : {}, extra || {})).toString();
+const href = (id, extra) => '#' + new URLSearchParams(Object.assign({n: id}, timeRange !== 'all' ? {t: timeRange} : {}, sources.size !== 2 ? {s: [...sources].join(',')} : {}, onlyClaims ? {c: '1'} : {}, extra || {})).toString();
 const nodeA = (n, cls) => `<a class="${cls || ''}" href="${href(n.id)}">${esc(n.name)}</a>`;
 
-fetch(DATA + 'graph.json').then(r => r.json()).then(g => {
+const COV = {'claims+timestamps': ['c4', 'Kernaussagen + Zeitstempel'], 'claims+text': ['c3', 'Kernaussagen + Text'], 'timestamps': ['c3', 'nur Zeitstempel'], 'text': ['c2', 'nur Text'], 'metadata': ['c1', 'nur Metadaten']};
+const covBadge = d => d.coverage ? `<span class="cov ${COV[d.coverage][0]}" title="Abdeckung: was die Library zu diesem Dokument weiß">${COV[d.coverage][1]}</span>` : '';
+let onlyClaims = false;
+const FEEDBACK_MAIL = 'michael.tenner84@gmail.com';
+function feedbackLink(c, d) {
+  const sub = encodeURIComponent(`Library: Fehler in Kernaussage (${d ? d.id : '?'})`);
+  const body = encodeURIComponent(`Dokument: ${d ? d.name : '?'} (${d ? d.id : '?'})\nSegment: ${c.seg || '?'}\nSekunde: ${c.start_s != null ? Math.floor(c.start_s) : '?'}\nLink: ${d ? deepLink(d, c.start_s) : ''}\nAussage: ${c.name}\n\nWas ist falsch (Aussage, Sprungmarke, Thema)?\n`);
+  return `<a class="fb" href="mailto:${FEEDBACK_MAIL}?subject=${sub}&body=${body}" title="Fehler melden: Aussage falsch, Sprungmarke sitzt daneben, Thema passt nicht">Fehler melden</a>`;
+}
+function fail(msg) {
+  $('#page').innerHTML = `<div class="err"><b>Die Library konnte nicht geladen werden.</b><br>${esc(msg)}<br><a href="javascript:location.reload()">Seite neu laden</a> · <a href="library/index.md">Markdown-Fassung</a> · <a href="../wissensgraph-aus-transkripten.html">Zum Post</a></div>`;
+  $('#status-sum').textContent = 'Fehler beim Laden';
+}
+const loadTimer = setTimeout(() => { const n = $('#loading-note'); if (n) n.textContent = 'Lade Datenbasis … das dauert länger als gewohnt. Bei Problemen: Seite neu laden.'; }, 5000);
+fetch(DATA + 'graph.json').then(r => { if (!r.ok) throw new Error('graph.json: HTTP ' + r.status); return r.json(); }).catch(e => { clearTimeout(loadTimer); fail(e.message || String(e)); throw e; }).then(g => {
+  clearTimeout(loadTimer);
   G = g; byId = new Map(g.nodes.map(n => [n.id, n]));
+  G.meta = g.meta || {};
+  renderStatus(G.meta);
+  maybeTour();
   G.docs = g.nodes.filter(isDoc); G.claims = g.nodes.filter(n => n.type === 'Claim');
   G.concepts = g.nodes.filter(n => ['Topic','Tool','Person','Organization'].includes(n.type));
   G.out = new Map(); G.in = new Map();
@@ -149,9 +197,29 @@ fetch(DATA + 'graph.json').then(r => r.json()).then(g => {
   route();
 });
 
+// ---------- Status, Tour ----------
+function renderStatus(m) {
+  const stand = m.stand ? new Date(m.stand).toLocaleDateString('de-DE') : '?';
+  $('#status-sum').innerHTML = `<span>Stand <b>${stand}</b></span><span><b>${m.episodes ?? '?'}</b> Folgen · <b>${m.episodes_with_transcript ?? '?'}</b> mit Transkript · <b>${m.episodes_with_claims ?? '?'}</b> mit Kernaussagen</span><span><b>${m.pages ?? '?'}</b> Seiten</span><span>▸ was das heißt</span>`;
+  $('#status-body').innerHTML = `<p style="margin:6px 0"><b>Early Access Beta.</b> ${esc(m.notice || '')} Beta heißt hier: unvollständig (${m.episodes_with_claims ?? '?'} von ${m.episodes ?? '?'} Folgen haben Kernaussagen) und unredigiert, nicht instabil.</p>
+    <p style="margin:6px 0"><b>Abdeckung je Dokument:</b> <span class="cov c4">Kernaussagen + Zeitstempel</span> belegte Aussagen mit Sprungmarke · <span class="cov c3">nur Zeitstempel</span> Stellen auf die Sekunde, aber keine Kernaussagen · <span class="cov c2">nur Text</span> Transkript ohne Zeit · <span class="cov c1">nur Metadaten</span> keine Untertitel bei YouTube.</p>
+    <p style="margin:6px 0"><b>Verbindungen:</b> „belegt" = aus einer Kernaussage mit Zitat, „Ko-Vorkommen" = zwei Themen im selben Segment, gezählt, nicht bewertet. Build ${esc(m.build || '?')} · <a href="library/index.md">Markdown-Fassung für Agenten</a> · <a href="mailto:${FEEDBACK_MAIL}?subject=Library%20Feedback">Feedback</a></p>`;
+}
+function maybeTour() {
+  let seen = false; try { seen = localStorage.getItem('dwglib_tour') === '1'; } catch (e) {}
+  const p = new URLSearchParams(location.hash.slice(1)); const q = new URLSearchParams(location.search);
+  if (seen || p.get('tour') === '0' || q.get('tour') === '0') return;
+  const t = document.createElement('div'); t.className = 'tour';
+  t.innerHTML = `<div class="box"><div class="meta">DatenWG Library · 3 Schritte</div><h2>Vom Thema auf die Sekunde ins Video</h2><ol><li><b>Thema anklicken</b>, links im Baum oder auf einer Karte.</li><li><b>„Stellen zeigen"</b> bei einer Folge aufklappen.</li><li><b>▶ Zeitmarke klicken</b>, das Video startet genau dort.</li></ol><div class="meta" style="margin-bottom:12px">Kernaussagen sind maschinell extrahiert und nicht redigiert. Bei Widersprüchen gilt das Video.</div><a class="btn primary" href="${href('tool:direct-lake')}" id="tour-go">Mit „Direct Lake" ausprobieren</a><span class="btn" id="tour-skip">Überspringen</span></div>`;
+  document.body.appendChild(t);
+  const done = () => { try { localStorage.setItem('dwglib_tour', '1'); } catch (e) {} t.remove(); };
+  $('#tour-skip').onclick = done; $('#tour-go').onclick = done; t.addEventListener('click', e => { if (e.target === t) done(); });
+}
+
 // ---------- Filter ----------
 function docActive(d) {
   if (!d || !sources.has(d.source)) return false;
+  if (onlyClaims && !d.n_claims) return false;
   if (timeRange === 'all' || !d.published) return timeRange === 'all' || !d.published;
   const p = new Date(d.published), now = new Date();
   if (timeRange === 'm3') return (now - p) / 864e5 <= 92;
@@ -186,7 +254,8 @@ function bucketOfConcept(nid) {   // stärkster Bucket eines Konzepts nach Dokum
 }
 async function ensureSegs() {
   if (segs) return;
-  segs = await (await fetch(DATA + 'segments.json')).json();
+  try { const r = await fetch(DATA + 'segments.json'); if (!r.ok) throw new Error('HTTP ' + r.status); segs = await r.json(); }
+  catch (e) { $('#page').insertAdjacentHTML('afterbegin', `<div class="err">Die Textstellen (segments.json) konnten nicht geladen werden: ${esc(e.message || e)}. <a href="javascript:location.reload()">Neu laden</a></div>`); segs = []; }
   segsByDoc = new Map();
   for (const s of segs) (segsByDoc.get(s.d) || segsByDoc.set(s.d, []).get(s.d)).push(s);
 }
@@ -198,6 +267,7 @@ function route() {
   if (t !== timeRange) { timeRange = t; dcCache = null; }
   const ns = new Set(s ? s.split(',') : ['youtube','markdown']);
   if ([...ns].join() !== [...sources].join()) { sources = ns; dcCache = null; }
+  const oc = p.get('c') === '1'; if (oc !== onlyClaims) { onlyClaims = oc; dcCache = null; }
   const id = p.get('n'), ask = p.get('ask'), q = p.get('q');
   current = id || null;
   renderTree();
@@ -214,6 +284,7 @@ function route() {
 function setFilter(kind, v) {
   const p = new URLSearchParams(location.hash.slice(1));
   if (kind === 't') { if (v === 'all') p.delete('t'); else p.set('t', v); }
+  if (kind === 'c') { onlyClaims ? p.delete('c') : p.set('c', '1'); }
   if (kind === 's') { const ns = new Set(sources); ns.has(v) ? ns.delete(v) : ns.add(v); if (ns.size === 2 || ns.size === 0) p.delete('s'); else p.set('s', [...ns].join(',')); }
   location.hash = p.toString();
 }
@@ -226,8 +297,8 @@ function renderTree() {
   const curBucket = cur ? (cur.type === 'Bucket' ? cur.id : isDoc(cur) ? (cur.bucket ? 'bucket:' + cur.bucket : null) : cur.type === 'Person' ? null : 'bucket:' + (bucketOfConcept(cur.id) || '')) : null;
   if (curBucket) treeOpen.add(curBucket);
   let h = `<h3 class="nav">Zeitraum</h3><div class="chips">${[['all','Alle'],['m3','3 Monate'],['m12','12 Monate'],['2026','2026'],['2025','2025'],['2024','≤ 2024']].map(([k, l]) => `<span class="chip${timeRange === k ? ' on' : ''}" data-t="${k}">${l}</span>`).join('')}</div>`;
-  h += `<h3 class="nav">Quellen</h3><div class="chips"><span class="chip${sources.has('youtube') ? ' on' : ''}" data-s="youtube">Folgen</span><span class="chip${sources.has('markdown') ? ' on' : ''}" data-s="markdown">Seiten</span></div>`;
-  h += `<h3 class="nav">Themenbereiche</h3>`;
+  h += `<h3 class="nav">Quellen</h3><div class="chips"><span class="chip${sources.has('youtube') ? ' on' : ''}" data-s="youtube">Folgen</span><span class="chip${sources.has('markdown') ? ' on' : ''}" data-s="markdown">Seiten</span><span class="chip${onlyClaims ? ' on' : ''}" data-c="1" title="Nur Dokumente, für die belegte Kernaussagen vorliegen">nur mit Kernaussagen</span></div>`;
+  h += `<h3 class="nav">Themenbereiche <span style="font-weight:400;text-transform:none;letter-spacing:0">(redaktionell)</span></h3>`;
   const buckets = G.nodes.filter(n => n.type === 'Bucket').sort((a, b) => a.id.localeCompare(b.id));
   for (const b of buckets) {
     const docs = neighbourDocs(b.id).map(x => x.doc);
@@ -249,6 +320,7 @@ function renderTree() {
   el.innerHTML = h;
   el.querySelectorAll('.chip[data-t]').forEach(c => c.onclick = () => setFilter('t', c.dataset.t));
   el.querySelectorAll('.chip[data-s]').forEach(c => c.onclick = () => setFilter('s', c.dataset.s));
+  el.querySelectorAll('.chip[data-c]').forEach(c => c.onclick = () => setFilter('c', '1'));
   el.querySelectorAll('details').forEach(d => d.addEventListener('toggle', () => { d.open ? treeOpen.add(d.dataset.id) : treeOpen.delete(d.dataset.id); }));
   el.querySelectorAll('.more').forEach(m => m.onclick = () => { treeOpen.add(m.dataset.more + ':all'); renderTree(); });
   const c = el.querySelector('a.cur'); if (c) c.scrollIntoView({block: 'nearest'});
@@ -260,15 +332,15 @@ function docCard(d, e, opts) {
   const sp = speakers(d.id).map(x => x.p.name).join(', ');
   const img = thumb(d) ? `<img loading="lazy" src="${thumb(d)}" alt="">` : `<div class="ph">📄</div>`;
   const first = opts.firstSeg;
-  return `<a class="card doc" href="${href(d.id)}">${img}<div class="body"><div class="name">${esc(d.name)}</div><div class="w">${esc(sp || d.guest || (d.source === 'markdown' ? 'Kitchen-Seite' : 'Solo'))} · ${fmtD(d.published)}${e && e.share != null ? ' · ' + Math.round(e.share * 100) + ' %' : ''}${opts.explains ? ' · erklärt' : ''}</div>${first ? `<div class="q">${esc(first)}</div>` : ''}</div></a>`;
+  return `<a class="card doc" href="${href(d.id)}">${img}<div class="body"><div class="name">${esc(d.name)}</div><div class="w">${esc(sp || d.guest || (d.source === 'markdown' ? 'Kitchen-Seite' : 'Solo'))} · ${fmtD(d.published)}${e && e.share != null ? ' · ' + Math.round(e.share * 100) + ' %' : ''}${opts.explains ? ' · erklärt' : ''}</div><div>${covBadge(d).replace('margin-left:6px', '')}</div>${first ? `<div class="q">${esc(first)}</div>` : ''}</div></a>`;
 }
 function conceptCard(n, w, claim) {
-  return `<a class="card" href="${href(n.id)}" style="border-top:3px solid ${TYPE_COLOR[n.type]}"><div class="name">${esc(n.name)}</div><div class="w">${TYPE_DE[n.type]} · ${docCount(n.id)} Dokumente${w ? ' · ' + w + ' gemeinsame Segmente' : ''}</div>${claim ? `<div class="q">${esc(claim)}</div>` : ''}</a>`;
+  return `<a class="card" href="${href(n.id)}" style="border-top:3px solid ${TYPE_COLOR[n.type]}"><div class="name">${esc(n.name)}</div><div class="w">${TYPE_DE[n.type]} · ${docCount(n.id)} Dokumente${w ? ' · Ko-Vorkommen: ' + w + ' Segmente' : ''}</div>${claim ? `<div class="q">${esc(claim)}</div>` : ''}</a>`;
 }
 function claimHtml(c) {
   const d = byId.get(c.doc);
   const ts = d && c.start_s != null ? `<a class="ts" target="_blank" rel="noopener" href="${deepLink(d, c.start_s)}">▶ ${fmtT(c.start_s)}</a>` : '';
-  return `<div class="seg claim"><span class="h">${KIND[c.kind] || c.kind}${d ? ' · ' + fmtD(d.published) + ' · <a href="' + href(d.id) + '">' + esc(d.name) + '</a>' : ''}</span>${ts}${esc(c.name)}</div>`;
+  return `<div class="seg claim"><span class="h">${KIND[c.kind] || c.kind}${d ? ' · ' + fmtD(d.published) + ' · <a href="' + href(d.id) + '">' + esc(d.name) + '</a>' : ''}</span>${ts}${esc(c.name)}${feedbackLink(c, d)}</div>`;
 }
 function segHtml(doc, s, terms) {
   terms = terms || [];
@@ -310,7 +382,7 @@ function bindEvidence(nodeId, node2) {
 }
 function docRow(d, e, explains, nodeId, node2, role) {
   const sp = speakers(d.id).map(x => x.p.name).join(', ');
-  return `<li><a class="t" href="${href(d.id)}">${esc(d.name)}</a>${d.source === 'markdown' ? '<span class="badge page">Seite</span>' : ''}${explains && explains.has(d.id) ? '<span class="badge ex">erklärt</span>' : ''}${role ? `<span class="badge ${role === 'host' ? 'host' : ''}">${role === 'host' ? 'Host' : 'Gast'}</span>` : ''}<div class="m">${esc(sp || d.guest || (d.source === 'markdown' ? 'Kitchen-Seite' : 'Solo'))} · ${fmtD(d.published)}${e && e.share != null ? ' · ' + Math.round(e.share * 100) + ' % der Segmente' : ''}${nodeId ? ` · <a href="#" class="ev" data-doc="${esc(d.id)}">Stellen zeigen</a>` : ''}</div><div class="evbox"></div></li>`;
+  return `<li><a class="t" href="${href(d.id)}">${esc(d.name)}</a>${d.source === 'markdown' ? '<span class="badge page">Seite</span>' : ''}${explains && explains.has(d.id) ? '<span class="badge ex">erklärt</span>' : ''}${role ? `<span class="badge ${role === 'host' ? 'host' : ''}">${role === 'host' ? 'Host' : 'Gast'}</span>` : ''}${covBadge(d)}<div class="m">${esc(sp || d.guest || (d.source === 'markdown' ? 'Kitchen-Seite' : 'Solo'))} · ${fmtD(d.published)}${e && e.share != null ? ' · ' + Math.round(e.share * 100) + ' % der Segmente' : ''}${nodeId ? ` · <a href="#" class="ev" data-doc="${esc(d.id)}">Stellen zeigen</a>` : ''}</div><div class="evbox"></div></li>`;
 }
 const crumbs = parts => `<div class="crumbs"><a href="#">Start</a>${parts.map(p => ' › ' + (p.href ? `<a href="${p.href}">${esc(p.name)}</a>` : esc(p.name))).join('')}</div>`;
 
@@ -325,8 +397,8 @@ function renderStart() {
   $('#page').innerHTML = `
     <h1 class="title">DatenWG Library: das Wissen der Daten-WG, <strong style="color:var(--accent);font-weight:700">verknüpft</strong></h1>
     <p class="meta" style="margin:-2px 0 10px">Early Access Beta · Kernaussagen und Themen sind maschinell extrahiert, nicht redigiert. Bei Widersprüchen gilt das Video oder die Seite. Feedback: <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a></p>
-    <p class="lead">${G.docs.filter(d => d.source === 'youtube').length} Folgen und ${G.docs.filter(d => d.source === 'markdown').length} Seiten der Kitchen als Graph: Themen, Tools, Personen und ${G.claims.length} belegte Kernaussagen. Jede Stelle springt auf die Sekunde ins Video oder auf den Abschnitt der Seite.</p>
-    <div class="kpis"><div class="kpi"><b>${G.concepts.length}</b>Konzepte</div><div class="kpi"><b>${G.claims.length}</b>Kernaussagen</div><div class="kpi"><b>${G.edges.filter(e => e.type === 'RELATES_TO').length}</b>Themenbeziehungen</div><div class="kpi"><b>${G.docs.filter(docActive).length}</b>Dokumente im Filter</div></div>
+    <p class="lead">${G.meta.episodes} Folgen (${G.meta.episodes_with_transcript} mit Transkript, ${G.meta.episodes_with_claims} mit Kernaussagen) und ${G.meta.pages} Seiten der Kitchen als Graph: Themen, Tools, Personen und ${G.claims.length} belegte Kernaussagen. Jede Stelle springt auf die Sekunde ins Video oder auf den Abschnitt der Seite.</p>
+    <div class="kpis"><div class="kpi"><b>${G.concepts.length}</b>Konzepte</div><div class="kpi"><b>${G.claims.length}</b>Kernaussagen</div><div class="kpi"><b>${G.edges.filter(e => e.type === 'RELATES_TO').length}</b>Themenbeziehungen</div><div class="kpi"><b>${G.docs.filter(d => docActive(d) && d.source === 'youtube').length}</b>Folgen im Filter</div><div class="kpi"><b>${G.docs.filter(d => docActive(d) && d.source === 'markdown').length}</b>Seiten im Filter</div></div>
     <h2>Fragen zum Ausprobieren</h2><div class="chips">${examples.map(([t, a, b, p]) => `<a class="chip" href="${askHref(t, a, b, p)}">${esc(label(t, a, b, p))}</a>`).join('')}</div>
     <h2>Stärkste Themen<span class="sub">im gewählten Zeitraum</span></h2><div class="carousel">${top.map(([n]) => conceptCard(n, null, claimsOf(n.id)[0]?.name)).join('')}</div>
     <h2>Neueste Folgen</h2><div class="carousel">${newest.map(d => docCard(d)).join('')}</div>
@@ -375,7 +447,7 @@ async function renderDoc(d) {
   const relSorted = [...relDocs.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(x => byId.get(x[0]));
   let h = crumbs([bucket ? {name: bucket.name, href: href(bucket.id)} : {name: d.source === 'markdown' ? 'Seiten' : 'Folgen'}, {name: d.name}]);
   h += `<div class="two"><div><h1 class="title" style="font-size:28px">${esc(d.name)}${d.source === 'markdown' ? '<small style="background:var(--n-page)">Seite</small>' : ''}</h1>`;
-  h += `<div class="meta">${d.format ? esc(d.format) + ' · ' : ''}${fmtD(d.published)}${d.source === 'markdown' ? ' (Dateistand)' : ''}${d.duration_s ? ' · ' + Math.round(d.duration_s / 60) + ' min' : ''} · ${(d.lang || '').toUpperCase()}</div>`;
+  h += `<div class="meta">${d.format ? esc(d.format) + ' · ' : ''}${fmtD(d.published)}${d.source === 'markdown' ? ' (Dateistand)' : ''}${d.duration_s ? ' · ' + Math.round(d.duration_s / 60) + ' min' : ''} · ${(d.lang || '').toUpperCase()} ${covBadge(d)}</div>`;
   h += `<p class="lead">${esc(d.summary || d.desc)}</p><div><a class="btn primary" target="_blank" rel="noopener" href="${esc(d.url)}">${d.source === 'markdown' ? '📄 Seite öffnen' : '▶ Auf YouTube'}</a><a class="btn" href="${'graph.html#' + new URLSearchParams({n: d.id}).toString()}">⌖ Im Graph</a></div>`;
   if (persons.length) h += `<h2>Gespräch</h2><div class="chips">${persons.map(x => `<a class="chip" href="${href(x.p.id)}">${esc(x.p.name)} <span style="opacity:.6">${x.role === 'host' ? 'Host' : 'Gast'}</span></a>`).join('')}</div>`;
   h += `</div><div>${thumb(d) ? `<a target="_blank" rel="noopener" href="${esc(d.url)}"><img src="${thumb(d).replace('mqdefault', 'hqdefault')}" alt="" style="width:100%;border-radius:12px;box-shadow:var(--shadow)"></a>` : ''}</div></div>`;

@@ -1,0 +1,152 @@
+{
+ "id": "tool:azure-devops",
+ "name": "Azure DevOps",
+ "typ": "tool",
+ "slug": "azure-devops",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 3,
+ "kernaussagen_gesamt": 0,
+ "mit_kernaussagen": 0,
+ "aliase": [
+  "DevOps"
+ ],
+ "einordnung": "Azure DevOps kommt in 3 Dokumenten der Daten-WG vor; am ausführlichsten in „600 SQL-Tabellen in Fabric“.",
+ "nachbarn": [
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:git",
+   "name": "Git",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "git.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:semantic-model",
+   "name": "Semantic Model",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "semantic-model.md"
+  }
+ ],
+ "kernaussagen": [],
+ "dokumente": [
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.25,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "10:19",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=619s",
+     "sekunde": 619
+    },
+    {
+     "label": "11:50",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=710s",
+     "sekunde": 710
+    },
+    {
+     "label": "13:37",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s",
+     "sekunde": 817
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.009,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Auto-Binding",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20ist%20f%C3%BCr%20Power-BI-Nutzer%20relevant%3F",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:XxPFAQfLyuA",
+   "titel": "Wie war die Daten-WG? (2025, Teil 2)",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
+   "sprungmarken": []
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Aazure-devops",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Aazure-devops&f=tool%3Aazure-devops"
+}

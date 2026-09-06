@@ -1,0 +1,221 @@
+{
+ "id": "tool:synapse",
+ "name": "Synapse",
+ "typ": "tool",
+ "slug": "synapse",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 2,
+ "kernaussagen_gesamt": 1,
+ "mit_kernaussagen": 1,
+ "aliase": [
+  "Azure Synapse"
+ ],
+ "einordnung": "Beim Fabric-Kapazitätsmodell (Flat Rate) ist der tatsächliche Ressourcenverbrauch laut den Sprechern weniger transparent als bei nutzungsbasierter Abrechnung wie bei Synapse.",
+ "nachbarn": [
+  {
+   "id": "tool:azure",
+   "name": "Azure",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "azure.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:azure-data-factory",
+   "name": "Azure Data Factory",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "azure-data-factory.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "tool:sql-server",
+   "name": "SQL Server",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sql-server.md"
+  },
+  {
+   "id": "tool:purview",
+   "name": "Purview",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "purview.md"
+  },
+  {
+   "id": "tool:spark",
+   "name": "Spark",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "spark.md"
+  },
+  {
+   "id": "topic:echtzeit",
+   "name": "Echtzeit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "echtzeit.md"
+  },
+  {
+   "id": "topic:governance",
+   "name": "Governance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "governance.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "tool:premium",
+   "name": "Premium",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "premium.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 691,
+   "zeit": "11:31",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=691s",
+   "aussage": "Beim Fabric-Kapazitätsmodell (Flat Rate) ist der tatsächliche Ressourcenverbrauch laut den Sprechern weniger transparent als bei nutzungsbasierter Abrechnung wie bei Synapse."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.054,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wer%20geht%20wo%20auf%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Das%20Problem%20davor",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Fabric-Antwort",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.013,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=03%20%C2%B7%20Deep%20Dive%3A%20%2AQuery%20Folding%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Microsoft-Benchmark",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Asynapse",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Asynapse&f=tool%3Asynapse"
+}

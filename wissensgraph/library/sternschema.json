@@ -1,0 +1,959 @@
+{
+ "id": "topic:sternschema",
+ "name": "Sternschema",
+ "typ": "thema",
+ "slug": "sternschema",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 30,
+ "kernaussagen_gesamt": 22,
+ "mit_kernaussagen": 7,
+ "aliase": [
+  "Star Schema",
+  "Faktentabelle",
+  "Dimensionstabelle",
+  "Fakten und Dimensionen",
+  "Star-Schema"
+ ],
+ "einordnung": "Ein Sternschema erlaubt unabhängiges Filtern über mehrere Dimensionen, ohne dass sich die Filter gegenseitig stören. Bei geringer Datenmenge und einfachen Measures zeigte sich in eigenen Tests kein signifikanter Performance-Unterschied zwischen Flat Table und Sternschema. Das 1988 entwickelte Modell mit separaten Tabellen für Kunden, Lieferanten und Artikel sowie einer zentralen Tabelle mit Schlüsseln und Kennzahlen wie Rechnungssumme und Provision entsprach im Nachhinein einem Sternschema.",
+ "nachbarn": [
+  {
+   "id": "topic:data-vault",
+   "name": "Data Vault",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "Sternschema findet sich eher auf der Ebene der Data Marts; auf Ebene des Core-DWH setzen größere Unternehmen auf normalisierte Datenhaltung oder Data Vault.",
+   "datei": "data-vault.md"
+  },
+  {
+   "id": "tool:directquery",
+   "name": "DirectQuery",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 9,
+   "beleg": "dass äh Direct Query eigentlich kein Starschema [verträgt] (Segment 5)",
+   "datei": "directquery.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 43,
+   "beleg": "schon ab einem gewissen Level muss man einfach das Sternschema machen",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 43,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 31,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 29,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 26,
+   "beleg": "",
+   "datei": "power-query.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 24,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 19,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 19,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "planung.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "warehouse.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 99,
+   "zeit": "01:39",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=99s",
+   "aussage": "Das 1988 entwickelte Modell mit separaten Tabellen für Kunden, Lieferanten und Artikel sowie einer zentralen Tabelle mit Schlüsseln und Kennzahlen wie Rechnungssumme und Provision entsprach im Nachhinein einem Sternschema."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 294,
+   "zeit": "04:54",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=294s",
+   "aussage": "Die ersten Veröffentlichungen zum Sternschema stammen aus der Mitte der 1990er-Jahre."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 389,
+   "zeit": "06:29",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=389s",
+   "aussage": "Ralph Kimball veröffentlichte Mitte der 1990er-Jahre ein Buch, in dem er forderte, Data Warehouses stets mit einem Sternschema beziehungsweise dimensionaler Modellierung aufzubauen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 389,
+   "zeit": "06:29",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=389s",
+   "aussage": "Zwischen Ralph Kimball und Bill Inmon entstand ein langjähriger Grundsatzstreit darüber, ob Data Warehouses dimensional per Sternschema oder relational in dritter Normalform modelliert werden sollten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 389,
+   "zeit": "06:29",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=389s",
+   "aussage": "Peter Gluchowski schätzt, dass sich das Sternschema in größeren Unternehmen eher auf der Data-Mart-Ebene findet als auf der Ebene des Kern-Data-Warehouse."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 492,
+   "zeit": "08:12",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s",
+   "aussage": "Im Mittelstand wird die Aufteilung zwischen Sternschema und relationaler Modellierung nach Einschätzung von Peter Gluchowski anders gehandhabt als in Großunternehmen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 186,
+   "zeit": "03:06",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=186s",
+   "aussage": "Eine KI hat aus einer hochgeladenen CSV-Datei automatisch ein Sternschema samt Notebook erstellt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 61,
+   "zeit": "01:01",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=61s",
+   "aussage": "Ein Meeting-Teilnehmer empfand die vorherige Flat Table als einfacher als das neu eingeführte Sternschema."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 200,
+   "zeit": "03:20",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=200s",
+   "aussage": "Power BI ist technisch eng mit Analysis Services verbunden, weshalb aus dieser Perspektive ein Sternschema die passende Modellierung ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 517,
+   "zeit": "08:37",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=517s",
+   "aussage": "Ein Sternschema erlaubt unabhängiges Filtern über mehrere Dimensionen, ohne dass sich die Filter gegenseitig stören."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 648,
+   "zeit": "10:48",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=648s",
+   "aussage": "Ab einem gewissen Datenvolumen sollte in Power BI ein Sternschema verwendet werden, um Performance-Probleme zu vermeiden."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 1032,
+   "zeit": "17:12",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1032s",
+   "aussage": "Bei Benchmark-Tests mit künstlich generierten Testdaten wie der Kontoso-Datenbank komprimiert ein Sternschema teils schlechter als erwartet, weil reale Kundenverteilungen von Testdaten abweichen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 1135,
+   "zeit": "18:55",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1135s",
+   "aussage": "Bei geringer Datenmenge und einfachen Measures zeigte sich in eigenen Tests kein signifikanter Performance-Unterschied zwischen Flat Table und Sternschema."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 1420,
+   "zeit": "23:40",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1420s",
+   "aussage": "Bei einem Ist-Budget-Vergleich mit unterschiedlicher Granularität von Kunde und Produkt sowie täglicher und monatlicher Frequenz wird eine flache Tabelle mit Field Parameters schnell unübersichtlich, während ein Sternschema die Zusammenführung vereinfacht."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 2220,
+   "zeit": "37:00",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2220s",
+   "aussage": "Jasmin empfiehlt, für einmalige und eng begrenzte Auswertungen im Fachbereich eine Flat Table in Excel zu nutzen, für wiederkehrende Analysen aber ein Datenmodell zu bauen, weil Datenfehler darin schneller auffallen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 484,
+   "zeit": "08:04",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=484s",
+   "aussage": "DirectQuery unterstützt laut den Sprechern bei Quellen wie Snowflake oder Databricks kein Sternschema."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 574,
+   "zeit": "09:34",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=574s",
+   "aussage": "Das Sternschema mit einer zentralen Faktentabelle und umgebenden Dimensionen wird von den Sprechern als bevorzugter Modellierungsansatz in Power BI favorisiert."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 762,
+   "zeit": "12:42",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=762s",
+   "aussage": "Über Role-Playing-Dimensionen lässt sich ein einmal modelliertes Objekt wie Kunde in mehreren Rollen, etwa als Liefer-, Rechnungs- und Auftragskunde, wiederverwenden, ohne die Kundendaten mehrfach zu pflegen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 1052,
+   "zeit": "17:32",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=1052s",
+   "aussage": "Wird eine One-Big-Table per Inner Join aus einem dimensionalen Modell erzeugt, fallen Kunden ohne zugehörige Transaktionen aus der Analyse heraus, während sie im Sternschema in der Dimension erhalten bleiben."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 1648,
+   "zeit": "27:28",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=1648s",
+   "aussage": "Sobald ein Modell mehr als eine Faktentabelle mit unterschiedlichen Dimensionen oder Granularitäten enthält, werden die benötigten DAX-Formeln in einer One-Big-Table deutlich komplexer als im Sternschema."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 4842,
+   "zeit": "1:20:42",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=4842s",
+   "aussage": "Sobald mehrere Faktentabellen für einen Drill-Across kombiniert werden sollen oder unternehmensweit standardisierte Dimensionen benötigt werden, ist ein dimensionales Modell mit Sternschema vorzuziehen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1490,
+   "zeit": "24:50",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1490s",
+   "aussage": "Dem KI-Agenten wurden bei der Modellgenerierung explizite Vorgaben mitgegeben, darunter das Vermeiden von Snowflake-Dimensionen, Beziehungen möglichst in eine Richtung und geschäftsfreundliche statt technische Tabellennamen."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.385,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:mUALlPmGcEk",
+   "titel": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "datum": "2025-11-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.373,
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk",
+   "sprungmarken": [
+    {
+     "label": "22:42",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=1362s",
+     "sekunde": 1362
+    },
+    {
+     "label": "45:29",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=2729s",
+     "sekunde": 2729
+    },
+    {
+     "label": "54:01",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=3241s",
+     "sekunde": 3241
+    }
+   ]
+  },
+  {
+   "id": "yt:hbUYMyqb6r8",
+   "titel": "Denken in Tabellen",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.231,
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8",
+   "sprungmarken": [
+    {
+     "label": "01:01",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=61s",
+     "sekunde": 61
+    },
+    {
+     "label": "04:19",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=259s",
+     "sekunde": 259
+    },
+    {
+     "label": "33:37",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2017s",
+     "sekunde": 2017
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.218,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Dimensionen%20extrahieren",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Beziehungen%201%3An",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Eine%20Granularit%C3%A4t%20pro%20Faktentabelle",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:dKA-38gRD8Q",
+   "titel": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.167,
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q",
+   "sprungmarken": [
+    {
+     "label": "06:29",
+     "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=389s",
+     "sekunde": 389
+    }
+   ]
+  },
+  {
+   "id": "yt:m3xNYfVih0Q",
+   "titel": "Starting with Microsft Fabric the Skills you need",
+   "datum": "2024-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.161,
+   "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q",
+   "sprungmarken": [
+    {
+     "label": "11:22",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=682s",
+     "sekunde": 682
+    },
+    {
+     "label": "35:12",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2112s",
+     "sekunde": 2112
+    },
+    {
+     "label": "48:09",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2889s",
+     "sekunde": 2889
+    }
+   ]
+  },
+  {
+   "id": "yt:lH_-A8NAQ-k",
+   "titel": "Datenmodellierung ist Governance",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.16,
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
+   "sprungmarken": [
+    {
+     "label": "01:10",
+     "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=70s",
+     "sekunde": 70
+    },
+    {
+     "label": "05:02",
+     "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=302s",
+     "sekunde": 302
+    },
+    {
+     "label": "07:04",
+     "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=424s",
+     "sekunde": 424
+    }
+   ]
+  },
+  {
+   "id": "yt:iymmxuXHh44",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 5",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.146,
+   "url": "https://www.youtube.com/watch?v=iymmxuXHh44",
+   "sprungmarken": [
+    {
+     "label": "13:00",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=780s",
+     "sekunde": 780
+    },
+    {
+     "label": "47:43",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=2863s",
+     "sekunde": 2863
+    },
+    {
+     "label": "52:40",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=3160s",
+     "sekunde": 3160
+    }
+   ]
+  },
+  {
+   "id": "yt:xCzKEIB4W5I",
+   "titel": "Fabric Planning unboxing",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I",
+   "sprungmarken": [
+    {
+     "label": "03:06",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=186s",
+     "sekunde": 186
+    },
+    {
+     "label": "06:14",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=374s",
+     "sekunde": 374
+    },
+    {
+     "label": "20:19",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1219s",
+     "sekunde": 1219
+    }
+   ]
+  },
+  {
+   "id": "yt:bt81POE-9Ig",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.14,
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
+   "sprungmarken": [
+    {
+     "label": "10:09",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=609s",
+     "sekunde": 609
+    },
+    {
+     "label": "11:42",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=702s",
+     "sekunde": 702
+    },
+    {
+     "label": "46:12",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2772s",
+     "sekunde": 2772
+    }
+   ]
+  },
+  {
+   "id": "yt:vd1r02bj9Qk",
+   "titel": "Power BI vs. Qlik",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.105,
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk",
+   "sprungmarken": [
+    {
+     "label": "10:48",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=648s",
+     "sekunde": 648
+    },
+    {
+     "label": "15:57",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=957s",
+     "sekunde": 957
+    }
+   ]
+  },
+  {
+   "id": "yt:VD1N68Fhoco",
+   "titel": "BI Thinkers Talk nr.68",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=VD1N68Fhoco",
+   "sprungmarken": [
+    {
+     "label": "51:31",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=3091s",
+     "sekunde": 3091
+    },
+    {
+     "label": "53:20",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=3200s",
+     "sekunde": 3200
+    },
+    {
+     "label": "57:54",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=3474s",
+     "sekunde": 3474
+    }
+   ]
+  },
+  {
+   "id": "yt:TYmKrreMO3I",
+   "titel": "Daten-WG Deep Dive Financial Reporting",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
+   "sprungmarken": [
+    {
+     "label": "01:40",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=100s",
+     "sekunde": 100
+    },
+    {
+     "label": "03:13",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=193s",
+     "sekunde": 193
+    },
+    {
+     "label": "16:11",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=971s",
+     "sekunde": 971
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.078,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20ins%20Modell%20geh%C3%B6rt",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Beziehungen%20definieren",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Das%20Ziel-Schema",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "17:04",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1024s",
+     "sekunde": 1024
+    }
+   ]
+  },
+  {
+   "id": "yt:232JhS9vbQ0",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 7",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.054,
+   "url": "https://www.youtube.com/watch?v=232JhS9vbQ0",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "03:25",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=205s",
+     "sekunde": 205
+    }
+   ]
+  },
+  {
+   "id": "yt:DQENmzAkNqw",
+   "titel": "Daten-WG BI Thinkers Talk nr.66",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
+   "sprungmarken": [
+    {
+     "label": "06:35",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=395s",
+     "sekunde": 395
+    },
+    {
+     "label": "09:45",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=585s",
+     "sekunde": 585
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "14:14",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=854s",
+     "sekunde": 854
+    },
+    {
+     "label": "22:02",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1322s",
+     "sekunde": 1322
+    }
+   ]
+  },
+  {
+   "id": "yt:rrCi0lnGrCg",
+   "titel": "Mythos Data Vault und richtig große Modelle",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.045,
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
+   "sprungmarken": [
+    {
+     "label": "01:47",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=107s",
+     "sekunde": 107
+    }
+   ]
+  },
+  {
+   "id": "yt:183uLZ3GYDo",
+   "titel": "Data Binning and Lorenz Curve in DAX | Alberto Ferrari & Michael Tenner, Berlin Power BI User Group",
+   "datum": "2023-01-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.04,
+   "url": "https://www.youtube.com/watch?v=183uLZ3GYDo",
+   "sprungmarken": [
+    {
+     "label": "44:32",
+     "url": "https://www.youtube.com/watch?v=183uLZ3GYDo&t=2672s",
+     "sekunde": 2672
+    },
+    {
+     "label": "1:18:16",
+     "url": "https://www.youtube.com/watch?v=183uLZ3GYDo&t=4696s",
+     "sekunde": 4696
+    }
+   ]
+  },
+  {
+   "id": "yt:ihi7UiJ_TtQ",
+   "titel": "Why Passion Beats Niche",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.038,
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
+   "sprungmarken": [
+    {
+     "label": "25:05",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1505s",
+     "sekunde": 1505
+    }
+   ]
+  },
+  {
+   "id": "yt:6WhWLcuFvZE",
+   "titel": "Prinzipien oder Paragrafen",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.037,
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE",
+   "sprungmarken": [
+    {
+     "label": "20:43",
+     "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1243s",
+     "sekunde": 1243
+    }
+   ]
+  },
+  {
+   "id": "page:powerbi_praxis_pfad",
+   "titel": "Dein erstes Dashboard — Power-BI-Praxis-Pfad",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.029,
+   "url": "https://datenwgknowledgekitchen.com/powerbi_praxis_pfad.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi_praxis_pfad.html#:~:text=Wenn%20du%20weitermachen%20willst",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:UnW4wHhw_IY",
+   "titel": "Daten-WG Deep Dive Financial Reporting pt.4",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY",
+   "sprungmarken": [
+    {
+     "label": "49:13",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=2953s",
+     "sekunde": 2953
+    }
+   ]
+  },
+  {
+   "id": "yt:aYHk_V8n_CE",
+   "titel": "Daten-WG Special: Power BI vs. Qlik",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
+   "sprungmarken": [
+    {
+     "label": "43:36",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2616s",
+     "sekunde": 2616
+    }
+   ]
+  },
+  {
+   "id": "yt:iinfiHxznOU",
+   "titel": "Unboxing MCP Server for Power BI Modelling",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
+   "sprungmarken": [
+    {
+     "label": "28:36",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=1716s",
+     "sekunde": 1716
+    }
+   ]
+  },
+  {
+   "id": "yt:KMk1k5uCLZU",
+   "titel": "Daten-WG Thinkers Talk n61",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
+   "sprungmarken": [
+    {
+     "label": "41:32",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2492s",
+     "sekunde": 2492
+    }
+   ]
+  },
+  {
+   "id": "yt:r416vanitYw",
+   "titel": "BI Thinkers Talk nr.69",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.023,
+   "url": "https://www.youtube.com/watch?v=r416vanitYw",
+   "sprungmarken": [
+    {
+     "label": "01:34",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=94s",
+     "sekunde": 94
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.021,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "26:22",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1582s",
+     "sekunde": 1582
+    }
+   ]
+  },
+  {
+   "id": "yt:LUrL8A5lNgI",
+   "titel": "BI Thinkers Talk nr.71",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.017,
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI",
+   "sprungmarken": [
+    {
+     "label": "09:41",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=581s",
+     "sekunde": 581
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Asternschema",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Asternschema&f=topic%3Asternschema"
+}

@@ -1,0 +1,1229 @@
+{
+ "id": "tool:notebook",
+ "name": "Notebook",
+ "typ": "tool",
+ "slug": "notebook",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 43,
+ "kernaussagen_gesamt": 24,
+ "mit_kernaussagen": 9,
+ "aliase": [
+  "Notebooks",
+  "Spark Notebook"
+ ],
+ "einordnung": "Aus einem Integration-Services-Paket (SSIS) lässt sich per REST API ein Microsoft-Fabric-Notebook starten. Im SSIS-Paket wird der Notebook-Aufruf über eine Script Task in Visual Studio umgesetzt. Nach dem Ausführen des SSIS-Pakets lässt sich der erfolgreiche Notebook-Lauf in Fabric über die letzte Ausführung nachvollziehen.",
+ "nachbarn": [
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 32,
+   "beleg": "ihm eben Möglichkeiten gegeben, hier innerhalb des Arbeitsbereichs etwas Ich habe das Notebook angelegt.",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:tabular-editor",
+   "name": "Tabular Editor",
+   "kantentyp": "ersetzt",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "du hast hier wie so eine eigene Oberfläche wie so ein eine Art Measure Killer oder Tabula Editor im Notebook",
+   "datei": "tabular-editor.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 18,
+   "beleg": "tut dann die Perspektive dann eben über das Notebook jeden Morgen um 7 Uhr äh laufen lassen",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "empfiehlt",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 54,
+   "beleg": "benutze ich Dataflows, um die Daten in meinem meinem Bronze zu stagen und von da aus dann die Weiterverarbeitung mit dem Notebook zu machen",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "tool:sql-endpoint",
+   "name": "SQL Endpoint",
+   "kantentyp": "ersetzt",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 4,
+   "beleg": "Wenn du das Lake House über die Pipeline jagst, kriegst du die Daten aus dem SQLM Punkt nicht angezeigt ... die Definition der Views in TSQL Notebooks gepackt",
+   "datei": "sql-endpoint.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 33,
+   "beleg": "wenn ich aus der Pipeline heraus das anlege, dann geht's",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 54,
+   "beleg": "einfach auch wartbar im Gegensatz zu Notebooks",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 70,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 51,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 42,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 28,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 26,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:spark",
+   "name": "Spark",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 24,
+   "beleg": "",
+   "datei": "spark.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 23,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:python",
+   "name": "Python",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 21,
+   "beleg": "",
+   "datei": "python.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 188,
+   "zeit": "03:08",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=188s",
+   "aussage": "Alex hat den \"Power BI Fixer\" entwickelt, ein Notebook-basiertes Tool zum Analysieren und Reparieren von Power-BI-Semantikmodellen und -Berichten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 379,
+   "zeit": "06:19",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=379s",
+   "aussage": "Notebooks in Microsoft Fabric können vollständige interaktive Oberflächen inklusive HTML-Seiten darstellen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 471,
+   "zeit": "07:51",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=471s",
+   "aussage": "Der Power BI Fixer bietet im Notebook eine alternative Oberfläche ähnlich Tabular Editor, um Measures und DAX-Ausdrücke direkt am Semantic Model zu bearbeiten und zu formatieren."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 2575,
+   "zeit": "42:55",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2575s",
+   "aussage": "Der Power BI Fixer kann automatisch ein geplantes Notebook anlegen, das die Direct-Lake-Perspektive täglich zu einer festen Uhrzeit aktualisiert, um den Cache vorzuwärmen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 186,
+   "zeit": "03:06",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=186s",
+   "aussage": "Eine KI hat aus einer hochgeladenen CSV-Datei automatisch ein Sternschema samt Notebook erstellt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 2246,
+   "zeit": "37:26",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2246s",
+   "aussage": "Aus einem Fabric-Notebook lässt sich per API ein Dataflow ansteuern und darüber Power-Query-Code (M-Code) ausführen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 2460,
+   "zeit": "41:00",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2460s",
+   "aussage": "Ein Dataflow lässt sich als Wrapper nutzen, um über dessen Connections APIs wie die Power BI Scanner API anzusprechen, ohne im Notebook einen Service Principal hinterlegen zu müssen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 2460,
+   "zeit": "41:00",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2460s",
+   "aussage": "Für kleinere Datenmengen und einfache Transformationen wie Entpivotieren eignet sich ein Dataflow, während stark verschachteltes JSON, etwa aus der Scanner API, eher in einem Notebook verarbeitet werden sollte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 4385,
+   "zeit": "1:13:05",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=4385s",
+   "aussage": "Beim Versuch, verschachtelte Power-Query-Objekte wie Record oder List aus einem Notebook heraus in ein Lakehouse zu schreiben, werden diese aktuell nur als Text gespeichert statt strukturiert aufgelöst."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 1,
+   "zeit": "00:01",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=1s",
+   "aussage": "Aus einem Integration-Services-Paket (SSIS) lässt sich per REST API ein Microsoft-Fabric-Notebook starten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 30,
+   "zeit": "00:30",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=30s",
+   "aussage": "Im SSIS-Paket wird der Notebook-Aufruf über eine Script Task in Visual Studio umgesetzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 83,
+   "zeit": "01:23",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=83s",
+   "aussage": "Nach dem Ausführen des SSIS-Pakets lässt sich der erfolgreiche Notebook-Lauf in Fabric über die letzte Ausführung nachvollziehen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 152,
+   "zeit": "02:32",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=152s",
+   "aussage": "Um das Notebook über die REST API anzusprechen, werden die Workspace-ID und die Notebook-ID benötigt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 232,
+   "zeit": "03:52",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=232s",
+   "aussage": "Die Paketvariablen im SSIS-Paket speichern Workspace-ID und Notebook-ID für den REST-API-Aufruf."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 339,
+   "zeit": "05:39",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=339s",
+   "aussage": "Mit dem Access Token ruft das Skript die Fabric REST API auf und startet das Notebook anhand von Workspace-ID und Notebook-ID."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 3024,
+   "zeit": "50:24",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3024s",
+   "aussage": "Als Alternative zum manuellen Umbinden über Power BI Desktop wird im Gespräch erwähnt, dass sich Reports auch automatisiert per Notebook mit Semantic Link umbinden lassen könnten."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 3334,
+   "zeit": "55:34",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3334s",
+   "aussage": "Als Workaround definiert der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 2227,
+   "zeit": "37:07",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2227s",
+   "aussage": "Seit kurzem lassen sich Notebooks in Fabric über eine Connection mit einem Service Principal ausführen, wodurch Secrets nicht mehr hartcodiert oder in einer JSON-Datei im Lakehouse abgelegt werden müssen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 2227,
+   "zeit": "37:07",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2227s",
+   "aussage": "Eine Connection für Notebooks lässt sich aktuell nicht direkt unter Connections anlegen, sondern nur über den Umweg einer Data Pipeline."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 2435,
+   "zeit": "40:35",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2435s",
+   "aussage": "Beim Ausführen eines Notebooks über die Pipeline mit einem Service Principal wurden deutlich weniger Workspaces zurückgegeben, weil der Service Principal nicht Mitglied in allen Workspaces ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 3030,
+   "zeit": "50:30",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3030s",
+   "aussage": "SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 609,
+   "zeit": "10:09",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=609s",
+   "aussage": "Die im Lakehouse als Rohdaten liegenden Dateien lassen sich per COPY-INTO-Befehl in eine Warehouse-Tabelle laden oder mit einem Notebook, etwa in Python, weiterverarbeiten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 1042,
+   "zeit": "17:22",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1042s",
+   "aussage": "Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1383,
+   "zeit": "23:03",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1383s",
+   "aussage": "Copy Jobs in der Fabric Data Factory unterstützen jetzt in der Vorschau automatisch Slowly Changing Dimension Typ 2, wodurch manueller Notebook-Code für diesen Zweck überflüssig wird."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:NvtZ-ehiTrg",
+   "titel": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.571,
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg",
+   "sprungmarken": [
+    {
+     "label": "02:19",
+     "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=139s",
+     "sekunde": 139
+    },
+    {
+     "label": "05:39",
+     "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=339s",
+     "sekunde": 339
+    },
+    {
+     "label": "06:11",
+     "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=371s",
+     "sekunde": 371
+    }
+   ]
+  },
+  {
+   "id": "yt:DQENmzAkNqw",
+   "titel": "Daten-WG BI Thinkers Talk nr.66",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.368,
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
+   "sprungmarken": [
+    {
+     "label": "01:48",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=108s",
+     "sekunde": 108
+    },
+    {
+     "label": "03:25",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=205s",
+     "sekunde": 205
+    },
+    {
+     "label": "04:56",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=296s",
+     "sekunde": 296
+    }
+   ]
+  },
+  {
+   "id": "yt:luk4S4ukKmg",
+   "titel": "BI Thinkers Talk n.72",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.342,
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg",
+   "sprungmarken": [
+    {
+     "label": "37:07",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2227s",
+     "sekunde": 2227
+    },
+    {
+     "label": "38:43",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2323s",
+     "sekunde": 2323
+    },
+    {
+     "label": "43:49",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2629s",
+     "sekunde": 2629
+    }
+   ]
+  },
+  {
+   "id": "yt:m3xNYfVih0Q",
+   "titel": "Starting with Microsft Fabric the Skills you need",
+   "datum": "2024-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.29,
+   "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q",
+   "sprungmarken": [
+    {
+     "label": "16:07",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=967s",
+     "sekunde": 967
+    },
+    {
+     "label": "17:44",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1064s",
+     "sekunde": 1064
+    },
+    {
+     "label": "25:34",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1534s",
+     "sekunde": 1534
+    }
+   ]
+  },
+  {
+   "id": "yt:UnW4wHhw_IY",
+   "titel": "Daten-WG Deep Dive Financial Reporting pt.4",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.278,
+   "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY",
+   "sprungmarken": [
+    {
+     "label": "01:38",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=98s",
+     "sekunde": 98
+    },
+    {
+     "label": "03:11",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=191s",
+     "sekunde": 191
+    },
+    {
+     "label": "23:12",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1392s",
+     "sekunde": 1392
+    }
+   ]
+  },
+  {
+   "id": "yt:lT-C7fPzxj4",
+   "titel": "Power BI Update April 2025",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.25,
+   "url": "https://www.youtube.com/watch?v=lT-C7fPzxj4",
+   "sprungmarken": [
+    {
+     "label": "03:08",
+     "url": "https://www.youtube.com/watch?v=lT-C7fPzxj4&t=188s",
+     "sekunde": 188
+    }
+   ]
+  },
+  {
+   "id": "yt:iymmxuXHh44",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 5",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.244,
+   "url": "https://www.youtube.com/watch?v=iymmxuXHh44",
+   "sprungmarken": [
+    {
+     "label": "08:01",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=481s",
+     "sekunde": 481
+    },
+    {
+     "label": "17:41",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1061s",
+     "sekunde": 1061
+    },
+    {
+     "label": "27:36",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1656s",
+     "sekunde": 1656
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.233,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wer%20geht%20wo%20auf%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Typische%20Nutzung",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=NotebookUtils%20%E2%80%94%20der%20Werkzeugkasten",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "04:40",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=280s",
+     "sekunde": 280
+    },
+    {
+     "label": "06:19",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=379s",
+     "sekunde": 379
+    },
+    {
+     "label": "42:55",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2575s",
+     "sekunde": 2575
+    }
+   ]
+  },
+  {
+   "id": "yt:e50qKdVn-24",
+   "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.167,
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
+   "sprungmarken": [
+    {
+     "label": "13:04",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=784s",
+     "sekunde": 784
+    },
+    {
+     "label": "18:59",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1139s",
+     "sekunde": 1139
+    },
+    {
+     "label": "24:39",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1479s",
+     "sekunde": 1479
+    }
+   ]
+  },
+  {
+   "id": "yt:rWE0gMx7v7I",
+   "titel": "BI Thinkers Talk n.74",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.149,
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I",
+   "sprungmarken": [
+    {
+     "label": "39:06",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2346s",
+     "sekunde": 2346
+    },
+    {
+     "label": "41:00",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2460s",
+     "sekunde": 2460
+    },
+    {
+     "label": "1:16:34",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=4594s",
+     "sekunde": 4594
+    }
+   ]
+  },
+  {
+   "id": "yt:YzfcMurbWNc",
+   "titel": "Power BI-Teams werden Fabric-Datendienstleister",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.136,
+   "url": "https://www.youtube.com/watch?v=YzfcMurbWNc",
+   "sprungmarken": [
+    {
+     "label": "13:41",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=821s",
+     "sekunde": 821
+    },
+    {
+     "label": "28:09",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=1689s",
+     "sekunde": 1689
+    },
+    {
+     "label": "29:52",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=1792s",
+     "sekunde": 1792
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.129,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "00:34",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=34s",
+     "sekunde": 34
+    },
+    {
+     "label": "02:11",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=131s",
+     "sekunde": 131
+    },
+    {
+     "label": "10:46",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=646s",
+     "sekunde": 646
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.128,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "32:47",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1967s",
+     "sekunde": 1967
+    },
+    {
+     "label": "34:48",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=2088s",
+     "sekunde": 2088
+    },
+    {
+     "label": "42:46",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=2566s",
+     "sekunde": 2566
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "21:24",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1284s",
+     "sekunde": 1284
+    },
+    {
+     "label": "23:00",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1380s",
+     "sekunde": 1380
+    },
+    {
+     "label": "25:06",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1506s",
+     "sekunde": 1506
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.114,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "14:22",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=862s",
+     "sekunde": 862
+    },
+    {
+     "label": "35:32",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2132s",
+     "sekunde": 2132
+    },
+    {
+     "label": "46:54",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2814s",
+     "sekunde": 2814
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.108,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "28:14",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1694s",
+     "sekunde": 1694
+    },
+    {
+     "label": "30:01",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1801s",
+     "sekunde": 1801
+    },
+    {
+     "label": "49:12",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2952s",
+     "sekunde": 2952
+    }
+   ]
+  },
+  {
+   "id": "yt:232JhS9vbQ0",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 7",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.108,
+   "url": "https://www.youtube.com/watch?v=232JhS9vbQ0",
+   "sprungmarken": [
+    {
+     "label": "20:17",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=1217s",
+     "sekunde": 1217
+    },
+    {
+     "label": "23:26",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=1406s",
+     "sekunde": 1406
+    },
+    {
+     "label": "25:30",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=1530s",
+     "sekunde": 1530
+    }
+   ]
+  },
+  {
+   "id": "yt:TYmKrreMO3I",
+   "titel": "Daten-WG Deep Dive Financial Reporting",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.108,
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
+   "sprungmarken": [
+    {
+     "label": "35:49",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2149s",
+     "sekunde": 2149
+    },
+    {
+     "label": "37:24",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2244s",
+     "sekunde": 2244
+    },
+    {
+     "label": "49:02",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2942s",
+     "sekunde": 2942
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.098,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "17:15",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1035s",
+     "sekunde": 1035
+    },
+    {
+     "label": "30:41",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1841s",
+     "sekunde": 1841
+    },
+    {
+     "label": "32:17",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1937s",
+     "sekunde": 1937
+    }
+   ]
+  },
+  {
+   "id": "yt:bt81POE-9Ig",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.093,
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
+   "sprungmarken": [
+    {
+     "label": "06:51",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=411s",
+     "sekunde": 411
+    },
+    {
+     "label": "08:28",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=508s",
+     "sekunde": 508
+    },
+    {
+     "label": "18:15",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1095s",
+     "sekunde": 1095
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.083,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "42:02",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2522s",
+     "sekunde": 2522
+    },
+    {
+     "label": "43:39",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2619s",
+     "sekunde": 2619
+    },
+    {
+     "label": "55:18",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=3318s",
+     "sekunde": 3318
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.083,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "13:37",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s",
+     "sekunde": 817
+    },
+    {
+     "label": "21:17",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1277s",
+     "sekunde": 1277
+    }
+   ]
+  },
+  {
+   "id": "yt:pOJpXxsfUt0",
+   "titel": "BI Thinkers Talk n.73",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0",
+   "sprungmarken": [
+    {
+     "label": "50:24",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3024s",
+     "sekunde": 3024
+    },
+    {
+     "label": "55:34",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3334s",
+     "sekunde": 3334
+    },
+    {
+     "label": "57:27",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3447s",
+     "sekunde": 3447
+    }
+   ]
+  },
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "20:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1205s",
+     "sekunde": 1205
+    }
+   ]
+  },
+  {
+   "id": "yt:5HhNQZlB-1E",
+   "titel": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E",
+   "sprungmarken": [
+    {
+     "label": "10:09",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=609s",
+     "sekunde": 609
+    }
+   ]
+  },
+  {
+   "id": "yt:xCzKEIB4W5I",
+   "titel": "Fabric Planning unboxing",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.054,
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I",
+   "sprungmarken": [
+    {
+     "label": "03:06",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=186s",
+     "sekunde": 186
+    },
+    {
+     "label": "04:42",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=282s",
+     "sekunde": 282
+    },
+    {
+     "label": "20:19",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1219s",
+     "sekunde": 1219
+    }
+   ]
+  },
+  {
+   "id": "yt:AX7b8_aNekw",
+   "titel": "Daten-WG 2026 Lineup",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.049,
+   "url": "https://www.youtube.com/watch?v=AX7b8_aNekw",
+   "sprungmarken": [
+    {
+     "label": "02:51",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=171s",
+     "sekunde": 171
+    },
+    {
+     "label": "17:05",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=1025s",
+     "sekunde": 1025
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.047,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "04:49",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=289s",
+     "sekunde": 289
+    },
+    {
+     "label": "06:31",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=391s",
+     "sekunde": 391
+    }
+   ]
+  },
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.044,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:hbUYMyqb6r8",
+   "titel": "Denken in Tabellen",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.038,
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8",
+   "sprungmarken": [
+    {
+     "label": "22:07",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1327s",
+     "sekunde": 1327
+    }
+   ]
+  },
+  {
+   "id": "yt:6WhWLcuFvZE",
+   "titel": "Prinzipien oder Paragrafen",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.037,
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE",
+   "sprungmarken": [
+    {
+     "label": "14:37",
+     "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=877s",
+     "sekunde": 877
+    }
+   ]
+  },
+  {
+   "id": "yt:oh-3_65IQ2Q",
+   "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
+   "sprungmarken": [
+    {
+     "label": "37:12",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2232s",
+     "sekunde": 2232
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "00:44",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=44s",
+     "sekunde": 44
+    }
+   ]
+  },
+  {
+   "id": "yt:EVsJ6zyGUWc",
+   "titel": "Was ist Self-Service und warum ist das so schwer?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc",
+   "sprungmarken": [
+    {
+     "label": "17:22",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1042s",
+     "sekunde": 1042
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "21:26",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1286s",
+     "sekunde": 1286
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "14:03",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=843s",
+     "sekunde": 843
+    }
+   ]
+  },
+  {
+   "id": "yt:VD1N68Fhoco",
+   "titel": "BI Thinkers Talk nr.68",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=VD1N68Fhoco",
+   "sprungmarken": [
+    {
+     "label": "56:24",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=3384s",
+     "sekunde": 3384
+    }
+   ]
+  },
+  {
+   "id": "yt:_Vh5fDfHWz4",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part2",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4",
+   "sprungmarken": [
+    {
+     "label": "05:18",
+     "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=318s",
+     "sekunde": 318
+    }
+   ]
+  },
+  {
+   "id": "yt:r416vanitYw",
+   "titel": "BI Thinkers Talk nr.69",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.023,
+   "url": "https://www.youtube.com/watch?v=r416vanitYw",
+   "sprungmarken": [
+    {
+     "label": "39:36",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=2376s",
+     "sekunde": 2376
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Anotebook",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Anotebook&f=tool%3Anotebook"
+}

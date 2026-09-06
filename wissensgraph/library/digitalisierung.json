@@ -1,0 +1,385 @@
+{
+ "id": "topic:digitalisierung",
+ "name": "Digitalisierung",
+ "typ": "thema",
+ "slug": "digitalisierung",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 10,
+ "kernaussagen_gesamt": 17,
+ "mit_kernaussagen": 5,
+ "aliase": [
+  "digitale Transformation",
+  "Transformation"
+ ],
+ "einordnung": "Unternehmen unterscheiden bei der Digitalisierung typischerweise drei Horizonte: interne Prozessautomatisierung, nach außen gerichtete Produkt- und Serviceerweiterungen sowie die grundsätzliche Neuausrichtung des Geschäftsmodells. Trotz jahrzehntelanger Digitalisierungsbemühungen sind selbst Basisthemen wie die digitale Rechnungsverfolgung in vielen Unternehmen immer noch nicht flächendeckend ausgerollt. Laut Christoph betreiben mittlerweile die meisten großen Pharmakonzerne hybride Cloud-Umgebungen mit mehreren Anbietern und bauen darin Lakehouses für die Datenaufbereitung auf.",
+ "nachbarn": [
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "topic:schulung",
+   "name": "Schulung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "schulung.md"
+  },
+  {
+   "id": "topic:projektmanagement",
+   "name": "Projektmanagement",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "projektmanagement.md"
+  },
+  {
+   "id": "topic:strategie",
+   "name": "Strategie",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "strategie.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 2,
+   "zeit": "00:02",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2s",
+   "aussage": "Julia sieht die Pharma- und Life-Science-Branche wegen datenaffiner Mitarbeiter und umfangreicher Sensorik-Daten als besonders geeignet für einen KI-first-Ansatz an."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1404,
+   "zeit": "23:24",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1404s",
+   "aussage": "Laut Christoph betreiben mittlerweile die meisten großen Pharmakonzerne hybride Cloud-Umgebungen mit mehreren Anbietern und bauen darin Lakehouses für die Datenaufbereitung auf."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "GxP Talk - Testing im GxP-Umfeld",
+   "dokument_id": "yt:B0_sSJQVG8w",
+   "sekunde": 2913,
+   "zeit": "48:33",
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=2913s",
+   "aussage": "Ein häufiger Wechsel von Führungskräften im Pharmaumfeld kann mehrjährige Digitalisierungs- und Testautomatisierungsinitiativen gefährden, wenn die Strategie nicht organisationsweit verankert ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 563,
+   "zeit": "09:23",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=563s",
+   "aussage": "Digitization bedeutet lediglich, ein Papierdokument in ein digitales Format wie PDF zu überführen, während Digitalization den zugrunde liegenden Prozess neu gestaltet."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 563,
+   "zeit": "09:23",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=563s",
+   "aussage": "Viele Unternehmen digitalisieren bestehende Prozesse unreflektiert, anstatt vorher zu hinterfragen, ob einzelne Schritte wie Unterschriften in der digitalen Welt überhaupt noch erforderlich sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 1048,
+   "zeit": "17:28",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=1048s",
+   "aussage": "In einem der begleiteten GXP-Projekte ist die Validierung nach Einschätzung der Sprecherin bereits zu rund 30 Prozent digital und toolgestützt dokumentiert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 3064,
+   "zeit": "51:04",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=3064s",
+   "aussage": "Ein zentrales Fazit der Diskussion ist, dass der größte Hemmschuh für mehr Agilität in GXP-Projekten eher in der Organisation, insbesondere in der Verfügbarkeit des Fachbereichs, liegt als in der Technologie."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 98,
+   "zeit": "01:38",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=98s",
+   "aussage": "Unternehmen unterscheiden bei der Digitalisierung typischerweise drei Horizonte: interne Prozessautomatisierung, nach außen gerichtete Produkt- und Serviceerweiterungen sowie die grundsätzliche Neuausrichtung des Geschäftsmodells."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 207,
+   "zeit": "03:27",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=207s",
+   "aussage": "Trotz jahrzehntelanger Digitalisierungsbemühungen sind selbst Basisthemen wie die digitale Rechnungsverfolgung in vielen Unternehmen immer noch nicht flächendeckend ausgerollt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 487,
+   "zeit": "08:07",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=487s",
+   "aussage": "Bevor man sich mit Tools beschäftigt, sollte man gemeinsam mit den relevantesten Stakeholdern zunächst ein gemeinsames Zielbild entwickeln."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 995,
+   "zeit": "16:35",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=995s",
+   "aussage": "Heiko hat Digitalisierungsthemen wie Microsoft Fabric oder Power BI in Organisationen oft zunächst bottom-up in einem einzelnen Bereich als Beweis eingeführt, bevor sie zentralisiert wurden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1621,
+   "zeit": "27:01",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1621s",
+   "aussage": "Erfolgreiche Use-Case-Archetypen sollten über sogenannte AI Champions dezentral in andere Unternehmensbereiche transferiert und skaliert werden, statt isoliert zu bleiben."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1769,
+   "zeit": "29:29",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1769s",
+   "aussage": "KI wirkt aktuell als Katalysator der digitalen Transformation, weil die Bedienhürde niedriger ist als bei klassischen BI-Tools und dadurch eine deutlich größere Zielgruppe erreicht wird."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 2101,
+   "zeit": "35:01",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=2101s",
+   "aussage": "Ein komplett neu aufgebautes Unternehmen auf der grünen Wiese als Ersatz für die Transformation bestehender Unternehmen wird als unrealistische Hypothese eingeschätzt, da viele Firmen stark in Produktentwicklung und Manufacturing verwurzelt sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 2141,
+   "zeit": "35:41",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2141s",
+   "aussage": "Die Corona-Pandemie wirkte als Digitalisierungsschub in der Pharmabranche, etwa durch die Ablösung papierbasierter Leistungsdialoge im Homeoffice."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 2141,
+   "zeit": "35:41",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2141s",
+   "aussage": "Layher schätzt, dass die Pharmabranche der übrigen Industrie in der Digitalisierung rund zehn Jahre hinterherhinkt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 2531,
+   "zeit": "42:11",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2531s",
+   "aussage": "Moderne Produktionsanlagen bestehen aus vielen vernetzten Computersystemen, und da Software statistisch etwa einen Fehler pro 1000 Codezeilen enthält, ist schnelles Beheben auftretender Fehler unverzichtbar."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:jETxUNQSl-w",
+   "titel": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.241,
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:38",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=98s",
+     "sekunde": 98
+    },
+    {
+     "label": "29:29",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1769s",
+     "sekunde": 1769
+    }
+   ]
+  },
+  {
+   "id": "yt:DFw664hd1IE",
+   "titel": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.065,
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE",
+   "sprungmarken": [
+    {
+     "label": "11:04",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=664s",
+     "sekunde": 664
+    },
+    {
+     "label": "29:02",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1742s",
+     "sekunde": 1742
+    }
+   ]
+  },
+  {
+   "id": "yt:oh-3_65IQ2Q",
+   "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
+   "sprungmarken": [
+    {
+     "label": "26:57",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1617s",
+     "sekunde": 1617
+    },
+    {
+     "label": "40:54",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2454s",
+     "sekunde": 2454
+    }
+   ]
+  },
+  {
+   "id": "yt:XtH4JqTwaqM",
+   "titel": "GxP Talk - KI im regulierten Umfeld?",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM",
+   "sprungmarken": [
+    {
+     "label": "33:21",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2001s",
+     "sekunde": 2001
+    },
+    {
+     "label": "48:52",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2932s",
+     "sekunde": 2932
+    }
+   ]
+  },
+  {
+   "id": "yt:KO_qFge77o8",
+   "titel": "GxP Talk - Validierung vs. Agilität",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.054,
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8",
+   "sprungmarken": [
+    {
+     "label": "00:04",
+     "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=4s",
+     "sekunde": 4
+    },
+    {
+     "label": "07:49",
+     "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=469s",
+     "sekunde": 469
+    }
+   ]
+  },
+  {
+   "id": "yt:KwySyTxW_EI",
+   "titel": "The Day After Tomorrow – Nach der Einführung geht es erst richtig los | Power BI Summit 2023",
+   "datum": "2023-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=KwySyTxW_EI",
+   "sprungmarken": [
+    {
+     "label": "03:01",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=181s",
+     "sekunde": 181
+    }
+   ]
+  },
+  {
+   "id": "yt:B0_sSJQVG8w",
+   "titel": "GxP Talk - Testing im GxP-Umfeld",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w",
+   "sprungmarken": [
+    {
+     "label": "03:14",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=194s",
+     "sekunde": 194
+    }
+   ]
+  },
+  {
+   "id": "yt:iB4vHRvaErE",
+   "titel": "Mensch bleiben, wenn Power BI geht",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=iB4vHRvaErE",
+   "sprungmarken": [
+    {
+     "label": "28:38",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=1718s",
+     "sekunde": 1718
+    }
+   ]
+  },
+  {
+   "id": "yt:0cHtxIm7fVw",
+   "titel": "Von Patronen zu Prozessen",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:s3CveEVoDvo",
+   "titel": "Von Patronen zu Prozessen (nur Ton)",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=s3CveEVoDvo",
+   "sprungmarken": []
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Adigitalisierung",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Adigitalisierung&f=topic%3Adigitalisierung"
+}

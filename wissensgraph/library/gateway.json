@@ -1,0 +1,372 @@
+{
+ "id": "tool:gateway",
+ "name": "Gateway",
+ "typ": "tool",
+ "slug": "gateway",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 11,
+ "kernaussagen_gesamt": 1,
+ "mit_kernaussagen": 1,
+ "aliase": [
+  "Data Gateway",
+  "On-Premises Data Gateway"
+ ],
+ "einordnung": "Ein Vorteil des Push-Prinzips ist, dass kein Eingriff aus der Cloud in das lokale Netzwerk über ein Data Gateway nötig ist.",
+ "nachbarn": [
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:premium",
+   "name": "Premium",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "premium.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "refresh.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:azure",
+   "name": "Azure",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "azure.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "tool:semantic-model",
+   "name": "Semantic Model",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "semantic-model.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 662,
+   "zeit": "11:02",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=662s",
+   "aussage": "Ein Vorteil des Push-Prinzips ist, dass kein Eingriff aus der Cloud in das lokale Netzwerk über ein Data Gateway nötig ist."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:TYmKrreMO3I",
+   "titel": "Daten-WG Deep Dive Financial Reporting",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.189,
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
+   "sprungmarken": [
+    {
+     "label": "42:34",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2554s",
+     "sekunde": 2554
+    },
+    {
+     "label": "44:08",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2648s",
+     "sekunde": 2648
+    },
+    {
+     "label": "58:36",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=3516s",
+     "sekunde": 3516
+    }
+   ]
+  },
+  {
+   "id": "yt:5HhNQZlB-1E",
+   "titel": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E",
+   "sprungmarken": [
+    {
+     "label": "11:02",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=662s",
+     "sekunde": 662
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.047,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "24:40",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1480s",
+     "sekunde": 1480
+    },
+    {
+     "label": "26:13",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1573s",
+     "sekunde": 1573
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.035,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Embedded",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Zwei%20Gateway-Modi",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Updates%20einplanen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.032,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "06:11",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=371s",
+     "sekunde": 371
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "30:50",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1850s",
+     "sekunde": 1850
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "15:02",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=902s",
+     "sekunde": 902
+    }
+   ]
+  },
+  {
+   "id": "yt:aYHk_V8n_CE",
+   "titel": "Daten-WG Special: Power BI vs. Qlik",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
+   "sprungmarken": [
+    {
+     "label": "16:01",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=961s",
+     "sekunde": 961
+    }
+   ]
+  },
+  {
+   "id": "yt:_Vh5fDfHWz4",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part2",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4",
+   "sprungmarken": [
+    {
+     "label": "22:02",
+     "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=1322s",
+     "sekunde": 1322
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.023,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wohin%20Shortcuts%20zeigen%20k%C3%B6nnen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Bausteine",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20er%20kann",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "18:22",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1102s",
+     "sekunde": 1102
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Agateway",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Agateway&f=tool%3Agateway"
+}

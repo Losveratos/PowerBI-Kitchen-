@@ -1,0 +1,421 @@
+{
+ "id": "tool:sql-server",
+ "name": "SQL Server",
+ "typ": "tool",
+ "slug": "sql-server",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 13,
+ "kernaussagen_gesamt": 2,
+ "mit_kernaussagen": 2,
+ "aliase": [
+  "T-SQL",
+  "MSSQL"
+ ],
+ "einordnung": "Im SSIS-Datenfluss wird über eine Quelle eine SQL-Datenbank verbunden und darüber ausgewählt, welche Tabelle und Spalten geladen werden. Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst.",
+ "nachbarn": [
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 17,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 15,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:azure",
+   "name": "Azure",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "azure.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "topic:echtzeit",
+   "name": "Echtzeit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "echtzeit.md"
+  },
+  {
+   "id": "tool:delta-lake",
+   "name": "Delta Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "delta-lake.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "tool:spark",
+   "name": "Spark",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "spark.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  },
+  {
+   "id": "tool:sql-endpoint",
+   "name": "SQL Endpoint",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "sql-endpoint.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "power-query.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "reporting.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 1905,
+   "zeit": "31:45",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s",
+   "aussage": "Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 253,
+   "zeit": "04:13",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=253s",
+   "aussage": "Im SSIS-Datenfluss wird über eine Quelle eine SQL-Datenbank verbunden und darüber ausgewählt, welche Tabelle und Spalten geladen werden."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:5HhNQZlB-1E",
+   "titel": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.167,
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E",
+   "sprungmarken": [
+    {
+     "label": "00:41",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=41s",
+     "sekunde": 41
+    },
+    {
+     "label": "01:15",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=75s",
+     "sekunde": 75
+    },
+    {
+     "label": "07:20",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=440s",
+     "sekunde": 440
+    }
+   ]
+  },
+  {
+   "id": "yt:ihi7UiJ_TtQ",
+   "titel": "Why Passion Beats Niche",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.154,
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "04:38",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=278s",
+     "sekunde": 278
+    },
+    {
+     "label": "25:05",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1505s",
+     "sekunde": 1505
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.093,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Das%20%E2%80%9EOne%20Copy%22-Prinzip",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Warehouse",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20das%20Warehouse%20exklusiv%20kann",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:hbUYMyqb6r8",
+   "titel": "Denken in Tabellen",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8",
+   "sprungmarken": [
+    {
+     "label": "13:46",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=826s",
+     "sekunde": 826
+    },
+    {
+     "label": "31:45",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s",
+     "sekunde": 1905
+    }
+   ]
+  },
+  {
+   "id": "yt:UUlPoJOhco8",
+   "titel": "Metadaten als Superkraft",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8",
+   "sprungmarken": [
+    {
+     "label": "01:34",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=94s",
+     "sekunde": 94
+    }
+   ]
+  },
+  {
+   "id": "yt:9wl_PLvgvyc",
+   "titel": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc",
+   "sprungmarken": [
+    {
+     "label": "33:13",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=1993s",
+     "sekunde": 1993
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.039,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wann%20brauche%20ich%20ein%20Gateway%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Externe%20Tools%20aktivieren",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:m3xNYfVih0Q",
+   "titel": "Starting with Microsft Fabric the Skills you need",
+   "datum": "2024-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.032,
+   "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q",
+   "sprungmarken": [
+    {
+     "label": "33:34",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2014s",
+     "sekunde": 2014
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "02:10",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=130s",
+     "sekunde": 130
+    }
+   ]
+  },
+  {
+   "id": "yt:pOJpXxsfUt0",
+   "titel": "BI Thinkers Talk n.73",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0",
+   "sprungmarken": [
+    {
+     "label": "09:44",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=584s",
+     "sekunde": 584
+    }
+   ]
+  },
+  {
+   "id": "yt:r416vanitYw",
+   "titel": "BI Thinkers Talk nr.69",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.023,
+   "url": "https://www.youtube.com/watch?v=r416vanitYw",
+   "sprungmarken": [
+    {
+     "label": "1:00:24",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=3624s",
+     "sekunde": 3624
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.023,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "21:31",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1291s",
+     "sekunde": 1291
+    }
+   ]
+  },
+  {
+   "id": "yt:mlkP-6i5Kq8",
+   "titel": "BI Thinkers Talk nr.76",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8",
+   "sprungmarken": [
+    {
+     "label": "49:05",
+     "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=2945s",
+     "sekunde": 2945
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Asql-server",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Asql-server&f=tool%3Asql-server"
+}

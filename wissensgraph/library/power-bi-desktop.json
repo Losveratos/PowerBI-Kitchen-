@@ -1,0 +1,1296 @@
+{
+ "id": "tool:power-bi-desktop",
+ "name": "Power BI Desktop",
+ "typ": "tool",
+ "slug": "power-bi-desktop",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 38,
+ "kernaussagen_gesamt": 36,
+ "mit_kernaussagen": 12,
+ "aliase": [
+  "Desktop"
+ ],
+ "einordnung": "Die Visual-Studio-Code-Erweiterung für Microsoft Fabric erlaubt es, aus einer Power-BI-Projektdatei einzelne Teile wie nur den Bericht oder nur das semantische Modell hochzuladen, statt immer die gesamte PBIX hochzuladen. Microsoft plant eine Funktion, mit der Power BI Desktop Codeänderungen im Hintergrund automatisch erkennt und die Berichtsdefinition neu lädt, ohne dass die Anwendung komplett neu gestartet werden muss. Power BI Desktop wurde so gehärtet, dass es Codesegmente von Drittanbieter-Tools, die es selbst nicht versteht, ignoriert, statt wie früher etwa bei manuellen Partitionsdefinitionen mit einem Fehler abzubrechen.",
+ "nachbarn": [
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 108,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 47,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 25,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 22,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 19,
+   "beleg": "",
+   "datei": "power-query.md"
+  },
+  {
+   "id": "tool:semantic-model",
+   "name": "Semantic Model",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 18,
+   "beleg": "",
+   "datei": "semantic-model.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 17,
+   "beleg": "",
+   "datei": "refresh.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 15,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
+   "id": "tool:directquery",
+   "name": "DirectQuery",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "directquery.md"
+  },
+  {
+   "id": "tool:premium",
+   "name": "Premium",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "premium.md"
+  },
+  {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 189,
+   "zeit": "03:09",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=189s",
+   "aussage": "In Power BI Desktop können wegen fehlender Python-Installation aus Sicherheitsgründen keine Python-basierten Visuals wie Matplotlib, Plotly oder Seaborn genutzt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=0s",
+   "aussage": "In den Canvas-Einstellungen von Power BI Desktop lässt sich jetzt Full HD als fertige Auflösungsoption auswählen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 25,
+   "zeit": "00:25",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=25s",
+   "aussage": "Die neue Full-HD-Option ersetzt das bisher nötige manuelle Eintippen der Auflösung 1920x1080 in den Canvas-Einstellungen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 25,
+   "zeit": "00:25",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=25s",
+   "aussage": "Der Autor sieht die feste Full-HD-Auflösung als Fortschritt, auch wenn andere Auflösungen für Browser-Bildschirme unter Umständen besser passen könnten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 178,
+   "zeit": "02:58",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s",
+   "aussage": "Preview-Visuals werden in Power BI Desktop jetzt unten angepinnt angezeigt, damit sie leichter als Preview erkennbar sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 2180,
+   "zeit": "36:20",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2180s",
+   "aussage": "Ein Perspective Editor und ein Translation Editor stehen in Power BI Desktop nativ nicht zur Verfügung und erfordern sonst Drittanbieter-Tools wie Tabular Editor."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 2872,
+   "zeit": "47:52",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2872s",
+   "aussage": "Über die in der PBIR-Datei gespeicherten Seitenverbindungen lässt sich die mehrstufige Navigationsstruktur eines Berichts sichtbar machen, was in Power BI Desktop selbst nicht einsehbar ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 42,
+   "zeit": "00:42",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=42s",
+   "aussage": "Die visuelle Oberfläche von Power BI Desktop wurde mit neuen Standardeinstellungen modernisiert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 42,
+   "zeit": "00:42",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=42s",
+   "aussage": "Der neue graue Standardhintergrund der visuellen Oberfläche gefällt dem Sprecher nicht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 96,
+   "zeit": "01:36",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=96s",
+   "aussage": "Für neu angelegte Seiten ist HD die neue Standardauflösung, bestehende Seiten sind davon nicht betroffen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 96,
+   "zeit": "01:36",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=96s",
+   "aussage": "Neue Standardeinstellungen sollten in bestehenden Produktionsberichten nur vorsichtig übernommen werden, da dort oft schon individuelle Anpassungen bestehen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 148,
+   "zeit": "02:28",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=148s",
+   "aussage": "Mit den Custom Totals lässt sich die Gesamtsumme einer Kennzahl (Measure Totals) individuell anders berechnen als die Summe der Einzelzeilen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 302,
+   "zeit": "05:02",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=302s",
+   "aussage": "Die neue Karten-Visual-Kachel in Power BI Desktop unterstützt Kreuzfilterung nur, wenn die Kategorienkopfzeile horizontal oben statt seitlich links angeordnet ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 337,
+   "zeit": "05:37",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=337s",
+   "aussage": "Für Zeilenbeschriftungen lassen sich jetzt Führungslinien aktivieren, die bei engem Platz die Zuordnung zu den Werten erleichtern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 357,
+   "zeit": "05:57",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=357s",
+   "aussage": "Benutzerdefinierte DAX-Funktionen lassen sich jetzt auch über die grafische Oberfläche anlegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 30,
+   "zeit": "00:30",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=30s",
+   "aussage": "Ein Feldparameter lässt sich in Power BI Desktop über Modeling und \"Neuer Feldparameter\" anlegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 71,
+   "zeit": "01:11",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=71s",
+   "aussage": "Power BI erzeugt beim Anlegen eines Feldparameters automatisch eine per DAX erstellte Parametertabelle sowie einen passenden Slicer."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 198,
+   "zeit": "03:18",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=198s",
+   "aussage": "Field Parameters lassen sich aus einer Datumstabelle mit verschiedenen Ebenen (z. B. Jahr, Monatsname) aufbauen und über die Option \"Single Selection\" als klassischer Werte-Slicer statt als Auswahl-Schalter nutzen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 689,
+   "zeit": "11:29",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=689s",
+   "aussage": "Bei einem reinen Flächendiagramm zeigt Power BI im Tooltip vor jedem Feld korrekt einen farbigen Punkt an, während dieselbe Darstellung bei einem kombinierten Line-and-Column-Chart mit zwei Achsen fehlerhaft wird."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 789,
+   "zeit": "13:09",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=789s",
+   "aussage": "Nach Einschätzung des Sprechers besteht der Tooltip-Fehler bei kombinierten Line-and-Column-Charts mit zwei Achsen bereits seit 2023."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 974,
+   "zeit": "16:14",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=974s",
+   "aussage": "Zieht man zusätzliche Measures in das Tooltip-Feld eines Visuals, werden weitere Werte im Tooltip angezeigt, das ursprünglich gebundene Measure lässt sich dabei aber nicht aus dem Tooltip entfernen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 974,
+   "zeit": "16:14",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=974s",
+   "aussage": "Bei komplexen Diagrammen mit unzuverlässigen Standard-Tooltips empfiehlt der Sprecher eine dedizierte Tooltip-Seite, weil generische Lösungen wegen der visual-spezifischen Filterauswahl nicht funktionieren."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 1847,
+   "zeit": "30:47",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=1847s",
+   "aussage": "Bei zwei redundanten Balken- und Liniendiagrammen mit demselben zugrunde liegenden Feld zeigt Power BI die X-Achsenbeschriftung je nach Diagrammtyp unterschiedlich fett formatiert an, ohne dass dafür ein nachvollziehbarer Grund erkennbar ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 2439,
+   "zeit": "40:39",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2439s",
+   "aussage": "Eine Monitoring-Analyse zeigte, dass über zwei Drittel der Last auf einem produktiven Direct-Lake-Semantic-Model von Entwicklern in Power BI Desktop stammten und nicht von den eigentlichen Report-Nutzern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 2913,
+   "zeit": "48:33",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2913s",
+   "aussage": "In der Power BI Service Web-Oberfläche gibt es aktuell keine Möglichkeit, die Datenquelle eines Reports direkt umzuhängen; das lässt sich nur nach dem Download im Power BI Desktop ändern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 226,
+   "zeit": "03:46",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=226s",
+   "aussage": "Power BI im Web unterstützt jetzt die Themes-Auswahl und den Performance Analyzer und ist damit fast gleichwertig zu Power BI Desktop."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 330,
+   "zeit": "05:30",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=330s",
+   "aussage": "Ab der Februar-Version von Power BI Desktop wird PBIP zur neuen Standardeinstellung beim Speichern von Berichten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 1632,
+   "zeit": "27:12",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1632s",
+   "aussage": "In Power BI Desktop eingefügte Hyperlinks in Textfeldern lassen sich erst nach der Veröffentlichung des Berichts anklicken, nicht direkt im Desktop."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 296,
+   "zeit": "04:56",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=296s",
+   "aussage": "Die Visual-Studio-Code-Erweiterung für Microsoft Fabric erlaubt es, aus einer Power-BI-Projektdatei einzelne Teile wie nur den Bericht oder nur das semantische Modell hochzuladen, statt immer die gesamte PBIX hochzuladen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 695,
+   "zeit": "11:35",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=695s",
+   "aussage": "Microsoft plant eine Funktion, mit der Power BI Desktop Codeänderungen im Hintergrund automatisch erkennt und die Berichtsdefinition neu lädt, ohne dass die Anwendung komplett neu gestartet werden muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 791,
+   "zeit": "13:11",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=791s",
+   "aussage": "Power BI Desktop wurde so gehärtet, dass es Codesegmente von Drittanbieter-Tools, die es selbst nicht versteht, ignoriert, statt wie früher etwa bei manuellen Partitionsdefinitionen mit einem Fehler abzubrechen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 882,
+   "zeit": "14:42",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=882s",
+   "aussage": "Berichte mit Writeback-Visuals wie InfoRiver sollten nach Möglichkeit nicht mehr in Power BI Desktop bearbeitet werden, weil ein erneutes Laden dort bereits von Nutzern eingegebene Daten überschreiben könnte."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1263,
+   "zeit": "21:03",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1263s",
+   "aussage": "Ein bestehender Bericht wurde im Live-Connection-Modus aus dem Power-BI-Service heruntergeladen und anschließend über die Datenverbindung von seinem ursprünglichen Importmodell auf ein neu aufgebautes Direct-Lake-Modell mit identischen Measure-Namen umgestellt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 3732,
+   "zeit": "1:02:12",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3732s",
+   "aussage": "Neue wiederverwendbare DAX-Funktionen lassen sich derzeit nicht direkt in der Power-BI-Desktop-Oberfläche erstellen oder bearbeiten, sondern nur im DAX-Abfrageeditor oder über die TMDL-Ansicht, während Desktop sie nur lesend als vorhandene Funktionen mit Lösch- und Umbenennen-Option anzeigt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 406,
+   "zeit": "06:46",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=406s",
+   "aussage": "Eine im Jahr 2016 erstellte Power-BI-Datei ließ sich auch mit einer neueren Programmversion noch öffnen, während der umgekehrte Weg nicht funktioniert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 187,
+   "zeit": "03:07",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=187s",
+   "aussage": "Das März-Update von Power BI Desktop führt ein neues UI-Standarddesign mit grauem Hintergrund ein."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:lT-C7fPzxj4",
+   "titel": "Power BI Update April 2025",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.5,
+   "url": "https://www.youtube.com/watch?v=lT-C7fPzxj4",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=lT-C7fPzxj4&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:36",
+     "url": "https://www.youtube.com/watch?v=lT-C7fPzxj4&t=96s",
+     "sekunde": 96
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart",
+   "titel": "ChartKitchen byDatenWG — Schnellstart",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.4,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=Visual%20herunterladen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=01%20%C2%B7%20In%20drei%20Schritten%20loslegen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart_en",
+   "titel": "ChartKitchen byDatenWG — Quick Start",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.4,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=Download%20the%20visual",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:LnNoXBIG7Lc",
+   "titel": "Power BI Update Juni 2025",
+   "datum": "2025-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.4,
+   "url": "https://www.youtube.com/watch?v=LnNoXBIG7Lc",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:45",
+     "url": "https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=105s",
+     "sekunde": 105
+    }
+   ]
+  },
+  {
+   "id": "yt:gspmWlVrNdA",
+   "titel": "So rettest du deine kaputte Power BI Theme Datei in 5 Minuten! | Power BI Tutorial",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.333,
+   "url": "https://www.youtube.com/watch?v=gspmWlVrNdA",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=gspmWlVrNdA&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "01:31",
+     "url": "https://www.youtube.com/watch?v=gspmWlVrNdA&t=91s",
+     "sekunde": 91
+    },
+    {
+     "label": "07:00",
+     "url": "https://www.youtube.com/watch?v=gspmWlVrNdA&t=420s",
+     "sekunde": 420
+    }
+   ]
+  },
+  {
+   "id": "page:powerbi-design-skill",
+   "titel": "Report-Design als Framework — ein Skill für Power BI",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.3,
+   "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=4%20%C2%B7%20Warten%20statt%20neu%20bauen%20%E2%80%94%20Bulk%20%C2%B7%20Linter%20%C2%B7%20Wireframes",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Der%20Praxistest%3A%20%2Adiese%20Webseite%20als%20Branding-Quelle%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=F%C3%BCr%20wen%3A%20%2AMenschen%20und%20Agenten%2A",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:jTXo4aEr07o",
+   "titel": "Power BI Update August 2025",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.286,
+   "url": "https://www.youtube.com/watch?v=jTXo4aEr07o",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=jTXo4aEr07o&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "02:46",
+     "url": "https://www.youtube.com/watch?v=jTXo4aEr07o&t=166s",
+     "sekunde": 166
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.213,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "11:35",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=695s",
+     "sekunde": 695
+    },
+    {
+     "label": "19:28",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1168s",
+     "sekunde": 1168
+    },
+    {
+     "label": "21:03",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1263s",
+     "sekunde": 1263
+    }
+   ]
+  },
+  {
+   "id": "yt:r416vanitYw",
+   "titel": "BI Thinkers Talk nr.69",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.209,
+   "url": "https://www.youtube.com/watch?v=r416vanitYw",
+   "sprungmarken": [
+    {
+     "label": "15:12",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=912s",
+     "sekunde": 912
+    },
+    {
+     "label": "18:27",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=1107s",
+     "sekunde": 1107
+    },
+    {
+     "label": "52:27",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=3147s",
+     "sekunde": 3147
+    }
+   ]
+  },
+  {
+   "id": "yt:LUrL8A5lNgI",
+   "titel": "BI Thinkers Talk nr.71",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.15,
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI",
+   "sprungmarken": [
+    {
+     "label": "16:11",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=971s",
+     "sekunde": 971
+    },
+    {
+     "label": "24:01",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1441s",
+     "sekunde": 1441
+    },
+    {
+     "label": "1:07:32",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=4052s",
+     "sekunde": 4052
+    }
+   ]
+  },
+  {
+   "id": "page:powerbi_praxis_pfad",
+   "titel": "Dein erstes Dashboard — Power-BI-Praxis-Pfad",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.147,
+   "url": "https://datenwgknowledgekitchen.com/powerbi_praxis_pfad.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi_praxis_pfad.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi_praxis_pfad.html#:~:text=Modul%200%20%C2%B7%20Power%20BI%20installieren",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi_praxis_pfad.html#:~:text=So%20geht%27s",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:fbpu8zLG3cc",
+   "titel": "Power BI Update April 2026",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc",
+   "sprungmarken": [
+    {
+     "label": "02:58",
+     "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s",
+     "sekunde": 178
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.14,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "25:02",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1502s",
+     "sekunde": 1502
+    },
+    {
+     "label": "31:16",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1876s",
+     "sekunde": 1876
+    },
+    {
+     "label": "55:20",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3320s",
+     "sekunde": 3320
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.139,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "07:46",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=466s",
+     "sekunde": 466
+    },
+    {
+     "label": "26:33",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1593s",
+     "sekunde": 1593
+    },
+    {
+     "label": "40:30",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2430s",
+     "sekunde": 2430
+    }
+   ]
+  },
+  {
+   "id": "yt:aYHk_V8n_CE",
+   "titel": "Daten-WG Special: Power BI vs. Qlik",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.135,
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
+   "sprungmarken": [
+    {
+     "label": "08:02",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=482s",
+     "sekunde": 482
+    },
+    {
+     "label": "09:43",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=583s",
+     "sekunde": 583
+    },
+    {
+     "label": "46:51",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2811s",
+     "sekunde": 2811
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.131,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=3.%20Bidirektional%20sparsam",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=01%20%C2%B7%20Architektur%20%26%20%2AKomponenten%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Externe%20Tools%20aktivieren",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:pOJpXxsfUt0",
+   "titel": "BI Thinkers Talk n.73",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.108,
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0",
+   "sprungmarken": [
+    {
+     "label": "40:39",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2439s",
+     "sekunde": 2439
+    },
+    {
+     "label": "47:01",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2821s",
+     "sekunde": 2821
+    },
+    {
+     "label": "48:33",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2913s",
+     "sekunde": 2913
+    }
+   ]
+  },
+  {
+   "id": "yt:DcEfNIupEHM",
+   "titel": "Power BI Seiten per URL steuern - Sprechende URLs mit PBIP & VS Code | Power BI Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=DcEfNIupEHM",
+   "sprungmarken": [
+    {
+     "label": "06:49",
+     "url": "https://www.youtube.com/watch?v=DcEfNIupEHM&t=409s",
+     "sekunde": 409
+    }
+   ]
+  },
+  {
+   "id": "yt:sShNdgnHjr4",
+   "titel": "TMDL Magie: Multi Parameter Tabelle - Feldparameter Next Level! | Power BI Tutorial",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=sShNdgnHjr4",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=sShNdgnHjr4&t=1s",
+     "sekunde": 1
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.094,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "08:27",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=507s",
+     "sekunde": 507
+    },
+    {
+     "label": "13:17",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=797s",
+     "sekunde": 797
+    },
+    {
+     "label": "26:39",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1599s",
+     "sekunde": 1599
+    }
+   ]
+  },
+  {
+   "id": "yt:mlkP-6i5Kq8",
+   "titel": "BI Thinkers Talk nr.76",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.088,
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8",
+   "sprungmarken": [
+    {
+     "label": "03:09",
+     "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=189s",
+     "sekunde": 189
+    },
+    {
+     "label": "06:27",
+     "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=387s",
+     "sekunde": 387
+    },
+    {
+     "label": "27:00",
+     "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1620s",
+     "sekunde": 1620
+    }
+   ]
+  },
+  {
+   "id": "yt:9wl_PLvgvyc",
+   "titel": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc",
+   "sprungmarken": [
+    {
+     "label": "11:07",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=667s",
+     "sekunde": 667
+    },
+    {
+     "label": "34:44",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=2084s",
+     "sekunde": 2084
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.075,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "36:20",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2180s",
+     "sekunde": 2180
+    },
+    {
+     "label": "46:11",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2771s",
+     "sekunde": 2771
+    },
+    {
+     "label": "47:52",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2872s",
+     "sekunde": 2872
+    }
+   ]
+  },
+  {
+   "id": "yt:VD1N68Fhoco",
+   "titel": "BI Thinkers Talk nr.68",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.075,
+   "url": "https://www.youtube.com/watch?v=VD1N68Fhoco",
+   "sprungmarken": [
+    {
+     "label": "01:34",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=94s",
+     "sekunde": 94
+    },
+    {
+     "label": "16:06",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=966s",
+     "sekunde": 966
+    },
+    {
+     "label": "29:09",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=1749s",
+     "sekunde": 1749
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.073,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "02:59",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=179s",
+     "sekunde": 179
+    },
+    {
+     "label": "04:32",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=272s",
+     "sekunde": 272
+    },
+    {
+     "label": "06:09",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=369s",
+     "sekunde": 369
+    }
+   ]
+  },
+  {
+   "id": "yt:rWE0gMx7v7I",
+   "titel": "BI Thinkers Talk n.74",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.064,
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I",
+   "sprungmarken": [
+    {
+     "label": "05:02",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=302s",
+     "sekunde": 302
+    },
+    {
+     "label": "06:41",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=401s",
+     "sekunde": 401
+    },
+    {
+     "label": "11:17",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=677s",
+     "sekunde": 677
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.062,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=03%20%C2%B7%20Semantische%20Modelle%20%26%20%2ADirect%20Lake%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Measures%20schreiben",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Konsum-Wege",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:e50qKdVn-24",
+   "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
+   "sprungmarken": [
+    {
+     "label": "07:42",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=462s",
+     "sekunde": 462
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.054,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "03:46",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=226s",
+     "sekunde": 226
+    },
+    {
+     "label": "05:30",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=330s",
+     "sekunde": 330
+    }
+   ]
+  },
+  {
+   "id": "yt:232JhS9vbQ0",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 7",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.054,
+   "url": "https://www.youtube.com/watch?v=232JhS9vbQ0",
+   "sprungmarken": [
+    {
+     "label": "08:31",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=511s",
+     "sekunde": 511
+    },
+    {
+     "label": "20:17",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=1217s",
+     "sekunde": 1217
+    }
+   ]
+  },
+  {
+   "id": "yt:iinfiHxznOU",
+   "titel": "Unboxing MCP Server for Power BI Modelling",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
+   "sprungmarken": [
+    {
+     "label": "28:36",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=1716s",
+     "sekunde": 1716
+    },
+    {
+     "label": "43:00",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2580s",
+     "sekunde": 2580
+    }
+   ]
+  },
+  {
+   "id": "yt:Wwvhv8WA2Qc",
+   "titel": "BI Thinkers Talk Nr.62",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc",
+   "sprungmarken": [
+    {
+     "label": "33:23",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2003s",
+     "sekunde": 2003
+    },
+    {
+     "label": "1:02:29",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3749s",
+     "sekunde": 3749
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-doku_en",
+   "titel": "ChartKitchen byDatenWG — Documentation",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.035,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=1%20%C2%B7%20Import%20the%20visual",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=04%20%C2%B7%20ChartKitchen%20in%20action",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-doku",
+   "titel": "ChartKitchen byDatenWG — Dokumentation",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.033,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=1%20%C2%B7%20Visual%20importieren",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=04%20%C2%B7%20ChartKitchen%20im%20Einsatz",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "08:28",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=508s",
+     "sekunde": 508
+    }
+   ]
+  },
+  {
+   "id": "yt:9VX4-lLa0EI",
+   "titel": "BI Thinkers Talk nr.63",
+   "datum": "2025-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI",
+   "sprungmarken": [
+    {
+     "label": "47:15",
+     "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI&t=2835s",
+     "sekunde": 2835
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "33:57",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2037s",
+     "sekunde": 2037
+    }
+   ]
+  },
+  {
+   "id": "yt:KMk1k5uCLZU",
+   "titel": "Daten-WG Thinkers Talk n61",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
+   "sprungmarken": [
+    {
+     "label": "03:06",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=186s",
+     "sekunde": 186
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Apower-bi-desktop",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Apower-bi-desktop&f=tool%3Apower-bi-desktop"
+}

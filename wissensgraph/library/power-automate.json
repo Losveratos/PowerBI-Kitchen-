@@ -1,0 +1,455 @@
+{
+ "id": "tool:power-automate",
+ "name": "Power Automate",
+ "typ": "tool",
+ "slug": "power-automate",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 13,
+ "kernaussagen_gesamt": 2,
+ "mit_kernaussagen": 2,
+ "aliase": [
+  "Flow"
+ ],
+ "einordnung": "SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist. Process Mining wertet Log- und Transaktionsdaten aus, um Abweichungen vom idealen Prozess sichtbar zu machen, und soll mittlerweile auch in Power Automate Einzug gehalten haben.",
+ "nachbarn": [
+  {
+   "id": "tool:translytical-task-flows",
+   "name": "Translytical Task Flows",
+   "kantentyp": "ersetzt",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "dann hat Power Automate ja explizit über ein Power BI Connector den Refresh triggern müssen. Jetzt ist das alles in einem",
+   "datei": "translytical-task-flows.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "copilot.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "refresh.md"
+  },
+  {
+   "id": "tool:sharepoint",
+   "name": "SharePoint",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "sharepoint.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "topic:schulung",
+   "name": "Schulung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "schulung.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "performance.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 3030,
+   "zeit": "50:30",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3030s",
+   "aussage": "SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 947,
+   "zeit": "15:47",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s",
+   "aussage": "Process Mining wertet Log- und Transaktionsdaten aus, um Abweichungen vom idealen Prozess sichtbar zu machen, und soll mittlerweile auch in Power Automate Einzug gehalten haben."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:1mfhZw7bg_c",
+   "titel": "Forms + Power Automate = Feedback-Alarm!",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.8,
+   "url": "https://www.youtube.com/watch?v=1mfhZw7bg_c",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=1mfhZw7bg_c&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:33",
+     "url": "https://www.youtube.com/watch?v=1mfhZw7bg_c&t=93s",
+     "sekunde": 93
+    },
+    {
+     "label": "06:19",
+     "url": "https://www.youtube.com/watch?v=1mfhZw7bg_c&t=379s",
+     "sekunde": 379
+    }
+   ]
+  },
+  {
+   "id": "yt:_MfM3rhJx58",
+   "titel": "Copilot + Power Automate = Gamechanger",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.667,
+   "url": "https://www.youtube.com/watch?v=_MfM3rhJx58",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:43",
+     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=103s",
+     "sekunde": 103
+    },
+    {
+     "label": "08:07",
+     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=487s",
+     "sekunde": 487
+    }
+   ]
+  },
+  {
+   "id": "yt:kP8YNW1XN_E",
+   "titel": "Forms + Sharepoint + Powerautomate",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.5,
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:36",
+     "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=96s",
+     "sekunde": 96
+    },
+    {
+     "label": "08:12",
+     "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=492s",
+     "sekunde": 492
+    }
+   ]
+  },
+  {
+   "id": "yt:zkfdfc5fo-E",
+   "titel": "Power BI Update Mai 2025",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.214,
+   "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E",
+   "sprungmarken": [
+    {
+     "label": "05:56",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=356s",
+     "sekunde": 356
+    },
+    {
+     "label": "07:46",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=466s",
+     "sekunde": 466
+    },
+    {
+     "label": "09:19",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=559s",
+     "sekunde": 559
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.171,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "02:30",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=150s",
+     "sekunde": 150
+    },
+    {
+     "label": "21:39",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1299s",
+     "sekunde": 1299
+    },
+    {
+     "label": "26:36",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1596s",
+     "sekunde": 1596
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.098,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "06:09",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=369s",
+     "sekunde": 369
+    },
+    {
+     "label": "12:22",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=742s",
+     "sekunde": 742
+    },
+    {
+     "label": "27:23",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1643s",
+     "sekunde": 1643
+    }
+   ]
+  },
+  {
+   "id": "yt:Wwvhv8WA2Qc",
+   "titel": "BI Thinkers Talk Nr.62",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc",
+   "sprungmarken": [
+    {
+     "label": "46:07",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2767s",
+     "sekunde": 2767
+    },
+    {
+     "label": "47:40",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2860s",
+     "sekunde": 2860
+    },
+    {
+     "label": "1:02:29",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3749s",
+     "sekunde": 3749
+    }
+   ]
+  },
+  {
+   "id": "yt:UUlPoJOhco8",
+   "titel": "Metadaten als Superkraft",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8",
+   "sprungmarken": [
+    {
+     "label": "15:47",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s",
+     "sekunde": 947
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.065,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "36:42",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2202s",
+     "sekunde": 2202
+    },
+    {
+     "label": "40:30",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2430s",
+     "sekunde": 2430
+    }
+   ]
+  },
+  {
+   "id": "yt:0cHtxIm7fVw",
+   "titel": "Von Patronen zu Prozessen",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.048,
+   "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw",
+   "sprungmarken": [
+    {
+     "label": "17:12",
+     "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw&t=1032s",
+     "sekunde": 1032
+    }
+   ]
+  },
+  {
+   "id": "yt:s3CveEVoDvo",
+   "titel": "Von Patronen zu Prozessen (nur Ton)",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.048,
+   "url": "https://www.youtube.com/watch?v=s3CveEVoDvo",
+   "sprungmarken": [
+    {
+     "label": "17:12",
+     "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=1032s",
+     "sekunde": 1032
+    }
+   ]
+  },
+  {
+   "id": "yt:r416vanitYw",
+   "titel": "BI Thinkers Talk nr.69",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.047,
+   "url": "https://www.youtube.com/watch?v=r416vanitYw",
+   "sprungmarken": [
+    {
+     "label": "47:43",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=2863s",
+     "sekunde": 2863
+    },
+    {
+     "label": "52:27",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=3147s",
+     "sekunde": 3147
+    }
+   ]
+  },
+  {
+   "id": "yt:luk4S4ukKmg",
+   "titel": "BI Thinkers Talk n.72",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg",
+   "sprungmarken": [
+    {
+     "label": "50:30",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3030s",
+     "sekunde": 3030
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Apower-automate",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Apower-automate&f=tool%3Apower-automate"
+}

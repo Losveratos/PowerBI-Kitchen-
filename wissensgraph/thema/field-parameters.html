@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Field Parameters · DatenWG Library</title>
+<meta name="description" content="Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird. Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu.">
+<meta property="og:title" content="Field Parameters · DatenWG Library">
+<meta property="og:description" content="Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird. Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/field-parameters.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · tool</p>
+<h1>Field Parameters</h1>
+<p class="lead">Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird. Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu. Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte.</p>
+<div class="btns"><a class="btn" href="../#n=tool%3Afield-parameters">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Afield-parameters&amp;f=tool%3Afield-parameters">Im Graph öffnen</a></div>
+<p class="meta">12 Dokumente · 24 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">Feldparameter</span> <span class="tag">Field Parameter</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Ein Feldparameter lässt sich in Power BI Desktop über Modeling und &quot;Neuer Feldparameter&quot; anlegen.<span class="meta quote">Fakt · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=30s">00:30</a></span></li>
+<li>Beim Anlegen eines Feldparameters aus einer Datumstabelle lassen sich Aufteilungen wie Jahr und Monat als Optionen auswählen.<span class="meta quote">Fakt · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=30s">00:30</a></span></li>
+<li>Power BI erzeugt beim Anlegen eines Feldparameters automatisch eine per DAX erstellte Parametertabelle sowie einen passenden Slicer.<span class="meta quote">Fakt · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=71s">01:11</a></span></li>
+<li>Eine Feldparameter-Tabelle kann mehrere Kombinationen gleichzeitig enthalten, zum Beispiel nur das Jahr, Monat und Jahr kombiniert, sowie nur den Monat.<span class="meta quote">Fakt · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=97s">01:37</a></span></li>
+<li>Der Slicer eines Feldparameters lässt sich auf Single Selection einstellen, damit jeweils nur eine Option gewählt werden kann.<span class="meta quote">Empfehlung · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=125s">02:05</a></span></li>
+<li>Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte.<span class="meta quote">Fakt · Power BI Update Februar 2026 · <a href="https://www.youtube.com/watch?v=u-lgbDfIlLg&amp;t=138s">02:18</a></span></li>
+<li>Wird ein Feldparameter als Tabelle eingefügt, zeigt sie den berechneten Wert; wird derselbe Parameter in einem Slicer verwendet, zeigt dieser stattdessen die Auswahlmöglichkeiten.<span class="meta quote">Fakt · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=152s">02:32</a></span></li>
+<li>Wenn eine Feldparameter-Liste in einen Slicer umgewandelt wird, bleiben die zuvor angezeigten Werte als Auswahlmöglichkeiten im Slicer erhalten.<span class="meta quote">Fakt · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=152s">02:32</a></span></li>
+<li>Für einen Feldparameter-Slicer sollte eine vertikale Listendarstellung statt eines Between-Slicers verwendet werden.<span class="meta quote">Empfehlung · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=152s">02:32</a></span></li>
+<li>Field Parameters lassen sich aus einer Datumstabelle mit verschiedenen Ebenen (z. B. Jahr, Monatsname) aufbauen und über die Option &quot;Single Selection&quot; als klassischer Werte-Slicer statt als Auswahl-Schalter nutzen.<span class="meta quote">Fakt · BI Thinkers Talk n.73 · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=198s">03:18</a></span></li>
+<li>Ein Feldparameter kann als interaktiver Filter genutzt werden, der je nach gewählter Kombination unterschiedliche Filterwerte anzeigt, etwa nur Jahre oder Monate mit Jahreszahl.<span class="meta quote">Fakt · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=203s">03:23</a></span></li>
+<li>Die Idee, einen Feldparameter als dynamischen, von der Auswahl abhängigen Filter einzusetzen, stammt aus einem Kundenprojekt und wurde in einem BI-Sinker-Talk vorgestellt.<span class="meta quote">Fakt · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=203s">03:23</a></span></li>
+<li>Über die Option &quot;Show Selected Field&quot; im Feldbereich eines Feldparameters lässt sich der Name des aktuell ausgewählten Parameterfelds anzeigen.<span class="meta quote">Fakt · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=238s">03:58</a></span></li>
+<li>Über die Option &quot;Show Values of Selected Field&quot; lassen sich stattdessen die Werte des aktuell ausgewählten Feldparameter-Felds anzeigen.<span class="meta quote">Fakt · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=266s">04:26</a></span></li>
+<li>Die Optionen &quot;Show Selected Field&quot; und &quot;Show Values of Selected Field&quot; bei Feldparametern sind wenig bekannt, lohnen sich aber für den Einsatz in Projekten.<span class="meta quote">Empfehlung · Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=266s">04:26</a></span></li>
+<li>Für Field-Parameter-Slicer gibt es eine wenig bekannte Option &quot;Show values instead of parameter&quot;, mit der statt der Parameterbezeichnung die tatsächlichen Werte angezeigt werden.<span class="meta quote">Fakt · BI Thinkers Talk n.73 · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=392s">06:32</a></span></li>
+<li>Seit einem Update im Januar merken sich Field Parameters in einer Matrix den zuletzt gewählten Hierarchie-Stand, wenn zwischen unterschiedlichen Gruppierungen umgeschaltet wird.<span class="meta quote">Fakt · BI Thinkers Talk n.73 · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=486s">08:06</a></span></li>
+<li>Field Parameters lassen sich um eine zusätzliche Spalte erweitern, die zusammengehörige Measures wie &quot;Quantity&quot; und &quot;Amount&quot; zu Kategorien gruppiert, sodass mehrere Measures gemeinsam über eine Filterauswahl gesteuert werden können.<span class="meta quote">Empfehlung · BI Thinkers Talk n.73 · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=1452s">24:12</a></span></li>
+<li>Eine aus Databricks stammende Flat Table führte in Power BI zu Problemen mit einer unsauberen Zeitachse und zu wenig flexiblen Darstellungen, die zunächst mit Field Parameters adressiert wurden.<span class="meta quote">Fakt · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=27s">00:27</a></span></li>
+<li>Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird.<span class="meta quote">Fakt · Power BI Update Januar 2026 · <a href="https://www.youtube.com/watch?v=TAM5AAZqh7k&amp;t=122s">02:02</a></span></li>
+<li>Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu.<span class="meta quote">Fakt · Power BI Update Januar 2026 · <a href="https://www.youtube.com/watch?v=TAM5AAZqh7k&amp;t=122s">02:02</a></span></li>
+<li>Der Sprecher hält die Field-Parameter- und Quicktipp-Updates für die produktivsten Neuerungen dieses Monats.<span class="meta quote">Meinung · Power BI Update Januar 2026 · <a href="https://www.youtube.com/watch?v=TAM5AAZqh7k&amp;t=199s">03:19</a></span></li>
+<li>Bei einem Ist-Budget-Vergleich mit unterschiedlicher Granularität von Kunde und Produkt sowie täglicher und monatlicher Frequenz wird eine flache Tabelle mit Field Parameters schnell unübersichtlich, während ein Sternschema die Zusammenführung vereinfacht.<span class="meta quote">Meinung · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=1420s">23:40</a></span></li>
+<li>Mehrere Teilnehmer nennen Field Parameters als eines der wirkungsvollsten neuen Power-BI-Features, weil sie ein einzelnes Visual für verschiedene Kennzahlen und Achsen mehrfach nutzbar machen.<span class="meta quote">Meinung · 10 Jahre Power BI · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=2557s">42:37</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=TAM5AAZqh7k">Power BI Update Januar 2026</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TAM5AAZqh7k&amp;t=122s">02:02</a> · <a href="https://www.youtube.com/watch?v=TAM5AAZqh7k&amp;t=199s">03:19</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=u-lgbDfIlLg">Power BI Update Februar 2026</a><span class="meta quote">2026-02-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=u-lgbDfIlLg&amp;t=138s">02:18</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TkxwcAyBGUM">Power BI Update Juli 2025</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=TkxwcAyBGUM&amp;t=267s">04:27</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=v8dvnqqa7f8">Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“</a><span class="meta quote">2026-02-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=v8dvnqqa7f8&amp;t=30s">00:30</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=sShNdgnHjr4">TMDL Magie: Multi Parameter Tabelle - Feldparameter Next Level! | Power BI Tutorial</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=sShNdgnHjr4&amp;t=1s">00:01</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=VD1N68Fhoco">BI Thinkers Talk nr.68</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=VD1N68Fhoco&amp;t=1443s">24:03</a> · <a href="https://www.youtube.com/watch?v=VD1N68Fhoco&amp;t=1640s">27:20</a> · <a href="https://www.youtube.com/watch?v=VD1N68Fhoco&amp;t=1749s">29:09</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=pOJpXxsfUt0">BI Thinkers Talk n.73</a><span class="meta quote">2026-02-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=1452s">24:12</a> · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=3541s">59:01</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI">10 Jahre Power BI</a><span class="meta quote">2025-07-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=2557s">42:37</a> · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=2839s">47:19</a> · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=4317s">1:11:57</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=4VVNDNusq4U">BI Thinkers Talk nr.64</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=4VVNDNusq4U&amp;t=105s">01:45</a> · <a href="https://www.youtube.com/watch?v=4VVNDNusq4U&amp;t=200s">03:20</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=07%20%C2%B7%20Interaktivit%C3%A4t%20%2A%C2%B7%20UX%2A">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Bookmark%20Navigator">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Field%20Parameters%20f%C3%BCr%20Dimensionen">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=0FPA1k5YiTs">Power BI Deep Dive: DAX UDF + TMDL</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=0FPA1k5YiTs&amp;t=2561s">42:41</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9VX4-lLa0EI">BI Thinkers Talk nr.63</a><span class="meta quote">2025-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9VX4-lLa0EI&amp;t=1773s">29:33</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="dax.html">DAX</a><span class="meta quote">setzt-voraus · belegt · 5 gemeinsame Segmente</span></li>
+<li><a href="visualisierung.html">Visualisierung</a><span class="meta quote">ko-vorkommen · heuristik · 10 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 8 gemeinsame Segmente</span></li>
+<li><a href="power-bi-desktop.html">Power BI Desktop</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="drillthrough.html">Drillthrough</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="bookmarks.html">Bookmarks</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

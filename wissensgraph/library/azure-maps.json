@@ -1,0 +1,311 @@
+{
+ "id": "tool:azure-maps",
+ "name": "Azure Maps",
+ "typ": "tool",
+ "slug": "azure-maps",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 5,
+ "kernaussagen_gesamt": 17,
+ "mit_kernaussagen": 2,
+ "aliase": [
+  "Azure Map"
+ ],
+ "einordnung": "In diesem Tutorial wird gezeigt, wie eine Von-bis-Postleitzahlenregion aus einer Excel-Tabelle in ein Flächenkartogramm mit Azure Maps in Power BI umgewandelt wird. Die von GitHub geladenen Shapefiles liegen als Brotli-komprimierte .br-Dateien vor und müssen vor der Weiterverarbeitung mit einem Online-Tool entpackt werden. Die reparierten Shapefile-Geometrien werden in QGIS über einen Join mit der CSV-Datei der Gebietsaufteilung anhand der Postleitzahl verknüpft.",
+ "nachbarn": [
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "Wenn ihr natürlich in euren Gebieten international arbeitet, habt ihr sowieso die Countryspalte mit drin. Dann braucht ihr die selbstverständlich nicht den DAX zu berechnen.",
+   "datei": "dax.md"
+  },
+  {
+   "id": "tool:azure",
+   "name": "Azure",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "azure.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 2,
+   "zeit": "00:02",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=2s",
+   "aussage": "In diesem Tutorial wird gezeigt, wie eine Von-bis-Postleitzahlenregion aus einer Excel-Tabelle in ein Flächenkartogramm mit Azure Maps in Power BI umgewandelt wird."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 43,
+   "zeit": "00:43",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=43s",
+   "aussage": "Für eigene Kartenregionen in Azure Maps werden das kostenlose Tool QGIS und Shapefiles von GitHub benötigt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 43,
+   "zeit": "00:43",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=43s",
+   "aussage": "Für Azure Maps sollte das GeoJSON-Format genutzt werden, während TopoJSON für das Flächenkartogramm gedacht ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 125,
+   "zeit": "02:05",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=125s",
+   "aussage": "Die von GitHub geladenen Shapefiles liegen als Brotli-komprimierte .br-Dateien vor und müssen vor der Weiterverarbeitung mit einem Online-Tool entpackt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 199,
+   "zeit": "03:19",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s",
+   "aussage": "Power BI erlaubt jetzt das Platzieren individueller Marker auf Azure-Maps-Visualisierungen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 199,
+   "zeit": "03:19",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s",
+   "aussage": "Der Sprecher findet die individuellen Azure-Maps-Marker unterhaltsam, aber für seine eigene Arbeit wenig relevant."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 199,
+   "zeit": "03:19",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s",
+   "aussage": "Der Sprecher empfiehlt Zuschauern, bei Interesse an den individuellen Azure-Maps-Markern einen Kommentar zu hinterlassen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 515,
+   "zeit": "08:35",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=515s",
+   "aussage": "Vor der Weiterverarbeitung müssen die importierten Shapefile-Geometrien in QGIS repariert werden, da nicht geschlossene Flächen oder Schleifen sonst beim Rendern in Power BI zu Problemen führen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 650,
+   "zeit": "10:50",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=650s",
+   "aussage": "Die reparierten Shapefile-Geometrien werden in QGIS über einen Join mit der CSV-Datei der Gebietsaufteilung anhand der Postleitzahl verknüpft."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 750,
+   "zeit": "12:30",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=750s",
+   "aussage": "Mit der QGIS-Funktion Auflösen (Dissolve) werden die einzelnen Postleitzahlflächen anhand des Gebietsnamens zu zusammenhängenden Vertriebsregionen zusammengefasst."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 867,
+   "zeit": "14:27",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=867s",
+   "aussage": "Die fertige Vertriebsregionenkarte muss aus QGIS im GeoJSON-Format exportiert werden, damit sie in Power BI verwendet werden kann."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 1106,
+   "zeit": "18:26",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1106s",
+   "aussage": "Vor dem Import in Power BI sollte die aus QGIS exportierte GeoJSON-Datei mit einem Online-Tool standardisiert werden, da Power BI mit unbearbeiteten QGIS-GeoJSON-Dateien mitunter Schwierigkeiten hat."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 1150,
+   "zeit": "19:10",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1150s",
+   "aussage": "Im Azure-Maps-Visual von Power BI wird die eigene GeoJSON-Datei als Referenzebene entweder per URL oder per Datei-Upload eingebunden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 1150,
+   "zeit": "19:10",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1150s",
+   "aussage": "Fehlt in den Quelldaten eine Länderspalte, kann eine berechnete DAX-Spalte sicherstellen, dass Azure Maps die Orte korrekt in Deutschland verortet."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 1242,
+   "zeit": "20:42",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1242s",
+   "aussage": "Damit die geladene Referenzebene sichtbar wird, muss die standardmäßig aktive Blasenebene im Azure-Maps-Visual deaktiviert werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 1315,
+   "zeit": "21:55",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1315s",
+   "aussage": "Über die bedingte Formatierung der Polygone lässt sich die Referenzebene als Farbverlauf (Heatmap) nach einer Kennzahl wie dem Umsatz einfärben."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 1688,
+   "zeit": "28:08",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1688s",
+   "aussage": "Gegenüber dem Flächenkartogramm bietet Azure Maps den Vorteil einer echten Kartenbasis mit Straßen, Flüssen und Städten, die zusätzlichen räumlichen Kontext liefert."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:SSUpe1JON9Y",
+   "titel": "The Power of User Groups",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y",
+   "sprungmarken": [
+    {
+     "label": "26:45",
+     "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1605s",
+     "sekunde": 1605
+    },
+    {
+     "label": "28:45",
+     "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1725s",
+     "sekunde": 1725
+    }
+   ]
+  },
+  {
+   "id": "yt:CvaOkO37HMU",
+   "titel": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU",
+   "sprungmarken": [
+    {
+     "label": "00:02",
+     "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=2s",
+     "sekunde": 2
+    },
+    {
+     "label": "24:49",
+     "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1489s",
+     "sekunde": 1489
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.083,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "48:46",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2926s",
+     "sekunde": 2926
+    },
+    {
+     "label": "50:35",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=3035s",
+     "sekunde": 3035
+    },
+    {
+     "label": "52:08",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=3128s",
+     "sekunde": 3128
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "49:58",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2998s",
+     "sekunde": 2998
+    }
+   ]
+  },
+  {
+   "id": "yt:KMk1k5uCLZU",
+   "titel": "Daten-WG Thinkers Talk n61",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
+   "sprungmarken": [
+    {
+     "label": "1:02:10",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3730s",
+     "sekunde": 3730
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Aazure-maps",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Aazure-maps&f=tool%3Aazure-maps"
+}

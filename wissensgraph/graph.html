@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DatenWG Library · Graph</title>
+<meta name="description" content="Graph-Sicht der DatenWG Library: Themen, Tools und Personen aus den Folgen der Daten-WG als Netz, mit Zeitstrahl, Fokus und Abfrage-Vorlagen. Jede Verbindung springt auf die Sekunde ins Video.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="DatenWG Library · Graph-Sicht">
+<meta property="og:description" content="Themen, Personen und Kernaussagen aus 126 Folgen als Graph. Jede Verbindung springt auf die Sekunde ins Video.">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/graph.html">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 :root{
   --bg:#FAFAF5;--bg-card:#FFFFFF;--bg-soft:#F4F1E8;--ink:#1A1A1A;--ink-soft:#4A4A4A;--ink-mute:#6B6B6B;
@@ -21,7 +28,7 @@ header h1{font-family:var(--serif);font-weight:300;font-size:22px;letter-spacing
 header h1 em{font-style:normal;font-weight:700;color:var(--accent)}
 header .meta{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink-mute)}
 header .back{margin-left:auto;font-size:13px}
-main{display:grid;grid-template-columns:300px 1fr 420px;height:calc(100% - 55px)}
+main{display:grid;grid-template-columns:300px 1fr 420px;height:calc(100% - 55px - var(--status-h,0px))}
 aside{overflow:auto;padding:16px;border-right:1px solid var(--line);background:var(--bg-card)}
 aside.right{border-right:0;border-left:1px solid var(--line)}
 h2{font-family:var(--serif);font-size:15px;font-weight:600;margin:14px 0 8px}
@@ -43,6 +50,32 @@ input[type=range]{width:100%}
 .link{stroke:#9a958a;stroke-opacity:.35}
 .link.dim{stroke-opacity:.05}
 .link.hl{stroke:var(--accent);stroke-opacity:.9}
+.link.co{stroke-dasharray:4 3}
+.link.typed{stroke:var(--accent);stroke-opacity:.8}
+.link.typed.dim{stroke-opacity:.08}
+.node:focus{outline:none}
+.node:focus circle,.node:focus rect{stroke:var(--ink);stroke-width:3px}
+.legend{position:absolute;right:14px;bottom:12px;font-family:var(--mono);font-size:10px;color:var(--ink-mute);background:rgba(250,250,245,.9);padding:6px 10px;border-radius:6px;line-height:1.7;border:1px solid var(--line)}
+.legend i{display:inline-block;width:18px;border-top:2px solid var(--accent);vertical-align:middle;margin-right:5px}
+.legend i.co{border-top:2px dashed #9a958a}
+.legend s{display:inline-block;width:9px;height:9px;background:var(--n-bucket);vertical-align:middle;margin-right:5px;text-decoration:none}
+.legend o{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--n-topic);vertical-align:middle;margin-right:5px}
+.cov{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px;border:1px solid var(--line);color:var(--ink-mute);background:var(--bg)}
+.cov.c4{border-color:var(--accent);color:var(--accent);background:#E3F2ED}
+.cov.c3{border-color:#8FD3C4;color:var(--accent)}
+.cov.c1{opacity:.7}
+.err{background:#FBE7EF;border:1px solid var(--n-person);color:var(--n-person);padding:12px 14px;border-radius:10px;margin:10px 0;font-size:13px}
+.fb{font-family:var(--mono);font-size:10px;color:var(--ink-mute);margin-left:8px;text-decoration:none}
+.status{font-family:var(--mono);font-size:11px;color:var(--ink-mute);background:var(--bg-soft);border-bottom:1px solid var(--line)}
+.status summary{cursor:pointer;padding:5px 22px;list-style:none;display:flex;gap:14px;flex-wrap:wrap}
+.status summary::-webkit-details-marker{display:none}
+.status summary b{color:var(--ink)}
+.status .body{padding:2px 22px 10px;font-family:var(--sans);font-size:12.5px;color:var(--ink-soft);line-height:1.6;max-width:900px}
+.tour{position:fixed;inset:0;background:rgba(26,26,26,.55);z-index:20;display:flex;align-items:center;justify-content:center;padding:20px}
+.tour .box{background:var(--bg-card);border-radius:16px;padding:26px 28px;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.tour h2{margin:0 0 6px;font-size:22px;font-weight:300}
+.tour ol{margin:10px 0 18px;padding-left:22px;color:var(--ink-soft);line-height:1.7}
+.q-desc{font-family:var(--mono);font-size:11px;color:var(--accent);margin-top:6px;line-height:1.5}
 .hint{position:absolute;left:14px;bottom:12px;font-family:var(--mono);font-size:11px;color:var(--ink-mute);background:rgba(250,250,245,.85);padding:6px 8px;border-radius:6px}
 .list{list-style:none;margin:0;padding:0}
 .list li{padding:8px 0;border-bottom:1px solid var(--line)}
@@ -103,6 +136,8 @@ table.docs td.m{font-family:var(--mono);font-size:11px;color:var(--ink-mute);whi
   <span class="meta" id="hdr-stats">lädt …</span>
   <a class="back" href="../index.html">← Knowledge Kitchen</a>
 </header>
+<noscript><div style="padding:16px 22px;max-width:820px"><p><b>DatenWG Library, Graph-Sicht</b>: Themen, Tools und Personen aus den Folgen der Daten-WG als Netz. Diese Ansicht braucht JavaScript.</p><p>Ohne JavaScript: <a href="library/index.md">Markdown-Index aller Themen</a> · <a href="thema/">Themen-Landingpages</a> · <a href="../wissensgraph-aus-transkripten.html">Wie die Library entstanden ist</a></p></div></noscript>
+<details class="status" id="status"><summary id="status-sum">lädt …</summary><div class="body" id="status-body"></div></details>
 <main>
   <aside class="left">
     <h2>Suche</h2>
@@ -122,9 +157,10 @@ table.docs td.m{font-family:var(--mono);font-size:11px;color:var(--ink-mute);whi
     <div class="chips" id="src-chips">
       <span class="chip on" data-s="youtube">Folgen</span>
       <span class="chip on" data-s="markdown">Seiten</span>
+      <span class="chip" id="only-claims" title="Nur Dokumente mit belegten Kernaussagen">nur mit Kernaussagen</span>
     </div>
 
-    <h2>Fragen</h2>
+    <h2>Abfrage-Vorlagen <span class="stat" style="font-weight:400">Filter, keine KI</span></h2>
     <select id="q-tpl">
       <option value="who">Wer erklärt [Thema]?</option>
       <option value="said">Was wurde zu [Thema] gesagt?</option>
@@ -137,14 +173,15 @@ table.docs td.m{font-family:var(--mono);font-size:11px;color:var(--ink-mute);whi
     <input list="persons" id="q-p" placeholder="Person …" hidden>
     <datalist id="concepts"></datalist>
     <datalist id="persons"></datalist>
-    <span class="btn primary" id="q-run">Frage stellen</span>
+    <span class="btn primary" id="q-run">Vorlage anwenden</span>
+    <div class="q-desc" id="q-desc"></div>
 
     <h2>Knoten im Graph</h2>
     <div class="chips" id="type-chips">
       <span class="chip on" data-t="Topic">Themen</span>
       <span class="chip on" data-t="Tool">Tools</span>
       <span class="chip on" data-t="Person">Personen</span>
-      <span class="chip" data-t="Bucket">Buckets</span>
+      <span class="chip" data-t="Bucket" title="Redaktionelle Kategorie der Kitchen, kein Entitätstyp">Themenbereiche ▪</span>
       <span class="chip" data-t="Organization">Organisationen</span>
     </div>
     <label class="small">Mindestens in <b id="min-docs-v">6</b> Dokumenten</label>
@@ -165,11 +202,12 @@ table.docs td.m{font-family:var(--mono);font-size:11px;color:var(--ink-mute);whi
     <svg></svg>
     <div id="timeline"></div>
     <div id="listview"></div>
-    <div class="hint" id="hint">Klick: Details · Doppelklick: Nachbarn aufklappen · Ziehen · Rad: zoomen · <a href="#" onclick="fit(true);return false">einpassen</a></div>
+    <div class="hint" id="hint">Klick: Details · Doppelklick: Nachbarn aufklappen · Ziehen · Rad: zoomen · Tab/Enter: Tastatur · <a href="#" onclick="fit(true);return false">einpassen</a></div>
+    <div class="legend" id="legend"><i></i>belegt (Kernaussage mit Zitat)<br><i class="co"></i>Ko-Vorkommen (Heuristik, gezählt)<br><o></o>Thema, Tool, Person &nbsp;<s></s>Themenbereich (redaktionell)</div>
   </section>
   <aside class="right" id="detail">
     <h2>Details</h2>
-    <p class="empty">Knoten anklicken, suchen oder eine Frage stellen. Jede Verbindung führt auf die Sekunde genau in die Folge oder auf die Seite.</p>
+    <p class="empty">Lade Datenbasis …</p>
   </aside>
 </main>
 
@@ -200,8 +238,42 @@ const docLabel = d => d.source === 'markdown' ? 'Seite' : 'Folge';
 const shortTitle = t => t.length > 34 ? t.slice(0, 32) + '…' : t;
 
 // ---------- Laden ----------
-fetch(DATA + 'graph.json').then(r => r.json()).then(g => {
+const COV = {'claims+timestamps': ['c4', 'Kernaussagen + Zeitstempel'], 'claims+text': ['c3', 'Kernaussagen + Text'], 'timestamps': ['c3', 'nur Zeitstempel'], 'text': ['c2', 'nur Text'], 'metadata': ['c1', 'nur Metadaten']};
+const covBadge = d => d && d.coverage ? `<span class="cov ${COV[d.coverage][0]}" title="Abdeckung: was die Library zu diesem Dokument weiß">${COV[d.coverage][1]}</span>` : '';
+const FEEDBACK_MAIL = 'michael.tenner84@gmail.com';
+let onlyClaims = false;
+function feedbackLink(c, d) {
+  const sub = encodeURIComponent(`Library: Fehler in Kernaussage (${d ? d.id : '?'})`);
+  const body = encodeURIComponent(`Dokument: ${d ? d.name : '?'} (${d ? d.id : '?'})\nSegment: ${c.seg || '?'}\nSekunde: ${c.start_s != null ? Math.floor(c.start_s) : '?'}\nLink: ${d ? deepLink(d, c.start_s) : ''}\nAussage: ${c.name}\n\nWas ist falsch (Aussage, Sprungmarke, Thema)?\n`);
+  return `<a class="fb" href="mailto:${FEEDBACK_MAIL}?subject=${sub}&body=${body}" title="Fehler melden">Fehler melden</a>`;
+}
+function renderStatus(m) {
+  const stand = m.stand ? new Date(m.stand).toLocaleDateString('de-DE') : '?';
+  $('#status-sum').innerHTML = `<span>Stand <b>${stand}</b></span><span><b>${m.episodes ?? '?'}</b> Folgen · <b>${m.episodes_with_transcript ?? '?'}</b> mit Transkript · <b>${m.episodes_with_claims ?? '?'}</b> mit Kernaussagen · <b>${m.pages ?? '?'}</b> Seiten</span><span>▸ was das heißt</span>`;
+  $('#status-body').innerHTML = `<b>Early Access Beta.</b> ${esc(m.notice || '')} Beta heißt: unvollständig (${m.episodes_with_claims ?? '?'} von ${m.episodes ?? '?'} Folgen mit Kernaussagen) und unredigiert, nicht instabil. Durchgezogene Kanten sind belegt (Kernaussage mit Zitat), gestrichelte sind Ko-Vorkommen (zwei Themen im selben Segment, gezählt). Build ${esc(m.build || '?')} · <a href="library/index.md">Markdown-Fassung</a> · <a href="mailto:${FEEDBACK_MAIL}?subject=Library%20Feedback">Feedback</a>`;
+  document.documentElement.style.setProperty('--status-h', $('#status').getBoundingClientRect().height + 'px');
+  $('#status').addEventListener('toggle', () => { document.documentElement.style.setProperty('--status-h', $('#status').getBoundingClientRect().height + 'px'); fit(false); });
+}
+function maybeTour() {
+  let seen = false; try { seen = localStorage.getItem('dwglib_tour') === '1'; } catch (e) {}
+  if (seen || new URLSearchParams(location.search).get('tour') === '0' || new URLSearchParams(location.hash.slice(1)).get('tour') === '0') return;
+  const t = document.createElement('div'); t.className = 'tour';
+  t.innerHTML = `<div class="box"><div class="stat">DatenWG Library · Graph-Sicht · 3 Schritte</div><h2>Vom Knoten auf die Sekunde ins Video</h2><ol><li><b>Knoten anklicken</b>, rechts erscheinen Dokumente und Beziehungen.</li><li><b>„Stellen zeigen"</b> bei einem Dokument aufklappen.</li><li><b>▶ Zeitmarke klicken</b>, das Video startet genau dort.</li></ol><div class="stat" style="margin-bottom:12px">Durchgezogen = belegt, gestrichelt = Ko-Vorkommen. Kernaussagen sind maschinell extrahiert, nicht redigiert.</div><span class="btn primary" id="tour-skip">Verstanden</span></div>`;
+  document.body.appendChild(t);
+  const done = () => { try { localStorage.setItem('dwglib_tour', '1'); } catch (e) {} t.remove(); };
+  $('#tour-skip').onclick = done; t.addEventListener('click', e => { if (e.target === t) done(); });
+}
+function fail(msg) {
+  $('#detail').innerHTML = `<div class="err"><b>Die Datenbasis konnte nicht geladen werden.</b><br>${esc(msg)}<br><a href="javascript:location.reload()">Seite neu laden</a> · <a href="library/index.md">Markdown-Fassung</a></div>`;
+  $('#status-sum').textContent = 'Fehler beim Laden'; $('#hdr-stats').textContent = '';
+}
+const loadTimer = setTimeout(() => { const e = $('#detail .empty'); if (e) e.textContent = 'Lade Datenbasis … das dauert länger als gewohnt. Bei Problemen: Seite neu laden.'; }, 5000);
+const isMobile = () => window.innerWidth < 640;
+if (isMobile()) { $('#min-docs').value = 10; $('#min-docs-v').textContent = '10'; $('#hint').innerHTML = 'Tippen: Details · Doppelt tippen: Nachbarn · Ziehen · Zwei Finger: zoomen · <a href="#" onclick="fit(true);return false">einpassen</a>'; }
+fetch(DATA + 'graph.json').then(r => { if (!r.ok) throw new Error('graph.json: HTTP ' + r.status); return r.json(); }).catch(e => { clearTimeout(loadTimer); fail(e.message || String(e)); throw e; }).then(g => {
+  clearTimeout(loadTimer);
   G = g; byId = new Map(g.nodes.map(n => [n.id, n]));
+  G.meta = g.meta || {}; renderStatus(G.meta);
   G.docs = g.nodes.filter(isDoc);
   G.claims = g.nodes.filter(n => n.type === 'Claim');
   G.out = new Map(); G.in = new Map();
@@ -216,7 +288,18 @@ fetch(DATA + 'graph.json').then(r => r.json()).then(g => {
   window.addEventListener('resize', () => { fit(false); if (view === 'timeline') renderTimeline(); });
   window.addEventListener('hashchange', fromHash);
   fromHash();
+  if (!location.hash) defaultFocus();
+  maybeTour();
 });
+// T1.1: ohne Parameter sofort ein kuratierter Knoten mit Nachbarn und einer aufgeklappten Stelle
+function defaultFocus() {
+  const cnt = new Map();
+  for (const e of G.edges) if (e.type === 'EXPLAINS') { const n = byId.get(e.t); if (n && (n.type === 'Topic' || n.type === 'Tool')) cnt.set(e.t, (cnt.get(e.t) || 0) + 1); }
+  const best = byId.has('tool:direct-lake') ? 'tool:direct-lake' : [...cnt.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+  if (!best) return;
+  select(best, true); setFocus(best, true);
+  const ev = $('#detail .ev[data-doc^="yt:"]') || $('#detail .ev[data-doc]'); if (ev) ev.click();   // erste Folge mit Sekunde aufklappen
+}
 
 // ---------- Teilen: Zustand in der URL ----------
 // #<knoten-id>  oder  #ask=who&a=Direct%20Lake&b=…&p=…   jeweils optional &t=m3&s=youtube&v=timeline
@@ -360,7 +443,8 @@ function expandFocus(nid) {
 
 // ---------- Filter: Zeit und Quelle ----------
 function docActive(d) {
-  if (!sources.has(d.source)) return false;
+  if (!d || !sources.has(d.source)) return false;
+  if (onlyClaims && !d.n_claims) return false;
   if (timeRange === 'all' || !d.published) return timeRange === 'all' || !d.published;   // undatierte immer drin
   const p = new Date(d.published), now = new Date();
   if (timeRange === 'm3') return (now - p) / 864e5 <= 92;
@@ -380,7 +464,7 @@ function docCount(nid) {   // Dokumente im aktiven Filter, die den Knoten erwäh
 }
 function filtersChanged() { dcCache = null; render(); renderTop(); if (view === 'timeline') renderTimeline(); if (view === 'list') renderList(); if (selected) select(selected, true); else if (lastAsk) ask(lastAsk.tpl, lastAsk.a, lastAsk.b, lastAsk.p, true); pushState(lastAsk && !selected ? {ask: lastAsk} : null); }
 $('#time-chips').addEventListener('click', e => { if (!e.target.classList.contains('chip')) return; [...e.currentTarget.children].forEach(c => c.classList.remove('on')); e.target.classList.add('on'); timeRange = e.target.dataset.r; filtersChanged(); });
-$('#src-chips').addEventListener('click', e => { if (!e.target.classList.contains('chip')) return; e.target.classList.toggle('on'); sources = new Set([...e.currentTarget.querySelectorAll('.chip.on')].map(c => c.dataset.s)); filtersChanged(); });
+$('#src-chips').addEventListener('click', e => { if (!e.target.classList.contains('chip')) return; e.target.classList.toggle('on'); if (e.target.id === 'only-claims') { onlyClaims = e.target.classList.contains('on'); } sources = new Set([...e.currentTarget.querySelectorAll('.chip.on[data-s]')].map(c => c.dataset.s)); filtersChanged(); });
 $('#type-chips').addEventListener('click', e => { if (e.target.classList.contains('chip')) { e.target.classList.toggle('on'); render(); } });
 for (const id of ['min-docs', 'min-w']) $('#' + id).addEventListener('input', e => { $('#' + id + '-v').textContent = e.target.value; render(); });
 const activeTypes = () => [...document.querySelectorAll('#type-chips .chip.on')].map(c => c.dataset.t);
@@ -406,6 +490,7 @@ function derivedEdges(concepts) {
 function currentGraph() {
   const concepts = visibleConcepts(), ids = new Set(concepts.map(n => n.id)), minW = focus ? 3 : +$('#min-w').value;
   const links = G.edges.filter(e => e.type === 'RELATES_TO' && e.w >= minW && ids.has(e.s) && ids.has(e.t)).map(e => ({...e}));
+  links.push(...G.edges.filter(e => REL[e.type] && ids.has(e.s) && ids.has(e.t)).map(e => ({...e, w: 6})));   // belegte Beziehungen immer zeigen
   links.push(...derivedEdges(concepts));
   const nodes = concepts.slice();
   for (const d of shownDocs) {
@@ -452,15 +537,19 @@ function render() {
   const ll = links.map(l => ({...l, source: l.s, target: l.t}));
   sim.nodes(nn).force('link', d3.forceLink(ll).id(d => d.id).distance(l => l.type === 'RELATES_TO' ? 90 : 60).strength(l => Math.min(1, 0.15 + (l.w || 1) / 60)))
      .force('x', d3.forceX(box.width/2).strength(0.06)).force('y', d3.forceY(box.height/2).strength(0.08));
-  linkSel = linkSel.data(ll, d => d.s + '|' + d.t + '|' + d.type).join('line').attr('class', 'link').attr('stroke-width', d => Math.max(0.8, Math.min(6, Math.sqrt(d.w || 1))));
+  linkSel = linkSel.data(ll, d => d.s + '|' + d.t + '|' + d.type).join('line').attr('class', d => 'link' + (REL[d.type] ? ' typed' : (d.type === 'RELATES_TO' ? ' co' : ''))).attr('stroke-width', d => Math.max(0.8, Math.min(6, Math.sqrt(d.w || 1))));
+  linkSel.select('title').remove(); linkSel.append('title').text(d => REL[d.type] ? `${byId.get(d.s)?.name} ${REL[d.type]} ${byId.get(d.t)?.name} · belegt` : d.type === 'RELATES_TO' ? `Ko-Vorkommen: ${d.w} gemeinsame Segmente` : d.type);
   nodeSel = nodeSel.data(nn, d => d.id).join(enter => {
     const g = enter.append('g').attr('class', 'node').call(d3.drag().on('start', (e, d) => { if (!e.active) sim.alphaTarget(.3).restart(); d.fx = d.x; d.fy = d.y; }).on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; }).on('end', (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }));
-    g.append('circle'); g.append('text').attr('dy', 3);
+    g.append('circle'); g.append('rect'); g.append('text').attr('dy', 3);
+    g.attr('tabindex', 0).attr('role', 'button').attr('aria-label', d => d.name);
     g.on('click', (e, d) => select(d.id));
+    g.on('keydown', (e, d) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(d.id); } if (e.key === 'Escape') { selected = null; highlight(); e.currentTarget.blur(); } });
     g.on('dblclick', (e, d) => { e.stopPropagation(); if (isDoc(d)) toggleDocs(d); else expandFocus(d.id); });
     return g;
   });
-  nodeSel.select('circle').attr('r', radius).attr('fill', color);
+  nodeSel.select('circle').attr('r', radius).attr('fill', color).style('display', d => d.type === 'Bucket' ? 'none' : null);
+  nodeSel.select('rect').attr('x', d => -radius(d)).attr('y', d => -radius(d)).attr('width', d => 2 * radius(d)).attr('height', d => 2 * radius(d)).attr('rx', 2).attr('fill', color).style('display', d => d.type === 'Bucket' ? null : 'none');
   nodeSel.select('text').attr('x', d => radius(d) + 4).text(d => isDoc(d) ? shortTitle(d.name) : d.name);
   sim.alpha(1).stop();
   for (let i = 0; i < 250; i++) sim.tick();
@@ -549,8 +638,8 @@ function showConcept(n) {
   if (n.type === 'Person') {
     h += `<h2>Dabei in</h2><ul class="list">${docs.map(x => docRow(x.doc, null, explains, x.role)).join('') || '<li class="empty">keine im Zeitraum</li>'}</ul>`;
   }
-  if (rel.length) h += `<h2>Hängt zusammen mit</h2><div class="chips">${rel.map(x => `<span class="chip" data-id="${esc(x.o.id)}" title="${x.w} gemeinsame Segmente">${esc(x.o.name)} <span class="stat">${x.w}</span></span>`).join('')}</div>`;
-  if (typed.length) h += `<h2>Belegte Beziehungen</h2><ul class="list">${typed.map(e => { const a = byId.get(e.s), b = byId.get(e.t), d = byId.get(e.doc_id); return `<li><span class="t" data-id="${esc(e.s === n.id ? e.t : e.s)}">${esc(a.name)} <span class="badge">${REL[e.type]}</span> ${esc(b.name)}</span><div class="m">${esc(e.ev)}${d ? ' · <span class="t" data-id="' + esc(d.id) + '">' + esc(shortTitle(d.name)) + '</span>' : ''}</div></li>`; }).join('')}</ul>`;
+  if (rel.length) h += `<h2>Ko-Vorkommen <span class="badge" title="Zwei Themen im selben Segment, gezählt, nicht bewertet">Heuristik</span></h2><div class="chips">${rel.map(x => `<span class="chip" data-id="${esc(x.o.id)}" title="${x.w} gemeinsame Segmente">${esc(x.o.name)} <span class="stat">${x.w}</span></span>`).join('')}</div>`;
+  if (typed.length) h += `<h2>Belegte Beziehungen <span class="badge ex" title="Aus einer Kernaussage mit Zitat">belegt</span></h2><ul class="list">${typed.map(e => { const a = byId.get(e.s), b = byId.get(e.t), d = byId.get(e.doc_id); return `<li><span class="t" data-id="${esc(e.s === n.id ? e.t : e.s)}">${esc(a.name)} <span class="badge">${REL[e.type]}</span> ${esc(b.name)}</span><div class="m">${esc(e.ev)}${d ? ' · <span class="t" data-id="' + esc(d.id) + '">' + esc(shortTitle(d.name)) + '</span>' : ''}</div></li>`; }).join('')}</ul>`;
   if (claims.length) h += `<h2>Kernaussagen (${claims.length})</h2>${claims.slice(0, 30).map(c => claimHtml(c)).join('')}`;
   if (n.type !== 'Person') h += `<h2>Dokumente (nach Anteil)</h2><div><span class="btn" id="show-all">Top 8 im Graph zeigen</span><span class="btn" id="hide-all">Dokumente ausblenden</span></div><ul class="list">${docs.slice(0, 40).map(x => docRow(x.doc, x.e, explains, null, n.id)).join('') || '<li class="empty">keine im Zeitraum</li>'}</ul>`;
   $('#detail').innerHTML = h; $('#detail').scrollTop = 0;
@@ -563,7 +652,7 @@ function showConcept(n) {
 function docRow(d, e, explains, role, nodeId, node2) {
   const ex = explains && explains.has(d.id) ? '<span class="badge ex">erklärt</span>' : '';
   const rb = role ? `<span class="badge ${role === 'host' ? 'host' : ''}">${role === 'host' ? 'Host' : 'Gast'}</span>` : '';
-  const pb = d.source === 'markdown' ? '<span class="badge page">Seite</span>' : '';
+  const pb = (d.source === 'markdown' ? '<span class="badge page">Seite</span>' : '') + covBadge(d);
   const sp = speakers(d.id).map(x => x.p.name).join(', ');
   const share = e ? `${Math.round((e.share||0)*100)} % der Segmente` : '';
   return `<li><span class="t" data-id="${esc(d.id)}">${esc(d.name)}</span>${pb}${ex}${rb}<div class="m">${esc(sp || d.guest || (d.source === 'markdown' ? 'Kitchen-Seite' : 'Solo'))} · ${fmtD(d.published)} · ${share} ${nodeId ? `· <a href="#" class="ev" data-doc="${esc(d.id)}" data-node="${esc(nodeId)}" ${node2 ? 'data-node2="' + esc(node2) + '"' : ''}>Stellen zeigen</a>` : ''}</div><div class="evbox"></div></li>`;
@@ -595,7 +684,7 @@ function segHtml(doc, s, term) {
 function claimHtml(c) {
   const d = byId.get(c.doc);
   const ts = d && c.start_s != null ? `<a class="ts" target="_blank" rel="noopener" href="${deepLink(d, c.start_s)}">▶ ${fmtT(c.start_s)}</a>` : '';
-  return `<div class="seg" style="border-left-color:var(--accent)"><span class="h">${KIND[c.kind] || c.kind}${d ? ' · ' + fmtD(d.published) + ' · <span class="t" data-id="' + esc(d.id) + '" style="cursor:pointer">' + esc(shortTitle(d.name)) + '</span>' : ''}</span>${ts}${esc(c.name)}</div>`;
+  return `<div class="seg" style="border-left-color:var(--accent)"><span class="h">${KIND[c.kind] || c.kind}${d ? ' · ' + fmtD(d.published) + ' · <span class="t" data-id="' + esc(d.id) + '" style="cursor:pointer">' + esc(shortTitle(d.name)) + '</span>' : ''}</span>${ts}${esc(c.name)}${feedbackLink(c, d)}</div>`;
 }
 
 async function showDoc(d) {
@@ -652,7 +741,9 @@ $('#q-run').onclick = () => ask($('#q-tpl').value, $('#q-a').value.trim(), $('#q
 for (const id of ['q-a','q-b','q-p']) $('#' + id).addEventListener('keydown', e => { if (e.key === 'Enter') $('#q-run').click(); });
 const byName = name => G.nodes.find(n => !isDoc(n) && n.type !== 'Claim' && n.name.toLowerCase() === name.toLowerCase()) || G.nodes.find(n => !isDoc(n) && n.type !== 'Claim' && n.name.toLowerCase().startsWith(name.toLowerCase()));
 const gqlTime = () => timeRange === 'all' ? '' : `\n<span class="k">FILTER</span> d.published >= '${timeRange === 'm3' ? 'heute-3M' : timeRange === 'm12' ? 'heute-12M' : timeRange === '2024' ? '…' : timeRange + '-01-01'}'`;
+const ASK_DESC = {who: a => `Filter: Personen, die in Dokumenten dabei sind, deren Kapitel oder Titel „${a}" nennt`, said: a => `Filter: Kernaussagen mit Thema „${a}" plus alle Dokumente, die es erwähnen`, both: (a, b) => `Filter: Dokumente, in denen „${a}" und „${b}" im selben Segment vorkommen`, person: (a, b, p) => `Filter: Dokumente mit „${p}" als Host oder Gast, die „${a}" erwähnen`, latest: a => `Filter: Dokumente mit „${a}", nach Datum absteigend`};
 async function ask(tpl, a, b, p, fromHash) {
+  $('#q-desc').textContent = (ASK_DESC[tpl] || (() => ''))(a, b, p) + (timeRange !== 'all' ? ` · Zeitraum ${$('#time-chips .on').textContent}` : '');
   const A = byName(a); if (!A) { $('#detail').innerHTML = `<h2>Frage</h2><p class="empty">„${esc(a)}" ist kein bekannter Knoten. Tipp: aus der Liste wählen.</p>`; return; }
   await ensureSegs();
   lastAsk = {tpl, a: A.name, b, p}; selected = null;

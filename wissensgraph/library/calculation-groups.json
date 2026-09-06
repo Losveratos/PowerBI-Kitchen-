@@ -1,0 +1,292 @@
+{
+ "id": "tool:calculation-groups",
+ "name": "Calculation Groups",
+ "typ": "tool",
+ "slug": "calculation-groups",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 13,
+ "kernaussagen_gesamt": 1,
+ "mit_kernaussagen": 1,
+ "aliase": [
+  "Berechnungsgruppen",
+  "Calculation Group"
+ ],
+ "einordnung": "NAMEOF wird laut dem Sprecher besonders in Calculation Groups bei verschachtelten Bedingungen nützlich.",
+ "nachbarn": [
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "reporting.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update Februar 2026",
+   "dokument_id": "yt:u-lgbDfIlLg",
+   "sekunde": 138,
+   "zeit": "02:18",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
+   "aussage": "NAMEOF wird laut dem Sprecher besonders in Calculation Groups bei verschachtelten Bedingungen nützlich."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:u-lgbDfIlLg",
+   "titel": "Power BI Update Februar 2026",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.25,
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg",
+   "sprungmarken": [
+    {
+     "label": "02:18",
+     "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
+     "sekunde": 138
+    }
+   ]
+  },
+  {
+   "id": "yt:g2Fijpqwcvw",
+   "titel": "Analytics Speed Challenge | Power BI vs. IBM Cognos Analytics",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=g2Fijpqwcvw",
+   "sprungmarken": [
+    {
+     "label": "03:07",
+     "url": "https://www.youtube.com/watch?v=g2Fijpqwcvw&t=187s",
+     "sekunde": 187
+    }
+   ]
+  },
+  {
+   "id": "yt:6gQiIbyhWEc",
+   "titel": "Power BI Update September 2025",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.083,
+   "url": "https://www.youtube.com/watch?v=6gQiIbyhWEc",
+   "sprungmarken": [
+    {
+     "label": "00:30",
+     "url": "https://www.youtube.com/watch?v=6gQiIbyhWEc&t=30s",
+     "sekunde": 30
+    }
+   ]
+  },
+  {
+   "id": "yt:zkfdfc5fo-E",
+   "titel": "Power BI Update Mai 2025",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E",
+   "sprungmarken": [
+    {
+     "label": "05:12",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=312s",
+     "sekunde": 312
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.035,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "48:51",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2931s",
+     "sekunde": 2931
+    },
+    {
+     "label": "1:23:32",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5012s",
+     "sekunde": 5012
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "00:37",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=37s",
+     "sekunde": 37
+    }
+   ]
+  },
+  {
+   "id": "yt:pOJpXxsfUt0",
+   "titel": "BI Thinkers Talk n.73",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0",
+   "sprungmarken": [
+    {
+     "label": "27:38",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=1658s",
+     "sekunde": 1658
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "08:05",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=485s",
+     "sekunde": 485
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.021,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "1:00:40",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3640s",
+     "sekunde": 3640
+    }
+   ]
+  },
+  {
+   "id": "yt:mUALlPmGcEk",
+   "titel": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "datum": "2025-11-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.02,
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk",
+   "sprungmarken": [
+    {
+     "label": "1:13:09",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=4389s",
+     "sekunde": 4389
+    }
+   ]
+  },
+  {
+   "id": "yt:mlkP-6i5Kq8",
+   "titel": "BI Thinkers Talk nr.76",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8",
+   "sprungmarken": [
+    {
+     "label": "1:03:14",
+     "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3794s",
+     "sekunde": 3794
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.016,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wann%20welcher%20Modus%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=XMLA%20%E2%80%94%20der%20Enterprise-Zugang",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.009,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20Tabular%20Editor%20besser%20kann",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Beispiel%20%C2%B7%20Display%20Folder",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Acalculation-groups",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Acalculation-groups&f=tool%3Acalculation-groups"
+}

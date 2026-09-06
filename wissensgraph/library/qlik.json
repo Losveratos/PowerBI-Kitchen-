@@ -1,0 +1,280 @@
+{
+ "id": "tool:qlik",
+ "name": "Qlik",
+ "typ": "tool",
+ "slug": "qlik",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 4,
+ "kernaussagen_gesamt": 13,
+ "mit_kernaussagen": 2,
+ "aliase": [
+  "QlikView",
+  "Qlik Sense",
+  "Click"
+ ],
+ "einordnung": "Oliver Franz ist Wirtschaftswissenschaftler und arbeitet seit Langem im BI-Umfeld mit Qlik. Arthur und Oliver haben eine dreiteilige Challenge mit identischen Aufgaben in Qlik und Power BI durchgeführt: Basics, Modellierung und Visualisierung. In Qlik ist ein Streudiagramm bei großen, komplexen Datenmengen schwer zu konfigurieren.",
+ "nachbarn": [
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 8,
+   "beleg": "die Verbindung vorgibt und bei Power BI ... diese unidirektionale Möglichkeit Tabellen miteinander zu verknüpfen",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ersetzt",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 8,
+   "beleg": "wir hatten ursprünglich gedacht, klick Blick jetzt lass mal doch lieber Power BI als solches nehmen",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "das war halt auch ganz cool, dass du mit diesem DAX viel mehr machen konntest aus meiner Sicht als in dieser Klicksprache mit Set Analysis",
+   "datei": "dax.md"
+  },
+  {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=0s",
+   "aussage": "Oliver Franz ist Wirtschaftswissenschaftler und arbeitet seit Langem im BI-Umfeld mit Qlik."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 98,
+   "zeit": "01:38",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=98s",
+   "aussage": "Arthur und Oliver haben eine dreiteilige Challenge mit identischen Aufgaben in Qlik und Power BI durchgeführt: Basics, Modellierung und Visualisierung."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 217,
+   "zeit": "03:37",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=217s",
+   "aussage": "In Qlik ist ein Streudiagramm bei großen, komplexen Datenmengen schwer zu konfigurieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 310,
+   "zeit": "05:10",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=310s",
+   "aussage": "Sowohl Qlik als auch Power BI lassen sich von der Quelle bis zum Modell als vollständige Datenplattform nutzen, Qlik über Skripte und Power BI über Power Query und das Datenmodell."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 310,
+   "zeit": "05:10",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=310s",
+   "aussage": "Oliver ist der Meinung, dass Qlik als Komplettlösung fähiger ist als Power BI, weil man bei Power BI irgendwann Richtung Microsoft Fabric wechseln muss."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 432,
+   "zeit": "07:12",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=432s",
+   "aussage": "Oliver betont, dass Qlik trotz der Möglichkeit, Daten zwischenzuspeichern, kein Data Warehouse ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 532,
+   "zeit": "08:52",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=532s",
+   "aussage": "Beide Tools besitzen eine semantische Schicht mit Kennzahlen (KPIs bzw. Measures), die sie von reinen Tabellen- oder Skript-Analysen wie Excel, Python oder R unterscheidet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 648,
+   "zeit": "10:48",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=648s",
+   "aussage": "Qlik nutzt ein assoziatives Datenmodell, während Power BI standardmäßig unidirektionale Filterrichtungen zwischen Tabellen vorgibt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 648,
+   "zeit": "10:48",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=648s",
+   "aussage": "Oliver hält das assoziative Datenmodell von Qlik für intuitiver, weil verknüpfte Daten sich automatisch gegenseitig filtern, während das in Power BI aktiv konfiguriert werden muss."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 745,
+   "zeit": "12:25",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=745s",
+   "aussage": "Oliver vertritt die These, dass Qlik das stärkere Tool für Analysen ist, während Power BI und Qlik beim Reporting etwa gleichauf liegen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 1176,
+   "zeit": "19:36",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1176s",
+   "aussage": "Arthur ist der Meinung, dass Power BI mehr Fachanwender zum Self-Service befähigt, weil die Einstiegshürde niedriger ist als bei Qlik, dessen Lernkurve aber schneller abflacht."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 1387,
+   "zeit": "23:07",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1387s",
+   "aussage": "Arthur warnt davor, ein gut funktionierendes BI-Tool nur wegen konzernweiter Vereinheitlichung ohne echten Grund zu wechseln."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 1102,
+   "zeit": "18:22",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1102s",
+   "aussage": "Mit DAX ließen sich Lagerbestände zu einem bestimmten Zeitpunkt (Point in Time) einfacher berechnen als mit Set Analysis in Qlik."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:aYHk_V8n_CE",
+   "titel": "Daten-WG Special: Power BI vs. Qlik",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.189,
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
+   "sprungmarken": [
+    {
+     "label": "03:17",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=197s",
+     "sekunde": 197
+    },
+    {
+     "label": "09:43",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=583s",
+     "sekunde": 583
+    },
+    {
+     "label": "11:19",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=679s",
+     "sekunde": 679
+    }
+   ]
+  },
+  {
+   "id": "yt:vd1r02bj9Qk",
+   "titel": "Power BI vs. Qlik",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.105,
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk",
+   "sprungmarken": [
+    {
+     "label": "05:10",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=310s",
+     "sekunde": 310
+    },
+    {
+     "label": "07:12",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=432s",
+     "sekunde": 432
+    }
+   ]
+  },
+  {
+   "id": "yt:_Vh5fDfHWz4",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part2",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.048,
+   "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4",
+   "sprungmarken": [
+    {
+     "label": "01:33",
+     "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=93s",
+     "sekunde": 93
+    },
+    {
+     "label": "1:07:18",
+     "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=4038s",
+     "sekunde": 4038
+    }
+   ]
+  },
+  {
+   "id": "yt:iTK3xUd8V5I",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part3",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=iTK3xUd8V5I",
+   "sprungmarken": [
+    {
+     "label": "55:46",
+     "url": "https://www.youtube.com/watch?v=iTK3xUd8V5I&t=3346s",
+     "sekunde": 3346
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Aqlik",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Aqlik&f=tool%3Aqlik"
+}

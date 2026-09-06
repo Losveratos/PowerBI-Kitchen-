@@ -1,0 +1,901 @@
+{
+ "id": "topic:lizenzen",
+ "name": "Lizenzen",
+ "typ": "thema",
+ "slug": "lizenzen",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 33,
+ "kernaussagen_gesamt": 11,
+ "mit_kernaussagen": 8,
+ "aliase": [
+  "Lizenz",
+  "Lizenzierung",
+  "Licensing",
+  "Kosten",
+  "Preise",
+  "Preis"
+ ],
+ "einordnung": "Fabric Planning mit Lumel erfordert keine separate Lizenz und wird ausschließlich über Capacity-Unit-Verbrauch abgerechnet. Mit der Power-BI-Pro-Lizenz gilt eine Dateigrößengrenze von 1 GB, deren Überschreitung in Richtung Premium zu höheren Kosten führen kann. Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst.",
+ "nachbarn": [
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 36,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 29,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 28,
+   "beleg": "",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 21,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:premium",
+   "name": "Premium",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 19,
+   "beleg": "",
+   "datei": "premium.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 16,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "refresh.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:mirroring",
+   "name": "Mirroring",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "mirroring.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:power-bi-pro",
+   "name": "Power BI Pro",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "power-bi-pro.md"
+  },
+  {
+   "id": "topic:sternschema",
+   "name": "Sternschema",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "sternschema.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 761,
+   "zeit": "12:41",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=761s",
+   "aussage": "Vor der Nutzung eines fremden Skills sollte man sich dessen Lizenzbedingungen und die Kompatibilität mit dem eigenen Setup prüfen lassen, da manche Lizenzen die Einbindung in eigene Produkte untersagen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - Testing im GxP-Umfeld",
+   "dokument_id": "yt:B0_sSJQVG8w",
+   "sekunde": 1269,
+   "zeit": "21:09",
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1269s",
+   "aussage": "Uneinheitliches Lizenzmanagement in aufgespaltenen Konzernstrukturen führt dazu, dass einzelne Abteilungen auf Insellösungen wie Excel ausweichen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 466,
+   "zeit": "07:46",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=466s",
+   "aussage": "Das neue Planning-Feature, ehemals Lumel bzw. Inforiver, ist jetzt direkt in Microsoft Fabric integriert und benötigt keine zusätzliche Lizenz, sondern nur Fabric-Kapazität."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1324,
+   "zeit": "22:04",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1324s",
+   "aussage": "Nach einer weltweiten Freigabe von Power-BI-Lizenzen in einem Konzern entstand zunächst der Eindruck eines Kontrollverlusts durch unkontrolliert erstellte Dashboards."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1530,
+   "zeit": "25:30",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s",
+   "aussage": "Klassische Copilot-Lizenzen kosteten anfangs häufig zwischen 20 und 30 Euro pro Nutzer und Monat."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1530,
+   "zeit": "25:30",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s",
+   "aussage": "Bei manchen Unternehmen, die Copilot flächendeckend ausgerollt haben, nutzen rund 60 Prozent der Lizenzinhaber das Tool gar nicht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 946,
+   "zeit": "15:46",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=946s",
+   "aussage": "Ein Kunde entschied sich trotz einer passenderen Custom-Visual-Alternative für die Umsetzung mit dem Standard-Visual, weil der Einkaufsprozess für kostenpflichtige Custom Visuals ein großes Hindernis darstellt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 1905,
+   "zeit": "31:45",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s",
+   "aussage": "Mit der Power-BI-Pro-Lizenz gilt eine Dateigrößengrenze von 1 GB, deren Überschreitung in Richtung Premium zu höheren Kosten führen kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 1905,
+   "zeit": "31:45",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s",
+   "aussage": "Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 1502,
+   "zeit": "25:02",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1502s",
+   "aussage": "Mit der Einführung von Power BI Premium im Jahr 2017 benötigten plötzlich auch reine Berichtskonsumenten eine Power BI Pro Lizenz, um Berichte weiterhin kostenlos empfangen zu können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 2907,
+   "zeit": "48:27",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2907s",
+   "aussage": "Fabric Planning mit Lumel erfordert keine separate Lizenz und wird ausschließlich über Capacity-Unit-Verbrauch abgerechnet."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "page:laender-indikatoren-explorer",
+   "titel": "Country Indicator Explorer — Lebenszufriedenheit und ihre Korrelate",
+   "datum": "2026-08-14",
+   "abdeckung": "nur-text",
+   "anteil": 0.25,
+   "url": "https://datenwgknowledgekitchen.com/laender-indikatoren-explorer.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/laender-indikatoren-explorer.html#:~:text=Quellen%20je%20Indikator",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:ki-entwicklung-zehn-tage",
+   "titel": "Zehn Tage bis zum marktfähigen Stand",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.167,
+   "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html#:~:text=Was%20das%20%2Awirtschaftlich%2A%20bedeutet",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:ihi7UiJ_TtQ",
+   "titel": "Why Passion Beats Niche",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.154,
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
+   "sprungmarken": [
+    {
+     "label": "19:47",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1187s",
+     "sekunde": 1187
+    },
+    {
+     "label": "21:22",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1282s",
+     "sekunde": 1282
+    },
+    {
+     "label": "25:05",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1505s",
+     "sekunde": 1505
+    }
+   ]
+  },
+  {
+   "id": "yt:KwySyTxW_EI",
+   "titel": "The Day After Tomorrow – Nach der Einführung geht es erst richtig los | Power BI Summit 2023",
+   "datum": "2023-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.15,
+   "url": "https://www.youtube.com/watch?v=KwySyTxW_EI",
+   "sprungmarken": [
+    {
+     "label": "15:04",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=904s",
+     "sekunde": 904
+    },
+    {
+     "label": "39:08",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=2348s",
+     "sekunde": 2348
+    },
+    {
+     "label": "42:08",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=2528s",
+     "sekunde": 2528
+    }
+   ]
+  },
+  {
+   "id": "page:ki-entwicklung-zehn-tage_en",
+   "titel": "Ten Days to a Market-Ready State",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.143,
+   "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html#:~:text=What%20it%20means%20%2Aeconomically%2A",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:Z8vpSSOmG24",
+   "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "datum": "2022-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.133,
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
+   "sprungmarken": [
+    {
+     "label": "03:03",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=183s",
+     "sekunde": 183
+    },
+    {
+     "label": "36:09",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2169s",
+     "sekunde": 2169
+    }
+   ]
+  },
+  {
+   "id": "yt:9wl_PLvgvyc",
+   "titel": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.13,
+   "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc",
+   "sprungmarken": [
+    {
+     "label": "03:10",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=190s",
+     "sekunde": 190
+    },
+    {
+     "label": "11:07",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=667s",
+     "sekunde": 667
+    },
+    {
+     "label": "20:24",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=1224s",
+     "sekunde": 1224
+    }
+   ]
+  },
+  {
+   "id": "page:waermestreifen-3d",
+   "titel": "175 Jahre Klimageschichte zum Anfassen — Waermestreifen 3D",
+   "datum": "2026-08-04",
+   "abdeckung": "nur-text",
+   "anteil": 0.125,
+   "url": "https://datenwgknowledgekitchen.com/waermestreifen-3d.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/waermestreifen-3d.html#:~:text=Quellen%20%26%20Attribution",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:psLPsI32sAs",
+   "titel": "Power BI Update Mai 2026",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.111,
+   "url": "https://www.youtube.com/watch?v=psLPsI32sAs",
+   "sprungmarken": [
+    {
+     "label": "03:15",
+     "url": "https://www.youtube.com/watch?v=psLPsI32sAs&t=195s",
+     "sekunde": 195
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.109,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20sich%20f%C3%BCr%20Power-BI-Teams%20%C3%A4ndert",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Workload-Landkarte%20%28Stand%202026%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Der%20Vergleich",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:powerbi-design-skill",
+   "titel": "Report-Design als Framework — ein Skill für Power BI",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.1,
+   "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.096,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Embedded",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Updates%20einplanen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Die%20wichtigsten%20Regeln",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:aYHk_V8n_CE",
+   "titel": "Daten-WG Special: Power BI vs. Qlik",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
+   "sprungmarken": [
+    {
+     "label": "04:56",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=296s",
+     "sekunde": 296
+    },
+    {
+     "label": "09:43",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=583s",
+     "sekunde": 583
+    },
+    {
+     "label": "11:19",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=679s",
+     "sekunde": 679
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "42:00",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2520s",
+     "sekunde": 2520
+    },
+    {
+     "label": "43:34",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2614s",
+     "sekunde": 2614
+    },
+    {
+     "label": "46:50",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2810s",
+     "sekunde": 2810
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "17:20",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1040s",
+     "sekunde": 1040
+    },
+    {
+     "label": "27:01",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1621s",
+     "sekunde": 1621
+    },
+    {
+     "label": "28:46",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1726s",
+     "sekunde": 1726
+    }
+   ]
+  },
+  {
+   "id": "yt:hbUYMyqb6r8",
+   "titel": "Denken in Tabellen",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8",
+   "sprungmarken": [
+    {
+     "label": "31:45",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s",
+     "sekunde": 1905
+    },
+    {
+     "label": "35:27",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2127s",
+     "sekunde": 2127
+    }
+   ]
+  },
+  {
+   "id": "yt:jETxUNQSl-w",
+   "titel": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.069,
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w",
+   "sprungmarken": [
+    {
+     "label": "22:04",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1324s",
+     "sekunde": 1324
+    },
+    {
+     "label": "25:30",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s",
+     "sekunde": 1530
+    }
+   ]
+  },
+  {
+   "id": "yt:UUlPoJOhco8",
+   "titel": "Metadaten als Superkraft",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8",
+   "sprungmarken": [
+    {
+     "label": "18:55",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1135s",
+     "sekunde": 1135
+    }
+   ]
+  },
+  {
+   "id": "yt:mUALlPmGcEk",
+   "titel": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "datum": "2025-11-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk",
+   "sprungmarken": [
+    {
+     "label": "03:08",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=188s",
+     "sekunde": 188
+    },
+    {
+     "label": "11:08",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=668s",
+     "sekunde": 668
+    },
+    {
+     "label": "42:26",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=2546s",
+     "sekunde": 2546
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "03:48",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=228s",
+     "sekunde": 228
+    },
+    {
+     "label": "06:26",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=386s",
+     "sekunde": 386
+    }
+   ]
+  },
+  {
+   "id": "yt:B0_sSJQVG8w",
+   "titel": "GxP Talk - Testing im GxP-Umfeld",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w",
+   "sprungmarken": [
+    {
+     "label": "21:09",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1269s",
+     "sekunde": 1269
+    },
+    {
+     "label": "29:01",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1741s",
+     "sekunde": 1741
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "26:36",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1596s",
+     "sekunde": 1596
+    },
+    {
+     "label": "46:54",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2814s",
+     "sekunde": 2814
+    }
+   ]
+  },
+  {
+   "id": "yt:vd1r02bj9Qk",
+   "titel": "Power BI vs. Qlik",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk",
+   "sprungmarken": [
+    {
+     "label": "28:48",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1728s",
+     "sekunde": 1728
+    }
+   ]
+  },
+  {
+   "id": "yt:rWE0gMx7v7I",
+   "titel": "BI Thinkers Talk n.74",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I",
+   "sprungmarken": [
+    {
+     "label": "09:46",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=586s",
+     "sekunde": 586
+    },
+    {
+     "label": "11:17",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=677s",
+     "sekunde": 677
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.042,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "02:39",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=159s",
+     "sekunde": 159
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.032,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "39:00",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2340s",
+     "sekunde": 2340
+    }
+   ]
+  },
+  {
+   "id": "yt:m3xNYfVih0Q",
+   "titel": "Starting with Microsft Fabric the Skills you need",
+   "datum": "2024-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.032,
+   "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q",
+   "sprungmarken": [
+    {
+     "label": "00:02",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2s",
+     "sekunde": 2
+    }
+   ]
+  },
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.031,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:luk4S4ukKmg",
+   "titel": "BI Thinkers Talk n.72",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg",
+   "sprungmarken": [
+    {
+     "label": "22:26",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=1346s",
+     "sekunde": 1346
+    }
+   ]
+  },
+  {
+   "id": "yt:iymmxuXHh44",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 5",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=iymmxuXHh44",
+   "sprungmarken": [
+    {
+     "label": "30:48",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1848s",
+     "sekunde": 1848
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.021,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "57:28",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3448s",
+     "sekunde": 3448
+    }
+   ]
+  },
+  {
+   "id": "yt:xCzKEIB4W5I",
+   "titel": "Fabric Planning unboxing",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I",
+   "sprungmarken": [
+    {
+     "label": "07:46",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=466s",
+     "sekunde": 466
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Alizenzen",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Alizenzen&f=topic%3Alizenzen"
+}

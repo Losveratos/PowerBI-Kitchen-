@@ -1,0 +1,789 @@
+{
+ "id": "topic:metadaten",
+ "name": "Metadaten",
+ "typ": "thema",
+ "slug": "metadaten",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 25,
+ "kernaussagen_gesamt": 23,
+ "mit_kernaussagen": 6,
+ "aliase": [
+  "Metadata",
+  "Meta-Daten"
+ ],
+ "einordnung": "Metadaten lassen sich für Data Health und Data Governance nutzen, weil sie standardisiert ausgewertet werden können. Nutzungsdaten sind ein zentraler Ansatzpunkt bei der Überarbeitung von Dashboards und Datenprodukten, weil sie zeigen, ob diese überhaupt verwendet werden. Measure Killer nutzt Metadaten, um zu prüfen, ob Spalten, Tabellen und Measures tatsächlich in den Reportdateien verwendet werden.",
+ "nachbarn": [
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "refresh.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "tool:delta-lake",
+   "name": "Delta Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "delta-lake.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "topic:datenqualitat",
+   "name": "Datenqualität",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "datenqualitat.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "copilot.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 1445,
+   "zeit": "24:05",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1445s",
+   "aussage": "Process Mining übersetzt in Systemen gespeicherte Daten in Prozessschritte und erzeugt so ein digitales Abbild aller historischen Prozessabläufe."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 1035,
+   "zeit": "17:15",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1035s",
+   "aussage": "Für Rückschreibungen mit Power Table wird empfohlen, eine eigene Datenbank anzulegen statt die automatisch erstellte Metadaten-Datenbank zu verwenden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 1410,
+   "zeit": "23:30",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1410s",
+   "aussage": "Power Table eignet sich nach Einschätzung des Testers vor allem für Master Data Management mit Excel-ähnlicher Bearbeitung."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1184,
+   "zeit": "19:44",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1184s",
+   "aussage": "Will sich ein Unternehmen auf Power BI als BI-Standard konzentrieren statt auf weitere Lösungen, sollte dies mit den Fachbereichen abgestimmt werden, unter anderem um Stammdaten wie Lieferantendaten zu standardisieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 1916,
+   "zeit": "31:56",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1916s",
+   "aussage": "Spaltenbeschreibungen lassen sich in Power BI sowohl in der Modellansicht als auch in der TMDL-Ansicht hinterlegen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 4008,
+   "zeit": "1:06:48",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4008s",
+   "aussage": "Ein Teilnehmer empfiehlt, die per INFO-Funktionen abrufbaren Metadaten eines Semantic Models an eine KI zu übergeben, um datenschutzkonform bessere Measure-Vorschläge zu erhalten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 1,
+   "zeit": "00:01",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1s",
+   "aussage": "Metadaten liefern Informationen über Datenmodelle, Nutzerkompetenzen und Nutzung, die in den reinen Daten selbst nicht sichtbar sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 1,
+   "zeit": "00:01",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1s",
+   "aussage": "Metadaten lassen sich für Data Health und Data Governance nutzen, weil sie standardisiert ausgewertet werden können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 94,
+   "zeit": "01:34",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=94s",
+   "aussage": "Nutzungsdaten sind ein zentraler Ansatzpunkt bei der Überarbeitung von Dashboards und Datenprodukten, weil sie zeigen, ob diese überhaupt verwendet werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 221,
+   "zeit": "03:41",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=221s",
+   "aussage": "Measure Killer nutzt Metadaten, um zu prüfen, ob Spalten, Tabellen und Measures tatsächlich in den Reportdateien verwendet werden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 437,
+   "zeit": "07:17",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=437s",
+   "aussage": "Ein vollständiges Metadatenkonzept sollte neben technischen Informationen auch einen Business Layer mit Ansprechpartnern und Datenherkunft umfassen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 437,
+   "zeit": "07:17",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=437s",
+   "aussage": "Power BI kann über DAX-INFO-Funktionen bereits viele Metadaten direkt aus dem Modell auslesen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 530,
+   "zeit": "08:50",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=530s",
+   "aussage": "Für den Einstieg reicht eine einfache SharePoint-Liste als minimalistischer Datenkatalog völlig aus, anstatt lange über das perfekte Tool zu diskutieren."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 624,
+   "zeit": "10:24",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=624s",
+   "aussage": "Ein von Anfang an zu detailliert geplanter Datenkatalog mit sehr vielen Pflichtfeldern führt in der Praxis eher zur Ablehnung durch die Nutzer."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 810,
+   "zeit": "13:30",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s",
+   "aussage": "Eine minimalistische Metadatenliste mit den drei Spalten Name, Beschreibung und Datenablage bringt bereits einen großen Nutzen bei geringem Aufwand."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 810,
+   "zeit": "13:30",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s",
+   "aussage": "Fehlende Beschreibungen von Measures in Power BI führen dazu, dass verschiedene Personen dieselbe Kennzahl unterschiedlich benennen und berechnen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 810,
+   "zeit": "13:30",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s",
+   "aussage": "Kleinere Unternehmen profitieren oft schneller von Metadaten-Initiativen, weil sie Prozesse und Abstimmungen schneller anpassen können als Großkonzerne."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 947,
+   "zeit": "15:47",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s",
+   "aussage": "Aus Metadaten zu Datenmodellen lässt sich ableiten, wie gut ein Team mit Daten umgeht und wo Schulungsbedarf besteht."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 947,
+   "zeit": "15:47",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s",
+   "aussage": "Process Mining wertet Log- und Transaktionsdaten aus, um Abweichungen vom idealen Prozess sichtbar zu machen, und soll mittlerweile auch in Power Automate Einzug gehalten haben."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 1135,
+   "zeit": "18:55",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1135s",
+   "aussage": "Ein zentrales Hindernis für Metadaten-Initiativen ist, dass Unternehmen das Thema für unnötig kompliziert halten und stattdessen in Tool- und Lizenzdiskussionen abgleiten."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 1214,
+   "zeit": "20:14",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1214s",
+   "aussage": "Der einfachste erste Schritt für eine BI-Abteilung ist, Measure Killer anzuhängen und innerhalb von rund zehn Minuten einen ersten Status zu Datenqualität und Nutzung zu erhalten."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 1237,
+   "zeit": "20:37",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1237s",
+   "aussage": "Bevor Werkzeuge eingeführt werden, sollte im eigenen BI-Team abgefragt werden, ob das Thema Metadaten überhaupt bekannt ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 1263,
+   "zeit": "21:03",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1263s",
+   "aussage": "Durch die Analyse von Metadaten im Fabric-Tenant lässt sich erkennen, wenn Nutzer wiederholt neue, redundante Datenmodelle statt bestehender Berichte aufbauen."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:UUlPoJOhco8",
+   "titel": "Metadaten als Superkraft",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.733,
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8",
+   "sprungmarken": [
+    {
+     "label": "01:34",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=94s",
+     "sekunde": 94
+    },
+    {
+     "label": "03:41",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=221s",
+     "sekunde": 221
+    },
+    {
+     "label": "13:30",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s",
+     "sekunde": 810
+    }
+   ]
+  },
+  {
+   "id": "yt:WJXREKKx2yo",
+   "titel": "Vorbereiten der Daten für KI",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.167,
+   "url": "https://www.youtube.com/watch?v=WJXREKKx2yo",
+   "sprungmarken": [
+    {
+     "label": "04:42",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=282s",
+     "sekunde": 282
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.129,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "12:15",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=735s",
+     "sekunde": 735
+    },
+    {
+     "label": "13:57",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=837s",
+     "sekunde": 837
+    },
+    {
+     "label": "17:21",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1041s",
+     "sekunde": 1041
+    }
+   ]
+  },
+  {
+   "id": "yt:Z6RZjkn_6lY",
+   "titel": "Microsoft Fabric Shortcut Transformation erklärt: Updates im Praxistest",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.111,
+   "url": "https://www.youtube.com/watch?v=Z6RZjkn_6lY",
+   "sprungmarken": [
+    {
+     "label": "04:09",
+     "url": "https://www.youtube.com/watch?v=Z6RZjkn_6lY&t=249s",
+     "sekunde": 249
+    }
+   ]
+  },
+  {
+   "id": "yt:7j34Ndng0Os",
+   "titel": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os",
+   "sprungmarken": [
+    {
+     "label": "06:45",
+     "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=405s",
+     "sekunde": 405
+    }
+   ]
+  },
+  {
+   "id": "yt:sShNdgnHjr4",
+   "titel": "TMDL Magie: Multi Parameter Tabelle - Feldparameter Next Level! | Power BI Tutorial",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=sShNdgnHjr4",
+   "sprungmarken": [
+    {
+     "label": "04:46",
+     "url": "https://www.youtube.com/watch?v=sShNdgnHjr4&t=286s",
+     "sekunde": 286
+    }
+   ]
+  },
+  {
+   "id": "yt:CvaOkO37HMU",
+   "titel": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU",
+   "sprungmarken": [
+    {
+     "label": "10:50",
+     "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=650s",
+     "sekunde": 650
+    },
+    {
+     "label": "16:51",
+     "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1011s",
+     "sekunde": 1011
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "21:24",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1284s",
+     "sekunde": 1284
+    },
+    {
+     "label": "25:06",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1506s",
+     "sekunde": 1506
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.054,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20ins%20Modell%20geh%C3%B6rt",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20zwei%20Dinge%2C%20die%20man%20wissen%20muss",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wie%20es%20funktioniert",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:rrCi0lnGrCg",
+   "titel": "Mythos Data Vault und richtig große Modelle",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.045,
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
+   "sprungmarken": [
+    {
+     "label": "29:26",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1766s",
+     "sekunde": 1766
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "55:58",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3358s",
+     "sekunde": 3358
+    },
+    {
+     "label": "59:02",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3542s",
+     "sekunde": 3542
+    }
+   ]
+  },
+  {
+   "id": "yt:xCzKEIB4W5I",
+   "titel": "Fabric Planning unboxing",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.036,
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I",
+   "sprungmarken": [
+    {
+     "label": "17:15",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1035s",
+     "sekunde": 1035
+    },
+    {
+     "label": "51:54",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3114s",
+     "sekunde": 3114
+    }
+   ]
+  },
+  {
+   "id": "yt:B0_sSJQVG8w",
+   "titel": "GxP Talk - Testing im GxP-Umfeld",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w",
+   "sprungmarken": [
+    {
+     "label": "17:57",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1077s",
+     "sekunde": 1077
+    }
+   ]
+  },
+  {
+   "id": "yt:UnW4wHhw_IY",
+   "titel": "Daten-WG Deep Dive Financial Reporting pt.4",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY",
+   "sprungmarken": [
+    {
+     "label": "03:11",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=191s",
+     "sekunde": 191
+    }
+   ]
+  },
+  {
+   "id": "yt:pOJpXxsfUt0",
+   "titel": "BI Thinkers Talk n.73",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0",
+   "sprungmarken": [
+    {
+     "label": "57:27",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3447s",
+     "sekunde": 3447
+    }
+   ]
+  },
+  {
+   "id": "yt:iinfiHxznOU",
+   "titel": "Unboxing MCP Server for Power BI Modelling",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
+   "sprungmarken": [
+    {
+     "label": "49:26",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2966s",
+     "sekunde": 2966
+    }
+   ]
+  },
+  {
+   "id": "yt:VD1N68Fhoco",
+   "titel": "BI Thinkers Talk nr.68",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=VD1N68Fhoco",
+   "sprungmarken": [
+    {
+     "label": "27:20",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=1640s",
+     "sekunde": 1640
+    }
+   ]
+  },
+  {
+   "id": "yt:AX7b8_aNekw",
+   "titel": "Daten-WG 2026 Lineup",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=AX7b8_aNekw",
+   "sprungmarken": [
+    {
+     "label": "19:59",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=1199s",
+     "sekunde": 1199
+    }
+   ]
+  },
+  {
+   "id": "yt:KMk1k5uCLZU",
+   "titel": "Daten-WG Thinkers Talk n61",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
+   "sprungmarken": [
+    {
+     "label": "14:00",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=840s",
+     "sekunde": 840
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "20:54",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1254s",
+     "sekunde": 1254
+    }
+   ]
+  },
+  {
+   "id": "yt:bt81POE-9Ig",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.023,
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
+   "sprungmarken": [
+    {
+     "label": "1:02:38",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=3758s",
+     "sekunde": 3758
+    }
+   ]
+  },
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:rWE0gMx7v7I",
+   "titel": "BI Thinkers Talk n.74",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.021,
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I",
+   "sprungmarken": [
+    {
+     "label": "24:19",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1459s",
+     "sekunde": 1459
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "1:08:20",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4100s",
+     "sekunde": 4100
+    }
+   ]
+  },
+  {
+   "id": "yt:lp8xNX81R2w",
+   "titel": "Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=lp8xNX81R2w",
+   "sprungmarken": []
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Ametadaten",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Ametadaten&f=topic%3Ametadaten"
+}

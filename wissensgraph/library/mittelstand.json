@@ -1,0 +1,488 @@
+{
+ "id": "topic:mittelstand",
+ "name": "Mittelstand",
+ "typ": "thema",
+ "slug": "mittelstand",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 17,
+ "kernaussagen_gesamt": 7,
+ "mit_kernaussagen": 5,
+ "aliase": [
+  "KMU",
+  "mittelständisch",
+  "Mittelständler"
+ ],
+ "einordnung": "Ein mittelständisches Dienstleistungsunternehmen beauftragte Peter Gluchowski 1988 mit einem System zur Erfassung von Warenströmen zwischen Automobilherstellern und Gießereien und zur Erstellung von Auswertungen. Fabric-Kapazität F2 lohnt sich aus Sicht des Sprechers fast immer, unabhängig von der Unternehmensgröße. Im Mittelstand wird die Aufteilung zwischen Sternschema und relationaler Modellierung nach Einschätzung von Peter Gluchowski anders gehandhabt als in Großunternehmen.",
+ "nachbarn": [
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:sap",
+   "name": "SAP",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "sap.md"
+  },
+  {
+   "id": "topic:datenqualitat",
+   "name": "Datenqualität",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "datenqualitat.md"
+  },
+  {
+   "id": "topic:strategie",
+   "name": "Strategie",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "strategie.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=0s",
+   "aussage": "Ein mittelständisches Dienstleistungsunternehmen beauftragte Peter Gluchowski 1988 mit einem System zur Erfassung von Warenströmen zwischen Automobilherstellern und Gießereien und zur Erstellung von Auswertungen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 492,
+   "zeit": "08:12",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s",
+   "aussage": "Im Mittelstand wird die Aufteilung zwischen Sternschema und relationaler Modellierung nach Einschätzung von Peter Gluchowski anders gehandhabt als in Großunternehmen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 2,
+   "zeit": "00:02",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2s",
+   "aussage": "Im Risikomanagement können mittelständische Unternehmen nicht wie Großkonzerne behandelt werden, weil sie andere Probleme haben."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 384,
+   "zeit": "06:24",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=384s",
+   "aussage": "Große Konzerne haben im Risikomanagement oft mehr Probleme als der Mittelstand, weil dieser agiler und näher am Markt agieren kann."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 785,
+   "zeit": "13:05",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=785s",
+   "aussage": "Layher beobachtet, dass deutschsprachige Unternehmen regulatorische Anforderungen häufig übertreiben und pauschal auf alle Unternehmensbereiche anwenden, auch wo der Gesetzgeber das nicht verlangt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 810,
+   "zeit": "13:30",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s",
+   "aussage": "Kleinere Unternehmen profitieren oft schneller von Metadaten-Initiativen, weil sie Prozesse und Abstimmungen schneller anpassen können als Großkonzerne."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1135,
+   "zeit": "18:55",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1135s",
+   "aussage": "Fabric-Kapazität F2 lohnt sich aus Sicht des Sprechers fast immer, unabhängig von der Unternehmensgröße."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:dKA-38gRD8Q",
+   "titel": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.333,
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "08:12",
+     "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s",
+     "sekunde": 492
+    }
+   ]
+  },
+  {
+   "id": "yt:DFw664hd1IE",
+   "titel": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.258,
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE",
+   "sprungmarken": [
+    {
+     "label": "01:40",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=100s",
+     "sekunde": 100
+    },
+    {
+     "label": "03:17",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=197s",
+     "sekunde": 197
+    },
+    {
+     "label": "06:24",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=384s",
+     "sekunde": 384
+    }
+   ]
+  },
+  {
+   "id": "yt:vd1r02bj9Qk",
+   "titel": "Power BI vs. Qlik",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.158,
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk",
+   "sprungmarken": [
+    {
+     "label": "25:12",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1512s",
+     "sekunde": 1512
+    },
+    {
+     "label": "26:51",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1611s",
+     "sekunde": 1611
+    },
+    {
+     "label": "28:48",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1728s",
+     "sekunde": 1728
+    }
+   ]
+  },
+  {
+   "id": "yt:KwySyTxW_EI",
+   "titel": "The Day After Tomorrow – Nach der Einführung geht es erst richtig los | Power BI Summit 2023",
+   "datum": "2023-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=KwySyTxW_EI",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "54:13",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=3253s",
+     "sekunde": 3253
+    }
+   ]
+  },
+  {
+   "id": "yt:0cHtxIm7fVw",
+   "titel": "Von Patronen zu Prozessen",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.095,
+   "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "06:03",
+     "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw&t=363s",
+     "sekunde": 363
+    }
+   ]
+  },
+  {
+   "id": "yt:s3CveEVoDvo",
+   "titel": "Von Patronen zu Prozessen (nur Ton)",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.095,
+   "url": "https://www.youtube.com/watch?v=s3CveEVoDvo",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "06:03",
+     "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=363s",
+     "sekunde": 363
+    }
+   ]
+  },
+  {
+   "id": "yt:6WhWLcuFvZE",
+   "titel": "Prinzipien oder Paragrafen",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.074,
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE",
+   "sprungmarken": [
+    {
+     "label": "09:56",
+     "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=596s",
+     "sekunde": 596
+    },
+    {
+     "label": "23:31",
+     "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1411s",
+     "sekunde": 1411
+    }
+   ]
+  },
+  {
+   "id": "yt:jETxUNQSl-w",
+   "titel": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.069,
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w",
+   "sprungmarken": [
+    {
+     "label": "04:22",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=262s",
+     "sekunde": 262
+    },
+    {
+     "label": "40:06",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=2406s",
+     "sekunde": 2406
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "11:39",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=699s",
+     "sekunde": 699
+    },
+    {
+     "label": "22:14",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1334s",
+     "sekunde": 1334
+    }
+   ]
+  },
+  {
+   "id": "yt:oh-3_65IQ2Q",
+   "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
+   "sprungmarken": [
+    {
+     "label": "37:12",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2232s",
+     "sekunde": 2232
+    },
+    {
+     "label": "46:02",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2762s",
+     "sekunde": 2762
+    }
+   ]
+  },
+  {
+   "id": "yt:9wl_PLvgvyc",
+   "titel": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc",
+   "sprungmarken": [
+    {
+     "label": "04:00",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=240s",
+     "sekunde": 240
+    }
+   ]
+  },
+  {
+   "id": "yt:XxPFAQfLyuA",
+   "titel": "Wie war die Daten-WG? (2025, Teil 2)",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
+   "sprungmarken": [
+    {
+     "label": "11:18",
+     "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=678s",
+     "sekunde": 678
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.032,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "07:50",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=470s",
+     "sekunde": 470
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.031,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "10:01",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=601s",
+     "sekunde": 601
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "48:17",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2897s",
+     "sekunde": 2897
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.021,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "57:28",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3448s",
+     "sekunde": 3448
+    }
+   ]
+  },
+  {
+   "id": "yt:mUALlPmGcEk",
+   "titel": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "datum": "2025-11-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.02,
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk",
+   "sprungmarken": [
+    {
+     "label": "04:45",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=285s",
+     "sekunde": 285
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Amittelstand",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Amittelstand&f=topic%3Amittelstand"
+}

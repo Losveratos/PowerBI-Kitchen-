@@ -1,0 +1,743 @@
+{
+ "id": "topic:self-service-bi",
+ "name": "Self-Service BI",
+ "typ": "thema",
+ "slug": "self-service-bi",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 18,
+ "kernaussagen_gesamt": 26,
+ "mit_kernaussagen": 10,
+ "aliase": [
+  "Self-Service",
+  "Self Service",
+  "Selfservice"
+ ],
+ "einordnung": "Der Begriff Self-Service Business Intelligence wurde 2011 von TDWI in einem Best-Practice-Report definiert. Ein zentraler Auslöser für Self-Service BI war ein IT-Flaschenhals, bei dem Anfragen von Fachbereichs-Kollegen wegen begrenzter IT-Kapazität nicht schnell genug bearbeitet werden konnten. Nach einer weltweiten Freigabe von Power-BI-Lizenzen in einem Konzern entstand zunächst der Eindruck eines Kontrollverlusts durch unkontrolliert erstellte Dashboards.",
+ "nachbarn": [
+  {
+   "id": "topic:governance",
+   "name": "Governance",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 4,
+   "beleg": "dieses Spannungsfeld zwischen IT Chain und Selfsice nennen wir es einfach ITQ",
+   "datei": "governance.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 22,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "topic:strategie",
+   "name": "Strategie",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "strategie.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "topic:schulung",
+   "name": "Schulung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "schulung.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "workspace.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1752,
+   "zeit": "29:12",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1752s",
+   "aussage": "Für Einsteiger, die sich mit der Navigation in Berichten schwertun, senkt Copilot die Einstiegshürde deutlich, während es für erfahrene Profis kaum einen Geschwindigkeitsvorteil bringt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 1120,
+   "zeit": "18:40",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1120s",
+   "aussage": "Layher empfiehlt, Fachbereiche zu befähigen, nicht-kritische Engineering-Daten selbst zu analysieren, weil zentrale IT-Abteilungen solche Anfragen gegenüber dem Kerngeschäft oft niedrig priorisieren."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1276,
+   "zeit": "21:16",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1276s",
+   "aussage": "Die große strategische Roadmap mit zentralen Programmen sollte top-down gesteuert werden, während Fachbereiche parallel bottom-up eigene BI- und KI-Initiativen vorantreiben dürfen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1324,
+   "zeit": "22:04",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1324s",
+   "aussage": "Nach einer weltweiten Freigabe von Power-BI-Lizenzen in einem Konzern entstand zunächst der Eindruck eines Kontrollverlusts durch unkontrolliert erstellte Dashboards."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1416,
+   "zeit": "23:36",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1416s",
+   "aussage": "Bei großflächig ausgerolltem Self-Service BI ist es nicht mehr Ziel der zentralen Abteilung, einen umfassenden Single Point of Truth zu etablieren, Security bleibt aber weiterhin zentral geregelt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 410,
+   "zeit": "06:50",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=410s",
+   "aussage": "Fachbereiche mit Excel-Hintergrund kennen meist nur flache Tabellen und setzen dieses Muster mit moderneren Tools wie Power BI fort."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 826,
+   "zeit": "13:46",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=826s",
+   "aussage": "Ob Fachbereiche selbst Datenmodelle bauen oder diese Aufgabe delegieren, hängt laut Ulrik stark von der Unternehmenskultur und der technischen Affinität der Beteiligten ab."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 1081,
+   "zeit": "18:01",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1081s",
+   "aussage": "Für Self-Service empfiehlt Oliver ein vorbereitetes Sandkasten-Modell mit fertigen Measures und Dimensionen, das rund 80 bis 90 Prozent der Nutzeranfragen abdeckt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 1176,
+   "zeit": "19:36",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1176s",
+   "aussage": "Arthur ist der Meinung, dass Power BI mehr Fachanwender zum Self-Service befähigt, weil die Einstiegshürde niedriger ist als bei Qlik, dessen Lernkurve aber schneller abflacht."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 3818,
+   "zeit": "1:03:38",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=3818s",
+   "aussage": "Anwender mit wenig DAX-Erfahrung erhalten in einem One-Big-Table-Modell häufiger automatisch die von ihnen erwarteten Ergebnisse als in einem dimensionalen Modell."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 4196,
+   "zeit": "1:09:56",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=4196s",
+   "aussage": "Für Einsteiger wird das One-Big-Table-Modell weniger aus konzeptionellen als aus werkzeugbedingten Gründen empfohlen, weil Power BI dabei mehr Standardverhalten von sich aus liefert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 1708,
+   "zeit": "28:28",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1708s",
+   "aussage": "Aus Sicht des Sprechers sind Datenfunktionen zum Zurückschreiben noch nicht vollständig self-service-tauglich, weil Modell, Datenhaltung und Funktion aktuell nicht an Fachbereiche übergeben werden sollten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 2969,
+   "zeit": "49:29",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2969s",
+   "aussage": "Aus Anwendersicht ist der Power-BI-Teil der Writeback-Lösung self-service-tauglich, weil Business User nur vordefinierte Funktionen auswählen, ohne Modell oder Zielort zu kennen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 94,
+   "zeit": "01:34",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=94s",
+   "aussage": "Der Begriff Self-Service Business Intelligence wurde 2011 von TDWI in einem Best-Practice-Report definiert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 313,
+   "zeit": "05:13",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=313s",
+   "aussage": "Ein zentraler Auslöser für Self-Service BI war ein IT-Flaschenhals, bei dem Anfragen von Fachbereichs-Kollegen wegen begrenzter IT-Kapazität nicht schnell genug bearbeitet werden konnten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 524,
+   "zeit": "08:44",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=524s",
+   "aussage": "Tom Martens definiert Self-Service als: Leute können ihr Problem selbst lösen, ohne dafür die IT zu brauchen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 530,
+   "zeit": "08:50",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=530s",
+   "aussage": "Für den Einstieg reicht eine einfache SharePoint-Liste als minimalistischer Datenkatalog völlig aus, anstatt lange über das perfekte Tool zu diskutieren."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 771,
+   "zeit": "12:51",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=771s",
+   "aussage": "Wartbarkeit ist für Tom Martens keine Kür, sondern eine grundsätzliche Voraussetzung für eine gute Self-Service-Lösung."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 850,
+   "zeit": "14:10",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=850s",
+   "aussage": "Der Self-Service-BI-Anwender von 2011, der nur Balkendiagramme in Klick-Tools erstellte, unterscheidet sich stark von heutigen Citizen Developern und Citizen Data Scientists."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 1189,
+   "zeit": "19:49",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1189s",
+   "aussage": "Citizen-Development-Lösungen wie ein Formular für Urlaubsanträge bringen häufig UI- und Design-Anforderungen mit sich, für die Fachanwendern die Kompetenz fehlt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 1605,
+   "zeit": "26:45",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1605s",
+   "aussage": "Zwischen IT und Self-Service besteht laut Tom Martens ein dauerhaftes Spannungsfeld, das er als ITQ bezeichnet."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1857,
+   "zeit": "30:57",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1857s",
+   "aussage": "Martin sieht keinen Bedarf, dass jeder Fachanwender eigene Fabric-Artefakte erstellen können muss."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 2258,
+   "zeit": "37:38",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2258s",
+   "aussage": "Arturs zentraler Wert ist, Probleme der Endanwender sofort zu lösen; Governance und Konsolidierung kommen für ihn erst danach."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 2300,
+   "zeit": "38:20",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2300s",
+   "aussage": "Tom Martens plädiert dafür, neue Werkzeuge grundsätzlich erst einmal zu erlauben, weil das die Anwender befähigt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 2692,
+   "zeit": "44:52",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2692s",
+   "aussage": "Die klassische Trennung zwischen Fachbereich und IT verliert laut Tom Martens zunehmend an Gültigkeit, weil Kompetenzen aus beiden Welten zusammenwachsen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 3321,
+   "zeit": "55:21",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3321s",
+   "aussage": "Tom Martens' finale Definition von Self-Service lautet: das, was ein Business-User ohne IT tun kann, innerhalb von Guardrails, die Governance und Compliance berücksichtigen."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.538,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "02:02",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=122s",
+     "sekunde": 122
+    },
+    {
+     "label": "05:02",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=302s",
+     "sekunde": 302
+    },
+    {
+     "label": "23:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1385s",
+     "sekunde": 1385
+    }
+   ]
+  },
+  {
+   "id": "yt:9wl_PLvgvyc",
+   "titel": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.261,
+   "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc",
+   "sprungmarken": [
+    {
+     "label": "04:00",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=240s",
+     "sekunde": 240
+    },
+    {
+     "label": "07:33",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=453s",
+     "sekunde": 453
+    },
+    {
+     "label": "12:47",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=767s",
+     "sekunde": 767
+    }
+   ]
+  },
+  {
+   "id": "yt:Z8vpSSOmG24",
+   "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "datum": "2022-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
+   "sprungmarken": [
+    {
+     "label": "27:08",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1628s",
+     "sekunde": 1628
+    },
+    {
+     "label": "30:08",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1808s",
+     "sekunde": 1808
+    },
+    {
+     "label": "36:09",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2169s",
+     "sekunde": 2169
+    }
+   ]
+  },
+  {
+   "id": "yt:vd1r02bj9Qk",
+   "titel": "Power BI vs. Qlik",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.158,
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk",
+   "sprungmarken": [
+    {
+     "label": "15:57",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=957s",
+     "sekunde": 957
+    },
+    {
+     "label": "18:01",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1081s",
+     "sekunde": 1081
+    },
+    {
+     "label": "19:36",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1176s",
+     "sekunde": 1176
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.097,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "18:58",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1138s",
+     "sekunde": 1138
+    },
+    {
+     "label": "20:34",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1234s",
+     "sekunde": 1234
+    },
+    {
+     "label": "22:06",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1326s",
+     "sekunde": 1326
+    }
+   ]
+  },
+  {
+   "id": "yt:z4ZeHPzIeeU",
+   "titel": "Wie war die Daten-WG? · Im Gespräch mit Artur König",
+   "datum": "2025-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU",
+   "sprungmarken": [
+    {
+     "label": "30:02",
+     "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1802s",
+     "sekunde": 1802
+    }
+   ]
+  },
+  {
+   "id": "yt:-_4bfrjRCVo",
+   "titel": "Objektive Daten gibt es nicht",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.061,
+   "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo",
+   "sprungmarken": [
+    {
+     "label": "28:12",
+     "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo&t=1692s",
+     "sekunde": 1692
+    },
+    {
+     "label": "31:30",
+     "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo&t=1890s",
+     "sekunde": 1890
+    }
+   ]
+  },
+  {
+   "id": "yt:EVsJ6zyGUWc",
+   "titel": "Was ist Self-Service und warum ist das so schwer?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc",
+   "sprungmarken": [
+    {
+     "label": "07:02",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=422s",
+     "sekunde": 422
+    },
+    {
+     "label": "08:44",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=524s",
+     "sekunde": 524
+    }
+   ]
+  },
+  {
+   "id": "yt:SSUpe1JON9Y",
+   "titel": "The Power of User Groups",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y",
+   "sprungmarken": [
+    {
+     "label": "20:30",
+     "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1230s",
+     "sekunde": 1230
+    }
+   ]
+  },
+  {
+   "id": "yt:lH_-A8NAQ-k",
+   "titel": "Datenmodellierung ist Governance",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.04,
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
+   "sprungmarken": [
+    {
+     "label": "32:23",
+     "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1943s",
+     "sekunde": 1943
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.035,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "00:12",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=12s",
+     "sekunde": 12
+    },
+    {
+     "label": "1:28:13",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5293s",
+     "sekunde": 5293
+    }
+   ]
+  },
+  {
+   "id": "yt:jETxUNQSl-w",
+   "titel": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.034,
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w",
+   "sprungmarken": [
+    {
+     "label": "43:12",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=2592s",
+     "sekunde": 2592
+    }
+   ]
+  },
+  {
+   "id": "yt:m3xNYfVih0Q",
+   "titel": "Starting with Microsft Fabric the Skills you need",
+   "datum": "2024-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.032,
+   "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q",
+   "sprungmarken": [
+    {
+     "label": "30:25",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1825s",
+     "sekunde": 1825
+    }
+   ]
+  },
+  {
+   "id": "yt:pOJpXxsfUt0",
+   "titel": "BI Thinkers Talk n.73",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0",
+   "sprungmarken": [
+    {
+     "label": "42:10",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2530s",
+     "sekunde": 2530
+    }
+   ]
+  },
+  {
+   "id": "yt:DQENmzAkNqw",
+   "titel": "Daten-WG BI Thinkers Talk nr.66",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
+   "sprungmarken": [
+    {
+     "label": "24:15",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1455s",
+     "sekunde": 1455
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.023,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20ins%20Modell%20geh%C3%B6rt",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Einstellungen%20pr%C3%BCfen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Governance-Perspektive",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.015,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.004,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Aus%20dem%20Kanal%20%C2%B7%20Modellierung%20praktisch%20durchgespielt",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Aself-service-bi",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Aself-service-bi&f=topic%3Aself-service-bi"
+}

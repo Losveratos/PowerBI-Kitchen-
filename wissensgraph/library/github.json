@@ -1,0 +1,641 @@
+{
+ "id": "tool:github",
+ "name": "GitHub",
+ "typ": "tool",
+ "slug": "github",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 26,
+ "kernaussagen_gesamt": 0,
+ "mit_kernaussagen": 0,
+ "aliase": [
+  "Git Hub"
+ ],
+ "einordnung": "GitHub kommt in 26 Dokumenten der Daten-WG vor; am ausführlichsten in „ChartKitchen byDatenWG — Quick Start“ (2026-08-31).",
+ "nachbarn": [
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 16,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "copilot.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "power-query.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "tool:tabular-editor",
+   "name": "Tabular Editor",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "tabular-editor.md"
+  },
+  {
+   "id": "topic:community",
+   "name": "Community",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "community.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "refresh.md"
+  }
+ ],
+ "kernaussagen": [],
+ "dokumente": [
+  {
+   "id": "page:chartkitchen-schnellstart_en",
+   "titel": "ChartKitchen byDatenWG — Quick Start",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.4,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=Download%20the%20visual",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart",
+   "titel": "ChartKitchen byDatenWG — Schnellstart",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.4,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=Visual%20herunterladen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:e50qKdVn-24",
+   "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.167,
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
+   "sprungmarken": [
+    {
+     "label": "00:50",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=50s",
+     "sekunde": 50
+    },
+    {
+     "label": "03:48",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=228s",
+     "sekunde": 228
+    },
+    {
+     "label": "22:51",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1371s",
+     "sekunde": 1371
+    }
+   ]
+  },
+  {
+   "id": "yt:DQENmzAkNqw",
+   "titel": "Daten-WG BI Thinkers Talk nr.66",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.132,
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
+   "sprungmarken": [
+    {
+     "label": "11:20",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=680s",
+     "sekunde": 680
+    },
+    {
+     "label": "24:15",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1455s",
+     "sekunde": 1455
+    },
+    {
+     "label": "44:23",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=2663s",
+     "sekunde": 2663
+    }
+   ]
+  },
+  {
+   "id": "page:strommix-story",
+   "titel": "Was kostet ein klimaneutrales Stromsystem?",
+   "datum": "2026-08-20",
+   "abdeckung": "nur-text",
+   "anteil": 0.125,
+   "url": "https://datenwgknowledgekitchen.com/strommix-story.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/strommix-story.html#:~:text=Quellenverzeichnis",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/strommix-story.html#:~:text=Anmerkungen%20zu%20einzelnen%20Quellen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:z51gWRc0zVc",
+   "titel": "Microsoft Fabric Dataflow Gen2 Kosten verstehen - CU-Verbrauch einfach erklärt",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.111,
+   "url": "https://www.youtube.com/watch?v=z51gWRc0zVc",
+   "sprungmarken": [
+    {
+     "label": "09:34",
+     "url": "https://www.youtube.com/watch?v=z51gWRc0zVc&t=574s",
+     "sekunde": 574
+    }
+   ]
+  },
+  {
+   "id": "yt:iinfiHxznOU",
+   "titel": "Unboxing MCP Server for Power BI Modelling",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
+   "sprungmarken": [
+    {
+     "label": "00:03",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=3s",
+     "sekunde": 3
+    },
+    {
+     "label": "07:46",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=466s",
+     "sekunde": 466
+    },
+    {
+     "label": "09:19",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=559s",
+     "sekunde": 559
+    }
+   ]
+  },
+  {
+   "id": "page:powerbi-design-skill",
+   "titel": "Report-Design als Framework — ein Skill für Power BI",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.1,
+   "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Mehr%20dazu",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:KMk1k5uCLZU",
+   "titel": "Daten-WG Thinkers Talk n61",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
+   "sprungmarken": [
+    {
+     "label": "03:06",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=186s",
+     "sekunde": 186
+    },
+    {
+     "label": "38:13",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2293s",
+     "sekunde": 2293
+    },
+    {
+     "label": "51:06",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3066s",
+     "sekunde": 3066
+    }
+   ]
+  },
+  {
+   "id": "yt:GWCHNmLs72M",
+   "titel": "Power BI Update August 2026",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=GWCHNmLs72M",
+   "sprungmarken": [
+    {
+     "label": "05:57",
+     "url": "https://www.youtube.com/watch?v=GWCHNmLs72M&t=357s",
+     "sekunde": 357
+    }
+   ]
+  },
+  {
+   "id": "yt:oh-3_65IQ2Q",
+   "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
+   "sprungmarken": [
+    {
+     "label": "14:06",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=846s",
+     "sekunde": 846
+    },
+    {
+     "label": "37:12",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=2232s",
+     "sekunde": 2232
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.051,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "30:30",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1830s",
+     "sekunde": 1830
+    },
+    {
+     "label": "53:00",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=3180s",
+     "sekunde": 3180
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.047,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "34:31",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2071s",
+     "sekunde": 2071
+    },
+    {
+     "label": "36:15",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2175s",
+     "sekunde": 2175
+    }
+   ]
+  },
+  {
+   "id": "yt:CvaOkO37HMU",
+   "titel": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU",
+   "sprungmarken": [
+    {
+     "label": "00:43",
+     "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=43s",
+     "sekunde": 43
+    }
+   ]
+  },
+  {
+   "id": "yt:XxPFAQfLyuA",
+   "titel": "Wie war die Daten-WG? (2025, Teil 2)",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
+   "sprungmarken": [
+    {
+     "label": "27:28",
+     "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1648s",
+     "sekunde": 1648
+    }
+   ]
+  },
+  {
+   "id": "page:whitepaper-strommix",
+   "titel": "Was braucht ein gesunder Strommix — und was kostet er?",
+   "datum": "2026-08-20",
+   "abdeckung": "nur-text",
+   "anteil": 0.041,
+   "url": "https://datenwgknowledgekitchen.com/whitepaper-strommix.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/whitepaper-strommix.html#:~:text=7%20%C2%B7%20Quellenverzeichnis",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/whitepaper-strommix.html#:~:text=Anmerkungen%20zu%20einzelnen%20Quellen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:cD-5z_Bq0N4",
+   "titel": "Projektcontrolling mit dynamischen Arbeitstagen in Power BI",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.04,
+   "url": "https://www.youtube.com/watch?v=cD-5z_Bq0N4",
+   "sprungmarken": [
+    {
+     "label": "15:18",
+     "url": "https://www.youtube.com/watch?v=cD-5z_Bq0N4&t=918s",
+     "sekunde": 918
+    }
+   ]
+  },
+  {
+   "id": "yt:mlkP-6i5Kq8",
+   "titel": "BI Thinkers Talk nr.76",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.035,
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8",
+   "sprungmarken": [
+    {
+     "label": "1:07:56",
+     "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=4076s",
+     "sekunde": 4076
+    },
+    {
+     "label": "1:17:15",
+     "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=4635s",
+     "sekunde": 4635
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.031,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=6.%20SUMX%20%C3%BCber%20die%20ganze%20Tabelle",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Auto-Binding",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Regelset%20herunterladen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "09:08",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=548s",
+     "sekunde": 548
+    }
+   ]
+  },
+  {
+   "id": "yt:TYmKrreMO3I",
+   "titel": "Daten-WG Deep Dive Financial Reporting",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
+   "sprungmarken": [
+    {
+     "label": "13:02",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=782s",
+     "sekunde": 782
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "17:24",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1044s",
+     "sekunde": 1044
+    }
+   ]
+  },
+  {
+   "id": "yt:VD1N68Fhoco",
+   "titel": "BI Thinkers Talk nr.68",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=VD1N68Fhoco",
+   "sprungmarken": [
+    {
+     "label": "54:51",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=3291s",
+     "sekunde": 3291
+    }
+   ]
+  },
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:mUALlPmGcEk",
+   "titel": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "datum": "2025-11-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.02,
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk",
+   "sprungmarken": [
+    {
+     "label": "24:18",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=1458s",
+     "sekunde": 1458
+    }
+   ]
+  },
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.015,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Agithub",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Agithub&f=tool%3Agithub"
+}

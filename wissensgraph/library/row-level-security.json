@@ -1,0 +1,449 @@
+{
+ "id": "topic:row-level-security",
+ "name": "Row-Level Security",
+ "typ": "thema",
+ "slug": "row-level-security",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 12,
+ "kernaussagen_gesamt": 6,
+ "mit_kernaussagen": 5,
+ "aliase": [
+  "RLS",
+  "Zeilenebene",
+  "Row Level Security",
+  "Berechtigungen"
+ ],
+ "einordnung": "Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen. Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte. Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird.",
+ "nachbarn": [
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 28,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 27,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 25,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 17,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "refresh.md"
+  },
+  {
+   "id": "tool:directquery",
+   "name": "DirectQuery",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "directquery.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "topic:governance",
+   "name": "Governance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "governance.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 2481,
+   "zeit": "41:21",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2481s",
+   "aussage": "Perspektiven in Analysis Services und Power BI bilden keine echte Sicherheitsgrenze ab, sodass Nutzer trotz eingeschränkter Perspektive weiterhin das komplette zugrunde liegende Modell nutzen können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1556,
+   "zeit": "25:56",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1556s",
+   "aussage": "Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1647,
+   "zeit": "27:27",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1647s",
+   "aussage": "Das Explore-Feature ist nicht an die Build-Permission gekoppelt, sodass darüber Inhalte aus dem semantischen Modell zugänglich sein können, die im Bericht selbst nicht sichtbar sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 4728,
+   "zeit": "1:18:48",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4728s",
+   "aussage": "Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 1250,
+   "zeit": "20:50",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1250s",
+   "aussage": "Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1919,
+   "zeit": "31:59",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1919s",
+   "aussage": "Komplexere Sicherheitsszenarien wie dynamische Row-Level Security und Dynamic Data Masking fehlen in OneLake Security noch und stehen auf der Roadmap."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.163,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20drei%20Plattform-Schichten%20unter%20den%20Workloads",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Der%20Vergleich",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Governance-Perspektive",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:GKLxM3317Xk",
+   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:TkxwcAyBGUM",
+   "titel": "Power BI Update Juli 2025",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM",
+   "sprungmarken": [
+    {
+     "label": "02:07",
+     "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM&t=127s",
+     "sekunde": 127
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.122,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=09%20%C2%B7%20Row-Level%20Security%20%2A%C2%B7%20RLS%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=3.%20Bidirektional%20sparsam",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Risiken",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.114,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "10:33",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=633s",
+     "sekunde": 633
+    },
+    {
+     "label": "12:06",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=726s",
+     "sekunde": 726
+    },
+    {
+     "label": "15:50",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=950s",
+     "sekunde": 950
+    }
+   ]
+  },
+  {
+   "id": "yt:rWE0gMx7v7I",
+   "titel": "BI Thinkers Talk n.74",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.064,
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I",
+   "sprungmarken": [
+    {
+     "label": "24:19",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1459s",
+     "sekunde": 1459
+    },
+    {
+     "label": "25:56",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1556s",
+     "sekunde": 1556
+    },
+    {
+     "label": "27:27",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1647s",
+     "sekunde": 1647
+    }
+   ]
+  },
+  {
+   "id": "yt:9VX4-lLa0EI",
+   "titel": "BI Thinkers Talk nr.63",
+   "datum": "2025-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI",
+   "sprungmarken": [
+    {
+     "label": "42:15",
+     "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI&t=2535s",
+     "sekunde": 2535
+    },
+    {
+     "label": "50:27",
+     "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI&t=3027s",
+     "sekunde": 3027
+    }
+   ]
+  },
+  {
+   "id": "yt:DQENmzAkNqw",
+   "titel": "Daten-WG BI Thinkers Talk nr.66",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
+   "sprungmarken": [
+    {
+     "label": "17:48",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1068s",
+     "sekunde": 1068
+    },
+    {
+     "label": "30:50",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1850s",
+     "sekunde": 1850
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.042,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "21:17",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1277s",
+     "sekunde": 1277
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "20:50",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1250s",
+     "sekunde": 1250
+    }
+   ]
+  },
+  {
+   "id": "yt:KMk1k5uCLZU",
+   "titel": "Daten-WG Thinkers Talk n61",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
+   "sprungmarken": [
+    {
+     "label": "18:53",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1133s",
+     "sekunde": 1133
+    }
+   ]
+  },
+  {
+   "id": "yt:xCzKEIB4W5I",
+   "titel": "Fabric Planning unboxing",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I",
+   "sprungmarken": [
+    {
+     "label": "1:18:48",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4728s",
+     "sekunde": 4728
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Arow-level-security",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Arow-level-security&f=topic%3Arow-level-security"
+}

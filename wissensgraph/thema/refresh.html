@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Refresh · DatenWG Library</title>
+<meta name="description" content="Beim Auslösen der Datenfunktion liest das semantische Modell offenbar alle Tabellen neu, nicht nur die betroffene, unabhängig vom Speichermodus. Der Fixer erlaubt es, einzelne Tabellen oder Partitionen eines Semantic Models gezielt zu aktualisieren, statt das gesamte Modell neu zu laden.">
+<meta property="og:title" content="Refresh · DatenWG Library">
+<meta property="og:description" content="Beim Auslösen der Datenfunktion liest das semantische Modell offenbar alle Tabellen neu, nicht nur die betroffene, unabhängig vom Speichermodus. Der Fixer erlaubt es, einzelne Tabellen oder Partitionen eines Semantic Models gezielt zu aktualisieren, statt das gesamte Modell neu zu laden.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/refresh.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · thema</p>
+<h1>Refresh</h1>
+<p class="lead">Beim Auslösen der Datenfunktion liest das semantische Modell offenbar alle Tabellen neu, nicht nur die betroffene, unabhängig vom Speichermodus. Der Fixer erlaubt es, einzelne Tabellen oder Partitionen eines Semantic Models gezielt zu aktualisieren, statt das gesamte Modell neu zu laden. Beim separaten Hochladen des semantischen Modells über die Fabric-Erweiterung werden die Daten nicht mitübertragen, sodass der Refresh anschließend im Power-BI-Service erfolgen muss.</p>
+<div class="btns"><a class="btn" href="../#n=topic%3Arefresh">In der Library öffnen</a><a class="btn" href="../graph.html#n=topic%3Arefresh&amp;f=topic%3Arefresh">Im Graph öffnen</a></div>
+<p class="meta">38 Dokumente · 5 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">Aktualisierung</span> <span class="tag">Scheduled Refresh</span> <span class="tag">aktualisieren</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Executive Information Systems der späten 1980er-Jahre boten zwar bunte, innovative Oberflächen, hatten aber keinen Mechanismus zur laufenden Datenaktualisierung, wodurch die Daten nach drei bis fünf Wochen veraltet waren.<span class="meta quote">Warnung · 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite · <a href="https://www.youtube.com/watch?v=dKA-38gRD8Q&amp;t=99s">01:39</a></span></li>
+<li>Der Fixer erlaubt es, einzelne Tabellen oder Partitionen eines Semantic Models gezielt zu aktualisieren, statt das gesamte Modell neu zu laden.<span class="meta quote">Fakt · BI Thinkers Talk nr.75 · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=2671s">44:31</a></span></li>
+<li>Beim separaten Hochladen des semantischen Modells über die Fabric-Erweiterung werden die Daten nicht mitübertragen, sodass der Refresh anschließend im Power-BI-Service erfolgen muss.<span class="meta quote">Fakt · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=296s">04:56</a></span></li>
+<li>Beim Auslösen der Datenfunktion liest das semantische Modell offenbar alle Tabellen neu, nicht nur die betroffene, unabhängig vom Speichermodus.<span class="meta quote">Fakt · BI Thinkers Talk Nr.62 · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=3653s">1:00:53</a></span></li>
+<li>Bei Direct Lake fällt die Aktualisierung des semantischen Modells nach dem Schreiben kaum auf, weil kein spürbarer Refresh-Vorgang nötig ist.<span class="meta quote">Meinung · BI Thinkers Talk Nr.62 · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=3749s">1:02:29</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=Z6RZjkn_6lY">Microsoft Fabric Shortcut Transformation erklärt: Updates im Praxistest</a><span class="meta quote">2026-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=Z6RZjkn_6lY&amp;t=184s">03:04</a> · <a href="https://www.youtube.com/watch?v=Z6RZjkn_6lY&amp;t=249s">04:09</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w">Daten-WG Thinkers Talk nr.65</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1384s">23:04</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=2954s">49:14</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=3430s">57:10</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=LnNoXBIG7Lc">Power BI Update Juni 2025</a><span class="meta quote">2025-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=LnNoXBIG7Lc&amp;t=105s">01:45</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc">BI Thinkers Talk Nr.62</a><span class="meta quote">2025-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=2767s">46:07</a> · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=3653s">1:00:53</a> · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=3749s">1:02:29</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=6gQiIbyhWEc">Power BI Update September 2025</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=6gQiIbyhWEc&amp;t=229s">03:49</a> · <a href="https://www.youtube.com/watch?v=6gQiIbyhWEc&amp;t=288s">04:48</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=jTXo4aEr07o">Power BI Update August 2025</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=jTXo4aEr07o&amp;t=233s">03:53</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Auto-Binding">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Publish%20und%20ersten%20Refresh%20abwarten">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20nur%20im%20Service%20geht">Abschnitt</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=03%20%C2%B7%20Semantische%20Modelle%20%26%20%2ADirect%20Lake%2A">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20den%20Fallback%20ausl%C3%B6st%20%28Direct%20Lake%20on%20SQL%29">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Der%20Vergleich">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=c-LWoo-O5PQ">SharePoint direkt in Microsoft Fabric nutzen | Lakehouse, Direct Lake &amp; Power BI</a><span class="meta quote">2026-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=c-LWoo-O5PQ&amp;t=500s">08:20</a> · <a href="https://www.youtube.com/watch?v=c-LWoo-O5PQ&amp;t=972s">16:12</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=BDnwlOqRElY">Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup</a><span class="meta quote">2025-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=BDnwlOqRElY&amp;t=1350s">22:30</a> · <a href="https://www.youtube.com/watch?v=BDnwlOqRElY&amp;t=1447s">24:07</a> · <a href="https://www.youtube.com/watch?v=BDnwlOqRElY&amp;t=2152s">35:52</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY">BI Thinkers Talk nr.75</a><span class="meta quote">2026-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=1518s">25:18</a> · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=1610s">26:50</a> · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=2671s">44:31</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mTVeZzshLzE">Microsoft Fabric — braucht das wirklich jemand?</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=601s">10:01</a> · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=797s">13:17</a> · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=1284s">21:24</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=633s">10:33</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=726s">12:06</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=1184s">19:44</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=7j34Ndng0Os">Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=51s">00:51</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=sShNdgnHjr4">TMDL Magie: Multi Parameter Tabelle - Feldparameter Next Level! | Power BI Tutorial</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=sShNdgnHjr4&amp;t=402s">06:42</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=742s">12:22</a> · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1035s">17:15</a> · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1740s">29:00</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=r416vanitYw">BI Thinkers Talk nr.69</a><span class="meta quote">2025-11-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=2863s">47:43</a> · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=3055s">50:55</a> · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=3147s">52:27</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ASwcPvbMRZc">Power BI Update März 2026</a><span class="meta quote">2026-03-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=ASwcPvbMRZc&amp;t=42s">00:42</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYmKrreMO3I">Daten-WG Deep Dive Financial Reporting</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=1838s">30:38</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=3131s">52:11</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=3324s">55:24</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=DQENmzAkNqw">Daten-WG BI Thinkers Talk nr.66</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=DQENmzAkNqw&amp;t=3137s">52:17</a> · <a href="https://www.youtube.com/watch?v=DQENmzAkNqw&amp;t=3228s">53:48</a> · <a href="https://www.youtube.com/watch?v=DQENmzAkNqw&amp;t=3334s">55:34</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=zkfdfc5fo-E">Power BI Update Mai 2025</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=zkfdfc5fo-E&amp;t=559s">09:19</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2211s">36:51</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2430s">40:30</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYp5xCAU2AU">Fabric &amp; Power BI Quarterly · 2026-1</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1100s">18:20</a> · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1350s">22:30</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=KwySyTxW_EI">The Day After Tomorrow – Nach der Einführung geht es erst richtig los | Power BI Summit 2023</a><span class="meta quote">2023-03-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=KwySyTxW_EI&amp;t=2528s">42:08</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=_Vh5fDfHWz4">Daten-WG Special: Power BI vs. Qlik -part2</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=_Vh5fDfHWz4&amp;t=828s">13:48</a> · <a href="https://www.youtube.com/watch?v=_Vh5fDfHWz4&amp;t=3266s">54:26</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=G8s96sHUHac">BI Thinkers Talk nr.67</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=296s">04:56</a> · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=2964s">49:24</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=183uLZ3GYDo">Data Binning and Lorenz Curve in DAX | Alberto Ferrari &amp; Michael Tenner, Berlin Power BI User Group</a><span class="meta quote">2023-01-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=183uLZ3GYDo&amp;t=602s">10:02</a> · <a href="https://www.youtube.com/watch?v=183uLZ3GYDo&amp;t=693s">11:33</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=hbUYMyqb6r8">Denken in Tabellen</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=621s">10:21</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8">BI Thinkers Talk nr.76</a><span class="meta quote">2026-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=2179s">36:19</a> · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=3702s">1:01:42</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=0FPA1k5YiTs">Power BI Deep Dive: DAX UDF + TMDL</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=0FPA1k5YiTs&amp;t=1491s">24:51</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=m3xNYfVih0Q">Starting with Microsft Fabric the Skills you need</a><span class="meta quote">2024-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=1629s">27:09</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9VX4-lLa0EI">BI Thinkers Talk nr.63</a><span class="meta quote">2025-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9VX4-lLa0EI&amp;t=2931s">48:51</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=UnW4wHhw_IY">Daten-WG Deep Dive Financial Reporting pt.4</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=UnW4wHhw_IY&amp;t=985s">16:25</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=pOJpXxsfUt0">BI Thinkers Talk n.73</a><span class="meta quote">2026-02-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=3334s">55:34</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=4VVNDNusq4U">BI Thinkers Talk nr.64</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=4VVNDNusq4U&amp;t=843s">14:03</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=iymmxuXHh44">Daten-WG Deep Dive Financial Reporting - part 5</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=iymmxuXHh44&amp;t=1948s">32:28</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=KMk1k5uCLZU">Daten-WG Thinkers Talk n61</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=KMk1k5uCLZU&amp;t=2011s">33:31</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=bt81POE-9Ig">Daten-WG Deep Dive Financial Reporting - part 6</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=bt81POE-9Ig&amp;t=93s">01:33</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 44 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 43 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 36 gemeinsame Segmente</span></li>
+<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">ko-vorkommen · heuristik · 28 gemeinsame Segmente</span></li>
+<li><a href="power-query.html">Power Query</a><span class="meta quote">ko-vorkommen · heuristik · 21 gemeinsame Segmente</span></li>
+<li><a href="directquery.html">DirectQuery</a><span class="meta quote">ko-vorkommen · heuristik · 21 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 21 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 20 gemeinsame Segmente</span></li>
+<li><a href="fabric-capacity.html">Fabric Capacity</a><span class="meta quote">ko-vorkommen · heuristik · 19 gemeinsame Segmente</span></li>
+<li><a href="incremental-refresh.html">Incremental Refresh</a><span class="meta quote">ko-vorkommen · heuristik · 17 gemeinsame Segmente</span></li>
+<li><a href="power-bi-desktop.html">Power BI Desktop</a><span class="meta quote">ko-vorkommen · heuristik · 17 gemeinsame Segmente</span></li>
+<li><a href="visualisierung.html">Visualisierung</a><span class="meta quote">ko-vorkommen · heuristik · 17 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 15 gemeinsame Segmente</span></li>
+<li><a href="semantic-model.html">Semantic Model</a><span class="meta quote">ko-vorkommen · heuristik · 15 gemeinsame Segmente</span></li>
+<li><a href="workspace.html">Workspace</a><span class="meta quote">ko-vorkommen · heuristik · 14 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

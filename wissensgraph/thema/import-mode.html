@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Import Mode · DatenWG Library</title>
+<meta name="description" content="Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt.">
+<meta property="og:title" content="Import Mode · DatenWG Library">
+<meta property="og:description" content="Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/import-mode.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · tool</p>
+<h1>Import Mode</h1>
+<p class="lead">Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt. Die Kombination aus Direct Lake und Import Mode ist mittlerweile GA verfügbar und ermöglicht damit ein stabileres Composite-Modell. Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte.</p>
+<div class="btns"><a class="btn" href="../#n=tool%3Aimport-mode">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Aimport-mode&amp;f=tool%3Aimport-mode">Im Graph öffnen</a></div>
+<p class="meta">12 Dokumente · 7 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">Importmodus</span> <span class="tag">Import-Modus</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte.<span class="meta quote">Fakt · Fabric Planning unboxing · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=186s">03:06</a></span></li>
+<li>Wer über eine reine Live-Connection auf vorbereitete Views hinaus mehr Flexibilität will, landet meist beim Import-Modus und beginnt selbst zu modellieren.<span class="meta quote">Fakt · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=933s">15:33</a></span></li>
+<li>Für Import-Modelle gibt es in Deployment Pipelines eigene Deployment Rules, für Direct Lake dagegen nicht.<span class="meta quote">Fakt · BI Thinkers Talk n.72 · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=3234s">53:54</a></span></li>
+<li>Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt.<span class="meta quote">Fakt · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1068s">17:48</a></span></li>
+<li>Ein bestehender Bericht wurde im Live-Connection-Modus aus dem Power-BI-Service heruntergeladen und anschließend über die Datenverbindung von seinem ursprünglichen Importmodell auf ein neu aufgebautes Direct-Lake-Modell mit identischen Measure-Namen umgestellt.<span class="meta quote">Empfehlung · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1263s">21:03</a></span></li>
+<li>Die Kombination aus Direct Lake und Import Mode ist mittlerweile GA verfügbar und ermöglicht damit ein stabileres Composite-Modell.<span class="meta quote">Fakt · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=3827s">1:03:47</a></span></li>
+<li>Für eine Fabric-SQL-Datenbank ist Direct Lake nicht nutzbar, weshalb im Berichtsmodell Import oder DirectQuery verwendet werden muss.<span class="meta quote">Fakt · BI Thinkers Talk Nr.62 · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=1907s">31:47</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=7xYgX6lWhuQ">Power BI Update Juli 2026</a><span class="meta quote">2026-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=7xYgX6lWhuQ&amp;t=162s">02:42</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=G8s96sHUHac">BI Thinkers Talk nr.67</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=500s">08:20</a> · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1168s">19:28</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=RtUiF1J5XEg">600 SQL-Tabellen in Fabric</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1277s">21:17</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I">Daten-WG Life-Update | Fabric Architekturen</a><span class="meta quote">2026-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=371s">06:11</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=m3xNYfVih0Q">Starting with Microsft Fabric the Skills you need</a><span class="meta quote">2024-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=2419s">40:19</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=633s">10:33</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2338s">38:58</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=KMk1k5uCLZU">Daten-WG Thinkers Talk n61</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=KMk1k5uCLZU&amp;t=2104s">35:04</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=2898s">48:18</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=03%20%C2%B7%20Semantische%20Modelle%20%26%20%2ADirect%20Lake%2A">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wie%20es%20funktioniert">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20den%20Fallback%20ausl%C3%B6st%20%28Direct%20Lake%20on%20SQL%29">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=r416vanitYw">BI Thinkers Talk nr.69</a><span class="meta quote">2025-11-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=2764s">46:04</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Dataflow%20Gen2%20%28Fabric%29">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel">Abschnitt</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">gegensatz · belegt · 6 gemeinsame Segmente</span></li>
+<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">ersetzt · belegt · 6 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 8 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
+<li><a href="refresh.html">Refresh</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
+<li><a href="directquery.html">DirectQuery</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
+<li><a href="power-bi-desktop.html">Power BI Desktop</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="delta-lake.html">Delta Lake</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="onelake.html">OneLake</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="composite-models.html">Composite Models</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
+<li><a href="row-level-security.html">Row-Level Security</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
+<li><a href="sicherheit.html">Sicherheit</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

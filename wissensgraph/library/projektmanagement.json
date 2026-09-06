@@ -1,0 +1,535 @@
+{
+ "id": "topic:projektmanagement",
+ "name": "Projektmanagement",
+ "typ": "thema",
+ "slug": "projektmanagement",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 12,
+ "kernaussagen_gesamt": 12,
+ "mit_kernaussagen": 2,
+ "aliase": [
+  "Scrum",
+  "agil",
+  "Agile",
+  "Projekt",
+  "Projekte",
+  "Sprint"
+ ],
+ "einordnung": "Nach Erfahrung eines Sprechers ist in rund 80 Prozent der Fälle, in denen angeblich nur noch die Validierung fehlt, tatsächlich die Definition of Ready nicht erfüllt. Eine zusätzliche Sandbox-Umgebung neben der Entwicklungsumgebung hilft, frühes Nutzerfeedback zum Solution Design einzuholen, bevor ein Prozess final umgesetzt wird. Schlagartige Einführungen neuer Tools oder Prozesse blockieren nach Einschätzung eines Sprechers die Akzeptanz, weshalb graduelle, adaptive Veränderungsschritte empfohlen werden.",
+ "nachbarn": [
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 18,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:schulung",
+   "name": "Schulung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "schulung.md"
+  },
+  {
+   "id": "tool:sap",
+   "name": "SAP",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "sap.md"
+  },
+  {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "planung.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "topic:migration",
+   "name": "Migration",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "migration.md"
+  },
+  {
+   "id": "topic:strategie",
+   "name": "Strategie",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "strategie.md"
+  },
+  {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
+   "id": "topic:community",
+   "name": "Community",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "community.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "performance.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 856,
+   "zeit": "14:16",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=856s",
+   "aussage": "Häufige kleine Änderungen sind nur dann wirklich agil, wenn sie mit einem schnellen Feedback-Loop verbunden sind, der zeigt, ob man auf dem richtigen Weg ist."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 1145,
+   "zeit": "19:05",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=1145s",
+   "aussage": "Projekte werden vor allem dann langsam, wenn unklar ist, wer eine Entscheidung treffen darf, während klar zugewiesene Entscheidungsverantwortlichkeiten die Geschwindigkeit erhöhen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 1557,
+   "zeit": "25:57",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=1557s",
+   "aussage": "Eine zusätzliche Sandbox-Umgebung neben der Entwicklungsumgebung hilft, frühes Nutzerfeedback zum Solution Design einzuholen, bevor ein Prozess final umgesetzt wird."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 1933,
+   "zeit": "32:13",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=1933s",
+   "aussage": "Externe Dienstleister behandeln Änderungswünsche an bestehenden Reporting-Lösungen häufig pauschal als aufwandserhöhenden Change Request, ohne den tatsächlichen Mehraufwand zu hinterfragen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 2210,
+   "zeit": "36:50",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2210s",
+   "aussage": "Wenn ein Dienstleister den benötigten internen Ressourcenaufwand bei der Lieferantenauswahl nicht von sich aus transparent anspricht, gilt das als Warnsignal."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 2398,
+   "zeit": "39:58",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2398s",
+   "aussage": "Die Definition of Ready gilt als Schlüsselkriterium dafür, ob Agilität und GXP-Anforderungen zusammenpassen, weil dem Lieferanten vorab klar sein muss, was genau geliefert werden soll."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 2398,
+   "zeit": "39:58",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2398s",
+   "aussage": "Nach Erfahrung eines Sprechers ist in rund 80 Prozent der Fälle, in denen angeblich nur noch die Validierung fehlt, tatsächlich die Definition of Ready nicht erfüllt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 3064,
+   "zeit": "51:04",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=3064s",
+   "aussage": "Ein zentrales Fazit der Diskussion ist, dass der größte Hemmschuh für mehr Agilität in GXP-Projekten eher in der Organisation, insbesondere in der Verfügbarkeit des Fachbereichs, liegt als in der Technologie."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 3156,
+   "zeit": "52:36",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=3156s",
+   "aussage": "Schlagartige Einführungen neuer Tools oder Prozesse blockieren nach Einschätzung eines Sprechers die Akzeptanz, weshalb graduelle, adaptive Veränderungsschritte empfohlen werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 3342,
+   "zeit": "55:42",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=3342s",
+   "aussage": "Ein festes Zeitbudget von 10 bis 20 Prozent pro Mitarbeiter für die Mitwirkung an Projekten wird vorgeschlagen, damit Wissen aktiv aufgebaut wird, statt nur passiv empfangen zu werden."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 587,
+   "zeit": "09:47",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=587s",
+   "aussage": "Sehr große Workshop-Runden mit vielen Beteiligten führen häufig dazu, dass sich das mittlere Management nur mit sich selbst beschäftigt, ohne dass Entscheidungen entstehen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 791,
+   "zeit": "13:11",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=791s",
+   "aussage": "Zielbild-Workshops funktionieren am besten mit fünf bis sieben Teilnehmenden und vorbereitenden Einzelgesprächen vor dem eigentlichen Termin."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:KO_qFge77o8",
+   "titel": "GxP Talk - Validierung vs. Agilität",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.432,
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8",
+   "sprungmarken": [
+    {
+     "label": "00:04",
+     "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=4s",
+     "sekunde": 4
+    },
+    {
+     "label": "14:16",
+     "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=856s",
+     "sekunde": 856
+    },
+    {
+     "label": "15:52",
+     "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=952s",
+     "sekunde": 952
+    }
+   ]
+  },
+  {
+   "id": "yt:B0_sSJQVG8w",
+   "titel": "GxP Talk - Testing im GxP-Umfeld",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.429,
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w",
+   "sprungmarken": [
+    {
+     "label": "09:51",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=591s",
+     "sekunde": 591
+    },
+    {
+     "label": "17:57",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1077s",
+     "sekunde": 1077
+    },
+    {
+     "label": "27:29",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1649s",
+     "sekunde": 1649
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.333,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "05:56",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=356s",
+     "sekunde": 356
+    },
+    {
+     "label": "07:50",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=470s",
+     "sekunde": 470
+    },
+    {
+     "label": "11:50",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=710s",
+     "sekunde": 710
+    }
+   ]
+  },
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.231,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "17:04",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1024s",
+     "sekunde": 1024
+    },
+    {
+     "label": "26:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1565s",
+     "sekunde": 1565
+    },
+    {
+     "label": "35:06",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=2106s",
+     "sekunde": 2106
+    }
+   ]
+  },
+  {
+   "id": "yt:XtH4JqTwaqM",
+   "titel": "GxP Talk - KI im regulierten Umfeld?",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.167,
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM",
+   "sprungmarken": [
+    {
+     "label": "04:49",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=289s",
+     "sekunde": 289
+    },
+    {
+     "label": "08:17",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=497s",
+     "sekunde": 497
+    },
+    {
+     "label": "48:52",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2932s",
+     "sekunde": 2932
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.147,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "18:34",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1114s",
+     "sekunde": 1114
+    },
+    {
+     "label": "33:30",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=2010s",
+     "sekunde": 2010
+    },
+    {
+     "label": "36:35",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=2195s",
+     "sekunde": 2195
+    }
+   ]
+  },
+  {
+   "id": "yt:iB4vHRvaErE",
+   "titel": "Mensch bleiben, wenn Power BI geht",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=iB4vHRvaErE",
+   "sprungmarken": [
+    {
+     "label": "40:02",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=2402s",
+     "sekunde": 2402
+    },
+    {
+     "label": "43:17",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=2597s",
+     "sekunde": 2597
+    },
+    {
+     "label": "44:51",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=2691s",
+     "sekunde": 2691
+    }
+   ]
+  },
+  {
+   "id": "yt:DFw664hd1IE",
+   "titel": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.065,
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE",
+   "sprungmarken": [
+    {
+     "label": "06:24",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=384s",
+     "sekunde": 384
+    },
+    {
+     "label": "35:18",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2118s",
+     "sekunde": 2118
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "11:00",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=660s",
+     "sekunde": 660
+    },
+    {
+     "label": "13:35",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=815s",
+     "sekunde": 815
+    }
+   ]
+  },
+  {
+   "id": "yt:rrCi0lnGrCg",
+   "titel": "Mythos Data Vault und richtig große Modelle",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.045,
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
+   "sprungmarken": [
+    {
+     "label": "30:58",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1858s",
+     "sekunde": 1858
+    }
+   ]
+  },
+  {
+   "id": "yt:aYHk_V8n_CE",
+   "titel": "Daten-WG Special: Power BI vs. Qlik",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
+   "sprungmarken": [
+    {
+     "label": "16:01",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=961s",
+     "sekunde": 961
+    }
+   ]
+  },
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.015,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Aprojektmanagement",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Aprojektmanagement&f=topic%3Aprojektmanagement"
+}

@@ -1,0 +1,1728 @@
+{
+ "id": "topic:ki",
+ "name": "KI",
+ "typ": "thema",
+ "slug": "ki",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 90,
+ "kernaussagen_gesamt": 67,
+ "mit_kernaussagen": 17,
+ "aliase": [
+  "AI",
+  "Künstliche Intelligenz",
+  "LLM",
+  "ChatGPT",
+  "Claude",
+  "GPT",
+  "Agenten",
+  "Agent",
+  "Machine Learning"
+ ],
+ "einordnung": "Vor dem Einsatz von KI muss laut den Sprechern ein Daten- und Prozessfundament erarbeitet werden, das auch für andere Disziplinen als Basis dient. Ein großer Pharmakonzern hat bei einem KI-Projekt im GXP-Bereich die prüfenden Behörden aktiv eingebunden, um gemeinsam die Grenzen des Machbaren auszuloten. KI wird in symbolische, regelbasierte und nachvollziehbare KI sowie sub-symbolische KI wie Deep Learning und Sprachmodelle unterteilt, wobei letztere schwerer nachvollziehbar ist.",
+ "nachbarn": [
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 114,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 65,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 62,
+   "beleg": "",
+   "datei": "copilot.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 59,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 46,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 36,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 32,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 32,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
+   "id": "tool:python",
+   "name": "Python",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 30,
+   "beleg": "",
+   "datei": "python.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 29,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 28,
+   "beleg": "",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "topic:daten-wg",
+   "name": "Daten-WG",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 22,
+   "beleg": "",
+   "datei": "daten-wg.md"
+  },
+  {
+   "id": "topic:schulung",
+   "name": "Schulung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 21,
+   "beleg": "",
+   "datei": "schulung.md"
+  },
+  {
+   "id": "topic:community",
+   "name": "Community",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "community.md"
+  },
+  {
+   "id": "topic:strategie",
+   "name": "Strategie",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "strategie.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=0s",
+   "aussage": "KI-Konzepte wie neuronale Netze, Entscheidungsbäume und Clusteranalysen sind laut Peter Gluchowski schon sehr lange bekannt und keine neuen Erfindungen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 2,
+   "zeit": "00:02",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2s",
+   "aussage": "Julia sieht die Pharma- und Life-Science-Branche wegen datenaffiner Mitarbeiter und umfangreicher Sensorik-Daten als besonders geeignet für einen KI-first-Ansatz an."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 96,
+   "zeit": "01:36",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=96s",
+   "aussage": "Martin empfiehlt, KI nicht wie ein deterministisches System, sondern eher wie einen Mitarbeiter zu behandeln."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 188,
+   "zeit": "03:08",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=188s",
+   "aussage": "Arthur überträgt das Prinzip, dass in der Pharmabranche Prozesse validiert und Systeme qualifiziert werden statt Mitarbeiter, auch auf den Umgang mit KI."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 289,
+   "zeit": "04:49",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=289s",
+   "aussage": "Vor dem Einsatz von KI muss laut den Sprechern ein Daten- und Prozessfundament erarbeitet werden, das auch für andere Disziplinen als Basis dient."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 289,
+   "zeit": "04:49",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=289s",
+   "aussage": "Ein großer Pharmakonzern hat bei einem KI-Projekt im GXP-Bereich die prüfenden Behörden aktiv eingebunden, um gemeinsam die Grenzen des Machbaren auszuloten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 497,
+   "zeit": "08:17",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=497s",
+   "aussage": "KI wird in symbolische, regelbasierte und nachvollziehbare KI sowie sub-symbolische KI wie Deep Learning und Sprachmodelle unterteilt, wobei letztere schwerer nachvollziehbar ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 637,
+   "zeit": "10:37",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=637s",
+   "aussage": "Für traditionelle KI existiert im GXP-Umfeld ein risikobasierter Ansatz, bei dem für jede Eigenentwicklung mögliche Fehlerquellen bewertet und Maßnahmen dokumentiert werden müssen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 668,
+   "zeit": "11:08",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=668s",
+   "aussage": "Claude-Skills funktionieren wie ein selbstgeschriebenes Handbuch, das die KI nach jeder Session um neue Erkenntnisse und Fehlerkorrekturen ergänzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 729,
+   "zeit": "12:09",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=729s",
+   "aussage": "Der GAMP-5-Leitfaden unterteilt den KI-Einsatz je nach Grad der Autarkie des Systems in unterschiedliche Sphären."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 761,
+   "zeit": "12:41",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=761s",
+   "aussage": "Auf der Plattform skills.sh sind nach Angaben des Gasts aktuell rund 80.000 bis 90.000 Skills gelistet, davon etwa fünf speziell für Power BI."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 761,
+   "zeit": "12:41",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=761s",
+   "aussage": "Vor der Nutzung eines fremden Skills sollte man sich dessen Lizenzbedingungen und die Kompatibilität mit dem eigenen Setup prüfen lassen, da manche Lizenzen die Einbindung in eigene Produkte untersagen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 865,
+   "zeit": "14:25",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=865s",
+   "aussage": "Nach Erfahrung des Gasts passen die von der KI aus dem Internet gelernten, generischen Dashboard-Designs nicht zum eigenen Analysestil in der Finanzverwaltung, der stark auf Rückschau und Innerbetriebsvergleich setzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 913,
+   "zeit": "15:13",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=913s",
+   "aussage": "Die Abkürzung TPLC steht für Total Product Lifecycle und stammt ursprünglich aus der Regulierung physischer Medizinprodukte, wird aber auch auf Software und KI übertragen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1008,
+   "zeit": "16:48",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1008s",
+   "aussage": "Martin unterscheidet Anwendungsfälle danach, ob eine KI-Aufgabe überhaupt GXP-reguliert ist, etwa ist Predictive Forecasting für die Budgetplanung nicht GXP-reguliert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1109,
+   "zeit": "18:29",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1109s",
+   "aussage": "Sobald eine KI über die Verwendbarkeit eines Zwischen- oder Endprodukts in der Produktion mitentscheidet, fällt der Einsatz laut Martin in einen regulierten Bereich."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1206,
+   "zeit": "20:06",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1206s",
+   "aussage": "Arthur warnt davor, die Software beziehungsweise KI selbst validieren zu wollen, statt wie üblich den Prozess zu validieren und die notwendigen Systeme zu qualifizieren."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1298,
+   "zeit": "21:38",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1298s",
+   "aussage": "Julia hält die automatisierte Auswertung unstrukturierter Daten aus sozialen Medien, Arztberichten und klinischen Studien für einen besonders wertvollen KI-Anwendungsfall in der Pharmakovigilanz."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1404,
+   "zeit": "23:24",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1404s",
+   "aussage": "Laut Christoph betreiben mittlerweile die meisten großen Pharmakonzerne hybride Cloud-Umgebungen mit mehreren Anbietern und bauen darin Lakehouses für die Datenaufbereitung auf."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1812,
+   "zeit": "30:12",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1812s",
+   "aussage": "Christoph warnt davor, durch den Einsatz von KI-Diensten externer Anbieter eine zusätzliche Abhängigkeit zu schaffen, ähnlich wie bei anderen Cloud-Diensten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 2001,
+   "zeit": "33:21",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2001s",
+   "aussage": "Ein nicht veröffentlichter Entwurf der britischen Behörde MHRA forderte erstmals, dass der manuelle Prozess mindestens so sicher sein müsse wie der computergestützte Prozess, statt umgekehrt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 2341,
+   "zeit": "39:01",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2341s",
+   "aussage": "In der Praxis wird ein KI-gesteuerter Produktionsprozess häufig zusätzlich durch weiterhin gemessene kritische Prozessparameter als Sicherheitsnetz abgesichert, sodass eine Fehlentscheidung der KI kein Produktrisiko erzeugt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 2341,
+   "zeit": "39:01",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2341s",
+   "aussage": "Christoph beschreibt ein Reifegradmodell für KI-Systeme, das von reiner Beobachtung über Vorschläge und kontrollierte Ausführung bis zur Vollautomatisierung reicht."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 2531,
+   "zeit": "42:11",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2531s",
+   "aussage": "Julia empfiehlt, gezielt in Schulung und kulturellen Wandel der Belegschaft zu investieren, damit KI-Initiativen nicht zu Frust unter den Mitarbeitenden führen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 3318,
+   "zeit": "55:18",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s",
+   "aussage": "Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 3412,
+   "zeit": "56:52",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3412s",
+   "aussage": "Der Gast schätzt, dass ein herkömmlicher Custom-Visual-Zugang im Schnitt 500 bis 600 Dollar kostet, während ein mit KI selbst gebautes Äquivalent nur etwa 200 Dollar Kosten verursacht."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 3598,
+   "zeit": "59:58",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3598s",
+   "aussage": "Der Gast setzt bei größeren Projekten ein Multi-Agenten-System ein, in dem verschiedene KI-Modelle je nach Aufgabenkomplexität unterschiedliche Rollen übernehmen, um Kosten zu sparen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 3598,
+   "zeit": "59:58",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3598s",
+   "aussage": "Eine sehr lange, zehntausend Zeilen umfassende CLAUDE.md-Datei belastet das Kontextfenster, weil sie bei jedem Sitzungsstart komplett eingelesen werden muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 4171,
+   "zeit": "1:09:31",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=4171s",
+   "aussage": "Claude-Skills werden bei der Cowork-Variante automatisch im Projektordner als Projekt-Memory abgelegt und stehen nicht projektübergreifend zur Verfügung."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 4354,
+   "zeit": "1:12:34",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=4354s",
+   "aussage": "Ein Kollege empfahl dem Gast das Skill 'superpowers' zur Projektplanung, bevor größere Vorhaben mit einem Agentenschwarm gestartet werden."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 5129,
+   "zeit": "1:25:29",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=5129s",
+   "aussage": "Bei einem Praxistest baute Claude aus Schulungsdaten ein optisch beeindruckendes HTML-Dashboard, dessen Inhalte jedoch fachlich falsch waren, was laut Gast weiterhin fachliches Know-how erfordert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 1230,
+   "zeit": "20:30",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1230s",
+   "aussage": "Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 1257,
+   "zeit": "20:57",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1257s",
+   "aussage": "Beim Einsatz automatisierter Bestellvorschläge soll der Mensch im Loop bleiben, um sein Erfahrungswissen weiter zu nutzen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - Testing im GxP-Umfeld",
+   "dokument_id": "yt:B0_sSJQVG8w",
+   "sekunde": 1836,
+   "zeit": "30:36",
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1836s",
+   "aussage": "Moderne Robotic-Process-Automation-Techniken wie Bilderkennung und OCR können mittlerweile auch große Teile des bislang manuellen Testens abbilden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 2214,
+   "zeit": "36:54",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2214s",
+   "aussage": "Über Microsoft Fabric lassen sich mit Python externe Quellen wie Newsfeeds und Börsendaten kostengünstig anbinden, um Krisenherde frühzeitig zu erkennen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 2310,
+   "zeit": "38:30",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2310s",
+   "aussage": "Bei KI-gestützten Bestellvorschlägen empfiehlt sich zunächst ein Man-in-the-Middle-Ansatz, bei dem Einkäufer die Vorschläge kontrollieren, bevor sie mehr Vertrauen fassen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 2417,
+   "zeit": "40:17",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2417s",
+   "aussage": "Die Qualität von KI-Ergebnissen hängt entscheidend von der Datenqualität im ERP-System ab, denn schlechte Eingabedaten führen zu schlechten Ergebnissen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 3481,
+   "zeit": "58:01",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3481s",
+   "aussage": "Alex hält modulare, skriptbasierte Fix-Tools für KI-Agenten für besser nutzbar als ein reines MCP-Chatfenster, weil einzelne Fixes gezielt und ressourcenschonend aufgerufen werden können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "MCP@Daten-WG@SQL Konferenz",
+   "dokument_id": "yt:l_aHydZyh4s",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s",
+   "aussage": "Michael hält auf der SQL Konferenz eine Lunch Session zum Thema MCP-Server."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s",
+   "aussage": "Seit rund 30 Jahren gibt es KI-Algorithmen und maschinelles Lernen, mit denen aus historischen Daten Muster für das klassische Forecasting abgeleitet werden können."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s",
+   "aussage": "Angesichts der Fortschritte der letzten Jahre wird diskutiert, ob der Mensch aus Planungs- und Supply-Chain-Prozessen komplett herausoptimiert und alles vollautomatisiert werden kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 186,
+   "zeit": "03:06",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=186s",
+   "aussage": "Eine KI hat aus einer hochgeladenen CSV-Datei automatisch ein Sternschema samt Notebook erstellt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 281,
+   "zeit": "04:41",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s",
+   "aussage": "Ein plötzlich viral gehender Social-Media-Trend lässt sich nach Einschätzung des Redners auch mit KI im Vorfeld nicht erkennen oder vorhersagen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 281,
+   "zeit": "04:41",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s",
+   "aussage": "Der Redner vergleicht die fehlende Vorhersagbarkeit viraler Trends mit der ebenfalls nicht funktionierenden automatisierten Shitstorm-Erkennung."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 281,
+   "zeit": "04:41",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s",
+   "aussage": "Der Redner empfiehlt, den Menschen mit seiner Kreativität und Logik bewusst zwischen Daten und Prozessen zu positionieren, damit er bei unvorhergesehenen Ereignissen eingreifen kann."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 281,
+   "zeit": "04:41",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s",
+   "aussage": "Nach Einschätzung des Redners ist eine vollständige Automatisierung von Planungs- und Supply-Chain-Prozessen nicht möglich, weil unvorhersehbare Ereignisse wie virale Trends menschliches Eingreifen erfordern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 282,
+   "zeit": "04:42",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=282s",
+   "aussage": "Über die DAX Query View ließ sich die KI triviale Measures für das Semantic Model anlegen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 2873,
+   "zeit": "47:53",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2873s",
+   "aussage": "Wissenstransfer und IT-Enablement der Fachbereiche werden bei klassischen Tooleinführungen oft vernachlässigt, während sie in KI-Projekten zunehmend aktiv mit eingeplant und eingekauft werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 900,
+   "zeit": "15:00",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=900s",
+   "aussage": "KI-gestützte Interview-, Portfolio- und Systemanalysen können die Vorbereitung eines Zielbild-Workshops von vormals mehreren Monaten auf eine einzelne Session verkürzen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1621,
+   "zeit": "27:01",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1621s",
+   "aussage": "Erfolgreiche Use-Case-Archetypen sollten über sogenannte AI Champions dezentral in andere Unternehmensbereiche transferiert und skaliert werden, statt isoliert zu bleiben."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1769,
+   "zeit": "29:29",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1769s",
+   "aussage": "KI wirkt aktuell als Katalysator der digitalen Transformation, weil die Bedienhürde niedriger ist als bei klassischen BI-Tools und dadurch eine deutlich größere Zielgruppe erreicht wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1958,
+   "zeit": "32:38",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1958s",
+   "aussage": "In einem im Buch beschriebenen Praxisbeispiel verkürzte ein Industrieunternehmen durch KI-gestützte Simulation zahlreicher Ventilator-Designs für die Batteriekühlung die Entwicklungszeit und erzielte eine zweistellige Performance-Optimierung."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 2326,
+   "zeit": "38:46",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2326s",
+   "aussage": "Künstliche Intelligenz wird in der Wirkstoffforschung eingesetzt, um vorab Moleküleigenschaften, Löslichkeit und Bioverfügbarkeit abzuschätzen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 2326,
+   "zeit": "38:46",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2326s",
+   "aussage": "Layher hält es für möglich, dass KI-gestützte Vorabschätzungen die Erfolgsquote in der Medikamentenentwicklung von etwa 1:10 auf bis zu 1:4 verbessern."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 2406,
+   "zeit": "40:06",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=2406s",
+   "aussage": "Wer mit der Umsetzung von KI- oder BI-Projekten wartet, bis Tools ausgereifter sind, verliert gegenüber Wettbewerbern wertvolle Zeit, weil jede Woche des Wartens eine verlorene Woche ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 846,
+   "zeit": "14:06",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=846s",
+   "aussage": "Bei der Deneb-Umsetzung lässt sich der benötigte Vega-Code mithilfe von KI generieren und anpassen, wobei die KI auch angibt, was im Vega-Standard möglich oder nur Bastelei ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1377,
+   "zeit": "22:57",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1377s",
+   "aussage": "Rui Romano zeigte auf der FabCon, wie ein MCP-Server zusammen mit selbst geschriebenen Instruktions-Dokumenten genutzt wird, um per KI-Agent automatisch ein semantisches Modell samt Bericht generieren zu lassen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1490,
+   "zeit": "24:50",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1490s",
+   "aussage": "Dem KI-Agenten wurden bei der Modellgenerierung explizite Vorgaben mitgegeben, darunter das Vermeiden von Snowflake-Dimensionen, Beziehungen möglichst in eine Richtung und geschäftsfreundliche statt technische Tabellennamen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1773,
+   "zeit": "29:33",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1773s",
+   "aussage": "Für sich wiederholende Aufgaben wie Suchen-und-Ersetzen über ein ganzes Projekt sollte die KI besser ein wiederverwendbares Skript, etwa in Python, generieren, statt jede Datei einzeln direkt durch die KI anpassen zu lassen, um Copilot-Credits zu sparen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 2744,
+   "zeit": "45:44",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2744s",
+   "aussage": "Der Power BI Project Mode mit TMDL und PBIR erlaubt es, Berichte programmatisch über Textdateien zu ändern, was laut einem Sprecher die Bearbeitung durch KI erheblich erleichtert."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 4008,
+   "zeit": "1:06:48",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4008s",
+   "aussage": "Ein Teilnehmer empfiehlt, die per INFO-Funktionen abrufbaren Metadaten eines Semantic Models an eine KI zu übergeben, um datenschutzkonform bessere Measure-Vorschläge zu erhalten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 4711,
+   "zeit": "1:18:31",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4711s",
+   "aussage": "Ein Sprecher prognostiziert, dass KI-Agentensysteme künftig Dashboards direkt aus natürlichsprachigen Anweisungen erstellen werden, wodurch klassische manuelle Berichtsentwicklung an Bedeutung verliert."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 4916,
+   "zeit": "1:21:56",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4916s",
+   "aussage": "Aktuellen KI-Systemen fehlt laut einem Sprecher noch implizites Kontextwissen, um natürlichsprachige Angaben wie Jahreszahlen oder Altersgrenzen in Datenabfragen korrekt zu interpretieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 5391,
+   "zeit": "1:29:51",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5391s",
+   "aussage": "Ein Sprecher berichtet, dass ein lokal betriebenes LLM CSV-Daten verarbeiten kann, ohne dass die Daten den eigenen Rechner verlassen, was er aus Datenschutzsicht positiv bewertet."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 473,
+   "zeit": "07:53",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=473s",
+   "aussage": "Strukturierter, klar lesbarer Code wie TMDL ist notwendig, damit KI-Tools und Copilot Power-BI-Modelle gut nutzen und automatisiert bearbeiten können."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 1526,
+   "zeit": "25:26",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1526s",
+   "aussage": "KI-Werkzeuge wie Copilot senken laut Tom Martens die Einstiegshürde, um komplexen Deneb- beziehungsweise Vega-Code selbst anzupassen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 1676,
+   "zeit": "27:56",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1676s",
+   "aussage": "Tom Martens befürchtet, dass auf die frühere Spreadsheet Hell durch generative KI-Agenten künftig eine Agent Hell folgen könnte."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:5atgv1IOijA",
+   "titel": "Willkommen auf dem Daten-WG Kanal",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=5atgv1IOijA",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=5atgv1IOijA&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:XtH4JqTwaqM",
+   "titel": "GxP Talk - KI im regulierten Umfeld?",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.861,
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM",
+   "sprungmarken": [
+    {
+     "label": "03:08",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=188s",
+     "sekunde": 188
+    },
+    {
+     "label": "08:17",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=497s",
+     "sekunde": 497
+    },
+    {
+     "label": "31:44",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1904s",
+     "sekunde": 1904
+    }
+   ]
+  },
+  {
+   "id": "page:ki-entwicklung-zehn-tage",
+   "titel": "Zehn Tage bis zum marktfähigen Stand",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.833,
+   "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html#:~:text=Die%20eigentliche%20Erkenntnis%3A%20%2Anicht%20die%20KI%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html#:~:text=Weiterlesen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:iB4vHRvaErE",
+   "titel": "Mensch bleiben, wenn Power BI geht",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.778,
+   "url": "https://www.youtube.com/watch?v=iB4vHRvaErE",
+   "sprungmarken": [
+    {
+     "label": "02:08",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=128s",
+     "sekunde": 128
+    },
+    {
+     "label": "53:02",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=3182s",
+     "sekunde": 3182
+    },
+    {
+     "label": "59:40",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=3580s",
+     "sekunde": 3580
+    }
+   ]
+  },
+  {
+   "id": "page:pdoom-ki-risiko",
+   "titel": "Wie wahrscheinlich ist die KI-Apokalypse? — p(doom) im Ueberblick",
+   "datum": "2026-06-08",
+   "abdeckung": "nur-text",
+   "anteil": 0.769,
+   "url": "https://datenwgknowledgekitchen.com/pdoom-ki-risiko.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/pdoom-ki-risiko.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/pdoom-ki-risiko.html#:~:text=Die%20Rangliste%20%C2%B7%20%2A63%20Sch%C3%A4tzungen%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/pdoom-ki-risiko.html#:~:text=Eine%20Spannweite%20von%20%2Afast%200%20bis%20fast%20100%20%25%2A",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:sq8AWk_yNWM",
+   "titel": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.75,
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "03:09",
+     "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=189s",
+     "sekunde": 189
+    },
+    {
+     "label": "04:41",
+     "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s",
+     "sekunde": 281
+    }
+   ]
+  },
+  {
+   "id": "page:ki-entwicklung-zehn-tage_en",
+   "titel": "Ten Days to a Market-Ready State",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.714,
+   "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html#:~:text=The%20actual%20insight%3A%20%2Anot%20the%20AI%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html#:~:text=Read%20on",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.711,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.676,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "17:00",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1020s",
+     "sekunde": 1020
+    },
+    {
+     "label": "23:36",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1416s",
+     "sekunde": 1416
+    },
+    {
+     "label": "45:08",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=2708s",
+     "sekunde": 2708
+    }
+   ]
+  },
+  {
+   "id": "yt:WJXREKKx2yo",
+   "titel": "Vorbereiten der Daten für KI",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.667,
+   "url": "https://www.youtube.com/watch?v=WJXREKKx2yo",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "06:26",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=386s",
+     "sekunde": 386
+    },
+    {
+     "label": "08:05",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=485s",
+     "sekunde": 485
+    }
+   ]
+  },
+  {
+   "id": "page:powerbi-design-skill",
+   "titel": "Report-Design als Framework — ein Skill für Power BI",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.6,
+   "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=3%20%C2%B7%20Artefakte%20statt%20Absichten%20%E2%80%94%20design-out%2F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Skill%20ausprobieren",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:oh-3_65IQ2Q",
+   "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.571,
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
+   "sprungmarken": [
+    {
+     "label": "12:13",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=733s",
+     "sekunde": 733
+    },
+    {
+     "label": "19:43",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1183s",
+     "sekunde": 1183
+    },
+    {
+     "label": "30:04",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1804s",
+     "sekunde": 1804
+    }
+   ]
+  },
+  {
+   "id": "yt:qVZhboahaDE",
+   "titel": "Was wir von Iron Man für Datenprojekte lernen können (data:unplugged Vortrag)",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.571,
+   "url": "https://www.youtube.com/watch?v=qVZhboahaDE",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=qVZhboahaDE&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:33",
+     "url": "https://www.youtube.com/watch?v=qVZhboahaDE&t=93s",
+     "sekunde": 93
+    },
+    {
+     "label": "03:10",
+     "url": "https://www.youtube.com/watch?v=qVZhboahaDE&t=190s",
+     "sekunde": 190
+    }
+   ]
+  },
+  {
+   "id": "yt:jETxUNQSl-w",
+   "titel": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.552,
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w",
+   "sprungmarken": [
+    {
+     "label": "01:38",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=98s",
+     "sekunde": 98
+    },
+    {
+     "label": "29:29",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1769s",
+     "sekunde": 1769
+    },
+    {
+     "label": "32:38",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1958s",
+     "sekunde": 1958
+    }
+   ]
+  },
+  {
+   "id": "page:prototyping-pnl-treiberbaum_en",
+   "titel": "Is AI the New Paper — and Markdown the New Pen?",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.429,
+   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=Do%20we%20have%20to%20%2Arethink%20prototyping%3F%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=LinkedIn%20post%20%C2%B7%20Original%20%28EN%29",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:prototyping-pnl-treiberbaum",
+   "titel": "Ist KI das neue Papier — und Markdown der neue Stift?",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.429,
+   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=M%C3%BCssen%20wir%20Prototyping%20%2Aneu%20denken%3F%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=LinkedIn-Post%20%C2%B7%20Original%20%28EN%29",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:0cHtxIm7fVw",
+   "titel": "Von Patronen zu Prozessen",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.333,
+   "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw",
+   "sprungmarken": [
+    {
+     "label": "12:35",
+     "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw&t=755s",
+     "sekunde": 755
+    },
+    {
+     "label": "14:01",
+     "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw&t=841s",
+     "sekunde": 841
+    },
+    {
+     "label": "17:12",
+     "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw&t=1032s",
+     "sekunde": 1032
+    }
+   ]
+  },
+  {
+   "id": "yt:s3CveEVoDvo",
+   "titel": "Von Patronen zu Prozessen (nur Ton)",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.333,
+   "url": "https://www.youtube.com/watch?v=s3CveEVoDvo",
+   "sprungmarken": [
+    {
+     "label": "12:35",
+     "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=755s",
+     "sekunde": 755
+    },
+    {
+     "label": "14:01",
+     "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=841s",
+     "sekunde": 841
+    },
+    {
+     "label": "17:12",
+     "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=1032s",
+     "sekunde": 1032
+    }
+   ]
+  },
+  {
+   "id": "page:ki-co2-simulator",
+   "titel": "Wie viel CO₂ steckt in einem Token? — KI-Energie-Simulator",
+   "datum": "2026-07-03",
+   "abdeckung": "nur-text",
+   "anteil": 0.333,
+   "url": "https://datenwgknowledgekitchen.com/ki-co2-simulator.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-co2-simulator.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-co2-simulator.html#:~:text=Was%20das%20Werkzeug%20rechnet",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-co2-simulator.html#:~:text=Anhang%3A%20Quellen%20%26%20Annahmen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.324,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "33:30",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2010s",
+     "sekunde": 2010
+    },
+    {
+     "label": "35:19",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2119s",
+     "sekunde": 2119
+    },
+    {
+     "label": "37:18",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2238s",
+     "sekunde": 2238
+    }
+   ]
+  },
+  {
+   "id": "yt:DFw664hd1IE",
+   "titel": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.323,
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE",
+   "sprungmarken": [
+    {
+     "label": "36:54",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2214s",
+     "sekunde": 2214
+    },
+    {
+     "label": "38:30",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2310s",
+     "sekunde": 2310
+    },
+    {
+     "label": "43:42",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2622s",
+     "sekunde": 2622
+    }
+   ]
+  },
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.308,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "20:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1205s",
+     "sekunde": 1205
+    },
+    {
+     "label": "23:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1385s",
+     "sekunde": 1385
+    },
+    {
+     "label": "26:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1565s",
+     "sekunde": 1565
+    }
+   ]
+  },
+  {
+   "id": "yt:eWfTt93anl4",
+   "titel": "BI Thinkers Talk nr.77",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.293,
+   "url": "https://www.youtube.com/watch?v=eWfTt93anl4",
+   "sprungmarken": [
+    {
+     "label": "14:26",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=866s",
+     "sekunde": 866
+    },
+    {
+     "label": "19:06",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=1146s",
+     "sekunde": 1146
+    },
+    {
+     "label": "28:47",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=1727s",
+     "sekunde": 1727
+    }
+   ]
+  },
+  {
+   "id": "yt:e50qKdVn-24",
+   "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.278,
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
+   "sprungmarken": [
+    {
+     "label": "00:50",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=50s",
+     "sekunde": 50
+    },
+    {
+     "label": "13:04",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=784s",
+     "sekunde": 784
+    },
+    {
+     "label": "17:08",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1028s",
+     "sekunde": 1028
+    }
+   ]
+  },
+  {
+   "id": "yt:iinfiHxznOU",
+   "titel": "Unboxing MCP Server for Power BI Modelling",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.275,
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
+   "sprungmarken": [
+    {
+     "label": "39:23",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2363s",
+     "sekunde": 2363
+    },
+    {
+     "label": "46:15",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2775s",
+     "sekunde": 2775
+    },
+    {
+     "label": "47:51",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2871s",
+     "sekunde": 2871
+    }
+   ]
+  },
+  {
+   "id": "page:zugfahrten-europa",
+   "titel": "Die Schweiz faehrt Europa davon — Bahnnutzung 2024",
+   "datum": "2026-06-05",
+   "abdeckung": "nur-text",
+   "anteil": 0.273,
+   "url": "https://datenwgknowledgekitchen.com/zugfahrten-infografik.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/zugfahrten-infografik.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/zugfahrten-infografik.html#:~:text=Fazit",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/zugfahrten-infografik.html#:~:text=Making-of%3A%20von%20der%20Vorlage%20zur%20%2Asauberen%20Metro-Karte%2A",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:waermestreifen-3d",
+   "titel": "175 Jahre Klimageschichte zum Anfassen — Waermestreifen 3D",
+   "datum": "2026-08-04",
+   "abdeckung": "nur-text",
+   "anteil": 0.25,
+   "url": "https://datenwgknowledgekitchen.com/waermestreifen-3d.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/waermestreifen-3d.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/waermestreifen-3d.html#:~:text=Making-of",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.246,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "45:44",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2744s",
+     "sekunde": 2744
+    },
+    {
+     "label": "1:18:31",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4711s",
+     "sekunde": 4711
+    },
+    {
+     "label": "1:21:56",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4916s",
+     "sekunde": 4916
+    }
+   ]
+  },
+  {
+   "id": "yt:cD-5z_Bq0N4",
+   "titel": "Projektcontrolling mit dynamischen Arbeitstagen in Power BI",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.24,
+   "url": "https://www.youtube.com/watch?v=cD-5z_Bq0N4",
+   "sprungmarken": [
+    {
+     "label": "08:34",
+     "url": "https://www.youtube.com/watch?v=cD-5z_Bq0N4&t=514s",
+     "sekunde": 514
+    },
+    {
+     "label": "10:22",
+     "url": "https://www.youtube.com/watch?v=cD-5z_Bq0N4&t=622s",
+     "sekunde": 622
+    },
+    {
+     "label": "12:04",
+     "url": "https://www.youtube.com/watch?v=cD-5z_Bq0N4&t=724s",
+     "sekunde": 724
+    }
+   ]
+  },
+  {
+   "id": "yt:rWE0gMx7v7I",
+   "titel": "BI Thinkers Talk n.74",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.234,
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I",
+   "sprungmarken": [
+    {
+     "label": "09:46",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=586s",
+     "sekunde": 586
+    },
+    {
+     "label": "1:02:25",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=3745s",
+     "sekunde": 3745
+    },
+    {
+     "label": "1:14:47",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=4487s",
+     "sekunde": 4487
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.233,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "41:17",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2477s",
+     "sekunde": 2477
+    },
+    {
+     "label": "45:50",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2750s",
+     "sekunde": 2750
+    },
+    {
+     "label": "47:42",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2862s",
+     "sekunde": 2862
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.22,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "37:02",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2222s",
+     "sekunde": 2222
+    },
+    {
+     "label": "40:16",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2416s",
+     "sekunde": 2416
+    },
+    {
+     "label": "41:52",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2512s",
+     "sekunde": 2512
+    }
+   ]
+  },
+  {
+   "id": "yt:z4ZeHPzIeeU",
+   "titel": "Wie war die Daten-WG? · Im Gespräch mit Artur König",
+   "datum": "2025-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.214,
+   "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "03:25",
+     "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=205s",
+     "sekunde": 205
+    },
+    {
+     "label": "12:38",
+     "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=758s",
+     "sekunde": 758
+    }
+   ]
+  },
+  {
+   "id": "yt:-_4bfrjRCVo",
+   "titel": "Objektive Daten gibt es nicht",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.212,
+   "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo",
+   "sprungmarken": [
+    {
+     "label": "35:09",
+     "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2109s",
+     "sekunde": 2109
+    },
+    {
+     "label": "36:41",
+     "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2201s",
+     "sekunde": 2201
+    },
+    {
+     "label": "39:49",
+     "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2389s",
+     "sekunde": 2389
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.205,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "10:25",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=625s",
+     "sekunde": 625
+    },
+    {
+     "label": "49:52",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2992s",
+     "sekunde": 2992
+    },
+    {
+     "label": "53:00",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=3180s",
+     "sekunde": 3180
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart",
+   "titel": "ChartKitchen byDatenWG — Schnellstart",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart_en",
+   "titel": "ChartKitchen byDatenWG — Quick Start",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:OYvXe4k-Df8",
+   "titel": "Slam @dataunplugged Pre-Event von @Dataciders",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=OYvXe4k-Df8",
+   "sprungmarken": [
+    {
+     "label": "00:04",
+     "url": "https://www.youtube.com/watch?v=OYvXe4k-Df8&t=4s",
+     "sekunde": 4
+    }
+   ]
+  },
+  {
+   "id": "yt:AX7b8_aNekw",
+   "titel": "Daten-WG 2026 Lineup",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.195,
+   "url": "https://www.youtube.com/watch?v=AX7b8_aNekw",
+   "sprungmarken": [
+    {
+     "label": "04:01",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=241s",
+     "sekunde": 241
+    },
+    {
+     "label": "09:42",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=582s",
+     "sekunde": 582
+    },
+    {
+     "label": "21:47",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=1307s",
+     "sekunde": 1307
+    }
+   ]
+  },
+  {
+   "id": "yt:iymmxuXHh44",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 5",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.195,
+   "url": "https://www.youtube.com/watch?v=iymmxuXHh44",
+   "sprungmarken": [
+    {
+     "label": "08:01",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=481s",
+     "sekunde": 481
+    },
+    {
+     "label": "22:25",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1345s",
+     "sekunde": 1345
+    },
+    {
+     "label": "1:05:42",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=3942s",
+     "sekunde": 3942
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Aki",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Aki&f=topic%3Aki"
+}

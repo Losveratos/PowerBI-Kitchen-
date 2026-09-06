@@ -1,0 +1,198 @@
+{
+ "id": "topic:datenkultur",
+ "name": "Datenkultur",
+ "typ": "thema",
+ "slug": "datenkultur",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 9,
+ "kernaussagen_gesamt": 3,
+ "mit_kernaussagen": 3,
+ "aliase": [
+  "Data Culture",
+  "Data Literacy",
+  "Datenkompetenz"
+ ],
+ "einordnung": "Julia empfiehlt, gezielt in Schulung und kulturellen Wandel der Belegschaft zu investieren, damit KI-Initiativen nicht zu Frust unter den Mitarbeitenden führen. Ob Fachbereiche selbst Datenmodelle bauen oder diese Aufgabe delegieren, hängt laut Ulrik stark von der Unternehmenskultur und der technischen Affinität der Beteiligten ab. Nach Einschätzung eines Sprechers hat die COVID-19-Pandemie die Akzeptanz von Power BI in Unternehmen deutlich erhöht, weil öffentliche Dashboards wie das des RKI den Nutzen von Datenvisualisierung sichtbar machten.",
+ "nachbarn": [
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "ki.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 2531,
+   "zeit": "42:11",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2531s",
+   "aussage": "Julia empfiehlt, gezielt in Schulung und kulturellen Wandel der Belegschaft zu investieren, damit KI-Initiativen nicht zu Frust unter den Mitarbeitenden führen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 826,
+   "zeit": "13:46",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=826s",
+   "aussage": "Ob Fachbereiche selbst Datenmodelle bauen oder diese Aufgabe delegieren, hängt laut Ulrik stark von der Unternehmenskultur und der technischen Affinität der Beteiligten ab."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 4430,
+   "zeit": "1:13:50",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4430s",
+   "aussage": "Nach Einschätzung eines Sprechers hat die COVID-19-Pandemie die Akzeptanz von Power BI in Unternehmen deutlich erhöht, weil öffentliche Dashboards wie das des RKI den Nutzen von Datenvisualisierung sichtbar machten."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:XxPFAQfLyuA",
+   "titel": "Wie war die Daten-WG? (2025, Teil 2)",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
+   "sprungmarken": [
+    {
+     "label": "27:28",
+     "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1648s",
+     "sekunde": 1648
+    },
+    {
+     "label": "29:08",
+     "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1748s",
+     "sekunde": 1748
+    }
+   ]
+  },
+  {
+   "id": "yt:EVsJ6zyGUWc",
+   "titel": "Was ist Self-Service und warum ist das so schwer?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc",
+   "sprungmarken": [
+    {
+     "label": "52:11",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3131s",
+     "sekunde": 3131
+    },
+    {
+     "label": "55:21",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3321s",
+     "sekunde": 3321
+    }
+   ]
+  },
+  {
+   "id": "yt:rrCi0lnGrCg",
+   "titel": "Mythos Data Vault und richtig große Modelle",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.045,
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
+   "sprungmarken": [
+    {
+     "label": "26:10",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1570s",
+     "sekunde": 1570
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.031,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "40:00",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2400s",
+     "sekunde": 2400
+    }
+   ]
+  },
+  {
+   "id": "yt:oh-3_65IQ2Q",
+   "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
+   "sprungmarken": [
+    {
+     "label": "22:42",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1362s",
+     "sekunde": 1362
+    }
+   ]
+  },
+  {
+   "id": "yt:XtH4JqTwaqM",
+   "titel": "GxP Talk - KI im regulierten Umfeld?",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM",
+   "sprungmarken": [
+    {
+     "label": "42:11",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2531s",
+     "sekunde": 2531
+    }
+   ]
+  },
+  {
+   "id": "yt:AX7b8_aNekw",
+   "titel": "Daten-WG 2026 Lineup",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=AX7b8_aNekw",
+   "sprungmarken": [
+    {
+     "label": "19:13",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=1153s",
+     "sekunde": 1153
+    }
+   ]
+  },
+  {
+   "id": "yt:Me3a2QOx21I",
+   "titel": "Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=Me3a2QOx21I",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:lH_-A8NAQ-k",
+   "titel": "Datenmodellierung ist Governance",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
+   "sprungmarken": []
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Adatenkultur",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Adatenkultur&f=topic%3Adatenkultur"
+}

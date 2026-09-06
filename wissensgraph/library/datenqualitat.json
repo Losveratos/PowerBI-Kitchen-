@@ -1,0 +1,653 @@
+{
+ "id": "topic:datenqualitat",
+ "name": "Datenqualität",
+ "typ": "thema",
+ "slug": "datenqualitat",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 14,
+ "kernaussagen_gesamt": 22,
+ "mit_kernaussagen": 7,
+ "aliase": [
+  "Data Quality",
+  "Qualität",
+  "Testing",
+  "Tests"
+ ],
+ "einordnung": "Measure Killer nutzt Metadaten, um zu prüfen, ob Spalten, Tabellen und Measures tatsächlich in den Reportdateien verwendet werden. Fehlende Beschreibungen von Measures in Power BI führen dazu, dass verschiedene Personen dieselbe Kennzahl unterschiedlich benennen und berechnen. Durch die Konsolidierung der Daten in einem Reporting-System werden Mängel in der Datenqualität der Quellsysteme schnell sichtbar.",
+ "nachbarn": [
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:metadaten",
+   "name": "Metadaten",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "metadaten.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:sternschema",
+   "name": "Sternschema",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sternschema.md"
+  },
+  {
+   "id": "topic:row-level-security",
+   "name": "Row-Level Security",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "row-level-security.md"
+  },
+  {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "copilot.md"
+  },
+  {
+   "id": "tool:premium",
+   "name": "Premium",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "premium.md"
+  },
+  {
+   "id": "topic:governance",
+   "name": "Governance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "governance.md"
+  },
+  {
+   "id": "topic:mittelstand",
+   "name": "Mittelstand",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "mittelstand.md"
+  },
+  {
+   "id": "topic:projektmanagement",
+   "name": "Projektmanagement",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "projektmanagement.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 289,
+   "zeit": "04:49",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=289s",
+   "aussage": "Vor dem Einsatz von KI muss laut den Sprechern ein Daten- und Prozessfundament erarbeitet werden, das auch für andere Disziplinen als Basis dient."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1298,
+   "zeit": "21:38",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1298s",
+   "aussage": "Julia hält die automatisierte Auswertung unstrukturierter Daten aus sozialen Medien, Arztberichten und klinischen Studien für einen besonders wertvollen KI-Anwendungsfall in der Pharmakovigilanz."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1611,
+   "zeit": "26:51",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1611s",
+   "aussage": "Martin empfiehlt, bei zeitkritisch und in großer Menge anfallenden Daten zusätzlich lokalen Speicher vorzuhalten, um Risiken durch unterbrochene Datenübertragung zu reduzieren."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 5129,
+   "zeit": "1:25:29",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=5129s",
+   "aussage": "Bei einem Praxistest baute Claude aus Schulungsdaten ein optisch beeindruckendes HTML-Dashboard, dessen Inhalte jedoch fachlich falsch waren, was laut Gast weiterhin fachliches Know-how erfordert."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 759,
+   "zeit": "12:39",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=759s",
+   "aussage": "Die für das Risikomanagement wichtigsten Daten liegen in vielen Unternehmen verteilt in Silos aus ERP-System, Excel-Listen und Papierakten vor."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 1257,
+   "zeit": "20:57",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1257s",
+   "aussage": "Durch die Konsolidierung der Daten in einem Reporting-System werden Mängel in der Datenqualität der Quellsysteme schnell sichtbar."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 2417,
+   "zeit": "40:17",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2417s",
+   "aussage": "Die Qualität von KI-Ergebnissen hängt entscheidend von der Datenqualität im ERP-System ab, denn schlechte Eingabedaten führen zu schlechten Ergebnissen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 103,
+   "zeit": "01:43",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=103s",
+   "aussage": "GXP-Systeme müssen revisionssicher und vollständig reproduzierbar sein, was bei datengetriebenen Prozessen schwierig ist, weil Daten selbst Teil des Outputs sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 931,
+   "zeit": "15:31",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=931s",
+   "aussage": "Critical Quality Parameter wie Reinheit oder Wirkstoffgehalt haben direkten Einfluss auf die Produktqualität und müssen deshalb besonders überwacht werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 1026,
+   "zeit": "17:06",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1026s",
+   "aussage": "Ob strenge Datenregeln gelten, wird anhand einer einmaligen Initialprüfung entschieden, ob die Daten Einfluss auf die Patientenqualität haben, und das Ergebnis muss dokumentiert werden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 1243,
+   "zeit": "20:43",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1243s",
+   "aussage": "Nur ein Bruchteil der Entscheidungen in einem Unternehmen sind tatsächliche Qualitätsentscheidungen, sodass nur die dafür genutzten Daten strenger Kontrolle bedürfen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 1411,
+   "zeit": "23:31",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1411s",
+   "aussage": "Die strengen Datenintegritätsregeln der Pharmabranche sind historisch aus echten Datenproblemen und Fehlverhalten wie dem selektiven Verwerfen von Messergebnissen in klinischen Studien entstanden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 267,
+   "zeit": "04:27",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=267s",
+   "aussage": "Die aus Excel gelieferte Von-bis-Postleitzahlentabelle muss in eine vollständige Liste aller Einzel-Postleitzahlen aufgelöst werden, um sie mit den Shapefiles verknüpfen zu können."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 515,
+   "zeit": "08:35",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=515s",
+   "aussage": "Vor der Weiterverarbeitung müssen die importierten Shapefile-Geometrien in QGIS repariert werden, da nicht geschlossene Flächen oder Schleifen sonst beim Rendern in Power BI zu Problemen führen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 1032,
+   "zeit": "17:12",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1032s",
+   "aussage": "Bei Benchmark-Tests mit künstlich generierten Testdaten wie der Kontoso-Datenbank komprimiert ein Sternschema teils schlechter als erwartet, weil reale Kundenverteilungen von Testdaten abweichen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 1327,
+   "zeit": "22:07",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1327s",
+   "aussage": "Redundante Daten in mehreren Views sind laut Markus nur dann problematisch, wenn sie inkonsistent werden, ansonsten kann Redundanz den Datenzugriff beschleunigen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 1591,
+   "zeit": "26:31",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1591s",
+   "aussage": "Beim Drill-down bis auf Postleitzahlenebene wurden fehlerhaft zugeordnete Postleitzahlen sichtbar, was zeigt, dass sich Datenqualitätsprobleme in Power BI sehr schnell erkennen lassen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 1591,
+   "zeit": "26:31",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1591s",
+   "aussage": "In der Drillthrough-Detailtabelle sollte ein Filter auf Umsatz ist nicht leer gesetzt werden, um Zeilen ohne Wert nach dem Drill auszublenden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 221,
+   "zeit": "03:41",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=221s",
+   "aussage": "Measure Killer nutzt Metadaten, um zu prüfen, ob Spalten, Tabellen und Measures tatsächlich in den Reportdateien verwendet werden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 221,
+   "zeit": "03:41",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=221s",
+   "aussage": "Es gibt keine universelle Datenqualität, weil die relevanten Qualitätskriterien immer vom jeweiligen Business Case abhängen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 810,
+   "zeit": "13:30",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s",
+   "aussage": "Fehlende Beschreibungen von Measures in Power BI führen dazu, dass verschiedene Personen dieselbe Kennzahl unterschiedlich benennen und berechnen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 1214,
+   "zeit": "20:14",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1214s",
+   "aussage": "Der einfachste erste Schritt für eine BI-Abteilung ist, Measure Killer anzuhängen und innerhalb von rund zehn Minuten einen ersten Status zu Datenqualität und Nutzung zu erhalten."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:UUlPoJOhco8",
+   "titel": "Metadaten als Superkraft",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.267,
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8",
+   "sprungmarken": [
+    {
+     "label": "03:41",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=221s",
+     "sekunde": 221
+    },
+    {
+     "label": "10:24",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=624s",
+     "sekunde": 624
+    },
+    {
+     "label": "13:30",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s",
+     "sekunde": 810
+    }
+   ]
+  },
+  {
+   "id": "yt:B0_sSJQVG8w",
+   "titel": "GxP Talk - Testing im GxP-Umfeld",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.257,
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w",
+   "sprungmarken": [
+    {
+     "label": "04:53",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=293s",
+     "sekunde": 293
+    },
+    {
+     "label": "17:57",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1077s",
+     "sekunde": 1077
+    },
+    {
+     "label": "33:56",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=2036s",
+     "sekunde": 2036
+    }
+   ]
+  },
+  {
+   "id": "yt:qVZhboahaDE",
+   "titel": "Was wir von Iron Man für Datenprojekte lernen können (data:unplugged Vortrag)",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=qVZhboahaDE",
+   "sprungmarken": [
+    {
+     "label": "08:13",
+     "url": "https://www.youtube.com/watch?v=qVZhboahaDE&t=493s",
+     "sekunde": 493
+    }
+   ]
+  },
+  {
+   "id": "yt:DFw664hd1IE",
+   "titel": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.097,
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE",
+   "sprungmarken": [
+    {
+     "label": "20:57",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1257s",
+     "sekunde": 1257
+    },
+    {
+     "label": "33:41",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2021s",
+     "sekunde": 2021
+    },
+    {
+     "label": "40:17",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2417s",
+     "sekunde": 2417
+    }
+   ]
+  },
+  {
+   "id": "yt:0cHtxIm7fVw",
+   "titel": "Von Patronen zu Prozessen",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.095,
+   "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw",
+   "sprungmarken": [
+    {
+     "label": "11:38",
+     "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw&t=698s",
+     "sekunde": 698
+    },
+    {
+     "label": "14:01",
+     "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw&t=841s",
+     "sekunde": 841
+    }
+   ]
+  },
+  {
+   "id": "yt:s3CveEVoDvo",
+   "titel": "Von Patronen zu Prozessen (nur Ton)",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.095,
+   "url": "https://www.youtube.com/watch?v=s3CveEVoDvo",
+   "sprungmarken": [
+    {
+     "label": "11:38",
+     "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=698s",
+     "sekunde": 698
+    },
+    {
+     "label": "14:01",
+     "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=841s",
+     "sekunde": 841
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "07:02",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=422s",
+     "sekunde": 422
+    },
+    {
+     "label": "16:46",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1006s",
+     "sekunde": 1006
+    },
+    {
+     "label": "35:19",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2119s",
+     "sekunde": 2119
+    }
+   ]
+  },
+  {
+   "id": "yt:6WhWLcuFvZE",
+   "titel": "Prinzipien oder Paragrafen",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.074,
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE",
+   "sprungmarken": [
+    {
+     "label": "15:31",
+     "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=931s",
+     "sekunde": 931
+    },
+    {
+     "label": "23:31",
+     "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1411s",
+     "sekunde": 1411
+    }
+   ]
+  },
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:vd1r02bj9Qk",
+   "titel": "Power BI vs. Qlik",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk",
+   "sprungmarken": [
+    {
+     "label": "30:45",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1845s",
+     "sekunde": 1845
+    }
+   ]
+  },
+  {
+   "id": "yt:KwySyTxW_EI",
+   "titel": "The Day After Tomorrow – Nach der Einführung geht es erst richtig los | Power BI Summit 2023",
+   "datum": "2023-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=KwySyTxW_EI",
+   "sprungmarken": [
+    {
+     "label": "54:13",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=3253s",
+     "sekunde": 3253
+    }
+   ]
+  },
+  {
+   "id": "yt:iB4vHRvaErE",
+   "titel": "Mensch bleiben, wenn Power BI geht",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.044,
+   "url": "https://www.youtube.com/watch?v=iB4vHRvaErE",
+   "sprungmarken": [
+    {
+     "label": "07:12",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=432s",
+     "sekunde": 432
+    },
+    {
+     "label": "13:40",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=820s",
+     "sekunde": 820
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.035,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Bidirektionale%20Beziehung%20manchmal%20n%C3%B6tig",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Dimension%20B%20%C2%B7%20z.%20B.%20Kunde",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Single-Direction%20Beziehungen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "26:36",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1596s",
+     "sekunde": 1596
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Adatenqualitat",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Adatenqualitat&f=topic%3Adatenqualitat"
+}

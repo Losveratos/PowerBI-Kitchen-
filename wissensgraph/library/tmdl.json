@@ -1,0 +1,371 @@
+{
+ "id": "tool:tmdl",
+ "name": "TMDL",
+ "typ": "tool",
+ "slug": "tmdl",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 10,
+ "kernaussagen_gesamt": 9,
+ "mit_kernaussagen": 5,
+ "aliase": [
+  "Tabular Model Definition Language"
+ ],
+ "einordnung": "Spaltenbeschreibungen lassen sich in Power BI sowohl in der Modellansicht als auch in der TMDL-Ansicht hinterlegen. TMDL steht für \"Tabular Model Definition Language\". Vor der neuen GUI-Unterstützung konnten benutzerdefinierte DAX-Funktionen nur über die DAX Query View oder über TMDL angelegt werden.",
+ "nachbarn": [
+  {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "Du kannst halt alles nur verändern, was irgendwo im TMDL Model steht (Segment 30)",
+   "datei": "copilot.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "power-query.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 357,
+   "zeit": "05:57",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=357s",
+   "aussage": "Vor der neuen GUI-Unterstützung konnten benutzerdefinierte DAX-Funktionen nur über die DAX Query View oder über TMDL angelegt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 381,
+   "zeit": "06:21",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=381s",
+   "aussage": "TMDL ist jetzt auch im Web-Modeling von Power BI verfügbar."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 1916,
+   "zeit": "31:56",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1916s",
+   "aussage": "Spaltenbeschreibungen lassen sich in Power BI sowohl in der Modellansicht als auch in der TMDL-Ansicht hinterlegen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 2896,
+   "zeit": "48:16",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2896s",
+   "aussage": "Ein per MCP an ein Power-BI-Modell angebundener KI-Assistent kann laut den Sprechern nur Elemente verändern, die im TMDL-Modell abgebildet sind, nicht jedoch Inhalte im Report-Frontend."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 3474,
+   "zeit": "57:54",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=3474s",
+   "aussage": "TMDL steht für \"Tabular Model Definition Language\"."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 791,
+   "zeit": "13:11",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=791s",
+   "aussage": "Power BI Desktop wurde so gehärtet, dass es Codesegmente von Drittanbieter-Tools, die es selbst nicht versteht, ignoriert, statt wie früher etwa bei manuellen Partitionsdefinitionen mit einem Fehler abzubrechen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 3732,
+   "zeit": "1:02:12",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3732s",
+   "aussage": "Neue wiederverwendbare DAX-Funktionen lassen sich derzeit nicht direkt in der Power-BI-Desktop-Oberfläche erstellen oder bearbeiten, sondern nur im DAX-Abfrageeditor oder über die TMDL-Ansicht, während Desktop sie nur lesend als vorhandene Funktionen mit Lösch- und Umbenennen-Option anzeigt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 2744,
+   "zeit": "45:44",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2744s",
+   "aussage": "Der Power BI Project Mode mit TMDL und PBIR erlaubt es, Berichte programmatisch über Textdateien zu ändern, was laut einem Sprecher die Bearbeitung durch KI erheblich erleichtert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 473,
+   "zeit": "07:53",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=473s",
+   "aussage": "Strukturierter, klar lesbarer Code wie TMDL ist notwendig, damit KI-Tools und Copilot Power-BI-Modelle gut nutzen und automatisiert bearbeiten können."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.194,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "25:07",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1507s",
+     "sekunde": 1507
+    },
+    {
+     "label": "43:40",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2620s",
+     "sekunde": 2620
+    },
+    {
+     "label": "45:13",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2713s",
+     "sekunde": 2713
+    }
+   ]
+  },
+  {
+   "id": "yt:iinfiHxznOU",
+   "titel": "Unboxing MCP Server for Power BI Modelling",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
+   "sprungmarken": [
+    {
+     "label": "04:39",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=279s",
+     "sekunde": 279
+    },
+    {
+     "label": "28:36",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=1716s",
+     "sekunde": 1716
+    },
+    {
+     "label": "41:19",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2479s",
+     "sekunde": 2479
+    }
+   ]
+  },
+  {
+   "id": "yt:LUrL8A5lNgI",
+   "titel": "BI Thinkers Talk nr.71",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI",
+   "sprungmarken": [
+    {
+     "label": "31:56",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1916s",
+     "sekunde": 1916
+    },
+    {
+     "label": "48:16",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2896s",
+     "sekunde": 2896
+    },
+    {
+     "label": "57:54",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=3474s",
+     "sekunde": 3474
+    }
+   ]
+  },
+  {
+   "id": "yt:KMk1k5uCLZU",
+   "titel": "Daten-WG Thinkers Talk n61",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.048,
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
+   "sprungmarken": [
+    {
+     "label": "41:32",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2492s",
+     "sekunde": 2492
+    },
+    {
+     "label": "43:13",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2593s",
+     "sekunde": 2593
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "09:01",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=541s",
+     "sekunde": 541
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.016,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Einstellungen%20pr%C3%BCfen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=XMLA%20%E2%80%94%20der%20Enterprise-Zugang",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.013,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Aus%20dem%20Kanal%20%C2%B7%20DAX-Konzepte%20am%20Beispiel",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Field%20Parameters%20f%C3%BCr%20Dimensionen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Aus%20dem%20Kanal%20%C2%B7%20Interaktivit%C3%A4t%20konkret",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:7xYgX6lWhuQ",
+   "titel": "Power BI Update Juli 2026",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=7xYgX6lWhuQ",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:0FPA1k5YiTs",
+   "titel": "Power BI Deep Dive: DAX UDF + TMDL",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=0FPA1k5YiTs",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:sShNdgnHjr4",
+   "titel": "TMDL Magie: Multi Parameter Tabelle - Feldparameter Next Level! | Power BI Tutorial",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=sShNdgnHjr4",
+   "sprungmarken": []
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Atmdl",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Atmdl&f=tool%3Atmdl"
+}

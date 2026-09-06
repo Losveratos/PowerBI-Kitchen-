@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Azure · DatenWG Library</title>
+<meta name="description" content="In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können.">
+<meta property="og:title" content="Azure · DatenWG Library">
+<meta property="og:description" content="In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/azure.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · tool</p>
+<h1>Azure</h1>
+<p class="lead">In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können. Für die Zusammenarbeit von Integration Services mit Azure-Komponenten wird das Azure Feature Pack für SSIS benötigt. Stattdessen müssen die Daten aus SSIS in einen Azure Blob Storage bzw. ein Storage Account mit entsprechendem Container geschrieben werden.</p>
+<div class="btns"><a class="btn" href="../#n=tool%3Aazure">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Aazure&amp;f=tool%3Aazure">Im Graph öffnen</a></div>
+<p class="meta">19 Dokumente · 15 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">Microsoft Azure</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Microsoft Fabric besteht im Kern aus zwei wesentlichen Komponenten: der Kapazität, die man in Azure bucht, und dem OneLake, in dem die Daten liegen und verwaltet werden.<span class="meta quote">Fakt · Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? · <a href="https://www.youtube.com/watch?v=ZVVSPQj9dlc&amp;t=26s">00:26</a></span></li>
+<li>Eine Fabric-Kapazität kann in unterschiedlichen Azure-Regionen angelegt werden.<span class="meta quote">Fakt · Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? · <a href="https://www.youtube.com/watch?v=ZVVSPQj9dlc&amp;t=79s">01:19</a></span></li>
+<li>Beim Buchen einer Kapazität im Azure-Portal ist die Region standardmäßig auf die Region des Tenants voreingestellt.<span class="meta quote">Fakt · Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? · <a href="https://www.youtube.com/watch?v=ZVVSPQj9dlc&amp;t=174s">02:54</a></span></li>
+<li>Im Azure-Portal kann die Region für die Kapazität auch manuell anders gewählt werden, wenn Daten und Rechenleistung woanders verortet werden sollen.<span class="meta quote">Empfehlung · Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? · <a href="https://www.youtube.com/watch?v=ZVVSPQj9dlc&amp;t=174s">02:54</a></span></li>
+<li>Für die Authentifizierung wird im Tenant eine App-Registrierung mit zugehörigem Service Principal angelegt.<span class="meta quote">Fakt · SSIS Integration Services: Microsoft Fabric Notebook per REST API starten · <a href="https://www.youtube.com/watch?v=NvtZ-ehiTrg&amp;t=116s">01:56</a></span></li>
+<li>Die Projektparameter im SSIS-Paket enthalten Client ID, Tenant und Client Secret des Service Principals.<span class="meta quote">Fakt · SSIS Integration Services: Microsoft Fabric Notebook per REST API starten · <a href="https://www.youtube.com/watch?v=NvtZ-ehiTrg&amp;t=206s">03:26</a></span></li>
+<li>Der Produktionsstandort ist Bestandteil der pharmazeutischen Zulassung, weshalb eine digitale Freigabe in einem Cloud-Rechenzentrum in einem anderen Land formal nicht dem zugelassenen Standort entspricht.<span class="meta quote">Fakt · Prinzipien oder Paragrafen · <a href="https://www.youtube.com/watch?v=6WhWLcuFvZE&amp;t=333s">05:33</a></span></li>
+<li>Ein aktueller Fabric-Ausfall betraf offenbar nur bestimmte Azure-Regionen, da Kunden in West Europe Probleme hatten, während der eigene Tenant in North Europe nicht betroffen war.<span class="meta quote">Fakt · BI Thinkers Talk n.72 · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=2032s">33:52</a></span></li>
+<li>In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können.<span class="meta quote">Fakt · Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=75s">01:15</a></span></li>
+<li>Für die Zusammenarbeit von Integration Services mit Azure-Komponenten wird das Azure Feature Pack für SSIS benötigt.<span class="meta quote">Fakt · Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=106s">01:46</a></span></li>
+<li>Für die Verbindung zu Azure-Komponenten muss die Verschlüsselung per Registry-Eintrag auf TLS 1.2 gesetzt werden.<span class="meta quote">Empfehlung · Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=106s">01:46</a></span></li>
+<li>Fehlt der TLS-1.2-Registry-Eintrag, lässt sich die Verbindung zwar testen, die spätere Ausführung des Pakets schlägt aber mit einem Fehler fehl.<span class="meta quote">Warnung · Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=137s">02:17</a></span></li>
+<li>Stattdessen müssen die Daten aus SSIS in einen Azure Blob Storage bzw. ein Storage Account mit entsprechendem Container geschrieben werden.<span class="meta quote">Fakt · Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=315s">05:15</a></span></li>
+<li>Bei der Azure-Verbindung in SSIS gibt es bislang keine eigene Umgebungsoption für Fabric, sondern nur Azure Default sowie die Sonderbereiche China und US Government.<span class="meta quote">Fakt · Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=381s">06:21</a></span></li>
+<li>Datenfunktionen in Fabric funktionieren im Prinzip wie Azure Functions innerhalb von Fabric.<span class="meta quote">Fakt · BI Thinkers Talk Nr.62 · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=496s">08:16</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=5HhNQZlB-1E">Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial</a><span class="meta quote">2025-12-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=75s">01:15</a> · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=106s">01:46</a> · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=315s">05:15</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20Fabric%20nicht%20ersetzt">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=01%20%C2%B7%20Einordnung%20von%20%2AMicrosoft%20Fabric%2A">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Das%20Problem%20davor">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ">Why Passion Beats Niche</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=124s">02:04</a> · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=372s">06:12</a> · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=902s">15:02</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=SSUpe1JON9Y">The Power of User Groups</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=SSUpe1JON9Y&amp;t=1605s">26:45</a> · <a href="https://www.youtube.com/watch?v=SSUpe1JON9Y&amp;t=1725s">28:45</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=7j34Ndng0Os">Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=320s">05:20</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w">Daten-WG Thinkers Talk nr.65</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=95s">01:35</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1291s">21:31</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=2281s">38:01</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=CvaOkO37HMU">Power BI: (Vertriebs-) Regionen in Azure Maps</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=2s">00:02</a> · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=1489s">24:49</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2926s">48:46</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=3035s">50:35</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=3128s">52:08</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=m3xNYfVih0Q">Starting with Microsft Fabric the Skills you need</a><span class="meta quote">2024-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=488s">08:08</a> · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=869s">14:29</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=1391s">23:11</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=2276s">37:56</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wann%20brauche%20ich%20ein%20Gateway%3F">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=03%20%C2%B7%20Deep%20Dive%3A%20%2AQuery%20Folding%2A">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I">Daten-WG Life-Update | Fabric Architekturen</a><span class="meta quote">2026-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=34s">00:34</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=UnW4wHhw_IY">Daten-WG Deep Dive Financial Reporting pt.4</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=UnW4wHhw_IY&amp;t=1687s">28:07</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYp5xCAU2AU">Fabric &amp; Power BI Quarterly · 2026-1</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1503s">25:03</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=pTTYySb0Cyg">Fabric &amp; Power BI Quarterly · 2026-2</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=2998s">49:58</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=luk4S4ukKmg">BI Thinkers Talk n.72</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=2915s">48:35</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=KMk1k5uCLZU">Daten-WG Thinkers Talk n61</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=KMk1k5uCLZU&amp;t=3730s">1:02:10</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=3284s">54:44</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc">BI Thinkers Talk Nr.62</a><span class="meta quote">2025-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=496s">08:16</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="ssis.html">SSIS</a><span class="meta quote">setzt-voraus · belegt · 5 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 33 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 19 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 15 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 14 gemeinsame Segmente</span></li>
+<li><a href="data-pipeline.html">Data Pipeline</a><span class="meta quote">ko-vorkommen · heuristik · 13 gemeinsame Segmente</span></li>
+<li><a href="sql-server.html">SQL Server</a><span class="meta quote">ko-vorkommen · heuristik · 12 gemeinsame Segmente</span></li>
+<li><a href="onelake.html">OneLake</a><span class="meta quote">ko-vorkommen · heuristik · 12 gemeinsame Segmente</span></li>
+<li><a href="workspace.html">Workspace</a><span class="meta quote">ko-vorkommen · heuristik · 10 gemeinsame Segmente</span></li>
+<li><a href="dataflow.html">Dataflow</a><span class="meta quote">ko-vorkommen · heuristik · 10 gemeinsame Segmente</span></li>
+<li><a href="azure-maps.html">Azure Maps</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
+<li><a href="fabric-capacity.html">Fabric Capacity</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
+<li><a href="../#n=tool%3Asynapse">Synapse</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 8 gemeinsame Segmente</span></li>
+<li><a href="eventhouse.html">Eventhouse</a><span class="meta quote">ko-vorkommen · heuristik · 8 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

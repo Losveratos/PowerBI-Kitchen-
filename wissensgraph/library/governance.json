@@ -1,0 +1,1229 @@
+{
+ "id": "topic:governance",
+ "name": "Governance",
+ "typ": "thema",
+ "slug": "governance",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 27,
+ "kernaussagen_gesamt": 64,
+ "mit_kernaussagen": 18,
+ "aliase": [
+  "Data Governance",
+  "Compliance",
+  "Richtlinien"
+ ],
+ "einordnung": "Einzelne Workspaces lassen sich als Mission Critical markieren, damit sie von der automatischen Pausierung durch die Search Protection ausgenommen bleiben. Bei großflächig ausgerolltem Self-Service BI ist es nicht mehr Ziel der zentralen Abteilung, einen umfassenden Single Point of Truth zu etablieren, Security bleibt aber weiterhin zentral geregelt. Metadaten lassen sich für Data Health und Data Governance nutzen, weil sie standardisiert ausgewertet werden können.",
+ "nachbarn": [
+  {
+   "id": "topic:self-service-bi",
+   "name": "Self-Service BI",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 4,
+   "beleg": "dieses Spannungsfeld zwischen IT Chain und Selfsice nennen wir es einfach ITQ",
+   "datei": "self-service-bi.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 26,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 25,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 15,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "tool:snowflake",
+   "name": "Snowflake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "snowflake.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:mirroring",
+   "name": "Mirroring",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "mirroring.md"
+  },
+  {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
+   "id": "topic:row-level-security",
+   "name": "Row-Level Security",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "row-level-security.md"
+  },
+  {
+   "id": "tool:directquery",
+   "name": "DirectQuery",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "directquery.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 188,
+   "zeit": "03:08",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=188s",
+   "aussage": "Arthur überträgt das Prinzip, dass in der Pharmabranche Prozesse validiert und Systeme qualifiziert werden statt Mitarbeiter, auch auf den Umgang mit KI."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 289,
+   "zeit": "04:49",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=289s",
+   "aussage": "Ein großer Pharmakonzern hat bei einem KI-Projekt im GXP-Bereich die prüfenden Behörden aktiv eingebunden, um gemeinsam die Grenzen des Machbaren auszuloten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 637,
+   "zeit": "10:37",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=637s",
+   "aussage": "Für traditionelle KI existiert im GXP-Umfeld ein risikobasierter Ansatz, bei dem für jede Eigenentwicklung mögliche Fehlerquellen bewertet und Maßnahmen dokumentiert werden müssen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 729,
+   "zeit": "12:09",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=729s",
+   "aussage": "Der GAMP-5-Leitfaden unterteilt den KI-Einsatz je nach Grad der Autarkie des Systems in unterschiedliche Sphären."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 913,
+   "zeit": "15:13",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=913s",
+   "aussage": "Die Abkürzung TPLC steht für Total Product Lifecycle und stammt ursprünglich aus der Regulierung physischer Medizinprodukte, wird aber auch auf Software und KI übertragen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1008,
+   "zeit": "16:48",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1008s",
+   "aussage": "Martin unterscheidet Anwendungsfälle danach, ob eine KI-Aufgabe überhaupt GXP-reguliert ist, etwa ist Predictive Forecasting für die Budgetplanung nicht GXP-reguliert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1109,
+   "zeit": "18:29",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1109s",
+   "aussage": "Sobald eine KI über die Verwendbarkeit eines Zwischen- oder Endprodukts in der Produktion mitentscheidet, fällt der Einsatz laut Martin in einen regulierten Bereich."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1206,
+   "zeit": "20:06",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1206s",
+   "aussage": "Arthur warnt davor, die Software beziehungsweise KI selbst validieren zu wollen, statt wie üblich den Prozess zu validieren und die notwendigen Systeme zu qualifizieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 2001,
+   "zeit": "33:21",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2001s",
+   "aussage": "Ein nicht veröffentlichter Entwurf der britischen Behörde MHRA forderte erstmals, dass der manuelle Prozess mindestens so sicher sein müsse wie der computergestützte Prozess, statt umgekehrt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 2341,
+   "zeit": "39:01",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2341s",
+   "aussage": "In der Praxis wird ein KI-gesteuerter Produktionsprozess häufig zusätzlich durch weiterhin gemessene kritische Prozessparameter als Sicherheitsnetz abgesichert, sodass eine Fehlentscheidung der KI kein Produktrisiko erzeugt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - Testing im GxP-Umfeld",
+   "dokument_id": "yt:B0_sSJQVG8w",
+   "sekunde": 293,
+   "zeit": "04:53",
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=293s",
+   "aussage": "Nach dem risikobasierten GAMP-5-Ansatz sollte Software zunächst klassifiziert werden, um daraus die notwendigen Testaktivitäten abzuleiten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - Testing im GxP-Umfeld",
+   "dokument_id": "yt:B0_sSJQVG8w",
+   "sekunde": 980,
+   "zeit": "16:20",
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=980s",
+   "aussage": "Im GxP-Umfeld zielt Regulierung primär auf den Schutz von Menschenleben ab, weshalb dort strenger getestet werden muss als etwa im Maschinenbau."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - Testing im GxP-Umfeld",
+   "dokument_id": "yt:B0_sSJQVG8w",
+   "sekunde": 1174,
+   "zeit": "19:34",
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1174s",
+   "aussage": "Im GxP-Umfeld kommt zu automatisierten Tests zusätzlich die Pflicht hinzu, Testfälle und Testergebnisse lückenlos auf die Anforderungen zurückzuführen (Traceability)."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 2180,
+   "zeit": "36:20",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2180s",
+   "aussage": "Der Power BI Fixer kann den Best Practice Analyser auf dem Semantic Model ausführen und gefundene Verstöße direkt automatisiert fixen lassen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 2481,
+   "zeit": "41:21",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2481s",
+   "aussage": "Perspektiven in Analysis Services und Power BI bilden keine echte Sicherheitsgrenze ab, sodass Nutzer trotz eingeschränkter Perspektive weiterhin das komplette zugrunde liegende Modell nutzen können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 79,
+   "zeit": "01:19",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=79s",
+   "aussage": "Bestimmte Szenarien erfordern, dass Daten aus rechtlichen oder regulatorischen Gründen in einem bestimmten Land oder einer bestimmten Region abgelegt und verarbeitet werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 377,
+   "zeit": "06:17",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=377s",
+   "aussage": "Manche Pharmaunternehmen bilden ihre Validierungsprozesse bereits digital ab, etwa über einen Git-Stack oder eine DevOps-Umgebung."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 874,
+   "zeit": "14:34",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=874s",
+   "aussage": "In den Fabric-Tenant-Einstellungen lässt sich der Zugriff auf Copilot für Power BI global deaktivieren oder auf vorab genehmigte Elemente beschränken."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 1048,
+   "zeit": "17:28",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=1048s",
+   "aussage": "In einem der begleiteten GXP-Projekte ist die Validierung nach Einschätzung der Sprecherin bereits zu rund 30 Prozent digital und toolgestützt dokumentiert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 1348,
+   "zeit": "22:28",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=1348s",
+   "aussage": "Seit 2022 müssen größere Unternehmen im Rahmen der EU-Taxonomie ihre Nachhaltigkeit dokumentieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1459,
+   "zeit": "24:19",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1459s",
+   "aussage": "Die Berechtigung für den Zugriff von Copilot wird zentral am semantischen Modell gesetzt und von dort automatisch an Berichte und Apps vererbt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1850,
+   "zeit": "30:50",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1850s",
+   "aussage": "Copilot generiert bei einer Anfrage in der Regel keine eigenen Kennzahlen, sondern verlinkt bevorzugt auf einen bereits vom Fachbereich verifizierten und freigegebenen Bericht."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 2398,
+   "zeit": "39:58",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2398s",
+   "aussage": "Die Definition of Ready gilt als Schlüsselkriterium dafür, ob Agilität und GXP-Anforderungen zusammenpassen, weil dem Lieferanten vorab klar sein muss, was genau geliefert werden soll."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 2666,
+   "zeit": "44:26",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2666s",
+   "aussage": "Für den Produktivbetrieb sollte statt einer persönlichen Anmeldung ein Service Principal verwendet werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 103,
+   "zeit": "01:43",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=103s",
+   "aussage": "GXP-Systeme müssen revisionssicher und vollständig reproduzierbar sein, was bei datengetriebenen Prozessen schwierig ist, weil Daten selbst Teil des Outputs sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 333,
+   "zeit": "05:33",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=333s",
+   "aussage": "Der Produktionsstandort ist Bestandteil der pharmazeutischen Zulassung, weshalb eine digitale Freigabe in einem Cloud-Rechenzentrum in einem anderen Land formal nicht dem zugelassenen Standort entspricht."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 333,
+   "zeit": "05:33",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=333s",
+   "aussage": "Christof Layher bevorzugt prinzipienbasierte Regulierung gegenüber kleinteiligen Detailvorschriften, weil starre Regeln von der Technologieentwicklung schnell überholt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 450,
+   "zeit": "07:30",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=450s",
+   "aussage": "Aufsichtsbehörden beantworten die Frage nach konkreten Vorgaben in der Regel damit, dass Unternehmen selbst einschätzen sollen, was schiefgehen kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 596,
+   "zeit": "09:56",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=596s",
+   "aussage": "Im Rechtssystem der FDA gilt praktisch eine Beweislastumkehr, bei der Unternehmen nachweisen müssen, dass sie nichts falsch gemacht haben, statt dass ihnen ein Verstoß nachgewiesen werden muss."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 696,
+   "zeit": "11:36",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=696s",
+   "aussage": "Wird ein Zielbild nur innerhalb eines Silos wie dem CDO-Bereich entwickelt und die IT nicht einbezogen, scheitert die Umsetzung später an fehlender Infrastruktur oder Datenbereitstellung."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 785,
+   "zeit": "13:05",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=785s",
+   "aussage": "Layher beobachtet, dass deutschsprachige Unternehmen regulatorische Anforderungen häufig übertreiben und pauschal auf alle Unternehmensbereiche anwenden, auch wo der Gesetzgeber das nicht verlangt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 1026,
+   "zeit": "17:06",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1026s",
+   "aussage": "Ob strenge Datenregeln gelten, wird anhand einer einmaligen Initialprüfung entschieden, ob die Daten Einfluss auf die Patientenqualität haben, und das Ergebnis muss dokumentiert werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 1120,
+   "zeit": "18:40",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1120s",
+   "aussage": "Layher empfiehlt, Fachbereiche zu befähigen, nicht-kritische Engineering-Daten selbst zu analysieren, weil zentrale IT-Abteilungen solche Anfragen gegenüber dem Kerngeschäft oft niedrig priorisieren."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1184,
+   "zeit": "19:44",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1184s",
+   "aussage": "Will sich ein Unternehmen auf Power BI als BI-Standard konzentrieren statt auf weitere Lösungen, sollte dies mit den Fachbereichen abgestimmt werden, unter anderem um Stammdaten wie Lieferantendaten zu standardisieren."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 1243,
+   "zeit": "20:43",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1243s",
+   "aussage": "Nur ein Bruchteil der Entscheidungen in einem Unternehmen sind tatsächliche Qualitätsentscheidungen, sodass nur die dafür genutzten Daten strenger Kontrolle bedürfen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 1411,
+   "zeit": "23:31",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1411s",
+   "aussage": "Die strengen Datenintegritätsregeln der Pharmabranche sind historisch aus echten Datenproblemen und Fehlverhalten wie dem selektiven Verwerfen von Messergebnissen in klinischen Studien entstanden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1416,
+   "zeit": "23:36",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1416s",
+   "aussage": "Bei großflächig ausgerolltem Self-Service BI ist es nicht mehr Ziel der zentralen Abteilung, einen umfassenden Single Point of Truth zu etablieren, Security bleibt aber weiterhin zentral geregelt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1530,
+   "zeit": "25:30",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s",
+   "aussage": "Reports, die von niemandem für operative Entscheidungen genutzt werden, sollten identifiziert und abgeschaltet werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 2234,
+   "zeit": "37:14",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2234s",
+   "aussage": "Layher empfiehlt, innerhalb eines Unternehmens unterschiedlich schnelle Bereiche zuzulassen: streng regulierte Produktion stabil halten, in weniger regulierten Bereichen aber mehr Agilität zulassen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 432,
+   "zeit": "07:12",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=432s",
+   "aussage": "Oliver betont, dass Qlik trotz der Möglichkeit, Daten zwischenzuspeichern, kein Data Warehouse ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 1006,
+   "zeit": "16:46",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1006s",
+   "aussage": "Einzelne Workspaces lassen sich als Mission Critical markieren, damit sie von der automatischen Pausierung durch die Search Protection ausgenommen bleiben."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 1327,
+   "zeit": "22:07",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1327s",
+   "aussage": "Redundante Daten in mehreren Views sind laut Markus nur dann problematisch, wenn sie inkonsistent werden, ansonsten kann Redundanz den Datenzugriff beschleunigen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 1387,
+   "zeit": "23:07",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1387s",
+   "aussage": "Arthur warnt davor, ein gut funktionierendes BI-Tool nur wegen konzernweiter Vereinheitlichung ohne echten Grund zu wechseln."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 1916,
+   "zeit": "31:56",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1916s",
+   "aussage": "Copilot kann laut den Sprechern automatisch Beschreibungen zu Measures erzeugen, darf aber in bestimmten regulierten Umgebungen wie der Finanzverwaltung nicht eingesetzt werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 4842,
+   "zeit": "1:20:42",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=4842s",
+   "aussage": "Sobald mehrere Faktentabellen für einen Drill-Across kombiniert werden sollen oder unternehmensweit standardisierte Dimensionen benötigt werden, ist ein dimensionales Modell mit Sternschema vorzuziehen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 1708,
+   "zeit": "28:28",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1708s",
+   "aussage": "Aus Sicht des Sprechers sind Datenfunktionen zum Zurückschreiben noch nicht vollständig self-service-tauglich, weil Modell, Datenhaltung und Funktion aktuell nicht an Fachbereiche übergeben werden sollten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 1,
+   "zeit": "00:01",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1s",
+   "aussage": "Metadaten lassen sich für Data Health und Data Governance nutzen, weil sie standardisiert ausgewertet werden können."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 129,
+   "zeit": "02:09",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=129s",
+   "aussage": "Weil Fabric viele Technologien mit jeweils eigenen Workarounds bündelt, muss die IT laut Martin diese alle statt eines einzigen Standards beherrschen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 437,
+   "zeit": "07:17",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=437s",
+   "aussage": "Ein vollständiges Metadatenkonzept sollte neben technischen Informationen auch einen Business Layer mit Ansprechpartnern und Datenherkunft umfassen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 624,
+   "zeit": "10:24",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=624s",
+   "aussage": "Ein von Anfang an zu detailliert geplanter Datenkatalog mit sehr vielen Pflichtfeldern führt in der Praxis eher zur Ablehnung durch die Nutzer."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 771,
+   "zeit": "12:51",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=771s",
+   "aussage": "Wartbarkeit ist für Tom Martens keine Kür, sondern eine grundsätzliche Voraussetzung für eine gute Self-Service-Lösung."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1125,
+   "zeit": "18:45",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1125s",
+   "aussage": "Zugriffsrechte und Nutzungsumfang lassen sich in Fabric laut Martin nicht granular genug steuern."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 1135,
+   "zeit": "18:55",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1135s",
+   "aussage": "Ein zentrales Hindernis für Metadaten-Initiativen ist, dass Unternehmen das Thema für unnötig kompliziert halten und stattdessen in Tool- und Lizenzdiskussionen abgleiten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1599,
+   "zeit": "26:39",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1599s",
+   "aussage": "Fabric schafft laut Artur unternehmensweite Transparenz, weil zentrale Experten dadurch mehrfach duplizierte semantische Modelle erkennen können."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 1605,
+   "zeit": "26:45",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1605s",
+   "aussage": "Zwischen IT und Self-Service besteht laut Tom Martens ein dauerhaftes Spannungsfeld, das er als ITQ bezeichnet."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 1676,
+   "zeit": "27:56",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1676s",
+   "aussage": "Tom Martens befürchtet, dass auf die frühere Spreadsheet Hell durch generative KI-Agenten künftig eine Agent Hell folgen könnte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1717,
+   "zeit": "28:37",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1717s",
+   "aussage": "OneLake Security stellt dieselben Zugriffsinformationen sowohl nativen Fabric-Workloads als auch Third-Party-Workloads zur Verfügung."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 1774,
+   "zeit": "29:34",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1774s",
+   "aussage": "Eine sichere Self-Service-Plattform erfordert aus Sicht von Tom Martens permanentes Monitoring und kontinuierlichen Dialog mit den Anwendern statt eines einmalig abgeschlossenen Projekts."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1857,
+   "zeit": "30:57",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1857s",
+   "aussage": "Martin sieht keinen Bedarf, dass jeder Fachanwender eigene Fabric-Artefakte erstellen können muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 2206,
+   "zeit": "36:46",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2206s",
+   "aussage": "Power BI ist häufig zunächst unautorisiert in Konzerne gelangt, weil Fachbereiche es herunterluden, weil es effizienter war als das zentrale Reporting, und wurde erst später offiziell und professionell aufgesetzt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 2258,
+   "zeit": "37:38",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2258s",
+   "aussage": "Arturs zentraler Wert ist, Probleme der Endanwender sofort zu lösen; Governance und Konsolidierung kommen für ihn erst danach."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 2300,
+   "zeit": "38:20",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2300s",
+   "aussage": "Tom Martens plädiert dafür, neue Werkzeuge grundsätzlich erst einmal zu erlauben, weil das die Anwender befähigt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 2523,
+   "zeit": "42:03",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2523s",
+   "aussage": "Schatten-IT einfach zu ignorieren ist aus Sicht von Tom Martens keine Strategie; ein Mittelweg mit einer abgespeckt unterstützten Lösung ist besser, als die Fachbereiche komplett am System vorbeiarbeiten zu lassen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 3321,
+   "zeit": "55:21",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3321s",
+   "aussage": "Tom Martens' finale Definition von Self-Service lautet: das, was ein Business-User ohne IT tun kann, innerhalb von Guardrails, die Governance und Compliance berücksichtigen."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "page:ki-entwicklung-zehn-tage",
+   "titel": "Zehn Tage bis zum marktfähigen Stand",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.167,
+   "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage.html#:~:text=Was%20das%20%2Awirtschaftlich%2A%20bedeutet",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.156,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "03:41",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=221s",
+     "sekunde": 221
+    },
+    {
+     "label": "06:05",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=365s",
+     "sekunde": 365
+    },
+    {
+     "label": "37:38",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2258s",
+     "sekunde": 2258
+    }
+   ]
+  },
+  {
+   "id": "yt:KwySyTxW_EI",
+   "titel": "The Day After Tomorrow – Nach der Einführung geht es erst richtig los | Power BI Summit 2023",
+   "datum": "2023-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.15,
+   "url": "https://www.youtube.com/watch?v=KwySyTxW_EI",
+   "sprungmarken": [
+    {
+     "label": "12:03",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=723s",
+     "sekunde": 723
+    },
+    {
+     "label": "15:04",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=904s",
+     "sekunde": 904
+    },
+    {
+     "label": "45:10",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=2710s",
+     "sekunde": 2710
+    }
+   ]
+  },
+  {
+   "id": "page:ki-entwicklung-zehn-tage_en",
+   "titel": "Ten Days to a Market-Ready State",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.143,
+   "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-entwicklung-zehn-tage_en.html#:~:text=What%20it%20means%20%2Aeconomically%2A",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.124,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=01%20%C2%B7%20Einordnung%20von%20%2AMicrosoft%20Fabric%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20ist%20das%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20drei%20Plattform-Schichten%20unter%20den%20Workloads",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:rrCi0lnGrCg",
+   "titel": "Mythos Data Vault und richtig große Modelle",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.091,
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
+   "sprungmarken": [
+    {
+     "label": "16:10",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=970s",
+     "sekunde": 970
+    },
+    {
+     "label": "24:37",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1477s",
+     "sekunde": 1477
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "25:03",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s",
+     "sekunde": 1503
+    },
+    {
+     "label": "52:25",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3145s",
+     "sekunde": 3145
+    },
+    {
+     "label": "54:03",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3243s",
+     "sekunde": 3243
+    }
+   ]
+  },
+  {
+   "id": "yt:hbUYMyqb6r8",
+   "titel": "Denken in Tabellen",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "37:00",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2220s",
+     "sekunde": 2220
+    }
+   ]
+  },
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "05:02",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=302s",
+     "sekunde": 302
+    }
+   ]
+  },
+  {
+   "id": "yt:jETxUNQSl-w",
+   "titel": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.069,
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w",
+   "sprungmarken": [
+    {
+     "label": "18:11",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1091s",
+     "sekunde": 1091
+    },
+    {
+     "label": "19:44",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1184s",
+     "sekunde": 1184
+    }
+   ]
+  },
+  {
+   "id": "yt:UUlPoJOhco8",
+   "titel": "Metadaten als Superkraft",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1s",
+     "sekunde": 1
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.065,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "18:58",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1138s",
+     "sekunde": 1138
+    },
+    {
+     "label": "40:30",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2430s",
+     "sekunde": 2430
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "02:30",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=150s",
+     "sekunde": 150
+    },
+    {
+     "label": "32:41",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1961s",
+     "sekunde": 1961
+    }
+   ]
+  },
+  {
+   "id": "yt:EVsJ6zyGUWc",
+   "titel": "Was ist Self-Service und warum ist das so schwer?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc",
+   "sprungmarken": [
+    {
+     "label": "31:37",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1897s",
+     "sekunde": 1897
+    },
+    {
+     "label": "52:11",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3131s",
+     "sekunde": 3131
+    }
+   ]
+  },
+  {
+   "id": "yt:5HhNQZlB-1E",
+   "titel": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E",
+   "sprungmarken": [
+    {
+     "label": "06:21",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=381s",
+     "sekunde": 381
+    }
+   ]
+  },
+  {
+   "id": "yt:AX7b8_aNekw",
+   "titel": "Daten-WG 2026 Lineup",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.049,
+   "url": "https://www.youtube.com/watch?v=AX7b8_aNekw",
+   "sprungmarken": [
+    {
+     "label": "11:28",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=688s",
+     "sekunde": 688
+    },
+    {
+     "label": "19:13",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=1153s",
+     "sekunde": 1153
+    }
+   ]
+  },
+  {
+   "id": "yt:0cHtxIm7fVw",
+   "titel": "Von Patronen zu Prozessen",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.048,
+   "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw",
+   "sprungmarken": [
+    {
+     "label": "11:38",
+     "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw&t=698s",
+     "sekunde": 698
+    }
+   ]
+  },
+  {
+   "id": "yt:s3CveEVoDvo",
+   "titel": "Von Patronen zu Prozessen (nur Ton)",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.048,
+   "url": "https://www.youtube.com/watch?v=s3CveEVoDvo",
+   "sprungmarken": [
+    {
+     "label": "11:38",
+     "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=698s",
+     "sekunde": 698
+    }
+   ]
+  },
+  {
+   "id": "yt:lH_-A8NAQ-k",
+   "titel": "Datenmodellierung ist Governance",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.04,
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
+   "sprungmarken": [
+    {
+     "label": "07:04",
+     "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=424s",
+     "sekunde": 424
+    }
+   ]
+  },
+  {
+   "id": "yt:6WhWLcuFvZE",
+   "titel": "Prinzipien oder Paragrafen",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.037,
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE",
+   "sprungmarken": [
+    {
+     "label": "23:31",
+     "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=1411s",
+     "sekunde": 1411
+    }
+   ]
+  },
+  {
+   "id": "yt:LUrL8A5lNgI",
+   "titel": "BI Thinkers Talk nr.71",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.033,
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI",
+   "sprungmarken": [
+    {
+     "label": "05:01",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=301s",
+     "sekunde": 301
+    },
+    {
+     "label": "09:41",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=581s",
+     "sekunde": 581
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "55:18",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=3318s",
+     "sekunde": 3318
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "55:02",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3302s",
+     "sekunde": 3302
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.026,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=08%20%C2%B7%20Service%20%26%20%2ASharing%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Die%20Reise%20durch%20Power%20BI",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Aus%20dem%20Kanal%20%C2%B7%20Modellierung%20praktisch%20durchgespielt",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "56:17",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3377s",
+     "sekunde": 3377
+    }
+   ]
+  },
+  {
+   "id": "yt:r416vanitYw",
+   "titel": "BI Thinkers Talk nr.69",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.023,
+   "url": "https://www.youtube.com/watch?v=r416vanitYw",
+   "sprungmarken": [
+    {
+     "label": "16:50",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=1010s",
+     "sekunde": 1010
+    }
+   ]
+  },
+  {
+   "id": "yt:1yuQVABBrNs",
+   "titel": "From Oracle to Empathy",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=1yuQVABBrNs",
+   "sprungmarken": []
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Agovernance",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Agovernance&f=topic%3Agovernance"
+}

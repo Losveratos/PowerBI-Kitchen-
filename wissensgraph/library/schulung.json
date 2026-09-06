@@ -1,0 +1,890 @@
+{
+ "id": "topic:schulung",
+ "name": "Schulung",
+ "typ": "thema",
+ "slug": "schulung",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 34,
+ "kernaussagen_gesamt": 6,
+ "mit_kernaussagen": 3,
+ "aliase": [
+  "Training",
+  "Enablement",
+  "Lernen",
+  "Schulungen",
+  "Workshop",
+  "Trainings"
+ ],
+ "einordnung": "Bevor Werkzeuge eingeführt werden, sollte im eigenen BI-Team abgefragt werden, ob das Thema Metadaten überhaupt bekannt ist. Julia empfiehlt, gezielt in Schulung und kulturellen Wandel der Belegschaft zu investieren, damit KI-Initiativen nicht zu Frust unter den Mitarbeitenden führen. Ein festes Zeitbudget von 10 bis 20 Prozent pro Mitarbeiter für die Mitwirkung an Projekten wird vorgeschlagen, damit Wissen aktiv aufgebaut wird, statt nur passiv empfangen zu werden.",
+ "nachbarn": [
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 26,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 21,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:community",
+   "name": "Community",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "community.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "topic:projektmanagement",
+   "name": "Projektmanagement",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "projektmanagement.md"
+  },
+  {
+   "id": "topic:daten-wg",
+   "name": "Daten-WG",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "daten-wg.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "copilot.md"
+  },
+  {
+   "id": "tool:python",
+   "name": "Python",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "python.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "tool:power-automate",
+   "name": "Power Automate",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "power-automate.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 2531,
+   "zeit": "42:11",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2531s",
+   "aussage": "Julia empfiehlt, gezielt in Schulung und kulturellen Wandel der Belegschaft zu investieren, damit KI-Initiativen nicht zu Frust unter den Mitarbeitenden führen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 2873,
+   "zeit": "47:53",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2873s",
+   "aussage": "Wissenstransfer und IT-Enablement der Fachbereiche werden bei klassischen Tooleinführungen oft vernachlässigt, während sie in KI-Projekten zunehmend aktiv mit eingeplant und eingekauft werden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 2970,
+   "zeit": "49:30",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2970s",
+   "aussage": "Fehlende Dokumentation und mangelnder Wissenstransfer werden als schwerwiegendere technische Schulden eingeschätzt als schlecht geschriebener Code."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 3342,
+   "zeit": "55:42",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=3342s",
+   "aussage": "Ein festes Zeitbudget von 10 bis 20 Prozent pro Mitarbeiter für die Mitwirkung an Projekten wird vorgeschlagen, damit Wissen aktiv aufgebaut wird, statt nur passiv empfangen zu werden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 947,
+   "zeit": "15:47",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s",
+   "aussage": "Aus Metadaten zu Datenmodellen lässt sich ableiten, wie gut ein Team mit Daten umgeht und wo Schulungsbedarf besteht."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 1237,
+   "zeit": "20:37",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1237s",
+   "aussage": "Bevor Werkzeuge eingeführt werden, sollte im eigenen BI-Team abgefragt werden, ob das Thema Metadaten überhaupt bekannt ist."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:1mfhZw7bg_c",
+   "titel": "Forms + Power Automate = Feedback-Alarm!",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=1mfhZw7bg_c",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=1mfhZw7bg_c&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:33",
+     "url": "https://www.youtube.com/watch?v=1mfhZw7bg_c&t=93s",
+     "sekunde": 93
+    },
+    {
+     "label": "03:13",
+     "url": "https://www.youtube.com/watch?v=1mfhZw7bg_c&t=193s",
+     "sekunde": 193
+    }
+   ]
+  },
+  {
+   "id": "yt:H0ENBDQnVcs",
+   "titel": "Werbung | Daten WG Offsite in Dortmund – Power BI Event am 29.10.",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=H0ENBDQnVcs",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=H0ENBDQnVcs&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.385,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "14:04",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=844s",
+     "sekunde": 844
+    },
+    {
+     "label": "17:04",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1024s",
+     "sekunde": 1024
+    },
+    {
+     "label": "35:06",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=2106s",
+     "sekunde": 2106
+    }
+   ]
+  },
+  {
+   "id": "yt:KwySyTxW_EI",
+   "titel": "The Day After Tomorrow – Nach der Einführung geht es erst richtig los | Power BI Summit 2023",
+   "datum": "2023-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.3,
+   "url": "https://www.youtube.com/watch?v=KwySyTxW_EI",
+   "sprungmarken": [
+    {
+     "label": "03:01",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=181s",
+     "sekunde": 181
+    },
+    {
+     "label": "12:03",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=723s",
+     "sekunde": 723
+    },
+    {
+     "label": "30:07",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=1807s",
+     "sekunde": 1807
+    }
+   ]
+  },
+  {
+   "id": "yt:jETxUNQSl-w",
+   "titel": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.276,
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w",
+   "sprungmarken": [
+    {
+     "label": "05:56",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=356s",
+     "sekunde": 356
+    },
+    {
+     "label": "13:11",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=791s",
+     "sekunde": 791
+    },
+    {
+     "label": "15:00",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=900s",
+     "sekunde": 900
+    }
+   ]
+  },
+  {
+   "id": "yt:Z8vpSSOmG24",
+   "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "datum": "2022-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.267,
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
+   "sprungmarken": [
+    {
+     "label": "18:05",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1085s",
+     "sekunde": 1085
+    },
+    {
+     "label": "21:06",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1266s",
+     "sekunde": 1266
+    },
+    {
+     "label": "27:08",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1628s",
+     "sekunde": 1628
+    }
+   ]
+  },
+  {
+   "id": "yt:lH_-A8NAQ-k",
+   "titel": "Datenmodellierung ist Governance",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.24,
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:10",
+     "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=70s",
+     "sekunde": 70
+    },
+    {
+     "label": "03:07",
+     "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=187s",
+     "sekunde": 187
+    }
+   ]
+  },
+  {
+   "id": "yt:iB4vHRvaErE",
+   "titel": "Mensch bleiben, wenn Power BI geht",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=iB4vHRvaErE",
+   "sprungmarken": [
+    {
+     "label": "34:08",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=2048s",
+     "sekunde": 2048
+    },
+    {
+     "label": "40:02",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=2402s",
+     "sekunde": 2402
+    },
+    {
+     "label": "41:37",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=2497s",
+     "sekunde": 2497
+    }
+   ]
+  },
+  {
+   "id": "yt:UUlPoJOhco8",
+   "titel": "Metadaten als Superkraft",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8",
+   "sprungmarken": [
+    {
+     "label": "01:34",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=94s",
+     "sekunde": 94
+    },
+    {
+     "label": "08:50",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=530s",
+     "sekunde": 530
+    },
+    {
+     "label": "15:47",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s",
+     "sekunde": 947
+    }
+   ]
+  },
+  {
+   "id": "yt:LnNoXBIG7Lc",
+   "titel": "Power BI Update Juni 2025",
+   "datum": "2025-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=LnNoXBIG7Lc",
+   "sprungmarken": [
+    {
+     "label": "02:30",
+     "url": "https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=150s",
+     "sekunde": 150
+    }
+   ]
+  },
+  {
+   "id": "yt:AX7b8_aNekw",
+   "titel": "Daten-WG 2026 Lineup",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.122,
+   "url": "https://www.youtube.com/watch?v=AX7b8_aNekw",
+   "sprungmarken": [
+    {
+     "label": "02:51",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=171s",
+     "sekunde": 171
+    },
+    {
+     "label": "04:01",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=241s",
+     "sekunde": 241
+    },
+    {
+     "label": "14:02",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=842s",
+     "sekunde": 842
+    }
+   ]
+  },
+  {
+   "id": "yt:hbUYMyqb6r8",
+   "titel": "Denken in Tabellen",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.115,
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8",
+   "sprungmarken": [
+    {
+     "label": "15:33",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=933s",
+     "sekunde": 933
+    },
+    {
+     "label": "17:12",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1032s",
+     "sekunde": 1032
+    },
+    {
+     "label": "29:59",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1799s",
+     "sekunde": 1799
+    }
+   ]
+  },
+  {
+   "id": "yt:XtH4JqTwaqM",
+   "titel": "GxP Talk - KI im regulierten Umfeld?",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.111,
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM",
+   "sprungmarken": [
+    {
+     "label": "42:11",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2531s",
+     "sekunde": 2531
+    },
+    {
+     "label": "48:52",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2932s",
+     "sekunde": 2932
+    },
+    {
+     "label": "55:31",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=3331s",
+     "sekunde": 3331
+    }
+   ]
+  },
+  {
+   "id": "page:ki-co2-simulator",
+   "titel": "Wie viel CO₂ steckt in einem Token? — KI-Energie-Simulator",
+   "datum": "2026-07-03",
+   "abdeckung": "nur-text",
+   "anteil": 0.111,
+   "url": "https://datenwgknowledgekitchen.com/ki-co2-simulator.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/ki-co2-simulator.html#:~:text=Grenzen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:KO_qFge77o8",
+   "titel": "GxP Talk - Validierung vs. Agilität",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.108,
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8",
+   "sprungmarken": [
+    {
+     "label": "19:05",
+     "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=1145s",
+     "sekunde": 1145
+    },
+    {
+     "label": "43:07",
+     "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2587s",
+     "sekunde": 2587
+    },
+    {
+     "label": "46:18",
+     "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2778s",
+     "sekunde": 2778
+    }
+   ]
+  },
+  {
+   "id": "yt:vd1r02bj9Qk",
+   "titel": "Power BI vs. Qlik",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.105,
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk",
+   "sprungmarken": [
+    {
+     "label": "01:38",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=98s",
+     "sekunde": 98
+    },
+    {
+     "label": "25:12",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1512s",
+     "sekunde": 1512
+    }
+   ]
+  },
+  {
+   "id": "yt:SSUpe1JON9Y",
+   "titel": "The Power of User Groups",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y",
+   "sprungmarken": [
+    {
+     "label": "18:15",
+     "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1095s",
+     "sekunde": 1095
+    },
+    {
+     "label": "20:30",
+     "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1230s",
+     "sekunde": 1230
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.07,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "21:39",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1299s",
+     "sekunde": 1299
+    },
+    {
+     "label": "26:35",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1595s",
+     "sekunde": 1595
+    },
+    {
+     "label": "40:41",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2441s",
+     "sekunde": 2441
+    }
+   ]
+  },
+  {
+   "id": "yt:UxE0DPnLgIg",
+   "titel": "Visual Analytics with Power BI",
+   "datum": "2021-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=UxE0DPnLgIg",
+   "sprungmarken": [
+    {
+     "label": "00:41",
+     "url": "https://www.youtube.com/watch?v=UxE0DPnLgIg&t=41s",
+     "sekunde": 41
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "15:49",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=949s",
+     "sekunde": 949
+    },
+    {
+     "label": "40:00",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2400s",
+     "sekunde": 2400
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "00:44",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=44s",
+     "sekunde": 44
+    },
+    {
+     "label": "09:08",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=548s",
+     "sekunde": 548
+    }
+   ]
+  },
+  {
+   "id": "yt:K27nB68nR1M",
+   "titel": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "datum": "2022-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M",
+   "sprungmarken": [
+    {
+     "label": "00:03",
+     "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=3s",
+     "sekunde": 3
+    }
+   ]
+  },
+  {
+   "id": "yt:TYmKrreMO3I",
+   "titel": "Daten-WG Deep Dive Financial Reporting",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.054,
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
+   "sprungmarken": [
+    {
+     "label": "30:38",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=1838s",
+     "sekunde": 1838
+    },
+    {
+     "label": "32:21",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=1941s",
+     "sekunde": 1941
+    }
+   ]
+  },
+  {
+   "id": "yt:iinfiHxznOU",
+   "titel": "Unboxing MCP Server for Power BI Modelling",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
+   "sprungmarken": [
+    {
+     "label": "43:00",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2580s",
+     "sekunde": 2580
+    },
+    {
+     "label": "52:39",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=3159s",
+     "sekunde": 3159
+    }
+   ]
+  },
+  {
+   "id": "yt:VD1N68Fhoco",
+   "titel": "BI Thinkers Talk nr.68",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=VD1N68Fhoco",
+   "sprungmarken": [
+    {
+     "label": "46:52",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=2812s",
+     "sekunde": 2812
+    },
+    {
+     "label": "1:01:04",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=3664s",
+     "sekunde": 3664
+    }
+   ]
+  },
+  {
+   "id": "yt:rrCi0lnGrCg",
+   "titel": "Mythos Data Vault und richtig große Modelle",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.045,
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
+   "sprungmarken": [
+    {
+     "label": "30:58",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1858s",
+     "sekunde": 1858
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "47:01",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2821s",
+     "sekunde": 2821
+    }
+   ]
+  },
+  {
+   "id": "yt:232JhS9vbQ0",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 7",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=232JhS9vbQ0",
+   "sprungmarken": [
+    {
+     "label": "25:30",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=1530s",
+     "sekunde": 1530
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "56:27",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=3387s",
+     "sekunde": 3387
+    }
+   ]
+  },
+  {
+   "id": "yt:eWfTt93anl4",
+   "titel": "BI Thinkers Talk nr.77",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=eWfTt93anl4",
+   "sprungmarken": [
+    {
+     "label": "01:38",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=98s",
+     "sekunde": 98
+    }
+   ]
+  },
+  {
+   "id": "yt:Wwvhv8WA2Qc",
+   "titel": "BI Thinkers Talk Nr.62",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc",
+   "sprungmarken": [
+    {
+     "label": "38:17",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2297s",
+     "sekunde": 2297
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.021,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "1:13:22",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=4402s",
+     "sekunde": 4402
+    }
+   ]
+  },
+  {
+   "id": "yt:mUALlPmGcEk",
+   "titel": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "datum": "2025-11-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.02,
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk",
+   "sprungmarken": [
+    {
+     "label": "03:08",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=188s",
+     "sekunde": 188
+    }
+   ]
+  },
+  {
+   "id": "yt:Me3a2QOx21I",
+   "titel": "Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=Me3a2QOx21I",
+   "sprungmarken": []
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Aschulung",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Aschulung&f=topic%3Aschulung"
+}

@@ -1,0 +1,373 @@
+{
+ "id": "tool:pbip",
+ "name": "PBIP",
+ "typ": "tool",
+ "slug": "pbip",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 14,
+ "kernaussagen_gesamt": 8,
+ "mit_kernaussagen": 4,
+ "aliase": [
+  "Power BI Project",
+  "Power BI Projekt",
+  "PBIR",
+  "Enhanced Report Format"
+ ],
+ "einordnung": "Die Visual-Studio-Code-Erweiterung für Microsoft Fabric erlaubt es, aus einer Power-BI-Projektdatei einzelne Teile wie nur den Bericht oder nur das semantische Modell hochzuladen, statt immer die gesamte PBIX hochzuladen. In einer Power-BI-Projektdatei können mehrere Report-Verzeichnisse auf dasselbe semantische Modell zeigen, und Berichte lassen sich auch in einem anderen Workspace deployen als das zugehörige Modell. Microsoft plant eine Funktion, mit der Power BI Desktop Codeänderungen im Hintergrund automatisch erkennt und die Berichtsdefinition neu lädt, ohne dass die Anwendung komplett neu gestartet werden muss.",
+ "nachbarn": [
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "dax.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 330,
+   "zeit": "05:30",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=330s",
+   "aussage": "Das PBIP/PBIR-Format als Code-first-Ansatz soll laut Ankündigung noch in diesem Jahr allgemein verfügbar (GA) werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 330,
+   "zeit": "05:30",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=330s",
+   "aussage": "Ab der Februar-Version von Power BI Desktop wird PBIP zur neuen Standardeinstellung beim Speichern von Berichten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 296,
+   "zeit": "04:56",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=296s",
+   "aussage": "Die Visual-Studio-Code-Erweiterung für Microsoft Fabric erlaubt es, aus einer Power-BI-Projektdatei einzelne Teile wie nur den Bericht oder nur das semantische Modell hochzuladen, statt immer die gesamte PBIX hochzuladen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 594,
+   "zeit": "09:54",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=594s",
+   "aussage": "In einer Power-BI-Projektdatei können mehrere Report-Verzeichnisse auf dasselbe semantische Modell zeigen, und Berichte lassen sich auch in einem anderen Workspace deployen als das zugehörige Modell."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 695,
+   "zeit": "11:35",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=695s",
+   "aussage": "Microsoft plant eine Funktion, mit der Power BI Desktop Codeänderungen im Hintergrund automatisch erkennt und die Berichtsdefinition neu lädt, ohne dass die Anwendung komplett neu gestartet werden muss."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 2744,
+   "zeit": "45:44",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2744s",
+   "aussage": "Der Power BI Project Mode mit TMDL und PBIR erlaubt es, Berichte programmatisch über Textdateien zu ändern, was laut einem Sprecher die Bearbeitung durch KI erheblich erleichtert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 2839,
+   "zeit": "47:19",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2839s",
+   "aussage": "Mit PBIR lassen sich umbenannte Tabellen-, Spalten- oder Measure-Namen in entkoppelten Thin Reports per Text-Suchen-und-Ersetzen aktualisieren, ohne dass der Bericht bricht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 362,
+   "zeit": "06:02",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=362s",
+   "aussage": "PBIR ist inzwischen die Standardeinstellung für neu erstellte Power-BI-Modelle, ohne dass Nutzer aktiv darauf hingewiesen werden."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:0n8hZ6v_0Lc",
+   "titel": "Drillthrough-Auswahl sortieren – So kontrollierst du die Reihenfolge! | Power BI Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.333,
+   "url": "https://www.youtube.com/watch?v=0n8hZ6v_0Lc",
+   "sprungmarken": [
+    {
+     "label": "02:02",
+     "url": "https://www.youtube.com/watch?v=0n8hZ6v_0Lc&t=122s",
+     "sekunde": 122
+    },
+    {
+     "label": "05:16",
+     "url": "https://www.youtube.com/watch?v=0n8hZ6v_0Lc&t=316s",
+     "sekunde": 316
+    }
+   ]
+  },
+  {
+   "id": "page:powerbi-design-skill",
+   "titel": "Report-Design als Framework — ein Skill für Power BI",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.3,
+   "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=4%20%C2%B7%20Warten%20statt%20neu%20bauen%20%E2%80%94%20Bulk%20%C2%B7%20Linter%20%C2%B7%20Wireframes",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=F%C3%BCr%20wen%3A%20%2AMenschen%20und%20Agenten%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Skill%20ausprobieren",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart_en",
+   "titel": "ChartKitchen byDatenWG — Quick Start",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart",
+   "titel": "ChartKitchen byDatenWG — Schnellstart",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:DcEfNIupEHM",
+   "titel": "Power BI Seiten per URL steuern - Sprechende URLs mit PBIP & VS Code | Power BI Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=DcEfNIupEHM",
+   "sprungmarken": [
+    {
+     "label": "01:29",
+     "url": "https://www.youtube.com/watch?v=DcEfNIupEHM&t=89s",
+     "sekunde": 89
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.064,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "01:54",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=114s",
+     "sekunde": 114
+    },
+    {
+     "label": "04:56",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=296s",
+     "sekunde": 296
+    },
+    {
+     "label": "08:20",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=500s",
+     "sekunde": 500
+    }
+   ]
+  },
+  {
+   "id": "yt:DQENmzAkNqw",
+   "titel": "Daten-WG BI Thinkers Talk nr.66",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
+   "sprungmarken": [
+    {
+     "label": "09:45",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=585s",
+     "sekunde": 585
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "47:52",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2872s",
+     "sekunde": 2872
+    }
+   ]
+  },
+  {
+   "id": "yt:VD1N68Fhoco",
+   "titel": "BI Thinkers Talk nr.68",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=VD1N68Fhoco",
+   "sprungmarken": [
+    {
+     "label": "09:44",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=584s",
+     "sekunde": 584
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "45:44",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2744s",
+     "sekunde": 2744
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.004,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Externe%20Tools%20aktivieren",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:GWCHNmLs72M",
+   "titel": "Power BI Update August 2026",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=GWCHNmLs72M",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:AxLQtBVAI9o",
+   "titel": "Declarative Visualization with DENEB",
+   "datum": "",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=AxLQtBVAI9o",
+   "sprungmarken": []
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Apbip",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Apbip&f=tool%3Apbip"
+}

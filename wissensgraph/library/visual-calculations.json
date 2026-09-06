@@ -1,0 +1,406 @@
+{
+ "id": "tool:visual-calculations",
+ "name": "Visual Calculations",
+ "typ": "tool",
+ "slug": "visual-calculations",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 16,
+ "kernaussagen_gesamt": 5,
+ "mit_kernaussagen": 3,
+ "aliase": [
+  "visuelle Berechnungen",
+  "Visual Calculation"
+ ],
+ "einordnung": "In Power BI Desktop lassen sich Berechnungen als berechnete Spalten, als Measures oder als Visual Calculations erstellen. Mit den Custom Totals lässt sich die Gesamtsumme einer Kennzahl (Measure Totals) individuell anders berechnen als die Summe der Einzelzeilen. Hinter einem Custom Total steckt technisch eine visuelle Berechnung mit einem EXPAND ALL und einer Summe über die Zeilen, die sich öffnen und bearbeiten lässt.",
+ "nachbarn": [
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 27,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
+   "id": "topic:schulung",
+   "name": "Schulung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "schulung.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 148,
+   "zeit": "02:28",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=148s",
+   "aussage": "Mit den Custom Totals lässt sich die Gesamtsumme einer Kennzahl (Measure Totals) individuell anders berechnen als die Summe der Einzelzeilen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 246,
+   "zeit": "04:06",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=246s",
+   "aussage": "Custom Totals sollten bei nicht-additiven Werten wie Prozenten oder Verhältnissen vorsichtig verwendet werden, weil eine einfache Summe hier oft nicht sinnvoll ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 246,
+   "zeit": "04:06",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=246s",
+   "aussage": "Hinter einem Custom Total steckt technisch eine visuelle Berechnung mit einem EXPAND ALL und einer Summe über die Zeilen, die sich öffnen und bearbeiten lässt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 1441,
+   "zeit": "24:01",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1441s",
+   "aussage": "In Power BI Desktop lassen sich Berechnungen als berechnete Spalten, als Measures oder als Visual Calculations erstellen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 135,
+   "zeit": "02:15",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=135s",
+   "aussage": "Wiederverwertbare Berechnungslogik sollte dauerhaft ins Semantic Model statt in Visual Calculations gepackt werden, da Visual Calculations eher ein Shortcut sind."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:LnNoXBIG7Lc",
+   "titel": "Power BI Update Juni 2025",
+   "datum": "2025-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.4,
+   "url": "https://www.youtube.com/watch?v=LnNoXBIG7Lc",
+   "sprungmarken": [
+    {
+     "label": "02:30",
+     "url": "https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=150s",
+     "sekunde": 150
+    },
+    {
+     "label": "04:12",
+     "url": "https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=252s",
+     "sekunde": 252
+    }
+   ]
+  },
+  {
+   "id": "yt:TkxwcAyBGUM",
+   "titel": "Power BI Update Juli 2025",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.375,
+   "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM",
+   "sprungmarken": [
+    {
+     "label": "02:07",
+     "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM&t=127s",
+     "sekunde": 127
+    },
+    {
+     "label": "03:39",
+     "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM&t=219s",
+     "sekunde": 219
+    },
+    {
+     "label": "04:27",
+     "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM&t=267s",
+     "sekunde": 267
+    }
+   ]
+  },
+  {
+   "id": "yt:iTK3xUd8V5I",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part3",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.154,
+   "url": "https://www.youtube.com/watch?v=iTK3xUd8V5I",
+   "sprungmarken": [
+    {
+     "label": "19:25",
+     "url": "https://www.youtube.com/watch?v=iTK3xUd8V5I&t=1165s",
+     "sekunde": 1165
+    },
+    {
+     "label": "52:32",
+     "url": "https://www.youtube.com/watch?v=iTK3xUd8V5I&t=3152s",
+     "sekunde": 3152
+    },
+    {
+     "label": "55:46",
+     "url": "https://www.youtube.com/watch?v=iTK3xUd8V5I&t=3346s",
+     "sekunde": 3346
+    }
+   ]
+  },
+  {
+   "id": "yt:DQENmzAkNqw",
+   "titel": "Daten-WG BI Thinkers Talk nr.66",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.132,
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
+   "sprungmarken": [
+    {
+     "label": "08:07",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=487s",
+     "sekunde": 487
+    },
+    {
+     "label": "25:49",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=1549s",
+     "sekunde": 1549
+    },
+    {
+     "label": "35:42",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=2142s",
+     "sekunde": 2142
+    }
+   ]
+  },
+  {
+   "id": "yt:psLPsI32sAs",
+   "titel": "Power BI Update Mai 2026",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.111,
+   "url": "https://www.youtube.com/watch?v=psLPsI32sAs",
+   "sprungmarken": [
+    {
+     "label": "01:05",
+     "url": "https://www.youtube.com/watch?v=psLPsI32sAs&t=65s",
+     "sekunde": 65
+    }
+   ]
+  },
+  {
+   "id": "yt:zkfdfc5fo-E",
+   "titel": "Power BI Update Mai 2025",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E",
+   "sprungmarken": [
+    {
+     "label": "00:23",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=23s",
+     "sekunde": 23
+    }
+   ]
+  },
+  {
+   "id": "yt:r416vanitYw",
+   "titel": "BI Thinkers Talk nr.69",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.047,
+   "url": "https://www.youtube.com/watch?v=r416vanitYw",
+   "sprungmarken": [
+    {
+     "label": "23:06",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=1386s",
+     "sekunde": 1386
+    },
+    {
+     "label": "38:05",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=2285s",
+     "sekunde": 2285
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.035,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "40:41",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2441s",
+     "sekunde": 2441
+    },
+    {
+     "label": "1:00:05",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3605s",
+     "sekunde": 3605
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "04:30",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=270s",
+     "sekunde": 270
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "47:01",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2821s",
+     "sekunde": 2821
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "02:15",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=135s",
+     "sekunde": 135
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "09:46",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=586s",
+     "sekunde": 586
+    }
+   ]
+  },
+  {
+   "id": "yt:xCzKEIB4W5I",
+   "titel": "Fabric Planning unboxing",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I",
+   "sprungmarken": [
+    {
+     "label": "47:00",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2820s",
+     "sekunde": 2820
+    }
+   ]
+  },
+  {
+   "id": "yt:LUrL8A5lNgI",
+   "titel": "BI Thinkers Talk nr.71",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.017,
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI",
+   "sprungmarken": [
+    {
+     "label": "24:01",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1441s",
+     "sekunde": 1441
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.004,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Gesch%C3%A4ftsjahr%20abweichend%20von%20Kalenderjahr",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:GsLfiuPlsQE",
+   "titel": "Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! | Power BI Tutorial",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE",
+   "sprungmarken": []
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Avisual-calculations",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Avisual-calculations&f=tool%3Avisual-calculations"
+}

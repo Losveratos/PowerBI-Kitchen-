@@ -1,0 +1,638 @@
+{
+ "id": "topic:ibcs",
+ "name": "IBCS",
+ "typ": "thema",
+ "slug": "ibcs",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 21,
+ "kernaussagen_gesamt": 7,
+ "mit_kernaussagen": 4,
+ "aliase": [
+  "Hichert",
+  "Semantic Notation",
+  "SUCCESS",
+  "Notation"
+ ],
+ "einordnung": "Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. Die Funktion \"Fix IBCS Variance Chart\" des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein. Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt.",
+ "nachbarn": [
+  {
+   "id": "tool:semantic-model",
+   "name": "Semantic Model",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "wir wollen eigentlich eine Berichtsänderung, aber dazu braucht Modeländerung",
+   "datei": "semantic-model.md"
+  },
+  {
+   "id": "tool:custom-visuals",
+   "name": "Custom Visuals",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 14,
+   "beleg": "wer mal versucht hat irgendwas nachzubauen, was Richtung IBCS geht und kein Custom nutzt, der ist ein absoluter Masochist",
+   "datei": "custom-visuals.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 56,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 41,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 38,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 19,
+   "beleg": "",
+   "datei": "planung.md"
+  },
+  {
+   "id": "tool:zebra-bi",
+   "name": "Zebra BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "zebra-bi.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "topic:daten-wg",
+   "name": "Daten-WG",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "daten-wg.md"
+  },
+  {
+   "id": "tool:power-bi-service",
+   "name": "Power BI Service",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "power-bi-service.md"
+  },
+  {
+   "id": "tool:deneb",
+   "name": "Deneb",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "deneb.md"
+  },
+  {
+   "id": "tool:sap",
+   "name": "SAP",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sap.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "performance.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 3318,
+   "zeit": "55:18",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s",
+   "aussage": "Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 757,
+   "zeit": "12:37",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=757s",
+   "aussage": "Die Funktion \"Fix IBCS Variance Chart\" des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 1230,
+   "zeit": "20:30",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1230s",
+   "aussage": "Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 1322,
+   "zeit": "22:02",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1322s",
+   "aussage": "Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 3128,
+   "zeit": "52:08",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3128s",
+   "aussage": "Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 5102,
+   "zeit": "1:25:02",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5102s",
+   "aussage": "Mit Copilot lassen sich IBCS-konforme Visualisierungen aktuell kaum umsetzen, weil kein nativer Zugriff auf spezialisierte Custom Visuals wie Integrated Variance Charts besteht."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 3090,
+   "zeit": "51:30",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3090s",
+   "aussage": "Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "page:chartkitchen-schnellstart_en",
+   "titel": "ChartKitchen byDatenWG — Quick Start",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.6,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=02%20%C2%B7%20Continue%20in%20the%20documentation",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart",
+   "titel": "ChartKitchen byDatenWG — Schnellstart",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.6,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=01%20%C2%B7%20In%20drei%20Schritten%20loslegen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=02%20%C2%B7%20Weiter%20in%20der%20Dokumentation",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:business-chart-builder-anleitung",
+   "titel": "Business Chart Builder — Anleitung",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.5,
+   "url": "https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Abweichungen%20%26%20Szenarien%20%E2%80%94%20das%20Herzst%C3%BCck",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=IBCS-Check%20%28eingebauter%20Linter%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Auch%20ohne%20Power%20BI%3A%20schnell%20starten%2C%20annotieren%2C%20ausgeben%20%F0%9F%98%89",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-doku_en",
+   "titel": "ChartKitchen byDatenWG — Documentation",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.298,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=01%20%C2%B7%20What%20is%20ChartKitchen%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Layout",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=A%20rounding%20note%20appears%20below%20the%20%CE%A3%20row.",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-doku",
+   "titel": "ChartKitchen byDatenWG — Dokumentation",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.283,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=01%20%C2%B7%20Was%20ist%20ChartKitchen%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Layout",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Unter%20der%20%CE%A3-Zeile%20erscheint%20ein%20Rundungshinweis.",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:powerbi-design-skill",
+   "titel": "Report-Design als Framework — ein Skill für Power BI",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.1,
+   "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=F%C3%BCr%20wen%3A%20%2AMenschen%20und%20Agenten%2A",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.092,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=06%20%C2%B7%20Deep%20Dive%3A%20%2AIBCS%2A%20%26%20Visualisierung",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=UNIFY%20%E2%80%94%20Apply%20semantic%20notation",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Hatched%20%C2%B7%20Forecast%20%2F%20Vorjahr%20%28FC%2C%20PY%29",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:-_4bfrjRCVo",
+   "titel": "Objektive Daten gibt es nicht",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.091,
+   "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo",
+   "sprungmarken": [
+    {
+     "label": "16:30",
+     "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo&t=990s",
+     "sekunde": 990
+    },
+    {
+     "label": "44:22",
+     "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2662s",
+     "sekunde": 2662
+    },
+    {
+     "label": "45:55",
+     "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2755s",
+     "sekunde": 2755
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.088,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "37:28",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2248s",
+     "sekunde": 2248
+    },
+    {
+     "label": "52:08",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3128s",
+     "sekunde": 3128
+    },
+    {
+     "label": "58:28",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3508s",
+     "sekunde": 3508
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.075,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "17:24",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1044s",
+     "sekunde": 1044
+    },
+    {
+     "label": "28:26",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1706s",
+     "sekunde": 1706
+    },
+    {
+     "label": "31:33",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1893s",
+     "sekunde": 1893
+    }
+   ]
+  },
+  {
+   "id": "yt:e50qKdVn-24",
+   "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
+   "sprungmarken": [
+    {
+     "label": "20:43",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1243s",
+     "sekunde": 1243
+    }
+   ]
+  },
+  {
+   "id": "yt:9wl_PLvgvyc",
+   "titel": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc",
+   "sprungmarken": [
+    {
+     "label": "29:52",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=1792s",
+     "sekunde": 1792
+    }
+   ]
+  },
+  {
+   "id": "yt:inko8wG9jlY",
+   "titel": "Boring Charts, Better Insights",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.038,
+   "url": "https://www.youtube.com/watch?v=inko8wG9jlY",
+   "sprungmarken": [
+    {
+     "label": "17:36",
+     "url": "https://www.youtube.com/watch?v=inko8wG9jlY&t=1056s",
+     "sekunde": 1056
+    }
+   ]
+  },
+  {
+   "id": "yt:EVsJ6zyGUWc",
+   "titel": "Was ist Self-Service und warum ist das so schwer?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc",
+   "sprungmarken": [
+    {
+     "label": "10:23",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=623s",
+     "sekunde": 623
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "48:27",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2907s",
+     "sekunde": 2907
+    }
+   ]
+  },
+  {
+   "id": "yt:luk4S4ukKmg",
+   "titel": "BI Thinkers Talk n.72",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg",
+   "sprungmarken": [
+    {
+     "label": "55:25",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3325s",
+     "sekunde": 3325
+    }
+   ]
+  },
+  {
+   "id": "yt:AX7b8_aNekw",
+   "titel": "Daten-WG 2026 Lineup",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=AX7b8_aNekw",
+   "sprungmarken": [
+    {
+     "label": "12:18",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=738s",
+     "sekunde": 738
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "08:05",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=485s",
+     "sekunde": 485
+    }
+   ]
+  },
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:mlkP-6i5Kq8",
+   "titel": "BI Thinkers Talk nr.76",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8",
+   "sprungmarken": [
+    {
+     "label": "55:18",
+     "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s",
+     "sekunde": 3318
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.016,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Bericht%20anlegen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Visuals%20bauen",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Aibcs",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Aibcs&f=topic%3Aibcs"
+}

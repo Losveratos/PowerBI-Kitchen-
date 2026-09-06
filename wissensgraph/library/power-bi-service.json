@@ -1,0 +1,405 @@
+{
+ "id": "tool:power-bi-service",
+ "name": "Power BI Service",
+ "typ": "tool",
+ "slug": "power-bi-service",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 10,
+ "kernaussagen_gesamt": 11,
+ "mit_kernaussagen": 6,
+ "aliase": [
+  "Power BI Dienst",
+  "app.powerbi.com"
+ ],
+ "einordnung": "Im Power BI Service ist Copilot jetzt prominent platziert. Nutzer können die prominente Copilot-Anzeige im Power BI Service wieder zurückdrehen. Das Q&A-Feature in Power BI ist jetzt offiziell abgekündigt.",
+ "nachbarn": [
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 22,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "tool:semantic-model",
+   "name": "Semantic Model",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "semantic-model.md"
+  },
+  {
+   "id": "topic:ibcs",
+   "name": "IBCS",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "ibcs.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:premium",
+   "name": "Premium",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "premium.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 381,
+   "zeit": "06:21",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=381s",
+   "aussage": "TMDL ist jetzt auch im Web-Modeling von Power BI verfügbar."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 2913,
+   "zeit": "48:33",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2913s",
+   "aussage": "In der Power BI Service Web-Oberfläche gibt es aktuell keine Möglichkeit, die Datenquelle eines Reports direkt umzuhängen; das lässt sich nur nach dem Download im Power BI Desktop ändern."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 3124,
+   "zeit": "52:04",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3124s",
+   "aussage": "Ein im Power BI Service umgebundenes Semantic Model eines Reports wird bei einem erneuten Deployment über die Deployment Pipeline wieder auf die ursprüngliche Testquelle zurückgesetzt, sodass die Umbindung nach jedem Deployment wiederholt werden muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s",
+   "aussage": "Im Power BI Service ist Copilot jetzt prominent platziert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s",
+   "aussage": "Nutzer können die prominente Copilot-Anzeige im Power BI Service wieder zurückdrehen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 40,
+   "zeit": "00:40",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=40s",
+   "aussage": "Das Q&A-Feature in Power BI ist jetzt offiziell abgekündigt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 40,
+   "zeit": "00:40",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=40s",
+   "aussage": "Der Sprecher begrüßt die Abkündigung des Q&A-Features, da es ihn per Doppelklick immer wieder störte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 226,
+   "zeit": "03:46",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=226s",
+   "aussage": "Power BI im Web unterstützt jetzt die Themes-Auswahl und den Performance Analyzer und ist damit fast gleichwertig zu Power BI Desktop."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 296,
+   "zeit": "04:56",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=296s",
+   "aussage": "Beim separaten Hochladen des semantischen Modells über die Fabric-Erweiterung werden die Daten nicht mitübertragen, sodass der Refresh anschließend im Power-BI-Service erfolgen muss."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1263,
+   "zeit": "21:03",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1263s",
+   "aussage": "Ein bestehender Bericht wurde im Live-Connection-Modus aus dem Power-BI-Service heruntergeladen und anschließend über die Datenverbindung von seinem ursprünglichen Importmodell auf ein neu aufgebautes Direct-Lake-Modell mit identischen Measure-Namen umgestellt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 621,
+   "zeit": "10:21",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=621s",
+   "aussage": "Ein Sprecher warnt davor, Berichte über 'Publish to Web' zu veröffentlichen, weil dabei der Datenschutz komplett verloren geht."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:TAM5AAZqh7k",
+   "titel": "Power BI Update Januar 2026",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:DcEfNIupEHM",
+   "titel": "Power BI Seiten per URL steuern - Sprechende URLs mit PBIP & VS Code | Power BI Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=DcEfNIupEHM",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=DcEfNIupEHM&t=1s",
+     "sekunde": 1
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "25:18",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1518s",
+     "sekunde": 1518
+    },
+    {
+     "label": "28:26",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1706s",
+     "sekunde": 1706
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.048,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Microsoft%20Fabric%20%26%20OneLake",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Externe%20Tools%20aktivieren",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20ist%20das%3F",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.042,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "11:50",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=710s",
+     "sekunde": 710
+    }
+   ]
+  },
+  {
+   "id": "yt:aYHk_V8n_CE",
+   "titel": "Daten-WG Special: Power BI vs. Qlik",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
+   "sprungmarken": [
+    {
+     "label": "08:02",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=482s",
+     "sekunde": 482
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "02:59",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=179s",
+     "sekunde": 179
+    }
+   ]
+  },
+  {
+   "id": "yt:rWE0gMx7v7I",
+   "titel": "BI Thinkers Talk n.74",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.021,
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I",
+   "sprungmarken": [
+    {
+     "label": "58:58",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=3538s",
+     "sekunde": 3538
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.021,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "21:03",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1263s",
+     "sekunde": 1263
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.016,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20das%20konkret%20hei%C3%9Ft",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Microsoft%20Learn%20%C2%B7%20Snowflake%20%26%20Mirroring",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Apower-bi-service",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Apower-bi-service&f=tool%3Apower-bi-service"
+}

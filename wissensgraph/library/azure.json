@@ -1,0 +1,662 @@
+{
+ "id": "tool:azure",
+ "name": "Azure",
+ "typ": "tool",
+ "slug": "azure",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 19,
+ "kernaussagen_gesamt": 15,
+ "mit_kernaussagen": 6,
+ "aliase": [
+  "Microsoft Azure"
+ ],
+ "einordnung": "In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können. Für die Zusammenarbeit von Integration Services mit Azure-Komponenten wird das Azure Feature Pack für SSIS benötigt. Stattdessen müssen die Daten aus SSIS in einen Azure Blob Storage bzw. ein Storage Account mit entsprechendem Container geschrieben werden.",
+ "nachbarn": [
+  {
+   "id": "tool:ssis",
+   "name": "SSIS",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 5,
+   "beleg": "wir benötigen das Aure Feature Pack für Integration Services",
+   "datei": "ssis.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 33,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 19,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 15,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "tool:sql-server",
+   "name": "SQL Server",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "sql-server.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "tool:azure-maps",
+   "name": "Azure Maps",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "azure-maps.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "tool:synapse",
+   "name": "Synapse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "synapse.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:eventhouse",
+   "name": "Eventhouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "eventhouse.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 26,
+   "zeit": "00:26",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=26s",
+   "aussage": "Microsoft Fabric besteht im Kern aus zwei wesentlichen Komponenten: der Kapazität, die man in Azure bucht, und dem OneLake, in dem die Daten liegen und verwaltet werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 79,
+   "zeit": "01:19",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=79s",
+   "aussage": "Eine Fabric-Kapazität kann in unterschiedlichen Azure-Regionen angelegt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 174,
+   "zeit": "02:54",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=174s",
+   "aussage": "Beim Buchen einer Kapazität im Azure-Portal ist die Region standardmäßig auf die Region des Tenants voreingestellt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 174,
+   "zeit": "02:54",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=174s",
+   "aussage": "Im Azure-Portal kann die Region für die Kapazität auch manuell anders gewählt werden, wenn Daten und Rechenleistung woanders verortet werden sollen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 116,
+   "zeit": "01:56",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=116s",
+   "aussage": "Für die Authentifizierung wird im Tenant eine App-Registrierung mit zugehörigem Service Principal angelegt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 206,
+   "zeit": "03:26",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=206s",
+   "aussage": "Die Projektparameter im SSIS-Paket enthalten Client ID, Tenant und Client Secret des Service Principals."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 333,
+   "zeit": "05:33",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=333s",
+   "aussage": "Der Produktionsstandort ist Bestandteil der pharmazeutischen Zulassung, weshalb eine digitale Freigabe in einem Cloud-Rechenzentrum in einem anderen Land formal nicht dem zugelassenen Standort entspricht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 2032,
+   "zeit": "33:52",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2032s",
+   "aussage": "Ein aktueller Fabric-Ausfall betraf offenbar nur bestimmte Azure-Regionen, da Kunden in West Europe Probleme hatten, während der eigene Tenant in North Europe nicht betroffen war."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 75,
+   "zeit": "01:15",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=75s",
+   "aussage": "In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 106,
+   "zeit": "01:46",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=106s",
+   "aussage": "Für die Zusammenarbeit von Integration Services mit Azure-Komponenten wird das Azure Feature Pack für SSIS benötigt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 106,
+   "zeit": "01:46",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=106s",
+   "aussage": "Für die Verbindung zu Azure-Komponenten muss die Verschlüsselung per Registry-Eintrag auf TLS 1.2 gesetzt werden."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 137,
+   "zeit": "02:17",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=137s",
+   "aussage": "Fehlt der TLS-1.2-Registry-Eintrag, lässt sich die Verbindung zwar testen, die spätere Ausführung des Pakets schlägt aber mit einem Fehler fehl."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 315,
+   "zeit": "05:15",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=315s",
+   "aussage": "Stattdessen müssen die Daten aus SSIS in einen Azure Blob Storage bzw. ein Storage Account mit entsprechendem Container geschrieben werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 381,
+   "zeit": "06:21",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=381s",
+   "aussage": "Bei der Azure-Verbindung in SSIS gibt es bislang keine eigene Umgebungsoption für Fabric, sondern nur Azure Default sowie die Sonderbereiche China und US Government."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 496,
+   "zeit": "08:16",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=496s",
+   "aussage": "Datenfunktionen in Fabric funktionieren im Prinzip wie Azure Functions innerhalb von Fabric."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:5HhNQZlB-1E",
+   "titel": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.333,
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E",
+   "sprungmarken": [
+    {
+     "label": "01:15",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=75s",
+     "sekunde": 75
+    },
+    {
+     "label": "01:46",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=106s",
+     "sekunde": 106
+    },
+    {
+     "label": "05:15",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=315s",
+     "sekunde": 315
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.155,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20Fabric%20nicht%20ersetzt",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=01%20%C2%B7%20Einordnung%20von%20%2AMicrosoft%20Fabric%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Das%20Problem%20davor",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:ihi7UiJ_TtQ",
+   "titel": "Why Passion Beats Niche",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.115,
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
+   "sprungmarken": [
+    {
+     "label": "02:04",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=124s",
+     "sekunde": 124
+    },
+    {
+     "label": "06:12",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=372s",
+     "sekunde": 372
+    },
+    {
+     "label": "15:02",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=902s",
+     "sekunde": 902
+    }
+   ]
+  },
+  {
+   "id": "yt:SSUpe1JON9Y",
+   "titel": "The Power of User Groups",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y",
+   "sprungmarken": [
+    {
+     "label": "26:45",
+     "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1605s",
+     "sekunde": 1605
+    },
+    {
+     "label": "28:45",
+     "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1725s",
+     "sekunde": 1725
+    }
+   ]
+  },
+  {
+   "id": "yt:7j34Ndng0Os",
+   "titel": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os",
+   "sprungmarken": [
+    {
+     "label": "05:20",
+     "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=320s",
+     "sekunde": 320
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.093,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "01:35",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=95s",
+     "sekunde": 95
+    },
+    {
+     "label": "21:31",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1291s",
+     "sekunde": 1291
+    },
+    {
+     "label": "38:01",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2281s",
+     "sekunde": 2281
+    }
+   ]
+  },
+  {
+   "id": "yt:CvaOkO37HMU",
+   "titel": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU",
+   "sprungmarken": [
+    {
+     "label": "00:02",
+     "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=2s",
+     "sekunde": 2
+    },
+    {
+     "label": "24:49",
+     "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1489s",
+     "sekunde": 1489
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.083,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "48:46",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2926s",
+     "sekunde": 2926
+    },
+    {
+     "label": "50:35",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=3035s",
+     "sekunde": 3035
+    },
+    {
+     "label": "52:08",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=3128s",
+     "sekunde": 3128
+    }
+   ]
+  },
+  {
+   "id": "yt:m3xNYfVih0Q",
+   "titel": "Starting with Microsft Fabric the Skills you need",
+   "datum": "2024-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.065,
+   "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q",
+   "sprungmarken": [
+    {
+     "label": "08:08",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=488s",
+     "sekunde": 488
+    },
+    {
+     "label": "14:29",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=869s",
+     "sekunde": 869
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "23:11",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1391s",
+     "sekunde": 1391
+    },
+    {
+     "label": "37:56",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2276s",
+     "sekunde": 2276
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.035,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wann%20brauche%20ich%20ein%20Gateway%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=03%20%C2%B7%20Deep%20Dive%3A%20%2AQuery%20Folding%2A",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.032,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "00:34",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=34s",
+     "sekunde": 34
+    }
+   ]
+  },
+  {
+   "id": "yt:UnW4wHhw_IY",
+   "titel": "Daten-WG Deep Dive Financial Reporting pt.4",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY",
+   "sprungmarken": [
+    {
+     "label": "28:07",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1687s",
+     "sekunde": 1687
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "25:03",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s",
+     "sekunde": 1503
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "49:58",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2998s",
+     "sekunde": 2998
+    }
+   ]
+  },
+  {
+   "id": "yt:luk4S4ukKmg",
+   "titel": "BI Thinkers Talk n.72",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg",
+   "sprungmarken": [
+    {
+     "label": "48:35",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2915s",
+     "sekunde": 2915
+    }
+   ]
+  },
+  {
+   "id": "yt:KMk1k5uCLZU",
+   "titel": "Daten-WG Thinkers Talk n61",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
+   "sprungmarken": [
+    {
+     "label": "1:02:10",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3730s",
+     "sekunde": 3730
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "54:44",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3284s",
+     "sekunde": 3284
+    }
+   ]
+  },
+  {
+   "id": "yt:Wwvhv8WA2Qc",
+   "titel": "BI Thinkers Talk Nr.62",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc",
+   "sprungmarken": [
+    {
+     "label": "08:16",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=496s",
+     "sekunde": 496
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Aazure",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Aazure&f=tool%3Aazure"
+}

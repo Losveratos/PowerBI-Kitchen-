@@ -1,0 +1,360 @@
+{
+ "id": "tool:eventhouse",
+ "name": "Eventhouse",
+ "typ": "tool",
+ "slug": "eventhouse",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 10,
+ "kernaussagen_gesamt": 0,
+ "mit_kernaussagen": 0,
+ "aliase": [
+  "KQL",
+  "Kusto",
+  "Real-Time Intelligence",
+  "Eventstream",
+  "Realtime Intelligence"
+ ],
+ "einordnung": "Eventhouse kommt in 10 Dokumenten der Daten-WG vor; am ausführlichsten in „Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup“ (2025-06-01).",
+ "nachbarn": [
+  {
+   "id": "topic:echtzeit",
+   "name": "Echtzeit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 22,
+   "beleg": "",
+   "datei": "echtzeit.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 19,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:spark",
+   "name": "Spark",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "spark.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "tool:azure",
+   "name": "Azure",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "azure.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:mirroring",
+   "name": "Mirroring",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "mirroring.md"
+  }
+ ],
+ "kernaussagen": [],
+ "dokumente": [
+  {
+   "id": "yt:BDnwlOqRElY",
+   "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "datum": "2025-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.217,
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
+   "sprungmarken": [
+    {
+     "label": "24:07",
+     "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1447s",
+     "sekunde": 1447
+    },
+    {
+     "label": "25:58",
+     "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1558s",
+     "sekunde": 1558
+    },
+    {
+     "label": "29:14",
+     "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1754s",
+     "sekunde": 1754
+    }
+   ]
+  },
+  {
+   "id": "yt:ihi7UiJ_TtQ",
+   "titel": "Why Passion Beats Niche",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.154,
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
+   "sprungmarken": [
+    {
+     "label": "15:02",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=902s",
+     "sekunde": 902
+    },
+    {
+     "label": "19:47",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1187s",
+     "sekunde": 1187
+    },
+    {
+     "label": "29:29",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1769s",
+     "sekunde": 1769
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.132,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wer%20geht%20wo%20auf%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Workload-Landkarte%20%28Stand%202026%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Real-Time-Kette",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "32:06",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1926s",
+     "sekunde": 1926
+    },
+    {
+     "label": "33:57",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2037s",
+     "sekunde": 2037
+    },
+    {
+     "label": "37:15",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2235s",
+     "sekunde": 2235
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "37:56",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2276s",
+     "sekunde": 2276
+    },
+    {
+     "label": "42:49",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2569s",
+     "sekunde": 2569
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "28:14",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1694s",
+     "sekunde": 1694
+    }
+   ]
+  },
+  {
+   "id": "yt:KMk1k5uCLZU",
+   "titel": "Daten-WG Thinkers Talk n61",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
+   "sprungmarken": [
+    {
+     "label": "04:40",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=280s",
+     "sekunde": 280
+    }
+   ]
+  },
+  {
+   "id": "yt:eWfTt93anl4",
+   "titel": "BI Thinkers Talk nr.77",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=eWfTt93anl4",
+   "sprungmarken": [
+    {
+     "label": "48:24",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=2904s",
+     "sekunde": 2904
+    }
+   ]
+  },
+  {
+   "id": "yt:bt81POE-9Ig",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.023,
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
+   "sprungmarken": [
+    {
+     "label": "26:22",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1582s",
+     "sekunde": 1582
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.004,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric-Bausteine",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Aeventhouse",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Aeventhouse&f=tool%3Aeventhouse"
+}

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deneb · DatenWG Library</title>
+<meta name="description" content="Für die gewünschte Wasserfall-Darstellung wurden zwei Eigenbau-Varianten entwickelt: eine Kombination aus gestapeltem Balkendiagramm und Liniendiagramm sowie eine Lösung mit Deneb.">
+<meta property="og:title" content="Deneb · DatenWG Library">
+<meta property="og:description" content="Für die gewünschte Wasserfall-Darstellung wurden zwei Eigenbau-Varianten entwickelt: eine Kombination aus gestapeltem Balkendiagramm und Liniendiagramm sowie eine Lösung mit Deneb.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/deneb.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · tool</p>
+<h1>Deneb</h1>
+<p class="lead">Für die gewünschte Wasserfall-Darstellung wurden zwei Eigenbau-Varianten entwickelt: eine Kombination aus gestapeltem Balkendiagramm und Liniendiagramm sowie eine Lösung mit Deneb. Bei der Deneb-Umsetzung lässt sich der benötigte Vega-Code mithilfe von KI generieren und anpassen, wobei die KI auch angibt, was im Vega-Standard möglich oder nur Bastelei ist. Bei Deneb-Templates lassen sich vorhandene Felder leicht austauschen, aber nachträglich neue Felder hinzuzufügen ist nur über die Codebasis und nicht über die Template-Oberfläche möglich.</p>
+<div class="btns"><a class="btn" href="../#n=tool%3Adeneb">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Adeneb&amp;f=tool%3Adeneb">Im Graph öffnen</a></div>
+<p class="meta">11 Dokumente · 13 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">Vega</span> <span class="tag">Vega-Lite</span> <span class="tag">Vega Lite</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Stefan ließ Claude Diagrammtypen aus Python-Bibliotheken wie Matplotlib, Plotly und Seaborn als Vega-Lite-Spezifikationen für Deneb nachbauen und dazu einen Testdatensatz mit 1000 Datensätzen generieren.<span class="meta quote">Fakt · BI Thinkers Talk nr.76 · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=387s">06:27</a></span></li>
+<li>Der Gast ließ auf diese Weise rund 30 Diagrammtypen als Deneb-Nachbauten erstellen, bevor er die Arbeit aus Zeitgründen abbrach.<span class="meta quote">Fakt · BI Thinkers Talk nr.76 · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=484s">08:04</a></span></li>
+<li>Ziel des Projekts ist eine HTML-Seite mit fertigen Vega-Lite-Codeschnipseln, aus der Kollegen nur noch das passende Diagramm kopieren und ihre eigenen Felder einsetzen müssen.<span class="meta quote">Fakt · BI Thinkers Talk nr.76 · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=1151s">19:11</a></span></li>
+<li>Für Deneb-Visuals in Power BI gilt eine Beschränkung von 30.000 Zeilen, weshalb Measures entsprechend sparsam geschrieben werden müssen.<span class="meta quote">Warnung · BI Thinkers Talk nr.76 · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=1151s">19:11</a></span></li>
+<li>Nach Einschätzung des Gasts ist man bei echten Power-BI-Custom-Visuals freier in der Gestaltung als bei Deneb, das an festere Vega-Lite-Strukturen gebunden ist.<span class="meta quote">Meinung · BI Thinkers Talk nr.76 · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=1801s">30:01</a></span></li>
+<li>Für die gewünschte Wasserfall-Darstellung wurden zwei Eigenbau-Varianten entwickelt: eine Kombination aus gestapeltem Balkendiagramm und Liniendiagramm sowie eine Lösung mit Deneb.<span class="meta quote">Fakt · BI Thinkers Talk n.72 · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=652s">10:52</a></span></li>
+<li>Bei der Deneb-Umsetzung lässt sich der benötigte Vega-Code mithilfe von KI generieren und anpassen, wobei die KI auch angibt, was im Vega-Standard möglich oder nur Bastelei ist.<span class="meta quote">Fakt · BI Thinkers Talk n.72 · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=846s">14:06</a></span></li>
+<li>Der Sprecher hofft, dass Microsoft Deneb beziehungsweise Vega stärker in Power BI integriert, um das bisherige proprietäre JSON-Format der Visuals abzulösen.<span class="meta quote">Meinung · BI Thinkers Talk n.72 · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=946s">15:46</a></span></li>
+<li>Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt.<span class="meta quote">Meinung · BI Thinkers Talk n.72 · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=1152s">19:12</a></span></li>
+<li>Bei Deneb-Templates lassen sich vorhandene Felder leicht austauschen, aber nachträglich neue Felder hinzuzufügen ist nur über die Codebasis und nicht über die Template-Oberfläche möglich.<span class="meta quote">Fakt · BI Thinkers Talk n.72 · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=1537s">25:37</a></span></li>
+<li>Deneb-Visuals erfordern Coding beziehungsweise Scripting mit Vega beziehungsweise Vega-Lite, sobald ein Endanwender einen speziellen Visualisierungs-Task lösen will, der im Standardumfang von Power BI nicht möglich ist.<span class="meta quote">Fakt · Was ist Self-Service und warum ist das so schwer? · <a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=422s">07:02</a></span></li>
+<li>Komplexe Deneb-Charts sind für Fachanwender oft nicht wartbar, weshalb einige lieber zwei einfache, handwerklich unschöne Balkendiagramme übereinanderlegen, statt eine elegante, aber schwer änderbare Deneb-Lösung zu nutzen.<span class="meta quote">Meinung · Was ist Self-Service und warum ist das so schwer? · <a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=623s">10:23</a></span></li>
+<li>KI-Werkzeuge wie Copilot senken laut Tom Martens die Einstiegshürde, um komplexen Deneb- beziehungsweise Vega-Code selbst anzupassen.<span class="meta quote">Meinung · Was ist Self-Service und warum ist das so schwer? · <a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=1526s">25:26</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html">Business Chart Builder — Anleitung</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Bonus%3A%20fertige%20Gantt-Vorlage%20%28Power%20BI%20%2F%20Deneb%29">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Export%20%E2%80%94%20der%20eigentliche%20Trick">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=luk4S4ukKmg">BI Thinkers Talk n.72</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=846s">14:06</a> · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=946s">15:46</a> · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=1056s">17:36</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=5xB_oKdvAwQ">Power BI Update Juni 2026</a><span class="meta quote">2026-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=5xB_oKdvAwQ&amp;t=343s">05:43</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8">BI Thinkers Talk nr.76</a><span class="meta quote">2026-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=189s">03:09</a> · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=1056s">17:36</a> · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=1151s">19:11</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc">Was ist Self-Service und warum ist das so schwer?</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=422s">07:02</a> · <a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=1189s">19:49</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=SSUpe1JON9Y">The Power of User Groups</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=SSUpe1JON9Y&amp;t=999s">16:39</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY">BI Thinkers Talk nr.75</a><span class="meta quote">2026-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=944s">15:44</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=837s">13:57</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=xCzKEIB4W5I">Fabric Planning unboxing</a><span class="meta quote">2026-03-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=3793s">1:03:13</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Aus%20dem%20Kanal%20%C2%B7%20Visualisierung%20in%20Aktion">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Custom%20IBCS%20Viz%20Demo">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=AxLQtBVAI9o">Declarative Visualization with DENEB</a><span class="meta quote">— · nur-metadaten</span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="custom-visuals.html">Custom Visuals</a><span class="meta quote">gegensatz · belegt · 5 gemeinsame Segmente</span></li>
+<li><a href="custom-visuals.html">Custom Visuals</a><span class="meta quote">teil-von · belegt · 5 gemeinsame Segmente</span></li>
+<li><a href="visualisierung.html">Visualisierung</a><span class="meta quote">ko-vorkommen · heuristik · 14 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 13 gemeinsame Segmente</span></li>
+<li><a href="ki.html">KI</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="ibcs.html">IBCS</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="python.html">Python</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

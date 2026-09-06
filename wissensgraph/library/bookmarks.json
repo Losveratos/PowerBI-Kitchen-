@@ -1,0 +1,287 @@
+{
+ "id": "tool:bookmarks",
+ "name": "Bookmarks",
+ "typ": "tool",
+ "slug": "bookmarks",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 8,
+ "kernaussagen_gesamt": 0,
+ "mit_kernaussagen": 0,
+ "aliase": [
+  "Lesezeichen",
+  "Bookmark"
+ ],
+ "einordnung": "Bookmarks kommt in 8 Dokumenten der Daten-WG vor; am ausführlichsten in „Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report“ (2022-02-01).",
+ "nachbarn": [
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 17,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 16,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:drillthrough",
+   "name": "Drillthrough",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "drillthrough.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
+   "id": "tool:field-parameters",
+   "name": "Field Parameters",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "field-parameters.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "workspace.md"
+  }
+ ],
+ "kernaussagen": [],
+ "dokumente": [
+  {
+   "id": "yt:K27nB68nR1M",
+   "titel": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "datum": "2022-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.278,
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M",
+   "sprungmarken": [
+    {
+     "label": "03:04",
+     "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=184s",
+     "sekunde": 184
+    },
+    {
+     "label": "12:08",
+     "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=728s",
+     "sekunde": 728
+    },
+    {
+     "label": "21:11",
+     "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=1271s",
+     "sekunde": 1271
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.105,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "56:52",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3412s",
+     "sekunde": 3412
+    },
+    {
+     "label": "58:28",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3508s",
+     "sekunde": 3508
+    },
+    {
+     "label": "1:13:50",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4430s",
+     "sekunde": 4430
+    }
+   ]
+  },
+  {
+   "id": "yt:Z8vpSSOmG24",
+   "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "datum": "2022-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
+   "sprungmarken": [
+    {
+     "label": "24:07",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1447s",
+     "sekunde": 1447
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-doku_en",
+   "titel": "ChartKitchen byDatenWG — Documentation",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.053,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Comments",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Cross-filter%2C%20tooltips%20%26%20bookmarks",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Comments",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-doku",
+   "titel": "ChartKitchen byDatenWG — Dokumentation",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.05,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Kommentare",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Cross-Filter%2C%20Tooltips%20%26%20Bookmarks",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Kommentare",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.048,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Cross-Report-Drillthrough",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Use%20Cases",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Bookmark%20Navigator",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:XxPFAQfLyuA",
+   "titel": "Wie war die Daten-WG? (2025, Teil 2)",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
+   "sprungmarken": [
+    {
+     "label": "35:02",
+     "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=2102s",
+     "sekunde": 2102
+    }
+   ]
+  },
+  {
+   "id": "yt:Wwvhv8WA2Qc",
+   "titel": "BI Thinkers Talk Nr.62",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc",
+   "sprungmarken": [
+    {
+     "label": "09:50",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=590s",
+     "sekunde": 590
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Abookmarks",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Abookmarks&f=tool%3Abookmarks"
+}

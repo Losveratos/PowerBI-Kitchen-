@@ -1,0 +1,848 @@
+{
+ "id": "topic:konferenz",
+ "name": "Konferenz",
+ "typ": "thema",
+ "slug": "konferenz",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 28,
+ "kernaussagen_gesamt": 20,
+ "mit_kernaussagen": 6,
+ "aliase": [
+  "Conference",
+  "FabCon",
+  "Data Days",
+  "Summit",
+  "PASS",
+  "SQL Konferenz",
+  "Data Saturday",
+  "Konferenzen"
+ ],
+ "einordnung": "Die Episode wurde auf der SQL-Konferenz aufgezeichnet. Brian hielt auf der Feb Con in Wien eine Podiumsdiskussion über Community und Benutzergruppen. Die Daten-WG veranstaltet im Herbst eine eigene, kleine Konferenz.",
+ "nachbarn": [
+  {
+   "id": "topic:daten-wg",
+   "name": "Daten-WG",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 17,
+   "beleg": "",
+   "datei": "daten-wg.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 17,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 16,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "topic:community",
+   "name": "Community",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "community.md"
+  },
+  {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "planung.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "topic:echtzeit",
+   "name": "Echtzeit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "echtzeit.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "workspace.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "aussage": "Die Episode wurde auf der SQL-Konferenz aufgezeichnet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "aussage": "Brian hielt auf der Feb Con in Wien eine Podiumsdiskussion über Community und Benutzergruppen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "aussage": "Die Daten-WG veranstaltet im Herbst eine eigene, kleine Konferenz."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "aussage": "Die Daten-WG-Konferenz findet in diesem Jahr bereits zum zweiten Mal statt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "aussage": "Die Daten-WG möchte mit ihrer Konferenz wachsen und ähnlich groß werden wie die SQL-Konferenz."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "aussage": "Brian rät kleinen Konferenzen, sich stärker auf eine persönliche Note zu konzentrieren, statt andere Konferenzen zu kopieren."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "aussage": "Brian empfiehlt Konferenzveranstaltern, ihren eigenen Weg zu finden, anstatt sich an anderen zu orientieren."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "aussage": "Laut Brian kann bereits ein eigenes Thema oder eine eigene Farbe eine Konferenz von anderen abheben."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "aussage": "Laut Brian kann auch eine bestimmte Art der Organisation oder der Helfer-Gewinnung eine Konferenz unterscheidbar machen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "aussage": "Brian ist der Meinung, dass sich Konferenzen mit eigenem Stil von einer Masse grauer, gleichförmiger Konferenzen abheben."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "aussage": "Laut Brian entsteht auch bei gleichen Rednern und Themen ein anderes Erlebnis, wenn sich Thema, Stil oder Persönlichkeit der Konferenz unterscheiden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "aussage": "Brian freut sich darüber, dass die Zahl der Community-Konferenzen in Europa wächst."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 262,
+   "zeit": "04:22",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=262s",
+   "aussage": "Die Daten-WG-Konferenz findet im Oktober wieder in Köln statt, und die Agenda mit Speakern und Precons ist veröffentlicht."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 262,
+   "zeit": "04:22",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=262s",
+   "aussage": "Interessierten wird empfohlen, sich die veröffentlichte Agenda der Daten-WG-Konferenz anzusehen und bei Interesse vorbeizukommen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "MCP@Daten-WG@SQL Konferenz",
+   "dokument_id": "yt:l_aHydZyh4s",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s",
+   "aussage": "Die Aufnahme entstand am Stand der Daten-WG auf der SQL Konferenz."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "MCP@Daten-WG@SQL Konferenz",
+   "dokument_id": "yt:l_aHydZyh4s",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s",
+   "aussage": "Michael hält auf der SQL Konferenz eine Lunch Session zum Thema MCP-Server."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "MCP@Daten-WG@SQL Konferenz",
+   "dokument_id": "yt:l_aHydZyh4s",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s",
+   "aussage": "Die Daten-WG lädt Besucher der SQL Konferenz ein, ihren Stand zu besuchen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 281,
+   "zeit": "04:41",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s",
+   "aussage": "Der Vortrag über den Bullwhip-Effekt wurde beim Daten-WG Offsite als einer von mehreren rund zehnminütigen Impulsvorträgen gehalten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": null,
+   "zeit": "",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "aussage": "Die Daten-WG-Konferenz 2026 findet am 15. Oktober statt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": null,
+   "zeit": "",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc",
+   "aussage": "Tom Martens kündigt an, für die Daten-WG-Konferenz im Oktober mehrere Vortragseinreichungen einzureichen."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:QyhnWfGih_o",
+   "titel": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:l_aHydZyh4s",
+   "titel": "MCP@Daten-WG@SQL Konferenz",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:z4ZeHPzIeeU",
+   "titel": "Wie war die Daten-WG? · Im Gespräch mit Artur König",
+   "datum": "2025-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.429,
+   "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU",
+   "sprungmarken": [
+    {
+     "label": "03:25",
+     "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=205s",
+     "sekunde": 205
+    },
+    {
+     "label": "14:51",
+     "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=891s",
+     "sekunde": 891
+    },
+    {
+     "label": "30:02",
+     "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1802s",
+     "sekunde": 1802
+    }
+   ]
+  },
+  {
+   "id": "yt:aEXtFWW-pmo",
+   "titel": "Wie war die Daten-WG 2025? (Teil 1)",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.304,
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
+   "sprungmarken": [
+    {
+     "label": "03:20",
+     "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=200s",
+     "sekunde": 200
+    },
+    {
+     "label": "16:12",
+     "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=972s",
+     "sekunde": 972
+    },
+    {
+     "label": "32:39",
+     "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1959s",
+     "sekunde": 1959
+    }
+   ]
+  },
+  {
+   "id": "yt:eWfTt93anl4",
+   "titel": "BI Thinkers Talk nr.77",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.195,
+   "url": "https://www.youtube.com/watch?v=eWfTt93anl4",
+   "sprungmarken": [
+    {
+     "label": "00:04",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=4s",
+     "sekunde": 4
+    },
+    {
+     "label": "04:42",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=282s",
+     "sekunde": 282
+    },
+    {
+     "label": "06:19",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=379s",
+     "sekunde": 379
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "00:24",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=24s",
+     "sekunde": 24
+    },
+    {
+     "label": "34:06",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=2046s",
+     "sekunde": 2046
+    }
+   ]
+  },
+  {
+   "id": "yt:AX7b8_aNekw",
+   "titel": "Daten-WG 2026 Lineup",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.122,
+   "url": "https://www.youtube.com/watch?v=AX7b8_aNekw",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "07:56",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=476s",
+     "sekunde": 476
+    },
+    {
+     "label": "34:08",
+     "url": "https://www.youtube.com/watch?v=AX7b8_aNekw&t=2048s",
+     "sekunde": 2048
+    }
+   ]
+  },
+  {
+   "id": "yt:z51gWRc0zVc",
+   "titel": "Microsoft Fabric Dataflow Gen2 Kosten verstehen - CU-Verbrauch einfach erklärt",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.111,
+   "url": "https://www.youtube.com/watch?v=z51gWRc0zVc",
+   "sprungmarken": [
+    {
+     "label": "09:34",
+     "url": "https://www.youtube.com/watch?v=z51gWRc0zVc&t=574s",
+     "sekunde": 574
+    }
+   ]
+  },
+  {
+   "id": "yt:KMk1k5uCLZU",
+   "titel": "Daten-WG Thinkers Talk n61",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.095,
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
+   "sprungmarken": [
+    {
+     "label": "04:40",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=280s",
+     "sekunde": 280
+    },
+    {
+     "label": "06:12",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=372s",
+     "sekunde": 372
+    },
+    {
+     "label": "22:11",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=1331s",
+     "sekunde": 1331
+    }
+   ]
+  },
+  {
+   "id": "yt:YzfcMurbWNc",
+   "titel": "Power BI-Teams werden Fabric-Datendienstleister",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.091,
+   "url": "https://www.youtube.com/watch?v=YzfcMurbWNc",
+   "sprungmarken": [
+    {
+     "label": "01:10",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=70s",
+     "sekunde": 70
+    },
+    {
+     "label": "28:09",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=1689s",
+     "sekunde": 1689
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "20:50",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1250s",
+     "sekunde": 1250
+    },
+    {
+     "label": "22:30",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1350s",
+     "sekunde": 1350
+    },
+    {
+     "label": "54:53",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3293s",
+     "sekunde": 3293
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "09:47",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=587s",
+     "sekunde": 587
+    },
+    {
+     "label": "53:23",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3203s",
+     "sekunde": 3203
+    },
+    {
+     "label": "56:00",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3360s",
+     "sekunde": 3360
+    }
+   ]
+  },
+  {
+   "id": "yt:inko8wG9jlY",
+   "titel": "Boring Charts, Better Insights",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=inko8wG9jlY",
+   "sprungmarken": [
+    {
+     "label": "02:21",
+     "url": "https://www.youtube.com/watch?v=inko8wG9jlY&t=141s",
+     "sekunde": 141
+    },
+    {
+     "label": "38:33",
+     "url": "https://www.youtube.com/watch?v=inko8wG9jlY&t=2313s",
+     "sekunde": 2313
+    }
+   ]
+  },
+  {
+   "id": "yt:ihi7UiJ_TtQ",
+   "titel": "Why Passion Beats Niche",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
+   "sprungmarken": [
+    {
+     "label": "09:00",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=540s",
+     "sekunde": 540
+    },
+    {
+     "label": "22:52",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1372s",
+     "sekunde": 1372
+    }
+   ]
+  },
+  {
+   "id": "yt:XtH4JqTwaqM",
+   "titel": "GxP Talk - KI im regulierten Umfeld?",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM",
+   "sprungmarken": [
+    {
+     "label": "25:09",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1509s",
+     "sekunde": 1509
+    },
+    {
+     "label": "40:36",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2436s",
+     "sekunde": 2436
+    }
+   ]
+  },
+  {
+   "id": "yt:K27nB68nR1M",
+   "titel": "Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report",
+   "datum": "2022-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=K27nB68nR1M",
+   "sprungmarken": [
+    {
+     "label": "42:21",
+     "url": "https://www.youtube.com/watch?v=K27nB68nR1M&t=2541s",
+     "sekunde": 2541
+    }
+   ]
+  },
+  {
+   "id": "yt:pOJpXxsfUt0",
+   "titel": "BI Thinkers Talk n.73",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.054,
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "19:33",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=1173s",
+     "sekunde": 1173
+    }
+   ]
+  },
+  {
+   "id": "yt:luk4S4ukKmg",
+   "titel": "BI Thinkers Talk n.72",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg",
+   "sprungmarken": [
+    {
+     "label": "06:10",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=370s",
+     "sekunde": 370
+    },
+    {
+     "label": "58:35",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3515s",
+     "sekunde": 3515
+    }
+   ]
+  },
+  {
+   "id": "yt:SSUpe1JON9Y",
+   "titel": "The Power of User Groups",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y",
+   "sprungmarken": [
+    {
+     "label": "08:10",
+     "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=490s",
+     "sekunde": 490
+    }
+   ]
+  },
+  {
+   "id": "yt:r416vanitYw",
+   "titel": "BI Thinkers Talk nr.69",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.047,
+   "url": "https://www.youtube.com/watch?v=r416vanitYw",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "1:03:31",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=3811s",
+     "sekunde": 3811
+    }
+   ]
+  },
+  {
+   "id": "yt:BDnwlOqRElY",
+   "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "datum": "2025-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:XxPFAQfLyuA",
+   "titel": "Wie war die Daten-WG? (2025, Teil 2)",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
+   "sprungmarken": [
+    {
+     "label": "30:02",
+     "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1802s",
+     "sekunde": 1802
+    }
+   ]
+  },
+  {
+   "id": "yt:6WhWLcuFvZE",
+   "titel": "Prinzipien oder Paragrafen",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.037,
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE",
+   "sprungmarken": [
+    {
+     "label": "07:30",
+     "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=450s",
+     "sekunde": 450
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "51:20",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=3080s",
+     "sekunde": 3080
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "08:35",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=515s",
+     "sekunde": 515
+    }
+   ]
+  },
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:mUALlPmGcEk",
+   "titel": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "datum": "2025-11-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.02,
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.015,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Akonferenz",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Akonferenz&f=topic%3Akonferenz"
+}

@@ -1,0 +1,412 @@
+{
+ "id": "topic:supply-chain",
+ "name": "Supply Chain",
+ "typ": "thema",
+ "slug": "supply-chain",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 11,
+ "kernaussagen_gesamt": 18,
+ "mit_kernaussagen": 2,
+ "aliase": [
+  "Logistik",
+  "Lieferkette",
+  "Einkauf"
+ ],
+ "einordnung": "Seit der Corona-Pandemie folgt in der Lieferkette einer Krise fast nahtlos die nächste. Naturkatastrophen, politische Entscheidungen und Cyberattacken zählen zu den zunehmenden Risiken für die Beschaffung. Ein konsolidiertes Reporting zeigt Bestellbedarf, auslaufende Lieferantenverträge und Krisenrisiko im zeitlichen Verlauf.",
+ "nachbarn": [
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:strategie",
+   "name": "Strategie",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "strategie.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 2,
+   "zeit": "00:02",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2s",
+   "aussage": "Seit der Corona-Pandemie folgt in der Lieferkette einer Krise fast nahtlos die nächste."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 2,
+   "zeit": "00:02",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2s",
+   "aussage": "Im Risikomanagement können mittelständische Unternehmen nicht wie Großkonzerne behandelt werden, weil sie andere Probleme haben."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 384,
+   "zeit": "06:24",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=384s",
+   "aussage": "Risikomanagement bedeutet einen planvollen Umgang mit Risiken, nicht deren vollständige Vermeidung."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 478,
+   "zeit": "07:58",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=478s",
+   "aussage": "Naturkatastrophen, politische Entscheidungen und Cyberattacken zählen zu den zunehmenden Risiken für die Beschaffung."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 573,
+   "zeit": "09:33",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=573s",
+   "aussage": "Unternehmen sollten sich nicht allein auf Just-in-Time verlassen, sondern zusätzliche Absicherungsmaßnahmen treffen, wie das Beispiel der Bandstillstände nach den Huthi-Angriffen im Roten Meer zeigt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 664,
+   "zeit": "11:04",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=664s",
+   "aussage": "Frühwarnsysteme verschaffen Unternehmen die nötige Zeit, um auf aufkommende Risiken zu reagieren."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 759,
+   "zeit": "12:39",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=759s",
+   "aussage": "Die für das Risikomanagement wichtigsten Daten liegen in vielen Unternehmen verteilt in Silos aus ERP-System, Excel-Listen und Papierakten vor."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 1062,
+   "zeit": "17:42",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1062s",
+   "aussage": "Ein konsolidiertes Reporting zeigt Bestellbedarf, auslaufende Lieferantenverträge und Krisenrisiko im zeitlichen Verlauf."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 1154,
+   "zeit": "19:14",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1154s",
+   "aussage": "Bei einer erkannten Materialunterdeckung generiert das System automatisch einen Bestellvorschlag samt Lieferantenliste mit individuellem Krisenrisiko-Score."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 1257,
+   "zeit": "20:57",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1257s",
+   "aussage": "Beim Einsatz automatisierter Bestellvorschläge soll der Mensch im Loop bleiben, um sein Erfahrungswissen weiter zu nutzen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 1929,
+   "zeit": "32:09",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1929s",
+   "aussage": "Nicht die Länge, sondern die Varianz der Durchlaufzeit zwischen Prozessschritten verursacht die größten Probleme in der Supply Chain."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 2310,
+   "zeit": "38:30",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2310s",
+   "aussage": "Bei KI-gestützten Bestellvorschlägen empfiehlt sich zunächst ein Man-in-the-Middle-Ansatz, bei dem Einkäufer die Vorschläge kontrollieren, bevor sie mehr Vertrauen fassen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 2808,
+   "zeit": "46:48",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2808s",
+   "aussage": "Für die Produkte, die 80 Prozent des Umsatzes ausmachen, sollten Unternehmen gezielt Dual- oder Second-Source-Strategien entwickeln, um Abhängigkeiten von einzelnen Lieferanten zu reduzieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s",
+   "aussage": "Gutes Forecasting auf Basis historischer Daten ermöglicht es, weniger totes Kapital in Lagern zu binden und die Supply Chain zu optimieren."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s",
+   "aussage": "Angesichts der Fortschritte der letzten Jahre wird diskutiert, ob der Mensch aus Planungs- und Supply-Chain-Prozessen komplett herausoptimiert und alles vollautomatisiert werden kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 189,
+   "zeit": "03:09",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=189s",
+   "aussage": "Weil sich die Produktion von Salatgurken anders als bei vielen anderen Produkten nicht einfach durch schnellere Produktionslinien steigern lässt, mussten isländische Großhändler zusätzliche Mengen in den Niederlanden einkaufen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 189,
+   "zeit": "03:09",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=189s",
+   "aussage": "Der beschriebene Mechanismus, bei dem ein kleiner Nachfrageimpuls sich entlang der Lieferkette immer weiter aufschaukelt, wird als Bullwhip-Effekt bezeichnet."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 281,
+   "zeit": "04:41",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s",
+   "aussage": "Nach Einschätzung des Redners ist eine vollständige Automatisierung von Planungs- und Supply-Chain-Prozessen nicht möglich, weil unvorhersehbare Ereignisse wie virale Trends menschliches Eingreifen erfordern."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:DFw664hd1IE",
+   "titel": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.355,
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE",
+   "sprungmarken": [
+    {
+     "label": "00:02",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2s",
+     "sekunde": 2
+    },
+    {
+     "label": "22:32",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1352s",
+     "sekunde": 1352
+    },
+    {
+     "label": "27:23",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1643s",
+     "sekunde": 1643
+    }
+   ]
+  },
+  {
+   "id": "yt:sq8AWk_yNWM",
+   "titel": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.25,
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "26:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1565s",
+     "sekunde": 1565
+    }
+   ]
+  },
+  {
+   "id": "page:strommix-story",
+   "titel": "Was kostet ein klimaneutrales Stromsystem?",
+   "datum": "2026-08-20",
+   "abdeckung": "nur-text",
+   "anteil": 0.062,
+   "url": "https://datenwgknowledgekitchen.com/strommix-story.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/strommix-story.html#:~:text=Gegenpositionen%2C%20die%20mitlaufen%20muessen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:whitepaper-strommix",
+   "titel": "Was braucht ein gesunder Strommix — und was kostet er?",
+   "datum": "2026-08-20",
+   "abdeckung": "nur-text",
+   "anteil": 0.061,
+   "url": "https://datenwgknowledgekitchen.com/whitepaper-strommix.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/whitepaper-strommix.html#:~:text=Modell-Limitationen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/whitepaper-strommix.html#:~:text=Dokumentierte%20Datenluecken",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/whitepaper-strommix.html#:~:text=7%20%C2%B7%20Quellenverzeichnis",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:s3CveEVoDvo",
+   "titel": "Von Patronen zu Prozessen (nur Ton)",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.048,
+   "url": "https://www.youtube.com/watch?v=s3CveEVoDvo",
+   "sprungmarken": [
+    {
+     "label": "01:25",
+     "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=85s",
+     "sekunde": 85
+    }
+   ]
+  },
+  {
+   "id": "yt:rrCi0lnGrCg",
+   "titel": "Mythos Data Vault und richtig große Modelle",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.045,
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
+   "sprungmarken": [
+    {
+     "label": "12:07",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=727s",
+     "sekunde": 727
+    }
+   ]
+  },
+  {
+   "id": "yt:6WhWLcuFvZE",
+   "titel": "Prinzipien oder Paragrafen",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.037,
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE",
+   "sprungmarken": [
+    {
+     "label": "13:05",
+     "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=785s",
+     "sekunde": 785
+    }
+   ]
+  },
+  {
+   "id": "yt:jETxUNQSl-w",
+   "titel": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.034,
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w",
+   "sprungmarken": [
+    {
+     "label": "18:11",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1091s",
+     "sekunde": 1091
+    }
+   ]
+  },
+  {
+   "id": "yt:-_4bfrjRCVo",
+   "titel": "Objektive Daten gibt es nicht",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.03,
+   "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo",
+   "sprungmarken": [
+    {
+     "label": "24:54",
+     "url": "https://www.youtube.com/watch?v=-_4bfrjRCVo&t=1494s",
+     "sekunde": 1494
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.004,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Zeit-Dimension%20%28Uhrzeit%29",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Asupply-chain",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Asupply-chain&f=topic%3Asupply-chain"
+}

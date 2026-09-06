@@ -1,0 +1,1367 @@
+{
+ "id": "tool:dax",
+ "name": "DAX",
+ "typ": "tool",
+ "slug": "dax",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 57,
+ "kernaussagen_gesamt": 40,
+ "mit_kernaussagen": 17,
+ "aliase": [
+  "Data Analysis Expressions"
+ ],
+ "einordnung": "Der Input Slicer bietet automatisch einen Anti-Filter wie 'enthält nicht', für den früher DAX-Workarounds nötig waren. Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte. Die neue DAX-Funktion TABLEOF liefert zu einem angegebenen Measure oder einer Spalte die zugehörige gesamte Tabelle zurück.",
+ "nachbarn": [
+  {
+   "id": "tool:field-parameters",
+   "name": "Field Parameters",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 5,
+   "beleg": "In diesem Fall wird jetzt eine Parametertabelle angelegt... die ist per DAX erstellt",
+   "datei": "field-parameters.md"
+  },
+  {
+   "id": "tool:azure-maps",
+   "name": "Azure Maps",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "Wenn ihr natürlich in euren Gebieten international arbeitet, habt ihr sowieso die Countryspalte mit drin. Dann braucht ihr die selbstverständlich nicht den DAX zu berechnen.",
+   "datei": "azure-maps.md"
+  },
+  {
+   "id": "tool:qlik",
+   "name": "Qlik",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "das war halt auch ganz cool, dass du mit diesem DAX viel mehr machen konntest aus meiner Sicht als in dieser Klicksprache mit Set Analysis",
+   "datei": "qlik.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 52,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 50,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 38,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 32,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:sternschema",
+   "name": "Sternschema",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 24,
+   "beleg": "",
+   "datei": "sternschema.md"
+  },
+  {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 22,
+   "beleg": "",
+   "datei": "power-query.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 19,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
+   "id": "tool:dax-studio",
+   "name": "DAX Studio",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 19,
+   "beleg": "",
+   "datei": "dax-studio.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 17,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 16,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "copilot.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 1529,
+   "zeit": "25:29",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1529s",
+   "aussage": "Bei HTML-Custom-Visuals in Power BI wird der HTML-Code in eine DAX-Formel geschrieben, die als Measure in das HTML-Visual gezogen wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 115,
+   "zeit": "01:55",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=115s",
+   "aussage": "Als Preview-Feature sollen DAX-berechnete Spalten künftig auch in Direct-Lake-Modellen anlegbar sein, aktuell ist die Option dort noch ausgeblendet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 115,
+   "zeit": "01:55",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=115s",
+   "aussage": "Die neue Benutzer-Awareness bei Spalten funktioniert bislang nur für DAX-berechnete Spalten, nicht für alle Spaltentypen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 178,
+   "zeit": "02:58",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s",
+   "aussage": "Mit der Benutzer-Awareness lässt sich die Darstellung einer Spalte an die Culture-Einstellung des jeweiligen Nutzers anpassen, etwa bei Zahlen- und Datumsformaten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 178,
+   "zeit": "02:58",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s",
+   "aussage": "Der Autor hält das Culture-Awareness-Feature für DAX-Spalten für das Update mit dem größten praktischen Impact in diesem Release."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 178,
+   "zeit": "02:58",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s",
+   "aussage": "Die Culture-Awareness-Funktion könnte künftig auch für Anwendungsfälle wie Währungsumrechnung oder mehrsprachige Produktnamen in Tabellen genutzt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 471,
+   "zeit": "07:51",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=471s",
+   "aussage": "Der Power BI Fixer bietet im Notebook eine alternative Oberfläche ähnlich Tabular Editor, um Measures und DAX-Ausdrücke direkt am Semantic Model zu bearbeiten und zu formatieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 757,
+   "zeit": "12:37",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=757s",
+   "aussage": "Die Funktion \"Fix IBCS Variance Chart\" des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 148,
+   "zeit": "02:28",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=148s",
+   "aussage": "Mit den Custom Totals lässt sich die Gesamtsumme einer Kennzahl (Measure Totals) individuell anders berechnen als die Summe der Einzelzeilen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 246,
+   "zeit": "04:06",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=246s",
+   "aussage": "Custom Totals sollten bei nicht-additiven Werten wie Prozenten oder Verhältnissen vorsichtig verwendet werden, weil eine einfache Summe hier oft nicht sinnvoll ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 246,
+   "zeit": "04:06",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=246s",
+   "aussage": "Hinter einem Custom Total steckt technisch eine visuelle Berechnung mit einem EXPAND ALL und einer Summe über die Zeilen, die sich öffnen und bearbeiten lässt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 282,
+   "zeit": "04:42",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=282s",
+   "aussage": "Über die DAX Query View ließ sich die KI triviale Measures für das Semantic Model anlegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 357,
+   "zeit": "05:57",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=357s",
+   "aussage": "Benutzerdefinierte DAX-Funktionen lassen sich jetzt auch über die grafische Oberfläche anlegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 357,
+   "zeit": "05:57",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=357s",
+   "aussage": "Vor der neuen GUI-Unterstützung konnten benutzerdefinierte DAX-Funktionen nur über die DAX Query View oder über TMDL angelegt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 71,
+   "zeit": "01:11",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=71s",
+   "aussage": "Power BI erzeugt beim Anlegen eines Feldparameters automatisch eine per DAX erstellte Parametertabelle sowie einen passenden Slicer."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Februar 2026",
+   "dokument_id": "yt:u-lgbDfIlLg",
+   "sekunde": 81,
+   "zeit": "01:21",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=81s",
+   "aussage": "Der Input Slicer bietet automatisch einen Anti-Filter wie 'enthält nicht', für den früher DAX-Workarounds nötig waren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Februar 2026",
+   "dokument_id": "yt:u-lgbDfIlLg",
+   "sekunde": 138,
+   "zeit": "02:18",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
+   "aussage": "Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update Februar 2026",
+   "dokument_id": "yt:u-lgbDfIlLg",
+   "sekunde": 138,
+   "zeit": "02:18",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
+   "aussage": "NAMEOF wird laut dem Sprecher besonders in Calculation Groups bei verschachtelten Bedingungen nützlich."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Februar 2026",
+   "dokument_id": "yt:u-lgbDfIlLg",
+   "sekunde": 138,
+   "zeit": "02:18",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
+   "aussage": "Die neue DAX-Funktion TABLEOF liefert zu einem angegebenen Measure oder einer Spalte die zugehörige gesamte Tabelle zurück."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update Februar 2026",
+   "dokument_id": "yt:u-lgbDfIlLg",
+   "sekunde": 138,
+   "zeit": "02:18",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
+   "aussage": "Der Sprecher erwartet, dass die neuen DAX-Funktionen NAMEOF und TABLEOF etliche bisherige Workarounds überflüssig machen werden."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 1269,
+   "zeit": "21:09",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=1269s",
+   "aussage": "Bei zwei übereinandergelegten Visuals mit unterschiedlichen Zeiträumen muss beachtet werden, dass ein Measure für bestimmte Zeitpunkte einen Blankwert liefern kann, wodurch die Achsendarstellung zwischen den Visuals inkonsistent wird."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 1452,
+   "zeit": "24:12",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=1452s",
+   "aussage": "Field Parameters lassen sich um eine zusätzliche Spalte erweitern, die zusammengehörige Measures wie \"Quantity\" und \"Amount\" zu Kategorien gruppiert, sodass mehrere Measures gemeinsam über eine Filterauswahl gesteuert werden können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 541,
+   "zeit": "09:01",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=541s",
+   "aussage": "Für Power BI gibt es inzwischen einen offiziellen First-Party-MCP-Server, mit dem sich Measures direkt im Bericht ansehen und optimieren lassen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 1150,
+   "zeit": "19:10",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1150s",
+   "aussage": "Fehlt in den Quelldaten eine Länderspalte, kann eine berechnete DAX-Spalte sicherstellen, dass Azure Maps die Orte korrekt in Deutschland verortet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 1248,
+   "zeit": "20:48",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1248s",
+   "aussage": "Mit der DAX-Funktion INFO.VIEW.RELATIONSHIPS lassen sich die Beziehungen eines Datenmodells als Tabelle ausgeben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 1441,
+   "zeit": "24:01",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1441s",
+   "aussage": "In Power BI Desktop lassen sich Berechnungen als berechnete Spalten, als Measures oder als Visual Calculations erstellen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 2190,
+   "zeit": "36:30",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2190s",
+   "aussage": "Die DAX-Funktion TOTALYTD liefert die laufende Summe seit Jahresanfang."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 2604,
+   "zeit": "43:24",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2604s",
+   "aussage": "Die DAX-Funktion SUBSTITUTE ersetzt einen Text durch einen anderen, ohne dass dafür eine Zeichenlänge angegeben werden muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 5633,
+   "zeit": "1:33:53",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=5633s",
+   "aussage": "Es gibt insgesamt neun DAX-Funktionen, deren Name das Wort COUNT enthält."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 668,
+   "zeit": "11:08",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=668s",
+   "aussage": "Es wird empfohlen, eine zentrale, separate Datumstabelle im Modell zu führen, um Zeitlogiken einheitlich abbilden zu können."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 762,
+   "zeit": "12:42",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=762s",
+   "aussage": "Explizite Measures werden gegenüber impliziten, automatisch generierten Summen empfohlen, damit Kennzahlen auch für externe Werkzeuge verfügbar und einheitlich formatiert sind."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 1648,
+   "zeit": "27:28",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=1648s",
+   "aussage": "Sobald ein Modell mehr als eine Faktentabelle mit unterschiedlichen Dimensionen oder Granularitäten enthält, werden die benötigten DAX-Formeln in einer One-Big-Table deutlich komplexer als im Sternschema."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 2139,
+   "zeit": "35:39",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=2139s",
+   "aussage": "Wird eine Datumsspalte nur zur Anzeige auf Monatsebene formatiert, bleiben im Hintergrund weiterhin die einzelnen Tageswerte bestehen, was bei DAX-Berechnungen zu unerwarteten Ergebnissen führen kann."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 3818,
+   "zeit": "1:03:38",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=3818s",
+   "aussage": "Anwender mit wenig DAX-Erfahrung erhalten in einem One-Big-Table-Modell häufiger automatisch die von ihnen erwarteten Ergebnisse als in einem dimensionalen Modell."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 3732,
+   "zeit": "1:02:12",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3732s",
+   "aussage": "Neue wiederverwendbare DAX-Funktionen lassen sich derzeit nicht direkt in der Power-BI-Desktop-Oberfläche erstellen oder bearbeiten, sondern nur im DAX-Abfrageeditor oder über die TMDL-Ansicht, während Desktop sie nur lesend als vorhandene Funktionen mit Lösch- und Umbenennen-Option anzeigt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 1102,
+   "zeit": "18:22",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1102s",
+   "aussage": "Mit DAX ließen sich Lagerbestände zu einem bestimmten Zeitpunkt (Point in Time) einfacher berechnen als mit Set Analysis in Qlik."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 135,
+   "zeit": "02:15",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=135s",
+   "aussage": "Wiederverwertbare Berechnungslogik sollte dauerhaft ins Semantic Model statt in Visual Calculations gepackt werden, da Visual Calculations eher ein Shortcut sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 437,
+   "zeit": "07:17",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=437s",
+   "aussage": "Power BI kann über DAX-INFO-Funktionen bereits viele Metadaten direkt aus dem Modell auslesen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 810,
+   "zeit": "13:30",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s",
+   "aussage": "Fehlende Beschreibungen von Measures in Power BI führen dazu, dass verschiedene Personen dieselbe Kennzahl unterschiedlich benennen und berechnen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 1042,
+   "zeit": "17:22",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1042s",
+   "aussage": "Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:LQQEn7IOb7w",
+   "titel": "Expanded Tables in DAX verstehen – Beziehungen & Filter erklärt | Power BI Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.5,
+   "url": "https://www.youtube.com/watch?v=LQQEn7IOb7w",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=LQQEn7IOb7w&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "04:04",
+     "url": "https://www.youtube.com/watch?v=LQQEn7IOb7w&t=244s",
+     "sekunde": 244
+    },
+    {
+     "label": "05:40",
+     "url": "https://www.youtube.com/watch?v=LQQEn7IOb7w&t=340s",
+     "sekunde": 340
+    }
+   ]
+  },
+  {
+   "id": "yt:u-lgbDfIlLg",
+   "titel": "Power BI Update Februar 2026",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.5,
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg",
+   "sprungmarken": [
+    {
+     "label": "01:21",
+     "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=81s",
+     "sekunde": 81
+    },
+    {
+     "label": "02:18",
+     "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
+     "sekunde": 138
+    }
+   ]
+  },
+  {
+   "id": "yt:6gQiIbyhWEc",
+   "titel": "Power BI Update September 2025",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.417,
+   "url": "https://www.youtube.com/watch?v=6gQiIbyhWEc",
+   "sprungmarken": [
+    {
+     "label": "01:47",
+     "url": "https://www.youtube.com/watch?v=6gQiIbyhWEc&t=107s",
+     "sekunde": 107
+    },
+    {
+     "label": "02:45",
+     "url": "https://www.youtube.com/watch?v=6gQiIbyhWEc&t=165s",
+     "sekunde": 165
+    },
+    {
+     "label": "07:23",
+     "url": "https://www.youtube.com/watch?v=6gQiIbyhWEc&t=443s",
+     "sekunde": 443
+    }
+   ]
+  },
+  {
+   "id": "yt:fbpu8zLG3cc",
+   "titel": "Power BI Update April 2026",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.286,
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc",
+   "sprungmarken": [
+    {
+     "label": "01:55",
+     "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=115s",
+     "sekunde": 115
+    },
+    {
+     "label": "02:58",
+     "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s",
+     "sekunde": 178
+    }
+   ]
+  },
+  {
+   "id": "yt:lT-C7fPzxj4",
+   "titel": "Power BI Update April 2025",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.25,
+   "url": "https://www.youtube.com/watch?v=lT-C7fPzxj4",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=lT-C7fPzxj4&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.201,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Context%20Transition",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Klassifizierungen%20ableiten",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=05%20%C2%B7%20DAX%20%2A%C2%B7%20Formelsprache%2A",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:Z8vpSSOmG24",
+   "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "datum": "2022-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
+   "sprungmarken": [
+    {
+     "label": "18:05",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1085s",
+     "sekunde": 1085
+    },
+    {
+     "label": "21:06",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1266s",
+     "sekunde": 1266
+    },
+    {
+     "label": "24:07",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1447s",
+     "sekunde": 1447
+    }
+   ]
+  },
+  {
+   "id": "yt:UxE0DPnLgIg",
+   "titel": "Visual Analytics with Power BI",
+   "datum": "2021-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=UxE0DPnLgIg",
+   "sprungmarken": [
+    {
+     "label": "09:44",
+     "url": "https://www.youtube.com/watch?v=UxE0DPnLgIg&t=584s",
+     "sekunde": 584
+    },
+    {
+     "label": "21:54",
+     "url": "https://www.youtube.com/watch?v=UxE0DPnLgIg&t=1314s",
+     "sekunde": 1314
+    },
+    {
+     "label": "34:02",
+     "url": "https://www.youtube.com/watch?v=UxE0DPnLgIg&t=2042s",
+     "sekunde": 2042
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart",
+   "titel": "ChartKitchen byDatenWG — Schnellstart",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart_en",
+   "titel": "ChartKitchen byDatenWG — Quick Start",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:LnNoXBIG7Lc",
+   "titel": "Power BI Update Juni 2025",
+   "datum": "2025-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=LnNoXBIG7Lc",
+   "sprungmarken": [
+    {
+     "label": "02:30",
+     "url": "https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=150s",
+     "sekunde": 150
+    }
+   ]
+  },
+  {
+   "id": "yt:LUrL8A5lNgI",
+   "titel": "BI Thinkers Talk nr.71",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.183,
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI",
+   "sprungmarken": [
+    {
+     "label": "19:17",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1157s",
+     "sekunde": 1157
+    },
+    {
+     "label": "39:38",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2378s",
+     "sekunde": 2378
+    },
+    {
+     "label": "41:40",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2500s",
+     "sekunde": 2500
+    }
+   ]
+  },
+  {
+   "id": "yt:ASwcPvbMRZc",
+   "titel": "Power BI Update März 2026",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.182,
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc",
+   "sprungmarken": [
+    {
+     "label": "05:57",
+     "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=357s",
+     "sekunde": 357
+    },
+    {
+     "label": "06:21",
+     "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=381s",
+     "sekunde": 381
+    }
+   ]
+  },
+  {
+   "id": "yt:183uLZ3GYDo",
+   "titel": "Data Binning and Lorenz Curve in DAX | Alberto Ferrari & Michael Tenner, Berlin Power BI User Group",
+   "datum": "2023-01-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.16,
+   "url": "https://www.youtube.com/watch?v=183uLZ3GYDo",
+   "sprungmarken": [
+    {
+     "label": "11:33",
+     "url": "https://www.youtube.com/watch?v=183uLZ3GYDo&t=693s",
+     "sekunde": 693
+    },
+    {
+     "label": "13:05",
+     "url": "https://www.youtube.com/watch?v=183uLZ3GYDo&t=785s",
+     "sekunde": 785
+    },
+    {
+     "label": "1:11:45",
+     "url": "https://www.youtube.com/watch?v=183uLZ3GYDo&t=4305s",
+     "sekunde": 4305
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.158,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "18:22",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1102s",
+     "sekunde": 1102
+    },
+    {
+     "label": "56:52",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3412s",
+     "sekunde": 3412
+    },
+    {
+     "label": "1:05:00",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3900s",
+     "sekunde": 3900
+    }
+   ]
+  },
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.154,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "20:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1205s",
+     "sekunde": 1205
+    },
+    {
+     "label": "29:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1745s",
+     "sekunde": 1745
+    }
+   ]
+  },
+  {
+   "id": "yt:iinfiHxznOU",
+   "titel": "Unboxing MCP Server for Power BI Modelling",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.15,
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
+   "sprungmarken": [
+    {
+     "label": "04:39",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=279s",
+     "sekunde": 279
+    },
+    {
+     "label": "44:39",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2679s",
+     "sekunde": 2679
+    },
+    {
+     "label": "57:52",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=3472s",
+     "sekunde": 3472
+    }
+   ]
+  },
+  {
+   "id": "yt:KMk1k5uCLZU",
+   "titel": "Daten-WG Thinkers Talk n61",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
+   "sprungmarken": [
+    {
+     "label": "33:31",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2011s",
+     "sekunde": 2011
+    },
+    {
+     "label": "38:13",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=2293s",
+     "sekunde": 2293
+    },
+    {
+     "label": "51:06",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=3066s",
+     "sekunde": 3066
+    }
+   ]
+  },
+  {
+   "id": "yt:bt81POE-9Ig",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.14,
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
+   "sprungmarken": [
+    {
+     "label": "39:22",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2362s",
+     "sekunde": 2362
+    },
+    {
+     "label": "43:00",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2580s",
+     "sekunde": 2580
+    },
+    {
+     "label": "46:12",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2772s",
+     "sekunde": 2772
+    }
+   ]
+  },
+  {
+   "id": "yt:mUALlPmGcEk",
+   "titel": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "datum": "2025-11-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.137,
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "27:28",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=1648s",
+     "sekunde": 1648
+    },
+    {
+     "label": "1:17:07",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=4627s",
+     "sekunde": 4627
+    }
+   ]
+  },
+  {
+   "id": "yt:TkxwcAyBGUM",
+   "titel": "Power BI Update Juli 2025",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM",
+   "sprungmarken": [
+    {
+     "label": "03:39",
+     "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM&t=219s",
+     "sekunde": 219
+    }
+   ]
+  },
+  {
+   "id": "yt:r416vanitYw",
+   "titel": "BI Thinkers Talk nr.69",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.116,
+   "url": "https://www.youtube.com/watch?v=r416vanitYw",
+   "sprungmarken": [
+    {
+     "label": "20:00",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=1200s",
+     "sekunde": 1200
+    },
+    {
+     "label": "38:05",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=2285s",
+     "sekunde": 2285
+    },
+    {
+     "label": "44:27",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=2667s",
+     "sekunde": 2667
+    }
+   ]
+  },
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.108,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:5xB_oKdvAwQ",
+   "titel": "Power BI Update Juni 2026",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=5xB_oKdvAwQ",
+   "sprungmarken": [
+    {
+     "label": "04:28",
+     "url": "https://www.youtube.com/watch?v=5xB_oKdvAwQ&t=268s",
+     "sekunde": 268
+    }
+   ]
+  },
+  {
+   "id": "yt:v8dvnqqa7f8",
+   "titel": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8",
+   "sprungmarken": [
+    {
+     "label": "01:11",
+     "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=71s",
+     "sekunde": 71
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.098,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "06:09",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=369s",
+     "sekunde": 369
+    },
+    {
+     "label": "08:05",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=485s",
+     "sekunde": 485
+    },
+    {
+     "label": "09:46",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=586s",
+     "sekunde": 586
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.097,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "30:19",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1819s",
+     "sekunde": 1819
+    },
+    {
+     "label": "32:00",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1920s",
+     "sekunde": 1920
+    },
+    {
+     "label": "33:36",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2016s",
+     "sekunde": 2016
+    }
+   ]
+  },
+  {
+   "id": "page:zugfahrten-europa",
+   "titel": "Die Schweiz faehrt Europa davon — Bahnnutzung 2024",
+   "datum": "2026-06-05",
+   "abdeckung": "nur-text",
+   "anteil": 0.091,
+   "url": "https://datenwgknowledgekitchen.com/zugfahrten-infografik.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/zugfahrten-infografik.html#:~:text=Br%C3%BCcke%20zu%20Power%20BI%3A%20%2Aals%20DAX-HTML-Visual%2A",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:mlkP-6i5Kq8",
+   "titel": "BI Thinkers Talk nr.76",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.088,
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8",
+   "sprungmarken": [
+    {
+     "label": "01:34",
+     "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=94s",
+     "sekunde": 94
+    },
+    {
+     "label": "25:29",
+     "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1529s",
+     "sekunde": 1529
+    },
+    {
+     "label": "45:45",
+     "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=2745s",
+     "sekunde": 2745
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.086,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "04:30",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=270s",
+     "sekunde": 270
+    },
+    {
+     "label": "06:04",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=364s",
+     "sekunde": 364
+    },
+    {
+     "label": "07:40",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=460s",
+     "sekunde": 460
+    }
+   ]
+  },
+  {
+   "id": "yt:9VX4-lLa0EI",
+   "titel": "BI Thinkers Talk nr.63",
+   "datum": "2025-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.083,
+   "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI",
+   "sprungmarken": [
+    {
+     "label": "08:31",
+     "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI&t=511s",
+     "sekunde": 511
+    },
+    {
+     "label": "13:33",
+     "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI&t=813s",
+     "sekunde": 813
+    },
+    {
+     "label": "38:54",
+     "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI&t=2334s",
+     "sekunde": 2334
+    }
+   ]
+  },
+  {
+   "id": "yt:iTK3xUd8V5I",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part3",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=iTK3xUd8V5I",
+   "sprungmarken": [
+    {
+     "label": "16:22",
+     "url": "https://www.youtube.com/watch?v=iTK3xUd8V5I&t=982s",
+     "sekunde": 982
+    },
+    {
+     "label": "19:25",
+     "url": "https://www.youtube.com/watch?v=iTK3xUd8V5I&t=1165s",
+     "sekunde": 1165
+    },
+    {
+     "label": "30:40",
+     "url": "https://www.youtube.com/watch?v=iTK3xUd8V5I&t=1840s",
+     "sekunde": 1840
+    }
+   ]
+  },
+  {
+   "id": "yt:hbUYMyqb6r8",
+   "titel": "Denken in Tabellen",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8",
+   "sprungmarken": [
+    {
+     "label": "15:33",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=933s",
+     "sekunde": 933
+    },
+    {
+     "label": "18:55",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1135s",
+     "sekunde": 1135
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.075,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "07:51",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=471s",
+     "sekunde": 471
+    },
+    {
+     "label": "09:22",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=562s",
+     "sekunde": 562
+    },
+    {
+     "label": "25:18",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1518s",
+     "sekunde": 1518
+    }
+   ]
+  },
+  {
+   "id": "yt:z4ZeHPzIeeU",
+   "titel": "Wie war die Daten-WG? · Im Gespräch mit Artur König",
+   "datum": "2025-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU",
+   "sprungmarken": [
+    {
+     "label": "25:27",
+     "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1527s",
+     "sekunde": 1527
+    }
+   ]
+  },
+  {
+   "id": "yt:UUlPoJOhco8",
+   "titel": "Metadaten als Superkraft",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8",
+   "sprungmarken": [
+    {
+     "label": "11:57",
+     "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=717s",
+     "sekunde": 717
+    }
+   ]
+  },
+  {
+   "id": "yt:EVsJ6zyGUWc",
+   "titel": "Was ist Self-Service und warum ist das so schwer?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc",
+   "sprungmarken": [
+    {
+     "label": "05:13",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=313s",
+     "sekunde": 313
+    },
+    {
+     "label": "17:22",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1042s",
+     "sekunde": 1042
+    }
+   ]
+  },
+  {
+   "id": "yt:UnW4wHhw_IY",
+   "titel": "Daten-WG Deep Dive Financial Reporting pt.4",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY",
+   "sprungmarken": [
+    {
+     "label": "36:36",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=2196s",
+     "sekunde": 2196
+    },
+    {
+     "label": "55:29",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=3329s",
+     "sekunde": 3329
+    }
+   ]
+  },
+  {
+   "id": "yt:e50qKdVn-24",
+   "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
+   "sprungmarken": [
+    {
+     "label": "07:02",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=422s",
+     "sekunde": 422
+    }
+   ]
+  },
+  {
+   "id": "yt:vd1r02bj9Qk",
+   "titel": "Power BI vs. Qlik",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk",
+   "sprungmarken": [
+    {
+     "label": "30:45",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1845s",
+     "sekunde": 1845
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Adax",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Adax&f=tool%3Adax"
+}

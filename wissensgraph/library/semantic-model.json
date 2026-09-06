@@ -1,0 +1,1117 @@
+{
+ "id": "tool:semantic-model",
+ "name": "Semantic Model",
+ "typ": "tool",
+ "slug": "semantic-model",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 30,
+ "kernaussagen_gesamt": 39,
+ "mit_kernaussagen": 12,
+ "aliase": [
+  "Semantikmodell",
+  "Semantic Models",
+  "Dataset",
+  "Datasets",
+  "semantisches Modell"
+ ],
+ "einordnung": "Über die DAX Query View ließ sich die KI triviale Measures für das Semantic Model anlegen. Zurückgeschriebene Planungswerte müssen erst wieder in das Semantic Model integriert werden, um sie im Modell nahezu in Echtzeit nutzen zu können. Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird.",
+ "nachbarn": [
+  {
+   "id": "tool:data-agent",
+   "name": "Data Agent",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "Data Agents klassische Fabric Data Agents ... basierend auf den bereits bestehenden Möglichkeiten wie semantischen Modellen z.B. an der Stelle als Kernfeature zu arbeiten",
+   "datei": "data-agent.md"
+  },
+  {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 9,
+   "beleg": "muss ich ja schon die Zieltabellen einbinden und Bedarf auch ein bisschen mehr, also Datenmodellierung",
+   "datei": "planung.md"
+  },
+  {
+   "id": "topic:ibcs",
+   "name": "IBCS",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "wir wollen eigentlich eine Berichtsänderung, aber dazu braucht Modeländerung",
+   "datei": "ibcs.md"
+  },
+  {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 4,
+   "beleg": "es gibt aber diese Einstellung für den Copilot nur an dem Dataset und von da aus wird's weiter vererbt",
+   "datei": "copilot.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 46,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 34,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 27,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 21,
+   "beleg": "",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 18,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 18,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 15,
+   "beleg": "",
+   "datei": "refresh.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 188,
+   "zeit": "03:08",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=188s",
+   "aussage": "Alex hat den \"Power BI Fixer\" entwickelt, ein Notebook-basiertes Tool zum Analysieren und Reparieren von Power-BI-Semantikmodellen und -Berichten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 379,
+   "zeit": "06:19",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=379s",
+   "aussage": "Der Power BI Fixer basiert auf einem Fork und übernimmt Komponenten wie Best Practice Analyser, Memory Analyser und Perspective Editor von Michael Kowalskis Semantic-Link-Labs-Arbeit."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 471,
+   "zeit": "07:51",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=471s",
+   "aussage": "Der Power BI Fixer bietet im Notebook eine alternative Oberfläche ähnlich Tabular Editor, um Measures und DAX-Ausdrücke direkt am Semantic Model zu bearbeiten und zu formatieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 658,
+   "zeit": "10:58",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=658s",
+   "aussage": "Der Fixer erkennt beim Hinzufügen einer Kalendertabelle automatisch, ob im Modell bereits eine vorhanden ist, und verhindert dadurch Duplikate."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 757,
+   "zeit": "12:37",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=757s",
+   "aussage": "Die Funktion \"Fix IBCS Variance Chart\" des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 2180,
+   "zeit": "36:20",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2180s",
+   "aussage": "Der Power BI Fixer kann den Best Practice Analyser auf dem Semantic Model ausführen und gefundene Verstöße direkt automatisiert fixen lassen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 2180,
+   "zeit": "36:20",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2180s",
+   "aussage": "Ein Perspective Editor und ein Translation Editor stehen in Power BI Desktop nativ nicht zur Verfügung und erfordern sonst Drittanbieter-Tools wie Tabular Editor."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 2481,
+   "zeit": "41:21",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2481s",
+   "aussage": "Perspektiven in Analysis Services und Power BI bilden keine echte Sicherheitsgrenze ab, sodass Nutzer trotz eingeschränkter Perspektive weiterhin das komplette zugrunde liegende Modell nutzen können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 2671,
+   "zeit": "44:31",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2671s",
+   "aussage": "Der Fixer erlaubt es, einzelne Tabellen oder Partitionen eines Semantic Models gezielt zu aktualisieren, statt das gesamte Modell neu zu laden."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 186,
+   "zeit": "03:06",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=186s",
+   "aussage": "Die von der KI erstellten Tabellenbeziehungen waren automatisch bidirektional und mussten manuell korrigiert werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 282,
+   "zeit": "04:42",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=282s",
+   "aussage": "Über die DAX Query View ließ sich die KI triviale Measures für das Semantic Model anlegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 965,
+   "zeit": "16:05",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=965s",
+   "aussage": "Nach einer Änderung der Copilot-Freigabeeinstellungen für ein Modell kann es einige Zeit dauern, bis die neuen Berechtigungen greifen, weil zunächst der Cache geleert werden muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1459,
+   "zeit": "24:19",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1459s",
+   "aussage": "Die Berechtigung für den Zugriff von Copilot wird zentral am semantischen Modell gesetzt und von dort automatisch an Berichte und Apps vererbt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1647,
+   "zeit": "27:27",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1647s",
+   "aussage": "Das Explore-Feature ist nicht an die Build-Permission gekoppelt, sodass darüber Inhalte aus dem semantischen Modell zugänglich sein können, die im Bericht selbst nicht sichtbar sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 3222,
+   "zeit": "53:42",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3222s",
+   "aussage": "Zurückgeschriebene Planungswerte müssen erst wieder in das Semantic Model integriert werden, um sie im Modell nahezu in Echtzeit nutzen zu können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 4728,
+   "zeit": "1:18:48",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4728s",
+   "aussage": "Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 2144,
+   "zeit": "35:44",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2144s",
+   "aussage": "Bei einem Direct-Lake-Modell bleibt das Semantic Model nach einem Deployment über eine Deployment Pipeline weiterhin mit dem Lakehouse der Testumgebung verbunden, die Datenquelle wird also nicht automatisch auf die Zielumgebung umgehängt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 2439,
+   "zeit": "40:39",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2439s",
+   "aussage": "Eine Monitoring-Analyse zeigte, dass über zwei Drittel der Last auf einem produktiven Direct-Lake-Semantic-Model von Entwicklern in Power BI Desktop stammten und nicht von den eigentlichen Report-Nutzern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 2913,
+   "zeit": "48:33",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2913s",
+   "aussage": "In der Power BI Service Web-Oberfläche gibt es aktuell keine Möglichkeit, die Datenquelle eines Reports direkt umzuhängen; das lässt sich nur nach dem Download im Power BI Desktop ändern."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 3024,
+   "zeit": "50:24",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3024s",
+   "aussage": "Als Alternative zum manuellen Umbinden über Power BI Desktop wird im Gespräch erwähnt, dass sich Reports auch automatisiert per Notebook mit Semantic Link umbinden lassen könnten."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 3124,
+   "zeit": "52:04",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3124s",
+   "aussage": "Ein im Power BI Service umgebundenes Semantic Model eines Reports wird bei einem erneuten Deployment über die Deployment Pipeline wieder auf die ursprüngliche Testquelle zurückgesetzt, sodass die Umbindung nach jedem Deployment wiederholt werden muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 532,
+   "zeit": "08:52",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=532s",
+   "aussage": "Beide Tools besitzen eine semantische Schicht mit Kennzahlen (KPIs bzw. Measures), die sie von reinen Tabellen- oder Skript-Analysen wie Excel, Python oder R unterscheidet."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 864,
+   "zeit": "14:24",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=864s",
+   "aussage": "Arthur sieht die Stärke von Power BI in der flexiblen semantischen Modellierung und dem einfachen Wechsel zwischen Frontend und Backend."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 1081,
+   "zeit": "18:01",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1081s",
+   "aussage": "Für Self-Service empfiehlt Oliver ein vorbereitetes Sandkasten-Modell mit fertigen Measures und Dimensionen, das rund 80 bis 90 Prozent der Nutzeranfragen abdeckt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 2119,
+   "zeit": "35:19",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2119s",
+   "aussage": "Fabric Data Agents nutzen bereits bestehende semantische Modelle als Kernfeature für ihre Funktionsweise."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 2742,
+   "zeit": "45:42",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2742s",
+   "aussage": "Ontologien lassen sich direkt aus bestehenden semantischen Modellen erstellen, um vorhandenes Modellwissen wiederzuverwenden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 2835,
+   "zeit": "47:15",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2835s",
+   "aussage": "Für den Einstieg in Fabric IQ empfiehlt Gabi, zunächst aus einem bereits gut designten und bekannten semantischen Modell testweise eine Ontologie zu erstellen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 1916,
+   "zeit": "31:56",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1916s",
+   "aussage": "Spaltenbeschreibungen lassen sich in Power BI sowohl in der Modellansicht als auch in der TMDL-Ansicht hinterlegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 2007,
+   "zeit": "33:27",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2007s",
+   "aussage": "Ein KI-Coding-Assistent kann direkt in einem Power-BI-Semantikmodell Measures schreiben und eine neue Tabellenstruktur anlegen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 2896,
+   "zeit": "48:16",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2896s",
+   "aussage": "Ein per MCP an ein Power-BI-Modell angebundener KI-Assistent kann laut den Sprechern nur Elemente verändern, die im TMDL-Modell abgebildet sind, nicht jedoch Inhalte im Report-Frontend."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 296,
+   "zeit": "04:56",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=296s",
+   "aussage": "Beim separaten Hochladen des semantischen Modells über die Fabric-Erweiterung werden die Daten nicht mitübertragen, sodass der Refresh anschließend im Power-BI-Service erfolgen muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 594,
+   "zeit": "09:54",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=594s",
+   "aussage": "In einer Power-BI-Projektdatei können mehrere Report-Verzeichnisse auf dasselbe semantische Modell zeigen, und Berichte lassen sich auch in einem anderen Workspace deployen als das zugehörige Modell."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 791,
+   "zeit": "13:11",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=791s",
+   "aussage": "Power BI Desktop wurde so gehärtet, dass es Codesegmente von Drittanbieter-Tools, die es selbst nicht versteht, ignoriert, statt wie früher etwa bei manuellen Partitionsdefinitionen mit einem Fehler abzubrechen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1068,
+   "zeit": "17:48",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1068s",
+   "aussage": "Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1377,
+   "zeit": "22:57",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1377s",
+   "aussage": "Rui Romano zeigte auf der FabCon, wie ein MCP-Server zusammen mit selbst geschriebenen Instruktions-Dokumenten genutzt wird, um per KI-Agent automatisch ein semantisches Modell samt Bericht generieren zu lassen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 4008,
+   "zeit": "1:06:48",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4008s",
+   "aussage": "Ein Teilnehmer empfiehlt, die per INFO-Funktionen abrufbaren Metadaten eines Semantic Models an eine KI zu übergeben, um datenschutzkonform bessere Measure-Vorschläge zu erhalten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 3653,
+   "zeit": "1:00:53",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3653s",
+   "aussage": "Beim Auslösen der Datenfunktion liest das semantische Modell offenbar alle Tabellen neu, nicht nur die betroffene, unabhängig vom Speichermodus."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 135,
+   "zeit": "02:15",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=135s",
+   "aussage": "Wiederverwertbare Berechnungslogik sollte dauerhaft ins Semantic Model statt in Visual Calculations gepackt werden, da Visual Calculations eher ein Shortcut sind."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1599,
+   "zeit": "26:39",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1599s",
+   "aussage": "Fabric schafft laut Artur unternehmensweite Transparenz, weil zentrale Experten dadurch mehrfach duplizierte semantische Modelle erkennen können."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:GKLxM3317Xk",
+   "titel": "So hackst du einen Power BI Bericht | Power BI Tutorial",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.286,
+   "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=GKLxM3317Xk",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:xCzKEIB4W5I",
+   "titel": "Fabric Planning unboxing",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.214,
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I",
+   "sprungmarken": [
+    {
+     "label": "10:52",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=652s",
+     "sekunde": 652
+    },
+    {
+     "label": "20:19",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1219s",
+     "sekunde": 1219
+    },
+    {
+     "label": "34:04",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2044s",
+     "sekunde": 2044
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.208,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "13:37",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s",
+     "sekunde": 817
+    },
+    {
+     "label": "18:22",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1102s",
+     "sekunde": 1102
+    },
+    {
+     "label": "19:55",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1195s",
+     "sekunde": 1195
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.147,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "18:34",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1114s",
+     "sekunde": 1114
+    },
+    {
+     "label": "21:35",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1295s",
+     "sekunde": 1295
+    },
+    {
+     "label": "22:14",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1334s",
+     "sekunde": 1334
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.106,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "04:56",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=296s",
+     "sekunde": 296
+    },
+    {
+     "label": "19:28",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1168s",
+     "sekunde": 1168
+    },
+    {
+     "label": "21:03",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1263s",
+     "sekunde": 1263
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.101,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=03%20%C2%B7%20Semantische%20Modelle%20%26%20%2ADirect%20Lake%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Einstellungen%20pr%C3%BCfen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Delta-Hygiene%20f%C3%BCr%20Direct%20Lake",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:YzfcMurbWNc",
+   "titel": "Power BI-Teams werden Fabric-Datendienstleister",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.091,
+   "url": "https://www.youtube.com/watch?v=YzfcMurbWNc",
+   "sprungmarken": [
+    {
+     "label": "05:02",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=302s",
+     "sekunde": 302
+    },
+    {
+     "label": "22:11",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=1331s",
+     "sekunde": 1331
+    }
+   ]
+  },
+  {
+   "id": "yt:Wwvhv8WA2Qc",
+   "titel": "BI Thinkers Talk Nr.62",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc",
+   "sprungmarken": [
+    {
+     "label": "51:02",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3062s",
+     "sekunde": 3062
+    },
+    {
+     "label": "1:00:53",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3653s",
+     "sekunde": 3653
+    },
+    {
+     "label": "1:02:29",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3749s",
+     "sekunde": 3749
+    }
+   ]
+  },
+  {
+   "id": "yt:aYHk_V8n_CE",
+   "titel": "Daten-WG Special: Power BI vs. Qlik",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE",
+   "sprungmarken": [
+    {
+     "label": "27:12",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=1632s",
+     "sekunde": 1632
+    },
+    {
+     "label": "32:07",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=1927s",
+     "sekunde": 1927
+    },
+    {
+     "label": "33:59",
+     "url": "https://www.youtube.com/watch?v=aYHk_V8n_CE&t=2039s",
+     "sekunde": 2039
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.073,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "02:59",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=179s",
+     "sekunde": 179
+    },
+    {
+     "label": "40:16",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2416s",
+     "sekunde": 2416
+    },
+    {
+     "label": "43:30",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2610s",
+     "sekunde": 2610
+    }
+   ]
+  },
+  {
+   "id": "yt:zkfdfc5fo-E",
+   "titel": "Power BI Update Mai 2025",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E",
+   "sprungmarken": [
+    {
+     "label": "07:46",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=466s",
+     "sekunde": 466
+    }
+   ]
+  },
+  {
+   "id": "yt:GWCHNmLs72M",
+   "titel": "Power BI Update August 2026",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=GWCHNmLs72M",
+   "sprungmarken": [
+    {
+     "label": "03:51",
+     "url": "https://www.youtube.com/watch?v=GWCHNmLs72M&t=231s",
+     "sekunde": 231
+    }
+   ]
+  },
+  {
+   "id": "yt:c-LWoo-O5PQ",
+   "titel": "SharePoint direkt in Microsoft Fabric nutzen | Lakehouse, Direct Lake & Power BI",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=c-LWoo-O5PQ",
+   "sprungmarken": [
+    {
+     "label": "09:20",
+     "url": "https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=560s",
+     "sekunde": 560
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.066,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Auto-Binding",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wann%20lohnt%20sich%20ein%20Dataflow%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20nur%20im%20Service%20geht",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:m3xNYfVih0Q",
+   "titel": "Starting with Microsft Fabric the Skills you need",
+   "datum": "2024-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.065,
+   "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q",
+   "sprungmarken": [
+    {
+     "label": "36:48",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2208s",
+     "sekunde": 2208
+    },
+    {
+     "label": "38:43",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=2323s",
+     "sekunde": 2323
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "08:27",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=507s",
+     "sekunde": 507
+    },
+    {
+     "label": "26:39",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1599s",
+     "sekunde": 1599
+    }
+   ]
+  },
+  {
+   "id": "yt:e50qKdVn-24",
+   "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
+   "sprungmarken": [
+    {
+     "label": "18:59",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1139s",
+     "sekunde": 1139
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "15:17",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=917s",
+     "sekunde": 917
+    },
+    {
+     "label": "1:20:19",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4819s",
+     "sekunde": 4819
+    },
+    {
+     "label": "1:23:32",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5012s",
+     "sekunde": 5012
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "07:51",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=471s",
+     "sekunde": 471
+    },
+    {
+     "label": "51:19",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3079s",
+     "sekunde": 3079
+    }
+   ]
+  },
+  {
+   "id": "yt:iymmxuXHh44",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 5",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.049,
+   "url": "https://www.youtube.com/watch?v=iymmxuXHh44",
+   "sprungmarken": [
+    {
+     "label": "1:00:55",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=3655s",
+     "sekunde": 3655
+    },
+    {
+     "label": "1:02:29",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=3749s",
+     "sekunde": 3749
+    }
+   ]
+  },
+  {
+   "id": "yt:eWfTt93anl4",
+   "titel": "BI Thinkers Talk nr.77",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.049,
+   "url": "https://www.youtube.com/watch?v=eWfTt93anl4",
+   "sprungmarken": [
+    {
+     "label": "46:51",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=2811s",
+     "sekunde": 2811
+    },
+    {
+     "label": "53:05",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=3185s",
+     "sekunde": 3185
+    }
+   ]
+  },
+  {
+   "id": "yt:_Vh5fDfHWz4",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part2",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.048,
+   "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4",
+   "sprungmarken": [
+    {
+     "label": "05:18",
+     "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=318s",
+     "sekunde": 318
+    },
+    {
+     "label": "1:05:36",
+     "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=3936s",
+     "sekunde": 3936
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.047,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "03:18",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=198s",
+     "sekunde": 198
+    },
+    {
+     "label": "49:14",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=2954s",
+     "sekunde": 2954
+    }
+   ]
+  },
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.044,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:ihi7UiJ_TtQ",
+   "titel": "Why Passion Beats Niche",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.038,
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
+   "sprungmarken": [
+    {
+     "label": "26:46",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1606s",
+     "sekunde": 1606
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "08:28",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=508s",
+     "sekunde": 508
+    }
+   ]
+  },
+  {
+   "id": "yt:pOJpXxsfUt0",
+   "titel": "BI Thinkers Talk n.73",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0",
+   "sprungmarken": [
+    {
+     "label": "48:33",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2913s",
+     "sekunde": 2913
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "47:15",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2835s",
+     "sekunde": 2835
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "30:27",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1827s",
+     "sekunde": 1827
+    }
+   ]
+  },
+  {
+   "id": "yt:iB4vHRvaErE",
+   "titel": "Mensch bleiben, wenn Power BI geht",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=iB4vHRvaErE",
+   "sprungmarken": [
+    {
+     "label": "15:11",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=911s",
+     "sekunde": 911
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Asemantic-model",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Asemantic-model&f=tool%3Asemantic-model"
+}

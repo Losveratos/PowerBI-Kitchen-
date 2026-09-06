@@ -1,0 +1,724 @@
+{
+ "id": "tool:mirroring",
+ "name": "Mirroring",
+ "typ": "tool",
+ "slug": "mirroring",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 17,
+ "kernaussagen_gesamt": 25,
+ "mit_kernaussagen": 5,
+ "aliase": [
+  "Mirrored Database",
+  "Spiegelung",
+  "gespiegelt"
+ ],
+ "einordnung": "Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen. Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert. Bei Open Mirroring fügt die Datenquelle jedem Datensatz einen Row Marker bei, über den Fabric erkennt, ob ein Insert, Update oder Delete durchzuführen ist.",
+ "nachbarn": [
+  {
+   "id": "tool:directquery",
+   "name": "DirectQuery",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 8,
+   "beleg": "wenn Daten erstmal in Fabric sind gespiegelt, das ist schon besser als jetzt direct query auf irgendwelche großen Lake Systeme zu machen, die dann pro Computer halt berechnen und dann entsprechend teu",
+   "datei": "directquery.md"
+  },
+  {
+   "id": "tool:sap",
+   "name": "SAP",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 7,
+   "beleg": "es gibt SAP Mirroring, hat wirklich auf der Febru sehr große Augen für sehr große Augen gesorgt und ist inzwischen ja da Preview",
+   "datei": "sap.md"
+  },
+  {
+   "id": "tool:snowflake",
+   "name": "Snowflake",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 25,
+   "beleg": "für Snowflake komplett bidirektionale Geschichte",
+   "datei": "snowflake.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 16,
+   "beleg": "geben ihn mit dem entsprechenden Event als Row Marker in Oneel Lake und Fabric baut daraus auf der Fabricseite eine identische Tabelle",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 10,
+   "beleg": "die Speicherkosten ... sind ja die Speicherkosten je nach äh Kapazität im Terabyte Bereich äh mit drin (Segment 8)",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 10,
+   "beleg": "kostenlosen Speicher für das Mirroring, entsprechend deiner Kapazität, bei einer F64 schon 64 TB",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 33,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 16,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  },
+  {
+   "id": "topic:governance",
+   "name": "Governance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "governance.md"
+  },
+  {
+   "id": "tool:delta-lake",
+   "name": "Delta Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "delta-lake.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "reporting.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 2,
+   "zeit": "00:02",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=2s",
+   "aussage": "Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 19,
+   "zeit": "00:19",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=19s",
+   "aussage": "Der Sprecher findet Open Mirroring interessanter als klassisches Mirroring, weil es unabhängig von vorgegebenen Datenquellen funktioniert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 19,
+   "zeit": "00:19",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=19s",
+   "aussage": "Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 51,
+   "zeit": "00:51",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=51s",
+   "aussage": "Bei Open Mirroring fügt die Datenquelle jedem Datensatz einen Row Marker bei, über den Fabric erkennt, ob ein Insert, Update oder Delete durchzuführen ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 51,
+   "zeit": "00:51",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=51s",
+   "aussage": "Open Mirroring benötigt keinen eigenen ETL-Lauf, solange die Quelle liefern kann, was sich in ihr geändert hat."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 114,
+   "zeit": "01:54",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=114s",
+   "aussage": "Beim Open-Mirroring-Datenfluss wird der Datensatz mit Row-Marker-Event zunächst nach OneLake geschrieben, von wo Fabric eine identische Replik-Tabelle aufbaut."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 142,
+   "zeit": "02:22",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=142s",
+   "aussage": "Auch eigene Datenquellen wie Excel-Dateien lassen sich per Open Mirroring nach Fabric spiegeln."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 160,
+   "zeit": "02:40",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s",
+   "aussage": "Für eine F64-Kapazität stellt Microsoft im Rahmen von Open Mirroring 64 TB Speicherplatz kostenlos zur Verfügung."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 160,
+   "zeit": "02:40",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s",
+   "aussage": "Der kostenlose Speicherplatz bei Open Mirroring soll die doppelte Datenhaltung aus Quelle und Replikat in Fabric kompensieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 241,
+   "zeit": "04:01",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=241s",
+   "aussage": "Kollege Stefan hat als Prototyp ein Open-Mirroring-Beispiel mit einer lokalen PostgreSQL-Datenbank gebaut, die nach Fabric repliziert wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 241,
+   "zeit": "04:01",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=241s",
+   "aussage": "Im gezeigten Sync-Tool ist von drei konfigurierten Tabellen nur eine aktiviert, und die Abfrage arbeitet ID-basiert statt per Timestamp."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 320,
+   "zeit": "05:20",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=320s",
+   "aussage": "Über die Kommandozeile lassen sich in Fabric Workspaces auflisten, auswählen und darin per New Item eine Mirror Database anlegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 405,
+   "zeit": "06:45",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=405s",
+   "aussage": "Der Sync-Prozess schreibt die replizierten Daten in Paketdateien und lädt sie in Batches mit Wartezeit zwischen den Schritten nach Fabric hoch."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 405,
+   "zeit": "06:45",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=405s",
+   "aussage": "Bei Timeouts während des Sync-Vorgangs greift im gezeigten Tool eine Retry-Logik, die den Upload erneut versucht."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 405,
+   "zeit": "06:45",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=405s",
+   "aussage": "Man sollte für den Sync eher größere Batches von rund 1000 bis 2000 Zeilen pro Datei verwenden statt der in der Demo genutzten 13 Zeilen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 519,
+   "zeit": "08:39",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=519s",
+   "aussage": "Nach Abschluss der Replikation lassen sich die gespiegelten Daten direkt per SQL-Abfrage in Fabric auslesen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 519,
+   "zeit": "08:39",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=519s",
+   "aussage": "Der Sprecher bewertet die gezeigte Open-Mirroring-Demo als eindrucksvoll und fragt die Zuschauer, ob das Thema für sie hilfreich wäre."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 1250,
+   "zeit": "20:50",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1250s",
+   "aussage": "Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 1503,
+   "zeit": "25:03",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s",
+   "aussage": "SAP-Mirroring befindet sich inzwischen in der Preview-Phase und funktioniert wie das bestehende Azure-Data-Lake-Mirroring."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 1503,
+   "zeit": "25:03",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s",
+   "aussage": "Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 3030,
+   "zeit": "50:30",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3030s",
+   "aussage": "SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 783,
+   "zeit": "13:03",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=783s",
+   "aussage": "Beim Fabric Mirroring sind die Speicherkosten für gespiegelte Daten je nach Kapazität im Terabyte-Bereich bereits enthalten, sodass zusätzlich nur noch das Auslesen der Daten aus der Mirror-Datenbank bezahlt wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 783,
+   "zeit": "13:03",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=783s",
+   "aussage": "Für Fabric Mirroring existiert bereits ein Prototyp, mit dem Daten aus einer lokalen PostgreSQL-Datenbank in eine Mirror-Datenbank übertragen werden können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 3358,
+   "zeit": "55:58",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3358s",
+   "aussage": "Mirroring in Microsoft Fabric enthält kostenlosen Speicherplatz proportional zur gebuchten Kapazität, etwa 64 TB bei einer F64-Kapazität, inklusive der automatischen Transformation in Tabellenformat."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 3358,
+   "zeit": "55:58",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3358s",
+   "aussage": "Beim Mirroring von Databricks-Daten werden nur die Metadaten gespiegelt, weil Fabric direkt auf denselben zugrunde liegenden Speicher wie OneLake oder ADLS Gen2 zugreift, den Databricks bereits nutzt."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:7j34Ndng0Os",
+   "titel": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.3,
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os",
+   "sprungmarken": [
+    {
+     "label": "00:02",
+     "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=2s",
+     "sekunde": 2
+    },
+    {
+     "label": "01:54",
+     "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=114s",
+     "sekunde": 114
+    },
+    {
+     "label": "02:40",
+     "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s",
+     "sekunde": 160
+    }
+   ]
+  },
+  {
+   "id": "yt:_MfM3rhJx58",
+   "titel": "Copilot + Power Automate = Gamechanger",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.167,
+   "url": "https://www.youtube.com/watch?v=_MfM3rhJx58",
+   "sprungmarken": [
+    {
+     "label": "03:16",
+     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=196s",
+     "sekunde": 196
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.155,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Microsoft%20Learn%20%C2%B7%20Snowflake%20%26%20Mirroring",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Konditionen%20%28Stand%20Juli%202026%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Grenzen%2C%20die%20man%20kennen%20muss",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.14,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "13:25",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=805s",
+     "sekunde": 805
+    },
+    {
+     "label": "15:05",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=905s",
+     "sekunde": 905
+    },
+    {
+     "label": "18:20",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1100s",
+     "sekunde": 1100
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "22:30",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1350s",
+     "sekunde": 1350
+    },
+    {
+     "label": "25:03",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s",
+     "sekunde": 1503
+    },
+    {
+     "label": "26:42",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1602s",
+     "sekunde": 1602
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.073,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "22:42",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1362s",
+     "sekunde": 1362
+    },
+    {
+     "label": "24:00",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1440s",
+     "sekunde": 1440
+    },
+    {
+     "label": "25:36",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1536s",
+     "sekunde": 1536
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.064,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "54:26",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3266s",
+     "sekunde": 3266
+    },
+    {
+     "label": "55:58",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3358s",
+     "sekunde": 3358
+    },
+    {
+     "label": "57:28",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3448s",
+     "sekunde": 3448
+    }
+   ]
+  },
+  {
+   "id": "yt:luk4S4ukKmg",
+   "titel": "BI Thinkers Talk n.72",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "50:30",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3030s",
+     "sekunde": 3030
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.042,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "28:00",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1680s",
+     "sekunde": 1680
+    }
+   ]
+  },
+  {
+   "id": "yt:lH_-A8NAQ-k",
+   "titel": "Datenmodellierung ist Governance",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.04,
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
+   "sprungmarken": [
+    {
+     "label": "23:28",
+     "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1408s",
+     "sekunde": 1408
+    }
+   ]
+  },
+  {
+   "id": "yt:hbUYMyqb6r8",
+   "titel": "Denken in Tabellen",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.038,
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8",
+   "sprungmarken": [
+    {
+     "label": "22:07",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1327s",
+     "sekunde": 1327
+    }
+   ]
+  },
+  {
+   "id": "yt:LUrL8A5lNgI",
+   "titel": "BI Thinkers Talk nr.71",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.033,
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI",
+   "sprungmarken": [
+    {
+     "label": "11:31",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=691s",
+     "sekunde": 691
+    },
+    {
+     "label": "13:03",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=783s",
+     "sekunde": 783
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.032,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "09:27",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=567s",
+     "sekunde": 567
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "30:50",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1850s",
+     "sekunde": 1850
+    }
+   ]
+  },
+  {
+   "id": "yt:VD1N68Fhoco",
+   "titel": "BI Thinkers Talk nr.68",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=VD1N68Fhoco",
+   "sprungmarken": [
+    {
+     "label": "1:02:40",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=3760s",
+     "sekunde": 3760
+    }
+   ]
+  },
+  {
+   "id": "yt:_Vh5fDfHWz4",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part2",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4",
+   "sprungmarken": [
+    {
+     "label": "1:05:36",
+     "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=3936s",
+     "sekunde": 3936
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.013,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Aus%20dem%20Kanal%20%C2%B7%20Fabric%20%26%20Tooling%20in%20der%20Praxis",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Joins%20%28Merges%29%20%C2%B7%20Tabellen%20verkn%C3%BCpfen",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Amirroring",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Amirroring&f=tool%3Amirroring"
+}

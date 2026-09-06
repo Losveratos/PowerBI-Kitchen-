@@ -1,0 +1,261 @@
+{
+ "id": "topic:update",
+ "name": "Update",
+ "typ": "thema",
+ "slug": "update",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 3,
+ "kernaussagen_gesamt": 5,
+ "mit_kernaussagen": 5,
+ "aliase": [
+  "Updates",
+  "Monthly Update",
+  "Neuerungen",
+  "Release",
+  "Preview",
+  "GA",
+  "General Availability"
+ ],
+ "einordnung": "Der Input Slicer, vormals Textslicer, ist im Power BI Update vom Februar 2026 generally available geworden. Seit einem Update im Januar merken sich Field Parameters in einer Matrix den zuletzt gewählten Hierarchie-Stand, wenn zwischen unterschiedlichen Gruppierungen umgeschaltet wird. Markus hat sein erstes Update-Video im Mai 2019 veröffentlicht.",
+ "nachbarn": [
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 13,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "power-query.md"
+  },
+  {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:copilot",
+   "name": "Copilot",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "copilot.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "refresh.md"
+  },
+  {
+   "id": "tool:spark",
+   "name": "Spark",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "spark.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=0s",
+   "aussage": "Das Power-BI-Update vom April 2026 fällt kompakter aus als das März-Update und ist stark frontend- und enduser-orientiert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 473,
+   "zeit": "07:53",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=473s",
+   "aussage": "Im März 2026 hat Power BI unter anderem durch Custom Totals, neue visuelle Möglichkeiten, die Translytical-Task-Flows-Freigabe und die Planungsfunktionen in Fabric spürbar dazugewonnen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Februar 2026",
+   "dokument_id": "yt:u-lgbDfIlLg",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=0s",
+   "aussage": "Der Input Slicer, vormals Textslicer, ist im Power BI Update vom Februar 2026 generally available geworden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 486,
+   "zeit": "08:06",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=486s",
+   "aussage": "Seit einem Update im Januar merken sich Field Parameters in einer Matrix den zuletzt gewählten Hierarchie-Stand, wenn zwischen unterschiedlichen Gruppierungen umgeschaltet wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 95,
+   "zeit": "01:35",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=95s",
+   "aussage": "Markus hat sein erstes Update-Video im Mai 2019 veröffentlicht."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:5xB_oKdvAwQ",
+   "titel": "Power BI Update Juni 2026",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.7,
+   "url": "https://www.youtube.com/watch?v=5xB_oKdvAwQ",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=5xB_oKdvAwQ&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:04",
+     "url": "https://www.youtube.com/watch?v=5xB_oKdvAwQ&t=64s",
+     "sekunde": 64
+    },
+    {
+     "label": "04:28",
+     "url": "https://www.youtube.com/watch?v=5xB_oKdvAwQ&t=268s",
+     "sekunde": 268
+    }
+   ]
+  },
+  {
+   "id": "yt:psLPsI32sAs",
+   "titel": "Power BI Update Mai 2026",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.667,
+   "url": "https://www.youtube.com/watch?v=psLPsI32sAs",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=psLPsI32sAs&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:05",
+     "url": "https://www.youtube.com/watch?v=psLPsI32sAs&t=65s",
+     "sekunde": 65
+    },
+    {
+     "label": "05:25",
+     "url": "https://www.youtube.com/watch?v=psLPsI32sAs&t=325s",
+     "sekunde": 325
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.415,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "15:31",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=931s",
+     "sekunde": 931
+    },
+    {
+     "label": "53:13",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3193s",
+     "sekunde": 3193
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Aupdate",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Aupdate&f=topic%3Aupdate"
+}

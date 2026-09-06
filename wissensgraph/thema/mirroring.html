@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mirroring · DatenWG Library</title>
+<meta name="description" content="Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen. Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert.">
+<meta property="og:title" content="Mirroring · DatenWG Library">
+<meta property="og:description" content="Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen. Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/mirroring.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · tool</p>
+<h1>Mirroring</h1>
+<p class="lead">Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen. Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert. Bei Open Mirroring fügt die Datenquelle jedem Datensatz einen Row Marker bei, über den Fabric erkennt, ob ein Insert, Update oder Delete durchzuführen ist.</p>
+<div class="btns"><a class="btn" href="../#n=tool%3Amirroring">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Amirroring&amp;f=tool%3Amirroring">Im Graph öffnen</a></div>
+<p class="meta">17 Dokumente · 25 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">Mirrored Database</span> <span class="tag">Spiegelung</span> <span class="tag">gespiegelt</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=2s">00:02</a></span></li>
+<li>Der Sprecher findet Open Mirroring interessanter als klassisches Mirroring, weil es unabhängig von vorgegebenen Datenquellen funktioniert.<span class="meta quote">Meinung · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=19s">00:19</a></span></li>
+<li>Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=19s">00:19</a></span></li>
+<li>Bei Open Mirroring fügt die Datenquelle jedem Datensatz einen Row Marker bei, über den Fabric erkennt, ob ein Insert, Update oder Delete durchzuführen ist.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=51s">00:51</a></span></li>
+<li>Open Mirroring benötigt keinen eigenen ETL-Lauf, solange die Quelle liefern kann, was sich in ihr geändert hat.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=51s">00:51</a></span></li>
+<li>Beim Open-Mirroring-Datenfluss wird der Datensatz mit Row-Marker-Event zunächst nach OneLake geschrieben, von wo Fabric eine identische Replik-Tabelle aufbaut.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=114s">01:54</a></span></li>
+<li>Auch eigene Datenquellen wie Excel-Dateien lassen sich per Open Mirroring nach Fabric spiegeln.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=142s">02:22</a></span></li>
+<li>Für eine F64-Kapazität stellt Microsoft im Rahmen von Open Mirroring 64 TB Speicherplatz kostenlos zur Verfügung.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=160s">02:40</a></span></li>
+<li>Der kostenlose Speicherplatz bei Open Mirroring soll die doppelte Datenhaltung aus Quelle und Replikat in Fabric kompensieren.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=160s">02:40</a></span></li>
+<li>Kollege Stefan hat als Prototyp ein Open-Mirroring-Beispiel mit einer lokalen PostgreSQL-Datenbank gebaut, die nach Fabric repliziert wird.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=241s">04:01</a></span></li>
+<li>Im gezeigten Sync-Tool ist von drei konfigurierten Tabellen nur eine aktiviert, und die Abfrage arbeitet ID-basiert statt per Timestamp.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=241s">04:01</a></span></li>
+<li>Über die Kommandozeile lassen sich in Fabric Workspaces auflisten, auswählen und darin per New Item eine Mirror Database anlegen.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=320s">05:20</a></span></li>
+<li>Der Sync-Prozess schreibt die replizierten Daten in Paketdateien und lädt sie in Batches mit Wartezeit zwischen den Schritten nach Fabric hoch.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=405s">06:45</a></span></li>
+<li>Bei Timeouts während des Sync-Vorgangs greift im gezeigten Tool eine Retry-Logik, die den Upload erneut versucht.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=405s">06:45</a></span></li>
+<li>Man sollte für den Sync eher größere Batches von rund 1000 bis 2000 Zeilen pro Datei verwenden statt der in der Demo genutzten 13 Zeilen.<span class="meta quote">Empfehlung · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=405s">06:45</a></span></li>
+<li>Nach Abschluss der Replikation lassen sich die gespiegelten Daten direkt per SQL-Abfrage in Fabric auslesen.<span class="meta quote">Fakt · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=519s">08:39</a></span></li>
+<li>Der Sprecher bewertet die gezeigte Open-Mirroring-Demo als eindrucksvoll und fragt die Zuschauer, ob das Thema für sie hilfreich wäre.<span class="meta quote">Meinung · Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=519s">08:39</a></span></li>
+<li>Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte.<span class="meta quote">Fakt · Fabric &amp; Power BI Quarterly · 2026-1 · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1250s">20:50</a></span></li>
+<li>SAP-Mirroring befindet sich inzwischen in der Preview-Phase und funktioniert wie das bestehende Azure-Data-Lake-Mirroring.<span class="meta quote">Fakt · Fabric &amp; Power BI Quarterly · 2026-1 · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1503s">25:03</a></span></li>
+<li>Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen.<span class="meta quote">Empfehlung · Fabric &amp; Power BI Quarterly · 2026-1 · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1503s">25:03</a></span></li>
+<li>SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist.<span class="meta quote">Fakt · BI Thinkers Talk n.72 · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=3030s">50:30</a></span></li>
+<li>Beim Fabric Mirroring sind die Speicherkosten für gespiegelte Daten je nach Kapazität im Terabyte-Bereich bereits enthalten, sodass zusätzlich nur noch das Auslesen der Daten aus der Mirror-Datenbank bezahlt wird.<span class="meta quote">Fakt · BI Thinkers Talk nr.71 · <a href="https://www.youtube.com/watch?v=LUrL8A5lNgI&amp;t=783s">13:03</a></span></li>
+<li>Für Fabric Mirroring existiert bereits ein Prototyp, mit dem Daten aus einer lokalen PostgreSQL-Datenbank in eine Mirror-Datenbank übertragen werden können.<span class="meta quote">Fakt · BI Thinkers Talk nr.71 · <a href="https://www.youtube.com/watch?v=LUrL8A5lNgI&amp;t=783s">13:03</a></span></li>
+<li>Mirroring in Microsoft Fabric enthält kostenlosen Speicherplatz proportional zur gebuchten Kapazität, etwa 64 TB bei einer F64-Kapazität, inklusive der automatischen Transformation in Tabellenformat.<span class="meta quote">Fakt · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=3358s">55:58</a></span></li>
+<li>Beim Mirroring von Databricks-Daten werden nur die Metadaten gespiegelt, weil Fabric direkt auf denselben zugrunde liegenden Speicher wie OneLake oder ADLS Gen2 zugreift, den Databricks bereits nutzt.<span class="meta quote">Fakt · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=3358s">55:58</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=7j34Ndng0Os">Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=2s">00:02</a> · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=114s">01:54</a> · <a href="https://www.youtube.com/watch?v=7j34Ndng0Os&amp;t=160s">02:40</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=_MfM3rhJx58">Copilot + Power Automate = Gamechanger</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=_MfM3rhJx58&amp;t=196s">03:16</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Microsoft%20Learn%20%C2%B7%20Snowflake%20%26%20Mirroring">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Konditionen%20%28Stand%20Juli%202026%29">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Grenzen%2C%20die%20man%20kennen%20muss">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w">Daten-WG Thinkers Talk nr.65</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=805s">13:25</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=905s">15:05</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1100s">18:20</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYp5xCAU2AU">Fabric &amp; Power BI Quarterly · 2026-1</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1350s">22:30</a> · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1503s">25:03</a> · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1602s">26:42</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1362s">22:42</a> · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1440s">24:00</a> · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1536s">25:36</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=G8s96sHUHac">BI Thinkers Talk nr.67</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=3266s">54:26</a> · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=3358s">55:58</a> · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=3448s">57:28</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=luk4S4ukKmg">BI Thinkers Talk n.72</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=1s">00:01</a> · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=3030s">50:30</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=RtUiF1J5XEg">600 SQL-Tabellen in Fabric</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1680s">28:00</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lH_-A8NAQ-k">Datenmodellierung ist Governance</a><span class="meta quote">2025-11-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lH_-A8NAQ-k&amp;t=1408s">23:28</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=hbUYMyqb6r8">Denken in Tabellen</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=1327s">22:07</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=LUrL8A5lNgI">BI Thinkers Talk nr.71</a><span class="meta quote">2025-12-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=LUrL8A5lNgI&amp;t=691s">11:31</a> · <a href="https://www.youtube.com/watch?v=LUrL8A5lNgI&amp;t=783s">13:03</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I">Daten-WG Life-Update | Fabric Architekturen</a><span class="meta quote">2026-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=567s">09:27</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=1850s">30:50</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=VD1N68Fhoco">BI Thinkers Talk nr.68</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=VD1N68Fhoco&amp;t=3760s">1:02:40</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=_Vh5fDfHWz4">Daten-WG Special: Power BI vs. Qlik -part2</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=_Vh5fDfHWz4&amp;t=3936s">1:05:36</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Aus%20dem%20Kanal%20%C2%B7%20Fabric%20%26%20Tooling%20in%20der%20Praxis">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Joins%20%28Merges%29%20%C2%B7%20Tabellen%20verkn%C3%BCpfen">Abschnitt</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="directquery.html">DirectQuery</a><span class="meta quote">gegensatz · belegt · 8 gemeinsame Segmente</span></li>
+<li><a href="sap.html">SAP</a><span class="meta quote">teil-von · belegt · 7 gemeinsame Segmente</span></li>
+<li><a href="snowflake.html">Snowflake</a><span class="meta quote">teil-von · belegt · 25 gemeinsame Segmente</span></li>
+<li><a href="onelake.html">OneLake</a><span class="meta quote">setzt-voraus · belegt · 16 gemeinsame Segmente</span></li>
+<li><a href="fabric-capacity.html">Fabric Capacity</a><span class="meta quote">teil-von · belegt · 10 gemeinsame Segmente</span></li>
+<li><a href="fabric-capacity.html">Fabric Capacity</a><span class="meta quote">setzt-voraus · belegt · 10 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 33 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 16 gemeinsame Segmente</span></li>
+<li><a href="lizenzen.html">Lizenzen</a><span class="meta quote">ko-vorkommen · heuristik · 10 gemeinsame Segmente</span></li>
+<li><a href="governance.html">Governance</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
+<li><a href="delta-lake.html">Delta Lake</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
+<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">ko-vorkommen · heuristik · 8 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 8 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 8 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 8 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,532 @@
+{
+ "id": "tool:field-parameters",
+ "name": "Field Parameters",
+ "typ": "tool",
+ "slug": "field-parameters",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 12,
+ "kernaussagen_gesamt": 24,
+ "mit_kernaussagen": 6,
+ "aliase": [
+  "Feldparameter",
+  "Field Parameter"
+ ],
+ "einordnung": "Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird. Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu. Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte.",
+ "nachbarn": [
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 5,
+   "beleg": "In diesem Fall wird jetzt eine Parametertabelle angelegt... die ist per DAX erstellt",
+   "datei": "dax.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "tool:drillthrough",
+   "name": "Drillthrough",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "drillthrough.md"
+  },
+  {
+   "id": "tool:bookmarks",
+   "name": "Bookmarks",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "bookmarks.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 30,
+   "zeit": "00:30",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=30s",
+   "aussage": "Ein Feldparameter lässt sich in Power BI Desktop über Modeling und \"Neuer Feldparameter\" anlegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 30,
+   "zeit": "00:30",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=30s",
+   "aussage": "Beim Anlegen eines Feldparameters aus einer Datumstabelle lassen sich Aufteilungen wie Jahr und Monat als Optionen auswählen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 71,
+   "zeit": "01:11",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=71s",
+   "aussage": "Power BI erzeugt beim Anlegen eines Feldparameters automatisch eine per DAX erstellte Parametertabelle sowie einen passenden Slicer."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 97,
+   "zeit": "01:37",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=97s",
+   "aussage": "Eine Feldparameter-Tabelle kann mehrere Kombinationen gleichzeitig enthalten, zum Beispiel nur das Jahr, Monat und Jahr kombiniert, sowie nur den Monat."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 125,
+   "zeit": "02:05",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=125s",
+   "aussage": "Der Slicer eines Feldparameters lässt sich auf Single Selection einstellen, damit jeweils nur eine Option gewählt werden kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Februar 2026",
+   "dokument_id": "yt:u-lgbDfIlLg",
+   "sekunde": 138,
+   "zeit": "02:18",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
+   "aussage": "Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 152,
+   "zeit": "02:32",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=152s",
+   "aussage": "Wird ein Feldparameter als Tabelle eingefügt, zeigt sie den berechneten Wert; wird derselbe Parameter in einem Slicer verwendet, zeigt dieser stattdessen die Auswahlmöglichkeiten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 152,
+   "zeit": "02:32",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=152s",
+   "aussage": "Wenn eine Feldparameter-Liste in einen Slicer umgewandelt wird, bleiben die zuvor angezeigten Werte als Auswahlmöglichkeiten im Slicer erhalten."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 152,
+   "zeit": "02:32",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=152s",
+   "aussage": "Für einen Feldparameter-Slicer sollte eine vertikale Listendarstellung statt eines Between-Slicers verwendet werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 198,
+   "zeit": "03:18",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=198s",
+   "aussage": "Field Parameters lassen sich aus einer Datumstabelle mit verschiedenen Ebenen (z. B. Jahr, Monatsname) aufbauen und über die Option \"Single Selection\" als klassischer Werte-Slicer statt als Auswahl-Schalter nutzen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 203,
+   "zeit": "03:23",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=203s",
+   "aussage": "Ein Feldparameter kann als interaktiver Filter genutzt werden, der je nach gewählter Kombination unterschiedliche Filterwerte anzeigt, etwa nur Jahre oder Monate mit Jahreszahl."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 203,
+   "zeit": "03:23",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=203s",
+   "aussage": "Die Idee, einen Feldparameter als dynamischen, von der Auswahl abhängigen Filter einzusetzen, stammt aus einem Kundenprojekt und wurde in einem BI-Sinker-Talk vorgestellt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 238,
+   "zeit": "03:58",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=238s",
+   "aussage": "Über die Option \"Show Selected Field\" im Feldbereich eines Feldparameters lässt sich der Name des aktuell ausgewählten Parameterfelds anzeigen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 266,
+   "zeit": "04:26",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=266s",
+   "aussage": "Über die Option \"Show Values of Selected Field\" lassen sich stattdessen die Werte des aktuell ausgewählten Feldparameter-Felds anzeigen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 266,
+   "zeit": "04:26",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=266s",
+   "aussage": "Die Optionen \"Show Selected Field\" und \"Show Values of Selected Field\" bei Feldparametern sind wenig bekannt, lohnen sich aber für den Einsatz in Projekten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 392,
+   "zeit": "06:32",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=392s",
+   "aussage": "Für Field-Parameter-Slicer gibt es eine wenig bekannte Option \"Show values instead of parameter\", mit der statt der Parameterbezeichnung die tatsächlichen Werte angezeigt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 486,
+   "zeit": "08:06",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=486s",
+   "aussage": "Seit einem Update im Januar merken sich Field Parameters in einer Matrix den zuletzt gewählten Hierarchie-Stand, wenn zwischen unterschiedlichen Gruppierungen umgeschaltet wird."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 1452,
+   "zeit": "24:12",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=1452s",
+   "aussage": "Field Parameters lassen sich um eine zusätzliche Spalte erweitern, die zusammengehörige Measures wie \"Quantity\" und \"Amount\" zu Kategorien gruppiert, sodass mehrere Measures gemeinsam über eine Filterauswahl gesteuert werden können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 27,
+   "zeit": "00:27",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=27s",
+   "aussage": "Eine aus Databricks stammende Flat Table führte in Power BI zu Problemen mit einer unsauberen Zeitachse und zu wenig flexiblen Darstellungen, die zunächst mit Field Parameters adressiert wurden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 122,
+   "zeit": "02:02",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=122s",
+   "aussage": "Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 122,
+   "zeit": "02:02",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=122s",
+   "aussage": "Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 199,
+   "zeit": "03:19",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s",
+   "aussage": "Der Sprecher hält die Field-Parameter- und Quicktipp-Updates für die produktivsten Neuerungen dieses Monats."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 1420,
+   "zeit": "23:40",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1420s",
+   "aussage": "Bei einem Ist-Budget-Vergleich mit unterschiedlicher Granularität von Kunde und Produkt sowie täglicher und monatlicher Frequenz wird eine flache Tabelle mit Field Parameters schnell unübersichtlich, während ein Sternschema die Zusammenführung vereinfacht."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 2557,
+   "zeit": "42:37",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2557s",
+   "aussage": "Mehrere Teilnehmer nennen Field Parameters als eines der wirkungsvollsten neuen Power-BI-Features, weil sie ein einzelnes Visual für verschiedene Kennzahlen und Achsen mehrfach nutzbar machen."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:TAM5AAZqh7k",
+   "titel": "Power BI Update Januar 2026",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.4,
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k",
+   "sprungmarken": [
+    {
+     "label": "02:02",
+     "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=122s",
+     "sekunde": 122
+    },
+    {
+     "label": "03:19",
+     "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s",
+     "sekunde": 199
+    }
+   ]
+  },
+  {
+   "id": "yt:u-lgbDfIlLg",
+   "titel": "Power BI Update Februar 2026",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.25,
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg",
+   "sprungmarken": [
+    {
+     "label": "02:18",
+     "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
+     "sekunde": 138
+    }
+   ]
+  },
+  {
+   "id": "yt:TkxwcAyBGUM",
+   "titel": "Power BI Update Juli 2025",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM",
+   "sprungmarken": [
+    {
+     "label": "04:27",
+     "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM&t=267s",
+     "sekunde": 267
+    }
+   ]
+  },
+  {
+   "id": "yt:v8dvnqqa7f8",
+   "titel": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8",
+   "sprungmarken": [
+    {
+     "label": "00:30",
+     "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=30s",
+     "sekunde": 30
+    }
+   ]
+  },
+  {
+   "id": "yt:sShNdgnHjr4",
+   "titel": "TMDL Magie: Multi Parameter Tabelle - Feldparameter Next Level! | Power BI Tutorial",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=sShNdgnHjr4",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=sShNdgnHjr4&t=1s",
+     "sekunde": 1
+    }
+   ]
+  },
+  {
+   "id": "yt:VD1N68Fhoco",
+   "titel": "BI Thinkers Talk nr.68",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.075,
+   "url": "https://www.youtube.com/watch?v=VD1N68Fhoco",
+   "sprungmarken": [
+    {
+     "label": "24:03",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=1443s",
+     "sekunde": 1443
+    },
+    {
+     "label": "27:20",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=1640s",
+     "sekunde": 1640
+    },
+    {
+     "label": "29:09",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=1749s",
+     "sekunde": 1749
+    }
+   ]
+  },
+  {
+   "id": "yt:pOJpXxsfUt0",
+   "titel": "BI Thinkers Talk n.73",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.054,
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0",
+   "sprungmarken": [
+    {
+     "label": "24:12",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=1452s",
+     "sekunde": 1452
+    },
+    {
+     "label": "59:01",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3541s",
+     "sekunde": 3541
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "42:37",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2557s",
+     "sekunde": 2557
+    },
+    {
+     "label": "47:19",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2839s",
+     "sekunde": 2839
+    },
+    {
+     "label": "1:11:57",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4317s",
+     "sekunde": 4317
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.051,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "01:45",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=105s",
+     "sekunde": 105
+    },
+    {
+     "label": "03:20",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=200s",
+     "sekunde": 200
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.035,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=07%20%C2%B7%20Interaktivit%C3%A4t%20%2A%C2%B7%20UX%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Bookmark%20Navigator",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Field%20Parameters%20f%C3%BCr%20Dimensionen",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:0FPA1k5YiTs",
+   "titel": "Power BI Deep Dive: DAX UDF + TMDL",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.033,
+   "url": "https://www.youtube.com/watch?v=0FPA1k5YiTs",
+   "sprungmarken": [
+    {
+     "label": "42:41",
+     "url": "https://www.youtube.com/watch?v=0FPA1k5YiTs&t=2561s",
+     "sekunde": 2561
+    }
+   ]
+  },
+  {
+   "id": "yt:9VX4-lLa0EI",
+   "titel": "BI Thinkers Talk nr.63",
+   "datum": "2025-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI",
+   "sprungmarken": [
+    {
+     "label": "29:33",
+     "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI&t=1773s",
+     "sekunde": 1773
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Afield-parameters",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Afield-parameters&f=tool%3Afield-parameters"
+}

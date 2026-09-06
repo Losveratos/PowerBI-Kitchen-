@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python · DatenWG Library</title>
+<meta name="description" content="Der Power BI Fixer basiert auf einem Fork und übernimmt Komponenten wie Best Practice Analyser, Memory Analyser und Perspective Editor von Michael Kowalskis Semantic-Link-Labs-Arbeit.">
+<meta property="og:title" content="Python · DatenWG Library">
+<meta property="og:description" content="Der Power BI Fixer basiert auf einem Fork und übernimmt Komponenten wie Best Practice Analyser, Memory Analyser und Perspective Editor von Michael Kowalskis Semantic-Link-Labs-Arbeit.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/python.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · tool</p>
+<h1>Python</h1>
+<p class="lead">Der Power BI Fixer basiert auf einem Fork und übernimmt Komponenten wie Best Practice Analyser, Memory Analyser und Perspective Editor von Michael Kowalskis Semantic-Link-Labs-Arbeit. Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht. Power BI und einfach nutzbare Datenplattformen ermöglichten Tom Martens, nach rund zehn Jahren ohne Programmierung über Fabric und Python wieder ins Programmieren einzusteigen.</p>
+<div class="btns"><a class="btn" href="../#n=tool%3Apython">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Apython&amp;f=tool%3Apython">Im Graph öffnen</a></div>
+<p class="meta">37 Dokumente · 9 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>In Power BI Desktop können wegen fehlender Python-Installation aus Sicherheitsgründen keine Python-basierten Visuals wie Matplotlib, Plotly oder Seaborn genutzt werden.<span class="meta quote">Fakt · BI Thinkers Talk nr.76 · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=189s">03:09</a></span></li>
+<li>Stefan ließ Claude Diagrammtypen aus Python-Bibliotheken wie Matplotlib, Plotly und Seaborn als Vega-Lite-Spezifikationen für Deneb nachbauen und dazu einen Testdatensatz mit 1000 Datensätzen generieren.<span class="meta quote">Fakt · BI Thinkers Talk nr.76 · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=387s">06:27</a></span></li>
+<li>Der Power BI Fixer basiert auf einem Fork und übernimmt Komponenten wie Best Practice Analyser, Memory Analyser und Perspective Editor von Michael Kowalskis Semantic-Link-Labs-Arbeit.<span class="meta quote">Fakt · BI Thinkers Talk nr.75 · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=379s">06:19</a></span></li>
+<li>Über Microsoft Fabric lassen sich mit Python externe Quellen wie Newsfeeds und Börsendaten kostengünstig anbinden, um Krisenherde frühzeitig zu erkennen.<span class="meta quote">Fakt · LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management · <a href="https://www.youtube.com/watch?v=DFw664hd1IE&amp;t=2214s">36:54</a></span></li>
+<li>Alex hält modulare, skriptbasierte Fix-Tools für KI-Agenten für besser nutzbar als ein reines MCP-Chatfenster, weil einzelne Fixes gezielt und ressourcenschonend aufgerufen werden können.<span class="meta quote">Meinung · BI Thinkers Talk nr.75 · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=3481s">58:01</a></span></li>
+<li>Die im Lakehouse als Rohdaten liegenden Dateien lassen sich per COPY-INTO-Befehl in eine Warehouse-Tabelle laden oder mit einem Notebook, etwa in Python, weiterverarbeiten.<span class="meta quote">Empfehlung · Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=609s">10:09</a></span></li>
+<li>Für sich wiederholende Aufgaben wie Suchen-und-Ersetzen über ein ganzes Projekt sollte die KI besser ein wiederverwendbares Skript, etwa in Python, generieren, statt jede Datei einzeln direkt durch die KI anpassen zu lassen, um Copilot-Credits zu sparen.<span class="meta quote">Empfehlung · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1773s">29:33</a></span></li>
+<li>Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht.<span class="meta quote">Fakt · Was ist Self-Service und warum ist das so schwer? · <a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=1042s">17:22</a></span></li>
+<li>Power BI und einfach nutzbare Datenplattformen ermöglichten Tom Martens, nach rund zehn Jahren ohne Programmierung über Fabric und Python wieder ins Programmieren einzusteigen.<span class="meta quote">Fakt · Was ist Self-Service und warum ist das so schwer? · <a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=3131s">52:11</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=eWfTt93anl4">BI Thinkers Talk nr.77</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=eWfTt93anl4&amp;t=960s">16:00</a> · <a href="https://www.youtube.com/watch?v=eWfTt93anl4&amp;t=1054s">17:34</a> · <a href="https://www.youtube.com/watch?v=eWfTt93anl4&amp;t=2811s">46:51</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=m3xNYfVih0Q">Starting with Microsft Fabric the Skills you need</a><span class="meta quote">2024-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=388s">06:28</a> · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=1724s">28:44</a> · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=1923s">32:03</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=27rC2zefFOU">Realtalk zu Self Service mit Power BI</a><span class="meta quote">2024-02-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=27rC2zefFOU&amp;t=1205s">20:05</a> · <a href="https://www.youtube.com/watch?v=27rC2zefFOU&amp;t=1565s">26:05</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=iymmxuXHh44">Daten-WG Deep Dive Financial Reporting - part 5</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=iymmxuXHh44&amp;t=1948s">32:28</a> · <a href="https://www.youtube.com/watch?v=iymmxuXHh44&amp;t=2044s">34:04</a> · <a href="https://www.youtube.com/watch?v=iymmxuXHh44&amp;t=3942s">1:05:42</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=UnW4wHhw_IY">Daten-WG Deep Dive Financial Reporting pt.4</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=UnW4wHhw_IY&amp;t=288s">04:48</a> · <a href="https://www.youtube.com/watch?v=UnW4wHhw_IY&amp;t=1197s">19:57</a> · <a href="https://www.youtube.com/watch?v=UnW4wHhw_IY&amp;t=1499s">24:59</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w">Daten-WG Thinkers Talk nr.65</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1291s">21:31</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1573s">26:13</a> · <a href="https://www.youtube.com/watch?v=Fqt4gP1xB5w&amp;t=1683s">28:03</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=iB4vHRvaErE">Mensch bleiben, wenn Power BI geht</a><span class="meta quote">2025-11-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=iB4vHRvaErE&amp;t=241s">04:01</a> · <a href="https://www.youtube.com/watch?v=iB4vHRvaErE&amp;t=530s">08:50</a> · <a href="https://www.youtube.com/watch?v=iB4vHRvaErE&amp;t=628s">10:28</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=rWE0gMx7v7I">BI Thinkers Talk n.74</a><span class="meta quote">2026-03-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=2246s">37:26</a> · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=3255s">54:15</a> · <a href="https://www.youtube.com/watch?v=rWE0gMx7v7I&amp;t=3634s">1:00:34</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=vd1r02bj9Qk">Power BI vs. Qlik</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=vd1r02bj9Qk&amp;t=532s">08:52</a> · <a href="https://www.youtube.com/watch?v=vd1r02bj9Qk&amp;t=1728s">28:48</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/powerbi-design-skill.html">Report-Design als Framework — ein Skill für Power BI</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=F%C3%BCr%20wen%3A%20%2AMenschen%20und%20Agenten%2A">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I">Daten-WG Life-Update | Fabric Architekturen</a><span class="meta quote">2026-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=131s">02:11</a> · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=2340s">39:00</a> · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=2943s">49:03</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc">BI Thinkers Talk Nr.62</a><span class="meta quote">2025-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=496s">08:16</a> · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=590s">09:50</a> · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=778s">12:58</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=232JhS9vbQ0">Daten-WG Deep Dive Financial Reporting - part 7</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=232JhS9vbQ0&amp;t=1624s">27:04</a> · <a href="https://www.youtube.com/watch?v=232JhS9vbQ0&amp;t=2658s">44:18</a> · <a href="https://www.youtube.com/watch?v=232JhS9vbQ0&amp;t=2843s">47:23</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYmKrreMO3I">Daten-WG Deep Dive Financial Reporting</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2149s">35:49</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2244s">37:24</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2459s">40:59</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ">Why Passion Beats Niche</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=1048s">17:28</a> · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=1144s">19:04</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY">BI Thinkers Talk nr.75</a><span class="meta quote">2026-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=0s">00:00</a> · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=188s">03:08</a> · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=3573s">59:33</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=zkfdfc5fo-E">Power BI Update Mai 2025</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=zkfdfc5fo-E&amp;t=466s">07:46</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=HXAP16trRc8">Daten-WG Deep Dive: AI on top of BI</a><span class="meta quote">2025-07-01 · nur-text · <a href="https://www.youtube.com/watch?v=HXAP16trRc8">Abschnitt</a> · <a href="https://www.youtube.com/watch?v=HXAP16trRc8">Abschnitt</a> · <a href="https://www.youtube.com/watch?v=HXAP16trRc8">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mTVeZzshLzE">Microsoft Fabric — braucht das wirklich jemand?</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=949s">15:49</a> · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=1506s">25:06</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=1391s">23:11</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=2918s">48:38</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc">Was ist Self-Service und warum ist das so schwer?</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=1042s">17:22</a> · <a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=3000s">50:00</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=1354s">22:34</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=1593s">26:33</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=e50qKdVn-24">Fabric Workload Demo mit Alexander Korn und Lukasz Obst</a><span class="meta quote">2026-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=e50qKdVn-24&amp;t=650s">10:50</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=5HhNQZlB-1E">Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial</a><span class="meta quote">2025-12-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=5HhNQZlB-1E&amp;t=609s">10:09</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI">10 Jahre Power BI</a><span class="meta quote">2025-07-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=3700s">1:01:40</a> · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=3794s">1:03:14</a> · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=5102s">1:25:02</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=luk4S4ukKmg">BI Thinkers Talk n.72</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=1244s">20:44</a> · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=1346s">22:26</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=SSUpe1JON9Y">The Power of User Groups</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=SSUpe1JON9Y&amp;t=999s">16:39</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=AX7b8_aNekw">Daten-WG 2026 Lineup</a><span class="meta quote">2026-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=AX7b8_aNekw&amp;t=171s">02:51</a> · <a href="https://www.youtube.com/watch?v=AX7b8_aNekw&amp;t=1246s">20:46</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=G8s96sHUHac">BI Thinkers Talk nr.67</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1773s">29:33</a> · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=3542s">59:02</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8">BI Thinkers Talk nr.76</a><span class="meta quote">2026-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=189s">03:09</a> · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=289s">04:49</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=DFw664hd1IE">LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management</a><span class="meta quote">2026-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=DFw664hd1IE&amp;t=2214s">36:54</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=d3HdhRe_nK8">Daten-WG Life-Update | State of Power BI, Fabric &amp; AI-Tools</a><span class="meta quote">2026-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=d3HdhRe_nK8&amp;t=44s">00:44</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=iinfiHxznOU">Unboxing MCP Server for Power BI Modelling</a><span class="meta quote">2025-12-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=iinfiHxznOU&amp;t=3577s">59:37</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1035s">17:15</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Drei-Fragen-Regel">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Schnell-Heuristik">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Inkrementelle%20L%C3%A4ufe">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=r416vanitYw">BI Thinkers Talk nr.69</a><span class="meta quote">2025-11-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=3147s">52:27</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=LUrL8A5lNgI">BI Thinkers Talk nr.71</a><span class="meta quote">2025-12-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=LUrL8A5lNgI&amp;t=2896s">48:16</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="ki.html">KI</a><span class="meta quote">ko-vorkommen · heuristik · 30 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 26 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 25 gemeinsame Segmente</span></li>
+<li><a href="notebook.html">Notebook</a><span class="meta quote">ko-vorkommen · heuristik · 21 gemeinsame Segmente</span></li>
+<li><a href="visualisierung.html">Visualisierung</a><span class="meta quote">ko-vorkommen · heuristik · 14 gemeinsame Segmente</span></li>
+<li><a href="dataflow.html">Dataflow</a><span class="meta quote">ko-vorkommen · heuristik · 14 gemeinsame Segmente</span></li>
+<li><a href="power-query.html">Power Query</a><span class="meta quote">ko-vorkommen · heuristik · 12 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 8 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 8 gemeinsame Segmente</span></li>
+<li><a href="copilot.html">Copilot</a><span class="meta quote">ko-vorkommen · heuristik · 7 gemeinsame Segmente</span></li>
+<li><a href="excel.html">Excel</a><span class="meta quote">ko-vorkommen · heuristik · 7 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 7 gemeinsame Segmente</span></li>
+<li><a href="spark.html">Spark</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
+<li><a href="datenmodellierung.html">Datenmodellierung</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

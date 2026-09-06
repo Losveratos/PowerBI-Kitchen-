@@ -1,0 +1,1188 @@
+{
+ "id": "tool:copilot",
+ "name": "Copilot",
+ "typ": "tool",
+ "slug": "copilot",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 47,
+ "kernaussagen_gesamt": 24,
+ "mit_kernaussagen": 10,
+ "aliase": [
+  "Co-Pilot"
+ ],
+ "einordnung": "Im Power BI Service ist Copilot jetzt prominent platziert. Nutzer können die prominente Copilot-Anzeige im Power BI Service wieder zurückdrehen. In den Fabric-Tenant-Einstellungen lässt sich der Zugriff auf Copilot für Power BI global deaktivieren oder auf vorab genehmigte Elemente beschränken.",
+ "nachbarn": [
+  {
+   "id": "tool:semantic-model",
+   "name": "Semantic Model",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 4,
+   "beleg": "es gibt aber diese Einstellung für den Copilot nur an dem Dataset und von da aus wird's weiter vererbt",
+   "datei": "semantic-model.md"
+  },
+  {
+   "id": "tool:tmdl",
+   "name": "TMDL",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "Du kannst halt alles nur verändern, was irgendwo im TMDL Model steht (Segment 30)",
+   "datei": "tmdl.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 62,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 40,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 32,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 15,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "tool:dax",
+   "name": "DAX",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "dax.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "tool:power-automate",
+   "name": "Power Automate",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "power-automate.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:teams",
+   "name": "Teams",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "teams.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 874,
+   "zeit": "14:34",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=874s",
+   "aussage": "In den Fabric-Tenant-Einstellungen lässt sich der Zugriff auf Copilot für Power BI global deaktivieren oder auf vorab genehmigte Elemente beschränken."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 965,
+   "zeit": "16:05",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=965s",
+   "aussage": "Nach einer Änderung der Copilot-Freigabeeinstellungen für ein Modell kann es einige Zeit dauern, bis die neuen Berechtigungen greifen, weil zunächst der Cache geleert werden muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1166,
+   "zeit": "19:26",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1166s",
+   "aussage": "Copilot für Power BI kann bei einer tenantweiten Suche einen passenden Bericht finden und direkt zu der referenzierten Kennzahl beziehungsweise Visual-Zeile springen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1263,
+   "zeit": "21:03",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1263s",
+   "aussage": "Das Explore-Feature (Antwort erkunden) kann von Nutzern ohne Build-Permission verwendet werden, was von den Sprechern als Sicherheitsrisiko eingeordnet wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1459,
+   "zeit": "24:19",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1459s",
+   "aussage": "Die Berechtigung für den Zugriff von Copilot wird zentral am semantischen Modell gesetzt und von dort automatisch an Berichte und Apps vererbt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1556,
+   "zeit": "25:56",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1556s",
+   "aussage": "Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1752,
+   "zeit": "29:12",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1752s",
+   "aussage": "Für Einsteiger, die sich mit der Navigation in Berichten schwertun, senkt Copilot die Einstiegshürde deutlich, während es für erfahrene Profis kaum einen Geschwindigkeitsvorteil bringt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1850,
+   "zeit": "30:50",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1850s",
+   "aussage": "Copilot generiert bei einer Anfrage in der Regel keine eigenen Kennzahlen, sondern verlinkt bevorzugt auf einen bereits vom Fachbereich verifizierten und freigegebenen Bericht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1530,
+   "zeit": "25:30",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s",
+   "aussage": "Klassische Copilot-Lizenzen kosteten anfangs häufig zwischen 20 und 30 Euro pro Nutzer und Monat."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1530,
+   "zeit": "25:30",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s",
+   "aussage": "Bei manchen Unternehmen, die Copilot flächendeckend ausgerollt haben, nutzen rund 60 Prozent der Lizenzinhaber das Tool gar nicht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s",
+   "aussage": "Im Power BI Service ist Copilot jetzt prominent platziert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s",
+   "aussage": "Nutzer können die prominente Copilot-Anzeige im Power BI Service wieder zurückdrehen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s",
+   "aussage": "Der Sprecher ist der Meinung, dass Copilot bleiben und sich stetig verbessern wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 53,
+   "zeit": "00:53",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=53s",
+   "aussage": "Microsoft entfernt das Q&A-Feature aus Power BI und setzt stattdessen auf effizientere KI-Alternativen wie Copilot Chat with your Data."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 1916,
+   "zeit": "31:56",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1916s",
+   "aussage": "Copilot kann laut den Sprechern automatisch Beschreibungen zu Measures erzeugen, darf aber in bestimmten regulierten Umgebungen wie der Finanzverwaltung nicht eingesetzt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 2007,
+   "zeit": "33:27",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2007s",
+   "aussage": "Ein KI-Coding-Assistent kann direkt in einem Power-BI-Semantikmodell Measures schreiben und eine neue Tabellenstruktur anlegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1377,
+   "zeit": "22:57",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1377s",
+   "aussage": "Rui Romano zeigte auf der FabCon, wie ein MCP-Server zusammen mit selbst geschriebenen Instruktions-Dokumenten genutzt wird, um per KI-Agent automatisch ein semantisches Modell samt Bericht generieren zu lassen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1773,
+   "zeit": "29:33",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1773s",
+   "aussage": "Für sich wiederholende Aufgaben wie Suchen-und-Ersetzen über ein ganzes Projekt sollte die KI besser ein wiederverwendbares Skript, etwa in Python, generieren, statt jede Datei einzeln direkt durch die KI anpassen zu lassen, um Copilot-Credits zu sparen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 4711,
+   "zeit": "1:18:31",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4711s",
+   "aussage": "Ein Sprecher prognostiziert, dass KI-Agentensysteme künftig Dashboards direkt aus natürlichsprachigen Anweisungen erstellen werden, wodurch klassische manuelle Berichtsentwicklung an Bedeutung verliert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 4819,
+   "zeit": "1:20:19",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4819s",
+   "aussage": "Nach aktueller Einschätzung eines Teilnehmers ist Copilot für einen erfahrenen Power-BI-Experten noch keine ernsthafte Konkurrenz."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "10 Jahre Power BI",
+   "dokument_id": "yt:ZaDd1uxeLbI",
+   "sekunde": 5102,
+   "zeit": "1:25:02",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5102s",
+   "aussage": "Mit Copilot lassen sich IBCS-konforme Visualisierungen aktuell kaum umsetzen, weil kein nativer Zugriff auf spezialisierte Custom Visuals wie Integrated Variance Charts besteht."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 473,
+   "zeit": "07:53",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=473s",
+   "aussage": "Strukturierter, klar lesbarer Code wie TMDL ist notwendig, damit KI-Tools und Copilot Power-BI-Modelle gut nutzen und automatisiert bearbeiten können."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 1526,
+   "zeit": "25:26",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1526s",
+   "aussage": "KI-Werkzeuge wie Copilot senken laut Tom Martens die Einstiegshürde, um komplexen Deneb- beziehungsweise Vega-Code selbst anzupassen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 2494,
+   "zeit": "41:34",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2494s",
+   "aussage": "Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:wuuPwUPQVxk",
+   "titel": "Protokoll in 60 Sekunden! - So geht es mit Copilot!",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 1.0,
+   "url": "https://www.youtube.com/watch?v=wuuPwUPQVxk",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=wuuPwUPQVxk&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:42",
+     "url": "https://www.youtube.com/watch?v=wuuPwUPQVxk&t=102s",
+     "sekunde": 102
+    }
+   ]
+  },
+  {
+   "id": "yt:WJXREKKx2yo",
+   "titel": "Vorbereiten der Daten für KI",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.667,
+   "url": "https://www.youtube.com/watch?v=WJXREKKx2yo",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "01:35",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=95s",
+     "sekunde": 95
+    },
+    {
+     "label": "04:42",
+     "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=282s",
+     "sekunde": 282
+    }
+   ]
+  },
+  {
+   "id": "yt:_MfM3rhJx58",
+   "titel": "Copilot + Power Automate = Gamechanger",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.667,
+   "url": "https://www.youtube.com/watch?v=_MfM3rhJx58",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "03:16",
+     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=196s",
+     "sekunde": 196
+    },
+    {
+     "label": "08:07",
+     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=487s",
+     "sekunde": 487
+    }
+   ]
+  },
+  {
+   "id": "yt:TAM5AAZqh7k",
+   "titel": "Power BI Update Januar 2026",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.6,
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "00:40",
+     "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=40s",
+     "sekunde": 40
+    },
+    {
+     "label": "03:19",
+     "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=199s",
+     "sekunde": 199
+    }
+   ]
+  },
+  {
+   "id": "yt:1mfhZw7bg_c",
+   "titel": "Forms + Power Automate = Feedback-Alarm!",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.6,
+   "url": "https://www.youtube.com/watch?v=1mfhZw7bg_c",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=1mfhZw7bg_c&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "03:13",
+     "url": "https://www.youtube.com/watch?v=1mfhZw7bg_c&t=193s",
+     "sekunde": 193
+    },
+    {
+     "label": "06:19",
+     "url": "https://www.youtube.com/watch?v=1mfhZw7bg_c&t=379s",
+     "sekunde": 379
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.412,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "06:26",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=386s",
+     "sekunde": 386
+    },
+    {
+     "label": "09:08",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=548s",
+     "sekunde": 548
+    },
+    {
+     "label": "15:14",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=914s",
+     "sekunde": 914
+    }
+   ]
+  },
+  {
+   "id": "yt:TkxwcAyBGUM",
+   "titel": "Power BI Update Juli 2025",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.375,
+   "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM",
+   "sprungmarken": [
+    {
+     "label": "00:32",
+     "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM&t=32s",
+     "sekunde": 32
+    },
+    {
+     "label": "01:37",
+     "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM&t=97s",
+     "sekunde": 97
+    },
+    {
+     "label": "06:48",
+     "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM&t=408s",
+     "sekunde": 408
+    }
+   ]
+  },
+  {
+   "id": "yt:kP8YNW1XN_E",
+   "titel": "Forms + Sharepoint + Powerautomate",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.333,
+   "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "08:12",
+     "url": "https://www.youtube.com/watch?v=kP8YNW1XN_E&t=492s",
+     "sekunde": 492
+    }
+   ]
+  },
+  {
+   "id": "yt:e50qKdVn-24",
+   "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.278,
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
+   "sprungmarken": [
+    {
+     "label": "00:50",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=50s",
+     "sekunde": 50
+    },
+    {
+     "label": "10:50",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=650s",
+     "sekunde": 650
+    },
+    {
+     "label": "13:04",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=784s",
+     "sekunde": 784
+    }
+   ]
+  },
+  {
+   "id": "yt:rWE0gMx7v7I",
+   "titel": "BI Thinkers Talk n.74",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.234,
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I",
+   "sprungmarken": [
+    {
+     "label": "14:34",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=874s",
+     "sekunde": 874
+    },
+    {
+     "label": "22:42",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1362s",
+     "sekunde": 1362
+    },
+    {
+     "label": "27:27",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1647s",
+     "sekunde": 1647
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart",
+   "titel": "ChartKitchen byDatenWG — Schnellstart",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=F%C3%BCr%20KI-Agenten%3A%20der%20Agent-Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-schnellstart_en",
+   "titel": "ChartKitchen byDatenWG — Quick Start",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.2,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=For%20AI%20agents%3A%20the%20Agent%20Guide",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:XJZxYNIeEVc",
+   "titel": "Power BI Update November 2025",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.167,
+   "url": "https://www.youtube.com/watch?v=XJZxYNIeEVc",
+   "sprungmarken": [
+    {
+     "label": "03:31",
+     "url": "https://www.youtube.com/watch?v=XJZxYNIeEVc&t=211s",
+     "sekunde": 211
+    }
+   ]
+  },
+  {
+   "id": "yt:jTXo4aEr07o",
+   "titel": "Power BI Update August 2025",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=jTXo4aEr07o",
+   "sprungmarken": [
+    {
+     "label": "02:46",
+     "url": "https://www.youtube.com/watch?v=jTXo4aEr07o&t=166s",
+     "sekunde": 166
+    }
+   ]
+  },
+  {
+   "id": "yt:UnW4wHhw_IY",
+   "titel": "Daten-WG Deep Dive Financial Reporting pt.4",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.139,
+   "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY",
+   "sprungmarken": [
+    {
+     "label": "13:11",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=791s",
+     "sekunde": 791
+    },
+    {
+     "label": "21:32",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1292s",
+     "sekunde": 1292
+    },
+    {
+     "label": "23:12",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=1392s",
+     "sekunde": 1392
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.139,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "20:52",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1252s",
+     "sekunde": 1252
+    },
+    {
+     "label": "22:34",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1354s",
+     "sekunde": 1354
+    },
+    {
+     "label": "24:05",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1445s",
+     "sekunde": 1445
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.122,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "12:22",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=742s",
+     "sekunde": 742
+    },
+    {
+     "label": "41:52",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2512s",
+     "sekunde": 2512
+    },
+    {
+     "label": "59:26",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=3566s",
+     "sekunde": 3566
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.114,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "44:26",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2666s",
+     "sekunde": 2666
+    },
+    {
+     "label": "45:20",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2720s",
+     "sekunde": 2720
+    },
+    {
+     "label": "46:54",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2814s",
+     "sekunde": 2814
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.108,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "00:53",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=53s",
+     "sekunde": 53
+    },
+    {
+     "label": "33:30",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2010s",
+     "sekunde": 2010
+    },
+    {
+     "label": "35:19",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2119s",
+     "sekunde": 2119
+    }
+   ]
+  },
+  {
+   "id": "yt:SSUpe1JON9Y",
+   "titel": "The Power of User Groups",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y",
+   "sprungmarken": [
+    {
+     "label": "08:10",
+     "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=490s",
+     "sekunde": 490
+    },
+    {
+     "label": "22:02",
+     "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1322s",
+     "sekunde": 1322
+    }
+   ]
+  },
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.089,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.088,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "1:18:31",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4711s",
+     "sekunde": 4711
+    },
+    {
+     "label": "1:20:19",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4819s",
+     "sekunde": 4819
+    },
+    {
+     "label": "1:25:02",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5102s",
+     "sekunde": 5102
+    }
+   ]
+  },
+  {
+   "id": "yt:EVsJ6zyGUWc",
+   "titel": "Was ist Self-Service und warum ist das so schwer?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.086,
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc",
+   "sprungmarken": [
+    {
+     "label": "17:22",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1042s",
+     "sekunde": 1042
+    },
+    {
+     "label": "25:26",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1526s",
+     "sekunde": 1526
+    },
+    {
+     "label": "26:45",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1605s",
+     "sekunde": 1605
+    }
+   ]
+  },
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "20:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1205s",
+     "sekunde": 1205
+    }
+   ]
+  },
+  {
+   "id": "yt:iinfiHxznOU",
+   "titel": "Unboxing MCP Server for Power BI Modelling",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.075,
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
+   "sprungmarken": [
+    {
+     "label": "07:46",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=466s",
+     "sekunde": 466
+    },
+    {
+     "label": "09:19",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=559s",
+     "sekunde": 559
+    },
+    {
+     "label": "49:26",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=2966s",
+     "sekunde": 2966
+    }
+   ]
+  },
+  {
+   "id": "yt:iymmxuXHh44",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 5",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.073,
+   "url": "https://www.youtube.com/watch?v=iymmxuXHh44",
+   "sprungmarken": [
+    {
+     "label": "22:25",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1345s",
+     "sekunde": 1345
+    },
+    {
+     "label": "24:14",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1454s",
+     "sekunde": 1454
+    },
+    {
+     "label": "29:15",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1755s",
+     "sekunde": 1755
+    }
+   ]
+  },
+  {
+   "id": "yt:zkfdfc5fo-E",
+   "titel": "Power BI Update Mai 2025",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E",
+   "sprungmarken": [
+    {
+     "label": "13:04",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=784s",
+     "sekunde": 784
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.07,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "29:35",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1775s",
+     "sekunde": 1775
+    },
+    {
+     "label": "31:10",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1870s",
+     "sekunde": 1870
+    },
+    {
+     "label": "32:58",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1978s",
+     "sekunde": 1978
+    }
+   ]
+  },
+  {
+   "id": "yt:0cHtxIm7fVw",
+   "titel": "Von Patronen zu Prozessen",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.048,
+   "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw",
+   "sprungmarken": [
+    {
+     "label": "17:12",
+     "url": "https://www.youtube.com/watch?v=0cHtxIm7fVw&t=1032s",
+     "sekunde": 1032
+    }
+   ]
+  },
+  {
+   "id": "yt:s3CveEVoDvo",
+   "titel": "Von Patronen zu Prozessen (nur Ton)",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.048,
+   "url": "https://www.youtube.com/watch?v=s3CveEVoDvo",
+   "sprungmarken": [
+    {
+     "label": "17:12",
+     "url": "https://www.youtube.com/watch?v=s3CveEVoDvo&t=1032s",
+     "sekunde": 1032
+    }
+   ]
+  },
+  {
+   "id": "yt:YzfcMurbWNc",
+   "titel": "Power BI-Teams werden Fabric-Datendienstleister",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.045,
+   "url": "https://www.youtube.com/watch?v=YzfcMurbWNc",
+   "sprungmarken": [
+    {
+     "label": "15:23",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=923s",
+     "sekunde": 923
+    }
+   ]
+  },
+  {
+   "id": "yt:9wl_PLvgvyc",
+   "titel": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc",
+   "sprungmarken": [
+    {
+     "label": "14:40",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=880s",
+     "sekunde": 880
+    }
+   ]
+  },
+  {
+   "id": "yt:XxPFAQfLyuA",
+   "titel": "Wie war die Daten-WG? (2025, Teil 2)",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
+   "sprungmarken": [
+    {
+     "label": "14:52",
+     "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=892s",
+     "sekunde": 892
+    }
+   ]
+  },
+  {
+   "id": "yt:jETxUNQSl-w",
+   "titel": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.034,
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w",
+   "sprungmarken": [
+    {
+     "label": "25:30",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s",
+     "sekunde": 1530
+    }
+   ]
+  },
+  {
+   "id": "yt:LUrL8A5lNgI",
+   "titel": "BI Thinkers Talk nr.71",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.033,
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI",
+   "sprungmarken": [
+    {
+     "label": "31:56",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1916s",
+     "sekunde": 1916
+    },
+    {
+     "label": "51:29",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=3089s",
+     "sekunde": 3089
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.032,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "27:02",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1622s",
+     "sekunde": 1622
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.031,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "40:00",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2400s",
+     "sekunde": 2400
+    }
+   ]
+  },
+  {
+   "id": "yt:oh-3_65IQ2Q",
+   "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
+   "sprungmarken": [
+    {
+     "label": "25:25",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1525s",
+     "sekunde": 1525
+    }
+   ]
+  },
+  {
+   "id": "yt:luk4S4ukKmg",
+   "titel": "BI Thinkers Talk n.72",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg",
+   "sprungmarken": [
+    {
+     "label": "33:52",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2032s",
+     "sekunde": 2032
+    }
+   ]
+  },
+  {
+   "id": "yt:DQENmzAkNqw",
+   "titel": "Daten-WG BI Thinkers Talk nr.66",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
+   "sprungmarken": [
+    {
+     "label": "01:48",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=108s",
+     "sekunde": 108
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Acopilot",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Acopilot&f=tool%3Acopilot"
+}

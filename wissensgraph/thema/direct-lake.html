@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direct Lake · DatenWG Library</title>
+<meta name="description" content="Als Preview-Feature sollen DAX-berechnete Spalten künftig auch in Direct-Lake-Modellen anlegbar sein, aktuell ist die Option dort noch ausgeblendet. Für eine Fabric-SQL-Datenbank ist Direct Lake nicht nutzbar, weshalb im Berichtsmodell Import oder DirectQuery verwendet werden muss.">
+<meta property="og:title" content="Direct Lake · DatenWG Library">
+<meta property="og:description" content="Als Preview-Feature sollen DAX-berechnete Spalten künftig auch in Direct-Lake-Modellen anlegbar sein, aktuell ist die Option dort noch ausgeblendet. Für eine Fabric-SQL-Datenbank ist Direct Lake nicht nutzbar, weshalb im Berichtsmodell Import oder DirectQuery verwendet werden muss.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/direct-lake.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · tool</p>
+<h1>Direct Lake</h1>
+<p class="lead">Als Preview-Feature sollen DAX-berechnete Spalten künftig auch in Direct-Lake-Modellen anlegbar sein, aktuell ist die Option dort noch ausgeblendet. Für eine Fabric-SQL-Datenbank ist Direct Lake nicht nutzbar, weshalb im Berichtsmodell Import oder DirectQuery verwendet werden muss. Bei einem Direct-Lake-Modell bleibt das Semantic Model nach einem Deployment über eine Deployment Pipeline weiterhin mit dem Lakehouse der Testumgebung verbunden, die Datenquelle wird also nicht automatisch auf die Zielumgebung umgehängt.</p>
+<div class="btns"><a class="btn" href="../#n=tool%3Adirect-lake">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Adirect-lake&amp;f=tool%3Adirect-lake">Im Graph öffnen</a></div>
+<p class="meta">32 Dokumente · 20 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">DirectLake</span> <span class="tag">Direct-Lake</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Als Preview-Feature sollen DAX-berechnete Spalten künftig auch in Direct-Lake-Modellen anlegbar sein, aktuell ist die Option dort noch ausgeblendet.<span class="meta quote">Fakt · Power BI Update April 2026 · <a href="https://www.youtube.com/watch?v=fbpu8zLG3cc&amp;t=115s">01:55</a></span></li>
+<li>Bei Direct Lake führt der erste Nutzer, der morgens einen Bericht öffnet, wegen des noch kalten Caches häufig zu langen Wartezeiten.<span class="meta quote">Fakt · BI Thinkers Talk nr.75 · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=2575s">42:55</a></span></li>
+<li>Der Power BI Fixer kann automatisch ein geplantes Notebook anlegen, das die Direct-Lake-Perspektive täglich zu einer festen Uhrzeit aktualisiert, um den Cache vorzuwärmen.<span class="meta quote">Empfehlung · BI Thinkers Talk nr.75 · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=2575s">42:55</a></span></li>
+<li>Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte.<span class="meta quote">Fakt · Fabric Planning unboxing · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=186s">03:06</a></span></li>
+<li>Direct Lake auf OneLake ist jetzt allgemein verfügbar und damit der neue Standard für Direct Lake.<span class="meta quote">Fakt · Power BI Update März 2026 · <a href="https://www.youtube.com/watch?v=ASwcPvbMRZc&amp;t=381s">06:21</a></span></li>
+<li>Wer Fabric nutzt, sollte sich Direct Lake auf OneLake auf jeden Fall anschauen.<span class="meta quote">Empfehlung · Power BI Update März 2026 · <a href="https://www.youtube.com/watch?v=ASwcPvbMRZc&amp;t=381s">06:21</a></span></li>
+<li>Bei einem Direct-Lake-Modell bleibt das Semantic Model nach einem Deployment über eine Deployment Pipeline weiterhin mit dem Lakehouse der Testumgebung verbunden, die Datenquelle wird also nicht automatisch auf die Zielumgebung umgehängt.<span class="meta quote">Fakt · BI Thinkers Talk n.73 · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=2144s">35:44</a></span></li>
+<li>Der Sprecher hält doppelte Datenhaltung in einem zweiten Lakehouse für unnötig, wenn ohnehin schon ein Direct-Lake-Modell mit großen Datenmengen im Einsatz ist.<span class="meta quote">Meinung · BI Thinkers Talk n.73 · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=2339s">38:59</a></span></li>
+<li>Eine Monitoring-Analyse zeigte, dass über zwei Drittel der Last auf einem produktiven Direct-Lake-Semantic-Model von Entwicklern in Power BI Desktop stammten und nicht von den eigentlichen Report-Nutzern.<span class="meta quote">Fakt · BI Thinkers Talk n.73 · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=2439s">40:39</a></span></li>
+<li>Mit der VS-Code-Erweiterung für Fabric lässt sich ein Direct-Lake-Modell innerhalb weniger Minuten von einer SQL-Datenbank auf ein Warehouse umziehen.<span class="meta quote">Fakt · Fabric &amp; Power BI Quarterly · 2026-1 · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=541s">09:01</a></span></li>
+<li>Deployment Pipelines unterstützen Dataflows, Lakehouses und Direct Lake nicht zuverlässig, sodass danach oft manuell mit VS Code nachgearbeitet werden muss.<span class="meta quote">Fakt · BI Thinkers Talk n.72 · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=3234s">53:54</a></span></li>
+<li>Für Import-Modelle gibt es in Deployment Pipelines eigene Deployment Rules, für Direct Lake dagegen nicht.<span class="meta quote">Fakt · BI Thinkers Talk n.72 · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=3234s">53:54</a></span></li>
+<li>Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt.<span class="meta quote">Fakt · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1068s">17:48</a></span></li>
+<li>Weil eine zu restriktive Firewall-Security den SQL-Zugriff auf Lakehouse-Tabellen blockierte, baute der Kunde stattdessen ein semantisches Direct-Lake-Modell direkt im Web auf.<span class="meta quote">Fakt · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1168s">19:28</a></span></li>
+<li>Ein bestehender Bericht wurde im Live-Connection-Modus aus dem Power-BI-Service heruntergeladen und anschließend über die Datenverbindung von seinem ursprünglichen Importmodell auf ein neu aufgebautes Direct-Lake-Modell mit identischen Measure-Namen umgestellt.<span class="meta quote">Empfehlung · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1263s">21:03</a></span></li>
+<li>Die Kombination aus Direct Lake und Import Mode ist mittlerweile GA verfügbar und ermöglicht damit ein stabileres Composite-Modell.<span class="meta quote">Fakt · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=3827s">1:03:47</a></span></li>
+<li>Für eine Fabric-SQL-Datenbank ist Direct Lake nicht nutzbar, weshalb im Berichtsmodell Import oder DirectQuery verwendet werden muss.<span class="meta quote">Fakt · BI Thinkers Talk Nr.62 · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=1907s">31:47</a></span></li>
+<li>Mit Direct Lake wäre das Zurückschreiben asynchron und dadurch deutlich schneller als mit DirectQuery.<span class="meta quote">Meinung · BI Thinkers Talk Nr.62 · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=2860s">47:40</a></span></li>
+<li>Bei Direct Lake fällt die Aktualisierung des semantischen Modells nach dem Schreiben kaum auf, weil kein spürbarer Refresh-Vorgang nötig ist.<span class="meta quote">Meinung · BI Thinkers Talk Nr.62 · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=3749s">1:02:29</a></span></li>
+<li>Direct Lake existiert in zwei Varianten, verbunden über den SQL-Endpoint oder direkt mit dem Lake, was zusätzliche Komplexität für Citizen Developer schafft.<span class="meta quote">Fakt · Microsoft Fabric — braucht das wirklich jemand? · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=1684s">28:04</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wann%20Import%20%28noch%29%20gewinnt">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Community%20%C2%B7%20Blogs%2C%20Benchmarks%20%26%20B%C3%BCcher">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Zwei%20Varianten%20%E2%80%94%20wichtig%20seit%202025">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=fbpu8zLG3cc">Power BI Update April 2026</a><span class="meta quote">2026-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=fbpu8zLG3cc&amp;t=115s">01:55</a> · <a href="https://www.youtube.com/watch?v=fbpu8zLG3cc&amp;t=178s">02:58</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=zkfdfc5fo-E">Power BI Update Mai 2025</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=zkfdfc5fo-E&amp;t=466s">07:46</a> · <a href="https://www.youtube.com/watch?v=zkfdfc5fo-E&amp;t=559s">09:19</a> · <a href="https://www.youtube.com/watch?v=zkfdfc5fo-E&amp;t=681s">11:21</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc">BI Thinkers Talk Nr.62</a><span class="meta quote">2025-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=1907s">31:47</a> · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=2003s">33:23</a> · <a href="https://www.youtube.com/watch?v=Wwvhv8WA2Qc&amp;t=2860s">47:40</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=pOJpXxsfUt0">BI Thinkers Talk n.73</a><span class="meta quote">2026-02-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=2144s">35:44</a> · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=2237s">37:17</a> · <a href="https://www.youtube.com/watch?v=pOJpXxsfUt0&amp;t=2339s">38:59</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=jTXo4aEr07o">Power BI Update August 2025</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=jTXo4aEr07o&amp;t=81s">01:21</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=bt81POE-9Ig">Daten-WG Deep Dive Financial Reporting - part 6</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=bt81POE-9Ig&amp;t=2479s">41:19</a> · <a href="https://www.youtube.com/watch?v=bt81POE-9Ig&amp;t=2772s">46:12</a> · <a href="https://www.youtube.com/watch?v=bt81POE-9Ig&amp;t=2864s">47:44</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=c-LWoo-O5PQ">SharePoint direkt in Microsoft Fabric nutzen | Lakehouse, Direct Lake &amp; Power BI</a><span class="meta quote">2026-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=c-LWoo-O5PQ&amp;t=560s">09:20</a> · <a href="https://www.youtube.com/watch?v=c-LWoo-O5PQ&amp;t=972s">16:12</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TkxwcAyBGUM">Power BI Update Juli 2025</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=TkxwcAyBGUM&amp;t=369s">06:09</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=508s">08:28</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=633s">10:33</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=726s">12:06</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ASwcPvbMRZc">Power BI Update März 2026</a><span class="meta quote">2026-03-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=ASwcPvbMRZc&amp;t=381s">06:21</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=G8s96sHUHac">BI Thinkers Talk nr.67</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1068s">17:48</a> · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1263s">21:03</a> · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=3827s">1:03:47</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=RtUiF1J5XEg">600 SQL-Tabellen in Fabric</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1195s">19:55</a> · <a href="https://www.youtube.com/watch?v=RtUiF1J5XEg&amp;t=1473s">24:33</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=6gQiIbyhWEc">Power BI Update September 2025</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=6gQiIbyhWEc&amp;t=536s">08:56</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=232JhS9vbQ0">Daten-WG Deep Dive Financial Reporting - part 7</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=232JhS9vbQ0&amp;t=324s">05:24</a> · <a href="https://www.youtube.com/watch?v=232JhS9vbQ0&amp;t=511s">08:31</a> · <a href="https://www.youtube.com/watch?v=232JhS9vbQ0&amp;t=1217s">20:17</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=r416vanitYw">BI Thinkers Talk nr.69</a><span class="meta quote">2025-11-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=2568s">42:48</a> · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=2667s">44:27</a> · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=3532s">58:52</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=GWCHNmLs72M">Power BI Update August 2026</a><span class="meta quote">2026-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=GWCHNmLs72M&amp;t=455s">07:35</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=J-lN5JN-F5I">Daten-WG Life-Update | Fabric Architekturen</a><span class="meta quote">2026-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=470s">07:50</a> · <a href="https://www.youtube.com/watch?v=J-lN5JN-F5I&amp;t=1507s">25:07</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2211s">36:51</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2338s">38:58</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=179s">02:59</a> · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1536s">25:36</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=xCzKEIB4W5I">Fabric Planning unboxing</a><span class="meta quote">2026-03-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=186s">03:06</a> · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=3327s">55:27</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric%20vs.%20klassisches%20Power%20BI">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Direct%20Lake%20%28Fabric%29">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mTVeZzshLzE">Microsoft Fabric — braucht das wirklich jemand?</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=1684s">28:04</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9VX4-lLa0EI">BI Thinkers Talk nr.63</a><span class="meta quote">2025-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9VX4-lLa0EI&amp;t=3129s">52:09</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=UnW4wHhw_IY">Daten-WG Deep Dive Financial Reporting pt.4</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=UnW4wHhw_IY&amp;t=2068s">34:28</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYp5xCAU2AU">Fabric &amp; Power BI Quarterly · 2026-1</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=541s">09:01</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=luk4S4ukKmg">BI Thinkers Talk n.72</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=3234s">53:54</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY">BI Thinkers Talk nr.75</a><span class="meta quote">2026-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=2575s">42:55</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=VD1N68Fhoco">BI Thinkers Talk nr.68</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=VD1N68Fhoco&amp;t=3474s">57:54</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=iymmxuXHh44">Daten-WG Deep Dive Financial Reporting - part 5</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=iymmxuXHh44&amp;t=3843s">1:04:03</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=eWfTt93anl4">BI Thinkers Talk nr.77</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=eWfTt93anl4&amp;t=3185s">53:05</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8">BI Thinkers Talk nr.76</a><span class="meta quote">2026-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=2745s">45:45</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="sql-endpoint.html">SQL Endpoint</a><span class="meta quote">setzt-voraus · belegt · 10 gemeinsame Segmente</span></li>
+<li><a href="notebook.html">Notebook</a><span class="meta quote">setzt-voraus · belegt · 18 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">setzt-voraus · belegt · 40 gemeinsame Segmente</span></li>
+<li><a href="import-mode.html">Import Mode</a><span class="meta quote">gegensatz · belegt · 6 gemeinsame Segmente</span></li>
+<li><a href="import-mode.html">Import Mode</a><span class="meta quote">ersetzt · belegt · 6 gemeinsame Segmente</span></li>
+<li><a href="composite-models.html">Composite Models</a><span class="meta quote">teil-von · belegt · 5 gemeinsame Segmente</span></li>
+<li><a href="directquery.html">DirectQuery</a><span class="meta quote">gegensatz · belegt · 34 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 46 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 45 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 31 gemeinsame Segmente</span></li>
+<li><a href="onelake.html">OneLake</a><span class="meta quote">ko-vorkommen · heuristik · 29 gemeinsame Segmente</span></li>
+<li><a href="refresh.html">Refresh</a><span class="meta quote">ko-vorkommen · heuristik · 28 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 28 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 24 gemeinsame Segmente</span></li>
+<li><a href="semantic-model.html">Semantic Model</a><span class="meta quote">ko-vorkommen · heuristik · 21 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

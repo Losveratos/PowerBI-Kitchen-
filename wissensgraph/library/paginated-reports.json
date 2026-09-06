@@ -1,0 +1,92 @@
+{
+ "id": "tool:paginated-reports",
+ "name": "Paginated Reports",
+ "typ": "tool",
+ "slug": "paginated-reports",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 3,
+ "kernaussagen_gesamt": 1,
+ "mit_kernaussagen": 1,
+ "aliase": [
+  "Paginierte Berichte",
+  "Report Builder",
+  "Paginated Report"
+ ],
+ "einordnung": "Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen.",
+ "nachbarn": [
+  {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "ist auch ein bisschen Konkurrenz zu Paginonated Reports an einigen Stellen",
+   "datei": "planung.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 3090,
+   "zeit": "51:30",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3090s",
+   "aussage": "Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:z4ZeHPzIeeU",
+   "titel": "Wie war die Daten-WG? · Im Gespräch mit Artur König",
+   "datum": "2025-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU",
+   "sprungmarken": [
+    {
+     "label": "22:25",
+     "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1345s",
+     "sekunde": 1345
+    }
+   ]
+  },
+  {
+   "id": "yt:aEXtFWW-pmo",
+   "titel": "Wie war die Daten-WG 2025? (Teil 1)",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
+   "sprungmarken": [
+    {
+     "label": "23:09",
+     "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1389s",
+     "sekunde": 1389
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "53:04",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3184s",
+     "sekunde": 3184
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Apaginated-reports",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Apaginated-reports&f=tool%3Apaginated-reports"
+}

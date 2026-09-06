@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Azure Maps · DatenWG Library</title>
+<meta name="description" content="In diesem Tutorial wird gezeigt, wie eine Von-bis-Postleitzahlenregion aus einer Excel-Tabelle in ein Flächenkartogramm mit Azure Maps in Power BI umgewandelt wird.">
+<meta property="og:title" content="Azure Maps · DatenWG Library">
+<meta property="og:description" content="In diesem Tutorial wird gezeigt, wie eine Von-bis-Postleitzahlenregion aus einer Excel-Tabelle in ein Flächenkartogramm mit Azure Maps in Power BI umgewandelt wird.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-maps.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · tool</p>
+<h1>Azure Maps</h1>
+<p class="lead">In diesem Tutorial wird gezeigt, wie eine Von-bis-Postleitzahlenregion aus einer Excel-Tabelle in ein Flächenkartogramm mit Azure Maps in Power BI umgewandelt wird. Die von GitHub geladenen Shapefiles liegen als Brotli-komprimierte .br-Dateien vor und müssen vor der Weiterverarbeitung mit einem Online-Tool entpackt werden. Die reparierten Shapefile-Geometrien werden in QGIS über einen Join mit der CSV-Datei der Gebietsaufteilung anhand der Postleitzahl verknüpft.</p>
+<div class="btns"><a class="btn" href="../#n=tool%3Aazure-maps">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Aazure-maps&amp;f=tool%3Aazure-maps">Im Graph öffnen</a></div>
+<p class="meta">5 Dokumente · 17 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">Azure Map</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>In diesem Tutorial wird gezeigt, wie eine Von-bis-Postleitzahlenregion aus einer Excel-Tabelle in ein Flächenkartogramm mit Azure Maps in Power BI umgewandelt wird.<span class="meta quote">Fakt · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=2s">00:02</a></span></li>
+<li>Für eigene Kartenregionen in Azure Maps werden das kostenlose Tool QGIS und Shapefiles von GitHub benötigt.<span class="meta quote">Empfehlung · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=43s">00:43</a></span></li>
+<li>Für Azure Maps sollte das GeoJSON-Format genutzt werden, während TopoJSON für das Flächenkartogramm gedacht ist.<span class="meta quote">Empfehlung · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=43s">00:43</a></span></li>
+<li>Die von GitHub geladenen Shapefiles liegen als Brotli-komprimierte .br-Dateien vor und müssen vor der Weiterverarbeitung mit einem Online-Tool entpackt werden.<span class="meta quote">Fakt · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=125s">02:05</a></span></li>
+<li>Power BI erlaubt jetzt das Platzieren individueller Marker auf Azure-Maps-Visualisierungen.<span class="meta quote">Fakt · Power BI Update Januar 2026 · <a href="https://www.youtube.com/watch?v=TAM5AAZqh7k&amp;t=199s">03:19</a></span></li>
+<li>Der Sprecher findet die individuellen Azure-Maps-Marker unterhaltsam, aber für seine eigene Arbeit wenig relevant.<span class="meta quote">Meinung · Power BI Update Januar 2026 · <a href="https://www.youtube.com/watch?v=TAM5AAZqh7k&amp;t=199s">03:19</a></span></li>
+<li>Der Sprecher empfiehlt Zuschauern, bei Interesse an den individuellen Azure-Maps-Markern einen Kommentar zu hinterlassen.<span class="meta quote">Empfehlung · Power BI Update Januar 2026 · <a href="https://www.youtube.com/watch?v=TAM5AAZqh7k&amp;t=199s">03:19</a></span></li>
+<li>Vor der Weiterverarbeitung müssen die importierten Shapefile-Geometrien in QGIS repariert werden, da nicht geschlossene Flächen oder Schleifen sonst beim Rendern in Power BI zu Problemen führen.<span class="meta quote">Warnung · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=515s">08:35</a></span></li>
+<li>Die reparierten Shapefile-Geometrien werden in QGIS über einen Join mit der CSV-Datei der Gebietsaufteilung anhand der Postleitzahl verknüpft.<span class="meta quote">Fakt · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=650s">10:50</a></span></li>
+<li>Mit der QGIS-Funktion Auflösen (Dissolve) werden die einzelnen Postleitzahlflächen anhand des Gebietsnamens zu zusammenhängenden Vertriebsregionen zusammengefasst.<span class="meta quote">Fakt · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=750s">12:30</a></span></li>
+<li>Die fertige Vertriebsregionenkarte muss aus QGIS im GeoJSON-Format exportiert werden, damit sie in Power BI verwendet werden kann.<span class="meta quote">Empfehlung · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=867s">14:27</a></span></li>
+<li>Vor dem Import in Power BI sollte die aus QGIS exportierte GeoJSON-Datei mit einem Online-Tool standardisiert werden, da Power BI mit unbearbeiteten QGIS-GeoJSON-Dateien mitunter Schwierigkeiten hat.<span class="meta quote">Warnung · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=1106s">18:26</a></span></li>
+<li>Im Azure-Maps-Visual von Power BI wird die eigene GeoJSON-Datei als Referenzebene entweder per URL oder per Datei-Upload eingebunden.<span class="meta quote">Fakt · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=1150s">19:10</a></span></li>
+<li>Fehlt in den Quelldaten eine Länderspalte, kann eine berechnete DAX-Spalte sicherstellen, dass Azure Maps die Orte korrekt in Deutschland verortet.<span class="meta quote">Empfehlung · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=1150s">19:10</a></span></li>
+<li>Damit die geladene Referenzebene sichtbar wird, muss die standardmäßig aktive Blasenebene im Azure-Maps-Visual deaktiviert werden.<span class="meta quote">Empfehlung · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=1242s">20:42</a></span></li>
+<li>Über die bedingte Formatierung der Polygone lässt sich die Referenzebene als Farbverlauf (Heatmap) nach einer Kennzahl wie dem Umsatz einfärben.<span class="meta quote">Empfehlung · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=1315s">21:55</a></span></li>
+<li>Gegenüber dem Flächenkartogramm bietet Azure Maps den Vorteil einer echten Kartenbasis mit Straßen, Flüssen und Städten, die zusätzlichen räumlichen Kontext liefert.<span class="meta quote">Meinung · Power BI: (Vertriebs-) Regionen in Azure Maps · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=1688s">28:08</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=SSUpe1JON9Y">The Power of User Groups</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=SSUpe1JON9Y&amp;t=1605s">26:45</a> · <a href="https://www.youtube.com/watch?v=SSUpe1JON9Y&amp;t=1725s">28:45</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=CvaOkO37HMU">Power BI: (Vertriebs-) Regionen in Azure Maps</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=2s">00:02</a> · <a href="https://www.youtube.com/watch?v=CvaOkO37HMU&amp;t=1489s">24:49</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lZvpCBMKASM">Fabric &amp; Power BI Quarterly · 2025 Q3</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=2926s">48:46</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=3035s">50:35</a> · <a href="https://www.youtube.com/watch?v=lZvpCBMKASM&amp;t=3128s">52:08</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=pTTYySb0Cyg">Fabric &amp; Power BI Quarterly · 2026-2</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=2998s">49:58</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=KMk1k5uCLZU">Daten-WG Thinkers Talk n61</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=KMk1k5uCLZU&amp;t=3730s">1:02:10</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="dax.html">DAX</a><span class="meta quote">setzt-voraus · belegt · 0 gemeinsame Segmente</span></li>
+<li><a href="azure.html">Azure</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
+<li><a href="visualisierung.html">Visualisierung</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

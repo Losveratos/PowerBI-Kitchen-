@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IBCS · DatenWG Library</title>
+<meta name="description" content="Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. Die Funktion &quot;Fix IBCS Variance Chart&quot; des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein.">
+<meta property="og:title" content="IBCS · DatenWG Library">
+<meta property="og:description" content="Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. Die Funktion &quot;Fix IBCS Variance Chart&quot; des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/ibcs.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · thema</p>
+<h1>IBCS</h1>
+<p class="lead">Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. Die Funktion &quot;Fix IBCS Variance Chart&quot; des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein. Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt.</p>
+<div class="btns"><a class="btn" href="../#n=topic%3Aibcs">In der Library öffnen</a><a class="btn" href="../graph.html#n=topic%3Aibcs&amp;f=topic%3Aibcs">Im Graph öffnen</a></div>
+<p class="meta">21 Dokumente · 7 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">Hichert</span> <span class="tag">Semantic Notation</span> <span class="tag">SUCCESS</span> <span class="tag">Notation</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten.<span class="meta quote">Meinung · BI Thinkers Talk nr.76 · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=3318s">55:18</a></span></li>
+<li>Die Funktion &quot;Fix IBCS Variance Chart&quot; des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein.<span class="meta quote">Fakt · BI Thinkers Talk nr.75 · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=757s">12:37</a></span></li>
+<li>Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt.<span class="meta quote">Fakt · BI Thinkers Talk nr.75 · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=1230s">20:30</a></span></li>
+<li>Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals.<span class="meta quote">Fakt · BI Thinkers Talk nr.75 · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=1322s">22:02</a></span></li>
+<li>Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen.<span class="meta quote">Fakt · 10 Jahre Power BI · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=3128s">52:08</a></span></li>
+<li>Mit Copilot lassen sich IBCS-konforme Visualisierungen aktuell kaum umsetzen, weil kein nativer Zugriff auf spezialisierte Custom Visuals wie Integrated Variance Charts besteht.<span class="meta quote">Warnung · 10 Jahre Power BI · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=5102s">1:25:02</a></span></li>
+<li>Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen.<span class="meta quote">Meinung · Fabric &amp; Power BI Quarterly · 2026-2 · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=3090s">51:30</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html">ChartKitchen byDatenWG — Quick Start</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=01%20%C2%B7%20Get%20going%20in%20three%20steps">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/chartkitchen-schnellstart_en.html#:~:text=02%20%C2%B7%20Continue%20in%20the%20documentation">Abschnitt</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html">ChartKitchen byDatenWG — Schnellstart</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=01%20%C2%B7%20In%20drei%20Schritten%20loslegen">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/chartkitchen-schnellstart.html#:~:text=02%20%C2%B7%20Weiter%20in%20der%20Dokumentation">Abschnitt</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html">Business Chart Builder — Anleitung</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Abweichungen%20%26%20Szenarien%20%E2%80%94%20das%20Herzst%C3%BCck">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=IBCS-Check%20%28eingebauter%20Linter%29">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Auch%20ohne%20Power%20BI%3A%20schnell%20starten%2C%20annotieren%2C%20ausgeben%20%F0%9F%98%89">Abschnitt</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html">ChartKitchen byDatenWG — Documentation</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=01%20%C2%B7%20What%20is%20ChartKitchen%3F">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Layout">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=A%20rounding%20note%20appears%20below%20the%20%CE%A3%20row.">Abschnitt</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/chartkitchen-doku.html">ChartKitchen byDatenWG — Dokumentation</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=01%20%C2%B7%20Was%20ist%20ChartKitchen%3F">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Layout">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Unter%20der%20%CE%A3-Zeile%20erscheint%20ein%20Rundungshinweis.">Abschnitt</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/powerbi-design-skill.html">Report-Design als Framework — ein Skill für Power BI</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=F%C3%BCr%20wen%3A%20%2AMenschen%20und%20Agenten%2A">Abschnitt</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=06%20%C2%B7%20Deep%20Dive%3A%20%2AIBCS%2A%20%26%20Visualisierung">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=UNIFY%20%E2%80%94%20Apply%20semantic%20notation">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Hatched%20%C2%B7%20Forecast%20%2F%20Vorjahr%20%28FC%2C%20PY%29">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=-_4bfrjRCVo">Objektive Daten gibt es nicht</a><span class="meta quote">2026-06-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=-_4bfrjRCVo&amp;t=990s">16:30</a> · <a href="https://www.youtube.com/watch?v=-_4bfrjRCVo&amp;t=2662s">44:22</a> · <a href="https://www.youtube.com/watch?v=-_4bfrjRCVo&amp;t=2755s">45:55</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI">10 Jahre Power BI</a><span class="meta quote">2025-07-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=2248s">37:28</a> · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=3128s">52:08</a> · <a href="https://www.youtube.com/watch?v=ZaDd1uxeLbI&amp;t=3508s">58:28</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY">BI Thinkers Talk nr.75</a><span class="meta quote">2026-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=1044s">17:24</a> · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=1706s">28:26</a> · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=1893s">31:33</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=e50qKdVn-24">Fabric Workload Demo mit Alexander Korn und Lukasz Obst</a><span class="meta quote">2026-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=e50qKdVn-24&amp;t=1243s">20:43</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9wl_PLvgvyc">10 Jahre BI für alle? Was Power BI wirklich verändert hat</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9wl_PLvgvyc&amp;t=1792s">29:52</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=inko8wG9jlY">Boring Charts, Better Insights</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=inko8wG9jlY&amp;t=1056s">17:36</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc">Was ist Self-Service und warum ist das so schwer?</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=623s">10:23</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=pTTYySb0Cyg">Fabric &amp; Power BI Quarterly · 2026-2</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=2907s">48:27</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=luk4S4ukKmg">BI Thinkers Talk n.72</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=3325s">55:25</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=AX7b8_aNekw">Daten-WG 2026 Lineup</a><span class="meta quote">2026-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=AX7b8_aNekw&amp;t=738s">12:18</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=485s">08:05</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=HXAP16trRc8">Daten-WG Deep Dive: AI on top of BI</a><span class="meta quote">2025-07-01 · nur-text · <a href="https://www.youtube.com/watch?v=HXAP16trRc8">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8">BI Thinkers Talk nr.76</a><span class="meta quote">2026-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mlkP-6i5Kq8&amp;t=3318s">55:18</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Bericht%20anlegen">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Visuals%20bauen">Abschnitt</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="semantic-model.html">Semantic Model</a><span class="meta quote">setzt-voraus · belegt · 0 gemeinsame Segmente</span></li>
+<li><a href="custom-visuals.html">Custom Visuals</a><span class="meta quote">setzt-voraus · belegt · 14 gemeinsame Segmente</span></li>
+<li><a href="visualisierung.html">Visualisierung</a><span class="meta quote">ko-vorkommen · heuristik · 56 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 41 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 38 gemeinsame Segmente</span></li>
+<li><a href="planung.html">Planung</a><span class="meta quote">ko-vorkommen · heuristik · 19 gemeinsame Segmente</span></li>
+<li><a href="zebra-bi.html">Zebra BI</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
+<li><a href="dax.html">DAX</a><span class="meta quote">ko-vorkommen · heuristik · 7 gemeinsame Segmente</span></li>
+<li><a href="ki.html">KI</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
+<li><a href="power-bi-desktop.html">Power BI Desktop</a><span class="meta quote">ko-vorkommen · heuristik · 6 gemeinsame Segmente</span></li>
+<li><a href="daten-wg.html">Daten-WG</a><span class="meta quote">ko-vorkommen · heuristik · 5 gemeinsame Segmente</span></li>
+<li><a href="power-bi-service.html">Power BI Service</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="deneb.html">Deneb</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="sap.html">SAP</a><span class="meta quote">ko-vorkommen · heuristik · 4 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 3 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,139 @@
+{
+ "id": "topic:zertifizierung",
+ "name": "Zertifizierung",
+ "typ": "thema",
+ "slug": "zertifizierung",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 4,
+ "kernaussagen_gesamt": 1,
+ "mit_kernaussagen": 1,
+ "aliase": [
+  "PL-300",
+  "DP-600",
+  "Prüfung",
+  "Zertifikat",
+  "Zertifizierungen"
+ ],
+ "einordnung": "Im Rahmen der Fabric Data Days stellt Microsoft zeitlich und mengenmäßig begrenzte Gutscheine für kostenlose Power-BI-Zertifizierungsprüfungen bereit.",
+ "nachbarn": [
+  {
+   "id": "topic:sternschema",
+   "name": "Sternschema",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sternschema.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 95,
+   "zeit": "01:35",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=95s",
+   "aussage": "Im Rahmen der Fabric Data Days stellt Microsoft zeitlich und mengenmäßig begrenzte Gutscheine für kostenlose Power-BI-Zertifizierungsprüfungen bereit."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:mUALlPmGcEk",
+   "titel": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "datum": "2025-11-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.078,
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk",
+   "sprungmarken": [
+    {
+     "label": "01:35",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=95s",
+     "sekunde": 95
+    },
+    {
+     "label": "03:08",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=188s",
+     "sekunde": 188
+    },
+    {
+     "label": "09:34",
+     "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=574s",
+     "sekunde": 574
+    }
+   ]
+  },
+  {
+   "id": "yt:uxYFqwe_Wiw",
+   "titel": "BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=uxYFqwe_Wiw",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:6WhWLcuFvZE",
+   "titel": "Prinzipien oder Paragrafen",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.074,
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE",
+   "sprungmarken": [
+    {
+     "label": "09:56",
+     "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=596s",
+     "sekunde": 596
+    },
+    {
+     "label": "33:46",
+     "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2026s",
+     "sekunde": 2026
+    }
+   ]
+  },
+  {
+   "id": "yt:XtH4JqTwaqM",
+   "titel": "GxP Talk - KI im regulierten Umfeld?",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM",
+   "sprungmarken": [
+    {
+     "label": "18:29",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1109s",
+     "sekunde": 1109
+    },
+    {
+     "label": "35:01",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2101s",
+     "sekunde": 2101
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Azertifizierung",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Azertifizierung&f=topic%3Azertifizierung"
+}

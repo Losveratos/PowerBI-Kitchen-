@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Pipeline · DatenWG Library</title>
+<meta name="description" content="Copy Jobs in der Fabric Data Factory unterstützen jetzt in der Vorschau automatisch Slowly Changing Dimension Typ 2, wodurch manueller Notebook-Code für diesen Zweck überflüssig wird.">
+<meta property="og:title" content="Data Pipeline · DatenWG Library">
+<meta property="og:description" content="Copy Jobs in der Fabric Data Factory unterstützen jetzt in der Vorschau automatisch Slowly Changing Dimension Typ 2, wodurch manueller Notebook-Code für diesen Zweck überflüssig wird.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/data-pipeline.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · tool</p>
+<h1>Data Pipeline</h1>
+<p class="lead">Copy Jobs in der Fabric Data Factory unterstützen jetzt in der Vorschau automatisch Slowly Changing Dimension Typ 2, wodurch manueller Notebook-Code für diesen Zweck überflüssig wird. Eine Connection für Notebooks lässt sich aktuell nicht direkt unter Connections anlegen, sondern nur über den Umweg einer Data Pipeline. Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss.</p>
+<div class="btns"><a class="btn" href="../#n=tool%3Adata-pipeline">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Adata-pipeline&amp;f=tool%3Adata-pipeline">Im Graph öffnen</a></div>
+<p class="meta">9 Dokumente · 5 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">Pipelines</span> <span class="tag">Data Factory</span> <span class="tag">Pipeline</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Eine Connection für Notebooks lässt sich aktuell nicht direkt unter Connections anlegen, sondern nur über den Umweg einer Data Pipeline.<span class="meta quote">Fakt · BI Thinkers Talk n.72 · <a href="https://www.youtube.com/watch?v=luk4S4ukKmg&amp;t=2227s">37:07</a></span></li>
+<li>Bei neueren Dataflow-Generationen sind Datenverbindungen an die erstellende Person gebunden, weshalb empfohlen wird, Connections konsequent freizugeben und nach Möglichkeit einen Service Principal für die Verbindung zu nutzen.<span class="meta quote">Empfehlung · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=2462s">41:02</a></span></li>
+<li>Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss.<span class="meta quote">Fakt · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=2566s">42:46</a></span></li>
+<li>Der erste Quickwin beim Umstieg auf Fabric ist laut Artur, Daten überhaupt persistent abzulegen, statt sie bei jeder Aktualisierung neu zu laden.<span class="meta quote">Empfehlung · Microsoft Fabric — braucht das wirklich jemand? · <a href="https://www.youtube.com/watch?v=mTVeZzshLzE&amp;t=698s">11:38</a></span></li>
+<li>Copy Jobs in der Fabric Data Factory unterstützen jetzt in der Vorschau automatisch Slowly Changing Dimension Typ 2, wodurch manueller Notebook-Code für diesen Zweck überflüssig wird.<span class="meta quote">Fakt · Fabric &amp; Power BI Quarterly · 2026-2 · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=1383s">23:03</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wer%20geht%20wo%20auf%3F">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Workload-Landkarte%20%28Stand%202026%29">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Bausteine">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=m3xNYfVih0Q">Starting with Microsft Fabric the Skills you need</a><span class="meta quote">2024-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=488s">08:08</a> · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=967s">16:07</a> · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=1064s">17:44</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=1299s">21:39</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=1722s">28:42</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=1757s">29:17</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYmKrreMO3I">Daten-WG Deep Dive Financial Reporting</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2648s">44:08</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=2748s">45:48</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=3131s">52:11</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=9TsHkV8sIRo">Fabric &amp; Power BI Quarterly · 2025 Q4</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1643s">27:23</a> · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=1841s">30:41</a> · <a href="https://www.youtube.com/watch?v=9TsHkV8sIRo&amp;t=2989s">49:49</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=27rC2zefFOU">Realtalk zu Self Service mit Power BI</a><span class="meta quote">2024-02-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=27rC2zefFOU&amp;t=1205s">20:05</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wie%20es%20funktioniert">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Operationen%2C%20die%20NICHT%20foldet">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Hover%20f%C3%BCr%20Details">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYp5xCAU2AU">Fabric &amp; Power BI Quarterly · 2026-1</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1893s">31:33</a> · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=3046s">50:46</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=pTTYySb0Cyg">Fabric &amp; Power BI Quarterly · 2026-2</a><span class="meta quote">— · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=pTTYySb0Cyg&amp;t=1286s">21:26</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="dataflow.html">Dataflow</a><span class="meta quote">setzt-voraus · belegt · 28 gemeinsame Segmente</span></li>
+<li><a href="notebook.html">Notebook</a><span class="meta quote">setzt-voraus · belegt · 33 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 40 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 36 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 27 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 23 gemeinsame Segmente</span></li>
+<li><a href="workspace.html">Workspace</a><span class="meta quote">ko-vorkommen · heuristik · 21 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 19 gemeinsame Segmente</span></li>
+<li><a href="onelake.html">OneLake</a><span class="meta quote">ko-vorkommen · heuristik · 18 gemeinsame Segmente</span></li>
+<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">ko-vorkommen · heuristik · 15 gemeinsame Segmente</span></li>
+<li><a href="fabric-capacity.html">Fabric Capacity</a><span class="meta quote">ko-vorkommen · heuristik · 15 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">ko-vorkommen · heuristik · 13 gemeinsame Segmente</span></li>
+<li><a href="azure.html">Azure</a><span class="meta quote">ko-vorkommen · heuristik · 13 gemeinsame Segmente</span></li>
+<li><a href="spark.html">Spark</a><span class="meta quote">ko-vorkommen · heuristik · 13 gemeinsame Segmente</span></li>
+<li><a href="delta-lake.html">Delta Lake</a><span class="meta quote">ko-vorkommen · heuristik · 13 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

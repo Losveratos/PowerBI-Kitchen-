@@ -1,0 +1,700 @@
+{
+ "id": "topic:strategie",
+ "name": "Strategie",
+ "typ": "thema",
+ "slug": "strategie",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 19,
+ "kernaussagen_gesamt": 14,
+ "mit_kernaussagen": 4,
+ "aliase": [
+  "BI-Strategie",
+  "Datenstrategie",
+  "strategisch"
+ ],
+ "einordnung": "Unternehmen unterscheiden bei der Digitalisierung typischerweise drei Horizonte: interne Prozessautomatisierung, nach außen gerichtete Produkt- und Serviceerweiterungen sowie die grundsätzliche Neuausrichtung des Geschäftsmodells. KI-gestützte Interview-, Portfolio- und Systemanalysen können die Vorbereitung eines Zielbild-Workshops von vormals mehreren Monaten auf eine einzelne Session verkürzen. Bevor man sich mit Tools beschäftigt, sollte man gemeinsam mit den relevantesten Stakeholdern zunächst ein gemeinsames Zielbild entwickeln.",
+ "nachbarn": [
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 19,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 12,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "topic:sicherheit",
+   "name": "Sicherheit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "sicherheit.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  },
+  {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "topic:self-service-bi",
+   "name": "Self-Service BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "self-service-bi.md"
+  },
+  {
+   "id": "tool:power-bi-desktop",
+   "name": "Power BI Desktop",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "power-bi-desktop.md"
+  },
+  {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "planung.md"
+  },
+  {
+   "id": "topic:governance",
+   "name": "Governance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "governance.md"
+  },
+  {
+   "id": "topic:projektmanagement",
+   "name": "Projektmanagement",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "projektmanagement.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 384,
+   "zeit": "06:24",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=384s",
+   "aussage": "Risikomanagement bedeutet einen planvollen Umgang mit Risiken, nicht deren vollständige Vermeidung."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 2808,
+   "zeit": "46:48",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2808s",
+   "aussage": "Für die Produkte, die 80 Prozent des Umsatzes ausmachen, sollten Unternehmen gezielt Dual- oder Second-Source-Strategien entwickeln, um Abhängigkeiten von einzelnen Lieferanten zu reduzieren."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 469,
+   "zeit": "07:49",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=469s",
+   "aussage": "Agilität sollte nicht als Angst vor Veränderung verstanden werden, sondern als Fähigkeit, flexibel auf neue Situationen reagieren zu können."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "GxP Talk - Validierung vs. Agilität",
+   "dokument_id": "yt:KO_qFge77o8",
+   "sekunde": 1348,
+   "zeit": "22:28",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=1348s",
+   "aussage": "Der wirtschaftliche Druck durch ablaufende Patente wird als starker Antrieb dafür gesehen, dass Pharmaunternehmen ihre Prozesse innerhalb der regulatorischen Vorgaben effizienter gestalten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 98,
+   "zeit": "01:38",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=98s",
+   "aussage": "Unternehmen unterscheiden bei der Digitalisierung typischerweise drei Horizonte: interne Prozessautomatisierung, nach außen gerichtete Produkt- und Serviceerweiterungen sowie die grundsätzliche Neuausrichtung des Geschäftsmodells."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 333,
+   "zeit": "05:33",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=333s",
+   "aussage": "Christof Layher bevorzugt prinzipienbasierte Regulierung gegenüber kleinteiligen Detailvorschriften, weil starre Regeln von der Technologieentwicklung schnell überholt werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 487,
+   "zeit": "08:07",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=487s",
+   "aussage": "Bevor man sich mit Tools beschäftigt, sollte man gemeinsam mit den relevantesten Stakeholdern zunächst ein gemeinsames Zielbild entwickeln."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 587,
+   "zeit": "09:47",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=587s",
+   "aussage": "Sehr große Workshop-Runden mit vielen Beteiligten führen häufig dazu, dass sich das mittlere Management nur mit sich selbst beschäftigt, ohne dass Entscheidungen entstehen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 696,
+   "zeit": "11:36",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=696s",
+   "aussage": "Wird ein Zielbild nur innerhalb eines Silos wie dem CDO-Bereich entwickelt und die IT nicht einbezogen, scheitert die Umsetzung später an fehlender Infrastruktur oder Datenbereitstellung."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 900,
+   "zeit": "15:00",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=900s",
+   "aussage": "KI-gestützte Interview-, Portfolio- und Systemanalysen können die Vorbereitung eines Zielbild-Workshops von vormals mehreren Monaten auf eine einzelne Session verkürzen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 1276,
+   "zeit": "21:16",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1276s",
+   "aussage": "Die große strategische Roadmap mit zentralen Programmen sollte top-down gesteuert werden, während Fachbereiche parallel bottom-up eigene BI- und KI-Initiativen vorantreiben dürfen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 2101,
+   "zeit": "35:01",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=2101s",
+   "aussage": "Ein komplett neu aufgebautes Unternehmen auf der grünen Wiese als Ersatz für die Transformation bestehender Unternehmen wird als unrealistische Hypothese eingeschätzt, da viele Firmen stark in Produktentwicklung und Manufacturing verwurzelt sind."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 2234,
+   "zeit": "37:14",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2234s",
+   "aussage": "Layher empfiehlt, innerhalb eines Unternehmens unterschiedlich schnelle Bereiche zuzulassen: streng regulierte Produktion stabil halten, in weniger regulierten Bereichen aber mehr Agilität zulassen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "dokument_id": "yt:jETxUNQSl-w",
+   "sekunde": 2406,
+   "zeit": "40:06",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=2406s",
+   "aussage": "Wer mit der Umsetzung von KI- oder BI-Projekten wartet, bis Tools ausgereifter sind, verliert gegenüber Wettbewerbern wertvolle Zeit, weil jede Woche des Wartens eine verlorene Woche ist."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:Z8vpSSOmG24",
+   "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "datum": "2022-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.333,
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
+   "sprungmarken": [
+    {
+     "label": "03:03",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=183s",
+     "sekunde": 183
+    },
+    {
+     "label": "06:03",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=363s",
+     "sekunde": 363
+    },
+    {
+     "label": "27:08",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=1628s",
+     "sekunde": 1628
+    }
+   ]
+  },
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.231,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "05:02",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=302s",
+     "sekunde": 302
+    },
+    {
+     "label": "23:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1385s",
+     "sekunde": 1385
+    },
+    {
+     "label": "26:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1565s",
+     "sekunde": 1565
+    }
+   ]
+  },
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.222,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:jETxUNQSl-w",
+   "titel": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.172,
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w",
+   "sprungmarken": [
+    {
+     "label": "05:56",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=356s",
+     "sekunde": 356
+    },
+    {
+     "label": "21:16",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1276s",
+     "sekunde": 1276
+    },
+    {
+     "label": "32:38",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1958s",
+     "sekunde": 1958
+    }
+   ]
+  },
+  {
+   "id": "yt:oh-3_65IQ2Q",
+   "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.171,
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
+   "sprungmarken": [
+    {
+     "label": "09:14",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=554s",
+     "sekunde": 554
+    },
+    {
+     "label": "12:13",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=733s",
+     "sekunde": 733
+    },
+    {
+     "label": "14:06",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=846s",
+     "sekunde": 846
+    }
+   ]
+  },
+  {
+   "id": "yt:DFw664hd1IE",
+   "titel": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.161,
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE",
+   "sprungmarken": [
+    {
+     "label": "41:52",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2512s",
+     "sekunde": 2512
+    },
+    {
+     "label": "46:48",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2808s",
+     "sekunde": 2808
+    },
+    {
+     "label": "48:23",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2903s",
+     "sekunde": 2903
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "02:39",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=159s",
+     "sekunde": 159
+    },
+    {
+     "label": "04:14",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=254s",
+     "sekunde": 254
+    },
+    {
+     "label": "13:37",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=817s",
+     "sekunde": 817
+    }
+   ]
+  },
+  {
+   "id": "yt:5xB_oKdvAwQ",
+   "titel": "Power BI Update Juni 2026",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=5xB_oKdvAwQ",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=5xB_oKdvAwQ&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:XxPFAQfLyuA",
+   "titel": "Wie war die Daten-WG? (2025, Teil 2)",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA",
+   "sprungmarken": [
+    {
+     "label": "05:04",
+     "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=304s",
+     "sekunde": 304
+    },
+    {
+     "label": "09:39",
+     "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=579s",
+     "sekunde": 579
+    }
+   ]
+  },
+  {
+   "id": "yt:B0_sSJQVG8w",
+   "titel": "GxP Talk - Testing im GxP-Umfeld",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.086,
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w",
+   "sprungmarken": [
+    {
+     "label": "24:13",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1453s",
+     "sekunde": 1453
+    },
+    {
+     "label": "29:01",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1741s",
+     "sekunde": 1741
+    },
+    {
+     "label": "46:50",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=2810s",
+     "sekunde": 2810
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "28:37",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1717s",
+     "sekunde": 1717
+    },
+    {
+     "label": "36:40",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2200s",
+     "sekunde": 2200
+    },
+    {
+     "label": "38:12",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2292s",
+     "sekunde": 2292
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.059,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "20:30",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1230s",
+     "sekunde": 1230
+    },
+    {
+     "label": "35:02",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=2102s",
+     "sekunde": 2102
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "07:46",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=466s",
+     "sekunde": 466
+    },
+    {
+     "label": "38:58",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2338s",
+     "sekunde": 2338
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.047,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Reise%20durch%20Microsoft%20Fabric",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Einstellungen%20pr%C3%BCfen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Voraussetzungen%20%26%20Trade-offs",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:9wl_PLvgvyc",
+   "titel": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc",
+   "sprungmarken": [
+    {
+     "label": "11:07",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=667s",
+     "sekunde": 667
+    }
+   ]
+  },
+  {
+   "id": "yt:EVsJ6zyGUWc",
+   "titel": "Was ist Self-Service und warum ist das so schwer?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc",
+   "sprungmarken": [
+    {
+     "label": "36:46",
+     "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2206s",
+     "sekunde": 2206
+    }
+   ]
+  },
+  {
+   "id": "yt:XtH4JqTwaqM",
+   "titel": "GxP Talk - KI im regulierten Umfeld?",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM",
+   "sprungmarken": [
+    {
+     "label": "30:12",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1812s",
+     "sekunde": 1812
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "03:46",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=226s",
+     "sekunde": 226
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.017,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wann%20brauche%20ich%20den%20Query%20Plan%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Strategie%202%3A%20UI-Code%20%C3%BCberschreiben",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Strategie%204%3A%20Native%20Query%20als%20Ausweg",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Astrategie",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Astrategie&f=topic%3Astrategie"
+}

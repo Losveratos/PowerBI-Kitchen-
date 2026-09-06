@@ -1,0 +1,371 @@
+{
+ "id": "tool:tableau",
+ "name": "Tableau",
+ "typ": "tool",
+ "slug": "tableau",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 16,
+ "kernaussagen_gesamt": 1,
+ "mit_kernaussagen": 1,
+ "aliase": [],
+ "einordnung": "Eine breite, gejointe Tabelle funktioniert werkzeugübergreifend mit Power BI, Tableau und anderen Reporting-Tools, was zu ihrer Verbreitung beiträgt.",
+ "nachbarn": [
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 16,
+   "beleg": "das war für mich viel einfacher, das war irgendwie Microsoft Kosmos, das war leichter zu lernen und so bin ich zu Power BI gekommen",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "topic:schulung",
+   "name": "Schulung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "schulung.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:sap",
+   "name": "SAP",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "sap.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Meinung",
+   "dokument": "Denken in Tabellen",
+   "dokument_id": "yt:hbUYMyqb6r8",
+   "sekunde": 363,
+   "zeit": "06:03",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=363s",
+   "aussage": "Eine breite, gejointe Tabelle funktioniert werkzeugübergreifend mit Power BI, Tableau und anderen Reporting-Tools, was zu ihrer Verbreitung beiträgt."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:vd1r02bj9Qk",
+   "titel": "Power BI vs. Qlik",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.105,
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk",
+   "sprungmarken": [
+    {
+     "label": "05:10",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=310s",
+     "sekunde": 310
+    },
+    {
+     "label": "25:12",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1512s",
+     "sekunde": 1512
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.088,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "06:46",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=406s",
+     "sekunde": 406
+    },
+    {
+     "label": "26:35",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1595s",
+     "sekunde": 1595
+    },
+    {
+     "label": "44:09",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2649s",
+     "sekunde": 2649
+    }
+   ]
+  },
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "32:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1925s",
+     "sekunde": 1925
+    }
+   ]
+  },
+  {
+   "id": "yt:UxE0DPnLgIg",
+   "titel": "Visual Analytics with Power BI",
+   "datum": "2021-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=UxE0DPnLgIg",
+   "sprungmarken": [
+    {
+     "label": "00:41",
+     "url": "https://www.youtube.com/watch?v=UxE0DPnLgIg&t=41s",
+     "sekunde": 41
+    }
+   ]
+  },
+  {
+   "id": "yt:SSUpe1JON9Y",
+   "titel": "The Power of User Groups",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y",
+   "sprungmarken": [
+    {
+     "label": "26:45",
+     "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1605s",
+     "sekunde": 1605
+    }
+   ]
+  },
+  {
+   "id": "yt:r416vanitYw",
+   "titel": "BI Thinkers Talk nr.69",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.047,
+   "url": "https://www.youtube.com/watch?v=r416vanitYw",
+   "sprungmarken": [
+    {
+     "label": "1:06:37",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=3997s",
+     "sekunde": 3997
+    },
+    {
+     "label": "1:08:11",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=4091s",
+     "sekunde": 4091
+    }
+   ]
+  },
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.044,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:9wl_PLvgvyc",
+   "titel": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc",
+   "sprungmarken": [
+    {
+     "label": "03:10",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=190s",
+     "sekunde": 190
+    }
+   ]
+  },
+  {
+   "id": "yt:hbUYMyqb6r8",
+   "titel": "Denken in Tabellen",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.038,
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8",
+   "sprungmarken": [
+    {
+     "label": "04:19",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=259s",
+     "sekunde": 259
+    }
+   ]
+  },
+  {
+   "id": "yt:jETxUNQSl-w",
+   "titel": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.034,
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w",
+   "sprungmarken": [
+    {
+     "label": "19:44",
+     "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1184s",
+     "sekunde": 1184
+    }
+   ]
+  },
+  {
+   "id": "yt:0FPA1k5YiTs",
+   "titel": "Power BI Deep Dive: DAX UDF + TMDL",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.033,
+   "url": "https://www.youtube.com/watch?v=0FPA1k5YiTs",
+   "sprungmarken": [
+    {
+     "label": "04:48",
+     "url": "https://www.youtube.com/watch?v=0FPA1k5YiTs&t=288s",
+     "sekunde": 288
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "04:47",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=287s",
+     "sekunde": 287
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "52:08",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=3128s",
+     "sekunde": 3128
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "06:02",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=362s",
+     "sekunde": 362
+    }
+   ]
+  },
+  {
+   "id": "yt:VD1N68Fhoco",
+   "titel": "BI Thinkers Talk nr.68",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=VD1N68Fhoco",
+   "sprungmarken": [
+    {
+     "label": "04:49",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=289s",
+     "sekunde": 289
+    }
+   ]
+  },
+  {
+   "id": "yt:_Vh5fDfHWz4",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part2",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=0s",
+     "sekunde": 0
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Atableau",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Atableau&f=tool%3Atableau"
+}

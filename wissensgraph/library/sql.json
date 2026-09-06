@@ -1,0 +1,262 @@
+{
+ "id": "tool:sql",
+ "name": "SQL",
+ "typ": "tool",
+ "slug": "sql",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 2,
+ "kernaussagen_gesamt": 15,
+ "mit_kernaussagen": 7,
+ "aliase": [
+  "SQL-Abfrage",
+  "SQL-Abfragen"
+ ],
+ "einordnung": "Intelligence Sheets von Lumel sind in Fabric aktuell auf SQL-Datenbank-Verbindungen beschränkt. Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt. Als Datenquelle für Planning-Objekte ist aktuell nur eine SQL-Datenbank wählbar, während Inforiver zusätzlich Lakehouse und Warehouse unterstützte.",
+ "nachbarn": [
+  {
+   "id": "tool:translytical-task-flows",
+   "name": "Translytical Task Flows",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "auch da ein gewisser Vorlauf mit erst Sequel in Fabric GA, dann User Data Functions GA, dann Input Slicer GA und jetzt transitas, das auf all diesen Bausteinen aufbaut",
+   "datei": "translytical-task-flows.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "topic:strategie",
+   "name": "Strategie",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "strategie.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 3079,
+   "zeit": "51:19",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3079s",
+   "aussage": "Intelligence Sheets von Lumel sind in Fabric aktuell auf SQL-Datenbank-Verbindungen beschränkt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 562,
+   "zeit": "09:22",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=562s",
+   "aussage": "Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 562,
+   "zeit": "09:22",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=562s",
+   "aussage": "Eine einzelne SQL-Datenbank kann bereits eine F2-Kapazität stark auslasten, wie ein interner Vorfall zeigte."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 1035,
+   "zeit": "17:15",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1035s",
+   "aussage": "Für Rückschreibungen mit Power Table wird empfohlen, eine eigene Datenbank anzulegen statt die automatisch erstellte Metadaten-Datenbank zu verwenden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 2044,
+   "zeit": "34:04",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2044s",
+   "aussage": "Als Datenquelle für Planning-Objekte ist aktuell nur eine SQL-Datenbank wählbar, während Inforiver zusätzlich Lakehouse und Warehouse unterstützte."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 3019,
+   "zeit": "50:19",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3019s",
+   "aussage": "Das Zurückschreiben ist derzeit auf SQL-Datenbanken beschränkt, während Inforiver zusätzlich nach Snowflake oder SAP schreiben konnte."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 3334,
+   "zeit": "55:34",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3334s",
+   "aussage": "Als Workaround definiert der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 160,
+   "zeit": "02:40",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s",
+   "aussage": "Die Replikation der Tabelle selbst erzeugt keine zusätzlichen Fabric-Kapazitätskosten, erst der Datenzugriff über SQL, Power BI oder Spark wird nach den regulären Tarifen berechnet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 519,
+   "zeit": "08:39",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=519s",
+   "aussage": "Nach Abschluss der Replikation lassen sich die gespiegelten Daten direkt per SQL-Abfrage in Fabric auslesen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 41,
+   "zeit": "00:41",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=41s",
+   "aussage": "Die SQL-Schnittstellen in Fabric sind auf Massendaten ausgelegt und nicht dafür gedacht, einzelne Datensätze zu schreiben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1168,
+   "zeit": "19:28",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1168s",
+   "aussage": "Weil eine zu restriktive Firewall-Security den SQL-Zugriff auf Lakehouse-Tabellen blockierte, baute der Kunde stattdessen ein semantisches Direct-Lake-Modell direkt im Web auf."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 778,
+   "zeit": "12:58",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=778s",
+   "aussage": "Für das Zurückschreiben aus Power BI wird eine SQL-Datenbank in Fabric statt eines Lakehouse verwendet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 1239,
+   "zeit": "20:39",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1239s",
+   "aussage": "Die Writeback-Funktion wird als User Defined Function in der Fabric-SQL-Datenbank mit einer SQL-Update-Query umgesetzt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 1430,
+   "zeit": "23:50",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1430s",
+   "aussage": "Beim Aufbau der SQL-Query sollten Parameter beziehungsweise Platzhalter statt direkt eingefügter Werte verwendet werden, um SQL-Injection zu vermeiden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 1522,
+   "zeit": "25:22",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1522s",
+   "aussage": "In der Update-Query muss der Tabellenname mit dem Schema-Präfix SalesLT angegeben werden, sonst schlägt die Ausführung mit einem Invalid-Object-Name-Fehler fehl."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:HXAP16trRc8",
+   "titel": "Daten-WG Deep Dive: AI on top of BI",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-text",
+   "anteil": 0.311,
+   "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://www.youtube.com/watch?v=HXAP16trRc8",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:c-LWoo-O5PQ",
+   "titel": "SharePoint direkt in Microsoft Fabric nutzen | Lakehouse, Direct Lake & Power BI",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.133,
+   "url": "https://www.youtube.com/watch?v=c-LWoo-O5PQ",
+   "sprungmarken": [
+    {
+     "label": "08:20",
+     "url": "https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=500s",
+     "sekunde": 500
+    },
+    {
+     "label": "09:20",
+     "url": "https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=560s",
+     "sekunde": 560
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Asql",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Asql&f=tool%3Asql"
+}

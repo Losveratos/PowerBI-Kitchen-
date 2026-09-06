@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sternschema · DatenWG Library</title>
+<meta name="description" content="Ein Sternschema erlaubt unabhängiges Filtern über mehrere Dimensionen, ohne dass sich die Filter gegenseitig stören. Bei geringer Datenmenge und einfachen Measures zeigte sich in eigenen Tests kein signifikanter Performance-Unterschied zwischen Flat Table und Sternschema.">
+<meta property="og:title" content="Sternschema · DatenWG Library">
+<meta property="og:description" content="Ein Sternschema erlaubt unabhängiges Filtern über mehrere Dimensionen, ohne dass sich die Filter gegenseitig stören. Bei geringer Datenmenge und einfachen Measures zeigte sich in eigenen Tests kein signifikanter Performance-Unterschied zwischen Flat Table und Sternschema.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og.png">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/sternschema.html">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<main>
+<p class="kicker">DatenWG Library · thema</p>
+<h1>Sternschema</h1>
+<p class="lead">Ein Sternschema erlaubt unabhängiges Filtern über mehrere Dimensionen, ohne dass sich die Filter gegenseitig stören. Bei geringer Datenmenge und einfachen Measures zeigte sich in eigenen Tests kein signifikanter Performance-Unterschied zwischen Flat Table und Sternschema. Das 1988 entwickelte Modell mit separaten Tabellen für Kunden, Lieferanten und Artikel sowie einer zentralen Tabelle mit Schlüsseln und Kennzahlen wie Rechnungssumme und Provision entsprach im Nachhinein einem Sternschema.</p>
+<div class="btns"><a class="btn" href="../#n=topic%3Asternschema">In der Library öffnen</a><a class="btn" href="../graph.html#n=topic%3Asternschema&amp;f=topic%3Asternschema">Im Graph öffnen</a></div>
+<p class="meta">30 Dokumente · 22 Kernaussagen · Stand 2026-09-06 · Build 20260906-2313</p>
+<h2>Aliase</h2>
+<p><span class="tag">Star Schema</span> <span class="tag">Faktentabelle</span> <span class="tag">Dimensionstabelle</span> <span class="tag">Fakten und Dimensionen</span> <span class="tag">Star-Schema</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Das 1988 entwickelte Modell mit separaten Tabellen für Kunden, Lieferanten und Artikel sowie einer zentralen Tabelle mit Schlüsseln und Kennzahlen wie Rechnungssumme und Provision entsprach im Nachhinein einem Sternschema.<span class="meta quote">Fakt · 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite · <a href="https://www.youtube.com/watch?v=dKA-38gRD8Q&amp;t=99s">01:39</a></span></li>
+<li>Die ersten Veröffentlichungen zum Sternschema stammen aus der Mitte der 1990er-Jahre.<span class="meta quote">Fakt · 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite · <a href="https://www.youtube.com/watch?v=dKA-38gRD8Q&amp;t=294s">04:54</a></span></li>
+<li>Ralph Kimball veröffentlichte Mitte der 1990er-Jahre ein Buch, in dem er forderte, Data Warehouses stets mit einem Sternschema beziehungsweise dimensionaler Modellierung aufzubauen.<span class="meta quote">Fakt · 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite · <a href="https://www.youtube.com/watch?v=dKA-38gRD8Q&amp;t=389s">06:29</a></span></li>
+<li>Zwischen Ralph Kimball und Bill Inmon entstand ein langjähriger Grundsatzstreit darüber, ob Data Warehouses dimensional per Sternschema oder relational in dritter Normalform modelliert werden sollten.<span class="meta quote">Fakt · 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite · <a href="https://www.youtube.com/watch?v=dKA-38gRD8Q&amp;t=389s">06:29</a></span></li>
+<li>Peter Gluchowski schätzt, dass sich das Sternschema in größeren Unternehmen eher auf der Data-Mart-Ebene findet als auf der Ebene des Kern-Data-Warehouse.<span class="meta quote">Meinung · 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite · <a href="https://www.youtube.com/watch?v=dKA-38gRD8Q&amp;t=389s">06:29</a></span></li>
+<li>Im Mittelstand wird die Aufteilung zwischen Sternschema und relationaler Modellierung nach Einschätzung von Peter Gluchowski anders gehandhabt als in Großunternehmen.<span class="meta quote">Meinung · 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite · <a href="https://www.youtube.com/watch?v=dKA-38gRD8Q&amp;t=492s">08:12</a></span></li>
+<li>Eine KI hat aus einer hochgeladenen CSV-Datei automatisch ein Sternschema samt Notebook erstellt.<span class="meta quote">Fakt · Fabric Planning unboxing · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=186s">03:06</a></span></li>
+<li>Ein Meeting-Teilnehmer empfand die vorherige Flat Table als einfacher als das neu eingeführte Sternschema.<span class="meta quote">Meinung · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=61s">01:01</a></span></li>
+<li>Power BI ist technisch eng mit Analysis Services verbunden, weshalb aus dieser Perspektive ein Sternschema die passende Modellierung ist.<span class="meta quote">Meinung · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=200s">03:20</a></span></li>
+<li>Ein Sternschema erlaubt unabhängiges Filtern über mehrere Dimensionen, ohne dass sich die Filter gegenseitig stören.<span class="meta quote">Fakt · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=517s">08:37</a></span></li>
+<li>Ab einem gewissen Datenvolumen sollte in Power BI ein Sternschema verwendet werden, um Performance-Probleme zu vermeiden.<span class="meta quote">Empfehlung · Power BI vs. Qlik · <a href="https://www.youtube.com/watch?v=vd1r02bj9Qk&amp;t=648s">10:48</a></span></li>
+<li>Bei Benchmark-Tests mit künstlich generierten Testdaten wie der Kontoso-Datenbank komprimiert ein Sternschema teils schlechter als erwartet, weil reale Kundenverteilungen von Testdaten abweichen.<span class="meta quote">Warnung · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=1032s">17:12</a></span></li>
+<li>Bei geringer Datenmenge und einfachen Measures zeigte sich in eigenen Tests kein signifikanter Performance-Unterschied zwischen Flat Table und Sternschema.<span class="meta quote">Fakt · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=1135s">18:55</a></span></li>
+<li>Bei einem Ist-Budget-Vergleich mit unterschiedlicher Granularität von Kunde und Produkt sowie täglicher und monatlicher Frequenz wird eine flache Tabelle mit Field Parameters schnell unübersichtlich, während ein Sternschema die Zusammenführung vereinfacht.<span class="meta quote">Meinung · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=1420s">23:40</a></span></li>
+<li>Jasmin empfiehlt, für einmalige und eng begrenzte Auswertungen im Fachbereich eine Flat Table in Excel zu nutzen, für wiederkehrende Analysen aber ein Datenmodell zu bauen, weil Datenfehler darin schneller auffallen.<span class="meta quote">Empfehlung · Denken in Tabellen · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=2220s">37:00</a></span></li>
+<li>DirectQuery unterstützt laut den Sprechern bei Quellen wie Snowflake oder Databricks kein Sternschema.<span class="meta quote">Meinung · BI Thinkers Talk nr.71 · <a href="https://www.youtube.com/watch?v=LUrL8A5lNgI&amp;t=484s">08:04</a></span></li>
+<li>Das Sternschema mit einer zentralen Faktentabelle und umgebenden Dimensionen wird von den Sprechern als bevorzugter Modellierungsansatz in Power BI favorisiert.<span class="meta quote">Meinung · BI Thinkers Talk - Data Modelling - Fabric Data Days Edition · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=574s">09:34</a></span></li>
+<li>Über Role-Playing-Dimensionen lässt sich ein einmal modelliertes Objekt wie Kunde in mehreren Rollen, etwa als Liefer-, Rechnungs- und Auftragskunde, wiederverwenden, ohne die Kundendaten mehrfach zu pflegen.<span class="meta quote">Empfehlung · BI Thinkers Talk - Data Modelling - Fabric Data Days Edition · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=762s">12:42</a></span></li>
+<li>Wird eine One-Big-Table per Inner Join aus einem dimensionalen Modell erzeugt, fallen Kunden ohne zugehörige Transaktionen aus der Analyse heraus, während sie im Sternschema in der Dimension erhalten bleiben.<span class="meta quote">Warnung · BI Thinkers Talk - Data Modelling - Fabric Data Days Edition · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=1052s">17:32</a></span></li>
+<li>Sobald ein Modell mehr als eine Faktentabelle mit unterschiedlichen Dimensionen oder Granularitäten enthält, werden die benötigten DAX-Formeln in einer One-Big-Table deutlich komplexer als im Sternschema.<span class="meta quote">Warnung · BI Thinkers Talk - Data Modelling - Fabric Data Days Edition · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=1648s">27:28</a></span></li>
+<li>Sobald mehrere Faktentabellen für einen Drill-Across kombiniert werden sollen oder unternehmensweit standardisierte Dimensionen benötigt werden, ist ein dimensionales Modell mit Sternschema vorzuziehen.<span class="meta quote">Empfehlung · BI Thinkers Talk - Data Modelling - Fabric Data Days Edition · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=4842s">1:20:42</a></span></li>
+<li>Dem KI-Agenten wurden bei der Modellgenerierung explizite Vorgaben mitgegeben, darunter das Vermeiden von Snowflake-Dimensionen, Beziehungen möglichst in eine Richtung und geschäftsfreundliche statt technische Tabellennamen.<span class="meta quote">Fakt · BI Thinkers Talk nr.67 · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1490s">24:50</a></span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=uxYFqwe_Wiw">BI Thinkers Talk - Data Modeling - Fabric Data Days Edition [EN]</a><span class="meta quote">2025-12-01 · nur-text · <a href="https://www.youtube.com/watch?v=uxYFqwe_Wiw">Abschnitt</a> · <a href="https://www.youtube.com/watch?v=uxYFqwe_Wiw">Abschnitt</a> · <a href="https://www.youtube.com/watch?v=uxYFqwe_Wiw">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=mUALlPmGcEk">BI Thinkers Talk - Data Modelling - Fabric Data Days Edition</a><span class="meta quote">2025-11-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=1362s">22:42</a> · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=2729s">45:29</a> · <a href="https://www.youtube.com/watch?v=mUALlPmGcEk&amp;t=3241s">54:01</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=hbUYMyqb6r8">Denken in Tabellen</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=61s">01:01</a> · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=259s">04:19</a> · <a href="https://www.youtube.com/watch?v=hbUYMyqb6r8&amp;t=2017s">33:37</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Dimensionen%20extrahieren">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Beziehungen%201%3An">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Eine%20Granularit%C3%A4t%20pro%20Faktentabelle">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=dKA-38gRD8Q">27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite</a><span class="meta quote">2026-05-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=dKA-38gRD8Q&amp;t=389s">06:29</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=m3xNYfVih0Q">Starting with Microsft Fabric the Skills you need</a><span class="meta quote">2024-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=682s">11:22</a> · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=2112s">35:12</a> · <a href="https://www.youtube.com/watch?v=m3xNYfVih0Q&amp;t=2889s">48:09</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lH_-A8NAQ-k">Datenmodellierung ist Governance</a><span class="meta quote">2025-11-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=lH_-A8NAQ-k&amp;t=70s">01:10</a> · <a href="https://www.youtube.com/watch?v=lH_-A8NAQ-k&amp;t=302s">05:02</a> · <a href="https://www.youtube.com/watch?v=lH_-A8NAQ-k&amp;t=424s">07:04</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=iymmxuXHh44">Daten-WG Deep Dive Financial Reporting - part 5</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=iymmxuXHh44&amp;t=780s">13:00</a> · <a href="https://www.youtube.com/watch?v=iymmxuXHh44&amp;t=2863s">47:43</a> · <a href="https://www.youtube.com/watch?v=iymmxuXHh44&amp;t=3160s">52:40</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=xCzKEIB4W5I">Fabric Planning unboxing</a><span class="meta quote">2026-03-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=186s">03:06</a> · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=374s">06:14</a> · <a href="https://www.youtube.com/watch?v=xCzKEIB4W5I&amp;t=1219s">20:19</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=bt81POE-9Ig">Daten-WG Deep Dive Financial Reporting - part 6</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=bt81POE-9Ig&amp;t=609s">10:09</a> · <a href="https://www.youtube.com/watch?v=bt81POE-9Ig&amp;t=702s">11:42</a> · <a href="https://www.youtube.com/watch?v=bt81POE-9Ig&amp;t=2772s">46:12</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=vd1r02bj9Qk">Power BI vs. Qlik</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=vd1r02bj9Qk&amp;t=648s">10:48</a> · <a href="https://www.youtube.com/watch?v=vd1r02bj9Qk&amp;t=957s">15:57</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=VD1N68Fhoco">BI Thinkers Talk nr.68</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=VD1N68Fhoco&amp;t=3091s">51:31</a> · <a href="https://www.youtube.com/watch?v=VD1N68Fhoco&amp;t=3200s">53:20</a> · <a href="https://www.youtube.com/watch?v=VD1N68Fhoco&amp;t=3474s">57:54</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYmKrreMO3I">Daten-WG Deep Dive Financial Reporting</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=100s">01:40</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=193s">03:13</a> · <a href="https://www.youtube.com/watch?v=TYmKrreMO3I&amp;t=971s">16:11</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20ins%20Modell%20geh%C3%B6rt">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Beziehungen%20definieren">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Das%20Ziel-Schema">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=27rC2zefFOU">Realtalk zu Self Service mit Power BI</a><span class="meta quote">2024-02-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=27rC2zefFOU&amp;t=1024s">17:04</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=232JhS9vbQ0">Daten-WG Deep Dive Financial Reporting - part 7</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=232JhS9vbQ0&amp;t=0s">00:00</a> · <a href="https://www.youtube.com/watch?v=232JhS9vbQ0&amp;t=205s">03:25</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=DQENmzAkNqw">Daten-WG BI Thinkers Talk nr.66</a><span class="meta quote">2025-08-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=DQENmzAkNqw&amp;t=395s">06:35</a> · <a href="https://www.youtube.com/watch?v=DQENmzAkNqw&amp;t=585s">09:45</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY">BI Thinkers Talk nr.75</a><span class="meta quote">2026-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=854s">14:14</a> · <a href="https://www.youtube.com/watch?v=BQdSo6ZnmKY&amp;t=1322s">22:02</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=rrCi0lnGrCg">Mythos Data Vault und richtig große Modelle</a><span class="meta quote">2025-07-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=rrCi0lnGrCg&amp;t=107s">01:47</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=183uLZ3GYDo">Data Binning and Lorenz Curve in DAX | Alberto Ferrari &amp; Michael Tenner, Berlin Power BI User Group</a><span class="meta quote">2023-01-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=183uLZ3GYDo&amp;t=2672s">44:32</a> · <a href="https://www.youtube.com/watch?v=183uLZ3GYDo&amp;t=4696s">1:18:16</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ">Why Passion Beats Niche</a><span class="meta quote">2025-09-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=1505s">25:05</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=6WhWLcuFvZE">Prinzipien oder Paragrafen</a><span class="meta quote">2026-02-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=6WhWLcuFvZE&amp;t=1243s">20:43</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/powerbi_praxis_pfad.html">Dein erstes Dashboard — Power-BI-Praxis-Pfad</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/powerbi_praxis_pfad.html#:~:text=Wenn%20du%20weitermachen%20willst">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=UnW4wHhw_IY">Daten-WG Deep Dive Financial Reporting pt.4</a><span class="meta quote">2025-05-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=UnW4wHhw_IY&amp;t=2953s">49:13</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=aYHk_V8n_CE">Daten-WG Special: Power BI vs. Qlik</a><span class="meta quote">2025-10-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=aYHk_V8n_CE&amp;t=2616s">43:36</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=iinfiHxznOU">Unboxing MCP Server for Power BI Modelling</a><span class="meta quote">2025-12-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=iinfiHxznOU&amp;t=1716s">28:36</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=KMk1k5uCLZU">Daten-WG Thinkers Talk n61</a><span class="meta quote">2025-04-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=KMk1k5uCLZU&amp;t=2492s">41:32</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=r416vanitYw">BI Thinkers Talk nr.69</a><span class="meta quote">2025-11-01 · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=r416vanitYw&amp;t=94s">01:34</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=G8s96sHUHac">BI Thinkers Talk nr.67</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=G8s96sHUHac&amp;t=1582s">26:22</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=LUrL8A5lNgI">BI Thinkers Talk nr.71</a><span class="meta quote">2025-12-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=LUrL8A5lNgI&amp;t=581s">09:41</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="data-vault.html">Data Vault</a><span class="meta quote">gegensatz · belegt · 0 gemeinsame Segmente</span></li>
+<li><a href="directquery.html">DirectQuery</a><span class="meta quote">gegensatz · belegt · 9 gemeinsame Segmente</span></li>
+<li><a href="performance.html">Performance</a><span class="meta quote">setzt-voraus · belegt · 43 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">ko-vorkommen · heuristik · 43 gemeinsame Segmente</span></li>
+<li><a href="datenmodellierung.html">Datenmodellierung</a><span class="meta quote">ko-vorkommen · heuristik · 31 gemeinsame Segmente</span></li>
+<li><a href="reporting.html">Reporting</a><span class="meta quote">ko-vorkommen · heuristik · 29 gemeinsame Segmente</span></li>
+<li><a href="power-query.html">Power Query</a><span class="meta quote">ko-vorkommen · heuristik · 26 gemeinsame Segmente</span></li>
+<li><a href="dax.html">DAX</a><span class="meta quote">ko-vorkommen · heuristik · 24 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">ko-vorkommen · heuristik · 19 gemeinsame Segmente</span></li>
+<li><a href="excel.html">Excel</a><span class="meta quote">ko-vorkommen · heuristik · 19 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">ko-vorkommen · heuristik · 14 gemeinsame Segmente</span></li>
+<li><a href="visualisierung.html">Visualisierung</a><span class="meta quote">ko-vorkommen · heuristik · 12 gemeinsame Segmente</span></li>
+<li><a href="direct-lake.html">Direct Lake</a><span class="meta quote">ko-vorkommen · heuristik · 10 gemeinsame Segmente</span></li>
+<li><a href="planung.html">Planung</a><span class="meta quote">ko-vorkommen · heuristik · 10 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">ko-vorkommen · heuristik · 9 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

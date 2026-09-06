@@ -1,0 +1,958 @@
+{
+ "id": "tool:direct-lake",
+ "name": "Direct Lake",
+ "typ": "tool",
+ "slug": "direct-lake",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 32,
+ "kernaussagen_gesamt": 20,
+ "mit_kernaussagen": 10,
+ "aliase": [
+  "DirectLake",
+  "Direct-Lake"
+ ],
+ "einordnung": "Als Preview-Feature sollen DAX-berechnete Spalten künftig auch in Direct-Lake-Modellen anlegbar sein, aktuell ist die Option dort noch ausgeblendet. Für eine Fabric-SQL-Datenbank ist Direct Lake nicht nutzbar, weshalb im Berichtsmodell Import oder DirectQuery verwendet werden muss. Bei einem Direct-Lake-Modell bleibt das Semantic Model nach einem Deployment über eine Deployment Pipeline weiterhin mit dem Lakehouse der Testumgebung verbunden, die Datenquelle wird also nicht automatisch auf die Zielumgebung umgehängt.",
+ "nachbarn": [
+  {
+   "id": "tool:sql-endpoint",
+   "name": "SQL Endpoint",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 10,
+   "beleg": "dem Sequel Endpoint verbundenen Direct Lake und und dem Lake verbundenen Direct Lake",
+   "datei": "sql-endpoint.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 18,
+   "beleg": "tut dann die Perspektive dann eben über das Notebook jeden Morgen um 7 Uhr äh laufen lassen",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 40,
+   "beleg": "der Kunde hat einfach ein Direct Lake Modell letztendlich ... hier quasi ein Modell, was nach dem Deployment immer noch auf dem Lake House im Test hängt",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:import-mode",
+   "name": "Import Mode",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 6,
+   "beleg": "für Importmodelle gibt's ja Deployment Rules, für Direct Lake nicht",
+   "datei": "import-mode.md"
+  },
+  {
+   "id": "tool:import-mode",
+   "name": "Import Mode",
+   "kantentyp": "ersetzt",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 6,
+   "beleg": "Verbindung für den Bericht von dem Importmodell auf den Direct Lake Modell umgestellt",
+   "datei": "import-mode.md"
+  },
+  {
+   "id": "tool:composite-models",
+   "name": "Composite Models",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 5,
+   "beleg": "Direct Lake plus Import, dann eine Art stabiles Composite Modell",
+   "datei": "composite-models.md"
+  },
+  {
+   "id": "tool:directquery",
+   "name": "DirectQuery",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 34,
+   "beleg": "glaube ich ja, dass wir da Direct Lake nicht hinbekommen, aber für so ein kleinen Use Case wird's ja Direct Query wahrscheinlich auch tun",
+   "datei": "directquery.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 46,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 45,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 31,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 29,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 28,
+   "beleg": "",
+   "datei": "refresh.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 28,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 24,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:semantic-model",
+   "name": "Semantic Model",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 21,
+   "beleg": "",
+   "datei": "semantic-model.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update April 2026",
+   "dokument_id": "yt:fbpu8zLG3cc",
+   "sekunde": 115,
+   "zeit": "01:55",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=115s",
+   "aussage": "Als Preview-Feature sollen DAX-berechnete Spalten künftig auch in Direct-Lake-Modellen anlegbar sein, aktuell ist die Option dort noch ausgeblendet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 2575,
+   "zeit": "42:55",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2575s",
+   "aussage": "Bei Direct Lake führt der erste Nutzer, der morgens einen Bericht öffnet, wegen des noch kalten Caches häufig zu langen Wartezeiten."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 2575,
+   "zeit": "42:55",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2575s",
+   "aussage": "Der Power BI Fixer kann automatisch ein geplantes Notebook anlegen, das die Direct-Lake-Perspektive täglich zu einer festen Uhrzeit aktualisiert, um den Cache vorzuwärmen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 186,
+   "zeit": "03:06",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=186s",
+   "aussage": "Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 381,
+   "zeit": "06:21",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=381s",
+   "aussage": "Direct Lake auf OneLake ist jetzt allgemein verfügbar und damit der neue Standard für Direct Lake."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 381,
+   "zeit": "06:21",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=381s",
+   "aussage": "Wer Fabric nutzt, sollte sich Direct Lake auf OneLake auf jeden Fall anschauen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 2144,
+   "zeit": "35:44",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2144s",
+   "aussage": "Bei einem Direct-Lake-Modell bleibt das Semantic Model nach einem Deployment über eine Deployment Pipeline weiterhin mit dem Lakehouse der Testumgebung verbunden, die Datenquelle wird also nicht automatisch auf die Zielumgebung umgehängt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 2339,
+   "zeit": "38:59",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2339s",
+   "aussage": "Der Sprecher hält doppelte Datenhaltung in einem zweiten Lakehouse für unnötig, wenn ohnehin schon ein Direct-Lake-Modell mit großen Datenmengen im Einsatz ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 2439,
+   "zeit": "40:39",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2439s",
+   "aussage": "Eine Monitoring-Analyse zeigte, dass über zwei Drittel der Last auf einem produktiven Direct-Lake-Semantic-Model von Entwicklern in Power BI Desktop stammten und nicht von den eigentlichen Report-Nutzern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 541,
+   "zeit": "09:01",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=541s",
+   "aussage": "Mit der VS-Code-Erweiterung für Fabric lässt sich ein Direct-Lake-Modell innerhalb weniger Minuten von einer SQL-Datenbank auf ein Warehouse umziehen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 3234,
+   "zeit": "53:54",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3234s",
+   "aussage": "Deployment Pipelines unterstützen Dataflows, Lakehouses und Direct Lake nicht zuverlässig, sodass danach oft manuell mit VS Code nachgearbeitet werden muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 3234,
+   "zeit": "53:54",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3234s",
+   "aussage": "Für Import-Modelle gibt es in Deployment Pipelines eigene Deployment Rules, für Direct Lake dagegen nicht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1068,
+   "zeit": "17:48",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1068s",
+   "aussage": "Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1168,
+   "zeit": "19:28",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1168s",
+   "aussage": "Weil eine zu restriktive Firewall-Security den SQL-Zugriff auf Lakehouse-Tabellen blockierte, baute der Kunde stattdessen ein semantisches Direct-Lake-Modell direkt im Web auf."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1263,
+   "zeit": "21:03",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1263s",
+   "aussage": "Ein bestehender Bericht wurde im Live-Connection-Modus aus dem Power-BI-Service heruntergeladen und anschließend über die Datenverbindung von seinem ursprünglichen Importmodell auf ein neu aufgebautes Direct-Lake-Modell mit identischen Measure-Namen umgestellt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 3827,
+   "zeit": "1:03:47",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3827s",
+   "aussage": "Die Kombination aus Direct Lake und Import Mode ist mittlerweile GA verfügbar und ermöglicht damit ein stabileres Composite-Modell."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 1907,
+   "zeit": "31:47",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1907s",
+   "aussage": "Für eine Fabric-SQL-Datenbank ist Direct Lake nicht nutzbar, weshalb im Berichtsmodell Import oder DirectQuery verwendet werden muss."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 2860,
+   "zeit": "47:40",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2860s",
+   "aussage": "Mit Direct Lake wäre das Zurückschreiben asynchron und dadurch deutlich schneller als mit DirectQuery."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 3749,
+   "zeit": "1:02:29",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3749s",
+   "aussage": "Bei Direct Lake fällt die Aktualisierung des semantischen Modells nach dem Schreiben kaum auf, weil kein spürbarer Refresh-Vorgang nötig ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1684,
+   "zeit": "28:04",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1684s",
+   "aussage": "Direct Lake existiert in zwei Varianten, verbunden über den SQL-Endpoint oder direkt mit dem Lake, was zusätzliche Komplexität für Citizen Developer schafft."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.349,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wann%20Import%20%28noch%29%20gewinnt",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Community%20%C2%B7%20Blogs%2C%20Benchmarks%20%26%20B%C3%BCcher",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Zwei%20Varianten%20%E2%80%94%20wichtig%20seit%202025",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:fbpu8zLG3cc",
+   "titel": "Power BI Update April 2026",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.286,
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc",
+   "sprungmarken": [
+    {
+     "label": "01:55",
+     "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=115s",
+     "sekunde": 115
+    },
+    {
+     "label": "02:58",
+     "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s",
+     "sekunde": 178
+    }
+   ]
+  },
+  {
+   "id": "yt:zkfdfc5fo-E",
+   "titel": "Power BI Update Mai 2025",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.214,
+   "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E",
+   "sprungmarken": [
+    {
+     "label": "07:46",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=466s",
+     "sekunde": 466
+    },
+    {
+     "label": "09:19",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=559s",
+     "sekunde": 559
+    },
+    {
+     "label": "11:21",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=681s",
+     "sekunde": 681
+    }
+   ]
+  },
+  {
+   "id": "yt:Wwvhv8WA2Qc",
+   "titel": "BI Thinkers Talk Nr.62",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.196,
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc",
+   "sprungmarken": [
+    {
+     "label": "31:47",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1907s",
+     "sekunde": 1907
+    },
+    {
+     "label": "33:23",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2003s",
+     "sekunde": 2003
+    },
+    {
+     "label": "47:40",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2860s",
+     "sekunde": 2860
+    }
+   ]
+  },
+  {
+   "id": "yt:pOJpXxsfUt0",
+   "titel": "BI Thinkers Talk n.73",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.162,
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0",
+   "sprungmarken": [
+    {
+     "label": "35:44",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2144s",
+     "sekunde": 2144
+    },
+    {
+     "label": "37:17",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2237s",
+     "sekunde": 2237
+    },
+    {
+     "label": "38:59",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2339s",
+     "sekunde": 2339
+    }
+   ]
+  },
+  {
+   "id": "yt:jTXo4aEr07o",
+   "titel": "Power BI Update August 2025",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=jTXo4aEr07o",
+   "sprungmarken": [
+    {
+     "label": "01:21",
+     "url": "https://www.youtube.com/watch?v=jTXo4aEr07o&t=81s",
+     "sekunde": 81
+    }
+   ]
+  },
+  {
+   "id": "yt:bt81POE-9Ig",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.14,
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
+   "sprungmarken": [
+    {
+     "label": "41:19",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2479s",
+     "sekunde": 2479
+    },
+    {
+     "label": "46:12",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2772s",
+     "sekunde": 2772
+    },
+    {
+     "label": "47:44",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2864s",
+     "sekunde": 2864
+    }
+   ]
+  },
+  {
+   "id": "yt:c-LWoo-O5PQ",
+   "titel": "SharePoint direkt in Microsoft Fabric nutzen | Lakehouse, Direct Lake & Power BI",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.133,
+   "url": "https://www.youtube.com/watch?v=c-LWoo-O5PQ",
+   "sprungmarken": [
+    {
+     "label": "09:20",
+     "url": "https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=560s",
+     "sekunde": 560
+    },
+    {
+     "label": "16:12",
+     "url": "https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=972s",
+     "sekunde": 972
+    }
+   ]
+  },
+  {
+   "id": "yt:TkxwcAyBGUM",
+   "titel": "Power BI Update Juli 2025",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM",
+   "sprungmarken": [
+    {
+     "label": "06:09",
+     "url": "https://www.youtube.com/watch?v=TkxwcAyBGUM&t=369s",
+     "sekunde": 369
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.114,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "08:28",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=508s",
+     "sekunde": 508
+    },
+    {
+     "label": "10:33",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=633s",
+     "sekunde": 633
+    },
+    {
+     "label": "12:06",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=726s",
+     "sekunde": 726
+    }
+   ]
+  },
+  {
+   "id": "yt:ASwcPvbMRZc",
+   "titel": "Power BI Update März 2026",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.091,
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc",
+   "sprungmarken": [
+    {
+     "label": "06:21",
+     "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=381s",
+     "sekunde": 381
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.085,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "17:48",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1068s",
+     "sekunde": 1068
+    },
+    {
+     "label": "21:03",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1263s",
+     "sekunde": 1263
+    },
+    {
+     "label": "1:03:47",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3827s",
+     "sekunde": 3827
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.083,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "19:55",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1195s",
+     "sekunde": 1195
+    },
+    {
+     "label": "24:33",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1473s",
+     "sekunde": 1473
+    }
+   ]
+  },
+  {
+   "id": "yt:6gQiIbyhWEc",
+   "titel": "Power BI Update September 2025",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.083,
+   "url": "https://www.youtube.com/watch?v=6gQiIbyhWEc",
+   "sprungmarken": [
+    {
+     "label": "08:56",
+     "url": "https://www.youtube.com/watch?v=6gQiIbyhWEc&t=536s",
+     "sekunde": 536
+    }
+   ]
+  },
+  {
+   "id": "yt:232JhS9vbQ0",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 7",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=232JhS9vbQ0",
+   "sprungmarken": [
+    {
+     "label": "05:24",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=324s",
+     "sekunde": 324
+    },
+    {
+     "label": "08:31",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=511s",
+     "sekunde": 511
+    },
+    {
+     "label": "20:17",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=1217s",
+     "sekunde": 1217
+    }
+   ]
+  },
+  {
+   "id": "yt:r416vanitYw",
+   "titel": "BI Thinkers Talk nr.69",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.07,
+   "url": "https://www.youtube.com/watch?v=r416vanitYw",
+   "sprungmarken": [
+    {
+     "label": "42:48",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=2568s",
+     "sekunde": 2568
+    },
+    {
+     "label": "44:27",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=2667s",
+     "sekunde": 2667
+    },
+    {
+     "label": "58:52",
+     "url": "https://www.youtube.com/watch?v=r416vanitYw&t=3532s",
+     "sekunde": 3532
+    }
+   ]
+  },
+  {
+   "id": "yt:GWCHNmLs72M",
+   "titel": "Power BI Update August 2026",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=GWCHNmLs72M",
+   "sprungmarken": [
+    {
+     "label": "07:35",
+     "url": "https://www.youtube.com/watch?v=GWCHNmLs72M&t=455s",
+     "sekunde": 455
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.065,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "07:50",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=470s",
+     "sekunde": 470
+    },
+    {
+     "label": "25:07",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1507s",
+     "sekunde": 1507
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "36:51",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2211s",
+     "sekunde": 2211
+    },
+    {
+     "label": "38:58",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2338s",
+     "sekunde": 2338
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.049,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "02:59",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=179s",
+     "sekunde": 179
+    },
+    {
+     "label": "25:36",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1536s",
+     "sekunde": 1536
+    }
+   ]
+  },
+  {
+   "id": "yt:xCzKEIB4W5I",
+   "titel": "Fabric Planning unboxing",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.036,
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I",
+   "sprungmarken": [
+    {
+     "label": "03:06",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=186s",
+     "sekunde": 186
+    },
+    {
+     "label": "55:27",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3327s",
+     "sekunde": 3327
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.031,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric%20vs.%20klassisches%20Power%20BI",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Direct%20Lake%20%28Fabric%29",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.031,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "28:04",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1684s",
+     "sekunde": 1684
+    }
+   ]
+  },
+  {
+   "id": "yt:9VX4-lLa0EI",
+   "titel": "BI Thinkers Talk nr.63",
+   "datum": "2025-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI",
+   "sprungmarken": [
+    {
+     "label": "52:09",
+     "url": "https://www.youtube.com/watch?v=9VX4-lLa0EI&t=3129s",
+     "sekunde": 3129
+    }
+   ]
+  },
+  {
+   "id": "yt:UnW4wHhw_IY",
+   "titel": "Daten-WG Deep Dive Financial Reporting pt.4",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY",
+   "sprungmarken": [
+    {
+     "label": "34:28",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=2068s",
+     "sekunde": 2068
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "09:01",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=541s",
+     "sekunde": 541
+    }
+   ]
+  },
+  {
+   "id": "yt:luk4S4ukKmg",
+   "titel": "BI Thinkers Talk n.72",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg",
+   "sprungmarken": [
+    {
+     "label": "53:54",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3234s",
+     "sekunde": 3234
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "42:55",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2575s",
+     "sekunde": 2575
+    }
+   ]
+  },
+  {
+   "id": "yt:VD1N68Fhoco",
+   "titel": "BI Thinkers Talk nr.68",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=VD1N68Fhoco",
+   "sprungmarken": [
+    {
+     "label": "57:54",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=3474s",
+     "sekunde": 3474
+    }
+   ]
+  },
+  {
+   "id": "yt:iymmxuXHh44",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 5",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=iymmxuXHh44",
+   "sprungmarken": [
+    {
+     "label": "1:04:03",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=3843s",
+     "sekunde": 3843
+    }
+   ]
+  },
+  {
+   "id": "yt:eWfTt93anl4",
+   "titel": "BI Thinkers Talk nr.77",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=eWfTt93anl4",
+   "sprungmarken": [
+    {
+     "label": "53:05",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=3185s",
+     "sekunde": 3185
+    }
+   ]
+  },
+  {
+   "id": "yt:mlkP-6i5Kq8",
+   "titel": "BI Thinkers Talk nr.76",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8",
+   "sprungmarken": [
+    {
+     "label": "45:45",
+     "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=2745s",
+     "sekunde": 2745
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Adirect-lake",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Adirect-lake&f=tool%3Adirect-lake"
+}

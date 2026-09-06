@@ -1,0 +1,953 @@
+{
+ "id": "tool:fabric-capacity",
+ "name": "Fabric Capacity",
+ "typ": "tool",
+ "slug": "fabric-capacity",
+ "stand": "2026-09-06",
+ "build": "20260906-2313",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "dokumente_gesamt": 26,
+ "kernaussagen_gesamt": 29,
+ "mit_kernaussagen": 9,
+ "aliase": [
+  "Capacity",
+  "Kapazität",
+  "F-SKU",
+  "F2",
+  "F64",
+  "Capacities",
+  "Kapazitäten"
+ ],
+ "einordnung": "Microsoft Fabric bietet jetzt einen Papierkorb für gelöschte Items sowie Autoscaling beziehungsweise Overage Billing für Kapazitätsspitzen. Fabric Planning mit Lumel erfordert keine separate Lizenz und wird ausschließlich über Capacity-Unit-Verbrauch abgerechnet. Für eine F64-Kapazität stellt Microsoft im Rahmen von Open Mirroring 64 TB Speicherplatz kostenlos zur Verfügung.",
+ "nachbarn": [
+  {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 8,
+   "beleg": "es aber braucht einfach Kapazität, aber es gibt für mich, es gibt keine extra Lizenzen",
+   "datei": "planung.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 28,
+   "beleg": "ich habe einen Arbeitsbereich, den ordne ich einer Kapazität zu und innerhalb des Arbeitsbereichs werden dann meine Artefakte und die Daten dazu entsprechend auf den Onelake abgelegt.",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:mirroring",
+   "name": "Mirroring",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 10,
+   "beleg": "die Speicherkosten ... sind ja die Speicherkosten je nach äh Kapazität im Terabyte Bereich äh mit drin (Segment 8)",
+   "datei": "mirroring.md"
+  },
+  {
+   "id": "tool:mirroring",
+   "name": "Mirroring",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 10,
+   "beleg": "kostenlosen Speicher für das Mirroring, entsprechend deiner Kapazität, bei einer F64 schon 64 TB",
+   "datei": "mirroring.md"
+  },
+  {
+   "id": "tool:translytical-task-flows",
+   "name": "Translytical Task Flows",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "belegt",
+   "gemeinsame_segmente": 0,
+   "beleg": "seit wir da am Bauen sind, quasi seit 4:20 Uhr, dass das so hochgeschossen ist, das ist jetzt kein Zufall",
+   "datei": "translytical-task-flows.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 66,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 52,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:premium",
+   "name": "Premium",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 29,
+   "beleg": "",
+   "datei": "premium.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 28,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 22,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:performance",
+   "name": "Performance",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 21,
+   "beleg": "",
+   "datei": "performance.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 21,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 20,
+   "beleg": "",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "heuristik",
+   "gemeinsame_segmente": 19,
+   "beleg": "",
+   "datei": "refresh.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 26,
+   "zeit": "00:26",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=26s",
+   "aussage": "Microsoft Fabric besteht im Kern aus zwei wesentlichen Komponenten: der Kapazität, die man in Azure bucht, und dem OneLake, in dem die Daten liegen und verwaltet werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 26,
+   "zeit": "00:26",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=26s",
+   "aussage": "Ein Arbeitsbereich wird einer Kapazität zugeordnet, und innerhalb dieses Arbeitsbereichs werden Artefakte und Daten entsprechend im OneLake abgelegt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 26,
+   "zeit": "00:26",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=26s",
+   "aussage": "Die Rechenleistung, die innerhalb eines Arbeitsbereichs zum Arbeiten mit den Daten im OneLake genutzt wird, stammt aus der zugeordneten Fabric-Kapazität."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 79,
+   "zeit": "01:19",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=79s",
+   "aussage": "Eine Fabric-Kapazität kann in unterschiedlichen Azure-Regionen angelegt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 79,
+   "zeit": "01:19",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=79s",
+   "aussage": "Verschiebt man die Rechenleistung einer Kapazität in eine andere Region, verschiebt sich dadurch auch der Ablageort der zugehörigen Daten im OneLake."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 79,
+   "zeit": "01:19",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=79s",
+   "aussage": "Bestimmte Szenarien erfordern, dass Daten aus rechtlichen oder regulatorischen Gründen in einem bestimmten Land oder einer bestimmten Region abgelegt und verarbeitet werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 117,
+   "zeit": "01:57",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=117s",
+   "aussage": "Die tatsächlichen Daten werden laut dem Microsoft-Blogartikel in der Region gespeichert, in der die zugeordnete Kapazität liegt, und nicht zwingend in der Region des Tenants."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 174,
+   "zeit": "02:54",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=174s",
+   "aussage": "Beim Buchen einer Kapazität im Azure-Portal ist die Region standardmäßig auf die Region des Tenants voreingestellt."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 174,
+   "zeit": "02:54",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=174s",
+   "aussage": "Im Azure-Portal kann die Region für die Kapazität auch manuell anders gewählt werden, wenn Daten und Rechenleistung woanders verortet werden sollen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 196,
+   "zeit": "03:16",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=196s",
+   "aussage": "Ordnet man einen Arbeitsbereich einer Kapazität zu, werden die zugehörigen Daten im OneLake tatsächlich in der Region gespeichert, in der die Kapazität liegt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 196,
+   "zeit": "03:16",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=196s",
+   "aussage": "Verschiebt man einen Arbeitsbereich zwischen Kapazitäten in unterschiedlichen Regionen, müssen die zugrunde liegenden Daten tatsächlich in die neue Region überführt werden, es ist also kein reiner Wechsel der Rechenleistung."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?",
+   "dokument_id": "yt:ZVVSPQj9dlc",
+   "sekunde": 237,
+   "zeit": "03:57",
+   "url": "https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=237s",
+   "aussage": "OneLake existiert pro Tenant nur einmal und beschreibt die Gesamtumgebung, während der tatsächliche Ablageort der Daten durch die Region der jeweils gehosteten Kapazität gesteuert wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 466,
+   "zeit": "07:46",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=466s",
+   "aussage": "Das neue Planning-Feature, ehemals Lumel bzw. Inforiver, ist jetzt direkt in Microsoft Fabric integriert und benötigt keine zusätzliche Lizenz, sondern nur Fabric-Kapazität."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 562,
+   "zeit": "09:22",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=562s",
+   "aussage": "Eine einzelne SQL-Datenbank kann bereits eine F2-Kapazität stark auslasten, wie ein interner Vorfall zeigte."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 4168,
+   "zeit": "1:09:28",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4168s",
+   "aussage": "Der Gantt-Objekttyp benötigt eine passende Datenstruktur mit eindeutigem Event sowie Start- und Enddatum und zeigte auf der genutzten Trial-Kapazität deutliche Ladezeit-Probleme."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 160,
+   "zeit": "02:40",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s",
+   "aussage": "Für eine F64-Kapazität stellt Microsoft im Rahmen von Open Mirroring 64 TB Speicherplatz kostenlos zur Verfügung."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 160,
+   "zeit": "02:40",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s",
+   "aussage": "Der kostenlose Speicherplatz bei Open Mirroring soll die doppelte Datenhaltung aus Quelle und Replikat in Fabric kompensieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 160,
+   "zeit": "02:40",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s",
+   "aussage": "Die Replikation der Tabelle selbst erzeugt keine zusätzlichen Fabric-Kapazitätskosten, erst der Datenzugriff über SQL, Power BI oder Spark wird nach den regulären Tarifen berechnet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 1006,
+   "zeit": "16:46",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1006s",
+   "aussage": "Die Search Protection auf Workspace-Ebene kann einen Workspace automatisch pausieren, wenn er eine festgelegte Prozentzahl der Gesamtkapazität überschreitet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 1006,
+   "zeit": "16:46",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1006s",
+   "aussage": "Einzelne Workspaces lassen sich als Mission Critical markieren, damit sie von der automatischen Pausierung durch die Search Protection ausgenommen bleiben."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 2536,
+   "zeit": "42:16",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2536s",
+   "aussage": "Die Capacity Metrics App wird als unzuverlässig beschrieben, weil sie nach einem Update manuell vorgenommene Codeänderungen überschrieben hat und danach nicht mehr lädt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 581,
+   "zeit": "09:41",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=581s",
+   "aussage": "In einem Projekt mit 14 Werken und 27 Tabellen pro Werk im Viertelstundentakt kostete ein Aktualisierungsdurchlauf pro Werk rund 28 Cent, was hochgerechnet auf sechs Werke eine F64-Kapazität auslastete und jährlich über 5000 Euro allein für den Datentransport verursachte."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 691,
+   "zeit": "11:31",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=691s",
+   "aussage": "Beim Fabric-Kapazitätsmodell (Flat Rate) ist der tatsächliche Ressourcenverbrauch laut den Sprechern weniger transparent als bei nutzungsbasierter Abrechnung wie bei Synapse."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.71",
+   "dokument_id": "yt:LUrL8A5lNgI",
+   "sekunde": 783,
+   "zeit": "13:03",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=783s",
+   "aussage": "Beim Fabric Mirroring sind die Speicherkosten für gespiegelte Daten je nach Kapazität im Terabyte-Bereich bereits enthalten, sodass zusätzlich nur noch das Auslesen der Daten aus der Mirror-Datenbank bezahlt wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 3358,
+   "zeit": "55:58",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3358s",
+   "aussage": "Mirroring in Microsoft Fabric enthält kostenlosen Speicherplatz proportional zur gebuchten Kapazität, etwa 64 TB bei einer F64-Kapazität, inklusive der automatischen Transformation in Tabellenformat."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 4237,
+   "zeit": "1:10:37",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=4237s",
+   "aussage": "Nach den Tests der Writeback-Funktion stieg die CU-Auslastung der F2-Kapazität in der Capacity-Metrics-App auf über 100 Prozent."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1135,
+   "zeit": "18:55",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1135s",
+   "aussage": "Fabric-Kapazität F2 lohnt sich aus Sicht des Sprechers fast immer, unabhängig von der Unternehmensgröße."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 2107,
+   "zeit": "35:07",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2107s",
+   "aussage": "Microsoft Fabric bietet jetzt einen Papierkorb für gelöschte Items sowie Autoscaling beziehungsweise Overage Billing für Kapazitätsspitzen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 2907,
+   "zeit": "48:27",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2907s",
+   "aussage": "Fabric Planning mit Lumel erfordert keine separate Lizenz und wird ausschließlich über Capacity-Unit-Verbrauch abgerechnet."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.385,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "15:34",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=934s",
+     "sekunde": 934
+    },
+    {
+     "label": "17:20",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1040s",
+     "sekunde": 1040
+    },
+    {
+     "label": "19:02",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1142s",
+     "sekunde": 1142
+    }
+   ]
+  },
+  {
+   "id": "yt:YzfcMurbWNc",
+   "titel": "Power BI-Teams werden Fabric-Datendienstleister",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.227,
+   "url": "https://www.youtube.com/watch?v=YzfcMurbWNc",
+   "sprungmarken": [
+    {
+     "label": "12:04",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=724s",
+     "sekunde": 724
+    },
+    {
+     "label": "13:41",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=821s",
+     "sekunde": 821
+    },
+    {
+     "label": "15:23",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=923s",
+     "sekunde": 923
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.225,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20das%20konkret%20hei%C3%9Ft",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Workload-Landkarte%20%28Stand%202026%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20wichtigsten%20Regeln",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.194,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "04:16",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=256s",
+     "sekunde": 256
+    },
+    {
+     "label": "07:50",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=470s",
+     "sekunde": 470
+    },
+    {
+     "label": "39:00",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2340s",
+     "sekunde": 2340
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.171,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "44:26",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2666s",
+     "sekunde": 2666
+    },
+    {
+     "label": "45:20",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2720s",
+     "sekunde": 2720
+    },
+    {
+     "label": "46:54",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2814s",
+     "sekunde": 2814
+    }
+   ]
+  },
+  {
+   "id": "yt:iymmxuXHh44",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 5",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.146,
+   "url": "https://www.youtube.com/watch?v=iymmxuXHh44",
+   "sprungmarken": [
+    {
+     "label": "22:25",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1345s",
+     "sekunde": 1345
+    },
+    {
+     "label": "24:14",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1454s",
+     "sekunde": 1454
+    },
+    {
+     "label": "32:28",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1948s",
+     "sekunde": 1948
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.135,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "17:22",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1042s",
+     "sekunde": 1042
+    },
+    {
+     "label": "33:31",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2011s",
+     "sekunde": 2011
+    },
+    {
+     "label": "43:34",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2614s",
+     "sekunde": 2614
+    }
+   ]
+  },
+  {
+   "id": "yt:ihi7UiJ_TtQ",
+   "titel": "Why Passion Beats Niche",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.115,
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
+   "sprungmarken": [
+    {
+     "label": "19:47",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1187s",
+     "sekunde": 1187
+    },
+    {
+     "label": "21:22",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1282s",
+     "sekunde": 1282
+    },
+    {
+     "label": "22:52",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1372s",
+     "sekunde": 1372
+    }
+   ]
+  },
+  {
+   "id": "yt:7j34Ndng0Os",
+   "titel": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.1,
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os",
+   "sprungmarken": [
+    {
+     "label": "02:40",
+     "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s",
+     "sekunde": 160
+    }
+   ]
+  },
+  {
+   "id": "yt:Wwvhv8WA2Qc",
+   "titel": "BI Thinkers Talk Nr.62",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc",
+   "sprungmarken": [
+    {
+     "label": "11:27",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=687s",
+     "sekunde": 687
+    },
+    {
+     "label": "1:09:02",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=4142s",
+     "sekunde": 4142
+    },
+    {
+     "label": "1:12:10",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=4330s",
+     "sekunde": 4330
+    }
+   ]
+  },
+  {
+   "id": "yt:9wl_PLvgvyc",
+   "titel": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc",
+   "sprungmarken": [
+    {
+     "label": "12:47",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=767s",
+     "sekunde": 767
+    },
+    {
+     "label": "17:08",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=1028s",
+     "sekunde": 1028
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.083,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Die%20vier%20Lizenz-Stufen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Sicherheitsgruppen%20statt%20Einzelpersonen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Die%20wichtigsten%20Regeln",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:xCzKEIB4W5I",
+   "titel": "Fabric Planning unboxing",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I",
+   "sprungmarken": [
+    {
+     "label": "07:46",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=466s",
+     "sekunde": 466
+    },
+    {
+     "label": "09:22",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=562s",
+     "sekunde": 562
+    },
+    {
+     "label": "18:46",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1126s",
+     "sekunde": 1126
+    }
+   ]
+  },
+  {
+   "id": "yt:zkfdfc5fo-E",
+   "titel": "Power BI Update Mai 2025",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E",
+   "sprungmarken": [
+    {
+     "label": "14:21",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=861s",
+     "sekunde": 861
+    }
+   ]
+  },
+  {
+   "id": "yt:LUrL8A5lNgI",
+   "titel": "BI Thinkers Talk nr.71",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI",
+   "sprungmarken": [
+    {
+     "label": "09:41",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=581s",
+     "sekunde": 581
+    },
+    {
+     "label": "13:03",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=783s",
+     "sekunde": 783
+    },
+    {
+     "label": "14:39",
+     "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=879s",
+     "sekunde": 879
+    }
+   ]
+  },
+  {
+   "id": "yt:bt81POE-9Ig",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.047,
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
+   "sprungmarken": [
+    {
+     "label": "26:22",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1582s",
+     "sekunde": 1582
+    },
+    {
+     "label": "1:09:07",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=4147s",
+     "sekunde": 4147
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.047,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "11:32",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=692s",
+     "sekunde": 692
+    },
+    {
+     "label": "15:05",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=905s",
+     "sekunde": 905
+    }
+   ]
+  },
+  {
+   "id": "yt:rWE0gMx7v7I",
+   "titel": "BI Thinkers Talk n.74",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I",
+   "sprungmarken": [
+    {
+     "label": "11:17",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=677s",
+     "sekunde": 677
+    },
+    {
+     "label": "12:49",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=769s",
+     "sekunde": 769
+    }
+   ]
+  },
+  {
+   "id": "yt:BDnwlOqRElY",
+   "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "datum": "2025-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
+   "sprungmarken": [
+    {
+     "label": "35:52",
+     "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=2152s",
+     "sekunde": 2152
+    }
+   ]
+  },
+  {
+   "id": "yt:UnW4wHhw_IY",
+   "titel": "Daten-WG Deep Dive Financial Reporting pt.4",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY",
+   "sprungmarken": [
+    {
+     "label": "03:11",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=191s",
+     "sekunde": 191
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "04:43",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=283s",
+     "sekunde": 283
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "16:46",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1006s",
+     "sekunde": 1006
+    }
+   ]
+  },
+  {
+   "id": "yt:TYmKrreMO3I",
+   "titel": "Daten-WG Deep Dive Financial Reporting",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
+   "sprungmarken": [
+    {
+     "label": "49:02",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2942s",
+     "sekunde": 2942
+    }
+   ]
+  },
+  {
+   "id": "yt:VD1N68Fhoco",
+   "titel": "BI Thinkers Talk nr.68",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=VD1N68Fhoco",
+   "sprungmarken": [
+    {
+     "label": "57:54",
+     "url": "https://www.youtube.com/watch?v=VD1N68Fhoco&t=3474s",
+     "sekunde": 3474
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.021,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "55:58",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3358s",
+     "sekunde": 3358
+    }
+   ]
+  },
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": []
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Afabric-capacity",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Afabric-capacity&f=tool%3Afabric-capacity"
+}
