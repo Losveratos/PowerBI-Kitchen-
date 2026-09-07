@@ -3,7 +3,7 @@ id: "topic:data-vault"
 name: "Data Vault"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 3
 kernaussagen: 4
@@ -37,12 +37,14 @@ Datavault, Hub, Satellite
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 08:12 | Größere Unternehmen setzen auf der Ebene des Kern-Data-Warehouse heute häufig entweder auf normalisierte Datenhaltung oder auf Data Vault. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s) |
-| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 08:12 | Data Vault ist als Konzept bereits rund 25 Jahre alt, hat sich in Europa aber erst seit etwa zehn Jahren verbreitet. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s) |
-| Meinung | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 08:12 | Data Vault bietet gegenüber klassischen Cube-Strukturen laut Peter Gluchowski eine deutlich höhere Änderungsflexibilität. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s) |
-| Fakt | BI Thinkers Talk - Data Modelling - Fabric Data Days Edition | 07:56 | Data Vault ist eine Modellierungsmethode für die mittlere Datenschicht, die auf Hubs für Business Keys, Links für Beziehungen und Satelliten für zusätzliche Attribute aufbaut. | [▶](https://www.youtube.com/watch?v=mUALlPmGcEk&t=476s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 2026-05 | 08:08 | auf die Sekunde | Größere Unternehmen setzen auf der Ebene des Kern-Data-Warehouse heute häufig entweder auf normalisierte Datenhaltung oder auf Data Vault. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=488s) |
+| Meinung | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 2026-05 | 08:12 | Abschnittsanfang | Data Vault bietet gegenüber klassischen Cube-Strukturen laut Peter Gluchowski eine deutlich höhere Änderungsflexibilität. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s) |
+| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 2026-05 | 08:23 | auf die Sekunde | Data Vault ist als Konzept bereits rund 25 Jahre alt, hat sich in Europa aber erst seit etwa zehn Jahren verbreitet. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=503s) |
+| Fakt | BI Thinkers Talk - Data Modelling - Fabric Data Days Edition | 2025-11 | 09:17 | auf die Sekunde | Data Vault ist eine Modellierungsmethode für die mittlere Datenschicht, die auf Hubs für Business Keys, Links für Beziehungen und Satelliten für zusätzliche Attribute aufbaut. | [▶](https://www.youtube.com/watch?v=mUALlPmGcEk&t=557s) |
 
 ## Dokumente
 

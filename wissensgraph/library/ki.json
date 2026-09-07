@@ -4,7 +4,7 @@
  "typ": "thema",
  "slug": "ki",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/ki.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/ki.html",
@@ -165,15 +165,6 @@
  "kernaussagen": [
   {
    "typ": "Meinung",
-   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
-   "dokument_id": "yt:dKA-38gRD8Q",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=0s",
-   "aussage": "KI-Konzepte wie neuronale Netze, Entscheidungsbäume und Clusteranalysen sind laut Peter Gluchowski schon sehr lange bekannt und keine neuen Erfindungen."
-  },
-  {
-   "typ": "Meinung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
    "sekunde": 2,
@@ -182,48 +173,57 @@
    "aussage": "Julia sieht die Pharma- und Life-Science-Branche wegen datenaffiner Mitarbeiter und umfangreicher Sensorik-Daten als besonders geeignet für einen KI-first-Ansatz an."
   },
   {
+   "typ": "Meinung",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 24,
+   "zeit": "00:24",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=24s",
+   "aussage": "KI-Konzepte wie neuronale Netze, Entscheidungsbäume und Clusteranalysen sind laut Peter Gluchowski schon sehr lange bekannt und keine neuen Erfindungen."
+  },
+  {
    "typ": "Empfehlung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 96,
-   "zeit": "01:36",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=96s",
+   "sekunde": 180,
+   "zeit": "03:00",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=180s",
    "aussage": "Martin empfiehlt, KI nicht wie ein deterministisches System, sondern eher wie einen Mitarbeiter zu behandeln."
   },
   {
    "typ": "Empfehlung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 188,
-   "zeit": "03:08",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=188s",
+   "sekunde": 181,
+   "zeit": "03:01",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=181s",
    "aussage": "Arthur überträgt das Prinzip, dass in der Pharmabranche Prozesse validiert und Systeme qualifiziert werden statt Mitarbeiter, auch auf den Umgang mit KI."
   },
   {
    "typ": "Fakt",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 289,
-   "zeit": "04:49",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=289s",
+   "sekunde": 295,
+   "zeit": "04:55",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=295s",
    "aussage": "Vor dem Einsatz von KI muss laut den Sprechern ein Daten- und Prozessfundament erarbeitet werden, das auch für andere Disziplinen als Basis dient."
   },
   {
    "typ": "Fakt",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 289,
-   "zeit": "04:49",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=289s",
+   "sekunde": 348,
+   "zeit": "05:48",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=348s",
    "aussage": "Ein großer Pharmakonzern hat bei einem KI-Projekt im GXP-Bereich die prüfenden Behörden aktiv eingebunden, um gemeinsam die Grenzen des Machbaren auszuloten."
   },
   {
    "typ": "Fakt",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 497,
-   "zeit": "08:17",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=497s",
+   "sekunde": 543,
+   "zeit": "09:03",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=543s",
    "aussage": "KI wird in symbolische, regelbasierte und nachvollziehbare KI sowie sub-symbolische KI wie Deep Learning und Sprachmodelle unterteilt, wobei letztere schwerer nachvollziehbar ist."
   },
   {
@@ -239,27 +239,18 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.76",
    "dokument_id": "yt:mlkP-6i5Kq8",
-   "sekunde": 668,
-   "zeit": "11:08",
-   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=668s",
+   "sekunde": 706,
+   "zeit": "11:46",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=706s",
    "aussage": "Claude-Skills funktionieren wie ein selbstgeschriebenes Handbuch, das die KI nach jeder Session um neue Erkenntnisse und Fehlerkorrekturen ergänzt."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "GxP Talk - KI im regulierten Umfeld?",
-   "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 729,
-   "zeit": "12:09",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=729s",
-   "aussage": "Der GAMP-5-Leitfaden unterteilt den KI-Einsatz je nach Grad der Autarkie des Systems in unterschiedliche Sphären."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.76",
    "dokument_id": "yt:mlkP-6i5Kq8",
-   "sekunde": 761,
-   "zeit": "12:41",
-   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=761s",
+   "sekunde": 756,
+   "zeit": "12:36",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=756s",
    "aussage": "Auf der Plattform skills.sh sind nach Angaben des Gasts aktuell rund 80.000 bis 90.000 Skills gelistet, davon etwa fünf speziell für Power BI."
   },
   {
@@ -272,66 +263,75 @@
    "aussage": "Vor der Nutzung eines fremden Skills sollte man sich dessen Lizenzbedingungen und die Kompatibilität mit dem eigenen Setup prüfen lassen, da manche Lizenzen die Einbindung in eigene Produkte untersagen."
   },
   {
-   "typ": "Meinung",
-   "dokument": "BI Thinkers Talk nr.76",
-   "dokument_id": "yt:mlkP-6i5Kq8",
-   "sekunde": 865,
-   "zeit": "14:25",
-   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=865s",
-   "aussage": "Nach Erfahrung des Gasts passen die von der KI aus dem Internet gelernten, generischen Dashboard-Designs nicht zum eigenen Analysestil in der Finanzverwaltung, der stark auf Rückschau und Innerbetriebsvergleich setzt."
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 776,
+   "zeit": "12:56",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=776s",
+   "aussage": "Der GAMP-5-Leitfaden unterteilt den KI-Einsatz je nach Grad der Autarkie des Systems in unterschiedliche Sphären."
   },
   {
    "typ": "Fakt",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 913,
-   "zeit": "15:13",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=913s",
+   "sekunde": 903,
+   "zeit": "15:03",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=903s",
    "aussage": "Die Abkürzung TPLC steht für Total Product Lifecycle und stammt ursprünglich aus der Regulierung physischer Medizinprodukte, wird aber auch auf Software und KI übertragen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 946,
+   "zeit": "15:46",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=946s",
+   "aussage": "Nach Erfahrung des Gasts passen die von der KI aus dem Internet gelernten, generischen Dashboard-Designs nicht zum eigenen Analysestil in der Finanzverwaltung, der stark auf Rückschau und Innerbetriebsvergleich setzt."
   },
   {
    "typ": "Meinung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 1008,
-   "zeit": "16:48",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1008s",
+   "sekunde": 983,
+   "zeit": "16:23",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=983s",
    "aussage": "Martin unterscheidet Anwendungsfälle danach, ob eine KI-Aufgabe überhaupt GXP-reguliert ist, etwa ist Predictive Forecasting für die Budgetplanung nicht GXP-reguliert."
   },
   {
    "typ": "Meinung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 1109,
-   "zeit": "18:29",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1109s",
+   "sekunde": 1076,
+   "zeit": "17:56",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1076s",
    "aussage": "Sobald eine KI über die Verwendbarkeit eines Zwischen- oder Endprodukts in der Produktion mitentscheidet, fällt der Einsatz laut Martin in einen regulierten Bereich."
   },
   {
    "typ": "Warnung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 1206,
-   "zeit": "20:06",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1206s",
+   "sekunde": 1231,
+   "zeit": "20:31",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1231s",
    "aussage": "Arthur warnt davor, die Software beziehungsweise KI selbst validieren zu wollen, statt wie üblich den Prozess zu validieren und die notwendigen Systeme zu qualifizieren."
   },
   {
    "typ": "Meinung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 1298,
-   "zeit": "21:38",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1298s",
+   "sekunde": 1315,
+   "zeit": "21:55",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1315s",
    "aussage": "Julia hält die automatisierte Auswertung unstrukturierter Daten aus sozialen Medien, Arztberichten und klinischen Studien für einen besonders wertvollen KI-Anwendungsfall in der Pharmakovigilanz."
   },
   {
    "typ": "Fakt",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 1404,
-   "zeit": "23:24",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1404s",
+   "sekunde": 1465,
+   "zeit": "24:25",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1465s",
    "aussage": "Laut Christoph betreiben mittlerweile die meisten großen Pharmakonzerne hybride Cloud-Umgebungen mit mehreren Anbietern und bauen darin Lakehouses für die Datenaufbereitung auf."
   },
   {
@@ -347,9 +347,9 @@
    "typ": "Fakt",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 2001,
-   "zeit": "33:21",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2001s",
+   "sekunde": 2033,
+   "zeit": "33:53",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2033s",
    "aussage": "Ein nicht veröffentlichter Entwurf der britischen Behörde MHRA forderte erstmals, dass der manuelle Prozess mindestens so sicher sein müsse wie der computergestützte Prozess, statt umgekehrt."
   },
   {
@@ -359,16 +359,16 @@
    "sekunde": 2341,
    "zeit": "39:01",
    "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2341s",
-   "aussage": "In der Praxis wird ein KI-gesteuerter Produktionsprozess häufig zusätzlich durch weiterhin gemessene kritische Prozessparameter als Sicherheitsnetz abgesichert, sodass eine Fehlentscheidung der KI kein Produktrisiko erzeugt."
+   "aussage": "Christoph beschreibt ein Reifegradmodell für KI-Systeme, das von reiner Beobachtung über Vorschläge und kontrollierte Ausführung bis zur Vollautomatisierung reicht."
   },
   {
    "typ": "Fakt",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 2341,
-   "zeit": "39:01",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2341s",
-   "aussage": "Christoph beschreibt ein Reifegradmodell für KI-Systeme, das von reiner Beobachtung über Vorschläge und kontrollierte Ausführung bis zur Vollautomatisierung reicht."
+   "sekunde": 2353,
+   "zeit": "39:13",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2353s",
+   "aussage": "In der Praxis wird ein KI-gesteuerter Produktionsprozess häufig zusätzlich durch weiterhin gemessene kritische Prozessparameter als Sicherheitsnetz abgesichert, sodass eine Fehlentscheidung der KI kein Produktrisiko erzeugt."
   },
   {
    "typ": "Empfehlung",
@@ -392,9 +392,9 @@
    "typ": "Meinung",
    "dokument": "BI Thinkers Talk nr.76",
    "dokument_id": "yt:mlkP-6i5Kq8",
-   "sekunde": 3412,
-   "zeit": "56:52",
-   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3412s",
+   "sekunde": 3502,
+   "zeit": "58:22",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3502s",
    "aussage": "Der Gast schätzt, dass ein herkömmlicher Custom-Visual-Zugang im Schnitt 500 bis 600 Dollar kostet, während ein mit KI selbst gebautes Äquivalent nur etwa 200 Dollar Kosten verursacht."
   },
   {
@@ -446,9 +446,9 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 1230,
-   "zeit": "20:30",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1230s",
+   "sekunde": 1246,
+   "zeit": "20:46",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1246s",
    "aussage": "Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt."
   },
   {
@@ -464,36 +464,36 @@
    "typ": "Empfehlung",
    "dokument": "GxP Talk - Testing im GxP-Umfeld",
    "dokument_id": "yt:B0_sSJQVG8w",
-   "sekunde": 1836,
-   "zeit": "30:36",
-   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1836s",
+   "sekunde": 1900,
+   "zeit": "31:40",
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1900s",
    "aussage": "Moderne Robotic-Process-Automation-Techniken wie Bilderkennung und OCR können mittlerweile auch große Teile des bislang manuellen Testens abbilden."
   },
   {
    "typ": "Fakt",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 2214,
-   "zeit": "36:54",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2214s",
+   "sekunde": 2222,
+   "zeit": "37:02",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2222s",
    "aussage": "Über Microsoft Fabric lassen sich mit Python externe Quellen wie Newsfeeds und Börsendaten kostengünstig anbinden, um Krisenherde frühzeitig zu erkennen."
   },
   {
    "typ": "Empfehlung",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 2310,
-   "zeit": "38:30",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2310s",
+   "sekunde": 2395,
+   "zeit": "39:55",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2395s",
    "aussage": "Bei KI-gestützten Bestellvorschlägen empfiehlt sich zunächst ein Man-in-the-Middle-Ansatz, bei dem Einkäufer die Vorschläge kontrollieren, bevor sie mehr Vertrauen fassen."
   },
   {
    "typ": "Warnung",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 2417,
-   "zeit": "40:17",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2417s",
+   "sekunde": 2473,
+   "zeit": "41:13",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2473s",
    "aussage": "Die Qualität von KI-Ergebnissen hängt entscheidend von der Datenqualität im ERP-System ab, denn schlechte Eingabedaten führen zu schlechten Ergebnissen."
   },
   {
@@ -509,36 +509,36 @@
    "typ": "Fakt",
    "dokument": "MCP@Daten-WG@SQL Konferenz",
    "dokument_id": "yt:l_aHydZyh4s",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s",
+   "sekunde": 10,
+   "zeit": "00:10",
+   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=10s",
    "aussage": "Michael hält auf der SQL Konferenz eine Lunch Session zum Thema MCP-Server."
   },
   {
    "typ": "Fakt",
    "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
    "dokument_id": "yt:sq8AWk_yNWM",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s",
+   "sekunde": 50,
+   "zeit": "00:50",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=50s",
    "aussage": "Seit rund 30 Jahren gibt es KI-Algorithmen und maschinelles Lernen, mit denen aus historischen Daten Muster für das klassische Forecasting abgeleitet werden können."
   },
   {
    "typ": "Meinung",
    "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
    "dokument_id": "yt:sq8AWk_yNWM",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s",
+   "sekunde": 76,
+   "zeit": "01:16",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=76s",
    "aussage": "Angesichts der Fortschritte der letzten Jahre wird diskutiert, ob der Mensch aus Planungs- und Supply-Chain-Prozessen komplett herausoptimiert und alles vollautomatisiert werden kann."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 186,
-   "zeit": "03:06",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=186s",
+   "sekunde": 238,
+   "zeit": "03:58",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=238s",
    "aussage": "Eine KI hat aus einer hochgeladenen CSV-Datei automatisch ein Sternschema samt Notebook erstellt."
   },
   {
@@ -548,25 +548,7 @@
    "sekunde": 281,
    "zeit": "04:41",
    "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s",
-   "aussage": "Ein plötzlich viral gehender Social-Media-Trend lässt sich nach Einschätzung des Redners auch mit KI im Vorfeld nicht erkennen oder vorhersagen."
-  },
-  {
-   "typ": "Meinung",
-   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
-   "dokument_id": "yt:sq8AWk_yNWM",
-   "sekunde": 281,
-   "zeit": "04:41",
-   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s",
    "aussage": "Der Redner vergleicht die fehlende Vorhersagbarkeit viraler Trends mit der ebenfalls nicht funktionierenden automatisierten Shitstorm-Erkennung."
-  },
-  {
-   "typ": "Empfehlung",
-   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
-   "dokument_id": "yt:sq8AWk_yNWM",
-   "sekunde": 281,
-   "zeit": "04:41",
-   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s",
-   "aussage": "Der Redner empfiehlt, den Menschen mit seiner Kreativität und Logik bewusst zwischen Daten und Prozessen zu positionieren, damit er bei unvorhergesehenen Ereignissen eingreifen kann."
   },
   {
    "typ": "Meinung",
@@ -581,27 +563,45 @@
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 282,
-   "zeit": "04:42",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=282s",
+   "sekunde": 287,
+   "zeit": "04:47",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=287s",
    "aussage": "Über die DAX Query View ließ sich die KI triviale Measures für das Semantic Model anlegen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 287,
+   "zeit": "04:47",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=287s",
+   "aussage": "Ein plötzlich viral gehender Social-Media-Trend lässt sich nach Einschätzung des Redners auch mit KI im Vorfeld nicht erkennen oder vorhersagen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
+   "dokument_id": "yt:sq8AWk_yNWM",
+   "sekunde": 308,
+   "zeit": "05:08",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=308s",
+   "aussage": "Der Redner empfiehlt, den Menschen mit seiner Kreativität und Logik bewusst zwischen Daten und Prozessen zu positionieren, damit er bei unvorhergesehenen Ereignissen eingreifen kann."
   },
   {
    "typ": "Meinung",
    "dokument": "GxP Talk - Validierung vs. Agilität",
    "dokument_id": "yt:KO_qFge77o8",
-   "sekunde": 2873,
-   "zeit": "47:53",
-   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2873s",
+   "sekunde": 2881,
+   "zeit": "48:01",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2881s",
    "aussage": "Wissenstransfer und IT-Enablement der Fachbereiche werden bei klassischen Tooleinführungen oft vernachlässigt, während sie in KI-Projekten zunehmend aktiv mit eingeplant und eingekauft werden."
   },
   {
    "typ": "Fakt",
    "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
    "dokument_id": "yt:jETxUNQSl-w",
-   "sekunde": 900,
-   "zeit": "15:00",
-   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=900s",
+   "sekunde": 940,
+   "zeit": "15:40",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=940s",
    "aussage": "KI-gestützte Interview-, Portfolio- und Systemanalysen können die Vorbereitung eines Zielbild-Workshops von vormals mehreren Monaten auf eine einzelne Session verkürzen."
   },
   {
@@ -632,15 +632,6 @@
    "aussage": "In einem im Buch beschriebenen Praxisbeispiel verkürzte ein Industrieunternehmen durch KI-gestützte Simulation zahlreicher Ventilator-Designs für die Batteriekühlung die Entwicklungszeit und erzielte eine zweistellige Performance-Optimierung."
   },
   {
-   "typ": "Fakt",
-   "dokument": "Prinzipien oder Paragrafen",
-   "dokument_id": "yt:6WhWLcuFvZE",
-   "sekunde": 2326,
-   "zeit": "38:46",
-   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2326s",
-   "aussage": "Künstliche Intelligenz wird in der Wirkstoffforschung eingesetzt, um vorab Moleküleigenschaften, Löslichkeit und Bioverfügbarkeit abzuschätzen."
-  },
-  {
    "typ": "Meinung",
    "dokument": "Prinzipien oder Paragrafen",
    "dokument_id": "yt:6WhWLcuFvZE",
@@ -648,6 +639,15 @@
    "zeit": "38:46",
    "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2326s",
    "aussage": "Layher hält es für möglich, dass KI-gestützte Vorabschätzungen die Erfolgsquote in der Medikamentenentwicklung von etwa 1:10 auf bis zu 1:4 verbessern."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Prinzipien oder Paragrafen",
+   "dokument_id": "yt:6WhWLcuFvZE",
+   "sekunde": 2340,
+   "zeit": "39:00",
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=2340s",
+   "aussage": "Künstliche Intelligenz wird in der Wirkstoffforschung eingesetzt, um vorab Moleküleigenschaften, Löslichkeit und Bioverfügbarkeit abzuschätzen."
   },
   {
    "typ": "Empfehlung",
@@ -671,9 +671,9 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
-   "sekunde": 1377,
-   "zeit": "22:57",
-   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1377s",
+   "sekunde": 1375,
+   "zeit": "22:55",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1375s",
    "aussage": "Rui Romano zeigte auf der FabCon, wie ein MCP-Server zusammen mit selbst geschriebenen Instruktions-Dokumenten genutzt wird, um per KI-Agent automatisch ein semantisches Modell samt Bericht generieren zu lassen."
   },
   {
@@ -698,9 +698,9 @@
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 2744,
-   "zeit": "45:44",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2744s",
+   "sekunde": 2810,
+   "zeit": "46:50",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2810s",
    "aussage": "Der Power BI Project Mode mit TMDL und PBIR erlaubt es, Berichte programmatisch über Textdateien zu ändern, was laut einem Sprecher die Bearbeitung durch KI erheblich erleichtert."
   },
   {
@@ -743,9 +743,9 @@
    "typ": "Meinung",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
-   "sekunde": 473,
-   "zeit": "07:53",
-   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=473s",
+   "sekunde": 420,
+   "zeit": "07:00",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=420s",
    "aussage": "Strukturierter, klar lesbarer Code wie TMDL ist notwendig, damit KI-Tools und Copilot Power-BI-Modelle gut nutzen und automatisiert bearbeiten können."
   },
   {
@@ -1109,31 +1109,6 @@
    ]
   },
   {
-   "id": "page:prototyping-pnl-treiberbaum_en",
-   "titel": "Is AI the New Paper — and Markdown the New Pen?",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.429,
-   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=Do%20we%20have%20to%20%2Arethink%20prototyping%3F%2A",
-     "sekunde": null
-    },
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=LinkedIn%20post%20%C2%B7%20Original%20%28EN%29",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:prototyping-pnl-treiberbaum",
    "titel": "Ist KI das neue Papier — und Markdown der neue Stift?",
    "datum": "2026-08-31",
@@ -1154,6 +1129,31 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html#:~:text=LinkedIn-Post%20%C2%B7%20Original%20%28EN%29",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:prototyping-pnl-treiberbaum_en",
+   "titel": "Is AI the New Paper — and Markdown the New Pen?",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.429,
+   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=Do%20we%20have%20to%20%2Arethink%20prototyping%3F%2A",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html#:~:text=LinkedIn%20post%20%C2%B7%20Original%20%28EN%29",
      "sekunde": null
     }
    ]

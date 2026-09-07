@@ -3,7 +3,7 @@ id: "tool:pbip"
 name: "PBIP"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 14
 kernaussagen: 8
@@ -40,16 +40,18 @@ Power BI Project, Power BI Projekt, PBIR, Enhanced Report Format
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | Fabric & Power BI Quarterly · 2026-1 | 05:30 | Das PBIP/PBIR-Format als Code-first-Ansatz soll laut Ankündigung noch in diesem Jahr allgemein verfügbar (GA) werden. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=330s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-1 | 05:30 | Ab der Februar-Version von Power BI Desktop wird PBIP zur neuen Standardeinstellung beim Speichern von Berichten. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=330s) |
-| Fakt | BI Thinkers Talk nr.67 | 04:56 | Die Visual-Studio-Code-Erweiterung für Microsoft Fabric erlaubt es, aus einer Power-BI-Projektdatei einzelne Teile wie nur den Bericht oder nur das semantische Modell hochzuladen, statt immer die gesamte PBIX hochzuladen. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=296s) |
-| Fakt | BI Thinkers Talk nr.67 | 09:54 | In einer Power-BI-Projektdatei können mehrere Report-Verzeichnisse auf dasselbe semantische Modell zeigen, und Berichte lassen sich auch in einem anderen Workspace deployen als das zugehörige Modell. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=594s) |
-| Fakt | BI Thinkers Talk nr.67 | 11:35 | Microsoft plant eine Funktion, mit der Power BI Desktop Codeänderungen im Hintergrund automatisch erkennt und die Berichtsdefinition neu lädt, ohne dass die Anwendung komplett neu gestartet werden muss. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=695s) |
-| Meinung | 10 Jahre Power BI | 45:44 | Der Power BI Project Mode mit TMDL und PBIR erlaubt es, Berichte programmatisch über Textdateien zu ändern, was laut einem Sprecher die Bearbeitung durch KI erheblich erleichtert. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2744s) |
-| Fakt | 10 Jahre Power BI | 47:19 | Mit PBIR lassen sich umbenannte Tabellen-, Spalten- oder Measure-Namen in entkoppelten Thin Reports per Text-Suchen-und-Ersetzen aktualisieren, ohne dass der Bericht bricht. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2839s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-2 | 06:02 | PBIR ist inzwischen die Standardeinstellung für neu erstellte Power-BI-Modelle, ohne dass Nutzer aktiv darauf hingewiesen werden. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=362s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 04:05 | auf die Sekunde | Ab der Februar-Version von Power BI Desktop wird PBIP zur neuen Standardeinstellung beim Speichern von Berichten. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=245s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 05:30 | Abschnittsanfang | Das PBIP/PBIR-Format als Code-first-Ansatz soll laut Ankündigung noch in diesem Jahr allgemein verfügbar (GA) werden. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=330s) |
+| Fakt | BI Thinkers Talk nr.67 | 2025-09 | 05:00 | auf die Sekunde | Die Visual-Studio-Code-Erweiterung für Microsoft Fabric erlaubt es, aus einer Power-BI-Projektdatei einzelne Teile wie nur den Bericht oder nur das semantische Modell hochzuladen, statt immer die gesamte PBIX hochzuladen. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=300s) |
+| Fakt | BI Thinkers Talk nr.67 | 2025-09 | 10:54 | auf die Sekunde | In einer Power-BI-Projektdatei können mehrere Report-Verzeichnisse auf dasselbe semantische Modell zeigen, und Berichte lassen sich auch in einem anderen Workspace deployen als das zugehörige Modell. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=654s) |
+| Fakt | BI Thinkers Talk nr.67 | 2025-09 | 11:43 | auf die Sekunde | Microsoft plant eine Funktion, mit der Power BI Desktop Codeänderungen im Hintergrund automatisch erkennt und die Berichtsdefinition neu lädt, ohne dass die Anwendung komplett neu gestartet werden muss. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=703s) |
+| Meinung | 10 Jahre Power BI | 2025-07 | 46:50 | auf die Sekunde | Der Power BI Project Mode mit TMDL und PBIR erlaubt es, Berichte programmatisch über Textdateien zu ändern, was laut einem Sprecher die Bearbeitung durch KI erheblich erleichtert. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2810s) |
+| Fakt | 10 Jahre Power BI | 2025-07 | 48:13 | auf die Sekunde | Mit PBIR lassen sich umbenannte Tabellen-, Spalten- oder Measure-Namen in entkoppelten Thin Reports per Text-Suchen-und-Ersetzen aktualisieren, ohne dass der Bericht bricht. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2893s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-2 |  | 04:37 | auf die Sekunde | PBIR ist inzwischen die Standardeinstellung für neu erstellte Power-BI-Modelle, ohne dass Nutzer aktiv darauf hingewiesen werden. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=277s) |
 
 ## Dokumente
 

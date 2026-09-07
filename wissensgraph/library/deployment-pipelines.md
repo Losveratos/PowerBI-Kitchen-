@@ -3,7 +3,7 @@ id: "tool:deployment-pipelines"
 name: "Deployment Pipelines"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 13
 kernaussagen: 8
@@ -46,16 +46,18 @@ Bereitstellungspipelines, Deployment Pipeline
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | BI Thinkers Talk n.73 | 35:44 | Bei einem Direct-Lake-Modell bleibt das Semantic Model nach einem Deployment über eine Deployment Pipeline weiterhin mit dem Lakehouse der Testumgebung verbunden, die Datenquelle wird also nicht automatisch auf die Zielumgebung umgehängt. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2144s) |
-| Warnung | BI Thinkers Talk n.73 | 52:04 | Ein im Power BI Service umgebundenes Semantic Model eines Reports wird bei einem erneuten Deployment über die Deployment Pipeline wieder auf die ursprüngliche Testquelle zurückgesetzt, sodass die Umbindung nach jedem Deployment wiederholt werden muss. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3124s) |
-| Warnung | BI Thinkers Talk n.73 | 55:34 | Beim Deployment eines Lakehouse über eine Deployment Pipeline werden Views, die im SQL-Endpunkt des Lakehouse angelegt wurden, nicht mit übertragen. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3334s) |
-| Empfehlung | BI Thinkers Talk n.73 | 55:34 | Als Workaround definiert der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3334s) |
-| Fakt | BI Thinkers Talk n.72 | 53:54 | Deployment Pipelines unterstützen Dataflows, Lakehouses und Direct Lake nicht zuverlässig, sodass danach oft manuell mit VS Code nachgearbeitet werden muss. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3234s) |
-| Fakt | BI Thinkers Talk n.72 | 53:54 | Für Import-Modelle gibt es in Deployment Pipelines eigene Deployment Rules, für Direct Lake dagegen nicht. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3234s) |
-| Fakt | Microsoft Fabric — braucht das wirklich jemand? | 06:05 | Bei Fabric-Deployment-Pipelines werden Verbindungen zwischen Artefakten je nach Asset-Typ unterschiedlich und inkonsistent gehandhabt. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=365s) |
-| Fakt | Microsoft Fabric — braucht das wirklich jemand? | 06:05 | Ein Lakehouse wird beim Deployment in einen neuen Workspace leer angelegt, ohne die enthaltenen Daten mitzukopieren. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=365s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | BI Thinkers Talk n.73 | 2026-02 | 35:44 | Abschnittsanfang | Bei einem Direct-Lake-Modell bleibt das Semantic Model nach einem Deployment über eine Deployment Pipeline weiterhin mit dem Lakehouse der Testumgebung verbunden, die Datenquelle wird also nicht automatisch auf die Zielumgebung umgehängt. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2144s) |
+| Warnung | BI Thinkers Talk n.73 | 2026-02 | 52:04 | Abschnittsanfang | Ein im Power BI Service umgebundenes Semantic Model eines Reports wird bei einem erneuten Deployment über die Deployment Pipeline wieder auf die ursprüngliche Testquelle zurückgesetzt, sodass die Umbindung nach jedem Deployment wiederholt werden muss. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3124s) |
+| Warnung | BI Thinkers Talk n.73 | 2026-02 | 54:58 | auf die Sekunde | Beim Deployment eines Lakehouse über eine Deployment Pipeline werden Views, die im SQL-Endpunkt des Lakehouse angelegt wurden, nicht mit übertragen. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3298s) |
+| Empfehlung | BI Thinkers Talk n.73 | 2026-02 | 54:58 | auf die Sekunde | Als Workaround definiert der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3298s) |
+| Fakt | BI Thinkers Talk n.72 | 2026-01 | 54:25 | auf die Sekunde | Deployment Pipelines unterstützen Dataflows, Lakehouses und Direct Lake nicht zuverlässig, sodass danach oft manuell mit VS Code nachgearbeitet werden muss. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3265s) |
+| Fakt | BI Thinkers Talk n.72 | 2026-01 | 54:25 | auf die Sekunde | Für Import-Modelle gibt es in Deployment Pipelines eigene Deployment Rules, für Direct Lake dagegen nicht. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3265s) |
+| Fakt | Microsoft Fabric — braucht das wirklich jemand? |  | 06:05 | Abschnittsanfang | Bei Fabric-Deployment-Pipelines werden Verbindungen zwischen Artefakten je nach Asset-Typ unterschiedlich und inkonsistent gehandhabt. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=365s) |
+| Fakt | Microsoft Fabric — braucht das wirklich jemand? |  | 22:41 | auf die Sekunde | Ein Lakehouse wird beim Deployment in einen neuen Workspace leer angelegt, ohne die enthaltenen Daten mitzukopieren. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1361s) |
 
 ## Dokumente
 

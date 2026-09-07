@@ -3,7 +3,7 @@ id: "tool:excel"
 name: "Excel"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 75
 kernaussagen: 15
@@ -45,23 +45,25 @@ Keine weiteren Schreibweisen hinterlegt.
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | GxP Talk - Testing im GxP-Umfeld | 21:09 | Manche Pharmaunternehmen pflegen ihre Traceability-Matrizen noch manuell in Excel, was mit wachsender Größe zunehmend unübersichtlich wird. | [▶](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1269s) |
-| Meinung | GxP Talk - Testing im GxP-Umfeld | 21:09 | Uneinheitliches Lizenzmanagement in aufgespaltenen Konzernstrukturen führt dazu, dass einzelne Abteilungen auf Insellösungen wie Excel ausweichen. | [▶](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1269s) |
-| Fakt | Power BI Update März 2026 | 07:05 | Mit Power Table lässt sich aus Fabric heraus nach Excel zurückschreiben. | [▶](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=425s) |
-| Fakt | Power BI: (Vertriebs-) Regionen in Azure Maps | 00:02 | In diesem Tutorial wird gezeigt, wie eine Von-bis-Postleitzahlenregion aus einer Excel-Tabelle in ein Flächenkartogramm mit Azure Maps in Power BI umgewandelt wird. | [▶](https://www.youtube.com/watch?v=CvaOkO37HMU&t=2s) |
-| Fakt | Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL \| Fabric Tutorial | 02:22 | Auch eigene Datenquellen wie Excel-Dateien lassen sich per Open Mirroring nach Fabric spiegeln. | [▶](https://www.youtube.com/watch?v=7j34Ndng0Os&t=142s) |
-| Fakt | Power BI: (Vertriebs-) Regionen in Azure Maps | 04:27 | Die aus Excel gelieferte Von-bis-Postleitzahlentabelle muss in eine vollständige Liste aller Einzel-Postleitzahlen aufgelöst werden, um sie mit den Shapefiles verknüpfen zu können. | [▶](https://www.youtube.com/watch?v=CvaOkO37HMU&t=267s) |
-| Empfehlung | Power BI: (Vertriebs-) Regionen in Azure Maps | 06:02 | Die aufbereitete Gebietszuordnung muss als CSV-Datei statt als Excel-Datei gespeichert werden, damit sie in QGIS importiert werden kann. | [▶](https://www.youtube.com/watch?v=CvaOkO37HMU&t=362s) |
-| Fakt | Denken in Tabellen | 06:50 | Fachbereiche mit Excel-Hintergrund kennen meist nur flache Tabellen und setzen dieses Muster mit moderneren Tools wie Power BI fort. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=410s) |
-| Fakt | Denken in Tabellen | 08:37 | In Excel lassen sich mit einer flachen Tabelle keine kombinierten Oder-Filter über mehrere Spalten hinweg realisieren. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=517s) |
-| Fakt | Denken in Tabellen | 10:21 | Viele Fachanwender kennen Power Query nicht und bleiben deshalb bei breiten Tabellen, obwohl Power Query die Ein-Millionen-Zeilen-Grenze von Power Pivot umgeht. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=621s) |
-| Empfehlung | Denken in Tabellen | 37:00 | Jasmin empfiehlt, für einmalige und eng begrenzte Auswertungen im Fachbereich eine Flat Table in Excel zu nutzen, für wiederkehrende Analysen aber ein Datenmodell zu bauen, weil Datenfehler darin schneller auffallen. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2220s) |
-| Fakt | 10 Jahre Power BI | 05:04 | Vor der Einführung von Power BI experimentierten mehrere Sprecher zunächst mit Pivot-Tabellen in Excel als erste Datenanalyse-Offenbarung. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=304s) |
-| Meinung | Microsoft Fabric — braucht das wirklich jemand? | 03:41 | Excel ist laut Martin ein erheblich stabileres Tool als Microsoft Fabric. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=221s) |
-| Meinung | Microsoft Fabric — braucht das wirklich jemand? | 17:22 | Fabric ist laut Martin für Business-User mit Excel- und Power-BI-Hintergrund zugänglicher als Snowflake. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1042s) |
-| Meinung | Microsoft Fabric — braucht das wirklich jemand? | 46:22 | Arturs These ist, dass die Mehrheit der heutigen Excel-Nutzer von Fabric profitieren würde. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2782s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | GxP Talk - Testing im GxP-Umfeld | 2026-04 | 21:09 | Abschnittsanfang | Manche Pharmaunternehmen pflegen ihre Traceability-Matrizen noch manuell in Excel, was mit wachsender Größe zunehmend unübersichtlich wird. | [▶](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1269s) |
+| Meinung | GxP Talk - Testing im GxP-Umfeld | 2026-04 | 21:09 | Abschnittsanfang | Uneinheitliches Lizenzmanagement in aufgespaltenen Konzernstrukturen führt dazu, dass einzelne Abteilungen auf Insellösungen wie Excel ausweichen. | [▶](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1269s) |
+| Fakt | Power BI Update März 2026 | 2026-03 | 07:47 | auf die Sekunde | Mit Power Table lässt sich aus Fabric heraus nach Excel zurückschreiben. | [▶](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=467s) |
+| Fakt | Power BI: (Vertriebs-) Regionen in Azure Maps | 2026-01 | 00:03 | auf die Sekunde | In diesem Tutorial wird gezeigt, wie eine Von-bis-Postleitzahlenregion aus einer Excel-Tabelle in ein Flächenkartogramm mit Azure Maps in Power BI umgewandelt wird. | [▶](https://www.youtube.com/watch?v=CvaOkO37HMU&t=3s) |
+| Fakt | Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL \| Fabric Tutorial | 2026-01 | 00:07 | auf die Sekunde | Auch eigene Datenquellen wie Excel-Dateien lassen sich per Open Mirroring nach Fabric spiegeln. | [▶](https://www.youtube.com/watch?v=7j34Ndng0Os&t=7s) |
+| Fakt | Power BI: (Vertriebs-) Regionen in Azure Maps | 2026-01 | 04:27 | Abschnittsanfang | Die aus Excel gelieferte Von-bis-Postleitzahlentabelle muss in eine vollständige Liste aller Einzel-Postleitzahlen aufgelöst werden, um sie mit den Shapefiles verknüpfen zu können. | [▶](https://www.youtube.com/watch?v=CvaOkO37HMU&t=267s) |
+| Empfehlung | Power BI: (Vertriebs-) Regionen in Azure Maps | 2026-01 | 06:02 | Abschnittsanfang | Die aufbereitete Gebietszuordnung muss als CSV-Datei statt als Excel-Datei gespeichert werden, damit sie in QGIS importiert werden kann. | [▶](https://www.youtube.com/watch?v=CvaOkO37HMU&t=362s) |
+| Fakt | Denken in Tabellen | 2026-01 | 06:55 | auf die Sekunde | Fachbereiche mit Excel-Hintergrund kennen meist nur flache Tabellen und setzen dieses Muster mit moderneren Tools wie Power BI fort. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=415s) |
+| Fakt | Denken in Tabellen | 2026-01 | 06:58 | auf die Sekunde | In Excel lassen sich mit einer flachen Tabelle keine kombinierten Oder-Filter über mehrere Spalten hinweg realisieren. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=418s) |
+| Fakt | Denken in Tabellen | 2026-01 | 10:36 | auf die Sekunde | Viele Fachanwender kennen Power Query nicht und bleiben deshalb bei breiten Tabellen, obwohl Power Query die Ein-Millionen-Zeilen-Grenze von Power Pivot umgeht. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=636s) |
+| Empfehlung | Denken in Tabellen | 2026-01 | 37:00 | Abschnittsanfang | Jasmin empfiehlt, für einmalige und eng begrenzte Auswertungen im Fachbereich eine Flat Table in Excel zu nutzen, für wiederkehrende Analysen aber ein Datenmodell zu bauen, weil Datenfehler darin schneller auffallen. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=2220s) |
+| Fakt | 10 Jahre Power BI | 2025-07 | 07:14 | auf die Sekunde | Vor der Einführung von Power BI experimentierten mehrere Sprecher zunächst mit Pivot-Tabellen in Excel als erste Datenanalyse-Offenbarung. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=434s) |
+| Meinung | Microsoft Fabric — braucht das wirklich jemand? |  | 04:16 | auf die Sekunde | Excel ist laut Martin ein erheblich stabileres Tool als Microsoft Fabric. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=256s) |
+| Meinung | Microsoft Fabric — braucht das wirklich jemand? |  | 17:30 | auf die Sekunde | Fabric ist laut Martin für Business-User mit Excel- und Power-BI-Hintergrund zugänglicher als Snowflake. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1050s) |
+| Meinung | Microsoft Fabric — braucht das wirklich jemand? |  | 45:11 | auf die Sekunde | Arturs These ist, dass die Mehrheit der heutigen Excel-Nutzer von Fabric profitieren würde. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2711s) |
 
 ## Dokumente
 

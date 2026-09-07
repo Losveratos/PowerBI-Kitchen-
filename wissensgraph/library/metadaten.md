@@ -3,7 +3,7 @@ id: "topic:metadaten"
 name: "Metadaten"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 25
 kernaussagen: 23
@@ -47,31 +47,33 @@ Metadata, Meta-Daten
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 24:05 | Process Mining übersetzt in Systemen gespeicherte Daten in Prozessschritte und erzeugt so ein digitales Abbild aller historischen Prozessabläufe. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=1445s) |
-| Empfehlung | Fabric Planning unboxing | 17:15 | Für Rückschreibungen mit Power Table wird empfohlen, eine eigene Datenbank anzulegen statt die automatisch erstellte Metadaten-Datenbank zu verwenden. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1035s) |
-| Meinung | Fabric Planning unboxing | 23:30 | Power Table eignet sich nach Einschätzung des Testers vor allem für Master Data Management mit Excel-ähnlicher Bearbeitung. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1410s) |
-| Empfehlung | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 19:44 | Will sich ein Unternehmen auf Power BI als BI-Standard konzentrieren statt auf weitere Lösungen, sollte dies mit den Fachbereichen abgestimmt werden, unter anderem um Stammdaten wie Lieferantendaten zu standardisieren. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1184s) |
-| Fakt | BI Thinkers Talk nr.71 | 31:56 | Spaltenbeschreibungen lassen sich in Power BI sowohl in der Modellansicht als auch in der TMDL-Ansicht hinterlegen. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1916s) |
-| Empfehlung | 10 Jahre Power BI | 1:06:48 | Ein Teilnehmer empfiehlt, die per INFO-Funktionen abrufbaren Metadaten eines Semantic Models an eine KI zu übergeben, um datenschutzkonform bessere Measure-Vorschläge zu erhalten. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4008s) |
-| Meinung | Metadaten als Superkraft | 00:01 | Metadaten liefern Informationen über Datenmodelle, Nutzerkompetenzen und Nutzung, die in den reinen Daten selbst nicht sichtbar sind. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1s) |
-| Fakt | Metadaten als Superkraft | 00:01 | Metadaten lassen sich für Data Health und Data Governance nutzen, weil sie standardisiert ausgewertet werden können. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1s) |
-| Fakt | Metadaten als Superkraft | 01:34 | Nutzungsdaten sind ein zentraler Ansatzpunkt bei der Überarbeitung von Dashboards und Datenprodukten, weil sie zeigen, ob diese überhaupt verwendet werden. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=94s) |
-| Fakt | Metadaten als Superkraft | 03:41 | Measure Killer nutzt Metadaten, um zu prüfen, ob Spalten, Tabellen und Measures tatsächlich in den Reportdateien verwendet werden. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=221s) |
-| Meinung | Metadaten als Superkraft | 07:17 | Ein vollständiges Metadatenkonzept sollte neben technischen Informationen auch einen Business Layer mit Ansprechpartnern und Datenherkunft umfassen. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=437s) |
-| Fakt | Metadaten als Superkraft | 07:17 | Power BI kann über DAX-INFO-Funktionen bereits viele Metadaten direkt aus dem Modell auslesen. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=437s) |
-| Empfehlung | Metadaten als Superkraft | 08:50 | Für den Einstieg reicht eine einfache SharePoint-Liste als minimalistischer Datenkatalog völlig aus, anstatt lange über das perfekte Tool zu diskutieren. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=530s) |
-| Warnung | Metadaten als Superkraft | 10:24 | Ein von Anfang an zu detailliert geplanter Datenkatalog mit sehr vielen Pflichtfeldern führt in der Praxis eher zur Ablehnung durch die Nutzer. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=624s) |
-| Empfehlung | Metadaten als Superkraft | 13:30 | Eine minimalistische Metadatenliste mit den drei Spalten Name, Beschreibung und Datenablage bringt bereits einen großen Nutzen bei geringem Aufwand. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s) |
-| Fakt | Metadaten als Superkraft | 13:30 | Fehlende Beschreibungen von Measures in Power BI führen dazu, dass verschiedene Personen dieselbe Kennzahl unterschiedlich benennen und berechnen. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s) |
-| Meinung | Metadaten als Superkraft | 13:30 | Kleinere Unternehmen profitieren oft schneller von Metadaten-Initiativen, weil sie Prozesse und Abstimmungen schneller anpassen können als Großkonzerne. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s) |
-| Meinung | Metadaten als Superkraft | 15:47 | Aus Metadaten zu Datenmodellen lässt sich ableiten, wie gut ein Team mit Daten umgeht und wo Schulungsbedarf besteht. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s) |
-| Meinung | Metadaten als Superkraft | 15:47 | Process Mining wertet Log- und Transaktionsdaten aus, um Abweichungen vom idealen Prozess sichtbar zu machen, und soll mittlerweile auch in Power Automate Einzug gehalten haben. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s) |
-| Meinung | Metadaten als Superkraft | 18:55 | Ein zentrales Hindernis für Metadaten-Initiativen ist, dass Unternehmen das Thema für unnötig kompliziert halten und stattdessen in Tool- und Lizenzdiskussionen abgleiten. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1135s) |
-| Empfehlung | Metadaten als Superkraft | 20:14 | Der einfachste erste Schritt für eine BI-Abteilung ist, Measure Killer anzuhängen und innerhalb von rund zehn Minuten einen ersten Status zu Datenqualität und Nutzung zu erhalten. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1214s) |
-| Empfehlung | Metadaten als Superkraft | 20:37 | Bevor Werkzeuge eingeführt werden, sollte im eigenen BI-Team abgefragt werden, ob das Thema Metadaten überhaupt bekannt ist. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1237s) |
-| Fakt | Metadaten als Superkraft | 21:03 | Durch die Analyse von Metadaten im Fabric-Tenant lässt sich erkennen, wenn Nutzer wiederholt neue, redundante Datenmodelle statt bestehender Berichte aufbauen. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1263s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 2026-04 | 25:19 | auf die Sekunde | Process Mining übersetzt in Systemen gespeicherte Daten in Prozessschritte und erzeugt so ein digitales Abbild aller historischen Prozessabläufe. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=1519s) |
+| Empfehlung | Fabric Planning unboxing | 2026-03 | 17:22 | auf die Sekunde | Für Rückschreibungen mit Power Table wird empfohlen, eine eigene Datenbank anzulegen statt die automatisch erstellte Metadaten-Datenbank zu verwenden. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1042s) |
+| Meinung | Fabric Planning unboxing | 2026-03 | 1:17:34 | auf die Sekunde | Power Table eignet sich nach Einschätzung des Testers vor allem für Master Data Management mit Excel-ähnlicher Bearbeitung. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4654s) |
+| Empfehlung | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 2026-02 | 20:00 | auf die Sekunde | Will sich ein Unternehmen auf Power BI als BI-Standard konzentrieren statt auf weitere Lösungen, sollte dies mit den Fachbereichen abgestimmt werden, unter anderem um Stammdaten wie Lieferantendaten zu standardisieren. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1200s) |
+| Fakt | BI Thinkers Talk nr.71 | 2025-12 | 31:56 | Abschnittsanfang | Spaltenbeschreibungen lassen sich in Power BI sowohl in der Modellansicht als auch in der TMDL-Ansicht hinterlegen. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1916s) |
+| Empfehlung | 10 Jahre Power BI | 2025-07 | 1:06:48 | Abschnittsanfang | Ein Teilnehmer empfiehlt, die per INFO-Funktionen abrufbaren Metadaten eines Semantic Models an eine KI zu übergeben, um datenschutzkonform bessere Measure-Vorschläge zu erhalten. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4008s) |
+| Fakt | Metadaten als Superkraft |  | 01:10 | auf die Sekunde | Metadaten lassen sich für Data Health und Data Governance nutzen, weil sie standardisiert ausgewertet werden können. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=70s) |
+| Fakt | Metadaten als Superkraft |  | 01:33 | auf die Sekunde | Nutzungsdaten sind ein zentraler Ansatzpunkt bei der Überarbeitung von Dashboards und Datenprodukten, weil sie zeigen, ob diese überhaupt verwendet werden. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=93s) |
+| Fakt | Metadaten als Superkraft |  | 03:42 | auf die Sekunde | Measure Killer nutzt Metadaten, um zu prüfen, ob Spalten, Tabellen und Measures tatsächlich in den Reportdateien verwendet werden. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=222s) |
+| Fakt | Metadaten als Superkraft |  | 07:13 | auf die Sekunde | Power BI kann über DAX-INFO-Funktionen bereits viele Metadaten direkt aus dem Modell auslesen. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=433s) |
+| Meinung | Metadaten als Superkraft |  | 07:54 | auf die Sekunde | Ein vollständiges Metadatenkonzept sollte neben technischen Informationen auch einen Business Layer mit Ansprechpartnern und Datenherkunft umfassen. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=474s) |
+| Empfehlung | Metadaten als Superkraft |  | 09:03 | auf die Sekunde | Für den Einstieg reicht eine einfache SharePoint-Liste als minimalistischer Datenkatalog völlig aus, anstatt lange über das perfekte Tool zu diskutieren. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=543s) |
+| Warnung | Metadaten als Superkraft |  | 10:24 | Abschnittsanfang | Ein von Anfang an zu detailliert geplanter Datenkatalog mit sehr vielen Pflichtfeldern führt in der Praxis eher zur Ablehnung durch die Nutzer. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=624s) |
+| Empfehlung | Metadaten als Superkraft |  | 13:26 | auf die Sekunde | Eine minimalistische Metadatenliste mit den drei Spalten Name, Beschreibung und Datenablage bringt bereits einen großen Nutzen bei geringem Aufwand. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=806s) |
+| Fakt | Metadaten als Superkraft |  | 13:30 | Abschnittsanfang | Fehlende Beschreibungen von Measures in Power BI führen dazu, dass verschiedene Personen dieselbe Kennzahl unterschiedlich benennen und berechnen. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s) |
+| Meinung | Metadaten als Superkraft |  | 15:29 | auf die Sekunde | Kleinere Unternehmen profitieren oft schneller von Metadaten-Initiativen, weil sie Prozesse und Abstimmungen schneller anpassen können als Großkonzerne. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=929s) |
+| Meinung | Metadaten als Superkraft |  | 15:49 | auf die Sekunde | Metadaten liefern Informationen über Datenmodelle, Nutzerkompetenzen und Nutzung, die in den reinen Daten selbst nicht sichtbar sind. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=949s) |
+| Meinung | Metadaten als Superkraft |  | 15:54 | auf die Sekunde | Aus Metadaten zu Datenmodellen lässt sich ableiten, wie gut ein Team mit Daten umgeht und wo Schulungsbedarf besteht. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=954s) |
+| Meinung | Metadaten als Superkraft |  | 16:50 | auf die Sekunde | Process Mining wertet Log- und Transaktionsdaten aus, um Abweichungen vom idealen Prozess sichtbar zu machen, und soll mittlerweile auch in Power Automate Einzug gehalten haben. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1010s) |
+| Meinung | Metadaten als Superkraft |  | 18:55 | Abschnittsanfang | Ein zentrales Hindernis für Metadaten-Initiativen ist, dass Unternehmen das Thema für unnötig kompliziert halten und stattdessen in Tool- und Lizenzdiskussionen abgleiten. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1135s) |
+| Empfehlung | Metadaten als Superkraft |  | 20:22 | auf die Sekunde | Der einfachste erste Schritt für eine BI-Abteilung ist, Measure Killer anzuhängen und innerhalb von rund zehn Minuten einen ersten Status zu Datenqualität und Nutzung zu erhalten. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1222s) |
+| Empfehlung | Metadaten als Superkraft |  | 20:40 | auf die Sekunde | Bevor Werkzeuge eingeführt werden, sollte im eigenen BI-Team abgefragt werden, ob das Thema Metadaten überhaupt bekannt ist. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1240s) |
+| Fakt | Metadaten als Superkraft |  | 22:16 | auf die Sekunde | Durch die Analyse von Metadaten im Fabric-Tenant lässt sich erkennen, wenn Nutzer wiederholt neue, redundante Datenmodelle statt bestehender Berichte aufbauen. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1336s) |
 
 ## Dokumente
 

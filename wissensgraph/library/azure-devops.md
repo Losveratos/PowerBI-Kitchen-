@@ -3,7 +3,7 @@ id: "tool:azure-devops"
 name: "Azure DevOps"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 3
 kernaussagen: 0

@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "calculation-groups",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/calculation-groups.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/calculation-groups.html",
@@ -70,9 +70,9 @@
    "typ": "Meinung",
    "dokument": "Power BI Update Februar 2026",
    "dokument_id": "yt:u-lgbDfIlLg",
-   "sekunde": 138,
-   "zeit": "02:18",
-   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
+   "sekunde": 151,
+   "zeit": "02:31",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=151s",
    "aussage": "NAMEOF wird laut dem Sprecher besonders in Calculation Groups bei verschachtelten Bedingungen nützlich."
   }
  ],

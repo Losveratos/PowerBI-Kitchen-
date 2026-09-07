@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "power-bi-service",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-service.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-bi-service.html",
@@ -142,9 +142,9 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.73",
    "dokument_id": "yt:pOJpXxsfUt0",
-   "sekunde": 2913,
-   "zeit": "48:33",
-   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2913s",
+   "sekunde": 2869,
+   "zeit": "47:49",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2869s",
    "aussage": "In der Power BI Service Web-Oberfläche gibt es aktuell keine Möglichkeit, die Datenquelle eines Reports direkt umzuhängen; das lässt sich nur nach dem Download im Power BI Desktop ändern."
   },
   {
@@ -160,28 +160,19 @@
    "typ": "Fakt",
    "dokument": "Power BI Update Januar 2026",
    "dokument_id": "yt:TAM5AAZqh7k",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s",
+   "sekunde": 2,
+   "zeit": "00:02",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=2s",
    "aussage": "Im Power BI Service ist Copilot jetzt prominent platziert."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update Januar 2026",
    "dokument_id": "yt:TAM5AAZqh7k",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s",
+   "sekunde": 13,
+   "zeit": "00:13",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=13s",
    "aussage": "Nutzer können die prominente Copilot-Anzeige im Power BI Service wieder zurückdrehen."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "Power BI Update Januar 2026",
-   "dokument_id": "yt:TAM5AAZqh7k",
-   "sekunde": 40,
-   "zeit": "00:40",
-   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=40s",
-   "aussage": "Das Q&A-Feature in Power BI ist jetzt offiziell abgekündigt."
   },
   {
    "typ": "Meinung",
@@ -194,38 +185,47 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "Power BI Update Januar 2026",
+   "dokument_id": "yt:TAM5AAZqh7k",
+   "sekunde": 43,
+   "zeit": "00:43",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=43s",
+   "aussage": "Das Q&A-Feature in Power BI ist jetzt offiziell abgekündigt."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-1",
    "dokument_id": "yt:TYp5xCAU2AU",
-   "sekunde": 226,
-   "zeit": "03:46",
-   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=226s",
+   "sekunde": 225,
+   "zeit": "03:45",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=225s",
    "aussage": "Power BI im Web unterstützt jetzt die Themes-Auswahl und den Performance Analyzer und ist damit fast gleichwertig zu Power BI Desktop."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
-   "sekunde": 296,
-   "zeit": "04:56",
-   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=296s",
+   "sekunde": 309,
+   "zeit": "05:09",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=309s",
    "aussage": "Beim separaten Hochladen des semantischen Modells über die Fabric-Erweiterung werden die Daten nicht mitübertragen, sodass der Refresh anschließend im Power-BI-Service erfolgen muss."
   },
   {
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
-   "sekunde": 1263,
-   "zeit": "21:03",
-   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1263s",
+   "sekunde": 1285,
+   "zeit": "21:25",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1285s",
    "aussage": "Ein bestehender Bericht wurde im Live-Connection-Modus aus dem Power-BI-Service heruntergeladen und anschließend über die Datenverbindung von seinem ursprünglichen Importmodell auf ein neu aufgebautes Direct-Lake-Modell mit identischen Measure-Namen umgestellt."
   },
   {
    "typ": "Warnung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 621,
-   "zeit": "10:21",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=621s",
+   "sekunde": 1035,
+   "zeit": "17:15",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1035s",
    "aussage": "Ein Sprecher warnt davor, Berichte über 'Publish to Web' zu veröffentlichen, weil dabei der Datenschutz komplett verloren geht."
   }
  ],

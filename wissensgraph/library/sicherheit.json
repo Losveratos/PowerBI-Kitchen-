@@ -4,7 +4,7 @@
  "typ": "thema",
  "slug": "sicherheit",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sicherheit.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sicherheit.html",
@@ -162,18 +162,18 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.76",
    "dokument_id": "yt:mlkP-6i5Kq8",
-   "sekunde": 189,
-   "zeit": "03:09",
-   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=189s",
+   "sekunde": 200,
+   "zeit": "03:20",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=200s",
    "aussage": "In Power BI Desktop können wegen fehlender Python-Installation aus Sicherheitsgründen keine Python-basierten Visuals wie Matplotlib, Plotly oder Seaborn genutzt werden."
   },
   {
    "typ": "Fakt",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 478,
-   "zeit": "07:58",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=478s",
+   "sekunde": 499,
+   "zeit": "08:19",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=499s",
    "aussage": "Naturkatastrophen, politische Entscheidungen und Cyberattacken zählen zu den zunehmenden Risiken für die Beschaffung."
   },
   {
@@ -186,49 +186,40 @@
    "aussage": "Das Explore-Feature (Antwort erkunden) kann von Nutzern ohne Build-Permission verwendet werden, was von den Sprechern als Sicherheitsrisiko eingeordnet wird."
   },
   {
-   "typ": "Fakt",
-   "dokument": "BI Thinkers Talk n.74",
-   "dokument_id": "yt:rWE0gMx7v7I",
-   "sekunde": 1556,
-   "zeit": "25:56",
-   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1556s",
-   "aussage": "Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen."
-  },
-  {
    "typ": "Warnung",
    "dokument": "BI Thinkers Talk n.74",
    "dokument_id": "yt:rWE0gMx7v7I",
-   "sekunde": 1647,
-   "zeit": "27:27",
-   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1647s",
+   "sekunde": 1538,
+   "zeit": "25:38",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1538s",
    "aussage": "Das Explore-Feature ist nicht an die Build-Permission gekoppelt, sodass darüber Inhalte aus dem semantischen Modell zugänglich sein können, die im Bericht selbst nicht sichtbar sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1603,
+   "zeit": "26:43",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1603s",
+   "aussage": "Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen."
   },
   {
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk n.74",
    "dokument_id": "yt:rWE0gMx7v7I",
-   "sekunde": 2666,
-   "zeit": "44:26",
-   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2666s",
+   "sekunde": 2898,
+   "zeit": "48:18",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2898s",
    "aussage": "Für den Produktivbetrieb sollte statt einer persönlichen Anmeldung ein Service Principal verwendet werden."
   },
   {
    "typ": "Fakt",
    "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
    "dokument_id": "yt:NvtZ-ehiTrg",
-   "sekunde": 116,
-   "zeit": "01:56",
-   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=116s",
+   "sekunde": 113,
+   "zeit": "01:53",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=113s",
    "aussage": "Für die Authentifizierung wird im Tenant eine App-Registrierung mit zugehörigem Service Principal angelegt."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
-   "dokument_id": "yt:NvtZ-ehiTrg",
-   "sekunde": 116,
-   "zeit": "01:56",
-   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=116s",
-   "aussage": "Der Service Principal erhält über ein Client Secret die Berechtigung, sich gegenüber der Fabric REST API auszuweisen."
   },
   {
    "typ": "Fakt",
@@ -243,18 +234,27 @@
    "typ": "Fakt",
    "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
    "dokument_id": "yt:NvtZ-ehiTrg",
-   "sekunde": 206,
-   "zeit": "03:26",
-   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=206s",
+   "sekunde": 158,
+   "zeit": "02:38",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=158s",
+   "aussage": "Der Service Principal erhält über ein Client Secret die Berechtigung, sich gegenüber der Fabric REST API auszuweisen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 203,
+   "zeit": "03:23",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=203s",
    "aussage": "Die Projektparameter im SSIS-Paket enthalten Client ID, Tenant und Client Secret des Service Principals."
   },
   {
    "typ": "Fakt",
    "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
    "dokument_id": "yt:NvtZ-ehiTrg",
-   "sekunde": 327,
-   "zeit": "05:27",
-   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=327s",
+   "sekunde": 335,
+   "zeit": "05:35",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=335s",
    "aussage": "Das Skript holt sich zunächst mit den hinterlegten Anmeldedaten einen Access Token."
   },
   {
@@ -297,45 +297,45 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.72",
    "dokument_id": "yt:luk4S4ukKmg",
-   "sekunde": 2227,
-   "zeit": "37:07",
-   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2227s",
+   "sekunde": 2197,
+   "zeit": "36:37",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2197s",
    "aussage": "Seit kurzem lassen sich Notebooks in Fabric über eine Connection mit einem Service Principal ausführen, wodurch Secrets nicht mehr hartcodiert oder in einer JSON-Datei im Lakehouse abgelegt werden müssen."
   },
   {
    "typ": "Empfehlung",
    "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
    "dokument_id": "yt:5HhNQZlB-1E",
-   "sekunde": 106,
-   "zeit": "01:46",
-   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=106s",
+   "sekunde": 174,
+   "zeit": "02:54",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=174s",
    "aussage": "Für die Verbindung zu Azure-Komponenten muss die Verschlüsselung per Registry-Eintrag auf TLS 1.2 gesetzt werden."
   },
   {
    "typ": "Warnung",
    "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
    "dokument_id": "yt:5HhNQZlB-1E",
-   "sekunde": 137,
-   "zeit": "02:17",
-   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=137s",
+   "sekunde": 195,
+   "zeit": "03:15",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=195s",
    "aussage": "Fehlt der TLS-1.2-Registry-Eintrag, lässt sich die Verbindung zwar testen, die spätere Ausführung des Pakets schlägt aber mit einem Fehler fehl."
   },
   {
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
-   "sekunde": 2462,
-   "zeit": "41:02",
-   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=2462s",
+   "sekunde": 2483,
+   "zeit": "41:23",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=2483s",
    "aussage": "Bei neueren Dataflow-Generationen sind Datenverbindungen an die erstellende Person gebunden, weshalb empfohlen wird, Connections konsequent freizugeben und nach Möglichkeit einen Service Principal für die Verbindung zu nutzen."
   },
   {
    "typ": "Warnung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 621,
-   "zeit": "10:21",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=621s",
+   "sekunde": 1035,
+   "zeit": "17:15",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1035s",
    "aussage": "Ein Sprecher warnt davor, Berichte über 'Publish to Web' zu veröffentlichen, weil dabei der Datenschutz komplett verloren geht."
   },
   {
@@ -369,27 +369,27 @@
    "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
-   "sekunde": 1717,
-   "zeit": "28:37",
-   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1717s",
+   "sekunde": 1720,
+   "zeit": "28:40",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1720s",
    "aussage": "OneLake Security stellt dieselben Zugriffsinformationen sowohl nativen Fabric-Workloads als auch Third-Party-Workloads zur Verfügung."
   },
   {
    "typ": "Empfehlung",
    "dokument": "Was ist Self-Service und warum ist das so schwer?",
    "dokument_id": "yt:EVsJ6zyGUWc",
-   "sekunde": 1774,
-   "zeit": "29:34",
-   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1774s",
+   "sekunde": 1818,
+   "zeit": "30:18",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1818s",
    "aussage": "Eine sichere Self-Service-Plattform erfordert aus Sicht von Tom Martens permanentes Monitoring und kontinuierlichen Dialog mit den Anwendern statt eines einmalig abgeschlossenen Projekts."
   },
   {
    "typ": "Warnung",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
-   "sekunde": 1919,
-   "zeit": "31:59",
-   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1919s",
+   "sekunde": 1934,
+   "zeit": "32:14",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1934s",
    "aussage": "Komplexere Sicherheitsszenarien wie dynamische Row-Level Security und Dynamic Data Masking fehlen in OneLake Security noch und stehen auf der Roadmap."
   }
  ],

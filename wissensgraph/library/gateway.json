@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "gateway",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/gateway.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/gateway.html",
@@ -160,9 +160,9 @@
    "typ": "Meinung",
    "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
    "dokument_id": "yt:5HhNQZlB-1E",
-   "sekunde": 662,
-   "zeit": "11:02",
-   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=662s",
+   "sekunde": 658,
+   "zeit": "10:58",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=658s",
    "aussage": "Ein Vorteil des Push-Prinzips ist, dass kein Eingriff aus der Cloud in das lokale Netzwerk über ein Data Gateway nötig ist."
   }
  ],

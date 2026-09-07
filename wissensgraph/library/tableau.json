@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "tableau",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/tableau.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/tableau.html",
@@ -94,9 +94,9 @@
    "typ": "Meinung",
    "dokument": "Denken in Tabellen",
    "dokument_id": "yt:hbUYMyqb6r8",
-   "sekunde": 363,
-   "zeit": "06:03",
-   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=363s",
+   "sekunde": 355,
+   "zeit": "05:55",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=355s",
    "aussage": "Eine breite, gejointe Tabelle funktioniert werkzeugübergreifend mit Power BI, Tableau und anderen Reporting-Tools, was zu ihrer Verbreitung beiträgt."
   }
  ],

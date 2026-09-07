@@ -3,7 +3,7 @@ id: "tool:qlik"
 name: "Qlik"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 4
 kernaussagen: 13
@@ -39,21 +39,23 @@ QlikView, Qlik Sense, Click
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | Power BI vs. Qlik | 00:00 | Oliver Franz ist Wirtschaftswissenschaftler und arbeitet seit Langem im BI-Umfeld mit Qlik. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=0s) |
-| Fakt | Power BI vs. Qlik | 01:38 | Arthur und Oliver haben eine dreiteilige Challenge mit identischen Aufgaben in Qlik und Power BI durchgeführt: Basics, Modellierung und Visualisierung. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=98s) |
-| Fakt | Power BI vs. Qlik | 03:37 | In Qlik ist ein Streudiagramm bei großen, komplexen Datenmengen schwer zu konfigurieren. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=217s) |
-| Fakt | Power BI vs. Qlik | 05:10 | Sowohl Qlik als auch Power BI lassen sich von der Quelle bis zum Modell als vollständige Datenplattform nutzen, Qlik über Skripte und Power BI über Power Query und das Datenmodell. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=310s) |
-| Meinung | Power BI vs. Qlik | 05:10 | Oliver ist der Meinung, dass Qlik als Komplettlösung fähiger ist als Power BI, weil man bei Power BI irgendwann Richtung Microsoft Fabric wechseln muss. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=310s) |
-| Meinung | Power BI vs. Qlik | 07:12 | Oliver betont, dass Qlik trotz der Möglichkeit, Daten zwischenzuspeichern, kein Data Warehouse ist. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=432s) |
-| Fakt | Power BI vs. Qlik | 08:52 | Beide Tools besitzen eine semantische Schicht mit Kennzahlen (KPIs bzw. Measures), die sie von reinen Tabellen- oder Skript-Analysen wie Excel, Python oder R unterscheidet. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=532s) |
-| Fakt | Power BI vs. Qlik | 10:48 | Qlik nutzt ein assoziatives Datenmodell, während Power BI standardmäßig unidirektionale Filterrichtungen zwischen Tabellen vorgibt. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=648s) |
-| Meinung | Power BI vs. Qlik | 10:48 | Oliver hält das assoziative Datenmodell von Qlik für intuitiver, weil verknüpfte Daten sich automatisch gegenseitig filtern, während das in Power BI aktiv konfiguriert werden muss. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=648s) |
-| Meinung | Power BI vs. Qlik | 12:25 | Oliver vertritt die These, dass Qlik das stärkere Tool für Analysen ist, während Power BI und Qlik beim Reporting etwa gleichauf liegen. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=745s) |
-| Meinung | Power BI vs. Qlik | 19:36 | Arthur ist der Meinung, dass Power BI mehr Fachanwender zum Self-Service befähigt, weil die Einstiegshürde niedriger ist als bei Qlik, dessen Lernkurve aber schneller abflacht. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1176s) |
-| Warnung | Power BI vs. Qlik | 23:07 | Arthur warnt davor, ein gut funktionierendes BI-Tool nur wegen konzernweiter Vereinheitlichung ohne echten Grund zu wechseln. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1387s) |
-| Meinung | 10 Jahre Power BI | 18:22 | Mit DAX ließen sich Lagerbestände zu einem bestimmten Zeitpunkt (Point in Time) einfacher berechnen als mit Set Analysis in Qlik. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1102s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Power BI vs. Qlik | 2026-01 | 00:00 | Abschnittsanfang | Oliver Franz ist Wirtschaftswissenschaftler und arbeitet seit Langem im BI-Umfeld mit Qlik. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=0s) |
+| Fakt | Power BI vs. Qlik | 2026-01 | 01:38 | Abschnittsanfang | Arthur und Oliver haben eine dreiteilige Challenge mit identischen Aufgaben in Qlik und Power BI durchgeführt: Basics, Modellierung und Visualisierung. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=98s) |
+| Fakt | Power BI vs. Qlik | 2026-01 | 03:46 | auf die Sekunde | In Qlik ist ein Streudiagramm bei großen, komplexen Datenmengen schwer zu konfigurieren. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=226s) |
+| Fakt | Power BI vs. Qlik | 2026-01 | 05:33 | auf die Sekunde | Sowohl Qlik als auch Power BI lassen sich von der Quelle bis zum Modell als vollständige Datenplattform nutzen, Qlik über Skripte und Power BI über Power Query und das Datenmodell. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=333s) |
+| Meinung | Power BI vs. Qlik | 2026-01 | 06:28 | auf die Sekunde | Oliver ist der Meinung, dass Qlik als Komplettlösung fähiger ist als Power BI, weil man bei Power BI irgendwann Richtung Microsoft Fabric wechseln muss. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=388s) |
+| Meinung | Power BI vs. Qlik | 2026-01 | 07:12 | Abschnittsanfang | Oliver betont, dass Qlik trotz der Möglichkeit, Daten zwischenzuspeichern, kein Data Warehouse ist. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=432s) |
+| Fakt | Power BI vs. Qlik | 2026-01 | 09:17 | auf die Sekunde | Beide Tools besitzen eine semantische Schicht mit Kennzahlen (KPIs bzw. Measures), die sie von reinen Tabellen- oder Skript-Analysen wie Excel, Python oder R unterscheidet. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=557s) |
+| Fakt | Power BI vs. Qlik | 2026-01 | 10:12 | auf die Sekunde | Qlik nutzt ein assoziatives Datenmodell, während Power BI standardmäßig unidirektionale Filterrichtungen zwischen Tabellen vorgibt. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=612s) |
+| Meinung | Power BI vs. Qlik | 2026-01 | 11:44 | auf die Sekunde | Oliver hält das assoziative Datenmodell von Qlik für intuitiver, weil verknüpfte Daten sich automatisch gegenseitig filtern, während das in Power BI aktiv konfiguriert werden muss. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=704s) |
+| Meinung | Power BI vs. Qlik | 2026-01 | 12:59 | auf die Sekunde | Oliver vertritt die These, dass Qlik das stärkere Tool für Analysen ist, während Power BI und Qlik beim Reporting etwa gleichauf liegen. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=779s) |
+| Meinung | Power BI vs. Qlik | 2026-01 | 20:54 | auf die Sekunde | Arthur ist der Meinung, dass Power BI mehr Fachanwender zum Self-Service befähigt, weil die Einstiegshürde niedriger ist als bei Qlik, dessen Lernkurve aber schneller abflacht. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1254s) |
+| Warnung | Power BI vs. Qlik | 2026-01 | 24:03 | auf die Sekunde | Arthur warnt davor, ein gut funktionierendes BI-Tool nur wegen konzernweiter Vereinheitlichung ohne echten Grund zu wechseln. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1443s) |
+| Meinung | 10 Jahre Power BI | 2025-07 | 18:55 | auf die Sekunde | Mit DAX ließen sich Lagerbestände zu einem bestimmten Zeitpunkt (Point in Time) einfacher berechnen als mit Set Analysis in Qlik. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1135s) |
 
 ## Dokumente
 

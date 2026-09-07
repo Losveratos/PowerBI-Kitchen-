@@ -3,7 +3,7 @@ id: "topic:ibcs"
 name: "IBCS"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 21
 kernaussagen: 7
@@ -21,7 +21,7 @@ aliase:
 
 # IBCS
 
-Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. Die Funktion "Fix IBCS Variance Chart" des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein. Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt.
+Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt. Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals.
 
 ## Aliase
 
@@ -49,15 +49,17 @@ Hichert, Semantic Notation, SUCCESS, Notation
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Meinung | BI Thinkers Talk nr.76 | 55:18 | Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s) |
-| Fakt | BI Thinkers Talk nr.75 | 12:37 | Die Funktion "Fix IBCS Variance Chart" des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=757s) |
-| Fakt | BI Thinkers Talk nr.75 | 20:30 | Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1230s) |
-| Fakt | BI Thinkers Talk nr.75 | 22:02 | Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1322s) |
-| Fakt | 10 Jahre Power BI | 52:08 | Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3128s) |
-| Warnung | 10 Jahre Power BI | 1:25:02 | Mit Copilot lassen sich IBCS-konforme Visualisierungen aktuell kaum umsetzen, weil kein nativer Zugriff auf spezialisierte Custom Visuals wie Integrated Variance Charts besteht. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5102s) |
-| Meinung | Fabric & Power BI Quarterly · 2026-2 | 51:30 | Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3090s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Meinung | BI Thinkers Talk nr.76 | 2026-05 | 55:18 | Abschnittsanfang | Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 20:46 | auf die Sekunde | Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1246s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 22:53 | auf die Sekunde | Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1373s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 28:35 | auf die Sekunde | Die Funktion "Fix IBCS Variance Chart" des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1715s) |
+| Fakt | 10 Jahre Power BI | 2025-07 | 52:20 | auf die Sekunde | Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3140s) |
+| Warnung | 10 Jahre Power BI | 2025-07 | 1:25:12 | auf die Sekunde | Mit Copilot lassen sich IBCS-konforme Visualisierungen aktuell kaum umsetzen, weil kein nativer Zugriff auf spezialisierte Custom Visuals wie Integrated Variance Charts besteht. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5112s) |
+| Meinung | Fabric & Power BI Quarterly · 2026-2 |  | 51:30 | Abschnittsanfang | Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3090s) |
 
 ## Dokumente
 

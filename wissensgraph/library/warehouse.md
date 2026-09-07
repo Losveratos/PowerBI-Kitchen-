@@ -3,7 +3,7 @@ id: "tool:warehouse"
 name: "Warehouse"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 42
 kernaussagen: 14
@@ -49,22 +49,24 @@ Data Warehouse, DWH, Datawarehouse, Data Warehousing
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 03:19 | Bill Inmons Buch von 1993 gilt als Auslöser der Data-Warehouse-Diskussion. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=199s) |
-| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 06:29 | Ralph Kimball veröffentlichte Mitte der 1990er-Jahre ein Buch, in dem er forderte, Data Warehouses stets mit einem Sternschema beziehungsweise dimensionaler Modellierung aufzubauen. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=389s) |
-| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 06:29 | Zwischen Ralph Kimball und Bill Inmon entstand ein langjähriger Grundsatzstreit darüber, ob Data Warehouses dimensional per Sternschema oder relational in dritter Normalform modelliert werden sollten. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=389s) |
-| Meinung | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 06:29 | Peter Gluchowski schätzt, dass sich das Sternschema in größeren Unternehmen eher auf der Data-Mart-Ebene findet als auf der Ebene des Kern-Data-Warehouse. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=389s) |
-| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 08:12 | Größere Unternehmen setzen auf der Ebene des Kern-Data-Warehouse heute häufig entweder auf normalisierte Datenhaltung oder auf Data Vault. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s) |
-| Empfehlung | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 16:01 | Statt sofort eine komplexe Architektur mit Machine Learning aufzubauen, empfiehlt es sich, zunächst nur die ERP-Daten täglich in ein Warehouse oder OneLake zu laden. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=961s) |
-| Fakt | Fabric Planning unboxing | 34:04 | Als Datenquelle für Planning-Objekte ist aktuell nur eine SQL-Datenbank wählbar, während Inforiver zusätzlich Lakehouse und Warehouse unterstützte. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2044s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-1 | 09:01 | Mit der VS-Code-Erweiterung für Fabric lässt sich ein Direct-Lake-Modell innerhalb weniger Minuten von einer SQL-Datenbank auf ein Warehouse umziehen. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=541s) |
-| Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 00:28 | Der Push-Ansatz mit SSIS ist in der offiziellen Microsoft-Dokumentation im Bereich Warehousing beschrieben. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=28s) |
-| Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 00:41 | SQL Server Integration Services wird genutzt, um Daten in das Fabric Warehouse zu bringen. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=41s) |
-| Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 01:15 | In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=75s) |
-| Empfehlung | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 10:09 | Die im Lakehouse als Rohdaten liegenden Dateien lassen sich per COPY-INTO-Befehl in eine Warehouse-Tabelle laden oder mit einem Notebook, etwa in Python, weiterverarbeiten. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=609s) |
-| Warnung | BI Thinkers Talk Nr.62 | 47:40 | Direkt in ein Fabric-Warehouse zu schreiben gilt laut dem Sprecher nicht als Best Practice. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2860s) |
-| Fakt | Microsoft Fabric — braucht das wirklich jemand? | 21:24 | Der Wechsel von einem Lakehouse zu einem Warehouse lässt sich in der Praxis in wenigen Minuten umsetzen, da ein neues Warehouse leer und schnell angelegt ist. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1284s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 2026-05 | 03:23 | auf die Sekunde | Bill Inmons Buch von 1993 gilt als Auslöser der Data-Warehouse-Diskussion. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=203s) |
+| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 2026-05 | 07:19 | auf die Sekunde | Ralph Kimball veröffentlichte Mitte der 1990er-Jahre ein Buch, in dem er forderte, Data Warehouses stets mit einem Sternschema beziehungsweise dimensionaler Modellierung aufzubauen. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=439s) |
+| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 2026-05 | 07:33 | auf die Sekunde | Zwischen Ralph Kimball und Bill Inmon entstand ein langjähriger Grundsatzstreit darüber, ob Data Warehouses dimensional per Sternschema oder relational in dritter Normalform modelliert werden sollten. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=453s) |
+| Meinung | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 2026-05 | 08:04 | auf die Sekunde | Peter Gluchowski schätzt, dass sich das Sternschema in größeren Unternehmen eher auf der Data-Mart-Ebene findet als auf der Ebene des Kern-Data-Warehouse. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=484s) |
+| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 2026-05 | 08:08 | auf die Sekunde | Größere Unternehmen setzen auf der Ebene des Kern-Data-Warehouse heute häufig entweder auf normalisierte Datenhaltung oder auf Data Vault. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=488s) |
+| Empfehlung | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 2026-04 | 16:01 | Abschnittsanfang | Statt sofort eine komplexe Architektur mit Machine Learning aufzubauen, empfiehlt es sich, zunächst nur die ERP-Daten täglich in ein Warehouse oder OneLake zu laden. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=961s) |
+| Fakt | Fabric Planning unboxing | 2026-03 | 34:04 | Abschnittsanfang | Als Datenquelle für Planning-Objekte ist aktuell nur eine SQL-Datenbank wählbar, während Inforiver zusätzlich Lakehouse und Warehouse unterstützte. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2044s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 09:06 | auf die Sekunde | Mit der VS-Code-Erweiterung für Fabric lässt sich ein Direct-Lake-Modell innerhalb weniger Minuten von einer SQL-Datenbank auf ein Warehouse umziehen. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=546s) |
+| Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 2025-12 | 00:34 | auf die Sekunde | Der Push-Ansatz mit SSIS ist in der offiziellen Microsoft-Dokumentation im Bereich Warehousing beschrieben. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=34s) |
+| Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 2025-12 | 00:39 | auf die Sekunde | SQL Server Integration Services wird genutzt, um Daten in das Fabric Warehouse zu bringen. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=39s) |
+| Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 2025-12 | 01:20 | auf die Sekunde | In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=80s) |
+| Empfehlung | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 2025-12 | 10:09 | Abschnittsanfang | Die im Lakehouse als Rohdaten liegenden Dateien lassen sich per COPY-INTO-Befehl in eine Warehouse-Tabelle laden oder mit einem Notebook, etwa in Python, weiterverarbeiten. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=609s) |
+| Warnung | BI Thinkers Talk Nr.62 | 2025-05 | 48:55 | auf die Sekunde | Direkt in ein Fabric-Warehouse zu schreiben gilt laut dem Sprecher nicht als Best Practice. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2935s) |
+| Fakt | Microsoft Fabric — braucht das wirklich jemand? |  | 22:38 | auf die Sekunde | Der Wechsel von einem Lakehouse zu einem Warehouse lässt sich in der Praxis in wenigen Minuten umsetzen, da ein neues Warehouse leer und schnell angelegt ist. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1358s) |
 
 ## Dokumente
 

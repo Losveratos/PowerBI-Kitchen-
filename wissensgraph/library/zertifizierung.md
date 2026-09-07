@@ -3,7 +3,7 @@ id: "topic:zertifizierung"
 name: "Zertifizierung"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 4
 kernaussagen: 1
@@ -36,9 +36,11 @@ PL-300, DP-600, Prüfung, Zertifikat, Zertifizierungen
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | BI Thinkers Talk - Data Modelling - Fabric Data Days Edition | 01:35 | Im Rahmen der Fabric Data Days stellt Microsoft zeitlich und mengenmäßig begrenzte Gutscheine für kostenlose Power-BI-Zertifizierungsprüfungen bereit. | [▶](https://www.youtube.com/watch?v=mUALlPmGcEk&t=95s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | BI Thinkers Talk - Data Modelling - Fabric Data Days Edition | 2025-11 | 01:23 | auf die Sekunde | Im Rahmen der Fabric Data Days stellt Microsoft zeitlich und mengenmäßig begrenzte Gutscheine für kostenlose Power-BI-Zertifizierungsprüfungen bereit. | [▶](https://www.youtube.com/watch?v=mUALlPmGcEk&t=83s) |
 
 ## Dokumente
 

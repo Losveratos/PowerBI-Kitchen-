@@ -3,7 +3,7 @@ id: "tool:calculation-groups"
 name: "Calculation Groups"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 13
 kernaussagen: 1
@@ -37,9 +37,11 @@ Berechnungsgruppen, Calculation Group
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Meinung | Power BI Update Februar 2026 | 02:18 | NAMEOF wird laut dem Sprecher besonders in Calculation Groups bei verschachtelten Bedingungen nützlich. | [▶](https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Meinung | Power BI Update Februar 2026 | 2026-02 | 02:31 | auf die Sekunde | NAMEOF wird laut dem Sprecher besonders in Calculation Groups bei verschachtelten Bedingungen nützlich. | [▶](https://www.youtube.com/watch?v=u-lgbDfIlLg&t=151s) |
 
 ## Dokumente
 

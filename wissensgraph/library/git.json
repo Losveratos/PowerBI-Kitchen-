@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "git",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/git.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/git.html",
@@ -135,9 +135,9 @@
    "typ": "Fakt",
    "dokument": "GxP Talk - Validierung vs. Agilität",
    "dokument_id": "yt:KO_qFge77o8",
-   "sekunde": 377,
-   "zeit": "06:17",
-   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=377s",
+   "sekunde": 446,
+   "zeit": "07:26",
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=446s",
    "aussage": "Manche Pharmaunternehmen bilden ihre Validierungsprozesse bereits digital ab, etwa über einen Git-Stack oder eine DevOps-Umgebung."
   }
  ],

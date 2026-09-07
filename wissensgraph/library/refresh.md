@@ -3,7 +3,7 @@ id: "topic:refresh"
 name: "Refresh"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 38
 kernaussagen: 5
@@ -48,13 +48,15 @@ Aktualisierung, Scheduled Refresh, aktualisieren
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Warnung | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 01:39 | Executive Information Systems der späten 1980er-Jahre boten zwar bunte, innovative Oberflächen, hatten aber keinen Mechanismus zur laufenden Datenaktualisierung, wodurch die Daten nach drei bis fünf Wochen veraltet waren. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=99s) |
-| Fakt | BI Thinkers Talk nr.75 | 44:31 | Der Fixer erlaubt es, einzelne Tabellen oder Partitionen eines Semantic Models gezielt zu aktualisieren, statt das gesamte Modell neu zu laden. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2671s) |
-| Fakt | BI Thinkers Talk nr.67 | 04:56 | Beim separaten Hochladen des semantischen Modells über die Fabric-Erweiterung werden die Daten nicht mitübertragen, sodass der Refresh anschließend im Power-BI-Service erfolgen muss. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=296s) |
-| Fakt | BI Thinkers Talk Nr.62 | 1:00:53 | Beim Auslösen der Datenfunktion liest das semantische Modell offenbar alle Tabellen neu, nicht nur die betroffene, unabhängig vom Speichermodus. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3653s) |
-| Meinung | BI Thinkers Talk Nr.62 | 1:02:29 | Bei Direct Lake fällt die Aktualisierung des semantischen Modells nach dem Schreiben kaum auf, weil kein spürbarer Refresh-Vorgang nötig ist. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3749s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Warnung | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 2026-05 | 02:32 | auf die Sekunde | Executive Information Systems der späten 1980er-Jahre boten zwar bunte, innovative Oberflächen, hatten aber keinen Mechanismus zur laufenden Datenaktualisierung, wodurch die Daten nach drei bis fünf Wochen veraltet waren. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=152s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 45:13 | auf die Sekunde | Der Fixer erlaubt es, einzelne Tabellen oder Partitionen eines Semantic Models gezielt zu aktualisieren, statt das gesamte Modell neu zu laden. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2713s) |
+| Fakt | BI Thinkers Talk nr.67 | 2025-09 | 05:09 | auf die Sekunde | Beim separaten Hochladen des semantischen Modells über die Fabric-Erweiterung werden die Daten nicht mitübertragen, sodass der Refresh anschließend im Power-BI-Service erfolgen muss. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=309s) |
+| Fakt | BI Thinkers Talk Nr.62 | 2025-05 | 1:01:23 | auf die Sekunde | Beim Auslösen der Datenfunktion liest das semantische Modell offenbar alle Tabellen neu, nicht nur die betroffene, unabhängig vom Speichermodus. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3683s) |
+| Meinung | BI Thinkers Talk Nr.62 | 2025-05 | 1:02:31 | auf die Sekunde | Bei Direct Lake fällt die Aktualisierung des semantischen Modells nach dem Schreiben kaum auf, weil kein spürbarer Refresh-Vorgang nötig ist. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3751s) |
 
 ## Dokumente
 

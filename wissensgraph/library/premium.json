@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "premium",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/premium.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/premium.html",
@@ -171,9 +171,9 @@
    "typ": "Fakt",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 1502,
-   "zeit": "25:02",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1502s",
+   "sekunde": 1543,
+   "zeit": "25:43",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1543s",
    "aussage": "Mit der Einführung von Power BI Premium im Jahr 2017 benötigten plötzlich auch reine Berichtskonsumenten eine Power BI Pro Lizenz, um Berichte weiterhin kostenlos empfangen zu können."
   }
  ],

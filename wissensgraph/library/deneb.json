@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "deneb",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/deneb.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/deneb.html",
@@ -104,15 +104,6 @@
    "aussage": "Der Gast ließ auf diese Weise rund 30 Diagrammtypen als Deneb-Nachbauten erstellen, bevor er die Arbeit aus Zeitgründen abbrach."
   },
   {
-   "typ": "Fakt",
-   "dokument": "BI Thinkers Talk nr.76",
-   "dokument_id": "yt:mlkP-6i5Kq8",
-   "sekunde": 1151,
-   "zeit": "19:11",
-   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1151s",
-   "aussage": "Ziel des Projekts ist eine HTML-Seite mit fertigen Vega-Lite-Codeschnipseln, aus der Kollegen nur noch das passende Diagramm kopieren und ihre eigenen Felder einsetzen müssen."
-  },
-  {
    "typ": "Warnung",
    "dokument": "BI Thinkers Talk nr.76",
    "dokument_id": "yt:mlkP-6i5Kq8",
@@ -120,6 +111,15 @@
    "zeit": "19:11",
    "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1151s",
    "aussage": "Für Deneb-Visuals in Power BI gilt eine Beschränkung von 30.000 Zeilen, weshalb Measures entsprechend sparsam geschrieben werden müssen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.76",
+   "dokument_id": "yt:mlkP-6i5Kq8",
+   "sekunde": 1208,
+   "zeit": "20:08",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1208s",
+   "aussage": "Ziel des Projekts ist eine HTML-Seite mit fertigen Vega-Lite-Codeschnipseln, aus der Kollegen nur noch das passende Diagramm kopieren und ihre eigenen Felder einsetzen müssen."
   },
   {
    "typ": "Meinung",
@@ -134,9 +134,9 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.72",
    "dokument_id": "yt:luk4S4ukKmg",
-   "sekunde": 652,
-   "zeit": "10:52",
-   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=652s",
+   "sekunde": 690,
+   "zeit": "11:30",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=690s",
    "aussage": "Für die gewünschte Wasserfall-Darstellung wurden zwei Eigenbau-Varianten entwickelt: eine Kombination aus gestapeltem Balkendiagramm und Liniendiagramm sowie eine Lösung mit Deneb."
   },
   {
@@ -170,9 +170,9 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.72",
    "dokument_id": "yt:luk4S4ukKmg",
-   "sekunde": 1537,
-   "zeit": "25:37",
-   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=1537s",
+   "sekunde": 1600,
+   "zeit": "26:40",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=1600s",
    "aussage": "Bei Deneb-Templates lassen sich vorhandene Felder leicht austauschen, aber nachträglich neue Felder hinzuzufügen ist nur über die Codebasis und nicht über die Template-Oberfläche möglich."
   },
   {

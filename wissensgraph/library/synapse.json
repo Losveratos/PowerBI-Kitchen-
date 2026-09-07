@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "synapse",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/synapse.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/synapse.html",
@@ -159,9 +159,9 @@
    "typ": "Meinung",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 691,
-   "zeit": "11:31",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=691s",
+   "sekunde": 716,
+   "zeit": "11:56",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=716s",
    "aussage": "Beim Fabric-Kapazitätsmodell (Flat Rate) ist der tatsächliche Ressourcenverbrauch laut den Sprechern weniger transparent als bei nutzungsbasierter Abrechnung wie bei Synapse."
   }
  ],

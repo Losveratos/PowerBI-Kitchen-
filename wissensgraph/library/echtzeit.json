@@ -4,7 +4,7 @@
  "typ": "thema",
  "slug": "echtzeit",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/echtzeit.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/echtzeit.html",
@@ -162,18 +162,18 @@
    "typ": "Empfehlung",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 664,
-   "zeit": "11:04",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=664s",
+   "sekunde": 412,
+   "zeit": "06:52",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=412s",
    "aussage": "Frühwarnsysteme verschaffen Unternehmen die nötige Zeit, um auf aufkommende Risiken zu reagieren."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 3222,
-   "zeit": "53:42",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3222s",
+   "sekunde": 3322,
+   "zeit": "55:22",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3322s",
    "aussage": "Zurückgeschriebene Planungswerte müssen erst wieder in das Semantic Model integriert werden, um sie im Modell nahezu in Echtzeit nutzen zu können."
   }
  ],

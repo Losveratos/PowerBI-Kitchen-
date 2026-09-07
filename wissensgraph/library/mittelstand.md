@@ -3,7 +3,7 @@ id: "topic:mittelstand"
 name: "Mittelstand"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 17
 kernaussagen: 7
@@ -42,15 +42,17 @@ KMU, mittelständisch, Mittelständler
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 00:00 | Ein mittelständisches Dienstleistungsunternehmen beauftragte Peter Gluchowski 1988 mit einem System zur Erfassung von Warenströmen zwischen Automobilherstellern und Gießereien und zur Erstellung von Auswertungen. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=0s) |
-| Meinung | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 08:12 | Im Mittelstand wird die Aufteilung zwischen Sternschema und relationaler Modellierung nach Einschätzung von Peter Gluchowski anders gehandhabt als in Großunternehmen. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s) |
-| Meinung | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 00:02 | Im Risikomanagement können mittelständische Unternehmen nicht wie Großkonzerne behandelt werden, weil sie andere Probleme haben. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=2s) |
-| Meinung | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 06:24 | Große Konzerne haben im Risikomanagement oft mehr Probleme als der Mittelstand, weil dieser agiler und näher am Markt agieren kann. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=384s) |
-| Meinung | Prinzipien oder Paragrafen | 13:05 | Layher beobachtet, dass deutschsprachige Unternehmen regulatorische Anforderungen häufig übertreiben und pauschal auf alle Unternehmensbereiche anwenden, auch wo der Gesetzgeber das nicht verlangt. | [▶](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=785s) |
-| Meinung | Metadaten als Superkraft | 13:30 | Kleinere Unternehmen profitieren oft schneller von Metadaten-Initiativen, weil sie Prozesse und Abstimmungen schneller anpassen können als Großkonzerne. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=810s) |
-| Empfehlung | Fabric & Power BI Quarterly · 2026-2 | 18:55 | Fabric-Kapazität F2 lohnt sich aus Sicht des Sprechers fast immer, unabhängig von der Unternehmensgröße. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1135s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 2026-05 | 01:28 | auf die Sekunde | Ein mittelständisches Dienstleistungsunternehmen beauftragte Peter Gluchowski 1988 mit einem System zur Erfassung von Warenströmen zwischen Automobilherstellern und Gießereien und zur Erstellung von Auswertungen. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=88s) |
+| Meinung | 27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite | 2026-05 | 07:34 | auf die Sekunde | Im Mittelstand wird die Aufteilung zwischen Sternschema und relationaler Modellierung nach Einschätzung von Peter Gluchowski anders gehandhabt als in Großunternehmen. | [▶](https://www.youtube.com/watch?v=dKA-38gRD8Q&t=454s) |
+| Meinung | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 2026-04 | 01:34 | auf die Sekunde | Im Risikomanagement können mittelständische Unternehmen nicht wie Großkonzerne behandelt werden, weil sie andere Probleme haben. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=94s) |
+| Meinung | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 2026-04 | 07:17 | auf die Sekunde | Große Konzerne haben im Risikomanagement oft mehr Probleme als der Mittelstand, weil dieser agiler und näher am Markt agieren kann. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=437s) |
+| Meinung | Prinzipien oder Paragrafen | 2026-02 | 13:05 | Abschnittsanfang | Layher beobachtet, dass deutschsprachige Unternehmen regulatorische Anforderungen häufig übertreiben und pauschal auf alle Unternehmensbereiche anwenden, auch wo der Gesetzgeber das nicht verlangt. | [▶](https://www.youtube.com/watch?v=6WhWLcuFvZE&t=785s) |
+| Meinung | Metadaten als Superkraft |  | 15:29 | auf die Sekunde | Kleinere Unternehmen profitieren oft schneller von Metadaten-Initiativen, weil sie Prozesse und Abstimmungen schneller anpassen können als Großkonzerne. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=929s) |
+| Empfehlung | Fabric & Power BI Quarterly · 2026-2 |  | 17:29 | auf die Sekunde | Fabric-Kapazität F2 lohnt sich aus Sicht des Sprechers fast immer, unabhängig von der Unternehmensgröße. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1049s) |
 
 ## Dokumente
 

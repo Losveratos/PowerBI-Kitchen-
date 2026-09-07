@@ -3,7 +3,7 @@ id: "tool:premium"
 name: "Premium"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 20
 kernaussagen: 2
@@ -49,10 +49,12 @@ Power BI Premium, P1, PPU, Premium per User
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | Denken in Tabellen | 31:45 | Mit der Power-BI-Pro-Lizenz gilt eine Dateigrößengrenze von 1 GB, deren Überschreitung in Richtung Premium zu höheren Kosten führen kann. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s) |
-| Fakt | 10 Jahre Power BI | 25:02 | Mit der Einführung von Power BI Premium im Jahr 2017 benötigten plötzlich auch reine Berichtskonsumenten eine Power BI Pro Lizenz, um Berichte weiterhin kostenlos empfangen zu können. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1502s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Denken in Tabellen | 2026-01 | 31:45 | Abschnittsanfang | Mit der Power-BI-Pro-Lizenz gilt eine Dateigrößengrenze von 1 GB, deren Überschreitung in Richtung Premium zu höheren Kosten führen kann. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s) |
+| Fakt | 10 Jahre Power BI | 2025-07 | 25:43 | auf die Sekunde | Mit der Einführung von Power BI Premium im Jahr 2017 benötigten plötzlich auch reine Berichtskonsumenten eine Power BI Pro Lizenz, um Berichte weiterhin kostenlos empfangen zu können. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1543s) |
 
 ## Dokumente
 

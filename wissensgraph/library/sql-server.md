@@ -3,7 +3,7 @@ id: "tool:sql-server"
 name: "SQL Server"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 13
 kernaussagen: 2
@@ -47,10 +47,12 @@ T-SQL, MSSQL
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | Denken in Tabellen | 31:45 | Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s) |
-| Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 04:13 | Im SSIS-Datenfluss wird über eine Quelle eine SQL-Datenbank verbunden und darüber ausgewählt, welche Tabelle und Spalten geladen werden. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=253s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Denken in Tabellen | 2026-01 | 32:44 | auf die Sekunde | Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1964s) |
+| Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 2025-12 | 04:56 | auf die Sekunde | Im SSIS-Datenfluss wird über eine Quelle eine SQL-Datenbank verbunden und darüber ausgewählt, welche Tabelle und Spalten geladen werden. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=296s) |
 
 ## Dokumente
 

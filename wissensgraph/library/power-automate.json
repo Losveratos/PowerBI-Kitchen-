@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "power-automate",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-automate.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/power-automate.html",
@@ -159,18 +159,18 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.72",
    "dokument_id": "yt:luk4S4ukKmg",
-   "sekunde": 3030,
-   "zeit": "50:30",
-   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3030s",
+   "sekunde": 3063,
+   "zeit": "51:03",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3063s",
    "aussage": "SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist."
   },
   {
    "typ": "Meinung",
    "dokument": "Metadaten als Superkraft",
    "dokument_id": "yt:UUlPoJOhco8",
-   "sekunde": 947,
-   "zeit": "15:47",
-   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s",
+   "sekunde": 1010,
+   "zeit": "16:50",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=1010s",
    "aussage": "Process Mining wertet Log- und Transaktionsdaten aus, um Abweichungen vom idealen Prozess sichtbar zu machen, und soll mittlerweile auch in Power Automate Einzug gehalten haben."
   }
  ],

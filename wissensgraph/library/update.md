@@ -3,7 +3,7 @@ id: "topic:update"
 name: "Update"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 3
 kernaussagen: 5
@@ -49,13 +49,15 @@ Updates, Monthly Update, Neuerungen, Release, Preview, GA, General Availability
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Meinung | Power BI Update April 2026 | 00:00 | Das Power-BI-Update vom April 2026 fällt kompakter aus als das März-Update und ist stark frontend- und enduser-orientiert. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=0s) |
-| Meinung | Power BI Update März 2026 | 07:53 | Im März 2026 hat Power BI unter anderem durch Custom Totals, neue visuelle Möglichkeiten, die Translytical-Task-Flows-Freigabe und die Planungsfunktionen in Fabric spürbar dazugewonnen. | [▶](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=473s) |
-| Fakt | Power BI Update Februar 2026 | 00:00 | Der Input Slicer, vormals Textslicer, ist im Power BI Update vom Februar 2026 generally available geworden. | [▶](https://www.youtube.com/watch?v=u-lgbDfIlLg&t=0s) |
-| Fakt | BI Thinkers Talk n.73 | 08:06 | Seit einem Update im Januar merken sich Field Parameters in einer Matrix den zuletzt gewählten Hierarchie-Stand, wenn zwischen unterschiedlichen Gruppierungen umgeschaltet wird. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=486s) |
-| Fakt | BI Thinkers Talk Nr.62 | 01:35 | Markus hat sein erstes Update-Video im Mai 2019 veröffentlicht. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=95s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Meinung | Power BI Update April 2026 | 2026-04 | 00:03 | auf die Sekunde | Das Power-BI-Update vom April 2026 fällt kompakter aus als das März-Update und ist stark frontend- und enduser-orientiert. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=3s) |
+| Meinung | Power BI Update März 2026 | 2026-03 | 07:58 | auf die Sekunde | Im März 2026 hat Power BI unter anderem durch Custom Totals, neue visuelle Möglichkeiten, die Translytical-Task-Flows-Freigabe und die Planungsfunktionen in Fabric spürbar dazugewonnen. | [▶](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=478s) |
+| Fakt | Power BI Update Februar 2026 | 2026-02 | 00:02 | auf die Sekunde | Der Input Slicer, vormals Textslicer, ist im Power BI Update vom Februar 2026 generally available geworden. | [▶](https://www.youtube.com/watch?v=u-lgbDfIlLg&t=2s) |
+| Fakt | BI Thinkers Talk n.73 | 2026-02 | 09:09 | auf die Sekunde | Seit einem Update im Januar merken sich Field Parameters in einer Matrix den zuletzt gewählten Hierarchie-Stand, wenn zwischen unterschiedlichen Gruppierungen umgeschaltet wird. | [▶](https://www.youtube.com/watch?v=pOJpXxsfUt0&t=549s) |
+| Fakt | BI Thinkers Talk Nr.62 | 2025-05 | 01:57 | auf die Sekunde | Markus hat sein erstes Update-Video im Mai 2019 veröffentlicht. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=117s) |
 
 ## Dokumente
 

@@ -4,7 +4,7 @@
  "typ": "thema",
  "slug": "reporting",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/reporting.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/reporting.html",
@@ -168,63 +168,63 @@
    "typ": "Fakt",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 1062,
-   "zeit": "17:42",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1062s",
+   "sekunde": 1100,
+   "zeit": "18:20",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1100s",
    "aussage": "Ein konsolidiertes Reporting zeigt Bestellbedarf, auslaufende Lieferantenverträge und Krisenrisiko im zeitlichen Verlauf."
   },
   {
    "typ": "Fakt",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 1154,
-   "zeit": "19:14",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1154s",
+   "sekunde": 1182,
+   "zeit": "19:42",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1182s",
    "aussage": "Bei einer erkannten Materialunterdeckung generiert das System automatisch einen Bestellvorschlag samt Lieferantenliste mit individuellem Krisenrisiko-Score."
   },
   {
    "typ": "Fakt",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 1445,
-   "zeit": "24:05",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1445s",
+   "sekunde": 1519,
+   "zeit": "25:19",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1519s",
    "aussage": "Process Mining übersetzt in Systemen gespeicherte Daten in Prozessschritte und erzeugt so ein digitales Abbild aller historischen Prozessabläufe."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 2671,
-   "zeit": "44:31",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2671s",
+   "sekunde": 2773,
+   "zeit": "46:13",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2773s",
    "aussage": "Der im Fixer enthaltene Prototyper kann Berichtsseiten als Screenshot, Excalidraw-Datei oder SVG exportieren."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 2872,
-   "zeit": "47:52",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2872s",
+   "sekunde": 2847,
+   "zeit": "47:27",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2847s",
    "aussage": "Über die in der PBIR-Datei gespeicherten Seitenverbindungen lässt sich die mehrstufige Navigationsstruktur eines Berichts sichtbar machen, was in Power BI Desktop selbst nicht einsehbar ist."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 3079,
-   "zeit": "51:19",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3079s",
+   "sekunde": 3025,
+   "zeit": "50:25",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3025s",
    "aussage": "Intelligence Sheets von Lumel sind in Fabric aktuell auf SQL-Datenbank-Verbindungen beschränkt."
   },
   {
    "typ": "Meinung",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 3385,
-   "zeit": "56:25",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3385s",
+   "sekunde": 3162,
+   "zeit": "52:42",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3162s",
    "aussage": "Der USP von Infofor-artigen Tools liegt laut Alex vor allem im Writeback und im Editieren großer Tabellen, was Power BI nativ nicht bietet."
   },
   {
@@ -258,36 +258,36 @@
    "typ": "Empfehlung",
    "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
    "dokument_id": "yt:jETxUNQSl-w",
-   "sekunde": 1530,
-   "zeit": "25:30",
-   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s",
+   "sekunde": 1583,
+   "zeit": "26:23",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1583s",
    "aussage": "Reports, die von niemandem für operative Entscheidungen genutzt werden, sollten identifiziert und abgeschaltet werden."
   },
   {
    "typ": "Meinung",
    "dokument": "Power BI vs. Qlik",
    "dokument_id": "yt:vd1r02bj9Qk",
-   "sekunde": 745,
-   "zeit": "12:25",
-   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=745s",
+   "sekunde": 779,
+   "zeit": "12:59",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=779s",
    "aussage": "Oliver vertritt die These, dass Qlik das stärkere Tool für Analysen ist, während Power BI und Qlik beim Reporting etwa gleichauf liegen."
   },
   {
    "typ": "Warnung",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
-   "sekunde": 882,
-   "zeit": "14:42",
-   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=882s",
+   "sekunde": 1202,
+   "zeit": "20:02",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1202s",
    "aussage": "Berichte mit Writeback-Visuals wie InfoRiver sollten nach Möglichkeit nicht mehr in Power BI Desktop bearbeitet werden, weil ein erneutes Laden dort bereits von Nutzern eingegebene Daten überschreiben könnte."
   },
   {
    "typ": "Fakt",
    "dokument": "Metadaten als Superkraft",
    "dokument_id": "yt:UUlPoJOhco8",
-   "sekunde": 94,
-   "zeit": "01:34",
-   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=94s",
+   "sekunde": 93,
+   "zeit": "01:33",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=93s",
    "aussage": "Nutzungsdaten sind ein zentraler Ansatzpunkt bei der Überarbeitung von Dashboards und Datenprodukten, weil sie zeigen, ob diese überhaupt verwendet werden."
   },
   {
@@ -962,21 +962,6 @@
    ]
   },
   {
-   "id": "page:prototyping-pnl-treiberbaum_en",
-   "titel": "Is AI the New Paper — and Markdown the New Pen?",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.143,
-   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:prototyping-pnl-treiberbaum",
    "titel": "Ist KI das neue Papier — und Markdown der neue Stift?",
    "datum": "2026-08-31",
@@ -987,6 +972,21 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:prototyping-pnl-treiberbaum_en",
+   "titel": "Is AI the New Paper — and Markdown the New Pen?",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.143,
+   "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html",
      "sekunde": null
     }
    ]

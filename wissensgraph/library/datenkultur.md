@@ -3,7 +3,7 @@ id: "topic:datenkultur"
 name: "Datenkultur"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 9
 kernaussagen: 3
@@ -34,11 +34,13 @@ Data Culture, Data Literacy, Datenkompetenz
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Empfehlung | GxP Talk - KI im regulierten Umfeld? | 42:11 | Julia empfiehlt, gezielt in Schulung und kulturellen Wandel der Belegschaft zu investieren, damit KI-Initiativen nicht zu Frust unter den Mitarbeitenden führen. | [▶](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2531s) |
-| Meinung | Denken in Tabellen | 13:46 | Ob Fachbereiche selbst Datenmodelle bauen oder diese Aufgabe delegieren, hängt laut Ulrik stark von der Unternehmenskultur und der technischen Affinität der Beteiligten ab. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=826s) |
-| Meinung | 10 Jahre Power BI | 1:13:50 | Nach Einschätzung eines Sprechers hat die COVID-19-Pandemie die Akzeptanz von Power BI in Unternehmen deutlich erhöht, weil öffentliche Dashboards wie das des RKI den Nutzen von Datenvisualisierung sichtbar machten. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4430s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Empfehlung | GxP Talk - KI im regulierten Umfeld? | 2026-05 | 42:11 | Abschnittsanfang | Julia empfiehlt, gezielt in Schulung und kulturellen Wandel der Belegschaft zu investieren, damit KI-Initiativen nicht zu Frust unter den Mitarbeitenden führen. | [▶](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2531s) |
+| Meinung | Denken in Tabellen | 2026-01 | 13:46 | Abschnittsanfang | Ob Fachbereiche selbst Datenmodelle bauen oder diese Aufgabe delegieren, hängt laut Ulrik stark von der Unternehmenskultur und der technischen Affinität der Beteiligten ab. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=826s) |
+| Meinung | 10 Jahre Power BI | 2025-07 | 1:13:50 | Abschnittsanfang | Nach Einschätzung eines Sprechers hat die COVID-19-Pandemie die Akzeptanz von Power BI in Unternehmen deutlich erhöht, weil öffentliche Dashboards wie das des RKI den Nutzen von Datenvisualisierung sichtbar machten. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4430s) |
 
 ## Dokumente
 

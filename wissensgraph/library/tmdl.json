@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "tmdl",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/tmdl.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/tmdl.html",
@@ -141,18 +141,18 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 3474,
-   "zeit": "57:54",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=3474s",
+   "sekunde": 3545,
+   "zeit": "59:05",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=3545s",
    "aussage": "TMDL steht für \"Tabular Model Definition Language\"."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
-   "sekunde": 791,
-   "zeit": "13:11",
-   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=791s",
+   "sekunde": 792,
+   "zeit": "13:12",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=792s",
    "aussage": "Power BI Desktop wurde so gehärtet, dass es Codesegmente von Drittanbieter-Tools, die es selbst nicht versteht, ignoriert, statt wie früher etwa bei manuellen Partitionsdefinitionen mit einem Fehler abzubrechen."
   },
   {
@@ -168,18 +168,18 @@
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 2744,
-   "zeit": "45:44",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2744s",
+   "sekunde": 2810,
+   "zeit": "46:50",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2810s",
    "aussage": "Der Power BI Project Mode mit TMDL und PBIR erlaubt es, Berichte programmatisch über Textdateien zu ändern, was laut einem Sprecher die Bearbeitung durch KI erheblich erleichtert."
   },
   {
    "typ": "Meinung",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
-   "sekunde": 473,
-   "zeit": "07:53",
-   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=473s",
+   "sekunde": 420,
+   "zeit": "07:00",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=420s",
    "aussage": "Strukturierter, klar lesbarer Code wie TMDL ist notwendig, damit KI-Tools und Copilot Power-BI-Modelle gut nutzen und automatisiert bearbeiten können."
   }
  ],
@@ -349,21 +349,21 @@
    "sprungmarken": []
   },
   {
-   "id": "yt:0FPA1k5YiTs",
-   "titel": "Power BI Deep Dive: DAX UDF + TMDL",
-   "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=0FPA1k5YiTs",
-   "sprungmarken": []
-  },
-  {
    "id": "yt:sShNdgnHjr4",
    "titel": "TMDL Magie: Multi Parameter Tabelle - Feldparameter Next Level! | Power BI Tutorial",
    "datum": "2025-10-01",
    "abdeckung": "nur-zeitstempel",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=sShNdgnHjr4",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:0FPA1k5YiTs",
+   "titel": "Power BI Deep Dive: DAX UDF + TMDL",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=0FPA1k5YiTs",
    "sprungmarken": []
   }
  ],

@@ -3,7 +3,7 @@ id: "topic:projektmanagement"
 name: "Projektmanagement"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 12
 kernaussagen: 12
@@ -51,20 +51,22 @@ Scrum, agil, Agile, Projekt, Projekte, Sprint
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Meinung | GxP Talk - Validierung vs. Agilität | 14:16 | Häufige kleine Änderungen sind nur dann wirklich agil, wenn sie mit einem schnellen Feedback-Loop verbunden sind, der zeigt, ob man auf dem richtigen Weg ist. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=856s) |
-| Meinung | GxP Talk - Validierung vs. Agilität | 19:05 | Projekte werden vor allem dann langsam, wenn unklar ist, wer eine Entscheidung treffen darf, während klar zugewiesene Entscheidungsverantwortlichkeiten die Geschwindigkeit erhöhen. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=1145s) |
-| Empfehlung | GxP Talk - Validierung vs. Agilität | 25:57 | Eine zusätzliche Sandbox-Umgebung neben der Entwicklungsumgebung hilft, frühes Nutzerfeedback zum Solution Design einzuholen, bevor ein Prozess final umgesetzt wird. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=1557s) |
-| Warnung | GxP Talk - Validierung vs. Agilität | 32:13 | Externe Dienstleister behandeln Änderungswünsche an bestehenden Reporting-Lösungen häufig pauschal als aufwandserhöhenden Change Request, ohne den tatsächlichen Mehraufwand zu hinterfragen. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=1933s) |
-| Warnung | GxP Talk - Validierung vs. Agilität | 36:50 | Wenn ein Dienstleister den benötigten internen Ressourcenaufwand bei der Lieferantenauswahl nicht von sich aus transparent anspricht, gilt das als Warnsignal. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=2210s) |
-| Meinung | GxP Talk - Validierung vs. Agilität | 39:58 | Die Definition of Ready gilt als Schlüsselkriterium dafür, ob Agilität und GXP-Anforderungen zusammenpassen, weil dem Lieferanten vorab klar sein muss, was genau geliefert werden soll. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=2398s) |
-| Fakt | GxP Talk - Validierung vs. Agilität | 39:58 | Nach Erfahrung eines Sprechers ist in rund 80 Prozent der Fälle, in denen angeblich nur noch die Validierung fehlt, tatsächlich die Definition of Ready nicht erfüllt. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=2398s) |
-| Meinung | GxP Talk - Validierung vs. Agilität | 51:04 | Ein zentrales Fazit der Diskussion ist, dass der größte Hemmschuh für mehr Agilität in GXP-Projekten eher in der Organisation, insbesondere in der Verfügbarkeit des Fachbereichs, liegt als in der Technologie. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=3064s) |
-| Empfehlung | GxP Talk - Validierung vs. Agilität | 52:36 | Schlagartige Einführungen neuer Tools oder Prozesse blockieren nach Einschätzung eines Sprechers die Akzeptanz, weshalb graduelle, adaptive Veränderungsschritte empfohlen werden. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=3156s) |
-| Empfehlung | GxP Talk - Validierung vs. Agilität | 55:42 | Ein festes Zeitbudget von 10 bis 20 Prozent pro Mitarbeiter für die Mitwirkung an Projekten wird vorgeschlagen, damit Wissen aktiv aufgebaut wird, statt nur passiv empfangen zu werden. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=3342s) |
-| Warnung | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 09:47 | Sehr große Workshop-Runden mit vielen Beteiligten führen häufig dazu, dass sich das mittlere Management nur mit sich selbst beschäftigt, ohne dass Entscheidungen entstehen. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=587s) |
-| Empfehlung | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 13:11 | Zielbild-Workshops funktionieren am besten mit fünf bis sieben Teilnehmenden und vorbereitenden Einzelgesprächen vor dem eigentlichen Termin. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=791s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Meinung | GxP Talk - Validierung vs. Agilität | 2026-03 | 14:27 | auf die Sekunde | Häufige kleine Änderungen sind nur dann wirklich agil, wenn sie mit einem schnellen Feedback-Loop verbunden sind, der zeigt, ob man auf dem richtigen Weg ist. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=867s) |
+| Meinung | GxP Talk - Validierung vs. Agilität | 2026-03 | 19:53 | auf die Sekunde | Projekte werden vor allem dann langsam, wenn unklar ist, wer eine Entscheidung treffen darf, während klar zugewiesene Entscheidungsverantwortlichkeiten die Geschwindigkeit erhöhen. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=1193s) |
+| Empfehlung | GxP Talk - Validierung vs. Agilität | 2026-03 | 25:57 | Abschnittsanfang | Eine zusätzliche Sandbox-Umgebung neben der Entwicklungsumgebung hilft, frühes Nutzerfeedback zum Solution Design einzuholen, bevor ein Prozess final umgesetzt wird. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=1557s) |
+| Warnung | GxP Talk - Validierung vs. Agilität | 2026-03 | 32:13 | Abschnittsanfang | Externe Dienstleister behandeln Änderungswünsche an bestehenden Reporting-Lösungen häufig pauschal als aufwandserhöhenden Change Request, ohne den tatsächlichen Mehraufwand zu hinterfragen. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=1933s) |
+| Warnung | GxP Talk - Validierung vs. Agilität | 2026-03 | 36:50 | Abschnittsanfang | Wenn ein Dienstleister den benötigten internen Ressourcenaufwand bei der Lieferantenauswahl nicht von sich aus transparent anspricht, gilt das als Warnsignal. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=2210s) |
+| Meinung | GxP Talk - Validierung vs. Agilität | 2026-03 | 40:52 | auf die Sekunde | Die Definition of Ready gilt als Schlüsselkriterium dafür, ob Agilität und GXP-Anforderungen zusammenpassen, weil dem Lieferanten vorab klar sein muss, was genau geliefert werden soll. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=2452s) |
+| Fakt | GxP Talk - Validierung vs. Agilität | 2026-03 | 40:57 | auf die Sekunde | Nach Erfahrung eines Sprechers ist in rund 80 Prozent der Fälle, in denen angeblich nur noch die Validierung fehlt, tatsächlich die Definition of Ready nicht erfüllt. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=2457s) |
+| Meinung | GxP Talk - Validierung vs. Agilität | 2026-03 | 52:12 | auf die Sekunde | Ein zentrales Fazit der Diskussion ist, dass der größte Hemmschuh für mehr Agilität in GXP-Projekten eher in der Organisation, insbesondere in der Verfügbarkeit des Fachbereichs, liegt als in der Technologie. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=3132s) |
+| Empfehlung | GxP Talk - Validierung vs. Agilität | 2026-03 | 52:57 | auf die Sekunde | Schlagartige Einführungen neuer Tools oder Prozesse blockieren nach Einschätzung eines Sprechers die Akzeptanz, weshalb graduelle, adaptive Veränderungsschritte empfohlen werden. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=3177s) |
+| Empfehlung | GxP Talk - Validierung vs. Agilität | 2026-03 | 56:16 | auf die Sekunde | Ein festes Zeitbudget von 10 bis 20 Prozent pro Mitarbeiter für die Mitwirkung an Projekten wird vorgeschlagen, damit Wissen aktiv aufgebaut wird, statt nur passiv empfangen zu werden. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=3376s) |
+| Warnung | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 2026-02 | 11:29 | auf die Sekunde | Sehr große Workshop-Runden mit vielen Beteiligten führen häufig dazu, dass sich das mittlere Management nur mit sich selbst beschäftigt, ohne dass Entscheidungen entstehen. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=689s) |
+| Empfehlung | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 2026-02 | 13:48 | auf die Sekunde | Zielbild-Workshops funktionieren am besten mit fünf bis sieben Teilnehmenden und vorbereitenden Einzelgesprächen vor dem eigentlichen Termin. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=828s) |
 
 ## Dokumente
 

@@ -3,7 +3,7 @@ id: "topic:echtzeit"
 name: "Echtzeit"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 33
 kernaussagen: 2
@@ -49,10 +49,12 @@ Real-Time, Streaming, Realtime, Real Time
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Empfehlung | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 11:04 | Frühwarnsysteme verschaffen Unternehmen die nötige Zeit, um auf aufkommende Risiken zu reagieren. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=664s) |
-| Fakt | Fabric Planning unboxing | 53:42 | Zurückgeschriebene Planungswerte müssen erst wieder in das Semantic Model integriert werden, um sie im Modell nahezu in Echtzeit nutzen zu können. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3222s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Empfehlung | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 2026-04 | 06:52 | auf die Sekunde | Frühwarnsysteme verschaffen Unternehmen die nötige Zeit, um auf aufkommende Risiken zu reagieren. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=412s) |
+| Fakt | Fabric Planning unboxing | 2026-03 | 55:22 | auf die Sekunde | Zurückgeschriebene Planungswerte müssen erst wieder in das Semantic Model integriert werden, um sie im Modell nahezu in Echtzeit nutzen zu können. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3322s) |
 
 ## Dokumente
 

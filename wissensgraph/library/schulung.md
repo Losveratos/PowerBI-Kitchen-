@@ -3,7 +3,7 @@ id: "topic:schulung"
 name: "Schulung"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 34
 kernaussagen: 6
@@ -51,14 +51,16 @@ Training, Enablement, Lernen, Schulungen, Workshop, Trainings
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Empfehlung | GxP Talk - KI im regulierten Umfeld? | 42:11 | Julia empfiehlt, gezielt in Schulung und kulturellen Wandel der Belegschaft zu investieren, damit KI-Initiativen nicht zu Frust unter den Mitarbeitenden führen. | [▶](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2531s) |
-| Meinung | GxP Talk - Validierung vs. Agilität | 47:53 | Wissenstransfer und IT-Enablement der Fachbereiche werden bei klassischen Tooleinführungen oft vernachlässigt, während sie in KI-Projekten zunehmend aktiv mit eingeplant und eingekauft werden. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=2873s) |
-| Meinung | GxP Talk - Validierung vs. Agilität | 49:30 | Fehlende Dokumentation und mangelnder Wissenstransfer werden als schwerwiegendere technische Schulden eingeschätzt als schlecht geschriebener Code. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=2970s) |
-| Empfehlung | GxP Talk - Validierung vs. Agilität | 55:42 | Ein festes Zeitbudget von 10 bis 20 Prozent pro Mitarbeiter für die Mitwirkung an Projekten wird vorgeschlagen, damit Wissen aktiv aufgebaut wird, statt nur passiv empfangen zu werden. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=3342s) |
-| Meinung | Metadaten als Superkraft | 15:47 | Aus Metadaten zu Datenmodellen lässt sich ableiten, wie gut ein Team mit Daten umgeht und wo Schulungsbedarf besteht. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s) |
-| Empfehlung | Metadaten als Superkraft | 20:37 | Bevor Werkzeuge eingeführt werden, sollte im eigenen BI-Team abgefragt werden, ob das Thema Metadaten überhaupt bekannt ist. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1237s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Empfehlung | GxP Talk - KI im regulierten Umfeld? | 2026-05 | 42:11 | Abschnittsanfang | Julia empfiehlt, gezielt in Schulung und kulturellen Wandel der Belegschaft zu investieren, damit KI-Initiativen nicht zu Frust unter den Mitarbeitenden führen. | [▶](https://www.youtube.com/watch?v=XtH4JqTwaqM&t=2531s) |
+| Meinung | GxP Talk - Validierung vs. Agilität | 2026-03 | 48:01 | auf die Sekunde | Wissenstransfer und IT-Enablement der Fachbereiche werden bei klassischen Tooleinführungen oft vernachlässigt, während sie in KI-Projekten zunehmend aktiv mit eingeplant und eingekauft werden. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=2881s) |
+| Meinung | GxP Talk - Validierung vs. Agilität | 2026-03 | 49:48 | auf die Sekunde | Fehlende Dokumentation und mangelnder Wissenstransfer werden als schwerwiegendere technische Schulden eingeschätzt als schlecht geschriebener Code. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=2988s) |
+| Empfehlung | GxP Talk - Validierung vs. Agilität | 2026-03 | 56:16 | auf die Sekunde | Ein festes Zeitbudget von 10 bis 20 Prozent pro Mitarbeiter für die Mitwirkung an Projekten wird vorgeschlagen, damit Wissen aktiv aufgebaut wird, statt nur passiv empfangen zu werden. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=3376s) |
+| Meinung | Metadaten als Superkraft |  | 15:54 | auf die Sekunde | Aus Metadaten zu Datenmodellen lässt sich ableiten, wie gut ein Team mit Daten umgeht und wo Schulungsbedarf besteht. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=954s) |
+| Empfehlung | Metadaten als Superkraft |  | 20:40 | auf die Sekunde | Bevor Werkzeuge eingeführt werden, sollte im eigenen BI-Team abgefragt werden, ob das Thema Metadaten überhaupt bekannt ist. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1240s) |
 
 ## Dokumente
 

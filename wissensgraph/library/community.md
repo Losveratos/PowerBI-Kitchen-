@@ -3,7 +3,7 @@ id: "topic:community"
 name: "Community"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 52
 kernaussagen: 6
@@ -50,14 +50,16 @@ User Group, Meetup, MVP, Usergroup, Meetups
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Brian hielt auf der Feb Con in Wien eine Podiumsdiskussion über Community und Benutzergruppen. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Brian freut sich darüber, dass die Zahl der Community-Konferenzen in Europa wächst. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Fakt | BI Thinkers Talk nr.75 | 1:02:41 | Ab Mai sind bei den BI Thinkers Talks ein Auftritt von Stefan Werner sowie ein gemeinsamer Stream mit Ren Fürstenberg und Joris Karle geplant. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3761s) |
-| Fakt | Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ | 03:23 | Die Idee, einen Feldparameter als dynamischen, von der Auswahl abhängigen Filter einzusetzen, stammt aus einem Kundenprojekt und wurde in einem BI-Sinker-Talk vorgestellt. | [▶](https://www.youtube.com/watch?v=v8dvnqqa7f8&t=203s) |
-| Meinung | Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL \| Fabric Tutorial | 08:39 | Der Sprecher bewertet die gezeigte Open-Mirroring-Demo als eindrucksvoll und fragt die Zuschauer, ob das Thema für sie hilfreich wäre. | [▶](https://www.youtube.com/watch?v=7j34Ndng0Os&t=519s) |
-| Fakt | BI Thinkers Talk Nr.62 | 04:56 | Der BI Thinkers Talk ist mit der aktuellen Folge bei Nummer 62 angekommen, vier Jahre nach der ersten Ausgabe. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=296s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:04 | auf die Sekunde | Brian hielt auf der Feb Con in Wien eine Podiumsdiskussion über Community und Benutzergruppen. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=4s) |
+| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:50 | auf die Sekunde | Brian freut sich darüber, dass die Zahl der Community-Konferenzen in Europa wächst. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=50s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 1:03:30 | auf die Sekunde | Ab Mai sind bei den BI Thinkers Talks ein Auftritt von Stefan Werner sowie ein gemeinsamer Stream mit Ren Fürstenberg und Joris Karle geplant. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3810s) |
+| Fakt | Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“ | 2026-02 | 03:23 | Abschnittsanfang | Die Idee, einen Feldparameter als dynamischen, von der Auswahl abhängigen Filter einzusetzen, stammt aus einem Kundenprojekt und wurde in einem BI-Sinker-Talk vorgestellt. | [▶](https://www.youtube.com/watch?v=v8dvnqqa7f8&t=203s) |
+| Meinung | Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL \| Fabric Tutorial | 2026-01 | 09:18 | auf die Sekunde | Der Sprecher bewertet die gezeigte Open-Mirroring-Demo als eindrucksvoll und fragt die Zuschauer, ob das Thema für sie hilfreich wäre. | [▶](https://www.youtube.com/watch?v=7j34Ndng0Os&t=558s) |
+| Fakt | BI Thinkers Talk Nr.62 | 2025-05 | 04:56 | Abschnittsanfang | Der BI Thinkers Talk ist mit der aktuellen Folge bei Nummer 62 angekommen, vier Jahre nach der ersten Ausgabe. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=296s) |
 
 ## Dokumente
 

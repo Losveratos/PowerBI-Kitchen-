@@ -3,7 +3,7 @@ id: "tool:delta-lake"
 name: "Delta Lake"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 4
 kernaussagen: 0

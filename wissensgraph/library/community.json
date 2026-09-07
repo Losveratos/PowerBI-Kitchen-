@@ -4,7 +4,7 @@
  "typ": "thema",
  "slug": "community",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/community.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/community.html",
@@ -163,27 +163,27 @@
    "typ": "Fakt",
    "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
    "dokument_id": "yt:QyhnWfGih_o",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "sekunde": 4,
+   "zeit": "00:04",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=4s",
    "aussage": "Brian hielt auf der Feb Con in Wien eine Podiumsdiskussion über Community und Benutzergruppen."
   },
   {
    "typ": "Meinung",
    "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
    "dokument_id": "yt:QyhnWfGih_o",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "sekunde": 50,
+   "zeit": "00:50",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=50s",
    "aussage": "Brian freut sich darüber, dass die Zahl der Community-Konferenzen in Europa wächst."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 3761,
-   "zeit": "1:02:41",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3761s",
+   "sekunde": 3810,
+   "zeit": "1:03:30",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3810s",
    "aussage": "Ab Mai sind bei den BI Thinkers Talks ein Auftritt von Stefan Werner sowie ein gemeinsamer Stream mit Ren Fürstenberg und Joris Karle geplant."
   },
   {
@@ -199,9 +199,9 @@
    "typ": "Meinung",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 519,
-   "zeit": "08:39",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=519s",
+   "sekunde": 558,
+   "zeit": "09:18",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=558s",
    "aussage": "Der Sprecher bewertet die gezeigte Open-Mirroring-Demo als eindrucksvoll und fragt die Zuschauer, ob das Thema für sie hilfreich wäre."
   },
   {

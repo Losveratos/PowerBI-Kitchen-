@@ -207,7 +207,7 @@ table.docs td.m{font-family:var(--mono);font-size:11px;color:var(--ink-mute);whi
     <div id="timeline"></div>
     <div id="listview"></div>
     <div class="hint" id="hint">Klick: Details · Doppelklick: Nachbarn aufklappen · Ziehen · Rad: zoomen · Tab/Enter: Tastatur · <a href="#" onclick="fit(true);return false">einpassen</a></div>
-    <div class="legend" id="legend"><i></i>belegt (Kernaussage mit Zitat)<br><i class="co"></i>Ko-Vorkommen (Heuristik, gezählt)<br><o></o>Thema, Tool, Person &nbsp;<s></s>Themenbereich (redaktionell)</div>
+    <div class="legend" id="legend"><i></i>belegt = automatisch extrahiert, Quellenstelle vorhanden<br><i class="co"></i>Ko-Vorkommen (Heuristik, gezählt)<br><o></o>Thema, Tool, Person &nbsp;<s></s>Themenbereich (redaktionell)</div>
   </section>
   <aside class="right" id="detail">
     <h2>Details</h2>
@@ -254,7 +254,7 @@ function feedbackLink(c, d) {
 function renderStatus(m) {
   const stand = m.stand ? new Date(m.stand).toLocaleDateString('de-DE') : '?';
   $('#status-sum').innerHTML = `<span>Stand <b>${stand}</b></span><span><b>${m.episodes ?? '?'}</b> Folgen · <b>${m.episodes_with_transcript ?? '?'}</b> mit Transkript · <b>${m.episodes_with_claims ?? '?'}</b> mit Kernaussagen · <b>${m.pages ?? '?'}</b> Seiten</span><span>▸ was das heißt</span>`;
-  $('#status-body').innerHTML = `<b>Early Access Beta.</b> ${esc(m.notice || '')} Beta heißt: unvollständig (${m.episodes_with_claims ?? '?'} von ${m.episodes ?? '?'} Folgen mit Kernaussagen) und unredigiert, nicht instabil. Durchgezogene Kanten sind belegt (Kernaussage mit Zitat), gestrichelte sind Ko-Vorkommen (zwei Themen im selben Segment, gezählt). Build ${esc(m.build || '?')} · <a href="library/index.md">Markdown-Fassung</a> · <a href="mailto:${FEEDBACK_MAIL}?subject=Library%20Feedback">Feedback</a>`;
+  $('#status-body').innerHTML = `<b>Early Access Beta.</b> ${esc(m.notice || '')} Beta heißt: unvollständig (${m.episodes_with_claims ?? '?'} von ${m.episodes ?? '?'} Folgen mit Kernaussagen) und unredigiert, nicht instabil. Durchgezogene Kanten stammen aus einer automatisch extrahierten Kernaussage mit Quellenstelle (nicht redaktionell geprüft), gestrichelte sind Ko-Vorkommen (zwei Themen im selben Segment, gezählt). Build ${esc(m.build || '?')} · <a href="library/index.md">Markdown-Fassung</a> · <a href="mailto:${FEEDBACK_MAIL}?subject=Library%20Feedback">Feedback</a>`;
   document.documentElement.style.setProperty('--status-h', $('#status').getBoundingClientRect().height + 'px');
   $('#status').addEventListener('toggle', () => { document.documentElement.style.setProperty('--status-h', $('#status').getBoundingClientRect().height + 'px'); fit(false); });
 }
@@ -643,7 +643,7 @@ function showConcept(n) {
     h += `<h2>Dabei in</h2><ul class="list">${docs.map(x => docRow(x.doc, null, explains, x.role)).join('') || '<li class="empty">keine im Zeitraum</li>'}</ul>`;
   }
   if (rel.length) h += `<h2>Ko-Vorkommen <span class="badge" title="Zwei Themen im selben Segment, gezählt, nicht bewertet">Heuristik</span></h2><div class="chips">${rel.map(x => `<span class="chip" data-id="${esc(x.o.id)}" title="${x.w} gemeinsame Segmente">${esc(x.o.name)} <span class="stat">${x.w}</span></span>`).join('')}</div>`;
-  if (typed.length) h += `<h2>Belegte Beziehungen <span class="badge ex" title="Aus einer Kernaussage mit Zitat">belegt</span></h2><ul class="list">${typed.map(e => { const a = byId.get(e.s), b = byId.get(e.t), d = byId.get(e.doc_id); return `<li><span class="t" data-id="${esc(e.s === n.id ? e.t : e.s)}">${esc(a.name)} <span class="badge">${REL[e.type]}</span> ${esc(b.name)}</span><div class="m">${esc(e.ev)}${d ? ' · <span class="t" data-id="' + esc(d.id) + '">' + esc(shortTitle(d.name)) + '</span>' : ''}</div></li>`; }).join('')}</ul>`;
+  if (typed.length) h += `<h2>Beziehungen mit Quellenstelle <span class="badge ex" title="Automatisch aus einer Kernaussage extrahiert, nicht redaktionell geprüft">automatisch extrahiert</span></h2><ul class="list">${typed.map(e => { const a = byId.get(e.s), b = byId.get(e.t), d = byId.get(e.doc_id); return `<li><span class="t" data-id="${esc(e.s === n.id ? e.t : e.s)}">${esc(a.name)} <span class="badge">${REL[e.type]}</span> ${esc(b.name)}</span><div class="m">${esc(e.ev)}${d ? ' · <span class="t" data-id="' + esc(d.id) + '">' + esc(shortTitle(d.name)) + '</span>' : ''}</div></li>`; }).join('')}</ul>`;
   if (claims.length) h += `<h2>Kernaussagen (${claims.length})</h2>${claims.slice(0, 30).map(c => claimHtml(c)).join('')}`;
   if (n.type !== 'Person') h += `<h2>Dokumente (nach Anteil)</h2><div><span class="btn" id="show-all">Top 8 im Graph zeigen</span><span class="btn" id="hide-all">Dokumente ausblenden</span></div><ul class="list">${docs.slice(0, 40).map(x => docRow(x.doc, x.e, explains, null, n.id)).join('') || '<li class="empty">keine im Zeitraum</li>'}</ul>`;
   $('#detail').innerHTML = h; $('#detail').scrollTop = 0;
@@ -685,10 +685,17 @@ function segHtml(doc, s, term) {
   const ts = s.s != null ? `<a class="ts" target="_blank" rel="noopener" href="${deepLink(doc, s.s)}">▶ ${fmtT(s.s)}</a>` : `<a class="ts" target="_blank" rel="noopener" href="${deepLink(doc, null, s.h)}">📄 ${s.h ? 'Abschnitt' : 'Seite'}</a>`;
   return `<div class="seg">${s.h ? `<span class="h">${esc(s.h)}</span>` : ''}${ts}${t}</div>`;
 }
+function precLabel(c, d) {
+  const st = 'font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px;';
+  if (c.precision === 'word') return `<span style="${st}background:#E3EFE6;color:#2F5D3A" title="Stelle im Transkript wiedergefunden, Sprung auf die Sekunde">Stelle auf die Sekunde</span>`;
+  if (!d || c.start_s == null || c.precision === 'none') return '';
+  return `<span style="${st}background:#F7E9D7;color:#7A4B12" title="Stelle nicht eindeutig wiedergefunden, Sprung auf den Abschnittsanfang (bis zu 3 Minuten davor)">Sprung auf Abschnittsanfang</span>`;
+}
 function claimHtml(c) {
   const d = byId.get(c.doc);
   const ts = d && c.start_s != null ? `<a class="ts" target="_blank" rel="noopener" href="${deepLink(d, c.start_s)}">▶ ${fmtT(c.start_s)}</a>` : '';
-  return `<div class="seg" style="border-left-color:var(--accent)"><span class="h">${KIND[c.kind] || c.kind}${d ? ' · ' + fmtD(d.published) + ' · <span class="t" data-id="' + esc(d.id) + '" style="cursor:pointer">' + esc(shortTitle(d.name)) + '</span>' : ''}</span>${ts}${esc(c.name)}${feedbackLink(c, d)}</div>`;
+  const anchor = c.anchor ? `<details style="margin-top:4px;font-size:12px;color:var(--ink-mute)"><summary style="cursor:pointer;font-family:var(--mono);font-size:10px">Im Transkript</summary><q style="font-style:italic">… ${esc(c.anchor)} …</q></details>` : '';
+  return `<div class="seg" style="border-left-color:var(--accent)"><span class="h">${KIND[c.kind] || c.kind}${d ? ' · Stand ' + fmtD(d.published) + ' · <span class="t" data-id="' + esc(d.id) + '" style="cursor:pointer">' + esc(shortTitle(d.name)) + '</span>' : ''} · <span title="Von einem Sprachmodell verdichtet, nicht redaktionell geprüft">automatisch extrahiert</span>${precLabel(c, d)}</span>${ts}${esc(c.name)}${anchor}${feedbackLink(c, d)}</div>`;
 }
 
 async function showDoc(d) {

@@ -3,7 +3,7 @@ id: "tool:workspace"
 name: "Workspace"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 45
 kernaussagen: 14
@@ -48,22 +48,24 @@ Arbeitsbereich, Workspaces, Arbeitsbereiche
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? | 00:26 | Ein Arbeitsbereich wird einer Kapazität zugeordnet, und innerhalb dieses Arbeitsbereichs werden Artefakte und Daten entsprechend im OneLake abgelegt. | [▶](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=26s) |
-| Fakt | Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? | 00:26 | Die Rechenleistung, die innerhalb eines Arbeitsbereichs zum Arbeiten mit den Daten im OneLake genutzt wird, stammt aus der zugeordneten Fabric-Kapazität. | [▶](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=26s) |
-| Fakt | Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? | 02:34 | Workspaces können in unterschiedlichen Regionen liegen, etwa manche im US-Bereich und andere in Europa, wobei die Daten jeweils in der Region gespeichert sind, in der der Workspace angelegt wurde. | [▶](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=154s) |
-| Fakt | Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? | 03:16 | Ordnet man einen Arbeitsbereich einer Kapazität zu, werden die zugehörigen Daten im OneLake tatsächlich in der Region gespeichert, in der die Kapazität liegt. | [▶](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=196s) |
-| Warnung | Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? | 03:16 | Verschiebt man einen Arbeitsbereich zwischen Kapazitäten in unterschiedlichen Regionen, müssen die zugrunde liegenden Daten tatsächlich in die neue Region überführt werden, es ist also kein reiner Wechsel der Rechenleistung. | [▶](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=196s) |
-| Fakt | SSIS Integration Services: Microsoft Fabric Notebook per REST API starten | 02:19 | Dem Service Principal müssen im Fabric-Arbeitsbereich (Workspace) explizit Berechtigungen zugewiesen werden. | [▶](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=139s) |
-| Fakt | SSIS Integration Services: Microsoft Fabric Notebook per REST API starten | 02:32 | Um das Notebook über die REST API anzusprechen, werden die Workspace-ID und die Notebook-ID benötigt. | [▶](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=152s) |
-| Fakt | SSIS Integration Services: Microsoft Fabric Notebook per REST API starten | 03:52 | Die Paketvariablen im SSIS-Paket speichern Workspace-ID und Notebook-ID für den REST-API-Aufruf. | [▶](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=232s) |
-| Fakt | Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL \| Fabric Tutorial | 05:20 | Über die Kommandozeile lassen sich in Fabric Workspaces auflisten, auswählen und darin per New Item eine Mirror Database anlegen. | [▶](https://www.youtube.com/watch?v=7j34Ndng0Os&t=320s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-1 | 16:46 | Die Search Protection auf Workspace-Ebene kann einen Workspace automatisch pausieren, wenn er eine festgelegte Prozentzahl der Gesamtkapazität überschreitet. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1006s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-1 | 16:46 | Einzelne Workspaces lassen sich als Mission Critical markieren, damit sie von der automatischen Pausierung durch die Search Protection ausgenommen bleiben. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1006s) |
-| Fakt | BI Thinkers Talk n.72 | 40:35 | Beim Ausführen eines Notebooks über die Pipeline mit einem Service Principal wurden deutlich weniger Workspaces zurückgegeben, weil der Service Principal nicht Mitglied in allen Workspaces ist. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2435s) |
-| Fakt | BI Thinkers Talk nr.67 | 06:28 | Die Microsoft-eigene Fabric-Erweiterung für Visual Studio Code zeigt alle Workspaces inklusive Pro-Workspaces an, während eine alternative Community-Erweiterung nur Fabric-Workspaces anzeigt. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=388s) |
-| Fakt | BI Thinkers Talk nr.67 | 09:54 | In einer Power-BI-Projektdatei können mehrere Report-Verzeichnisse auf dasselbe semantische Modell zeigen, und Berichte lassen sich auch in einem anderen Workspace deployen als das zugehörige Modell. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=594s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? | 2026-03 | 00:54 | auf die Sekunde | Ein Arbeitsbereich wird einer Kapazität zugeordnet, und innerhalb dieses Arbeitsbereichs werden Artefakte und Daten entsprechend im OneLake abgelegt. | [▶](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=54s) |
+| Fakt | Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? | 2026-03 | 01:01 | auf die Sekunde | Die Rechenleistung, die innerhalb eines Arbeitsbereichs zum Arbeiten mit den Daten im OneLake genutzt wird, stammt aus der zugeordneten Fabric-Kapazität. | [▶](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=61s) |
+| Fakt | Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? | 2026-03 | 02:31 | auf die Sekunde | Workspaces können in unterschiedlichen Regionen liegen, etwa manche im US-Bereich und andere in Europa, wobei die Daten jeweils in der Region gespeichert sind, in der der Workspace angelegt wurde. | [▶](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=151s) |
+| Fakt | Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? | 2026-03 | 03:12 | auf die Sekunde | Ordnet man einen Arbeitsbereich einer Kapazität zu, werden die zugehörigen Daten im OneLake tatsächlich in der Region gespeichert, in der die Kapazität liegt. | [▶](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=192s) |
+| Warnung | Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake? | 2026-03 | 03:15 | auf die Sekunde | Verschiebt man einen Arbeitsbereich zwischen Kapazitäten in unterschiedlichen Regionen, müssen die zugrunde liegenden Daten tatsächlich in die neue Region überführt werden, es ist also kein reiner Wechsel der Rechenleistung. | [▶](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=195s) |
+| Fakt | SSIS Integration Services: Microsoft Fabric Notebook per REST API starten | 2026-02 | 02:19 | Abschnittsanfang | Dem Service Principal müssen im Fabric-Arbeitsbereich (Workspace) explizit Berechtigungen zugewiesen werden. | [▶](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=139s) |
+| Fakt | SSIS Integration Services: Microsoft Fabric Notebook per REST API starten | 2026-02 | 02:31 | auf die Sekunde | Um das Notebook über die REST API anzusprechen, werden die Workspace-ID und die Notebook-ID benötigt. | [▶](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=151s) |
+| Fakt | SSIS Integration Services: Microsoft Fabric Notebook per REST API starten | 2026-02 | 03:52 | Abschnittsanfang | Die Paketvariablen im SSIS-Paket speichern Workspace-ID und Notebook-ID für den REST-API-Aufruf. | [▶](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=232s) |
+| Fakt | Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL \| Fabric Tutorial | 2026-01 | 05:40 | auf die Sekunde | Über die Kommandozeile lassen sich in Fabric Workspaces auflisten, auswählen und darin per New Item eine Mirror Database anlegen. | [▶](https://www.youtube.com/watch?v=7j34Ndng0Os&t=340s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 17:13 | auf die Sekunde | Die Search Protection auf Workspace-Ebene kann einen Workspace automatisch pausieren, wenn er eine festgelegte Prozentzahl der Gesamtkapazität überschreitet. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1033s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 17:17 | auf die Sekunde | Einzelne Workspaces lassen sich als Mission Critical markieren, damit sie von der automatischen Pausierung durch die Search Protection ausgenommen bleiben. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1037s) |
+| Fakt | BI Thinkers Talk n.72 | 2026-01 | 40:46 | auf die Sekunde | Beim Ausführen eines Notebooks über die Pipeline mit einem Service Principal wurden deutlich weniger Workspaces zurückgegeben, weil der Service Principal nicht Mitglied in allen Workspaces ist. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2446s) |
+| Fakt | BI Thinkers Talk nr.67 | 2025-09 | 06:28 | Abschnittsanfang | Die Microsoft-eigene Fabric-Erweiterung für Visual Studio Code zeigt alle Workspaces inklusive Pro-Workspaces an, während eine alternative Community-Erweiterung nur Fabric-Workspaces anzeigt. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=388s) |
+| Fakt | BI Thinkers Talk nr.67 | 2025-09 | 10:54 | auf die Sekunde | In einer Power-BI-Projektdatei können mehrere Report-Verzeichnisse auf dasselbe semantische Modell zeigen, und Berichte lassen sich auch in einem anderen Workspace deployen als das zugehörige Modell. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=654s) |
 
 ## Dokumente
 

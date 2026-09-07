@@ -3,7 +3,7 @@ id: "tool:power-query"
 name: "Power Query"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 45
 kernaussagen: 13
@@ -49,21 +49,23 @@ M-Code, Power Query M, Query Editor, Abfrage-Editor
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | BI Thinkers Talk n.74 | 37:26 | Aus einem Fabric-Notebook lässt sich per API ein Dataflow ansteuern und darüber Power-Query-Code (M-Code) ausführen. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2246s) |
-| Empfehlung | BI Thinkers Talk n.74 | 41:00 | Für kleinere Datenmengen und einfache Transformationen wie Entpivotieren eignet sich ein Dataflow, während stark verschachteltes JSON, etwa aus der Scanner API, eher in einem Notebook verarbeitet werden sollte. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2460s) |
-| Fakt | BI Thinkers Talk n.74 | 1:13:05 | Beim Versuch, verschachtelte Power-Query-Objekte wie Record oder List aus einem Notebook heraus in ein Lakehouse zu schreiben, werden diese aktuell nur als Text gespeichert statt strukturiert aufgelöst. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=4385s) |
-| Fakt | Power BI vs. Qlik | 05:10 | Sowohl Qlik als auch Power BI lassen sich von der Quelle bis zum Modell als vollständige Datenplattform nutzen, Qlik über Skripte und Power BI über Power Query und das Datenmodell. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=310s) |
-| Warnung | Denken in Tabellen | 06:50 | Breite, lange Tabellen sind in Power BI und Power Query aus Performance- und Speicherplatzgründen ungünstig. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=410s) |
-| Fakt | Denken in Tabellen | 10:21 | Viele Fachanwender kennen Power Query nicht und bleiben deshalb bei breiten Tabellen, obwohl Power Query die Ein-Millionen-Zeilen-Grenze von Power Pivot umgeht. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=621s) |
-| Fakt | BI Thinkers Talk nr.71 | 24:01 | Die Schaltfläche "Zeilen behalten" im Power Query Editor bietet fünf Optionen: erste Zeilen behalten, letzte Zeilen behalten, einen Bereich von Zeilen behalten, Duplikate behalten und Fehler behalten. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1441s) |
-| Empfehlung | BI Thinkers Talk - Data Modelling - Fabric Data Days Edition | 09:34 | Transformationsschritte sollen möglichst weit Richtung Quelle beziehungsweise in die dazwischenliegende Datenplattform verlagert werden, damit das Power-BI-Modell die Daten bereits aufbereitet erhält. | [▶](https://www.youtube.com/watch?v=mUALlPmGcEk&t=574s) |
-| Fakt | BI Thinkers Talk nr.67 | 17:48 | Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=1068s) |
-| Meinung | Microsoft Fabric — braucht das wirklich jemand? | 10:01 | Ein zentrales, datenhaltendes Objekt wie ein Lakehouse macht Power-BI-Modelle laut Artur deutlich stabiler und beschleunigt Aktualisierungen von zwei Stunden auf zwei Minuten. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=601s) |
-| Warnung | Microsoft Fabric — braucht das wirklich jemand? | 15:08 | Eine Datei über den direkten Cloud-Link statt über die lokal synchronisierte SharePoint-Kopie einzubinden gilt laut Martin als schlecht gelöst und ist eine häufige Fehlerquelle. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=908s) |
-| Fakt | Was ist Self-Service und warum ist das so schwer? | 17:22 | Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1042s) |
-| Fakt | Microsoft Fabric — braucht das wirklich jemand? | 41:34 | Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2494s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | BI Thinkers Talk n.74 | 2026-03 | 39:26 | auf die Sekunde | Aus einem Fabric-Notebook lässt sich per API ein Dataflow ansteuern und darüber Power-Query-Code (M-Code) ausführen. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2366s) |
+| Empfehlung | BI Thinkers Talk n.74 | 2026-03 | 41:51 | auf die Sekunde | Für kleinere Datenmengen und einfache Transformationen wie Entpivotieren eignet sich ein Dataflow, während stark verschachteltes JSON, etwa aus der Scanner API, eher in einem Notebook verarbeitet werden sollte. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2511s) |
+| Fakt | BI Thinkers Talk n.74 | 2026-03 | 1:13:05 | Abschnittsanfang | Beim Versuch, verschachtelte Power-Query-Objekte wie Record oder List aus einem Notebook heraus in ein Lakehouse zu schreiben, werden diese aktuell nur als Text gespeichert statt strukturiert aufgelöst. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=4385s) |
+| Fakt | Power BI vs. Qlik | 2026-01 | 05:33 | auf die Sekunde | Sowohl Qlik als auch Power BI lassen sich von der Quelle bis zum Modell als vollständige Datenplattform nutzen, Qlik über Skripte und Power BI über Power Query und das Datenmodell. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=333s) |
+| Warnung | Denken in Tabellen | 2026-01 | 07:40 | auf die Sekunde | Breite, lange Tabellen sind in Power BI und Power Query aus Performance- und Speicherplatzgründen ungünstig. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=460s) |
+| Fakt | Denken in Tabellen | 2026-01 | 10:36 | auf die Sekunde | Viele Fachanwender kennen Power Query nicht und bleiben deshalb bei breiten Tabellen, obwohl Power Query die Ein-Millionen-Zeilen-Grenze von Power Pivot umgeht. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=636s) |
+| Fakt | BI Thinkers Talk nr.71 | 2025-12 | 24:03 | auf die Sekunde | Die Schaltfläche "Zeilen behalten" im Power Query Editor bietet fünf Optionen: erste Zeilen behalten, letzte Zeilen behalten, einen Bereich von Zeilen behalten, Duplikate behalten und Fehler behalten. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1443s) |
+| Empfehlung | BI Thinkers Talk - Data Modelling - Fabric Data Days Edition | 2025-11 | 09:58 | auf die Sekunde | Transformationsschritte sollen möglichst weit Richtung Quelle beziehungsweise in die dazwischenliegende Datenplattform verlagert werden, damit das Power-BI-Modell die Daten bereits aufbereitet erhält. | [▶](https://www.youtube.com/watch?v=mUALlPmGcEk&t=598s) |
+| Fakt | BI Thinkers Talk nr.67 | 2025-09 | 18:43 | auf die Sekunde | Bei der Migration eines Importmodells zu Direct Lake wurde eine bisher per Power-Query-Abfrage angelegte Measure-Tabelle durch eine Calculated Table mit einer leeren Hilfsspalte ersetzt. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=1123s) |
+| Meinung | Microsoft Fabric — braucht das wirklich jemand? |  | 11:19 | auf die Sekunde | Ein zentrales, datenhaltendes Objekt wie ein Lakehouse macht Power-BI-Modelle laut Artur deutlich stabiler und beschleunigt Aktualisierungen von zwei Stunden auf zwei Minuten. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=679s) |
+| Warnung | Microsoft Fabric — braucht das wirklich jemand? |  | 15:19 | auf die Sekunde | Eine Datei über den direkten Cloud-Link statt über die lokal synchronisierte SharePoint-Kopie einzubinden gilt laut Martin als schlecht gelöst und ist eine häufige Fehlerquelle. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=919s) |
+| Fakt | Was ist Self-Service und warum ist das so schwer? |  | 17:56 | auf die Sekunde | Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1076s) |
+| Fakt | Microsoft Fabric — braucht das wirklich jemand? |  | 40:06 | auf die Sekunde | Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2406s) |
 
 ## Dokumente
 

@@ -3,7 +3,7 @@ id: "topic:datenmodellierung"
 name: "Datenmodellierung"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 80
 kernaussagen: 0

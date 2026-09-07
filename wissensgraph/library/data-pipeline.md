@@ -3,7 +3,7 @@ id: "tool:data-pipeline"
 name: "Data Pipeline"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 9
 kernaussagen: 5
@@ -48,13 +48,15 @@ Pipelines, Data Factory, Pipeline
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | BI Thinkers Talk n.72 | 37:07 | Eine Connection für Notebooks lässt sich aktuell nicht direkt unter Connections anlegen, sondern nur über den Umweg einer Data Pipeline. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2227s) |
-| Empfehlung | BI Thinkers Talk nr.67 | 41:02 | Bei neueren Dataflow-Generationen sind Datenverbindungen an die erstellende Person gebunden, weshalb empfohlen wird, Connections konsequent freizugeben und nach Möglichkeit einen Service Principal für die Verbindung zu nutzen. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=2462s) |
-| Fakt | BI Thinkers Talk nr.67 | 42:46 | Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=2566s) |
-| Empfehlung | Microsoft Fabric — braucht das wirklich jemand? | 11:38 | Der erste Quickwin beim Umstieg auf Fabric ist laut Artur, Daten überhaupt persistent abzulegen, statt sie bei jeder Aktualisierung neu zu laden. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=698s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-2 | 23:03 | Copy Jobs in der Fabric Data Factory unterstützen jetzt in der Vorschau automatisch Slowly Changing Dimension Typ 2, wodurch manueller Notebook-Code für diesen Zweck überflüssig wird. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1383s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | BI Thinkers Talk n.72 | 2026-01 | 37:35 | auf die Sekunde | Eine Connection für Notebooks lässt sich aktuell nicht direkt unter Connections anlegen, sondern nur über den Umweg einer Data Pipeline. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2255s) |
+| Empfehlung | BI Thinkers Talk nr.67 | 2025-09 | 41:23 | auf die Sekunde | Bei neueren Dataflow-Generationen sind Datenverbindungen an die erstellende Person gebunden, weshalb empfohlen wird, Connections konsequent freizugeben und nach Möglichkeit einen Service Principal für die Verbindung zu nutzen. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=2483s) |
+| Fakt | BI Thinkers Talk nr.67 | 2025-09 | 43:22 | auf die Sekunde | Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=2602s) |
+| Empfehlung | Microsoft Fabric — braucht das wirklich jemand? |  | 12:02 | auf die Sekunde | Der erste Quickwin beim Umstieg auf Fabric ist laut Artur, Daten überhaupt persistent abzulegen, statt sie bei jeder Aktualisierung neu zu laden. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=722s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-2 |  | 21:31 | auf die Sekunde | Copy Jobs in der Fabric Data Factory unterstützen jetzt in der Vorschau automatisch Slowly Changing Dimension Typ 2, wodurch manueller Notebook-Code für diesen Zweck überflüssig wird. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1291s) |
 
 ## Dokumente
 

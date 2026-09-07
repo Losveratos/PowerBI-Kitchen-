@@ -4,7 +4,7 @@
  "typ": "thema",
  "slug": "planung",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/planung.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/planung.html",
@@ -20,7 +20,7 @@
   "Plan",
   "Planwerte"
  ],
- "einordnung": "Das neue Planning-Feature, ehemals Lumel bzw. Inforiver, ist jetzt direkt in Microsoft Fabric integriert und benötigt keine zusätzliche Lizenz, sondern nur Fabric-Kapazität. Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt. Für Tabellen in Power Table ist ein Primärschlüssel zwingend erforderlich, auch wenn er zusammengesetzt sein kann.",
+ "einordnung": "Das neue Planning-Feature, ehemals Lumel bzw. Inforiver, ist jetzt direkt in Microsoft Fabric integriert und benötigt keine zusätzliche Lizenz, sondern nur Fabric-Kapazität. Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt. Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird.",
  "nachbarn": [
   {
    "id": "tool:translytical-task-flows",
@@ -163,117 +163,117 @@
    "typ": "Meinung",
    "dokument": "GxP Talk - KI im regulierten Umfeld?",
    "dokument_id": "yt:XtH4JqTwaqM",
-   "sekunde": 1008,
-   "zeit": "16:48",
-   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1008s",
+   "sekunde": 983,
+   "zeit": "16:23",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=983s",
    "aussage": "Martin unterscheidet Anwendungsfälle danach, ob eine KI-Aufgabe überhaupt GXP-reguliert ist, etwa ist Predictive Forecasting für die Budgetplanung nicht GXP-reguliert."
   },
   {
    "typ": "Fakt",
    "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
    "dokument_id": "yt:sq8AWk_yNWM",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s",
+   "sekunde": 50,
+   "zeit": "00:50",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=50s",
    "aussage": "Seit rund 30 Jahren gibt es KI-Algorithmen und maschinelles Lernen, mit denen aus historischen Daten Muster für das klassische Forecasting abgeleitet werden können."
   },
   {
    "typ": "Fakt",
    "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
    "dokument_id": "yt:sq8AWk_yNWM",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s",
+   "sekunde": 62,
+   "zeit": "01:02",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=62s",
    "aussage": "Gutes Forecasting auf Basis historischer Daten ermöglicht es, weniger totes Kapital in Lagern zu binden und die Supply Chain zu optimieren."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update März 2026",
    "dokument_id": "yt:ASwcPvbMRZc",
-   "sekunde": 425,
-   "zeit": "07:05",
-   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=425s",
+   "sekunde": 440,
+   "zeit": "07:20",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=440s",
    "aussage": "In Microsoft Fabric gibt es jetzt neue Planning Items, mit denen sich Pläne direkt in Fabric anlegen lassen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 440,
+   "zeit": "07:20",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=440s",
+   "aussage": "Die neuen Planning Items in Fabric sollte eigentlich jeder einmal ausprobieren."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update März 2026",
    "dokument_id": "yt:ASwcPvbMRZc",
-   "sekunde": 425,
-   "zeit": "07:05",
-   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=425s",
+   "sekunde": 448,
+   "zeit": "07:28",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=448s",
    "aussage": "Die neuen Planning Items in Fabric gehen auf die zuvor als Lumel bzw. Info River bekannte Planungslösung zurück."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update März 2026",
    "dokument_id": "yt:ASwcPvbMRZc",
-   "sekunde": 425,
-   "zeit": "07:05",
-   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=425s",
+   "sekunde": 467,
+   "zeit": "07:47",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=467s",
    "aussage": "Mit Power Table lässt sich aus Fabric heraus nach Excel zurückschreiben."
-  },
-  {
-   "typ": "Empfehlung",
-   "dokument": "Power BI Update März 2026",
-   "dokument_id": "yt:ASwcPvbMRZc",
-   "sekunde": 425,
-   "zeit": "07:05",
-   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=425s",
-   "aussage": "Die neuen Planning Items in Fabric sollte eigentlich jeder einmal ausprobieren."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 466,
-   "zeit": "07:46",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=466s",
+   "sekunde": 468,
+   "zeit": "07:48",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=468s",
    "aussage": "Das neue Planning-Feature, ehemals Lumel bzw. Inforiver, ist jetzt direkt in Microsoft Fabric integriert und benötigt keine zusätzliche Lizenz, sondern nur Fabric-Kapazität."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 562,
-   "zeit": "09:22",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=562s",
+   "sekunde": 586,
+   "zeit": "09:46",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=586s",
    "aussage": "Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt."
   },
   {
    "typ": "Empfehlung",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 1035,
-   "zeit": "17:15",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1035s",
+   "sekunde": 1042,
+   "zeit": "17:22",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1042s",
    "aussage": "Für Rückschreibungen mit Power Table wird empfohlen, eine eigene Datenbank anzulegen statt die automatisch erstellte Metadaten-Datenbank zu verwenden."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 1318,
-   "zeit": "21:58",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1318s",
-   "aussage": "Für Tabellen in Power Table ist ein Primärschlüssel zwingend erforderlich, auch wenn er zusammengesetzt sein kann."
+   "sekunde": 1311,
+   "zeit": "21:51",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1311s",
+   "aussage": "Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird."
   },
   {
-   "typ": "Meinung",
+   "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 1410,
-   "zeit": "23:30",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1410s",
-   "aussage": "Power Table eignet sich nach Einschätzung des Testers vor allem für Master Data Management mit Excel-ähnlicher Bearbeitung."
+   "sekunde": 1347,
+   "zeit": "22:27",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1347s",
+   "aussage": "Für Tabellen in Power Table ist ein Primärschlüssel zwingend erforderlich, auch wenn er zusammengesetzt sein kann."
   },
   {
    "typ": "Warnung",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 1853,
-   "zeit": "30:53",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1853s",
+   "sekunde": 1883,
+   "zeit": "31:23",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1883s",
    "aussage": "Das Planning-Feature befindet sich noch in der Preview-Phase und lieferte beim Verbinden einer größeren Faktentabelle einen Internal Server Error."
   },
   {
@@ -298,27 +298,27 @@
    "typ": "Warnung",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 3019,
-   "zeit": "50:19",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3019s",
+   "sekunde": 3060,
+   "zeit": "51:00",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3060s",
    "aussage": "Das Zurückschreiben ist derzeit auf SQL-Datenbanken beschränkt, während Inforiver zusätzlich nach Snowflake oder SAP schreiben konnte."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 3222,
-   "zeit": "53:42",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3222s",
+   "sekunde": 3322,
+   "zeit": "55:22",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3322s",
    "aussage": "Zurückgeschriebene Planungswerte müssen erst wieder in das Semantic Model integriert werden, um sie im Modell nahezu in Echtzeit nutzen zu können."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 3419,
-   "zeit": "56:59",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3419s",
+   "sekunde": 3477,
+   "zeit": "57:57",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3477s",
    "aussage": "Einzelne Datenpunkte lassen sich im Planning-Objekt per Rechtsklick kommentieren, und die Kommentare werden mit zurückgeschrieben."
   },
   {
@@ -331,13 +331,13 @@
    "aussage": "Der Gantt-Objekttyp benötigt eine passende Datenstruktur mit eindeutigem Event sowie Start- und Enddatum und zeigte auf der genutzten Trial-Kapazität deutliche Ladezeit-Probleme."
   },
   {
-   "typ": "Fakt",
+   "typ": "Meinung",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 4728,
-   "zeit": "1:18:48",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4728s",
-   "aussage": "Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird."
+   "sekunde": 4654,
+   "zeit": "1:17:34",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4654s",
+   "aussage": "Power Table eignet sich nach Einschätzung des Testers vor allem für Master Data Management mit Excel-ähnlicher Bearbeitung."
   },
   {
    "typ": "Meinung",
@@ -361,9 +361,9 @@
    "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
-   "sekunde": 2907,
-   "zeit": "48:27",
-   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2907s",
+   "sekunde": 2488,
+   "zeit": "41:28",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2488s",
    "aussage": "Fabric Planning mit Lumel erfordert keine separate Lizenz und wird ausschließlich über Capacity-Unit-Verbrauch abgerechnet."
   }
  ],
@@ -1049,21 +1049,21 @@
    ]
   },
   {
-   "id": "yt:mIQU6gtnwoA",
-   "titel": "Fabric Planning Hands-On (2)",
-   "datum": "2026-05-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=mIQU6gtnwoA",
-   "sprungmarken": []
-  },
-  {
    "id": "yt:MmPs7IH0nBE",
    "titel": "Fabric Planning Hands-On (3)",
    "datum": "2026-05-01",
    "abdeckung": "nur-metadaten",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=MmPs7IH0nBE",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:mIQU6gtnwoA",
+   "titel": "Fabric Planning Hands-On (2)",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=mIQU6gtnwoA",
    "sprungmarken": []
   },
   {

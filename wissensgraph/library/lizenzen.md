@@ -3,7 +3,7 @@ id: "topic:lizenzen"
 name: "Lizenzen"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 33
 kernaussagen: 11
@@ -51,19 +51,21 @@ Lizenz, Lizenzierung, Licensing, Kosten, Preise, Preis
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Empfehlung | BI Thinkers Talk nr.76 | 12:41 | Vor der Nutzung eines fremden Skills sollte man sich dessen Lizenzbedingungen und die Kompatibilität mit dem eigenen Setup prüfen lassen, da manche Lizenzen die Einbindung in eigene Produkte untersagen. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=761s) |
-| Meinung | GxP Talk - Testing im GxP-Umfeld | 21:09 | Uneinheitliches Lizenzmanagement in aufgespaltenen Konzernstrukturen führt dazu, dass einzelne Abteilungen auf Insellösungen wie Excel ausweichen. | [▶](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1269s) |
-| Fakt | Fabric Planning unboxing | 07:46 | Das neue Planning-Feature, ehemals Lumel bzw. Inforiver, ist jetzt direkt in Microsoft Fabric integriert und benötigt keine zusätzliche Lizenz, sondern nur Fabric-Kapazität. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=466s) |
-| Fakt | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 22:04 | Nach einer weltweiten Freigabe von Power-BI-Lizenzen in einem Konzern entstand zunächst der Eindruck eines Kontrollverlusts durch unkontrolliert erstellte Dashboards. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1324s) |
-| Fakt | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 25:30 | Klassische Copilot-Lizenzen kosteten anfangs häufig zwischen 20 und 30 Euro pro Nutzer und Monat. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s) |
-| Warnung | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 25:30 | Bei manchen Unternehmen, die Copilot flächendeckend ausgerollt haben, nutzen rund 60 Prozent der Lizenzinhaber das Tool gar nicht. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s) |
-| Fakt | BI Thinkers Talk n.72 | 15:46 | Ein Kunde entschied sich trotz einer passenderen Custom-Visual-Alternative für die Umsetzung mit dem Standard-Visual, weil der Einkaufsprozess für kostenpflichtige Custom Visuals ein großes Hindernis darstellt. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=946s) |
-| Fakt | Denken in Tabellen | 31:45 | Mit der Power-BI-Pro-Lizenz gilt eine Dateigrößengrenze von 1 GB, deren Überschreitung in Richtung Premium zu höheren Kosten führen kann. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s) |
-| Fakt | Denken in Tabellen | 31:45 | Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s) |
-| Fakt | 10 Jahre Power BI | 25:02 | Mit der Einführung von Power BI Premium im Jahr 2017 benötigten plötzlich auch reine Berichtskonsumenten eine Power BI Pro Lizenz, um Berichte weiterhin kostenlos empfangen zu können. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1502s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-2 | 48:27 | Fabric Planning mit Lumel erfordert keine separate Lizenz und wird ausschließlich über Capacity-Unit-Verbrauch abgerechnet. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2907s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Empfehlung | BI Thinkers Talk nr.76 | 2026-05 | 12:41 | Abschnittsanfang | Vor der Nutzung eines fremden Skills sollte man sich dessen Lizenzbedingungen und die Kompatibilität mit dem eigenen Setup prüfen lassen, da manche Lizenzen die Einbindung in eigene Produkte untersagen. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=761s) |
+| Meinung | GxP Talk - Testing im GxP-Umfeld | 2026-04 | 21:09 | Abschnittsanfang | Uneinheitliches Lizenzmanagement in aufgespaltenen Konzernstrukturen führt dazu, dass einzelne Abteilungen auf Insellösungen wie Excel ausweichen. | [▶](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1269s) |
+| Fakt | Fabric Planning unboxing | 2026-03 | 07:48 | auf die Sekunde | Das neue Planning-Feature, ehemals Lumel bzw. Inforiver, ist jetzt direkt in Microsoft Fabric integriert und benötigt keine zusätzliche Lizenz, sondern nur Fabric-Kapazität. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=468s) |
+| Fakt | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 2026-02 | 22:04 | Abschnittsanfang | Nach einer weltweiten Freigabe von Power-BI-Lizenzen in einem Konzern entstand zunächst der Eindruck eines Kontrollverlusts durch unkontrolliert erstellte Dashboards. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1324s) |
+| Fakt | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 2026-02 | 25:34 | auf die Sekunde | Klassische Copilot-Lizenzen kosteten anfangs häufig zwischen 20 und 30 Euro pro Nutzer und Monat. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1534s) |
+| Warnung | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 2026-02 | 26:37 | auf die Sekunde | Bei manchen Unternehmen, die Copilot flächendeckend ausgerollt haben, nutzen rund 60 Prozent der Lizenzinhaber das Tool gar nicht. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1597s) |
+| Fakt | BI Thinkers Talk n.72 | 2026-01 | 16:51 | auf die Sekunde | Ein Kunde entschied sich trotz einer passenderen Custom-Visual-Alternative für die Umsetzung mit dem Standard-Visual, weil der Einkaufsprozess für kostenpflichtige Custom Visuals ein großes Hindernis darstellt. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1011s) |
+| Fakt | Denken in Tabellen | 2026-01 | 31:45 | Abschnittsanfang | Mit der Power-BI-Pro-Lizenz gilt eine Dateigrößengrenze von 1 GB, deren Überschreitung in Richtung Premium zu höheren Kosten führen kann. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s) |
+| Fakt | Denken in Tabellen | 2026-01 | 32:44 | auf die Sekunde | Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1964s) |
+| Fakt | 10 Jahre Power BI | 2025-07 | 25:43 | auf die Sekunde | Mit der Einführung von Power BI Premium im Jahr 2017 benötigten plötzlich auch reine Berichtskonsumenten eine Power BI Pro Lizenz, um Berichte weiterhin kostenlos empfangen zu können. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1543s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-2 |  | 41:28 | auf die Sekunde | Fabric Planning mit Lumel erfordert keine separate Lizenz und wird ausschließlich über Capacity-Unit-Verbrauch abgerechnet. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2488s) |
 
 ## Dokumente
 

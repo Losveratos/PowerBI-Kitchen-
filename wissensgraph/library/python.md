@@ -3,7 +3,7 @@ id: "tool:python"
 name: "Python"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 37
 kernaussagen: 9
@@ -45,17 +45,19 @@ Keine weiteren Schreibweisen hinterlegt.
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | BI Thinkers Talk nr.76 | 03:09 | In Power BI Desktop können wegen fehlender Python-Installation aus Sicherheitsgründen keine Python-basierten Visuals wie Matplotlib, Plotly oder Seaborn genutzt werden. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=189s) |
-| Fakt | BI Thinkers Talk nr.76 | 06:27 | Stefan ließ Claude Diagrammtypen aus Python-Bibliotheken wie Matplotlib, Plotly und Seaborn als Vega-Lite-Spezifikationen für Deneb nachbauen und dazu einen Testdatensatz mit 1000 Datensätzen generieren. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=387s) |
-| Fakt | BI Thinkers Talk nr.75 | 06:19 | Der Power BI Fixer basiert auf einem Fork und übernimmt Komponenten wie Best Practice Analyser, Memory Analyser und Perspective Editor von Michael Kowalskis Semantic-Link-Labs-Arbeit. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=379s) |
-| Fakt | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 36:54 | Über Microsoft Fabric lassen sich mit Python externe Quellen wie Newsfeeds und Börsendaten kostengünstig anbinden, um Krisenherde frühzeitig zu erkennen. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=2214s) |
-| Meinung | BI Thinkers Talk nr.75 | 58:01 | Alex hält modulare, skriptbasierte Fix-Tools für KI-Agenten für besser nutzbar als ein reines MCP-Chatfenster, weil einzelne Fixes gezielt und ressourcenschonend aufgerufen werden können. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3481s) |
-| Empfehlung | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 10:09 | Die im Lakehouse als Rohdaten liegenden Dateien lassen sich per COPY-INTO-Befehl in eine Warehouse-Tabelle laden oder mit einem Notebook, etwa in Python, weiterverarbeiten. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=609s) |
-| Empfehlung | BI Thinkers Talk nr.67 | 29:33 | Für sich wiederholende Aufgaben wie Suchen-und-Ersetzen über ein ganzes Projekt sollte die KI besser ein wiederverwendbares Skript, etwa in Python, generieren, statt jede Datei einzeln direkt durch die KI anpassen zu lassen, um Copilot-Credits zu sparen. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=1773s) |
-| Fakt | Was ist Self-Service und warum ist das so schwer? | 17:22 | Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1042s) |
-| Fakt | Was ist Self-Service und warum ist das so schwer? | 52:11 | Power BI und einfach nutzbare Datenplattformen ermöglichten Tom Martens, nach rund zehn Jahren ohne Programmierung über Fabric und Python wieder ins Programmieren einzusteigen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3131s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | BI Thinkers Talk nr.76 | 2026-05 | 03:20 | auf die Sekunde | In Power BI Desktop können wegen fehlender Python-Installation aus Sicherheitsgründen keine Python-basierten Visuals wie Matplotlib, Plotly oder Seaborn genutzt werden. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=200s) |
+| Fakt | BI Thinkers Talk nr.76 | 2026-05 | 06:27 | Abschnittsanfang | Stefan ließ Claude Diagrammtypen aus Python-Bibliotheken wie Matplotlib, Plotly und Seaborn als Vega-Lite-Spezifikationen für Deneb nachbauen und dazu einen Testdatensatz mit 1000 Datensätzen generieren. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=387s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 06:48 | auf die Sekunde | Der Power BI Fixer basiert auf einem Fork und übernimmt Komponenten wie Best Practice Analyser, Memory Analyser und Perspective Editor von Michael Kowalskis Semantic-Link-Labs-Arbeit. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=408s) |
+| Fakt | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 2026-04 | 37:02 | auf die Sekunde | Über Microsoft Fabric lassen sich mit Python externe Quellen wie Newsfeeds und Börsendaten kostengünstig anbinden, um Krisenherde frühzeitig zu erkennen. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=2222s) |
+| Meinung | BI Thinkers Talk nr.75 | 2026-04 | 58:01 | Abschnittsanfang | Alex hält modulare, skriptbasierte Fix-Tools für KI-Agenten für besser nutzbar als ein reines MCP-Chatfenster, weil einzelne Fixes gezielt und ressourcenschonend aufgerufen werden können. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3481s) |
+| Empfehlung | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 2025-12 | 10:09 | Abschnittsanfang | Die im Lakehouse als Rohdaten liegenden Dateien lassen sich per COPY-INTO-Befehl in eine Warehouse-Tabelle laden oder mit einem Notebook, etwa in Python, weiterverarbeiten. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=609s) |
+| Empfehlung | BI Thinkers Talk nr.67 | 2025-09 | 29:33 | Abschnittsanfang | Für sich wiederholende Aufgaben wie Suchen-und-Ersetzen über ein ganzes Projekt sollte die KI besser ein wiederverwendbares Skript, etwa in Python, generieren, statt jede Datei einzeln direkt durch die KI anpassen zu lassen, um Copilot-Credits zu sparen. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=1773s) |
+| Fakt | Was ist Self-Service und warum ist das so schwer? |  | 17:56 | auf die Sekunde | Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1076s) |
+| Fakt | Was ist Self-Service und warum ist das so schwer? |  | 52:11 | Abschnittsanfang | Power BI und einfach nutzbare Datenplattformen ermöglichten Tom Martens, nach rund zehn Jahren ohne Programmierung über Fabric und Python wieder ins Programmieren einzusteigen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=3131s) |
 
 ## Dokumente
 

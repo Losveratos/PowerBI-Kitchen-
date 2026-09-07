@@ -4,7 +4,7 @@
  "typ": "thema",
  "slug": "row-level-security",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/row-level-security.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/row-level-security.html",
@@ -162,54 +162,54 @@
    "typ": "Warnung",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 2481,
-   "zeit": "41:21",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2481s",
+   "sekunde": 2566,
+   "zeit": "42:46",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2566s",
    "aussage": "Perspektiven in Analysis Services und Power BI bilden keine echte Sicherheitsgrenze ab, sodass Nutzer trotz eingeschränkter Perspektive weiterhin das komplette zugrunde liegende Modell nutzen können."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "BI Thinkers Talk n.74",
-   "dokument_id": "yt:rWE0gMx7v7I",
-   "sekunde": 1556,
-   "zeit": "25:56",
-   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1556s",
-   "aussage": "Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen."
-  },
-  {
-   "typ": "Warnung",
-   "dokument": "BI Thinkers Talk n.74",
-   "dokument_id": "yt:rWE0gMx7v7I",
-   "sekunde": 1647,
-   "zeit": "27:27",
-   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1647s",
-   "aussage": "Das Explore-Feature ist nicht an die Build-Permission gekoppelt, sodass darüber Inhalte aus dem semantischen Modell zugänglich sein können, die im Bericht selbst nicht sichtbar sind."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 4728,
-   "zeit": "1:18:48",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4728s",
+   "sekunde": 1311,
+   "zeit": "21:51",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1311s",
    "aussage": "Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1538,
+   "zeit": "25:38",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1538s",
+   "aussage": "Das Explore-Feature ist nicht an die Build-Permission gekoppelt, sodass darüber Inhalte aus dem semantischen Modell zugänglich sein können, die im Bericht selbst nicht sichtbar sind."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 1603,
+   "zeit": "26:43",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1603s",
+   "aussage": "Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-1",
    "dokument_id": "yt:TYp5xCAU2AU",
-   "sekunde": 1250,
-   "zeit": "20:50",
-   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1250s",
+   "sekunde": 1310,
+   "zeit": "21:50",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1310s",
    "aussage": "Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte."
   },
   {
    "typ": "Warnung",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
-   "sekunde": 1919,
-   "zeit": "31:59",
-   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1919s",
+   "sekunde": 1934,
+   "zeit": "32:14",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1934s",
    "aussage": "Komplexere Sicherheitsszenarien wie dynamische Row-Level Security und Dynamic Data Masking fehlen in OneLake Security noch und stehen auf der Roadmap."
   }
  ],

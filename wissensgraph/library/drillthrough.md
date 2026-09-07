@@ -3,7 +3,7 @@ id: "tool:drillthrough"
 name: "Drillthrough"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 7
 kernaussagen: 4
@@ -37,12 +37,14 @@ Drill-Through, Drill Through
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | BI Thinkers Talk nr.75 | 47:52 | Über die in der PBIR-Datei gespeicherten Seitenverbindungen lässt sich die mehrstufige Navigationsstruktur eines Berichts sichtbar machen, was in Power BI Desktop selbst nicht einsehbar ist. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2872s) |
-| Fakt | Power BI Update Januar 2026 | 01:19 | Die neuen Quicktipps zeigen Drillthrough automatisch an, sodass der erklärungsbedürftige Rechtsklick nicht mehr nötig ist. | [▶](https://www.youtube.com/watch?v=TAM5AAZqh7k&t=79s) |
-| Fakt | Power BI: (Vertriebs-) Regionen in Azure Maps | 24:49 | Für eine Detailansicht je Vertriebsregion wird in Power BI eine eigene Seite angelegt und über den Gebietsnamen als Drillthrough-Ziel definiert. | [▶](https://www.youtube.com/watch?v=CvaOkO37HMU&t=1489s) |
-| Empfehlung | Power BI: (Vertriebs-) Regionen in Azure Maps | 26:31 | In der Drillthrough-Detailtabelle sollte ein Filter auf Umsatz ist nicht leer gesetzt werden, um Zeilen ohne Wert nach dem Drill auszublenden. | [▶](https://www.youtube.com/watch?v=CvaOkO37HMU&t=1591s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 47:27 | auf die Sekunde | Über die in der PBIR-Datei gespeicherten Seitenverbindungen lässt sich die mehrstufige Navigationsstruktur eines Berichts sichtbar machen, was in Power BI Desktop selbst nicht einsehbar ist. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2847s) |
+| Fakt | Power BI Update Januar 2026 | 2026-01 | 01:22 | auf die Sekunde | Die neuen Quicktipps zeigen Drillthrough automatisch an, sodass der erklärungsbedürftige Rechtsklick nicht mehr nötig ist. | [▶](https://www.youtube.com/watch?v=TAM5AAZqh7k&t=82s) |
+| Fakt | Power BI: (Vertriebs-) Regionen in Azure Maps | 2026-01 | 25:02 | auf die Sekunde | Für eine Detailansicht je Vertriebsregion wird in Power BI eine eigene Seite angelegt und über den Gebietsnamen als Drillthrough-Ziel definiert. | [▶](https://www.youtube.com/watch?v=CvaOkO37HMU&t=1502s) |
+| Empfehlung | Power BI: (Vertriebs-) Regionen in Azure Maps | 2026-01 | 27:43 | auf die Sekunde | In der Drillthrough-Detailtabelle sollte ein Filter auf Umsatz ist nicht leer gesetzt werden, um Zeilen ohne Wert nach dem Drill auszublenden. | [▶](https://www.youtube.com/watch?v=CvaOkO37HMU&t=1663s) |
 
 ## Dokumente
 

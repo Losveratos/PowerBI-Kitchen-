@@ -3,7 +3,7 @@ id: "topic:row-level-security"
 name: "Row-Level Security"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 12
 kernaussagen: 6
@@ -49,14 +49,16 @@ RLS, Zeilenebene, Row Level Security, Berechtigungen
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Warnung | BI Thinkers Talk nr.75 | 41:21 | Perspektiven in Analysis Services und Power BI bilden keine echte Sicherheitsgrenze ab, sodass Nutzer trotz eingeschränkter Perspektive weiterhin das komplette zugrunde liegende Modell nutzen können. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2481s) |
-| Fakt | BI Thinkers Talk n.74 | 25:56 | Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1556s) |
-| Warnung | BI Thinkers Talk n.74 | 27:27 | Das Explore-Feature ist nicht an die Build-Permission gekoppelt, sodass darüber Inhalte aus dem semantischen Modell zugänglich sein können, die im Bericht selbst nicht sichtbar sind. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1647s) |
-| Fakt | Fabric Planning unboxing | 1:18:48 | Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4728s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-1 | 20:50 | Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1250s) |
-| Warnung | Fabric & Power BI Quarterly · 2026-2 | 31:59 | Komplexere Sicherheitsszenarien wie dynamische Row-Level Security und Dynamic Data Masking fehlen in OneLake Security noch und stehen auf der Roadmap. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1919s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Warnung | BI Thinkers Talk nr.75 | 2026-04 | 42:46 | auf die Sekunde | Perspektiven in Analysis Services und Power BI bilden keine echte Sicherheitsgrenze ab, sodass Nutzer trotz eingeschränkter Perspektive weiterhin das komplette zugrunde liegende Modell nutzen können. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2566s) |
+| Fakt | Fabric Planning unboxing | 2026-03 | 21:51 | auf die Sekunde | Row-Level Security für Planning-Objekte greift über das zugrunde liegende Semantic Model, das für den Zugriff genutzt wird. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1311s) |
+| Warnung | BI Thinkers Talk n.74 | 2026-03 | 25:38 | auf die Sekunde | Das Explore-Feature ist nicht an die Build-Permission gekoppelt, sodass darüber Inhalte aus dem semantischen Modell zugänglich sein können, die im Bericht selbst nicht sichtbar sind. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1538s) |
+| Fakt | BI Thinkers Talk n.74 | 2026-03 | 26:43 | auf die Sekunde | Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1603s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 21:50 | auf die Sekunde | Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1310s) |
+| Warnung | Fabric & Power BI Quarterly · 2026-2 |  | 32:14 | auf die Sekunde | Komplexere Sicherheitsszenarien wie dynamische Row-Level Security und Dynamic Data Masking fehlen in OneLake Security noch und stehen auf der Roadmap. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1934s) |
 
 ## Dokumente
 

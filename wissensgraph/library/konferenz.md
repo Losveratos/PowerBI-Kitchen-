@@ -3,7 +3,7 @@ id: "topic:konferenz"
 name: "Konferenz"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 28
 kernaussagen: 20
@@ -49,28 +49,30 @@ Conference, FabCon, Data Days, Summit, PASS, SQL Konferenz, Data Saturday, Konfe
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Die Episode wurde auf der SQL-Konferenz aufgezeichnet. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Brian hielt auf der Feb Con in Wien eine Podiumsdiskussion über Community und Benutzergruppen. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Die Daten-WG veranstaltet im Herbst eine eigene, kleine Konferenz. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Die Daten-WG-Konferenz findet in diesem Jahr bereits zum zweiten Mal statt. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Die Daten-WG möchte mit ihrer Konferenz wachsen und ähnlich groß werden wie die SQL-Konferenz. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Empfehlung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Brian rät kleinen Konferenzen, sich stärker auf eine persönliche Note zu konzentrieren, statt andere Konferenzen zu kopieren. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Empfehlung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Brian empfiehlt Konferenzveranstaltern, ihren eigenen Weg zu finden, anstatt sich an anderen zu orientieren. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Empfehlung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Laut Brian kann bereits ein eigenes Thema oder eine eigene Farbe eine Konferenz von anderen abheben. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Empfehlung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Laut Brian kann auch eine bestimmte Art der Organisation oder der Helfer-Gewinnung eine Konferenz unterscheidbar machen. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Brian ist der Meinung, dass sich Konferenzen mit eigenem Stil von einer Masse grauer, gleichförmiger Konferenzen abheben. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Laut Brian entsteht auch bei gleichen Rednern und Themen ein anderes Erlebnis, wenn sich Thema, Stil oder Persönlichkeit der Konferenz unterscheiden. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Brian freut sich darüber, dass die Zahl der Community-Konferenzen in Europa wächst. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Fakt | Power BI Update April 2026 | 04:22 | Die Daten-WG-Konferenz findet im Oktober wieder in Köln statt, und die Agenda mit Speakern und Precons ist veröffentlicht. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=262s) |
-| Empfehlung | Power BI Update April 2026 | 04:22 | Interessierten wird empfohlen, sich die veröffentlichte Agenda der Daten-WG-Konferenz anzusehen und bei Interesse vorbeizukommen. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=262s) |
-| Fakt | MCP@Daten-WG@SQL Konferenz | 00:00 | Die Aufnahme entstand am Stand der Daten-WG auf der SQL Konferenz. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s) |
-| Fakt | MCP@Daten-WG@SQL Konferenz | 00:00 | Michael hält auf der SQL Konferenz eine Lunch Session zum Thema MCP-Server. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s) |
-| Empfehlung | MCP@Daten-WG@SQL Konferenz | 00:00 | Die Daten-WG lädt Besucher der SQL Konferenz ein, ihren Stand zu besuchen. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s) |
-| Fakt | Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite | 04:41 | Der Vortrag über den Bullwhip-Effekt wurde beim Daten-WG Offsite als einer von mehreren rund zehnminütigen Impulsvorträgen gehalten. | [▶](https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-2 |  | Die Daten-WG-Konferenz 2026 findet am 15. Oktober statt. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg) |
-| Fakt | Was ist Self-Service und warum ist das so schwer? |  | Tom Martens kündigt an, für die Daten-WG-Konferenz im Oktober mehrere Vortragseinreichungen einzureichen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:00 | Abschnittsanfang | Die Episode wurde auf der SQL-Konferenz aufgezeichnet. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
+| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:04 | auf die Sekunde | Brian hielt auf der Feb Con in Wien eine Podiumsdiskussion über Community und Benutzergruppen. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=4s) |
+| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:17 | auf die Sekunde | Die Daten-WG veranstaltet im Herbst eine eigene, kleine Konferenz. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=17s) |
+| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:23 | auf die Sekunde | Die Daten-WG möchte mit ihrer Konferenz wachsen und ähnlich groß werden wie die SQL-Konferenz. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=23s) |
+| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:34 | auf die Sekunde | Die Daten-WG-Konferenz findet in diesem Jahr bereits zum zweiten Mal statt. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=34s) |
+| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:50 | auf die Sekunde | Brian freut sich darüber, dass die Zahl der Community-Konferenzen in Europa wächst. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=50s) |
+| Empfehlung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 01:05 | auf die Sekunde | Brian rät kleinen Konferenzen, sich stärker auf eine persönliche Note zu konzentrieren, statt andere Konferenzen zu kopieren. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=65s) |
+| Empfehlung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 01:06 | auf die Sekunde | Brian empfiehlt Konferenzveranstaltern, ihren eigenen Weg zu finden, anstatt sich an anderen zu orientieren. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=66s) |
+| Empfehlung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 01:06 | auf die Sekunde | Laut Brian kann bereits ein eigenes Thema oder eine eigene Farbe eine Konferenz von anderen abheben. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=66s) |
+| Empfehlung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 01:09 | auf die Sekunde | Laut Brian kann auch eine bestimmte Art der Organisation oder der Helfer-Gewinnung eine Konferenz unterscheidbar machen. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=69s) |
+| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 01:23 | auf die Sekunde | Brian ist der Meinung, dass sich Konferenzen mit eigenem Stil von einer Masse grauer, gleichförmiger Konferenzen abheben. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=83s) |
+| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 01:26 | auf die Sekunde | Laut Brian entsteht auch bei gleichen Rednern und Themen ein anderes Erlebnis, wenn sich Thema, Stil oder Persönlichkeit der Konferenz unterscheiden. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=86s) |
+| Fakt | Power BI Update April 2026 | 2026-04 | 04:30 | auf die Sekunde | Die Daten-WG-Konferenz findet im Oktober wieder in Köln statt, und die Agenda mit Speakern und Precons ist veröffentlicht. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=270s) |
+| Empfehlung | Power BI Update April 2026 | 2026-04 | 04:33 | auf die Sekunde | Interessierten wird empfohlen, sich die veröffentlichte Agenda der Daten-WG-Konferenz anzusehen und bei Interesse vorbeizukommen. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=273s) |
+| Fakt | MCP@Daten-WG@SQL Konferenz | 2026-03 | 00:03 | auf die Sekunde | Die Aufnahme entstand am Stand der Daten-WG auf der SQL Konferenz. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=3s) |
+| Empfehlung | MCP@Daten-WG@SQL Konferenz | 2026-03 | 00:03 | auf die Sekunde | Die Daten-WG lädt Besucher der SQL Konferenz ein, ihren Stand zu besuchen. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=3s) |
+| Fakt | MCP@Daten-WG@SQL Konferenz | 2026-03 | 00:10 | auf die Sekunde | Michael hält auf der SQL Konferenz eine Lunch Session zum Thema MCP-Server. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=10s) |
+| Fakt | Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite | 2026-03 | 04:41 | Abschnittsanfang | Der Vortrag über den Bullwhip-Effekt wurde beim Daten-WG Offsite als einer von mehreren rund zehnminütigen Impulsvorträgen gehalten. | [▶](https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-2 |  |  | Abschnittsanfang | Die Daten-WG-Konferenz 2026 findet am 15. Oktober statt. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg) |
+| Fakt | Was ist Self-Service und warum ist das so schwer? |  |  | Abschnittsanfang | Tom Martens kündigt an, für die Daten-WG-Konferenz im Oktober mehrere Vortragseinreichungen einzureichen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc) |
 
 ## Dokumente
 

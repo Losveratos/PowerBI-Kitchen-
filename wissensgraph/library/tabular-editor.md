@@ -3,7 +3,7 @@ id: "tool:tabular-editor"
 name: "Tabular Editor"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 5
 kernaussagen: 3
@@ -47,11 +47,13 @@ TabularEditor, Tabular-Editor
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | BI Thinkers Talk nr.75 | 07:51 | Der Power BI Fixer bietet im Notebook eine alternative Oberfläche ähnlich Tabular Editor, um Measures und DAX-Ausdrücke direkt am Semantic Model zu bearbeiten und zu formatieren. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=471s) |
-| Fakt | BI Thinkers Talk nr.75 | 36:20 | Ein Perspective Editor und ein Translation Editor stehen in Power BI Desktop nativ nicht zur Verfügung und erfordern sonst Drittanbieter-Tools wie Tabular Editor. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2180s) |
-| Fakt | Denken in Tabellen | 31:45 | Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1905s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 08:56 | auf die Sekunde | Der Power BI Fixer bietet im Notebook eine alternative Oberfläche ähnlich Tabular Editor, um Measures und DAX-Ausdrücke direkt am Semantic Model zu bearbeiten und zu formatieren. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=536s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 37:32 | auf die Sekunde | Ein Perspective Editor und ein Translation Editor stehen in Power BI Desktop nativ nicht zur Verfügung und erfordern sonst Drittanbieter-Tools wie Tabular Editor. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2252s) |
+| Fakt | Denken in Tabellen | 2026-01 | 32:44 | auf die Sekunde | Ein Tabular-Modell im SQL Server der Standard Edition ist auf 16 GB Arbeitsspeicher begrenzt, was bei Überschreitung ein Enterprise-Lizenzthema auslöst. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1964s) |
 
 ## Dokumente
 

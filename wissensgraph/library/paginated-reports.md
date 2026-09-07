@@ -3,7 +3,7 @@ id: "tool:paginated-reports"
 name: "Paginated Reports"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 3
 kernaussagen: 1
@@ -34,9 +34,11 @@ Paginierte Berichte, Report Builder, Paginated Report
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Meinung | Fabric & Power BI Quarterly · 2026-2 | 51:30 | Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3090s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Meinung | Fabric & Power BI Quarterly · 2026-2 |  | 51:30 | Abschnittsanfang | Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3090s) |
 
 ## Dokumente
 

@@ -3,7 +3,7 @@ id: "tool:git"
 name: "Git"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 25
 kernaussagen: 1
@@ -46,9 +46,11 @@ Git Integration, Git-Integration, Versionierung, Source Control
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | GxP Talk - Validierung vs. Agilität | 06:17 | Manche Pharmaunternehmen bilden ihre Validierungsprozesse bereits digital ab, etwa über einen Git-Stack oder eine DevOps-Umgebung. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=377s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | GxP Talk - Validierung vs. Agilität | 2026-03 | 07:26 | auf die Sekunde | Manche Pharmaunternehmen bilden ihre Validierungsprozesse bereits digital ab, etwa über einen Git-Stack oder eine DevOps-Umgebung. | [▶](https://www.youtube.com/watch?v=KO_qFge77o8&t=446s) |
 
 ## Dokumente
 

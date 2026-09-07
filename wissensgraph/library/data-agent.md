@@ -3,7 +3,7 @@ id: "tool:data-agent"
 name: "Data Agent"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 4
 kernaussagen: 5
@@ -36,13 +36,15 @@ Fabric Data Agent, Data Agents
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | Fabric & Power BI Quarterly · 2026-1 | 33:30 | Auf der Ignite wurden Ontologien und Fabric IQ als neue Objekte innerhalb von Fabric vorgestellt, ergänzt um handelnde Operations Agents. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2010s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-1 | 35:19 | Fabric Data Agents nutzen bereits bestehende semantische Modelle als Kernfeature für ihre Funktionsweise. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2119s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-1 | 45:42 | Ontologien lassen sich direkt aus bestehenden semantischen Modellen erstellen, um vorhandenes Modellwissen wiederzuverwenden. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2742s) |
-| Warnung | Fabric & Power BI Quarterly · 2026-1 | 45:42 | Gabi warnt davor, zu hohe Erwartungen an Fabric IQ zu stellen, da sich das Feature noch in einer frühen Phase befindet und eher eine Vision als eine fertige Implementierung darstellt. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2742s) |
-| Empfehlung | Fabric & Power BI Quarterly · 2026-1 | 47:15 | Für den Einstieg in Fabric IQ empfiehlt Gabi, zunächst aus einem bereits gut designten und bekannten semantischen Modell testweise eine Ontologie zu erstellen. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2835s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 33:32 | auf die Sekunde | Auf der Ignite wurden Ontologien und Fabric IQ als neue Objekte innerhalb von Fabric vorgestellt, ergänzt um handelnde Operations Agents. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2012s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 35:39 | auf die Sekunde | Fabric Data Agents nutzen bereits bestehende semantische Modelle als Kernfeature für ihre Funktionsweise. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2139s) |
+| Warnung | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 47:03 | auf die Sekunde | Gabi warnt davor, zu hohe Erwartungen an Fabric IQ zu stellen, da sich das Feature noch in einer frühen Phase befindet und eher eine Vision als eine fertige Implementierung darstellt. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2823s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 47:28 | auf die Sekunde | Ontologien lassen sich direkt aus bestehenden semantischen Modellen erstellen, um vorhandenes Modellwissen wiederzuverwenden. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2848s) |
+| Empfehlung | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 47:28 | auf die Sekunde | Für den Einstieg in Fabric IQ empfiehlt Gabi, zunächst aus einem bereits gut designten und bekannten semantischen Modell testweise eine Ontologie zu erstellen. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=2848s) |
 
 ## Dokumente
 

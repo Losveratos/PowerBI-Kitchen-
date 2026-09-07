@@ -3,7 +3,7 @@ id: "tool:dataflow"
 name: "Dataflow"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 30
 kernaussagen: 15
@@ -49,23 +49,25 @@ Dataflows, Dataflow Gen2, Gen2, Datenfluss
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | BI Thinkers Talk n.74 | 37:26 | Aus einem Fabric-Notebook lässt sich per API ein Dataflow ansteuern und darüber Power-Query-Code (M-Code) ausführen. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2246s) |
-| Empfehlung | BI Thinkers Talk n.74 | 41:00 | Ein Dataflow lässt sich als Wrapper nutzen, um über dessen Connections APIs wie die Power BI Scanner API anzusprechen, ohne im Notebook einen Service Principal hinterlegen zu müssen. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2460s) |
-| Empfehlung | BI Thinkers Talk n.74 | 41:00 | Für kleinere Datenmengen und einfache Transformationen wie Entpivotieren eignet sich ein Dataflow, während stark verschachteltes JSON, etwa aus der Scanner API, eher in einem Notebook verarbeitet werden sollte. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2460s) |
-| Fakt | BI Thinkers Talk n.72 | 32:17 | Über die Fabric-Service-Status-Seite lässt sich nachvollziehen, wenn Dienste wie SQL-Endpunkte oder Dataflows gestört sind, auch wenn der Status dort nicht immer eindeutig kommuniziert wird. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1937s) |
-| Fakt | BI Thinkers Talk n.72 | 53:54 | Deployment Pipelines unterstützen Dataflows, Lakehouses und Direct Lake nicht zuverlässig, sodass danach oft manuell mit VS Code nachgearbeitet werden muss. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3234s) |
-| Empfehlung | BI Thinkers Talk nr.67 | 41:02 | Bei neueren Dataflow-Generationen sind Datenverbindungen an die erstellende Person gebunden, weshalb empfohlen wird, Connections konsequent freizugeben und nach Möglichkeit einen Service Principal für die Verbindung zu nutzen. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=2462s) |
-| Fakt | BI Thinkers Talk nr.67 | 42:46 | Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=2566s) |
-| Meinung | 10 Jahre Power BI | 50:29 | Dataflows werden als der Beginn davon beschrieben, dass Power BI von einem reinen Datei- bzw. Modellformat zu einer echten Datenplattform wurde. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3029s) |
-| Meinung | Microsoft Fabric — braucht das wirklich jemand? | 08:27 | Dataflows lassen sich laut Martin nicht gut orchestrieren. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=507s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-2 | 12:50 | Dataflow Gen 1 wechselt in einen Legacy- beziehungsweise Wartungsstatus ohne neue Features. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=770s) |
-| Meinung | Fabric & Power BI Quarterly · 2026-2 | 14:21 | In Dataflow Gen 2 sind deutlich mehr Investitionen und Integrationsmöglichkeiten geflossen, als für Dataflow Gen 1 je möglich waren. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=861s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-2 | 17:22 | Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1042s) |
-| Empfehlung | Fabric & Power BI Quarterly · 2026-2 | 17:22 | Es wird empfohlen, keine neuen Dataflows Gen 1 mehr anzulegen. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1042s) |
-| Warnung | Microsoft Fabric — braucht das wirklich jemand? | 19:45 | Werden zwei Dataflows über ein Lakehouse verkettet, stehen am Folgetag keine neuen Daten bereit, weil der SQL-Endpoint des Lakehouse nicht sofort aktualisiert wird. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1185s) |
-| Fakt | Microsoft Fabric — braucht das wirklich jemand? | 41:34 | Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2494s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Empfehlung | BI Thinkers Talk n.74 | 2026-03 | 39:25 | auf die Sekunde | Ein Dataflow lässt sich als Wrapper nutzen, um über dessen Connections APIs wie die Power BI Scanner API anzusprechen, ohne im Notebook einen Service Principal hinterlegen zu müssen. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2365s) |
+| Fakt | BI Thinkers Talk n.74 | 2026-03 | 39:26 | auf die Sekunde | Aus einem Fabric-Notebook lässt sich per API ein Dataflow ansteuern und darüber Power-Query-Code (M-Code) ausführen. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2366s) |
+| Empfehlung | BI Thinkers Talk n.74 | 2026-03 | 41:51 | auf die Sekunde | Für kleinere Datenmengen und einfache Transformationen wie Entpivotieren eignet sich ein Dataflow, während stark verschachteltes JSON, etwa aus der Scanner API, eher in einem Notebook verarbeitet werden sollte. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=2511s) |
+| Fakt | BI Thinkers Talk n.72 | 2026-01 | 32:17 | Abschnittsanfang | Über die Fabric-Service-Status-Seite lässt sich nachvollziehen, wenn Dienste wie SQL-Endpunkte oder Dataflows gestört sind, auch wenn der Status dort nicht immer eindeutig kommuniziert wird. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1937s) |
+| Fakt | BI Thinkers Talk n.72 | 2026-01 | 54:25 | auf die Sekunde | Deployment Pipelines unterstützen Dataflows, Lakehouses und Direct Lake nicht zuverlässig, sodass danach oft manuell mit VS Code nachgearbeitet werden muss. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3265s) |
+| Empfehlung | BI Thinkers Talk nr.67 | 2025-09 | 41:23 | auf die Sekunde | Bei neueren Dataflow-Generationen sind Datenverbindungen an die erstellende Person gebunden, weshalb empfohlen wird, Connections konsequent freizugeben und nach Möglichkeit einen Service Principal für die Verbindung zu nutzen. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=2483s) |
+| Fakt | BI Thinkers Talk nr.67 | 2025-09 | 43:22 | auf die Sekunde | Für Business Central existiert kein direkter Connector für Fabric-Pipelines, weshalb der Zugriff stattdessen über einen OData-basierten Dataflow mit Service Principal erfolgen muss. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=2602s) |
+| Meinung | 10 Jahre Power BI | 2025-07 | 50:58 | auf die Sekunde | Dataflows werden als der Beginn davon beschrieben, dass Power BI von einem reinen Datei- bzw. Modellformat zu einer echten Datenplattform wurde. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3058s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-2 |  | 12:08 | auf die Sekunde | Dataflow Gen 1 wechselt in einen Legacy- beziehungsweise Wartungsstatus ohne neue Features. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=728s) |
+| Meinung | Fabric & Power BI Quarterly · 2026-2 |  | 13:37 | auf die Sekunde | In Dataflow Gen 2 sind deutlich mehr Investitionen und Integrationsmöglichkeiten geflossen, als für Dataflow Gen 1 je möglich waren. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=817s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-2 |  | 15:37 | auf die Sekunde | Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=937s) |
+| Meinung | Microsoft Fabric — braucht das wirklich jemand? |  | 19:44 | auf die Sekunde | Dataflows lassen sich laut Martin nicht gut orchestrieren. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1184s) |
+| Warnung | Microsoft Fabric — braucht das wirklich jemand? |  | 19:51 | auf die Sekunde | Werden zwei Dataflows über ein Lakehouse verkettet, stehen am Folgetag keine neuen Daten bereit, weil der SQL-Endpoint des Lakehouse nicht sofort aktualisiert wird. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1191s) |
+| Empfehlung | Fabric & Power BI Quarterly · 2026-2 |  | 20:12 | auf die Sekunde | Es wird empfohlen, keine neuen Dataflows Gen 1 mehr anzulegen. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1212s) |
+| Fakt | Microsoft Fabric — braucht das wirklich jemand? |  | 40:06 | auf die Sekunde | Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2406s) |
 
 ## Dokumente
 

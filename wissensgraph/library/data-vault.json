@@ -4,7 +4,7 @@
  "typ": "thema",
  "slug": "data-vault",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/data-vault.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/data-vault.html",
@@ -62,19 +62,10 @@
    "typ": "Fakt",
    "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
    "dokument_id": "yt:dKA-38gRD8Q",
-   "sekunde": 492,
-   "zeit": "08:12",
-   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s",
+   "sekunde": 488,
+   "zeit": "08:08",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=488s",
    "aussage": "Größere Unternehmen setzen auf der Ebene des Kern-Data-Warehouse heute häufig entweder auf normalisierte Datenhaltung oder auf Data Vault."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
-   "dokument_id": "yt:dKA-38gRD8Q",
-   "sekunde": 492,
-   "zeit": "08:12",
-   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=492s",
-   "aussage": "Data Vault ist als Konzept bereits rund 25 Jahre alt, hat sich in Europa aber erst seit etwa zehn Jahren verbreitet."
   },
   {
    "typ": "Meinung",
@@ -87,11 +78,20 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "27 Jahre in 10 Minuten - Peter Gluchowski beim Daten-WG Offsite",
+   "dokument_id": "yt:dKA-38gRD8Q",
+   "sekunde": 503,
+   "zeit": "08:23",
+   "url": "https://www.youtube.com/watch?v=dKA-38gRD8Q&t=503s",
+   "aussage": "Data Vault ist als Konzept bereits rund 25 Jahre alt, hat sich in Europa aber erst seit etwa zehn Jahren verbreitet."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
    "dokument_id": "yt:mUALlPmGcEk",
-   "sekunde": 476,
-   "zeit": "07:56",
-   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=476s",
+   "sekunde": 557,
+   "zeit": "09:17",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=557s",
    "aussage": "Data Vault ist eine Modellierungsmethode für die mittlere Datenschicht, die auf Hubs für Business Keys, Links für Beziehungen und Satelliten für zusätzliche Attribute aufbaut."
   }
  ],

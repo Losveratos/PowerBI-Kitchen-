@@ -3,7 +3,7 @@ id: "tool:azure-data-factory"
 name: "Azure Data Factory"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 2
 kernaussagen: 0

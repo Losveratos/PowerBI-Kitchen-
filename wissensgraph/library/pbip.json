@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "pbip",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/pbip.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/pbip.html",
@@ -81,10 +81,10 @@
    "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-1",
    "dokument_id": "yt:TYp5xCAU2AU",
-   "sekunde": 330,
-   "zeit": "05:30",
-   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=330s",
-   "aussage": "Das PBIP/PBIR-Format als Code-first-Ansatz soll laut Ankündigung noch in diesem Jahr allgemein verfügbar (GA) werden."
+   "sekunde": 245,
+   "zeit": "04:05",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=245s",
+   "aussage": "Ab der Februar-Version von Power BI Desktop wird PBIP zur neuen Standardeinstellung beim Speichern von Berichten."
   },
   {
    "typ": "Fakt",
@@ -93,60 +93,60 @@
    "sekunde": 330,
    "zeit": "05:30",
    "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=330s",
-   "aussage": "Ab der Februar-Version von Power BI Desktop wird PBIP zur neuen Standardeinstellung beim Speichern von Berichten."
+   "aussage": "Das PBIP/PBIR-Format als Code-first-Ansatz soll laut Ankündigung noch in diesem Jahr allgemein verfügbar (GA) werden."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
-   "sekunde": 296,
-   "zeit": "04:56",
-   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=296s",
+   "sekunde": 300,
+   "zeit": "05:00",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=300s",
    "aussage": "Die Visual-Studio-Code-Erweiterung für Microsoft Fabric erlaubt es, aus einer Power-BI-Projektdatei einzelne Teile wie nur den Bericht oder nur das semantische Modell hochzuladen, statt immer die gesamte PBIX hochzuladen."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
-   "sekunde": 594,
-   "zeit": "09:54",
-   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=594s",
+   "sekunde": 654,
+   "zeit": "10:54",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=654s",
    "aussage": "In einer Power-BI-Projektdatei können mehrere Report-Verzeichnisse auf dasselbe semantische Modell zeigen, und Berichte lassen sich auch in einem anderen Workspace deployen als das zugehörige Modell."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
-   "sekunde": 695,
-   "zeit": "11:35",
-   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=695s",
+   "sekunde": 703,
+   "zeit": "11:43",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=703s",
    "aussage": "Microsoft plant eine Funktion, mit der Power BI Desktop Codeänderungen im Hintergrund automatisch erkennt und die Berichtsdefinition neu lädt, ohne dass die Anwendung komplett neu gestartet werden muss."
   },
   {
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 2744,
-   "zeit": "45:44",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2744s",
+   "sekunde": 2810,
+   "zeit": "46:50",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2810s",
    "aussage": "Der Power BI Project Mode mit TMDL und PBIR erlaubt es, Berichte programmatisch über Textdateien zu ändern, was laut einem Sprecher die Bearbeitung durch KI erheblich erleichtert."
   },
   {
    "typ": "Fakt",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 2839,
-   "zeit": "47:19",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2839s",
+   "sekunde": 2893,
+   "zeit": "48:13",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2893s",
    "aussage": "Mit PBIR lassen sich umbenannte Tabellen-, Spalten- oder Measure-Namen in entkoppelten Thin Reports per Text-Suchen-und-Ersetzen aktualisieren, ohne dass der Bericht bricht."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
-   "sekunde": 362,
-   "zeit": "06:02",
-   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=362s",
+   "sekunde": 277,
+   "zeit": "04:37",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=277s",
    "aussage": "PBIR ist inzwischen die Standardeinstellung für neu erstellte Power-BI-Modelle, ohne dass Nutzer aktiv darauf hingewiesen werden."
   }
  ],

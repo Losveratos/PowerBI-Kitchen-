@@ -3,7 +3,7 @@ id: "topic:migration"
 name: "Migration"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 14
 kernaussagen: 5
@@ -49,13 +49,15 @@ migrieren, Ablösung, migriert, Umstieg
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Empfehlung | SSIS Integration Services: Microsoft Fabric Notebook per REST API starten | 00:01 | Der Notebook-Aufruf eignet sich, um nach dem Hochladen von On-Premises-Daten Richtung Fabric direkt eine Weiterverarbeitung anzustoßen. | [▶](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=1s) |
-| Empfehlung | SSIS Integration Services: Microsoft Fabric Notebook per REST API starten | 06:11 | Die vorgestellte Lösung ermöglicht es, Daten per SSIS von einer lokalen Umgebung nach Fabric zu bringen und anschließend automatisiert per Notebook zu importieren. | [▶](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=371s) |
-| Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 00:02 | Statt Daten per Pull aus Fabric abzuholen, kann man vorhandene lokale Infrastruktur nutzen, um Daten per Push Richtung Fabric zu bringen. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=2s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-2 | 17:22 | Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1042s) |
-| Empfehlung | Fabric & Power BI Quarterly · 2026-2 | 17:22 | Es wird empfohlen, keine neuen Dataflows Gen 1 mehr anzulegen. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1042s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Empfehlung | SSIS Integration Services: Microsoft Fabric Notebook per REST API starten | 2026-02 | 00:08 | auf die Sekunde | Der Notebook-Aufruf eignet sich, um nach dem Hochladen von On-Premises-Daten Richtung Fabric direkt eine Weiterverarbeitung anzustoßen. | [▶](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=8s) |
+| Empfehlung | SSIS Integration Services: Microsoft Fabric Notebook per REST API starten | 2026-02 | 06:23 | auf die Sekunde | Die vorgestellte Lösung ermöglicht es, Daten per SSIS von einer lokalen Umgebung nach Fabric zu bringen und anschließend automatisiert per Notebook zu importieren. | [▶](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=383s) |
+| Fakt | Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric \| Fabric Tutorial | 2025-12 | 00:08 | auf die Sekunde | Statt Daten per Pull aus Fabric abzuholen, kann man vorhandene lokale Infrastruktur nutzen, um Daten per Push Richtung Fabric zu bringen. | [▶](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=8s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-2 |  | 15:37 | auf die Sekunde | Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=937s) |
+| Empfehlung | Fabric & Power BI Quarterly · 2026-2 |  | 20:12 | auf die Sekunde | Es wird empfohlen, keine neuen Dataflows Gen 1 mehr anzulegen. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1212s) |
 
 ## Dokumente
 

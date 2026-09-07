@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "azure-maps",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-maps.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/azure-maps.html",
@@ -60,10 +60,19 @@
    "typ": "Fakt",
    "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
    "dokument_id": "yt:CvaOkO37HMU",
-   "sekunde": 2,
-   "zeit": "00:02",
-   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=2s",
+   "sekunde": 3,
+   "zeit": "00:03",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=3s",
    "aussage": "In diesem Tutorial wird gezeigt, wie eine Von-bis-Postleitzahlenregion aus einer Excel-Tabelle in ein Flächenkartogramm mit Azure Maps in Power BI umgewandelt wird."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
+   "dokument_id": "yt:CvaOkO37HMU",
+   "sekunde": 16,
+   "zeit": "00:16",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=16s",
+   "aussage": "Für Azure Maps sollte das GeoJSON-Format genutzt werden, während TopoJSON für das Flächenkartogramm gedacht ist."
   },
   {
    "typ": "Empfehlung",
@@ -73,15 +82,6 @@
    "zeit": "00:43",
    "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=43s",
    "aussage": "Für eigene Kartenregionen in Azure Maps werden das kostenlose Tool QGIS und Shapefiles von GitHub benötigt."
-  },
-  {
-   "typ": "Empfehlung",
-   "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
-   "dokument_id": "yt:CvaOkO37HMU",
-   "sekunde": 43,
-   "zeit": "00:43",
-   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=43s",
-   "aussage": "Für Azure Maps sollte das GeoJSON-Format genutzt werden, während TopoJSON für das Flächenkartogramm gedacht ist."
   },
   {
    "typ": "Fakt",
@@ -123,18 +123,18 @@
    "typ": "Warnung",
    "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
    "dokument_id": "yt:CvaOkO37HMU",
-   "sekunde": 515,
-   "zeit": "08:35",
-   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=515s",
+   "sekunde": 504,
+   "zeit": "08:24",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=504s",
    "aussage": "Vor der Weiterverarbeitung müssen die importierten Shapefile-Geometrien in QGIS repariert werden, da nicht geschlossene Flächen oder Schleifen sonst beim Rendern in Power BI zu Problemen führen."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
    "dokument_id": "yt:CvaOkO37HMU",
-   "sekunde": 650,
-   "zeit": "10:50",
-   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=650s",
+   "sekunde": 749,
+   "zeit": "12:29",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=749s",
    "aussage": "Die reparierten Shapefile-Geometrien werden in QGIS über einen Join mit der CSV-Datei der Gebietsaufteilung anhand der Postleitzahl verknüpft."
   },
   {
@@ -195,9 +195,9 @@
    "typ": "Empfehlung",
    "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
    "dokument_id": "yt:CvaOkO37HMU",
-   "sekunde": 1315,
-   "zeit": "21:55",
-   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1315s",
+   "sekunde": 1328,
+   "zeit": "22:08",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1328s",
    "aussage": "Über die bedingte Formatierung der Polygone lässt sich die Referenzebene als Farbverlauf (Heatmap) nach einer Kennzahl wie dem Umsatz einfärben."
   },
   {

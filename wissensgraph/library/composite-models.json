@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "composite-models",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/composite-models.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/composite-models.html",
@@ -115,9 +115,9 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
-   "sekunde": 3827,
-   "zeit": "1:03:47",
-   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3827s",
+   "sekunde": 3892,
+   "zeit": "1:04:52",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3892s",
    "aussage": "Die Kombination aus Direct Lake und Import Mode ist mittlerweile GA verfügbar und ermöglicht damit ein stabileres Composite-Modell."
   }
  ],

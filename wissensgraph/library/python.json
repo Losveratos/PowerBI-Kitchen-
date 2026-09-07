@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "python",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/python.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/python.html",
@@ -157,9 +157,9 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.76",
    "dokument_id": "yt:mlkP-6i5Kq8",
-   "sekunde": 189,
-   "zeit": "03:09",
-   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=189s",
+   "sekunde": 200,
+   "zeit": "03:20",
+   "url": "https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=200s",
    "aussage": "In Power BI Desktop können wegen fehlender Python-Installation aus Sicherheitsgründen keine Python-basierten Visuals wie Matplotlib, Plotly oder Seaborn genutzt werden."
   },
   {
@@ -175,18 +175,18 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 379,
-   "zeit": "06:19",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=379s",
+   "sekunde": 408,
+   "zeit": "06:48",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=408s",
    "aussage": "Der Power BI Fixer basiert auf einem Fork und übernimmt Komponenten wie Best Practice Analyser, Memory Analyser und Perspective Editor von Michael Kowalskis Semantic-Link-Labs-Arbeit."
   },
   {
    "typ": "Fakt",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 2214,
-   "zeit": "36:54",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2214s",
+   "sekunde": 2222,
+   "zeit": "37:02",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2222s",
    "aussage": "Über Microsoft Fabric lassen sich mit Python externe Quellen wie Newsfeeds und Börsendaten kostengünstig anbinden, um Krisenherde frühzeitig zu erkennen."
   },
   {
@@ -220,9 +220,9 @@
    "typ": "Fakt",
    "dokument": "Was ist Self-Service und warum ist das so schwer?",
    "dokument_id": "yt:EVsJ6zyGUWc",
-   "sekunde": 1042,
-   "zeit": "17:22",
-   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1042s",
+   "sekunde": 1076,
+   "zeit": "17:56",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1076s",
    "aussage": "Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht."
   },
   {

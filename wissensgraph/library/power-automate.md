@@ -3,7 +3,7 @@ id: "tool:power-automate"
 name: "Power Automate"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 13
 kernaussagen: 2
@@ -46,10 +46,12 @@ Flow
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | BI Thinkers Talk n.72 | 50:30 | SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3030s) |
-| Meinung | Metadaten als Superkraft | 15:47 | Process Mining wertet Log- und Transaktionsdaten aus, um Abweichungen vom idealen Prozess sichtbar zu machen, und soll mittlerweile auch in Power Automate Einzug gehalten haben. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | BI Thinkers Talk n.72 | 2026-01 | 51:03 | auf die Sekunde | SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3063s) |
+| Meinung | Metadaten als Superkraft |  | 16:50 | auf die Sekunde | Process Mining wertet Log- und Transaktionsdaten aus, um Abweichungen vom idealen Prozess sichtbar zu machen, und soll mittlerweile auch in Power Automate Einzug gehalten haben. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1010s) |
 
 ## Dokumente
 

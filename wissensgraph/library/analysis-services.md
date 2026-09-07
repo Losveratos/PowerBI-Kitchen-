@@ -3,7 +3,7 @@ id: "tool:analysis-services"
 name: "Analysis Services"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 3
 kernaussagen: 3
@@ -33,11 +33,13 @@ SSAS, Tabular
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Warnung | BI Thinkers Talk nr.75 | 41:21 | Perspektiven in Analysis Services und Power BI bilden keine echte Sicherheitsgrenze ab, sodass Nutzer trotz eingeschränkter Perspektive weiterhin das komplette zugrunde liegende Modell nutzen können. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2481s) |
-| Meinung | Denken in Tabellen | 01:44 | Wer aus dem Analysis-Services-Umfeld kommt, bevorzugt multidimensionale Modellierung, während andere alle Aggregationen lieber im Data Warehouse vorberechnen wollen. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=104s) |
-| Meinung | Denken in Tabellen | 03:20 | Power BI ist technisch eng mit Analysis Services verbunden, weshalb aus dieser Perspektive ein Sternschema die passende Modellierung ist. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=200s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Warnung | BI Thinkers Talk nr.75 | 2026-04 | 42:46 | auf die Sekunde | Perspektiven in Analysis Services und Power BI bilden keine echte Sicherheitsgrenze ab, sodass Nutzer trotz eingeschränkter Perspektive weiterhin das komplette zugrunde liegende Modell nutzen können. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2566s) |
+| Meinung | Denken in Tabellen | 2026-01 | 02:30 | auf die Sekunde | Wer aus dem Analysis-Services-Umfeld kommt, bevorzugt multidimensionale Modellierung, während andere alle Aggregationen lieber im Data Warehouse vorberechnen wollen. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=150s) |
+| Meinung | Denken in Tabellen | 2026-01 | 03:29 | auf die Sekunde | Power BI ist technisch eng mit Analysis Services verbunden, weshalb aus dieser Perspektive ein Sternschema die passende Modellierung ist. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=209s) |
 
 ## Dokumente
 

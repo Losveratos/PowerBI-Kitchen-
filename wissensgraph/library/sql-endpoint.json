@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "sql-endpoint",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql-endpoint.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql-endpoint.html",
@@ -160,18 +160,18 @@
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 186,
-   "zeit": "03:06",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=186s",
+   "sekunde": 251,
+   "zeit": "04:11",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=251s",
    "aussage": "Für Direct Lake gab es weiterhin Probleme, während der Import-Modus über den SQL-Endpoint funktionierte."
   },
   {
    "typ": "Warnung",
    "dokument": "BI Thinkers Talk n.73",
    "dokument_id": "yt:pOJpXxsfUt0",
-   "sekunde": 3334,
-   "zeit": "55:34",
-   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3334s",
+   "sekunde": 3298,
+   "zeit": "54:58",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3298s",
    "aussage": "Beim Deployment eines Lakehouse über eine Deployment Pipeline werden Views, die im SQL-Endpunkt des Lakehouse angelegt wurden, nicht mit übertragen."
   },
   {
@@ -187,18 +187,18 @@
    "typ": "Warnung",
    "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "dokument_id": "yt:mTVeZzshLzE",
-   "sekunde": 1185,
-   "zeit": "19:45",
-   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1185s",
+   "sekunde": 1191,
+   "zeit": "19:51",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1191s",
    "aussage": "Werden zwei Dataflows über ein Lakehouse verkettet, stehen am Folgetag keine neuen Daten bereit, weil der SQL-Endpoint des Lakehouse nicht sofort aktualisiert wird."
   },
   {
    "typ": "Fakt",
    "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "dokument_id": "yt:mTVeZzshLzE",
-   "sekunde": 1684,
-   "zeit": "28:04",
-   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1684s",
+   "sekunde": 1708,
+   "zeit": "28:28",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1708s",
    "aussage": "Direct Lake existiert in zwei Varianten, verbunden über den SQL-Endpoint oder direkt mit dem Lake, was zusätzliche Komplexität für Citizen Developer schafft."
   }
  ],

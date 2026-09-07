@@ -3,7 +3,7 @@ id: "tool:zebra-bi"
 name: "Zebra BI"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 11
 kernaussagen: 2
@@ -38,10 +38,12 @@ Zebra
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Meinung | BI Thinkers Talk nr.76 | 55:18 | Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s) |
-| Meinung | BI Thinkers Talk n.72 | 19:12 | Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1152s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Meinung | BI Thinkers Talk nr.76 | 2026-05 | 55:18 | Abschnittsanfang | Der Gast hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s) |
+| Meinung | BI Thinkers Talk n.72 | 2026-01 | 19:12 | Abschnittsanfang | Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1152s) |
 
 ## Dokumente
 

@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "copilot",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/copilot.html",
@@ -159,9 +159,9 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.74",
    "dokument_id": "yt:rWE0gMx7v7I",
-   "sekunde": 874,
-   "zeit": "14:34",
-   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=874s",
+   "sekunde": 903,
+   "zeit": "15:03",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=903s",
    "aussage": "In den Fabric-Tenant-Einstellungen lässt sich der Zugriff auf Copilot für Power BI global deaktivieren oder auf vorab genehmigte Elemente beschränken."
   },
   {
@@ -195,19 +195,19 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.74",
    "dokument_id": "yt:rWE0gMx7v7I",
-   "sekunde": 1459,
-   "zeit": "24:19",
-   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1459s",
-   "aussage": "Die Berechtigung für den Zugriff von Copilot wird zentral am semantischen Modell gesetzt und von dort automatisch an Berichte und Apps vererbt."
+   "sekunde": 1603,
+   "zeit": "26:43",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1603s",
+   "aussage": "Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.74",
    "dokument_id": "yt:rWE0gMx7v7I",
-   "sekunde": 1556,
-   "zeit": "25:56",
-   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1556s",
-   "aussage": "Row-Level Security wird sowohl von Copilot als auch vom Explore-Feature respektiert, im Unterschied zu einer reinen Security-by-Obscurity durch versteckte Tabellen."
+   "sekunde": 1670,
+   "zeit": "27:50",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1670s",
+   "aussage": "Die Berechtigung für den Zugriff von Copilot wird zentral am semantischen Modell gesetzt und von dort automatisch an Berichte und Apps vererbt."
   },
   {
    "typ": "Meinung",
@@ -231,81 +231,81 @@
    "typ": "Fakt",
    "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
    "dokument_id": "yt:jETxUNQSl-w",
-   "sekunde": 1530,
-   "zeit": "25:30",
-   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s",
+   "sekunde": 1534,
+   "zeit": "25:34",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1534s",
    "aussage": "Klassische Copilot-Lizenzen kosteten anfangs häufig zwischen 20 und 30 Euro pro Nutzer und Monat."
   },
   {
    "typ": "Warnung",
    "dokument": "Digitalisierung seit 20 Jahren — wann sind wir endlich fertig?",
    "dokument_id": "yt:jETxUNQSl-w",
-   "sekunde": 1530,
-   "zeit": "25:30",
-   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s",
+   "sekunde": 1597,
+   "zeit": "26:37",
+   "url": "https://www.youtube.com/watch?v=jETxUNQSl-w&t=1597s",
    "aussage": "Bei manchen Unternehmen, die Copilot flächendeckend ausgerollt haben, nutzen rund 60 Prozent der Lizenzinhaber das Tool gar nicht."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update Januar 2026",
    "dokument_id": "yt:TAM5AAZqh7k",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s",
+   "sekunde": 2,
+   "zeit": "00:02",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=2s",
    "aussage": "Im Power BI Service ist Copilot jetzt prominent platziert."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update Januar 2026",
    "dokument_id": "yt:TAM5AAZqh7k",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s",
+   "sekunde": 13,
+   "zeit": "00:13",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=13s",
    "aussage": "Nutzer können die prominente Copilot-Anzeige im Power BI Service wieder zurückdrehen."
   },
   {
    "typ": "Meinung",
    "dokument": "Power BI Update Januar 2026",
    "dokument_id": "yt:TAM5AAZqh7k",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=0s",
+   "sekunde": 28,
+   "zeit": "00:28",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=28s",
    "aussage": "Der Sprecher ist der Meinung, dass Copilot bleiben und sich stetig verbessern wird."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-1",
    "dokument_id": "yt:TYp5xCAU2AU",
-   "sekunde": 53,
-   "zeit": "00:53",
-   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=53s",
+   "sekunde": 88,
+   "zeit": "01:28",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=88s",
    "aussage": "Microsoft entfernt das Q&A-Feature aus Power BI und setzt stattdessen auf effizientere KI-Alternativen wie Copilot Chat with your Data."
   },
   {
    "typ": "Warnung",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 1916,
-   "zeit": "31:56",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1916s",
+   "sekunde": 1989,
+   "zeit": "33:09",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1989s",
    "aussage": "Copilot kann laut den Sprechern automatisch Beschreibungen zu Measures erzeugen, darf aber in bestimmten regulierten Umgebungen wie der Finanzverwaltung nicht eingesetzt werden."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 2007,
-   "zeit": "33:27",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2007s",
+   "sekunde": 2014,
+   "zeit": "33:34",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2014s",
    "aussage": "Ein KI-Coding-Assistent kann direkt in einem Power-BI-Semantikmodell Measures schreiben und eine neue Tabellenstruktur anlegen."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
-   "sekunde": 1377,
-   "zeit": "22:57",
-   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1377s",
+   "sekunde": 1375,
+   "zeit": "22:55",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1375s",
    "aussage": "Rui Romano zeigte auf der FabCon, wie ein MCP-Server zusammen mit selbst geschriebenen Instruktions-Dokumenten genutzt wird, um per KI-Agent automatisch ein semantisches Modell samt Bericht generieren zu lassen."
   },
   {
@@ -330,27 +330,27 @@
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 4819,
-   "zeit": "1:20:19",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4819s",
+   "sekunde": 4817,
+   "zeit": "1:20:17",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4817s",
    "aussage": "Nach aktueller Einschätzung eines Teilnehmers ist Copilot für einen erfahrenen Power-BI-Experten noch keine ernsthafte Konkurrenz."
   },
   {
    "typ": "Warnung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 5102,
-   "zeit": "1:25:02",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5102s",
+   "sekunde": 5112,
+   "zeit": "1:25:12",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5112s",
    "aussage": "Mit Copilot lassen sich IBCS-konforme Visualisierungen aktuell kaum umsetzen, weil kein nativer Zugriff auf spezialisierte Custom Visuals wie Integrated Variance Charts besteht."
   },
   {
    "typ": "Meinung",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
-   "sekunde": 473,
-   "zeit": "07:53",
-   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=473s",
+   "sekunde": 420,
+   "zeit": "07:00",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=420s",
    "aussage": "Strukturierter, klar lesbarer Code wie TMDL ist notwendig, damit KI-Tools und Copilot Power-BI-Modelle gut nutzen und automatisiert bearbeiten können."
   },
   {
@@ -366,9 +366,9 @@
    "typ": "Fakt",
    "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
    "dokument_id": "yt:mTVeZzshLzE",
-   "sekunde": 2494,
-   "zeit": "41:34",
-   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2494s",
+   "sekunde": 2406,
+   "zeit": "40:06",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2406s",
    "aussage": "Copilot kann Fachanwendern helfen, bestehende Power-Query-Dataflows automatisiert in schnelleren Code zu übersetzen."
   }
  ],
@@ -394,31 +394,6 @@
    ]
   },
   {
-   "id": "yt:_MfM3rhJx58",
-   "titel": "Copilot + Power Automate = Gamechanger",
-   "datum": "2025-08-01",
-   "abdeckung": "nur-zeitstempel",
-   "anteil": 0.667,
-   "url": "https://www.youtube.com/watch?v=_MfM3rhJx58",
-   "sprungmarken": [
-    {
-     "label": "00:00",
-     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=0s",
-     "sekunde": 0
-    },
-    {
-     "label": "03:16",
-     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=196s",
-     "sekunde": 196
-    },
-    {
-     "label": "08:07",
-     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=487s",
-     "sekunde": 487
-    }
-   ]
-  },
-  {
    "id": "yt:WJXREKKx2yo",
    "titel": "Vorbereiten der Daten für KI",
    "datum": "2025-08-01",
@@ -440,6 +415,31 @@
      "label": "04:42",
      "url": "https://www.youtube.com/watch?v=WJXREKKx2yo&t=282s",
      "sekunde": 282
+    }
+   ]
+  },
+  {
+   "id": "yt:_MfM3rhJx58",
+   "titel": "Copilot + Power Automate = Gamechanger",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.667,
+   "url": "https://www.youtube.com/watch?v=_MfM3rhJx58",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "03:16",
+     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=196s",
+     "sekunde": 196
+    },
+    {
+     "label": "08:07",
+     "url": "https://www.youtube.com/watch?v=_MfM3rhJx58&t=487s",
+     "sekunde": 487
     }
    ]
   },

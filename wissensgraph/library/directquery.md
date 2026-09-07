@@ -3,7 +3,7 @@ id: "tool:directquery"
 name: "DirectQuery"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 18
 kernaussagen: 5
@@ -46,13 +46,15 @@ Direct Query
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Empfehlung | Fabric & Power BI Quarterly · 2026-1 | 25:03 | Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s) |
-| Meinung | BI Thinkers Talk nr.71 | 08:04 | DirectQuery unterstützt laut den Sprechern bei Quellen wie Snowflake oder Databricks kein Sternschema. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=484s) |
-| Warnung | BI Thinkers Talk nr.71 | 09:41 | Bei DirectQuery-Abfragen über mehrere Fakttabellen hinweg entstehen laut den Sprechern schnell zusätzliche Overhead-Queries für jeden Join, was die Performance deutlich verschlechtert. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=581s) |
-| Fakt | BI Thinkers Talk Nr.62 | 31:47 | Für eine Fabric-SQL-Datenbank ist Direct Lake nicht nutzbar, weshalb im Berichtsmodell Import oder DirectQuery verwendet werden muss. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1907s) |
-| Meinung | BI Thinkers Talk Nr.62 | 47:40 | Mit Direct Lake wäre das Zurückschreiben asynchron und dadurch deutlich schneller als mit DirectQuery. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2860s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Empfehlung | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 25:32 | auf die Sekunde | Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1532s) |
+| Meinung | BI Thinkers Talk nr.71 | 2025-12 | 08:04 | Abschnittsanfang | DirectQuery unterstützt laut den Sprechern bei Quellen wie Snowflake oder Databricks kein Sternschema. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=484s) |
+| Warnung | BI Thinkers Talk nr.71 | 2025-12 | 10:20 | auf die Sekunde | Bei DirectQuery-Abfragen über mehrere Fakttabellen hinweg entstehen laut den Sprechern schnell zusätzliche Overhead-Queries für jeden Join, was die Performance deutlich verschlechtert. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=620s) |
+| Fakt | BI Thinkers Talk Nr.62 | 2025-05 | 33:13 | auf die Sekunde | Für eine Fabric-SQL-Datenbank ist Direct Lake nicht nutzbar, weshalb im Berichtsmodell Import oder DirectQuery verwendet werden muss. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1993s) |
+| Meinung | BI Thinkers Talk Nr.62 | 2025-05 | 48:53 | auf die Sekunde | Mit Direct Lake wäre das Zurückschreiben asynchron und dadurch deutlich schneller als mit DirectQuery. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2933s) |
 
 ## Dokumente
 

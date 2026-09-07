@@ -4,7 +4,7 @@
  "typ": "thema",
  "slug": "daten-wg",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/daten-wg.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/daten-wg.html",
@@ -160,82 +160,82 @@
    "typ": "Fakt",
    "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
    "dokument_id": "yt:QyhnWfGih_o",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "sekunde": 17,
+   "zeit": "00:17",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=17s",
    "aussage": "Die Daten-WG veranstaltet im Herbst eine eigene, kleine Konferenz."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
-   "dokument_id": "yt:QyhnWfGih_o",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
-   "aussage": "Die Daten-WG-Konferenz findet in diesem Jahr bereits zum zweiten Mal statt."
   },
   {
    "typ": "Meinung",
    "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
    "dokument_id": "yt:QyhnWfGih_o",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s",
+   "sekunde": 23,
+   "zeit": "00:23",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=23s",
    "aussage": "Die Daten-WG möchte mit ihrer Konferenz wachsen und ähnlich groß werden wie die SQL-Konferenz."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen",
+   "dokument_id": "yt:QyhnWfGih_o",
+   "sekunde": 34,
+   "zeit": "00:34",
+   "url": "https://www.youtube.com/watch?v=QyhnWfGih_o&t=34s",
+   "aussage": "Die Daten-WG-Konferenz findet in diesem Jahr bereits zum zweiten Mal statt."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update April 2026",
    "dokument_id": "yt:fbpu8zLG3cc",
-   "sekunde": 262,
-   "zeit": "04:22",
-   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=262s",
+   "sekunde": 270,
+   "zeit": "04:30",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=270s",
    "aussage": "Die Daten-WG-Konferenz findet im Oktober wieder in Köln statt, und die Agenda mit Speakern und Precons ist veröffentlicht."
   },
   {
    "typ": "Empfehlung",
    "dokument": "Power BI Update April 2026",
    "dokument_id": "yt:fbpu8zLG3cc",
-   "sekunde": 262,
-   "zeit": "04:22",
-   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=262s",
+   "sekunde": 273,
+   "zeit": "04:33",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=273s",
    "aussage": "Interessierten wird empfohlen, sich die veröffentlichte Agenda der Daten-WG-Konferenz anzusehen und bei Interesse vorbeizukommen."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 3761,
-   "zeit": "1:02:41",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3761s",
+   "sekunde": 3810,
+   "zeit": "1:03:30",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3810s",
    "aussage": "Ab Mai sind bei den BI Thinkers Talks ein Auftritt von Stefan Werner sowie ein gemeinsamer Stream mit Ren Fürstenberg und Joris Karle geplant."
   },
   {
    "typ": "Fakt",
    "dokument": "MCP@Daten-WG@SQL Konferenz",
    "dokument_id": "yt:l_aHydZyh4s",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s",
+   "sekunde": 3,
+   "zeit": "00:03",
+   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=3s",
    "aussage": "Die Aufnahme entstand am Stand der Daten-WG auf der SQL Konferenz."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "MCP@Daten-WG@SQL Konferenz",
-   "dokument_id": "yt:l_aHydZyh4s",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s",
-   "aussage": "Michael hält auf der SQL Konferenz eine Lunch Session zum Thema MCP-Server."
   },
   {
    "typ": "Empfehlung",
    "dokument": "MCP@Daten-WG@SQL Konferenz",
    "dokument_id": "yt:l_aHydZyh4s",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s",
+   "sekunde": 3,
+   "zeit": "00:03",
+   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=3s",
    "aussage": "Die Daten-WG lädt Besucher der SQL Konferenz ein, ihren Stand zu besuchen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "MCP@Daten-WG@SQL Konferenz",
+   "dokument_id": "yt:l_aHydZyh4s",
+   "sekunde": 10,
+   "zeit": "00:10",
+   "url": "https://www.youtube.com/watch?v=l_aHydZyh4s&t=10s",
+   "aussage": "Michael hält auf der SQL Konferenz eine Lunch Session zum Thema MCP-Server."
   },
   {
    "typ": "Fakt",
@@ -250,9 +250,9 @@
    "typ": "Empfehlung",
    "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
    "dokument_id": "yt:sq8AWk_yNWM",
-   "sekunde": 281,
-   "zeit": "04:41",
-   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s",
+   "sekunde": 370,
+   "zeit": "06:10",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=370s",
    "aussage": "Der Redner rät dem Publikum, den Erfahrungsberichten der nachfolgenden Vortragenden genau zuzuhören und die daraus gewonnenen Impulse mit in die eigene Arbeit und das eigene Unternehmen zu nehmen."
   },
   {
@@ -268,9 +268,9 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk Nr.62",
    "dokument_id": "yt:Wwvhv8WA2Qc",
-   "sekunde": 95,
-   "zeit": "01:35",
-   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=95s",
+   "sekunde": 117,
+   "zeit": "01:57",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=117s",
    "aussage": "Markus hat sein erstes Update-Video im Mai 2019 veröffentlicht."
   },
   {
@@ -683,21 +683,6 @@
    ]
   },
   {
-   "id": "page:powerbi-design-skill",
-   "titel": "Report-Design als Framework — ein Skill für Power BI",
-   "datum": "2026-08-31",
-   "abdeckung": "nur-text",
-   "anteil": 0.1,
-   "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html",
-   "sprungmarken": [
-    {
-     "label": "Abschnitt",
-     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Der%20Praxistest%3A%20%2Adiese%20Webseite%20als%20Branding-Quelle%2A",
-     "sekunde": null
-    }
-   ]
-  },
-  {
    "id": "page:business-chart-builder-anleitung",
    "titel": "Business Chart Builder — Anleitung",
    "datum": "2026-08-31",
@@ -708,6 +693,21 @@
     {
      "label": "Abschnitt",
      "url": "https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Auch%20ohne%20Power%20BI%3A%20schnell%20starten%2C%20annotieren%2C%20ausgeben%20%F0%9F%98%89",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:powerbi-design-skill",
+   "titel": "Report-Design als Framework — ein Skill für Power BI",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.1,
+   "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Der%20Praxistest%3A%20%2Adiese%20Webseite%20als%20Branding-Quelle%2A",
      "sekunde": null
     }
    ]

@@ -3,7 +3,7 @@ id: "tool:sharepoint"
 name: "SharePoint"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 22
 kernaussagen: 3
@@ -46,11 +46,13 @@ Share Point
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | BI Thinkers Talk n.72 | 50:30 | SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3030s) |
-| Empfehlung | Metadaten als Superkraft | 08:50 | Für den Einstieg reicht eine einfache SharePoint-Liste als minimalistischer Datenkatalog völlig aus, anstatt lange über das perfekte Tool zu diskutieren. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=530s) |
-| Warnung | Microsoft Fabric — braucht das wirklich jemand? | 15:08 | Eine Datei über den direkten Cloud-Link statt über die lokal synchronisierte SharePoint-Kopie einzubinden gilt laut Martin als schlecht gelöst und ist eine häufige Fehlerquelle. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=908s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | BI Thinkers Talk n.72 | 2026-01 | 51:03 | auf die Sekunde | SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=3063s) |
+| Empfehlung | Metadaten als Superkraft |  | 09:03 | auf die Sekunde | Für den Einstieg reicht eine einfache SharePoint-Liste als minimalistischer Datenkatalog völlig aus, anstatt lange über das perfekte Tool zu diskutieren. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=543s) |
+| Warnung | Microsoft Fabric — braucht das wirklich jemand? |  | 15:19 | auf die Sekunde | Eine Datei über den direkten Cloud-Link statt über die lokal synchronisierte SharePoint-Kopie einzubinden gilt laut Martin als schlecht gelöst und ist eine häufige Fehlerquelle. | [▶](https://www.youtube.com/watch?v=mTVeZzshLzE&t=919s) |
 
 ## Dokumente
 

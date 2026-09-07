@@ -3,7 +3,7 @@ id: "tool:tableau"
 name: "Tableau"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 16
 kernaussagen: 1
@@ -38,9 +38,11 @@ Keine weiteren Schreibweisen hinterlegt.
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Meinung | Denken in Tabellen | 06:03 | Eine breite, gejointe Tabelle funktioniert werkzeugübergreifend mit Power BI, Tableau und anderen Reporting-Tools, was zu ihrer Verbreitung beiträgt. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=363s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Meinung | Denken in Tabellen | 2026-01 | 05:55 | auf die Sekunde | Eine breite, gejointe Tabelle funktioniert werkzeugübergreifend mit Power BI, Tableau und anderen Reporting-Tools, was zu ihrer Verbreitung beiträgt. | [▶](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=355s) |
 
 ## Dokumente
 

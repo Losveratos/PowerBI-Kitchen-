@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "field-parameters",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/field-parameters.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/field-parameters.html",
@@ -17,7 +17,7 @@
   "Feldparameter",
   "Field Parameter"
  ],
- "einordnung": "Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird. Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu. Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte.",
+ "einordnung": "Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu. Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird. Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte.",
  "nachbarn": [
   {
    "id": "tool:dax",
@@ -88,73 +88,64 @@
    "typ": "Fakt",
    "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
    "dokument_id": "yt:v8dvnqqa7f8",
-   "sekunde": 30,
-   "zeit": "00:30",
-   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=30s",
+   "sekunde": 25,
+   "zeit": "00:25",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=25s",
    "aussage": "Ein Feldparameter lässt sich in Power BI Desktop über Modeling und \"Neuer Feldparameter\" anlegen."
   },
   {
    "typ": "Fakt",
    "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
    "dokument_id": "yt:v8dvnqqa7f8",
-   "sekunde": 30,
-   "zeit": "00:30",
-   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=30s",
+   "sekunde": 44,
+   "zeit": "00:44",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=44s",
    "aussage": "Beim Anlegen eines Feldparameters aus einer Datumstabelle lassen sich Aufteilungen wie Jahr und Monat als Optionen auswählen."
   },
   {
    "typ": "Fakt",
    "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
    "dokument_id": "yt:v8dvnqqa7f8",
-   "sekunde": 71,
-   "zeit": "01:11",
-   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=71s",
+   "sekunde": 68,
+   "zeit": "01:08",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=68s",
    "aussage": "Power BI erzeugt beim Anlegen eines Feldparameters automatisch eine per DAX erstellte Parametertabelle sowie einen passenden Slicer."
   },
   {
    "typ": "Fakt",
    "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
    "dokument_id": "yt:v8dvnqqa7f8",
-   "sekunde": 97,
-   "zeit": "01:37",
-   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=97s",
+   "sekunde": 114,
+   "zeit": "01:54",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=114s",
    "aussage": "Eine Feldparameter-Tabelle kann mehrere Kombinationen gleichzeitig enthalten, zum Beispiel nur das Jahr, Monat und Jahr kombiniert, sowie nur den Monat."
   },
   {
    "typ": "Empfehlung",
    "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
    "dokument_id": "yt:v8dvnqqa7f8",
-   "sekunde": 125,
-   "zeit": "02:05",
-   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=125s",
+   "sekunde": 134,
+   "zeit": "02:14",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=134s",
    "aussage": "Der Slicer eines Feldparameters lässt sich auf Single Selection einstellen, damit jeweils nur eine Option gewählt werden kann."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update Februar 2026",
    "dokument_id": "yt:u-lgbDfIlLg",
-   "sekunde": 138,
-   "zeit": "02:18",
-   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
+   "sekunde": 142,
+   "zeit": "02:22",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=142s",
    "aussage": "Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte."
   },
   {
    "typ": "Fakt",
    "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
    "dokument_id": "yt:v8dvnqqa7f8",
-   "sekunde": 152,
-   "zeit": "02:32",
-   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=152s",
+   "sekunde": 151,
+   "zeit": "02:31",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=151s",
    "aussage": "Wird ein Feldparameter als Tabelle eingefügt, zeigt sie den berechneten Wert; wird derselbe Parameter in einem Slicer verwendet, zeigt dieser stattdessen die Auswahlmöglichkeiten."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
-   "dokument_id": "yt:v8dvnqqa7f8",
-   "sekunde": 152,
-   "zeit": "02:32",
-   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=152s",
-   "aussage": "Wenn eine Feldparameter-Liste in einen Slicer umgewandelt wird, bleiben die zuvor angezeigten Werte als Auswahlmöglichkeiten im Slicer erhalten."
   },
   {
    "typ": "Empfehlung",
@@ -167,21 +158,12 @@
   },
   {
    "typ": "Fakt",
-   "dokument": "BI Thinkers Talk n.73",
-   "dokument_id": "yt:pOJpXxsfUt0",
-   "sekunde": 198,
-   "zeit": "03:18",
-   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=198s",
-   "aussage": "Field Parameters lassen sich aus einer Datumstabelle mit verschiedenen Ebenen (z. B. Jahr, Monatsname) aufbauen und über die Option \"Single Selection\" als klassischer Werte-Slicer statt als Auswahl-Schalter nutzen."
-  },
-  {
-   "typ": "Fakt",
    "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
    "dokument_id": "yt:v8dvnqqa7f8",
-   "sekunde": 203,
-   "zeit": "03:23",
-   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=203s",
-   "aussage": "Ein Feldparameter kann als interaktiver Filter genutzt werden, der je nach gewählter Kombination unterschiedliche Filterwerte anzeigt, etwa nur Jahre oder Monate mit Jahreszahl."
+   "sekunde": 182,
+   "zeit": "03:02",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=182s",
+   "aussage": "Wenn eine Feldparameter-Liste in einen Slicer umgewandelt wird, bleiben die zuvor angezeigten Werte als Auswahlmöglichkeiten im Slicer erhalten."
   },
   {
    "typ": "Fakt",
@@ -194,65 +176,83 @@
   },
   {
    "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 203,
+   "zeit": "03:23",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=203s",
+   "aussage": "Field Parameters lassen sich aus einer Datumstabelle mit verschiedenen Ebenen (z. B. Jahr, Monatsname) aufbauen und über die Option \"Single Selection\" als klassischer Werte-Slicer statt als Auswahl-Schalter nutzen."
+  },
+  {
+   "typ": "Fakt",
    "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
    "dokument_id": "yt:v8dvnqqa7f8",
-   "sekunde": 238,
-   "zeit": "03:58",
-   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=238s",
+   "sekunde": 214,
+   "zeit": "03:34",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=214s",
+   "aussage": "Ein Feldparameter kann als interaktiver Filter genutzt werden, der je nach gewählter Kombination unterschiedliche Filterwerte anzeigt, etwa nur Jahre oder Monate mit Jahreszahl."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
+   "dokument_id": "yt:v8dvnqqa7f8",
+   "sekunde": 247,
+   "zeit": "04:07",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=247s",
    "aussage": "Über die Option \"Show Selected Field\" im Feldbereich eines Feldparameters lässt sich der Name des aktuell ausgewählten Parameterfelds anzeigen."
   },
   {
    "typ": "Fakt",
    "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
    "dokument_id": "yt:v8dvnqqa7f8",
-   "sekunde": 266,
-   "zeit": "04:26",
-   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=266s",
+   "sekunde": 268,
+   "zeit": "04:28",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=268s",
    "aussage": "Über die Option \"Show Values of Selected Field\" lassen sich stattdessen die Werte des aktuell ausgewählten Feldparameter-Felds anzeigen."
   },
   {
    "typ": "Empfehlung",
    "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
    "dokument_id": "yt:v8dvnqqa7f8",
-   "sekunde": 266,
-   "zeit": "04:26",
-   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=266s",
+   "sekunde": 268,
+   "zeit": "04:28",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=268s",
    "aussage": "Die Optionen \"Show Selected Field\" und \"Show Values of Selected Field\" bei Feldparametern sind wenig bekannt, lohnen sich aber für den Einsatz in Projekten."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.73",
    "dokument_id": "yt:pOJpXxsfUt0",
-   "sekunde": 392,
-   "zeit": "06:32",
-   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=392s",
+   "sekunde": 481,
+   "zeit": "08:01",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=481s",
    "aussage": "Für Field-Parameter-Slicer gibt es eine wenig bekannte Option \"Show values instead of parameter\", mit der statt der Parameterbezeichnung die tatsächlichen Werte angezeigt werden."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.73",
    "dokument_id": "yt:pOJpXxsfUt0",
-   "sekunde": 486,
-   "zeit": "08:06",
-   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=486s",
+   "sekunde": 549,
+   "zeit": "09:09",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=549s",
    "aussage": "Seit einem Update im Januar merken sich Field Parameters in einer Matrix den zuletzt gewählten Hierarchie-Stand, wenn zwischen unterschiedlichen Gruppierungen umgeschaltet wird."
   },
   {
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk n.73",
    "dokument_id": "yt:pOJpXxsfUt0",
-   "sekunde": 1452,
-   "zeit": "24:12",
-   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=1452s",
+   "sekunde": 1496,
+   "zeit": "24:56",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=1496s",
    "aussage": "Field Parameters lassen sich um eine zusätzliche Spalte erweitern, die zusammengehörige Measures wie \"Quantity\" und \"Amount\" zu Kategorien gruppiert, sodass mehrere Measures gemeinsam über eine Filterauswahl gesteuert werden können."
   },
   {
    "typ": "Fakt",
    "dokument": "Denken in Tabellen",
    "dokument_id": "yt:hbUYMyqb6r8",
-   "sekunde": 27,
-   "zeit": "00:27",
-   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=27s",
+   "sekunde": 30,
+   "zeit": "00:30",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=30s",
    "aussage": "Eine aus Databricks stammende Flat Table führte in Power BI zu Problemen mit einer unsauberen Zeitachse und zu wenig flexiblen Darstellungen, die zunächst mit Field Parameters adressiert wurden."
   },
   {
@@ -262,16 +262,16 @@
    "sekunde": 122,
    "zeit": "02:02",
    "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=122s",
-   "aussage": "Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird."
+   "aussage": "Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update Januar 2026",
    "dokument_id": "yt:TAM5AAZqh7k",
-   "sekunde": 122,
-   "zeit": "02:02",
-   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=122s",
-   "aussage": "Vor dem Update klappte eine aufgeklappte zusätzliche Ebene bei Field Parameters beim Wechsel automatisch wieder zu."
+   "sekunde": 133,
+   "zeit": "02:13",
+   "url": "https://www.youtube.com/watch?v=TAM5AAZqh7k&t=133s",
+   "aussage": "Field Parameters behalten jetzt eine aufgeklappte zweite Ebene bei, wenn zwischen Parametern gewechselt wird."
   },
   {
    "typ": "Meinung",
@@ -295,9 +295,9 @@
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 2557,
-   "zeit": "42:37",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2557s",
+   "sekunde": 2561,
+   "zeit": "42:41",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2561s",
    "aussage": "Mehrere Teilnehmer nennen Field Parameters als eines der wirkungsvollsten neuen Power-BI-Features, weil sie ein einzelnes Visual für verschiedene Kennzahlen und Achsen mehrfach nutzbar machen."
   }
  ],

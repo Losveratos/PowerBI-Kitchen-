@@ -4,7 +4,7 @@
  "typ": "thema",
  "slug": "visualisierung",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/visualisierung.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/visualisierung.html",
@@ -173,72 +173,72 @@
    "typ": "Fakt",
    "dokument": "Power BI Update April 2026",
    "dokument_id": "yt:fbpu8zLG3cc",
-   "sekunde": 49,
-   "zeit": "00:49",
-   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=49s",
+   "sekunde": 50,
+   "zeit": "00:50",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=50s",
    "aussage": "Bei Kacheln mit mehreren Karten kann jetzt eine feste Breite in Pixel eingestellt werden, was den Bau von Kachelwänden erleichtert."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update April 2026",
    "dokument_id": "yt:fbpu8zLG3cc",
-   "sekunde": 75,
-   "zeit": "01:15",
-   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=75s",
+   "sekunde": 88,
+   "zeit": "01:28",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=88s",
    "aussage": "Der Kreuzfilter bei Kacheln funktioniert jetzt auch, wenn die Kategorie als Kopfzeile nach oben angeordnet ist, nicht nur seitlich."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 1230,
-   "zeit": "20:30",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1230s",
+   "sekunde": 1246,
+   "zeit": "20:46",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1246s",
    "aussage": "Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 1322,
-   "zeit": "22:02",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1322s",
+   "sekunde": 1373,
+   "zeit": "22:53",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1373s",
    "aussage": "Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 2671,
-   "zeit": "44:31",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2671s",
+   "sekunde": 2773,
+   "zeit": "46:13",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2773s",
    "aussage": "Der im Fixer enthaltene Prototyper kann Berichtsseiten als Screenshot, Excalidraw-Datei oder SVG exportieren."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update März 2026",
    "dokument_id": "yt:ASwcPvbMRZc",
-   "sekunde": 42,
-   "zeit": "00:42",
-   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=42s",
+   "sekunde": 40,
+   "zeit": "00:40",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=40s",
    "aussage": "Die visuelle Oberfläche von Power BI Desktop wurde mit neuen Standardeinstellungen modernisiert."
   },
   {
    "typ": "Meinung",
    "dokument": "Power BI Update März 2026",
    "dokument_id": "yt:ASwcPvbMRZc",
-   "sekunde": 42,
-   "zeit": "00:42",
-   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=42s",
+   "sekunde": 40,
+   "zeit": "00:40",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=40s",
    "aussage": "Der neue graue Standardhintergrund der visuellen Oberfläche gefällt dem Sprecher nicht."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update März 2026",
    "dokument_id": "yt:ASwcPvbMRZc",
-   "sekunde": 337,
-   "zeit": "05:37",
-   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=337s",
+   "sekunde": 342,
+   "zeit": "05:42",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=342s",
    "aussage": "Für Zeilenbeschriftungen lassen sich jetzt Führungslinien aktivieren, die bei engem Platz die Zuordnung zu den Werten erleichtern."
   },
   {
@@ -263,9 +263,9 @@
    "typ": "Meinung",
    "dokument": "BI Thinkers Talk n.73",
    "dokument_id": "yt:pOJpXxsfUt0",
-   "sekunde": 789,
-   "zeit": "13:09",
-   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=789s",
+   "sekunde": 823,
+   "zeit": "13:43",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=823s",
    "aussage": "Nach Einschätzung des Sprechers besteht der Tooltip-Fehler bei kombinierten Line-and-Column-Charts mit zwei Achsen bereits seit 2023."
   },
   {
@@ -317,28 +317,28 @@
    "typ": "Fakt",
    "dokument": "Power BI vs. Qlik",
    "dokument_id": "yt:vd1r02bj9Qk",
-   "sekunde": 217,
-   "zeit": "03:37",
-   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=217s",
+   "sekunde": 206,
+   "zeit": "03:26",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=206s",
+   "aussage": "In Power BI ist das gezielte farbliche Hervorheben einer einzelnen Linie in einem Liniendiagramm aufwendiger als in Excel."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 226,
+   "zeit": "03:46",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=226s",
    "aussage": "In Qlik ist ein Streudiagramm bei großen, komplexen Datenmengen schwer zu konfigurieren."
   },
   {
    "typ": "Meinung",
    "dokument": "Power BI vs. Qlik",
    "dokument_id": "yt:vd1r02bj9Qk",
-   "sekunde": 217,
-   "zeit": "03:37",
-   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=217s",
+   "sekunde": 256,
+   "zeit": "04:16",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=256s",
    "aussage": "Oliver hält es für schlechtes Design, riesige Datenmengen komplett auf einmal visualisieren zu wollen, unabhängig vom verwendeten Tool."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "Power BI vs. Qlik",
-   "dokument_id": "yt:vd1r02bj9Qk",
-   "sekunde": 217,
-   "zeit": "03:37",
-   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=217s",
-   "aussage": "In Power BI ist das gezielte farbliche Hervorheben einer einzelnen Linie in einem Liniendiagramm aufwendiger als in Excel."
   },
   {
    "typ": "Meinung",
@@ -353,9 +353,9 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.72",
    "dokument_id": "yt:luk4S4ukKmg",
-   "sekunde": 652,
-   "zeit": "10:52",
-   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=652s",
+   "sekunde": 690,
+   "zeit": "11:30",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=690s",
    "aussage": "Für die gewünschte Wasserfall-Darstellung wurden zwei Eigenbau-Varianten entwickelt: eine Kombination aus gestapeltem Balkendiagramm und Liniendiagramm sowie eine Lösung mit Deneb."
   },
   {
@@ -371,18 +371,18 @@
    "typ": "Empfehlung",
    "dokument": "Power BI: (Vertriebs-) Regionen in Azure Maps",
    "dokument_id": "yt:CvaOkO37HMU",
-   "sekunde": 1315,
-   "zeit": "21:55",
-   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1315s",
+   "sekunde": 1328,
+   "zeit": "22:08",
+   "url": "https://www.youtube.com/watch?v=CvaOkO37HMU&t=1328s",
    "aussage": "Über die bedingte Formatierung der Polygone lässt sich die Referenzebene als Farbverlauf (Heatmap) nach einer Kennzahl wie dem Umsatz einfärben."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.72",
    "dokument_id": "yt:luk4S4ukKmg",
-   "sekunde": 1639,
-   "zeit": "27:19",
-   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=1639s",
+   "sekunde": 1642,
+   "zeit": "27:22",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=1642s",
    "aussage": "Fachlich wird zwischen Wasserfall als Darstellung einer Zusammensetzung und Brücke als Darstellung einer Veränderung unterschieden, auch wenn zum Beispiel Wikipedia beide Begriffe synonym verwendet."
   },
   {
@@ -407,18 +407,18 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 2788,
-   "zeit": "46:28",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2788s",
+   "sekunde": 2742,
+   "zeit": "45:42",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2742s",
    "aussage": "Der maximale Wert für die Breite eines visuellen Rahmens um ein Visual in Power BI beträgt 99."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 3853,
-   "zeit": "1:04:13",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=3853s",
+   "sekunde": 3833,
+   "zeit": "1:03:53",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=3833s",
    "aussage": "In Power BI gibt es vier Standardvisualisierungen mit horizontalen Balken: gestapelte, gruppierte und 100%-gestapelte Balkendiagramme sowie das Trichterdiagramm."
   },
   {
@@ -533,31 +533,6 @@
    ]
   },
   {
-   "id": "yt:GsLfiuPlsQE",
-   "titel": "Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! | Power BI Tutorial",
-   "datum": "2025-10-01",
-   "abdeckung": "nur-zeitstempel",
-   "anteil": 0.667,
-   "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE",
-   "sprungmarken": [
-    {
-     "label": "00:41",
-     "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE&t=41s",
-     "sekunde": 41
-    },
-    {
-     "label": "03:00",
-     "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE&t=180s",
-     "sekunde": 180
-    },
-    {
-     "label": "04:30",
-     "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE&t=270s",
-     "sekunde": 270
-    }
-   ]
-  },
-  {
    "id": "yt:LVSttJlhrqM",
    "titel": "Power BI Update Oktober 2025",
    "datum": "2025-10-01",
@@ -579,6 +554,31 @@
      "label": "02:52",
      "url": "https://www.youtube.com/watch?v=LVSttJlhrqM&t=172s",
      "sekunde": 172
+    }
+   ]
+  },
+  {
+   "id": "yt:GsLfiuPlsQE",
+   "titel": "Visual Calculations erklärt – Prozent vom übergeordneten Wert einfach berechnen! | Power BI Tutorial",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.667,
+   "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE",
+   "sprungmarken": [
+    {
+     "label": "00:41",
+     "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE&t=41s",
+     "sekunde": 41
+    },
+    {
+     "label": "03:00",
+     "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE&t=180s",
+     "sekunde": 180
+    },
+    {
+     "label": "04:30",
+     "url": "https://www.youtube.com/watch?v=GsLfiuPlsQE&t=270s",
+     "sekunde": 270
     }
    ]
   },

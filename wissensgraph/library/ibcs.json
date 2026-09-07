@@ -4,7 +4,7 @@
  "typ": "thema",
  "slug": "ibcs",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/ibcs.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/ibcs.html",
@@ -19,7 +19,7 @@
   "SUCCESS",
   "Notation"
  ],
- "einordnung": "Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. Die Funktion \"Fix IBCS Variance Chart\" des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein. Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt.",
+ "einordnung": "Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt. Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals.",
  "nachbarn": [
   {
    "id": "tool:semantic-model",
@@ -171,45 +171,45 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 757,
-   "zeit": "12:37",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=757s",
-   "aussage": "Die Funktion \"Fix IBCS Variance Chart\" des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "BI Thinkers Talk nr.75",
-   "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 1230,
-   "zeit": "20:30",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1230s",
+   "sekunde": 1246,
+   "zeit": "20:46",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1246s",
    "aussage": "Das automatisiert erzeugte Balkendiagramm kam IBCS bereits nahe, weil es eine sortierte Y-Achse statt einer Kategorien-X-Achse nutzte, Gridlines entfernte und Data Labels beibehielt."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 1322,
-   "zeit": "22:02",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1322s",
+   "sekunde": 1373,
+   "zeit": "22:53",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1373s",
    "aussage": "Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.75",
+   "dokument_id": "yt:BQdSo6ZnmKY",
+   "sekunde": 1715,
+   "zeit": "28:35",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1715s",
+   "aussage": "Die Funktion \"Fix IBCS Variance Chart\" des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein."
   },
   {
    "typ": "Fakt",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 3128,
-   "zeit": "52:08",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3128s",
+   "sekunde": 3140,
+   "zeit": "52:20",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3140s",
    "aussage": "Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen."
   },
   {
    "typ": "Warnung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 5102,
-   "zeit": "1:25:02",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5102s",
+   "sekunde": 5112,
+   "zeit": "1:25:12",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5112s",
    "aussage": "Mit Copilot lassen sich IBCS-konforme Visualisierungen aktuell kaum umsetzen, weil kein nativer Zugriff auf spezialisierte Custom Visuals wie Integrated Variance Charts besteht."
   },
   {

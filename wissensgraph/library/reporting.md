@@ -3,7 +3,7 @@ id: "topic:reporting"
 name: "Reporting"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 44
 kernaussagen: 15
@@ -55,23 +55,25 @@ Berichtswesen, Controlling, Finance, Finanzen, P&L, GuV, Bericht, Berichte, Repo
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 17:42 | Ein konsolidiertes Reporting zeigt Bestellbedarf, auslaufende Lieferantenverträge und Krisenrisiko im zeitlichen Verlauf. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=1062s) |
-| Fakt | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 19:14 | Bei einer erkannten Materialunterdeckung generiert das System automatisch einen Bestellvorschlag samt Lieferantenliste mit individuellem Krisenrisiko-Score. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=1154s) |
-| Fakt | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 24:05 | Process Mining übersetzt in Systemen gespeicherte Daten in Prozessschritte und erzeugt so ein digitales Abbild aller historischen Prozessabläufe. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=1445s) |
-| Fakt | BI Thinkers Talk nr.75 | 44:31 | Der im Fixer enthaltene Prototyper kann Berichtsseiten als Screenshot, Excalidraw-Datei oder SVG exportieren. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2671s) |
-| Fakt | BI Thinkers Talk nr.75 | 47:52 | Über die in der PBIR-Datei gespeicherten Seitenverbindungen lässt sich die mehrstufige Navigationsstruktur eines Berichts sichtbar machen, was in Power BI Desktop selbst nicht einsehbar ist. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2872s) |
-| Fakt | BI Thinkers Talk nr.75 | 51:19 | Intelligence Sheets von Lumel sind in Fabric aktuell auf SQL-Datenbank-Verbindungen beschränkt. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3079s) |
-| Meinung | BI Thinkers Talk nr.75 | 56:25 | Der USP von Infofor-artigen Tools liegt laut Alex vor allem im Writeback und im Editieren großer Tabellen, was Power BI nativ nicht bietet. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3385s) |
-| Fakt | BI Thinkers Talk n.74 | 19:26 | Copilot für Power BI kann bei einer tenantweiten Suche einen passenden Bericht finden und direkt zu der referenzierten Kennzahl beziehungsweise Visual-Zeile springen. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1166s) |
-| Fakt | BI Thinkers Talk n.74 | 30:50 | Copilot generiert bei einer Anfrage in der Regel keine eigenen Kennzahlen, sondern verlinkt bevorzugt auf einen bereits vom Fachbereich verifizierten und freigegebenen Bericht. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1850s) |
-| Warnung | BI Thinkers Talk n.74 | 32:23 | Bei Week-to-Date-Kennzahlen kann eine noch nicht abgeschlossene aktuelle Woche fälschlich wie ein plötzlicher Einbruch der Werte wirken, wenn dies in der Darstellung nicht berücksichtigt wird. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1943s) |
-| Empfehlung | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 25:30 | Reports, die von niemandem für operative Entscheidungen genutzt werden, sollten identifiziert und abgeschaltet werden. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1530s) |
-| Meinung | Power BI vs. Qlik | 12:25 | Oliver vertritt die These, dass Qlik das stärkere Tool für Analysen ist, während Power BI und Qlik beim Reporting etwa gleichauf liegen. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=745s) |
-| Warnung | BI Thinkers Talk nr.67 | 14:42 | Berichte mit Writeback-Visuals wie InfoRiver sollten nach Möglichkeit nicht mehr in Power BI Desktop bearbeitet werden, weil ein erneutes Laden dort bereits von Nutzern eingegebene Daten überschreiben könnte. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=882s) |
-| Fakt | Metadaten als Superkraft | 01:34 | Nutzungsdaten sind ein zentraler Ansatzpunkt bei der Überarbeitung von Dashboards und Datenprodukten, weil sie zeigen, ob diese überhaupt verwendet werden. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=94s) |
-| Meinung | Fabric & Power BI Quarterly · 2026-2 | 51:30 | Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3090s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 2026-04 | 18:20 | auf die Sekunde | Ein konsolidiertes Reporting zeigt Bestellbedarf, auslaufende Lieferantenverträge und Krisenrisiko im zeitlichen Verlauf. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=1100s) |
+| Fakt | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 2026-04 | 19:42 | auf die Sekunde | Bei einer erkannten Materialunterdeckung generiert das System automatisch einen Bestellvorschlag samt Lieferantenliste mit individuellem Krisenrisiko-Score. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=1182s) |
+| Fakt | LogiMAT Arena Atrium 2026 \| Expert Forum - Supply Chain Risiko Management | 2026-04 | 25:19 | auf die Sekunde | Process Mining übersetzt in Systemen gespeicherte Daten in Prozessschritte und erzeugt so ein digitales Abbild aller historischen Prozessabläufe. | [▶](https://www.youtube.com/watch?v=DFw664hd1IE&t=1519s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 46:13 | auf die Sekunde | Der im Fixer enthaltene Prototyper kann Berichtsseiten als Screenshot, Excalidraw-Datei oder SVG exportieren. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2773s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 47:27 | auf die Sekunde | Über die in der PBIR-Datei gespeicherten Seitenverbindungen lässt sich die mehrstufige Navigationsstruktur eines Berichts sichtbar machen, was in Power BI Desktop selbst nicht einsehbar ist. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2847s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 50:25 | auf die Sekunde | Intelligence Sheets von Lumel sind in Fabric aktuell auf SQL-Datenbank-Verbindungen beschränkt. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3025s) |
+| Meinung | BI Thinkers Talk nr.75 | 2026-04 | 52:42 | auf die Sekunde | Der USP von Infofor-artigen Tools liegt laut Alex vor allem im Writeback und im Editieren großer Tabellen, was Power BI nativ nicht bietet. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3162s) |
+| Fakt | BI Thinkers Talk n.74 | 2026-03 | 19:26 | Abschnittsanfang | Copilot für Power BI kann bei einer tenantweiten Suche einen passenden Bericht finden und direkt zu der referenzierten Kennzahl beziehungsweise Visual-Zeile springen. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1166s) |
+| Fakt | BI Thinkers Talk n.74 | 2026-03 | 30:50 | Abschnittsanfang | Copilot generiert bei einer Anfrage in der Regel keine eigenen Kennzahlen, sondern verlinkt bevorzugt auf einen bereits vom Fachbereich verifizierten und freigegebenen Bericht. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1850s) |
+| Warnung | BI Thinkers Talk n.74 | 2026-03 | 32:23 | Abschnittsanfang | Bei Week-to-Date-Kennzahlen kann eine noch nicht abgeschlossene aktuelle Woche fälschlich wie ein plötzlicher Einbruch der Werte wirken, wenn dies in der Darstellung nicht berücksichtigt wird. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=1943s) |
+| Empfehlung | Digitalisierung seit 20 Jahren — wann sind wir endlich fertig? | 2026-02 | 26:23 | auf die Sekunde | Reports, die von niemandem für operative Entscheidungen genutzt werden, sollten identifiziert und abgeschaltet werden. | [▶](https://www.youtube.com/watch?v=jETxUNQSl-w&t=1583s) |
+| Meinung | Power BI vs. Qlik | 2026-01 | 12:59 | auf die Sekunde | Oliver vertritt die These, dass Qlik das stärkere Tool für Analysen ist, während Power BI und Qlik beim Reporting etwa gleichauf liegen. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=779s) |
+| Warnung | BI Thinkers Talk nr.67 | 2025-09 | 20:02 | auf die Sekunde | Berichte mit Writeback-Visuals wie InfoRiver sollten nach Möglichkeit nicht mehr in Power BI Desktop bearbeitet werden, weil ein erneutes Laden dort bereits von Nutzern eingegebene Daten überschreiben könnte. | [▶](https://www.youtube.com/watch?v=G8s96sHUHac&t=1202s) |
+| Fakt | Metadaten als Superkraft |  | 01:33 | auf die Sekunde | Nutzungsdaten sind ein zentraler Ansatzpunkt bei der Überarbeitung von Dashboards und Datenprodukten, weil sie zeigen, ob diese überhaupt verwendet werden. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=93s) |
+| Meinung | Fabric & Power BI Quarterly · 2026-2 |  | 51:30 | Abschnittsanfang | Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3090s) |
 
 ## Dokumente
 
@@ -104,8 +106,8 @@ Berichtswesen, Controlling, Finance, Finanzen, P&L, GuV, Bericht, Berichte, Repo
 | [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [48:27](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2907s) · [49:58](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2998s) · [51:30](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3090s) |
 | [Von Patronen zu Prozessen](https://www.youtube.com/watch?v=0cHtxIm7fVw) | 2025-08-01 | nur-zeitstempel | [15:28](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=928s) · [17:12](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=1032s) · [18:48](https://www.youtube.com/watch?v=0cHtxIm7fVw&t=1128s) |
 | [Von Patronen zu Prozessen (nur Ton)](https://www.youtube.com/watch?v=s3CveEVoDvo) | 2025-07-01 | nur-zeitstempel | [15:28](https://www.youtube.com/watch?v=s3CveEVoDvo&t=928s) · [17:12](https://www.youtube.com/watch?v=s3CveEVoDvo&t=1032s) · [18:46](https://www.youtube.com/watch?v=s3CveEVoDvo&t=1126s) |
-| [Is AI the New Paper — and Markdown the New Pen?](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html) |
 | [Ist KI das neue Papier — und Markdown der neue Stift?](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum.html) |
+| [Is AI the New Paper — and Markdown the New Pen?](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/prototyping-pnl-treiberbaum_en.html) |
 | [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [47:19](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2839s) · [1:11:57](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=4317s) · [1:26:35](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5195s) |
 | [Fabric & Power BI Quarterly · 2025 Q3](https://www.youtube.com/watch?v=lZvpCBMKASM) | — | nur-zeitstempel | [15:35](https://www.youtube.com/watch?v=lZvpCBMKASM&t=935s) · [20:52](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1252s) · [22:34](https://www.youtube.com/watch?v=lZvpCBMKASM&t=1354s) |
 | [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | nur-zeitstempel | [07:44](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=464s) · [22:24](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1344s) · [27:54](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1674s) |

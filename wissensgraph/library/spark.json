@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "spark",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/spark.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/spark.html",
@@ -159,9 +159,9 @@
    "typ": "Fakt",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 160,
-   "zeit": "02:40",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s",
+   "sekunde": 219,
+   "zeit": "03:39",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=219s",
    "aussage": "Die Replikation der Tabelle selbst erzeugt keine zusätzlichen Fabric-Kapazitätskosten, erst der Datenzugriff über SQL, Power BI oder Spark wird nach den regulären Tarifen berechnet."
   }
  ],

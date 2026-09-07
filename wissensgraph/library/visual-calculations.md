@@ -3,7 +3,7 @@ id: "tool:visual-calculations"
 name: "Visual Calculations"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 16
 kernaussagen: 5
@@ -38,13 +38,15 @@ visuelle Berechnungen, Visual Calculation
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | Power BI Update März 2026 | 02:28 | Mit den Custom Totals lässt sich die Gesamtsumme einer Kennzahl (Measure Totals) individuell anders berechnen als die Summe der Einzelzeilen. | [▶](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=148s) |
-| Warnung | Power BI Update März 2026 | 04:06 | Custom Totals sollten bei nicht-additiven Werten wie Prozenten oder Verhältnissen vorsichtig verwendet werden, weil eine einfache Summe hier oft nicht sinnvoll ist. | [▶](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=246s) |
-| Fakt | Power BI Update März 2026 | 04:06 | Hinter einem Custom Total steckt technisch eine visuelle Berechnung mit einem EXPAND ALL und einer Summe über die Zeilen, die sich öffnen und bearbeiten lässt. | [▶](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=246s) |
-| Fakt | BI Thinkers Talk nr.71 | 24:01 | In Power BI Desktop lassen sich Berechnungen als berechnete Spalten, als Measures oder als Visual Calculations erstellen. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1441s) |
-| Empfehlung | Fabric & Power BI Quarterly · 2026-2 | 02:15 | Wiederverwertbare Berechnungslogik sollte dauerhaft ins Semantic Model statt in Visual Calculations gepackt werden, da Visual Calculations eher ein Shortcut sind. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=135s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Power BI Update März 2026 | 2026-03 | 02:33 | auf die Sekunde | Mit den Custom Totals lässt sich die Gesamtsumme einer Kennzahl (Measure Totals) individuell anders berechnen als die Summe der Einzelzeilen. | [▶](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=153s) |
+| Warnung | Power BI Update März 2026 | 2026-03 | 03:27 | auf die Sekunde | Custom Totals sollten bei nicht-additiven Werten wie Prozenten oder Verhältnissen vorsichtig verwendet werden, weil eine einfache Summe hier oft nicht sinnvoll ist. | [▶](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=207s) |
+| Fakt | Power BI Update März 2026 | 2026-03 | 05:10 | auf die Sekunde | Hinter einem Custom Total steckt technisch eine visuelle Berechnung mit einem EXPAND ALL und einer Summe über die Zeilen, die sich öffnen und bearbeiten lässt. | [▶](https://www.youtube.com/watch?v=ASwcPvbMRZc&t=310s) |
+| Fakt | BI Thinkers Talk nr.71 | 2025-12 | 25:16 | auf die Sekunde | In Power BI Desktop lassen sich Berechnungen als berechnete Spalten, als Measures oder als Visual Calculations erstellen. | [▶](https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1516s) |
+| Empfehlung | Fabric & Power BI Quarterly · 2026-2 |  | 02:46 | auf die Sekunde | Wiederverwertbare Berechnungslogik sollte dauerhaft ins Semantic Model statt in Visual Calculations gepackt werden, da Visual Calculations eher ein Shortcut sind. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=166s) |
 
 ## Dokumente
 

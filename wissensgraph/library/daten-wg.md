@@ -3,7 +3,7 @@ id: "topic:daten-wg"
 name: "Daten-WG"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 80
 kernaussagen: 16
@@ -47,24 +47,26 @@ Daten WG, DatenWG
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Die Daten-WG veranstaltet im Herbst eine eigene, kleine Konferenz. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Die Daten-WG-Konferenz findet in diesem Jahr bereits zum zweiten Mal statt. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 00:00 | Die Daten-WG möchte mit ihrer Konferenz wachsen und ähnlich groß werden wie die SQL-Konferenz. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=0s) |
-| Fakt | Power BI Update April 2026 | 04:22 | Die Daten-WG-Konferenz findet im Oktober wieder in Köln statt, und die Agenda mit Speakern und Precons ist veröffentlicht. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=262s) |
-| Empfehlung | Power BI Update April 2026 | 04:22 | Interessierten wird empfohlen, sich die veröffentlichte Agenda der Daten-WG-Konferenz anzusehen und bei Interesse vorbeizukommen. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=262s) |
-| Fakt | BI Thinkers Talk nr.75 | 1:02:41 | Ab Mai sind bei den BI Thinkers Talks ein Auftritt von Stefan Werner sowie ein gemeinsamer Stream mit Ren Fürstenberg und Joris Karle geplant. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3761s) |
-| Fakt | MCP@Daten-WG@SQL Konferenz | 00:00 | Die Aufnahme entstand am Stand der Daten-WG auf der SQL Konferenz. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s) |
-| Fakt | MCP@Daten-WG@SQL Konferenz | 00:00 | Michael hält auf der SQL Konferenz eine Lunch Session zum Thema MCP-Server. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s) |
-| Empfehlung | MCP@Daten-WG@SQL Konferenz | 00:00 | Die Daten-WG lädt Besucher der SQL Konferenz ein, ihren Stand zu besuchen. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s) |
-| Fakt | Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite | 04:41 | Der Vortrag über den Bullwhip-Effekt wurde beim Daten-WG Offsite als einer von mehreren rund zehnminütigen Impulsvorträgen gehalten. | [▶](https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s) |
-| Empfehlung | Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite | 04:41 | Der Redner rät dem Publikum, den Erfahrungsberichten der nachfolgenden Vortragenden genau zuzuhören und die daraus gewonnenen Impulse mit in die eigene Arbeit und das eigene Unternehmen zu nehmen. | [▶](https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s) |
-| Fakt | Power BI vs. Qlik | 01:38 | Arthur und Oliver haben eine dreiteilige Challenge mit identischen Aufgaben in Qlik und Power BI durchgeführt: Basics, Modellierung und Visualisierung. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=98s) |
-| Fakt | BI Thinkers Talk Nr.62 | 01:35 | Markus hat sein erstes Update-Video im Mai 2019 veröffentlicht. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=95s) |
-| Fakt | BI Thinkers Talk Nr.62 | 04:56 | Der BI Thinkers Talk ist mit der aktuellen Folge bei Nummer 62 angekommen, vier Jahre nach der ersten Ausgabe. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=296s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-2 |  | Die Daten-WG-Konferenz 2026 findet am 15. Oktober statt. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg) |
-| Fakt | Was ist Self-Service und warum ist das so schwer? |  | Tom Martens kündigt an, für die Daten-WG-Konferenz im Oktober mehrere Vortragseinreichungen einzureichen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:17 | auf die Sekunde | Die Daten-WG veranstaltet im Herbst eine eigene, kleine Konferenz. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=17s) |
+| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:23 | auf die Sekunde | Die Daten-WG möchte mit ihrer Konferenz wachsen und ähnlich groß werden wie die SQL-Konferenz. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=23s) |
+| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:34 | auf die Sekunde | Die Daten-WG-Konferenz findet in diesem Jahr bereits zum zweiten Mal statt. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=34s) |
+| Fakt | Power BI Update April 2026 | 2026-04 | 04:30 | auf die Sekunde | Die Daten-WG-Konferenz findet im Oktober wieder in Köln statt, und die Agenda mit Speakern und Precons ist veröffentlicht. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=270s) |
+| Empfehlung | Power BI Update April 2026 | 2026-04 | 04:33 | auf die Sekunde | Interessierten wird empfohlen, sich die veröffentlichte Agenda der Daten-WG-Konferenz anzusehen und bei Interesse vorbeizukommen. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=273s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 1:03:30 | auf die Sekunde | Ab Mai sind bei den BI Thinkers Talks ein Auftritt von Stefan Werner sowie ein gemeinsamer Stream mit Ren Fürstenberg und Joris Karle geplant. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3810s) |
+| Fakt | MCP@Daten-WG@SQL Konferenz | 2026-03 | 00:03 | auf die Sekunde | Die Aufnahme entstand am Stand der Daten-WG auf der SQL Konferenz. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=3s) |
+| Empfehlung | MCP@Daten-WG@SQL Konferenz | 2026-03 | 00:03 | auf die Sekunde | Die Daten-WG lädt Besucher der SQL Konferenz ein, ihren Stand zu besuchen. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=3s) |
+| Fakt | MCP@Daten-WG@SQL Konferenz | 2026-03 | 00:10 | auf die Sekunde | Michael hält auf der SQL Konferenz eine Lunch Session zum Thema MCP-Server. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=10s) |
+| Fakt | Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite | 2026-03 | 04:41 | Abschnittsanfang | Der Vortrag über den Bullwhip-Effekt wurde beim Daten-WG Offsite als einer von mehreren rund zehnminütigen Impulsvorträgen gehalten. | [▶](https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s) |
+| Empfehlung | Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite | 2026-03 | 06:10 | auf die Sekunde | Der Redner rät dem Publikum, den Erfahrungsberichten der nachfolgenden Vortragenden genau zuzuhören und die daraus gewonnenen Impulse mit in die eigene Arbeit und das eigene Unternehmen zu nehmen. | [▶](https://www.youtube.com/watch?v=sq8AWk_yNWM&t=370s) |
+| Fakt | Power BI vs. Qlik | 2026-01 | 01:38 | Abschnittsanfang | Arthur und Oliver haben eine dreiteilige Challenge mit identischen Aufgaben in Qlik und Power BI durchgeführt: Basics, Modellierung und Visualisierung. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=98s) |
+| Fakt | BI Thinkers Talk Nr.62 | 2025-05 | 01:57 | auf die Sekunde | Markus hat sein erstes Update-Video im Mai 2019 veröffentlicht. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=117s) |
+| Fakt | BI Thinkers Talk Nr.62 | 2025-05 | 04:56 | Abschnittsanfang | Der BI Thinkers Talk ist mit der aktuellen Folge bei Nummer 62 angekommen, vier Jahre nach der ersten Ausgabe. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=296s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-2 |  |  | Abschnittsanfang | Die Daten-WG-Konferenz 2026 findet am 15. Oktober statt. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg) |
+| Fakt | Was ist Self-Service und warum ist das so schwer? |  |  | Abschnittsanfang | Tom Martens kündigt an, für die Daten-WG-Konferenz im Oktober mehrere Vortragseinreichungen einzureichen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc) |
 
 ## Dokumente
 
@@ -90,8 +92,8 @@ Daten WG, DatenWG
 | [Wie viel CO₂ steckt in einem Token? — KI-Energie-Simulator](https://datenwgknowledgekitchen.com/ki-co2-simulator.html) | 2026-07-03 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-co2-simulator.html) |
 | [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=0s) · [01:38](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=98s) |
 | [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Community%20%C2%B7%20Deutschsprachig%20%26%20Video) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Das%20%E2%80%9EOne%20Copy%22-Prinzip) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Bausteine) |
-| [Report-Design als Framework — ein Skill für Power BI](https://datenwgknowledgekitchen.com/powerbi-design-skill.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Der%20Praxistest%3A%20%2Adiese%20Webseite%20als%20Branding-Quelle%2A) |
 | [Business Chart Builder — Anleitung](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Auch%20ohne%20Power%20BI%3A%20schnell%20starten%2C%20annotieren%2C%20ausgeben%20%F0%9F%98%89) |
+| [Report-Design als Framework — ein Skill für Power BI](https://datenwgknowledgekitchen.com/powerbi-design-skill.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Der%20Praxistest%3A%20%2Adiese%20Webseite%20als%20Branding-Quelle%2A) |
 | [BI Thinkers Talk nr.77](https://www.youtube.com/watch?v=eWfTt93anl4) | — | nur-zeitstempel | [01:38](https://www.youtube.com/watch?v=eWfTt93anl4&t=98s) · [33:39](https://www.youtube.com/watch?v=eWfTt93anl4&t=2019s) · [58:26](https://www.youtube.com/watch?v=eWfTt93anl4&t=3506s) |
 | [Objektive Daten gibt es nicht](https://www.youtube.com/watch?v=-_4bfrjRCVo) | 2026-06-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=0s) · [44:22](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2662s) · [45:55](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2755s) |
 | [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=0s) · [00:20](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=20s) |

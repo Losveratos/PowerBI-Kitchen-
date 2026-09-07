@@ -3,7 +3,7 @@ id: "topic:open-source"
 name: "Open Source"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 9
 kernaussagen: 0

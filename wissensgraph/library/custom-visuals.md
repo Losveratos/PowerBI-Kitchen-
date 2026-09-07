@@ -3,7 +3,7 @@ id: "tool:custom-visuals"
 name: "Custom Visuals"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 19
 kernaussagen: 20
@@ -49,28 +49,30 @@ Custom Visual, benutzerdefinierte Visuals, pbiviz, AppSource
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Fakt | BI Thinkers Talk nr.76 | 25:29 | Bei HTML-Custom-Visuals in Power BI wird der HTML-Code in eine DAX-Formel geschrieben, die als Measure in das HTML-Visual gezogen wird. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1529s) |
-| Warnung | BI Thinkers Talk nr.76 | 28:30 | Auch klassische Power-BI-Custom-Visuals unterliegen einer Beschränkung auf 30.000 Datenpunkte, was etwa bei Boxplots zum Verlust von Ausreißerinformationen führen kann. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1710s) |
-| Meinung | BI Thinkers Talk nr.76 | 30:01 | Nach Einschätzung des Gasts ist man bei echten Power-BI-Custom-Visuals freier in der Gestaltung als bei Deneb, das an festere Vega-Lite-Strukturen gebunden ist. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1801s) |
-| Meinung | BI Thinkers Talk nr.76 | 56:52 | Der Gast schätzt, dass ein herkömmlicher Custom-Visual-Zugang im Schnitt 500 bis 600 Dollar kostet, während ein mit KI selbst gebautes Äquivalent nur etwa 200 Dollar Kosten verursacht. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3412s) |
-| Fakt | Power BI Update April 2026 | 02:58 | Preview-Visuals werden in Power BI Desktop jetzt unten angepinnt angezeigt, damit sie leichter als Preview erkennbar sind. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s) |
-| Fakt | BI Thinkers Talk nr.75 | 22:02 | Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1322s) |
-| Meinung | BI Thinkers Talk nr.75 | 56:25 | Der USP von Infofor-artigen Tools liegt laut Alex vor allem im Writeback und im Editieren großer Tabellen, was Power BI nativ nicht bietet. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3385s) |
-| Meinung | BI Thinkers Talk n.74 | 01:39 | In der Runde gilt der Button Slicer als das beste Slicer-Visual in Power BI. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=99s) |
-| Fakt | BI Thinkers Talk n.74 | 05:02 | Die neue Karten-Visual-Kachel in Power BI Desktop unterstützt Kreuzfilterung nur, wenn die Kategorienkopfzeile horizontal oben statt seitlich links angeordnet ist. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=302s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-1 | 02:24 | Der Button Slicer ist nun offiziell aus der Preview heraus und hat weitere Verbesserungen erhalten. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=144s) |
-| Fakt | BI Thinkers Talk n.72 | 15:46 | Ein Kunde entschied sich trotz einer passenderen Custom-Visual-Alternative für die Umsetzung mit dem Standard-Visual, weil der Einkaufsprozess für kostenpflichtige Custom Visuals ein großes Hindernis darstellt. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=946s) |
-| Meinung | BI Thinkers Talk n.72 | 19:12 | Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1152s) |
-| Warnung | 10 Jahre Power BI | 52:08 | Ein Sprecher kritisiert, dass Power BI bis heute keinen nativen Boxplot als Standardvisual anbietet, obwohl es sich um einen gängigen Diagrammtyp handelt. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3128s) |
-| Fakt | 10 Jahre Power BI | 52:08 | Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3128s) |
-| Warnung | 10 Jahre Power BI | 1:25:02 | Mit Copilot lassen sich IBCS-konforme Visualisierungen aktuell kaum umsetzen, weil kein nativer Zugriff auf spezialisierte Custom Visuals wie Integrated Variance Charts besteht. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5102s) |
-| Fakt | BI Thinkers Talk Nr.62 | 39:51 | Aktuell können nur bestimmte neue Slicer-Visuals als Eingabe für eine per Button ausgelöste Datenfunktion dienen. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2391s) |
-| Empfehlung | BI Thinkers Talk Nr.62 | 43:00 | Microsoft empfiehlt den Textdatenschnitt als Workaround, um Freitext für eine Datenfunktion einzugeben. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2580s) |
-| Warnung | BI Thinkers Talk Nr.62 | 56:00 | Die neuen Slicer unterstützen aktuell keine Hierarchien als Auswahlbedingung für eine Datenfunktion, auch nicht der Hierarchy Slicer. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3360s) |
-| Fakt | Was ist Self-Service und warum ist das so schwer? | 07:02 | Deneb-Visuals erfordern Coding beziehungsweise Scripting mit Vega beziehungsweise Vega-Lite, sobald ein Endanwender einen speziellen Visualisierungs-Task lösen will, der im Standardumfang von Power BI nicht möglich ist. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=422s) |
-| Meinung | Was ist Self-Service und warum ist das so schwer? | 10:23 | Komplexe Deneb-Charts sind für Fachanwender oft nicht wartbar, weshalb einige lieber zwei einfache, handwerklich unschöne Balkendiagramme übereinanderlegen, statt eine elegante, aber schwer änderbare Deneb-Lösung zu nutzen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=623s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | BI Thinkers Talk nr.76 | 2026-05 | 25:29 | Abschnittsanfang | Bei HTML-Custom-Visuals in Power BI wird der HTML-Code in eine DAX-Formel geschrieben, die als Measure in das HTML-Visual gezogen wird. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1529s) |
+| Warnung | BI Thinkers Talk nr.76 | 2026-05 | 28:30 | Abschnittsanfang | Auch klassische Power-BI-Custom-Visuals unterliegen einer Beschränkung auf 30.000 Datenpunkte, was etwa bei Boxplots zum Verlust von Ausreißerinformationen führen kann. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1710s) |
+| Meinung | BI Thinkers Talk nr.76 | 2026-05 | 30:01 | Abschnittsanfang | Nach Einschätzung des Gasts ist man bei echten Power-BI-Custom-Visuals freier in der Gestaltung als bei Deneb, das an festere Vega-Lite-Strukturen gebunden ist. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=1801s) |
+| Meinung | BI Thinkers Talk nr.76 | 2026-05 | 58:22 | auf die Sekunde | Der Gast schätzt, dass ein herkömmlicher Custom-Visual-Zugang im Schnitt 500 bis 600 Dollar kostet, während ein mit KI selbst gebautes Äquivalent nur etwa 200 Dollar Kosten verursacht. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3502s) |
+| Fakt | Power BI Update April 2026 | 2026-04 | 04:00 | auf die Sekunde | Preview-Visuals werden in Power BI Desktop jetzt unten angepinnt angezeigt, damit sie leichter als Preview erkennbar sind. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=240s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 22:53 | auf die Sekunde | Für IBCS-konforme Inline-Variance-Charts verwendet der Fixer keine Custom Visuals, sondern die Error Bars der Power-BI-Core-Visuals. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1373s) |
+| Meinung | BI Thinkers Talk nr.75 | 2026-04 | 52:42 | auf die Sekunde | Der USP von Infofor-artigen Tools liegt laut Alex vor allem im Writeback und im Editieren großer Tabellen, was Power BI nativ nicht bietet. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3162s) |
+| Meinung | BI Thinkers Talk n.74 | 2026-03 | 02:28 | auf die Sekunde | In der Runde gilt der Button Slicer als das beste Slicer-Visual in Power BI. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=148s) |
+| Fakt | BI Thinkers Talk n.74 | 2026-03 | 05:22 | auf die Sekunde | Die neue Karten-Visual-Kachel in Power BI Desktop unterstützt Kreuzfilterung nur, wenn die Kategorienkopfzeile horizontal oben statt seitlich links angeordnet ist. | [▶](https://www.youtube.com/watch?v=rWE0gMx7v7I&t=322s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 02:29 | auf die Sekunde | Der Button Slicer ist nun offiziell aus der Preview heraus und hat weitere Verbesserungen erhalten. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=149s) |
+| Fakt | BI Thinkers Talk n.72 | 2026-01 | 16:51 | auf die Sekunde | Ein Kunde entschied sich trotz einer passenderen Custom-Visual-Alternative für die Umsetzung mit dem Standard-Visual, weil der Einkaufsprozess für kostenpflichtige Custom Visuals ein großes Hindernis darstellt. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1011s) |
+| Meinung | BI Thinkers Talk n.72 | 2026-01 | 19:12 | Abschnittsanfang | Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1152s) |
+| Warnung | 10 Jahre Power BI | 2025-07 | 52:08 | Abschnittsanfang | Ein Sprecher kritisiert, dass Power BI bis heute keinen nativen Boxplot als Standardvisual anbietet, obwohl es sich um einen gängigen Diagrammtyp handelt. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3128s) |
+| Fakt | 10 Jahre Power BI | 2025-07 | 52:20 | auf die Sekunde | Für die Umsetzung von IBCS-konformen Charts in Power BI werden Custom Visuals als notwendig beschrieben, weil native Bordmittel dafür nicht ausreichen. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=3140s) |
+| Warnung | 10 Jahre Power BI | 2025-07 | 1:25:12 | auf die Sekunde | Mit Copilot lassen sich IBCS-konforme Visualisierungen aktuell kaum umsetzen, weil kein nativer Zugriff auf spezialisierte Custom Visuals wie Integrated Variance Charts besteht. | [▶](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=5112s) |
+| Fakt | BI Thinkers Talk Nr.62 | 2025-05 | 40:55 | auf die Sekunde | Aktuell können nur bestimmte neue Slicer-Visuals als Eingabe für eine per Button ausgelöste Datenfunktion dienen. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2455s) |
+| Empfehlung | BI Thinkers Talk Nr.62 | 2025-05 | 43:08 | auf die Sekunde | Microsoft empfiehlt den Textdatenschnitt als Workaround, um Freitext für eine Datenfunktion einzugeben. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=2588s) |
+| Warnung | BI Thinkers Talk Nr.62 | 2025-05 | 56:29 | auf die Sekunde | Die neuen Slicer unterstützen aktuell keine Hierarchien als Auswahlbedingung für eine Datenfunktion, auch nicht der Hierarchy Slicer. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=3389s) |
+| Fakt | Was ist Self-Service und warum ist das so schwer? |  | 07:02 | auf die Sekunde | Deneb-Visuals erfordern Coding beziehungsweise Scripting mit Vega beziehungsweise Vega-Lite, sobald ein Endanwender einen speziellen Visualisierungs-Task lösen will, der im Standardumfang von Power BI nicht möglich ist. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=422s) |
+| Meinung | Was ist Self-Service und warum ist das so schwer? |  | 10:23 | Abschnittsanfang | Komplexe Deneb-Charts sind für Fachanwender oft nicht wartbar, weshalb einige lieber zwei einfache, handwerklich unschöne Balkendiagramme übereinanderlegen, statt eine elegante, aber schwer änderbare Deneb-Lösung zu nutzen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=623s) |
 
 ## Dokumente
 

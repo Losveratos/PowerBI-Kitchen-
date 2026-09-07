@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "dax",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/dax.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/dax.html",
@@ -16,7 +16,7 @@
  "aliase": [
   "Data Analysis Expressions"
  ],
- "einordnung": "Der Input Slicer bietet automatisch einen Anti-Filter wie 'enthält nicht', für den früher DAX-Workarounds nötig waren. Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte. Die neue DAX-Funktion TABLEOF liefert zu einem angegebenen Measure oder einer Spalte die zugehörige gesamte Tabelle zurück.",
+ "einordnung": "Der Input Slicer bietet automatisch einen Anti-Filter wie 'enthält nicht', für den früher DAX-Workarounds nötig waren. Die neue DAX-Funktion TABLEOF liefert zu einem angegebenen Measure oder einer Spalte die zugehörige gesamte Tabelle zurück. Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte.",
  "nachbarn": [
   {
    "id": "tool:field-parameters",
@@ -177,91 +177,91 @@
    "typ": "Fakt",
    "dokument": "Power BI Update April 2026",
    "dokument_id": "yt:fbpu8zLG3cc",
-   "sekunde": 115,
-   "zeit": "01:55",
-   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=115s",
+   "sekunde": 151,
+   "zeit": "02:31",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=151s",
    "aussage": "Die neue Benutzer-Awareness bei Spalten funktioniert bislang nur für DAX-berechnete Spalten, nicht für alle Spaltentypen."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update April 2026",
    "dokument_id": "yt:fbpu8zLG3cc",
-   "sekunde": 178,
-   "zeit": "02:58",
-   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s",
+   "sekunde": 151,
+   "zeit": "02:31",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=151s",
    "aussage": "Mit der Benutzer-Awareness lässt sich die Darstellung einer Spalte an die Culture-Einstellung des jeweiligen Nutzers anpassen, etwa bei Zahlen- und Datumsformaten."
   },
   {
    "typ": "Meinung",
    "dokument": "Power BI Update April 2026",
    "dokument_id": "yt:fbpu8zLG3cc",
-   "sekunde": 178,
-   "zeit": "02:58",
-   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s",
-   "aussage": "Der Autor hält das Culture-Awareness-Feature für DAX-Spalten für das Update mit dem größten praktischen Impact in diesem Release."
+   "sekunde": 216,
+   "zeit": "03:36",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=216s",
+   "aussage": "Die Culture-Awareness-Funktion könnte künftig auch für Anwendungsfälle wie Währungsumrechnung oder mehrsprachige Produktnamen in Tabellen genutzt werden."
   },
   {
    "typ": "Meinung",
    "dokument": "Power BI Update April 2026",
    "dokument_id": "yt:fbpu8zLG3cc",
-   "sekunde": 178,
-   "zeit": "02:58",
-   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=178s",
-   "aussage": "Die Culture-Awareness-Funktion könnte künftig auch für Anwendungsfälle wie Währungsumrechnung oder mehrsprachige Produktnamen in Tabellen genutzt werden."
+   "sekunde": 225,
+   "zeit": "03:45",
+   "url": "https://www.youtube.com/watch?v=fbpu8zLG3cc&t=225s",
+   "aussage": "Der Autor hält das Culture-Awareness-Feature für DAX-Spalten für das Update mit dem größten praktischen Impact in diesem Release."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 471,
-   "zeit": "07:51",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=471s",
+   "sekunde": 536,
+   "zeit": "08:56",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=536s",
    "aussage": "Der Power BI Fixer bietet im Notebook eine alternative Oberfläche ähnlich Tabular Editor, um Measures und DAX-Ausdrücke direkt am Semantic Model zu bearbeiten und zu formatieren."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 757,
-   "zeit": "12:37",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=757s",
+   "sekunde": 1715,
+   "zeit": "28:35",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=1715s",
    "aussage": "Die Funktion \"Fix IBCS Variance Chart\" des Fixers fügt automatisiert rund 175 Measures für Labels, Deltas und Arrow-Bars in das Semantic Model ein."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update März 2026",
    "dokument_id": "yt:ASwcPvbMRZc",
-   "sekunde": 148,
-   "zeit": "02:28",
-   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=148s",
+   "sekunde": 153,
+   "zeit": "02:33",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=153s",
    "aussage": "Mit den Custom Totals lässt sich die Gesamtsumme einer Kennzahl (Measure Totals) individuell anders berechnen als die Summe der Einzelzeilen."
   },
   {
    "typ": "Warnung",
    "dokument": "Power BI Update März 2026",
    "dokument_id": "yt:ASwcPvbMRZc",
-   "sekunde": 246,
-   "zeit": "04:06",
-   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=246s",
+   "sekunde": 207,
+   "zeit": "03:27",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=207s",
    "aussage": "Custom Totals sollten bei nicht-additiven Werten wie Prozenten oder Verhältnissen vorsichtig verwendet werden, weil eine einfache Summe hier oft nicht sinnvoll ist."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "Power BI Update März 2026",
-   "dokument_id": "yt:ASwcPvbMRZc",
-   "sekunde": 246,
-   "zeit": "04:06",
-   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=246s",
-   "aussage": "Hinter einem Custom Total steckt technisch eine visuelle Berechnung mit einem EXPAND ALL und einer Summe über die Zeilen, die sich öffnen und bearbeiten lässt."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 282,
-   "zeit": "04:42",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=282s",
+   "sekunde": 287,
+   "zeit": "04:47",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=287s",
    "aussage": "Über die DAX Query View ließ sich die KI triviale Measures für das Semantic Model anlegen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI Update März 2026",
+   "dokument_id": "yt:ASwcPvbMRZc",
+   "sekunde": 310,
+   "zeit": "05:10",
+   "url": "https://www.youtube.com/watch?v=ASwcPvbMRZc&t=310s",
+   "aussage": "Hinter einem Custom Total steckt technisch eine visuelle Berechnung mit einem EXPAND ALL und einer Summe über die Zeilen, die sich öffnen und bearbeiten lässt."
   },
   {
    "typ": "Fakt",
@@ -285,37 +285,19 @@
    "typ": "Fakt",
    "dokument": "Field Parameter (Feldparameter) in Power BI richtig nutzen - „Werte des ausgewählten Felds anzeigen“",
    "dokument_id": "yt:v8dvnqqa7f8",
-   "sekunde": 71,
-   "zeit": "01:11",
-   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=71s",
+   "sekunde": 68,
+   "zeit": "01:08",
+   "url": "https://www.youtube.com/watch?v=v8dvnqqa7f8&t=68s",
    "aussage": "Power BI erzeugt beim Anlegen eines Feldparameters automatisch eine per DAX erstellte Parametertabelle sowie einen passenden Slicer."
   },
   {
    "typ": "Fakt",
    "dokument": "Power BI Update Februar 2026",
    "dokument_id": "yt:u-lgbDfIlLg",
-   "sekunde": 81,
-   "zeit": "01:21",
-   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=81s",
+   "sekunde": 82,
+   "zeit": "01:22",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=82s",
    "aussage": "Der Input Slicer bietet automatisch einen Anti-Filter wie 'enthält nicht', für den früher DAX-Workarounds nötig waren."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "Power BI Update Februar 2026",
-   "dokument_id": "yt:u-lgbDfIlLg",
-   "sekunde": 138,
-   "zeit": "02:18",
-   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
-   "aussage": "Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte."
-  },
-  {
-   "typ": "Meinung",
-   "dokument": "Power BI Update Februar 2026",
-   "dokument_id": "yt:u-lgbDfIlLg",
-   "sekunde": 138,
-   "zeit": "02:18",
-   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=138s",
-   "aussage": "NAMEOF wird laut dem Sprecher besonders in Calculation Groups bei verschachtelten Bedingungen nützlich."
   },
   {
    "typ": "Fakt",
@@ -336,6 +318,24 @@
    "aussage": "Der Sprecher erwartet, dass die neuen DAX-Funktionen NAMEOF und TABLEOF etliche bisherige Workarounds überflüssig machen werden."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Power BI Update Februar 2026",
+   "dokument_id": "yt:u-lgbDfIlLg",
+   "sekunde": 142,
+   "zeit": "02:22",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=142s",
+   "aussage": "Die DAX-Funktion NAMEOF, die ursprünglich aus Field Parameters stammt, ist jetzt separat verfügbar und liefert den Namen eines Measures oder einer Spalte."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Power BI Update Februar 2026",
+   "dokument_id": "yt:u-lgbDfIlLg",
+   "sekunde": 151,
+   "zeit": "02:31",
+   "url": "https://www.youtube.com/watch?v=u-lgbDfIlLg&t=151s",
+   "aussage": "NAMEOF wird laut dem Sprecher besonders in Calculation Groups bei verschachtelten Bedingungen nützlich."
+  },
+  {
    "typ": "Warnung",
    "dokument": "BI Thinkers Talk n.73",
    "dokument_id": "yt:pOJpXxsfUt0",
@@ -348,18 +348,18 @@
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk n.73",
    "dokument_id": "yt:pOJpXxsfUt0",
-   "sekunde": 1452,
-   "zeit": "24:12",
-   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=1452s",
+   "sekunde": 1496,
+   "zeit": "24:56",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=1496s",
    "aussage": "Field Parameters lassen sich um eine zusätzliche Spalte erweitern, die zusammengehörige Measures wie \"Quantity\" und \"Amount\" zu Kategorien gruppiert, sodass mehrere Measures gemeinsam über eine Filterauswahl gesteuert werden können."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-1",
    "dokument_id": "yt:TYp5xCAU2AU",
-   "sekunde": 541,
-   "zeit": "09:01",
-   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=541s",
+   "sekunde": 601,
+   "zeit": "10:01",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=601s",
    "aussage": "Für Power BI gibt es inzwischen einen offiziellen First-Party-MCP-Server, mit dem sich Measures direkt im Bericht ansehen und optimieren lassen."
   },
   {
@@ -375,72 +375,72 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 1248,
-   "zeit": "20:48",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1248s",
+   "sekunde": 1259,
+   "zeit": "20:59",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1259s",
    "aussage": "Mit der DAX-Funktion INFO.VIEW.RELATIONSHIPS lassen sich die Beziehungen eines Datenmodells als Tabelle ausgeben."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 1441,
-   "zeit": "24:01",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1441s",
+   "sekunde": 1516,
+   "zeit": "25:16",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=1516s",
    "aussage": "In Power BI Desktop lassen sich Berechnungen als berechnete Spalten, als Measures oder als Visual Calculations erstellen."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 2190,
-   "zeit": "36:30",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2190s",
+   "sekunde": 2257,
+   "zeit": "37:37",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2257s",
    "aussage": "Die DAX-Funktion TOTALYTD liefert die laufende Summe seit Jahresanfang."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 2604,
-   "zeit": "43:24",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2604s",
+   "sekunde": 2579,
+   "zeit": "42:59",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=2579s",
    "aussage": "Die DAX-Funktion SUBSTITUTE ersetzt einen Text durch einen anderen, ohne dass dafür eine Zeichenlänge angegeben werden muss."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 5633,
-   "zeit": "1:33:53",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=5633s",
+   "sekunde": 5681,
+   "zeit": "1:34:41",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=5681s",
    "aussage": "Es gibt insgesamt neun DAX-Funktionen, deren Name das Wort COUNT enthält."
   },
   {
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
    "dokument_id": "yt:mUALlPmGcEk",
-   "sekunde": 668,
-   "zeit": "11:08",
-   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=668s",
+   "sekunde": 757,
+   "zeit": "12:37",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=757s",
    "aussage": "Es wird empfohlen, eine zentrale, separate Datumstabelle im Modell zu führen, um Zeitlogiken einheitlich abbilden zu können."
   },
   {
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
    "dokument_id": "yt:mUALlPmGcEk",
-   "sekunde": 762,
-   "zeit": "12:42",
-   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=762s",
+   "sekunde": 836,
+   "zeit": "13:56",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=836s",
    "aussage": "Explizite Measures werden gegenüber impliziten, automatisch generierten Summen empfohlen, damit Kennzahlen auch für externe Werkzeuge verfügbar und einheitlich formatiert sind."
   },
   {
    "typ": "Warnung",
    "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
    "dokument_id": "yt:mUALlPmGcEk",
-   "sekunde": 1648,
-   "zeit": "27:28",
-   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=1648s",
+   "sekunde": 1715,
+   "zeit": "28:35",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=1715s",
    "aussage": "Sobald ein Modell mehr als eine Faktentabelle mit unterschiedlichen Dimensionen oder Granularitäten enthält, werden die benötigten DAX-Formeln in einer One-Big-Table deutlich komplexer als im Sternschema."
   },
   {
@@ -456,9 +456,9 @@
    "typ": "Meinung",
    "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
    "dokument_id": "yt:mUALlPmGcEk",
-   "sekunde": 3818,
-   "zeit": "1:03:38",
-   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=3818s",
+   "sekunde": 3839,
+   "zeit": "1:03:59",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=3839s",
    "aussage": "Anwender mit wenig DAX-Erfahrung erhalten in einem One-Big-Table-Modell häufiger automatisch die von ihnen erwarteten Ergebnisse als in einem dimensionalen Modell."
   },
   {
@@ -474,27 +474,27 @@
    "typ": "Meinung",
    "dokument": "10 Jahre Power BI",
    "dokument_id": "yt:ZaDd1uxeLbI",
-   "sekunde": 1102,
-   "zeit": "18:22",
-   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1102s",
+   "sekunde": 1135,
+   "zeit": "18:55",
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=1135s",
    "aussage": "Mit DAX ließen sich Lagerbestände zu einem bestimmten Zeitpunkt (Point in Time) einfacher berechnen als mit Set Analysis in Qlik."
   },
   {
    "typ": "Empfehlung",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
-   "sekunde": 135,
-   "zeit": "02:15",
-   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=135s",
+   "sekunde": 166,
+   "zeit": "02:46",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=166s",
    "aussage": "Wiederverwertbare Berechnungslogik sollte dauerhaft ins Semantic Model statt in Visual Calculations gepackt werden, da Visual Calculations eher ein Shortcut sind."
   },
   {
    "typ": "Fakt",
    "dokument": "Metadaten als Superkraft",
    "dokument_id": "yt:UUlPoJOhco8",
-   "sekunde": 437,
-   "zeit": "07:17",
-   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=437s",
+   "sekunde": 433,
+   "zeit": "07:13",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=433s",
    "aussage": "Power BI kann über DAX-INFO-Funktionen bereits viele Metadaten direkt aus dem Modell auslesen."
   },
   {
@@ -510,9 +510,9 @@
    "typ": "Fakt",
    "dokument": "Was ist Self-Service und warum ist das so schwer?",
    "dokument_id": "yt:EVsJ6zyGUWc",
-   "sekunde": 1042,
-   "zeit": "17:22",
-   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1042s",
+   "sekunde": 1076,
+   "zeit": "17:56",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=1076s",
    "aussage": "Tom Martens investiert bewusst begrenzte Lernzeit in DAX, Power Query, Python und Fabric-Notebooks, weil ihm das langfristig mehr Zeit und bessere Analysen ermöglicht."
   }
  ],

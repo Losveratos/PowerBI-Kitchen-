@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "sql",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sql.html",
@@ -79,19 +79,10 @@
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.75",
    "dokument_id": "yt:BQdSo6ZnmKY",
-   "sekunde": 3079,
-   "zeit": "51:19",
-   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3079s",
+   "sekunde": 3025,
+   "zeit": "50:25",
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3025s",
    "aussage": "Intelligence Sheets von Lumel sind in Fabric aktuell auf SQL-Datenbank-Verbindungen beschränkt."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "Fabric Planning unboxing",
-   "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 562,
-   "zeit": "09:22",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=562s",
-   "aussage": "Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt."
   },
   {
    "typ": "Warnung",
@@ -103,12 +94,21 @@
    "aussage": "Eine einzelne SQL-Datenbank kann bereits eine F2-Kapazität stark auslasten, wie ein interner Vorfall zeigte."
   },
   {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 586,
+   "zeit": "09:46",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=586s",
+   "aussage": "Beim Anlegen eines Planning-Objekts wird automatisch eine Fabric SQL-Datenbank erstellt."
+  },
+  {
    "typ": "Empfehlung",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 1035,
-   "zeit": "17:15",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1035s",
+   "sekunde": 1042,
+   "zeit": "17:22",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1042s",
    "aussage": "Für Rückschreibungen mit Power Table wird empfohlen, eine eigene Datenbank anzulegen statt die automatisch erstellte Metadaten-Datenbank zu verwenden."
   },
   {
@@ -124,27 +124,27 @@
    "typ": "Warnung",
    "dokument": "Fabric Planning unboxing",
    "dokument_id": "yt:xCzKEIB4W5I",
-   "sekunde": 3019,
-   "zeit": "50:19",
-   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3019s",
+   "sekunde": 3060,
+   "zeit": "51:00",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3060s",
    "aussage": "Das Zurückschreiben ist derzeit auf SQL-Datenbanken beschränkt, während Inforiver zusätzlich nach Snowflake oder SAP schreiben konnte."
   },
   {
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk n.73",
    "dokument_id": "yt:pOJpXxsfUt0",
-   "sekunde": 3334,
-   "zeit": "55:34",
-   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3334s",
+   "sekunde": 3298,
+   "zeit": "54:58",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3298s",
    "aussage": "Als Workaround definiert der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden."
   },
   {
    "typ": "Fakt",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 160,
-   "zeit": "02:40",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s",
+   "sekunde": 219,
+   "zeit": "03:39",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=219s",
    "aussage": "Die Replikation der Tabelle selbst erzeugt keine zusätzlichen Fabric-Kapazitätskosten, erst der Datenzugriff über SQL, Power BI oder Spark wird nach den regulären Tarifen berechnet."
   },
   {
@@ -160,36 +160,36 @@
    "typ": "Fakt",
    "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
    "dokument_id": "yt:5HhNQZlB-1E",
-   "sekunde": 41,
-   "zeit": "00:41",
-   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=41s",
+   "sekunde": 48,
+   "zeit": "00:48",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=48s",
    "aussage": "Die SQL-Schnittstellen in Fabric sind auf Massendaten ausgelegt und nicht dafür gedacht, einzelne Datensätze zu schreiben."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.67",
    "dokument_id": "yt:G8s96sHUHac",
-   "sekunde": 1168,
-   "zeit": "19:28",
-   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1168s",
+   "sekunde": 1236,
+   "zeit": "20:36",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1236s",
    "aussage": "Weil eine zu restriktive Firewall-Security den SQL-Zugriff auf Lakehouse-Tabellen blockierte, baute der Kunde stattdessen ein semantisches Direct-Lake-Modell direkt im Web auf."
   },
   {
    "typ": "Empfehlung",
    "dokument": "BI Thinkers Talk Nr.62",
    "dokument_id": "yt:Wwvhv8WA2Qc",
-   "sekunde": 778,
-   "zeit": "12:58",
-   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=778s",
+   "sekunde": 995,
+   "zeit": "16:35",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=995s",
    "aussage": "Für das Zurückschreiben aus Power BI wird eine SQL-Datenbank in Fabric statt eines Lakehouse verwendet."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk Nr.62",
    "dokument_id": "yt:Wwvhv8WA2Qc",
-   "sekunde": 1239,
-   "zeit": "20:39",
-   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1239s",
+   "sekunde": 1007,
+   "zeit": "16:47",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=1007s",
    "aussage": "Die Writeback-Funktion wird als User Defined Function in der Fabric-SQL-Datenbank mit einer SQL-Update-Query umgesetzt."
   },
   {

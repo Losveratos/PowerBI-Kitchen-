@@ -3,7 +3,7 @@ id: "tool:sap"
 name: "SAP"
 typ: tool
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 31
 kernaussagen: 3
@@ -48,11 +48,13 @@ SAP BW, SAC, SAP Analytics Cloud
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Warnung | Fabric Planning unboxing | 50:19 | Das Zurückschreiben ist derzeit auf SQL-Datenbanken beschränkt, während Inforiver zusätzlich nach Snowflake oder SAP schreiben konnte. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3019s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-1 | 25:03 | SAP-Mirroring befindet sich inzwischen in der Preview-Phase und funktioniert wie das bestehende Azure-Data-Lake-Mirroring. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s) |
-| Fakt | Fabric & Power BI Quarterly · 2026-2 | 26:53 | Die SAP-Anbindung an Microsoft Fabric ist allgemein verfügbar (GA) geworden, und auch Airflow sowie DBT sind jetzt als eigene Items in Fabric verfügbar. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1613s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Warnung | Fabric Planning unboxing | 2026-03 | 51:00 | auf die Sekunde | Das Zurückschreiben ist derzeit auf SQL-Datenbanken beschränkt, während Inforiver zusätzlich nach Snowflake oder SAP schreiben konnte. | [▶](https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3060s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-1 | 2026-01 | 25:19 | auf die Sekunde | SAP-Mirroring befindet sich inzwischen in der Preview-Phase und funktioniert wie das bestehende Azure-Data-Lake-Mirroring. | [▶](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1519s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-2 |  | 25:20 | auf die Sekunde | Die SAP-Anbindung an Microsoft Fabric ist allgemein verfügbar (GA) geworden, und auch Airflow sowie DBT sind jetzt als eigene Items in Fabric verfügbar. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1520s) |
 
 ## Dokumente
 

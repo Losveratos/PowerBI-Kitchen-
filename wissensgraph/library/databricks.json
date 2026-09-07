@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "databricks",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/databricks.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/databricks.html",
@@ -40,9 +40,9 @@
    "typ": "Fakt",
    "dokument": "Denken in Tabellen",
    "dokument_id": "yt:hbUYMyqb6r8",
-   "sekunde": 27,
-   "zeit": "00:27",
-   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=27s",
+   "sekunde": 30,
+   "zeit": "00:30",
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=30s",
    "aussage": "Eine aus Databricks stammende Flat Table führte in Power BI zu Problemen mit einer unsauberen Zeitachse und zu wenig flexiblen Darstellungen, die zunächst mit Field Parameters adressiert wurden."
   },
   {
@@ -58,9 +58,9 @@
    "typ": "Empfehlung",
    "dokument": "Fabric & Power BI Quarterly · 2026-1",
    "dokument_id": "yt:TYp5xCAU2AU",
-   "sekunde": 1503,
-   "zeit": "25:03",
-   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s",
+   "sekunde": 1532,
+   "zeit": "25:32",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1532s",
    "aussage": "Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen."
   },
   {
@@ -76,9 +76,9 @@
    "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-2",
    "dokument_id": "yt:pTTYySb0Cyg",
-   "sekunde": 1613,
-   "zeit": "26:53",
-   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1613s",
+   "sekunde": 1499,
+   "zeit": "24:59",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1499s",
    "aussage": "Fabric bietet jetzt bidirektionale Shortcut-Integrationen mit Snowflake und Databricks."
   }
  ],

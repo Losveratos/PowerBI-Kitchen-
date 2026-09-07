@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "mirroring",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/mirroring.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/mirroring.html",
@@ -18,7 +18,7 @@
   "Spiegelung",
   "gespiegelt"
  ],
- "einordnung": "Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen. Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert. Bei Open Mirroring fügt die Datenquelle jedem Datensatz einen Row Marker bei, über den Fabric erkennt, ob ein Insert, Update oder Delete durchzuführen ist.",
+ "einordnung": "Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen. Auch eigene Datenquellen wie Excel-Dateien lassen sich per Open Mirroring nach Fabric spiegeln. Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert.",
  "nachbarn": [
   {
    "id": "tool:directquery",
@@ -161,108 +161,108 @@
    "typ": "Fakt",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 2,
-   "zeit": "00:02",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=2s",
+   "sekunde": 5,
+   "zeit": "00:05",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=5s",
    "aussage": "Fabric bietet verschiedene Mirrored Items, mit denen sich bereits vorhandene Datenbanken in Fabric spiegeln lassen."
   },
   {
    "typ": "Meinung",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 19,
-   "zeit": "00:19",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=19s",
+   "sekunde": 7,
+   "zeit": "00:07",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=7s",
    "aussage": "Der Sprecher findet Open Mirroring interessanter als klassisches Mirroring, weil es unabhängig von vorgegebenen Datenquellen funktioniert."
   },
   {
    "typ": "Fakt",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 19,
-   "zeit": "00:19",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=19s",
-   "aussage": "Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
-   "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 51,
-   "zeit": "00:51",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=51s",
-   "aussage": "Bei Open Mirroring fügt die Datenquelle jedem Datensatz einen Row Marker bei, über den Fabric erkennt, ob ein Insert, Update oder Delete durchzuführen ist."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
-   "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 51,
-   "zeit": "00:51",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=51s",
-   "aussage": "Open Mirroring benötigt keinen eigenen ETL-Lauf, solange die Quelle liefern kann, was sich in ihr geändert hat."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
-   "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 114,
-   "zeit": "01:54",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=114s",
-   "aussage": "Beim Open-Mirroring-Datenfluss wird der Datensatz mit Row-Marker-Event zunächst nach OneLake geschrieben, von wo Fabric eine identische Replik-Tabelle aufbaut."
-  },
-  {
-   "typ": "Fakt",
-   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
-   "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 142,
-   "zeit": "02:22",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=142s",
+   "sekunde": 7,
+   "zeit": "00:07",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=7s",
    "aussage": "Auch eigene Datenquellen wie Excel-Dateien lassen sich per Open Mirroring nach Fabric spiegeln."
   },
   {
    "typ": "Fakt",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 160,
-   "zeit": "02:40",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s",
+   "sekunde": 27,
+   "zeit": "00:27",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=27s",
+   "aussage": "Open Mirroring ermöglicht es, Tabellen in Fabric unabhängig von der Datenquelle darzustellen, solange der Datenprovider die Datensätze in die Quelle einliefert."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 67,
+   "zeit": "01:07",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=67s",
+   "aussage": "Open Mirroring benötigt keinen eigenen ETL-Lauf, solange die Quelle liefern kann, was sich in ihr geändert hat."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 94,
+   "zeit": "01:34",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=94s",
+   "aussage": "Bei Open Mirroring fügt die Datenquelle jedem Datensatz einen Row Marker bei, über den Fabric erkennt, ob ein Insert, Update oder Delete durchzuführen ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 118,
+   "zeit": "01:58",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=118s",
+   "aussage": "Beim Open-Mirroring-Datenfluss wird der Datensatz mit Row-Marker-Event zunächst nach OneLake geschrieben, von wo Fabric eine identische Replik-Tabelle aufbaut."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
+   "dokument_id": "yt:7j34Ndng0Os",
+   "sekunde": 167,
+   "zeit": "02:47",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=167s",
    "aussage": "Für eine F64-Kapazität stellt Microsoft im Rahmen von Open Mirroring 64 TB Speicherplatz kostenlos zur Verfügung."
   },
   {
    "typ": "Fakt",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 160,
-   "zeit": "02:40",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=160s",
+   "sekunde": 185,
+   "zeit": "03:05",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=185s",
    "aussage": "Der kostenlose Speicherplatz bei Open Mirroring soll die doppelte Datenhaltung aus Quelle und Replikat in Fabric kompensieren."
   },
   {
    "typ": "Fakt",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 241,
-   "zeit": "04:01",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=241s",
+   "sekunde": 239,
+   "zeit": "03:59",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=239s",
    "aussage": "Kollege Stefan hat als Prototyp ein Open-Mirroring-Beispiel mit einer lokalen PostgreSQL-Datenbank gebaut, die nach Fabric repliziert wird."
   },
   {
    "typ": "Fakt",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 241,
-   "zeit": "04:01",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=241s",
+   "sekunde": 292,
+   "zeit": "04:52",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=292s",
    "aussage": "Im gezeigten Sync-Tool ist von drei konfigurierten Tabellen nur eine aktiviert, und die Abfrage arbeitet ID-basiert statt per Timestamp."
   },
   {
    "typ": "Fakt",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 320,
-   "zeit": "05:20",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=320s",
+   "sekunde": 340,
+   "zeit": "05:40",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=340s",
    "aussage": "Über die Kommandozeile lassen sich in Fabric Workspaces auflisten, auswählen und darin per New Item eine Mirror Database anlegen."
   },
   {
@@ -287,9 +287,9 @@
    "typ": "Empfehlung",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 405,
-   "zeit": "06:45",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=405s",
+   "sekunde": 407,
+   "zeit": "06:47",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=407s",
    "aussage": "Man sollte für den Sync eher größere Batches von rund 1000 bis 2000 Zeilen pro Datei verwenden statt der in der Demo genutzten 13 Zeilen."
   },
   {
@@ -305,64 +305,64 @@
    "typ": "Meinung",
    "dokument": "Open Mirroring in Microsoft Fabric – Daten replizieren ohne ETL | Fabric Tutorial",
    "dokument_id": "yt:7j34Ndng0Os",
-   "sekunde": 519,
-   "zeit": "08:39",
-   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=519s",
+   "sekunde": 558,
+   "zeit": "09:18",
+   "url": "https://www.youtube.com/watch?v=7j34Ndng0Os&t=558s",
    "aussage": "Der Sprecher bewertet die gezeigte Open-Mirroring-Demo als eindrucksvoll und fragt die Zuschauer, ob das Thema für sie hilfreich wäre."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-1",
    "dokument_id": "yt:TYp5xCAU2AU",
-   "sekunde": 1250,
-   "zeit": "20:50",
-   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1250s",
+   "sekunde": 1310,
+   "zeit": "21:50",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1310s",
    "aussage": "Row-Level Security und Column-Level Security funktionieren inzwischen auch für gespiegelte (mirrored) Objekte."
   },
   {
    "typ": "Fakt",
    "dokument": "Fabric & Power BI Quarterly · 2026-1",
    "dokument_id": "yt:TYp5xCAU2AU",
-   "sekunde": 1503,
-   "zeit": "25:03",
-   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s",
+   "sekunde": 1519,
+   "zeit": "25:19",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1519s",
    "aussage": "SAP-Mirroring befindet sich inzwischen in der Preview-Phase und funktioniert wie das bestehende Azure-Data-Lake-Mirroring."
   },
   {
    "typ": "Empfehlung",
    "dokument": "Fabric & Power BI Quarterly · 2026-1",
    "dokument_id": "yt:TYp5xCAU2AU",
-   "sekunde": 1503,
-   "zeit": "25:03",
-   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s",
+   "sekunde": 1532,
+   "zeit": "25:32",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1532s",
    "aussage": "Gespiegelte Daten in Fabric zu nutzen ist günstiger, als DirectQuery direkt gegen große Lake-Systeme wie Snowflake oder Databricks zu fahren, weil dort pro Abfrage Rechenkosten anfallen."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk n.72",
    "dokument_id": "yt:luk4S4ukKmg",
-   "sekunde": 3030,
-   "zeit": "50:30",
-   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3030s",
+   "sekunde": 3063,
+   "zeit": "51:03",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3063s",
    "aussage": "SharePoint-Listen lassen sich derzeit nicht direkt aus einem Notebook heraus anbinden, weshalb stattdessen Mirroring oder ein Umweg über Power Automate nötig ist."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 783,
-   "zeit": "13:03",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=783s",
-   "aussage": "Beim Fabric Mirroring sind die Speicherkosten für gespiegelte Daten je nach Kapazität im Terabyte-Bereich bereits enthalten, sodass zusätzlich nur noch das Auslesen der Daten aus der Mirror-Datenbank bezahlt wird."
+   "sekunde": 787,
+   "zeit": "13:07",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=787s",
+   "aussage": "Für Fabric Mirroring existiert bereits ein Prototyp, mit dem Daten aus einer lokalen PostgreSQL-Datenbank in eine Mirror-Datenbank übertragen werden können."
   },
   {
    "typ": "Fakt",
    "dokument": "BI Thinkers Talk nr.71",
    "dokument_id": "yt:LUrL8A5lNgI",
-   "sekunde": 783,
-   "zeit": "13:03",
-   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=783s",
-   "aussage": "Für Fabric Mirroring existiert bereits ein Prototyp, mit dem Daten aus einer lokalen PostgreSQL-Datenbank in eine Mirror-Datenbank übertragen werden können."
+   "sekunde": 795,
+   "zeit": "13:15",
+   "url": "https://www.youtube.com/watch?v=LUrL8A5lNgI&t=795s",
+   "aussage": "Beim Fabric Mirroring sind die Speicherkosten für gespiegelte Daten je nach Kapazität im Terabyte-Bereich bereits enthalten, sodass zusätzlich nur noch das Auslesen der Daten aus der Mirror-Datenbank bezahlt wird."
   },
   {
    "typ": "Fakt",

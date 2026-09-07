@@ -3,7 +3,7 @@ id: "topic:karriere"
 name: "Karriere"
 typ: thema
 stand: "2026-09-07"
-build: "20260907-1056"
+build: "20260907-1922"
 zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
 dokumente: 8
 kernaussagen: 4
@@ -37,12 +37,14 @@ Bewerbung, Berufseinstieg, Quereinstieg, Career, Job, Jobs
 
 ## Kernaussagen
 
-| Typ | Dokument | Zeit | Aussage | Beleg |
-| --- | --- | --- | --- | --- |
-| Warnung | GxP Talk - Testing im GxP-Umfeld | 48:33 | Ein häufiger Wechsel von Führungskräften im Pharmaumfeld kann mehrjährige Digitalisierungs- und Testautomatisierungsinitiativen gefährden, wenn die Strategie nicht organisationsweit verankert ist. | [▶](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=2913s) |
-| Fakt | Power BI vs. Qlik | 00:00 | Oliver Franz ist Wirtschaftswissenschaftler und arbeitet seit Langem im BI-Umfeld mit Qlik. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=0s) |
-| Meinung | Metadaten als Superkraft | 15:47 | Aus Metadaten zu Datenmodellen lässt sich ableiten, wie gut ein Team mit Daten umgeht und wo Schulungsbedarf besteht. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=947s) |
-| Meinung | Was ist Self-Service und warum ist das so schwer? | 44:52 | Die klassische Trennung zwischen Fachbereich und IT verliert laut Tom Martens zunehmend an Gültigkeit, weil Kompetenzen aus beiden Welten zusammenwachsen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2692s) |
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Warnung | GxP Talk - Testing im GxP-Umfeld | 2026-04 | 48:33 | Abschnittsanfang | Ein häufiger Wechsel von Führungskräften im Pharmaumfeld kann mehrjährige Digitalisierungs- und Testautomatisierungsinitiativen gefährden, wenn die Strategie nicht organisationsweit verankert ist. | [▶](https://www.youtube.com/watch?v=B0_sSJQVG8w&t=2913s) |
+| Fakt | Power BI vs. Qlik | 2026-01 | 00:00 | Abschnittsanfang | Oliver Franz ist Wirtschaftswissenschaftler und arbeitet seit Langem im BI-Umfeld mit Qlik. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=0s) |
+| Meinung | Metadaten als Superkraft |  | 15:54 | auf die Sekunde | Aus Metadaten zu Datenmodellen lässt sich ableiten, wie gut ein Team mit Daten umgeht und wo Schulungsbedarf besteht. | [▶](https://www.youtube.com/watch?v=UUlPoJOhco8&t=954s) |
+| Meinung | Was ist Self-Service und warum ist das so schwer? |  | 44:52 | Abschnittsanfang | Die klassische Trennung zwischen Fachbereich und IT verliert laut Tom Martens zunehmend an Gültigkeit, weil Kompetenzen aus beiden Welten zusammenwachsen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2692s) |
 
 ## Dokumente
 

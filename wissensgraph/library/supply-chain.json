@@ -4,7 +4,7 @@
  "typ": "thema",
  "slug": "supply-chain",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/supply-chain.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/supply-chain.html",
@@ -62,36 +62,45 @@
    "typ": "Fakt",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 2,
-   "zeit": "00:02",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2s",
+   "sekunde": 55,
+   "zeit": "00:55",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=55s",
    "aussage": "Seit der Corona-Pandemie folgt in der Lieferkette einer Krise fast nahtlos die nächste."
   },
   {
    "typ": "Meinung",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 2,
-   "zeit": "00:02",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2s",
+   "sekunde": 94,
+   "zeit": "01:34",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=94s",
    "aussage": "Im Risikomanagement können mittelständische Unternehmen nicht wie Großkonzerne behandelt werden, weil sie andere Probleme haben."
   },
   {
    "typ": "Meinung",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 384,
-   "zeit": "06:24",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=384s",
+   "sekunde": 403,
+   "zeit": "06:43",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=403s",
    "aussage": "Risikomanagement bedeutet einen planvollen Umgang mit Risiken, nicht deren vollständige Vermeidung."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "dokument_id": "yt:DFw664hd1IE",
+   "sekunde": 412,
+   "zeit": "06:52",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=412s",
+   "aussage": "Frühwarnsysteme verschaffen Unternehmen die nötige Zeit, um auf aufkommende Risiken zu reagieren."
   },
   {
    "typ": "Fakt",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 478,
-   "zeit": "07:58",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=478s",
+   "sekunde": 499,
+   "zeit": "08:19",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=499s",
    "aussage": "Naturkatastrophen, politische Entscheidungen und Cyberattacken zählen zu den zunehmenden Risiken für die Beschaffung."
   },
   {
@@ -104,39 +113,30 @@
    "aussage": "Unternehmen sollten sich nicht allein auf Just-in-Time verlassen, sondern zusätzliche Absicherungsmaßnahmen treffen, wie das Beispiel der Bandstillstände nach den Huthi-Angriffen im Roten Meer zeigt."
   },
   {
-   "typ": "Empfehlung",
-   "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
-   "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 664,
-   "zeit": "11:04",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=664s",
-   "aussage": "Frühwarnsysteme verschaffen Unternehmen die nötige Zeit, um auf aufkommende Risiken zu reagieren."
-  },
-  {
    "typ": "Warnung",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 759,
-   "zeit": "12:39",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=759s",
+   "sekunde": 825,
+   "zeit": "13:45",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=825s",
    "aussage": "Die für das Risikomanagement wichtigsten Daten liegen in vielen Unternehmen verteilt in Silos aus ERP-System, Excel-Listen und Papierakten vor."
   },
   {
    "typ": "Fakt",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 1062,
-   "zeit": "17:42",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1062s",
+   "sekunde": 1100,
+   "zeit": "18:20",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1100s",
    "aussage": "Ein konsolidiertes Reporting zeigt Bestellbedarf, auslaufende Lieferantenverträge und Krisenrisiko im zeitlichen Verlauf."
   },
   {
    "typ": "Fakt",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 1154,
-   "zeit": "19:14",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1154s",
+   "sekunde": 1182,
+   "zeit": "19:42",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1182s",
    "aussage": "Bei einer erkannten Materialunterdeckung generiert das System automatisch einen Bestellvorschlag samt Lieferantenliste mit individuellem Krisenrisiko-Score."
   },
   {
@@ -152,45 +152,45 @@
    "typ": "Meinung",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 1929,
-   "zeit": "32:09",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1929s",
+   "sekunde": 1941,
+   "zeit": "32:21",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1941s",
    "aussage": "Nicht die Länge, sondern die Varianz der Durchlaufzeit zwischen Prozessschritten verursacht die größten Probleme in der Supply Chain."
   },
   {
    "typ": "Empfehlung",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 2310,
-   "zeit": "38:30",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2310s",
+   "sekunde": 2395,
+   "zeit": "39:55",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2395s",
    "aussage": "Bei KI-gestützten Bestellvorschlägen empfiehlt sich zunächst ein Man-in-the-Middle-Ansatz, bei dem Einkäufer die Vorschläge kontrollieren, bevor sie mehr Vertrauen fassen."
   },
   {
    "typ": "Empfehlung",
    "dokument": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
    "dokument_id": "yt:DFw664hd1IE",
-   "sekunde": 2808,
-   "zeit": "46:48",
-   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2808s",
+   "sekunde": 2843,
+   "zeit": "47:23",
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=2843s",
    "aussage": "Für die Produkte, die 80 Prozent des Umsatzes ausmachen, sollten Unternehmen gezielt Dual- oder Second-Source-Strategien entwickeln, um Abhängigkeiten von einzelnen Lieferanten zu reduzieren."
   },
   {
    "typ": "Fakt",
    "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
    "dokument_id": "yt:sq8AWk_yNWM",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s",
+   "sekunde": 62,
+   "zeit": "01:02",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=62s",
    "aussage": "Gutes Forecasting auf Basis historischer Daten ermöglicht es, weniger totes Kapital in Lagern zu binden und die Supply Chain zu optimieren."
   },
   {
    "typ": "Meinung",
    "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
    "dokument_id": "yt:sq8AWk_yNWM",
-   "sekunde": 0,
-   "zeit": "00:00",
-   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=0s",
+   "sekunde": 76,
+   "zeit": "01:16",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=76s",
    "aussage": "Angesichts der Fortschritte der letzten Jahre wird diskutiert, ob der Mensch aus Planungs- und Supply-Chain-Prozessen komplett herausoptimiert und alles vollautomatisiert werden kann."
   },
   {
@@ -200,16 +200,16 @@
    "sekunde": 189,
    "zeit": "03:09",
    "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=189s",
-   "aussage": "Weil sich die Produktion von Salatgurken anders als bei vielen anderen Produkten nicht einfach durch schnellere Produktionslinien steigern lässt, mussten isländische Großhändler zusätzliche Mengen in den Niederlanden einkaufen."
+   "aussage": "Der beschriebene Mechanismus, bei dem ein kleiner Nachfrageimpuls sich entlang der Lieferkette immer weiter aufschaukelt, wird als Bullwhip-Effekt bezeichnet."
   },
   {
    "typ": "Fakt",
    "dokument": "Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite",
    "dokument_id": "yt:sq8AWk_yNWM",
-   "sekunde": 189,
-   "zeit": "03:09",
-   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=189s",
-   "aussage": "Der beschriebene Mechanismus, bei dem ein kleiner Nachfrageimpuls sich entlang der Lieferkette immer weiter aufschaukelt, wird als Bullwhip-Effekt bezeichnet."
+   "sekunde": 195,
+   "zeit": "03:15",
+   "url": "https://www.youtube.com/watch?v=sq8AWk_yNWM&t=195s",
+   "aussage": "Weil sich die Produktion von Salatgurken anders als bei vielen anderen Produkten nicht einfach durch schnellere Produktionslinien steigern lässt, mussten isländische Großhändler zusätzliche Mengen in den Niederlanden einkaufen."
   },
   {
    "typ": "Meinung",

@@ -4,7 +4,7 @@
  "typ": "tool",
  "slug": "microsoft-fabric",
  "stand": "2026-09-07",
- "build": "20260907-1056",
+ "build": "20260907-1922",
  "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
  "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/microsoft-fabric.html",
  "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/microsoft-fabric.html",
@@ -1948,21 +1948,21 @@
    ]
   },
   {
-   "id": "yt:lp8xNX81R2w",
-   "titel": "Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)",
-   "datum": "2026-07-01",
-   "abdeckung": "nur-metadaten",
-   "anteil": 0.0,
-   "url": "https://www.youtube.com/watch?v=lp8xNX81R2w",
-   "sprungmarken": []
-  },
-  {
    "id": "yt:_AxvdCW0ST4",
    "titel": "Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen",
    "datum": "2026-07-01",
    "abdeckung": "nur-metadaten",
    "anteil": 0.0,
    "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4",
+   "sprungmarken": []
+  },
+  {
+   "id": "yt:lp8xNX81R2w",
+   "titel": "Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-metadaten",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=lp8xNX81R2w",
    "sprungmarken": []
   },
   {
